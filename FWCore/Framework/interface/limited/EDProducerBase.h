@@ -74,13 +74,14 @@ namespace edm {
       virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
       virtual bool wantsStreamRuns() const noexcept = 0;
       virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
+      constexpr static bool wantsWrites() noexcept { return false; }
 
       unsigned int concurrencyLimit() const { return queue_.concurrencyLimit(); }
 
       LimitedTaskQueue& queue() { return queue_; }
 
     private:
-      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
       void doTransformAsync(WaitingTaskHolder iTask,
                             size_t iTransformIndex,
                             EventPrincipal const& iEvent,

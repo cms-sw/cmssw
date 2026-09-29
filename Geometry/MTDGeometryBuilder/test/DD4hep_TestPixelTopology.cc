@@ -260,11 +260,18 @@ void DD4hep_TestPixelTopology::analyze(const edm::Event& iEvent, const edm::Even
         DetId theId, geoId;
         BTLDetId theIdBTL, modIdBTL;
         ETLDetId theIdETL, modIdETL;
+        uint32_t rawGeoId;
         if (isBarrel) {
           theIdBTL = btlNS_.getUnitID(thisN_);
           theId = theIdBTL;
           geoId = theIdBTL.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(pTP.product()->getMTDTopologyMode()));
           modIdBTL = geoId;
+          rawGeoId = BTLDetId::rawGeoId(theId.rawId(),
+                                        MTDTopologyMode::crysLayoutFromTopoMode(pTP.product()->getMTDTopologyMode()));
+          if (geoId.rawId() != rawGeoId) {
+            edm::LogVerbatim("DD4hep_TestPixelTopology")
+                << "DIFFERENCE geoId/rawGeoId " << geoId.rawId() << " " << rawGeoId;
+          }
         } else {
           theIdETL = etlNS_.getUnitID(thisN_);
           theId = theIdETL;

@@ -27,18 +27,18 @@ namespace cms {
       std::ostringstream out;
       out << "\n";
       out << file << ", line " << line << ":\n";
-      out << "cudaCheck(" << cmd << ");\n";
+      out << "CUDA_CHECK(" << cmd << ");\n";
       out << error << ": " << message << "\n";
       if (!description.empty())
         out << description << "\n";
       throw std::runtime_error(out.str());
     }
 
-    inline bool cudaCheck_(const char* file,
-                           int line,
-                           const char* cmd,
-                           CUresult result,
-                           std::string_view description = std::string_view()) {
+    inline bool cudaCheck(const char* file,
+                          int line,
+                          const char* cmd,
+                          CUresult result,
+                          std::string_view description = std::string_view()) {
       if (LIKELY(result == CUDA_SUCCESS))
         return true;
 
@@ -50,11 +50,11 @@ namespace cms {
       return false;
     }
 
-    inline bool cudaCheck_(const char* file,
-                           int line,
-                           const char* cmd,
-                           cudaError_t result,
-                           std::string_view description = std::string_view()) {
+    inline bool cudaCheck(const char* file,
+                          int line,
+                          const char* cmd,
+                          cudaError_t result,
+                          std::string_view description = std::string_view()) {
       if (LIKELY(result == cudaSuccess))
         return true;
 
@@ -66,6 +66,6 @@ namespace cms {
   }  // namespace cuda
 }  // namespace cms
 
-#define cudaCheck(ARG, ...) (cms::cuda::cudaCheck_(__FILE__, __LINE__, #ARG, (ARG), ##__VA_ARGS__))
+#define CUDA_CHECK(ARG, ...) (cms::cuda::cudaCheck(__FILE__, __LINE__, #ARG, (ARG), ##__VA_ARGS__))
 
 #endif  // HeterogeneousCore_CUDAUtilities_cudaCheck_h

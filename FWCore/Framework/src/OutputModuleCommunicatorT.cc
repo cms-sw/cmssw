@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/global/OutputModuleBase.h"
 #include "FWCore/Framework/interface/one/OutputModuleBase.h"
 #include "FWCore/Framework/interface/limited/OutputModuleBase.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace {
@@ -88,87 +89,12 @@ namespace edm {
         ParentContext parentContext(&globalContext);
         ModuleCallingContext mcc(desc);
         ModuleContextSentry moduleContextSentry(&mcc, parentContext);
+        auto sentry = signalslot::make_sentry([activityRegistry, &globalContext, &mcc]() {
+          activityRegistry->postModuleWriteProcessBlockSignal_.emit(globalContext, mcc);
+        });
         activityRegistry->preModuleWriteProcessBlockSignal_.emit(globalContext, mcc);
-        auto sentry(make_sentry(activityRegistry, [&globalContext, &mcc](ActivityRegistry* ar) {
-          ar->postModuleWriteProcessBlockSignal_.emit(globalContext, mcc);
-        }));
         mod.doWriteProcessBlock(processBlockPrincipal, &mcc);
-      } catch (...) {
-        ex = std::current_exception();
-      }
-      iTask.doneWaiting(ex);
-    };
-    async(module(), *iTask.group(), std::move(t));
-  }
-
-  template <typename T>
-  void OutputModuleCommunicatorT<T>::writeRunAsync(
-      WaitingTaskHolder iTask,
-      edm::RunPrincipal const& rp,
-      ProcessContext const* processContext,
-      ActivityRegistry* activityRegistry,
-      MergeableRunProductMetadata const* mergeableRunProductMetadata) noexcept {
-    auto token = ServiceRegistry::instance().presentToken();
-    GlobalContext globalContext(GlobalContext::Transition::kWriteRun,
-                                LuminosityBlockID(rp.run(), 0),
-                                rp.index(),
-                                LuminosityBlockIndex::invalidLuminosityBlockIndex(),
-                                rp.endTime(),
-                                processContext);
-    auto t = [&mod = module(),
-              &rp,
-              globalContext,
-              token,
-              desc = &description(),
-              activityRegistry,
-              mergeableRunProductMetadata,
-              iTask]() mutable {
-      std::exception_ptr ex;
-      // Caught exception is propagated via WaitingTaskHolder
-      CMS_SA_ALLOW try {
-        ServiceRegistry::Operate op(token);
-        ParentContext parentContext(&globalContext);
-        ModuleCallingContext mcc(desc);
-        ModuleContextSentry moduleContextSentry(&mcc, parentContext);
-        activityRegistry->preModuleWriteRunSignal_.emit(globalContext, mcc);
-        auto sentry(make_sentry(activityRegistry, [&globalContext, &mcc](ActivityRegistry* ar) {
-          ar->postModuleWriteRunSignal_.emit(globalContext, mcc);
-        }));
-        mod.doWriteRun(rp, &mcc, mergeableRunProductMetadata);
-      } catch (...) {
-        ex = std::current_exception();
-      }
-      iTask.doneWaiting(ex);
-    };
-    async(module(), *iTask.group(), std::move(t));
-  }
-
-  template <typename T>
-  void OutputModuleCommunicatorT<T>::writeLumiAsync(WaitingTaskHolder iTask,
-                                                    edm::LuminosityBlockPrincipal const& lbp,
-                                                    ProcessContext const* processContext,
-                                                    ActivityRegistry* activityRegistry) noexcept {
-    auto token = ServiceRegistry::instance().presentToken();
-    GlobalContext globalContext(GlobalContext::Transition::kWriteLuminosityBlock,
-                                lbp.id(),
-                                lbp.runPrincipal().index(),
-                                lbp.index(),
-                                lbp.beginTime(),
-                                processContext);
-    auto t = [&mod = module(), &lbp, activityRegistry, token, globalContext, desc = &description(), iTask]() mutable {
-      std::exception_ptr ex;
-      // Caught exception is propagated via WaitingTaskHolder
-      CMS_SA_ALLOW try {
-        ServiceRegistry::Operate op(token);
-
-        ParentContext parentContext(&globalContext);
-        ModuleCallingContext mcc(desc);
-        ModuleContextSentry moduleContextSentry(&mcc, parentContext);
-        activityRegistry->preModuleWriteLumiSignal_.emit(globalContext, mcc);
-        auto sentry(make_sentry(activityRegistry, [&globalContext, &mcc](ActivityRegistry* ar) {
-          ar->postModuleWriteLumiSignal_.emit(globalContext, mcc);
-        }));
-        mod.doWriteLuminosityBlock(lbp, &mcc);
+        sentry.succeeded();
       } catch (...) {
         ex = std::current_exception();
       }

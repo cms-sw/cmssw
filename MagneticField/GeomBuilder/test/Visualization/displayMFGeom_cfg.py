@@ -10,10 +10,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DISPLAY")
 
+# Note: must use DDD-based map builders, as using the DD4hep ones clashes with TGeoMgrFromDdd (see below).
 process.load("MagneticField.Engine.volumeBasedMagneticField_160812_cfi")
 
-MFGeom=True;
-
+# The geometry to be displayed, built as a detector geometry, to be parsed by TGeoMgrFromDdd
 process.XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
       geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/normal/cmsextent.xml', 
         'Geometry/CMSCommonData/data/cms.xml', 
@@ -26,8 +26,7 @@ process.XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_2.xml',
 
         'Geometry/CMSCommonData/data/materials.xml'),
- #     rootNodeName = cms.string('cmsMagneticField:MAGF')
-      rootNodeName = cms.string('cms:World')
+      rootNodeName = cms.string('cms:World') # attach to IdealGeometryRecord (detector geom) instead of IdealMagneticFieldRecord (MF geom)
 ) 
 
 

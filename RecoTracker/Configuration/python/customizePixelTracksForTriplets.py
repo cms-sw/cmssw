@@ -28,6 +28,7 @@ def customizePixelTracksForTriplets(process):
                0, 5, 0, 8, 
                4, 6, 7, 9 ]
 
+            nLayers = 10
             nPairs = int(len(producer.geometry.pairGraph) / 2)
             producer.geometry.startingPairs = [i for i in range(8)] + [13, 14, 15, 16, 17, 18]
 
@@ -52,6 +53,11 @@ def customizePixelTracksForTriplets(process):
             producer.geometry.minOuter = [-10000] * nPairs
             producer.geometry.maxOuter = [10000] * nPairs
             producer.geometry.ptCuts = [0.5] * nPairs
+            producer.geometry.skipsLayers = [False] * nPairs
+            producer.geometry.startMaxInnerR = [10000] * nLayers
+            producer.geometry.maxDCurv = [10000] * nLayers
+            producer.geometry.floorDCurv = [10000] * nLayers
+            producer.geometry.fishboneCuts = [0.99999] * nLayers
                    
          elif name == 'CAHitNtupletAlpakaPhase2@alpaka':
 

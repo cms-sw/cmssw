@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <memory>
 
@@ -15,23 +15,17 @@ class RPCStripNoisesRcd;
     @brief Pure virtual class for EventSetup sources of RPCStripNoises.
     @author R. Trentadue
 */
-class RPCPerformanceESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class RPCPerformanceESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  RPCPerformanceESSource(const edm::ParameterSet &);
+  explicit RPCPerformanceESSource(const edm::ParameterSet &);
   ~RPCPerformanceESSource() override { ; }
 
   std::unique_ptr<RPCStripNoises> produce(const RPCStripNoisesRcd &);
 
-  // protected:
-
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                      const edm::IOVSyncValue &,
-                      edm::ValidityInterval &) override;
-
   // private:
 
-  RPCPerformanceESSource(const RPCPerformanceESSource &);
-  const RPCPerformanceESSource &operator=(const RPCPerformanceESSource &);
+  RPCPerformanceESSource(const RPCPerformanceESSource &) = delete;
+  const RPCPerformanceESSource &operator=(const RPCPerformanceESSource &) = delete;
 
   virtual RPCStripNoises *makeNoise() = 0;
 };

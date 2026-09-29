@@ -4,10 +4,11 @@ import FWCore.ParameterSet.Config as cms
 #
 from Validation.EcalHits.ecalSimHitsValidationSequence_cff import *
 from Validation.EcalDigis.ecalDigisValidationSequence_cff import *
+from Validation.EcalTriggerPrimitives.ecalTPsValidationSequence_cff import *
 from Validation.EcalRecHits.ecalRecHitsValidationSequence_cff import *
 from Validation.EcalClusters.ecalClustersValidationSequence_cff import *
 
-ecalSimValid = cms.Sequence(ecalSimHitsValidationSequence+ecalDigisValidationSequence+ecalRecHitsValidationSequence+ecalClustersValidationSequence)
+ecalSimValid = cms.Sequence(ecalSimHitsValidationSequence+ecalDigisValidationSequence+ecalTPsValidationSequence+ecalRecHitsValidationSequence+ecalClustersValidationSequence)
 
 from DQM.EcalMonitorTasks.EcalMonitorTask_cfi import *
 from DQM.EcalMonitorTasks.EcalFEDMonitor_cfi import *
@@ -24,6 +25,7 @@ ecalDQMSequencePhase2 = cms.Sequence(
 validationECALPhase2 = cms.Sequence(
     ecalSimHitsValidationSequencePhase2*
     ecalDigisValidationSequencePhase2*
+    ecalTPsValidationSequencePhase2*
     ecalRecHitsValidationSequencePhase2*
     ecalClustersValidationSequence*
     ecalDQMSequencePhase2

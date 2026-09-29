@@ -31,23 +31,17 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/CastorObjects/interface/AllObjects.h"
 
-class CastorHardcodeCalibrations : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class CastorHardcodeCalibrations : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  CastorHardcodeCalibrations(const edm::ParameterSet&);
+  explicit CastorHardcodeCalibrations(const edm::ParameterSet&);
   ~CastorHardcodeCalibrations() override;
 
-  void produce() {}
-
-protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
-
+private:
   std::unique_ptr<CastorPedestals> producePedestals(const CastorPedestalsRcd& rcd);
   std::unique_ptr<CastorPedestalWidths> producePedestalWidths(const CastorPedestalWidthsRcd& rcd);
   std::unique_ptr<CastorGains> produceGains(const CastorGainsRcd& rcd);
@@ -154,15 +148,6 @@ CastorHardcodeCalibrations::~CastorHardcodeCalibrations() {}
 //
 // member functions
 //
-void CastorHardcodeCalibrations::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& iKey,
-                                                const edm::IOVSyncValue& iTime,
-                                                edm::ValidityInterval& oInterval) {
-  std::string record = iKey.name();
-  edm::LogInfo("HCAL") << "CastorHardcodeCalibrations::setIntervalFor-> key: " << record << " time: " << iTime.eventID()
-                       << '/' << iTime.time().value();
-  oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());  //infinite
-}
-
 std::unique_ptr<CastorPedestals> CastorHardcodeCalibrations::producePedestals(const CastorPedestalsRcd&) {
   edm::LogInfo("HCAL") << "CastorHardcodeCalibrations::producePedestals-> ...";
   auto result = std::make_unique<CastorPedestals>(false);

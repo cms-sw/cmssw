@@ -4,9 +4,11 @@
 // C++ standard library headers
 #include <atomic>
 #include <memory>
+#include <mutex>
+#include <span>
 #include <stdexcept>
 #include <type_traits>
-#include <utility>
+#include <vector>
 
 // MPI headers
 #include <mpi.h>
@@ -15,9 +17,7 @@
 #include <TClass.h>
 
 // CMSSW headers
-#include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
-#include "FWCore/Reflection/interface/ObjectWithDict.h"
 #include "HeterogeneousCore/MPICore/interface/messages.h"
 #include "HeterogeneousCore/MPICore/interface/metadata.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/ReaderBase.h"
@@ -34,18 +34,18 @@ public:
   MPIChannel& operator=(MPIChannel const& other) = delete;
 
   MPIChannel(MPIChannel&& other) : comm_(other.comm_), request_(other.request_), dest_(other.dest_) {
-    ChannelStatus status = kInvalid;
-    other.status_.exchange(status, std::memory_order::acq_rel);
-    status_.store(status, std::memory_order::acq_rel);
+    ChannelStatus state = kInvalid;
+    other.state_.exchange(state, std::memory_order::acq_rel);
+    state_.store(state, std::memory_order::acq_rel);
     other.comm_ = MPI_COMM_NULL;
     other.request_ = MPI_REQUEST_NULL;
     other.dest_ = MPI_UNDEFINED;
   }
 
   MPIChannel& operator=(MPIChannel&& other) {
-    ChannelStatus status = kInvalid;
-    other.status_.exchange(status, std::memory_order::acq_rel);
-    status_.store(status, std::memory_order::acq_rel);
+    ChannelStatus state = kInvalid;
+    other.state_.exchange(state, std::memory_order::acq_rel);
+    state_.store(state, std::memory_order::acq_rel);
     comm_ = other.comm_;
     request_ = other.request_;
     dest_ = other.dest_;
@@ -113,7 +113,10 @@ public:
   }
 
   void sendMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta);
+  MPI_Request sendMetadataAsync(int instance, std::shared_ptr<ProductMetadataBuilder> meta);
+  static void waitMetadata(MPI_Request& request);
   void receiveMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta);
+  void receiveMetadataAsync(int instance, std::shared_ptr<ProductMetadataBuilder> meta);
 
   // send buffer of serialized products
   void sendBuffer(const void* buf, size_t size, int instance, EDM_MPI_MessageTag tag);
@@ -155,11 +158,59 @@ public:
   // receive product buffer of known size
   std::unique_ptr<TBufferFile> receiveSerializedBuffer(int instance, int bufSize);
 
+  // transfer a pre-formed list of memory regions
+  void sendTrivialCopyProduct(int instance, std::vector<std::span<const std::byte>> const& regions);
+
   // transfer a wrapped object using its MemoryCopyTraits
   void sendTrivialCopyProduct(int instance, const ngt::ReaderBase& reader);
 
+  // send from a device reader (any type with regions())
+  template <typename Reader>
+  void sendTrivialCopyProduct(int instance, const Reader& reader) {
+    auto const& regions = reader.regions();
+    sendTrivialCopyProduct(instance, regions);
+  }
+
+  // wait for a batch of MPI requests to complete
+  static void waitAll(std::vector<MPI_Request>& requests);
+
   // receive into wrapped object
   void receiveInitializedTrivialCopy(int instance, ngt::WriterBase& writer);
+
+  // receive into a device writer (any type with regions())
+  template <typename Writer>
+  void receiveInitializedTrivialCopy(int instance, Writer& writer) {
+    int tag = EDM_MPI_SendTrivialCopyProduct | instance * EDM_MPI_MessageTagWidth_;
+    MPI_Status status;
+    auto const& regions = writer.regions();
+    for (size_t i = 0; i < regions.size(); ++i) {
+      assert(regions[i].data() != nullptr);
+      MPI_Recv(regions[i].data(), regions[i].size_bytes(), MPI_BYTE, dest_, tag, comm_, &status);
+    }
+  }
+
+  // non-blocking receive into a wrapped object using its MemoryCopyTraits;
+  // appends one MPI_Request per memory region to the requests vector.
+  // The caller is responsible for keeping the underlying memory regions
+  // (and the writer) alive until the requests complete.
+  void receiveInitializedTrivialCopyAsync(int instance, ngt::WriterBase& writer, std::vector<MPI_Request>& requests);
+
+  // non-blocking receive into a device writer (any type with regions());
+  // appends one MPI_Request per region to the requests vector.
+  template <typename Writer>
+  void receiveInitializedTrivialCopyAsync(int instance, Writer& writer, std::vector<MPI_Request>& requests) {
+    int tag = EDM_MPI_SendTrivialCopyProduct | instance * EDM_MPI_MessageTagWidth_;
+    auto const& regions = writer.regions();
+    size_t base = requests.size();
+    requests.resize(base + regions.size());
+    for (size_t i = 0; i < regions.size(); ++i) {
+      assert(regions[i].data() != nullptr);
+      MPI_Irecv(regions[i].data(), regions[i].size_bytes(), MPI_BYTE, dest_, tag, comm_, &requests[base + i]);
+    }
+  }
+
+  // send/receive information about the MPI modules in the current process
+  void sendModulesInfo(std::vector<char> const& buffer);
 
 private:
   // serialize an EDM object to a simplified representation that can be transmitted as an MPI message
@@ -226,9 +277,13 @@ private:
 
   int slot_ = -1;
 
-  // Note: the status_ flag is accessed atomically because it can be written to and read from by
+  // Note: the state_ flag is accessed atomically because it can be written to and read from by
   // different threads.
-  std::atomic<ChannelStatus> status_ = kInvalid;
+  std::atomic<ChannelStatus> state_ = kInvalid;
+
+  // Mutex to guard state_ transitions and MPI operations modifying request_
+  // in ready() and wait().
+  std::mutex mutex_;
 };
 
 #endif  // HeterogeneousCore_MPICore_interface_MPIChannel_h

@@ -20,9 +20,9 @@ ticl::SeedingRegionByL1::SeedingRegionByL1(const edm::ParameterSet &conf, edm::C
     : SeedingRegionAlgoBase(conf, sumes),
       l1GTCandsToken_(sumes.consumes<l1t::P2GTCandidateCollection>(conf.getParameter<edm::InputTag>("l1GTCandColl"))),
       algoVerbosity_(conf.getParameter<int>("algo_verbosity")),
-      minPt_(conf.getParameter<double>("minPt")),
-      minAbsEta_(conf.getParameter<double>("minAbsEta")),
-      maxAbsEta_(conf.getParameter<double>("maxAbsEta")),
+      minPt_(conf.getParameter<float>("minPt")),
+      minAbsEta_(conf.getParameter<float>("minAbsEta")),
+      maxAbsEta_(conf.getParameter<float>("maxAbsEta")),
       quality_(conf.getParameter<int>("quality")),
       qualityIsMask_(conf.getParameter<bool>("qualityIsMask")),
       applyQuality_(conf.getParameter<bool>("applyQuality")) {}
@@ -68,9 +68,9 @@ void ticl::SeedingRegionByL1::makeRegions(const edm::Event &ev,
 
 void ticl::SeedingRegionByL1::fillPSetDescription(edm::ParameterSetDescription &desc) {
   desc.add<edm::InputTag>("l1GTCandColl", edm::InputTag("L1TkPhotonsHGC", "EG"));
-  desc.add<double>("minPt", 10);
-  desc.add<double>("minAbsEta", 1.479);
-  desc.add<double>("maxAbsEta", 4.0);
+  desc.add<float>("minPt", 10);
+  desc.add<float>("minAbsEta", 1.479);
+  desc.add<float>("maxAbsEta", 4.0);
   desc.add<int>("quality", 5);
   desc.add<bool>("qualityIsMask", false);
   desc.add<bool>("applyQuality", false);

@@ -161,7 +161,7 @@ public:
         }
       });
 
-      iAR.watchPostESModuleRegistration([this](auto const& iDescription) {
+      iAR.watchPostESModuleConstruction([this](auto const& iDescription) {
         auto label = iDescription.label_;
         if (label.empty()) {
           label = iDescription.type_;

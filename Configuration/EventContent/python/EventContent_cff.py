@@ -288,6 +288,7 @@ from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_la
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+from Configuration.ProcessModifiers.phase2_l1scout_cff import phase2_l1scout
 from RecoLocalFastTime.Configuration.RecoLocalFastTime_EventContent_cff import *
 from RecoMTD.Configuration.RecoMTD_EventContent_cff import *
 
@@ -698,6 +699,20 @@ FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_MergedTrackTruth_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_StripDigiSimLink_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')
 
+# MC-truth graph: under enableTruth, persist the compact truth (logical graph +
+# unresolved hit index + raw merged graph). Kept in FEVTDEBUGHLT (the DIGI-RAW and
+# RECO tier for Phase-2) so it bridges DIGI->RECO, and in RECOSIM for downstream.
+from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
+_truthKeeps = [
+    'keep *_truthLogicalGraphProducer_*_*',
+    'keep *_truthLogicalGraphHitIndexProducer_*_*',
+    'keep TruthGraph_mix_*_*',
+]
+enableTruth.toModify(FEVTDEBUGHLTEventContent,
+                     outputCommands=FEVTDEBUGHLTEventContent.outputCommands + _truthKeeps)
+enableTruth.toModify(RECOSIMEventContent,
+                     outputCommands=RECOSIMEventContent.outputCommands + _truthKeeps)
+
 from Configuration.ProcessModifiers.hltClusterSplitting_cff import hltClusterSplitting
 hltClusterSplitting.toModify(FEVTDEBUGHLTEventContent,
                               outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
@@ -726,18 +741,11 @@ phase2_tracker.toModify(FEVTDEBUGHLTEventContent,
                             'keep *_hltOfflinePrimaryVertices_*_*',
                         ])
 
-from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
-(phase2_tracker & ~hltPhase2LegacyTracking).toModify(FEVTDEBUGHLTEventContent,
-                                                     outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
-                                                         'keep *_hltPhase2PixelTracksCAExtension_*_*',
-                                                     ])
-
 phase2_common.toModify(FEVTDEBUGHLTEventContent,
                        outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
-                           'keep *_hltHGCalRecHit_*_*',
-                           'keep *_hltMergeLayerClusters*_*_*',
                            'keep *_hltParticleFlowRecHit*_*_*',
                            'keep *_hltEgammaGsfTracksL1Seeded_*_*',
+                           'keep *_hltEgammaGsfTracksUnseeded_*_*',
                            'keep *_hltPFMET_*_*',
                            'keep *_hltPFPuppiMET_*_*',
                            'keep *_hltPFPuppiMETTypeOne_*_*',
@@ -760,6 +768,17 @@ phase2_muon.toModify(FEVTDEBUGHLTEventContent,
 phase2_hgcal.toModify(FEVTDEBUGHLTEventContent,
     outputCommands = FEVTDEBUGHLTEventContent.outputCommands + TICL_FEVTHLT.outputCommands)
 
+from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
+mtd_at_hlt.toModify(FEVTDEBUGHLTEventContent,
+                    outputCommands = FEVTDEBUGHLTEventContent.outputCommands + RecoLocalFastTimeFEVTHLT.outputCommands + RecoMTDFEVTHLT.outputCommands)
+
+mtd_at_hlt.toModify(FEVTDEBUGHLTEventContent,
+                    outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+                        'keep *_hltOfflinePrimaryVertices4D_*_*'
+                    ])
+
+phase2_hgcal.toModify(FEVTDEBUGHLTEventContent,
+    outputCommands = FEVTDEBUGHLTEventContent.outputCommands + HGCAL_FEVTHLT.outputCommands)
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 
@@ -980,8 +999,7 @@ REDIGIEventContent.inputCommands.append('drop *_randomEngineStateProducer_*_*')
 # MiniAOD is a bit special: the files tend to be so small that letting
 # ROOT automatically determine when to flush is a surprisingly big overhead.
 #
-from PhysicsTools.PatAlgos.slimming.slimming_cff import MicroEventContent,MicroEventContentMC,MicroEventContentGEN
-from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import MiniAODOverrideBranchesSplitLevel
+from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import MicroEventContent,MicroEventContentMC,MicroEventContentGEN,MiniAODOverrideBranchesSplitLevel
 
 MINIAODEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
@@ -1010,6 +1028,8 @@ MINIAODSIMEventContent= cms.PSet(
 )
 MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
 MINIAODSIMEventContent.outputCommands.extend(HLTriggerMINIAODSIM.outputCommands)
+
+phase2_l1scout.toModify(MINIAODSIMEventContent, outputCommands = L1TriggerPhase2L1ScoutMINIAODSIM.outputCommands)
 
 MINIGENEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),

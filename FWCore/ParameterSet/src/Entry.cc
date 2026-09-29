@@ -20,8 +20,9 @@
 #include <string_view>
 
 using namespace edm::detail;
-static constexpr const std::array<std::string_view, 32> s_types = {{"bool",
+static constexpr const std::array<std::string_view, 34> s_types = {{"bool",
                                                                     "double",
+                                                                    "float",
                                                                     "int32",
                                                                     "int64",
                                                                     "path",
@@ -30,6 +31,7 @@ static constexpr const std::array<std::string_view, 32> s_types = {{"bool",
                                                                     "uint32",
                                                                     "uint64",
                                                                     "vdouble",
+                                                                    "vfloat",
                                                                     "vint32",
                                                                     "vint64",
                                                                     "vstring",
@@ -53,8 +55,9 @@ static constexpr const std::array<std::string_view, 32> s_types = {{"bool",
                                                                     "VLuminosityBlockID",
                                                                     "VLuminosityBlockRange"}};
 
-static constexpr const std::array<char, 32> s_codes = {{kTbool,
+static constexpr const std::array<char, 34> s_codes = {{kTbool,
                                                         kTdouble,
+                                                        kTfloat,
                                                         kTint32,
                                                         kTint64,
                                                         kTpath,
@@ -63,6 +66,7 @@ static constexpr const std::array<char, 32> s_codes = {{kTbool,
                                                         kTuint32,
                                                         kTuint64,
                                                         kTvdouble,
+                                                        kTvfloat,
                                                         kTvint32,
                                                         kTvint64,
                                                         kTvstringRaw,
@@ -132,6 +136,10 @@ static constexpr std::array<std::string_view, 255> fillTable() {
   table_[kTvdouble] = c2t(kTvdouble);
   static_assert(not c2t(kTdouble).empty());
   table_[kTdouble] = c2t(kTdouble);
+  static_assert(not c2t(kTvfloat).empty());
+  table_[kTvfloat] = c2t(kTvfloat);
+  static_assert(not c2t(kTfloat).empty());
+  table_[kTfloat] = c2t(kTfloat);
   static_assert(not c2t(kTvPSet).empty());
   table_[kTvPSet] = c2t(kTvPSet);
   static_assert(not c2t(kTPSet).empty());
@@ -344,6 +352,18 @@ namespace edm {
           throwEntryError("vector<double>", rep_);
         break;
       }
+      case kTfloat: {  // Float
+        float val;
+        if (!decode(val, rep_))
+          throwEntryError("float", rep_);
+        break;
+      }
+      case kTvfloat: {  // vFloat
+        std::vector<float> val;
+        if (!decode(val, rep_))
+          throwEntryError("vector<float>", rep_);
+        break;
+      }
       case kTPSet: {  // ParameterSet
         ParameterSet val;
         if (!decode(val, rep_))
@@ -501,6 +521,26 @@ namespace edm {
       : name_(name), rep_(), type_(kTvdouble), tracked_(is_tracked ? '+' : '-') {
     if (!encode(rep_, val))
       throwEncodeError("vector<double>");
+    validate();
+  }
+
+  // ----------------------------------------------------------------------
+  // Float
+
+  Entry::Entry(std::string const& name, float val, bool is_tracked)
+      : name_(name), rep_(), type_(kTfloat), tracked_(is_tracked ? '+' : '-') {
+    if (!encode(rep_, val))
+      throwEncodeError("float");
+    validate();
+  }
+
+  // ----------------------------------------------------------------------
+  // vFloat
+
+  Entry::Entry(std::string const& name, std::vector<float> const& val, bool is_tracked)
+      : name_(name), rep_(), type_(kTvfloat), tracked_(is_tracked ? '+' : '-') {
+    if (!encode(rep_, val))
+      throwEncodeError("vector<float>");
     validate();
   }
 
@@ -942,6 +982,30 @@ namespace edm {
   }
 
   // ----------------------------------------------------------------------
+  // Float
+
+  float Entry::getFloat() const {
+    if (type_ != kTfloat)
+      throwValueError("float");
+    float val;
+    if (!decode(val, rep_))
+      throwEntryError("float", rep_);
+    return val;
+  }
+
+  // ----------------------------------------------------------------------
+  // vFloat
+
+  std::vector<float> Entry::getVFloat() const {
+    if (type_ != kTvfloat)
+      throwValueError("vector<float>");
+    std::vector<float> val;
+    if (!decode(val, rep_))
+      throwEntryError("vector<float>", rep_);
+    return val;
+  }
+
+  // ----------------------------------------------------------------------
   // String
 
   std::string Entry::getString() const {
@@ -1153,7 +1217,33 @@ namespace edm {
       throwEntryError("vector<ParameterSet>", rep_);
     return val;
   }
+}  // namespace edm
 
+namespace {
+  // This function is a helper for V{Event,LuminosityBlock}{ID,Range}
+  // that are encoded as vector<string>
+  //
+  // F is a functor that returns a range
+  template <typename F>
+  void printVStringEncodedHelper(std::ostream& os, edm::Entry const& entry, F&& range) {
+    os << "{";
+    std::string_view start = "";
+    std::string_view const between(",");
+    std::string encoded;
+    for (auto const& element : range(entry)) {
+      // encode to
+      // - have more compact presentation instead of {Event,LuminosityBlock}ID's own operator<<()
+      // - avoid quotation marks from {Event,LuminosityBlock}Range's own operator<<()
+      encode(encoded, element);
+      os << start << encoded;
+      encoded.clear();
+      start = between;
+    }
+    os << "}";
+  }
+}  // namespace
+
+namespace edm {
   std::ostream& operator<<(std::ostream& os, Entry const& entry) {
     os << typeFromCode(entry.typeCode()) << " " << (entry.isTracked() ? "tracked " : "untracked ") << " = ";
 
@@ -1250,6 +1340,34 @@ namespace edm {
           start = between;
         }
         os << "}";
+        break;
+      }
+      case kTVEventID: {
+        // VEventID needs to be treated separately because it is encoded
+        // as vector<string> and each string element contains the
+        // encoded EventID
+        printVStringEncodedHelper(os, entry, [](edm::Entry const& e) { return e.getVEventID(); });
+        break;
+      }
+      case kTVLuminosityBlockID: {
+        // VLuminosityBlockID needs to be treated separately because it
+        // is encoded as vector<string> and each string element contains
+        // the encoded LuminosityBlockID
+        printVStringEncodedHelper(os, entry, [](edm::Entry const& e) { return e.getVLuminosityBlockID(); });
+        break;
+      }
+      case kTVEventRange: {
+        // VEventRange needs to be treated separately because it is
+        // encoded as vector<string> and each string element contains
+        // the encoded EventRange
+        printVStringEncodedHelper(os, entry, [](edm::Entry const& e) { return e.getVEventRange(); });
+        break;
+      }
+      case kTVLuminosityBlockRange: {
+        // VLuminosityBlockRange needs to be treated separately because
+        // it is encoded as vector<string> and each string element
+        // contains the encoded LuminosityBlockRange
+        printVStringEncodedHelper(os, entry, [](edm::Entry const& e) { return e.getVLuminosityBlockRange(); });
         break;
       }
       default: {

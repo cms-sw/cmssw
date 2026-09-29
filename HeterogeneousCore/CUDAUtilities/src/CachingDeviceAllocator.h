@@ -342,7 +342,7 @@ namespace notcub {
 
       if (device == INVALID_DEVICE_ORDINAL) {
         // CMS: throw exception on error
-        cudaCheck(error = cudaGetDevice(&entrypoint_device));
+        CUDA_CHECK(error = cudaGetDevice(&entrypoint_device));
         device = entrypoint_device;
       }
 
@@ -419,8 +419,8 @@ namespace notcub {
         // Set runtime's current device to specified device (entrypoint may not be set)
         if (device != entrypoint_device) {
           // CMS: throw exception on error
-          cudaCheck(error = cudaGetDevice(&entrypoint_device));
-          cudaCheck(error = cudaSetDevice(device));
+          CUDA_CHECK(error = cudaGetDevice(&entrypoint_device));
+          CUDA_CHECK(error = cudaSetDevice(device));
         }
 
         // Attempt to allocate
@@ -486,12 +486,12 @@ namespace notcub {
 
           // Try to allocate again
           // CMS: throw exception on error
-          cudaCheck(error = cudaMalloc(&search_key.d_ptr, search_key.bytes));
+          CUDA_CHECK(error = cudaMalloc(&search_key.d_ptr, search_key.bytes));
         }
 
         // Create ready event
         // CMS: throw exception on error
-        cudaCheck(error = cudaEventCreateWithFlags(&search_key.ready_event, cudaEventDisableTiming));
+        CUDA_CHECK(error = cudaEventCreateWithFlags(&search_key.ready_event, cudaEventDisableTiming));
 
         // Insert into live blocks
         mutex_locker.lock();
@@ -513,7 +513,7 @@ namespace notcub {
         // Attempt to revert back to previous device if necessary
         if ((entrypoint_device != INVALID_DEVICE_ORDINAL) && (entrypoint_device != device)) {
           // CMS: throw exception on error
-          cudaCheck(error = cudaSetDevice(entrypoint_device));
+          CUDA_CHECK(error = cudaSetDevice(entrypoint_device));
         }
       }
 
@@ -561,7 +561,7 @@ namespace notcub {
 
       if (device == INVALID_DEVICE_ORDINAL) {
         // CMS: throw exception on error
-        cudaCheck(error = cudaGetDevice(&entrypoint_device));
+        CUDA_CHECK(error = cudaGetDevice(&entrypoint_device));
         device = entrypoint_device;
       }
 
@@ -607,14 +607,14 @@ namespace notcub {
       // First set to specified device (entrypoint may not be set)
       if (device != entrypoint_device) {
         // CMS: throw exception on error
-        cudaCheck(error = cudaGetDevice(&entrypoint_device));
-        cudaCheck(error = cudaSetDevice(device));
+        CUDA_CHECK(error = cudaGetDevice(&entrypoint_device));
+        CUDA_CHECK(error = cudaSetDevice(device));
       }
 
       if (recached) {
         // Insert the ready event in the associated stream (must have current device set properly)
         // CMS: throw exception on error
-        cudaCheck(error = cudaEventRecord(search_key.ready_event, search_key.associated_stream));
+        CUDA_CHECK(error = cudaEventRecord(search_key.ready_event, search_key.associated_stream));
       }
 
       // Unlock
@@ -623,8 +623,8 @@ namespace notcub {
       if (!recached) {
         // Free the allocation from the runtime and cleanup the event.
         // CMS: throw exception on error
-        cudaCheck(error = cudaFree(d_ptr));
-        cudaCheck(error = cudaEventDestroy(search_key.ready_event));
+        CUDA_CHECK(error = cudaFree(d_ptr));
+        CUDA_CHECK(error = cudaEventDestroy(search_key.ready_event));
 
         if (debug)
           // CMS: improved debug message
@@ -645,7 +645,7 @@ namespace notcub {
       // Reset device
       if ((entrypoint_device != INVALID_DEVICE_ORDINAL) && (entrypoint_device != device)) {
         // CMS: throw exception on error
-        cudaCheck(error = cudaSetDevice(entrypoint_device));
+        CUDA_CHECK(error = cudaSetDevice(entrypoint_device));
       }
 
       return error;
@@ -718,7 +718,7 @@ namespace notcub {
       // Attempt to revert back to entry-point device if necessary
       if (entrypoint_device != INVALID_DEVICE_ORDINAL) {
         // CMS: throw exception on error
-        cudaCheck(error = cudaSetDevice(entrypoint_device));
+        CUDA_CHECK(error = cudaSetDevice(entrypoint_device));
       }
 
       return error;

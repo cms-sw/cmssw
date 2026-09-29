@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <ostream>
 
 //
 // constants, enums and typedefs
@@ -88,5 +89,18 @@ namespace edm {
   const IOVSyncValue& IOVSyncValue::beginOfTime() {
     static const IOVSyncValue s_beginOfTime(EventID(1, 0, 0), Timestamp::beginOfTime());
     return s_beginOfTime;
+  }
+
+  std::ostream& operator<<(std::ostream& oStream, IOVSyncValue const& iIOV) {
+    if (iIOV.haveID_ && iIOV.haveTime_) {
+      oStream << "IOVSyncValue{ EventID{" << iIOV.eventID_.run() << ", " << iIOV.eventID_.luminosityBlock() << ", "
+              << iIOV.eventID_.event() << "}, Timestamp{" << iIOV.time_.unixTime() << "} }";
+    } else if (iIOV.haveID_) {
+      oStream << "IOVSyncValue{ EventID{" << iIOV.eventID_.run() << ", " << iIOV.eventID_.luminosityBlock() << ", "
+              << iIOV.eventID_.event() << "} }";
+    } else if (iIOV.haveTime_) {
+      oStream << "IOVSyncValue{ Timestamp{" << iIOV.time_.unixTime() << "} }";
+    }
+    return oStream;
   }
 }  // namespace edm

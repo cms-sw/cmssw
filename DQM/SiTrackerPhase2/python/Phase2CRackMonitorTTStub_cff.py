@@ -14,13 +14,13 @@ TTStubMonitorCRACK = _Phase2OTMonitorTTStub.clone(
         switch = cms.bool(True)
     ),
     # Changes to x/y ranges for CRACK readability
-    TH2TTStub_Position = _Phase2OTMonitorTTStub.TH2TTStub_Position.clone(
+    L1Stub_Global_Position_Barrel_XY = _Phase2OTMonitorTTStub.L1Stub_Global_Position_Barrel_XY.clone(
         xmin = cms.double(-7.0),
         xmax = cms.double(7.0),
         ymin = cms.double(-10.0),
         ymax = cms.double(50.0)
     ),
-    TH2TTStub_RZ = _Phase2OTMonitorTTStub.TH2TTStub_RZ.clone(
+    L1Stub_Global_Position_RZ = _Phase2OTMonitorTTStub.L1Stub_Global_Position_RZ.clone(
         xmin = cms.double(-70.0),
         xmax = cms.double(70.0),
         ymin = cms.double(-0.0),

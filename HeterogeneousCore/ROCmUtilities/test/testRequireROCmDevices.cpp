@@ -14,7 +14,7 @@ TEST_CASE("HeterogeneousCore/ROCmUtilities testRequireROCmDevices", "[testRequir
     cms::rocmtest::requireDevices();
 
     int devices = 0;
-    hipCheck(hipGetDeviceCount(&devices));
+    HIP_CHECK(hipGetDeviceCount(&devices));
 
     REQUIRE(devices > 0);
   }

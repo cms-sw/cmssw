@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -16,9 +16,9 @@
 #include "CondFormats/DataRecord/interface/CSCNoiseMatrixRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCNoiseMatrixConditions : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class CSCNoiseMatrixConditions : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  CSCNoiseMatrixConditions(const edm::ParameterSet &);
+  explicit CSCNoiseMatrixConditions(const edm::ParameterSet &);
   ~CSCNoiseMatrixConditions() override;
 
   static CSCNoiseMatrix *prefillNoiseMatrix();
@@ -29,10 +29,6 @@ public:
 
 private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                      const edm::IOVSyncValue &,
-                      edm::ValidityInterval &) override;
-  CSCNoiseMatrix *cnMatrix;
 };
 
 #endif

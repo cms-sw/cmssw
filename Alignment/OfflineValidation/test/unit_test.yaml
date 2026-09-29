@@ -3,9 +3,14 @@ name: test_yaml
 alignments:
     unitTest:
         color: 1
-        globaltag: auto:phase1_2018_realistic
+        globaltag: auto:phase2_realistic
         style: 2101
         title: unit test
+    unitTestPhase1:
+        color: 1
+        globaltag: auto:phase1_2018_realistic
+        style: 2101
+        title: unit test      
     unitTestPV:
         color: 1
         globaltag: 140X_dataRun3_Prompt_v4
@@ -36,24 +41,19 @@ alignments:
         title: Unit test
     unitTestJetHTMC:
         color: 1
-        globaltag: auto:phase1_2018_realistic
-        style: 2101
-        title: unit test
-    unitTestDiMuonVMC:
-        color: 1
-        globaltag: auto:phase1_2022_realistic
+        globaltag: auto:phase2_realistic
         style: 2101
         title: unit test
     unitTestZmumuMCreal:
         color: 1
-        globaltag: auto:phase1_2024_realistic
+        globaltag: auto:phase2_realistic
         style: 20
         title: realistic
-    unitTestZmumuMCdesign:
+    unitTestZmumuMCdisplacedBS:
         color: 2
-        globaltag: auto:phase1_2024_design
+        globaltag: 150X_mcRun4_displacedBeamSpot_v1
         style: 21
-        title: design
+        title: "displaced BS"
     PromptNewTemplate:
         name: PromptNewTemplate
         color: 1
@@ -138,23 +138,23 @@ validations:
 
     PV:
         single:
-            TestDATA:
+            TestMC:
                 IOV:
-                    - 317087
+                - 1
                 alignments:
-                    - unitTestPV
+                - unitTest
                 maxevents: 10
                 bsIncompatibleWarnThresh: 100
                 bsIncompatibleErrThresh: 1000
-                trackcollection: ALCARECOTkAlMinBias
+                trackcollection: generalTracks
                 vertexcollection: offlinePrimaryVertices
                 isda: true
-                ismc: false                 
+                ismc: true                 
 
         merge:
-            TestDATA:
+            TestMC:
                 singles:
-                - TestDATA
+                - TestMC
                 doMaps: true
                 stdResiduals: true
                 autoLimits: false
@@ -164,9 +164,9 @@ validations:
                 m_dzEtaMax: 50
 
         trends:
-            TestDATA:
+            TestMC:
                 singles:
-                - TestDATA
+                - TestMC
                 doUnitTest: true  
 
     SplitV:
@@ -215,7 +215,7 @@ validations:
                 IOV:
                 - 1
                 alignments:
-                - unitTestDiMuonVMC
+                - unitTest
                 bsIncompatibleWarnThresh: 100
                 bsIncompatibleErrThresh: 1000
                 trackcollection: generalTracks
@@ -233,7 +233,7 @@ validations:
                 - 1
                 alignments:
                 - unitTestZmumuMCreal
-                - unitTestZmumuMCdesign
+                - unitTestZmumuMCdisplacedBS
                 bsIncompatibleWarnThresh: 100
                 bsIncompatibleErrThresh: 1000
                 trackcollection: ALCARECOTkAlZMuMu
@@ -270,15 +270,6 @@ validations:
         doUnitTest: true
     JetHT:
         single:
-            testJob:
-                alignments:
-                - unitTestJetHT
-                trackCollection: ALCARECOTkAlMinBias
-                bsIncompatibleWarnThresh: 100
-                bsIncompatibleErrThresh: 1000
-                maxevents: 100
-                iovListFile: Alignment/OfflineValidation/data/lumiPerRun_Run2.txt
-
             testMC:
                 alignments:
                 - unitTestJetHTMC
@@ -288,29 +279,12 @@ validations:
                 mc: True
                 maxevents: 100
         merge:
-            testJob:
-                singles:
-                - testJob
-                alignments:
-                - unitTestJetHT
             testMC:
                 singles:
                 - testMC
                 alignments:
                 - unitTestJetHTMC
         plot:
-            testJob:
-                merges:
-                - testJob
-                alignments:
-                - unitTestJetHT
-                jethtplot:
-                    drawProfiles:
-                        drawDzErrorVsPt: true
-                        drawDxyErrorVsPt: true
-                    drawHistograms:
-                        drawDz: true
-                        drawDxy: true
             testMC:
                 merges:
                 - testMC
@@ -329,7 +303,7 @@ validations:
                 firstRun: 376370
                 lastRun: 379254
                 alignments:
-                - unitTest
+                - unitTestPhase1
                 - mp3619
         extract:
             testExtractPixBary:

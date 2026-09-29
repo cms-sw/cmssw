@@ -10,6 +10,7 @@
 #include "CondFormats/PPSObjects/interface/LHCOpticalFunctionsSetCollection.h"
 #include "CondFormats/DataRecord/interface/CTPPSOpticsRcd.h"
 
+#include <optional>
 //----------------------------------------------------------------------------------------------------
 
 /**
@@ -24,6 +25,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
 private:
+  bool isConcurrentFinder() const override { return true; }
+  std::optional<unsigned int> findEntryFor(const edm::IOVSyncValue &) const;
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
                       const edm::IOVSyncValue &,
                       edm::ValidityInterval &) override;
@@ -47,16 +50,13 @@ private:
   };
 
   std::vector<Entry> m_entries;
-
-  bool m_currentEntryValid;
-  unsigned int m_currentEntry;
 };
 
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 
 CTPPSOpticalFunctionsESSource::CTPPSOpticalFunctionsESSource(const edm::ParameterSet &conf)
-    : m_label(conf.getParameter<std::string>("label")), m_currentEntryValid(false), m_currentEntry(0) {
+    : m_label(conf.getParameter<std::string>("label")) {
   for (const auto &entry_pset : conf.getParameter<std::vector<edm::ParameterSet>>("configuration")) {
     edm::EventRange validityRange = entry_pset.getParameter<edm::EventRange>("validityRange");
 
@@ -81,26 +81,30 @@ CTPPSOpticalFunctionsESSource::CTPPSOpticalFunctionsESSource(const edm::Paramete
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSOpticalFunctionsESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
-                                                   const edm::IOVSyncValue &iosv,
-                                                   edm::ValidityInterval &oValidity) {
+std::optional<unsigned int> CTPPSOpticalFunctionsESSource::findEntryFor(const edm::IOVSyncValue &iosv) const {
   for (unsigned int idx = 0; idx < m_entries.size(); ++idx) {
     const auto &entry = m_entries[idx];
 
     // is within an entry ?
     if (edm::contains(entry.m_validityRange, iosv.eventID())) {
-      m_currentEntryValid = true;
-      m_currentEntry = idx;
-      oValidity = edm::ValidityInterval(edm::IOVSyncValue(entry.m_validityRange.startEventID()),
-                                        edm::IOVSyncValue(entry.m_validityRange.endEventID()));
-      return;
+      return idx;
     }
+  }
+  return std::nullopt;
+}
+
+void CTPPSOpticalFunctionsESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
+                                                   const edm::IOVSyncValue &iosv,
+                                                   edm::ValidityInterval &oValidity) {
+  const auto findEntry = findEntryFor(iosv);
+  if (findEntry) {
+    auto const &entry = m_entries[*findEntry];
+    oValidity = edm::ValidityInterval(edm::IOVSyncValue(entry.m_validityRange.startEventID()),
+                                      edm::IOVSyncValue(entry.m_validityRange.endEventID()));
+    return;
   }
 
   // not within any entry
-  m_currentEntryValid = false;
-  m_currentEntry = 0;
-
   edm::LogInfo("") << "No configuration entry found for event " << iosv.eventID()
                    << ", no optical functions will be available.";
 
@@ -111,13 +115,14 @@ void CTPPSOpticalFunctionsESSource::setIntervalFor(const edm::eventsetup::EventS
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<LHCOpticalFunctionsSetCollection> CTPPSOpticalFunctionsESSource::produce(const CTPPSOpticsRcd &) {
+std::unique_ptr<LHCOpticalFunctionsSetCollection> CTPPSOpticalFunctionsESSource::produce(const CTPPSOpticsRcd &iRcd) {
   // prepare output, empty by default
   auto output = std::make_unique<LHCOpticalFunctionsSetCollection>();
 
+  auto const findEntry = findEntryFor(iRcd.validityInterval().first());
   // fill the output
-  if (m_currentEntryValid) {
-    const auto &entry = m_entries[m_currentEntry];
+  if (findEntry) {
+    const auto &entry = m_entries[*findEntry];
 
     for (const auto &fi : entry.m_fileInfo) {
       std::unordered_map<unsigned int, LHCOpticalFunctionsSet> xa_data;

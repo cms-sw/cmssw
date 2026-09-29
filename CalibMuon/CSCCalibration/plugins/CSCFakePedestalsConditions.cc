@@ -6,9 +6,10 @@ CSCPedestals *CSCFakePedestalsConditions::prefillPedestals() {
   CSCPedestals *cnpedestals = new CSCPedestals();
 
   int max_istrip, id_layer, max_ring, max_cham;
-  seed = 10000;
+  constexpr int seed = 10000;
   srand(seed);
-  meanped = 600.0, meanrms = 1.5, M = 1000;
+  constexpr float meanped = 600.0;
+  constexpr float meanrms = 1.5;
 
   // endcap=1 to 2,station=1 to 4, ring=1 to 4,chamber=1 to 36,layer=1 to 6
 
@@ -89,10 +90,4 @@ CSCFakePedestalsConditions::~CSCFakePedestalsConditions() {
 // ------------ method called to produce the data  ------------
 CSCFakePedestalsConditions::ReturnType CSCFakePedestalsConditions::producePedestals(const CSCPedestalsRcd &iRecord) {
   return CSCFakePedestalsConditions::ReturnType(prefillPedestals());
-}
-
-void CSCFakePedestalsConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                                const edm::IOVSyncValue &,
-                                                edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }

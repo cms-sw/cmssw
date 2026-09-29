@@ -116,7 +116,7 @@ int main(void) {
   cms::rocmtest::requireDevices();
 
   hipStream_t stream;
-  hipCheck(hipStreamCreateWithFlags(&stream, hipStreamNonBlocking));
+  HIP_CHECK(hipStreamCreateWithFlags(&stream, hipStreamNonBlocking));
 
   // Non-aligned number of elements to check alignment features.
   constexpr unsigned int numElements = 65537;
@@ -124,7 +124,7 @@ int main(void) {
   // Allocate buffer and store on host
   size_t hostDeviceSize = SoAHostDeviceLayout::computeDataSize(numElements);
   std::byte* h_buf = nullptr;
-  hipCheck(hipHostMalloc((void**)&h_buf, hostDeviceSize));
+  HIP_CHECK(hipHostMalloc((void**)&h_buf, hostDeviceSize));
   SoAHostDeviceLayout h_soahdLayout(h_buf, numElements);
   SoAHostDeviceView h_soahd(h_soahdLayout);
 
@@ -138,7 +138,7 @@ int main(void) {
   // Alocate buffer, stores and views on the device (single, shared buffer).
   size_t deviceOnlySize = SoADeviceOnlyLayout::computeDataSize(numElements);
   std::byte* d_buf = nullptr;
-  hipCheck(hipHostMalloc((void**)&d_buf, hostDeviceSize + deviceOnlySize));
+  HIP_CHECK(hipHostMalloc((void**)&d_buf, hostDeviceSize + deviceOnlySize));
   SoAHostDeviceLayout d_soahdLayout(d_buf, numElements);
   SoADeviceOnlyLayout d_soadoLayout(d_soahdLayout.metadata().nextByte(), numElements);
   SoAHostDeviceView d_soahdView(d_soahdLayout);
@@ -229,13 +229,13 @@ int main(void) {
   sn = numElements + 2;
 
   // Push to device
-  hipCheck(hipMemcpyAsync(d_buf, h_buf, hostDeviceSize, hipMemcpyDefault, stream));
+  HIP_CHECK(hipMemcpyAsync(d_buf, h_buf, hostDeviceSize, hipMemcpyDefault, stream));
 
   // Process on device
   crossProduct<<<(numElements + 255) / 256, 256, 0, stream>>>(d_soahdView, numElements);
 
   // Paint the device only with 0xFF initially
-  hipCheck(hipMemsetAsync(d_soadoLayout.metadata().data(), 0xFF, d_soadoLayout.metadata().byteSize(), stream));
+  HIP_CHECK(hipMemsetAsync(d_soadoLayout.metadata().data(), 0xFF, d_soadoLayout.metadata().byteSize(), stream));
 
   // Produce to the device only area
   producerKernel<<<(numElements + 255) / 256, 256, 0, stream>>>(d_soaFullView, numElements);
@@ -244,10 +244,10 @@ int main(void) {
   consumerKernel<<<(numElements + 255) / 256, 256, 0, stream>>>(d_soaFullView, numElements);
 
   // Get result back
-  hipCheck(hipMemcpyAsync(h_buf, d_buf, hostDeviceSize, hipMemcpyDefault, stream));
+  HIP_CHECK(hipMemcpyAsync(h_buf, d_buf, hostDeviceSize, hipMemcpyDefault, stream));
 
   // Wait and validate.
-  hipCheck(hipStreamSynchronize(stream));
+  HIP_CHECK(hipStreamSynchronize(stream));
   for (size_t i = 0; i < numElements; ++i) {
     auto si = h_soahd_c[i];
     assert(si.r() == si.a().cross(si.b()));
@@ -325,7 +325,7 @@ int main(void) {
 
   // Wait and confirm that the ROCm kernel failed
   try {
-    hipCheck(hipStreamSynchronize(stream));
+    HIP_CHECK(hipStreamSynchronize(stream));
     std::cout << "Fail: expected range-check exception not caught while executing the kernel." << std::endl;
     assert(false);
   } catch (const std::runtime_error&) {

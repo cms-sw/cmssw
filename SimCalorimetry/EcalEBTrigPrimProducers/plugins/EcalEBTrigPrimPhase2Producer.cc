@@ -34,10 +34,6 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
 
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-
 // We keep these lines for future posssible necessary additions
 //#include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
 //#include "CondFormats/DataRecord/interface/EcalTPGStripStatusRcd.h"
@@ -46,7 +42,13 @@
 #include <memory>
 
 // Class declaration
-/** \class EcalEBTrigPrimPhase2Producer                                                                                                                                                   \author L. Lutton, N. Marinelli - Univ. of Notre Dame                                                                                                                                   Description: forPhase II                                                                                                                                                               It consumes the new Phase2 digis based on the new EB electronics                                                                                                                       and plugs in the main steering algo for TP emulation                                                                                                                                   It produces the EcalEBPhase2TrigPrimDigiCollection                                                                                                                                 */
+/** \class EcalEBTrigPrimPhase2Producer
+\author L. Lutton, N. Marinelli - Univ. of Notre Dame
+Description: forPhase II
+It consumes the new Phase2 digis based on the new EB electronics
+and plugs in the main steering algo for TP emulation
+It produces the EcalEBPhase2TrigPrimDigiCollection
+*/
 
 class EcalEBPhase2TrigPrimAlgo;
 
@@ -62,7 +64,6 @@ public:
 private:
   std::unique_ptr<EcalEBPhase2TrigPrimAlgo> algo_;
   bool debug_;
-  bool famos_;
   int nEvent_;
   edm::EDGetTokenT<EBDigiCollectionPh2> tokenEBdigi_;
   edm::ESGetToken<EcalEBPhase2TPGLinearizationConst, EcalEBPhase2TPGLinearizationConstRcd>
@@ -80,11 +81,10 @@ private:
   edm::ESGetToken<EcalTPGTowerStatus, EcalTPGTowerStatusRcd> theEcalTPGTowerStatus_Token_;
   edm::ESGetToken<EcalTPGSpike, EcalTPGSpikeRcd> theEcalTPGSpike_Token_;
 
-  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> eTTmapToken_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> theGeometryToken_;
-
   int binOfMaximum_;
   bool fillBinOfMaximumFromHistory_;
+
+  edm::ParameterSet const spikeTaggerParams_;
 
   unsigned long long getRecords(edm::EventSetup const& setup);
   unsigned long long cacheID_;
@@ -92,12 +92,9 @@ private:
 
 EcalEBTrigPrimPhase2Producer::EcalEBTrigPrimPhase2Producer(const edm::ParameterSet& iConfig)
     : debug_(iConfig.getParameter<bool>("Debug")),
-      famos_(iConfig.getParameter<bool>("Famos")),
-      binOfMaximum_(iConfig.getParameter<int>("binOfMaximum")) {
+      binOfMaximum_(iConfig.getParameter<int>("binOfMaximum")),
+      spikeTaggerParams_(iConfig.getParameter<edm::ParameterSet>("spikeTagger")) {
   tokenEBdigi_ = consumes<EBDigiCollectionPh2>(iConfig.getParameter<edm::InputTag>("barrelEcalDigis"));
-
-  eTTmapToken_ = esConsumes<edm::Transition::BeginRun>();
-  theGeometryToken_ = esConsumes<edm::Transition::BeginRun>();
 
   theEcalTPGPedestals_Token_ =
       esConsumes<EcalLiteDTUPedestalsMap, EcalLiteDTUPedestalsRcd, edm::Transition::BeginRun>();
@@ -116,14 +113,12 @@ EcalEBTrigPrimPhase2Producer::EcalEBTrigPrimPhase2Producer(const edm::ParameterS
 
   //register your products
   produces<EcalEBPhase2TrigPrimDigiCollection>();
+
+  auto cc = consumesCollector();
+  algo_ = std::make_unique<EcalEBPhase2TrigPrimAlgo>(binOfMaximum_, spikeTaggerParams_, cc, debug_);
 }
 
 void EcalEBTrigPrimPhase2Producer::beginRun(edm::Run const& run, edm::EventSetup const& setup) {
-  auto const& theGeometry = setup.getData(theGeometryToken_);
-  auto const& eTTmap = setup.getData(eTTmapToken_);
-
-  algo_ = std::make_unique<EcalEBPhase2TrigPrimAlgo>(&eTTmap, &theGeometry, binOfMaximum_, debug_);
-
   // get a first version of the records
   cacheID_ = this->getRecords(setup);
 
@@ -133,9 +128,14 @@ void EcalEBTrigPrimPhase2Producer::beginRun(edm::Run const& run, edm::EventSetup
 void EcalEBTrigPrimPhase2Producer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<bool>("Debug", false);
-  desc.add<bool>("Famos", false);
-  desc.add<int>("BinOfMaximum", 6);  // this needs to be at the same value used for the Phase2 LiteDTU digis !
+  desc.add<int>("binOfMaximum", 6);  // this needs to be at the same value used for the Phase2 LiteDTU digis !
   desc.add<edm::InputTag>("barrelEcalDigis", edm::InputTag("simEcalUnsuppressedDigis"));
+
+  edm::ParameterSetDescription spikeTaggerDesc;
+  spikeTaggerDesc.addNode(edm::ParameterDescription<std::string>("algoType", "ld", true) and
+                          edm::ParameterDescription<unsigned int>("version", 1, true));
+  desc.add<edm::ParameterSetDescription>("spikeTagger", spikeTaggerDesc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 unsigned long long EcalEBTrigPrimPhase2Producer::getRecords(edm::EventSetup const& setup) {
@@ -170,6 +170,7 @@ unsigned long long EcalEBTrigPrimPhase2Producer::getRecords(edm::EventSetup cons
   //const EcalTPGSpike* ecaltpgSpike = theEcalTPGSpike_handle.product();
 
   ////////////////
+  algo_->getRecords(setup);
   algo_->setPointers(ecaltpPed, ecaltpLin, ecaltpgBadX, ecaltpgAmplWeightMap, ecaltpgTimeWeightMap, ecaltpgWeightGroup);
 
   return setup.get<EcalEBPhase2TPGLinearizationConstRcd>().cacheIdentifier();

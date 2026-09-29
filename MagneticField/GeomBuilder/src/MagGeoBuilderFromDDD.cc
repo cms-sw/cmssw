@@ -6,18 +6,12 @@
 
 #include "MagGeoBuilderFromDDD.h"
 #include "volumeHandle.h"
-#include "bSlab.h"
-#include "bRod.h"
-#include "bSector.h"
 #include "bLayer.h"
 #include "eSector.h"
-#include "eLayer.h"
-#include "FakeInterpolator.h"
+#include "InterpolatorBuilder.h"
 
 #include "MagneticField/Layers/interface/MagBLayer.h"
 #include "MagneticField/Layers/interface/MagESector.h"
-
-#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
@@ -26,17 +20,16 @@
 #include "Utilities/BinningTools/interface/ClusterizingHistogram.h"
 
 #include "MagneticField/Interpolation/interface/MagProviderInterpol.h"
-#include "MagneticField/Interpolation/interface/MFGridFactory.h"
 #include "MagneticField/Interpolation/interface/MFGrid.h"
 
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
 
-#include "DataFormats/GeometryVector/interface/Pi.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Utilities/General/interface/precomputed_value_sort.h"
 
 #include <string>
 #include <vector>
@@ -48,15 +41,20 @@
 #include <set>
 #include <iomanip>
 #include <boost/algorithm/string/replace.hpp>
-#include "Utilities/General/interface/precomputed_value_sort.h"
 
 using namespace std;
 using namespace magneticfield;
+using namespace edm;
+using namespace angle_units::operators;
 
-MagGeoBuilderFromDDD::MagGeoBuilderFromDDD(string tableSet_, int geometryVersion_, bool debug_)
-    : tableSet(tableSet_), geometryVersion(geometryVersion_), theGridFiles(nullptr), debug(debug_) {
+MagGeoBuilderFromDDD::MagGeoBuilderFromDDD(string tableSet_, int geometryVersion_, bool debug_, bool mergeFile_)
+    : tableSet(tableSet_),
+      geometryVersion(geometryVersion_),
+      theGridFiles(nullptr),
+      debug(debug_),
+      useMergeFileIfAvailable(mergeFile_) {
   if (debug)
-    cout << "Constructing a MagGeoBuilderFromDDD" << endl;
+    LogVerbatim("MagGeoBuilder") << "Constructing a MagGeoBuilderFromDDD" << newln;
 }
 
 MagGeoBuilderFromDDD::~MagGeoBuilderFromDDD() {
@@ -69,7 +67,7 @@ MagGeoBuilderFromDDD::~MagGeoBuilderFromDDD() {
   }
 }
 
-void MagGeoBuilderFromDDD::summary(handles& volumes) {
+void MagGeoBuilderFromDDD::summary(handles& volumes) const {
   // The final countdown.
   int ivolumes = volumes.size();  // number of volumes
   int isurfaces = ivolumes * 6;   // number of individual surfaces
@@ -94,24 +92,22 @@ void MagGeoBuilderFromDDD::summary(handles& volumes) {
         if (firstOcc)
           iref_ass += references;
         if (references < 2) {
-          cout << "*** Only 1 ref, vol: " << (*i)->volumeno << " # " << (*i)->copyno << " side: " << side << endl;
+          LogVerbatim("MagGeoBuilder") << "*** Only 1 ref, vol: " << (*i)->volumeno << " # " << (*i)->copyno
+                                       << " side: " << side;
         }
       } else {
         iref_nass += references;
         if (references > 1) {
-          cout << "*** Ref_nass >1 " << endl;
+          LogVerbatim("MagGeoBuilder") << "*** Ref_nass >1 ";
         }
       }
     }
   }
   iunique = ptrs.size();
 
-  cout << "    volumes   " << ivolumes << endl
-       << "    surfaces  " << isurfaces << endl
-       << "    assigned  " << iassigned << endl
-       << "    unique    " << iunique << endl
-       << "    iref_ass  " << iref_ass << endl
-       << "    iref_nass " << iref_nass << endl;
+  LogVerbatim("MagGeoBuilder") << "    volumes   " << ivolumes << newln << "    surfaces  " << isurfaces << newln
+                               << "    assigned  " << iassigned << newln << "    unique    " << iunique << newln
+                               << "    iref_ass  " << iref_ass << newln << "    iref_nass " << iref_nass;
 }
 
 void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
@@ -119,7 +115,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
   DDExpandedView fv(cpva);
 
   if (debug)
-    cout << "**********************************************************" << endl;
+    LogVerbatim("MagGeoBuilder") << "**********************************************************";
 
   // The actual field interpolators
   map<string, MagProviderInterpol*> bInterpolators;
@@ -150,42 +146,18 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
   }
   // Loop over MAGF volumes and create volumeHandles.
   if (debug) {
-    cout << endl
-         << "*** MAGF: " << fv.geoHistory() << endl
-         << "translation: " << fv.translation() << endl
-         << " rotation: " << fv.rotation() << endl;
+    LogVerbatim("MagGeoBuilder") << newln << "*** MAGF: " << fv.geoHistory() << newln
+                                 << "translation: " << fv.translation() << newln << " rotation: " << fv.rotation();
   }
 
+  InterpolatorBuilder interpolatorBuilder(tableSet, useMergeFileIfAvailable);
   bool doSubDets = fv.firstChild();
   while (doSubDets) {
     string name = fv.logicalPart().name().name();
     if (debug)
-      cout << endl << "Name: " << name << endl << "      " << fv.geoHistory() << endl;
+      LogVerbatim("MagGeoBuilder") << newln << "Name: " << name << "      " << fv.geoHistory();
 
-    // FIXME: single-volyme cylinders - this is feature has been removed
-    //        and should be revisited.
-    //    bool mergeCylinders=false;
-
-    // If true, In the barrel, cylinders sectors will be skipped to build full
-    // cylinders out of sector copyno #1.
     bool expand = false;
-
-    //     if (mergeCylinders) {
-    //       if (name == "V_ZN_1"
-    // 	  || name == "V_ZN_2") {
-    // 	if (debug && fv.logicalPart().solid().shape()!=ddtubs) {
-    // 	  cout << "ERROR: MagGeoBuilderFromDDD::build: volume " << name
-    // 	       << " should be a cylinder" << endl;
-    // 	}
-    // 	if(fv.copyno()==1) {
-    // 	  expand = true;
-    // 	} else {
-    // 	  //cout << "... to be skipped: "
-    // 	  //     << name << " " << fv.copyno() << endl;
-    // 	}
-    //       }
-    //     }
-
     volumeHandle* v = new volumeHandle(fv, expand, debug);
 
     if (theGridFiles != nullptr) {
@@ -211,8 +183,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
         v->magFile = magFile;
         v->masterSector = masterSector;
       } else {
-        edm::LogError("MagGeoBuilderFromDDDbuild")
-            << "ERROR: no table spec found for V " << v->volumeno << ":" << v->copyno;
+        LogError("MagGeoBuilderFromDDDbuild") << "ERROR: no table spec found for V " << v->volumeno << ":" << v->copyno;
       }
     }
 
@@ -233,22 +204,28 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
                                      // where there is a single V1
     ) {                              // Barrel
       if (debug)
-        cout << " (Barrel)" << endl;
+        LogVerbatim("MagGeoBuilder") << " (Barrel)";
       bVolumes.push_back(v);
 
       // Build the interpolator of the "master" volume (the one which is
       // not replicated in phi)
       // ASSUMPTION: copyno == sector.
       if (v->copyno == v->masterSector) {
-        buildInterpolator(v, bInterpolators);
+        auto i = buildInterpolator(v, interpolatorBuilder);
+        if (i) {
+          bInterpolators[v->magFile] = i;
+        }
         ++bVolCount;
       }
     } else {  // Endcaps
       if (debug)
-        cout << " (Endcaps)" << endl;
+        LogVerbatim("MagGeoBuilder") << " (Endcaps)";
       eVolumes.push_back(v);
       if (v->copyno == v->masterSector) {
-        buildInterpolator(v, eInterpolators);
+        auto i = buildInterpolator(v, interpolatorBuilder);
+        if (i) {
+          eInterpolators[v->magFile] = i;
+        }
         ++eVolCount;
       }
     }
@@ -256,26 +233,22 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
     doSubDets = fv.nextSibling();  // end of loop over MAGF
   }
 
-  if (debug) {
-    cout << "Number of volumes (barrel): " << bVolumes.size() << endl
-         << "Number of volumes (endcap): " << eVolumes.size() << endl;
-    cout << "**********************************************************" << endl;
-  }
-
   // Now all volumeHandles are there, and parameters for each of the planes
   // are calculated.
 
-  //----------------------------------------------------------------------
-  // Print summary information
-
   if (debug) {
-    cout << "-----------------------" << endl;
-    cout << "SUMMARY: Barrel " << endl;
+    LogVerbatim("MagGeoBuilder") << "Number of volumes (barrel): " << bVolumes.size() << newln
+                                 << "Number of volumes (endcap): " << eVolumes.size() << newln
+                                 << "**********************************************************" << newln;
+    //----------------------------------------------------------------------
+    // Print summary information
+
+    LogVerbatim("MagGeoBuilder") << "SUMMARY: Barrel ";
     summary(bVolumes);
 
-    cout << endl << "SUMMARY: Endcaps " << endl;
+    LogVerbatim("MagGeoBuilder") << newln << "SUMMARY: Endcaps ";
     summary(eVolumes);
-    cout << "-----------------------" << endl;
+    LogVerbatim("MagGeoBuilder") << "-----------------------";
   }
 
   //----------------------------------------------------------------------
@@ -291,7 +264,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
   ClusterizingHistogram hisR(int((rmax - rmin) / resolution) + 1, rmin, rmax);
 
   if (debug)
-    cout << " R layers: " << rmin << " " << rmax << endl;
+    LogVerbatim("MagGeoBuilder") << " R layers: " << rmin << " " << rmax;
 
   handles::const_iterator first = bVolumes.begin();
   handles::const_iterator last = bVolumes.end();
@@ -306,7 +279,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
 
   for (unsigned int i = 0; i < rClust.size() - 1; ++i) {
     if (debug)
-      cout << " Layer at RN = " << rClust[i];
+      LogVerbatim("MagGeoBuilder") << " Layer at RN = " << rClust[i];
     float rSepar = (rClust[i] + rClust[i + 1]) / 2.f;
     while ((*separ)->RN() < rSepar)
       ++separ;
@@ -317,13 +290,14 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
   }
   {
     if (debug)
-      cout << " Layer at RN = " << rClust.back();
+      LogVerbatim("MagGeoBuilder") << " Layer at RN = " << rClust.back();
     bLayer thislayer(separ, last, debug);
     layers.push_back(thislayer);
   }
 
   if (debug)
-    cout << "Barrel: Found " << rClust.size() << " clusters in R, " << layers.size() << " layers " << endl << endl;
+    LogVerbatim("MagGeoBuilder") << "Barrel: Found " << rClust.size() << " clusters in R, " << layers.size()
+                                 << " layers " << newln << newln;
 
   //----------------------------------------------------------------------
   // Find endcap sectors
@@ -339,7 +313,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
   vector<float> phiClust = hisPhi.clusterize(phireso);
   int nESectors = phiClust.size();
   if (debug && (nESectors % 12) != 0)
-    cout << "ERROR: unexpected # of sectors: " << nESectors << endl;
+    LogVerbatim("MagGeoBuilder") << "ERROR: unexpected # of sectors: " << nESectors;
 
   //Sort in phi
   precomputed_value_sort(eVolumes.begin(), eVolumes.end(), ExtractPhi());
@@ -362,14 +336,14 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
   int offset = eVolumes.size() / nESectors;
   for (int i = 0; i < nESectors; ++i) {
     if (debug) {
-      cout << " Sector at phi = " << (*(eVolumes.begin() + ((i)*offset)))->center().phi() << endl;
+      LogVerbatim("MagGeoBuilder") << " Sector at phi = " << (*(eVolumes.begin() + ((i)*offset)))->center().phi();
       // Additional x-check: sectors are expected to be made by volumes with the same copyno
       int secCopyNo = -1;
       for (handles::const_iterator iv = eVolumes.begin() + ((i)*offset); iv != eVolumes.begin() + ((i + 1) * offset);
            ++iv) {
         if (secCopyNo >= 0 && (*iv)->copyno != secCopyNo)
-          cout << "ERROR: volume copyno" << (*iv)->name << ":" << (*iv)->copyno
-               << " differs from others in same sectors " << secCopyNo << endl;
+          LogVerbatim("MagGeoBuilder") << "ERROR: volume copyno" << (*iv)->name << ":" << (*iv)->copyno
+                                       << " differs from others in same sectors " << secCopyNo;
         secCopyNo = (*iv)->copyno;
       }
     }
@@ -378,7 +352,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
   }
 
   if (debug)
-    cout << "Endcap: Found " << sectors.size() << " sectors " << endl;
+    LogVerbatim("MagGeoBuilder") << "Endcap: Found " << sectors.size() << " sectors ";
 
   //----------------------------------------------------------------------
   // Match surfaces.
@@ -426,10 +400,10 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
   }
 
   if (debug) {
-    cout << "*** BARREL ********************************************" << endl
-         << "Number of different volumes   = " << bVolCount << endl
-         << "Number of interpolators built = " << bInterpolators.size() << endl
-         << "Number of MagBLayers built    = " << mBLayers.size() << endl;
+    LogVerbatim("MagGeoBuilder") << "*** BARREL ********************************************" << newln
+                                 << "Number of different volumes   = " << bVolCount << newln
+                                 << "Number of interpolators built = " << bInterpolators.size() << newln
+                                 << "Number of MagBLayers built    = " << mBLayers.size();
 
     testInside(bVolumes);  // FIXME: all volumes should be checked in one go.
   }
@@ -444,25 +418,26 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
   }
 
   if (debug) {
-    cout << "*** ENDCAP ********************************************" << endl
-         << "Number of different volumes   = " << eVolCount << endl
-         << "Number of interpolators built = " << eInterpolators.size() << endl
-         << "Number of MagESector built    = " << mESectors.size() << endl;
+    LogVerbatim("MagGeoBuilder") << "*** ENDCAP ********************************************" << newln
+                                 << "Number of different volumes   = " << eVolCount << newln
+                                 << "Number of interpolators built = " << eInterpolators.size() << newln
+                                 << "Number of MagESector built    = " << mESectors.size();
 
     testInside(eVolumes);  // FIXME: all volumes should be checked in one go.
   }
 }
 
-void MagGeoBuilderFromDDD::buildMagVolumes(const handles& volumes, map<string, MagProviderInterpol*>& interpolators) {
+void MagGeoBuilderFromDDD::buildMagVolumes(const handles& volumes,
+                                           map<string, MagProviderInterpol*>& interpolators) const {
   // Build all MagVolumes setting the MagProviderInterpol
   for (handles::const_iterator vol = volumes.begin(); vol != volumes.end(); ++vol) {
     const MagProviderInterpol* mp = nullptr;
     if (interpolators.find((*vol)->magFile) != interpolators.end()) {
       mp = interpolators[(*vol)->magFile];
     } else {
-      edm::LogError("MagGeoBuilder") << "No interpolator found for file " << (*vol)->magFile
-                                     << " vol: " << (*vol)->volumeno << "\n"
-                                     << interpolators.size() << endl;
+      LogError("MagGeoBuilder") << "No interpolator found for file " << (*vol)->magFile << " vol: " << (*vol)->volumeno
+                                << "\n"
+                                << interpolators.size() << newln;
     }
 
     // Search for [volume,sector] in the list of scaling factors; sector = 0 handled as wildcard
@@ -478,8 +453,8 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles& volumes, map<string, M
     if (isf != theScalingFactors.end()) {
       sf = (*isf).second;
 
-      edm::LogInfo("MagGeoBuilder") << "Applying scaling factor " << sf << " to " << (*vol)->volumeno << "["
-                                    << (*vol)->copyno << "] (key:" << key << ")" << endl;
+      LogInfo("MagGeoBuilder") << "Applying scaling factor " << sf << " to " << (*vol)->volumeno << "["
+                               << (*vol)->copyno << "] (key:" << key << ")" << newln;
     }
 
     const GloballyPositioned<float>* gpos = (*vol)->placement();
@@ -497,78 +472,46 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles& volumes, map<string, M
   }
 }
 
-void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle* vol,
-                                             map<string, MagProviderInterpol*>& interpolators) {
-  // Phi of the master sector
-  double masterSectorPhi = (vol->masterSector - 1) * Geom::pi() / 6.;
-
+MagProviderInterpol* MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle* vol,
+                                                             InterpolatorBuilder& builder) const {
+  MagProviderInterpol* retValue = nullptr;
+  LogTrace("MagGeoBuilder") << "Building interpolator from " << vol->volumeno << " copyno " << vol->copyno << " at "
+                            << vol->center() << " phi: " << static_cast<double>(vol->center().phi()) / 1._pi
+                            << " pi,  file: " << vol->magFile << " master: " << vol->masterSector;
   if (debug) {
-    cout << "Building interpolator from " << vol->volumeno << " copyno " << vol->copyno << " at " << vol->center()
-         << " phi: " << vol->center().phi() << " file: " << vol->magFile << " master : " << vol->masterSector << endl;
-
-    if (fabs(vol->center().phi() - masterSectorPhi) > Geom::pi() / 9.) {
-      cout << "***WARNING wrong sector? " << endl;
+    // Phi of the master sector
+    double masterSectorPhi = (vol->masterSector - 1) * Geom::pi() / 6.;
+    double delta = std::abs(vol->center().phi() - masterSectorPhi);
+    if (delta > (1._pi / 9.)) {
+      LogVerbatim("MagGeoBuilder") << "***WARNING wrong sector? Vol delta from master sector is " << delta / 1._pi
+                                   << " pi";
     }
   }
 
-  if (tableSet == "fake" || vol->magFile == "fake") {
-    interpolators[vol->magFile] = new magneticfield::FakeInterpolator();
-    return;
-  }
-
-  string fullPath;
-
   try {
-    edm::FileInPath mydata("MagneticField/Interpolation/data/" + tableSet + "/" + vol->magFile);
-    fullPath = mydata.fullPath();
-  } catch (edm::Exception& exc) {
+    retValue = builder.build(vol).release();
+  } catch (Exception& exc) {
     cerr << "MagGeoBuilderFromDDD: exception in reading table; " << exc.what() << endl;
     if (!debug)
       throw;
-    return;
-  }
-
-  try {
-    if (vol->toExpand()) {
-      //FIXME: see discussion on mergeCylinders above.
-      //       interpolators[vol->magFile] =
-      // 	MFGridFactory::build( fullPath, *(vol->placement()), vol->minPhi(), vol->maxPhi());
-    } else {
-      // If the table is in "local" coordinates, must create a reference
-      // frame that is appropriately rotated along the CMS Z axis.
-
-      GloballyPositioned<float> rf = *(vol->placement());
-
-      if (vol->masterSector != 1) {
-        typedef Basic3DVector<float> Vector;
-
-        GloballyPositioned<float>::RotationType rot(Vector(0, 0, 1), -masterSectorPhi);
-        Vector vpos(vol->placement()->position());
-
-        rf = GloballyPositioned<float>(GloballyPositioned<float>::PositionType(rot.multiplyInverse(vpos)),
-                                       vol->placement()->rotation() * rot);
-      }
-
-      interpolators[vol->magFile] = MFGridFactory::build(fullPath, rf);
-    }
-  } catch (MagException& exc) {
-    cout << exc.what() << endl;
-    interpolators.erase(vol->magFile);
+    return nullptr;
+  } catch (MagException const& exc) {
+    LogTrace("MagGeoBuilder") << exc.what();
     if (!debug)
       throw;
-    return;
+    return nullptr;
   }
 
   if (debug) {
     // Check that all grid points of the interpolator are inside the volume.
     const MagVolume6Faces tempVolume(
-        vol->placement()->position(), vol->placement()->rotation(), vol->sides(), interpolators[vol->magFile]);
+        vol->placement()->position(), vol->placement()->rotation(), vol->sides(), retValue);
 
-    const MFGrid* grid = dynamic_cast<const MFGrid*>(interpolators[vol->magFile]);
+    const MFGrid* grid = dynamic_cast<const MFGrid*>(retValue);
     if (grid != nullptr) {
       Dimensions sizes = grid->dimensions();
-      cout << "Grid has 3 dimensions "
-           << " number of nodes is " << sizes.w << " " << sizes.h << " " << sizes.d << endl;
+      LogVerbatim("MagGeoBuilder") << "Grid has 3 dimensions "
+                                   << " number of nodes is " << sizes.w << " " << sizes.h << " " << sizes.d;
 
       const double tolerance = 0.03;
 
@@ -580,42 +523,44 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle* vol,
             if (!tempVolume.inside(lp, tolerance)) {
               if (++dumpCount < 2) {
                 MFGrid::GlobalPoint gp = tempVolume.toGlobal(lp);
-                cout << "GRID ERROR: " << i << " " << j << " " << k << " local: " << lp << " global: " << gp
-                     << " R= " << gp.perp() << " phi=" << gp.phi() << endl;
+                LogVerbatim("MagGeoBuilder") << "GRID ERROR: " << i << " " << j << " " << k << " local: " << lp
+                                             << " global: " << gp << " R= " << gp.perp() << " phi=" << gp.phi();
               }
             }
           }
         }
       }
 
-      cout << "Volume:" << vol->volumeno << " : Number of grid points outside the MagVolume: " << dumpCount << "/"
-           << sizes.w * sizes.h * sizes.d << endl;
+      LogVerbatim("MagGeoBuilder") << "Volume:" << vol->volumeno
+                                   << " : Number of grid points outside the MagVolume: " << dumpCount << "/"
+                                   << sizes.w * sizes.h * sizes.d;
     }
   }
+  return retValue;
 }
 
-void MagGeoBuilderFromDDD::testInside(handles& volumes) {
+void MagGeoBuilderFromDDD::testInside(handles& volumes) const {
   // test inside() for all volumes.
-  cout << "--------------------------------------------------" << endl;
-  cout << " inside(center) test" << endl;
+  LogVerbatim("MagGeoBuilder") << "--------------------------------------------------";
+  LogVerbatim("MagGeoBuilder") << " inside(center) test";
   for (handles::const_iterator vol = volumes.begin(); vol != volumes.end(); ++vol) {
     for (handles::const_iterator i = volumes.begin(); i != volumes.end(); ++i) {
       if ((*i) == (*vol))
         continue;
       //if ((*i)->magVolume == 0) continue;
       if ((*i)->magVolume->inside((*vol)->center())) {
-        cout << "*** ERROR: center of V " << (*vol)->volumeno << ":" << (*vol)->copyno << " is inside V "
-             << (*i)->volumeno << ":" << (*i)->copyno << endl;
+        LogVerbatim("MagGeoBuilder") << "*** ERROR: center of V " << (*vol)->volumeno << ":" << (*vol)->copyno
+                                     << " is inside V " << (*i)->volumeno << ":" << (*i)->copyno;
       }
     }
 
     if ((*vol)->magVolume->inside((*vol)->center())) {
-      cout << "V " << (*vol)->volumeno << " OK " << endl;
+      LogVerbatim("MagGeoBuilder") << "V " << (*vol)->volumeno << " OK ";
     } else {
-      cout << "*** ERROR: center of volume is not inside it, " << (*vol)->volumeno << endl;
+      LogVerbatim("MagGeoBuilder") << "*** ERROR: center of volume is not inside it, " << (*vol)->volumeno;
     }
   }
-  cout << "--------------------------------------------------" << endl;
+  LogVerbatim("MagGeoBuilder") << "--------------------------------------------------";
 }
 
 vector<MagBLayer*> MagGeoBuilderFromDDD::barrelLayers() const { return mBLayers; }

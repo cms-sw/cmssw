@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -19,7 +19,7 @@
 // class declaration
 //
 
-class SiStripQualityFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class SiStripQualityFakeESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   SiStripQualityFakeESSource(const edm::ParameterSet&);
   ~SiStripQualityFakeESSource() override {}
@@ -27,11 +27,6 @@ public:
   const SiStripQualityFakeESSource& operator=(const SiStripQualityFakeESSource&) = delete;
 
   std::unique_ptr<SiStripQuality> produce(const SiStripQualityRcd&);
-
-private:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue& iov,
-                      edm::ValidityInterval& iValidity) override;
 };
 
 #endif

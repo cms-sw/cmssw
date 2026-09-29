@@ -7,7 +7,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/ComponentInterfaceHolder.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
 
 namespace edm {
@@ -18,9 +18,9 @@ namespace edm {
     //
     std::string ModuleMakerTraits::name() { return "CMS EDM Framework ESModule"; }
     std::string const& ModuleMakerTraits::baseType() { return ParameterSetDescriptionFillerBase::kBaseForESProducer; }
-    void ModuleMakerTraits::addTo(EventSetupProvider& iProvider,
+    void ModuleMakerTraits::addTo(ComponentInterfaceHolder& iInterfaceHolder,
                                   std::shared_ptr<ESProductResolverProvider> iComponent) {
-      iProvider.add(iComponent);
+      iInterfaceHolder.setProvider(iComponent);
     }
   }  // namespace eventsetup
 }  // namespace edm

@@ -1,4 +1,6 @@
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "RecoHGCal/TICL/interface/TICLInterpretationAlgoBase.h"
+#include "RecoHGCal/TICL/interface/TICLUtils.h"
 #include "RecoHGCal/TICL/plugins/GeneralInterpretationAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -11,47 +13,35 @@ GeneralInterpretationAlgo::~GeneralInterpretationAlgo() {}
 
 GeneralInterpretationAlgo::GeneralInterpretationAlgo(const edm::ParameterSet &conf, edm::ConsumesCollector cc)
     : TICLInterpretationAlgoBase(conf, cc),
-      del_tk_ts_layer1_(conf.getParameter<double>("delta_tk_ts_layer1")),
-      del_tk_ts_int_(conf.getParameter<double>("delta_tk_ts_interface")),
-      timing_quality_threshold_(conf.getParameter<double>("timing_quality_threshold")) {}
+      del_tk_ts_layer1_(conf.getParameter<float>("delta_tk_ts_layer1")),
+      del_tk_ts_int_(conf.getParameter<float>("delta_tk_ts_interface")),
+      timing_quality_threshold_(conf.getParameter<float>("timing_quality_threshold")) {}
 
 void GeneralInterpretationAlgo::initialize(const HGCalDDDConstants *hgcons,
-                                           const hgcal::RecHitTools rhtools,
+                                           const ticlgeom::Tools rhtools,
                                            const edm::ESHandle<MagneticField> bfieldH,
                                            const edm::ESHandle<Propagator> propH) {
   hgcons_ = hgcons;
   rhtools_ = rhtools;
-  buildLayers();
 
   bfield_ = bfieldH;
   propagator_ = propH;
+
+  buildLayers();
 }
 
+// Geometry construction
 void GeneralInterpretationAlgo::buildLayers() {
-  // build disks at HGCal front & EM-Had interface for track propagation
+  // Build propagation disks at HGCal front face and CE-E CE-H interface
+  auto firstDisks = ticl::utils::buildHGCalFirstDisks(*hgcons_);
+  auto interfaceDisks = ticl::utils::buildHGCalInterfaceDisks(*hgcons_, rhtools_);
 
-  float zVal = hgcons_->waferZ(1, true);
-  std::pair<float, float> rMinMax = hgcons_->rangeR(zVal, true);
-
-  float zVal_interface = rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z();
-  std::pair<float, float> rMinMax_interface = hgcons_->rangeR(zVal_interface, true);
-
-  for (int iSide = 0; iSide < 2; ++iSide) {
-    float zSide = (iSide == 0) ? (-1. * zVal) : zVal;
-    firstDisk_[iSide] =
-        std::make_unique<GeomDet>(Disk::build(Disk::PositionType(0, 0, zSide),
-                                              Disk::RotationType(),
-                                              SimpleDiskBounds(rMinMax.first, rMinMax.second, zSide - 0.5, zSide + 0.5))
-                                      .get());
-
-    zSide = (iSide == 0) ? (-1. * zVal_interface) : zVal_interface;
-    interfaceDisk_[iSide] = std::make_unique<GeomDet>(
-        Disk::build(Disk::PositionType(0, 0, zSide),
-                    Disk::RotationType(),
-                    SimpleDiskBounds(rMinMax_interface.first, rMinMax_interface.second, zSide - 0.5, zSide + 0.5))
-            .get());
+  for (int side = 0; side < 2; ++side) {
+    firstDisk_[side] = std::move(firstDisks[side]);
+    interfaceDisk_[side] = std::move(interfaceDisks[side]);
   }
 }
+
 Vector GeneralInterpretationAlgo::propagateTrackster(const Trackster &t,
                                                      const unsigned idx,
                                                      float zVal,
@@ -119,8 +109,9 @@ void GeneralInterpretationAlgo::findTrackstersInWindow(const edm::MultiSpan<Trac
         const auto &in_tile = tile[tile.globalBin(eta_i, (phi_i % TileConstants::nPhiBins))];
         for (const unsigned &t_i : in_tile) {
           // calculate actual distances of tracksters to the seed for a more accurate cut
-          auto sep2 = (tracksterPropPoints[t_i].Eta() - seed_eta) * (tracksterPropPoints[t_i].Eta() - seed_eta) +
-                      (tracksterPropPoints[t_i].Phi() - seed_phi) * (tracksterPropPoints[t_i].Phi() - seed_phi);
+          const auto dPhi = reco::deltaPhi(tracksterPropPoints[t_i].Phi(), seed_phi);
+          auto sep2 =
+              (tracksterPropPoints[t_i].Eta() - seed_eta) * (tracksterPropPoints[t_i].Eta() - seed_eta) + dPhi * dPhi;
           if (sep2 < delta2) {
             in_delta.push_back(t_i);
             // distances2.push_back(sep2);
@@ -205,10 +196,12 @@ bool GeneralInterpretationAlgo::timeAndEnergyCompatible(float &total_raw_energy,
 void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
                                                edm::Handle<MtdHostCollection> inputTiming_h,
                                                std::vector<Trackster> &resultTracksters,
-                                               std::vector<int> &resultCandidate) {
+                                               std::vector<int> &resultCandidate,
+                                               std::vector<bool> &maskedTracksters,
+                                               std::vector<std::vector<unsigned int>> &linkedResultTracksters) {
   bool useMTDTiming = inputTiming_h.isValid();
   const auto tkH = input.tracksHandle;
-  const auto maskTracks = input.maskedTracks;
+  const auto &maskTracks = input.maskedTracks;
   const auto &tracks = *tkH;
   const auto &tracksters = input.tracksters;
 
@@ -318,7 +311,16 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
   std::vector<std::vector<unsigned int>> trackstersInTrackIndices;
   trackstersInTrackIndices.resize(tracks.size());
 
+  if (maskedTracksters.size() < tracksters.size())
+    maskedTracksters.resize(tracksters.size(), false);
+
   std::vector<bool> chargedMask(tracksters.size(), true);
+  // Tracksters already consumed by an earlier interpretation pass (e.g. muon MIP
+  // tracksters) are unavailable here: they are neither linked to a track nor emitted
+  // as neutral candidates.
+  for (size_t i = 0; i < tracksters.size(); ++i)
+    if (maskedTracksters[i])
+      chargedMask[i] = false;
   for (unsigned &i : candidateTrackIds) {
     if (tsNearTk[i].empty() && tsNearTkAtInt[i].empty()) {  // nothing linked to track, make charged hadrons
       continue;
@@ -374,7 +376,7 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
     }
     trackstersInTrackIndices[i] = chargedCandidate;
   }
-
+  linkedResultTracksters.reserve(linkedResultTracksters.size() + input.tracksters.size());
   for (size_t iTrack = 0; iTrack < trackstersInTrackIndices.size(); iTrack++) {
     if (!trackstersInTrackIndices[iTrack].empty()) {
       if (trackstersInTrackIndices[iTrack].size() == 1) {
@@ -400,19 +402,24 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
         else
           resultTracksters.back().setIdProbability(ticl::Trackster::ParticleType::electron, 1.f);
       }
+      for (auto const tracksterId : trackstersInTrackIndices[iTrack])
+        maskedTracksters[tracksterId] = true;
+      linkedResultTracksters.push_back(trackstersInTrackIndices[iTrack]);
     }
   }
 
-  for (size_t iTrackster = 0; iTrackster < input.tracksters.size(); iTrackster++) {
+  for (auto iTrackster = 0u; iTrackster < input.tracksters.size(); iTrackster++) {
     if (chargedMask[iTrackster]) {
       resultTracksters.push_back(input.tracksters[iTrackster]);
+      linkedResultTracksters.push_back({iTrackster});
+      maskedTracksters[iTrackster] = true;
     }
   }
 };
 
 void GeneralInterpretationAlgo::fillPSetDescription(edm::ParameterSetDescription &desc) {
-  desc.add<double>("delta_tk_ts_layer1", 0.02);
-  desc.add<double>("delta_tk_ts_interface", 0.03);
-  desc.add<double>("timing_quality_threshold", 0.5);
+  desc.add<float>("delta_tk_ts_layer1", 0.02);
+  desc.add<float>("delta_tk_ts_interface", 0.03);
+  desc.add<float>("timing_quality_threshold", 0.5);
   TICLInterpretationAlgoBase::fillPSetDescription(desc);
 }

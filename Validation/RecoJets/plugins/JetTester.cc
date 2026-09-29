@@ -27,9 +27,11 @@ JetTester::JetTester(const edm::ParameterSet& iConfig)
   isCaloJet = (std::string("calo") == JetType);        // <reco::CaloJetCollection>
   isPFJet = (std::string("pf") == JetType);            // <reco::PFJetCollection>
   isMiniAODJet = (std::string("miniaod") == JetType);  // <pat::JetCollection>
-  if (!isCaloJet && !isPFJet && !isMiniAODJet) {
+  isJPTJet = (std::string("jpt") == JetType);          // <reco::JPTJetCollection>
+
+  if (!isCaloJet && !isPFJet && !isMiniAODJet && !isJPTJet) {
     throw cms::Exception("Configuration")
-        << "Unknown jet type: " << JetType << "\nPlease use 'calo', 'pf', or 'miniaod'.";
+        << "Unknown jet type: " << JetType << "\nPlease use 'calo', 'pf', 'jpt', or 'miniaod'.";
   }
 
   if (!isMiniAODJet) {
@@ -44,6 +46,8 @@ JetTester::JetTester(const edm::ParameterSet& iConfig)
     pfJetsToken_ = consumes<reco::PFJetCollection>(mInputCollection);
   if (isMiniAODJet)
     patJetsToken_ = consumes<pat::JetCollection>(mInputCollection);
+  if (isJPTJet)
+    jptJetsToken_ = consumes<reco::JPTJetCollection>(mInputCollection);
   mInputGenCollection = iConfig.getParameter<edm::InputTag>("srcGen");
   genJetsToken_ = consumes<reco::GenJetCollection>(edm::InputTag(mInputGenCollection));
   evtToken_ = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
@@ -1052,6 +1056,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
   edm::Handle<CaloJetCollection> caloJets;
   edm::Handle<PFJetCollection> pfJets;
   edm::Handle<pat::JetCollection> patJets;
+  edm::Handle<JPTJetCollection> jptJets;
 
   if (isCaloJet) {
     mEvent.getByToken(caloJetsToken_, caloJets);
@@ -1061,6 +1066,18 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       recoJets.push_back((*caloJets)[ijet]);
       if (correctionIsValid) {
         auto jetCorrected = (*caloJets)[ijet];
+        jetCorrected.scaleEnergy(jetCorr->correction(jetCorrected));
+        corrJets.push_back(jetCorrected);
+      }
+    }
+  } else if (isJPTJet) {
+    mEvent.getByToken(jptJetsToken_, jptJets);
+    if (!jptJets.isValid())
+      return;
+    for (unsigned ijet = 0; ijet < jptJets->size(); ijet++) {
+      recoJets.push_back((*jptJets)[ijet]);
+      if (correctionIsValid) {
+        auto jetCorrected = (*jptJets)[ijet];
         jetCorrected.scaleEnergy(jetCorr->correction(jetCorrected));
         corrJets.push_back(jetCorrected);
       }

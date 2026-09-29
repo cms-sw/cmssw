@@ -6,9 +6,11 @@ CSCGains *CSCFakeGainsConditions::prefillGains() {
   const CSCDetId &detId = CSCDetId();
 
   int max_istrip, id_layer, max_ring, max_cham;
-  seed = 10000;
+  constexpr int seed = 10000;
   srand(seed);
-  mean = 6.8, min = -10.0, minchi = 1.0, M = 1000;
+  constexpr float mean = 6.8;
+  constexpr float min = -10.0;
+  constexpr float minchi = 1.0;
 
   // endcap=1 to 2,station=1 to 4, ring=1 to 4,chamber=1 to 36,layer=1 to 6
 
@@ -93,10 +95,4 @@ CSCFakeGainsConditions::~CSCFakeGainsConditions() {
 // ------------ method called to produce the data  ------------
 CSCFakeGainsConditions::ReturnType CSCFakeGainsConditions::produceGains(const CSCGainsRcd &iRecord) {
   return CSCFakeGainsConditions::ReturnType(prefillGains());
-}
-
-void CSCFakeGainsConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                            const edm::IOVSyncValue &,
-                                            edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }

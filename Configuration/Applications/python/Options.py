@@ -78,6 +78,12 @@ parser.add_argument("-o", "--number_out",
                     type=int,
                     dest="number_out")
 
+parser.add_argument("--skipEvents",
+                    help="The number of events that will be skipped.",
+                    default=-1,
+                    type=int,
+                    dest="skipEvents")
+
 parser.add_argument("--mc",
                     help="Specify that simulation is to be processed (default = guess based on options)",
                     action="store_true",

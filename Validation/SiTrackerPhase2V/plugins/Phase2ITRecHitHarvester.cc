@@ -23,6 +23,7 @@ private:
   // ----------member data ---------------------------
   const edm::ParameterSet config_;
   const std::string topFolder_;
+  const std::vector<std::string> shellNames_;  // FOR IT mO/pI // FOR OT PLUS/MINUS
   const unsigned int nbarrelLayers_;
   const unsigned int ndisk1Rings_;  //FOR IT epix//FOR OT TEDD1 rings
   const unsigned int ndisk2Rings_;  //FOR IT epix//FOR OT TEDD2 rings
@@ -39,6 +40,7 @@ private:
 Phase2ITRecHitHarvester::Phase2ITRecHitHarvester(const edm::ParameterSet& iConfig)
     : config_(iConfig),
       topFolder_(iConfig.getParameter<std::string>("TopFolder")),
+      shellNames_(iConfig.getParameter<std::vector<std::string>>("ShellNames")),
       nbarrelLayers_(iConfig.getParameter<uint32_t>("NbarrelLayers")),
       ndisk1Rings_(iConfig.getParameter<uint32_t>("NDisk1Rings")),
       ndisk2Rings_(iConfig.getParameter<uint32_t>("NDisk2Rings")),
@@ -53,15 +55,30 @@ Phase2ITRecHitHarvester::Phase2ITRecHitHarvester(const edm::ParameterSet& iConfi
 Phase2ITRecHitHarvester::~Phase2ITRecHitHarvester() {}
 
 void Phase2ITRecHitHarvester::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
-  for (unsigned int i = 1; i <= nbarrelLayers_; i++) {
-    std::string iFolder = topFolder_ + "/Barrel/Layer" + std::to_string(i);
-    dofitsForLayer(iFolder, ibooker, igetter);
+  // Could this use TrackerPhase2DQMUtil?
+  if (topFolder_ == "TrackerPhase2ITTrackingRecHitV" || topFolder_ == "TrackerPhase2ITRecHitV") {  // IT ONLY - Shells
+    for (unsigned int shell = 0; shell < shellNames_.size(); shell++) {
+      for (unsigned int i = 1; i <= nbarrelLayers_; i++) {
+        std::string iFolder = topFolder_ + "/Barrel/" + shellNames_[shell] + "/Layer" + std::to_string(i);
+        dofitsForLayer(iFolder, ibooker, igetter);
+      }
+    }
+  } else {
+    for (unsigned int i = 1; i <= nbarrelLayers_; i++) {
+      std::string iFolder = topFolder_ + "/Barrel/Layer" + std::to_string(i);
+      dofitsForLayer(iFolder, ibooker, igetter);
+    }
   }
-  for (unsigned int iSide = 1; iSide <= 2; iSide++) {
-    const std::string ecapbasedisk1 =
-        topFolder_ + "/EndCap_Side" + std::to_string(iSide) + "/" + ecapdisk1Name_ + "/Ring";
-    const std::string ecapbasedisk2 =
-        topFolder_ + "/EndCap_Side" + std::to_string(iSide) + "/" + ecapdisk2Name_ + "/Ring";
+  for (unsigned int shell = 0; shell < shellNames_.size(); shell++) {
+    std::string ecapbasedisk1;
+    std::string ecapbasedisk2;
+    if (topFolder_ == "TrackerPhase2ITTrackingRecHitV" || topFolder_ == "TrackerPhase2ITRecHitV") {  // IT
+      ecapbasedisk1 = topFolder_ + "/Endcaps/" + ecapdisk1Name_ + "/" + shellNames_[shell] + "/Ring";
+      ecapbasedisk2 = topFolder_ + "/Endcaps/" + ecapdisk2Name_ + "/" + shellNames_[shell] + "/Ring";
+    } else {  // OT
+      ecapbasedisk1 = topFolder_ + "/Endcaps/" + shellNames_[shell] + "/" + ecapdisk1Name_ + "/Ring";
+      ecapbasedisk2 = topFolder_ + "/Endcaps/" + shellNames_[shell] + "/" + ecapdisk2Name_ + "/Ring";
+    }
     //EPix or TEDD_1
     for (unsigned int epixr = 1; epixr <= ndisk1Rings_; epixr++) {
       std::string iFolder = ecapbasedisk1 + std::to_string(epixr);
@@ -154,11 +171,12 @@ void Phase2ITRecHitHarvester::fillDescriptions(edm::ConfigurationDescriptions& d
   // phase2ITrechitHarvester
   edm::ParameterSetDescription desc;
   desc.add<std::string>("TopFolder", "TrackerPhase2ITRecHitV");
+  desc.add<std::vector<std::string>>("ShellNames", {"mI", "mO", "pI", "pO"});
   desc.add<unsigned int>("NbarrelLayers", 4);
   desc.add<unsigned int>("NDisk1Rings", 5);
   desc.add<unsigned int>("NDisk2Rings", 4);
-  desc.add<std::string>("EcapDisk1Name", "EPix");
-  desc.add<std::string>("EcapDisk2Name", "FPix");
+  desc.add<std::string>("EcapDisk1Name", "EndcapPix");
+  desc.add<std::string>("EcapDisk2Name", "ForwardPix");
   desc.add<std::string>("ResidualXvsEta", "Delta_X_vs_Eta");
   desc.add<std::string>("ResidualXvsPhi", "Delta_X_vs_Phi");
   desc.add<std::string>("ResidualYvsEta", "Delta_Y_vs_Eta");

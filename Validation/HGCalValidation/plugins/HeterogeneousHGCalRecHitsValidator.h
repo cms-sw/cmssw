@@ -13,7 +13,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 #include "Validation/HGCalValidation/interface/ValidHit.h"
 
 #include "TTree.h"
@@ -44,11 +44,13 @@ private:
   //cpu amd gpu tokens and handles for the 3 subdetectors, cpu and gpu
   std::array<std::array<edm::EDGetTokenT<HGChefRecHitCollection>, ncomputingdevices>, nsubdetectors> tokens_;
   std::array<edm::ESGetToken<HGCalGeometry, IdealGeometryRecord>, nsubdetectors> estokens_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> estokenGeom_;
+  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
+  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
+  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
 
   std::array<std::string, nsubdetectors> handles_str_ = {
       {"HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillatorSensitive"}};
-  hgcal::RecHitTools recHitTools_;
+  ticlgeom::Tools recHitTools_;
 
   std::array<TTree*, nsubdetectors> trees_;
   std::array<std::string, nsubdetectors> treenames_;

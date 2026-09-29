@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_LinkingAlgoByDirectionGeometric_H__
-#define RecoHGCal_TICL_LinkingAlgoByDirectionGeometric_H__
+#ifndef RecoHGCal_TICL_LinkingAlgoByDirectionGeometric_h
+#define RecoHGCal_TICL_LinkingAlgoByDirectionGeometric_h
 
 #include <memory>
 #include <array>
@@ -29,7 +29,7 @@ namespace ticl {
     ~LinkingAlgoByDirectionGeometric() override;
 
     void initialize(const HGCalDDDConstants *hgcons,
-                    const hgcal::RecHitTools rhtools,
+                    const ticlgeom::Tools rhtools,
                     const edm::ESHandle<MagneticField> bfieldH,
                     const edm::ESHandle<Propagator> propH) override;
 
@@ -97,7 +97,7 @@ namespace ticl {
     std::unique_ptr<GeomDet> firstDisk_[2];
     std::unique_ptr<GeomDet> interfaceDisk_[2];
 
-    hgcal::RecHitTools rhtools_;
+    ticlgeom::Tools rhtools_;
 
     edm::ESHandle<MagneticField> bfield_;
     edm::ESHandle<Propagator> propagator_;

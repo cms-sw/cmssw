@@ -14,7 +14,7 @@ namespace cms::rocmtest {
                              size_t size) {
     // launch the 1-dimensional kernel for vector addition
     kernel_add_vectors_f<<<32, 32>>>(in1, in2, out, size);
-    hipCheck(hipGetLastError());
+    HIP_CHECK(hipGetLastError());
   }
 
   void wrapper_add_vectors_d(const double* __restrict__ in1,
@@ -23,7 +23,7 @@ namespace cms::rocmtest {
                              size_t size) {
     // launch the 1-dimensional kernel for vector addition
     kernel_add_vectors_d<<<32, 32>>>(in1, in2, out, size);
-    hipCheck(hipGetLastError());
+    HIP_CHECK(hipGetLastError());
   }
 
 }  // namespace cms::rocmtest

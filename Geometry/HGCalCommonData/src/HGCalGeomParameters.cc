@@ -921,7 +921,7 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const DDCompactView* cpv,
               const DDBox& box = static_cast<DDBox>(sol);
               rout = HGCalParameters::k_ScaleFromDDD * box.halfX();
             }
-            double zp = zvals[std::make_pair(lay, 1)];
+            double zp = (php.coldBoxMode_ == 0) ? zvals[std::make_pair(lay, 1)] : zvals[std::make_pair(lay, zside)];
             HGCalGeomParameters::layerParameters laypar(rin, rout, zp);
             layers[lay] = laypar;
 #ifdef EDM_ML_DEBUG

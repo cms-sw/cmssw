@@ -37,6 +37,7 @@ def customiseForOffline(process):
 
     return process
 
+
 def replace_all_pixel_seed_inputtags(process):
     import FWCore.ParameterSet.Config as cms
 
@@ -166,7 +167,10 @@ def customizeHLTfor49436(process):
                 MinOneOverPtError=cms.double(1.0),
                 TTRHBuilder=cms.string("hltESPTTRHBWithTrackAngle"),
                 magneticField=cms.string("ParabolicMf"),
-                beamSpot=cms.InputTag("hltOnlineBeamSpot")
+                beamSpot=cms.InputTag("hltOnlineBeamSpot"),
+                ptMin = cms.double( 1.5 ),
+                originHalfLength = cms.double( 12.5 ),
+                originRadius = cms.double( 0.05 )
             )
         )
 
@@ -200,6 +204,50 @@ def customizeHLTfor49436(process):
     return process
 
 
+def customizeHLTfor51085(process):
+    """ This customizer
+        - adds some of the geometry parameters used to fill the CAGeometry:
+            - minZ -> minInner
+            - maxZ -> maxInner
+            - maxR -> maxDR
+        - for pp and HIN hlt setups.
+    """
+ 
+    ca_producers_pp = ['CAHitNtupletAlpakaPhase1@alpaka','alpaka_serial_sync::CAHitNtupletAlpakaPhase1']
+    ca_producers_hi = ['CAHitNtupletAlpakaHIonPhase1@alpaka','alpaka_serial_sync::CAHitNtupletAlpakaHIonPhase1']
+    ca_producers = ca_producers_pp + ca_producers_hi
+
+    for ca_producer in ca_producers:
+        for prod in producers_by_type(process, ca_producer):
+
+            # get the current geometry
+            geometry = getattr(prod, "geometry")
+
+            nLayers = len(geometry.caDCACuts)
+            nPairs = len(geometry.maxDR)
+            
+            # new geometry parameters
+            if not hasattr(geometry, "startMaxInnerR"):
+                setattr(geometry, "startMaxInnerR", cms.vdouble([1000.] * nLayers))
+                
+            if not hasattr(geometry, "maxDCurv"):
+                setattr(geometry, "maxDCurv", cms.vdouble([1000.] * nLayers))
+                
+            if not hasattr(geometry, "floorDCurv"):
+                setattr(geometry, "floorDCurv", cms.vdouble([1000.] * nLayers))
+                
+            if not hasattr(geometry, "fishboneCuts"):
+                setattr(geometry, "fishboneCuts", cms.vdouble([0.99999] * nLayers))
+                
+            if not hasattr(geometry, "skipsLayers"):
+                setattr(geometry, "skipsLayers", cms.vuint32([False] * nPairs))
+
+            # set the full geometry
+            setattr(prod, 'geometry', geometry)
+
+    return process
+
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -208,5 +256,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
 
     # process = customizeHLTfor49436(process)
+    process = customizeHLTfor51085(process)
 
     return process

@@ -2,6 +2,7 @@
 <use name="DataFormats/EcalDetId"/>
 <use name="CondFormats/EcalObjects"/>
 <use name="CondFormats/DataRecord"/>
+<use name="FWCore/ParameterSet"/>
 <use name="Geometry/CaloTopology"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/Records"/>

@@ -42,8 +42,9 @@ namespace edm {
       OutputModuleBase& operator=(OutputModuleBase const&) = delete;  // Disallow copying and moving
 
       //Output modules always need writeRun and writeLumi to be called
-      bool wantsGlobalRuns() const noexcept { return true; }
-      bool wantsGlobalLuminosityBlocks() const noexcept { return true; }
+      constexpr static bool wantsGlobalRuns() noexcept { return true; }
+      constexpr static bool wantsGlobalLuminosityBlocks() noexcept { return true; }
+      constexpr static bool wantsWrites() noexcept { return true; }
 
       virtual bool wantsProcessBlocks() const noexcept = 0;
       virtual bool wantsInputProcessBlocks() const noexcept = 0;
@@ -58,8 +59,8 @@ namespace edm {
       void doBeginStream(StreamID id) { doBeginStream_(id); }
       void doEndStream(StreamID id) { doEndStream_(id); }
 
-      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
-      void doAcquire(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*, WaitingTaskHolder&&);
+      bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
+      void doAcquire(EventTransitionInfo const&, ModuleCallingContext const*, WaitingTaskHolder&&);
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                                     ModuleCallingContext const& iModuleCallingContext,

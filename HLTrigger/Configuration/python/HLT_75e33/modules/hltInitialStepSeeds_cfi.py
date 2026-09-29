@@ -11,18 +11,14 @@ hltInitialStepSeeds = cms.EDProducer("SeedGeneratorFromProtoTracksEDProducer",
     useProtoTrackKinematics = cms.bool(False),
     sortAndFilterProtoTracks = cms.bool(False),
     useEventsWithNoVertex = cms.bool(True),
-    TTRHBuilder = cms.string('WithTrackAngle'),
+    TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
     usePV = cms.bool(False),
     includeFourthHit = cms.bool(True),
-    removeOTRechits = cms.bool(True),
+    removeOTRechits = cms.bool(False),
     produceComplement = cms.bool(False)
 )
 
 from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
 hltPhase2LegacyTracking.toModify(hltInitialStepSeeds,
-    includeFourthHit = False,
-    removeOTRechits = False
+    includeFourthHit = False
 )
-
-from Configuration.ProcessModifiers.phase2_hlt_vertexTrimming_cff import phase2_hlt_vertexTrimming
-phase2_hlt_vertexTrimming.toModify(hltInitialStepSeeds, InputVertexCollection = "hltPhase2TrimmedPixelVertices")

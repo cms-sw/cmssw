@@ -1,6 +1,7 @@
 #ifndef _ALIGNMENT_OFFLINEVALIDATION_CMS_LUMI_H_
 #define _ALIGNMENT_OFFLINEVALIDATION_CMS_LUMI_H_
 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "TPad.h"
 #include "TLatex.h"
 #include "TLine.h"
@@ -11,35 +12,35 @@
 // Global variables
 //
 
-TString cmsText = "CMS";
-float cmsTextFont = 61;  // default is helvetic-bold
+CMS_THREAD_SAFE TString cmsText = "CMS";
+CMS_THREAD_SAFE float cmsTextFont = 61;  // default is helvetic-bold
 
-bool writeExtraText = false;
-TString extraText = "Preliminary";
-float extraTextFont = 52;  // default is helvetica-italics
+CMS_THREAD_SAFE bool writeExtraText = false;
+CMS_THREAD_SAFE TString extraText = "Preliminary";
+CMS_THREAD_SAFE float extraTextFont = 52;  // default is helvetica-italics
 
 // text sizes and text offsets with respect to the top frame
 // in unit of the top margin size
-float lumiTextSize = 0.6;
-float lumiTextOffset = 0.2;
-float cmsTextSize = 0.75;
-float cmsTextOffset = 0.1;  // only used in outOfFrame version
+CMS_THREAD_SAFE float lumiTextSize = 0.6;
+CMS_THREAD_SAFE float lumiTextOffset = 0.2;
+CMS_THREAD_SAFE float cmsTextSize = 0.75;
+CMS_THREAD_SAFE float cmsTextOffset = 0.1;  // only used in outOfFrame version
 
-float relPosX = 0.045;
-float relPosY = 0.035;
-float relExtraDY = 1.2;
+CMS_THREAD_SAFE float relPosX = 0.045;
+CMS_THREAD_SAFE float relPosY = 0.035;
+CMS_THREAD_SAFE float relExtraDY = 1.2;
 
 // ratio of "CMS" and extra text size
-float extraOverCmsTextSize = 0.76;
+CMS_THREAD_SAFE float extraOverCmsTextSize = 0.76;
 
-TString lumi_13TeV = "20.1 fb^{-1}";
-TString lumi_8TeV = "19.7 fb^{-1}";
-TString lumi_7TeV = "5.1 fb^{-1}";
-TString lumi_0p9TeV = "";
-TString lumi_13p6TeV = "";
-TString lumi_sqrtS = "";
-bool writeExraLumi = false;
-bool drawLogo = false;
+CMS_THREAD_SAFE TString lumi_13TeV = "20.1 fb^{-1}";
+CMS_THREAD_SAFE TString lumi_8TeV = "19.7 fb^{-1}";
+CMS_THREAD_SAFE TString lumi_7TeV = "5.1 fb^{-1}";
+CMS_THREAD_SAFE TString lumi_0p9TeV = "";
+CMS_THREAD_SAFE TString lumi_13p6TeV = "";
+CMS_THREAD_SAFE TString lumi_sqrtS = "";
+CMS_THREAD_SAFE bool writeExraLumi = false;
+CMS_THREAD_SAFE bool drawLogo = false;
 
 void CMS_lumi(TPad* pad, int iPeriod = 3, int iPosX = 10, TString RLabel = "");
 

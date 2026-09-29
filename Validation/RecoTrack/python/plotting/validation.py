@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import urllib.request
 import multiprocessing
+import shutil
 
 import ROOT
 ROOT.gROOT.SetBatch(True)
@@ -1184,40 +1185,7 @@ def _findDuplicates(lst):
         else:
             found.add(x)
     return list(found2)
-
-def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None):
-    plottingProcess = self._nProc
-    if plottingProcess<=0: plottingProcess = os.cpu_count()
-    plotterInstance = plotter.readDirs(*self._openFiles)
-    manager = multiprocessing.Manager()
-    return_dict = manager.dict()
-    proc = []
-    iProc = 0
-    active_proc = []
-
-    for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
-        if sample is not None and not _processPlotsForSample(plotterFolder, sample):
-            continue
-        newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
-        newdir = os.path.join(self._newdir, newsubdir)
-        if not os.path.exists(newdir):
-            os.makedirs(newdir, exist_ok=True)
-
-        plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
-        while len(active_proc)>=plottingProcess:
-          time.sleep(0.1)
-          active_proc = [p for p in active_proc if p.is_alive()]
-        p = multiprocessing.Process(target=self._doPlots, args=(plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict))
-        proc.append((plotterFolder, dqmSubFolder, p))
-        active_proc.append(p)
-        p.start()
-        iProc += 1
-
-    for i in range(iProc):
-        proc[i][2].join()
-        if len(return_dict[i]) > 0:
-            self._htmlReport.addPlots(proc[i][0], proc[i][1], return_dict[i])
-
+                
 class SimpleSample:
     def __init__(self, label, name, fileLegends, pileup=True, customPileupLabel=""):
         self._label = label
@@ -1262,16 +1230,18 @@ class SimpleSample:
         return True
 
 class SimpleValidation:
-    def __init__(self, samples, newdir, nProc=0):
+    def __init__(self, samples, newdir, nProc=0, separate=False):
         self._samples = samples
         self._newdir = newdir
         self._nProc = nProc
+        self._separate = separate
         if not os.path.exists(newdir):
             os.makedirs(newdir)
 
         self._htmlReport = html.HtmlReportDummy()
 
     def createHtmlReport(self, validationName=""):
+        assert not self._separate
         if hasattr(self._htmlReport, "write"):
             raise Exception("HTML report object already created. There is probably some logic error in the calling code.")
         self._htmlReport = html.HtmlReport(validationName, self._newdir)
@@ -1283,7 +1253,8 @@ class SimpleValidation:
         for sample in self._samples:
             self._subdirprefix = sample.label()
             self._labels = sample.legendLabels()
-            self._htmlReport.beginSample(sample)
+            if not self._separate:
+                self._htmlReport.beginSample(sample)
 
             self._openFiles = []
             for f in sample.files():
@@ -1294,21 +1265,69 @@ class SimpleValidation:
                     self._openFiles.append(None)
 
             for plotter in plotters:
-                _doPlotsForPlotter(self, plotter, sample, **kwargs)
+                self._doPlotsForPlotter(plotter, sample, **kwargs) # which in turn launches _doPlots()
 
             for tf in self._openFiles:
                 if tf is not None:
                     tf.Close()
             self._openFiles = []
 
+    def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None):
+        plottingProcess = self._nProc
+        if plottingProcess <= 0: plottingProcess = os.cpu_count()
+     
+        single_threaded = (plottingProcess == 1)
+     
+        plotterInstance = plotter.readDirs(*self._openFiles)
+     
+        if not single_threaded:
+            manager = multiprocessing.Manager()
+            return_dict = manager.dict()
+     
+        proc = []
+        active_proc = []
+        iProc = 0
+     
+        for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
+            if sample is not None and not _processPlotsForSample(plotterFolder, sample):
+                continue
+            newsubdir = self._subdirprefix + plotterFolder.getSelectionName(dqmSubFolder)
+            newdir = os.path.join(self._newdir, newsubdir)
+            os.makedirs(newdir, exist_ok=True)
+            plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
+     
+            if single_threaded: # Run directly in the main process for easier debugging
+                result = {}
+                self._doPlots(plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, result)
+                proc.append((plotterFolder, dqmSubFolder, None))
+                if len(result) > 0 and not self._separate:
+                    self._htmlReport.addPlots(plotterFolder, dqmSubFolder, result)
+            else:
+                while len(active_proc) >= plottingProcess:
+                    time.sleep(0.1)
+                    active_proc = [p for p in active_proc if p.is_alive()]
+                p = multiprocessing.Process(target=self._doPlots, args=(plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict))
+                proc.append((plotterFolder, dqmSubFolder, p))
+                active_proc.append(p)
+                p.start()
+     
+            iProc += 1
+     
+        if not single_threaded:
+            for i in range(iProc):
+                proc[i][2].join()
+                if len(return_dict[i]) > 0 and not self._separate:
+                    self._htmlReport.addPlots(proc[i][0], proc[i][1], return_dict[i])
+        
     def _doPlots(self, plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict):
         fileList = plotterFolder.draw(directory=newdir, **self._plotterDrawArgs)
 
         if len(fileList) == 0:
             print("No object found in %s" % plotterFolder.getName())
 
-        for tableCreator in plotterFolder.getTableCreators():
-            self._htmlReport.addTable(tableCreator.create(self._openFiles, self._labels, dqmSubFolder))
+        if not self._separate:
+            for tableCreator in plotterFolder.getTableCreators():
+                self._htmlReport.addTable(tableCreator.create(self._openFiles, self._labels, dqmSubFolder))
 
         dups = _findDuplicates(fileList)
         if len(dups) > 0:
@@ -1316,89 +1335,37 @@ class SimpleValidation:
             print("Typically this is a naming problem in the plotter configuration")
             sys.exit(1)
 
-        if self._plotterDrawArgs.get("separate", False):
-            if not os.path.exists("%s/res"%newdir):
-              os.makedirs("%s/res"%newdir)
-            downloadables = ["index.php", "res/jquery-ui.js", "res/jquery.js", "res/style.css", "res/style.js", "res/theme.css"]
+        if self._separate:
+            downloadables = ['index.php',]
+            newdir_parent = newdir[:newdir.rfind("/")]
+            linkList = []
+            for f in fileList:
+                ridx = f.rfind("/")
+                subdir = f[:ridx]
+                while subdir != newdir_parent and subdir not in linkList:
+                    linkList.append(subdir)
+                    subdir = subdir[:subdir.rfind("/")]
+             
             for d in downloadables:
-                if not os.path.exists("%s/%s" % (newdir,d)):
-                    urllib.request.urlretrieve("https://raw.githubusercontent.com/musella/php-plots/master/%s"%d, "%s/%s"%(newdir,d))
+                downloaded_path = None
+                for link in linkList:
+                    dest = f'{link}/{d}'
+                    if not os.path.exists(dest):
+                        if downloaded_path is None:
+                            downloaded_path = dest
+                            urllib.request.urlretrieve(f'https://gitlab.cern.ch/cms-analysis/general/php-plots/-/raw/master/{d}', downloaded_path)
+                        else:
+                            shutil.copy2(downloaded_path, dest)
+                            
+            return_dict[iProc] = list(map(lambda n: n.replace(newdir, newsubdir), linkList))
 
-        print("Created plots in %s" % newdir)
-        return_dict[iProc] = list(map(lambda n: n.replace(newdir, newsubdir), fileList))
-
-class SeparateValidation:
-    #Similar to the SimpleValidation
-    #To be used only if `--separate` option is on
-    def __init__(self, samples, newdir, nProc=0):
-        self._samples = samples
-        self._newdir = newdir
-        self._nProc = nProc
-        if not os.path.exists(newdir):
-            os.makedirs(newdir)
-
-        self._htmlReport = html.HtmlReportDummy()
-
-    def createHtmlReport(self, validationName=""):
-        if hasattr(self._htmlReport, "write"):
-            raise Exception("HTML report object already created. There is probably some logic error in the calling code.")
-        self._htmlReport = html.HtmlReport(validationName, self._newdir)
-        return self._htmlReport
-
-    def doPlots(self, plotters, plotterDrawArgs={}, **kwargs):
-        self._plotterDrawArgs = plotterDrawArgs
-
-        for sample in self._samples:
-            self._subdirprefix = sample.label()
-            self._labels = sample.legendLabels()
-            self._htmlReport.beginSample(sample)
-
-            self._openFiles = []
-            for f in sample.files():
-                if os.path.exists(f):
-                    self._openFiles.append(ROOT.TFile.Open(f))
-                else:
-                    print("File %s not found (from sample %s), ignoring it" % (f, sample.name()))
-                    self._openFiles.append(None)
-
-            for plotter in plotters:
-                _doPlotsForPlotter(self, plotter, sample, **kwargs)
-
-            for tf in self._openFiles:
-                if tf is not None:
-                    tf.Close()
-            self._openFiles = []
-
-    def _doPlots(self, plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict):
-        fileList = plotterFolder.draw(directory=newdir, **self._plotterDrawArgs)
-
-        # check if plots are produced
-        if len(fileList) == 0:
-            print("No object found in %s" % plotterFolder.getName())
-
-        # check if there are duplicated plot
-        dups = _findDuplicates(fileList)
-        if len(dups) > 0:
-            print("Plotter produced multiple files with names", ", ".join(dups))
-            print("Typically this is a naming problem in the plotter configuration")
-            sys.exit(1)
-
-        linkList = []
-        for f in fileList:
-            if f[:f.rfind("/")] not in linkList :
-                if str(f[:f.rfind("/")]) != str(newdir) :
-                    linkList.append(f[:f.rfind("/")])
-
-        for tableCreator in plotterFolder.getTableCreators():
-            self._htmlReport.addTable(tableCreator.create(self._openFiles, self._labels, dqmSubFolder))
-
-        for link in linkList :
-            if not os.path.exists("%s/res"%link):
-              os.makedirs("%s/res"%link)
-            downloadables = ["index.php", "res/jquery-ui.js", "res/jquery.js", "res/style.css", "res/style.js", "res/theme.css"]
+        else:
+            downloadables = ['index.php', 'res/jquery-ui.js', 'res/jquery.js', 'res/style.css', 'res/style.js', 'res/theme.css']        
+            os.makedirs(f'{newdir}/res', exist_ok=True)
             for d in downloadables:
-                if not os.path.exists("%s/%s" % (link,d)):
-                    urllib.request.urlretrieve("https://raw.githubusercontent.com/rovere/php-plots/master/%s"%d, "%s/%s"%(link,d))
+                if not os.path.exists(f'{newdir}/{d}'):
+                    urllib.request.urlretrieve(f'https://raw.githubusercontent.com/musella/php-plots/master/{d}', f'{newdir}/{d}')
 
-        print("Created separated plots in %s" % newdir)
-        return_dict[iProc] = list(map(lambda n: n.replace(newdir, newsubdir), linkList))
+            return_dict[iProc] = list(map(lambda n: n.replace(newdir, newsubdir), fileList))
+
+        print('Created ' + ('separate' if self._separate else '') + f' plots in {newdir}.')

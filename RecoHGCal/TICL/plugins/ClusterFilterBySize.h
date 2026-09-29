@@ -1,8 +1,8 @@
 // Author: Marco Rovere - marco.rovere@cern.ch
 // Date: 11/2018
 
-#ifndef RecoHGCal_TICL_ClusterFilterBySize_H__
-#define RecoHGCal_TICL_ClusterFilterBySize_H__
+#ifndef RecoHGCal_TICL_ClusterFilterBySize_h
+#define RecoHGCal_TICL_ClusterFilterBySize_h
 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "ClusterFilterBase.h"
@@ -20,7 +20,7 @@ namespace ticl {
 
     void filter(const std::vector<reco::CaloCluster>& layerClusters,
                 std::vector<float>& layerClustersMask,
-                hgcal::RecHitTools& rhtools) const override {
+                ticlgeom::Tools& rhtools) const override {
       for (size_t i = 0; i < layerClusters.size(); i++) {
         if (layerClusters[i].hitsAndFractions().size() > max_cluster_size_) {
           layerClustersMask[i] = 0.;

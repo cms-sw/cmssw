@@ -3,3 +3,16 @@
 
 <!-- test the TriggerResultsFilter reading the CMSSW results from the HLTPathStatus objects of the current process -->
 <test name="testTriggerResultsFilter_by_PathStatus" command="testTriggerResultsFilter_by_PathStatus.sh"/>
+
+<use name="FWCore/TestProcessor"/>
+<library file="HLTP2GTFilterTestAnalyzer.cc" name="HLTP2GTFilterTestAnalyzerLib">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/Common"/>
+  <use name="DataFormats/Common"/>
+</library>
+
+<flags EDM_PLUGIN="1"/>
+
+<test name="HLTP2GTFilterTest" command="cmsRun ${CMSSW_BASE}/src/HLTrigger/HLTfilters/test/testHLTP2GTFilters_cfg.py"/>

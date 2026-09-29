@@ -43,6 +43,22 @@ configurations. The label below is used when generating the cfi file.
                         type: untracked int32 optional
                         default: none
 
+    p_float_opt_nd
+                        type: float optional
+                        default: none
+
+    p_float_optuntracked_nd
+                        type: untracked float optional
+                        default: none
+
+    p_vfloat_opt_nd
+                        type: vfloat optional
+                        default: none
+
+    p_vfloat_optuntracked_nd
+                        type: untracked vfloat optional
+                        default: none
+
     vint1
                         type: vint32 
                         default: empty
@@ -175,6 +191,18 @@ configurations. The label below is used when generating the cfi file.
                         type: untracked double 
                         default: 0.3
 
+    doublev4
+                        type: double 
+                        default: 1.7976931348623157e+308
+
+    doublev5
+                        type: double 
+                        default: float('inf')
+
+    doublev6
+                        type: double 
+                        default: float('nan')
+
     vdoublev1
                         type: vdouble 
                         default: empty
@@ -201,6 +229,60 @@ configurations. The label below is used when generating the cfi file.
                         type: vdouble 
                         default: (vector size = 4)
                           [0]: 1e+300
+                          [1]: 0
+                          [2]: 11
+                          [3]: 0.3
+
+    floatv1
+                        type: float 
+                        default: 1.17549435e-38
+
+    floatv2
+                        type: untracked float 
+                        default: 0
+
+    floatv3
+                        type: untracked float 
+                        default: 0.3
+
+    floatv4
+                        type: float 
+                        default: 3.40282347e+38
+
+    floatv5
+                        type: float 
+                        default: float('inf')
+
+    floatv6
+                        type: float 
+                        default: float('nan')
+
+    vfloatv1
+                        type: vfloat 
+                        default: empty
+
+    vfloatv2
+                        type: vfloat 
+                        default: (vector size = 1)
+                          [0]: 1e+30
+
+    vfloatv3
+                        type: vfloat 
+                        default: (vector size = 2)
+                          [0]: 1e+30
+                          [1]: 0
+
+    vfloatv4
+                        type: vfloat 
+                        default: (vector size = 3)
+                          [0]: 1e+30
+                          [1]: 0
+                          [2]: 11
+
+    vfloatv5
+                        type: vfloat 
+                        default: (vector size = 4)
+                          [0]: 1e+30
                           [1]: 0
                           [2]: 11
                           [3]: 0.3
@@ -1908,6 +1990,14 @@ configurations. The label below is used when generating the cfi file.
                         type: VEventRange optional
                         default: none
 
+        noDefault25
+                        type: float optional
+                        default: none
+
+        noDefault26
+                        type: vfloat optional
+                        default: none
+
     Section 1.1.21 noDefaultPset4 PSet description:
 
         noDefault1
@@ -2004,6 +2094,14 @@ configurations. The label below is used when generating the cfi file.
 
         noDefault24
                         type: untracked VEventRange optional
+                        default: none
+
+        noDefault25
+                        type: untracked float optional
+                        default: none
+
+        noDefault26
+                        type: untracked vfloat optional
                         default: none
 
     Section 1.1.22 plugin PSet description:
@@ -2416,4 +2514,9 @@ configurations. The label below is used when generating the cfi file.
     p_int
                         type: int32 
                         default: 2147483647
+
+    vfloatv2
+                        type: vfloat 
+                        default: (vector size = 1)
+                          [0]: 1e+30
 

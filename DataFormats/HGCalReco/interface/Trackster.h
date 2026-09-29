@@ -79,7 +79,9 @@ namespace ticl {
       inline void calculateRawEmPt() { raw_em_pt_ = raw_em_energy_ / std::cosh(barycenter_.eta()); }
       inline void setBarycenter(Vector value) { barycenter_ = value; }
       inline void addTrackIdx(int index) { track_idxs_.push_back(index); }
+      inline void addGSFTrackIdx(int index) { gsftrack_idxs_.push_back(index); }
       int trackIdx(int index = 0) const { return track_idxs_.empty() ? -1 : track_idxs_[index]; }
+      int gsftrackIdx(int index = 0) const { return gsftrack_idxs_.empty() ? -1 : gsftrack_idxs_[index]; }
       inline bool isHadronic(float th = 0.5f) const {
         return id_probability(Trackster::ParticleType::photon) + id_probability(Trackster::ParticleType::electron) < th;
       }
@@ -200,7 +202,7 @@ namespace ticl {
       inline const std::array<float, 8> &id_probabilities() const { return id_probabilities_; }
       inline const float id_probabilities(int index) const { return id_probabilities_[index]; }
       inline const std::vector<int> &trackIdxs() const { return track_idxs_; }
-
+      inline const std::vector<int> &gsftrackIdxs() const { return gsftrack_idxs_; }
       // convenience method to return the ID probability for a certain particle type
       inline float id_probability(ParticleType type) const {
         // probabilities are stored in the same order as defined in the ParticleType enum
@@ -239,6 +241,7 @@ namespace ticl {
       // can be cooked using the previous ProductID and this index.
       int seedIndex_;
       std::vector<int> track_idxs_;
+      std::vector<int> gsftrack_idxs_;
 
       std::array<Vector, 3> eigenvectors_;
       std::array<float, 3> eigenvalues_;

@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 initialStepTrajectoryBuilder = cms.PSet(
     ComponentType = cms.string('GroupedCkfTrajectoryBuilder'),
-    TTRHBuilder = cms.string('WithTrackAngle'),
+    TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
     alwaysUseInvalidHits = cms.bool(False),
     bestHitOnly = cms.bool(True),
-    estimator = cms.string('initialStepChi2Est'),
+    estimator = cms.string('hltInitialStepChi2Est'),
     foundHitBonus = cms.double(10.0),
     inOutTrajectoryFilter = cms.PSet(
         refToPSet_ = cms.string('initialStepTrajectoryFilter')
@@ -19,12 +19,12 @@ initialStepTrajectoryBuilder = cms.PSet(
     maxPtForLooperReconstruction = cms.double(0.7),
     minNrOfHitsForRebuild = cms.int32(1),
     propagatorAlong = cms.string('PropagatorWithMaterialParabolicMf'),
-    propagatorOpposite = cms.string('PropagatorWithMaterialParabolicMfOpposite'),
+    propagatorOpposite = cms.string('hltOppositeMaterialPropagatorParabolicMF'),
     requireSeedHitsInRebuild = cms.bool(True),
     seedAs5DHit = cms.bool(False),
     trajectoryFilter = cms.PSet(
         refToPSet_ = cms.string('initialStepTrajectoryFilter')
     ),
-    updator = cms.string('KFUpdator'),
+    updator = cms.string('hltESPKFUpdator'),
     useSameTrajFilter = cms.bool(True)
 )

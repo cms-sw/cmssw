@@ -12,7 +12,7 @@ namespace cms {
       // Store the original device, without setting a new one
       ScopedSetDevice() {
         // Store the original device
-        cudaCheck(cudaGetDevice(&originalDevice_));
+        CUDA_CHECK(cudaGetDevice(&originalDevice_));
       }
 
       // Store the original device, and set a new current device
@@ -33,7 +33,7 @@ namespace cms {
       // that will be restored when this object is destroyed
       void set(int device) {
         // Change the current device
-        cudaCheck(cudaSetDevice(device));
+        CUDA_CHECK(cudaSetDevice(device));
       }
 
     private:

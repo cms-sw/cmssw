@@ -23,7 +23,8 @@ OutALCARECOTkAlV0s_noDrop = cms.PSet(
         'keep *_TriggerResults_*_*',
         'keep DcsStatuss_scalersRawToDigi_*_*',
         'keep *_offlinePrimaryVertices_*_*',
-        'keep *_offlineBeamSpot_*_*')
+        'keep *_offlineBeamSpot_*_*',
+        'keep PixelFEDChanneledmNewDetSetVector_siPixelDigis_*_*')
 )
 
 # in Run3, SCAL digis replaced by onlineMetaDataDigis

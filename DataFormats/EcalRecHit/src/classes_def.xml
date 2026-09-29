@@ -1,5 +1,6 @@
 <lcgdict>
-  <class name="EcalUncalibratedRecHit" ClassVersion="3">
+  <class name="EcalUncalibratedRecHit" ClassVersion="4">
+   <version ClassVersion="4" checksum="1554672449"/>
    <version ClassVersion="3" checksum="343844348"/>
   </class>
   <class name="std::vector<EcalUncalibratedRecHit>"/>

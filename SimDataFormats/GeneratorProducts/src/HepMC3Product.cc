@@ -23,7 +23,12 @@ HepMC3Product::HepMC3Product(const HepMC3::GenEvent& evt)
 
 HepMC3Product::~HepMC3Product() = default;
 
-void HepMC3Product::addHepMCData(const HepMC3::GenEvent& evt) { evt.write_data(evt_); }
+// GenEvent::write_data appends to the GenEventData vectors, so the target
+// has to be emptied first or every particle, vertex and link is stored twice.
+void HepMC3Product::addHepMCData(const HepMC3::GenEvent& evt) {
+  evt_ = HepMC3::GenEventData();
+  evt.write_data(evt_);
+}
 
 void HepMC3Product::applyVtxGen(HepMC3::FourVector const& vtxShift) {
   //std::cout<< " applyVtxGen called " << isVtxGenApplied_ << endl;
@@ -33,7 +38,7 @@ void HepMC3Product::applyVtxGen(HepMC3::FourVector const& vtxShift) {
   HepMC3::GenEvent evt;
   evt.read_data(evt_);
   evt.shift_position_by(vtxShift);
-  evt.write_data(evt_);
+  addHepMCData(evt);
   isVtxGenApplied_ = true;
   return;
 }
@@ -101,6 +106,6 @@ void HepMC3Product::boostToLab(TMatrixD const* lorentz, std::string const& type)
     //  << "no type found for boostToLab(std::string), options are vertex or momentum \n";
   }
 
-  evt.write_data(evt_);
+  addHepMCData(evt);
   return;
 }

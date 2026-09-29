@@ -2,7 +2,7 @@
 
 from Configuration.StandardSequences.MagneticField_cff import *
 
-VolumeBasedMagneticFieldESProducer.valueOverride = 18268
-ParabolicParametrizedMagneticFieldProducer.valueOverride = 18268
+VolumeBasedMagneticFieldESProducer.valueOverride = 18164
+ParabolicParametrizedMagneticFieldProducer.valueOverride = 18164
 
 

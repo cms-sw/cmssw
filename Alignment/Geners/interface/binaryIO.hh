@@ -75,7 +75,7 @@ namespace gs {
     read_pod(in, &vlen);
     if (vlen) {
       pv->resize(vlen);
-      read_pod_array(in, const_cast<T *>(pv->data()), vlen);
+      read_pod_array(in, &((*pv)[0]), vlen);
     } else
       pv->clear();
   }

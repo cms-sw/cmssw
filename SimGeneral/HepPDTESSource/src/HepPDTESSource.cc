@@ -25,12 +25,5 @@ HepPDTESSource::ReturnType HepPDTESSource::produce(const PDTRecord &iRecord) {
   return pdt;
 }
 
-void HepPDTESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                    const edm::IOVSyncValue &,
-                                    edm::ValidityInterval &oInterval) {
-  // the same PDT is valid for any time
-  oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}
-
 // define this as a plug-in
 // DEFINE_FWK_EVENTSETUP_SOURCE( HepPDTESSource );

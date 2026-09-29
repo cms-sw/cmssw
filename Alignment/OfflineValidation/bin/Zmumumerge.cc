@@ -78,7 +78,7 @@ int merge(int argc, char* argv[]) {
   std::cout << "filesAndLabels: " << filesAndLabels << std::endl;
 
   //And finally fit
-  DiMuonMassProfiles(filesAndLabels, cmslabel, rlabel, autoLimits);
+  DiMuonMassProfiles(filesAndLabels, cmslabel, rlabel, autoLimits, outdir);
 
   return EXIT_SUCCESS;
 }

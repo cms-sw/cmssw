@@ -8,6 +8,13 @@
  * tracking performance. Specifically it extracts standard deviations from
  * resolution ingredients for Nominal, Extended Prompt, and Extended Displaced
  * L1 tracks.
+ * 
+ * It also forms the track-level rate plots from the ingredients booked by the
+ * analyzer: the fake fraction (trk_fake_vspt / trk_all_vspt) and duplicate
+ * fraction (trk_duplicate_vspt / trk_all_vspt) with binomial errors, and the
+ * per-event track rate (trk_all_vspt / nEvents), for both the nominal and
+ * extended L1 track collections. Definitions follow
+ * L1Trigger/TrackFindingTracklet/test/L1TrackNtuplePlot.C.
  *
  * Usage:
  * To generate histograms from this code, run the test configuration files
@@ -227,6 +234,58 @@ void Phase2OTHarvestTracks::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
                      eta_binnum,
                      eta_bins),
       "");
+
+  // ---------------------------------------------------------------
+  // Track rate, fake fraction, duplicate fraction
+  // (ingredients filled in Phase2OTValidateTracks; definitions follow
+  //  L1Trigger/TrackFindingTracklet/test/L1TrackNtuplePlot.C)
+
+  // number of processed events, from the once-per-event TP multiplicity histogram
+  double nEvents = 0;
+  if (MonitorElement *meNevt = igetter.get(topFolderName_ + "/trackParticles/trackParts_Num"))
+    nEvents = meNevt->getTH1F()->GetEntries();
+
+  std::string ratesNom = topFolderName_ + "/Nominal_L1TF/TrackRateIngredients/";
+  ibooker.setCurrentFolder(topFolderName_ + "/Nominal_L1TF/FinalRates");
+  phase2tkutil::bookFraction(ibooker,
+                             igetter,
+                             ratesNom + "trk_fake_vspt",
+                             ratesNom + "trk_all_vspt",
+                             "fakeFraction_vspt",
+                             "Fake fraction;track p_{T} [GeV];fake fraction");
+  phase2tkutil::bookFraction(ibooker,
+                             igetter,
+                             ratesNom + "trk_duplicate_vspt",
+                             ratesNom + "trk_all_vspt",
+                             "duplicateFraction_vspt",
+                             "Duplicate fraction;track p_{T} [GeV];duplicate fraction");
+  phase2tkutil::bookPerEventRate(ibooker,
+                                 igetter,
+                                 ratesNom + "trk_all_vspt",
+                                 "trackRate_vspt",
+                                 "L1 tracks per event;track p_{T} [GeV];tracks / event",
+                                 nEvents);
+
+  std::string ratesExt = topFolderName_ + "/Extended_L1TF/TrackRateIngredients/";
+  ibooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/FinalRates");
+  phase2tkutil::bookFraction(ibooker,
+                             igetter,
+                             ratesExt + "trk_fake_vspt_extended",
+                             ratesExt + "trk_all_vspt_extended",
+                             "fakeFraction_vspt",
+                             "Fake fraction;track p_{T} [GeV];fake fraction");
+  phase2tkutil::bookFraction(ibooker,
+                             igetter,
+                             ratesExt + "trk_duplicate_vspt_extended",
+                             ratesExt + "trk_all_vspt_extended",
+                             "duplicateFraction_vspt",
+                             "Duplicate fraction;track p_{T} [GeV];duplicate fraction");
+  phase2tkutil::bookPerEventRate(ibooker,
+                                 igetter,
+                                 ratesExt + "trk_all_vspt_extended",
+                                 "trackRate_vspt",
+                                 "L1 tracks per event;track p_{T} [GeV];tracks / event",
+                                 nEvents);
 }  // end dqmEndJob
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"

@@ -17,6 +17,7 @@
 #ifndef ALIGNMENT_OFFLINEVALIDATION_TKAL_STYLE_H
 #define ALIGNMENT_OFFLINEVALIDATION_TKAL_STYLE_H
 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "TColor.h"
 #include "TError.h"
 #include "TLegend.h"
@@ -98,9 +99,9 @@ public:
   static TPaveText* customTitle(const TString& txt) { return title(txt); }
   static TPaveText* customRightTitle(const TString& txt) { return righttitle(txt); }
 
-  static TString legendheader;
-  static TString legendoptions;
-  static double textSize;
+  CMS_THREAD_SAFE static TString legendheader;
+  CMS_THREAD_SAFE static TString legendoptions;
+  CMS_THREAD_SAFE static double textSize;
   // Returns a TLegend object that fits into the top-right corner
   // of the current pad. Its width, relative to the pad size (without
   // margins), can be specified. Its height is optimized for nEntries
@@ -186,12 +187,12 @@ public:
   static double lineHeight() { return lineHeight_; }
 
 private:
-  static PublicationStatus publicationStatus_;
-  static Era era_;
-  static TString customTitle_;
-  static TString customRightTitle_;
-  static double lineHeight_;
-  static double margin_;
+  CMS_THREAD_SAFE static PublicationStatus publicationStatus_;
+  CMS_THREAD_SAFE static Era era_;
+  CMS_THREAD_SAFE static TString customTitle_;
+  CMS_THREAD_SAFE static TString customRightTitle_;
+  CMS_THREAD_SAFE static double lineHeight_;
+  CMS_THREAD_SAFE static double margin_;
 
   // creates a title
   static TString applyCMS(const TString& txt);

@@ -29,9 +29,9 @@ namespace io_v1 {
           : x_(hit_x), y_(hit_y), energy_(hit_energy), time_(hit_time), time_error_(hit_time_error) {}
       constexpr uint16_t x() { return x_; }
       constexpr uint16_t y() { return y_; }
-      constexpr uint16_t energy() { return energy_; }
-      constexpr uint16_t time() { return time_; }
-      constexpr uint16_t time_error() { return time_error_; }
+      constexpr float energy() { return energy_; }
+      constexpr float time() { return time_; }
+      constexpr float time_error() { return time_error_; }
 
     private:
       uint16_t x_;  //row

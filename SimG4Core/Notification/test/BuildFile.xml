@@ -2,3 +2,6 @@
 <use name="SimG4Core/Notification"/>
 <bin name="testSimG4CoreNotifications" file="simactivityregistry_t.cppunit.cpp">
 </bin>
+
+<bin name="testSimTrackManagerReconnect" file="SimTrackManagerReconnect_t.cppunit.cpp">
+</bin>

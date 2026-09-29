@@ -2,7 +2,7 @@ import math
 import glob
 import importlib
 import FWCore.ParameterSet.Config as cms
-from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultData_Comissioning2022_Cosmics_string,filesDefaultMC_DoubleMuonPUPhase_string
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultData_Comissioning2022_Cosmics_string,filesDefaultMC_DoubleMuonAlCa_string
 
 ###################################################################
 # Setup 'standard' options
@@ -90,7 +90,8 @@ else:
 ###################################################################
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.enable = False
-process.MessageLogger.DMRChecker=dict()  
+process.MessageLogger.DMRChecker=dict()
+process.MessageLogger.FastDMRChecker=dict()
 process.MessageLogger.GeneralPurposeTrackAnalyzer=dict()
 process.MessageLogger.cout = cms.untracked.PSet(
     enable = cms.untracked.bool(True),
@@ -100,6 +101,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
                                    reportEvery = cms.untracked.int32(1000)
                                    ),                                                      
     DMRChecker = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+    FastDMRChecker = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     GeneralPurposeTrackAnalyzer = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     #enableStatistics = cms.untracked.bool(True)
     )
@@ -136,7 +138,7 @@ if(options.unitTest):
     ## fixed input for the unit test
     if('D' in options.Detector) :
         # it's for phase-2
-        readFiles.extend([filesDefaultMC_DoubleMuonPUPhase_string])
+        readFiles.extend([filesDefaultMC_DoubleMuonAlCa_string])
     else:
         # it's for phase-1
         readFiles.extend([filesDefaultData_Comissioning2022_Cosmics_string])
@@ -223,9 +225,17 @@ process.myanalysis = cms.EDAnalyzer("GeneralPurposeTrackAnalyzer",
                                     #TkTag  = cms.InputTag(options.trackCollection),
                                     isCosmics = cms.bool(options.isCosmics))
 
-process.fastdmr = cms.EDAnalyzer("DMRChecker",
-                                 TkTag  = cms.InputTag('TrackRefitter1'),
-                                 isCosmics = cms.bool(options.isCosmics))
+process.dmr = cms.EDAnalyzer("DMRChecker",
+                             TkTag  = cms.InputTag('TrackRefitter1'),
+                             isCosmics = cms.bool(options.isCosmics))
+
+process.fastdmr = cms.EDAnalyzer('FastDMRChecker',
+                                 minHitsPerModule = cms.int32(10),
+                                 VertexCollection = cms.string('offlinePrimaryVertices'),
+                                 VertexCut = cms.untracked.bool(False),
+                                 trajectoryInput = cms.string('TrackRefitter1'),
+                                 Tracks = cms.InputTag('TrackRefitter1')
+                                 )
 
 ###################################################################
 # Output name
@@ -300,7 +310,9 @@ process.p1 = cms.Path(process.offlineBeamSpot
                       #*process.AliMomConstraint  # for 0T
                       * process.TrackRefitter1
                       * process.myanalysis
-                      * process.fastdmr)
+                      * process.dmr
+                      * process.fastdmr
+                      )
 
 ###################################################################
 # append di muon analysis

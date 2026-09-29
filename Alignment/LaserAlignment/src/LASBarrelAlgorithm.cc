@@ -48,7 +48,7 @@ LASBarrelAlignmentParameterSet LASBarrelAlgorithm::CalculateParameters(
   //
 
   // start values: to be evacuated to cfg
-  static float _vstart[52] = {
+  float vstart[52] = {
       0.00, 0.00, 0.0,  0.0,  0.0,  0.0,               // subdet for TIB+
       0.00, 0.00, 0.0,  0.0,  0.0,  0.0,               // subdet for TIB-
       0.00, 0.00, 0.0,  0.0,  0.0,  0.0,               // subdet for TOB+
@@ -60,11 +60,11 @@ LASBarrelAlignmentParameterSet LASBarrelAlgorithm::CalculateParameters(
   };
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
-  // ReadStartParametersFromFile( "startParameters.txt", _vstart ); // debug
+  // ReadStartParametersFromFile( "startParameters.txt", vstart ); // debug
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
   // step sizes: to be tuned, to be evacuated to cfg
-  static float _vstep[52] = {
+  float vstep[52] = {
       0.001, 0.001, 0.1,   0.1,   0.1,   0.1,                  // subdet for TIB+
       0.001, 0.001, 0.1,   0.1,   0.1,   0.1,                  // subdet for TIB-
       0.001, 0.001, 0.1,   0.1,   0.1,   0.1,                  // subdet for TOB+
@@ -78,134 +78,134 @@ LASBarrelAlignmentParameterSet LASBarrelAlgorithm::CalculateParameters(
   // subdetector parameters for TIB+:
 
   // rotation around z of first end face
-  minuit->mnparm(0, "subRot1TIB+", _vstart[0], _vstep[0], 0, 0, _ierflg);
+  minuit->mnparm(0, "subRot1TIB+", vstart[0], vstep[0], 0, 0, _ierflg);
   // rotation around z of second end face
-  minuit->mnparm(1, "subRot2TIB+", _vstart[1], _vstep[1], 0, 0, _ierflg);
+  minuit->mnparm(1, "subRot2TIB+", vstart[1], vstep[1], 0, 0, _ierflg);
   // translation along x of first end face
-  minuit->mnparm(2, "subTransX1TIB+", _vstart[2], _vstep[2], 0, 0, _ierflg);
+  minuit->mnparm(2, "subTransX1TIB+", vstart[2], vstep[2], 0, 0, _ierflg);
   // translation along x of second end face
-  minuit->mnparm(3, "subTransX2TIB+", _vstart[3], _vstep[3], 0, 0, _ierflg);
+  minuit->mnparm(3, "subTransX2TIB+", vstart[3], vstep[3], 0, 0, _ierflg);
   // translation along y of first end face
-  minuit->mnparm(4, "subTransY1TIB+", _vstart[4], _vstep[4], 0, 0, _ierflg);
+  minuit->mnparm(4, "subTransY1TIB+", vstart[4], vstep[4], 0, 0, _ierflg);
   // translation along y of second  end face
-  minuit->mnparm(5, "subTransY2TIB+", _vstart[5], _vstep[5], 0, 0, _ierflg);
+  minuit->mnparm(5, "subTransY2TIB+", vstart[5], vstep[5], 0, 0, _ierflg);
 
   // subdetector parameters for TIB-:
 
   // rotation around z of first end face
-  minuit->mnparm(6, "subRot1TIB-", _vstart[6], _vstep[6], 0, 0, _ierflg);
+  minuit->mnparm(6, "subRot1TIB-", vstart[6], vstep[6], 0, 0, _ierflg);
   // rotation around z of second end face
-  minuit->mnparm(7, "subRot2TIB-", _vstart[7], _vstep[7], 0, 0, _ierflg);
+  minuit->mnparm(7, "subRot2TIB-", vstart[7], vstep[7], 0, 0, _ierflg);
   // translation along x of first end face
-  minuit->mnparm(8, "subTransX1TIB-", _vstart[8], _vstep[8], 0, 0, _ierflg);
+  minuit->mnparm(8, "subTransX1TIB-", vstart[8], vstep[8], 0, 0, _ierflg);
   // translation along x of second end face
-  minuit->mnparm(9, "subTransX2TIB-", _vstart[9], _vstep[9], 0, 0, _ierflg);
+  minuit->mnparm(9, "subTransX2TIB-", vstart[9], vstep[9], 0, 0, _ierflg);
   // translation along y of first end face
-  minuit->mnparm(10, "subTransY1TIB-", _vstart[10], _vstep[10], 0, 0, _ierflg);
+  minuit->mnparm(10, "subTransY1TIB-", vstart[10], vstep[10], 0, 0, _ierflg);
   // translation along y of second  end face
-  minuit->mnparm(11, "subTransY2TIB-", _vstart[11], _vstep[11], 0, 0, _ierflg);
+  minuit->mnparm(11, "subTransY2TIB-", vstart[11], vstep[11], 0, 0, _ierflg);
 
   // subdetector parameters for TOB+:
 
   // rotation around z of first end face
-  minuit->mnparm(12, "subRot1TOB+", _vstart[12], _vstep[12], 0, 0, _ierflg);
+  minuit->mnparm(12, "subRot1TOB+", vstart[12], vstep[12], 0, 0, _ierflg);
   // rotation around z of second end face
-  minuit->mnparm(13, "subRot2TOB+", _vstart[13], _vstep[13], 0, 0, _ierflg);
+  minuit->mnparm(13, "subRot2TOB+", vstart[13], vstep[13], 0, 0, _ierflg);
   // translation along x of first end face
-  minuit->mnparm(14, "subTransX1TOB+", _vstart[14], _vstep[14], 0, 0, _ierflg);
+  minuit->mnparm(14, "subTransX1TOB+", vstart[14], vstep[14], 0, 0, _ierflg);
   // translation along x of second end face
-  minuit->mnparm(15, "subTransX2TOB+", _vstart[15], _vstep[15], 0, 0, _ierflg);
+  minuit->mnparm(15, "subTransX2TOB+", vstart[15], vstep[15], 0, 0, _ierflg);
   // translation along y of first end face
-  minuit->mnparm(16, "subTransY1TOB+", _vstart[16], _vstep[16], 0, 0, _ierflg);
+  minuit->mnparm(16, "subTransY1TOB+", vstart[16], vstep[16], 0, 0, _ierflg);
   // translation along y of second  end face
-  minuit->mnparm(17, "subTransY2TOB+", _vstart[17], _vstep[17], 0, 0, _ierflg);
+  minuit->mnparm(17, "subTransY2TOB+", vstart[17], vstep[17], 0, 0, _ierflg);
 
   // subdetector parameters for TOB-:
 
   // rotation around z of first end face
-  minuit->mnparm(18, "subRot1TOB-", _vstart[18], _vstep[18], 0, 0, _ierflg);
+  minuit->mnparm(18, "subRot1TOB-", vstart[18], vstep[18], 0, 0, _ierflg);
   // rotation around z of second end face
-  minuit->mnparm(19, "subRot2TOB-", _vstart[19], _vstep[19], 0, 0, _ierflg);
+  minuit->mnparm(19, "subRot2TOB-", vstart[19], vstep[19], 0, 0, _ierflg);
   // translation along x of first end face
-  minuit->mnparm(20, "subTransX1TOB-", _vstart[20], _vstep[20], 0, 0, _ierflg);
+  minuit->mnparm(20, "subTransX1TOB-", vstart[20], vstep[20], 0, 0, _ierflg);
   // translation along x of second end face
-  minuit->mnparm(21, "subTransX2TOB-", _vstart[21], _vstep[21], 0, 0, _ierflg);
+  minuit->mnparm(21, "subTransX2TOB-", vstart[21], vstep[21], 0, 0, _ierflg);
   // translation along y of first end face
-  minuit->mnparm(22, "subTransY1TOB-", _vstart[22], _vstep[22], 0, 0, _ierflg);
+  minuit->mnparm(22, "subTransY1TOB-", vstart[22], vstep[22], 0, 0, _ierflg);
   // translation along y of second  end face
-  minuit->mnparm(23, "subTransY2TOB-", _vstart[23], _vstep[23], 0, 0, _ierflg);
+  minuit->mnparm(23, "subTransY2TOB-", vstart[23], vstep[23], 0, 0, _ierflg);
 
   // subdetector parameters for TEC+:
 
   // rotation around z of first end face
-  minuit->mnparm(24, "subRot1TEC+", _vstart[24], _vstep[24], 0, 0, _ierflg);
+  minuit->mnparm(24, "subRot1TEC+", vstart[24], vstep[24], 0, 0, _ierflg);
   // rotation around z of second end face
-  minuit->mnparm(25, "subRot2TEC+", _vstart[25], _vstep[25], 0, 0, _ierflg);
+  minuit->mnparm(25, "subRot2TEC+", vstart[25], vstep[25], 0, 0, _ierflg);
   // translation along x of first end face
-  minuit->mnparm(26, "subTransX1TEC+", _vstart[26], _vstep[26], 0, 0, _ierflg);
+  minuit->mnparm(26, "subTransX1TEC+", vstart[26], vstep[26], 0, 0, _ierflg);
   // translation along x of second end face
-  minuit->mnparm(27, "subTransX2TEC+", _vstart[27], _vstep[27], 0, 0, _ierflg);
+  minuit->mnparm(27, "subTransX2TEC+", vstart[27], vstep[27], 0, 0, _ierflg);
   // translation along y of first end face
-  minuit->mnparm(28, "subTransY1TEC+", _vstart[28], _vstep[28], 0, 0, _ierflg);
+  minuit->mnparm(28, "subTransY1TEC+", vstart[28], vstep[28], 0, 0, _ierflg);
   // translation along y of second  end face
-  minuit->mnparm(29, "subTransY2TEC+", _vstart[29], _vstep[29], 0, 0, _ierflg);
+  minuit->mnparm(29, "subTransY2TEC+", vstart[29], vstep[29], 0, 0, _ierflg);
 
   // subdetector parameters for TEC-:
 
   // rotation around z of first end face
-  minuit->mnparm(30, "subRot1TEC-", _vstart[30], _vstep[30], 0, 0, _ierflg);
+  minuit->mnparm(30, "subRot1TEC-", vstart[30], vstep[30], 0, 0, _ierflg);
   // rotation around z of second end face
-  minuit->mnparm(31, "subRot2TEC-", _vstart[31], _vstep[31], 0, 0, _ierflg);
+  minuit->mnparm(31, "subRot2TEC-", vstart[31], vstep[31], 0, 0, _ierflg);
   // translation along x of first end face
-  minuit->mnparm(32, "subTransX1TEC-", _vstart[32], _vstep[32], 0, 0, _ierflg);
+  minuit->mnparm(32, "subTransX1TEC-", vstart[32], vstep[32], 0, 0, _ierflg);
   // translation along x of second end face
-  minuit->mnparm(33, "subTransX2TEC-", _vstart[33], _vstep[33], 0, 0, _ierflg);
+  minuit->mnparm(33, "subTransX2TEC-", vstart[33], vstep[33], 0, 0, _ierflg);
   // translation along y of first end face
-  minuit->mnparm(34, "subTransY1TEC-", _vstart[34], _vstep[34], 0, 0, _ierflg);
+  minuit->mnparm(34, "subTransY1TEC-", vstart[34], vstep[34], 0, 0, _ierflg);
   // translation along y of second  end face
-  minuit->mnparm(35, "subTransY2TEC-", _vstart[35], _vstep[35], 0, 0, _ierflg);
+  minuit->mnparm(35, "subTransY2TEC-", vstart[35], vstep[35], 0, 0, _ierflg);
 
   // beam parameters (+-z pairs, duplicated for beams 0-7):
 
   // rotation around z at zt1
-  minuit->mnparm(36, "beamRot1Beam0", _vstart[36], _vstep[36], 0, 0, _ierflg);
+  minuit->mnparm(36, "beamRot1Beam0", vstart[36], vstep[36], 0, 0, _ierflg);
   // rotation around z at zt2
-  minuit->mnparm(37, "beamRot2Beam0", _vstart[37], _vstep[37], 0, 0, _ierflg);
+  minuit->mnparm(37, "beamRot2Beam0", vstart[37], vstep[37], 0, 0, _ierflg);
 
   // rotation around z at zt1
-  minuit->mnparm(38, "beamRot1Beam1", _vstart[38], _vstep[38], 0, 0, _ierflg);
+  minuit->mnparm(38, "beamRot1Beam1", vstart[38], vstep[38], 0, 0, _ierflg);
   // rotation around z at zt2
-  minuit->mnparm(39, "beamRot2Beam1", _vstart[39], _vstep[39], 0, 0, _ierflg);
+  minuit->mnparm(39, "beamRot2Beam1", vstart[39], vstep[39], 0, 0, _ierflg);
 
   // rotation around z at zt1
-  minuit->mnparm(40, "beamRot1Beam2", _vstart[40], _vstep[40], 0, 0, _ierflg);
+  minuit->mnparm(40, "beamRot1Beam2", vstart[40], vstep[40], 0, 0, _ierflg);
   // rotation around z at zt2
-  minuit->mnparm(41, "beamRot2Beam2", _vstart[41], _vstep[41], 0, 0, _ierflg);
+  minuit->mnparm(41, "beamRot2Beam2", vstart[41], vstep[41], 0, 0, _ierflg);
 
   // rotation around z at zt1
-  minuit->mnparm(42, "beamRot1Beam3", _vstart[42], _vstep[42], 0, 0, _ierflg);
+  minuit->mnparm(42, "beamRot1Beam3", vstart[42], vstep[42], 0, 0, _ierflg);
   // rotation around z at zt2
-  minuit->mnparm(43, "beamRot2Beam3", _vstart[43], _vstep[43], 0, 0, _ierflg);
+  minuit->mnparm(43, "beamRot2Beam3", vstart[43], vstep[43], 0, 0, _ierflg);
 
   // rotation around z at zt1
-  minuit->mnparm(44, "beamRot1Beam4", _vstart[44], _vstep[44], 0, 0, _ierflg);
+  minuit->mnparm(44, "beamRot1Beam4", vstart[44], vstep[44], 0, 0, _ierflg);
   // rotation around z at zt2
-  minuit->mnparm(45, "beamRot2Beam4", _vstart[45], _vstep[45], 0, 0, _ierflg);
+  minuit->mnparm(45, "beamRot2Beam4", vstart[45], vstep[45], 0, 0, _ierflg);
 
   // rotation around z at zt1
-  minuit->mnparm(46, "beamRot1Beam5", _vstart[46], _vstep[46], 0, 0, _ierflg);
+  minuit->mnparm(46, "beamRot1Beam5", vstart[46], vstep[46], 0, 0, _ierflg);
   // rotation around z at zt2
-  minuit->mnparm(47, "beamRot2Beam5", _vstart[47], _vstep[47], 0, 0, _ierflg);
+  minuit->mnparm(47, "beamRot2Beam5", vstart[47], vstep[47], 0, 0, _ierflg);
 
   // rotation around z at zt1
-  minuit->mnparm(48, "beamRot1Beam6", _vstart[48], _vstep[48], 0, 0, _ierflg);
+  minuit->mnparm(48, "beamRot1Beam6", vstart[48], vstep[48], 0, 0, _ierflg);
   // rotation around z at zt2
-  minuit->mnparm(49, "beamRot2Beam6", _vstart[49], _vstep[49], 0, 0, _ierflg);
+  minuit->mnparm(49, "beamRot2Beam6", vstart[49], vstep[49], 0, 0, _ierflg);
 
   // rotation around z at zt1
-  minuit->mnparm(50, "beamRot1Beam7", _vstart[50], _vstep[50], 0, 0, _ierflg);
+  minuit->mnparm(50, "beamRot1Beam7", vstart[50], vstep[50], 0, 0, _ierflg);
   // rotation around z at zt2
-  minuit->mnparm(51, "beamRot2Beam7", _vstart[51], _vstep[51], 0, 0, _ierflg);
+  minuit->mnparm(51, "beamRot2Beam7", vstart[51], vstep[51], 0, 0, _ierflg);
 
   // we fix the respective outer disks 9 of each endcap
   // as a reference system (pars 25,27,29 & 30,32,34)

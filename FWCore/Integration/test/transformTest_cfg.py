@@ -10,9 +10,11 @@ parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test module tran
 parser.add_argument("--onPath", help="Put transform module on the Path", action="store_true")
 parser.add_argument("--noTransform", help="do not consume transform", action="store_true")
 parser.add_argument("--stream", help="use stream module", action="store_true")
+parser.add_argument("--limited", help="use limited module", action="store_true")
 parser.add_argument("--noPut", help="do not put data used by transform", action="store_true")
 parser.add_argument("--addTracer", help="add Tracer service", action="store_true")
 parser.add_argument("--async_", help="use asynchronous module", action="store_true")
+parser.add_argument("--untyped", help="use the untyped (and asynchronous) registerTransformAsync", action="store_true")
 parser.add_argument("--exception", help="Make module consumed by transformer to throw an exception", action="store_true")
 
 args = parser.parse_args()
@@ -29,8 +31,19 @@ if args.exception:
 if args.stream:
   if args.async_:
     process.t = cms.EDProducer("TransformAsyncIntStreamProducer", get = cms.InputTag("start"), offset = cms.uint32(1), checkTransformNotCalled = cms.untracked.bool(False))
+  elif args.untyped:
+    process.t = cms.EDProducer("TransformAsyncIntStreamUntypedProducer", get = cms.InputTag("start"), offset = cms.uint32(1), checkTransformNotCalled = cms.untracked.bool(False))
   else:
     process.t = cms.EDProducer("TransformIntStreamProducer", get = cms.InputTag("start"), offset = cms.uint32(1), checkTransformNotCalled = cms.untracked.bool(False))
+elif args.limited:
+  if args.async_:
+    process.t = cms.EDProducer("TransformAsyncIntLimitedProducer", get = cms.InputTag("start"), offset = cms.uint32(1), checkTransformNotCalled = cms.untracked.bool(False), noPut = cms.bool(args.noPut))
+  elif args.untyped:
+    process.t = cms.EDProducer("TransformAsyncIntLimitedUntypedProducer", get = cms.InputTag("start"), offset = cms.uint32(1), checkTransformNotCalled = cms.untracked.bool(False), noPut = cms.bool(args.noPut))
+  else:
+    process.t = cms.EDProducer("TransformIntLimitedProducer", get = cms.InputTag("start"), offset = cms.uint32(1), checkTransformNotCalled = cms.untracked.bool(False))
+elif args.untyped:
+  process.t = cms.EDProducer("TransformAsyncIntUntypedProducer", get = cms.InputTag("start"), offset = cms.uint32(1), checkTransformNotCalled = cms.untracked.bool(False), noPut = cms.bool(args.noPut))
 else:
   if args.async_:
     process.t = cms.EDProducer("TransformAsyncIntProducer", get = cms.InputTag("start"), offset = cms.uint32(1), checkTransformNotCalled = cms.untracked.bool(False), noPut = cms.bool(args.noPut))

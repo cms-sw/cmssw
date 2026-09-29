@@ -1,16 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
 filesDefaultMC_IsoMuon = cms.untracked.vstring(
-    '/store/mc/RunIIWinter19PFCalibDR/WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8/ALCARECO/TkAlMuonIsolated-2018Conditions_ideal_105X_upgrade2018_design_v3-v2/240000/D4F6E0C2-A83C-7144-A375-4667727CD9F0.root'
+    '/store/relval/CMSSW_20_0_0_pre1/RelValQCD_Pt_1800_2400_14/ALCARECO/TkAlMuonIsolated-150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/4b892577-915a-490e-9f66-2269648bf20d.root'
 )
 
 filesDefaultMC_DoubleMuon = cms.untracked.vstring(
     '/store/relval/CMSSW_12_5_0_pre5/RelValZMM_14/GEN-SIM-RECO/125X_mcRun3_2022_realistic_v3-v1/10000/068634c7-e8e2-4e46-a68e-97ebefed4868.root'
 )
 
-filesDefaultMC_DoubleMuon_string = '/store/relval/CMSSW_12_5_0_pre5/RelValZMM_14/GEN-SIM-RECO/125X_mcRun3_2022_realistic_v3-v1/10000/068634c7-e8e2-4e46-a68e-97ebefed4868.root'
+filesDefaultMC_DoubleElectron_string = '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/028e09cc-784b-41ab-a712-511d5bb67724.root'
 
-filesDefaultMC_DoubleMuonAlCa_string = '/store/relval/CMSSW_14_0_0_pre3/RelValZMM_14/ALCARECO/TkAlZMuMu-140X_mcRun3_2024_realistic_v1_STD_2024_noPU-v1/2580000/b91cfb5d-090c-4410-8c9e-ce165f4a4ef4.root'
+filesDefaultMC_DoubleElectron = cms.untracked.vstring(filesDefaultMC_DoubleElectron_string)
+
+filesDefaultMC_DoubleMuon_string = '/store/relval/CMSSW_20_0_0_pre1/RelValZMM_14/GEN-SIM-RECO/PU_150X_mcRun4_realistic_v1_STD_D121_RegeneratedGS_PU-v1/2590000/42c2b496-5687-4872-803f-f0daa1c6b2b9.root'
+
+filesDefaultMC_DoubleMuonAlCa_string = '/store/relval/CMSSW_20_0_0_pre1/RelValZMM_14/ALCARECO/TkAlZMuMu-150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/d42b4f5d-7e50-461a-924c-9e95ad81194b.root'
 
 filesDefaultMC_TTBarPU = cms.untracked.vstring(
     '/store/relval/CMSSW_12_5_0_pre5/RelValTTbar_14TeV/GEN-SIM-RECO/PU_125X_mcRun3_2022_realistic_v3-v1/10000/0136c33f-3ff9-4602-8578-906ae6e0160b.root'
@@ -27,7 +31,7 @@ filesDefaultMC_MinBiasPUPhase2RECO = cms.untracked.vstring(
 )
 
 filesDefaultMC_TTbarPhase2RECO = cms.untracked.vstring(
-    '/store/relval/CMSSW_14_1_0_pre5/RelValTTbar_14TeV/GEN-SIM-RECO/140X_mcRun4_realistic_v4_STD_2026D110_noPU-v1/2580000/b8c9ef5e-9c45-4c47-aae3-4db1304cd66e.root',
+    '/store/relval/CMSSW_20_0_0_pre1/RelValTTbar_14TeV/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/1bf48ba4-bd8e-405e-845d-cfdfbfbed923.root',
 )
 
 filesDefaultData_JetHTRun2018D = cms.untracked.vstring(
@@ -42,8 +46,10 @@ filesDefaultData_JetHTRun2018DHcalIsoTrk = cms.untracked.vstring(
     '/store/data/Run2018D/JetHT/ALCARECO/HcalCalIsoTrkFilter-12Nov2019_UL2018-v3/100000/075A1F1E-20B4-134D-9794-AD764DA6730D.root')
 
 filesDefaultMC_NoPU = cms.untracked.vstring(
-    '/store/mc/RunIIWinter19PFCalibDR/Single_Pion_gun_E_2to200_13TeV_pythia8/GEN-SIM-RECO/2018ConditionsNoPU_105X_upgrade2018_realistic_v4-v1/270000/2BCBEBAB-BA94-B74F-9BFA-04F849A32558.root'
+    '/store/relval/CMSSW_20_0_0_pre1/RelValMinBias_14TeV/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/e084e752-0b18-4f3b-b910-5eadc930ed59.root'
 )
+
+filesDefaultMC_NoPU_AlCa = cms.untracked.vstring('/store/relval/CMSSW_20_0_0_pre1/RelValQCD_FlatPt_15_3000HS_14/ALCARECO/TkAlMinBias-150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/76b13a13-8751-43f8-8c1b-475dfb7f9178.root')
 
 filesDefaultMC_Ideal900GeV = cms.untracked.vstring(
     '/store/relval/CMSSW_12_0_2_patch1/RelValMinBias_14TeV/ALCARECO/TkAlMinBias-120X_mcRun3_2021_realistic_forpp900GeV_IdealTkAlign_v1_IdealTkAlignmentJIRA137-v1/2580000/044c1fa8-9bdf-4c2e-9aa4-00ba966426a2.root'

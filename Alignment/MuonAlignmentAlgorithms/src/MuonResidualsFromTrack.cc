@@ -1,5 +1,5 @@
 /*
- * $Id: $ 
+ * $Id: $
  */
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsFromTrack.h"
@@ -29,7 +29,13 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(edm::ESHandle<TransientTrackingRe
                                                const Trajectory* traj,
                                                const reco::Track* recoTrack,
                                                AlignableNavigator* navigator,
-                                               double maxResidual)
+                                               double maxResidual,
+                                               bool fillLayerPlotDT,
+                                               bool fillLayerPlotCSC,
+                                               struct DTLayerData* layerData_DT,
+                                               TTree* layerTree_DT,
+                                               struct CSCLayerData* layerData_CSC,
+                                               TTree* layerTree_CSC)
     : m_recoTrack(recoTrack) {
   init(trackerRecHitBuilder,
        magneticField,
@@ -39,7 +45,13 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(edm::ESHandle<TransientTrackingRe
        traj,
        recoTrack,
        navigator,
-       maxResidual);
+       maxResidual,
+       fillLayerPlotDT,
+       fillLayerPlotCSC,
+       layerData_DT,
+       layerTree_DT,
+       layerData_CSC,
+       layerTree_CSC);
 }
 
 void MuonResidualsFromTrack::init(edm::ESHandle<TransientTrackingRecHitBuilder> trackerRecHitBuilder,
@@ -50,7 +62,13 @@ void MuonResidualsFromTrack::init(edm::ESHandle<TransientTrackingRecHitBuilder> 
                                   const Trajectory* traj,
                                   const reco::Track* recoTrack,
                                   AlignableNavigator* navigator,
-                                  double maxResidual) {
+                                  double maxResidual,
+                                  bool fillLayerPlotDT,
+                                  bool fillLayerPlotCSC,
+                                  struct DTLayerData* layerData_DT,
+                                  TTree* layerTree_DT,
+                                  struct CSCLayerData* layerData_CSC,
+                                  TTree* layerTree_CSC) {
   bool m_debug = false;
 
   if (m_debug) {
@@ -63,7 +81,24 @@ void MuonResidualsFromTrack::init(edm::ESHandle<TransientTrackingRecHitBuilder> 
 
   reco::TransientTrack track(*m_recoTrack, &*magneticField, globalGeometry);
   TransientTrackingRecHit::ConstRecHitContainer recHitsForRefit;
+
+  if (fillLayerPlotDT) {
+    layerData_DT->eta = m_recoTrack->eta();
+    layerData_DT->phi = m_recoTrack->phi();
+    layerData_DT->pz = m_recoTrack->pz();
+    layerData_DT->pt = m_recoTrack->pt();
+    layerData_DT->charge = m_recoTrack->charge();
+  }
+  if (fillLayerPlotCSC) {
+    layerData_CSC->eta = m_recoTrack->eta();
+    layerData_CSC->phi = m_recoTrack->phi();
+    layerData_CSC->pz = m_recoTrack->pz();
+    layerData_CSC->pt = m_recoTrack->pt();
+    layerData_CSC->charge = m_recoTrack->charge();
+  }
+
   int iT = 0, iM = 0;
+  int iCSC = 0, iDT = 0;
   for (auto const& hit : m_recoTrack->recHits()) {
     if (hit->isValid()) {
       DetId hitId = hit->geographicalId();
@@ -84,11 +119,13 @@ void MuonResidualsFromTrack::init(edm::ESHandle<TransientTrackingRecHitBuilder> 
                     << " is found. We do not add muon hits to refit. Dimension: " << hit->dimension() << std::endl;
         if (hitId.subdetId() == MuonSubdetId::DT) {
           const DTChamberId chamberId(hitId.rawId());
+          iDT++;
           if (m_debug)
             std::cout << "Muon Hit in DT wheel " << chamberId.wheel() << " station " << chamberId.station()
                       << " sector " << chamberId.sector() << "." << std::endl;
         } else if (hitId.subdetId() == MuonSubdetId::CSC) {
           const CSCDetId cscDetId(hitId.rawId());
+          iCSC++;
           if (m_debug)
             std::cout << "Muon hit in CSC endcap " << cscDetId.endcap() << " station " << cscDetId.station() << " ring "
                       << cscDetId.ring() << " chamber " << cscDetId.chamber() << "." << std::endl;
@@ -102,6 +139,17 @@ void MuonResidualsFromTrack::init(edm::ESHandle<TransientTrackingRecHitBuilder> 
         //        recHitsForRefit.push_back(theMuonRecHitBuilder->build(&*hit));
       }
     }
+  }
+
+  if (fillLayerPlotDT) {
+    layerData_DT->nTracker = iT;
+    layerData_DT->nCSC = iCSC;
+    layerData_DT->nDT = iDT;
+  }
+  if (fillLayerPlotCSC) {
+    layerData_CSC->nTracker = iT;
+    layerData_CSC->nCSC = iCSC;
+    layerData_CSC->nDT = iDT;
   }
 
   //  TrackTransformer trackTransformer();
@@ -376,13 +424,28 @@ void MuonResidualsFromTrack::init(edm::ESHandle<TransientTrackingRecHitBuilder> 
           double chamber_width = geomDet->surface().bounds().width();
           double chamber_length = geomDet->surface().bounds().length();
 
+          if (fillLayerPlotDT) {
+            layerData_DT->wheel = chamberId.wheel();
+            layerData_DT->station = chamberId.station();
+            layerData_DT->sector = chamberId.sector();
+          }
           if (hit2->dimension() > 1) {
             // std::vector<const TrackingRecHit*> vDTSeg2D = hit2->recHits();
             std::vector<TrackingRecHit*> vDTSeg2D = hit2->recHits();
 
             if (m_debug)
               std::cout << "          vDTSeg2D size: " << vDTSeg2D.size() << std::endl;
-
+            int nLayers_DT = 0;
+            if (fillLayerPlotDT) {
+              for (int i = 0; i < 8; i++) {
+                layerData_DT->v_hitx[i] = -999.;
+                layerData_DT->v_trackx[i] = -999.;
+              }
+              for (int i = 0; i < 4; i++) {
+                layerData_DT->v_hity[i] = -999.;
+                layerData_DT->v_tracky[i] = -999.;
+              }
+            }
             // for ( std::vector<const TrackingRecHit*>::const_iterator itDTSeg2D =  vDTSeg2D.begin();
             //                                                          itDTSeg2D != vDTSeg2D.end();
             //                                                        ++itDTSeg2D ) {
@@ -470,8 +533,23 @@ void MuonResidualsFromTrack::init(edm::ESHandle<TransientTrackingRecHitBuilder> 
                     m_dt13[chamberId]->addResidual(prop, &extrapolation, hit, chamber_width, chamber_length);
                   }
                   //            	    residualDT13IsAdded = true;
+                  if (fillLayerPlotDT) {
+                    layerData_DT->v_hitx[layerId.layer() + 2 * (superLayerId.superlayer() - 1) - 1] =
+                        hit->localPosition().x();
+                    if (extrapolation.isValid()) {
+                      layerData_DT->v_trackx[layerId.layer() + 2 * (superLayerId.superlayer() - 1) - 1] =
+                          extrapolation.localPosition().x();
+                      layerData_DT->v_tracky_x_layer[layerId.layer() + 2 * (superLayerId.superlayer() - 1) - 1] =
+                          extrapolation.localPosition().y();
+                    }
+                  }
+                  nLayers_DT++;
                 }
               }
+            }
+            if (fillLayerPlotDT) {
+              layerData_DT->nlayers = nLayers_DT;
+              layerTree_DT->Fill();
             }
           }
 
@@ -503,13 +581,27 @@ void MuonResidualsFromTrack::init(edm::ESHandle<TransientTrackingRecHitBuilder> 
           if (m_debug)
             std::cout << "Muon hit in CSC endcap " << cscDetId2.endcap() << " station " << cscDetId2.station()
                       << " ring " << cscDetId2.ring() << " chamber " << cscDetId2.chamber() << "." << std::endl;
-
+          if (fillLayerPlotCSC) {
+            layerData_CSC->endcap = cscDetId2.endcap();
+            layerData_CSC->station = cscDetId2.station();
+            layerData_CSC->ring = cscDetId2.ring();
+            layerData_CSC->chamber = cscDetId2.chamber();
+          }
           if (hit2->dimension() == 4) {
             // std::vector<const TrackingRecHit*> vCSCHits2D = hit2->recHits();
             std::vector<TrackingRecHit*> vCSCHits2D = hit2->recHits();
             if (m_debug)
               std::cout << "          vCSCHits2D size: " << vCSCHits2D.size() << std::endl;
             if (vCSCHits2D.size() >= 5) {
+              int nLayers = 0;
+              if (fillLayerPlotCSC) {
+                for (int i = 0; i < 6; i++) {
+                  layerData_CSC->v_hitx[i] = -999.;
+                  layerData_CSC->v_hity[i] = -999.;
+                  layerData_CSC->v_resx[i] = -999.;
+                  layerData_CSC->v_resy[i] = -999.;
+                }
+              }
               // for ( std::vector<const TrackingRecHit*>::const_iterator itCSCHits2D =  vCSCHits2D.begin();
               //                                                          itCSCHits2D != vCSCHits2D.end();
               //                                                        ++itCSCHits2D ) {
@@ -589,10 +681,24 @@ void MuonResidualsFromTrack::init(edm::ESHandle<TransientTrackingRecHitBuilder> 
                   }
                   m_csc[chamberId]->addResidual(prop, &extrapolation, hit, 250.0, 250.0);
                 }
+                if (fillLayerPlotCSC) {
+                  layerData_CSC->v_hitx[cscDetId.layer() - 1] = hit->localPosition().x();
+                  layerData_CSC->v_hity[cscDetId.layer() - 1] = hit->localPosition().y();
+                  if (extrapolation.isValid()) {
+                    layerData_CSC->v_resx[cscDetId.layer() - 1] =
+                        extrapolation.localPosition().x() - hit->localPosition().x();
+                    layerData_CSC->v_resy[cscDetId.layer() - 1] =
+                        extrapolation.localPosition().y() - hit->localPosition().y();
+                  }
+                  nLayers++;
+                }
               }
+              if (fillLayerPlotCSC)
+                layerData_CSC->nlayers = nLayers;
             }
           }
-
+          if (fillLayerPlotCSC)
+            layerTree_CSC->Fill();
         } else if (hitId2.subdetId() == MuonSubdetId::RPC) {
           if (m_debug)
             std::cout << "Muon Hit in RPC" << std::endl;

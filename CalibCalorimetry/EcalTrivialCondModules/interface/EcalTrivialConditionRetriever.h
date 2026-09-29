@@ -10,7 +10,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
@@ -123,90 +123,79 @@ namespace edm {
   class ParameterSet;
 }
 
-class EcalTrivialConditionRetriever : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class EcalTrivialConditionRetriever : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  EcalTrivialConditionRetriever(const edm::ParameterSet& pset);
+  explicit EcalTrivialConditionRetriever(const edm::ParameterSet& pset);
   EcalTrivialConditionRetriever(const EcalTrivialConditionRetriever&) = delete;                   // stop default
   const EcalTrivialConditionRetriever& operator=(const EcalTrivialConditionRetriever&) = delete;  // stop default
   ~EcalTrivialConditionRetriever() override;
 
   // ---------- member functions ---------------------------
-  virtual std::unique_ptr<EcalPedestals> produceEcalPedestals(const EcalPedestalsRcd&);
-  virtual std::unique_ptr<EcalWeightXtalGroups> produceEcalWeightXtalGroups(const EcalWeightXtalGroupsRcd&);
-  virtual std::unique_ptr<EcalLinearCorrections> produceEcalLinearCorrections(const EcalLinearCorrectionsRcd&);
-  virtual std::unique_ptr<EcalIntercalibConstants> produceEcalIntercalibConstants(const EcalIntercalibConstantsRcd&);
-  virtual std::unique_ptr<EcalIntercalibConstantsMC> produceEcalIntercalibConstantsMC(
+  std::unique_ptr<EcalPedestals> produceEcalPedestals(const EcalPedestalsRcd&);
+  std::unique_ptr<EcalWeightXtalGroups> produceEcalWeightXtalGroups(const EcalWeightXtalGroupsRcd&);
+  std::unique_ptr<EcalLinearCorrections> produceEcalLinearCorrections(const EcalLinearCorrectionsRcd&);
+  std::unique_ptr<EcalIntercalibConstants> produceEcalIntercalibConstants(const EcalIntercalibConstantsRcd&);
+  std::unique_ptr<EcalIntercalibConstantsMC> produceEcalIntercalibConstantsMC(const EcalIntercalibConstantsMCRcd&);
+  std::unique_ptr<EcalIntercalibErrors> produceEcalIntercalibErrors(const EcalIntercalibErrorsRcd&);
+  std::unique_ptr<EcalTimeCalibConstants> produceEcalTimeCalibConstants(const EcalTimeCalibConstantsRcd&);
+  std::unique_ptr<EcalTimeCalibErrors> produceEcalTimeCalibErrors(const EcalTimeCalibErrorsRcd&);
+  std::unique_ptr<EcalGainRatios> produceEcalGainRatios(const EcalGainRatiosRcd&);
+  std::unique_ptr<EcalADCToGeVConstant> produceEcalADCToGeVConstant(const EcalADCToGeVConstantRcd&);
+  std::unique_ptr<EcalTBWeights> produceEcalTBWeights(const EcalTBWeightsRcd&);
+  std::unique_ptr<EcalIntercalibConstants> getIntercalibConstantsFromConfiguration(const EcalIntercalibConstantsRcd&);
+  std::unique_ptr<EcalIntercalibConstantsMC> getIntercalibConstantsMCFromConfiguration(
       const EcalIntercalibConstantsMCRcd&);
-  virtual std::unique_ptr<EcalIntercalibErrors> produceEcalIntercalibErrors(const EcalIntercalibErrorsRcd&);
-  virtual std::unique_ptr<EcalTimeCalibConstants> produceEcalTimeCalibConstants(const EcalTimeCalibConstantsRcd&);
-  virtual std::unique_ptr<EcalTimeCalibErrors> produceEcalTimeCalibErrors(const EcalTimeCalibErrorsRcd&);
-  virtual std::unique_ptr<EcalGainRatios> produceEcalGainRatios(const EcalGainRatiosRcd&);
-  virtual std::unique_ptr<EcalADCToGeVConstant> produceEcalADCToGeVConstant(const EcalADCToGeVConstantRcd&);
-  virtual std::unique_ptr<EcalTBWeights> produceEcalTBWeights(const EcalTBWeightsRcd&);
-  virtual std::unique_ptr<EcalIntercalibConstants> getIntercalibConstantsFromConfiguration(
-      const EcalIntercalibConstantsRcd&);
-  virtual std::unique_ptr<EcalIntercalibConstantsMC> getIntercalibConstantsMCFromConfiguration(
-      const EcalIntercalibConstantsMCRcd&);
-  virtual std::unique_ptr<EcalSimComponentShape> getEcalSimComponentShapeFromConfiguration(
-      const EcalSimComponentShapeRcd&);
-  virtual std::unique_ptr<EcalSimPulseShape> getEcalSimPulseShapeFromConfiguration(const EcalSimPulseShapeRcd&);
-  virtual std::unique_ptr<EcalIntercalibErrors> getIntercalibErrorsFromConfiguration(const EcalIntercalibErrorsRcd&);
-  virtual std::unique_ptr<EcalTimeCalibConstants> getTimeCalibConstantsFromConfiguration(
-      const EcalTimeCalibConstantsRcd&);
-  virtual std::unique_ptr<EcalTimeCalibErrors> getTimeCalibErrorsFromConfiguration(const EcalTimeCalibErrorsRcd&);
-  virtual std::unique_ptr<EcalTimeOffsetConstant> produceEcalTimeOffsetConstant(const EcalTimeOffsetConstantRcd&);
+  std::unique_ptr<EcalSimComponentShape> getEcalSimComponentShapeFromConfiguration(const EcalSimComponentShapeRcd&);
+  std::unique_ptr<EcalSimPulseShape> getEcalSimPulseShapeFromConfiguration(const EcalSimPulseShapeRcd&);
+  std::unique_ptr<EcalIntercalibErrors> getIntercalibErrorsFromConfiguration(const EcalIntercalibErrorsRcd&);
+  std::unique_ptr<EcalTimeCalibConstants> getTimeCalibConstantsFromConfiguration(const EcalTimeCalibConstantsRcd&);
+  std::unique_ptr<EcalTimeCalibErrors> getTimeCalibErrorsFromConfiguration(const EcalTimeCalibErrorsRcd&);
+  std::unique_ptr<EcalTimeOffsetConstant> produceEcalTimeOffsetConstant(const EcalTimeOffsetConstantRcd&);
 
-  virtual std::unique_ptr<EcalLaserAlphas> produceEcalLaserAlphas(const EcalLaserAlphasRcd&);
-  virtual std::unique_ptr<EcalLaserAPDPNRatiosRef> produceEcalLaserAPDPNRatiosRef(const EcalLaserAPDPNRatiosRefRcd&);
-  virtual std::unique_ptr<EcalLaserAPDPNRatios> produceEcalLaserAPDPNRatios(const EcalLaserAPDPNRatiosRcd&);
+  std::unique_ptr<EcalLaserAlphas> produceEcalLaserAlphas(const EcalLaserAlphasRcd&);
+  std::unique_ptr<EcalLaserAPDPNRatiosRef> produceEcalLaserAPDPNRatiosRef(const EcalLaserAPDPNRatiosRefRcd&);
+  std::unique_ptr<EcalLaserAPDPNRatios> produceEcalLaserAPDPNRatios(const EcalLaserAPDPNRatiosRcd&);
 
-  virtual std::unique_ptr<EcalClusterLocalContCorrParameters> produceEcalClusterLocalContCorrParameters(
+  std::unique_ptr<EcalClusterLocalContCorrParameters> produceEcalClusterLocalContCorrParameters(
       const EcalClusterLocalContCorrParametersRcd&);
-  virtual std::unique_ptr<EcalClusterCrackCorrParameters> produceEcalClusterCrackCorrParameters(
+  std::unique_ptr<EcalClusterCrackCorrParameters> produceEcalClusterCrackCorrParameters(
       const EcalClusterCrackCorrParametersRcd&);
-  virtual std::unique_ptr<EcalClusterEnergyCorrectionParameters> produceEcalClusterEnergyCorrectionParameters(
+  std::unique_ptr<EcalClusterEnergyCorrectionParameters> produceEcalClusterEnergyCorrectionParameters(
       const EcalClusterEnergyCorrectionParametersRcd&);
-  virtual std::unique_ptr<EcalClusterEnergyUncertaintyParameters> produceEcalClusterEnergyUncertaintyParameters(
+  std::unique_ptr<EcalClusterEnergyUncertaintyParameters> produceEcalClusterEnergyUncertaintyParameters(
       const EcalClusterEnergyUncertaintyParametersRcd&);
-  virtual std::unique_ptr<EcalClusterEnergyCorrectionObjectSpecificParameters>
+  std::unique_ptr<EcalClusterEnergyCorrectionObjectSpecificParameters>
   produceEcalClusterEnergyCorrectionObjectSpecificParameters(
       const EcalClusterEnergyCorrectionObjectSpecificParametersRcd&);
-  virtual std::unique_ptr<EcalPFRecHitThresholds> produceEcalPFRecHitThresholds(const EcalPFRecHitThresholdsRcd&);
-  virtual std::unique_ptr<EcalPFRecHitThresholds> getPFRecHitThresholdsFromConfiguration(
-      const EcalPFRecHitThresholdsRcd&);
+  std::unique_ptr<EcalPFRecHitThresholds> produceEcalPFRecHitThresholds(const EcalPFRecHitThresholdsRcd&);
+  std::unique_ptr<EcalPFRecHitThresholds> getPFRecHitThresholdsFromConfiguration(const EcalPFRecHitThresholdsRcd&);
 
-  virtual std::unique_ptr<EcalChannelStatus> produceEcalChannelStatus(const EcalChannelStatusRcd&);
-  virtual std::unique_ptr<EcalChannelStatus> getChannelStatusFromConfiguration(const EcalChannelStatusRcd&);
+  std::unique_ptr<EcalChannelStatus> produceEcalChannelStatus(const EcalChannelStatusRcd&);
+  std::unique_ptr<EcalChannelStatus> getChannelStatusFromConfiguration(const EcalChannelStatusRcd&);
 
-  virtual std::unique_ptr<EcalTPGCrystalStatus> produceEcalTrgChannelStatus(const EcalTPGCrystalStatusRcd&);
-  virtual std::unique_ptr<EcalTPGCrystalStatus> getTrgChannelStatusFromConfiguration(const EcalTPGCrystalStatusRcd&);
+  std::unique_ptr<EcalTPGCrystalStatus> produceEcalTrgChannelStatus(const EcalTPGCrystalStatusRcd&);
+  std::unique_ptr<EcalTPGCrystalStatus> getTrgChannelStatusFromConfiguration(const EcalTPGCrystalStatusRcd&);
 
-  virtual std::unique_ptr<EcalDCSTowerStatus> produceEcalDCSTowerStatus(const EcalDCSTowerStatusRcd&);
-  virtual std::unique_ptr<EcalDAQTowerStatus> produceEcalDAQTowerStatus(const EcalDAQTowerStatusRcd&);
-  virtual std::unique_ptr<EcalDQMTowerStatus> produceEcalDQMTowerStatus(const EcalDQMTowerStatusRcd&);
-  virtual std::unique_ptr<EcalDQMChannelStatus> produceEcalDQMChannelStatus(const EcalDQMChannelStatusRcd&);
+  std::unique_ptr<EcalDCSTowerStatus> produceEcalDCSTowerStatus(const EcalDCSTowerStatusRcd&);
+  std::unique_ptr<EcalDAQTowerStatus> produceEcalDAQTowerStatus(const EcalDAQTowerStatusRcd&);
+  std::unique_ptr<EcalDQMTowerStatus> produceEcalDQMTowerStatus(const EcalDQMTowerStatusRcd&);
+  std::unique_ptr<EcalDQMChannelStatus> produceEcalDQMChannelStatus(const EcalDQMChannelStatusRcd&);
 
-  virtual std::unique_ptr<EcalMappingElectronics> produceEcalMappingElectronics(const EcalMappingElectronicsRcd&);
-  virtual std::unique_ptr<EcalMappingElectronics> getMappingFromConfiguration(const EcalMappingElectronicsRcd&);
+  std::unique_ptr<EcalMappingElectronics> produceEcalMappingElectronics(const EcalMappingElectronicsRcd&);
+  std::unique_ptr<EcalMappingElectronics> getMappingFromConfiguration(const EcalMappingElectronicsRcd&);
 
-  //  virtual std::unique_ptr<EcalAlignmentEB> produceEcalAlignmentEB( const EcalAlignmentEBRcd& );
-  //  virtual std::unique_ptr<EcalAlignmentEE> produceEcalAlignmentEE( const EcalAlignmentEERcd& );
-  //  virtual std::unique_ptr<EcalAlignmentES> produceEcalAlignmentES( const EcalAlignmentESRcd& );
-  virtual std::unique_ptr<Alignments> produceEcalAlignmentEB(const EBAlignmentRcd&);
-  virtual std::unique_ptr<Alignments> produceEcalAlignmentEE(const EEAlignmentRcd&);
-  virtual std::unique_ptr<Alignments> produceEcalAlignmentES(const ESAlignmentRcd&);
+  //  std::unique_ptr<EcalAlignmentEB> produceEcalAlignmentEB( const EcalAlignmentEBRcd& );
+  //  std::unique_ptr<EcalAlignmentEE> produceEcalAlignmentEE( const EcalAlignmentEERcd& );
+  //  std::unique_ptr<EcalAlignmentES> produceEcalAlignmentES( const EcalAlignmentESRcd& );
+  std::unique_ptr<Alignments> produceEcalAlignmentEB(const EBAlignmentRcd&);
+  std::unique_ptr<Alignments> produceEcalAlignmentEE(const EEAlignmentRcd&);
+  std::unique_ptr<Alignments> produceEcalAlignmentES(const ESAlignmentRcd&);
 
-  virtual std::unique_ptr<EcalSampleMask> produceEcalSampleMask(const EcalSampleMaskRcd&);
+  std::unique_ptr<EcalSampleMask> produceEcalSampleMask(const EcalSampleMaskRcd&);
 
-  virtual std::unique_ptr<EcalTimeBiasCorrections> produceEcalTimeBiasCorrections(const EcalTimeBiasCorrectionsRcd&);
+  std::unique_ptr<EcalTimeBiasCorrections> produceEcalTimeBiasCorrections(const EcalTimeBiasCorrectionsRcd&);
 
-  virtual std::unique_ptr<EcalSamplesCorrelation> produceEcalSamplesCorrelation(const EcalSamplesCorrelationRcd&);
-
-protected:
-  //overriding from ContextRecordIntervalFinder
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
+  std::unique_ptr<EcalSamplesCorrelation> produceEcalSamplesCorrelation(const EcalSamplesCorrelationRcd&);
 
 private:
   void getWeightsFromConfiguration(const edm::ParameterSet& ps);

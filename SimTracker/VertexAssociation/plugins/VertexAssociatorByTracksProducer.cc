@@ -13,6 +13,7 @@
 #include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociator.h"
 #include "SimTracker/VertexAssociation/interface/VertexAssociatorByTracks.h"
 
+template <typename VertexCollection>
 class VertexAssociatorByTracksProducer : public edm::global::EDProducer<> {
 public:
   explicit VertexAssociatorByTracksProducer(const edm::ParameterSet &);
@@ -53,7 +54,8 @@ namespace {
   }
 }  // namespace
 
-VertexAssociatorByTracksProducer::VertexAssociatorByTracksProducer(const edm::ParameterSet &config)
+template <typename VertexCollection>
+VertexAssociatorByTracksProducer<VertexCollection>::VertexAssociatorByTracksProducer(const edm::ParameterSet &config)
     : R2SMatchedSimRatio_(config.getParameter<double>("R2SMatchedSimRatio")),
       R2SMatchedRecoRatio_(config.getParameter<double>("R2SMatchedRecoRatio")),
       S2RMatchedSimRatio_(config.getParameter<double>("S2RMatchedSimRatio")),
@@ -64,12 +66,14 @@ VertexAssociatorByTracksProducer::VertexAssociatorByTracksProducer(const edm::Pa
           consumes<reco::RecoToSimCollection>(config.getParameter<edm::InputTag>("trackAssociation"))),
       trackSimToRecoAssociationToken_(
           consumes<reco::SimToRecoCollection>(config.getParameter<edm::InputTag>("trackAssociation"))) {
-  produces<reco::VertexToTrackingVertexAssociator>();
+  produces<reco::VertexToTrackingVertexAssociator<VertexCollection>>();
 }
 
-VertexAssociatorByTracksProducer::~VertexAssociatorByTracksProducer() {}
+template <typename VertexCollection>
+VertexAssociatorByTracksProducer<VertexCollection>::~VertexAssociatorByTracksProducer() {}
 
-void VertexAssociatorByTracksProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+template <typename VertexCollection>
+void VertexAssociatorByTracksProducer<VertexCollection>::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
 
   // Matching conditions
@@ -102,25 +106,28 @@ void VertexAssociatorByTracksProducer::fillDescriptions(edm::ConfigurationDescri
   descriptions.add("VertexAssociatorByTracks", desc);
 }
 
-void VertexAssociatorByTracksProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &) const {
+template <typename VertexCollection>
+void VertexAssociatorByTracksProducer<VertexCollection>::produce(edm::StreamID,
+                                                                 edm::Event &iEvent,
+                                                                 const edm::EventSetup &) const {
   edm::Handle<reco::RecoToSimCollection> recotosimCollectionH;
   iEvent.getByToken(trackRecoToSimAssociationToken_, recotosimCollectionH);
 
   edm::Handle<reco::SimToRecoCollection> simtorecoCollectionH;
   iEvent.getByToken(trackSimToRecoAssociationToken_, simtorecoCollectionH);
 
-  auto impl = std::make_unique<VertexAssociatorByTracks>(&(iEvent.productGetter()),
-                                                         R2SMatchedSimRatio_,
-                                                         R2SMatchedRecoRatio_,
-                                                         S2RMatchedSimRatio_,
-                                                         S2RMatchedRecoRatio_,
-                                                         &selector_,
-                                                         trackQuality_,
-                                                         recotosimCollectionH.product(),
-                                                         simtorecoCollectionH.product());
+  auto impl = std::make_unique<VertexAssociatorByTracks<VertexCollection>>(&(iEvent.productGetter()),
+                                                                           R2SMatchedSimRatio_,
+                                                                           R2SMatchedRecoRatio_,
+                                                                           S2RMatchedSimRatio_,
+                                                                           S2RMatchedRecoRatio_,
+                                                                           &selector_,
+                                                                           trackQuality_,
+                                                                           recotosimCollectionH.product(),
+                                                                           simtorecoCollectionH.product());
 
-  auto toPut = std::make_unique<reco::VertexToTrackingVertexAssociator>(std::move(impl));
+  auto toPut = std::make_unique<reco::VertexToTrackingVertexAssociator<VertexCollection>>(std::move(impl));
   iEvent.put(std::move(toPut));
 }
 
-DEFINE_FWK_MODULE(VertexAssociatorByTracksProducer);
+DEFINE_FWK_MODULE(VertexAssociatorByTracksProducer<std::vector<reco::Vertex>>);

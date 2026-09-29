@@ -1,12 +1,12 @@
-#ifndef RecoHGCal_TICL_TracksterInferenceByDNN_H__
-#define RecoHGCal_TICL_TracksterInferenceByDNN_H__
+#ifndef RecoHGCal_TICL_TracksterInferenceByDNN_h
+#define RecoHGCal_TICL_TracksterInferenceByDNN_h
 
 #include <string>
 #include <vector>
 
 #include "RecoHGCal/TICL/interface/TracksterInferenceAlgoBase.h"
 #include "RecoHGCal/TICL/interface/TICLONNXGlobalCache.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
 // TracksterInferenceByDNN.h
@@ -19,7 +19,7 @@ namespace ticl {
 
     void runInference(const std::vector<reco::CaloCluster>& layerClusters,
                       std::vector<Trackster>& tracksters,
-                      const hgcal::RecHitTools& rhtools) const override;
+                      const ticlgeom::Tools& rhtools) const override;
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
@@ -45,4 +45,4 @@ namespace ticl {
 
 }  // namespace ticl
 
-#endif  // RecoHGCal_TICL_TracksterInferenceByDNN_H__
+#endif  // RecoHGCal_TICL_TracksterInferenceByDNN_h

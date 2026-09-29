@@ -48,6 +48,6 @@ hgcROCSettings = cms.PSet(
 from Configuration.Eras.Modifier_phase2_hgcalV19_cff import phase2_hgcalV19
 phase2_hgcalV19.toModify(hgcROCSettings, tdcForToAOnset_fC = [12., 12., 12., 12.])
 phase2_hgcalV19.toModify(hgcROCSettings, jitterNoise_ns = [5., 5., 5., 5.])
-phase2_hgcalV19.toModify(hgcROCSettings, jitterConstant_ns = [0.2,0.2,0.2,0.2])
+phase2_hgcalV19.toModify(hgcROCSettings, jitterConstant_ns = [0.02,0.02,0.02,0.02])
 phase2_hgcalV19.toModify(hgcROCSettings, eventTimeOffset_ns = [0.2,0.2,0.2,0.2])
 

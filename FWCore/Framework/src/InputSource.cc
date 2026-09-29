@@ -128,19 +128,21 @@ namespace edm {
   // to get to the lumis and runs), this is all that is involved to implement these modes.
   // For input sources where events or lumis can be skipped, getNextItemType() should
   // implement the skipping internally, so that the performance gain is realized.
-  // If this is done for a source, the 'if' blocks in this function will never be entered
+  // If this is done for a source, the 'while' blocks in this function will never be entered
   // for that source.
   InputSource::ItemTypeInfo InputSource::nextItemType_() {
     ItemTypeInfo itemTypeInfo = callWithTryCatchAndPrint<ItemTypeInfo>([this]() { return getNextItemType(); },
                                                                        "Calling InputSource::getNextItemType");
 
-    if (itemTypeInfo.itemType() == ItemType::IsEvent && processingMode() != RunsLumisAndEvents) {
+    while (itemTypeInfo.itemType() == ItemType::IsEvent && processingMode() == RunsAndLumis) {
       skipEvents(1);
-      return nextItemType_();
+      itemTypeInfo = callWithTryCatchAndPrint<ItemTypeInfo>(
+          [this]() { return getNextItemType(); }, "Calling InputSource::getNextItemType looking for Run or Lumi");
     }
-    if (itemTypeInfo == ItemType::IsLumi && processingMode() == Runs) {
-      // QQQ skipLuminosityBlock_();
-      return nextItemType_();
+    while ((itemTypeInfo == ItemType::IsLumi or itemTypeInfo == ItemType::IsEvent) && processingMode() == Runs) {
+      skipEvents(1);
+      itemTypeInfo = callWithTryCatchAndPrint<ItemTypeInfo>([this]() { return getNextItemType(); },
+                                                            "Calling InputSource::getNextItemType looking for Run");
     }
     return itemTypeInfo;
   }

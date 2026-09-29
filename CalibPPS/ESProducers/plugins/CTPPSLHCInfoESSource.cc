@@ -23,18 +23,17 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
 private:
+  bool isConcurrentFinder() const override { return true; }
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
                       const edm::IOVSyncValue &,
                       edm::ValidityInterval &) override;
 
-  std::string m_label;
+  const std::string m_label;
 
-  edm::EventRange m_validityRange;
-  double m_beamEnergy;
-  double m_betaStar;
-  double m_xangle;
-
-  bool m_insideValidityRange;
+  const edm::EventRange m_validityRange;
+  const double m_beamEnergy;
+  const double m_betaStar;
+  const double m_xangle;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -45,8 +44,7 @@ CTPPSLHCInfoESSource::CTPPSLHCInfoESSource(const edm::ParameterSet &conf)
       m_validityRange(conf.getParameter<edm::EventRange>("validityRange")),
       m_beamEnergy(conf.getParameter<double>("beamEnergy")),
       m_betaStar(conf.getParameter<double>("betaStar")),
-      m_xangle(conf.getParameter<double>("xangle")),
-      m_insideValidityRange(false) {
+      m_xangle(conf.getParameter<double>("xangle")) {
   setWhatProduced(this, m_label);
   findingRecord<LHCInfoRcd>();
 }
@@ -73,12 +71,9 @@ void CTPPSLHCInfoESSource::setIntervalFor(const edm::eventsetup::EventSetupRecor
                                           const edm::IOVSyncValue &iosv,
                                           edm::ValidityInterval &oValidity) {
   if (edm::contains(m_validityRange, iosv.eventID())) {
-    m_insideValidityRange = true;
     oValidity = edm::ValidityInterval(edm::IOVSyncValue(m_validityRange.startEventID()),
                                       edm::IOVSyncValue(m_validityRange.endEventID()));
   } else {
-    m_insideValidityRange = false;
-
     if (iosv.eventID() < m_validityRange.startEventID()) {
       edm::RunNumber_t run = m_validityRange.startEventID().run();
       edm::LuminosityBlockNumber_t lb = m_validityRange.startEventID().luminosityBlock();
@@ -99,10 +94,10 @@ void CTPPSLHCInfoESSource::setIntervalFor(const edm::eventsetup::EventSetupRecor
 
 //----------------------------------------------------------------------------------------------------
 
-edm::ESProducts<std::unique_ptr<LHCInfo>> CTPPSLHCInfoESSource::produce(const LHCInfoRcd &) {
+edm::ESProducts<std::unique_ptr<LHCInfo>> CTPPSLHCInfoESSource::produce(const LHCInfoRcd &iRcd) {
   auto output = std::make_unique<LHCInfo>();
 
-  if (m_insideValidityRange) {
+  if (edm::contains(m_validityRange, iRcd.validityInterval().first().eventID())) {
     output->setEnergy(m_beamEnergy);
     output->setBetaStar(m_betaStar);
     output->setCrossingAngle(m_xangle);

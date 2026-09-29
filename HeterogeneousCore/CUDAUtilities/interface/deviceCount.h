@@ -9,7 +9,7 @@ namespace cms {
   namespace cuda {
     inline int deviceCount() {
       int ndevices;
-      cudaCheck(cudaGetDeviceCount(&ndevices));
+      CUDA_CHECK(cudaGetDeviceCount(&ndevices));
       return ndevices;
     }
   }  // namespace cuda

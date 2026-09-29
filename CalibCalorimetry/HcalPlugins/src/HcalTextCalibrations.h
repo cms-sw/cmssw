@@ -6,7 +6,7 @@
 #include <string>
 
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CondFormats/DataRecord/interface/HcalTPParametersRcd.h"
@@ -45,12 +45,10 @@ class HcalSiPMCharacteristicsRcd;
 class HcalTPChannelParametersRcd;
 class HcalTPParaamersRcd;
 
-class HcalTextCalibrations : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class HcalTextCalibrations : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  HcalTextCalibrations(const edm::ParameterSet&);
+  explicit HcalTextCalibrations(const edm::ParameterSet&);
   ~HcalTextCalibrations() override;
-
-  void produce() {}
 
   template <class T>
   class CheckGetObject {
@@ -87,10 +85,6 @@ public:
   };
 
 protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
-
   std::unique_ptr<HcalPedestals> producePedestals(const HcalPedestalsRcd& rcd);
   std::unique_ptr<HcalPedestalWidths> producePedestalWidths(const HcalPedestalWidthsRcd& rcd);
   std::unique_ptr<HcalPedestals> produceEffectivePedestals(const HcalPedestalsRcd& rcd);

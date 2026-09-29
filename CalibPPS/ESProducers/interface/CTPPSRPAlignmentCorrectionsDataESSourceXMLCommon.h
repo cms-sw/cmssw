@@ -21,8 +21,12 @@ public:
   ~CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon();
 
   CTPPSRPAlignmentCorrectionsDataSequence acsMeasured, acsReal, acsMisaligned;
-  CTPPSRPAlignmentCorrectionsData acMeasured, acReal, acMisaligned;
 
+  static const CTPPSRPAlignmentCorrectionsData *dataFor(edm::IOVSyncValue const &,
+                                                        CTPPSRPAlignmentCorrectionsDataSequence const &);
+  static edm::ValidityInterval intervalFor(edm::IOVSyncValue const &,
+                                           CTPPSRPAlignmentCorrectionsDataSequence const &,
+                                           bool verbosity);
   unsigned int verbosity;
 
   static edm::EventID previousLS(const edm::EventID &src);

@@ -307,7 +307,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float drprime_x, drprime_y;  // drprime * {sin,cos}(atan(slope))
     // Algebraic: sin(atan(slope)) = |slope|/sqrt(1+slope^2), cos(atan(slope)) = 1/sqrt(1+slope^2)
     const float slope = mod.slope;
-    if (slope != kVerticalModuleSlope && edm::isFinite(slope)) {
+    if (edm::isFinite(slope)) {
       const float inv_hypot_slope = 1.f / alpaka::math::sqrt(acc, 1.f + slope * slope);
       drprime_x = drprime * ((xp > 0.f) - (xp < 0.f)) * alpaka::math::abs(acc, slope) * inv_hypot_slope;
       drprime_y = drprime * ((yp > 0.f) - (yp < 0.f)) * inv_hypot_slope;
@@ -321,7 +321,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     // Compute the new strip hit position (handle slope = infinity and slope = 0 cases)
     float xn, yn;
-    if (slope == kVerticalModuleSlope || edm::isNotFinite(slope)) {
+    if (edm::isNotFinite(slope)) {
       xn = xa;
       yn = yo;
     } else if (slope == 0) {

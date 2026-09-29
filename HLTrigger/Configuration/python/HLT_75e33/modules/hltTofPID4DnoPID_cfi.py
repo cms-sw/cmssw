@@ -1,0 +1,27 @@
+import FWCore.ParameterSet.Config as cms
+
+hltTofPID4DnoPID = cms.EDProducer("TOFPIDProducer",
+    MVASel = cms.bool(False),
+    fixedT0Error = cms.double(0),
+    maxDtSignificance = cms.double(5),
+    maxDz = cms.double(0.1),
+    minProbHeavy = cms.double(0.75),
+    minTrackTimeQuality = cms.double(0.8),
+    probKaon = cms.double(1),
+    probPion = cms.double(1),
+    probProton = cms.double(1),
+    sigmat0Src = cms.InputTag("hltTrackExtenderWithMTD","generalTracksigmat0"),
+    sigmatmtdSrc = cms.InputTag("hltTrackExtenderWithMTD","generalTracksigmatmtd"),
+    sigmatofkSrc = cms.InputTag("hltTrackExtenderWithMTD","generalTrackSigmaTofK"),
+    sigmatofpSrc = cms.InputTag("hltTrackExtenderWithMTD","generalTrackSigmaTofP"),
+    sigmatofpiSrc = cms.InputTag("hltTrackExtenderWithMTD","generalTrackSigmaTofPi"),
+    t0Src = cms.InputTag("hltTrackExtenderWithMTD","generalTrackt0"),
+    tmtdSrc = cms.InputTag("hltTrackExtenderWithMTD","generalTracktmtd"),
+    tofkSrc = cms.InputTag("hltTrackExtenderWithMTD","generalTrackTofK"),
+    tofpSrc = cms.InputTag("hltTrackExtenderWithMTD","generalTrackTofP"),
+    trackMTDTimeQualityVMapTag = cms.InputTag("hltMtdTrackQualityMVA","mtdQualMVA"),
+    tracksSrc = cms.InputTag("hltGeneralTracks"),
+    vertexReassignment = cms.bool(True),
+    vtxMaxSigmaT = cms.double(0.025),
+    vtxsSrc = cms.InputTag("hltUnsortedOfflinePrimaryVertices")
+)

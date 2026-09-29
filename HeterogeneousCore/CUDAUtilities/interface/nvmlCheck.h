@@ -26,18 +26,18 @@ namespace cms {
       std::ostringstream out;
       out << "\n";
       out << file << ", line " << line << ":\n";
-      out << "nvmlCheck(" << cmd << ");\n";
+      out << "NVML_CHECK(" << cmd << ");\n";
       out << error << ": " << message << "\n";
       if (!description.empty())
         out << description << "\n";
       throw std::runtime_error(out.str());
     }
 
-    inline bool nvmlCheck_(const char* file,
-                           int line,
-                           const char* cmd,
-                           nvmlReturn_t result,
-                           std::string_view description = std::string_view()) {
+    inline bool nvmlCheck(const char* file,
+                          int line,
+                          const char* cmd,
+                          nvmlReturn_t result,
+                          std::string_view description = std::string_view()) {
       if (LIKELY(result == NVML_SUCCESS))
         return true;
 
@@ -49,6 +49,6 @@ namespace cms {
   }  // namespace cuda
 }  // namespace cms
 
-#define nvmlCheck(ARG, ...) (cms::cuda::nvmlCheck_(__FILE__, __LINE__, #ARG, (ARG), ##__VA_ARGS__))
+#define NVML_CHECK(ARG, ...) (cms::cuda::nvmlCheck(__FILE__, __LINE__, #ARG, (ARG), ##__VA_ARGS__))
 
 #endif  // HeterogeneousCore_CUDAUtilities_nvmlCheck_h

@@ -17,7 +17,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -32,7 +32,7 @@
  * \brief Loads PPSPixelTopology from a config file.
  **/
 
-class PPSPixelTopologyESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class PPSPixelTopologyESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   PPSPixelTopologyESSource(const edm::ParameterSet&);
   ~PPSPixelTopologyESSource() override = default;
@@ -59,13 +59,6 @@ private:
   double dead_edge_width_;
   double active_edge_sigma_;
   double phys_active_edge_dist_;
-
-protected:
-  /// sets infinite validity of this data
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
-  bool isConcurrentFinder() const override { return true; }
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -141,18 +134,6 @@ std::unique_ptr<PPSPixelTopology> PPSPixelTopologyESSource::fillPPSPixelTopology
   p->setActiveEdgeY(simY_width_ / 2. - phys_active_edge_dist_);
 
   return p;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-void PPSPixelTopologyESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& key,
-                                              const edm::IOVSyncValue& iosv,
-                                              edm::ValidityInterval& oValidity) {
-  edm::LogInfo("PPS") << ">> PPSPixelTopologyESSource::setIntervalFor(" << key.name() << ")\n"
-                      << "    run=" << iosv.eventID().run() << ", event=" << iosv.eventID().event();
-
-  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
-  oValidity = infinity;
 }
 
 //----------------------------------------------------------------------------------------------------

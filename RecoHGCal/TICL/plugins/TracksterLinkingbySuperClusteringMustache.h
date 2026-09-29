@@ -4,8 +4,8 @@ Authors : Theo Cuisset <theo.cuisset@cern.ch>, Shamik Ghosh <shamik.ghosh@cern.c
 Date : 06/2024
 */
 
-#ifndef RecoHGCal_TICL_TracksterLinkingSuperClusteringMustache_H
-#define RecoHGCal_TICL_TracksterLinkingSuperClusteringMustache_H
+#ifndef RecoHGCal_TICL_TracksterLinkingbySuperClusteringMustache_h
+#define RecoHGCal_TICL_TracksterLinkingbySuperClusteringMustache_h
 
 #include <vector>
 
@@ -38,7 +38,7 @@ namespace ticl {
                         std::vector<std::vector<unsigned int>>& linkedResultTracksters,
                         std::vector<std::vector<unsigned int>>& linkedTracksterIdToInputTracksterId) override;
     void initialize(const HGCalDDDConstants* hgcons,
-                    const hgcal::RecHitTools rhtools,
+                    const ticlgeom::Tools rhtools,
                     const edm::ESHandle<MagneticField> bfieldH,
                     const edm::ESHandle<Propagator> propH) override;
 

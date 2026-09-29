@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_GNNInterpretationAlgo_H_
-#define RecoHGCal_TICL_GNNInterpretationAlgo_H_
+#ifndef RecoHGCal_TICL_GNNInterpretationAlgo_h
+#define RecoHGCal_TICL_GNNInterpretationAlgo_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -43,10 +43,12 @@ namespace ticl {
     void makeCandidates(const Inputs &input,
                         edm::Handle<MtdHostCollection> inputTiming_h,
                         std::vector<Trackster> &resultTracksters,
-                        std::vector<int> &resultCandidate) override;
+                        std::vector<int> &resultCandidate,
+                        std::vector<bool> &maskedTracksters,
+                        std::vector<std::vector<unsigned int>> &linkedResultTracksters) override;
 
     void initialize(const HGCalDDDConstants *hgcons,
-                    const hgcal::RecHitTools rhtools,
+                    const ticlgeom::Tools rhtools,
                     const edm::ESHandle<MagneticField> bfieldH,
                     const edm::ESHandle<Propagator> propH) override;
 
@@ -97,7 +99,7 @@ namespace ticl {
     std::unique_ptr<GeomDet> firstDisk_[2];
     std::unique_ptr<GeomDet> interfaceDisk_[2];
 
-    hgcal::RecHitTools rhtools_;
+    ticlgeom::Tools rhtools_;
 
     edm::ESHandle<MagneticField> bfield_;
     edm::ESHandle<Propagator> propagator_;

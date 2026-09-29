@@ -39,7 +39,7 @@ namespace edm {
   class ModuleTypeResolverMaker;
 
   namespace eventsetup {
-    class EventSetupProvider;
+    class ComponentInterfaceHolder;
 
     template <typename T>
     class ComponentFactory {
@@ -54,7 +54,7 @@ namespace edm {
       typedef std::map<std::string, std::shared_ptr<Maker const>> MakerMap;
       typedef typename T::base_type base_type;
       // ---------- const member functions ---------------------
-      std::shared_ptr<base_type> addTo(EventSetupProvider& iProvider,
+      std::shared_ptr<base_type> addTo(ComponentInterfaceHolder& iInterfaceHolder,
                                        edm::ParameterSet& iConfiguration,
                                        ModuleTypeResolverMaker const* resolverMaker) const {
         std::string modtype = iConfiguration.template getParameter<std::string>("@module_type");
@@ -75,7 +75,7 @@ namespace edm {
 
         try {
           return convertException::wrap(
-              [&]() -> std::shared_ptr<base_type> { return maker->addTo(iProvider, iConfiguration); });
+              [&]() -> std::shared_ptr<base_type> { return maker->addTo(iInterfaceHolder, iConfiguration); });
         } catch (cms::Exception& iException) {
           std::string edmtype = iConfiguration.template getParameter<std::string>("@module_edm_type");
           std::string label = iConfiguration.template getParameter<std::string>("@module_label");

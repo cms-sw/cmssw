@@ -79,9 +79,3 @@ CaloMiscalibTools::ReturnType CaloMiscalibTools::produce(const EcalIntercalibCon
   CaloMiscalibTools::ReturnType mydata = std::make_unique<EcalIntercalibConstants>(map.get());
   return mydata;
 }
-
-void CaloMiscalibTools::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                       const edm::IOVSyncValue&,
-                                       edm::ValidityInterval& oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}

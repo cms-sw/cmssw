@@ -17,9 +17,3 @@ CSCFakeDBPedestals::Pointer CSCFakeDBPedestals::produceDBPedestals(const CSCDBPe
   Pointer cndbPedestals(prefillDBPedestals());
   return cndbPedestals;
 }
-
-void CSCFakeDBPedestals::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                        const edm::IOVSyncValue &,
-                                        edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}

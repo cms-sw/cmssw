@@ -27,12 +27,12 @@ template <typename TILES>
 PatternRecognitionbyFastJet<TILES>::PatternRecognitionbyFastJet(const edm::ParameterSet &conf,
                                                                 edm::ConsumesCollector iC)
     : PatternRecognitionAlgoBaseT<TILES>(conf, iC),
-      antikt_radius_(conf.getParameter<double>("antikt_radius")),
+      antikt_radius_(conf.getParameter<float>("antikt_radius")),
       minNumLayerCluster_(conf.getParameter<int>("minNumLayerCluster")),
       computeLocalTime_(conf.getParameter<bool>("computeLocalTime")){};
 
 template <typename TILES>
-void PatternRecognitionbyFastJet<TILES>::setGeometry(hgcal::RecHitTools const &rhtools) {
+void PatternRecognitionbyFastJet<TILES>::setGeometry(ticlgeom::Tools const &rhtools) {
   this->rhtools_ = &rhtools;
   this->geometryReady_ = true;
 }
@@ -99,14 +99,15 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
   constexpr int nPhiBin = TILES::constants_type_t::nPhiBins;
 
   // We need to partition the two sides of the HGCAL detector
-  auto lastLayerPerSide = static_cast<unsigned int>(rhtools->lastLayer(isHFnose)) - 1;
+  auto lastLayerPerSide = static_cast<unsigned int>(rhtools->lastLayer(isHFnose));
   if (isBarrel)
-    lastLayerPerSide = static_cast<unsigned int>(rhtools->lastLayerBarrel()) - 1;
-  unsigned int maxLayer = isBarrel ? lastLayerPerSide + 1 : 2 * lastLayerPerSide - 1;
+    lastLayerPerSide = static_cast<unsigned int>(rhtools->lastLayerBarrel());
+  unsigned int maxLayer = isBarrel ? lastLayerPerSide : 2 * lastLayerPerSide - 1;
   std::vector<fastjet::PseudoJet> fjInputs;
   fjInputs.clear();
   for (unsigned int currentLayer = 0; currentLayer <= maxLayer; ++currentLayer) {
-    if (currentLayer == lastLayerPerSide) {
+    // flush the first endcap before starting the second; the barrel is a single region (no split)
+    if (!isBarrel && currentLayer == lastLayerPerSide) {
       buildJetAndTracksters(fjInputs, result);
     }
     const auto &tileOnLayer = input.tiles[currentLayer];
@@ -185,7 +186,7 @@ void PatternRecognitionbyFastJet<TILES>::filter(std::vector<Trackster> &output,
 template <typename TILES>
 void PatternRecognitionbyFastJet<TILES>::fillPSetDescription(edm::ParameterSetDescription &iDesc) {
   iDesc.add<int>("algo_verbosity", 0);
-  iDesc.add<double>("antikt_radius", 0.09)->setComment("Radius to be used while running the Anti-kt clustering");
+  iDesc.add<float>("antikt_radius", 0.09)->setComment("Radius to be used while running the Anti-kt clustering");
   iDesc.add<int>("minNumLayerCluster", 5)->setComment("Not Inclusive");
   iDesc.add<bool>("computeLocalTime", true);
 }

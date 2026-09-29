@@ -27,7 +27,7 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
                                               float maxDeltaTime,
                                               int lastLayerEE,
                                               int lastLayerFH,
-                                              const std::vector<double> &siblings_maxRSquared) {
+                                              const std::vector<float> &siblings_maxRSquared) {
   isOuterClusterOfDoublets_.clear();
   isOuterClusterOfDoublets_.resize(layerClusters.size());
   allDoublets_.clear();
@@ -268,9 +268,13 @@ void HGCGraphT<TILES>::findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNt
     allDoublets_[rootDoublet].findNtuplets(
         allDoublets_, tmpNtuplet, seedIndex, outInDFS, outInHops, maxOutInHops, outInToVisit);
     while (!outInToVisit.empty()) {
-      allDoublets_[outInToVisit.back().first].findNtuplets(
-          allDoublets_, tmpNtuplet, seedIndex, outInDFS, outInToVisit.back().second, maxOutInHops, outInToVisit);
+      // pop BEFORE processing: findNtuplets pushes the node's children onto the back of
+      // outInToVisit, so popping after would discard a freshly-queued child instead of the
+      // node just handled (silently dropping backward branches).
+      const auto next = outInToVisit.back();
       outInToVisit.pop_back();
+      allDoublets_[next.first].findNtuplets(
+          allDoublets_, tmpNtuplet, seedIndex, outInDFS, next.second, maxOutInHops, outInToVisit);
     }
 
     if (tmpNtuplet.size() > minClustersPerNtuplet) {

@@ -10,7 +10,7 @@ const double HGCalShowerShapeHelper::kLDWaferCellSize_ = 0.698;
 const double HGCalShowerShapeHelper::kHDWaferCellSize_ = 0.465;
 
 HGCalShowerShapeHelper::ShowerShapeCalc::ShowerShapeCalc(
-    std::shared_ptr<const hgcal::RecHitTools> recHitTools,
+    std::shared_ptr<const ticlgeom::Tools> recHitTools,
     std::shared_ptr<const std::unordered_map<uint32_t, const reco::PFRecHit *>> pfRecHitPtrMap,
     const std::vector<std::pair<DetId, float>> &hitsAndFracs,
     const double rawEnergy,
@@ -293,17 +293,18 @@ void HGCalShowerShapeHelper::ShowerShapeCalc::setLayerWiseInfo() {
 }
 
 HGCalShowerShapeHelper::HGCalShowerShapeHelper()
-    : recHitTools_(std::make_shared<hgcal::RecHitTools>()),
+    : recHitTools_(std::make_shared<ticlgeom::Tools>()),
       pfRecHitPtrMap_(std::make_shared<std::unordered_map<uint32_t, const reco::PFRecHit *>>()) {}
 
 HGCalShowerShapeHelper::HGCalShowerShapeHelper(edm::ConsumesCollector &&sumes)
-    : recHitTools_(std::make_shared<hgcal::RecHitTools>()),
+    : recHitTools_(std::make_shared<ticlgeom::Tools>()),
       pfRecHitPtrMap_(std::make_shared<std::unordered_map<uint32_t, const reco::PFRecHit *>>()) {
   setTokens(sumes);
 }
 
 void HGCalShowerShapeHelper::initPerSetup(const edm::EventSetup &iSetup) {
-  recHitTools_->setGeometry(iSetup.getData(caloGeometryToken_));
+  recHitTools_->setGeometry(
+      iSetup.getData(ticlGeomToken_), iSetup.getData(ticlGeomLookupToken_), iSetup.getData(ticlGeomLayersToken_));
 }
 
 void HGCalShowerShapeHelper::initPerEvent(const std::vector<reco::PFRecHit> &pfRecHits) {

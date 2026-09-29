@@ -80,10 +80,10 @@ TEST_CASE("FullChain", "[Framework][EventSetup]") {
 
     auto dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(ValidityInterval(IOVSyncValue(Timestamp(1)), IOVSyncValue(Timestamp(5))));
-    provider.add(dummyFinder);
+    controller.addExtra(dummyFinder);
 
     auto resolverProvider = std::make_shared<DummyESProductResolverProvider>();
-    provider.add(resolverProvider);
+    controller.addExtra(resolverProvider);
 
     edm::ESParentContext pc;
     for (unsigned int iTime = 1; iTime != 6; ++iTime) {

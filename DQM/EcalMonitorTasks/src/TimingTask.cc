@@ -12,6 +12,7 @@
 namespace ecaldqm {
   TimingTask::TimingTask()
       : DQWorkerTask(),
+        doEndcaps_(true),
         bxBinEdges_(),
         bxBin_(0.),
         chi2ThresholdEB_(0.),
@@ -31,6 +32,7 @@ namespace ecaldqm {
         meTime1D_nonCorr(nullptr) {}
 
   void TimingTask::setParams(edm::ParameterSet const& _params) {
+    doEndcaps_ = _params.getUntrackedParameter<bool>("doEndcaps");
     bxBinEdges_ = onlineMode_ ? _params.getUntrackedParameter<std::vector<int> >("bxBins")
                               : _params.getUntrackedParameter<std::vector<int> >("bxBinsFine");
     chi2ThresholdEB_ = _params.getUntrackedParameter<double>("chi2ThresholdEB");

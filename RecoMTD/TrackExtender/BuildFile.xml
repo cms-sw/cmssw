@@ -1,0 +1,16 @@
+<use name="DataFormats/BeamSpot"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="RecoMTD/DetLayers"/>
+<use name="RecoMTD/TimingTools"/>
+<use name="TrackingTools/DetLayers"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="TrackingTools/KalmanUpdators"/>
+<use name="TrackingTools/PatternTools"/>
+<use name="TrackingTools/Records"/>
+<use name="TrackingTools/TransientTrackingRecHit"/>
+<export>
+  <lib name="1"/>
+</export>

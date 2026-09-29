@@ -27,12 +27,3 @@ std::unique_ptr<SiStripPedestals> SiStripPedestalsESSource::produce(const SiStri
   std::unique_ptr<SiStripPedestals> ptr(peds);
   return ptr;
 }
-
-// -----------------------------------------------------------------------------
-//
-void SiStripPedestalsESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                              const edm::IOVSyncValue& iosv,
-                                              edm::ValidityInterval& oValidity) {
-  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
-  oValidity = infinity;
-}

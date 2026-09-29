@@ -129,13 +129,14 @@ if __name__ == '__main__':
         'phase2' : [
             ###### MC (generated from scratch or from RelVals)
             # Phase2
-            prefixDet+34.0,    # RelValTTbar_14TeV                     phase2_realistic_T35        ExtendedRun4D121         (Phase-2 baseline)
-            prefixDet+34.911,  # TTbar_14TeV_TuneCP5                   phase2_realistic_T35        DD4hepExtendedRun4D121   DD4Hep (HLLHC14TeV BeamSpot)
-            #prefixDet+234.999, # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T35        ExtendedRun4D121         AVE_50_BX_25ns_m3p3 COMMENT: reads old format file
-            prefixDet+96.0,    # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T35        ExtendedRun4D121
-            prefixDet+100.0,   # RelValCloseByPGun_CE_H_Coarse_Scint   phase2_realistic_T35        ExtendedRun4D121
-            #23234.0,   # Need new workflow with HFNose
-            prefixDet+34.75,   # RelValTTbar_14TeV                     phase2_realistic_T35        ExtendedRun4D121         (Phase-2 baseline -  but using timing menu, and only up to step 2)
+            prefixDet+34.0,	# RelValTTbar_14TeV                     phase2_realistic_T35        ExtendedRun4D128         (Phase-2 baseline)
+            prefixDet+234.0,	# RelValTTbar_14TeV                     phase2_realistic_T35        ExtendedRun4D128         AVE_200_BX_25ns	(Phase-2 baseline with PU) 
+            prefixDet+34.911,	# TTbar_14TeV_TuneCP5                   phase2_realistic_T35        DD4hepExtendedRun4D128   DD4Hep (HLLHC14TeV BeamSpot)
+            #prefixDet+234.999, # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T35        ExtendedRun4D128         AVE_50_BX_25ns_m3p3 COMMENT: reads old format file
+            prefixDet+96.0,     # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T35        ExtendedRun4D128
+            prefixDet+100.0,    # RelValCloseByPGun_CE_H_Coarse_Scint   phase2_realistic_T35        ExtendedRun4D128
+            #23234.0,           # Need new workflow with HFNose
+            prefixDet+34.75,    # RelValTTbar_14TeV                     phase2_realistic_T35        ExtendedRun4D128         (Phase-2 baseline -  but using timing menu, and only up to step 2)
         ],
 
         'heavyIons' : [
@@ -155,18 +156,19 @@ if __name__ == '__main__':
                      prefixDet+34.7502,  # HLT phase-2 tracking menu with tracking ntuple
                      prefixDet+34.7503,  # HLT phase-2 menu, CPU vs. GPU validation
                      prefixDet+34.751,   # HLT phase-2 timing menu Alpaka variant
-                     prefixDet+34.7521,  # HLT phase-2 timing menu ticlv5TrackLinkGNN variant   
+                     prefixDet+34.7521,  # HLT phase-2 timing menu ticlv5TrackLinkGNN variant
+                     prefixDet+34.7522,  # HLT phase-2 timing menu mtd_at_hlt variant
                      prefixDet+34.753,   # HLT phase-2 timing menu legacy tracking
-                     prefixDet+34.754,   # HLT phase-2 timing menu legacy tracking with Patatrack quads
                      prefixDet+34.755,   # HLT phase-2 timing menu LST building variant
-                     prefixDet+34.756,   # HLT phase-2 timing menu trimmed tracking
                      prefixDet+34.757,   # HLT phase-2 timing menu mkFit fitting variant
                      prefixDet+34.758,   # HLT phase-2 timing menu ticl_barrel variant
                      prefixDet+34.759,   # HLT phase-2 menu, with NANO:@Phase2HLT
                      prefixDet+34.7591,  # HLT phase-2 menu, with NANO:@Phase2HLTVal
+                     prefixDet+34.7592,  # HLT phase-2 menu, with NANO:@Phase2HLT + DQM
                      prefixDet+34.77,    # HLT phase-2 NGT Scouting menu
                      prefixDet+34.771,   # HLT phase-2 NGT Scouting menu, Alpaka, TICL-Barrel
                      prefixDet+34.772,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
+                     prefixDet+34.7721,  # HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting + DQM
                      prefixDet+34.773,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
                      prefixDet+34.774,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal+@Phase2L1DPGwithGen
                      prefixDet+34.775],  # HLT phase-2 NGT Scouting menu, Phase2CAExtension&LSTT5 as GeneralTracks
@@ -275,7 +277,7 @@ if __name__ == '__main__':
                         action='store_true')
 
     parser.add_argument('-l','--list',
-                        help='Comma separated list of workflow to be shown or ran. Possible keys are also '+str(predefinedSet.keys())+'. and wild card like muon, or mc',
+                        help='Comma separated list of workflow to be shown or ran. Possible keys are also '+', '.join(predefinedSet.keys())+'. and wild card like muon, or mc',
                         dest='testList',
                         default=None)
 
@@ -389,6 +391,12 @@ if __name__ == '__main__':
     parser.add_argument('--noRun',
                         help='Remove all run list selection from wfs',
                         dest='noRun',
+                        default=False,
+                        action='store_true')
+
+    parser.add_argument('--noLocalPU',
+                        help='Remove local PU step (MinBias GEN-SIM)',
+                        dest='noLocalPU',
                         default=False,
                         action='store_true')
 
@@ -526,7 +534,7 @@ if __name__ == '__main__':
                     raise Exception('Launched with --gpu required and no GPU available (among those available)!')
     
     if opt.command: opt.command = ' '.join(opt.command)
-    os.environ["CMSSW_DAS_QUERY_SITES"]=opt.dasSites
+    os.environ["CMSSW_DAS_QUERY_SITES"] = opt.dasSites
     if opt.failed_from:
         rerunthese=[]
         with open(opt.failed_from,'r') as report:
@@ -540,11 +548,11 @@ if __name__ == '__main__':
             opt.testList = ','.join(rerunthese)
 
     if opt.IBEos:
-      os.environ["CMSSW_USE_IBEOS"]="true"
+      os.environ["CMSSW_USE_IBEOS"] = "true"
     if opt.restricted:
         print('Deprecated, please use -l limited')
-        if opt.testList:            opt.testList+=',limited'
-        else:            opt.testList='limited'
+        if opt.testList: opt.testList += ',limited'
+        else:            opt.testList = 'limited'
 
     def stepOrIndex(s):
         if s.isdigit():
@@ -552,9 +560,9 @@ if __name__ == '__main__':
         else:
             return s
     if opt.apply:
-        opt.apply=map(stepOrIndex,opt.apply.split(','))
+        opt.apply = list(map(stepOrIndex,opt.apply.split(',')))
     if opt.keep:
-        opt.keep=map(stepOrIndex,opt.keep.split(','))
+        opt.keep = list(map(stepOrIndex,opt.keep.split(',')))
 
     if opt.testList:
         testList=[]
@@ -577,7 +585,7 @@ if __name__ == '__main__':
     if opt.wmcontrol:
         performInjectionOptionTest(opt)
     if opt.overWrite:
-        opt.overWrite=eval(opt.overWrite)
+        opt.overWrite = eval(opt.overWrite)
     if opt.interactive:
         import cmd
         from colorama import Fore, Style
@@ -637,7 +645,7 @@ if __name__ == '__main__':
                 if text and len(text) > 0:
                     return [t for t in predefinedSet.keys() if t.startswith(text)]
                 else:
-                    return predefinedSet.keys()
+                    return list(predefinedSet.keys())
 
             def do_predefined(self, arg):
                 """Print the list of predefined workflows"""
@@ -645,10 +653,10 @@ if __name__ == '__main__':
                 if arg:
                     for w in arg.split():
                         if w in predefinedSet.keys():
-                            print("Predefined Set: %s" % w)
+                            print(f"Predefined Set: {w}")
                             print(predefinedSet[w])
                         else:
-                            print("Unknown Set: %s" % w)
+                            print(f"Unknown Set: {w}")
                 else:
                     print(
                         "[ "
@@ -673,7 +681,7 @@ if __name__ == '__main__':
                 if text and len(text) > 0:
                     return [t for t in self.matrices_.keys() if t.startswith(text)]
                 else:
-                    return self.matrices_.keys()
+                    return list(self.matrices_.keys())
 
             def do_showWorkflow(self, arg):
                 if arg == "":
@@ -685,7 +693,7 @@ if __name__ == '__main__':
                     selected = arg.split()
                     for k in selected:
                         if k not in self.matrices_.keys():
-                            print("Unknown workflow %s: skipping" % k)
+                            print(f"Unknown workflow {k}: skipping")
                         else:
                             for wfl in self.matrices_[k].workFlows:
                                 print(
@@ -719,24 +727,22 @@ if __name__ == '__main__':
                     Fore.YELLOW + Style.BRIGHT + "Running with the following options:\n"
                 )
                 print(
-                    Fore.GREEN
-                    + Style.BRIGHT
-                    + "Workflow class: {}".format(workflow_class)
+                    Fore.GREEN + Style.BRIGHT
+                    + f"Workflow class: {workflow_class}"
                 )
                 print(
-                    Fore.GREEN + Style.BRIGHT + "Workflow ID:    {}".format(workflow_id)
+                    Fore.GREEN + Style.BRIGHT
+                    + f"Workflow ID:    {workflow_id}"
                 )
                 print(
-                    Fore.GREEN
-                    + Style.BRIGHT
-                    + "Additional runTheMatrix options: {}".format(passed_down_args)
+                    Fore.GREEN + Style.BRIGHT
+                    + f"Additional runTheMatrix options: {passed_down_args}"
                 )
                 print(Style.RESET_ALL)
                 if workflow_class not in self.matrices_.keys():
                     print(
-                        Fore.RED
-                        + Style.BRIGHT
-                        + "Unknown workflow selected: {}".format(workflow_class)
+                        Fore.RED + Style.BRIGHT
+                        + f"Unknown workflow selected: {workflow_class}"
                     )
                     print("Available workflows:")
                     for k in self.matrices_.keys():
@@ -746,9 +752,8 @@ if __name__ == '__main__':
                 wflnums = [x.numId for x in self.matrices_[workflow_class].workFlows]
                 if float(workflow_id) not in wflnums:
                     print(
-                        Fore.RED
-                        + Style.BRIGHT
-                        + "Unknown workflow {}".format(workflow_id)
+                        Fore.RED + Style.BRIGHT
+                        + f"Unknown workflow {workflow_id}"
                     )
                     print(Fore.GREEN + Style.BRIGHT)
                     print(wflnums)
@@ -758,9 +763,8 @@ if __name__ == '__main__':
                     # Check if the process is still active
                     if self.processes_[workflow_id][0].poll() is None:
                         print(
-                            Fore.RED
-                            + Style.BRIGHT
-                            + "Workflow {} already running!".format(workflow_id)
+                            Fore.RED + Style.BRIGHT
+                            + f"Workflow {workflow_id} already running!"
                         )
                         print(Style.RESET_ALL)
                         return
@@ -768,7 +772,7 @@ if __name__ == '__main__':
                 # run a job, redirecting standard output and error to files
                 lognames = ["stdout", "stderr"]
                 logfiles = tuple(
-                    "%s_%s_%s.log" % (workflow_class, workflow_id, name)
+                    f"{workflow_class}_{workflow_id}_{name}.log"
                     for name in lognames
                 )
                 stdout = open(logfiles[0], "w")
@@ -784,7 +788,7 @@ if __name__ == '__main__':
                 if text and len(text) > 0:
                     return [t for t in self.matrices_.keys() if t.startswith(text)]
                 else:
-                    return self.matrices_.keys()
+                    return list(self.matrices_.keys())
 
             def help_runWorkflow(self):
                 print(
@@ -817,14 +821,11 @@ if __name__ == '__main__':
                 for w in self.processes_.keys():
                     if self.processes_[w][0].poll() is None:
                         print(
-                            Fore.YELLOW
-                            + Style.BRIGHT
-                            + "Active job: {} since {:.2f} seconds.".format(
-                                w, time.time() - self.processes_[w][1]
-                            )
+                            Fore.YELLOW + Style.BRIGHT
+                            + f"Active job: {w} since {time.time() - self.processes_[w][1]:.2f} seconds."
                         )
                     else:
-                        print(Fore.RED + Style.BRIGHT + "Done job: {}".format(w))
+                        print(Fore.RED + Style.BRIGHT + f"Done job: {w}")
                 print(Style.RESET_ALL)
 
             def help_jobs(self):
@@ -910,7 +911,7 @@ if __name__ == '__main__':
                 if text and len(text) > 0:
                     return [t for t in self.matrices_.keys() if t.startswith(text)]
                 else:
-                    return self.matrices_.keys()
+                    return list(self.matrices_.keys())
 
             def help_searchInWorkflow(self):
                 print(
@@ -927,7 +928,7 @@ if __name__ == '__main__':
                 if text and len(text) > 0:
                     return [t for t in self.matrices_.keys() if t.startswith(text)]
                 else:
-                    return self.matrices_.keys()
+                    return list(self.matrices_.keys())
 
             def do_searchInWorkflow(self, arg):
                 args = arg.split()
@@ -943,7 +944,7 @@ if __name__ == '__main__':
                 try:
                     pattern = re.compile(args[1])
                 except:
-                    print("Failed to compile regexp %s" % args[1])
+                    print(f"Failed to compile regexp {args[1]}")
                     return
                 counter = 0
                 for wfl in self.matrices_[args[0]].workFlows:
@@ -1023,9 +1024,9 @@ if __name__ == '__main__':
                                                 (str(s) + " "),
                                             )
                                         )
-                                    print("\nWorkflow found in %s." % key)
+                                    print(f"\nWorkflow found in {key}.")
                                 else:
-                                    print("Workflow also found in %s." % key)
+                                    print(f"Workflow also found in {key}.")
 
             do_EOF = do_exit
 

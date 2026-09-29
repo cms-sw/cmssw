@@ -1,0 +1,25 @@
+import FWCore.ParameterSet.Config as cms
+
+_barrelAlgo = cms.PSet(
+    algoName = cms.string("MTDRecHitAlgo"),
+    thresholdToKeep = cms.double(1.), # [MeV]
+    calibrationConstant = cms.double(1.)
+)
+
+_endcapAlgo = cms.PSet(
+    algoName = cms.string("MTDRecHitAlgo"),
+    thresholdToKeep = cms.double(0.0425),    # MeV
+    calibrationConstant = cms.double(0.085), # MeV/MIP
+)
+
+from Configuration.Eras.Modifier_phase2_etlV4_cff import phase2_etlV4
+phase2_etlV4.toModify(_endcapAlgo, thresholdToKeep = 0.005, calibrationConstant = 0.015 )
+
+hltMtdRecHits = cms.EDProducer("MTDRecHitProducer",
+                               barrel = _barrelAlgo,
+                               endcap = _endcapAlgo,
+                               barrelUncalibratedRecHits = cms.InputTag('hltMtdUncalibratedRecHits:FTLBarrel'),
+                               endcapUncalibratedRecHits = cms.InputTag('hltMtdUncalibratedRecHits:FTLEndcap'),
+                               BarrelHitsName = cms.string('FTLBarrel'),
+                               EndcapHitsName = cms.string('FTLEndcap'),
+                               )

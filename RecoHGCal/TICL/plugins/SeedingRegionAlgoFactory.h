@@ -1,5 +1,5 @@
-#ifndef RecoHGCAL_TICL_SeedingRegionAlgoFactory_h
-#define RecoHGCAL_TICL_SeedingRegionAlgoFactory_h
+#ifndef RecoHGCal_TICL_SeedingRegionAlgoFactory_h
+#define RecoHGCal_TICL_SeedingRegionAlgoFactory_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"

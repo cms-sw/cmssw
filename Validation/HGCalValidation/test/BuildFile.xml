@@ -1,3 +1,4 @@
+<use name="CondFormats/HGCalObjects"/>
 <use name="DataFormats/ForwardDetId"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>

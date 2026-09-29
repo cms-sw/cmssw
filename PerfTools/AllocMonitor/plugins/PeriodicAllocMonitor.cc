@@ -24,6 +24,8 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
+//NOTE: Any changes to this code may also be appropriate for PerfTools/PeriodicAllocMonitorPreload/src/preload.cc
+
 namespace {
   class MonitorAdaptor : public cms::perftools::AllocMonitorBase {
   public:

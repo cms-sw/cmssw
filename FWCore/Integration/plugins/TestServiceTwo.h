@@ -56,9 +56,6 @@ namespace edmtest {
     void preModuleGlobalEndLumi(edm::GlobalContext const&, edm::ModuleCallingContext const&);
     void postModuleGlobalEndLumi(edm::GlobalContext const&, edm::ModuleCallingContext const&);
 
-    void preGlobalWriteLumi(edm::GlobalContext const&);
-    void postGlobalWriteLumi(edm::GlobalContext const&);
-
     void preStreamBeginRun(edm::StreamContext const&);
     void postStreamBeginRun(edm::StreamContext const&);
     void preStreamEndRun(edm::StreamContext const&);
@@ -78,9 +75,6 @@ namespace edmtest {
     void postModuleGlobalBeginRun(edm::GlobalContext const&, edm::ModuleCallingContext const&);
     void preModuleGlobalEndRun(edm::GlobalContext const&, edm::ModuleCallingContext const&);
     void postModuleGlobalEndRun(edm::GlobalContext const&, edm::ModuleCallingContext const&);
-
-    void preGlobalWriteRun(edm::GlobalContext const&);
-    void postGlobalWriteRun(edm::GlobalContext const&);
 
     unsigned int nPreStreamBeginLumi() const;
     unsigned int nPostStreamBeginLumi() const;
@@ -102,9 +96,6 @@ namespace edmtest {
     unsigned int nPreModuleGlobalEndLumi() const;
     unsigned int nPostModuleGlobalEndLumi() const;
 
-    unsigned int nPreGlobalWriteLumi() const;
-    unsigned int nPostGlobalWriteLumi() const;
-
     unsigned int nPreStreamBeginRun() const;
     unsigned int nPostStreamBeginRun() const;
     unsigned int nPreStreamEndRun() const;
@@ -124,9 +115,6 @@ namespace edmtest {
     unsigned int nPostModuleGlobalBeginRun() const;
     unsigned int nPreModuleGlobalEndRun() const;
     unsigned int nPostModuleGlobalEndRun() const;
-
-    unsigned int nPreGlobalWriteRun() const;
-    unsigned int nPostGlobalWriteRun() const;
 
   private:
     bool verbose_;
@@ -152,9 +140,6 @@ namespace edmtest {
     std::atomic<unsigned int> nPreModuleGlobalEndLumi_ = 0;
     std::atomic<unsigned int> nPostModuleGlobalEndLumi_ = 0;
 
-    std::atomic<unsigned int> nPreGlobalWriteLumi_ = 0;
-    std::atomic<unsigned int> nPostGlobalWriteLumi_ = 0;
-
     std::atomic<unsigned int> nPreStreamBeginRun_ = 0;
     std::atomic<unsigned int> nPostStreamBeginRun_ = 0;
     std::atomic<unsigned int> nPreStreamEndRun_ = 0;
@@ -174,9 +159,6 @@ namespace edmtest {
     std::atomic<unsigned int> nPostModuleGlobalBeginRun_ = 0;
     std::atomic<unsigned int> nPreModuleGlobalEndRun_ = 0;
     std::atomic<unsigned int> nPostModuleGlobalEndRun_ = 0;
-
-    std::atomic<unsigned int> nPreGlobalWriteRun_ = 0;
-    std::atomic<unsigned int> nPostGlobalWriteRun_ = 0;
   };
 }  // namespace edmtest
 #endif

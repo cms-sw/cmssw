@@ -8,6 +8,7 @@
 <use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/TrackReco"/>
 <use name="Geometry/CaloGeometry"/>
+<use name="CondFormats/HGCalObjects"/>
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
 <use name="clhep"/>
 <use name="root"/>

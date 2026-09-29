@@ -658,20 +658,20 @@ float drfracSimHitConsistentWithHelix(lst_math::Helix& helix,
                                       std::vector<float> const& trk_simhit_y,
                                       std::vector<float> const& trk_simhit_z) {
   // Sim hit vector
-  std::vector<float> point = {trk_simhit_x[isimhitidx], trk_simhit_y[isimhitidx], trk_simhit_z[isimhitidx]};
+  std::array<float, 3> point = {trk_simhit_x[isimhitidx], trk_simhit_y[isimhitidx], trk_simhit_z[isimhitidx]};
 
   // Inferring parameter t of helix parametric function via z position
-  float t = helix.infer_t(point);
+  float t = helix.inferT(point);
 
   // If the best fit is more than pi parameter away then it's a returning hit and should be ignored
   if (not(t <= M_PI))
     return 999;
 
   // Expected hit position with given z
-  auto [x, y, z, r] = helix.get_helix_point(t);
+  auto [x, y, z, r] = helix.point(t);
 
   // ( expected_r - simhit_r ) / expected_r
-  float drfrac = std::abs(helix.compare_radius(point)) / r;
+  float drfrac = std::abs(helix.compareRadius(point)) / r;
 
   return drfrac;
 }
@@ -711,10 +711,10 @@ float distxySimHitConsistentWithHelix(lst_math::Helix& helix,
                                       std::vector<float> const& trk_simhit_y,
                                       std::vector<float> const& trk_simhit_z) {
   // Sim hit vector
-  std::vector<float> point = {trk_simhit_x[isimhitidx], trk_simhit_y[isimhitidx], trk_simhit_z[isimhitidx]};
+  std::array<float, 3> point = {trk_simhit_x[isimhitidx], trk_simhit_y[isimhitidx], trk_simhit_z[isimhitidx]};
 
   // Inferring parameter t of helix parametric function via z position
-  float t = helix.infer_t(point);
+  float t = helix.inferT(point);
 
   // If the best fit is more than pi parameter away then it's a returning hit and should be ignored
   if (not(t <= M_PI))
@@ -724,7 +724,7 @@ float distxySimHitConsistentWithHelix(lst_math::Helix& helix,
   //auto [x, y, z, r] = helix.get_helix_point(t);
 
   // ( expected_r - simhit_r ) / expected_r
-  float distxy = helix.compare_xy(point);
+  float distxy = helix.compareXY(point);
 
   return distxy;
 }

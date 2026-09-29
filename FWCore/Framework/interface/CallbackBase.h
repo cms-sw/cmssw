@@ -47,6 +47,7 @@
 #include "FWCore/Utilities/interface/Likely.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/Signal.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 
 namespace edm {
   void exceptionContext(cms::Exception&, ESModuleCallingContext const&);
@@ -135,20 +136,14 @@ namespace edm {
                         ESParentContext pc{&context};
                         rec.setImpl(record, produceMethodID(), resolvers, eventSetupImpl, &pc);
                         ServiceRegistry::Operate operate(serviceToken.lock());
+                        auto guard = signalslot::make_sentry([&record, &context]() {
+                          record->activityRegistry()->postESModuleSignal_.emit(record->key(), context);
+                        });
                         record->activityRegistry()->preESModuleSignal_.emit(record->key(), context);
-                        struct EndGuard {
-                          EndGuard(EventSetupRecordImpl const* iRecord, ESModuleCallingContext const& iContext)
-                              : record_{iRecord}, context_{iContext} {}
-                          ~EndGuard() {
-                            record_->activityRegistry()->postESModuleSignal_.emit(record_->key(), context_);
-                          }
-                          EventSetupRecordImpl const* record_;
-                          ESModuleCallingContext const& context_;
-                        };
-                        EndGuard guard(record, context);
                         decorator_.pre(rec);
                         storeReturnedValues(produceFunctor(rec));
                         decorator_.post(rec);
+                        guard.succeeded();
                       });
                     } catch (cms::Exception& iException) {
                       exceptionContext(iException, callingContext_);

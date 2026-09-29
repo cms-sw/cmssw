@@ -202,6 +202,7 @@
   <class name="edm::ValueMap<reco::PreIdRef>"/>
   <class name="std::vector<reco::PreIdRef>"/>
   <class name="edm::Wrapper<edm::ValueMap<reco::PreIdRef> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<vector<reco::io_v1::PreId>,reco::io_v1::PreId>" />
   <class name="edm::Ref<std::vector<reco::io_v1::PreId>,reco::io_v1::PreId,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PreId>,reco::io_v1::PreId> >" />
 
   <class name="reco::PFBlockElementSuperCluster" ClassVersion="3">

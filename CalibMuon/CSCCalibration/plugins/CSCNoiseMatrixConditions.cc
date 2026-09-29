@@ -442,9 +442,3 @@ CSCNoiseMatrixConditions::ReturnType CSCNoiseMatrixConditions::produceNoiseMatri
   // Added by Zhen, need a new object so to not be deleted at exit
   return CSCNoiseMatrixConditions::ReturnType(prefillNoiseMatrix());
 }
-
-void CSCNoiseMatrixConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                              const edm::IOVSyncValue &,
-                                              edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}

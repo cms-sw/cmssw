@@ -24,6 +24,7 @@ process.options = dict(
     numberOfStreams = 4,
     numberOfConcurrentRuns = 1,
     numberOfConcurrentLuminosityBlocks = 4,
+    
     eventSetup = dict(
         numberOfConcurrentIOVs = 4,
         forceNumberOfConcurrentIOVs = dict(
@@ -48,7 +49,6 @@ process.concurrentIOVESSource = cms.ESSource("ConcurrentIOVESSource",
     iovIsRunNotTime = cms.bool(True),
     firstValidLumis = cms.vuint32(1, 4, 6, 7, 8, 9),
     invalidLumis = cms.vuint32(),
-    concurrentFinder = cms.bool(True),
     testForceESSourceMode = cms.bool(True),
     findForRecordA = cms.bool(True)
 )

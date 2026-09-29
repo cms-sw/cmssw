@@ -3,7 +3,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESProducts.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
@@ -22,7 +22,7 @@
 /**
    @short plugin parses the module/cell locator files to produce the indexer records
  */
-class HGCalMappingTriggerESProducer : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class HGCalMappingTriggerESProducer : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   explicit HGCalMappingTriggerESProducer(const edm::ParameterSet& iConfig) {
     //parse the files and hold the list of entities in memory
@@ -57,12 +57,6 @@ public:
   }
 
 private:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval& oValidity) override {
-    oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-  }
-
   void prepareCellMapperIndexer();
   void prepareModuleMapperIndexer();
 

@@ -7,6 +7,7 @@
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "Common.h"
 
@@ -42,7 +43,15 @@ namespace io_v1 {
           rawEnergy_(0.f) {}
 
     TICLCandidate(const edm::Ptr<reco::Track> trackPtr, const edm::Ptr<ticl::Trackster>& tracksterPtr)
-        : LeafCandidate(), tracksters_{}, trackPtrs_{}, time_(0.f), timeError_(-1.f) {
+        : LeafCandidate(),
+          tracksters_{},
+          trackPtrs_{},
+          idProbabilities_{},
+          time_(0.f),
+          timeError_(-1.f),
+          MTDtime_{0.f},
+          MTDtimeError_{-1.f},
+          rawEnergy_(0.f) {
       if (trackPtr.isNull() and tracksterPtr.isNull())
         throw cms::Exception("NullPointerError")
             << "TICLCandidate constructor: at least one between track and trackster must be valid";
@@ -112,6 +121,12 @@ namespace io_v1 {
     inline const std::vector<edm::Ptr<reco::Track>> trackPtrs() const { return trackPtrs_; }
     void addTrackPtr(const edm::Ptr<reco::Track>& trackPtr) { trackPtrs_.push_back(trackPtr); }
 
+    inline const edm::Ptr<reco::GsfTrack> gsftrackPtr(int index = 0) const {
+      return gsfTrackPtrs_.empty() ? edm::Ptr<reco::GsfTrack>() : gsfTrackPtrs_[index];
+    }
+    inline const std::vector<edm::Ptr<reco::GsfTrack>>& gsfTrackPtrs() const { return gsfTrackPtrs_; }
+    void addGsfTrackPtr(const edm::Ptr<reco::GsfTrack>& gsftrackPtr) { gsfTrackPtrs_.push_back(gsftrackPtr); }
+
     inline float rawEnergy() const { return rawEnergy_; }
     void setRawEnergy(float rawEnergy) { rawEnergy_ = rawEnergy; }
 
@@ -145,6 +160,7 @@ namespace io_v1 {
     // and there can be derived classes
     std::vector<edm::Ptr<ticl::Trackster>> tracksters_;
     std::vector<edm::Ptr<reco::Track>> trackPtrs_;
+    std::vector<edm::Ptr<reco::GsfTrack>> gsfTrackPtrs_;
     // Since it contains multiple tracksters, duplicate the probability interface
     std::array<float, 8> idProbabilities_;
 

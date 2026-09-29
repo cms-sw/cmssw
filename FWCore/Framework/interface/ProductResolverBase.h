@@ -158,6 +158,8 @@ namespace edm {
     virtual void connectTo(ProductResolverBase const&, Principal const*) = 0;
     virtual void setupUnscheduled(UnscheduledConfigurator const&);
 
+    virtual void putProduct(std::unique_ptr<WrapperBase> edp) const;
+
   private:
     virtual Resolution resolveProduct_(Principal const& principal,
                                        SharedResourcesAcquirer* sra,

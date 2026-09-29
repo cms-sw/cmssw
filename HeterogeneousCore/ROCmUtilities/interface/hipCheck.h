@@ -26,18 +26,18 @@ namespace cms {
       std::ostringstream out;
       out << "\n";
       out << file << ", line " << line << ":\n";
-      out << "hipCheck(" << cmd << ");\n";
+      out << "HIP_CHECK(" << cmd << ");\n";
       out << error << ": " << message << "\n";
       if (!description.empty())
         out << description << "\n";
       throw std::runtime_error(out.str());
     }
 
-    inline bool hipCheck_(const char* file,
-                          int line,
-                          const char* cmd,
-                          hipError_t result,
-                          std::string_view description = std::string_view()) {
+    inline bool hipCheck(const char* file,
+                         int line,
+                         const char* cmd,
+                         hipError_t result,
+                         std::string_view description = std::string_view()) {
       if (LIKELY(result == hipSuccess))
         return true;
 
@@ -49,6 +49,6 @@ namespace cms {
   }  // namespace rocm
 }  // namespace cms
 
-#define hipCheck(ARG, ...) (cms::rocm::hipCheck_(__FILE__, __LINE__, #ARG, (ARG), ##__VA_ARGS__))
+#define HIP_CHECK(ARG, ...) (cms::rocm::hipCheck(__FILE__, __LINE__, #ARG, (ARG), ##__VA_ARGS__))
 
 #endif  // HeterogeneousCore_ROCmUtilities_hipCheck_h

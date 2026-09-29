@@ -86,16 +86,42 @@ namespace edmtest {
         iovTestInfoFromESSource->iovEndLumi_ != iov.last().luminosityBlockNumber() ||
         iovTestInfoFromESSource->iovIndex_ != esTestRecordI.iovIndex() ||
         iovTestInfoFromESSource->cacheIdentifier_ != esTestRecordI.cacheIdentifier()) {
-      throw cms::Exception("TestFailure") << "ConcurrentIOVAnalyzer::analyze,"
-                                          << " values read from ESSource do not agree with record";
+      throw cms::Exception("TestFailure")
+          .format(
+              "ConcurrentIOVAnalyzer::analyze,"
+              " values read from ESSource do not agree with record\n"
+              "  expected startLumi = {}, actual startLumi = {}\n expected endLumi = {}, actual endLumi = {}\n"
+              " expected iovIndex = {}, actual iovIndex = {}\n expected cacheIdentifier = {}, actual cacheIdentifier = "
+              "{}",
+              iov.first().luminosityBlockNumber(),
+              iovTestInfoFromESSource->iovStartLumi_,
+              iov.last().luminosityBlockNumber(),
+              iovTestInfoFromESSource->iovEndLumi_,
+              esTestRecordI.iovIndex(),
+              iovTestInfoFromESSource->iovIndex_,
+              esTestRecordI.cacheIdentifier(),
+              iovTestInfoFromESSource->cacheIdentifier_);
     }
 
     if (iovTestInfoFromESProducer->iovStartLumi_ != iov.first().luminosityBlockNumber() ||
         iovTestInfoFromESProducer->iovEndLumi_ != iov.last().luminosityBlockNumber() ||
         iovTestInfoFromESProducer->iovIndex_ != esTestRecordI.iovIndex() ||
         iovTestInfoFromESProducer->cacheIdentifier_ != esTestRecordI.cacheIdentifier()) {
-      throw cms::Exception("TestFailure") << "ConcurrentIOVAnalyzer::analyze,"
-                                          << " values read from ESProducer do not agree with record";
+      throw cms::Exception("TestFailure")
+          .format(
+              "ConcurrentIOVAnalyzer::analyze,"
+              " values read from ESProducer do not agree with record\n"
+              "  expected startLumi = {}, actual startLumi = {}\n expected endLumi = {}, actual endLumi = {}\n"
+              " expected iovIndex = {}, actual iovIndex = {}\n expected cacheIdentifier = {}, actual cacheIdentifier = "
+              "{}",
+              iov.first().luminosityBlockNumber(),
+              iovTestInfoFromESProducer->iovStartLumi_,
+              iov.last().luminosityBlockNumber(),
+              iovTestInfoFromESProducer->iovEndLumi_,
+              esTestRecordI.iovIndex(),
+              iovTestInfoFromESProducer->iovIndex_,
+              esTestRecordI.cacheIdentifier(),
+              iovTestInfoFromESProducer->cacheIdentifier_);
     }
 
     // First cacheIdentifier in the test is actually 3 (0, 1, and 2 just are ignored)
@@ -104,35 +130,55 @@ namespace edmtest {
       int testResult = eventSetup.getData(esTokenFromAcquireIntESProducer_).value();
       if (testResult != expectedESAcquireTestResults_[cacheIdentifier]) {
         throw cms::Exception("TestFailure")
-            << "ConcurrentIOVAnalyzer::analyze,"
-            << " unexpected value for EventSetup acquire test.\n"
-            << "Expected = " << expectedESAcquireTestResults_[cacheIdentifier] << " result = " << testResult
-            << " cacheIdentifier = " << cacheIdentifier << "\n";
+            .format(
+                "ConcurrentIOVAnalyzer::analyze,"
+                " unexpected value for EventSetup acquire test.\n"
+                "Expected = {} result = {} cacheIdentifier = {}",
+                expectedESAcquireTestResults_[cacheIdentifier],
+                testResult,
+                cacheIdentifier);
       }
     }
 
     if (expectedUniquePtrTestValue_ != 0) {
       if (eventSetup.getData(esTokenUniquePtrTestValue_).value() != expectedUniquePtrTestValue_) {
         throw cms::Exception("TestFailure")
-            << "ConcurrentIOVAnalyzer::analyze,"
-            << " value for unique_ptr test from EventSetup does not match expected value";
+            .format(
+                "ConcurrentIOVAnalyzer::analyze,"
+                " value for unique_ptr test from EventSetup does not match expected value\n"
+                "Expected = {} result = {}",
+                expectedUniquePtrTestValue_,
+                eventSetup.getData(esTokenUniquePtrTestValue_).value());
       }
       if (eventSetup.getData(esTokenLambdaUniquePtrTestValue_).value() != expectedUniquePtrTestValue_) {
         throw cms::Exception("TestFailure")
-            << "ConcurrentIOVAnalyzer::analyze,"
-            << " value for lambda unique_ptr test from EventSetup does not match expected value";
+            .format(
+                "ConcurrentIOVAnalyzer::analyze,"
+                " value for lambda unique_ptr test from EventSetup does not match expected value\n"
+                "Expected = {} result = {}",
+                expectedUniquePtrTestValue_,
+                eventSetup.getData(esTokenLambdaUniquePtrTestValue_).value());
       }
     }
 
     if (expectedOptionalTestValue_ != 0) {
       if (eventSetup.getData(esTokenOptionalTestValue_).value() != expectedOptionalTestValue_) {
-        throw cms::Exception("TestFailure") << "ConcurrentIOVAnalyzer::analyze,"
-                                            << " value for optional test from EventSetup does not match expected value";
+        throw cms::Exception("TestFailure")
+            .format(
+                "ConcurrentIOVAnalyzer::analyze,"
+                " value for optional test from EventSetup does not match expected value\n"
+                "Expected = {} result = {}",
+                expectedOptionalTestValue_,
+                eventSetup.getData(esTokenOptionalTestValue_).value());
       }
       if (eventSetup.getData(esTokenLambdaOptionalTestValue_).value() != expectedOptionalTestValue_) {
         throw cms::Exception("TestFailure")
-            << "ConcurrentIOVAnalyzer::analyze,"
-            << " value for lambda optional test from EventSetup does not match expected value";
+            .format(
+                "ConcurrentIOVAnalyzer::analyze,"
+                " value for lambda optional test from EventSetup does not match expected value\n"
+                "Expected = {} result = {}",
+                expectedOptionalTestValue_,
+                eventSetup.getData(esTokenLambdaOptionalTestValue_).value());
       }
     }
 
@@ -144,57 +190,137 @@ namespace edmtest {
     if (lumiNumber == 1) {
       if (iovTestInfoFromESProducer->iovStartLumi_ != 1 || iovTestInfoFromESProducer->iovEndLumi_ != 3 ||
           iovTestInfoFromESProducer->cacheIdentifier_ != 3) {
-        throw cms::Exception("TestFailure") << "ConcurrentIOVAnalyzer::analyze,"
-                                            << " values read from ESProducer do not agree with expected values";
+        throw cms::Exception("TestFailure")
+            .format(
+                "ConcurrentIOVAnalyzer::analyze,"
+                " values read from ESProducer do not agree with expected values\n"
+                "  expected startLumi = {}, actual startLumi = {}\n expected endLumi = {}, actual endLumi = {}\n"
+                " expected cacheIdentifier = {}, actual cacheIdentifier = {}",
+                1,
+                iovTestInfoFromESProducer->iovStartLumi_,
+                3,
+                iovTestInfoFromESProducer->iovEndLumi_,
+                3,
+                iovTestInfoFromESProducer->cacheIdentifier_);
       }
     }
     if (lumiNumber == 2) {
       if (iovTestInfoFromESProducer->iovStartLumi_ != 1 || iovTestInfoFromESProducer->iovEndLumi_ != 3 ||
           iovTestInfoFromESProducer->cacheIdentifier_ != 3) {
-        throw cms::Exception("TestFailure") << "ConcurrentIOVAnalyzer::analyze,"
-                                            << " values read from ESProducer do not agree with expected values";
+        throw cms::Exception("TestFailure")
+            .format(
+                "ConcurrentIOVAnalyzer::analyze,"
+                " values read from ESProducer do not agree with expected values\n"
+                "  expected startLumi = {}, actual startLumi = {}\n expected endLumi = {}, actual endLumi = {}\n"
+                " expected cacheIdentifier = {}, actual cacheIdentifier = {}",
+                1,
+                iovTestInfoFromESProducer->iovStartLumi_,
+                3,
+                iovTestInfoFromESProducer->iovEndLumi_,
+                3,
+                iovTestInfoFromESProducer->cacheIdentifier_);
       }
     }
     if (lumiNumber == 3) {
       if (iovTestInfoFromESProducer->iovStartLumi_ != 1 || iovTestInfoFromESProducer->iovEndLumi_ != 3 ||
           iovTestInfoFromESProducer->cacheIdentifier_ != 3) {
-        throw cms::Exception("TestFailure") << "ConcurrentIOVAnalyzer::analyze,"
-                                            << " values read from ESProducer do not agree with expected values";
+        throw cms::Exception("TestFailure")
+            .format(
+                "ConcurrentIOVAnalyzer::analyze,"
+                " values read from ESProducer do not agree with expected values\n"
+                "  expected startLumi = {}, actual startLumi = {}\n expected endLumi = {}, actual endLumi = {}\n"
+                " expected cacheIdentifier = {}, actual cacheIdentifier = {}",
+                1,
+                iovTestInfoFromESProducer->iovStartLumi_,
+                3,
+                iovTestInfoFromESProducer->iovEndLumi_,
+                3,
+                iovTestInfoFromESProducer->cacheIdentifier_);
       }
     }
     if (lumiNumber == 4) {
       if (iovTestInfoFromESProducer->iovStartLumi_ != 4 || iovTestInfoFromESProducer->iovEndLumi_ != 5 ||
           iovTestInfoFromESProducer->cacheIdentifier_ != 4) {
-        throw cms::Exception("TestFailure") << "ConcurrentIOVAnalyzer::analyze,"
-                                            << " values read from ESProducer do not agree with expected values";
+        throw cms::Exception("TestFailure")
+            .format(
+                "ConcurrentIOVAnalyzer::analyze,"
+                " values read from ESProducer do not agree with expected values\n"
+                "  expected startLumi = {}, actual startLumi = {}\n expected endLumi = {}, actual endLumi = {}\n"
+                " expected cacheIdentifier = {}, actual cacheIdentifier = {}",
+                4,
+                iovTestInfoFromESProducer->iovStartLumi_,
+                5,
+                iovTestInfoFromESProducer->iovEndLumi_,
+                4,
+                iovTestInfoFromESProducer->cacheIdentifier_);
       }
     }
     if (lumiNumber == 5) {
       if (iovTestInfoFromESProducer->iovStartLumi_ != 4 || iovTestInfoFromESProducer->iovEndLumi_ != 5 ||
           iovTestInfoFromESProducer->cacheIdentifier_ != 4) {
-        throw cms::Exception("TestFailure") << "ConcurrentIOVAnalyzer::analyze,"
-                                            << " values read from ESProducer do not agree with expected values";
+        throw cms::Exception("TestFailure")
+            .format(
+                "ConcurrentIOVAnalyzer::analyze,"
+                " values read from ESProducer do not agree with expected values\n"
+                "  expected startLumi = {}, actual startLumi = {}\n expected endLumi = {}, actual endLumi = {}\n"
+                " expected cacheIdentifier = {}, actual cacheIdentifier = {}",
+                4,
+                iovTestInfoFromESProducer->iovStartLumi_,
+                5,
+                iovTestInfoFromESProducer->iovEndLumi_,
+                4,
+                iovTestInfoFromESProducer->cacheIdentifier_);
       }
     }
     if (lumiNumber == 6) {
       if (iovTestInfoFromESProducer->iovStartLumi_ != 6 || iovTestInfoFromESProducer->iovEndLumi_ != 6 ||
           iovTestInfoFromESProducer->cacheIdentifier_ != 5) {
-        throw cms::Exception("TestFailure") << "ConcurrentIOVAnalyzer::analyze,"
-                                            << " values read from ESProducer do not agree with expected values";
+        throw cms::Exception("TestFailure")
+            .format(
+                "ConcurrentIOVAnalyzer::analyze,"
+                " values read from ESProducer do not agree with expected values\n"
+                "  expected startLumi = {}, actual startLumi = {}\n expected endLumi = {}, actual endLumi = {}\n"
+                " expected cacheIdentifier = {}, actual cacheIdentifier = {}",
+                6,
+                iovTestInfoFromESProducer->iovStartLumi_,
+                6,
+                iovTestInfoFromESProducer->iovEndLumi_,
+                5,
+                iovTestInfoFromESProducer->cacheIdentifier_);
       }
     }
     if (lumiNumber == 7) {
       if (iovTestInfoFromESProducer->iovStartLumi_ != 7 || iovTestInfoFromESProducer->iovEndLumi_ != 7 ||
           iovTestInfoFromESProducer->cacheIdentifier_ != 6) {
-        throw cms::Exception("TestFailure") << "ConcurrentIOVAnalyzer::analyze,"
-                                            << " values read from ESProducer do not agree with expected values";
+        throw cms::Exception("TestFailure")
+            .format(
+                "ConcurrentIOVAnalyzer::analyze,"
+                " values read from ESProducer do not agree with expected values\n"
+                "  expected startLumi = {}, actual startLumi = {}\n expected endLumi = {}, actual endLumi = {}\n"
+                " expected cacheIdentifier = {}, actual cacheIdentifier = {}",
+                7,
+                iovTestInfoFromESProducer->iovStartLumi_,
+                7,
+                iovTestInfoFromESProducer->iovEndLumi_,
+                6,
+                iovTestInfoFromESProducer->cacheIdentifier_);
       }
     }
     if (lumiNumber == 8) {
       if (iovTestInfoFromESProducer->iovStartLumi_ != 8 || iovTestInfoFromESProducer->iovEndLumi_ != 8 ||
           iovTestInfoFromESProducer->cacheIdentifier_ != 7) {
-        throw cms::Exception("TestFailure") << "ConcurrentIOVAnalyzer::analyze,"
-                                            << " values read from ESProducer do not agree with expected values";
+        throw cms::Exception("TestFailure")
+            .format(
+                "ConcurrentIOVAnalyzer::analyze,"
+                " values read from ESProducer do not agree with expected values\n"
+                "  expected startLumi = {}, actual startLumi = {}\n expected endLumi = {}, actual endLumi = {}\n"
+                " expected cacheIdentifier = {}, actual cacheIdentifier = {}",
+                8,
+                iovTestInfoFromESProducer->iovStartLumi_,
+                8,
+                iovTestInfoFromESProducer->iovEndLumi_,
+                7,
+                iovTestInfoFromESProducer->cacheIdentifier_);
       }
     }
   }

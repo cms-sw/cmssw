@@ -2,7 +2,7 @@
 #define CalibTracker_SiStripESProducers_SiStripPedestalsESSource_H
 
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <memory>
 
@@ -14,19 +14,14 @@ class SiStripPedestalsRcd;
     @brief Pure virtual class for EventSetup sources of SiStripPedestals.
     @author R.Bainbridge
 */
-class SiStripPedestalsESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class SiStripPedestalsESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  SiStripPedestalsESSource(const edm::ParameterSet&);
+  explicit SiStripPedestalsESSource(const edm::ParameterSet&);
   SiStripPedestalsESSource(const SiStripPedestalsESSource&) = delete;
   const SiStripPedestalsESSource& operator=(const SiStripPedestalsESSource&) = delete;
   ~SiStripPedestalsESSource() override { ; }
 
-  virtual std::unique_ptr<SiStripPedestals> produce(const SiStripPedestalsRcd&);
-
-protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
+  std::unique_ptr<SiStripPedestals> produce(const SiStripPedestalsRcd&);
 
 private:
   virtual SiStripPedestals* makePedestals() = 0;

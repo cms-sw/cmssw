@@ -53,11 +53,16 @@ static constexpr bool cooperative = true;
 static constexpr bool cooperative = false;
 #endif
 
+//T4:40 RTX:72 L40S:142 4090:128 5080:84
+
+//static constexpr unsigned int nIters = 10000;
+static constexpr int nColdIters = 10;
+
 using PFRecHitsNeighbours = Eigen::Matrix<int32_t, 8, 1>;
 
 using namespace reco;
 
-static bool verbose = true;
+static bool verbose = false;
 
 // Simple axis-aligned test cell:
 namespace {
@@ -97,9 +102,9 @@ namespace {
     }
   };
 
-  CaloCellGeometry::CornersMgr s_cornersMgr(65536, CaloCellGeometry::k_cornerSize);  //k_cornerSize = 8;
+  CaloCellGeometry::CornersMgr s_cornersMgr(8 * 1048576, CaloCellGeometry::k_cornerSize);  //k_cornerSize = 8;
 
-  CaloCellGeometry::ParMgr s_parMgr(65536, /*subSize=*/BoxCell::kNPar);
+  CaloCellGeometry::ParMgr s_parMgr(8 * 1048576, /*subSize=*/BoxCell::kNPar);
 
   CaloCellGeometry::ParVecVec s_parBlocks;
 
@@ -135,26 +140,33 @@ static inline reco::PFRecHit makePFRecHit(
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class EpilogueTest {
+    const int nStreams;
+    const int nIters;
+    const int threads;
+
   public:
-    void apply(Queue &queue,
-               reco::PFClusterDeviceCollection &outPFCluster,
-               reco::PFRecHitFractionDeviceCollection &outPFRecHitFracs,
-               reco::PFMultiDepthClusteringCCLabelsDeviceCollection &mdpfClusteringVars,
-               const reco::PFClusterDeviceCollection &pfClusters,
-               const reco::PFRecHitFractionDeviceCollection &pfRecHitFracs,
-               const reco::PFRecHitDeviceCollection &pfRecHit) const;
+    EpilogueTest(const int nStreams, const int nIters, const int threads)
+        : nStreams(nStreams), nIters(nIters), threads(threads) {}
+
+    void apply(std::vector<Queue> &queues,
+               std::vector<reco::PFClusterDeviceCollection> &outPFCluster,
+               std::vector<reco::PFRecHitFractionDeviceCollection> &outPFRecHitFracs,
+               std::vector<reco::PFMultiDepthClusteringCCLabelsDeviceCollection> &mdpfClusteringVars,
+               const std::vector<reco::PFClusterDeviceCollection> &pfClusters,
+               const std::vector<reco::PFRecHitFractionDeviceCollection> &pfRecHitFracs,
+               const std::vector<reco::PFRecHitDeviceCollection> &pfRecHit) const;
   };
 
-  void EpilogueTest::apply(Queue &queue,
-                           reco::PFClusterDeviceCollection &outPFCluster,
-                           reco::PFRecHitFractionDeviceCollection &outPFRecHitFracs,
-                           reco::PFMultiDepthClusteringCCLabelsDeviceCollection &mdpfClusteringVars,
-                           const reco::PFClusterDeviceCollection &pfClusters,
-                           const reco::PFRecHitFractionDeviceCollection &pfRecHitFracs,
-                           const reco::PFRecHitDeviceCollection &pfRecHit) const {
-    uint32_t items = std::is_same_v<Device, alpaka::DevCpu> ? 1 : (multiblock ? 128 : 512);
+  void EpilogueTest::apply(std::vector<Queue> &queues,
+                           std::vector<reco::PFClusterDeviceCollection> &outPFCluster,
+                           std::vector<reco::PFRecHitFractionDeviceCollection> &outPFRecHitFracs,
+                           std::vector<reco::PFMultiDepthClusteringCCLabelsDeviceCollection> &mdpfClusteringVars,
+                           const std::vector<reco::PFClusterDeviceCollection> &pfClusters,
+                           const std::vector<reco::PFRecHitFractionDeviceCollection> &pfRecHitFracs,
+                           const std::vector<reco::PFRecHitDeviceCollection> &pfRecHit) const {
+    uint32_t items = std::is_same_v<Device, alpaka::DevCpu> ? 1 : threads;
 
-    auto n = static_cast<uint32_t>(mdpfClusteringVars->metadata().size());
+    auto n = static_cast<uint32_t>(mdpfClusteringVars[0]->metadata().size());
     uint32_t groups = cms::alpakatools::divide_up_by(n, items);
 
     if (groups < 1) {
@@ -166,120 +178,171 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(groups, items);
 
-    if constexpr (multiblock) {
-      if constexpr (cooperative) {
-        printf("Running multiblock epilogue in cooperative mode.\n");
-      } else {
-        printf("Running multiblock epilogue in noncooperative mode.\n");
-      }
-      reco::PFMultiDepthECLCCEpilogueArgsDeviceCollection devClusteringEpilogueArgs{queue, n};
-
-      devClusteringEpilogueArgs.zeroInitialise(queue);
-
-      alpaka::exec<Acc1D>(queue,
-                          workDiv,
-                          ECLCCEpilogueRecHitFracOffsetsKernel{},
-                          devClusteringEpilogueArgs.view(),
-                          mdpfClusteringVars.view(),
-                          pfClusters.view());
-
-      alpaka::exec<Acc1D>(queue,
-                          workDiv,
-                          ECLCCEpilogueCCOffsetsKernel{},
-                          outPFCluster.view(),
-                          devClusteringEpilogueArgs.view(),
-                          mdpfClusteringVars.view(),
-                          pfClusters.view());
-
-      alpaka::exec<Acc1D>(queue,
-                          workDiv,
-                          ECLCCFinalizeEpilogueKernel<32, cooperative>{},
-                          outPFCluster.view(),
-                          outPFRecHitFracs.view(),
-                          devClusteringEpilogueArgs.view(),
-                          mdpfClusteringVars.view(),
-                          pfClusters.view(),
-                          pfRecHitFracs.view(),
-                          pfRecHit.view());
-
-      alpaka::exec<Acc1D>(
-          queue, workDiv, ECLCCLoadSeedsKernel{}, outPFCluster.view(), devClusteringEpilogueArgs.view());
+    if constexpr (cooperative) {
+      printf("Running epilogue in cooperative mode.\n");
     } else {
-      if constexpr (cooperative) {
-        printf("Running legacy epilogue in cooperative mode.\n");
-      } else {
-        printf("Running legacy epilogue in noncooperative mode.\n");
-      }
-      if constexpr (std::is_same_v<Device, alpaka::DevCpu>) {
-        alpaka::exec<Acc1D>(queue,
-                            workDiv,
-                            ECLCCEpilogueNaiveKernel{},
-                            outPFCluster.view(),
-                            outPFRecHitFracs.view(),
-                            mdpfClusteringVars.view(),
-                            pfClusters.view(),
-                            pfRecHitFracs.view(),
-                            pfRecHit.view());
-      } else {
-        alpaka::exec<Acc1D>(queue,
-                            workDiv,
-                            ECLCCEpilogueKernel<32, cooperative>{},
-                            outPFCluster.view(),
-                            outPFRecHitFracs.view(),
-                            mdpfClusteringVars.view(),
-                            pfClusters.view(),
-                            pfRecHitFracs.view(),
-                            pfRecHit.view());
-      }
+      printf("Running epilogue in noncooperative mode.\n");
     }
 
-    alpaka::wait(queue);
+    std::vector<reco::PFMultiDepthECLCCEpilogueArgsDeviceCollection> devClusteringEpilogueArgs;
+    devClusteringEpilogueArgs.reserve(nStreams);
+
+    for (int s = 0; s < nStreams; s++) {
+      devClusteringEpilogueArgs.emplace_back(reco::PFMultiDepthECLCCEpilogueArgsDeviceCollection(queues[s], n));
+      alpaka::wait(queues[s]);
+    }
+
+    double wall_time = 0.0;
+    for (int i = 0; i < nIters; i++) {
+      auto wall_start = std::chrono::high_resolution_clock::now();
+
+      if constexpr (multiblock) {
+        for (int s = 0; s < nStreams; s++) {
+          devClusteringEpilogueArgs[s].zeroInitialise(queues[s]);
+
+          alpaka::exec<Acc1D>(queues[s],
+                              workDiv,
+                              ECLCCEpilogueRecHitFracOffsetsKernel{},
+                              devClusteringEpilogueArgs[s].view(),
+                              mdpfClusteringVars[s].view(),
+                              pfClusters[s].view());
+
+          alpaka::exec<Acc1D>(queues[s],
+                              workDiv,
+                              ECLCCEpilogueCCOffsetsKernel{},
+                              outPFCluster[s].view(),
+                              devClusteringEpilogueArgs[s].view(),
+                              mdpfClusteringVars[s].view(),
+                              pfClusters[s].view());
+
+          alpaka::exec<Acc1D>(queues[s],
+                              workDiv,
+                              ECLCCFinalizeEpilogueKernel<32, cooperative>{},
+                              outPFCluster[s].view(),
+                              outPFRecHitFracs[s].view(),
+                              devClusteringEpilogueArgs[s].view(),
+                              mdpfClusteringVars[s].view(),
+                              pfClusters[s].view(),
+                              pfRecHitFracs[s].view(),
+                              pfRecHit[s].view());
+
+          alpaka::exec<Acc1D>(
+              queues[s], workDiv, ECLCCLoadSeedsKernel{}, outPFCluster[s].view(), devClusteringEpilogueArgs[s].view());
+        }  //nStreams
+      } else {
+        if constexpr (std::is_same_v<Device, alpaka::DevCpu>) {
+          for (int s = 0; s < nStreams; s++) {
+            alpaka::exec<Acc1D>(queues[s],
+                                workDiv,
+                                ECLCCEpilogueNaiveKernel{},
+                                outPFCluster[s].view(),
+                                outPFRecHitFracs[s].view(),
+                                mdpfClusteringVars[s].view(),
+                                pfClusters[s].view(),
+                                pfRecHitFracs[s].view(),
+                                pfRecHit[s].view());
+          }
+        } else {
+          for (int s = 0; s < nStreams; s++) {
+            alpaka::exec<Acc1D>(queues[s],
+                                workDiv,
+                                ECLCCEpilogueKernel<32, cooperative>{},
+                                outPFCluster[s].view(),
+                                outPFRecHitFracs[s].view(),
+                                mdpfClusteringVars[s].view(),
+                                pfClusters[s].view(),
+                                pfRecHitFracs[s].view(),
+                                pfRecHit[s].view());
+          }
+        }
+      }  //end multi-block
+
+      for (int s = 0; s < nStreams; s++)
+        alpaka::wait(queues[s]);
+
+      auto wall_stop = std::chrono::high_resolution_clock::now();
+      //
+      auto wall_diff = wall_stop - wall_start;
+
+      //printf("Current wall time %10e\n", static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(wall_diff).count()) / 1e6);
+
+      if (i > nColdIters)
+        wall_time +=
+            static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(wall_diff).count()) / 1e6;
+    }
+
+    unsigned int measIters = nIters - nColdIters;
+    const auto walltime_per_iter = wall_time / measIters;
+    const auto throughput = static_cast<double>(nStreams) / walltime_per_iter;
+    printf("Wall time: %f sec per iter, throuput %6e events per second\n", wall_time / measIters, throughput);
   }
 
-  void launch_epilogue_test(Queue &queue,
-                            reco::PFClusterHostCollection &outClusters,
-                            reco::PFRecHitFractionHostCollection &outRecHitFracs,
-                            const ::reco::PFMultiDepthClusteringCCLabelsHostCollection &hostClusteringVars,
-                            const ::reco::PFClusterHostCollection &hostClusters,
-                            const ::reco::PFRecHitHostCollection &hostRecHits,
-                            const ::reco::PFRecHitFractionHostCollection &hostRecHitFracs) {
-    EpilogueTest epilogue_test{};
+  void launch_epilogue_test(std::vector<Queue> &queues,
+                            std::vector<reco::PFClusterHostCollection> &outClusters,
+                            std::vector<reco::PFRecHitFractionHostCollection> &outRecHitFracs,
+                            const std::vector<::reco::PFMultiDepthClusteringCCLabelsHostCollection> &hostClusteringVars,
+                            const std::vector<::reco::PFClusterHostCollection> &hostClusters,
+                            const std::vector<::reco::PFRecHitHostCollection> &hostRecHits,
+                            const std::vector<::reco::PFRecHitFractionHostCollection> &hostRecHitFracs,
+                            const int nStreams,
+                            const int nIters,
+                            const int threadsPerBlock) {
+    EpilogueTest epilogue_test(nStreams, nIters, threadsPerBlock);
 
-    auto hOutClusters = outClusters.view();
-    auto hClusters = hostClusters.view();
-    auto hRecHits = hostRecHits.view();
-    //auto hRecHitFracs = hostRecHitFracs.view();
+    auto hOutClusters = outClusters[0].view();
+    auto hClusters = hostClusters[0].view();
+    auto hRecHits = hostRecHits[0].view();
 
     const int nClusters = hClusters.size();
-    const int nHits = hRecHits.size();
     const int nFracs = hClusters.nRHFracs();
-
+    const int nHits = hRecHits.size();
     const int nOutClusters = hOutClusters.size();
 
-    reco::PFClusterDeviceCollection outDevClusters{queue, nOutClusters};
-    reco::PFRecHitFractionDeviceCollection outDevRecHitFracs{queue, nFracs};
+    std::vector<reco::PFClusterDeviceCollection> outDevClusters;
+    outDevClusters.reserve(nStreams);
+    std::vector<reco::PFRecHitFractionDeviceCollection> outDevRecHitFracs;
+    outDevRecHitFracs.reserve(nStreams);
 
-    reco::PFClusterDeviceCollection devClusters{queue, nClusters};
-    reco::PFRecHitDeviceCollection devRecHits{queue, nHits};
-    reco::PFRecHitFractionDeviceCollection devRecHitFracs{queue, nFracs};
+    std::vector<reco::PFClusterDeviceCollection> devClusters;
+    devClusters.reserve(nStreams);
+    std::vector<reco::PFRecHitDeviceCollection> devRecHits;
+    devRecHits.reserve(nStreams);
+    std::vector<reco::PFRecHitFractionDeviceCollection> devRecHitFracs;
+    devRecHitFracs.reserve(nStreams);
 
-    alpaka::memcpy(queue, devClusters.buffer(), hostClusters.buffer());
-    alpaka::memcpy(queue, devRecHits.buffer(), hostRecHits.buffer());
-    alpaka::memcpy(queue, devRecHitFracs.buffer(), hostRecHitFracs.buffer());
+    std::vector<reco::PFMultiDepthClusteringCCLabelsDeviceCollection> devClusteringVars;
+    devClusteringVars.reserve(nStreams);
 
-    reco::PFMultiDepthClusteringCCLabelsDeviceCollection devClusteringVars{queue, nClusters};
+    for (int s = 0; s < nStreams; s++) {
+      auto dev_clusters = reco::PFClusterDeviceCollection{queues[s], nClusters};
+      auto dev_hits = reco::PFRecHitDeviceCollection{queues[s], nHits};
+      auto dev_rhfrac = reco::PFRecHitFractionDeviceCollection{queues[s], nFracs};
+      auto dev_clustering_vars = reco::PFMultiDepthClusteringCCLabelsDeviceCollection{queues[s], nClusters};
+      //
+      alpaka::memcpy(queues[s], dev_clusters.buffer(), hostClusters[s].buffer());
+      alpaka::memcpy(queues[s], dev_hits.buffer(), hostRecHits[s].buffer());
+      alpaka::memcpy(queues[s], dev_rhfrac.buffer(), hostRecHitFracs[s].buffer());
+      alpaka::memcpy(queues[s], dev_clustering_vars.buffer(), hostClusteringVars[s].buffer());
 
-    alpaka::memcpy(queue, devClusteringVars.buffer(), hostClusteringVars.buffer());
+      devClusters.emplace_back(std::move(dev_clusters));
+      devRecHits.emplace_back(std::move(dev_hits));
+      devRecHitFracs.emplace_back(std::move(dev_rhfrac));
+      devClusteringVars.emplace_back(std::move(dev_clustering_vars));
+
+      outDevClusters.emplace_back(reco::PFClusterDeviceCollection(queues[s], nOutClusters));
+      outDevRecHitFracs.emplace_back(reco::PFRecHitFractionDeviceCollection(queues[s], nFracs));
+    }
 
     printf("Run epilogue kernel %d %d %d \n", nClusters, nHits, nFracs);
     epilogue_test.apply(
-        queue, outDevClusters, outDevRecHitFracs, devClusteringVars, devClusters, devRecHitFracs, devRecHits);
+        queues, outDevClusters, outDevRecHitFracs, devClusteringVars, devClusters, devRecHitFracs, devRecHits);
     printf("...done.\n");
 
-    alpaka::memcpy(queue, outClusters.buffer(), outDevClusters.buffer());
-    alpaka::memcpy(queue, outRecHitFracs.buffer(), outDevRecHitFracs.buffer());
+    alpaka::memcpy(queues[0], outClusters[0].buffer(), outDevClusters[0].buffer());
+    alpaka::memcpy(queues[0], outRecHitFracs[0].buffer(), outDevRecHitFracs[0].buffer());
 
-    alpaka::wait(queue);
+    for (int s = 0; s < nStreams; s++)
+      alpaka::wait(queues[s]);
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
@@ -299,7 +362,7 @@ std::pair<int, int> create(::reco::PFClusterCollection &clusters,
                            const int nClusters,
                            const int minHitsPerCluster = 2,
                            const int maxHitsPerCluster = 10,
-                           const float shareProbability = 0.05f) {
+                           const float shareProbability = 0.75f) {
   std::mt19937 rng(12345);
 
   // E in [0.5, 120], r in [174, 180], phi in [0, 0.25], z = 0
@@ -423,17 +486,11 @@ std::pair<int, int> create(::reco::PFClusterCollection &clusters,
 
     if (ownerEntry < 0)
       continue;
-
-    const float leftover = std::max(0.f, 1.f - ownerFrac);
-    if (leftover <= 0.f)
-      continue;
-
-    // give the neighbor between 20% and 80% of the leftover
-    const float share_frac = leftover * (0.2f + 0.6f * uni_distr(rng));
+    const float share_frac = ownerFrac * (0.2f + 0.6f * uni_distr(rng));
 
     rhfracs.push_back(Fraction{i, neigh_idx, share_frac});
-
     rhfracs[ownerEntry].frac -= share_frac;
+
     if (rhfracs[ownerEntry].frac < 0.f)
       rhfracs[ownerEntry].frac = 0.f;
     ++nFracs;
@@ -643,7 +700,8 @@ int checkEpilogue(Queue &queue,
   }
 
   for (auto &cc_root : cc_roots) {
-    printf("\n\n>>>>> Process cc root %d\n", cc_root);
+    if (verbose)
+      printf("\n\n>>>>> Process cc root %d\n", cc_root);
     int tot_recFracSize = 0;
     bool is_valid_seed = false;
     int cc_seed = inHostClustersView[cc_root].seedRHIdx();
@@ -668,18 +726,21 @@ int checkEpilogue(Queue &queue,
 
         if (is_valid_seed == false) {
           nerrors += 1;
-          printf("Component seed is not valid for cluster %d!\n", rep);
+          if (verbose)
+            printf("Component seed is not valid for cluster %d!\n", rep);
         } else {
           if (cc_energy < seed_energy) {
             cc_seed = seed;
             cc_energy = seed_energy;
-            printf("updated seed for cluster %d\n", rep);
+            if (verbose)
+              printf("updated seed for cluster %d\n", rep);
           }
           is_valid_seed = false;
         }
       }
     }
-    printf("TOT rh size = %d , seed = %d (energy %f)\n", tot_recFracSize, cc_seed, cc_energy);
+    if (verbose)
+      printf("TOT rh size = %d , seed = %d (energy %f)\n", tot_recFracSize, cc_seed, cc_energy);
   }
 
   const int outClustersNum = outHostClustersView.size();
@@ -691,12 +752,13 @@ int checkEpilogue(Queue &queue,
 
     const auto seed = outHostClustersView[i].seedRHIdx();
     const auto energy = recHitsView[seed].energy();
-    printf("OUT cluster RHF offset %d RHF size %d  idx %d seed %d energy %f\n",
-           recFracOffset,
-           recFracSize,
-           clidx,
-           seed,
-           energy);
+    if (verbose)
+      printf("OUT cluster RHF offset %d RHF size %d  idx %d seed %d energy %f\n",
+             recFracOffset,
+             recFracSize,
+             clidx,
+             seed,
+             energy);
   }
 
   for (int i = 0; i < outClustersNum; i++) {
@@ -758,17 +820,60 @@ int checkEpilogue(Queue &queue,
 using namespace edm;
 using namespace std;
 
-int main() {
-  // get the list of devices on the current platform
+int main(int argc, char **argv) {
+  if (argc > 5) {
+    std::cerr << "Usage: " << argv[0] << " [<nClusters>] [<nStreams>] [<nIters>] [<threadsPerBlock>]\n";
+    return 1;
+  }
+
+  // Get the list of devices on the current platform
   auto const &devices = cms::alpakatools::devices<Platform>();
   if (devices.empty()) {
     std::cerr << "No devices available for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) " backend, "
-      "the test will be skipped.\n";
-    exit(EXIT_FAILURE);
+                 "the test will be skipped.\n";
+    return EXIT_FAILURE;  // Prefer returning over raw exit() in main
   }
 
-  const int nClusters = multiblock ? 1200 : 500;
-  const int maxHitsPerCluster = multiblock ? 8 : 23;
+  int nStreams = 1;
+  int nClusters = multiblock ? 1024 : 512;
+  int nIters = nColdIters + 100;
+
+  auto parseArg = [](const char *arg, const std::string &name) {
+    try {
+      return std::stoi(arg);
+    } catch (...) {
+      std::cerr << "Error: Invalid integer value provided for " << name << ": '" << arg << "'\n";
+      std::exit(EXIT_FAILURE);
+    }
+  };
+
+  if (argc > 1) {
+    nClusters = parseArg(argv[1], "<nClusters>");
+
+    if constexpr (multiblock == false) {
+      if (nClusters > 1024) {
+        std::cerr << "Abort the test: <nClusters> cannot exceed 1024 for a single-block run.\n";
+        return 1;
+      }
+    }
+  }
+
+  if (argc > 2)
+    nStreams = parseArg(argv[2], "<nStreams>");
+  if (argc > 3)
+    nIters = parseArg(argv[3], "<nIters>");
+
+  int threadsPerBlock = multiblock ? 128 : nClusters;
+
+  if (argc > 4) {
+    if constexpr (multiblock) {
+      threadsPerBlock = parseArg(argv[4], "<threadsPerBlock>");
+    } else {
+      std::cout << "Warning: <threadsPerBlock> argument ignored for single-block runs (it matches nClusters).\n";
+    }
+  }
+
+  const int maxHitsPerCluster = 99;
   const int minHitsPerCluster = 1;
 
   ::reco::PFClusterCollection clusters;
@@ -787,7 +892,7 @@ int main() {
   const int nHits = sizes.first;
   const int nFracs = sizes.second;
 
-  std::vector<int> cc_roots = {0, 1, 5, 9, 33, 38, 101, 113, 313, 331};
+  std::vector<int> cc_roots = {0, 1, 5, 9, 38, 45, 49, 66, 71, 77, 89, 91, 99};
 
   const int cc_num = static_cast<int>(cc_roots.size());
 
@@ -798,49 +903,84 @@ int main() {
 
   // run the test on each device
   for (auto const &device : devices) {
-    auto queue = Queue(device);
+    std::vector<Queue> queues;
+    queues.reserve(nStreams);
 
-    ::reco::PFClusterHostCollection outHostClusters{queue, cc_num};
-    ::reco::PFRecHitFractionHostCollection outHostRecHitFracs{queue, nFracs};
+    std::vector<::reco::PFClusterHostCollection> outHostClusters;
+    outHostClusters.reserve(nStreams);
+    std::vector<::reco::PFRecHitFractionHostCollection> outHostRecHitFracs;
+    outHostRecHitFracs.reserve(nStreams);
 
-    ::reco::PFClusterHostCollection hostClusters{queue, nClusters};
-    ::reco::PFRecHitHostCollection hostRecHits{queue, nHits};
-    ::reco::PFRecHitFractionHostCollection hostRecHitFracs{queue, nFracs};
+    std::vector<::reco::PFClusterHostCollection> hostClusters;
+    hostClusters.reserve(nStreams);
+    std::vector<::reco::PFRecHitHostCollection> hostRecHits;
+    hostRecHits.reserve(nStreams);
+    std::vector<::reco::PFRecHitFractionHostCollection> hostRecHitFracs;
+    hostRecHitFracs.reserve(nStreams);
 
-    ::reco::PFMultiDepthClusteringCCLabelsHostCollection hostClusteringVars{queue, nClusters};
+    std::vector<::reco::PFMultiDepthClusteringCCLabelsHostCollection> hostClusteringVars;
+    hostClusteringVars.reserve(nStreams);
 
-    auto hClusters = hostClusters.view();
-    auto outHClusters = outHostClusters.view();
-    auto hRecHits = hostRecHits.view();
+    for (int s = 0; s < nStreams; s++) {
+      auto queue = Queue(device);
 
-    auto hClusteringVars = hostClusteringVars.view();
+      auto out_host_clusters = ::reco::PFClusterHostCollection(queue, cc_num);
 
-    hRecHits.size() = nHits;
+      auto host_clusters = ::reco::PFClusterHostCollection(queue, nClusters);
+      auto host_hits = ::reco::PFRecHitHostCollection(queue, nHits);
+      auto host_rhfracs = ::reco::PFRecHitFractionHostCollection(queue, nFracs);
+      auto host_clustering_vars = ::reco::PFMultiDepthClusteringCCLabelsHostCollection(queue, nClusters);
 
-    hClusters.nTopos() = nClusters;
-    hClusters.nSeeds() = nClusters;
-    hClusters.nRHFracs() = nFracs;
-    hClusters.size() = nClusters;
+      auto outHClusters = out_host_clusters.view();
+      auto hClusters = host_clusters.view();
+      auto hRecHits = host_hits.view();
+      auto hClusteringVars = host_clustering_vars.view();
 
-    outHClusters.size() = cc_num;
+      outHClusters.size() = cc_num;
 
-    hClusteringVars.size() = nClusters;
-    hClusteringVars.ncomponents() = 0;
+      hRecHits.size() = nHits;
 
-    load(hostClusters, hostRecHits, hostRecHitFracs, clusters, hits, rhfracs, seedIdx);
+      hClusters.nTopos() = nClusters;
+      hClusters.nSeeds() = nClusters;
+      hClusters.nRHFracs() = nFracs;
+      hClusters.size() = nClusters;
 
-    create_cc_list(hostClusteringVars, cc_roots, nClusters);
+      hClusteringVars.size() = nClusters;
+      hClusteringVars.ncomponents() = 0;
 
-    launch_epilogue_test(
-        queue, outHostClusters, outHostRecHitFracs, hostClusteringVars, hostClusters, hostRecHits, hostRecHitFracs);
+      load(host_clusters, host_hits, host_rhfracs, clusters, hits, rhfracs, seedIdx);
 
-    auto nerrs = checkEpilogue(queue,
-                               outHostClusters,
-                               outHostRecHitFracs,
-                               hostClusters,
-                               hostRecHits,
-                               hostRecHitFracs,
-                               hostClusteringVars,
+      create_cc_list(host_clustering_vars, cc_roots, nClusters);
+
+      hostClusters.emplace_back(std::move(host_clusters));
+      hostRecHits.emplace_back(std::move(host_hits));
+      hostRecHitFracs.emplace_back(std::move(host_rhfracs));
+
+      outHostClusters.emplace_back(std::move(out_host_clusters));
+      outHostRecHitFracs.emplace_back(::reco::PFRecHitFractionHostCollection(queue, nFracs));
+      hostClusteringVars.emplace_back(std::move(host_clustering_vars));
+
+      queues.emplace_back(std::move(queue));
+    }
+
+    launch_epilogue_test(queues,
+                         outHostClusters,
+                         outHostRecHitFracs,
+                         hostClusteringVars,
+                         hostClusters,
+                         hostRecHits,
+                         hostRecHitFracs,
+                         nStreams,
+                         nIters,
+                         threadsPerBlock);
+
+    auto nerrs = checkEpilogue(queues[0],
+                               outHostClusters[0],
+                               outHostRecHitFracs[0],
+                               hostClusters[0],
+                               hostRecHits[0],
+                               hostRecHitFracs[0],
+                               hostClusteringVars[0],
                                cc_roots);
 
     if (nerrs != 0) {

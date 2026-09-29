@@ -1,5 +1,6 @@
 from Validation.RecoTrack.HLTmultiTrackValidator_cff import *
 from Validation.RecoVertex.HLTmultiPVvalidator_cff import *
+from Validation.RecoVertex.HLTSecondaryVertexValidation_cff import *
 from HLTriggerOffline.Muon.HLTMuonVal_cff import *
 from HLTriggerOffline.Tau.Validation.HLTTauValidation_cff import *
 from HLTriggerOffline.Egamma.EgammaValidationAutoConf_cff import *
@@ -21,6 +22,8 @@ from Validation.SiTrackerPhase2V.HLTPhase2TrackerValidationFirstStep_cff import 
 # Gen-level Validation
 from Validation.HLTrigger.HLTGenValidation_cff import *
 from Validation.Configuration.globalValidation_cff import *
+#MTD
+from Validation.MtdValidation.hltMtdValidation_cff import *
 
 # HGCAL Rechit Calibration
 from Validation.HGCalValidation.hgcalHitCalibrationDefault_cfi import hgcalHitCalibrationDefault as _hgcalHitCalibrationDefault
@@ -46,18 +49,17 @@ from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
 
 # online dqm:
 from DQMOffline.Trigger.HLTMonTau_cfi import *
-from PhysicsTools.JetMCAlgos.TauGenJetsDecayModeSelectorAllHadrons_cfi import *
 
 # additional producer sequence prior to hltvalidation
 # to evacuate producers/filters from the EndPath
 hltassociation = cms.Sequence(
     hltMultiTrackValidation
     +hltMultiPVValidation
+    +HLTSecondaryVertexValidation
     +egammaSelectors
     +ExoticaValidationProdSeq
     +hltMultiTrackValidationGsfTracks
     +hltJetPreValidSeq
-    +tauGenJetsSelectorAllHadrons
     )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
@@ -76,6 +78,9 @@ _phase2_hltassociation += hltTrackerphase2ValidationSource
 
 # Add HGCal SimTracksters
 _phase2_hltassociation += hltTiclSimTrackstersSeq
+
+# Add gentau reference for validation
+_phase2_hltassociation += tauPreValidSeq
 
 # Apply the modification
 phase2_common.toReplaceWith(hltassociation, _phase2_hltassociation)
@@ -113,13 +118,21 @@ _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
   ExoticaValidationSequence,
   b2gHLTriggerValidation,
   SMPValidationSequence,
-  hltbtagValidationSequence,
   hltHCALdigisAnalyzer,
   hltHCALRecoAnalyzer,
   hltHCALNoiseRates])
 _hltvalidationWithMC_Phase2.insert(-1, hgcalHitCalibrationHLT)
 _hltvalidationWithMC_Phase2.insert(-1, hltHgcalValidator)
+_hltvalidationWithMC_Phase2.insert(-1, hltTICLPFValidation)
 _hltvalidationWithMC_Phase2.insert(0, hltGENValidation)
+
+# Add at the end only when mtd_at_hlt is active
+from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
+mtd_at_hlt.toModify(
+    _hltvalidationWithMC_Phase2,
+    func=lambda seq: seq.insert(-1, hltMtdRecoValid)
+)
+
 phase2_common.toReplaceWith(hltvalidationWithMC, _hltvalidationWithMC_Phase2)
 
 hltvalidationWithData = cms.Sequence(

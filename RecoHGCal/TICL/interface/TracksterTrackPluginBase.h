@@ -1,7 +1,7 @@
 // Base class for plugins that set the track reference(s) in the Trackster -> TICLCandidate conversion.
 
-#ifndef RecoHGCal_TICL_TracksterTrackPluginBase_H__
-#define RecoHGCal_TICL_TracksterTrackPluginBase_H__
+#ifndef RecoHGCal_TICL_TracksterTrackPluginBase_h
+#define RecoHGCal_TICL_TracksterTrackPluginBase_h
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"

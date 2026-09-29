@@ -54,7 +54,7 @@ from ..modules.hltEle30WPTightGsfTrackIsoL1SeededFilter_cfi import *
 
 HLT_Ele30_WPTight_L1Seeded_LooseDeepTauPFTauHPS30_eta2p1_CrossL1 = cms.Path( 
     HLTBeginSequence +
-    hltPuppiTauTkIsoEle45_22L1TkFilter +
+    hltPuppiTauTkIsoEle45and22L1TkFilter +
     HLTRawToDigiSequence +
     HLTLocalrecoSequence +
     HLTTICLLocalRecoSequence +

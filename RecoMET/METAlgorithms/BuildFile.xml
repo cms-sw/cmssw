@@ -12,7 +12,6 @@
 <use name="Geometry/CaloTopology"/>
 <use name="Geometry/HcalTowerAlgo"/>
 <use name="Geometry/CSCGeometry"/>
-<use name="RecoEcal/EgammaCoreTools"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/L1GlobalMuonTrigger"/>
 <use name="DataFormats/MuonReco"/>

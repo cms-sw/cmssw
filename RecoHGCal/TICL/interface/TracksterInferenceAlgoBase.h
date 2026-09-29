@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_TracksterInferenceAlgo_H__
-#define RecoHGCal_TICL_TracksterInferenceAlgo_H__
+#ifndef RecoHGCal_TICL_TracksterInferenceAlgoBase_h
+#define RecoHGCal_TICL_TracksterInferenceAlgoBase_h
 
 #include <vector>
 
@@ -9,7 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #include "RecoHGCal/TICL/interface/TICLONNXGlobalCache.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
 namespace ticl {
 
@@ -37,7 +37,7 @@ namespace ticl {
     // Build minibatches internally.
     virtual void runInference(const std::vector<reco::CaloCluster>& layerClusters,
                               std::vector<Trackster>& tracksters,
-                              const hgcal::RecHitTools& rhtools) const = 0;
+                              const ticlgeom::Tools& rhtools) const = 0;
 
     static void fillPSetDescription(edm::ParameterSetDescription& desc) { desc.add<int>("algo_verbosity", 0); }
 

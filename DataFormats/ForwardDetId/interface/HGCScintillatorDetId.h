@@ -1,7 +1,10 @@
+
 #ifndef DataFormats_ForwardDetId_HGCScintillatorDetId_H
 #define DataFormats_ForwardDetId_HGCScintillatorDetId_H 1
 
 #include <iosfwd>
+#include <string>
+#include <string_view>
 #include <vector>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
@@ -83,11 +86,13 @@ public:
     id_ &= kHGCalTypeMask0;
     id_ |= ((type & kHGCalTypeMask) << kHGCalTypeOffset);
   }
+  constexpr std::string_view tileTypeX() const { return tileTypes[type()]; }
   constexpr int granularity() const { return (id_ >> kHGCalGranularityOffset) & kHGCalGranularityMask; }
   constexpr void setGranularity(int granularity) {
     id_ &= kHGCalGranularityMask0;
     id_ |= ((granularity & kHGCalGranularityMask) << kHGCalGranularityOffset);
   }
+  constexpr std::string_view tileGranular() const { return tileGranul[granularity()]; }
 
   /// get the z-side of the cell (1/-1)
   constexpr int zside() const { return (((id_ >> kHGCalZsideOffset) & kHGCalZsideMask) ? -1 : 1); }
@@ -123,6 +128,7 @@ public:
     id_ &= kHGCalSiPMMask0;
     id_ |= ((sipm & kHGCalSiPMMask) << kHGCalSiPMOffset);
   }
+  constexpr std::string_view sipmTypeX() const { return sipmTypes[sipm()]; }
 
   /// trigger or detector cell
   std::vector<HGCScintillatorDetId> detectorCells() const;
@@ -137,10 +143,17 @@ public:
 
   /// consistency check : no bits left => no overhead
   constexpr bool isEE() const { return false; }
-  constexpr bool isHE() const { return true; }
+  constexpr bool isHE() const { return (det() == HGCalHSc); }
   constexpr bool isForward() const { return true; }
   constexpr int position() const { return (id_ & kHGCalPositionMask); }
 
+  /// Prntout
+  constexpr std::string detType() const { return ((det() == HGCalHSc) ? "HSc" : "Unknown"); }
+  void print(std::ostream& s) const {
+    s << " HGCScintillatorDetId::EE:HE= " << isEE() << ":" << isHE() << " trigger= " << trigger()
+      << " granularity= " << granularity() << " type= " << type() << " SiPM= " << sipm() << " layer= " << layer()
+      << " ring= " << iradius() << ":" << iradiusTrigger() << " phi= " << iphi() << ":" << iphiTrigger() << "\n";
+  }
   static const HGCScintillatorDetId Undefined;
 
 public:
@@ -178,6 +191,11 @@ public:
     else
       return iphi();
   }
+
+private:
+  static constexpr std::string_view sipmTypes[2] = {"Small", "Large"};
+  static constexpr std::string_view tileTypes[4] = {"Unknown", "Cast", "Mould", "Wrong"};
+  static constexpr std::string_view tileGranul[2] = {"Normal", "Fine"};
 };
 
 std::ostream& operator<<(std::ostream&, const HGCScintillatorDetId& id);

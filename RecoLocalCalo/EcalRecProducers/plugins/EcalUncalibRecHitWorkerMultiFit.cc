@@ -82,6 +82,7 @@ private:
   BXVector activeBX;
   bool ampErrorCalculation_;
   bool useLumiInfoRunHeader_;
+  edm::InputTag bunchSpacingProducer_;
   EcalUncalibRecHitMultiFitAlgo multiFitMethod_;
 
   int bunchSpacingManual_;
@@ -185,9 +186,10 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   // uncertainty calculation (CPU intensive)
   ampErrorCalculation_ = ps.getParameter<bool>("ampErrorCalculation");
   useLumiInfoRunHeader_ = ps.getParameter<bool>("useLumiInfoRunHeader");
+  bunchSpacingProducer_ = ps.getParameter<edm::InputTag>("bxSpacingProducer");
 
   if (useLumiInfoRunHeader_) {
-    bunchSpacing_ = c.consumes<unsigned int>(edm::InputTag("bunchSpacingProducer"));
+    bunchSpacing_ = c.consumes<unsigned int>(bunchSpacingProducer_);
     bunchSpacingManual_ = 0;
   } else {
     bunchSpacingManual_ = ps.getParameter<int>("bunchSpacing");
@@ -734,77 +736,79 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
 
 edm::ParameterSetDescription EcalUncalibRecHitWorkerMultiFit::getAlgoDescription() {
   edm::ParameterSetDescription psd;
-  psd.addNode(edm::ParameterDescription<std::vector<int>>("activeBXs", {-5, -4, -3, -2, -1, 0, 1, 2, 3, 4}, true) and
-              edm::ParameterDescription<bool>("ampErrorCalculation", true, true) and
-              edm::ParameterDescription<bool>("useLumiInfoRunHeader", true, true) and
-              edm::ParameterDescription<int>("bunchSpacing", 0, true) and
-              edm::ParameterDescription<bool>("doPrefitEB", false, true) and
-              edm::ParameterDescription<bool>("doPrefitEE", false, true) and
-              edm::ParameterDescription<double>("prefitMaxChiSqEB", 25., true) and
-              edm::ParameterDescription<double>("prefitMaxChiSqEE", 10., true) and
-              edm::ParameterDescription<bool>("dynamicPedestalsEB", false, true) and
-              edm::ParameterDescription<bool>("dynamicPedestalsEE", false, true) and
-              edm::ParameterDescription<bool>("mitigateBadSamplesEB", false, true) and
-              edm::ParameterDescription<bool>("mitigateBadSamplesEE", false, true) and
-              edm::ParameterDescription<bool>("gainSwitchUseMaxSampleEB", true, true) and
-              edm::ParameterDescription<bool>("gainSwitchUseMaxSampleEE", false, true) and
-              edm::ParameterDescription<bool>("selectiveBadSampleCriteriaEB", false, true) and
-              edm::ParameterDescription<bool>("selectiveBadSampleCriteriaEE", false, true) and
-              edm::ParameterDescription<double>("addPedestalUncertaintyEB", 0., true) and
-              edm::ParameterDescription<double>("addPedestalUncertaintyEE", 0., true) and
-              edm::ParameterDescription<bool>("simplifiedNoiseModelForGainSwitch", true, true) and
-              edm::ParameterDescription<std::string>("timealgo", "RatioMethod", true) and
-              edm::ParameterDescription<std::vector<double>>("EBtimeFitParameters",
-                                                             {-2.015452e+00,
-                                                              3.130702e+00,
-                                                              -1.234730e+01,
-                                                              4.188921e+01,
-                                                              -8.283944e+01,
-                                                              9.101147e+01,
-                                                              -5.035761e+01,
-                                                              1.105621e+01},
-                                                             true) and
-              edm::ParameterDescription<std::vector<double>>("EEtimeFitParameters",
-                                                             {-2.390548e+00,
-                                                              3.553628e+00,
-                                                              -1.762341e+01,
-                                                              6.767538e+01,
-                                                              -1.332130e+02,
-                                                              1.407432e+02,
-                                                              -7.541106e+01,
-                                                              1.620277e+01},
-                                                             true) and
-              edm::ParameterDescription<std::vector<double>>("EBamplitudeFitParameters", {1.138, 1.652}, true) and
-              edm::ParameterDescription<std::vector<double>>("EEamplitudeFitParameters", {1.890, 1.400}, true) and
-              edm::ParameterDescription<edm::ESInputTag>("timeCalibTag", edm::ESInputTag(), true) and
-              edm::ParameterDescription<edm::ESInputTag>("timeOffsetTag", edm::ESInputTag(), true) and
-              edm::ParameterDescription<double>("EBtimeFitLimits_Lower", 0.2, true) and
-              edm::ParameterDescription<double>("EBtimeFitLimits_Upper", 1.4, true) and
-              edm::ParameterDescription<double>("EEtimeFitLimits_Lower", 0.2, true) and
-              edm::ParameterDescription<double>("EEtimeFitLimits_Upper", 1.4, true) and
-              edm::ParameterDescription<double>("EBtimeConstantTerm", .6, true) and
-              edm::ParameterDescription<double>("EEtimeConstantTerm", 1.0, true) and
-              edm::ParameterDescription<double>("EBtimeNconst", 28.5, true) and
-              edm::ParameterDescription<double>("EEtimeNconst", 31.8, true) and
-              edm::ParameterDescription<double>("outOfTimeThresholdGain12pEB", 5., true) and
-              edm::ParameterDescription<double>("outOfTimeThresholdGain12mEB", 5., true) and
-              edm::ParameterDescription<double>("outOfTimeThresholdGain61pEB", 5., true) and
-              edm::ParameterDescription<double>("outOfTimeThresholdGain61mEB", 5., true) and
-              edm::ParameterDescription<double>("outOfTimeThresholdGain12pEE", 1000, true) and
-              edm::ParameterDescription<double>("outOfTimeThresholdGain12mEE", 1000, true) and
-              edm::ParameterDescription<double>("outOfTimeThresholdGain61pEE", 1000, true) and
-              edm::ParameterDescription<double>("outOfTimeThresholdGain61mEE", 1000, true) and
-              edm::ParameterDescription<double>("amplitudeThresholdEB", 10, true) and
-              edm::ParameterDescription<double>("amplitudeThresholdEE", 10, true) and
-              edm::ParameterDescription<bool>("crossCorrelationUseSlewCorrectionEB", true, true) and
-              edm::ParameterDescription<bool>("crossCorrelationUseSlewCorrectionEE", false, true) and
-              edm::ParameterDescription<double>("crossCorrelationStartTime", -25.0, true) and
-              edm::ParameterDescription<double>("crossCorrelationStopTime", 25.0, true) and
-              edm::ParameterDescription<double>("crossCorrelationTargetTimePrecision", 0.01, true) and
-              edm::ParameterDescription<double>("crossCorrelationTargetTimePrecisionForDelayedPulses", 0.05, true) and
-              edm::ParameterDescription<double>("crossCorrelationTimeShiftWrtRations", 0., true) and
-              edm::ParameterDescription<double>("crossCorrelationMinTimeToBeLateMin", 2., true) and
-              edm::ParameterDescription<double>("crossCorrelationMinTimeToBeLateMax", 5., true));
+  psd.addNode(
+      edm::ParameterDescription<std::vector<int>>("activeBXs", {-5, -4, -3, -2, -1, 0, 1, 2, 3, 4}, true) and
+      edm::ParameterDescription<bool>("ampErrorCalculation", true, true) and
+      edm::ParameterDescription<bool>("useLumiInfoRunHeader", true, true) and
+      edm::ParameterDescription<edm::InputTag>("bxSpacingProducer", edm::InputTag("bunchSpacingProducer"), true) and
+      edm::ParameterDescription<int>("bunchSpacing", 0, true) and
+      edm::ParameterDescription<bool>("doPrefitEB", false, true) and
+      edm::ParameterDescription<bool>("doPrefitEE", false, true) and
+      edm::ParameterDescription<double>("prefitMaxChiSqEB", 25., true) and
+      edm::ParameterDescription<double>("prefitMaxChiSqEE", 10., true) and
+      edm::ParameterDescription<bool>("dynamicPedestalsEB", false, true) and
+      edm::ParameterDescription<bool>("dynamicPedestalsEE", false, true) and
+      edm::ParameterDescription<bool>("mitigateBadSamplesEB", false, true) and
+      edm::ParameterDescription<bool>("mitigateBadSamplesEE", false, true) and
+      edm::ParameterDescription<bool>("gainSwitchUseMaxSampleEB", true, true) and
+      edm::ParameterDescription<bool>("gainSwitchUseMaxSampleEE", false, true) and
+      edm::ParameterDescription<bool>("selectiveBadSampleCriteriaEB", false, true) and
+      edm::ParameterDescription<bool>("selectiveBadSampleCriteriaEE", false, true) and
+      edm::ParameterDescription<double>("addPedestalUncertaintyEB", 0., true) and
+      edm::ParameterDescription<double>("addPedestalUncertaintyEE", 0., true) and
+      edm::ParameterDescription<bool>("simplifiedNoiseModelForGainSwitch", true, true) and
+      edm::ParameterDescription<std::string>("timealgo", "RatioMethod", true) and
+      edm::ParameterDescription<std::vector<double>>("EBtimeFitParameters",
+                                                     {-2.015452e+00,
+                                                      3.130702e+00,
+                                                      -1.234730e+01,
+                                                      4.188921e+01,
+                                                      -8.283944e+01,
+                                                      9.101147e+01,
+                                                      -5.035761e+01,
+                                                      1.105621e+01},
+                                                     true) and
+      edm::ParameterDescription<std::vector<double>>("EEtimeFitParameters",
+                                                     {-2.390548e+00,
+                                                      3.553628e+00,
+                                                      -1.762341e+01,
+                                                      6.767538e+01,
+                                                      -1.332130e+02,
+                                                      1.407432e+02,
+                                                      -7.541106e+01,
+                                                      1.620277e+01},
+                                                     true) and
+      edm::ParameterDescription<std::vector<double>>("EBamplitudeFitParameters", {1.138, 1.652}, true) and
+      edm::ParameterDescription<std::vector<double>>("EEamplitudeFitParameters", {1.890, 1.400}, true) and
+      edm::ParameterDescription<edm::ESInputTag>("timeCalibTag", edm::ESInputTag(), true) and
+      edm::ParameterDescription<edm::ESInputTag>("timeOffsetTag", edm::ESInputTag(), true) and
+      edm::ParameterDescription<double>("EBtimeFitLimits_Lower", 0.2, true) and
+      edm::ParameterDescription<double>("EBtimeFitLimits_Upper", 1.4, true) and
+      edm::ParameterDescription<double>("EEtimeFitLimits_Lower", 0.2, true) and
+      edm::ParameterDescription<double>("EEtimeFitLimits_Upper", 1.4, true) and
+      edm::ParameterDescription<double>("EBtimeConstantTerm", .6, true) and
+      edm::ParameterDescription<double>("EEtimeConstantTerm", 1.0, true) and
+      edm::ParameterDescription<double>("EBtimeNconst", 28.5, true) and
+      edm::ParameterDescription<double>("EEtimeNconst", 31.8, true) and
+      edm::ParameterDescription<double>("outOfTimeThresholdGain12pEB", 5., true) and
+      edm::ParameterDescription<double>("outOfTimeThresholdGain12mEB", 5., true) and
+      edm::ParameterDescription<double>("outOfTimeThresholdGain61pEB", 5., true) and
+      edm::ParameterDescription<double>("outOfTimeThresholdGain61mEB", 5., true) and
+      edm::ParameterDescription<double>("outOfTimeThresholdGain12pEE", 1000, true) and
+      edm::ParameterDescription<double>("outOfTimeThresholdGain12mEE", 1000, true) and
+      edm::ParameterDescription<double>("outOfTimeThresholdGain61pEE", 1000, true) and
+      edm::ParameterDescription<double>("outOfTimeThresholdGain61mEE", 1000, true) and
+      edm::ParameterDescription<double>("amplitudeThresholdEB", 10, true) and
+      edm::ParameterDescription<double>("amplitudeThresholdEE", 10, true) and
+      edm::ParameterDescription<bool>("crossCorrelationUseSlewCorrectionEB", true, true) and
+      edm::ParameterDescription<bool>("crossCorrelationUseSlewCorrectionEE", false, true) and
+      edm::ParameterDescription<double>("crossCorrelationStartTime", -25.0, true) and
+      edm::ParameterDescription<double>("crossCorrelationStopTime", 25.0, true) and
+      edm::ParameterDescription<double>("crossCorrelationTargetTimePrecision", 0.01, true) and
+      edm::ParameterDescription<double>("crossCorrelationTargetTimePrecisionForDelayedPulses", 0.05, true) and
+      edm::ParameterDescription<double>("crossCorrelationTimeShiftWrtRations", 0., true) and
+      edm::ParameterDescription<double>("crossCorrelationMinTimeToBeLateMin", 2., true) and
+      edm::ParameterDescription<double>("crossCorrelationMinTimeToBeLateMax", 5., true));
 
   return psd;
 }

@@ -206,7 +206,6 @@ namespace evf {
         totalEventsProcessed_(0),
         verbose_(iPS.getUntrackedParameter<bool>("verbose")) {
     reg.watchPreallocate(this, &FastMonitoringService::preallocate);  //receiving information on number of threads
-    reg.watchJobFailure(this, &FastMonitoringService::jobFailure);    //global
 
     reg.watchPreBeginJob(this, &FastMonitoringService::preBeginJob);
     reg.watchPreModuleBeginJob(this, &FastMonitoringService::preModuleBeginJob);  //global
@@ -468,8 +467,6 @@ namespace evf {
     }
     return false;
   }
-
-  void FastMonitoringService::jobFailure() { fmt_->m_data.macrostate_ = FastMonState::sError; }
 
   //new output module name is stream
   void FastMonitoringService::preModuleBeginJob(const edm::ModuleDescription& desc) {

@@ -29,7 +29,7 @@ process.options = cms.untracked.PSet(
         numberOfConcurrentIOVs = cms.untracked.uint32(0)
     ),
     fileMode = cms.untracked.string('FULLMERGE'),
-    forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
+    forceEventSetupCacheClearOnNewRun = cms.obsolete.untracked.bool,
     holdsReferencesToDeleteEarly = cms.untracked.VPSet(),
     makeTriggerResults = cms.obsolete.untracked.bool,
     modulesToCallForTryToContinue = cms.untracked.vstring(),
@@ -141,6 +141,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     suppressFwkInfo = cms.untracked.vstring(),
     suppressInfo = cms.untracked.vstring(),
     suppressWarning = cms.untracked.vstring(),
+    useContext = cms.untracked.bool(True),
     allowAnyLabel_=cms.optional.untracked.PSetTemplate(
         limit = cms.optional.untracked.int32,
         reportEvery = cms.untracked.int32(1),

@@ -26,7 +26,6 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    bool isConcurrentFinder() const final { return true; }
     void delaySettingRecords() final;
 
     static std::set<IOVSyncValue> makeSetOfIOV(std::vector<unsigned int> const& iValues, bool iovIsTime) {

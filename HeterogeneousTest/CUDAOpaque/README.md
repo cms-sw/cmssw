@@ -48,7 +48,7 @@ Unfortunately, the CUDA kernels used in the `CUDATestDeviceAdditionModule` plugi
 the `HeterogeneousTest/CUDAKernel` library run into some kind of conflict, leading to the error
 ```
 HeterogeneousTest/CUDAKernel/plugins/CUDATestKernelAdditionAlgo.cu, line 17:
-cudaCheck(cudaGetLastError());
+CUDA_CHECK(cudaGetLastError());
 cudaErrorInvalidDeviceFunction: invalid device function
 ```
 Using together the other three plugins does work correctly.

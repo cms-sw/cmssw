@@ -1,11 +1,4 @@
-######################################################################################
-# Makes pkl and text files comparing PU and noPU samples for training regressor and other stuff
-# Usage:
-# source /cvmfs/sft.cern.ch/lcg/views/LCG_97apython3/x86_64-centos7-gcc8-opt/setup.csh
-# python3 isotrackNtupler.py -PU root://eoscms.cern.ch//eos/cms/store/group/dpg_hcal/comm_hcal/ISOTRACK/SinglePion_E-50_Eta-0to3_Run3Winter21_112X_PU.root -NPU root://eoscms.cern.ch//eos/cms/store/group/dpg_hcal/comm_hcal/ISOTRACK/SinglePion_E-50_Eta-0to3_Run3Winter21_112X_PU.root -O isotk_relval 
-######################################################################################
-
-import uproot3
+import uproot
 import numpy as np
 import pandas as pd
 import argparse
@@ -26,24 +19,23 @@ start = parser.parse_args().start
 stop = parser.parse_args().end
 
 # PU
-tree1 = uproot3.open(fName1)['hcalIsoTrkAnalyzer/CalibTree']
+tree1 = uproot.open(fName1)['hcalIsoTrkAnalyzer/CalibTree']
 
 #no PU
-tree2 = uproot3.open(fName2)['hcalIsoTrkAnalyzer/CalibTree']
+tree2 = uproot.open(fName2)['hcalIsoTrkAnalyzer/CalibTree']
 
 print ("loaded files")
 
-branchespu = ['t_Run','t_Event','t_nVtx','t_ieta','t_iphi','t_p','t_pt','t_gentrackP','t_eMipDR','t_eHcal','t_eHcal10','t_eHcal30','t_hmaxNearP','t_emaxNearP','t_hAnnular','t_eAnnular','t_rhoh','t_selectTk','t_qltyFlag']
+branchespu = ['t_Run','t_Event','t_nVtx','t_ieta','t_iphi','t_p','t_pt','t_gentrackP','t_eMipDR','t_eHcal','t_eHcal10','t_eHcal30','t_hmaxNearP','t_emaxNearP','t_hAnnular','t_eAnnular','t_rhoh','t_selectTk','t_qltyFlag', 't_EventWeight', 't_DetIds', 't_HitEnergies']
 
-#branchesnpu = ['t_Event','t_ieta','t_iphi','t_eHcal']
+branchesnpu = ['t_Event','t_ieta','t_iphi','t_eHcal', 't_DetIds', 't_HitEnergies']
 
-branchesnpu =['t_Run','t_Event','t_nVtx','t_ieta','t_iphi','t_p','t_pt','t_gentrackP','t_eMipDR','t_eHcal','t_eHcal10','t_eHcal30','t_hmaxNearP','t_emaxNearP','t_hAnnular','t_eAnnular','t_rhoh','t_selectTk','t_qltyFlag']
+dictpu = tree1.arrays(branchespu, entry_start=int(start), entry_stop=int(stop))
+#dictpu = {key.decode(): val for key, val in dictpu.items()}
 
-dictpu = tree1.arrays(branchespu, entrystart=int(start), entrystop=int(stop))
+npu_entries = tree2.num_entries
 
-npu_entries = tree2.numentries
-
-scale = 5000000
+scale = 500000
 npu_start = 0
 i = 0
 
@@ -51,72 +43,111 @@ for index in range(0,npu_entries, scale):
     npu_stop = index+scale
     if (npu_stop > npu_entries):
         npu_stop = npu_entries
-    dictnpu = tree2.arrays(branchesnpu, entrystart=npu_start, entrystop=npu_stop)
+    dictnpu = tree2.arrays(branchesnpu, entry_start=npu_start, entry_stop=npu_stop)
+    #dictnpu = {key.decode(): val for key, val in dictnpu.items()}
+    
     npu_start = npu_stop
 
-    dfspu = pd.DataFrame.from_dict(dictpu)
-    dfspu.columns=branchespu
-    dfsnpu = pd.DataFrame.from_dict(dictnpu)
-    dfsnpu.columns=branchesnpu
+    dfspu = pd.DataFrame({col: dictpu[col] for col in branchespu[:-2]}) #.from_dict(dictpu[branchespu[:-2]])
+    dfspu.columns=branchespu[:-2]
+    dfsnpu = pd.DataFrame({col: dictnpu[col] for col in branchesnpu[:-2]})
+    dfsnpu.columns=branchesnpu[:-2]
+    
     print("loaded % of nopile file is =",(npu_stop/npu_entries)*100)
     print ("PU sample size:",dfspu.shape[0])
     print ("noPU sample size:",dfsnpu.shape[0])
 
-    cuts_pu = (dfspu['t_selectTk'])&(dfspu['t_qltyFlag'])&(dfspu['t_hmaxNearP']<20)&(dfspu['t_eMipDR']<1)&(abs(dfspu['t_p'] - 50)<10)&(dfspu['t_eHcal']>10)
-
-    cuts_npu = (dfsnpu['t_selectTk'])&(dfsnpu['t_qltyFlag'])&(dfsnpu['t_hmaxNearP']<20)&(dfsnpu['t_eMipDR']<1)&(abs(dfsnpu['t_p'] - 50)<10)&(dfsnpu['t_eHcal']>10)
-
-    dfspu = dfspu.loc[cuts_pu]
-    dfspu = dfspu.reset_index(drop=True)
-
-    dfsnpu = dfsnpu.loc[cuts_npu]
-    dfsnpu = dfsnpu.reset_index(drop=True)
-    branches_skim = ['t_Event','t_ieta','t_iphi','t_eHcal']
-    dfsnpu = dfsnpu[branches_skim]
-
+    dfspu['idx_spu'] = dfspu.index
+    dfsnpu['idx_npu'] = dfsnpu.index
+    
     merged = pd.merge(dfspu, dfsnpu , on=['t_Event','t_ieta','t_iphi'])
-    print(merged.keys())
     print ("selected common events before cut:",merged.shape[0])
     
-    #cuts = (merged['t_selectTk'])&(merged['t_qltyFlag'])&(merged['t_hmaxNearP']<10)&(merged['t_eMipDR_y']<1)
-    keepvars =  ['t_nVtx','t_ieta','t_eHcal10','t_eHcal30','t_delta','t_hmaxNearP','t_emaxNearP','t_hAnnular','t_eAnnular','t_rhoh','t_pt','t_eHcal_x','t_eHcal_y','t_p','t_eMipDR']
+    keepvars =  ['t_nVtx','t_ieta','t_eHcal10','t_eHcal30','t_delta','t_hmaxNearP','t_emaxNearP','t_hAnnular','t_eAnnular','t_rhoh','t_pt','t_eHcal_x','t_eHcal_y','t_p','t_eMipDR', 't_EventWeight']
 
 
+    cuts1 = (merged['t_selectTk'])&(merged['t_qltyFlag'])&(merged['t_hmaxNearP']<20)&(merged['t_eMipDR']<1)&(abs(merged['t_p'] - 50)<10)&(merged['t_eHcal_x']>10)
 
-    #########################all ietas
-    #cuts1 = (merged['t_selectTk'])&(merged['t_qltyFlag'])&(merged['t_hmaxNearP']<20)&(merged['t_eMipDR']<1)&(abs(merged['t_p'] - 50)<10)&(merged['t_eHcal_x']>10)
-
-    merged1=merged
-    #merged1 = merged1.reset_index(drop=True)
+    merged1=merged.loc[cuts1]
+    merged1 = merged1.reset_index(drop=True)
 
     print ("selected events after cut for all ietas:",merged1.shape[0])
+    if(merged1.shape[0] == 0):
+        i +=1
+        continue
     merged1['t_delta']=merged1['t_eHcal30']-merged1['t_eHcal10']
     final_df_all = merged1[keepvars]
-    output_file = foutput+'_'+str(i)+"_"+start+"_"+stop+"_all.parquet"
-    final_df_all.to_parquet(output_file)
-    final_df_all.to_csv(foutput+"_"+str(i)+"_"+start+"_"+stop+"_all.txt")
+    output_file = foutput+'_'+str(i)+"_"+start+"_"+stop+"_all.root"
+    root_data = {}
+    for column in final_df_all.columns:
+        root_data[column] = final_df_all[column].values
 
-    #########################split ieta < 16
-    
-    cuts2 = abs(merged['t_ieta'])<16
-    merged2=merged.loc[cuts2]
-    merged2 = merged2.reset_index(drop=True)
-    print ("selected events after cut for ieta < 16:",merged2.shape[0])
+    HitEnergies_x = dictpu[merged1["idx_spu"].values]["t_HitEnergies"]
+    HitEnergies_y = dictnpu[(merged1["idx_npu"].values)]["t_HitEnergies"]
+    DetIds_x = dictpu[merged1["idx_spu"].values]["t_DetIds"]
+    DetIds_y = dictnpu[merged1["idx_npu"].values]["t_DetIds"]
+    root_data["t_hitEnergies_x"] = HitEnergies_x
+    root_data["t_hitEnergies_y"] = HitEnergies_y
+    root_data["t_DetIds_x"] = DetIds_x
+    root_data["t_DetIds_y"] = DetIds_y
+    with uproot.recreate(output_file) as f:
+        f["CalibTree"] = root_data  
+    i+=1
 
-    merged2['t_delta']=merged2['t_eHcal30']-merged2['t_eHcal10']
-    final_df_low = merged2[keepvars]
-    final_df_low.to_parquet(foutput+'_'+str(i)+"_"+start+"_"+stop+"_lo.parquet")
-    final_df_low.to_csv(foutput+'_'+str(i)+"_"+start+"_"+stop+"_lo.txt")
 
-    #########################split ieta > 15
-    
-    cuts3 = abs(merged['t_ieta'])>15
-    merged3=merged.loc[cuts3]
-    merged3 = merged3.reset_index(drop=True)
-    print ("selected events after cut for ieta > 15:",merged3.shape[0])
+    cuts1 = (merged['t_selectTk'])&(merged['t_qltyFlag'])&(merged['t_hmaxNearP']<20)&(merged['t_eMipDR']<1)&(abs(merged['t_p'] - 50)<10)&(merged['t_eHcal_x']>10) &(abs(merged['t_ieta']) <16)
 
-    merged3['t_delta']=merged3['t_eHcal30']-merged3['t_eHcal10']
-    final_df_hi = merged3[keepvars]
-    final_df_hi.to_parquet(foutput+'_'+str(i)+"_"+start+"_"+stop+"_hi.parquet")
-    final_df_hi.to_csv(foutput+'_'+str(i)+"_"+start+"_"+stop+"_hi.txt")
+    merged1=merged.loc[cuts1]
+    merged1 = merged1.reset_index(drop=True)
+
+    print ("selected events after cut for all ietas:",merged1.shape[0])
+    if(merged1.shape[0] == 0):
+        i +=1
+        continue
+    merged1['t_delta']=merged1['t_eHcal30']-merged1['t_eHcal10']
+    final_df_all = merged1[keepvars]
+    output_file = foutput+'_'+str(i)+"_"+start+"_"+stop+"_barrel.root"
+    root_data = {}
+    for column in final_df_all.columns:
+        root_data[column] = final_df_all[column].values
+
+    HitEnergies_x = dictpu[merged1["idx_spu"].values]["t_HitEnergies"]
+    HitEnergies_y = dictnpu[(merged1["idx_npu"].values)]["t_HitEnergies"]
+    DetIds_x = dictpu[merged1["idx_spu"].values]["t_DetIds"]
+    DetIds_y = dictnpu[merged1["idx_npu"].values]["t_DetIds"]
+    root_data["t_hitEnergies_x"] = HitEnergies_x
+    root_data["t_hitEnergies_y"] = HitEnergies_y
+    root_data["t_DetIds_x"] = DetIds_x
+    root_data["t_DetIds_y"] = DetIds_y
+    with uproot.recreate(output_file) as f:
+        f["CalibTree"] = root_data  
+    i+=1
+
+
+    cuts1 = (merged['t_selectTk'])&(merged['t_qltyFlag'])&(merged['t_hmaxNearP']<20)&(merged['t_eMipDR']<1)&(abs(merged['t_p'] - 50)<10)&(merged['t_eHcal_x']>10) &(abs(merged['t_ieta']) >15)
+
+    merged1=merged.loc[cuts1]
+    merged1 = merged1.reset_index(drop=True)
+
+    print ("selected events after cut for all ietas:",merged1.shape[0])
+    if(merged1.shape[0] == 0):
+        i +=1
+        continue
+    merged1['t_delta']=merged1['t_eHcal30']-merged1['t_eHcal10']
+    final_df_all = merged1[keepvars]
+    output_file = foutput+'_'+str(i)+"_"+start+"_"+stop+"_ee.root"
+    root_data = {}
+    for column in final_df_all.columns:
+        root_data[column] = final_df_all[column].values
+
+    HitEnergies_x = dictpu[merged1["idx_spu"].values]["t_HitEnergies"]
+    HitEnergies_y = dictnpu[(merged1["idx_npu"].values)]["t_HitEnergies"]
+    DetIds_x = dictpu[merged1["idx_spu"].values]["t_DetIds"]
+    DetIds_y = dictnpu[merged1["idx_npu"].values]["t_DetIds"]
+    root_data["t_hitEnergies_x"] = HitEnergies_x
+    root_data["t_hitEnergies_y"] = HitEnergies_y
+    root_data["t_DetIds_x"] = DetIds_x
+    root_data["t_DetIds_y"] = DetIds_y
+    with uproot.recreate(output_file) as f:
+        f["CalibTree"] = root_data  
     i+=1

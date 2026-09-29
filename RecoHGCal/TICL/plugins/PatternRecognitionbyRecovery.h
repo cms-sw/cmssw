@@ -1,12 +1,12 @@
 // Author: Felice Pantaleo - felice.pantaleo@cern.ch
 // Date: 05/2024
 
-#ifndef __RecoHGCal_TICL_PatternRecognitionbyRecovery_H__
-#define __RecoHGCal_TICL_PatternRecognitionbyRecovery_H__
+#ifndef RecoHGCal_TICL_PatternRecognitionbyRecovery_h
+#define RecoHGCal_TICL_PatternRecognitionbyRecovery_h
 #include <memory>  // unique_ptr
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
 namespace ticl {
   template <typename TILES>
@@ -25,7 +25,7 @@ namespace ticl {
                 std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
-    void setGeometry(hgcal::RecHitTools const& rhtools) override;
+    void setGeometry(ticlgeom::Tools const& rhtools) override;
 
   private:
     float z_limit_em_ = 0.f;
@@ -33,4 +33,4 @@ namespace ticl {
 
 }  // namespace ticl
 
-#endif  // __RecoHGCal_TICL_PatternRecognitionbyRecovery_H__
+#endif  // RecoHGCal_TICL_PatternRecognitionbyRecovery_h

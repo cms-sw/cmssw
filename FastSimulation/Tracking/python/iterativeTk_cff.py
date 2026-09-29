@@ -61,7 +61,6 @@ _iterations_trackingPhase2PU140 = cms.Sequence(
     +HighPtTripletStep
     +LowPtQuadStep
     +LowPtTripletStep
-    +LowPtTripletStep
     +DetachedQuadStep
     +PixelPairStep
     +generalTracksBeforeMixing

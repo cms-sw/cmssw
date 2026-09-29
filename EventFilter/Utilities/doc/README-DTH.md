@@ -41,7 +41,7 @@ with the `startBU.py' script, which uses the DTHFakeReader. e.g.
 ```
 cmsRun startBU.py fffBaseDir=myDTHdataDir maxLS=1 fedMeanSize=128 eventsPerFile=256 frdFileVersion=0 dataType=DTH
 ```
-N.B. Output directory myDTHdataDir/ must not exist prior to running this, as it won't overwrite it.
+N.B. Output directory myDTHdataDir/ must not exist prior to running this, as it won't overwrite it. Add cleanup=True parameter to delete old directory automatically. For DTH mode, eventsPerFile and eventsPerLS indicate number of orbits per file or lumisection (startBU internally uses CMSSW events for generation). Number of events per orbit is on average 70.
 
 Optionally inspect output .raw files with linux "hexdump -C" command.
 
@@ -51,7 +51,7 @@ Optionally inspect output .raw files with linux "hexdump -C" command.
 ```
 cmsRun unittest_FU_daqsource.py daqSourceMode=DTH buBaseDir=myDTHdataDir/ramdisk/ numFwkStreams=1
 ```
-N.B. Output directory data/ must not exist prior to running this, as it won't overwrite it. You can optionally inspect the RawDataBuffer EDProduct in the output dataset using DataFormats/FEDRawData/test/DumpRawDataBuffer_cfg.py .
+N.B. Output directory data/ must not exist prior to running this, as it won't overwrite it.  Add cleanup=True parameter to delete old directory automatically. You can optionally inspect the RawDataBuffer EDProduct in the output dataset using DataFormats/FEDRawData/test/DumpRawDataBuffer_cfg.py .
 
 Note on the input file format: apart of parsing single DTH orbit dump, input source plugin is capable also of building events from multiple DTH orbit blocks, but for the same orbit they must come sequentially in the file. Source scans the file and will find all blocks with orbit headers from the same orbit number, until a different orbit number is found or EOF, then it proceeds to build events from them by starting from last DTH event fragment trailer in each of the orbits found. This is then iterated for the next set of orbit blocks with the same orbit number in the file until file is processed. This is also valid at the level of individual files for the striped mode.
 

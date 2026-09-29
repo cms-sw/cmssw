@@ -428,17 +428,6 @@ HcalHardcodeCalibrations::~HcalHardcodeCalibrations() {}
 //
 // member functions
 //
-void HcalHardcodeCalibrations::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& iKey,
-                                              const edm::IOVSyncValue& iTime,
-                                              edm::ValidityInterval& oInterval) {
-  std::string record = iKey.name();
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::setIntervalFor-> key: " << record
-                           << " time: " << iTime.eventID() << '/' << iTime.time().value();
-#endif
-  oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());  //infinite
-}
-
 std::unique_ptr<HcalPedestals> HcalHardcodeCalibrations::producePedestals_(
     const HcalPedestalsRcd& rec,
     const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord>& token,

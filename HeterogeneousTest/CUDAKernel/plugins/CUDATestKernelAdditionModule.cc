@@ -72,25 +72,25 @@ void CUDATestKernelAdditionModule::analyze(edm::StreamID, edm::Event const& even
   float* in1_d;
   float* in2_d;
   float* out_d;
-  cudaCheck(cudaMalloc(&in1_d, size_ * sizeof(float)));
-  cudaCheck(cudaMalloc(&in2_d, size_ * sizeof(float)));
-  cudaCheck(cudaMalloc(&out_d, size_ * sizeof(float)));
+  CUDA_CHECK(cudaMalloc(&in1_d, size_ * sizeof(float)));
+  CUDA_CHECK(cudaMalloc(&in2_d, size_ * sizeof(float)));
+  CUDA_CHECK(cudaMalloc(&out_d, size_ * sizeof(float)));
 
   // copy the input data to the device
-  cudaCheck(cudaMemcpy(in1_d, in1_h.data(), size_ * sizeof(float), cudaMemcpyHostToDevice));
-  cudaCheck(cudaMemcpy(in2_d, in2_h.data(), size_ * sizeof(float), cudaMemcpyHostToDevice));
+  CUDA_CHECK(cudaMemcpy(in1_d, in1_h.data(), size_ * sizeof(float), cudaMemcpyHostToDevice));
+  CUDA_CHECK(cudaMemcpy(in2_d, in2_h.data(), size_ * sizeof(float), cudaMemcpyHostToDevice));
 
   // fill the output buffer with zeros
-  cudaCheck(cudaMemset(out_d, 0, size_ * sizeof(float)));
+  CUDA_CHECK(cudaMemset(out_d, 0, size_ * sizeof(float)));
 
   // launch the 1-dimensional kernel for vector addition
   HeterogeneousTestCUDAKernelPlugins::wrapper_add_vectors_f(in1_d, in2_d, out_d, size_);
 
   // copy the results from the device to the host
-  cudaCheck(cudaMemcpy(out_h.data(), out_d, size_ * sizeof(float), cudaMemcpyDeviceToHost));
+  CUDA_CHECK(cudaMemcpy(out_h.data(), out_d, size_ * sizeof(float), cudaMemcpyDeviceToHost));
 
   // wait for all the operations to complete
-  cudaCheck(cudaDeviceSynchronize());
+  CUDA_CHECK(cudaDeviceSynchronize());
 
   // check the results
   for (size_t i = 0; i < size_; ++i) {

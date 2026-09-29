@@ -18,7 +18,7 @@
 
 #include <memory>
 
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -40,7 +40,7 @@ using namespace std;
 using namespace cms;
 using namespace edm;
 
-class DDDetectorESProducer : public ESProducer, public EventSetupRecordIntervalFinder {
+class DDDetectorESProducer : public ESProducer, public EventSetupRecordInfiniteIntervalFinder {
 public:
   DDDetectorESProducer(const ParameterSet&);
   ~DDDetectorESProducer() override;
@@ -52,9 +52,6 @@ public:
   ReturnType produceMagField(const IdealMagneticFieldRecord&);
   ReturnType produce();
   static void fillDescriptions(ConfigurationDescriptions&);
-
-protected:
-  void setIntervalFor(const eventsetup::EventSetupRecordKey&, const IOVSyncValue&, ValidityInterval&) override;
 
 private:
   const bool fromDB_;
@@ -108,12 +105,6 @@ void DDDetectorESProducer::fillDescriptions(ConfigurationDescriptions& descripti
   descDB.set<string>("label", "Extended");
   descDB.set<bool>("fromDB", true);
   descriptions.add("DDDetectorESProducerFromDB", descDB);
-}
-
-void DDDetectorESProducer::setIntervalFor(const eventsetup::EventSetupRecordKey& iKey,
-                                          const IOVSyncValue& iTime,
-                                          ValidityInterval& oInterval) {
-  oInterval = ValidityInterval(IOVSyncValue::beginOfTime(), IOVSyncValue::endOfTime());  //infinite
 }
 
 DDDetectorESProducer::ReturnType DDDetectorESProducer::produceMagField(const IdealMagneticFieldRecord& iRecord) {

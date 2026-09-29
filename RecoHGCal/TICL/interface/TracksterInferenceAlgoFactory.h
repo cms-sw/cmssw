@@ -1,8 +1,8 @@
 // Author: Felice Pantaleo - felice.pantaleo@cern.ch
 // Date: 07/2024
 
-#ifndef RecoHGCal_TICL_TracksterInferenceAlgoFactory_H__
-#define RecoHGCal_TICL_TracksterInferenceAlgoFactory_H__
+#ifndef RecoHGCal_TICL_TracksterInferenceAlgoFactory_h
+#define RecoHGCal_TICL_TracksterInferenceAlgoFactory_h
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

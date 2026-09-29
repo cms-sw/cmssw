@@ -1,0 +1,11 @@
+<library name="TestBTLReadoutMap" file="TestBTLReadoutMap.cc">
+  <use name="FWCore/Framework"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/MTDCommonData"/>
+  <use name="DataFormats/ForwardDetId"/>
+  <use name="Geometry/MTDGeometryBuilder"/>
+  <use name="CondFormats/MTDObjects"/>
+  <use name="CondFormats/DataRecord"/>
+  <use name="EventFilter/MTDRawToDigi"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

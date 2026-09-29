@@ -1,0 +1,6 @@
+<bin name="testNNPuppiTauModel" file="testNNPuppiTauModel.cppunit.cc">
+    <use name="hls"/>
+    <use name="hls4mlEmulatorExtras"/>
+    <use name="NNPuppiTauModel"/>
+    <use name="cppunit"/>
+</bin>

@@ -51,7 +51,6 @@ namespace edm {
   class ExceptionCollector;
   class ExceptionToActionTable;
   class BranchIDListHelper;
-  class MergeableRunProductMetadata;
   class EDLooperBase;
   class HistoryAppender;
   class ProcessDesc;
@@ -231,9 +230,7 @@ namespace edm {
     void endUnfinishedLumi(bool cleaningUpAfterException);
     using ProcessBlockType = PrincipalCache::ProcessBlockType;
     void writeProcessBlockAsync(WaitingTaskHolder, ProcessBlockType);
-    void writeRunAsync(WaitingTaskHolder, RunPrincipal const&, MergeableRunProductMetadata const*);
     void clearRunPrincipal(RunProcessingStatus&);
-    void writeLumiAsync(WaitingTaskHolder, LuminosityBlockPrincipal&);
     void clearLumiPrincipal(LuminosityBlockProcessingStatus&);
 
     bool shouldWeStop() const;
@@ -305,7 +302,6 @@ namespace edm {
     edm::propagate_const<std::unique_ptr<ModuleTypeResolverMaker const>> moduleTypeResolverMaker_;
     edm::propagate_const<std::unique_ptr<eventsetup::EventSetupsController>> espController_;
     edm::propagate_const<std::shared_ptr<eventsetup::EventSetupProvider>> esp_;
-    edm::SerialTaskQueue queueWhichWaitsForIOVsToFinish_;
     std::unique_ptr<ExceptionToActionTable const> act_table_;
     std::shared_ptr<ProcessConfiguration const> processConfiguration_;
     ProcessContext processContext_;
@@ -348,7 +344,6 @@ namespace edm {
     std::atomic<bool> exceptionMessageLumis_;
     bool forceLooperToEnd_;
     std::atomic<bool> looperBeginJobRun_;
-    bool forceESCacheClearOnNewRun_;
 
     PreallocationConfiguration preallocations_;
 

@@ -15,12 +15,14 @@ class StubResult {
 public:
   StubResult() {}  //empty result
 
-  StubResult(float pdfVal, bool valid, int pdfBin, int layer, MuonStubPtr stub)
-      : pdfVal(pdfVal), valid(valid), pdfBin(pdfBin), layer(layer), stub(stub) {}
+  StubResult(float pdfVal, bool valid, int pdfBin, int deltaPhi, int layer, MuonStubPtr stub)
+      : pdfVal(pdfVal), valid(valid), pdfBin(pdfBin), deltaPhi(deltaPhi), layer(layer), stub(stub) {}
 
   const MuonStubPtr& getMuonStub() const { return stub; }
 
   int getPdfBin() const { return pdfBin; }
+
+  int getDeltaPhi() const { return deltaPhi; }
 
   float getPdfVal() const { return pdfVal; }
 
@@ -36,6 +38,7 @@ public:
     pdfVal = 0;
     valid = false;
     pdfBin = 0;
+    deltaPhi = 0;
     layer = 0;
     stub.reset();
   }
@@ -46,6 +49,9 @@ private:
 
   //stub and pdfBin should be needed only for debug, testing, generating patterns, etc, but rather not in the firmware
   int pdfBin = 0;
+
+  //input for the neural network
+  int deltaPhi = 0;
 
   //n.b, layer might be different then the the stub->layer, because it might be the result of the bending layer (how about eta?)
   int layer = 0;

@@ -119,7 +119,8 @@ HcalPulseShapesEP::~HcalPulseShapesEP() {
 HcalPulseShapesEP::ReturnType HcalPulseShapesEP::produce(const HcalPulseShapeLookupRcd& rcd) {
   const HcalTopology& htopo = rcd.get(topoToken_);
   const CaloGeometry& geom = rcd.get(geomToken_);
-  const HcalPulseDelays& delays = rcd.get(delaysToken_);
+  HcalPulseDelays delays(rcd.get(delaysToken_));
+  delays.setTopo(&htopo);
   const HcalInterpolatedPulseMap& pulses = rcd.get(pulseMapToken_);
 
   // We need to create a LabeledShape object for each unique

@@ -124,7 +124,6 @@ protected:
 
 private:
   const bool m_PreMix1;
-  const bool m_PreMix2;
 
   const edm::EDGetTokenT<std::vector<PCaloHit>> m_HitsEBToken;
 

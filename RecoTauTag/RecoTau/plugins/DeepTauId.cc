@@ -25,7 +25,7 @@ namespace deep_tau {
         const std::string& graph_file = graph_entry.second;
         if (mem_mapped) {
           memmappedEnv_[entry_name] = std::make_unique<tensorflow::MemmappedEnv>(tensorflow::Env::Default());
-          const tensorflow::Status mmap_status = memmappedEnv_.at(entry_name)->InitializeFromFile(graph_file);
+          const absl::Status mmap_status = memmappedEnv_.at(entry_name)->InitializeFromFile(graph_file);
           if (!mmap_status.ok()) {
             throw cms::Exception("DeepTauCache: unable to initalize memmapped environment for ")
                 << graph_file << ". \n"
@@ -33,7 +33,7 @@ namespace deep_tau {
           }
 
           graphs_[entry_name] = std::make_unique<tensorflow::GraphDef>();
-          const tensorflow::Status load_graph_status =
+          const absl::Status load_graph_status =
               ReadBinaryProto(memmappedEnv_.at(entry_name).get(),
                               tensorflow::MemmappedFileSystem::kMemmappedPackageDefaultGraphDef,
                               graphs_.at(entry_name).get());

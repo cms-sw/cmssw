@@ -27,7 +27,7 @@ export ALPAKA_ROOT=$(scram tool info alpaka | grep ALPAKA_BASE | cut -d'=' -f2)
 export BOOST_ROOT=$(scram tool info boost | grep BOOST_BASE | cut -d'=' -f2)
 export CUDA_HOME=$(scram tool info cuda | grep CUDA_BASE | cut -d'=' -f2)
 export FMT_ROOT=$(scram tool info fmt | grep FMT_BASE | cut -d'=' -f2)
-export ROCM_ROOT=$(scram tool info rocm | grep ROCM_BASE | cut -d'=' -f2)
+export ROCM_ROOT=$(scram tool info rocm-hip | grep ROCM_HIP_BASE | cut -d'=' -f2 || scram tool info rocm | grep ROCM_BASE | cut -d'=' -f2)
 export ROOT_ROOT=$(scram tool info root_interface | grep ROOT_INTERFACE_BASE | cut -d'=' -f2)
 
 cd - > /dev/null

@@ -43,7 +43,8 @@ namespace gen {
     ~Py8HMC3GunBase() override {}
 
     virtual bool residualDecay();  // common func
-    bool initializeForInternalPartons() override;
+    bool initializeGen();
+    //bool initializeForInternalPartons() override;
     void finalizeEvent() override;
     void statistics() override;
 

@@ -10,7 +10,7 @@ TEST_CASE("device_unique_ptr", "[cudaMemTools]") {
   }
 
   cudaStream_t stream;
-  cudaCheck(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
+  CUDA_CHECK(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
 
   SECTION("Single element") {
     auto ptr = cms::cuda::make_device_unique<int>(stream);
@@ -20,7 +20,7 @@ TEST_CASE("device_unique_ptr", "[cudaMemTools]") {
   SECTION("Reset") {
     auto ptr = cms::cuda::make_device_unique<int>(stream);
     REQUIRE(ptr != nullptr);
-    cudaCheck(cudaStreamSynchronize(stream));
+    CUDA_CHECK(cudaStreamSynchronize(stream));
 
     ptr.reset();
     REQUIRE(ptr.get() == nullptr);
@@ -29,7 +29,7 @@ TEST_CASE("device_unique_ptr", "[cudaMemTools]") {
   SECTION("Multiple elements") {
     auto ptr = cms::cuda::make_device_unique<int[]>(10, stream);
     REQUIRE(ptr != nullptr);
-    cudaCheck(cudaStreamSynchronize(stream));
+    CUDA_CHECK(cudaStreamSynchronize(stream));
 
     ptr.reset();
     REQUIRE(ptr.get() == nullptr);
@@ -42,5 +42,5 @@ TEST_CASE("device_unique_ptr", "[cudaMemTools]") {
     REQUIRE_THROWS(ptr = cms::cuda::make_device_unique<char[]>(maxSize + 1, stream));
   }
 
-  cudaCheck(cudaStreamDestroy(stream));
+  CUDA_CHECK(cudaStreamDestroy(stream));
 }

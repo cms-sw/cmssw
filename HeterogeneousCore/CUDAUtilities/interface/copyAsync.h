@@ -22,7 +22,7 @@ namespace cms {
       // let's add an assert with a more helpful message
       static_assert(std::is_array<T>::value == false,
                     "For array types, use the other overload with the size parameter");
-      cudaCheck(cudaMemcpyAsync(dst.get(), src.get(), sizeof(T), cudaMemcpyHostToDevice, stream));
+      CUDA_CHECK(cudaMemcpyAsync(dst.get(), src.get(), sizeof(T), cudaMemcpyHostToDevice, stream));
     }
 
     template <typename T>
@@ -31,14 +31,14 @@ namespace cms {
       // let's add an assert with a more helpful message
       static_assert(std::is_array<T>::value == false,
                     "For array types, use the other overload with the size parameter");
-      cudaCheck(cudaMemcpyAsync(dst.get(), src.get(), sizeof(T), cudaMemcpyHostToDevice, stream));
+      CUDA_CHECK(cudaMemcpyAsync(dst.get(), src.get(), sizeof(T), cudaMemcpyHostToDevice, stream));
     }
 
     template <typename T>
     inline void copyAsync(host::unique_ptr<T>& dst, const device::unique_ptr<T>& src, cudaStream_t stream) {
       static_assert(std::is_array<T>::value == false,
                     "For array types, use the other overload with the size parameter");
-      cudaCheck(cudaMemcpyAsync(dst.get(), src.get(), sizeof(T), cudaMemcpyDeviceToHost, stream));
+      CUDA_CHECK(cudaMemcpyAsync(dst.get(), src.get(), sizeof(T), cudaMemcpyDeviceToHost, stream));
     }
 
     // Multiple elements
@@ -48,7 +48,7 @@ namespace cms {
                           const host::unique_ptr<T[]>& src,
                           size_t nelements,
                           cudaStream_t stream) {
-      cudaCheck(cudaMemcpyAsync(dst.get(), src.get(), nelements * sizeof(T), cudaMemcpyHostToDevice, stream));
+      CUDA_CHECK(cudaMemcpyAsync(dst.get(), src.get(), nelements * sizeof(T), cudaMemcpyHostToDevice, stream));
     }
 
     template <typename T>
@@ -56,7 +56,7 @@ namespace cms {
                           const host::noncached::unique_ptr<T[]>& src,
                           size_t nelements,
                           cudaStream_t stream) {
-      cudaCheck(cudaMemcpyAsync(dst.get(), src.get(), nelements * sizeof(T), cudaMemcpyHostToDevice, stream));
+      CUDA_CHECK(cudaMemcpyAsync(dst.get(), src.get(), nelements * sizeof(T), cudaMemcpyHostToDevice, stream));
     }
 
     template <typename T>
@@ -64,7 +64,7 @@ namespace cms {
                           const device::unique_ptr<T[]>& src,
                           size_t nelements,
                           cudaStream_t stream) {
-      cudaCheck(cudaMemcpyAsync(dst.get(), src.get(), nelements * sizeof(T), cudaMemcpyDeviceToHost, stream));
+      CUDA_CHECK(cudaMemcpyAsync(dst.get(), src.get(), nelements * sizeof(T), cudaMemcpyDeviceToHost, stream));
     }
 
     // copy from a host vector using pinned memory
@@ -72,7 +72,7 @@ namespace cms {
     inline void copyAsync(cms::cuda::device::unique_ptr<T[]>& dst,
                           const std::vector<T, cms::cuda::HostAllocator<T>>& src,
                           cudaStream_t stream) {
-      cudaCheck(cudaMemcpyAsync(dst.get(), src.data(), src.size() * sizeof(T), cudaMemcpyHostToDevice, stream));
+      CUDA_CHECK(cudaMemcpyAsync(dst.get(), src.data(), src.size() * sizeof(T), cudaMemcpyHostToDevice, stream));
     }
 
     // special case used to transfer conditions data
@@ -80,7 +80,7 @@ namespace cms {
     inline void copyAsync(edm::propagate_const_array<cms::cuda::device::unique_ptr<T[]>>& dst,
                           const std::vector<T, cms::cuda::HostAllocator<T>>& src,
                           cudaStream_t stream) {
-      cudaCheck(cudaMemcpyAsync(
+      CUDA_CHECK(cudaMemcpyAsync(
           get_underlying(dst).get(), src.data(), src.size() * sizeof(T), cudaMemcpyHostToDevice, stream));
     }
   }  // namespace cuda

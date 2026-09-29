@@ -8,10 +8,12 @@
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
+#include "FWCore/Framework/interface/ComponentInterfaceHolder.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -23,7 +25,7 @@ namespace edm {
     // ---------------------------------------------------------------
     std::unique_ptr<EventSetupProvider> makeEventSetupProvider(ParameterSet const& params,
                                                                ActivityRegistry* activityRegistry) {
-      std::vector<std::string> prefers = params.getParameter<std::vector<std::string> >("@all_esprefers");
+      std::vector<std::string> prefers = params.getParameter<std::vector<std::string>>("@all_esprefers");
 
       if (prefers.empty()) {
         return std::make_unique<EventSetupProvider>(activityRegistry);
@@ -52,7 +54,7 @@ namespace edm {
 
           //this should be a record name with its info
           try {
-            std::vector<std::string> dataInfo = preferPSet.getParameter<std::vector<std::string> >(*itRecordName);
+            std::vector<std::string> dataInfo = preferPSet.getParameter<std::vector<std::string>>(*itRecordName);
 
             if (dataInfo.empty()) {
               //FUTURE: empty should just mean all data
@@ -89,25 +91,43 @@ namespace edm {
     }
 
     // ---------------------------------------------------------------
-    void fillEventSetupProvider(ModuleTypeResolverMaker const* resolverMaker,
-                                EventSetupProvider& eventSetupProvider,
-                                ParameterSet& params) {
-      std::vector<std::string> providers = params.getParameter<std::vector<std::string> >("@all_esmodules");
+    std::vector<std::shared_ptr<EventSetupRecordIntervalFinder>> fillEventSetupProvider(
+        ModuleTypeResolverMaker const* resolverMaker, EventSetupProvider& eventSetupProvider, ParameterSet& params) {
+      std::vector<std::shared_ptr<EventSetupRecordIntervalFinder>> finders;
+      std::vector<std::string> providers = params.getParameter<std::vector<std::string>>("@all_esmodules");
 
       for (std::vector<std::string>::iterator itName = providers.begin(), itNameEnd = providers.end();
            itName != itNameEnd;
            ++itName) {
         ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
-        ModuleFactory::get()->addTo(eventSetupProvider, *providerPSet, resolverMaker);
+        ComponentInterfaceHolder interfaceHolder;
+        interfaceHolder.connectSignals(eventSetupProvider.activityRegistry()->preESModuleConstructionSignal_,
+                                       eventSetupProvider.activityRegistry()->postESModuleConstructionSignal_);
+        ModuleFactory::get()->addTo(interfaceHolder, *providerPSet, resolverMaker);
+        if (interfaceHolder.provider()) {
+          eventSetupProvider.add(interfaceHolder.provider());
+        }
+        assert(not interfaceHolder.finder());
       }
 
-      std::vector<std::string> sources = params.getParameter<std::vector<std::string> >("@all_essources");
+      std::vector<std::string> sources = params.getParameter<std::vector<std::string>>("@all_essources");
 
       for (std::vector<std::string>::iterator itName = sources.begin(), itNameEnd = sources.end(); itName != itNameEnd;
            ++itName) {
         ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
-        SourceFactory::get()->addTo(eventSetupProvider, *providerPSet, resolverMaker);
+        ComponentInterfaceHolder interfaceHolder;
+        interfaceHolder.connectSignals(eventSetupProvider.activityRegistry()->preESModuleConstructionSignal_,
+                                       eventSetupProvider.activityRegistry()->postESModuleConstructionSignal_);
+        SourceFactory::get()->addTo(interfaceHolder, *providerPSet, resolverMaker);
+        if (interfaceHolder.provider()) {
+          eventSetupProvider.add(interfaceHolder.provider());
+        }
+        if (interfaceHolder.finder()) {
+          finders.push_back(interfaceHolder.finder());
+          //eventSetupProvider.add(interfaceHolder.finder());
+        }
       }
+      return finders;
     }
   }  // namespace eventsetup
 }  // namespace edm

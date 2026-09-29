@@ -12,13 +12,13 @@
 class EcalEBPhase2TriggerPrimitiveSample {
 public:
   EcalEBPhase2TriggerPrimitiveSample();
-  EcalEBPhase2TriggerPrimitiveSample(uint32_t data);
+  EcalEBPhase2TriggerPrimitiveSample(uint16_t data);
   EcalEBPhase2TriggerPrimitiveSample(int encodedEt);
   EcalEBPhase2TriggerPrimitiveSample(int encodedEt, bool isASpike);
   EcalEBPhase2TriggerPrimitiveSample(int encodedEt, bool isASpike, int timing);
 
   ///Set data
-  void setValue(uint32_t data) { theSample_ = data; }
+  void setValue(uint16_t data) { theSample_ = data; }
   // The sample is a 16 bit word defined as:
   //
   //     o o o o o    o     o o o o o o o o o o
@@ -28,7 +28,7 @@ public:
   //
 
   /// get the raw word
-  uint32_t raw() const { return theSample_ & 0xffff; }
+  uint16_t raw() const { return theSample_ & 0xffff; }
 
   /// get the encoded Et (10 bits)
   int encodedEt() const { return (raw()) & 0x3FF; }
@@ -38,10 +38,10 @@ public:
   int time() const { return raw() >> 11; }
 
   /// for streaming
-  uint32_t operator()() { return raw(); }
+  uint16_t operator()() { return raw(); }
 
 private:
-  uint32_t theSample_;
+  uint16_t theSample_;
 };
 
 std::ostream& operator<<(std::ostream& s, const EcalEBPhase2TriggerPrimitiveSample& samp);

@@ -95,9 +95,9 @@ int main() {
   cudaMalloc(&d, sizeof(M));
   cudaMemcpy(d, &m, sizeof(M), cudaMemcpyHostToDevice);
   invert<M, DIM><<<1, 1>>>((M*)d, 1);
-  cudaCheck(cudaDeviceSynchronize());
+  CUDA_CHECK(cudaDeviceSynchronize());
   invertE<M, DIM><<<1, 1>>>((M*)d, 1);
-  cudaCheck(cudaDeviceSynchronize());
+  CUDA_CHECK(cudaDeviceSynchronize());
 
   return 0;
 }

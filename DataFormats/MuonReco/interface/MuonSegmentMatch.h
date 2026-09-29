@@ -31,6 +31,12 @@ namespace reco {
       static const unsigned int BelongsToTrackByClusClean = 1 << 23;  // won cluster sharing cleaning
       // won any arbitration cleaning type, including defaults
       static const unsigned int BelongsToTrackByCleaning = 1 << 24;
+      // best combined delta x and delta dphidz in single muon chamber
+      static const unsigned int BestInChamberByDX_DPhiDZ = 1 << 25;
+      // best combined delta x and delta dphidz in single muon station
+      static const unsigned int BestInStationByDX_DPhiDZ = 1 << 26;
+      // best combined delta x and delta dphidz of multiple muons
+      static const unsigned int BelongsToTrackByDX_DPhiDZ = 1 << 27;
 
       float x;            // X position of the matched segment
       float y;            // Y position of the matched segment
@@ -44,6 +50,7 @@ namespace reco {
       bool hasZed_;       // contains local y information (only relevant for segments in DT)
       bool hasPhi_;       // contains local x information (only relevant for segments in DT)
 
+      float dPhidZ;  // dPhi/dZ of the matched segment (only relevant for segments in GEM)
       bool isMask(unsigned int flag = Arbitrated) const { return (mask & flag) == flag; }
       void setMask(unsigned int flag) { mask |= flag; }
       float t0;
@@ -52,7 +59,7 @@ namespace reco {
       CSCSegmentRef cscSegmentRef;
       GEMSegmentRef gemSegmentRef;
       ME0SegmentRef me0SegmentRef;
-      MuonSegmentMatch() : x(0), y(0), xErr(0), yErr(0), dXdZ(0), dYdZ(0), dXdZErr(0), dYdZErr(0) {}
+      MuonSegmentMatch() : x(0), y(0), xErr(0), yErr(0), dXdZ(0), dYdZ(0), dXdZErr(0), dYdZErr(0), dPhidZ(0) {}
 
       bool hasZed() const { return hasZed_; }
       bool hasPhi() const { return hasPhi_; }

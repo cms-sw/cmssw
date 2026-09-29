@@ -158,9 +158,9 @@ TritonGpuShmResource<IO>::TritonGpuShmResource(TritonData<IO>* data, const std::
   //cudaMalloc of size zero succeeds, but leaves addr as nullptr -> IPC failure
   this->size_ = std::max<size_t>(this->size_, 1);
   //todo: get server device id somehow?
-  cudaCheck(cudaSetDevice(deviceId_), "unable to set device ID to " + std::to_string(deviceId_));
-  cudaCheck(cudaMalloc((void**)&this->addr_, this->size_), "unable to allocate GPU memory for key: " + this->name_);
-  cudaCheck(cudaIpcGetMemHandle(handle_.get(), this->addr_), "unable to get IPC handle for key: " + this->name_);
+  CUDA_CHECK(cudaSetDevice(deviceId_), "unable to set device ID to " + std::to_string(deviceId_));
+  CUDA_CHECK(cudaMalloc((void**)&this->addr_, this->size_), "unable to allocate GPU memory for key: " + this->name_);
+  CUDA_CHECK(cudaIpcGetMemHandle(handle_.get(), this->addr_), "unable to get IPC handle for key: " + this->name_);
   TRITON_THROW_IF_ERROR(
       this->data_->grpcClient()->RegisterCudaSharedMemory(this->name_, *handle_, deviceId_, this->size_),
       "unable to register CUDA shared memory region: " + this->name_);
@@ -178,23 +178,23 @@ void TritonGpuShmResource<IO>::close() {
   TRITON_THROW_IF_ERROR(this->data_->grpcClient()->UnregisterCudaSharedMemory(this->name_),
                         "unable to unregister CUDA shared memory region: " + this->name_,
                         this->data_->client()->service());
-  cudaCheck(cudaFree(this->addr_), "unable to free GPU memory for key: " + this->name_);
+  CUDA_CHECK(cudaFree(this->addr_), "unable to free GPU memory for key: " + this->name_);
   this->closed_ = true;
 }
 
 template <>
 void TritonInputGpuShmResource::copyInput(const void* values, size_t offset, unsigned entry) {
   if (sizeOrig_ > 0)
-    cudaCheck(cudaMemcpy(addr_ + offset, values, data_->entries_[entry].byteSizePerBatch_, cudaMemcpyHostToDevice),
-              data_->name_ + " toServer(): unable to memcpy " +
-                  std::to_string(data_->entries_[entry].byteSizePerBatch_) + " bytes to GPU");
+    CUDA_CHECK(cudaMemcpy(addr_ + offset, values, data_->entries_[entry].byteSizePerBatch_, cudaMemcpyHostToDevice),
+               data_->name_ + " toServer(): unable to memcpy " +
+                   std::to_string(data_->entries_[entry].byteSizePerBatch_) + " bytes to GPU");
 }
 
 template <>
 void TritonOutputGpuShmResource::copyOutput() {
   //copy back from gpu, keep in scope
   auto ptr = std::make_shared<std::vector<uint8_t>>(data_->totalByteSize_);
-  cudaCheck(
+  CUDA_CHECK(
       cudaMemcpy(ptr->data(), addr_, data_->totalByteSize_, cudaMemcpyDeviceToHost),
       data_->name_ + " fromServer(): unable to memcpy " + std::to_string(data_->totalByteSize_) + " bytes from GPU");
   data_->holder_ = ptr;

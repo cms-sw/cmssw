@@ -17,7 +17,7 @@ process.source = PoolSource(
     bypassVersionCheck = args.bypassVersionCheck,
 )
 
-from FWCore.Framework.modules import TestMergeResults
+from FWCore.Integration.modules import TestMergeResults
 process.testmerge = TestMergeResults(
     expectedBeginRunProd = [10001, 20004, 10003],
     expectedEndRunProd = [100001, 200004, 100003],

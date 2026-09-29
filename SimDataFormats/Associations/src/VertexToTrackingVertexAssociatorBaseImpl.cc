@@ -1,5 +1,10 @@
 #include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociatorBaseImpl.h"
 
-reco::VertexToTrackingVertexAssociatorBaseImpl::VertexToTrackingVertexAssociatorBaseImpl() {}
+template <typename VertexCollection>
+reco::VertexToTrackingVertexAssociatorBaseImpl<VertexCollection>::VertexToTrackingVertexAssociatorBaseImpl() {}
 
-reco::VertexToTrackingVertexAssociatorBaseImpl::~VertexToTrackingVertexAssociatorBaseImpl() {}
+template <typename VertexCollection>
+reco::VertexToTrackingVertexAssociatorBaseImpl<VertexCollection>::~VertexToTrackingVertexAssociatorBaseImpl() {}
+
+template class reco::VertexToTrackingVertexAssociatorBaseImpl<std::vector<reco::Vertex>>;
+template class reco::VertexToTrackingVertexAssociatorBaseImpl<std::vector<reco::VertexCompositePtrCandidate>>;

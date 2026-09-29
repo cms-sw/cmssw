@@ -76,6 +76,7 @@
   <class name="edm::Wrapper<L1MuKBMTCombinedStubCollection >"/>
 
  <class name="edm::Ref<L1MuKBMTCombinedStubCollection>" splitLevel="0"/>
+ <class name="std::vector<edm::Ref<L1MuKBMTCombinedStubCollection>>"/>	 
  <class name="edm::Wrapper<edm::Ref<L1MuKBMTCombinedStubCollection > >"/>
 
 

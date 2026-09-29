@@ -27,6 +27,7 @@ the worker is reset().
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/maker/WorkerParams.h"
 #include "FWCore/Framework/interface/maker/ModuleSignalSentry.h"
+#include "FWCore/Framework/interface/maker/ModuleAttributes.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
@@ -54,6 +55,8 @@ the worker is reset().
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
 #include "FWCore/Utilities/interface/Transition.h"
+#include "FWCore/Utilities/interface/make_sentry.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -86,8 +89,8 @@ namespace edm {
   class Worker {
   public:
     enum State { Ready, Pass, Fail, Exception };
-    enum Types { kAnalyzer, kFilter, kProducer, kOutputModule };
-    enum ConcurrencyTypes { kGlobal, kLimited, kOne, kStream };
+    using Types = edm::modules::Type;
+    using ConcurrencyTypes = edm::modules::Concurrency;
     struct TaskQueueAdaptor {
       SerialTaskQueueChain* serial_ = nullptr;
       LimitedTaskQueue* limited_ = nullptr;
@@ -125,6 +128,7 @@ namespace edm {
     virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
     virtual bool wantsStreamRuns() const noexcept = 0;
     virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
+    virtual bool wantsWrites() const noexcept = 0;
 
     //returns non-nullptr if the module can only process one Run at a time
     virtual SerialTaskQueue* globalRunsQueue() = 0;
@@ -203,24 +207,9 @@ namespace edm {
     virtual Types moduleType() const = 0;
     virtual ConcurrencyTypes moduleConcurrencyType() const = 0;
 
-    void clearCounters() noexcept {
-      timesRun_.store(0, std::memory_order_release);
-      timesVisited_.store(0, std::memory_order_release);
-      timesPassed_.store(0, std::memory_order_release);
-      timesFailed_.store(0, std::memory_order_release);
-      timesExcept_.store(0, std::memory_order_release);
-    }
-
     void addedToPath() noexcept { ++numberOfPathsOn_; }
     //NOTE: calling state() is done to force synchronization across threads
-    int timesRun() const noexcept { return timesRun_.load(std::memory_order_acquire); }
-    int timesVisited() const noexcept { return timesVisited_.load(std::memory_order_acquire); }
-    int timesPassed() const noexcept { return timesPassed_.load(std::memory_order_acquire); }
-    int timesFailed() const noexcept { return timesFailed_.load(std::memory_order_acquire); }
-    int timesExcept() const noexcept { return timesExcept_.load(std::memory_order_acquire); }
     State state() const noexcept { return state_; }
-
-    int timesPass() const noexcept { return timesPassed(); }  // for backward compatibility only - to be removed soon
 
     virtual bool hasAccumulator() const noexcept = 0;
 
@@ -256,10 +245,12 @@ namespace edm {
     virtual bool implDoStreamBegin(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoStreamEnd(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoEnd(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoWrite(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoBegin(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoStreamBegin(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoStreamEnd(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoEnd(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoWrite(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
 
     void resetModuleDescription(ModuleDescription const*);
 
@@ -289,29 +280,17 @@ namespace edm {
                                 bool isTryToContinue) const noexcept;
     void checkForShouldTryToContinue(ModuleDescription const&);
 
-    template <bool IS_EVENT>
     bool setPassed() {
-      if (IS_EVENT) {
-        timesPassed_.fetch_add(1, std::memory_order_relaxed);
-      }
       state_ = Pass;
       return true;
     }
 
-    template <bool IS_EVENT>
     bool setFailed() {
-      if (IS_EVENT) {
-        timesFailed_.fetch_add(1, std::memory_order_relaxed);
-      }
       state_ = Fail;
       return false;
     }
 
-    template <bool IS_EVENT>
     std::exception_ptr setException(std::exception_ptr iException) {
-      if (IS_EVENT) {
-        timesExcept_.fetch_add(1, std::memory_order_relaxed);
-      }
       cached_exception_ = iException;  // propagate_const<T> has no reset() function
       state_ = Exception;
       return cached_exception_;
@@ -486,7 +465,7 @@ namespace edm {
     };
 
     template <typename DUMMY>
-    class AcquireTask<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>, DUMMY> : public WaitingTask {
+    class AcquireTask<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>, DUMMY> : public WaitingTask {
     public:
       AcquireTask(Worker* worker,
                   EventTransitionInfo const& eventTransitionInfo,
@@ -566,11 +545,6 @@ namespace edm {
       ParentContext const m_parentContext;
     };
 
-    std::atomic<int> timesRun_;
-    std::atomic<int> timesVisited_;
-    std::atomic<int> timesPassed_;
-    std::atomic<int> timesFailed_;
-    std::atomic<int> timesExcept_;
     std::atomic<State> state_;
     int numberOfPathsOn_;
     std::atomic<int> numberOfPathsLeftToRun_;
@@ -593,17 +567,27 @@ namespace edm {
   };
   namespace workerhelper {
     template <>
-    class CallImpl<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>> {
+    class CallImpl<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>> {
     public:
-      typedef OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin> Arg;
+      typedef OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin> Arg;
       static bool call(Worker* iWorker,
                        StreamID,
                        EventTransitionInfo const& info,
-                       ActivityRegistry* /* actReg */,
-                       ModuleCallingContext const* mcc,
-                       Arg::Context const* /* context*/) {
-        //Signal sentry is handled by the module
-        return iWorker->implDo(info, mcc);
+                       ActivityRegistry* actReg,
+                       ModuleCallingContext* mcc,
+                       Arg::Context const* context) {
+        //Want postDoEvent to be called after signals are sent.
+        auto postSentry = make_sentry(iWorker, [&](auto* worker) { worker->postDoEvent(info.principal()); });
+        ModuleSignalSentry<Arg> signalSentry(actReg, context, mcc);
+        signalSentry.preModuleSignal();
+        bool returnValue;
+        {
+          ModuleCallingContextSentry mccSentry(*mcc);
+          returnValue = iWorker->implDo(info, mcc);
+          mccSentry.finished(returnValue);
+        }
+        signalSentry.postModuleSignal();
+        return returnValue;
       }
       static void esPrefetchAsync(Worker* worker,
                                   WaitingTaskHolder waitingTask,
@@ -692,16 +676,24 @@ namespace edm {
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
+        bool returnValue = true;
         if (iWorker->beginSucceeded_) {
           iWorker->beginSucceeded_ = false;
 
           ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
           cpp.preModuleSignal();
-          auto returnValue = iWorker->implDoEnd(info, mcc);
+          returnValue = iWorker->implDoEnd(info, mcc);
           cpp.postModuleSignal();
-          return returnValue;
         }
-        return true;
+        //The existence of noRunLumiSort option can shouldWriteRun() to retur kNo.
+        if (iWorker->wantsWrites() and info.principal().shouldWriteRun() != edm::RunPrincipal::ShouldWriteRun::kNo) {
+          auto sentry = signalslot::make_sentry(
+              [actReg, context, mcc]() { actReg->postModuleWriteRunSignal_.emit(*context, *mcc); });
+          actReg->preModuleWriteRunSignal_.emit(*context, *mcc);
+          returnValue = iWorker->implDoWrite(info, mcc);
+          sentry.succeeded();
+        }
+        return returnValue;
       }
       static void esPrefetchAsync(Worker* worker,
                                   WaitingTaskHolder waitingTask,
@@ -710,7 +702,9 @@ namespace edm {
                                   Transition transition) noexcept {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
-      static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsGlobalRuns(); }
+      static bool wantsTransition(Worker const* iWorker) noexcept {
+        return iWorker->wantsGlobalRuns() or iWorker->wantsWrites();
+      }
       static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
       static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept { return nullptr; }
       static SerialTaskQueue* enableGlobalQueue(Worker* iWorker) noexcept { return iWorker->globalRunsQueue(); }
@@ -820,16 +814,24 @@ namespace edm {
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
+        bool returnValue = true;
         if (iWorker->beginSucceeded_) {
           iWorker->beginSucceeded_ = false;
-
           ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
           cpp.preModuleSignal();
-          auto returnValue = iWorker->implDoEnd(info, mcc);
+          returnValue = iWorker->implDoEnd(info, mcc);
           cpp.postModuleSignal();
-          return returnValue;
         }
-        return true;
+        //The existence of noRunLumiSort option can cause shouldWriteRun() to return kNo.
+        if (iWorker->wantsWrites() and
+            info.principal().shouldWriteLumi() != edm::LuminosityBlockPrincipal::ShouldWriteLumi::kNo) {
+          auto sentry = signalslot::make_sentry(
+              [actReg, context, &mcc]() { actReg->postModuleWriteLumiSignal_.emit(*context, *mcc); });
+          actReg->preModuleWriteLumiSignal_.emit(*context, *mcc);
+          iWorker->implDoWrite(info, mcc);
+          sentry.succeeded();
+        }
+        return returnValue;
       }
       static void esPrefetchAsync(Worker* worker,
                                   WaitingTaskHolder waitingTask,
@@ -838,7 +840,9 @@ namespace edm {
                                   Transition transition) noexcept {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
-      static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsGlobalLuminosityBlocks(); }
+      static bool wantsTransition(Worker const* iWorker) noexcept {
+        return iWorker->wantsGlobalLuminosityBlocks() or iWorker->wantsWrites();
+      }
       static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
       static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept { return nullptr; }
       static SerialTaskQueue* enableGlobalQueue(Worker* iWorker) noexcept {
@@ -908,7 +912,7 @@ namespace edm {
       using Arg = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionProcessBlockInput>;
       static bool call(Worker* iWorker,
                        StreamID,
-                       ProcessBlockTransitionInfo const& info,
+                       InputProcessBlockTransitionInfo const& info,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
@@ -918,8 +922,11 @@ namespace edm {
         cpp.postModuleSignal();
         return returnValue;
       }
-      static void esPrefetchAsync(
-          Worker*, WaitingTaskHolder, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) noexcept {}
+      static void esPrefetchAsync(Worker*,
+                                  WaitingTaskHolder,
+                                  ServiceToken const&,
+                                  InputProcessBlockTransitionInfo const&,
+                                  Transition) noexcept {}
       static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsInputProcessBlocks(); }
       static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
       static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept { return nullptr; }
@@ -997,9 +1004,6 @@ namespace edm {
     bool workStarted = workStarted_.compare_exchange_strong(expected, true);
 
     waitingTasks_.add(task);
-    if constexpr (T::isEvent_) {
-      timesVisited_.fetch_add(1, std::memory_order_relaxed);
-    }
 
     if (workStarted) {
       moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching, parentContext, nullptr);
@@ -1082,11 +1086,11 @@ namespace edm {
     if (iEPtr) {
       if (shouldRethrowException(iEPtr, parentContext, T::isEvent_, shouldTryToContinue_)) {
         exceptionPtr = iEPtr;
-        setException<T::isEvent_>(exceptionPtr);
+        setException(exceptionPtr);
         shouldRun = false;
       } else {
         if (not shouldTryToContinue_) {
-          setPassed<T::isEvent_>();
+          setPassed();
           shouldRun = false;
         }
       }
@@ -1173,9 +1177,6 @@ namespace edm {
     //  ++timesVisited_;
     //}
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-    if constexpr (T::isEvent_) {
-      timesRun_.fetch_add(1, std::memory_order_relaxed);
-    }
 
     bool rc = true;
     try {
@@ -1184,19 +1185,19 @@ namespace edm {
             this, streamID, transitionInfo, actReg_.get(), &moduleCallingContext_, context);
 
         if (rc) {
-          setPassed<T::isEvent_>();
+          setPassed();
         } else {
-          setFailed<T::isEvent_>();
+          setFailed();
         }
       });
     } catch (cms::Exception& ex) {
       edm::exceptionContext(ex, moduleCallingContext_);
       if (shouldRethrowException(std::current_exception(), parentContext, T::isEvent_, shouldTryToContinue_)) {
         assert(not cached_exception_);
-        setException<T::isEvent_>(std::current_exception());
+        setException(std::current_exception());
         std::rethrow_exception(cached_exception_);
       } else {
-        rc = setPassed<T::isEvent_>();
+        rc = setPassed();
       }
     }
 
@@ -1208,7 +1209,6 @@ namespace edm {
                                                StreamID streamID,
                                                ParentContext const& parentContext,
                                                typename T::Context const* context) noexcept {
-    timesVisited_.fetch_add(1, std::memory_order_relaxed);
     std::exception_ptr prefetchingException;  // null because there was no prefetching to do
     return runModuleAfterAsyncPrefetch<T>(prefetchingException, transitionInfo, streamID, parentContext, context);
   }

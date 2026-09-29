@@ -26,3 +26,9 @@ echo "running cmsRun test_exceptionAtGlobalBeginRun_cfg.py"
 
 echo "running cmsRun  test_exceptionInShortLumi_cfg.py"
 cmsRun ${LOCAL_TEST_DIR}/test_exceptionInShortLumi_cfg.py; test_failure "test_exceptionInShortLumi_cfg.py failed" $?
+
+echo "running cmsRun test_exceptionAcquire_cfg.py"
+cmsRun ${LOCAL_TEST_DIR}/test_exceptionAcquire_cfg.py >& test_exceptionAcquire.log  ||  test_failure "test_exceptionAcquire_cfg.py failed" $?
+grep 'TrigReport          1          1          0          0          1 fail' test_exceptionAcquire.log || die "test_exceptionAcquire_cfg.py failed, no fail in TrigReport" $?
+grep "Intentional 'NotFound' exception for testing purposes" test_exceptionAcquire.log || die "test_exceptionAcquire_cfg.py failed, no exception message" $?
+grep -e "++++++++ finished: processing event acquire for module: stream = [0,1] label = 'fail' id = 3" test_exceptionAcquire.log || die "test_exceptionAcquire_cfg.py failed, no finished message" $?

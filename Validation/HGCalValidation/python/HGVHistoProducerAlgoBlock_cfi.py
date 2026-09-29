@@ -67,6 +67,10 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     minScore = cms.double(0.),
     maxScore = cms.double(1.02),
     nintScore = cms.int32(51),
+    maxRecoToSimScoreForNonFake = cms.double(0.6),
+    maxRecoToSimScoreForMerge = cms.double(0.6),
+    maxSimToRecoScoreForPurity = cms.double(0.2),
+    maxSimToRecoScoreForDuplicate = cms.double(0.2),
 
     #Parameters for shared energy fraction. That is:
     #1. Fraction of each of the layer clusters energy related to a

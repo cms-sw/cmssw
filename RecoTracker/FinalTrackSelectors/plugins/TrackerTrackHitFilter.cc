@@ -1034,7 +1034,7 @@ namespace reco {
           const TransientTrackingRecHit::ConstRecHitPointer &hitpointer = meas.recHit();
           if (hitpointer->isValid()) {
             const TrackingRecHit *hit = (*hitpointer).hit();
-            if (GeomDetEnumerators::isTrackerPixel(
+            if (GeomDetEnumerators::isInnerTracker(
                     theGeometry->geomDetSubDetector(hit->geographicalId().subdetId()))) {  //do it only for pixel hits
               corrcharge_ok = false;
               float clust_alpha = atan2(mom_z, mom_x);

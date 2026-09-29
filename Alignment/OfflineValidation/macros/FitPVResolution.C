@@ -115,16 +115,16 @@ namespace statmode {
   using fitParams = std::pair<std::pair<double, double>, std::pair<double, double> >;
 }
 
-Int_t def_markers[9] = {kFullSquare,
-                        kFullCircle,
-                        kFullTriangleDown,
-                        kOpenSquare,
-                        kDot,
-                        kOpenCircle,
-                        kFullTriangleDown,
-                        kFullTriangleUp,
-                        kOpenTriangleDown};
-Int_t def_colors[9] = {kBlack, kRed, kBlue, kMagenta, kGreen, kCyan, kViolet, kOrange, kGreen + 2};
+constexpr Int_t def_markers[9] = {kFullSquare,
+                                  kFullCircle,
+                                  kFullTriangleDown,
+                                  kOpenSquare,
+                                  kDot,
+                                  kOpenCircle,
+                                  kFullTriangleDown,
+                                  kFullTriangleUp,
+                                  kOpenTriangleDown};
+constexpr Int_t def_colors[9] = {kBlack, kRed, kBlue, kMagenta, kGreen, kCyan, kViolet, kOrange, kGreen + 2};
 
 // auxilliary functions
 void setPVResolStyle();

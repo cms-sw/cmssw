@@ -1,7 +1,18 @@
+<library file="plugins/*.cc" name="testPerfToolsAllocMonitorAllocProducers">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Concurrency"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/TestObjects"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <bin file="test_catch2_*.cc" name="testPerfToolsAllocMonitorCatch2">
   <use name="PerfTools/AllocMonitor"/>
   <use name="catch2"/>
 </bin>
+
+<test name="TestPerfToolsModuleAllocMonitorAnalyze" command="edmModuleAllocMonitorAnalyze.py -T"/>
 
 <ifrelease name="!ASAN">
   <bin file="test_proxies.cc" name="testAllocMonitorPreload">

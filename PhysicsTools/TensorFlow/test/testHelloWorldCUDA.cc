@@ -55,7 +55,7 @@ process.add_(cms.Service('CUDAService'))
   tensorflow::Backend backend = tensorflow::Backend::cuda;
 
   // object to load and run the graph / session
-  tensorflow::Status status;
+  absl::Status status;
   tensorflow::Options options{backend};
   tensorflow::RunOptions runOptions;
   tensorflow::SavedModelBundle bundle;

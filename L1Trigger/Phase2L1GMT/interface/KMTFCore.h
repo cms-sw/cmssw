@@ -2,6 +2,8 @@
 Kalman Filter L1 Muon algorithm
 Tyler Lam (UCLA)
 Sep. 2021
+Delano Campos (UCLA)
+Feb. 2026
 */
 #ifndef L1Trigger_Phase2L1GMT_KMTFCore_h
 #define L1Trigger_Phase2L1GMT_KMTFCore_h
@@ -16,12 +18,25 @@ namespace Phase2L1GMT {
   class KMTFCore {
   public:
     typedef ROOT::Math::SVector<double, 2> Vector2;
+    typedef ROOT::Math::SVector<double, 3> Vector3;
+    typedef ROOT::Math::SVector<double, 4> Vector4;
     typedef ROOT::Math::SMatrix<double, 2, 2, ROOT::Math::MatRepSym<double, 2> > CovarianceMatrix2;
+    typedef ROOT::Math::SMatrix<double, 3, 3, ROOT::Math::MatRepSym<double, 3> > CovarianceMatrix3;
+    typedef ROOT::Math::SMatrix<double, 4, 4, ROOT::Math::MatRepSym<double, 4> > CovarianceMatrix4;
     typedef ROOT::Math::SMatrix<double, 3, 2> Matrix32;
+    typedef ROOT::Math::SMatrix<double, 5, 3> Matrix53;
     typedef ROOT::Math::SMatrix<double, 2, 3> Matrix23;
+    typedef ROOT::Math::SMatrix<double, 4, 5> Matrix45;
+    typedef ROOT::Math::SMatrix<double, 5, 4> Matrix54;
     typedef ROOT::Math::SMatrix<double, 1, 3> Matrix13;
+    typedef ROOT::Math::SMatrix<double, 3, 5> Matrix35;
     typedef ROOT::Math::SMatrix<double, 3, 1> Matrix31;
     typedef ROOT::Math::SMatrix<double, 3, 3> Matrix33;
+    typedef ROOT::Math::SMatrix<double, 5, 5> Matrix55;
+    typedef ROOT::Math::SMatrix<double, 1, 5> Matrix15;
+    typedef ROOT::Math::SMatrix<double, 5, 1> Matrix51;
+    typedef ROOT::Math::SMatrix<double, 5, 2> Matrix52;
+    typedef ROOT::Math::SMatrix<double, 2, 5> Matrix25;
 
     KMTFCore(const edm::ParameterSet& settings);
 
@@ -44,12 +59,14 @@ namespace Phase2L1GMT {
     void vertexConstraintOffline(l1t::KMTFTrack& track);
     void vertexConstraintLUT(l1t::KMTFTrack& track);
     int hitPattern(const l1t::KMTFTrack& track);
+    int thetaDigiPattern(const l1t::KMTFTrack& track);
     int customBitmask(unsigned int bit1, unsigned int bit2, unsigned int bit3, unsigned int bit4);
     bool getBit(int bitmask, int pos);
     void setFourVectors(l1t::KMTFTrack& track);
     bool estimateChiSquare(l1t::KMTFTrack& track, bool vertex);
     void setRank(l1t::KMTFTrack& track, bool vertex);
     int wrapAround(int value, int maximum);
+    int satKSlope(int k);
     int encode(bool ownwheel, int sector, int tag);
     std::pair<bool, uint> getByCode(const std::vector<l1t::KMTFTrack>& tracks, int mask);
     uint twosCompToBits(int q);
@@ -115,9 +132,13 @@ namespace Phase2L1GMT {
     //bits for fixed point precision
     static const int PHIBSCALE = 16;
     static const int PHIBSCALE_INT = 5;
+    static const int ZDELTAR_BITS = 14;
+    static const int ZDELTAR_BITSINT = 1;
     static const int BITSCURV = 16;
     static const int BITSPHI = 18;
     static const int BITSPHIB = 17;  // 12 bits *28 (+5 bits)
+    static const int BITSZ = 16;
+    static const int BITSKSLOPE = 16;
     static const int BITSPARAM = 14;
     static const int GAIN_0 = 9;
     static const int GAIN_0INT = 6;
@@ -134,12 +155,26 @@ namespace Phase2L1GMT {
     static const int GAIN2_4INT = 4;
     static const int GAIN2_5 = 12;
     static const int GAIN2_5INT = 0;
+
+    static const int GAINT_6 = 12;  //new theta view gain bits.
+    static const int GAINT_6INT = 3;
+    static const int GAINT_7 = 12;
+    static const int GAINT_7INT = 3;
+    static const int GAINT_8 = 12;
+    static const int GAINT_8INT = 3;
+    static const int GAINT_9 = 12;
+    static const int GAINT_9INT = 3;
     //STUFF NOT USED IN THE FIRMWARE BUT ONLY FOR DEBUGGING
     ///////////////////////////////////////////////////////
 
     bool useOfflineAlgo_;
+    //used for z propagation
+    std::vector<double> zdeltaR_;
+    //multiple scattering constants used in multiple scattering matrix to build RMS values
     std::vector<double> mScatteringPhi_;
     std::vector<double> mScatteringPhiB_;
+    std::vector<double> mScatteringz_;
+    std::vector<double> mScatteringkSlope_;
     //point resolution for phi
     double pointResolutionPhi_;
     //point resolution for phiB
@@ -149,6 +184,10 @@ namespace Phase2L1GMT {
     //double pointResolutionPhiB_;
     //point resolution for vertex
     double pointResolutionVertex_;
+    // point resolution for z
+    std::vector<double> pointResolutionz_;
+    // point resolution for kSlope
+    std::vector<double> pointResolutionkSlope_;
     std::vector<double> curvResolution1_;
     std::vector<double> curvResolution2_;
     //Sorter

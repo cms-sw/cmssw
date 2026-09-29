@@ -51,18 +51,9 @@ phase2OTRecHitsSoAConverter = _phase2OTRecHitsSoAConverter.clone(
     pixelRecHitSoASource = "siPixelRecHitsPreSplittingAlpaka"
 )
 
-from RecoLocalTracker.SiPixelRecHits.siPixelRecHitExtendedAlpaka_cfi import siPixelRecHitExtendedAlpaka as _siPixelRecHitExtendedAlpaka
-siPixelRecHitsExtendedPreSplittingAlpaka = _siPixelRecHitExtendedAlpaka.clone(
-    pixelRecHitsSoA = "siPixelRecHitsPreSplittingAlpaka",
-    trackerRecHitsSoA = "phase2OTRecHitsSoAConverter"
-)
-
 # Hit SoA producer on the cpu, for validation
 siPixelRecHitsPreSplittingAlpakaSerial = makeSerialClone(siPixelRecHitsPreSplittingAlpaka,
                                                          src = "siPixelClustersPreSplittingAlpakaSerial")
-
-siPixelRecHitsExtendedPreSplittingAlpakaSerial = makeSerialClone(siPixelRecHitsExtendedPreSplittingAlpaka,
-                                                                pixelRecHitsSoA = "siPixelClustersPreSplittingAlpakaSerial")
 
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromSoAAlpaka_cfi import siPixelRecHitFromSoAAlpaka as _siPixelRecHitFromSoAAlpaka
 
@@ -89,7 +80,5 @@ phase2CAExtension.toReplaceWith(siPixelRecHitsPreSplittingTask, cms.Task(
     siPixelRecHitsPreSplittingAlpaka,
     siPixelRecHitsPreSplittingAlpakaSerial,    
     phase2OTRecHitsSoAConverter,
-    siPixelRecHitsExtendedPreSplittingAlpaka,
-    siPixelRecHitsExtendedPreSplittingAlpakaSerial,
     siPixelRecHitsPreSplitting
 ))

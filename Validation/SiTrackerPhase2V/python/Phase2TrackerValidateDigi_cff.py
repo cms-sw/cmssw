@@ -4,7 +4,7 @@ from Validation.SiTrackerPhase2V.Phase2TrackerValidateDigi_cfi import *
 
 pixDigiValid = digiValid.clone()
 pixDigiValid.PixelPlotFillingFlag = cms.bool(True)
-pixDigiValid.TopFolderName = cms.string("TrackerPhase2ITDigi")
+pixDigiValid.TopFolderName = cms.string("TrackerPhase2ITDigiV")
 pixDigiValid.XYPositionMapH = cms.PSet(
     Nxbins = cms.int32(340),
     xmin   = cms.double(-170.),
@@ -32,7 +32,7 @@ pixDigiValid.TOFZMapH = cms.PSet(
 
 otDigiValid = digiValid.clone()
 otDigiValid.PixelPlotFillingFlag = cms.bool(False)
-otDigiValid.TopFolderName = cms.string("TrackerPhase2OTDigi")
+otDigiValid.TopFolderName = cms.string("TrackerPhase2OTDigiV")
 otDigiValid.XYPositionMapH = cms.PSet(
     Nxbins = cms.int32(625),
     xmin   = cms.double(-1250.),

@@ -182,13 +182,18 @@ namespace edm::streamer {
     std::cout.flush();
   }
 
-  void dumpEventView(const EventMsgView* eview) {
+  void dumpEventView(const EventMsgView* eview, const SendEvent* sendEvent) {
     dumpEventHeader(eview);
     //const uint8* edata = eview->eventData();
     //std::cout << "\nevent data=\n(";
     //std::copy(&edata[0],&edata[0]+eview->eventLength(),
     //     std::ostream_iterator<char>(std::cout,""));
     //std::cout << ")\n";
+    if (sendEvent) {
+      auto history = sendEvent->processHistory();
+      history.reduce();
+      std::cout << "\nReduced ProcessHistory ID=" << history.id() << "\n";
+    }
     std::cout.flush();
   }
 

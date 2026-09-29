@@ -36,12 +36,11 @@ public:
                                 const std::shared_ptr<OMTFinput>& input,
                                 const AlgoMuons& algoCandidates,
                                 const AlgoMuons& gbCandidates,
-                                const std::vector<l1t::RegionalMuonCand>& candMuons) override;
+                                const FinalMuons& finalMuons) override;
 
   void observeEventBegin(const edm::Event& iEvent) override;
 
-  void observeEventEnd(const edm::Event& iEvent,
-                       std::unique_ptr<l1t::RegionalMuonCandBxCollection>& finalCandidates) override;
+  void observeEventEnd(const edm::Event& iEvent, FinalMuons& finalMuons) override;
 
   void endJob() override;
 

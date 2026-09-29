@@ -10,7 +10,7 @@
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESProducts.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
@@ -35,7 +35,7 @@
 
 //---------------------------------------------------------------------------------------------
 
-class PPSAlignmentConfigurationESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class PPSAlignmentConfigurationESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   PPSAlignmentConfigurationESSource(const edm::ParameterSet& iConfig);
 
@@ -46,10 +46,6 @@ private:
   TDirectory* findDirectoryWithName(TDirectory* dir, std::string searchName);
   std::vector<PPSAlignmentConfiguration::PointErrors> buildVectorFromDirectory(
       TDirectory* dir, const PPSAlignmentConfiguration::RPConfig& rpd);
-
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey& key,
-                      const edm::IOVSyncValue& iosv,
-                      edm::ValidityInterval& oValidity) override;
 
   bool debug;
 
@@ -656,18 +652,6 @@ std::vector<PPSAlignmentConfiguration::PointErrors> PPSAlignmentConfigurationESS
   }
 
   return pv;
-}
-
-//---------------------------------------------------------------------------------------------
-
-void PPSAlignmentConfigurationESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& key,
-                                                       const edm::IOVSyncValue& iosv,
-                                                       edm::ValidityInterval& oValidity) {
-  edm::LogInfo("PPS") << ">> PPSAlignmentConfigurationESSource::setIntervalFor(" << key.name() << ")\n"
-                      << "    run=" << iosv.eventID().run() << ", event=" << iosv.eventID().event();
-
-  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
-  oValidity = infinity;
 }
 
 DEFINE_FWK_EVENTSETUP_SOURCE(PPSAlignmentConfigurationESSource);

@@ -181,16 +181,21 @@ namespace edm::rntuple_temp {
       std::unordered_map<unsigned int, std::unique_ptr<edm::WrapperBase>>& iFields) const {
     LogTrace("IOTrace").format("RootRNTuple::getEntryForAllBranches() begin for entry {}", entryNumber_);
     oneapi::tbb::this_task_arena::isolate([&]() {
-      auto entry = reader_->GetModel().CreateEntry();
+      if (not promptReadEntry_) {
+        //we delay create call to here as doing it in construction before RootFile
+        // fills all EventIDs lead to reading of entire Event rather than just the EventAux.
+        promptReadEntry_ = reader_->GetModel().CreateEntry();
+      }
+
       for (auto& iField : iFields) {
         auto const& prod = branches_.find(iField.first);
         if (prod == nullptr or not prod->valid()) {
           continue;
         }
         iField.second = prod->newWrapper();
-        entry->BindRawPtr(prod->token(), reinterpret_cast<void*>(iField.second.get()));
+        promptReadEntry_->BindRawPtr(prod->token(), reinterpret_cast<void*>(iField.second.get()));
       }
-      reader_->LoadEntry(entryNumber_, *entry);
+      reader_->LoadEntry(entryNumber_, *promptReadEntry_);
     });
     LogTrace("IOTrace").format("RootRNTuple::getEntryForAllBranches() end for entry {}", entryNumber_);
   }

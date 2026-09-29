@@ -1,0 +1,11 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/PluginManager"/>
+<use name="DataFormats/ForwardDetId"/>
+<use name="Geometry/MTDGeometryBuilder"/>
+<use name="CondFormats/MTDObjects"/>
+<use name="CondFormats/DataRecord"/>
+<use name="EventFilter/MTDRawToDigi"/>
+<library name="EventFilterMTDRawToDigiPlugins" file="*.cc">
+  <flags EDM_PLUGIN="1"/>
+</library>

@@ -750,7 +750,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable,
 
   // This boolean array tells for which detector modules to plot split DMR plots
   // They are plotted for BPIX, FPIX, TIB and TOB
-  static bool plotSplitsFor[6] = {true, true, true, false, true, false};
+  static constexpr bool plotSplitsFor[6] = {true, true, true, false, true, false};
 
   DMRPlotInfo plotinfo;
 

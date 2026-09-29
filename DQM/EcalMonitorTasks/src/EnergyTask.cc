@@ -8,10 +8,11 @@
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 
 namespace ecaldqm {
-  EnergyTask::EnergyTask() : DQWorkerTask(), isPhysicsRun_(false) {}
+  EnergyTask::EnergyTask() : DQWorkerTask(), isPhysicsRun_(false), doEndcaps_(true) {}
 
   void EnergyTask::setParams(edm::ParameterSet const& _params) {
     isPhysicsRun_ = _params.getUntrackedParameter<bool>("isPhysicsRun");
+    doEndcaps_ = _params.getUntrackedParameter<bool>("doEndcaps");
   }
 
   bool EnergyTask::filterRunType(short const* _runType) {

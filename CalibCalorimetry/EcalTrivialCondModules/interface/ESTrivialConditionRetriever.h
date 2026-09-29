@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 
 #include "CondFormats/ESObjects/interface/ESPedestals.h"
 #include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
@@ -37,33 +37,27 @@ namespace edm {
   class ParameterSet;
 }
 
-class ESTrivialConditionRetriever : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class ESTrivialConditionRetriever : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  ESTrivialConditionRetriever(const edm::ParameterSet& pset);
+  explicit ESTrivialConditionRetriever(const edm::ParameterSet& pset);
   ESTrivialConditionRetriever(const ESTrivialConditionRetriever&) = delete;                   // stop default
   const ESTrivialConditionRetriever& operator=(const ESTrivialConditionRetriever&) = delete;  // stop default
   ~ESTrivialConditionRetriever() override;
 
   // ---------- member functions ---------------------------
-  virtual std::unique_ptr<ESPedestals> produceESPedestals(const ESPedestalsRcd&);
-  virtual std::unique_ptr<ESWeightStripGroups> produceESWeightStripGroups(const ESWeightStripGroupsRcd&);
-  virtual std::unique_ptr<ESIntercalibConstants> produceESIntercalibConstants(const ESIntercalibConstantsRcd&);
+  std::unique_ptr<ESPedestals> produceESPedestals(const ESPedestalsRcd&);
+  std::unique_ptr<ESWeightStripGroups> produceESWeightStripGroups(const ESWeightStripGroupsRcd&);
+  std::unique_ptr<ESIntercalibConstants> produceESIntercalibConstants(const ESIntercalibConstantsRcd&);
 
-  //  virtual std::unique_ptr<ESIntercalibErrors> produceESIntercalibErrors( const ESIntercalibErrorsRcd& );
-  //  virtual std::unique_ptr<ESIntercalibErrors>  getIntercalibErrorsFromConfiguration ( const ESIntercalibErrorsRcd& ) ;
+  //  std::unique_ptr<ESIntercalibErrors> produceESIntercalibErrors( const ESIntercalibErrorsRcd& );
+  //  std::unique_ptr<ESIntercalibErrors>  getIntercalibErrorsFromConfiguration ( const ESIntercalibErrorsRcd& ) ;
 
-  virtual std::unique_ptr<ESADCToGeVConstant> produceESADCToGeVConstant(const ESADCToGeVConstantRcd&);
-  virtual std::unique_ptr<ESTBWeights> produceESTBWeights(const ESTBWeightsRcd&);
-  //  virtual std::unique_ptr<ESIntercalibConstants>  getIntercalibConstantsFromConfiguration ( const ESIntercalibConstantsRcd& ) ;
+  std::unique_ptr<ESADCToGeVConstant> produceESADCToGeVConstant(const ESADCToGeVConstantRcd&);
+  std::unique_ptr<ESTBWeights> produceESTBWeights(const ESTBWeightsRcd&);
+  //  std::unique_ptr<ESIntercalibConstants>  getIntercalibConstantsFromConfiguration ( const ESIntercalibConstantsRcd& ) ;
 
-  virtual std::unique_ptr<ESChannelStatus> produceESChannelStatus(const ESChannelStatusRcd&);
-  virtual std::unique_ptr<ESChannelStatus> getChannelStatusFromConfiguration(const ESChannelStatusRcd&);
-
-protected:
-  //overriding from ContextRecordIntervalFinder
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
+  std::unique_ptr<ESChannelStatus> produceESChannelStatus(const ESChannelStatusRcd&);
+  std::unique_ptr<ESChannelStatus> getChannelStatusFromConfiguration(const ESChannelStatusRcd&);
 
 private:
   void getWeightsFromConfiguration(const edm::ParameterSet& ps);

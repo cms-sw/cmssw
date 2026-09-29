@@ -43,7 +43,7 @@ DEFINE_FWK_MODULE(PFTICLProducer);
 PFTICLProducer::PFTICLProducer(const edm::ParameterSet& conf)
     : useMTDTiming_(conf.getParameter<bool>("useMTDTiming")),
       useTimingAverage_(conf.getParameter<bool>("useTimingAverage")),
-      timingQualityThreshold_(conf.getParameter<double>("timingQualityThreshold")),
+      timingQualityThreshold_(conf.getParameter<float>("timingQualityThreshold")),
       energy_from_regression_(conf.getParameter<bool>("energyFromRegression")),
       ticl_candidates_(consumes<edm::View<TICLCandidate>>(conf.getParameter<edm::InputTag>("ticlCandidateSrc"))),
       muons_(consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
@@ -59,7 +59,7 @@ void PFTICLProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<edm::InputTag>("trackTimeErrorMap", edm::InputTag("tofPID:sigmat0"));
   desc.add<edm::InputTag>("trackTimeQualityMap", edm::InputTag("mtdTrackQualityMVA:mtdQualMVA"));
   desc.add<bool>("energyFromRegression", true);
-  desc.add<double>("timingQualityThreshold", 0.5);
+  desc.add<float>("timingQualityThreshold", 0.5);
   desc.add<bool>("useMTDTiming", true);
   desc.add<bool>("useTimingAverage", false);
   // For PFMuonAlgo
@@ -92,7 +92,7 @@ void PFTICLProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       total_raw_energy += t->raw_energy();
       total_em_raw_energy += t->raw_em_energy();
     }
-    float ecal_energy_fraction = total_em_raw_energy / total_raw_energy;
+    float ecal_energy_fraction = (total_raw_energy > 0.f) ? (total_em_raw_energy / total_raw_energy) : 0.f;
     float ecal_energy = energy_from_regression_ ? ticl_cand.p4().energy() * ecal_energy_fraction
                                                 : ticl_cand.rawEnergy() * ecal_energy_fraction;
     float hcal_energy =

@@ -144,3 +144,75 @@ edm::EventID CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon::nextLS(const edm:
 
   return edm::EventID(src.run(), src.luminosityBlock() + 1, src.event());
 }
+
+//----------------------------------------------------------------------------------------------------
+const CTPPSRPAlignmentCorrectionsData *CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon::dataFor(
+    edm::IOVSyncValue const &iosv, CTPPSRPAlignmentCorrectionsDataSequence const &seq) {
+  const edm::EventID &event_curr = iosv.eventID();
+
+  for (const auto &it : seq) {
+    const auto &it_event_first = it.first.first().eventID();
+    const auto &it_event_last = it.first.last().eventID();
+
+    bool it_contained_lo = ((it_event_first.run() < event_curr.run()) ||
+                            ((it_event_first.run() == event_curr.run()) &&
+                             (it_event_first.luminosityBlock() <= event_curr.luminosityBlock())));
+
+    bool it_contained_up = ((it_event_last.run() > event_curr.run()) ||
+                            ((it_event_last.run() == event_curr.run()) &&
+                             (it_event_last.luminosityBlock() >= event_curr.luminosityBlock())));
+
+    if (it_contained_lo && it_contained_up) {
+      return &it.second;
+    }
+  }
+  return nullptr;
+}
+//----------------------------------------------------------------------------------------------------
+edm::ValidityInterval CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon::intervalFor(
+    edm::IOVSyncValue const &iosv, CTPPSRPAlignmentCorrectionsDataSequence const &seq, bool verbosity) {
+  // // find the corresponding interval
+  bool next_exists = false;
+  const edm::EventID &event_curr = iosv.eventID();
+  edm::EventID event_next_start(edm::EventID::maxRunNumber(), edm::EventID::maxLuminosityBlockNumber(), 1);
+
+  for (const auto &it : seq) {
+    const auto &it_event_first = it.first.first().eventID();
+    const auto &it_event_last = it.first.last().eventID();
+
+    bool it_contained_lo = ((it_event_first.run() < event_curr.run()) ||
+                            ((it_event_first.run() == event_curr.run()) &&
+                             (it_event_first.luminosityBlock() <= event_curr.luminosityBlock())));
+
+    bool it_contained_up = ((it_event_last.run() > event_curr.run()) ||
+                            ((it_event_last.run() == event_curr.run()) &&
+                             (it_event_last.luminosityBlock() >= event_curr.luminosityBlock())));
+
+    if (it_contained_lo && it_contained_up) {
+      auto valInt = it.first;
+
+      if (verbosity) {
+        edm::LogInfo("PPS") << "    setting validity interval ["
+                            << CTPPSRPAlignmentCorrectionsMethods::iovValueToString(valInt.first()) << ", "
+                            << CTPPSRPAlignmentCorrectionsMethods::iovValueToString(valInt.last()) << "]";
+      }
+      return valInt;
+    }
+
+    bool it_in_future = ((it_event_first.run() > event_curr.run()) ||
+                         ((it_event_first.run() == event_curr.run() &&
+                           (it_event_first.luminosityBlock() > event_curr.luminosityBlock()))));
+
+    if (it_in_future) {
+      next_exists = true;
+      if (event_next_start > it_event_first)
+        event_next_start = it_event_first;
+    }
+  }
+
+  if (!next_exists) {
+    return edm::ValidityInterval(iosv, iosv.endOfTime());
+  }
+  const edm::EventID &event_last = previousLS(event_next_start);
+  return edm::ValidityInterval(iosv, edm::IOVSyncValue(event_last));
+}

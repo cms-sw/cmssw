@@ -2,14 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 hltInitialStepTracks = cms.EDProducer("TrackProducer",
     AlgorithmName = cms.string('initialStep'),
-    Fitter = cms.string('FlexibleKFFittingSmoother'),
+    Fitter = cms.string('hltESPFlexibleKFFittingSmoother'),
     GeometricInnerState = cms.bool(False),
-    MeasurementTracker = cms.string(''),
+    MeasurementTracker = cms.string('hltESPMeasurementTracker'),
     MeasurementTrackerEvent = cms.InputTag("hltMeasurementTrackerEvent"),
     NavigationSchool = cms.string('SimpleNavigationSchool'),
-    Propagator = cms.string('RungeKuttaTrackerPropagator'),
+    Propagator = cms.string('hltESPRungeKuttaTrackerPropagator'),
     SimpleMagneticField = cms.string(''),
-    TTRHBuilder = cms.string('WithTrackAngle'),
+    TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
     TrajectoryInEvent = cms.bool(False),
     beamSpot = cms.InputTag("hltOnlineBeamSpot"),
     clusterRemovalInfo = cms.InputTag(""),
@@ -18,6 +18,8 @@ hltInitialStepTracks = cms.EDProducer("TrackProducer",
     useSimpleMF = cms.bool(False)
 )
 
+from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
+mtd_at_hlt.toModify(hltInitialStepTracks, TrajectoryInEvent = True)
 
 _hltInitialStepTracksMkFitFit = cms.EDProducer("MkFitOutputTrackConverter",
     mkFitEventOfHits = cms.InputTag("hltMkFitEventOfHits"),
@@ -26,7 +28,7 @@ _hltInitialStepTracksMkFitFit = cms.EDProducer("MkFitOutputTrackConverter",
     mkFitSeeds = cms.InputTag("hltInitialStepMkFitSeeds"),
     src = cms.InputTag("hltInitialStepTrackCandidatesMkFitFit"),
     seeds = cms.InputTag("hltInitialStepTrajectorySeedsLST"),
-    ttrhBuilder = cms.ESInputTag('', 'WithTrackAngle'),
+    ttrhBuilder = cms.ESInputTag('', 'hltESPTTRHBuilderWithTrackAngle'),
     propagatorAlong = cms.ESInputTag('', 'PropagatorWithMaterial'),
     propagatorOpposite = cms.ESInputTag('', 'PropagatorWithMaterialOpposite'),
     qualityMaxInvPt = cms.double(100),

@@ -67,7 +67,9 @@ namespace edm {
         ->setComment("Set true to print a report on the trigger decisions and timing of modules");
     description.addUntracked<std::string>("fileMode", "FULLMERGE")
         ->setComment("Legal values are 'NOMERGE' and 'FULLMERGE'");
-    description.addUntracked<bool>("forceEventSetupCacheClearOnNewRun", false);
+    description.addObsoleteUntracked<bool>("forceEventSetupCacheClearOnNewRun")
+        ->setComment(
+            "Obsolete. Has no effect. Allowed only for backward compatibility for old Python configuration files.");
     description.addUntracked<bool>("throwIfIllegalParameter", true)
         ->setComment("Set false to disable exception throws when configuration validation detects illegal parameters");
     description.addUntracked<bool>("printDependencies", false)->setComment("Print data dependencies between modules");

@@ -27,9 +27,3 @@ CSCBadChambersConditions::ReturnType CSCBadChambersConditions::produceBadChamber
   // need a new object so to not be deleted at exit
   return CSCBadChambersConditions::ReturnType(prefillBadChambers());
 }
-
-void CSCBadChambersConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                              const edm::IOVSyncValue &,
-                                              edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}

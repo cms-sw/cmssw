@@ -16,12 +16,12 @@ namespace ticl {
         inputNames_(conf.getParameter<std::vector<std::string>>("inputNames")),
         output_en_(conf.getParameter<std::vector<std::string>>("output_en")),
         output_id_(conf.getParameter<std::vector<std::string>>("output_id")),
-        eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),
+        eidMinClusterEnergy_(conf.getParameter<float>("eid_min_cluster_energy")),
         eidNLayers_(conf.getParameter<int>("eid_n_layers")),
         eidNClusters_(conf.getParameter<int>("eid_n_clusters")),
         doPID_(conf.getParameter<int>("doPID")),
         doRegression_(conf.getParameter<int>("doRegression")),
-        miniBatchSize_(conf.getUntrackedParameter<int>("miniBatchSize", 256)) {
+        miniBatchSize_(conf.getUntrackedParameter<int>("miniBatchSize", 64)) {
     const std::string pidModel = conf.getParameter<std::string>("onnxPIDModelPath");
     const std::string energyModel = conf.getParameter<std::string>("onnxEnergyModelPath");
 
@@ -39,7 +39,7 @@ namespace ticl {
 
   void TracksterInferenceByDNN::runInference(const std::vector<reco::CaloCluster>& layerClusters,
                                              std::vector<Trackster>& tracksters,
-                                             const hgcal::RecHitTools& rhtools) const {
+                                             const ticlgeom::Tools& rhtools) const {
     if (!enabled_ || tracksters.empty()) {
       return;
     }
@@ -108,6 +108,9 @@ namespace ticl {
         for (int k : clusterIndices) {
           const unsigned int v = ts.vertices(k);
           auto const& cl = layerClusters[v];
+          if (rhtools.isBarrel(cl.seed())) {  // keep the tensor consistent with the selection loop
+            continue;
+          }
 
           const int j = rhtools.getLayerWithOffset(cl.hitsAndFractions()[0].first) - 1;
           if (j < 0 || j >= eidNLayers_) {
@@ -173,7 +176,7 @@ namespace ticl {
     iDesc.add<std::vector<std::string>>("output_en", {"enreg_output"});
     iDesc.add<std::vector<std::string>>("output_id", {"pid_output"});
 
-    iDesc.add<double>("eid_min_cluster_energy", 1.0);
+    iDesc.add<float>("eid_min_cluster_energy", 1.0);
     iDesc.add<int>("eid_n_layers", 50);
     iDesc.add<int>("eid_n_clusters", 10);
     iDesc.add<int>("doPID", 1);

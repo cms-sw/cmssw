@@ -26,18 +26,18 @@ namespace cms {
       std::ostringstream out;
       out << "\n";
       out << file << ", line " << line << ":\n";
-      out << "rsmiCheck(" << cmd << ");\n";
+      out << "RSMI_CHECK(" << cmd << ");\n";
       out << error << ": " << message << "\n";
       if (!description.empty())
         out << description << "\n";
       throw std::runtime_error(out.str());
     }
 
-    inline bool rsmiCheck_(const char* file,
-                           int line,
-                           const char* cmd,
-                           rsmi_status_t result,
-                           std::string_view description = std::string_view()) {
+    inline bool rsmiCheck(const char* file,
+                          int line,
+                          const char* cmd,
+                          rsmi_status_t result,
+                          std::string_view description = std::string_view()) {
       if (LIKELY(result == RSMI_STATUS_SUCCESS))
         return true;
 
@@ -50,6 +50,6 @@ namespace cms {
   }  // namespace rocm
 }  // namespace cms
 
-#define rsmiCheck(ARG, ...) (cms::rocm::rsmiCheck_(__FILE__, __LINE__, #ARG, (ARG), ##__VA_ARGS__))
+#define RSMI_CHECK(ARG, ...) (cms::rocm::rsmiCheck(__FILE__, __LINE__, #ARG, (ARG), ##__VA_ARGS__))
 
 #endif  // HeterogeneousCore_ROCmUtilities_rsmiCheck_h

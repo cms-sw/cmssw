@@ -46,6 +46,26 @@ premix_stage2.toReplaceWith(pdigiTask_nogen, pdigiTask_nogen.copyAndExclude([add
 
 pdigiTask = cms.Task(pdigiTask_nogen, fixGenInfoTask, tpPruningTask)
 
+# enableTruth: build the pileup-aware logical graph + unresolved hit index right
+# after mixing (they consume the mix products and run at DIGI, triggered by the
+# truth output keeps). The accumulator itself is registered in the mixing digitizers
+# (SimGeneral/MixingModule/digitizers_cfi) under the same modifier.
+from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
+# Import the producers by name (not just the Task) so process.load labels them.
+from PhysicsTools.TruthInfo.truthGraphMixedDigi_cff import (
+    truthGraphMixedDigiTask,
+    truthLogicalGraphProducer,
+    truthLogicalGraphHitIndexProducer,
+)
+_pdigiTaskBase = pdigiTask.copy()  # base without the truth build (for the premix case)
+_pdigiTaskTruth = pdigiTask.copy()
+_pdigiTaskTruth.add(truthGraphMixedDigiTask)
+enableTruth.toReplaceWith(pdigiTask, _pdigiTaskTruth)
+# Premixing has no raw pileup g4SimHits, so the accumulator (and hence the graph +
+# index build) is dropped under premix even if enableTruth is on. Applied after the
+# enableTruth line, so it wins by code order.
+premix_stage2.toReplaceWith(pdigiTask, _pdigiTaskBase)
+
 doAllDigi = cms.Sequence(doAllDigiTask)
 pdigi = cms.Sequence(pdigiTask)
 pdigi_valid = cms.Sequence(pdigiTask)
@@ -74,10 +94,18 @@ def _fastSimDigis(process):
 # no need for the aliases for premixing stage1
 modifyDigi_fastSimDigis = (fastSim & ~premix_stage1).makeProcessModifier(_fastSimDigis)
 
+from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+def _fastSimDigisGEM(process):
+    from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliasesGEM
+    loadDigiAliasesGEM(process)
+modifyDigi_fastSimDigisGEM = (fastSim & (run2_GEM_2017 | run3_GEM) & ~premix_stage1).makeProcessModifier(_fastSimDigisGEM)
+
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 def _fastSimDigisHGCal(process):
     from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliasesHGCal
-modifyDigi_fastSimDigisHGCal = (fastSim & phase2_hgcal).makeProcessModifier(_fastSimDigisHGCal)
+    loadDigiAliasesHGCal(process)
+modifyDigi_fastSimDigisHGCal = (fastSim & phase2_hgcal & ~premix_stage1).makeProcessModifier(_fastSimDigisHGCal)
 
 #phase 2 common mods
 def _modifyEnableHcalHardcode( theProcess ):

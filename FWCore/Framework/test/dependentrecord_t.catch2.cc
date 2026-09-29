@@ -10,6 +10,7 @@
 #include "FWCore/Framework/test/DummyRecord.h"
 #include "FWCore/Framework/test/Dummy2Record.h"
 #include "FWCore/Framework/test/DepRecord.h"
+#include "FWCore/Framework/test/DepOnDepRecord.h"
 #include "FWCore/Framework/test/DepOn2Record.h"
 #include "FWCore/Framework/test/DummyFinder.h"
 #include "FWCore/Framework/test/DummyData.h"
@@ -24,7 +25,9 @@
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
+#include "FWCore/Framework/interface/SupportingRecordIntervalFinderHelper.h"
 #include "FWCore/Framework/src/SynchronousEventSetupsController.h"
+#include "FWCore/Framework/src/makeFindersForRecords.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
 #include "FWCore/Framework/test/print_eventsetup_record_dependencies.h"
 #include "FWCore/Framework/interface/ESModuleProducesInfo.h"
@@ -56,6 +59,8 @@ namespace {
 }  // namespace
 
 /* The Records used in the test have the following dependencies
+   DepOnDepRecord -----> DepRecord
+                
    DepRecord -----> DummyRecord
                 /
    DepOn2Record---> Dummy2Record
@@ -82,6 +87,19 @@ namespace {
   class DepRecordResolverProvider : public edm::eventsetup::ESProductResolverProvider {
   public:
     DepRecordResolverProvider() { usingRecord<DepRecord>(); }
+
+  protected:
+    KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
+      return KeyedResolversVector();
+    }
+    std::vector<edm::eventsetup::ESModuleProducesInfo> producesInfo() const override {
+      return std::vector<edm::eventsetup::ESModuleProducesInfo>();
+    }
+  };
+
+  class DepOnDepRecordResolverProvider : public edm::eventsetup::ESProductResolverProvider {
+  public:
+    DepOnDepRecordResolverProvider() { usingRecord<DepOnDepRecord>(); }
 
   protected:
     KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
@@ -146,11 +164,17 @@ namespace {
     }
   };
 
-  class DepRecordFinder : public edm::EventSetupRecordIntervalFinder {
+  template <typename RECORD>
+  class TestFinder : public edm::EventSetupRecordIntervalFinder {
   public:
-    DepRecordFinder() : edm::EventSetupRecordIntervalFinder(), interval_() { this->findingRecord<DepRecord>(); }
+    TestFinder() : edm::EventSetupRecordIntervalFinder(), interval_() { this->findingRecord<RECORD>(); }
 
-    void setInterval(const edm::ValidityInterval& iInterval) { interval_ = iInterval; }
+    void setInterval(const edm::ValidityInterval& iInterval) {
+      interval_ = iInterval;
+      resetInterval(key());
+    }
+
+    edm::eventsetup::EventSetupRecordKey key() const { return edm::eventsetup::EventSetupRecordKey::makeKey<RECORD>(); }
 
   protected:
     void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
@@ -172,31 +196,9 @@ namespace {
     edm::ValidityInterval interval_;
   };
 
-  class Dummy2RecordFinder : public edm::EventSetupRecordIntervalFinder {
-  public:
-    Dummy2RecordFinder() : edm::EventSetupRecordIntervalFinder(), interval_() { this->findingRecord<Dummy2Record>(); }
-
-    void setInterval(const edm::ValidityInterval& iInterval) { interval_ = iInterval; }
-
-  protected:
-    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                        const edm::IOVSyncValue& iTime,
-                        edm::ValidityInterval& iInterval) override {
-      if (interval_.validFor(iTime)) {
-        iInterval = interval_;
-      } else {
-        if (interval_.last() == edm::IOVSyncValue::invalidIOVSyncValue() &&
-            interval_.first() != edm::IOVSyncValue::invalidIOVSyncValue() && interval_.first() <= iTime) {
-          iInterval = interval_;
-        } else {
-          iInterval = edm::ValidityInterval();
-        }
-      }
-    }
-
-  private:
-    edm::ValidityInterval interval_;
-  };
+  using DepRecordFinder = TestFinder<DepRecord>;
+  using DummyRecordFinder = TestFinder<DummyRecord>;
+  using Dummy2RecordFinder = TestFinder<Dummy2Record>;
   template <typename RECORD>
   struct DummyDataConsumer : public edm::EDConsumerBase {
     explicit DummyDataConsumer(edm::ESInputTag const& iTag)
@@ -254,30 +256,27 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
   SECTION("dependentConstructorTest") {
     EventSetupRecordProvider depProvider(DepRecord::keyForClass(), &activityRegistry);
 
-    REQUIRE(1 == depProvider.dependentRecords().size());
-    REQUIRE(*(depProvider.dependentRecords().begin()) == DummyRecord::keyForClass());
+    REQUIRE(1 == depProvider.supportingRecords().size());
+    REQUIRE(*(depProvider.supportingRecords().begin()) == DummyRecord::keyForClass());
 
     edm::print_eventsetup_record_dependencies<DepRecord>(std::cout);
   }
 
   SECTION("dependentFinder1Test") {
-    auto dummyProvider = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
     const edm::EventID eID_1(1, 1, 1);
     const edm::IOVSyncValue sync_1(eID_1);
     const edm::EventID eID_3(1, 1, 3);
     const edm::ValidityInterval definedInterval(sync_1, edm::IOVSyncValue(eID_3));
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(definedInterval);
-    dummyProvider->addFinder(dummyFinder);
 
     const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
     DependentRecordIntervalFinder finder(depRecordKey);
-    finder.addProviderWeAreDependentOn(dummyProvider);
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(DummyRecord::keyForClass(), dummyFinder));
 
     REQUIRE(definedInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 2))));
 
     dummyFinder->setInterval(edm::ValidityInterval::invalidInterval());
-    dummyProvider->initializeForNewSyncValue();
     REQUIRE(edm::ValidityInterval::invalidInterval() ==
             finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 4))));
 
@@ -286,24 +285,24 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const edm::ValidityInterval unknownedEndInterval(sync_5, edm::IOVSyncValue::invalidIOVSyncValue());
     dummyFinder->setInterval(unknownedEndInterval);
 
-    dummyProvider->initializeForNewSyncValue();
     REQUIRE(unknownedEndInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 5))));
   }
 
   SECTION("dependentFinder2Test") {
-    auto dummyProvider1 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+    auto dummyFinder1 = std::make_shared<DummyRecordFinder>();
+    auto dummyFinder2 = std::make_shared<Dummy2RecordFinder>();
 
     const edm::EventID eID_1(1, 1, 1);
     const edm::IOVSyncValue sync_1(eID_1);
     const edm::ValidityInterval definedInterval1(sync_1, edm::IOVSyncValue(edm::EventID(1, 1, 5)));
-    dummyProvider1->setValidityInterval_forTesting(definedInterval1);
+    dummyFinder1->setInterval(definedInterval1);
 
     auto dummyProvider2 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
 
     const edm::EventID eID_2(1, 1, 2);
     const edm::IOVSyncValue sync_2(eID_2);
     const edm::ValidityInterval definedInterval2(sync_2, edm::IOVSyncValue(edm::EventID(1, 1, 6)));
-    dummyProvider2->setValidityInterval_forTesting(definedInterval2);
+    dummyFinder2->setInterval(definedInterval2);
 
     const edm::ValidityInterval overlapInterval(std::max(definedInterval1.first(), definedInterval2.first()),
                                                 std::min(definedInterval1.last(), definedInterval2.last()));
@@ -311,10 +310,32 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
 
     DependentRecordIntervalFinder finder(depRecordKey);
-    finder.addProviderWeAreDependentOn(dummyProvider1);
-    finder.addProviderWeAreDependentOn(dummyProvider2);
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinder1->key(), dummyFinder1));
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinder2->key(), dummyFinder2));
 
     REQUIRE(overlapInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 4))));
+  }
+
+  SECTION("no finder for dependent record") {
+    auto depOn2Key = DepOn2Record::keyForClass();
+    DependentRecordIntervalFinder finder(depOn2Key);
+    auto dummyFinder = std::make_shared<DummyRecordFinder>();
+
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinder->key(), dummyFinder));
+    const edm::EventID eID_1(1, 1, 1);
+    const edm::IOVSyncValue sync_1(eID_1);
+    const edm::ValidityInterval definedInterval1(sync_1, edm::IOVSyncValue(edm::EventID(1, 1, 5)));
+    dummyFinder->setInterval(definedInterval1);
+
+    REQUIRE(finder.findIntervalFor(depOn2Key, edm::IOVSyncValue(edm::EventID(1, 1, 4))) == definedInterval1);
+  }
+
+  SECTION("one finder for dependent record") {
+    const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
+    DependentRecordIntervalFinder finder(depRecordKey);
+
+    REQUIRE(finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 4))) ==
+            edm::ValidityInterval::invalidInterval());
   }
 
   SECTION("testIncomparibleIOVAlgorithm") {
@@ -322,20 +343,19 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     DependentRecordIntervalFinder finder(depRecordKey);
 
     //test case where we have two providers, one synching on time the other on run/lumi/event
-    auto dummyProviderEventID =
-        std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
-    auto dummyProviderTime = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+    auto dummyFinderEventID = std::make_shared<DummyRecordFinder>();
+    auto dummyFinderTime = std::make_shared<DummyRecordFinder>();
 
-    finder.addProviderWeAreDependentOn(dummyProviderEventID);
-    finder.addProviderWeAreDependentOn(dummyProviderTime);
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinderEventID->key(), dummyFinderEventID));
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinderTime->key(), dummyFinderTime));
 
     {
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 1)),
                                              edm::IOVSyncValue(edm::EventID(1, 1, 5)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+      dummyFinderEventID->setInterval(iovEventID);
 
       const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(1)), edm::IOVSyncValue(edm::Timestamp(6)));
-      dummyProviderTime->setValidityInterval_forTesting(iovTime);
+      dummyFinderTime->setInterval(iovTime);
 
       const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
@@ -354,20 +374,14 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
       // result when none of the IOVs changes. Next 3 just show that.
 
       //should give back same interval
-      dummyProviderEventID->initializeForNewSyncValue();
-      dummyProviderTime->initializeForNewSyncValue();
       REQUIRE(expectedIOV ==
               finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 4), edm::Timestamp(4))));
 
       //should give back same interval
-      dummyProviderEventID->initializeForNewSyncValue();
-      dummyProviderTime->initializeForNewSyncValue();
       REQUIRE(expectedIOV ==
               finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 2), edm::Timestamp(3))));
 
       //should give back same interval
-      dummyProviderEventID->initializeForNewSyncValue();
-      dummyProviderTime->initializeForNewSyncValue();
       REQUIRE(expectedIOV ==
               finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 1), edm::Timestamp(2))));
     }
@@ -377,24 +391,23 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
       //IOV.
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 6)),
                                              edm::IOVSyncValue(edm::EventID(1, 1, 10)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+      dummyFinderEventID->setInterval(iovEventID);
 
+      REQUIRE(iovEventID ==
+              dummyFinderEventID->findIntervalFor(dummyFinderEventID->key(),
+                                                  edm::IOVSyncValue(edm::EventID(1, 1, 6), edm::Timestamp(5))));
       const edm::ValidityInterval expectedIOV(iovEventID.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
-      // Don't need to call initializeForNewSyncValue() if setValidityInterval_forTesting
-      // was called.
-      dummyProviderTime->initializeForNewSyncValue();
       REQUIRE(expectedIOV ==
               finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 6), edm::Timestamp(5))));
     }
     {
       //Change only time based provider
       const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(7)), edm::IOVSyncValue(edm::Timestamp(10)));
-      dummyProviderTime->setValidityInterval_forTesting(iovTime);
+      dummyFinderTime->setInterval(iovTime);
 
       const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
-      dummyProviderEventID->initializeForNewSyncValue();
       REQUIRE(expectedIOV ==
               finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 7), edm::Timestamp(7))));
     }
@@ -402,11 +415,11 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     {
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 2, 11)),
                                              edm::IOVSyncValue(edm::EventID(1, 3, 20)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+      dummyFinderEventID->setInterval(iovEventID);
 
       const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(1ULL << 32)),
                                           edm::IOVSyncValue(edm::Timestamp(5ULL << 32)));
-      dummyProviderTime->setValidityInterval_forTesting(iovTime);
+      dummyFinderTime->setInterval(iovTime);
 
       const edm::ValidityInterval expectedIOV(iovEventID.first(), edm::IOVSyncValue::invalidIOVSyncValue());
       REQUIRE(expectedIOV == finder.findIntervalFor(
@@ -416,11 +429,11 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     {
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 3, 21)),
                                              edm::IOVSyncValue(edm::EventID(1, 10, 40)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+      dummyFinderEventID->setInterval(iovEventID);
 
       const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(7ULL << 32)),
                                           edm::IOVSyncValue(edm::Timestamp(10ULL << 32)));
-      dummyProviderTime->setValidityInterval_forTesting(iovTime);
+      dummyFinderTime->setInterval(iovTime);
 
       const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
       REQUIRE(expectedIOV == finder.findIntervalFor(
@@ -430,11 +443,11 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     {
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 11, 41)),
                                              edm::IOVSyncValue(edm::EventID(1, 20, 60)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+      dummyFinderEventID->setInterval(iovEventID);
 
       const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(11ULL << 32)),
                                           edm::IOVSyncValue(edm::Timestamp(100ULL << 32)));
-      dummyProviderTime->setValidityInterval_forTesting(iovTime);
+      dummyFinderTime->setInterval(iovTime);
 
       const edm::ValidityInterval expectedIOV(iovEventID.first(), edm::IOVSyncValue::invalidIOVSyncValue());
       REQUIRE(expectedIOV ==
@@ -446,11 +459,11 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     {
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(2, 1, 0)),
                                              edm::IOVSyncValue(edm::EventID(6, 0, 0)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+      dummyFinderEventID->setInterval(iovEventID);
 
       const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(200ULL << 32)),
                                           edm::IOVSyncValue(edm::Timestamp(500ULL << 32)));
-      dummyProviderTime->setValidityInterval_forTesting(iovTime);
+      dummyFinderTime->setInterval(iovTime);
 
       const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
       REQUIRE(expectedIOV ==
@@ -460,10 +473,10 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     {
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 6)),
                                              edm::IOVSyncValue(edm::EventID(1, 1, 10)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+      dummyFinderEventID->setInterval(iovEventID);
 
       const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(7)), edm::IOVSyncValue(edm::Timestamp(10)));
-      dummyProviderTime->setValidityInterval_forTesting(iovTime);
+      dummyFinderTime->setInterval(iovTime);
 
       const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
       REQUIRE(expectedIOV ==
@@ -475,20 +488,19 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
     DependentRecordIntervalFinder finder(depRecordKey);
 
-    auto dummyProviderEventID =
-        std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
-    auto dummyProviderTime = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+    auto dummyFinderEventID = std::make_shared<DummyRecordFinder>();
+    auto dummyFinderTime = std::make_shared<DummyRecordFinder>();
 
-    finder.addProviderWeAreDependentOn(dummyProviderEventID);
-    finder.addProviderWeAreDependentOn(dummyProviderTime);
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinderEventID->key(), dummyFinderEventID));
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinderTime->key(), dummyFinderTime));
 
     {
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 6)),
                                              edm::IOVSyncValue(edm::EventID(1, 1, 10)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+      dummyFinderEventID->setInterval(iovEventID);
 
       const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(7)), edm::IOVSyncValue(edm::Timestamp(10)));
-      dummyProviderTime->setValidityInterval_forTesting(iovTime);
+      dummyFinderTime->setInterval(iovTime);
 
       const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
       REQUIRE(expectedIOV ==
@@ -499,8 +511,7 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const edm::ValidityInterval invalid(edm::IOVSyncValue::invalidIOVSyncValue(),
                                         edm::IOVSyncValue::invalidIOVSyncValue());
     {
-      dummyProviderEventID->setValidityInterval_forTesting(invalid);
-      dummyProviderTime->initializeForNewSyncValue();
+      dummyFinderEventID->setInterval(invalid);
       const edm::ValidityInterval expectedIOV(edm::IOVSyncValue(edm::Timestamp(7)),
                                               edm::IOVSyncValue::invalidIOVSyncValue());
       REQUIRE(expectedIOV ==
@@ -509,17 +520,16 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     {
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 12)),
                                              edm::IOVSyncValue(edm::EventID(1, 1, 20)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
-      dummyProviderTime->setValidityInterval_forTesting(invalid);
+      dummyFinderEventID->setInterval(iovEventID);
+      dummyFinderTime->setInterval(invalid);
       const edm::ValidityInterval expectedIOV(iovEventID.first(), edm::IOVSyncValue::invalidIOVSyncValue());
       REQUIRE(expectedIOV ==
               finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 13), edm::Timestamp(11))));
     }
     {
-      dummyProviderEventID->setValidityInterval_forTesting(invalid);
-      dummyProviderTime->setValidityInterval_forTesting(invalid);
+      dummyFinderEventID->setInterval(invalid);
+      dummyFinderTime->setInterval(invalid);
 
-      dummyProviderEventID->initializeForNewSyncValue();
       REQUIRE(invalid ==
               finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 13), edm::Timestamp(11))));
     }
@@ -529,12 +539,11 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
     DependentRecordIntervalFinder finder(depRecordKey);
 
-    auto dummyProviderEventID =
-        std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
-    auto dummyProviderTime = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+    auto dummyFinderEventID = std::make_shared<DummyRecordFinder>();
+    auto dummyFinderTime = std::make_shared<DummyRecordFinder>();
 
-    finder.addProviderWeAreDependentOn(dummyProviderEventID);
-    finder.addProviderWeAreDependentOn(dummyProviderTime);
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinderEventID->key(), dummyFinderEventID));
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinderTime->key(), dummyFinderTime));
 
     const edm::ValidityInterval invalid(edm::IOVSyncValue::invalidIOVSyncValue(),
                                         edm::IOVSyncValue::invalidIOVSyncValue());
@@ -543,9 +552,9 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
       // have the second one invalid
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 1)),
                                              edm::IOVSyncValue(edm::EventID(1, 1, 6)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+      dummyFinderEventID->setInterval(iovEventID);
 
-      dummyProviderTime->setValidityInterval_forTesting(invalid);
+      dummyFinderTime->setInterval(invalid);
 
       const edm::ValidityInterval expectedIOV(iovEventID.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
@@ -554,11 +563,10 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     }
     {
       const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(2)), edm::IOVSyncValue(edm::Timestamp(6)));
-      dummyProviderTime->setValidityInterval_forTesting(iovTime);
+      dummyFinderTime->setInterval(iovTime);
 
       const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
-      dummyProviderEventID->initializeForNewSyncValue();
       REQUIRE(expectedIOV ==
               finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 5), edm::Timestamp(3))));
     }
@@ -568,22 +576,21 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
     DependentRecordIntervalFinder finder(depRecordKey);
 
-    auto dummyProviderEventID =
-        std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
-    auto dummyProviderTime = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+    auto dummyFinderEventID = std::make_shared<DummyRecordFinder>();
+    auto dummyFinderTime = std::make_shared<DummyRecordFinder>();
 
-    finder.addProviderWeAreDependentOn(dummyProviderEventID);
-    finder.addProviderWeAreDependentOn(dummyProviderTime);
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinderEventID->key(), dummyFinderEventID));
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinderTime->key(), dummyFinderTime));
 
     const edm::ValidityInterval invalid(edm::IOVSyncValue::invalidIOVSyncValue(),
                                         edm::IOVSyncValue::invalidIOVSyncValue());
     {
       //check for bug which only happens the first time we synchronize
       // have the  first one invalid
-      dummyProviderEventID->setValidityInterval_forTesting(invalid);
+      dummyFinderEventID->setInterval(invalid);
 
       const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(1)), edm::IOVSyncValue(edm::Timestamp(6)));
-      dummyProviderTime->setValidityInterval_forTesting(iovTime);
+      dummyFinderTime->setInterval(iovTime);
 
       const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
@@ -593,11 +600,10 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     {
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 5)),
                                              edm::IOVSyncValue(edm::EventID(1, 1, 10)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+      dummyFinderEventID->setInterval(iovEventID);
 
       const edm::ValidityInterval expectedIOV(edm::IOVSyncValue(edm::Timestamp(1)),
                                               edm::IOVSyncValue::invalidIOVSyncValue());
-      dummyProviderTime->initializeForNewSyncValue();
       REQUIRE(expectedIOV ==
               finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 5), edm::Timestamp(4))));
     }
@@ -611,21 +617,21 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
 
       std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
           std::make_shared<DummyESProductResolverProvider>();
-      provider.add(dummyProv);
+      controller.addExtra(dummyProv);
 
       std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
       dummyFinder->setInterval(
           edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 5))));
-      provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+      controller.addExtra(dummyFinder);
 
       std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv =
           std::make_shared<DepOn2RecordResolverProvider>();
-      provider.add(depProv);
+      controller.addExtra(depProv);
 
       std::shared_ptr<Dummy2RecordFinder> dummy2Finder = std::make_shared<Dummy2RecordFinder>();
       dummy2Finder->setInterval(
           edm::ValidityInterval(edm::IOVSyncValue(edm::Timestamp(1)), edm::IOVSyncValue(edm::Timestamp(5))));
-      provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummy2Finder));
+      controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummy2Finder));
 
       {
         edm::ESParentContext parentC;
@@ -669,21 +675,21 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
 
       std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
           std::make_shared<DummyESProductResolverProvider>();
-      provider.add(dummyProv);
+      controller.addExtra(dummyProv);
 
       std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
       dummyFinder->setInterval(
           edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue::invalidIOVSyncValue()));
-      provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+      controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
       std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv =
           std::make_shared<DepOn2RecordResolverProvider>();
-      provider.add(depProv);
+      controller.addExtra(depProv);
 
       std::shared_ptr<Dummy2RecordFinder> dummy2Finder = std::make_shared<Dummy2RecordFinder>();
       dummy2Finder->setInterval(
           edm::ValidityInterval(edm::IOVSyncValue(edm::Timestamp(1)), edm::IOVSyncValue::invalidIOVSyncValue()));
-      provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummy2Finder));
+      controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummy2Finder));
       {
         edm::ESParentContext parentC;
         controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1), edm::Timestamp(1)));
@@ -717,7 +723,7 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     }
   }
 
-  SECTION("dependentSetproviderTest") {
+  SECTION("dependentSetFindersTest") {
     auto depProvider = std::make_unique<EventSetupRecordProvider>(DepRecord::keyForClass(), &activityRegistry);
 
     auto dummyProvider = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
@@ -725,13 +731,61 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(
         edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
-    dummyProvider->addFinder(dummyFinder);
+    std::vector<std::shared_ptr<edm::EventSetupRecordIntervalFinder>> finders;
+    finders.push_back(dummyFinder);
 
-    REQUIRE(*(depProvider->dependentRecords().begin()) == dummyProvider->key());
+    std::set<EventSetupRecordKey> neededRecords;
+    neededRecords.insert(dummyProvider->key());
+    neededRecords.insert(depProvider->key());
+    {
+      auto supporters = depProvider->supportingRecords();
+      neededRecords.insert(supporters.begin(), supporters.end());
+    }
 
-    std::vector<std::shared_ptr<EventSetupRecordProvider>> providers;
-    providers.push_back(dummyProvider);
-    depProvider->setDependentProviders(providers);
+    REQUIRE(*(depProvider->supportingRecords().begin()) == dummyProvider->key());
+
+    std::map<EventSetupRecordKey, std::shared_ptr<edm::EventSetupRecordIntervalFinder>> keyToFinders =
+        edm::impl::makeFindersForRecords(neededRecords, finders);
+
+    auto interval =
+        keyToFinders[depProvider->key()]->findIntervalFor(depProvider->key(), edm::IOVSyncValue(edm::EventID(1, 1, 2)));
+    REQUIRE(interval.first() == edm::IOVSyncValue(edm::EventID(1, 1, 1)));
+    REQUIRE(interval.last() == edm::IOVSyncValue(edm::EventID(1, 1, 3)));
+  }
+
+  SECTION("indirect dependencies") {
+    std::vector<std::shared_ptr<edm::EventSetupRecordIntervalFinder>> finders;
+    std::set<EventSetupRecordKey> neededRecords;
+
+    auto depProvider = std::make_unique<EventSetupRecordProvider>(DepRecord::keyForClass(), &activityRegistry);
+    neededRecords.insert(depProvider->key());
+
+    auto depOnDepProvider =
+        std::make_unique<EventSetupRecordProvider>(DepOnDepRecord::keyForClass(), &activityRegistry);
+    neededRecords.insert(depOnDepProvider->key());
+
+    auto dummyProvider = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+    neededRecords.insert(dummyProvider->key());
+
+    std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
+    dummyFinder->setInterval(
+        edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
+    finders.push_back(dummyFinder);
+
+    REQUIRE(*(depProvider->supportingRecords().begin()) == dummyProvider->key());
+
+    std::map<EventSetupRecordKey, std::shared_ptr<edm::EventSetupRecordIntervalFinder>> keyToFinders =
+        edm::impl::makeFindersForRecords(neededRecords, finders);
+
+    auto interval =
+        keyToFinders[depProvider->key()]->findIntervalFor(depProvider->key(), edm::IOVSyncValue(edm::EventID(1, 1, 2)));
+    REQUIRE(interval.first() == edm::IOVSyncValue(edm::EventID(1, 1, 1)));
+    REQUIRE(interval.last() == edm::IOVSyncValue(edm::EventID(1, 1, 3)));
+
+    interval = keyToFinders[depOnDepProvider->key()]->findIntervalFor(depOnDepProvider->key(),
+                                                                      edm::IOVSyncValue(edm::EventID(1, 1, 2)));
+    REQUIRE(interval.first() == edm::IOVSyncValue(edm::EventID(1, 1, 1)));
+    REQUIRE(interval.last() == edm::IOVSyncValue(edm::EventID(1, 1, 3)));
   }
 
   SECTION("getTest") {
@@ -741,15 +795,15 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
 
     std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
         std::make_shared<DummyESProductResolverProvider>();
-    provider.add(dummyProv);
+    controller.addExtra(dummyProv);
 
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(
         edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
-    provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
     std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv = std::make_shared<DepRecordResolverProvider>();
-    provider.add(depProv);
+    controller.addExtra(depProv);
     edm::ESParentContext parentC;
     {
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
@@ -778,140 +832,135 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     edm::ParameterSet pset = createDummyPset();
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-    try {
-      {
-        edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "testOne", 0, true);
-        edm::ParameterSet ps;
-        ps.addParameter<std::string>("name", "test11");
-        ps.registerIt();
-        description.pid_ = ps.id();
-        auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kBad);
-        dummyProv->setDescription(description);
-        provider.add(dummyProv);
-      }
-      {
-        edm::eventsetup::ComponentDescription description("DepRecordResolverProviderWithData", "testTwo", 1, true);
-        edm::ParameterSet ps;
-        ps.addParameter<std::string>("name", "test22");
-        ps.addParameter<std::string>("appendToDataLabel", "blah");
-        ps.registerIt();
-        description.pid_ = ps.id();
-        auto dummyProv = std::make_shared<DepRecordResolverProviderWithData>(kGood);
-        dummyProv->setDescription(description);
-        dummyProv->setAppendToDataLabel(ps);
-        provider.add(dummyProv);
-      }
+    {
+      edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "testOne", 0, true);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "test11");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kBad);
+      dummyProv->setDescription(description);
+      controller.addExtra(dummyProv);
+    }
+    {
+      edm::eventsetup::ComponentDescription description("DepRecordResolverProviderWithData", "testTwo", 1, true);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "test22");
+      ps.addParameter<std::string>("appendToDataLabel", "blah");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<DepRecordResolverProviderWithData>(kGood);
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      controller.addExtra(dummyProv);
+    }
 
-      std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
-      dummyFinder->setInterval(
-          edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
-      provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+    std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
+    dummyFinder->setInterval(
+        edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
-      controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
-      edm::ESParentContext parentC;
-      {
-        DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        auto const& data = eventSetup.getData(consumer.m_token);
-        REQUIRE(kGood.value_ == data.value_);
-      }
-      {
-        DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"", ""}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        auto const& data = eventSetup.getData(consumer.m_token);
-        REQUIRE(kBad.value_ == data.value_);
-      }
-      {
-        DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        auto const& depRecord = eventSetup.get<DepRecord>();
-        auto const& data = depRecord.get(consumer.m_token);
-        REQUIRE(kGood.value_ == data.value_);
-      }
-      {
-        DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"", ""}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        auto const& depRecord = eventSetup.get<DepRecord>();
+    controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
+    edm::ESParentContext parentC;
+    {
+      DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      auto const& data = eventSetup.getData(consumer.m_token);
+      REQUIRE(kGood.value_ == data.value_);
+    }
+    {
+      DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"", ""}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      auto const& data = eventSetup.getData(consumer.m_token);
+      REQUIRE(kBad.value_ == data.value_);
+    }
+    {
+      DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      auto const& depRecord = eventSetup.get<DepRecord>();
+      auto const& data = depRecord.get(consumer.m_token);
+      REQUIRE(kGood.value_ == data.value_);
+    }
+    {
+      DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"", ""}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      auto const& depRecord = eventSetup.get<DepRecord>();
 
-        auto const& data = depRecord.get(consumer.m_token);
-        REQUIRE(kBad.value_ == data.value_);
-      }
-      {
-        DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        auto const& depRecord = eventSetup.get<DepRecord>();
+      auto const& data = depRecord.get(consumer.m_token);
+      REQUIRE(kBad.value_ == data.value_);
+    }
+    {
+      DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      auto const& depRecord = eventSetup.get<DepRecord>();
 
-        auto const& data = depRecord.get(consumer.m_token);
-        REQUIRE(kGood.value_ == data.value_);
-      }
-      {
-        DummyDataConsumer2<DummyRecord, DepRecord> consumer{edm::ESInputTag{"", ""}, edm::ESInputTag{"", "blah"}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        auto const& depRecord = eventSetup.get<DepRecord>();
+      auto const& data = depRecord.get(consumer.m_token);
+      REQUIRE(kGood.value_ == data.value_);
+    }
+    {
+      DummyDataConsumer2<DummyRecord, DepRecord> consumer{edm::ESInputTag{"", ""}, edm::ESInputTag{"", "blah"}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      auto const& depRecord = eventSetup.get<DepRecord>();
 
-        auto const& data1 = depRecord.get(consumer.m_token1);
-        REQUIRE(kBad.value_ == data1.value_);
+      auto const& data1 = depRecord.get(consumer.m_token1);
+      REQUIRE(kBad.value_ == data1.value_);
 
-        auto const& data2 = depRecord.get(consumer.m_token2);
-        REQUIRE(kGood.value_ == data2.value_);
-      }
-      {
-        DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"DoesNotExist", ""}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        auto const& depRecord = eventSetup.get<DepRecord>();
+      auto const& data2 = depRecord.get(consumer.m_token2);
+      REQUIRE(kGood.value_ == data2.value_);
+    }
+    {
+      DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"DoesNotExist", ""}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      auto const& depRecord = eventSetup.get<DepRecord>();
 
-        REQUIRE_THROWS_AS(depRecord.get(consumer.m_token), cms::Exception);
-      }
-      {
-        DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"DoesNotExist", "blah"}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        auto const& depRecord = eventSetup.get<DepRecord>();
+      REQUIRE_THROWS_AS(depRecord.get(consumer.m_token), cms::Exception);
+    }
+    {
+      DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"DoesNotExist", "blah"}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      auto const& depRecord = eventSetup.get<DepRecord>();
 
-        REQUIRE_THROWS_AS(depRecord.get(consumer.m_token), cms::Exception);
-      }
-    } catch (const cms::Exception& iException) {
-      std::cout << "caught " << iException.explainSelf() << std::endl;
-      throw;
+      REQUIRE_THROWS_AS(depRecord.get(consumer.m_token), cms::Exception);
     }
   }
 
@@ -925,157 +974,152 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     edm::ParameterSet pset = createDummyPset();
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-    try {
-      {
-        edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "testOne", 0, true);
-        edm::ParameterSet ps;
-        ps.addParameter<std::string>("name", "test11");
-        ps.registerIt();
-        description.pid_ = ps.id();
-        auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kBad);
-        dummyProv->setDescription(description);
-        provider.add(dummyProv);
-      }
-      {
-        edm::eventsetup::ComponentDescription description("DepRecordResolverProviderWithData", "testTwo", 1, true);
-        edm::ParameterSet ps;
-        ps.addParameter<std::string>("name", "test22");
-        ps.addParameter<std::string>("appendToDataLabel", "blah");
-        ps.registerIt();
-        description.pid_ = ps.id();
-        auto dummyProv = std::make_shared<DepRecordResolverProviderWithData>(kGood);
-        dummyProv->setDescription(description);
-        dummyProv->setAppendToDataLabel(ps);
-        provider.add(dummyProv);
-      }
-      std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
-      dummyFinder->setInterval(
-          edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
-      provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+    {
+      edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "testOne", 0, true);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "test11");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kBad);
+      dummyProv->setDescription(description);
+      controller.addExtra(dummyProv);
+    }
+    {
+      edm::eventsetup::ComponentDescription description("DepRecordResolverProviderWithData", "testTwo", 1, true);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "test22");
+      ps.addParameter<std::string>("appendToDataLabel", "blah");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<DepRecordResolverProviderWithData>(kGood);
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      controller.addExtra(dummyProv);
+    }
+    std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
+    dummyFinder->setInterval(
+        edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
-      controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
+    controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
 
-      edm::ESParentContext parentC;
-      {
-        DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        edm::ESHandle<DummyData> data = eventSetup.getHandle(consumer.m_token);
-        REQUIRE(kGood.value_ == data->value_);
-        const edm::eventsetup::ComponentDescription* desc = data.description();
-        REQUIRE(desc->label_ == "testTwo");
-      }
-      {
-        DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"", ""}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        edm::ESHandle<DummyData> data = eventSetup.getHandle(consumer.m_token);
-        REQUIRE(kBad.value_ == data->value_);
-        const edm::eventsetup::ComponentDescription* desc = data.description();
-        REQUIRE(desc->label_ == "testOne");
-      }
-      {
-        DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        auto const& depRecord = eventSetup.get<DepRecord>();
+    edm::ESParentContext parentC;
+    {
+      DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      edm::ESHandle<DummyData> data = eventSetup.getHandle(consumer.m_token);
+      REQUIRE(kGood.value_ == data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      REQUIRE(desc->label_ == "testTwo");
+    }
+    {
+      DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"", ""}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      edm::ESHandle<DummyData> data = eventSetup.getHandle(consumer.m_token);
+      REQUIRE(kBad.value_ == data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      REQUIRE(desc->label_ == "testOne");
+    }
+    {
+      DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      auto const& depRecord = eventSetup.get<DepRecord>();
 
-        edm::ESHandle<DummyData> data = depRecord.getHandle(consumer.m_token);
-        REQUIRE(kGood.value_ == data->value_);
-        const edm::eventsetup::ComponentDescription* desc = data.description();
-        REQUIRE(desc->label_ == "testTwo");
-      }
-      {
-        DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"", ""}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        auto const& depRecord = eventSetup.get<DepRecord>();
+      edm::ESHandle<DummyData> data = depRecord.getHandle(consumer.m_token);
+      REQUIRE(kGood.value_ == data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      REQUIRE(desc->label_ == "testTwo");
+    }
+    {
+      DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"", ""}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      auto const& depRecord = eventSetup.get<DepRecord>();
 
-        edm::ESHandle<DummyData> data = depRecord.getHandle(consumer.m_token);
-        REQUIRE(kBad.value_ == data->value_);
-        const edm::eventsetup::ComponentDescription* desc = data.description();
-        REQUIRE(desc->label_ == "testOne");
-      }
-      {
-        DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        auto const& depRecord = eventSetup.get<DepRecord>();
+      edm::ESHandle<DummyData> data = depRecord.getHandle(consumer.m_token);
+      REQUIRE(kBad.value_ == data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      REQUIRE(desc->label_ == "testOne");
+    }
+    {
+      DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      auto const& depRecord = eventSetup.get<DepRecord>();
 
-        edm::ESHandle<DummyData> data = depRecord.getHandle(consumer.m_token);
-        REQUIRE(kGood.value_ == data->value_);
-        const edm::eventsetup::ComponentDescription* desc = data.description();
-        REQUIRE(desc->label_ == "testTwo");
-      }
-      {
-        DummyDataConsumer2<DummyRecord, DepRecord> consumer{edm::ESInputTag{"", ""}, edm::ESInputTag{"", "blah"}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        auto const& depRecord = eventSetup.get<DepRecord>();
+      edm::ESHandle<DummyData> data = depRecord.getHandle(consumer.m_token);
+      REQUIRE(kGood.value_ == data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      REQUIRE(desc->label_ == "testTwo");
+    }
+    {
+      DummyDataConsumer2<DummyRecord, DepRecord> consumer{edm::ESInputTag{"", ""}, edm::ESInputTag{"", "blah"}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      auto const& depRecord = eventSetup.get<DepRecord>();
 
-        edm::ESHandle<DummyData> data1 = depRecord.getHandle(consumer.m_token1);
-        REQUIRE(kBad.value_ == data1->value_);
-        const edm::eventsetup::ComponentDescription* desc = data1.description();
-        REQUIRE(desc->label_ == "testOne");
+      edm::ESHandle<DummyData> data1 = depRecord.getHandle(consumer.m_token1);
+      REQUIRE(kBad.value_ == data1->value_);
+      const edm::eventsetup::ComponentDescription* desc = data1.description();
+      REQUIRE(desc->label_ == "testOne");
 
-        edm::ESHandle<DummyData> data2 = depRecord.getHandle(consumer.m_token2);
-        REQUIRE(kGood.value_ == data2->value_);
-        desc = data2.description();
-        REQUIRE(desc->label_ == "testTwo");
-      }
-      {
-        DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"DoesNotExist", ""}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        auto const& depRecord = eventSetup.get<DepRecord>();
+      edm::ESHandle<DummyData> data2 = depRecord.getHandle(consumer.m_token2);
+      REQUIRE(kGood.value_ == data2->value_);
+      desc = data2.description();
+      REQUIRE(desc->label_ == "testTwo");
+    }
+    {
+      DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"DoesNotExist", ""}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      auto const& depRecord = eventSetup.get<DepRecord>();
 
-        REQUIRE(not depRecord.getHandle(consumer.m_token));
-        REQUIRE_THROWS_AS(*depRecord.getHandle(consumer.m_token), cms::Exception);
-      }
-      {
-        DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"DoesNotExist", "blah"}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        auto const& depRecord = eventSetup.get<DepRecord>();
+      REQUIRE(not depRecord.getHandle(consumer.m_token));
+      REQUIRE_THROWS_AS(*depRecord.getHandle(consumer.m_token), cms::Exception);
+    }
+    {
+      DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"DoesNotExist", "blah"}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      auto const& depRecord = eventSetup.get<DepRecord>();
 
-        REQUIRE(not depRecord.getHandle(consumer.m_token));
-        REQUIRE_THROWS_AS(*depRecord.getHandle(consumer.m_token), cms::Exception);
-      }
-    } catch (const cms::Exception& iException) {
-      std::cout << "caught " << iException.explainSelf() << std::endl;
-      throw;
+      REQUIRE(not depRecord.getHandle(consumer.m_token));
+      REQUIRE_THROWS_AS(*depRecord.getHandle(consumer.m_token), cms::Exception);
     }
   }
 
@@ -1089,158 +1133,153 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     edm::ParameterSet pset = createDummyPset();
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-    try {
-      {
-        edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "testOne", 0, true);
-        edm::ParameterSet ps;
-        ps.addParameter<std::string>("name", "test11");
-        ps.registerIt();
-        description.pid_ = ps.id();
-        auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kBad);
-        dummyProv->setDescription(description);
-        provider.add(dummyProv);
-      }
-      {
-        edm::eventsetup::ComponentDescription description("DepRecordResolverProviderWithData", "testTwo", 1, true);
-        edm::ParameterSet ps;
-        ps.addParameter<std::string>("name", "test22");
-        ps.addParameter<std::string>("appendToDataLabel", "blah");
-        ps.registerIt();
-        description.pid_ = ps.id();
-        auto dummyProv = std::make_shared<DepRecordResolverProviderWithData>(kGood);
-        dummyProv->setDescription(description);
-        dummyProv->setAppendToDataLabel(ps);
-        provider.add(dummyProv);
-      }
-      std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
-      dummyFinder->setInterval(
-          edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
-      provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+    {
+      edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "testOne", 0, true);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "test11");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kBad);
+      dummyProv->setDescription(description);
+      controller.addExtra(dummyProv);
+    }
+    {
+      edm::eventsetup::ComponentDescription description("DepRecordResolverProviderWithData", "testTwo", 1, true);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "test22");
+      ps.addParameter<std::string>("appendToDataLabel", "blah");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<DepRecordResolverProviderWithData>(kGood);
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      controller.addExtra(dummyProv);
+    }
+    std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
+    dummyFinder->setInterval(
+        edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
-      controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
-      edm::ESParentContext parentC;
-      {
-        DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        edm::ESTransientHandle<DummyData> data = eventSetup.getTransientHandle(consumer.m_token);
-        REQUIRE(kGood.value_ == data->value_);
-        const edm::eventsetup::ComponentDescription* desc = data.description();
-        REQUIRE(desc->label_ == "testTwo");
-      }
-      {
-        DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"", ""}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        edm::ESTransientHandle<DummyData> data = eventSetup.getTransientHandle(consumer.m_token);
-        REQUIRE(kBad.value_ == data->value_);
-        const edm::eventsetup::ComponentDescription* desc = data.description();
-        REQUIRE(desc->label_ == "testOne");
-      }
-      {
-        DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        auto const& depRecord = eventSetup.get<DepRecord>();
+    controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
+    edm::ESParentContext parentC;
+    {
+      DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      edm::ESTransientHandle<DummyData> data = eventSetup.getTransientHandle(consumer.m_token);
+      REQUIRE(kGood.value_ == data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      REQUIRE(desc->label_ == "testTwo");
+    }
+    {
+      DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"", ""}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      edm::ESTransientHandle<DummyData> data = eventSetup.getTransientHandle(consumer.m_token);
+      REQUIRE(kBad.value_ == data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      REQUIRE(desc->label_ == "testOne");
+    }
+    {
+      DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      auto const& depRecord = eventSetup.get<DepRecord>();
 
-        edm::ESTransientHandle<DummyData> data = depRecord.getTransientHandle(consumer.m_token);
-        REQUIRE(kGood.value_ == data->value_);
-        const edm::eventsetup::ComponentDescription* desc = data.description();
-        REQUIRE(desc->label_ == "testTwo");
-      }
-      {
-        DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"", ""}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        auto const& depRecord = eventSetup.get<DepRecord>();
+      edm::ESTransientHandle<DummyData> data = depRecord.getTransientHandle(consumer.m_token);
+      REQUIRE(kGood.value_ == data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      REQUIRE(desc->label_ == "testTwo");
+    }
+    {
+      DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"", ""}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      auto const& depRecord = eventSetup.get<DepRecord>();
 
-        edm::ESTransientHandle<DummyData> data = depRecord.getTransientHandle(consumer.m_token);
-        REQUIRE(kBad.value_ == data->value_);
-        const edm::eventsetup::ComponentDescription* desc = data.description();
-        REQUIRE(desc->label_ == "testOne");
-      }
-      {
-        DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        auto const& depRecord = eventSetup.get<DepRecord>();
+      edm::ESTransientHandle<DummyData> data = depRecord.getTransientHandle(consumer.m_token);
+      REQUIRE(kBad.value_ == data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      REQUIRE(desc->label_ == "testOne");
+    }
+    {
+      DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"", "blah"}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      auto const& depRecord = eventSetup.get<DepRecord>();
 
-        edm::ESTransientHandle<DummyData> data = depRecord.getTransientHandle(consumer.m_token);
-        REQUIRE(kGood.value_ == data->value_);
-        const edm::eventsetup::ComponentDescription* desc = data.description();
-        REQUIRE(desc->label_ == "testTwo");
-      }
-      {
-        DummyDataConsumer2<DummyRecord, DepRecord> consumer{edm::ESInputTag{"", ""}, edm::ESInputTag{"", "blah"}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        auto const& depRecord = eventSetup.get<DepRecord>();
+      edm::ESTransientHandle<DummyData> data = depRecord.getTransientHandle(consumer.m_token);
+      REQUIRE(kGood.value_ == data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      REQUIRE(desc->label_ == "testTwo");
+    }
+    {
+      DummyDataConsumer2<DummyRecord, DepRecord> consumer{edm::ESInputTag{"", ""}, edm::ESInputTag{"", "blah"}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      auto const& depRecord = eventSetup.get<DepRecord>();
 
-        edm::ESTransientHandle<DummyData> data1 = depRecord.getTransientHandle(consumer.m_token1);
-        REQUIRE(kBad.value_ == data1->value_);
-        const edm::eventsetup::ComponentDescription* desc = data1.description();
-        REQUIRE(desc->label_ == "testOne");
+      edm::ESTransientHandle<DummyData> data1 = depRecord.getTransientHandle(consumer.m_token1);
+      REQUIRE(kBad.value_ == data1->value_);
+      const edm::eventsetup::ComponentDescription* desc = data1.description();
+      REQUIRE(desc->label_ == "testOne");
 
-        edm::ESTransientHandle<DummyData> data2 = depRecord.getTransientHandle(consumer.m_token2);
-        REQUIRE(kGood.value_ == data2->value_);
-        desc = data2.description();
-        REQUIRE(desc->label_ == "testTwo");
-      }
-      {
-        DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"DoesNotExist", ""}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        auto const& depRecord = eventSetup.get<DepRecord>();
+      edm::ESTransientHandle<DummyData> data2 = depRecord.getTransientHandle(consumer.m_token2);
+      REQUIRE(kGood.value_ == data2->value_);
+      desc = data2.description();
+      REQUIRE(desc->label_ == "testTwo");
+    }
+    {
+      DummyDataConsumer<DummyRecord> consumer{edm::ESInputTag{"DoesNotExist", ""}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      auto const& depRecord = eventSetup.get<DepRecord>();
 
-        edm::ESTransientHandle<DummyData> data = depRecord.getTransientHandle(consumer.m_token);
-        REQUIRE(not data);
-        REQUIRE_THROWS_AS(*data, cms::Exception);
-      }
-      {
-        DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"DoesNotExist", "blah"}};
-        consumer.updateLookup(provider.recordsToResolverIndices());
-        consumer.prefetch(provider.eventSetupImpl());
-        const edm::EventSetup eventSetup{provider.eventSetupImpl(),
-                                         static_cast<unsigned int>(edm::Transition::Event),
-                                         consumer.esGetTokenIndices(edm::Transition::Event),
-                                         parentC};
-        auto const& depRecord = eventSetup.get<DepRecord>();
+      edm::ESTransientHandle<DummyData> data = depRecord.getTransientHandle(consumer.m_token);
+      REQUIRE(not data);
+      REQUIRE_THROWS_AS(*data, cms::Exception);
+    }
+    {
+      DummyDataConsumer<DepRecord> consumer{edm::ESInputTag{"DoesNotExist", "blah"}};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup{provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC};
+      auto const& depRecord = eventSetup.get<DepRecord>();
 
-        edm::ESTransientHandle<DummyData> data = depRecord.getTransientHandle(consumer.m_token);
-        REQUIRE(not data);
-        REQUIRE_THROWS_AS(*data, cms::Exception);
-      }
-    } catch (const cms::Exception& iException) {
-      std::cout << "caught " << iException.explainSelf() << std::endl;
-      throw;
+      edm::ESTransientHandle<DummyData> data = depRecord.getTransientHandle(consumer.m_token);
+      REQUIRE(not data);
+      REQUIRE_THROWS_AS(*data, cms::Exception);
     }
   }
 
@@ -1251,16 +1290,16 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
 
     std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
         std::make_shared<DummyESProductResolverProvider>();
-    provider.add(dummyProv);
+    controller.addExtra(dummyProv);
 
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(
         edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
-    provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
     std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv =
         std::make_shared<DepOn2RecordResolverProvider>();
-    provider.add(depProv);
+    controller.addExtra(depProv);
     {
       edm::ESParentContext parentC;
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
@@ -1284,29 +1323,29 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
   SECTION("resetTest") {
     SynchronousEventSetupsController controller;
     edm::ParameterSet pset = createDummyPset();
-    EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
+    auto provider = controller.makeProvider(pset, &activityRegistry);
 
     std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
         std::make_shared<DummyESProductResolverProvider>();
-    provider.add(dummyProv);
+    controller.addExtra(dummyProv);
 
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(
         edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
-    provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
     std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv = std::make_shared<DepRecordResolverProvider>();
-    provider.add(depProv);
+    controller.addExtra(depProv);
     {
       edm::ESParentContext parentC;
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
-      const edm::EventSetup eventSetup1(provider.eventSetupImpl(), 0, nullptr, parentC);
+      const edm::EventSetup eventSetup1(provider->eventSetupImpl(), 0, nullptr, parentC);
       const DepRecord& depRecord = eventSetup1.get<DepRecord>();
       unsigned long long depCacheID = depRecord.cacheIdentifier();
       const DummyRecord& dummyRecord = depRecord.getRecord<DummyRecord>();
       unsigned long long dummyCacheID = dummyRecord.cacheIdentifier();
 
-      provider.resetRecordPlusDependentRecords(dummyRecord.key());
+      controller.resetRecordPlusDependentRecords(dummyRecord.key());
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
       REQUIRE(dummyCacheID != dummyRecord.cacheIdentifier());
       REQUIRE(depCacheID != depRecord.cacheIdentifier());
@@ -1314,8 +1353,6 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
   }
 
   SECTION("alternateFinderTest") {
-    auto dummyProvider = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
-
     const edm::EventID eID_1(1, 1, 1);
     const edm::IOVSyncValue sync_1(eID_1);
     const edm::EventID eID_3(1, 1, 3);
@@ -1324,7 +1361,6 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const edm::ValidityInterval definedInterval(sync_1, edm::IOVSyncValue(eID_4));
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(definedInterval);
-    dummyProvider->addFinder(dummyFinder);
 
     std::shared_ptr<DepRecordFinder> depFinder = std::make_shared<DepRecordFinder>();
     const edm::EventID eID_2(1, 1, 2);
@@ -1335,7 +1371,7 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
     DependentRecordIntervalFinder finder(depRecordKey);
     finder.setAlternateFinder(depFinder);
-    finder.addProviderWeAreDependentOn(dummyProvider);
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(DummyRecord::keyForClass(), dummyFinder));
 
     REQUIRE(depInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 1))));
 
@@ -1350,7 +1386,6 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     dummyFinder->setInterval(edm::ValidityInterval::invalidInterval());
     depFinder->setInterval(edm::ValidityInterval::invalidInterval());
 
-    dummyProvider->initializeForNewSyncValue();
     REQUIRE(edm::ValidityInterval::invalidInterval() ==
             finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 5))));
 
@@ -1364,35 +1399,32 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const edm::ValidityInterval iov6_7(sync_6, sync_7);
     depFinder->setInterval(iov6_7);
 
-    dummyProvider->initializeForNewSyncValue();
     REQUIRE(unknownedEndInterval == finder.findIntervalFor(depRecordKey, sync_6));
 
     //see if dependent record can override the finder
     dummyFinder->setInterval(depInterval);
     depFinder->setInterval(definedInterval);
-    dummyProvider->initializeForNewSyncValue();
     REQUIRE(depInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 1))));
 
     dummyFinder->setInterval(dep2Interval);
-    dummyProvider->initializeForNewSyncValue();
     REQUIRE(dep2Interval == finder.findIntervalFor(depRecordKey, sync_3));
   }
 
   SECTION("invalidRecordTest") {
-    auto dummyProvider1 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+    auto dummyFinder1 = std::make_shared<DummyRecordFinder>();
 
     const edm::ValidityInterval invalid(edm::IOVSyncValue::invalidIOVSyncValue(),
                                         edm::IOVSyncValue::invalidIOVSyncValue());
 
-    dummyProvider1->setValidityInterval_forTesting(invalid);
+    dummyFinder1->setInterval(invalid);
 
-    auto dummyProvider2 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
-    dummyProvider2->setValidityInterval_forTesting(invalid);
+    auto dummyFinder2 = std::make_shared<DummyRecordFinder>();
+    dummyFinder2->setInterval(invalid);
 
     const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
     DependentRecordIntervalFinder finder(depRecordKey);
-    finder.addProviderWeAreDependentOn(dummyProvider1);
-    finder.addProviderWeAreDependentOn(dummyProvider2);
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinder1->key(), dummyFinder1));
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinder2->key(), dummyFinder2));
 
     REQUIRE(invalid == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 2))));
 
@@ -1402,29 +1434,42 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const edm::EventID eID_2(1, 1, 2);
     const edm::IOVSyncValue sync_2(eID_2);
     const edm::ValidityInterval definedInterval2(sync_2, edm::IOVSyncValue(edm::EventID(1, 1, 6)));
-    dummyProvider2->setValidityInterval_forTesting(definedInterval2);
+    dummyFinder2->setInterval(definedInterval2);
 
     const edm::ValidityInterval openEnded1(definedInterval2.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
-    dummyProvider1->initializeForNewSyncValue();
-    dummyProvider2->initializeForNewSyncValue();
     REQUIRE(openEnded1 == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 4))));
 
-    dummyProvider1->setValidityInterval_forTesting(definedInterval1);
+    dummyFinder1->setInterval(definedInterval1);
 
     const edm::ValidityInterval overlapInterval(std::max(definedInterval1.first(), definedInterval2.first()),
                                                 std::min(definedInterval1.last(), definedInterval2.last()));
 
-    dummyProvider1->initializeForNewSyncValue();
-    dummyProvider2->initializeForNewSyncValue();
     REQUIRE(overlapInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 5))));
 
-    dummyProvider2->setValidityInterval_forTesting(invalid);
+    dummyFinder2->setInterval(invalid);
     const edm::ValidityInterval openEnded2(definedInterval1.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
-    dummyProvider1->initializeForNewSyncValue();
-    dummyProvider2->initializeForNewSyncValue();
     REQUIRE(openEnded2 == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 7))));
+  }
+
+  SECTION("EventSetupController with missing finder") {
+    SynchronousEventSetupsController controller;
+    edm::ParameterSet pset = createDummyPset();
+    EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
+
+    std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
+        std::make_shared<DummyESProductResolverProvider>();
+    controller.addExtra(dummyProv);
+
+    std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv =
+        std::make_shared<DepOn2RecordResolverProvider>();
+    controller.addExtra(depProv);
+
+    edm::ESParentContext parentC;
+    controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC);
+    REQUIRE_THROWS_AS(eventSetup.get<DepOn2Record>(), edm::eventsetup::NoRecordException<DepOn2Record>);
   }
 
   SECTION("extendIOVTest") {
@@ -1434,22 +1479,22 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
 
     std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
         std::make_shared<DummyESProductResolverProvider>();
-    provider.add(dummyProv);
+    controller.addExtra(dummyProv);
 
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
 
     edm::IOVSyncValue startSyncValue{edm::EventID{1, 1, 1}};
     dummyFinder->setInterval(edm::ValidityInterval{startSyncValue, edm::IOVSyncValue{edm::EventID{1, 1, 5}}});
-    provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>{dummyFinder});
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>{dummyFinder});
 
     std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv =
         std::make_shared<DepOn2RecordResolverProvider>();
-    provider.add(depProv);
+    controller.addExtra(depProv);
 
     edm::ESParentContext parentC;
     std::shared_ptr<Dummy2RecordFinder> dummy2Finder = std::make_shared<Dummy2RecordFinder>();
     dummy2Finder->setInterval(edm::ValidityInterval{startSyncValue, edm::IOVSyncValue{edm::EventID{1, 1, 6}}});
-    provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummy2Finder));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummy2Finder));
     {
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1), edm::Timestamp(1)));
       const edm::EventSetup eventSetup1(provider.eventSetupImpl(), 0, nullptr, parentC);

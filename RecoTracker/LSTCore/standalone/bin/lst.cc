@@ -376,7 +376,7 @@ void run_lst() {
   full_timer.Start();
   // Determine which maps to use based on given pt cut for standalone.
   std::string ptCutString = (ana.ptCut >= 0.8) ? "0.8" : "0.6";
-  auto hostESData = lst::loadAndFillESHost(ptCutString);
+  auto hostESData = lst::loadAndFillESDataHost(ptCutString);
   auto deviceESData =
       cms::alpakatools::CopyToDevice<lst::LSTESData<alpaka_common::DevHost>>::copyAsync(queues[0], *hostESData.get());
   float timeForMapLoading = full_timer.RealTime() * 1000;

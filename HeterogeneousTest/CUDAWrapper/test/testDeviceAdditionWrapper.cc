@@ -43,25 +43,25 @@ TEST_CASE("HeterogeneousTest/CUDAWrapper test", "[cudaTestWrapperAdditionWrapper
     float* in1_d;
     float* in2_d;
     float* out_d;
-    REQUIRE_NOTHROW(cudaCheck(cudaMalloc(&in1_d, size * sizeof(float))));
-    REQUIRE_NOTHROW(cudaCheck(cudaMalloc(&in2_d, size * sizeof(float))));
-    REQUIRE_NOTHROW(cudaCheck(cudaMalloc(&out_d, size * sizeof(float))));
+    REQUIRE_NOTHROW(CUDA_CHECK(cudaMalloc(&in1_d, size * sizeof(float))));
+    REQUIRE_NOTHROW(CUDA_CHECK(cudaMalloc(&in2_d, size * sizeof(float))));
+    REQUIRE_NOTHROW(CUDA_CHECK(cudaMalloc(&out_d, size * sizeof(float))));
 
     // copy the input data to the device
-    REQUIRE_NOTHROW(cudaCheck(cudaMemcpy(in1_d, in1_h.data(), size * sizeof(float), cudaMemcpyHostToDevice)));
-    REQUIRE_NOTHROW(cudaCheck(cudaMemcpy(in2_d, in2_h.data(), size * sizeof(float), cudaMemcpyHostToDevice)));
+    REQUIRE_NOTHROW(CUDA_CHECK(cudaMemcpy(in1_d, in1_h.data(), size * sizeof(float), cudaMemcpyHostToDevice)));
+    REQUIRE_NOTHROW(CUDA_CHECK(cudaMemcpy(in2_d, in2_h.data(), size * sizeof(float), cudaMemcpyHostToDevice)));
 
     // fill the output buffer with zeros
-    REQUIRE_NOTHROW(cudaCheck(cudaMemset(out_d, 0, size * sizeof(float))));
+    REQUIRE_NOTHROW(CUDA_CHECK(cudaMemset(out_d, 0, size * sizeof(float))));
 
     // launch the 1-dimensional kernel for vector addition
     REQUIRE_NOTHROW(cms::cudatest::wrapper_add_vectors_f(in1_d, in2_d, out_d, size));
 
     // copy the results from the device to the host
-    REQUIRE_NOTHROW(cudaCheck(cudaMemcpy(out_h.data(), out_d, size * sizeof(float), cudaMemcpyDeviceToHost)));
+    REQUIRE_NOTHROW(CUDA_CHECK(cudaMemcpy(out_h.data(), out_d, size * sizeof(float), cudaMemcpyDeviceToHost)));
 
     // wait for all the operations to complete
-    REQUIRE_NOTHROW(cudaCheck(cudaDeviceSynchronize()));
+    REQUIRE_NOTHROW(CUDA_CHECK(cudaDeviceSynchronize()));
 
     // check the results
     for (size_t i = 0; i < size; ++i) {

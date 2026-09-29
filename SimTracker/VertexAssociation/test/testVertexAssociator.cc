@@ -36,6 +36,7 @@
 
 namespace reco {
   class TrackToTrackingParticleAssociator;
+  template <typename VertexCollection>
   class VertexToTrackingVertexAssociator;
 }  // namespace reco
 
@@ -50,9 +51,9 @@ public:
 private:
   const reco::TrackToTrackingParticleAssociator *associatorByChi2;
   const reco::TrackToTrackingParticleAssociator *associatorByHits;
-  const reco::VertexToTrackingVertexAssociator *associatorByTracks;
+  const reco::VertexToTrackingVertexAssociator<std::vector<reco::Vertex>> *associatorByTracks;
 
-  const edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator> associatorByTracksToken;
+  const edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator<std::vector<reco::Vertex>>> associatorByTracksToken;
   const edm::InputTag vertexCollection_;
   const edm::EDGetTokenT<TrackingVertexCollection> tokenTV_;
   const edm::EDGetTokenT<edm::View<reco::Vertex>> tokenVtx_;
@@ -104,7 +105,7 @@ class TrackAssociatorByHits;
 class TrackerHitAssociator;
 
 testVertexAssociator::testVertexAssociator(edm::ParameterSet const &conf)
-    : associatorByTracksToken(consumes<reco::VertexToTrackingVertexAssociator>(
+    : associatorByTracksToken(consumes<reco::VertexToTrackingVertexAssociator<std::vector<reco::Vertex>>>(
           conf.getUntrackedParameter<edm::InputTag>("vertexAssociation"))),
       vertexCollection_(conf.getUntrackedParameter<edm::InputTag>("vertexCollection")),
       tokenTV_(consumes<TrackingVertexCollection>(edm::InputTag("mix", "MergedTrackTruth"))),
@@ -169,7 +170,7 @@ void testVertexAssociator::endJob() {
 void testVertexAssociator::analyze(const edm::Event &event, const edm::EventSetup &setup) {
   //const auto &theMF = setup.getHandle(tokenMF_);
 
-  const edm::Handle<reco::VertexToTrackingVertexAssociator> &theTracksAssociator =
+  const edm::Handle<reco::VertexToTrackingVertexAssociator<std::vector<reco::Vertex>>> &theTracksAssociator =
       event.getHandle(associatorByTracksToken);
   associatorByTracks = theTracksAssociator.product();
 

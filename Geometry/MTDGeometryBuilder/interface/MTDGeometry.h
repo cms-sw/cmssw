@@ -31,7 +31,7 @@ public:
   const MTDGeomDet* idToDetUnit(DetId) const override;
   const MTDGeomDet* idToDet(DetId) const override;
 
-  const GeomDetEnumerators::SubDetector geomDetSubDetector(int subdet) const;
+  GeomDetEnumerators::SubDetector geomDetSubDetector(int subdet) const;
   unsigned int numberOfLayers(int subdet) const;
   bool isThere(GeomDetEnumerators::SubDetector subdet) const;
 

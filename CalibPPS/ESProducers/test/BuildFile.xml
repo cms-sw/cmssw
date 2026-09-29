@@ -1,3 +1,5 @@
 <bin name="alignment_xml_io_test" file="alignment_xml_io_test.cc">
+  <use name="CalibPPS/ESProducers"/>
   <use name="Geometry/VeryForwardGeometryBuilder"/>
+  <use name="catch2"/>
 </bin>

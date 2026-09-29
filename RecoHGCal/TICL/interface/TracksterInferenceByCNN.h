@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_interface_TracksterInferenceByCNN_h
-#define RecoHGCal_TICL_interface_TracksterInferenceByCNN_h
+#ifndef RecoHGCal_TICL_TracksterInferenceByCNN_h
+#define RecoHGCal_TICL_TracksterInferenceByCNN_h
 
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "RecoHGCal/TICL/interface/TICLONNXGlobalCache.h"
@@ -8,8 +8,8 @@
 #include <string>
 #include <vector>
 
-namespace hgcal {
-  class RecHitTools;
+namespace ticlgeom {
+  class Tools;
 }
 
 namespace ticl {
@@ -22,13 +22,13 @@ namespace ticl {
 
     void runInference(const std::vector<reco::CaloCluster>& layerClusters,
                       std::vector<Trackster>& tracksters,
-                      const hgcal::RecHitTools& rhtools) const override;
+                      const ticlgeom::Tools& rhtools) const override;
 
   private:
     std::vector<std::string> inputNames_;
     std::vector<std::string> outputNames_;
 
-    double eidMinClusterEnergy_;
+    float eidMinClusterEnergy_;
     int eidNLayers_;
     int eidNClusters_;
     int doPID_;

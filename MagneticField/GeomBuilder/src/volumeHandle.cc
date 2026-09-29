@@ -25,6 +25,7 @@
 
 using namespace SurfaceOrientation;
 using namespace std;
+using namespace magneticfield;
 
 #include "DataFormats/Math/interface/GeantUnits.h"
 

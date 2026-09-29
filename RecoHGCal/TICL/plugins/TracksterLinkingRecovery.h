@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_TracksterLinkingRecovery_H
-#define RecoHGCal_TICL_TracksterLinkingRecovery_H
+#ifndef RecoHGCal_TICL_TracksterLinkingRecovery_h
+#define RecoHGCal_TICL_TracksterLinkingRecovery_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -23,7 +23,7 @@ namespace ticl {
                         std::vector<std::vector<unsigned int>>& linkedResultTracksters,
                         std::vector<std::vector<unsigned int>>& linkedTracksterIdToInputTracksterId) override;
     void initialize(const HGCalDDDConstants* hgcons,
-                    const hgcal::RecHitTools rhtools,
+                    const ticlgeom::Tools rhtools,
                     const edm::ESHandle<MagneticField> bfieldH,
                     const edm::ESHandle<Propagator> propH) override {};
 

@@ -76,6 +76,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               std::vector<unsigned int>(TrackerTraits::startingPairs,
                                         TrackerTraits::startingPairs + TrackerTraits::nStartingPairs))
           ->setComment("The list of the ids of pairs from which the CA ntuplets building may start.");
+      geometryParams
+          .add<std::vector<double>>("startMaxInnerR", std::vector<double>(TrackerTraits::numberOfLayers, 99.0))
+          ->setComment(
+              "The maximum allowed r coordinate of the inner hit of a doublet to use it as a starting point for "
+              "ntuplet building.");
+      /*
+      Cut on quadruplets (two triplets sharing a doublet) using the curvatures Ci, Co of the triplets:
+      |Co - Ci| < (|Co| + |Ci|)/2 * maxDCurv + floorDCurv
+      */
+      geometryParams.add<std::vector<double>>("maxDCurv", std::vector<double>(TrackerTraits::numberOfLayers, 99.))
+          ->setComment("Cut on curvature difference between two consecutive triplets.");
+      geometryParams.add<std::vector<double>>("floorDCurv", std::vector<double>(TrackerTraits::numberOfLayers, 99.))
+          ->setComment("Offset for the cut on curvature difference between two consecutive triplets.");
+      geometryParams
+          .add<std::vector<double>>("fishboneCuts", std::vector<double>(TrackerTraits::numberOfLayers, 0.99999f))
+          ->setComment(
+              "Threshold for merging aligned doublets in fishbone cleaning. Depends on the layer of the outer RecHit. "
+              "Warning: this will be a float in the final algorithm, therefore 0.9999999 will become 1 == no merging!");
       // cells params
       geometryParams
           .add<std::vector<unsigned int>>(
@@ -83,6 +101,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               std::vector<unsigned int>(TrackerTraits::layerPairs,
                                         TrackerTraits::layerPairs + (TrackerTraits::nPairsForQuadruplets * 2)))
           ->setComment("CA graph (layer pairs used for building doublets/cells)");
+      geometryParams
+          .add<std::vector<unsigned int>>("skipsLayers",
+                                          std::vector<unsigned int>(TrackerTraits::nPairsForQuadruplets, 0U))
+          ->setComment(
+              "List of bools idicating whether layer pairs are skipping layers or not (0 means non-skipping, 1 means "
+              "skipping). This is relevant for the N-tuplet building as non-skipping ones are prioritized.");
       geometryParams
           .add<std::vector<int>>(
               "phiCuts",
@@ -171,6 +195,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       desc.add<bool>("earlyFishbone", true);
       desc.add<bool>("lateFishbone", false);
+      desc.add<bool>("onlySameLayersFishbone", false);
       desc.add<bool>("fillStatistics", false);
       desc.add<unsigned int>("minHitsPerNtuplet", 4);
       desc.add<unsigned int>("minHitsForSharingCut", 10)
@@ -182,6 +207,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       desc.add<bool>("doSharedHitCut", true)->setComment("Sharing hit nTuples cleaning");
       desc.add<bool>("dupPassThrough", false)->setComment("Do not reject duplicate");
       desc.add<bool>("useSimpleTripletCleaner", true)->setComment("use alternate implementation");
+      desc.add<bool>("doTripletCleaner", true)
+          ->setComment(
+              "Disable the triplet cleaner entirely.");  // FIXME this should be implemented as an automatic check (simple if) that disables if minHitsPerNtuplet > 3
+      desc.add<bool>("doFastDuplicateRemover", true)->setComment("Disable the fastDuplicateRemover");
+      desc.add<bool>("doEarlyDuplicateRemover", true)->setComment("Disable the earlyDuplicateRemover");
     }
 
     AlgoParams makeCommonParams(edm::ParameterSet const& cfg) {
@@ -213,10 +243,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           cfg.getParameter<bool>("fitNas4"),
           cfg.getParameter<bool>("earlyFishbone"),
           cfg.getParameter<bool>("lateFishbone"),
+          cfg.getParameter<bool>("onlySameLayersFishbone"),
           cfg.getParameter<bool>("fillStatistics"),
           cfg.getParameter<bool>("doSharedHitCut"),
           cfg.getParameter<bool>("dupPassThrough"),
-          cfg.getParameter<bool>("useSimpleTripletCleaner")});
+          cfg.getParameter<bool>("useSimpleTripletCleaner"),
+          cfg.getParameter<bool>("doTripletCleaner"),
+          cfg.getParameter<bool>("doFastDuplicateRemover"),
+          cfg.getParameter<bool>("doEarlyDuplicateRemover")});
     }
 
     //This is needed to have the partial specialization for isPhase1Topology/isPhase2Topology
@@ -382,12 +416,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   template <typename TrackerTraits>
-  reco::TracksSoACollection CAHitNtupletGenerator<TrackerTraits>::makeTuplesAsync(HitsOnDevice const& hits_d,
-                                                                                  CAGeometryOnDevice const& geometry_d,
-                                                                                  float bfield,
-                                                                                  uint32_t nDoublets,
-                                                                                  uint32_t nTracks,
-                                                                                  Queue& queue) const {
+  reco::TracksSoACollection CAHitNtupletGenerator<TrackerTraits>::makeTuplesAsync(
+      HitsOnDeviceRefProdVector const& hitsRefProdVector,
+      CAGeometryOnDevice const& geometry_d,
+      float bfield,
+      uint32_t nDoublets,
+      uint32_t nTracks,
+      Queue& queue) const {
     using HelixFit = HelixFit<TrackerTraits>;
     using GPUKernels = CAHitNtupletGeneratorKernels<TrackerTraits>;
     using TrackHitSoA = ::reco::TrackHitSoA;
@@ -396,39 +431,57 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const int32_t H = m_params.algoParams_.avgHitsPerTrack_;
 
     reco::TracksSoACollection trackCollection(queue, nTracks, nTracks * H);
+    trackCollection.zeroInitialise(queue);
 
     auto tracks = trackCollection.view().tracks();
 
-    auto trackingHits = hits_d.view().trackingHits();
-    auto hitModules = hits_d.view().hitModules();
+    HitsMultiView trackingHits(
+        hitsRefProdVector, [](edm::RefProd<HitsOnDevice> hits) -> auto { return hits->const_view().trackingHits(); });
+
+    std::vector<int> hitModulesSizes;
+    for (const auto& hit : hitsRefProdVector) {
+      hitModulesSizes.push_back(static_cast<int>(hit->nModules()));
+    }
+
+    // We need to encounter for the last hidden module, so we add 1 to the last element of hitModulesSizes
+    if (!hitModulesSizes.empty()) {
+      ++hitModulesSizes.back();
+    }
+
+    ModulesMultiView hitModules(
+        hitsRefProdVector,
+        [](edm::RefProd<HitsOnDevice> hits) -> auto { return hits->const_view().hitModules(); },
+        hitModulesSizes);
 
     auto layers = geometry_d.view().layers();
     auto graph = geometry_d.view().graph();
     auto modules = geometry_d.view().modules();
 
+    const uint32_t nHits = static_cast<uint32_t>(trackingHits.size());
+    const uint32_t offsetBPIX2 = static_cast<uint32_t>(hitsRefProdVector[0]->offsetBPIX2());
+
     // Don't bother if less than 2 this
-    if (trackingHits.metadata().size() < 2) {
+    if (trackingHits.size() < 2) {
       const auto device = alpaka::getDev(queue);
       auto ntracks_d = cms::alpakatools::make_device_view(device, tracks.nTracks());
       alpaka::memset(queue, ntracks_d, 0);
       return trackCollection;
     }
-    GPUKernels kernels(
-        m_params, hits_d.nHits(), hits_d.offsetBPIX2(), nDoublets, nTracks, layers.metadata().size(), queue);
+    GPUKernels kernels(m_params, nHits, offsetBPIX2, nDoublets, nTracks, layers.metadata().size(), queue);
 
     kernels.prepareHits(trackingHits, hitModules, layers, queue);
-    kernels.buildDoublets(trackingHits, graph, layers, hits_d.offsetBPIX2(), queue);
+    kernels.buildDoublets(trackingHits, graph, layers, offsetBPIX2, queue);
     kernels.launchKernels(
-        trackingHits, hits_d.offsetBPIX2(), layers.metadata().size(), trackCollection.view(), layers, graph, queue);
+        trackingHits, offsetBPIX2, layers.metadata().size(), trackCollection.view(), layers, graph, queue);
 
     HelixFit fitter(bfield, m_params.algoParams_.fitNas4_);
     fitter.allocate(kernels.tupleMultiplicity(), tracks, kernels.hitContainer());
     if (m_params.algoParams_.useRiemannFit_) {
       fitter.launchRiemannKernels(
-          trackingHits, modules, trackingHits.metadata().size(), TrackerTraits::maxNumberOfQuadruplets, queue);
+          trackingHits, modules, trackingHits.size(), TrackerTraits::maxNumberOfQuadruplets, queue);
     } else {
       fitter.launchBrokenLineKernels(
-          trackingHits, modules, trackingHits.metadata().size(), TrackerTraits::maxNumberOfQuadruplets, queue);
+          trackingHits, modules, trackingHits.size(), TrackerTraits::maxNumberOfQuadruplets, queue);
     }
     kernels.classifyTuples(trackingHits, tracks, queue);
 #ifdef GPU_DEBUG

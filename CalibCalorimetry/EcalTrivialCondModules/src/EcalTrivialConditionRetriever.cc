@@ -28,6 +28,14 @@
 
 using namespace edm;
 
+namespace {
+  void checkedFgets(char* line, int size, FILE* file, const std::string& filename) {
+    if (fgets(line, size, file) == nullptr) {
+      throw cms::Exception("FileReadError") << "Unexpected end of file while reading " << filename;
+    }
+  }
+}  // namespace
+
 EcalTrivialConditionRetriever::EcalTrivialConditionRetriever(const edm::ParameterSet& ps) {
   std::string dataPath_ =
       ps.getUntrackedParameter<std::string>("dataPath", "CalibCalorimetry/EcalTrivialCondModules/data/");
@@ -567,16 +575,6 @@ EcalTrivialConditionRetriever::~EcalTrivialConditionRetriever() {}
 //
 // member functions
 //
-void EcalTrivialConditionRetriever::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& rk,
-                                                   const edm::IOVSyncValue& iTime,
-                                                   edm::ValidityInterval& oValidity) {
-  if (verbose_ >= 1)
-    edm::LogInfo("EcalTrivialConditionRetriever::setIntervalFor(): record key = ")
-        << rk.name() << "\ttime: " << iTime.time().value();
-  //For right now, we will just use an infinite interval of validity
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}
-
 //produce methods
 std::unique_ptr<EcalPedestals> EcalTrivialConditionRetriever::produceEcalPedestals(const EcalPedestalsRcd&) {
   auto peds = std::make_unique<EcalPedestals>();
@@ -2757,26 +2755,26 @@ std::unique_ptr<EcalIntercalibConstants> EcalTrivialConditionRetriever::getInter
 
     char line[256];
     std::ostringstream str;
-    fgets(line, 255, inpFile);
+    checkedFgets(line, 255, inpFile, intercalibConstantsFile_);
     int sm_number = atoi(line);
     str << "sm: " << sm_number;
 
-    fgets(line, 255, inpFile);
+    checkedFgets(line, 255, inpFile, intercalibConstantsFile_);
     //int nevents=atoi (line) ; // not necessary here just for online conddb
 
-    fgets(line, 255, inpFile);
+    checkedFgets(line, 255, inpFile, intercalibConstantsFile_);
     std::string gen_tag = line;
     str << "gen tag: " << gen_tag;  // should I use this?
 
-    fgets(line, 255, inpFile);
+    checkedFgets(line, 255, inpFile, intercalibConstantsFile_);
     std::string cali_method = line;
     str << "cali method: " << cali_method << std::endl;  // not important
 
-    fgets(line, 255, inpFile);
+    checkedFgets(line, 255, inpFile, intercalibConstantsFile_);
     std::string cali_version = line;
     str << "cali version: " << cali_version << std::endl;  // not important
 
-    fgets(line, 255, inpFile);
+    checkedFgets(line, 255, inpFile, intercalibConstantsFile_);
     std::string cali_type = line;
     str << "cali type: " << cali_type;  // not important
 
@@ -2980,26 +2978,26 @@ std::unique_ptr<EcalIntercalibErrors> EcalTrivialConditionRetriever::getIntercal
 
   char line[256];
   std::ostringstream str;
-  fgets(line, 255, inpFile);
+  checkedFgets(line, 255, inpFile, intercalibErrorsFile_);
   int sm_number = atoi(line);
   str << "sm: " << sm_number;
 
-  fgets(line, 255, inpFile);
+  checkedFgets(line, 255, inpFile, intercalibErrorsFile_);
   //int nevents=atoi (line) ; // not necessary here just for online conddb
 
-  fgets(line, 255, inpFile);
+  checkedFgets(line, 255, inpFile, intercalibErrorsFile_);
   std::string gen_tag = line;
   str << "gen tag: " << gen_tag;  // should I use this?
 
-  fgets(line, 255, inpFile);
+  checkedFgets(line, 255, inpFile, intercalibErrorsFile_);
   std::string cali_method = line;
   str << "cali method: " << cali_method << std::endl;  // not important
 
-  fgets(line, 255, inpFile);
+  checkedFgets(line, 255, inpFile, intercalibErrorsFile_);
   std::string cali_version = line;
   str << "cali version: " << cali_version << std::endl;  // not important
 
-  fgets(line, 255, inpFile);
+  checkedFgets(line, 255, inpFile, intercalibErrorsFile_);
   std::string cali_type = line;
   str << "cali type: " << cali_type;  // not important
 
@@ -3086,26 +3084,26 @@ std::unique_ptr<EcalTimeCalibConstants> EcalTrivialConditionRetriever::getTimeCa
 
   char line[256];
   std::ostringstream str;
-  fgets(line, 255, inpFile);
+  checkedFgets(line, 255, inpFile, timeCalibConstantsFile_);
   int sm_number = atoi(line);
   str << "sm: " << sm_number;
 
-  fgets(line, 255, inpFile);
+  checkedFgets(line, 255, inpFile, timeCalibConstantsFile_);
   //int nevents=atoi (line) ; // not necessary here just for online conddb
 
-  fgets(line, 255, inpFile);
+  checkedFgets(line, 255, inpFile, timeCalibConstantsFile_);
   std::string gen_tag = line;
   str << "gen tag: " << gen_tag;  // should I use this?
 
-  fgets(line, 255, inpFile);
+  checkedFgets(line, 255, inpFile, timeCalibConstantsFile_);
   std::string cali_method = line;
   str << "cali method: " << cali_method << std::endl;  // not important
 
-  fgets(line, 255, inpFile);
+  checkedFgets(line, 255, inpFile, timeCalibConstantsFile_);
   std::string cali_version = line;
   str << "cali version: " << cali_version << std::endl;  // not important
 
-  fgets(line, 255, inpFile);
+  checkedFgets(line, 255, inpFile, timeCalibConstantsFile_);
   std::string cali_type = line;
   str << "cali type: " << cali_type;  // not important
 
@@ -3190,26 +3188,26 @@ std::unique_ptr<EcalTimeCalibErrors> EcalTrivialConditionRetriever::getTimeCalib
 
   char line[256];
   std::ostringstream str;
-  fgets(line, 255, inpFile);
+  checkedFgets(line, 255, inpFile, timeCalibErrorsFile_);
   int sm_number = atoi(line);
   str << "sm: " << sm_number;
 
-  fgets(line, 255, inpFile);
+  checkedFgets(line, 255, inpFile, timeCalibErrorsFile_);
   //int nevents=atoi (line) ; // not necessary here just for online conddb
 
-  fgets(line, 255, inpFile);
+  checkedFgets(line, 255, inpFile, timeCalibErrorsFile_);
   std::string gen_tag = line;
   str << "gen tag: " << gen_tag;  // should I use this?
 
-  fgets(line, 255, inpFile);
+  checkedFgets(line, 255, inpFile, timeCalibErrorsFile_);
   std::string cali_method = line;
   str << "cali method: " << cali_method << std::endl;  // not important
 
-  fgets(line, 255, inpFile);
+  checkedFgets(line, 255, inpFile, timeCalibErrorsFile_);
   std::string cali_version = line;
   str << "cali version: " << cali_version << std::endl;  // not important
 
-  fgets(line, 255, inpFile);
+  checkedFgets(line, 255, inpFile, timeCalibErrorsFile_);
   std::string cali_type = line;
   str << "cali type: " << cali_type;  // not important
 

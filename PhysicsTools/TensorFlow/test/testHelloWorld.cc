@@ -35,7 +35,7 @@ void testHelloWorld::test() {
   tensorflow::Backend backend = tensorflow::Backend::cpu;
 
   // object to load and run the graph / session
-  tensorflow::Status status;
+  absl::Status status;
   tensorflow::Options options{backend};
   tensorflow::RunOptions runOptions;
   tensorflow::SavedModelBundle bundle;

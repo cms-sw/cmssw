@@ -1,5 +1,5 @@
-#ifndef DataFormats_HGCalReco_TICLGraph_h
-#define DataFormats_HGCalReco_TICLGraph_h
+#ifndef RecoHGCal_TICL_TICLGraph_h
+#define RecoHGCal_TICL_TICLGraph_h
 
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/TrackReco/interface/Track.h"

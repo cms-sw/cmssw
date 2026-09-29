@@ -163,12 +163,3 @@ SiStripFedCabling* SiStripFedCablingFakeESSource::make(const SiStripFedCablingRc
 
   return cabling;
 }
-
-// -----------------------------------------------------------------------------
-//
-void SiStripFedCablingFakeESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& key,
-                                                   const edm::IOVSyncValue& iov_sync,
-                                                   edm::ValidityInterval& iov_validity) {
-  edm::ValidityInterval infinity(iov_sync.beginOfTime(), iov_sync.endOfTime());
-  iov_validity = infinity;
-}

@@ -28,6 +28,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include "h5_DataSet.h"
@@ -83,23 +84,19 @@ void HDF5ProductResolver::prefetchAsyncImpl(edm::WaitingTaskHolder iTask,
           CMS_SA_ALLOW try {
             edm::ESModuleCallingContext context(providerDescription(),
                                                 reinterpret_cast<std::uintptr_t>(this),
-                                                edm::ESModuleCallingContext::State::kRunning,
+                                                edm::ESModuleCallingContext::State::kPrefetching,
                                                 iParent);
+            auto guard = edm::signalslot::make_sentry([&iRecord, &context]() {
+              iRecord.activityRegistry()->postESModuleSignal_.emit(iRecord.key(), context);
+            });
             iRecord.activityRegistry()->preESModuleSignal_.emit(iRecord.key(), context);
-            struct EndGuard {
-              EndGuard(edm::eventsetup::EventSetupRecordImpl const& iRecord,
-                       edm::ESModuleCallingContext const& iContext)
-                  : record_{iRecord}, context_{iContext} {}
-              ~EndGuard() { record_.activityRegistry()->postESModuleSignal_.emit(record_.key(), context_); }
-              edm::eventsetup::EventSetupRecordImpl const& record_;
-              edm::ESModuleCallingContext const& context_;
-            } guardAR(iRecord, context);
 
             auto index = indexForInterval(iov);
 
             readFromHDF5api(index);
             iGroup.run(std::move(act));
             exceptPtr_ = {};
+            guard.succeeded();
           } catch (...) {
             exceptPtr_ = std::current_exception();
           }
@@ -222,14 +219,14 @@ std::vector<char> HDF5ProductResolver::decompress_zstd(std::vector<char> compres
     if (size == ZSTD_CONTENTSIZE_UNKNOWN) {
       // decompressed size field is not present, assume iMemSize
       size = iMemSize;
-    } else if (ZSTD_isError(size)) {
+    } else if (size == ZSTD_CONTENTSIZE_ERROR) {
       throw cms::Exception("H5CondFailedDecompress")
           << "error detected before attempting to decompress buffer using zstd";
     } else if (size != iMemSize) {
       throw cms::Exception("H5CondFailedDecompress")
           << "unexpected payload size before attempting to decompress buffer using zstd";
     }
-    buffer = std::vector<char>(iMemSize);
+    buffer = std::vector<char>(size);
     size = ZSTD_decompress(buffer.data(), buffer.size(), compressedBuffer.data(), compressedBuffer.size());
     if (ZSTD_isError(size)) {
       throw cms::Exception("H5CondFailedDecompress") << "error detected during zstd buffer decompression";

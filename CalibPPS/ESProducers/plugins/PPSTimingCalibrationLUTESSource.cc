@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/ESProducts.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -31,7 +31,7 @@ namespace pt = boost::property_tree;
 
 //------------------------------------------------------------------------------
 
-class PPSTimingCalibrationLUTESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class PPSTimingCalibrationLUTESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   PPSTimingCalibrationLUTESSource(const edm::ParameterSet&);
 
@@ -40,10 +40,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
-
   /// Extract calibration data from JSON file (PPS horizontal diamond)
   std::unique_ptr<PPSTimingCalibrationLUT> parsePPSDiamondLUTJsonFile() const;
 
@@ -63,14 +59,6 @@ PPSTimingCalibrationLUTESSource::PPSTimingCalibrationLUTESSource(const edm::Para
 edm::ESProducts<std::unique_ptr<PPSTimingCalibrationLUT> > PPSTimingCalibrationLUTESSource::produce(
     const PPSTimingCalibrationLUTRcd&) {
   return edm::es::products(parsePPSDiamondLUTJsonFile());
-}
-
-//------------------------------------------------------------------------------
-
-void PPSTimingCalibrationLUTESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                                     const edm::IOVSyncValue&,
-                                                     edm::ValidityInterval& oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }
 
 //------------------------------------------------------------------------------

@@ -41,7 +41,8 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoHGCal/TICL/interface/TICLUtils.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
@@ -56,7 +57,7 @@
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 
@@ -64,46 +65,34 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-using TracksterToTracksterMap =
-    ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>;
+using TracksterToTracksterMap = ticl::
+    TICLAssociationMap<ticl::mapWithSharedEnergyAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>;
 // Helper class for geometry, magnetic field, etc
 class DetectorTools {
 public:
   DetectorTools(const HGCalDDDConstants& hgcons,
-                const CaloGeometry& geom,
+                const TICLGeomHost& ticlGeom,
+                const TICLGeomLookupHost& ticlGeomLookup,
+                const TICLGeomLayersHost& ticlGeomLayers,
                 const MagneticField& bfieldH,
                 const Propagator& propH)
       : hgcons(hgcons), rhtools(), bfield(bfieldH), propagator(propH) {
-    rhtools.setGeometry(geom);
+    rhtools.setGeometry(ticlGeom, ticlGeomLookup, ticlGeomLayers);
 
     // build disks at HGCal front & EM-Had interface for track propagation
-    float zVal = hgcons.waferZ(1, true);
-    std::pair<float, float> rMinMax = hgcons.rangeR(zVal, true);
+    auto firstDisks = ticl::utils::buildHGCalFirstDisks(hgcons);
+    auto interfaceDisks = ticl::utils::buildHGCalInterfaceDisks(hgcons, rhtools);
 
-    float zVal_interface = rhtools.getPositionLayer(rhtools.lastLayerEE()).z();
-    std::pair<float, float> rMinMax_interface = hgcons.rangeR(zVal_interface, true);
-
-    for (int iSide = 0; iSide < 2; ++iSide) {
-      float zSide = (iSide == 0) ? (-1. * zVal) : zVal;
-      firstDisk_[iSide] = std::make_unique<GeomDet>(
-          Disk::build(Disk::PositionType(0, 0, zSide),
-                      Disk::RotationType(),
-                      SimpleDiskBounds(rMinMax.first, rMinMax.second, zSide - 0.5, zSide + 0.5))
-              .get());
-
-      zSide = (iSide == 0) ? (-1. * zVal_interface) : zVal_interface;
-      interfaceDisk_[iSide] = std::make_unique<GeomDet>(
-          Disk::build(Disk::PositionType(0, 0, zSide),
-                      Disk::RotationType(),
-                      SimpleDiskBounds(rMinMax_interface.first, rMinMax_interface.second, zSide - 0.5, zSide + 0.5))
-              .get());
+    for (int side = 0; side < 2; ++side) {
+      firstDisk_[side] = std::move(firstDisks[side]);
+      interfaceDisk_[side] = std::move(interfaceDisks[side]);
     }
   }
 
   const HGCalDDDConstants& hgcons;
   std::unique_ptr<GeomDet> firstDisk_[2];
   std::unique_ptr<GeomDet> interfaceDisk_[2];
-  hgcal::RecHitTools rhtools;
+  ticlgeom::Tools rhtools;
   const MagneticField& bfield;
   const Propagator& propagator;
 };
@@ -634,7 +623,9 @@ private:
   edm::EDGetTokenT<reco::SuperClusterCollection> recoSuperClusters_token;
   edm::EDGetTokenT<reco::CaloClusterCollection> recoSuperClusters_caloClusters_token;
   edm::EDGetTokenT<std::vector<ticl::Trackster>> recoSuperClusters_sourceTracksters_token;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometry_token_;
+  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
+  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
+  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   const edm::EDGetTokenT<std::vector<ticl::Trackster>> simTracksters_SC_token_;  // needed for simticlcandidate
   const edm::EDGetTokenT<std::vector<TICLCandidate>> simTICLCandidate_token_;
 
@@ -961,7 +952,11 @@ TICLDumper::TICLDumper(const edm::ParameterSet& ps)
           consumes<reco::CaloClusterCollection>(ps.getParameter<edm::InputTag>("recoSuperClusters"))),
       recoSuperClusters_sourceTracksters_token(consumes<std::vector<ticl::Trackster>>(
           ps.getParameter<edm::InputTag>("recoSuperClusters_sourceTracksterCollection"))),
-      caloGeometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
+      ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
+      ticlGeomLookupToken_(
+          esConsumes<TICLGeomLookupHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
+      ticlGeomLayersToken_(
+          esConsumes<TICLGeomLayersHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
       simTracksters_SC_token_(
           consumes<std::vector<ticl::Trackster>>(ps.getParameter<edm::InputTag>("simtrackstersSC"))),
       simTICLCandidate_token_(
@@ -989,7 +984,7 @@ TICLDumper::TICLDumper(const edm::ParameterSet& ps)
       saveSuperclustering_(ps.getParameter<bool>("saveSuperclustering")),
       //saveSuperclusteringDNNScore_(ps.getParameter<bool>("saveSuperclusteringDNNScore")),
       saveRecoSuperclusters_(ps.getParameter<bool>("saveRecoSuperclusters")),
-      saveTICLCandidate_(ps.getParameter<bool>("saveSimTICLCandidate")),
+      saveTICLCandidate_(ps.getParameter<bool>("saveTICLCandidate")),
       saveSimTICLCandidate_(ps.getParameter<bool>("saveSimTICLCandidate")),
       saveTracks_(ps.getParameter<bool>("saveTracks")),
       saveHits_(ps.getParameter<bool>("saveHits")) {
@@ -1026,7 +1021,9 @@ TICLDumper::~TICLDumper() { clearVariables(); };
 
 void TICLDumper::beginRun(edm::Run const&, edm::EventSetup const& es) {
   detectorTools_ = std::make_unique<DetectorTools>(es.getData(hdc_token_),
-                                                   es.getData(caloGeometry_token_),
+                                                   es.getData(ticlGeomToken_),
+                                                   es.getData(ticlGeomLookupToken_),
+                                                   es.getData(ticlGeomLayersToken_),
                                                    es.getData(bfield_token_),
                                                    es.getData(propagator_token_));
 }
@@ -1192,9 +1189,6 @@ void TICLDumper::beginJob() {
 void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   eventId_ = event.id();
   clearVariables();
-
-  edm::Handle<std::vector<ticl::Trackster>> tracksters_in_candidate_handle;
-  event.getByToken(tracksters_in_candidate_token_, tracksters_in_candidate_handle);
 
   //get all the layer clusters
   edm::Handle<std::vector<reco::CaloCluster>> layer_clusters_h;
@@ -1395,6 +1389,7 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
     simTICLCandidate_pt.push_back(cand.pt());
     simTICLCandidate_phi.push_back(cand.phi());
     simTICLCandidate_eta.push_back(cand.eta());
+    simTICLCandidate_caloParticleMass.push_back(cand.p4().mass());
     std::vector<int> tmpIdxVec;
     for (auto const& simTS : cand.tracksters()) {
       auto trackster_idx = simTS.get() - (edm::Ptr<ticl::Trackster>(simTrackstersSC_h, 0)).get();
@@ -1512,7 +1507,8 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
     auto trackster_ptrs = candidate.tracksters();
     auto track_ptr = candidate.trackPtr();
     for (const auto& ts_ptr : trackster_ptrs) {
-      auto ts_idx = ts_ptr.get() - (edm::Ptr<ticl::Trackster>(tracksters_in_candidate_handle, 0)).get();
+      // the candidate's trackster Ptrs reference the ticlCandidate trackster collection, not trackstersInCand
+      auto ts_idx = ts_ptr.get() - (edm::Ptr<ticl::Trackster>(ticlcandidates_tracksters_h, 0)).get();
       tracksters_in_candidate[i].push_back(ts_idx);
     }
     if (track_ptr.isNull())

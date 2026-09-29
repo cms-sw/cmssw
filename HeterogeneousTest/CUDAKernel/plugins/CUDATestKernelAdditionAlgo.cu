@@ -14,7 +14,7 @@ namespace HeterogeneousTestCUDAKernelPlugins {
                              float* __restrict__ out,
                              size_t size) {
     cms::cudatest::kernel_add_vectors_f<<<32, 32>>>(in1, in2, out, size);
-    cudaCheck(cudaGetLastError());
+    CUDA_CHECK(cudaGetLastError());
   }
 
 }  // namespace HeterogeneousTestCUDAKernelPlugins

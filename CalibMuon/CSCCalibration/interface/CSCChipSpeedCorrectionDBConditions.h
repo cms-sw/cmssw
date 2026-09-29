@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -18,7 +18,7 @@
 #include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCChipSpeedCorrectionDBConditions : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class CSCChipSpeedCorrectionDBConditions : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   CSCChipSpeedCorrectionDBConditions(const edm::ParameterSet &);
   ~CSCChipSpeedCorrectionDBConditions() override;
@@ -33,10 +33,6 @@ public:
 
 private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                      const edm::IOVSyncValue &,
-                      edm::ValidityInterval &) override;
-  CSCDBChipSpeedCorrection *cndbChipCorr;
 
   // Flag for determining if this is for setting MC or data corrections
   bool isForMC;

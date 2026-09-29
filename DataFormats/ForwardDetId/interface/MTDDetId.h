@@ -61,13 +61,13 @@ namespace io_v1 {
     /** Returns enumerated type specifying MTD sub-detector, i.e. BTL or ETL. */
     inline int mtdSubDetector() const { return (id_ >> kMTDsubdOffset) & kMTDsubdMask; }
 
-    static inline bool const testForMTD(const DetId& id) {
+    static inline bool testForMTD(const DetId& id) {
       return (id.rawId() >> MTDDetId::kMTDOffset) == MTDDetId::kMTDMask;
     }
-    static inline bool const testForBTL(const DetId& id) {
+    static inline bool testForBTL(const DetId& id) {
       return (id.rawId() >> MTDDetId::kMTDsubdOffset) == MTDDetId::kBTLMask;
     }
-    static inline bool const testForETL(const DetId& id) {
+    static inline bool testForETL(const DetId& id) {
       return (id.rawId() >> MTDDetId::kMTDsubdOffset) == MTDDetId::kETLMask;
     }
 

@@ -72,6 +72,14 @@ namespace edm {
   bool decode(std::vector<double>&, std::string_view);
   bool encode(std::string&, std::vector<double> const&);
 
+  // Float
+  bool decode(float&, std::string_view);
+  bool encode(std::string&, float);
+
+  // vFloat
+  bool decode(std::vector<float>&, std::string_view);
+  bool encode(std::string&, std::vector<float> const&);
+
   // String
   bool decode(std::string&, std::string_view);
   bool encode(std::string&, std::string const&);

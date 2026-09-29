@@ -1,12 +1,12 @@
 // Author: Marco Rovere - marco.rovere@cern.ch
 // Date: 10/2021
 
-#ifndef __RecoHGCal_TICL_PRbyFASTJET_H__
-#define __RecoHGCal_TICL_PRbyFASTJET_H__
+#ifndef RecoHGCal_TICL_PatternRecognitionbyFastJet_h
+#define RecoHGCal_TICL_PatternRecognitionbyFastJet_h
 #include <memory>  // unique_ptr
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
 // fwd declaration
 
@@ -31,10 +31,10 @@ namespace ticl {
                 std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
-    void setGeometry(hgcal::RecHitTools const& rhtools) override;
+    void setGeometry(ticlgeom::Tools const& rhtools) override;
 
   private:
-    const double antikt_radius_;
+    const float antikt_radius_;
     const int minNumLayerCluster_;
     const bool computeLocalTime_;
 

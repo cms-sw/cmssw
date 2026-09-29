@@ -49,6 +49,8 @@ namespace ticl {
   //constants
   constexpr double mpion = 0.13957;
   constexpr float mpion2 = mpion * mpion;
+  constexpr double mmuon = 0.1056583745;
+  constexpr float mmuon2 = mmuon * mmuon;
   typedef math::XYZVectorF Vector;
 
   inline Trackster::ParticleType tracksterParticleTypeFromPdgId(int pdgId, int charge) {

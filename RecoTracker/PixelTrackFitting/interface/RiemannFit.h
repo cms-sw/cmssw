@@ -593,7 +593,6 @@ namespace riemannFit {
 #endif
       {
         Eigen::Matrix<double, 1, 1> cm;
-        Eigen::Matrix<double, 1, 1> cm2;
         cm = mc.transpose() * vMat * mc;
         const double tempC2 = cm(0, 0);
         Matrix2Nd<N> tempVcsMat;
@@ -727,7 +726,6 @@ namespace riemannFit {
         Eigen::Matrix<double, 1, 1> cm1;
         Eigen::Matrix<double, 1, 1> cm3;
         cm1 = (vVec.transpose() * c0Mat * vVec);
-        //      cm2 = (c0Mat.cwiseProduct(t0)).sum();
         cm3 = (r0.transpose() * t0 * r0);
         // Workaround to get things working in GPU
         const double tempC = cm1(0, 0) + (c0Mat.cwiseProduct(t0)).sum() + cm3(0, 0);

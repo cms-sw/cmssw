@@ -7,4 +7,4 @@ from ..modules.hltEcalDetIdToBeRecovered_cfi import *
 from ..modules.hltEcalDigis_cfi import *
 from ..modules.hltEcalRecHit_cfi import *
 
-HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence(hltEcalDigis+bunchSpacingProducer+hltEcalDetIdToBeRecovered+hltEcalMultiFitUncalibRecHit+hltEcalRecHit+hltEcalDetailedTimeRecHit)
+HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence(hltEcalDigis+hltBunchSpacingProducer+hltEcalDetIdToBeRecovered+hltEcalMultiFitUncalibRecHit+hltEcalRecHit+hltEcalDetailedTimeRecHit)

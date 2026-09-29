@@ -125,7 +125,7 @@ void go(bool soa) {
   std::cout << mm[SIZE / 2](1, 1) << std::endl;
 
   auto m_d = cms::cuda::make_device_unique<double[]>(DIM * DIM * stride(), nullptr);
-  cudaCheck(cudaMemcpy(m_d.get(), (double const *)(mm), stride() * sizeof(MX), cudaMemcpyHostToDevice));
+  CUDA_CHECK(cudaMemcpy(m_d.get(), (double const *)(mm), stride() * sizeof(MX), cudaMemcpyHostToDevice));
 
   constexpr int NKK =
 #ifdef DOPROF
@@ -144,7 +144,7 @@ void go(bool soa) {
     else
       cms::cuda::launch(invert<MX, DIM>, {blocksPerGrid, threadsPerBlock}, (MX *)(m_d.get()), SIZE);
 
-    cudaCheck(cudaMemcpy(&mm, m_d.get(), stride() * sizeof(MX), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(&mm, m_d.get(), stride() * sizeof(MX), cudaMemcpyDeviceToHost));
 
     delta += (std::chrono::high_resolution_clock::now() - start);
 
@@ -156,7 +156,7 @@ void go(bool soa) {
 
 #ifndef DOPROF
       cms::cuda::launch(invertSeq<MX, DIM>, {blocksPerGrid, threadsPerBlock}, (MX *)(m_d.get()), SIZE);
-      cudaCheck(cudaMemcpy(&mm, m_d.get(), stride() * sizeof(MX), cudaMemcpyDeviceToHost));
+      CUDA_CHECK(cudaMemcpy(&mm, m_d.get(), stride() * sizeof(MX), cudaMemcpyDeviceToHost));
 #endif
       delta1 += (std::chrono::high_resolution_clock::now() - start);
 

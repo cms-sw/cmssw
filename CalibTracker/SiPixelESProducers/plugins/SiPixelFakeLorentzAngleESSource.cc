@@ -27,7 +27,7 @@
 #include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 #include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -42,18 +42,13 @@
 // class decleration
 //
 
-class SiPixelFakeLorentzAngleESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class SiPixelFakeLorentzAngleESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  SiPixelFakeLorentzAngleESSource(const edm::ParameterSet&);
+  explicit SiPixelFakeLorentzAngleESSource(const edm::ParameterSet&);
   ~SiPixelFakeLorentzAngleESSource() override = default;
-  virtual std::unique_ptr<SiPixelLorentzAngle> produce(const SiPixelLorentzAngleRcd&);
+  std::unique_ptr<SiPixelLorentzAngle> produce(const SiPixelLorentzAngleRcd&);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
-protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
 
 private:
   int HVgroup(int panel, int module);
@@ -252,13 +247,6 @@ std::unique_ptr<SiPixelLorentzAngle> SiPixelFakeLorentzAngleESSource::produce(co
   edm::LogInfo("SiPixelFakeLorentzAngleESSource") << "Modules = " << nmodules << std::endl;
 
   return std::unique_ptr<SiPixelLorentzAngle>(obj);
-}
-
-void SiPixelFakeLorentzAngleESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                                     const edm::IOVSyncValue& iosv,
-                                                     edm::ValidityInterval& oValidity) {
-  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
-  oValidity = infinity;
 }
 
 int SiPixelFakeLorentzAngleESSource::HVgroup(int panel, int module) {

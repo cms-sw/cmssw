@@ -89,6 +89,7 @@ namespace edm {
       virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
       virtual bool wantsStreamRuns() const noexcept = 0;
       virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
+      constexpr static bool wantsWrites() noexcept { return false; }
 
       void registerProductsAndCallbacks(EDAnalyzerAdaptorBase const*, SignallingProductRegistryFiller* reg);
 
@@ -126,7 +127,7 @@ namespace edm {
       void deleteModulesEarly();
 
     private:
-      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
       void doPreallocate(PreallocationConfiguration const&);
       virtual void preallocRuns(unsigned int) {}
       virtual void preallocLumis(unsigned int) {}

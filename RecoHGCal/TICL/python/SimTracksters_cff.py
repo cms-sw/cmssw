@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoHGCal.TICL.simTrackstersProducer_cfi import simTrackstersProducer as _simTrackstersProducer
 from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerClustersProducer as _filteredLayerClustersProducer
 
-
+from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi import trackingParticleRecoTrackAsssociation
 # CA - PATTERN RECOGNITION
 
 
@@ -13,8 +13,13 @@ filteredLayerClustersSimTracksters = _filteredLayerClustersProducer.clone(
     iteration_label = "ticlSimTracksters"
 )
 
+trackingParticleGsfTrackAssociation = trackingParticleRecoTrackAsssociation.clone(
+    label_tr = "electronGsfTracks",  
+)
+
 ticlSimTracksters = _simTrackstersProducer.clone(
-    computeLocalTime = cms.bool(True)
+    computeLocalTime = cms.bool(True),
+    tpToGsfTrack = cms.InputTag("trackingParticleGsfTrackAssociation"),  
 )
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
@@ -23,7 +28,7 @@ premix_stage2.toModify(ticlSimTracksters,
     caloparticles = "mixData:MergedCaloTruth",
 )
 
-ticlSimTrackstersTask = cms.Task(filteredLayerClustersSimTracksters, ticlSimTracksters)
+ticlSimTrackstersTask = cms.Task(filteredLayerClustersSimTracksters, trackingParticleGsfTrackAssociation, ticlSimTracksters)
 
 # BARREL
 

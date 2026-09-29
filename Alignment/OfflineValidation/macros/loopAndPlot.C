@@ -26,7 +26,7 @@ TFile *sourceFile1, *sourceFile2;
 
 // multi-file case
 std::vector<TFile *> sourceFiles;
-Int_t def_colors[9] = {kBlack, kBlue, kRed, kMagenta, kGreen, kCyan, kViolet, kOrange, kGreen + 2};
+constexpr Int_t def_colors[9] = {kBlack, kBlue, kRed, kMagenta, kGreen, kCyan, kViolet, kOrange, kGreen + 2};
 
 std::pair<Double_t, Double_t> getExtrema(TObjArray *array);
 template <typename T>

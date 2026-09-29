@@ -2,7 +2,11 @@ from CRABAPI.RawCommand import crabCommand
 from CRABClient.UserUtilities import config
 from copy import deepcopy
 import os
- 
+import json
+
+with open("../datasets.json") as f:
+    dataset_configs = json.load(f)
+
 def submit(config):
     res = crabCommand('submit', config = config)
     #save crab config for the future
@@ -10,12 +14,10 @@ def submit(config):
         fi.write(config.pythonise_())
 
 samples = [
-    ("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_12_1_0_pre2-121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "QCD_noPU2"),
-    ("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "QCD_PU"),
-    ("/RelValZEE_14/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "ZEE_PU"),
-    ("/RelValZMM_14/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "ZMM_PU"),
-    ("/RelValTenTau_15_500/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "TenTau_PU"),
-    ("/RelValNuGun/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "NuGun_PU"),
+    (d["path"], d["name"])
+    for d in dataset_configs
+    #if d["name"] in ["QCD_noPU"] # submit only QCD_noPU
+    if d["name"] in ["QCD_noPU", "QCD_PU"] # submit only QCD_noPU & QCD_PU
 ]
 
 if __name__ == "__main__":
@@ -38,16 +40,17 @@ if __name__ == "__main__":
         conf.JobType.numCores = 8
         
         conf.Data.inputDataset = dataset
-        conf.Data.splitting = 'LumiBased'
-        conf.Data.unitsPerJob = 10
+        conf.Data.splitting = 'FileBased'
+        conf.Data.unitsPerJob = 1
         #conf.Data.totalUnits = 50
         conf.Data.publication = False
         conf.Data.outputDatasetTag = 'pfvalidation'
-        conf.Data.ignoreLocality = True
+        #conf.Data.ignoreLocality = True
         
         # Where the output files will be transmitted to
         conf.Site.storageSite = 'T3_US_Baylor'
         #conf.Site.storageSite = 'T2_US_Caltech'
         #conf.Site.whitelist = ["T2_US_Caltech", "T2_CH_CERN"]
+        #conf.Site.whitelist = ["T3_US_Baylor"]
         
         submit(conf) 

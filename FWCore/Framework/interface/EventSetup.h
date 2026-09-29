@@ -47,7 +47,6 @@ namespace edm {
   class ESParentContext;
 
   namespace eventsetup {
-    class EventSetupProvider;
     class EventSetupRecord;
     class EventSetupRecordImpl;
   }  // namespace eventsetup

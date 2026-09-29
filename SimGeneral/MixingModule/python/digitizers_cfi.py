@@ -142,3 +142,15 @@ premix_stage1.toModify(theDigitizersValid, _customizePremixStage1)
 def _loadPremixStage2Aliases(process):
     process.load("SimGeneral.MixingModule.aliases_PreMix_cfi")
 modifyDigitizers_loadPremixStage2Aliases = premix_stage2.makeProcessModifier(_loadPremixStage2Aliases)
+
+# Pileup-aware MC-truth graph: register the TruthGraphAccumulator in the mixing
+# digitizers under enableTruth (Phase-2 HGCal only). It builds the merged
+# signal+pileup raw TruthGraph during mixing; the logical graph + hit index are then
+# built right after mixing (Configuration/StandardSequences/Digi_cff).
+from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
+from PhysicsTools.TruthInfo.truthGraphMixedDigi_cff import truthGraphAccumulator as _truthGraphAccumulator
+for _theDigis in (theDigitizers, theDigitizersValid):
+    (enableTruth & phase2_hgcal).toModify(_theDigis, truthGraph=_truthGraphAccumulator)
+    # Premixing has no raw pileup g4SimHits for the accumulator to read, so drop it
+    # under premix even if enableTruth is on (applied after, so it wins by code order).
+    premix_stage2.toModify(_theDigis, truthGraph=None)

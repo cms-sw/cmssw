@@ -26,7 +26,7 @@
 // user include files
 #include "MagneticField/Interpolation/interface/MagProviderInterpol.h"
 #include "MagneticField/Interpolation/interface/binary_ifstream.h"
-#include "DD4hep_volumeHandle.h"
+#include "BaseVolumeHandle.h"
 
 // forward declarations
 
@@ -43,7 +43,7 @@ namespace magneticfield {
     // ---------- static member functions --------------------
 
     // ---------- member functions ---------------------------
-    std::unique_ptr<MagProviderInterpol> build(volumeHandle const*);
+    std::unique_ptr<MagProviderInterpol> build(BaseVolumeHandle const*);
 
   private:
     // ---------- member data --------------------------------

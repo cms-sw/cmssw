@@ -114,7 +114,12 @@ int HGCDoublet::areAligned(double xi,
   auto dot_pointing_sq = dot_pointing * dot_pointing;
   auto mag_pointing_sq = pointingDir.mag2();
   auto minCosPointing_sq = minCosPointing * minCosPointing;
-  bool isWithinLimitsPointing = (dot_pointing_sq > minCosPointing_sq * mag_pointing_sq * mag2sq);
+  // Squaring loses the sign of minCosPointing: a negative/permissive threshold (e.g. -1, meant to
+  // disable the cut) must not become "reject everything", and an anti-pointing doublet
+  // (dot_pointing < 0) must fail the cut for a positive threshold.
+  bool isWithinLimitsPointing =
+      (minCosPointing <= -1.f) ? true
+                               : (dot_pointing > 0.f && dot_pointing_sq > minCosPointing_sq * mag_pointing_sq * mag2sq);
   if (debug) {
     LogDebug("HGCDoublet") << "Pointing direction: " << pointingDir << std::endl;
     LogDebug("HGCDoublet") << "-- Are Aligned -- dot_pointing_sq: " << dot_pointing_sq
