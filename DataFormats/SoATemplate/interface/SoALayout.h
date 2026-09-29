@@ -1778,8 +1778,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         };                                                                                                             \
       }                                                                                                                \
                                                                                                                        \
-      /* const accessors */                                                                                            \
-      _ITERATE_ON_ALL(_DECLARE_VIEW_SOA_CONST_ACCESSOR, ~, __VA_ARGS__)                                                \
+      /* const methods */                                                                                              \
       ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_VIEW_METHODS, ~, __VA_ARGS__))                                      \
       /* const accessors */                                                                                            \
       _ITERATE_ON_ALL(_DECLARE_VIEW_SOA_CONST_ACCESSOR, ~, __VA_ARGS__)                                                \
@@ -2110,6 +2109,8 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           return const_element{&aos_[index.value_]};                                                                   \
         }                                                                                                              \
                                                                                                                        \
+        /* const methods */                                                                                            \
+        ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_VIEW_METHODS, ~, __VA_ARGS__))                                    \
         /* Const accessors */                                                                                          \
         _ITERATE_ON_ALL(_DECLARE_AOS_VIEW_CONST_ACCESSORS, ~, __VA_ARGS__)                                             \
                                                                                                                        \
@@ -2199,6 +2200,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         _ITERATE_ON_ALL(_DECLARE_USING_AOS_VIEW_CONST_ACCESSORS, ~, __VA_ARGS__)                                       \
         /* Mutable accessors */                                                                                        \
         _ITERATE_ON_ALL(_DECLARE_AOS_VIEW_SCALAR_ACCESSORS, ~, __VA_ARGS__)                                            \
+        ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_VIEW_METHODS, ~, __VA_ARGS__))                                          \
                                                                                                                        \
         /* Trivial constuctor */                                                                                       \
         ViewTemplate() = default;                                                                                      \

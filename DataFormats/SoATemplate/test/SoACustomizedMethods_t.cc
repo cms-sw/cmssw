@@ -66,7 +66,7 @@ TEST_CASE("SoACustomizedMethods") {
         auto pi = view[i];
         auto pj = view[i + 1];
         const float distance = (pi.x() - pj.x()) * (pi.x() - pj.x()) + (pi.y() - pj.y()) * (pi.y() - pj.y()) +
-                              (pi.z() - pj.z()) * (pi.z() - pj.z());
+                               (pi.z() - pj.z()) * (pi.z() - pj.z());
         REQUIRE(view.distance2(i, i + 1) == distance);
       }
     };
