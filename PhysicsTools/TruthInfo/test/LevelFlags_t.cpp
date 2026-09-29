@@ -581,6 +581,15 @@ public:
     CPPUNIT_ASSERT(truth::hadronHasQuark(5122, 5));
     CPPUNIT_ASSERT(truth::hadronHasQuark(421, 4));
     CPPUNIT_ASSERT(truth::hadronHasQuark(4122, 4));
+
+    // REQUIRED: quarkonium is a meson of one flavour and its own antiflavour, excited
+    // states included; an open-flavour hadron and a baryon are not.
+    for (const int32_t charmonium : {443, 100443, 10441, 445})
+      CPPUNIT_ASSERT(truth::isQuarkonium(charmonium, 4));
+    for (const int32_t bottomonium : {553, 100553, 10551})
+      CPPUNIT_ASSERT(truth::isQuarkonium(bottomonium, 5));
+    for (const int32_t open : {421, 541, 511, 4122, 5122, 4444})
+      CPPUNIT_ASSERT(!truth::isQuarkonium(open, 4) && !truth::isQuarkonium(open, 5));
   }
 
   // Every level answers on a graph with no particles, and stamping one is a no-op.
@@ -1111,6 +1120,37 @@ public:
     CPPUNIT_ASSERT_EQUAL(uint32_t{1}, truth::lastCopyOf(g, 0));
     CPPUNIT_ASSERT_EQUAL(uint32_t{1}, truth::lastCopyOf(g, 1));
     CPPUNIT_ASSERT_EQUAL(uint32_t{3}, truth::lastCopyOf(g, 3));
+
+    // The copy collapse can give the first copy two decay vertices, one with the photon
+    // only: tau(0) -> v0 -> gamma(2), tau(0) -> v1 -> tau(1) gamma(3), tau(1) -> v2 ->
+    // pi-(4). A Geant4 delta ray of the pion, pi-(5) with no GEN side, is not a copy.
+    GraphBuilder c(6, 4);
+    auto setC = [&c](uint32_t id, int32_t pdgId, int16_t status) {
+      auto& p = c.graph.particles()[id];
+      p.genNode = 100 + static_cast<int32_t>(id);
+      p.pdgId = pdgId;
+      p.status = status;
+    };
+    setC(0, 15, 2);
+    setC(1, 15, 2);
+    setC(2, 22, 1);
+    setC(3, 22, 1);
+    setC(4, -211, 2);
+    setC(5, -211, 0);
+    c.graph.particles()[5].genNode = -1;
+    c.graph.particles()[5].simNode = 205;
+    c.addDecay(0, 0);
+    c.addProduction(0, 2);
+    c.addDecay(0, 1);
+    c.addProduction(1, 1);
+    c.addProduction(1, 3);
+    c.addDecay(1, 2);
+    c.addProduction(2, 4);
+    c.addDecay(4, 3);
+    c.addProduction(3, 5);
+    truth::Graph radiating = c.finish();
+    CPPUNIT_ASSERT_EQUAL(uint32_t{1}, truth::lastCopyOf(radiating, 0));
+    CPPUNIT_ASSERT_EQUAL(uint32_t{4}, truth::lastCopyOf(radiating, 4));
   }
 };
 
