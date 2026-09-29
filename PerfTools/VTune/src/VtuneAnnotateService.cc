@@ -1,4 +1,4 @@
-#include "PerfTools/Vtune/interface/VtuneAnnotateService.h"
+#include "PerfTools/VTune/interface/VtuneAnnotateService.h"
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
