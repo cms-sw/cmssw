@@ -136,14 +136,13 @@ TEST_CASE("SoACustomizedMethods hip", "[SoACustomizedMethods][hip]") {
         REQUIRE(h_velocity_norms[i] == velocity_norm);
       }
 
-
-    for (int i = 0; i < h_Constview.sizeMinusOne(); i++) {
-      auto pi = h_Constview[i];
-      auto pj = h_Constview[i + 1];
-      const float distance = (pi.x() - pj.x()) * (pi.x() - pj.x()) + (pi.y() - pj.y()) * (pi.y() - pj.y()) +
-                             (pi.z() - pj.z()) * (pi.z() - pj.z());
-      REQUIRE(h_distance[i] == distance);
-    }
+      for (int i = 0; i < h_Constview.sizeMinusOne(); i++) {
+        auto pi = h_Constview[i];
+        auto pj = h_Constview[i + 1];
+        const float distance = (pi.x() - pj.x()) * (pi.x() - pj.x()) + (pi.y() - pj.y()) * (pi.y() - pj.y()) +
+                               (pi.z() - pj.z()) * (pi.z() - pj.z());
+        REQUIRE(h_distance[i] == distance);
+      }
     };
     test_view(d_Constview);
     test_view(d_aos_const_view);
