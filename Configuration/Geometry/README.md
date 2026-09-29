@@ -46,8 +46,8 @@ Muon system:
 * M13: Same as M9 with modified DTShield
 * M14: Same as M10 with modified DTShield
 * M15: Same as M11 with modified DTShield
-* M16: Same as M12 with unmounted GE11 for 2025
-* M17: Same as M16 where the list of unmounted GE11 is correctd
+* M16: Same as M15 with modified RPC, corrected for phi staggering and z-position
+* M17: Same as M16 where the shape of GE0 is correctd
 
 PPS:
 * P7: 2021 baseline (after removing overlaps and using common materials whenever possible)
@@ -61,11 +61,15 @@ The script also handles the common and forward elements of the geometry:
 * O8: as O4 with added material for muon shield
 * O9: as O5 with added material for muon shield
 * O10: as O7 with the material for IP to ZDC or ZDC to beyond as vacuum
+* O11: as O10 with the extent extending to accommodate FSCs
+
 * F1: 2021 baseline
 * F2: same as F1 with modified file zdc.xml from ZDC group
 * F3: same as F2 with added simulti geometry for RPD
 * F4: same as F3 with corrected version of zdc.xml from ZDC group
 * F5: same as F4 with corrected diameter of the Fibre
+* F6: same as F5 but includes the forward shower counters (FSC)
+* F7: same as F6 with a better integration of BRAN and RPD detectors
 
 Several detector combinations have been generated:
 * 2021 = T3+C3+M13+P7+O7+F1
@@ -92,6 +96,7 @@ Several detector combinations have been generated:
 * 2025FlatMinus10Percent = T6+C2+M12+P8+O9+F3
 * 2025FlatPlus05Percent = T7+C2+M12+P8+O9+F3
 * 2025FlatPlus10Percent = T8+C2+M12+P8+O9+F3
+* 2026 = T3+C2+M17+P8+O11+F7
 
 # Phase 2 Geometries
 
