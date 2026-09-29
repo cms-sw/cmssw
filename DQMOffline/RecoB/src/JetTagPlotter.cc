@@ -42,9 +42,20 @@ JetTagPlotter::JetTagPlotter(const std::string& tagName,
   nJets_.resize(nFl, 0);
 
   if (mcPlots_) {
-    // jet flavour
-    dJetFlav_ = std::make_unique<FlavourHistograms<int>>(
-        "jetFlavour" + es, "Jet Flavour", 22, -0.5, 21.5, false, false, false, "b", jetTagDir, mcPlots_, ibook);
+    // jet flavour: always with ALL (odd MClevel -> next even one). The DQM (MClevel 0) module
+    // never books jetFlavour, so its ALL cannot be filled twice
+    dJetFlav_ = std::make_unique<FlavourHistograms<int>>("jetFlavour" + es,
+                                                         "Jet Flavour",
+                                                         22,
+                                                         -0.5,
+                                                         21.5,
+                                                         false,
+                                                         false,
+                                                         false,
+                                                         "b",
+                                                         jetTagDir,
+                                                         mcPlots_ % 2 ? mcPlots_ + 1 : mcPlots_,
+                                                         ibook);
   }
 
   // jet multiplicity

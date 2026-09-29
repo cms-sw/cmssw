@@ -35,7 +35,7 @@ bTagMiniValidationGlobal = bTagMiniDQMGlobal.clone(
     MClevel = 1 # produce flavour plots for b, c ,light (dusg)
 )
 bTagMiniValidationGlobalUParT = bTagMiniDQMGlobal.clone(
-    MClevel = 4 # produce flavour plots for b, c ,light (dusg)
+    MClevel = 3 # produce flavour plots for b, c, light split into d, u, s, g (odd: ALL is already booked by DQM)
 )
 
 # Eta regions
