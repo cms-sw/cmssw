@@ -60,16 +60,19 @@ hltScoutingDileptonMonitor = cms.Sequence(ScoutingDileptonMonitor)
 hltScoutingPi0Monitor = cms.Sequence(ScoutingPi0Monitor)
 hltScoutingDiMuonVertexMonitor = cms.Sequence(ScoutingDiMuonVertexMonitor)
 
-hltScoutingDqmOffline = cms.Sequence(recoTrackFromScoutingMonitorSequence +
-                                     hltScoutingTrackMonitor +
-                                     hltScoutingMuonDqmOffline +
+hltDqmOnlyScouting = cms.Sequence(recoTrackFromScoutingMonitorSequence +
+                                    hltScoutingTrackMonitor +
+                                    run3ScoutingElectronBestTrack +
+                                    hltScoutingDileptonMonitor +
+                                    hltScoutingDiMuonVertexMonitor +
+                                    hltScoutingPi0Monitor +
+                                    hltScoutingCollectionMonitor)
+
+hltDqmScoutingAndReco = cms.Sequence(hltScoutingMuonDqmOffline +
                                      hltScoutingEGammaDqmOffline +
-                                     hltScoutingJetDqmOffline +
-                                     run3ScoutingElectronBestTrack +
-                                     hltScoutingDileptonMonitor +
-                                     hltScoutingDiMuonVertexMonitor +
-                                     hltScoutingPi0Monitor +
-                                     hltScoutingCollectionMonitor)
+                                     hltScoutingJetDqmOffline)
+
+hltScoutingDqmOffline = cms.Sequence(hltDqmOnlyScouting+hltDqmScoutingAndReco)
 
 ## Add the scouting rechits monitoring (only for 2025, integrated in menu GRun 2025 V1.3)
 ## See https://its.cern.ch/jira/browse/CMSHLT-3607
