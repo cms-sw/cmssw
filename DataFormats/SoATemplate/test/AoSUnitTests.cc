@@ -60,9 +60,9 @@ TEST_CASE("AoS Unit Tests") {
   const SoA::size_type elems = 16;
   const auto soaBufferSize = SoA::computeDataSize(elems);
   const auto aosBufferSize = SoA::AoSWrapper::computeDataSize(elems);
-  // The AoS is an array of SoA::Metadata::value_element
-  // So the total memory is sizeof(SoA::Metadata::value_element) * elems + the size of the scalar members
-  const auto expectedBufferSize = sizeof(SoA::Metadata::value_element) * elems + sizeof(int8_t) + sizeof(float) +
+  // The AoS is an array of SoA::RecordType
+  // So the total memory is sizeof(SoA::RecordType) * elems + the size of the scalar members + padding at the end
+  const auto expectedBufferSize = sizeof(SoA::RecordType) * elems + sizeof(int8_t) + sizeof(float) +
                                   sizeof(int64_t) + sizeof(double) + sizeof(const char *);
   REQUIRE(cms::soa::alignSize(expectedBufferSize, SoA::alignment) == aosBufferSize);
 
@@ -267,7 +267,7 @@ TEST_CASE("AoS Unit Tests") {
 
   SECTION("AoS test memory layout") {
     // Check that the AoS memory layout is as expected
-    const auto stride = sizeof(SoA::Metadata::value_element);
+    const auto stride = sizeof(SoA::RecordType);
     for (size_t i = 0; i < elems; i++) {
       float f1;
       float f2;
@@ -280,17 +280,17 @@ TEST_CASE("AoS Unit Tests") {
 
       int64_t i2;
 
-      std::memcpy(&f1, aosBuffer.get() + offsetof(SoA::Metadata::value_element, f1_) + i * stride, sizeof(float));
-      std::memcpy(&f2, aosBuffer.get() + offsetof(SoA::Metadata::value_element, f2_) + i * stride, sizeof(float));
+      std::memcpy(&f1, aosBuffer.get() + offsetof(SoA::RecordType, f1_) + i * stride, sizeof(float));
+      std::memcpy(&f2, aosBuffer.get() + offsetof(SoA::RecordType, f2_) + i * stride, sizeof(float));
 
-      std::memcpy(&i1, aosBuffer.get() + offsetof(SoA::Metadata::value_element, i1_) + i * stride, sizeof(int8_t));
+      std::memcpy(&i1, aosBuffer.get() + offsetof(SoA::RecordType, i1_) + i * stride, sizeof(int8_t));
 
-      const auto offsetCandidateDirection = offsetof(SoA::Metadata::value_element, candidateDirection_) + i * stride;
+      const auto offsetCandidateDirection = offsetof(SoA::RecordType, candidateDirection_) + i * stride;
       std::memcpy(&candidateDirection0, aosBuffer.get() + offsetCandidateDirection, sizeof(double));
       std::memcpy(&candidateDirection1, aosBuffer.get() + offsetCandidateDirection + 8, sizeof(double));
       std::memcpy(&candidateDirection2, aosBuffer.get() + offsetCandidateDirection + 16, sizeof(double));
 
-      std::memcpy(&i2, aosBuffer.get() + offsetof(SoA::Metadata::value_element, i2_) + i * stride, sizeof(int64_t));
+      std::memcpy(&i2, aosBuffer.get() + offsetof(SoA::RecordType, i2_) + i * stride, sizeof(int64_t));
 
       REQUIRE_THAT(f1, Catch::Matchers::WithinAbs(static_cast<float>(i), 1.e-6));
       REQUIRE_THAT(f2, Catch::Matchers::WithinAbs(static_cast<float>(i) + 0.1f, 1.e-6));
@@ -311,7 +311,7 @@ TEST_CASE("AoS Unit Tests") {
     double s4;
     char *s5;
 
-    const auto offsetScalars = sizeof(SoA::Metadata::value_element) * elems;
+    const auto offsetScalars = sizeof(SoA::RecordType) * elems;
     std::memcpy(&s1, aosBuffer.get() + offsetScalars, sizeof(s1));
     std::memcpy(&s2, aosBuffer.get() + offsetScalars + sizeof(s1), sizeof(s2));
     std::memcpy(&s3, aosBuffer.get() + offsetScalars + sizeof(s1) + sizeof(s2), sizeof(s3));
@@ -368,7 +368,7 @@ TEST_CASE("AoS Unit Tests Scalar only") {
   // The AoS buffer is just the size of the scalar members
   // Size of an empty struct is 1 byte!
   const auto expectedBufferSize = elems + sizeof(int8_t) + sizeof(float) + sizeof(int64_t) + sizeof(double);
-  REQUIRE(sizeof(SoAOnlyScalars::Metadata::value_element) == 1);
+  REQUIRE(sizeof(SoAOnlyScalars::RecordType) == 1);
   REQUIRE(cms::soa::alignSize(expectedBufferSize, SoAOnlyScalars::alignment) == aosBufferSize);
 
   // memory buffer for the SoA of positions
