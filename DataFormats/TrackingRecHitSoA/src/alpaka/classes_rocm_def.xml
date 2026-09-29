@@ -2,5 +2,15 @@
   <class name="alpaka_rocm_async::reco::TrackingRecHitsSoACollection" persistent="false"/>
   <class name="edm::DeviceProduct<alpaka_rocm_async::reco::TrackingRecHitsSoACollection>" persistent="false"/>
   <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::reco::TrackingRecHitsSoACollection>>" persistent="false"/>
+
+  <!-- OT RecHits device collection -->
+  <class name="alpaka_rocm_async::reco::OTRecHitsSoACollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::reco::OTRecHitsSoACollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::reco::OTRecHitsSoACollection>>" persistent="false"/>
+
+  <!-- Stubs device collection -->
+  <class name="alpaka_rocm_async::reco::StubsSoACollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::reco::StubsSoACollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::reco::StubsSoACollection>>" persistent="false"/>
 </lcgdict>
 

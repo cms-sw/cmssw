@@ -399,11 +399,60 @@ namespace pixelCPEforDevice {
     errorFromSize<pixelTopology::Phase2>(comParams, detParams, cp, ic);
   }
 
+  // Phase-2 stubs: errors come from the per-module genError tables (sigmax/sigmax1/sigmay + xfact/yfact),
+  // not the cluster-size table. The generic errorFromDB cannot be reused: it bins the x position from
+  // TrackerTraits::xOffset (a dummy for Phase-2), so here the bin uses the per-module row count.
+  template <>
+  constexpr inline void errorFromDB<pixelTopology::Phase2OTStubs>(CommonParams const& __restrict__ comParams,
+                                                                  DetParams const& __restrict__ detParams,
+                                                                  ClusParams& cp,
+                                                                  uint32_t ic) {
+    using Phase2OTStubs = pixelTopology::Phase2OTStubs;
+    // edge-cluster defaults
+    cp.xerr[ic] = 0.0050f;
+    cp.yerr[ic] = 0.0085f;
+
+    auto sx = cp.maxRow[ic] - cp.minRow[ic];
+    auto sy = cp.maxCol[ic] - cp.minCol[ic];
+    bool isEdgeX = cp.xsize[ic] < 1;
+    bool isEdgeY = cp.ysize[ic] < 1;
+    bool isOneX = (0 == sx);
+    bool isOneY = (0 == sy);
+    bool isBigX = Phase2OTStubs::isBigPixX(cp.minRow[ic]);  // always false for Phase-2 pixel modules
+    bool isBigY = Phase2OTStubs::isBigPixY(cp.minCol[ic]);  // always false for Phase-2 pixel modules
+
+    float ch = cp.charge[ic];
+    int bin = 0;
+    for (; bin < kGenErrorQBins - 1; ++bin)
+      if (ch < detParams.minCh[bin + 1])
+        break;
+    cp.status[ic].qBin = kGenErrorQBins - 1 - bin;
+    cp.status[ic].isOneX = isOneX;
+    cp.status[ic].isBigX = (isOneX & isBigX) | isEdgeX;
+    cp.status[ic].isOneY = isOneY;
+    cp.status[ic].isBigY = (isOneY & isBigY) | isEdgeY;
+
+    auto toCM = [](uint8_t v) { return float(v) * 1.e-4f; };
+
+    // x: bin the cluster position over the module width, using the per-module row count
+    auto xoff = -(0.5f * float(detParams.nRows) + Phase2OTStubs::bigPixXCorrection) * detParams.thePitchX;
+    int bin_value = float(kNumErrorBins) * (cp.xpos[ic] + xoff) / (2.f * xoff);
+    int jx = std::min<int>(std::max<int>(bin_value, 0), kNumErrorBins - 1);
+    if (not isEdgeX)
+      cp.xerr[ic] = isOneX ? toCM(isBigX ? detParams.sx2 : detParams.sigmax1[jx])
+                           : detParams.xfact[bin] * toCM(detParams.sigmax[jx]);
+
+    // y: per-module sigmay indexed by cluster size, sy1 for short clusters
+    auto ey = cp.ysize[ic] > 8 ? detParams.sigmay[std::min(cp.ysize[ic] - 9, 15)] : detParams.sy1;
+    if (not isEdgeY)
+      cp.yerr[ic] = isOneY ? toCM(isBigY ? detParams.sy2 : detParams.sy1) : detParams.yfact[bin] * toCM(ey);
+  }
+
   template <typename TrackerTopology>
   struct ParamsOnDeviceT {
     CommonParams m_commonParams;
     // Will contain an array of DetParams instances
-    DetParams m_detParams[TrackerTopology::numberOfModules];
+    DetParams m_detParams[TrackerTopology::numberOfPixelModules];
 
     constexpr CommonParams const& __restrict__ commonParams() const { return m_commonParams; }
     constexpr DetParams const& __restrict__ detParams(int i) const { return m_detParams[i]; }

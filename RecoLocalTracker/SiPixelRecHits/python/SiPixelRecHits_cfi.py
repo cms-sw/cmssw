@@ -51,6 +51,13 @@ phase2OTRecHitsSoAConverter = _phase2OTRecHitsSoAConverter.clone(
     pixelRecHitSoASource = "siPixelRecHitsPreSplittingAlpaka"
 )
 
+### Phase-2 CA extended to outer-tracker stubs: pixel hits with the Phase2OTStubs CPE
+from Configuration.ProcessModifiers.phase2CAStubs_cff import phase2CAStubs
+from RecoLocalTracker.SiPixelRecHits.siPixelRecHitAlpakaPhase2OTStubs_cfi import siPixelRecHitAlpakaPhase2OTStubs as _siPixelRecHitAlpakaPhase2OTStubs
+phase2CAStubs.toReplaceWith(siPixelRecHitsPreSplittingAlpaka, _siPixelRecHitAlpakaPhase2OTStubs.clone(
+    src = "siPixelClustersPreSplittingAlpaka"
+))
+
 # Hit SoA producer on the cpu, for validation
 siPixelRecHitsPreSplittingAlpakaSerial = makeSerialClone(siPixelRecHitsPreSplittingAlpaka,
                                                          src = "siPixelClustersPreSplittingAlpakaSerial")
@@ -80,5 +87,13 @@ phase2CAExtension.toReplaceWith(siPixelRecHitsPreSplittingTask, cms.Task(
     siPixelRecHitsPreSplittingAlpaka,
     siPixelRecHitsPreSplittingAlpakaSerial,    
     phase2OTRecHitsSoAConverter,
+    siPixelRecHitsPreSplitting
+))
+
+# the outer-tracker rechits feed the stub formation in RecoTracker/PixelTrackFitting/python/PixelTracks_cff.py
+phase2CAStubs.toReplaceWith(siPixelRecHitsPreSplittingTask, cms.Task(
+    siPhase2RecHits,
+    siPixelRecHitsPreSplittingAlpaka,
+    siPixelRecHitsPreSplittingAlpakaSerial,
     siPixelRecHitsPreSplitting
 ))

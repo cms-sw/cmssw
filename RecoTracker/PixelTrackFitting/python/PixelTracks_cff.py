@@ -134,6 +134,28 @@ phase2CAExtension.toReplaceWith(pixelTracksAlpaka,_pixelTracksAlpakaPhase2Extend
     trackerRecHitsSoA = "phase2OTRecHitsSoAConverter"
 ))
 
+# Phase-2 CA extended to outer-tracker stubs: the outer-tracker hits in SoA format, the stubs built from them
+# and the stub CA, on the device and on the cpu
+from Configuration.ProcessModifiers.phase2CAStubs_cff import phase2CAStubs
+from RecoTracker.PixelSeeding.pixelSeedingOTRecHitsSoAConverter_cfi import pixelSeedingOTRecHitsSoAConverter as _pixelSeedingOTRecHitsSoAConverter
+from RecoTracker.PixelSeeding.otStubProducerVectorHitStyle_cfi import otStubProducerVectorHitStyle as _otStubProducerVectorHitStyle
+from RecoTracker.PixelSeeding.caHitNtupletAlpakaPhase2OTStubs_cfi import caHitNtupletAlpakaPhase2OTStubs as _pixelTracksAlpakaPhase2OTStubs
+from RecoTracker.FinalTrackSelectors.pixelTrackForestHighPuritySelector_cfi import pixelTrackForestHighPuritySelector as _pixelTrackForestHighPuritySelector
+
+pixelSeedingOTRecHitsSoA = _pixelSeedingOTRecHitsSoAConverter.clone()
+pixelSeedingOTRecHitsSoASerial = makeSerialClone(pixelSeedingOTRecHitsSoA)
+otStubProducer = _otStubProducerVectorHitStyle.clone(
+    otRecHitsSoA = "pixelSeedingOTRecHitsSoA"
+)
+otStubProducerSerial = makeSerialClone(otStubProducer,
+    otRecHitsSoA = "pixelSeedingOTRecHitsSoASerial"
+)
+
+phase2CAStubs.toReplaceWith(pixelTracksAlpaka, _pixelTracksAlpakaPhase2OTStubs.clone(
+    pixelRecHitSrc = "siPixelRecHitsPreSplittingAlpaka",
+    stubsSrc = "otStubProducer"
+))
+
 # pixel tracks SoA producer on the cpu, for validation
 pixelTracksAlpakaSerial = makeSerialClone(pixelTracksAlpaka,
     pixelRecHitSrc = 'siPixelRecHitsPreSplittingAlpakaSerial'
@@ -142,6 +164,19 @@ pixelTracksAlpakaSerial = makeSerialClone(pixelTracksAlpaka,
 phase2CAExtension.toModify(pixelTracksAlpakaSerial,
                            pixelRecHitSrc = 'siPixelRecHitsExtendedPreSplittingAlpakaSerial'
                            )
+
+phase2CAStubs.toModify(pixelTracksAlpakaSerial,
+    stubsSrc = "otStubProducerSerial"
+)
+
+# high-purity selection of the stub CA tracks, as in the HLT menu
+pixelTracksAlpakaHighPurity = _pixelTrackForestHighPuritySelector.clone(
+    pixelTrackSrc = "pixelTracksAlpaka",
+    pixelRecHitSrc = "siPixelRecHitsPreSplittingAlpaka",
+    stubsSrc = "otStubProducer",
+    otRecHitsSoASrc = "pixelSeedingOTRecHitsSoA",
+    model = "RecoTracker/FinalTrackSelectors/data/PixelTrackTorchHighPuritySelector/prompt_tree31_wp_20260914.bin"
+)
 
 # legacy pixel tracks from SoA
 from  RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAAlpaka_cfi import pixelTrackProducerFromSoAAlpaka as _pixelTrackProducerFromSoAAlpaka
@@ -162,6 +197,18 @@ phase2CAExtension.toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAAlpaka.cl
     requireQuadsFromConsecutiveLayers = cms.bool(True)
 ))
 
+# the stubs are expanded back into their two outer-tracker rechits
+phase2CAStubs.toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAAlpaka.clone(
+    trackSrc = "pixelTracksAlpakaHighPurity",
+    pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
+    outerTrackerRecHitSrc = "siPhase2RecHits",
+    otRecHitsSoASrc = "pixelSeedingOTRecHitsSoA",
+    stubsSoASrc = "otStubProducer",
+    minQuality = "tight",
+    useOTExtension = True,
+    expandStubs = True
+))
+
 alpaka.toReplaceWith(pixelTracksTask, cms.Task(
     # Build the pixel ntuplets and the pixel tracks in SoA format with alpaka on the device
     pixelTracksAlpaka,
@@ -170,3 +217,22 @@ alpaka.toReplaceWith(pixelTracksTask, cms.Task(
     # Convert the pixel tracks from SoA to legacy format
     pixelTracks)
 )
+
+phase2CAStubs.toReplaceWith(pixelTracksTask, cms.Task(
+    pixelSeedingOTRecHitsSoA,
+    pixelSeedingOTRecHitsSoASerial,
+    otStubProducer,
+    otStubProducerSerial,
+    pixelTracksAlpaka,
+    pixelTracksAlpakaSerial,
+    pixelTracksAlpakaHighPurity,
+    pixelTracks)
+)
+
+# event setup of the stub CA: stacked-module geometry, material and field maps of the BrokenLine fit
+def _addProcessESPhase2CAStubs(process):
+    process.load("RecoTracker.PixelSeeding.stackedModuleGeometryESProducer_cfi")
+    process.load("RecoTracker.PixelTrackFitting.blMaterialMapESProducerAlpaka_cfi")
+    process.load("RecoTracker.PixelTrackFitting.blbFieldMapESProducerAlpaka_cfi")
+
+modifyConfigurationForPhase2CAStubs_ = (alpaka & phase2CAStubs).makeProcessModifier(_addProcessESPhase2CAStubs)

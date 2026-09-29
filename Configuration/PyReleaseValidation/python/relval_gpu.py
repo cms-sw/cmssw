@@ -20,16 +20,15 @@ from Configuration.PyReleaseValidation.relval_Run4 import prefixDet
 # mc 2026
 # no PU  
 #           Alpaka pixel-only quadruplets:                      TTbar: any backend, any backend vs cpu validation, profiling
-#           Alpaka pixel-only triplets:                         TTbar: any backend, any backend vs cpu validation, profiling
 #           Alpaka ECAL-only:                                   TTbar: any backend
 #           Alpaka HCAL-only:                                   TTbar: any backend, any backend vs cpu validation, profiling
 #           Alpaka with full reco and pixel-only:               TTbar: any backend quadruplets, any backend triplets
 #           Alpaka pixel-only quadruplets:                      ZMM: any backend, any backend vs cpu validation, profiling
-#           Alpaka pixel-only triplets:                         ZMM: any backend, any backend vs cpu validation, profiling
 #           Alpaka pixel-only quadruplets:                      Single Nu E10: any backend
 # mc Run4   
 # no PU
-#           Alpaka pixel-only:                                  TTbar: quadruplets any backend, CA Extension any backend, any backend vs cpu validation, profiling, triplets
+#           Alpaka pixel-only:                                  TTbar: quadruplets any backend, CA Extension any backend, any backend vs cpu validation, profiling
+#           Alpaka pixel-only CA with outer-tracker stubs:      TTbar: any backend, any backend vs cpu validation, profiling
 #           Alpaka ECAL-only development:                       TTbar: any backend
 #           Alpaka HCAL-only:                                   TTbar: any backend, any backend vs cpu validation, profiling
 #           Alpaka pixel-only:                                  Single Nu E10: any backend
@@ -44,18 +43,17 @@ from Configuration.PyReleaseValidation.relval_Run4 import prefixDet
 numWFIB = [
            # 2026, Alpaka-based noPU
            18434.402, 18434.403, 18434.404,
-           18434.406, 18434.407, 18434.408,
            18434.412, 18434.413,#18434.414,
            18434.422, 18434.423, 18434.424,
            #18434.482, 18434.483, 18434.484
            #18434.486, 18434.487, 18434.488
            18434.492, 18434.493,
            18450.402, 18450.403, 18450.404,
-           18450.406, 18450.407, 18450.408,
            18461.402,
 
            # Run4, alpaka-based workflows without pileup
-           prefixDet+34.402, prefixDet+34.4021, prefixDet+34.403, prefixDet+34.404, prefixDet+34.406,
+           prefixDet+34.402, prefixDet+34.4021, prefixDet+34.403, prefixDet+34.404,
+           prefixDet+34.406, prefixDet+34.407, prefixDet+34.408,
            prefixDet+34.612,
            prefixDet+34.422, prefixDet+34.423, prefixDet+34.424,
            prefixDet+61.402,

@@ -230,3 +230,8 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
     # autoselect the alpaka backend
     alpaka = cms.untracked.PSet(backend = cms.untracked.string(''))
 )
+
+from Configuration.ProcessModifiers.phase2CAStubs_cff import phase2CAStubs
+from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
+from .hltPhase2PixelTracksSoAWithStubs_cfi import hltPhase2PixelTracksSoAWithStubs as _hltPhase2PixelTracksSoAWithStubs
+(phase2CAStubs | ngtScouting).toReplaceWith(hltPhase2PixelTracksSoA, _hltPhase2PixelTracksSoAWithStubs)

@@ -12,4 +12,20 @@
 
   <class name="SiPixelHitStatus"/>
   <class name="SiPixelHitStatusAndCharge"/>
+
+  <class name="reco::StubPortableCollectionHost"/>
+  <class name="reco::StubPortableCollectionHost::Layout"/>
+  <class name="reco::StubsLayout<128, false>"/>
+  <class name="reco::StubModulesLayout<128, false>"/>
+  <class name="reco::StubBlocksLayout<128, false>"/>
+  <class name="reco::StubsHost"  rntupleStreamerMode="true"/>
+  <class name="edm::Wrapper<reco::StubsHost>" splitLevel="0"/>
+
+  <class name="reco::OTRecHitPortableCollectionHost"/>
+  <class name="reco::OTRecHitPortableCollectionHost::Layout"/>
+  <class name="reco::OTRecHitsLayout<128, false>"/>
+  <class name="reco::OTHitModulesLayout<128, false>"/>
+  <class name="reco::OTRecHitBlocksLayout<128, false>"/>
+  <class name="reco::OTRecHitsHost"  rntupleStreamerMode="true"/>
+  <class name="edm::Wrapper<reco::OTRecHitsHost>" splitLevel="0"/>
 </lcgdict>
