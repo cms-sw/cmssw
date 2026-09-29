@@ -23,14 +23,14 @@ inline void processOutLinks_GT(ap_uint<576> link_out_reg[N_OUTPUT_LINKS_GT], ap_
 }
 
 inline void processInputLinks_GT(ap_uint<576> link_in[N_INPUT_LINKS_GT],
-                                 GCTvar EGspos[6],
-                                 GCTvar EGIsPos[6],
-                                 GCTvar JetsPos[6],
-                                 GCTvar TausPos[6],
-                                 GCTvar EGsNeg[6],
-                                 GCTvar EGIsNeg[6],
-                                 GCTvar JetsNeg[6],
-                                 GCTvar TausNeg[6],
+                                 GTInputVar EGspos[6],
+                                 GTInputVar EGIsPos[6],
+                                 GTInputVar JetsPos[6],
+                                 GTInputVar TausPos[6],
+                                 GTInputVar EGsNeg[6],
+                                 GTInputVar EGIsNeg[6],
+                                 GTInputVar JetsNeg[6],
+                                 GTInputVar TausNeg[6],
                                  GCTsum Sums[2]) {
   for (int j = 0; j < 12; j++) {
     ap_uint<48> raw = link_in[0].range(j * 48 + 47, j * 48);
@@ -69,14 +69,14 @@ inline void processInputLinks_GT(ap_uint<576> link_in[N_INPUT_LINKS_GT],
   Sums[1].unpack(link_in[5]);
 }
 
-inline void createOutputToGT(GCTvar EGspos[6],
-                             GCTvar EGIsPos[6],
-                             GCTvar JetsPos[6],
-                             GCTvar TausPos[6],
-                             GCTvar EGsNeg[6],
-                             GCTvar EGIsNeg[6],
-                             GCTvar JetsNeg[6],
-                             GCTvar TausNeg[6],
+inline void createOutputToGT(GTInputVar EGspos[6],
+                             GTInputVar EGIsPos[6],
+                             GTInputVar JetsPos[6],
+                             GTInputVar TausPos[6],
+                             GTInputVar EGsNeg[6],
+                             GTInputVar EGIsNeg[6],
+                             GTInputVar JetsNeg[6],
+                             GTInputVar TausNeg[6],
                              GCTsum Sums[2],
                              GCTtoGT& combinedoutput) {
   combinedoutput.processSums(Sums[0], Sums[1]);
@@ -86,10 +86,10 @@ inline void createOutputToGT(GCTvar EGspos[6],
 }
 
 inline void algo_top_GT(ap_uint<576> link_in[N_INPUT_LINKS_GT], ap_uint<576> link_out[N_OUTPUT_LINKS_GT]) {
-  GCTvar EGspos[6], EGsNeg[6];
-  GCTvar EGIsPos[6], EGIsNeg[6];
-  GCTvar JetsPos[6], JetsNeg[6];
-  GCTvar TausPos[6], TausNeg[6];
+  GTInputVar EGspos[6], EGsNeg[6];
+  GTInputVar EGIsPos[6], EGIsNeg[6];
+  GTInputVar JetsPos[6], JetsNeg[6];
+  GTInputVar TausPos[6], TausNeg[6];
   GCTsum Sums[2];
 
   GCTtoGT GCTtoGT;

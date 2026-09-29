@@ -1,0 +1,5 @@
+<use name="L1Trigger/L1CaloTrigger"/>
+<use name="hls"/>
+
+<bin file="testPhase2L1GCTSumFirmware.cpp" name="testPhase2L1GCTSumFirmware"/>
+<test name="testPhase2L1GCTSumFirmware" command="testPhase2L1GCTSumFirmware"/>

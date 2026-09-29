@@ -140,6 +140,10 @@ void Phase2L1GCTSumEmulator::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   p2gctsumGT::algo_top_GT(link_in_gt.data(), link_out_gt.data());
 
+  // These are the six event-level logical GT links. The firmware's TMUX6 and
+  // 72-GT/6-scouting fanout are board transport stages that replicate and
+  // serialize this same payload; they are intentionally not separate CMSSW
+  // physics products.
   for (unsigned int i = 0; i < kOutputLinks; ++i) {
     auto outWords = std::make_unique<std::vector<uint64_t>>();
     outWords->reserve(kWordsPerLink);

@@ -18,7 +18,6 @@ static constexpr int N_INPUT_LINKS_GT = 6;
 static constexpr int N_OUTPUT_LINKS_GT = 6;
 
 using p2gctsum::GCTsum;
-using p2gctsum::GCTvar;
 typedef ap_uint<10> loop;
 
 inline ap_uint<64> pack_scalar16_word(ap_uint<16> value) {
@@ -28,12 +27,31 @@ inline ap_uint<64> pack_scalar16_word(ap_uint<16> value) {
   return out;
 }
 
-inline ap_uint<64> pack_scalar32_word(ap_uint<32> value) {
-  ap_uint<64> out = 0;
-  out[0] = 1;
-  out.range(32, 1) = value;
-  return out;
-}
+class GTInputVar {
+public:
+  ap_uint<12> ET;
+  ap_uint<10> Eta;
+  ap_uint<9> Phi;
+  ap_uint<4> PtClusterSeed;
+  ap_uint<1> isBarrel;
+
+  GTInputVar() : ET(0), Eta(0), Phi(0), PtClusterSeed(0), isBarrel(0) {}
+
+  void unpack(ap_uint<48> input, bool hasSeed) {
+    ET = input.range(11, 0);
+    isBarrel = input.range(47, 47);
+    if (hasSeed) {
+      Eta = input.range(17, 12);
+      Phi = input.range(26, 18);
+      PtClusterSeed = input.range(30, 27);
+    } else {
+      Eta = input.range(18, 12);
+      Eta[7] = input[28];
+      Phi = input.range(27, 19);
+      PtClusterSeed = 0;
+    }
+  }
+};
 
 class GTvar {
 public:
@@ -66,7 +84,17 @@ public:
            ((ap_uint<64>)Spare << 44);
   }
 
-  void convertAndPack(GCTvar& in) {
+  void convertAndPack(GTInputVar& in) {
+    if (in.ET == 0) {
+      isValid = 0;
+      ET = 0;
+      Phi = 0;
+      Eta = 0;
+      PtClusterSeed = 0;
+      Spare = 0;
+      return;
+    }
+
     this->isValid = 1;
     this->ET = (ap_uint<16>)in.ET << 4;
 
@@ -111,14 +139,14 @@ public:
     }
   }
 
-  void convertObjects(GCTvar _EGspos[6],
-                      GCTvar _EGsneg[6],
-                      GCTvar _EGIspos[6],
-                      GCTvar _EGIsneg[6],
-                      GCTvar _Jetspos[6],
-                      GCTvar _Jetsneg[6],
-                      GCTvar _Tauspos[6],
-                      GCTvar _Tausneg[6]) {
+  void convertObjects(GTInputVar _EGspos[6],
+                      GTInputVar _EGsneg[6],
+                      GTInputVar _EGIspos[6],
+                      GTInputVar _EGIsneg[6],
+                      GTInputVar _Jetspos[6],
+                      GTInputVar _Jetsneg[6],
+                      GTInputVar _Tauspos[6],
+                      GTInputVar _Tausneg[6]) {
     for (int i = 0; i < 6; i++) {
       EGspos[i].convertAndPack(_EGspos[i]);
       EGsneg[i].convertAndPack(_EGsneg[i]);
@@ -134,16 +162,15 @@ public:
   void processSums(const GCTsum& sumsPos, const GCTsum& sumsNeg) {
     const ap_int<17> totalEx = (ap_int<17>)sumsPos.Ex + (ap_int<17>)sumsNeg.Ex;
     const ap_int<17> totalEy = (ap_int<17>)sumsPos.Ey + (ap_int<17>)sumsNeg.Ey;
-    const ap_int<34> ex2 = (ap_int<34>)totalEx * (ap_int<34>)totalEx;
-    const ap_int<34> ey2 = (ap_int<34>)totalEy * (ap_int<34>)totalEy;
-    const ap_uint<32> et2 = (ap_uint<32>)((ap_uint<34>)ex2 + (ap_uint<34>)ey2);
-    const ap_uint<16> nObjTotal = (ap_uint<16>)((ap_uint<17>)sumsPos.NObj + (ap_uint<17>)sumsNeg.NObj);
-
-    this->Sums[0] = pack_scalar16_word(sumsPos.Ht);
-    this->Sums[1] = pack_scalar16_word(sumsNeg.Ht);
-    this->Sums[2] = pack_scalar32_word(et2);
-    this->Sums[3] = pack_scalar16_word(nObjTotal);
+    const ap_int<17> totalHtx = (ap_int<17>)sumsPos.Htx + (ap_int<17>)sumsNeg.Htx;
+    const ap_int<17> totalHty = (ap_int<17>)sumsPos.Hty + (ap_int<17>)sumsNeg.Hty;
+    const ap_uint<17> totalHt = (ap_uint<17>)sumsPos.Ht + (ap_uint<17>)sumsNeg.Ht;
+    const ap_uint<17> nObjTotal = (ap_uint<17>)sumsPos.NObj + (ap_uint<17>)sumsNeg.NObj;
     this->SumETTotal = (ap_uint<17>)sumsPos.SumET + (ap_uint<17>)sumsNeg.SumET;
+    this->Sums[0] = p2gctsum::gcts::packVectorSum(totalEx, totalEy, SumETTotal);
+    this->Sums[1] = p2gctsum::gcts::packVectorSum(totalHtx, totalHty, totalHt);
+    this->Sums[2] = pack_scalar16_word(p2gctsum::gcts::saturate16((ap_uint<24>)nObjTotal));
+    this->Sums[3] = 0;
   }
 
   void getcombinedGTfromIP() {

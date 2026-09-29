@@ -133,39 +133,140 @@ public:
 
 class GCTsum {
 public:
-  ap_int<16> Ex;
-  ap_int<16> Ey;
-  ap_uint<16> Ht;
-  ap_uint<16> SumET;
-  ap_uint<16> NObj;
+  ap_int<16> Ex, Ey, Htx, Hty;
+  ap_uint<16> SumET, Ht, NObj;
 
-  GCTsum() { Ex = 0; Ey = 0; Ht = 0; SumET = 0; NObj = 0; }
+  GCTsum() : Ex(0), Ey(0), Htx(0), Hty(0), SumET(0), Ht(0), NObj(0) {}
 
-  GCTsum(const GCTsum& rhs) {
-    Ex = rhs.Ex;
-    Ey = rhs.Ey;
-    Ht = rhs.Ht;
-    SumET = rhs.SumET;
-    NObj = rhs.NObj;
+  // Sums ABI v2: source vector components are already in the global phi
+  // frame. Four 12-bit source lanes fit losslessly in these 16-bit lanes.
+  void addSource(const ap_uint<576>& input) {
+    Ex += (ap_int<12>)input.range(11, 0);
+    Ey += (ap_int<12>)input.range(23, 12);
+    Htx += (ap_int<12>)input.range(35, 24);
+    Hty += (ap_int<12>)input.range(47, 36);
+    SumET += (ap_uint<12>)input.range(75, 64);
+    Ht += (ap_uint<12>)input.range(87, 76);
+    NObj += (ap_uint<12>)input.range(99, 88);
   }
 
-  GCTsum& operator=(const GCTsum& rhs) {
-    this->Ex = rhs.Ex;
-    this->Ey = rhs.Ey;
-    this->Ht = rhs.Ht;
-    this->SumET = rhs.SumET;
-    this->NObj = rhs.NObj;
-    return *this;
+  // Internal SUM -> TO_GT transport: four vector lanes in word 0 and three
+  // scalar lanes in word 1. All remaining bits are reserved zero.
+  ap_uint<576> pack() const {
+    ap_uint<576> out = 0;
+    out.range(15, 0) = Ex;
+    out.range(31, 16) = Ey;
+    out.range(47, 32) = Htx;
+    out.range(63, 48) = Hty;
+    out.range(79, 64) = SumET;
+    out.range(95, 80) = Ht;
+    out.range(111, 96) = NObj;
+    return out;
   }
 
-  void unpack(ap_uint<576> i) {
-    this->Ex = (ap_int<16>)i.range(15, 0);
-    this->Ey = (ap_int<16>)i.range(63, 48);
-    this->Ht = i.range(111, 96);
-    this->SumET = i.range(159, 144);
-    this->NObj = i.range(207, 192);
+  void unpack(const ap_uint<576>& input) {
+    Ex = (ap_int<16>)input.range(15, 0);
+    Ey = (ap_int<16>)input.range(31, 16);
+    Htx = (ap_int<16>)input.range(47, 32);
+    Hty = (ap_int<16>)input.range(63, 48);
+    SumET = (ap_uint<16>)input.range(79, 64);
+    Ht = (ap_uint<16>)input.range(95, 80);
+    NObj = (ap_uint<16>)input.range(111, 96);
   }
 };
+
+namespace gcts {
+
+// Fixed-iteration restoring square root: exact floor(sqrt(n)).
+inline ap_uint<24> isqrt48(ap_uint<48> n) {
+  ap_uint<50> remainder = 0;
+  ap_uint<24> root = 0;
+  for (int i = 23; i >= 0; --i) {
+    remainder = (remainder << 2) | ((n >> (2 * i)) & 3);
+    root <<= 1;
+    const ap_uint<26> trial = ((ap_uint<26>)root << 1) | 1;
+    if (remainder >= trial) {
+      remainder -= trial;
+      root += 1;
+    }
+  }
+  return root;
+}
+
+// CORDIC vectoring in global coordinates. Output is two's-complement phi,
+// LSB = pi/4096, nearest code; +pi wraps to -pi. Zero has phi=0.
+inline ap_int<13> vectorPhi(ap_int<18> inputX, ap_int<18> inputY) {
+  static const long long angles[24] = {1073741824LL,
+                                      633866811LL,
+                                      334917815LL,
+                                      170009512LL,
+                                      85334662LL,
+                                      42708931LL,
+                                      21359677LL,
+                                      10680490LL,
+                                      5340327LL,
+                                      2670173LL,
+                                      1335088LL,
+                                      667544LL,
+                                      333772LL,
+                                      166886LL,
+                                      83443LL,
+                                      41722LL,
+                                      20861LL,
+                                      10430LL,
+                                      5215LL,
+                                      2608LL,
+                                      1304LL,
+                                      652LL,
+                                      326LL,
+                                      163LL};
+  ap_int<48> x = (ap_int<48>)inputX << 24;
+  ap_int<48> y = (ap_int<48>)inputY << 24;
+  ap_int<35> angle = 0;
+  if (x < 0) {
+    angle = y < 0 ? -4294967296LL : 4294967296LL;
+    x = -x;
+    y = -y;
+  }
+  for (int i = 0; i < 24; ++i) {
+    const ap_int<48> oldX = x;
+    if (y > 0) {
+      x += y >> i;
+      y -= oldX >> i;
+      angle += angles[i];
+    } else if (y < 0) {
+      x -= y >> i;
+      y += oldX >> i;
+      angle -= angles[i];
+    }
+  }
+  const ap_int<35> absoluteAngle = angle < 0 ? (ap_int<35>)(-angle) : angle;
+  ap_int<15> code = (absoluteAngle + 524288) >> 20;
+  if (angle < 0)
+    code = -code;
+  return (ap_int<13>)code;
+}
+
+inline ap_uint<16> saturate16(ap_uint<24> value) {
+  return value > 65535 ? ap_uint<16>(65535) : ap_uint<16>(value);
+}
+
+// Components are combined before taking the negative vector. Magnitude and
+// scalar values are converted from 0.5 GeV to the GT 1/32 GeV convention.
+inline ap_uint<64> packVectorSum(ap_int<17> x, ap_int<17> y, ap_uint<17> scalar) {
+  const ap_int<34> x2 = (ap_int<34>)x * (ap_int<34>)x;
+  const ap_int<34> y2 = (ap_int<34>)y * (ap_int<34>)y;
+  const ap_uint<35> square = (ap_uint<35>)x2 + (ap_uint<35>)y2;
+  const ap_uint<48> scaledSquare = (ap_uint<48>)square << 8;
+  ap_uint<64> out = 0;
+  out[0] = 1;
+  out.range(16, 1) = saturate16(isqrt48(scaledSquare));
+  out.range(29, 17) = vectorPhi(-(ap_int<18>)x, -(ap_int<18>)y);
+  out.range(45, 30) = saturate16((ap_uint<24>)scalar << 4);
+  return out;
+}
+
+}  // namespace gcts
 
 static const ap_uint<10> BARREL_GAMMA_BOUNDARY_ETA = 84;
 static const ap_uint<10> ENDCAP_GAMMA_BOUNDARY_ETA = 85;
