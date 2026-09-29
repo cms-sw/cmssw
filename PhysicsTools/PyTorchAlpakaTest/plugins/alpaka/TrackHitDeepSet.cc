@@ -1,6 +1,3 @@
-#include <deque>
-#include <cmath>
-
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
@@ -14,19 +11,12 @@
 #include "DataFormats/PortableTestObjects/interface/alpaka/HitDeviceCollection.h"
 #include "DataFormats/PortableTestObjects/interface/alpaka/ParticleDeviceCollection.h"
 #include "DataFormats/PortableTestObjects/interface/alpaka/SimpleNetDeviceCollection.h"
-#include "PhysicsTools/PyTorchAlpaka/interface/TensorCollection.h"
+#include "PhysicsTools/PyTorchAlpaka/interface/BatchedTensorCollection.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/alpaka/AlpakaModel.h"
 #include "PhysicsTools/PyTorchAlpakaTest/interface/Environment.h"
 #include "PhysicsTools/PyTorchAlpakaTest/plugins/alpaka/CommonKernels.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
-
-  struct BatchIO {
-    cms::torch::alpakatools::TensorCollection<Queue> inputs;
-    cms::torch::alpakatools::TensorCollection<Queue> outputs;
-  };
-
-  using TensorSlice = cms::torch::alpakatools::TensorSlice;
 
   class TrackHitDeepSet : public stream::EDProducer<> {
   public:
@@ -59,7 +49,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
       const auto &hit_to_track = event.get(hit_to_track_token_);
 
       const auto total_size = particles.const_view().metadata().size();
+
       auto regression_collection = portabletest::SimpleNetDeviceCollection(queue, total_size);
+      if (total_size == 0) {
+        event.emplace(deepSet_token_, std::move(regression_collection));
+        return;
+      }
 
       uint32_t n_batches;
       if (batch_size_ == 0) {
@@ -80,29 +75,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
       auto output_records = regression_collection.view().records();
 
       // input and output tensor definitions
-      std::deque<BatchIO> batches;
-      for (auto i_batch = 0u; i_batch < n_batches; ++i_batch) {
-        BatchIO batch{cms::torch::alpakatools::TensorCollection<Queue>(),
-                      cms::torch::alpakatools::TensorCollection<Queue>()};
+      auto inputs = cms::torch::alpakatools::BatchedTensorCollection<Queue>();
+      auto outputs = cms::torch::alpakatools::BatchedTensorCollection<Queue>();
 
-        batch.inputs.add<portabletest::ParticleSoA>("track_features",
-                                                    TensorSlice{i_batch, batch_size_},
-                                                    input_records.pt(),
-                                                    input_records.eta(),
-                                                    input_records.phi());
-        batch.inputs.add<portabletest::HitSoA>("hit_features", hit_records.x(), hit_records.y(), hit_records.z());
-        batch.inputs.add<portabletest::HitToTrackSoA>("hit_to_track", hit_to_track_records.trackIndex());
-        batch.inputs.add<portabletest::TrackBeginSoA>(
-            "track_begin", TensorSlice{i_batch, 1}, track_begin_records.trackBegin());
+      inputs.addBatched<portabletest::ParticleSoA>(
+          "track_features", batch_size_, input_records.pt(), input_records.eta(), input_records.phi());
+      inputs.addBatched<portabletest::HitSoA>("hit_features", hit_records.x(), hit_records.y(), hit_records.z());
+      inputs.addBatched<portabletest::HitToTrackSoA>("hit_to_track", hit_to_track_records.trackIndex());
+      inputs.addBatched<portabletest::TrackBeginSoA>("track_begin", 1, track_begin_records.trackBegin());
 
-        batch.outputs.add<portabletest::SimpleNetSoA>(
-            "regression_head", TensorSlice{i_batch, batch_size_}, output_records.reco_pt());
-        batches.push_back(std::move(batch));
-      }
-      // forward pass on mini-batches
-      for (auto &batch : batches) {
-        model_.forward(queue, batch.inputs, batch.outputs);
-      }
+      outputs.addBatched<portabletest::SimpleNetSoA>("regression_head", batch_size_, output_records.reco_pt());
+
+      model_.forward(queue, inputs, outputs);
+
       // put device-side product into event
       event.emplace(deepSet_token_, std::move(regression_collection));
     }

@@ -85,44 +85,39 @@ More examples about usage can be found in [PyTorchAlpakaTest](../PyTorchAlpakaTe
 
 ### Batching semantics
 
-For batched inference, default-construct `TensorCollection<Queue>` and pass `TensorSlice{batch_id, batch_size}` to each `add()` that should expose a batch. The offset is computed relative to the size of that call's SoA. The final batch can contain fewer than `batch_size` elements. Calls without a `TensorSlice` expose the entire SoA.
+For batched inference, use `BatchedTensorCollection<Queue>` for the inputs and outputs. Register each SoA once with `addBatched()`, passing a batch size for tensors that should be sliced. The slice offset is computed relative to the size of that SoA, and the final batch can contain fewer elements. Omit the batch size to pass the full SoA to every batch. The `AlpakaModel::forward()` overload creates the per-batch `TensorCollection`s and runs inference for each batch.
 
 For example, a model can receive one batch of tracks while also receiving all hits and a hit-to-track mapping, even when the track and hit SoAs have different sizes:
 
 ```cpp
-using cms::torch::alpakatools::TensorSlice;
+BatchedTensorCollection<Queue> inputs;
+BatchedTensorCollection<Queue> outputs;
 
-TensorCollection<Queue> inputs;
-TensorCollection<Queue> outputs;
-
-inputs.add<portabletest::ParticleSoA>(
-    "track_features", TensorSlice{batch_id, batch_size},
+inputs.addBatched<portabletest::ParticleSoA>(
+    "track_features", batch_size,
     track_records.pt(), track_records.eta(), track_records.phi());
-inputs.add<portabletest::HitSoA>(
+inputs.addBatched<portabletest::HitSoA>(
     "hit_features", hit_records.x(), hit_records.y(), hit_records.z());
-inputs.add<portabletest::HitToTrackSoA>(
+inputs.addBatched<portabletest::HitToTrackSoA>(
     "hit_to_track", hit_to_track_records.trackIndex());
-inputs.add<portabletest::TrackBeginSoA>(
-    "track_begin", TensorSlice{batch_id, 1}, track_begin_records.trackBegin());
-outputs.add<portabletest::SimpleNetSoA>(
-    "regression_head", TensorSlice{batch_id, batch_size},
+inputs.addBatched<portabletest::TrackBeginSoA>(
+    "track_begin", 1, track_begin_records.trackBegin());
+outputs.addBatched<portabletest::SimpleNetSoA>(
+    "regression_head", batch_size,
     output_records.reco_pt());
 
 model.forward(queue, inputs, outputs);
 ```
 
-The TorchScript model is responsible for interpreting the different input sizes. `TensorSlice` does not filter the full hit collection; in the example, the model uses `hit_to_track` to select hits belonging to the current track batch. An `SOA_SCALAR` is registered without a slice and uses the size of its own SoA.
+The TorchScript model is responsible for interpreting the different input sizes. In this example, all hits and the hit-to-track mapping are passed to every batch; the model uses `hit_to_track` to select hits belonging to the current track batch. All sliced SoAs must imply the same number of batches, including the inputs and outputs. An `SOA_SCALAR` can be registered without a batch size to pass it in full.
 
-Runtime checks are performed to ensure:
-- valid batch indices
-- a positive batch size for nonempty sliced SoAs
-- memory contiguity between columns
+For manual batching, `TensorCollection::add()` accepts a `TensorSlice{batch_id, batch_size}`. Calls without a slice expose the full SoA.
 
-These checks rely on `assert`, which can be disabled by the build configuration. 
+Use a positive batch size for sliced SoAs. Batch-count consistency, slice bounds, and column contiguity currently rely on `assert`.
 
 Look at [SimpleNetMiniBatch](../PyTorchAlpakaTest/plugins/alpaka/SimpleNetMiniBatch.cc) for a batched example and [TrackHitDeepSet](../PyTorchAlpakaTest/plugins/alpaka/TrackHitDeepSet.cc) for SoAs with different sizes.
 
--**IMPORTANT:** the batchsize should be chosen carefully in order to respect the alignment (typically a multiple of 32). Otherwise, an assert will be trigged.
+**IMPORTANT:** Choose batch sizes that respect the SoA alignment (typically a multiple of 32), otherwise an assertion can be triggered.
 
 ## FP16 Inference Support
 

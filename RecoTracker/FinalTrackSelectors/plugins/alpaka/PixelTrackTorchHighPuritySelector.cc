@@ -54,8 +54,6 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/FixedQueueEDProducer.h"
 
-#include <deque>
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -71,23 +69,16 @@
 #include "RecoTracker/FinalTrackSelectors/plugins/alpaka/PixelTrackFeaturesDeviceCollection.h"
 #include "RecoTracker/FinalTrackSelectors/plugins/alpaka/PixelTrackTorchHighPuritySelectorKernels.h"
 
-#include "PhysicsTools/PyTorchAlpaka/interface/TensorCollection.h"
+#include "PhysicsTools/PyTorchAlpaka/interface/BatchedTensorCollection.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/alpaka/AlpakaModel.h"
 
 // #define PIXEL_TRACK_HP_DEBUG
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  /// Input/output tensors associated to a single inference batch.
-  struct BatchIO {
-    cms::torch::alpakatools::TensorCollection<Queue> inputs;
-    cms::torch::alpakatools::TensorCollection<Queue> outputs;
-  };
-
   class PixelTrackTorchHighPuritySelector : public stream::FixedQueueEDProducer<> {
     using TkSoADevice = reco::TracksSoACollection;
     using TrackHitSoA = ::reco::TrackHitSoA;
-    using TensorSlice = cms::torch::alpakatools::TensorSlice;
 
   public:
     explicit PixelTrackTorchHighPuritySelector(const edm::ParameterSet&);
@@ -260,41 +251,34 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     //  Prepare TensorCollection inputs and outputs for the model
     auto track_record = trackFeatures.view().records();
     auto score_record = trackScoresOnDevice.view().records();
-    const auto n_batches = (maxPreselectedTracks_ + batchSize_ - 1) / batchSize_;
-    std::deque<BatchIO> batches;
 
-    // - Tensor collections for DNN inference
-    for (auto i_batch = 0; i_batch < n_batches; ++i_batch) {
-      batches.emplace_back(BatchIO{cms::torch::alpakatools::TensorCollection<Queue>(),
-                                   cms::torch::alpakatools::TensorCollection<Queue>()});
+    auto inputs = cms::torch::alpakatools::BatchedTensorCollection<Queue>();
+    auto outputs = cms::torch::alpakatools::BatchedTensorCollection<Queue>();
 
-      auto& batch = batches.back();
-      const TensorSlice slice{static_cast<uint32_t>(i_batch), static_cast<uint32_t>(batchSize_)};
-      // Order must match the TorchScript model input schema
-      batch.inputs.add<PixelTrackFeaturesSoA>("track_features",
-                                              slice,
-                                              track_record.chi2(),
-                                              track_record.dzError(),
-                                              track_record.dxyError(),
-                                              track_record.eta(),
-                                              track_record.nHits(),
-                                              track_record.phi(),
-                                              track_record.phiError(),
-                                              track_record.pt(),
-                                              track_record.qOverPtError(),
-                                              track_record.dzBS(),
-                                              track_record.dxyBS(),
-                                              track_record.nLayers(),
-                                              track_record.cotThetaError(),
-                                              track_record.covCotThetaDz(),
-                                              track_record.covDxyQOverPt(),
-                                              track_record.covPhiDxy(),
-                                              track_record.covPhiQOverPt());
+    // Order must match the TorchScript model input schema
+    inputs.addBatched<PixelTrackFeaturesSoA>("track_features",
+                                             batchSize_,
+                                             track_record.chi2(),
+                                             track_record.dzError(),
+                                             track_record.dxyError(),
+                                             track_record.eta(),
+                                             track_record.nHits(),
+                                             track_record.phi(),
+                                             track_record.phiError(),
+                                             track_record.pt(),
+                                             track_record.qOverPtError(),
+                                             track_record.dzBS(),
+                                             track_record.dxyBS(),
+                                             track_record.nLayers(),
+                                             track_record.cotThetaError(),
+                                             track_record.covCotThetaDz(),
+                                             track_record.covDxyQOverPt(),
+                                             track_record.covPhiDxy(),
+                                             track_record.covPhiQOverPt());
 
-      batch.outputs.add<PixelTrackScoresSoA>("track_scores", slice, score_record.score());
+    outputs.addBatched<PixelTrackScoresSoA>("track_scores", batchSize_, score_record.score());
 
-      model_.forward(queue, batch.inputs, batch.outputs, ::torch::kHalf);
-    }
+    model_.forward(queue, inputs, outputs, ::torch::kHalf);
 
     launchScoreFilter(queue,
                       maxPreselectedTracks_,
