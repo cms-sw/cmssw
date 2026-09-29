@@ -3,9 +3,9 @@
 #include "FWCore/Framework/interface/WorkerManager_global.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/TransitionPhaseTypes.h"
+#include "FWCore/Framework/interface/maker/TransitionWorker.h"
 #include "UnscheduledConfigurator.h"
 
-#include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"

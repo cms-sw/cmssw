@@ -64,7 +64,7 @@
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/TransitionPhaseTypes.h"
 #include "FWCore/Framework/interface/ModuleInPath.h"
-#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/maker/TransitionWorker.h"
 #include "FWCore/Framework/interface/EarlyDeleteHelper.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
@@ -286,9 +286,11 @@ namespace edm {
 
     edm::propagate_const<TrigResPtr> results_;
 
-    edm::propagate_const<Worker*> results_inserter_;
-    std::vector<edm::propagate_const<Worker*>> pathStatusInserterWorkers_;
-    std::vector<edm::propagate_const<Worker*>> endPathStatusInserterWorkers_;
+    edm::propagate_const<TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>*> results_inserter_;
+    std::vector<edm::propagate_const<TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>*>>
+        pathStatusInserterWorkers_;
+    std::vector<edm::propagate_const<TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>*>>
+        endPathStatusInserterWorkers_;
 
     TrigPaths trig_paths_;
     TrigPaths end_paths_;

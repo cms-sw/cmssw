@@ -64,7 +64,7 @@
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
-#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/maker/TransitionWorker.h"
 #include "FWCore/Framework/interface/GlobalSchedule.h"
 #include "FWCore/Framework/interface/StreamSchedule.h"
 #include "FWCore/Framework/interface/SystemTimeKeeper.h"

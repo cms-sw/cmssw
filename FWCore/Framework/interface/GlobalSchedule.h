@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/TransitionPhaseTypes.h"
 #include "FWCore/Framework/interface/WorkerManager_global.h"
-#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/maker/TransitionWorker.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
@@ -51,7 +51,6 @@ namespace edm {
   class GlobalSchedule {
   public:
     using vstring = std::vector<std::string>;
-    using WorkerPtr = std::shared_ptr<Worker>;
     template <typename TI>
     using GlobalWorkerManager = WorkerManager<TI, TransitionPhaseGlobal>;
 
@@ -143,7 +142,6 @@ namespace edm {
     GlobalWorkerManager<InputProcessBlockTransitionInfo> inputProcessBlockWorkerManager_;
     std::vector<unsigned int> beginJobFailedForModule_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
-    std::vector<edm::propagate_const<WorkerPtr>> extraWorkers_;
     ProcessContext const* processContext_;
   };
 
