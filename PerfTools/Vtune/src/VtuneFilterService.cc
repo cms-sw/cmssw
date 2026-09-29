@@ -1,4 +1,4 @@
-#include "PerfTools/VtuneFilter/interface/VtuneFilterService.h"
+#include "PerfTools/Vtune/interface/VtuneFilterService.h"
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"

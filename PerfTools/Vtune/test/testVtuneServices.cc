@@ -7,8 +7,8 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "PerfTools/VtuneFilter/interface/VtuneAnnotateService.h"
-#include "PerfTools/VtuneFilter/interface/VtuneFilterService.h"
+#include "PerfTools/Vtune/interface/VtuneAnnotateService.h"
+#include "PerfTools/Vtune/interface/VtuneFilterService.h"
 
 #include <string>
 #include <utility>

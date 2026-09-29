@@ -1,4 +1,4 @@
-#include "PerfTools/VtuneFilter/interface/VtuneFilterService.h"
+#include "PerfTools/Vtune/interface/VtuneFilterService.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 using edm::VtuneFilterService;
