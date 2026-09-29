@@ -10,6 +10,7 @@ ScoutingTrackMonitorOnline = ScoutingTrackMonitor.clone(
 )
 
 ScoutingRecoTrackMonitorOnline = _scoutingRecoTrackMonitor.clone(
+    beamSpot       = "hltOnlineBeamSpot", # provided in the online client
     doLumiAnalysis = False, # does not play nice with the online saver
     FolderName     = 'HLT/ScoutingOnline/Tracks',
     BSFolderName   = 'HLT/ScoutingOnline/Tracks',
