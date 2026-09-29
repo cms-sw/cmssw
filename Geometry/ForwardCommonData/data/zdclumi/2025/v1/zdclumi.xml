@@ -6,7 +6,8 @@
   <Constant name="LUMIWorldHalfdZ" value="8.0000*cm"/>
   <Constant name="LUMIHalfdX" value="8.0000*cm"/>
   <Constant name="LUMIHalfdY" value="32.0000*cm"/>
-  <Constant name="LUMIHalfdZ" value="4.9510*cm"/>
+  <Constant name="LUMIHalfdZ" value="5.0*cm"/>
+  <!--Constant name="LUMIHalfdZ" value=4.9510*cm"/-->
   <Constant name="LUMIPositionX" value="0.0000*cm"/>
   <Constant name="LUMIPositionY" value="0.0000*cm"/>
   <Constant name="LUMIPositionZ" value="35.8500*cm"/>
@@ -21,6 +22,9 @@
   <Constant name="LUMIRodHalfWidth"  value="5.0*mm"/>
   <Constant name="LUMIRodXDelta"  value="12.0*mm"/>
   <Constant name="LUMIRodZDelta"  value="20.0*mm"/>
+
+  <Constant name="LumiCuPlateZpos" value="([LUMICuBoxHalfdZ]+2*[LUMIAlPlateHalfdZ]+[LUMICuPlateHalfdZ])"/>
+  <Constant name="LumiAlPlateZpos" value="([LUMICuBoxHalfdZ]+[LUMIAlPlateHalfdZ])"/>
 </ConstantsSection>
 
 
@@ -33,7 +37,7 @@
   <Box name="LUMICuBox"    dx="[LUMIBoxHalfdX]" dy="[LUMIBoxHalfdY]" dz="[LUMICuBoxHalfdZ]"/>
 
   <Box name="LUMIHole"     dx="[LUMIHoleHalfWidth]" dy="[LUMIBoxHalfdY]" dz="[LUMIHoleHalfWidth]"/>
-      <Tube name="LUMIRod"     rMin="0.0*mm" rMax="[LUMIRodHalfWidth]" dz="[LUMIBoxHalfdY]"/>
+   <Tube name="LUMIRod"     rMin="0.0*mm" rMax="[LUMIRodHalfWidth]" dz="[LUMIBoxHalfdY]"/>
 </SolidSection>
 
 
@@ -81,12 +85,12 @@
   <PosPart copyNumber="1">
     <rParent name="zdclumi:LUMI"/>
     <rChild name="zdclumi:LUMICuPlate"/>
-    <Translation x="0.0*mm" y="0.0*mm" z="-[LUMICuBoxHalfdZ]-2*[LUMIAlPlateHalfdZ]-[LUMICuPlateHalfdZ]"/>
+    <Translation x="0.0*mm" y="0.0*mm" z="-[LumiCuPlateZpos]"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="zdclumi:LUMI"/>
     <rChild name="zdclumi:LUMIAlPlate"/>
-    <Translation x="0.0*mm" y="0.0*mm" z="-[LUMICuBoxHalfdZ]-[LUMIAlPlateHalfdZ]"/>
+    <Translation x="0.0*mm" y="0.0*mm" z="-[LumiAlPlateZpos]"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="zdclumi:LUMI"/>
@@ -95,93 +99,59 @@
   <PosPart copyNumber="2">
     <rParent name="zdclumi:LUMI"/>
     <rChild name="zdclumi:LUMIAlPlate"/>
-    <Translation x="0.0*mm" y="0.0*mm" z="+[LUMICuBoxHalfdZ]+[LUMIAlPlateHalfdZ]"/>
+    <Translation x="0.0*mm" y="0.0*mm" z="+[LumiAlPlateZpos]"/>
+"/>
   </PosPart>
   <PosPart copyNumber="2">
     <rParent name="zdclumi:LUMI"/>
     <rChild name="zdclumi:LUMICuPlate"/>
-    <Translation x="0.0*mm" y="0.0*mm" z="+[LUMICuBoxHalfdZ]+2*[LUMIAlPlateHalfdZ]+[LUMICuPlateHalfdZ]"/>
+    <Translation x="0.0*mm" y="0.0*mm" z="+[LumiCuPlateZpos]"/>
   </PosPart>
 
-  <PosPart copyNumber="1">
-    <rParent name="zdclumi:LUMICuBox"/>
-    <rChild name="zdclumi:LUMIHole"/>
-    <Translation x="-2*[LUMIRodXDelta]" y="0.0*mm" z="[LUMIRodZDelta]"/>
-  </PosPart>
   <PosPart copyNumber="1">
     <rParent name="zdclumi:LUMIHole"/>
     <rChild name="zdclumi:LUMIRod"/>
     <rRotation name="zdcrotations:R1"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="zdclumi:LUMICuBox"/>
+    <rChild name="zdclumi:LUMIHole"/>
+    <Translation x="-2*[LUMIRodXDelta]" y="0.0*mm" z="[LUMIRodZDelta]"/>
   </PosPart>
   <PosPart copyNumber="2">
     <rParent name="zdclumi:LUMICuBox"/>
     <rChild name="zdclumi:LUMIHole"/>
     <Translation x="0.0*mm" y="0.0*mm" z="[LUMIRodZDelta]"/>
   </PosPart>
-  <PosPart copyNumber="2">
-    <rParent name="zdclumi:LUMIHole"/>
-    <rChild name="zdclumi:LUMIRod"/>
-    <rRotation name="zdcrotations:R1"/>
-  </PosPart>
   <PosPart copyNumber="3">
     <rParent name="zdclumi:LUMICuBox"/>
     <rChild name="zdclumi:LUMIHole"/>
     <Translation x="2*[LUMIRodXDelta]" y="0.0*mm" z="[LUMIRodZDelta]"/>
-  </PosPart>
-  <PosPart copyNumber="3">
-    <rParent name="zdclumi:LUMIHole"/>
-    <rChild name="zdclumi:LUMIRod"/>
-    <rRotation name="zdcrotations:R1"/>
   </PosPart>
   <PosPart copyNumber="4">
     <rParent name="zdclumi:LUMICuBox"/>
     <rChild name="zdclumi:LUMIHole"/>
     <Translation x="-[LUMIRodXDelta]" y="0.0*mm" z="0.0*mm"/>
   </PosPart>
-  <PosPart copyNumber="4">
-    <rParent name="zdclumi:LUMIHole"/>
-    <rChild name="zdclumi:LUMIRod"/>
-    <rRotation name="zdcrotations:R1"/>
-  </PosPart>
   <PosPart copyNumber="5">
     <rParent name="zdclumi:LUMICuBox"/>
     <rChild name="zdclumi:LUMIHole"/>
     <Translation x="[LUMIRodXDelta]" y="0.0*mm" z="0.0*mm"/>
-  </PosPart>
-  <PosPart copyNumber="5">
-    <rParent name="zdclumi:LUMIHole"/>
-    <rChild name="zdclumi:LUMIRod"/>
-    <rRotation name="zdcrotations:R1"/>
   </PosPart>
   <PosPart copyNumber="6">
     <rParent name="zdclumi:LUMICuBox"/>
     <rChild name="zdclumi:LUMIHole"/>
     <Translation x="-2*[LUMIRodXDelta]" y="0.0*mm" z="-[LUMIRodZDelta]"/>
   </PosPart>
-  <PosPart copyNumber="6">
-    <rParent name="zdclumi:LUMIHole"/>
-    <rChild name="zdclumi:LUMIRod"/>
-    <rRotation name="zdcrotations:R1"/>
-  </PosPart>
   <PosPart copyNumber="7">
     <rParent name="zdclumi:LUMICuBox"/>
     <rChild name="zdclumi:LUMIHole"/>
     <Translation x="0.0*mm" y="0.0*mm" z="-[LUMIRodZDelta]"/>
   </PosPart>
-  <PosPart copyNumber="7">
-    <rParent name="zdclumi:LUMIHole"/>
-    <rChild name="zdclumi:LUMIRod"/>
-    <rRotation name="zdcrotations:R1"/>
-  </PosPart>
   <PosPart copyNumber="8">
     <rParent name="zdclumi:LUMICuBox"/>
     <rChild name="zdclumi:LUMIHole"/>
     <Translation x="2*[LUMIRodXDelta]" y="0.0*mm" z="-[LUMIRodZDelta]"/>
-  </PosPart>
-  <PosPart copyNumber="8">
-    <rParent name="zdclumi:LUMIHole"/>
-    <rChild name="zdclumi:LUMIRod"/>
-    <rRotation name="zdcrotations:R1"/>
   </PosPart>
 </PosPartSection>
 
