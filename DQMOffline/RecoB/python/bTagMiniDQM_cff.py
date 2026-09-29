@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-from DQMOffline.RecoB.bTagMiniDQMTaggers import DeepCSVDiscriminators
 from DQMOffline.RecoB.bTagMiniDQMTaggers import DeepFlavourDiscriminators
 from DQMOffline.RecoB.bTagMiniDQMTaggers import ParticleNetPuppiCentralDiscriminators
 from DQMOffline.RecoB.bTagMiniDQMTaggers import ParticleNetPuppiForwardDiscriminators
@@ -88,10 +87,6 @@ def addSequences(Analyzer, Harvester, discriminators, regions, globalPSet, label
 taggersToAnalyze = {
     'bTagDeepFlavour': {
         'discriminators': DeepFlavourDiscriminators,
-        'regions':Etaregions
-    },
-    'bTagDeepCSV': {
-        'discriminators': DeepCSVDiscriminators,
         'regions':Etaregions
     },
     'bTagParticleNetCentral': {
