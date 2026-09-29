@@ -1291,7 +1291,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
  */
 // clang-format off
 #define _ACCUMULATE_AOS_SCALARS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
-  _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE, _aos_impl_ret += sizeof(CPP_TYPE);)
+  _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE, _aos_impl_ret += cms::soa::alignSize(sizeof(CPP_TYPE), alignment);)
 // clang-format on
 
 #define _ACCUMULATE_AOS_SCALARS(R, DATA, TYPE_NAME)                                         \
@@ -1306,7 +1306,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 #define _ASSIGN_AOS_SCALAR_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)    \
   _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE,                                         \
       BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(_aos_impl_curMem); \
-      _aos_impl_curMem += sizeof(CPP_TYPE);)
+      _aos_impl_curMem += cms::soa::alignSize(sizeof(CPP_TYPE), alignment);)
 // clang-format on
 
 #define _ASSIGN_AOS_SCALAR_MEMBERS(R, DATA, TYPE_NAME)                                      \
@@ -1927,10 +1927,10 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
       /* Helper function used by caller to externally allocate the storage */                                          \
       static constexpr byte_size_type computeDataSize(size_type elements) {                                            \
-        byte_size_type _aos_impl_ret = elements * sizeof(RecordType);                                                  \
+        byte_size_type _aos_impl_ret = cms::soa::alignSize(elements * sizeof(RecordType), alignment);                  \
         _ITERATE_ON_ALL(_ACCUMULATE_AOS_SCALARS, ~, __VA_ARGS__)                                                       \
         /* Align the total buffer size. Important when multiple layouts use the same buffer */                         \
-        return cms::soa::alignSize(_aos_impl_ret, alignment);                                                          \
+        return _aos_impl_ret;                                                                                          \
       }                                                                                                                \
                                                                                                                        \
       /* Default constructor */                                                                                        \
@@ -1945,10 +1945,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         if (reinterpret_cast<std::uintptr_t>(mem) % alignof(RecordType) != 0)                                          \
           cms::soa::detail::throwRuntimeError("In " #CLASS "::AoSWrapper: misaligned memory.");                        \
         auto _aos_impl_curMem = mem_;                                                                                  \
-        _aos_impl_curMem += elements * sizeof(RecordType);                                                             \
+        _aos_impl_curMem += cms::soa::alignSize(elements * sizeof(RecordType), alignment);                             \
         _ITERATE_ON_ALL(_ASSIGN_AOS_SCALAR_MEMBERS, ~, __VA_ARGS__)                                                    \
-        auto padding = (alignment - (reinterpret_cast<std::uintptr_t>(_aos_impl_curMem) % alignment)) % alignment;     \
-        if (mem_ + byteSize_ != _aos_impl_curMem + padding)                                                            \
+        if (mem_ + byteSize_ != _aos_impl_curMem)                                                                      \
           cms::soa::detail::throwRuntimeError("In " #CLASS "::AoSWrapper: unexpected end pointer.");                   \
       }                                                                                                                \
                                                                                                                        \

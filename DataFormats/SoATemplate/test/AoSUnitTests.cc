@@ -61,10 +61,14 @@ TEST_CASE("AoS Unit Tests") {
   const auto soaBufferSize = SoA::computeDataSize(elems);
   const auto aosBufferSize = SoA::AoSWrapper::computeDataSize(elems);
   // The AoS is an array of SoA::RecordType
-  // So the total memory is sizeof(SoA::RecordType) * elems + the size of the scalar members + padding at the end
-  const auto expectedBufferSize = sizeof(SoA::RecordType) * elems + sizeof(int8_t) + sizeof(float) +
-                                  sizeof(int64_t) + sizeof(double) + sizeof(const char *);
-  REQUIRE(cms::soa::alignSize(expectedBufferSize, SoA::alignment) == aosBufferSize);
+  // So the total memory is sizeof(SoA::RecordType) * elems + the size of the scalar members
+  // The AoS memory region as well as all scalars are padded using the alignment passed to the SoA class
+  const auto expectedBufferSize =
+      cms::soa::alignSize(sizeof(SoA::RecordType) * elems, SoA::alignment) +
+      cms::soa::alignSize(sizeof(int8_t), SoA::alignment) + cms::soa::alignSize(sizeof(float), SoA::alignment) +
+      cms::soa::alignSize(sizeof(int64_t), SoA::alignment) + cms::soa::alignSize(sizeof(double), SoA::alignment) +
+      cms::soa::alignSize(sizeof(const char *), SoA::alignment);
+  REQUIRE(expectedBufferSize == aosBufferSize);
 
   // memory buffer for the SoA
   std::unique_ptr<std::byte, decltype(std::free) *> soaBuffer{
@@ -311,12 +315,16 @@ TEST_CASE("AoS Unit Tests") {
     double s4;
     char *s5;
 
-    const auto offsetScalars = sizeof(SoA::RecordType) * elems;
-    std::memcpy(&s1, aosBuffer.get() + offsetScalars, sizeof(s1));
-    std::memcpy(&s2, aosBuffer.get() + offsetScalars + sizeof(s1), sizeof(s2));
-    std::memcpy(&s3, aosBuffer.get() + offsetScalars + sizeof(s1) + sizeof(s2), sizeof(s3));
-    std::memcpy(&s4, aosBuffer.get() + offsetScalars + sizeof(s1) + sizeof(s2) + sizeof(s3), sizeof(s4));
-    std::memcpy(&s5, aosBuffer.get() + offsetScalars + sizeof(s1) + sizeof(s2) + sizeof(s3) + sizeof(s4), sizeof(s5));
+    auto offset = cms::soa::alignSize(sizeof(SoA::RecordType) * elems, SoA::alignment);
+    std::memcpy(&s1, aosBuffer.get() + offset, sizeof(s1));
+    offset += cms::soa::alignSize(sizeof(s1), SoA::alignment);
+    std::memcpy(&s2, aosBuffer.get() + offset, sizeof(s2));
+    offset += cms::soa::alignSize(sizeof(s2), SoA::alignment);
+    std::memcpy(&s3, aosBuffer.get() + offset, sizeof(s3));
+    offset += cms::soa::alignSize(sizeof(s3), SoA::alignment);
+    std::memcpy(&s4, aosBuffer.get() + offset, sizeof(s4));
+    offset += cms::soa::alignSize(sizeof(s4), SoA::alignment);
+    std::memcpy(&s5, aosBuffer.get() + offset, sizeof(s5));
 
     REQUIRE(s1 == 100);
     REQUIRE_THAT(s2, Catch::Matchers::WithinAbs(42.42f, 1.e-6));
@@ -367,9 +375,13 @@ TEST_CASE("AoS Unit Tests Scalar only") {
   const auto aosBufferSize = SoAOnlyScalars::AoSWrapper::computeDataSize(elems);
   // The AoS buffer is just the size of the scalar members
   // Size of an empty struct is 1 byte!
-  const auto expectedBufferSize = elems + sizeof(int8_t) + sizeof(float) + sizeof(int64_t) + sizeof(double);
+  const auto expectedBufferSize = cms::soa::alignSize(elems, SoAOnlyScalars::alignment) +
+                                  cms::soa::alignSize(sizeof(int8_t), SoAOnlyScalars::alignment) +
+                                  cms::soa::alignSize(sizeof(float), SoAOnlyScalars::alignment) +
+                                  cms::soa::alignSize(sizeof(int64_t), SoAOnlyScalars::alignment) +
+                                  cms::soa::alignSize(sizeof(double), SoAOnlyScalars::alignment);
   REQUIRE(sizeof(SoAOnlyScalars::RecordType) == 1);
-  REQUIRE(cms::soa::alignSize(expectedBufferSize, SoAOnlyScalars::alignment) == aosBufferSize);
+  REQUIRE(expectedBufferSize == aosBufferSize);
 
   // memory buffer for the SoA of positions
   std::unique_ptr<std::byte, decltype(std::free) *> soaBuffer{
