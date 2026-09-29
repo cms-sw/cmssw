@@ -148,25 +148,6 @@ namespace edm {
       assert(false);
     }
 
-    //Called by GlobalSchedule::processOneGlobalAsync, UnscheduledCallProducer::runAccumulatorsAsync, WorkerInPath::runWorkerAsync, UnscheduledProductResolver::prefetchAsync_
-    template <typename T>
-    void doWorkAsyncImpl(WaitingTaskHolder,
-                         typename T::TransitionInfoType const&,
-                         ServiceToken const&,
-                         StreamID,
-                         ParentContext const&,
-                         typename T::Context const*) noexcept;
-
-    //called by processOneOccurrenceAsync which is only used for globals by the SecondaryEventProvider and
-    // WokerManager<stream>::processOneOccurrenceAsync
-    template <typename T>
-    void doWorkNoPrefetchingAsyncImpl(WaitingTaskHolder,
-                                      typename T::TransitionInfoType const&,
-                                      ServiceToken const&,
-                                      StreamID,
-                                      ParentContext const&,
-                                      typename T::Context const*) noexcept;
-
     //Called by Path to inject PathStatus and StreamSchedule to inject TriggerResults and PathStatus for empty paths.
     std::exception_ptr runModuleDirectly(EventTransitionInfo const&,
                                          StreamID,
@@ -222,6 +203,25 @@ namespace edm {
     edm::WaitingTaskList& waitingTaskList() noexcept { return waitingTasks_; }
 
   protected:
+    //Called by GlobalSchedule::processOneGlobalAsync, UnscheduledCallProducer::runAccumulatorsAsync, WorkerInPath::runWorkerAsync, UnscheduledProductResolver::prefetchAsync_
+    template <typename T>
+    void doWorkAsyncImpl(WaitingTaskHolder,
+                         typename T::TransitionInfoType const&,
+                         ServiceToken const&,
+                         StreamID,
+                         ParentContext const&,
+                         typename T::Context const*) noexcept;
+
+    //called by processOneOccurrenceAsync which is only used for globals by the SecondaryEventProvider and
+    // WokerManager<stream>::processOneOccurrenceAsync
+    template <typename T>
+    void doWorkNoPrefetchingAsyncImpl(WaitingTaskHolder,
+                                      typename T::TransitionInfoType const&,
+                                      ServiceToken const&,
+                                      StreamID,
+                                      ParentContext const&,
+                                      typename T::Context const*) noexcept;
+
     template <typename O>
     friend class workerhelper::CallImpl;
 
