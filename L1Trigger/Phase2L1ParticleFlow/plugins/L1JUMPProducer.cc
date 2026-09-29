@@ -53,7 +53,7 @@ private:
 
   double minJetPt;
   double maxJetEta;
-  std::string jerFilePath_;
+  const L1JUMPEmu jumpEmulator_;
 };
 
 L1JUMPProducer::L1JUMPProducer(const edm::ParameterSet& cfg)
@@ -61,9 +61,9 @@ L1JUMPProducer::L1JUMPProducer(const edm::ParameterSet& cfg)
       jetsToken(consumes<std::vector<l1t::PFJet>>(cfg.getParameter<edm::InputTag>("L1PFJets"))),
       minJetPt(cfg.getParameter<double>("MinJetpT")),
       maxJetEta(cfg.getParameter<double>("MaxJetEta")),
-      jerFilePath_(cfg.getParameter<std::string>("JERFile")) {
+      jumpEmulator_(edm::FileInPath(cfg.getParameter<std::string>("JERFile")).fullPath(),
+                    cfg.getParameter<edm::FileInPath>("Poly2File").fullPath()) {
   produces<std::vector<l1t::EtSum>>();
-  L1JUMPEmu::SetJERFile(jerFilePath_);
 }
 
 void L1JUMPProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -73,6 +73,8 @@ void L1JUMPProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<double>("MinJetpT", 30);
   desc.add<double>("MaxJetEta", 3.0);
   desc.add<std::string>("JERFile", "L1Trigger/Phase2L1ParticleFlow/data/met/l1jump_jer_v1.json");
+  desc.add<edm::FileInPath>("Poly2File",
+                            edm::FileInPath("L1Trigger/Phase2L1ParticleFlow/data/met/l1met_ptphi2pxpy_poly2_v1.json"));
   descriptions.add("L1JUMPProducer", desc);
 }
 
@@ -110,7 +112,7 @@ void L1JUMPProducer::CalcJUMP_HLS(const l1t::EtSum& metVector,
 
   l1ct::Sum outMet;
 
-  JUMP_emu(inMet, jets, outMet);
+  jumpEmulator_.JUMP_emu(inMet, jets, outMet);
 
   outMet_Vector.SetPt(outMet.hwPt.to_double());
   outMet_Vector.SetPhi(outMet.hwPhi.to_double() * phiLSB_);
