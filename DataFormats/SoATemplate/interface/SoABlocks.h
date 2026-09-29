@@ -573,7 +573,7 @@
       }                                                                                                                \
                                                                                                                        \
       /**                                                                                                              \
-      * Helper/friend class allowing SoA by blocks introspection.                                                      \
+      * Helper/friend class allowing AoS by blocks introspection.                                                      \
       */                                                                                                               \
       struct AoSMetadata {                                                                                             \
         friend AoSWrapper;                                                                                             \
@@ -592,7 +592,8 @@
         AoSMetadata(const AoSMetadata&) = delete;                                                                      \
                                                                                                                        \
         private:                                                                                                       \
-          SOA_HOST_DEVICE SOA_INLINE AoSMetadata(const CLASS& _soa_impl_parent) : parent_(_soa_impl_parent) {}         \
+          SOA_HOST_DEVICE SOA_INLINE AoSMetadata(const CLASS::AoSWrapper& _soa_impl_parent)                            \
+            : parent_(_soa_impl_parent) {}                                                                             \
           const CLASS::AoSWrapper& parent_;                                                                            \
       };                                                                                                               \
                                                                                                                        \
