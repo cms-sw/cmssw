@@ -155,10 +155,10 @@ void DDHGCalPassive::execute(DDCompactView& cpv) {
         std::vector<double> zx(2, 0), zy(2, 0), scale(2, 1.0);
         std::vector<double> xM(absN_[i3], 0), yM(absN_[i3], 0);
 
-	for (int k = 0; k < 2; ++k){
-          zx[k] = xsignpos_[i1] * (cphi * shX_[i3] * zw[k]  + sphi * shY_[i3] * zw[k]);
-	  zy[k] = -sphi * shX_[i3] * zw[k] + cphi * shY_[i3] * zw[k];
-	}
+        for (int k = 0; k < 2; ++k) {
+          zx[k] = xsignpos_[i1] * (cphi * shX_[i3] * zw[k] + sphi * shY_[i3] * zw[k]);
+          zy[k] = -sphi * shX_[i3] * zw[k] + cphi * shY_[i3] * zw[k];
+        }
         for (int k = 0; k < absN_[i3]; ++k) {
           xM[k] = xsignpos_[i1] * (cphi * absX_[j + k] + sphi * absY_[j + k]);
           yM[k] = -sphi * absX_[j + k] + cphi * absY_[j + k];
@@ -185,11 +185,11 @@ void DDHGCalPassive::execute(DDCompactView& cpv) {
           if (copyNumber[i] == 1) {
             zw[0] = -0.5 * layerThick_[i];
             zw[1] = 0.5 * layerThick_[i];
-            for (int k = 0; k < 2; ++k){
-              zx[k] = xsignpos_[i1] * (cphi * shX_[i3] * zw[k]  + sphi * shY_[i3] * zw[k]);
+            for (int k = 0; k < 2; ++k) {
+              zx[k] = xsignpos_[i1] * (cphi * shX_[i3] * zw[k] + sphi * shY_[i3] * zw[k]);
               zy[k] = -sphi * shX_[i3] * zw[k] + cphi * shY_[i3] * zw[k];
             }
-            std::string layerName = parentName + layerNames_[i]; 
+            std::string layerName = parentName + layerNames_[i];
             solid = DDSolidFactory::extrudedpolygon(layerName, xM, yM, zw, zx, zy, scale);
             DDName matN(DDSplit(layerMaterial_[i]).first, DDSplit(layerMaterial_[i]).second);
             DDMaterial matter(matN);
@@ -201,10 +201,10 @@ void DDHGCalPassive::execute(DDCompactView& cpv) {
                 << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1] << " and " << xM.size()
                 << " Offests " << zx[0] << ":" << zy[0] << " and " << zx[1] << ":" << zy[1] << " and edges ";
             for (unsigned int kk = 0; kk < xM.size(); ++kk)
-             edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
+              edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
 #endif
-	  }
-	  double zp = zi + 0.5 * layerThick_[i];
+          }
+          double zp = zi + 0.5 * layerThick_[i];
           double zxp = xsignpos_[i1] * (cphi * shX_[i3] * zp + sphi * shY_[i3] * zp);
           double zyp = -sphi * shX_[i3] * zp + cphi * shY_[i3] * zp;
 #ifdef EDM_ML_DEBUG
