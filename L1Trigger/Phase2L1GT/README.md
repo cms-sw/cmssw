@@ -172,6 +172,35 @@ SingleTkMuon22 = l1tGTSingleObjectCond.clone(
 )    
 ```
 
+#### Structured menus: object references and offline thresholds (ConfDB-friendly)
+
+Cloning a baseline object copies its parameters into every seed, so once the menu is dumped (e.g. for ConfDB) the link between seeds and objects is lost, and `get_object_thrs` has already turned the offline threshold into online values. The `step1_2024` menu therefore uses the structured form: the objects **and the pT scalings** are top-level PSets (see `l1tGTMenuObjects_cff.py`), which the conditions reference by name via `refToPSet_`, together with an offline threshold:
+
+```python
+l1tGTScaling_GMTTkMuons_VLoose = get_object_scaling("GMTTkMuons", "VLoose")  # regionsOffset, regionsSlope[, minOnlinePt]
+l1tGTtkMuonVLoose = l1tGTtkMuonLoose.clone(
+    qualityFlags = get_object_ids("GMTTkMuons","VLoose"),
+    ptScaling = gt_ref("l1tGTScaling_GMTTkMuons_VLoose"),     # default scaling of this object
+)
+
+SingleTkMuon22 = l1tGTSingleObjectCond.clone(
+    object = gt_ref("l1tGTtkMuonVLoose"),        # gt_ref(name) = cms.PSet(refToPSet_ = cms.string(name))
+    offlineMinPt = cms.double(22),
+)
+DoubleTkMuon157 = l1tGTDoubleObjectCond.clone(
+    collection1 = cms.PSet(object = gt_ref("l1tGTtkMuonVLoose"), offlineMinPt = cms.double(15)),
+    collection2 = cms.PSet(object = gt_ref("l1tGTtkMuonLoose"), regionsMinPt = cms.vdouble(7,7,7)),
+    maxDz = cms.double(1),
+)
+```
+
+The emulator resolves this (`plugins/L1GTObjectConfig.h`):
+* parameters set next to `object` override those of the object (e.g. a tighter `maxEta`);
+* `ptScaling` set next to `object` overrides the object's default scaling (e.g. `l1tGTtkPhoton` with the `L1EG` scaling);
+* `offlineMinPt` becomes `regionsMinPt` (one value per scaling region) or `minPt` (single-region scaling, e.g. sums), `offlineMinScalarSumPt` becomes `minScalarSumPt`, using `max(minOnlinePt, round((offline - offset) / slope, 1))` per region, identical to `get_object_thrs`. An offline threshold and the corresponding online parameter must not both be set.
+
+The flat form of both styles is identical (`test/compareGTMenuDumps.py` checks this against a reference dump). Tools that read the python configuration directly, such as the firmware (VHDL) writer, should call `L1Trigger.Phase2L1GT.l1tGTMenuTools.flattenGTMenu(process)` after loading the menu. `scripts/dumpL1TGTMenu.py` dumps a menu in the structured form (for ConfDB) or, with `--flat`, in the flat form.
+
 ### Single cuts
 
 Possible cuts on single quantities are:
