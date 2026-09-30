@@ -82,9 +82,10 @@ namespace truth {
 
     // The particles the branch hands to the detector simulation, ascending particle id: a
     // member Geant4 tracked, without its Geant4 descendants, and a member Geant4 never
-    // tracked that has no member child. A truncated closure contributes the particle it
-    // stopped at. This is the generator final state of a tau or a Z, and the particle
-    // itself for a branch rooted at a tracked particle.
+    // tracked that has no member child. A tracked member the generator decayed, a tau
+    // say, is replaced by its GEN decay products. A truncated closure contributes the
+    // particle it stopped at. This is the generator final state of a tau or a Z, and the
+    // particle itself for a branch rooted at a stable tracked particle.
     [[nodiscard]] std::vector<Particle> finalState() const;
 
     // Kinematics, summed over finalState(), so a particle is never counted together with

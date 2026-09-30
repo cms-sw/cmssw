@@ -196,6 +196,9 @@ namespace truth {
       if (isMember(root))
         stack.push_back(root);
     }
+    auto const isGenVertex = [this](uint32_t vertexId) {
+      return vertexId < graph_->nVertices() && graph_->vertices()[vertexId].hasGen();
+    };
     std::vector<uint32_t> visited;
     while (!stack.empty()) {
       const uint32_t id = stack.back();
@@ -204,12 +207,19 @@ namespace truth {
       if (at != visited.end() && *at == id)
         continue;
       visited.insert(at, id);
-      if (graph_->particles()[id].hasSim()) {
+      auto const& particle = graph_->particles()[id];
+      auto const decays = graph_->decayVertices(id);
+      // A tracked particle is final unless the generator decayed it, a tau say. Then the walk
+      // follows its GEN decay only, never the Geant4 secondaries of a SIM vertex.
+      const bool genDecayed = particle.hasGen() && std::any_of(decays.begin(), decays.end(), isGenVertex);
+      if (particle.hasSim() && !genDecayed) {
         out.push_back(id);
         continue;
       }
       bool hasMemberChild = false;
-      for (const uint32_t vertexId : graph_->decayVertices(id)) {
+      for (const uint32_t vertexId : decays) {
+        if (particle.hasSim() && !isGenVertex(vertexId))
+          continue;
         for (const uint32_t child : graph_->outgoingParticles(vertexId)) {
           if (isMember(child)) {
             hasMemberChild = true;

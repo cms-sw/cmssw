@@ -141,6 +141,7 @@ class TestBranch : public CppUnit::TestFixture {
   CPPUNIT_TEST(testLevelReaders);
   CPPUNIT_TEST(testGenerations);
   CPPUNIT_TEST(testFinalStateStopsAtGeant4);
+  CPPUNIT_TEST(testFinalStateFollowsGenDecayOfTrackedParticle);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -160,6 +161,7 @@ public:
   void testLevelReaders();
   void testGenerations();
   void testFinalStateStopsAtGeant4();
+  void testFinalStateFollowsGenDecayOfTrackedParticle();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranch);
@@ -622,4 +624,60 @@ void TestBranch::testFinalStateStopsAtGeant4() {
   const truth::Branch pion(&graph, 1);
   CPPUNIT_ASSERT_EQUAL(std::size_t(1), pion.finalState().size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(50., pion.energy(), 1e-9);
+}
+
+// REQUIRED: a particle that the generator decayed and Geant4 also tracked counts through its
+// GEN decay products, never as itself and never through the Geant4 secondaries of its track.
+void TestBranch::testFinalStateFollowsGenDecayOfTrackedParticle() {
+  // tau -> pi+ nu_tau (GEN), and the tau track makes a delta-ray electron in Geant4.
+  // K0S -> pi+ pi- (GEN), and the K0S track makes a proton in a nuclear interaction.
+  GraphBuilder b(8, 4);
+  b.setParticle(0, 15, 2, 100.);   // tau, tracked
+  b.setParticle(1, 211, 1, 60.);   // pi+, tracked
+  b.setParticle(2, 16, 1, 40.);    // nu_tau
+  b.setParticle(3, 11, 0, 0.5);    // delta ray, Geant4 only
+  b.setParticle(4, 310, 2, 10.);   // K0S, tracked
+  b.setParticle(5, 211, 1, 6.);    // pi+, tracked
+  b.setParticle(6, -211, 1, 4.);   // pi-, tracked
+  b.setParticle(7, 2212, 0, 1.2);  // proton, Geant4 only
+  b.addDecay(0, 0);
+  b.addProduction(0, 1);
+  b.addProduction(0, 2);
+  b.addDecay(0, 1);
+  b.addProduction(1, 3);
+  b.addDecay(4, 2);
+  b.addProduction(2, 5);
+  b.addProduction(2, 6);
+  b.addDecay(4, 3);
+  b.addProduction(3, 7);
+  truth::Graph graph = b.finish();
+  for (const uint32_t tracked : {0u, 1u, 3u, 4u, 5u, 6u, 7u})
+    graph.particles()[tracked].simNode = 200 + tracked;
+  for (const uint32_t simOnly : {3u, 7u})
+    graph.particles()[simOnly].genNode = -1;
+  for (const uint32_t genVertex : {0u, 2u})
+    graph.vertices()[genVertex].genNode = 300 + genVertex;
+  for (const uint32_t simVertex : {1u, 3u})
+    graph.vertices()[simVertex].simNode = 400 + simVertex;
+
+  auto const finalIds = [](truth::Branch const& branch) {
+    std::vector<uint32_t> ids;
+    for (auto const& particle : branch.finalState())
+      ids.push_back(particle.id());
+    return ids;
+  };
+
+  const truth::Branch tau(&graph, 0);
+  CPPUNIT_ASSERT(finalIds(tau) == (std::vector<uint32_t>{1, 2}));
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(100., tau.energy(), 1e-9);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(60., tau.visibleEnergy(), 1e-9);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(40., tau.invisibleEnergy(), 1e-9);
+
+  const truth::Branch kaon(&graph, 4);
+  CPPUNIT_ASSERT(finalIds(kaon) == (std::vector<uint32_t>{5, 6}));
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(10., kaon.energy(), 1e-9);
+
+  // A closure that stops at the tau keeps the tau.
+  const truth::Branch truncated(&graph, std::vector<uint32_t>{0}, truth::ClosureSpec::depth(0));
+  CPPUNIT_ASSERT(finalIds(truncated) == (std::vector<uint32_t>{0}));
 }
