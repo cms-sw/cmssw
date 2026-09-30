@@ -170,16 +170,51 @@ namespace l1t {
       // These functions return the packed bits in integer format for each quantity
       // Signed quantities have the sign enconded in the left-most bit.
       unsigned int validBits() const { return validWord().to_uint(); }
-      unsigned int massBits() const { return massWord().to_uint(); }
+      unsigned int ptBits() const {
+        return tkTripletWord()(TkTripletBitLocations::kPtMSB, TkTripletBitLocations::kPtLSB).to_uint();
+      }
+      unsigned int phiBits() const {
+        return tkTripletWord()(TkTripletBitLocations::kPhiMSB, TkTripletBitLocations::kPhiLSB).to_uint();
+      }
+      unsigned int etaBits() const {
+        return tkTripletWord()(TkTripletBitLocations::kEtaMSB, TkTripletBitLocations::kEtaLSB).to_uint();
+      }
+      unsigned int massBits() const {
+        return tkTripletWord()(TkTripletBitLocations::kMassMSB, TkTripletBitLocations::kMassLSB).to_uint();
+      }
+      unsigned int trk1PtBits() const {
+        return tkTripletWord()(TkTripletBitLocations::kTrk1PtMSB, TkTripletBitLocations::kTrk1PtLSB).to_uint();
+      }
+      unsigned int trk2PtBits() const {
+        return tkTripletWord()(TkTripletBitLocations::kTrk2PtMSB, TkTripletBitLocations::kTrk2PtLSB).to_uint();
+      }
+      unsigned int trk3PtBits() const {
+        return tkTripletWord()(TkTripletBitLocations::kTrk3PtMSB, TkTripletBitLocations::kTrk3PtLSB).to_uint();
+      }
+      unsigned int chargeBits() const { return chargeWord().to_uint(); }
       unsigned int unassignedBits() const { return unassignedWord().to_uint(); }
 
       // These functions return the unpacked and converted values
-      // These functions return real numbers converted from the digitized quantities by unpacking the 64-bit vertex word
+      // These functions return real numbers converted from the digitized quantities by unpacking the triplet word
+      // NOTE: the pt, phi, eta and charge fields are currently filled with zeros by the emulator;
+      // their getters are provided for the L1Nano interface and will become meaningful once the
+      // firmware defines the encoding of these fields.
       bool valid() const { return validWord().to_bool(); }
-      float mass() const {
+      double pt() const { return ptWord().to_double(); }
+      double phi() const {
         return unpackSignedValue(
-            massWord(), TkTripletBitWidths::kMassSize, MAX_MASS / (1 << TkTripletBitWidths::kMassSize));
+            phiBits(), TkTripletBitWidths::kPhiSize, (2. * M_PI) / (1 << TkTripletBitWidths::kPhiSize));
       }
+      double eta() const {
+        return unpackSignedValue(
+            etaBits(), TkTripletBitWidths::kEtaSize, MAX_ETA / (1 << TkTripletBitWidths::kEtaSize));
+      }
+      double mass() const { return massWord().to_double(); }
+      double trk1Pt() const { return trk1PtWord().to_double(); }
+      double trk2Pt() const { return trk2PtWord().to_double(); }
+      double trk3Pt() const { return trk3PtWord().to_double(); }
+      // Charge sign convention: bit = 0 -> positive, bit = 1 -> negative
+      int charge() const { return chargeWord() ? -1 : 1; }
       unsigned int unassigned() const { return unassignedWord().to_uint(); }
 
       // ----------member functions (setters) ------------
