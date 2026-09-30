@@ -9,19 +9,24 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
-#include "DataFormats/TrackSoA/interface/TracksHost.h"
 #include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
+#include "DataFormats/SoATemplate/interface/SoAConstMultiView.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/AtomicPairCounter.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "RecoTracker/FinalTrackSelectors/interface/TrackMergerCounterSoA.h"
 #include "RecoTracker/FinalTrackSelectors/interface/alpaka/TrackMergerCounterSoACollection.h"
-#include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
 
 namespace mergerKernels {
-  constexpr uint32_t maxTrackSoACollections = 50;
+  constexpr uint32_t maxTrackSoACollections = 20;
+
+  using TracksConstView = reco::TrackSoAConstView;
+  using TrackHitsConstView = reco::TrackHitSoAConstView;
+  using TracksMultiView = SoAConstMultiView<TracksConstView, maxTrackSoACollections>;
+  using TrackHitsMultiView = SoAConstMultiView<TrackHitsConstView, maxTrackSoACollections>;
 
   struct InputTracks {
     reco::TrackSoAConstView views[maxTrackSoACollections];
@@ -31,11 +36,13 @@ namespace mergerKernels {
   };
 
   struct Params {
-    // minquality ?
     bool doSameHitsDuplicates;
     bool doParamDuplicates;
     pixelTrack::Quality minQuality;
+
     int maxTracks;
+
+    // duplicate filtering criteria
     int dupMinHits;
     double matchFraction;
     double dupNSigma2;
@@ -58,12 +65,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     TrackSoAMergerKernels& operator=(const TrackSoAMergerKernels&) = delete;
     TrackSoAMergerKernels& operator=(TrackSoAMergerKernels&&) = delete;
 
-    TrackSoAMergerKernels(Params const& params, Queue& queue);
+    TrackSoAMergerKernels(Queue& queue, Params const& params);
 
-    reco::TracksSoACollection makeMergedTracks(Queue& queue, InputTracks const& allTracks);
+    reco::TracksSoACollection makeMergedTracks(Queue& queue,
+                                               const TracksMultiView& tracks,
+                                               const TrackHitsMultiView& hits);
 
-    void countGoodTracks(Queue& queue, InputTracks const& allTracks);
-    void fillGoodTracks(Queue& queue, InputTracks const& allTracks);
+    void countGoodTracks(Queue& queue, const TracksMultiView& tracks);
+    void fillGoodTracks(Queue& queue, const TracksMultiView& tracks, const TrackHitsMultiView& hits);
 
     void filterTracks(Queue& queue);
 

@@ -210,9 +210,13 @@ pixelTracksLowPtAlpakaPhase2Extended = _pixelTracksAlpakaPhase2Extended.clone(
     pixelRecHitSrc = "siPixelRecHitsPreSplittingAlpaka",
     trackerRecHitsSoA = 'phase2OTRecHitsSoAConverter',
     ptmin = lowPtPtMinCut + 0.05,
-    maxNumberOfDoublets = str(10000000),
-    maxNumberOfTuples   = str(32 * 32 * 1024),
-    hardCurvCut = cms.double(0.035),
+    maxNumberOfDoublets = str("max(23.16*x - 1.866e6,50000)"),
+    maxNumberOfTuples   = str("max(0.0000052*pow(x,2) - 0.1705*x - 41790,2000)"),
+    avgHitsPerTrack = cms.double(8.0),
+    avgCellsPerHit = cms.double(19),
+    avgCellsPerCell = cms.double(0.55),
+    avgTracksPerCell = cms.double(0.35),
+    hardCurvCut = cms.double(1. / (0.35 * 87.0)),
     iterationName = "promptLowPt",
 )
 
@@ -240,7 +244,7 @@ from RecoTracker.FinalTrackSelectors.tracksSoAMerger_cfi import tracksSoAMerger 
 
 # pixelTracksAlpakaPreDNN 
 pixelTracksSoA = _tracksSoAMerger.clone(
-    inputTkSoAs = cms.VInputTag("pixelTracksAlpakaPostDNN","pixelTracksLowPtAlpaka"),
+    inputTracks = cms.VInputTag("pixelTracksAlpakaPostDNN","pixelTracksLowPtAlpaka"),
     minQuality = cms.string('tight'),
     matchFraction = cms.double(0.5),
     dupNSigma2 = 3.0,
