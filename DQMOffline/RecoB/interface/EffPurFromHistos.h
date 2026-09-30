@@ -67,17 +67,24 @@ public:
   FlavourHistograms<double>& discriminatorCutEfficScan() const { return *discrCutEfficScan; }
 
   bool doCTagPlots(bool Ctag) {
-    doCTagPlots_ = Ctag;
-    return doCTagPlots_;
+    signalFlavour_ = Ctag ? "C" : "B";
+    return Ctag;
   }
+
+  // flavour whose efficiency is the x axis of the FlavEffVs<signal>Eff curves:
+  // "B", "C", "DUSG", "NI", "PU", and with mcPlots > 2 also "D", "U", "S", "G", "DUS"
+  void setSignalFlavour(const std::string& flavour) { signalFlavour_ = flavour; }
 
 private:
   // consistency check (same binning)
   void check();
+  // efficiency vs. discriminator cut and number of jets (nullptr / -1 if unknown) for a flavour label
+  TH1F* effVersusDiscr(const std::string& flavour) const;
+  double nJets(const std::string& flavour) const;
   bool fromDiscriminatorDistr;
 
   unsigned int mcPlots_;
-  bool doCTagPlots_;
+  std::string signalFlavour_;
   std::string label_;
   // the string for the histo name extension
   std::string histoExtension;

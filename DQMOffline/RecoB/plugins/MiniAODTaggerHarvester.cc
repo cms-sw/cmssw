@@ -8,6 +8,8 @@ MiniAODTaggerHarvester::MiniAODTaggerHarvester(const edm::ParameterSet& pSet)
 
       mclevel_(pSet.getParameter<int>("MClevel")),
       doCTagPlots_(pSet.getParameter<bool>("CTagPlots")),
+      signalFlavour_(pSet.existsAs<std::string>("signalFlavour") ? pSet.getParameter<std::string>("signalFlavour")
+                                                                 : ""),
       dodifferentialPlots_(pSet.getParameter<bool>("differentialPlots")),
       discrCut_(pSet.getParameter<double>("discrCut")),
       kinematicsTag_(pSet.getParameter<std::string>("kinematicsTag")),
@@ -35,6 +37,7 @@ void MiniAODTaggerHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGett
                                                    discrCut_,
                                                    kinematicsTag_);
 
+  jetTagPlotter_->setSignalFlavour(signalFlavour_);
   jetTagPlotter_->finalize(ibook, iget);
 }
 
