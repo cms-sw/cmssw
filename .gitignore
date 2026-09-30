@@ -10,7 +10,6 @@ __init__.py
 *.rej
 *.orig
 
-
 # ignore files under the top level $CMSSW_BASE/src directory, but not its subdirectories
 /*
 !/*/
@@ -21,3 +20,6 @@ __init__.py
 
 #ignore mac specific file
 .DS_Store
+
+# ignore NFS stale files
+.nfs*
