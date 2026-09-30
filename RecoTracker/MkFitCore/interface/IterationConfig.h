@@ -135,6 +135,10 @@ namespace mkfit {
     float m_backward_fit_outlier_chi2 = 0.f;    // If > 0, hits above this chi2 are dropped in the backward fit ...
     int m_backward_fit_max_outliers = 0;        // ... up to this many per track
     float m_backward_fit_outlier_min_pt = 0.f;  // ... only on tracks with pT above this
+    // If > 0, a backward-search extension is kept only if its new hits lie on this many pixel layers (one layer if
+    // |d0| to the beam spot is below m_backward_search_prompt_max_d0); otherwise the pre-search candidate is restored.
+    int m_backward_search_min_pixel_layers = 0;
+    float m_backward_search_prompt_max_d0 = 0.f;
 
     // seed cleaning params with good defaults (all configurable)
     float sc_ptthr_hpt = 2.0;

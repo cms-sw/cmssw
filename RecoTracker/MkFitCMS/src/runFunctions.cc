@@ -85,6 +85,7 @@ namespace mkfit {
       if (itconf.m_backward_search) {
         builder.beginBkwSearch();
         builder.findTracksCloneEngine(SteeringParams::IT_BkwSearch);
+        builder.gateBkwSearch();
       }
     }
 

@@ -1340,6 +1340,13 @@ namespace mkfit {
 
   //------------------------------------------------------------------------------
 
+  void MkBuilder::beginBkwSearch() {
+    const IterationConfig &itconf = m_job->m_iter_config;
+    const BeamSpot &bs = m_job->m_beam_spot;
+    m_event_of_comb_cands.beginBkwSearch(
+        itconf.m_backward_search_min_pixel_layers, itconf.m_backward_search_prompt_max_d0, bs.x, bs.y);
+  }
+
   void MkBuilder::backwardFit() {
     EventOfCombCandidates &eoccs = m_event_of_comb_cands;
 

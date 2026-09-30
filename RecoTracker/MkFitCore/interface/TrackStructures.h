@@ -639,11 +639,9 @@ namespace mkfit {
         m_candidates[i].compactifyHitStorageForBestCand(remove_seed_hits, backward_fit_min_hits);
     }
 
-    void beginBkwSearch() {
-      for (int i = 0; i < m_size; ++i)
-        m_candidates[i].beginBkwSearch();
-      m_cands_in_backward_rep = true;
-    }
+    void beginBkwSearch(int min_pixel_layers, float prompt_max_d0, float bs_x, float bs_y);
+    // Restores the pre-search candidate where the backward search added hits on too few pixel layers.
+    void gateBkwSearch(const TrackerInfo& trk_info);
     void endBkwSearch() {
       // There is no CombCand::endBkwSearch(), setup correctly in CombCand::reset().
       m_cands_in_backward_rep = false;
@@ -671,6 +669,8 @@ namespace mkfit {
     int m_size = 0;
     int m_n_seeds_inserted = 0;
     bool m_cands_in_backward_rep = false;
+    std::vector<TrackCand> m_pre_bkw_cands;   // best candidates before the backward search, for gateBkwSearch()
+    std::vector<int> m_bkw_min_pixel_layers;  // pixel layers the backward search must add (empty: no gate)
   };
 
 }  // namespace mkfit
