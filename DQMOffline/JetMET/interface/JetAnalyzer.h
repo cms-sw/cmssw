@@ -19,7 +19,6 @@
 #include <fstream>
 #include <map>
 #include <memory>
-#include <set>
 #include <string>
 
 // system includes
@@ -107,10 +106,6 @@ public:
 private:
   // ----------member data ---------------------------
   static bool jetSortingRule(reco::Jet x, reco::Jet y) { return x.pt() > y.pt(); }
-  bool isMEEnabled(const std::string& name) const { return disabledMEs_.find(name) == disabledMEs_.end(); }
-
-  // Optional MEs in the base jet folder; selection folders are unaffected.
-  std::set<std::string> disabledMEs_;
 
   //try to put one collection as start
   edm::InputTag mInputCollection_;

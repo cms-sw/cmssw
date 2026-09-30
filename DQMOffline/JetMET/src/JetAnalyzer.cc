@@ -66,8 +66,6 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
 //: trackPropagator_(new jetAnalysis::TrackPropagatorToCalo)//,
 //sOverNCalculator_(new jetAnalysis::StripSignalOverNoiseCalculator)
 {
-  const auto disabledMEs = pSet.getParameter<std::vector<std::string>>("disabledMEs");
-  disabledMEs_.insert(disabledMEs.begin(), disabledMEs.end());
   parameters_ = pSet.getParameter<edm::ParameterSet>("jetAnalysis");
   mInputCollection_ = pSet.getParameter<edm::InputTag>("jetsrc");
   m_l1algoname_ = pSet.getParameter<std::string>("l1algoname");
@@ -378,9 +376,9 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
   mPt_uncor = ibooker.book1D("Pt_uncor", "pt for uncorrected jets", ptBin_, 20, ptMax_);
   mEta_uncor = ibooker.book1D("Eta_uncor", "eta for uncorrected jets", etaBin_, etaMin_, etaMax_);
   mPhi_uncor = ibooker.book1D("Phi_uncor", "phi for uncorrected jets", phiBin_, phiMin_, phiMax_);
-  mJetArea_uncor = isMEEnabled("JetArea_uncor")
-                       ? ibooker.book1D("JetArea_uncor", "jet area for uncorrected jets", 50, 0, 1)
-                       : nullptr;
+  mJetArea_uncor = isCaloJet_ && DirName == "JetMET/Jet/Cleanedak4CaloJets"
+                       ? nullptr
+                       : ibooker.book1D("JetArea_uncor", "jet area for uncorrected jets", 50, 0, 1);
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_uncor", mPt_uncor));
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Eta_uncor", mEta_uncor));
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Phi_uncor", mPhi_uncor));
@@ -408,19 +406,19 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
 
   if (!runcosmics_) {  //JIDPassFrac_ defines a collection of cleaned jets, for which we will want to fill the cleaning passing fraction
     mLooseJIDPassFractionVSeta =
-        isMEEnabled("JetIDPassFractionVSeta")
-            ? ibooker.bookProfile(
-                  "JetIDPassFractionVSeta", "JetIDPassFractionVSeta", etaBin_, etaMin_, etaMax_, 0., 1.2)
-            : nullptr;
+        isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+            ? nullptr
+            : ibooker.bookProfile(
+                  "JetIDPassFractionVSeta", "JetIDPassFractionVSeta", etaBin_, etaMin_, etaMax_, 0., 1.2);
     mLooseJIDPassFractionVSpt =
-        isMEEnabled("JetIDPassFractionVSpt")
-            ? ibooker.bookProfile("JetIDPassFractionVSpt", "JetIDPassFractionVSpt", ptBin_, ptMin_, ptMax_, 0., 1.2)
-            : nullptr;
+        isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+            ? nullptr
+            : ibooker.bookProfile("JetIDPassFractionVSpt", "JetIDPassFractionVSpt", ptBin_, ptMin_, ptMax_, 0., 1.2);
     mLooseJIDPassFractionVSptNoHF =
-        isMEEnabled("JetIDPassFractionVSptNoHF")
-            ? ibooker.bookProfile(
-                  "JetIDPassFractionVSptNoHF", "JetIDPassFractionVSptNoHF", ptBin_, ptMin_, ptMax_, 0., 1.2)
-            : nullptr;
+        isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+            ? nullptr
+            : ibooker.bookProfile(
+                  "JetIDPassFractionVSptNoHF", "JetIDPassFractionVSptNoHF", ptBin_, ptMin_, ptMax_, 0., 1.2);
     map_of_MEs.insert(
         std::pair<std::string, MonitorElement*>(DirName + "/" + "JetIDPassFractionVSeta", mLooseJIDPassFractionVSeta));
     map_of_MEs.insert(
@@ -459,21 +457,36 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
   mPt_3 = ibooker.book1D("Pt_3", "Pt spectrum of jets - range 3", 100, 0, 5000);
   mPt_log = ibooker.book1D("Pt_log", "Pt spectrum of jets - log", 100, 0, 50);
   // Low and high pt trigger paths
-  mPt_Lo = isMEEnabled("Pt_Lo") ? ibooker.book1D("Pt_Lo", "Pt (Pass Low Pt Jet Trigger)", 20, 0, 100) : nullptr;
+  mPt_Lo = (isCaloJet_ && DirName == "JetMET/Jet/Cleanedak4CaloJets") ||
+                   (isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi")
+               ? nullptr
+               : ibooker.book1D("Pt_Lo", "Pt (Pass Low Pt Jet Trigger)", 20, 0, 100);
   //mEta_Lo                 = ibooker.book1D("Eta_Lo", "Eta (Pass Low Pt Jet Trigger)", etaBin_, etaMin_, etaMax_);
-  mPhi_Lo = isMEEnabled("Phi_Lo") ? ibooker.book1D("Phi_Lo", "Phi (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_)
-                                  : nullptr;
+  mPhi_Lo = (isCaloJet_ && DirName == "JetMET/Jet/Cleanedak4CaloJets") ||
+                    (isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi")
+                ? nullptr
+                : ibooker.book1D("Phi_Lo", "Phi (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
 
-  mPt_Hi = isMEEnabled("Pt_Hi") ? ibooker.book1D("Pt_Hi", "Pt (Pass Hi Pt Jet Trigger)", 100, 0, 1600)
-                                : nullptr;  // original binning: 60,0,300
-  mEta_Hi = isMEEnabled("Eta_Hi") ? ibooker.book1D("Eta_Hi", "Eta (Pass Hi Pt Jet Trigger)", 100, -6.0, 6.0)
-                                  : nullptr;  //  original binning: etaBin_, etaMin_, etaMax_
-  mPhi_Hi = isMEEnabled("Phi_Hi") ? ibooker.book1D("Phi_Hi", "Phi (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_)
-                                  : nullptr;
+  mPt_Hi = (isCaloJet_ && DirName == "JetMET/Jet/Cleanedak4CaloJets") ||
+                   (isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi")
+               ? nullptr
+               : ibooker.book1D("Pt_Hi", "Pt (Pass Hi Pt Jet Trigger)", 100, 0, 1600);  // original binning: 60,0,300
+  mEta_Hi = isCaloJet_ && DirName == "JetMET/Jet/Cleanedak4CaloJets"
+                ? nullptr
+                : ibooker.book1D("Eta_Hi",
+                                 "Eta (Pass Hi Pt Jet Trigger)",
+                                 100,
+                                 -6.0,
+                                 6.0);  //  original binning: etaBin_, etaMin_, etaMax_
+  mPhi_Hi = (isCaloJet_ && DirName == "JetMET/Jet/Cleanedak4CaloJets") ||
+                    (isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi")
+                ? nullptr
+                : ibooker.book1D("Phi_Hi", "Phi (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
   mNJets = ibooker.book1D("NJets", "number of jets", 100, 0, 100);
-  mNJets_Hi = isMEEnabled("NJets_Hi")
-                  ? ibooker.book1D("NJets_Hi", "number of jets (Pass Hi Pt Jet Trigger)", 100, 0, 100)
-                  : nullptr;
+  mNJets_Hi = (isCaloJet_ && DirName == "JetMET/Jet/Cleanedak4CaloJets") ||
+                      (isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi")
+                  ? nullptr
+                  : ibooker.book1D("NJets_Hi", "number of jets (Pass Hi Pt Jet Trigger)", 100, 0, 100);
 
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_1", mPt_1));
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_2", mPt_2));
@@ -498,9 +511,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
   //mPt_EndCap_Lo            = ibooker.book1D("Pt_EndCap_Lo", "Pt EndCap (Pass Low Pt Jet Trigger)", 20, 0, 100);
   //mPhi_EndCap_Lo           = ibooker.book1D("Phi_EndCap_Lo", "Phi EndCap (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
   //if(!isJPTJet_){
-  mConstituents_EndCap = isMEEnabled("Constituents_EndCap")
-                             ? ibooker.book1D("Constituents_EndCap", "Constituents EndCap", 50, 0, 100)
-                             : nullptr;
+  mConstituents_EndCap = ibooker.book1D("Constituents_EndCap", "Constituents EndCap", 50, 0, 100);
   map_of_MEs.insert(
       std::pair<std::string, MonitorElement*>(DirName + "/" + "Constituents_EndCap", mConstituents_EndCap));
   //}
@@ -513,41 +524,40 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
       std::pair<std::string, MonitorElement*>(DirName + "/" + "Constituents_Forward", mConstituents_Forward));
   //}
 
-  mPt_Barrel_Hi = isMEEnabled("Pt_Barrel_Hi")
-                      ? ibooker.book1D("Pt_Barrel_Hi", "Pt Barrel (Pass Hi Pt Jet Trigger)", 100, 0, 500)
-                      : nullptr;
+  mPt_Barrel_Hi = (isCaloJet_ && DirName == "JetMET/Jet/Cleanedak4CaloJets") ||
+                          (isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi")
+                      ? nullptr
+                      : ibooker.book1D("Pt_Barrel_Hi", "Pt Barrel (Pass Hi Pt Jet Trigger)", 100, 0, 500);
   mPhi_Barrel_Hi =
-      isMEEnabled("Phi_Barrel_Hi")
-          ? ibooker.book1D("Phi_Barrel_Hi", "Phi Barrel (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_)
-          : nullptr;
+      (isCaloJet_ && DirName == "JetMET/Jet/Cleanedak4CaloJets") ||
+              (isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi")
+          ? nullptr
+          : ibooker.book1D("Phi_Barrel_Hi", "Phi Barrel (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
   mEta_Barrel_Hi =
-      isMEEnabled("Eta_Barrel_Hi")
-          ? ibooker.book1D("Eta_Barrel_Hi", "Eta Barrel (Pass Hi Pt Jet Trigger)", etaBin_, etaMin_, etaMax_)
-          : nullptr;
+      isCaloJet_ && DirName == "JetMET/Jet/Cleanedak4CaloJets"
+          ? nullptr
+          : ibooker.book1D("Eta_Barrel_Hi", "Eta Barrel (Pass Hi Pt Jet Trigger)", etaBin_, etaMin_, etaMax_);
 
-  mPt_EndCap_Hi = isMEEnabled("Pt_EndCap_Hi")
-                      ? ibooker.book1D("Pt_EndCap_Hi", "Pt EndCap (Pass Hi Pt Jet Trigger)", 100, 0, 500)
-                      : nullptr;
+  mPt_EndCap_Hi = ibooker.book1D("Pt_EndCap_Hi", "Pt EndCap (Pass Hi Pt Jet Trigger)", 100, 0, 500);
   mPhi_EndCap_Hi =
-      isMEEnabled("Phi_EndCap_Hi")
-          ? ibooker.book1D("Phi_EndCap_Hi", "Phi EndCap (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_)
-          : nullptr;
-  mEta_EndCap_Hi =
-      isMEEnabled("Eta_EndCap_Hi")
-          ? ibooker.book1D("Eta_EndCap_Hi", "Eta EndCap (Pass Hi Pt Jet Trigger)", etaBin_, etaMin_, etaMax_)
-          : nullptr;
+      isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+          ? nullptr
+          : ibooker.book1D("Phi_EndCap_Hi", "Phi EndCap (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
+  mEta_EndCap_Hi = ibooker.book1D("Eta_EndCap_Hi", "Eta EndCap (Pass Hi Pt Jet Trigger)", etaBin_, etaMin_, etaMax_);
 
-  mPt_Forward_Hi = isMEEnabled("Pt_Forward_Hi")
-                       ? ibooker.book1D("Pt_Forward_Hi", "Pt Forward (Pass Hi Pt Jet Trigger)", 100, 0, 500)
-                       : nullptr;
+  mPt_Forward_Hi = (isCaloJet_ && DirName == "JetMET/Jet/Cleanedak4CaloJets") ||
+                           (isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi")
+                       ? nullptr
+                       : ibooker.book1D("Pt_Forward_Hi", "Pt Forward (Pass Hi Pt Jet Trigger)", 100, 0, 500);
   mPhi_Forward_Hi =
-      isMEEnabled("Phi_Forward_Hi")
-          ? ibooker.book1D("Phi_Forward_Hi", "Phi Forward (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_)
-          : nullptr;
+      (isCaloJet_ && DirName == "JetMET/Jet/Cleanedak4CaloJets") ||
+              (isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi")
+          ? nullptr
+          : ibooker.book1D("Phi_Forward_Hi", "Phi Forward (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
   mEta_Forward_Hi =
-      isMEEnabled("Eta_Forward_Hi")
-          ? ibooker.book1D("Eta_Forward_Hi", "Eta Forward (Pass Hi Pt Jet Trigger)", etaBin_, etaMin_, etaMax_)
-          : nullptr;
+      isCaloJet_ && DirName == "JetMET/Jet/Cleanedak4CaloJets"
+          ? nullptr
+          : ibooker.book1D("Eta_Forward_Hi", "Eta Forward (Pass Hi Pt Jet Trigger)", etaBin_, etaMin_, etaMax_);
 
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_Barrel_Hi", mPt_Barrel_Hi));
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Phi_Barrel_Hi", mPhi_Barrel_Hi));
@@ -561,19 +571,19 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
 
   mPhi_Barrel = ibooker.book1D("Phi_Barrel", "Phi_Barrel", phiBin_, phiMin_, phiMax_);
   mPt_Barrel = ibooker.book1D("Pt_Barrel", "Pt_Barrel", ptBin_, ptMin_, ptMax_);
-  mEta_Barrel =
-      isMEEnabled("Eta_Barrel") ? ibooker.book1D("Eta_Barrel", "Eta_Barrel", etaBin_, etaMin_, etaMax_) : nullptr;
+  mEta_Barrel = isCaloJet_ && DirName == "JetMET/Jet/Cleanedak4CaloJets"
+                    ? nullptr
+                    : ibooker.book1D("Eta_Barrel", "Eta_Barrel", etaBin_, etaMin_, etaMax_);
 
-  mPhi_EndCap =
-      isMEEnabled("Phi_EndCap") ? ibooker.book1D("Phi_EndCap", "Phi_EndCap", phiBin_, phiMin_, phiMax_) : nullptr;
-  mPt_EndCap = isMEEnabled("Pt_EndCap") ? ibooker.book1D("Pt_EndCap", "Pt_EndCap", ptBin_, ptMin_, ptMax_) : nullptr;
-  mEta_EndCap =
-      isMEEnabled("Eta_EndCap") ? ibooker.book1D("Eta_EndCap", "Eta_EndCap", etaBin_, etaMin_, etaMax_) : nullptr;
+  mPhi_EndCap = ibooker.book1D("Phi_EndCap", "Phi_EndCap", phiBin_, phiMin_, phiMax_);
+  mPt_EndCap = ibooker.book1D("Pt_EndCap", "Pt_EndCap", ptBin_, ptMin_, ptMax_);
+  mEta_EndCap = ibooker.book1D("Eta_EndCap", "Eta_EndCap", etaBin_, etaMin_, etaMax_);
 
   mPhi_Forward = ibooker.book1D("Phi_Forward", "Phi_Forward", phiBin_, phiMin_, phiMax_);
   mPt_Forward = ibooker.book1D("Pt_Forward", "Pt_Forward", ptBin_, ptMin_, ptMax_);
-  mEta_Forward =
-      isMEEnabled("Eta_Forward") ? ibooker.book1D("Eta_Forward", "Eta_Forward", etaBin_, etaMin_, etaMax_) : nullptr;
+  mEta_Forward = isCaloJet_ && DirName == "JetMET/Jet/Cleanedak4CaloJets"
+                     ? nullptr
+                     : ibooker.book1D("Eta_Forward", "Eta_Forward", etaBin_, etaMin_, etaMax_);
 
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_Barrel", mPt_Barrel));
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Phi_Barrel", mPhi_Barrel));
@@ -636,9 +646,8 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
     mEFrac_Barrel = ibooker.book1D("EFrac_Barrel", "EFrac Barrel", 52, -0.02, 1.02);
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFrac_Barrel", mHFrac_Barrel));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "EFrac_Barrel", mEFrac_Barrel));
-    mHFrac_EndCap = isMEEnabled("HFrac_EndCap") ? ibooker.book1D("HFrac_EndCap", "HFrac EndCap", 50, 0, 1) : nullptr;
-    mEFrac_EndCap =
-        isMEEnabled("EFrac_EndCap") ? ibooker.book1D("EFrac_EndCap", "EFrac EndCap", 52, -0.02, 1.02) : nullptr;
+    mHFrac_EndCap = ibooker.book1D("HFrac_EndCap", "HFrac EndCap", 50, 0, 1);
+    mEFrac_EndCap = ibooker.book1D("EFrac_EndCap", "EFrac EndCap", 52, -0.02, 1.02);
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFrac_EndCap", mHFrac_EndCap));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "EFrac_EndCap", mEFrac_EndCap));
     mHFrac_Forward = ibooker.book1D("HFrac_Forward", "HFrac Forward", 70, -0.2, 1.2);
@@ -808,27 +817,19 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
     mCutPUJIDDiscriminant_lowPt_Barrel =
         ibooker.book1D("CutPUJIDDiscriminant_lowPt_Barrel", "CutPUJIDDiscriminant_lowPt_Barrel", 50, -1.00, 1.00);
     mCutPUJIDDiscriminant_lowPt_EndCap =
-        isMEEnabled("CutPUJIDDiscriminant_lowPt_EndCap")
-            ? ibooker.book1D("CutPUJIDDiscriminant_lowPt_EndCap", "CutPUJIDDiscriminant_lowPt_EndCap", 50, -1.00, 1.00)
-            : nullptr;
+        ibooker.book1D("CutPUJIDDiscriminant_lowPt_EndCap", "CutPUJIDDiscriminant_lowPt_EndCap", 50, -1.00, 1.00);
     mCutPUJIDDiscriminant_lowPt_Forward =
         ibooker.book1D("CutPUJIDDiscriminant_lowPt_Forward", "CutPUJIDDiscriminant_lowPt_Forward", 50, -1.00, 1.00);
     mCutPUJIDDiscriminant_mediumPt_Barrel =
         ibooker.book1D("CutPUJIDDiscriminant_mediumPt_Barrel", "CutPUJIDDiscriminant_mediumPt_Barrel", 50, -1.00, 1.00);
     mCutPUJIDDiscriminant_mediumPt_EndCap =
-        isMEEnabled("CutPUJIDDiscriminant_mediumPt_EndCap")
-            ? ibooker.book1D(
-                  "CutPUJIDDiscriminant_mediumPt_EndCap", "CutPUJIDDiscriminant_mediumPt_EndCap", 50, -1.00, 1.00)
-            : nullptr;
+        ibooker.book1D("CutPUJIDDiscriminant_mediumPt_EndCap", "CutPUJIDDiscriminant_mediumPt_EndCap", 50, -1.00, 1.00);
     mCutPUJIDDiscriminant_mediumPt_Forward = ibooker.book1D(
         "CutPUJIDDiscriminant_mediumPt_Forward", "CutPUJIDDiscriminant_mediumPt_Forward", 50, -1.00, 1.00);
     mCutPUJIDDiscriminant_highPt_Barrel =
         ibooker.book1D("CutPUJIDDiscriminant_highPt_Barrel", "CutPUJIDDiscriminant_highPt_Barrel", 50, -1.00, 1.00);
     mCutPUJIDDiscriminant_highPt_EndCap =
-        isMEEnabled("CutPUJIDDiscriminant_highPt_EndCap")
-            ? ibooker.book1D(
-                  "CutPUJIDDiscriminant_highPt_EndCap", "CutPUJIDDiscriminant_highPt_EndCap", 50, -1.00, 1.00)
-            : nullptr;
+        ibooker.book1D("CutPUJIDDiscriminant_highPt_EndCap", "CutPUJIDDiscriminant_highPt_EndCap", 50, -1.00, 1.00);
     mCutPUJIDDiscriminant_highPt_Forward =
         ibooker.book1D("CutPUJIDDiscriminant_highPt_Forward", "CutPUJIDDiscriminant_highPt_Forward", 50, -1.00, 1.00);
 
@@ -894,19 +895,13 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
         std::pair<std::string, MonitorElement*>(DirName + "/" + "PhFrac_highPt_Barrel", mPhFrac_highPt_Barrel));
 
     mMass_lowPt_Barrel = ibooker.book1D("JetMass_lowPt_Barrel", "JetMass_lowPt_Barrel", 50, 0, 150);
-    mMass_lowPt_EndCap = isMEEnabled("JetMass_lowPt_EndCap")
-                             ? ibooker.book1D("JetMass_lowPt_EndCap", "JetMass_lowPt_EndCap", 50, 0, 150)
-                             : nullptr;
+    mMass_lowPt_EndCap = ibooker.book1D("JetMass_lowPt_EndCap", "JetMass_lowPt_EndCap", 50, 0, 150);
     mMass_lowPt_Forward = ibooker.book1D("JetMass_lowPt_Forward", "JetMass_lowPt_Forward", 50, 0, 150);
     mMass_mediumPt_Barrel = ibooker.book1D("JetMass_mediumPt_Barrel", "JetMass_mediumPt_Barrel", 50, 0, 150);
-    mMass_mediumPt_EndCap = isMEEnabled("JetMass_mediumPt_EndCap")
-                                ? ibooker.book1D("JetMass_mediumPt_EndCap", "JetMass_mediumPt_EndCap", 50, 0, 150)
-                                : nullptr;
+    mMass_mediumPt_EndCap = ibooker.book1D("JetMass_mediumPt_EndCap", "JetMass_mediumPt_EndCap", 50, 0, 150);
     mMass_mediumPt_Forward = ibooker.book1D("JetMass_mediumPt_Forward", "JetMass_mediumPt_Forward", 75, 0, 150);
     mMass_highPt_Barrel = ibooker.book1D("JetMass_highPt_Barrel", "JetMass_highPt_Barrel", 50, 0, 150);
-    mMass_highPt_EndCap = isMEEnabled("JetMass_highPt_EndCap")
-                              ? ibooker.book1D("JetMass_highPt_EndCap", "JetMass_highPt_EndCap", 50, 0, 150)
-                              : nullptr;
+    mMass_highPt_EndCap = ibooker.book1D("JetMass_highPt_EndCap", "JetMass_highPt_EndCap", 50, 0, 150);
     mMass_highPt_Forward = ibooker.book1D("JetMass_highPt_Forward", "JetMass_highPt_Forward", 50, 0, 150);
 
     map_of_MEs.insert(
@@ -1014,50 +1009,50 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
   if (isMiniAODJet_ || isPFJet_ || isPUPPIJet_) {
     if (!filljetsubstruc_) {  //not available for ak8 -> so just take out
       mMVAPUJIDDiscriminant_lowPt_Barrel =
-          isMEEnabled("MVAPUJIDDiscriminant_lowPt_Barrel")
-              ? ibooker.book1D(
-                    "MVAPUJIDDiscriminant_lowPt_Barrel", "MVAPUJIDDiscriminant_lowPt_Barrel", 50, -1.00, 1.00)
-              : nullptr;
+          isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+              ? nullptr
+              : ibooker.book1D(
+                    "MVAPUJIDDiscriminant_lowPt_Barrel", "MVAPUJIDDiscriminant_lowPt_Barrel", 50, -1.00, 1.00);
       mMVAPUJIDDiscriminant_lowPt_EndCap =
-          isMEEnabled("MVAPUJIDDiscriminant_lowPt_EndCap")
-              ? ibooker.book1D(
-                    "MVAPUJIDDiscriminant_lowPt_EndCap", "MVAPUJIDDiscriminant_lowPt_EndCap", 50, -1.00, 1.00)
-              : nullptr;
+          isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+              ? nullptr
+              : ibooker.book1D(
+                    "MVAPUJIDDiscriminant_lowPt_EndCap", "MVAPUJIDDiscriminant_lowPt_EndCap", 50, -1.00, 1.00);
       mMVAPUJIDDiscriminant_lowPt_Forward =
-          isMEEnabled("MVAPUJIDDiscriminant_lowPt_Forward")
-              ? ibooker.book1D(
-                    "MVAPUJIDDiscriminant_lowPt_Forward", "MVAPUJIDDiscriminant_lowPt_Forward", 50, -1.00, 1.00)
-              : nullptr;
+          isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+              ? nullptr
+              : ibooker.book1D(
+                    "MVAPUJIDDiscriminant_lowPt_Forward", "MVAPUJIDDiscriminant_lowPt_Forward", 50, -1.00, 1.00);
       mMVAPUJIDDiscriminant_mediumPt_Barrel =
-          isMEEnabled("MVAPUJIDDiscriminant_mediumPt_Barrel")
-              ? ibooker.book1D(
-                    "MVAPUJIDDiscriminant_mediumPt_Barrel", "MVAPUJIDDiscriminant_mediumPt_Barrel", 50, -1.00, 1.00)
-              : nullptr;
+          isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+              ? nullptr
+              : ibooker.book1D(
+                    "MVAPUJIDDiscriminant_mediumPt_Barrel", "MVAPUJIDDiscriminant_mediumPt_Barrel", 50, -1.00, 1.00);
       mMVAPUJIDDiscriminant_mediumPt_EndCap =
-          isMEEnabled("MVAPUJIDDiscriminant_mediumPt_EndCap")
-              ? ibooker.book1D(
-                    "MVAPUJIDDiscriminant_mediumPt_EndCap", "MVAPUJIDDiscriminant_mediumPt_EndCap", 50, -1.00, 1.00)
-              : nullptr;
+          isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+              ? nullptr
+              : ibooker.book1D(
+                    "MVAPUJIDDiscriminant_mediumPt_EndCap", "MVAPUJIDDiscriminant_mediumPt_EndCap", 50, -1.00, 1.00);
       mMVAPUJIDDiscriminant_mediumPt_Forward =
-          isMEEnabled("MVAPUJIDDiscriminant_mediumPt_Forward")
-              ? ibooker.book1D(
-                    "MVAPUJIDDiscriminant_mediumPt_Forward", "MVAPUJIDDiscriminant_mediumPt_Forward", 50, -1.00, 1.00)
-              : nullptr;
+          isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+              ? nullptr
+              : ibooker.book1D(
+                    "MVAPUJIDDiscriminant_mediumPt_Forward", "MVAPUJIDDiscriminant_mediumPt_Forward", 50, -1.00, 1.00);
       mMVAPUJIDDiscriminant_highPt_Barrel =
-          isMEEnabled("MVAPUJIDDiscriminant_highPt_Barrel")
-              ? ibooker.book1D(
-                    "MVAPUJIDDiscriminant_highPt_Barrel", "MVAPUJIDDiscriminant_highPt_Barrel", 50, -1.00, 1.00)
-              : nullptr;
+          isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+              ? nullptr
+              : ibooker.book1D(
+                    "MVAPUJIDDiscriminant_highPt_Barrel", "MVAPUJIDDiscriminant_highPt_Barrel", 50, -1.00, 1.00);
       mMVAPUJIDDiscriminant_highPt_EndCap =
-          isMEEnabled("MVAPUJIDDiscriminant_highPt_EndCap")
-              ? ibooker.book1D(
-                    "MVAPUJIDDiscriminant_highPt_EndCap", "MVAPUJIDDiscriminant_highPt_EndCap", 50, -1.00, 1.00)
-              : nullptr;
+          isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+              ? nullptr
+              : ibooker.book1D(
+                    "MVAPUJIDDiscriminant_highPt_EndCap", "MVAPUJIDDiscriminant_highPt_EndCap", 50, -1.00, 1.00);
       mMVAPUJIDDiscriminant_highPt_Forward =
-          isMEEnabled("MVAPUJIDDiscriminant_highPt_Forward")
-              ? ibooker.book1D(
-                    "MVAPUJIDDiscriminant_highPt_Forward", "MVAPUJIDDiscriminant_highPt_Forward", 50, -1.00, 1.00)
-              : nullptr;
+          isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+              ? nullptr
+              : ibooker.book1D(
+                    "MVAPUJIDDiscriminant_highPt_Forward", "MVAPUJIDDiscriminant_highPt_Forward", 50, -1.00, 1.00);
 
       map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MVAPUJIDDiscriminant_lowPt_Barrel",
                                                                 mMVAPUJIDDiscriminant_lowPt_Barrel));
@@ -1079,37 +1074,37 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
                                                                 mMVAPUJIDDiscriminant_highPt_Forward));
     }
     mCHFracVSpT_Barrel =
-        isMEEnabled("CHFracVSpT_Barrel")
-            ? ibooker.bookProfile("CHFracVSpT_Barrel", "CHFracVSpT_Barrel", ptBin_, ptMin_, ptMax_, 0., 1.2)
-            : nullptr;
+        isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+            ? nullptr
+            : ibooker.bookProfile("CHFracVSpT_Barrel", "CHFracVSpT_Barrel", ptBin_, ptMin_, ptMax_, 0., 1.2);
     mNHFracVSpT_Barrel =
-        isMEEnabled("NHFracVSpT_Barrel")
-            ? ibooker.bookProfile("NHFracVSpT_Barrel", "NHFracVSpT_Barrel", ptBin_, ptMin_, ptMax_, 0., 1.2)
-            : nullptr;
+        isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+            ? nullptr
+            : ibooker.bookProfile("NHFracVSpT_Barrel", "NHFracVSpT_Barrel", ptBin_, ptMin_, ptMax_, 0., 1.2);
     mPhFracVSpT_Barrel =
-        isMEEnabled("PhFracVSpT_Barrel")
-            ? ibooker.bookProfile("PhFracVSpT_Barrel", "PhFracVSpT_Barrel", ptBin_, ptMin_, ptMax_, 0., 1.2)
-            : nullptr;
+        isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+            ? nullptr
+            : ibooker.bookProfile("PhFracVSpT_Barrel", "PhFracVSpT_Barrel", ptBin_, ptMin_, ptMax_, 0., 1.2);
     mCHFracVSpT_EndCap =
-        isMEEnabled("CHFracVSpT_EndCap")
-            ? ibooker.bookProfile("CHFracVSpT_EndCap", "CHFracVSpT_EndCap", ptBin_, ptMin_, ptMax_, 0., 1.2)
-            : nullptr;
+        isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+            ? nullptr
+            : ibooker.bookProfile("CHFracVSpT_EndCap", "CHFracVSpT_EndCap", ptBin_, ptMin_, ptMax_, 0., 1.2);
     mNHFracVSpT_EndCap =
-        isMEEnabled("NHFracVSpT_EndCap")
-            ? ibooker.bookProfile("NHFracVSpT_EndCap", "NHFracVSpT_EndCap", ptBin_, ptMin_, ptMax_, 0., 1.2)
-            : nullptr;
+        isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+            ? nullptr
+            : ibooker.bookProfile("NHFracVSpT_EndCap", "NHFracVSpT_EndCap", ptBin_, ptMin_, ptMax_, 0., 1.2);
     mPhFracVSpT_EndCap =
-        isMEEnabled("PhFracVSpT_EndCap")
-            ? ibooker.bookProfile("PhFracVSpT_EndCap", "PhFracVSpT_EndCap", ptBin_, ptMin_, ptMax_, 0., 1.2)
-            : nullptr;
+        isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+            ? nullptr
+            : ibooker.bookProfile("PhFracVSpT_EndCap", "PhFracVSpT_EndCap", ptBin_, ptMin_, ptMax_, 0., 1.2);
     mHFHFracVSpT_Forward =
-        isMEEnabled("HFHFracVSpT_Forward")
-            ? ibooker.bookProfile("HFHFracVSpT_Forward", "HFHFracVSpT_Forward", ptBin_, ptMin_, ptMax_, -0.2, 1.2)
-            : nullptr;
+        isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+            ? nullptr
+            : ibooker.bookProfile("HFHFracVSpT_Forward", "HFHFracVSpT_Forward", ptBin_, ptMin_, ptMax_, -0.2, 1.2);
     mHFEFracVSpT_Forward =
-        isMEEnabled("HFEFracVSpT_Forward")
-            ? ibooker.bookProfile("HFEFracVSpT_Forward", "HFEFracVSpT_Forward", ptBin_, ptMin_, ptMax_, -0.2, 1.2)
-            : nullptr;
+        isPUPPIJet_ && DirName == "JetMET/Jet/Cleanedak4PFJetsPuppi"
+            ? nullptr
+            : ibooker.bookProfile("HFEFracVSpT_Forward", "HFEFracVSpT_Forward", ptBin_, ptMin_, ptMax_, -0.2, 1.2);
 
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "CHFracVSpT_Barrel", mCHFracVSpT_Barrel));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "NHFracVSpT_Barrel", mNHFracVSpT_Barrel));
@@ -1125,22 +1120,14 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
   if (isPFJet_) {
     //endcap monitoring
     //energy fractions
-    mCHFrac_lowPt_EndCap = isMEEnabled("CHFrac_lowPt_EndCap")
-                               ? ibooker.book1D("CHFrac_lowPt_EndCap", "CHFrac_lowPt_EndCap", 120, -0.1, 1.1)
-                               : nullptr;
+    mCHFrac_lowPt_EndCap = ibooker.book1D("CHFrac_lowPt_EndCap", "CHFrac_lowPt_EndCap", 120, -0.1, 1.1);
     mNHFrac_lowPt_EndCap = ibooker.book1D("NHFrac_lowPt_EndCap", "NHFrac_lowPt_EndCap", 120, -0.1, 1.1);
     mPhFrac_lowPt_EndCap = ibooker.book1D("PhFrac_lowPt_EndCap", "PhFrac_lowPt_EndCap", 120, -0.1, 1.1);
-    mCHFrac_mediumPt_EndCap = isMEEnabled("CHFrac_mediumPt_EndCap")
-                                  ? ibooker.book1D("CHFrac_mediumPt_EndCap", "CHFrac_mediumPt_EndCap", 120, -0.1, 1.1)
-                                  : nullptr;
+    mCHFrac_mediumPt_EndCap = ibooker.book1D("CHFrac_mediumPt_EndCap", "CHFrac_mediumPt_EndCap", 120, -0.1, 1.1);
     mNHFrac_mediumPt_EndCap = ibooker.book1D("NHFrac_mediumPt_EndCap", "NHFrac_mediumPt_EndCap", 120, -0.1, 1.1);
     mPhFrac_mediumPt_EndCap = ibooker.book1D("PhFrac_mediumPt_EndCap", "PhFrac_mediumPt_EndCap", 120, -0.1, 1.1);
-    mCHFrac_highPt_EndCap = isMEEnabled("CHFrac_highPt_EndCap")
-                                ? ibooker.book1D("CHFrac_highPt_EndCap", "CHFrac_highPt_EndCap", 120, -0.1, 1.1)
-                                : nullptr;
-    mNHFrac_highPt_EndCap = isMEEnabled("NHFrac_highPt_EndCap")
-                                ? ibooker.book1D("NHFrac_highPt_EndCap", "NHFrac_highPt_EndCap", 120, -0.1, 1.1)
-                                : nullptr;
+    mCHFrac_highPt_EndCap = ibooker.book1D("CHFrac_highPt_EndCap", "CHFrac_highPt_EndCap", 120, -0.1, 1.1);
+    mNHFrac_highPt_EndCap = ibooker.book1D("NHFrac_highPt_EndCap", "NHFrac_highPt_EndCap", 120, -0.1, 1.1);
     mPhFrac_highPt_EndCap = ibooker.book1D("PhFrac_highPt_EndCap", "PhFrac_highPt_EndCap", 120, -0.1, 1.1);
 
     map_of_MEs.insert(
@@ -1163,45 +1150,21 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
         std::pair<std::string, MonitorElement*>(DirName + "/" + "PhFrac_highPt_EndCap", mPhFrac_highPt_EndCap));
 
     //energies
-    mCHEn_lowPt_EndCap = isMEEnabled("CHEn_lowPt_EndCap")
-                             ? ibooker.book1D("CHEn_lowPt_EndCap", "CHEn_lowPt_EndCap", ptBin_, 0., ptMax_)
-                             : nullptr;
-    mNHEn_lowPt_EndCap = isMEEnabled("NHEn_lowPt_EndCap")
-                             ? ibooker.book1D("NHEn_lowPt_EndCap", "NHEn_lowPt_EndCap", ptBin_, 0., ptMax_)
-                             : nullptr;
+    mCHEn_lowPt_EndCap = ibooker.book1D("CHEn_lowPt_EndCap", "CHEn_lowPt_EndCap", ptBin_, 0., ptMax_);
+    mNHEn_lowPt_EndCap = ibooker.book1D("NHEn_lowPt_EndCap", "NHEn_lowPt_EndCap", ptBin_, 0., ptMax_);
     mPhEn_lowPt_EndCap = ibooker.book1D("PhEn_lowPt_EndCap", "PhEn_lowPt_EndCap", ptBin_, 0., ptMax_);
-    mElEn_lowPt_EndCap = isMEEnabled("ElEn_lowPt_EndCap")
-                             ? ibooker.book1D("ElEn_lowPt_EndCap", "ElEn_lowPt_EndCap", ptBin_, 0., 100)
-                             : nullptr;
-    mMuEn_lowPt_EndCap = isMEEnabled("MuEn_lowPt_EndCap")
-                             ? ibooker.book1D("MuEn_lowPt_EndCap", "MuEn_lowPt_EndCap", ptBin_, 0., 100)
-                             : nullptr;
-    mCHEn_mediumPt_EndCap = isMEEnabled("CHEn_mediumPt_EndCap")
-                                ? ibooker.book1D("CHEn_mediumPt_EndCap", "CHEn_mediumPt_EndCap", ptBin_, 0., ptMax_)
-                                : nullptr;
-    mNHEn_mediumPt_EndCap = isMEEnabled("NHEn_mediumPt_EndCap")
-                                ? ibooker.book1D("NHEn_mediumPt_EndCap", "NHEn_mediumPt_EndCap", ptBin_, 0., ptMax_)
-                                : nullptr;
+    mElEn_lowPt_EndCap = ibooker.book1D("ElEn_lowPt_EndCap", "ElEn_lowPt_EndCap", ptBin_, 0., 100);
+    mMuEn_lowPt_EndCap = ibooker.book1D("MuEn_lowPt_EndCap", "MuEn_lowPt_EndCap", ptBin_, 0., 100);
+    mCHEn_mediumPt_EndCap = ibooker.book1D("CHEn_mediumPt_EndCap", "CHEn_mediumPt_EndCap", ptBin_, 0., ptMax_);
+    mNHEn_mediumPt_EndCap = ibooker.book1D("NHEn_mediumPt_EndCap", "NHEn_mediumPt_EndCap", ptBin_, 0., ptMax_);
     mPhEn_mediumPt_EndCap = ibooker.book1D("PhEn_mediumPt_EndCap", "PhEn_mediumPt_EndCap", ptBin_, 0., ptMax_);
-    mElEn_mediumPt_EndCap = isMEEnabled("ElEn_mediumPt_EndCap")
-                                ? ibooker.book1D("ElEn_mediumPt_EndCap", "ElEn_mediumPt_EndCap", ptBin_, 0., 100)
-                                : nullptr;
-    mMuEn_mediumPt_EndCap = isMEEnabled("MuEn_mediumPt_EndCap")
-                                ? ibooker.book1D("MuEn_mediumPt_EndCap", "MuEn_mediumPt_EndCap", ptBin_, 0., 100)
-                                : nullptr;
-    mCHEn_highPt_EndCap = isMEEnabled("CHEn_highPt_EndCap")
-                              ? ibooker.book1D("CHEn_highPt_EndCap", "CHEn_highPt_EndCap", ptBin_, 0., 1.5 * ptMax_)
-                              : nullptr;
-    mNHEn_highPt_EndCap = isMEEnabled("NHEn_highPt_EndCap")
-                              ? ibooker.book1D("NHEn_highPt_EndCap", "NHEn_highPt_EndCap", ptBin_, 0., 1.5 * ptMax_)
-                              : nullptr;
+    mElEn_mediumPt_EndCap = ibooker.book1D("ElEn_mediumPt_EndCap", "ElEn_mediumPt_EndCap", ptBin_, 0., 100);
+    mMuEn_mediumPt_EndCap = ibooker.book1D("MuEn_mediumPt_EndCap", "MuEn_mediumPt_EndCap", ptBin_, 0., 100);
+    mCHEn_highPt_EndCap = ibooker.book1D("CHEn_highPt_EndCap", "CHEn_highPt_EndCap", ptBin_, 0., 1.5 * ptMax_);
+    mNHEn_highPt_EndCap = ibooker.book1D("NHEn_highPt_EndCap", "NHEn_highPt_EndCap", ptBin_, 0., 1.5 * ptMax_);
     mPhEn_highPt_EndCap = ibooker.book1D("PhEn_highPt_EndCap", "PhEn_highPt_EndCap", ptBin_, 0., 1.5 * ptMax_);
-    mElEn_highPt_EndCap = isMEEnabled("ElEn_highPt_EndCap")
-                              ? ibooker.book1D("ElEn_highPt_EndCap", "ElEn_highPt_EndCap", ptBin_, 0., 100)
-                              : nullptr;
-    mMuEn_highPt_EndCap = isMEEnabled("MuEn_highPt_EndCap")
-                              ? ibooker.book1D("MuEn_highPt_EndCap", "MuEn_highPt_EndCap", ptBin_, 0., 100)
-                              : nullptr;
+    mElEn_highPt_EndCap = ibooker.book1D("ElEn_highPt_EndCap", "ElEn_highPt_EndCap", ptBin_, 0., 100);
+    mMuEn_highPt_EndCap = ibooker.book1D("MuEn_highPt_EndCap", "MuEn_highPt_EndCap", ptBin_, 0., 100);
 
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "CHEn_lowPt_EndCap", mCHEn_lowPt_EndCap));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "NHEn_lowPt_EndCap", mNHEn_lowPt_EndCap));
@@ -1315,13 +1278,13 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
     meNHFracBarrel_BXm1Filled =
         ibooker.book1D("NHFracBarrel_BXm1Filled", "NHFrac prev filled 1 bunch (Barrel)", 50, 0, 1);
     meCHFracBarrel_BXm1Empty =
-        isMEEnabled("CHFracBarrel_BXm1Empty")
-            ? ibooker.book1D("CHFracBarrel_BXm1Empty", "CHFrac prev empty 1 bunch (Barrel)", 50, 0, 1)
-            : nullptr;
+        isPFJet_ && DirName == "JetMET/Jet/Cleanedak4PFJets"
+            ? nullptr
+            : ibooker.book1D("CHFracBarrel_BXm1Empty", "CHFrac prev empty 1 bunch (Barrel)", 50, 0, 1);
     meCHFracBarrel_BXm1Filled =
-        isMEEnabled("CHFracBarrel_BXm1Filled")
-            ? ibooker.book1D("CHFracBarrel_BXm1Filled", "CHFrac prev filled 1 bunch (Barrel)", 50, 0, 1)
-            : nullptr;
+        isPFJet_ && DirName == "JetMET/Jet/Cleanedak4PFJets"
+            ? nullptr
+            : ibooker.book1D("CHFracBarrel_BXm1Filled", "CHFrac prev filled 1 bunch (Barrel)", 50, 0, 1);
     mePtBarrel_BXm1Empty =
         ibooker.book1D("PtBarrel_BXm1Empty", "pT prev empty 1 bunch (Barrel)", ptBin_, ptMin_, ptMax_);
     mePtBarrel_BXm1Filled =
@@ -1331,21 +1294,13 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
     mePhFracEndCapPlus_BXm1Filled =
         ibooker.book1D("PhFracEndCapPlus_BXm1Filled", "PHFrac prev filled 1 bunch (EndCapPlus)", 50, 0, 1);
     meNHFracEndCapPlus_BXm1Empty =
-        isMEEnabled("NHFracEndCapPlus_BXm1Empty")
-            ? ibooker.book1D("NHFracEndCapPlus_BXm1Empty", "NHFrac prev empty 1 bunch (EndCapPlus)", 50, 0, 1)
-            : nullptr;
+        ibooker.book1D("NHFracEndCapPlus_BXm1Empty", "NHFrac prev empty 1 bunch (EndCapPlus)", 50, 0, 1);
     meNHFracEndCapPlus_BXm1Filled =
-        isMEEnabled("NHFracEndCapPlus_BXm1Filled")
-            ? ibooker.book1D("NHFracEndCapPlus_BXm1Filled", "NHFrac prev filled 1 bunch (EndCapPlus)", 50, 0, 1)
-            : nullptr;
+        ibooker.book1D("NHFracEndCapPlus_BXm1Filled", "NHFrac prev filled 1 bunch (EndCapPlus)", 50, 0, 1);
     meCHFracEndCapPlus_BXm1Empty =
-        isMEEnabled("CHFracEndCapPlus_BXm1Empty")
-            ? ibooker.book1D("CHFracEndCapPlus_BXm1Empty", "CHFrac prev empty 1 bunch (EndCapPlus)", 50, 0, 1)
-            : nullptr;
+        ibooker.book1D("CHFracEndCapPlus_BXm1Empty", "CHFrac prev empty 1 bunch (EndCapPlus)", 50, 0, 1);
     meCHFracEndCapPlus_BXm1Filled =
-        isMEEnabled("CHFracEndCapPlus_BXm1Filled")
-            ? ibooker.book1D("CHFracEndCapPlus_BXm1Filled", "CHFrac prev filled 1 bunch (EndCapPlus)", 50, 0, 1)
-            : nullptr;
+        ibooker.book1D("CHFracEndCapPlus_BXm1Filled", "CHFrac prev filled 1 bunch (EndCapPlus)", 50, 0, 1);
     mePtEndCapPlus_BXm1Empty =
         ibooker.book1D("PtEndCapPlus_BXm1Empty", "pT prev empty 1 bunch (EndCapPlus)", ptBin_, ptMin_, ptMax_);
     mePtEndCapPlus_BXm1Filled =
@@ -1367,21 +1322,13 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
     mePhFracEndCapMinus_BXm1Filled =
         ibooker.book1D("PhFracEndCapMinus_BXm1Filled", "PHFrac prev filled 1 bunch (EndCapMinus)", 50, 0, 1);
     meNHFracEndCapMinus_BXm1Empty =
-        isMEEnabled("NHFracEndCapMinus_BXm1Empty")
-            ? ibooker.book1D("NHFracEndCapMinus_BXm1Empty", "NHFrac prev empty 1 bunch (EndCapMinus)", 50, 0, 1)
-            : nullptr;
+        ibooker.book1D("NHFracEndCapMinus_BXm1Empty", "NHFrac prev empty 1 bunch (EndCapMinus)", 50, 0, 1);
     meNHFracEndCapMinus_BXm1Filled =
-        isMEEnabled("NHFracEndCapMinus_BXm1Filled")
-            ? ibooker.book1D("NHFracEndCapMinus_BXm1Filled", "NHFrac prev filled 1 bunch (EndCapMinus)", 50, 0, 1)
-            : nullptr;
+        ibooker.book1D("NHFracEndCapMinus_BXm1Filled", "NHFrac prev filled 1 bunch (EndCapMinus)", 50, 0, 1);
     meCHFracEndCapMinus_BXm1Empty =
-        isMEEnabled("CHFracEndCapMinus_BXm1Empty")
-            ? ibooker.book1D("CHFracEndCapMinus_BXm1Empty", "CHFrac prev empty 1 bunch (EndCapMinus)", 50, 0, 1)
-            : nullptr;
+        ibooker.book1D("CHFracEndCapMinus_BXm1Empty", "CHFrac prev empty 1 bunch (EndCapMinus)", 50, 0, 1);
     meCHFracEndCapMinus_BXm1Filled =
-        isMEEnabled("CHFracEndCapMinus_BXm1Filled")
-            ? ibooker.book1D("CHFracEndCapMinus_BXm1Filled", "CHFrac prev filled 1 bunch (EndCapMinus)", 50, 0, 1)
-            : nullptr;
+        ibooker.book1D("CHFracEndCapMinus_BXm1Filled", "CHFrac prev filled 1 bunch (EndCapMinus)", 50, 0, 1);
     mePtEndCapMinus_BXm1Empty =
         ibooker.book1D("PtEndCapMinus_BXm1Empty", "pT prev empty 1 bunch (EndCapMinus)", ptBin_, ptMin_, ptMax_);
     mePtEndCapMinus_BXm1Filled =
@@ -1478,35 +1425,23 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
 
     //multiplicities
     mChMultiplicity_lowPt_EndCap =
-        isMEEnabled("ChMultiplicity_lowPt_EndCap")
-            ? ibooker.book1D("ChMultiplicity_lowPt_EndCap", "ChMultiplicity_lowPt_EndCap", 60, 0, 60)
-            : nullptr;
+        ibooker.book1D("ChMultiplicity_lowPt_EndCap", "ChMultiplicity_lowPt_EndCap", 60, 0, 60);
     mNeutMultiplicity_lowPt_EndCap =
         ibooker.book1D("NeutMultiplicity_lowPt_EndCap", "NeutMultiplicity_lowPt_EndCap", 60, 0, 60);
     mMuMultiplicity_lowPt_EndCap =
-        isMEEnabled("MuMultiplicity_lowPt_EndCap")
-            ? ibooker.book1D("MuMultiplicity_lowPt_EndCap", "MuMultiplicity_lowPt_EndCap", 10, 0, 10)
-            : nullptr;
+        ibooker.book1D("MuMultiplicity_lowPt_EndCap", "MuMultiplicity_lowPt_EndCap", 10, 0, 10);
     mChMultiplicity_mediumPt_EndCap =
-        isMEEnabled("ChMultiplicity_mediumPt_EndCap")
-            ? ibooker.book1D("ChMultiplicity_mediumPt_EndCap", "ChMultiplicity_mediumPt_EndCap", 60, 0, 60)
-            : nullptr;
+        ibooker.book1D("ChMultiplicity_mediumPt_EndCap", "ChMultiplicity_mediumPt_EndCap", 60, 0, 60);
     mNeutMultiplicity_mediumPt_EndCap =
         ibooker.book1D("NeutMultiplicity_mediumPt_EndCap", "NeutMultiplicity_mediumPt_EndCap", 60, 0, 60);
     mMuMultiplicity_mediumPt_EndCap =
-        isMEEnabled("MuMultiplicity_mediumPt_EndCap")
-            ? ibooker.book1D("MuMultiplicity_mediumPt_EndCap", "MuMultiplicity_mediumPt_EndCap", 10, 0, 10)
-            : nullptr;
+        ibooker.book1D("MuMultiplicity_mediumPt_EndCap", "MuMultiplicity_mediumPt_EndCap", 10, 0, 10);
     mChMultiplicity_highPt_EndCap =
-        isMEEnabled("ChMultiplicity_highPt_EndCap")
-            ? ibooker.book1D("ChMultiplicity_highPt_EndCap", "ChMultiplicity_highPt_EndCap", 60, 0, 60)
-            : nullptr;
+        ibooker.book1D("ChMultiplicity_highPt_EndCap", "ChMultiplicity_highPt_EndCap", 60, 0, 60);
     mNeutMultiplicity_highPt_EndCap =
         ibooker.book1D("NeutMultiplicity_highPt_EndCap", "NeutMultiplicity_highPt_EndCap", 60, 0, 60);
     mMuMultiplicity_highPt_EndCap =
-        isMEEnabled("MuMultiplicity_highPt_EndCap")
-            ? ibooker.book1D("MuMultiplicity_highPt_EndCap", "MuMultiplicity_highPt_EndCap", 10, 0, 10)
-            : nullptr;
+        ibooker.book1D("MuMultiplicity_highPt_EndCap", "MuMultiplicity_highPt_EndCap", 10, 0, 10);
 
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "ChMultiplicity_lowPt_EndCap",
                                                               mChMultiplicity_lowPt_EndCap));
@@ -6591,8 +6526,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 void JetAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::vector<std::string>>("disabledMEs", std::vector<std::string>{})
-      ->setComment("Exact names of optional base-folder jet MEs to disable; selection folders are unaffected.");
   desc.add<std::string>("JetType", "calo");
   desc.add<edm::InputTag>("JetCorrections", edm::InputTag("dqmAk4CaloL2L3ResidualCorrector"));
   desc.add<edm::InputTag>("jetsrc", edm::InputTag("ak4CaloJets"));

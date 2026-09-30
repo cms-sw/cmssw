@@ -514,84 +514,76 @@ void DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGe
     me_Jet_MiniAOD.push_back(mMuonMultiplicity_MiniAOD);
     me_Jet_MiniAOD.push_back(mNeutralFraction_MiniAOD);
 
-    // Optional monitoring reductions can remove one input of a comparison.
-    auto bookJetRatio = [&ibook_](std::string const& name,
-                                  MonitorElement* reco,
-                                  char const* title = nullptr,
-                                  int bins = 0,
-                                  double minimum = 0.,
-                                  double maximum = 0.) -> MonitorElement* {
-      if (!reco || !reco->getRootObject())
-        return nullptr;
-      if (title)
-        return ibook_.book1D(name, title, bins, minimum, maximum);
-      return ibook_.book1D(name, (TH1F*)reco->getRootObject());
-    };
-
     ibook_.setCurrentFolder(RunDirJet + "MiniAOD_over_RECO");
-    mPt_MiniAOD_over_Reco = bookJetRatio("Pt_MiniAOD_over_RECO", mPt_Reco);
-    mEta_MiniAOD_over_Reco = bookJetRatio("Eta_MiniAOD_over_RECO", mEta_Reco);
-    mPhi_MiniAOD_over_Reco = bookJetRatio("Phi_MiniAOD_over_RECO", mPhi_Reco);
-    mNjets_MiniAOD_over_Reco = bookJetRatio("NJets_MiniAOD_over_RECO", mNjets_Reco);
-    mPt_uncor_MiniAOD_over_Reco = bookJetRatio("Pt_uncor_MiniAOD_over_RECO", mPt_uncor_Reco);
-    mEta_uncor_MiniAOD_over_Reco = bookJetRatio("Eta_uncor_MiniAOD_over_RECO", mEta_uncor_Reco);
-    mPhi_uncor_MiniAOD_over_Reco = bookJetRatio("Phi_uncor_MiniAOD_over_RECO", mPhi_uncor_Reco);
-    mJetEnergyCorr_MiniAOD_over_Reco = bookJetRatio("JetEnergyCorr_MiniAOD_over_RECO", mJetEnergyCorr_Reco);
-    mJetEnergyCorrVSeta_MiniAOD_over_Reco = bookJetRatio("JetEnergyCorrVSEta_MiniAOD_over_RECO",
-                                                         mJetEnergyCorrVSeta_Reco,
-                                                         "jet energy correction factor VS eta",
-                                                         etaBin_,
-                                                         etaMin_,
-                                                         etaMax_);
-    mDPhi_MiniAOD_over_Reco = bookJetRatio("DPhi_MiniAOD_over_RECO", mDPhi_Reco);
-    mLooseJIDPassFractionVSeta_MiniAOD_over_Reco = bookJetRatio("JetIDPassFractionVSeta_MiniAOD_over_RECO",
-                                                                mLooseJIDPassFractionVSeta_Reco,
-                                                                "JetIDPassFractionVSeta",
-                                                                etaBin_,
-                                                                etaMin_,
-                                                                etaMax_);
-    mPt_Barrel_MiniAOD_over_Reco = bookJetRatio("Pt_Barrel_MiniAOD_over_RECO", mPt_Barrel_Reco);
-    mPt_EndCap_MiniAOD_over_Reco = bookJetRatio("Pt_EndCap_MiniAOD_over_RECO", mPt_EndCap_Reco);
-    mPt_Forward_MiniAOD_over_Reco = bookJetRatio("Pt_Forward_MiniAOD_over_RECO", mPt_Forward_Reco);
+    mPt_MiniAOD_over_Reco = ibook_.book1D("Pt_MiniAOD_over_RECO", (TH1F*)mPt_Reco->getRootObject());
+    mEta_MiniAOD_over_Reco = ibook_.book1D("Eta_MiniAOD_over_RECO", (TH1F*)mEta_Reco->getRootObject());
+    mPhi_MiniAOD_over_Reco = ibook_.book1D("Phi_MiniAOD_over_RECO", (TH1F*)mPhi_Reco->getRootObject());
+    mNjets_MiniAOD_over_Reco = ibook_.book1D("NJets_MiniAOD_over_RECO", (TH1F*)mNjets_Reco->getRootObject());
+    mPt_uncor_MiniAOD_over_Reco = ibook_.book1D("Pt_uncor_MiniAOD_over_RECO", (TH1F*)mPt_uncor_Reco->getRootObject());
+    mEta_uncor_MiniAOD_over_Reco =
+        ibook_.book1D("Eta_uncor_MiniAOD_over_RECO", (TH1F*)mEta_uncor_Reco->getRootObject());
+    mPhi_uncor_MiniAOD_over_Reco =
+        ibook_.book1D("Phi_uncor_MiniAOD_over_RECO", (TH1F*)mPhi_uncor_Reco->getRootObject());
+    mJetEnergyCorr_MiniAOD_over_Reco =
+        ibook_.book1D("JetEnergyCorr_MiniAOD_over_RECO", (TH1F*)mJetEnergyCorr_Reco->getRootObject());
+    mJetEnergyCorrVSeta_MiniAOD_over_Reco = ibook_.book1D(
+        "JetEnergyCorrVSEta_MiniAOD_over_RECO", "jet energy correction factor VS eta", etaBin_, etaMin_, etaMax_);
+    mDPhi_MiniAOD_over_Reco = ibook_.book1D("DPhi_MiniAOD_over_RECO", (TH1F*)mDPhi_Reco->getRootObject());
+    mLooseJIDPassFractionVSeta_MiniAOD_over_Reco =
+        ibook_.book1D("JetIDPassFractionVSeta_MiniAOD_over_RECO", "JetIDPassFractionVSeta", etaBin_, etaMin_, etaMax_);
+    mPt_Barrel_MiniAOD_over_Reco =
+        ibook_.book1D("Pt_Barrel_MiniAOD_over_RECO", (TH1F*)mPt_Barrel_Reco->getRootObject());
+    mPt_EndCap_MiniAOD_over_Reco =
+        ibook_.book1D("Pt_EndCap_MiniAOD_over_RECO", (TH1F*)mPt_EndCap_Reco->getRootObject());
+    mPt_Forward_MiniAOD_over_Reco =
+        ibook_.book1D("Pt_Forward_MiniAOD_over_RECO", (TH1F*)mPt_Forward_Reco->getRootObject());
     mMVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD_over_Reco =
-        bookJetRatio("MVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD_over_RECO", mMVAPUJIDDiscriminant_lowPt_Barrel_Reco);
+        mMVAPUJIDDiscriminant_lowPt_Barrel_Reco
+            ? ibook_.book1D("MVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD_over_RECO",
+                            (TH1F*)mMVAPUJIDDiscriminant_lowPt_Barrel_Reco->getRootObject())
+            : nullptr;
     mMVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD_over_Reco =
-        bookJetRatio("MVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD_over_RECO", mMVAPUJIDDiscriminant_lowPt_EndCap_Reco);
+        mMVAPUJIDDiscriminant_lowPt_EndCap_Reco
+            ? ibook_.book1D("MVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD_over_RECO",
+                            (TH1F*)mMVAPUJIDDiscriminant_lowPt_EndCap_Reco->getRootObject())
+            : nullptr;
     mMVAPUJIDDiscriminant_lowPt_Forward_MiniAOD_over_Reco =
-        bookJetRatio("MVAPUJIDDiscriminant_lowPt_Forward_MiniAOD_over_RECO", mMVAPUJIDDiscriminant_lowPt_Forward_Reco);
-    mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD_over_Reco = bookJetRatio(
-        "MVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD_over_RECO", mMVAPUJIDDiscriminant_mediumPt_EndCap_Reco);
+        mMVAPUJIDDiscriminant_lowPt_Forward_Reco
+            ? ibook_.book1D("MVAPUJIDDiscriminant_lowPt_Forward_MiniAOD_over_RECO",
+                            (TH1F*)mMVAPUJIDDiscriminant_lowPt_Forward_Reco->getRootObject())
+            : nullptr;
+    mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD_over_Reco =
+        mMVAPUJIDDiscriminant_mediumPt_EndCap_Reco
+            ? ibook_.book1D("MVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD_over_RECO",
+                            (TH1F*)mMVAPUJIDDiscriminant_mediumPt_EndCap_Reco->getRootObject())
+            : nullptr;
     mMVAPUJIDDiscriminant_highPt_Barrel_MiniAOD_over_Reco =
-        bookJetRatio("MVAPUJIDDiscriminant_highPt_Barrel_MiniAOD_over_RECO", mMVAPUJIDDiscriminant_highPt_Barrel_Reco);
-    mCHFracVSpT_Barrel_MiniAOD_over_Reco = bookJetRatio(
-        "CHFracVSpT_Barrel_MiniAOD_over_RECO", mCHFracVSpT_Barrel_Reco, "CHFracVSpT_Barrel", ptBin_, ptMin_, ptMax_);
-    mNHFracVSpT_EndCap_MiniAOD_over_Reco = bookJetRatio(
-        "NHFracVSpT_EndCap_MiniAOD_over_RECO", mNHFracVSpT_EndCap_Reco, "NHFracVSpT_EndCap", ptBin_, ptMin_, ptMax_);
-    mPhFracVSpT_Barrel_MiniAOD_over_Reco = bookJetRatio(
-        "PhFracVSpT_Barrel_MiniAOD_over_RECO", mPhFracVSpT_Barrel_Reco, "PhFracVSpT_Barrel", ptBin_, ptMin_, ptMax_);
-    mHFHFracVSpT_Forward_MiniAOD_over_Reco = bookJetRatio("HFHFracVSpT_Forward_MiniAOD_over_RECO",
-                                                          mHFHFracVSpT_Forward_Reco,
-                                                          "HFHFracVSpT_Forward",
-                                                          ptBin_,
-                                                          ptMin_,
-                                                          ptMax_);
-    mHFEFracVSpT_Forward_MiniAOD_over_Reco = bookJetRatio("HFEFracVSpT_Forward_MiniAOD_over_RECO",
-                                                          mHFEFracVSpT_Forward_Reco,
-                                                          "HFEFracVSpT_Forward",
-                                                          ptBin_,
-                                                          ptMin_,
-                                                          ptMax_);
+        mMVAPUJIDDiscriminant_highPt_Barrel_Reco
+            ? ibook_.book1D("MVAPUJIDDiscriminant_highPt_Barrel_MiniAOD_over_RECO",
+                            (TH1F*)mMVAPUJIDDiscriminant_highPt_Barrel_Reco->getRootObject())
+            : nullptr;
+    mCHFracVSpT_Barrel_MiniAOD_over_Reco =
+        ibook_.book1D("CHFracVSpT_Barrel_MiniAOD_over_RECO", "CHFracVSpT_Barrel", ptBin_, ptMin_, ptMax_);
+    mNHFracVSpT_EndCap_MiniAOD_over_Reco =
+        ibook_.book1D("NHFracVSpT_EndCap_MiniAOD_over_RECO", "NHFracVSpT_EndCap", ptBin_, ptMin_, ptMax_);
+    mPhFracVSpT_Barrel_MiniAOD_over_Reco =
+        ibook_.book1D("PhFracVSpT_Barrel_MiniAOD_over_RECO", "PhFracVSpT_Barrel", ptBin_, ptMin_, ptMax_);
+    mHFHFracVSpT_Forward_MiniAOD_over_Reco =
+        ibook_.book1D("HFHFracVSpT_Forward_MiniAOD_over_RECO", "HFHFracVSpT_Forward", ptBin_, ptMin_, ptMax_);
+    mHFEFracVSpT_Forward_MiniAOD_over_Reco =
+        ibook_.book1D("HFEFracVSpT_Forward_MiniAOD_over_RECO", "HFEFracVSpT_Forward", ptBin_, ptMin_, ptMax_);
     ibook_.setCurrentFolder(RunDirJet + "MiniAOD_over_RECO" + "/" + "DiJet");
-    mCHFrac_MiniAOD_over_Reco = bookJetRatio("CHFrac_MiniAOD_over_RECO", mCHFrac_Reco);
-    mNHFrac_MiniAOD_over_Reco = bookJetRatio("NHFrac_MiniAOD_over_RECO", mNHFrac_Reco);
-    mPhFrac_MiniAOD_over_Reco = bookJetRatio("PhFrac_MiniAOD_over_RECO", mPhFrac_Reco);
+    mCHFrac_MiniAOD_over_Reco = ibook_.book1D("CHFrac_MiniAOD_over_RECO", (TH1F*)mCHFrac_Reco->getRootObject());
+    mNHFrac_MiniAOD_over_Reco = ibook_.book1D("NHFrac_MiniAOD_over_RECO", (TH1F*)mNHFrac_Reco->getRootObject());
+    mPhFrac_MiniAOD_over_Reco = ibook_.book1D("PhFrac_MiniAOD_over_RECO", (TH1F*)mPhFrac_Reco->getRootObject());
     mChargedMultiplicity_MiniAOD_over_Reco =
-        bookJetRatio("ChargedMultiplicity_MiniAOD_over_RECO", mChargedMultiplicity_Reco);
+        ibook_.book1D("ChargedMultiplicity_MiniAOD_over_RECO", (TH1F*)mChargedMultiplicity_Reco->getRootObject());
     mNeutralMultiplicity_MiniAOD_over_Reco =
-        bookJetRatio("NeutralMultiplicity_MiniAOD_over_RECO", mNeutralMultiplicity_Reco);
-    mMuonMultiplicity_MiniAOD_over_Reco = bookJetRatio("MuonMultiplicity_MiniAOD_over_RECO", mMuonMultiplicity_Reco);
+        ibook_.book1D("NeutralMultiplicity_MiniAOD_over_RECO", (TH1F*)mNeutralMultiplicity_Reco->getRootObject());
+    mMuonMultiplicity_MiniAOD_over_Reco =
+        ibook_.book1D("MuonMultiplicity_MiniAOD_over_RECO", (TH1F*)mMuonMultiplicity_Reco->getRootObject());
     mNeutralFraction_MiniAOD_over_Reco =
-        bookJetRatio("NeutralConstituentsFraction_MiniAOD_over_RECO", mNeutralFraction_Reco);
+        ibook_.book1D("NeutralConstituentsFraction_MiniAOD_over_RECO", (TH1F*)mNeutralFraction_Reco->getRootObject());
 
     std::vector<MonitorElement*> me_Jet_MiniAOD_over_Reco;
     me_Jet_MiniAOD_over_Reco.push_back(mPt_MiniAOD_over_Reco);
