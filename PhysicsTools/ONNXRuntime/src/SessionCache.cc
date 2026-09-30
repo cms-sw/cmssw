@@ -50,7 +50,7 @@ namespace cms::Ort {
     // The settings of the module, plus the framework settings and the execution provider for the given stream.
     ::Ort::SessionOptions options = options_.Clone();
     edm::Service<ONNXInterface>()->configure(options, backend_, id);
-    return std::make_unique<ONNXRuntime>(model_path_, &options);
+    return std::make_unique<ONNXRuntime>(model_path_, options);
   }
 
 }  // namespace cms::Ort

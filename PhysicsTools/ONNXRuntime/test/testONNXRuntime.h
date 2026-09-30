@@ -64,7 +64,7 @@ inline void testModel(cms::Ort::Backend backend, int device = 0) {
     // make sure that the model runs on the GPU, instead of falling back to the CPU
     session_options.AddConfigEntry(kOrtSessionOptionsDisableCPUEPFallback, "1");
   }
-  ONNXRuntime rt(model_path, &session_options);
+  ONNXRuntime rt(model_path, session_options);
   for (const unsigned batch_size : {1, 2, 4}) {
     FloatArrays input_values{
         std::vector<float>(batch_size * 2, 1),

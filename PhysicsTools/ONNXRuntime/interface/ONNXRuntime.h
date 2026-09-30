@@ -31,7 +31,9 @@ namespace cms::Ort {
 
   class ONNXRuntime {
   public:
-    ONNXRuntime(const std::string& model_path, const ::Ort::SessionOptions* session_options = nullptr);
+    // Create a session with the default options for the CPU backend, or with the given session options.
+    ONNXRuntime(const std::string& model_path);
+    ONNXRuntime(const std::string& model_path, const ::Ort::SessionOptions& session_options);
 
     // Create a session for the given backend on the device chosen by the ONNXService for the given framework stream.
     // On a GPU backend the session creates and owns its own compute stream, so a module that creates one ONNXRuntime
@@ -41,7 +43,7 @@ namespace cms::Ort {
 
     ONNXRuntime(const ONNXRuntime&) = delete;
     ONNXRuntime& operator=(const ONNXRuntime&) = delete;
-    ~ONNXRuntime();
+    ~ONNXRuntime() = default;
 
     // Create the default session options for the given backend and device, using the ONNXService.
     // `device` is the CUDA or HIP runtime index of the GPU to use, as seen by the job (i.e. after applying
