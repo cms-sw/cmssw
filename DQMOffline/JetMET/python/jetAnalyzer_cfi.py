@@ -5,6 +5,7 @@ from DQMOffline.JetMET.jetMETDQMCleanup_cff import *  # parameters for event cle
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 jetDQMAnalyzerAk4CaloUncleaned = DQMEDAnalyzer('JetAnalyzer',
+    disabledMEs = cms.vstring(),
     JetType = cms.string('calo'),#pf, calo or jpt
     JetCorrections = cms.InputTag("dqmAk4CaloL2L3ResidualCorrector"),
     jetsrc = cms.InputTag("ak4CaloJets"),
@@ -399,4 +400,151 @@ jetDQMMatchAkPu5CaloAkPu5PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons_matching',
                                              recoJetPtThreshold = cms.double(20.),
                                              recoDelRMatch = cms.double(0.2),
                                              recoJetEtaCut = cms.double(2.0)
+)
+
+# Exact base-folder selections from the Phase2_cleanup/DC inventory (2026-09-30).
+# Set the final instances after all clones so CHS, MiniAOD, scouting and cosmics
+# retain their own monitoring. HGCAL retirements are restricted to phase2_hgcal.
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+
+_caloJetDisabledMEs = (
+    'Eta_Barrel',
+    'Eta_Barrel_Hi',
+    'Eta_Forward',
+    'Eta_Forward_Hi',
+    'Eta_Hi',
+    'JetArea_uncor',
+    'NJets_Hi',
+    'Phi_Barrel_Hi',
+    'Phi_Forward_Hi',
+    'Phi_Hi',
+    'Phi_Lo',
+    'Pt_Barrel_Hi',
+    'Pt_Forward_Hi',
+    'Pt_Hi',
+    'Pt_Lo',
+)
+
+_caloJetHGCALDisabledMEs = (
+    'Constituents_EndCap',
+    'EFrac_EndCap',
+    'Eta_EndCap',
+    'Eta_EndCap_Hi',
+    'HFrac_EndCap',
+    'Phi_EndCap',
+    'Phi_EndCap_Hi',
+    'Pt_EndCap',
+    'Pt_EndCap_Hi',
+)
+
+jetDQMAnalyzerAk4CaloCleaned.disabledMEs = cms.vstring(*_caloJetDisabledMEs)
+phase2_hgcal.toModify(
+    jetDQMAnalyzerAk4CaloCleaned,
+    disabledMEs = cms.vstring(*(_caloJetDisabledMEs + _caloJetHGCALDisabledMEs)),
+)
+
+_pfJetDisabledMEs = (
+    'CHFracBarrel_BXm1Empty',
+    'CHFracBarrel_BXm1Filled',
+)
+
+_pfJetHGCALDisabledMEs = (
+    'CHEn_highPt_EndCap',
+    'CHEn_lowPt_EndCap',
+    'CHEn_mediumPt_EndCap',
+    'CHFracEndCapMinus_BXm1Empty',
+    'CHFracEndCapMinus_BXm1Filled',
+    'CHFracEndCapPlus_BXm1Empty',
+    'CHFracEndCapPlus_BXm1Filled',
+    'CHFracVSpT_EndCap',
+    'CHFrac_highPt_EndCap',
+    'CHFrac_lowPt_EndCap',
+    'CHFrac_mediumPt_EndCap',
+    'ChMultiplicity_highPt_EndCap',
+    'ChMultiplicity_lowPt_EndCap',
+    'ChMultiplicity_mediumPt_EndCap',
+    'Constituents_EndCap',
+    'CutPUJIDDiscriminant_highPt_EndCap',
+    'CutPUJIDDiscriminant_lowPt_EndCap',
+    'CutPUJIDDiscriminant_mediumPt_EndCap',
+    'ElEn_highPt_EndCap',
+    'ElEn_lowPt_EndCap',
+    'ElEn_mediumPt_EndCap',
+    'Eta_EndCap',
+    'Eta_EndCap_Hi',
+    'JetMass_highPt_EndCap',
+    'JetMass_lowPt_EndCap',
+    'JetMass_mediumPt_EndCap',
+    'MVAPUJIDDiscriminant_highPt_EndCap',
+    'MVAPUJIDDiscriminant_lowPt_EndCap',
+    'MVAPUJIDDiscriminant_mediumPt_EndCap',
+    'MuEn_highPt_EndCap',
+    'MuEn_lowPt_EndCap',
+    'MuEn_mediumPt_EndCap',
+    'MuMultiplicity_highPt_EndCap',
+    'MuMultiplicity_lowPt_EndCap',
+    'MuMultiplicity_mediumPt_EndCap',
+    'NHEn_highPt_EndCap',
+    'NHEn_lowPt_EndCap',
+    'NHEn_mediumPt_EndCap',
+    'NHFracEndCapMinus_BXm1Empty',
+    'NHFracEndCapMinus_BXm1Filled',
+    'NHFracEndCapPlus_BXm1Empty',
+    'NHFracEndCapPlus_BXm1Filled',
+    'NHFracVSpT_EndCap',
+    'NHFrac_highPt_EndCap',
+)
+
+jetDQMAnalyzerAk4PFCleaned.disabledMEs = cms.vstring(*_pfJetDisabledMEs)
+phase2_hgcal.toModify(
+    jetDQMAnalyzerAk4PFCleaned,
+    disabledMEs = cms.vstring(*(_pfJetDisabledMEs + _pfJetHGCALDisabledMEs)),
+)
+
+_puppiJetDisabledMEs = (
+    'CHFracVSpT_Barrel',
+    'CHFracVSpT_EndCap',
+    'HFEFracVSpT_Forward',
+    'HFHFracVSpT_Forward',
+    'JetIDPassFractionVSpt',
+    'JetIDPassFractionVSeta',
+    'JetIDPassFractionVSptNoHF',
+    'NHFracVSpT_Barrel',
+    'NHFracVSpT_EndCap',
+    'PhFracVSpT_Barrel',
+    'PhFracVSpT_EndCap',
+    'Pt_Barrel_Hi',
+    'Pt_Forward_Hi',
+    'Pt_Hi',
+    'Pt_Lo',
+    'MVAPUJIDDiscriminant_highPt_Barrel',
+    'MVAPUJIDDiscriminant_highPt_EndCap',
+    'MVAPUJIDDiscriminant_highPt_Forward',
+    'MVAPUJIDDiscriminant_lowPt_Barrel',
+    'MVAPUJIDDiscriminant_lowPt_EndCap',
+    'MVAPUJIDDiscriminant_lowPt_Forward',
+    'MVAPUJIDDiscriminant_mediumPt_Barrel',
+    'MVAPUJIDDiscriminant_mediumPt_EndCap',
+    'MVAPUJIDDiscriminant_mediumPt_Forward',
+    'NJets_Hi',
+    'Phi_Barrel_Hi',
+    'Phi_EndCap_Hi',
+    'Phi_Forward_Hi',
+    'Phi_Hi',
+    'Phi_Lo',
+)
+
+# The five PUPPI names below are conditional Discard/replace for HGCAL decisions.
+_puppiJetHGCALDisabledMEs = (
+    'Eta_EndCap',
+    'Eta_EndCap_Hi',
+    'Pt_EndCap',
+    'Pt_EndCap_Hi',
+    'Constituents_EndCap',
+)
+
+jetDQMAnalizerAk4PUPPICleaned.disabledMEs = cms.vstring(*_puppiJetDisabledMEs)
+phase2_hgcal.toModify(
+    jetDQMAnalizerAk4PUPPICleaned,
+    disabledMEs = cms.vstring(*(_puppiJetDisabledMEs + _puppiJetHGCALDisabledMEs)),
 )

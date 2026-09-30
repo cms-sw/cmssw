@@ -1,0 +1,1 @@
+<test name="testJetDqmCleanupConfiguration" command="python3 ${LOCALTOP}/src/DQMOffline/JetMET/test/testJetDqmCleanupConfiguration.py"/>

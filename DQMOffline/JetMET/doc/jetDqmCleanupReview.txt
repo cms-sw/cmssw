@@ -1,0 +1,112 @@
+Publication status: proposed PR text prepared on a personal review branch.
+No pull request has been opened against cms-sw/cmssw:master.
+
+Proposed title: Remove selected offline jet DQM monitor elements
+
+This change applies the 2026-09-30 inventory decisions to the base folders of
+cleaned AK4 Calo, PF and PUPPI RECO jet DQM. An empty-by-default disabledMEs
+parameter suppresses the selected bookings in each instance. Shared filling
+code, jet/event selection, axes and binning are retained.
+
+Implemented scope:
+- JetMET/Jet/Cleanedak4CaloJets: 15 general selections, plus 9 under phase2_hgcal.
+- JetMET/Jet/Cleanedak4PFJets: 2 general selections, plus 44 under phase2_hgcal.
+- JetMET/Jet/Cleanedak4PFJetsPuppi: 30 general selections, plus 5 conditional
+  Discard/replace for HGCAL decisions under phase2_hgcal.
+
+The manifest jetDqmCleanupSelection.json records all 100 exact Discard rows
+and the 5 separately identified conditional HGCAL decisions. Run 3 disables
+47 selections; phase2_hgcal adds 58, for 105 selected names in that context.
+These counts describe configured selections, not a general memory reduction.
+DiJet/ZJets bookings and the existing PF Uncleaned, CHS, MiniAOD, scouting and
+cosmic configurations retain their own monitoring. MC clones of the selected
+Calo/PF analyzers use the same sources/base folders and inherit their lists;
+the existing MC source does not schedule the RECO PUPPI analyzer.
+
+The RECO/MiniAOD jet-ratio harvester skips booking when its RECO ME is absent,
+avoiding null dereferences in customized comparisons. A missing MiniAOD input
+alone preserves the prior booking behavior. MET and certification formulas
+are unchanged; these pointer guards do not replace retired monitoring.
+
+Monitoring rationale and limits:
+- Scouting-specific trigger bookings and Calo JetArea_uncor are not filled by
+  the selected RECO implementations. Their uses in preserved modes remain.
+- The eight PUPPI energy-fraction profiles and nine PUJetID discriminants are
+  not filled by this PUPPI RECO branch. This is not a claim that PUPPI jets
+  lack energy fractions, or that MiniAOD uses the same filling branch.
+- The three PUPPI Jet-ID pass profiles are populated in the independent
+  reference. Their retirement is an explicit monitoring reduction proposal;
+  retained cleaned-jet kinematics do not preserve the Jet-ID failure
+  denominator. Coverage approval remains outstanding.
+- The two general PF BX diagnostics have active conditional filling code.
+  They are empty in this sample, which does not prove that their BX gates
+  were exercised. Their retirement needs functional review.
+- HGCAL-specific endcap distributions include active monitors. This branch
+  proposes their era-scoped retirement and supplies no replacement monitor.
+  Replacement/retirement coverage and PF Constituents_EndCap certification
+  policy must be resolved before an upstream submission.
+
+Validation operating point:
+- CMSSW_20_1_X_2026-09-29-2300, el9_amd64_gcc14.
+- Base c490709683b8ec56386d5ba16b1e506d7f2f1420; DQMOffline/JetMET is identical
+  to inventory code snapshot cfc33e9b2e957b4e19afe00cf9c2cbf47dbf9721.
+- Independent data input, run 403663, first 100 events:
+  /store/data/Run2026D/JetMET1/RAW/v1/000/403/663/00000/014fd79f-04ba-4348-9b08-e8cf079de65c.root
+- Run3_2026, DB:Extended, auto:run3_data_prompt, resolved GlobalTag
+  161X_dataRun3_Prompt_frozen260520_v1; CPU, 4 threads, 1 stream.
+- RAW2DIGI,L1Reco,RECO,DQM:@jetmet, followed by HARVESTING:@jetmet.
+  Reference/candidate use identical generated cfg files and event input.
+- Final matched-product test: reconstruct these 100 events once, retain the
+  PF HCAL pseudo-cluster referenced by PF blocks in addition to standard RECO
+  content, then run DQM:@jetmet and HARVESTING:@jetmet on that same saved input.
+  The reference uses the original IB implementation; the candidate uses this
+  patch. Both use identical generated DQM/harvesting cfg files and conditions.
+
+Completed checks:
+- scram b -j 4: passed; git diff --check and C++ code-format: passed.
+- scram b runtests use-ibeos: registered testJetDqmCleanupConfiguration passed.
+  Fresh-interpreter checks cover default, Run3_2026, isolated phase2_hgcal,
+  heavy ions and cosmics; all 12 control clones retain empty disabledMEs.
+- Full Phase2C11I13M9 and MC configuration imports: passed. These are
+  structural checks, not Phase-2 event validation.
+- Seven synthetic two-step consumer fixtures: all 14 cmsRun jobs exit 0.
+  Complete CHS and selected missing-RECO cases verify booking/ratio behavior;
+  three missing-MiniAOD fixtures preserve all 31 prior ratio bookings.
+  Inputs are synthetic histograms, not reconstructed MiniAOD/Phase-2 events.
+- Fixed-product DQM-only reference/candidate: both process 100 events and
+  harvest with exit 0 and no FrameworkJobReport errors. Strict comparison
+  without numerical tolerance PASSED across the full JetMET inventory:
+  exactly 47 selected MEs removed (15 Calo, 2 PF, 30 PUPPI), no unexpected
+  additions/removals, and all 2,124 retained objects identical, including
+  2,062 histograms and their profile populations, statistics and flow bins.
+  This includes retained Jet, MET, PF/SUSYDQM and certification objects.
+- Original RAW-chain reference/candidate: both DQM and harvesting exit 0;
+  100 events read with no FrameworkJobReport errors. Exactly 47 selected MEs
+  disappear, with no unexpected additions/removals. All 1,172 retained Jet
+  objects and 4 EventInfo objects are identical.
+- The strict whole-JetMET RAW-chain comparison FAILED on 106 retained
+  PF/MET/SUSYDQM objects. Differences affect small numerical values/statistics
+  (largest relative difference 2.48e-7), with unchanged axes/binning/entries.
+  Repeated reconstruction is a hypothesis for these changes, not a proven
+  cause. The matched-product test above isolates DQM from reconstruction and
+  passes; it does not establish the cause of the RAW-chain differences.
+- An earlier candidate run stopped at event 45 with SIGSEGV in HCAL
+  reconstruction while a rebuild overlapped; cause not established. The
+  subsequent run with the build complete processed 100 events and harvested
+  successfully. The interrupted attempt is excluded from validation claims.
+
+Outstanding work before upstream submission:
+- Confirm the worksheet's originating cfg/ROOT and its intended target paths.
+  Default RECO mapping was verified in this independently produced reference;
+  this does not establish the worksheet's provenance.
+- Resolve the active-monitor retirement/coverage decisions listed above.
+- Run a concrete Phase-2/HGCAL input with the intended era, geometry,
+  GlobalTag and scheduled JetMET modules, plus unaffected-mode event checks.
+- Full limited RelVal/dependency validation has not been run. The existing
+  DQM:@phase2 menu excludes JetMET in this release, so that menu alone cannot
+  validate these changes.
+
+Inventory:
+https://docs.google.com/spreadsheets/d/1y7zU48XropZBzqLh_D_SyWwLAYo0IjYLy6c4CX3SCX8/edit
+Frozen snapshot supplied by the user: 2026-09-30T15:12:13.595Z.
+Later spreadsheet edits are not included.
