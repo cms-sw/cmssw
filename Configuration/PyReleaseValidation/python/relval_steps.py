@@ -653,6 +653,9 @@ steps['RunOXY2025']={'INPUT':InputInfo(dataSet='/IonPhysics0/OORun2025-v1/RAW',l
 Run2025UPC={400387: [[740,740]]}
 steps['RunUPC2025']={'INPUT':InputInfo(dataSet='/HIForward0/HIRun2025A-v1/RAW',label='upc2025',events=10000,location='STD',ls=Run2025UPC)}
 
+Run2026UPC={404523: [[1352,1352]]}
+steps['RunUPC2026']={'INPUT':InputInfo(dataSet='/HIForward22/HIRun2026A-v1/RAW',label='upc2026',events=10000,location='STD',ls=Run2026UPC)}
+
 RunHI2023={375491: [[100, 100]]}
 steps['RunHIPhysicsRawPrime2023A']={'INPUT':InputInfo(dataSet='/HIPhysicsRawPrime0/HIRun2023A-v1/RAW',label='HI2023A',events=100000,location='STD', ls=RunHI2023)}
 
