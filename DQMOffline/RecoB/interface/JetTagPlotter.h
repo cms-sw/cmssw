@@ -93,6 +93,9 @@ protected:
 
   // jet Eta larger than requested discrimnator cut
   std::unique_ptr<FlavourHistograms<double>> dJetPseudoRapidityDiscrCut_;
+
+  // jet pT larger than requested discrimnator cut (coarser than jetPt, which it is divided by)
+  std::unique_ptr<FlavourHistograms<double>> dJetPtDiscrCut_;
 };
 
 #endif

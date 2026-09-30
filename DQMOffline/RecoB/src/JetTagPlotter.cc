@@ -121,6 +121,20 @@ JetTagPlotter::JetTagPlotter(const std::string& tagName,
                                                     jetTagDir,
                                                     mcPlots_,
                                                     ibook);
+
+    // jet pT larger than requested discrimnator cut; 25 GeV bins, bin edges aligned with jetPt (1 GeV)
+    dJetPtDiscrCut_ = std::make_unique<FlavourHistograms<double>>("jetPt_diffEff" + es,
+                                                                  "Efficiency vs. jet pt for discriminator above cut",
+                                                                  14,
+                                                                  0.0,
+                                                                  350.0,
+                                                                  false,
+                                                                  false,
+                                                                  true,
+                                                                  "b",
+                                                                  jetTagDir,
+                                                                  mcPlots_,
+                                                                  ibook);
   }
 }
 
@@ -256,6 +270,7 @@ void JetTagPlotter::analyzeTag(const reco::Jet& jet, double jec, float discrimin
     if (edm::isFinite(discriminator) && discriminator > cutValue_) {
       dJetPhiDiscrCut_->fill(jetFlavour, jet.phi(), w);
       dJetPseudoRapidityDiscrCut_->fill(jetFlavour, jet.eta(), w);
+      dJetPtDiscrCut_->fill(jetFlavour, jet.pt() * jec, w);
     }
   }
 }
@@ -287,6 +302,7 @@ void JetTagPlotter::analyzeTag(const reco::JetTag& jetTag, double jec, int jetFl
     if (edm::isFinite(discriminator) && discriminator > cutValue_) {
       dJetPhiDiscrCut_->fill(jetFlavour, jetTag.first->phi(), w);
       dJetPseudoRapidityDiscrCut_->fill(jetFlavour, jetTag.first->eta(), w);
+      dJetPtDiscrCut_->fill(jetFlavour, jetTag.first->pt() * jec, w);
     }
   }
 }
@@ -336,5 +352,19 @@ void JetTagPlotter::finalize(DQMStore::IBooker& ibook_, DQMStore::IGetter& igett
                                                     igetter_);
     dJetPseudoRapidityDiscrCut_->divide(*dJetRecPseudoRapidity_);
     dJetPseudoRapidityDiscrCut_->setEfficiencyFlag();
+
+    dJetRecPt_ = std::make_unique<FlavourHistograms<double>>(
+        "jetPt" + es, "jet pt", 350, 0.0, 350.0, "b", jetTagDir, mcPlots_, igetter_);
+    dJetPtDiscrCut_ = std::make_unique<FlavourHistograms<double>>("jetPt_diffEff" + es,
+                                                                  "Efficiency vs. jet pt for discriminator above cut",
+                                                                  14,
+                                                                  0.0,
+                                                                  350.0,
+                                                                  "b",
+                                                                  jetTagDir,
+                                                                  mcPlots_,
+                                                                  igetter_);
+    dJetPtDiscrCut_->divideRebinned(*dJetRecPt_);
+    dJetPtDiscrCut_->setEfficiencyFlag();
   }
 }
