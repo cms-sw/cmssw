@@ -12,5 +12,9 @@
   <class name="alpaka_rocm_async::reco::VectorHitsSoACollection" persistent="false"/>
   <class name="edm::DeviceProduct<alpaka_rocm_async::reco::VectorHitsSoACollection>" persistent="false"/>
   <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::reco::VectorHitsSoACollection>>" persistent="false"/>
+
+  <!-- Hit mask device collection -->
+  <class name="edm::DeviceProduct<alpaka_rocm_async::reco::TrackingRecHitsMaskingSoACollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::reco::TrackingRecHitsMaskingSoACollection>>" persistent="false"/>
 </lcgdict>
 

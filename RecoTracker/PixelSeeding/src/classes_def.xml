@@ -11,5 +11,4 @@
   <class name="caStructures::TripletDumpLayout<128, false>"/>
   <class name="caStructures::TripletDumpLayout<128, false>::View"/>
   <class name="edm::Wrapper<caStructures::TripletDumpHost>" splitLevel="0"/>
-
 </lcgdict>

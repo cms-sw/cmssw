@@ -10,12 +10,14 @@
 #include "DataFormats/SoATemplate/interface/SoAConstMultiView.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
-#include "DataFormats/TrackSoA/interface/TracksSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/SimpleVector.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/VecArray.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 
 #include "RecoTracker/PixelSeeding/interface/CAHitsView.h"
+#include "DataFormats/TrackSoA/interface/TracksSoA.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsMaskingSoA.h"
 
 namespace caStructures {
 
@@ -74,12 +76,15 @@ namespace caStructures {
     // covariance: lowering it tightens the gate (fewer merges), raising it merges more aggressively.
     // The Phase-1 specializations of those kernels keep their own hard-wired nSigma2Phase1 constant.
     float fastDupNSigma2_;
+    // Iteration name
+    ::pixelTrack::Iteration iterationName_;
   };
 
   // Hits data formats
   using HitsView = ::reco::TrackingRecHitView;
   using HitModulesConstView = ::reco::HitModuleSoAConstView;
   using HitsConstView = ::reco::TrackingRecHitConstView;
+  using MapToHitConstView = ::reco::TrackingRecHitsMaskingConstView;
 
   // MultiViews for hits and modules
   using ModulesMultiView = SoAConstMultiView<HitModulesConstView, 2>;
