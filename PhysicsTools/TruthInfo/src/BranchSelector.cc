@@ -17,7 +17,7 @@ namespace truth {
         return true;
       if (isShowerObject(particle.pdgId))
         return false;
-      const int64_t a = std::abs(static_cast<int64_t>(particle.pdgId));
+      const int32_t a = std::abs(particle.pdgId);
       const bool photonOrLepton = a == 22 || (a >= 11 && a <= 16);
       const bool hadron = a >= 100 && a < 1000000;
       return photonOrLepton || hadron;
