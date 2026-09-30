@@ -34,6 +34,19 @@
 
 #include <string>
 
+namespace {
+  bool isHBHENoiseFilterRedundant(const std::string& dirName) {
+    return dirName == "JetMET/MET/pfChMet/Cleaned" || dirName == "JetMET/MET/pfChMet/DiJet" ||
+           dirName == "JetMET/MET/pfMet/Cleaned" || dirName == "JetMET/MET/pfMet/DiJet" ||
+           dirName == "JetMET/MET/caloMet/Cleaned" || dirName == "JetMET/MET/caloMet/DiJet" ||
+           dirName == "JetMET/MET/pfMETT1/Cleaned" || dirName == "JetMET/MET/pfMETT1/DiJet";
+  }
+
+  bool isCaloMetCosmicsUncleaned(const std::string& dirName, bool isCaloMet, bool runCosmics) {
+    return isCaloMet && runCosmics && dirName == "JetMET/MET/caloMet/Uncleaned";
+  }
+}  // namespace
+
 using namespace edm;
 using namespace reco;
 using namespace math;
@@ -358,33 +371,38 @@ void METAnalyzer::bookMonitorElement(std::string DirName,
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MET_logx", hMET_logx));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "SumET_logx", hSumET_logx));
 
-    hMET_HBHENoiseFilter = ibooker.book1D("MET_HBHENoiseFilter", "MET_HBHENoiseFiltered", 200, 0, 1000);
-    hMET_CSCTightHaloFilter = ibooker.book1D("MET_CSCTightHaloFilter", "MET_CSCTightHaloFiltered", 200, 0, 1000);
-    hMET_eeBadScFilter = ibooker.book1D("MET_eeBadScFilter", "MET_eeBadScFiltered", 200, 0, 1000);
-    hMET_HBHEIsoNoiseFilter = ibooker.book1D("MET_HBHEIsoNoiseFilter", "MET_HBHEIsoNoiseFiltered", 200, 0, 1000);
-    hMET_CSCTightHalo2015Filter =
-        ibooker.book1D("MET_CSCTightHalo2015Filter", "MET_CSCTightHalo2015Filtered", 200, 0, 1000);
-    hMET_EcalDeadCellTriggerFilter =
-        ibooker.book1D("MET_EcalDeadCellTriggerFilter", "MET_EcalDeadCellTriggerFiltered", 200, 0, 1000);
-    hMET_EcalDeadCellBoundaryFilter =
-        ibooker.book1D("MET_EcalDeadCellBoundaryFilter", "MET_EcalDeadCellBoundaryFiltered", 200, 0, 1000);
-    hMET_HcalStripHaloFilter = ibooker.book1D("MET_HcalStripHaloFilter", "MET_HcalStripHaloFiltered", 200, 0, 1000);
+    if (!isCaloMetCosmicsUncleaned(DirName, isCaloMet_, runcosmics_)) {
+      if (!isHBHENoiseFilterRedundant(DirName)) {
+        hMET_HBHENoiseFilter = ibooker.book1D("MET_HBHENoiseFilter", "MET_HBHENoiseFiltered", 200, 0, 1000);
+        map_of_MEs.insert(
+            std::pair<std::string, MonitorElement*>(DirName + "/" + "MET_HBHENoiseFilter", hMET_HBHENoiseFilter));
+      }
+      hMET_CSCTightHaloFilter = ibooker.book1D("MET_CSCTightHaloFilter", "MET_CSCTightHaloFiltered", 200, 0, 1000);
+      hMET_eeBadScFilter = ibooker.book1D("MET_eeBadScFilter", "MET_eeBadScFiltered", 200, 0, 1000);
+      hMET_HBHEIsoNoiseFilter = ibooker.book1D("MET_HBHEIsoNoiseFilter", "MET_HBHEIsoNoiseFiltered", 200, 0, 1000);
+      hMET_CSCTightHalo2015Filter =
+          ibooker.book1D("MET_CSCTightHalo2015Filter", "MET_CSCTightHalo2015Filtered", 200, 0, 1000);
+      hMET_EcalDeadCellTriggerFilter =
+          ibooker.book1D("MET_EcalDeadCellTriggerFilter", "MET_EcalDeadCellTriggerFiltered", 200, 0, 1000);
+      hMET_EcalDeadCellBoundaryFilter =
+          ibooker.book1D("MET_EcalDeadCellBoundaryFilter", "MET_EcalDeadCellBoundaryFiltered", 200, 0, 1000);
+      hMET_HcalStripHaloFilter = ibooker.book1D("MET_HcalStripHaloFilter", "MET_HcalStripHaloFiltered", 200, 0, 1000);
 
-    map_of_MEs.insert(
-        std::pair<std::string, MonitorElement*>(DirName + "/" + "MET_HBHENoiseFilter", hMET_HBHENoiseFilter));
-    map_of_MEs.insert(
-        std::pair<std::string, MonitorElement*>(DirName + "/" + "MET_CSCTightHaloFilter", hMET_CSCTightHaloFilter));
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MET_eeBadScFilter", hMET_eeBadScFilter));
-    map_of_MEs.insert(
-        std::pair<std::string, MonitorElement*>(DirName + "/" + "MET_HBHEIsoNoiseFilter", hMET_HBHEIsoNoiseFilter));
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MET_CSCTightHalo2015Filter",
-                                                              hMET_CSCTightHalo2015Filter));
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MET_EcalDeadCellTriggerFilter",
-                                                              hMET_EcalDeadCellTriggerFilter));
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MET_EcalDeadCellBoundaryFilter",
-                                                              hMET_EcalDeadCellBoundaryFilter));
-    map_of_MEs.insert(
-        std::pair<std::string, MonitorElement*>(DirName + "/" + "MET_HcalStripHaloFilter", hMET_HcalStripHaloFilter));
+      map_of_MEs.insert(
+          std::pair<std::string, MonitorElement*>(DirName + "/" + "MET_CSCTightHaloFilter", hMET_CSCTightHaloFilter));
+      map_of_MEs.insert(
+          std::pair<std::string, MonitorElement*>(DirName + "/" + "MET_eeBadScFilter", hMET_eeBadScFilter));
+      map_of_MEs.insert(
+          std::pair<std::string, MonitorElement*>(DirName + "/" + "MET_HBHEIsoNoiseFilter", hMET_HBHEIsoNoiseFilter));
+      map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MET_CSCTightHalo2015Filter",
+                                                                hMET_CSCTightHalo2015Filter));
+      map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MET_EcalDeadCellTriggerFilter",
+                                                                hMET_EcalDeadCellTriggerFilter));
+      map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MET_EcalDeadCellBoundaryFilter",
+                                                                hMET_EcalDeadCellBoundaryFilter));
+      map_of_MEs.insert(
+          std::pair<std::string, MonitorElement*>(DirName + "/" + "MET_HcalStripHaloFilter", hMET_HcalStripHaloFilter));
+    }
 
     // Book NPV profiles --> would some of these profiles be interesting for other MET types too
     //----------------------------------------------------------------------------
@@ -2260,61 +2278,63 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent,
     //hMET_EcalDeadCellBoundaryFilter    = ibooker.book1D("MET_EcalDeadCellBoundaryFilter",        "MET_EcalDeadCellBoundaryFiltered",        200,    0, 1000);
     //hMET_HcalStripHaloFilter    = ibooker.book1D("MET_HcalStripHaloFilter",        "MET_HcalStripHaloFiltered",        200,    0, 1000);
 
-    bool HBHENoiseFilterResult = false;
-    bool CSCTightHaloFilterResult = false;
-    bool eeBadScFilterResult = false;
-    bool HBHEIsoNoiseFilterResult = false;
-    bool CSCTightHalo2015FilterResult = false;
-    bool EcalDeadCellTriggerFilterResult = false;
-    bool EcalDeadCellBoundaryFilterResult = false;
-    bool HcalStripHaloFilterResult = false;
-    HBHENoiseFilterResult = METFilterDecision[0];
-    if (HBHENoiseFilterResult) {
-      hMET_HBHENoiseFilter = map_of_MEs[DirName + "/" + "MET_HBHENoiseFilter"];
-      if (hMET_HBHENoiseFilter && hMET_HBHENoiseFilter->getRootObject())
-        hMET_HBHENoiseFilter->Fill(MET);
-    }
-    CSCTightHaloFilterResult = METFilterDecision[1];
-    if (CSCTightHaloFilterResult) {
-      hMET_CSCTightHaloFilter = map_of_MEs[DirName + "/" + "MET_CSCTightHaloFilter"];
-      if (hMET_CSCTightHaloFilter && hMET_CSCTightHaloFilter->getRootObject())
-        hMET_CSCTightHaloFilter->Fill(MET);
-    }
-    eeBadScFilterResult = METFilterDecision[2];
-    if (eeBadScFilterResult) {
-      hMET_eeBadScFilter = map_of_MEs[DirName + "/" + "MET_eeBadScFilter"];
-      if (hMET_eeBadScFilter && hMET_eeBadScFilter->getRootObject())
-        hMET_eeBadScFilter->Fill(MET);
-    }
-    HBHEIsoNoiseFilterResult = METFilterDecision[3];
-    if (HBHEIsoNoiseFilterResult) {
-      hMET_HBHEIsoNoiseFilter = map_of_MEs[DirName + "/" + "MET_HBHEIsoNoiseFilter"];
-      if (hMET_HBHEIsoNoiseFilter && hMET_HBHEIsoNoiseFilter->getRootObject())
-        hMET_HBHEIsoNoiseFilter->Fill(MET);
-    }
-    CSCTightHalo2015FilterResult = METFilterDecision[4];
-    if (CSCTightHalo2015FilterResult) {
-      hMET_CSCTightHalo2015Filter = map_of_MEs[DirName + "/" + "MET_CSCTightHalo2015Filter"];
-      if (hMET_CSCTightHalo2015Filter && hMET_CSCTightHalo2015Filter->getRootObject())
-        hMET_CSCTightHalo2015Filter->Fill(MET);
-    }
-    EcalDeadCellTriggerFilterResult = METFilterDecision[5];
-    if (EcalDeadCellTriggerFilterResult) {
-      hMET_EcalDeadCellTriggerFilter = map_of_MEs[DirName + "/" + "MET_EcalDeadCellTriggerFilter"];
-      if (hMET_EcalDeadCellTriggerFilter && hMET_EcalDeadCellTriggerFilter->getRootObject())
-        hMET_EcalDeadCellTriggerFilter->Fill(MET);
-    }
-    EcalDeadCellBoundaryFilterResult = METFilterDecision[6];
-    if (EcalDeadCellBoundaryFilterResult) {
-      hMET_EcalDeadCellBoundaryFilter = map_of_MEs[DirName + "/" + "MET_EcalDeadCellBoundaryFilter"];
-      if (hMET_EcalDeadCellBoundaryFilter && hMET_EcalDeadCellBoundaryFilter->getRootObject())
-        hMET_EcalDeadCellBoundaryFilter->Fill(MET);
-    }
-    HcalStripHaloFilterResult = METFilterDecision[7];
-    if (HcalStripHaloFilterResult) {
-      hMET_HcalStripHaloFilter = map_of_MEs[DirName + "/" + "MET_HcalStripHaloFilter"];
-      if (hMET_HcalStripHaloFilter && hMET_HcalStripHaloFilter->getRootObject())
-        hMET_HcalStripHaloFilter->Fill(MET);
+    if (!isCaloMetCosmicsUncleaned(DirName, isCaloMet_, runcosmics_)) {
+      bool HBHENoiseFilterResult = false;
+      bool CSCTightHaloFilterResult = false;
+      bool eeBadScFilterResult = false;
+      bool HBHEIsoNoiseFilterResult = false;
+      bool CSCTightHalo2015FilterResult = false;
+      bool EcalDeadCellTriggerFilterResult = false;
+      bool EcalDeadCellBoundaryFilterResult = false;
+      bool HcalStripHaloFilterResult = false;
+      HBHENoiseFilterResult = METFilterDecision[0];
+      if (HBHENoiseFilterResult && !isHBHENoiseFilterRedundant(DirName)) {
+        hMET_HBHENoiseFilter = map_of_MEs[DirName + "/" + "MET_HBHENoiseFilter"];
+        if (hMET_HBHENoiseFilter && hMET_HBHENoiseFilter->getRootObject())
+          hMET_HBHENoiseFilter->Fill(MET);
+      }
+      CSCTightHaloFilterResult = METFilterDecision[1];
+      if (CSCTightHaloFilterResult) {
+        hMET_CSCTightHaloFilter = map_of_MEs[DirName + "/" + "MET_CSCTightHaloFilter"];
+        if (hMET_CSCTightHaloFilter && hMET_CSCTightHaloFilter->getRootObject())
+          hMET_CSCTightHaloFilter->Fill(MET);
+      }
+      eeBadScFilterResult = METFilterDecision[2];
+      if (eeBadScFilterResult) {
+        hMET_eeBadScFilter = map_of_MEs[DirName + "/" + "MET_eeBadScFilter"];
+        if (hMET_eeBadScFilter && hMET_eeBadScFilter->getRootObject())
+          hMET_eeBadScFilter->Fill(MET);
+      }
+      HBHEIsoNoiseFilterResult = METFilterDecision[3];
+      if (HBHEIsoNoiseFilterResult) {
+        hMET_HBHEIsoNoiseFilter = map_of_MEs[DirName + "/" + "MET_HBHEIsoNoiseFilter"];
+        if (hMET_HBHEIsoNoiseFilter && hMET_HBHEIsoNoiseFilter->getRootObject())
+          hMET_HBHEIsoNoiseFilter->Fill(MET);
+      }
+      CSCTightHalo2015FilterResult = METFilterDecision[4];
+      if (CSCTightHalo2015FilterResult) {
+        hMET_CSCTightHalo2015Filter = map_of_MEs[DirName + "/" + "MET_CSCTightHalo2015Filter"];
+        if (hMET_CSCTightHalo2015Filter && hMET_CSCTightHalo2015Filter->getRootObject())
+          hMET_CSCTightHalo2015Filter->Fill(MET);
+      }
+      EcalDeadCellTriggerFilterResult = METFilterDecision[5];
+      if (EcalDeadCellTriggerFilterResult) {
+        hMET_EcalDeadCellTriggerFilter = map_of_MEs[DirName + "/" + "MET_EcalDeadCellTriggerFilter"];
+        if (hMET_EcalDeadCellTriggerFilter && hMET_EcalDeadCellTriggerFilter->getRootObject())
+          hMET_EcalDeadCellTriggerFilter->Fill(MET);
+      }
+      EcalDeadCellBoundaryFilterResult = METFilterDecision[6];
+      if (EcalDeadCellBoundaryFilterResult) {
+        hMET_EcalDeadCellBoundaryFilter = map_of_MEs[DirName + "/" + "MET_EcalDeadCellBoundaryFilter"];
+        if (hMET_EcalDeadCellBoundaryFilter && hMET_EcalDeadCellBoundaryFilter->getRootObject())
+          hMET_EcalDeadCellBoundaryFilter->Fill(MET);
+      }
+      HcalStripHaloFilterResult = METFilterDecision[7];
+      if (HcalStripHaloFilterResult) {
+        hMET_HcalStripHaloFilter = map_of_MEs[DirName + "/" + "MET_HcalStripHaloFilter"];
+        if (hMET_HcalStripHaloFilter && hMET_HcalStripHaloFilter->getRootObject())
+          hMET_HcalStripHaloFilter->Fill(MET);
+      }
     }
     hMETPhi = map_of_MEs[DirName + "/" + "METPhi"];
     if (hMETPhi && hMETPhi->getRootObject())
