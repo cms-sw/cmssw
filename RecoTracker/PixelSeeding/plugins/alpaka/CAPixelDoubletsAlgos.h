@@ -212,7 +212,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
     auto layerSize = [=](uint8_t li) { return offsets[li + 1] - offsets[li]; };
 
-    // nPairs for the OT-extended CA is of order 100 (bounded by TrackerTraits::nPairs).
+    // nPairs for the OT-extended CA is of order 100 (bounded by TrackerTraits::nPairs; the bound is
+    // enforced by CAHitNtupletAlpaka::globalBeginRun, which rejects a geometry.pairGraph exceeding it).
     // If it should become much bigger than 64, consider using a block-wide parallel prefix scan,
     // e.g. see  https://nvlabs.github.io/cub/classcub_1_1_warp_scan.html
     auto& innerLayerCumulativeSize = alpaka::declareSharedVar<uint32_t[TrackerTraits::nPairs], __COUNTER__>(acc);
