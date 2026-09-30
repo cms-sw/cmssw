@@ -12,5 +12,7 @@ from L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.step1p5_2026.l1tGTMen
 
 from L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.step1p5_2026.l1tGTMenu_hadr_crossLepSeeds_cff import *
 
-from L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.step1p5_2026.l1tGTMenu_BTagSeeds_cff import *
+from L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.step1p5_2026.l1tGTMenu_vbfSeeds_cff import *
+
+from L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.step1p5_2026.l1tGTMenu_displacedSeeds_cff import *
 
