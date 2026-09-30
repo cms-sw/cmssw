@@ -2,8 +2,7 @@
 #ifndef DataFormats_Phase2TrackerCluster_interface_ClusterPropSoA_h
 #define DataFormats_Phase2TrackerCluster_interface_ClusterPropSoA_h
 
-#include <Eigen/Core>
-#include <Eigen/Dense>
+#include <cstdint>
 
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
