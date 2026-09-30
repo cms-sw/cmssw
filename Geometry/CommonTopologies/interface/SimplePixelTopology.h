@@ -586,13 +586,13 @@ namespace phase2PixelTopology {
   // hltPhase2PixelTracksSoAWithVectorHits_cfi.py. Layer numbering (54 CA layers,
   // inside-out): 0-27 pixel (0-3 barrel, 4-15 forward, 16-27 backward disks); 28-33 OT barrel 1-6 (28-30 PS,
   // 31-33 2S); 34-43 OT disks 1-5 at z > 0 (PS layer, then 2S layer); 44-53 the same at z < 0.
-  // nPairsPhase2OTVectorHits bounds the pair count at compile time (sizes innerLayerCumulativeSize in
-  // CAPixelDoubletsAlgos.h and the per-pair tables; must stay >= the run-time pair count, not asserted);
-  // nDefaultPairsPhase2OTVectorHits is the number of pairs spelled out, the rest is zero-initialized and never read.
-  constexpr int nPairsPhase2OTVectorHits = 128;
-  constexpr int nDefaultPairsPhase2OTVectorHits = 112;
-  static_assert(nDefaultPairsPhase2OTVectorHits <= nPairsPhase2OTVectorHits,
-                "the Phase2OTVectorHits default graph must fit in the per-pair tables");
+  // nPairsPhase2OTVectorHits is this topology's single pair count, as in Phase2 and Phase2OT: the
+  // tables below are spelled out in full (no zero-initialized tail) and are identical, pair order
+  // included, to the graph shipped by hltPhase2PixelTracksSoAWithVectorHits_cfi.py. It sizes the tables
+  // and the doublet kernel's shared memory (innerLayerCumulativeSize in CAPixelDoubletsAlgos.h);
+  // CAHitNtupletAlpaka::globalBeginRun rejects a geometry.pairGraph with more pairs. Extend the
+  // constant and the tables together.
+  constexpr int nPairsPhase2OTVectorHits = 112;
 
   // Per-pair form of the two triplet cuts: geometry.caDCACutsPerPair (beam-spot compatibility, cm)
   // and geometry.caThetaCutsPerPair (r-z alignment tolerance). On every pair they replace the per-layer
@@ -674,7 +674,7 @@ namespace phase2PixelTopology {
   };
 
   // Starting-pair flags (geometry.startingPairs lists the ids of the flagged pairs), sized to this
-  // topology's own pair bound so fillDescriptions scans nPairsForQuadruplets entries in bounds.
+  // topology's own pair count so fillDescriptions scans nPairsForQuadruplets entries in bounds.
   HOST_DEVICE_CONSTANT uint8_t startingPairsPhase2OTVectorHits[nPairsPhase2OTVectorHits] = {
       1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0,                    // 0-14 pixel-only, as Phase2OT
       0, 0, 0,                                                        // 15-17 PXB3 -> OTB1 (cen/bwd/fwd)
@@ -1503,10 +1503,10 @@ namespace pixelTopology {
     // Total modules: 4000 pixel + 13200 OT (7288 barrel + 2956 backward + 2956 forward)
     static constexpr uint32_t numberOfModules = phase2PixelTopology::nModulesTotVectorHits;
 
-    // nPairs is the compile-time bound (it sizes the per-pair tables and the doublet kernel's shared
-    // memory), nPairsForQuadruplets the number of pairs the default tables spell out.
+    // Single pair count, same shape as Phase2 and Phase2OT: nPairs sizes the per-pair tables and
+    // the doublet kernel's shared memory, nPairsForQuadruplets entries are spelled out as defaults.
     static constexpr int nPairs = phase2PixelTopology::nPairsPhase2OTVectorHits;
-    static constexpr int nPairsForQuadruplets = phase2PixelTopology::nDefaultPairsPhase2OTVectorHits;
+    static constexpr int nPairsForQuadruplets = nPairs;
 
     static constexpr uint8_t const *layerPairs = phase2PixelTopology::layerPairsPhase2OTVectorHits;
 
@@ -1515,7 +1515,7 @@ namespace pixelTopology {
     // per-layer form of the two cuts above, sized to this topology's own layer count
     static constexpr float const *thetaCuts = phase2PixelTopology::thetaCutsPhase2OTVectorHits;
     static constexpr float const *dcaCuts = phase2PixelTopology::dcaCutsPhase2OTVectorHits;
-    // Starting-pair flags sized to this topology's own pair bound: nPairs exceeds nPairsTot, so the
+    // Starting-pair flags sized to this topology's own pair count: nPairs exceeds nPairsTot, so the
     // inherited Phase2 array would be read past its end.
     static constexpr uint8_t const *startingPairs = phase2PixelTopology::startingPairsPhase2OTVectorHits;
     static constexpr uint8_t const *skipsLayers = phase2PixelTopology::skipsLayersPhase2OTVectorHits;

@@ -311,6 +311,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       int n_pairs = iCache->layerPairs_.size() / 2;
       int n_modules = 0;
 
+      // The per-pair tables and the doublet kernel's shared memory are sized at compile time by
+      // TrackerTraits::nPairs; this check cannot live in the (untemplated) CAGeometryParams
+      // constructor, so it runs here, before any SoA is allocated or kernel launched.
+      if (n_pairs > TrackerTraits::nPairs)
+        throw cms::Exception("Configuration")
+            << "CAHitNtupletAlpaka: geometry.pairGraph declares " << n_pairs << " layer pairs,\n"
+            << "but the compiled topology supports at most " << TrackerTraits::nPairs
+            << " (TrackerTraits::nPairs, which also sizes\n"
+            << "the per-pair tables and the doublet kernel's shared memory).\n"
+            << "To use a larger graph, extend the per-pair tables and nPairs in\n"
+            << "Geometry/CommonTopologies/interface/SimplePixelTopology.h and rebuild.";
+
 #ifdef GPU_DEBUG
       std::cout << "No. Layers to be used = " << n_layers << std::endl;
       std::cout << "No. Pairs to be used = " << n_pairs << std::endl;
