@@ -129,7 +129,7 @@ if "TrackHitDeepSet" in args.only:
     from PhysicsTools.PyTorchAlpakaTest.modules import torchtest_TrackHitDeepSet_alpaka
     process.TrackHitDeepSetFull = torchtest_TrackHitDeepSet_alpaka(
         model = cms.FileInPath(args.trackHitDeepSet),
-        batchSize = cms.uint32(args.totalSize if args.totalSize >= 0 else 1),
+        batchSize = cms.uint32(args.totalSize if args.totalSize > 0 else 1),
         particles = 'DataSource',
         hits='DataSource',
         hit_to_track='DataSource',

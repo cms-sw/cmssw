@@ -58,8 +58,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
         return;
       }
 
-      uint32_t n_batches;
-      n_batches = (total_size + batch_size_ - 1) / batch_size_;
+      const auto n_batches = (total_size + batch_size_ - 1) / batch_size_;
 
       auto track_begin = portabletest::TrackBeginDeviceCollection(queue, n_batches);
       kernels::fillTrackBegin(queue, track_begin, batch_size_);
