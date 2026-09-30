@@ -25,6 +25,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -50,7 +52,10 @@ private:
   void FillDetectorId(void);
 
   edm::ParameterSet theConfiguration;
-  std::vector<edm::ParameterSet> theDigiProducerList;
+
+  // tokens for the input digi products, from the DigiProducerList in the cfg
+  std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi>>> theRawDigiTokens;
+  std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripDigi>>> theProcessedDigiTokens;
 
   std::vector<int> tecDoubleHitDetId;
   LASGlobalData<int> detectorId;
