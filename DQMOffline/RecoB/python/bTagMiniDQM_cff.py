@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-from DQMOffline.RecoB.bTagMiniDQMTaggers import ParticleNetPuppiCentralDiscriminators
 from DQMOffline.RecoB.bTagMiniDQMTaggers import ParticleNetPuppiForwardDiscriminators
 from DQMOffline.RecoB.bTagMiniDQMTaggers import UParTDiscriminators
 
@@ -84,10 +83,6 @@ def addSequences(Analyzer, Harvester, discriminators, regions, globalPSet, label
             Harvester.insert(-1, globals()[name + 'Harvester'])
 
 taggersToAnalyze = {
-    'bTagParticleNetCentral': {
-        'discriminators': ParticleNetPuppiCentralDiscriminators,
-        'regions': Etaregions
-    },
     'bTagParticleNetForward': {
         'discriminators': ParticleNetPuppiForwardDiscriminators,
         'regions': {
@@ -130,7 +125,6 @@ for tagger in taggersToAnalyze:
 patJetsPuppiTagInfoAnalyzerDQM = DQMEDAnalyzer('MiniAODTagInfoAnalyzer', cms.PSet(
     jets = cms.InputTag('updatedPatJetsSlimmedPuppiWithDeepTags'),
     jetTagInfos = cms.vstring(
-        "pfParticleNetFromMiniAODAK4PuppiCentralTagInfosSlimmedPuppiWithDeepTags",
         "pfUnifiedParticleTransformerAK4TagInfosSlimmedPuppiWithDeepTags",
     ),
     ptMin = cms.double(30.),

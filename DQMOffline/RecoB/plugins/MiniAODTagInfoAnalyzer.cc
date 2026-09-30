@@ -44,7 +44,6 @@ private:
   std::vector<edm::InputTag> tagInfoTags_;
   std::vector<edm::EDGetTokenT<edm::View<reco::BaseTagInfo>>> tagInfoTokens_;
 
-  bool doParticleNetCentral_;
   bool doParticleNetForward_;
   bool doUnifiedParticleTransformerAK4_;
 
@@ -73,13 +72,10 @@ MiniAODTagInfoAnalyzer::MiniAODTagInfoAnalyzer(const edm::ParameterSet& pSet)
   else if (jetPartonFlavour_ == 1)
     partonFlavourLabel_ = "L";
 
-  doParticleNetCentral_ = false;
   doParticleNetForward_ = false;
   doUnifiedParticleTransformerAK4_ = false;
   for (const auto& jetTagInfoLabel : jetTagInfos_) {
-    if (jetTagInfoLabel.find("pfParticleNetFromMiniAODAK4PuppiCentral") != std::string::npos) {
-      doParticleNetCentral_ = true;
-    } else if (jetTagInfoLabel.find("pfParticleNetFromMiniAODAK4PuppiForward") != std::string::npos) {
+    if (jetTagInfoLabel.find("pfParticleNetFromMiniAODAK4PuppiForward") != std::string::npos) {
       doParticleNetForward_ = true;
     } else if (jetTagInfoLabel.find("pfUnifiedParticleTransformerAK4") != std::string::npos) {
       doUnifiedParticleTransformerAK4_ = true;
@@ -88,12 +84,9 @@ MiniAODTagInfoAnalyzer::MiniAODTagInfoAnalyzer(const edm::ParameterSet& pSet)
 }
 
 void MiniAODTagInfoAnalyzer::bookHistograms(DQMStore::IBooker& ibook, edm::Run const& run, edm::EventSetup const& es) {
-  if (doParticleNetCentral_ || doParticleNetForward_) {
-    if (doParticleNetCentral_) {
-      ibook.setCurrentFolder("Btag/TagInfo_pfParticleNetFromMiniAODAK4PuppiCentral_" + partonFlavourLabel_);
-    } else if (doParticleNetForward_) {
-      ibook.setCurrentFolder("Btag/TagInfo_pfParticleNetFromMiniAODAK4PuppiForward_" + partonFlavourLabel_);
-    }
+  if (doParticleNetForward_) {
+    ibook.setCurrentFolder("Btag/TagInfo_pfParticleNetFromMiniAODAK4PuppiForward_" + partonFlavourLabel_);
+
     map_ME_ParticleNet_["pfcand_pt_log"] = ibook.book1D("pfcand_pt_log", "", 120, -0.5, 5.5);
     map_ME_ParticleNet_["pfcand_energy_log"] = ibook.book1D("pfcand_energy_log", "", 120, -0.5, 5.5);
     map_ME_ParticleNet_["pfcand_deta"] = ibook.book1D("pfcand_deta", "", 60, -0.6, 0.6);
@@ -323,16 +316,8 @@ void MiniAODTagInfoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
       //
       //
       if (match.isNonnull()) {
-        if (jetTagInfos_[k].find("pfParticleNetFromMiniAODAK4PuppiCentral") != std::string::npos &&
-            doParticleNetCentral_) {
-          const reco::DeepBoostedJetTagInfo* taginfo = static_cast<const reco::DeepBoostedJetTagInfo*>(match.get());
-          if (!taginfo) {
-            throw cms::Exception("Configuration")
-                << "MiniAODTagInfoAnalyzer: not of type DeepBoostedJetTagInfo. " << std::endl;
-          }
-          analyzeTagInfoParticleNet(taginfo);
-        } else if (jetTagInfos_[k].find("pfParticleNetFromMiniAODAK4PuppiForward") != std::string::npos &&
-                   doParticleNetForward_) {
+        if (jetTagInfos_[k].find("pfParticleNetFromMiniAODAK4PuppiForward") != std::string::npos &&
+            doParticleNetForward_) {
           const reco::DeepBoostedJetTagInfo* taginfo = static_cast<const reco::DeepBoostedJetTagInfo*>(match.get());
           if (!taginfo) {
             throw cms::Exception("Configuration")
