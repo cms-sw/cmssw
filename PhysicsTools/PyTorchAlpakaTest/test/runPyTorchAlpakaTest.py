@@ -127,9 +127,9 @@ if "TinyResNetMiniBatch" in args.only:
 # --only TrackHitDeepSet
 if "TrackHitDeepSet" in args.only:
     from PhysicsTools.PyTorchAlpakaTest.modules import torchtest_TrackHitDeepSet_alpaka
-    process.TrackHitDeepSet = torchtest_TrackHitDeepSet_alpaka(
+    process.TrackHitDeepSetFull = torchtest_TrackHitDeepSet_alpaka(
         model = cms.FileInPath(args.trackHitDeepSet),
-        batchSize = cms.uint32(args.batchSize),
+        batchSize = cms.uint32(args.totalSize if args.totalSize >= 0 else 1),
         particles = 'DataSource',
         hits='DataSource',
         hit_to_track='DataSource',
@@ -138,14 +138,21 @@ if "TrackHitDeepSet" in args.only:
         ),
         environment = cms.untracked.int32(args.environment)
     )
-    process.path += process.TrackHitDeepSet
+    process.TrackHitDeepSetBatched = process.TrackHitDeepSetFull.clone(
+        batchSize = cms.uint32(args.batchSize)
+    )
+
+    process.path += process.TrackHitDeepSetFull
+    process.path += process.TrackHitDeepSetBatched
+
 # debug (if --environment < 1 only assertions are checked)
 process.InspectionSink = torchtest_InspectionSink(
     particles = 'DataSource',
     simple_net = 'SimpleNet',
     simple_net_minibatch = 'SimpleNetMiniBatch',
     simple_net_runtimeFP16 = 'SimpleNetRuntineFP16',
-    track_hit_deep_set = "TrackHitDeepSet",
+    track_hit_deep_set_full = "TrackHitDeepSetFull",
+    track_hit_deep_set_batched = "TrackHitDeepSetBatched",
     masked_net = 'MaskedNet',
     multi_head_net = 'MultiHeadNet',
     images = 'DataSource',

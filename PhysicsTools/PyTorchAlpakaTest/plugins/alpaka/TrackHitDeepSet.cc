@@ -28,7 +28,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
           deepSet_token_{produces()},
           model_(params.getParameter<edm::FileInPath>("model").fullPath()),
           batch_size_(params.getParameter<uint32_t>("batchSize")),
-          environment_{static_cast<::torchtest::Environment>(params.getUntrackedParameter<int>("environment"))} {}
+          environment_{static_cast<::torchtest::Environment>(params.getUntrackedParameter<int>("environment"))} {
+      assert(batch_size_ != 0 && "TrackHitDeepSet: batch_size should be greater than 0");
+    }
 
     static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
       edm::ParameterSetDescription desc;
@@ -57,11 +59,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
       }
 
       uint32_t n_batches;
-      if (batch_size_ == 0) {
-        assert(total_size == 0 && "Batch size can be 0 only if the total size is 0");
-        n_batches = 1;
-      } else
-        n_batches = (total_size + batch_size_ - 1) / batch_size_;
+      n_batches = (total_size + batch_size_ - 1) / batch_size_;
 
       auto track_begin = portabletest::TrackBeginDeviceCollection(queue, n_batches);
       kernels::fillTrackBegin(queue, track_begin, batch_size_);
