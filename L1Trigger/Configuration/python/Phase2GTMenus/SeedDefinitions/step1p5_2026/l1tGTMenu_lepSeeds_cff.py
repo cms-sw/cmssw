@@ -18,140 +18,254 @@ from L1Trigger.Phase2L1GT.l1tGTAlgoBlockProducer_cff import algorithms
 from L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.step1p5_2026.l1tGTObject_constants import *
 from L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.step1p5_2026.l1tGTMenuObjects_cff import *
 
+# Step 1.5 menu, translated from Phase2-L1MenuTools configs/V50nano/rate_table/step1p5_menu_cfg.yml
+# Path names follow the MenuTools seed names (L1_X -> pX) for direct rate comparisons.
+
 ####### MUON SEEDS ###########
 
-SingleTkMuon22 = l1tGTSingleObjectCond.clone(
-    l1tGTtkMuonVLoose.clone(),
-    regionsMinPt = get_object_thrs(22, "GMTTkMuons","VLoose"),
-)
-pSingleTkMuon22 = cms.Path(SingleTkMuon22)
-algorithms.append(cms.PSet(expression = cms.string("pSingleTkMuon22")))
-
-DoubleTkMuon157 = l1tGTDoubleObjectCond.clone(
-    collection1 = l1tGTtkMuonVLoose.clone(
-        regionsMinPt = get_object_thrs(15, "GMTTkMuons","VLoose"),
+SingleTkMuBarrel = l1tGTSingleObjectCond.clone(
+    l1tGTtkMuonMedium.clone(
+        minEta = cms.double(-0.83),
+        maxEta = cms.double(0.83),
     ),
-    collection2 = l1tGTtkMuonLoose.clone(
-        regionsMinPt = cms.vdouble(7,7,7), # no scaling used below 8 GeV
+    regionsMinPt = get_object_thrs(13, "GMTTkMuons", "Medium"),
+)
+pSingleTkMu_Barrel = cms.Path(SingleTkMuBarrel)
+algorithms.append(cms.PSet(expression = cms.string("pSingleTkMu_Barrel")))
+
+SingleTkMu = l1tGTSingleObjectCond.clone(
+    l1tGTtkMuonVLoose.clone(),
+    regionsMinPt = get_object_thrs(25, "GMTTkMuons", "VLoose"),
+)
+pSingleTkMu = cms.Path(SingleTkMu)
+algorithms.append(cms.PSet(expression = cms.string("pSingleTkMu")))
+
+DoubleTkMu0er1p4SQOSdRMax1p4 = l1tGTDoubleObjectCond.clone(
+    collection1 = l1tGTtkMuonVLoose.clone(
+        minEta = cms.double(-1.4),
+        maxEta = cms.double(1.4),
+        regionsMinPt = get_object_thrs(1, "GMTTkMuons", "VLoose"),
+    ),
+    collection2 = l1tGTtkMuonVLoose.clone(
+        minEta = cms.double(-1.4),
+        maxEta = cms.double(1.4),
+        regionsMinPt = get_object_thrs(1, "GMTTkMuons", "VLoose"),
+    ),
+    maxDR = cms.double(1.4),
+    maxDz = cms.double(1),
+    os = cms.bool(True),
+)
+pDoubleTkMu0er1p4_SQ_OS_dR_Max1p4 = cms.Path(DoubleTkMu0er1p4SQOSdRMax1p4)
+algorithms.append(cms.PSet(expression = cms.string("pDoubleTkMu0er1p4_SQ_OS_dR_Max1p4")))
+
+DoubleTkMu4er2p0SQOSdRMax1p6 = l1tGTDoubleObjectCond.clone(
+    collection1 = l1tGTtkMuonVLoose.clone(
+        minEta = cms.double(-2.0),
+        maxEta = cms.double(2.0),
+        regionsMinPt = get_object_thrs(6, "GMTTkMuons", "VLoose"),
+    ),
+    collection2 = l1tGTtkMuonVLoose.clone(
+        minEta = cms.double(-2.0),
+        maxEta = cms.double(2.0),
+        regionsMinPt = get_object_thrs(6, "GMTTkMuons", "VLoose"),
+    ),
+    maxDR = cms.double(1.6),
+    maxDz = cms.double(1),
+    os = cms.bool(True),
+)
+pDoubleTkMu4er2p0_SQ_OS_dR_Max1p6 = cms.Path(DoubleTkMu4er2p0SQOSdRMax1p6)
+algorithms.append(cms.PSet(expression = cms.string("pDoubleTkMu4er2p0_SQ_OS_dR_Max1p6")))
+
+DoubleTkMu = l1tGTDoubleObjectCond.clone(
+    collection1 = l1tGTtkMuonVLoose.clone(
+        regionsMinPt = get_object_thrs(10, "GMTTkMuons", "VLoose"),
+    ),
+    collection2 = l1tGTtkMuonVLoose.clone(
+        regionsMinPt = get_object_thrs(10, "GMTTkMuons", "VLoose"),
     ),
     maxDz = cms.double(1),
-    minDR = cms.double(0),
 )
-pDoubleTkMuon15_7 = cms.Path(DoubleTkMuon157)
-algorithms.append(cms.PSet(expression = cms.string("pDoubleTkMuon15_7")))
+pDoubleTkMu = cms.Path(DoubleTkMu)
+algorithms.append(cms.PSet(expression = cms.string("pDoubleTkMu")))
 
-TripleTkMuon533 = l1tGTTripleObjectCond.clone(
-    collection1 = l1tGTtkMuonLoose.clone(
-        minPt = cms.double(5), # no scaling used below 8 GeV
+TripleTkMu = l1tGTTripleObjectCond.clone(
+    collection1 = l1tGTtkMuonVLoose.clone(
+        regionsMinPt = get_object_thrs(5, "GMTTkMuons", "VLoose"),
     ),
-    collection2 = l1tGTtkMuonLoose.clone(
-        minPt = cms.double(3),
+    collection2 = l1tGTtkMuonVLoose.clone(
+        regionsMinPt = get_object_thrs(5, "GMTTkMuons", "VLoose"),
     ),
-    collection3 = l1tGTtkMuonLoose.clone(
-        minPt = cms.double(3),
+    collection3 = l1tGTtkMuonVLoose.clone(
+        regionsMinPt = get_object_thrs(5, "GMTTkMuons", "VLoose"),
     ),
     correl12 = cms.PSet(
-        minDR = cms.double(0),
-        maxDz = cms.double(1)
+        maxDz = cms.double(1),
     ),
     correl13 = cms.PSet(
-        minDR = cms.double(0),
-        maxDz = cms.double(1)
+        maxDz = cms.double(1),
     ),
-    correl23 = cms.PSet(
-        minDR = cms.double(0),
-    )
+    correl23 = cms.PSet(),
 )
-pTripleTkMuon5_3_3 = cms.Path(TripleTkMuon533)
-algorithms.append(cms.PSet(expression = cms.string("pTripleTkMuon5_3_3")))
+pTripleTkMu = cms.Path(TripleTkMu)
+algorithms.append(cms.PSet(expression = cms.string("pTripleTkMu")))
 
-####### EG and PHO seeds ###########
-
-SingleEGEle51 = l1tGTSingleObjectCond.clone(
-    l1tGTtkPhoton.clone(),
-    regionsMinPt = get_object_thrs(51, "L1EG","default"),
+# MenuTools requires |sum of charges| == 1, i.e. at least one opposite-sign pair.
+# P2GT has no charge-sum cut, so this is the OR of three conditions with os on each pair.
+_TripleTkMu42p50MassMax12Base = l1tGTTripleObjectCond.clone(
+    collection1 = l1tGTtkMuonVLoose.clone(
+        regionsMinPt = get_object_thrs(6, "GMTTkMuons", "VLoose"),
+    ),
+    collection2 = l1tGTtkMuonVLoose.clone(
+        regionsMinPt = get_object_thrs(4, "GMTTkMuons", "VLoose"),
+    ),
+    collection3 = l1tGTtkMuonVLoose.clone(
+        regionsMinPt = get_object_thrs(1, "GMTTkMuons", "VLoose"),
+    ),
+    correl12 = cms.PSet(
+        maxDz = cms.double(1),
+    ),
+    correl13 = cms.PSet(
+        maxDz = cms.double(1),
+    ),
+    correl23 = cms.PSet(),
+    maxInvMass = cms.double(12),  # three-body mass
 )
-pSingleEGEle51 = cms.Path(SingleEGEle51) 
-algorithms.append(cms.PSet(expression = cms.string("pSingleEGEle51")))
-
-DoubleEGEle3724 = l1tGTDoubleObjectCond.clone(
-    collection1 = l1tGTtkPhoton.clone(
-        regionsMinPt = get_object_thrs(37, "L1EG","default"),
-    ),
-    collection2 = l1tGTtkPhoton.clone(
-        regionsMinPt = get_object_thrs(24, "L1EG","default"), 
-    ),
-    minDR = cms.double(0.1),
+TripleTkMu42p50OS12MassMax12 = _TripleTkMu42p50MassMax12Base.clone(
+    correl12 = cms.PSet(maxDz = cms.double(1), os = cms.bool(True)),
 )
-pDoubleEGEle37_24 = cms.Path(DoubleEGEle3724)
-algorithms.append(cms.PSet(expression = cms.string("pDoubleEGEle37_24")))
-
-IsoTkEleEGEle2212 = l1tGTDoubleObjectCond.clone(
-    collection1 = l1tGTtkIsoElectron.clone(
-        regionsMinPt = get_object_thrs(22, "CL2Electrons","Iso"),
-    ),
-    collection2 = l1tGTtkPhoton.clone(
-        regionsMinPt = get_object_thrs(12, "L1EG","default"),
-    ),
-    minDR = cms.double(0.1),
+TripleTkMu42p50OS13MassMax12 = _TripleTkMu42p50MassMax12Base.clone(
+    correl13 = cms.PSet(maxDz = cms.double(1), os = cms.bool(True)),
 )
-pIsoTkEleEGEle22_12 = cms.Path(IsoTkEleEGEle2212)
-algorithms.append(cms.PSet(expression = cms.string("pIsoTkEleEGEle22_12")))
+TripleTkMu42p50OS23MassMax12 = _TripleTkMu42p50MassMax12Base.clone(
+    correl23 = cms.PSet(os = cms.bool(True)),
+)
+pTripleTkMu_4_2p5_0_OS12_Mass_Max12 = cms.Path(TripleTkMu42p50OS12MassMax12)
+pTripleTkMu_4_2p5_0_OS13_Mass_Max12 = cms.Path(TripleTkMu42p50OS13MassMax12)
+pTripleTkMu_4_2p5_0_OS23_Mass_Max12 = cms.Path(TripleTkMu42p50OS23MassMax12)
+algorithms.append(cms.PSet(
+    name = cms.string("pTripleTkMu_4_2p5_0_OS_Mass_Max12"),
+    expression = cms.string("pTripleTkMu_4_2p5_0_OS12_Mass_Max12 or pTripleTkMu_4_2p5_0_OS13_Mass_Max12 or pTripleTkMu_4_2p5_0_OS23_Mass_Max12"),
+))
 
-SingleTkEle36 = l1tGTSingleObjectCond.clone(
+####### EG and PHO SEEDS ###########
+
+SingleTkEle = l1tGTSingleObjectCond.clone(
     l1tGTtkElectron.clone(),
-    regionsMinPt = get_object_thrs(36, "CL2Electrons","NoIso"),
+    regionsMinPt = get_object_thrs(42, "CL2Electrons", "NoIso"),
 )
-pSingleTkEle36 = cms.Path(SingleTkEle36) 
-algorithms.append(cms.PSet(expression = cms.string("pSingleTkEle36")))
+pSingleTkEle = cms.Path(SingleTkEle)
+algorithms.append(cms.PSet(expression = cms.string("pSingleTkEle")))
 
-SingleIsoTkEle28 = l1tGTSingleObjectCond.clone(
-    l1tGTtkIsoElectron.clone(),
-    regionsMinPt = get_object_thrs(28, "CL2Electrons","Iso"),
-)
-pSingleIsoTkEle28 = cms.Path(SingleIsoTkEle28) 
-algorithms.append(cms.PSet(expression = cms.string("pSingleIsoTkEle28")))
-
-SingleIsoTkPho36 = l1tGTSingleObjectCond.clone(
+SingleTkIsoPhoton = l1tGTSingleObjectCond.clone(
     l1tGTtkIsoPhoton.clone(),
-    regionsMinPt = get_object_thrs(36, "CL2Photons","Iso"),
+    regionsMinPt = get_object_thrs(42, "CL2Photons", "Iso"),
 )
-pSingleIsoTkPho36 = cms.Path(SingleIsoTkPho36) 
+pSingleTkIsoPhoton = cms.Path(SingleTkIsoPhoton)
+algorithms.append(cms.PSet(expression = cms.string("pSingleTkIsoPhoton")))
 
-algorithms.append(cms.PSet(expression=cms.string("pSingleIsoTkPho36")))
+SingleTkEleIso = l1tGTSingleObjectCond.clone(
+    l1tGTtkIsoElectron.clone(),
+    regionsMinPt = get_object_thrs(35, "CL2Electrons", "Iso"),
+)
+pSingleTkEleIso = cms.Path(SingleTkEleIso)
+algorithms.append(cms.PSet(expression = cms.string("pSingleTkEleIso")))
 
-DoubleTkEle2512 = l1tGTDoubleObjectCond.clone(
-    collection1 = l1tGTtkElectronLowPt.clone(
-        regionsMinPt = get_object_thrs(25, "CL2Electrons","NoIso"),
+DoubleTkEleer1p2dRMax0p6 = l1tGTDoubleObjectCond.clone(
+    collection1 = l1tGTtkElectron.clone(
+        minEta = cms.double(-1.2),
+        maxEta = cms.double(1.2),
+        regionsMinPt = get_object_thrs(18, "CL2Electrons", "NoIso"),
     ),
-    collection2 = l1tGTtkElectronLowPt.clone(
-        regionsMinPt = get_object_thrs(12, "CL2Electrons","NoIso"),
+    collection2 = l1tGTtkElectron.clone(
+        minEta = cms.double(-1.2),
+        maxEta = cms.double(1.2),
+        regionsMinPt = get_object_thrs(14, "CL2Electrons", "NoIso"),
+    ),
+    maxDR = cms.double(0.6),
+    maxDz = cms.double(1),
+)
+pDoubleTkEle_er1p2_dR_Max0p6 = cms.Path(DoubleTkEleer1p2dRMax0p6)
+algorithms.append(cms.PSet(expression = cms.string("pDoubleTkEle_er1p2_dR_Max0p6")))
+
+DoubleTkEleer1p5dEtaMax1p5 = l1tGTDoubleObjectCond.clone(
+    collection1 = l1tGTtkElectron.clone(
+        minEta = cms.double(-1.5),
+        maxEta = cms.double(1.5),
+        regionsMinPt = get_object_thrs(18, "CL2Electrons", "NoIso"),
+    ),
+    collection2 = l1tGTtkElectron.clone(
+        minEta = cms.double(-1.5),
+        maxEta = cms.double(1.5),
+        regionsMinPt = get_object_thrs(18, "CL2Electrons", "NoIso"),
+    ),
+    maxDEta = cms.double(1.5),
+    maxDz = cms.double(1),
+)
+pDoubleTkEle_er1p5_dEta_Max1p5 = cms.Path(DoubleTkEleer1p5dEtaMax1p5)
+algorithms.append(cms.PSet(expression = cms.string("pDoubleTkEle_er1p5_dEta_Max1p5")))
+
+DoubleTkEle = l1tGTDoubleObjectCond.clone(
+    collection1 = l1tGTtkElectron.clone(
+        regionsMinPt = get_object_thrs(30, "CL2Electrons", "NoIso"),
+    ),
+    collection2 = l1tGTtkElectron.clone(
+        regionsMinPt = get_object_thrs(15, "CL2Electrons", "NoIso"),
     ),
     maxDz = cms.double(1),
 )
-pDoubleTkEle25_12 = cms.Path(DoubleTkEle2512)
-algorithms.append(cms.PSet(expression = cms.string("pDoubleTkEle25_12")))
+pDoubleTkEle = cms.Path(DoubleTkEle)
+algorithms.append(cms.PSet(expression = cms.string("pDoubleTkEle")))
 
-DoubleIsoTkPho2212 = l1tGTDoubleObjectCond.clone(
+DoubleTkPhoIso = l1tGTDoubleObjectCond.clone(
     collection1 = l1tGTtkIsoPhoton.clone(
-        regionsMinPt = get_object_thrs(22, "CL2Photons","Iso"),
+        minEta = cms.double(-1.5),
+        maxEta = cms.double(1.5),
+        regionsMinPt = get_object_thrs(24, "CL2Photons", "Iso"),
     ),
     collection2 = l1tGTtkIsoPhoton.clone(
-        regionsMinPt = get_object_thrs(12, "CL2Photons","Iso"),
+        minEta = cms.double(-1.5),
+        maxEta = cms.double(1.5),
+        regionsMinPt = get_object_thrs(15, "CL2Photons", "Iso"),
     ),
 )
-pDoubleIsoTkPho22_12 = cms.Path(DoubleIsoTkPho2212)
-algorithms.append(cms.PSet(expression = cms.string("pDoubleIsoTkPho22_12")))
+pDoubleTkPhoIso = cms.Path(DoubleTkPhoIso)
+algorithms.append(cms.PSet(expression = cms.string("pDoubleTkPhoIso")))
 
-DoublePuppiTau5252 = l1tGTDoubleObjectCond.clone(
+# Standalone EG: as in Step 1, CL2 photons without isolation with the L1EG scalings
+SingleEGEle = l1tGTSingleObjectCond.clone(
+    l1tGTtkPhoton.clone(),
+    regionsMinPt = get_object_thrs(51, "L1EG", "default"),
+)
+pSingleEGEle = cms.Path(SingleEGEle)
+algorithms.append(cms.PSet(expression = cms.string("pSingleEGEle")))
+
+DoubleEGEle = l1tGTDoubleObjectCond.clone(
+    collection1 = l1tGTtkPhoton.clone(
+        regionsMinPt = get_object_thrs(37, "L1EG", "default"),
+    ),
+    collection2 = l1tGTtkPhoton.clone(
+        regionsMinPt = get_object_thrs(24, "L1EG", "default"),
+    ),
+)
+pDoubleEGEle = cms.Path(DoubleEGEle)
+algorithms.append(cms.PSet(expression = cms.string("pDoubleEGEle")))
+
+####### TAU SEEDS ###########
+
+# L1_SingleTau (CaloTau >= 153, |eta| < 2.1) and L1_DoubleTau (CaloTau 92,92, |eta| < 2.1)
+# are not implemented: there is no calo tau collection in the P2GT emulator (as for Step 1).
+
+DoubleIsoTau = l1tGTDoubleObjectCond.clone(
     collection1 = l1tGTnnTau.clone(
-        regionsMinPt = get_object_thrs(52, "CL2Taus","default"),
+        minEta = cms.double(-2.1),
+        maxEta = cms.double(2.1),
+        regionsMinPt = get_object_thrs(58, "CL2Taus", "default"),
     ),
     collection2 = l1tGTnnTau.clone(
-        regionsMinPt = get_object_thrs(52, "CL2Taus","default"),
+        minEta = cms.double(-2.1),
+        maxEta = cms.double(2.1),
+        regionsMinPt = get_object_thrs(58, "CL2Taus", "default"),
     ),
-    minDR = cms.double(0.5),
 )
-pDoublePuppiTau52_52 = cms.Path(DoublePuppiTau5252)
-algorithms.append(cms.PSet(expression = cms.string("pDoublePuppiTau52_52")))
-
+pDoubleIsoTau = cms.Path(DoubleIsoTau)
+algorithms.append(cms.PSet(expression = cms.string("pDoubleIsoTau")))

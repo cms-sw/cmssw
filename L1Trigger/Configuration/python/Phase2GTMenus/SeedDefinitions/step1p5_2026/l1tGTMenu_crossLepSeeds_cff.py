@@ -18,111 +18,102 @@ from L1Trigger.Phase2L1GT.l1tGTAlgoBlockProducer_cff import algorithms
 from L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.step1p5_2026.l1tGTObject_constants import *
 from L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.step1p5_2026.l1tGTMenuObjects_cff import *
 
-TkMuonTkIsoEle720 = l1tGTDoubleObjectCond.clone(
-    collection1 = l1tGTtkMuonLoose.clone(
-        regionsMinPt=cms.vdouble(7,7,7), # no scaling used below 8 GeV
-    ),
-    collection2 = l1tGTtkIsoElectron.clone(
-        regionsMinPt = get_object_thrs(20, "CL2Electrons","Iso"),
-    ),
-    maxDz = cms.double(1),
-)
-pTkMuonTkIsoEle7_20 = cms.Path(TkMuonTkIsoEle720)
-algorithms.append(cms.PSet(expression = cms.string("pTkMuonTkIsoEle7_20")))
+####### CROSS LEPTON SEEDS ###########
 
-TkMuonTkEle723 = l1tGTDoubleObjectCond.clone(
-    collection1 = l1tGTtkMuonLoose.clone(
-        regionsMinPt=cms.vdouble(7,7,7), # no scaling used below 8 GeV
+TkMu7TkEle20 = l1tGTDoubleObjectCond.clone(
+    collection1 = l1tGTtkMuonVLoose.clone(
+        regionsMinPt = get_object_thrs(9, "GMTTkMuons", "VLoose"),
     ),
     collection2 = l1tGTtkElectron.clone(
-        regionsMinPt = get_object_thrs(23, "CL2Electrons","NoIso"),
+        regionsMinPt = get_object_thrs(24, "CL2Electrons", "NoIso"),
     ),
     maxDz = cms.double(1),
 )
-pTkMuonTkEle7_23 = cms.Path(TkMuonTkEle723)
-algorithms.append(cms.PSet(expression = cms.string("pTkMuonTkEle7_23")))
+pTkMu7_TkEle20 = cms.Path(TkMu7TkEle20)
+algorithms.append(cms.PSet(expression = cms.string("pTkMu7_TkEle20")))
 
-TkEleTkMuon1020 = l1tGTDoubleObjectCond.clone(
-    collection1 = l1tGTtkElectron.clone(
-        regionsMinPt = get_object_thrs(10, "CL2Electrons","NoIso"),
+TkMu20TkEle10 = l1tGTDoubleObjectCond.clone(
+    collection1 = l1tGTtkMuonVLoose.clone(
+        regionsMinPt = get_object_thrs(23, "GMTTkMuons", "VLoose"),
+    ),
+    collection2 = l1tGTtkElectron.clone(
+        regionsMinPt = get_object_thrs(13, "CL2Electrons", "NoIso"),
+    ),
+    maxDz = cms.double(1),
+)
+pTkMu20_TkEle10 = cms.Path(TkMu20TkEle10)
+algorithms.append(cms.PSet(expression = cms.string("pTkMu20_TkEle10")))
+
+TkMuDoubleTkEle = l1tGTTripleObjectCond.clone(
+    collection1 = l1tGTtkMuonVLoose.clone(
+        regionsMinPt = get_object_thrs(8, "GMTTkMuons", "VLoose"),
+    ),
+    collection2 = l1tGTtkElectron.clone(
+        regionsMinPt = get_object_thrs(15, "CL2Electrons", "NoIso"),
+    ),
+    collection3 = l1tGTtkElectron.clone(
+        regionsMinPt = get_object_thrs(15, "CL2Electrons", "NoIso"),
+    ),
+    correl12 = cms.PSet(
+        maxDz = cms.double(1),
+    ),
+    correl13 = cms.PSet(
+        maxDz = cms.double(1),
+    ),
+)
+pTkMu_DoubleTkEle = cms.Path(TkMuDoubleTkEle)
+algorithms.append(cms.PSet(expression = cms.string("pTkMu_DoubleTkEle")))
+
+DoubleTkMuTkEle = l1tGTTripleObjectCond.clone(
+    collection1 = l1tGTtkMuonVLoose.clone(
+        regionsMinPt = get_object_thrs(7, "GMTTkMuons", "VLoose"),
     ),
     collection2 = l1tGTtkMuonVLoose.clone(
-        regionsMinPt = get_object_thrs(20, "GMTTkMuons","VLoose"),
+        regionsMinPt = get_object_thrs(7, "GMTTkMuons", "VLoose"),
     ),
-    maxDz = cms.double(1),
-)
-pTkEleTkMuon10_20 = cms.Path(TkEleTkMuon1020)
-algorithms.append(cms.PSet(expression = cms.string("pTkEleTkMuon10_20")))
-
-TkMuonDoubleTkEle61717 = l1tGTTripleObjectCond.clone(
-    collection1 = l1tGTtkMuonLoose.clone(
-        regionsMinPt=cms.vdouble(6,6,6),
-    ),
-    collection2 = l1tGTtkElectronLowPt.clone(
-        regionsMinPt = get_object_thrs(17, "CL2Electrons","NoIso"),
-    ),
-    collection3 = l1tGTtkElectronLowPt.clone(
-        regionsMinPt = get_object_thrs(17, "CL2Electrons","NoIso"),
+    collection3 = l1tGTtkElectron.clone(
+        regionsMinPt = get_object_thrs(12, "CL2Electrons", "NoIso"),
     ),
     correl12 = cms.PSet(
-        maxDz = cms.double(1)
+        maxDz = cms.double(1),
     ),
     correl13 = cms.PSet(
-        maxDz = cms.double(1)
+        maxDz = cms.double(1),
     ),
 )
-pTkMuonDoubleTkEle6_17_17 = cms.Path(TkMuonDoubleTkEle61717)
-algorithms.append(cms.PSet(expression = cms.string("pTkMuonDoubleTkEle6_17_17")))
+pDoubleTkMu_TkEle = cms.Path(DoubleTkMuTkEle)
+algorithms.append(cms.PSet(expression = cms.string("pDoubleTkMu_TkEle")))
 
-DoubleTkMuonTkEle559 = l1tGTTripleObjectCond.clone(
-    collection1 = l1tGTtkMuonLoose.clone(
-        regionsMinPt=cms.vdouble(5,5,5),
-    ),
-    collection2 = l1tGTtkMuonLoose.clone(
-        regionsMinPt=cms.vdouble(5,5,5),
-    ),
-    collection3 = l1tGTtkElectronLowPt.clone(
-        regionsMinPt = get_object_thrs(9, "CL2Electrons","NoIso"),
-    ),
-    correl12 = cms.PSet(
-        minDR = cms.double(0),
-        maxDz = cms.double(1)
-    ),
-    correl13 = cms.PSet(
-        maxDz = cms.double(1)
-    ),
-)
-pDoubleTkMuonTkEle5_5_9 = cms.Path(DoubleTkMuonTkEle559)
-algorithms.append(cms.PSet(expression = cms.string("pDoubleTkMuonTkEle5_5_9")))
-
-PuppiTauTkMuon4218 = l1tGTDoubleObjectCond.clone(  ###NB We need puppivertex here
+DoubleTkMuDoubleTkEle = l1tGTQuadObjectCond.clone(
     collection1 = l1tGTtkMuonVLoose.clone(
-        minEta = cms.double(-2.1),
-        maxEta = cms.double(2.1),
-        regionsMinPt = get_object_thrs(18, "GMTTkMuons","VLoose"),
-        maxPrimVertDz = cms.double(1), # in cm
-        primVertex = cms.uint32(0) # primary vertex index (choose 0) 
+        minEta = cms.double(-2.3),
+        maxEta = cms.double(2.3),
+        regionsMinPt = get_object_thrs(5, "GMTTkMuons", "VLoose"),
     ),
-    collection2 = l1tGTnnTau.clone(
-        regionsMinPt = get_object_thrs(42, "CL2Taus","default"),
+    collection2 = l1tGTtkMuonVLoose.clone(
+        minEta = cms.double(-2.3),
+        maxEta = cms.double(2.3),
+        regionsMinPt = get_object_thrs(5, "GMTTkMuons", "VLoose"),
+    ),
+    collection3 = l1tGTtkElectron.clone(
+        regionsMinPt = get_object_thrs(9, "CL2Electrons", "NoIso"),
+    ),
+    collection4 = l1tGTtkElectron.clone(
+        regionsMinPt = get_object_thrs(9, "CL2Electrons", "NoIso"),
+    ),
+    correl12 = cms.PSet(
+        maxDz = cms.double(1),
+        maxInvMass = cms.double(14),
+    ),
+    correl13 = cms.PSet(
+        maxDz = cms.double(1),
+    ),
+    correl14 = cms.PSet(
+        maxDz = cms.double(1),
+    ),
+    correl34 = cms.PSet(
+        maxInvMass = cms.double(20),
     ),
 )
-pPuppiTauTkMuon42_18 = cms.Path(PuppiTauTkMuon4218)
-algorithms.append(cms.PSet(expression = cms.string("pPuppiTauTkMuon42_18")))
-
-PuppiTauTkIsoEle4522 = l1tGTDoubleObjectCond.clone(  ###NB We need puppivertex here
-    collection1 = l1tGTtkIsoElectron.clone(
-        minEta = cms.double(-2.1),
-        maxEta = cms.double(2.1),
-        regionsMinPt = get_object_thrs(22, "CL2Electrons","Iso"),
-        maxPrimVertDz = cms.double(1), # in cm
-        primVertex = cms.uint32(0) # primary vertex index (choose 0) 
-    ),
-    collection2 = l1tGTnnTau.clone(
-        regionsMinPt = get_object_thrs(45, "CL2Taus","default"),
-    ),
-)
-pPuppiTauTkIsoEle45_22 = cms.Path(PuppiTauTkIsoEle4522)
-algorithms.append(cms.PSet(expression = cms.string("pPuppiTauTkIsoEle45_22")))
-
-
+pDoubleTkMu_DoubleTkEle = cms.Path(DoubleTkMuDoubleTkEle)
+algorithms.append(cms.PSet(expression = cms.string("pDoubleTkMu_DoubleTkEle")))
