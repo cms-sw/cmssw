@@ -104,8 +104,8 @@ namespace l1t {
           maxPrimVertDz_(getOptionalParam<int, double>(
               "maxPrimVertDz", config, [&scales](double value) { return scales.to_hw_z0_ceil(value); })),
           primVertex_(getOptionalParam<unsigned int>("primVertex", config)),
-          minPtMultiplicityN_(config.exists("minPtMultiplicityN") ? config.getParameter<unsigned int>("minPtMultiplicityN")
-                                                                  : 0),
+          minPtMultiplicityN_(
+              config.exists("minPtMultiplicityN") ? config.getParameter<unsigned int>("minPtMultiplicityN") : 0),
           minPtMultiplicityCut_(getOptionalParam<int, double>(
               "minPtMultiplicityCut", config, [&scales](double value) { return scales.to_hw_pT_floor(value); })) {
       if (!std::is_sorted(regionsAbsEtaLowerBounds_.begin(), regionsAbsEtaLowerBounds_.end())) {

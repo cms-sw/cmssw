@@ -38,9 +38,9 @@ namespace l1t {
     const double minOnline = scaling.existsAs<double>("minOnlinePt") ? scaling.getParameter<double>("minOnlinePt") : 0.;
 
     if (offsets.empty() || offsets.size() != slopes.size()) {
-      throw cms::Exception("Configuration") << "'ptScaling' needs 'regionsOffset' and 'regionsSlope' of equal, "
-                                            << "non-zero length (got " << offsets.size() << " and " << slopes.size()
-                                            << ").";
+      throw cms::Exception("Configuration")
+          << "'ptScaling' needs 'regionsOffset' and 'regionsSlope' of equal, "
+          << "non-zero length (got " << offsets.size() << " and " << slopes.size() << ").";
     }
 
     std::vector<double> thresholds(offsets.size());
@@ -85,9 +85,8 @@ namespace l1t {
         throw cms::Exception("Configuration") << "'offlineMinPt' and '" << target << "' are mutually exclusive.";
       }
       if (thresholds.size() > 1 && thresholds.size() != nEtaRegions) {
-        throw cms::Exception("Configuration")
-            << "'ptScaling' has " << thresholds.size() << " regions, but 'regionsAbsEtaLowerBounds' has " << nEtaRegions
-            << ".";
+        throw cms::Exception("Configuration") << "'ptScaling' has " << thresholds.size()
+                                              << " regions, but 'regionsAbsEtaLowerBounds' has " << nEtaRegions << ".";
       }
       if (thresholds.size() > 1) {
         resolved.addParameter<std::vector<double>>(target, thresholds);
