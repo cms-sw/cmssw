@@ -48,7 +48,7 @@ namespace l1t {
                             const L1GTScales& scales,
                             Resolved)
         : scales_(scales),
-          tag_(config.getParameter<edm::InputTag>("tag")),
+          tag_(collectionTag(config)),
           minPt_(getOptionalParam<int, double>(
               "minPt", config, [&scales](double value) { return scales.to_hw_pT_floor(value); })),
           maxPt_(getOptionalParam<int, double>(
