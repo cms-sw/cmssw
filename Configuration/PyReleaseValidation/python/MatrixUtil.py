@@ -143,7 +143,7 @@ class InputInfo(object):
         if not self.skimEvents: ## keep run-lumi sorting
             if use_ibeos:
                 return "export CMSSW_USE_IBEOS=true; " + command
-            return command + " | ibeos-lfn-sort -u"
+            return command + " | sort -u"
         else:
             return command
 
