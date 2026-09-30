@@ -11,6 +11,10 @@
     <field name="hits" transient="true"/>
   </class>
   <class name="edm::Wrapper<lst::LSTOTHits>" persistent="false"/>
+  <class name="lst::LSTPixelSeedRefs" persistent="false">
+    <field name="seeds" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<lst::LSTPixelSeedRefs>" persistent="false"/>
 
   <class name="lst::TrackCandidatesBaseHostCollection"/>
   <!-- lst::TrackCandidatesBaseHostCollection::Layout must be listed before the aliased-to type -->

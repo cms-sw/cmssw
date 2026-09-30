@@ -1,3 +1,4 @@
+#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -14,6 +15,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/LSTCore/interface/LSTOTHits.h"
+#include "RecoTracker/LSTCore/interface/LSTPixelSeedRefs.h"
 #include "RecoTracker/LSTCore/interface/TrackCandidatesHostCollection.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 
@@ -39,7 +41,7 @@ private:
 
   const edm::EDGetTokenT<lst::TrackCandidatesBaseHostCollection> lstOutputToken_;
   const edm::EDGetTokenT<lst::LSTOTHits> lstOTHitsToken_;
-  const edm::EDGetTokenT<TrajectorySeedCollection> lstPixelSeedToken_;
+  const edm::EDGetTokenT<lst::LSTPixelSeedRefs> lstPixelSeedRefsToken_;
   const bool includeT5s_;
   const bool includeNonpLSTSs_;
   const bool dropOTHitsPurePLS_;
@@ -69,7 +71,7 @@ private:
 LSTOutputConverter::LSTOutputConverter(edm::ParameterSet const& iConfig)
     : lstOutputToken_(consumes(iConfig.getParameter<edm::InputTag>("lstOutput"))),
       lstOTHitsToken_{consumes(iConfig.getParameter<edm::InputTag>("lstInput"))},
-      lstPixelSeedToken_{consumes(iConfig.getParameter<edm::InputTag>("lstPixelSeeds"))},
+      lstPixelSeedRefsToken_{consumes(iConfig.getParameter<edm::InputTag>("lstInput"))},
       includeT5s_(iConfig.getParameter<bool>("includeT5s")),
       includeNonpLSTSs_(iConfig.getParameter<bool>("includeNonpLSTSs")),
       dropOTHitsPurePLS_(iConfig.getParameter<bool>("dropOTHitsPurePLS")),
@@ -113,7 +115,6 @@ void LSTOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& descri
 
   desc.add<edm::InputTag>("lstOutput", edm::InputTag("lstProducer"));
   desc.add<edm::InputTag>("lstInput", edm::InputTag("lstInputProducer"));
-  desc.add<edm::InputTag>("lstPixelSeeds", edm::InputTag("lstInputProducer"));
   desc.add<bool>("includeT5s", true);
   desc.add<bool>("includeNonpLSTSs", false);
   desc.add<bool>("dropOTHitsPurePLS", false);
@@ -140,8 +141,8 @@ void LSTOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& descri
 void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Setup
   auto const& lstOutput = iEvent.get(lstOutputToken_);
-  auto const& pixelSeeds = iEvent.get(lstPixelSeedToken_);
-  auto const& pixelSeedsRBP = edm::RefToBaseProd<TrajectorySeed>(iEvent.getHandle(lstPixelSeedToken_));
+  // the input pixel seeds, indexed by the LST pixel seed index
+  auto const& pixelSeeds = iEvent.get(lstPixelSeedRefsToken_).seeds;
   auto const& mf = iSetup.getData(mfToken_);
   auto const& propAlo = iSetup.getData(propagatorAlongToken_);
   auto const& propOppo = iSetup.getData(propagatorOppositeToken_);
@@ -175,10 +176,15 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     auto iType = lstOutput_view.trackCandidateType()[i];
     bool const isT5orT4 = (iType == lst::LSTObjType::T5 || iType == lst::LSTObjType::T4);
     const auto iSeed = lstOutput_view.pixelSeedIndex()[i];
+    if (!isT5orT4 && iSeed >= pixelSeeds.size())
+      throw cms::Exception("LogicError") << "LST pixel seed index " << iSeed << " out of range: " << pixelSeeds.size()
+                                         << " input pixel seeds";
+    // T5 and T4 candidates have no pixel seed
+    const auto pixelSeed = isT5orT4 ? edm::Ref<TrajectorySeedCollection>() : pixelSeeds[iSeed];
     const bool dropHitsOTpL =
         iType == lst::LSTObjType::pLS && dropOTHitsPurePLS_ &&
-        std::prev(pixelSeeds[iSeed].recHits().end())->geographicalId().subdetId() > PixelSubdetector::PixelEndcap &&
-        std::ranges::count_if(pixelSeeds[iSeed].recHits(), [](const auto& h) {
+        std::prev(pixelSeed->recHits().end())->geographicalId().subdetId() > PixelSubdetector::PixelEndcap &&
+        std::ranges::count_if(pixelSeed->recHits(), [](const auto& h) {
           return h.geographicalId().subdetId() <= PixelSubdetector::PixelEndcap;
         }) <= maxITHitsToDropOTHitsPurePLS_;
     LogDebug("LSTOutputConverter") << " cand " << i << " " << iType << " " << iSeed;
@@ -186,8 +192,8 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     edm::RefToBase<TrajectorySeed> seedRef;
     edm::OwnVector<TrackingRecHit> recHits;
     if (!isT5orT4 && !dropHitsOTpL) {
-      seed = pixelSeeds[iSeed];
-      seedRef = {pixelSeedsRBP, iSeed};
+      seed = *pixelSeed;
+      seedRef = edm::RefToBase<TrajectorySeed>(pixelSeed);
 
       for (auto const& hit : seed.recHits())
         recHits.push_back(hit.clone());
@@ -285,8 +291,8 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       if (dropHitsOTpL) {                                                     // true if need to drop OT hits
         using Hit = SeedingHitSet::ConstRecHitPointer;
         hitsForSeed.clear();
-        hitsForSeed.reserve(std::ranges::size(pixelSeeds[iSeed].recHits()));
-        for (auto const& hit : pixelSeeds[iSeed].recHits()) {
+        hitsForSeed.reserve(std::ranges::size(pixelSeed->recHits()));
+        for (auto const& hit : pixelSeed->recHits()) {
           if (hit.geographicalId().subdetId() > PixelSubdetector::PixelEndcap)
             continue;
           hitsForSeed.emplace_back(dynamic_cast<Hit>(&hit));
