@@ -141,19 +141,19 @@ namespace truth {
 
   // Quarks and gluons.
   [[nodiscard]] inline bool isParton(int32_t pdgId) {
-    const int64_t a = std::abs(static_cast<int64_t>(pdgId));
+    const int32_t a = std::abs(pdgId);
     return (a >= 1 && a <= 6) || a == 21;
   }
 
   // Charged leptons. A neutrino is not one of these; ask isInvisible for that.
   [[nodiscard]] inline bool isLepton(int32_t pdgId) {
-    const int64_t a = std::abs(static_cast<int64_t>(pdgId));
+    const int32_t a = std::abs(pdgId);
     return a == 11 || a == 13 || a == 15;
   }
 
   // The W and the Z. The Higgs is not a weak boson and is not one of these.
   [[nodiscard]] inline bool isWeakBoson(int32_t pdgId) {
-    const int64_t a = std::abs(static_cast<int64_t>(pdgId));
+    const int32_t a = std::abs(pdgId);
     return a == 23 || a == 24;
   }
 
@@ -161,7 +161,7 @@ namespace truth {
   // a diquark, a Pythia string or cluster, a beam or generator-internal pseudoparticle.
   // The main event keeps its shower, so these are in the graph.
   [[nodiscard]] inline bool isShowerObject(int32_t pdgId) {
-    const int64_t a = std::abs(static_cast<int64_t>(pdgId));
+    const int32_t a = std::abs(pdgId);
     if (isParton(pdgId)) {
       return true;
     }
@@ -238,7 +238,7 @@ namespace truth {
       return VertexReason::ShowerBranching;
 
     const bool fromString = std::any_of(incoming.begin(), incoming.end(), [&](uint32_t id) {
-      const int64_t pdgId = std::abs(static_cast<int64_t>(pdgIdOf(id)));
+      const int32_t pdgId = std::abs(pdgIdOf(id));
       return pdgId >= 91 && pdgId <= 94;
     });
     const bool toHadron =
@@ -261,7 +261,7 @@ namespace truth {
   // Ordinary hadron whose quark content includes `flavor` (5 = b, 4 = c), read off the
   // PDG hadron-numbering digits. Nuclei and generator-internal codes are not hadrons here.
   [[nodiscard]] inline bool hadronHasQuark(int32_t pdgId, int32_t flavor) {
-    const int64_t id = std::abs(static_cast<int64_t>(pdgId));
+    const int32_t id = std::abs(pdgId);
     if (id < 100 || id >= 1000000000)
       return false;
     // A diquark is nq1 nq2 0 nJ, so its third quark digit is zero. It carries the
@@ -269,9 +269,9 @@ namespace truth {
     // AND, being that hadron's ancestor, cover it in the earliest-element antichain.
     if (id >= 1000 && id <= 9999 && (id / 10) % 10 == 0 && (id / 100) % 10 != 0)
       return false;
-    const int64_t nq1 = (id / 1000) % 10;
-    const int64_t nq2 = (id / 100) % 10;
-    const int64_t nq3 = (id / 10) % 10;
+    const int32_t nq1 = (id / 1000) % 10;
+    const int32_t nq2 = (id / 100) % 10;
+    const int32_t nq3 = (id / 10) % 10;
     return nq1 == flavor || nq2 == flavor || nq3 == flavor;
   }
 
@@ -311,7 +311,7 @@ namespace truth {
   // no member can be an ancestor of another through the only chain taus form.
   [[nodiscard]] inline TauDecay tauDecay(Graph const& graph, uint32_t id) {
     auto const& data = graph.particles()[id];
-    if (std::abs(static_cast<int64_t>(data.pdgId)) != 15 || data.isSynthetic()) {
+    if (std::abs(data.pdgId) != 15 || data.isSynthetic()) {
       return TauDecay::None;
     }
     bool hasGenDecay = false;
@@ -325,7 +325,7 @@ namespace truth {
         if (child >= graph.nParticles() || child == id) {
           continue;
         }
-        const int64_t a = std::abs(static_cast<int64_t>(graph.particles()[child].pdgId));
+        const int32_t a = std::abs(graph.particles()[child].pdgId);
         if (a == 15) {
           return TauDecay::None;
         }
@@ -473,7 +473,7 @@ namespace truth {
   // Species a detector cannot reconstruct at all, so they are not part of the visible
   // final state. Only the neutrinos today; anything else invisible would belong here.
   [[nodiscard]] inline bool isInvisible(int32_t pdgId) {
-    const int64_t a = std::abs(static_cast<int64_t>(pdgId));
+    const int32_t a = std::abs(pdgId);
     return a == 12 || a == 14 || a == 16;
   }
 

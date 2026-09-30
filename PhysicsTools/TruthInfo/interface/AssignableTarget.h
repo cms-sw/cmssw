@@ -38,7 +38,7 @@ namespace truth {
   // The W, the Z and the Higgs. No reco object is one of them: their branch is the pair
   // of legs they decayed to. The photon is a detector particle and is not one of these.
   [[nodiscard]] inline bool isElectroweakBoson(int32_t pdgId) {
-    const int64_t a = std::abs(static_cast<int64_t>(pdgId));
+    const int32_t a = std::abs(pdgId);
     return a == 23 || a == 24 || a == 25;
   }
 
@@ -73,7 +73,7 @@ namespace truth {
       return false;
     }
     if (!config.extraBarredPdgIds.empty()) {
-      const int32_t absPdgId = static_cast<int32_t>(std::abs(static_cast<int64_t>(particle.pdgId)));
+      const int32_t absPdgId = std::abs(particle.pdgId);
       if (std::find(config.extraBarredPdgIds.begin(), config.extraBarredPdgIds.end(), absPdgId) !=
           config.extraBarredPdgIds.end()) {
         return false;
