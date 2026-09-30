@@ -88,6 +88,7 @@ private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryTokenRun_;
 
   int32_t const minNumberOfHits_;
+  int32_t const minNumberOfPixelHits_;
   pixelTrack::Quality const minQuality_;
   const bool useOTExtension_;
   const bool requireQuadsFromConsecutiveLayers_;
@@ -103,6 +104,7 @@ PixelTrackProducerFromSoAAlpaka::PixelTrackProducerFromSoAAlpaka(const edm::Para
       trackerTopologyToken_(esConsumes()),
       trackerGeometryTokenRun_(esConsumes<edm::Transition::BeginRun>()),
       minNumberOfHits_(iConfig.getParameter<int>("minNumberOfHits")),
+      minNumberOfPixelHits_(iConfig.getParameter<int>("minNumberOfPixelHits")),
       minQuality_(pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))),
       useOTExtension_(iConfig.getParameter<bool>("useOTExtension")),
       requireQuadsFromConsecutiveLayers_(iConfig.getParameter<bool>("requireQuadsFromConsecutiveLayers")) {
@@ -173,6 +175,7 @@ void PixelTrackProducerFromSoAAlpaka::fillDescriptions(edm::ConfigurationDescrip
   desc.add<edm::InputTag>("outerTrackerRecHitSrc", edm::InputTag("hltSiPhase2RecHits"));
   desc.add<edm::InputTag>("outerTrackerRecHitSoAConverterSrc", edm::InputTag("phase2OTRecHitsSoAConverter"));
   desc.add<int>("minNumberOfHits", 0);
+  desc.add<int>("minNumberOfPixelHits", 0);
   desc.add<std::string>("minQuality", "loose");
   desc.add<bool>("useOTExtension", false);
 
@@ -367,6 +370,9 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
   auto const hitOffs = tsoa.view().tracks().hitOffsets();
   auto const hitIdxs = tsoa.view().trackHits().id();
   auto nTracks = tsoa.view().tracks().nTracks();
+  // auto const iteration = tsoa.view().tracks().iteration();  // To check for events with too many zeros in eta and phi
+  //                                                           // But can be more general and used for validation of distinct iterations
+  //                                                           // Has to be implemented yet
 
   tracks.reserve(nTracks);
 
@@ -388,6 +394,7 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
   // loop over (sorted) tracks
   for (const auto &it : sortIdxs) {
     auto nHits = reco::nHits(tsoa.view().tracks(), it);
+    int nPixels = 0;
     assert(nHits >= 3);
     auto q = quality[it];
 
@@ -412,7 +419,15 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
       // else remove the OT hit from the track
       else
         nRemovedHits++;
+
+      // this is assuming pixel hits are before OT hits
+      if (hitIdx < uint32_t(nPixelHits))
+        nPixels++;
     }
+
+    if (nPixels < minNumberOfPixelHits_)
+      continue;
+
     hits.resize(nHits - nRemovedHits);
     end = end - nRemovedHits;
 

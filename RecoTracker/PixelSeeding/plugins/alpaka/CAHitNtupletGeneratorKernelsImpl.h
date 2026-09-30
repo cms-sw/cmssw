@@ -1424,6 +1424,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     };
 
+  class Kernel_assignIteration {
+  public:
+    ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+                                  TkSoAView tracks_view,
+                                  HitContainer const *__restrict__ foundNtuplets,
+                                  ::pixelTrack::Iteration iteration) const {
+      for (auto it : cms::alpakatools::uniform_elements(acc, foundNtuplets->nOnes())) {
+        tracks_view[it].iteration() = iteration;
+      }
+    }
+  };
+
     template <typename TrackerTraits>
     class Kernel_print_found_ntuplets {
     public:
@@ -2118,6 +2130,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::cout << "Kernel_classifyTracks -> done!" << std::endl;
 #endif
 
+    alpaka::exec<Acc1D>(queue,
+                        workDiv1D,
+                        Kernel_assignIteration{},
+                        tracks_view,
+                        this->device_hitContainer_->data(),
+                        this->m_params.algoParams_.iterationName_);
+    #ifdef GPU_DEBUG
+        alpaka::wait(queue);
+        std::cout << "Kernel_assignIteration -> done!" << std::endl;
+    #endif
+
     if (this->m_params.algoParams_.lateFishbone_) {
       // apply fishbone cleaning to good tracks
       numberOfBlocks = cms::alpakatools::divide_up_by(3 * maxDoublets / 4, blockSize);
@@ -2279,6 +2302,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
 #ifdef CA_STATS
+
+if (this->m_params.algoParams_.doStats_) {
+// ^ this is useful if we have multiple iterations and want to probe only one
     alpaka::wait(queue);
     workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(1, 1);
     alpaka::exec<Acc1D>(queue,
@@ -2291,6 +2317,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         this->device_nCellTracks_->data());
 
     alpaka::wait(queue);
+}
 #endif
     if (this->m_params.algoParams_.doStats_) {
       // counters (add flag???)
