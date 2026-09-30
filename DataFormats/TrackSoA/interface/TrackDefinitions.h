@@ -20,6 +20,23 @@ namespace pixelTrack {
     return ret;
   }
 
+  enum class Iteration : uint8_t {
+    promptHighPt,
+    promptLowPt,
+    notIteration
+  };  // Not sure if a notIteration will be needed
+  constexpr uint32_t iterationSize{uint8_t(Iteration::notIteration)};
+  constexpr std::string_view iterationName[iterationSize]{"promptHighPt", "promptLowPt"};
+  inline Iteration iterationByName(std::string_view name) {
+    auto qp = std::find(iterationName, iterationName + iterationSize, name) - iterationName;
+    auto ret = static_cast<Iteration>(qp);
+
+    if (ret == pixelTrack::Iteration::notIteration)
+      throw std::invalid_argument(std::string(name) + " is not a pixelTrack::Iteration!");
+
+    return ret;
+  }
+
 #ifdef GPU_SMALL_EVENTS
   // kept for testing and debugging
   constexpr uint32_t maxNumber() { return 2 * 1024; }
