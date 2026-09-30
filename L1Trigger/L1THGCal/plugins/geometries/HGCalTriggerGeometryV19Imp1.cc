@@ -99,6 +99,7 @@ private:
   std::unordered_map<unsigned, unsigned> module_to_stage1_;
 
   // Disconnected modules and layers
+  bool bypass_be_mapping_ = false;
   std::unordered_set<unsigned> disconnected_layers_;
   std::vector<unsigned> trigger_layers_;
   std::vector<unsigned> trigger_nose_layers_;
@@ -131,7 +132,8 @@ HGCalTriggerGeometryV19Imp1::HGCalTriggerGeometryV19Imp1(const edm::ParameterSet
     : HGCalTriggerGeometryBase(conf),
       hSc_sd_triggercell_size_(conf.getParameter<unsigned>("ScintillatorSDTriggerCellSize")),
       hSc_hd_triggercell_size_(conf.getParameter<unsigned>("ScintillatorHDTriggerCellSize")),
-      jsonMappingFile_(conf.getParameter<edm::FileInPath>("JsonMappingFile")) {
+      jsonMappingFile_(conf.getParameter<edm::FileInPath>("JsonMappingFile")),
+      bypass_be_mapping_(conf.getParameter<bool>("BypassBackendMapping")) {
   std::vector<unsigned> tmp_vector = conf.getParameter<std::vector<unsigned>>("DisconnectedLayers");
   std::move(tmp_vector.begin(), tmp_vector.end(), std::inserter(disconnected_layers_, disconnected_layers_.end()));
 }
@@ -543,7 +545,8 @@ HGCalTriggerGeometryBase::geom_ordered_set HGCalTriggerGeometryV19Imp1::getOrder
 
 HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV19Imp1::getNeighborsFromTriggerCell(
     const unsigned trigger_cell_id) const {
-  throw cms::Exception("FeatureNotImplemented") << "Neighbor search is not implemented in HGCalTriggerGeometryV19Imp1";
+  throw cms::Exception("HGCalTriggerGeometryV19Imp1::FeatureNotImplemented")
+      << "Neighbor search is not implemented in HGCalTriggerGeometryV19Imp1";
 }
 
 unsigned HGCalTriggerGeometryV19Imp1::getLinksInModule(const unsigned module_id) const {
@@ -560,7 +563,17 @@ unsigned HGCalTriggerGeometryV19Imp1::getLinksInModule(const unsigned module_id)
   else {
     int packed_module =
         packLayerSubdetWaferId(module_det_id.layer(), subdet, module_det_id.moduleU(), module_det_id.moduleV());
-    links = links_per_module_.at(packed_module);
+    try {
+      links = links_per_module_.at(packed_module);
+    } catch (std::exception& ex) {
+      if (bypass_be_mapping_)
+        links = 2;
+      else
+        throw cms::Exception("HGCalTriggerGeometryV19Imp1::KeyNotFound")
+            << "No links connected to module " << module_id << "\n";
+    }
+    if (bypass_be_mapping_ && links == 0)
+      links = 2;
   }
   return links;
 }
@@ -631,7 +644,14 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV19Imp1::getStage1LinksFr
 
 unsigned HGCalTriggerGeometryV19Imp1::getStage1FpgaFromStage1Link(const unsigned link_id) const {
   HGCalTriggerBackendDetId id(link_id);
-  unsigned stage1_label = stage1link_to_stage1_.at(id.label());
+  unsigned stage1_label = 0;
+  try {
+    stage1_label = stage1link_to_stage1_.at(id.label());
+  } catch (std::exception& ex) {
+    if (!bypass_be_mapping_)
+      throw cms::Exception("HGCalTriggerGeometryV19Imp1::KeyNotFound")
+          << "Stage 1 link " << link_id << " not connected to a Stage 1 board\n";
+  }
 
   return HGCalTriggerBackendDetId(
       id.zside(), HGCalTriggerBackendDetId::BackendType::Stage1FPGA, id.sector(), stage1_label);
@@ -639,11 +659,17 @@ unsigned HGCalTriggerGeometryV19Imp1::getStage1FpgaFromStage1Link(const unsigned
 
 unsigned HGCalTriggerGeometryV19Imp1::getStage2FpgaFromStage1Link(const unsigned link_id) const {
   HGCalTriggerBackendDetId id(link_id);
-  bool same_sector = stage1link_to_stage2_.at(id.label());
   unsigned sector = id.sector();
+  try {
+    bool same_sector = stage1link_to_stage2_.at(id.label());
 
-  if (!same_sector) {
-    sector = getPreviousSector(sector);
+    if (!same_sector) {
+      sector = getPreviousSector(sector);
+    }
+  } catch (std::exception& ex) {
+    if (!bypass_be_mapping_)
+      throw cms::Exception("HGCalTriggerGeometryV19Imp1::KeyNotFound")
+          << "Stage 1 link " << link_id << " not connected to a Stage 2 board\n";
   }
 
   return HGCalTriggerBackendDetId(id.zside(), HGCalTriggerBackendDetId::BackendType::Stage2FPGA, sector, 0);
@@ -667,11 +693,17 @@ std::vector<unsigned> HGCalTriggerGeometryV19Imp1::getLpgbtsFromStage1Fpga(const
   std::vector<unsigned> lpgbt_ids;
   HGCalTriggerBackendDetId id(stage1_id);
 
-  const auto stage1_lpgbts = stage1_to_lpgbts_.at(id.label());
-  lpgbt_ids.reserve(stage1_lpgbts.size());
-  for (const auto& stage1_lpgbt : stage1_lpgbts) {
-    lpgbt_ids.emplace_back(
-        HGCalTriggerBackendDetId(id.zside(), HGCalTriggerBackendDetId::BackendType::LpGBT, id.sector(), stage1_lpgbt));
+  try {
+    const auto stage1_lpgbts = stage1_to_lpgbts_.at(id.label());
+    lpgbt_ids.reserve(stage1_lpgbts.size());
+    for (const auto& stage1_lpgbt : stage1_lpgbts) {
+      lpgbt_ids.emplace_back(HGCalTriggerBackendDetId(
+          id.zside(), HGCalTriggerBackendDetId::BackendType::LpGBT, id.sector(), stage1_lpgbt));
+    }
+  } catch (std::exception& ex) {
+    if (!bypass_be_mapping_)
+      throw cms::Exception("HGCalTriggerGeometryV19Imp1::KeyNotFound")
+          << "No lpGBT link connected to Stage 1 board " << stage1_id << "\n";
   }
 
   return lpgbt_ids;
@@ -688,7 +720,14 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV19Imp1::getModulesFromSt
 }
 unsigned HGCalTriggerGeometryV19Imp1::getStage1FpgaFromLpgbt(const unsigned lpgbt_id) const {
   HGCalTriggerBackendDetId id(lpgbt_id);
-  unsigned stage1_label = lpgbt_to_stage1_.at(id.label());
+  unsigned stage1_label = 0;
+  try {
+    stage1_label = lpgbt_to_stage1_.at(id.label());
+  } catch (std::exception& ex) {
+    if (!bypass_be_mapping_)
+      throw cms::Exception("HGCalTriggerGeometryV19Imp1::KeyNotFound")
+          << "lpGBT link " << lpgbt_id << " not connected to a Stage 1 board\n";
+  }
 
   return HGCalTriggerBackendDetId(
       id.zside(), HGCalTriggerBackendDetId::BackendType::Stage1FPGA, id.sector(), stage1_label);
@@ -745,9 +784,15 @@ HGCalTriggerGeometryV19Imp1::geom_set HGCalTriggerGeometryV19Imp1::getLpgbtsFrom
 
 unsigned HGCalTriggerGeometryV19Imp1::getStage1FpgaFromModule(const unsigned module_id) const {
   HGCalTriggerModuleDetId id(module_id);
-
-  unsigned stage1_label =
-      module_to_stage1_.at(packLayerSubdetWaferId(id.layer(), id.triggerSubdetId(), id.moduleU(), id.moduleV()));
+  unsigned stage1_label = 0;
+  try {
+    stage1_label =
+        module_to_stage1_.at(packLayerSubdetWaferId(id.layer(), id.triggerSubdetId(), id.moduleU(), id.moduleV()));
+  } catch (std::exception& ex) {
+    if (!bypass_be_mapping_)
+      throw cms::Exception("HGCalTriggerGeometryV19Imp1::KeyNotFound")
+          << "Module " << module_id << " not connected to a Stage 1 board\n";
+  }
 
   return HGCalTriggerBackendDetId(
       id.zside(), HGCalTriggerBackendDetId::BackendType::Stage1FPGA, id.sector(), stage1_label);
@@ -820,7 +865,8 @@ void HGCalTriggerGeometryV19Imp1::fillMaps() {
   json mapping_config;
   std::ifstream json_input_file(jsonMappingFile_.fullPath());
   if (!json_input_file.is_open()) {
-    throw cms::Exception("MissingDataFile") << "Cannot open HGCalTriggerGeometry L1TMapping file\n";
+    throw cms::Exception("HGCalTriggerGeometryV19Imp1::MissingDataFile")
+        << "Cannot open HGCalTriggerGeometry L1TMapping file\n";
   }
   json_input_file >> mapping_config;
 
@@ -1004,8 +1050,9 @@ bool HGCalTriggerGeometryV19Imp1::validTriggerCell(const unsigned trigger_cell_i
 bool HGCalTriggerGeometryV19Imp1::disconnectedModule(const unsigned module_id) const {
   bool disconnected = false;
   HGCalTriggerModuleDetId id(module_id);
-  if (module_to_stage1_.find(packLayerSubdetWaferId(id.layer(), id.triggerSubdetId(), id.moduleU(), id.moduleV())) ==
-      module_to_stage1_.end()) {
+  if (!bypass_be_mapping_ &&
+      module_to_stage1_.find(packLayerSubdetWaferId(id.layer(), id.triggerSubdetId(), id.moduleU(), id.moduleV())) ==
+          module_to_stage1_.end()) {
     disconnected = true;
   }
   if (disconnected_layers_.find(layerWithOffset(module_id)) != disconnected_layers_.end()) {
