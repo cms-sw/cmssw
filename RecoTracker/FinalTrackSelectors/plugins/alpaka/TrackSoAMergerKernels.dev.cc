@@ -20,7 +20,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  TrackSoAMergerKernels::TrackSoAMergerKernels(Params const &params, Queue &queue) : params_(params) {
+  TrackSoAMergerKernels::TrackSoAMergerKernels(Queue &queue, Params const &params) : params_(params) {
     counters_d_ = reco::TrackMergerCounterSoACollection(queue, params_.maxTracks);
     totCounters_ = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, 2u);
 
@@ -32,9 +32,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   reco::TracksSoACollection TrackSoAMergerKernels::makeMergedTracks(Queue &queue,
-                                                                    ::mergerKernels::InputTracks const &allTracks) {
-    countGoodTracks(queue, allTracks);
-    fillGoodTracks(queue, allTracks);
+                                                                    const TracksMultiView &tracks,
+                                                                    const TrackHitsMultiView &hits) {
+    countGoodTracks(queue, tracks);
+    fillGoodTracks(queue, tracks, hits);
     filterTracks(queue);
 
 #ifdef GPU_DEBUG
@@ -45,7 +46,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     return std::move(*tracks_d_);
   }
 
-  void TrackSoAMergerKernels::countGoodTracks(Queue &queue, ::mergerKernels::InputTracks const &allTracks) {
+  void TrackSoAMergerKernels::countGoodTracks(Queue &queue, const TracksMultiView &tracks) {
     using namespace trackSoAMergerKernels;
 
 #ifdef GPU_DEBUG
@@ -53,15 +54,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::cout << "Starting TrackSoAMergerKernels::countGoodTracks" << std::endl;
 #endif
 
-    if (allTracks.nTracks != 0) {
+    if (params_.maxTracks != 0) {
       const auto threadsPerBlock = 128u;
-      const auto blocks = cms::alpakatools::divide_up_by(allTracks.nTracks, threadsPerBlock);
+      const auto blocks = cms::alpakatools::divide_up_by(params_.maxTracks, threadsPerBlock);
       const auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock);
 
       alpaka::exec<Acc1D>(queue,
                           workDiv1D,
                           Kernel_countGoodTracks{},
-                          allTracks,
+                          tracks,
+                          params_.maxTracks,
                           params_.minQuality,
                           counters_d_->view(),
                           totTracks_->data(),
@@ -103,7 +105,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   }
 
-  void TrackSoAMergerKernels::fillGoodTracks(Queue &queue, ::mergerKernels::InputTracks const &allTracks) {
+  void TrackSoAMergerKernels::fillGoodTracks(Queue &queue,
+                                             const TracksMultiView &tracks,
+                                             const TrackHitsMultiView &hits) {
     using namespace trackSoAMergerKernels;
 
     if (tracks_d_->view().tracks().metadata().size() > 0) {
@@ -118,7 +122,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       alpaka::exec<Acc1D>(queue,
                           workDiv1D,
                           Kernel_fillGoodTracks{},
-                          allTracks,
+                          tracks,
+                          hits,
                           counters_d_->view(),
                           tracks_d_->view().tracks(),
                           tracks_d_->view().trackHits());
@@ -155,45 +160,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       auto const workDiv2D = cms::alpakatools::make_workdiv<Acc2D>(blocks, threads);
 
-      // #ifdef GPU_DEBUG
-      //     alpaka::wait(queue);
-      //     printf("filterTracks: nTracks %d, blocksX %d, blocksY %d tracksPerBlock %d\n", nTracks, blocksX, blocksY, tracksPerBlock);
-      // #endif
-      //     if (params_.doSameHitsDuplicates) {
-      //       alpaka::exec<Acc2D>(queue,
-      //                           workDiv2D,
-      //                           Kernel_sameHitsDuplicates{},
-      //                           tracks_d_->view().tracks(),
-      //                           tracks_d_->view().trackHits(),
-      //                           params_.matchFraction,
-      //                           params_.dupMinHits);
-
-      // #ifdef GPU_DEBUG
-      //     alpaka::wait(queue);
-      //     std::cout << "Kernel_sameHitsDuplicates -> done!" << std::endl;
-      // #endif
-      //       }
-
-      //     if(params_.doParamDuplicates) {
-      //         alpaka::exec<Acc2D>(queue,
-      //                             workDiv2D,
-      //                             Kernel_trackParameterDuplicates{},
-      //                             tracks_d_->view().tracks(),
-      //                             params_.dupNSigma2,
-      //                             params_.dupMaxDeltaR2,
-      //                             params_.dupPtDifference);
-      // #ifdef GPU_DEBUG
-      //     alpaka::wait(queue);
-      //     std::cout << "Kernel_trackParameterDuplicates -> done!" << std::endl;
-      // #endif
-      //         }
 #ifdef GPU_DEBUG
       alpaka::wait(queue);
       printf("filterTracks: nTracks %d, blocksX %d, tracksPerBlock %d\n", nTracks, blocksX, tracksPerBlock);
 #endif
-
-      //   auto const workDiv2D =
-      //       cms::alpakatools::make_workdiv<Acc2D>(blocks, threads);
 
       alpaka::exec<Acc2D>(queue,
                           workDiv2D,

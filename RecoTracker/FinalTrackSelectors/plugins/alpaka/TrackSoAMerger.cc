@@ -2,16 +2,12 @@
 
 #include <numeric>
 
-#include "DataFormats/TrackSoA/interface/TracksHost.h"
-#include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
-#include "DataFormats/TrackSoA/interface/TracksDevice.h"
-#include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitsSoACollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-// #include "HeterogeneousCore/AlpakaCore/interface/alpaka/global/EDProducer.h"
+#include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/SynchronizingEDProducer.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
@@ -30,6 +26,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class TracksSoAMerger : public stream::SynchronizingEDProducer<> {
     using Algo = TrackSoAMergerKernels;
     using AlgoParams = ::mergerKernels::Params;
+    using TracksConstView = ::mergerKernels::TracksConstView;
+    using TrackHitsConstView = ::mergerKernels::TrackHitsConstView;
+    using TracksMultiView = ::mergerKernels::TracksMultiView;
+    using TrackHitsMultiView = ::mergerKernels::TrackHitsMultiView;
+    using Tracks = reco::TracksSoACollection;
 
   public:
     explicit TracksSoAMerger(const edm::ParameterSet& iConfig);
@@ -49,17 +50,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     float const dupPtDifference_;
 
     // tokens
-    std::vector<device::EDGetToken<reco::TracksSoACollection>> inputTkSoATokenV_;
-    std::vector<edm::InputTag> inputTkSoATagV_;
-    const device::EDPutToken<reco::TracksSoACollection> outputTkSoAToken_;
-
-    // input collections
-    ::mergerKernels::InputTracks allTrackView_;
-    int nCollections_ = 0;
+    std::vector<device::EDGetToken<Tracks>> trackTokens_;
+    std::vector<edm::InputTag> trackTags_;
+    const device::EDPutToken<Tracks> outputTracks_;
 
     // output tracks
-    std::optional<reco::TracksSoACollection> tracks_d_;
-    int maxTracks_ = 0;
+    std::optional<Tracks> tracks_d_;
   };
 
   TracksSoAMerger::TracksSoAMerger(const edm::ParameterSet& iConfig)
@@ -70,22 +66,29 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         dupNSigma2_(iConfig.getParameter<double>("dupNSigma2")),
         dupMaxDeltaR2_(iConfig.getParameter<double>("dupMaxDeltaR2")),
         dupPtDifference_(iConfig.getParameter<double>("dupPtDifference")),
-        inputTkSoATagV_(iConfig.getParameter<std::vector<edm::InputTag>>("inputTkSoAs")),
-        outputTkSoAToken_(produces()) {
-    for (const auto& it : inputTkSoATagV_) {
-      inputTkSoATokenV_.push_back(consumes(it));
+        trackTags_(iConfig.getParameter<std::vector<edm::InputTag>>("inputTracks")),
+        outputTracks_(produces()) {
+    for (const auto& it : trackTags_) {
+      trackTokens_.push_back(consumes(it));
     }
 
-    assert(inputTkSoATagV_.size() <= ::mergerKernels::maxTrackSoACollections);
-    nCollections_ = inputTkSoATagV_.size();
-    allTrackView_.nInputs = inputTkSoATagV_.size();
+    assert(trackTags_.size() <= ::mergerKernels::maxTrackSoACollections);
+
+    if (trackTags_.empty()) {
+      throw cms::Exception("TracksSoAMerger - Inputs") << "No input TkSoA collections provided";
+    }
+    if (trackTags_.size() > ::mergerKernels::maxTrackSoACollections) {
+      throw cms::Exception("TracksSoAMerger - Inputs")
+          << "Too many input TkSoA collections provided.\n Maximum allowed is "
+          << ::mergerKernels::maxTrackSoACollections;
+    }
 
     if (minQuality_ == pixelTrack::Quality::notQuality) {
-      throw cms::Exception("PixelTrackConfiguration")
+      throw cms::Exception("TracksSoAMerger - PixelTrackConfiguration")
           << iConfig.getParameter<std::string>("minQuality") + " is not a pixelTrack::Quality";
     }
     if (minQuality_ < pixelTrack::Quality::dup) {
-      throw cms::Exception("PixelTrackConfiguration")
+      throw cms::Exception("TracksSoAMerger - PixelTrackConfiguration")
           << iConfig.getParameter<std::string>("minQuality") + " not supported";
     }
   }
@@ -94,7 +97,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::ParameterSetDescription desc;
 
     desc.add<std::vector<edm::InputTag>>(
-        "inputTkSoAs", {edm::InputTag("pixelTracksHighPtAlpaka"), edm::InputTag("pixelTracksLowPtAlpaka")});
+        "inputTracks", {edm::InputTag("pixelTracksHighPtAlpaka"), edm::InputTag("pixelTracksLowPtAlpaka")});
     desc.add<std::string>("minQuality", "highPurity");
     desc.add<double>("matchFraction", 0.0);
     desc.add<int>("minHitsForDuplicate", 3);
@@ -108,26 +111,33 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void TracksSoAMerger::acquire(device::Event const& iEvent, device::EventSetup const& iSetup) {
     auto queue = iEvent.queue();
 
-    std::vector<const reco::TracksSoACollection*> inputTkSoAs;
-    inputTkSoAs.resize(inputTkSoATokenV_.size());
+    std::vector<const Tracks*> trackSoAs;
+    trackSoAs.resize(trackTokens_.size());
 
-    maxTracks_ = 0;
+    auto maxTracks = 0;
 #ifdef GPU_DEBUG
-    std::cout << "TracksSoAMerger::acquire: nCollections_: " << nCollections_ << std::endl;
+    std::cout << "TracksSoAMerger::acquire: nCollections_: " << trackTokens_.size() << std::endl;
 #endif
-    for (int i = 0; i < nCollections_; ++i) {
-      auto const& aux = iEvent.get(inputTkSoATokenV_[i]);
-      inputTkSoAs[i] = &aux;
-      allTrackView_.views[i] = aux.view().tracks();
-      maxTracks_ += aux.view().tracks().metadata().size();
-      allTrackView_.hitViews[i] = aux.view().trackHits();
+
+    for (auto i = 0u; i < trackTokens_.size(); ++i) {
+      auto const& aux = iEvent.get(trackTokens_[i]);
+      trackSoAs[i] = &aux;
+      maxTracks += aux.view().tracks().metadata().size();
 #ifdef GPU_DEBUG
-      std::cout << "TracksSoAMerger::acquire: inputTkSoAs[" << i << "]: " << inputTkSoATagV_[i]
+      std::cout << "TracksSoAMerger::acquire: trackSoAs[" << i << "]: " << trackTags_[i]
                 << ", nTracks: " << aux.view().tracks().metadata().size() << std::endl;
 #endif
     }
 
-    allTrackView_.nTracks = maxTracks_;
+    TracksMultiView tracksViews(
+        trackSoAs, [](const Tracks* tracks) -> auto { return TracksConstView(tracks->const_view().tracks()); });
+    TrackHitsMultiView hitsViews(
+        trackSoAs, [](const Tracks* tracks) -> auto { return TrackHitsConstView(tracks->const_view().trackHits()); });
+
+    if (tracksViews.numViews() != hitsViews.numViews())
+      throw cms::Exception("TracksSoAMerger::acquire: numViews()")
+          << "Number of track views does not match number of hit views\n";
+
     bool doSameHitsDuplicates = (dupMinHits_ > 0) || (matchFraction_ > 0.0);  //these are min
     bool doParmsDupRejection =
         (dupNSigma2_ > 0.0) && (dupMaxDeltaR2_ > 0.0) && (dupPtDifference_ > 0.0);  //these are max
@@ -135,23 +145,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     AlgoParams params{doSameHitsDuplicates,
                       doParmsDupRejection,
                       minQuality_,
-                      maxTracks_,
+                      maxTracks,
                       dupMinHits_,
                       matchFraction_,
                       dupNSigma2_,
                       dupMaxDeltaR2_,
                       dupPtDifference_};
-    Algo deviceAlgo_(params, queue);
+    Algo deviceAlgo_(queue, params);
 
-    if (maxTracks_ > 0) {
-      tracks_d_ = deviceAlgo_.makeMergedTracks(queue, allTrackView_);  //TODO: better constructor
+    if (maxTracks > 0) {
+      tracks_d_ = deviceAlgo_.makeMergedTracks(queue, tracksViews, hitsViews);
     } else {
-      tracks_d_ = reco::TracksSoACollection(queue, 0, 0);
+      tracks_d_ = Tracks(queue, 0, 0);
     }
   }
 
   void TracksSoAMerger::produce(device::Event& iEvent, const device::EventSetup& es) {
-    iEvent.emplace(outputTkSoAToken_, std::move(*tracks_d_));
+    iEvent.emplace(outputTracks_, std::move(*tracks_d_));
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

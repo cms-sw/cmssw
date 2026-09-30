@@ -64,7 +64,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // void beginJob();
     // void endJob();
 
-
     TkSoADevice makeTuplesAsync(Queue& queue,
                                 HitsOnDeviceRefProdVector const& hitsRefProdVector,
                                 CAGeometryOnDevice const& params_d,
