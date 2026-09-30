@@ -17,7 +17,7 @@ namespace L1TSC4NGJet {
   typedef ap_fixed<64, 32, AP_RND, AP_SAT, 0> inputtype;
   typedef ap_ufixed<14, 0, AP_TRN, AP_SAT> inv_pt_t;
   typedef ap_ufixed<14, 4, AP_TRN, AP_SAT> log_pt_t;
-  
+
   template <class t>
   t candidate_mass(l1ct::PuppiObj puppicand) {
     // Define lookup table

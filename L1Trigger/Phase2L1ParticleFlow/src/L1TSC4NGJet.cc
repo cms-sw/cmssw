@@ -39,7 +39,7 @@ L1TSC4NGJetID::L1TSC4NGJetID(const std::shared_ptr<hls4mlEmulator::Model> model,
 
   fId_ = std::make_unique<inputtype[]>(fNParticles_);
   fCharge_ = std::make_unique<inputtype[]>(fNParticles_);
-  
+
   fJetEta_ = 0;
   fJetPtLog_ = 0;
 }
@@ -80,8 +80,8 @@ void L1TSC4NGJetID::setVectors() {
     candidate_vector_.push_back(filled ? fEmID_.get()[i0] : null_value);          // emID
     candidate_vector_.push_back(filled ? fQuality_.get()[i0] : null_value);       // quality
     candidate_vector_.push_back(filled ? fEta_.get()[i0] : null_value);           // eta
-  
-  if (isDebugEnabled_) {
+
+    if (isDebugEnabled_) {
       LogDebug("L1TSC4NGJetID") << "Particle: " << i0 << "\n"
                                 << "pT: " << candidate_vector_[i0 * N_candidate_features]
                                 << " | "
@@ -145,16 +145,15 @@ void L1TSC4NGJetID::setVectors() {
                                    "Eta: "
                                 << candidate_vector_[i0 * N_candidate_features + 20] << " | "
                                 << "===========" << std::endl;
-    }  
+    }
   }
   // After the particle loop
   jet_vector_.push_back(fJetEta_);
   jet_vector_.push_back(fJetPtLog_);
 }
 L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::EvaluateNNFixed() {
-
   inputtype fillzero = 0.0;
-  
+
   // Define Candidate inputs and fill fully with 0s. Allows for case when N_candidate_inputs > candidate_vector_.size().
   inputtype modelCandidateInput[N_candidate_inputs] = {};
   std::fill(modelCandidateInput, modelCandidateInput + N_candidate_inputs, fillzero);
@@ -255,7 +254,7 @@ L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::computeFixed(const l1t::PFJet& iJet
   inputtype jet_pt_ = inputtype(ctJet.hwPt);
   inputtype jet_eta_ = inputtype(ctJet.hwEta);
   inputtype jet_phi_ = inputtype(ctJet.hwPhi);
-  
+
   // Fill jet level features
   fJetEta_ = jet_eta_;
   fJetPtLog_ = l1ct::log_with_shift<l1ct::pt_t, log_pt_t, LOG_LUT_SIZE>(jet_pt_);
