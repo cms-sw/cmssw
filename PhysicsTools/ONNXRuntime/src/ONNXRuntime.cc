@@ -46,13 +46,13 @@ namespace cms::Ort {
 
   }  // namespace
 
-  ONNXRuntime::ONNXRuntime(const std::string& model_path, const SessionOptions* session_options) {
-    // note: Ort::SessionOptions cannot be copied
-    if (session_options) {
-      initialize(model_path, *session_options);
-    } else {
-      initialize(model_path, defaultSessionOptions());
-    }
+  ONNXRuntime::ONNXRuntime(const std::string& model_path) {
+    // use the default session options for the given backend and device
+    initialize(model_path, defaultSessionOptions());
+  }
+
+  ONNXRuntime::ONNXRuntime(const std::string& model_path, const SessionOptions& session_options) {
+    initialize(model_path, session_options);
   }
 
   ONNXRuntime::ONNXRuntime(const std::string& model_path, Backend backend, edm::StreamID id) {
@@ -105,8 +105,6 @@ namespace cms::Ort {
       output_node_dims_[output_name].at(0) = -1;
     }
   }
-
-  ONNXRuntime::~ONNXRuntime() {}
 
   SessionOptions ONNXRuntime::defaultSessionOptions(Backend backend, int device) {
     return edm::Service<ONNXInterface>()->sessionOptions(backend, device);
