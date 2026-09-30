@@ -34,9 +34,8 @@ namespace edm::service {
              << module.moduleName() << "\" libraries=" << smaps.libraries.size();
 
       for (auto const& library : smaps.libraries) {
-        report << "\n library path=\"" << library.path << "\" sizeKB=" << library.sizeKB
-               << " rssKB=" << library.rssKB << " pssKB=" << library.pssKB
-               << " executableSizeKB=" << library.executableSizeKB;
+        report << "\n library path=\"" << library.path << "\" sizeKB=" << library.sizeKB << " rssKB=" << library.rssKB
+               << " pssKB=" << library.pssKB << " executableSizeKB=" << library.executableSizeKB;
         totalSizeKB += library.sizeKB;
         totalRssKB += library.rssKB;
         totalPssKB += library.pssKB;
@@ -44,8 +43,7 @@ namespace edm::service {
       }
 
       report << "\n summary libraries=" << smaps.libraries.size() << " sizeKB=" << totalSizeKB
-             << " rssKB=" << totalRssKB << " pssKB=" << totalPssKB
-             << " executableSizeKB=" << totalExecutableSizeKB;
+             << " rssKB=" << totalRssKB << " pssKB=" << totalPssKB << " executableSizeKB=" << totalExecutableSizeKB;
       LogAbsolute("LibraryMemoryReport") << report.str();
     }
   };

@@ -8,15 +8,7 @@
 #include <vector>
 
 namespace edm::service {
-  enum class SmapsSection : unsigned int {
-    kSharedObject = 0,
-    kPcm,
-    kOtherFile,
-    kStack,
-    kMmap,
-    kOther,
-    kSize
-  };
+  enum class SmapsSection : unsigned int { kSharedObject = 0, kPcm, kOtherFile, kStack, kMmap, kOther, kSize };
 
   struct SmapsLibraryInfo {
     std::string path;
