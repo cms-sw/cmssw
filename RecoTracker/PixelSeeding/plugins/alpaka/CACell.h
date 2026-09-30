@@ -7,12 +7,13 @@
 
 #include <cmath>
 #include <limits>
+#include <Eigen/Core>
+// ^ Eigen is needed here to be 100% sure that it is included **before**
+//   any SoA headers to enable support for Eigen columns (for all the SoAs).
 
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
-#include "DataFormats/TrackSoA/interface/TracksSoA.h"
-#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/SimpleVector.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/VecArray.h"

@@ -1,0 +1,234 @@
+import FWCore.ParameterSet.Config as cms
+
+# list of layers to exclude from the CA (empty list doesn't exclude; [28, 29, 30] excludes the OT)
+layersToExclude = []
+
+# layers
+layers = [
+    #     0,        1,     2,       3,      4,        5,        6,       7
+    # index, isBarrel, caDCA, caTheta, startR, maxDCurv,floorDCurv, fishCut
+    [     0,     True,  0.15,   0.002,   99.0,     99.0,      99.0, 0.99999],
+    [     1,     True,  0.25,   0.002,   99.0,     99.0,      99.0, 0.99999],
+    [     2,     True,  0.20,   0.002,   99.0,     99.0,      99.0, 0.99999],
+    [     3,     True,  0.20,   0.002,   99.0, 4.90e-02,  8.54e-04, 0.99999],
+    [     4,    False,  0.25,   0.003,   99.0, 6.68e-02,  9.13e-04, 0.99999],
+    [     5,    False,  0.25,   0.003,   99.0, 8.73e-02,  1.67e-03, 0.99999],
+    [     6,    False,  0.25,   0.003,   99.0, 1.02e-01,  3.65e-03, 0.99999],
+    [     7,    False,  0.25,   0.003,   99.0, 1.06e-01,  4.16e-03, 0.99999],
+    [     8,    False,  0.25,   0.003,   99.0, 5.24e-02,  4.87e-03, 0.999999],
+    [     9,    False,  0.25,   0.003,   99.0, 1.18e-01,  4.04e-03, 0.999999],
+    [    10,    False,  0.25,   0.003,   99.0, 1.12e-01,  4.01e-03, 0.999999],
+    [    11,    False,  0.25,   0.003,   99.0, 8.79e-02,  4.15e-03, 0.999999],
+    [    12,    False,  0.40,   0.003,   99.0, 8.79e-02,  4.15e-03, 0.999999],
+    [    13,    False,  0.40,   0.003,   99.0, 1.05e-01,  4.33e-03, 0.999999],
+    [    14,    False,  0.25,   0.003,   99.0, 1.05e-01,  4.33e-03, 0.999999],
+    [    15,    False,  0.25,   0.003,   99.0, 1.05e-01,  4.33e-03, 0.999999],
+    [    16,    False,  0.25,   0.003,   99.0, 6.68e-02,  9.13e-04, 0.99999],
+    [    17,    False,  0.25,   0.003,   99.0, 8.73e-02,  1.67e-03, 0.99999],
+    [    18,    False,  0.25,   0.003,   99.0, 1.02e-01,  3.65e-03, 0.99999],
+    [    19,    False,  0.25,   0.003,   99.0, 1.06e-01,  4.16e-03, 0.99999],
+    [    20,    False,  0.25,   0.003,   99.0, 5.24e-02,  4.87e-03, 0.999999],
+    [    21,    False,  0.25,   0.003,   99.0, 1.18e-01,  4.04e-03, 0.999999],
+    [    22,    False,  0.25,   0.003,   99.0, 1.12e-01,  4.01e-03, 0.999999],
+    [    23,    False,  0.25,   0.003,   99.0, 8.79e-02,  4.15e-03, 0.999999],
+    [    24,    False,  0.40,   0.003,   99.0, 8.79e-02,  4.15e-03, 0.999999],
+    [    25,    False,  0.40,   0.003,   99.0, 1.05e-01,  4.33e-03, 0.999999],
+    [    26,    False,  0.25,   0.003,   99.0, 1.05e-01,  4.33e-03, 0.999999],
+    [    27,    False,  0.25,   0.003,   99.0, 1.05e-01,  4.33e-03, 0.999999],
+    [    28,     True,  0.50,   0.005,   99.0, 8.16e-02,  8.32e-04, 0.99999],
+    [    29,     True,  0.50,   0.005,   99.0, 4.82e-02,  4.27e-04, 0.99999],
+    [    30,     True,  0.50,   0.005,   99.0, 3.79e-02,  2.76e-04, 0.99999],
+]
+
+# layerPairs for doublet building including pair-specific cut values
+layerPairs = [
+    #  0,  1,     2,     3,      4,      5,      6,       7,       8,     9,     10,     11,     12
+    #  i,  o, start,  skip, phiCut,  minIn,  maxIn,  minOut,  maxOut, maxDR,  minDZ,  maxDZ, ptCuts
+    [  0,  1,  True, False,    350,  -17.0,   17.0,  -10000,   10000,   5.0,  -16.0,   16.0,  0.7],
+    [  0,  2,  True,  True,    600,  -14.0,   14.0,  -10000,   10000,  10.0,  -16.0,   16.0,  0.8],
+    [  0,  4,  True, False,    450,    3.0,  10000,       0,    12.0,   8.5,    0.0,   25.0,  0.6],
+    [  0,  5,  True,  True,    522,    7.0,  10000,       0,   10000,   5.0,    0.0,   25.0,  0.85],
+  # [  0,  6, False,  True,    522,   11.0,  10000,       0,   10000,   5.0, -10000,  10000,  0.85],
+    [  0, 16,  True, False,    450, -10000,   -3.0,       0,    12.0,   8.5,  -25.0,    0.0,  0.6],
+    [  0, 17,  True,  True,    522, -10000,   -7.0,       0,   10000,   5.0,  -25.0,    0.0,  0.85],
+  # [  0, 18, False,  True,    522, -10000,  -10.0,       0,   10000,   5.0, -10000,  10000,  0.85],
+    [  1,  2,  True, False,    400,  -17.0,   17.0,  -10000,   10000,   7.0,  -13.0,   13.0,  0.85],
+    [  1,  3, False,  True,    650,  -15.0,   15.0,  -10000,   10000,  10.0,  -17.0,   17.0,  0.85],
+    [  1,  4,  True, False,    500,    6.0,  10000,     6.5,   10000,   8.5,    0.0,   19.0,  0.85],
+    [  1,  5, False,  True,    730,    9.0,  10000,     6.5,   10000,  10.0,    0.0,   21.0,  0.85],
+  # [  1,  6, False,  True,    730,   13.0,  10000,     6.5,   10000,   8.0, -10000,  10000,  0.85],
+    [  1, 16,  True, False,    500, -10000,   -6.0,     6.5,   10000,   8.5,  -19.0,    0.0,  0.85],
+    [  1, 17, False,  True,    730, -10000,   -9.0,     6.5,   10000,  10.0,  -21.0,    0.0,  0.85],
+  # [  1, 18, False,  True,    730, -10000,  -13.0,     6.5,   10000,   8.0, -10000,  10000,  0.85],
+  # [  1, 28, False, False,   1300,    7.0,  10000,    30.0,    40.0, 10000,   19.0,   32.0,   1.0],
+  # [  1, 28, False, False,   1300, -10000,   -7.0,   -40.0,   -30.0, 10000,  -32.0,  -19.0,   1.0],
+    [  2,  3, False, False,    350,  -18.0,   18.0,  -10000,   10000,   7.0,   -9.0,    9.0,  0.85],
+    [  2,  4, False, False,    400,   11.0,  10000,    11.7,   10000,   7.0,    0.0,   13.0,  0.85],
+    [  2, 16, False, False,    400, -10000,  -11.0,    11.7,   10000,   7.0,  -13.0,    0.0,  0.85],
+    [  2, 28, False, False,   1200,    -10,     10,   -30.0,    30.0, 10000,  -15.0,   15.0,   2.0],
+    [  2, 28, False, False,   1200,    -20,    -10,   -50.0,   -25.0, 10000,  -35.0,  -10.0,  0.85],
+    [  2, 28, False, False,   1200,     10,     20,    25.0,    50.0, 10000,   10.0,   35.0,  0.85],
+  # [  2, 28, False, False,   1200,    -20,     20,   -50.0,    50.0, 10000,  -35.0,   35.0,  0.85],
+    [  3, 28, False, False,   1000,    -20,     20,   -45.0,    45.0, 10000,  -22.0,   22.0,  0.85],
+  # [  3, 29, False,  True,   1500,    -40,     40,  -10000,   10000, 10000, -10000,  10000,  0.85],
+    [  4,  5,  True, False,    300,      0,   14.0,     3.5,   10000,   4.5, -10000,  10000,  0.85],
+    [  4,  6, False,  True,    522,      0,   14.0,     3.5,   10000,   9.0, -10000,  10000,  0.85],
+    [  4, 28, False, False,   1000,   11.6,  10000,    30.0,    57.5,  16.0,    5.0,   32.5,  0.85],
+  # [  4, 29, False,  True,   1000,      0,  10000,  -10000,   10000, 10000, -10000,  10000,  0.85],
+    [  5,  6,  True, False,    300,      0,   13.0,     3.5,   10000,   4.5, -10000,  10000,  0.85],
+    [  5,  7, False,  True,    522,      0,   13.0,     3.5,   10000,   9.0, -10000,  10000,  0.85],
+    [  5, 28, False, False,   1000,   11.6,  10000,    40.0,    80.0,  16.0,  -10.0,   50.0,  0.85],
+  # [  5, 29, False,  True,   1000,      0,  10000,  -10000,   10000, 10000, -10000,  10000,  0.85],
+    [  6,  7,  True, False,    250,      0,   13.0,     3.5,   10000,   4.5, -10000,  10000,  0.85],
+    [  6,  8, False,  True,    522,      0,   13.0,     3.5,   10000,   9.0, -10000,  10000,  0.85],
+    [  6, 28, False, False,   1000,   11.6,  10000,    55.0,    95.0,  16.0,    5.0,   50.0,  0.85],
+  # [  6, 29, False,  True,   1000,      0,  10000,  -10000,   10000, 10000, -10000,  10000,  0.85],
+    [  7,  8,  True, False,    250,      0,   13.0,     3.5,   10000,   4.5, -10000,  10000,  0.85],
+    [  7,  9, False,  True,    522,      0,   13.0,     3.5,   10000,   8.0, -10000,  10000,  0.85],
+    [  7, 28, False, False,   1000,   11.8,  10000,    70.0,   110.0,  16.0,   15.0,   70.0,  0.85],
+  # [  7, 29, False,  True,   1000,      0,  10000,  -10000,   10000, 10000, -10000,  10000,  0.85],
+    [  8,  9,  True, False,    250,      0,   13.0,     3.5,   10000,   4.0, -10000,  10000,  0.85],
+    [  8, 10, False,  True,    522,      0,   13.0,     3.5,   10000,   8.0, -10000,  10000,  0.85],
+    [  8, 28, False, False,    850,      0,  10000,    80.0,   10000,  14.0,   25.0,   70.0,  0.85],
+  # [  8, 29, False,  True,   1000,      0,  10000,       0,   10000, 10000, -10000,  10000,  0.85],
+    [  9, 10,  True, False,    300,      0,   13.0,     4.0,   10000,   4.5, -10000,  10000,  0.85],
+    [  9, 11, False,  True,    522,      0,   13.0,     4.0,   10000,   8.0, -10000,  10000,  0.85],
+  # [  9, 28, False, False,   1000,      0,  10000,       0,   10000, 10000, -10000,  10000,  0.85],
+    [ 10, 11,  True, False,    240,      0,   13.0,     3.5,   10000,   4.0, -10000,  10000,  0.85],
+    [ 10, 12, False,  True,    650,   12.5,   16.5,    20.0,   10000,  10.0, -10000,  10000,  0.85],
+    [ 11, 12, False, False,    300,      0,   16.5,     6.0,    21.0,   5.0, -10000,  10000,  0.85],
+    [ 11, 13, False, False,    200,      0,    6.0,       0,     7.5,   3.0, -10000,  10000,  0.85],
+    [ 11, 14, False, False,    220,      0,    4.6,       0,     7.5,   3.0, -10000,  10000,  0.85],
+    [ 11, 15, False, False,    250,      0,    6.0,       0,   10000,   4.0, -10000,  10000,  0.85],
+    [ 12, 13, False, False,    250,      0,   22.5,     7.0,   10000,   4.0, -10000,  10000,  0.85],
+    [ 13, 14, False, False,    250,      0,   22.5,     7.0,   10000,   4.0, -10000,  10000,  0.85],
+    [ 14, 15, False, False,    250,      0,   22.5,     7.0,   10000,   3.5, -10000,  10000,  0.85],
+    [ 16, 17,  True, False,    300,      0,   14.0,     3.5,   10000,   4.5, -10000,  10000,  0.85],
+    [ 16, 18, False,  True,    522,      0,   14.0,     3.5,   10000,   9.0, -10000,  10000,  0.85],
+    [ 16, 28, False, False,   1000,   11.6,  10000,   -57.5,   -30.0,  16.0,  -32.5,   -5.0,  0.85],
+  # [ 16, 29, False,  True,   1000,      0,  10000,  -10000,   10000, 10000, -10000,  10000,  0.85],
+    [ 17, 18,  True, False,    300,      0,   13.0,     3.5,   10000,   4.5, -10000,  10000,  0.85],
+    [ 17, 19, False,  True,    522,      0,   13.0,     3.5,   10000,   9.0, -10000,  10000,  0.85],
+    [ 17, 28, False, False,   1000,   11.6,  10000,   -80.0,   -40.0,  16.0,  -50.0,  -10.0,  0.85],
+  # [ 17, 29, False,  True,   1000,      0,  10000,  -10000,   10000, 10000, -10000,  10000,  0.85],
+    [ 18, 19,  True, False,    250,      0,   13.0,     3.5,   10000,   4.5, -10000,  10000,  0.85],
+    [ 18, 20, False,  True,    522,      0,   13.0,     3.5,   10000,   9.0, -10000,  10000,  0.85],
+    [ 18, 28, False, False,   1000,   11.6,  10000,   -95.0,   -55.0,  16.0,  -50.0,   -5.0,  0.85],
+  # [ 18, 29, False,  True,   1000,      0,  10000,  -10000,   10000, 10000, -10000,  10000,  0.85],
+    [ 19, 20,  True, False,    250,      0,   13.0,     3.5,   10000,   4.5, -10000,  10000,  0.85],
+    [ 19, 21, False,  True,    522,      0,   13.0,     3.5,   10000,   8.0, -10000,  10000,  0.85],
+    [ 19, 28, False, False,   1000,   11.8,  10000,  -110.0,   -70.0,  16.0,  -70.0,  -15.0,  0.85],
+  # [ 19, 29, False,  True,   1000,      0,  10000,  -10000,   10000, 10000, -10000,  10000,  0.85],
+    [ 20, 21,  True, False,    250,      0,   13.0,     3.5,   10000,   4.0, -10000,  10000,  0.85],
+    [ 20, 22, False,  True,    522,      0,   13.0,     3.5,   10000,   8.0, -10000,  10000,  0.85],
+    [ 20, 28, False, False,   1000,      0,  10000,  -10000,   -80.0,  14.0,  -70.0,  -25.0,  0.85],
+  # [ 20, 29, False,  True,   1000,      0,  10000,  -10000,   10000, 10000, -10000,  10000,  0.85],
+    [ 21, 22,  True, False,    300,      0,   13.0,     4.0,   10000,   4.5, -10000,  10000,  0.85],
+    [ 21, 23, False,  True,    522,      0,   13.0,     4.0,   10000,   8.0, -10000,  10000,  0.85],
+  # [ 21, 28, False, False,   1000,      0,  10000,  -10000,   10000, 10000, -10000,  10000,  0.85],
+    [ 22, 23,  True, False,    240,      0,   13.0,     3.5,   10000,   4.0, -10000,  10000,  0.85],
+    [ 22, 24, False,  True,    650,   12.5,   16.5,    20.0,   10000,  10.0, -10000,  10000,  0.85],
+    [ 23, 24, False, False,    300,      0,   16.5,     6.0,    21.0,   5.0, -10000,  10000,  0.85],
+    [ 23, 25, False, False,    200,      0,    6.0,       0,     7.5,   3.0, -10000,  10000,  0.85],
+    [ 23, 26, False, False,    220,      0,    4.6,       0,     7.5,   3.0, -10000,  10000,  0.85],
+    [ 23, 27, False, False,    250,      0,    6.0,       0,   10000,   4.0, -10000,  10000,  0.85],
+    [ 24, 25, False, False,    250,      0,   22.5,     7.0,   10000,   4.0, -10000,  10000,  0.85],
+    [ 25, 26, False, False,    250,      0,   22.5,     7.0,   10000,   4.0, -10000,  10000,  0.85],
+    [ 26, 27, False, False,    250,      0,   22.5,     7.0,   10000,   3.5, -10000,  10000,  0.85],
+    [ 28, 29, False, False,   1100,  -1200,   1200,  -10000,   10000, 10000,  -50.0,   50.0,  0.85],
+  # [ 28, 30, False,  True,   2000,    -40,     40,  -10000,   10000, 10000, -10000,  10000,  0.85],
+    [ 29, 30, False, False,   1250,  -1200,   1200,  -10000,   10000, 10000,  -40.0,   40.0,  0.85],
+]
+
+# find the layerPairs that contain a layer that is excluded
+excludeLayerPair = [any([(lp[0] == l) or (lp[1] == l) for l in layersToExclude]) for lp in layerPairs]
+
+# exclude those layerPairs
+layerPairsCAExtension = []
+for i, lp in enumerate(layerPairs):
+    if not excludeLayerPair[i]:
+        layerPairsCAExtension.append(lp)
+
+# get startingPairs for Ntuplet building
+startingPairsCAExtension = []
+for i, lp in enumerate(layerPairsCAExtension):
+    if lp[2]:
+        startingPairsCAExtension.append(i)
+
+pixelTracksExtendedSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
+    pixelRecHitSrc = cms.InputTag(''),
+    trackerRecHitsSoA = cms.InputTag(''),
+    ptmin = cms.double(0.9),
+    hardCurvCut = cms.double(0.02), # corresponds to 800 MeV in 3.8T.
+    earlyFishbone = cms.bool(True),
+    lateFishbone = cms.bool(False),
+    onlySameLayersFishbone = cms.bool(True),
+    fillStatistics = cms.bool(False),
+    minHitsPerNtuplet = cms.uint32(4),
+    maxNumberOfDoublets = cms.string(str(6e6)), #12*512*1024
+    maxNumberOfTuples = cms.string(str(2*60*1024)),
+    cellZ0Cut = cms.double(13.),
+    minYsizeB1 = cms.int32(15),
+    minYsizeB2 = cms.int32(14),
+    maxDYsize12 = cms.int32(15),
+    maxDYsize = cms.int32(20),
+    maxDYPred = cms.int32(24),
+    avgHitsPerTrack = cms.double(8.0),
+    avgCellsPerHit = cms.double(20),
+    avgCellsPerCell = cms.double(0.5),
+    avgTracksPerCell = cms.double(0.09),
+    minHitsForSharingCut = cms.uint32(1),
+    fitNas4 = cms.bool(False),
+    useRiemannFit = cms.bool(False),
+    doSharedHitCut = cms.bool(True),
+    dupPassThrough = cms.bool(False),
+    useSimpleTripletCleaner = cms.bool(True),
+    doTripletCleaner = cms.bool(True),
+    doFastDuplicateRemover = cms.bool(True),
+    doEarlyDuplicateRemover = cms.bool(True),
+    iterationName = cms.string("promptHighPt"),
+    hitMask = cms.InputTag(""),
+    trackQualityCuts = cms.PSet(
+        maxChi2TripletsOrQuadruplets = cms.double(1.0),
+        maxChi2Quintuplets = cms.double(3.0),
+        maxChi2 = cms.double(5.0),
+        minPt   = cms.double(0.9),
+        maxTip  = cms.double(0.3),
+        maxZip  = cms.double(12),
+    ),
+    geometry = cms.PSet(
+        # This cut also uses the hardCurvCut parameters inside the
+        # Kernel_connect "function". This is used to cut connections that have
+        # either a too low p_t or that do not intersect the BS+tolerance
+        # region. Internally, this cut is compared against the circle.dca0() in
+        # natural units divided by circle.curvature(), where circle is the
+        # circle passing through the 3 points of the triplet under
+        # investigation. Therefore the cut represent the compatibility of the
+        # circle in the transverse plane and the units are meant to be cm.
+        caDCACuts   = cms.vdouble([l[2] for l in layers]),
+        # caThetaCut is used in the areAlignedRZ function to check if two
+        # sibling cell are compatible in the R-Z plane. In that same function,
+        # we also use ptmin variable. The caThetaCut is assigned to the SoA of
+        # the layers, and is percolated into this compatibility function via
+        # the SoA itself.
+        caThetaCuts = cms.vdouble([l[3] for l in layers]),
+        startingPairs = cms.vuint32(startingPairsCAExtension),
+        startMaxInnerR = cms.vdouble([l[4] for l in layers]),
+        maxDCurv    = cms.vdouble([l[5] for l in layers]),
+        floorDCurv       = cms.vdouble([l[6] for l in layers]),
+        fishboneCuts   = cms.vdouble([l[7] for l in layers]),
+        pairGraph = cms.vuint32(sum([[lp[0], lp[1]] for lp in layerPairsCAExtension], [])),
+        skipsLayers = cms.vuint32( [int(lp[ 3]) for lp in layerPairsCAExtension]),
+        phiCuts     = cms.vint32( [lp[ 4] for lp in layerPairsCAExtension]),
+        minInner    = cms.vdouble([lp[ 5] for lp in layerPairsCAExtension]),
+        maxInner    = cms.vdouble([lp[ 6] for lp in layerPairsCAExtension]),
+        minOuter    = cms.vdouble([lp[ 7] for lp in layerPairsCAExtension]),
+        maxOuter    = cms.vdouble([lp[ 8] for lp in layerPairsCAExtension]),
+        maxDR       = cms.vdouble([lp[ 9] for lp in layerPairsCAExtension]),
+        minDZ       = cms.vdouble([lp[10] for lp in layerPairsCAExtension]),
+        maxDZ       = cms.vdouble([lp[11] for lp in layerPairsCAExtension]),
+        ptCuts      = cms.vdouble([lp[12] for lp in layerPairsCAExtension]),
+    ),
+    # autoselect the alpaka backend
+    alpaka = cms.untracked.PSet(backend = cms.untracked.string(''))
+)
