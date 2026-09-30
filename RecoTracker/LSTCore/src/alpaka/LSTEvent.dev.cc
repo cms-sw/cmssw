@@ -25,6 +25,25 @@ using Acc3D = ALPAKA_ACCELERATOR_NAMESPACE::Acc3D;
 
 using namespace ALPAKA_ACCELERATOR_NAMESPACE::lst;
 
+namespace {
+  // Size of a typed buffer in MB, for the memory accounting.
+  template <typename TBuf>
+  float bufferMB(TBuf const& buf) {
+    return alpaka::getExtentProduct(buf) * sizeof(alpaka::Elem<TBuf>) / 1e6f;
+  }
+
+  // Largest grid extent in the slowest dimension of TAcc, from the device's 3D grid limits; one block on the CPU
+  // backends, where each block runs on one thread at a fixed cost (the kernels' grid-stride loops cover the rest).
+  template <typename TAcc>
+  unsigned int maxGridBlocks(alpaka_common::Vec3D const& maxGridBlockExtent) {
+    if constexpr (cms::alpakatools::requires_single_thread_per_block_v<TAcc>) {
+      return 1u;
+    } else {
+      return alpaka::getExtentVecEnd<alpaka::Dim<TAcc>>(maxGridBlockExtent)[0];
+    }
+  }
+}  // namespace
+
 void LSTEvent::initSync() {
   alpaka::wait(queue_);  // other calls can be asynchronous
 
@@ -224,71 +243,89 @@ void LSTEvent::addPixelSegmentToEvent() {
 }
 
 void LSTEvent::createMiniDoublets() {
-  if (!miniDoubletsDC_) {
-    auto rangesOccupancy = rangesDC_->view();
+  // CreateMiniDoublets reads the pass mask that CountMiniDoublets fills, so both run once per event.
+  if (miniDoubletsDC_)
+    lstLogicError("LSTEvent::createMiniDoublets: mini-doublets already created in this event");
 
-    // Zero the occupancy array so CountMiniDoublets's atomicAdd starts from 0.
-    auto miniDoubletModuleOccupancy_view =
-        cms::alpakatools::make_device_view(queue_, rangesOccupancy.miniDoubletModuleOccupancy());
-    alpaka::memset(queue_, miniDoubletModuleOccupancy_view, 0u);
-
-    // Set the pixel slot to 2 * pixelSize_. pixelModuleIndex_ == nLowerModules_ by construction
-    // (ModuleMethods.h sets the pixel detId's index to nLowerModules), so a single memcpy is enough.
-    auto pixelMaxMDs_buf_h = cms::alpakatools::make_host_buffer<int>(queue_);
-    *pixelMaxMDs_buf_h.data() = 2 * pixelSize_;
-    auto dst_view_miniDoubletModuleOccupancyPix =
-        cms::alpakatools::make_device_view(queue_, rangesOccupancy.miniDoubletModuleOccupancy()[pixelModuleIndex_]);
-    alpaka::memcpy(queue_, dst_view_miniDoubletModuleOccupancyPix, pixelMaxMDs_buf_h);
-
-    constexpr int threadsPerBlockY = 16;
-    auto const countMiniDoublets_workDiv =
-        cms::alpakatools::make_workdiv<Acc2D>({nLowerModules_ / threadsPerBlockY, 1}, {threadsPerBlockY, 32});
-
-    alpaka::exec<Acc2D>(queue_,
-                        countMiniDoublets_workDiv,
-                        CountMiniDoublets{},
-                        modules_.const_view().modules(),
-                        lstInputDC_->const_view().hits(),
-                        hitsDC_->const_view().extended(),
-                        hitsDC_->const_view().ranges(),
-                        rangesDC_->view(),
-                        ptCut_,
-                        clustSizeCut_);
-
-    auto const createMDArrayRangesGPU_workDiv = cms::alpakatools::make_workdiv<Acc1D>(1, 1024);
-
-    alpaka::exec<Acc1D>(queue_,
-                        createMDArrayRangesGPU_workDiv,
-                        CreateMDArrayRangesGPU{},
-                        modules_.const_view().modules(),
-                        rangesDC_->view());
-
-    auto nTotalMDs_buf_h = cms::alpakatools::make_host_buffer<unsigned int>(queue_);
-    auto nTotalMDs_buf_d = cms::alpakatools::make_device_view(queue_, rangesOccupancy.nTotalMDs());
-    alpaka::memcpy(queue_, nTotalMDs_buf_h, nTotalMDs_buf_d);
-    alpaka::wait(queue_);  // wait to get the data before manipulation
-
-    nTotalMDsOT_ = *nTotalMDs_buf_h.data();
-    *nTotalMDs_buf_h.data() += 2 * pixelSize_;
-    unsigned int nTotalMDs = *nTotalMDs_buf_h.data();
-
-    miniDoubletsDC_.emplace(queue_, nTotalMDs, nLowerModules_ + 1);
-    miniDoubletsBuildDC_.emplace(queue_, nTotalMDs);
-    if (objectsStatistics_) {
-      double mb = alpaka::getExtentProduct(miniDoubletsDC_->buffer()) / 1e6;
-      trackAllocatedMB(mb);
-      lstWarning(std::format("[MEM] MiniDoublets: {} allocated ({:.1f} MB)", nTotalMDs, mb));
-      mb = alpaka::getExtentProduct(miniDoubletsBuildDC_->buffer()) / 1e6;
-      trackAllocatedMB(mb);
-      lstWarning(std::format("[MEM] MiniDoubletsBuild: {} allocated ({:.1f} MB)", nTotalMDs, mb));
-    }
-
-    auto mdsOccupancy = miniDoubletsDC_->view().miniDoubletsOccupancy();
-    auto nMDs_view = cms::alpakatools::make_device_view(queue_, mdsOccupancy.nMDs());
-    auto totOccupancyMDs_view = cms::alpakatools::make_device_view(queue_, mdsOccupancy.totOccupancyMDs());
-    alpaka::memset(queue_, nMDs_view, 0u);
-    alpaka::memset(queue_, totOccupancyMDs_view, 0u);
+  // Hit pairs accepted by CountMiniDoublets, one bit mask per lower hit (indexed by hit); transient.
+  const int32_t nHits = lstInputDC_->size()[0];
+  auto mdPassMask_buf = cms::alpakatools::make_device_buffer<MDPassMaskType[]>(queue_, nHits);
+  float mdPassMaskMB = 0;
+  if (objectsStatistics_) {
+    mdPassMaskMB = bufferMB(mdPassMask_buf);
+    trackTransientMB(mdPassMaskMB);
+    lstWarning(std::format("[MEM] (transient) MiniDoublet pass masks: {} hits ({:.1f} MB)", nHits, mdPassMaskMB));
   }
+
+  auto rangesOccupancy = rangesDC_->view();
+
+  // Zero the occupancy array so CountMiniDoublets's atomicAdd starts from 0.
+  auto miniDoubletModuleOccupancy_view =
+      cms::alpakatools::make_device_view(queue_, rangesOccupancy.miniDoubletModuleOccupancy());
+  alpaka::memset(queue_, miniDoubletModuleOccupancy_view, 0u);
+
+  // Set the pixel slot to 2 * pixelSize_. pixelModuleIndex_ == nLowerModules_ by construction
+  // (ModuleMethods.h sets the pixel detId's index to nLowerModules), so a single memcpy is enough.
+  auto pixelMaxMDs_buf_h = cms::alpakatools::make_host_buffer<int>(queue_);
+  *pixelMaxMDs_buf_h.data() = 2 * pixelSize_;
+  auto dst_view_miniDoubletModuleOccupancyPix =
+      cms::alpakatools::make_device_view(queue_, rangesOccupancy.miniDoubletModuleOccupancy()[pixelModuleIndex_]);
+  alpaka::memcpy(queue_, dst_view_miniDoubletModuleOccupancyPix, pixelMaxMDs_buf_h);
+
+  // Lower modules over y, their lower hits over x (tuning values; the kernel uses no warp-level operations).
+  constexpr unsigned int kMDCountModulesPerBlock = 2;
+  constexpr unsigned int kMDCountLowerHitThreads = 64;
+  auto const countMiniDoublets_workDiv = cms::alpakatools::make_workdiv<Acc2D>(
+      {std::min(cms::alpakatools::divide_up_by(nLowerModules_, kMDCountModulesPerBlock),
+                maxGridBlocks<Acc2D>(maxGridBlockExtent_)),
+       1u},
+      {kMDCountModulesPerBlock, kMDCountLowerHitThreads});
+
+  alpaka::exec<Acc2D>(queue_,
+                      countMiniDoublets_workDiv,
+                      CountMiniDoublets{},
+                      modules_.const_view().modules(),
+                      lstInputDC_->const_view().hits(),
+                      hitsDC_->const_view().extended(),
+                      hitsDC_->const_view().ranges(),
+                      rangesDC_->view(),
+                      mdPassMask_buf.data(),
+                      ptCut_,
+                      clustSizeCut_);
+
+  auto const createMDArrayRangesGPU_workDiv = cms::alpakatools::make_workdiv<Acc1D>(1, 1024);
+
+  alpaka::exec<Acc1D>(queue_,
+                      createMDArrayRangesGPU_workDiv,
+                      CreateMDArrayRangesGPU{},
+                      modules_.const_view().modules(),
+                      rangesDC_->view());
+
+  auto nTotalMDs_buf_h = cms::alpakatools::make_host_buffer<unsigned int>(queue_);
+  auto nTotalMDs_buf_d = cms::alpakatools::make_device_view(queue_, rangesOccupancy.nTotalMDs());
+  alpaka::memcpy(queue_, nTotalMDs_buf_h, nTotalMDs_buf_d);
+  alpaka::wait(queue_);  // wait to get the data before manipulation
+
+  nTotalMDsOT_ = *nTotalMDs_buf_h.data();
+  *nTotalMDs_buf_h.data() += 2 * pixelSize_;
+  unsigned int nTotalMDs = *nTotalMDs_buf_h.data();
+
+  miniDoubletsDC_.emplace(queue_, nTotalMDs, nLowerModules_ + 1);
+  miniDoubletsBuildDC_.emplace(queue_, nTotalMDs);
+  if (objectsStatistics_) {
+    double mb = alpaka::getExtentProduct(miniDoubletsDC_->buffer()) / 1e6;
+    trackAllocatedMB(mb);
+    lstWarning(std::format("[MEM] MiniDoublets: {} allocated ({:.1f} MB)", nTotalMDs, mb));
+    mb = alpaka::getExtentProduct(miniDoubletsBuildDC_->buffer()) / 1e6;
+    trackAllocatedMB(mb);
+    lstWarning(std::format("[MEM] MiniDoubletsBuild: {} allocated ({:.1f} MB)", nTotalMDs, mb));
+  }
+
+  auto mdsOccupancy = miniDoubletsDC_->view().miniDoubletsOccupancy();
+  auto nMDs_view = cms::alpakatools::make_device_view(queue_, mdsOccupancy.nMDs());
+  auto totOccupancyMDs_view = cms::alpakatools::make_device_view(queue_, mdsOccupancy.totOccupancyMDs());
+  alpaka::memset(queue_, nMDs_view, 0u);
+  alpaka::memset(queue_, totOccupancyMDs_view, 0u);
 
   auto connView = cms::alpakatools::make_device_view(queue_, miniDoubletsBuildDC_->view().connectedMax());
   alpaka::memset(queue_, connView, 0u);
@@ -296,7 +333,6 @@ void LSTEvent::createMiniDoublets() {
   unsigned int mdSize = pixelSize_ * 2;
   auto src_view_mdSize = cms::alpakatools::make_host_view(mdSize);
 
-  auto mdsOccupancy = miniDoubletsDC_->view().miniDoubletsOccupancy();
   auto dst_view_nMDs = cms::alpakatools::make_device_view(queue_, mdsOccupancy.nMDs()[pixelModuleIndex_]);
   alpaka::memcpy(queue_, dst_view_nMDs, src_view_mdSize);
 
@@ -306,9 +342,14 @@ void LSTEvent::createMiniDoublets() {
 
   alpaka::wait(queue_);  // FIXME: remove synch after inputs refactored to be in pinned memory
 
-  constexpr int threadsPerBlockY = 16;
-  auto const createMiniDoublets_workDiv =
-      cms::alpakatools::make_workdiv<Acc2D>({nLowerModules_ / threadsPerBlockY, 1}, {threadsPerBlockY, 32});
+  // Lower modules over y, their lower hits over x (tuning values; the kernel uses no warp-level operations).
+  constexpr unsigned int kMDCreateModulesPerBlock = 4;
+  constexpr unsigned int kMDCreateLowerHitThreads = 32;
+  auto const createMiniDoublets_workDiv = cms::alpakatools::make_workdiv<Acc2D>(
+      {std::min(cms::alpakatools::divide_up_by(nLowerModules_, kMDCreateModulesPerBlock),
+                maxGridBlocks<Acc2D>(maxGridBlockExtent_)),
+       1u},
+      {kMDCreateModulesPerBlock, kMDCreateLowerHitThreads});
 
   alpaka::exec<Acc2D>(queue_,
                       createMiniDoublets_workDiv,
@@ -321,11 +362,13 @@ void LSTEvent::createMiniDoublets() {
                       miniDoubletsBuildDC_->view(),
                       miniDoubletsDC_->view().miniDoubletsOccupancy(),
                       rangesDC_->const_view(),
+                      mdPassMask_buf.data(),
                       ptCut_,
                       clustSizeCut_);
 
   // Pixel MDs (two per pLS) at the pixel-module slots reserved above.
-  auto const addPixelMiniDoublets_workdiv = cms::alpakatools::make_workdiv<Acc1D>(max_blocks, 256);
+  auto const addPixelMiniDoublets_workdiv =
+      cms::alpakatools::make_workdiv<Acc1D>(std::min(max_blocks, maxGridBlocks<Acc1D>(maxGridBlockExtent_)), 256);
 
   alpaka::exec<Acc1D>(queue_,
                       addPixelMiniDoublets_workdiv,
@@ -352,6 +395,7 @@ void LSTEvent::createMiniDoublets() {
 
   if (objectsStatistics_) {
     addMiniDoubletsToEventExplicit();
+    memoryLiveMB_ -= mdPassMaskMB;
   }
 
   // Last reader of the Hits collection.
@@ -359,18 +403,41 @@ void LSTEvent::createMiniDoublets() {
 }
 
 void LSTEvent::createSegmentsWithModuleMap() {
-  // Called once per event: the segments are created into a loose-sized candidate scratch (MD pair + outer
+  // Called once per event: the segments are created into a count-sized candidate scratch (MD pair + outer
   // module only), then written at exact, module-ordered slots by compactSegments(); the scratch is freed here.
-  auto const countMDConn_wd = cms::alpakatools::make_workdiv<Acc3D>({nLowerModules_, 1, 1}, {1, 8, 32});
+  // MD pairs accepted by CountMiniDoubletConnections, kSegPassMaskWords words per inner OT MD; transient.
+  auto segPassMask_buf =
+      cms::alpakatools::make_device_buffer<SegPassMaskWordType[]>(queue_, nTotalMDsOT_ * kSegPassMaskWords);
+  alpaka::memset(queue_, segPassMask_buf, 0u);
+  // First mask bit of each connected module slot of each inner module, filled by CountMiniDoubletConnections; transient.
+  auto segSlotOffsets_buf =
+      cms::alpakatools::make_device_buffer<uint16_t[]>(queue_, nLowerModules_ * max_connected_modules);
+  float segPassMaskMB = 0;
+  if (objectsStatistics_) {
+    segPassMaskMB = bufferMB(segPassMask_buf) + bufferMB(segSlotOffsets_buf);
+    trackTransientMB(segPassMaskMB);
+    lstWarning(std::format(
+        "[MEM] (transient) Segment pass masks and slot offsets: {} MDs ({:.1f} MB)", nTotalMDsOT_, segPassMaskMB));
+  }
+
+  // One block per inner module: connected modules over y, their MD pairs over x (tuning values; the kernel uses no
+  // warp-level operations).
+  constexpr unsigned int kLSConnectedModulesPerBlock = 2;
+  constexpr unsigned int kLSPairThreads = 64;
+  auto const countMDConn_workDiv = cms::alpakatools::make_workdiv<Acc3D>(
+      {std::min<unsigned int>(nLowerModules_, maxGridBlocks<Acc3D>(maxGridBlockExtent_)), 1, 1},
+      {1, kLSConnectedModulesPerBlock, kLSPairThreads});
 
   alpaka::exec<Acc3D>(queue_,
-                      countMDConn_wd,
+                      countMDConn_workDiv,
                       CountMiniDoubletConnections{},
                       modules_.const_view().modules(),
                       miniDoubletsDC_->const_view().miniDoublets(),
                       miniDoubletsBuildDC_->view(),
                       miniDoubletsDC_->const_view().miniDoubletsOccupancy(),
                       rangesDC_->const_view(),
+                      segPassMask_buf.data(),
+                      segSlotOffsets_buf.data(),
                       ptCut_);
 
   auto const createSegmentArrayRanges_workDiv = cms::alpakatools::make_workdiv<Acc1D>(1, 1024);
@@ -414,9 +481,13 @@ void LSTEvent::createSegmentsWithModuleMap() {
       cms::alpakatools::make_device_view(queue_, segmentsOccupancy.totOccupancySegments()[pixelModuleIndex_]);
   alpaka::memcpy(queue_, dst_view_totOccupancySegments, src_view_size);
 
-  auto const createSegments_workDiv = cms::alpakatools::make_workdiv<Acc3D>({nLowerModules_, 1, 1}, {1, 8, 32});
+  // One block per inner module, its (connected module, inner MD) items over x (tuning value; no warp-level operations).
+  constexpr unsigned int kLSCreateItemThreads = 128;
+  auto const createSegments_workDiv = cms::alpakatools::make_workdiv<Acc2D>(
+      {std::min<unsigned int>(nLowerModules_, maxGridBlocks<Acc2D>(maxGridBlockExtent_)), 1},
+      {1, kLSCreateItemThreads});
 
-  alpaka::exec<Acc3D>(queue_,
+  alpaka::exec<Acc2D>(queue_,
                       createSegments_workDiv,
                       CreateSegments{},
                       modules_.const_view().modules(),
@@ -426,11 +497,13 @@ void LSTEvent::createSegmentsWithModuleMap() {
                       candidatesDC.view().candidates(),
                       candidatesDC.view().segmentsOccupancy(),
                       rangesDC_->view(),
+                      segPassMask_buf.data(),
+                      segSlotOffsets_buf.data(),
                       ptCut_);
 
   compactSegments(candidatesDC);
   if (objectsStatistics_)
-    memoryLiveMB_ -= candidatesMB;
+    memoryLiveMB_ -= candidatesMB + segPassMaskMB;
 
   auto const addSegmentRangesToEventExplicit_workDiv = cms::alpakatools::make_workdiv<Acc1D>(1, 1024);
 
@@ -470,8 +543,10 @@ void LSTEvent::compactSegments(SegmentCandidatesDeviceCollection const& candidat
 
   segmentsDC_.emplace(queue_, nTotalSegments_, nLowerModules_ + 1);
 
+  auto const fillCompactSegments_workDiv = cms::alpakatools::make_workdiv<Acc1D>(
+      std::min<unsigned int>(nLowerModules_, maxGridBlocks<Acc1D>(maxGridBlockExtent_)), 128);
   alpaka::exec<Acc1D>(queue_,
-                      cms::alpakatools::make_workdiv<Acc1D>(nLowerModules_, 128),
+                      fillCompactSegments_workDiv,
                       FillCompactSegments{},
                       modules_.const_view().modules(),
                       miniDoubletsDC_->const_view().miniDoublets(),

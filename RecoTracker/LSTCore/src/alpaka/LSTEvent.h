@@ -43,6 +43,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     Queue& queue_;
     const float ptCut_;
     const uint16_t clustSizeCut_;
+    const alpaka_common::Vec3D maxGridBlockExtent_;  // grid limits of the device, read once per event (flat launches)
 
     std::array<unsigned int, 6> n_minidoublets_by_layer_barrel_{};
     std::array<unsigned int, 5> n_minidoublets_by_layer_endcap_{};
@@ -131,6 +132,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         : queue_(q),
           ptCut_(ptCut),
           clustSizeCut_(clustSizeCut),
+          maxGridBlockExtent_(alpaka::getAccDevProps<Acc3D>(alpaka::getDev(q)).m_gridBlockExtentMax),
           nModules_(deviceESData->nModules),
           nLowerModules_(deviceESData->nLowerModules),
           nPixels_(deviceESData->nPixels),

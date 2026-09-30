@@ -2,6 +2,7 @@
 #define RecoTracker_LSTCore_src_alpaka_Segment_h
 
 #include <limits>
+#include <type_traits>
 
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "FWCore/Utilities/interface/CMSUnrollLoop.h"
@@ -323,8 +324,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   }
 
-  // When LooseOnly=true, returns after the pre-check (used by counting kernel).
-  template <bool LooseOnly = false, alpaka::concepts::Acc TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passDeltaPhiCutsBarrel(TAcc const& acc,
                                                              MiniDoubletsConst mds,
                                                              unsigned int innerMD,
@@ -355,16 +355,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     if (alpaka::math::abs(acc, crossDPhi) >= looseCutDPhi * rtIn * rtOut)
       return false;
 
-    if constexpr (LooseOnly)
-      return true;
-
     dPhi = cms::alpakatools::reducePhiRange(acc, mds.anchorPhi()[outerMD] - mds.anchorPhi()[innerMD]);
 
     return alpaka::math::abs(acc, dPhi) <= sdCut;
   }
 
-  // When LooseOnly=true, returns after the pre-check (used by counting kernel).
-  template <bool LooseOnly = false, alpaka::concepts::Acc TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passDeltaPhiCutsEndcap(TAcc const& acc,
                                                              MiniDoubletsConst mds,
                                                              unsigned int innerMD,
@@ -385,9 +381,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     const float dotDPhi = xIn * xOut + yIn * yOut;
     if (dotDPhi <= 0.f || alpaka::math::abs(acc, crossDPhi) > sdSlopeSin * rtIn * rtOut)
       return false;
-
-    if constexpr (LooseOnly)
-      return true;
 
     dPhi = cms::alpakatools::reducePhiRange(acc, mds.anchorPhi()[outerMD] - mds.anchorPhi()[innerMD]);
 
@@ -766,8 +759,112 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   }
 
+  // The LS selection of one MD pair, decision only.
+  template <alpaka::concepts::Acc TAcc>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passSegmentSelection(TAcc const& acc,
+                                                           ModuleSegData const& innerMod,
+                                                           ModuleSegData const& outerMod,
+                                                           MiniDoubletsConst mds,
+                                                           MiniDoubletsBuildConst mdsBuild,
+                                                           unsigned int innerMDIndex,
+                                                           unsigned int outerMDIndex,
+                                                           const float ptCut) {
+    float dPhi = 0, dPhiMin = 0, dPhiMax = 0, dPhiChange = 0, dPhiChangeMin = 0, dPhiChangeMax = 0;
+#ifdef CUT_VALUE_DEBUG
+    float zLo, zHi, rtLo, rtHi, dAlphaInnerMDSegment, dAlphaOuterMDSegment, dAlphaInnerMDOuterMD;
+#endif
+    return runSegmentDefaultAlgo(acc,
+                                 innerMod,
+                                 outerMod,
+                                 mds,
+                                 mdsBuild,
+                                 innerMDIndex,
+                                 outerMDIndex,
+                                 dPhi,
+                                 dPhiMin,
+                                 dPhiMax,
+                                 dPhiChange,
+                                 dPhiChangeMin,
+                                 dPhiChangeMax,
+#ifdef CUT_VALUE_DEBUG
+                                 dAlphaInnerMDSegment,
+                                 dAlphaOuterMDSegment,
+                                 dAlphaInnerMDOuterMD,
+                                 zLo,
+                                 zHi,
+                                 rtLo,
+                                 rtHi,
+#endif
+                                 ptCut);
+  }
+
+  // Pass mask per inner MD, written by CountMiniDoubletConnections: bit j = j-th outer MD of the connected modules.
+  // Pairs with j >= kSegPassMaskBits get a slot in the count without the selection and are evaluated at creation.
+  using SegPassMaskWordType = uint64_t;
+  constexpr unsigned int kSegPassMaskWordBits = std::numeric_limits<SegPassMaskWordType>::digits;
+  constexpr unsigned int kSegPassMaskWords = 4;
+  constexpr unsigned int kSegPassMaskBits = kSegPassMaskWordBits * kSegPassMaskWords;
+
+  // slotOffsets[s] = first mask bit of the outer MDs of connected module slot s; one inner module per block. Also stored
+  // in segSlotOffsets for CreateSegments, capped at kSegPassMaskBits (a slot starting past the mask is evaluated in full).
+  static_assert(kSegPassMaskBits <= std::numeric_limits<uint16_t>::max());
+  template <alpaka::concepts::Acc TAcc>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void fillSegPassMaskSlotOffsets(TAcc const& acc,
+                                                                 ModulesConst modules,
+                                                                 MiniDoubletsOccupancyConst mdsOccupancy,
+                                                                 uint16_t innerLowerModuleIndex,
+                                                                 unsigned int nConnectedModules,
+                                                                 unsigned int* slotOffsets,
+                                                                 uint16_t* segSlotOffsets) {
+    alpaka::syncBlockThreads(acc);  // the previous module's readers are done
+    if (alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[2] == 0) {
+      for (unsigned int slot : cms::alpakatools::uniform_elements_y(acc, nConnectedModules))
+        slotOffsets[slot] = mdsOccupancy.nMDs()[modules.moduleMap()[innerLowerModuleIndex][slot]];
+    }
+    alpaka::syncBlockThreads(acc);
+    if (cms::alpakatools::once_per_block(acc)) {
+      unsigned int offset = 0;
+      for (unsigned int slot = 0; slot < nConnectedModules; ++slot) {
+        const unsigned int nOuterMDs = slotOffsets[slot];
+        slotOffsets[slot] = offset;
+        segSlotOffsets[innerLowerModuleIndex * max_connected_modules + slot] =
+            alpaka::math::min(acc, offset, static_cast<unsigned int>(kSegPassMaskBits));
+        offset += nOuterMDs;
+      }
+    }
+    alpaka::syncBlockThreads(acc);
+  }
+
+  // Gives an accepted MD pair the next slot of its inner module's candidate range; only the MD pair and the connected
+  // module slot are stored (FillCompactSegments recomputes the payload).
+  template <alpaka::concepts::Acc TAcc>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addSegmentCandidate(TAcc const& acc,
+                                                          SegmentCandidates candidates,
+                                                          SegmentsOccupancy segmentsOccupancy,
+                                                          ObjectRanges ranges,
+                                                          uint16_t innerLowerModuleIndex,
+                                                          unsigned int mdPairIndex,
+                                                          unsigned int connectedModuleSlot) {
+    unsigned int totOccupancySegments = alpaka::atomicAdd(
+        acc, &segmentsOccupancy.totOccupancySegments()[innerLowerModuleIndex], 1u, alpaka::hierarchy::Threads{});
+    if (static_cast<int>(totOccupancySegments) >= ranges.segmentModuleOccupancy()[innerLowerModuleIndex]) {
+      alpaka::atomicAdd(acc, &ranges.nSegmentOverflows(), 1u, alpaka::hierarchy::Blocks{});
+#ifdef WARNINGS
+      printf("Segment excess alert! Module index = %d, Occupancy = %d\n", innerLowerModuleIndex, totOccupancySegments);
+#endif
+    } else {
+      unsigned int segmentModuleIdx = alpaka::atomicAdd(
+          acc, &segmentsOccupancy.nSegments()[innerLowerModuleIndex], 1u, alpaka::hierarchy::Threads{});
+      unsigned int segmentIdx = ranges.segmentModuleIndices()[innerLowerModuleIndex] + segmentModuleIdx;
+      candidates.mdPairIndices()[segmentIdx] = mdPairIndex;
+      candidates.connectedModuleSlots()[segmentIdx] = static_cast<uint8_t>(connectedModuleSlot);
+    }
+  }
+
+  // One block per inner module, one item per (connected module slot, inner MD), slot-major.
+  // Precomputed segPassMask are used first, followed by full evaluation past the mask size.
   struct CreateSegments {
-    ALPAKA_FN_ACC void operator()(Acc3D const& acc,
+    ALPAKA_FN_ACC void operator()(Acc2D const& acc,
                                   ModulesConst modules,
                                   MiniDoubletsConst mds,
                                   MiniDoubletsBuildConst mdsBuild,
@@ -775,180 +872,73 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   SegmentCandidates candidates,
                                   SegmentsOccupancy segmentsOccupancy,
                                   ObjectRanges ranges,
+                                  const SegPassMaskWordType* segPassMask,
+                                  const uint16_t* segSlotOffsets,
                                   const float ptCut) const {
-      ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1) &&
-                        (alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[2] == 1));
-      for (uint16_t innerLowerModuleIndex : cms::alpakatools::uniform_groups_z(acc, modules.nLowerModules())) {
-        unsigned int nInnerMDs = mdsOccupancy.nMDs()[innerLowerModuleIndex];
+      ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1));
+      for (uint16_t innerLowerModuleIndex : cms::alpakatools::uniform_groups_y(acc, modules.nLowerModules())) {
+        const unsigned int nInnerMDs = mdsOccupancy.nMDs()[innerLowerModuleIndex];
         if (nInnerMDs == 0)
           continue;
+        const unsigned int nConnectedModules = modules.nConnectedModules()[innerLowerModuleIndex];
 
-        ModuleSegData innerMod = loadModuleSegData(modules, innerLowerModuleIndex, ptCut);
-
-        unsigned int nConnectedModules = modules.nConnectedModules()[innerLowerModuleIndex];
-
-        for (uint16_t outerLowerModuleArrayIdx : cms::alpakatools::uniform_elements_y(acc, nConnectedModules)) {
-          uint16_t outerLowerModuleIndex = modules.moduleMap()[innerLowerModuleIndex][outerLowerModuleArrayIdx];
-
-          unsigned int nOuterMDs = mdsOccupancy.nMDs()[outerLowerModuleIndex];
-
-          unsigned int limit = nInnerMDs * nOuterMDs;
-
-          if (limit == 0)
+        for (unsigned int item : cms::alpakatools::uniform_elements_x(acc, nConnectedModules * nInnerMDs)) {
+          const unsigned int slot = item / nInnerMDs;
+          const unsigned int innerMDArrayIdx = item % nInnerMDs;
+          const uint16_t outerLowerModuleIndex = modules.moduleMap()[innerLowerModuleIndex][slot];
+          const unsigned int nOuterMDs = mdsOccupancy.nMDs()[outerLowerModuleIndex];
+          if (nOuterMDs == 0)
             continue;
+          const unsigned int innerMDIndex = ranges.mdRanges()[innerLowerModuleIndex][0] + innerMDArrayIdx;
 
-          ModuleSegData outerMod = loadModuleSegData(modules, outerLowerModuleIndex, ptCut);
-
-          for (unsigned int hitIndex : cms::alpakatools::uniform_elements_x(acc, limit)) {
-            unsigned int innerMDArrayIdx = hitIndex / nOuterMDs;
-            unsigned int innerMDIndex = ranges.mdRanges()[innerLowerModuleIndex][0] + innerMDArrayIdx;
-            if (mdsBuild.connectedMax()[innerMDIndex] == 0)
-              continue;
-
-            unsigned int outerMDArrayIdx = hitIndex % nOuterMDs;
-            unsigned int outerMDIndex = ranges.mdRanges()[outerLowerModuleIndex][0] + outerMDArrayIdx;
-
-            float dPhi, dPhiMin, dPhiMax, dPhiChange, dPhiChangeMin, dPhiChangeMax;
-
-#ifdef CUT_VALUE_DEBUG
-            float zLo, zHi, rtLo, rtHi, dAlphaInnerMDSegment, dAlphaOuterMDSegment, dAlphaInnerMDOuterMD;
-#endif
-
-            dPhiMin = 0;
-            dPhiMax = 0;
-            dPhiChangeMin = 0;
-            dPhiChangeMax = 0;
-            bool pass = runSegmentDefaultAlgo(acc,
-                                              innerMod,
-                                              outerMod,
-                                              mds,
-                                              mdsBuild,
-                                              innerMDIndex,
-                                              outerMDIndex,
-                                              dPhi,
-                                              dPhiMin,
-                                              dPhiMax,
-                                              dPhiChange,
-                                              dPhiChangeMin,
-                                              dPhiChangeMax,
-#ifdef CUT_VALUE_DEBUG
-                                              dAlphaInnerMDSegment,
-                                              dAlphaOuterMDSegment,
-                                              dAlphaInnerMDOuterMD,
-                                              zLo,
-                                              zHi,
-                                              rtLo,
-                                              rtHi,
-#endif
-                                              ptCut);
-
-            if (pass) {
-              unsigned int totOccupancySegments =
-                  alpaka::atomicAdd(acc,
-                                    &segmentsOccupancy.totOccupancySegments()[innerLowerModuleIndex],
-                                    1u,
-                                    alpaka::hierarchy::Threads{});
-              if (static_cast<int>(totOccupancySegments) >= ranges.segmentModuleOccupancy()[innerLowerModuleIndex]) {
-                alpaka::atomicAdd(acc, &ranges.nSegmentOverflows(), 1u, alpaka::hierarchy::Blocks{});
-#ifdef WARNINGS
-                printf("Segment excess alert! Module index = %d, Occupancy = %d\n",
-                       innerLowerModuleIndex,
-                       totOccupancySegments);
-#endif
-              } else {
-                unsigned int segmentModuleIdx = alpaka::atomicAdd(
-                    acc, &segmentsOccupancy.nSegments()[innerLowerModuleIndex], 1u, alpaka::hierarchy::Threads{});
-                unsigned int segmentIdx = ranges.segmentModuleIndices()[innerLowerModuleIndex] + segmentModuleIdx;
-
-                // The payload is recomputed by FillCompactSegments for the produced segments only.
-                candidates.mdPairIndices()[segmentIdx] = hitIndex;
-                candidates.connectedModuleSlots()[segmentIdx] = static_cast<uint8_t>(outerLowerModuleArrayIdx);
-              }
+          // The slot's mask bits are [firstBit, endBit); each word is cut to that range.
+          const unsigned int firstBit = segSlotOffsets[innerLowerModuleIndex * max_connected_modules + slot];
+          const unsigned int endBit =
+              alpaka::math::min(acc, firstBit + nOuterMDs, static_cast<unsigned int>(kSegPassMaskBits));
+          for (unsigned int wordFirstBit = firstBit - firstBit % kSegPassMaskWordBits; wordFirstBit < endBit;
+               wordFirstBit += kSegPassMaskWordBits) {
+            SegPassMaskWordType passBits =
+                segPassMask[innerMDIndex * kSegPassMaskWords + wordFirstBit / kSegPassMaskWordBits];
+            if (firstBit > wordFirstBit)
+              passBits &= ~SegPassMaskWordType(0) << (firstBit - wordFirstBit);
+            if (endBit < wordFirstBit + kSegPassMaskWordBits)
+              passBits &= (SegPassMaskWordType(1) << (endBit - wordFirstBit)) - 1;
+            while (passBits != 0) {
+              const unsigned int bit =
+                  wordFirstBit + alpaka::ffs(acc, static_cast<std::make_signed_t<SegPassMaskWordType>>(passBits)) - 1;
+              passBits &= passBits - 1;  // clear the lowest set bit (found above)
+              addSegmentCandidate(acc,
+                                  candidates,
+                                  segmentsOccupancy,
+                                  ranges,
+                                  innerLowerModuleIndex,
+                                  innerMDArrayIdx * nOuterMDs + (bit - firstBit),
+                                  slot);
             }
+          }
+
+          // Pairs past the mask were counted without the selection.
+          if (firstBit + nOuterMDs <= kSegPassMaskBits || mdsBuild.connectedMax()[innerMDIndex] == 0)
+            continue;
+          ModuleSegData innerMod = loadModuleSegData(modules, innerLowerModuleIndex, ptCut);
+          ModuleSegData outerMod = loadModuleSegData(modules, outerLowerModuleIndex, ptCut);
+          for (unsigned int outerMDArrayIdx = kSegPassMaskBits - firstBit; outerMDArrayIdx < nOuterMDs;
+               ++outerMDArrayIdx) {
+            const unsigned int outerMDIndex = ranges.mdRanges()[outerLowerModuleIndex][0] + outerMDArrayIdx;
+            if (!passSegmentSelection(acc, innerMod, outerMod, mds, mdsBuild, innerMDIndex, outerMDIndex, ptCut))
+              continue;
+            addSegmentCandidate(acc,
+                                candidates,
+                                segmentsOccupancy,
+                                ranges,
+                                innerLowerModuleIndex,
+                                innerMDArrayIdx * nOuterMDs + outerMDArrayIdx,
+                                slot);
           }
         }
       }
     }
   };
-
-  template <alpaka::concepts::Acc TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passLooseSegmentCuts(TAcc const& acc,
-                                                           ModuleSegData const& innerMod,
-                                                           ModuleSegData const& outerMod,
-                                                           MiniDoubletsConst mds,
-                                                           unsigned int innerMD,
-                                                           unsigned int outerMD,
-                                                           const float ptCut) {
-    const float rtOut = mds.anchorRt()[outerMD];
-    const float sdSlopeSin = alpaka::math::min(acc, rtOut * k2Rinv1GeVf / ptCut, kSinAlphaMax);
-
-    const float cosSlope = alpaka::math::sqrt(acc, 1.f - sdSlopeSin * sdSlopeSin);
-
-    if (innerMod.subdet == Barrel && outerMod.subdet == Barrel) {
-      const float rtIn = mds.anchorRt()[innerMD];
-      const float zIn = mds.anchorZ()[innerMD];
-      const float zOut = mds.anchorZ()[outerMD];
-
-      // z-window pre-filter: 1/cosSlope >= tan(sdSlope)/sdSlope, so looser than creation kernel.
-      const float dzDrtScale = 1.f / cosSlope;
-      const float zGeom = innerMod.layer <= 2 ? 2.f * kPixelPSZpitch : 2.f * kStrip2SZpitch;
-      const float zLo = zIn + (zIn - kDeltaZLum) * (rtOut / rtIn - 1.f) * (zIn > 0.f ? 1.f : dzDrtScale) - zGeom;
-      const float zHi = zIn + (zIn + kDeltaZLum) * (rtOut / rtIn - 1.f) * (zIn < 0.f ? 1.f : dzDrtScale) + zGeom;
-      if (zOut < zLo || zOut > zHi)
-        return false;
-
-      const float xIn = mds.anchorX()[innerMD];
-      const float yIn = mds.anchorY()[innerMD];
-      const float xOut = mds.anchorX()[outerMD];
-      const float yOut = mds.anchorY()[outerMD];
-      const float sdPVoff = 0.1f / rtOut;
-      const float sdMulsAndPVoff = alpaka::math::sqrt(acc, innerMod.sdMuls * innerMod.sdMuls + sdPVoff * sdPVoff);
-      float dPhi;  // unused with LooseOnly=true
-      return passDeltaPhiCutsBarrel<true>(acc,
-                                          mds,
-                                          innerMD,
-                                          outerMD,
-                                          xIn,
-                                          yIn,
-                                          xOut,
-                                          yOut,
-                                          rtIn,
-                                          rtOut,
-                                          sdSlopeSin,
-                                          sdMulsAndPVoff,
-                                          0.f /*sdCut unused*/,
-                                          dPhi);
-    } else {
-      const float zIn = mds.anchorZ()[innerMD];
-      const float zOut = mds.anchorZ()[outerMD];
-      if (zIn * zOut < 0.f)
-        return false;
-
-      // rt-range pre-filter: cosSlope <= asin(s)/tan(asin(s)), so looser than creation kernel.
-      const float rtIn = mds.anchorRt()[innerMD];
-      const float dz = zOut - zIn;
-      const float dLum = alpaka::math::copysign(acc, kDeltaZLum, zIn);
-      const float drtDzScale = cosSlope;
-      const float rtGeom =
-          ((rtIn < kDisks2SMinRadius && rtOut < kDisks2SMinRadius)
-               ? (2.f * kPixelPSZpitch)
-               : ((rtIn < kDisks2SMinRadius || rtOut < kDisks2SMinRadius) ? (kPixelPSZpitch + kStrip2SZpitch)
-                                                                          : (2.f * kStrip2SZpitch)));
-      const float rtLo =
-          alpaka::math::max(acc, rtIn * (1.f + dz / (zIn + dLum) * drtDzScale) - rtGeom, rtIn - 0.5f * rtGeom);
-      const float rtHi = rtIn * (zOut - dLum) / (zIn - dLum) + rtGeom;
-      if (rtOut < rtLo || rtOut > rtHi)
-        return false;
-
-      const float xIn = mds.anchorX()[innerMD];
-      const float yIn = mds.anchorY()[innerMD];
-      const float xOut = mds.anchorX()[outerMD];
-      const float yOut = mds.anchorY()[outerMD];
-      float dPhi;  // unused with LooseOnly=true
-      return passDeltaPhiCutsEndcap<true>(
-          acc, mds, innerMD, outerMD, xIn, yIn, xOut, yOut, rtIn, rtOut, sdSlopeSin, dPhi, 0.f /*sdSlope unused*/);
-    }
-  }
 
   struct CountMiniDoubletConnections {
     ALPAKA_FN_ACC void operator()(Acc3D const& acc,
@@ -957,11 +947,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   MiniDoubletsBuild mdsBuild,
                                   MiniDoubletsOccupancyConst mdsOccupancy,
                                   ObjectRangesConst ranges,
+                                  SegPassMaskWordType* segPassMask,
+                                  uint16_t* segSlotOffsets,
                                   const float ptCut) const {
       // The atomicAdd below with hierarchy::Threads{} requires one block in x, y dimensions.
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1) &&
                         (alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[2] == 1));
       const auto& mdRanges = ranges.mdRanges();
+      auto& slotOffsets = alpaka::declareSharedVar<unsigned int[max_connected_modules], __COUNTER__>(acc);
 
       for (uint16_t innerLowerModuleIndex : cms::alpakatools::uniform_groups_z(acc, modules.nLowerModules())) {
         const unsigned int nInnerMDs = mdsOccupancy.nMDs()[innerLowerModuleIndex];
@@ -973,6 +966,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           continue;
 
         ModuleSegData innerMod = loadModuleSegData(modules, innerLowerModuleIndex, ptCut);
+        fillSegPassMaskSlotOffsets(
+            acc, modules, mdsOccupancy, innerLowerModuleIndex, nConnectedModules, slotOffsets, segSlotOffsets);
 
         for (uint16_t outerLowerModuleArrayIdx : cms::alpakatools::uniform_elements_y(acc, nConnectedModules)) {
           const uint16_t outerLowerModuleIndex = modules.moduleMap()[innerLowerModuleIndex][outerLowerModuleArrayIdx];
@@ -981,6 +976,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             continue;
 
           ModuleSegData outerMod = loadModuleSegData(modules, outerLowerModuleIndex, ptCut);
+          const unsigned int slotOffset = slotOffsets[outerLowerModuleArrayIdx];
 
           const unsigned int limit = nInnerMDs * nOuterMDs;
 
@@ -991,10 +987,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             const unsigned int innerMDIndex = mdRanges[innerLowerModuleIndex][0] + innerMDArrayIdx;
             const unsigned int outerMDIndex = mdRanges[outerLowerModuleIndex][0] + outerMDArrayIdx;
 
-            // Increment the connected max if the LS passes the loose delta phi cuts.
-            if (passLooseSegmentCuts(acc, innerMod, outerMod, mds, innerMDIndex, outerMDIndex, ptCut)) {
+            // Pairs beyond the mask get a slot without the selection, so the count stays a superset of creation.
+            const unsigned int bit = slotOffset + outerMDArrayIdx;
+            if (bit >= kSegPassMaskBits) {
               alpaka::atomicAdd(acc, &mdsBuild.connectedMax()[innerMDIndex], 1u, alpaka::hierarchy::Threads{});
+              continue;
             }
+
+            if (!passSegmentSelection(acc, innerMod, outerMod, mds, mdsBuild, innerMDIndex, outerMDIndex, ptCut))
+              continue;
+            alpaka::atomicAdd(acc, &mdsBuild.connectedMax()[innerMDIndex], 1u, alpaka::hierarchy::Threads{});
+            alpaka::atomicOr(acc,
+                             &segPassMask[innerMDIndex * kSegPassMaskWords + bit / kSegPassMaskWordBits],
+                             SegPassMaskWordType(1) << (bit % kSegPassMaskWordBits),
+                             alpaka::hierarchy::Threads{});
           }
         }
       }
