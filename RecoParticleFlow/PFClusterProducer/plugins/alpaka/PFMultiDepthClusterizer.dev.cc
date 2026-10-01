@@ -80,7 +80,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
     const unsigned int threadsPerBlock =
         std::is_same_v<Device, alpaka::DevCpu>
             ? 1
-            : (nClusters > 768 ? 256 : ::cms::alpakatools::round_up_by(nClusters, wExtend));
+            : (nClusters > 512 ? 256 : ::cms::alpakatools::round_up_by(nClusters, wExtend));
 
     const unsigned int blocks = ::cms::alpakatools::divide_up_by(nClusters, threadsPerBlock);
 
