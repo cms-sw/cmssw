@@ -235,6 +235,9 @@ namespace reco::mlpf {
         time = ref->time();
         timeerror = ref->timeError();
 
+        // Protection against the un-physical cluster time value from
+        // RecoParticleFlow/PFSimProducer/plugins/EcalBarrelClusterFastTimer.cc
+        // in Phase2 workflows
         if (type == reco::PFBlockElement::ECAL) {
           if (fabs(time) > std::numeric_limits<float>::max() * 0.9) {  // i.e. when time is set to some non-sense value
             const std::vector<reco::PFRecHitFraction>& PFRecHits = ref->recHitFractions();
@@ -497,7 +500,7 @@ namespace reco::mlpf {
     }
 
     //set the muon ref
-    if (std::abs(cand.pdgId()) == 13) {
+    else if (std::abs(cand.pdgId()) == 13) {
       const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(elem);
       const auto& muonRef = eltTrack->muonRef();
       cand.setTrackRef(muonRef->track());
@@ -506,7 +509,7 @@ namespace reco::mlpf {
       cand.setMuonRef(muonRef);
     }
 
-    if (std::abs(cand.pdgId()) == 11) {
+    else if (std::abs(cand.pdgId()) == 11) {
       if (elem->type() == reco::PFBlockElement::GSF) {
         const auto* eltTrack = dynamic_cast<const reco::PFBlockElementGsfTrack*>(elem);
         const auto& ref = eltTrack->GsftrackRef();

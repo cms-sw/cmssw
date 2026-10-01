@@ -326,7 +326,7 @@ void MLPFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions
       edm::FileInPath("RecoParticleFlow/PFProducer/data/mlpf/"
                       "mlpf_5M_attn2x3x256_bm12_relu_checkpoint10_8xmi250_fp32_fused_20250722.onnx"));
   //
-  desc.add<bool>("additionalTrackFilterNoHCAL", true)
+  desc.add<bool>("additionalTrackFilterNoHCAL", false)
       ->setComment("Apply tight requirments for tracks not linked to HCAL clusters.");
   {
     edm::ParameterSetDescription psd;
@@ -335,7 +335,7 @@ void MLPFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions
     desc.add<edm::ParameterSetDescription>("AdditionalTrackFilterNoHCALParams", psd);
   }
   //
-  desc.add<bool>("noRegressionEndcap", 1.0)->setComment("Turn on/off regression for tracks in the endcap.");
+  desc.add<bool>("noRegressionEndcap", false)->setComment("Turn on/off regression for tracks in the endcap.");
   desc.add<std::string>("endcapTk", "1.48 < abs(eta) < 3.0");
   descriptions.addWithDefaultLabel(desc);
 }
