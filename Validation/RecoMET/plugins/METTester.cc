@@ -81,8 +81,6 @@ METTester::METTester(const edm::ParameterSet &iConfig) {
   mCaloHadEtInHE = nullptr;
   mCaloHadEtInHF = nullptr;
   mCaloEmEtInHF = nullptr;
-  mCaloSETInpHF = nullptr;
-  mCaloSETInmHF = nullptr;
   mCaloEmEtInEE = nullptr;
   mCaloEmEtInEB = nullptr;
 
@@ -183,8 +181,6 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
     mCaloHadEtInHE = ibooker.book1D("CaloHadEtInHE", "CaloHadEtInHE", 100, 0, 500);   // 5GeV
     mCaloHadEtInHO = ibooker.book1D("CaloHadEtInHO", "CaloHadEtInHO", 100, 0, 200);   // 5GeV
     mCaloHadEtInHF = ibooker.book1D("CaloHadEtInHF", "CaloHadEtInHF", 100, 0, 200);   // 5GeV
-    mCaloSETInpHF = ibooker.book1D("CaloSETInpHF", "CaloSETInpHF", 100, 0, 500);
-    mCaloSETInmHF = ibooker.book1D("CaloSETInmHF", "CaloSETInmHF", 100, 0, 500);
     mCaloEmEtInEE = ibooker.book1D("CaloEmEtInEE", "CaloEmEtInEE", 100, 0, 500);  // 5GeV
     mCaloEmEtInEB = ibooker.book1D("CaloEmEtInEB", "CaloEmEtInEB", 100, 0, 500);  // 5GeV
     mCaloEmEtInHF = ibooker.book1D("CaloEmEtInHF", "CaloEmEtInHF", 100, 0, 500);  // 5GeV
@@ -374,8 +370,6 @@ void METTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     const double caloEmEtInEB = calomet->emEtInEB();
     const double caloEmEtInEE = calomet->emEtInEE();
     const double caloEmEtInHF = calomet->emEtInHF();
-    const double caloSETInpHF = calomet->CaloSETInpHF();
-    const double caloSETInmHF = calomet->CaloSETInmHF();
 
     mCaloMaxEtInEmTowers->Fill(caloMaxEtInEMTowers);
     mCaloMaxEtInHadTowers->Fill(caloMaxEtInHadTowers);
@@ -388,8 +382,6 @@ void METTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     mCaloEmEtInEB->Fill(caloEmEtInEB);
     mCaloEmEtInEE->Fill(caloEmEtInEE);
     mCaloEmEtInHF->Fill(caloEmEtInHF);
-    mCaloSETInpHF->Fill(caloSETInpHF);
-    mCaloSETInmHF->Fill(caloSETInmHF);
   }
   if (isGenMET) {
     const GenMET *genmet;
