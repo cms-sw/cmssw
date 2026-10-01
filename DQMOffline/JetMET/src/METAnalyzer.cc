@@ -1830,52 +1830,20 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   for (std::vector<std::string>::const_iterator ic = folderNames_.begin(); ic != folderNames_.end(); ic++) {
     bool pass_selection = false;
     if ((*ic == "Uncleaned") && (isCaloMet_ || bPrimaryVertex)) {
-      fillMESet(iEvent,
-                DirName_old + "/" + *ic,
-                *met,
-                patmet,
-                pfmet,
-                calomet,
-                zCand,
-                map_dijet_MEs,
-                trigger_flag);
+      fillMESet(iEvent, DirName_old + "/" + *ic, *met, patmet, pfmet, calomet, zCand, map_dijet_MEs, trigger_flag);
       pass_selection = true;
     }
     //take two lines out for first check
     if ((*ic == "Cleaned") && bDCSFilter && bHBHENoiseFilter && bPrimaryVertex && bJetID) {
-      fillMESet(iEvent,
-                DirName_old + "/" + *ic,
-                *met,
-                patmet,
-                pfmet,
-                calomet,
-                zCand,
-                map_dijet_MEs,
-                trigger_flag);
+      fillMESet(iEvent, DirName_old + "/" + *ic, *met, patmet, pfmet, calomet, zCand, map_dijet_MEs, trigger_flag);
       pass_selection = true;
     }
     if ((*ic == "DiJet") && bDCSFilter && bHBHENoiseFilter && bPrimaryVertex && bDiJetID) {
-      fillMESet(iEvent,
-                DirName_old + "/" + *ic,
-                *met,
-                patmet,
-                pfmet,
-                calomet,
-                zCand,
-                map_dijet_MEs,
-                trigger_flag);
+      fillMESet(iEvent, DirName_old + "/" + *ic, *met, patmet, pfmet, calomet, zCand, map_dijet_MEs, trigger_flag);
       pass_selection = true;
     }
     if ((*ic == "ZJets") && bDCSFilter && bHBHENoiseFilter && bPrimaryVertex && bZJets) {
-      fillMESet(iEvent,
-                DirName_old + "/" + *ic,
-                *met,
-                patmet,
-                pfmet,
-                calomet,
-                zCand,
-                map_dijet_MEs,
-                trigger_flag);
+      fillMESet(iEvent, DirName_old + "/" + *ic, *met, patmet, pfmet, calomet, zCand, map_dijet_MEs, trigger_flag);
       pass_selection = true;
     }
     if (pass_selection && isPFMet_) {
