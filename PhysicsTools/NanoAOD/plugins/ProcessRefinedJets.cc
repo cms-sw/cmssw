@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/View.h"
@@ -62,6 +63,7 @@ public:
     // Sum over (pt_orig - pt_final) for MET correction
     double sumDeltaPx = 0.;
     double sumDeltaPy = 0.;
+    unsigned int invalidRefinements = 0;
 
     for (auto const &jIn : *hJets) {
       pat::Jet j(jIn);
@@ -76,21 +78,38 @@ public:
         const auto &gen = j.genJetFwdRef().backRef();
         refine =
             refine && gen.isNonnull() && gen.isAvailable() && std::isfinite(gen->pt()) && gen->pt() >= minGenJetPt_;
-        // Share the decision with the Nano taggers, pT sorting, and MET.
-        j.addUserInt("fastSimRefinementApplied", refine);
       }
 
       const double pt_ref = j.hasUserFloat(refinedPtName_) ? static_cast<double>(j.userFloat(refinedPtName_)) : pt_orig;
 
+      if (refine) {
+        bool valid = minGenJetPt_ < 0. || (j.hasUserFloat(refinedPtName_) && std::isfinite(pt_ref) && pt_ref > 0.);
+        for (const auto &name : taggerNames_) {
+          if (!j.hasUserFloat(name + "refined")) {
+            valid = false;
+            break;
+          }
+          const float value = j.userFloat(name + "refined");
+          if (!std::isfinite(value) || value < 0.f || value > 1.f) {
+            valid = false;
+            break;
+          }
+        }
+        // Fall back as a unit: mixing raw and refined scores can violate unitarity.
+        if (!valid) {
+          refine = false;
+          ++invalidRefinements;
+        }
+      }
+      // Share the final decision with the Nano taggers, pT sorting, and MET.
+      if (minGenJetPt_ >= 0.)
+        j.addUserInt("fastSimRefinementApplied", refine);
+
       const double pt_final = refine ? pt_ref : pt_orig;
-      if (minGenJetPt_ >= 0. && (!std::isfinite(pt_final) || pt_final <= 0.))
-        throw cms::Exception("InvalidRefinedPt") << "Nonphysical final jet pT: " << pt_final;
 
       // Select scores here; raw Nano expressions can themselves contain conditionals.
       for (unsigned int i = 0; i < taggerNames_.size(); ++i) {
         const float value = refine ? j.userFloat(taggerNames_[i] + "refined") : rawTaggers_[i](jIn);
-        if (!std::isfinite(value) || (refine && (value < 0.f || value > 1.f)))
-          throw cms::Exception("InvalidRefinedScore") << taggerNames_[i] << ": " << value;
         j.addUserFloat("fastSimFinal_" + taggerNames_[i], value);
       }
 
@@ -104,12 +123,19 @@ public:
 
       // MET delta: add unrefined jets, subtract final jets
       // This is equivalent to adding (pt_orig - pt_final) in the jet direction.
-      const double dpt = pt_orig - pt_final;
-      sumDeltaPx += dpt * std::cos(phi);
-      sumDeltaPy += dpt * std::sin(phi);
+      if (refine) {
+        const double dpt = pt_orig - pt_final;
+        sumDeltaPx += dpt * std::cos(phi);
+        sumDeltaPy += dpt * std::sin(phi);
+      }
 
       outJets->push_back(std::move(j));
     }
+
+    if (invalidRefinements != 0)
+      edm::LogWarning("InvalidFastSimRefinement")
+          << "Kept unrefined pT and taggers for " << invalidRefinements
+          << " jet(s) with invalid or missing refinement output; these jets do not contribute to the MET correction.";
 
     iEvent.put(std::move(outJets));
 
