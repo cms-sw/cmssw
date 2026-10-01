@@ -460,10 +460,8 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
       std::pair<std::string, MonitorElement*>(DirName + "/" + "Constituents_Forward", mConstituents_Forward));
   //}
 
-
   mPt_EndCap_Hi = ibooker.book1D("Pt_EndCap_Hi", "Pt EndCap (Pass Hi Pt Jet Trigger)", 100, 0, 500);
   mEta_EndCap_Hi = ibooker.book1D("Eta_EndCap_Hi", "Eta EndCap (Pass Hi Pt Jet Trigger)", etaBin_, etaMin_, etaMax_);
-
 
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_EndCap_Hi", mPt_EndCap_Hi));
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Eta_EndCap_Hi", mEta_EndCap_Hi));
