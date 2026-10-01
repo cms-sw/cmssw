@@ -6,12 +6,13 @@
 namespace portableParabolicMagneticField {
 
   struct Parameters {
-    // These parameters are the best fit of 3.8T to the OAEParametrizedMagneticField parametrization.
+    // The defaults of ParabolicParametrizedMagneticField: fitted to the 3.8 T field map (160812) over the tracker
+    // volume, 0.03 % rms.
 
-    static constexpr float c1 = 3.8114;
-    static constexpr float b0 = -3.94991e-06;
-    static constexpr float b1 = 7.53701e-06;
-    static constexpr float a = 2.43878e-11;
+    static constexpr float c1 = 3.81036;
+    static constexpr float b0 = -2.03767e-06;
+    static constexpr float b1 = 7.34495e-06;
+    static constexpr float a = 3.01291e-07;
     static constexpr float max_radius2 = 13225.f;  // tracker radius
     static constexpr float max_z = 280.f;          // tracker z
   };

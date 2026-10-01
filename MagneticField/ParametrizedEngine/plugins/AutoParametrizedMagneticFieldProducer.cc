@@ -72,10 +72,11 @@ std::unique_ptr<MagneticField> AutoParametrizedMagneticFieldProducer::produce(co
     version = "Uniform";
     parameters.push_back(0);
   } else if (version == "Parabolic") {
-    parameters.push_back(3.8114);        //c1
-    parameters.push_back(-3.94991e-06);  //b0
-    parameters.push_back(7.53701e-06);   //b1
-    parameters.push_back(2.43878e-11);   //a
+    // the defaults of ParabolicParametrizedMagneticField, fitted to the 3.8 T field map (see there)
+    parameters.push_back(3.81036);       //c1
+    parameters.push_back(-2.03767e-06);  //b0
+    parameters.push_back(7.34495e-06);   //b1
+    parameters.push_back(3.01291e-07);   //a
     if (cnc !=
         18164) {  // Linear scaling for B!= 3.8T; note that just c1, b0 and b1 have to be scaled to get linear scaling
       double scale = double(cnc) / double(18164);

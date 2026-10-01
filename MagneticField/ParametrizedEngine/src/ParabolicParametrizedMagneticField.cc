@@ -9,9 +9,12 @@
 
 using namespace std;
 
-// Default parameters are the best fit of 3.8T to the OAEParametrizedMagneticField parametrization.
+// Default parameters are fitted to the CMS field map (160812, the default MagneticField) over the tracker volume,
+// |z| < 280 cm and r < 115 cm: 0.03 % rms.  The previous constants, the best fit of 3.8T to the
+// OAEParametrizedMagneticField parametrization {3.8114, -3.94991e-06, 7.53701e-06, 2.43878e-11}, are low by
+// 1.46 % on average against that map, and by up to 4.7 % at the ends of the tracker.
 ParabolicParametrizedMagneticField::ParabolicParametrizedMagneticField()
-    : c1(3.8114), b0(-3.94991e-06), b1(7.53701e-06), a(2.43878e-11) {
+    : c1(3.81036), b0(-2.03767e-06), b1(7.34495e-06), a(3.01291e-07) {
   setNominalValue();
 }
 
