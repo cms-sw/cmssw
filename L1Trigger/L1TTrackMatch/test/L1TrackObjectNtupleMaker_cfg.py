@@ -62,7 +62,7 @@ process.Timing = cms.Service("Timing",
   useJobReport = cms.untracked.bool(False)
 )
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string('GTTObjects_ttbar200PU_Spring23.root'), closeFileFast = cms.untracked.bool(True))
+process.TFileService = cms.Service("TFileService", fileName = cms.string('L1TON_ttbar200PU_Spring24.root'), closeFileFast = cms.untracked.bool(True))
 
 
 ############################################################
