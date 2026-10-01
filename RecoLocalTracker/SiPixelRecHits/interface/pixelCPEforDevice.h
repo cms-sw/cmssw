@@ -366,7 +366,10 @@ namespace pixelCPEforDevice {
     cp.status[ic].isOneY = isOneY;
     cp.status[ic].isBigY = (isOneY & isBigY) | isEdgeY;
 
-    auto xoff = -float(TrackerTraits::xOffset) * detParams.thePitchX;
+    // Half the module width: bins run from the -x edge (jx = 0) to the +x edge (jx = 15), the order in which
+    // PixelCPEFastParamsHost::fillParamsForDevice fills them. Taken from each module's row count, so it also
+    // holds for topologies whose modules differ in width (Phase-2).
+    auto xoff = (0.5f * float(detParams.nRows) + TrackerTraits::bigPixXCorrection) * detParams.thePitchX;
     int low_value = 0;
     int high_value = kNumErrorBins - 1;
     int bin_value = float(kNumErrorBins) * (cp.xpos[ic] + xoff) / (2 * xoff);
@@ -388,15 +391,6 @@ namespace pixelCPEforDevice {
     if (not isEdgeY) {
       cp.yerr[ic] = isOneY ? toCM(isBigY ? detParams.sy2 : detParams.sy1) : detParams.yfact[bin] * toCM(ey);
     }
-  }
-
-  //for Phase2 -> fallback to error from size
-  template <>
-  constexpr inline void errorFromDB<pixelTopology::Phase2>(CommonParams const& __restrict__ comParams,
-                                                           DetParams const& __restrict__ detParams,
-                                                           ClusParams& cp,
-                                                           uint32_t ic) {
-    errorFromSize<pixelTopology::Phase2>(comParams, detParams, cp, ic);
   }
 
   template <typename TrackerTopology>
