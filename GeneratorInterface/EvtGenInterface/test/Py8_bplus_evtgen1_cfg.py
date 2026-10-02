@@ -97,7 +97,8 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
                 '0.0168  Mychi_c1   K+                   SVS ;', 
                 'Enddecay', 
                 'CDecay MyB-', 
-                'End')
+                'End'),
+            fsr_model = cms.string('sherpa'),
         ),
         parameterSets = cms.vstring('EvtGen1')
     ),
