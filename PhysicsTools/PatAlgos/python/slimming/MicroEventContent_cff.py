@@ -155,6 +155,9 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from Configuration.Eras.Modifier_run3_oxygen_cff import run3_oxygen
 (pp_on_AA | run3_oxygen).toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _pp_on_AA_extraCommands)
 
+from Configuration.ProcessModifiers.hiEGReg_cff import hiEGReg
+hiEGReg.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + ['keep *_hiRhoForEGReg_mapEtaEdges_*', 'keep *_hiRhoForEGReg_mapToRho_*'])
+
 _upc_extraCommands = [
     'keep patPackedCandidates_hiPixelTracks_*_*',
     'keep floatedmValueMap_packedPFCandidateTrackChi2_*_*',
