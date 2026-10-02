@@ -4,6 +4,7 @@
 #include <ap_int.h>
 #include <variant>
 #include <vector>
+#include <array>
 #include "DataFormats/L1TCalorimeterPhase2/interface/GCTEmDigiCluster.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/GCTHadDigiCluster.h"
 
@@ -24,25 +25,21 @@ namespace l1tp2 {
   class DigitizedCaloToCorrelatorTM18 {
   private:
     // Data
-    std::array<ap_uint<64>, kNCardLinks> CardData;
+    std::array<ap_uint<64>, kNCardLinks> cardData_{};
 
-    GCTDigiClusterLink CardLink;
+    GCTDigiClusterLink cardLink_;
 
   public:
-    DigitizedCaloToCorrelatorTM18() {
+    DigitizedCaloToCorrelatorTM18() = default;
+    DigitizedCaloToCorrelatorTM18(const std::array<ap_uint<64>, kNCardLinks>& data, const GCTDigiClusterLink link) {
       for (int i = 0; i < kNCardLinks; i++) {
-        CardData[i] = 0;
+        cardData_[i] = data[i];
       }
-    }
-    DigitizedCaloToCorrelatorTM18(std::array<ap_uint<64>, kNCardLinks>& data, GCTDigiClusterLink link) {
-      for (int i = 0; i < kNCardLinks; i++) {
-        CardData[i] = data[i];
-      }
-      CardLink = link;
+      cardLink_ = link;
     }
 
-    const std::array<ap_uint<64>, kNCardLinks> dataCard() const { return CardData; }
-    const GCTDigiClusterLink& linkCard() const { return CardLink; }
+    const std::array<ap_uint<64>, kNCardLinks>& dataCard() const { return cardData_; }
+    const GCTDigiClusterLink& linkCard() const { return cardLink_; }
   };
 
   // Collection typedef

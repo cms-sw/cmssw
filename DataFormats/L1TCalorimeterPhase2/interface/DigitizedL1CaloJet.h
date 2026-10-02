@@ -20,14 +20,14 @@ namespace l1tp2 {
 
     //Constructor from digitized inputs
     DigitizedL1CaloJet(ap_uint<1> isValid, ap_uint<16> pt, ap_int<13> phi, ap_int<14> eta) {
-      jetData =
-          ((ap_uint<64>)isValid) | (((ap_uint<64>)pt) << 1) | (((ap_int<64>)phi) << 17) | (((ap_uint<64>)eta) << 30);
+      jetData = ((ap_uint<64>)isValid) | (((ap_uint<64>)pt) << 1) | (((ap_int<64>)(phi & 0x1FFF)) << 17) |
+                (((ap_uint<64>)(eta & 0x3FFF)) << 30);
     }
 
     // Constructor from float inputs
     DigitizedL1CaloJet(bool isValid_b, float pt_f, float phi_f, float eta_f) {
       jetData = ((ap_uint<64>)digitizeIsValid(isValid_b)) | ((ap_uint<64>)digitizePt(pt_f) << 1) |
-                ((ap_uint<64>)digitizePhi(phi_f) << 17) | ((ap_uint<64>)digitizeEta(eta_f) << 30);
+                ((ap_uint<64>)(digitizePhi(phi_f) & 0x1FFF) << 17) | ((ap_uint<64>)(digitizeEta(eta_f) & 0x3FFF) << 30);
     }
 
     ap_uint<64> data() const { return jetData; }

@@ -64,9 +64,12 @@ void Phase2L1CaloToCorrelatorTM18::produce(edm::Event& evt, const edm::EventSetu
   int cntr21neg = 0;
 
   ap_uint<64> mydata = 0;
-  std::array<ap_uint<64>, l1tp2::kNCardLinks> dataToCL1Card0 = {{0}};
-  std::array<ap_uint<64>, l1tp2::kNCardLinks> dataToCL1Card1 = {{0}};
-  std::array<ap_uint<64>, l1tp2::kNCardLinks> dataToCL1Card2 = {{0}};
+  std::array<ap_uint<64>, l1tp2::kNCardLinks> dataToCL1Card0{};
+  std::array<ap_uint<64>, l1tp2::kNCardLinks> dataToCL1Card1{};
+  std::array<ap_uint<64>, l1tp2::kNCardLinks> dataToCL1Card2{};
+  dataToCL1Card0.fill(ap_uint<64>(0));
+  dataToCL1Card1.fill(ap_uint<64>(0));
+  dataToCL1Card2.fill(ap_uint<64>(0));
   l1tp2::GCTDigiClusterLink clusterCollCard0(l1tp2::kNCardLinks);
   l1tp2::GCTDigiClusterLink clusterCollCard1(l1tp2::kNCardLinks);
   l1tp2::GCTDigiClusterLink clusterCollCard2(l1tp2::kNCardLinks);
