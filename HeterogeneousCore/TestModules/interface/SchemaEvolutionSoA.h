@@ -92,6 +92,8 @@ namespace testmodules {
   using SoAEvolutionThree = SoAEvolutionThreeLayout<>;
   using SoAEvolutionFour = SoAEvolutionFourLayout<>;
   using SoAEvolutionFive = SoAEvolutionFiveLayout<>;
+
+  using AoSEvolutionZero = SoAEvolutionZero::AoSWrapper;
 }  // namespace testmodules
 
 #endif  // HeterogeneousCore_TestModules_interface_SchemaEvolutionSoA_h
