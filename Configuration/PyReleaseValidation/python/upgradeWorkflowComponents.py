@@ -3228,6 +3228,46 @@ upgradeWFs['Run3FSMBMixing'] = UpgradeWorkflow_Run3FSMBMixing(
 )
 
 
+class UpgradeWorkflow_FastSimHLTGRun(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        base_step = stepDict[step][k]
+        if base_step is None:
+            stepDict[stepName][k] = None
+            return
+
+        hlt_step = 'HLT:'+properties.get('HLTmenu', 'GRun')
+        steps = base_step['-s'].split(',')
+        if not any(s.startswith('HLT:') for s in steps):
+            if 'L1Reco' in steps:
+                steps.insert(steps.index('L1Reco'), hlt_step)
+            else:
+                steps.append(hlt_step)
+
+        customise = 'FastSimulation/HighLevelTrigger/customizeFastSimHLT.customizeFastSimHLTGRunReviewDefault'
+        if '--customise' in base_step:
+            customise = base_step['--customise']+','+customise
+
+        stepDict[stepName][k] = merge([
+            {
+                '-s': ','.join(steps),
+                '--customise': customise,
+            },
+            base_step,
+        ])
+
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and key.endswith("FS") and any(year in key for year in run3_years)
+
+upgradeWFs['FastSimHLTGRun'] = UpgradeWorkflow_FastSimHLTGRun(
+    steps = [
+        'FastSimRun3',
+    ],
+    PU = [],
+    suffix = '_FastSimHLTGRun',
+    offset = 0.913,
+)
+
+
 class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Phase2' in stepDict[step][k]['--era']:
