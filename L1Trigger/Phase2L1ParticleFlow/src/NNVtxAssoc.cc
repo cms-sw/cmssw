@@ -59,7 +59,7 @@ void NNVtxAssoc::TTTrackNetworkSelector(const l1ct::PFRegionEmu& region,
   fPt_ = t.hwPt;
   fResBin_ = associationNetworkZ0ResBins[resbin];
   fMVA_ = t.hwQuality;
-  fDz_ = t.hwZ0 - v.hwZ0;
+  fDz_ = std::abs(int(t.hwZ0) - int(v.hwZ0));
 
   modelInput[0] = fPt_;           // Obj pT
   modelInput[1] = fMVA_;          // Obj track quality
