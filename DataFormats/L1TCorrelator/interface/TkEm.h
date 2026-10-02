@@ -56,6 +56,7 @@ namespace l1t {
       egBinaryWord0_ = word;
       egBinaryWord1_ = (word >> 32);
       egBinaryWord2_ = (word >> 64);
+      egBinaryWord3_ = (word >> 96);
       encoding_ = encoding;
     }
 
@@ -68,7 +69,8 @@ namespace l1t {
 
     template <int N>
     ap_uint<N> egBinaryWord() const {
-      return ap_uint<N>(egBinaryWord0_) | (ap_uint<N>(egBinaryWord1_) << 32) | (ap_uint<N>(egBinaryWord2_) << 64);
+      return ap_uint<N>(egBinaryWord0_) | (ap_uint<N>(egBinaryWord1_) << 32) | (ap_uint<N>(egBinaryWord2_) << 64) |
+             (ap_uint<N>(egBinaryWord3_) << 96);
     }
 
     HWEncoding encoding() const { return encoding_; }
@@ -84,6 +86,7 @@ namespace l1t {
     uint32_t egBinaryWord0_;
     uint32_t egBinaryWord1_;
     uint32_t egBinaryWord2_;
+    uint32_t egBinaryWord3_;
     HWEncoding encoding_;
   };
 }  // namespace l1t

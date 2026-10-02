@@ -394,12 +394,13 @@ sc4JetTable = pfJetTable.clone(
 )
 
 sc8JetTable = pfJetTable.clone(
-    src = 'l1tSC8PFL1PuppiCorrectedEmulator',
+    src = cms.InputTag('l1tSC82ProngJetProducer', 'l1tSC82ProngJets'),
     name = "L1puppiJetSC8",
     doc = "SeededCone 0.8 Puppi jet,  origin: Correlator",
     variables = cms.PSet(
         pfJetTable.variables.clone(),
-        mass = Var("mass", float)
+        mass = Var("mass", float),
+        nprongTagScore = Var('getTagScore("nprong")', float)
     )
 )
 
@@ -580,7 +581,7 @@ p2L1TablesTask = cms.Task(
     # ## jets
     sc4JetTable,
     sc8JetTable,
-    sc4ExtJetTable, 
+    sc4ExtJetTable,
     sc4NGJetTable,
     histoJetTable,
     caloJetTable,
