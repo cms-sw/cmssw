@@ -1,6 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
-from Validation.RecoTau.tauDecayModeDefinitions_cff import decayModes, makeDecayModePostProcessorProfiles
+from Validation.RecoTau.tauDecayModeDefinitions_cff import (
+    decayModes,
+    makeDecayModePostProcessorProfiles,
+    makeFakeSourceProfiles,
+    makeFakeSourceDecayModeProfiles,
+)
 
 (
     decayModeEfficiencyProfiles,
@@ -9,6 +14,8 @@ from Validation.RecoTau.tauDecayModeDefinitions_cff import decayModes, makeDecay
     decayModeDuplicateProfiles,
     decayModeResponseProfiles,
 ) = makeDecayModePostProcessorProfiles()
+fakeSourceProfiles = makeFakeSourceProfiles()
+fakeSourceDecayModeProfiles = makeFakeSourceDecayModeProfiles()
 
 
 
@@ -82,6 +89,8 @@ RecoTauPostProcessor = DQMEDHarvester("DQMGenericClient",
         "Fake_vs_idVSjet 'Fake Rate vs ID vs Jet' recoTauMatched_idVSjet recoTau_idVSjet fake",
         "Fake_vs_idVSe 'Fake Rate vs ID vs E' recoTauMatched_idVSe recoTau_idVSe fake",
         "Fake_vs_idVSmu 'Fake Rate vs ID vs Mu' recoTauMatched_idVSmu recoTau_idVSmu fake",
+        *fakeSourceProfiles,
+        *fakeSourceDecayModeProfiles,
         # Split rate
         "Split_vs_eta 'Split Rate vs #eta' genTauMultiMatched_eta genTau_eta",
         "Split_vs_phi 'Split Rate vs #phi' genTauMultiMatched_phi genTau_phi",
