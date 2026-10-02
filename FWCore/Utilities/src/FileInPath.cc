@@ -31,12 +31,10 @@ namespace {
   const std::string RELEASETOP("CMSSW_RELEASE_BASE");
   const std::string DATATOP("CMSSW_DATA_PATH");
 
-#if 1
   // Needed for backward compatibility prior to CMSSW_1_5_0_pre3.
   // String to serve as placeholder for release top.
   // Do not change this value.
   const std::string BASE("BASE");
-#endif
   const std::string version("V001");
 
   // Remove symlinks from path
@@ -190,9 +188,8 @@ namespace edm {
     std::string relname;
     std::string canFilename;
     LocationCode loc = Unknown;
-#if 1
-    // This #if needed for backward compatibility
-    // for files written before CMSSW_1_5_0_pre3.
+
+    // The vsn is used for files written before CMSSW_1_5_0_pre3.
     is >> vsn;
     if (!is)
       return;
@@ -214,9 +211,7 @@ namespace edm {
         relname = "";
       }
     }
-#else
-    is >> vsn >> relname >> loc >> canFilename;
-#endif
+
     if (!is)
       return;
     // Commit to member state only now that the whole record was read successfully.
@@ -227,21 +222,15 @@ namespace edm {
         throw edm::Exception(edm::errors::FileInPathError) << "Environment Variable " << LOCALTOP << " is not set.\n"
                                                            << "Trying to read Local file: " << canFilename << ".\n";
       }
-#if 1
-      // This #if needed for backward compatibility
-      // for files written before CMSSW_1_5_0_pre3.
       if (oldFormat) {
         canonicalFilename_ = canFilename;
-      } else
-#endif
+      } else {
         canonicalFilename_ = localTop_ + canFilename;
+      }
     } else if (location_ == Release) {
       if (releaseTop_.empty()) {
         throw edm::Exception(edm::errors::FileInPathError) << "Environment Variable " << RELEASETOP << " is not set.\n";
       }
-#if 1
-      // This #if needed for backward compatibility
-      // for files written before CMSSW_1_5_0_pre3.
       if (oldFormat) {
         std::string::size_type pos = canFilename.find(BASE);
         if (pos == 0) {
@@ -251,9 +240,9 @@ namespace edm {
           // Needed for files written before CMSSW_1_2_0_pre2.
           canonicalFilename_ = canFilename;
         }
-      } else
-#endif
+      } else {
         canonicalFilename_ = releaseTop_ + canFilename;
+      }
     } else if (location_ == Data) {
       if (dataTop_.empty()) {
         throw edm::Exception(edm::errors::FileInPathError) << "Environment Variable " << DATATOP << " is not set.\n";
