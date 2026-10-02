@@ -14,3 +14,6 @@
 #include "DataFormats/GeometryVector/interface/Point3DBase.h"
 #include "DataFormats/GeometryVector/interface/Vector2DBase.h"
 #include "DataFormats/GeometryVector/interface/Vector3DBase.h"
+
+#include <utility>
+#include <vector>
