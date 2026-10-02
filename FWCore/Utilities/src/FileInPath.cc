@@ -15,6 +15,8 @@
 #include "FWCore/Utilities/interface/Parse.h"
 #include "FWCore/Utilities/interface/resolveSymbolicLinks.h"
 
+#include "pathBeginsWith.h"
+
 namespace {
 
   std::atomic<bool> s_fileLookupDisabled{false};
@@ -98,12 +100,6 @@ namespace {
     return true;
   }
 
-  // Return true if 'path' begins with 'prefix'
-  bool pathBeginsWith(std::filesystem::path const& path, std::filesystem::path const& prefix) {
-    // lexically_relative() prepends ".." components whenever 'path' has to go up and out of 'prefix'.
-    auto const rel = path.lexically_relative(prefix);
-    return !rel.empty() && rel.begin()->string() != "..";
-  }
 }  // namespace
 
 namespace edm {
@@ -161,7 +157,7 @@ namespace edm {
       if (localTop_.empty()) {
         throw edm::Exception(edm::errors::FileInPathError) << "Environment Variable " << LOCALTOP << " is not set.\n";
       }
-      if (!pathBeginsWith(canonicalFilename_, std::filesystem::path(localTop_))) {
+      if (!detail::pathBeginsWith(canonicalFilename_, std::filesystem::path(localTop_))) {
         throw edm::Exception(edm::errors::FileInPathError)
             << "Path " << canonicalFilename_ << " is not in the local release area " << localTop_ << "\n";
       }
@@ -171,7 +167,7 @@ namespace edm {
       if (releaseTop_.empty()) {
         throw edm::Exception(edm::errors::FileInPathError) << "Environment Variable " << RELEASETOP << " is not set.\n";
       }
-      if (!pathBeginsWith(canonicalFilename_, std::filesystem::path(releaseTop_))) {
+      if (!detail::pathBeginsWith(canonicalFilename_, std::filesystem::path(releaseTop_))) {
         throw edm::Exception(edm::errors::FileInPathError)
             << "Path " << canonicalFilename_ << " is not in the base release area " << releaseTop_ << "\n";
       }
@@ -181,7 +177,7 @@ namespace edm {
       if (dataTop_.empty()) {
         throw edm::Exception(edm::errors::FileInPathError) << "Environment Variable " << DATATOP << " is not set.\n";
       }
-      if (!pathBeginsWith(canonicalFilename_, std::filesystem::path(dataTop_))) {
+      if (!detail::pathBeginsWith(canonicalFilename_, std::filesystem::path(dataTop_))) {
         throw edm::Exception(edm::errors::FileInPathError)
             << "Path " << canonicalFilename_ << " is not in the data area " << dataTop_ << "\n";
       }
@@ -375,8 +371,8 @@ namespace edm {
       auto unknownElements =
           searchPathElements |
           std::views::filter([&localTopPath, &releaseTopPath, &dataTopPath](std::filesystem::path const& s) {
-            return not pathBeginsWith(s, releaseTopPath) && not pathBeginsWith(s, localTopPath) &&
-                   not pathBeginsWith(s, dataTopPath);
+            return not detail::pathBeginsWith(s, releaseTopPath) && not detail::pathBeginsWith(s, localTopPath) &&
+                   not detail::pathBeginsWith(s, dataTopPath);
           }) |
           std::views::transform([](std::filesystem::path const& s) { return s.string(); });
       std::vector<std::string> const notFound(unknownElements.begin(), unknownElements.end());
@@ -434,17 +430,17 @@ namespace edm {
         }
 
         // Determine which search area the current path element belongs to:
-        if (!localTop_.empty() && pathBeginsWith(canonicalFilename_, std::filesystem::path(localTop_))) {
+        if (!localTop_.empty() && detail::pathBeginsWith(canonicalFilename_, std::filesystem::path(localTop_))) {
           location_ = Local;
           return;
         }
 
-        if (!releaseTop_.empty() && pathBeginsWith(canonicalFilename_, std::filesystem::path(releaseTop_))) {
+        if (!releaseTop_.empty() && detail::pathBeginsWith(canonicalFilename_, std::filesystem::path(releaseTop_))) {
           location_ = Release;
           return;
         }
 
-        if (!dataTop_.empty() && pathBeginsWith(canonicalFilename_, std::filesystem::path(dataTop_))) {
+        if (!dataTop_.empty() && detail::pathBeginsWith(canonicalFilename_, std::filesystem::path(dataTop_))) {
           location_ = Data;
           return;
         }
