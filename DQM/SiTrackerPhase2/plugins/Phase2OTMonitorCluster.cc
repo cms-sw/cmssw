@@ -279,16 +279,21 @@ void Phase2OTMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
 
 //////////////////Layer Histo/////////////////////////////////
 void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_id, std::string& subdir) {
+  bool HLTconf = config_.getParameter<bool>("HLTconf");
   for (enum Level bookingDepth = OT; bookingDepth <= LAYER; bookingDepth = Level(bookingDepth + 1)) {
     // Skip booking if barrel det and endcap-only depth
     if ((bookingDepth >= ENDCAP_SIDE && bookingDepth < LAYER) && DetId(det_id).subdetId() == SiStripSubdetector::TOB)
       continue;
 
-    std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, false);
-    std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, true);
+    // Skip deep booking for HLT configurations
+    if (HLTconf && bookingDepth >= ENDCAP_SIDE)
+      continue;
+
     int key = phase2tkutil::getNumericHistoId(det_id, tTopo_, 0.0, bookingDepth);
 
     if (layerMEs_.find(key) == layerMEs_.end()) {
+      std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, false);
+      std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, true);
       ibooker.cd();
       ibooker.setCurrentFolder(subdir + "/" + folderName);
       edm::LogInfo("Phase2OTMonitorCluster") << " Booking Histograms in: " << subdir + "/" + folderName;
@@ -495,6 +500,7 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
       desc, "PositionOfClusters_2SLadder", "Position_Clusters_2S_Ladder", "", "", "", 25, -12.5, 12.5, 5, -2.5, 2.5);
 
   desc.add<std::string>("TopFolderName", "OuterTracker");
+  desc.add<bool>("HLTconf", false);
   desc.add<edm::InputTag>("clusterSrc", edm::InputTag("siPhase2Clusters"));
   descriptions.add("Phase2OTMonitorCluster", desc);
 }
