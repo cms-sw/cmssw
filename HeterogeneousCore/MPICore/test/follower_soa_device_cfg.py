@@ -29,19 +29,19 @@ process.receiver = cms.EDProducer("MPIReceiverPortable@alpaka",
     products = cms.VPSet(
         cms.PSet(
             type = cms.string("ALPAKA_ACCELERATOR_NAMESPACE::portabletest::TestDeviceObject"),
-            src = cms.InputTag("", ""),
+            label = cms.string(""),
         ),
         cms.PSet(
             type = cms.string("ALPAKA_ACCELERATOR_NAMESPACE::portabletest::TestDeviceCollection"),
-            src = cms.InputTag("", ""),
+            label = cms.string(""),
         ),
         cms.PSet(
             type = cms.string("ALPAKA_ACCELERATOR_NAMESPACE::portabletest::TestDeviceCollection2"),
-            src = cms.InputTag("", ""),
+            label = cms.string(""),
         ),
         cms.PSet(
             type = cms.string("ALPAKA_ACCELERATOR_NAMESPACE::portabletest::TestDeviceCollection3"),
-            src = cms.InputTag("", ""),
+            label = cms.string(""),
         ),
     )
 )
