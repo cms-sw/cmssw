@@ -3,6 +3,17 @@ import os
 import FWCore.ParameterSet.Config as cms
 
 
+class _EmptySource(cms.Source):
+    """EmptySource that ignores delayReadingEventProducts, which cmsDriver sets on a NANO-first step."""
+
+    def __setattr__(self, name, value):
+        if name != "delayReadingEventProducts":
+            super().__setattr__(name, value)
+
+
+_EmptySource.__name__ = "Source"  # dumps as cms.Source
+
+
 def simFromHDF5(process, fileName=None, beamspot=None):
     """Feed a SIM job from a GenHDF5 file (default $GENHDF5_FILE, else gen.h5).
 
@@ -30,7 +41,7 @@ def simFromHDF5(process, fileName=None, beamspot=None):
             allFinalState = h5.attrs.get("final_state", b"") == b"all"
 
     # EmptySource only numbers the events, the producer reads row N
-    process.source = cms.Source("EmptySource",
+    process.source = _EmptySource("EmptySource",
                                 firstRun=cms.untracked.uint32(1),
                                 firstLuminosityBlock=cms.untracked.uint32(1),
                                 firstEvent=cms.untracked.uint32(1),
@@ -49,7 +60,8 @@ def simFromHDF5(process, fileName=None, beamspot=None):
         return cms.EDAlias(genHDF5Producer=cms.VPSet(pset))
 
     # downstream steps find the products under their usual labels
-    process.generator = alias("GenEventInfoProduct")
+    process.generator = cms.EDAlias(genHDF5Producer=cms.VPSet(
+        cms.PSet(type=cms.string("GenEventInfoProduct")), cms.PSet(type=cms.string("GenLumiInfoHeader"))))
     genTask = cms.Task(process.genHDF5Producer)
     # DIGI in this step (FastSim): drop the DIGI rebuild of what the file provides
     rebuilt = ["genParticles"] + (["ak4GenJetsNoNu", "ak8GenJetsNoNu", "genMetTrue"] if storedJets else [])

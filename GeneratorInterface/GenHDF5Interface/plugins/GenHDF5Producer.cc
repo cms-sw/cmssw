@@ -29,6 +29,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -39,6 +40,7 @@
 #include "FWStorage/StorageFactory/interface/StorageFactory.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -202,6 +204,7 @@ namespace {
     std::vector<int> simCharge;
     std::vector<double> vtxX, vtxY, vtxZ, vtxT;
     std::vector<double> weight, qScale, alphaQCD, alphaQED;
+    std::vector<double> weightRatios;  // nWeights - 1 per row, to the nominal
 
     std::vector<int32_t> trPdg, trSimIdx;
     std::vector<int16_t> trStatus, trMother;  // trMother: single mother, older files
@@ -222,7 +225,7 @@ namespace {
 
 }  // namespace
 
-class GenHDF5Producer : public edm::global::EDProducer<> {
+class GenHDF5Producer : public edm::global::EDProducer<edm::BeginLuminosityBlockProducer> {
 public:
   explicit GenHDF5Producer(edm::ParameterSet const&);
   ~GenHDF5Producer() override {
@@ -232,6 +235,7 @@ public:
   }
   static void fillDescriptions(edm::ConfigurationDescriptions&);
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
+  void globalBeginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const override;
 
 private:
   std::shared_ptr<const Block> block(size_t row) const;
@@ -249,6 +253,8 @@ private:
   bool haveTruth_ = false, haveTrSimIdx_ = false, haveTrMothers_ = false, haveSimFlags_ = false, haveSimTrMo_ = false;
   bool havePdf_ = false, haveMet_ = false;
   bool trInvariantMass_ = false;  // truth mass is sqrt(E^2 - p^2); older files store 0 for "PDG mass"
+  size_t nWeights_ = 1;           // event weights, nominal first
+  std::vector<std::string> weightNames_;
   std::array<bool, 2> haveJets_{{false, false}};
 
   // global per-row offsets into the particle-level columns
@@ -282,8 +288,17 @@ GenHDF5Producer::GenHDF5Producer(edm::ParameterSet const& ps)
   produces<reco::GenJetCollection>("ak4GenJetsNoNu");
   produces<reco::GenJetCollection>("ak8GenJetsNoNu");
   produces<reco::GenMETCollection>();
+  produces<GenLumiInfoHeader, edm::Transition::BeginLuminosityBlock>();
 
   H5File const& f = *file_;
+  // the other event weights, as ratios to the nominal, and their names (nominal first)
+  if (f.has("/event/weightRatios"))
+    nWeights_ = std::max<long long>(1, f.attrInt("n_weights", 1));
+  for (std::string names = f.attrString("weight_names"); !names.empty();) {
+    const size_t nl = names.find('\n');
+    weightNames_.push_back(names.substr(0, nl));
+    names = nl == std::string::npos ? "" : names.substr(nl + 1);
+  }
   simOff_ = offsets(f.read<int32_t>("/sim/n", H5T_NATIVE_INT32));
   nEvents_ = simOff_.size() - 1;
   haveVtx_ = f.has("/sim/vtxIdx");
@@ -492,6 +507,9 @@ std::shared_ptr<const Block> GenHDF5Producer::load(size_t b) const {
   blk->qScale = f.read<double>("/event/qScale", H5T_NATIVE_DOUBLE, r0, nr);
   blk->alphaQCD = f.read<double>("/event/alphaQCD", H5T_NATIVE_DOUBLE, r0, nr);
   blk->alphaQED = f.read<double>("/event/alphaQED", H5T_NATIVE_DOUBLE, r0, nr);
+  if (nWeights_ > 1)
+    blk->weightRatios =
+        f.read<double>("/event/weightRatios", H5T_NATIVE_DOUBLE, r0 * (nWeights_ - 1), nr * (nWeights_ - 1));
   return blk;
 }
 
@@ -507,7 +525,11 @@ void GenHDF5Producer::produce(edm::StreamID, edm::Event& e, edm::EventSetup cons
 
   auto* evt = new HepMC::GenEvent(HepMC::Units::GEV, HepMC::Units::MM);
   evt->set_event_number(static_cast<int>(e.id().event()));
-  evt->weights().push_back(B.weight[idx]);
+  std::vector<double> weights{B.weight[idx]};
+  for (size_t k = 0; k + 1 < nWeights_; ++k)
+    weights.push_back(B.weight[idx] * B.weightRatios[idx * (nWeights_ - 1) + k]);
+  for (double w : weights)
+    evt->weights().push_back(w);
 
   const size_t p0 = B.simOff[idx], p1 = B.simOff[idx + 1];
   const size_t v0 = haveVtx_ ? B.vtxOff[idx] : 0;
@@ -683,7 +705,7 @@ void GenHDF5Producer::produce(edm::StreamID, edm::Event& e, edm::EventSetup cons
   e.put(std::move(mets));
 
   auto info = std::make_unique<GenEventInfoProduct>();
-  info->setWeights({B.weight[idx]});
+  info->setWeights(weights);
   info->setScales(B.qScale[idx], B.alphaQCD[idx], B.alphaQED[idx]);
   if (havePdf_) {
     gen::PdfInfo pdf;
@@ -694,6 +716,14 @@ void GenHDF5Producer::produce(edm::StreamID, edm::Event& e, edm::EventSetup cons
     info->setPDF(&pdf);
   }
   e.put(std::move(info));
+}
+
+void GenHDF5Producer::globalBeginLuminosityBlockProduce(edm::LuminosityBlock& lumi, edm::EventSetup const&) const {
+  // weight names, as the generator interfaces write them
+  auto header = std::make_unique<GenLumiInfoHeader>();
+  if (weightNames_.size() == nWeights_ && nWeights_ > 1)
+    header->weightNames() = weightNames_;
+  lumi.put(std::move(header));
 }
 
 DEFINE_FWK_MODULE(GenHDF5Producer);
