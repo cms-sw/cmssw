@@ -21,7 +21,7 @@ Implementation:
 #include "SiPixelFedFillerWordEventNumber.h"
 
 //======= constructors and destructor
-SiPixelFedFillerWordEventNumber ::SiPixelFedFillerWordEventNumber(const edm::ParameterSet& iConfig) {
+SiPixelFedFillerWordEventNumber::SiPixelFedFillerWordEventNumber(const edm::ParameterSet& iConfig) {
   SaveFillerWordsbool = iConfig.getParameter<bool>("SaveFillerWords");
   label = iConfig.getUntrackedParameter<std::string>("InputLabel", "source");
   instance = iConfig.getUntrackedParameter<std::string>("InputInstance", "");
@@ -33,8 +33,8 @@ SiPixelFedFillerWordEventNumber ::SiPixelFedFillerWordEventNumber(const edm::Par
   consumes<FEDRawDataCollection>(label);
 }
 
-SiPixelFedFillerWordEventNumber ::~SiPixelFedFillerWordEventNumber() {}
-unsigned int SiPixelFedFillerWordEventNumber ::CalibStatFillWord(unsigned int totword, int status) {
+SiPixelFedFillerWordEventNumber::~SiPixelFedFillerWordEventNumber() {}
+unsigned int SiPixelFedFillerWordEventNumber::CalibStatFillWord(unsigned int totword, int status) {
   //===== Variables to get each filler word out of the totword and
   //      to conform the last 16 bit filler word if Filler3 is zero.
   unsigned int Filler1 = (totword) & 0x000000ff;
@@ -150,7 +150,7 @@ unsigned int SiPixelFedFillerWordEventNumber ::CalibStatFillWord(unsigned int to
   return 0;
 }
 //========== Function to decode data words ==================================================
-int SiPixelFedFillerWordEventNumber ::PwordSlink64(uint64_t* ldata, const int length, uint32_t& totword) {
+int SiPixelFedFillerWordEventNumber::PwordSlink64(uint64_t* ldata, const int length, uint32_t& totword) {
   edm::LogInfo("FedFillerWords") << "Begin of data" << std::endl;
 
   if ((ldata[0] & 0xf000000000000000LL) != 0x5000000000000000LL)  //header
@@ -387,7 +387,7 @@ int SiPixelFedFillerWordEventNumber ::PwordSlink64(uint64_t* ldata, const int le
   return (status);
 }
 
-void SiPixelFedFillerWordEventNumber ::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelFedFillerWordEventNumber::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   EventNum = iEvent.id().event();
   edm::Handle<FEDRawDataCollection> buffers;
   iEvent.getByLabel(label, instance, buffers);

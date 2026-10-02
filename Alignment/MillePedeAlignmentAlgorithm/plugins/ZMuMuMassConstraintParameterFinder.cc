@@ -99,7 +99,7 @@ private:
 //
 // constructors and destructor
 //
-ZMuMuMassConstraintParameterFinder ::ZMuMuMassConstraintParameterFinder(const edm::ParameterSet& iConfig)
+ZMuMuMassConstraintParameterFinder::ZMuMuMassConstraintParameterFinder(const edm::ParameterSet& iConfig)
     : genParticlesToken_(consumes<reco::GenParticleCollection>(edm::InputTag{"genParticles"})),
       pMin_(iConfig.getParameter<double>("pMin")),
       ptMin_(iConfig.getParameter<double>("ptMin")),
@@ -122,7 +122,7 @@ ZMuMuMassConstraintParameterFinder ::ZMuMuMassConstraintParameterFinder(const ed
 //
 
 // ------------ method called for each event  ------------
-void ZMuMuMassConstraintParameterFinder ::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
+void ZMuMuMassConstraintParameterFinder::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
   edm::Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByToken(genParticlesToken_, genParticles);
 
@@ -149,7 +149,7 @@ void ZMuMuMassConstraintParameterFinder ::analyze(const edm::Event& iEvent, cons
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void ZMuMuMassConstraintParameterFinder ::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void ZMuMuMassConstraintParameterFinder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setComment("Extract information on 'Z -> mu mu' decays.");
   desc.add<double>("pMin", 3.0);
@@ -164,11 +164,11 @@ void ZMuMuMassConstraintParameterFinder ::fillDescriptions(edm::ConfigurationDes
 }
 
 // ------------ helper class definition ------------
-ZMuMuMassConstraintParameterFinder ::DiMuonInfo ::DiMuonInfo(double minMass, double maxMass)
+ZMuMuMassConstraintParameterFinder::DiMuonInfo::DiMuonInfo(double minMass, double maxMass)
     : minMassPair_{minMass}, maxMassPair_{maxMass} {}
 
-void ZMuMuMassConstraintParameterFinder ::DiMuonInfo ::setupTree(const std::string& name,
-                                                                 edm::Service<TFileService>& fs) {
+void ZMuMuMassConstraintParameterFinder::DiMuonInfo::setupTree(const std::string& name,
+                                                               edm::Service<TFileService>& fs) {
   tree_ = fs->make<TTree>(name.c_str(), name.c_str());
   tree_->Branch("muons", &muons_);
   tree_->Branch("di_muon_mass", &diMuonMass_);
@@ -176,7 +176,7 @@ void ZMuMuMassConstraintParameterFinder ::DiMuonInfo ::setupTree(const std::stri
   tree_->Branch("in_mass_window", &passed_);
 }
 
-void ZMuMuMassConstraintParameterFinder ::DiMuonInfo ::fill() {
+void ZMuMuMassConstraintParameterFinder::DiMuonInfo::fill() {
   if (muons_.size() == 2) {
     diMuonMass_ = (muons_[0].p4() + muons_[1].p4()).M();
     pdgMother_ = muons_[0].mother()->pdgId();
