@@ -220,10 +220,10 @@ private:
   showerb::ShowerBuffer bmtl1_sl3_buffer_;  // Buffer to emulate the BMTL1 behavior for SL3
   showerb::ShowerBuffer bmtl1_sl2_buffer_;  // Buffer to emulate the BMTL1 behavior for SL2
 
-  std::map<int, showerb::ShowerBuffer*> bmtl1_buffers = {  // Buffers to emulate the BMTL1 shower buffer SL1, SL2, SL3
-      {1, &bmtl1_sl1_buffer_},
-      {3, &bmtl1_sl3_buffer_},
-      {2, &bmtl1_sl2_buffer_}};
+  std::map<int, showerb::ShowerBuffer*> bmtl1_buffers = {// Buffers to emulate the BMTL1 shower buffer SL1, SL2, SL3
+                                                         {1, &bmtl1_sl1_buffer_},
+                                                         {3, &bmtl1_sl3_buffer_},
+                                                         {2, &bmtl1_sl2_buffer_}};
 
   // To dump digis in case requested
   TTree* m_tree;

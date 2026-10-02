@@ -37,7 +37,7 @@ PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::Paramet
       doPidCut_(conf.getParameter<bool>("doPidCut")),
       cutHadProb_(conf.getParameter<float>("cutHadProb")),
       computeLocalTime_(conf.getParameter<bool>("computeLocalTime")),
-      usePCACleaning_(conf.getParameter<bool>("usePCACleaning")){};
+      usePCACleaning_(conf.getParameter<bool>("usePCACleaning")) {};
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::dumpTiles(const TILES &tiles) const {
   constexpr int nEtaBin = TILES::constants_type_t::nEtaBins;

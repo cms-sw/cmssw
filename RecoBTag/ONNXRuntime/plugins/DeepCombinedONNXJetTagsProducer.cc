@@ -75,21 +75,21 @@ private:
 };
 
 const std::vector<unsigned> DeepCombinedONNXJetTagsProducer::input_sizes_{n_features_global_,
-                                                                          n_cpf_* n_features_cpf_,
-                                                                          n_npf_* n_features_npf_,
-                                                                          n_sv_* n_features_sv_,
+                                                                          n_cpf_ * n_features_cpf_,
+                                                                          n_npf_ * n_features_npf_,
+                                                                          n_sv_ * n_features_sv_,
                                                                           n_features_global1_,
-                                                                          n_seed_* n_features_seed_,
-                                                                          n_neighbor_* n_features_neighbor_,
-                                                                          n_neighbor_* n_features_neighbor_,
-                                                                          n_neighbor_* n_features_neighbor_,
-                                                                          n_neighbor_* n_features_neighbor_,
-                                                                          n_neighbor_* n_features_neighbor_,
-                                                                          n_neighbor_* n_features_neighbor_,
-                                                                          n_neighbor_* n_features_neighbor_,
-                                                                          n_neighbor_* n_features_neighbor_,
-                                                                          n_neighbor_* n_features_neighbor_,
-                                                                          n_neighbor_* n_features_neighbor_};
+                                                                          n_seed_ * n_features_seed_,
+                                                                          n_neighbor_ * n_features_neighbor_,
+                                                                          n_neighbor_ * n_features_neighbor_,
+                                                                          n_neighbor_ * n_features_neighbor_,
+                                                                          n_neighbor_ * n_features_neighbor_,
+                                                                          n_neighbor_ * n_features_neighbor_,
+                                                                          n_neighbor_ * n_features_neighbor_,
+                                                                          n_neighbor_ * n_features_neighbor_,
+                                                                          n_neighbor_ * n_features_neighbor_,
+                                                                          n_neighbor_ * n_features_neighbor_,
+                                                                          n_neighbor_ * n_features_neighbor_};
 
 DeepCombinedONNXJetTagsProducer::DeepCombinedONNXJetTagsProducer(const edm::ParameterSet& iConfig,
                                                                  const ONNXRuntime* cache)
