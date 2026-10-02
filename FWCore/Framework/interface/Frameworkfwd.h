@@ -58,6 +58,8 @@ namespace edm {
   class View;
   template <typename T, typename TI, typename TP>
   class WorkerT;
+  template <typename T, typename TI, typename TP>
+  class WorkerTBase;
 }  // namespace edm
 
 #endif

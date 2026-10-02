@@ -49,6 +49,8 @@ namespace edm {
       friend class edm::maker::ModuleHolderT;
       template <typename T, typename TI, typename TP>
       friend class edm::WorkerT;
+      template <typename T, typename TI, typename TP>
+      friend class edm::WorkerTBase;
 
       EDProducerAdaptorBase();
       EDProducerAdaptorBase(const EDProducerAdaptorBase&) = delete;                   // stop default

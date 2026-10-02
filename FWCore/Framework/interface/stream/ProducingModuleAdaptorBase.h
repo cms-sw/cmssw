@@ -74,6 +74,8 @@ namespace edm {
     public:
       template <typename U, typename TI, typename TP>
       friend class edm::WorkerT;
+      template <typename U, typename TI, typename TP>
+      friend class edm::WorkerTBase;
       template <typename U>
       friend class edm::maker::ModuleHolderT;
 

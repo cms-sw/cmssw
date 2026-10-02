@@ -48,6 +48,8 @@ namespace edm {
     public:
       template <typename T, typename TI, typename TP>
       friend class edm::WorkerT;
+      template <typename T, typename TI, typename TP>
+      friend class edm::WorkerTBase;
       template <typename T>
       friend class edm::maker::ModuleHolderT;
       typedef EDAnalyzerBase ModuleType;
