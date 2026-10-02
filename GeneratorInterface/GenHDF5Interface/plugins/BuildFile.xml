@@ -6,6 +6,7 @@
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/Utilities"/>
+  <use name="FWStorage/StorageFactory"/>
   <use name="SimDataFormats/GeneratorProducts"/>
   <use name="DataFormats/HepMCCandidate"/>
   <use name="DataFormats/JetReco"/>
