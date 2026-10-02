@@ -20,6 +20,8 @@ from Validation.RecoTau.TauValidator import TauValidator as _TauValidator
 recoTauValidation = _TauValidator(
     recoTauCollection = "slimmedTausNoDeepIDs",
     genTauCollection = "tauGenJetsSelectorAllHadrons", # only GenTaus decaying hadronically
+    genParticleCollection = "prunedGenParticles",
+    genJetCollection = "ak4GenJets",
     recoTauIDCollections = ["deepTau2026v2p5ForMini:VSjet", "deepTau2026v2p5ForMini:VSe", "deepTau2026v2p5ForMini:VSmu"],
     cutIDs_wp = [-1, -1, -1], # WP discriminator (disabled if < 0)
     cutIDs_raw = [0.0, 0.0, 0.0], # raw discriminator value cuts (disabled if 0.0)

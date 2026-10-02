@@ -77,3 +77,33 @@ def makeDecayModePostProcessorProfiles(subDirectory="DecayModes"):
         decayModeDuplicateProfiles,
         decayModeResponseProfiles,
     )
+
+def makeFakeSourceProfiles():
+    """Build source-specific fake-rate profiles for inclusive kinematics."""
+    sources = (
+        ("Electron", "electrons"),
+        ("Muon", "muons"),
+        ("Jet", "jets"),
+        ("Other", "other sources"),
+    )
+    return [
+        f"Fake{source}_vs_{var} 'Fake rate from {label} vs {title}' recoTauFake{source}_{var} recoTau_{var}"
+        for source, label in sources
+        for var, title in kinVars.items()
+    ]
+
+def makeFakeSourceDecayModeProfiles(subDirectory="DecayModes"):
+    """Build source-specific fake-rate profiles for each reco decay mode."""
+    prefix = subDirectory.strip("/")
+    prefix = f"{prefix}/" if prefix else ""
+
+    sources = ("Electron", "Muon", "Jet", "Other")
+    return [
+        f"{prefix}Fake{source}_{dm}_vs_{var} "
+        f"'Fake rate from {source}, {dm} vs {title}' "
+        f"{prefix}recoTauFake{source}_{dm}_{var} "
+        f"{prefix}recoTau_{dm}_{var}"
+        for dm in decayModes
+        for source in sources
+        for var, title in kinVars.items()
+    ]
