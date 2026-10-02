@@ -158,3 +158,31 @@ def digiFromHDF5(process):
         gen = re.compile(r"drop \*_(genParticles|genParticlesForJets|\w*GenJets\w*|genCandidatesForMET|genParticlesForMETAllVisible|genMet\w*)_\*_\*$")
         process.source.inputCommands = [c for c in process.source.inputCommands if not gen.match(c.strip())]
     return process
+
+
+def hscpFromHDF5(process, fragment=None):
+    """R-hadron / HSCP Geant4 setup for a SIM job without the GEN fragment loaded (e.g. from an h5 file).
+
+    `SimG4Core/CustomPhysics/Exotica_HSCP_SIM_cfi.customise` reads its settings off `process.generator`,
+    which a SIM-only job does not have. This reads them from the GEN fragment the sample was generated
+    with, `fragment` or $GENHDF5_HSCP_FRAGMENT (a python module, e.g.
+    Configuration.Generator.HSCPstop_M_200_TuneCUETP8M1_13TeV_pythia8_cff), and applies the same setup.
+    Long-lived sleptons also need --procModifiers fixLongLivedSleptonSim, as in the standard path.
+    """
+    import importlib
+    from SimG4Core.CustomPhysics.Exotica_HSCP_SIM_cfi import customise as _hscp
+
+    fragment = fragment or os.environ.get("GENHDF5_HSCP_FRAGMENT")
+    if not fragment:
+        raise RuntimeError("hscpFromHDF5: give the GEN fragment, or set $GENHDF5_HSCP_FRAGMENT")
+    gen = importlib.import_module(fragment.replace("/python/", "/").replace("/", ".").removesuffix(".py")).generator
+    # the upstream customise only reads process.generator: lend it the fragment's for the call
+    alias = getattr(process, "generator", None)
+    if alias is not None:
+        delattr(process, "generator")
+    process.generator = gen.clone()
+    process = _hscp(process)
+    delattr(process, "generator")
+    if alias is not None:
+        process.generator = alias
+    return process
