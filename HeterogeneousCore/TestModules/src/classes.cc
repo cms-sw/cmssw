@@ -9,3 +9,4 @@ SET_PORTABLEHOSTCOLLECTION_READ_RULES(testmodules::HostCollectionEvolutionTwo);
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(testmodules::HostCollectionEvolutionThree);
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(testmodules::HostCollectionEvolutionFour);
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(testmodules::HostCollectionEvolutionFive);
+SET_PORTABLEHOSTCOLLECTION_READ_RULES(testmodules::AoSHostCollectionEvolutionZero);
