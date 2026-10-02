@@ -1,4 +1,4 @@
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPETemplateReco.h"
+#include "RecoLocalTracker/SiPixelRecHits/plugins/PixelCPENNReco.h"
 #include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -9,26 +9,17 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "CondFormats/DataRecord/interface/SiPixelGenErrorDBObjectRcd.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/PluginDescription.h"
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
-#include "RecoLocalTracker/SiPixelRecHits/plugins/PixelCPENNReco.h"
 
-#include <string>
-#include <memory>
 #include <array>
 #include <filesystem>
+#include <memory>
+#include <string>
 #include <vector>
 
 class PixelCPENNRecoESProducer : public edm::ESProducer {
@@ -42,22 +33,20 @@ private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pDDToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> hTTToken_;
   edm::ESGetToken<SiPixelLorentzAngle, SiPixelLorentzAngleRcd> lorentzAngleToken_;
+  edm::ESGetToken<SiPixelLorentzAngle, SiPixelLorentzAngleRcd> lorentzAngleWidthToken_;
   edm::ESGetToken<SiPixelGenErrorDBObject, SiPixelGenErrorDBObjectRcd> genErrorDBObjectToken_;
 
   std::vector<std::unique_ptr<tensorflow::SessionCache>> modelCachesX_;
   std::vector<std::unique_ptr<tensorflow::SessionCache>> modelCachesY_;
 
   edm::ParameterSet pset_;
-  bool doLorentzFromAlignment_;
-  bool useLAFromDB_;
+  bool useLAWidthFromDB_;
+  bool UseErrorsFromTemplates_;
 };
 
-using namespace edm;
-
 PixelCPENNRecoESProducer::PixelCPENNRecoESProducer(const edm::ParameterSet& p) {
-  std::string myname = p.getParameter<std::string>("ComponentName");
-
   const auto modelDirectory = p.getParameter<std::string>("modelDirectory");
+  // Order must match the model selection in PixelCPENNReco::localPosition
   const std::array<std::string, 7> xModelNames = {
       "L1U_x_center.keras.pb",
       "L1F_x_center.keras.pb",
@@ -86,17 +75,23 @@ PixelCPENNRecoESProducer::PixelCPENNRecoESProducer(const edm::ParameterSet& p) {
     modelCachesY_.push_back(std::make_unique<tensorflow::SessionCache>(path.string()));
   }
 
-  useLAFromDB_ = p.getParameter<bool>("useLAFromDB");
-  doLorentzFromAlignment_ = p.getParameter<bool>("doLorentzFromAlignment");
+  // Same conditions as PixelCPEGenericESProducer, used for the generic fallback
+  useLAWidthFromDB_ = p.getParameter<bool>("useLAWidthFromDB");
+  const bool doLorentzFromAlignment = p.getParameter<bool>("doLorentzFromAlignment");
+  char const* laLabel = doLorentzFromAlignment ? "fromAlignment" : "";
+  UseErrorsFromTemplates_ = p.getParameter<bool>("UseErrorsFromTemplates");
+
   pset_ = p;
-  auto c = setWhatProduced(this, myname);
-  magfieldToken_ = c.consumes();
+  auto c = setWhatProduced(this, p.getParameter<std::string>("ComponentName"));
+  magfieldToken_ = c.consumes(p.getParameter<edm::ESInputTag>("MagneticFieldRecord"));
   pDDToken_ = c.consumes();
   hTTToken_ = c.consumes();
-  genErrorDBObjectToken_ = c.consumes();
-  if (useLAFromDB_ || doLorentzFromAlignment_) {
-    char const* laLabel = doLorentzFromAlignment_ ? "fromAlignment" : "";
-    lorentzAngleToken_ = c.consumes(edm::ESInputTag("", laLabel));
+  lorentzAngleToken_ = c.consumes(edm::ESInputTag("", laLabel));
+  if (useLAWidthFromDB_) {
+    lorentzAngleWidthToken_ = c.consumes(edm::ESInputTag("", "forWidth"));
+  }
+  if (UseErrorsFromTemplates_) {
+    genErrorDBObjectToken_ = c.consumes();
   }
 }
 
@@ -113,16 +108,22 @@ std::unique_ptr<PixelClusterParameterEstimator> PixelCPENNRecoESProducer::produc
   for (const auto& cache : modelCachesY_)
     sessionsY.push_back(cache->getSession());
 
-  const SiPixelLorentzAngle* lorentzAngleProduct = nullptr;
-  if (useLAFromDB_ || doLorentzFromAlignment_) {
-    lorentzAngleProduct = &iRecord.get(lorentzAngleToken_);
+  const SiPixelLorentzAngle* lorentzAngleWidthProduct = nullptr;
+  if (useLAWidthFromDB_) {
+    lorentzAngleWidthProduct = &iRecord.get(lorentzAngleWidthToken_);
   }
+  const SiPixelGenErrorDBObject* genErrorDBObjectProduct = nullptr;
+  if (UseErrorsFromTemplates_) {
+    genErrorDBObjectProduct = &iRecord.get(genErrorDBObjectToken_);
+  }
+
   return std::make_unique<PixelCPENNReco>(pset_,
                                           &iRecord.get(magfieldToken_),
                                           iRecord.get(pDDToken_),
                                           iRecord.get(hTTToken_),
-                                          lorentzAngleProduct,
-                                          &iRecord.get(genErrorDBObjectToken_),
+                                          &iRecord.get(lorentzAngleToken_),
+                                          genErrorDBObjectProduct,
+                                          lorentzAngleWidthProduct,
                                           sessionsX,
                                           sessionsY);
 }
@@ -130,10 +131,15 @@ std::unique_ptr<PixelClusterParameterEstimator> PixelCPENNRecoESProducer::produc
 void PixelCPENNRecoESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
+  // from PixelCPEBase
   PixelCPEBase::fillPSetDescription(desc);
-  PixelCPENNReco::fillPSetDescription(desc);
-  desc.add<std::string>("ComponentName", "PixelCPENNReco");
 
+  // from PixelCPENNReco (includes PixelCPEGeneric)
+  PixelCPENNReco::fillPSetDescription(desc);
+
+  // specific to PixelCPENNRecoESProducer
+  desc.add<std::string>("ComponentName", "PixelCPENNReco");
+  desc.add<edm::ESInputTag>("MagneticFieldRecord", edm::ESInputTag(""));
   desc.add<std::string>("modelDirectory");
   descriptions.add("_NN_default", desc);
 }
