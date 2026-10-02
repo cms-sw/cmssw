@@ -64,8 +64,7 @@
 #include "TF1.h"
 
 #define NUMADCS 256
-double const adc2fC_QIE10[NUMADCS] = {
-    //subrange0
+double const adc2fC_QIE10[NUMADCS] = {  //subrange0
     1.58,
     4.73,
     7.88,
