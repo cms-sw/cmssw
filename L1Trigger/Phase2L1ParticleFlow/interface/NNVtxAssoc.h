@@ -10,6 +10,7 @@
 
 #include <string>
 #include <iomanip>
+#include <sstream>
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 #include "ap_fixed.h"
 
