@@ -687,8 +687,8 @@ namespace p2eg {
       ap_uint<4> hoeOut;
       ap_uint<1> hoeLSB = 0;
       ap_uint<3> hoe = 0;
-      ap_uint<12> A;
-      ap_uint<12> B;
+      ap_uint<20> A;
+      ap_uint<20> B;
 
       A = (ECAL > HCAL) ? ECAL : HCAL;
       B = (ECAL > HCAL) ? HCAL : ECAL;
@@ -1409,8 +1409,8 @@ namespace p2eg {
     void addHoverEToTower(ap_uint<12> ECAL, ap_uint<12> HCAL) {
       ap_uint<3> hoeOut;
       ap_uint<1> hoeLSB = 0;
-      ap_uint<12> A;
-      ap_uint<12> B;
+      ap_uint<20> A;
+      ap_uint<20> B;
 
       A = (ECAL > HCAL) ? ECAL : HCAL;
       B = (ECAL > HCAL) ? HCAL : ECAL;
