@@ -1,11 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
-_mtdMaterialInteractionModels = cms.untracked.vstring(
-    "pairProduction",
-    "nuclearInteraction",
-    "bremsstrahlung",
-    "energyLoss",
-    "multipleScattering",
+_btlInteractionModels = cms.untracked.vstring(
+    "pairProductionBTL",
+    "nuclearInteractionBTL",
+    "bremsstrahlungBTL",
+    "energyLossBTL",
+    "multipleScatteringBTL",
+    "mtdSimHits",
+)
+_etlInteractionModels = cms.untracked.vstring(
+    "pairProductionETL",
+    "nuclearInteractionETL",
+    "bremsstrahlungETL",
+    "energyLossETL",
+    "multipleScatteringETL",
     "mtdSimHits",
 )
 
@@ -22,7 +30,7 @@ MTDMaterialBlock = cms.PSet(
                 radius    = cms.untracked.double(115.8),
                 limits    = cms.untracked.vdouble(0.0, 260.),
                 thickness = cms.untracked.vdouble(3.29),
-                interactionModels = _mtdMaterialInteractionModels,
+                interactionModels = _btlInteractionModels,
             ),
         ),
         EndcapLayers = cms.VPSet(
@@ -31,14 +39,14 @@ MTDMaterialBlock = cms.PSet(
                 z         = cms.untracked.double(300.1),
                 limits    = cms.untracked.vdouble(31., 120.),
                 thickness = cms.untracked.vdouble(0.0064),
-                interactionModels = _mtdMaterialInteractionModels,
+                interactionModels = _etlInteractionModels,
             ),
             # ETL DoubleLayer 2 (disk 3 z=301.9 + disk 4 z=303.1)
             cms.PSet(
                 z         = cms.untracked.double(302.5),
                 limits    = cms.untracked.vdouble(31., 120.),
                 thickness = cms.untracked.vdouble(0.0064),
-                interactionModels = _mtdMaterialInteractionModels,
+                interactionModels = _etlInteractionModels,
             ),
         ),
     )

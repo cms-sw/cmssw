@@ -101,10 +101,73 @@ phase2_timing_layer.toModify(fastSimProducer,
 )
 phase2_timing_layer.toModify(fastSimProducer.interactionModels,
     mtdSimHits = cms.PSet(
-        className = cms.string("fastsim::MTDSimHitProducer"),
+        className     = cms.string("fastsim::MTDSimHitProducer"),
         btlRadius     = cms.double(115.8),
         btlHalfLength = cms.double(260.),
         etlRMin       = cms.double(31.),
         etlRMax       = cms.double(120.),
-    )
+    ),
+
+    # BTL (LYSO: Lu2SiO5 crystal)
+    pairProductionBTL = cms.PSet(
+        className       = cms.string("fastsim::PairProduction"),
+        Z               = cms.double(54.0),
+        photonEnergyCut = cms.double(0.1),
+    ),
+    nuclearInteractionBTL = cms.PSet(
+        className    = cms.string("fastsim::NuclearInteraction"),
+        distCut      = cms.double(0.020),
+        hadronEnergy = cms.double(0.2),
+        saveOutput   = cms.untracked.bool(False),
+    ),
+    bremsstrahlungBTL = cms.PSet(
+        className               = cms.string("fastsim::Bremsstrahlung"),
+        Z                       = cms.double(54.0),
+        minPhotonEnergy         = cms.double(0.1),
+        minPhotonEnergyFraction = cms.double(0.005),
+    ),
+    energyLossBTL = cms.PSet(
+        className      = cms.string("fastsim::EnergyLoss"),
+        minMomentumCut = cms.double(0.1),
+        A              = cms.double(175.94),
+        Z              = cms.double(54.0),
+        density        = cms.double(7.4),
+        radLen         = cms.double(1.14),
+    ),
+    multipleScatteringBTL = cms.PSet(
+        className = cms.string("fastsim::MultipleScattering"),
+        minPt     = cms.double(0.2),
+        radLen    = cms.double(1.14),
+    ),
+    # ETL (Silicon LGAD sensor)
+    pairProductionETL = cms.PSet(
+        className       = cms.string("fastsim::PairProduction"),
+        Z               = cms.double(14.0),
+        photonEnergyCut = cms.double(0.1),
+    ),
+    nuclearInteractionETL = cms.PSet(
+        className    = cms.string("fastsim::NuclearInteraction"),
+        distCut      = cms.double(0.020),
+        hadronEnergy = cms.double(0.2),
+        saveOutput   = cms.untracked.bool(False),
+    ),
+    bremsstrahlungETL = cms.PSet(
+        className               = cms.string("fastsim::Bremsstrahlung"),
+        Z                       = cms.double(14.0),
+        minPhotonEnergy         = cms.double(0.1),
+        minPhotonEnergyFraction = cms.double(0.005),
+    ),
+    energyLossETL = cms.PSet(
+        className      = cms.string("fastsim::EnergyLoss"),
+        minMomentumCut = cms.double(0.1),
+        A              = cms.double(28.0855),
+        Z              = cms.double(14.0),
+        density        = cms.double(2.329),
+        radLen         = cms.double(9.36),
+    ),
+    multipleScatteringETL = cms.PSet(
+        className = cms.string("fastsim::MultipleScattering"),
+        minPt     = cms.double(0.2),
+        radLen    = cms.double(9.36),
+    ),
 )
