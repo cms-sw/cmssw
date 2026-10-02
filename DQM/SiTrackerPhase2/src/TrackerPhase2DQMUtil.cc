@@ -88,7 +88,7 @@ std::string phase2tkutil::getHistoId(uint32_t det_id, const TrackerTopology* tTo
 }
 
 int phase2tkutil::getNumericHistoId(uint32_t det_id, const TrackerTopology* tTopo, float phi, int LEVEL) {
-  int numericID;
+  int numericID = 0;
   int inout = 0b00, structure = 0b00, side = 0b00, shellIO = 0b00, wheel = 0b0000, ring = 0b0000, layer = 0b000;
   bool inner = (DetId(det_id).subdetId() == PixelSubdetector::PixelBarrel ||
                 DetId(det_id).subdetId() == PixelSubdetector::PixelEndcap);
