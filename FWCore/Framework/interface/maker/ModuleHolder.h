@@ -185,8 +185,6 @@ namespace edm {
                   module(), moduleDescription(), actions);
             }
             assert(false);  // EventTransitionInfo is only valid for TransitionPhaseGlobal
-            return std::make_unique<WorkerT<T, EventTransitionInfo, TransitionPhaseStream>>(
-                module(), moduleDescription(), actions);
           }
           if (key == RunTransitionInfo::key()) {
             if (phase == TransitionPhaseType::Global) {
