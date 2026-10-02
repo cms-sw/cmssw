@@ -166,7 +166,8 @@ bool TauValidator::passPreSelectionCut(const T& tau, double ptMinCut, double eta
 
 TauValidator::TauValidator(const edm::ParameterSet& iConfig) {
   genTauToken_ = consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("genTauCollection"));
-  genParticleToken_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticleCollection"));
+  genParticleToken_ =
+      consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticleCollection"));
   genJetToken_ = consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("genJetCollection"));
   recoTauCollection = iConfig.getParameter<edm::InputTag>("recoTauCollection");
   matchingDeltaR = iConfig.getParameter<double>("minDeltaR");
@@ -389,7 +390,7 @@ void TauValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
                            nBins,
                            hMin,
                            hMax);
-      }          
+      }
 
       h2d_responsePt_[key] = ibooker.book2D("responsePt_" + key,
                                             "#tau^{gen} " + dm + ";" + hVar.first + ";#tau p_{T} response",
