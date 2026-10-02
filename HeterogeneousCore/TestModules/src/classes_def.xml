@@ -77,4 +77,15 @@
   <class name="testmodules::SoAEvolutionFiveLayout<128,false>"/>
   <class name="testmodules::HostCollectionEvolutionFive"/>
   <class name="edm::Wrapper<testmodules::HostCollectionEvolutionFive>" splitLevel="0"/>
+
+  <class name="Eigen::PlainObjectBase<Eigen::Matrix<float,4,2,0,4,2> >"/>
+  <class name="Eigen::Matrix<float,4,2,0,4,2>"/>
+
+    <!-- AoS part -->
+  <class name="testmodules::AoSHostCollectionEvolutionZero::Layout" ClassVersion="2">
+    <version ClassVersion="2" checksum="4082127793"/>
+  </class>
+  <class name="testmodules::AoSHostCollectionEvolutionZero::Layout::RecordType"/>
+  <class name="testmodules::AoSHostCollectionEvolutionZero"/>
+  <class name="edm::Wrapper<testmodules::AoSHostCollectionEvolutionZero>" splitLevel="0"/>
 </lcgdict>

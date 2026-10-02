@@ -12,6 +12,8 @@ namespace testmodules {
   using HostCollectionEvolutionThree = PortableHostCollection<SoAEvolutionThree>;
   using HostCollectionEvolutionFour = PortableHostCollection<SoAEvolutionFour>;
   using HostCollectionEvolutionFive = PortableHostCollection<SoAEvolutionFive>;
+
+  using AoSHostCollectionEvolutionZero = PortableHostCollection<AoSEvolutionZero>;
 }  // namespace testmodules
 
 #endif  // HeterogeneousCore_TestModules_interface_SchemaEvolutionHostCollection_h
