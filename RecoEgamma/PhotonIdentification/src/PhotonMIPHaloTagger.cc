@@ -13,8 +13,8 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 PhotonMIPHaloTagger::PhotonMIPHaloTagger(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC)
-    : EBecalCollection_{iC.consumes<EcalRecHitCollection>(
-          conf.getParameter<edm::InputTag>("barrelEcalRecHitCollection"))},
+    : EBecalCollection_{
+          iC.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("barrelEcalRecHitCollection"))},
       yRangeFit_{conf.getParameter<double>("YRangeFit")},
       xRangeFit_{conf.getParameter<double>("XRangeFit")},
       residualWidthEnergy_{conf.getParameter<double>("ResidualWidth")},

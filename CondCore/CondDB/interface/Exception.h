@@ -18,13 +18,13 @@ namespace cond {
       ~Exception() throw() override {}
     };
 
-    void throwException [[noreturn]] (const std::string& message, const std::string& methodName);
+    void throwException [[noreturn]](const std::string& message, const std::string& methodName);
 
   }  // namespace persistency
 
   typedef persistency::Exception Exception;
 
-  void throwException [[noreturn]] (const std::string& message, const std::string& methodName);
+  void throwException [[noreturn]](const std::string& message, const std::string& methodName);
 
 }  // namespace cond
 

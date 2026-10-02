@@ -25,7 +25,7 @@
 //=============================================================================
 
 //_____________________________________________________________________________
-TrackerGeometryAnalyzer ::TrackerGeometryAnalyzer(const edm::ParameterSet& config)
+TrackerGeometryAnalyzer::TrackerGeometryAnalyzer(const edm::ParameterSet& config)
     : tTopoToken_(esConsumes()),
       geomDetToken_(esConsumes()),
       ptpToken_(esConsumes()),
@@ -47,7 +47,7 @@ TrackerGeometryAnalyzer ::TrackerGeometryAnalyzer(const edm::ParameterSet& confi
       alignableObjectId_{AlignableObjectId::Geometry::General} {}
 
 //_____________________________________________________________________________
-void TrackerGeometryAnalyzer ::beginRun(const edm::Run& /* run */, const edm::EventSetup& setup) {
+void TrackerGeometryAnalyzer::beginRun(const edm::Run& /* run */, const edm::EventSetup& setup) {
   edm::LogInfo("TrackerGeometryAnalyzer") << "@SUB=TrackerGeometryAnalyzer::beginRun"
                                           << "Initializing TrackerGeometryAnalyzer";
 
@@ -65,12 +65,12 @@ void TrackerGeometryAnalyzer ::beginRun(const edm::Run& /* run */, const edm::Ev
 //=============================================================================
 
 //_____________________________________________________________________________
-void TrackerGeometryAnalyzer ::setTrackerTopology(const edm::EventSetup& setup) {
+void TrackerGeometryAnalyzer::setTrackerTopology(const edm::EventSetup& setup) {
   trackerTopology = &setup.getData(tTopoToken_);
 }
 
 //_____________________________________________________________________________
-void TrackerGeometryAnalyzer ::setTrackerGeometry(const edm::EventSetup& setup) {
+void TrackerGeometryAnalyzer::setTrackerGeometry(const edm::EventSetup& setup) {
   edm::ESHandle<GeometricDet> geometricDet = setup.getHandle(geomDetToken_);
   edm::ESHandle<PTrackerParameters> trackerParams = setup.getHandle(ptpToken_);
   edm::ESHandle<PTrackerAdditionalParametersPerDet> trackerGeometricDetExtra = setup.getHandle(ptapToken_);
@@ -82,7 +82,7 @@ void TrackerGeometryAnalyzer ::setTrackerGeometry(const edm::EventSetup& setup) 
 }
 
 //_____________________________________________________________________________
-void TrackerGeometryAnalyzer ::analyzeTrackerAlignables() {
+void TrackerGeometryAnalyzer::analyzeTrackerAlignables() {
   edm::LogInfo("TrackerGeometryAnalyzer") << "@SUB=TrackerGeometryAnalyzer::analyzeTrackerAlignables"
                                           << "Building and analyzing TrackerAlignables aka AlignableTracker";
 
@@ -112,7 +112,7 @@ void TrackerGeometryAnalyzer ::analyzeTrackerAlignables() {
 }
 
 //_____________________________________________________________________________
-void TrackerGeometryAnalyzer ::analyzeAlignableDetUnits(Alignable* trackerAlignables) {
+void TrackerGeometryAnalyzer::analyzeAlignableDetUnits(Alignable* trackerAlignables) {
   int numPXB = 0, numPXE = 0, numTIB = 0, numTID = 0, numTOB = 0, numTEC = 0;
 
   auto allAlignableDetUnits = trackerAlignables->deepComponents();
@@ -159,7 +159,7 @@ void TrackerGeometryAnalyzer ::analyzeAlignableDetUnits(Alignable* trackerAligna
 }
 
 //_____________________________________________________________________________
-void TrackerGeometryAnalyzer ::analyzeCompositeAlignables(Alignable* trackerAlignables) {
+void TrackerGeometryAnalyzer::analyzeCompositeAlignables(Alignable* trackerAlignables) {
   int numPXBComposites = countCompositeAlignables(
                              // PixelBarrel Alignables
                              trackerAlignables->components()[0]->components()[0]) +
@@ -222,7 +222,7 @@ void TrackerGeometryAnalyzer ::analyzeCompositeAlignables(Alignable* trackerAlig
 }
 
 //_____________________________________________________________________________
-int TrackerGeometryAnalyzer ::countCompositeAlignables(Alignable* compositeAlignable) {
+int TrackerGeometryAnalyzer::countCompositeAlignables(Alignable* compositeAlignable) {
   int num = 0;
 
   for (auto* alignable : compositeAlignable->components()) {
@@ -243,9 +243,9 @@ int TrackerGeometryAnalyzer ::countCompositeAlignables(Alignable* compositeAlign
 }
 
 //_____________________________________________________________________________
-void TrackerGeometryAnalyzer ::printAlignableStructure(Alignable* compositeAlignable,
-                                                       std::ostringstream& ss,
-                                                       int indent) {
+void TrackerGeometryAnalyzer::printAlignableStructure(Alignable* compositeAlignable,
+                                                      std::ostringstream& ss,
+                                                      int indent) {
   if (indent == maxPrintDepth_)
     return;
 
@@ -270,7 +270,7 @@ void TrackerGeometryAnalyzer ::printAlignableStructure(Alignable* compositeAlign
 }
 
 //_____________________________________________________________________________
-void TrackerGeometryAnalyzer ::analyzeTrackerGeometry() {
+void TrackerGeometryAnalyzer::analyzeTrackerGeometry() {
   edm::LogInfo("TrackerGeometryAnalyzer") << "@SUB=TrackerGeometryAnalyzer::analyzeTrackerGeometry"
                                           << "Analyzing TrackerGeometry";
   std::ostringstream ss;
@@ -327,7 +327,7 @@ void TrackerGeometryAnalyzer ::analyzeTrackerGeometry() {
 }
 
 //_____________________________________________________________________________
-void TrackerGeometryAnalyzer ::analyzeTrackerGeometryVersion(std::ostringstream& ss) {
+void TrackerGeometryAnalyzer::analyzeTrackerGeometryVersion(std::ostringstream& ss) {
   // PixelBarrel
   if (trackerGeometry->isThere(GeomDetEnumerators::PixelBarrel)) {
     ss << "(PXB) PixelBarrel geometry from Run I"
@@ -408,7 +408,7 @@ void TrackerGeometryAnalyzer ::analyzeTrackerGeometryVersion(std::ostringstream&
 }
 
 //_____________________________________________________________________________
-void TrackerGeometryAnalyzer ::analyzePXBDetUnit(DetId& detId, std::ostringstream& ss) {
+void TrackerGeometryAnalyzer::analyzePXBDetUnit(DetId& detId, std::ostringstream& ss) {
   auto layerID = trackerTopology->pxbLayer(detId);
   auto ladderID = trackerTopology->pxbLadder(detId);
   auto moduleID = trackerTopology->module(detId);
@@ -423,7 +423,7 @@ void TrackerGeometryAnalyzer ::analyzePXBDetUnit(DetId& detId, std::ostringstrea
   ++numPXBDetUnits;
 }
 
-void TrackerGeometryAnalyzer ::analyzePXB() {
+void TrackerGeometryAnalyzer::analyzePXB() {
   edm::LogInfo("TrackerGeometryAnalyzer") << "@SUB=TrackerGeometryAnalyzer::analyzePXB"
                                           << "   number of PXBModules:              " << numPXBDetUnits << "\n"
                                           << "   max. number of modules per ladder: " << pxbModuleIDs.size() << "\n"
@@ -460,7 +460,7 @@ void TrackerGeometryAnalyzer ::analyzePXB() {
 }
 
 //_____________________________________________________________________________
-void TrackerGeometryAnalyzer ::analyzePXEDetUnit(DetId& detId, std::ostringstream& ss) {
+void TrackerGeometryAnalyzer::analyzePXEDetUnit(DetId& detId, std::ostringstream& ss) {
   auto sideID = trackerTopology->pxfSide(detId);
   auto diskID = trackerTopology->pxfDisk(detId);
   auto bladeID = trackerTopology->pxfBlade(detId);
@@ -481,7 +481,7 @@ void TrackerGeometryAnalyzer ::analyzePXEDetUnit(DetId& detId, std::ostringstrea
 }
 
 //_____________________________________________________________________________
-void TrackerGeometryAnalyzer ::analyzePXE() {
+void TrackerGeometryAnalyzer::analyzePXE() {
   edm::LogInfo("TrackerGeometryAnalyzer") << "@SUB=TrackerGeometryAnalyzer::analyzePXE"
                                           << "   number of PXEModules:             " << numPXEDetUnits << "\n"
                                           << "   max. number of modules per panel: " << pxeModuleIDs.size() << "\n"
@@ -534,7 +534,7 @@ void TrackerGeometryAnalyzer ::analyzePXE() {
 }
 
 //_____________________________________________________________________________
-void TrackerGeometryAnalyzer ::analyzeTIBDetUnit(DetId& detId, std::ostringstream& ss) {
+void TrackerGeometryAnalyzer::analyzeTIBDetUnit(DetId& detId, std::ostringstream& ss) {
   auto sideID = trackerTopology->tibSide(detId);
   auto layerID = trackerTopology->tibLayer(detId);
   auto stringID = trackerTopology->tibString(detId);
@@ -553,12 +553,12 @@ void TrackerGeometryAnalyzer ::analyzeTIBDetUnit(DetId& detId, std::ostringstrea
 }
 
 //_____________________________________________________________________________
-void TrackerGeometryAnalyzer ::analyzeTIB() {
+void TrackerGeometryAnalyzer::analyzeTIB() {
   // TODO: not yet implemented
 }
 
 //_____________________________________________________________________________
-void TrackerGeometryAnalyzer ::analyzeTIDDetUnit(DetId& detId, std::ostringstream& ss) {
+void TrackerGeometryAnalyzer::analyzeTIDDetUnit(DetId& detId, std::ostringstream& ss) {
   auto sideID = trackerTopology->tidSide(detId);
   auto wheelID = trackerTopology->tidWheel(detId);
   auto ringID = trackerTopology->tidRing(detId);
@@ -577,12 +577,12 @@ void TrackerGeometryAnalyzer ::analyzeTIDDetUnit(DetId& detId, std::ostringstrea
 }
 
 //_____________________________________________________________________________
-void TrackerGeometryAnalyzer ::analyzeTID() {
+void TrackerGeometryAnalyzer::analyzeTID() {
   // TODO: not yet implemented
 }
 
 //_____________________________________________________________________________
-void TrackerGeometryAnalyzer ::analyzeTOBDetUnit(DetId& detId, std::ostringstream& ss) {
+void TrackerGeometryAnalyzer::analyzeTOBDetUnit(DetId& detId, std::ostringstream& ss) {
   auto layerID = trackerTopology->tobLayer(detId);
   auto sideID = trackerTopology->tobSide(detId);
   auto rodID = trackerTopology->tobRod(detId);
@@ -601,12 +601,12 @@ void TrackerGeometryAnalyzer ::analyzeTOBDetUnit(DetId& detId, std::ostringstrea
 }
 
 //_____________________________________________________________________________
-void TrackerGeometryAnalyzer ::analyzeTOB() {
+void TrackerGeometryAnalyzer::analyzeTOB() {
   // TODO: not yet implemented
 }
 
 //_____________________________________________________________________________
-void TrackerGeometryAnalyzer ::analyzeTECDetUnit(DetId& detId, std::ostringstream& ss) {
+void TrackerGeometryAnalyzer::analyzeTECDetUnit(DetId& detId, std::ostringstream& ss) {
   auto sideID = trackerTopology->tecSide(detId);
   auto wheelID = trackerTopology->tecWheel(detId);
   auto petalID = trackerTopology->tecPetalNumber(detId);
@@ -627,6 +627,6 @@ void TrackerGeometryAnalyzer ::analyzeTECDetUnit(DetId& detId, std::ostringstrea
 }
 
 //_____________________________________________________________________________
-void TrackerGeometryAnalyzer ::analyzeTEC() {
+void TrackerGeometryAnalyzer::analyzeTEC() {
   // TODO: not yet implemented
 }

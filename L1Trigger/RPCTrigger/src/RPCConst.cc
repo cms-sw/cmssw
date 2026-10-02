@@ -194,25 +194,24 @@ const unsigned int RPCConst::m_LOGPLANE_SIZE[m_TOWER_COUNT][m_LOGPLANES_COUNT] =
 
 const int RPCConst::m_VLPT_PLANES_COUNT[m_TOWER_COUNT] = {4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3};
 
-const int RPCConst::m_USED_PLANES_COUNT[m_TOWER_COUNT] = {
-    //0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
-    6,
-    6,
-    6,
-    6,
-    6,
-    6,
-    5,
-    5,
-    4,
-    3,
-    4,
-    4,
-    4,
-    4,
-    4,
-    4,
-    4};
+const int RPCConst::m_USED_PLANES_COUNT[m_TOWER_COUNT] = {//0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
+                                                          6,
+                                                          6,
+                                                          6,
+                                                          6,
+                                                          6,
+                                                          6,
+                                                          5,
+                                                          5,
+                                                          4,
+                                                          3,
+                                                          4,
+                                                          4,
+                                                          4,
+                                                          4,
+                                                          4,
+                                                          4,
+                                                          4};
 
 const int RPCConst::m_REF_PLANE[m_TOWER_COUNT] = {
     //     0,         1,         2,         3,         4,

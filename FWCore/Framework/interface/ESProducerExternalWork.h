@@ -84,7 +84,7 @@ namespace edm {
     template <typename T, typename TAcquireReturn, typename TProduceReturn, typename TRecord, typename TDecorator>
     auto setWhatAcquiredProduced(T* iThis,
                                  TAcquireReturn (T::*iAcquireMethod)(const TRecord&, WaitingTaskWithArenaHolder),
-                                 TProduceReturn (T ::*iProduceMethod)(const TRecord&, TAcquireReturn),
+                                 TProduceReturn (T::*iProduceMethod)(const TRecord&, TAcquireReturn),
                                  const TDecorator& iDec,
                                  const es::Label& iLabel = {}) {
       return setWhatAcquiredProducedWithLambda<TAcquireReturn, TProduceReturn, TRecord>(
