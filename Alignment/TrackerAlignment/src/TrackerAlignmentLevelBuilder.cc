@@ -14,8 +14,8 @@
 //=============================================================================
 
 //_____________________________________________________________________________
-TrackerAlignmentLevelBuilder ::TrackerAlignmentLevelBuilder(const TrackerTopology* trackerTopology,
-                                                            const TrackerGeometry* trackerGeometry)
+TrackerAlignmentLevelBuilder::TrackerAlignmentLevelBuilder(const TrackerTopology* trackerTopology,
+                                                           const TrackerGeometry* trackerGeometry)
     : trackerTopology_(trackerTopology),
       alignableObjectId_(trackerGeometry, nullptr, nullptr, nullptr),
       trackerNameSpace_(trackerTopology) {}
@@ -24,7 +24,7 @@ TrackerAlignmentLevelBuilder ::TrackerAlignmentLevelBuilder(const TrackerTopolog
 TrackerAlignmentLevelBuilder::~TrackerAlignmentLevelBuilder() {}
 
 //_____________________________________________________________________________
-void TrackerAlignmentLevelBuilder ::addDetUnitInfo(const DetId& detId) {
+void TrackerAlignmentLevelBuilder::addDetUnitInfo(const DetId& detId) {
   int subdetId = detId.subdetId();
 
   switch (subdetId) {
@@ -50,7 +50,7 @@ void TrackerAlignmentLevelBuilder ::addDetUnitInfo(const DetId& detId) {
 }
 
 //_____________________________________________________________________________
-std::vector<align::AlignmentLevels> TrackerAlignmentLevelBuilder ::build() {
+std::vector<align::AlignmentLevels> TrackerAlignmentLevelBuilder::build() {
   std::vector<align::AlignmentLevels> levels;
   levels.push_back(buildPXBAlignmentLevels());
   levels.push_back(buildPXEAlignmentLevels());
@@ -63,7 +63,7 @@ std::vector<align::AlignmentLevels> TrackerAlignmentLevelBuilder ::build() {
 }
 
 //______________________________________________________________________________
-const align::TrackerNameSpace& TrackerAlignmentLevelBuilder ::trackerNameSpace() const {
+const align::TrackerNameSpace& TrackerAlignmentLevelBuilder::trackerNameSpace() const {
   if (levelsBuilt_) {
     return trackerNameSpace_;
   } else {
@@ -78,7 +78,7 @@ const align::TrackerNameSpace& TrackerAlignmentLevelBuilder ::trackerNameSpace()
 //=============================================================================
 
 //_____________________________________________________________________________
-void TrackerAlignmentLevelBuilder ::addPXBDetUnitInfo(const DetId& detId) {
+void TrackerAlignmentLevelBuilder::addPXBDetUnitInfo(const DetId& detId) {
   auto layerID = trackerTopology_->pxbLayer(detId);
   auto ladderID = trackerTopology_->pxbLadder(detId);
   auto moduleID = trackerTopology_->module(detId);
@@ -93,7 +93,7 @@ void TrackerAlignmentLevelBuilder ::addPXBDetUnitInfo(const DetId& detId) {
 }
 
 //_____________________________________________________________________________
-void TrackerAlignmentLevelBuilder ::addPXEDetUnitInfo(const DetId& detId) {
+void TrackerAlignmentLevelBuilder::addPXEDetUnitInfo(const DetId& detId) {
   auto sideID = trackerTopology_->pxfSide(detId);
   auto diskID = trackerTopology_->pxfDisk(detId);
   auto bladeID = trackerTopology_->pxfBlade(detId);
@@ -108,7 +108,7 @@ void TrackerAlignmentLevelBuilder ::addPXEDetUnitInfo(const DetId& detId) {
 }
 
 //_____________________________________________________________________________
-void TrackerAlignmentLevelBuilder ::addTIBDetUnitInfo(const DetId& detId) {
+void TrackerAlignmentLevelBuilder::addTIBDetUnitInfo(const DetId& detId) {
   auto sideID = trackerTopology_->tibSide(detId);
   auto layerID = trackerTopology_->tibLayer(detId);
   auto layerSide = trackerTopology_->tibOrder(detId);
@@ -132,7 +132,7 @@ void TrackerAlignmentLevelBuilder ::addTIBDetUnitInfo(const DetId& detId) {
 }
 
 //_____________________________________________________________________________
-void TrackerAlignmentLevelBuilder ::addTIDDetUnitInfo(const DetId& detId) {
+void TrackerAlignmentLevelBuilder::addTIDDetUnitInfo(const DetId& detId) {
   auto sideID = trackerTopology_->tidSide(detId);
   auto wheelID = trackerTopology_->tidWheel(detId);
   auto ringID = trackerTopology_->tidRing(detId);
@@ -146,7 +146,7 @@ void TrackerAlignmentLevelBuilder ::addTIDDetUnitInfo(const DetId& detId) {
 }
 
 //_____________________________________________________________________________
-void TrackerAlignmentLevelBuilder ::addTOBDetUnitInfo(const DetId& detId) {
+void TrackerAlignmentLevelBuilder::addTOBDetUnitInfo(const DetId& detId) {
   auto layerID = trackerTopology_->tobLayer(detId);
   auto sideID = trackerTopology_->tobSide(detId);
   auto rodID = trackerTopology_->tobRod(detId);
@@ -159,7 +159,7 @@ void TrackerAlignmentLevelBuilder ::addTOBDetUnitInfo(const DetId& detId) {
 }
 
 //_____________________________________________________________________________
-void TrackerAlignmentLevelBuilder ::addTECDetUnitInfo(const DetId& detId) {
+void TrackerAlignmentLevelBuilder::addTECDetUnitInfo(const DetId& detId) {
   auto sideID = trackerTopology_->tecSide(detId);
   auto wheelID = trackerTopology_->tecWheel(detId);
   auto petalID = trackerTopology_->tecPetalNumber(detId);
@@ -174,7 +174,7 @@ void TrackerAlignmentLevelBuilder ::addTECDetUnitInfo(const DetId& detId) {
 }
 
 //_____________________________________________________________________________
-align::AlignmentLevels TrackerAlignmentLevelBuilder ::buildPXBAlignmentLevels() {
+align::AlignmentLevels TrackerAlignmentLevelBuilder::buildPXBAlignmentLevels() {
   int maxNumModules = pxbModuleIDs_.size();
   int maxNumLadders = pxbLadderIDs_.size() / 2;  // divide by 2 since we have
                                                  // HalfBarrels
@@ -205,7 +205,7 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder ::buildPXBAlignmentLevels() 
 }
 
 //_____________________________________________________________________________
-align::AlignmentLevels TrackerAlignmentLevelBuilder ::buildPXEAlignmentLevels() {
+align::AlignmentLevels TrackerAlignmentLevelBuilder::buildPXEAlignmentLevels() {
   int maxNumModules = pxeModuleIDs_.size();
   int maxNumPanels = pxePanelIDs_.size();
   int maxNumBlades = pxeBladeIDs_.size() / 2;
@@ -237,7 +237,7 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder ::buildPXEAlignmentLevels() 
 }
 
 //_____________________________________________________________________________
-align::AlignmentLevels TrackerAlignmentLevelBuilder ::buildTIBAlignmentLevels() {
+align::AlignmentLevels TrackerAlignmentLevelBuilder::buildTIBAlignmentLevels() {
   int maxNumModules = tibModuleIDs_.size();
   int maxNumStrings = tibStringIDs_.size();
   int maxNumLayers = tibLayerIDs_.size();
@@ -274,7 +274,7 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder ::buildTIBAlignmentLevels() 
 }
 
 //_____________________________________________________________________________
-align::AlignmentLevels TrackerAlignmentLevelBuilder ::buildTIDAlignmentLevels() {
+align::AlignmentLevels TrackerAlignmentLevelBuilder::buildTIDAlignmentLevels() {
   int maxNumModules = tidModuleIDs_.size();
   int maxNumRings = tidRingIDs_.size();
   // TODO: for PhaseII geometry the method name for tidWheel changes:
@@ -301,7 +301,7 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder ::buildTIDAlignmentLevels() 
 }
 
 //_____________________________________________________________________________
-align::AlignmentLevels TrackerAlignmentLevelBuilder ::buildTOBAlignmentLevels() {
+align::AlignmentLevels TrackerAlignmentLevelBuilder::buildTOBAlignmentLevels() {
   int maxNumModules = tobModuleIDs_.size();
   int maxNumRods = tobRodIDs_.size();
   int maxNumSides = tobSideIDs_.size();
@@ -326,7 +326,7 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder ::buildTOBAlignmentLevels() 
 }
 
 //_____________________________________________________________________________
-align::AlignmentLevels TrackerAlignmentLevelBuilder ::buildTECAlignmentLevels() {
+align::AlignmentLevels TrackerAlignmentLevelBuilder::buildTECAlignmentLevels() {
   int maxNumModules = tecModuleIDs_.size();
   int maxNumRings = tecRingIDs_.size();
   int maxNumPetals = tecPetalIDs_.size();

@@ -352,11 +352,11 @@ void AlignableModifier::moveAlignableLocal(
 }
 
 //__________________________________________________________________________________________________
-void AlignableModifier ::addDeformation(Alignable* alignable,
-                                        const AlignableModifier::DeformationMemberType& deformation,
-                                        bool random,
-                                        bool gaussian,
-                                        double scale) {
+void AlignableModifier::addDeformation(Alignable* alignable,
+                                       const AlignableModifier::DeformationMemberType& deformation,
+                                       bool random,
+                                       bool gaussian,
+                                       double scale) {
   const SurfaceDeformationFactory::Type deformType =
       SurfaceDeformationFactory::surfaceDeformationType(deformation.first);
 
