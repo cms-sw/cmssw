@@ -36,8 +36,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v11_Ecal5', '')
-#from RecoEcal.EgammaClusterProducers.SCEnergyCorrectorDRNProducer_cfi import *
-from RecoEcal.EgammaClusterProducers.SCEnergyCorrectorDRNProducer_cfi import *
+from RecoEcal.EgammaClusterProducers.SCEnergyCorrectorDRNProducer_cff import *
 
 process.DRNProducerEB = DRNProducerEB
 process.DRNProducerEE = DRNProducerEE

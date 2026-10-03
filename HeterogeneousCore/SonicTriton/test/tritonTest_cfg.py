@@ -9,6 +9,7 @@ models = {
     "TritonGraphFilter": ["gat_test"],
     "TritonGraphAnalyzer": ["gat_test"],
     "TritonIdentityProducer": ["ragged_io"],
+    "DynamicModelLoadingProducer": ["gat_test"],
 }
 
 # other choices
@@ -21,6 +22,9 @@ parser.add_argument("--mode", default="Async", type=str, choices=allowed_modes, 
 parser.add_argument("--brief", default=False, action="store_true", help="briefer output for graph modules")
 parser.add_argument("--unittest", default=False, action="store_true", help="unit test mode: reduce input sizes")
 parser.add_argument("--testother", default=False, action="store_true", help="also test gRPC communication if shared memory enabled, or vice versa")
+parser.add_argument("--loadUnloadCycles", default=3, type=int, help="number of load/unload cycles for dynamic model loading test")
+parser.add_argument("--testConcurrency", default=False, action="store_true", help="enable concurrent stress test for dynamic model loading")
+options = parser.parse_args()
 
 options = getOptions(parser, verbose=True)
 
@@ -83,6 +87,10 @@ for im,module in enumerate(options.modules):
             processModule.edgeMin = cms.uint32(8000)
             processModule.edgeMax = cms.uint32(15000)
         processModule.brief = cms.bool(options.brief)
+    elif module=="DynamicModelLoadingProducer":
+        # Configure dynamic model loading test (requires explicit model control mode, enabled by default in cmsTriton)
+        processModule.loadUnloadCycles = cms.int32(options.loadUnloadCycles)
+        processModule.testConcurrency = cms.bool(options.testConcurrency)
     process.p += processModule
     if options.testother:
         # clone modules to test both gRPC and shared memory
