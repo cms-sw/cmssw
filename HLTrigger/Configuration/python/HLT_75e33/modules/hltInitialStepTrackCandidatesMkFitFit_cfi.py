@@ -11,7 +11,7 @@ hltInitialStepTrackCandidatesMkFitFit = cms.EDProducer("MkFitFitProducer",
     tracks = cms.InputTag("hltInitialStepTrackCandidatesMkFit"),
     candCutSel = cms.bool(True),
     candMinNHitsCut = cms.int32(4),
-    candMinPtCut = cms.double(0.9),
+    candMinPtCut = cms.double(0.85),
     candMinPtRelaxedCut = cms.double(0.8),
     candMinAbsEtaForRelaxedCut = cms.double(1.4)                                
 )
