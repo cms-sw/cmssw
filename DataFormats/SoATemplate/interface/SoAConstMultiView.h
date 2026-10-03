@@ -4,12 +4,11 @@
 #include <array>
 #include <cassert>
 #include <concepts>
-#include <cstdint>
 #include <functional>
 #include <ranges>
 #include <span>
 
-#include "SoACommon.h"
+#include "DataFormats/SoATemplate/interface/SoACommon.h"
 
 /**
  * @brief Aggregates multiple ConstViews into a single combined view.
