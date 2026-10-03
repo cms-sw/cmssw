@@ -32,6 +32,7 @@ def simFromHDF5(process, fileName=None, beamspot=None):
         smeared = os.environ.get("GENHDF5_SMEAR", "0") != "1"
         storedJets = False
         allFinalState = os.environ.get("GENHDF5_PPS", "0") == "1"
+        haveLhe = os.environ.get("GENHDF5_LHE", "0") == "1"
     else:
         import h5py
         with h5py.File(fileName.replace("file:", "", 1), "r") as h5:
@@ -39,6 +40,7 @@ def simFromHDF5(process, fileName=None, beamspot=None):
             smeared = h5.attrs.get("beamspot", b"applied") != b"none"
             storedJets = "jets" in h5 and "event/GenMET_pt" in h5
             allFinalState = h5.attrs.get("final_state", b"") == b"all"
+            haveLhe = "lhe" in h5
 
     # EmptySource only numbers the events, the producer reads row N
     process.source = _EmptySource("EmptySource",
@@ -63,6 +65,9 @@ def simFromHDF5(process, fileName=None, beamspot=None):
     process.generator = cms.EDAlias(genHDF5Producer=cms.VPSet(
         cms.PSet(type=cms.string("GenEventInfoProduct")), cms.PSet(type=cms.string("GenLumiInfoHeader"))))
     genTask = cms.Task(process.genHDF5Producer)
+    if haveLhe:  # the LHE record, where NanoAOD looks for it
+        process.externalLHEProducer = cms.EDAlias(genHDF5Producer=cms.VPSet(
+            cms.PSet(type=cms.string("LHEEventProduct")), cms.PSet(type=cms.string("LHERunInfoProduct"))))
     # DIGI in this step (FastSim): drop the DIGI rebuild of what the file provides
     rebuilt = ["genParticles"] + (["ak4GenJetsNoNu", "ak8GenJetsNoNu", "genMetTrue"] if storedJets else [])
     for name in rebuilt:

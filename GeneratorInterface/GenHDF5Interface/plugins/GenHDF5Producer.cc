@@ -30,6 +30,7 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -41,6 +42,8 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -205,6 +208,11 @@ namespace {
     std::vector<double> vtxX, vtxY, vtxZ, vtxT;
     std::vector<double> weight, qScale, alphaQCD, alphaQED;
     std::vector<double> weightRatios;  // nWeights - 1 per row, to the nominal
+    // LHE record
+    std::vector<size_t> lheOff;
+    std::vector<int32_t> lhePdg, lheStatus, lheMo1, lheMo2, lheIdprup, lheNpLO, lheNpNLO;
+    std::vector<double> lhePx, lhePy, lhePz, lheE, lheM, lheSpin;
+    std::vector<double> lheOrigXwgtup, lheXwgtup, lheScalup, lheAqedup, lheAqcdup, lheWeightRatios;
 
     std::vector<int32_t> trPdg, trSimIdx;
     std::vector<int16_t> trStatus, trMother;  // trMother: single mother, older files
@@ -225,7 +233,7 @@ namespace {
 
 }  // namespace
 
-class GenHDF5Producer : public edm::global::EDProducer<edm::BeginLuminosityBlockProducer> {
+class GenHDF5Producer : public edm::global::EDProducer<edm::BeginRunProducer, edm::BeginLuminosityBlockProducer> {
 public:
   explicit GenHDF5Producer(edm::ParameterSet const&);
   ~GenHDF5Producer() override {
@@ -236,6 +244,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
   void globalBeginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const override;
+  void globalBeginRunProduce(edm::Run&, edm::EventSetup const&) const override;
 
 private:
   std::shared_ptr<const Block> block(size_t row) const;
@@ -255,6 +264,10 @@ private:
   bool trInvariantMass_ = false;  // truth mass is sqrt(E^2 - p^2); older files store 0 for "PDG mass"
   size_t nWeights_ = 1;           // event weights, nominal first
   std::vector<std::string> weightNames_;
+  bool haveLhe_ = false;  // LHE record (LHEEventProduct), e.g. from an LHE-based CMSSW sample
+  std::vector<std::string> lheWeightIds_;
+  std::vector<std::string> lheInitrwgt_;  // the run header's initrwgt lines
+  std::vector<size_t> lheOff_;
   std::array<bool, 2> haveJets_{{false, false}};
 
   // global per-row offsets into the particle-level columns
@@ -294,6 +307,32 @@ GenHDF5Producer::GenHDF5Producer(edm::ParameterSet const& ps)
   // the other event weights, as ratios to the nominal, and their names (nominal first)
   if (f.has("/event/weightRatios"))
     nWeights_ = std::max<long long>(1, f.attrInt("n_weights", 1));
+  haveLhe_ = f.has("/lhe/n");
+  if (haveLhe_) {
+    produces<LHEEventProduct>();
+    produces<LHERunInfoProduct, edm::Transition::BeginRun>();
+    lheOff_ = offsets(f.read<int32_t>("/lhe/n", H5T_NATIVE_INT32));
+    auto text = [&f](std::string const& path) {
+      auto b = f.read<uint8_t>(path, H5T_NATIVE_UINT8);
+      return std::string(b.begin(), b.end());
+    };
+    if (f.has("/lhe/weightIds")) {
+      const std::string ids = text("/lhe/weightIds");
+      for (size_t a = 0; a < ids.size();) {
+        const size_t nl = std::min(ids.find('\n', a), ids.size());
+        lheWeightIds_.push_back(ids.substr(a, nl - a));
+        a = nl + 1;
+      }
+    }
+    if (f.has("/lhe/initrwgt")) {
+      const std::string h = text("/lhe/initrwgt");
+      for (size_t a = 0; a < h.size();) {  // lines keep their newline, as LHERunInfoProduct headers do
+        const size_t nl = std::min(h.find('\n', a), h.size() - 1);
+        lheInitrwgt_.push_back(h.substr(a, nl + 1 - a));
+        a = nl + 1;
+      }
+    }
+  }
   for (std::string names = f.attrString("weight_names"); !names.empty();) {
     const size_t nl = names.find('\n');
     weightNames_.push_back(names.substr(0, nl));
@@ -510,6 +549,37 @@ std::shared_ptr<const Block> GenHDF5Producer::load(size_t b) const {
   if (nWeights_ > 1)
     blk->weightRatios =
         f.read<double>("/event/weightRatios", H5T_NATIVE_DOUBLE, r0 * (nWeights_ - 1), nr * (nWeights_ - 1));
+  if (haveLhe_) {
+    blk->lheOff = localOffsets(lheOff_, r0, r1);
+    const size_t l0 = lheOff_[r0];
+    const long long nl = lheOff_[r1] - l0;
+    auto ints = [&f](const char* k, hsize_t start, long long n) {
+      return f.read<int32_t>(k, H5T_NATIVE_INT32, start, n);
+    };
+    auto dbls = [&f](const char* k, hsize_t start, long long n) {
+      return f.read<double>(k, H5T_NATIVE_DOUBLE, start, n);
+    };
+    blk->lhePdg = ints("/lhe/pdgId", l0, nl);
+    blk->lheStatus = ints("/lhe/status", l0, nl);
+    blk->lheMo1 = ints("/lhe/mother1", l0, nl);
+    blk->lheMo2 = ints("/lhe/mother2", l0, nl);
+    blk->lhePx = dbls("/lhe/px", l0, nl);
+    blk->lhePy = dbls("/lhe/py", l0, nl);
+    blk->lhePz = dbls("/lhe/pz", l0, nl);
+    blk->lheE = dbls("/lhe/e", l0, nl);
+    blk->lheM = dbls("/lhe/m", l0, nl);
+    blk->lheSpin = dbls("/lhe/spin", l0, nl);
+    blk->lheIdprup = ints("/lhe/IDPRUP", r0, nr);
+    blk->lheNpLO = ints("/lhe/npLO", r0, nr);
+    blk->lheNpNLO = ints("/lhe/npNLO", r0, nr);
+    blk->lheOrigXwgtup = dbls("/lhe/originalXWGTUP", r0, nr);
+    blk->lheXwgtup = dbls("/lhe/XWGTUP", r0, nr);
+    blk->lheScalup = dbls("/lhe/SCALUP", r0, nr);
+    blk->lheAqedup = dbls("/lhe/AQEDUP", r0, nr);
+    blk->lheAqcdup = dbls("/lhe/AQCDUP", r0, nr);
+    if (!lheWeightIds_.empty())
+      blk->lheWeightRatios = dbls("/lhe/weightRatios", r0 * lheWeightIds_.size(), nr * lheWeightIds_.size());
+  }
   return blk;
 }
 
@@ -716,6 +786,44 @@ void GenHDF5Producer::produce(edm::StreamID, edm::Event& e, edm::EventSetup cons
     info->setPDF(&pdf);
   }
   e.put(std::move(info));
+
+  if (haveLhe_) {  // the LHE record as ExternalLHEProducer writes it
+    const size_t l0 = B.lheOff[idx], nl = B.lheOff[idx + 1] - l0;
+    lhef::HEPEUP hepeup;
+    hepeup.resize(static_cast<int>(nl));
+    hepeup.IDPRUP = B.lheIdprup[idx];
+    hepeup.XWGTUP = B.lheXwgtup[idx];
+    hepeup.SCALUP = B.lheScalup[idx];
+    hepeup.AQEDUP = B.lheAqedup[idx];
+    hepeup.AQCDUP = B.lheAqcdup[idx];
+    for (size_t i = 0; i < nl; ++i) {
+      hepeup.IDUP[i] = B.lhePdg[l0 + i];
+      hepeup.ISTUP[i] = B.lheStatus[l0 + i];
+      hepeup.MOTHUP[i] = {B.lheMo1[l0 + i], B.lheMo2[l0 + i]};
+      hepeup.PUP[i] = {{B.lhePx[l0 + i], B.lhePy[l0 + i], B.lhePz[l0 + i], B.lheE[l0 + i], B.lheM[l0 + i]}};
+      hepeup.SPINUP[i] = B.lheSpin[l0 + i];
+    }
+    const double w0 = B.lheOrigXwgtup[idx];
+    auto lhe = std::make_unique<LHEEventProduct>(hepeup, w0);
+    const size_t nw = lheWeightIds_.size();
+    for (size_t k = 0; k < nw; ++k)
+      lhe->addWeight(gen::WeightsInfo(lheWeightIds_[k], w0 * B.lheWeightRatios[idx * nw + k]));
+    lhe->setNpLO(B.lheNpLO[idx]);
+    lhe->setNpNLO(B.lheNpNLO[idx]);
+    e.put(std::move(lhe));
+  }
+}
+
+void GenHDF5Producer::globalBeginRunProduce(edm::Run& run, edm::EventSetup const&) const {
+  if (!haveLhe_)
+    return;
+  // the weight-group header NanoAOD classifies the LHE weights with
+  auto info = std::make_unique<LHERunInfoProduct>(lhef::HEPRUP());
+  LHERunInfoProduct::Header initrwgt("initrwgt");
+  for (auto const& line : lheInitrwgt_)
+    initrwgt.addLine(line);
+  info->addHeader(initrwgt);
+  run.put(std::move(info));
 }
 
 void GenHDF5Producer::globalBeginLuminosityBlockProduce(edm::LuminosityBlock& lumi, edm::EventSetup const&) const {
