@@ -1,0 +1,128 @@
+import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
+
+process = cms.Process("MPIController")
+
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.INFO.limit = 10000000
+
+process.options.numberOfThreads = 10
+process.options.numberOfStreams = 10
+
+process.options.numberOfConcurrentLuminosityBlocks = 10
+process.options.numberOfConcurrentRuns = 10
+
+options = VarParsing.VarParsing('analysis')
+options.register('numRuns', 10, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int)
+options.register('numLumisPerRun', 3, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int)
+options.register('numEventsPerLumi', 2, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int)
+numEventsPerRun = options.numLumisPerRun * options.numEventsPerLumi
+process.options.wantSummary = False
+
+process.source = cms.Source("EmptySource",
+    firstRun = cms.untracked.uint32(1),
+    firstLuminosityBlock = cms.untracked.uint32(1),
+    firstEvent = cms.untracked.uint32(1),
+    numberEventsInRun = cms.untracked.uint32(numEventsPerRun),
+    numberEventsInLuminosityBlock = cms.untracked.uint32(options.numEventsPerLumi),
+)
+process.maxEvents.input = options.numRuns * numEventsPerRun
+
+process.load("FWCore.ParameterSet.MessageLogger")
+process.MessageLogger.cerr.MPI = cms.untracked.PSet(
+    reportEvery = cms.untracked.int32( 1 ),
+    limit = cms.untracked.int32( 10000000 )
+)
+
+process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
+process.load("HeterogeneousCore.MPIServices.MPIConsistencyChecker_cfi")
+
+from HeterogeneousCore.MPICore.modules import *
+
+process.mpiController = MPIController(
+    mode = 'CommWorld',
+    followerProcessName = 'MPIFollower'
+)
+
+# Phase-1 FED RAW data collection pseudo object
+process.fedRawDataCollectionProducer = cms.EDProducer("TestWriteFEDRawDataCollection",
+    # Test values below are meaningless. We just make sure when we read
+    # we get the same values.
+    FEDData0 = cms.vuint32(0, 1, 2, 3, 4, 5, 6, 7),
+    FEDData3 = cms.vuint32(100, 101, 102, 103, 104, 105, 106, 107)
+)
+
+# Phase-2 RAW data buffer pseudo object
+process.rawDataBufferProducer = cms.EDProducer("TestWriteRawDataBuffer",
+    # Test values below are meaningless. We just make sure when we read
+    # we get the same values.
+    dataPattern1 = cms.vuint32(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
+    dataPattern2 = cms.vuint32(100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115)
+)
+
+# HLT trigger event pseudo object
+process.triggerEventProducer = cms.EDProducer("TestWriteTriggerEvent",
+    # Test values below are meaningless. We just make sure when we read
+    # we get the same values.
+    usedProcessName = cms.string("testName"),
+    collectionTags = cms.vstring('moduleA', 'moduleB', 'moduleC'),
+    collectionKeys = cms.vuint32(11, 21, 31),
+    ids = cms.vint32(1, 3, 5),
+    # stick to values exactly convertible from double to float
+    # to avoid potential rounding issues in the test, because
+    # the configuration only supports double not float and
+    # the data format holds floats.
+    pts = cms.vdouble(11.0, 21.0, 31.0),
+    etas = cms.vdouble(101.0, 102.0, 103.0),
+    phis = cms.vdouble(201.0, 202.0, 203.0),
+    masses = cms.vdouble(301.0, 302.0, 303.0),
+    filterTags = cms.vstring('moduleAA', 'moduleBB'),
+    elementsPerVector = cms.uint32(2),
+    filterIds = cms.vint32(1001, 1002, 1003, 1004),
+    filterKeys = cms.vuint32(2001, 2002, 2003, 2004)
+)
+
+# EDM trigger results pseudo object
+process.triggerResultsProducer = cms.EDProducer("TestWriteTriggerResults",
+    # Test values below are meaningless. We just make sure when we read
+    # we get the same values.
+    parameterSetID = cms.string('8b99d66b6c3865c75e460791f721202d'),
+    # names should normally be empty. Only extremely old data or
+    # has names filled and not empty. If it is not empty, the
+    # ParameterSetID is ignored and left default constructed.
+    names = cms.vstring(),
+    hltStates = cms.vuint32(0, 1, 2, 3),
+    moduleIndexes = cms.vuint32(11, 21, 31, 41)
+)
+
+process.sender = MPISender(
+    upstream = "mpiController",
+    instance = 42,
+    products = cms.VPSet(
+        cms.PSet(
+            type = cms.string("FEDRawDataCollection"),
+            name = cms.InputTag('fedRawDataCollectionProducer')
+        ),
+        cms.PSet(
+            type = cms.string("RawDataBuffer"),
+            name = cms.InputTag('rawDataBufferProducer')
+        ),
+        cms.PSet(
+            type = cms.string("edm::TriggerResults"),
+            name = cms.InputTag('triggerResultsProducer')
+        ),
+        cms.PSet(
+            type = cms.string("trigger::TriggerEvent"),
+            name = cms.InputTag('triggerEventProducer')
+        )
+    )
+)
+
+process.path = cms.Path(
+    process.mpiController +
+    process.fedRawDataCollectionProducer +
+    process.rawDataBufferProducer +
+    process.triggerEventProducer +
+    process.triggerResultsProducer +
+    process.sender
+)

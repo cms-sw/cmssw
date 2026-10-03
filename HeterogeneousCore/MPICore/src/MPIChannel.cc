@@ -227,6 +227,12 @@ void MPIChannel::edmToBuffer_(EDM_MPI_EventAuxiliary_t& buffer, edm::EventAuxili
   buffer.slotId = slot;
 }
 
+// blocking probe for the next message on this channel's communicator
+MPI_Status MPIChannel::probeAny(MPI_Message& message, MPI_Status& status) const {
+  MPI_Mprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, comm_, &message, &status);
+  return status;
+}
+
 // fill and send an EDM_MPI_Empty_t buffer
 void MPIChannel::sendEmpty_(int tag) {
   EDM_MPI_Empty_t buffer;
