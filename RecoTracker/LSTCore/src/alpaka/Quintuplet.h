@@ -39,19 +39,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                             float regressionRadius,
                                                             float rzChiSquared,
                                                             float rPhiChiSquared,
-                                                            float nonAnchorChiSquared,
                                                             float dBeta1,
                                                             float dBeta2,
                                                             float pt,
                                                             float eta,
                                                             float phi,
-                                                            float scores,
                                                             uint8_t layer,
                                                             unsigned int quintupletIndex,
                                                             unsigned int quintupletByMD0Index,
                                                             unsigned int quintupletByMD1Index,
                                                             const float (&t5Embed)[Params_T5::kEmbed],
-                                                            bool tightCutFlag,
                                                             float dnnScore) {
     quintuplets.tripletIndices()[quintupletIndex][0] = innerTripletIndex;
     quintuplets.tripletIndices()[quintupletIndex][1] = outerTripletIndex;
@@ -66,10 +63,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quintuplets.pt()[quintupletIndex] = __F2H(pt);
     quintuplets.eta()[quintupletIndex] = __F2H(eta);
     quintuplets.phi()[quintupletIndex] = __F2H(phi);
-    quintuplets.score_rphisum()[quintupletIndex] = __F2H(scores);
     quintuplets.isDup()[quintupletIndex] = 0;
     quintuplets.nLayers()[quintupletIndex] = Params_T5::kBaseLayers;
-    quintuplets.tightCutFlag()[quintupletIndex] = tightCutFlag;
     quintuplets.regressionRadius()[quintupletIndex] = regressionRadius;
     quintuplets.regressionCenterX()[quintupletIndex] = regressionCenterX;
     quintuplets.regressionCenterY()[quintupletIndex] = regressionCenterY;
@@ -93,7 +88,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 #ifdef CUT_VALUE_DEBUG
     quintuplets.rzChiSquared()[quintupletIndex] = rzChiSquared;
     quintuplets.chiSquared()[quintupletIndex] = rPhiChiSquared;
-    quintuplets.nonAnchorChiSquared()[quintupletIndex] = nonAnchorChiSquared;
     quintuplets.dBeta1()[quintupletIndex] = dBeta1;
     quintuplets.dBeta2()[quintupletIndex] = dBeta2;
 #endif
@@ -151,8 +145,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                          float inner_pt,
                                                          float innerRadius,
                                                          float g,
-                                                         float f,
-                                                         bool& tightCutFlag) {
+                                                         float f) {
     //(g,f) is the center of the circle fitted by the innermost 3 points on x,y coordinates
     const float rt1 = mds.anchorRt()[firstMDIndex] / 100;  //in the unit of m instead of cm
     const float rt2 = mds.anchorRt()[secondMDIndex] / 100;
@@ -440,125 +433,83 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       return rzChiSquared < 4.677f;
     }
 
-    // when building T5, apply 99% chi2 cuts as default, and add to pT5 collection. But when adding T5 to TC collections, apply 95% cut to reduce the fake rate
-    tightCutFlag = false;
     // The category numbers are related to module regions and layers, decoding of the region numbers can be found here in slide 2 table. https://github.com/SegmentLinking/TrackLooper/files/11420927/part.2.pdf
     // The commented numbers after each case is the region code, and can look it up from the table to see which category it belongs to. For example, //0 means T5 built with Endcap 1,2,3,4,5 ps modules
     if (layer1 == 7 and layer2 == 8 and layer3 == 9 and layer4 == 10 and layer5 == 11)  //0
     {
-      if (rzChiSquared < 94.470f)
-        tightCutFlag = true;
       return true;
     } else if (layer1 == 7 and layer2 == 8 and layer3 == 9 and layer4 == 10 and layer5 == 16)  //1
     {
-      if (rzChiSquared < 22.099f)
-        tightCutFlag = true;
       return rzChiSquared < 37.956f;
     } else if (layer1 == 7 and layer2 == 8 and layer3 == 9 and layer4 == 15 and layer5 == 16)  //2
     {
-      if (rzChiSquared < 7.992f)
-        tightCutFlag = true;
       return rzChiSquared < 11.622f;
     } else if (layer1 == 1 and layer2 == 7 and layer3 == 8 and layer4 == 9) {
       if (layer5 == 10)  //3
       {
-        if (rzChiSquared < 111.390f)
-          tightCutFlag = true;
         return true;
       }
       if (layer5 == 15)  //4
       {
-        if (rzChiSquared < 18.351f)
-          tightCutFlag = true;
         return rzChiSquared < 37.941f;
       }
     } else if (layer1 == 1 and layer2 == 2 and layer3 == 7) {
       if (layer4 == 8 and layer5 == 9)  //5
       {
-        if (rzChiSquared < 116.148f)
-          tightCutFlag = true;
         return true;
       }
       if (layer4 == 8 and layer5 == 14)  //6
       {
-        if (rzChiSquared < 19.352f)
-          tightCutFlag = true;
         return rzChiSquared < 52.561f;
       } else if (layer4 == 13 and layer5 == 14)  //7
       {
-        if (rzChiSquared < 10.392f)
-          tightCutFlag = true;
         return rzChiSquared < 13.76f;
       }
     } else if (layer1 == 1 and layer2 == 2 and layer3 == 3) {
       if (layer4 == 7 and layer5 == 8)  //8
       {
-        if (rzChiSquared < 27.824f)
-          tightCutFlag = true;
         return rzChiSquared < 44.247f;
       } else if (layer4 == 7 and layer5 == 13)  //9
       {
-        if (rzChiSquared < 18.145f)
-          tightCutFlag = true;
         return rzChiSquared < 33.752f;
       } else if (layer4 == 12 and layer5 == 13)  //10
       {
-        if (rzChiSquared < 13.308f)
-          tightCutFlag = true;
         return rzChiSquared < 21.213f;
       } else if (layer4 == 4 and layer5 == 5)  //11
       {
-        if (rzChiSquared < 15.627f)
-          tightCutFlag = true;
         return rzChiSquared < 29.035f;
       } else if (layer4 == 4 and layer5 == 12)  //12
       {
-        if (rzChiSquared < 14.64f)
-          tightCutFlag = true;
         return rzChiSquared < 23.037f;
       }
     } else if (layer1 == 2 and layer2 == 7 and layer3 == 8) {
       if (layer4 == 9 and layer5 == 15)  //14
       {
-        if (rzChiSquared < 24.662f)
-          tightCutFlag = true;
         return rzChiSquared < 41.036f;
       } else if (layer4 == 14 and layer5 == 15)  //15
       {
-        if (rzChiSquared < 8.866f)
-          tightCutFlag = true;
         return rzChiSquared < 14.092f;
       }
     } else if (layer1 == 2 and layer2 == 3 and layer3 == 7) {
       if (layer4 == 8 and layer5 == 14)  //16
       {
-        if (rzChiSquared < 23.730f)
-          tightCutFlag = true;
         return rzChiSquared < 23.748f;
       }
       if (layer4 == 13 and layer5 == 14)  //17
       {
-        if (rzChiSquared < 10.772f)
-          tightCutFlag = true;
         return rzChiSquared < 17.945f;
       }
     } else if (layer1 == 2 and layer2 == 3 and layer3 == 4) {
       if (layer4 == 5 and layer5 == 6)  //18
       {
-        if (rzChiSquared < 6.065f)
-          tightCutFlag = true;
         return rzChiSquared < 8.803f;
       } else if (layer4 == 5 and layer5 == 12)  //19
       {
-        if (rzChiSquared < 5.693f)
-          tightCutFlag = true;
         return rzChiSquared < 7.930f;
       }
 
       else if (layer4 == 12 and layer5 == 13)  //20
       {
-        if (rzChiSquared < 5.473f)
-          tightCutFlag = true;
         return rzChiSquared < 7.626f;
       }
     }
@@ -1502,12 +1453,111 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return false;
   }
 
+  // T5/T4 DNN inputs over the N MDs: MD-direction log-likelihood (mean, max; module frame, circle through anchors
+  // iA,iB,iC), local density (T3s leaving MD iMid and MD 0, MDs in the first module) and dcaXY of that circle.
+  // Not inlined on ROCm: inlining it into the counting kernels crashes the gfx90a register allocator (ROCm 7.2).
+#if defined(ALPAKA_ACC_GPU_HIP_ENABLED)
+#define LST_DNN_FEATURES_INLINE [[gnu::noinline]]
+#else
+#define LST_DNN_FEATURES_INLINE ALPAKA_FN_INLINE
+#endif
+  template <int N, int iA, int iB, int iC, int iMid, alpaka::concepts::Acc TAcc>
+  ALPAKA_FN_ACC LST_DNN_FEATURES_INLINE
+      dnn::t5dnn::ExtraFeatures computeDnnFeatures(TAcc const& acc,
+                                                   ModulesConst modules,
+                                                   MiniDoubletsConst mds,
+                                                   MiniDoubletsOccupancyConst mdOccupancy,
+                                                   TripletsRangesConst tripletsRangesByMD,
+                                                   const uint16_t (&lm)[N],
+                                                   const unsigned int (&md)[N]) {
+    float ax[N], ay[N], az[N];
+    for (int i = 0; i < N; ++i) {
+      ax[i] = mds.anchorX()[md[i]];
+      ay[i] = mds.anchorY()[md[i]];
+      az[i] = mds.anchorZ()[md[i]];
+    }
+    const auto circle = computeRadiusFromThreeAnchorHits(acc, ax[iA], ay[iA], ax[iB], ay[iB], ax[iC], ay[iC]);
+    const float cr = std::get<0>(circle), cx = std::get<1>(circle), cy = std::get<2>(circle);
+    const float chx = ax[iC] - ax[iA], chy = ay[iC] - ay[iA];
+    const float chord = alpaka::math::sqrt(acc, chx * chx + chy * chy);
+    // Same radius as cr, measured from the first anchor: numerically safer than cr for nearly straight tracks.
+    const float radiusAtFirstAnchor =
+        alpaka::math::sqrt(acc, (ax[iA] - cx) * (ax[iA] - cx) + (ay[iA] - cy) * (ay[iA] - cy));
+    float arc = chord;
+    if (edm::isFinite(radiusAtFirstAnchor) && radiusAtFirstAnchor > 0.f)
+      arc = 2.f * radiusAtFirstAnchor *
+            alpaka::math::asin(acc, alpaka::math::min(acc, chord / (2.f * radiusAtFirstAnchor), 1.f));
+    const float cotTheta = (az[iC] - az[iA]) / arc;
+    float sumW = 0.f, maxW = 0.f, maxPull = 0.f;
+    for (int i = 0; i < N; ++i) {
+      const uint16_t lowerModuleIndex = lm[i];
+      float tx = cy - ay[i], ty = ax[i] - cx;
+      const float tn = alpaka::math::sqrt(acc, tx * tx + ty * ty);
+      tx /= tn;
+      ty /= tn;
+      if (!edm::isFinite(tx) || !edm::isFinite(ty)) {
+        tx = chx / chord;
+        ty = chy / chord;
+      }
+      if (tx * chx + ty * chy < 0.f) {
+        tx = -tx;
+        ty = -ty;
+      }
+      // t = unit tangent of the circle at the MD anchor (plus cotTheta along z); in the module frame,
+      // u = direction across the strips in the sensor plane, n = sensor normal (tilted barrel via drdz, endcap = z).
+      float ux, uy, nx, ny, nz;
+      if (modules.subdets()[lowerModuleIndex] == Barrel) {
+        const float cphi = alpaka::math::cos(acc, modules.phi()[lowerModuleIndex]);
+        const float sphi = alpaka::math::sin(acc, modules.phi()[lowerModuleIndex]);
+        ux = -sphi;
+        uy = cphi;
+        nx = cphi;
+        ny = sphi;
+        nz = ((az[i] > 0.f) - (az[i] < 0.f)) * modules.drdzs()[lowerModuleIndex];
+      } else {
+        const float slope = modules.dxdys()[lowerModuleIndex];
+        ux = 0.f;
+        uy = 1.f;
+        if (edm::isFinite(slope)) {
+          ux = 1.f / alpaka::math::sqrt(acc, 1.f + slope * slope);
+          uy = slope * ux;
+        }
+        nx = 0.f;
+        ny = 0.f;
+        nz = 1.f;
+      }
+      const float dx = mds.outerX()[md[i]] - ax[i];
+      const float dy = mds.outerY()[md[i]] - ay[i];
+      const float dz = mds.outerZ()[md[i]] - az[i];
+      const float vu = tx * ux + ty * uy;
+      const float vn = tx * nx + ty * ny + cotTheta * nz;
+      const float residual = (dx * ux + dy * uy) - vu * (dx * nx + dy * ny + dz * nz) / vn;
+      const float width = (modules.moduleType()[lowerModuleIndex] == PS) ? kWidthPS : kWidth2S;
+      const float pull = alpaka::math::abs(acc, residual) / (width * 0.40824829f);
+      const float mdDirW = -alpaka::math::log(acc, alpaka::math::max(acc, 1.f - pull * 0.40824829f, 0.05f));
+      sumW += mdDirW;
+      maxW = alpaka::math::max(acc, maxW, mdDirW);
+      maxPull = alpaka::math::max(acc, maxPull, pull);
+    }
+    dnn::t5dnn::ExtraFeatures feat;
+    feat.mdDirMeanW = sumW / N;
+    feat.mdDirMaxW = maxW;
+    feat.nT3OutMid = tripletsRangesByMD.n()[md[iMid]];
+    feat.nT3OutFirst = tripletsRangesByMD.n()[md[0]];
+    feat.nMDFirstMod = mdOccupancy.nMDs()[lm[0]];
+    feat.dcaXY = alpaka::math::abs(acc, alpaka::math::sqrt(acc, cx * cx + cy * cy) - cr);
+    feat.mdDirMaxPull = maxPull;
+    return feat;
+  }
+
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runQuintupletDefaultAlgo(TAcc const& acc,
                                                                ModulesConst modules,
                                                                MiniDoubletsConst mds,
                                                                SegmentsConst segments,
                                                                TripletsConst triplets,
+                                                               MiniDoubletsOccupancyConst mdOccupancy,
+                                                               TripletsRangesConst tripletsRangesByMD,
                                                                uint16_t lowerModuleIndex1,
                                                                uint16_t lowerModuleIndex2,
                                                                uint16_t lowerModuleIndex3,
@@ -1523,11 +1573,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                float& regressionRadius,
                                                                float& rzChiSquared,
                                                                float& chiSquared,
-                                                               float& nonAnchorChiSquared,
                                                                float& dBeta1,
                                                                float& dBeta2,
                                                                float& dnnScore,
-                                                               bool& tightCutFlag,
                                                                float (&t5Embed)[Params_T5::kEmbed],
                                                                const float ptCut) {
     unsigned int firstSegmentIndex = triplets.segmentIndices()[innerTripletIndex][0];
@@ -1557,20 +1605,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     outerRadius = triplets.radius()[outerTripletIndex];
     std::tie(bridgeRadius, g, f) = computeRadiusFromThreeAnchorHits(acc, x2, y2, x3, y3, x4, y4);
     innerRadius = triplets.radius()[innerTripletIndex];
-
-    bool inference = lst::t5dnn::runInference(acc,
-                                              mds,
-                                              firstMDIndex,
-                                              secondMDIndex,
-                                              thirdMDIndex,
-                                              fourthMDIndex,
-                                              fifthMDIndex,
-                                              innerRadius,
-                                              outerRadius,
-                                              bridgeRadius,
-                                              dnnScore);
-    if (!inference)  // T5-building cut
-      return false;
 
     if (not runQuintupletdBetaAlgoSelector(acc,
                                            modules,
@@ -1630,16 +1664,37 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                inner_pt,
                                innerRadius,
                                g,
-                               f,
-                               tightCutFlag))
+                               f))
       return false;
 
-    // Promoted on the tight r-z flag or on the score above the 93% working point, binned on the layer-2 anchor eta.
-    const unsigned int layer2MDIndex = (modules.layers()[lowerModuleIndex1] == 1) ? secondMDIndex : firstMDIndex;
-    const float absEta = alpaka::math::abs(acc, mds.anchorEta()[layer2MDIndex]);
-    const uint8_t ptIndex = (innerRadius * k2Rinv1GeVf * 2 > 5.0f);
-    const uint8_t etaBin = (absEta > 2.5f) ? (dnn::kEtaBins - 1) : static_cast<unsigned int>(absEta / dnn::kEtaSize);
-    tightCutFlag = tightCutFlag || dnnScore >= dnn::t5dnn::kWp93[ptIndex][etaBin];
+    const uint16_t t5Lm[Params_T5::kBaseLayers] = {
+        lowerModuleIndex1, lowerModuleIndex2, lowerModuleIndex3, lowerModuleIndex4, lowerModuleIndex5};
+    const unsigned int t5Md[Params_T5::kBaseLayers] = {
+        firstMDIndex, secondMDIndex, thirdMDIndex, fourthMDIndex, fifthMDIndex};
+    const auto t5Feat = computeDnnFeatures<Params_T5::kBaseLayers, 0, 2, 4, 2>(
+        acc, modules, mds, mdOccupancy, tripletsRangesByMD, t5Lm, t5Md);
+    float dnnOutput[dnn::t5dnn::kOutputFeatures];
+    const bool inference = lst::t5dnn::runInference(acc,
+                                                    mds,
+                                                    firstMDIndex,
+                                                    secondMDIndex,
+                                                    thirdMDIndex,
+                                                    fourthMDIndex,
+                                                    fifthMDIndex,
+                                                    innerRadius,
+                                                    outerRadius,
+                                                    bridgeRadius,
+                                                    triplets.fakeScore()[innerTripletIndex],
+                                                    triplets.promptScore()[innerTripletIndex],
+                                                    triplets.displacedScore()[innerTripletIndex],
+                                                    triplets.fakeScore()[outerTripletIndex],
+                                                    triplets.promptScore()[outerTripletIndex],
+                                                    triplets.displacedScore()[outerTripletIndex],
+                                                    t5Feat,
+                                                    dnnOutput);
+    dnnScore = 1.f - dnnOutput[0];
+    if (!inference)  // T5-building cut
+      return false;
 
     lst::t5embdnn::runEmbed(acc,
                             mds,
@@ -1682,41 +1737,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                     sigmas2,
                                                     chiSquared);
 
-    //compute the other chisquared
-    //non anchor is always shifted for tilted and endcap!
-    float nonAnchorDelta1[Params_T5::kBaseLayers], nonAnchorDelta2[Params_T5::kBaseLayers],
-        nonAnchorSlopes[Params_T5::kBaseLayers];
-    float nonAnchorxs[] = {mds.outerX()[firstMDIndex],
-                           mds.outerX()[secondMDIndex],
-                           mds.outerX()[thirdMDIndex],
-                           mds.outerX()[fourthMDIndex],
-                           mds.outerX()[fifthMDIndex]};
-    float nonAnchorys[] = {mds.outerY()[firstMDIndex],
-                           mds.outerY()[secondMDIndex],
-                           mds.outerY()[thirdMDIndex],
-                           mds.outerY()[fourthMDIndex],
-                           mds.outerY()[fifthMDIndex]};
-
-    computeSigmasForRegression(acc,
-                               modules,
-                               lowerModuleIndices,
-                               nonAnchorDelta1,
-                               nonAnchorDelta2,
-                               nonAnchorSlopes,
-                               isFlat,
-                               Params_T5::kBaseLayers,
-                               false);
-    nonAnchorChiSquared = computeChiSquared(acc,
-                                            Params_T5::kBaseLayers,
-                                            nonAnchorxs,
-                                            nonAnchorys,
-                                            nonAnchorDelta1,
-                                            nonAnchorDelta2,
-                                            nonAnchorSlopes,
-                                            isFlat,
-                                            regressionCenterX,
-                                            regressionCenterY,
-                                            regressionRadius);
     return true;
   }
 
@@ -1732,6 +1752,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                        QuintupletsRanges quintupletsRangesByMD1,
                                                        QuintupletsByMD quintupletsByMD1,
                                                        ObjectRangesConst ranges,
+                                                       MiniDoubletsOccupancyConst mdOccupancy,
+                                                       TripletsRangesConst tripletsRangesByMD,
                                                        unsigned int innerTripletIndex,
                                                        unsigned int outerTripletIndex,
                                                        uint16_t lowerModule1,
@@ -1745,18 +1767,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     uint16_t lowerModule5 = lmIdx[outerTripletIndex][2];
 
     float innerRadius, outerRadius, bridgeRadius, regressionCenterX, regressionCenterY, regressionRadius, rzChiSquared,
-        chiSquared, nonAnchorChiSquared, dBeta1, dBeta2,
+        chiSquared, dBeta1, dBeta2,
         dnnScore;  //required for making distributions
 
     float t5Embed[Params_T5::kEmbed] = {0.f};
-
-    bool tightCutFlag = false;
 
     bool success = runQuintupletDefaultAlgo(acc,
                                             modules,
                                             mds,
                                             segments,
                                             triplets,
+                                            mdOccupancy,
+                                            tripletsRangesByMD,
                                             lowerModule1,
                                             lowerModule2,
                                             lowerModule3,
@@ -1772,11 +1794,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                             regressionRadius,
                                             rzChiSquared,
                                             chiSquared,
-                                            nonAnchorChiSquared,
                                             dBeta1,
                                             dBeta2,
                                             dnnScore,
-                                            tightCutFlag,
                                             t5Embed,
                                             ptCut);
     if (success) {
@@ -1816,7 +1836,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         float phi = mds.anchorPhi()[mdIndices[ls0Index][layer2_adjustment]];
         float eta = mds.anchorEta()[mdIndices[ls0Index][layer2_adjustment]];
         float pt = (innerRadius + outerRadius) * k2Rinv1GeVf;
-        float scores = chiSquared + nonAnchorChiSquared;
         addQuintupletToMemory(triplets,
                               segments,
                               quintuplets,
@@ -1837,20 +1856,36 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                               regressionRadius,
                               rzChiSquared,
                               chiSquared,
-                              nonAnchorChiSquared,
                               dBeta1,
                               dBeta2,
                               pt,
                               eta,
                               phi,
-                              scores,
                               layer,
                               quintupletIndex,
                               quintupletByMD0Index,
                               quintupletByMD1Index,
                               t5Embed,
-                              tightCutFlag,
                               dnnScore);
+#ifdef CUT_VALUE_DEBUG
+        {
+          const uint16_t t5Lm[Params_T5::kBaseLayers] = {
+              lowerModule1, lowerModule2, lowerModule3, lowerModule4, lowerModule5};
+          const unsigned int t5Md[Params_T5::kBaseLayers] = {mdIndices[segIdx[innerTripletIndex][0]][0],
+                                                             mdIndices[segIdx[innerTripletIndex][0]][1],
+                                                             mdIndices[segIdx[innerTripletIndex][1]][1],
+                                                             mdIndices[segIdx[outerTripletIndex][0]][1],
+                                                             mdIndices[segIdx[outerTripletIndex][1]][1]};
+          const auto t5Feat = computeDnnFeatures<Params_T5::kBaseLayers, 0, 2, 4, 2>(
+              acc, modules, mds, mdOccupancy, tripletsRangesByMD, t5Lm, t5Md);
+          quintuplets.mdDirMeanW()[quintupletIndex] = t5Feat.mdDirMeanW;
+          quintuplets.mdDirMaxW()[quintupletIndex] = t5Feat.mdDirMaxW;
+          quintuplets.nT3OutMid()[quintupletIndex] = t5Feat.nT3OutMid;
+          quintuplets.nT3OutFirst()[quintupletIndex] = t5Feat.nT3OutFirst;
+          quintuplets.nMDFirstMod()[quintupletIndex] = t5Feat.nMDFirstMod;
+          quintuplets.dcaXY()[quintupletIndex] = t5Feat.dcaXY;
+        }
+#endif
 
         triplets.partOfT5()[quintuplets.tripletIndices()[quintupletIndex][0]] = true;
         triplets.partOfT5()[quintuplets.tripletIndices()[quintupletIndex][1]] = true;
@@ -1959,6 +1994,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                quintupletsRangesByMD1,
                                quintupletsByMD1,
                                ranges,
+                               mdOccupancy,
+                               tripletsRangesByMD,
                                innerTripletIndex,
                                outerTripletIndex,
                                lowerModule1,
@@ -2019,6 +2056,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                            quintupletsRangesByMD1,
                            quintupletsByMD1,
                            ranges,
+                           mdOccupancy,
+                           tripletsRangesByMD,
                            innerTripletIndex,
                            outerTripletIndex,
                            lowerModule1,
@@ -2049,6 +2088,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   TripletsByMDConst tripletsByMD,
                                   TripletsRangesConst tripletsRangesByMD,
                                   ObjectRangesConst ranges,
+                                  MiniDoubletsOccupancyConst mdOccupancy,
                                   const float ptCut) const {
       // The atomicAdd below with hierarchy::Threads{} requires one block in x, y dimensions.
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1) &&
@@ -2110,15 +2150,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
               float innerRadius, outerRadius, bridgeRadius;
               float regCx, regCy, regR;
-              float rzChi2, chi2, nonAnchorChi2, dBeta1, dBeta2, dnnScore;
+              float rzChi2, chi2, dBeta1, dBeta2, dnnScore;
               float t5Embed[Params_T5::kEmbed] = {0.f};
-              bool tightFlag = false;
 
               const bool ok = runQuintupletDefaultAlgo(acc,
                                                        modules,
                                                        mds,
                                                        segments,
                                                        triplets,
+                                                       mdOccupancy,
+                                                       tripletsRangesByMD,
                                                        lowerModule1,
                                                        lowerModule2,
                                                        lowerModule3,
@@ -2134,11 +2175,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                        regR,
                                                        rzChi2,
                                                        chi2,
-                                                       nonAnchorChi2,
                                                        dBeta1,
                                                        dBeta2,
                                                        dnnScore,
-                                                       tightFlag,
                                                        t5Embed,
                                                        ptCut);
               if (ok) {

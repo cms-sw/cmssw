@@ -30,12 +30,17 @@ namespace lst {
                       SOA_COLUMN(FPX, outerRadius),  // outer triplet radius
                       SOA_COLUMN(FPX, pt),
 #ifdef CUT_VALUE_DEBUG
-                      SOA_COLUMN(FPX, score_rphisum),  // r-phi based score
                       SOA_COLUMN(float, nonAnchorRegressionRadius),
                       SOA_COLUMN(float, rzChiSquared),  // r-z only chi2
                       SOA_COLUMN(float, promptScore),
                       SOA_COLUMN(int, layer),
                       SOA_COLUMN(float, dBeta),
+                      SOA_COLUMN(float, mdDirMeanW),  // T4 DNN extra inputs, as for T5: MD direction, mean and largest
+                      SOA_COLUMN(float, mdDirMaxW),
+                      SOA_COLUMN(float, nT3OutMid),    // T3s leaving the middle MD
+                      SOA_COLUMN(float, nT3OutFirst),  // T3s leaving the first MD
+                      SOA_COLUMN(float, nMDFirstMod),  // MDs in the first module
+                      SOA_COLUMN(float, dcaXY),
 #endif
                       SOA_COLUMN(bool, partOfTC));
 
