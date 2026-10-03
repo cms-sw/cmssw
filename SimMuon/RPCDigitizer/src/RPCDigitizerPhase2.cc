@@ -1,4 +1,4 @@
-#include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
+#include "SimMuon/RPCDigitizer/src/RPCDigitizerPhase2.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimFactory.h"
 #include "SimMuon/RPCDigitizer/src/RPCSim.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -9,18 +9,17 @@
 
 // default constructor allocates default wire and strip digitizers
 
-RPCDigitizer::RPCDigitizer(const edm::ParameterSet& config, bool type)
+RPCDigitizerPhase2::RPCDigitizerPhase2(const edm::ParameterSet& config)
     : theRPCSim{RPCSimFactory::get()->create(config.getParameter<std::string>("digiModel"),
                                              config.getParameter<edm::ParameterSet>("digiModelConfig"))},
-      theNoise{config.getParameter<bool>("doBkgNoise")},
-      theType(type) {}
+      theNoise{config.getParameter<bool>("doBkgNoise")} {}
 
-RPCDigitizer::~RPCDigitizer() = default;
+RPCDigitizerPhase2::~RPCDigitizerPhase2() = default;
 
-void RPCDigitizer::doAction(MixCollection<PSimHit>& simHits,
-                            RPCDigiCollection& rpcDigis,
-                            RPCDigiSimLinks& rpcDigiSimLink,
-                            CLHEP::HepRandomEngine* engine) {
+void RPCDigitizerPhase2::doAction(MixCollection<PSimHit>& simHits,
+                                  RPCDigiPhase2Collection& rpcDigis,
+                                  RPCDigiSimLinks& rpcDigiSimLink,
+                                  CLHEP::HepRandomEngine* engine) {
   theRPCSim->setRPCSimSetUp(theSimSetUp);
 
   // arrange the hits by roll
@@ -31,7 +30,8 @@ void RPCDigitizer::doAction(MixCollection<PSimHit>& simHits,
 
   if (!theGeometry) {
     throw cms::Exception("Configuration")
-        << "RPCDigitizer requires the RPCGeometry \n which is not present in the configuration file.  You must add the "
+        << "RPCDigitizerPhase2 requires the RPCGeometry \n which is not present in the configuration file.  You must "
+           "add the "
            "service\n in the configuration file or remove the modules that require it.";
   }
 
@@ -40,7 +40,7 @@ void RPCDigitizer::doAction(MixCollection<PSimHit>& simHits,
     RPCDetId id = (*r)->id();
     const edm::PSimHitContainer& rollSimHits = hitMap[id];
 
-    if ((*r)->isIRPC() != theType) {
+    if (!((*r)->isIRPC())) {
       theRPCSim->simulate(*r, rollSimHits, engine);
 
       if (theNoise) {
@@ -55,7 +55,7 @@ void RPCDigitizer::doAction(MixCollection<PSimHit>& simHits,
   }
 }
 
-const RPCRoll* RPCDigitizer::findDet(int detId) const {
+const RPCRoll* RPCDigitizerPhase2::findDet(int detId) const {
   assert(theGeometry != nullptr);
   const GeomDetUnit* detUnit = theGeometry->idToDetUnit(RPCDetId(detId));
   return dynamic_cast<const RPCRoll*>(detUnit);
