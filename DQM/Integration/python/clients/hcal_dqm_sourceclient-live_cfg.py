@@ -174,6 +174,8 @@ process.load('DQM.HcalTasks.ZDCTask_cff')
 process.load('DQM.HcalTasks.HcalOnlineHarvesting_cfi')
 process.load('DQM.HcalTasks.HcalQualityTests_cfi')
 process.load('DQM.HcalTasks.hcalMLTask_cfi')
+# required by the HcalMLTask, which uses the ONNX Runtime
+process.load('PhysicsTools.ONNXRuntime.ONNXService_cfi')
 
 #-------------------------------------
 #	For Debugginb

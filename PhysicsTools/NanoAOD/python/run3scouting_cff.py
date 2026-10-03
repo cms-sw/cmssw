@@ -4,6 +4,8 @@ from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCand
 from Configuration.Eras.Modifier_run3_scouting_2023_cff import run3_scouting_2023
 from Configuration.Eras.Modifier_run3_scouting_2024_cff import run3_scouting_2024
 from Configuration.Eras.Modifier_run3_scouting_2025_cff import run3_scouting_2025
+# the ONNX Runtime based ParticleNet and GlobalParT taggers require the ONNXService
+from PhysicsTools.ONNXRuntime.ONNXService_cfi import ONNXService
 
 #####################################
 ##### Scouting Original Objects #####
