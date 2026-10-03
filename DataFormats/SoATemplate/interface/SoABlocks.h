@@ -5,8 +5,14 @@
  * SoA Blocks: collection of SoA layouts (blocks) that can be accessed in a structured way.
  */
 
-#include "SoACommon.h"
-#include "SoALayout.h"
+#include <array>
+#include <cstddef>
+#include <ostream>
+#include <stdexcept>
+#include <tuple>
+
+#include "DataFormats/SoATemplate/interface/SoACommon.h"
+#include "DataFormats/SoATemplate/interface/SoALayout.h"
 
 #define _DECLARE_SOA_BLOCKS_STREAM_INFO_IMPL(NAME, LAYOUT_NAME)                               \
   _soa_impl_os << BOOST_PP_CAT(NAME, _);                                                      \
