@@ -4,6 +4,7 @@
 #include "DataFormats/PortableTestObjects/interface/TestHostObject.h"
 
 #include "DataFormats/PortableTestObjects/interface/ParticleHostCollection.h"
+#include "DataFormats/PortableTestObjects/interface/HitHostCollection.h"
 #include "DataFormats/PortableTestObjects/interface/ImageHostCollection.h"
 #include "DataFormats/PortableTestObjects/interface/LogitsHostCollection.h"
 #include "DataFormats/PortableTestObjects/interface/SimpleNetHostCollection.h"
@@ -16,6 +17,9 @@ SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::TestHostCollection3);
 SET_PORTABLEHOSTOBJECT_READ_RULES(portabletest::TestHostObject);
 
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::ParticleHostCollection);
+SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::HitHostCollection);
+SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::HitToTrackHostCollection);
+SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::TrackBeginHostCollection);
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::SimpleNetHostCollection);
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::MultiHeadNetHostCollection);
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::ImageHostCollection);

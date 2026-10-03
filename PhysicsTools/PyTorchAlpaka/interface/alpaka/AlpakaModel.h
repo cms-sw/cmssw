@@ -6,6 +6,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "PhysicsTools/PyTorch/interface/Model.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/GetDevice.h"
+#include "PhysicsTools/PyTorchAlpaka/interface/BatchedTensorCollection.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/TensorCollection.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/SoAConversion.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/alpaka/QueueGuard.h"
@@ -50,6 +51,47 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torch {
         cms::torch::alpakatools::detail::convertOutput(output_tensors, outputs, device_);
       } else {
         cms::torch::alpakatools::detail::convertOutput(outputs, device_) = model_.forward(input_tensor).toTensor();
+      }
+    }
+
+    // Forward pass for the mini batch case
+    void forward(Queue &queue,
+                 cms::torch::alpakatools::BatchedTensorCollection<Queue> &inputs,
+                 cms::torch::alpakatools::BatchedTensorCollection<Queue> &outputs,
+                 std::optional<::torch::Dtype> dtype = std::nullopt) {
+      const auto input_batches = inputs.batchCount();
+      const auto output_batches = outputs.batchCount();
+
+      assert((!input_batches || !output_batches || *input_batches == *output_batches) &&
+             "AlpakaModel::forwardBatched: incompatible batch counts");
+
+      const auto n_batches = input_batches.value_or(output_batches.value_or(1u));
+
+      using Collection = cms::torch::alpakatools::TensorCollection<Queue>;
+
+      inputs.materialized_batches_.clear();
+      outputs.materialized_batches_.clear();
+
+      inputs.full_tensors_ = Collection{};
+      outputs.full_tensors_ = Collection{};
+
+      inputs.materialized_batches_.reserve(n_batches);
+      outputs.materialized_batches_.reserve(n_batches);
+
+      // Prepare the TensorCollections
+      for (auto batch_id = 0u; batch_id < n_batches; batch_id++) {
+        auto batch_input = std::make_unique<Collection>();
+        inputs.materializeBatch(batch_id, *batch_input);
+        inputs.materialized_batches_.push_back(std::move(batch_input));
+
+        auto batch_output = std::make_unique<Collection>();
+        outputs.materializeBatch(batch_id, *batch_output);
+        outputs.materialized_batches_.push_back(std::move(batch_output));
+      }
+
+      // Run the inference
+      for (auto batch_id = 0u; batch_id < n_batches; ++batch_id) {
+        forward(queue, *inputs.materialized_batches_[batch_id], *outputs.materialized_batches_[batch_id], dtype);
       }
     }
 
