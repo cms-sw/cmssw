@@ -1,14 +1,17 @@
 #include <cmath>
+#include <memory>
+
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
-#include "FWCore/AbstractServices/interface/ResourceInformation.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXInterface.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
+#include "PhysicsTools/ONNXRuntime/interface/SessionCache.h"
 #include "RecoParticleFlow/PFProducer/interface/MLPFModel.h"
 
 using namespace cms::Ort;
@@ -16,16 +19,20 @@ using namespace cms::Ort;
 //use this to switch on detailed print statements in MLPF
 //#define MLPF_DEBUG
 
-class MLPFProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
+class MLPFProducer : public edm::stream::EDProducer<edm::GlobalCache<SessionCache>> {
 public:
-  explicit MLPFProducer(const edm::ParameterSet&, const ONNXRuntime*);
+  explicit MLPFProducer(const edm::ParameterSet&, const SessionCache*);
+
+  // Create the ONNX Runtime session used by this framework stream before the first event: on the CPU all the streams
+  // share the same session, on a GPU each stream has its own, running in its own compute stream.
+  void beginStream(edm::StreamID id) override;
 
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   // static methods for handling the global cache
-  static std::unique_ptr<ONNXRuntime> initializeGlobalCache(const edm::ParameterSet&);
-  static void globalEndJob(const ONNXRuntime*);
+  static std::unique_ptr<SessionCache> initializeGlobalCache(const edm::ParameterSet&);
+  static void globalEndJob(const SessionCache*);
 
 private:
   const edm::EDPutTokenT<reco::PFCandidateCollection> pfCandidatesPutToken_;
@@ -33,10 +40,12 @@ private:
   const edm::EDGetTokenT<reco::PFBlockCollection> inputTagBlocks_;
 };
 
-MLPFProducer::MLPFProducer(const edm::ParameterSet& cfg, const ONNXRuntime* cache)
+MLPFProducer::MLPFProducer(const edm::ParameterSet& cfg, const SessionCache* cache)
     : pfCandidatesPutToken_{produces<reco::PFCandidateCollection>()},
       gsfElectrons_{consumes<edm::View<reco::GsfElectron>>(edm::InputTag("gedGsfElectronsTmp"))},
       inputTagBlocks_{consumes<reco::PFBlockCollection>(cfg.getParameter<edm::InputTag>("src"))} {}
+
+void MLPFProducer::beginStream(edm::StreamID id) { globalCache()->get(id); }
 
 void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   using namespace reco::mlpf;
@@ -94,10 +103,12 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
 #endif
 
   //run the GNN inference, given the inputs and the output.
-  const auto& outputs = globalCache()->run(
-      {"Xfeat_normed", "mask"},
-      inputs,
-      {{1, static_cast<long int>(tensor_size), NUM_ELEMENT_FEATURES}, {1, static_cast<long int>(tensor_size)}});
+  const auto& outputs = globalCache()
+                            ->get(event.streamID())
+                            .run({"Xfeat_normed", "mask"},
+                                 inputs,
+                                 {{1, static_cast<long int>(tensor_size), NUM_ELEMENT_FEATURES},
+                                  {1, static_cast<long int>(tensor_size)}});
   const auto& output_binary = outputs[0];
   const auto& output_pid = outputs[1];
   const auto& output_p4 = outputs[2];
@@ -230,23 +241,14 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   event.emplace(pfCandidatesPutToken_, pOutputCandidateCollection);
 }
 
-std::unique_ptr<ONNXRuntime> MLPFProducer::initializeGlobalCache(const edm::ParameterSet& params) {
-  edm::Service<edm::ResourceInformation> ri;
-
-  Backend backend = Backend::cpu;
-
-  if (ri.isAvailable() && ri->hasGpuNvidia()) {
-    backend = Backend::cuda;
-    edm::LogInfo("MLPFProducer") << "NVIDIA GPU detected. Running ONNX model on CUDA.";
-  } else {
-    edm::LogInfo("MLPFProducer") << "No NVIDIA GPU detected. Running ONNX model on CPU.";
-  }
-
-  auto session_options = ONNXRuntime::defaultSessionOptions(backend);
-  return std::make_unique<ONNXRuntime>(params.getParameter<edm::FileInPath>("model_path").fullPath(), &session_options);
+std::unique_ptr<SessionCache> MLPFProducer::initializeGlobalCache(const edm::ParameterSet& params) {
+  edm::Service<ONNXInterface> onnx;
+  Backend backend = onnx->chooseBackend(Backend::cuda, Backend::cpu);
+  edm::LogInfo("MLPFProducer") << "Running the MLPF model on the " << backendName(backend) << " backend.";
+  return std::make_unique<SessionCache>(params.getParameter<edm::FileInPath>("model_path").fullPath(), backend);
 }
 
-void MLPFProducer::globalEndJob(const ONNXRuntime* cache) {}
+void MLPFProducer::globalEndJob(const SessionCache* cache) {}
 
 void MLPFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;

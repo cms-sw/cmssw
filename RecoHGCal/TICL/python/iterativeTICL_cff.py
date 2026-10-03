@@ -20,6 +20,8 @@ from RecoHGCal.TICL.superclustering_cff import *
 from RecoHGCal.TICL.ticlCandidateProducer_cfi import ticlCandidateProducer as _ticlCandidateProducer
 
 from RecoHGCal.TICL.mtdSoAProducer_cfi import mtdSoAProducer as _mtdSoAProducer
+# the ONNX Runtime based inference and linking algorithms require the ONNXService
+from PhysicsTools.ONNXRuntime.ONNXService_cfi import ONNXService
 from Configuration.ProcessModifiers.ticlv5_TrackLinkingGNN_cff import ticlv5_TrackLinkingGNN
 
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_pf_cff import ticl_superclustering_mustache_pf
