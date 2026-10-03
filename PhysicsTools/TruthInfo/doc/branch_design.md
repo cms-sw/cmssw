@@ -1,4 +1,4 @@
-# `truth::Branch` — design proposal (for discussion)
+# `truth::Branch` design proposal (for discussion)
 
 ## Concept
 A `truth::Branch` is a **coherent connected subgraph** of `truth::Graph`: a chosen
@@ -15,8 +15,8 @@ object does not map to a single truth particle:
 - a b-jet  <-> the b-quark branch (with its B-hadron sub-branch).
 
 It is built directly on phases 1-3: the selection (seed PDG / heavy-flavor)
-chooses the root, the downstream closure defines the extent, the ISR/underlying
--event roles + genEvent/eventId give provenance, and the hit index gives the
+chooses the root, the downstream closure defines the extent, the initial-state and
+underlying-event roles + genEvent/eventId give provenance, and the hit index gives the
 detector footprint.
 
 ## Construction & closure policy
@@ -25,18 +25,21 @@ Branch b = graph.branch(rootParticle, closure);
 ```
 `closure` selects which members belong to the branch and is always evaluated on
 the fly from the `Graph` (a Branch is never an EDM product):
-- `Subtree`     - the root and all descendants (default);
-- `StableLeaves`- the root plus only its final-state descendants;
-- `DepthN`      - descendants down to N generations;
-- `UntilPdgId`  - stop the closure at a species (e.g. stop at stable hadrons,
-                  or at the B hadron for a b-branch);
-- `Predicate`   - stop on a user predicate (stop at any heavy-flavor hadron, at a
-                  detector-boundary crossing, on a custom lambda), so closures
-                  are extensible without new enum values.
-The phase-1-3 postprocessing already computes member sets; a Branch makes that
-set a first-class, queryable object.
+- `Subtree`      - the root and all descendants (default);
+- `StableLeaves` - the root plus only its final-state descendants;
+- `DepthN`       - descendants down to N generations;
+- `UntilPdgId`   - stop the closure at a species (e.g. stop at stable hadrons,
+                   or at the B hadron for a b-branch), excluding the root;
+- `UntilLevels`  - stop the closure at any of a set of truth levels (e.g. stop at
+                   particles crossing the boundary between the tracker and calorimeter);
+- `Predicate`    - stop on a user predicate (e.g. stop at any heavy-flavor hadron, at a
+                   detector-boundary crossing, on a custom lambda), so closures
+                   are extensible without new closure enum values.
 
-**Decision:** the Branch is a **view, recomputed on demand** — stateless, no
+The phase-1-3 postprocessing already computes member sets;
+a Branch makes that set a first-class, queryable object.
+
+**Decision:** the Branch is a **view, recomputed on demand**: stateless, no
 stored member list, not an EDM product. Any caching needed for performance lives
 in the *matching layer* (below), scoped to a batch of objects, not in the Branch.
 
@@ -45,8 +48,7 @@ in the *matching layer* (below), scoped to a batch of objects, not in the Branch
 class Branch {
   Graph const* graph_;
   std::vector<uint32_t> roots_;      // usually 1
-  std::vector<uint32_t> members_;    // closure (materialized)
-  // optional caches: p4 sums, DetId set, hit spans
+  ClosureSpec spec_;                 // which closure the members are computed from
 };
 ```
 A Branch carries provenance via its root (`genEvent`/`eventId`), so pile-up
@@ -55,7 +57,10 @@ branches stay distinguishable when graphs are overlaid.
 ## Queries the Branch should answer
 
 ### A. Matching reco objects (the substrate is detector-agnostic; metrics are pluggable)
-- `members()`, `stableLeaves()`, `chargedStableLeaves()`.
+- `members()` - all particles included by the closure, including roots, and descendants in subtrees where the closure condition was never met.
+- `stableLeaves()` - the childless particles (i.e., with `isLeaf() == true`) included by the closure.
+- `closureLeaves()` - the particles in the branch that meet the closure condition.
+- `leaves()` - the deepest members not covered by another member, i.e., the final-state leaves of a full subtree ("stable leaves"), or the particles the closure stopped at when it truncates ("closure leaves"); together these carry the branch's total momentum.
 - `hits(closure)` - aggregated direct/subgraph SimHits + matched RecHits over all members (LogicalGraphHitIndex already gives this per particle).
 - `detIds()`, `energy(Detector)` - sim/rec energy summed over the branch in a subdetector.
 - `sharedHitFraction(recoObject)` / `sharedHits(recoObject)` - tracking-style metric.
@@ -64,16 +69,16 @@ branches stay distinguishable when graphs are overlaid.
 - `containsSimTrack(id)`, `containsDetId(id)`.
 
 **Batch / many-to-many matching.** Single-object queries go through the Branch
-metric strategy above. For associating *collections* — N reco <-> 1 sim (split
-tracks, calo fragments -> one particle) and N sim <-> 1 reco (a jet <- a branch)
-— a free `BranchMatcher(branches, recoObjects, Metric)` builds the inverted
+metric strategy above. For associating *collections*, N reco <-> 1 sim (split
+tracks, calo fragments -> one particle) and N sim <-> 1 reco (a jet <- a branch),
+a free `BranchMatcher(branches, recoObjects, Metric)` builds the inverted
 `hit/DetId -> branch` index **once and caches it for the duration of the call**,
 then emits a weighted bipartite association in both directions (cf. reco's
 `RecoToSimCollection`/`SimToRecoCollection`). The Branch stays stateless; the
 cache lives in the matcher.
 
 **Hit ranges and `std::span`.** If `LogicalGraphHitIndex` lays hits out in graph
--topological order, a `Subtree` branch's hits are a **contiguous range** — i.e.
+-topological order, a `Subtree` branch's hits are a **contiguous range**, that is
 exactly the precomputed subgraph-hit `std::span` of its root, returned with zero
 gather. The matcher can then count shared hits / energy by a sorted-range
 merge-join rather than hashing, which is the cache-friendly path. (This needs the
@@ -106,10 +111,10 @@ hit-index builder to guarantee the topological layout; see follow-up below.)
 - **Composable**: branches merge/split; queries compose with the existing
   navigation (`ancestors`, `firstCommonAncestor`, `firstAncestorWithPdgId`).
 - **Built on what exists**: selection (phase 1-2), navigation (phase 3),
-  hit index (existing) — Branch is the unifying view, not new infrastructure.
+  hit index (existing): Branch is the unifying view, not new infrastructure.
 
 ## Resolved decisions
-1. **View, recomputed on demand** — the Branch stores no member list and is not
+1. **View, recomputed on demand**: the Branch stores no member list and is not
    an EDM product.
 2. **Derived on the fly** from `Graph` + closure (never persisted). Member-id
    lists are cheap to recompute; hit aggregates are not stored on the Branch.
@@ -127,25 +132,27 @@ Implemented (library level, all unit-tested):
   `subgraphHits(root)` with zero gather and are merge-join ready.
 - **`truth::Branch`** (`interface/Branch.h`): the view, with closures
   `Subtree / StableLeaves / DepthN / UntilPdgId / Predicate`, members/leaves,
-  p4 / visible / invisible energy, origin (`originWithPdgId`), heavy-flavor
-  content, pile-up provenance (`bunchCrossing`/`event`/`isSignal`/`isFromPileup`),
+  p4 / visible / invisible energy, origin (`originWithPdgId`), heavy-flavour
+  content (`hasHeavyFlavor`), pile-up provenance (`bunchCrossing`/`event`/`isSignal`/`isFromPileup`),
   and relations (`commonAncestor`, `merged`).
 - **`truth::BranchHitAssociator`** (`interface/BranchHitAssociator.h`): the
   generic, batch-cached matcher. **Customization point**: any reco object that
   exposes `R::truthHits()` returning a range of `truth::RecoHit`
-  (`{detId, energy, fraction}`) is matchable — the `HasTruthHits<R>` concept. It
+  (`{detId, energy, fraction}`) is matchable: the `HasTruthHits<R>` concept. It
   caches the inverted `detId -> roots` index once, then `bestBranches(reco)`
   merge-joins the object's sorted hits against each candidate's sorted subgraph
-  span. Metrics: `SharedEnergy` (HGCal-style score) and `SharedHits`.
+  span. A `truth::RecoHit` is `{detId, energy, fraction, cell}`, the cell being the
+  digi channel where a DetId names a module rather than a cell. Metrics:
+  `SharedEnergy` (HGCal-style score, energy weighted by the rechit energy) and
+  `SharedHits` (rechits on the reco side, cells on the branch side). Each match
+  carries `score`, `reverseScore` and `sharedEnergyFraction`.
 - **`truth::BranchSelector`** (`interface/BranchSelector.h`): pt/eta/pdgId/charge
   + signal/in-time selection, mirroring TrackingParticleSelector/CaloParticleSelector.
 
-## Remaining (EDProducer wiring)
-- Wrap `BranchHitAssociator` in EDProducers that consume real reco collections
-  (tracks, tracksters/PFclusters, jets) and emit `ticl::AssociationMap`
-  (`mapWithSharedEnergyAndScore`) products in both directions, mirroring
-  `AllTracksterToSimTracksterAssociatorsByHitsProducer` and the
-  TrackingParticle<->reco::Track associator, but with a Branch in place of the
-  SimTrackster/TrackingParticle.
-- A tracker variant keyed on shared `(trackId, EncodedEventId)` SimTrack hits
-  (the QuickTrackAssociatorByHits metric) for track<->branch matching.
+## The EDProducer layer
+
+`SimGeneral/TruthGraphAssociatorProducers` wraps `BranchHitAssociator` in producers
+that consume the reco collections and emit `ticl::TICLAssociationMap` products in both
+directions, with one reco-driven map per working point. The tracker flavour uses the
+`SharedHits` metric on the tracker channel, keyed by the pixel digi channel in the inner
+tracker. `Validation/TruthInfo` turns the maps into DQM plots.

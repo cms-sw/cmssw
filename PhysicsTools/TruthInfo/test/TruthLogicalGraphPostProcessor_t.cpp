@@ -4,6 +4,7 @@
 #include "cppunit/extensions/HelperMacros.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <iostream>
 #include <queue>
@@ -12,6 +13,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
+#include "PhysicsTools/TruthInfo/interface/TruthLevels.h"
 #include "PhysicsTools/TruthInfo/interface/TruthLogicalGraphPostProcessor.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
@@ -213,14 +215,25 @@ namespace {
     });
   }
 
-  // The artificial *sub*-vertex a particle attaches to (Upstream or
-  // UnderlyingEvent), i.e. skipping the per-interaction Interaction root that
-  // those sub-vertices descend from.
+  // The artificial *sub*-vertex a particle attaches to (InitialState, UnderlyingEvent or
+  // BeamSideInput), i.e. skipping the per-interaction Interaction root that those
+  // sub-vertices descend from.
   uint32_t artificialVertexId(truth::Graph const& graph) {
     for (uint32_t i = 0; i < graph.nVertices(); ++i) {
       auto const& vertex = graph.vertices()[i];
 
       if (vertex.isArtificial() && vertex.vertexRole() != truth::VertexRole::Interaction)
+        return i;
+    }
+
+    CPPUNIT_ASSERT(false);
+    return 0;
+  }
+
+  // The artificial sub-vertex of one role, for a graph that has more than one.
+  uint32_t artificialVertexIdWithRole(truth::Graph const& graph, truth::VertexRole role) {
+    for (uint32_t i = 0; i < graph.nVertices(); ++i) {
+      if (graph.vertices()[i].vertexRole() == role)
         return i;
     }
 
@@ -248,6 +261,24 @@ namespace {
     return 0;
   }
 
+  uint32_t countIncomingWithPdgId(truth::Graph const& graph, uint32_t vertexId, int32_t pdgId) {
+    uint32_t count = 0;
+    for (const uint32_t particleId : graph.incomingParticles(vertexId)) {
+      if (graph.particles()[particleId].pdgId == pdgId)
+        ++count;
+    }
+    return count;
+  }
+
+  // Where a particle hangs: an artificial vertex of this role produced it.
+  bool isProducedAtRole(truth::Graph const& graph, uint32_t particleId, truth::VertexRole role) {
+    for (const uint32_t vertexId : graph.productionVertices(particleId)) {
+      if (graph.vertices()[vertexId].vertexRole() == role)
+        return true;
+    }
+    return false;
+  }
+
   uint32_t countArtificialVerticesWithRole(truth::Graph const& graph, truth::VertexRole role) {
     uint32_t count = 0;
     for (auto const& vertex : graph.vertices()) {
@@ -258,7 +289,7 @@ namespace {
   }
 
   // True if, walking up its production chain, the particle reaches an artificial
-  // source vertex (Interaction / Upstream / UnderlyingEvent) - i.e. it is grounded
+  // source vertex (Interaction / InitialState / UnderlyingEvent) - i.e. it is grounded
   // on the per-interaction artificial-source structure rather than on a real vertex.
   bool descendsFromArtificialSource(truth::Graph const& graph, uint32_t particleId) {
     std::vector<uint8_t> seenParticle(graph.nParticles(), 0);
@@ -319,7 +350,13 @@ class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(testStatusOneGenParticlesAreNeverCollapsed);
   CPPUNIT_TEST(testStableGenSimParticlesSurviveIntermediateCollapse);
   CPPUNIT_TEST(testSeedCutKeepsUnrelatedStableGenSimParticlesThroughArtificialVertex);
-  CPPUNIT_TEST(testSeedCutHidesUnselectedParentsOfKeptVertices);
+  CPPUNIT_TEST(testSeedCutKeepsUnselectedParentsAsBeamSideInput);
+  CPPUNIT_TEST(testBeamSideInputKeepsNoSubgraph);
+  CPPUNIT_TEST(testUnattachedSelectionHasNoBeamSideInput);
+  CPPUNIT_TEST(testSpectatorKeepsItsSimSubgraph);
+  CPPUNIT_TEST(testVertexReasonSurvivesTheRewrite);
+  CPPUNIT_TEST(testMomentumFromDecayProducts);
+  CPPUNIT_TEST(testMomentumPassStopsOnACycle);
   CPPUNIT_TEST(testIgnoredParticlesAreCollapsedAway);
   CPPUNIT_TEST(testSeedCutWithIgnoredParticles);
   CPPUNIT_TEST(testIgnoredParticleIdsAreCollapsedAway);
@@ -348,7 +385,13 @@ public:
   void testStatusOneGenParticlesAreNeverCollapsed();
   void testStableGenSimParticlesSurviveIntermediateCollapse();
   void testSeedCutKeepsUnrelatedStableGenSimParticlesThroughArtificialVertex();
-  void testSeedCutHidesUnselectedParentsOfKeptVertices();
+  void testSeedCutKeepsUnselectedParentsAsBeamSideInput();
+  void testBeamSideInputKeepsNoSubgraph();
+  void testUnattachedSelectionHasNoBeamSideInput();
+  void testSpectatorKeepsItsSimSubgraph();
+  void testVertexReasonSurvivesTheRewrite();
+  void testMomentumFromDecayProducts();
+  void testMomentumPassStopsOnACycle();
   void testIgnoredParticlesAreCollapsedAway();
   void testSeedCutWithIgnoredParticles();
   void testIgnoredParticleIdsAreCollapsedAway();
@@ -512,7 +555,282 @@ void TestTruthLogicalGraphPostProcessor::testSeedCutKeepsUnrelatedStableGenSimPa
   }
 }
 
-void TestTruthLogicalGraphPostProcessor::testSeedCutHidesUnselectedParentsOfKeptVertices() {
+// REQUIRED: a beam-side parent is kept on its own. What it produced outside the
+// selection stays out.
+void TestTruthLogicalGraphPostProcessor::testBeamSideInputKeepsNoSubgraph() {
+  try {
+    GraphBuilder builder(5, 3);
+
+    //   H -> v0 -> pi0
+    //   Z --------^
+    //   Z -> v1 -> mu-   (the Z's other decay, outside the selection)
+    //   pi0 stable
+    builder.setGenParticle(0, 25, 2, 100);
+    builder.setGenParticle(1, 23, 2, 101);
+    builder.setGenParticle(2, 111, 1, 102);
+    builder.setGenSimParticle(3, 13, 1, 103, 1003);
+    builder.setGenParticle(4, 22, 1, 104);
+
+    builder.setGenVertex(0, 200);
+    builder.setGenVertex(1, 201);
+    builder.setGenVertex(2, 202);
+
+    builder.addDecay(0, 0);
+    builder.addDecay(1, 0);
+    builder.addProduction(0, 2);
+
+    builder.addDecay(1, 1);
+    builder.addProduction(1, 3);
+
+    builder.addDecay(2, 2);
+    builder.addProduction(2, 4);
+
+    auto config = defaultConfig();
+    config.seedPdgIds = {25};
+    config.seedParentDepth = 0;
+    config.keepStableSpectators = false;
+
+    auto output = runPostProcessing(builder.finish(), config);
+
+    CPPUNIT_ASSERT(output.isConsistent());
+
+    // The Z is kept as beam-side input, its muon is not.
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 23));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 13));
+    CPPUNIT_ASSERT(isProducedAtRole(output, findParticleWithPdgId(output, 23), truth::VertexRole::BeamSideInput));
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+// REQUIRED: with no artificial sources there is no beam-side input either, so each seed
+// still yields one self-contained component.
+void TestTruthLogicalGraphPostProcessor::testUnattachedSelectionHasNoBeamSideInput() {
+  try {
+    GraphBuilder builder(4, 2);
+
+    //   H -> v0 -> pi0 ; Z --------^ ; pi0 -> v1 -> gamma
+    builder.setGenParticle(0, 25, 2, 100);
+    builder.setGenParticle(1, 23, 2, 101);
+    builder.setGenParticle(2, 111, 2, 102);
+    builder.setGenSimParticle(3, 22, 1, 103, 1003);
+
+    builder.setGenVertex(0, 200);
+    builder.setGenVertex(1, 201);
+
+    builder.addDecay(0, 0);
+    builder.addDecay(1, 0);
+    builder.addProduction(0, 2);
+
+    builder.addDecay(2, 1);
+    builder.addProduction(1, 3);
+
+    auto config = defaultConfig();
+    config.seedPdgIds = {25};
+    config.seedParentDepth = 0;
+    config.attachSelectionSources = false;
+
+    auto output = runPostProcessing(builder.finish(), config);
+
+    CPPUNIT_ASSERT(output.isConsistent());
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 23));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::BeamSideInput));
+
+    // The Higgs is the only root of its component.
+    const uint32_t higgs = findParticleWithPdgId(output, 25);
+    CPPUNIT_ASSERT(output.productionVertices(higgs).empty());
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+// REQUIRED: a kept spectator brings its SIM subgraph, which carries its hits, and stays
+// the leg of the underlying-event level rather than dissolving into that subgraph.
+void TestTruthLogicalGraphPostProcessor::testSpectatorKeepsItsSimSubgraph() {
+  try {
+    GraphBuilder builder(4, 2);
+
+    //   H -> v0 -> gamma ; pi+ (stable spectator) -> v1 (SIM) -> e- (SIM secondary)
+    builder.setGenParticle(0, 25, 2, 100);
+    builder.setGenSimParticle(1, 22, 1, 101, 1001);
+    builder.setGenSimParticle(2, 211, 1, 102, 1002);
+    builder.setSimParticle(3, 11, 1003);
+
+    builder.setGenVertex(0, 200);
+    builder.setSimVertex(1, 2001);
+
+    builder.addDecay(0, 0);
+    builder.addProduction(0, 1);
+
+    builder.addDecay(2, 1);
+    builder.addProduction(1, 3);
+
+    auto config = defaultConfig();
+    config.seedPdgIds = {25};
+    config.seedParentDepth = 0;
+
+    auto output = runPostProcessing(builder.finish(), config);
+
+    CPPUNIT_ASSERT(output.isConsistent());
+
+    // The spectator and its SIM secondary are both kept.
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 211));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 11));
+
+    const uint32_t pion = findParticleWithPdgId(output, 211);
+    CPPUNIT_ASSERT(isProducedAtRole(output, pion, truth::VertexRole::UnderlyingEvent));
+
+    // The level keeps the spectator, not its SIM secondary: a SIM vertex is transport.
+    const auto legs = truth::levelAntichain(output, truth::Level::UnderlyingEvent);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), legs.size());
+    CPPUNIT_ASSERT_EQUAL(int32_t(211), output.particles()[legs.front()].pdgId);
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+// REQUIRED: the vertex reason is stamped before this rewrite and travels with the vertex
+// through it, so a consumer of the finished graph sees it.
+void TestTruthLogicalGraphPostProcessor::testVertexReasonSurvivesTheRewrite() {
+  try {
+    GraphBuilder builder(3, 1);
+
+    //   H -> v0 -> gamma gamma
+    builder.setGenParticle(0, 25, 2, 100);
+    builder.setGenSimParticle(1, 22, 1, 101, 1001);
+    builder.setGenSimParticle(2, 22, 1, 102, 1002);
+
+    builder.setGenVertex(0, 200);
+    builder.addDecay(0, 0);
+    builder.addProduction(0, 1);
+    builder.addProduction(0, 2);
+
+    truth::Graph input = builder.finish();
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Decay, truth::genVertexReason(input, 0));
+    input.vertices()[0].reason = static_cast<uint8_t>(truth::VertexReason::Decay);
+
+    auto config = defaultConfig();
+    config.seedPdgIds = {25};
+    config.seedParentDepth = 0;
+
+    auto output = runPostProcessing(std::move(input), config);
+
+    CPPUNIT_ASSERT(output.isConsistent());
+
+    const uint32_t higgs = findParticleWithPdgId(output, 25);
+    const auto decays = output.decayVertices(higgs);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), decays.size());
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Decay, output.vertices()[decays.front()].vertexReason());
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+// REQUIRED: a GEN-only particle with no momentum takes the sum of the products of its own
+// decays, a chain from the bottom up. A vertex it shares with other incoming particles and
+// a SIM vertex are not its decays, and a product with no momentum adds nothing.
+void TestTruthLogicalGraphPostProcessor::testMomentumFromDecayProducts() {
+  using P4 = math::XYZTLorentzVectorD;
+  GraphBuilder builder(13, 5);
+
+  //   eta(0) -> v0 -> pi0(1), gamma(4) ; pi0(1) -> v1 -> gamma(2), gamma(3)
+  //   q(5), q(6) -> v2 -> pi+(7)
+  //   pi0(8) -> v3 -> gamma(9), untracked gamma(10)
+  //   pi0(11) -> v4 (SIM) -> e-(12)
+  builder.setGenParticle(0, 221, 2, 100);
+  builder.setGenParticle(1, 111, 2, 101);
+  builder.setGenSimParticle(2, 22, 1, 102, 1002);
+  builder.setGenSimParticle(3, 22, 1, 103, 1003);
+  builder.setGenSimParticle(4, 22, 1, 104, 1004);
+  builder.setGenParticle(5, 1, 71, 105);
+  builder.setGenParticle(6, -1, 71, 106);
+  builder.setGenSimParticle(7, 211, 1, 107, 1007);
+  builder.setGenParticle(8, 111, 2, 108);
+  builder.setGenSimParticle(9, 22, 1, 109, 1009);
+  builder.setGenParticle(10, 22, 1, 110);
+  builder.setGenParticle(11, 111, 2, 111);
+  builder.setSimParticle(12, 11, 1012);
+
+  builder.setGenVertex(0, 200);
+  builder.setGenVertex(1, 201);
+  builder.setGenVertex(2, 202);
+  builder.setGenVertex(3, 203);
+  builder.setSimVertex(4, 2004);
+
+  builder.addDecay(0, 0);
+  builder.addProduction(0, 1);
+  builder.addProduction(0, 4);
+  builder.addDecay(1, 1);
+  builder.addProduction(1, 2);
+  builder.addProduction(1, 3);
+  builder.addDecay(5, 2);
+  builder.addDecay(6, 2);
+  builder.addProduction(2, 7);
+  builder.addDecay(8, 3);
+  builder.addProduction(3, 9);
+  builder.addProduction(3, 10);
+  builder.addDecay(11, 4);
+  builder.addProduction(4, 12);
+
+  const P4 gammaA(0.1, 0., 2., std::sqrt(0.01 + 4.));
+  const P4 gammaB(-0.1, 0., 1., std::sqrt(0.01 + 1.));
+  const P4 gammaC(0., 0.5, 0., 0.5);
+  const P4 pion(0., 0., 3., std::sqrt(0.0195 + 9.));
+  auto& particles = builder.graph.particles();
+  particles[2].momentum = gammaA;
+  particles[3].momentum = gammaB;
+  particles[4].momentum = gammaC;
+  particles[7].momentum = pion;
+  particles[9].momentum = gammaA;
+  particles[12].momentum = gammaC;
+
+  truth::Graph graph = builder.finish();
+  truth::fillMomentumFromDecayProducts(graph);
+  auto const& out = graph.particles();
+
+  CPPUNIT_ASSERT(out[1].momentum == gammaA + gammaB);
+  CPPUNIT_ASSERT(out[0].momentum == gammaA + gammaB + gammaC);
+  CPPUNIT_ASSERT_EQUAL(0., out[5].momentum.E());
+  CPPUNIT_ASSERT_EQUAL(0., out[6].momentum.E());
+  CPPUNIT_ASSERT(out[8].momentum == gammaA);
+  CPPUNIT_ASSERT_EQUAL(0., out[10].momentum.E());
+  CPPUNIT_ASSERT_EQUAL(0., out[11].momentum.E());
+  CPPUNIT_ASSERT(out[7].momentum == pion);
+}
+
+// REQUIRED: the pass terminates on a graph with a cycle, and the product that closes the
+// cycle adds nothing.
+void TestTruthLogicalGraphPostProcessor::testMomentumPassStopsOnACycle() {
+  using P4 = math::XYZTLorentzVectorD;
+  GraphBuilder builder(3, 2);
+
+  //   a(0) -> v0 -> b(1) ; b(1) -> v1 -> a(0), gamma(2)
+  builder.setGenParticle(0, 221, 2, 100);
+  builder.setGenParticle(1, 221, 2, 101);
+  builder.setGenSimParticle(2, 22, 1, 102, 1002);
+  builder.setGenVertex(0, 200);
+  builder.setGenVertex(1, 201);
+  builder.addDecay(0, 0);
+  builder.addProduction(0, 1);
+  builder.addDecay(1, 1);
+  builder.addProduction(1, 0);
+  builder.addProduction(1, 2);
+
+  const P4 gamma(0., 0., 1., 1.);
+  builder.graph.particles()[2].momentum = gamma;
+
+  truth::Graph graph = builder.finish();
+  truth::fillMomentumFromDecayProducts(graph);
+
+  CPPUNIT_ASSERT(graph.particles()[1].momentum == gamma);
+  CPPUNIT_ASSERT(graph.particles()[0].momentum == gamma);
+}
+
+void TestTruthLogicalGraphPostProcessor::testSeedCutKeepsUnselectedParentsAsBeamSideInput() {
   try {
     GraphBuilder builder(5, 3);
 
@@ -523,9 +841,10 @@ void TestTruthLogicalGraphPostProcessor::testSeedCutHidesUnselectedParentsOfKept
     //   pi0 -> v1 -> gamma
     //   e- stable, unrelated
     //
-    // The seed is H. Keeping downstream from H keeps v0. The unselected Z parent
-    // of v0 is not part of the selection and seedParentDepth is 0, so it must be
-    // hidden: v0 appears with H as its only incoming particle.
+    // The seed is H. Keeping downstream from H keeps v0. The unselected Z parent of v0
+    // is not part of the selection and seedParentDepth is 0, so the Z itself is dropped,
+    // and v0 records what it contributed through a connector from the artificial
+    // BeamSideInput vertex.
     builder.setGenParticle(0, 25, 2, 100);
     builder.setGenParticle(1, 23, 2, 101);
     builder.setGenParticle(2, 111, 2, 102);
@@ -556,7 +875,9 @@ void TestTruthLogicalGraphPostProcessor::testSeedCutHidesUnselectedParentsOfKept
     CPPUNIT_ASSERT(output.isConsistent());
 
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 25));
-    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 23));
+    // The Z fed the kept vertex from outside the selection, so it is kept as beam-side input.
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 23));
+    CPPUNIT_ASSERT(isProducedAtRole(output, findParticleWithPdgId(output, 23), truth::VertexRole::BeamSideInput));
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 111));
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 22));
 
@@ -571,14 +892,18 @@ void TestTruthLogicalGraphPostProcessor::testSeedCutHidesUnselectedParentsOfKept
 
     const auto incoming = output.incomingParticles(pi0ProductionVertices.front());
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), incoming.size());
-    CPPUNIT_ASSERT_EQUAL(int32_t(25), output.particles()[incoming.front()].pdgId);
+    // The Higgs and the Z, the beam-side input of that vertex.
+    CPPUNIT_ASSERT_EQUAL(std::size_t(2), incoming.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countIncomingWithPdgId(output, pi0ProductionVertices.front(), 25));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::BeamSideInput));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countIncomingWithPdgId(output, pi0ProductionVertices.front(), 23));
 
     const uint32_t electron = findParticleWithPdgId(output, 11);
     const auto electronProductionVertices = output.productionVertices(electron);
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), electronProductionVertices.size());
-    CPPUNIT_ASSERT_EQUAL(artificialVertexId(output), electronProductionVertices.front());
+    CPPUNIT_ASSERT_EQUAL(artificialVertexIdWithRole(output, truth::VertexRole::UnderlyingEvent),
+                         electronProductionVertices.front());
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);
@@ -1168,7 +1493,9 @@ void TestTruthLogicalGraphPostProcessor::testSeedCutWithIgnoredParticles() {
     CPPUNIT_ASSERT(output.isConsistent());
 
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 25));
-    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 23));
+    // The Z fed the kept vertex from outside the selection, so it is kept as beam-side input.
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 23));
+    CPPUNIT_ASSERT(isProducedAtRole(output, findParticleWithPdgId(output, 23), truth::VertexRole::BeamSideInput));
     CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 111));
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 22));
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 11));
@@ -1184,14 +1511,17 @@ void TestTruthLogicalGraphPostProcessor::testSeedCutWithIgnoredParticles() {
 
     const auto incoming = output.incomingParticles(gammaProductionVertices.front());
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), incoming.size());
-    CPPUNIT_ASSERT_EQUAL(int32_t(25), output.particles()[incoming.front()].pdgId);
+    // The Higgs and the Z, the beam-side input of that vertex.
+    CPPUNIT_ASSERT_EQUAL(std::size_t(2), incoming.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countIncomingWithPdgId(output, gammaProductionVertices.front(), 25));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countIncomingWithPdgId(output, gammaProductionVertices.front(), 23));
 
     const uint32_t electron = findParticleWithPdgId(output, 11);
     const auto electronProductionVertices = output.productionVertices(electron);
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), electronProductionVertices.size());
-    CPPUNIT_ASSERT_EQUAL(artificialVertexId(output), electronProductionVertices.front());
+    CPPUNIT_ASSERT_EQUAL(artificialVertexIdWithRole(output, truth::VertexRole::UnderlyingEvent),
+                         electronProductionVertices.front());
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);
@@ -1285,9 +1615,9 @@ void TestTruthLogicalGraphPostProcessor::testArtificialSourceRolesAndProvenance(
     auto output = runPostProcessing(std::move(graph), config);
     CPPUNIT_ASSERT(output.isConsistent());
 
-    // Z (root with truncated upstream) -> Upstream node; pi+ -> UnderlyingEvent
+    // Z (root with truncated upstream) -> InitialState node; pi+ -> UnderlyingEvent
     // node; both descend from a single Interaction node for the one interaction.
-    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::Upstream));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::InitialState));
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::UnderlyingEvent));
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::Interaction));
 
@@ -1304,12 +1634,12 @@ void TestTruthLogicalGraphPostProcessor::testArtificialSourceRolesAndProvenance(
     const uint32_t z = findParticleWithPdgId(output, 23);
     const auto zProd = output.productionVertices(z);
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), zProd.size());
-    CPPUNIT_ASSERT(output.vertices()[zProd.front()].vertexRole() == truth::VertexRole::Upstream);
+    CPPUNIT_ASSERT(output.vertices()[zProd.front()].vertexRole() == truth::VertexRole::InitialState);
 
-    // The Upstream and UnderlyingEvent vertices each descend from the single
+    // The InitialState and UnderlyingEvent vertices each descend from the single
     // Interaction vertex through one artificial connector particle.
     const uint32_t interaction = findVertexWithRole(output, truth::VertexRole::Interaction);
-    const uint32_t upstream = findVertexWithRole(output, truth::VertexRole::Upstream);
+    const uint32_t upstream = findVertexWithRole(output, truth::VertexRole::InitialState);
     const uint32_t underlyingEvent = findVertexWithRole(output, truth::VertexRole::UnderlyingEvent);
 
     for (const uint32_t sub : {upstream, underlyingEvent}) {
@@ -1361,10 +1691,10 @@ void TestTruthLogicalGraphPostProcessor::testKeepStableSpectatorsFalseDropsSpect
     CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::UnderlyingEvent));
 
     // Focused subgraph: Z + two muons + one artificial connector, the Z hanging
-    // off an Upstream (ISR) node that descends from the Interaction node.
+    // off an InitialState node that descends from the Interaction node.
     CPPUNIT_ASSERT_EQUAL(uint32_t(4), output.nParticles());
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 23));
-    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::Upstream));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::InitialState));
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::Interaction));
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
@@ -1572,7 +1902,7 @@ void TestTruthLogicalGraphPostProcessor::testAttachSelectionSourcesFalseRootsSee
     CPPUNIT_ASSERT(output.isConsistent());
 
     // No artificial source vertices at all: the Z is a true graph root.
-    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::Upstream));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::InitialState));
     CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::UnderlyingEvent));
     CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::Interaction));
 
@@ -1643,9 +1973,9 @@ void TestTruthLogicalGraphPostProcessor::testEventIdKeyingSplitsInteractions() {
     auto output = runPostProcessing(std::move(graph), config);
     CPPUNIT_ASSERT(output.isConsistent());
 
-    // One Interaction (and one Upstream) vertex per interaction: signal + pile-up.
+    // One Interaction (and one InitialState) vertex per interaction: signal + pile-up.
     CPPUNIT_ASSERT_EQUAL(uint32_t(2), countArtificialVerticesWithRole(output, truth::VertexRole::Interaction));
-    CPPUNIT_ASSERT_EQUAL(uint32_t(2), countArtificialVerticesWithRole(output, truth::VertexRole::Upstream));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(2), countArtificialVerticesWithRole(output, truth::VertexRole::InitialState));
     CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::UnderlyingEvent));
     CPPUNIT_ASSERT_EQUAL(uint32_t(2), countParticlesWithPdgId(output, 23));
 
@@ -1735,9 +2065,8 @@ void TestTruthLogicalGraphPostProcessor::testSignalOnlyAndBunchCrossingFilterDro
 
     // (d) The pile-up filter is orthogonal to the seed selection and must work
     // with NO seeds: signalOnly on the full graph keeps the signal interaction
-    // untouched and drops the pile-up one. (Regression: previously the filter was
-    // folded inside the seed selection, which short-circuits without seeds, so the
-    // pile-up Z survived.)
+    // untouched and drops the pile-up one. The filter therefore runs outside the
+    // seed selection, which short-circuits when there are no seeds.
     {
       auto config = defaultConfig();
       config.signalOnly = true;
@@ -1760,7 +2089,7 @@ void TestTruthLogicalGraphPostProcessor::testEveryParticleDescendsFromArtificial
     // (a photon and an electron) produced at the hard-interaction vertex. With a
     // seed selection and attachSelectionSources, the post-processor must leave NO
     // real (Normal) source vertex behind: every particle has to trace up to an
-    // artificial source (Interaction / Upstream / UnderlyingEvent), so nothing is
+    // artificial source (Interaction / InitialState / UnderlyingEvent), so nothing is
     // left rooted at a real vertex. (A real source vertex surviving is what makes a
     // cluster of particles look orphaned once such a vertex is hidden in the dump.)
     GraphBuilder builder(7, 3);

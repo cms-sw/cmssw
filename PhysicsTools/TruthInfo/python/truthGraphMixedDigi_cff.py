@@ -13,14 +13,21 @@
 # plus tracker shared hits) needs the tracker channel, so it is in the default. The
 # tracker is the largest sim-hit family and the dominant cost, so the reduced variant
 # (mixedTruthGraphCustomize.customiseTruthReduced) drops it for cost-sensitive runs,
-# leaving calo + MTD + muon. MTD sim-hits are captured here; the MTD channel of the
-# hit index is resolved at RECO (it needs reco MTD cluster associations).
+# leaving calo + MTD + muon. MTD sim-hits are captured here. The MTD channel of the
+# hit index is not in the default list below; adding "MTD" to subdetectors fills it
+# from mix:MergedMtdTruthLC and the MTD topology, here or in a later job.
 
 import FWCore.ParameterSet.Config as cms
 
 
 def _tags(*names):
     return cms.VInputTag(*[cms.InputTag("g4SimHits", n) for n in names])
+
+
+# The species the detector reconstructs as one object although it decays. The collapsed
+# pileup record keeps them and the reconstructable levels stop at them, so the two lists
+# must be the same.
+reconstructablePdgIds = [111]
 
 
 # Accumulator PSet added to the mixing digitizers under enableTruth (digitizers_cfi).
@@ -44,11 +51,18 @@ truthGraphAccumulator = cms.PSet(
     muonHits=_tags("MuonDTHits", "MuonCSCHits", "MuonRPCHits", "MuonGEMHits", "MuonME0Hits"),
     mtdHits=_tags("FastTimerHitsBarrel", "FastTimerHitsEndcap"),
     pileupBunchCrossings=cms.vint32(0),   # in-time pileup for the per-particle graph
-    collapsePileupGen=cms.bool(True),    # pileup keeps stable GEN particles only
+    bunchSpace=cms.int32(25),             # ns, the bunch spacing of the mixing
+    collapsePileupGen=cms.bool(True),    # pileup keeps its stable GEN particles and the
+                                         # species of collapsedGenKeptPdgIds
+    collapsedGenKeptPdgIds=cms.vint32(*reconstructablePdgIds),  # decaying species the
+                                                                   # collapsed record keeps
     collapseSignalGen=cms.bool(False),   # signal keeps the full HepMC decay chain, which
                                          # selection presets seed on
-    collapseGenShower=cms.bool(True),    # contract the parton shower and the intermediate
-                                         # resonance copies out of that chain, keeping ancestry
+    collapseGenShower=cms.bool(True),    # pileup: contract the parton shower and the
+                                         # intermediate resonance copies, keeping ancestry
+    collapseGenShowerSignal=cms.bool(False),  # the main event keeps its shower, so the partons
+                                              # that feed the hard-scatter strings from the beam
+                                              # side are there for the BeamSideInput vertex
 
     computeCellEnergyBudget=cms.bool(False),  # prototype energy-budget map, off by default
 )
@@ -65,6 +79,13 @@ from Validation.Configuration.truthPrevalidation_cff import (
 # its particles pruned as hitless even though the index would have given them hits.
 truthLogicalGraphProducer = _truthLogicalGraphProducer.clone(
     src=cms.InputTag("mix"),
+    # Every sub-event's SimTracks and SimVertices, tagged with their sub-event id, so a
+    # pileup SIM particle takes its own momentum and position.
+    simTracks=cms.InputTag("mix", "mergedSimTracks"),
+    simVertices=cms.InputTag("mix", "mergedSimVertices"),
+    # The GEN payload of every sub-event, which the pile-up GEN nodes need: after mixing
+    # the event holds only the signal HepMC.
+    rawGenPayload=cms.InputTag("mix", "genPayload"),
     simHitCollections=cms.VInputTag(
         cms.InputTag("mix", "mergedHGCHits"),
         cms.InputTag("mix", "mergedEcalHits"),
@@ -73,6 +94,7 @@ truthLogicalGraphProducer = _truthLogicalGraphProducer.clone(
     trackerSimHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedTrackerHits")),
     muonSimHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedMuonHits")),
 )
+truthLogicalGraphProducer.postProcessing.reconstructablePdgIds = cms.vint32(*reconstructablePdgIds)
 
 truthLogicalGraphHitIndexProducer = _truthLogicalGraphHitIndexProducer.clone(
     src=cms.InputTag("truthLogicalGraphProducer"),
@@ -82,13 +104,17 @@ truthLogicalGraphHitIndexProducer = _truthLogicalGraphHitIndexProducer.clone(
     # them to the reco HcalDetIds the association matches on. ECAL barrel and the Run4
     # HGCAL geometries carry reco DetIds already, so only the HCAL switch is set here.
     doHcalRelabelling=cms.bool(True),
-    subdetectors=cms.vstring("Calo", "Muon", "Tracker"),  # full; MTD resolved at RECO
+    subdetectors=cms.vstring("Calo", "Muon", "Tracker"),  # MTD on request, see the header
+    # The tracker truth is keyed by (module, cell): a tracker DetId names a module, so
+    # without the cell two particles crossing one module share every hit they leave
+    # there. The links are the digitizer's own record of which cell each particle fired.
+    trackerDigiSimLinks=cms.VInputTag(cms.InputTag("simSiPixelDigis", "Pixel"),
+                                      cms.InputTag("simSiPixelDigis", "Tracker")),
     simHitCollections=cms.VInputTag(
         cms.InputTag("mix", "mergedHGCHits"),
         cms.InputTag("mix", "mergedEcalHits"),
         cms.InputTag("mix", "mergedHcalHits"),
     ),
-    trackerSimHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedTrackerHits")),  # customiseTruthReduced empties this
     muonSimHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedMuonHits")),
 )
 

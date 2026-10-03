@@ -12,10 +12,13 @@
 #define PhysicsTools_TruthInfo_GenGraphBuild_h
 
 #include <cstdint>
+#include <optional>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
+
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 namespace HepMC {
   class GenEvent;
@@ -30,6 +33,14 @@ namespace truth {
   // barcode, so the low bit separates them.
   [[nodiscard]] inline int64_t genKeyVertex(int barcode) { return (static_cast<int64_t>(barcode) << 1) | 1LL; }
   [[nodiscard]] inline int64_t genKeyParticle(int barcode) { return static_cast<int64_t>(barcode) << 1; }
+
+  // A HepMC vertex position, lengths in mm and time as c*t in mm, in the (cm, ns) of the
+  // graph. The one conversion every reader of a HepMC record uses.
+  [[nodiscard]] inline math::XYZTLorentzVectorD graphPosition(double xMm, double yMm, double zMm, double ctMm) {
+    constexpr double kMmToCm = 0.1;
+    constexpr double kMmOverCToNs = 1.0 / 299.792458;
+    return math::XYZTLorentzVectorD(xMm * kMmToCm, yMm * kMmToCm, zMm * kMmToCm, ctMm * kMmOverCToNs);
+  }
 
   struct GenBuild {
     std::vector<int> vtxBarcodes;
@@ -50,11 +61,44 @@ namespace truth {
     // HepMC3 specialization.
     std::unordered_map<int, uint16_t> particleStatusFlagsByBarcode;
 
+    // The payload of the record: the four-momentum of each particle in GeV, the position
+    // of each vertex in (cm, ns), and the position of the interaction, the vertex where
+    // the beam particles (status 4) end. A record with no beam particle, a particle gun
+    // for example, has no interaction position.
+    std::unordered_map<int, math::XYZTLorentzVectorD> particleMomentumByBarcode;
+    std::unordered_map<int, math::XYZTLorentzVectorD> vertexPositionByBarcode;
+    std::optional<math::XYZTLorentzVectorD> interactionPosition;
+
     [[nodiscard]] bool empty() const { return partBarcodes.empty() && vtxBarcodes.empty(); }
   };
 
-  [[nodiscard]] GenBuild buildFromHepMC2(HepMC::GenEvent const& ev);
+  // withStatusFlags = false skips the packed status flags, which cost one MCTruthHelper
+  // call per particle and which the compact GEN record below does not read.
+  [[nodiscard]] GenBuild buildFromHepMC2(HepMC::GenEvent const& ev, bool withStatusFlags = true);
+  // Reads the units of the record, so the payload is in GeV and (cm, ns) for any units.
   [[nodiscard]] GenBuild buildFromHepMC3(HepMC3::GenEvent const& ev);
+
+  // One particle of the compact GEN record of an interaction.
+  struct CompactGenParticle {
+    int barcode;
+    int32_t pdgId;
+    int16_t status;
+    // The surviving ancestor that decays into this particle, 0 when the particle hangs
+    // on the vertex of the whole interaction.
+    int parent;
+    // The vertex this particle decays at, 0 when it is stable.
+    int decayVertex;
+    // Four-momentum in GeV, and the position of decayVertex in (cm, ns).
+    math::XYZTLorentzVectorD momentum;
+    math::XYZTLorentzVectorD decayPosition;
+  };
+
+  // The compact GEN record of an interaction: its status 1 particles and the decaying
+  // particles whose pdgId is in keptPdgIds. The ancestor walk follows vertices with one
+  // incoming particle, so a survivor takes the nearest surviving particle it decays from,
+  // and a survivor made by a string or by the interaction takes no parent. The GEN
+  // record holds no particle or vertex with barcode or id 0, so 0 means none.
+  [[nodiscard]] std::vector<CompactGenParticle> compactGen(GenBuild const& gb, std::vector<int32_t> const& keptPdgIds);
 
   // Contract the parton shower and the intermediate copies of a resonance away. A GEN
   // particle survives if its barcode is in `simContinuedBarcodes` (some SimTrack

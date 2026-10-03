@@ -10,6 +10,7 @@
 #include <utility>
 #include <vector>
 
+#include "SimDataFormats/TruthInfo/interface/InteractionId.h"
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
 
 namespace truth {
@@ -28,20 +29,33 @@ namespace truth {
     void addParticleChild(uint32_t parentParticleId, uint32_t childParticleId);
 
     // Add a hit on `trackId`'s SimTrack to `channel`. recHitIndex defaults to "no
-    // recHit" for channels without a DetId->RecHit link (tracker, muon); calo/MTD
-    // pass the mapped global recHit index.
-    void addHit(HitChannel channel,
+    // recHit" for channels without a DetId->RecHit link (muon); calo passes the mapped
+    // global recHit index, a cell-keyed channel the cell. Returns false when the hit is
+    // dropped: no energy, or no particle carries that SimTrack.
+    bool addHit(HitChannel channel,
                 uint64_t eventId,
                 uint32_t trackId,
                 uint32_t detId,
                 float energy,
                 uint32_t recHitIndex = LogicalGraphHitIndex::Hit::kInvalidRecHitIndex);
 
-    // (EncodedEventId, trackId) -> global map key. The packed EncodedEventId fits in
-    // 32 bits (reco::EncodedEventId::rawId is uint32), so shift it into the high word.
-    static uint64_t simKey(uint64_t eventId, uint32_t trackId) {
-      return (eventId << 32) | static_cast<uint64_t>(trackId);
-    }
+    // The same, for a channel that carries a time per hit, in ns. A channel takes either
+    // this call or addHit, never both.
+    bool addTimedHit(HitChannel channel,
+                     uint64_t eventId,
+                     uint32_t trackId,
+                     uint32_t detId,
+                     float energy,
+                     uint32_t recHitIndex,
+                     float time);
+
+    // Whether a channel's hits are keyed by (detId, cell) rather than by detId alone.
+    // The producer sets it for the Tracker, where the cell is the digi channel, and for
+    // the MTD, where the cell is the category, row and col; the Calo and Muon channels
+    // name a cell with their DetId.
+    void setCellKeyed(HitChannel channel, bool value) { cellKeyed_[static_cast<std::size_t>(channel)] = value; }
+
+    static uint64_t simKey(uint64_t eventId, uint32_t trackId) { return simObjectKey(eventId, trackId); }
 
     [[nodiscard]] LogicalGraphHitIndex finish();
 
@@ -70,7 +84,17 @@ namespace truth {
     // independent of hit insertion order (unlike a hash-map accumulation, whose
     // sum order was bucket-dependent); cell energies can therefore differ from a
     // hash-based build at the float-reassociation level (~1e-7 relative).
-    static void coalesce(HitList& hits);
+    // cellKeyed groups by (detId, cell) instead of by detId, so two cells of one module
+    // stay separate entries.
+    static void coalesce(HitList& hits, bool cellKeyed);
+
+    // The same merge for a channel with a time per hit: times[i] belongs to hits[i]
+    // before and after, and a merged entry keeps the earliest time.
+    static void coalesce(HitList& hits, std::vector<float>& times, bool cellKeyed);
+
+    // Whether every particle has one time per hit.
+    [[nodiscard]] static bool timesInStep(std::vector<HitList> const& hits,
+                                          std::vector<std::vector<float>> const& times);
 
     // Collect the particle and every distinct descendant (cycle-safe) into
     // `order`. `visited`/`touched`/`stack` are reusable scratch: `touched` lists
@@ -118,6 +142,7 @@ namespace truth {
     static constexpr uint32_t kNoParent = std::numeric_limits<uint32_t>::max();
 
     uint32_t nParticles_ = 0;
+    std::array<bool, kNumHitChannels> cellKeyed_{};
     bool sharedSubgraphStore_ = false;
     bool usedSharedStore_ = false;
 
@@ -135,6 +160,11 @@ namespace truth {
     // A channel that never received a hit (not selected, or its detector absent)
     // is left empty by finish() without the per-particle subgraph aggregation.
     std::array<bool, kNumHitChannels> channelTouched_{};
+
+    // [channel index][particle] -> the times of the direct hits, in step with
+    // directHits_. Filled only for a channel that addTimedHit fills.
+    std::array<std::vector<std::vector<float>>, kNumHitChannels> directTimes_;
+    std::array<bool, kNumHitChannels> timed_{};
   };
 
 }  // namespace truth

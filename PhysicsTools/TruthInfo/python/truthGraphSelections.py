@@ -9,13 +9,17 @@ selection (which particle is the seed, whether to pull in the seed's hard-scatte
 co-products, which decay channel to keep, ...):
 
   gun          single/multi-particle guns          seed = the gun species
-  resonance    s-channel Z / DY (+n-jet) / Z' / W(+jets)  seed = the resonance, ISR context
-  vbf          VBF / t-channel Higgs (incl. VBF HH) seed = Higgs + keepProductionSiblings
+  resonance    s-channel Z / DY (+n-jet) / Z' / W(+jets)  seed = the resonance, initial state
+  vbf          VBF / t-channel Higgs (incl. VBF HH) seed = Higgs
   ggf          ggF / s-channel single Higgs, di-Higgs (gg->HH)  seed = Higgs
-  vh           associated Higgs (WH / ZH / VH / WWH / ZZH)  seed = Higgs + recoiling boson
-  top          ttbar / t' pair / ttX (ttH, ttW, ttZ, ttbb, tttt, ...)  seed = tops + siblings
-  singletop    single top (t-channel / tW / s-chan) seed = top + production partner (VBF-like)
-  diboson      WW / WZ / ZZ / VBS / same-sign WW    seed = the vector bosons + production system
+  vh           associated Higgs (WH / ZH / VH / WWH / ZZH)  seed = Higgs
+  top          ttbar / t' pair / ttX (ttH, ttW, ttZ, ttbb, tttt, ...)  seed = tops
+  singletop    single top (t-channel / tW / s-chan) seed = top
+  diboson      WW / WZ / ZZ / VBS / same-sign WW    seed = the vector bosons
+
+The seed alone gets the Signal flag. keepProductionSiblings keeps the particles produced
+with the seed (the tagging quarks, the recoiling boson, the single-top partner) in the
+graph, but they are not signal: the signal levels do not reach them.
   heavyflavor  B / charmonium / bottomonium         seed by heavy-flavor content
   full         QCD / MinBias / NuGun / SUSY / LLP / DM / EFT / BSM / unknown  keep the whole graph
 
@@ -72,17 +76,17 @@ TEMPLATES = {
     # used for gg->HH di-Higgs: seedPdgIds=25 seeds every Higgs.
     "ggf": lambda: _selection(seedPdgIds=(25,), seedParentDepth=1),
     # Associated single Higgs (VH: WH / ZH / VH / WWH / ZZH): seed the Higgs;
-    # keepProductionSiblings retains the recoiling vector boson(s).
+    # keepProductionSiblings keeps the recoiling vector boson(s) in the graph, not signal.
     "vh": lambda: _selection(seedPdgIds=(25,), seedParentDepth=1, keepProductionSiblings=True),
     # Top pair (ttbar / t'): seed both tops; their decay chains are the signal,
     # with keepProductionSiblings retaining the gg/qq -> tt production system.
     "top": lambda: _selection(seedPdgIds=(6, -6), seedParentDepth=1, keepProductionSiblings=True),
-    # Single top: one top plus its production partner is the point of interest -
-    # the t-channel spectator quark, the tW associated W, the s-channel b. VBF-like,
-    # keepProductionSiblings pulls in t+q / t+W rather than (just) the top decay.
+    # Single top: seed the top. keepProductionSiblings keeps its production partner in
+    # the graph (the t-channel spectator quark, the tW associated W, the s-channel b), but
+    # only the top is signal.
     "singletop": lambda: _selection(seedPdgIds=(6, -6), seedParentDepth=1, keepProductionSiblings=True),
     # Diboson (WW / WZ / ZZ, including VBS and same-sign WW): seed the vector
-    # bosons and keep the production system (VBS tagging jets, associated partons).
+    # bosons; keepProductionSiblings keeps the production system in the graph, not signal.
     "diboson": lambda: _selection(seedPdgIds=(23, 24, -24), seedParentDepth=1, keepProductionSiblings=True),
     # Heavy flavor: seed by hadron flavor content (5=b, 4=c); the hadron is the root.
     "heavyflavor": lambda: _selection(seedPdgIds=(), seedHadronFlavors=(5,), seedParentDepth=0,
@@ -146,15 +150,19 @@ _RULES = (
     # Diboson incl. VBS / same-sign WW. After VH/HH so WWH/ZZH/HHto...WWZZ are not stolen.
     (r"(?i)(^|[_-])(ww|wz|zz|vv)([0-9]|to|jj|_|-|$)|(^|[_-])vbs|ssww|osww|wpwp|diboson", "diboson", {}),
     # W single-boson and W+jets (WToLNu/WtoTauNu, WJetsToLNu, W4JToLNu, Wj_enuj, ...).
-    (r"(?i)wprime|wto[lme]nu|wtotaunu|wtolnu|(^|[_-])wto|(^|[_-])w[0-9]*j(et|ets|_|to)", "resonance",
+    (r"(?i)wprime", "resonance", dict(seedPdgIds=[34, -34])),
+    (r"(?i)wto[lme]nu|wtotaunu|wtolnu|(^|[_-])wto|(^|[_-])w[0-9]*j(et|ets|_|to)", "resonance",
      dict(seedPdgIds=[24, -24])),
     (r"(?i)zmm|zptomm", "resonance", dict(seedPdgIds=[23, 32], decayPdgIdGroups=[[13, -13]])),
     (r"(?i)zee|zptoee", "resonance", dict(seedPdgIds=[23, 32], decayPdgIdGroups=[[11, -11]])),
     (r"(?i)ztt|zptt|dytotautau", "resonance", dict(seedPdgIds=[23, 32], decayPdgIdGroups=[[15, -15]])),
     # Drell-Yan (incl. n-jet DY1jToLL / dyellell) and s-channel Z / Z' (incl. prefixed Z').
     (r"(?i)(^|[_-])dy|drell|zprimeto|(^|[_-])z(prime)?to", "resonance", {}),
-    (r"(?i)jpsi|psi2s|chic|chib|upsilon|etab", "heavyflavor", dict(seedHadronFlavors=[4])),
-    (r"(?i)(^|[_-])b[sdu0c]to|bumixing|lambdab", "heavyflavor", dict(seedHadronFlavors=[5])),
+    # A B hadron decaying to charmonium is a b sample, so the b rule comes before the
+    # quarkonium ones. Bottomonium carries b quarks, charmonium c quarks.
+    (r"(?i)(^|[_-])(b[sdu0c]|lb)to|bumixing|lambdab", "heavyflavor", dict(seedHadronFlavors=[5])),
+    (r"(?i)upsilon|chib|etab", "heavyflavor", dict(seedHadronFlavors=[5])),
+    (r"(?i)jpsi|psi2s|chic", "heavyflavor", dict(seedHadronFlavors=[4])),
     (r"(?i)sms-|displacedsusy|(^|[_-])susy|glugluto2jets", "full", {}),
     (r"(?i)singlenu|nugun|(^|[_-])nu(e|mu|tau|gun)", "full", {}),
     (r"(?i)^(single|double|triple|four|five|six|ten|eleven|twelve|flat|closeby|ce_)", "gun", {}),
