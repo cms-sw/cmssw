@@ -40,7 +40,7 @@ public:
         recHitsEE_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsEE"))) {
     produces<edm::ValueMap<int>>();
   }
-  ~EGMSeedGainProducer() override{};
+  ~EGMSeedGainProducer() override {};
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
