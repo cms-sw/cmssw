@@ -29,7 +29,7 @@ def createOffsetVPSet():
             plots += [ plotPSet(
                 name,
                 name+";#eta;<Offset Energy_{T}> [GeV]",
-                "{0}muPlots/mu{1}".format(default.offsetDir, mu),
+                "muPlots/mu{0}".format(mu),
                 #variable xbinning
                 0, 0, 0, default.eBinsOffset, default.eLowOffset, default.eHighOffset,
                 default.etaBinsOffset
@@ -40,7 +40,7 @@ def createOffsetVPSet():
             plots += [ plotPSet(
                 name,
                 name+";#eta;<Offset Energy_{T}> [GeV]",
-                "{0}npvPlots/npv{1}".format(default.offsetDir, npv),
+                "npvPlots/npv{0}".format(npv),
                 #variable xbinning
                 0, 0, 0, default.eBinsOffset, default.eLowOffset, default.eHighOffset,
                 default.etaBinsOffset
@@ -57,13 +57,13 @@ def createTH1DVPSet():
         plots += [ plotPSet(
                 hname,
                 hname + ";" + title,
-                default.offsetDir,
+                "",
                 xmax-xmin, xmin, xmax
             )]
     return plots
 
 offsetAnalyzerDQM = DQMEDAnalyzer("OffsetAnalyzerDQM",
-                                      
+    dqmDir = cms.string("ParticleFlow/Offset/"),
     pvTag = cms.InputTag('offlineSlimmedPrimaryVertices'),
     muTag = cms.InputTag('slimmedAddPileupInfo'),
     pfTag = cms.InputTag('packedPFCandidates'),
@@ -78,19 +78,16 @@ offsetAnalyzerDQM = DQMEDAnalyzer("OffsetAnalyzerDQM",
     pftypes = cms.vstring( default.candidateType ),
     etabins = cms.vdouble( default.etaBinsOffset ),
     muHigh = cms.untracked.int32( default.muHighOffset ),
-    npvHigh = cms.untracked.int32( default.npvHighOffset )                                        
-
+    npvHigh = cms.untracked.int32( default.npvHighOffset )
 )
 
 offsetDQMPostProcessor = DQMEDHarvester("OffsetDQMPostProcessor",
-
     offsetPlotBaseName = cms.string( default.offsetPlotBaseName ),
-    offsetDir = cms.string( default.offsetDir ),
+    offsetDir = cms.string( "ParticleFlow/Offset/" ),
     offsetVariableTypes = cms.vstring( default.offsetVariableType ),
     offsetR = cms.untracked.double( default.offsetR ),
     pftypes = cms.vstring( default.candidateType ),                                        
     muHigh = cms.untracked.int32( default.muHighOffset ),
-    npvHigh = cms.untracked.int32( default.npvHighOffset )                                        
-                                        
+    npvHigh = cms.untracked.int32( default.npvHighOffset )
 )
 
