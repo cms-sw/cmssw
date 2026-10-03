@@ -87,6 +87,7 @@ The offsets currently in use are:
 * 0.9: Vector hits
 * 0.12: Neutron background
 * 0.13: MLPF algorithm
+* 0.1301: MLPF algorithm via Sonic Triton
 * 0.15: JME NanoAOD
 * 0.17: Run-3 deep core seeding for JetCore iteration
 * 0.18  Run-3 SiPixel Digi Morphing

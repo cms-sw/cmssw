@@ -97,6 +97,18 @@ for e in [pp_on_XeXe_2017, pp_on_AA]:
 from Configuration.ProcessModifiers.mlpf_cff import mlpf
 from RecoParticleFlow.PFProducer.mlpfProducer_cfi import mlpfProducer
 mlpf.toReplaceWith(particleFlowTmp, mlpfProducer)
+#For MLPF_SONIC
+from Configuration.ProcessModifiers.MLPFSonicTriton_cff import MLPFSonicTriton
+from RecoParticleFlow.PFProducer.mlpfsonicProducer_cfi import mlpfsonicProducer
+MLPFSonicTriton.toReplaceWith(particleFlowTmp, mlpfsonicProducer.clone(
+    Client = dict(
+        timeout = cms.untracked.uint32(300),
+        modelName = cms.string("MLPF"),
+        modelConfigPath = cms.FileInPath("RecoParticleFlow/PFProducer/data/models/MLPF/config.pbtxt"),
+        modelVersion = cms.string(""),
+    ),
+))
+
 
 #
 # switch from pfTICL to simPF
