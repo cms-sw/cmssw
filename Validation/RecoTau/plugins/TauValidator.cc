@@ -12,9 +12,11 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
 #include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "RecoTauTag/RecoTau/interface/PFTauDecayModeTools.h"
 
 //#define EDM_ML_DEBUG
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -50,6 +52,8 @@ public:
 
 private:
   edm::EDGetTokenT<reco::GenJetCollection> genTauToken_;
+  edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken_;
+  edm::EDGetTokenT<reco::GenJetCollection> genJetToken_;
   edm::EDGetTokenT<reco::PFTauCollection> recoTauToken_;
   edm::EDGetTokenT<pat::TauCollection> patTauToken_;
   std::vector<edm::EDGetTokenT<reco::TauDiscriminatorContainer>> recoTauIDTokens_;
@@ -81,6 +85,8 @@ private:
   UMap h_recoTau_;
   UMap h_recoTauMatched_;
   UMap h_recoTauMultiMatched_;
+  UMap h_recoTauFakeSource_;
+  UMap h_recoTauFakeSourceByDM_;
   UMap h_genTau_;
   UMap h_genTauMatched_;
   UMap h_genTauMultiMatched_;
@@ -98,6 +104,8 @@ private:
   bool use_wp;
   std::vector<double> cutIDs_raw;  // Raw discriminator value cuts (raw mode)
   bool use_raw;
+
+  std::vector<std::string> decayModes_;
 
   bool isPatTaus;
   float matchingDeltaR;
@@ -158,10 +166,14 @@ bool TauValidator::passPreSelectionCut(const T& tau, double ptMinCut, double eta
 
 TauValidator::TauValidator(const edm::ParameterSet& iConfig) {
   genTauToken_ = consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("genTauCollection"));
+  genParticleToken_ =
+      consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticleCollection"));
+  genJetToken_ = consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("genJetCollection"));
   recoTauCollection = iConfig.getParameter<edm::InputTag>("recoTauCollection");
   matchingDeltaR = iConfig.getParameter<double>("minDeltaR");
   outFolder = iConfig.getParameter<std::string>("outFolder");
   isPatTaus = iConfig.getUntrackedParameter<bool>("isPatTaus");
+  decayModes_ = iConfig.getParameter<std::vector<std::string>>("decayModes");
 
   if (isPatTaus) {
     patTauToken_ = consumes<pat::TauCollection>(recoTauCollection);
@@ -237,6 +249,14 @@ void TauValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
         ibooker.book1D("recoTauMatched_" + hVar.first, "#tau^{reco} (Matched);" + hVar.first + ";", nBins, hMin, hMax);
     h_recoTauMultiMatched_[hVar.first] = ibooker.book1D(
         "recoTauMultiMatched_" + hVar.first, "#tau^{reco} (Multi-Matched);" + hVar.first + ";", nBins, hMin, hMax);
+    for (const std::string source : {"Electron", "Muon", "Jet", "Other"}) {
+      h_recoTauFakeSource_[source + "_" + hVar.first] =
+          ibooker.book1D("recoTauFake" + source + "_" + hVar.first,
+                         "#tau^{reco} fake matched to " + source + ";" + hVar.first + ";",
+                         nBins,
+                         hMin,
+                         hMax);
+    }
     h_genTau_[hVar.first] = ibooker.book1D("genTau_" + hVar.first, "#tau^{gen};" + hVar.first + ";", nBins, hMin, hMax);
     h_genTauMatched_[hVar.first] =
         ibooker.book1D("genTauMatched_" + hVar.first, "#tau^{gen} (Matched);" + hVar.first + ";", nBins, hMin, hMax);
@@ -335,6 +355,63 @@ void TauValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
                                                            hMinY,
                                                            hMaxY);
   }
+
+  // Keep decay-mode histograms separate for each inclusive/ID selection.
+  ibooker.setCurrentFolder(outFolder + "/DecayModes");
+
+  // Book histograms per decay mode.
+  for (const auto& hVar : histoVars) {
+    auto [nBins, hMin, hMax] = hVar.second;
+
+    for (const auto& dm : decayModes_) {
+      const std::string key = dm + "_" + hVar.first;
+
+      h_genTau_[key] = ibooker.book1D("genTau_" + key, "#tau^{gen} " + dm + ";" + hVar.first + ";", nBins, hMin, hMax);
+
+      h_genTauMatched_[key] = ibooker.book1D(
+          "genTauMatched_" + key, "#tau^{gen} " + dm + " matched;" + hVar.first + ";", nBins, hMin, hMax);
+
+      h_genTauMultiMatched_[key] = ibooker.book1D(
+          "genTauMultiMatched_" + key, "#tau^{gen} " + dm + " multi-matched;" + hVar.first + ";", nBins, hMin, hMax);
+
+      h_recoTau_[key] =
+          ibooker.book1D("recoTau_" + key, "#tau^{reco} " + dm + ";" + hVar.first + ";", nBins, hMin, hMax);
+
+      h_recoTauMatched_[key] = ibooker.book1D(
+          "recoTauMatched_" + key, "#tau^{reco} " + dm + " matched;" + hVar.first + ";", nBins, hMin, hMax);
+
+      h_recoTauMultiMatched_[key] = ibooker.book1D(
+          "recoTauMultiMatched_" + key, "#tau^{reco} " + dm + " multi-matched;" + hVar.first + ";", nBins, hMin, hMax);
+
+      for (const std::string source : {"Electron", "Muon", "Jet", "Other"}) {
+        h_recoTauFakeSourceByDM_[source + "_" + key] =
+            ibooker.book1D("recoTauFake" + source + "_" + key,
+                           "#tau^{reco} " + dm + " fake matched to " + source + ";" + hVar.first + ";",
+                           nBins,
+                           hMin,
+                           hMax);
+      }
+
+      h2d_responsePt_[key] = ibooker.book2D("responsePt_" + key,
+                                            "#tau^{gen} " + dm + ";" + hVar.first + ";#tau p_{T} response",
+                                            nBins,
+                                            hMin,
+                                            hMax,
+                                            50,
+                                            0.,
+                                            2.);
+
+      h2d_responseMass_[key] = ibooker.book2D("responseMass_" + key,
+                                              "#tau^{gen} " + dm + ";" + hVar.first + ";#tau mass response",
+                                              nBins,
+                                              hMin,
+                                              hMax,
+                                              50,
+                                              0.,
+                                              2.);
+    }
+  }
+  ibooker.setCurrentFolder(outFolder);
 }
 
 //------------------------------------------------------------------------------
@@ -359,6 +436,9 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
       continue;
     genTaus.push_back(genTausBeforePreselection->at(itau));
   }
+
+  const auto genParticles = mEvent.getHandle(genParticleToken_);
+  const auto genJets = mEvent.getHandle(genJetToken_);
 
   // std::cout << "Number of gen taus: " << genTaus->size() << std::endl; // [DEBUG]
 
@@ -389,6 +469,7 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
   std::vector<reco::PFTau> recoTaus;
   std::vector<std::vector<double>> recoTauIDValues;
   std::vector<std::vector<std::vector<bool>>> recoTauWPValues;
+  std::vector<std::string> recoTauDecayModes;
 
   if (!isPatTaus) {
     auto recoTausTmp = mEvent.getHandle(recoTauToken_);
@@ -413,6 +494,7 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
       recoTauIDValues.push_back(idValuesForTau);
       recoTauWPValues.push_back(wpValuesForTau);
       recoTaus.push_back(recoTausTmp->at(itau));
+      recoTauDecayModes.push_back(reco::tau::translateRecoDecayModeToGen(recoTausTmp->at(itau).decayMode()));
     }
   } else {
     auto patTaus = mEvent.getHandle(patTauToken_);
@@ -439,6 +521,8 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
       recoTauIDValues.push_back(idValuesForTau);
       recoTauWPValues.push_back(wpValuesForTau);
       recoTaus.push_back(tauFromPat);
+      recoTauDecayModes.push_back(reco::tau::translateRecoDecayModeToGen(
+          static_cast<reco::PFTau::hadronicDecayMode>(patTaus->at(itau).decayMode())));
     }
   }
 
@@ -448,7 +532,7 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
 
   // Loop for efficiency
   for (unsigned itau = 0; itau < genTaus.size(); ++itau) {
-    reco::GenJet& genTau = genTaus[itau];
+    const auto& genTau = genTaus.at(itau);
 
     h_genTau_["pt"]->Fill(genTau.pt());
     h_genTau_["eta"]->Fill(genTau.eta());
@@ -459,6 +543,18 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
     h2d_genTau_["pt_mass"]->Fill(genTau.pt(), genTau.mass());
     h2d_genTau_["mass_eta"]->Fill(genTau.mass(), genTau.eta());
     h2d_genTau_["mass_phi"]->Fill(genTau.mass(), genTau.phi());
+
+    const std::string genDM = JetMCTagUtils::genTauDecayMode(genTau);
+    if (std::find(decayModes_.begin(), decayModes_.end(), genDM) == decayModes_.end()) {
+      edm::LogWarning("TauValidator") << "Unexpected gen tau decay mode: '" << genDM << "'";
+      continue;
+    }
+    const std::string genKey = genDM + "_";
+
+    h_genTau_[genKey + "pt"]->Fill(genTau.pt());
+    h_genTau_[genKey + "eta"]->Fill(genTau.eta());
+    h_genTau_[genKey + "phi"]->Fill(genTau.phi());
+    h_genTau_[genKey + "mass"]->Fill(genTau.mass());
 
     // Count how many reco taus are matched to the gen tau
     int nRecoMatchedToOneGen = 0;
@@ -500,6 +596,22 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
       h2d_responseMass_["phi"]->Fill(genTau.phi(), ResponseMass_bestDeltaR);
       h2d_responseMass_["mass"]->Fill(genTau.mass(), ResponseMass_bestDeltaR);
 
+      // Filling histos per decay mode!
+      h_genTauMatched_[genKey + "pt"]->Fill(genTau.pt());
+      h_genTauMatched_[genKey + "eta"]->Fill(genTau.eta());
+      h_genTauMatched_[genKey + "phi"]->Fill(genTau.phi());
+      h_genTauMatched_[genKey + "mass"]->Fill(genTau.mass());
+
+      h2d_responsePt_[genKey + "pt"]->Fill(genTau.pt(), ResponsePt_bestDeltaR);
+      h2d_responsePt_[genKey + "eta"]->Fill(genTau.eta(), ResponsePt_bestDeltaR);
+      h2d_responsePt_[genKey + "phi"]->Fill(genTau.phi(), ResponsePt_bestDeltaR);
+      h2d_responsePt_[genKey + "mass"]->Fill(genTau.mass(), ResponsePt_bestDeltaR);
+
+      h2d_responseMass_[genKey + "pt"]->Fill(genTau.pt(), ResponseMass_bestDeltaR);
+      h2d_responseMass_[genKey + "eta"]->Fill(genTau.eta(), ResponseMass_bestDeltaR);
+      h2d_responseMass_[genKey + "phi"]->Fill(genTau.phi(), ResponseMass_bestDeltaR);
+      h2d_responseMass_[genKey + "mass"]->Fill(genTau.mass(), ResponseMass_bestDeltaR);
+
       if (nRecoMatchedToOneGen > 1) {
         // Fill gen tau histograms for multi-matched taus
         h_genTauMultiMatched_["pt"]->Fill(genTau.pt());
@@ -511,13 +623,19 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
         h2d_genTauMultiMatched_["pt_mass"]->Fill(genTau.pt(), genTau.mass());
         h2d_genTauMultiMatched_["mass_eta"]->Fill(genTau.mass(), genTau.eta());
         h2d_genTauMultiMatched_["mass_phi"]->Fill(genTau.mass(), genTau.phi());
+
+        //Per decay mode
+        h_genTauMultiMatched_[genKey + "pt"]->Fill(genTau.pt());
+        h_genTauMultiMatched_[genKey + "eta"]->Fill(genTau.eta());
+        h_genTauMultiMatched_[genKey + "phi"]->Fill(genTau.phi());
+        h_genTauMultiMatched_[genKey + "mass"]->Fill(genTau.mass());
       }
     }
   }
 
   // Loop for fake rate
   for (unsigned itau = 0; itau < recoTaus.size(); ++itau) {
-    reco::PFTau& recoTau = recoTaus[itau];
+    const auto& recoTau = recoTaus.at(itau);
     h_recoTau_["pt"]->Fill(recoTau.pt());
     h_recoTau_["eta"]->Fill(recoTau.eta());
     h_recoTau_["phi"]->Fill(recoTau.phi());
@@ -528,6 +646,68 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
     h2d_recoTau_["mass_eta"]->Fill(recoTau.mass(), recoTau.eta());
     h2d_recoTau_["mass_phi"]->Fill(recoTau.mass(), recoTau.phi());
 
+    // Count how many hadronic gen taus are matched to the reco tau.
+    int nGenMatchedToOneReco = 0;
+    for (unsigned jtau = 0; jtau < genTaus.size(); ++jtau) {
+      if (deltaR(genTaus[jtau], recoTau) < matchingDeltaR) {
+        nGenMatchedToOneReco++;
+      }
+    }
+
+    std::string fakeSource = "Other";
+    if (nGenMatchedToOneReco == 0) {
+      // Classify every reco tau that is not matched to a hadronic gen tau.
+      // Electron and muon matches take precedence over gen jets because a
+      // lepton can also be clustered into a nearby generator-level jet.
+      double bestLeptonDeltaR = matchingDeltaR;
+      if (genParticles.isValid()) {
+        for (const auto& genParticle : *genParticles) {
+          if (genParticle.status() != 1)
+            continue;
+          const int absPdgId = std::abs(genParticle.pdgId());
+          if (absPdgId != 11 && absPdgId != 13)
+            continue;
+          const double dr = deltaR(genParticle, recoTau);
+          if (dr < bestLeptonDeltaR) {
+            bestLeptonDeltaR = dr;
+            fakeSource = absPdgId == 11 ? "Electron" : "Muon";
+          }
+        }
+      }
+
+      if (fakeSource == "Other" && genJets.isValid()) {
+        for (const auto& genJet : *genJets) {
+          if (deltaR(genJet, recoTau) < matchingDeltaR) {
+            fakeSource = "Jet";
+            break;
+          }
+        }
+      }
+      h_recoTauFakeSource_.at(fakeSource + "_pt")->Fill(recoTau.pt());
+      h_recoTauFakeSource_.at(fakeSource + "_eta")->Fill(recoTau.eta());
+      h_recoTauFakeSource_.at(fakeSource + "_phi")->Fill(recoTau.phi());
+      h_recoTauFakeSource_.at(fakeSource + "_mass")->Fill(recoTau.mass());
+    }
+
+    // For recotau decay modes:
+    const std::string& recoDM = recoTauDecayModes[itau];
+    if (std::find(decayModes_.begin(), decayModes_.end(), recoDM) == decayModes_.end()) {
+      edm::LogWarning("TauValidator") << "Unexpected reco tau decay mode: '" << recoDM << "'";
+      continue;
+    }
+    const std::string recoKey = recoDM + "_";
+    h_recoTau_[recoKey + "pt"]->Fill(recoTau.pt());
+    h_recoTau_[recoKey + "eta"]->Fill(recoTau.eta());
+    h_recoTau_[recoKey + "phi"]->Fill(recoTau.phi());
+    h_recoTau_[recoKey + "mass"]->Fill(recoTau.mass());
+
+    if (nGenMatchedToOneReco == 0) {
+      h_recoTauFakeSourceByDM_.at(fakeSource + "_" + recoKey + "pt")->Fill(recoTau.pt());
+      h_recoTauFakeSourceByDM_.at(fakeSource + "_" + recoKey + "eta")->Fill(recoTau.eta());
+      h_recoTauFakeSourceByDM_.at(fakeSource + "_" + recoKey + "phi")->Fill(recoTau.phi());
+      h_recoTauFakeSourceByDM_.at(fakeSource + "_" + recoKey + "mass")->Fill(recoTau.mass());
+    }
+
     if (plotId) {
       for (size_t i = 0; i < validRecoTauIDLabels.size(); ++i) {
         const double idRawValue = recoTauIDValues[itau][i];
@@ -537,14 +717,6 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
         h2d_recoTau_[idName + "_eta"]->Fill(idRawValue, recoTau.eta());
         h2d_recoTau_[idName + "_phi"]->Fill(idRawValue, recoTau.phi());
         h2d_recoTau_[idName + "_mass"]->Fill(idRawValue, recoTau.mass());
-      }
-    }
-
-    // Count how many gen taus are matched to the reco tau
-    int nGenMatchedToOneReco = 0;
-    for (unsigned jtau = 0; jtau < genTaus.size(); ++jtau) {
-      if (deltaR(genTaus[jtau], recoTau) < matchingDeltaR) {
-        nGenMatchedToOneReco++;
       }
     }
 
@@ -560,6 +732,12 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
       h2d_recoTauMatched_["pt_mass"]->Fill(recoTau.pt(), recoTau.mass());
       h2d_recoTauMatched_["mass_eta"]->Fill(recoTau.mass(), recoTau.eta());
       h2d_recoTauMatched_["mass_phi"]->Fill(recoTau.mass(), recoTau.phi());
+
+      // Filling histos per decay mode!
+      h_recoTauMatched_[recoKey + "pt"]->Fill(recoTau.pt());
+      h_recoTauMatched_[recoKey + "eta"]->Fill(recoTau.eta());
+      h_recoTauMatched_[recoKey + "phi"]->Fill(recoTau.phi());
+      h_recoTauMatched_[recoKey + "mass"]->Fill(recoTau.mass());
 
       if (plotId) {
         for (size_t i = 0; i < validRecoTauIDLabels.size(); ++i) {
@@ -585,6 +763,12 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
         h2d_recoTauMultiMatched_["mass_eta"]->Fill(recoTau.mass(), recoTau.eta());
         h2d_recoTauMultiMatched_["mass_phi"]->Fill(recoTau.mass(), recoTau.phi());
 
+        // Per decay mode
+        h_recoTauMultiMatched_[recoKey + "pt"]->Fill(recoTau.pt());
+        h_recoTauMultiMatched_[recoKey + "eta"]->Fill(recoTau.eta());
+        h_recoTauMultiMatched_[recoKey + "phi"]->Fill(recoTau.phi());
+        h_recoTauMultiMatched_[recoKey + "mass"]->Fill(recoTau.mass());
+
         if (plotId) {
           for (size_t i = 0; i < validRecoTauIDLabels.size(); ++i) {
             const double idRawValue = recoTauIDValues[itau][i];
@@ -608,6 +792,8 @@ void TauValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   edm::ParameterSetDescription desc;
   // Default tau validation HLT
   desc.add<edm::InputTag>("genTauCollection", edm::InputTag("tauGenJets"));
+  desc.add<edm::InputTag>("genParticleCollection", edm::InputTag("prunedGenParticles"));
+  desc.add<edm::InputTag>("genJetCollection", edm::InputTag("ak4GenJets"));
   desc.add<edm::InputTag>("recoTauCollection", edm::InputTag("hltHpsPFTauProducer"));
   desc.add<std::vector<edm::InputTag>>("recoTauIDCollections",
                                        std::vector<edm::InputTag>{edm::InputTag("hltHpsPFTauDeepTauProducer:VSjet"),
@@ -626,6 +812,16 @@ void TauValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   ps_presel.add<double>("EtaMaxRecoCut", 3.);
 
   desc.add<edm::ParameterSetDescription>("TauPreSelection", ps_presel);
+  desc.add<std::vector<std::string>>("decayModes",
+                                     std::vector<std::string>{"oneProng0Pi0",
+                                                              "oneProng1Pi0",
+                                                              "oneProng2Pi0",
+                                                              "oneProngOther",
+                                                              "threeProng0Pi0",
+                                                              "threeProng1Pi0",
+                                                              "threeProngOther",
+                                                              "rare",
+                                                              "unknown"});
   descriptions.addWithDefaultLabel(desc);
 }
 

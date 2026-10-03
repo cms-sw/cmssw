@@ -9,6 +9,9 @@
 <use name="DataFormats/EgammaCandidates"/>
 <use name="DataFormats/HepMCCandidate"/>
 <use name="CommonTools/UtilAlgos"/>
+<use name="PhysicsTools/JetMCUtils"/>
+<use name="RecoTauTag/RecoTau"/>
+<use name="DataFormats/PatCandidates"/>
 <library file="*.cc" name="ValidationRecoTauPlugin">
   <flags EDM_PLUGIN="1"/>
 </library>

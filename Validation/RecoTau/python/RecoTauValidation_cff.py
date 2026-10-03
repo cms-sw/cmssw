@@ -16,15 +16,29 @@ from Validation.RecoTau.TauValidator import TauValidator as _TauValidator
 #     isPatTaus = False
 # )
 
+
 recoTauValidation = _TauValidator(
     recoTauCollection = "slimmedTausNoDeepIDs",
     genTauCollection = "tauGenJetsSelectorAllHadrons", # only GenTaus decaying hadronically
+    genParticleCollection = "prunedGenParticles",
+    genJetCollection = "ak4GenJets",
     recoTauIDCollections = ["deepTau2026v2p5ForMini:VSjet", "deepTau2026v2p5ForMini:VSe", "deepTau2026v2p5ForMini:VSmu"],
     cutIDs_wp = [-1, -1, -1], # WP discriminator (disabled if < 0)
     cutIDs_raw = [0.0, 0.0, 0.0], # raw discriminator value cuts (disabled if 0.0)
     minDeltaR = 0.3,
     outFolder = "Tau/TauValidation",
-    isPatTaus = True
+    isPatTaus = True,
+    decayModes = [
+        "oneProng0Pi0",
+        "oneProng1Pi0",
+        "oneProng2Pi0",
+        "oneProngOther",
+        "threeProng0Pi0",
+        "threeProng1Pi0",
+        "threeProngOther",
+        "rare",
+        "unknown",
+    ],
 )
 
 recoTauValidation_cutWPVsJet_0 = recoTauValidation.clone(cutIDs_wp = [0, -1, -1])
