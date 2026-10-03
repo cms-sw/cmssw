@@ -35,7 +35,7 @@ namespace edm {
   class LumiTransitionInfo;
   class ProcessBlockTransitionInfo;
   class InputProcessBlockTransitionInfo;
-  class TransitionPhaseGlobal;
+  struct TransitionPhaseGlobal;
   class UnscheduledAuxiliary;
 
   class UnscheduledConfigurator {

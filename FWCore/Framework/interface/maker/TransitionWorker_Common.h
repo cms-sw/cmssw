@@ -90,8 +90,8 @@ namespace edm {
   class EventTransitionInfo;
   class RunTransitionInfo;
   class LumiTransitionInfo;
-  class TransitionPhaseGlobal;
-  class TransitionPhaseStream;
+  struct TransitionPhaseGlobal;
+  struct TransitionPhaseStream;
 
   template <typename TI, TransitionActionType T>
   struct TransitionActionContextTrait;
