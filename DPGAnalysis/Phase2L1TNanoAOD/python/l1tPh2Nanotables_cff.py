@@ -357,7 +357,7 @@ EMTFDisplaceMuTable = staMuTable.clone(
 )
 
 ### Jets
-jetTable = cms.EDProducer(
+l1jetTable = cms.EDProducer(
     "SimpleCandidateFlatTableProducer",
     src = cms.InputTag('__src__'),
     cut = cms.string(""),
@@ -429,14 +429,14 @@ sc4NGJetTable = pfJetTable.clone(
     )
 )
 
-histoJetTable = jetTable.clone(
+histoJetTable = l1jetTable.clone(
     src = cms.InputTag("l1tPhase1JetCalibrator9x9trimmed" ,   "Phase1L1TJetFromPfCandidates"),
     name = cms.string("L1puppiJetHisto"),
     doc = cms.string("Puppi Jets histogrammed 9x9, trimmed, origin: Correlator"),
 )
 
 
-caloJetTable = jetTable.clone(
+caloJetTable = l1jetTable.clone(
     src = cms.InputTag("l1tPhase2CaloJetEmulator","GCTJet"),
     name = cms.string("L1caloJet"),
     doc = cms.string("Calo Jets, origin: GCT"),
@@ -445,7 +445,7 @@ caloJetTable = jetTable.clone(
 
 ### SUMS
 
-puppiMetTable = cms.EDProducer(
+l1puppiMetTable = cms.EDProducer(
     "SimpleCandidateFlatTableProducer",
     src = cms.InputTag("l1tMETPFProducer",""),
     name = cms.string("L1puppiMET"),
@@ -583,7 +583,7 @@ p2L1TablesTask = cms.Task(
     histoJetTable,
     caloJetTable,
     # ## sums
-    puppiMetTable,
+    l1puppiMetTable,
     puppiMLMetTable,
     sc4SumsTable,
     histoSumsTable,
