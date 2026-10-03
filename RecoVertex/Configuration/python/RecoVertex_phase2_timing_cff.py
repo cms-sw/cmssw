@@ -70,3 +70,41 @@ tofPID3D=tofPIDProducer.clone(vtxsSrc='unsortedOfflinePrimaryVertices')
 from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
 phase2_timing_layer.toModify(tofPID, vtxsSrc='unsortedOfflinePrimaryVertices4D', vertexReassignment=False)
 phase2_timing_layer.toModify(tofPID3D, vertexReassignment=False)
+
+trackFeatureProducer = cms.EDProducer("vertexgnn::TrackFeatureProducer",
+    TkFilterParameters = unsortedOfflinePrimaryVertices.TkFilterParameters.clone()
+)
+gnnVertexProducer = cms.EDProducer("vertexgnn::GNNVertexProducerAlpaka@alpaka",
+    trackFeatures = cms.InputTag("trackFeatureProducer"),
+    model = cms.FileInPath("RecoVertex/PrimaryVertexProducer/data/vertexSlotGNN.pt"),
+)
+unsortedOfflinePrimaryVerticesGNN = unsortedOfflinePrimaryVertices4D.clone(
+    TkClusParameters = cms.PSet(algorithm = cms.string("GNN2D_alpaka"),
+        TkDAClusParameters = cms.PSet(
+            existenceThreshold = cms.double(0.01),
+            trackAssignmentThreshold = cms.double(0.5),
+            gnnOutput = cms.InputTag("gnnVertexProducer"),
+        )
+    ),
+    TrackTimesLabel = "tofPID4DnoPID:t0safe",
+    TrackTimeResosLabel = "tofPID4DnoPID:sigmat0safe",
+    vertexCollections = {0: dict(useClusterWeights = cms.bool(False)),
+                         1: dict(useClusterWeights = cms.bool(False))}
+)
+trackWithVertexRefSelectorBeforeSortingGNN = trackWithVertexRefSelector.clone(
+    vertexTag = "unsortedOfflinePrimaryVerticesGNN",
+    ptMax = 9e99,
+    ptErrorCut = 9e99
+)
+trackRefsForJetsBeforeSortingGNN = trackRefsForJets.clone(
+    src = "trackWithVertexRefSelectorBeforeSortingGNN"
+)
+offlinePrimaryVerticesGNN = sortedPrimaryVertices.clone(
+    vertices = "unsortedOfflinePrimaryVerticesGNN",
+    particles = "trackRefsForJetsBeforeSortingGNN",
+    trackTimeTag = "tofPID4DnoPID:t0safe",
+    trackTimeResoTag = "tofPID4DnoPID:sigmat0safe",
+    assignment = dict(useTiming = True)
+)
+tofPIDGNN = tofPIDProducer.clone(vtxsSrc = 'unsortedOfflinePrimaryVerticesGNN')
+phase2_timing_layer.toModify(tofPIDGNN, vertexReassignment = False)
