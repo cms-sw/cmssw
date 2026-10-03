@@ -25,8 +25,7 @@ l1ct::MiddleBufferMultififoRegionizerEmulator::MiddleBufferMultififoRegionizerEm
                                               /*streaming=*/true,
                                               /*outii=*/2,
                                               /*pauseii=*/1,
-                                              iConfig.getParameter<bool>("useAlsoVtxCoords"),
-                                              iConfig.getParameter<bool>("tmux6GCTinput")) {
+                                              iConfig.getParameter<bool>("useAlsoVtxCoords")) {
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
 }
 
@@ -43,7 +42,6 @@ edm::ParameterSetDescription l1ct::MiddleBufferMultififoRegionizerEmulator::getP
   description.add<uint32_t>("nEmCalo", 12);
   description.add<uint32_t>("nMu", 2);
   description.add<bool>("useAlsoVtxCoords", true);
-  description.add<bool>("tmux6GCTinput", false);
   description.addUntracked<bool>("debug", false);
   return description;
 }
@@ -63,8 +61,7 @@ l1ct::MiddleBufferMultififoRegionizerEmulator::MiddleBufferMultififoRegionizerEm
                                                                                        bool streaming,
                                                                                        unsigned int outii,
                                                                                        unsigned int pauseii,
-                                                                                       bool useAlsoVtxCoords,
-                                                                                       bool tmux6GCTinput)
+                                                                                       bool useAlsoVtxCoords)
     : RegionizerEmulator(useAlsoVtxCoords),
       NTK_SECTORS(9),
       NCALO_SECTORS(3),
@@ -86,7 +83,6 @@ l1ct::MiddleBufferMultififoRegionizerEmulator::MiddleBufferMultififoRegionizerEm
       streaming_(streaming),
       init_(false),
       iclock_(0),
-      tmux6GCTinput_(tmux6GCTinput),
       tkRegionizerPre_(ntk, ntk, false, outii, pauseii, useAlsoVtxCoords),
       tkRegionizerPost_(ntk, (ntk + outii - 1) / outii, true, outii, pauseii, useAlsoVtxCoords),
       commonCaloRegionizerPre_(ncalo, ncalo, false, outii, pauseii),
@@ -124,14 +120,16 @@ l1ct::MiddleBufferMultififoRegionizerEmulator::MiddleBufferMultififoRegionizerEm
       for (unsigned int j = 0; j < 3; ++j) {               // 3 regions x sector
         for (unsigned int il = 0; il < HCAL_LINKS; ++il) {
           caloRoutes_.emplace_back(is, il, 3 * is + j + phisectors * ie, il);
-          if (j != 2) {
-            caloRoutes_.emplace_back((is + 2) % 3, il, 3 * is + j + phisectors * ie, il + HCAL_LINKS);
+          if (j != 1) {
+            const unsigned int from_sector = (is + (j == 2 ? 1 : 2)) % NCALO_SECTORS;
+            caloRoutes_.emplace_back(from_sector, il, 3 * is + j + phisectors * ie, il + HCAL_LINKS);
           }
         }
         for (unsigned int il = 0; il < ECAL_LINKS; ++il) {
           emCaloRoutes_.emplace_back(is, il, 3 * is + j + phisectors * ie, il);
-          if (j != 2) {
-            emCaloRoutes_.emplace_back((is + 2) % 3, il, 3 * is + j + phisectors * ie, il + ECAL_LINKS);
+          if (j != 1) {
+            const unsigned int from_sector = (is + (j == 2 ? 1 : 2)) % NCALO_SECTORS;
+            emCaloRoutes_.emplace_back(from_sector, il, 3 * is + j + phisectors * ie, il + ECAL_LINKS);
           }
         }
       }
@@ -143,8 +141,6 @@ l1ct::MiddleBufferMultififoRegionizerEmulator::MiddleBufferMultififoRegionizerEm
       muRoutes_.emplace_back(0, il, j, il);
     }
   }
-
-  init_GCT_slrs(gct_slr_regions_);
 }
 
 l1ct::MiddleBufferMultififoRegionizerEmulator::~MiddleBufferMultififoRegionizerEmulator() {}
@@ -231,24 +227,28 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::initSectorsAndRegions(const 
     tkRegionizerPost_.initRegions(out);
   }
   if (ncalo_) {
-    assert(in.hadcalo.size() == NCALO_SECTORS);
+    assert(in.hadcalo.size() == NCALO_SECTORS * 4);
+
+    // we will map the decoded sectors (matching GTC SLRs x 2 eta) into the 3 link sectors
+    init_GCT_tmux18sectors(gct_tmux18_hadcalo_, gct_tmux18_emcalo_);
+
     std::vector<DetectorSector<l1ct::CommonCaloObjEmu>> commonCaloSectors(NCALO_SECTORS);
     for (unsigned int isec = 0; isec != NCALO_SECTORS; isec++) {
-      commonCaloSectors[isec].region = in.hadcalo[isec].region;
+      commonCaloSectors[isec].region = gct_tmux18_hadcalo_[isec].region;
     }
     commonCaloRegionizerPre_.initSectors(commonCaloSectors);
     commonCaloRegionizerPre_.initRegions(mergedRegions);
     commonCaloRegionizerPre_.initRouting(caloRoutes_);
 
-    hadCaloRegionizerPre_.initSectors(in.hadcalo);
+    hadCaloRegionizerPre_.initSectors(gct_tmux18_hadcalo_);
     hadCaloRegionizerPre_.initRegions(mergedRegions);
     if (ECAL_LINKS)
       hadCaloRegionizerPre_.initRouting(caloRoutes_);
     hadCaloRegionizerPost_.initRegions(out);
   }
   if (nem_) {
-    assert(in.emcalo.size() == NCALO_SECTORS);
-    emCaloRegionizerPre_.initSectors(in.emcalo);
+    assert(in.emcalo.size() == NCALO_SECTORS * 4);
+    emCaloRegionizerPre_.initSectors(gct_tmux18_emcalo_);
     emCaloRegionizerPre_.initRegions(mergedRegions);
     if (ECAL_LINKS)
       emCaloRegionizerPre_.initRouting(emCaloRoutes_);
@@ -480,26 +480,70 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::fillSharedCaloLinks(
     const std::vector<l1ct::DetectorSector<l1ct::HadCaloObjEmu>>& had_in,
     std::vector<l1ct::CommonCaloObjEmu>& links,
     std::vector<bool>& valid) {
-  // FIXME: the link filling should be done according to TMUX18 GCT-CTL1 interface document
   assert(ECAL_LINKS == 0 && HCAL_LINKS == 1 && ncalo_ != 0 && nem_ != 0);
   links.resize(NCALO_SECTORS);
   valid.resize(links.size());
-  // for the moment we assume the first 54 clocks are for EM, the rest for HAD
-  const unsigned int NCLK_EM = 54;
+
+  // input calo sectors map to GCT SLRs. We can use this to fill the links according to the interface document.
+  // while filling we also convert to the "link sector" coordinates
+  const unsigned int NEM_WORDS = 16;
+  const unsigned int NHAD_WORDS = 24;
+
+  static constexpr unsigned int gct_slr_tmux18sector_mapping[12] = {0, 0, 1, 1, 2, 2, 0, 0, 1, 1, 2, 2};
+  static constexpr unsigned int slr_order_per_link[4] = {7, 1, 6, 0};
+
   for (unsigned int is = 0; is < NCALO_SECTORS; ++is) {
     links[is].clear();
-    if (iclock < NCLK_EM) {
-      valid[is] = true;
-      if (iclock < em_in[is].size()) {
-        encode(em_in[is][iclock], links[is]);
-      }
-    } else {
-      if (iclock - NCLK_EM < had_in[is].size()) {
-        encode(had_in[is][iclock - NCLK_EM], links[is]);
+    if (iclock == 0 || iclock == 81) {
+      valid[is] = false;
+      continue;  // technical words -> ignored
+    }
+    unsigned int rel_pos = (iclock) % 81;
+    if ((rel_pos - 1) < 2 * NEM_WORDS) {  // EM clusters
+      unsigned int islr = ((rel_pos - 1) < NEM_WORDS) ? 0 : 1;
+      if (iclock > 81)
+        islr += 2;
+      unsigned int insec = slr_order_per_link[islr] + is * 2;
+      unsigned int itmux18 = gct_slr_tmux18sector_mapping[insec];
+      const auto& sec = em_in[insec];
+      unsigned int rel_em = (rel_pos - 1) % (NEM_WORDS);
+      if (rel_em < sec.size()) {
+        auto cl = sec[rel_em];
+        if (!gct_tmux18_emcalo_[itmux18].region.containsHw(sec.region.hwGlbEtaOf(cl), sec.region.hwGlbPhiOf(cl))) {
+          assert(false && "EM calo cluster out of TMUX18 sector bounds!");
+        }
+
+        // convert to TMUX18 sector coordinates
+        cl.hwEta = l1ct::Scales::makeEta(gct_tmux18_emcalo_[itmux18].region.localEta(sec.region.floatGlbEtaOf(cl)));
+        cl.hwPhi = l1ct::Scales::makePhi(gct_tmux18_emcalo_[itmux18].region.localPhi(sec.region.floatGlbPhiOf(cl)));
+        encode(cl, links[is]);
         valid[is] = true;
       } else {
         valid[is] = false;
       }
+    } else if ((rel_pos - 1) >= 2 * NEM_WORDS && (rel_pos - 1) < (2 * NEM_WORDS + 2 * NHAD_WORDS)) {  // Had clusters
+      unsigned int islr = ((rel_pos - 1 - 2 * NEM_WORDS) < NHAD_WORDS) ? 0 : 1;
+      if (iclock > 81)
+        islr += 2;
+      unsigned int insec = slr_order_per_link[islr] + is * 2;
+      unsigned int itmux18 = gct_slr_tmux18sector_mapping[insec];
+      const auto& sec = had_in[insec];
+      unsigned int rel_had = (rel_pos - 1 - 2 * NEM_WORDS) % NHAD_WORDS;
+      if (rel_had < sec.size()) {
+        auto cl = sec[rel_had];
+        // convert to TMUX18 sector coordinates
+        if (!gct_tmux18_hadcalo_[itmux18].region.containsHw(sec.region.hwGlbEtaOf(cl), sec.region.hwGlbPhiOf(cl))) {
+          assert(false && "Had calo cluster out of TMUX18 sector bounds!");
+        }
+        cl.hwEta = l1ct::Scales::makeEta(gct_tmux18_hadcalo_[itmux18].region.localEta(sec.region.floatGlbEtaOf(cl)));
+        cl.hwPhi = l1ct::Scales::makePhi(gct_tmux18_hadcalo_[itmux18].region.localPhi(sec.region.floatGlbPhiOf(cl)));
+        encode(cl, links[is]);
+        valid[is] = true;
+      } else {
+        valid[is] = false;
+      }
+    } else {
+      valid[is] = false;
     }
   }  // sectors
 }
@@ -590,29 +634,17 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::reset() {
     b.reset();
 }
 
-void l1ct::MiddleBufferMultififoRegionizerEmulator::convert_GCTinput_tmux(const RegionizerDecodedInputs& in_tm6,
-                                                                          RegionizerDecodedInputs& in_tm18) const {
-  for (auto& sec : in_tm18.hadcalo)
-    sec.clear();
-
-  for (auto& sec : in_tm18.emcalo)
-    sec.clear();
-
-  convert_GCTsector_tmux(in_tm6.hadcalo, in_tm18.hadcalo);
-  convert_GCTsector_tmux(in_tm6.emcalo, in_tm18.emcalo);
-}
-
 void l1ct::MiddleBufferMultififoRegionizerEmulator::init_GCT_tmux18sectors(
     std::vector<l1ct::DetectorSector<l1ct::HadCaloObjEmu>>& gct_tmux18_hadcalo,
     std::vector<l1ct::DetectorSector<l1ct::EmCaloObjEmu>>& gct_tmux18_emcalo) const {
   std::vector<float> etaBoundaries = {-1.5, 1.5};
-  unsigned int phiSlices = 3;
+  const unsigned int phiSlices = 3;
   // if (!std::is_sorted(etaBoundaries.begin(), etaBoundaries.end()))
   //   throw cms::Exception("Configuration", "caloSectors.etaBoundaries not sorted\n");
-  float phiWidth = 2 * M_PI / phiSlices;
+  const float phiWidth = 2 * M_PI / phiSlices;
   // if (phiWidth > 2 * l1ct::Scales::maxAbsPhi())
   //   throw cms::Exception("Configuration", "caloSectors phi range too large for phi_t data type");
-  float phiZero = M_PI * 7 / 18;
+  float phiZero = M_PI * 4 / 18;
   for (unsigned int ieta = 0, neta = etaBoundaries.size() - 1; ieta < neta; ++ieta) {
     // float etaWidth = etaBoundaries[ieta + 1] - etaBoundaries[ieta];
     // if (etaWidth > 2 * l1ct::Scales::maxAbsEta())
@@ -635,52 +667,8 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::init_GCT_tmux18sectors(
   }
 }
 
-void l1ct::MiddleBufferMultififoRegionizerEmulator::init_GCT_slrs(
-    std::vector<l1ct::PFRegionEmu>& gct_slr_regions) const {
-  // We Initialize GCT SLR regions (dividing them in eta +- to be able to assign clusters to the correct link and sector
-  std::vector<float> etaBoundaries = {-1.5, 0, 1.5};
-  unsigned int phiSlices = 6;
-  // if (!std::is_sorted(etaBoundaries.begin(), etaBoundaries.end()))
-  //   throw cms::Exception("Configuration", "caloSectors.etaBoundaries not sorted\n");
-  float phiWidth = 2 * M_PI / phiSlices;
-  // if (phiWidth > 2 * l1ct::Scales::maxAbsPhi())
-  //   throw cms::Exception("Configuration", "caloSectors phi range too large for phi_t data type");
-  float phiZero = M_PI * 4 / 18;
-  for (unsigned int ieta = 0, neta = etaBoundaries.size() - 1; ieta < neta; ++ieta) {
-    // float etaWidth = etaBoundaries[ieta + 1] - etaBoundaries[ieta];
-    // if (etaWidth > 2 * l1ct::Scales::maxAbsEta())
-    //   throw cms::Exception("Configuration", "caloSectors eta range too large for eta_t data type");
-    for (unsigned int iphi = 0; iphi < phiSlices; ++iphi) {
-      float phiCenter = reduceRange(iphi * phiWidth + phiZero);
-      gct_slr_regions.emplace_back(etaBoundaries[ieta],
-                                   etaBoundaries[ieta + 1],
-                                   phiCenter,
-                                   phiWidth,
-                                   0,   // no extra
-                                   0);  // no extra
-    }
-  }
-}
 void l1ct::MiddleBufferMultififoRegionizerEmulator::run(const RegionizerDecodedInputs& in,
                                                         std::vector<PFInputRegion>& out) {
-  if (tmux6GCTinput_) {
-    if (!init_) {
-      init_GCT_tmux18sectors(gct_tmux18_hadcalo_, gct_tmux18_emcalo_);
-    }
-    RegionizerDecodedInputs in_tm18;
-    in_tm18.track = in.track;
-    in_tm18.muon = in.muon;
-    in_tm18.hadcalo = gct_tmux18_hadcalo_;
-    in_tm18.emcalo = gct_tmux18_emcalo_;
-    convert_GCTinput_tmux(in, in_tm18);
-    run_worker(in_tm18, out);
-  } else {
-    run_worker(in, out);
-  }
-}
-
-void l1ct::MiddleBufferMultififoRegionizerEmulator::run_worker(const RegionizerDecodedInputs& in,
-                                                               std::vector<PFInputRegion>& out) {
   assert(streaming_);  // doesn't make sense otherwise
   if (!init_)
     initSectorsAndRegions(in, out);

@@ -14,12 +14,6 @@ namespace edm {
 }  // namespace edm
 
 namespace l1ct {
-#ifdef CMSSW_GIT_HASH
-  const bool withinCMSSW_ = true;
-#else
-  const bool withinCMSSW_ = false;
-#endif
-
   class LinPuppiEmulator {
   public:
     enum class SortAlgo { Insertion, BitonicRUFL, BitonicHLS, Hybrid, FoldedHybrid, BitonicVHDL };
@@ -44,10 +38,6 @@ namespace l1ct {
                      pt_t ptCut,
                      bool useMLAssociation = false,
                      const double associationThreshold = 0.0,
-                     std::string associationGraphPath = "",
-                     std::vector<double> associationNetworkZ0binning = {},
-                     std::vector<double> associationNetworkEtaBounds = {},
-                     std::vector<double> associationNetworkZ0ResBins = {},
                      unsigned int nFinalSort = 0,
                      SortAlgo finalSortAlgo = SortAlgo::Insertion)
         : nTrack_(nTrack),
@@ -70,18 +60,11 @@ namespace l1ct {
           priorPh_(1, priorPh),
           ptCut_(1, ptCut),
           useMLAssociation_(useMLAssociation),
+          associationThreshold_(associationThreshold),
           nFinalSort_(nFinalSort ? nFinalSort : nOut),
           finalSortAlgo_(finalSortAlgo),
           debug_(false),
-          fakePuppi_(false) {
-      if (useMLAssociation_ and withinCMSSW_) {
-        nnVtxAssoc_ = std::make_unique<NNVtxAssoc>(NNVtxAssoc(associationGraphPath,
-                                                              associationThreshold,
-                                                              associationNetworkZ0binning,
-                                                              associationNetworkEtaBounds,
-                                                              associationNetworkZ0ResBins));
-      }
-    }
+          fakePuppi_(false) {}
 
     LinPuppiEmulator(unsigned int nTrack,
                      unsigned int nIn,
@@ -114,10 +97,6 @@ namespace l1ct {
                      pt_t ptCut_1,
                      bool useMLAssociation = false,
                      const double associationThreshold = 0.0,
-                     std::string associationGraphPath = "",
-                     std::vector<double> associationNetworkZ0binning = {},
-                     std::vector<double> associationNetworkEtaBounds = {},
-                     std::vector<double> associationNetworkZ0ResBins = {},
                      unsigned int nFinalSort = 0,
                      SortAlgo finalSortAlgo = SortAlgo::Insertion);
 
@@ -142,10 +121,6 @@ namespace l1ct {
                      const std::vector<pt_t> &ptCut,
                      bool useMLAssociation,
                      const double associationThreshold,
-                     std::string associationGraphPath,
-                     std::vector<double> associationNetworkZ0binning,
-                     std::vector<double> associationNetworkEtaBounds,
-                     std::vector<double> associationNetworkZ0ResBins,
                      unsigned int nFinalSort,
                      SortAlgo finalSortAlgo)
         : nTrack_(nTrack),
@@ -168,6 +143,7 @@ namespace l1ct {
           priorPh_(priorPh),
           ptCut_(ptCut),
           useMLAssociation_(useMLAssociation),
+          associationThreshold_(associationThreshold),
           nFinalSort_(nFinalSort),
           finalSortAlgo_(finalSortAlgo),
           debug_(false),
@@ -181,10 +157,12 @@ namespace l1ct {
     void linpuppi_chs_ref(const PFRegionEmu &region,
                           const PVObjEmu &pv,
                           const std::vector<PFChargedObjEmu> &pfch /*[nTrack]*/,
-                          std::vector<PuppiObjEmu> &outallch /*[nTrack]*/) const;
+                          std::vector<PuppiObjEmu> &outallch /*[nTrack]*/,
+                          std::vector<AssociationObjEmu> &association /*[nTrack]*/) const;
     //vtx vetor
     void linpuppi_chs_ref(const PFRegionEmu &region,
                           const std::vector<PVObjEmu> &pv /*[nVtx]*/,
+                          std::vector<AssociationObjEmu> &association /*[nTrack]*/,
                           const std::vector<PFChargedObjEmu> &pfch /*[nTrack]*/,
                           std::vector<PuppiObjEmu> &outallch /*[nTrack]*/) const;
 
@@ -192,6 +170,7 @@ namespace l1ct {
     void linpuppi_flt(const PFRegionEmu &region,
                       const std::vector<TkObjEmu> &track /*[nTrack]*/,
                       const std::vector<PVObjEmu> &pv /*[nVtx]*/,
+                      std::vector<AssociationObjEmu> &association /*[nTrack]*/,
                       const std::vector<PFNeutralObjEmu> &pfallne /*[nIn]*/,
                       std::vector<PuppiObjEmu> &outallne_nocut /*[nIn]*/,
                       std::vector<PuppiObjEmu> &outallne /*[nIn]*/,
@@ -199,6 +178,7 @@ namespace l1ct {
     void linpuppi_ref(const PFRegionEmu &region,
                       const std::vector<TkObjEmu> &track /*[nTrack]*/,
                       const std::vector<PVObjEmu> &pv /*[nVtx]*/,
+                      std::vector<AssociationObjEmu> &association /*[nTrack]*/,
                       const std::vector<PFNeutralObjEmu> &pfallne /*[nIn]*/,
                       std::vector<PuppiObjEmu> &outallne_nocut /*[nIn]*/,
                       std::vector<PuppiObjEmu> &outallne /*[nIn]*/,
@@ -206,10 +186,11 @@ namespace l1ct {
     void linpuppi_ref(const PFRegionEmu &region,
                       const std::vector<TkObjEmu> &track /*[nTrack]*/,
                       const std::vector<PVObjEmu> &pv /*[nVtx]*/,
+                      std::vector<AssociationObjEmu> &association /*[nTrack]*/,
                       const std::vector<PFNeutralObjEmu> &pfallne /*[nIn]*/,
                       std::vector<PuppiObjEmu> &outselne /*[nOut]*/) const {
       std::vector<PuppiObjEmu> outallne_nocut, outallne;
-      linpuppi_ref(region, track, pv, pfallne, outallne_nocut, outallne, outselne);
+      linpuppi_ref(region, track, pv, association, pfallne, outallne_nocut, outallne, outselne);
     }
 
     // neutrals, forward
@@ -229,6 +210,10 @@ namespace l1ct {
                                        std::vector<PuppiObjEmu> &out,
                                        SortAlgo algo = SortAlgo::Insertion);
 
+    void linpuppi_associate_trk(const PFRegionEmu &region,
+                                const std::vector<TkObjEmu> &trk /*[nTrack]*/,
+                                const std::vector<PVObjEmu> &pv /*[nVtx]*/,
+                                std::vector<AssociationObjEmu> &association) const;
     // for CMSSW
     void run(const PFInputRegion &in, const std::vector<l1ct::PVObjEmu> &pvs, OutputRegion &out) const;
 
@@ -249,7 +234,13 @@ namespace l1ct {
 
     // NNVtx Association:
     bool useMLAssociation_;
+    float associationThreshold_ = 0;
+
+#ifdef CMSSW_GIT_HASH  // NNVtx Association:
     std::unique_ptr<NNVtxAssoc> nnVtxAssoc_;
+    std::shared_ptr<hls4mlEmulator::Model> model;
+    hls4mlEmulator::ModelLoader loader;
+#endif
 
     unsigned int nFinalSort_;  // output after a full sort of charged + neutral
     SortAlgo finalSortAlgo_;
