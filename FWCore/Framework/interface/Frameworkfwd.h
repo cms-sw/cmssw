@@ -56,8 +56,10 @@ namespace edm {
   struct TriggerReport;
   template <typename T>
   class View;
-  template <typename T>
+  template <typename T, typename TI, typename TP>
   class WorkerT;
+  template <typename T, typename TI, typename TP>
+  class WorkerTBase;
 }  // namespace edm
 
 #endif

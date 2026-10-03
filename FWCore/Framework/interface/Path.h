@@ -12,7 +12,7 @@
 */
 
 #include "FWCore/Framework/interface/WorkerInPath.h"
-#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/maker/TransitionWorker.h"
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
@@ -66,12 +66,12 @@ namespace edm {
     std::string const& name() const { return pathContext_.pathName(); }
 
     size_type size() const { return workers_.size(); }
-    Worker const* getWorker(size_type i) const { return workers_.at(i).getWorker(); }
+    GlobalEventWorker const* getWorker(size_type i) const { return workers_.at(i).getWorker(); }
     unsigned int bitPosition(size_type i) const { return workers_.at(i).bitPosition(); }
 
-    void setEarlyDeleteHelpers(std::map<const Worker*, EarlyDeleteHelper*> const&);
+    void setEarlyDeleteHelpers(std::map<const GlobalEventWorker*, EarlyDeleteHelper*> const&);
 
-    void setPathStatusInserter(PathStatusInserter* pathStatusInserter, Worker* pathStatusInserterWorker);
+    void setPathStatusInserter(PathStatusInserter* pathStatusInserter, GlobalEventWorker* pathStatusInserterWorker);
 
   private:
     std::atomic<bool> printedException_ = false;
@@ -94,7 +94,7 @@ namespace edm {
     std::atomic<unsigned int> modulesToRun_;
 
     PathStatusInserter* pathStatusInserter_;
-    Worker* pathStatusInserterWorker_;
+    GlobalEventWorker* pathStatusInserterWorker_;
 
     // Helper functions
     // nwrwue = numWorkersRunWithoutUnhandledException (really!)

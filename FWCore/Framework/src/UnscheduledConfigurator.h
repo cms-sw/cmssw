@@ -20,17 +20,32 @@
 
 // system include files
 #include <unordered_map>
+#include <variant>
 
 // user include files
 
 // forward declarations
 
 namespace edm {
-  class Worker;
+  template <typename TI, typename TP>
+  class TransitionWorker;
+
+  class EventTransitionInfo;
+  class RunTransitionInfo;
+  class LumiTransitionInfo;
+  class ProcessBlockTransitionInfo;
+  class InputProcessBlockTransitionInfo;
+  struct TransitionPhaseGlobal;
   class UnscheduledAuxiliary;
 
   class UnscheduledConfigurator {
   public:
+    using GlobalWorkerTypePtr = std::variant<std::monostate,
+                                             TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>*,
+                                             TransitionWorker<RunTransitionInfo, TransitionPhaseGlobal>*,
+                                             TransitionWorker<LumiTransitionInfo, TransitionPhaseGlobal>*,
+                                             TransitionWorker<ProcessBlockTransitionInfo, TransitionPhaseGlobal>*,
+                                             TransitionWorker<InputProcessBlockTransitionInfo, TransitionPhaseGlobal>*>;
     template <typename IT>
     UnscheduledConfigurator(IT iBegin, IT iEnd, UnscheduledAuxiliary const* iAux) : m_aux(iAux) {
       for (auto it = iBegin; it != iEnd; ++it) {
@@ -42,19 +57,19 @@ namespace edm {
     const UnscheduledConfigurator& operator=(const UnscheduledConfigurator&) = delete;  // stop default
 
     // ---------- const member functions ---------------------
-    Worker* findWorker(std::string const& iLabel) const {
+    GlobalWorkerTypePtr findWorker(std::string const& iLabel) const {
       auto itFound = m_labelToWorker.find(iLabel);
       if (itFound != m_labelToWorker.end()) {
         return itFound->second;
       }
-      return nullptr;
+      return GlobalWorkerTypePtr();
     }
 
     UnscheduledAuxiliary const* auxiliary() const { return m_aux; }
 
   private:
     // ---------- member data --------------------------------
-    std::unordered_map<std::string, Worker*> m_labelToWorker;
+    std::unordered_map<std::string, GlobalWorkerTypePtr> m_labelToWorker;
     UnscheduledAuxiliary const* m_aux;
   };
 }  // namespace edm
