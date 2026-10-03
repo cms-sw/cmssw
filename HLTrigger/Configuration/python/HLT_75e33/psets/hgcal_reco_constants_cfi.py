@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_phase2_hgcalV19_cff import phase2_hgcalV19
 
 HGCAL_reco_constants = cms.PSet(
-    dEdXweights = cms.vdouble(
+    dEdXweights = cms.vfloat(
         0.0, 9.205, 11.129999999999999, 11.129999999999999, 11.129999999999999,
         11.129999999999999, 11.129999999999999, 11.129999999999999, 11.129999999999999, 11.129999999999999,
         11.129999999999999, 11.129999999999999, 11.129999999999999, 11.129999999999999, 11.129999999999999,
@@ -14,20 +14,20 @@ HGCAL_reco_constants = cms.PSet(
         83.52000000000001, 83.61, 83.61, 83.61, 83.61,
         83.61, 83.61, 83.61
     ),
-    fcPerEle = cms.double(0.00016020506),
-    fcPerMip = cms.vdouble(
+    fcPerEle = cms.float(0.00016020506),
+    fcPerMip = cms.vfloat(
             2.06, 3.43, 5.15, 2.06, 3.43,
             5.15
         ),
-    noises = cms.vdouble(
+    noises = cms.vfloat(
             2000.0, 2400.0, 2000.0, 2000.0, 2400.0,
             2000.0
         ),
-    thicknessCorrection = cms.vdouble(
+    thicknessCorrection = cms.vfloat(
             0.75, 0.76, 0.75, 0.85, 0.85,
             0.84
         ),
-    thresholdW0 = cms.vdouble(2.9, 2.9, 2.9),
+    thresholdW0 = cms.vfloat(2.9, 2.9, 2.9),
     sciThicknessCorrection = cms.double(0.69),
     positionDeltaRho2 = cms.double(1.69),
     maxNumberOfThickIndices = cms.uint32(6),

@@ -48,11 +48,11 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps, ed
   hgchfnoseUncalib2GeV_ = keV2GeV / hgcHFNose_keV2DIGI_;
 
   // layer weights (from Valeri/Arabella)
-  const auto& dweights = ps.getParameter<std::vector<double> >("layerWeights");
+  const auto& dweights = ps.getParameter<std::vector<float> >("layerWeights");
   for (auto weight : dweights) {
     weights_.push_back(weight);
   }
-  const auto& weightnose = ps.getParameter<std::vector<double> >("layerNoseWeights");
+  const auto& weightnose = ps.getParameter<std::vector<float> >("layerNoseWeights");
   for (auto const& weight : weightnose)
     weightsNose_.emplace_back(weight);
 
@@ -61,7 +61,7 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps, ed
 
   // residual correction for cell thickness
   // first for silicon
-  const auto& rcorr = ps.getParameter<std::vector<double> >("thicknessCorrection");
+  const auto& rcorr = ps.getParameter<std::vector<float> >("thicknessCorrection");
   rcorr_.clear();
   rcorr_.push_back(1.f);
   for (auto corr : rcorr) {

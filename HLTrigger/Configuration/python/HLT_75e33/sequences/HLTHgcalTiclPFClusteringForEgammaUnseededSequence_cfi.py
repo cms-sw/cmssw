@@ -2,10 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from ..modules.hltFilteredLayerClustersCLUE3DHigh_cfi import *
 from ..modules.hltHgcalDigis_cfi import *
-from ..modules.hltHgcalLayerClustersEE_cfi import *
-from ..modules.hltHgcalLayerClustersHSci_cfi import *
-from ..modules.hltHgcalLayerClustersHSi_cfi import *
 from ..modules.hltMergeLayerClusters_cfi import *
+from ..sequences.HLTHgcalLayerClustersSequence_cfi import *
 from ..modules.hltHGCalRecHit_cfi import *
 from ..modules.hltHGCalUncalibRecHit_cfi import *
 from ..modules.hltParticleFlowClusterHGCalFromTICLUnseeded_cfi import *
@@ -13,10 +11,6 @@ from ..modules.hltParticleFlowRecHitHGC_cfi import *
 from ..modules.hltTiclLayerTileProducer_cfi import *
 from ..modules.hltTiclSeedingGlobal_cfi import *
 from ..modules.hltTiclTrackstersCLUE3DHigh_cfi import *
-from ..modules.hltHgcalSoARecHitsProducer_cfi import *
-from ..modules.hltHgcalSoARecHitsLayerClustersProducer_cfi import *
-from ..modules.hltHgcalSoALayerClustersProducer_cfi import *
-from ..modules.hltHgcalLayerClustersFromSoAProducer_cfi import *
 from ..modules.hltTiclTracksterLinks_cfi import *
 # Barrel layer clusters
 from ..modules.hltBarrelLayerClustersEB_cfi import *
@@ -33,9 +27,7 @@ from ..modules.hltTiclTrackstersCLUE3DBarrel_cfi import *
 
 _HgcalLocalRecoUnseededSequence = cms.Sequence(hltHgcalDigis+hltHGCalUncalibRecHit+
                                                hltHGCalRecHit+hltParticleFlowRecHitHGC+
-                                               hltHgcalLayerClustersEE+
-                                               hltHgcalLayerClustersHSci+
-                                               hltHgcalLayerClustersHSi+
+                                               HLTHgcalLayerClustersSequence+
                                                hltMergeLayerClusters)
 
 _HgcalTICLPatternRecognitionUnseededSequence = cms.Sequence(hltFilteredLayerClustersCLUE3DHigh+
@@ -47,22 +39,6 @@ _SuperclusteringUnseededSequence = cms.Sequence(hltTiclTracksterLinksSupercluste
 
 HLTHgcalTiclPFClusteringForEgammaUnseededSequence = cms.Sequence(_HgcalLocalRecoUnseededSequence + _HgcalTICLPatternRecognitionUnseededSequence + _SuperclusteringUnseededSequence)
 
-# Alpaka
-from Configuration.ProcessModifiers.alpaka_cff import alpaka
-alpaka.toReplaceWith(_HgcalLocalRecoUnseededSequence, 
-                     cms.Sequence(
-                                  hltHgcalDigis
-                                  + hltHGCalUncalibRecHit
-                                  + hltHGCalRecHit+hltParticleFlowRecHitHGC
-                                  + hltHgcalSoARecHitsProducer
-                                  + hltHgcalSoARecHitsLayerClustersProducer
-                                  + hltHgcalSoALayerClustersProducer
-                                  + hltHgCalLayerClustersFromSoAProducer
-                                  + hltHgcalLayerClustersHSci
-                                  + hltHgcalLayerClustersHSi
-                                  + hltMergeLayerClusters
-                     ) 
-)
 
 
 
@@ -81,9 +57,7 @@ _HgcalLocalRecoUnseededSequence_barrel = _HgcalLocalRecoUnseededSequence.copy()
 
 _HgcalLocalRecoUnseededSequence_barrel = cms.Sequence(hltHgcalDigis+hltHGCalUncalibRecHit+
                                                       hltHGCalRecHit+hltParticleFlowRecHitHGC+
-                                                      hltHgcalLayerClustersEE+
-                                                      hltHgcalLayerClustersHSci+
-                                                      hltHgcalLayerClustersHSi+
+                                                      HLTHgcalLayerClustersSequence+
                                                       hltBarrelLayerClustersEB+
                                                       hltBarrelLayerClustersHB+
                                                       hltMergeLayerClusters)
