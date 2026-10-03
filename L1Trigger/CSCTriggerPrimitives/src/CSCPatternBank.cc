@@ -1,7 +1,6 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
 
-const int CSCPatternBank::alct_keywire_offset_[2][CSCConstants::ALCT_PATTERN_WIDTH] = {
-    //Keywire offset for ME1 and ME2
+const int CSCPatternBank::alct_keywire_offset_[2][CSCConstants::ALCT_PATTERN_WIDTH] = {  //Keywire offset for ME1 and ME2
     {-2, -1, 0, 1, 2},
 
     //Keywire offset for ME3 and ME4
@@ -138,8 +137,7 @@ const CSCPatternBank::LCTPatterns CSCPatternBank::clct_pattern_legacy_ = {
     // pid's=B-F are not yet defined
 };
 
-const CSCPatternBank::LCTPatterns CSCPatternBank::clct_pattern_run3_ = {
-    // pid 0
+const CSCPatternBank::LCTPatterns CSCPatternBank::clct_pattern_run3_ = {  // pid 0
     {
         {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
         {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0},
