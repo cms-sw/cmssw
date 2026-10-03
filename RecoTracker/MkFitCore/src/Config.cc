@@ -24,11 +24,13 @@ namespace mkfit {
     const float maxdR = 0.0025;
     const float minFracHitsShared = 0.75;
 
-    const float maxd1pt = 1.8;     //windows for hit
-    const float maxdphi = 0.37;    //and/or dr
-    const float maxdcth = 0.37;    //comparisons
-    const float maxcth_ob = 1.99;  //eta 1.44
-    const float maxcth_fw = 6.05;  //eta 2.5
+    const float maxd1pt = 1.8;         //windows for hit
+    const float maxdphi = 0.37;        //and/or dr
+    const float maxdcth = 0.37;        //comparisons
+    const float maxcth_ob = 1.99;      //eta 1.44
+    const float maxcth_fw = 6.05;      //eta 2.5
+    const float maxcth_ob_p2 = 1.175;  //eta 1.0
+    const float maxcth_fw_p2 = 5.466;  //eta 2.4
 
 #ifdef CONFIG_PhiQArrays
     bool usePhiQArrays = true;
