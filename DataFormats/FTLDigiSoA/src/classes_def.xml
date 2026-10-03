@@ -1,0 +1,10 @@
+<lcgdict>
+  <class name="btldigi::BTLDigiSoA"/>
+  <class name="btldigi::BTLDigiSoA::View"/>
+  <class name="btldigi::BTLDigiHostCollection"/>
+  <class name="edm::Wrapper<btldigi::BTLDigiHostCollection>" splitLevel="0"/>
+  <class name="etldigi::ETLDigiSoA"/>
+  <class name="etldigi::ETLDigiSoA::View"/>
+  <class name="etldigi::ETLDigiHostCollection"/>
+  <class name="edm::Wrapper<etldigi::ETLDigiHostCollection>" splitLevel="0"/>
+</lcgdict>

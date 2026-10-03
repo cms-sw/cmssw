@@ -35,6 +35,24 @@ mtdUncalibratedRecHits = cms.EDProducer(
     EndcapHitsName = cms.string('FTLEndcap')
 )
 
+btlBaseRecHitsSoA = cms.EDProducer(
+    'btlrechit::BTLBaseRecHitSoAProducer@alpaka',
+    digi = cms.InputTag("btlDigiSoAProducer", "MTDBarrelSoA"),
+    adcBitSaturation = cms.uint32(1023),
+    tclock = cms.double(6.25),
+    tdcCalParams = cms.vdouble(57.244545, 511.27832, -7.8838577, -0.048343264),
+    qdcCalParams = cms.vdouble(49.542229, -0.323424, 0.062578, -0.002484, 0., 0., 0., 0., 0., 0.),
+)
+
+etlBaseRecHitsSoA = cms.EDProducer(
+    'etlrechit::ETLBaseRecHitSoAProducer@alpaka',
+    digi = cms.InputTag("etlDigiSoAProducer", "MTDEndcapSoA"),
+    adcNbits      = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.adcNbits,
+    adcSaturation = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.adcSaturation_MIP,
+    toaLSB_ns     = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.toaLSB_ns,
+    tdcWindowStart     = cms.double(9.375), # now set to 3 x ETROC_clock, phase can be adjusted to set the start at any value
+)
+
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(mtdUncalibratedRecHits,
     barrelDigis = 'mixData:FTLBarrel',
