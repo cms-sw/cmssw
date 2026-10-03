@@ -112,15 +112,20 @@ HTXSCategoryTable = simpleHTXSFlatTableProducer.clone(
         stage1_2_cat_pTjet25GeV = Var("stage1_2_cat_pTjet25GeV",int,doc="HTXS stage-1.2 category(jet pt>25 GeV)"),
         stage1_2_fine_cat_pTjet30GeV = Var("stage1_2_fine_cat_pTjet30GeV",int,doc="HTXS stage-1.2-fine category(jet pt>30 GeV)"),
         stage1_2_fine_cat_pTjet25GeV = Var("stage1_2_fine_cat_pTjet25GeV",int,doc="HTXS stage-1.2-fine category(jet pt>25 GeV)"),
+        stage1_3_cat_pTjet30GeV = Var("stage1_3_cat_pTjet30GeV",int,doc="HTXS stage-1.3 category(jet pt>30 GeV)"),
+        stage1_3_cat_pTjet25GeV = Var("stage1_3_cat_pTjet25GeV",int,doc="HTXS stage-1.3 category(jet pt>25 GeV)"),
+        stage1_3_fine_cat_pTjet30GeV = Var("stage1_3_fine_cat_pTjet30GeV",int,doc="HTXS stage-1.3-fine category(jet pt>30 GeV)"),
+        stage1_3_fine_cat_pTjet25GeV = Var("stage1_3_fine_cat_pTjet25GeV",int,doc="HTXS stage-1.3-fine category(jet pt>25 GeV)"),
         Higgs_pt = Var("higgs.Pt()",float, doc="pt of the Higgs boson as identified in HTXS", precision=14),
         Higgs_y = Var("higgs.Rapidity()",float, doc="rapidity of the Higgs boson as identified in HTXS", precision=12),
         njets30 = Var("jets30.size()","uint8", doc="number of jets with pt>30 GeV as identified in HTXS"),
         njets25 = Var("jets25.size()","uint8", doc="number of jets with pt>25 GeV as identified in HTXS"),
-        # Temporary fix: add variables to perform STXS 1.3 classification with nanoAOD on-the-fly
+        # HTXS classification variables (STXS 1.3)
         V_pt = Var("V_pt",float, doc="pt of the vector boson as identified in HTXS", precision=14),
         Mjj = Var("Mjj",float, doc="invariant mass of the dijet (pt>30) system as identified in HTXS", precision=14),
         ptHjj = Var("ptHjj",float, doc="pt of the dijet(pt>30)-plus-higgs system as identified in HTXS", precision=14),
-        dPhijj = Var("dPhijj",float, doc="DeltaPhi between jets (pt>30) in dijet system as identified in HTXS", precision=12),
+        dPhijj = Var("dPhijj",float, doc="DeltaPhi between jets (pt>30) in dijet system as identified in HTXS. Sign is determined by eta-ordering of jets", precision=12),
+        ptHj_over_ptH = Var("ptHj_over_ptH",float, doc="pt of the leading jet (pt>30)-plus0Higgs system divided by pt of Higgs as identified in HTXS", precision=14),
    )
 )
 
