@@ -250,8 +250,6 @@ private:
   MonitorElement *emEnergyInEE;
   MonitorElement *emEnergyInHF;
   MonitorElement *towersArea;
-  MonitorElement *n90;
-  MonitorElement *n60;
 
   // ---- JPT or PF Jet specific information ----
   MonitorElement *muonMultiplicity;
@@ -282,8 +280,6 @@ private:
   MonitorElement *electronMultiplicity;
   MonitorElement *HFHadronMultiplicity;
   MonitorElement *HFEMMultiplicity;
-  MonitorElement *chargedMuEnergy;
-  MonitorElement *chargedMuEnergyFraction;
   MonitorElement *neutralMultiplicity;
   MonitorElement *HOEnergy;
   MonitorElement *HOEnergyFraction;
