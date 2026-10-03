@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
 # Exit the script immediately if any command fails
 set -e
@@ -6,52 +6,210 @@ set -e
 # Enable pipefail to propagate the exit status of the entire pipeline
 set -o pipefail
 
+############################
+# Global configuration
+############################
+
 FOLDER_FILES="/data/user/${USER}/"
-DATASET="/RelValTTbar_14TeV/CMSSW_14_1_0_pre6-PU_141X_mcRun4_realistic_v1_STD_2026D110_PU-v3/GEN-SIM-DIGI-RAW"
-FILES=( $(dasgoclient -query="file dataset=${DATASET}" --limit=-1 | sort | head -4) )
+DATASET="/RelValTTbar_14TeV/CMSSW_15_1_0_pre3-PU_150X_mcRun4_realistic_v1_STD_Run4D110_PU-v1/GEN-SIM-DIGI-RAW"
 
-for f in ${FILES[@]}; do
-  # Create full MYPATH if it does not exist
-  MYPATH=$(dirname ${f})
-  if [ ! -d "${FOLDER_FILES}${MYPATH}" ]; then
-    echo "mkdir -p ${FOLDER_FILES}${MYPATH}"
-    mkdir -p ${FOLDER_FILES}${MYPATH}
-  fi
-  if [ -e "/eos/cms/${f}" ]; then
-    if [ ! -e "${FOLDER_FILES}${f}" ]; then
-      echo "cp /eos/cms/$f ${FOLDER_FILES}${MYPATH}"
-      cp /eos/cms/$f ${FOLDER_FILES}${MYPATH}
+EVENTS=1000
+THREADS=4
+
+############################
+# Utility functions
+############################
+
+check_logs_for_errors() {
+    local log_dirs=${1:-"logs.*/step*/pid*"}
+    local error_found=0
+    local pattern='fatal|exception|traceback'
+
+    for f in $log_dirs/stdout $log_dirs/stderr; do
+        [[ -f "$f" ]] || continue
+
+        if grep -qiE "$pattern" "$f"; then
+            echo "Error keyword found in: $f"
+
+            grep -inE "$pattern" "$f" | while IFS=: read -r lineno line; do
+                keyword=$(grep -ioE "$pattern" <<<"$line" | head -1)
+                echo "  Line $lineno [$keyword]: $line"
+            done
+
+            error_found=1
+        fi
+    done
+
+    if [[ $error_found -eq 1 ]]; then
+        echo "Failure detected in logs."
+        return 1
     fi
-  fi
-done
+}
 
-LOCALPATH=${FOLDER_FILES}$(dirname ${FILES[0]})
-echo "Local repository: |${LOCALPATH}|"
-LOCALFILES=$(ls -1 ${LOCALPATH})
-ALL_FILES=""
-for f in ${LOCALFILES[@]}; do
-  ALL_FILES+="file:${LOCALPATH}/${f},"
-done
-# Remove the last character
-ALL_FILES="${ALL_FILES%?}"
-echo "Discovered files: $ALL_FILES"
+ensure_patatrack_scripts() {
+    if [[ ! -d patatrack-scripts ]]; then
+        git clone https://github.com/cms-patatrack/patatrack-scripts --depth 1
+    fi
+}
 
-cmsDriver.py Phase2 -s L1P2GT,HLT:75e33_timing --processName=HLTX \
-  --conditions auto:phase2_realistic_T33 --geometry ExtendedRun4D110 \
-  --era Phase2C17I13M9 \
-  --customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000 \
-  --eventcontent FEVTDEBUGHLT \
-  --filein=${ALL_FILES} \
-  --mc --nThreads 4 --inputCommands='keep *, drop *_hlt*_*_HLT, drop triggerTriggerFilterObjectWithRefs_l1t*_*_HLT' \
-  -n 1000 --no_exec --output={}
+############################
+# Data handling
+############################
 
-if [ -e 'Phase2_L1P2GT_HLT.py' ]; then
-  if [ ! -d 'patatrack-scripts' ]; then
-    git clone https://github.com/cms-patatrack/patatrack-scripts --depth 1
-  fi
-  patatrack-scripts/benchmark -j 4 -t 16 -s 16 -e 1000 --no-run-io-benchmark --event-skip 100 --event-resolution 10 -k Phase2Timing_resources.json -- Phase2_L1P2GT_HLT.py
-  mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json > Phase2Timing_resources.json
-  if [ -e "$(dirname $0)/augmentResources.py" ]; then
-    python3 $(dirname $0)/augmentResources.py
-  fi
-fi
+fetch_files() {
+
+    mapfile -t FILES < <(
+        dasgoclient -query="file dataset=${DATASET}" --limit=-1 |
+            sort |
+            head -4
+    )
+
+    for f in "${FILES[@]}"; do
+
+        local mypath
+        mypath=$(dirname "$f")
+
+        mkdir -p "${FOLDER_FILES}${mypath}"
+
+        if [[ -e "/eos/cms/$f" && ! -e "${FOLDER_FILES}${f}" ]]; then
+            echo "Copying $f"
+            cp "/eos/cms/$f" "${FOLDER_FILES}${mypath}"
+        fi
+    done
+}
+
+build_input_file_string() {
+
+    LOCALPATH=${FOLDER_FILES}$(dirname ${FILES[0]})
+
+    echo "Local repository: |${LOCALPATH}|"
+
+    ALL_FILES=""
+
+    for f in $(ls -1 ${LOCALPATH}); do
+        ALL_FILES+="file:${LOCALPATH}/${f},"
+    done
+
+    ALL_FILES="${ALL_FILES%?}"
+
+    echo "Discovered files: $ALL_FILES"
+}
+
+############################
+# cmsDriver generator
+############################
+
+run_cmsdriver() {
+
+    local fragment=$1
+    local menu=$2
+    local process=$3
+    local output_py=$4
+    local extra_args=$5
+
+    cmsDriver.py ${fragment} \
+        -s ${menu} \
+        --processName=${process} \
+        --conditions auto:phase2_realistic_T33 \
+        --geometry ExtendedRun4D110 \
+        --era Phase2C17I13M9 \
+        --customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000 \
+        --eventcontent FEVTDEBUGHLT \
+        --filein="${ALL_FILES}" \
+        --mc \
+        --nThreads ${THREADS} \
+        --inputCommands 'keep *, drop *_hlt*_*_HLT, drop triggerTriggerFilterObjectWithRefs_l1t*_*_HLT' \
+        -n ${EVENTS} \
+        --no_exec \
+        --output {} \
+        ${extra_args} \
+        --python_filename ${output_py}
+}
+
+############################
+# Benchmark runner
+############################
+
+run_benchmark() {
+
+    local cfg=$1
+    local output_json=$2
+    local logdir="logs.$(basename ${cfg%.py})"
+
+    if [[ ! -e "$cfg" ]]; then
+        echo "Config $cfg not found"
+        return
+    fi
+
+    ensure_patatrack_scripts
+
+    patatrack-scripts/benchmark \
+        -j 8 -t 16 -s 16 \
+        -e ${EVENTS} \
+        --no-input-benchmark \
+        --slot "numa=0-3:mem=0-3" \
+        --event-skip 100 \
+        --event-resolution 10 \
+        --output-log \
+        --debug-logs \
+        --logdir "$logdir" \
+        -- ${cfg}
+
+    check_logs_for_errors || exit 1
+
+    # benchmark auto-detects and merges the FastTimerService JSON into the
+    # logdir; copy it to the working directory under the expected name
+    local json_name
+    json_name=$(python3 -c 'from HLTrigger.Configuration.HLT_75e33.services.FastTimerService_cfi import FastTimerService; print(FastTimerService.jsonFileName.value())' 2>/dev/null) || json_name="resources.json"
+    [[ -f "${logdir}/${json_name}" ]] && cp "${logdir}/${json_name}" "${output_json}"
+}
+
+############################
+# Workflows
+############################
+
+run_phase2_gpu() {
+
+    run_cmsdriver \
+        "Phase2" \
+        "L1P2GT,HLT:75e33_timing" \
+        "HLTX" \
+        "Phase2_L1P2GT_HLT.py" \
+        ""
+
+    run_benchmark \
+        "Phase2_L1P2GT_HLT.py" \
+        "Phase2Timing_resources.json"
+
+    if [[ -e "$(dirname $0)/augmentResources.py" ]]; then
+        python3 $(dirname $0)/augmentResources.py
+    fi
+}
+
+run_phase2_cpu() {
+
+    run_cmsdriver \
+        "Phase2" \
+        "L1P2GT,HLT:75e33_timing" \
+        "HLTX" \
+        "Phase2_L1P2GT_HLT_OnCPU.py" \
+        "--accelerators cpu"
+
+    run_benchmark \
+        "Phase2_L1P2GT_HLT_OnCPU.py" \
+        "Phase2Timing_resources_OnCPU.json"
+}
+
+############################
+# Main
+############################
+
+main() {
+    fetch_files
+    build_input_file_string
+
+    run_phase2_gpu
+    run_phase2_cpu
+}
+
+main "$@"
