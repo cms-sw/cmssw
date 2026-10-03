@@ -88,7 +88,7 @@ namespace edm {
 
   template <typename TI, typename TP>
   void WorkerManagerCore<TI, TP>::resetAll() {
-    for_all(allWorkers_, [this](auto* w) { w->reset(); });
+    for_all(allWorkers_, [](auto* w) { w->reset(); });
   }
 
   template <typename TI, typename TP>

@@ -95,41 +95,13 @@ namespace edm {
 
   template <typename TI, TransitionActionType T>
   struct TransitionActionContextTrait;
-  template <>
-  struct TransitionActionContextTrait<EventTransitionInfo, TransitionActionGlobalBegin> {
-    using ContextType = StreamContext;
-  };
-  template <typename TI>
-  struct TransitionActionContextTrait<TI, TransitionActionGlobalBegin> {
-    using ContextType = GlobalContext;
-  };
   template <typename TI>
   struct TransitionActionContextTrait<TI, TransitionActionStreamBegin> {
     using ContextType = StreamContext;
   };
-  template <typename TI>
-  struct TransitionActionContextTrait<TI, TransitionActionStreamEnd> {
-    using ContextType = StreamContext;
-  };
-  template <typename TI>
-  struct TransitionActionContextTrait<TI, TransitionActionGlobalEnd> {
-    using ContextType = GlobalContext;
-  };
-  template <typename TI>
-  struct TransitionActionContextTrait<TI, TransitionActionProcessBlockInput> {
-    using ContextType = GlobalContext;
-  };
 
   template <typename TI, typename TP, TransitionEdge E>
   struct TransitionActionTrait;
-  template <typename TI>
-  struct TransitionActionTrait<TI, TransitionPhaseGlobal, TransitionEdge::kBegin> {
-    static constexpr TransitionActionType value = TransitionActionGlobalBegin;
-  };
-  template <typename TI>
-  struct TransitionActionTrait<TI, TransitionPhaseGlobal, TransitionEdge::kEnd> {
-    static constexpr TransitionActionType value = TransitionActionGlobalEnd;
-  };
   template <typename TI>
   struct TransitionActionTrait<TI, TransitionPhaseStream, TransitionEdge::kBegin> {
     static constexpr TransitionActionType value = TransitionActionStreamBegin;
@@ -138,31 +110,16 @@ namespace edm {
   struct TransitionActionTrait<TI, TransitionPhaseStream, TransitionEdge::kEnd> {
     static constexpr TransitionActionType value = TransitionActionStreamEnd;
   };
-  template <>
-  struct TransitionActionTrait<InputProcessBlockTransitionInfo, TransitionPhaseGlobal, TransitionEdge::kBegin> {
-    static constexpr TransitionActionType value = TransitionActionProcessBlockInput;
-  };
 
-  template <typename TI, typename TP>
-  class TransitionWorker : public Worker {
+  template <typename TI>
+  class TransitionWorker<TI, TransitionPhaseStream> : public Worker {
   public:
-    enum State { Ready, Pass, Fail, Exception };
     using Types = edm::modules::Type;
     using ConcurrencyTypes = edm::modules::Concurrency;
     TransitionWorker(ModuleDescription const& iMD, ExceptionToActionTable const* iActions) : Worker(iMD, iActions) {}
 
-    virtual bool wantsProcessBlocks() const noexcept = 0;
-    virtual bool wantsInputProcessBlocks() const noexcept = 0;
-    virtual bool wantsGlobalRuns() const noexcept = 0;
-    virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
     virtual bool wantsStreamRuns() const noexcept = 0;
     virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
-    virtual bool wantsWrites() const noexcept = 0;
-
-    //returns non-nullptr if the module can only process one Run at a time
-    virtual SerialTaskQueue* globalRunsQueue() = 0;
-    //returns non-nullptr if the module can only process one LuminosityBlock at a time
-    virtual SerialTaskQueue* globalLuminosityBlocksQueue() = 0;
 
     void reset() { resetBase(); }
 
@@ -219,19 +176,10 @@ namespace edm {
     template <typename O>
     friend class workerhelper::CallImpl;
 
-    virtual bool implDoBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoBegin(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoStreamBegin(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoStreamEnd(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoEnd(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoWrite(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoBegin(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoStreamBegin(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoStreamEnd(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoEnd(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoWrite(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
 
   private:
     template <typename T>

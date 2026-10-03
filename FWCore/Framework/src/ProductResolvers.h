@@ -38,7 +38,7 @@ namespace edm {
   template <typename TI, typename TP>
   class TransitionWorker;
   class EventTransitionInfo;
-  class TransitionPhaseGlobal;
+  struct TransitionPhaseGlobal;
   class ServiceToken;
 
   class DataManagingOrAliasProductResolver : public ProductResolverBase {
