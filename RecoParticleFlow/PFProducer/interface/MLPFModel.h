@@ -188,16 +188,18 @@ namespace reco::mlpf {
                         const std::vector<const reco::PFBlockElement*> elems,
                         size_t ielem_originator);
 
-  using ElementMap = std::multimap<double, unsigned>;
+  // track link information to various calorimeter clusters
+  struct TrackToCaloLinks {
+    bool ecal;
+    bool hcal;
+    bool hfEm;
+    bool hfHad;
 
-  struct TrackLinks {
-    ElementMap ecal;
-    ElementMap hcal;
-    ElementMap hfEm;
-    ElementMap hfHad;
+    bool noCaloLink() const { return !ecal && !hcal && !hfEm && !hfHad; }
+    bool noHadLink() const { return hcal && hfHad; }
   };
 
-  TrackLinks getTrackLinks(const reco::PFBlock* block, const reco::PFBlockElement* elem);
+  TrackToCaloLinks getTrackToCaloLinks(const reco::PFBlock* block, const reco::PFBlockElement* elem);
 
   inline const reco::PFBlock* findBlock(const reco::PFBlockCollection& blocks, const reco::PFBlockElement* elem) {
     for (const auto& block : blocks)

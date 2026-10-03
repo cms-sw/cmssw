@@ -524,23 +524,23 @@ namespace reco::mlpf {
     }
   }
 
-  TrackLinks getTrackLinks(const reco::PFBlock* block, const reco::PFBlockElement* elem) {
-    TrackLinks links;
+  TrackToCaloLinks getTrackToCaloLinks(const reco::PFBlock* block, const reco::PFBlockElement* elem) {
+    TrackToCaloLinks links;
     const auto& linkData = block->linkData();
     const auto& elements = block->elements();
 
     const auto it = std::find_if(elements.begin(), elements.end(), [elem](const auto& e) { return &e == elem; });
 
-    if (it == elements.end()) {
+    if (it == elements.end())
       throw cms::Exception("MLPFModel") << "PFBlockElement not found in this PFBlock.";
-    }
 
     const unsigned ielem = std::distance(elements.begin(), it);
 
-    block->associatedElements(ielem, linkData, links.ecal, reco::PFBlockElement::ECAL, reco::PFBlock::LINKTEST_ALL);
-    block->associatedElements(ielem, linkData, links.hcal, reco::PFBlockElement::HCAL, reco::PFBlock::LINKTEST_ALL);
-    block->associatedElements(ielem, linkData, links.hfEm, reco::PFBlockElement::HFEM, reco::PFBlock::LINKTEST_ALL);
-    block->associatedElements(ielem, linkData, links.hfHad, reco::PFBlockElement::HFHAD, reco::PFBlock::LINKTEST_ALL);
+    links.ecal = block->hasAssociatedElement(ielem, linkData, reco::PFBlockElement::ECAL, reco::PFBlock::LINKTEST_ALL);
+    links.hcal = block->hasAssociatedElement(ielem, linkData, reco::PFBlockElement::HCAL, reco::PFBlock::LINKTEST_ALL);
+    links.hfEm = block->hasAssociatedElement(ielem, linkData, reco::PFBlockElement::HFEM, reco::PFBlock::LINKTEST_ALL);
+    links.hfHad =
+        block->hasAssociatedElement(ielem, linkData, reco::PFBlockElement::HFHAD, reco::PFBlock::LINKTEST_ALL);
 
     return links;
   }
