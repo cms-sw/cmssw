@@ -280,6 +280,7 @@ private:
   mutable std::unordered_map<int, std::pair<double, int>> pdgTable_;
   // per-file masses for species the PDG table gets wrong (exotics), keyed by |pdgId|
   std::unordered_map<int, double> fileMasses_;
+  std::unordered_map<int, double> fileCharges_;  // of the particle, |pdgId| keyed; antiparticles opposite
 };
 
 void GenHDF5Producer::fillDescriptions(edm::ConfigurationDescriptions& d) {
@@ -371,6 +372,11 @@ GenHDF5Producer::GenHDF5Producer(edm::ParameterSet const& ps)
     auto ms = f.read<double>("/sim/massTable/mass", H5T_NATIVE_DOUBLE);
     for (size_t i = 0; i < ids.size() && i < ms.size(); ++i)
       fileMasses_[std::abs(ids[i])] = ms[i];
+    if (f.has("/sim/massTable/charge")) {  // the PDG table does not know R-hadron charges
+      auto qs = f.read<double>("/sim/massTable/charge", H5T_NATIVE_DOUBLE);
+      for (size_t i = 0; i < ids.size() && i < qs.size(); ++i)
+        fileCharges_[std::abs(ids[i])] = qs[i];
+    }
   }
   havePdf_ = f.has("/event/pdf_x1");
   haveMet_ = f.has("/event/GenMET_pt");
@@ -394,6 +400,9 @@ std::pair<double, int> GenHDF5Producer::pdg(int pdgId) const {
   auto fm = fileMasses_.find(std::abs(pdgId));
   if (fm != fileMasses_.end())
     mc.first = fm->second;
+  auto fq = fileCharges_.find(std::abs(pdgId));
+  if (fq != fileCharges_.end())
+    mc.second = static_cast<int>(std::lround(pdgId > 0 ? fq->second : -fq->second));
   pdgTable_.emplace(pdgId, mc);
   return mc;
 }
