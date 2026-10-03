@@ -6,9 +6,15 @@
  * with compile-time size and alignment, and accessors to the "rows" and "columns".
  */
 
-#include "FWCore/Reflection/interface/reflex.h"
+#include <array>
+#include <cstddef>
+#include <ostream>
+#include <string>
+#include <tuple>
+#include <utility>
 
-#include "SoACommon.h"
+#include "DataFormats/SoATemplate/interface/SoACommon.h"
+#include "FWCore/Reflection/interface/reflex.h"
 
 namespace cms::soa {
 
