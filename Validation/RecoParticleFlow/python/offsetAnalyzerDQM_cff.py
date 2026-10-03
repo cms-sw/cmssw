@@ -3,6 +3,13 @@ import Validation.RecoParticleFlow.defaults_cfi as default
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(
+    default,
+    npvHighOffset = 200,
+    muHighOffset = 201
+)
+
 def plotPSet(name, title, dir, nx, x0, x1, ny=0, y0=0, y1=0, vx=[0], vy=[0]):
     return cms.PSet(
         name = cms.string(name),

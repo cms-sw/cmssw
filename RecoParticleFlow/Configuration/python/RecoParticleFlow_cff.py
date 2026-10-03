@@ -43,7 +43,15 @@ particleFlowLinksTask = cms.Task( particleFlow, particleFlowPtrs, chargedHadronP
 particleFlowLinks = cms.Sequence(particleFlowLinksTask)
 
 #
+# for MLPF, replace standard PFAlgo with the ONNX-based MLPF producer
+from Configuration.ProcessModifiers.mlpf_cff import mlpf
+from RecoParticleFlow.PFProducer.mlpfProducer_cfi import mlpfProducer
+mlpf.toReplaceWith(particleFlowTmp, mlpfProducer)
+
+#
 # for phase 2
+# particleFlowTmpBarrel runs over particleFlowBlock which include ECAL, HCAL, and HF clusters,
+# but doesn't include clusters from HGCAL.
 particleFlowTmpBarrel = particleFlowTmp.clone()
 _phase2_hgcal_particleFlowTmp = cms.EDProducer(
     "PFCandidateListMerger",
@@ -54,11 +62,19 @@ _phase2_hgcal_particleFlowTmp = cms.EDProducer(
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith( particleFlowTmp, _phase2_hgcal_particleFlowTmp )
-phase2_hgcal.toModify(
+(phase2_hgcal & ~mlpf).toModify(
     particleFlowTmpBarrel,
     vetoEndcap = True
     # If true, PF(Muon)Algo will ignore muon candidates incorporated via pfTICL
     # in addMissingMuons. This will prevent potential double-counting.
+)
+(phase2_hgcal & mlpf).toModify(
+    particleFlowTmpBarrel,
+    # Treat residual tracks in the endcap region, after vetoEndcap, in a similar was as in PFAlgo
+    # Apply additional cuts to tracks without a link to HCAL cluster
+    additionalTrackFilterNoHCAL = True,
+    # no regression to tracks in the endcap region for now
+    noRegressionEndcap = True
 )
 # We copy the standard task to create the Phase-2 specific task
 _phase2_hgcal_particleFlowRecoTask = particleFlowRecoTask.copy()
@@ -91,12 +107,6 @@ for e in [pp_on_XeXe_2017, pp_on_AA]:
     e.toModify(pfPileUpIso, enable = False)
     e.toModify(pfNoPileUp, enable = False)
     e.toModify(pfPileUp, enable = False)
-
-
-# for MLPF, replace standard PFAlgo with the ONNX-based MLPF producer 
-from Configuration.ProcessModifiers.mlpf_cff import mlpf
-from RecoParticleFlow.PFProducer.mlpfProducer_cfi import mlpfProducer
-mlpf.toReplaceWith(particleFlowTmp, mlpfProducer)
 
 #
 # switch from pfTICL to simPF

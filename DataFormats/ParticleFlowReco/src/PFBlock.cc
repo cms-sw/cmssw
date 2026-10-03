@@ -99,6 +99,38 @@ void PFBlock::associatedElements(unsigned i,
   }
 }
 
+bool PFBlock::hasAssociatedElement(unsigned i,
+                                   const LinkData& linkData,
+                                   PFBlockElement::Type type,
+                                   LinkTest test) const {
+  if (i >= elements_.size())
+    return false;
+
+  for (unsigned ie = 0; ie < elements_.size(); ++ie) {
+    if (ie == i)
+      continue;
+
+    if (type != PFBlockElement::NONE && elements_[ie].type() != type)
+      continue;
+
+    unsigned index = 0;
+    if (!matrix2vector(i, ie, index))
+      continue;
+
+    auto it = linkData.find(index);
+    if (it == linkData.end())
+      continue;
+
+    if (test != LINKTEST_ALL && (((1 << test) & it->second.test) == 0))
+      continue;
+
+    if (it->second.distance >= 0.)
+      return true;
+  }
+
+  return false;
+}
+
 bool PFBlock::matrix2vector(unsigned iindex, unsigned jindex, unsigned& index) const {
   unsigned size = elements_.size();
   if (iindex == jindex || iindex >= size || jindex >= size) {
