@@ -163,7 +163,7 @@ bool SETFilter::transform(Trajectory::DataContainer &measurements_segments,
   bool success = true;
   // loop over all segments in the trajectory
   for (int iMeas = measurements_segments.size() - 1; iMeas > -1; --iMeas) {
-    TransientTrackingRecHit ::ConstRecHitContainer sortedHits;
+    TransientTrackingRecHit::ConstRecHitContainer sortedHits;
     // loop over the rechits contained in the segments
     for (unsigned int jMeas = 0; jMeas < measurements_segments[iMeas].recHit()->transientHits().size(); ++jMeas) {
       if (measurements_segments[iMeas].recHit()->transientHits().at(jMeas)->transientHits().size() > 1) {
