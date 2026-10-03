@@ -29,9 +29,9 @@ TwoBowedSurfacesAlignmentParameters::TwoBowedSurfacesAlignmentParameters(Alignab
       ySplit_(this->ySplitFromAlignable(ali)) {}
 
 //_________________________________________________________________________________________________
-TwoBowedSurfacesAlignmentParameters ::TwoBowedSurfacesAlignmentParameters(Alignable *alignable,
-                                                                          const AlgebraicVector &parameters,
-                                                                          const AlgebraicSymMatrix &covMatrix)
+TwoBowedSurfacesAlignmentParameters::TwoBowedSurfacesAlignmentParameters(Alignable *alignable,
+                                                                         const AlgebraicVector &parameters,
+                                                                         const AlgebraicSymMatrix &covMatrix)
     : AlignmentParameters(alignable, parameters, covMatrix), ySplit_(this->ySplitFromAlignable(alignable)) {
   if (parameters.num_row() != N_PARAM) {
     throw cms::Exception("BadParameters") << "in TwoBowedSurfacesAlignmentParameters(): " << parameters.num_row()
@@ -40,10 +40,10 @@ TwoBowedSurfacesAlignmentParameters ::TwoBowedSurfacesAlignmentParameters(Aligna
 }
 
 //_________________________________________________________________________________________________
-TwoBowedSurfacesAlignmentParameters ::TwoBowedSurfacesAlignmentParameters(Alignable *alignable,
-                                                                          const AlgebraicVector &parameters,
-                                                                          const AlgebraicSymMatrix &covMatrix,
-                                                                          const std::vector<bool> &selection)
+TwoBowedSurfacesAlignmentParameters::TwoBowedSurfacesAlignmentParameters(Alignable *alignable,
+                                                                         const AlgebraicVector &parameters,
+                                                                         const AlgebraicSymMatrix &covMatrix,
+                                                                         const std::vector<bool> &selection)
     : AlignmentParameters(alignable, parameters, covMatrix, selection), ySplit_(this->ySplitFromAlignable(alignable)) {
   if (parameters.num_row() != N_PARAM) {
     throw cms::Exception("BadParameters") << "in TwoBowedSurfacesAlignmentParameters(): " << parameters.num_row()

@@ -232,7 +232,7 @@ namespace {
 }  // namespace
 
 //_____________________________________________________________________________
-AlignableObjectId ::AlignableObjectId(AlignableObjectId::Geometry geometry) : geometry_(geometry) {
+AlignableObjectId::AlignableObjectId(AlignableObjectId::Geometry geometry) : geometry_(geometry) {
   switch (geometry) {
     case AlignableObjectId::Geometry::RunI:
       entries_ = entries_RunI;
@@ -257,10 +257,10 @@ AlignableObjectId ::AlignableObjectId(AlignableObjectId::Geometry geometry) : ge
 }
 
 //_____________________________________________________________________________
-AlignableObjectId ::AlignableObjectId(const TrackerGeometry *tracker,
-                                      const DTGeometry *muonDt,
-                                      const CSCGeometry *muonCsc,
-                                      const GEMGeometry *muonGem)
+AlignableObjectId::AlignableObjectId(const TrackerGeometry *tracker,
+                                     const DTGeometry *muonDt,
+                                     const CSCGeometry *muonCsc,
+                                     const GEMGeometry *muonGem)
     : AlignableObjectId(commonGeometry(trackerGeometry(tracker), muonGeometry(muonDt, muonCsc, muonGem))) {}
 
 //_____________________________________________________________________________
@@ -291,7 +291,7 @@ align::StructureType AlignableObjectId::stringToId(const char *name) const {
 }
 
 //______________________________________________________________________________
-AlignableObjectId::Geometry AlignableObjectId ::trackerGeometry(const TrackerGeometry *geometry) {
+AlignableObjectId::Geometry AlignableObjectId::trackerGeometry(const TrackerGeometry *geometry) {
   if (!geometry)
     return Geometry::General;
 
@@ -313,14 +313,14 @@ AlignableObjectId::Geometry AlignableObjectId ::trackerGeometry(const TrackerGeo
   }
 }
 
-AlignableObjectId::Geometry AlignableObjectId ::muonGeometry(const DTGeometry *,
-                                                             const CSCGeometry *,
-                                                             const GEMGeometry *) {
+AlignableObjectId::Geometry AlignableObjectId::muonGeometry(const DTGeometry *,
+                                                            const CSCGeometry *,
+                                                            const GEMGeometry *) {
   // muon alignment structure types are identical for all kinds of geometries
   return Geometry::General;
 }
 
-AlignableObjectId::Geometry AlignableObjectId ::commonGeometry(Geometry first, Geometry second) {
+AlignableObjectId::Geometry AlignableObjectId::commonGeometry(Geometry first, Geometry second) {
   if (first == Geometry::General)
     return second;
   if (second == Geometry::General)
@@ -333,7 +333,7 @@ AlignableObjectId::Geometry AlignableObjectId ::commonGeometry(Geometry first, G
                                                  << "different and none of them is 'General'";
 }
 
-AlignableObjectId AlignableObjectId ::commonObjectIdProvider(const AlignableObjectId &first,
-                                                             const AlignableObjectId &second) {
+AlignableObjectId AlignableObjectId::commonObjectIdProvider(const AlignableObjectId &first,
+                                                            const AlignableObjectId &second) {
   return AlignableObjectId{commonGeometry(first.geometry(), second.geometry())};
 }
