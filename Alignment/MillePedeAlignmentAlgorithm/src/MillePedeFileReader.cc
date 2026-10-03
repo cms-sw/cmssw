@@ -14,11 +14,11 @@
 //===   PUBLIC METHOD IMPLEMENTATION                                        ===
 //=============================================================================
 
-MillePedeFileReader ::MillePedeFileReader(const edm::ParameterSet& config,
-                                          const std::shared_ptr<const PedeLabelerBase>& pedeLabeler,
-                                          const std::shared_ptr<const AlignPCLThresholdsHG>& theThresholds,
-                                          const std::shared_ptr<const PixelTopologyMap>& pixelTopologyMap,
-                                          const std::shared_ptr<const SiPixelQuality>& pixelQualityMap)
+MillePedeFileReader::MillePedeFileReader(const edm::ParameterSet& config,
+                                         const std::shared_ptr<const PedeLabelerBase>& pedeLabeler,
+                                         const std::shared_ptr<const AlignPCLThresholdsHG>& theThresholds,
+                                         const std::shared_ptr<const PixelTopologyMap>& pixelTopologyMap,
+                                         const std::shared_ptr<const SiPixelQuality>& pixelQualityMap)
     : pedeLabeler_(pedeLabeler),
       theThresholds_(theThresholds),
       pixelTopologyMap_(pixelTopologyMap),
@@ -33,7 +33,7 @@ MillePedeFileReader ::MillePedeFileReader(const edm::ParameterSet& config,
     dirName_ += '/';  // may need '/'
 }
 
-void MillePedeFileReader ::read() {
+void MillePedeFileReader::read() {
   if (isHG_) {
     initializeIndexHelper();
   }
@@ -42,12 +42,12 @@ void MillePedeFileReader ::read() {
   readMillePedeResultFile();
 }
 
-bool MillePedeFileReader ::storeAlignments() { return (updateDB_ && !vetoUpdateDB_); }
+bool MillePedeFileReader::storeAlignments() { return (updateDB_ && !vetoUpdateDB_); }
 
 //=============================================================================
 //===   PRIVATE METHOD IMPLEMENTATION                                       ===
 //=============================================================================
-void MillePedeFileReader ::readMillePedeEndFile() {
+void MillePedeFileReader::readMillePedeEndFile() {
   std::ifstream endFile;
   endFile.open((dirName_ + millePedeEndFile_).c_str());
 
@@ -76,7 +76,7 @@ void MillePedeFileReader ::readMillePedeEndFile() {
   }
 }
 
-void MillePedeFileReader ::readMillePedeLogFile() {
+void MillePedeFileReader::readMillePedeLogFile() {
   std::ifstream logFile;
   logFile.open((dirName_ + millePedeLogFile_).c_str());
 
@@ -112,7 +112,7 @@ void MillePedeFileReader ::readMillePedeLogFile() {
   }
 }
 
-void MillePedeFileReader ::readMillePedeResultFile() {
+void MillePedeFileReader::readMillePedeResultFile() {
   // cutoffs by coordinate and by alignable
   std::map<std::string, std::array<float, 6> > cutoffs_;
   std::map<std::string, std::array<float, 6> > significances_;
@@ -413,7 +413,7 @@ bool MillePedeFileReader::isAlignableActive(const Alignable* alignable,
   return true;
 }
 
-MillePedeFileReader::PclHLS MillePedeFileReader ::getHLS(const Alignable* alignable) {
+MillePedeFileReader::PclHLS MillePedeFileReader::getHLS(const Alignable* alignable) {
   if (!alignable)
     return PclHLS::NotInPCL;
 

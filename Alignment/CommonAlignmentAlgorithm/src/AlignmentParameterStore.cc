@@ -677,12 +677,12 @@ void AlignmentParameterStore::setAlignmentPositionError(const align::Alignables&
 }
 
 //__________________________________________________________________________________________________
-bool AlignmentParameterStore ::hierarchyConstraints(const Alignable* ali,
-                                                    const align::Alignables& aliComps,
-                                                    std::vector<std::vector<ParameterId> >& paramIdsVecOut,
-                                                    std::vector<std::vector<double> >& factorsVecOut,
-                                                    bool all,
-                                                    double epsilon) const {
+bool AlignmentParameterStore::hierarchyConstraints(const Alignable* ali,
+                                                   const align::Alignables& aliComps,
+                                                   std::vector<std::vector<ParameterId> >& paramIdsVecOut,
+                                                   std::vector<std::vector<double> >& factorsVecOut,
+                                                   bool all,
+                                                   double epsilon) const {
   // Weak point if all = false:
   // Ignores constraints between non-subsequent levels in case the parameter is not considered in
   // the intermediate level, e.g. global z for dets and layers is aligned, but not for rods!

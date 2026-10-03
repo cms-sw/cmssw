@@ -79,15 +79,14 @@ static bool operator < (DetId detId, const MatchedHit &hit)
 typedef std::pair<TrackQuality::Layer::SubDet, short int> DetLayer;
 
 // in case multiple hits were found, figure out the highest priority
-static const int statePriorities[] = {
-    /* Unknown */ 3,
-    /* Good */ 5,
-    /* Missed */ 0,
-    /* Noise */ 7,
-    /* Bad */ 2,
-    /* Dead */ 4,
-    /* Shared */ 6,
-    /* Misassoc */ 1};
+static const int statePriorities[] = {/* Unknown */ 3,
+                                      /* Good */ 5,
+                                      /* Missed */ 0,
+                                      /* Noise */ 7,
+                                      /* Bad */ 2,
+                                      /* Dead */ 4,
+                                      /* Shared */ 6,
+                                      /* Misassoc */ 1};
 
 DetLayer getDetLayer(DetId detId, const TrackerTopology *tTopo) {
   TrackQuality::Layer::SubDet det = TrackQuality::Layer::Invalid;

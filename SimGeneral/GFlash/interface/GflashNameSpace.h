@@ -92,8 +92,7 @@ namespace Gflash {
   const double pion_emscale[2][5] = {{8.4338e-01, 1.8663e-01, -1.1906e+00, 6.8340e-01, -3.1237e-02},
                                      {1.8918e-01, 2.2620e-02, 4.2555e+00, 1.8317e+00, -6.1358e-03}};
 
-  const double pion_hadscale[8][5] = {
-      // based on LogNormal of Had Energy - RegionI
+  const double pion_hadscale[8][5] = {  // based on LogNormal of Had Energy - RegionI
       {-4.4752e+00, 3.8163e+00, 2.7962e-01, -7.6887e-01, 9.6721e-01},
       {1.1228e+00, 6.5039e-01, 4.5585e+00, -8.0282e+00, -1.7630e-01},
       {2.8223e+00, 5.9029e+00, -1.5873e-01, -8.7078e-01, 3.8598e-01},
@@ -231,8 +230,7 @@ namespace Gflash {
   const double pro_emscale[2][5] = {{6.2614e-01, 1.7633e-01, -1.2677e+00, 1.3193e+00, 2.4973e-03},
                                     {1.6413e-01, 5.2570e-03, 1.8876e+02, 1.2887e+00, -4.0266e-03}};
 
-  const double pro_hadscale[8][5] = {
-      // based on LogNormal of Had Energy
+  const double pro_hadscale[8][5] = {  // based on LogNormal of Had Energy
       {-1.2767e+02, 1.2691e+02, 2.6892e-01, -8.4621e+00, 9.7956e-01},
       {1.2283e+00, 1.6307e-01, -3.6863e+00, 1.8677e+00, -4.5990e-02},
       {1.8917e+00, 2.0947e+00, -3.6371e-01, 3.7861e-01, 8.8760e-02},
@@ -370,8 +368,7 @@ namespace Gflash {
   const double pbar_emscale[2][5] = {{1.9246e+01, 1.8870e+01, -3.3127e-01, -4.8509e+00, -2.3785e-02},
                                      {3.5744e+00, 3.3661e+00, -4.9667e-01, -4.1388e+00, -8.8824e-03}};
 
-  const double pbar_hadscale[8][5] = {
-      // based on LogNormal of Had Energy
+  const double pbar_hadscale[8][5] = {  // based on LogNormal of Had Energy
       {-1.8857e+00, 9.4549e-01, 1.0173e+00, 2.3654e+00, 1.0381e+00},
       {1.4276e+00, 8.3835e-01, -9.1466e-01, 2.3945e+00, 0.0000e+00},
       {1.0005e+00, 5.0454e-01, -9.6777e-01, 2.4216e+00, -3.0214e-02},
@@ -508,8 +505,7 @@ namespace Gflash {
   const double kminus_emscale[2][5] = {{8.3935e-01, 2.4180e-01, -1.4484e+00, 1.0397e+00, -2.2546e-02},
                                        {2.3334e-01, 3.6810e-02, 1.0247e+01, 1.8556e+00, -1.9288e-02}};
 
-  const double kminus_hadscale[8][5] = {
-      // based on LogNormal of Had Energy
+  const double kminus_hadscale[8][5] = {  // based on LogNormal of Had Energy
       {-5.9393e+01, 6.4013e+01, 1.0843e-01, -1.2441e+01, 4.2589e-01},
       {1.3649e+01, 1.2266e+01, -4.9381e-01, -3.6921e+00, -1.1441e-01},
       {1.2102e+00, 4.7458e-01, -9.4128e-01, 2.1482e+00, -5.1031e-02},
@@ -647,8 +643,7 @@ namespace Gflash {
   const double kplus_emscale[2][5] = {{7.8775e-01, 2.7022e-01, -1.4291e+00, 1.3980e+00, -1.2795e-02},
                                       {2.2224e-01, 1.7480e-02, 1.1984e+01, 1.8265e+00, -1.6718e-02}};
 
-  const double kplus_hadscale[8][5] = {
-      // based on LogNormal of Had Energy
+  const double kplus_hadscale[8][5] = {  // based on LogNormal of Had Energy
       {-1.1629e+02, 1.1506e+02, 4.8753e-01, -4.4057e+00, 1.0940e+00},
       {2.2018e+00, 1.1327e+00, -6.4208e-01, 1.2240e-01, -7.2109e-02},
       {1.5217e+00, 1.9949e+00, -4.0047e-01, 1.0897e+00, 1.4482e-01},

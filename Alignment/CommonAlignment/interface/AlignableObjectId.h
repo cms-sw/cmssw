@@ -51,14 +51,14 @@ private:
 };
 
 template <typename TRACKER, typename MUON>
-AlignableObjectId AlignableObjectId ::commonObjectIdProvider(const TRACKER* tracker, const MUON* muon) {
+AlignableObjectId AlignableObjectId::commonObjectIdProvider(const TRACKER* tracker, const MUON* muon) {
   auto trackerGeometry = (tracker ? tracker->objectIdProvider().geometry() : AlignableObjectId::Geometry::General);
   auto muonGeometry = (muon ? muon->objectIdProvider().geometry() : AlignableObjectId::Geometry::General);
   return AlignableObjectId::commonGeometry(trackerGeometry, muonGeometry);
 }
 
 template <typename T>
-AlignableObjectId AlignableObjectId ::commonObjectIdProvider(const T* tracker, std::nullptr_t) {
+AlignableObjectId AlignableObjectId::commonObjectIdProvider(const T* tracker, std::nullptr_t) {
   auto trackerGeometry = (tracker ? tracker->objectIdProvider().geometry() : AlignableObjectId::Geometry::General);
   return AlignableObjectId::commonGeometry(trackerGeometry, AlignableObjectId::Geometry::General);
 }
