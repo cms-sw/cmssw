@@ -4,6 +4,8 @@
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "SimG4Core/Physics/interface/CMSG4TrackInterface.h"
+#include "SimG4Core/CustomPhysics/interface/Quirk.h"
+#include "SimG4Core/CustomPhysics/interface/QuirkStringStore.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -17,6 +19,7 @@
 #include "G4TransportationManager.hh"
 #include "G4GammaGeneralProcess.hh"
 #include "G4LossTableManager.hh"
+#include "G4ParticleTable.hh"
 
 StackingAction::StackingAction(const edm::ParameterSet& p, const CMSSteppingVerbose* sv) : steppingVerbose(sv) {
   trackNeutrino = p.getParameter<bool>("TrackNeutrino");
@@ -80,6 +83,14 @@ StackingAction::StackingAction(const edm::ParameterSet& p, const CMSSteppingVerb
         << " *** Kill electromagnetic secondaries from hadrons in Calorimeters volume= " << killInCaloEfH;
   }
   m_trackInterface = CMSG4TrackInterface::instance();
+
+  // quirks are only defined if quirk physics is enabled
+  G4ParticleTable* ptable = G4ParticleTable::GetParticleTable();
+  if (Quirk::isQuirk(ptable->FindParticle("quirk"))) {
+    m_quirk = ptable->FindParticle("quirk");
+    m_antiQuirk = ptable->FindParticle("antiquirk");
+    edm::LogVerbatim("SimG4CoreApplication") << "StackingAction: quirk pair alternates via the waiting stacks";
+  }
 
   initPointer();
 
@@ -166,6 +177,13 @@ StackingAction::StackingAction(const edm::ParameterSet& p, const CMSSteppingVerb
 }
 
 G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrack) {
+  const bool isQuirk =
+      (nullptr != m_quirk && (aTrack->GetDefinition() == m_quirk || aTrack->GetDefinition() == m_antiQuirk));
+  // a suspended quirk waits until its partner has stepped
+  if (isQuirk && aTrack->GetCurrentStepNumber() > 0) {
+    return fWaiting_1;
+  }
+
   // G4 interface part
   G4ClassificationOfNewTrack classification = fUrgent;
   const int pdg = aTrack->GetDefinition()->GetPDGEncoding();
@@ -361,10 +379,22 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
       }
     }
   }
+  // quirks start after the rest of the event, one per waiting stack
+  if (isQuirk && classification != fKill) {
+    classification = m_firstQuirk ? fWaiting : fWaiting_1;
+    m_firstQuirk = false;
+  }
   if (nullptr != steppingVerbose) {
     steppingVerbose->stackFilled(aTrack, (classification == fKill));
   }
   return classification;
+}
+
+void StackingAction::PrepareNewEvent() {
+  if (nullptr != m_quirk) {
+    m_firstQuirk = true;
+    QuirkStringStore::instance().clear();
+  }
 }
 
 void StackingAction::initPointer() {

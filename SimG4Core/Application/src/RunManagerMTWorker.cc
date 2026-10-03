@@ -481,6 +481,11 @@ void RunManagerMTWorker::initializeUserActions() {
 
   // stacking actions and event manager
   G4UserStackingAction* userStackingAction{nullptr};
+  if (m_isPhase2 &&
+      m_p.getParameter<edm::ParameterSet>("Physics").getUntrackedParameter<double>("QuirkMass", 0.) > 0.) {
+    throw cms::Exception("Configuration")
+        << "RunManagerMTWorker: quirk physics is not supported with the Phase-2 actions";
+  }
   if (m_isPhase2) {
     userStackingAction = new Phase2StackingAction(m_pStackingAction, m_sVerbose.get());
   } else {

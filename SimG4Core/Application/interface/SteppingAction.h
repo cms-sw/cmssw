@@ -53,6 +53,9 @@ private:
   unsigned int ndeadRegions;
   unsigned int nWarnings{0};
   G4int maxNumberOfSteps;
+  G4int maxNumberOfStepsQuirk;
+  const G4ParticleDefinition* m_quirk{nullptr};
+  const G4ParticleDefinition* m_antiQuirk{nullptr};
 
   bool initialized{false};
   bool killBeamPipe{false};

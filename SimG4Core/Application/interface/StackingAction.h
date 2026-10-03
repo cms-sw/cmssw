@@ -24,6 +24,8 @@ public:
 
   G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track* aTrack) final;
 
+  void PrepareNewEvent() override;
+
 private:
   void initPointer();
 
@@ -70,6 +72,11 @@ private:
   CMSG4TrackInterface* m_trackInterface;
   const CMSSteppingVerbose* steppingVerbose;
   const G4VProcess* m_Compton{nullptr};
+
+  // quirk pair, if defined
+  const G4ParticleDefinition* m_quirk{nullptr};
+  const G4ParticleDefinition* m_antiQuirk{nullptr};
+  bool m_firstQuirk{true};
 
   // Russian roulette regions
   const G4Region* regionEcal{nullptr};

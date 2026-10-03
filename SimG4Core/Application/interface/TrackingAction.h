@@ -42,6 +42,18 @@ private:
   const G4Track* g4Track_ = nullptr;
   TrackInformation* trkInfo_ = nullptr;
   TrackWithHistory* currentHistory_ = nullptr;
+
+  // suspended tracks (quirks) keep their first history until they end
+  struct SuspendedTrack {
+    int id;
+    TrackWithHistory* history;
+    bool owned;
+  };
+  bool resumeSuspended(const G4Track* aTrack);
+  void endResumed(const G4Track* aTrack);
+  std::vector<SuspendedTrack> suspended_;
+  bool resumed_ = false;
+  bool owned_ = false;
   int endPrintTrackID_;
   bool checkTrack_;
   bool doFineCalo_;
