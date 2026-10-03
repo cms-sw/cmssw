@@ -3593,6 +3593,27 @@ upgradeWFs['DDDDB'] = UpgradeWorkflow_DDDDB(
 )
 upgradeWFs['DDDDB'].allowReuse = False
 
+# SIM from a GenHDF5 file holding the baseline's own GEN events
+class UpgradeWorkflow_GenHDF5(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'GenSim' in step:
+            stepDict[stepName][k] = merge([{'-s': 'SIM', '--customise': 'GeneratorInterface/GenHDF5Interface/customise.simFromHDF5RelVal'}, stepDict[step][k]])
+        elif 'Digi' in step:
+            # keep the generator truth from the file: no genParticles rebuild from the SIM-level HepMC
+            stepDict[stepName][k] = merge([{'--customise': 'GeneratorInterface/GenHDF5Interface/customise.digiFromHDF5'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment == 'TTbar_14TeV' and key == '2025'
+upgradeWFs['GenHDF5'] = UpgradeWorkflow_GenHDF5(
+    steps = [
+        'GenSim',
+        'Digi',
+    ],
+    PU = [],
+    suffix = '_FromHDF5',
+    offset = 0.86,
+)
+upgradeWFs['GenHDF5'].allowReuse = False
+
 class UpgradeWorkflow_SonicTriton(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         stepDict[stepName][k] = merge([{'--procModifiers': 'allSonicTriton'}, stepDict[step][k]])

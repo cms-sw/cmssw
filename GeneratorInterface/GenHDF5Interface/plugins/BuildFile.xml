@@ -1,0 +1,15 @@
+<library file="GenHDF5Producer.cc" name="GeneratorInterfaceGenHDF5InterfacePlugins">
+  <use name="hdf5"/>
+  <use name="hepmc"/>
+  <use name="rooteg"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/Utilities"/>
+  <use name="FWStorage/StorageFactory"/>
+  <use name="SimDataFormats/GeneratorProducts"/>
+  <use name="DataFormats/HepMCCandidate"/>
+  <use name="DataFormats/JetReco"/>
+  <use name="DataFormats/METReco"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
