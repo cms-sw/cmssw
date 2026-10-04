@@ -1,3 +1,4 @@
+
 // -*- C++ -*-
 //
 // Package:    HGCalGeometry
@@ -134,8 +135,9 @@ void HGCalNeighbourTester::beginRun(edm::Run const &iRun, edm::EventSetup const 
       for (auto const &id : detIds_) {
         for (auto const &idz : allIds) {
           if ((id & mask) == (idz & mask)) {
-            detIds.emplace_back(id);
-            break;
+            detIds.emplace_back(idz);
+	    edm::LogVerbatim("HGCGeom") << "Finds " << HGCSiliconDetId(idz) << " for " << HGCSiliconDetId(id);
+	    break;
           }
         }
       }
@@ -156,14 +158,13 @@ void HGCalNeighbourTester::beginRun(edm::Run const &iRun, edm::EventSetup const 
               ++nn;
         edm::LogVerbatim("HGCalGeom") << "[" << kk << "] z-Side " << id.zside() << " Layer " << id.layer() << " Wafer "
                                       << id.waferU() << ":" << id.waferV() << " Cell " << id.cellU() << ":"
-                                      << id.cellV() << " has " << nn << " neighbours:";
+                                      << id.cellV() << " Type " << id.waferTypeX() << " has " << nn << " neighbours:";
         unsigned int k1(0);
         for (auto const &idZ : ids) {
           if (idZ != 0) {
             HGCSiliconDetId idx(idZ);
             if (geom->validDetId(idx)) {
-              edm::LogVerbatim("HGCalGeom") << "[" << k1 << "] Layer " << idx.layer() << " Wafer " << idx.waferU()
-                                            << ":" << idx.waferV() << " Cell " << idx.cellU() << ":" << idx.cellV();
+              edm::LogVerbatim("HGCalGeom") << "[" << k1 << "] " << idx.waferTypeX() << " Layer " << idx.layer() << " Wafer " << idx.waferU() << ":" << idx.waferV() << " Cell " << idx.cellU() << ":" << idx.cellV();
               ++k1;
             }
           }
