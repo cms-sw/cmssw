@@ -235,6 +235,9 @@ namespace reco::mlpf {
         time = ref->time();
         timeerror = ref->timeError();
 
+        // Protection against the un-physical cluster time value from
+        // RecoParticleFlow/PFSimProducer/plugins/EcalBarrelClusterFastTimer.cc
+        // in Phase2 workflows
         if (type == reco::PFBlockElement::ECAL) {
           if (fabs(time) > std::numeric_limits<float>::max() * 0.9) {  // i.e. when time is set to some non-sense value
             const std::vector<reco::PFRecHitFraction>& PFRecHits = ref->recHitFractions();
@@ -497,7 +500,7 @@ namespace reco::mlpf {
     }
 
     //set the muon ref
-    if (std::abs(cand.pdgId()) == 13) {
+    else if (std::abs(cand.pdgId()) == 13) {
       const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(elem);
       const auto& muonRef = eltTrack->muonRef();
       cand.setTrackRef(muonRef->track());
@@ -506,7 +509,7 @@ namespace reco::mlpf {
       cand.setMuonRef(muonRef);
     }
 
-    if (std::abs(cand.pdgId()) == 11) {
+    else if (std::abs(cand.pdgId()) == 11) {
       if (elem->type() == reco::PFBlockElement::GSF) {
         const auto* eltTrack = dynamic_cast<const reco::PFBlockElementGsfTrack*>(elem);
         const auto& ref = eltTrack->GsftrackRef();
@@ -521,23 +524,23 @@ namespace reco::mlpf {
     }
   }
 
-  TrackLinks getTrackLinks(const reco::PFBlock* block, const reco::PFBlockElement* elem) {
-    TrackLinks links;
+  TrackToCaloLinks getTrackToCaloLinks(const reco::PFBlock* block, const reco::PFBlockElement* elem) {
+    TrackToCaloLinks links;
     const auto& linkData = block->linkData();
     const auto& elements = block->elements();
 
     const auto it = std::find_if(elements.begin(), elements.end(), [elem](const auto& e) { return &e == elem; });
 
-    if (it == elements.end()) {
+    if (it == elements.end())
       throw cms::Exception("MLPFModel") << "PFBlockElement not found in this PFBlock.";
-    }
 
     const unsigned ielem = std::distance(elements.begin(), it);
 
-    block->associatedElements(ielem, linkData, links.ecal, reco::PFBlockElement::ECAL, reco::PFBlock::LINKTEST_ALL);
-    block->associatedElements(ielem, linkData, links.hcal, reco::PFBlockElement::HCAL, reco::PFBlock::LINKTEST_ALL);
-    block->associatedElements(ielem, linkData, links.hfEm, reco::PFBlockElement::HFEM, reco::PFBlock::LINKTEST_ALL);
-    block->associatedElements(ielem, linkData, links.hfHad, reco::PFBlockElement::HFHAD, reco::PFBlock::LINKTEST_ALL);
+    links.ecal = block->hasAssociatedElement(ielem, linkData, reco::PFBlockElement::ECAL, reco::PFBlock::LINKTEST_ALL);
+    links.hcal = block->hasAssociatedElement(ielem, linkData, reco::PFBlockElement::HCAL, reco::PFBlock::LINKTEST_ALL);
+    links.hfEm = block->hasAssociatedElement(ielem, linkData, reco::PFBlockElement::HFEM, reco::PFBlock::LINKTEST_ALL);
+    links.hfHad =
+        block->hasAssociatedElement(ielem, linkData, reco::PFBlockElement::HFHAD, reco::PFBlock::LINKTEST_ALL);
 
     return links;
   }
