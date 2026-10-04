@@ -526,9 +526,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
       continue;
     }
 
-    auto& recoCand = TICLCandidates[cand_idx];
-
-    // cand_idx is the tsMerge index, find the ts in the candidates collection
+    // cand_idx is an index in the merged trackster collection: take the candidate whose first trackster it is.
     auto cand_it =
         std::find_if(TICLCandidates.begin(), TICLCandidates.end(), [firstTs, cand_idx](TICLCandidate const& cand) {
           if (!cand.tracksters().empty())
@@ -537,10 +535,9 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
           else
             return false;
         });
-    if (cand_it != TICLCandidates.end())
-      recoCand = *cand_it;
-    else
+    if (cand_it == TICLCandidates.end())
       continue;
+    const auto& recoCand = *cand_it;
 
     if (recoCand.trackPtr().get() != nullptr) {
       const auto candTrackIdx = recoCand.trackPtr().get() - firstTrack;
@@ -610,9 +607,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
       continue;
     }
 
-    auto& recoCand = TICLCandidates[cand_idx];
-
-    // cand_idx is the tsMerge index, find the ts in the candidates collection
+    // cand_idx is an index in the merged trackster collection: take the candidate whose first trackster it is.
     auto cand_it =
         std::find_if(TICLCandidates.begin(), TICLCandidates.end(), [firstTs, cand_idx](TICLCandidate const& cand) {
           if (!cand.tracksters().empty())
@@ -621,10 +616,9 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
           else
             return false;
         });
-    if (cand_it != TICLCandidates.end())
-      recoCand = *cand_it;
-    else
+    if (cand_it == TICLCandidates.end())
       continue;
+    const auto& recoCand = *cand_it;
 
     if (recoCand.trackPtr().get() != nullptr)
       continue;
