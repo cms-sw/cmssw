@@ -61,6 +61,7 @@ public:
 private:
   const std::string nameDetector_;
   const std::string fileName_;
+  int nskip_;
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tok_hgcal_;
   const DetId::Detector dets_;
   std::vector<DetId> detIds_;
@@ -69,6 +70,7 @@ private:
 HGCalNeighbourCheck::HGCalNeighbourCheck(const edm::ParameterSet &iC)
     : nameDetector_(iC.getParameter<std::string>("nameDetector")),
       fileName_(iC.getParameter<std::string>("fileName")),
+      nskip_(iC.getParameter<int>("nSkip")),
       tok_hgcal_{esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag{"", nameDetector_})},
       dets_((nameDetector_ == "HGCalEESensitive") ? DetId::HGCalEE : DetId::HGCalHSi) {
@@ -90,15 +92,17 @@ HGCalNeighbourCheck::HGCalNeighbourCheck(const edm::ParameterSet &iC)
           auto itr = std::find(detIds_.begin(), detIds_.end(), DetId(id));
           if (itr == detIds_.end()) {
             detIds_.emplace_back(DetId(id));
-            edm::LogVerbatim("HGCalGeom") << "[" << detIds_.size() << "] " << HGCSiliconDetId(id);
+            edm::LogVerbatim("HGCGeom") << "[" << detIds_.size() << "] " << HGCSiliconDetId(id);
           }
         }
       }
       fInput.close();
     }
     edm::LogVerbatim("HGCalGeom") << "Reads " << detIds_.size() << " ID's from " << fileName_;
-  } else {
-    edm::LogVerbatim("HGCalGeom") << "No input file is given == will test all valid ids for " << dets_;
+    nskip_ = 1;
+  }
+  if (detIds_.empty()) {
+    edm::LogVerbatim("HGCalGeom") << "List of DetIds not provided == will test all valid ids for " << dets_ << " skipping " << nskip_ << " entries";
   }
 }
 
@@ -106,6 +110,7 @@ void HGCalNeighbourCheck::fillDescriptions(edm::ConfigurationDescriptions &descr
   edm::ParameterSetDescription desc;
   desc.add<std::string>("nameDetector", "HGCalHESiliconSensitive");
   desc.add<std::string>("fileName", "D120E.txt");
+  desc.add<int>("nSkip", 1000);
   descriptions.add("hgcalNeighbourCheck", desc);
 }
 
@@ -117,12 +122,12 @@ void HGCalNeighbourCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &
   if (hgcGeom.isValid()) {
     const HGCalGeometry *geom = hgcGeom.product();
     edm::LogVerbatim("HGCalGeom") << "Loaded HGCalDDConstants for " << nameDetector_;
-    if (fileName_.empty()) {
+    if (detIds_.empty()) {
       detIds_ = geom->getValidDetIds(dets_);
       edm::LogVerbatim("HGCalGeom") << "Gets " << detIds_.size() << " valid ID's for detector " << dets_;
     }
     std::unique_ptr<HGCalNeighbourFinder> finder = std::make_unique<HGCalNeighbourFinder>(geom);
-    for (unsigned int k = 0; k < detIds_.size(); ++k) {
+    for (unsigned int k = 0; k < detIds_.size(); k += nskip_) {
       HGCSiliconDetId id(detIds_[k]);
       if (geom->validDetId(id)) {
         std::ostringstream st1;
@@ -134,9 +139,10 @@ void HGCalNeighbourCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &
         edm::LogVerbatim("HGCalGeom") << "[" << k << "]" << id << " Valid flag " << geom->valid(detIds_[k]) << " with "
                                       << nn << " neighbours:";
         for (auto &idx : ids) {
-          if (idx != 0)
-            st1 << "  (" << HGCSiliconDetId(idx).waferU() << ":" << HGCSiliconDetId(idx).waferV() << ","
-                << HGCSiliconDetId(idx).cellU() << ":" << HGCSiliconDetId(idx).cellV() << ")";
+          if (idx != 0) {
+	    HGCSiliconDetId idd(idx);
+            st1 << "  " << idd.waferTypeX() << " (" << idd.waferU() << ":" << idd.waferV() << "," << idd.cellU() << ":" << idd.cellV() << ")";
+	  }
         }
         edm::LogVerbatim("HGCalGeom") << st1.str();
       }
