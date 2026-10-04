@@ -1,12 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalNeighbour_cfg.py geometry=D120 detector=HGCalEESensitive
-#                                    fName=D120NE.txt
+#   cmsRun testHGCalNeighbour2_cfg.py geometry=D120 
 #
 #   Options for geometry D120, D122
-#           for detector HGCalEESensitive, HGCalHESiliconSensitive
-#           for fName D120NE1.txt, D120NH1.txt
-#           for nSkip 1, 10, 100, 1000, 10000
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -21,21 +17,6 @@ options.register('geometry',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: D120, D122")
-options.register('detector',
-                 "HGCalEESensitive",
-                  VarParsing.VarParsing.multiplicity.singleton,
-                  VarParsing.VarParsing.varType.string,
-                  "geometry of operations: HGCalEESensitive, HGCalHESiliconSensitive")
-options.register('fName',
-                 "D120NE1.txt",
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.string,
-                 "Use input file: D120NE1.txt, D120NH1.txt")
-options.register('nSkip',
-                 10000,
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.float,
-                 "Test every N IDs: 1, 10, 100, 1000, 10000")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -47,16 +28,13 @@ print(options)
 
 geomName = "Run4" + options.geometry
 geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
-detector = options.detector
-fName   = options.fName
-nskip    = int(options.nSkip)
-
+detector = "HGCalEESensitive"
+fName   = "D120NE2.txt"
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
 print("Geometry file: ", geomFile)
 print("Detector:      ", detector)
 print("fName:         ", fName)
-print("Skip:          ", nskip)
 
 process = cms.Process('HGCNeighbour',ERA)
 
@@ -101,6 +79,6 @@ process.maxEvents = cms.untracked.PSet(
 
 process.hgcalNeighbourTester.nameDetector = detector
 process.hgcalNeighbourTester.fileName     = fName
-process.hgcalNeighbourTester.nSkip        = nskip
+process.hgcalNeighbourTester.nSkip        = 1
 
 process.p1 = cms.Path(process.generator*process.hgcalNeighbourTester)
