@@ -136,8 +136,8 @@ void HGCalNeighbourTester::beginRun(edm::Run const &iRun, edm::EventSetup const 
         for (auto const &idz : allIds) {
           if ((id & mask) == (idz & mask)) {
             detIds.emplace_back(idz);
-	    edm::LogVerbatim("HGCGeom") << "Finds " << HGCSiliconDetId(idz) << " for " << HGCSiliconDetId(id);
-	    break;
+            edm::LogVerbatim("HGCGeom") << "Finds " << HGCSiliconDetId(idz) << " for " << HGCSiliconDetId(id);
+            break;
           }
         }
       }
@@ -164,7 +164,9 @@ void HGCalNeighbourTester::beginRun(edm::Run const &iRun, edm::EventSetup const 
           if (idZ != 0) {
             HGCSiliconDetId idx(idZ);
             if (geom->validDetId(idx)) {
-              edm::LogVerbatim("HGCalGeom") << "[" << k1 << "] " << idx.waferTypeX() << " Layer " << idx.layer() << " Wafer " << idx.waferU() << ":" << idx.waferV() << " Cell " << idx.cellU() << ":" << idx.cellV();
+              edm::LogVerbatim("HGCalGeom")
+                  << "[" << k1 << "] " << idx.waferTypeX() << " Layer " << idx.layer() << " Wafer " << idx.waferU()
+                  << ":" << idx.waferV() << " Cell " << idx.cellU() << ":" << idx.cellV();
               ++k1;
             }
           }
