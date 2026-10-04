@@ -102,7 +102,8 @@ HGCalNeighbourCheck::HGCalNeighbourCheck(const edm::ParameterSet &iC)
     nskip_ = 1;
   }
   if (detIds_.empty()) {
-    edm::LogVerbatim("HGCalGeom") << "List of DetIds not provided == will test all valid ids for " << dets_ << " skipping " << nskip_ << " entries";
+    edm::LogVerbatim("HGCalGeom") << "List of DetIds not provided == will test all valid ids for " << dets_
+                                  << " skipping " << nskip_ << " entries";
   }
 }
 
@@ -140,9 +141,10 @@ void HGCalNeighbourCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &
                                       << nn << " neighbours:";
         for (auto &idx : ids) {
           if (idx != 0) {
-	    HGCSiliconDetId idd(idx);
-            st1 << "  " << idd.waferTypeX() << " (" << idd.waferU() << ":" << idd.waferV() << "," << idd.cellU() << ":" << idd.cellV() << ")";
-	  }
+            HGCSiliconDetId idd(idx);
+            st1 << "  " << idd.waferTypeX() << " (" << idd.waferU() << ":" << idd.waferV() << "," << idd.cellU() << ":"
+                << idd.cellV() << ")";
+          }
         }
         edm::LogVerbatim("HGCalGeom") << st1.str();
       }

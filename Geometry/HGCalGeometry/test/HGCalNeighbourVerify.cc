@@ -131,7 +131,9 @@ void HGCalNeighbourVerify::beginRun(edm::Run const &iRun, edm::EventSetup const 
         for (auto const &idZ : ids) {
           if (idZ != 0) {
             HGCSiliconDetId idx(idZ);
-            edm::LogVerbatim("HGCalGeom") << "[" << k1 << "] " << idx.waferTypeX() << " Layer " << idx.layer() << " Wafer " << idx.waferU() << ":" << idx.waferV() << " Cell " << idx.cellU() << ":" << idx.cellV();
+            edm::LogVerbatim("HGCalGeom")
+                << "[" << k1 << "] " << idx.waferTypeX() << " Layer " << idx.layer() << " Wafer " << idx.waferU() << ":"
+                << idx.waferV() << " Cell " << idx.cellU() << ":" << idx.cellV();
             ++k1;
           }
         }
