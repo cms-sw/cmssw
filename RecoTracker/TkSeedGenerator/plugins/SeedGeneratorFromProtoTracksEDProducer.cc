@@ -14,6 +14,10 @@
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -77,7 +81,8 @@ SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(c
       theInputVertexCollectionTag(
           consumes<reco::VertexCollection>(cfg.getParameter<InputTag>("InputVertexCollection"))),
       seedCreator_(cfg.getParameter<edm::ParameterSet>("SeedCreatorPSet"), consumesCollector()),
-      config_(consumesCollector()) {
+      config_(consumesCollector()),
+      geometryToken_(esConsumes()) {
   produces<TrajectorySeedCollection>();
   if (produceComplement_) {
     produces<reco::TrackCollection>();
@@ -95,6 +100,8 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
   edm::Handle<reco::VertexCollection> vertices;
   bool foundVertices = ev.getByToken(theInputVertexCollectionTag, vertices);
   //const reco::VertexCollection & vertices = *(h_vertices.product());
+
+  const TrackerGeometry* trackerGeometry = removeOTRechits_ ? &es.getData(geometryToken_) : nullptr;
 
   ///
   /// need optimization: all es stuff should go out of the loop
@@ -141,14 +148,19 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
             hits.push_back((Hit) & (*refHit));
         }
         sort(hits.begin(), hits.end(), HitLessByRadius());
-        hits.erase(std::remove_if(hits.begin(),
-                                  hits.end(),
-                                  [](const Hit& hit) {
-                                    unsigned int subdetId = hit->geographicalId().subdetId();
-                                    return subdetId != PixelSubdetector::PixelBarrel &&
-                                           subdetId != PixelSubdetector::PixelEndcap;
-                                  }),
-                   hits.end());
+        hits.erase(
+            std::remove_if(hits.begin(),
+                           hits.end(),
+                           [trackerGeometry](const Hit& hit) {
+                             const DetId detId = hit->geographicalId();
+                             unsigned int subdetId = detId.subdetId();
+                             // keep hits from the pixel detector and from the P sensors of the TOB PS modules
+                             if (subdetId == PixelSubdetector::PixelBarrel || subdetId == PixelSubdetector::PixelEndcap)
+                               return false;
+                             return subdetId != StripSubdetector::TOB ||
+                                    trackerGeometry->getDetectorType(detId) != TrackerGeometry::ModuleType::Ph2PSP;
+                           }),
+            hits.end());
         if (hits.size() > 2) {
           SeedFromProtoTrack seedFromProtoTrack(config_, proto, SeedingHitSet(hits), es);
           if (seedFromProtoTrack.isValid())
@@ -191,14 +203,18 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
         seedCreator_.init(region, es, nullptr);
 
         if (removeOTRechits_) {
-          // Filter out non-pixel hits
-          hits.erase(std::remove_if(hits.begin(),
-                                    hits.end(),
-                                    [](const Hit& hit) {
-                                      unsigned int subdetId = hit->geographicalId().subdetId();
-                                      return subdetId != PixelSubdetector::PixelBarrel &&
-                                             subdetId != PixelSubdetector::PixelEndcap;
-                                    }),
+          // Filter out non-pixel hits, except for hits on the P sensors of the TOB PS modules
+          hits.erase(std::remove_if(
+                         hits.begin(),
+                         hits.end(),
+                         [trackerGeometry](const Hit& hit) {
+                           const DetId detId = hit->geographicalId();
+                           unsigned int subdetId = detId.subdetId();
+                           if (subdetId == PixelSubdetector::PixelBarrel || subdetId == PixelSubdetector::PixelEndcap)
+                             return false;
+                           return subdetId != StripSubdetector::TOB ||
+                                  trackerGeometry->getDetectorType(detId) != TrackerGeometry::ModuleType::Ph2PSP;
+                         }),
                      hits.end());
 
           if (hits.size() > 2) {
