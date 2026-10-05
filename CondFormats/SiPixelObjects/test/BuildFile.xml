@@ -12,3 +12,8 @@
 
 <bin file="testSerializationSiPixelObjects.cpp">
 </bin>
+
+<bin file="testSiPixelClusterShapeLimits.cpp">
+  <use name="CondFormats/SiPixelObjects"/>
+  <use name="catch2"/>
+</bin>
