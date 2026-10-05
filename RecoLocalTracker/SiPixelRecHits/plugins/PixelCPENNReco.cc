@@ -183,8 +183,8 @@ int PixelCPENNReco::PixelPreprocess(const SiPixelCluster& cluster,
   if (topol.isItBigPixelInY(mid_y + col_offset))
     pitch_center_y = 0.25f;
   MeasurementPoint meas_center_pix(row_offset + mid_x + pitch_center_x,
-                                   col_offset + mid_y + pitch_center_y);  // lower-left corner
-  LocalPoint local_center_pix = topol.localPosition(meas_center_pix, loc_trk_pred); // takes module bows into account
+                                   col_offset + mid_y + pitch_center_y);             // lower-left corner
+  LocalPoint local_center_pix = topol.localPosition(meas_center_pix, loc_trk_pred);  // takes module bows into account
   ClusterCenter_x = local_center_pix.x();
   ClusterCenter_y = local_center_pix.y();
 
