@@ -458,7 +458,6 @@ void l1ct::LinPuppiEmulator::linpuppi_associate_trk(const PFRegionEmu &region,
                                                     const std::vector<PVObjEmu> &pv,
                                                     std::vector<AssociationObjEmu> &Associations) const {
   const unsigned int nTrack = trk.size();
-  const unsigned int nVtx_ = pv.size();  // Only 1 vertex is currently supported, PUPPI will use the 1st vertex
   Associations.clear();
   nn_assoc_t nnvtx_score = 0;
   nn_assoc_t associationThreshold = associationThreshold_;
