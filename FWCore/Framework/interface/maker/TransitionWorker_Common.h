@@ -112,10 +112,6 @@ namespace edm {
   struct TransitionActionContextTrait<TI, TransitionActionGlobalEnd> {
     using ContextType = GlobalContext;
   };
-  template <typename TI>
-  struct TransitionActionContextTrait<TI, TransitionActionProcessBlockInput> {
-    using ContextType = GlobalContext;
-  };
 
   template <typename TI, typename TP, TransitionEdge E>
   struct TransitionActionTrait;
@@ -144,7 +140,6 @@ namespace edm {
     using ConcurrencyTypes = edm::modules::Concurrency;
     TransitionWorker(ModuleDescription const& iMD, ExceptionToActionTable const* iActions) : Worker(iMD, iActions) {}
 
-    virtual bool wantsProcessBlocks() const noexcept = 0;
     virtual bool wantsGlobalRuns() const noexcept = 0;
     virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
     virtual bool wantsStreamRuns() const noexcept = 0;
@@ -211,8 +206,6 @@ namespace edm {
     template <typename O>
     friend class workerhelper::CallImpl;
 
-    virtual bool implDoBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
     virtual bool implDoBegin(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoStreamBegin(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoStreamEnd(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) = 0;
@@ -699,91 +692,7 @@ namespace edm {
       }
       template <typename T>
       static bool wantsTransition(T const* iWorker) noexcept {
-        return iWorker->wantsStreamLuminosityBlocks();
-      }
-      template <typename T>
-      static bool needToRunSelection(T const* iWorker) noexcept {
-        return false;
-      }
-      template <typename T>
-      static SerialTaskQueue* pauseGlobalQueue(T* iWorker) noexcept {
-        return nullptr;
-      }
-      template <typename T>
-      static SerialTaskQueue* enableGlobalQueue(T* iWorker) noexcept {
-        return nullptr;
-      }
-    };
-    template <>
-    class CallImpl<OccurrenceTraits<ProcessBlockPrincipal, TransitionActionGlobalBegin>> {
-    public:
-      using Arg = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionGlobalBegin>;
-      static bool call(TransitionWorker<ProcessBlockTransitionInfo, TransitionPhaseGlobal>* iWorker,
-                       StreamID,
-                       ProcessBlockTransitionInfo const& info,
-                       ActivityRegistry* actReg,
-                       ModuleCallingContext const* mcc,
-                       Arg::Context const* context) {
-        ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
-        cpp.preModuleSignal();
-        auto returnValue = iWorker->implDoBeginProcessBlock(info.principal(), mcc);
-        cpp.postModuleSignal();
-        iWorker->beginSucceeded_ = true;
-        return returnValue;
-      }
-      static void esPrefetchAsync(TransitionWorker<ProcessBlockTransitionInfo, TransitionPhaseGlobal>*,
-                                  WaitingTaskHolder,
-                                  ServiceToken const&,
-                                  ProcessBlockTransitionInfo const&,
-                                  Transition) noexcept {}
-      template <typename T>
-      static bool wantsTransition(T const* iWorker) noexcept {
-        return iWorker->wantsProcessBlocks();
-      }
-      template <typename T>
-      static bool needToRunSelection(T const* iWorker) noexcept {
-        return false;
-      }
-      template <typename T>
-      static SerialTaskQueue* pauseGlobalQueue(T* iWorker) noexcept {
-        return nullptr;
-      }
-      template <typename T>
-      static SerialTaskQueue* enableGlobalQueue(T* iWorker) noexcept {
-        return nullptr;
-      }
-    };
-    template <>
-    class CallImpl<OccurrenceTraits<ProcessBlockPrincipal, TransitionActionGlobalEnd>> {
-    public:
-      using Arg = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionGlobalEnd>;
-      static bool call(TransitionWorker<ProcessBlockTransitionInfo, TransitionPhaseGlobal>* iWorker,
-                       StreamID,
-                       ProcessBlockTransitionInfo const& info,
-                       ActivityRegistry* actReg,
-                       ModuleCallingContext const* mcc,
-                       Arg::Context const* context) {
-        if (iWorker->beginSucceeded_) {
-          iWorker->beginSucceeded_ = false;
-
-          ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
-          cpp.preModuleSignal();
-          auto returnValue = iWorker->implDoEndProcessBlock(info.principal(), mcc);
-          cpp.postModuleSignal();
-          return returnValue;
-        }
         return true;
-      }
-      template <typename T>
-      static void esPrefetchAsync(
-          T*, WaitingTaskHolder, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) noexcept {}
-      template <typename T>
-      static bool wantsTransition(T const* iWorker) noexcept {
-        return iWorker->wantsProcessBlocks();
-      }
-      template <typename T>
-      static bool needToRunSelection(T const* iWorker) noexcept {
-        return false;
       }
       template <typename T>
       static SerialTaskQueue* pauseGlobalQueue(T* iWorker) noexcept {

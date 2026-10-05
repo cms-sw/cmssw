@@ -145,15 +145,16 @@ namespace edm {
       : WorkerTBase<T, InputProcessBlockTransitionInfo, TransitionPhaseGlobal>(ed, md, actions) {}
 
   template <typename T>
+  WorkerT<T, ProcessBlockTransitionInfo, TransitionPhaseGlobal>::WorkerT(std::shared_ptr<T> ed,
+                                                                         ModuleDescription const& md,
+                                                                         ExceptionToActionTable const* actions)
+      : WorkerTBase<T, ProcessBlockTransitionInfo, TransitionPhaseGlobal>(ed, md, actions) {}
+
+  template <typename T>
   WorkerT<T, EventTransitionInfo, TransitionPhaseGlobal>::WorkerT(std::shared_ptr<T> ed,
                                                                   ModuleDescription const& md,
                                                                   ExceptionToActionTable const* actions)
       : WorkerTBase<T, EventTransitionInfo, TransitionPhaseGlobal>(ed, md, actions) {}
-
-  template <typename T, typename TI, typename TP>
-  bool WorkerT<T, TI, TP>::wantsProcessBlocks() const noexcept {
-    return this->module().wantsProcessBlocks();
-  }
 
   template <typename T, typename TI, typename TP>
   bool WorkerT<T, TI, TP>::wantsGlobalRuns() const noexcept {
@@ -183,8 +184,7 @@ namespace edm {
   M(T, RunTransitionInfo, TransitionPhaseGlobal)  \
   M(T, RunTransitionInfo, TransitionPhaseStream)  \
   M(T, LumiTransitionInfo, TransitionPhaseGlobal) \
-  M(T, LumiTransitionInfo, TransitionPhaseStream) \
-  M(T, ProcessBlockTransitionInfo, TransitionPhaseGlobal)
+  M(T, LumiTransitionInfo, TransitionPhaseStream)
 
 #define EDM_SPECIALIZE_WORKERT_WANTS_WRITES(T, TI, TP)    \
   template <>                                             \
@@ -352,8 +352,9 @@ namespace edm {
     }
   }
 
-  template <typename T, typename TI, typename TP>
-  bool WorkerT<T, TI, TP>::implDoBeginProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
+  template <typename T>
+  bool WorkerT<T, ProcessBlockTransitionInfo, TransitionPhaseGlobal>::implDoBeginProcessBlock(
+      ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
     this->module().doBeginProcessBlock(pbp, mcc);
     return true;
   }
@@ -365,8 +366,9 @@ namespace edm {
     return true;
   }
 
-  template <typename T, typename TI, typename TP>
-  bool WorkerT<T, TI, TP>::implDoEndProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
+  template <typename T>
+  bool WorkerT<T, ProcessBlockTransitionInfo, TransitionPhaseGlobal>::implDoEndProcessBlock(
+      ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
     this->module().doEndProcessBlock(pbp, mcc);
     return true;
   }
