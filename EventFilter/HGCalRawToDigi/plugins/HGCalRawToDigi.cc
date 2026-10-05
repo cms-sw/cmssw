@@ -103,6 +103,11 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   }
   hgcaldigi::HGCalFEDPacketInfoHost fedPacketInfo(cms::alpakatools::host(), moduleIndexer.fedCount());
 
+  // zero the buffers so rows/columns the unpacker never writes don't carry leftover memory
+  digis.zeroInitialise();
+  econdPacketInfo.zeroInitialise();
+  fedPacketInfo.zeroInitialise();
+
   // retrieve the FED raw data
   const auto& fedBuffer = iEvent.get(fedRawToken_);
 
