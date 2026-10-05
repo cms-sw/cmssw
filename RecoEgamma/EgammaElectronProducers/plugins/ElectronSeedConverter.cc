@@ -1,6 +1,8 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <cassert>
+#include <cmath>
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -189,12 +191,12 @@ void ElectronSeedConverter::produce(edm::StreamID, edm::Event &event, const edm:
     eleSeeds.emplace_back(eleSeed);
   }
 
-  // Print per-event doublet rejection summary
-  edm::LogPrint("ElectronSeedConverter") << "[ElectronSeedConverter] matched=" << nMatched << "  doublets=" << nDoublets
-                                         << "  doublets_rejected=" << nDoubletsRejected
-                                         << "  (frac=" << (nDoublets > 0 ? 100.f * nDoubletsRejected / nDoublets : 0.f)
-                                         << "%)"
-                                         << "  triplets=" << nTriplets << "  accepted=" << (int)eleSeeds.size();
+  // Per-event doublet rejection summary
+  LogDebug("ElectronSeedConverter") << "matched=" << nMatched << "  doublets=" << nDoublets
+                                    << "  doublets_rejected=" << nDoubletsRejected
+                                    << "  (frac=" << (nDoublets > 0 ? 100.f * nDoubletsRejected / nDoublets : 0.f)
+                                    << "%)"
+                                    << "  triplets=" << nTriplets << "  accepted=" << (int)eleSeeds.size();
 
   event.emplace(putToken_, std::move(eleSeeds));
 }
@@ -290,6 +292,7 @@ float ElectronSeedConverter::getZVtxFromExtrapolation(const GlobalPoint &primeVt
 
   const float r1 = rdiff(primeVtxPos, hitPos);
   const float r2 = rdiff(hitPos, candPos);
+  assert(r2 > 0.f);
 
   return hitPos.z() - r1 * (candPos.z() - hitPos.z()) / r2;
 }

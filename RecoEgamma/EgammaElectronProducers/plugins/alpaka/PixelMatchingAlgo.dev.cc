@@ -1,3 +1,5 @@
+#include <limits>
+
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/EgammaReco/interface/alpaka/ElectronSeedDeviceCollection.h"
@@ -40,6 +42,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE T
   getCutValue(TAcc const& acc, const T et, const T highEt, const T highEtThres, const T lowEtGrad) {
     return highEt + alpaka::math::min(acc, static_cast<T>(0.), et - highEtThres) * lowEtGrad;
+  }
+
+  //--- Metric to define the best matching SC per seed, based on the matching variables normalised to their cut values
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE float normalisedSq(const float value, const float cutMax) {
+    if (cutMax <= 0.f)
+      return 0.f;
+    const float r = value / cutMax;
+    return r * r;
   }
 
   //--- Kernel for printing the SC SoA
@@ -128,8 +138,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       for (int i : uniform_elements(acc, viewEleSeeds.metadata().size())) {
         auto eleSeed = viewEleSeeds[i];
 
+        // Matching variables of a charge hypothesis that did not match are set to FLT_MAX
+        using EVector3f = Eigen::Matrix<float, 3, 1>;
+        constexpr float kNoMatch = std::numeric_limits<float>::max();
+        const EVector3f noMatch(kNoMatch, kNoMatch, kNoMatch);
+        eleSeed.isMatched() = 0;
+        eleSeed.matchedScID() = -1;
+        eleSeed.PMVars_dRZPos() = noMatch;
+        eleSeed.PMVars_dPhiPos() = noMatch;
+        eleSeed.PMVars_dRZNeg() = noMatch;
+        eleSeed.PMVars_dPhiNeg() = noMatch;
+
         if (!(eleSeed.hit0isValid()))
           continue;
+
+        // Keep only the best matching SC - both charge hypotheses taken from that same SC
+        float bestScore = kNoMatch;
 
         // Access first hit information
         Vec3d hitPosition(eleSeed.hit0Pos().x(), eleSeed.hit0Pos().y(), eleSeed.hit0Pos().z());
@@ -152,6 +176,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           Vec3d positionSC(x, y, z);
 
+          float scScore = kNoMatch;
+          EVector3f dRZPos = noMatch, dPhiPos = noMatch, dRZNeg = noMatch, dPhiNeg = noMatch;
+
           for (int charge : {1, -1}) {
             const float c = (charge == 1 ? -2.99792458e-3f : +2.99792458e-3f);
 
@@ -171,8 +198,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             double s = 0;
             bool theSolExists = false;
 
-            Vec3d propagatedPos(0);
-            Vec3d propagatedMom(0);
+            Vec3d propagatedPos;
+            Vec3d propagatedMom;
 
             double rho = (c * bFieldFirst) / momentum.rho(acc);
 
@@ -227,8 +254,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             rho = (c * bFieldHit0) / momentum2.rho(acc);
 
             theSolExists = false;
-            propagatedPos = Vec3d(0);
-            propagatedMom = Vec3d(0);
+            propagatedPos.zero();
+            propagatedMom.zero();
 
             egamma::Plane<typename Vec3d::value_type> plane2(surf2Position, surf2Rotation);
             if (eleSeed.hit1detectorID() == 1) {
@@ -265,6 +292,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 (dRZMax2 >= 0 && alpaka::math::abs(acc, dRZ2) > dRZMax2))
               continue;
 
+            float score = normalisedSq(dPhi, dPhiMax) + normalisedSq(dPhi2, dPhiMax2) + normalisedSq(dRZ2, dRZMax2);
+
             float dRZ3 = 0;
             float dPhi3 = 0;
             // --- Third hit (triplet seeds only) ---
@@ -274,7 +303,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               Vec3d surf3Rotation(eleSeed.surf2Rot().x(), eleSeed.surf2Rot().y(), eleSeed.surf2Rot().z());
 
               bool thirdSolExists = false;
-              Vec3d propagatedPos3(0), propagatedMom3(0);
+              Vec3d propagatedPos3, propagatedMom3;
               double s3 = 0;
 
               egamma::Plane<typename Vec3d::value_type> plane3(surf3Position, surf3Rotation);
@@ -309,19 +338,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               if ((dPhiMax3 >= 0 && alpaka::math::abs(acc, dPhi3) > dPhiMax3) ||
                   (dRZMax3 >= 0 && alpaka::math::abs(acc, dRZ3) > dRZMax3))
                 continue;
+
+              score += normalisedSq(dPhi3, dPhiMax3) + normalisedSq(dRZ3, dRZMax3);
             }
 
-            eleSeed.matchedScID() = static_cast<int16_t>(viewSCs[j].id());
-            eleSeed.isMatched() = static_cast<int16_t>(1);
-
-            using EVector3f = Eigen::Matrix<float, 3, 1>;
+            scScore = alpaka::math::min(acc, scScore, score);
             if (charge == 1) {
-              eleSeed.PMVars_dRZPos() = EVector3f(dRZ, dRZ2, dRZ3);
-              eleSeed.PMVars_dPhiPos() = EVector3f(dPhi, dPhi2, dPhi3);
+              dRZPos = EVector3f(dRZ, dRZ2, dRZ3);
+              dPhiPos = EVector3f(dPhi, dPhi2, dPhi3);
             } else {
-              eleSeed.PMVars_dRZNeg() = EVector3f(dRZ, dRZ2, dRZ3);
-              eleSeed.PMVars_dPhiNeg() = EVector3f(dPhi, dPhi2, dPhi3);
+              dRZNeg = EVector3f(dRZ, dRZ2, dRZ3);
+              dPhiNeg = EVector3f(dPhi, dPhi2, dPhi3);
             }
+          }
+
+          if (scScore < bestScore) {
+            bestScore = scScore;
+            eleSeed.isMatched() = 1;
+            eleSeed.matchedScID() = viewSCs[j].id();
+            eleSeed.PMVars_dRZPos() = dRZPos;
+            eleSeed.PMVars_dPhiPos() = dPhiPos;
+            eleSeed.PMVars_dRZNeg() = dRZNeg;
+            eleSeed.PMVars_dPhiNeg() = dPhiNeg;
           }
         }
       }

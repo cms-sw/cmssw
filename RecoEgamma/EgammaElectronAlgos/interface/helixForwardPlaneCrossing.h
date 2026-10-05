@@ -112,8 +112,8 @@ namespace propagators {
     pathLength = min_cosTheta_flag ? static_cast<T>(0.) : (plane.pos(2) - point[2]) / cosTheta;
 
     const bool validSolution =
-        !min_cosTheta_flag && !(((propDir == PropagationDirection::alongMomentum) && (pathLength < 0.)) ||
-                                ((propDir == PropagationDirection::oppositeToMomentum) && (pathLength > 0.)) ||
+        !min_cosTheta_flag && !(((propDir == PropagationDirection::alongMomentum) && (pathLength < 0)) ||
+                                ((propDir == PropagationDirection::oppositeToMomentum) && (pathLength > 0)) ||
                                 !alpaka::math::isfinite(acc, pathLength));
 
     if (!validSolution) {
