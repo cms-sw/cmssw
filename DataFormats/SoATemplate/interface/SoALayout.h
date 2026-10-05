@@ -1456,7 +1456,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     ,                                                                                                      \
     /* Column */                                                                                           \
     SOA_HOST_DEVICE SOA_INLINE                                                                             \
-    const CPP_TYPE& NAME() const { return record_type_ptr_->BOOST_PP_CAT(NAME, _);},                       \
+    decltype(auto) NAME() const { return (record_type_ptr_->BOOST_PP_CAT(NAME, _));},                      \
     /* Eigen column */                                                                                     \
     SOA_HOST_DEVICE SOA_INLINE                                                                             \
     cms::soa::EigenConstMap<CPP_TYPE> NAME() const                                                         \
@@ -1479,7 +1479,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     ,                                                                                                      \
     /* Column */                                                                                           \
     SOA_HOST_DEVICE SOA_INLINE                                                                             \
-    CPP_TYPE& NAME() { return record_type_ptr_->BOOST_PP_CAT(NAME, _);},                                   \
+    decltype(auto) NAME() { return (record_type_ptr_->BOOST_PP_CAT(NAME, _));},                            \
     /* Eigen column */                                                                                     \
     SOA_HOST_DEVICE SOA_INLINE                                                                             \
     cms::soa::EigenMap<CPP_TYPE> NAME()                                                                    \
@@ -2024,6 +2024,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
       /* AoS-like accessor (const) */                                                                                  \
       using const_element = typename base_type::const_element;                                                         \
+      using base_type::operator[];                                                                                     \
                                                                                                                        \
       /* AoS-like accessor (mutable) */                                                                                \
       struct element {                                                                                                 \
