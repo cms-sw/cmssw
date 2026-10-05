@@ -1,23 +1,18 @@
-#ifndef RecoLocalTracker_SiPixelRecHits_PixelCPENNReco_H
-#define RecoLocalTracker_SiPixelRecHits_PixelCPENNReco_H
+#ifndef RecoLocalTracker_SiPixelRecHits_plugins_PixelCPENNReco_h
+#define RecoLocalTracker_SiPixelRecHits_plugins_PixelCPENNReco_h
 
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGeneric.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplateDefs.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
-#include "CondFormats/SiPixelTransient/interface/SiPixelGenError.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGenericBase.h"
-
-#ifndef SI_PIXEL_TEMPLATE_STANDALONE
-#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
-#else
-#include "SiPixelTemplate.h"
-#endif
-
+#include <string>
 #include <vector>
 
 class MagneticField;
 
-class PixelCPENNReco : public PixelCPEGenericBase {
+// NN-based CPE for BPIX. FPIX hits, hits without track angles and hits for which
+// the NN inference fails fall back to PixelCPEGeneric.
+class PixelCPENNReco : public PixelCPEGeneric {
 public:
   PixelCPENNReco(edm::ParameterSet const &conf,
                  const MagneticField *,
@@ -25,10 +20,11 @@ public:
                  const TrackerTopology &,
                  const SiPixelLorentzAngle *,
                  const SiPixelGenErrorDBObject *,
+                 const SiPixelLorentzAngle *,
                  std::vector<const tensorflow::Session *>,
                  std::vector<const tensorflow::Session *>);
 
-  ~PixelCPENNReco() override;
+  ~PixelCPENNReco() override = default;
 
   static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
@@ -39,24 +35,16 @@ private:
     float NNYrec_ = 0.f;
     float NNSigmaX_ = 0.f;
     float NNSigmaY_ = 0.f;
-    int ierr = 0;
+    bool useGeneric_ = true;
   };
   std::unique_ptr<ClusterParam> createClusterParam(const SiPixelCluster &cl) const override;
 
-  // We only need to implement measurementPosition, since localPosition() from
-  // PixelCPEBase will call it and do the transformation
-  // Gavril : put it back
   LocalPoint localPosition(DetParam const &theDetParam, ClusterParam &theClusterParam) const override;
-
-  // However, we do need to implement localError().
   LocalError localError(DetParam const &theDetParam, ClusterParam &theClusterParam) const override;
 
-  // Template storage
-  // std::vector<SiPixelTemplateStore> thePixelTemp_;
-  //--- DB Error Parametrization object, new light templates
-  std::vector<SiPixelGenErrorStore> thePixelGenError_;
   int PixelPreprocess(const SiPixelCluster &cluster,
                       const PixelTopology &topol,
+                      const Topology::LocalTrackPred &loc_trk_pred,
                       float (&Cluster_raw)[TXSIZE][TYSIZE],
                       float (&Cluster_xRaw)[TXSIZE],
                       float (&Cluster_yRaw)[TYSIZE],
