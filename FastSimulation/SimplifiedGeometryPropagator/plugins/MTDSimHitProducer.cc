@@ -94,13 +94,13 @@ namespace fastsim {
   /// Constructor
   ////////////////////////////////////////////////////////////////////////////////
   MTDSimHitProducer::MTDSimHitProducer(const std::string& name, const edm::ParameterSet& cfg)
-    : InteractionModel(name),
-      btlRadius_(cfg.getParameter<double>("btlRadius")),
-      btlHalfLength_(cfg.getParameter<double>("btlHalfLength")),
-      etlRMin_(cfg.getParameter<double>("etlRMin")),
-      etlRMax_(cfg.getParameter<double>("etlRMax")),
-      btlHits_(std::make_unique<edm::PSimHitContainer>()),
-      etlHits_(std::make_unique<edm::PSimHitContainer>()) {}
+      : InteractionModel(name),
+        btlRadius_(cfg.getParameter<double>("btlRadius")),
+        btlHalfLength_(cfg.getParameter<double>("btlHalfLength")),
+        etlRMin_(cfg.getParameter<double>("etlRMin")),
+        etlRMax_(cfg.getParameter<double>("etlRMax")),
+        btlHits_(std::make_unique<edm::PSimHitContainer>()),
+        etlHits_(std::make_unique<edm::PSimHitContainer>()) {}
 
   ////////////////////////////////////////////////////////////////////////////////
   /// Register the SimHit collection
@@ -166,7 +166,7 @@ namespace fastsim {
     // simTrackId: use mother if there is
     //------------------------------------------------------------------------------
     const int simTrackId =
-      particle.getMotherSimTrackIndex() >= 0 ? particle.getMotherSimTrackIndex() : particle.simTrackIndex();
+        particle.getMotherSimTrackIndex() >= 0 ? particle.getMotherSimTrackIndex() : particle.simTrackIndex();
 
     //------------------------------------------------------------------------------
     // energy deposit from EnergyLoss interaction model
@@ -198,7 +198,8 @@ namespace fastsim {
         GlobalPoint position(x, y, z);
         GlobalVector momentum(px, py, pz);
         auto plane = detLayer->surface().tangentPlane(position);
-        TrajectoryStateOnSurface tsos(GlobalTrajectoryParameters(position, momentum, TrackCharge(particle.charge()), &magneticField), *plane);
+        TrajectoryStateOnSurface tsos(
+            GlobalTrajectoryParameters(position, momentum, TrackCharge(particle.charge()), &magneticField), *plane);
 
         //--------------------------------------
         // Find the nearest DetUnit
@@ -250,9 +251,15 @@ namespace fastsim {
         auto plane = detLayer->surface().tangentPlane(position);
 
         AlgebraicSymMatrix55 dummyCov;
-        dummyCov(0,0) = 1.; dummyCov(1,1) = 1.; dummyCov(2,2) = 1.;
-        dummyCov(3,3) = 1.; dummyCov(4,4) = 1.;
-        TrajectoryStateOnSurface tsos(GlobalTrajectoryParameters(position, momentum, TrackCharge(particle.charge()), &magneticField), CurvilinearTrajectoryError(dummyCov), *plane);
+        dummyCov(0, 0) = 1.;
+        dummyCov(1, 1) = 1.;
+        dummyCov(2, 2) = 1.;
+        dummyCov(3, 3) = 1.;
+        dummyCov(4, 4) = 1.;
+        TrajectoryStateOnSurface tsos(
+            GlobalTrajectoryParameters(position, momentum, TrackCharge(particle.charge()), &magneticField),
+            CurvilinearTrajectoryError(dummyCov),
+            *plane);
 
         AnalyticalPropagator propagator(&magneticField, anyDirection);
         InsideBoundsMeasurementEstimator est;

@@ -1,5 +1,5 @@
-#ifndef Fastsim_SimplifiedGeometryPropagator_Geometry_h
-#define Fastsim_SimplifiedGeometryPropagator_Geometry_h
+#ifndef FastSimulation_SimplifiedGeometryPropagator_Geometry_h
+#define FastSimulation_SimplifiedGeometryPropagator_Geometry_h
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/ForwardSimplifiedGeometry.h"

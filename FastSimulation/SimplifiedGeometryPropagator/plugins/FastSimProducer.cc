@@ -269,8 +269,6 @@ std::unique_ptr<FastSimState> FastSimProducer::beginStream(const edm::StreamID i
   return std::make_unique<FastSimState>(iConfig_, id, interactionModelNames_);
 }
 
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // Definition of propagateThroughLayers function
 ////////////////////////////////////////////////////////////////////////////////
@@ -350,8 +348,6 @@ void FastSimProducer::propagateThroughLayers(fastsim::Particle& particle,
                               << "\n-------------------------------";
   }
 }
-
-
 
 void FastSimProducer::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   LogDebug(MESSAGECATEGORY) << "   produce";

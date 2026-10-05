@@ -64,7 +64,7 @@ RecoTrackAccumulator::RecoTrackAccumulator(const edm::ParameterSet& conf,
                                            edm::ConsumesCollector& iC)
     : signalTracksTag_(conf.getParameter<edm::InputTag>("signalTracks")),
       pileUpTracksTag_(conf.getParameter<edm::InputTag>("pileUpTracks")),
-	  copyTrajectories_(conf.getParameter<bool>("copyTrajectories")),
+      copyTrajectories_(conf.getParameter<bool>("copyTrajectories")),
       outputLabel_(conf.getParameter<std::string>("outputLabel")) {
   producesCollector.produces<reco::TrackCollection>(outputLabel_);
   producesCollector.produces<TrackingRecHitCollection>(outputLabel_);
@@ -97,8 +97,9 @@ void RecoTrackAccumulator::initializeEvent(edm::Event const& e, edm::EventSetup 
 
   if (copyTrajectories_) {
     newTrajs_ = std::make_unique<std::vector<Trajectory>>();
-    newTTAss_ = std::make_unique<TrajTrackAssociationCollection>(const_cast<edm::Event&>(e).getRefBeforePut<std::vector<Trajectory>>(),
-                                                                 const_cast<edm::Event&>(e).getRefBeforePut<reco::TrackCollection>());
+    newTTAss_ = std::make_unique<TrajTrackAssociationCollection>(
+        const_cast<edm::Event&>(e).getRefBeforePut<std::vector<Trajectory>>(outputLabel_),
+        const_cast<edm::Event&>(e).getRefBeforePut<reco::TrackCollection>(outputLabel_));
 
     rNewTrajs_ = const_cast<edm::Event&>(e).getRefBeforePut<std::vector<Trajectory>>(outputLabel_);
     rNewTTAss_ = const_cast<edm::Event&>(e).getRefBeforePut<TrajTrackAssociationCollection>(outputLabel_);
