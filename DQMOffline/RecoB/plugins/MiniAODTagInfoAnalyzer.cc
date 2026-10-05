@@ -11,9 +11,6 @@
 #include "DataFormats/BTauReco/interface/ChargedCandidateFeatures.h"
 #include "DataFormats/BTauReco/interface/NeutralCandidateFeatures.h"
 #include "DataFormats/BTauReco/interface/LostTracksFeatures.h"
-//For DeepJet
-#include "DataFormats/BTauReco/interface/DeepFlavourTagInfo.h"
-#include "DataFormats/BTauReco/interface/DeepFlavourFeatures.h"
 //For ParticleNet
 #include "DataFormats/BTauReco/interface/DeepBoostedJetTagInfo.h"
 #include "DataFormats/BTauReco/interface/DeepBoostedJetFeatures.h"
@@ -35,7 +32,6 @@ public:
 
 private:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void analyzeTagInfoDeepJet(const reco::DeepFlavourTagInfo*);
   void analyzeTagInfoParticleNet(const reco::DeepBoostedJetTagInfo*);
   void analyzeTagInfoUnifiedParticleTransformerAK4(const reco::UnifiedParticleTransformerAK4TagInfo*);
 
@@ -48,14 +44,11 @@ private:
   std::vector<edm::InputTag> tagInfoTags_;
   std::vector<edm::EDGetTokenT<edm::View<reco::BaseTagInfo>>> tagInfoTokens_;
 
-  bool doDeepJet_;
-  bool doParticleNetCentral_;
   bool doParticleNetForward_;
   bool doUnifiedParticleTransformerAK4_;
 
   std::string partonFlavourLabel_;
 
-  std::unordered_map<std::string, MonitorElement*> map_ME_DeepJet_;
   std::unordered_map<std::string, MonitorElement*> map_ME_ParticleNet_;
   std::unordered_map<std::string, MonitorElement*> map_ME_UParT_;
 };
@@ -79,16 +72,10 @@ MiniAODTagInfoAnalyzer::MiniAODTagInfoAnalyzer(const edm::ParameterSet& pSet)
   else if (jetPartonFlavour_ == 1)
     partonFlavourLabel_ = "L";
 
-  doDeepJet_ = false;
-  doParticleNetCentral_ = false;
   doParticleNetForward_ = false;
   doUnifiedParticleTransformerAK4_ = false;
   for (const auto& jetTagInfoLabel : jetTagInfos_) {
-    if (jetTagInfoLabel.find("pfDeepFlavour") != std::string::npos) {
-      doDeepJet_ = true;
-    } else if (jetTagInfoLabel.find("pfParticleNetFromMiniAODAK4PuppiCentral") != std::string::npos) {
-      doParticleNetCentral_ = true;
-    } else if (jetTagInfoLabel.find("pfParticleNetFromMiniAODAK4PuppiForward") != std::string::npos) {
+    if (jetTagInfoLabel.find("pfParticleNetFromMiniAODAK4PuppiForward") != std::string::npos) {
       doParticleNetForward_ = true;
     } else if (jetTagInfoLabel.find("pfUnifiedParticleTransformerAK4") != std::string::npos) {
       doUnifiedParticleTransformerAK4_ = true;
@@ -97,53 +84,9 @@ MiniAODTagInfoAnalyzer::MiniAODTagInfoAnalyzer(const edm::ParameterSet& pSet)
 }
 
 void MiniAODTagInfoAnalyzer::bookHistograms(DQMStore::IBooker& ibook, edm::Run const& run, edm::EventSetup const& es) {
-  if (doDeepJet_) {
-    ibook.setCurrentFolder("Btag/TagInfo_pfDeepFlavour_" + partonFlavourLabel_);
-    map_ME_DeepJet_["c_pf_btagPf_trackEtaRel"] = ibook.book1D("c_pf_btagPf_trackEtaRel", "", 50, 0., 10.);
-    map_ME_DeepJet_["c_pf_btagPf_trackPtRel"] = ibook.book1D("c_pf_btagPf_trackPtRel", "", 100, 0., 5.);
-    map_ME_DeepJet_["c_pf_btagPf_trackPPar"] = ibook.book1D("c_pf_btagPf_trackPPar", "", 100, 0., 500.);
-    map_ME_DeepJet_["c_pf_btagPf_trackDeltaR"] = ibook.book1D("c_pf_btagPf_trackDeltaR", "", 50, 0., 1);
-    map_ME_DeepJet_["c_pf_btagPf_trackPParRatio"] = ibook.book1D("c_pf_btagPf_trackPParRatio", "", 150, 0.7, 1.);
-    map_ME_DeepJet_["c_pf_btagPf_trackSip2dVal"] = ibook.book1D("c_pf_btagPf_trackSip2dVal", "", 60, -0.15, 0.15);
-    map_ME_DeepJet_["c_pf_btagPf_trackSip2dSig"] = ibook.book1D("c_pf_btagPf_trackSip2dSig", "", 120, -5., 25.);
-    map_ME_DeepJet_["c_pf_btagPf_trackSip3dVal"] = ibook.book1D("c_pf_btagPf_trackSip3dVal", "", 60, -0.15, 0.15);
-    map_ME_DeepJet_["c_pf_btagPf_trackSip3dSig"] = ibook.book1D("c_pf_btagPf_trackSip3dSig", "", 120, -5., 25.);
-    map_ME_DeepJet_["c_pf_btagPf_trackJetDistVal"] = ibook.book1D("c_pf_btagPf_trackJetDistVal", "", 110, -1.0, 0.1);
-    map_ME_DeepJet_["c_pf_ptrel"] = ibook.book1D("c_pf_ptrel", "", 100, -1.2, 0.2);
-    map_ME_DeepJet_["c_pf_drminsv"] = ibook.book1D("c_pf_drminsv", "", 120, -0.5, 0.1);
-    map_ME_DeepJet_["c_pf_vtx_ass"] = ibook.book1D("c_pf_vtx_ass", "", 10, 0, 10);
-    map_ME_DeepJet_["c_pf_puppiw"] = ibook.book1D("c_pf_puppiw", "", 20, 0., 1.);
-    map_ME_DeepJet_["c_pf_chi2"] = ibook.book1D("c_pf_chi2", "", 15, 0., 15.);
-    map_ME_DeepJet_["c_pf_quality"] = ibook.book1D("c_pf_quality", "", 10, 0., 10);
-    map_ME_DeepJet_["n_pf_ptrel"] = ibook.book1D("n_pf_ptrel", "", 50, -1., 0.);
-    map_ME_DeepJet_["n_pf_deltaR"] = ibook.book1D("n_pf_deltaR", "", 50, -1., 0.);
-    map_ME_DeepJet_["n_pf_isGamma"] = ibook.book1D("n_pf_isGamma", "", 2, -0.5, 1.5);
-    map_ME_DeepJet_["n_pf_hadFrac"] = ibook.book1D("n_pf_hadFrac", "", 20, 0., 1.);
-    map_ME_DeepJet_["n_pf_drminsv"] = ibook.book1D("n_pf_drminsv", "", 10, 0., 0.5);
-    map_ME_DeepJet_["n_pf_puppiw"] = ibook.book1D("n_pf_puppiw", "", 20, 0., 1.);
-    map_ME_DeepJet_["sv_pt"] = ibook.book1D("sv_pt", "", 50, 0., 200.);
-    map_ME_DeepJet_["sv_deltaR"] = ibook.book1D("sv_deltaR", "", 100, -0.8, 0.2);
-    map_ME_DeepJet_["sv_mass"] = ibook.book1D("sv_mass", "", 40, 0., 10.);
-    map_ME_DeepJet_["sv_ntracks"] = ibook.book1D("sv_ntracks", "", 15, -0.5, 14.5);
-    map_ME_DeepJet_["sv_chi2"] = ibook.book1D("sv_chi2", "", 40., 0., 20.);
-    map_ME_DeepJet_["sv_normchi2"] = ibook.book1D("sv_normchi2", "", 40., 0., 20.);
-    map_ME_DeepJet_["sv_dxy"] = ibook.book1D("sv_dxy", "", 100, 0., 0.5);
-    map_ME_DeepJet_["sv_dxysig"] = ibook.book1D("sv_dxysig", "", 140, 0., 70.);
-    map_ME_DeepJet_["sv_d3d"] = ibook.book1D("sv_d3d", "", 20, 0., 1.);
-    map_ME_DeepJet_["sv_d3dsig"] = ibook.book1D("sv_d3dsig", "", 140, 0., 70.);
-    map_ME_DeepJet_["sv_costhetasvpv"] = ibook.book1D("sv_costhetasvpv", "", 100, -1., 1.);
-    map_ME_DeepJet_["sv_enratio"] = ibook.book1D("sv_enratio", "", 20, 0., 1.);
-    map_ME_DeepJet_["max_cpf_n"] = ibook.book1D("max_cpf_n", "", 31, -0.5, 30.5);
-    map_ME_DeepJet_["max_npf_n"] = ibook.book1D("max_npf_n", "", 31, -0.5, 30.5);
-    map_ME_DeepJet_["max_sv_n"] = ibook.book1D("max_sv_n", "", 6, -0.5, 5.5);
-    map_ME_DeepJet_["pv_n"] = ibook.book1D("pv_n", "", 100, -0.5, 100.5);
-  }
-  if (doParticleNetCentral_ || doParticleNetForward_) {
-    if (doParticleNetCentral_) {
-      ibook.setCurrentFolder("Btag/TagInfo_pfParticleNetFromMiniAODAK4PuppiCentral_" + partonFlavourLabel_);
-    } else if (doParticleNetForward_) {
-      ibook.setCurrentFolder("Btag/TagInfo_pfParticleNetFromMiniAODAK4PuppiForward_" + partonFlavourLabel_);
-    }
+  if (doParticleNetForward_) {
+    ibook.setCurrentFolder("Btag/TagInfo_pfParticleNetFromMiniAODAK4PuppiForward_" + partonFlavourLabel_);
+
     map_ME_ParticleNet_["pfcand_pt_log"] = ibook.book1D("pfcand_pt_log", "", 120, -0.5, 5.5);
     map_ME_ParticleNet_["pfcand_energy_log"] = ibook.book1D("pfcand_energy_log", "", 120, -0.5, 5.5);
     map_ME_ParticleNet_["pfcand_deta"] = ibook.book1D("pfcand_deta", "", 60, -0.6, 0.6);
@@ -373,23 +316,8 @@ void MiniAODTagInfoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
       //
       //
       if (match.isNonnull()) {
-        if (jetTagInfos_[k].find("pfDeepFlavour") != std::string::npos && doDeepJet_) {
-          const reco::DeepFlavourTagInfo* taginfo = static_cast<const reco::DeepFlavourTagInfo*>(match.get());
-          if (!taginfo) {
-            throw cms::Exception("Configuration")
-                << "MiniAODTagInfoAnalyzer: not of type DeepFlavourTagInfo. " << std::endl;
-          }
-          analyzeTagInfoDeepJet(taginfo);
-        } else if (jetTagInfos_[k].find("pfParticleNetFromMiniAODAK4PuppiCentral") != std::string::npos &&
-                   doParticleNetCentral_) {
-          const reco::DeepBoostedJetTagInfo* taginfo = static_cast<const reco::DeepBoostedJetTagInfo*>(match.get());
-          if (!taginfo) {
-            throw cms::Exception("Configuration")
-                << "MiniAODTagInfoAnalyzer: not of type DeepBoostedJetTagInfo. " << std::endl;
-          }
-          analyzeTagInfoParticleNet(taginfo);
-        } else if (jetTagInfos_[k].find("pfParticleNetFromMiniAODAK4PuppiForward") != std::string::npos &&
-                   doParticleNetForward_) {
+        if (jetTagInfos_[k].find("pfParticleNetFromMiniAODAK4PuppiForward") != std::string::npos &&
+            doParticleNetForward_) {
           const reco::DeepBoostedJetTagInfo* taginfo = static_cast<const reco::DeepBoostedJetTagInfo*>(match.get());
           if (!taginfo) {
             throw cms::Exception("Configuration")
@@ -409,68 +337,6 @@ void MiniAODTagInfoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
       }
     }
   }
-}
-
-void MiniAODTagInfoAnalyzer::analyzeTagInfoDeepJet(const reco::DeepFlavourTagInfo* taginfo) {
-  const auto& features = taginfo->features();
-
-  size_t n_cpf_ = (unsigned int)25;
-  size_t n_npf_ = (unsigned int)25;
-  size_t n_sv_ = (unsigned int)4;
-
-  // c_pf candidates
-  auto max_c_pf_n = std::min(features.c_pf_features.size(), n_cpf_);
-  for (std::size_t c_pf_n = 0; c_pf_n < max_c_pf_n; c_pf_n++) {
-    const auto& c_pf_features = features.c_pf_features.at(c_pf_n);
-    map_ME_DeepJet_["c_pf_btagPf_trackEtaRel"]->Fill(c_pf_features.btagPf_trackEtaRel);
-    map_ME_DeepJet_["c_pf_btagPf_trackPtRel"]->Fill(c_pf_features.btagPf_trackPtRel);
-    map_ME_DeepJet_["c_pf_btagPf_trackPPar"]->Fill(c_pf_features.btagPf_trackPPar);
-    map_ME_DeepJet_["c_pf_btagPf_trackDeltaR"]->Fill(c_pf_features.btagPf_trackDeltaR);
-    map_ME_DeepJet_["c_pf_btagPf_trackPParRatio"]->Fill(c_pf_features.btagPf_trackPParRatio);
-    map_ME_DeepJet_["c_pf_btagPf_trackSip2dVal"]->Fill(c_pf_features.btagPf_trackSip2dVal);
-    map_ME_DeepJet_["c_pf_btagPf_trackSip2dSig"]->Fill(c_pf_features.btagPf_trackSip2dSig);
-    map_ME_DeepJet_["c_pf_btagPf_trackSip3dVal"]->Fill(c_pf_features.btagPf_trackSip3dVal);
-    map_ME_DeepJet_["c_pf_btagPf_trackSip3dSig"]->Fill(c_pf_features.btagPf_trackSip3dSig);
-    map_ME_DeepJet_["c_pf_btagPf_trackJetDistVal"]->Fill(c_pf_features.btagPf_trackJetDistVal);
-    map_ME_DeepJet_["c_pf_ptrel"]->Fill(c_pf_features.ptrel);
-    map_ME_DeepJet_["c_pf_drminsv"]->Fill(c_pf_features.drminsv);
-    map_ME_DeepJet_["c_pf_vtx_ass"]->Fill(c_pf_features.vtx_ass);
-    map_ME_DeepJet_["c_pf_puppiw"]->Fill(c_pf_features.puppiw);
-    map_ME_DeepJet_["c_pf_chi2"]->Fill(c_pf_features.chi2);
-    map_ME_DeepJet_["c_pf_quality"]->Fill(c_pf_features.quality);
-  }
-  // n_pf candidates
-  auto max_n_pf_n = std::min(features.n_pf_features.size(), n_npf_);
-  for (std::size_t n_pf_n = 0; n_pf_n < max_n_pf_n; n_pf_n++) {
-    const auto& n_pf_features = features.n_pf_features.at(n_pf_n);
-    map_ME_DeepJet_["n_pf_ptrel"]->Fill(n_pf_features.ptrel);
-    map_ME_DeepJet_["n_pf_deltaR"]->Fill(n_pf_features.deltaR);
-    map_ME_DeepJet_["n_pf_isGamma"]->Fill(n_pf_features.isGamma);
-    map_ME_DeepJet_["n_pf_hadFrac"]->Fill(n_pf_features.hadFrac);
-    map_ME_DeepJet_["n_pf_drminsv"]->Fill(n_pf_features.drminsv);
-    map_ME_DeepJet_["n_pf_puppiw"]->Fill(n_pf_features.puppiw);
-  }
-  // sv candidates
-  auto max_sv_n = std::min(features.sv_features.size(), n_sv_);
-  for (std::size_t sv_n = 0; sv_n < max_sv_n; sv_n++) {
-    const auto& sv_features = features.sv_features.at(sv_n);
-    map_ME_DeepJet_["sv_pt"]->Fill(sv_features.pt);
-    map_ME_DeepJet_["sv_deltaR"]->Fill(sv_features.deltaR);
-    map_ME_DeepJet_["sv_mass"]->Fill(sv_features.mass);
-    map_ME_DeepJet_["sv_ntracks"]->Fill(sv_features.ntracks);
-    map_ME_DeepJet_["sv_chi2"]->Fill(sv_features.chi2);
-    map_ME_DeepJet_["sv_normchi2"]->Fill(sv_features.normchi2);
-    map_ME_DeepJet_["sv_dxy"]->Fill(sv_features.dxy);
-    map_ME_DeepJet_["sv_dxysig"]->Fill(sv_features.dxysig);
-    map_ME_DeepJet_["sv_d3d"]->Fill(sv_features.d3d);
-    map_ME_DeepJet_["sv_d3dsig"]->Fill(sv_features.d3dsig);
-    map_ME_DeepJet_["sv_costhetasvpv"]->Fill(sv_features.costhetasvpv);
-    map_ME_DeepJet_["sv_enratio"]->Fill(sv_features.enratio);
-  }
-  map_ME_DeepJet_["max_cpf_n"]->Fill(max_c_pf_n);
-  map_ME_DeepJet_["max_npf_n"]->Fill(max_n_pf_n);
-  map_ME_DeepJet_["max_sv_n"]->Fill(max_sv_n);
-  map_ME_DeepJet_["pv_n"]->Fill(features.npv);
 }
 
 void MiniAODTagInfoAnalyzer::analyzeTagInfoParticleNet(const reco::DeepBoostedJetTagInfo* taginfo) {
