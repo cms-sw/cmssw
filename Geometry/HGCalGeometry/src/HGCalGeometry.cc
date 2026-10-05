@@ -100,7 +100,7 @@ void HGCalGeometry::newCell(
       DetId idc = m_topology.encode(id);
       if (m_topology.valid(idc)) {
         m_validIds.emplace_back(idc);
-	m_validIntIds.emplace_back(idc.rawId() & k_maskWafer6);
+        m_validIntIds.emplace_back(idc.rawId() & k_maskWafer6);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "Valid Id [" << cell << "] " << HGCalDetId(idc);
 #endif
@@ -147,7 +147,7 @@ void HGCalGeometry::newCell(
 #endif
           if (m_topology.dddConstants().cellInLayer(id.iSec1, id.iSec2, u, v, id.iLay, id.zSide, true)) {
             m_validIds.emplace_back(idc);
-	    m_validIntIds.emplace_back(idc.rawId() & k_maskSilicon);
+            m_validIntIds.emplace_back(idc.rawId() & k_maskSilicon);
 #ifdef EDM_ML_DEBUG
             ++cellSelect;
             if (idc.det() == DetId::Forward)

@@ -95,14 +95,20 @@ public:
     return (std::find(m_validIds.begin(), m_validIds.end(), id) != m_validIds.end());
   }
   bool validIntId(const uint32_t& id) const {
-    uint32_t idx = ((m_topology.waferHexagon6()) ? (id & k_maskWafer6) : (m_topology.tileTrapezoid()) ? (id & k_maskScint) : (id & k_maskSilicon));
+    uint32_t idx = ((m_topology.waferHexagon6())   ? (id & k_maskWafer6)
+                    : (m_topology.tileTrapezoid()) ? (id & k_maskScint)
+                                                   : (id & k_maskSilicon));
     return (std::find(m_validIntIds.begin(), m_validIntIds.end(), idx) != m_validIntIds.end());
   }
   uint32_t validFullId(const uint32_t& id) const {
-    uint32_t idx = ((m_topology.waferHexagon6()) ? (id & k_maskWafer6) : (m_topology.tileTrapezoid()) ? (id & k_maskScint) : (id & k_maskSilicon));
-    for (auto & idz : m_validIds) {
-      if (idx == ((m_topology.waferHexagon6()) ? (idz & k_maskWafer6) : (m_topology.tileTrapezoid()) ? (idz & k_maskScint) : (idz & k_maskSilicon)))
-	return idz;
+    uint32_t idx = ((m_topology.waferHexagon6())   ? (id & k_maskWafer6)
+                    : (m_topology.tileTrapezoid()) ? (id & k_maskScint)
+                                                   : (id & k_maskSilicon));
+    for (auto& idz : m_validIds) {
+      if (idx == ((m_topology.waferHexagon6())   ? (idz & k_maskWafer6)
+                  : (m_topology.tileTrapezoid()) ? (idz & k_maskScint)
+                                                 : (idz & k_maskSilicon)))
+        return idz;
     }
     return 0;
   }

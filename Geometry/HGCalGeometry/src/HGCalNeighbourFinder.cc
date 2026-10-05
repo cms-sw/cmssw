@@ -492,8 +492,8 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
                                     << " (u = " << iuNxt << ", v = " << ivNxt << " ID " << std::hex << detIdVec[icount]
                                     << std::dec << " Valid " << geom_->validIntId(detIdVec[icount]);
 #endif
-      if (geom_->validIntId(detIdVec[icount])) 
-	detIdVec[icount] = geom_->validFullId(detIdVec[icount]);
+      if (geom_->validIntId(detIdVec[icount]))
+        detIdVec[icount] = geom_->validFullId(detIdVec[icount]);
       if (partialWafer) {
         if (geom_->validDetId(DetId(detIdVec[icount])))
           icount++;
