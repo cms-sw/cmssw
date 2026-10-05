@@ -38,6 +38,7 @@ HGCalGeometry::HGCalGeometry(const HGCalTopology& topology_)
     m_cellVec = CellVec(topology_.totalGeomModules());
   }
   m_validIds.reserve(m_topology.totalModules());
+  m_validIntIds.reserve(m_topology.totalModules());
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Expected total # of Geometry Modules " << m_topology.totalGeomModules();
 #endif
@@ -99,6 +100,7 @@ void HGCalGeometry::newCell(
       DetId idc = m_topology.encode(id);
       if (m_topology.valid(idc)) {
         m_validIds.emplace_back(idc);
+	m_validIntIds.emplace_back(idc.rawId() & k_maskWafer6);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "Valid Id [" << cell << "] " << HGCalDetId(idc);
 #endif
@@ -120,6 +122,7 @@ void HGCalGeometry::newCell(
       hid.setGranularity(granul);
       idc = static_cast<DetId>(hid);
       m_validIds.emplace_back(idc);
+      m_validIntIds.emplace_back(idc.rawId() & k_maskScint);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Valid Id [0] " << HGCScintillatorDetId(idc);
     } else {
@@ -144,6 +147,7 @@ void HGCalGeometry::newCell(
 #endif
           if (m_topology.dddConstants().cellInLayer(id.iSec1, id.iSec2, u, v, id.iLay, id.zSide, true)) {
             m_validIds.emplace_back(idc);
+	    m_validIntIds.emplace_back(idc.rawId() & k_maskSilicon);
 #ifdef EDM_ML_DEBUG
             ++cellSelect;
             if (idc.det() == DetId::Forward)

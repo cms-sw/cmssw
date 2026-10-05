@@ -94,6 +94,18 @@ public:
   bool validDetId(const DetId& id) const {
     return (std::find(m_validIds.begin(), m_validIds.end(), id) != m_validIds.end());
   }
+  bool validIntId(const uint32_t& id) const {
+    uint32_t idx = ((m_topology.waferHexagon6()) ? (id & k_maskWafer6) : (m_topology.tileTrapezoid()) ? (id & k_maskScint) : (id & k_maskSilicon));
+    return (std::find(m_validIntIds.begin(), m_validIntIds.end(), idx) != m_validIntIds.end());
+  }
+  uint32_t validFullId(const uint32_t& id) const {
+    uint32_t idx = ((m_topology.waferHexagon6()) ? (id & k_maskWafer6) : (m_topology.tileTrapezoid()) ? (id & k_maskScint) : (id & k_maskSilicon));
+    for (auto & idz : m_validIds) {
+      if (idx == ((m_topology.waferHexagon6()) ? (idz & k_maskWafer6) : (m_topology.tileTrapezoid()) ? (idz & k_maskScint) : (idz & k_maskSilicon)))
+	return idz;
+    }
+    return 0;
+  }
   const std::vector<DetId>& getValidGeomDetIds(void) const { return m_validGeomIds; }
   bool validGeomDetId(const DetId& id) const {
     return (std::find(m_validGeomIds.begin(), m_validGeomIds.end(), id) != m_validGeomIds.end());
@@ -144,9 +156,13 @@ private:
   static constexpr double k_fac1 = 0.5;
   static constexpr double k_fac2 = 1.0 / 3.0;
 
+  static constexpr uint32_t k_maskSilicon = 0x1FFFFFF;
+  static constexpr uint32_t k_maskScint = 0x11FFFFF;
+  static constexpr uint32_t k_maskWafer6 = 0xFFFBFFFF;
   const HGCalTopology& m_topology;
   CellVec m_cellVec;
   CellVec2 m_cellVec2;
+  std::vector<uint32_t> m_validIntIds;
   std::vector<DetId> m_validGeomIds;
   DetId::Detector m_det;
   ForwardSubdetector m_subdet;
