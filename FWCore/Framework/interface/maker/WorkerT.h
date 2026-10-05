@@ -93,7 +93,6 @@ namespace edm {
     using Base::moduleType;
 
     bool wantsProcessBlocks() const noexcept final;
-    bool wantsInputProcessBlocks() const noexcept final;
     bool wantsGlobalRuns() const noexcept final;
     bool wantsGlobalLuminosityBlocks() const noexcept final;
     bool wantsStreamRuns() const noexcept final;
@@ -118,7 +117,6 @@ namespace edm {
 
   private:
     bool implDoBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) override;
-    bool implDoAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) override;
     bool implDoEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) override;
     bool implDoBegin(RunTransitionInfo const&, ModuleCallingContext const*) override;
     bool implDoStreamBegin(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) override;
@@ -130,6 +128,23 @@ namespace edm {
     bool implDoStreamEnd(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) override;
     bool implDoEnd(LumiTransitionInfo const&, ModuleCallingContext const*) override;
     bool implDoWrite(LumiTransitionInfo const&, ModuleCallingContext const*) override;
+    using Base::serializeRunModule;
+  };
+
+  template <typename T>
+  class WorkerT<T, InputProcessBlockTransitionInfo, TransitionPhaseGlobal>
+      : public WorkerTBase<T, InputProcessBlockTransitionInfo, TransitionPhaseGlobal> {
+  public:
+    using ModuleType = T;
+    using WorkerType = WorkerT<T, InputProcessBlockTransitionInfo, TransitionPhaseGlobal>;
+    using Base = TransitionWorker<InputProcessBlockTransitionInfo, TransitionPhaseGlobal>;
+    WorkerT(std::shared_ptr<T>, ModuleDescription const&, ExceptionToActionTable const* actions);
+
+    using Base::moduleConcurrencyType;
+    using Base::moduleType;
+
+  private:
+    bool implDoAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) override;
     using Base::serializeRunModule;
   };
 

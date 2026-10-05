@@ -73,9 +73,7 @@ the worker is reset().
 #include <unordered_map>
 
 namespace edm {
-  class EventPrincipal;
   class EventSetupImpl;
-  class EarlyDeleteHelper;
   class ProductResolverIndexAndSkipBit;
 
   namespace workerhelper {
@@ -87,7 +85,6 @@ namespace edm {
     class ESRecordsToProductResolverIndices;
   }  // namespace eventsetup
 
-  class EventTransitionInfo;
   class RunTransitionInfo;
   class LumiTransitionInfo;
   struct TransitionPhaseGlobal;
@@ -138,10 +135,6 @@ namespace edm {
   struct TransitionActionTrait<TI, TransitionPhaseStream, TransitionEdge::kEnd> {
     static constexpr TransitionActionType value = TransitionActionStreamEnd;
   };
-  template <>
-  struct TransitionActionTrait<InputProcessBlockTransitionInfo, TransitionPhaseGlobal, TransitionEdge::kBegin> {
-    static constexpr TransitionActionType value = TransitionActionProcessBlockInput;
-  };
 
   template <typename TI, typename TP>
   class TransitionWorker : public Worker {
@@ -152,7 +145,6 @@ namespace edm {
     TransitionWorker(ModuleDescription const& iMD, ExceptionToActionTable const* iActions) : Worker(iMD, iActions) {}
 
     virtual bool wantsProcessBlocks() const noexcept = 0;
-    virtual bool wantsInputProcessBlocks() const noexcept = 0;
     virtual bool wantsGlobalRuns() const noexcept = 0;
     virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
     virtual bool wantsStreamRuns() const noexcept = 0;
@@ -220,7 +212,6 @@ namespace edm {
     friend class workerhelper::CallImpl;
 
     virtual bool implDoBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
     virtual bool implDoEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
     virtual bool implDoBegin(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoStreamBegin(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) = 0;
@@ -748,44 +739,6 @@ namespace edm {
       template <typename T>
       static bool wantsTransition(T const* iWorker) noexcept {
         return iWorker->wantsProcessBlocks();
-      }
-      template <typename T>
-      static bool needToRunSelection(T const* iWorker) noexcept {
-        return false;
-      }
-      template <typename T>
-      static SerialTaskQueue* pauseGlobalQueue(T* iWorker) noexcept {
-        return nullptr;
-      }
-      template <typename T>
-      static SerialTaskQueue* enableGlobalQueue(T* iWorker) noexcept {
-        return nullptr;
-      }
-    };
-    template <>
-    class CallImpl<OccurrenceTraits<ProcessBlockPrincipal, TransitionActionProcessBlockInput>> {
-    public:
-      using Arg = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionProcessBlockInput>;
-      static bool call(TransitionWorker<InputProcessBlockTransitionInfo, TransitionPhaseGlobal>* iWorker,
-                       StreamID,
-                       InputProcessBlockTransitionInfo const& info,
-                       ActivityRegistry* actReg,
-                       ModuleCallingContext const* mcc,
-                       Arg::Context const* context) {
-        ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
-        cpp.preModuleSignal();
-        auto returnValue = iWorker->implDoAccessInputProcessBlock(info.principal(), mcc);
-        cpp.postModuleSignal();
-        return returnValue;
-      }
-      static void esPrefetchAsync(TransitionWorker<InputProcessBlockTransitionInfo, TransitionPhaseGlobal>*,
-                                  WaitingTaskHolder,
-                                  ServiceToken const&,
-                                  InputProcessBlockTransitionInfo const&,
-                                  Transition) noexcept {}
-      template <typename T>
-      static bool wantsTransition(T const* iWorker) noexcept {
-        return iWorker->wantsInputProcessBlocks();
       }
       template <typename T>
       static bool needToRunSelection(T const* iWorker) noexcept {

@@ -139,6 +139,12 @@ namespace edm {
       : WorkerTBase<T, TI, TP>(ed, md, actions) {}
 
   template <typename T>
+  WorkerT<T, InputProcessBlockTransitionInfo, TransitionPhaseGlobal>::WorkerT(std::shared_ptr<T> ed,
+                                                                              ModuleDescription const& md,
+                                                                              ExceptionToActionTable const* actions)
+      : WorkerTBase<T, InputProcessBlockTransitionInfo, TransitionPhaseGlobal>(ed, md, actions) {}
+
+  template <typename T>
   WorkerT<T, EventTransitionInfo, TransitionPhaseGlobal>::WorkerT(std::shared_ptr<T> ed,
                                                                   ModuleDescription const& md,
                                                                   ExceptionToActionTable const* actions)
@@ -147,11 +153,6 @@ namespace edm {
   template <typename T, typename TI, typename TP>
   bool WorkerT<T, TI, TP>::wantsProcessBlocks() const noexcept {
     return this->module().wantsProcessBlocks();
-  }
-
-  template <typename T, typename TI, typename TP>
-  bool WorkerT<T, TI, TP>::wantsInputProcessBlocks() const noexcept {
-    return this->module().wantsInputProcessBlocks();
   }
 
   template <typename T, typename TI, typename TP>
@@ -178,13 +179,12 @@ namespace edm {
   bool WorkerT<T, TI, TP>::wantsWrites() const noexcept {
     return false;
   }
-#define EDM_FOR_EACH_WORKERT_TRANSITION(M, T)             \
-  M(T, RunTransitionInfo, TransitionPhaseGlobal)          \
-  M(T, RunTransitionInfo, TransitionPhaseStream)          \
-  M(T, LumiTransitionInfo, TransitionPhaseGlobal)         \
-  M(T, LumiTransitionInfo, TransitionPhaseStream)         \
-  M(T, ProcessBlockTransitionInfo, TransitionPhaseGlobal) \
-  M(T, InputProcessBlockTransitionInfo, TransitionPhaseGlobal)
+#define EDM_FOR_EACH_WORKERT_TRANSITION(M, T)     \
+  M(T, RunTransitionInfo, TransitionPhaseGlobal)  \
+  M(T, RunTransitionInfo, TransitionPhaseStream)  \
+  M(T, LumiTransitionInfo, TransitionPhaseGlobal) \
+  M(T, LumiTransitionInfo, TransitionPhaseStream) \
+  M(T, ProcessBlockTransitionInfo, TransitionPhaseGlobal)
 
 #define EDM_SPECIALIZE_WORKERT_WANTS_WRITES(T, TI, TP)    \
   template <>                                             \
@@ -358,9 +358,9 @@ namespace edm {
     return true;
   }
 
-  template <typename T, typename TI, typename TP>
-  bool WorkerT<T, TI, TP>::implDoAccessInputProcessBlock(ProcessBlockPrincipal const& pbp,
-                                                         ModuleCallingContext const* mcc) {
+  template <typename T>
+  bool WorkerT<T, InputProcessBlockTransitionInfo, TransitionPhaseGlobal>::implDoAccessInputProcessBlock(
+      ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
     this->module().doAccessInputProcessBlock(pbp, mcc);
     return true;
   }
