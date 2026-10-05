@@ -3,7 +3,7 @@
 #   cmsRun protoSimValid_cfg.py geometry=D121 type=hgcalBHValidation
 #
 #   Options for geometry D104, D110, D111, D112, D113, D114, D115, D120, D121,
-#                        D122, D123, D124, D125
+#                        D122, D123, D124, D125, D126, D127 D128
 #               type hgcalBHValidation, hgcalSiliconValidation
 #
 ###############################################################################
@@ -15,10 +15,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D121",
+                 "D128",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D104, D110, D111, D112, D113, D114, D115, D120, D121, D122, D123, D124, D125")
+                  "geometry of operations: D104, D110, D111, D112, D113, D114, D115, D120, D121, D122, D123, D124, D125, D126, D127 D128")
 options.register ('type',
                   "hgcalBHValidation",
                   VarParsing.VarParsing.multiplicity.singleton,
