@@ -10,7 +10,8 @@
 #include <type_traits>
 
 using TestVector = Eigen::Vector3d;
-using TestMatrix = Eigen::Matrix<uint64_t, 2, 4, Eigen::RowMajor>;
+using RowMajorMatrix = Eigen::Matrix<uint64_t, 2, 4, Eigen::RowMajor>;
+using ColMajorMatrix = Eigen::Matrix<uint64_t, 2, 4, Eigen::ColMajor>;
 
 GENERATE_SOA_LAYOUT(SoATemplate,
                     SOA_SCALAR(int8_t, s1),
@@ -21,9 +22,10 @@ GENERATE_SOA_LAYOUT(SoATemplate,
                     SOA_EIGEN_COLUMN(TestVector, candidateDirection),
                     SOA_COLUMN(int64_t, i2),
                     SOA_SCALAR(int64_t, s3),
-                    SOA_EIGEN_COLUMN(TestMatrix, matrix),
+                    SOA_EIGEN_COLUMN(RowMajorMatrix, rowMatrix),
                     SOA_SCALAR(double, s4),
-                    SOA_SCALAR(const char *, s5))
+                    SOA_SCALAR(const char *, s5),
+                    SOA_EIGEN_COLUMN(ColMajorMatrix, colMatrix))
 
 using SoA = SoATemplate<>;
 using SoAView = SoA::View;
@@ -100,7 +102,8 @@ TEST_CASE("AoS Unit Tests") {
     soaView[i].i1() = static_cast<int8_t>(i);
     soaView[i].candidateDirection() = TestVector(i + 0.3, i + 0.4, i + 0.5);
     soaView[i].i2() = static_cast<int64_t>(i) * 4269420666;
-    soaView[i].matrix() = TestMatrix{{i, i + 1, i + 2, i + 3}, {i + 4, i + 5, i + 6, i + 7}};
+    soaView[i].rowMatrix() = RowMajorMatrix{{i, i + 1, i + 2, i + 3}, {i + 4, i + 5, i + 6, i + 7}};
+    soaView[i].colMatrix() = ColMajorMatrix{{i, i + 1, i + 2, i + 3}, {i + 4, i + 5, i + 6, i + 7}};
   }
   soaView.s1() = 100;
   soaView.s2() = 42.42f;
@@ -128,7 +131,8 @@ TEST_CASE("AoS Unit Tests") {
       REQUIRE(element.i1() == static_cast<int8_t>(i));
       REQUIRE(element.candidateDirection().isApprox(TestVector(i + 0.3, i + 0.4, i + 0.5), 1.e-6));
       REQUIRE(element.i2() == static_cast<int64_t>(i) * 4269420666);
-      REQUIRE(element.matrix() == TestMatrix{{i, i + 1, i + 2, i + 3}, {i + 4, i + 5, i + 6, i + 7}});
+      REQUIRE(element.rowMatrix() == RowMajorMatrix{{i, i + 1, i + 2, i + 3}, {i + 4, i + 5, i + 6, i + 7}});
+      REQUIRE(element.colMatrix() == ColMajorMatrix{{i, i + 1, i + 2, i + 3}, {i + 4, i + 5, i + 6, i + 7}});
 
       // check that alternative accessors work as well
       REQUIRE_THAT(aosConstView.f1(i), Catch::Matchers::WithinAbs(element.f1(), 1.e-6));
@@ -141,8 +145,10 @@ TEST_CASE("AoS Unit Tests") {
       REQUIRE(aosConstView.candidateDirection()[i].isApprox(element.candidateDirection(), 1.e-6));
       REQUIRE(aosConstView.i2(i) == element.i2());
       REQUIRE(aosConstView.i2()[i] == element.i2());
-      REQUIRE(aosConstView.matrix(i) == element.matrix());
-      REQUIRE(aosConstView.matrix()[i] == element.matrix());
+      REQUIRE(aosConstView.rowMatrix(i) == element.rowMatrix());
+      REQUIRE(aosConstView.rowMatrix()[i] == element.rowMatrix());
+      REQUIRE(aosConstView.colMatrix(i) == element.colMatrix());
+      REQUIRE(aosConstView.colMatrix()[i] == element.colMatrix());
     }
     REQUIRE(aosConstView.s1() == 100);
     REQUIRE_THAT(aosConstView.s2(), Catch::Matchers::WithinAbs(42.42f, 1.e-6));
@@ -153,23 +159,37 @@ TEST_CASE("AoS Unit Tests") {
   }
 
   SECTION("AoS View check assignment operator") {
-    soaView[0] = {0.0, 0.0, 0, {0.0, 0.0, 0.0}, 0, TestMatrix{{0, 0, 0, 0}, {0, 0, 0, 0}}};
+    soaView[0] = {42.75,
+                  -13.5,
+                  -37,
+                  {1.25, -2.5, 3.75},
+                  9876543210LL,
+                  RowMajorMatrix{{1, 2, 3, 4}, {5, 6, 7, 8}},
+                  ColMajorMatrix{{11, 12, 13, 14}, {15, 16, 17, 18}}};
 
-    REQUIRE_THAT(soaConstView[0].f1(), Catch::Matchers::WithinAbs(0.0, 1.e-6));
-    REQUIRE_THAT(soaConstView[0].f2(), Catch::Matchers::WithinAbs(0.0, 1.e-6));
-    REQUIRE(soaConstView[0].i1() == 0);
-    REQUIRE(soaConstView[0].candidateDirection().norm() < 1.e-6);
-    REQUIRE(soaConstView[0].i2() == 0);
-    REQUIRE(soaConstView[0].matrix() == TestMatrix{{0, 0, 0, 0}, {0, 0, 0, 0}});
+    REQUIRE_THAT(soaConstView[0].f1(), Catch::Matchers::WithinAbs(42.75, 1.e-6));
+    REQUIRE_THAT(soaConstView[0].f2(), Catch::Matchers::WithinAbs(-13.5, 1.e-6));
+    REQUIRE(soaConstView[0].i1() == static_cast<int8_t>(-37));
+    REQUIRE((soaConstView[0].candidateDirection() - TestVector{1.25, -2.5, 3.75}).norm() < 1.e-6);
+    REQUIRE(soaConstView[0].i2() == static_cast<int64_t>(9876543210LL));
+    REQUIRE(soaConstView[0].rowMatrix() == RowMajorMatrix{{1, 2, 3, 4}, {5, 6, 7, 8}});
+    REQUIRE(soaConstView[0].colMatrix() == ColMajorMatrix{{11, 12, 13, 14}, {15, 16, 17, 18}});
 
-    aosView[0] = {0.0, 0.0, 0, {0.0, 0.0, 0.0}, 0, TestMatrix{{0, 0, 0, 0}, {0, 0, 0, 0}}};
+    aosView[0] = {-91.25,
+                  27.125,
+                  106,
+                  {-4.5, 8.25, -12.75},
+                  -1234567890123LL,
+                  RowMajorMatrix{{101, 202, 303, 404}, {505, 606, 707, 808}},
+                  ColMajorMatrix{{909, 808, 707, 606}, {505, 404, 303, 202}}};
 
-    REQUIRE_THAT(aosConstView[0].f1(), Catch::Matchers::WithinAbs(0.0, 1.e-6));
-    REQUIRE_THAT(aosConstView[0].f2(), Catch::Matchers::WithinAbs(0.0, 1.e-6));
-    REQUIRE(aosConstView[0].i1() == 0);
-    REQUIRE(aosConstView[0].candidateDirection().norm() < 1.e-6);
-    REQUIRE(aosConstView[0].i2() == 0);
-    REQUIRE(aosConstView[0].matrix() == TestMatrix{{0, 0, 0, 0}, {0, 0, 0, 0}});
+    REQUIRE_THAT(aosConstView[0].f1(), Catch::Matchers::WithinAbs(-91.25, 1.e-6));
+    REQUIRE_THAT(aosConstView[0].f2(), Catch::Matchers::WithinAbs(27.125, 1.e-6));
+    REQUIRE(aosConstView[0].i1() == static_cast<int8_t>(106));
+    REQUIRE((aosConstView[0].candidateDirection() - TestVector{-4.5, 8.25, -12.75}).norm() < 1.e-6);
+    REQUIRE(aosConstView[0].i2() == static_cast<int64_t>(-1234567890123LL));
+    REQUIRE(aosConstView[0].rowMatrix() == RowMajorMatrix{{101, 202, 303, 404}, {505, 606, 707, 808}});
+    REQUIRE(aosConstView[0].colMatrix() == ColMajorMatrix{{909, 808, 707, 606}, {505, 404, 303, 202}});
   }
 
   SECTION("AoS View check range checking") {
@@ -189,8 +209,10 @@ TEST_CASE("AoS Unit Tests") {
     REQUIRE_THROWS_AS(aosConstView.i2(overflow), std::out_of_range);
     REQUIRE_THROWS_AS(aosConstView.candidateDirection(underflow), std::out_of_range);
     REQUIRE_THROWS_AS(aosConstView.candidateDirection(overflow), std::out_of_range);
-    REQUIRE_THROWS_AS(aosConstView.matrix(underflow), std::out_of_range);
-    REQUIRE_THROWS_AS(aosConstView.matrix(overflow), std::out_of_range);
+    REQUIRE_THROWS_AS(aosConstView.rowMatrix(underflow), std::out_of_range);
+    REQUIRE_THROWS_AS(aosConstView.rowMatrix(overflow), std::out_of_range);
+    REQUIRE_THROWS_AS(aosConstView.colMatrix(underflow), std::out_of_range);
+    REQUIRE_THROWS_AS(aosConstView.colMatrix(overflow), std::out_of_range);
 
     // Check for under-and overflow in the row accessor
     REQUIRE_THROWS_AS(aosView[underflow], std::out_of_range);
@@ -205,8 +227,10 @@ TEST_CASE("AoS Unit Tests") {
     REQUIRE_THROWS_AS(aosView.i2(overflow), std::out_of_range);
     REQUIRE_THROWS_AS(aosView.candidateDirection(underflow), std::out_of_range);
     REQUIRE_THROWS_AS(aosView.candidateDirection(overflow), std::out_of_range);
-    REQUIRE_THROWS_AS(aosView.matrix(underflow), std::out_of_range);
-    REQUIRE_THROWS_AS(aosView.matrix(overflow), std::out_of_range);
+    REQUIRE_THROWS_AS(aosView.rowMatrix(underflow), std::out_of_range);
+    REQUIRE_THROWS_AS(aosView.rowMatrix(overflow), std::out_of_range);
+    REQUIRE_THROWS_AS(aosView.colMatrix(underflow), std::out_of_range);
+    REQUIRE_THROWS_AS(aosView.colMatrix(overflow), std::out_of_range);
   }
 
   SECTION("AoS ConstView check immutability") {
@@ -290,7 +314,10 @@ TEST_CASE("AoS Unit Tests") {
       int8_t i1;
       std::array<TestVector::Scalar, TestVector::RowsAtCompileTime * TestVector::ColsAtCompileTime> candidateDirection;
       int64_t i2;
-      std::array<TestMatrix::Scalar, TestMatrix::RowsAtCompileTime * TestMatrix::ColsAtCompileTime> matrix;
+      std::array<RowMajorMatrix::Scalar, RowMajorMatrix::RowsAtCompileTime * RowMajorMatrix::ColsAtCompileTime>
+          rowMatrix;
+      std::array<ColMajorMatrix::Scalar, ColMajorMatrix::RowsAtCompileTime * ColMajorMatrix::ColsAtCompileTime>
+          colMatrix;
 
       std::memcpy(&f1, aosBuffer.get() + offsetof(SoA::RecordType, f1_) + i * stride, sizeof(float));
       std::memcpy(&f2, aosBuffer.get() + offsetof(SoA::RecordType, f2_) + i * stride, sizeof(float));
@@ -305,10 +332,18 @@ TEST_CASE("AoS Unit Tests") {
       }
       std::memcpy(&i2, aosBuffer.get() + offsetof(SoA::RecordType, i2_) + i * stride, sizeof(int64_t));
 
-      const auto offsetMatrix = offsetof(SoA::RecordType, matrix_) + i * stride;
-      for (size_t j = 0; j < matrix.size(); ++j) {
-        std::memcpy(
-            &matrix[j], aosBuffer.get() + offsetMatrix + j * sizeof(TestMatrix::Scalar), sizeof(TestMatrix::Scalar));
+      const auto offseRowMatrix = offsetof(SoA::RecordType, rowMatrix_) + i * stride;
+      for (size_t j = 0; j < rowMatrix.size(); ++j) {
+        std::memcpy(&rowMatrix[j],
+                    aosBuffer.get() + offseRowMatrix + j * sizeof(RowMajorMatrix::Scalar),
+                    sizeof(RowMajorMatrix::Scalar));
+      }
+
+      const auto offseColMatrix = offsetof(SoA::RecordType, colMatrix_) + i * stride;
+      for (size_t j = 0; j < rowMatrix.size(); ++j) {
+        std::memcpy(&colMatrix[j],
+                    aosBuffer.get() + offseColMatrix + j * sizeof(ColMajorMatrix::Scalar),
+                    sizeof(ColMajorMatrix::Scalar));
       }
 
       REQUIRE_THAT(f1, Catch::Matchers::WithinAbs(static_cast<float>(i), 1.e-6));
@@ -322,25 +357,23 @@ TEST_CASE("AoS Unit Tests") {
 
       REQUIRE(i2 == static_cast<int64_t>(i) * 4269420666);
 
-      if constexpr (TestMatrix::IsRowMajor) {
-        REQUIRE(matrix[0] == static_cast<TestMatrix::Scalar>(i) + 0);
-        REQUIRE(matrix[1] == static_cast<TestMatrix::Scalar>(i) + 1);
-        REQUIRE(matrix[2] == static_cast<TestMatrix::Scalar>(i) + 2);
-        REQUIRE(matrix[3] == static_cast<TestMatrix::Scalar>(i) + 3);
-        REQUIRE(matrix[4] == static_cast<TestMatrix::Scalar>(i) + 4);
-        REQUIRE(matrix[5] == static_cast<TestMatrix::Scalar>(i) + 5);
-        REQUIRE(matrix[6] == static_cast<TestMatrix::Scalar>(i) + 6);
-        REQUIRE(matrix[7] == static_cast<TestMatrix::Scalar>(i) + 7);
-      } else {
-        REQUIRE(matrix[0] == static_cast<TestMatrix::Scalar>(i) + 0);
-        REQUIRE(matrix[1] == static_cast<TestMatrix::Scalar>(i) + 4);
-        REQUIRE(matrix[2] == static_cast<TestMatrix::Scalar>(i) + 1);
-        REQUIRE(matrix[3] == static_cast<TestMatrix::Scalar>(i) + 5);
-        REQUIRE(matrix[4] == static_cast<TestMatrix::Scalar>(i) + 2);
-        REQUIRE(matrix[5] == static_cast<TestMatrix::Scalar>(i) + 6);
-        REQUIRE(matrix[6] == static_cast<TestMatrix::Scalar>(i) + 3);
-        REQUIRE(matrix[7] == static_cast<TestMatrix::Scalar>(i) + 7);
-      }
+      REQUIRE(rowMatrix[0] == static_cast<RowMajorMatrix::Scalar>(i) + 0);
+      REQUIRE(rowMatrix[1] == static_cast<RowMajorMatrix::Scalar>(i) + 1);
+      REQUIRE(rowMatrix[2] == static_cast<RowMajorMatrix::Scalar>(i) + 2);
+      REQUIRE(rowMatrix[3] == static_cast<RowMajorMatrix::Scalar>(i) + 3);
+      REQUIRE(rowMatrix[4] == static_cast<RowMajorMatrix::Scalar>(i) + 4);
+      REQUIRE(rowMatrix[5] == static_cast<RowMajorMatrix::Scalar>(i) + 5);
+      REQUIRE(rowMatrix[6] == static_cast<RowMajorMatrix::Scalar>(i) + 6);
+      REQUIRE(rowMatrix[7] == static_cast<RowMajorMatrix::Scalar>(i) + 7);
+
+      REQUIRE(colMatrix[0] == static_cast<ColMajorMatrix::Scalar>(i) + 0);
+      REQUIRE(colMatrix[1] == static_cast<ColMajorMatrix::Scalar>(i) + 4);
+      REQUIRE(colMatrix[2] == static_cast<ColMajorMatrix::Scalar>(i) + 1);
+      REQUIRE(colMatrix[3] == static_cast<ColMajorMatrix::Scalar>(i) + 5);
+      REQUIRE(colMatrix[4] == static_cast<ColMajorMatrix::Scalar>(i) + 2);
+      REQUIRE(colMatrix[5] == static_cast<ColMajorMatrix::Scalar>(i) + 6);
+      REQUIRE(colMatrix[6] == static_cast<ColMajorMatrix::Scalar>(i) + 3);
+      REQUIRE(colMatrix[7] == static_cast<ColMajorMatrix::Scalar>(i) + 7);
     }
 
     // Scalar values are appended at the end of the AoS buffer, this is checked here
@@ -387,7 +420,8 @@ TEST_CASE("AoS Unit Tests") {
       REQUIRE(soaConstView2[i].i1() == static_cast<int8_t>(i));
       REQUIRE(soaConstView2[i].candidateDirection().isApprox(TestVector(i + 0.3, i + 0.4, i + 0.5), 1.e-6));
       REQUIRE(soaConstView2[i].i2() == static_cast<int64_t>(i) * 4269420666);
-      REQUIRE(soaConstView2[i].matrix() == TestMatrix{{i, i + 1, i + 2, i + 3}, {i + 4, i + 5, i + 6, i + 7}});
+      REQUIRE(soaConstView2[i].rowMatrix() == RowMajorMatrix{{i, i + 1, i + 2, i + 3}, {i + 4, i + 5, i + 6, i + 7}});
+      REQUIRE(soaConstView2[i].colMatrix() == ColMajorMatrix{{i, i + 1, i + 2, i + 3}, {i + 4, i + 5, i + 6, i + 7}});
     }
 
     REQUIRE(soaConstView2.s1() == 100);
