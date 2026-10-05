@@ -36,3 +36,36 @@ echo
 cmsRun ${LOCALTOP}/src/HeterogeneousCore/TestModules/test/SchemaEvolutionFiveReader.py || exit $?
 echo
 echo "--------------------------------------------------------------------------------"
+
+
+echo "--------------------------------------------------------------------------------"
+echo "$ cmsRun ${LOCALTOP}/src/HeterogeneousCore/TestModules/test/SchemaEvolutionAoSZeroReader.py"
+echo
+cmsRun ${LOCALTOP}/src/HeterogeneousCore/TestModules/test/SchemaEvolutionAoSZeroReader.py || exit $?
+echo
+echo "--------------------------------------------------------------------------------"
+echo "$ cmsRun ${LOCALTOP}/src/HeterogeneousCore/TestModules/test/SchemaEvolutionAoSOneReader.py"
+echo
+cmsRun ${LOCALTOP}/src/HeterogeneousCore/TestModules/test/SchemaEvolutionAoSOneReader.py || exit $?
+echo
+echo "--------------------------------------------------------------------------------"
+echo "$ cmsRun ${LOCALTOP}/src/HeterogeneousCore/TestModules/test/SchemaEvolutionAoSTwoReader.py"
+echo
+cmsRun ${LOCALTOP}/src/HeterogeneousCore/TestModules/test/SchemaEvolutionAoSTwoReader.py || exit $?
+echo
+echo "--------------------------------------------------------------------------------"
+echo "$ cmsRun ${LOCALTOP}/src/HeterogeneousCore/TestModules/test/SchemaEvolutionAoSThreeReader.py"
+echo
+cmsRun ${LOCALTOP}/src/HeterogeneousCore/TestModules/test/SchemaEvolutionAoSThreeReader.py || exit $?
+echo
+echo "--------------------------------------------------------------------------------"
+echo "$ cmsRun ${LOCALTOP}/src/HeterogeneousCore/TestModules/test/SchemaEvolutionAoSFourReader.py"
+echo
+cmsRun ${LOCALTOP}/src/HeterogeneousCore/TestModules/test/SchemaEvolutionAoSFourReader.py || exit $?
+echo
+echo "--------------------------------------------------------------------------------"
+echo "$ cmsRun ${LOCALTOP}/src/HeterogeneousCore/TestModules/test/SchemaEvolutionAoSFiveReader.py"
+echo
+cmsRun ${LOCALTOP}/src/HeterogeneousCore/TestModules/test/SchemaEvolutionAoSFiveReader.py || exit $?
+echo
+echo "--------------------------------------------------------------------------------"
