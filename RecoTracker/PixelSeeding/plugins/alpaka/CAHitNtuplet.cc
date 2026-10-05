@@ -459,7 +459,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     if (globalCache()->startNoBPix1_ or offsetBPIX2 > 0) {
-      std::array<double, 1> nHitsV = {{double(nHits)}};
+      std::array<double, 1> nHitsV = {{static_cast<double>(nHits)}};
       std::array<double, 1> emptyV;
 
       uint32_t const maxTuples = maxNumberOfTuples_.evaluate(nHitsV, emptyV);

@@ -2017,6 +2017,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                   const ::reco::CAGraphSoAConstView &cc,
                                                                   const ::reco::CALayersSoAConstView &ll,
                                                                   uint32_t offsetBPIX2,
+                                                                  const MapToHitConstView &mask,
                                                                   Queue &queue) {
     using namespace caPixelDoublets;
     using namespace caHitNtupletGeneratorKernels;
@@ -2057,7 +2058,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         this->device_layerStarts_->data(),
                         this->device_hitPhiHist_->data(),
                         this->device_hitToCell_->data(),
-                        this->m_params.algoParams_);
+                        this->m_params.algoParams_,
+                        mask);
 
     HitToCell::template launchFinalize<Acc1D>(this->device_hitToCellView_, queue);
 

@@ -53,7 +53,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       : EDProducer(iConfig),
         minQuality_(pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))),
         useOldMask_(not iConfig.getParameter<edm::InputTag>("oldMask").label().empty()),
-        useHits_(!iConfig.getParameter<std::vector<edm::InputTag>>("hitSoAs").empty()),
+        useHits_(not iConfig.getParameter<std::vector<edm::InputTag>>("hitSoAs").empty()),
         inputTrackSoAToken_(consumes(iConfig.getParameter<edm::InputTag>("trackSoA"))),
         outputRecHitsMaskToken_(produces()) {
     if (minQuality_ == pixelTrack::Quality::notQuality) {
@@ -65,21 +65,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           << iConfig.getParameter<std::string>("minQuality") + " not supported";
     }
 
-    if (useOldMask_) {
-      inputRecHitsMaskToken_ = device::EDGetToken<MapToHit>(consumes(iConfig.getParameter<edm::InputTag>("oldMask")));
-    }
-    if (useHits_) {
-      for (const auto& it : iConfig.getParameter<std::vector<edm::InputTag>>("hitSoAs")) {
-        inputHitsOnDeviceToken_.push_back(consumes(it));
-      }
-    }
-    if (not useOldMask_ and not useHits_) {
-      throw cms::Exception("PixelTrackConfiguration") << "Either recHitsMaskSoASrc or hitsOnDeviceSrc must be provided";
-    }
     if (useOldMask_ and useHits_) {
       throw cms::Exception("PixelTrackConfiguration")
           << "Only one of recHitsMaskSoASrc or hitsOnDeviceSrc should be provided";
     }
+
+    if (useOldMask_) {
+      inputRecHitsMaskToken_ = device::EDGetToken<MapToHit>(consumes(iConfig.getParameter<edm::InputTag>("oldMask")));
+    }
+    else if (useHits_) {
+      for (const auto& it : iConfig.getParameter<std::vector<edm::InputTag>>("hitSoAs")) {
+        inputHitsOnDeviceToken_.push_back(consumes(it));
+      }
+    }
+    else {
+      throw cms::Exception("PixelTrackConfiguration") << "Either recHitsMaskSoASrc or hitsOnDeviceSrc must be provided";
+    }
+
   }
 
   void CAMaskSoAProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

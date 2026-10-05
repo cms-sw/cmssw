@@ -15,31 +15,31 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caMasking {
   public:
     ALPAKA_FN_ACC void operator()(Acc2D const& acc,
                                   ::reco::TrackingRecHitsMaskingView mask_view,
-                                  ::reco::TrackSoAConstView const& trackd_view,
-                                  ::reco::TrackHitSoAConstView const& trackhitd_view,
+                                  ::reco::TrackSoAConstView const& track_view,
+                                  ::reco::TrackHitSoAConstView const& trackhit_view,
                                   pixelTrack::Quality minQuality) const {
 #ifdef GPU_DEBUG
       if (cms::alpakatools::once_per_grid(acc)) {
-        printf("Kernel_updateMasking: nTracks: %u\n", trackd_view.metadata().size());
+        printf("Kernel_updateMasking: nTracks: %u\n", track_view.metadata().size());
       }
 #endif
 
       // note to self: this is launched with metadata.size, but here we loop on nTracks
       // would be better for this loop to go over metadata.size?
-      for (uint32_t j : cms::alpakatools::uniform_elements_x(acc, trackd_view.nTracks())) {
-        if (trackd_view[j].quality() < minQuality)
+      for (uint32_t j : cms::alpakatools::uniform_elements_x(acc, track_view.nTracks())) {
+        if (track_view[j].quality() < minQuality)
           continue;
 
-        auto const maskValue = static_cast<uint32_t>(trackd_view[j].iteration()) + 1;  // first iteration has index 0
+        auto const maskValue = static_cast<uint32_t>(track_view[j].iteration()) + 1;  // first iteration has index 0
 
-        uint32_t const start = (j == 0) ? 0 : trackd_view[j - 1].hitOffsets();
-        uint32_t const end = trackd_view[j].hitOffsets();
+        uint32_t const start = (j == 0) ? 0 : track_view[j - 1].hitOffsets();
+        uint32_t const end = track_view[j].hitOffsets();
         uint32_t const nTrackHits = end - start;
 
         for (uint32_t k : cms::alpakatools::uniform_elements_y(acc, nTrackHits)) {
-          ALPAKA_ASSERT_ACC(static_cast<int>(trackhitd_view[start + k].id()) < mask_view.metadata().size());
+          ALPAKA_ASSERT_ACC(static_cast<int>(trackhit_view[start + k].id()) < mask_view.metadata().size());
           // ^ if not it will crash below, but at least the assert is easier to catch
-          mask_view[trackhitd_view[start + k].id()].recHitMask() = maskValue;
+          mask_view[trackhit_view[start + k].id()].recHitMask() = maskValue;
         }
       }
     }
