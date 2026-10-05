@@ -121,7 +121,7 @@ myHisto = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("
 
 ```cpp
 // The booking process iterates over every depth, from top-level (IT) down to layer 
-for (enum Level bookingDepth = IT; bookingDepth <= LAYER; bookingDepth = Level(bookingDepth + 1)) {
+for (int bookingDepth = phase2tkutil::WHOLE_TK; bookingDepth <= phase2tkutil::LAYER; bookingDepth++) {
     // Skip booking for barrel det_ids in endcap-only depths
     if ((bookingDepth == ENDCAP_RING || bookingDepth == ENDCAP_WHEEL) &&
         DetId(det_id).subdetId() == PixelSubdetector::PixelBarrel)
@@ -155,7 +155,7 @@ if (detId.subdetId() == SiStripSubdetector::TOB)
 ```
 However, if you have used depth, there should not be a need to check which substructure you are in. **Be aware you will still need to check module type if your histogram is for a specific type!** 
 ```cpp
-for (enum Level fillingDepth = IT; fillingDepth <= LAYER; fillingDepth = Level(fillingDepth + 1)) {
+for (int fillingDepth = phase2tkutil::WHOLE_TK; fillingDepth <= phase2tkutil::LAYER; fillingDepth++) {
         // Skip filling for barrel detIds on endcap-only depths
         if ((fillingDepth == ENDCAP_RING || fillingDepth == ENDCAP_WHEEL) &&
             DetId(detId).subdetId() == PixelSubdetector::PixelBarrel)

@@ -80,7 +80,6 @@ private:
     unsigned int recHitCounter;
   };
   std::map<int, RecHitME> layerMEs_;
-  enum Level { IT = 1, SUBSTRUCTURE, SHELL, ENDCAP_RING, ENDCAP_WHEEL, LAYER };
 };
 #include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
 
@@ -132,9 +131,9 @@ void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent) {
         globalXY_endcap_->Fill(gx, gy);
         globalRZ_endcap_->Fill(gz, gr);
       }
-      for (enum Level fillingDepth = IT; fillingDepth <= LAYER; fillingDepth = Level(fillingDepth + 1)) {
+      for (int fillingDepth = phase2tkutil::WHOLE_TK; fillingDepth <= phase2tkutil::LAYER; fillingDepth++) {
         // Skip filling for barrel detIds on endcap-only depths
-        if ((fillingDepth == ENDCAP_RING || fillingDepth == ENDCAP_WHEEL) &&
+        if ((fillingDepth == phase2tkutil::ENDCAP_RING || fillingDepth == phase2tkutil::ENDCAP_WHEEL) &&
             DetId(detId).subdetId() == PixelSubdetector::PixelBarrel)
           continue;
         int key = phase2tkutil::getNumericHistoId(detId.rawId(), tTopo_, detPos.phi(), fillingDepth);
@@ -201,7 +200,8 @@ void Phase2ITMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
       GlobalPoint detPos = det_u->surface().toGlobal(Local2DPoint(0, 0));
       edm::LogInfo("Phase2ITMonitorRecHit")
           << "Detid:" << detId_raw << "\tsubdet=" << det_u->subDetector()
-          << "\t key=" << phase2tkutil::getHistoId(detId_raw, tTopo_, detPos.phi(), LAYER, false) << std::endl;
+          << "\t key=" << phase2tkutil::getHistoId(detId_raw, tTopo_, detPos.phi(), phase2tkutil::LAYER, false)
+          << std::endl;
       bookLayerHistos(ibooker, detId_raw, dir);
     }
   }
@@ -210,17 +210,17 @@ void Phase2ITMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
 void Phase2ITMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir) {
   const GeomDetUnit* geomDetUnit = tkGeom_->idToDetUnit(det_id);
   GlobalPoint detPos = geomDetUnit->surface().toGlobal(Local2DPoint(0, 0));
-  for (enum Level bookingDepth = IT; bookingDepth <= LAYER; bookingDepth = Level(bookingDepth + 1)) {
+  for (int bookingDepth = phase2tkutil::WHOLE_TK; bookingDepth <= phase2tkutil::LAYER; bookingDepth++) {
     // Skip booking for barrel detIds on endcap-only depths
-    if ((bookingDepth == ENDCAP_RING || bookingDepth == ENDCAP_WHEEL) &&
+    if ((bookingDepth == phase2tkutil::ENDCAP_RING || bookingDepth == phase2tkutil::ENDCAP_WHEEL) &&
         DetId(det_id).subdetId() == PixelSubdetector::PixelBarrel)
       continue;
 
     int key = phase2tkutil::getNumericHistoId(det_id, tTopo_, detPos.phi(), bookingDepth);
-    std::string folder = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, false);
-    std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, true);
 
     if (layerMEs_.find(key) == layerMEs_.end()) {
+      std::string folder = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, false);
+      std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, true);
       ibooker.cd();
       RecHitME local_histos;
       ibooker.setCurrentFolder(subdir + "/" + folder);

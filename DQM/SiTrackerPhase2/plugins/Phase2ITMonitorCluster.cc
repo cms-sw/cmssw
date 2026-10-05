@@ -68,7 +68,6 @@ private:
   void bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_it, std::string& subdir);
 
   std::map<int, ClusterMEs> layerMEs_;
-  enum Level { IT = 1, SUBSTRUCTURE, SHELL, ENDCAP_RING, ENDCAP_WHEEL, LAYER };
   edm::ParameterSet config_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> itPixelClusterToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
@@ -145,9 +144,9 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
         // get values for endcap
         signedWheel = phase2tkutil::getITSignedWheel(detId, tTopo_);
       }
-      for (enum Level fillingDepth = IT; fillingDepth <= LAYER; fillingDepth = Level(fillingDepth + 1)) {
+      for (int fillingDepth = phase2tkutil::WHOLE_TK; fillingDepth <= phase2tkutil::LAYER; fillingDepth++) {
         // Skip filling for barrel detIds on endcap-only depths
-        if ((fillingDepth == ENDCAP_RING || fillingDepth == ENDCAP_WHEEL) &&
+        if ((fillingDepth == phase2tkutil::ENDCAP_RING || fillingDepth == phase2tkutil::ENDCAP_WHEEL) &&
             DetId(detId).subdetId() == PixelSubdetector::PixelBarrel)
           continue;
         int key = phase2tkutil::getNumericHistoId(detId, tTopo_, detPos.phi(), fillingDepth);
@@ -219,7 +218,8 @@ void Phase2ITMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
       GlobalPoint detPos = det_u->surface().toGlobal(Local2DPoint(0, 0));
       edm::LogInfo("Phase2ITMonitorCluster")
           << "Detid:" << detId_raw << "\tsubdet=" << det_u->subDetector()
-          << "\t key=" << phase2tkutil::getHistoId(detId_raw, tTopo_, detPos.phi(), LAYER, false) << std::endl;
+          << "\t key=" << phase2tkutil::getHistoId(detId_raw, tTopo_, detPos.phi(), phase2tkutil::LAYER, false)
+          << std::endl;
       bookLayerHistos(ibooker, detId_raw, top_folder);
     }
   }
@@ -230,23 +230,22 @@ void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
   const GeomDet* geomDet = tkGeom_->idToDet(det_id);
   GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
   bool HLTconf = config_.getParameter<bool>("HLTconf");
-  for (enum Level bookingDepth = IT; bookingDepth <= LAYER; bookingDepth = Level(bookingDepth + 1)) {
+  for (int bookingDepth = phase2tkutil::WHOLE_TK; bookingDepth <= phase2tkutil::LAYER; bookingDepth++) {
     // Skip booking for barrel det_ids in endcap-only depths
-    if ((bookingDepth == ENDCAP_RING || bookingDepth == ENDCAP_WHEEL) &&
+    if ((bookingDepth == phase2tkutil::ENDCAP_RING || bookingDepth == phase2tkutil::ENDCAP_WHEEL) &&
         DetId(det_id).subdetId() == PixelSubdetector::PixelBarrel)
       continue;
 
     // skip deep booking for HLT configurations
-    if (HLTconf && bookingDepth >= SHELL)
+    if (HLTconf && bookingDepth >= phase2tkutil::SHELL)
       continue;
 
-    std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, false);
-    std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, true);
     int key = phase2tkutil::getNumericHistoId(det_id, tTopo_, detPos.phi(), bookingDepth);
-
     std::map<int, ClusterMEs>::iterator pos = layerMEs_.find(key);
 
     if (pos == layerMEs_.end()) {
+      std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, false);
+      std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, true);
       ibooker.cd();
       ibooker.setCurrentFolder(subdir + "/" + folderName);
 
@@ -269,7 +268,7 @@ void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterCharge"), ibooker, prettyName);
 
       if (DetId(det_id).subdetId() == PixelSubdetector::PixelBarrel) {
-        if (bookingDepth == LAYER) {
+        if (bookingDepth == phase2tkutil::LAYER) {
           int layer = tTopo_->getITPixelLayerNumber(det_id);
           unsigned int nLadders = 0;
           TrackerGeometry::DetIdContainer theDetIds = tkGeom_->detIds();
@@ -284,7 +283,7 @@ void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
           posModuleLadderParams.addParameter<double>("ymin", -(nLadders / 2 + 0.5));
           local_mes.ClusterPos_Mod_Ladder = phase2tkutil::book2DFromPSet(posModuleLadderParams, ibooker, prettyName);
         }
-        if (bookingDepth == SUBSTRUCTURE) {
+        if (bookingDepth == phase2tkutil::SUBSTRUCTURE) {
           local_mes.ClusterPos_BLayer_Mod_Ladder.resize(4, nullptr);
           for (int layer = 1; layer <= 4; layer++) {
             unsigned int nLadders = 0;
@@ -308,7 +307,7 @@ void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
           }
         }
       } else {  // Endcaps
-        if (bookingDepth == SUBSTRUCTURE) {
+        if (bookingDepth == phase2tkutil::SUBSTRUCTURE) {
           bool isFPix = (tTopo_->pxfDisk(det_id) < 9);
           edm::ParameterSet XYWheelParams;
           local_mes.XY_byWheel.resize(25, nullptr);

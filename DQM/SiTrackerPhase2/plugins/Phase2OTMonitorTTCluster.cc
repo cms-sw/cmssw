@@ -91,7 +91,6 @@ private:
   void bookLayerHistos(DQMStore::IBooker &ibooker, uint32_t det_id, std::string &subdir);
 
   std::map<int, TTClusterMEs> layerMEs_;
-  enum Level { OT = 1, SUBSTRUCTURE, ENDCAP_SIDE, ENDCAP_RING, ENDCAP_WHEEL, LAYER };
 
   edm::ParameterSet conf_;
   edm::EDGetTokenT<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>> tagTTClustersToken_;
@@ -183,9 +182,9 @@ void Phase2OTMonitorTTCluster::analyze(const edm::Event &iEvent, const edm::Even
         else
           Cluster_Endcap_Bw_XY->Fill(posClu.x(), posClu.y());
       }
-      for (enum Level fillingDepth = OT; fillingDepth <= LAYER; fillingDepth = Level(fillingDepth + 1)) {
+      for (int fillingDepth = phase2tkutil::WHOLE_TK; fillingDepth <= phase2tkutil::LAYER; fillingDepth++) {
         // Skip filling for barrel detIds on endcap-only depths
-        if ((fillingDepth >= ENDCAP_SIDE && fillingDepth < LAYER) &&
+        if ((fillingDepth >= phase2tkutil::SHELL && fillingDepth < phase2tkutil::LAYER) &&
             DetId(detIdClu).subdetId() == SiStripSubdetector::TOB)
           continue;
         int key = phase2tkutil::getNumericHistoId(detIdClu, tTopo_, 0, fillingDepth);
@@ -276,7 +275,7 @@ void Phase2OTMonitorTTCluster::bookHistograms(DQMStore::IBooker &iBooker,
       unsigned int detId_raw = det_u->geographicalId().rawId();
       edm::LogInfo("Phase2OTMonitorTTCluster")
           << "Detid:" << detId_raw << "\tsubdet=" << det_u->subDetector()
-          << "\t key=" << phase2tkutil::getHistoId(detId_raw, tTopo_, 0.0, 6, false) << std::endl;
+          << "\t key=" << phase2tkutil::getHistoId(detId_raw, tTopo_, 0.0, phase2tkutil::LAYER, false) << std::endl;
       bookLayerHistos(iBooker, detId_raw, topFolderName_);
     }
   }
@@ -284,21 +283,21 @@ void Phase2OTMonitorTTCluster::bookHistograms(DQMStore::IBooker &iBooker,
 
 //////////////////Layer Histo/////////////////////////////////
 void Phase2OTMonitorTTCluster::bookLayerHistos(DQMStore::IBooker &ibooker, uint32_t det_id, std::string &subdir) {
-  for (enum Level bookingDepth = OT; bookingDepth <= LAYER; bookingDepth = Level(bookingDepth + 1)) {
-    std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, false);
-    std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, true);
+  for (int bookingDepth = phase2tkutil::WHOLE_TK; bookingDepth <= phase2tkutil::LAYER; bookingDepth++) {
+    // If this det is a barrel det AND bookingDepth is an endcap-only depth, DO NOT BOOK
+    if ((bookingDepth >= phase2tkutil::SHELL && bookingDepth < phase2tkutil::LAYER) &&
+        DetId(det_id).subdetId() == static_cast<int>(StripSubdetector::TOB))
+      continue;
+
     int key = phase2tkutil::getNumericHistoId(det_id, tTopo_, 0.0, bookingDepth);
 
     if (layerMEs_.find(key) == layerMEs_.end()) {
+      std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, false);
+      std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, true);
       ibooker.cd();
       ibooker.setCurrentFolder(subdir + "/" + folderName);
       edm::LogInfo("Phase2OTMonitorTTCluster") << " Booking Histograms in: " << subdir + "/" + folderName;
       TTClusterMEs local_mes;
-
-      // If this det is a barrel det AND bookingDepth is an endcap-only depth, DO NOT BOOK
-      if ((bookingDepth >= ENDCAP_SIDE && bookingDepth < LAYER) &&
-          DetId(det_id).subdetId() == static_cast<int>(StripSubdetector::TOB))
-        continue;
 
       local_mes.NClusters = phase2tkutil::book1DFromPSet(
           conf_.getParameter<edm::ParameterSet>("NClustersLayer"), ibooker, prettyName, bookingDepth);
@@ -308,8 +307,8 @@ void Phase2OTMonitorTTCluster::bookLayerHistos(DQMStore::IBooker &ibooker, uint3
           conf_.getParameter<edm::ParameterSet>("NClustersOMemLayer"), ibooker, prettyName, bookingDepth);
 
       if (DetId(det_id).subdetId() == static_cast<int>(StripSubdetector::TID)) {
-        if (bookingDepth >= SUBSTRUCTURE && bookingDepth < LAYER) {
-          if (bookingDepth != ENDCAP_WHEEL) {
+        if (bookingDepth >= phase2tkutil::SUBSTRUCTURE && bookingDepth < phase2tkutil::LAYER) {
+          if (bookingDepth != phase2tkutil::ENDCAP_WHEEL) {
             local_mes.NClustersByWheel = phase2tkutil::book1DFromPSet(
                 conf_.getParameter<edm::ParameterSet>("NClustersByWheel"), ibooker, prettyName);
             local_mes.NClustersIMemByWheel = phase2tkutil::book1DFromPSet(
@@ -317,7 +316,7 @@ void Phase2OTMonitorTTCluster::bookLayerHistos(DQMStore::IBooker &ibooker, uint3
             local_mes.NClustersOMemByWheel = phase2tkutil::book1DFromPSet(
                 conf_.getParameter<edm::ParameterSet>("NClustersOMemByWheel"), ibooker, prettyName);
           }
-          if (bookingDepth != ENDCAP_RING) {
+          if (bookingDepth != phase2tkutil::ENDCAP_RING) {
             local_mes.NClustersByRing = phase2tkutil::book1DFromPSet(
                 conf_.getParameter<edm::ParameterSet>("NClustersByRing"), ibooker, prettyName);
             local_mes.NClustersIMemByRing = phase2tkutil::book1DFromPSet(

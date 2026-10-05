@@ -10,6 +10,8 @@
 
 namespace phase2tkutil {
 
+  enum Depths { WHOLE_TK = 1, SUBSTRUCTURE, SHELL, ENDCAP_RING, ENDCAP_WHEEL, LAYER };
+
   std::string getITShell(uint32_t det_id, const TrackerTopology* tTopo, float phi);
   int getITSignedModule(uint32_t det_id, const TrackerTopology* tTopo, float phi);
   int getITSignedLadder(uint32_t det_id, const TrackerTopology* tTopo, float phi);

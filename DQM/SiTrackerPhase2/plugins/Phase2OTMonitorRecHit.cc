@@ -86,7 +86,6 @@ private:
     unsigned int recHitCounter_S = 0;
   };
   std::map<int, RecHitME> layerMEs_;
-  enum Level { OT = 1, SUBSTRUCTURE, ENDCAP_SIDE, ENDCAP_RING, ENDCAP_WHEEL, LAYER };
 };
 
 //
@@ -153,9 +152,10 @@ void Phase2OTMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
         globalXY_S_->Fill(gx, gy);
         globalRZ_S_->Fill(gz, gr);
       }
-      for (enum Level fillingDepth = OT; fillingDepth <= LAYER; fillingDepth = Level(fillingDepth + 1)) {
+      for (int fillingDepth = phase2tkutil::WHOLE_TK; fillingDepth <= phase2tkutil::LAYER; fillingDepth++) {
         // Skip filling for barrel detIds on endcap-only depths
-        if ((fillingDepth >= ENDCAP_SIDE && fillingDepth < LAYER) && DetId(detId).subdetId() == SiStripSubdetector::TOB)
+        if ((fillingDepth >= phase2tkutil::SHELL && fillingDepth < phase2tkutil::LAYER) &&
+            DetId(detId).subdetId() == SiStripSubdetector::TOB)
           continue;
         int key = phase2tkutil::getNumericHistoId(detId, tTopo_, 0.0, fillingDepth);
 
@@ -224,14 +224,15 @@ void Phase2OTMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
 // -- Book Layer Histograms
 //
 void Phase2OTMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir) {
-  for (enum Level bookingDepth = OT; bookingDepth <= LAYER; bookingDepth = Level(bookingDepth + 1)) {
+  for (int bookingDepth = phase2tkutil::WHOLE_TK; bookingDepth <= phase2tkutil::LAYER; bookingDepth++) {
     // If this det is a barrel det AND bookingDepth is an endcap-only depth, DO NOT BOOK
-    if ((bookingDepth >= ENDCAP_SIDE && bookingDepth < LAYER) && DetId(det_id).subdetId() == SiStripSubdetector::TOB)
+    if ((bookingDepth >= phase2tkutil::SHELL && bookingDepth < phase2tkutil::LAYER) &&
+        DetId(det_id).subdetId() == SiStripSubdetector::TOB)
       continue;
     int key = phase2tkutil::getNumericHistoId(det_id, tTopo_, 0.0, bookingDepth);
-    std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, true);
 
     if (layerMEs_.find(key) == layerMEs_.end()) {
+      std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, true);
       ibooker.cd();
       ibooker.setCurrentFolder(subdir + "/" + phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, false));
 

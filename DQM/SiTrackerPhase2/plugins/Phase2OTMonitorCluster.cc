@@ -72,7 +72,6 @@ private:
   void bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_it, std::string& subdir);
 
   std::map<int, ClusterMEs> layerMEs_;
-  enum Level { OT = 1, SUBSTRUCTURE, ENDCAP_SIDE, ENDCAP_RING, ENDCAP_WHEEL, LAYER };
 
   edm::ParameterSet config_;
   edm::EDGetTokenT<Phase2TrackerCluster1DCollectionNew> clustersToken_;
@@ -156,9 +155,10 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
         }
       }
 
-      for (enum Level fillingDepth = OT; fillingDepth <= LAYER; fillingDepth = Level(fillingDepth + 1)) {
+      for (int fillingDepth = phase2tkutil::WHOLE_TK; fillingDepth <= phase2tkutil::LAYER; fillingDepth++) {
         // Skip filling for barrel detIds on endcap-only depths
-        if ((fillingDepth >= ENDCAP_SIDE && fillingDepth < LAYER) && DetId(detId).subdetId() == SiStripSubdetector::TOB)
+        if ((fillingDepth >= phase2tkutil::SHELL && fillingDepth < phase2tkutil::LAYER) &&
+            DetId(detId).subdetId() == SiStripSubdetector::TOB)
           continue;
         int folderkey = phase2tkutil::getNumericHistoId(detId, tTopo_, 0, fillingDepth);
 
@@ -271,7 +271,7 @@ void Phase2OTMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
       unsigned int detId_raw = det_u->geographicalId().rawId();
       edm::LogInfo("Phase2OTMonitorCluster")
           << "Detid:" << detId_raw << "\tsubdet=" << det_u->subDetector()
-          << "\t key=" << phase2tkutil::getHistoId(detId_raw, tTopo_, 0.0, LAYER, false) << std::endl;
+          << "\t key=" << phase2tkutil::getHistoId(detId_raw, tTopo_, 0.0, phase2tkutil::LAYER, false) << std::endl;
       bookLayerHistos(ibooker, detId_raw, top_folder);
     }
   }
@@ -280,13 +280,14 @@ void Phase2OTMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
 //////////////////Layer Histo/////////////////////////////////
 void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_id, std::string& subdir) {
   bool HLTconf = config_.getParameter<bool>("HLTconf");
-  for (enum Level bookingDepth = OT; bookingDepth <= LAYER; bookingDepth = Level(bookingDepth + 1)) {
+  for (int bookingDepth = phase2tkutil::WHOLE_TK; bookingDepth <= phase2tkutil::LAYER; bookingDepth++) {
     // Skip booking if barrel det and endcap-only depth
-    if ((bookingDepth >= ENDCAP_SIDE && bookingDepth < LAYER) && DetId(det_id).subdetId() == SiStripSubdetector::TOB)
+    if ((bookingDepth >= phase2tkutil::SHELL && bookingDepth < phase2tkutil::LAYER) &&
+        DetId(det_id).subdetId() == SiStripSubdetector::TOB)
       continue;
 
     // Skip deep booking for HLT configurations
-    if (HLTconf && bookingDepth >= ENDCAP_SIDE)
+    if (HLTconf && bookingDepth >= phase2tkutil::SHELL)
       continue;
 
     int key = phase2tkutil::getNumericHistoId(det_id, tTopo_, 0.0, bookingDepth);

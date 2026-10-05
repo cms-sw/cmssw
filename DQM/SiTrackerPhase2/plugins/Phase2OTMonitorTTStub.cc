@@ -94,7 +94,6 @@ private:
   };
 
   std::map<int, TTStubMEs> layerMEs_;
-  enum Level { OT = 1, SUBSTRUCTURE, ENDCAP_SIDE, ENDCAP_RING, ENDCAP_WHEEL, LAYER };
 
   void bookLayerHistos(DQMStore::IBooker &ibooker, uint32_t det_id, std::string &subdir);
   edm::ParameterSet conf_;
@@ -193,9 +192,9 @@ void Phase2OTMonitorTTStub::analyze(const edm::Event &iEvent, const edm::EventSe
       }
 
       // Fill layer histograms
-      for (enum Level fillingDepth = OT; fillingDepth <= LAYER; fillingDepth = Level(fillingDepth + 1)) {
+      for (int fillingDepth = phase2tkutil::WHOLE_TK; fillingDepth <= phase2tkutil::LAYER; fillingDepth++) {
         // Skip filling for barrel detIds on endcap-only depths
-        if ((fillingDepth >= ENDCAP_SIDE && fillingDepth < LAYER) &&
+        if ((fillingDepth >= phase2tkutil::SHELL && fillingDepth < phase2tkutil::LAYER) &&
             DetId(detIdStub).subdetId() == SiStripSubdetector::TOB)
           continue;
         int key = phase2tkutil::getNumericHistoId(detIdStub, tTopo_, 0, fillingDepth);
@@ -298,24 +297,24 @@ void Phase2OTMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::Run 
       unsigned int detId_raw = det_u->geographicalId().rawId();
       edm::LogInfo("Phase2OTMonitorTTStub")
           << "Detid:" << detId_raw << "\tsubdet=" << det_u->subDetector()
-          << "\t key=" << phase2tkutil::getHistoId(detId_raw, tTopo_, 0.0, 6, false) << std::endl;
+          << "\t key=" << phase2tkutil::getHistoId(detId_raw, tTopo_, 0.0, phase2tkutil::LAYER, false) << std::endl;
       bookLayerHistos(iBooker, detId_raw, topFolderName_);
     }
   }
 }
 
 void Phase2OTMonitorTTStub::bookLayerHistos(DQMStore::IBooker &ibooker, uint32_t det_id, std::string &subdir) {
-  for (enum Level bookingDepth = OT; bookingDepth <= LAYER; bookingDepth = Level(bookingDepth + 1)) {
+  for (int bookingDepth = phase2tkutil::WHOLE_TK; bookingDepth <= phase2tkutil::LAYER; bookingDepth++) {
     // Skip booking at endcap depths for barrel dets
-    if ((bookingDepth >= ENDCAP_SIDE && bookingDepth < LAYER) &&
+    if ((bookingDepth >= phase2tkutil::SHELL && bookingDepth < phase2tkutil::LAYER) &&
         DetId(det_id).subdetId() == static_cast<int>(StripSubdetector::TOB))
       continue;
 
-    std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, false);
-    std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, true);
     int key = phase2tkutil::getNumericHistoId(det_id, tTopo_, 0.0, bookingDepth);
 
     if (layerMEs_.find(key) == layerMEs_.end()) {
+      std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, false);
+      std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, true);
       ibooker.cd();
       ibooker.setCurrentFolder(subdir + "/" + folderName);
       edm::LogInfo("Phase2OTMonitorTTStub") << " Booking Histograms in: " << subdir + "/" + folderName;
@@ -324,8 +323,8 @@ void Phase2OTMonitorTTStub::bookLayerHistos(DQMStore::IBooker &ibooker, uint32_t
       local_mes.NStubs = phase2tkutil::book1DFromPSet(
           conf_.getParameter<edm::ParameterSet>("NStubsLayer"), ibooker, prettyName, bookingDepth);
       if (DetId(det_id).subdetId() == static_cast<int>(StripSubdetector::TID)) {
-        if (bookingDepth >= SUBSTRUCTURE && bookingDepth < LAYER) {
-          if (bookingDepth != ENDCAP_WHEEL) {
+        if (bookingDepth >= phase2tkutil::SUBSTRUCTURE && bookingDepth < phase2tkutil::LAYER) {
+          if (bookingDepth != phase2tkutil::ENDCAP_WHEEL) {
             local_mes.NStubsByWheel = phase2tkutil::book1DFromPSet(
                 conf_.getParameter<edm::ParameterSet>("NStubsByWheel"), ibooker, prettyName);
             local_mes.StubOffsetByWheel = phase2tkutil::book2DFromPSet(
@@ -333,7 +332,7 @@ void Phase2OTMonitorTTStub::bookLayerHistos(DQMStore::IBooker &ibooker, uint32_t
             local_mes.StubWidthByWheel = phase2tkutil::book2DFromPSet(
                 conf_.getParameter<edm::ParameterSet>("StubWidthByWheel"), ibooker, prettyName);
           }
-          if (bookingDepth != ENDCAP_RING) {
+          if (bookingDepth != phase2tkutil::ENDCAP_RING) {
             local_mes.NStubsByRing = phase2tkutil::book1DFromPSet(
                 conf_.getParameter<edm::ParameterSet>("NStubsByRing"), ibooker, prettyName);
             local_mes.StubOffsetByRing = phase2tkutil::book2DFromPSet(
