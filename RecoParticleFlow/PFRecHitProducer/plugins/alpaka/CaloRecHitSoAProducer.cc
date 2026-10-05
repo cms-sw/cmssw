@@ -1,6 +1,7 @@
 #include <utility>
 
 #include <alpaka/alpaka.hpp>
+#include <Eigen/Core>
 
 #include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/CaloRecHitHostCollection.h"

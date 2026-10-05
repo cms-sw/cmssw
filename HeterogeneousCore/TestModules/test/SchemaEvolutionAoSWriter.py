@@ -15,7 +15,7 @@ process.aosproducer = cms.EDProducer("SchemaEvolutionAoSProducer")
 
 # write all products to a 'test.root' file
 process.output = cms.OutputModule('PoolOutputModule',
-    fileName = cms.untracked.string('AoSZero.root'),
+    fileName = cms.untracked.string('/afs/cern.ch/user/m/maholzer/SchemaEvolutionTestData/SEAoSZero.root'),
     outputCommands = cms.untracked.vstring('keep *')
 )
 

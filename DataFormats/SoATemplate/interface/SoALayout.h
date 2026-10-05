@@ -1479,7 +1479,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     ,                                                                                                      \
     /* Column */                                                                                           \
     SOA_HOST_DEVICE SOA_INLINE                                                                             \
-    CPP_TYPE& NAME() { return record_type_ptr_->BOOST_PP_CAT(NAME, _);},                                   \
+    decltype(auto) NAME() { return (record_type_ptr_->BOOST_PP_CAT(NAME, _));},                            \
     /* Eigen column */                                                                                     \
     SOA_HOST_DEVICE SOA_INLINE                                                                             \
     cms::soa::EigenNonStridedMapType<CPP_TYPE> NAME()                                                      \
