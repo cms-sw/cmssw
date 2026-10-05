@@ -23,7 +23,9 @@ for meta_tagger in pfParticleNetFromMiniAODAK4PuppiForwardJetTagsMetaDiscr:
         numerator = cms.vstring(meta_tagger),
         denominator = cms.vstring(),
         discrCut = cms.double(0.3),#Dummy,
-        CTagPlots = cms.bool(False)
+        CTagPlots = cms.bool(False),
+        kinematicsTag = cms.string('ParticleNetForward'), # jet kinematics in ParticleNetForward_<region>
+        bookKinematics = cms.bool(discr == 'QvsG'),
     )
     if "QvsG" in discr:
         ParticleNetPuppiForwardDiscriminators[discr] = cms.PSet(
@@ -52,7 +54,9 @@ for meta_tagger in pfUnifiedParticleTransformerAK4JetTagsMetaDiscrs:
         numerator = cms.vstring(meta_tagger),
         denominator = cms.vstring(),
         discrCut = cms.double(0.3),#Dummy,
-        CTagPlots = cms.bool(False)
+        CTagPlots = cms.bool(False),
+        kinematicsTag = cms.string('UParT'), # jet kinematics in UParT_<region>, booked once (same jets for all discriminators)
+        bookKinematics = cms.bool(discr == 'BvsAll'),
     )
     if "Bvs" in discr:
         UParTDiscriminators[discr] = cms.PSet(
