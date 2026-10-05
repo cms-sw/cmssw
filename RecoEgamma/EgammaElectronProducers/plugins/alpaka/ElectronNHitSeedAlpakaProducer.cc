@@ -74,7 +74,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       int32_t i = 0;
       for (auto& superClusRef : superClusterRefVec) {
-        viewSCs[i].id() = i;
+        viewSCs[i].id() = static_cast<int16_t>(i);
         const auto& superClus = *superClusRef;
         viewSCs[i].scSeedTheta() = superClus.seed()->position().theta();
         viewSCs[i].scPhi() = superClusRef->position().phi();

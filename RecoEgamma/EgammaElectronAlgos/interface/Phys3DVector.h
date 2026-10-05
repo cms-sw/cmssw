@@ -23,8 +23,6 @@ namespace egamma::math {
 
     Phys3DVector(const Phys3DVector<T>&) = default;
 
-    constexpr Phys3DVector(const T value) : m_data{value, value, value} {}
-
     constexpr Phys3DVector(const T x, const T y, const T z) : m_data{x, y, z} {}
 
     Phys3DVector<T>& operator=(const Phys3DVector<T>&) = default;
@@ -34,7 +32,6 @@ namespace egamma::math {
 
     inline constexpr int size() const { return 3; }
 
-    // Extra:
     inline constexpr void zero() {
       m_data[0] = static_cast<T>(0);
       m_data[1] = static_cast<T>(0);
