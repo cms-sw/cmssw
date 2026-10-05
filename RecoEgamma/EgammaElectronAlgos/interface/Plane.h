@@ -48,11 +48,12 @@ namespace egamma {
       return tmp_dot;
     }
 
-    // Clamped distance from plane for a point
+    // Clamped distance from plane for a point: returns 0 if the point is closer than localZPrecision
     template <typename TAcc>
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE T localZclamped(TAcc const& acc, const Vec3& vp) const {
+      constexpr T localZPrecision = static_cast<T>(1e-7);
       const T d = localZ(vp);
-      return alpaka::math::abs(acc, d) > 1e-7f ? d : 0;
+      return alpaka::math::abs(acc, d) > localZPrecision ? d : static_cast<T>(0);
     }
 
     // Fast access to distance from plane for a vector

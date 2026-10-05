@@ -14,7 +14,7 @@ namespace reco {
                       SOA_COLUMN(double, scPhi),
                       SOA_COLUMN(double, scR),
                       SOA_COLUMN(double, scEnergy),
-                      SOA_COLUMN(int32_t, id))
+                      SOA_COLUMN(int16_t, id))
   using SuperClusterSoA = SuperClusterSoALayout<>;
 }  // namespace reco
 
