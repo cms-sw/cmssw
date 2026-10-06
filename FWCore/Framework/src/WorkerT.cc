@@ -138,6 +138,12 @@ namespace edm {
   WorkerT<T, TI, TP>::WorkerT(std::shared_ptr<T> ed, ModuleDescription const& md, ExceptionToActionTable const* actions)
       : WorkerTBase<T, TI, TP>(ed, md, actions) {}
 
+  template <typename T, typename TI>
+  WorkerT<T, TI, TransitionPhaseStream>::WorkerT(std::shared_ptr<T> ed,
+                                                 ModuleDescription const& md,
+                                                 ExceptionToActionTable const* actions)
+      : WorkerTBase<T, TI, TransitionPhaseStream>(ed, md, actions) {}
+
   template <typename T>
   WorkerT<T, InputProcessBlockTransitionInfo, TransitionPhaseGlobal>::WorkerT(std::shared_ptr<T> ed,
                                                                               ModuleDescription const& md,
@@ -167,24 +173,12 @@ namespace edm {
   }
 
   template <typename T, typename TI, typename TP>
-  bool WorkerT<T, TI, TP>::wantsStreamRuns() const noexcept {
-    return this->module().wantsStreamRuns();
-  }
-
-  template <typename T, typename TI, typename TP>
-  bool WorkerT<T, TI, TP>::wantsStreamLuminosityBlocks() const noexcept {
-    return this->module().wantsStreamLuminosityBlocks();
-  }
-
-  template <typename T, typename TI, typename TP>
   bool WorkerT<T, TI, TP>::wantsWrites() const noexcept {
     return false;
   }
-#define EDM_FOR_EACH_WORKERT_TRANSITION(M, T)     \
-  M(T, RunTransitionInfo, TransitionPhaseGlobal)  \
-  M(T, RunTransitionInfo, TransitionPhaseStream)  \
-  M(T, LumiTransitionInfo, TransitionPhaseGlobal) \
-  M(T, LumiTransitionInfo, TransitionPhaseStream)
+#define EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(M, T) \
+  M(T, RunTransitionInfo, TransitionPhaseGlobal)     \
+  M(T, LumiTransitionInfo, TransitionPhaseGlobal)
 
 #define EDM_SPECIALIZE_WORKERT_WANTS_WRITES(T, TI, TP)    \
   template <>                                             \
@@ -192,9 +186,9 @@ namespace edm {
     return true;                                          \
   }
 
-  EDM_FOR_EACH_WORKERT_TRANSITION(EDM_SPECIALIZE_WORKERT_WANTS_WRITES, edm::global::OutputModuleBase)
-  EDM_FOR_EACH_WORKERT_TRANSITION(EDM_SPECIALIZE_WORKERT_WANTS_WRITES, edm::one::OutputModuleBase)
-  EDM_FOR_EACH_WORKERT_TRANSITION(EDM_SPECIALIZE_WORKERT_WANTS_WRITES, edm::limited::OutputModuleBase)
+  EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(EDM_SPECIALIZE_WORKERT_WANTS_WRITES, edm::global::OutputModuleBase)
+  EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(EDM_SPECIALIZE_WORKERT_WANTS_WRITES, edm::one::OutputModuleBase)
+  EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(EDM_SPECIALIZE_WORKERT_WANTS_WRITES, edm::limited::OutputModuleBase)
 
 #undef EDM_SPECIALIZE_WORKERT_WANTS_WRITES
 
@@ -218,10 +212,10 @@ namespace edm {
     return this->module().globalLuminosityBlocksQueue();               \
   }
 
-  EDM_FOR_EACH_WORKERT_TRANSITION(EDM_SPECIALIZE_WORKERT_GLOBALQUEUES, one::EDProducerBase)
-  EDM_FOR_EACH_WORKERT_TRANSITION(EDM_SPECIALIZE_WORKERT_GLOBALQUEUES, one::EDFilterBase)
-  EDM_FOR_EACH_WORKERT_TRANSITION(EDM_SPECIALIZE_WORKERT_GLOBALQUEUES, one::EDAnalyzerBase)
-  EDM_FOR_EACH_WORKERT_TRANSITION(EDM_SPECIALIZE_WORKERT_GLOBALQUEUES, one::OutputModuleBase)
+  EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(EDM_SPECIALIZE_WORKERT_GLOBALQUEUES, one::EDProducerBase)
+  EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(EDM_SPECIALIZE_WORKERT_GLOBALQUEUES, one::EDFilterBase)
+  EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(EDM_SPECIALIZE_WORKERT_GLOBALQUEUES, one::EDAnalyzerBase)
+  EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(EDM_SPECIALIZE_WORKERT_GLOBALQUEUES, one::OutputModuleBase)
 #undef EDM_SPECIALIZE_WORKERT_GLOBALQUEUES
 
   template <typename T>
@@ -379,42 +373,42 @@ namespace edm {
     return true;
   }
 
-  template <typename T, typename TI, typename TP>
+  template <typename T, typename TI>
   template <typename D>
-  void WorkerT<T, TI, TP>::callWorkerStreamBegin(D,
-                                                 StreamID id,
-                                                 RunTransitionInfo const& info,
-                                                 ModuleCallingContext const* mcc) {
+  void WorkerT<T, TI, TransitionPhaseStream>::callWorkerStreamBegin(D,
+                                                                    StreamID id,
+                                                                    RunTransitionInfo const& info,
+                                                                    ModuleCallingContext const* mcc) {
     this->module().doStreamBeginRun(id, info, mcc);
   }
 
-  template <typename T, typename TI, typename TP>
+  template <typename T, typename TI>
   template <typename D>
-  void WorkerT<T, TI, TP>::callWorkerStreamEnd(D,
-                                               StreamID id,
-                                               RunTransitionInfo const& info,
-                                               ModuleCallingContext const* mcc) {
+  void WorkerT<T, TI, TransitionPhaseStream>::callWorkerStreamEnd(D,
+                                                                  StreamID id,
+                                                                  RunTransitionInfo const& info,
+                                                                  ModuleCallingContext const* mcc) {
     this->module().doStreamEndRun(id, info, mcc);
   }
 
-  template <typename T, typename TI, typename TP>
-  bool WorkerT<T, TI, TP>::implDoStreamBegin(StreamID id,
-                                             RunTransitionInfo const& info,
-                                             ModuleCallingContext const* mcc) {
+  template <typename T, typename TI>
+  bool WorkerT<T, TI, TransitionPhaseStream>::implDoStreamBegin(StreamID id,
+                                                                RunTransitionInfo const& info,
+                                                                ModuleCallingContext const* mcc) {
     std::conditional_t<workerimpl::has_stream_functions<T>::value,
-                       workerimpl::DoStreamBeginTrans<T, TI, TP, RunTransitionInfo const>,
+                       workerimpl::DoStreamBeginTrans<T, TI, TransitionPhaseStream, RunTransitionInfo const>,
                        workerimpl::DoNothing>
         might_call;
     might_call(this, id, info, mcc);
     return true;
   }
 
-  template <typename T, typename TI, typename TP>
-  bool WorkerT<T, TI, TP>::implDoStreamEnd(StreamID id,
-                                           RunTransitionInfo const& info,
-                                           ModuleCallingContext const* mcc) {
+  template <typename T, typename TI>
+  bool WorkerT<T, TI, TransitionPhaseStream>::implDoStreamEnd(StreamID id,
+                                                              RunTransitionInfo const& info,
+                                                              ModuleCallingContext const* mcc) {
     std::conditional_t<workerimpl::has_stream_functions<T>::value,
-                       workerimpl::DoStreamEndTrans<T, TI, TP, RunTransitionInfo const>,
+                       workerimpl::DoStreamEndTrans<T, TI, TransitionPhaseStream, RunTransitionInfo const>,
                        workerimpl::DoNothing>
         might_call;
     might_call(this, id, info, mcc);
@@ -438,9 +432,9 @@ namespace edm {
     return true;                                                                                         \
   }
 
-  EDM_FOR_EACH_WORKERT_TRANSITION(EDM_SPECIALIZE_WORKERT_OUTPUT_RUN_WRITE, edm::one::OutputModuleBase)
-  EDM_FOR_EACH_WORKERT_TRANSITION(EDM_SPECIALIZE_WORKERT_OUTPUT_RUN_WRITE, edm::global::OutputModuleBase)
-  EDM_FOR_EACH_WORKERT_TRANSITION(EDM_SPECIALIZE_WORKERT_OUTPUT_RUN_WRITE, edm::limited::OutputModuleBase)
+  EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(EDM_SPECIALIZE_WORKERT_OUTPUT_RUN_WRITE, edm::one::OutputModuleBase)
+  EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(EDM_SPECIALIZE_WORKERT_OUTPUT_RUN_WRITE, edm::global::OutputModuleBase)
+  EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(EDM_SPECIALIZE_WORKERT_OUTPUT_RUN_WRITE, edm::limited::OutputModuleBase)
 
 #undef EDM_SPECIALIZE_WORKERT_OUTPUT_RUN_WRITE
 
@@ -450,42 +444,42 @@ namespace edm {
     return true;
   }
 
-  template <typename T, typename TI, typename TP>
+  template <typename T, typename TI>
   template <typename D>
-  void WorkerT<T, TI, TP>::callWorkerStreamBegin(D,
-                                                 StreamID id,
-                                                 LumiTransitionInfo const& info,
-                                                 ModuleCallingContext const* mcc) {
+  void WorkerT<T, TI, TransitionPhaseStream>::callWorkerStreamBegin(D,
+                                                                    StreamID id,
+                                                                    LumiTransitionInfo const& info,
+                                                                    ModuleCallingContext const* mcc) {
     this->module().doStreamBeginLuminosityBlock(id, info, mcc);
   }
 
-  template <typename T, typename TI, typename TP>
+  template <typename T, typename TI>
   template <typename D>
-  void WorkerT<T, TI, TP>::callWorkerStreamEnd(D,
-                                               StreamID id,
-                                               LumiTransitionInfo const& info,
-                                               ModuleCallingContext const* mcc) {
+  void WorkerT<T, TI, TransitionPhaseStream>::callWorkerStreamEnd(D,
+                                                                  StreamID id,
+                                                                  LumiTransitionInfo const& info,
+                                                                  ModuleCallingContext const* mcc) {
     this->module().doStreamEndLuminosityBlock(id, info, mcc);
   }
 
-  template <typename T, typename TI, typename TP>
-  bool WorkerT<T, TI, TP>::implDoStreamBegin(StreamID id,
-                                             LumiTransitionInfo const& info,
-                                             ModuleCallingContext const* mcc) {
+  template <typename T, typename TI>
+  bool WorkerT<T, TI, TransitionPhaseStream>::implDoStreamBegin(StreamID id,
+                                                                LumiTransitionInfo const& info,
+                                                                ModuleCallingContext const* mcc) {
     std::conditional_t<workerimpl::has_stream_functions<T>::value,
-                       workerimpl::DoStreamBeginTrans<T, TI, TP, LumiTransitionInfo>,
+                       workerimpl::DoStreamBeginTrans<T, TI, TransitionPhaseStream, LumiTransitionInfo>,
                        workerimpl::DoNothing>
         might_call;
     might_call(this, id, info, mcc);
     return true;
   }
 
-  template <typename T, typename TI, typename TP>
-  bool WorkerT<T, TI, TP>::implDoStreamEnd(StreamID id,
-                                           LumiTransitionInfo const& info,
-                                           ModuleCallingContext const* mcc) {
+  template <typename T, typename TI>
+  bool WorkerT<T, TI, TransitionPhaseStream>::implDoStreamEnd(StreamID id,
+                                                              LumiTransitionInfo const& info,
+                                                              ModuleCallingContext const* mcc) {
     std::conditional_t<workerimpl::has_stream_functions<T>::value,
-                       workerimpl::DoStreamEndTrans<T, TI, TP, LumiTransitionInfo>,
+                       workerimpl::DoStreamEndTrans<T, TI, TransitionPhaseStream, LumiTransitionInfo>,
                        workerimpl::DoNothing>
         might_call;
     might_call(this, id, info, mcc);
@@ -510,9 +504,9 @@ namespace edm {
     return true;                                                                                          \
   }
 
-  EDM_FOR_EACH_WORKERT_TRANSITION(EDM_SPECIALIZE_WORKERT_OUTPUT_LUMI_WRITE, edm::one::OutputModuleBase)
-  EDM_FOR_EACH_WORKERT_TRANSITION(EDM_SPECIALIZE_WORKERT_OUTPUT_LUMI_WRITE, edm::global::OutputModuleBase)
-  EDM_FOR_EACH_WORKERT_TRANSITION(EDM_SPECIALIZE_WORKERT_OUTPUT_LUMI_WRITE, edm::limited::OutputModuleBase)
+  EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(EDM_SPECIALIZE_WORKERT_OUTPUT_LUMI_WRITE, edm::one::OutputModuleBase)
+  EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(EDM_SPECIALIZE_WORKERT_OUTPUT_LUMI_WRITE, edm::global::OutputModuleBase)
+  EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(EDM_SPECIALIZE_WORKERT_OUTPUT_LUMI_WRITE, edm::limited::OutputModuleBase)
 
 #undef EDM_SPECIALIZE_WORKERT_OUTPUT_LUMI_WRITE
 
@@ -616,5 +610,5 @@ namespace edm {
   EDM_INSTANTIATE_WORKERT(limited::OutputModuleBase)
 
 #undef EDM_INSTANTIATE_WORKERT
-#undef EDM_FOR_EACH_WORKERT_TRANSITION
+#undef EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION
 }  // namespace edm

@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_maker_TransitionWorker_Common_h
-#define FWCore_Framework_maker_TransitionWorker_Common_h
+#ifndef FWCore_Framework_maker_TransitionWorker_Stream_h
+#define FWCore_Framework_maker_TransitionWorker_Stream_h
 
 /*----------------------------------------------------------------------
 
@@ -29,6 +29,7 @@ the worker is reset().
 #include "FWCore/Framework/interface/maker/WorkerParams.h"
 #include "FWCore/Framework/interface/maker/ModuleSignalSentry.h"
 #include "FWCore/Framework/interface/maker/ModuleAttributes.h"
+#include "FWCore/Framework/interface/maker/TransitionWorker_Common.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
@@ -78,7 +79,7 @@ namespace edm {
 
   namespace workerhelper {
     template <typename TI, TransitionEdge E>
-    class CallGlobalImpl;
+    class CallStreamImpl;
   }
   namespace eventsetup {
     struct ComponentDescription;
@@ -88,80 +89,32 @@ namespace edm {
   class RunTransitionInfo;
   class LumiTransitionInfo;
   struct TransitionPhaseGlobal;
+  struct TransitionPhaseStream;
 
-  template <typename TI, TransitionEdge E>
-  struct TransitionTrait;
-  template <>
-  struct TransitionTrait<RunTransitionInfo, TransitionEdge::kBegin> {
-    static constexpr Transition value = Transition::BeginRun;
-  };
-  template <>
-  struct TransitionTrait<RunTransitionInfo, TransitionEdge::kEnd> {
-    static constexpr Transition value = Transition::EndRun;
-  };
-  template <>
-  struct TransitionTrait<LumiTransitionInfo, TransitionEdge::kBegin> {
-    static constexpr Transition value = Transition::BeginLuminosityBlock;
-  };
-  template <>
-  struct TransitionTrait<LumiTransitionInfo, TransitionEdge::kEnd> {
-    static constexpr Transition value = Transition::EndLuminosityBlock;
-  };
-
-  template <typename TI, typename TP>
-  class TransitionWorker : public Worker {
+  template <typename TI>
+  class TransitionWorker<TI, TransitionPhaseStream> : public Worker {
   public:
     enum State { Ready, Pass, Fail, Exception };
     using Types = edm::modules::Type;
     using ConcurrencyTypes = edm::modules::Concurrency;
     TransitionWorker(ModuleDescription const& iMD, ExceptionToActionTable const* iActions) : Worker(iMD, iActions) {}
 
-    virtual bool wantsGlobalRuns() const noexcept = 0;
-    virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
-    virtual bool wantsWrites() const noexcept = 0;
-
-    //returns non-nullptr if the module can only process one Run at a time
-    virtual SerialTaskQueue* globalRunsQueue() = 0;
-    //returns non-nullptr if the module can only process one LuminosityBlock at a time
-    virtual SerialTaskQueue* globalLuminosityBlocksQueue() = 0;
-
     void reset() { resetBase(); }
-
-    template <TransitionEdge E>
-    void doWorkAsync(WaitingTaskHolder iTask,
-                     TI const& iTransitionInfo,
-                     ServiceToken const& iToken,
-                     StreamID iStreamID,
-                     ParentContext const& iParentContext,
-                     GlobalContext const* iContext) noexcept {
-      this->template doWorkAsyncImpl<E>(std::move(iTask), iTransitionInfo, iToken, iStreamID, iParentContext, iContext);
-    }
 
     //called by processOneOccurrenceAsync which is only used for globals by the SecondaryEventProvider and
     // WokerManager<stream>::processOneOccurrenceAsync
     template <TransitionEdge E>
-    void doWorkNoPrefetchingAsync(
-        WaitingTaskHolder iTask,
-        TI const& iTransitionInfo,
-        ServiceToken const& iToken,
-        StreamID iStreamID,
-        ParentContext const& iParentContext,
-        GlobalContext const*
-            iContext) noexcept {
+    void doWorkNoPrefetchingAsync(WaitingTaskHolder iTask,
+                                  TI const& iTransitionInfo,
+                                  ServiceToken const& iToken,
+                                  StreamID iStreamID,
+                                  ParentContext const& iParentContext,
+                                  StreamContext const* iContext) noexcept {
       this->template doWorkNoPrefetchingAsyncImpl<E>(
           std::move(iTask), iTransitionInfo, iToken, iStreamID, iParentContext, iContext);
     }
 
   protected:
-    //Called by GlobalSchedule::processOneGlobalAsync, UnscheduledCallProducer::runAccumulatorsAsync, WorkerInPath::runWorkerAsync, UnscheduledProductResolver::prefetchAsync_
-    template <TransitionEdge E>
-    void doWorkAsyncImpl(WaitingTaskHolder,
-                         TI const&,
-                         ServiceToken const&,
-                         StreamID,
-                         ParentContext const&,
-                         GlobalContext const*) noexcept;
-
     //called by processOneOccurrenceAsync which is only used for globals by the SecondaryEventProvider and
     // WokerManager<stream>::processOneOccurrenceAsync
     template <TransitionEdge E>
@@ -170,42 +123,38 @@ namespace edm {
                                       ServiceToken const&,
                                       StreamID,
                                       ParentContext const&,
-                                      GlobalContext const*) noexcept;
+                                      StreamContext const*) noexcept;
 
-    template <typename TINFO, TransitionEdge E>
-    friend class workerhelper::CallGlobalImpl;
+    template <typename O>
+    friend class workerhelper::CallStreamImpl;
 
-    virtual bool implDoBegin(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoEnd(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoWrite(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoBegin(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoEnd(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoWrite(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoStreamBegin(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoStreamEnd(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoStreamBegin(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoStreamEnd(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
 
   private:
     template <TransitionEdge E>
-    bool runModule(TI const&, StreamID, ParentContext const&, GlobalContext const*);
+    bool runModule(TI const&, StreamID, ParentContext const&, StreamContext const*);
 
-    void prefetchAsync(WaitingTaskHolder, ServiceToken const&, ParentContext const&, TI const&, Transition) noexcept;
-
-    void emitPostModuleGlobalPrefetchingSignal() {
-      actReg_->postModuleGlobalPrefetchingSignal_.emit(*moduleCallingContext_.getGlobalContext(),
+    void emitPostModuleStreamPrefetchingSignal() {
+      actReg_->postModuleStreamPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(),
                                                        moduleCallingContext_);
     }
 
     template <TransitionEdge E>
     std::exception_ptr runModuleAfterAsyncPrefetch(
-        std::exception_ptr, TI const&, StreamID, ParentContext const&, GlobalContext const*) noexcept;
+        std::exception_ptr, TI const&, StreamID, ParentContext const&, StreamContext const*) noexcept;
 
     template <TransitionEdge E>
     class RunModuleTask : public WaitingTask {
     public:
-      RunModuleTask(TransitionWorker<TI, TP>* worker,
+      RunModuleTask(TransitionWorker<TI, TransitionPhaseStream>* worker,
                     TI const& transitionInfo,
                     ServiceToken const& token,
                     StreamID streamID,
                     ParentContext const& parentContext,
-                    GlobalContext const* context,
+                    StreamContext const* context,
                     oneapi::tbb::task_group* iGroup) noexcept
           : m_worker(worker),
             m_transitionInfo(transitionInfo),
@@ -215,20 +164,6 @@ namespace edm {
             m_serviceToken(token),
             m_group(iGroup) {}
 
-      struct EnableQueueGuard {
-        SerialTaskQueue* queue_;
-        EnableQueueGuard(SerialTaskQueue* iQueue) : queue_{iQueue} {}
-        EnableQueueGuard(EnableQueueGuard const&) = delete;
-        EnableQueueGuard& operator=(EnableQueueGuard const&) = delete;
-        EnableQueueGuard& operator=(EnableQueueGuard&&) = delete;
-        EnableQueueGuard(EnableQueueGuard&& iGuard) : queue_{iGuard.queue_} { iGuard.queue_ = nullptr; }
-        ~EnableQueueGuard() {
-          if (queue_) {
-            queue_->resume();
-          }
-        }
-      };
-
       void execute() final {
         //Need to make the services available early so other services can see them
         ServiceRegistry::Operate guard(m_serviceToken.lock());
@@ -237,7 +172,7 @@ namespace edm {
         // to hold the exception_ptr
         std::exception_ptr temp_excptr;
         auto excptr = exceptionPtr();
-        m_worker->emitPostModuleGlobalPrefetchingSignal();
+        m_worker->emitPostModuleStreamPrefetchingSignal();
 
         if (not excptr) {
           if (auto queue = m_worker->serializeRunModule()) {
@@ -250,15 +185,11 @@ namespace edm {
               //Need to make the services available
               ServiceRegistry::Operate operateRunModule(serviceToken.lock());
 
-              //If needed, we pause the queue in begin transition and resume it
-              // at the end transition. This can guarantee that the module
-              // only processes one run or lumi at a time
-              EnableQueueGuard enableQueueGuard{workerhelper::CallGlobalImpl<TI, E>::enableGlobalQueue(worker)};
               std::exception_ptr ptr;
               worker->template runModuleAfterAsyncPrefetch<E>(ptr, info, streamID, parentContext, sContext);
             };
             //keep another global transition from running if necessary
-            auto gQueue = workerhelper::CallGlobalImpl<TI, E>::pauseGlobalQueue(m_worker);
+            auto gQueue = workerhelper::CallStreamImpl<TI, E>::pauseGlobalQueue(m_worker);
             if (gQueue) {
               gQueue->push(*m_group, [queue, gQueue, f, group = m_group]() mutable {
                 gQueue->pause();
@@ -275,45 +206,47 @@ namespace edm {
       }
 
     private:
-      TransitionWorker<TI, TP>* m_worker;
+      TransitionWorker<TI, TransitionPhaseStream>* m_worker;
       TI m_transitionInfo;
       StreamID m_streamID;
       ParentContext const m_parentContext;
-      GlobalContext const* m_context;
+      StreamContext const* m_context;
       ServiceWeakToken m_serviceToken;
       oneapi::tbb::task_group* m_group;
     };
   };
   namespace workerhelper {
     template <>
-    class CallGlobalImpl<RunTransitionInfo, TransitionEdge::kBegin> {
+    class CallStreamImpl<RunTransitionInfo, TransitionEdge::kBegin> {
     public:
-      typedef OccurrenceTraits<RunPrincipal, TransitionActionGlobalBegin> Arg;
-      static bool call(TransitionWorker<RunTransitionInfo, TransitionPhaseGlobal>* iWorker,
-                       StreamID,
+      typedef OccurrenceTraits<RunPrincipal, TransitionActionStreamBegin> Arg;
+      static bool call(TransitionWorker<RunTransitionInfo, TransitionPhaseStream>* iWorker,
+                       StreamID id,
                        RunTransitionInfo const& info,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
-                       GlobalContext const* context) {
+                       Arg::Context const* context) {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
-        // If preModuleSignal() throws, implDoBegin() is not called, and the
-        // cpp destructor calls postModuleSignal (ignoring additional exceptions)
         cpp.preModuleSignal();
-        // If implDoBegin() throws, the cpp destructor calls postModuleSignal
-        // (ignoring additional exceptions)
-        auto returnValue = iWorker->implDoBegin(info, mcc);
-        // If postModuleSignal() throws, the exception will propagate to the framework
+        auto returnValue = iWorker->implDoStreamBegin(id, info, mcc);
         cpp.postModuleSignal();
         iWorker->beginSucceeded_ = true;
         return returnValue;
       }
+      static void esPrefetchAsync(TransitionWorker<RunTransitionInfo, TransitionPhaseStream>* worker,
+                                  WaitingTaskHolder waitingTask,
+                                  ServiceToken const& token,
+                                  RunTransitionInfo const& info,
+                                  Transition transition) noexcept {
+        worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
+      }
       template <typename T>
       static bool wantsTransition(T const* iWorker) noexcept {
-        return iWorker->wantsGlobalRuns();
+        return true;
       }
       template <typename T>
       static SerialTaskQueue* pauseGlobalQueue(T* iWorker) noexcept {
-        return iWorker->globalRunsQueue();
+        return nullptr;
       }
       template <typename T>
       static SerialTaskQueue* enableGlobalQueue(T*) noexcept {
@@ -321,105 +254,87 @@ namespace edm {
       }
     };
     template <>
-    class CallGlobalImpl<RunTransitionInfo, TransitionEdge::kEnd> {
+    class CallStreamImpl<RunTransitionInfo, TransitionEdge::kEnd> {
     public:
-      typedef OccurrenceTraits<RunPrincipal, TransitionActionGlobalEnd> Arg;
-      static bool call(TransitionWorker<RunTransitionInfo, TransitionPhaseGlobal>* iWorker,
-                       StreamID,
+      typedef OccurrenceTraits<RunPrincipal, TransitionActionStreamEnd> Arg;
+      static bool call(TransitionWorker<RunTransitionInfo, TransitionPhaseStream>* iWorker,
+                       StreamID id,
                        RunTransitionInfo const& info,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
-                       Arg::Context const* context) {
-        bool returnValue = true;
+                       StreamContext const* context) {
         if (iWorker->beginSucceeded_) {
           iWorker->beginSucceeded_ = false;
 
           ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
           cpp.preModuleSignal();
-          returnValue = iWorker->implDoEnd(info, mcc);
+          auto returnValue = iWorker->implDoStreamEnd(id, info, mcc);
           cpp.postModuleSignal();
+          return returnValue;
         }
-        //The existence of noRunLumiSort option can shouldWriteRun() to retur kNo.
-        if (iWorker->wantsWrites() and info.principal().shouldWriteRun() != edm::RunPrincipal::ShouldWriteRun::kNo) {
-          auto sentry = signalslot::make_sentry(
-              [actReg, context, mcc]() { actReg->postModuleWriteRunSignal_.emit(*context, *mcc); });
-          actReg->preModuleWriteRunSignal_.emit(*context, *mcc);
-          returnValue = iWorker->implDoWrite(info, mcc);
-          sentry.succeeded();
-        }
-        return returnValue;
-      }
-      template <typename T>
-      static bool wantsTransition(T const* iWorker) noexcept {
         return true;
       }
-      template <typename T>
-      static SerialTaskQueue* pauseGlobalQueue(T* iWorker) noexcept {
-        return nullptr;
-      }
-      template <typename T>
-      static SerialTaskQueue* enableGlobalQueue(T* iWorker) noexcept {
-        return iWorker->globalRunsQueue();
+      static void esPrefetchAsync(TransitionWorker<RunTransitionInfo, TransitionPhaseStream>* worker,
+                                  WaitingTaskHolder waitingTask,
+                                  ServiceToken const& token,
+                                  RunTransitionInfo const& info,
+                                  Transition transition) noexcept {
+        worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
     };
+
     template <>
-    class CallGlobalImpl<LumiTransitionInfo, TransitionEdge::kBegin> {
+    class CallStreamImpl<LumiTransitionInfo, TransitionEdge::kBegin> {
     public:
-      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalBegin>;
-      static bool call(TransitionWorker<LumiTransitionInfo, TransitionPhaseGlobal>* iWorker,
-                       StreamID,
+      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamBegin>;
+      static bool call(TransitionWorker<LumiTransitionInfo, TransitionPhaseStream>* iWorker,
+                       StreamID id,
                        LumiTransitionInfo const& info,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
-                       Arg::Context const* context) {
+                       StreamContext const* context) {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         cpp.preModuleSignal();
-        auto returnValue = iWorker->implDoBegin(info, mcc);
+        auto returnValue = iWorker->implDoStreamBegin(id, info, mcc);
         cpp.postModuleSignal();
         iWorker->beginSucceeded_ = true;
         return returnValue;
       }
-      template <typename T>
-      static bool wantsTransition(T const* iWorker) noexcept {
-        return iWorker->wantsGlobalLuminosityBlocks();
-      }
-      template <typename T>
-      static SerialTaskQueue* pauseGlobalQueue(T* iWorker) noexcept {
-        return iWorker->globalLuminosityBlocksQueue();
-      }
-      template <typename T>
-      static SerialTaskQueue* enableGlobalQueue(T* iWorker) noexcept {
-        return nullptr;
+      static void esPrefetchAsync(TransitionWorker<LumiTransitionInfo, TransitionPhaseStream>* worker,
+                                  WaitingTaskHolder waitingTask,
+                                  ServiceToken const& token,
+                                  LumiTransitionInfo const& info,
+                                  Transition transition) noexcept {
+        worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
     };
     template <>
-    class CallGlobalImpl<LumiTransitionInfo, TransitionEdge::kEnd> {
+    class CallStreamImpl<LumiTransitionInfo, TransitionEdge::kEnd> {
     public:
-      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalEnd>;
-      static bool call(TransitionWorker<LumiTransitionInfo, TransitionPhaseGlobal>* iWorker,
-                       StreamID,
+      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamEnd>;
+      static bool call(TransitionWorker<LumiTransitionInfo, TransitionPhaseStream>* iWorker,
+                       StreamID id,
                        LumiTransitionInfo const& info,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
-                       Arg::Context const* context) {
-        bool returnValue = true;
+                       StreamContext const* context) {
         if (iWorker->beginSucceeded_) {
           iWorker->beginSucceeded_ = false;
+
           ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
           cpp.preModuleSignal();
-          returnValue = iWorker->implDoEnd(info, mcc);
+          auto returnValue = iWorker->implDoStreamEnd(id, info, mcc);
           cpp.postModuleSignal();
+          return returnValue;
         }
-        //The existence of noRunLumiSort option can cause shouldWriteRun() to return kNo.
-        if (iWorker->wantsWrites() and
-            info.principal().shouldWriteLumi() != edm::LuminosityBlockPrincipal::ShouldWriteLumi::kNo) {
-          auto sentry = signalslot::make_sentry(
-              [actReg, context, &mcc]() { actReg->postModuleWriteLumiSignal_.emit(*context, *mcc); });
-          actReg->preModuleWriteLumiSignal_.emit(*context, *mcc);
-          iWorker->implDoWrite(info, mcc);
-          sentry.succeeded();
-        }
-        return returnValue;
+        return true;
+      }
+      static void esPrefetchAsync(TransitionWorker<LumiTransitionInfo, TransitionPhaseStream>* worker,
+                                  WaitingTaskHolder waitingTask,
+                                  ServiceToken const& token,
+                                  LumiTransitionInfo const& info,
+                                  Transition transition) noexcept {
+        worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
       template <typename T>
       static bool wantsTransition(T const* iWorker) noexcept {
@@ -431,64 +346,19 @@ namespace edm {
       }
       template <typename T>
       static SerialTaskQueue* enableGlobalQueue(T* iWorker) noexcept {
-        return iWorker->globalLuminosityBlocksQueue();
+        return nullptr;
       }
     };
   }  // namespace workerhelper
 
-  template <typename TI, typename TP>
-  void TransitionWorker<TI, TP>::prefetchAsync(WaitingTaskHolder iTask,
-                                               ServiceToken const& token,
-                                               ParentContext const& parentContext,
-                                               TI const& transitionInfo,
-                                               Transition iTransition) noexcept {
-    Principal const& principal = transitionInfo.principal();
-
-    moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching, parentContext, nullptr);
-
-    actReg_->preModuleGlobalPrefetchingSignal_.emit(*moduleCallingContext_.getGlobalContext(), moduleCallingContext_);
-
-    esPrefetchAsync(iTask, transitionInfo.eventSetupImpl(), iTransition, token);
-
-    edPrefetchAsync(iTask, token, principal);
-  }
-
-  template <typename TI, typename TP>
+  template <typename TI>
   template <TransitionEdge E>
-  void TransitionWorker<TI, TP>::doWorkAsyncImpl(WaitingTaskHolder task,
-                                                 TI const& transitionInfo,
-                                                 ServiceToken const& token,
-                                                 StreamID streamID,
-                                                 ParentContext const& parentContext,
-                                                 GlobalContext const* context) noexcept {
-    if (not workerhelper::CallGlobalImpl<TI, E>::wantsTransition(this)) {
-      return;
-    }
-
-    //Need to check workStarted_ before adding to waitingTasks_
-    bool expected = false;
-    bool workStarted = workStarted_.compare_exchange_strong(expected, true);
-
-    waitingTasks_.add(task);
-
-    if (workStarted) {
-      moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching, parentContext, nullptr);
-
-      WaitingTask* moduleTask =
-          new RunModuleTask<E>(this, transitionInfo, token, streamID, parentContext, context, task.group());
-      auto group = task.group();
-      prefetchAsync(
-          WaitingTaskHolder(*group, moduleTask), token, parentContext, transitionInfo, TransitionTrait<TI, E>::value);
-    }
-  }
-
-  template <typename TI, typename TP>
-  template <TransitionEdge E>
-  std::exception_ptr TransitionWorker<TI, TP>::runModuleAfterAsyncPrefetch(std::exception_ptr iEPtr,
-                                                                           TI const& transitionInfo,
-                                                                           StreamID streamID,
-                                                                           ParentContext const& parentContext,
-                                                                           GlobalContext const* context) noexcept {
+  std::exception_ptr TransitionWorker<TI, TransitionPhaseStream>::runModuleAfterAsyncPrefetch(
+      std::exception_ptr iEPtr,
+      TI const& transitionInfo,
+      StreamID streamID,
+      ParentContext const& parentContext,
+      StreamContext const* context) noexcept {
     std::exception_ptr exceptionPtr;
     bool shouldRun = true;
     if (iEPtr) {
@@ -515,18 +385,14 @@ namespace edm {
     return exceptionPtr;
   }
 
-  template <typename TI, typename TP>
+  template <typename TI>
   template <TransitionEdge E>
-  void TransitionWorker<TI, TP>::doWorkNoPrefetchingAsyncImpl(WaitingTaskHolder task,
-                                                              TI const& transitionInfo,
-                                                              ServiceToken const& serviceToken,
-                                                              StreamID streamID,
-                                                              ParentContext const& parentContext,
-                                                              GlobalContext const* context) noexcept {
-    if (not workerhelper::CallGlobalImpl<TI, E>::wantsTransition(this)) {
-      return;
-    }
-
+  void TransitionWorker<TI, TransitionPhaseStream>::doWorkNoPrefetchingAsyncImpl(WaitingTaskHolder task,
+                                                                                 TI const& transitionInfo,
+                                                                                 ServiceToken const& serviceToken,
+                                                                                 StreamID streamID,
+                                                                                 ParentContext const& parentContext,
+                                                                                 StreamContext const* context) noexcept {
     //Need to check workStarted_ before adding to waitingTasks_
     bool expected = false;
     auto workStarted = workStarted_.compare_exchange_strong(expected, true);
@@ -578,18 +444,18 @@ namespace edm {
     }
   }
 
-  template <typename TI, typename TP>
+  template <typename TI>
   template <TransitionEdge E>
-  bool TransitionWorker<TI, TP>::runModule(TI const& transitionInfo,
-                                           StreamID streamID,
-                                           ParentContext const& parentContext,
-                                           GlobalContext const* context) {
+  bool TransitionWorker<TI, TransitionPhaseStream>::runModule(TI const& transitionInfo,
+                                                              StreamID streamID,
+                                                              ParentContext const& parentContext,
+                                                              StreamContext const* context) {
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
 
     bool rc = true;
     try {
       convertException::wrap([&]() {
-        rc = workerhelper::CallGlobalImpl<TI, E>::call(
+        rc = workerhelper::CallStreamImpl<TI, E>::call(
             this, streamID, transitionInfo, actReg_.get(), &moduleCallingContext_, context);
 
         if (rc) {

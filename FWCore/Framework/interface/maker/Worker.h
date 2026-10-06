@@ -77,10 +77,6 @@ namespace edm {
   class EarlyDeleteHelper;
   class ProductResolverIndexAndSkipBit;
 
-  namespace workerhelper {
-    template <typename O>
-    class CallImpl;
-  }
   namespace eventsetup {
     struct ComponentDescription;
     class ESRecordsToProductResolverIndices;
@@ -151,9 +147,6 @@ namespace edm {
       waitingTasks_.reset();
       workStarted_ = false;
     }
-
-    template <typename O>
-    friend class workerhelper::CallImpl;
 
     virtual void doClearModule() = 0;
 

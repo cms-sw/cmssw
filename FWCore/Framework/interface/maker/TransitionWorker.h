@@ -12,6 +12,7 @@
 #include "TransitionWorker_Event.h"
 #include "TransitionWorker_InputProcessBlock.h"
 #include "TransitionWorker_ProcessBlock.h"
+#include "TransitionWorker_Stream.h"
 
 namespace edm {
   using StreamRunWorker = TransitionWorker<RunTransitionInfo, TransitionPhaseStream>;
