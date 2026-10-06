@@ -114,7 +114,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::vector<const Tracks*> trackSoAs;
     trackSoAs.resize(trackTokens_.size());
 
-    auto maxTracks = 0;
 #ifdef GPU_DEBUG
     std::cout << "TracksSoAMerger::acquire: nCollections_: " << trackTokens_.size() << std::endl;
 #endif
@@ -122,7 +121,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     for (auto i = 0u; i < trackTokens_.size(); ++i) {
       auto const& aux = iEvent.get(trackTokens_[i]);
       trackSoAs[i] = &aux;
-      maxTracks += aux.view().tracks().metadata().size();
 #ifdef GPU_DEBUG
       std::cout << "TracksSoAMerger::acquire: trackSoAs[" << i << "]: " << trackTags_[i]
                 << ", nTracks: " << aux.view().tracks().metadata().size() << std::endl;
@@ -133,7 +131,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         trackSoAs, [](const Tracks* tracks) -> auto { return TracksConstView(tracks->const_view().tracks()); });
     TrackHitsMultiView hitsViews(
         trackSoAs, [](const Tracks* tracks) -> auto { return TrackHitsConstView(tracks->const_view().trackHits()); });
-
     if (tracksViews.numViews() != hitsViews.numViews())
       throw cms::Exception("TracksSoAMerger::acquire: numViews()")
           << "Number of track views does not match number of hit views\n";
@@ -145,15 +142,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     AlgoParams params{doSameHitsDuplicates,
                       doParmsDupRejection,
                       minQuality_,
-                      maxTracks,
                       dupMinHits_,
                       matchFraction_,
                       dupNSigma2_,
                       dupMaxDeltaR2_,
                       dupPtDifference_};
-    Algo deviceAlgo_(queue, params);
 
-    if (maxTracks > 0) {
+    Algo deviceAlgo_(queue, tracksViews.size(), params);
+
+    if (tracksViews.size() > 0) {
       tracks_d_ = deviceAlgo_.makeMergedTracks(queue, tracksViews, hitsViews);
     } else {
       tracks_d_ = Tracks(queue, 0, 0);

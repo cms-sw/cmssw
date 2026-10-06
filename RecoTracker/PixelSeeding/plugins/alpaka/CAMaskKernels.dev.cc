@@ -24,9 +24,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caMasking {
       }
 #endif
 
-      // note to self: this is launched with metadata.size, but here we loop on nTracks
-      // would be better for this loop to go over metadata.size?
-      for (uint32_t j : cms::alpakatools::uniform_elements_x(acc, track_view.nTracks())) {
+      // tracks are distributed along y (one track per thread row), hits along x (within a block)
+      for (uint32_t j : cms::alpakatools::uniform_elements_y(acc, track_view.nTracks())) {
         if (track_view[j].quality() < minQuality)
           continue;
 
@@ -36,7 +35,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caMasking {
         uint32_t const end = track_view[j].hitOffsets();
         uint32_t const nTrackHits = end - start;
 
-        for (uint32_t k : cms::alpakatools::uniform_elements_y(acc, nTrackHits)) {
+        for (uint32_t k : cms::alpakatools::uniform_elements_x(acc, nTrackHits)) {
           ALPAKA_ASSERT_ACC(static_cast<int>(trackhit_view[start + k].id()) < mask_view.metadata().size());
           // ^ if not it will crash below, but at least the assert is easier to catch
           mask_view[trackhit_view[start + k].id()].recHitMask() = maskValue;

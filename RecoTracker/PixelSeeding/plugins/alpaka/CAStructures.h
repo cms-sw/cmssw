@@ -6,6 +6,10 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/VecArray.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 
+#include "DataFormats/TrackSoA/interface/TracksSoA.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsMaskingSoA.h"
+
 namespace caStructures {
 
   using Quality = ::pixelTrack::Quality;

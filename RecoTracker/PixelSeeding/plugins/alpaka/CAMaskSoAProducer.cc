@@ -72,16 +72,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     if (useOldMask_) {
       inputRecHitsMaskToken_ = device::EDGetToken<MapToHit>(consumes(iConfig.getParameter<edm::InputTag>("oldMask")));
-    }
-    else if (useHits_) {
+    } else if (useHits_) {
       for (const auto& it : iConfig.getParameter<std::vector<edm::InputTag>>("hitSoAs")) {
         inputHitsOnDeviceToken_.push_back(consumes(it));
       }
-    }
-    else {
+    } else {
       throw cms::Exception("PixelTrackConfiguration") << "Either recHitsMaskSoASrc or hitsOnDeviceSrc must be provided";
     }
-
   }
 
   void CAMaskSoAProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

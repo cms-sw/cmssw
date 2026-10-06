@@ -41,6 +41,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::trackSoAMergerKernels {
                                   ::reco::TrackSoAView outTracks,
                                   ::reco::TrackHitSoAView outHits) const {
       auto nGoodTracks = outTracks.metadata().size();
+      ALPAKA_ASSERT_ACC(nGoodTracks <= cn.metadata().size());
 #ifdef GPU_DEBUG
       if (cms::alpakatools::once_per_grid(acc)) {
         printf("Kernel_fillGoodTracks: nGoodTracks: %u\n", nGoodTracks);
@@ -108,7 +109,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::trackSoAMergerKernels {
   public:
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   const TracksMultiView& allTracks,
-                                  const uint32_t maxTracks,
                                   const pixelTrack::Quality minQuality,
                                   ::reco::TrackMergerCounterSoAView cn,
                                   uint32_t* totTracks,
@@ -118,10 +118,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::trackSoAMergerKernels {
         printf("Kernel_countGoodTracks: nInputs: %u\n", allTracks.numViews());
 #endif
 
-      for (uint32_t globalIndex : cms::alpakatools::uniform_elements(acc, maxTracks)) {
+      for (uint32_t globalIndex : cms::alpakatools::uniform_elements(acc, allTracks.size())) {
 #ifdef GPU_DEBUG
         if (globalIndex % 5000 == 0)
-          printf("globalIndex: %u %u - nInputs: %u\n", globalIndex, maxTracks, allTracks.numViews());
+          printf("globalIndex: %u %u - nInputs: %u\n", globalIndex, allTracks.size(), allTracks.numViews());
 #endif
         uint32_t trackIndex = globalIndex;
 

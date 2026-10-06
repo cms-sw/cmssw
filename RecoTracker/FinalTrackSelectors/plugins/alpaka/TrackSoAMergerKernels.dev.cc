@@ -7,7 +7,6 @@
 #include <alpaka/alpaka.hpp>
 
 // CMSSW headers
-// #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
@@ -20,8 +19,8 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  TrackSoAMergerKernels::TrackSoAMergerKernels(Queue &queue, Params const &params) : params_(params) {
-    counters_d_ = reco::TrackMergerCounterSoACollection(queue, params_.maxTracks);
+  TrackSoAMergerKernels::TrackSoAMergerKernels(Queue &queue, int maxTracks, Params const &params) : params_(params) {
+    counters_d_ = reco::TrackMergerCounterSoACollection(queue, maxTracks);
     totCounters_ = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, 2u);
 
     totTracks_ = cms::alpakatools::make_device_view(queue, *reinterpret_cast<uint32_t *>(totCounters_->data()));
@@ -54,16 +53,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::cout << "Starting TrackSoAMergerKernels::countGoodTracks" << std::endl;
 #endif
 
-    if (params_.maxTracks != 0) {
+    if (tracks.size() != 0) {
       const auto threadsPerBlock = 128u;
-      const auto blocks = cms::alpakatools::divide_up_by(params_.maxTracks, threadsPerBlock);
+      const auto blocks = cms::alpakatools::divide_up_by(tracks.size(), threadsPerBlock);
       const auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock);
 
       alpaka::exec<Acc1D>(queue,
                           workDiv1D,
                           Kernel_countGoodTracks{},
                           tracks,
-                          params_.maxTracks,
                           params_.minQuality,
                           counters_d_->view(),
                           totTracks_->data(),

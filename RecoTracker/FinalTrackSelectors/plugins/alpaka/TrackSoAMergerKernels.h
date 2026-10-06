@@ -40,8 +40,6 @@ namespace mergerKernels {
     bool doParamDuplicates;
     pixelTrack::Quality minQuality;
 
-    int maxTracks;
-
     // duplicate filtering criteria
     int dupMinHits;
     double matchFraction;
@@ -65,7 +63,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     TrackSoAMergerKernels& operator=(const TrackSoAMergerKernels&) = delete;
     TrackSoAMergerKernels& operator=(TrackSoAMergerKernels&&) = delete;
 
-    TrackSoAMergerKernels(Queue& queue, Params const& params);
+    TrackSoAMergerKernels(Queue& queue, int maxTracks, Params const& params);
 
     reco::TracksSoACollection makeMergedTracks(Queue& queue,
                                                const TracksMultiView& tracks,
