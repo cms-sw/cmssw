@@ -24,6 +24,8 @@
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/Records/interface/HGCalGeometryRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include <algorithm>
+#include <cstdint>
 #include <vector>
 
 class HGCalGeometry final : public CaloSubdetectorGeometry {
@@ -95,22 +97,20 @@ public:
     return (std::find(m_validIds.begin(), m_validIds.end(), id) != m_validIds.end());
   }
   bool validIntId(const uint32_t& id) const {
-    uint32_t idx = ((m_topology.waferHexagon6())   ? (id & k_maskWafer6)
-                    : (m_topology.tileTrapezoid()) ? (id & k_maskScint)
-                                                   : (id & k_maskSilicon));
-    return (std::find(m_validIntIds.begin(), m_validIntIds.end(), idx) != m_validIntIds.end());
+    const uint32_t mask = ((m_topology.waferHexagon6()) ? k_maskWafer6
+			   : (m_topology.tileTrapezoid()) ? k_maskScint
+			   : k_maskSilicon);
+    const uint32_t target = id & mask;
+    auto it = std::find_if(m_validIds.begin(), m_validIds.end(),[mask, target](uint32_t idx) {return (idx & mask) == target;});
+    return (it != m_validIds.end());
   }
   uint32_t validFullId(const uint32_t& id) const {
-    uint32_t idx = ((m_topology.waferHexagon6())   ? (id & k_maskWafer6)
-                    : (m_topology.tileTrapezoid()) ? (id & k_maskScint)
-                                                   : (id & k_maskSilicon));
-    for (auto& idz : m_validIds) {
-      if (idx == ((m_topology.waferHexagon6())   ? (idz & k_maskWafer6)
-                  : (m_topology.tileTrapezoid()) ? (idz & k_maskScint)
-                                                 : (idz & k_maskSilicon)))
-        return idz;
-    }
-    return 0;
+    const uint32_t mask = ((m_topology.waferHexagon6()) ? k_maskWafer6
+			   : (m_topology.tileTrapezoid()) ? k_maskScint
+			   : k_maskSilicon);
+    const uint32_t target = id & mask;
+    auto it = std::find_if(m_validIds.begin(), m_validIds.end(),[mask, target](uint32_t idx) {return (idx & mask) == target;});
+    return ((it != m_validIds.end()) ? (*it).rawId() : 0);
   }
   const std::vector<DetId>& getValidGeomDetIds(void) const { return m_validGeomIds; }
   bool validGeomDetId(const DetId& id) const {
@@ -168,7 +168,6 @@ private:
   const HGCalTopology& m_topology;
   CellVec m_cellVec;
   CellVec2 m_cellVec2;
-  std::vector<uint32_t> m_validIntIds;
   std::vector<DetId> m_validGeomIds;
   DetId::Detector m_det;
   ForwardSubdetector m_subdet;
