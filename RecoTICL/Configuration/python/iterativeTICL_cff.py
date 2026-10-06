@@ -121,8 +121,7 @@ mtdSoA = _mtdSoAProducer.clone()
 
 # pfTICL uses ticlCandidate by default in v5
 pfTICL = _pfTICLProducer.clone(
-    ticlCandidateSrc = cms.InputTag('ticlCandidate'), 
-    useTimingAverage=True
+    ticlCandidateSrc = cms.InputTag('ticlCandidate')
 )
 
 
