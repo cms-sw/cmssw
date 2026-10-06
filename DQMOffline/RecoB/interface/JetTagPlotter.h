@@ -76,8 +76,9 @@ protected:
   // Discriminator: again with reasonable binning
   std::unique_ptr<FlavourHistograms<double>> dDiscriminator_;
 
-  // reconstructed jet transverse momentum
+  // reconstructed jet transverse momentum: low pT with fine binning (jetPt) and full range (jetPt_extended)
   std::unique_ptr<FlavourHistograms<double>> dJetRecPt_;
+  std::unique_ptr<FlavourHistograms<double>> dJetRecPtExtended_;
 
   // reconstructed jet eta
   std::unique_ptr<FlavourHistograms<double>> dJetRecPseudoRapidity_;
@@ -91,7 +92,7 @@ protected:
   // jet Eta larger than requested discrimnator cut
   std::unique_ptr<FlavourHistograms<double>> dJetPseudoRapidityDiscrCut_;
 
-  // jet pT larger than requested discrimnator cut (coarser than jetPt, which it is divided by)
+  // jet pT larger than requested discrimnator cut (coarser than jetPt_extended, which it is divided by)
   std::unique_ptr<FlavourHistograms<double>> dJetPtDiscrCut_;
 };
 
