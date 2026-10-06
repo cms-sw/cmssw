@@ -9,14 +9,12 @@
 #include <cassert>
 #include <cmath>
 #include <limits>
-#include <utility>
 
 namespace {
   constexpr float micronsToCm = 1.0e-4;
   constexpr float output_scale =
       50.;  //Defined by NN value = CMSSW value * output_scale. To read the NN outputs back to CMSSW, do CMSSW value = NN value / output_scale
   constexpr float CHARGENORM = 25000.;
-  constexpr unsigned int nSessions = 7;
 }  // namespace
 
 //-----------------------------------------------------------------------------
@@ -30,23 +28,17 @@ PixelCPENNReco::PixelCPENNReco(edm::ParameterSet const& conf,
                                const SiPixelLorentzAngle* lorentzAngle,
                                const SiPixelGenErrorDBObject* genErrorDBObject,
                                const SiPixelLorentzAngle* lorentzAngleWidth,
-                               std::vector<const tensorflow::Session*> session_x_vec_,
-                               std::vector<const tensorflow::Session*> session_y_vec_)
-    : PixelCPEGeneric(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, lorentzAngleWidth),
-      session_x_vec(std::move(session_x_vec_)),
-      session_y_vec(std::move(session_y_vec_)) {
-  if (session_x_vec.size() != nSessions || session_y_vec.size() != nSessions) {
-    throw cms::Exception("Configuration") << "PixelCPENNReco requires seven X and seven Y sessions";
-  }
+                               const cms::Ort::ONNXRuntime* model_)
+    : PixelCPEGeneric(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, lorentzAngleWidth), model(model_) {
   inputTensorName_x = conf.getParameter<std::string>("inputTensorName_x");
-  anglesTensorName_x = conf.getParameter<std::string>("anglesTensorName_x");
-  cchargeTensorName_x = conf.getParameter<std::string>("cchargeTensorName_x");
   outputTensorName_x = conf.getParameter<std::string>("outputTensorName_x");
 
   inputTensorName_y = conf.getParameter<std::string>("inputTensorName_y");
-  anglesTensorName_y = conf.getParameter<std::string>("anglesTensorName_y");
-  cchargeTensorName_y = conf.getParameter<std::string>("cchargeTensorName_y");
   outputTensorName_y = conf.getParameter<std::string>("outputTensorName_y");
+
+  anglesTensorName = conf.getParameter<std::string>("anglesTensorName");
+  cchargeTensorName = conf.getParameter<std::string>("cchargeTensorName");
+  modelCategoryName = conf.getParameter<std::string>("modelCategoryName");
 }
 
 std::unique_ptr<PixelCPEBase::ClusterParam> PixelCPENNReco::createClusterParam(const SiPixelCluster& cl) const {
@@ -342,7 +334,7 @@ LocalPoint PixelCPENNReco::localPosition(DetParam const& theDetParam, ClusterPar
   const int ladder = ttopo_.pxbLadder(rawId);
   const int module = ttopo_.pxbModule(rawId);
 
-  // Order must match the model names in PixelCPENNRecoESProducer
+  // category order matches the combined graph's category mapping
   // outer ladders = unflipped = odd nos
   unsigned int iModel;
   if (layer == 1)
@@ -353,8 +345,6 @@ LocalPoint PixelCPENNReco::localPosition(DetParam const& theDetParam, ClusterPar
     iModel = (module <= 4) ? 3 : 4;
   else
     iModel = (module <= 4) ? 5 : 6;
-  const tensorflow::Session* session_x = session_x_vec[iModel];
-  const tensorflow::Session* session_y = session_y_vec[iModel];
 
   // Not all information is needed during inferance, but defined here anyway to align with training cluster preposcessing function
   float Cluster_raw[TXSIZE][TYSIZE];
@@ -405,36 +395,40 @@ LocalPoint PixelCPENNReco::localPosition(DetParam const& theDetParam, ClusterPar
     return PixelCPEGeneric::localPosition(theDetParam, theClusterParam);
 
   // define a tensor and fill it with cluster projection
-  tensorflow::Tensor cluster_flat_x(tensorflow::DT_FLOAT, {1, TXSIZE, 1});
-  tensorflow::Tensor cluster_flat_y(tensorflow::DT_FLOAT, {1, TYSIZE, 1});
-  // angles
-  tensorflow::Tensor angles(tensorflow::DT_FLOAT, {1, 2});
-  tensorflow::Tensor ccharge(tensorflow::DT_FLOAT, {1, 1});
+  cms::Ort::FloatArrays inputs{
+      std::vector<float>(Cluster_x, Cluster_x + TXSIZE),
+      std::vector<float>(Cluster_y, Cluster_y + TYSIZE),
+      {Cluster_charge},
+      {theClusterParam.cotalpha, theClusterParam.cotbeta},
+      {static_cast<float>(iModel)},
+  };
 
-  angles.tensor<float, 2>()(0, 0) = theClusterParam.cotalpha;
-  angles.tensor<float, 2>()(0, 1) = theClusterParam.cotbeta;
-  ccharge.tensor<float, 2>()(0, 0) = Cluster_charge;
+  const std::vector<std::string> inputNames{
+      inputTensorName_x,
+      inputTensorName_y,
+      cchargeTensorName,
+      anglesTensorName,
+      modelCategoryName,
+  };
 
-  for (int i = 0; i < TXSIZE; i++)
-    cluster_flat_x.tensor<float, 3>()(0, i, 0) = Cluster_x[i];
-  for (int j = 0; j < TYSIZE; j++)
-    cluster_flat_y.tensor<float, 3>()(0, j, 0) = Cluster_y[j];
+  const std::vector<std::vector<int64_t>> inputShapes{
+      {1, TXSIZE, 1},
+      {1, TYSIZE, 1},
+      {1, 1},
+      {1, 2},
+      {1, 1},
+  };
 
-  std::vector<tensorflow::Tensor> output_x, output_y;
+  auto output = model->run(inputNames, inputs, inputShapes, {outputTensorName_x, outputTensorName_y}, 1);
 
-  tensorflow::run(session_x,
-                  {{inputTensorName_x, cluster_flat_x}, {cchargeTensorName_x, ccharge}, {anglesTensorName_x, angles}},
-                  {outputTensorName_x},
-                  &output_x);
-  tensorflow::run(session_y,
-                  {{inputTensorName_y, cluster_flat_y}, {cchargeTensorName_y, ccharge}, {anglesTensorName_y, angles}},
-                  {outputTensorName_y},
-                  &output_y);
+  if (output.size() != 2 || output[0].size() != 2 || output[1].size() != 2) {
+    throw cms::Exception("Configuration") << "Unexpected PixelCPENN ONNX output dimensions";
+  }
 
-  const float nnOffsetX = output_x[0].matrix<float>()(0, 0) / output_scale;
-  const float nnSigmaX = output_x[0].matrix<float>()(0, 1) / output_scale;
-  const float nnOffsetY = output_y[0].matrix<float>()(0, 0) / output_scale;
-  const float nnSigmaY = output_y[0].matrix<float>()(0, 1) / output_scale;
+  const float nnOffsetX = output[0][0] / output_scale;
+  const float nnSigmaX = output[0][1] / output_scale;
+  const float nnOffsetY = output[1][0] / output_scale;
+  const float nnSigmaY = output[1][1] / output_scale;
 
   constexpr float maxPositionX = 1300.f * micronsToCm;
   constexpr float maxPositionY = 3150.f * micronsToCm;
@@ -536,11 +530,10 @@ LocalError PixelCPENNReco::localError(DetParam const& theDetParam, ClusterParam&
 void PixelCPENNReco::fillPSetDescription(edm::ParameterSetDescription& desc) {
   PixelCPEGeneric::fillPSetDescription(desc);
   desc.add<std::string>("inputTensorName_x", "pixel_projection_x");
-  desc.add<std::string>("anglesTensorName_x", "angles");
-  desc.add<std::string>("cchargeTensorName_x", "cluster_charge");
-  desc.add<std::string>("outputTensorName_x", "Identity");
+  desc.add<std::string>("outputTensorName_x", "output_x");
   desc.add<std::string>("inputTensorName_y", "pixel_projection_y");
-  desc.add<std::string>("anglesTensorName_y", "angles");
-  desc.add<std::string>("cchargeTensorName_y", "cluster_charge");
-  desc.add<std::string>("outputTensorName_y", "Identity");
+  desc.add<std::string>("outputTensorName_y", "output_y");
+  desc.add<std::string>("anglesTensorName", "angles");
+  desc.add<std::string>("cchargeTensorName", "cluster_charge");
+  desc.add<std::string>("modelCategoryName", "model_category");
 }

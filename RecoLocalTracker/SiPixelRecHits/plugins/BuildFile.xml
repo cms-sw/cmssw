@@ -6,7 +6,7 @@
 <use name="RecoLocalTracker/Records"/>
 <use name="RecoLocalTracker/SiPixelRecHits"/>
 <library file="*.cc" name="RecoLocalTrackerSiPixelRecHitsPlugins">
-  <use name="PhysicsTools/TensorFlow"/>
+  <use name="PhysicsTools/ONNXRuntime"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 <library file="alpaka/*.cc" name="RecoLocalTrackerSiPixelRecHitsPluginsPortable">

@@ -3,7 +3,7 @@
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGeneric.h"
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplateDefs.h"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
 #include <string>
 #include <vector>
@@ -21,8 +21,7 @@ public:
                  const SiPixelLorentzAngle *,
                  const SiPixelGenErrorDBObject *,
                  const SiPixelLorentzAngle *,
-                 std::vector<const tensorflow::Session *>,
-                 std::vector<const tensorflow::Session *>);
+                 const cms::Ort::ONNXRuntime *);
 
   ~PixelCPENNReco() override = default;
 
@@ -60,12 +59,10 @@ private:
                       int &Row_offset,
                       int &Col_offset) const;
 
-  std::string inputTensorName_x, inputTensorName_y, anglesTensorName_x, anglesTensorName_y, cchargeTensorName_x,
-      cchargeTensorName_y;
+  std::string inputTensorName_x, inputTensorName_y, anglesTensorName, cchargeTensorName, modelCategoryName;
   std::string outputTensorName_x, outputTensorName_y;
 
-  std::vector<const tensorflow::Session *> session_x_vec;
-  std::vector<const tensorflow::Session *> session_y_vec;
+  const cms::Ort::ONNXRuntime *model;
 };
 
 #endif

@@ -14,13 +14,11 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
-#include <array>
 #include <filesystem>
 #include <memory>
 #include <string>
-#include <vector>
 
 class PixelCPENNRecoESProducer : public edm::ESProducer {
 public:
@@ -36,8 +34,7 @@ private:
   edm::ESGetToken<SiPixelLorentzAngle, SiPixelLorentzAngleRcd> lorentzAngleWidthToken_;
   edm::ESGetToken<SiPixelGenErrorDBObject, SiPixelGenErrorDBObjectRcd> genErrorDBObjectToken_;
 
-  std::vector<std::unique_ptr<tensorflow::SessionCache>> modelCachesX_;
-  std::vector<std::unique_ptr<tensorflow::SessionCache>> modelCachesY_;
+  std::unique_ptr<cms::Ort::ONNXRuntime> model_;
 
   edm::ParameterSet pset_;
   bool useLAWidthFromDB_;
@@ -46,34 +43,10 @@ private:
 
 PixelCPENNRecoESProducer::PixelCPENNRecoESProducer(const edm::ParameterSet& p) {
   const auto modelDirectory = p.getParameter<std::string>("modelDirectory");
-  // Order must match the model selection in PixelCPENNReco::localPosition
-  const std::array<std::string, 7> xModelNames = {
-      "L1U_x_center.keras.pb",
-      "L1F_x_center.keras.pb",
-      "L2_x_center.keras.pb",
-      "L3M_x_center.keras.pb",
-      "L3P_x_center.keras.pb",
-      "L4M_x_center.keras.pb",
-      "L4P_x_center.keras.pb",
-  };
-  const std::array<std::string, 7> yModelNames = {
-      "L1U_y_center.keras.pb",
-      "L1F_y_center.keras.pb",
-      "L2_y_center.keras.pb",
-      "L3M_y_center.keras.pb",
-      "L3P_y_center.keras.pb",
-      "L4M_y_center.keras.pb",
-      "L4P_y_center.keras.pb",
-  };
+  const std::string ModelName = "PixelCPENNReco.onnx";
 
-  for (const auto& name : xModelNames) {
-    auto path = std::filesystem::path(modelDirectory) / name;
-    modelCachesX_.push_back(std::make_unique<tensorflow::SessionCache>(path.string()));
-  }
-  for (const auto& name : yModelNames) {
-    auto path = std::filesystem::path(modelDirectory) / name;
-    modelCachesY_.push_back(std::make_unique<tensorflow::SessionCache>(path.string()));
-  }
+  auto path = std::filesystem::path(modelDirectory) / ModelName;
+  model_ = std::make_unique<cms::Ort::ONNXRuntime>(path.string());
 
   // Same conditions as PixelCPEGenericESProducer, used for the generic fallback
   useLAWidthFromDB_ = p.getParameter<bool>("useLAWidthFromDB");
@@ -96,18 +69,7 @@ PixelCPENNRecoESProducer::PixelCPENNRecoESProducer(const edm::ParameterSet& p) {
 }
 
 std::unique_ptr<PixelClusterParameterEstimator> PixelCPENNRecoESProducer::produce(const TkPixelCPERecord& iRecord) {
-  std::vector<const tensorflow::Session*> sessionsX;
-  std::vector<const tensorflow::Session*> sessionsY;
-
-  sessionsX.reserve(modelCachesX_.size());
-  sessionsY.reserve(modelCachesY_.size());
-
-  for (const auto& cache : modelCachesX_)
-    sessionsX.push_back(cache->getSession());
-
-  for (const auto& cache : modelCachesY_)
-    sessionsY.push_back(cache->getSession());
-
+  const cms::Ort::ONNXRuntime* model = model_.get();
   const SiPixelLorentzAngle* lorentzAngleWidthProduct = nullptr;
   if (useLAWidthFromDB_) {
     lorentzAngleWidthProduct = &iRecord.get(lorentzAngleWidthToken_);
@@ -124,8 +86,7 @@ std::unique_ptr<PixelClusterParameterEstimator> PixelCPENNRecoESProducer::produc
                                           &iRecord.get(lorentzAngleToken_),
                                           genErrorDBObjectProduct,
                                           lorentzAngleWidthProduct,
-                                          sessionsX,
-                                          sessionsY);
+                                          model);
 }
 
 void PixelCPENNRecoESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
