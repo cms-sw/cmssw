@@ -31,12 +31,13 @@ autoCond = {
     'run2_data_promptlike_hi'      :    '140X_dataRun2_PromptLike_HI_v1',
     # GlobalTag with fixed snapshot time for Run2 HLT RelVals: customizations to run with fixed L1 Menu
     'run2_hlt_relval'              :    '140X_dataRun2_HLT_relval_v1',
-    # GlobalTag for Run3 HLT: identical the online GT 161X_dataRun3_HLT_v1 but with snapshot at 2026-05-20 10:10:39 (UTC)
-    'run3_hlt'                     :    '161X_dataRun3_HLT_frozen260520_v1',
-    # GlobalTag for Run3 data relvals (express GT): same as 161X_dataRun3_Express_v1 but with snapshot at 2026-05-20 10:12:15 (UTC)
-    'run3_data_express'            :    '161X_dataRun3_Express_frozen260520_v1',
-    # GlobalTag for Run3 data relvals (prompt GT): same as 161X_dataRun3_Prompt_v1 but with snapshot at 2026-05-20 10:14:30 (UTC)
-    'run3_data_prompt'             :    '161X_dataRun3_Prompt_frozen260520_v1',
+    # GlobalTag for Run3 HLT: identical the online GT 161X_dataRun3_HLT_v1 but with snapshot at the end of Run3
+    'run3_hlt'                     :    '161X_dataRun3_HLT_frozen_v1',
+    # GlobalTag for Run3 data relvals (express GT): same as 161X_dataRun3_Express_v1 but with snapshot at the end of Run3
+    'run3_data_express'            :    '161X_dataRun3_Express_frozen_v1',
+    # GlobalTag for Run3 data relvals (prompt GT): same as 161X_dataRun3_Prompt_v1 but with snapshot at the end of Run3
+    #                                              and the EGM HI regression tags added
+    'run3_data_prompt'             :    '161X_dataRun3_Prompt_frozen_v1',
     # GlobalTag for Run3 offline data reprocessing - snapshot at 2026-03-30 15:14:30 (UTC)
     'run3_data'                    :    '150X_dataRun3_v8',
     # GlobalTag for Run3 offline data reprocessing with Prompt GT, currently for 2022FG - snapshot at 2024-05-31 08:53:25 (UTC)
@@ -71,8 +72,6 @@ autoCond = {
     'phase1_2022_realistic_postEE' :    '150X_mcRun3_2022_realistic_postEE_v2',
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2022, Strip tracker in DECO mode
     'phase1_2022_cosmics'          :    '140X_mcRun3_2022cosmics_realistic_deco_v3',
-    # GlobalTag for MC production (cosmics) with perfectly aligned and calibrated detector for Phase1 2022, Strip tracker in DECO mode
-    'phase1_2022_cosmics_design'   :    '140X_mcRun3_2022cosmics_design_deco_v1',
     # GlobalTag for MC production with realistic conditions for Phase1 2022 detector for Heavy Ion
     'phase1_2022_realistic_hi'     :    '140X_mcRun3_2022_realistic_HI_v4',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2023
@@ -85,20 +84,16 @@ autoCond = {
     'phase1_2023_cosmics'          :    '140X_mcRun3_2023cosmics_realistic_deco_v3',
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 postBPix 2023, Strip tracker in DECO mode
     'phase1_2023_cosmics_postBPix' :    '140X_mcRun3_2023cosmics_realistic_postBPix_deco_v3',
-    # GlobalTag for MC production (cosmics) with perfectly aligned and calibrated detector for Phase1 2023, Strip tracker in DECO mode
-    'phase1_2023_cosmics_design'   :    '140X_mcRun3_2023cosmics_design_deco_v1',
     # GlobalTag for MC production with realistic conditions for Phase1 2023 detector for Heavy Ion
-    'phase1_2023_realistic_hi'     :    '141X_mcRun3_2023_realistic_HI_v11',
+    'phase1_2023_realistic_hi'     :    '141X_mcRun3_2023_realistic_HI_v15',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2024
     'phase1_2024_design'           :    '140X_mcRun3_2024_design_v11',
     # GlobalTag for MC production with realistic conditions for Phase1 2024
     'phase1_2024_realistic'        :    '150X_mcRun3_2024_realistic_v3',
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2024, Strip tracker in DECO mode
     'phase1_2024_cosmics'          :    '140X_mcRun3_2024cosmics_realistic_deco_v14',
-    # GlobalTag for MC production (cosmics) with perfectly aligned and calibrated detector for Phase1 2024, Strip tracker in DECO mode
-    'phase1_2024_cosmics_design'   :    '140X_mcRun3_2024cosmics_design_deco_v11',
     # GlobalTag for MC production with realistic conditions for Phase1 2024 detector for Heavy Ion
-    'phase1_2024_realistic_hi'     :    '141X_mcRun3_2024_realistic_HI_v17',
+    'phase1_2024_realistic_hi'     :    '141X_mcRun3_2024_realistic_HI_v20',
     # GlobalTag for MC production with realistic conditions for Phase1 2024 detector for ppRef5TeV
     'phase1_2024_realistic_ppRef5TeV' : '141X_mcRun3_2024_realistic_ppRef5TeV_v7',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2025
@@ -108,7 +103,7 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2025, Strip tracker in DECO mode
     'phase1_2025_cosmics'          :    '150X_mcRun3_2025cosmics_realistic_deco_v4',
     # GlobalTag for MC production with realistic conditions for Phase1 2025 detector for Heavy Ion
-    'phase1_2025_realistic_hi'     :    '151X_mcRun3_2025_realistic_HI_v5',
+    'phase1_2025_realistic_hi'     :    '151X_mcRun3_2025_realistic_HI_v8',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2026
     'phase1_2026_design'           :    '160X_mcRun3_2026_design_v2',
     # GlobalTag for MC production with realistic conditions for Phase1 2026
@@ -116,9 +111,9 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2026, Strip tracker in DECO mode
     'phase1_2026_cosmics'          :    '160X_mcRun3_2026cosmics_realistic_deco_v2',
     # GlobalTag for MC production with realistic conditions for Phase1 2026 detector for Heavy Ion
-    'phase1_2026_realistic_hi'     :    '161X_mcRun3_2026_realistic_HI_v2',
+    'phase1_2026_realistic_hi'     :    '161X_mcRun3_2026_realistic_HI_v3',
     # GlobalTag for MC production with realistic conditions for Phase2
-    'phase2_realistic'             :    '150X_mcRun4_realistic_v1'
+    'phase2_realistic'             :    '200X_mcRun4_realistic_v1'
 }
 
 aliases = {
