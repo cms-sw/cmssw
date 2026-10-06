@@ -92,33 +92,15 @@ namespace edm {
     using Base::moduleConcurrencyType;
     using Base::moduleType;
 
-    bool wantsGlobalRuns() const noexcept final;
-    bool wantsGlobalLuminosityBlocks() const noexcept final;
+    bool wantsGlobalTransitions() const noexcept final;
     bool wantsWrites() const noexcept final;
 
-    SerialTaskQueue* globalRunsQueue() final;
-    SerialTaskQueue* globalLuminosityBlocksQueue() final;
-
-    template <typename D>
-    void callWorkerBeginStream(D, StreamID);
-    template <typename D>
-    void callWorkerEndStream(D, StreamID);
-    template <typename D>
-    void callWorkerStreamBegin(D, StreamID, RunTransitionInfo const&, ModuleCallingContext const*);
-    template <typename D>
-    void callWorkerStreamEnd(D, StreamID, RunTransitionInfo const&, ModuleCallingContext const*);
-    template <typename D>
-    void callWorkerStreamBegin(D, StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
-    template <typename D>
-    void callWorkerStreamEnd(D, StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
+    SerialTaskQueue* globalTransitionsQueue() final;
 
   private:
-    bool implDoBegin(RunTransitionInfo const&, ModuleCallingContext const*) override;
-    bool implDoEnd(RunTransitionInfo const&, ModuleCallingContext const*) override;
-    bool implDoWrite(RunTransitionInfo const&, ModuleCallingContext const*) override;
-    bool implDoBegin(LumiTransitionInfo const&, ModuleCallingContext const*) override;
-    bool implDoEnd(LumiTransitionInfo const&, ModuleCallingContext const*) override;
-    bool implDoWrite(LumiTransitionInfo const&, ModuleCallingContext const*) override;
+    bool implDoBegin(TI const&, ModuleCallingContext const*) override;
+    bool implDoEnd(TI const&, ModuleCallingContext const*) override;
+    bool implDoWrite(TI const&, ModuleCallingContext const*) override;
     using Base::serializeRunModule;
   };
 
@@ -138,19 +120,13 @@ namespace edm {
     template <typename D>
     void callWorkerEndStream(D, StreamID);
     template <typename D>
-    void callWorkerStreamBegin(D, StreamID, RunTransitionInfo const&, ModuleCallingContext const*);
+    void callWorkerStreamBegin(D, StreamID, TI const&, ModuleCallingContext const*);
     template <typename D>
-    void callWorkerStreamEnd(D, StreamID, RunTransitionInfo const&, ModuleCallingContext const*);
-    template <typename D>
-    void callWorkerStreamBegin(D, StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
-    template <typename D>
-    void callWorkerStreamEnd(D, StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
+    void callWorkerStreamEnd(D, StreamID, TI const&, ModuleCallingContext const*);
 
   private:
-    bool implDoStreamBegin(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) override;
-    bool implDoStreamEnd(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) override;
-    bool implDoStreamBegin(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) override;
-    bool implDoStreamEnd(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) override;
+    bool implDoStreamBegin(StreamID, TI const&, ModuleCallingContext const*) override;
+    bool implDoStreamEnd(StreamID, TI const&, ModuleCallingContext const*) override;
     using Base::serializeRunModule;
   };
 

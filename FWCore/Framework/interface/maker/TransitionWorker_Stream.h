@@ -128,10 +128,8 @@ namespace edm {
     template <typename O>
     friend class workerhelper::CallStreamImpl;
 
-    virtual bool implDoStreamBegin(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoStreamEnd(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoStreamBegin(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoStreamEnd(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoStreamBegin(StreamID, TI const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoStreamEnd(StreamID, TI const&, ModuleCallingContext const*) = 0;
 
   private:
     template <TransitionEdge E>

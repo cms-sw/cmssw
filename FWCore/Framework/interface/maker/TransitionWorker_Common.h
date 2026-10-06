@@ -116,14 +116,11 @@ namespace edm {
     using ConcurrencyTypes = edm::modules::Concurrency;
     TransitionWorker(ModuleDescription const& iMD, ExceptionToActionTable const* iActions) : Worker(iMD, iActions) {}
 
-    virtual bool wantsGlobalRuns() const noexcept = 0;
-    virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
+    virtual bool wantsGlobalTransitions() const noexcept = 0;
     virtual bool wantsWrites() const noexcept = 0;
 
-    //returns non-nullptr if the module can only process one Run at a time
-    virtual SerialTaskQueue* globalRunsQueue() = 0;
-    //returns non-nullptr if the module can only process one LuminosityBlock at a time
-    virtual SerialTaskQueue* globalLuminosityBlocksQueue() = 0;
+    //returns non-nullptr if the module can only process one Transition at a time
+    virtual SerialTaskQueue* globalTransitionsQueue() = 0;
 
     void reset() { resetBase(); }
 
@@ -173,12 +170,9 @@ namespace edm {
     template <typename TINFO, TransitionEdge E>
     friend class workerhelper::CallGlobalImpl;
 
-    virtual bool implDoBegin(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoEnd(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoWrite(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoBegin(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoEnd(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoWrite(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoBegin(TI const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoEnd(TI const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoWrite(TI const&, ModuleCallingContext const*) = 0;
 
   private:
     template <TransitionEdge E>
@@ -307,11 +301,11 @@ namespace edm {
       }
       template <typename T>
       static bool wantsTransition(T const* iWorker) noexcept {
-        return iWorker->wantsGlobalRuns();
+        return iWorker->wantsGlobalTransitions();
       }
       template <typename T>
       static SerialTaskQueue* pauseGlobalQueue(T* iWorker) noexcept {
-        return iWorker->globalRunsQueue();
+        return iWorker->globalTransitionsQueue();
       }
       template <typename T>
       static SerialTaskQueue* enableGlobalQueue(T*) noexcept {
@@ -357,7 +351,7 @@ namespace edm {
       }
       template <typename T>
       static SerialTaskQueue* enableGlobalQueue(T* iWorker) noexcept {
-        return iWorker->globalRunsQueue();
+        return iWorker->globalTransitionsQueue();
       }
     };
     template <>
@@ -379,11 +373,11 @@ namespace edm {
       }
       template <typename T>
       static bool wantsTransition(T const* iWorker) noexcept {
-        return iWorker->wantsGlobalLuminosityBlocks();
+        return iWorker->wantsGlobalTransitions();
       }
       template <typename T>
       static SerialTaskQueue* pauseGlobalQueue(T* iWorker) noexcept {
-        return iWorker->globalLuminosityBlocksQueue();
+        return iWorker->globalTransitionsQueue();
       }
       template <typename T>
       static SerialTaskQueue* enableGlobalQueue(T* iWorker) noexcept {
@@ -429,7 +423,7 @@ namespace edm {
       }
       template <typename T>
       static SerialTaskQueue* enableGlobalQueue(T* iWorker) noexcept {
-        return iWorker->globalLuminosityBlocksQueue();
+        return iWorker->globalTransitionsQueue();
       }
     };
   }  // namespace workerhelper
