@@ -729,7 +729,9 @@ void LSTEvent::createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets)
                       quintupletsDC_->const_view().quintuplets(),
                       trackCandidatesBaseDC_->view(),
                       trackCandidatesExtendedDC_->view(),
-                      tripletsDC_->view().triplets(),
+                      miniDoubletsDC_->const_view().miniDoublets(),
+                      segmentsDC_->const_view().segments(),
+                      tripletsDC_->const_view().triplets(),
                       rangesDC_->const_view());
 
   auto const addT4asTrackCandidate_workDiv = cms::alpakatools::make_workdiv<Acc2D>({8, 10}, {8, 128});
