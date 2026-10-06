@@ -112,7 +112,7 @@ void MiniAODTagInfoAnalyzer::bookHistograms(DQMStore::IBooker& ibook, edm::Run c
     ibook.setCurrentFolder("Btag/TagInfo_pfParticleNetFromMiniAODAK4PuppiForward_" + partonFlavourLabel_);
 
     map_ME_ParticleNet_["pfcand_pt_log"] = ibook.book1D("pfcand_pt_log", "", 120, -0.5, 5.5);
-    map_ME_ParticleNet_["pfcand_energy_log"] = ibook.book1D("pfcand_energy_log", "", 120, -0.5, 5.5);
+    map_ME_ParticleNet_["pfcand_energy_log"] = ibook.book1D("pfcand_energy_log", "", 160, -0.5, 7.5);
     map_ME_ParticleNet_["pfcand_deta"] = ibook.book1D("pfcand_deta", "", 60, -0.6, 0.6);
     map_ME_ParticleNet_["pfcand_dphi"] = ibook.book1D("pfcand_dphi", "", 60, -0.6, 0.6);
     map_ME_ParticleNet_["pfcand_eta"] = ibook.book1D("pfcand_eta", "", 100, -5.0, 5.0);
@@ -122,19 +122,20 @@ void MiniAODTagInfoAnalyzer::bookHistograms(DQMStore::IBooker& ibook, edm::Run c
     map_ME_ParticleNet_["pfcand_track_chi2"] = ibook.book1D("pfcand_track_chi2", "", 15, 0., 15);
     map_ME_ParticleNet_["pfcand_track_qual"] = ibook.book1D("pfcand_track_qual", "", 10, 0., 10);
     map_ME_ParticleNet_["pfcand_dz"] = ibook.book1D("pfcand_dz", "", 100, -10., 10.);
-    map_ME_ParticleNet_["pfcand_dzsig"] = ibook.book1D("pfcand_dzsig", "", 100, 0., 20.);
+    map_ME_ParticleNet_["pfcand_dzsig"] =
+        book1DVariable(ibook, "pfcand_dzsig", {{0., 10., 0.2}, {10., 100., 2.}, {100., 1000., 50.}});
     map_ME_ParticleNet_["pfcand_dxy"] = ibook.book1D("pfcand_dxy", "", 100, -10., 10.);
     map_ME_ParticleNet_["pfcand_dxysig"] = ibook.book1D("pfcand_dxysig", "", 100, 0., 20.);
     map_ME_ParticleNet_["pfcand_etarel"] = ibook.book1D("pfcand_etarel", "", 40, -10., 10.);
     map_ME_ParticleNet_["pfcand_pperp_ratio"] = ibook.book1D("pfcand_pperp_ratio", "", 20, 0., 1.);
     map_ME_ParticleNet_["pfcand_ppara_ratio"] = ibook.book1D("pfcand_ppara_ratio", "", 20, 0., 1.);
     map_ME_ParticleNet_["pfcand_trackjet_d3d"] = ibook.book1D("pfcand_trackjet_d3d", "", 100, -20., 20.);
-    map_ME_ParticleNet_["pfcand_trackjet_d3dsig"] = ibook.book1D("pfcand_trackjet_d3dsig", "", 100, -20., 20.);
+    map_ME_ParticleNet_["pfcand_trackjet_d3dsig"] = ibook.book1D("pfcand_trackjet_d3dsig", "", 120, -20., 100.);
     map_ME_ParticleNet_["pfcand_trackjet_dist"] = ibook.book1D("pfcand_trackjet_dist", "", 100, -20., 20.);
     map_ME_ParticleNet_["pfcand_nhits"] = ibook.book1D("pfcand_nhits", "", 21, -0.5, 20.5);
     map_ME_ParticleNet_["pfcand_npixhits"] = ibook.book1D("pfcand_npixhits", "", 21, -0.5, 20.5);
     map_ME_ParticleNet_["pfcand_nstriphits"] = ibook.book1D("pfcand_nstriphits", "", 21, -0.5, 20.5);
-    map_ME_ParticleNet_["pfcand_trackjet_decayL"] = ibook.book1D("pfcand_trackjet_decayL", "", 100, -20., 20.);
+    map_ME_ParticleNet_["pfcand_trackjet_decayL"] = ibook.book1D("pfcand_trackjet_decayL", "", 100, -50., 50.);
     map_ME_ParticleNet_["pfcand_id"] = ibook.book1D("pfcand_id", "", 11, -0.5, 10.5);
     map_ME_ParticleNet_["pfcand_calofraction"] = ibook.book1D("pfcand_calofraction", "", 60, 0., 3.);
     map_ME_ParticleNet_["pfcand_hcalfraction"] = ibook.book1D("pfcand_hcalfraction", "", 21, 0., 1.05);
@@ -166,9 +167,9 @@ void MiniAODTagInfoAnalyzer::bookHistograms(DQMStore::IBooker& ibook, edm::Run c
     map_ME_ParticleNet_["sv_ntrack"] = ibook.book1D("sv_ntrack", "", 15, -0.5, 14.5);
     map_ME_ParticleNet_["sv_chi2"] = ibook.book1D("sv_chi2", "", 40., 0., 20.);
     map_ME_ParticleNet_["sv_dxy"] = ibook.book1D("sv_dxy", "", 100, -5., 5.);
-    map_ME_ParticleNet_["sv_dxysig"] = ibook.book1D("sv_dxysig", "", 120, 0., 30.);
-    map_ME_ParticleNet_["sv_d3d"] = ibook.book1D("sv_d3d", "", 100, 0., 5.);
-    map_ME_ParticleNet_["sv_d3dsig"] = ibook.book1D("sv_d3dsig", "", 120, 0., 30.);
+    map_ME_ParticleNet_["sv_dxysig"] = ibook.book1D("sv_dxysig", "", 125, 0., 250.);
+    map_ME_ParticleNet_["sv_d3d"] = ibook.book1D("sv_d3d", "", 100, -25., 25.);
+    map_ME_ParticleNet_["sv_d3dsig"] = ibook.book1D("sv_d3dsig", "", 125, 0., 250.);
 
     map_ME_ParticleNet_["losttrack_pt_log"] = ibook.book1D("losttrack_pt_log", "", 120, -0.5, 5.5);
     map_ME_ParticleNet_["losttrack_eta"] = ibook.book1D("losttrack_eta", "", 100, -5.0, 5.0);
@@ -180,13 +181,13 @@ void MiniAODTagInfoAnalyzer::bookHistograms(DQMStore::IBooker& ibook, edm::Run c
     map_ME_ParticleNet_["losttrack_track_qual"] = ibook.book1D("losttrack_track_qual", "", 10, 0., 10.);
     map_ME_ParticleNet_["losttrack_dz"] = ibook.book1D("losttrack_dz", "", 100, -10., 10.);
     map_ME_ParticleNet_["losttrack_dxy"] = ibook.book1D("losttrack_dxy", "", 100, -5., 5.);
-    map_ME_ParticleNet_["losttrack_dzsig"] = ibook.book1D("losttrack_dzsig", "", 50, 0., 1.0);
+    map_ME_ParticleNet_["losttrack_dzsig"] = ibook.book1D("losttrack_dzsig", "", 100, 0., 200.);
     map_ME_ParticleNet_["losttrack_dxysig"] = ibook.book1D("losttrack_dxysig", "", 140, 0., 70.);
     map_ME_ParticleNet_["losttrack_etarel"] = ibook.book1D("losttrack_etarel", "", 40, -10., 10.);
-    map_ME_ParticleNet_["losttrack_trackjet_d3d"] = ibook.book1D("losttrack_trackjet_d3d", "", 60, -0.15, 0.15);
-    map_ME_ParticleNet_["losttrack_trackjet_d3dsig"] = ibook.book1D("losttrack_trackjet_d3dsig", "", 120, -5., 25.);
+    map_ME_ParticleNet_["losttrack_trackjet_d3d"] = ibook.book1D("losttrack_trackjet_d3d", "", 100, -1., 1.);
+    map_ME_ParticleNet_["losttrack_trackjet_d3dsig"] = ibook.book1D("losttrack_trackjet_d3dsig", "", 80, -5., 75.);
     map_ME_ParticleNet_["losttrack_trackjet_dist"] = ibook.book1D("losttrack_trackjet_dist", "", 20, -10., 10.);
-    map_ME_ParticleNet_["losttrack_trackjet_decayL"] = ibook.book1D("losttrack_trackjet_decayL", "", 20, -10., 10.);
+    map_ME_ParticleNet_["losttrack_trackjet_decayL"] = ibook.book1D("losttrack_trackjet_decayL", "", 100, -50., 50.);
     map_ME_ParticleNet_["losttrack_npixhits"] = ibook.book1D("losttrack_npixhits", "", 21, -0.5, 20.5);
     map_ME_ParticleNet_["losttrack_nstriphits"] = ibook.book1D("losttrack_nstriphits", "", 21, -0.5, 20.5);
 
@@ -201,10 +202,14 @@ void MiniAODTagInfoAnalyzer::bookHistograms(DQMStore::IBooker& ibook, edm::Run c
     map_ME_UParT_["c_pf_btagPf_trackPPar"] = ibook.book1D("c_pf_btagPf_trackPPar", "", 100, 0., 500.);
     map_ME_UParT_["c_pf_btagPf_trackDeltaR"] = ibook.book1D("c_pf_btagPf_trackDeltaR", "", 50, 0., 1);
     map_ME_UParT_["c_pf_btagPf_trackPParRatio"] = ibook.book1D("c_pf_btagPf_trackPParRatio", "", 120, 0.4, 1.);
-    map_ME_UParT_["c_pf_btagPf_trackSip2dVal"] = ibook.book1D("c_pf_btagPf_trackSip2dVal", "", 60, -0.15, 0.15);
-    map_ME_UParT_["c_pf_btagPf_trackSip2dSig"] = ibook.book1D("c_pf_btagPf_trackSip2dSig", "", 100, -5., 15.);
-    map_ME_UParT_["c_pf_btagPf_trackSip3dVal"] = ibook.book1D("c_pf_btagPf_trackSip3dVal", "", 60, -0.15, 0.15);
-    map_ME_UParT_["c_pf_btagPf_trackSip3dSig"] = ibook.book1D("c_pf_btagPf_trackSip3dSig", "", 100, -5., 15.);
+    map_ME_UParT_["c_pf_btagPf_trackSip2dVal"] = book1DVariable(
+        ibook, "c_pf_btagPf_trackSip2dVal", {{-1., -0.2, 0.05}, {-0.2, 0.2, 0.005}, {0.2, 1., 0.05}, {1., 20., 1.}});
+    map_ME_UParT_["c_pf_btagPf_trackSip2dSig"] = book1DVariable(
+        ibook, "c_pf_btagPf_trackSip2dSig", {{-1., 10., 0.2}, {10., 50., 1.}, {50., 200., 10.}, {200., 500., 50.}});
+    map_ME_UParT_["c_pf_btagPf_trackSip3dVal"] = book1DVariable(
+        ibook, "c_pf_btagPf_trackSip3dVal", {{-1., -0.2, 0.05}, {-0.2, 0.2, 0.005}, {0.2, 1., 0.05}, {1., 20., 1.}});
+    map_ME_UParT_["c_pf_btagPf_trackSip3dSig"] = book1DVariable(
+        ibook, "c_pf_btagPf_trackSip3dSig", {{-1., 10., 0.2}, {10., 50., 1.}, {50., 200., 10.}, {200., 500., 50.}});
     map_ME_UParT_["c_pf_btagPf_trackJetDistVal"] =
         book1DVariable(ibook, "c_pf_btagPf_trackJetDistVal", {{-20., -5., 1.}, {-5., -1., 0.1}, {-1., 0.1, 0.01}});
     map_ME_UParT_["c_pf_btagPf_trackDecayLen"] =
@@ -228,13 +233,17 @@ void MiniAODTagInfoAnalyzer::bookHistograms(DQMStore::IBooker& ibook, edm::Run c
     map_ME_UParT_["c_pf_numberOfStripHits"] = ibook.book1D("c_pf_numberOfStripHits", "", 21, -0.5, 20.5);
     map_ME_UParT_["lt_btagPf_trackEtaRel"] = ibook.book1D("lt_btagPf_trackEtaRel", "", 50, 0., 10.);
     map_ME_UParT_["lt_btagPf_trackPtRel"] = ibook.book1D("lt_btagPf_trackPtRel", "", 100, 0., 5.);
-    map_ME_UParT_["lt_btagPf_trackPPar"] = ibook.book1D("lt_btagPf_trackPPar", "", 100, 0., 500.);
+    map_ME_UParT_["lt_btagPf_trackPPar"] = ibook.book1D("lt_btagPf_trackPPar", "", 100, 0., 1000.);
     map_ME_UParT_["lt_btagPf_trackDeltaR"] = ibook.book1D("lt_btagPf_trackDeltaR", "", 50, 0., 1);
     map_ME_UParT_["lt_btagPf_trackPParRatio"] = ibook.book1D("lt_btagPf_trackPParRatio", "", 150, 0.7, 1.);
-    map_ME_UParT_["lt_btagPf_trackSip2dVal"] = ibook.book1D("lt_btagPf_trackSip2dVal", "", 60, -0.15, 0.15);
-    map_ME_UParT_["lt_btagPf_trackSip2dSig"] = ibook.book1D("lt_btagPf_trackSip2dSig", "", 120, -5., 25.);
-    map_ME_UParT_["lt_btagPf_trackSip3dVal"] = ibook.book1D("lt_btagPf_trackSip3dVal", "", 60, -0.15, 0.15);
-    map_ME_UParT_["lt_btagPf_trackSip3dSig"] = ibook.book1D("lt_btagPf_trackSip3dSig", "", 120, -5., 25.);
+    map_ME_UParT_["lt_btagPf_trackSip2dVal"] = book1DVariable(
+        ibook, "lt_btagPf_trackSip2dVal", {{-1., -0.2, 0.05}, {-0.2, 0.2, 0.005}, {0.2, 1., 0.05}, {1., 20., 1.}});
+    map_ME_UParT_["lt_btagPf_trackSip2dSig"] = book1DVariable(
+        ibook, "lt_btagPf_trackSip2dSig", {{-1., 10., 0.2}, {10., 50., 1.}, {50., 200., 10.}, {200., 500., 50.}});
+    map_ME_UParT_["lt_btagPf_trackSip3dVal"] = book1DVariable(
+        ibook, "lt_btagPf_trackSip3dVal", {{-1., -0.2, 0.05}, {-0.2, 0.2, 0.005}, {0.2, 1., 0.05}, {1., 20., 1.}});
+    map_ME_UParT_["lt_btagPf_trackSip3dSig"] = book1DVariable(
+        ibook, "lt_btagPf_trackSip3dSig", {{-1., 10., 0.2}, {10., 50., 1.}, {50., 200., 10.}, {200., 500., 50.}});
     map_ME_UParT_["lt_btagPf_trackJetDistVal"] =
         book1DVariable(ibook, "lt_btagPf_trackJetDistVal", {{-20., -5., 1.}, {-5., -1., 0.1}, {-1., 0.1, 0.01}});
     map_ME_UParT_["lt_drminsv"] = ibook.book1D("lt_drminsv", "", 500, -0.5, 0.5);
@@ -253,18 +262,18 @@ void MiniAODTagInfoAnalyzer::bookHistograms(DQMStore::IBooker& ibook, edm::Run c
     map_ME_UParT_["n_pf_hadFrac"] = ibook.book1D("n_pf_hadFrac", "", 21, 0., 1.05);
     map_ME_UParT_["n_pf_drminsv"] = ibook.book1D("n_pf_drminsv", "", 500, -0.5, 0.5);
     map_ME_UParT_["n_pf_puppiw"] = ibook.book1D("n_pf_puppiw", "", 21, 0., 1.05);
-    map_ME_UParT_["sv_pt"] = ibook.book1D("sv_pt", "", 50, 0., 200.);
+    map_ME_UParT_["sv_pt"] = ibook.book1D("sv_pt", "", 100, 0., 500.);
     map_ME_UParT_["sv_deltaR"] = ibook.book1D("sv_deltaR", "", 100, -0.8, 0.2);
-    map_ME_UParT_["sv_mass"] = ibook.book1D("sv_mass", "", 40, 0., 10.);
+    map_ME_UParT_["sv_mass"] = ibook.book1D("sv_mass", "", 80, 0., 20.);
     map_ME_UParT_["sv_etarel"] = ibook.book1D("sv_etarel", "", 100, -1., 1.);
     map_ME_UParT_["sv_phirel"] = ibook.book1D("sv_phirel", "", 100, -1., 1.);
     map_ME_UParT_["sv_ntracks"] = ibook.book1D("sv_ntracks", "", 15, -0.5, 14.5);
     map_ME_UParT_["sv_chi2"] = ibook.book1D("sv_chi2", "", 40., 0., 20.);
     map_ME_UParT_["sv_normchi2"] = ibook.book1D("sv_normchi2", "", 40., 0., 20.);
-    map_ME_UParT_["sv_dxy"] = ibook.book1D("sv_dxy", "", 100, -5., 5.);
-    map_ME_UParT_["sv_dxysig"] = ibook.book1D("sv_dxysig", "", 120, 0., 30.);
-    map_ME_UParT_["sv_d3d"] = ibook.book1D("sv_d3d", "", 100, 0., 5.);
-    map_ME_UParT_["sv_d3dsig"] = ibook.book1D("sv_d3dsig", "", 120, 0., 30.);
+    map_ME_UParT_["sv_dxy"] = ibook.book1D("sv_dxy", "", 80, -1., 15.);
+    map_ME_UParT_["sv_dxysig"] = ibook.book1D("sv_dxysig", "", 125, 0., 250.);
+    map_ME_UParT_["sv_d3d"] = ibook.book1D("sv_d3d", "", 100, 0., 20.);
+    map_ME_UParT_["sv_d3dsig"] = ibook.book1D("sv_d3dsig", "", 125, 0., 250.);
     map_ME_UParT_["sv_costhetasvpv"] = ibook.book1D("sv_costhetasvpv", "", 100, -1., 1.);
     map_ME_UParT_["sv_enratio"] = ibook.book1D("sv_enratio", "", 100, 0., 1.);
     map_ME_UParT_["max_cpf_n"] = ibook.book1D("max_cpf_n", "", 31, -0.5, 30.5);
