@@ -128,6 +128,11 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
     if (truth::hadronizes(graph.particles()[id].pdgId)) {
       continue;
     }
+    // A connector or a signal stand-in is not an object: it has no observable momentum, so
+    // the selector passes it, and a connector's subgraph holds a whole interaction.
+    if (graph.particles()[id].isSynthetic()) {
+      continue;
+    }
     if (branchSelector_(truth::Branch(&graph, id))) {
       selectedRoots->push_back(id);
       isCandidate[id] = true;
