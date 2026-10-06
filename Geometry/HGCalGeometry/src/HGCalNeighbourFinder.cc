@@ -1,3 +1,4 @@
+
 #include "Geometry/HGCalGeometry/interface/HGCalNeighbourFinder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
@@ -175,7 +176,7 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
       // Special treatment for partial wafers: some cells present in whole wafers do not exist
       for (int i = 0; i < 6; i++) {
         detIdVec[nn] = (detId & ~(iuMask | ivMask)) | (iu + duCell[i]) | ((iv + dvCell[i]) << ivShift);
-        if (geom_->validDetId(DetId(detIdVec[nn])))
+        if (geom_->validIntId(detIdVec[nn]))
           nn++;
         else
           detIdVec[nn] = 0;
@@ -242,7 +243,7 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
       detIdVec[nn] =
           (detId & ~(iuMask | ivMask)) | (iu + duCell[j] + mod) % mod | ((iv + dvCell[j] + mod) % mod << ivShift);
       if (partialWafer) {
-        if (!(geom_->validDetId(DetId(detIdVec[nn])))) {
+        if (!(geom_->validIntId(detIdVec[nn]))) {
           detIdVec[nn] = 0;
           nn--;
         }
@@ -489,8 +490,10 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "HGCalNeighbourFinder: Test validity [" << i << "] partial " << partialWafer
                                     << " (u = " << iuNxt << ", v = " << ivNxt << " ID " << std::hex << detIdVec[icount]
-                                    << std::dec << " Valid " << geom_->validDetId(DetId(detIdVec[icount]));
+                                    << std::dec << " Valid " << geom_->validIntId(detIdVec[icount]);
 #endif
+      if (geom_->validIntId(detIdVec[icount]))
+        detIdVec[icount] = geom_->validFullId(detIdVec[icount]);
       if (partialWafer) {
         if (geom_->validDetId(DetId(detIdVec[icount])))
           icount++;
