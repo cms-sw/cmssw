@@ -401,7 +401,7 @@ namespace {
               iBase);
       assert(worker != nullptr);
       if constexpr (std::is_same_v<typename Traits::TransitionPhaseType, edm::TransitionPhaseStream>) {
-        worker->template doWorkNoPrefetchingAsync<Traits::transitionEdge_>(
+        worker->template doWorkNoEDPrefetchingAsync<Traits::transitionEdge_>(
             edm::WaitingTaskHolder(group, &task), info, token, s_streamID0, iContext, nullptr);
       } else {
         worker->template doWorkAsync<Traits::transitionEdge_>(

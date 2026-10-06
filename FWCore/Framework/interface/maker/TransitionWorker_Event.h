@@ -154,14 +154,14 @@ namespace edm {
     //called by processOneOccurrenceAsync which is only used for globals by the SecondaryEventProvider and
     // WokerManager<stream>::processOneOccurrenceAsync
     template <TransitionEdge E>
-    void doWorkNoPrefetchingAsync(WaitingTaskHolder iTask,
-                                  EventTransitionInfo const& iTransitionInfo,
-                                  ServiceToken const& iToken,
-                                  StreamID iStreamID,
-                                  ParentContext const& iParentContext,
-                                  StreamContext const* iContext) noexcept {
+    void doWorkNoEDPrefetchingAsync(WaitingTaskHolder iTask,
+                                    EventTransitionInfo const& iTransitionInfo,
+                                    ServiceToken const& iToken,
+                                    StreamID iStreamID,
+                                    ParentContext const& iParentContext,
+                                    StreamContext const* iContext) noexcept {
       if constexpr (E == TransitionEdge::kBegin) {
-        this->doWorkNoPrefetchingAsyncImpl(
+        this->doWorkNoEDPrefetchingAsyncImpl(
             std::move(iTask), iTransitionInfo, iToken, iStreamID, iParentContext, iContext);
       }
     }
@@ -177,12 +177,12 @@ namespace edm {
 
     //called by processOneOccurrenceAsync which is only used for globals by the SecondaryEventProvider and
     // WokerManager<stream>::processOneOccurrenceAsync
-    void doWorkNoPrefetchingAsyncImpl(WaitingTaskHolder,
-                                      EventTransitionInfo const&,
-                                      ServiceToken const&,
-                                      StreamID,
-                                      ParentContext const&,
-                                      StreamContext const*) noexcept;
+    void doWorkNoEDPrefetchingAsyncImpl(WaitingTaskHolder,
+                                        EventTransitionInfo const&,
+                                        ServiceToken const&,
+                                        StreamID,
+                                        ParentContext const&,
+                                        StreamContext const*) noexcept;
 
   protected:
     virtual bool implDo(EventTransitionInfo const&, ModuleCallingContext const*) = 0;
@@ -551,7 +551,7 @@ namespace edm {
     return exceptionPtr;
   }
 
-  inline void TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>::doWorkNoPrefetchingAsyncImpl(
+  inline void TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>::doWorkNoEDPrefetchingAsyncImpl(
       WaitingTaskHolder task,
       EventTransitionInfo const& transitionInfo,
       ServiceToken const& serviceToken,

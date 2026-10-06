@@ -104,13 +104,13 @@ namespace edm {
     //called by processOneOccurrenceAsync which is only used for globals by the SecondaryEventProvider and
     // WokerManager<stream>::processOneOccurrenceAsync
     template <TransitionEdge E>
-    void doWorkNoPrefetchingAsync(WaitingTaskHolder iTask,
-                                  TI const& iTransitionInfo,
-                                  ServiceToken const& iToken,
-                                  StreamID iStreamID,
-                                  ParentContext const& iParentContext,
-                                  StreamContext const* iContext) noexcept {
-      this->template doWorkNoPrefetchingAsyncImpl<E>(
+    void doWorkNoEDPrefetchingAsync(WaitingTaskHolder iTask,
+                                    TI const& iTransitionInfo,
+                                    ServiceToken const& iToken,
+                                    StreamID iStreamID,
+                                    ParentContext const& iParentContext,
+                                    StreamContext const* iContext) noexcept {
+      this->template doWorkNoEDPrefetchingAsyncImpl<E>(
           std::move(iTask), iTransitionInfo, iToken, iStreamID, iParentContext, iContext);
     }
 
@@ -118,12 +118,12 @@ namespace edm {
     //called by processOneOccurrenceAsync which is only used for globals by the SecondaryEventProvider and
     // WokerManager<stream>::processOneOccurrenceAsync
     template <TransitionEdge E>
-    void doWorkNoPrefetchingAsyncImpl(WaitingTaskHolder,
-                                      TI const&,
-                                      ServiceToken const&,
-                                      StreamID,
-                                      ParentContext const&,
-                                      StreamContext const*) noexcept;
+    void doWorkNoEDPrefetchingAsyncImpl(WaitingTaskHolder,
+                                        TI const&,
+                                        ServiceToken const&,
+                                        StreamID,
+                                        ParentContext const&,
+                                        StreamContext const*) noexcept;
 
     template <typename O>
     friend class workerhelper::CallStreamImpl;
@@ -387,12 +387,13 @@ namespace edm {
 
   template <typename TI>
   template <TransitionEdge E>
-  void TransitionWorker<TI, TransitionPhaseStream>::doWorkNoPrefetchingAsyncImpl(WaitingTaskHolder task,
-                                                                                 TI const& transitionInfo,
-                                                                                 ServiceToken const& serviceToken,
-                                                                                 StreamID streamID,
-                                                                                 ParentContext const& parentContext,
-                                                                                 StreamContext const* context) noexcept {
+  void TransitionWorker<TI, TransitionPhaseStream>::doWorkNoEDPrefetchingAsyncImpl(
+      WaitingTaskHolder task,
+      TI const& transitionInfo,
+      ServiceToken const& serviceToken,
+      StreamID streamID,
+      ParentContext const& parentContext,
+      StreamContext const* context) noexcept {
     //Need to check workStarted_ before adding to waitingTasks_
     bool expected = false;
     auto workStarted = workStarted_.compare_exchange_strong(expected, true);
