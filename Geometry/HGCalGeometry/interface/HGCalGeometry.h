@@ -97,19 +97,21 @@ public:
     return (std::find(m_validIds.begin(), m_validIds.end(), id) != m_validIds.end());
   }
   bool validIntId(const uint32_t& id) const {
-    const uint32_t mask = ((m_topology.waferHexagon6()) ? k_maskWafer6
-			   : (m_topology.tileTrapezoid()) ? k_maskScint
-			   : k_maskSilicon);
+    const uint32_t mask = ((m_topology.waferHexagon6())   ? k_maskWafer6
+                           : (m_topology.tileTrapezoid()) ? k_maskScint
+                                                          : k_maskSilicon);
     const uint32_t target = id & mask;
-    auto it = std::find_if(m_validIds.begin(), m_validIds.end(),[mask, target](uint32_t idx) {return (idx & mask) == target;});
+    auto it = std::find_if(
+        m_validIds.begin(), m_validIds.end(), [mask, target](uint32_t idx) { return (idx & mask) == target; });
     return (it != m_validIds.end());
   }
   uint32_t validFullId(const uint32_t& id) const {
-    const uint32_t mask = ((m_topology.waferHexagon6()) ? k_maskWafer6
-			   : (m_topology.tileTrapezoid()) ? k_maskScint
-			   : k_maskSilicon);
+    const uint32_t mask = ((m_topology.waferHexagon6())   ? k_maskWafer6
+                           : (m_topology.tileTrapezoid()) ? k_maskScint
+                                                          : k_maskSilicon);
     const uint32_t target = id & mask;
-    auto it = std::find_if(m_validIds.begin(), m_validIds.end(),[mask, target](uint32_t idx) {return (idx & mask) == target;});
+    auto it = std::find_if(
+        m_validIds.begin(), m_validIds.end(), [mask, target](uint32_t idx) { return (idx & mask) == target; });
     return ((it != m_validIds.end()) ? (*it).rawId() : 0);
   }
   const std::vector<DetId>& getValidGeomDetIds(void) const { return m_validGeomIds; }
