@@ -3,6 +3,7 @@
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#include <cstdlib>
 #include <iostream>
 
 using namespace std;
@@ -201,7 +202,7 @@ void JetTagPlotter::analyzeTag(const reco::Jet& jet, double jec, float discrimin
   // kinematics are filled only by the plotter that books them
   if (bookKinematics_) {
     if (mcPlots_)
-      dJetFlav_->fill(jetFlavour, jetFlavour, w);
+      dJetFlav_->fill(jetFlavour, std::abs(jetFlavour), w);
     dJetRecPt_->fill(jetFlavour, jet.pt() * jec, w);
     dJetRecPtExtended_->fill(jetFlavour, jet.pt() * jec, w);
     dJetRecPseudoRapidity_->fill(jetFlavour, jet.eta(), w);
@@ -225,7 +226,7 @@ void JetTagPlotter::analyzeTag(const reco::JetTag& jetTag, double jec, int jetFl
   // kinematics are filled only by the plotter that books them
   if (bookKinematics_) {
     if (mcPlots_)
-      dJetFlav_->fill(jetFlavour, jetFlavour, w);
+      dJetFlav_->fill(jetFlavour, std::abs(jetFlavour), w);
     dJetRecPt_->fill(jetFlavour, jetTag.first->pt() * jec, w);
     dJetRecPtExtended_->fill(jetFlavour, jetTag.first->pt() * jec, w);
     dJetRecPseudoRapidity_->fill(jetFlavour, jetTag.first->eta(), w);
