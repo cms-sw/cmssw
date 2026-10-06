@@ -279,15 +279,15 @@ void Phase2OTMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
 
 //////////////////Layer Histo/////////////////////////////////
 void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_id, std::string& subdir) {
-  bool HLTconf = config_.getParameter<bool>("HLTconf");
+  bool reducedOutput = config_.getParameter<bool>("ReducedOutput");
   for (int bookingDepth = phase2tkutil::WHOLE_TK; bookingDepth <= phase2tkutil::LAYER; bookingDepth++) {
     // Skip booking if barrel det and endcap-only depth
     if ((bookingDepth >= phase2tkutil::SHELL && bookingDepth < phase2tkutil::LAYER) &&
         DetId(det_id).subdetId() == SiStripSubdetector::TOB)
       continue;
 
-    // Skip deep booking for HLT configurations
-    if (HLTconf && bookingDepth >= phase2tkutil::SHELL)
+    // skip intermediate depth level booking for reduced configurations
+    if (reducedOutput && bookingDepth >= phase2tkutil::SHELL && bookingDepth != phase2tkutil::LAYER)
       continue;
 
     int key = phase2tkutil::getNumericHistoId(det_id, tTopo_, 0.0, bookingDepth);
@@ -501,7 +501,7 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
       desc, "PositionOfClusters_2SLadder", "Position_Clusters_2S_Ladder", "", "", "", 25, -12.5, 12.5, 5, -2.5, 2.5);
 
   desc.add<std::string>("TopFolderName", "OuterTracker");
-  desc.add<bool>("HLTconf", false);
+  desc.add<bool>("ReducedOutput", false);
   desc.add<edm::InputTag>("clusterSrc", edm::InputTag("siPhase2Clusters"));
   descriptions.add("Phase2OTMonitorCluster", desc);
 }
