@@ -108,6 +108,9 @@ _phase2_siml1emulator.add(l1tPhase2CaloPFClusterEmulator)
 from L1Trigger.L1CaloTrigger.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator_cfi import *
 _phase2_siml1emulator.add(l1tPhase2GCTBarrelToCorrelatorLayer1Emulator)
 
+from L1Trigger.L1CaloTrigger.l1tPhase2CaloToCorrelatorTM18_cfi import *
+_phase2_siml1emulator.add(l1tPhase2CaloToCorrelatorTM18)
+
 # Barrel and EndCap CaloJet/HT/NNCaloTau
 # ########################################################################
 # ----    Produce the calibrated tower collection combining Barrel, HGCal, HF
