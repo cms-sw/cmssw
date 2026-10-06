@@ -127,7 +127,9 @@ void createT5DNNBranches() {
 //________________________________________________________________________________________________________________________________
 void createT3DNNBranches() {
   // Common branches for T3 properties based on TripletsSoA fields
+#ifdef CUT_VALUE_DEBUG
   ana.tx->createBranch<std::vector<float>>("t3_betaIn");
+#endif
   ana.tx->createBranch<std::vector<float>>("t3_centerX");
   ana.tx->createBranch<std::vector<float>>("t3_centerY");
   ana.tx->createBranch<std::vector<float>>("t3_radius");
@@ -2753,7 +2755,9 @@ void setT3DNNBranches(LSTEvent* event, float matchfrac) {
                                                   &percent_matched);
 
       // Fill the branches with T3-specific data
+#ifdef CUT_VALUE_DEBUG
       ana.tx->pushbackToBranch<float>("t3_betaIn", triplets.betaIn()[tripletIndex]);
+#endif
       ana.tx->pushbackToBranch<float>("t3_centerX", triplets.centerX()[tripletIndex]);
       ana.tx->pushbackToBranch<float>("t3_centerY", triplets.centerY()[tripletIndex]);
       ana.tx->pushbackToBranch<float>("t3_radius", triplets.radius()[tripletIndex]);
