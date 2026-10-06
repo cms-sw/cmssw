@@ -113,8 +113,8 @@ void MiniAODTagInfoAnalyzer::bookHistograms(DQMStore::IBooker& ibook, edm::Run c
     map_ME_ParticleNet_["pfcand_trackjet_decayL"] = ibook.book1D("pfcand_trackjet_decayL", "", 100, -20., 20.);
     map_ME_ParticleNet_["pfcand_id"] = ibook.book1D("pfcand_id", "", 11, -0.5, 10.5);
     map_ME_ParticleNet_["pfcand_calofraction"] = ibook.book1D("pfcand_calofraction", "", 60, 0., 3.);
-    map_ME_ParticleNet_["pfcand_hcalfraction"] = ibook.book1D("pfcand_hcalfraction", "", 20, 0., 1.);
-    map_ME_ParticleNet_["pfcand_puppiw"] = ibook.book1D("pfcand_puppiw", "", 20, 0., 1.);
+    map_ME_ParticleNet_["pfcand_hcalfraction"] = ibook.book1D("pfcand_hcalfraction", "", 21, 0., 1.05);
+    map_ME_ParticleNet_["pfcand_puppiw"] = ibook.book1D("pfcand_puppiw", "", 21, 0., 1.05);
     map_ME_ParticleNet_["pfcand_muon_id"] = ibook.book1D("pfcand_muon_id", "", 100, -1.2, 0.2);
     map_ME_ParticleNet_["pfcand_muon_isglobal"] = ibook.book1D("pfcand_muon_isglobal", "", 2, -0.5, 1.5);
     map_ME_ParticleNet_["pfcand_muon_segcomp"] = ibook.book1D("pfcand_muon_segcomp", "", 40., 0., 20.);
@@ -186,12 +186,12 @@ void MiniAODTagInfoAnalyzer::bookHistograms(DQMStore::IBooker& ibook, edm::Run c
     map_ME_UParT_["c_pf_ptrel"] = ibook.book1D("c_pf_ptrel", "", 100, -1.2, 0.2);
     map_ME_UParT_["c_pf_drminsv"] = ibook.book1D("c_pf_drminsv", "", 120, -0.5, 0.);
     map_ME_UParT_["c_pf_vtx_ass"] = ibook.book1D("c_pf_vtx_ass", "", 10, 0, 10);
-    map_ME_UParT_["c_pf_puppiw"] = ibook.book1D("c_pf_puppiw", "", 20, 0., 1.);
+    map_ME_UParT_["c_pf_puppiw"] = ibook.book1D("c_pf_puppiw", "", 21, 0., 1.05);
     map_ME_UParT_["c_pf_chi2"] = ibook.book1D("c_pf_chi2", "", 15, 0., 15);
     map_ME_UParT_["c_pf_quality"] = ibook.book1D("c_pf_quality", "", 10, 0., 10);
     map_ME_UParT_["c_pf_charge"] = ibook.book1D("c_pf_charge", "", 3, -1.5, 1.5);
     map_ME_UParT_["c_pf_dz"] = ibook.book1D("c_pf_dz", "", 50, 0., 50.);
-    map_ME_UParT_["c_pf_HadFrac"] = ibook.book1D("c_pf_HadFrac", "", 20, 0., 1.);
+    map_ME_UParT_["c_pf_HadFrac"] = ibook.book1D("c_pf_HadFrac", "", 21, 0., 1.05);
     map_ME_UParT_["c_pf_CaloFrac"] = ibook.book1D("c_pf_CaloFrac", "", 60, 0., 3.);
     map_ME_UParT_["c_pf_pdgID"] = ibook.book1D("c_pf_pdgID", "", 11, -0.5, 10.5);
     map_ME_UParT_["c_pf_lostInnerHits"] = ibook.book1D("c_pf_lostInnerHits", "", 11, -0.5, 10.5);
@@ -220,9 +220,9 @@ void MiniAODTagInfoAnalyzer::bookHistograms(DQMStore::IBooker& ibook, edm::Run c
     map_ME_UParT_["n_pf_phirel"] = ibook.book1D("n_pf_phirel", "", 40, -10., 10.);
     map_ME_UParT_["n_pf_deltaR"] = ibook.book1D("n_pf_deltaR", "", 50, -1., 0.);
     map_ME_UParT_["n_pf_isGamma"] = ibook.book1D("n_pf_isGamma", "", 2, -0.5, 1.5);
-    map_ME_UParT_["n_pf_hadFrac"] = ibook.book1D("n_pf_hadFrac", "", 20, 0., 4.);
+    map_ME_UParT_["n_pf_hadFrac"] = ibook.book1D("n_pf_hadFrac", "", 21, 0., 1.05);
     map_ME_UParT_["n_pf_drminsv"] = ibook.book1D("n_pf_drminsv", "", 500, -0.5, 0.5);
-    map_ME_UParT_["n_pf_puppiw"] = ibook.book1D("n_pf_puppiw", "", 20, 0., 1.);
+    map_ME_UParT_["n_pf_puppiw"] = ibook.book1D("n_pf_puppiw", "", 21, 0., 1.05);
     map_ME_UParT_["sv_pt"] = ibook.book1D("sv_pt", "", 50, 0., 200.);
     map_ME_UParT_["sv_deltaR"] = ibook.book1D("sv_deltaR", "", 100, -0.8, 0.2);
     map_ME_UParT_["sv_mass"] = ibook.book1D("sv_mass", "", 40, 0., 10.);
