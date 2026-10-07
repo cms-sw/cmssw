@@ -60,6 +60,7 @@ public:
     MonitorElement* NumberOfDigisPerDet{nullptr};
     MonitorElement* DigiOccupancyP{nullptr};
     MonitorElement* DigiOccupancyS{nullptr};
+    MonitorElement* ChargeXYMap{nullptr};
     MonitorElement* ChargeOfDigis{nullptr};
     MonitorElement* ChargeOfDigisVsWidth{nullptr};
     MonitorElement* TotalNumberOfDigisPerLayer{nullptr};
@@ -237,6 +238,9 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
 
         if (clsFlag_)
           fillDigiClusters(local_mes, digiClusters);
+
+        if (local_mes.ChargeXYMap)
+          local_mes.ChargeXYMap->Fill(col, row, adc);
 
         if (local_mes.ChargeOfDigis)
           local_mes.ChargeOfDigis->Fill(adc);
@@ -524,6 +528,8 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
 
       // Plots only for the inner pixel
       if (pixelFlag_) {
+        local_mes.ChargeXYMap =
+            phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("ChargeXYMapH"), ibooker, prettyName);
         local_mes.ChargeOfDigis =
             phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DigiChargeH"), ibooker, prettyName);
         // For standalone clusteriser

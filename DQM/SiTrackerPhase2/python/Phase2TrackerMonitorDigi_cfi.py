@@ -42,7 +42,7 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
                             NyBins = cms.int32(1350),
                             ymin   = cms.double(0.5),
                             ymax   = cms.double(1350.5),
-                            switch = cms.bool(True)
+                            switch = cms.bool(False)
                         ),
                         EtaH = cms.PSet(
                             NxBins = cms.int32(45),
