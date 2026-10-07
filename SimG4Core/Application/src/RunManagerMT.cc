@@ -17,7 +17,6 @@
 
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
-#include "SimG4Core/Notification/interface/CurrentG4Track.h"
 #include "SimG4Core/Geometry/interface/CMSG4CheckOverlap.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -92,6 +91,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
   G4UImanager::GetUIpointer()->SetMasterUIManager(true);
   G4PhysListUtil::InitialiseParameters();
   G4LossTableManager::Instance();
+  G4GeometryManager::GetInstance()->RequestParallelOptimisation(false, false);
 }
 
 RunManagerMT::~RunManagerMT() { delete m_UIsession; }
@@ -134,9 +134,9 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMT: " << numPV << " physical volumes; " << numLV << " logical volumes; " << nn << " regions.";
 
-#if G4VERSION_NUMBER >= 1130
-  G4GeometryManager::GetInstance()->RequestParallelOptimisation(false, false);
-#endif
+  for (auto & elm : *G4Element::GetElementTable()) {
+    elm->SetNaturalAbundanceFlag(true);
+  }
 
   if (m_check) {
     m_kernel->SetVerboseLevel(2);
