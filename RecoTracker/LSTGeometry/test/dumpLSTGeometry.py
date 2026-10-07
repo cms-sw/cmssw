@@ -8,30 +8,6 @@ from RecoTracker.LSTGeometry.lstGeometryESProducer_cfi import lstGeometryESProdu
 trackingLSTCommon = cms.Modifier()
 trackingLST = cms.ModifierChain(trackingLSTCommon)
 
-###################################################################
-# Set default phase-2 settings
-###################################################################
-_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
-
-# No era in Fireworks/Geom reco dumper
-process = cms.Process("DUMP", _PH2_ERA, trackingLST)
-
-# import of standard configurations
-process.load("Configuration.StandardSequences.Services_cff")
-process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load("Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-
-process.GlobalTag = GlobalTag(process.GlobalTag, _PH2_GLOBAL_TAG, "")
-
-process.MessageLogger.cerr.threshold = "INFO"
-process.MessageLogger.cerr.LSTGeometryESProducer = dict(limit=-1)
-
-process.source = cms.Source("EmptySource")
-process.maxEvents.input = 1
-
 parser = ArgumentParser()
 parser.add_argument(
     "--outputDirectory",
@@ -49,7 +25,36 @@ parser.add_argument(
     action="store_true",
     help="Dump LST geometry as binary files"
 )
+parser.add_argument(
+    "--geometry",
+    default=None,
+    help="Phase-2 geometry version, e.g. Run4D121 (default: the default phase-2 geometry)"
+)
 options = parser.parse_args()
+
+###################################################################
+# Set default phase-2 settings
+###################################################################
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(options.geometry or _settings.DEFAULT_VERSION)
+
+# No era in Fireworks/Geom reco dumper
+process = cms.Process("DUMP", _PH2_ERA, trackingLST)
+
+# import of standard configurations
+process.load("Configuration.StandardSequences.Services_cff")
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.load(f"Configuration.Geometry.GeometryExtended{options.geometry or 'Run4Default'}Reco_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+
+process.GlobalTag = GlobalTag(process.GlobalTag, _PH2_GLOBAL_TAG, "")
+
+process.MessageLogger.cerr.threshold = "INFO"
+process.MessageLogger.cerr.LSTGeometryESProducer = dict(limit=-1)
+
+process.source = cms.Source("EmptySource")
+process.maxEvents.input = 1
 
 process.dump = cms.EDAnalyzer(
     "DumpLSTGeometry",
