@@ -2,6 +2,7 @@
 #define RecoTracker_LSTCore_interface_LSTPrepareInput_h
 
 #include <algorithm>
+#include <cmath>
 #include <memory>
 #include <Math/Vector3D.h>
 #include <Math/VectorUtil.h>
@@ -206,9 +207,14 @@ namespace lst {
         float neta = 25.;
         float nphi = 72.;
         float nz = 25.;
-        int etabin = (p3PCA_Eta + 2.6) / ((2 * 2.6) / neta);
-        int phibin = (p3PCA_Phi + std::numbers::pi_v<float>) / ((2. * std::numbers::pi_v<float>) / nphi);
-        int dzbin = (std::clamp(see_dz[iSeed], -30.f, 30.f) + 30) / (2 * 30 / nz);
+        // Out-of-range values go to the edge bins, which the pixel maps fill with the modules beyond the binning range
+        int etabin = std::clamp(
+            static_cast<int>(std::floor((p3PCA_Eta + 2.6) / ((2 * 2.6) / neta))), 0, static_cast<int>(neta) - 1);
+        int phibin = std::min(
+            static_cast<int>((p3PCA_Phi + std::numbers::pi_v<float>) / ((2. * std::numbers::pi_v<float>) / nphi)),
+            static_cast<int>(nphi) - 1);
+        int dzbin = std::min(static_cast<int>((std::clamp(see_dz[iSeed], -30.f, 30.f) + 30) / (2 * 30 / nz)),
+                             static_cast<int>(nz) - 1);
         int isuperbin = (nz * nphi) * etabin + (nz)*phibin + dzbin;
         superbin_vec.push_back(isuperbin);
         pixelType_vec.push_back(pixtype);
