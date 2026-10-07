@@ -35,53 +35,14 @@ namespace edm {
         is_one_of<T, edm::one::OutputModuleBase, edm::global::OutputModuleBase, edm::limited::OutputModuleBase>;
 
     template <typename T>
+    using is_one_module = is_one_of<T,
+                                    edm::one::EDProducerBase,
+                                    edm::one::EDFilterBase,
+                                    edm::one::EDAnalyzerBase,
+                                    edm::one::OutputModuleBase>;
+    template <typename T>
     struct has_stream_functions {
-      static bool constexpr value = false;
-    };
-
-    template <>
-    struct has_stream_functions<edm::global::EDProducerBase> {
-      static bool constexpr value = true;
-    };
-
-    template <>
-    struct has_stream_functions<edm::global::EDFilterBase> {
-      static bool constexpr value = true;
-    };
-
-    template <>
-    struct has_stream_functions<edm::global::EDAnalyzerBase> {
-      static bool constexpr value = true;
-    };
-
-    template <>
-    struct has_stream_functions<edm::limited::EDProducerBase> {
-      static bool constexpr value = true;
-    };
-
-    template <>
-    struct has_stream_functions<edm::limited::EDFilterBase> {
-      static bool constexpr value = true;
-    };
-
-    template <>
-    struct has_stream_functions<edm::limited::EDAnalyzerBase> {
-      static bool constexpr value = true;
-    };
-
-    template <>
-    struct has_stream_functions<edm::stream::EDProducerAdaptorBase> {
-      static bool constexpr value = true;
-    };
-
-    template <>
-    struct has_stream_functions<edm::stream::EDFilterAdaptorBase> {
-      static bool constexpr value = true;
-    };
-
-    template <>
-    struct has_stream_functions<edm::stream::EDAnalyzerAdaptorBase> {
-      static bool constexpr value = true;
+      static bool constexpr value = not(is_one_module<T>::value or is_outputmodule<T>::value);
     };
 
   }  // namespace workerimpl
@@ -144,11 +105,7 @@ namespace edm {
   template <typename T, typename TI, typename TP>
   SerialTaskQueue* WorkerT<T, TI, TP>::globalTransitionsQueue() {
     //ones are special
-    if constexpr (workerimpl::is_one_of<T,
-                                        edm::one::EDProducerBase,
-                                        edm::one::EDFilterBase,
-                                        edm::one::EDAnalyzerBase,
-                                        edm::one::OutputModuleBase>::value) {
+    if constexpr (workerimpl::is_one_module<T>::value) {
       if constexpr (std::is_same_v<TI, RunTransitionInfo>) {
         return this->module().globalRunsQueue();
       } else if constexpr (std::is_same_v<TI, LumiTransitionInfo>) {
