@@ -4,6 +4,7 @@
 
 #include "Validation/HGCalValidation/interface/TICLCandidateValidator.h"
 #include "DataFormats/HGCalReco/interface/Common.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 TICLCandidateValidator::TICLCandidateValidator(edm::EDGetTokenT<std::vector<TICLCandidate>> ticlCandidates,
                                                edm::EDGetTokenT<std::vector<TICLCandidate>> simTICLCandidatesToken,
@@ -411,19 +412,17 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     return;  // Handle error appropriately
   }
 
-  auto TICLCandidates = *TICLCandidatesHandle;
+  auto const& TICLCandidates = *TICLCandidatesHandle;
 
   edm::Handle<std::vector<TICLCandidate>> simTICLCandidates_h;
   event.getByToken(simTICLCandidatesToken_, simTICLCandidates_h);
-  auto simTICLCandidates = *simTICLCandidates_h;
+  auto const& simTICLCandidates = *simTICLCandidates_h;
 
   edm::Handle<std::vector<reco::Track>> recoTracks_h;
   event.getByToken(recoTracksToken_, recoTracks_h);
-  auto recoTracks = *recoTracks_h;
 
   edm::Handle<std::vector<ticl::Trackster>> Tracksters_h;
   event.getByToken(trackstersToken_, Tracksters_h);
-  auto trackstersMerged = *Tracksters_h;
 
   edm::Handle<ticl::TracksterToTracksterMap> mergeTsRecoToSim_h;
   event.getByToken(associatorMapRtSToken_, mergeTsRecoToSim_h);
@@ -467,8 +466,15 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
   chargedCandidates.shrink_to_fit();
   neutralCandidates.shrink_to_fit();
 
-  auto firstTs = edm::Ptr<ticl::Trackster>(Tracksters_h, 0).get();
-  auto firstTrack = edm::Ptr<reco::Track>(recoTracks_h, 0).get();
+  // Index of a Ptr in the validated tracks or tracksters; -1 for a null Ptr. A Ptr into another product throws.
+  auto indexIn = [](auto const& ptr, auto const& handle) -> int32_t {
+    if (ptr.isNull())
+      return -1;
+    if (ptr.id() != handle.id())
+      throw cms::Exception("LogicError") << "TICLCandidateValidator: a candidate points to a product that is not "
+                                            "the validated tracks or tracksters";
+    return static_cast<int32_t>(ptr.key());
+  };
   for (const auto i : chargedCandidates) {
     const auto& simCand = simTICLCandidates[i];
     auto index = std::log2(int(ticl::tracksterParticleTypeFromPdgId(simCand.pdgId(), 1)));
@@ -488,8 +494,8 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
 
     std::vector<int32_t> simCandTrackIdx;
     for (const auto& track : simCand.trackPtrs()) {
-      if (cutTk(*(simCand.trackPtr().get())))
-        simCandTrackIdx.push_back(track.get() - firstTrack);
+      if (cutTk(*track))
+        simCandTrackIdx.push_back(indexIn(track, recoTracks_h));
     }
     if (simCandTrackIdx.empty()) {
       // no track passing cuts
@@ -527,20 +533,15 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     }
 
     // cand_idx is an index in the merged trackster collection: take the candidate whose first trackster it is.
-    auto cand_it =
-        std::find_if(TICLCandidates.begin(), TICLCandidates.end(), [firstTs, cand_idx](TICLCandidate const& cand) {
-          if (!cand.tracksters().empty())
-            return (cand.tracksters()[0]).get() - firstTs ==
-                   cand_idx;  // in TICLv5 there is one trackster per candidate
-          else
-            return false;
-        });
+    auto cand_it = std::find_if(TICLCandidates.begin(), TICLCandidates.end(), [&](TICLCandidate const& cand) {
+      return !cand.tracksters().empty() && indexIn(cand.tracksters()[0], Tracksters_h) == cand_idx;
+    });
     if (cand_it == TICLCandidates.end())
       continue;
     const auto& recoCand = *cand_it;
 
     if (recoCand.trackPtr().get() != nullptr) {
-      const auto candTrackIdx = recoCand.trackPtr().get() - firstTrack;
+      const auto candTrackIdx = indexIn(recoCand.trackPtr(), recoTracks_h);
       if (std::find(simCandTrackIdx.begin(), simCandTrackIdx.end(), candTrackIdx) != simCandTrackIdx.end()) {
         // +1 to track num
         histograms.h_num_chg_energy_candidate_track[index]->Fill(simCand.rawEnergy());
@@ -608,14 +609,9 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     }
 
     // cand_idx is an index in the merged trackster collection: take the candidate whose first trackster it is.
-    auto cand_it =
-        std::find_if(TICLCandidates.begin(), TICLCandidates.end(), [firstTs, cand_idx](TICLCandidate const& cand) {
-          if (!cand.tracksters().empty())
-            return (cand.tracksters()[0]).get() - firstTs ==
-                   cand_idx;  // in TICLv5 there is one trackster per candidate
-          else
-            return false;
-        });
+    auto cand_it = std::find_if(TICLCandidates.begin(), TICLCandidates.end(), [&](TICLCandidate const& cand) {
+      return !cand.tracksters().empty() && indexIn(cand.tracksters()[0], Tracksters_h) == cand_idx;
+    });
     if (cand_it == TICLCandidates.end())
       continue;
     const auto& recoCand = *cand_it;
@@ -675,13 +671,12 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
      * 13 (type 2) becomes 1
      * 211 (type 4) becomes 2
      */
-    int32_t candTrackIdx = -1;
-    candTrackIdx = cand.trackPtr().get() - firstTrack;
+    const int32_t candTrackIdx = indexIn(cand.trackPtr(), recoTracks_h);
 
     if (cand.tracksters().empty())
       continue;
 
-    auto mergeTs_id = cand.tracksters()[0].get() - firstTs;
+    const auto mergeTs_id = indexIn(cand.tracksters()[0], Tracksters_h);
 
     // +1 to all denominators
     histograms.h_den_fake_chg_energy_candidate[index]->Fill(cand.rawEnergy());
@@ -723,7 +718,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
 
     std::vector<int32_t> simCandTrackIdx;
     for (const auto& track : simCand.trackPtrs()) {
-      simCandTrackIdx.push_back(track.get() - firstTrack);
+      simCandTrackIdx.push_back(indexIn(track, recoTracks_h));
     }
 
     if (!simCandTrackIdx.empty()) {
@@ -792,7 +787,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     if (cand.tracksters().empty())
       continue;
 
-    auto mergeTs_id = cand.tracksters()[0].get() - firstTs;
+    const auto mergeTs_id = indexIn(cand.tracksters()[0], Tracksters_h);
 
     // +1 to all denominators
     histograms.h_den_fake_neut_energy_candidate[index]->Fill(cand.rawEnergy());
