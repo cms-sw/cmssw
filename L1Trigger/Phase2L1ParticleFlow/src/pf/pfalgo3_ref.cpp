@@ -302,6 +302,15 @@ void l1ct::PFAlgo3Emulator::run(const PFInputRegion& in, OutputRegion& out) cons
               in.region.floatPhiCenter() + in.region.floatPhiHalfWidthExtra(),
               in.region.pack().to_string(16).c_str());
 
+    dbgPrintf("FW\nFW  \t region int eta %+d [ %+d , %+d ], phi %+d [ %+d , %+d ]   packed %s\n",
+              in.region.intEtaCenter(),
+              (in.region.hwEtaCenter - in.region.hwEtaHalfWidth - in.region.hwEtaExtra).to_int(),
+              (in.region.hwEtaCenter + in.region.hwEtaHalfWidth + in.region.hwEtaExtra).to_int(),
+              in.region.intPhiCenter(),
+              (in.region.hwPhiCenter - in.region.hwPhiHalfWidth - in.region.hwPhiExtra).to_int(),
+              (in.region.hwPhiCenter + in.region.hwPhiHalfWidth + in.region.hwPhiExtra).to_int(),
+              in.region.pack().to_string(16).c_str());
+
     dbgPrintf("FW  \t N(track) %3lu   N(em) %3lu   N(calo) %3lu   N(mu) %3lu\n",
               in.track.size(),
               in.emcalo.size(),
@@ -571,6 +580,9 @@ void l1ct::PFAlgo3Emulator::run(const PFInputRegion& in, OutputRegion& out) cons
 }
 
 void l1ct::PFAlgo3Emulator::mergeNeutrals(OutputRegion& out) const {
+  // To better match the firmware, the pfphotons are first padded to their maximum size.
+  // This matches the fixed port assignments in the firmware design.
+  out.pfphoton.resize(nPHOTON_);
   out.pfphoton.reserve(out.pfphoton.size() + out.pfneutral.size());
   out.pfphoton.insert(out.pfphoton.end(), out.pfneutral.begin(), out.pfneutral.end());
   out.pfphoton.swap(out.pfneutral);
