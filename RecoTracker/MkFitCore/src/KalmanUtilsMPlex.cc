@@ -1,5 +1,6 @@
 #include "KalmanUtilsMPlex.h"
 #include "PropagationMPlex.h"
+#include "PlaneSteps.h"
 
 //#define DEBUG
 #include "Debug.h"
@@ -1442,55 +1443,41 @@ namespace mkfit {
 
   //------------------------------------------------------------------------------
 
-  void kalmanOperationPlaneLocal(const int kfOp,
-                                 const MPlexLS& psErr,
-                                 const MPlexLV& psPar,
-                                 const MPlexQI& inChg,
-                                 const MPlexHS& msErr,
-                                 const MPlexHV& msPar,
-                                 const MPlexHV& plNrm,
-                                 const MPlexHV& plDir,
-                                 const MPlexHV& plPnt,
-                                 MPlexLS& outErr,
-                                 MPlexLV& outPar,
-                                 MPlexQF& outChi2,
-                                 const int N_proc,
-                                 const MPlexQI* doCPE,
-                                 cpe_func cpe_corr_func,
-                                 bool use_param_b_field) {
-#ifdef DEBUG
-    {
-      dmutex_guard;
-      printf("psPar:\n");
-      for (int i = 0; i < 6; ++i) {
-        printf("%8f ", psPar.constAt(0, 0, i));
-        printf("\n");
-      }
-      printf("\n");
-      printf("psErr:\n");
-      for (int i = 0; i < 6; ++i) {
-        for (int j = 0; j < 6; ++j)
-          printf("%8f ", psErr.constAt(0, i, j));
-        printf("\n");
-      }
-      printf("\n");
-      printf("msPar:\n");
-      for (int i = 0; i < 3; ++i) {
-        printf("%8f ", msPar.constAt(0, 0, i));
-        printf("\n");
-      }
-      printf("\n");
-      printf("msErr:\n");
-      for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j)
-          printf("%8f ", msErr.constAt(0, i, j));
-        printf("\n");
-      }
-      printf("\n");
-    }
-#endif
+  //==============================================================================
+  // Steps of the Kalman operation on a plane (see PlaneSteps.h)
+  //==============================================================================
 
-    MPlexHH rot;
+  namespace plane {
+
+    // sol/100 * Bz at the predicted state: the field both local-frame Jacobians are evaluated in.
+    void local_field(const TrackRef& pred, const bool use_param_b_field, MPlexQF& bFld) {
+      const MPlexLV& psPar = pred.par;
+#pragma omp simd
+      for (int n = 0; n < NN; ++n) {
+        bFld(n, 0, 0) =
+            use_param_b_field
+                ? 0.01f * Const::sol * Config::bFieldFromZR(psPar(n, 2, 0), hipo(psPar(n, 0, 0), psPar(n, 1, 0)))
+                : 0.01f * Const::sol * Config::Bfield;
+      }
+    }
+
+    // The predicted state and its covariance psErr in the local frame of the plane (plNrm, plDir).
+    void to_local(const TrackRef& pred,
+                  const MPlexLS& psErr,
+                  const PlaneRef& pl,
+                  const MPlexHV& plDir,
+                  const MPlexQF& bFld,
+                  LocalPred& L) {
+      const MPlexLV& psPar = pred.par;
+      const MPlexQI& inChg = pred.chg;
+      const MPlexHV& plPnt = pl.pnt;
+      const MPlexHV& plNrm = pl.nrm;
+      MPlexHH& rot = L.rot;
+      MPlex2V& xlo = L.xlo;
+      MPlex5V& lp = L.lp;
+      MPlexQI& pzSign = L.pz_sign;
+      MPlex5S& psErrLoc = L.err;
+
 #pragma omp simd
     for (int n = 0; n < NN; ++n) {
       rot(n, 0, 0) = plDir(n, 0, 0);
@@ -1512,7 +1499,6 @@ namespace mkfit {
       xd(n, 0, 1) = psPar(n, 0, 1) - plPnt(n, 0, 1);
       xd(n, 0, 2) = psPar(n, 0, 2) - plPnt(n, 0, 2);
     }
-    MPlex2V xlo;
     RotateResidualsOnPlane(rot, xd, xlo);
 
     MPlexQF sinP, sinT, cosP, cosT, pt;  //fixme VDT or something?
@@ -1535,7 +1521,6 @@ namespace mkfit {
 
     MPlexHV plo;
     RotateVectorOnPlane(rot, pgl, plo);
-    MPlex5V lp;
 #pragma omp simd
     for (int n = 0; n < NN; ++n) {
       lp(n, 0, 0) = inChg(n, 0, 0) * psPar(n, 3, 0) * sinT(n, 0, 0);
@@ -1544,67 +1529,10 @@ namespace mkfit {
       lp(n, 0, 3) = xlo(n, 0, 0);
       lp(n, 0, 4) = xlo(n, 0, 1);
     }
-    MPlexQI pzSign;
 #pragma omp simd
     for (int n = 0; n < NN; ++n) {
       pzSign(n, 0, 0) = plo(n, 0, 2) > 0.f ? 1 : -1;
     }
-
-    MPlex2V msPar_local;
-    MPlex2S msErr_local;
-
-    for (int n = 0; n < NN; ++n) {
-      if (doCPE && doCPE->constAt(n, 0, 0) >= 0 && cpe_corr_func) {
-        float ltp[6] = {lp(n, 0, 0), lp(n, 0, 1), lp(n, 0, 2), lp(n, 0, 3), lp(n, 0, 4), (float)pzSign(n, 0, 0)};
-        float lh[5] = {0, 0, 0, 0, 0};
-        int hit_idx = doCPE->constAt(n, 0, 0);
-        bool check = cpe_corr_func(hit_idx, ltp, lh);  //it's a boolean but need to introduce a safeguard if needed
-
-        if (!check)
-          continue;
-
-        msPar_local(n, 0, 0) = lh[0];
-        msPar_local(n, 0, 1) = lh[1];
-        msErr_local(n, 0, 0) = lh[2];
-        msErr_local(n, 0, 1) = lh[3];
-        msErr_local(n, 1, 1) = lh[4];
-      }
-    }
-
-    /*
-    printf("rot:\n");
-    for (int i = 0; i < 3; ++i) {
-      for (int j = 0; j < 3; ++j)
-	printf("%8f ", rot.At(0, i, j));
-      printf("\n");
-    }
-    printf("\n");
-    printf("plPnt:\n");
-    for (int i = 0; i < 3; ++i) {
-      printf("%8f ", plPnt.constAt(0, 0, i));
-    }
-    printf("\n");
-    printf("xlo:\n");
-    for (int i = 0; i < 2; ++i) {
-      printf("%8f ", xlo.At(0, i, 0));
-    }
-    printf("\n");
-    printf("pgl:\n");
-    for (int i = 0; i < 3; ++i) {
-      printf("%8f ", pgl.At(0, i, 0));
-    }
-    printf("\n");
-    printf("plo:\n");
-    for (int i = 0; i < 3; ++i) {
-      printf("%8f ", plo.At(0, i, 0));
-    }
-    printf("\n");
-    printf("lp:\n");
-    for (int i = 0; i < 5; ++i) {
-      printf("%8f ", lp.At(0, i, 0));
-    }
-    printf("\n");
-    */
 
     //now we need the jacobian to convert from CCS to curvilinear
     // code from TrackState::jacobianCCSToCurvilinear
@@ -1643,10 +1571,7 @@ namespace mkfit {
     MPlex55 jacCurv2Loc(0.f);
 #pragma omp simd
     for (int n = 0; n < NN; ++n) {
-      const float bF =
-          use_param_b_field
-              ? 0.01f * Const::sol * Config::bFieldFromZR(psPar(n, 2, 0), hipo(psPar(n, 0, 0), psPar(n, 1, 0)))
-              : 0.01f * Const::sol * Config::Bfield;
+      const float bF = bFld(n, 0, 0);
       const float qh2 = bF * lp(n, 0, 0);
       const float t1r = std::sqrt(1.f + lp(n, 0, 1) * lp(n, 0, 1) + lp(n, 0, 2) * lp(n, 0, 2)) * pzSign(n, 0, 0);
       const float t2r = t1r * t1r;
@@ -1675,122 +1600,91 @@ namespace mkfit {
     JacCCS2Loc(jacCurv2Loc, jacCCS2Curv, jacCCS2Loc);
 
     // local error!
-    MPlex5S psErrLoc;
     MPlex56 temp56;
     PsErrLoc(jacCCS2Loc, psErr, temp56);
     PsErrLocTransp(temp56, jacCCS2Loc, psErrLoc);
+    }
 
-    MPlexHV md;
+    // The measurement (msPar, msErr) in the local frame of the plane.
+    void measurement(
+        const LocalPred& L, const MPlexHV& msPar, const MPlexHS& msErr, const MPlexHV& plPnt, LocalMeas& M) {
+      const MPlexHH& rot = L.rot;
+      MPlex2V& mslo = M.par;
+      MPlex2S& msErr_loc = M.err;
+
+      MPlexHV md;
 #pragma omp simd
     for (int n = 0; n < NN; ++n) {
       md(n, 0, 0) = msPar(n, 0, 0) - plPnt(n, 0, 0);
       md(n, 0, 1) = msPar(n, 0, 1) - plPnt(n, 0, 1);
       md(n, 0, 2) = msPar(n, 0, 2) - plPnt(n, 0, 2);
     }
-    MPlex2V mslo;
     RotateResidualsOnPlane(rot, md, mslo);
-#pragma omp simd
-    //copy CPE pos for pixel hits if all ok
-    //need to add a CPE bool check
-    for (int n = 0; n < NN; ++n) {
-      if (doCPE && doCPE->constAt(n, 0, 0) >= 0 && cpe_corr_func) {
-        mslo(n, 0, 0) = msPar_local(n, 0, 0);
-        mslo(n, 0, 1) = msPar_local(n, 0, 1);
-      }
-    }
-
-    MPlex2V res_loc;  //position residual in local coordinates
-#pragma omp simd
-    for (int n = 0; n < NN; ++n) {
-      res_loc(n, 0, 0) = mslo(n, 0, 0) - xlo(n, 0, 0);
-      res_loc(n, 0, 1) = mslo(n, 0, 1) - xlo(n, 0, 1);
-    }
-
-    MPlex2S msErr_loc;
     MPlex2H temp2Hmsl;
     ProjectResErr(rot, msErr, temp2Hmsl);
     ProjectResErrTransp(rot, temp2Hmsl, msErr_loc);
-#pragma omp simd
-    //copy CPE error for pixel hits if all ok
-    for (int n = 0; n < NN; ++n) {
-      if (doCPE && doCPE->constAt(n, 0, 0) >= 0 && cpe_corr_func) {
-        msErr_loc(n, 0, 0) = msErr_local(n, 0, 0);
-        msErr_loc(n, 0, 1) = msErr_local(n, 0, 1);
-        msErr_loc(n, 1, 1) = msErr_local(n, 1, 1);
+    }
+
+    // The CPE's local position and error replace the measurement on the lanes where doCPE holds a hit index
+    // and the CPE succeeds; elsewhere the measurement projected from the hit stays.
+    void measurement_cpe(const MPlexQI& doCPE, const cpe_func& cpe_corr_func, const LocalPred& L, LocalMeas& M) {
+      const MPlex5V& lp = L.lp;
+      const MPlexQI& pzSign = L.pz_sign;
+      MPlex2V& mslo = M.par;
+      MPlex2S& msErr_loc = M.err;
+
+      for (int n = 0; n < NN; ++n) {
+        if (doCPE.constAt(n, 0, 0) >= 0) {
+          float ltp[6] = {lp(n, 0, 0), lp(n, 0, 1), lp(n, 0, 2), lp(n, 0, 3), lp(n, 0, 4), (float)pzSign(n, 0, 0)};
+          float lh[5] = {0, 0, 0, 0, 0};
+          int hit_idx = doCPE.constAt(n, 0, 0);
+          if (!cpe_corr_func(hit_idx, ltp, lh))
+            continue;
+
+          mslo(n, 0, 0) = lh[0];
+          mslo(n, 0, 1) = lh[1];
+          msErr_loc(n, 0, 0) = lh[2];
+          msErr_loc(n, 0, 1) = lh[3];
+          msErr_loc(n, 1, 1) = lh[4];
+        }
       }
     }
 
-    MPlex2S resErr_loc;  //covariance sum in local position coordinates
+    // Residual of the measurement against the prediction, and the inverse of its covariance.
+    void residual(const LocalPred& L, const LocalMeas& M, Residual& R) {
+      const MPlex2V& xlo = L.xlo;
+      const MPlex5S& psErrLoc = L.err;
+      const MPlex2V& mslo = M.par;
+      const MPlex2S& msErr_loc = M.err;
+      MPlex2V& res_loc = R.r;
+      MPlex2S& resErr_loc = R.s_inv;
+
+#pragma omp simd
+      for (int n = 0; n < NN; ++n) {
+        res_loc(n, 0, 0) = mslo(n, 0, 0) - xlo(n, 0, 0);
+        res_loc(n, 0, 1) = mslo(n, 0, 1) - xlo(n, 0, 1);
+      }
+
 #pragma omp simd
     for (int n = 0; n < NN; ++n) {
       resErr_loc(n, 0, 0) = psErrLoc(n, 3, 3) + msErr_loc(n, 0, 0);
       resErr_loc(n, 0, 1) = psErrLoc(n, 3, 4) + msErr_loc(n, 0, 1);
       resErr_loc(n, 1, 1) = psErrLoc(n, 4, 4) + msErr_loc(n, 1, 1);
     }
-    /*
-    printf("jacCCS2Curv:\n");
-    for (int i = 0; i < 5; ++i) {
-      for (int j = 0; j < 6; ++j)
-	printf("%8f ", jacCCS2Curv.At(0, i, j));
-      printf("\n");
+    //invert the 2x2 matrix, keeping the determinant (Cramer computes it in double either way)
+    double determ[NN];
+    Matriplex::invertCramerSym(resErr_loc, determ);
+    for (int n = 0; n < NN; ++n)
+      R.det[n] = (float)determ[n];
     }
-    printf("un:\n");
-    for (int i = 0; i < 3; ++i) {
-      printf("%8f ", un.At(0, i, 0));
-    }
-    printf("\n");
-    printf("u:\n");
-    for (int i = 0; i < 3; ++i) {
-      printf("%8f ", u.At(0, i, 0));
-    }
-    printf("\n");
-    printf("\n");
-    printf("jacCurv2Loc:\n");
-    for (int i = 0; i < 5; ++i) {
-      for (int j = 0; j < 5; ++j)
-	printf("%8f ", jacCurv2Loc.At(0, i, j));
-      printf("\n");
-    }
-    printf("\n");
-    printf("jacCCS2Loc:\n");
-    for (int i = 0; i < 5; ++i) {
-      for (int j = 0; j < 6; ++j)
-	printf("%8f ", jacCCS2Loc.At(0, i, j));
-      printf("\n");
-    }
-    printf("\n");
-    printf("temp56:\n");
-    for (int i = 0; i < 5; ++i) {
-      for (int j = 0; j < 6; ++j)
-	printf("%8f ", temp56.At(0, i, j));
-      printf("\n");
-    }
-    printf("\n");
-    printf("psErrLoc:\n");
-    for (int i = 0; i < 5; ++i) {
-      for (int j = 0; j < 5; ++j)
-	printf("%8f ", psErrLoc.At(0, i, j));
-      printf("\n");
-    }
-    printf("\n");
-    printf("res_loc:\n");
-    for (int i = 0; i < 2; ++i) {
-      printf("%8f ", res_loc.At(0, i, 0));
-    }
-    printf("\n");
-    printf("resErr_loc:\n");
-    for (int i = 0; i < 2; ++i) {
-      for (int j = 0; j < 2; ++j)
-	printf("%8f ", resErr_loc.At(0, i, j));
-      printf("\n");
-    }
-    printf("\n");
-    */
-    //invert the 2x2 matrix
-    Matriplex::invertCramerSym(resErr_loc);
 
-    if (kfOp & KFO_Calculate_Chi2) {
-      Chi2Similarity(res_loc, resErr_loc, outChi2);
+    // chi2 of the residual.
+    void chi2(const Residual& R, MPlexQF& outChi2) {
+      const MPlex2V& res_loc = R.r;
+      const MPlex2S& resErr_loc = R.s_inv;
+
+      {
+        Chi2Similarity(res_loc, resErr_loc, outChi2);
 
 #ifdef DEBUG
       {
@@ -1805,9 +1699,32 @@ namespace mkfit {
         printf("chi2: %8f\n", outChi2.At(0, 0, 0));
       }
 #endif
+      }
     }
 
-    if (kfOp & KFO_Update_Params) {
+    void chi2_scaled(const LocalPred& L, const LocalMeas& M, const Residual& R, const float trk_scale2, MPlexQF& out) {
+      const MPlex5S& psErrLoc = L.err;
+      const MPlex2S& msErr_loc = M.err;
+      MPlex2S accErr_loc;
+#pragma omp simd
+      for (int n = 0; n < NN; ++n) {
+        accErr_loc(n, 0, 0) = trk_scale2 * psErrLoc(n, 3, 3) + msErr_loc(n, 0, 0);
+        accErr_loc(n, 0, 1) = trk_scale2 * psErrLoc(n, 3, 4) + msErr_loc(n, 0, 1);
+        accErr_loc(n, 1, 1) = trk_scale2 * psErrLoc(n, 4, 4) + msErr_loc(n, 1, 1);
+      }
+      Matriplex::invertCramerSym(accErr_loc);
+      Chi2Similarity(R.r, accErr_loc, out);
+    }
+
+    // Kalman gain and the updated local state.
+    void update(const LocalPred& L, const Residual& R, LocalUpd& U) {
+      const MPlex5V& lp = L.lp;
+      const MPlex5S& psErrLoc = L.err;
+      const MPlex2V& res_loc = R.r;
+      const MPlex2S& resErr_loc = R.s_inv;
+      MPlex5V& lp_upd = U.lp;
+      MPlex5S& psErrLoc_upd = U.err;
+
       MPlex52 K;  // kalman gain
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
@@ -1818,7 +1735,6 @@ namespace mkfit {
         }
       }
 
-      MPlex5V lp_upd;
       MultResidualsAdd(K, lp, res_loc, lp_upd);
 
       MPlex55 ImKH(0.f);
@@ -1831,8 +1747,25 @@ namespace mkfit {
           ImKH(n, j, 4) -= K(n, j, 1);
         }
       }
-      MPlex5S psErrLoc_upd;
       PsErrLocUpd(ImKH, psErrLoc, psErrLoc_upd);
+    }
+
+    // The updated state back in global coordinates (CCS): parameters and covariance.
+    void to_global(const LocalUpd& U,
+                   const LocalPred& L,
+                   const PlaneRef& pl,
+                   const MPlexQI& inChg,
+                   const MPlexQF& bFld,
+                   MPlexLV& outPar,
+                   MPlexLS& outErr) {
+      const MPlexHV& plPnt = pl.pnt;
+      const MPlexHH& rot = L.rot;
+      const MPlex5V& lp = L.lp;
+      const MPlexQI& pzSign = L.pz_sign;
+      const MPlex5V& lp_upd = U.lp;
+      const MPlex5S& psErrLoc_upd = U.err;
+      MPlexQF sinP, sinT, cosP, cosT, pt;
+      MPlexHV un, vn;
 
       //convert local updated parameters into CCS
       MPlexHV lxu;
@@ -1924,10 +1857,7 @@ namespace mkfit {
       MPlex55 jacLoc2Curv(0.f);
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
-        const float bF =
-            use_param_b_field
-                ? 0.01f * Const::sol * Config::bFieldFromZR(psPar(n, 2, 0), hipo(psPar(n, 0, 0), psPar(n, 1, 0)))
-                : 0.01f * Const::sol * Config::Bfield;  //fixme: cache?
+        const float bF = bFld(n, 0, 0);
         const float qh2 = bF * lp_upd(n, 0, 0);
         const float cosl1 = 1.f / vn(n, 0, 2);
         const float uj = un(n, 0, 0) * rot(n, 0, 0) + un(n, 0, 1) * rot(n, 0, 1);
@@ -1957,107 +1887,9 @@ namespace mkfit {
       OutErrCCS(jacLoc2CCS, psErrLoc_upd, temp65);
       OutErrCCSTransp(temp65, jacLoc2CCS, outErr);
 
-      /*
-      printf("\n");
-      printf("lp_upd:\n");
-      for (int i = 0; i < 5; ++i) {
-	printf("%8f ", lp_upd.At(0, i, 0));
-      }
-      printf("\n");
-      printf("psErrLoc_upd:\n");
-      for (int i = 0; i < 5; ++i) {
-        for (int j = 0; j < 5; ++j)
-          printf("%8f ", psErrLoc_upd.At(0, i, j));
-        printf("\n");
-      }
-      printf("\n");
-      printf("lxu:\n");
-      for (int i = 0; i < 3; ++i) {
-	printf("%8f ", lxu.At(0, i, 0));
-      }
-      printf("\n");
-      printf("lpu:\n");
-      for (int i = 0; i < 3; ++i) {
-	printf("%8f ", lpu.At(0, i, 0));
-      }
-      printf("\n");
-      printf("gxu:\n");
-      for (int i = 0; i < 3; ++i) {
-	printf("%8f ", gxu.At(0, i, 0));
-      }
-      printf("\n");
-      printf("gpu:\n");
-      for (int i = 0; i < 3; ++i) {
-	printf("%8f ", gpu.At(0, i, 0));
-      }
-      printf("\n");
-      printf("outPar:\n");
-      for (int i = 0; i < 6; ++i) {
-	printf("%8f ", outPar.At(0, i, 0));
-      }
-      printf("\n");
-      printf("tnl:\n");
-      for (int i = 0; i < 3; ++i) {
-	printf("%8f ", tnl.At(0, i, 0));
-      }
-      printf("\n");
-      printf("tn:\n");
-      for (int i = 0; i < 3; ++i) {
-	printf("%8f ", tn.At(0, i, 0));
-      }
-      printf("\n");
-      printf("un:\n");
-      for (int i = 0; i < 3; ++i) {
-	printf("%8f ", un.At(0, i, 0));
-      }
-      printf("\n");
-      printf("vn:\n");
-      for (int i = 0; i < 3; ++i) {
-	printf("%8f ", vn.At(0, i, 0));
-      }
-      printf("\n");
-      printf("jacLoc2Curv:\n");
-      for (int i = 0; i < 5; ++i) {
-	for (int j = 0; j < 5; ++j)
-	  printf("%8f ", jacLoc2Curv.At(0, i, j));
-	printf("\n");
-      }
-      printf("\n");
-      printf("outErr:\n");
-      for (int i = 0; i < 6; ++i) {
-        for (int j = 0; j < 6; ++j)
-          printf("%8f ", outErr.At(0, i, j));
-        printf("\n");
-      }
-      printf("\n");
-      */
-
 #ifdef DEBUG
       {
         dmutex_guard;
-        if (kfOp & KFO_Local_Cov) {
-          printf("psErrLoc_upd:\n");
-          for (int i = 0; i < 5; ++i) {
-            for (int j = 0; j < 5; ++j)
-              printf("% 8e ", psErrLoc_upd.At(0, i, j));
-            printf("\n");
-          }
-          printf("\n");
-        }
-        printf("resErr_loc (Inv):\n");
-        for (int i = 0; i < 2; ++i) {
-          for (int j = 0; j < 2; ++j)
-            printf("%8f ", resErr_loc.At(0, i, j));
-          printf("\n");
-        }
-        printf("\n");
-        printf("K:\n");
-        for (int i = 0; i < 6; ++i) {
-          for (int j = 0; j < 2; ++j)
-            printf("%8f ", K.At(0, i, j));
-          printf("\n");
-        }
-        printf("\n");
         printf("outPar:\n");
         for (int i = 0; i < 6; ++i) {
           printf("%8f  ", outPar.At(0, i, 0));
@@ -2074,7 +1906,85 @@ namespace mkfit {
 #endif
     }
 
-    return;
+  }  // namespace plane
+
+  //------------------------------------------------------------------------------
+
+  void kalmanOperationPlaneLocal(const int kfOp,
+                                 const MPlexLS& psErr,
+                                 const MPlexLV& psPar,
+                                 const MPlexQI& inChg,
+                                 const MPlexHS& msErr,
+                                 const MPlexHV& msPar,
+                                 const MPlexHV& plNrm,
+                                 const MPlexHV& plDir,
+                                 const MPlexHV& plPnt,
+                                 MPlexLS& outErr,
+                                 MPlexLV& outPar,
+                                 MPlexQF& outChi2,
+                                 const int N_proc,
+                                 const MPlexQI* doCPE,
+                                 cpe_func cpe_corr_func,
+                                 bool use_param_b_field) {
+#ifdef DEBUG
+    {
+      dmutex_guard;
+      printf("psPar:\n");
+      for (int i = 0; i < 6; ++i) {
+        printf("%8f ", psPar.constAt(0, 0, i));
+        printf("\n");
+      }
+      printf("\n");
+      printf("psErr:\n");
+      for (int i = 0; i < 6; ++i) {
+        for (int j = 0; j < 6; ++j)
+          printf("%8f ", psErr.constAt(0, i, j));
+        printf("\n");
+      }
+      printf("\n");
+      printf("msPar:\n");
+      for (int i = 0; i < 3; ++i) {
+        printf("%8f ", msPar.constAt(0, 0, i));
+        printf("\n");
+      }
+      printf("\n");
+      printf("msErr:\n");
+      for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j)
+          printf("%8f ", msErr.constAt(0, i, j));
+        printf("\n");
+      }
+      printf("\n");
+    }
+#endif
+
+    using namespace plane;
+
+    const TrackRef pred{psPar, inChg, N_proc};
+    const PlaneRef pl{plPnt, plNrm};
+
+    MPlexQF bFld;
+    local_field(pred, use_param_b_field, bFld);
+
+    LocalPred L;
+    to_local(pred, psErr, pl, plDir, bFld, L);
+
+    LocalMeas M;
+    measurement(L, msPar, msErr, plPnt, M);
+    if (doCPE && cpe_corr_func)
+      measurement_cpe(*doCPE, cpe_corr_func, L, M);
+
+    Residual R;
+    residual(L, M, R);
+
+    if (kfOp & KFO_Calculate_Chi2)
+      chi2(R, outChi2);
+
+    if (kfOp & KFO_Update_Params) {
+      LocalUpd U;
+      update(L, R, U);
+      to_global(U, L, pl, inChg, bFld, outPar, outErr);
+    }
   }
 
   //------------------------------------------------------------------------------

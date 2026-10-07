@@ -136,10 +136,30 @@ namespace mkfit {
       int f_sizeof_moduleshape = sizeof(ModuleShape);
       int f_n_layers = -1;
 
+      // ---- everything above this line is the v3 header, byte for byte ----
+      // New fields go BELOW, and read_bin_file() reads the magic and the version
+      // first and then the header that version has (size_of_version()): a blind
+      // fread(&fh, sizeof(GeomFileHeader), ...) of an older file would swallow
+      // layer data.
+
+      // Identity of the geometry, e.g. "Run4D127". Fixed-size so the header
+      // stays a POD that can be fwrite'd in one go.
+      char f_geom_version[TrackerInfo::s_geom_version_size] = {0};
+
       GeomFileHeader() = default;
 
       constexpr static int s_magic = 0xB00F;
-      constexpr static int s_version = 3;
+      // v5: f_geom_version, and ModuleInfo with the module material (52 bytes). Older
+      // files are not read; regenerate them.
+      constexpr static int s_version = 5;
+      constexpr static int s_min_version = 5;
+      constexpr static size_t s_v3_size = 7 * sizeof(int);
+
+      // Header size ON FILE for a given version. Magic and version are the first
+      // two ints of the file precisely so this can be asked before anything else
+      // is read. Never use sizeof(GeomFileHeader): that is the CURRENT version's
+      // size, and it both over-reads an older file and mis-places what follows.
+      constexpr static size_t size_of_version(int v) { return v >= 5 ? s_v3_size + sizeof(f_geom_version) : s_v3_size; }
     };
 
     template <typename T>
@@ -181,7 +201,19 @@ namespace mkfit {
     }
   }  // namespace
 
-  void TrackerInfo::write_bin_file(const std::string& fname) const {
+  void TrackerInfo::set_geom_version(const std::string& v) {
+    if (v.size() >= s_geom_version_size) {
+      fprintf(stderr,
+              "TrackerInfo::set_geom_version: '%s' is %zu characters, the limit is %zu.\n",
+              v.c_str(),
+              v.size(),
+              s_geom_version_size - 1);
+      throw std::runtime_error("geometry version string too long in TrackerInfo::set_geom_version");
+    }
+    std::memcpy(m_geom_version, v.c_str(), v.size() + 1);
+  }
+
+  void TrackerInfo::write_bin_file(const std::string& fname, const std::string& geom_version) const {
     FILE* fp = fopen(fname.c_str(), "w");
     if (!fp) {
       fprintf(stderr,
@@ -193,6 +225,20 @@ namespace mkfit {
     }
     GeomFileHeader fh;
     fh.f_n_layers = n_layers();
+    if (!geom_version.empty()) {
+      // Refuse rather than truncate: a silently shortened stamp compares wrong
+      // in both directions, and a stamp is only useful if it is exact.
+      if (geom_version.size() >= sizeof(fh.f_geom_version)) {
+        fprintf(stderr,
+                "TrackerInfo::write_bin_file: geometry version '%s' is %zu characters, the limit is %zu.\n",
+                geom_version.c_str(),
+                geom_version.size(),
+                sizeof(fh.f_geom_version) - 1);
+        fclose(fp);
+        throw std::runtime_error("geometry version string too long in TrackerInfo::write_bin_file");
+      }
+      std::memcpy(fh.f_geom_version, geom_version.c_str(), geom_version.size() + 1);
+    }
     fwrite(&fh, sizeof(GeomFileHeader), 1, fp);
 
 #pragma GCC diagnostic push
@@ -207,6 +253,22 @@ namespace mkfit {
       write_std_vec(fp, m_layers[l].m_modules);
       write_std_vec(fp, m_layers[l].m_shapes);
     }
+
+    // These two lines stream PARTS OF TrackerInfo AS IF THEY WERE PODs: the four
+    // range/fac floats as one contiguous block, and rectvec's leading two ints.
+    // TrackerInfo is not a POD -- it holds vectors and a string -- but that buys
+    // no licence here, because these take the address of a member and walk past
+    // it. Inserting a member anywhere inside either group silently corrupts the
+    // material grid header, so pin both layouts down at compile time.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Winvalid-offsetof"
+    static_assert(offsetof(TrackerInfo, m_mat_range_r) == offsetof(TrackerInfo, m_mat_range_z) + sizeof(float) &&
+                      offsetof(TrackerInfo, m_mat_fac_z) == offsetof(TrackerInfo, m_mat_range_z) + 2 * sizeof(float) &&
+                      offsetof(TrackerInfo, m_mat_fac_r) == offsetof(TrackerInfo, m_mat_range_z) + 3 * sizeof(float),
+                  "write_bin_file streams m_mat_range_z/_r and m_mat_fac_z/_r as one 4-float block");
+    static_assert(offsetof(rectvec<Material>, m_n2) == sizeof(int),
+                  "write_bin_file streams rectvec's m_n1/m_n2 as two leading ints");
+#pragma GCC diagnostic pop
 
     fwrite(&m_mat_range_z, 4 * sizeof(float), 1, fp);
     fwrite(&m_mat_vec, 2 * sizeof(int), 1, fp);
@@ -225,29 +287,59 @@ namespace mkfit {
               strerror(errno));
       throw std::runtime_error("Failed opening file in TrackerInfo::read_bin_file");
     }
-    GeomFileHeader fh;
-    fread(&fh, sizeof(GeomFileHeader), 1, fp);
+    // Magic and version are the first two ints of the file so that the rest can
+    // be read knowing what it is. Read those two alone, decide, then read the
+    // header that version has.
+    int magic = 0, version = 0;
+    fread(&magic, sizeof(int), 1, fp);
+    fread(&version, sizeof(int), 1, fp);
 
-    if (fh.f_magic != GeomFileHeader::s_magic) {
+    if (magic != GeomFileHeader::s_magic) {
       fprintf(stderr, "Incompatible input file (wrong magick).\n");
       throw std::runtime_error("Filed opening file in TrackerInfo::read_bin_file");
     }
-    if (fh.f_format_version != GeomFileHeader::s_version) {
+    if (version < GeomFileHeader::s_min_version || version > GeomFileHeader::s_version) {
       fprintf(stderr,
-              "Unsupported file version %d. Supported version is %d.\n",
-              fh.f_format_version,
+              "Unsupported file version %d. Supported versions are from %d to %d.\n",
+              version,
+              GeomFileHeader::s_min_version,
               GeomFileHeader::s_version);
       throw std::runtime_error("Unsupported file version in TrackerInfo::read_bin_file");
     }
-    assert_sizeof_match(fh.f_sizeof_trackerinfo, sizeof(TrackerInfo), "TrackerInfo");
-    assert_sizeof_match(fh.f_sizeof_layerinfo, sizeof(LayerInfo), "LayerInfo");
+
+    GeomFileHeader fh;
+    fseek(fp, 0, SEEK_SET);
+    fread(&fh, GeomFileHeader::size_of_version(version), 1, fp);
+    // Only ModuleInfo and ModuleShape are streamed at their full sizeof, so only
+    // those two sizes are a statement about the file and only those two are
+    // enforced. TrackerInfo is never streamed as a whole -- its vectors are
+    // written one member at a time -- and LayerInfo is streamed as a prefix
+    // bounded by offsetof(m_final_member_for_streaming). Enforcing either turned
+    // any added member into a format break: adding the geometry stamp to
+    // TrackerInfo took its sizeof from 248 to 312 and made every file written by
+    // the other build unreadable, though not one streamed byte had moved. The
+    // other two sizes are still written, and are reported on a mismatch.
     assert_sizeof_match(fh.f_sizeof_moduleinfo, sizeof(ModuleInfo), "ModuleInfo");
     assert_sizeof_match(fh.f_sizeof_moduleshape, sizeof(ModuleShape), "ModuleShape");
+    if (fh.f_sizeof_trackerinfo != (int)sizeof(TrackerInfo) || fh.f_sizeof_layerinfo != (int)sizeof(LayerInfo))
+      printf(
+          "  note: TrackerInfo/LayerInfo sizes differ from this build (%d/%d on file, %zu/%zu here);"
+          " neither is streamed at its sizeof, so this is informational.\n",
+          fh.f_sizeof_trackerinfo,
+          fh.f_sizeof_layerinfo,
+          sizeof(TrackerInfo),
+          sizeof(LayerInfo));
 
-    printf("Opened TrackerInfoGeom file '%s', format version %d, n_layers %d\n",
+    // Guarantee termination: the file's field is only as trustworthy as whoever
+    // wrote it, and everything downstream treats this as a C string.
+    std::memcpy(m_geom_version, fh.f_geom_version, sizeof(m_geom_version));
+    m_geom_version[sizeof(m_geom_version) - 1] = '\0';  // empty: the dumper was not told
+
+    printf("Opened TrackerInfoGeom file '%s', format version %d, n_layers %d, geometry '%s'\n",
            fname.c_str(),
            fh.f_format_version,
-           fh.f_n_layers);
+           fh.f_n_layers,
+           m_geom_version[0] == '\0' ? "UNKNOWN (not stamped)" : m_geom_version);
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
