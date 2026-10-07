@@ -55,7 +55,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TrackSoAMergerKernels {
   public:
-    TrackSoAMergerKernels() = default;
     ~TrackSoAMergerKernels() = default;
 
     TrackSoAMergerKernels(const TrackSoAMergerKernels&) = delete;
@@ -75,7 +74,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void filterTracks(Queue& queue);
 
   private:
-    Params const& params_;
+    Params params_;
 
     std::optional<reco::TracksSoACollection> tracks_d_;
     std::optional<reco::TrackMergerCounterSoACollection> counters_d_;
