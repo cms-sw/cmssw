@@ -134,7 +134,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMT: " << numPV << " physical volumes; " << numLV << " logical volumes; " << nn << " regions.";
 
-  for (auto & elm : *G4Element::GetElementTable()) {
+  for (auto& elm : *G4Element::GetElementTable()) {
     elm->SetNaturalAbundanceFlag(true);
   }
 
