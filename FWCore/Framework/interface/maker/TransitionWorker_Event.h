@@ -277,20 +277,6 @@ namespace edm {
             m_serviceToken(token),
             m_group(iGroup) {}
 
-      struct EnableQueueGuard {
-        SerialTaskQueue* queue_;
-        EnableQueueGuard(SerialTaskQueue* iQueue) : queue_{iQueue} {}
-        EnableQueueGuard(EnableQueueGuard const&) = delete;
-        EnableQueueGuard& operator=(EnableQueueGuard const&) = delete;
-        EnableQueueGuard& operator=(EnableQueueGuard&&) = delete;
-        EnableQueueGuard(EnableQueueGuard&& iGuard) : queue_{iGuard.queue_} { iGuard.queue_ = nullptr; }
-        ~EnableQueueGuard() {
-          if (queue_) {
-            queue_->resume();
-          }
-        }
-      };
-
       void execute() final {
         //Need to make the services available early so other services can see them
         ServiceRegistry::Operate guard(m_serviceToken.lock());
