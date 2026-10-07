@@ -1,3 +1,5 @@
+// Must precede the first SoA header: HGCalSoARecHits/HGCalSoAClusters have Eigen columns
+#include <Eigen/Core>
 #include "DataFormats/Portable/interface/PortableHostCollectionReadRules.h"
 #include "DataFormats/Portable/interface/PortableHostObjectReadRules.h"
 #include "DataFormats/HGCalReco/interface/MtdHostCollection.h"

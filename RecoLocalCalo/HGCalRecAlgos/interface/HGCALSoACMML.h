@@ -1,34 +1,43 @@
 #ifndef RecoLocalCalo_HGCalRecAlgos_interface_HGCALSoACMML_h
 #define RecoLocalCalo_HGCalRecAlgos_interface_HGCALSoACMML_h
+
+#include <cstdint>
+
+#include <Eigen/Core>
+
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
 namespace hgcalcmml {
-  GENERATE_SOA_LAYOUT(HGCalCMMLSoALayout,
-                      SOA_COLUMN(float, cm0),        // [ 0] pedestal-subtracted CM average eRx 0:  0.5*digi.cm() - CM_ped
-                      SOA_COLUMN(float, cm1),        // [ 1] pedestal-subtracted CM average eRx 1:  0.5*digi.cm() - CM_ped
-                      SOA_COLUMN(float, cm2),        // [ 2] pedestal-subtracted CM average eRx 2:  0.5*digi.cm() - CM_ped
-                      SOA_COLUMN(float, cm3),        // [ 3] pedestal-subtracted CM average eRx 3:  0.5*digi.cm() - CM_ped
-                      SOA_COLUMN(float, cm4),        // [ 4] pedestal-subtracted CM average eRx 4:  0.5*digi.cm() - CM_ped
-                      SOA_COLUMN(float, cm5),        // [ 5] pedestal-subtracted CM average eRx 5:  0.5*digi.cm() - CM_ped
-                      SOA_COLUMN(float, cm6),        // [ 6] pedestal-subtracted CM average eRx 6:  0.0 if eRx inactive
-                      SOA_COLUMN(float, cm7),        // [ 7] pedestal-subtracted CM average eRx 7:  0.0 if eRx inactive
-                      SOA_COLUMN(float, cm8),        // [ 8] pedestal-subtracted CM average eRx 8:  0.0 if eRx inactive
-                      SOA_COLUMN(float, cm9),        // [ 9] pedestal-subtracted CM average eRx 9:  0.0 if eRx inactive
-                      SOA_COLUMN(float, cm10),       // [10] pedestal-subtracted CM average eRx 10: 0.0 if eRx inactive
-                      SOA_COLUMN(float, cm11),       // [11] pedestal-subtracted CM average eRx 11: 0.0 if eRx inactive
-                      SOA_COLUMN(float, ntoa),       // [12] nchtoa: module-level count of digis with TOA > 0
-                      SOA_COLUMN(float, ntot),       // [13] nchtot: module-level count of digis with TOT > 0
-                      SOA_COLUMN(float, msubchidx),  // [14] channel_indices: mean-subtracted channel index, unique per channel, float(chIdx) - (float(nErx) * 37.0f - 1.0f) / 2.0f;
-                      SOA_COLUMN(float, msuberxidx), // [15] erx_indices: mean-subtracted ERX index, same within ERX, float(erxIdx) - (float(nErx) - 1.0f) / 2.0f;
-                      SOA_COLUMN(float, cellfrac),   // [16] cell_area_fraction: ML_F.SF or MH_F.SF from cellareas.json, indexed by chIdx
-                      SOA_COLUMN(float, unconn0),    // [17] pedestal-subtracted ADC of unconnected channel at eRx pos 8
-                      SOA_COLUMN(float, unconn1),    // [18] pedestal-subtracted ADC of unconnected channel at eRx pos 17
-                      SOA_COLUMN(float, unconn2),    // [19] pedestal-subtracted ADC of unconnected channel at eRx pos 19
-                      SOA_COLUMN(float, unconn3))    // [20] pedestal-subtracted ADC of unconnected channel at eRx pos 28
+
+  // Inputs of the multi-module CM DNN for one digi, in training order (all_channels_multimodule_v1)
+  namespace Feature {
+    constexpr uint32_t CM0 = 0,          // [0-11]    cm_erx00..11_pedsub: 2*(0.5*cm - CM_ped), 0 if eRx off/invalid
+        NCM = 12,
+        NCHTOA = 12,                     // [12]      nchtoa: module channels with toa > 0
+        NCHTOT = 13,                     // [13]      nchtot: module channels in TOT mode with tot > 0
+        NCHADCGT0 = 14,                  // [14-17]   nchadcgt10/50/200/500: module channels with pedsub ADC > X
+        NNCHADCGT = 4,
+        ONEHOT0 = 18,                    // [18-28]   module_onehot_000..010 (last = UNKNOWN, never set)
+        NONEHOT = 11,
+        ADC0 = 29,                       // [29-250]  adc_allch_000..221: pedsub ADC, target channel's own slot 0
+        NCH = 222,
+        NMODULE = 251,                   // features 0..250 are identical for every digi of a module
+        CHIDX = 251,                     // [251]     channel_indices: chIdx - (nch-1)/2
+        ERXIDX = 252,                    // [252]     erx_indices: erxIdx - (nErx-1)/2
+        CELLFRAC = 253,                  // [253]     cell_area_fraction (cellareas.json SF)
+        Size = 254;
+  }  // namespace Feature
+
+  constexpr float kNchAdcGtThresholds[Feature::NNCHADCGT] = {10.f, 50.f, 200.f, 500.f};
+
+  using CMFeatureVector = Eigen::Matrix<float, Feature::Size, 1>;
+
+  // one Eigen column: TensorCollection wraps it as a [N, 254] tensor without copying
+  GENERATE_SOA_LAYOUT(HGCalCMMLSoALayout, SOA_EIGEN_COLUMN(CMFeatureVector, features))
 
   using HGCalCMMLSoA = HGCalCMMLSoALayout<>;
 
-}
+}  // namespace hgcalcmml
 
 #endif

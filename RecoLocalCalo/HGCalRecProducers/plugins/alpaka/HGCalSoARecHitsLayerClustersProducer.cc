@@ -46,8 +46,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       HGCalSoARecHitsExtraDeviceCollection output(iEvent.queue(), deviceInput->metadata().size());
       auto output_v = output.view();
 
-      algo_.run(
-          iEvent.queue(), deviceInput->metadata().size(), deltac_, kappa_, outlierDeltaFactor_, input_v, output_v);
+      // the cluster count is uninitialised and CLUE never writes it for an event without rechits
+      auto device_numclusters =
+          cms::alpakatools::make_device_view<unsigned int>(alpaka::getDev(iEvent.queue()), output_v.numberOfClustersScalar());
+      alpaka::memset(iEvent.queue(), device_numclusters, 0x0);
+
+      if (deviceInput->metadata().size() > 0)
+        algo_.run(
+            iEvent.queue(), deviceInput->metadata().size(), deltac_, kappa_, outlierDeltaFactor_, input_v, output_v);
       iEvent.emplace(deviceToken_, std::move(output));
     }
 

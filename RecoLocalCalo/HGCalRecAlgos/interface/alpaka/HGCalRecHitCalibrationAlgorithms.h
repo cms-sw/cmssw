@@ -18,6 +18,7 @@
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalCalibrationParameterDevice.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHost.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDevice.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/alpaka/HGCalCMCorrectionDeviceCollection.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -29,16 +30,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     HGCalRecHitCalibrationAlgorithms(int n_blocks, int n_threads) : n_blocks_(n_blocks), n_threads_(n_threads) {}
 
+    // energy_variations(CM_ALT) uses device_corrections where valid, else equals energy;
+    // cmAltAsNominal swaps energy and energy_variations(CM_ALT)
     HGCalSoARecHitsDeviceCollection calibrate(Queue& queue,
                                               int32_t* __restrict__ nsel,
                                               int32_t* __restrict__ sidx,
-                                              HGCalDigiHost const& host_digis,
+                                              HGCalDigiDevice const& device_digis,
                                               HGCalCalibParamDevice const& device_calib,
                                               HGCalMappingModuleParamDevice const& device_mapmod,
                                               HGCalMappingCellParamDevice const& device_mapping,
                                               HGCalDenseIndexInfoDevice const& device_index,
-                                              double k_noise,
-                                              bool skipAnalyticCM = false) const;
+                                              HGCalCMCorrectionDeviceCollection const& device_corrections, // SOA has two columns is valid and the correction itself.
+                                              bool cmAltAsNominal, // This swaps energy and energy variations i.e. if I want the ML method to be the default.
+                                              double k_noise) const;
 
     HGCalSoARecHitsDeviceCollection select(Queue& queue,
                                            int const ndigis,

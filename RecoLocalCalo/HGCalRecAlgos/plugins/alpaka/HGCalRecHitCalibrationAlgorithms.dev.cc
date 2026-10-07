@@ -37,17 +37,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
 
   // @short subtract pedestals, linearize ADC & TOT to charge (fC), and convert to energy (GeV)
+  // energy: linear CM correction; energy_variations(CM_ALT): DNN CM correction
   struct HGCalRecHitCalibrationKernel_adcToEnergy {
-    bool skipAnalyticCM_;
+    bool cmAltAsNominal_;  // swap: energy uses the DNN, energy_variations(CM_ALT) the linear CM
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   HGCalSoARecHitsDeviceCollection::View recHits,
                                   HGCalDigiDevice::ConstView digis,
-                                  HGCalCalibParamDevice::ConstView calibs) const {
-      auto adc_denoise =
-          [&](uint32_t adc, uint32_t cm, uint32_t adcm1, float adc_ped, float cm_slope, float cm_ped, float bxm1_slope) {
-            float cmf = skipAnalyticCM_ ? 0.f : cm_slope * (0.5f * float(cm) - cm_ped);
-            return ((adc - adc_ped) - cmf - bxm1_slope * (adcm1 - adc_ped - cmf));
-          };
+                                  HGCalCalibParamDevice::ConstView calibs,
+                                  HGCalCMCorrectionDeviceCollection::ConstView corrections) const {
+      auto ped_sub = [&](uint32_t adc, float adc_ped) { return adc - adc_ped; };
+      auto cm_linear = [&](uint32_t cm, float cm_slope, float cm_ped) { return cm_slope * (0.5f * float(cm) - cm_ped); };
+      // before there was just one python lambda like function adc_denoise but now there are two denoise functions.
+      auto denoise_linear = [&](float pedsub, float pedsub_m1, float cmf, float bxm1_slope) {
+        return (pedsub - cmf - bxm1_slope * (pedsub_m1 - cmf));
+      };
+      auto denoise_nn = [&](float pedsub, float nn) { return pedsub - nn; };  // no BX-1 term
 
       auto tot_linearization =
           [&](uint32_t tot, float tot_lin, float tot2adc, float tot_ped, float tot_p0, float tot_p1, float tot_p2) {
@@ -65,25 +69,34 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                          (digiflags != ::hgcal::DIGI_FLAG::NotAvailable) && calibvalid);
         bool useTOT((digi.tctp() == 3) && isAvailable);
         bool useADC(!useTOT && isAvailable);
-        auto lin_counts = useADC * adc_denoise(digi.adc(),
-                                               digi.cm(),
-                                               digi.adcm1(),
-                                               calib.ADC_ped(),
-                                               calib.CM_slope(),
-                                               calib.CM_ped(),
-                                               calib.BXm1_slope()) +
-                          useTOT * tot_linearization(digi.tot(),
-                                                     calib.TOT_lin(),
-                                                     calib.TOTtoADC(),
-                                                     calib.TOT_ped(),
-                                                     calib.TOT_P0(),
-                                                     calib.TOT_P1(),
-                                                     calib.TOT_P2());
+
+        float pedsub = ped_sub(digi.adc(), calib.ADC_ped());
+        float pedsub_m1 = ped_sub(digi.adcm1(), calib.ADC_ped());
+        float adc_linear =
+            denoise_linear(pedsub, pedsub_m1, cm_linear(digi.cm(), calib.CM_slope(), calib.CM_ped()), calib.BXm1_slope());
+        bool useNN(corrections[idx].valid());
+        float adc_cm_alt = useNN ? denoise_nn(pedsub, corrections[idx].correction()) : adc_linear;
+
+        float tot_counts = tot_linearization(digi.tot(),
+                                             calib.TOT_lin(),
+                                             calib.TOTtoADC(),
+                                             calib.TOT_ped(),
+                                             calib.TOT_P0(),
+                                             calib.TOT_P1(),
+                                             calib.TOT_P2());
+        // Before you will see lin_counts was set to using the linear method, if cmAltAsNominal_ is passed in as an arg
+        // we use this as the default and then the linear as alternative (cm_alt).
+        auto lin_counts = useADC * (cmAltAsNominal_ ? adc_cm_alt : adc_linear) + useTOT * tot_counts;
+        auto lin_counts_cm_alt = useADC * (cmAltAsNominal_ ? adc_linear : adc_cm_alt) + useTOT * tot_counts;
 
         // after denoising/linearization apply the MIP & EM scale to convert to energy (GeV)
         // noise is also saved in units of GeV
         recHits[idx].mipEnergy() = lin_counts * calib.MIPS_scale();
         recHits[idx].energy() = calib.EM_scale() * calib.MIPS_scale() * lin_counts;
+        // Energy variation should be easy to comprehend.
+        recHits[idx].energy_variations()(hgcalreco::Variation::CM_ALT) =
+            calib.EM_scale() * calib.MIPS_scale() * lin_counts_cm_alt;
+        recHits[idx].energy_variations()(hgcalreco::Variation::SCALE_ALT) = recHits[idx].energy();
         recHits[idx].sigmaNoise() = calib.EM_scale() * calib.MIPS_scale() * calib.Noise();
       }
     }
@@ -189,6 +202,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         recHits[idx + offset].energy() += (negative_energy_correction + recHits[idx].energy());
         recHits[idx + offset].mipEnergy() += (negative_mipEnergy_correction + recHits[idx].mipEnergy());
+        for (uint8_t k = 0; k < hgcalreco::Variation::Size; ++k) {
+          float surr = recHits[idx + offset].energy_variations()(k);
+          bool is_negative_surr(surr < 0);
+          recHits[idx + offset].energy_variations()(k) =
+              surr + (-1.0f * surr) * is_negative_surr + recHits[idx].energy_variations()(k);
+        }
         float quadratic_noise_sum = sqrt(recHits[idx].sigmaNoise() * recHits[idx].sigmaNoise() +
                                          recHits[idx + offset].sigmaNoise() * recHits[idx + offset].sigmaNoise());
         recHits[idx + offset].sigmaNoise() = quadratic_noise_sum;
@@ -279,19 +298,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       Queue& queue,
       int32_t* __restrict__ nsel,
       int32_t* __restrict__ sidx,
-      HGCalDigiHost const& host_digis,
+      HGCalDigiDevice const& device_digis,
       HGCalCalibParamDevice const& device_calib,
       HGCalMappingModuleParamDevice const& device_mapmod,
       HGCalMappingCellParamDevice const& device_cell_mapping,
       HGCalDenseIndexInfoDevice const& device_index,
-      double k_noise,
-      bool skipAnalyticCM) const {
+      HGCalCMCorrectionDeviceCollection const& device_corrections,
+      bool cmAltAsNominal,
+      double k_noise) const {
     LogDebug("HGCalRecHitCalibrationAlgorithms") << "\n\nINFO -- Start of calibrate\n\n" << std::endl;
-
-    LogDebug("HGCalRecHitCalibrationAlgorithms") << "\n\nINFO -- Copying the digis to the device\n\n" << std::endl;
-    auto const ndigis = host_digis.view().metadata().size();
-    HGCalDigiDevice device_digis(queue, ndigis);
-    alpaka::memcpy(queue, device_digis.buffer(), host_digis.const_buffer());
+    auto const ndigis = device_digis.view().metadata().size();
 
     LogDebug("HGCalRecHitCalibrationAlgorithms")
         << "\n\nINFO -- Allocating rechits buffer and initiating values" << std::endl;
@@ -315,10 +331,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         device_calib.const_view());
     alpaka::exec<Acc1D>(queue,
                         grid,
-                        HGCalRecHitCalibrationKernel_adcToEnergy{skipAnalyticCM},
+                        HGCalRecHitCalibrationKernel_adcToEnergy{cmAltAsNominal},
                         device_recHits.view(),
                         device_digis.const_view(),
-                        device_calib.const_view());
+                        device_calib.const_view(),
+                        device_corrections.const_view());
     alpaka::exec<Acc1D>(queue,
                         grid,
                         HGCalRecHitCalibrationKernel_toaToTime{},

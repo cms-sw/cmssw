@@ -109,6 +109,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
         entryInSoA.dim3() = position.z();
         entryInSoA.energy() = hgrh.energy();
+        for (uint8_t k = 0; k < hgcalreco::Variation::Size; ++k)
+          entryInSoA.energy_variations()(k) = hgrh.energy();
         entryInSoA.mipEnergy() = hgrh.energy();  // TODO: CHANGE TO MIP
         entryInSoA.sigmaNoise() = sigmaNoise;
         entryInSoA.layer() = layer;

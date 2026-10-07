@@ -1,930 +1,390 @@
-# HGCal Common-Mode Calibration via PyTorch DNN (alpaka)
+# HGCal Common-Mode DNN Correction as a RecHit Energy Variation (alpaka)
 
-This document covers every file created or modified to implement the common-mode (CM) noise
-correction for HGCal digis using a PyTorch DNN running on device (GPU or CPU) via the CMSSW
-alpaka portability layer. C++ lives in `RecoLocalCalo/HGCalRecAlgos`; Python wiring and the
-model file live in `HGCalCommissioning/`.
+The common-mode (CM) noise correction from a PyTorch DNN runs inside the RecHit step
+(`HGCalRecHitsProducer`, alpaka, CPU or GPU). It does **not** change the nominal reconstruction:
+`energy` keeps the linear-regression CM correction, and the DNN result is stored next to it as an
+alternative, `energy_variations(CM_ALT)`. Layer clusters get the same variation by re-summing
+their member rechits (no re-clustering). NanoAOD users can pick either method per hit or cluster.
+
+C++ lives in `RecoLocalCalo/HGCalRecAlgos` (RecHits, DNN) and `RecoLocalCalo/HGCalRecProducers`
+(layer clusters, checked out locally); Python wiring, models, DQM and NanoAOD in `HGCalCommissioning/`.
+
+History: until 2026-09 the DNN ran at the digi stage (`HGCalCMCalibrationProducer`, collection
+`hgcalCMCalibDigis`) and subtracted its prediction from the integer digi ADC. That producer, its
+`applyCMCorrections` kernel and the `HGCalCMCorrectionCompare` DQM were removed; see git history.
 
 ---
 
-## Overview
+## Quick start
 
-HGCal HGCROC ASICs read out a common-mode (CM) voltage per eRx that correlates with pedestal
-noise on ordinary channels. This implementation runs a per-channel DNN correction that takes
-pedestal-subtracted CM sums, channel geometry, pedestal-subtracted unconnected-channel ADCs,
-and per-module timing occupancy as input, then **subtracts** the predicted noise from the raw
-digi ADC before the RecHit step.
-
-Correction convention (confirmed with model author Arne Reimers):
+```bash
+cd $CMSSW_BASE/src && cmsenv
+cmsRun HGCalCommissioning/Configuration/test/step_RECONANODQM.py \
+  era=TB2025/v6 run=112049 files=file:<RAW2DIGI file> maxEvents=-1 skipMeta=True \
+  calibfile=HGCalCommissioning/Calibrations/TB2025/calib/level0_calib_params_v5.json \
+  elossfile=HGCalCommissioning/Calibrations/TB2025/calib/hgcal_energyloss_setup2_v1.json \
+  cmModel=zscore skipLC=False trigTimeMin=107 trigTimeMax=113 \
+  output=NANO.root
 ```
-corrected_adc = raw_adc - model_prediction
+
+- `cmModel`: `plain` (default) or `zscore`; `useCMML=False` turns the DNN off (`CM_ALT = energy`).
+- `skipLC=False`: run layer clustering and write the `HGCLayerClusters` table with its variations.
+- `trigTimeMin/Max`: optional event selection; 107–113 is the model's training selection.
+
+For validation plots add `addCMComparison=True knoise=-100 cmCompareModules=ML-F3WC-IH0182`, or
+run both models with `run_cm_comparison.sh` (see [Validation](#validation)). 2025 files need
+`skipMeta=True`.
+
+Reading the variation in NanoAOD:
+
+```python
+import uproot
+t = uproot.open("NANO.root")["Events"]
+e      = t["HGCHit_energy"].array()          # linear CM correction (nominal)
+e_dnn  = t["HGCHit_energy_CM_ALT"].array()   # DNN CM correction
+lc_dnn = t["HGCLayerClusters_energy_CM_ALT"].array()
 ```
 
-Per-event workflow:
+---
+
+## Per-event workflow
+
 ```
 hgcalDigis (HGCalDigiHost)
-        |  consumed by HGCalCMCalibrationProducer
-  [copy to device]
-  fill ML input SoA  (HGCalCMCalibKernel_fillInputs)   -- 21 floats per digi
-  DNN inference      (TorchScript via AlpakaModel)
-  subtract in-place  (HGCalCMCalibKernel_applyCorrections)
-  [copy corrected ADCs back to host]
-        |  produces
-hgcalCMCalibDigis (HGCalDigiHost, CM-corrected)
-        |  consumed by HGCalRecHitsProducer (unchanged)
-hgcalRecHits -> hgcalRecHitsLayerClusters -> ...
+   |  HGCalRecHitsProducer::acquire  (hgcalRecHits)
+   |    copy digis + calibration to device
+   |    [useCMML] fillModuleInputs   one thread per module: features 0..250
+   |    [useCMML] fillDigiInputs     one thread per digi: copy module row, mask own ADC, features 251..253
+   |    [useCMML] DNN inference      TorchScript via AlpakaModel, [ndigis, 254] -> [ndigis, 1]
+   |    [useCMML, zscore model] denormalizeOutputs   per-channel output de-normalisation
+   |    calibrate: flag, adcToEnergy (energy + energy_variations), toaToTime, calib cells, metadata
+   |  HGCalRecHitsProducer::produce
+   |    zero-suppression selection
+hgcalRecHits (energy = linear CM, energy_variations(CM_ALT) = DNN CM)
+   -> hgcalRecHitsLayerClusters (CLUE on nominal energy) -> hgcalSoALayerClusters (energy, time + variations)
+   -> NanoAOD HGCHit / HGCLayerClusters
 ```
 
-**Digi collection naming:** `HGCalCMCalibrationProducer` does **not** overwrite or rename the
-original digis. Both collections coexist in the event:
+## Energies
 
-| Collection label | Contents | Producer |
-|---|---|---|
-| `hgcalDigis:""` | Raw unpacked digis — unchanged | upstream unpacker |
-| `hgcalCMCalibDigis:""` | CM-corrected copy | `HGCalCMCalibrationProducer` |
-
-The module label (`hgcalCMCalibDigis`) comes from the Python config; the instance label is
-empty (no argument to `produces()`). Downstream modules (`hgcalRecHits`) are wired to one or
-the other at config time via `useCMML`; there is no `_old` suffix or renaming of the originals.
-
----
-
-## DNN Input Features (21 floats, in order)
-
-| Index | SoA column | Description |
-|---|---|---|
-| 0–11 | `cm0`..`cm11` | Full-scale pedestal-subtracted CM per eRx: `digi.cm() - 2*CM_ped` (= `2*(0.5*digi.cm() - CM_ped)`). `digi.cm()` is the hardware sum of 2 CM channels for eRx `e`, read from the first channel of that eRx (`chOffset + e*37`). `CM_ped` is the half-scale per-channel pedestal from `HGCalCalibParamHost`, doubled here to match the training scale (twice the analytic RecHit term — see the CM channels section). Inactive **and dead/uncalibrated** eRx slots are 0 — see [Calibration validity guard](#calibration-validity-guard). |
-| 12 | `msubchidx` | Channel index, mean-subtracted over the whole module: `chIdx - (nErx*37 - 1)/2` (±110.5 on a 6-eRx LD module). See [msubchidx convention](#msubchidx-convention). |
-| 13 | `msuberxidx` | eRx index within module, mean-subtracted: `erxIdx - (nErx - 1)/2` |
-| 14 | `cellfrac` | Cell area fraction (SF) from `cellareas.json`, indexed by `chIdx`. `isHD()` from `HGCalMappingCellParamSoA` selects the `MH_F` (444-entry) or `ML_F` (222-entry) table. |
-| 15–18 | `unconn0`..`unconn3` | Pedestal-subtracted ADC of the 4 unconnected channels in this digi's eRx: `digi.adc() - ADC_ped`. Within-eRx positions 8, 17, 19, 28. `ADC_ped` from `HGCalCalibParamHost` at each channel's global index. Dead/uncalibrated channels are 0 — see [Calibration validity guard](#calibration-validity-guard). |
-| 19 | `ntoa` | Per-module count of digis with TOA > 0 (`flags != NotAvailable && toa > 0`), broadcast to every channel of that module |
-| 20 | `ntot` | Per-module count of genuine TOT-mode digis (`flags != NotAvailable && tctp == 3 && tot > 0`), broadcast to every channel of that module |
-
-All 21 columns are `SOA_COLUMN(float, ...)` and declared adjacent in the layout so that
-`TensorCollection::add()` can wrap them into a single contiguous `[ndigis, 21]` tensor
-without copying.
-
----
-
-## Pedestal Subtraction
-
-The hardware digi fields `cm()` and `adc()` are **raw** — no pedestal subtraction is done by
-the ECON-D unpacker. The kernel applies the same conventions used by the analytic RecHit
-calibration path (`HGCalRecHitCalibrationAlgorithms.dev.cc`).
-
-### CM channels (`cm0`..`cm11`)
-
-The HGCROC returns a sum of 2 dedicated CM channels per eRx as `digi.cm()`. The DNN input is
-the **full-scale** pedestal-subtracted common mode:
+For an ADC-mode hit, with `s = EM_scale * MIPS_scale` and the pedestal subtraction shared:
 
 ```
-cm_e = float(digi_view[chOffset + e*37].cm()) - 2 * CM_ped[chOffset + e*37]
-     = 2 * (0.5 * digi.cm() - CM_ped)
+pedsub    = adc   - ADC_ped
+pedsub_m1 = adcm1 - ADC_ped
+cm_lin    = CM_slope * (0.5*cm - CM_ped)
+
+energy                         = s * ((pedsub - cm_lin) - BXm1_slope*(pedsub_m1 - cm_lin))
+energy_variations(CM_ALT)      = s * (pedsub - NN)          # no BX-1 term
+energy_variations(SCALE_ALT)   = energy                     # not defined yet
+mipEnergy                      = MIPS_scale * (nominal counts)
 ```
 
-- `chOffset + e*37` is the global index of the **first channel** in eRx `e` — this is where
-  the CM value is stored in the digi SoA.
-- `CM_ped` is the per-channel pedestal from `HGCalCalibParamHost` (field `.CM_ped()`),
-  the same calibration object consumed by `HGCalRecHitsProducer`. `CM_ped` is the pedestal of
-  the **half-scale** CM (`0.5*cm`), so it is doubled here to match the full-scale sum.
-- **This is intentionally twice the analytic RecHit term.** The analytic denoising uses the
-  half-scale `cmf = CM_slope * (0.5 * float(cm) - CM_ped)`, but the DNN (Arne Reimers) was
-  trained on the full-scale `cm - 2*CM_ped`. An earlier version used the half-scale `0.5*cm -
-  CM_ped` here, which made every `cm*` feature a factor of 2 too small vs training; the `2*`
-  restores the training scale. See the `FILL_CM` macro in
-  `HGCalCMCalibrationAlgorithms.dev.cc`.
-- Inactive eRx slots (bit not set in `enabledErxMask`) are set to `0.0f` without any lookup.
+- `NN` is the DNN prediction in pedestal-subtracted ADC (subtractive, confirmed with the model
+  author Arne Reimers). It is a float: nothing is rounded into the digi ADC any more.
+- `CM_ALT = energy` where the DNN does not apply: TOT-mode hits, invalid digis, unconnected cells
+  (cell-area SF 0), modules outside the model scope (not 222 channels), or `useCMML=False`.
+- `BXm1_slope` is 0 in every TB2025 calibration.
+- Downstream of the calibration (ZS selection, timewalk, CLUE, LC energy/position) only the
+  nominal `energy` is used. There is no `mipEnergy` variation: `nmips_alt = nmips * energy_alt / energy`.
+- Calibration cells merge their energy into a partner cell; every variation is merged the same way.
+- `cmAltAsNominal=True` (producer parameter, requires `useCMML=True`, not exposed in the python
+  options) swaps the two: `energy` gets the DNN CM, so ZS and clustering run on it, and
+  `energy_variations(CM_ALT)` gets the linear CM. Off by default. `HGCalCMVariationValidation`
+  assumes the default and mislabels its spectra with the swap on.
 
-### Unconnected channels (`unconn0`..`unconn3`)
-
-```
-unconn_j = float(digi_view[chOffset + erxIdx*37 + kUnconn[j]].adc()) - ADC_ped[chOffset + erxIdx*37 + kUnconn[j]]
-```
-
-- `kUnconn = {8, 17, 19, 28}` — fixed within-eRx positions of the 4 unconnected channels
-  on LD silicon modules.
-- `ADC_ped` is from `HGCalCalibParamHost` (field `.ADC_ped()`), indexed by the exact global
-  channel index of each unconnected channel.
-
-### Calibration validity guard
-
-`HGCalCalibParamSoA` carries a per-channel `valid` flag (`SOA_COLUMN(unsigned char, valid)`,
-documented as *"if false = mask dead channel"*). Channels with `valid == 0` have **no fitted
-pedestal**: both `ADC_ped` and `CM_ped` are exactly `0.0` in the calibration JSON.
-
-Both the `cm*` and `unconn*` features are gated on this flag. When `valid == 0` the feature is
-set to `0.0f` — the same "this eRx contributes nothing" encoding already used for inactive eRx
-slots, and therefore a value the DNN saw in training (`cm6`..`cm11` are identically zero on
-every 6-eRx LD module).
-
-**Why this matters.** Without the guard, `CM_ped == 0` means the pedestal subtraction is a
-no-op and the *raw* CM sum passes straight through. Measured on run 112049: module
-`ML-F3WC-IH0199` has a dead eRx 5 (`Valid=0`, `CM_ped=0` in `level0_calib_params_v4/v5.json`),
-which produced `cm5 ≈ +529` against a normal range of about `-1.5` for that module. Because
-`cm0`..`cm11` are **module-level** features, that single dead eRx poisoned the input vector for
-*every channel of the module* — 10 % of all digis in the run — and a permutation-importance
-scan attributed 21.8 % of the model's output variance to that one corrupted feature.
-
-The RecHit path has always guarded on this flag (`bool calibvalid = calib.valid();` in
-`HGCalRecHitCalibrationKernel_adcToEnergy`); the ML path simply never inherited it.
-
-Verified on run 112050: `cm5 → 0.000` for `ML-F3WC-IH0199` and unchanged (`-3.9` … `+1.3`) for
-the other nine modules.
-
-The correction *application* (`applyCMCorrections`) is deliberately **not** gated on `valid` —
-it still skips only unconnected channels (`cellfrac == 0`). Digis on a dead eRx are flagged
-`NotAvailable` and are dropped by the RecHit kernel's own validity check, so a second guard
-there would be dead code.
-
-### msubchidx convention
-
-`msubchidx` is the channel index mean-subtracted over the **whole module**:
-`chIdx - (nErx*37 - 1)/2`, i.e. ±110.5 on a 6-eRx LD module.
-
-**This was confirmed (2026-08-24) as the training convention** by the `nchadc = 222` field in
-the model author's per-module constants record: 222 is the whole-module channel count, not the
-per-eRx 37. A per-eRx alternative `(chIdx % 37) - 18` was implemented and compared while the
-convention was unknown; it is not what training used and has been removed.
-
-Note the scale: ±110.5 with std ~64, which dwarfs every other real feature (all O(10)). The
-network is fed raw, unstandardized inputs, so that asymmetry is real and intended.
-
-### Normal signal channels
-
-Ordinary (non-CM, non-unconnected) channel ADC pedestal subtraction happens **after** the CM
-calibration, in `HGCalRecHitCalibrationAlgorithms.dev.cc`. The full denoising formula is:
-
-```
-cmf          = CM_slope × (0.5 × digi.cm() − CM_ped)     # 0 when skipAnalyticCM=True
-denoised_adc = (digi.adc() − ADC_ped) − cmf
-               − BXm1_slope × (digi.adcm1() − ADC_ped − cmf)
-```
-
-- `digi.adc()` is raw; `ADC_ped` subtracts the per-channel hardware offset.
-- `cmf` is the linear common-mode correction (suppressed to 0 when the ML path is active,
-  since the DNN correction has already been applied to `digi.adc()` before this step).
-- The BXm1 term removes residual contribution from the previous bunch crossing using the
-  raw ADC of that BX (`digi.adcm1()`), which has not been ML-corrected.
-- All three constants (`ADC_ped`, `CM_slope`, `CM_ped`, `BXm1_slope`) come from
-  `HGCalCalibParamHost` indexed by global channel index.
-
-So in the ML path, the sequence for a signal channel is:
-1. **CM DNN** subtracts the predicted noise from `digi.adc()` in-place.
-2. **RecHit kernel** subtracts `ADC_ped` and the BXm1 term from the (already CM-corrected) ADC.
-
-### Calibration source
-
-`HGCalCMCalibrationProducer` now consumes `HGCalCalibParamHost` via:
-```cpp
-edm::ESGetToken<hgcalrechit::HGCalCalibParamHost, HGCalModuleConfigurationRcd> calibToken_;
-```
-configured as `calibSource=cms.ESInputTag('hgcalCalibParamESProducer', '')` in the Python
-config. At the start of each event the `ADC_ped` and `CM_ped` columns are extracted into flat
-host vectors and uploaded to device buffers, which are then passed to the kernel as
-`float const* d_adcPed` and `float const* d_cmPed`.
-
-### CM pedestal override
-
-The DNN author (Arne Reimers) records the CM pedestals the model was **trained** against in a
-different convention from the calibration file: one **full-scale** value per eRx, keyed by
-module typecode, in a per-module record that also carries the module geometry:
-
-```json
-{"ML-F3WC-IH0182": {"cm_erx00": 194.32644052044608, ..., "cm_erx11": 0.0,
-                    "nchadc": 222.0, "nerx": 6.0}}
-```
-
-`cm_erxNN = 2 * CM_ped`, so it is the *same quantity* as the calib file's `CM_ped` at twice the
-scale — his feature is `cm_raw - cm_erxNN`, ours is `2*(0.5*cm - CM_ped)`, which is the same
-quantity. The `cmPedOverride` parameter loads such a file and replaces `CM_ped` for the
-listed modules, halving each value on load so the kernel is untouched. `ADC_ped` is never
-overridden (the record carries none), the `valid()` guard still applies, and modules absent
-from the file keep their calib-file pedestals.
-
-`nchadc`/`nerx` are cross-checked against the mapping and the job **throws** on mismatch.
-`nchadc` is the whole-module channel count (222 on a 6-eRx LD module, not the per-eRx 37) —
-the same quantity that fixes the [msubchidx convention](#msubchidx-convention), which is how
-that convention was confirmed to be the per-module one.
-
-Measured on `ML-F3WC-IH0182`, run 112049, 1000 events (`evaluate_arne_pedestals.py`): his
-pedestals sit a constant **0.32–0.50 counts** below `2*CM_ped(v5)`, i.e. 3.6–7.3% of each `cm`
-feature's RMS, but the resulting DNN correction moves by only **0.036 ± 0.090 ADC** (mean
-|Δ| 0.070, 1.7% of the correction). The pedestal source is *not* what drives the correction.
-
----
-
-## Model File
-
-- **Path (CMSSW FileInPath):** `HGCalCommissioning/Calibrations/NNBased/cm_dnn.pth`
-- **Format:** TorchScript — exported via `torch.jit.script()` + `torch.jit.save()`.
-  CMSSW's `cms::torch::load()` requires TorchScript. A plain `torch.save(state_dict())`
-  file fails at runtime with `constants.pkl not found`.
-- **Architecture:** `Linear(21,256)->ReLU->Linear(256,256)->ReLU->Linear(256,256)->ReLU->Linear(256,32)->ReLU->Linear(32,1)`
-- **Source state dict:** `/eos/user/t/ttravis/TestBeam2026/dnn_best.pth`
-- **Conversion script:** `/tmp/convert_model.py`
-
----
-
-## Indexing Architecture
-
-Understanding the index space prevents out-of-bounds bugs:
-
-- `HGCalDenseIndexInfoDevice` has `maxDataSize()` entries, indexed by **global channel ID**.
-  Entry `i` describes the module, eRx, and within-module position of global channel `i`.
-- For the TB2025 test beam `maxDataSize() = 2220`. All 2220 test beam channels have global
-  IDs 0..2219, so `digi_view[idx]` and `index_view[idx]` are a direct 1-to-1 mapping for
-  `idx = 0..ndigis-1`.
-- `chDataOffsets_[modid]` = first global channel ID for module `modid` = also the first digi
-  SoA index for that module (10 modules, 222 channels each, offsets 0, 222, 444, …, 1998).
-- `maxModulesCount()` = 10 physical modules. `maxModuleSize()` = 1 (number of distinct
-  typecodes — all modules share the same ECON-D type). These are **not** the same; sizing
-  arrays by `maxModuleSize()` causes UB when accessing module indices 1–9.
-- `enabledErx_[modid]` is a **bitmask** (bit `e` set means eRx `e` is active), not a count.
-  For the test beam `enabledErx = 0x3f` (6 eRxs). The count for mean-subtraction is
-  `__builtin_popcount(mask)`.
-
----
-
-## All Files Created or Modified
-
-### NEWLY CREATED
-
----
-
-#### `RecoLocalCalo/HGCalRecAlgos/interface/HGCALSoACMML.h`
-
-Defines the 21-column SoA layout for the per-channel DNN input features. Uses namespace
-`hgcalcmml` to avoid collision with `hgcaldigi::HGCalDigiSoA`. All columns are
-`SOA_COLUMN(float, ...)` and declared adjacent so `TensorCollection::add<SoA>(...)` can
-wrap them as a single contiguous tensor. `SOA_EIGEN_COLUMN` was deliberately avoided because
-the `records()` accessor on a SoA view does not expose Eigen columns.
-
----
-
-#### `RecoLocalCalo/HGCalRecAlgos/interface/HGCALSoACMMLDeviceCollection.h`
-
-Thin alpaka device collection wrapper:
-```cpp
-namespace ALPAKA_ACCELERATOR_NAMESPACE {
-  using HGCalSoACMMLDeviceCollection = PortableCollection<hgcalcmml::HGCalCMMLSoA>;
-}
-```
-
----
-
-#### `RecoLocalCalo/HGCalRecAlgos/interface/HGCalCMCorrectionSoA.h`
-
-Single-column SoA for the DNN output (one float per digi):
-```cpp
-namespace hgcalcmml {
-  GENERATE_SOA_LAYOUT(HGCalCMCorrectionSoALayout, SOA_COLUMN(float, correction))
-  using HGCalCMCorrectionSoA = HGCalCMCorrectionSoALayout<>;
-}
-```
-
----
-
-#### `RecoLocalCalo/HGCalRecAlgos/interface/alpaka/HGCalCMCorrectionDeviceCollection.h`
-
-Device collection wrapper for the correction SoA:
-```cpp
-namespace ALPAKA_ACCELERATOR_NAMESPACE {
-  using HGCalCMCorrectionDeviceCollection = PortableCollection<hgcalcmml::HGCalCMCorrectionSoA>;
-}
-```
-
----
-
-#### `RecoLocalCalo/HGCalRecAlgos/interface/alpaka/HGCalCMCalibrationAlgorithms.h`
-
-Declares `HGCalCMCalibrationAlgorithms` (inside `ALPAKA_ACCELERATOR_NAMESPACE`) with two
-kernel-launching methods and a private `n_threads_` member:
+Variation indices (`DataFormats/HGCalReco/interface/HGCalRecoVariations.h`):
 
 ```cpp
-void fillCMInputs(Queue&, uint32_t ndigis, int ntoa, int ntot,
-                  hgcaldigi::HGCalDigiDevice const&,
-                  hgcal::HGCalDenseIndexInfoDevice const&,
-                  hgcal::HGCalMappingCellParamDevice const&,
-                  uint32_t const* d_chDataOffsets,
-                  uint32_t const* d_enabledErx,
-                  float const* d_sfLD, float const* d_sfHD,
-                  float const* d_adcPed, float const* d_cmPed,
-                  HGCalSoACMMLDeviceCollection&) const;
-
-void applyCMCorrections(Queue&, uint32_t ndigis,
-                        HGCalCMCorrectionDeviceCollection const&,
-                        hgcaldigi::HGCalDigiDevice&) const;
+namespace hgcalreco::Variation { constexpr uint8_t CM_ALT = 0x0, SCALE_ALT = 0x1; constexpr uint8_t Size = 0x2; }
+using VariationVector = Eigen::Matrix<float, Variation::Size, 1>;
 ```
 
----
+Values are **absolute** alternative energies/times, not deltas.
 
-#### `RecoLocalCalo/HGCalRecAlgos/plugins/alpaka/HGCalCMCalibrationAlgorithms.dev.cc`
+## Data formats
 
-The `.dev.cc` extension causes the build system to compile this for every alpaka backend
-(CPU serial, CUDA, ROCm). Contains two kernels and their launcher methods.
-
-**`HGCalCMCalibKernel_fillInputs`** — one thread per digi (indexed 0..ndigis-1):
-1. Reads `index_view[idx].modInfoIdx()` (dense module index, 0..9) and `.chNumber()`
-   (position within module, 0..221) from `HGCalDenseIndexInfoDevice`.
-2. Derives `erxIdx = chIdx / 37`.
-3. Looks up `enabledErxMask = d_enabledErx[denseModIdx]` (bitmask) and
-   `chOffset = d_chDataOffsets[denseModIdx]` (first digi SoA index for this module).
-4. Computes `nErx = __builtin_popcount(enabledErxMask)` for mean-subtracted features.
-5. Fills `cm0`..`cm11` via macro `FILL_CM(e_)` using bitmask guard
-   `(enabledErxMask >> e_) & 1u`: computes the full-scale `digi.cm() - 2*d_cmPed[chOffset+e_*37]`
-   (= `2*(0.5*cm - CM_ped)`, the training scale) if the eRx bit is set, else 0. The bitmask
-   guard is essential — the raw mask value (e.g. 63) is not a count and cannot be used with
-   `e_ < nErx`.
-6. Fills `msubchidx`, `msuberxidx`, `cellfrac` (SF from `cellareas.json` via `d_sfLD`/`d_sfHD`,
-   selected by `cellmap_view[idx.cellInfoIdx()].isHD()`).
-7. Fills `unconn0`..`unconn3` as `digi.adc() - d_adcPed[...]` at within-eRx positions 8, 17, 19, 28.
-8. Broadcasts per-module `ntoa`, `ntot` to every slot via `d_ntoa[denseModIdx]` /
-   `d_ntot[denseModIdx]` (computed host-side; see producer step 3).
-
-**`HGCalCMCalibKernel_applyCorrections`** — one thread per digi:
-```cpp
-float corrected = float(digi_view[idx].adc()) - corr_view[idx].correction();
-digi_view[idx].adc() = uint16_t(std::clamp(corrected, 0.0f, 65535.0f));
-```
-Correction is **subtractive**: the model predicts the noise contribution and it is removed.
-
----
-
-#### `RecoLocalCalo/HGCalRecAlgos/plugins/alpaka/HGCalCMCalibrationProducer.cc`
-
-A `stream::EDProducer<>` registered via `DEFINE_FWK_ALPAKA_MODULE` (one instance per
-backend). Consumes `HGCalDigiHost` from `hgcalDigis` and produces a corrected
-`HGCalDigiHost` that downstream modules consume as `hgcalCMCalibDigis`.
-
-**Tokens:**
-
-| Token | Type | Source |
-|---|---|---|
-| `digisToken_` | `HGCalDigiHost` (get) | `hgcalDigis` |
-| `correctedDigisToken_` | `HGCalDigiHost` (put) | default label |
-| `moduleIndexerToken_` | `HGCalMappingModuleIndexer` | `hgCalMappingESProducer` |
-| `indexingToken_` | `HGCalDenseIndexInfoDevice` | `hgCalDenseIndexInfoESProducer` |
-| `cellmapToken_` | `HGCalMappingCellParamDevice` | `hgCalMappingCellESProducer` |
-| `calibToken_` | `HGCalCalibParamHost` | `hgcalCalibParamESProducer` |
-
-**`produce()` step-by-step:**
-1. Build `h_chDataOffsets[]` and `h_enabledErx[]` of size `moduleIndexer.maxModulesCount()`
-   on the host from `fedReadoutSequences()`. Size must be `maxModulesCount()` (total physical
-   modules, e.g. 10), not `maxModuleSize()` (distinct typecodes, e.g. 1).
-2. Upload to device via `make_device_buffer` + `make_host_view` + `alpaka::memcpy`.
-3. Copy `hostDigis` to a `HGCalDigiDevice`; compute **per-module** `ntoa`/`ntot` with a host
-   loop (each module's channels are contiguous: `chDataOffsets[m]` .. `+ popcount(enabledErx[m])*37`),
-   then upload the two `[nmodules]` arrays to device (`d_ntoa`/`d_ntot`).
-4. Allocate `HGCalSoACMMLDeviceCollection(queue, ndigis)` and call `algo_.fillCMInputs()`.
-5. Run TorchScript inference via `AlpakaModel::forward()`:
-   ```cpp
-   const int batchSize = static_cast<int>(ndigis);   // named int avoids most-vexing-parse
-   TensorCollection<Queue> inputs{batchSize};
-   inputs.template add<hgcalcmml::HGCalCMMLSoA>("features",
-       in_records.cm0(), ..., in_records.ntot());     // [ndigis, 21] tensor
-   TensorCollection<Queue> outputs{batchSize};
-   outputs.template add<hgcalcmml::HGCalCMCorrectionSoA>("correction",
-       out_records.correction());
-   model_.forward(queue, inputs, outputs);
-   ```
-6. Call `algo_.applyCMCorrections()` — subtracts prediction from `deviceDigis` ADC in-place.
-7. Copy corrected digis back to `HGCalDigiHost` and emplace. The async `alpaka::memcpy` is
-   drained by the framework after `produce()` returns; no explicit `alpaka::wait()` needed.
-
-**Key pitfall — `produces()` syntax:** In an alpaka `stream::EDProducer`, host products must
-be registered as `produces().produces<HGCalDigiHost>()` (calling `.produces<T>()` on the
-`ProducerBaseAdaptor` returned by the no-arg `produces()`). Using `produces<HGCalDigiHost>()`
-directly fails because the alpaka base class interprets the template argument as an
-`edm::Transition`.
-
----
-
-#### `HGCalCommissioning/Calibrations/NNBased/cm_dnn.pth`
-
-TorchScript model file loaded at runtime via `cms::torch::load()`. The original file was a
-plain `torch.save(model.state_dict())` export which CMSSW cannot load — the loader requires
-TorchScript format and fails with `constants.pkl not found` on a state dict.
-
-The model was reconstructed from the state dict key shapes, scripted with `torch.jit.script()`,
-and saved with `torch.jit.save()`. Source: `/eos/user/t/ttravis/TestBeam2026/dnn_best.pth`.
-Conversion script: `/tmp/convert_model.py`.
-
----
-
-### MODIFIED
-
----
-
-#### `RecoLocalCalo/HGCalRecAlgos/plugins/BuildFile.xml`
-
-Added dependencies required by the CM calibration producer and kernels:
-
-| Dependency | Reason |
+| SoA | New columns |
 |---|---|
-| `CondFormats/DataRecord` | ES record types for `HGCalElectronicsMappingRcd`, `HGCalDenseIndexInfoRcd` |
-| `CondFormats/HGCalObjects` | `HGCalMappingModuleIndexer`, mapping parameter types |
-| `PhysicsTools/PyTorchAlpaka` | `AlpakaModel`, `TensorCollection` |
-| `pytorch-cuda` (for alpaka/cuda) | Links `c10::cuda` symbols from `AlpakaModel::forward`; without this the CUDA build links but fails at runtime with `undefined reference to c10::cuda::getCurrentCUDAStream` |
+| `HGCalSoARecHits` | `SOA_EIGEN_COLUMN(VariationVector, energy_variations)` |
+| `HGCalSoAClusters` | `time`, `SOA_EIGEN_COLUMN(VariationVector, energy_variations)`, `SOA_EIGEN_COLUMN(VariationVector, time_variations)` |
+| `HGCalSoAClustersExtra` (workspace) | `time_weight`, `time_weighted_sum` and their `_variations` |
 
----
+SoA headers with Eigen columns need `<Eigen/Core>` included before any SoA header; the HGCalReco
+SoA headers now include it themselves.
 
-#### `RecoLocalCalo/HGCalRecAlgos/interface/HGCALSoACMML.h`
-*(created, then later modified)*
+`RecoLocalCalo/HGCalRecProducers` is checked out because the layer-cluster kernels live there
+and because the release build of it uses the old RecHit SoA column offsets.
 
-Initially 18 columns. Expanded to **21 columns** after the model input count was confirmed
-with model author Arne Reimers: the single `msubunconnectedch` (sum of 4 unconnected-channel
-ADCs) was replaced by four individual `unconn0`..`unconn3` columns, matching the training
-data order.
+## Layer clusters
 
----
+In `HGCalLayerClustersSoAAlgoWrapper.dev.cc`, over rechits with `clusterIndex != -1`:
 
-#### `RecoLocalCalo/HGCalRecAlgos/interface/alpaka/HGCalCMCalibrationAlgorithms.h`
-*(created, then later modified)*
-
-Parameter name `nchannels` renamed to `ndigis` in both `fillCMInputs` and
-`applyCMCorrections` declarations, to make clear the loop bound is the per-event digi count
-(e.g. 2220), not the total detector channel count (e.g. 32580).
-
----
-
-#### `RecoLocalCalo/HGCalRecAlgos/plugins/alpaka/HGCalCMCalibrationAlgorithms.dev.cc`
-*(created, then later modified)*
-
-Corrections and additions applied after the initial implementation:
-
-1. **Wrong iteration bound** — kernel was iterating `maxDataSize()` (32580) but `digi_view`
-   and `index_view` only have `ndigis` (2220) entries. Fixed to iterate `ndigis`.
-
-2. **Wrong eRx guard in FILL_CM** — `enabledErx` is a bitmask, not a count. Guard was
-   `e_ < nErx` which treated the bitmask value (63) as a number, allowing all 12 iterations
-   to fire and producing accesses like `digi_view[1998 + 11*37] = digi_view[2405]`, out of
-   range 2220. Fixed to `(enabledErxMask >> e_) & 1u`.
-
-3. **Four individual `unconn` columns** — filling `unconn0`..`unconn3` individually to match
-   the expanded SoA layout.
-
-4. **Subtractive correction** — changed `adc + correction` to `adc - correction`.
-
-5. **`cellfrac` from `cellareas.json`** — was incorrectly using `cellmap_view[...].trace()`.
-   Fixed to use per-channel SF values loaded from `cellareas.json` at startup, selected by
-   `cellmap_view[...].isHD()` to choose the `ML_F` (222-entry) or `MH_F` (444-entry) table.
-   Two new pointer parameters: `float const* d_sfLD`, `float const* d_sfHD`.
-
-6. **Pedestal subtraction for DNN inputs** — `cm0`..`cm11` and `unconn0`..`unconn3` were
-   raw hardware values. Now:
-   - CM inputs: `0.5f * digi.cm() - d_cmPed[chOffset + e*37]`
-   - Unconnected inputs: `digi.adc() - d_adcPed[chOffset + erxIdx*37 + kUnconn[j]]`
-   Two new pointer parameters: `float const* d_adcPed`, `float const* d_cmPed`.
-
-7. **Debug output moved out of the kernel** — the kernel no longer prints or takes any debug
-   parameters. The event/module/channel filter and the dump of the 21 DNN features now live
-   host-side in the producer (`writeDebugCsv`, CSV output). See "Debugging DNN Inputs" section.
-
-8. **Calibration validity guard** — `FILL_CM(e)` and the new `FILL_UNCONN(j)` macro now
-   require `d_valid[...] != 0` in addition to the enabled-eRx bit, emitting `0.0f` otherwise.
-   New pointer parameter `unsigned char const* d_valid`. Prevents a dead eRx
-   (`valid==0` ⇒ `CM_ped==0`) from leaking a raw, unsubtracted CM into a module-level feature.
-   See [Calibration validity guard](#calibration-validity-guard).
-
-9. **Feature order fixed (2026-08-24)** — the `SOA_COLUMN` order now matches the model's
-   training order: `cm0..cm11, ntoa, ntot, msubchidx, msuberxidx, cellfrac, unconn0..3`.
-   The previous layout put `ntoa`/`ntot` last and scored **-238 %** variance explained against
-   the author's own training targets, versus **+24.2 %** for this one.
-
----
-
-#### `RecoLocalCalo/HGCalRecAlgos/plugins/alpaka/HGCalCMCalibrationProducer.cc`
-*(created, then later modified)*
-
-Corrections and additions applied after the initial implementation:
-
-1. **Wrong module array size** — `nmodules = moduleIndexer.maxModuleSize()` returned 1
-   (number of distinct typecodes) instead of 10 (physical modules). Module indices run 0..9;
-   size-1 device arrays caused undetected out-of-bounds access for all but module 0. Fixed to
-   `moduleIndexer.maxModulesCount()`.
-
-2. **Wrong SoA allocation size** — `deviceMLSoA` and `deviceCorrections` were allocated with
-   `nchannels` (= `maxDataSize()` = 2220 for the test beam, but read from the wrong variable).
-   Changed to allocate with `ndigis` (= actual per-event digi count from the host collection).
-
-3. **Updated `inputs.add()`** — now passes all 21 SoA columns, replacing `msubunconnectedch`
-   with `unconn0`, `unconn1`, `unconn2`, `unconn3`.
-
-4. **`cellareas.json` loading** — constructor now reads `ML_F.SF` (222 entries) and
-   `MH_F.SF` (444 entries) from a `FileInPath`-resolved JSON file into `h_sfLD_` and
-   `h_sfHD_`. These are uploaded as flat float device buffers each event and passed to the
-   kernel.
-
-5. **Pedestal subtraction for DNN inputs** — added `calibToken_` consuming
-   `HGCalCalibParamHost` from `hgcalCalibParamESProducer`. Each event, `ADC_ped` and `CM_ped`
-   columns are extracted into host vectors and uploaded to device. Passed to `fillCMInputs` as
-   `d_adcPed` / `d_cmPed`. The `valid` column is extracted and uploaded alongside them as
-   `d_valid` (see [Calibration validity guard](#calibration-validity-guard)).
-
-6. **Debug parameters** — `uint` config parameters: `debugEvent` (0=off,
-   UINT32_MAX=any event), `debugModule` (UINT32_MAX=any), `debugMaxChannels` (UINT32_MAX=all),
-   `debugFedId` + `debugCaptureBlock` + `debugEcond` (hardware address form of module
-   selection, resolved host-side via `moduleIndexer.getIndexForModule()`), plus a string
-   `debugCsv` (empty=off) giving the output CSV path. When `debugCsv` is set and the event
-   passes `debugEvent`, the producer copies the filled ML-input SoA back to host and, in
-   `writeDebugCsv`, appends one row per (event, module, channel) passing the filter. Columns:
-   `event, denseModIdx, module` (typecode, e.g. `ML-F3WC-IH0198`, from `typecodeMap()`),
-   `ch, digi_adc, unconn0_raw`, then the 21 SoA inputs. A `std::mutex` serialises appends
-   across stream instances and a `std::once_flag` writes the header once (truncating any file
-   from a prior run).
-
-7. **Missing `HGCalRawDataDefinitions.h`** — `hgcal::DIGI_FLAG::NotAvailable` requires this
-   header; it is not transitively included by `HGCalDigiHost.h`. Added explicit include.
-
----
-
-#### `HGCalCommissioning/Configuration/python/configure_sysval_reco_cff.py`
-
-Three changes:
-
-1. **Inserted `hgcalCMCalibDigis` in the RECO task** — `HGCalCMCalibrationProducer` is
-   added between the raw-to-digi unpacker and `HGCalRecHitsProducer` in both the GPU
-   (`alpaka_cuda_async`) and serial (`alpaka_serial_sync`) config paths. The `digis` input
-   tag on `hgcalRecHitsProducer` is redirected from `hgcalDigis` to `hgcalCMCalibDigis`.
-   `hgcalCMCalibDigis` is also added to the `reco_task` in all three task variants
-   (`skipLC=True`, `withLC`, `withTracksters`).
-
-2. **Fixed `cellmapSource` ES label** — changed from `hgCalMappingModuleESProducer` (which
-   produces module-level parameters) to `hgCalMappingCellESProducer` (which produces
-   `HGCalMappingCellParamHost`, needed for `cellfrac`). The wrong label caused a
-   `NoProductResolverException` at startup.
-
-3. **Added `useCMML` command-line toggle** — a `VarParsing` bool (`True` by default) that
-   switches between ML and analytic correction modes. When `False`: `hgcalCMCalibDigis` is
-   not created, `hgcalRecHits` reads `hgcalDigis` directly, and `skipAnalyticCM=False` is
-   passed so the analytic correction runs. When `True` (default): ML producer is inserted
-   and `skipAnalyticCM=True` suppresses the analytic term. See "Switching Between ML and
-   Analytic CM Correction" section.
-
----
-
-#### `RecoLocalCalo/HGCalRecAlgos/interface/alpaka/HGCalRecHitCalibrationAlgorithms.h`
-*(modified)*
-
-Added `bool skipAnalyticCM = false` as a trailing parameter to `calibrate()`.
-
----
-
-#### `RecoLocalCalo/HGCalRecAlgos/plugins/alpaka/HGCalRecHitCalibrationAlgorithms.dev.cc`
-*(modified)*
-
-Added `bool skipAnalyticCM_` member to `HGCalRecHitCalibrationKernel_adcToEnergy`. In the
-`adc_denoise` lambda the CM term is now:
-```cpp
-float cmf = skipAnalyticCM_ ? 0.f : cm_slope * (0.5f * float(cm) - cm_ped);
 ```
-Updated `calibrate()` definition and the kernel launch (`HGCalRecHitCalibrationKernel_adcToEnergy{skipAnalyticCM}`)
-to thread the flag through.
-
----
-
-#### `RecoLocalCalo/HGCalRecAlgos/plugins/alpaka/HGCalRecHitProducers.cc`
-*(modified)*
-
-Added `bool skipAnalyticCM_` member, read from `iConfig.getParameter<bool>("skipAnalyticCM")`,
-registered in `fillDescriptions` with default `false`. Forwarded to `calibrator_.calibrate()`.
-
----
-
-#### `HGCalCommissioning/Configuration/test/step_RECONANODQM.py`
-
-*(modified)*
-
-Registered the `cmPedOverride` and `nThreads` VarParsing options and forwarded them to
-`process.hgcalCMCalibDigis` / `process.options`.
-
-Not compiled — lives in `test/` and is read directly by `cmsRun`, so edits need no `scram b`.
-
----
-
-#### `HGCalCommissioning/Configuration/test/run_cm_comparison.sh`
-
-*(modified)*
-
-Runs the RECO+DQM step twice (ML and analytic) on the same input, writing DQM files to
-`<outdir>/ml/` and `<outdir>/analytic/`. Not compiled.
-
----
-
-#### `HGCalCommissioning/DQM/plugins/HGCalSysValDigisClient.cc`
-
-No code changes. The compiled object file was 544 bytes (stale/corrupt from a previous
-partial build), so the `DEFINE_FWK_MODULE(HGCalSysValDigisClient)` registration symbol was
-never linked into the `.so`. Deleting the stale `.o` and running `scram b` produced a
-3.27 MB object with the plugin properly registered. Confirmed via `edmPluginDump`.
-
----
-
-## Switching Between ML and Analytic CM Correction
-
-The RECO step accepts a `useCMML` boolean argument (default `True`) to select the correction mode.
-
-**ML correction (default):**
-```bash
-cmsRun $CMSSW_BASE/src/HGCalCommissioning/Configuration/test/step_RECONANODQM.py \
-  era=TB2025/v6 run=112048 \
-  files=$(paste -sd, fileList.txt) \
-  maxEvents=10000 knoise=-1 \
-  elossfile=HGCalCommissioning/Calibrations/TB2025/calib/hgcal_energyloss_setup2_v1.json \
-  calibfile=HGCalCommissioning/Calibrations/TB2025/calib/level0_calib_params_v5.json \
-  skipLC=True
-# useCMML=True is the default
+energy_variations(k) = sum of member rechit energy_variations(k)
+time                 = sum(w*t) / sum(w),  w = max(E, 0),        rechits with time > 0;  -99 if sum(w) == 0
+time_variations(k)   = sum(w_k*t) / sum(w_k), w_k = max(E_k, 0)  (same rechit times, no timewalk redo)
 ```
 
-**Analytic CM correction only (old behaviour):**
-```bash
-cmsRun $CMSSW_BASE/src/HGCalCommissioning/Configuration/test/step_RECONANODQM.py \
-  era=TB2025/v6 run=112048 \
-  files=$(paste -sd, fileList.txt) \
-  maxEvents=10000 knoise=-1 \
-  elossfile=HGCalCommissioning/Calibrations/TB2025/calib/hgcal_energyloss_setup2_v1.json \
-  calibfile=HGCalCommissioning/Calibrations/TB2025/calib/level0_calib_params_v5.json \
-  skipLC=True useCMML=False
-```
+The clusters themselves (membership, position) come from the nominal energy.
 
-When `useCMML=True`:
-- `hgcalCMCalibDigis` (ML DNN producer) is inserted before `hgcalRecHits`
-- `hgcalRecHits` reads from `hgcalCMCalibDigis` instead of `hgcalDigis`
-- `skipAnalyticCM=True` is passed to `HGCalRecHitsProducer`, which sets `cmf = 0` in
-  `HGCalRecHitCalibrationKernel_adcToEnergy`, suppressing the analytic
-  `cm_slope * (0.5*cm - cm_ped)` subtraction
+With a negative zero-suppression threshold (`knoise=-100`) a cluster can have no member with
+energy > 0. The release position kernels then read rechit index −1 and the job aborts (run 112049,
+event 1553). The position kernels now skip such clusters and set x = y = z = 0 (position undefined;
+about 1 in 6000 clusters on run 112049); energy, variations and time are unaffected.
 
-When `useCMML=False`:
-- `hgcalRecHits` reads directly from `hgcalDigis`
-- The analytic CM correction runs normally via `CM_slope` / `CM_ped` from the calibration file
+With a positive threshold (e.g. `knoise=3`) an event can have no rechits at all. CLUE never writes
+`numberOfClustersScalar` then, and the uninitialised value sized the cluster collection (crash or
+segfault at run 112049 event 116490). `HGCalSoARecHitsLayerClustersProducer` now zeroes the count
+and skips CLUE for empty input.
 
-The two modes are mutually exclusive: the ML correction and the analytic correction do **not** compound.
+Rechits are selected on the nominal energy, so with `knoise > 0` a hit's `energy_CM_ALT` (and hence
+a cluster's) can still be below the threshold or negative. The legacy
+`timeLayerCluster` value map from `HGCalLayerClustersFromSoAProducer` is untouched (on TB data
+it is not usable: rechit `timeError` is 0).
 
-Tested on run 112048, 10,000 events, ~177 ev/s on serial backend. No exceptions.
-DQM output: `DQM_V0001_HGCAL_R000112048.root`.
+## DNN inputs (254 floats per digi)
 
-### CM-related `step_RECONANODQM.py` arguments
+Model manifest `feature_version: all_channels_multimodule_v1`, `nch: 222`, trained on the ten
+TB2025 LD modules. Layout in `HGCALSoACMML.h` (named offsets in `hgcalcmml::Feature`), one Eigen
+column so `TensorCollection` wraps it into `[ndigis, 254]` without copying.
 
-All are `cmsRun` keyword arguments (VarParsing). Everything below applies only when
-`useCMML=True`; the debug group additionally requires `debugEvent != 0`.
-
-| Argument | Default | Meaning |
+| Index | Feature | Definition |
 |---|---|---|
-| `useCMML` | `True` | Insert `hgcalCMCalibDigis` (ML DNN) before `hgcalRecHits` and set `skipAnalyticCM=True`. `False` = analytic CM only. |
-| `addCMComparison` | `False` | Also schedule the `HGCalCMCorrectionCompare` analyzer. Requires `useCMML=True`. |
-| `cmPedOverride` | `''` | Path to a JSON of per-module CM pedestals in the DNN author's convention (`{typecode: {cm_erx00..cm_erx11, nchadc, nerx}}`, `cm_erxNN` full-scale `= 2*CM_ped`). Replaces `CM_ped` from the calib file for the listed modules only; `ADC_ped` is never touched. Empty = use the calib file. See [CM pedestal override](#cm-pedestal-override). |
-| `trigTimeMin` / `trigTimeMax` | `0` / `0` | Keep events with `min < trig_time < max` (exclusive). Active only when `max > min`. |
-| `trigTimeRequireValid` | `True` | Require the trig-time e-link `valid_` bit when selecting. |
-| `debugEvent` | `0` | Event number to dump DNN inputs for. `0` = off, `4294967295` = every event. **Gates the whole debug group.** |
-| `debugCsv` | `''` | Path to write the 21 inputs + IDs as CSV. Empty = off. Requires `debugEvent != 0`. |
-| `debugModule` | `4294967295` | Dense module index filter; `4294967295` = all modules. |
-| `debugMaxChannels` | `4294967295` | Max within-module `chIdx` to dump. Set to e.g. `2` to keep the CSV small. |
-| `debugFedId` / `debugCaptureBlock` / `debugEcond` | `4294967295` | Select a module by hardware address instead of dense index. All three must be set to take effect; they then override `debugModule`. |
+| 0–11 | `cm_erx00..11_pedsub` | `2*(0.5*cm - CM_ped)` from the first channel of each eRx; 0 if eRx disabled or `valid==0` |
+| 12 | `nchtoa` | module channels with `flags != NotAvailable && toa > 0` |
+| 13 | `nchtot` | module channels with `flags != NotAvailable && tctp == 3 && tot > 0` |
+| 14–17 | `nchadcgt10/50/200/500` | module channels with pedsub ADC `> X`, all 222 incl. unconnected and the target |
+| 18–28 | `module_onehot_000..010` | index of the typecode in the manifest `module_vocabulary` (`-` → `_`); all 0 for unknown modules (slot 10 `UNKNOWN` never set) |
+| 29–250 | `adc_allch_000..221` | `adc - ADC_ped` of every module channel, 0 if `valid==0`; **the target channel's own slot is 0** |
+| 251 | `channel_indices` | `chIdx - (nErx*37 - 1)/2` (±110.5) |
+| 252 | `erx_indices` | `erxIdx - (nErx - 1)/2` |
+| 253 | `cell_area_fraction` | SF from `cellareas.json` (`ML_F`/`MH_F` by `isHD`), 0 = unconnected |
 
-> **CSV size warning:** `debugEvent=4294967295` with no `debugMaxChannels` limit writes every
-> feature of every digi of every event. On run 112049 that produced a **50 GB** file. Always
-> bound it with `debugMaxChannels` and/or a single `debugEvent` unless you genuinely want the
-> full dump.
+Features 0–250 are identical for every digi of a module, so they are built once per module and
+copied. The producer throws at construction if the manifest feature names or order differ from
+what the kernels fill.
 
-Minimal example — confirm the validity guard and the per-eRx mean on 5 events:
+Pedestals: all inputs use `ADC_ped`/`CM_ped` from the calibration JSON loaded for the job, the
+same as the nominal energy (the model was trained with Run112044 pedestals; not checked against v5).
 
-```bash
-cd $CMSSW_BASE/src/<some scratch dir>
-cmsRun $CMSSW_BASE/src/HGCalCommissioning/Configuration/test/step_RECONANODQM.py \
-  era=TB2025/v6 run=112050 \
-  files=$(paste -sd, $CMSSW_BASE/src/HGCalCommissioning/Configuration/test/fileList_112050.txt) \
-  maxEvents=5 knoise=-1 skipLC=True skipMeta=True \
-  elossfile=HGCalCommissioning/Calibrations/TB2025/calib/hgcal_energyloss_setup2_v1.json \
-  calibfile=HGCalCommissioning/Calibrations/TB2025/calib/level0_calib_params_v5.json \
-  useCMML=True \
-  debugEvent=1 debugMaxChannels=2 debugCsv=verify_cm5.csv
-```
+**Calibration validity guard.** Channels with `valid == 0` have no fitted pedestal (`ADC_ped` and
+`CM_ped` are 0). Their CM and ADC features are 0 rather than the raw value. Without this, module
+`ML-F3WC-IH0199`'s dead eRx 5 once put `cm5 ≈ +529` into every channel of that module.
 
-Note `files=` takes a **comma-separated list of filenames**, not a path to a list file —
-expand it with `paste -sd,` as above. (`run_cm_comparison.sh` does this for you.)
+## Models
 
-### Comparing the Two Modes
-
-A dedicated script and DQM analyzer exist to compare the ML and analytic corrections on the
-same input data without any manual file shuffling.
-
-#### `run_cm_comparison.sh`
-
-**Location:** `HGCalCommissioning/Configuration/test/run_cm_comparison.sh`
-
-Runs `step_RECONANODQM.py` twice on the same input — once with `useCMML=True` (ML + the
-`HGCalCMCorrectionCompare` analyzer) and once with `useCMML=False` (analytic only) — and
-collects the results into a timestamped output directory.
-
-```bash
-cd $CMSSW_BASE/src
-./HGCalCommissioning/Configuration/test/run_cm_comparison.sh \
-    --era TB2025/v6 \
-    --run 112048 \
-    --files fileList.txt \
-    --maxevents 10000 \
-    --eloss HGCalCommissioning/Calibrations/TB2025/calib/hgcal_energyloss_setup2_v1.json \
-    --calib HGCalCommissioning/Calibrations/TB2025/calib/level0_calib_params_v5.json
-```
-
-`--files` accepts either a comma-separated string or a path to a file with one filename per
-line. If omitted, the script looks for `fileList.txt` next to itself.
-
-The script runs `scram b -j 8` before the two cmsRun calls by default. Pass `--nobuild` to
-skip the build if the code is already compiled. `step_RECONANODQM.py` and the script itself
-live in `test/` and are **not** compiled, so edits to either take effect without a rebuild;
-only C++ changes under `RecoLocalCalo/` need `scram b`.
-
-**Full flag list:**
-
-| Flag | Default | Meaning |
+| `cmModel` | Files in `HGCalCommissioning/Calibrations/NNBased/` | Source (Arne Reimers, `dnn_best.pth`) |
 |---|---|---|
-| `--era` | `TB2025/v6` | Era string passed as `era=`. |
-| `--run` | `112048` | Run number. |
-| `--files` | `fileList.txt` beside the script | Comma-separated list, or a path to a one-per-line file (expanded with `paste -sd,`). |
-| `--maxevents` | `10000` | `maxEvents=`. |
-| `--knoise` | `-1` | `knoise=`. |
-| `--eloss` | `TB2025/calib/hgcal_energyloss_setup2_v1.json` | Energy-loss JSON. |
-| `--calib` | `TB2025/calib/level0_calib_params_v5.json` | Level-0 calibration JSON. |
-| `--outdir` | `cm_comparison_<timestamp>` | Output directory. |
-| `--jobs` | `8` | `scram b -j N`. |
-| `--nobuild` | off | Skip `scram b`. |
-| `--skipmeta` | off | Pass `skipMeta=True`. **Required for 2025 data** — see the release `CLAUDE.md` for the ROOT scalar→vector streamer crash it avoids. |
-| `--trigtimemin N` / `--trigtimemax N` | `0` / `0` | Trig-phase window, exclusive. Active only when max > min. |
+| `plain` (default) | `cm_dnn_multimodule.pth`, `_manifest.json` | `allchannels_multimodule_perchannel_F254__256-256-256-32__dr0`, md5 `823ecb38…` |
+| `zscore` | `cm_dnn_multimodule_zscore.pth`, `_manifest.json`, `_preprocessing.json` | `allchannels_multimodule_inputzscore_perchannel_F254__256-256-256-32__dr0`, md5 `b5116811…` |
 
-Both cmsRun jobs (ML and analytic) receive the same `COMMON_ARGS`, so any flag above applies
-consistently to the pair.
+Source directory: `/eos/user/a/areimers/hgcal/Sep2025TB/corrections/MULTI_ML_F3WC_IH0180_…_IH0199/pedestals_from_Run112044/corrections_from_ModuleMULTI_…/corrections_from_Run112044_112050_112060_112073_adcmax10/corrections_tag_selection_trigtime/dnn_models/`.
 
-Example — per-eRx mean subtraction, raw (un-standardized) inputs, trig-phase window:
+- Architecture `Linear(254,256)-ReLU-Linear(256,256)-ReLU-Linear(256,256)-ReLU-Linear(256,32)-ReLU-Linear(32,1)`.
+- Arne's checkpoints are `state_dict`s; `NNBased/convert_multimodule_dnn.py` rebuilds the network,
+  checks the md5, scripts it and checks TorchScript == eager (max |diff| 0). Run under `cmsenv`.
+- Normalisation is applied in CMSSW, not baked into the model file.
 
-```bash
-cd $CMSSW_BASE/src
-./HGCalCommissioning/Configuration/test/run_cm_comparison.sh \
-    --era TB2025/v6 --run 112050 \
-    --files HGCalCommissioning/Configuration/test/fileList_112050.txt \
-    --maxevents 10000 --nobuild --skipmeta \
-    --pererxmeansub \
-    --trigtimemin 107 --trigtimemax 113 \
-    --outdir cm_comparison_newdnn_pererx_trig107to113_112050
-```
-
-**Output directory layout** (name defaults to `cm_comparison_<timestamp>/`):
+**z-score model.** From `input_preprocessing.json`:
 
 ```
-cm_comparison_20260619_191020/
-  ml/
-    DQM_V0001_HGCAL_R000112048.root   # DQM with ML rechits + CMComparison plots
-    NANO_numEvent10000.root
-    cmsRun_ml.log
-  analytic/
-    DQM_V0001_HGCAL_R000112048.root   # DQM with analytic rechits
-    NANO_numEvent10000.root
-    cmsRun_analytic.log
+x'  = (x - mean[i]) / std[i]                        all 254 inputs, one-hots included
+own adc_allch slot: raw 0, then normalised          (-mean/std)
+NN  = pred * target_std[chIdx] + target_mean[chIdx] per-channel output de-normalisation
 ```
 
-An example output from run 112048, 10 000 events lives under the working release at
-`/eos/user/t/ttravis/TestBeam2026/CMSSW_16_1_0/src/` (e.g. a `cm_comparison_<timestamp>/`
-directory produced by `run_cm_comparison.sh`).
+Both conventions confirmed 2026-09-16 and hardcoded. The producer requires a
+preprocessing file when the manifest says `preprocess_inputs: true` and rejects one otherwise.
 
-#### `HGCalCMCorrectionCompare` analyzer
+## Configuration
 
-**Plugin:** `HGCalCommissioning/DQM/plugins/HGCalCMCorrectionCompare.cc`  
-**cfi:** `HGCalCommissioning/DQM/python/hgcalCMCorrectionCompare_cfi.py`  
-**Wired by:** `step_RECONANODQM.py` when `addCMComparison=True` (requires `useCMML=True`)
+`HGCalCommissioning/Configuration/python/configure_sysval_reco_cff.py` builds `hgcalRecHits`
+(cuda and serial) on `hgcalDigis`. Options (`setArgParserForRECO`):
 
-The analyzer runs in the ML job only. It consumes both `hgcalDigis` (raw) and
-`hgcalCMCalibDigis` (ML-corrected) in the same event, reconstructs what the analytic
-correction would have been (without applying it), and fills five DQM histograms under
-`HGCal/CMComparison/`:
+| Option | Default | Meaning |
+|---|---|---|
+| `useCMML` | `True` | run the DNN and fill `CM_ALT`; `False`: `CM_ALT = energy`, no model loaded |
+| `cmModel` | `plain` | `plain` or `zscore` (table above) |
 
-| Histogram | What it shows |
+`step_RECONANODQM.py` adds:
+
+| Option | Meaning |
 |---|---|
-| `analyticCorrection` | Distribution of `cm_slope × (0.5 × CM − cm_ped)` — the analytic term that `HGCalRecHitCalibrationKernel_adcToEnergy` would subtract |
-| `mlCorrection` | Distribution of `raw_adc − ml_corrected_adc` — the actual ADC change made by the DNN |
-| `residual` | ML correction minus analytic correction per channel/event — non-zero means the DNN learned something beyond the linear term |
-| `analytic_vs_ml` | 2D scatter of analytic (x) vs ML (y) corrections — diagonal = perfect agreement, off-diagonal = DNN adds non-linear component. The Pearson correlation of the two corrections is written into the plot title (to 3 dp) by `HGCalCMCorrectionCompareHarvester`. |
-| `ml_vs_cmsum` | Profile of ML correction vs pedestal-subtracted CM sum — shows whether the DNN's primary response is the same linear trend as the analytic formula |
+| `addCMComparison` | schedule `HGCalCMVariationValidation` + harvester (needs `useCMML=True`; use `knoise=-100`) |
+| `cmCompareModules` | typecodes with their own per-module spectra |
+| `debugCsv`, `debugEvent/Module/MaxChannels/FedId/CaptureBlock/Econd` | DNN input dump (below) |
+| `trigTimeMin/Max`, `trigTimeRequireValid` | trig-time event selection, unchanged (model trained on 107 < t < 113) |
 
-The analytic correction is **reconstructed from calibration parameters** inside the analyzer;
-it is not applied to the digis in this mode. This lets you see what both corrections would
-predict on the same event population.
+`hgcalRecHits` parameters: `useCMML`, `cmAltAsNominal`, `model`, `modelManifest`, `inputPreprocessing`,
+`cellAreas`, `cm_n_threads`,
+`moduleIndexerSource`, `produceCMMLDebug`. Paths are CMSSW-relative (resolved with `FileInPath`).
 
-#### `HGCalCMCorrectionCompareHarvester`
+## NanoAOD
 
-**Plugin:** `HGCalCommissioning/DQM/plugins/HGCalCMCorrectionCompareHarvester.cc`  
-**cfi:** `HGCalCommissioning/DQM/python/hgcalCMCorrectionCompareHarvester_cfi.py`  
-**Wired by:** `step_RECONANODQM.py` when `addCMComparison=True` (scheduled before the DQM saver)
+`HGCalCommissioning/NanoTools/plugins/HGCalRecoTableProducer.cc`:
 
-A `DQMEDHarvester` that, at end-of-lumi / end-of-job, reads the merged `analytic_vs_ml`
-histogram and writes the **Pearson correlation** between the analytic and ML corrections
-into its title, to 3 dp:
+- `HGCHit_energy_CM_ALT`, `HGCHit_energy_SCALE_ALT`
+- `HGCLayerClusters_energy_CM_ALT`, `_energy_SCALE_ALT`, `_time`, `_time_CM_ALT`, `_time_SCALE_ALT`
+
+A FlatTable column is scalar, so each variation entry is its own branch.
+
+The `HGCLayerClusters` table is written only with `skipLC=False`. (Before 2026-09-16
+`configure_sysval_nano_cff.py` never passed `skipLC` to `hgCalRecoTable`, so the table was never
+written; fixed.) The pre-existing per-rechit columns in that table (`rho`, `delta`,
+`clusterIndex`, …) and `seed` (filled from `cells`) are still unreliable.
+
+## Validation
+
+The DQM module and `run_cm_comparison.sh` are in `HGCalCommissioning`. The Python analysis
+scripts named below (`plot_adc_shape_from_dqm.py`, `verify_smoke.py`, `verify_lc.py`,
+`reference_population_check.py`) and the output folders are **local to the development area and
+not in either repository**; the results are kept here as a record of the checks.
+
+**DQM:** `HGCalCMVariationValidation` (+ `HGCalCMVariationValidationHarvester`, folder
+`HGCal/CMComparison`) reads the rechits back:
 
 ```
-Analytic vs ML CM correction (Pearson r = 0.987); Analytic correction [ADC counts]; ML correction [ADC counts]
+counts_lin  = energy / s
+counts_nn   = energy_variations(CM_ALT) / s
+counts_noCM = counts_lin + cm_lin*(1 - BXm1_slope)
+dnn_corr    = (adc - ADC_ped) - counts_nn
 ```
 
-The value is `TH2F::GetCorrelationFactor()` — the Pearson r of the binned distribution shown
-on the heatmap. Running as a harvester means it acts on the fully-merged, run-scoped histogram,
-so the number is correct regardless of the number of streams. An empty histogram shows
-`r = N/A` rather than a spurious `0.000`.
+It skips TOT hits and calibration cells with their partners, and books spectra over all rechits
+and connected cells only (`*Conn`): `adcPedSubRaw/Analytic/MLFloat`, the same three in GeV
+(`energyNoCM/Linear/CMALT`), `analyticCorrection`, `mlCorrectionFloat`, `residual`,
+`analytic_vs_mlfloat` (Pearson r in the title), `ml_vs_cmsum`, `energyCMALTminusNominal`,
+`rechitCounts` (seen / TOT / calib-related / used / connected). `corrStats` and `rechitCounts`
+are double-precision (a full run exceeds the 2^24 exact range of float bins). Only existing
+rechits are seen, so run with `knoise=-100`.
 
-To open the ML DQM file and browse the comparison plots:
-```bash
-dqmgui cm_comparison_20260619_191020/ml/DQM_V0001_HGCAL_R000112048.root
-# or in ROOT:
-root -l cm_comparison_20260619_191020/ml/DQM_V0001_HGCAL_R000112048.root \
-         cm_comparison_20260619_191020/analytic/DQM_V0001_HGCAL_R000112048.root
-```
-
----
-
-## Debugging DNN Inputs
-
-Config parameters let you dump the 21 DNN features to a **CSV file** for a chosen event and
-module without modifying any C++. The dump is written host-side (`HGCalCMCalibrationProducer::
-writeDebugCsv`); the device kernel does no printing.
-
-| Parameter | Type | Default | Meaning |
-|---|---|---|---|
-| `debugCsv` | `string` | `""` | Output CSV path. Empty = disabled. When set, rows are appended for events passing `debugEvent`. |
-| `debugEvent` | `uint32` | 0 | Event number to dump. `0` = disabled. `4294967295` (UINT32_MAX) = any event. |
-| `debugModule` | `uint32` | UINT32_MAX | Dense module index filter. UINT32_MAX = all modules. |
-| `debugMaxChannels` | `uint32` | UINT32_MAX | Stop after this many channels (by `chIdx`). UINT32_MAX = all channels. |
-| `debugFedId` | `uint32` | UINT32_MAX | FED ID for hardware-address module selection. |
-| `debugCaptureBlock` | `uint32` | UINT32_MAX | Capture block index for hardware-address selection. |
-| `debugEcond` | `uint32` | UINT32_MAX | ECON-D index for hardware-address selection. |
-
-Both `debugEvent != 0` **and** a non-empty `debugCsv` are required to produce output. If all
-three hardware-address fields are set (not UINT32_MAX), they take precedence over `debugModule`
-— the producer resolves the dense index host-side.
-
-**Example: first 5 channels of dense module 2, first event of a file**
-
-From `HGCalCommissioning/Calibrations/TB2025/maps/modulelocator_v6.txt`, dense module index 2
-is `ML-F3WC-IH0198` for Run112049 (the `module` column in the CSV records the exact typecode,
-so you never have to guess). Using `debugModule=2` avoids FED ID translation.
+`HGCalCommissioning/Configuration/test/run_cm_comparison.sh` runs one job per model into
+`<outdir>/<model>/`:
 
 ```bash
-cmsRun $CMSSW_BASE/src/HGCalCommissioning/Configuration/test/step_RECONANODQM.py \
-  era=TB2025/v6 run=112049 \
-  files=file:/eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112049/8bd9f88c-a32f-11f0-8f95-04d9f5f94829/v1/RAW2DIGI_112049_10.root \
-  maxEvents=1 knoise=-1 skipLC=True useCMML=True skipMeta=True \
-  elossfile=HGCalCommissioning/Calibrations/TB2025/calib/hgcal_energyloss_setup2_v1.json \
-  calibfile=HGCalCommissioning/Calibrations/TB2025/calib/level0_calib_params_v5.json \
-  debugEvent=4294967295 debugModule=2 debugMaxChannels=5 \
-  debugCsv=cmcalib_debug.csv
+bash src/HGCalCommissioning/Configuration/test/run_cm_comparison.sh \
+  --era TB2025/v6 --run 112049 --files src/HGCalCommissioning/Configuration/test/fileList_112049.txt \
+  --maxevents -1 --skipmeta --trigtimemin 107 --trigtimemax 113 --nobuild \
+  --models plain,zscore --modules ML-F3WC-IH0182 --outdir <outdir>
 ```
 
-`debugEvent=4294967295` matches any event number, so with `maxEvents=1` you get the first
-event without needing its run-level event number. The CSV has one header row plus one row per
-(event, module, channel):
+Fit the spectra with `plot_adc_shape_from_dqm.py` (local), which writes one PNG per
+correction (`adcshape_no_cm_correction.png`, `adcshape_lin_reg_correction.png`,
+`adcshape_dnn_correction.png`) with the Gaussian fit over [-10, 10] ADC:
+
+```bash
+python3 plot_adc_shape_from_dqm.py --connected --module ML-F3WC-IH0182 \
+  --dqm <outdir>/<model>/DQM_V0001_HGCAL_R000112049.root --outdir <outdir>/<model>/adcshape_IH0182_conn
+```
+
+Omit `--module` for all modules pooled.
+
+**Cross-check script:** `verify_smoke.py <job dir> <plain|zscore>` (local) takes a job's debug CSV and NANO and checks the input definitions, re-runs the model in PyTorch
+on the same rows, and checks `energy_SCALE_ALT == energy`, TOT hits, and
+`(adc - ADC_ped) - CM_ALT counts == DNN correction`. Passed for both models on 20 events of run
+112049 (2026-09-16; max |diff| ~1e-4 ADC).
+
+Nominal `energy` agrees with the pre-change code on the same events to float32 rounding (typical
+relative difference 1e-7): the restructured pedestal/CM expression rounds differently in the last bit.
+
+`verify_lc.py <NANO>` (local; job with `skipLC=False`) recomputes every cluster's
+energy, `energy_CM_ALT`, `time` and `time_CM_ALT` from the member HGCHit rows; passed on 50
+events (worst relative difference 5e-4, float32 sums in parallel).
+
+**Full run 112049** (2026-09-16, 107 < trig_time < 113, `knoise=-100`, v5 calib, fit over
+[-10, 10] ADC, connected cells):
+
+| Population | no CM μ / σ | linear μ / σ | DNN `plain` μ / σ | DNN `zscore` μ / σ |
+|---|---|---|---|---|
+| ML-F3WC-IH0182 | −0.465 / 1.932 | 0.832 / 2.323 | −0.181 / 1.416 | −0.259 / 1.265 |
+| all modules | −0.420 / 1.723 | 0.533 / 1.745 | −0.121 / 1.310 | −0.204 / 1.185 |
+
+The earlier digi-based reference for IH0182 (no CM 1.879, linear 2.249) was over a different
+population: it also contained calibration cells and their partners, which the rechit-based
+analyzer skips. `reference_population_check.py <NANO>` (local) rebuilds both
+populations from the new job's digis and gives exactly 1.879 / 2.249 (with) and 1.932 / 2.323
+(without), so the nominal reconstruction is unchanged on the full run.
+
+With `knoise=-100` CLUE also clusters noise, so the largest clusters span most of a module
+(150–190 cells) and their `energy_CM_ALT - energy` reaches a few GeV from the DNN's mean offset
+summed coherently; clusters below 50 cells have median |ΔE| 0.018 GeV. LC times inherit the
+rechit times, which are unusable while the timewalk parameters are wrong (below).
+
+## Debugging DNN inputs
+
+`debugCsv=<file>` (`step_RECONANODQM.py`) sets `hgcalRecHits.produceCMMLDebug=True`, which puts four
+host products in the event (instance labels on `hgcalRecHits`; empty when the DNN did not run):
+
+| Label | Type | Content |
+|---|---|---|
+| `cmmlFeatures` | `std::vector<float>` | ndigis × 254 inputs as fed to the model (normalised for `zscore`), row-major |
+| `cmmlOutput` | `std::vector<float>` | raw model output per digi |
+| `cmmlCorrection` | `std::vector<float>` | correction in ADC (after de-normalisation) |
+| `cmmlValid` | `std::vector<unsigned char>` | whether the correction is applied |
+
+`HGCalCMMLDebugDumper` (`HGCalCommissioning/DQM`) writes them to the CSV, one row per (event, module,
+channel) passing `debugEvent` (0 or 4294967295 = all) / `debugModule` / hardware address /
+`debugMaxChannels`:
 
 ```
-event,denseModIdx,module,ch,digi_adc,unconn0_raw,cm0,...,cm11,msubchidx,msuberxidx,cellfrac,unconn0,unconn1,unconn2,unconn3,ntoa,ntot
-13525,2,ML-F3WC-IH0198,0,75,81,0.153809,...,-110.5,-2.5,1,1.06319,...,14,2
+event,denseModIdx,module,ch,digi_adc,<254 feature names from the manifest>,dnn_output,dnn_corr,dnn_valid
 ```
 
-Filter later with e.g. `awk -F, '$3=="ML-F3WC-IH0198"'`. Note that `ntoa`/`ntot` are
-**module-level** counts: every row for the same `denseModIdx` shows the same `ntoa`/`ntot`
-(the count over that module's digis), not an event-wide total. `digi_adc` and `unconn0_raw`
-are the raw (pre-pedestal) ADC values; the 21 feature columns are pedestal-subtracted.
+Features are **raw** (normalisation undone, masked slot 0) for both models; `dnn_output` is the
+model output, `dnn_corr` the correction in ADC, `dnn_valid` whether it is applied. The dumper is on a
+`Path`, so the trig-time selection applies to it. For IH0182 on run 112049 the dense module index is 6.
 
-Across multiple input files / streams the rows accumulate into the one CSV (a mutex serialises
-appends); the file is truncated once at the start of the job.
+## Indexing
 
----
+- Dense index = global channel = digi index; `HGCalDenseIndexInfo` gives `modInfoIdx`,
+  `chNumber` (within module) and `cellInfoIdx` per entry. TB2025: 10 modules × 222 = 2220.
+- `chDataOffsets_[modid]` is the first dense index of a module. Size module arrays with
+  `maxModulesCount()` (10), not `maxModuleSize()` (distinct typecodes, 1).
+- `enabledErx_` is a bitmask; eRx count = `__builtin_popcount`.
+- Rechits are compacted by the ZS selection; `recHitIndex` is the dense index.
 
-## Known Limitations / Future Work
+## Files
 
-- **Unconnected channel positions hardcoded:** `{8, 17, 19, 28}` is correct for LD silicon
-  modules. SiPM modules or future layouts may differ.
+Paths relative to `src/`.
 
-- **37 channels per eRx hardcoded:** Valid for LD modules; needs parameterization for mixed
-  geometries.
+**New**
+- `DataFormats/HGCalReco/interface/HGCalRecoVariations.h` — `Variation::CM_ALT/SCALE_ALT`, `VariationVector`
+- `HGCalCommissioning/DQM/plugins/HGCalCMVariationValidation.cc`, `HGCalCMVariationValidationHarvester.cc`
+  (+ `DQM/python/hgcalCMVariationValidation[Harvester]_cfi.py`)
+- `HGCalCommissioning/Calibrations/NNBased/convert_multimodule_dnn.py`,
+  `cm_dnn_multimodule[_zscore].pth`, `…_manifest.json`, `cm_dnn_multimodule_zscore_preprocessing.json`
+- `HGCalCommissioning/SystemTestEventFilters/plugins/HGCalTrigTimeFilter.cc` — trig-time selection
 
-- **Per-event module array upload:** `h_chDataOffsets`, `h_enabledErx`, `h_adcPed`, `h_cmPed`
-  and `h_valid` are rebuilt and uploaded on every event. These are conditions-constant per run
-  and could be moved into an ESProducer for better throughput.
+**Modified**
+- `DataFormats/HGCalReco/interface/HGCalSoARecHits.h`, `HGCalSoAClusters.h` — variation/time columns;
+  `HGCalSoARecHitsExtra.h`, `MtdSoA.h` — Eigen pre-include
+- `RecoLocalCalo/HGCalRecAlgos/interface/HGCALSoACMML.h` — 254-float Eigen column + `Feature` offsets
+- `RecoLocalCalo/HGCalRecAlgos/interface/HGCalCMCorrectionSoA.h` — adds `valid`
+- `RecoLocalCalo/HGCalRecAlgos/{interface,plugins}/alpaka/HGCalCMCalibrationAlgorithms.*` — module/digi input kernels, output de-normalisation
+- `RecoLocalCalo/HGCalRecAlgos/{interface,plugins}/alpaka/HGCalRecHitCalibrationAlgorithms.*` — pedestal/linear/DNN split, variations, calib-cell merge
+- `RecoLocalCalo/HGCalRecAlgos/plugins/alpaka/HGCalRecHitProducers.cc` — DNN inputs, inference, manifest/normalisation, optional debug products
+- `RecoLocalCalo/HGCalRecProducers/interface/HGCalSoAClustersExtra.h`,
+  `plugins/alpaka/HGCalLayerClustersSoAAlgoWrapper.dev.cc`, `plugins/alpaka/HGCalSoARecHitsProducer.cc` — LC variations and time
+- `HGCalCommissioning/NanoTools/plugins/HGCalRecoTableProducer.cc`, `NanoTools/python/configure_sysval_nano_cff.py`
+- `HGCalCommissioning/Configuration/python/configure_sysval_reco_cff.py`, `Configuration/test/step_RECONANODQM.py`,
+  `Configuration/test/run_cm_comparison.sh`, `DQM/plugins/BuildFile.xml`
+- `HGCalCommissioning/DQM/plugins/HGCalCMMLDebugDumper.cc` — debug CSV from the `produceCMMLDebug` products
 
-- **`moduleIndexer.enabledErx_` is not the run configuration:** it is set unconditionally to
-  the module type's full mask, `(1 << nErx) - 1`, in `HGCalMappingModuleIndexer.cc` and is
-  never updated. The actual per-ECON-D mask lives in `HGCalConfiguration`
-  (`feds[].econds[].enabledErx`, from `config_econds_*.json`) and is what the unpacker obeys.
-  For any module configured with a partial mask (P5 and FNAL configs use `0x1f` and `0x7`),
-  `nErx` is overcounted, the mean subtraction is mis-centred, and `FILL_CM` reads an eRx slot
-  the unpacker never wrote. Not yet fixed; `HGCalConfiguration` sits on the same
-  `HGCalModuleConfigurationRcd` already consumed for `HGCalCalibParamHost`, so the fix is one
-  extra `esConsumes`.
+**Removed**
+- `RecoLocalCalo/HGCalRecAlgos/plugins/alpaka/HGCalCMCalibrationProducer.cc`
+- `HGCalCommissioning/DQM/plugins/HGCalCMCorrectionCompare[Harvester].cc` and their cfis
 
-- **Training-domain gap on `cm5`:** the model was trained with eRx 5 of `ML-F3WC-IH0182` dead
-  in 37.5 % of events (`cm5` pinned at `-131.05`), and never saw a *live* eRx 5 at
-  `cm0 < -14`. That configuration is ~58 % of run 112049. The feature-order fix is an
-  implementation fix; this one can only be closed by retraining.
+## Known limitations
 
-- **Feature importance baseline:** measured 2026-07-27 on run 112049 inputs (permutation,
-  60k digis): `msubchidx` 22.6 %, `cm5` 21.8 % (the bug, now fixed), `unconn1` 15.2 %,
-  `ntoa` 10.8 %, `ntot` 6.8 %, the real `cm*` columns 1.6–3.2 % each, `cellfrac` 0.3 %,
-  `cm6`–`cm11` exactly 0 on LD. Worth re-running post-guard to get a clean ranking.
-  Note: torch in CMSSW is built **without** NumPy support — `torch.from_numpy` / `.numpy()`
-  raise; convert via `torch.frombuffer` and `.tolist()`.
+- Only 222-channel (6 eRx, LD) modules get a DNN prediction.
+- The model was trained on trig-time-selected events (107 < t < 113); reco applies it to all events.
+- `moduleIndexer.enabledErx_` is the module type's full mask, not the run configuration
+  (`HGCalConfiguration`); partial masks (P5, FNAL) would mis-centre the indices and CM features.
+- Module-level host arrays are rebuilt and uploaded every event.
+- Timewalk parameters (`TOA_TW`, e.g. `[286.4, 25968.8, 0]`) look inconsistent with GeV input to
+  `log(E)`: rechit and LC times come out at O(1e6) ps on run 112049. Not addressed here. LC time
+  variations do not redo timewalk; LC x/y are not varied.
+- The CUDA backend compiles but has not been run (no GPU on the lxplus node used).
+- Namespace-scope `constexpr` arrays are not usable in CUDA kernels (use a local copy).
+- CMSSW torch has no NumPy interop: use `torch.tensor(list)` / `.tolist()`.

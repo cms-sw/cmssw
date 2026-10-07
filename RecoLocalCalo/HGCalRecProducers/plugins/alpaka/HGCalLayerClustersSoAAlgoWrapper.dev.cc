@@ -10,6 +10,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace cms::alpakatools;
   using namespace hgcal::constants;
 
+  // Zero the time and variation columns and their accumulators
+  class HGCalLayerClustersSoAAlgoKernelInitVariations {
+  public:
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  HGCalSoAClustersDeviceCollection::View outputs,
+                                  HGCalSoAClustersExtraDeviceCollection::View outputs_service) const {
+      for (int32_t cluster_index : uniform_elements(acc, outputs.metadata().size())) {
+        outputs[cluster_index].time() = 0.f;
+        outputs_service[cluster_index].time_weight() = 0.f;
+        outputs_service[cluster_index].time_weighted_sum() = 0.f;
+        for (uint8_t k = 0; k < hgcalreco::Variation::Size; ++k) {
+          outputs[cluster_index].energy_variations()(k) = 0.f;
+          outputs[cluster_index].time_variations()(k) = 0.f;
+          outputs_service[cluster_index].time_weight_variations()(k) = 0.f;
+          outputs_service[cluster_index].time_weighted_sum_variations()(k) = 0.f;
+        }
+      }
+    }
+  };
+
   // Set energy and number of hits in each clusters
   class HGCalLayerClustersSoAAlgoKernelEnergy {
   public:
@@ -17,7 +37,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   const unsigned int numer_of_clusters,
                                   const HGCalSoARecHitsDeviceCollection::ConstView input_rechits_soa,
                                   const HGCalSoARecHitsExtraDeviceCollection::ConstView input_clusters_soa,
-                                  HGCalSoAClustersDeviceCollection::View outputs) const {
+                                  HGCalSoAClustersDeviceCollection::View outputs,
+                                  HGCalSoAClustersExtraDeviceCollection::View outputs_service) const {
       // make a strided loop over the kernel grid, covering up to "size" elements
       for (int32_t i : uniform_elements(acc, input_rechits_soa.metadata().size())) {
         // Skip unassigned rechits
@@ -25,8 +46,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           continue;
         }
         auto clIdx = input_clusters_soa[i].clusterIndex();
-        alpaka::atomicAdd(acc, &outputs[clIdx].energy(), input_rechits_soa[i].energy());
+        auto const rechit = input_rechits_soa[i];
+        alpaka::atomicAdd(acc, &outputs[clIdx].energy(), rechit.energy());
         alpaka::atomicAdd(acc, &outputs[clIdx].cells(), 1);
+        bool const timed = rechit.time() > 0.f;
+        if (timed) {
+          float const w = std::max(rechit.energy(), 0.f);
+          alpaka::atomicAdd(acc, &outputs_service[clIdx].time_weight(), w);
+          alpaka::atomicAdd(acc, &outputs_service[clIdx].time_weighted_sum(), w * rechit.time());
+        }
+        for (uint8_t k = 0; k < hgcalreco::Variation::Size; ++k) {
+          float const e_alt = rechit.energy_variations()(k);
+          alpaka::atomicAdd(acc, &outputs[clIdx].energy_variations()(k), e_alt);
+          if (timed) {
+            float const w = std::max(e_alt, 0.f);
+            alpaka::atomicAdd(acc, &outputs_service[clIdx].time_weight_variations()(k), w);
+            alpaka::atomicAdd(acc, &outputs_service[clIdx].time_weighted_sum_variations()(k), w * rechit.time());
+          }
+        }
         if (input_clusters_soa[i].isSeed() == 1) {
           outputs[clIdx].seed() = input_rechits_soa[i].detid();
         }
@@ -98,6 +135,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           continue;
         }
         const int max_energy_index = outputs_service[cluster_index].maxEnergyIndex();
+        if (max_energy_index == kInvalidIndex) {  // no member with E > 0 (negative ZS threshold)
+          continue;
+        }
 
         //for silicon only just use 1+6 cells = 1.3cm for all thicknesses
         const float d1 = input_rechits_soa[hit_index].dim1() - input_rechits_soa[max_energy_index].dim1();
@@ -130,7 +170,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       for (int32_t cluster_index : uniform_elements(acc, outputs.metadata().size())) {
         const int max_energy_index = outputs_service[cluster_index].maxEnergyIndex();
 
-        if (outputs_service[cluster_index].total_weight_log() > 0.f) {
+        if (max_energy_index == kInvalidIndex) {  // no member with E > 0: position undefined
+          outputs[cluster_index].x() = 0.f;
+          outputs[cluster_index].y() = 0.f;
+          outputs[cluster_index].z() = 0.f;
+        } else if (outputs_service[cluster_index].total_weight_log() > 0.f) {
           float inv_tot_weight = 1.f / outputs_service[cluster_index].total_weight_log();
           outputs[cluster_index].x() *= inv_tot_weight;
           outputs[cluster_index].y() *= inv_tot_weight;
@@ -138,7 +182,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           outputs[cluster_index].x() = input_rechits_soa[max_energy_index].dim1();
           outputs[cluster_index].y() = input_rechits_soa[max_energy_index].dim2();
         }
-        outputs[cluster_index].z() = input_rechits_soa[max_energy_index].dim3();
+        if (max_energy_index != kInvalidIndex)
+          outputs[cluster_index].z() = input_rechits_soa[max_energy_index].dim3();
+
+        auto const service = outputs_service[cluster_index];
+        outputs[cluster_index].time() =
+            (service.time_weight() > 0.f) ? service.time_weighted_sum() / service.time_weight() : -99.f;
+        for (uint8_t k = 0; k < hgcalreco::Variation::Size; ++k) {
+          float const w = service.time_weight_variations()(k);
+          outputs[cluster_index].time_variations()(k) =
+              (w > 0.f) ? service.time_weighted_sum_variations()(k) / w : -99.f;
+        }
       }  // uniform_elements
     }  // operator()
   };
@@ -177,8 +231,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     //   - elements within a single thread on a CPU backend
     auto workDiv = make_workdiv<Acc1D>(groups, items);
 
-    alpaka::exec<Acc1D>(
-        queue, workDiv, HGCalLayerClustersSoAAlgoKernelEnergy{}, size, input_rechits_soa, input_clusters_soa, outputs);
+    uint32_t group_clusters = divide_up_by(size, items);
+    auto workDivClusters = make_workdiv<Acc1D>(group_clusters, items);
+    if (size > 0)
+      alpaka::exec<Acc1D>(queue, workDivClusters, HGCalLayerClustersSoAAlgoKernelInitVariations{}, outputs, outputs_service);
+
+    alpaka::exec<Acc1D>(queue,
+                        workDiv,
+                        HGCalLayerClustersSoAAlgoKernelEnergy{},
+                        size,
+                        input_rechits_soa,
+                        input_clusters_soa,
+                        outputs,
+                        outputs_service);
     alpaka::exec<Acc1D>(queue,
                         workDiv,
                         HGCalLayerClustersSoAAlgoKernelPositionByHits{},
@@ -199,8 +264,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         input_clusters_soa,
                         outputs,
                         outputs_service);
-    uint32_t group_clusters = divide_up_by(size, items);
-    auto workDivClusters = make_workdiv<Acc1D>(group_clusters, items);
     alpaka::exec<Acc1D>(queue,
                         workDivClusters,
                         HGCalLayerClustersSoAAlgoKernelPositionByHits3{},
