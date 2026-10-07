@@ -543,7 +543,7 @@ void TICLCandidateProducer::assignTimeToCandidates(std::vector<TICLCandidate> &r
             path = std::sqrt((x - xMtd) * (x - xMtd) + (y - yMtd) * (y - yMtd) + (z - zMtd) * (z - zMtd)) +
                    inputTimingView.pathLength()[trackIndex];
           } else {
-            float pathLength = func(*(cand.trackPtr().get()), z);
+            float pathLength = func(*(cand.trackPtr().get()), std::abs(z));
             if (pathLength) {
               path = pathLength;
             }
