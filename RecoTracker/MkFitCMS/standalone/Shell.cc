@@ -294,7 +294,7 @@ namespace mkfit {
       builder.export_best_comb_cands(out_tracks, true);
 
       if (do_remove_duplicates && itconf.m_duplicate_cleaner) {
-        itconf.m_duplicate_cleaner(out_tracks, itconf, trackerInfo);
+        itconf.m_duplicate_cleaner(out_tracks, itconf, trackerInfo, eoh.refBeamSpot());
       }
 
       printf("Shell::ProcessEvent post remove-duplicates: %d comb-cands\n", (int) out_tracks.size());
