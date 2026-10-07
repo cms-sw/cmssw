@@ -31,6 +31,10 @@ namespace edm {
     };
 
     template <typename T>
+    using is_outputmodule =
+        is_one_of<T, edm::one::OutputModuleBase, edm::global::OutputModuleBase, edm::limited::OutputModuleBase>;
+
+    template <typename T>
     struct has_stream_functions {
       static bool constexpr value = false;
     };
@@ -80,50 +84,6 @@ namespace edm {
       static bool constexpr value = true;
     };
 
-    template <typename T>
-    struct has_only_stream_transition_functions {
-      static bool constexpr value = false;
-    };
-
-    template <>
-    struct has_only_stream_transition_functions<edm::global::OutputModuleBase> {
-      static bool constexpr value = true;
-    };
-
-    struct DoNothing {
-      template <typename... T>
-      inline void operator()(const T&...) {}
-    };
-
-    template <typename T, typename TI, typename TP>
-    struct DoBeginStream {
-      inline void operator()(WorkerT<T, TI, TP>* iWorker, StreamID id) { iWorker->callWorkerBeginStream(0, id); }
-    };
-
-    template <typename T, typename TI, typename TP>
-    struct DoEndStream {
-      inline void operator()(WorkerT<T, TI, TP>* iWorker, StreamID id) { iWorker->callWorkerEndStream(0, id); }
-    };
-
-    template <typename T, typename TI, typename TP, typename INFOTYPE>
-    struct DoStreamBeginTrans {
-      inline void operator()(WorkerT<T, TI, TP>* iWorker,
-                             StreamID id,
-                             INFOTYPE const& info,
-                             ModuleCallingContext const* mcc) {
-        iWorker->callWorkerStreamBegin(0, id, info, mcc);
-      }
-    };
-
-    template <typename T, typename TI, typename TP, typename INFOTYPE>
-    struct DoStreamEndTrans {
-      inline void operator()(WorkerT<T, TI, TP>* iWorker,
-                             StreamID id,
-                             INFOTYPE const& info,
-                             ModuleCallingContext const* mcc) {
-        iWorker->callWorkerStreamEnd(0, id, info, mcc);
-      }
-    };
   }  // namespace workerimpl
 
   template <typename T, typename TI, typename TP>
@@ -175,45 +135,28 @@ namespace edm {
 
   template <typename T, typename TI, typename TP>
   bool WorkerT<T, TI, TP>::wantsWrites() const noexcept {
+    if constexpr (workerimpl::is_outputmodule<T>::value) {
+      return true;
+    }
     return false;
   }
-#define EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(M, T) \
-  M(T, RunTransitionInfo, TransitionPhaseGlobal)     \
-  M(T, LumiTransitionInfo, TransitionPhaseGlobal)
-
-#define EDM_SPECIALIZE_WORKERT_WANTS_WRITES(T, TI, TP)    \
-  template <>                                             \
-  bool WorkerT<T, TI, TP>::wantsWrites() const noexcept { \
-    return true;                                          \
-  }
-
-  EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(EDM_SPECIALIZE_WORKERT_WANTS_WRITES, edm::global::OutputModuleBase)
-  EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(EDM_SPECIALIZE_WORKERT_WANTS_WRITES, edm::one::OutputModuleBase)
-  EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(EDM_SPECIALIZE_WORKERT_WANTS_WRITES, edm::limited::OutputModuleBase)
-
-#undef EDM_SPECIALIZE_WORKERT_WANTS_WRITES
 
   template <typename T, typename TI, typename TP>
   SerialTaskQueue* WorkerT<T, TI, TP>::globalTransitionsQueue() {
+    //ones are special
+    if constexpr (workerimpl::is_one_of<T,
+                                        edm::one::EDProducerBase,
+                                        edm::one::EDFilterBase,
+                                        edm::one::EDAnalyzerBase,
+                                        edm::one::OutputModuleBase>::value) {
+      if constexpr (std::is_same_v<TI, RunTransitionInfo>) {
+        return this->module().globalRunsQueue();
+      } else if constexpr (std::is_same_v<TI, LumiTransitionInfo>) {
+        return this->module().globalLuminosityBlocksQueue();
+      }
+    }
     return nullptr;
   }
-
-//one
-#define EDM_SPECIALIZE_WORKERT_GLOBALQUEUES(T, TI, TP)             \
-  template <>                                                      \
-  SerialTaskQueue* WorkerT<T, TI, TP>::globalTransitionsQueue() {  \
-    if constexpr (std::is_same_v<TI, RunTransitionInfo>) {         \
-      return this->module().globalRunsQueue();                     \
-    } else if constexpr (std::is_same_v<TI, LumiTransitionInfo>) { \
-      return this->module().globalLuminosityBlocksQueue();         \
-    }                                                              \
-  }
-
-  EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(EDM_SPECIALIZE_WORKERT_GLOBALQUEUES, one::EDProducerBase)
-  EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(EDM_SPECIALIZE_WORKERT_GLOBALQUEUES, one::EDFilterBase)
-  EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(EDM_SPECIALIZE_WORKERT_GLOBALQUEUES, one::EDAnalyzerBase)
-  EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION(EDM_SPECIALIZE_WORKERT_GLOBALQUEUES, one::OutputModuleBase)
-#undef EDM_SPECIALIZE_WORKERT_GLOBALQUEUES
 
   template <typename T>
   bool WorkerT<T, EventTransitionInfo, TransitionPhaseGlobal>::implDo(EventTransitionInfo const& info,
@@ -302,32 +245,16 @@ namespace edm {
 
   template <typename T>
   bool WorkerT<T, EventTransitionInfo, TransitionPhaseGlobal>::implNeedToRunSelection() const noexcept {
+    if constexpr (workerimpl::is_outputmodule<T>::value) {
+      return true;
+    }
     return false;
-  }
-
-  template <>
-  bool WorkerT<edm::one::OutputModuleBase, EventTransitionInfo, TransitionPhaseGlobal>::implNeedToRunSelection()
-      const noexcept {
-    return true;
-  }
-  template <>
-  bool WorkerT<edm::global::OutputModuleBase, EventTransitionInfo, TransitionPhaseGlobal>::implNeedToRunSelection()
-      const noexcept {
-    return true;
-  }
-  template <>
-  bool WorkerT<edm::limited::OutputModuleBase, EventTransitionInfo, TransitionPhaseGlobal>::implNeedToRunSelection()
-      const noexcept {
-    return true;
   }
 
   template <typename T>
   bool WorkerT<T, EventTransitionInfo, TransitionPhaseGlobal>::implDoPrePrefetchSelection(
       StreamID id, EventPrincipal const& ep, ModuleCallingContext const* mcc) {
-    if constexpr (workerimpl::is_one_of<T,
-                                        edm::one::OutputModuleBase,
-                                        edm::global::OutputModuleBase,
-                                        edm::limited::OutputModuleBase>::value) {
+    if constexpr (workerimpl::is_outputmodule<T>::value) {
       return this->module().prePrefetchSelection(id, ep, mcc);
     }
     return false;
@@ -335,10 +262,7 @@ namespace edm {
   template <typename T>
   void WorkerT<T, EventTransitionInfo, TransitionPhaseGlobal>::itemsToGetForSelection(
       std::vector<ProductResolverIndexAndSkipBit>& iItems) const {
-    if constexpr (workerimpl::is_one_of<T,
-                                        edm::one::OutputModuleBase,
-                                        edm::global::OutputModuleBase,
-                                        edm::limited::OutputModuleBase>::value) {
+    if constexpr (workerimpl::is_outputmodule<T>::value) {
       iItems = this->module().productsUsedBySelection();
     }
   }
@@ -375,47 +299,15 @@ namespace edm {
   }
 
   template <typename T, typename TI>
-  template <typename D>
-  void WorkerT<T, TI, TransitionPhaseStream>::callWorkerStreamBegin(D,
-                                                                    StreamID id,
-                                                                    TI const& info,
-                                                                    ModuleCallingContext const* mcc) {
-    if constexpr (std::is_same_v<TI, RunTransitionInfo>) {
-      this->module().doStreamBeginRun(id, info, mcc);
-    } else if constexpr (std::is_same_v<TI, LumiTransitionInfo>) {
-      this->module().doStreamBeginLuminosityBlock(id, info, mcc);
-    }
-  }
-
-  template <typename T, typename TI>
-  template <typename D>
-  void WorkerT<T, TI, TransitionPhaseStream>::callWorkerStreamEnd(D,
-                                                                  StreamID id,
-                                                                  TI const& info,
-                                                                  ModuleCallingContext const* mcc) {
-    if constexpr (std::is_same_v<TI, RunTransitionInfo>) {
-      this->module().doStreamEndRun(id, info, mcc);
-    } else if constexpr (std::is_same_v<TI, LumiTransitionInfo>) {
-      this->module().doStreamEndLuminosityBlock(id, info, mcc);
-    }
-  }
-
-  template <typename T, typename TI>
   bool WorkerT<T, TI, TransitionPhaseStream>::implDoStreamBegin(StreamID id,
                                                                 TI const& info,
                                                                 ModuleCallingContext const* mcc) {
-    if constexpr (std::is_same_v<TI, RunTransitionInfo>) {
-      std::conditional_t<workerimpl::has_stream_functions<T>::value,
-                         workerimpl::DoStreamBeginTrans<T, TI, TransitionPhaseStream, RunTransitionInfo const>,
-                         workerimpl::DoNothing>
-          might_call;
-      might_call(this, id, info, mcc);
-    } else if constexpr (std::is_same_v<TI, LumiTransitionInfo>) {
-      std::conditional_t<workerimpl::has_stream_functions<T>::value,
-                         workerimpl::DoStreamBeginTrans<T, TI, TransitionPhaseStream, LumiTransitionInfo const>,
-                         workerimpl::DoNothing>
-          might_call;
-      might_call(this, id, info, mcc);
+    if constexpr (workerimpl::has_stream_functions<T>::value) {
+      if constexpr (std::is_same_v<TI, RunTransitionInfo>) {
+        this->module().doStreamBeginRun(id, info, mcc);
+      } else if constexpr (std::is_same_v<TI, LumiTransitionInfo>) {
+        this->module().doStreamBeginLuminosityBlock(id, info, mcc);
+      }
     }
     return true;
   }
@@ -424,18 +316,12 @@ namespace edm {
   bool WorkerT<T, TI, TransitionPhaseStream>::implDoStreamEnd(StreamID id,
                                                               TI const& info,
                                                               ModuleCallingContext const* mcc) {
-    if constexpr (std::is_same_v<TI, RunTransitionInfo>) {
-      std::conditional_t<workerimpl::has_stream_functions<T>::value,
-                         workerimpl::DoStreamEndTrans<T, TI, TransitionPhaseStream, RunTransitionInfo const>,
-                         workerimpl::DoNothing>
-          might_call;
-      might_call(this, id, info, mcc);
-    } else if constexpr (std::is_same_v<TI, LumiTransitionInfo>) {
-      std::conditional_t<workerimpl::has_stream_functions<T>::value,
-                         workerimpl::DoStreamEndTrans<T, TI, TransitionPhaseStream, LumiTransitionInfo const>,
-                         workerimpl::DoNothing>
-          might_call;
-      might_call(this, id, info, mcc);
+    if constexpr (workerimpl::has_stream_functions<T>::value) {
+      if constexpr (std::is_same_v<TI, RunTransitionInfo>) {
+        this->module().doStreamEndRun(id, info, mcc);
+      } else if constexpr (std::is_same_v<TI, LumiTransitionInfo>) {
+        this->module().doStreamEndLuminosityBlock(id, info, mcc);
+      }
     }
     return true;
   }
@@ -452,10 +338,7 @@ namespace edm {
 
   template <typename T, typename TI, typename TP>
   bool WorkerT<T, TI, TP>::implDoWrite(TI const& info, ModuleCallingContext const* mcc) {
-    if constexpr (workerimpl::is_one_of<T,
-                                        edm::one::OutputModuleBase,
-                                        edm::global::OutputModuleBase,
-                                        edm::limited::OutputModuleBase>::value) {
+    if constexpr (workerimpl::is_outputmodule<T>::value) {
       if constexpr (std::is_same_v<TI, RunTransitionInfo>) {
         this->module().doWriteRun(info.principal(), mcc);
       } else if constexpr (std::is_same_v<TI, LumiTransitionInfo>) {
@@ -553,5 +436,4 @@ namespace edm {
   EDM_INSTANTIATE_WORKERT(limited::OutputModuleBase)
 
 #undef EDM_INSTANTIATE_WORKERT
-#undef EDM_FOR_EACH_WORKERT_GLOBAL_TRANSITION
 }  // namespace edm

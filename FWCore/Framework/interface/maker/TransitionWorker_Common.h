@@ -245,12 +245,19 @@ namespace edm {
               //If needed, we pause the queue in begin transition and resume it
               // at the end transition. This can guarantee that the module
               // only processes one run or lumi at a time
-              EnableQueueGuard enableQueueGuard{workerhelper::CallGlobalImpl<TI, E>::enableGlobalQueue(worker)};
+              SerialTaskQueue* gQueue = nullptr;
+              if constexpr (E == TransitionEdge::kEnd) {
+                gQueue = worker->globalTransitionsQueue();
+              }
+              EnableQueueGuard enableQueueGuard{gQueue};
               std::exception_ptr ptr;
               worker->template runModuleAfterAsyncPrefetch<E>(ptr, info, streamID, parentContext, sContext);
             };
             //keep another global transition from running if necessary
-            auto gQueue = workerhelper::CallGlobalImpl<TI, E>::pauseGlobalQueue(m_worker);
+            SerialTaskQueue* gQueue = nullptr;
+            if constexpr (E == TransitionEdge::kBegin) {
+              gQueue = m_worker->globalTransitionsQueue();
+            }
             if (gQueue) {
               gQueue->push(*m_group, [queue, gQueue, f, group = m_group]() mutable {
                 gQueue->pause();
@@ -299,18 +306,6 @@ namespace edm {
         iWorker->beginSucceeded_ = true;
         return returnValue;
       }
-      template <typename T>
-      static bool wantsTransition(T const* iWorker) noexcept {
-        return iWorker->wantsGlobalTransitions();
-      }
-      template <typename T>
-      static SerialTaskQueue* pauseGlobalQueue(T* iWorker) noexcept {
-        return iWorker->globalTransitionsQueue();
-      }
-      template <typename T>
-      static SerialTaskQueue* enableGlobalQueue(T*) noexcept {
-        return nullptr;
-      }
     };
     template <>
     class CallGlobalImpl<RunTransitionInfo, TransitionEdge::kEnd> {
@@ -341,18 +336,6 @@ namespace edm {
         }
         return returnValue;
       }
-      template <typename T>
-      static bool wantsTransition(T const* iWorker) noexcept {
-        return true;
-      }
-      template <typename T>
-      static SerialTaskQueue* pauseGlobalQueue(T* iWorker) noexcept {
-        return nullptr;
-      }
-      template <typename T>
-      static SerialTaskQueue* enableGlobalQueue(T* iWorker) noexcept {
-        return iWorker->globalTransitionsQueue();
-      }
     };
     template <>
     class CallGlobalImpl<LumiTransitionInfo, TransitionEdge::kBegin> {
@@ -370,18 +353,6 @@ namespace edm {
         cpp.postModuleSignal();
         iWorker->beginSucceeded_ = true;
         return returnValue;
-      }
-      template <typename T>
-      static bool wantsTransition(T const* iWorker) noexcept {
-        return iWorker->wantsGlobalTransitions();
-      }
-      template <typename T>
-      static SerialTaskQueue* pauseGlobalQueue(T* iWorker) noexcept {
-        return iWorker->globalTransitionsQueue();
-      }
-      template <typename T>
-      static SerialTaskQueue* enableGlobalQueue(T* iWorker) noexcept {
-        return nullptr;
       }
     };
     template <>
@@ -413,18 +384,6 @@ namespace edm {
         }
         return returnValue;
       }
-      template <typename T>
-      static bool wantsTransition(T const* iWorker) noexcept {
-        return true;
-      }
-      template <typename T>
-      static SerialTaskQueue* pauseGlobalQueue(T* iWorker) noexcept {
-        return nullptr;
-      }
-      template <typename T>
-      static SerialTaskQueue* enableGlobalQueue(T* iWorker) noexcept {
-        return iWorker->globalTransitionsQueue();
-      }
     };
   }  // namespace workerhelper
 
@@ -453,8 +412,11 @@ namespace edm {
                                                  StreamID streamID,
                                                  ParentContext const& parentContext,
                                                  GlobalContext const* context) noexcept {
-    if (not workerhelper::CallGlobalImpl<TI, E>::wantsTransition(this)) {
-      return;
+    if constexpr (E == TransitionEdge::kBegin) {
+      if (not wantsGlobalTransitions()) {
+        //This module wants a write without a global transition.
+        return;
+      }
     }
 
     //Need to check workStarted_ before adding to waitingTasks_
@@ -515,8 +477,11 @@ namespace edm {
                                                                 StreamID streamID,
                                                                 ParentContext const& parentContext,
                                                                 GlobalContext const* context) noexcept {
-    if (not workerhelper::CallGlobalImpl<TI, E>::wantsTransition(this)) {
-      return;
+    if constexpr (E == TransitionEdge::kBegin) {
+      // This module wants a begin transition
+      if (not wantsGlobalTransitions()) {
+        return;
+      }
     }
 
     //Need to check workStarted_ before adding to waitingTasks_

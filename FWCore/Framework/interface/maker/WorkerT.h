@@ -115,15 +115,6 @@ namespace edm {
     using Base::moduleConcurrencyType;
     using Base::moduleType;
 
-    template <typename D>
-    void callWorkerBeginStream(D, StreamID);
-    template <typename D>
-    void callWorkerEndStream(D, StreamID);
-    template <typename D>
-    void callWorkerStreamBegin(D, StreamID, TI const&, ModuleCallingContext const*);
-    template <typename D>
-    void callWorkerStreamEnd(D, StreamID, TI const&, ModuleCallingContext const*);
-
   private:
     bool implDoStreamBegin(StreamID, TI const&, ModuleCallingContext const*) override;
     bool implDoStreamEnd(StreamID, TI const&, ModuleCallingContext const*) override;
@@ -176,19 +167,6 @@ namespace edm {
 
     using Base::moduleConcurrencyType;
     using Base::moduleType;
-
-    template <typename D>
-    void callWorkerBeginStream(D, StreamID);
-    template <typename D>
-    void callWorkerEndStream(D, StreamID);
-    template <typename D>
-    void callWorkerStreamBegin(D, StreamID, RunTransitionInfo const&, ModuleCallingContext const*);
-    template <typename D>
-    void callWorkerStreamEnd(D, StreamID, RunTransitionInfo const&, ModuleCallingContext const*);
-    template <typename D>
-    void callWorkerStreamBegin(D, StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
-    template <typename D>
-    void callWorkerStreamEnd(D, StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
 
   private:
     bool implDo(EventTransitionInfo const&, ModuleCallingContext const*) override;
