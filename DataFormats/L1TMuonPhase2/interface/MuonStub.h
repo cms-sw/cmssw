@@ -40,9 +40,6 @@ namespace l1t {
   namespace io_v1 {
     class MuonStub {
     public:
-      /// default constructor
-      MuonStub();
-
       /// constructor
       MuonStub(int etaRegion,
                int phiRegion,
@@ -56,7 +53,9 @@ namespace l1t {
                int eta1 = 0,
                int eta2 = 0,
                int etaQuality = -1,
-               int type = 0);
+               int type = 0,
+               int z = 0,
+               int kSlope = 0);
       ~MuonStub();
       /// return wheel
       inline int etaRegion() const { return etaRegion_; }
@@ -102,6 +101,9 @@ namespace l1t {
       /// return eta
       inline int eta1() const { return eta1_; }
       inline int eta2() const { return eta2_; }
+      // return z and kslope
+      inline int z() const { return z_; }
+      inline int kSlope() const { return kSlope_; }
       /// return first eta quality
       inline int etaQuality() const { return etaQuality_; }
       //return type
@@ -126,6 +128,10 @@ namespace l1t {
         eta2_ = eta2;
         etaQuality_ = etaQ;
       }
+      void setZandkSlope(int z, int kSlope) {
+        z_ = z;
+        kSlope_ = kSlope;
+      }
 
       void setID(int id) { id_ = id; }
       /// equal operator
@@ -134,12 +140,6 @@ namespace l1t {
       bool operator!=(const MuonStub&) const;
 
       void print() const;
-
-      const Phase2L1GMT::wordtype hybridStubWord() const;
-      void printHybridStub(const std::string module = "MuonStub", const uint spaces = 0, const bool label = true) const;
-      void printHybridStubWord(const std::string module = "MuonStub",
-                               const uint spaces = 0,
-                               const bool label = true) const;
 
     private:
       int etaRegion_;    //In the barrel this is wheel. In the endcap it is 6-ring
@@ -153,6 +153,8 @@ namespace l1t {
       int bxNum_;        // bunch crossing identifier
       int eta1_;         // eta coordinate - in units of 3.0/512.
       int eta2_;         // eta coordinate - in units of 3.0/512.
+      int z_;            // global z coordinate. units 1500./(1 << 16)
+      int kSlope_;       // slope of stub (dz/dR). units 2./(1 << 16)
       int etaQuality_;   // quality of the eta information
       int type_;         //Type: 0 TwinMux or DT, 1 RPC Barrel, 2 CSC, 3 RPC endcap
       /////////members that are not hardware but used for offline studies///////////////////////////////
