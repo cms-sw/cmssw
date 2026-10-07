@@ -1,7 +1,8 @@
 <lcgdict>
   <selection>
-    <class name="l1t::MuonStub" ClassVersion="3">
-      <version ClassVersion="3" checksum="1164456369"/>
+    <class name="l1t::MuonStub" ClassVersion="4">
+      <version ClassVersion="4" checksum="1164668287"/>
+      <version ClassVersion="3" checksum="242583979"/>
     </class>
     <class name="std::vector<l1t::MuonStub>"/>
     <class name="edm::Wrapper<std::vector<l1t::MuonStub > >"/>
