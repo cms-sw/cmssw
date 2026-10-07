@@ -83,15 +83,16 @@ std::pair<std::vector<l1t::KMTFTrack>, std::vector<l1t::KMTFTrack> > KMTF::proce
       edm::LogInfo("KMTF") << "KMTFPattern " << std::flush;
       if (i < Nstubs4)
         edm::LogInfo("KMTF") << stubs4[0]->coord1() << " " << stubs4[0]->coord2() << " " << stubs4[0]->quality() << " "
-                             << " 1 " << stubs4[0]->kmtf_address() << " 0 " << stubs4[0]->eta1() << " "
-                             << stubs4[0]->eta2() << " " << (stubs4[0]->etaQuality() > 0 ? 1 : 0) << " " << std::flush;
+                             << " 1 " << stubs4[0]->kmtf_address() << " 0 " << stubs4[0]->z() << " "
+                             << stubs4[0]->kSlope() << " " << (stubs4[0]->etaQuality() > 0 ? 1 : 0) << " "
+                             << std::flush;
       else
         edm::LogInfo("KMTF") << "0 0 0 0 511 0 0 0 0 " << std::flush;
 
       if (i < Nstubs3) {
         for (const auto& s : stubs3) {
           edm::LogInfo("KMTF") << "" << s->coord1() << " " << s->coord2() << " " << s->quality() << " 1 "
-                               << s->kmtf_address() << " 0 " << s->eta1() << " " << s->eta2() << " "
+                               << s->kmtf_address() << " 0 " << s->z() << " " << s->kSlope() << " "
                                << (s->etaQuality() > 0 ? 1 : 0) << " " << std::flush;
         }
         //pad with zeros
@@ -104,7 +105,7 @@ std::pair<std::vector<l1t::KMTFTrack>, std::vector<l1t::KMTFTrack> > KMTF::proce
         }
         for (const auto& s : stubs3) {
           edm::LogInfo("KMTF") << "" << s->coord1() << " " << s->coord2() << " " << s->quality() << " 1 "
-                               << s->kmtf_address() << " 0 " << s->eta1() << " " << s->eta2() << " "
+                               << s->kmtf_address() << " 0 " << s->z() << " " << s->kSlope() << " "
                                << (s->etaQuality() > 0 ? 1 : 0) << " " << std::flush;
         }
       }
@@ -112,7 +113,7 @@ std::pair<std::vector<l1t::KMTFTrack>, std::vector<l1t::KMTFTrack> > KMTF::proce
       if (i < Nstubs2) {
         for (const auto& s : stubs2) {
           edm::LogInfo("KMTF") << "" << s->coord1() << " " << s->coord2() << " " << s->quality() << " 1 "
-                               << s->kmtf_address() << " 0 " << s->eta1() << " " << s->eta2() << " "
+                               << s->kmtf_address() << " 0 " << s->z() << " " << s->kSlope() << " "
                                << (s->etaQuality() > 0 ? 1 : 0) << " " << std::flush;
         }
         //pad with zeros
@@ -125,14 +126,14 @@ std::pair<std::vector<l1t::KMTFTrack>, std::vector<l1t::KMTFTrack> > KMTF::proce
         }
         for (const auto& s : stubs2) {
           edm::LogInfo("KMTF") << s->coord1() << " " << s->coord2() << " " << s->quality() << " 1 " << s->kmtf_address()
-                               << " 0 " << s->eta1() << " " << s->eta2() << " " << (s->etaQuality() > 0 ? 1 : 0) << " "
+                               << " 0 " << s->z() << " " << s->kSlope() << " " << (s->etaQuality() > 0 ? 1 : 0) << " "
                                << std::flush;
         }
       }
       if (i < Nstubs1) {
         for (const auto& s : stubs1) {
           edm::LogInfo("KMTF") << s->coord1() << " " << s->coord2() << " " << s->quality() << " 1 " << s->kmtf_address()
-                               << " 0 " << s->eta1() << " " << s->eta2() << " " << (s->etaQuality() > 0 ? 1 : 0) << " "
+                               << " 0 " << s->z() << " " << s->kSlope() << " " << (s->etaQuality() > 0 ? 1 : 0) << " "
                                << std::flush;
         }
         //pad with zeros
@@ -145,7 +146,7 @@ std::pair<std::vector<l1t::KMTFTrack>, std::vector<l1t::KMTFTrack> > KMTF::proce
         }
         for (const auto& s : stubs1) {
           edm::LogInfo("KMTF") << s->coord1() << " " << s->coord2() << " " << s->quality() << " 1 " << s->kmtf_address()
-                               << " 0 " << s->eta1() << " " << s->eta2() << " " << (s->etaQuality() > 0 ? 1 : 0) << " "
+                               << " 0 " << s->z() << " " << s->kSlope() << " " << (s->etaQuality() > 0 ? 1 : 0) << " "
                                << std::flush;
         }
       }
@@ -330,7 +331,7 @@ void KMTF::overlapCleanTrack(l1t::KMTFTrack& source, const l1t::KMTFTrack& other
   for (const auto& s1 : source.stubs()) {
     bool ok = true;
     for (const auto& s2 : other.stubs()) {
-      if ((*s1) == (*s2) && (!keep))
+      if (s1->kmtf_address() == s2->kmtf_address() && s1->depthRegion() == s2->depthRegion() && (!keep))
         ok = false;
     }
     if (ok) {

@@ -108,9 +108,9 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubNoEta(const L1Phase2MuDT
   //Now full eta
 
   eta = eta * sign;
-  l1t::MuonStub stub(wheel, sector, station, tfLayer, phi, phiS.phiBend(), tag, bx, quality, eta, 0, 0, 1);
+  l1t::MuonStub stub(wheel, sector, station, tfLayer, phi, phiS.phiBend(), tag, bx, quality, eta, eta, 0, 1);
 
-  stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), eta * etaLSB_, 0.0);
+  stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), eta * etaLSB_, eta * etaLSB_);
   return stub;
 }
 
@@ -160,7 +160,7 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubwithZandkSlope(const L1P
   // if theta digi has no real data, use z_center and slope which points to origin with etaQuality=0..
   // stub set to etaQuality==3 if theta digi exists, 0 if not.
   if (pairs.thetaDigi().quality() >= 0) {
-    stub.setEta(stub.eta1(), 0, 3);
+    stub.setEta(stub.eta1(), stub.eta2(), 3);
     stub.setZandkSlope(z, k);
   } else {
     stub.setZandkSlope(z_centerDigi, k_centerDigi);
