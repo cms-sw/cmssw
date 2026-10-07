@@ -57,11 +57,11 @@ namespace edm {
   }
   template <typename TI>
   void WorkerManager<TI, TransitionPhaseGlobal>::deleteModuleIfExists(std::string const& moduleLabel) {
-    (void)WorkerManagerCore<TI, TransitionPhaseGlobal>::deleteModuleIfExists(moduleLabel);
+    (void)GlobalWorkerManagerCore<TI>::deleteModuleIfExists(moduleLabel);
   }
 
   void WorkerManager<EventTransitionInfo, TransitionPhaseGlobal>::deleteModuleIfExists(std::string const& moduleLabel) {
-    auto worker = WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal>::deleteModuleIfExists(moduleLabel);
+    auto worker = GlobalWorkerManagerCore<EventTransitionInfo>::deleteModuleIfExists(moduleLabel);
     if (worker != nullptr) {
       unscheduled_.removeWorker(worker);
     }
