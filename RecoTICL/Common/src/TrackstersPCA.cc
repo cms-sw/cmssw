@@ -120,7 +120,7 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
           fillPoint(maxE_LC, maxE_LC.energy() * (1.f / trackster.vertex_multiplicity(filtered_vert)));
           for (size_t j = 0; j < 3; ++j)
             filtered_barycenter[j] += point[j];
-          filtered_energy += maxE_LC.energy();
+          filtered_energy += maxE_LC.energy() * (1.f / trackster.vertex_multiplicity(filtered_vert));
         }
       }
       inv_filtered_energy = 1. / filtered_energy;
@@ -199,12 +199,12 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
       // Compute the spread in the both spaces.
       auto calc_spread = [&](size_t i) {
         fillPoint(layerClusters[trackster.vertices(i)]);
-        sigmas += weight * (point - (clean ? filtered_barycenter : barycenter)).cwiseAbs2();
-        Eigen::Vector3f point_transformed =
-            eigenvectors_fromEigen * (point - (clean ? filtered_barycenter : barycenter));
         if (energyWeight && raw_energy)
           weight = (layerClusters[trackster.vertices(i)].energy() / trackster.vertex_multiplicity(i)) *
                    (clean ? inv_filtered_energy : inv_raw_energy);
+        sigmas += weight * (point - (clean ? filtered_barycenter : barycenter)).cwiseAbs2();
+        Eigen::Vector3f point_transformed =
+            eigenvectors_fromEigen.transpose() * (point - (clean ? filtered_barycenter : barycenter));
         sigmasEigen += weight * (point_transformed.cwiseAbs2());
       };
 
