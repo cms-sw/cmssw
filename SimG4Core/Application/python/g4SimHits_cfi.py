@@ -248,6 +248,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         QuirkStopThreshold   = cms.untracked.double(10.),   # MeV, partner below it: pair stopped
         QuirkMoveTinySteps   = cms.untracked.bool(True),    # move quirks on sub-tolerance steps (head-on crossings)
         QuirkCrossingLength  = cms.untracked.double(0.), # mm, shorter incoming string: restart it (0: never, experimental)
+        QuirkPairProduction  = cms.untracked.bool(False),   # hPairProd, no Geant4 element data for PDG 17 (em0033)
         QuirkVerbose         = cms.untracked.int32(0),
         RhadronPhysics       = cms.bool(False),
         DarkMPFactor         = cms.double(1.0),
