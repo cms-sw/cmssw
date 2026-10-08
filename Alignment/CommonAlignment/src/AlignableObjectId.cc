@@ -277,7 +277,7 @@ AlignableObjectId::AlignableObjectId(const TrackerGeometry *tracker,
     : AlignableObjectId(commonGeometry(trackerGeometry(tracker), muonGeometry(muonDt, muonCsc, muonGem))) {}
 
 //_____________________________________________________________________________
-AlignableObjectId ::AlignableObjectId(const TrackerGeometry *tracker, const MTDGeometry *mtd)
+AlignableObjectId::AlignableObjectId(const TrackerGeometry *tracker, const MTDGeometry *mtd)
     : AlignableObjectId(commonGeometry(trackerGeometry(tracker), mtdGeometry(mtd))) {}
 
 //_____________________________________________________________________________
