@@ -53,9 +53,9 @@ namespace edm {
       template <typename T>
       friend class edm::maker::ModuleHolderT;
       template <typename T, typename TI, typename TP>
-      friend class edm::WorkerT;
+      friend class edm::ModuleTransitionWorker;
       template <typename T, typename TI, typename TP>
-      friend class edm::WorkerTBase;
+      friend class edm::ModuleTransitionWorkerBase;
       typedef EDProducerBase ModuleType;
 
       friend class edm::GlobalSchedule;

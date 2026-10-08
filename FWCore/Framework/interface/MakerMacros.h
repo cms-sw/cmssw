@@ -11,7 +11,7 @@
 // implementation file (one every for each XXXWorker) and
 // then include all the relevent worker headers in the
 // implementation file only.
-#include "FWCore/Framework/interface/maker/WorkerT.h"
+#include "FWCore/Framework/interface/maker/ModuleTransitionWorker.h"
 
 #define DEFINE_FWK_MODULE(type)                                                    \
   DEFINE_EDM_PLUGIN(edm::ModuleMakerPluginFactory, edm::ModuleMaker<type>, #type); \

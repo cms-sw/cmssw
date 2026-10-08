@@ -19,7 +19,7 @@
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "FWCore/Framework/interface/maker/ModuleMaker.h"
 #include "FWCore/Framework/interface/maker/MakeModuleParams.h"
-#include "FWCore/Framework/interface/maker/WorkerT.h"
+#include "FWCore/Framework/interface/maker/ModuleTransitionWorker.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

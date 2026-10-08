@@ -57,9 +57,9 @@ namespace edm {
   template <typename T>
   class View;
   template <typename T, typename TI, typename TP>
-  class WorkerT;
+  class ModuleTransitionWorker;
   template <typename T, typename TI, typename TP>
-  class WorkerTBase;
+  class ModuleTransitionWorkerBase;
 }  // namespace edm
 
 #endif

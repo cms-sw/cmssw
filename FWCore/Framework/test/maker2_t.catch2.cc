@@ -5,7 +5,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
-#include "FWCore/Framework/interface/maker/WorkerT.h"
+#include "FWCore/Framework/interface/maker/ModuleTransitionWorker.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"

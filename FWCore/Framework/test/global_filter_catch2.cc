@@ -13,7 +13,7 @@
 #include <variant>
 #include "oneapi/tbb/global_control.h"
 #include "FWCore/Framework/interface/global/EDFilter.h"
-#include "FWCore/Framework/interface/maker/WorkerT.h"
+#include "FWCore/Framework/interface/maker/ModuleTransitionWorker.h"
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
@@ -531,16 +531,16 @@ namespace {
       edm::maker::ModuleHolderT<edm::global::EDFilterBase> h(iMod);
       h.finishModuleInitialization(iMod->moduleDescription(), edm::PreallocationConfiguration{}, nullptr);
 
-      edm::WorkerT<edm::global::EDFilterBase, edm::EventTransitionInfo, edm::TransitionPhaseGlobal> wOther{
-          iMod, m_desc, nullptr};
-      edm::WorkerT<edm::global::EDFilterBase, edm::LumiTransitionInfo, edm::TransitionPhaseGlobal> wGlobalLumi{
-          iMod, m_desc, nullptr};
-      edm::WorkerT<edm::global::EDFilterBase, edm::LumiTransitionInfo, edm::TransitionPhaseStream> wStreamLumi{
-          iMod, m_desc, nullptr};
-      edm::WorkerT<edm::global::EDFilterBase, edm::RunTransitionInfo, edm::TransitionPhaseGlobal> wGlobalRun{
-          iMod, m_desc, nullptr};
-      edm::WorkerT<edm::global::EDFilterBase, edm::RunTransitionInfo, edm::TransitionPhaseStream> wStreamRun{
-          iMod, m_desc, nullptr};
+      edm::ModuleTransitionWorker<edm::global::EDFilterBase, edm::EventTransitionInfo, edm::TransitionPhaseGlobal>
+          wOther{iMod, m_desc, nullptr};
+      edm::ModuleTransitionWorker<edm::global::EDFilterBase, edm::LumiTransitionInfo, edm::TransitionPhaseGlobal>
+          wGlobalLumi{iMod, m_desc, nullptr};
+      edm::ModuleTransitionWorker<edm::global::EDFilterBase, edm::LumiTransitionInfo, edm::TransitionPhaseStream>
+          wStreamLumi{iMod, m_desc, nullptr};
+      edm::ModuleTransitionWorker<edm::global::EDFilterBase, edm::RunTransitionInfo, edm::TransitionPhaseGlobal>
+          wGlobalRun{iMod, m_desc, nullptr};
+      edm::ModuleTransitionWorker<edm::global::EDFilterBase, edm::RunTransitionInfo, edm::TransitionPhaseStream>
+          wStreamRun{iMod, m_desc, nullptr};
       for (auto& keyVal : m_transToFunc) {
         WorkerTypes worker = &wOther;
         if (keyVal.first == Trans::kStreamBeginLuminosityBlock || keyVal.first == Trans::kStreamEndLuminosityBlock) {

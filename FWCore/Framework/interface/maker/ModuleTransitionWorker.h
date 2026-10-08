@@ -1,9 +1,9 @@
-#ifndef FWCore_Framework_WorkerT_h
-#define FWCore_Framework_WorkerT_h
+#ifndef FWCore_Framework_ModuleTransitionWorker_h
+#define FWCore_Framework_ModuleTransitionWorker_h
 
 /*----------------------------------------------------------------------
 
-WorkerT: Code common to all workers.
+ModuleTransitionWorker: Code common to all workers.
 
 ----------------------------------------------------------------------*/
 
@@ -33,13 +33,13 @@ namespace edm {
   }  // namespace eventsetup
 
   template <typename T, typename TI, typename TP>
-  class WorkerTBase : public TransitionWorker<TI, TP> {
+  class ModuleTransitionWorkerBase : public TransitionWorker<TI, TP> {
   public:
     using ModuleType = T;
-    using WorkerType = WorkerTBase<T, TI, TP>;
+    using WorkerType = ModuleTransitionWorkerBase<T, TI, TP>;
     using Base = TransitionWorker<TI, TP>;
 
-    WorkerTBase(std::shared_ptr<T>, ModuleDescription const&, ExceptionToActionTable const* actions);
+    ModuleTransitionWorkerBase(std::shared_ptr<T>, ModuleDescription const&, ExceptionToActionTable const* actions);
 
     void setModule(std::shared_ptr<T> iModule) {
       module_ = iModule;
@@ -82,12 +82,12 @@ namespace edm {
     edm::propagate_const<std::shared_ptr<T>> module_;
   };
   template <typename T, typename TI, typename TP>
-  class WorkerT : public WorkerTBase<T, TI, TP> {
+  class ModuleTransitionWorker : public ModuleTransitionWorkerBase<T, TI, TP> {
   public:
     using ModuleType = T;
-    using WorkerType = WorkerT<T, TI, TP>;
+    using WorkerType = ModuleTransitionWorker<T, TI, TP>;
     using Base = TransitionWorker<TI, TP>;
-    WorkerT(std::shared_ptr<T>, ModuleDescription const&, ExceptionToActionTable const* actions);
+    ModuleTransitionWorker(std::shared_ptr<T>, ModuleDescription const&, ExceptionToActionTable const* actions);
 
     using Base::moduleConcurrencyType;
     using Base::moduleType;
@@ -105,12 +105,13 @@ namespace edm {
   };
 
   template <typename T, typename TI>
-  class WorkerT<T, TI, TransitionPhaseStream> : public WorkerTBase<T, TI, TransitionPhaseStream> {
+  class ModuleTransitionWorker<T, TI, TransitionPhaseStream>
+      : public ModuleTransitionWorkerBase<T, TI, TransitionPhaseStream> {
   public:
     using ModuleType = T;
-    using WorkerType = WorkerT<T, TI, TransitionPhaseStream>;
+    using WorkerType = ModuleTransitionWorker<T, TI, TransitionPhaseStream>;
     using Base = TransitionWorker<TI, TransitionPhaseStream>;
-    WorkerT(std::shared_ptr<T>, ModuleDescription const&, ExceptionToActionTable const* actions);
+    ModuleTransitionWorker(std::shared_ptr<T>, ModuleDescription const&, ExceptionToActionTable const* actions);
 
     using Base::moduleConcurrencyType;
     using Base::moduleType;
@@ -122,13 +123,13 @@ namespace edm {
   };
 
   template <typename T>
-  class WorkerT<T, InputProcessBlockTransitionInfo, TransitionPhaseGlobal>
-      : public WorkerTBase<T, InputProcessBlockTransitionInfo, TransitionPhaseGlobal> {
+  class ModuleTransitionWorker<T, InputProcessBlockTransitionInfo, TransitionPhaseGlobal>
+      : public ModuleTransitionWorkerBase<T, InputProcessBlockTransitionInfo, TransitionPhaseGlobal> {
   public:
     using ModuleType = T;
-    using WorkerType = WorkerT<T, InputProcessBlockTransitionInfo, TransitionPhaseGlobal>;
+    using WorkerType = ModuleTransitionWorker<T, InputProcessBlockTransitionInfo, TransitionPhaseGlobal>;
     using Base = TransitionWorker<InputProcessBlockTransitionInfo, TransitionPhaseGlobal>;
-    WorkerT(std::shared_ptr<T>, ModuleDescription const&, ExceptionToActionTable const* actions);
+    ModuleTransitionWorker(std::shared_ptr<T>, ModuleDescription const&, ExceptionToActionTable const* actions);
 
     using Base::moduleConcurrencyType;
     using Base::moduleType;
@@ -139,13 +140,13 @@ namespace edm {
   };
 
   template <typename T>
-  class WorkerT<T, ProcessBlockTransitionInfo, TransitionPhaseGlobal>
-      : public WorkerTBase<T, ProcessBlockTransitionInfo, TransitionPhaseGlobal> {
+  class ModuleTransitionWorker<T, ProcessBlockTransitionInfo, TransitionPhaseGlobal>
+      : public ModuleTransitionWorkerBase<T, ProcessBlockTransitionInfo, TransitionPhaseGlobal> {
   public:
     using ModuleType = T;
-    using WorkerType = WorkerT<T, ProcessBlockTransitionInfo, TransitionPhaseGlobal>;
+    using WorkerType = ModuleTransitionWorker<T, ProcessBlockTransitionInfo, TransitionPhaseGlobal>;
     using Base = TransitionWorker<ProcessBlockTransitionInfo, TransitionPhaseGlobal>;
-    WorkerT(std::shared_ptr<T>, ModuleDescription const&, ExceptionToActionTable const* actions);
+    ModuleTransitionWorker(std::shared_ptr<T>, ModuleDescription const&, ExceptionToActionTable const* actions);
 
     using Base::moduleConcurrencyType;
     using Base::moduleType;
@@ -157,13 +158,13 @@ namespace edm {
   };
 
   template <typename T>
-  class WorkerT<T, EventTransitionInfo, TransitionPhaseGlobal>
-      : public WorkerTBase<T, EventTransitionInfo, TransitionPhaseGlobal> {
+  class ModuleTransitionWorker<T, EventTransitionInfo, TransitionPhaseGlobal>
+      : public ModuleTransitionWorkerBase<T, EventTransitionInfo, TransitionPhaseGlobal> {
   public:
     using ModuleType = T;
-    using WorkerType = WorkerT<T, EventTransitionInfo, TransitionPhaseGlobal>;
+    using WorkerType = ModuleTransitionWorker<T, EventTransitionInfo, TransitionPhaseGlobal>;
     using Base = TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>;
-    WorkerT(std::shared_ptr<T>, ModuleDescription const&, ExceptionToActionTable const* actions);
+    ModuleTransitionWorker(std::shared_ptr<T>, ModuleDescription const&, ExceptionToActionTable const* actions);
 
     using Base::moduleConcurrencyType;
     using Base::moduleType;

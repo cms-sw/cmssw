@@ -73,9 +73,9 @@ namespace edm {
     class ProducingModuleAdaptorBase {
     public:
       template <typename U, typename TI, typename TP>
-      friend class edm::WorkerT;
+      friend class edm::ModuleTransitionWorker;
       template <typename U, typename TI, typename TP>
-      friend class edm::WorkerTBase;
+      friend class edm::ModuleTransitionWorkerBase;
       template <typename U>
       friend class edm::maker::ModuleHolderT;
 
