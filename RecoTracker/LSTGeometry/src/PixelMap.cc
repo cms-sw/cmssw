@@ -38,7 +38,6 @@ namespace lstgeometry {
       // Phase-2 enum differs from the legacy one used here
       unsigned int subdet = sensor.extra->subdet == SubDetector::P2OTB ? SubDet::Barrel : SubDet::Endcap;
       auto location = sensor.extra->location;
-      auto side = sensor.extra->side;
       float minR = sensor.extra->minR;
       float maxR = sensor.extra->maxR;
       float minZ = sensor.extra->minZ;
@@ -91,7 +90,7 @@ namespace lstgeometry {
 
           // Disk 2 is only connected beyond |eta| = 2.3, on both sides
           if (layer == 2 && location == Location::endcap) {
-            if (side == Side::NegZ) {
+            if (maxZ < 0) {
               if (etamin > -2.3)
                 continue;
               if (etamax > -2.3)
