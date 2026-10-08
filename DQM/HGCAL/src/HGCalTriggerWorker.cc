@@ -198,8 +198,8 @@ namespace hgcal {
               TFile* fwafer = nullptr;
               try {
                 fwafer = geom.trigTemplateFile(typecode, trModule.isSiPM);
-              } catch (...) {
-                edm::LogError("HGCalTriggerWorker") << "Didn't find TC wafer map for " << typecode;
+              } catch (const cms::Exception& e) {
+                edm::LogError("HGCalTriggerWorker") << "Didn't find TC wafer map for " << typecode << ": " << e.what();
                 continue;
               }
 

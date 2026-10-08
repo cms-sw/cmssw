@@ -405,7 +405,6 @@ void HGCalFastStreamDQM::bookHistogramsFastStream(DQMStore::IBooker& ibook,
       ibook.setCurrentFolder(layerFolder);
 
       //cassette level plots
-      int cassette_i = 0;
       for (const auto& cassettePair : cassetteMap) {
         int cassette = cassettePair.first;
         // add bin to layer hist.
@@ -426,7 +425,6 @@ void HGCalFastStreamDQM::bookHistogramsFastStream(DQMStore::IBooker& ibook,
                          necondWithCBflags);
         econdPayloadCassettes_[endcap][layer][cassette] =
             ibook.book1D("econdPayloadCassette_" + std::to_string(cassette), ";ECON-D;Payload", 480, 0, 480);
-        cassette_i += 1;
         hgcal::dqm::addBinLabels(econdWithCBflags, econdQualityCassettes_[endcap][layer][cassette], 2);
       }
     }
