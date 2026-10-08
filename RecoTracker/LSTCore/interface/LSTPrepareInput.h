@@ -2,7 +2,6 @@
 #define RecoTracker_LSTCore_interface_LSTPrepareInput_h
 
 #include <algorithm>
-#include <cmath>
 #include <memory>
 #include <Math/Vector3D.h>
 #include <Math/VectorUtil.h>
@@ -204,18 +203,14 @@ namespace lst {
           isQuad = true;
           hitIdxs.push_back(see_hitIdx[iSeed].back());
         }
-        float neta = 25.;
-        float nphi = 72.;
-        float nz = 25.;
-        // Out-of-range values go to the edge bins, which the pixel maps fill with the modules beyond the binning range
-        int etabin = std::clamp(
-            static_cast<int>(std::floor((p3PCA_Eta + 2.6) / ((2 * 2.6) / neta))), 0, static_cast<int>(neta) - 1);
-        int phibin = std::min(
-            static_cast<int>((p3PCA_Phi + std::numbers::pi_v<float>) / ((2. * std::numbers::pi_v<float>) / nphi)),
-            static_cast<int>(nphi) - 1);
-        int dzbin = std::min(static_cast<int>((std::clamp(see_dz[iSeed], -30.f, 30.f) + 30) / (2 * 30 / nz)),
-                             static_cast<int>(nz) - 1);
-        int isuperbin = (nz * nphi) * etabin + (nz)*phibin + dzbin;
+        // Superbin of the pLS, binned as the pixel maps. pLSs up to one eta bin beyond the binning range use the edge bins,
+        // which hold the modules beyond the range; further out they are not connected (superbin -1).
+        constexpr int nEta = lstgeometry::kNEta, nPhi = lstgeometry::kNPhi, nZ = lstgeometry::kNZ;
+        int etabin = lstgeometry::etaBin(p3PCA_Eta);
+        int isuperbin = -1;
+        if (etabin >= -1 && etabin <= nEta)
+          isuperbin = nZ * nPhi * std::clamp(etabin, 0, nEta - 1) + nZ * lstgeometry::phiBin(p3PCA_Phi) +
+                      lstgeometry::zBin(see_dz[iSeed]);
         superbin_vec.push_back(isuperbin);
         pixelType_vec.push_back(pixtype);
         isQuad_vec.push_back(isQuad);
