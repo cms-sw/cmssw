@@ -126,11 +126,9 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubwithZandkSlope(const L1P
 
   l1t::MuonStub stub = buildStubNoEta(phiS);
 
-  //defining z, k, zPhys, kPhys for case where theta digi exists
+  //defining z, k for case where theta digi exists
   ap_int<16> z = pairs.thetaDigi().z();
   ap_int<16> k = pairs.thetaDigi().k();
-  float zPhys = z * (1500. / (1 << 16));
-  float kPhys = k * (2. / (1 << 16));
 
   //slight asymmetry in wheels w.r.t. the origin calls for different z_center values for case where no theta digi was matched
   //defining z_center adn k_center for when theta digi does NOT exist!!
