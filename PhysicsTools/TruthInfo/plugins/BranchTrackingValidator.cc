@@ -1,6 +1,4 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-// Part of the MC-truth-graph prototype - under heavy development, not yet open
-// to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 // DQM performance plots for the truth::Branch graph as a replacement for the
 // TrackingParticle in track->truth association - the tracker counterpart of

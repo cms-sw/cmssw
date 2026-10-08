@@ -3,6 +3,7 @@
    <class name="std::vector<FTLSample>"/>
    <class name="FTLDataFrame"/>
    <class name="std::vector<FTLDataFrame>"/>
+   <class name="edm::StrictWeakOrdering<FTLDataFrame>"/>
    <class name="FTLDigiCollection"/>
    <class name="edm::Wrapper<FTLDigiCollection>" />
    <class name="io_v1::BTLSample" ClassVersion="3">
@@ -15,10 +16,12 @@
    <class name="std::vector<io_v1::ETLSample>"/>
    <class name="BTLDataFrame"/>
    <class name="std::vector<BTLDataFrame>"/>
+   <class name="edm::StrictWeakOrdering<BTLDataFrame>"/>
    <class name="BTLDigiCollection"/>
    <class name="edm::Wrapper<BTLDigiCollection>"/>
    <class name="ETLDataFrame"/>
    <class name="std::vector<ETLDataFrame>"/>
+   <class name="edm::StrictWeakOrdering<ETLDataFrame>"/>
    <class name="ETLDigiCollection"/>
    <class name="edm::Wrapper<ETLDigiCollection>"/>   
 

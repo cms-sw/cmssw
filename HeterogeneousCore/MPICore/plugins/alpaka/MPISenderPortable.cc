@@ -27,6 +27,7 @@
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -36,6 +37,8 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/MPICore/interface/MPIChannel.h"
 #include "HeterogeneousCore/MPICore/interface/MPIToken.h"
+#include "HeterogeneousCore/MPICore/interface/MutableOnceFlag.h"
+#include "HeterogeneousCore/MPIServices/interface/MPIConsistencyChecker.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/AnyBuffer.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/ReaderBase.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/SerialiserBase.h"
@@ -48,12 +51,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   // Inherit from ProducerBase. This is so we have access to the EDMetadata,
   // which we need for synchronization
-  class MPISenderPortable : public ProducerBase<edm::stream::EDProducer, edm::ExternalWork> {
+  class MPISenderPortable
+      : public ProducerBase<edm::stream::EDProducer, edm::ExternalWork, edm::GlobalCache<MutableOnceFlag>> {
   public:
-    MPISenderPortable(edm::ParameterSet const& config)
-        : ProducerBase<edm::stream::EDProducer, edm::ExternalWork>(config),
+    MPISenderPortable(edm::ParameterSet const& config, MutableOnceFlag const* cache)
+        : ProducerBase<edm::stream::EDProducer, edm::ExternalWork, edm::GlobalCache<MutableOnceFlag>>(config),
           upstream_(consumes<MPIToken>(config.getParameter<edm::InputTag>("upstream"))),
           token_(this->producesCollector().template produces<MPIToken>()),
+          activity_(config.getParameter<edm::InputTag>("activity")),
           instance_(config.getParameter<int32_t>("instance")) {
       // instance 0 is reserved for the MPIController / MPISource pair instance
       // values greater than 255 may not fit in the MPI tag
@@ -62,24 +67,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             << "Invalid MPISenderPortable instance value, please use a value between 1 and 255";
       }
 
+      if (not activity_.label().empty()) {
+        activityToken_ = consumes<edm::PathStateToken>(activity_);
+      }
+
       auto const& products = config.getParameter<std::vector<edm::ParameterSet>>("products");
       products_.reserve(products.size());
       for (auto const& product : products) {
         auto const& type = product.getParameter<std::string>("type");
-        auto const& src = product.getParameter<edm::InputTag>("src");
+        auto const& name = product.getParameter<edm::InputTag>("name");
 
         Entry entry;
         entry.typeName = type;
-
-        // PathStateToken is not transferred over MPI; the path status is
-        // propagated through productCount, which will be set to -1 if the path
-        // is inactive.
-        if (type == "edm::PathStateToken") {
-          entry.typeID = edm::TypeID(typeid(edm::PathStateToken));
-          entry.token = this->consumes(edm::TypeToGet{entry.typeID, edm::PRODUCT_TYPE}, src);
-          products_.emplace_back(std::move(entry));
-          continue;
-        }
 
         // Lookup the right serialiser. In order of preference:
         // SerialiserFactoryDevice, SerialiserFactory, ROOT Serialisation.
@@ -135,11 +134,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           edm::TypeID typeID{deviceSerialiser->productTypeID()};
           hasDeviceProducts_ = true;
           entry.typeID = typeID;
-          entry.token = this->consumes(edm::TypeToGet{typeID, edm::PRODUCT_TYPE}, src);
+          entry.token = this->consumes(edm::TypeToGet{typeID, edm::PRODUCT_TYPE}, name);
           entry.deviceSerialiser = std::move(deviceSerialiser);
 
           LogDebug("MPISenderPortable") << "send device type \"" << typeID << "\" (" << type << "), label \""
-                                        << src.label() << "\" instance \"" << src.instance()
+                                        << name.label() << "\" instance \"" << name.instance()
                                         << "\" over MPI channel instance " << instance_;
 
           products_.emplace_back(std::move(entry));
@@ -158,11 +157,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         if (hostSerialiser) {
           LogDebug("MPISenderPortable") << "found host serialiser for type \"" << type << "\"";
           entry.typeID = edm::TypeID{twd.typeInfo()};
-          entry.token = this->consumes(edm::TypeToGet{entry.typeID, edm::PRODUCT_TYPE}, src);
+          entry.token = this->consumes(edm::TypeToGet{entry.typeID, edm::PRODUCT_TYPE}, name);
           entry.hostSerialiser = std::move(hostSerialiser);
 
           LogDebug("MPISenderPortable") << "send host type \"" << entry.typeID << "\" (" << type << "), label \""
-                                        << src.label() << "\" instance \"" << src.instance()
+                                        << name.label() << "\" instance \"" << name.instance()
                                         << "\" over MPI channel instance " << instance_;
 
           products_.emplace_back(std::move(entry));
@@ -196,11 +195,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         LogDebug("MPISenderPortable") << "found ROOT dictionary for type \"" << type << "\"";
 
         entry.typeID = edm::TypeID{twd.typeInfo()};
-        entry.token = this->consumes(edm::TypeToGet{entry.typeID, edm::PRODUCT_TYPE}, src);
+        entry.token = this->consumes(edm::TypeToGet{entry.typeID, edm::PRODUCT_TYPE}, name);
         entry.wrappedType = wrappedTwd;
 
         LogDebug("MPISenderPortable") << "send ROOT type \"" << entry.typeID << "\" (" << type << "), label \""
-                                      << src.label() << "\" instance \"" << src.instance()
+                                      << name.label() << "\" instance \"" << name.instance()
                                       << "\" over MPI channel instance " << instance_;
 
         products_.emplace_back(std::move(entry));
@@ -208,18 +207,43 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       LogDebug("MPISenderPortable") << "configured to send " << products_.size()
                                     << " products over MPI channel instance " << instance_;
+
+      // record information about this sender for configuration consistency check
+      edm::Service<MPIConsistencyChecker> module_info_service;
+      std::vector<std::string> product_types;
+      product_types.reserve(products_.size());
+      for (auto const& entry : products_) {
+        product_types.push_back(entry.typeName);
+      }
+      std::string module_label = config.getParameter<std::string>("@module_label");
+      std::string upstream_label = config.getParameter<edm::InputTag>("upstream").label();
+      if (cache == nullptr) {
+        throw cms::Exception("MPISenderPortable") << "MPISenderPortable's global cache is null";
+      }
+      std::call_once(cache->information_recorded_flag, [&]() {
+        module_info_service->recordMPIModuleInfo(true, module_label, upstream_label, this->instance_, product_types);
+      });
     }
+
+    static std::unique_ptr<MutableOnceFlag> initializeGlobalCache(edm::ParameterSet const&) {
+      return std::make_unique<MutableOnceFlag>();
+    }
+
+    static void globalEndJob(MutableOnceFlag const*) {}
 
     void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
       MPIToken const& token = event.get(upstream_);
 
-      size_t productCount = 0;
-      for (auto const& entry : products_)
-        if (entry.typeName != "edm::PathStateToken")
-          ++productCount;
-
-      auto productMetadata = std::make_shared<ProductMetadataBuilder>(productCount);
+      auto productMetadata = std::make_shared<ProductMetadataBuilder>(products_.size());
       bool isActive = true;
+
+      if (not activity_.label().empty()) {
+        edm::Handle<edm::PathStateToken> const& pathStateTokenHandle = event.getHandle(activityToken_);
+        if (!pathStateTokenHandle.isValid()) {
+          productMetadata->setProductCount(-1);
+          isActive = false;
+        }
+      }
 
       struct DataToBeSent {
         using Regions = std::vector<std::span<const std::byte>>;
@@ -230,7 +254,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         std::unique_ptr<TBufferFile> rootBuffer;
       };
       auto toBeSent = std::make_shared<DataToBeSent>();
-      toBeSent->pendingRegions.reserve(productCount);
+      toBeSent->pendingRegions.reserve(products_.size());
 
       // The EDMetadata the device serialisers need to access a device product T
       // from its wrapped form.
@@ -239,46 +263,40 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         deviceMetadata = std::make_shared<EDMetadata>(detail::chooseDevice(event.streamID()));
       }
 
-      for (auto const& entry : products_) {
-        edm::Handle<edm::WrapperBase> handle(entry.typeID.typeInfo());
-        event.getByToken(entry.token, handle);
+      if (isActive) {
+        for (auto const& entry : products_) {
+          edm::Handle<edm::WrapperBase> handle(entry.typeID.typeInfo());
+          event.getByToken(entry.token, handle);
 
-        if (not handle.isValid() and entry.typeName == "edm::PathStateToken") {
-          productMetadata->setProductCount(-1);
-          isActive = false;
-          break;
-        }
-        if (entry.typeName == "edm::PathStateToken")
-          continue;
-
-        if (handle.isValid()) {
-          edm::WrapperBase const* wrapper = handle.product();
-          // extract memory regions
-          if (entry.deviceSerialiser) {
-            // If the product is on device
-            auto reader = entry.deviceSerialiser->reader(*wrapper, *deviceMetadata);
-            ::ngt::AnyBuffer buffer = reader->parameters();
-            productMetadata->addTrivialCopy(buffer.data(), buffer.size_bytes());
-            toBeSent->pendingRegions.push_back(reader->regions());
-          } else if (entry.hostSerialiser) {
-            // If the product is on host and we have a serialiser for it
-            auto reader = entry.hostSerialiser->reader(*wrapper);
-            ::ngt::AnyBuffer buffer = reader->parameters();
-            productMetadata->addTrivialCopy(buffer.data(), buffer.size_bytes());
-            toBeSent->pendingRegions.push_back(reader->regions());
+          if (handle.isValid()) {
+            edm::WrapperBase const* wrapper = handle.product();
+            // extract memory regions
+            if (entry.deviceSerialiser) {
+              // If the product is on device
+              auto reader = entry.deviceSerialiser->reader(*wrapper, *deviceMetadata);
+              ::ngt::AnyBuffer buffer = reader->parameters();
+              productMetadata->addTrivialCopy(buffer.data(), buffer.size_bytes());
+              toBeSent->pendingRegions.push_back(reader->regions());
+            } else if (entry.hostSerialiser) {
+              // If the product is on host and we have a serialiser for it
+              auto reader = entry.hostSerialiser->reader(*wrapper);
+              ::ngt::AnyBuffer buffer = reader->parameters();
+              productMetadata->addTrivialCopy(buffer.data(), buffer.size_bytes());
+              toBeSent->pendingRegions.push_back(reader->regions());
+            } else {
+              // If the product is serialised via ROOT
+              TClass* cls = entry.wrappedType.getClass();
+              if (!cls)
+                throw cms::Exception("MPISenderPortable") << "Failed to get TClass for type: " << entry.typeName;
+              if (!toBeSent->rootBuffer)
+                toBeSent->rootBuffer = std::make_unique<TBufferFile>(TBuffer::kWrite);
+              size_t prevLen = toBeSent->rootBuffer->Length();
+              cls->Streamer(const_cast<void*>(static_cast<void const*>(wrapper)), *toBeSent->rootBuffer);
+              productMetadata->addSerialized(toBeSent->rootBuffer->Length() - prevLen);
+            }
           } else {
-            // If the product is serialised via ROOT
-            TClass* cls = entry.wrappedType.getClass();
-            if (!cls)
-              throw cms::Exception("MPISenderPortable") << "Failed to get TClass for type: " << entry.typeName;
-            if (!toBeSent->rootBuffer)
-              toBeSent->rootBuffer = std::make_unique<TBufferFile>(TBuffer::kWrite);
-            size_t prevLen = toBeSent->rootBuffer->Length();
-            cls->Streamer(const_cast<void*>(static_cast<void const*>(wrapper)), *toBeSent->rootBuffer);
-            productMetadata->addSerialized(toBeSent->rootBuffer->Length() - prevLen);
+            productMetadata->addMissing();
           }
-        } else {
-          productMetadata->addMissing();
         }
       }
 
@@ -335,9 +353,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           "that it is a device product; every occurrence of the placeholder is substituted with the backend's "
           "actual namespace at construction time. "
           "For host and ROOT products, use the plain C++ type name with no placeholder.");
-      product.add<edm::InputTag>("src")->setComment(
-          "InputTag identifying the product to consume: label is the producer module label, "
-          "instance is the product instance name.");
+      product.add<edm::InputTag>("name")->setComment("Input tag of the product to be sent.");
 
       edm::ParameterSetDescription desc;
       desc.add<edm::InputTag>("upstream", {"source"})
@@ -352,6 +368,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           ->setComment(
               "A value between 1 and 255 used to identify a matching pair of "
               "\"MPISenderPortable\"/\"MPIReceiverPortable\".");
+      desc.add<edm::InputTag>("activity", edm::InputTag(""))
+          ->setComment(
+              "Activity product. If empty (default), sender is always active. "
+              "If set but missing in event, the sender skips transfer.");
 
       descriptions.addWithDefaultLabel(desc);
     }
@@ -370,7 +390,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::EDGetTokenT<MPIToken> const upstream_;
     edm::EDPutTokenT<MPIToken> const token_;
     std::vector<Entry> products_;
+    edm::InputTag const activity_;
     int32_t const instance_;
+    edm::EDGetTokenT<edm::PathStateToken> activityToken_;
     bool hasDeviceProducts_ = false;
   };
 

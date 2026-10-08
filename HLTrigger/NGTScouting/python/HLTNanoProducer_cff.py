@@ -20,6 +20,7 @@ from HLTrigger.NGTScouting.hltPhotons_cfi import *
 from HLTrigger.NGTScouting.hltElectrons_cfi import *
 from HLTrigger.NGTScouting.hltMuons_cfi import *
 from HLTrigger.NGTScouting.hltTracks_cfi import *
+from HLTrigger.NGTScouting.hltGsfTracks_cfi import *
 from HLTrigger.NGTScouting.hltJets_cfi import *
 from HLTrigger.NGTScouting.hltTaus_cfi import *
 from HLTrigger.NGTScouting.hltTracksters_cfi import *
@@ -63,6 +64,8 @@ NanoHltTables = cms.Sequence(
     + hltPixelVertexTable
     + hltGeneralTrackTable
     + hltGeneralTrackExtTable
+    + hltGsfTracksL1SeededTable
+    + hltGsfTracksUnseededTable
     + hltEgammaPacker
     + hltPhotonTable
     + hltElectronTable
@@ -109,8 +112,7 @@ NanoValTables = cms.Sequence(
 
 # NGT Scouting Nano flavour (NANO:@NGTScouting)
 dstNanoFlavour = cms.Sequence(
-    #dstTriggerAcceptFilter +
-    NanoHltTables
+    NanoHltTables.copyAndExclude([hltGsfTracksL1SeededTable])
 )
 
 # NGT Scouting Nano flavour with MC/HGCal info (NANO:@NGTScoutingVal)

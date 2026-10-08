@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltESPRKTrajectorySmoother = cms.ESProducer("KFTrajectorySmootherESProducer",
     ComponentName = cms.string('hltESPRKTrajectorySmoother'),
-    Estimator = cms.string('hltESPChi2MeasurementEstimator30'),
+    Estimator = cms.string('hltESPChi2MeasurementEstimatorForFitters'),
     Propagator = cms.string('hltESPRungeKuttaTrackerPropagator'),
     RecoGeometry = cms.string('hltESPGlobalDetLayerGeometry'),
     Updator = cms.string('hltESPKFUpdator'),

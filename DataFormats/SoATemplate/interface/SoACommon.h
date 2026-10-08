@@ -14,15 +14,24 @@
 #include <sstream>
 #include <span>
 #include <source_location>
+#include <string_view>
 #include <tuple>
 #include <type_traits>
 #include <utility>
 
 #include <boost/preprocessor.hpp>
 
+#ifdef __CUDACC__
+#include <cuda_runtime.h>
+#endif
+
+#ifdef __HIPCC__
+#include <hip/hip_runtime_api.h>
+#endif
+
 #include "FWCore/Utilities/interface/typedefs.h"
 
-// CUDA attributes
+// CUDA/ROCm attributes
 #if defined(__CUDACC__) || defined(__HIPCC__)
 #define SOA_HOST_ONLY __host__
 #define SOA_DEVICE_ONLY __device__
@@ -584,8 +593,8 @@ namespace cms::soa {
 #define SOA_ELEMENT_METHODS(...) (_VALUE_TYPE_METHOD, _, _, (__VA_ARGS__))
 #define SOA_CONST_ELEMENT_METHODS(...) (_VALUE_TYPE_CONST_METHOD, _, _, (__VA_ARGS__))
 #define SOA_BLOCK(NAME, LAYOUT_NAME) (_VALUE_TYPE_BLOCK, NAME, LAYOUT_NAME)
-#define SOA_VIEW_METHODS(...) (_VALUE_TYPE_VIEW_METHOD, _, (__VA_ARGS__))
-#define SOA_CONST_VIEW_METHODS(...) (_VALUE_TYPE_CONST_VIEW_METHOD, _, (__VA_ARGS__))
+#define SOA_VIEW_METHODS(...) (_VALUE_TYPE_VIEW_METHOD, _, _, (__VA_ARGS__))
+#define SOA_CONST_VIEW_METHODS(...) (_VALUE_TYPE_CONST_VIEW_METHOD, _, _, (__VA_ARGS__))
 
 /* Macro generating customized methods for the element */
 #define GENERATE_METHODS(R, DATA, FIELD)                                         \
@@ -599,16 +608,16 @@ namespace cms::soa {
               BOOST_PP_TUPLE_ELEM(3, FIELD),                                           \
               BOOST_PP_EMPTY())
 
-/* Macro generating customized methods for the element */
+/* Macro generating customized methods for the View of an SoA */
 #define GENERATE_VIEW_METHODS(R, DATA, FIELD)                                         \
   BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_ELEM(0, FIELD), _VALUE_TYPE_VIEW_METHOD), \
-              BOOST_PP_TUPLE_ELEM(2, FIELD),                                          \
+              BOOST_PP_TUPLE_ELEM(3, FIELD),                                          \
               BOOST_PP_EMPTY())
 
-/* Macro generating customized methods for the const element*/
+/* Macro generating customized methods for the ConstView of an SoA */
 #define GENERATE_CONST_VIEW_METHODS(R, DATA, FIELD)                                         \
   BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_ELEM(0, FIELD), _VALUE_TYPE_CONST_VIEW_METHOD), \
-              BOOST_PP_TUPLE_ELEM(2, FIELD),                                                \
+              BOOST_PP_TUPLE_ELEM(3, FIELD),                                                \
               BOOST_PP_EMPTY())
 
 /* Preprocessing loop for managing functions generation: only macros containing valid content are expanded */
@@ -643,6 +652,36 @@ namespace cms::soa {
           BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_COLUMN),                  \
           IF_COLUMN,                                                       \
           BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_EIGEN_COLUMN), IF_EIGEN_COLUMN, BOOST_PP_EMPTY())))
+
+// Extract the type, name and layout from a block specification
+#define _BLOCK_GET_TYPE(SPEC) BOOST_PP_TUPLE_ELEM(0, SPEC)
+#define _BLOCK_GET_NAME(SPEC) BOOST_PP_TUPLE_ELEM(1, SPEC)
+#define _BLOCK_GET_LAYOUT(SPEC) BOOST_PP_TUPLE_ELEM(2, SPEC)
+
+// Check if argument is a block specification
+#define _IS_BLOCK(SPEC) BOOST_PP_LESS_EQUAL(_BLOCK_GET_TYPE(SPEC), _VALUE_TYPE_BLOCK)
+
+// Execute MACRO if specification is a block specification, otherwise do nothing
+#define _EXEC_IF_BLOCK(SPEC, MACRO, ARGS) BOOST_PP_IF(_IS_BLOCK(SPEC), MACRO ARGS, BOOST_PP_EMPTY())
+
+#define _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE, CODE) BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_SCALAR), CODE, )
+
+#define _APPLY_FOR_NON_SCALAR(VALUE_TYPE, CODE) BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_SCALAR), , CODE)
+
+/* Produces text input token if input sequence is not empty */
+#define _APPEND_TOKEN_1(PARAM_NAME)
+#define _APPEND_TOKEN_0(PARAM_NAME) PARAM_NAME
+#define _APPEND_TOKEN(SEQ, PARAM_NAME) BOOST_PP_CAT(_APPEND_TOKEN_, BOOST_PP_IS_EMPTY(SEQ))(PARAM_NAME)
+
+/* Appends comma if input sequence is not empty */
+#define _APPEND_COMMA_1(SEQ)
+#define _APPEND_COMMA_0(SEQ) , BOOST_PP_SEQ_ENUM(SEQ)
+#define _APPEND_COMMA(SEQ) BOOST_PP_CAT(_APPEND_COMMA_, BOOST_PP_IS_EMPTY(SEQ))(SEQ)
+
+/* Appends list initializer token ":" if input sequence is not empty */
+#define _APPEND_LIST_INIT_1(SEQ)
+#define _APPEND_LIST_INIT_0(SEQ) : BOOST_PP_SEQ_ENUM(SEQ)
+#define _APPEND_LIST_INIT(SEQ) BOOST_PP_CAT(_APPEND_LIST_INIT_, BOOST_PP_IS_EMPTY(SEQ))(SEQ)
 
 namespace cms::soa {
 

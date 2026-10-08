@@ -64,7 +64,6 @@
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
-#include "FWCore/Framework/interface/WorkerManager.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Framework/interface/GlobalSchedule.h"
 #include "FWCore/Framework/interface/StreamSchedule.h"
@@ -108,7 +107,6 @@ namespace edm {
   class BranchIDListHelper;
   class EventTransitionInfo;
   class ExceptionCollector;
-  class MergeableRunProductMetadata;
   class OutputModuleCommunicator;
   class SignallingProductRegistryFiller;
   class PreallocationConfiguration;
@@ -176,19 +174,6 @@ namespace edm {
 
     void beginStream(unsigned int streamID);
     void endStream(unsigned int streamID, ExceptionCollector& collector, std::mutex& collectorMutex) noexcept;
-
-    // Write the luminosity block
-    void writeLumiAsync(WaitingTaskHolder iTask,
-                        LuminosityBlockPrincipal const& lbp,
-                        ProcessContext const*,
-                        ActivityRegistry*);
-
-    // Write the run
-    void writeRunAsync(WaitingTaskHolder iTask,
-                       RunPrincipal const& rp,
-                       ProcessContext const*,
-                       ActivityRegistry*,
-                       MergeableRunProductMetadata const*);
 
     void writeProcessBlockAsync(WaitingTaskHolder iTask,
                                 ProcessBlockPrincipal const&,

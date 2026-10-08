@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 import RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsCreator_cfi
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 
 trajectorySeedProducer = cms.EDProducer(
     "TrajectorySeedProducer",
@@ -25,3 +26,4 @@ trajectorySeedProducer = cms.EDProducer(
     )
 
 
+trackingPhase2PU140.toModify(trajectorySeedProducer, recHitCombinations = cms.InputTag("fastTrackerRecHitCombinations"))

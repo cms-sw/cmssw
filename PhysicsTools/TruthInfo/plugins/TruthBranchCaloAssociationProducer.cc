@@ -1,6 +1,4 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-// Part of the MC-truth-graph prototype - under heavy development, not yet open
-// to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 // Builds TICL-style AssociationMaps between the truth::Branch graph and the legacy
 // HGCAL calo truth objects (CaloParticle, SimCluster), in the same fashion as the

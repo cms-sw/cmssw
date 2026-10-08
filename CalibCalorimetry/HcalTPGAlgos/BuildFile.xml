@@ -1,11 +1,14 @@
-<use name="DataFormats/HcalDigi"/>
-<use name="CalibFormats/HcalObjects"/>
-<use name="Geometry/HcalTowerAlgo"/>
 <use name="CalibCalorimetry/HcalAlgos"/>
-<use name="DataFormats/HcalDetId"/>
-<use name="Utilities/Xerces"/>
+<use name="CalibFormats/CaloObjects"/>
+<use name="CalibFormats/HcalObjects"/>
 <use name="CondFormats/HcalObjects"/>
-<use name="xerces-c"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="DataFormats/HcalDigi"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/CaloTopology"/>
+<use name="Geometry/HcalTowerAlgo"/>
 <use name="md5"/>
 <export>
   <lib name="1"/>

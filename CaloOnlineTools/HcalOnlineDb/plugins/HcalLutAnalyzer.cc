@@ -15,8 +15,8 @@
 //         Created:  Fri, 21 Jul 2017 08:42:05 GMT
 //
 
-#include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
-#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/LutXml.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"

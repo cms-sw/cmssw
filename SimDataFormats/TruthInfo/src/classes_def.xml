@@ -9,15 +9,17 @@
   <class name="std::vector<TruthGraph::NodeRef>"/>
   <class name="edm::Wrapper<TruthGraph>"/>
 
-  <class name="truth::Graph" ClassVersion="4">
+  <class name="truth::Graph" ClassVersion="5">
     <version ClassVersion="3" checksum="260758393"/>
     <version ClassVersion="4" checksum="2233235025"/>
+    <version ClassVersion="5" checksum="1041064367"/>
   </class>
   <class name="truth::Checkpoint" ClassVersion="3">
     <version ClassVersion="3" checksum="4215584109"/>
   </class>
-  <class name="truth::ParticleData" ClassVersion="3">
+  <class name="truth::ParticleData" ClassVersion="4">
     <version ClassVersion="3" checksum="3588168857"/>
+    <version ClassVersion="4" checksum="101579443"/>
   </class>
   <class name="truth::VertexData" ClassVersion="3">
     <version ClassVersion="3" checksum="3205991304"/>

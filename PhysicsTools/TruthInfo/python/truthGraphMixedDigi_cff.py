@@ -1,6 +1,4 @@
 # Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-# Part of the MC-truth-graph prototype - under heavy development, not yet open
-# to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 # DIGI-step pileup-aware truth, wired under the enableTruth modifier: the
 # TruthGraphAccumulator (registered in the MixingModule digitizers) builds the

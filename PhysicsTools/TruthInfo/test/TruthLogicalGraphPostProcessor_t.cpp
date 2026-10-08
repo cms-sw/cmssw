@@ -1,6 +1,4 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-// Part of the MC-truth-graph prototype - under heavy development, not yet open
-// to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 #include "cppunit/extensions/HelperMacros.h"
@@ -192,6 +190,17 @@ namespace {
     return count;
   }
 
+  uint32_t countSignalStamped(truth::Graph const& graph) {
+    uint32_t count = 0;
+
+    for (auto const& particle : graph.particles()) {
+      if (particle.isAtLevel(truth::LevelFlag::Signal))
+        ++count;
+    }
+
+    return count;
+  }
+
   bool hasGenSimParticleWithPdgId(truth::Graph const& graph, int32_t pdgId) {
     return std::any_of(graph.particles().begin(), graph.particles().end(), [pdgId](auto const& particle) {
       return particle.pdgId == pdgId && particle.hasGen() && particle.hasSim();
@@ -330,6 +339,9 @@ class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(testEventIdKeyingSplitsInteractions);
   CPPUNIT_TEST(testSignalOnlyAndBunchCrossingFilterDropPileup);
   CPPUNIT_TEST(testEveryParticleDescendsFromArtificialSource);
+  CPPUNIT_TEST(testSignalStampRequiresGenProvenance);
+  CPPUNIT_TEST(testSeedPdgIdZeroStampsNothing);
+  CPPUNIT_TEST(testSignalStampSkipsPileup);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -356,6 +368,9 @@ public:
   void testEventIdKeyingSplitsInteractions();
   void testSignalOnlyAndBunchCrossingFilterDropPileup();
   void testEveryParticleDescendsFromArtificialSource();
+  void testSignalStampRequiresGenProvenance();
+  void testSeedPdgIdZeroStampsNothing();
+  void testSignalStampSkipsPileup();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestTruthLogicalGraphPostProcessor);
@@ -1795,6 +1810,85 @@ void TestTruthLogicalGraphPostProcessor::testEveryParticleDescendsFromArtificial
     for (uint32_t particle = 0; particle < output.nParticles(); ++particle)
       CPPUNIT_ASSERT_MESSAGE("particle is not grounded on an artificial source",
                              descendsFromArtificialSource(output, particle));
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testSignalStampRequiresGenProvenance() {
+  try {
+    // Gun preset: a GEN electron plus an unrelated SIM-only electron (a delta
+    // ray). Only a GEN particle of the signal interaction may carry the Signal
+    // flag, so exactly one particle is stamped.
+    GraphBuilder builder(2, 0);
+
+    builder.setGenParticle(0, 11, 1, 100);
+    builder.setSimParticle(1, 11, 1001);
+
+    auto graph = builder.finish();
+
+    auto config = defaultConfig();
+    config.seedPdgIds = {11, -11};
+
+    auto output = runPostProcessing(std::move(graph), config);
+
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countSignalStamped(output));
+    for (auto const& particle : output.particles()) {
+      if (particle.isAtLevel(truth::LevelFlag::Signal))
+        CPPUNIT_ASSERT(particle.hasGen());
+    }
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testSeedPdgIdZeroStampsNothing() {
+  try {
+    // seedPdgIds = {0} is the full-graph debug escape hatch: it names no
+    // resonance, so nothing is stamped, not even a pdgId-0 SIM-only particle.
+    GraphBuilder builder(2, 0);
+
+    builder.setGenParticle(0, 11, 1, 100);
+    builder.setSimParticle(1, 0, 1001);
+
+    auto graph = builder.finish();
+
+    auto config = defaultConfig();
+    config.seedPdgIds = {0};
+
+    auto output = runPostProcessing(std::move(graph), config);
+
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countSignalStamped(output));
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testSignalStampSkipsPileup() {
+  try {
+    // Two Z bosons of the same species, one in the signal interaction and one
+    // tagged with a pile-up EncodedEventId. Only the signal Z is stamped.
+    GraphBuilder builder(2, 0);
+
+    builder.setGenParticle(0, 23, 2, 100);
+    builder.setGenParticle(1, 23, 2, 101);
+    builder.graph.particles()[1].eventId = 0x2a;  // a distinct pile-up EncodedEventId
+
+    auto graph = builder.finish();
+
+    auto config = defaultConfig();
+    config.seedPdgIds = {23};
+
+    auto output = runPostProcessing(std::move(graph), config);
+
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countSignalStamped(output));
+    for (auto const& particle : output.particles()) {
+      if (particle.isAtLevel(truth::LevelFlag::Signal))
+        CPPUNIT_ASSERT_EQUAL(uint64_t(0), uint64_t(particle.eventId));
+    }
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);

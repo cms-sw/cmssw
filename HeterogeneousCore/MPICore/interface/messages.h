@@ -24,6 +24,7 @@ enum EDM_MPI_MessageTag {
   EDM_MPI_EndLuminosityBlock,
   EDM_MPI_ProcessEvent,
   EDM_MPI_SendMetadata,
+  EDM_MPI_SendModulesInfo,
   EDM_MPI_SendSerializedProduct,
   EDM_MPI_SendTrivialProduct,
   EDM_MPI_SendTrivialCopyProduct,

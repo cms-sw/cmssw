@@ -220,7 +220,63 @@ namespace hltp2gt {
           maxAbsEta(ps.getParameter<double>("maxAbsEta")) {}
 
     bool accepts(const l1t::P2GTCandidate& c) const {
-      return c.objectType() == objectType && c.pt() >= minPt && std::abs(c.eta()) <= maxAbsEta;
+      if (c.objectType() != objectType)
+        return false;
+      if (std::abs(c.eta()) > maxAbsEta)
+        return false;
+      // Sum objects store their value in scalarSumPt(), not pt().
+      // Using pt() for sum types returns an unphysical value and would make
+      // the threshold cut ineffective.
+      const double value = c.isHtSum() ? c.scalarSumPT() : c.pt();
+      return value >= minPt;
+    }
+
+    // Same logic as accepts() but emits one edm::LogPrint line per candidate
+    // describing exactly which cut failed (or that it passed).  Activated by
+    // the debugAccepts parameter on HLTP2GTSingleObjectFilter.
+    bool acceptsWithDebug(const l1t::P2GTCandidate& c, const std::string& algoName) const {
+      const char* typeName = objectTypeName(objectType);
+
+      if (c.objectType() != objectType) {
+        LogDebug("HLTP2GTUtilities") << "[" << algoName << "] REJECT objectType mismatch:"
+                                     << " candidate=" << objectTypeName(c.objectType()) << " expected=" << typeName
+                                     << std::endl;
+        return false;
+      } else {
+        LogDebug("HLTP2GTUtilities") << "[" << algoName << "] ACCEPT objectType:"
+                                     << " candidate=" << objectTypeName(c.objectType()) << " expected=" << typeName
+                                     << std::endl;
+      }
+
+      const double absEta = std::abs(c.eta());
+      if (absEta > maxAbsEta) {
+        LogDebug("HLTP2GTUtilities") << "[" << algoName << "] REJECT " << typeName << " |eta|=" << absEta
+                                     << " > maxAbsEta=" << maxAbsEta << std::endl;
+        return false;
+      } else {
+        LogDebug("HLTP2GTUtilities") << "[" << algoName << "] ACCEPT " << typeName << " |eta|=" << absEta
+                                     << " < maxAbsEta=" << maxAbsEta << std::endl;
+      }
+
+      const double value = c.isHtSum() ? c.scalarSumPT() : c.pt();
+      const auto& hWpT = c.isHtSum() ? c.hwScalarSumPT() : c.hwPT();
+
+      if (value < minPt) {
+        LogDebug("HLTP2GTUtilities") << "[" << algoName << "] REJECT " << typeName << " pT =" << value
+                                     << " < minPt=" << minPt << "(hW pT:)" << hWpT << std::endl;
+        return false;
+      } else {
+        LogDebug("HLTP2GTUtilities") << "[" << algoName << "] ACCEPT " << typeName << " pT =" << value
+                                     << " > minPt=" << minPt << "(hW pT:)" << hWpT << std::endl;
+      }
+
+      LogDebug("HLTP2GTUtilities") << "[" << algoName << "] ACCEPT " << typeName << "pT=" << value
+                                   << " >= minPt=" << minPt << std::endl;
+      return true;
+    }
+
+    bool operator==(const CollectionSpec& o) const {
+      return objectType == o.objectType && minPt == o.minPt && maxAbsEta == o.maxAbsEta;
     }
 
     static void fillDescription(edm::ParameterSetDescription& desc, const std::string& defaultType = "CL2Taus") {

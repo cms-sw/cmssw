@@ -61,11 +61,15 @@ The script also handles the common and forward elements of the geometry:
 * O8: as O4 with added material for muon shield
 * O9: as O5 with added material for muon shield
 * O10: as O7 with the material for IP to ZDC or ZDC to beyond as vacuum
+* O11: as O10 with the extent extending to accommodate FSCs
+
 * F1: 2021 baseline
 * F2: same as F1 with modified file zdc.xml from ZDC group
 * F3: same as F2 with added simulti geometry for RPD
 * F4: same as F3 with corrected version of zdc.xml from ZDC group
 * F5: same as F4 with corrected diameter of the Fibre
+* F6: same as F5 but includes the forward shower counters (FSC)
+* F7: same as F6 with a better integration of BRAN and RPD detectors
 
 Several detector combinations have been generated:
 * 2021 = T3+C3+M13+P7+O7+F1
@@ -92,6 +96,7 @@ Several detector combinations have been generated:
 * 2025FlatMinus10Percent = T6+C2+M12+P8+O9+F3
 * 2025FlatPlus05Percent = T7+C2+M12+P8+O9+F3
 * 2025FlatPlus10Percent = T8+C2+M12+P8+O9+F3
+* 2026 = T3+C2+M17+P8+O11+F7
 
 # Phase 2 Geometries
 
@@ -153,5 +158,5 @@ Several detector combinations have been generated:
 * D124 = T35+C25+M16+I21+O10+F9
 * D125 = T35+C25+M16+I22+O10+F9
 * D126 = T37+C27+M17+I21+O11+F10 (Most up-to-date scenario)
-* D127 = T35+C27+M17+I21+O11+F10 (Phase-2 baseline from CMSSW_20_1_0_pre2)
-* D128 = T35+C27+M16+I21+O11+F10 (To be used for trigger studies)
+* D127 = T35+C27+M17+I21+O11+F10
+* D128 = T35+C27+M16+I21+O11+F10 (Phase-2 baseline from CMSSW_20_1_0_pre4, for trigger studies)

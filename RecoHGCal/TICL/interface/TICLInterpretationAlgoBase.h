@@ -45,7 +45,6 @@ namespace ticl {
       const std::vector<reco::CaloCluster>& layerClusters;
       const edm::ValueMap<std::pair<float, float>>& layerClustersTime;
       const edm::MultiSpan<Trackster>& tracksters;
-      const std::vector<std::vector<unsigned int>>& linkedResultTracksters;
       const edm::Handle<std::vector<T>> tracksHandle;
       const std::vector<bool>& maskedTracks;
 
@@ -54,7 +53,6 @@ namespace ticl {
              const std::vector<reco::CaloCluster>& lC,
              const edm::ValueMap<std::pair<float, float>>& lcT,
              const edm::MultiSpan<Trackster>& tS,
-             const std::vector<std::vector<unsigned int>>& links,
              const edm::Handle<std::vector<T>> trks,
              const std::vector<bool>& mT)
           : ev(eV),
@@ -62,7 +60,6 @@ namespace ticl {
             layerClusters(lC),
             layerClustersTime(lcT),
             tracksters(tS),
-            linkedResultTracksters(links),
             tracksHandle(trks),
             maskedTracks(mT) {}
     };
@@ -84,9 +81,9 @@ namespace ticl {
           : tkTime_h(tkT), tkTimeErr_h(tkTE), tkQuality_h(tkQ), tkBeta_h(tkB), tkPath_h(tkP), tkMtdPos_h(mtdPos) {}
     };
 
-    // maskedTracksters (indexed over input.tracksters) lets several interpretation
-    // passes run in sequence: a pass marks the tracksters it consumes, and later
-    // passes skip them. Empty or all-false means "nothing already consumed".
+    // maskedTracksters is indexed over input.tracksters and lets several interpretation
+    // passes run in sequence. A pass grows it to input.tracksters.size(), skips the
+    // tracksters it finds marked, and marks every trackster it consumes.
     virtual void makeCandidates(const Inputs& input,
                                 edm::Handle<MtdHostCollection> inputTiming_h,
                                 std::vector<Trackster>& resultTracksters,

@@ -1,6 +1,4 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-// Part of the MC-truth-graph prototype - under heavy development, not yet open
-// to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 #include "PhysicsTools/TruthInfo/interface/TruthLogicalGraphPostProcessor.h"
 
@@ -16,6 +14,7 @@
 #include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "PhysicsTools/TruthInfo/interface/TruthLevels.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 namespace {
@@ -62,17 +61,7 @@ namespace {
     return std::find(particleIds.begin(), particleIds.end(), particleId) != particleIds.end();
   }
 
-  // True if pdgId is an ordinary hadron whose quark content includes the given
-  // flavor (5 = b, 4 = c, ...), using the PDG hadron-numbering digits.
-  bool hadronHasQuark(int32_t pdgId, int32_t flavor) {
-    const int32_t id = std::abs(pdgId);
-    if (id < 100 || id >= 1000000000)  // leptons/bosons/diquark-free codes and nuclei are not hadrons here
-      return false;
-    const int32_t nq1 = (id / 1000) % 10;
-    const int32_t nq2 = (id / 100) % 10;
-    const int32_t nq3 = (id / 10) % 10;
-    return nq1 == flavor || nq2 == flavor || nq3 == flavor;
-  }
+  using truth::hadronHasQuark;
 
   bool matchesSeed(truth::Graph const& graph,
                    uint32_t particleId,
@@ -878,6 +867,7 @@ namespace {
         connector.simNode = -1;
         connector.pdgId = 0;
         connector.status = 0;
+        connector.role = static_cast<uint8_t>(truth::ParticleRole::Connector);
         connector.genEvent = genEvent;
         connector.eventId = eventId;
 
@@ -896,43 +886,47 @@ namespace {
     return output;
   }
 
-  truth::Graph filterGraphBySelection(truth::Graph const& input,
-                                      truth::LogicalGraphPostProcessingConfig const& config) {
-    if (input.empty())
-      return input;
-
-    // Skip empty groups: they would match every vertex.
+  // Decay groups with the empty ones dropped: an empty group would match every vertex.
+  std::vector<std::vector<int32_t>> sortedDecayGroups(truth::LogicalGraphPostProcessingConfig const& config) {
     std::vector<std::vector<int32_t>> sortedGroups;
     sortedGroups.reserve(config.decayPdgIdGroups.size());
-
     for (auto const& group : config.decayPdgIdGroups) {
       if (!group.empty()) {
         sortedGroups.push_back(group);
         std::sort(sortedGroups.back().begin(), sortedGroups.back().end());
       }
     }
+    return sortedGroups;
+  }
 
+  // The roots a selection names: the most upstream seed matches, narrowed to those whose
+  // effective decay matches a configured group, or the direct decay-pattern search when
+  // the generator wrote no explicit resonance. ONE computation, so the Signal flag and
+  // the selection cannot disagree about what the signal of the event is.
+  // signalInteractionOnly keeps only roots that are GEN particles of the signal
+  // interaction, which is what the Signal flag means. The selection keeps every
+  // interaction, and the bunch-crossing filter removes pile-up.
+  // usePatternFallback allows the decay-pattern search. That search returns the particles
+  // of a matching decay, not the resonance above them. The selection wants those as
+  // roots. The Signal flag does not, because the flag marks the resonance.
+  std::vector<uint32_t> selectionRoots(truth::Graph const& input,
+                                       truth::LogicalGraphPostProcessingConfig const& config,
+                                       std::vector<std::vector<int32_t>> const& sortedGroups,
+                                       std::vector<uint32_t>& patternVertices,
+                                       bool signalInteractionOnly,
+                                       bool usePatternFallback) {
     const bool haveSeeds = !config.seedPdgIds.empty() || !config.seedHadronFlavors.empty();
     const bool haveGroups = !sortedGroups.empty();
-
-    if (!haveSeeds && !haveGroups)
-      return input;
-
-    // Debug escape hatch: no real particle has PDG id 0, so seedPdgIds = {0}
-    // explicitly requests the full, unfiltered graph.
-    if (containsPdgId(config.seedPdgIds, 0))
-      return input;
-
-    const uint32_t nParticles = input.nParticles();
-    const uint32_t nVertices = input.nVertices();
-
     std::vector<uint32_t> roots;
-    std::vector<uint32_t> patternVertices;
 
     if (haveSeeds) {
       std::vector<uint32_t> matches;
-
-      for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
+      for (uint32_t particleId = 0; particleId < input.nParticles(); ++particleId) {
+        if (signalInteractionOnly) {
+          auto const& particle = input.particles()[particleId];
+          if (!particle.hasGen() || particle.eventId != 0)
+            continue;
+        }
         if (matchesSeed(input, particleId, config))
           matches.push_back(particleId);
       }
@@ -950,14 +944,50 @@ namespace {
             });
           });
         }
-      } else if (haveGroups) {
+      } else if (haveGroups && usePatternFallback) {
         // The generator did not write the requested resonance explicitly:
         // fall back to the direct decay-pattern search.
         findDecayPatternMatches(input, sortedGroups, roots, patternVertices);
       }
-    } else {
+    } else if (haveGroups && usePatternFallback) {
       findDecayPatternMatches(input, sortedGroups, roots, patternVertices);
     }
+
+    if (signalInteractionOnly) {
+      // The decay-pattern fallback scans every vertex of the event, so it can return a
+      // pile-up or SIM-only root. The seed path filters its matches before the upstream
+      // reduction; this filters whatever any path produced.
+      std::erase_if(roots, [&input](uint32_t root) {
+        auto const& particle = input.particles()[root];
+        return !particle.hasGen() || particle.eventId != 0;
+      });
+    }
+    return roots;
+  }
+
+  truth::Graph filterGraphBySelection(truth::Graph const& input,
+                                      truth::LogicalGraphPostProcessingConfig const& config) {
+    if (input.empty())
+      return input;
+
+    const std::vector<std::vector<int32_t>> sortedGroups = sortedDecayGroups(config);
+
+    const bool haveSeeds = !config.seedPdgIds.empty() || !config.seedHadronFlavors.empty();
+    const bool haveGroups = !sortedGroups.empty();
+
+    if (!haveSeeds && !haveGroups)
+      return input;
+
+    // Debug escape hatch: no real particle has PDG id 0, so seedPdgIds = {0}
+    // explicitly requests the full, unfiltered graph.
+    if (containsPdgId(config.seedPdgIds, 0))
+      return input;
+
+    const uint32_t nParticles = input.nParticles();
+    const uint32_t nVertices = input.nVertices();
+
+    std::vector<uint32_t> patternVertices;
+    std::vector<uint32_t> roots = selectionRoots(input, config, sortedGroups, patternVertices, false, true);
 
     if (roots.empty()) {
       edm::LogWarning("TruthLogicalGraphPostProcessor")
@@ -1276,6 +1306,13 @@ namespace truth {
             "GEN skeleton outside removed SIM subtrees is preserved). Requires the producer to supply the "
             "per-particle sim-hit presence (it consumes the calo/tracker sim-hit collections); a no-op otherwise.");
 
+    desc.add<std::vector<int32_t>>("reconstructablePdgIds", {111})
+        ->setComment(
+            "Species the detector reconstructs as an object even though they decay, which therefore terminate the "
+            "walk from the signal down to its reconstructable products. Defaults to the pi0: it decays to two "
+            "photons immediately, but the analysis reconstructs the pi0, so the pi0 is what gets labelled. "
+            "Intermediate resonances the detector cannot see as objects (a1, rho) are absent on purpose, so the "
+            "walk passes through them; add a pdg id here to label it instead");
     desc.add<std::vector<int32_t>>("seedPdgIds", {})
         ->setComment(
             "If non-empty, particles with these exact PDG ids seed the selection: the most upstream particle of "
@@ -1359,6 +1396,7 @@ namespace truth {
     config.collapseIntermediateGenParticles = pset.getParameter<bool>("collapseIntermediateGenParticles");
     config.dropHitlessSimSubgraphs = pset.getParameter<bool>("dropHitlessSimSubgraphs");
     config.seedPdgIds = pset.getParameter<std::vector<int32_t>>("seedPdgIds");
+    config.reconstructablePdgIds = pset.getParameter<std::vector<int32_t>>("reconstructablePdgIds");
     config.seedHadronFlavors = pset.getParameter<std::vector<int32_t>>("seedHadronFlavors");
     config.seedParentDepth = pset.getParameter<uint32_t>("seedParentDepth");
     config.keepStableSpectators = pset.getParameter<bool>("keepStableSpectators");
@@ -1391,6 +1429,26 @@ namespace truth {
     // preset (including the full-graph / no-seed case) and operates on the
     // post-collapse indexing.
     input = filterGraphByBunchCrossing(input, config_);
+
+    // Mark the resonance BEFORE the selection rewrite. The members are the most upstream
+    // particles matching the preset's seed species, so the two tops rather than their
+    // decay products. The flag sits on the ParticleData, not on an index list, because
+    // the rewrite renumbers every particle and a flag on the struct survives that. This
+    // runs after the collapse and the pile-up steps, so it sees the indexing the
+    // selection sees.
+    // The same root computation the selection uses, so the flag and the selection agree
+    // on what the signal is. It applies the decay groups: a Z to mu+ mu- preset does not
+    // stamp a Z that decayed to e+ e-. It keeps only the signal interaction. It does not
+    // take the decay-pattern fallback, which returns decay products, not the resonance.
+    if (seedsNameAResonance(config_.seedPdgIds, config_.seedHadronFlavors)) {
+      const auto sortedGroups = sortedDecayGroups(config_);
+      std::vector<uint32_t> patternVertices;
+      for (const uint32_t root : selectionRoots(input, config_, sortedGroups, patternVertices, true, false)) {
+        if (root < input.particles().size()) {
+          input.particles()[root].setLevel(truth::LevelFlag::Signal);
+        }
+      }
+    }
 
     input = filterGraphBySelection(input, config_);
 

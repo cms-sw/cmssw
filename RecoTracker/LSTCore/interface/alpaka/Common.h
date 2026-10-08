@@ -90,9 +90,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       HOST_DEVICE_CONSTANT float kEta_norm = 2.5f;
       HOST_DEVICE_CONSTANT float kZ_max = 267.2349854f;
       HOST_DEVICE_CONSTANT float kR_max = 110.1099396f;
-      HOST_DEVICE_CONSTANT float kWp[kPtBins][kEtaBins] = {
+      HOST_DEVICE_CONSTANT float kWp98[kPtBins][kEtaBins] = {
           {0.4493f, 0.4939f, 0.5715f, 0.6488f, 0.5709f, 0.5938f, 0.7164f, 0.7565f, 0.8103f, 0.8593f},
           {0.4488f, 0.4448f, 0.5067f, 0.5929f, 0.4836f, 0.4112f, 0.4968f, 0.4403f, 0.5597f, 0.5067f}};
+      // 93% retention working points, same binning as kWp98.
+      HOST_DEVICE_CONSTANT float kWp93[kPtBins][kEtaBins] = {
+          {0.7831f, 0.8153f, 0.8313f, 0.823f, 0.7426f, 0.7532f, 0.8392f, 0.8636f, 0.9172f, 0.9389f},
+          {0.6982f, 0.7335f, 0.7395f, 0.8015f, 0.7356f, 0.6149f, 0.6848f, 0.6468f, 0.7187f, 0.7079f}};
     }  // namespace t5dnn
 
     namespace pt3dnn {

@@ -1,4 +1,5 @@
 from builtins import range
+from functools import partial
 import os
 import copy
 import collections
@@ -129,6 +130,9 @@ def _makeDistSimPlots(postfix, quantity, common={}):
         Plot("num_assoc(simToReco)_"+p, ytitle="Reconstructed TPs", **args),
     ]
 
+def _oneMinus(x):
+   return 1 - x
+
 def _makeMVAPlots(num, hp=False):
     pfix = "_hp" if hp else ""
     pfix2 = "Hp" if hp else ""
@@ -167,7 +171,7 @@ def _makeMVAPlots(num, hp=False):
             # Same signal efficiency, background efficiency, and ROC definitions as in TMVA
             Plot(true_cuteff, xtitle=xtitlecut, ytitle="True track selection efficiency", ymax=_maxEff),
             Plot(fake_cuteff, xtitle=xtitlecut, ytitle="Fake track selection efficiency", ymax=_maxEff),
-            Plot(ROC("true_eff_vs_fake_rej_mva%d%s"%(num,pfix), true_cuteff, Transform("fake_rej_mva%d%s"%(num,pfix), fake_cuteff, lambda x: 1-x)), xtitle="True track selection efficiency", ytitle="Fake track rejection", xmax=_maxEff, ymax=_maxEff),
+            Plot(ROC("true_eff_vs_fake_rej_mva%d%s"%(num,pfix), true_cuteff, Transform("fake_rej_mva%d%s"%(num,pfix), fake_cuteff, _oneMinus)), xtitle="True track selection efficiency", ytitle="Fake track rejection", xmax=_maxEff, ymax=_maxEff),
         ], ncols=3, legendDy=_legendDy_1row),
         PlotGroup("mva%d%sPtEta"%(num,pfix2), [
             Plot("mva_assoc(recoToSim)_mva%d%s_pT"%(num,pfix), xtitle="Track p_{T} (GeV)", ytitle=xtitle+" for true tracks", xlog=True, **argsprofile),
@@ -695,10 +699,18 @@ def _constructSummary(mapping=None, highPurity=False, byOriginalAlgo=False, byAl
                     normalizeToNumberOfEvents=True,
     )
     _commonN.update(_common)
-    _commonAB = dict(mapping=mapping,
-                     renameBin=lambda bl: _summaryBinRename(bl, highPurity, byOriginalAlgo, byAlgoMask, ptCut, seeds),
-                     ignoreMissingBins=True,
-                     originalOrder=True,
+    _commonAB = dict(
+        mapping=mapping,
+        renameBin=partial(
+            _summaryBinRename,
+            highPurity=highPurity,
+            byOriginalAlgo=byOriginalAlgo,
+            byAlgoMask=byAlgoMask,
+            ptCut=ptCut,
+            seeds=seeds,
+      ),
+      ignoreMissingBins=True,
+      originalOrder=True,
     )
     if byOriginalAlgo or byAlgoMask:
         _commonAB["minExistingBins"] = 2

@@ -50,7 +50,6 @@
 // forward declarations
 namespace edm {
 
-  class MergeableRunProductMetadata;
   class ModuleCallingContext;
   class PreallocationConfiguration;
   class ActivityRegistry;
@@ -199,7 +198,7 @@ namespace edm {
       void updateBranchIDListsWithKeptAliases();
 
       void doWriteProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*);
-      void doWriteRun(RunPrincipal const& rp, ModuleCallingContext const*, MergeableRunProductMetadata const*);
+      void doWriteRun(RunPrincipal const& rp, ModuleCallingContext const*);
       void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const*);
       void doOpenFile(FileBlock const& fb);
       void doRespondToOpenInputFile(FileBlock const& fb);

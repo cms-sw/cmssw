@@ -34,7 +34,6 @@
 #include "FWCore/Framework/interface/ensureAvailableAccelerators.h"
 #include "FWCore/Framework/interface/makeModuleTypeResolverMaker.h"
 #include "FWCore/Framework/interface/FileBlock.h"
-#include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
@@ -603,12 +602,6 @@ namespace edm {
           using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalEnd>;
           processGlobalTransition<Traits>(transitionInfo);
         }
-        {
-          FinalWaitingTask globalWaitTask{taskGroup_};
-          schedule_->writeLumiAsync(
-              WaitingTaskHolder(taskGroup_, &globalWaitTask), *lumiPrincipal, &processContext_, actReg_.get());
-          globalWaitTask.wait();
-        }
       }
       lumiPrincipal->setRunPrincipal(std::shared_ptr<RunPrincipal>());
       return lumiPrincipal;
@@ -639,15 +632,6 @@ namespace edm {
         {
           using Traits = OccurrenceTraits<RunPrincipal, TransitionActionGlobalEnd>;
           processGlobalTransition<Traits>(transitionInfo);
-        }
-        {
-          FinalWaitingTask globalWaitTask{taskGroup_};
-          schedule_->writeRunAsync(WaitingTaskHolder(taskGroup_, &globalWaitTask),
-                                   *runPrincipal,
-                                   &processContext_,
-                                   actReg_.get(),
-                                   runPrincipal->mergeableRunProductMetadata());
-          globalWaitTask.wait();
         }
       }
       return runPrincipal;

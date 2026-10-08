@@ -5,9 +5,37 @@
 
 namespace l1t {
   namespace me0 {
+    class HiLo {
+    private:
+    public:
+      int hi, lo;
+      HiLo(int hi_, int lo_) : hi(hi_), lo(lo_) {}
+    };
+
+    class PatternDef {
+    private:
+    public:
+      int id;
+      std::vector<HiLo> layers;
+      PatternDef(int id_, std::vector<HiLo> layers_) : id(id_), layers(layers_) {}
+    };
+
+    class Mask {
+    private:
+    public:
+      int id;
+      std::vector<uint64_t> mask;
+      Mask(int id_, std::vector<uint64_t> mask_) : id(id_), mask(mask_) {}
+      std::string toString() const;  // not implemented, for debugging purposes
+    };
+
     std::vector<int> shiftCenter(const HiLo& layer, int maxSpan);
     uint64_t setHighBits(const std::vector<int>& loHiPair);
-    Mask getLayerMask(const PatternDefinition& layerPattern, int maxSpan);
+    l1t::me0::Mask getLayerMask(const l1t::me0::PatternDef& layerPattern, const std::vector<int> layerSpans);
+
+    l1t::me0::HiLo mirrorHiLo(const l1t::me0::HiLo& layer);
+    l1t::me0::PatternDef mirrorPatternDefinition(const l1t::me0::PatternDef& pattern, int id);
+    std::vector<l1t::me0::HiLo> createPatternLayer(double lower, double upper);
 
     /*
     createPatternLayer(low, high) returns a vector of HiLo objects with the given low and high values.
@@ -16,12 +44,12 @@ namespace l1t {
     For example, createPatternLayer(0.2, 0.9) returns a vector of HiLo objects with the following values:
     { [ hi: 0, lo: -3 ], [ hi: 0, lo: -2 ], [ hi: 0, lo: -1 ], [ hi: 1, lo: 0 ], [ hi: 2, lo: 0 ], [ hi: 3, lo: 0 ]}
 
-    PatternDefinition(id, layers) saves the pattern ID and the vector of HiLo objects for each layer.
+    PatternDef(id, layers) saves the pattern ID and the vector of HiLo objects for each layer.
     
-    getLayerMask(PatternDefinition pattern, int maxSpan) returns a Mask object with the given pattern and maxSpan values.
+    getLayerMask(PatternDef pattern, const std::vector<int>& layerSpans) returns a Mask object with the given pattern and layerSpans values.
     example:
 
-    getLayerMask(patternLeft, 37) returns a Mask object with the following values:
+    getLayerMask(patternLeft, {37, 37, 37, 37, 37, 37}) returns a Mask object with the following values:
     Pattern ID: 16
     {0b0000000000000000001111000000000000000,  // ly5 
      0b0000000000000000001110000000000000000,  // ly4 
@@ -31,41 +59,71 @@ namespace l1t {
      0b0000000000000001111000000000000000000}  // ly0 
     */
 
-    const PatternDefinition kPatternStraight = PatternDefinition(17, createPatternLayer(-0.4, 0.4));
-    const PatternDefinition kPatternLeft = PatternDefinition(16, createPatternLayer(0.2, 0.9));
-    const PatternDefinition kPatternRight = mirrorPatternDefinition(kPatternLeft, kPatternLeft.id - 1);
-    const PatternDefinition kPatternLeft2 = PatternDefinition(14, createPatternLayer(0.9, 1.7));
-    const PatternDefinition kPatternRight2 = mirrorPatternDefinition(kPatternLeft2, kPatternLeft2.id - 1);
-    const PatternDefinition kPatternLeft3 = PatternDefinition(12, createPatternLayer(1.4, 2.3));
-    const PatternDefinition kPatternRight3 = mirrorPatternDefinition(kPatternLeft3, kPatternLeft3.id - 1);
-    const PatternDefinition kPatternLeft4 = PatternDefinition(10, createPatternLayer(2.0, 3.0));
-    const PatternDefinition kPatternRight4 = mirrorPatternDefinition(kPatternLeft4, kPatternLeft4.id - 1);
-    const PatternDefinition kPatternLeft5 = PatternDefinition(8, createPatternLayer(2.7, 3.8));
-    const PatternDefinition kPatternRight5 = mirrorPatternDefinition(kPatternLeft5, kPatternLeft5.id - 1);
-    const PatternDefinition kPatternLeft6 = PatternDefinition(6, createPatternLayer(3.5, 4.7));
-    const PatternDefinition kPatternRight6 = mirrorPatternDefinition(kPatternLeft6, kPatternLeft6.id - 1);
-    const PatternDefinition kPatternLeft7 = PatternDefinition(4, createPatternLayer(4.3, 5.5));
-    const PatternDefinition kPatternRight7 = mirrorPatternDefinition(kPatternLeft7, kPatternLeft7.id - 1);
-    const PatternDefinition kPatternLeft8 = PatternDefinition(2, createPatternLayer(5.4, 7.0));
-    const PatternDefinition kPatternRight8 = mirrorPatternDefinition(kPatternLeft8, kPatternLeft8.id - 1);
+    const l1t::me0::PatternDef kPatternStraight = l1t::me0::PatternDef(17, l1t::me0::createPatternLayer(-0.4, 0.4));
+    const l1t::me0::PatternDef kPatternLeft1 = l1t::me0::PatternDef(16, l1t::me0::createPatternLayer(0.2, 0.9));
+    const l1t::me0::PatternDef kPatternRight1 = l1t::me0::mirrorPatternDefinition(kPatternLeft1, kPatternLeft1.id - 1);
+    const l1t::me0::PatternDef kPatternLeft2 = l1t::me0::PatternDef(14, l1t::me0::createPatternLayer(0.9, 1.7));
+    const l1t::me0::PatternDef kPatternRight2 = l1t::me0::mirrorPatternDefinition(kPatternLeft2, kPatternLeft2.id - 1);
+    const l1t::me0::PatternDef kPatternLeft3 = l1t::me0::PatternDef(12, l1t::me0::createPatternLayer(1.4, 2.3));
+    const l1t::me0::PatternDef kPatternRight3 = l1t::me0::mirrorPatternDefinition(kPatternLeft3, kPatternLeft3.id - 1);
+    const l1t::me0::PatternDef kPatternLeft4 = l1t::me0::PatternDef(10, l1t::me0::createPatternLayer(2.0, 3.0));
+    const l1t::me0::PatternDef kPatternRight4 = l1t::me0::mirrorPatternDefinition(kPatternLeft4, kPatternLeft4.id - 1);
+    const l1t::me0::PatternDef kPatternLeft5 = l1t::me0::PatternDef(8, l1t::me0::createPatternLayer(2.7, 3.8));
+    const l1t::me0::PatternDef kPatternRight5 = l1t::me0::mirrorPatternDefinition(kPatternLeft5, kPatternLeft5.id - 1);
+    const l1t::me0::PatternDef kPatternLeft6 = l1t::me0::PatternDef(6, l1t::me0::createPatternLayer(3.5, 4.7));
+    const l1t::me0::PatternDef kPatternRight6 = l1t::me0::mirrorPatternDefinition(kPatternLeft6, kPatternLeft6.id - 1);
+    const l1t::me0::PatternDef kPatternLeft7 = l1t::me0::PatternDef(4, l1t::me0::createPatternLayer(4.3, 5.5));
+    const l1t::me0::PatternDef kPatternRight7 = l1t::me0::mirrorPatternDefinition(kPatternLeft7, kPatternLeft7.id - 1);
+    const l1t::me0::PatternDef kPatternLeft8 = l1t::me0::PatternDef(2, l1t::me0::createPatternLayer(5.4, 7.0));
+    const l1t::me0::PatternDef kPatternRight8 = l1t::me0::mirrorPatternDefinition(kPatternLeft8, kPatternLeft8.id - 1);
 
-    const std::vector<Mask> kLayerMask{getLayerMask(kPatternStraight, 37),
-                                       getLayerMask(kPatternLeft, 37),
-                                       getLayerMask(kPatternRight, 37),
-                                       getLayerMask(kPatternLeft2, 37),
-                                       getLayerMask(kPatternRight2, 37),
-                                       getLayerMask(kPatternLeft3, 37),
-                                       getLayerMask(kPatternRight3, 37),
-                                       getLayerMask(kPatternLeft4, 37),
-                                       getLayerMask(kPatternRight4, 37),
-                                       getLayerMask(kPatternLeft5, 37),
-                                       getLayerMask(kPatternRight5, 37),
-                                       getLayerMask(kPatternLeft6, 37),
-                                       getLayerMask(kPatternRight6, 37),
-                                       getLayerMask(kPatternLeft7, 37),
-                                       getLayerMask(kPatternRight7, 37),
-                                       getLayerMask(kPatternLeft8, 37),
-                                       getLayerMask(kPatternRight8, 37)};
+    const std::vector<PatternDef> kPatternList{kPatternRight8,
+                                               kPatternLeft8,
+                                               kPatternRight7,
+                                               kPatternLeft7,
+                                               kPatternRight6,
+                                               kPatternLeft6,
+                                               kPatternRight5,
+                                               kPatternLeft5,
+                                               kPatternRight4,
+                                               kPatternLeft4,
+                                               kPatternRight3,
+                                               kPatternLeft3,
+                                               kPatternRight2,
+                                               kPatternLeft2,
+                                               kPatternRight1,
+                                               kPatternLeft1,
+                                               kPatternStraight};
+
+    std::vector<int> calculateLayerSpans(const std::vector<PatternDef>& patternList);
+    const std::vector<int> kLayerSpans = l1t::me0::calculateLayerSpans(kPatternList);
+
+    std::vector<int> calculatePatternSpans(const std::vector<PatternDef>& patternList);
+    const std::vector<int> kPatSpans = l1t::me0::calculatePatternSpans(kPatternList);
+
+    std::vector<std::vector<int>> calculatePatternOffsets(const std::vector<PatternDef>& patternList,
+                                                          const std::vector<int>& patternSpans,
+                                                          const std::vector<int>& layerSpans);
+    const std::vector<std::vector<int>> kPatOffsets =
+        l1t::me0::calculatePatternOffsets(kPatternList, kPatSpans, kLayerSpans);
+
+    const std::vector<l1t::me0::Mask> kLayerMask{l1t::me0::getLayerMask(kPatternRight8, kLayerSpans),
+                                                 l1t::me0::getLayerMask(kPatternLeft8, kLayerSpans),
+                                                 l1t::me0::getLayerMask(kPatternRight7, kLayerSpans),
+                                                 l1t::me0::getLayerMask(kPatternLeft7, kLayerSpans),
+                                                 l1t::me0::getLayerMask(kPatternRight6, kLayerSpans),
+                                                 l1t::me0::getLayerMask(kPatternLeft6, kLayerSpans),
+                                                 l1t::me0::getLayerMask(kPatternRight5, kLayerSpans),
+                                                 l1t::me0::getLayerMask(kPatternLeft5, kLayerSpans),
+                                                 l1t::me0::getLayerMask(kPatternRight4, kLayerSpans),
+                                                 l1t::me0::getLayerMask(kPatternLeft4, kLayerSpans),
+                                                 l1t::me0::getLayerMask(kPatternRight3, kLayerSpans),
+                                                 l1t::me0::getLayerMask(kPatternLeft3, kLayerSpans),
+                                                 l1t::me0::getLayerMask(kPatternRight2, kLayerSpans),
+                                                 l1t::me0::getLayerMask(kPatternLeft2, kLayerSpans),
+                                                 l1t::me0::getLayerMask(kPatternRight1, kLayerSpans),
+                                                 l1t::me0::getLayerMask(kPatternLeft1, kLayerSpans),
+                                                 l1t::me0::getLayerMask(kPatternStraight, kLayerSpans)};
   }  // namespace me0
 }  // namespace l1t
 #endif

@@ -17,7 +17,7 @@
 //
 // constructors and destructor
 //
-PPSPixelOrganization ::PPSPixelOrganization()
+PPSPixelOrganization::PPSPixelOrganization()
     : currentUnitID_(0), currentArm_(0), currentStation_(0), currentRP_(0), currentPlane_(0) {
   edm::LogVerbatim("PPSSim") << "Creating PPSPixelOrganization";
 }
@@ -26,7 +26,7 @@ PPSPixelOrganization ::PPSPixelOrganization()
 // member functions
 //
 
-uint32_t PPSPixelOrganization ::unitID(const G4Step* aStep) {
+uint32_t PPSPixelOrganization::unitID(const G4Step* aStep) {
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   G4VPhysicalVolume* physVol = touch->GetVolume(1);
   int coNum = physVol->GetCopyNo();

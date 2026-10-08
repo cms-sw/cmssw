@@ -7,8 +7,9 @@ from HeterogeneousCore.MPICore.modules import *
 
 
 def add_controller_to_local(process, remote_name):
+    process.load("Configuration.StandardSequences.Accelerators_cff")
     process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
-    process.MPIService.pmix_server_uri = "file:server.uri"
+    process.load("HeterogeneousCore.MPIServices.MPIConsistencyChecker_cfi")
     controller_name = f"mpiController{remote_name.title()}"
     controller = cms.EDProducer("MPIController",
                                followerProcessName = cms.string(remote_name))
@@ -44,7 +45,7 @@ def create_remote_process(local_process, modules_to_run, remote_process_name, lo
         remote_process.MessageLogger = local_process.MessageLogger.clone()
 
     remote_process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
-    remote_process.MPIService.pmix_server_uri = "file:server.uri"
+    remote_process.load("HeterogeneousCore.MPIServices.MPIConsistencyChecker_cfi")
 
     # where do i get this firstRun parameter from?
     remote_process.source = MPISource(
@@ -75,7 +76,7 @@ def make_sender_psets(products):
         psets.append(
             cms.PSet(
                 type=cms.string(p["type"]),
-                name=cms.InputTag(p["module"])
+                name=cms.InputTag(p["module"], p['product_instance'])
             )
         )
 

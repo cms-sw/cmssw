@@ -22,7 +22,7 @@
 #include "TLorentzVector.h"
 
 namespace {
-  //constexpr float cmToum = 10e4; /* unused for now */
+  //constexpr float cmToum = 1.e4; /* unused for now */
   constexpr float mumass2 = 0.105658367 * 0.105658367;  //mu mass squared (GeV^2/c^4)
 }  // namespace
 
@@ -51,7 +51,7 @@ void DiMuonMassBiasMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run 
       iBooker, histosZmm, decayMotherName_, "#mu^{+}#mu^{-}", mass_bins, mass_min, mass_max, distanceScaleFactor_);
 
   iBooker.setCurrentFolder(MEFolderName_ + "/DiMuonMassBiasMonitor/components");
-  bookDecayComponentHistograms(iBooker, histosZmm);
+  bookDecayComponentHistograms(iBooker, histosZmm, distanceScaleFactor_);
 }
 
 void DiMuonMassBiasMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -68,6 +68,11 @@ void DiMuonMassBiasMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
 
   if (myTracks.size() != 2) {
     edm::LogWarning("DiMuonMassBiasMonitor") << "There are not enough tracks to monitor!";
+    return;
+  }
+
+  if (myTracks[0]->charge() + myTracks[1]->charge() != 0) {
+    edm::LogWarning("DiMuonMassBiasMonitor") << "The two tracks do not have opposite charge!";
     return;
   }
 
@@ -120,9 +125,13 @@ void DiMuonMassBiasMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
   fillComponentHistograms(histosZmm.decayComponents[1], tminus, bs, decayVertex);
 }
 
-void DiMuonMassBiasMonitor::bookDecayComponentHistograms(DQMStore::IBooker& ibook, DecayHists& histos) const {
-  bookComponentHists(ibook, histos, "mu_plus", 0.1);
-  bookComponentHists(ibook, histos, "mu_minus", 0.1);
+void DiMuonMassBiasMonitor::bookDecayComponentHistograms(DQMStore::IBooker& ibook,
+                                                         DecayHists& histos,
+                                                         float distanceScaleFactor) const {
+  // bookHistograms can be called more than once (e.g. one per run): do not accumulate stale entries
+  histos.decayComponents.clear();
+  bookComponentHists(ibook, histos, "mu_plus", distanceScaleFactor);
+  bookComponentHists(ibook, histos, "mu_minus", distanceScaleFactor);
 }
 
 void DiMuonMassBiasMonitor::bookComponentHists(DQMStore::IBooker& ibook,

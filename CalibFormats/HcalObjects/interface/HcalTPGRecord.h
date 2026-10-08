@@ -1,13 +1,14 @@
-#ifndef HcalObjects_HcalTPGRecord_h
-#define HcalObjects_HcalTPGRecord_h
+#ifndef CalibFormats_HcalObjects_HcalTPGRecord_h
+#define CalibFormats_HcalObjects_HcalTPGRecord_h
+
 // -*- C++ -*-
 //
-// Package:     HcalObjects
+// Package:     CalibFormats/HcalObjects
 // Class  :     HcalTPGRecord
 //
 /**\class HcalTPGRecord HcalTPGRecord.h CalibFormats/HcalObjects/interface/HcalTPGRecord.h
 
- Description: <one line class summary>
+ Description: Record for HCAL TPG coders to follow changes in geometry and conditions
 
  Usage:
     <usage>
@@ -18,9 +19,11 @@
 // Created:     Thu Sep 14 11:54:26 CDT 2006
 //
 
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "FWCore/Utilities/interface/mplVector.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 class HcalTPGRecord : public edm::eventsetup::DependentRecordImplementation<
                           HcalTPGRecord,

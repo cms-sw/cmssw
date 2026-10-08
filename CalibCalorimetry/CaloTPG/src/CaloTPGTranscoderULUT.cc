@@ -1,31 +1,25 @@
 #include "CalibCalorimetry/CaloTPG/interface/CaloTPGTranscoderULUT.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/HcaluLUTTPGCoder.h"
+#include "CondFormats/DataRecord/interface/HcalLutMetadataRcd.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include <iostream>
-#include <fstream>
+
+#include <algorithm>
+#include <array>
 #include <cmath>
+#include <vector>
 
-//#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "CondFormats/DataRecord/interface/HcalLutMetadataRcd.h"
-#include "CalibCalorimetry/HcalTPGAlgos/interface/HcaluLUTTPGCoder.h"
-
-using namespace std;
-
-CaloTPGTranscoderULUT::CaloTPGTranscoderULUT(const std::string& compressionFile, const std::string& decompressionFile)
+CaloTPGTranscoderULUT::CaloTPGTranscoderULUT()
     : theTopology(nullptr),
       nominal_gain_(0.),
       lsb_factor_(0.),
       rct_factor_(1.),
       nct_factor_(1.),
       lin8_factor_(1.),
-      lin11_factor_(1.),
-      compressionFile_(compressionFile),
-      decompressionFile_(decompressionFile) {}
+      lin11_factor_(1.) {}
 
 CaloTPGTranscoderULUT::~CaloTPGTranscoderULUT() {}
 
@@ -43,11 +37,11 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 
   // Compute compression LUT
   for (unsigned int i = 0; i < OUTPUT_LUT_SIZE; i++) {
-    analyticalLUT[i] = min(static_cast<unsigned int>(sqrt(14.94 * log(1. + i / 14.94) * i) + 0.5), TPGMAX - 1);
-    linearQIE8LUT[i] = min(static_cast<unsigned int>((i + .5) / lin8_factor_), TPGMAX - 1);
-    linearQIE11LUT[i] = min(static_cast<unsigned int>((i + .5) / lin11_factor_), TPGMAX - 1);
-    linearRctLUT[i] = min(static_cast<unsigned int>((i + .5) / rct_factor_), TPGMAX - 1);
-    linearNctLUT[i] = min(static_cast<unsigned int>((i + .5) / nct_factor_), TPGMAX - 1);
+    analyticalLUT[i] = std::min(static_cast<unsigned int>(sqrt(14.94 * log(1. + i / 14.94) * i) + 0.5), TPGMAX - 1);
+    linearQIE8LUT[i] = std::min(static_cast<unsigned int>((i + .5) / lin8_factor_), TPGMAX - 1);
+    linearQIE11LUT[i] = std::min(static_cast<unsigned int>((i + .5) / lin11_factor_), TPGMAX - 1);
+    linearRctLUT[i] = std::min(static_cast<unsigned int>((i + .5) / rct_factor_), TPGMAX - 1);
+    linearNctLUT[i] = std::min(static_cast<unsigned int>((i + .5) / nct_factor_), TPGMAX - 1);
   }
 
   std::vector<DetId> allChannels = lutMetadata.getAllChannels();
@@ -71,7 +65,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 
     int ieta = id.ieta();
     int version = id.version();
-    bool isHBHE = (abs(ieta) < theTrigTowerGeometry.firstHFTower(version));
+    bool isHBHE = (std::abs(ieta) < theTrigTowerGeometry.firstHFTower(version));
 
     unsigned int lutsize = getOutputLUTSize(id);
     outputLUT_[index].resize(lutsize);
@@ -84,7 +78,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
         if (allLinear_) {
           outputLUT_[index][i] = isOnlyQIE11(id) ? linearQIE11LUT[i] : linearQIE8LUT[i];
           //Modifying the saturation (127 -> 255) for the 'split cells'.
-          if (abs(ieta) > 20 && isOnlyQIE11(id) && linearQIE11LUT[i] >= (TPGMAX - 2) / 2.) {
+          if (std::abs(ieta) > 20 && isOnlyQIE11(id) && linearQIE11LUT[i] >= (TPGMAX - 2) / 2.) {
             outputLUT_[index][i] = TPGMAX - 1;
           }
         } else {
@@ -97,7 +91,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 
     double eta_low = 0., eta_high = 0.;
     theTrigTowerGeometry.towerEtaBounds(ieta, version, eta_low, eta_high);
-    double cosh_ieta = fabs(cosh((eta_low + eta_high) / 2.));
+    double cosh_ieta = std::fabs(std::cosh((eta_low + eta_high) / 2.));
     double granularity = meta->getLutGranularity();
 
     if (isHBHE) {
@@ -109,7 +103,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
             tpg = outputLUT_[index][i];
             hcaluncomp_[index][tpg] = lsb_factor_ * i / (isOnlyQIE11(id) ? lin11_factor_ : lin8_factor_);
             //Modifying the saturation for the 'split cells'
-            if (abs(ieta) > 20 && isOnlyQIE11(id) && linearQIE11LUT[i] >= (TPGMAX - 2) / 2.) {
+            if (std::abs(ieta) > 20 && isOnlyQIE11(id) && linearQIE11LUT[i] >= (TPGMAX - 2) / 2.) {
               hcaluncomp_[index][tpg] = (TPGMAX - 1) / 2.;
             }
           }
@@ -184,23 +178,6 @@ EcalTriggerPrimitiveSample CaloTPGTranscoderULUT::ecalCompress(const EcalTrigTow
                                                                unsigned int sample,
                                                                bool fineGrain) const {
   throw cms::Exception("Not Implemented") << "CaloTPGTranscoderULUT::ecalCompress";
-}
-
-void CaloTPGTranscoderULUT::rctEGammaUncompress(const HcalTrigTowerDetId& hid,
-                                                const HcalTriggerPrimitiveSample& hc,
-                                                const EcalTrigTowerDetId& eid,
-                                                const EcalTriggerPrimitiveSample& ec,
-                                                unsigned int& et,
-                                                bool& egVecto,
-                                                bool& activity) const {
-  throw cms::Exception("Not Implemented") << "CaloTPGTranscoderULUT::rctEGammaUncompress";
-}
-void CaloTPGTranscoderULUT::rctJetUncompress(const HcalTrigTowerDetId& hid,
-                                             const HcalTriggerPrimitiveSample& hc,
-                                             const EcalTrigTowerDetId& eid,
-                                             const EcalTriggerPrimitiveSample& ec,
-                                             unsigned int& et) const {
-  throw cms::Exception("Not Implemented") << "CaloTPGTranscoderULUT::rctJetUncompress";
 }
 
 bool CaloTPGTranscoderULUT::HTvalid(const int ieta, const int iphiin, const int version) const {
@@ -326,9 +303,5 @@ void CaloTPGTranscoderULUT::setup(HcalLutMetadata const& lutMetadata,
       plan1_towers_.emplace(tower);
   }
 
-  if (compressionFile_.empty() && decompressionFile_.empty()) {
-    loadHCALCompress(lutMetadata, theTrigTowerGeometry);
-  } else {
-    throw cms::Exception("Not Implemented") << "setup of CaloTPGTranscoderULUT from text files";
-  }
+  loadHCALCompress(lutMetadata, theTrigTowerGeometry);
 }

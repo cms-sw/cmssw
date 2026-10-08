@@ -1,6 +1,4 @@
 # Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-# Part of the MC-truth-graph prototype - under heavy development, not yet open
-# to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 # DQM harvesting for the Branch performance-plot validators: turns the booked
 # numerator/denominator histograms into reproduction-efficiency plots vs

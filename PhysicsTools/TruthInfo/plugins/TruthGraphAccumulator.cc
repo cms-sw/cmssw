@@ -1,6 +1,4 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-// Part of the MC-truth-graph prototype - under heavy development, not yet open
-// to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 // Phase-B (B1): build the mixed (signal + pileup) raw TruthGraph as a
 // DigiAccumulatorMixMod, like TrackingTruthAccumulator / CaloTruthAccumulator.

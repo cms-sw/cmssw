@@ -2,8 +2,8 @@
 #define CaloOnlineTools_HcalOnlineDb_HcalLutManager_h
 
 #include "CalibCalorimetry/CaloTPG/interface/CaloTPGTranscoderULUT.h"
-#include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
-#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/LutXml.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/XMLDOMBlock.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"

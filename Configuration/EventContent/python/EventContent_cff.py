@@ -728,42 +728,6 @@ rawSecond.toModify(FEVTDEBUGHLTEventContent,
                               outputCommands = [x for x in FEVTDEBUGHLTEventContent.outputCommands if '_hltSiStripClusters2ApproxClusters_' not in x] + [
                                   'keep *_hltSiStripClusters2ApproxClustersv1_*_*'
                               ])
-phase2_tracker.toModify(FEVTDEBUGHLTEventContent,
-                        outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
-                            'keep *_hltSiPixelClusters_*_*',
-                            'keep *_hltSiPhase2Clusters_*_*',
-                            'keep *_hltPhase2PixelTracks_*_*',
-                            'keep *_hltPhase2PixelVertices_*_*',
-                            'keep *_hltGeneralTracks_*_*',
-                            'keep *_hltInitialStepTrackSelectionHighPurity_*_*',
-                            'keep *_hltHighPtTripletStepTrackSelectionHighPurity_*_*',
-                            'keep *_hltInitialStepTracksT4T5TCLST_*_*',
-                            'keep *_hltOfflinePrimaryVertices_*_*',
-                        ])
-
-phase2_common.toModify(FEVTDEBUGHLTEventContent,
-                       outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
-                           'keep *_hltParticleFlowRecHit*_*_*',
-                           'keep *_hltEgammaGsfTracksL1Seeded_*_*',
-                           'keep *_hltEgammaGsfTracksUnseeded_*_*',
-                           'keep *_hltPFMET_*_*',
-                           'keep *_hltPFPuppiMET_*_*',
-                           'keep *_hltPFPuppiMETTypeOne_*_*',
-                           'keep *_hltHpsPFTauDeepTauProducer_*_*'
-                       ])
-
-phase2_muon.toModify(FEVTDEBUGHLTEventContent, 
-    outputCommands = FEVTDEBUGHLTEventContent.outputCommands + [
-        'keep recoMuons_muons1stStep_*_*',
-        'keep *_hltL2MuonSeedsFromL1TkMuon_*_*',
-        'keep *_hltL2MuonsFromL1TkMuon_*_*',
-        'keep *_hltIter2Phase2L3FromL1TkMuonMerged_*_*',
-        'keep *_hltPhase2L3OIMuonTrackSelectionHighPurity_*_*',
-        'keep *_hltPhase2L3MuonFilter_*_*',
-        'keep *_hltPhase2L3MuonMerged_*_*',
-        'keep *_hltPhase2L3GlbMuon_*_*',
-        'keep *_hltPhase2L3MuonsNoID_*_*',
-        'keep *_hltPhase2L3Muons_*_*'])
 
 phase2_hgcal.toModify(FEVTDEBUGHLTEventContent,
     outputCommands = FEVTDEBUGHLTEventContent.outputCommands + TICL_FEVTHLT.outputCommands)

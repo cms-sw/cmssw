@@ -1,7 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-# if read_Ascii_LUTs is true then read Ascii LUTs via "inputLUTs" below
-
 import FWCore.ParameterSet.Config as cms
 
 from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cfi import simHcalTriggerPrimitiveDigis
@@ -10,9 +6,6 @@ from CalibCalorimetry.CaloTPG.tpScales_cff import tpScales
 from CalibCalorimetry.HcalPlugins.Hcal_PCCUpdate_cff import PCCUpdate
 
 HcalTPGCoderULUT = cms.ESProducer("HcalTPGCoderULUT",
-    read_Ascii_LUTs = cms.bool(False),
-    read_XML_LUTs = cms.bool(False),
-    read_FG_LUTs = cms.bool(False),
     LUTGenerationMode = cms.bool(True),
     linearLUTs = cms.bool(False),
     contain1TSHB = cms.bool(False),
@@ -29,10 +22,7 @@ HcalTPGCoderULUT = cms.ESProducer("HcalTPGCoderULUT",
     overrideFGHF = cms.bool(False),
     FG_HF_thresholds = cms.vuint32(17, 255),
     overrideHBLLP = cms.bool(False),
-    HB_LLP_thresholds = cms.vuint32(0, 0, 999, 999),
-    inputLUTs = cms.FileInPath('CalibCalorimetry/HcalTPGAlgos/data/inputLUTcoder_physics.dat'),
-    FGLUTs = cms.FileInPath('CalibCalorimetry/HcalTPGAlgos/data/HBHE_FG_LUT.dat'),
-    RCalibFile = cms.FileInPath('CalibCalorimetry/HcalTPGAlgos/data/RecHit-TPG-calib.dat')
+    HB_LLP_thresholds = cms.vuint32(0, 0, 999, 999)
 )
 
 HcalTrigTowerGeometryESProducer = cms.ESProducer("HcalTrigTowerGeometryESProducer")
@@ -60,7 +50,7 @@ from Configuration.Eras.Modifier_run3_upc_2025_cff import run3_upc_2025
 
 from Configuration.Eras.Modifier_run3_oxygen_cff import run3_oxygen
 run3_oxygen.toModify(HcalTPGCoderULUT, FG_HF_thresholds = [14, 16])
-#add NeNe configuration
+
 from Configuration.Eras.Modifier_run3_neon_cff import run3_neon
 (run3_neon).toModify(HcalTPGCoderULUT, FG_HF_thresholds = [14, 12])
 

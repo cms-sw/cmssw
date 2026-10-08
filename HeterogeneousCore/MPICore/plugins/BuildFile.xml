@@ -30,6 +30,7 @@
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="HeterogeneousCore/MPICore"/>
+  <use name="HeterogeneousCore/MPIServices"/>
   <use name="HeterogeneousCore/TrivialSerialisation"/>
   <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>

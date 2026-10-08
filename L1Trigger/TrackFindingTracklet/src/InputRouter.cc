@@ -76,7 +76,9 @@ void InputRouter::execute() {
     }
     if (not settings_.reduced()) {
       // Verbose error message to debug crash.
-      if (iadd != 1) {
+      // Expect each stub to be associated with exactly one phi region, but can rarely happen that it is associated to zero,
+      // because of correction of stub phi to nominal radius of layer.
+      if (iadd > 1) {
         edm::LogError("Tracklet") << "Executing " << name_ << " : region (layer,phi) = (" << layerdisk << ", "
                                   << iphipos << ") has " << iadd << " matching InputLinkMemories.";
         assert(false);

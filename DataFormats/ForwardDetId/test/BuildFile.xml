@@ -7,3 +7,6 @@
 
 <bin file="testMTD.cc">
 </bin>
+
+<bin file="testHGCSiliconDetId.cc">
+</bin>

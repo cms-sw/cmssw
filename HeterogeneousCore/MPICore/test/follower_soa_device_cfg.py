@@ -7,6 +7,7 @@ process.options.numberOfStreams = 4
 process.options.wantSummary = False
 
 process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
+process.load("HeterogeneousCore.MPIServices.MPIConsistencyChecker_cfi")
 
 # needed for MPIReceiverPortable and the automatic device-to-host conversion
 process.load("Configuration.StandardSequences.Accelerators_cff")
@@ -28,19 +29,19 @@ process.receiver = cms.EDProducer("MPIReceiverPortable@alpaka",
     products = cms.VPSet(
         cms.PSet(
             type = cms.string("ALPAKA_ACCELERATOR_NAMESPACE::portabletest::TestDeviceObject"),
-            src = cms.InputTag("", ""),
+            label = cms.string(""),
         ),
         cms.PSet(
             type = cms.string("ALPAKA_ACCELERATOR_NAMESPACE::portabletest::TestDeviceCollection"),
-            src = cms.InputTag("", ""),
+            label = cms.string(""),
         ),
         cms.PSet(
             type = cms.string("ALPAKA_ACCELERATOR_NAMESPACE::portabletest::TestDeviceCollection2"),
-            src = cms.InputTag("", ""),
+            label = cms.string(""),
         ),
         cms.PSet(
             type = cms.string("ALPAKA_ACCELERATOR_NAMESPACE::portabletest::TestDeviceCollection3"),
-            src = cms.InputTag("", ""),
+            label = cms.string(""),
         ),
     )
 )

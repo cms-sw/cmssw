@@ -12,7 +12,6 @@ from ..modules.hltInitialStepTrajectorySeedsLST_cfi import hltInitialStepTraject
 from ..modules.hltL1GTAcceptFilter_cfi import hltL1GTAcceptFilter
 from ..modules.hltLST_cfi import hltLST
 from ..modules.hltPhase2OtRecHitsSoA_cfi import hltPhase2OtRecHitsSoA
-from ..modules.hltPhase2PixelRecHitsExtendedSoA_cfi import hltPhase2PixelRecHitsExtendedSoA
 from ..modules.hltPhase2PixelTracks_cfi import hltPhase2PixelTracks
 from ..modules.hltPhase2PixelTracksSoA_cfi import hltPhase2PixelTracksSoA
 from ..modules.hltPhase2PixelTrackTorchHighPuritySelector_cfi import hltPhase2PixelTrackTorchHighPuritySelector
@@ -35,7 +34,6 @@ HLTLocalTrackerSequence = cms.Sequence(
     + hltSiPhase2Clusters
     + hltSiPhase2RecHits
     + hltPhase2OtRecHitsSoA
-    + hltPhase2PixelRecHitsExtendedSoA
     + hltSiPixelClusters
     + hltSiPixelRecHits
 )

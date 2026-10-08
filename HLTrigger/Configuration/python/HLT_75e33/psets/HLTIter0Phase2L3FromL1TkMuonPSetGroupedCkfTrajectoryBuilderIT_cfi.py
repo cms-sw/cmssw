@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 HLTIter0Phase2L3FromL1TkMuonPSetGroupedCkfTrajectoryBuilderIT = cms.PSet(
     ComponentType = cms.string('GroupedCkfTrajectoryBuilder'),
-    TTRHBuilder = cms.string('WithTrackAngle'),
+    TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
     alwaysUseInvalidHits = cms.bool(True),
     bestHitOnly = cms.bool(True),
     estimator = cms.string('hltESPChi2ChargeMeasurementEstimator30'),

@@ -435,6 +435,14 @@
   <class name="reco::ParticleTransformerAK4TagInfoRefVector"/>
   <class name="edm::Wrapper<reco::ParticleTransformerAK4TagInfoCollection>"/>
 
+  <class name="reco::HLTParticleTransformerAK4TagInfo"/>
+  <class name="reco::HLTParticleTransformerAK4TagInfoCollection"/>
+  <class name="reco::HLTParticleTransformerAK4TagInfoRef"/>
+  <class name="reco::HLTParticleTransformerAK4TagInfoFwdRef"/>
+  <class name="reco::HLTParticleTransformerAK4TagInfoRefProd"/>
+  <class name="reco::HLTParticleTransformerAK4TagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::HLTParticleTransformerAK4TagInfoCollection>"/>
+
   <class name="reco::UnifiedParticleTransformerAK4TagInfo"/>
   <class name="reco::UnifiedParticleTransformerAK4TagInfoCollection"/>
   <class name="reco::UnifiedParticleTransformerAK4TagInfoRef"/>

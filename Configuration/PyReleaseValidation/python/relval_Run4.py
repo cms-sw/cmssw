@@ -12,7 +12,7 @@ workflows = Matrix()
 from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgrade_workflows
 
 #just define all of them
-prefixDet = 37600 #update this line when change the default version
+prefixDet = 38400 #update this line when change the default version
 
 #Run4 WFs to run in IB (TTbar)
 numWFIB = []
@@ -69,9 +69,7 @@ numWFIB.extend([prefixDet+34.751])  # HLTTiming75e33, alpaka
 numWFIB.extend([prefixDet+34.7521]) # HLTTiming75e33, ticlv5TrackLinkingGNN
 numWFIB.extend([prefixDet+34.7522]) # HLTTiming75e33, mtd_at_hlt
 numWFIB.extend([prefixDet+34.753])  # HLTTiming75e33, legacy tracking
-numWFIB.extend([prefixDet+34.754])  # HLTTiming75e33, legacy tracking with Patatrack quads
 numWFIB.extend([prefixDet+34.755])  # HLTTiming75e33, trackingLST
-numWFIB.extend([prefixDet+34.756])  # HLTTiming75e33, phase2_hlt_vertexTrimming
 numWFIB.extend([prefixDet+34.757])  # HLTTiming75e33, MkFitFit
 numWFIB.extend([prefixDet+34.758])  # HLTTiming75e33, ticl_barrel
 numWFIB.extend([prefixDet+34.759])  # HLT75e33 + NANO

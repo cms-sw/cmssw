@@ -1,6 +1,4 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-// Part of the MC-truth-graph prototype - under heavy development, not yet open
-// to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 // Phase-A pileup prototype: build a raw TruthGraph from the MixingModule
 // crossing frames (signal + pileup) instead of the signal-only g4SimHits.

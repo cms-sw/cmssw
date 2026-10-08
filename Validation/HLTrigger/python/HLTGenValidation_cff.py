@@ -562,7 +562,8 @@ HLTGenValSourceTAU = cms.EDProducer("HLTGenValSource",
     hltPathsToCheck = cms.vstring(
         'HLT_DoubleMediumChargedIsoPFTauHPS40_eta2p1',
         'HLT_DoubleMediumDeepTauPFTauHPS35_eta2p1',
-        'HLT_LooseDeepTauPFTauHPS150_L1NN_eta2p1'
+        'HLT_LooseDeepTauPFTauHPS150_L1NN_eta2p1',
+        'HLT_DoubleMediumPFPuppiParTTauh30_eta2p1'
     ),
     hltProcessName = cms.string('HLT'),
     objType = cms.string('tauHAD'),

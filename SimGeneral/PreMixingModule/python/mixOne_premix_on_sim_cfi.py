@@ -219,6 +219,16 @@ from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
         ),
     )
 )
+((run2_GEM_2017 | run3_GEM) & fastSim).toModify(
+    mixData,
+    workers = dict(
+        gem = dict(
+            labelSig = cms.InputTag("mix", "MuonSimHitsMuonGEMHits"),
+            pileInputTag = cms.InputTag("mix", "MuonSimHitsMuonGEMHits"),
+            collectionDM = cms.string("MuonSimHitsMuonGEMHits"),
+        ),
+    )
+)
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker

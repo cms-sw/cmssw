@@ -388,3 +388,8 @@ void MPIChannel::receiveInitializedTrivialCopyAsync(int instance,
     MPI_Irecv(regions[i].data(), regions[i].size_bytes(), MPI_BYTE, dest_, tag, comm_, &requests[base + i]);
   }
 }
+
+void MPIChannel::sendModulesInfo(std::vector<char> const& buffer) {
+  int tag = EDM_MPI_SendModulesInfo;
+  MPI_Send(buffer.data(), buffer.size(), MPI_BYTE, dest_, tag, comm_);
+}

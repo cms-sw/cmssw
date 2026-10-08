@@ -23,6 +23,7 @@
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -33,6 +34,8 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/MPICore/interface/MPIChannel.h"
 #include "HeterogeneousCore/MPICore/interface/MPIToken.h"
+#include "HeterogeneousCore/MPICore/interface/MutableOnceFlag.h"
+#include "HeterogeneousCore/MPIServices/interface/MPIConsistencyChecker.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/AnyBuffer.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/SerialiserBase.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/SerialiserFactory.h"
@@ -45,13 +48,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   // Inherit from ProducerBase. This is so we have access to the EDMetadata,
   // which we need for synchronization
-  class MPIReceiverPortable : public ProducerBase<edm::stream::EDProducer, edm::ExternalWork> {
+  class MPIReceiverPortable
+      : public ProducerBase<edm::stream::EDProducer, edm::ExternalWork, edm::GlobalCache<MutableOnceFlag>> {
   public:
-    MPIReceiverPortable(edm::ParameterSet const& config)
-        : ProducerBase<edm::stream::EDProducer, edm::ExternalWork>(config),
+    MPIReceiverPortable(edm::ParameterSet const& config, MutableOnceFlag const* cache)
+        : ProducerBase<edm::stream::EDProducer, edm::ExternalWork, edm::GlobalCache<MutableOnceFlag>>(config),
           upstream_(consumes<MPIToken>(config.getParameter<edm::InputTag>("upstream"))),
           token_(this->producesCollector().template produces<MPIToken>()),
-          instance_(config.getParameter<int32_t>("instance")) {
+          instance_(config.getParameter<int32_t>("instance")),
+          activity_(config.getParameter<bool>("activity")) {
       // instance 0 is reserved for the MPIController / MPISource pair instance
       // values greater than 255 may not fit in the MPI tag
       if (instance_ < 1 or instance_ > 255) {
@@ -59,39 +64,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             << "Invalid MPIReceiverPortable instance value, please use a value between 1 and 255";
       }
 
+      if (activity_) {
+        pathStateToken_ = this->producesCollector().template produces<edm::PathStateToken>();
+      }
+
       auto const& products = config.getParameter<std::vector<edm::ParameterSet>>("products");
       products_.reserve(products.size());
       for (auto const& product : products) {
         auto const& type = product.getParameter<std::string>("type");
-        auto const& src = product.getParameter<edm::InputTag>("src");
-
-        // Construct the instance that will be put into the event together with
-        // this product, and that will be used by downstream modules to consume
-        // this product.
-        //
-        // edmMpiSplitConfig convention = "src.label@src.instance" if both are
-        // set, "label" if only label is set and "instance" if only instance is
-        // set
-        std::string produceInstance;
-        if (src.label().empty()) {
-          produceInstance = src.instance();
-        } else if (src.instance().empty()) {
-          produceInstance = src.label();
-        } else {
-          produceInstance = src.label() + "@" + src.instance();
-        }
+        // Instance that will be put into the event together with this product,
+        // and that will be used by downstream modules to consume this product.
+        auto const& produceInstance = product.getParameter<std::string>("label");
 
         Entry entry;
         entry.typeName = type;
-
-        // Produce PathStateToken but do not transfer it over MPI; the path
-        // status is propagated through productCount (set to -1 if the path is
-        // inactive).
-        if (type == "edm::PathStateToken") {
-          entry.token = this->producesCollector().template produces<edm::PathStateToken>();
-          products_.emplace_back(std::move(entry));
-          continue;
-        }
 
         // Lookup the right serialiser. In order of preference:
         // SerialiserFactoryDevice, SerialiserFactory, ROOT Serialisation.
@@ -238,7 +224,29 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         products_.emplace_back(std::move(entry));
       }
+
+      // record information about this receiver for configuration consistency check
+      edm::Service<MPIConsistencyChecker> module_info_service;
+      std::vector<std::string> product_types;
+      product_types.reserve(products_.size());
+      for (auto const& entry : products_) {
+        product_types.push_back(entry.typeName);
+      }
+      std::string module_label = config.getParameter<std::string>("@module_label");
+      std::string upstream_label = config.getParameter<edm::InputTag>("upstream").label();
+      if (cache == nullptr) {
+        throw cms::Exception("MPIReceiverPortable") << "MPIReceiverPortable's global cache is null";
+      }
+      std::call_once(cache->information_recorded_flag, [&]() {
+        module_info_service->recordMPIModuleInfo(false, module_label, upstream_label, this->instance_, product_types);
+      });
     }
+
+    static std::unique_ptr<MutableOnceFlag> initializeGlobalCache(edm::ParameterSet const&) {
+      return std::make_unique<MutableOnceFlag>();
+    }
+
+    static void globalEndJob(MutableOnceFlag const*) {}
 
     void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
       // reset the metadata that could have been left behind by a previous event
@@ -287,11 +295,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
             for (size_t i = 0; i < products_.size(); ++i) {
               auto const& entry = products_[i];
-
-              // PathStateToken is not transferred; it is handled in produce().
-              if (entry.typeName == "edm::PathStateToken") {
-                continue;
-              }
 
               auto product_meta = receivedProductMetadata_->getNext();
 
@@ -380,25 +383,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       MPIToken token = event.get(upstream_);
+      event.emplace(token_, token);
+      this->putBackend(event);
 
       if (receivedProductMetadata_->productCount() == -1) {
-        event.emplace(token_, token);
-        this->putBackend(event);
         if (sentry) {
           sentry->finish(false);
         }
         return;
       }
 
+      if (activity_) {
+        event.emplace(pathStateToken_);
+      }
+
       for (size_t i = 0; i < products_.size(); ++i) {
         auto const& entry = products_[i];
-
-        if (entry.typeName == "edm::PathStateToken") {
-          // Put a fresh PathStateToken into the event, since the one created
-          // remotely was not transferred.
-          event.put(entry.token, std::make_unique<edm::PathStateToken>());
-          continue;
-        }
 
         if (!receivedWrappers_[i]) {
           edm::LogWarning("MPIReceiverPortable") << "Product " << entry.typeName << " was not received.";
@@ -408,8 +408,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         event.put(entry.token, std::move(receivedWrappers_[i]));
       }
 
-      event.emplace(token_, token);
-      this->putBackend(event);
       if (sentry) {
         sentry->finish(asyncWorkLaunched_);
       }
@@ -427,7 +425,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           "that it is a device product; every occurrence of the placeholder is substituted with the backend's "
           "actual namespace at construction time. "
           "For host and ROOT products, use the plain C++ type name with no placeholder.");
-      product.add<edm::InputTag>("src", edm::InputTag{})->setComment("InputTag identifying the product to produce. ");
+      product.add<std::string>("label", "")->setComment("Product instance label to be associated to the product.");
 
       edm::ParameterSetDescription desc;
       desc.add<edm::InputTag>("upstream", {"source"})
@@ -440,13 +438,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           ->setComment(
               "A value between 1 and 255 used to identify a matching pair of "
               "\"MPISenderPortable\"/\"MPIReceiverPortable\".");
+      desc.add<bool>("activity", false)
+          ->setComment("Whether this receiver will get activity information from the sender.");
 
       descriptions.addWithDefaultLabel(desc);
     }
 
   private:
     struct Entry {
-      std::string typeName;  // type name from config (for PathStateToken check and logging)
+      std::string typeName;  // type name from config, for logging
       edm::EDPutToken token;
       std::unique_ptr<ngt::SerialiserBase> deviceSerialiser;
       std::unique_ptr<::ngt::SerialiserBase> hostSerialiser;
@@ -457,6 +457,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::EDPutTokenT<MPIToken> const token_;
     std::vector<Entry> products_;
     int32_t const instance_;
+    edm::EDPutTokenT<edm::PathStateToken> pathStateToken_;
+    bool const activity_;
     bool hasDeviceProducts_ = false;
 
     std::shared_ptr<ProductMetadataBuilder> receivedProductMetadata_;

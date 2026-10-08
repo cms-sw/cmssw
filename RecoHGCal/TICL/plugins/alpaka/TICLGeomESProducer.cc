@@ -26,6 +26,9 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
+#include "oneapi/tbb.h"
+#include "oneapi/tbb/task_arena.h"
+
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   // Flattens every RecHitTools per-cell quantity of the selected
@@ -119,76 +122,81 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto silicon = view.silicon();
       auto scint = view.scint();
 
-      int32_t siIdx = 0, scIdx = 0;
-      for (int32_t i = 0; i < nCells; ++i) {
-        const DetId id = validIds[i];
-        auto cell = common[i];
+      // Fill the per-cell columns in parallel. Each i writes disjoint rows:
+      // common[i], and for a silicon/scint cell the block-local row whose index
+      // is fixed by the [barrel|silicon|scint] rawDetId ordering (i - nBarrel,
+      // i - nBarrel - nSilicon). RecHitTools const access is thread-safe.
+      tbb::this_task_arena::isolate([&] {
+        tbb::parallel_for(int32_t(0), nCells, [&](int32_t i) {
+          const DetId id = validIds[i];
+          auto cell = common[i];
 
-        const bool isHGCal = (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi || id.det() == DetId::HGCalHSc);
-        const bool isNose = (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose);
-        const bool isSi = tools.isSilicon(id);
-        const bool isSc = tools.isScintillator(id);
+          const bool isHGCal =
+              (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi || id.det() == DetId::HGCalHSc);
+          const bool isNose = (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose);
+          const bool isSi = tools.isSilicon(id);
+          const bool isSc = tools.isScintillator(id);
 
-        const auto pos = tools.getPosition(id);
-        cell.rawDetId() = id.rawId();
-        cell.x() = pos.x();
-        cell.y() = pos.y();
-        cell.z() = pos.z();
-        cell.zside() = tools.zside(id);
-        cell.layer() = tools.getLayer(id);
-        cell.layerWithOffset() = tools.getLayerWithOffset(id);
-        cell.isSilicon() = isSi;
-        cell.isScintillator() = isSc;
-        cell.isBarrel() = tools.isBarrel(id);
+          const auto pos = tools.getPosition(id);
+          cell.rawDetId() = id.rawId();
+          cell.x() = pos.x();
+          cell.y() = pos.y();
+          cell.z() = pos.z();
+          cell.zside() = tools.zside(id);
+          cell.layer() = tools.getLayer(id);
+          cell.layerWithOffset() = tools.getLayerWithOffset(id);
+          cell.isSilicon() = isSi;
+          cell.isScintillator() = isSc;
+          cell.isBarrel() = tools.isBarrel(id);
 
-        const auto waferInfo = tools.getWaferInfo(id);
-        const auto tileInfo = tools.getTileInfo(id);
-        cell.cassette() = isSc ? tileInfo.cassette : waferInfo.cassette;
+          const auto waferInfo = tools.getWaferInfo(id);
+          const auto tileInfo = tools.getTileInfo(id);
+          cell.cassette() = isSc ? tileInfo.cassette : waferInfo.cassette;
 
-        // getCellType and getSensorGroup are only defined for HGCal and
-        // HFNose; maskCell casts the subdetector geometry to HGCalGeometry
-        if (isHGCal || isNose) {
-          cell.cellType() = tools.getCellType(id);
-          cell.sensorGroup() = tools.getSensorGroup(id);
-          cell.masked() = tools.maskCell(id);
-        } else {
-          cell.cellType() = -1;
-          cell.sensorGroup() = hgcal::UNKNOWN;
-          cell.masked() = false;
-        }
+          // getCellType and getSensorGroup are only defined for HGCal and
+          // HFNose; maskCell casts the subdetector geometry to HGCalGeometry
+          if (isHGCal || isNose) {
+            cell.cellType() = tools.getCellType(id);
+            cell.sensorGroup() = tools.getSensorGroup(id);
+            cell.masked() = tools.maskCell(id);
+          } else {
+            cell.cellType() = -1;
+            cell.sensorGroup() = hgcal::UNKNOWN;
+            cell.masked() = false;
+          }
 
-        // silicon-only columns, in the silicon block; the [barrel|silicon|scint]
-        // ordering means the silicon-local index equals i - nBarrel (asserted
-        // so the device-side arithmetic indexing stays valid)
-        if (isSi) {
-          assert(siIdx == i - nBarrel);
-          auto si = silicon[siIdx++];
-          si.siThickness() = tools.getSiThickness(id);
-          si.siThickIndex() = tools.getSiThickIndex(id);
-          si.radiusToSide() = tools.getRadiusToSide(id);
-          const auto wafer = tools.getWafer(id);
-          const auto cellUV = tools.getCell(id);
-          si.waferU() = wafer.first;
-          si.waferV() = wafer.second;
-          si.cellU() = cellUV.first;
-          si.cellV() = cellUV.second;
-          si.waferType() = waferInfo.type;
-          si.waferPartialType() = waferInfo.partialType;
-          si.waferOrientation() = waferInfo.orientation;
-          si.waferPlacementIndex() = waferInfo.placementIndex;
-          si.isHalfCell() = tools.isHalfCell(id);
-        } else if (isSc) {
-          assert(scIdx == i - nBarrel - nSilicon);
-          auto sc = scint[scIdx++];
-          const auto dEtaDPhi = tools.getScintDEtaDPhi(id);
-          sc.scintDEta() = dEtaDPhi.first;
-          sc.scintDPhi() = dEtaDPhi.second;
-          sc.scintMaxIphi() = tools.getScintMaxIphi(id);
-          sc.tileType() = tileInfo.type;
-          sc.tileSipm() = tileInfo.sipm;
-          sc.isScintillatorFine() = tools.isScintillatorFine(id);
-        }
-      }
+          // silicon-only columns; the block-local index is i - nBarrel, valid
+          // because the rawDetId order is [barrel|silicon|scint]
+          if (isSi) {
+            assert(i >= nBarrel && (i - nBarrel) < nSilicon);
+            auto si = silicon[i - nBarrel];
+            si.siThickness() = tools.getSiThickness(id);
+            si.siThickIndex() = tools.getSiThickIndex(id);
+            si.radiusToSide() = tools.getRadiusToSide(id);
+            const auto wafer = tools.getWafer(id);
+            const auto cellUV = tools.getCell(id);
+            si.waferU() = wafer.first;
+            si.waferV() = wafer.second;
+            si.cellU() = cellUV.first;
+            si.cellV() = cellUV.second;
+            si.waferType() = waferInfo.type;
+            si.waferPartialType() = waferInfo.partialType;
+            si.waferOrientation() = waferInfo.orientation;
+            si.waferPlacementIndex() = waferInfo.placementIndex;
+            si.isHalfCell() = tools.isHalfCell(id);
+          } else if (isSc) {
+            assert(i >= (nBarrel + nSilicon));
+            auto sc = scint[i - nBarrel - nSilicon];
+            const auto dEtaDPhi = tools.getScintDEtaDPhi(id);
+            sc.scintDEta() = dEtaDPhi.first;
+            sc.scintDPhi() = dEtaDPhi.second;
+            sc.scintMaxIphi() = tools.getScintMaxIphi(id);
+            sc.tileType() = tileInfo.type;
+            sc.tileSipm() = tileInfo.sipm;
+            sc.isScintillatorFine() = tools.isScintillatorFine(id);
+          }
+        });
+      });
 
       common.lastLayerEE() = tools.lastLayerEE();
       common.lastLayerFH() = tools.lastLayerFH();

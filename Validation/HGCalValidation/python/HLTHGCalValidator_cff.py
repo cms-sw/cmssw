@@ -34,3 +34,8 @@ hltHgcalValidator = _hgcalValidator.clone(
     mergeSimToRecoAssociator = cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs","hltTiclSimTrackstersfromCPsTohltTiclCandidate"),
 )
 
+from Validation.HGCalValidation.ticlPFValidationDefault_cfi import ticlPFValidationDefault as _ticlPFValidationDefault
+hltTICLPFValidation = _ticlPFValidationDefault.clone(
+    folder = cms.string('HLT/HGCAL/'),
+    ticlPFCandidates = cms.InputTag('hltPfTICL')
+)

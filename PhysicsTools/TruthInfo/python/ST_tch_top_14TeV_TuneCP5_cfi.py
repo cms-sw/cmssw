@@ -1,6 +1,4 @@
 # Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-# Part of the MC-truth-graph prototype - under heavy development, not yet open
-# to external contributions (see PhysicsTools/TruthInfo/README.md).
 #
 # t-channel single-top GEN fragment (q q' -> t q'' via t-channel W). There is no
 # single-top sample in the standard relval matrix, so this minimal fragment is used

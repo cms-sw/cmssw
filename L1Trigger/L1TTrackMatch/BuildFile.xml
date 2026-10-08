@@ -4,6 +4,7 @@
 <use   name="DataFormats/L1TrackTrigger"/>
 <use   name="DataFormats/Math"/>
 <use   name="PhysicsTools/TensorFlow"/>
+<use   name="hls4mlEmulatorExtras"/>
 <use   name="boost"/>
 <use   name="xerces-c"/>
 <use   name="clhep"/>

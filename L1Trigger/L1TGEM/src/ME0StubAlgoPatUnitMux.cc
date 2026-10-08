@@ -1,24 +1,28 @@
 #include "L1Trigger/L1TGEM/interface/ME0StubAlgoPatUnitMux.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace l1t::me0;
-
-uint64_t l1t::me0::parseData(const UInt192& data, int strip, int maxSpan) {
-  UInt192 dataShifted;
+uint64_t l1t::me0::parseData(const l1t::me0::UInt192& data, int strip, int maxSpan) {
+  l1t::me0::UInt192 dataShifted;
   uint64_t parsedData;
   if (strip < maxSpan / 2 + 1) {
     dataShifted = data << (maxSpan / 2 - strip);
-    parsedData = (dataShifted & UInt192(0xffffffffffffffff >> (64 - maxSpan))).to_ullong();
+    parsedData = (dataShifted & l1t::me0::UInt192(0xffffffffffffffff >> (64 - maxSpan))).to_ullong();
   } else {
     dataShifted = data >> (strip - maxSpan / 2);
-    parsedData = (dataShifted & UInt192(0xffffffffffffffff >> (64 - maxSpan))).to_ullong();
+    parsedData = (dataShifted & l1t::me0::UInt192(0xffffffffffffffff >> (64 - maxSpan))).to_ullong();
   }
   return parsedData;
 }
-std::vector<uint64_t> l1t::me0::extractDataWindow(const std::vector<UInt192>& layerData, int strip, int maxSpan) {
+std::vector<uint64_t> l1t::me0::extractDataWindow(const std::vector<l1t::me0::UInt192>& prtData,
+                                                  int strip,
+                                                  const std::vector<int>& layerSpans) {
+  if (*std::max_element(layerSpans.begin(), layerSpans.end()) > 64) {
+    throw cms::Exception("ME0StubAlgoPatUnitMux") << "Layer span exceeds 64 bits, which is not supported.";
+  }
   std::vector<uint64_t> out;
-  out.reserve(layerData.size());
-  for (const UInt192& data : layerData) {
-    out.push_back(parseData(data, strip, maxSpan));
+  out.reserve(prtData.size());
+  for (int ly = 0; ly < static_cast<int>(prtData.size()); ++ly) {
+    out.push_back(l1t::me0::parseData(prtData[ly], strip, layerSpans[ly]));
   }
   return out;
 }
@@ -42,34 +46,60 @@ std::vector<int> l1t::me0::parseBxData(const std::vector<int>& bxData, int strip
   }
   return parsedBxData;
 }
-std::vector<std::vector<int>> l1t::me0::extractBxDataWindow(const std::vector<std::vector<int>>& layerData,
+std::vector<std::vector<int>> l1t::me0::extractBxDataWindow(const std::vector<std::vector<int>>& prtBxData,
                                                             int strip,
                                                             int maxSpan) {
   std::vector<std::vector<int>> out;
-  out.reserve(layerData.size());
-  for (const std::vector<int>& data : layerData) {
-    out.push_back(parseBxData(data, strip, maxSpan));
+  out.reserve(prtBxData.size());
+  for (const std::vector<int>& data : prtBxData) {
+    out.push_back(l1t::me0::parseBxData(data, strip, maxSpan));
   }
   return out;
 }
-std::vector<ME0StubPrimitive> l1t::me0::patMux(const std::vector<UInt192>& partitionData,
+std::vector<ME0StubPrimitive> l1t::me0::patMux(const std::vector<l1t::me0::UInt192>& partitionData,
                                                const std::vector<std::vector<int>>& partitionBxData,
                                                int partition,
-                                               Config& config) {
-  std::vector<ME0StubPrimitive> out;
+                                               l1t::me0::Config& config,
+                                               l1t::me0::PeakingManager& peakingManager,
+                                               bool debug) {
+  std::vector<ME0StubPrimitive> newSegs;
+  int maxLayerSpan = *std::max_element(kLayerSpans.begin(), kLayerSpans.end());
   for (int strip = 0; strip < config.width; ++strip) {
-    const std::vector<uint64_t>& dataWindow = extractDataWindow(partitionData, strip, config.maxSpan);
-    const std::vector<std::vector<int>>& bxDataWindow = extractBxDataWindow(partitionBxData, strip, config.maxSpan);
-    const ME0StubPrimitive& seg = patUnit(dataWindow,
-                                          bxDataWindow,
-                                          strip,
-                                          partition,
-                                          config.layerThresholdPatternId,
-                                          config.layerThresholdEta,
-                                          config.maxSpan,
-                                          config.skipCentroids,
-                                          config.numOr);
-    out.push_back(seg);
+    const std::vector<uint64_t>& dataWindow = l1t::me0::extractDataWindow(partitionData, strip, kLayerSpans);
+    const std::vector<std::vector<int>>& bxDataWindow =
+        l1t::me0::extractBxDataWindow(partitionBxData, strip, maxLayerSpan);
+    const ME0StubPrimitive& seg = l1t::me0::patUnit(dataWindow,
+                                                    bxDataWindow,
+                                                    strip,
+                                                    partition,
+                                                    config.layerThresholdPatternId,
+                                                    config.layerThresholdEta,
+                                                    config.maxSpan,
+                                                    config.skipCentroids,
+                                                    config.numOr);
+    newSegs.push_back(seg);
   }
-  return out;
+
+  std::vector<ME0StubPrimitive> outSegs;
+  if (config.enablePeaking) {
+    outSegs = peakingManager.processSegments(partition, newSegs);
+  } else {
+    outSegs = newSegs;
+  }
+
+  if (debug) {
+    auto seg_print = outSegs;
+    int num = 0;
+    LogTrace("ME0StubAlgoPatUnitMux") << "Partition = " << partition << "\n";
+    for (const auto& seg : seg_print) {
+      LogTrace("ME0StubAlgoPatUnitMux") << seg.quality() << "/" << seg.strip() << "/" << seg.patternId() << " ";
+      num++;
+      if (num % 10 == 0) {
+        LogTrace("ME0StubAlgoPatUnitMux") << "\n";
+      }
+    }
+    LogTrace("ME0StubAlgoPatUnitMux") << "\n";
+  }
+
+  return outSegs;
 }

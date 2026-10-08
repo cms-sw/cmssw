@@ -15,10 +15,20 @@ __global__ void calculateNorm(SoAConstView soaConstView, float* resultNorm, doub
   resultVelNorm[i] = soaConstView[i].square_norm_velocity();
 }
 
+__global__ void calculateDistance(SoAConstView soaConstView, float* resultDistance) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i >= soaConstView.sizeMinusOne())
+    return;
+
+  resultDistance[i] = soaConstView.distance2(i, i + 1);
+}
+
 __global__ void checkNormalise(SoAView soaView, double* checkTimesFunction) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i >= soaView.metadata().size())
     return;
+
+  soaView.update_position(i, 0.5f);
 
   checkTimesFunction[i] = SoAView::const_element::time(soaView[i].x(), soaView[i].v_x());
   soaView[i].normalise();
@@ -63,15 +73,20 @@ TEST_CASE("SoACustomizedMethods CUDA", "[SoACustomizedMethods][cuda]") {
   SoAView d_view(d_soahdLayout);
   SoAConstView d_Constview(d_soahdLayout);
 
+  REQUIRE(d_view.sizeMinusOne() == elems - 1);
+
   std::vector<float> h_position_norms(elems);
+  std::vector<float> h_distance(d_view.sizeMinusOne());
   std::vector<double> h_velocity_norms(elems);
   std::vector<double> h_times(elems);
 
   float* d_position_norms;
+  float* d_distance;
   double* d_velocity_norms;
   double* d_times;
 
   CUDA_CHECK(cudaMalloc(&d_position_norms, elems * sizeof(float)));
+  CUDA_CHECK(cudaMalloc(&d_distance, d_view.sizeMinusOne() * sizeof(float)));
   CUDA_CHECK(cudaMalloc(&d_velocity_norms, elems * sizeof(double)));
   CUDA_CHECK(cudaMalloc(&d_times, elems * sizeof(double)));
 
@@ -79,9 +94,13 @@ TEST_CASE("SoACustomizedMethods CUDA", "[SoACustomizedMethods][cuda]") {
   CUDA_CHECK(cudaMemcpy(d_buf, h_buf, bufferSize, cudaMemcpyHostToDevice));
 
   SECTION("ConstElement methods CUDA") {
+    REQUIRE(d_Constview.sizeMinusOne() == elems - 1);
     calculateNorm<<<(elems + 255) / 256, 256>>>(d_Constview, d_position_norms, d_velocity_norms);
+    calculateDistance<<<(elems + 255) / 256, 256>>>(d_Constview, d_distance);
 
     CUDA_CHECK(cudaMemcpy(h_position_norms.data(), d_position_norms, elems * sizeof(float), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(
+        cudaMemcpy(h_distance.data(), d_distance, d_view.sizeMinusOne() * sizeof(float), cudaMemcpyDeviceToHost));
     CUDA_CHECK(cudaMemcpy(h_velocity_norms.data(), d_velocity_norms, elems * sizeof(double), cudaMemcpyDeviceToHost));
 
     // Check for the correctness of the square_norm() functions
@@ -95,6 +114,14 @@ TEST_CASE("SoACustomizedMethods CUDA", "[SoACustomizedMethods][cuda]") {
       REQUIRE(h_position_norms[i] == position_norm);
       REQUIRE(h_velocity_norms[i] == velocity_norm);
     }
+
+    for (int i = 0; i < h_Constview.sizeMinusOne(); i++) {
+      auto pi = h_Constview[i];
+      auto pj = h_Constview[i + 1];
+      const float distance = (pi.x() - pj.x()) * (pi.x() - pj.x()) + (pi.y() - pj.y()) * (pi.y() - pj.y()) +
+                             (pi.z() - pj.z()) * (pi.z() - pj.z());
+      REQUIRE(h_distance[i] == distance);
+    }
   }
 
   SECTION("Element methods CUDA") {
@@ -104,7 +131,7 @@ TEST_CASE("SoACustomizedMethods CUDA", "[SoACustomizedMethods][cuda]") {
     times[0] = 0.;
     for (size_t i = 0; i < elems; i++) {
       if (!(i == 0))
-        times[i] = h_view[i].x() / h_view[i].v_x();
+        times[i] = 1.5 * h_view[i].x() / h_view[i].v_x();
     }
 
     checkNormalise<<<(elems + 255) / 256, 256>>>(d_view, d_times);
@@ -169,6 +196,7 @@ TEST_CASE("SoACustomizedMethods CUDA", "[SoACustomizedMethods][cuda]") {
 
   // ===== cleanup =====
   CUDA_CHECK(cudaFree(d_position_norms));
+  CUDA_CHECK(cudaFree(d_distance));
   CUDA_CHECK(cudaFree(d_velocity_norms));
   CUDA_CHECK(cudaFree(d_times));
   CUDA_CHECK(cudaFree(d_buf));

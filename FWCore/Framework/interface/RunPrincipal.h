@@ -87,6 +87,9 @@ namespace edm {
     void putOrMerge(ProductDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
 
     MergeableRunProductMetadata* mergeableRunProductMetadata() { return mergeableRunProductMetadataPtr_.get(); }
+    MergeableRunProductMetadata const* mergeableRunProductMetadata() const {
+      return mergeableRunProductMetadataPtr_.get();
+    }
 
     void preReadFile();
 

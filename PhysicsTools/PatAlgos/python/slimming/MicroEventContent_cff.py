@@ -129,15 +129,10 @@ MicroEventContentGEN = cms.PSet(
     )
 )
 
-# --- Only for 2018 data & MC
+# --- starting in 2018
 _run2_HCAL_2018_extraCommands = ["keep *_packedPFCandidates_hcalDepthEnergyFractions_*"]
 from Configuration.Eras.Modifier_run2_HCAL_2018_cff import run2_HCAL_2018
 run2_HCAL_2018.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _run2_HCAL_2018_extraCommands)
-
-_run3_common_extraCommands = ["drop *_packedPFCandidates_hcalDepthEnergyFractions_*"]
-from Configuration.Eras.Modifier_run3_common_cff import run3_common
-run3_common.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _run3_common_extraCommands)
-# ---
 
 _pp_on_AA_extraCommands = [
     'keep patPackedCandidates_hiPixelTracks_*_*',

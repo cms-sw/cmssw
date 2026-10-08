@@ -148,6 +148,17 @@ public:
     cU = cellU();
     cV = cellV();
   }
+  static constexpr uint32_t waferUVset(const uint32_t id, const int32_t waferU, const int32_t waferV) {
+    int32_t waferUabs(std::abs(waferU)), waferVabs(std::abs(waferV));
+    int32_t waferUsign = (waferU >= 0) ? 0 : 1;
+    int32_t waferVsign = (waferV >= 0) ? 0 : 1;
+    uint32_t id0 = (id & KHGCalWaferUVMask);
+    id0 |= (((waferUabs & kHGCalWaferUMask) << kHGCalWaferUOffset) |
+            ((waferUsign & kHGCalWaferUSignMask) << kHGCalWaferUSignOffset) |
+            ((waferVabs & kHGCalWaferVMask) << kHGCalWaferVOffset) |
+            ((waferVsign & kHGCalWaferVSignMask) << kHGCalWaferVSignOffset));
+    return id0;
+  }
 
   // get trigger cell u,v
   constexpr int32_t triggerCellU() const {
@@ -205,6 +216,7 @@ public:
   static constexpr uint32_t kHGCalZsideMask = 0x1;
   static constexpr uint32_t kHGCalTypeOffset = 26;
   static constexpr uint32_t kHGCalTypeMask = 0x3;
+  static constexpr uint32_t KHGCalWaferUVMask = 0xFFF003FF;
 
 private:
   static constexpr std::string_view waferTypes[4] = {"HD120", "LD200", "LD300", "HD200"};

@@ -121,9 +121,8 @@ private:
 
 constexpr int nVars_ = 19;
 
-const std::string names[nVars_] = {
-    // Cluster shapes
-    "phoFull5x5SigmaIEtaIEta",  // 0
+const std::string names[nVars_] = {  // Cluster shapes
+    "phoFull5x5SigmaIEtaIEta",       // 0
     "phoFull5x5SigmaIEtaIPhi",
     "phoFull5x5E1x3",
     "phoFull5x5E2x2",

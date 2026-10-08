@@ -92,9 +92,7 @@ namespace edm {
     void readAndMergeRun();
     LuminosityBlockNumber_t readLuminosityBlock();
     LuminosityBlockNumber_t readAndMergeLumi();
-    void writeRun();
     void clearRunPrincipal();
-    void writeLumi();
     void clearLumiPrincipal();
 
     bool shouldWeStop() const;

@@ -5,8 +5,7 @@
 #include <iomanip>
 #include <ostream>
 
-std::vector<std::string> const LumiDetails::m_algoNames = {
-    // If in the future additional algorithm names are added,
+std::vector<std::string> const LumiDetails::m_algoNames = {  // If in the future additional algorithm names are added,
     // it is important that they be added at the end of the list.
     // The Algos enum in LumiDetails.h also would need to be
     // updated to keep the list of names in sync.

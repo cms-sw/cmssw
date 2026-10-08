@@ -118,12 +118,12 @@ _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
   ExoticaValidationSequence,
   b2gHLTriggerValidation,
   SMPValidationSequence,
-  hltbtagValidationSequence,
   hltHCALdigisAnalyzer,
   hltHCALRecoAnalyzer,
   hltHCALNoiseRates])
 _hltvalidationWithMC_Phase2.insert(-1, hgcalHitCalibrationHLT)
 _hltvalidationWithMC_Phase2.insert(-1, hltHgcalValidator)
+_hltvalidationWithMC_Phase2.insert(-1, hltTICLPFValidation)
 _hltvalidationWithMC_Phase2.insert(0, hltGENValidation)
 
 # Add at the end only when mtd_at_hlt is active

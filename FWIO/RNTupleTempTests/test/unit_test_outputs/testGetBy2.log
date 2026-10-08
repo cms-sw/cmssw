@@ -641,22 +641,12 @@ GlobalContext: transition = EndLuminosityBlock
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
     ProcessContext: PROD2 2383b6183d2bd58762047deda96e12f0
 
-++++ finished: global end lumi: run = 1 lumi = 1 time = 1
-GlobalContext: transition = EndLuminosityBlock
-    run: 1 luminosityBlock: 1
-    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD2 2383b6183d2bd58762047deda96e12f0
-
-++++ starting: global write lumi: run = 1 lumi = 1 time = 1
-GlobalContext: transition = WriteLuminosityBlock
-    run: 1 luminosityBlock: 1
-    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD2 2383b6183d2bd58762047deda96e12f0
-
+++++++++ starting: prefetching before processing global end LuminosityBlock for module: label = 'out' id = 4
+++++++++ finished: prefetching before processing global end LuminosityBlock for module: label = 'out' id = 4
 ++++++ starting: write lumi for module: label = 'out' id = 4
 ++++++ finished: write lumi for module: label = 'out' id = 4
-++++ finished: global write lumi: run = 1 lumi = 1 time = 1
-GlobalContext: transition = WriteLuminosityBlock
+++++ finished: global end lumi: run = 1 lumi = 1 time = 1
+GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
     ProcessContext: PROD2 2383b6183d2bd58762047deda96e12f0
@@ -679,22 +669,12 @@ GlobalContext: transition = EndRun
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
     ProcessContext: PROD2 2383b6183d2bd58762047deda96e12f0
 
-++++ finished: global end run 1 : time = 15000001
-GlobalContext: transition = EndRun
-    run: 1 luminosityBlock: 0
-    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD2 2383b6183d2bd58762047deda96e12f0
-
-++++ starting: global write run 1 : time = 15000001
-GlobalContext: transition = WriteRun
-    run: 1 luminosityBlock: 0
-    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD2 2383b6183d2bd58762047deda96e12f0
-
+++++++++ starting: prefetching before processing global end Run for module: label = 'out' id = 4
+++++++++ finished: prefetching before processing global end Run for module: label = 'out' id = 4
 ++++++ starting: write run for module: label = 'out' id = 4
 ++++++ finished: write run for module: label = 'out' id = 4
-++++ finished: global write run 1 : time = 15000001
-GlobalContext: transition = WriteRun
+++++ finished: global end run 1 : time = 15000001
+GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
     ProcessContext: PROD2 2383b6183d2bd58762047deda96e12f0

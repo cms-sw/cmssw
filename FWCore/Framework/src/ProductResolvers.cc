@@ -232,6 +232,8 @@ namespace edm {
         if (status() == defaultStatus() || status() == ProductStatus::ProductSet ||
             (status() == ProductStatus::ResolveFailed && !productDescription().isMergeable())) {
           setOrMergeProduct(std::move(edp), mergeableRunProductMetadata);
+          m_prefetchRequested = true;
+          m_waitingTasks.doneWaiting(std::exception_ptr());
         } else {  // status() == ResolveFailed && productDescription().isMergeable()
           throw Exception(errors::MismatchedInputFiles)
               << "Merge of Run or Lumi product failed for branch " << productDescription().branchName() << "\n"
@@ -242,6 +244,8 @@ namespace edm {
         }
       } else if (status() == defaultStatus()) {
         setFailedStatus();
+        m_prefetchRequested = true;
+        m_waitingTasks.doneWaiting(std::exception_ptr());
       } else if (status() != ProductStatus::ResolveFailed && productDescription().isMergeable()) {
         throw Exception(errors::MismatchedInputFiles)
             << "Merge of Run or Lumi product failed for branch " << productDescription().branchName() << "\n"
@@ -462,7 +466,7 @@ namespace edm {
 
       ParentContext parentContext(mcc);
       EventTransitionInfo const& info = aux_->eventTransitionInfo();
-      worker_->doWorkAsync<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin> >(
+      worker_->doWorkAsync<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin> >(
           WaitingTaskHolder(*waitTask.group(), t),
           info,
           token,

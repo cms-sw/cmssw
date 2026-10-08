@@ -199,13 +199,9 @@ namespace cms::torch::alpakatools {
     }
 
   private:
-    void copy(TQueue& queue, const cms::torch::alpakatools::detail::MemcpyKind kind) {
+    void copy(TQueue& queue) {
       for (const auto& name : order_)
-        registry_.at(name)->copy(queue, kind);
-      // explicit synchronize to ensure data is in place before inference
-      // no need to explicitly synchronize D2D/H2D, rely on implicit synchronization mechanism in framework
-      if (kind == cms::torch::alpakatools::detail::MemcpyKind::DeviceToHost)
-        alpaka::wait(queue);
+        registry_.at(name)->copy(queue);
     }
 
     // propagate pointer (Tptr) and type to distinguish between T* and const T* and trigger internal copy.

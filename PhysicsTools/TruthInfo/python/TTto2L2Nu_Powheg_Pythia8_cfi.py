@@ -1,6 +1,4 @@
 # Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-# Part of the MC-truth-graph prototype - under heavy development, not yet open
-# to external contributions (see PhysicsTools/TruthInfo/README.md).
 #
 # ttbar -> dilepton (TTto2L2Nu) at NLO with POWHEG (hvq) showered by Pythia8, used
 # to produce a more realistic ttbar gallery/library example than the LO Pythia8

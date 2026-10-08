@@ -5,6 +5,7 @@ import re
 
 run3_years = ['2022','2023','2024','2025','2026']
 undefInput = "UNDEF"
+localPUname = 'stepMB.root'
 
 U2000by1={'--relval': '2000,1'}
 
@@ -265,6 +266,12 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'HARVESTFastRun3',
         'FastSimRun4',
         'HARVESTFastRun4',
+        'MinBias13',
+        'MinBias',
+        'MinBiasHLBeamSpot',
+        'MinBiasHLBeamSpot14',
+        'MinBiasFSRun3',
+        'MinBiasFSRun4',
     ],
     PU =  [
         'DigiTrigger',
@@ -2025,20 +2032,10 @@ upgradeWFs['HLTTiming75e33LegacyTracking'].suffix = '_HLT75e33TimingLegacyTracki
 upgradeWFs['HLTTiming75e33LegacyTracking'].offset = 0.753
 upgradeWFs['HLTTiming75e33LegacyTracking'].step2['--procModifiers'] = 'hltPhase2LegacyTracking'
 
-upgradeWFs['HLTTiming75e33LegacyTrackingPatatrackQuads'] = deepcopy(upgradeWFs['HLTTiming75e33'])
-upgradeWFs['HLTTiming75e33LegacyTrackingPatatrackQuads'].suffix = '_HLT75e33TimingLegacyTrackingPatatrackQuads'
-upgradeWFs['HLTTiming75e33LegacyTrackingPatatrackQuads'].offset = 0.754
-upgradeWFs['HLTTiming75e33LegacyTrackingPatatrackQuads'].step2['--procModifiers'] = 'hltPhase2LegacyTrackingPatatrackQuadsChain'
-
 upgradeWFs['HLTTiming75e33LST'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33LST'].suffix = '_HLT75e33TimingLST'
 upgradeWFs['HLTTiming75e33LST'].offset = 0.755
 upgradeWFs['HLTTiming75e33LST'].step2['--procModifiers'] = 'trackingLST'
-
-upgradeWFs['HLTTiming75e33TrimmedTracking'] = deepcopy(upgradeWFs['HLTTiming75e33'])
-upgradeWFs['HLTTiming75e33TrimmedTracking'].suffix = '_HLT75e33TimingTrimmedTracking'
-upgradeWFs['HLTTiming75e33TrimmedTracking'].offset = 0.756
-upgradeWFs['HLTTiming75e33TrimmedTracking'].step2['--procModifiers'] = 'phase2_hlt_vertexTrimming'
 
 upgradeWFs['HLTTiming75e33MkFitFit'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33MkFitFit'].suffix = '_HLT75e33TimingMkFitFit'
@@ -2475,6 +2472,21 @@ upgradeWFs['ecalDevelAlpaka'] = UpgradeWorkflow_ecalDevel(
     },
     suffix = '_ecalDevelAlpaka',
     offset = 0.612,
+)
+
+# ECAL Phase 2 workflow with APD spikes added to the digis and reconstruction with Alpaka
+upgradeWFs['ecalDevelSpikesAlpaka'] = UpgradeWorkflow_ecalDevel(
+    digi = {
+        '--procModifiers': 'ecal_addspikes',
+        '--custom_conditions': 'EcalSimPulseShapes_TB2025_v1,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+    },
+    reco = {
+        '--procModifiers': 'alpaka',
+        '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
+        '--custom_conditions': 'EcalSimPulseShapes_TB2025_v1,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+    },
+    suffix = '_ecalDevelSpikesAlpaka',
+    offset = 0.622,
 )
 
 # ECAL Phase 2 workflow with Alpaka reconstruction and PU from premix
@@ -3185,7 +3197,7 @@ class UpgradeWorkflowPremix(UpgradeWorkflow):
     def workflow_(self, workflows, num, fragment, stepList, key):
         fragmentTmp = fragment
         if self.suffix.endswith("S1"):
-            fragmentTmp = 'PREMIXUP' + key[2:].replace("PU", "").replace("Design", "") + '_PU25'
+            fragmentTmp = 'PREMIXUP' + key[2:].replace("n4", "").replace("PU", "").replace("Design", "") + '_PU25'
         super(UpgradeWorkflowPremix,self).workflow_(workflows, num, fragmentTmp, stepList, key)
 # Premix stage1
 upgradeWFs['PMXS1'] = UpgradeWorkflowPremix(
@@ -3356,48 +3368,40 @@ upgradeWFs['PMXS1S2ProdLike'] = UpgradeWorkflowPremixProdLike(
 
 class UpgradeWorkflowHybridPU(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        # just copy steps
-        stepDict[stepName][k] = merge([stepDict[step][k]])
-    def setupPU_(self, step, stepName, stepDict, k, properties):
-        # make new step for S1
-        # this gets inserted in relval_upgrade.py
-        if "GenSim" in stepName:
-            # go back to non-PU step version
-            d = merge([stepDict[self.getStepName(step)][k]])
-            stepNameS1 = stepName.replace('GenSim','GenSimFS')
-            if not stepNameS1 in stepDict: stepDict[stepNameS1] = {}
-            stepDict[stepNameS1][k] = merge([{
-                '--fast': '',
-                '--era': stepDict[stepName][k]['--era']+'_FastSim',
-                '--eventcontent': 'FASTPU',
-                '--processName': 'FASTSIM',
-            }, d])
-        else:
-            # include modifier in all subsequent steps in case any of them use PU replay
-            if "--procModifiers" in stepDict[stepName][k]:
-                stepDict[stepName][k]["--procModifiers"] += ",fastSimPU"
+        if 'MinBias' in step:
+            stepMap = {
+                'MinBias': 'MinBiasFSRun3', 'MinBias13': 'MinBiasFSRun3',
+                'MinBiasHLBeamSpot': 'MinBiasFSRun4', 'MinBiasHLBeamSpot14': 'MinBiasFSRun4',
+            }
+            if 'S1S2' in self.suffix:
+                # swap to FastSim version of MinBias
+                # remove unnecessary step
+                stepDict[stepName][k] = merge([{'-s': 'GEN,SIM', '--datatier': 'GEN-SIM'},stepDict[stepMap[step]][k]])
             else:
-                stepDict[stepName][k]["--procModifiers"] = "fastSimPU"
+                # remove local PU step
+                stepDict[stepName][k] = None
+        else:
+            # just copy steps
+            stepDict[stepName][k] = merge([stepDict[step][k]])
+    def setupPU_(self, step, stepName, stepDict, k, properties):
+        # include modifier in all subsequent steps in case any of them use PU replay
+        if "--procModifiers" in stepDict[stepName][k]:
+            stepDict[stepName][k]["--procModifiers"] += ",fastSimPU"
+        else:
+            stepDict[stepName][k]["--procModifiers"] = "fastSimPU"
 
-            if "Digi" in stepName:
-                stepDict[stepName][k] = merge([digiPremixLocalPileup, stepDict[stepName][k]])
-            elif 'S1S2' in self.suffix:
-                # increment inputs for subsequent steps in combined case
-                # also reset pileup input
-                digiPremixLocalPileupTmp = deepcopy(digiPremixLocalPileup)
-                filein = stepDict[stepName][k].get("--filein","")
-                m = re.search("step(?P<ind>\\d+)", filein)
-                if m:
-                    digiPremixLocalPileupTmp['--filein'] = filein.replace(m.group(), "step%d"%(int(m.group("ind"))+1))
-                else:
-                    digiPremixLocalPileupTmp.pop('--filein')
-                stepDict[stepName][k] = merge([digiPremixLocalPileupTmp, stepDict[stepName][k]])
+        stepDict[stepName][k] = merge([{'--pileup_input': f'file:{localPUname}'}, stepDict[stepName][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return (fragment=='TTbar_14TeV' and 'PU' in key and key.startswith('202') and not 'FS' in key)
 # stage1 is just FastSim MinBias, no separate workflow needed
 # HybridPU stage2
 upgradeWFs['HybridPUS2'] = UpgradeWorkflowHybridPU(
-    steps = [],
+    steps = [
+        'MinBias13',
+        'MinBias',
+        'MinBiasHLBeamSpot',
+        'MinBiasHLBeamSpot14',
+    ],
     PU = [
         'Digi',
         'DigiTrigger',
@@ -3407,11 +3411,13 @@ upgradeWFs['HybridPUS2'] = UpgradeWorkflowHybridPU(
 )
 # HybridPU combined stage1+stage2
 upgradeWFs['HybridPUS1S2'] = UpgradeWorkflowHybridPU(
-    steps = [],
+    steps = [
+        'MinBias13',
+        'MinBias',
+        'MinBiasHLBeamSpot',
+        'MinBiasHLBeamSpot14',
+    ],
     PU = [
-        'GenSim',
-        'GenSimHLBeamSpot',
-        'GenSimHLBeamSpot14',
         'Digi',
         'DigiTrigger',
         'RecoLocal',
@@ -3435,7 +3441,6 @@ class UpgradeWorkflow_Run3FStrackingOnly(UpgradeWorkflow):
         if 'HARVESTFastRun3' in step:
             stepDict[stepName][k] = merge([{'-s':'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM',
                                             '--fast':'',
-                                            '--era':'Run3_FastSim',
                                             '--filein':'file:step1_inDQM.root'}, stepDict[step][k]])
         else:
             stepDict[stepName][k] = merge([stepDict[step][k]])
@@ -3460,7 +3465,6 @@ class UpgradeWorkflow_Run3FSMBMixing(UpgradeWorkflow):
         if 'Gen' in step and 'GenOnly' not in step:
             stepDict[stepName][k] = merge([{'-s':'GEN,SIM,RECOBEFMIX',
                                             '--fast':'',
-                                            '--era':'Run3_FastSim',
                                             '--eventcontent':'FASTPU',
                                             '--datatier':'GEN-SIM-RECO',
                                             '--relval':'27000,3000'}, stepDict[step][k]])
@@ -3755,7 +3759,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2022_realistic',
         'HLTmenu': '@relval2022',
-        'Era' : 'Run3_FastSim',
+        'Era' : 'Run3',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
@@ -3771,7 +3775,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2023_realistic',
         'HLTmenu': '@relval2023',
-        'Era' : 'Run3_2023_FastSim',
+        'Era' : 'Run3_2023',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
@@ -3826,7 +3830,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2024_realistic',
         'HLTmenu': '@relval2024',
-        'Era' : 'Run3_2024_FastSim',
+        'Era' : 'Run3_2024',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
@@ -3866,7 +3870,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2025_realistic',
         'HLTmenu': '@relval2025',
-        'Era' : 'Run3_2025_FastSim',
+        'Era' : 'Run3_2025',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
@@ -3907,7 +3911,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2026_realistic',
         'HLTmenu': '@relval2026',
-        'Era' : 'Run3_2026_FastSim',
+        'Era' : 'Run3_2026',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     }
@@ -3926,8 +3930,10 @@ for key in list(upgradeProperties[2017].keys()):
             scenToRun[idx] += 'PU'*(val.startswith('Digi') or val.startswith('Reco') or val.startswith('HARVEST'))
         # remove ALCA
         upgradeProperties[2017][key+'PU']['ScenToRun'] = [foo for foo in scenToRun if foo != 'ALCA']
+        # insert minbias at beginning
+        upgradeProperties[2017][key+'PU']['ScenToRun'].insert(0, 'MinBias13' if key.startswith('201') else 'MinBias')
     else:
-        upgradeProperties[2017][key+'PU']['ScenToRun'] = ['Gen','FastSimRun3PU','HARVESTFastRun3PU']
+        upgradeProperties[2017][key+'PU']['ScenToRun'] = ['MinBiasFSRun3','Gen','FastSimRun3PU','HARVESTFastRun3PU']
 
 upgradeProperties['Run4'] = {
     'Run4D104' : {
@@ -4094,9 +4100,9 @@ for key in list(upgradeProperties['Run4'].keys()):
         continue
     upgradeProperties['Run4'][key+'PU'] = deepcopy(upgradeProperties['Run4'][key])
     if 'FS' not in key:
-        upgradeProperties['Run4'][key+'PU']['ScenToRun'] = ['GenSimHLBeamSpot','DigiTriggerPU','RecoGlobalPU', 'HARVESTGlobalPU']
+        upgradeProperties['Run4'][key+'PU']['ScenToRun'] = ['MinBiasHLBeamSpot','GenSimHLBeamSpot','DigiTriggerPU','RecoGlobalPU', 'HARVESTGlobalPU']
     else:
-        upgradeProperties['Run4'][key+'PU']['ScenToRun'] = ['GenHLBeamSpot','FastSimRun4PU','HARVESTFastRun4PU']
+        upgradeProperties['Run4'][key+'PU']['ScenToRun'] = ['MinBiasFSRun4','GenHLBeamSpot','FastSimRun4PU','HARVESTFastRun4PU']
 
 # for relvals
 defaultDataSets = {}
@@ -4199,7 +4205,7 @@ upgradeFragments = OrderedDict([
     ('DisplacedSUSY_stopToBottom_M_800_500mm_TuneCP5_13TeV_pythia8_cff', UpgradeFragment(Kby(9,50),'DisplacedSUSY_stopToB_M_800_500mm_13')),
     ('TenE_E_0_200_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenE_0_200')),
     ('FlatRandomPtAndDxyGunProducer_cfi', UpgradeFragment(Kby(9,100),'DisplacedMuonsDxy_0_500')),
-    ('TenTau_E_15_500_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_15_500')),
+    ('TenTau_E15to500_Eta3p1_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_E15to500_Eta3p1')),
     ('SinglePiPt25Eta1p7_2p7_cfi', UpgradeFragment(Kby(9,100),'SinglePiPt25Eta1p7_2p7')),
     ('SingleMuPt15Eta1p7_2p7_cfi', UpgradeFragment(Kby(9,100),'SingleMuPt15Eta1p7_2p7')),
     ('SingleGammaPt25Eta1p7_2p7_cfi', UpgradeFragment(Kby(9,100),'SingleGammaPt25Eta1p7_2p7')),
@@ -4234,7 +4240,7 @@ upgradeFragments = OrderedDict([
     ('ZpTT_1500_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50),'ZpTT_1500_14')),
     ('BuMixing_BMuonFilter_forSTEAM_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(900,10000),'BuMixing_14')),
     ('Upsilon1SToMuMu_forSTEAM_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50),'Upsilon1SToMuMu_14')),
-    ('TenTau_E_15_500_Eta3p1_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_15_500_Eta3p1')),
+    ('TenTau_Pt10to500_Eta3p1_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_Pt10to500_Eta3p1')),
     ('QCD_Pt_1800_2400_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50), 'QCD_Pt_1800_2400_14')),
     ('DisplacedSUSY_stopToBottom_M_800_500mm_TuneCP5_14TeV_pythia8_cff', UpgradeFragment(Kby(9,50),'DisplacedSUSY_14TeV')),
     ('GluGluTo2Jets_M_300_2000_14TeV_Exhume_cff',UpgradeFragment(Kby(9,100),'GluGluTo2Jets_14TeV')),
@@ -4267,4 +4273,5 @@ upgradeFragments = OrderedDict([
     ('SingleMuPt15Eta0_0p4_cfi', UpgradeFragment(Kby(9,100),'SingleMuPt15Eta0p_0p4')),
     ('CloseByPGun_Barrel_Front_cfi', UpgradeFragment(Kby(9,100),'CloseByPGun_Barrel_Front')),
     ('DisplacedParticleGun_cfi', UpgradeFragment(Kby(9,100),'DisplacedPGun')),
+    ('TenTau_Pt10to500_Eta4p1_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_Pt10to500_Eta4p1')),
 ])

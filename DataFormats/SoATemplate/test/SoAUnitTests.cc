@@ -13,6 +13,7 @@ GENERATE_SOA_LAYOUT(SimpleLayoutTemplate,
   SOA_COLUMN(float, x),
   SOA_COLUMN(float, y),
   SOA_COLUMN(float, z),
+  SOA_SCALAR(int, s),
   SOA_COLUMN(float, t),
   SOA_COLUMN(TestEnum, e))
 // clang-format on
@@ -30,14 +31,15 @@ TEST_CASE("SoATemplate") {
   // size in bytes
   const std::size_t slBufferSize = SimpleLayout::computeDataSize(slSize);
   // memory buffer aligned according to the layout requirements
-  std::unique_ptr<std::byte, decltype(std::free) *> slBuffer{
-      reinterpret_cast<std::byte *>(aligned_alloc(SimpleLayout::alignment, slBufferSize)), std::free};
+  std::unique_ptr<std::byte, decltype(std::free)*> slBuffer{
+      reinterpret_cast<std::byte*>(aligned_alloc(SimpleLayout::alignment, slBufferSize)), std::free};
   // SoA layout
   SimpleLayout sl{slBuffer.get(), slSize};
 
   SECTION("Row wide copies, row") {
     SimpleLayout::View slv{sl};
     SimpleLayout::ConstView slcv{sl};
+    slv.s() = 42;
     auto slv0 = slv[0];
     slv0.x() = 1;
     slv0.y() = 2;
@@ -56,9 +58,15 @@ TEST_CASE("SoATemplate") {
     }
     // Verification and const view access
     float x = 1, y = 2, z = 3, t = 5;
+    REQUIRE(slcv.s() == 42);
     for (SimpleLayout::View::size_type i = 0; i < slv.metadata().size(); ++i) {
       auto slvi = slv[i];
       auto slcvi = slcv[i];
+
+      // check that SCALAR accessors are not available an SoA element
+      STATIC_REQUIRE(![](auto& x) { return requires { x.s(); }; }(slvi));
+      STATIC_REQUIRE(![](auto& x) { return requires { x.s(); }; }(slcvi));
+
       REQUIRE(slvi.x() == x);
       REQUIRE(slvi.y() == y);
       REQUIRE(slvi.z() == z);

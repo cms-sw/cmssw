@@ -16,6 +16,7 @@ process.source = cms.Source("EmptySource")
 process.maxEvents.input = 10
 
 process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
+process.load("HeterogeneousCore.MPIServices.MPIConsistencyChecker_cfi")
 
 # produce and send device collections
 process.load("Configuration.StandardSequences.Accelerators_cff")
@@ -44,19 +45,19 @@ process.sender = cms.EDProducer("MPISenderPortable@alpaka",
     products = cms.VPSet(
         cms.PSet(
             type = cms.string("ALPAKA_ACCELERATOR_NAMESPACE::portabletest::TestDeviceObject"),
-            src = cms.InputTag("producePortableObjects", ""),
+            name = cms.InputTag("producePortableObjects", ""),
         ),
         cms.PSet(
             type = cms.string("ALPAKA_ACCELERATOR_NAMESPACE::portabletest::TestDeviceCollection"),
-            src = cms.InputTag("producePortableObjects", ""),
+            name = cms.InputTag("producePortableObjects", ""),
         ),
         cms.PSet(
             type = cms.string("ALPAKA_ACCELERATOR_NAMESPACE::portabletest::TestDeviceCollection2"),
-            src = cms.InputTag("producePortableObjects", ""),
+            name = cms.InputTag("producePortableObjects", ""),
         ),
         cms.PSet(
             type = cms.string("ALPAKA_ACCELERATOR_NAMESPACE::portabletest::TestDeviceCollection3"),
-            src = cms.InputTag("producePortableObjects", ""),
+            name = cms.InputTag("producePortableObjects", ""),
         ),
     )
 )
