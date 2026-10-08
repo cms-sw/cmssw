@@ -28,14 +28,15 @@ parser.add_argument(
 parser.add_argument(
     "--geometry",
     default=None,
-    help="Phase-2 geometry version, e.g. Run4D121 (default: the default phase-2 geometry)"
+    help=f"Phase-2 geometry version, e.g. Run4D121 (default: {_settings.DEFAULT_VERSION})"
 )
 options = parser.parse_args()
+geometry = options.geometry or _settings.DEFAULT_VERSION
 
 ###################################################################
 # Set default phase-2 settings
 ###################################################################
-_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(options.geometry or _settings.DEFAULT_VERSION)
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(geometry)
 
 # No era in Fireworks/Geom reco dumper
 process = cms.Process("DUMP", _PH2_ERA, trackingLST)
@@ -43,7 +44,7 @@ process = cms.Process("DUMP", _PH2_ERA, trackingLST)
 # import of standard configurations
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load(f"Configuration.Geometry.GeometryExtended{options.geometry or 'Run4Default'}Reco_cff")
+process.load(f"Configuration.Geometry.GeometryExtended{geometry}Reco_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
