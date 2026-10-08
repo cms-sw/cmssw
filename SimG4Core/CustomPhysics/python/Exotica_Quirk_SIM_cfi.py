@@ -22,6 +22,9 @@ def customiseQuirk(process, mass, lambdaEV, pdgId=17, charge=-1., stringForce=0.
     g4.Physics.QuirkKeepStopped = cms.untracked.bool(keepStopped)
     # suspend/resume of the two quirks needs the Geant4 event manager
     g4.UseG4EventManager = True
+    # quirks take 1e5 to 1e7 steps and can be slow in the beam-pipe vacuum
+    g4.SteppingAction.MaxNumberOfSteps = 2000000000
+    g4.SteppingAction.CriticalEnergyForVacuum = 0.
     if debugStep > 0 or verbose > 0 or dumpEvery > 0:
         g4.Watchers.append(cms.PSet(
             type = cms.string('QuirkDebugWatcher'),

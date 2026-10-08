@@ -20,6 +20,14 @@ public:
     m_strings[1].Clear();
   }
 
+  // true once per event: the first suspension waits for the urgent stack, later ones alternate
+  G4bool firstSuspension(G4int eventID) {
+    if (eventID == m_eventID)
+      return false;
+    m_eventID = eventID;
+    return true;
+  }
+
   QuirkStringStore(const QuirkStringStore&) = delete;
   QuirkStringStore& operator=(const QuirkStringStore&) = delete;
 
@@ -27,6 +35,7 @@ private:
   QuirkStringStore();
 
   QuirkInfracolorForce m_strings[2];
+  G4int m_eventID{-1};
 };
 
 #endif

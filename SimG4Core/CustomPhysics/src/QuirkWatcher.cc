@@ -3,6 +3,8 @@
 #include "SimG4Core/CustomPhysics/interface/Quirk.h"
 
 #include "G4Track.hh"
+#include "G4EventManager.hh"
+#include "G4Event.hh"
 #include "G4TrackStatus.hh"
 #include "G4Exception.hh"
 #include <CLHEP/Units/SystemOfUnits.h>
@@ -67,10 +69,16 @@ G4VParticleChange* QuirkWatcher::PostStepDoIt(const G4Track& track, const G4Step
   if (pos.perp2() > m_rMax2 || std::abs(pos.z()) > m_zMax) {
     stat = fStopAndKill;
   }
-  if (stat == fAlive || stat == fSuspend) {
+  if (stat == fAlive || stat == fSuspend || stat == fSuspendAndWait) {
     // no string left to absorb: pass control to the partner
     if (!string.HasNextStringVector()) {
-      stat = string.IsSourceAlive() ? fSuspend : fStopAndKill;
+      if (!string.IsSourceAlive()) {
+        stat = fStopAndKill;
+      } else {
+        // stacks via CMSQuirkPhysics defaults: fSuspendAndWait -> waiting, fSuspend -> waiting_1
+        const G4int evt = G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
+        stat = QuirkStringStore::instance().firstSuspension(evt) ? fSuspendAndWait : fSuspend;
+      }
     }
   }
   if (stat == fStopAndKill || stat == fKillTrackAndSecondaries) {

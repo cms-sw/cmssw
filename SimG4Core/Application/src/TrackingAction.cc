@@ -124,7 +124,7 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
 #endif
 
   // suspended: keep the history, the track ends later
-  if (aTrack->GetTrackStatus() == fSuspend) {
+  if (isSuspended(aTrack)) {
     suspended_.push_back({id, currentHistory_, !isInHistory});
     return;
   }
@@ -168,7 +168,7 @@ void TrackingAction::endResumed(const G4Track* aTrack) {
       }
     }
   }
-  if (aTrack->GetTrackStatus() == fSuspend) {
+  if (isSuspended(aTrack)) {
     suspended_.push_back({id, currentHistory_, owned_});
     return;
   }

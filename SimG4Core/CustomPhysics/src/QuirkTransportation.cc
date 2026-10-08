@@ -273,7 +273,18 @@ void QuirkTransportation::StartTracking(G4Track* aTrack) {
   G4FieldManagerStore::GetInstance()->ClearAllChordFindersState();
 
   fCurrentTouchableHandle = aTrack->GetTouchableHandle();
+  fCurrentTrack = aTrack;
 
   // first string vector at the first step of the pair
   QuirkStringStore::instance().stringFor(aTrack->GetDefinition()->GetPDGEncoding()).StartTracking(aTrack);
+}
+
+void QuirkTransportation::EndTracking() {
+  // killed by anything (envelope, time cut, user actions): the partner must not wait for it
+  if (nullptr != fCurrentTrack && fCurrentTrack->GetTrackStatus() != fSuspend &&
+      fCurrentTrack->GetTrackStatus() != fSuspendAndWait) {
+    QuirkStringStore::instance().stringFor(fCurrentTrack->GetDefinition()->GetPDGEncoding()).TrackKilled();
+  }
+  fCurrentTrack = nullptr;
+  G4VProcess::EndTracking();
 }

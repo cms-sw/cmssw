@@ -106,8 +106,12 @@ void CMSQuirkPhysics::ConstructProcess() {
     }
   }
 
-  // the two quirks alternate through one extra waiting stack
+  // the two quirks alternate through one extra waiting stack; user stacking actions keep
+  // these defaults for suspended tracks
   if (!G4Threading::IsMasterThread()) {
-    G4EventManager::GetEventManager()->GetStackManager()->SetNumberOfAdditionalWaitingStacks(1);
+    G4StackManager* stack = G4EventManager::GetEventManager()->GetStackManager();
+    stack->SetNumberOfAdditionalWaitingStacks(1);
+    stack->SetDefaultClassification(fSuspendAndWait, fWaiting);
+    stack->SetDefaultClassification(fSuspend, fWaiting_1);
   }
 }

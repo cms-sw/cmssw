@@ -1,6 +1,4 @@
 #include "SimG4Core/Application/interface/SteppingAction.h"
-#include "SimG4Core/CustomPhysics/interface/Quirk.h"
-#include "SimG4Core/CustomPhysics/interface/QuirkStringStore.h"
 #include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
@@ -32,8 +30,6 @@ SteppingAction::SteppingAction(const CMSSteppingVerbose* sv, const edm::Paramete
   maxTimeNames = p.getParameter<std::vector<std::string> >("MaxTimeNames");
   deadRegionNames = p.getParameter<std::vector<std::string> >("DeadRegions");
   maxNumberOfSteps = p.getParameter<int>("MaxNumberOfSteps");
-  // quirks need 1e5 to 1e7 steps
-  maxNumberOfStepsQuirk = p.getUntrackedParameter<int>("MaxNumberOfStepsQuirk", 1000000000);
   ekinMins = p.getParameter<std::vector<double> >("EkinThresholds");
   ekinNames = p.getParameter<std::vector<std::string> >("EkinNames");
   ekinParticles = p.getParameter<std::vector<std::string> >("EkinParticles");
@@ -119,9 +115,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
 
   const G4StepPoint* preStep = aStep->GetPreStepPoint();
   const G4StepPoint* postStep = aStep->GetPostStepPoint();
-  const bool isQuirk =
-      (nullptr != m_quirk && (theTrack->GetDefinition() == m_quirk || theTrack->GetDefinition() == m_antiQuirk));
-  if (sAlive == tstat && theTrack->GetCurrentStepNumber() > (isQuirk ? maxNumberOfStepsQuirk : maxNumberOfSteps)) {
+  if (sAlive == tstat && theTrack->GetCurrentStepNumber() > maxNumberOfSteps) {
     tstat = sNumberOfSteps;
     if (nWarnings < 5) {
       ++nWarnings;
@@ -171,7 +165,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
     }
 
     // kill low-energy in vacuum
-    if (sAlive == tstat && killBeamPipe && !isQuirk) {
+    if (sAlive == tstat && killBeamPipe) {
       if (ekin < theCriticalEnergyForVacuum && theTrack->GetDefinition()->GetPDGCharge() != 0.0 &&
           lv->GetMaterial()->GetDensity() <= theCriticalDensity) {
         tstat = sLowEnergyInVacuum;
@@ -190,10 +184,6 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
   } else {
     theTrack->SetTrackStatus(fStopAndKill);
     isKilled = true;
-    // let the partner quirk know
-    if (isQuirk) {
-      QuirkStringStore::instance().stringFor(theTrack->GetDefinition()->GetPDGEncoding()).TrackKilled();
-    }
 #ifdef EDM_ML_DEBUG
     PrintKilledTrack(theTrack, tstat);
 #endif
@@ -221,12 +211,6 @@ bool SteppingAction::isLowEnergy(const G4LogicalVolume* lv, const G4Track* theTr
 }
 
 bool SteppingAction::initPointer() {
-  G4ParticleTable* ptable = G4ParticleTable::GetParticleTable();
-  if (Quirk::isQuirk(ptable->FindParticle("quirk"))) {
-    m_quirk = ptable->FindParticle("quirk");
-    m_antiQuirk = ptable->FindParticle("antiquirk");
-  }
-
   const G4PhysicalVolumeStore* pvs = G4PhysicalVolumeStore::GetInstance();
   for (auto const& pvcite : *pvs) {
     const std::string& pvname = (std::string)(DD4hep2DDDName::namePV(pvcite->GetName(), dd4hep_));

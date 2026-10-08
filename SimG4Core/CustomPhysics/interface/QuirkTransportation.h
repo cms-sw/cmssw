@@ -41,6 +41,7 @@ public:
   G4VParticleChange* AtRestDoIt(const G4Track&, const G4Step&) override { return nullptr; }
 
   void StartTracking(G4Track* aTrack) override;
+  void EndTracking() override;
 
   void SetThresholdTrials(G4int newMaxTrials) { fThresholdTrials = newMaxTrials; }
 
@@ -58,6 +59,7 @@ private:
 
   G4bool fParticleIsLooping{false};
   G4TouchableHandle fCurrentTouchableHandle;
+  const G4Track* fCurrentTrack{nullptr};
   G4bool fGeometryLimitedStep{false};
 
   G4ThreeVector fPreviousSftOrigin;
