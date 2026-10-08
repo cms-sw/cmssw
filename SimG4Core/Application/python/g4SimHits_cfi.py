@@ -237,7 +237,6 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         QuirkPDGID           = cms.untracked.int32(17),
         QuirkCharge          = cms.untracked.double(-1),  # of the positive PDG code
         QuirkLambda          = cms.untracked.double(0),   # eV, F = Lambda^2/(hbar c)
-        QuirkStringForce     = cms.untracked.double(0),   # MeV/mm, overrides QuirkLambda
         QuirkFirstStringLength = cms.untracked.double(1.e-6),  # mm
         QuirkMaxBoost        = cms.untracked.double(0.1),     # max rapidity change per step (Athena: 0.01)
         QuirkMaxMerge        = cms.untracked.double(1.e-6),    # mm

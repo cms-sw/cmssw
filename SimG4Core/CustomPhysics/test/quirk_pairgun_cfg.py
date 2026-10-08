@@ -6,6 +6,7 @@ from Configuration.Eras.Era_Run3_2024_cff import Run3_2024
 from SimG4Core.CustomPhysics.Exotica_Quirk_SIM_cfi import customiseQuirk
 
 import argparse
+import math
 import sys
 parser = argparse.ArgumentParser(prog=sys.argv[0], description='Quirk pair gun SIM test')
 parser.add_argument("--inputFile", type=str, default="file:quirkPair.hepmc", help="HepMC2 input")
@@ -13,8 +14,8 @@ parser.add_argument("--outputFile", type=str, default="quirkPair_SIM.root", help
 parser.add_argument("--maxEvents", type=int, default=-1, help="number of events")
 parser.add_argument("--threads", type=int, default=1, help="number of threads")
 parser.add_argument("--mass", type=float, default=250., help="quirk mass in GeV")
-parser.add_argument("--lambdaEV", type=float, default=0., help="Lambda in eV")
-parser.add_argument("--stringForce", type=float, default=1000., help="string tension in MeV/mm (overrides Lambda)")
+parser.add_argument("--lambdaEV", type=float, default=math.sqrt(1000. * 1.973269804e-10) * 1.e6,
+                    help="Lambda in eV (default: string tension 1000 MeV/mm)")
 parser.add_argument("--pdgId", type=int, default=17, help="quirk PDG code")
 parser.add_argument("--charge", type=float, default=-1., help="charge of the positive PDG code")
 parser.add_argument("--debugStep", type=float, default=0., help="conservation printout step in mm")
@@ -63,7 +64,7 @@ if args.reference:
     process.g4SimHits.Physics.type = 'SimG4Core/Physics/CustomPhysics'
 else:
     customiseQuirk(process, args.mass, args.lambdaEV, pdgId=args.pdgId, charge=args.charge,
-                   stringForce=args.stringForce, debugStep=args.debugStep, verbose=args.verbose,
+                   debugStep=args.debugStep, verbose=args.verbose,
                    dumpEvery=args.dumpEvery, keepStopped=args.keepStopped)
 if args.saveSecondaries:
     process.g4SimHits.StackingAction.SaveFirstLevelSecondary = True

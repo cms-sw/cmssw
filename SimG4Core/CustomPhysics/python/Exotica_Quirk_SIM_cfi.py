@@ -4,10 +4,10 @@ import FWCore.ParameterSet.Config as cms
 # A quirk pair Q Qbar is bound by an infracolor string of tension
 # F = Lambda^2 / (hbar c); 1 keV gives 5.07e3 MeV/mm.
 
-def customiseQuirk(process, mass, lambdaEV, pdgId=17, charge=-1., stringForce=0., debugStep=0., verbose=0,
+def customiseQuirk(process, mass, lambdaEV, pdgId=17, charge=-1., debugStep=0., verbose=0,
                    dumpEvery=0, dumpFile="quirkSteps", keepStopped=False):
     """mass in GeV, lambdaEV in eV, charge of the positive PDG code in e,
-    stringForce in MeV/mm (overrides lambdaEV if > 0), debugStep in mm (0 = no debug watcher),
+    debugStep in mm (0 = no debug watcher),
     dumpEvery: write every N-th quirk step to dumpFile_<thread>.txt,
     keepStopped: a quirk stopped by energy loss stays alive while its partner moves"""
     if not hasattr(process, 'g4SimHits'):
@@ -15,7 +15,6 @@ def customiseQuirk(process, mass, lambdaEV, pdgId=17, charge=-1., stringForce=0.
     g4 = process.g4SimHits
     g4.Physics.QuirkMass = cms.untracked.double(mass)
     g4.Physics.QuirkLambda = cms.untracked.double(lambdaEV)
-    g4.Physics.QuirkStringForce = cms.untracked.double(stringForce)
     g4.Physics.QuirkPDGID = cms.untracked.int32(pdgId)
     g4.Physics.QuirkCharge = cms.untracked.double(charge)
     g4.Physics.QuirkVerbose = cms.untracked.int32(verbose)

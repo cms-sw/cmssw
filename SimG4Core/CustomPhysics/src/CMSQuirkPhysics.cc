@@ -24,12 +24,9 @@ CMSQuirkPhysics::CMSQuirkPhysics(const edm::ParameterSet& p) : G4VPhysicsConstru
   m_pdg = std::abs(p.getUntrackedParameter<int>("QuirkPDGID", 17));
   m_mass = p.getUntrackedParameter<double>("QuirkMass", 0.) * CLHEP::GeV;
   m_charge = p.getUntrackedParameter<double>("QuirkCharge", -1.) * CLHEP::eplus;
-  // F = Lambda^2 / hbar c, unless the tension is given directly
-  m_stringForce = p.getUntrackedParameter<double>("QuirkStringForce", 0.) * CLHEP::MeV / CLHEP::mm;
-  double lambda = p.getUntrackedParameter<double>("QuirkLambda", 0.) * CLHEP::eV;
-  if (m_stringForce <= 0.) {
-    m_stringForce = lambda * lambda / CLHEP::hbarc;
-  }
+  // string tension F = Lambda^2 / hbar c
+  const double lambda = p.getUntrackedParameter<double>("QuirkLambda", 0.) * CLHEP::eV;
+  m_stringForce = lambda * lambda / CLHEP::hbarc;
   m_firstStringLength = p.getUntrackedParameter<double>("QuirkFirstStringLength", 1.e-6) * CLHEP::mm;
   m_maxBoost = p.getUntrackedParameter<double>("QuirkMaxBoost", 0.1);
   m_maxMergeT = p.getUntrackedParameter<double>("QuirkMaxMerge", 1.e-6) * CLHEP::mm;
@@ -47,9 +44,9 @@ CMSQuirkPhysics::CMSQuirkPhysics(const edm::ParameterSet& p) : G4VPhysicsConstru
   m_stopThreshold = p.getUntrackedParameter<double>("QuirkStopThreshold", 10.) * CLHEP::MeV;
 
   if (m_mass <= 0. || m_stringForce <= 0. || m_maxBoost <= 0. || m_maxBoost >= 1.) {
-    throw cms::Exception("Configuration") << "CMSQuirkPhysics: invalid parameters QuirkMass= " << m_mass / CLHEP::GeV
-                                          << " GeV, string force= " << m_stringForce / (CLHEP::MeV / CLHEP::mm)
-                                          << " MeV/mm, QuirkMaxBoost= " << m_maxBoost;
+    throw cms::Exception("Configuration")
+        << "CMSQuirkPhysics: invalid parameters QuirkMass= " << m_mass / CLHEP::GeV
+        << " GeV, QuirkLambda= " << lambda / CLHEP::eV << " eV, QuirkMaxBoost= " << m_maxBoost;
   }
   edm::LogVerbatim("SimG4CoreCustomPhysics")
       << "CMSQuirkPhysics: PDG " << m_pdg << " mass " << m_mass / CLHEP::GeV << " GeV, charge "
