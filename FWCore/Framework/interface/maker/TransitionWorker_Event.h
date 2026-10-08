@@ -32,7 +32,6 @@ the worker is reset().
 #include "FWCore/Framework/interface/maker/ModuleAttributes.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
-#include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
@@ -207,11 +206,19 @@ namespace edm {
               ActivityRegistry* actReg,
               ModuleCallingContext* mcc,
               StreamContext const* context) {
-      using OccTraits = OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>;
+      struct SignalTraits {
+        using Context = StreamContext;
+        static void preModuleSignal(ActivityRegistry* areg, Context const* context, ModuleCallingContext const* mcc) {
+          areg->preModuleEventSignal_.emit(*context, *mcc);
+        }
+        static void postModuleSignal(ActivityRegistry* areg, Context const* context, ModuleCallingContext const* mcc) {
+          areg->postModuleEventSignal_.emit(*context, *mcc);
+        }
+      };
 
       //Want postDoEvent to be called after signals are sent.
       auto postSentry = make_sentry(this, [&](auto* worker) { worker->postDoEvent(info.principal()); });
-      ModuleSignalSentry<OccTraits> signalSentry(actReg, context, mcc);
+      ModuleSignalSentry<SignalTraits> signalSentry(actReg, context, mcc);
       signalSentry.preModuleSignal();
       bool returnValue;
       {
@@ -233,10 +240,6 @@ namespace edm {
 
     void prefetchAsync(
         WaitingTaskHolder, ServiceToken const&, ParentContext const&, EventTransitionInfo const&, Transition) noexcept;
-
-    bool needsESPrefetching(Transition iTrans) const noexcept {
-      return iTrans < edm::Transition::NumberOfEventSetupTransitions ? not esItemsToGetFrom(iTrans).empty() : false;
-    }
 
     void emitPostModuleEventPrefetchingSignal() {
       actReg_->postModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(), moduleCallingContext_);
@@ -281,7 +284,6 @@ namespace edm {
         //Need to make the services available early so other services can see them
         ServiceRegistry::Operate guard(m_serviceToken.lock());
 
-        using OccTraits = OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>;
         //incase the emit causes an exception, we need a memory location
         // to hold the exception_ptr
         std::exception_ptr temp_excptr;
@@ -444,8 +446,6 @@ namespace edm {
       StreamID streamID,
       ParentContext const& parentContext,
       StreamContext const* context) noexcept {
-    using OccTraits = OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>;
-
     //Need to check workStarted_ before adding to waitingTasks_
     bool expected = false;
     bool workStarted = workStarted_.compare_exchange_strong(expected, true);
@@ -501,7 +501,7 @@ namespace edm {
                             weakToken.lock(),
                             parentContext,
                             info,
-                            OccTraits::transition_);
+                            Transition::Event);
             });
         prePrefetchSelectionAsync(*group, selectionTask, token, streamID, &transitionInfo.principal());
       } else {
@@ -513,8 +513,7 @@ namespace edm {
                                           new HandleExternalWorkExceptionTask(this, group, moduleTask, parentContext));
           moduleTask = new AcquireTask(this, transitionInfo, token, parentContext, std::move(runTaskHolder));
         }
-        prefetchAsync(
-            WaitingTaskHolder(*group, moduleTask), token, parentContext, transitionInfo, OccTraits::transition_);
+        prefetchAsync(WaitingTaskHolder(*group, moduleTask), token, parentContext, transitionInfo, Transition::Event);
       }
     }
   }
@@ -558,8 +557,6 @@ namespace edm {
       StreamID streamID,
       ParentContext const& parentContext,
       StreamContext const* context) noexcept {
-    using OccTraits = OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>;
-
     //Need to check workStarted_ before adding to waitingTasks_
     bool expected = false;
     auto workStarted = workStarted_.compare_exchange_strong(expected, true);
@@ -580,7 +577,7 @@ namespace edm {
         this->waitingTasks_.doneWaiting(exceptionPtr);
       };
 
-      if (needsESPrefetching(OccTraits::transition_)) {
+      if (needsESPrefetching(Transition::Event)) {
         auto group = task.group();
         auto afterPrefetch =
             edm::make_waiting_task([toDo = std::move(toDo), group, this](std::exception_ptr const* iExcept) {
@@ -595,10 +592,8 @@ namespace edm {
               }
             });
         moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching, parentContext, nullptr);
-        esPrefetchAsync(WaitingTaskHolder(*group, afterPrefetch),
-                        transitionInfo.eventSetupImpl(),
-                        OccTraits::transition_,
-                        serviceToken);
+        esPrefetchAsync(
+            WaitingTaskHolder(*group, afterPrefetch), transitionInfo.eventSetupImpl(), Transition::Event, serviceToken);
       } else {
         auto group = task.group();
         if (auto queue = this->serializeRunModule()) {
