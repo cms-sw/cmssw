@@ -5,12 +5,9 @@
  *      Author: hqu
  *  Improved on: Mar 30, 2026
  *      Author: Felice Pantaleo
+ *  Extended on: Sep 28, 2026
+ *      Author: Andrea Bocci, CERN
  */
-
-#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
-
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <algorithm>
 #include <cassert>
@@ -19,8 +16,14 @@
 #include <memory>
 #include <numeric>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXInterface.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
 namespace cms::Ort {
 
@@ -43,15 +46,24 @@ namespace cms::Ort {
 
   }  // namespace
 
-  const Env ONNXRuntime::env_(ORT_LOGGING_LEVEL_ERROR, "");
+  ONNXRuntime::ONNXRuntime(const std::string& model_path) {
+    // use the default session options for the given backend and device
+    initialize(model_path, defaultSessionOptions());
+  }
 
-  ONNXRuntime::ONNXRuntime(const std::string& model_path, const SessionOptions* session_options) {
+  ONNXRuntime::ONNXRuntime(const std::string& model_path, const SessionOptions& session_options) {
+    initialize(model_path, session_options);
+  }
+
+  ONNXRuntime::ONNXRuntime(const std::string& model_path, Backend backend, edm::StreamID id) {
+    initialize(model_path, edm::Service<ONNXInterface>()->sessionOptions(backend, id));
+  }
+
+  void ONNXRuntime::initialize(const std::string& model_path, const SessionOptions& session_options) {
     // create session
-    if (session_options) {
-      session_ = std::make_unique<Session>(env_, model_path.c_str(), *session_options);
-    } else {
-      session_ = std::make_unique<Session>(env_, model_path.c_str(), defaultSessionOptions());
-    }
+    // the ONNX Runtime environment belongs to the ONNXService, which registers the execution provider libraries with it
+    session_ =
+        std::make_unique<Session>(edm::Service<ONNXInterface>()->environment(), model_path.c_str(), session_options);
     AllocatorWithDefaultOptions allocator;
 
     // get input names and shapes
@@ -94,17 +106,8 @@ namespace cms::Ort {
     }
   }
 
-  ONNXRuntime::~ONNXRuntime() {}
-
-  SessionOptions ONNXRuntime::defaultSessionOptions(Backend backend) {
-    SessionOptions sess_opts;
-    sess_opts.SetIntraOpNumThreads(1);
-    if (backend == Backend::cuda) {
-      // https://www.onnxruntime.ai/docs/reference/execution-providers/CUDA-ExecutionProvider.html
-      OrtCUDAProviderOptions options;
-      sess_opts.AppendExecutionProvider_CUDA(options);
-    }
-    return sess_opts;
+  SessionOptions ONNXRuntime::defaultSessionOptions(Backend backend, int device) {
+    return edm::Service<ONNXInterface>()->sessionOptions(backend, device);
   }
 
   void ONNXRuntime::runInto(const std::vector<std::string>& input_names,
