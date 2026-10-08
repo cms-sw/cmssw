@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 #include "ProductResolvers.h"
-#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/maker/TransitionWorkerBase.h"
 #include "FWCore/Framework/interface/UnscheduledAuxiliary.h"
 #include "UnscheduledConfigurator.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"

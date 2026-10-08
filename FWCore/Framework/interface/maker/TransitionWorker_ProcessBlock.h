@@ -25,7 +25,7 @@ the worker is reset().
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
-#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/maker/TransitionWorkerBase.h"
 #include "FWCore/Framework/interface/maker/WorkerParams.h"
 #include "FWCore/Framework/interface/maker/ModuleSignalSentry.h"
 #include "FWCore/Framework/interface/maker/ModuleAttributes.h"
@@ -89,12 +89,13 @@ namespace edm {
   struct TransitionPhaseGlobal;
 
   template <>
-  class TransitionWorker<ProcessBlockTransitionInfo, TransitionPhaseGlobal> : public Worker {
+  class TransitionWorker<ProcessBlockTransitionInfo, TransitionPhaseGlobal> : public TransitionWorkerBase {
   public:
     enum State { Ready, Pass, Fail, Exception };
     using Types = edm::modules::Type;
     using ConcurrencyTypes = edm::modules::Concurrency;
-    TransitionWorker(ModuleDescription const& iMD, ExceptionToActionTable const* iActions) : Worker(iMD, iActions) {}
+    TransitionWorker(ModuleDescription const& iMD, ExceptionToActionTable const* iActions)
+        : TransitionWorkerBase(iMD, iActions) {}
 
     void reset() { resetBase(); }
 

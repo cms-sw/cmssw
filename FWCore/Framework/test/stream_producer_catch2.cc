@@ -11,7 +11,7 @@
 #include <functional>
 #include <variant>
 #include "oneapi/tbb/global_control.h"
-#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/maker/TransitionWorkerBase.h"
 #include "FWCore/Framework/interface/maker/WorkerT.h"
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"

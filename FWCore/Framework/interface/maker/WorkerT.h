@@ -57,7 +57,7 @@ namespace edm {
 
     void doClearModule() override { get_underlying_safe(module_).reset(); }
 
-    Worker::TaskQueueAdaptor serializeRunModule() override;
+    TransitionWorkerBase::TaskQueueAdaptor serializeRunModule() override;
 
     void itemsToGet(BranchType branchType, std::vector<ProductResolverIndexAndSkipBit>& indexes) const override {
       module_->itemsToGet(branchType, indexes);

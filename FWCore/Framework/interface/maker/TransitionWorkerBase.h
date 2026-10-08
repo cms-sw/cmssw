@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_Worker_h
-#define FWCore_Framework_Worker_h
+#ifndef FWCore_Framework_TransitionWorkerBase_h
+#define FWCore_Framework_TransitionWorkerBase_h
 
 /*----------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ namespace edm {
     class ESRecordsToProductResolverIndices;
   }  // namespace eventsetup
 
-  class Worker {
+  class TransitionWorkerBase {
   public:
     enum State { Ready, Pass, Fail, Exception };
     using Types = edm::modules::Type;
@@ -106,11 +106,11 @@ namespace edm {
       }
     };
 
-    Worker(ModuleDescription const& iMD, ExceptionToActionTable const* iActions);
-    virtual ~Worker();
+    TransitionWorkerBase(ModuleDescription const& iMD, ExceptionToActionTable const* iActions);
+    virtual ~TransitionWorkerBase();
 
-    Worker(Worker const&) = delete;             // Disallow copying and moving
-    Worker& operator=(Worker const&) = delete;  // Disallow copying and moving
+    TransitionWorkerBase(TransitionWorkerBase const&) = delete;             // Disallow copying and moving
+    TransitionWorkerBase& operator=(TransitionWorkerBase const&) = delete;  // Disallow copying and moving
 
     void clearModule() {
       moduleValid_ = false;

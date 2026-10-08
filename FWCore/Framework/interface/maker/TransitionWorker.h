@@ -3,7 +3,7 @@
 /*----------------------------------------------------------------------    
 */
 
-#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/maker/TransitionWorkerBase.h"
 #include "FWCore/Framework/interface/TransitionEdge.h"
 #include "FWCore/Framework/interface/TransitionPhaseTypes.h"
 

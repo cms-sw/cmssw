@@ -306,21 +306,21 @@ namespace edm {
   }
 
   template <typename T, typename TI, typename TP>
-  typename Worker::TaskQueueAdaptor WorkerTBase<T, TI, TP>::serializeRunModule() {
-    return typename Worker::TaskQueueAdaptor{};
+  typename TransitionWorkerBase::TaskQueueAdaptor WorkerTBase<T, TI, TP>::serializeRunModule() {
+    return typename TransitionWorkerBase::TaskQueueAdaptor{};
   }
-#define EDM_SPECIALIZE_WORKERT_FOR_TRANSITION(T, TYPE, CONCURRENCY, QUEUE, TI, TP) \
-  template <>                                                                      \
-  Worker::TaskQueueAdaptor WorkerTBase<T, TI, TP>::serializeRunModule() {          \
-    return QUEUE;                                                                  \
-  }                                                                                \
-  template <>                                                                      \
-  Worker::Types WorkerTBase<T, TI, TP>::moduleType() const {                       \
-    return Worker::Types::TYPE;                                                    \
-  }                                                                                \
-  template <>                                                                      \
-  Worker::ConcurrencyTypes WorkerTBase<T, TI, TP>::moduleConcurrencyType() const { \
-    return Worker::ConcurrencyTypes::CONCURRENCY;                                  \
+#define EDM_SPECIALIZE_WORKERT_FOR_TRANSITION(T, TYPE, CONCURRENCY, QUEUE, TI, TP)               \
+  template <>                                                                                    \
+  TransitionWorkerBase::TaskQueueAdaptor WorkerTBase<T, TI, TP>::serializeRunModule() {          \
+    return QUEUE;                                                                                \
+  }                                                                                              \
+  template <>                                                                                    \
+  TransitionWorkerBase::Types WorkerTBase<T, TI, TP>::moduleType() const {                       \
+    return TransitionWorkerBase::Types::TYPE;                                                    \
+  }                                                                                              \
+  template <>                                                                                    \
+  TransitionWorkerBase::ConcurrencyTypes WorkerTBase<T, TI, TP>::moduleConcurrencyType() const { \
+    return TransitionWorkerBase::ConcurrencyTypes::CONCURRENCY;                                  \
   }
 
 #define EDM_SPECIALIZE_WORKERT(T, TYPE, CONCURRENCY, QUEUE)                                                     \
@@ -350,17 +350,17 @@ namespace edm {
                          kOutputModule,
                          kOne,
                          &(this->module().sharedResourcesAcquirer().serialQueueChain()))
-  EDM_SPECIALIZE_WORKERT(global::EDProducerBase, kProducer, kGlobal, Worker::TaskQueueAdaptor{})
-  EDM_SPECIALIZE_WORKERT(global::EDFilterBase, kFilter, kGlobal, Worker::TaskQueueAdaptor{})
-  EDM_SPECIALIZE_WORKERT(global::EDAnalyzerBase, kAnalyzer, kGlobal, Worker::TaskQueueAdaptor{})
-  EDM_SPECIALIZE_WORKERT(global::OutputModuleBase, kOutputModule, kGlobal, Worker::TaskQueueAdaptor{})
+  EDM_SPECIALIZE_WORKERT(global::EDProducerBase, kProducer, kGlobal, TransitionWorkerBase::TaskQueueAdaptor{})
+  EDM_SPECIALIZE_WORKERT(global::EDFilterBase, kFilter, kGlobal, TransitionWorkerBase::TaskQueueAdaptor{})
+  EDM_SPECIALIZE_WORKERT(global::EDAnalyzerBase, kAnalyzer, kGlobal, TransitionWorkerBase::TaskQueueAdaptor{})
+  EDM_SPECIALIZE_WORKERT(global::OutputModuleBase, kOutputModule, kGlobal, TransitionWorkerBase::TaskQueueAdaptor{})
   EDM_SPECIALIZE_WORKERT(limited::EDProducerBase, kProducer, kLimited, &(this->module().queue()))
   EDM_SPECIALIZE_WORKERT(limited::EDFilterBase, kFilter, kLimited, &(this->module().queue()))
   EDM_SPECIALIZE_WORKERT(limited::EDAnalyzerBase, kAnalyzer, kLimited, &(this->module().queue()))
   EDM_SPECIALIZE_WORKERT(limited::OutputModuleBase, kOutputModule, kLimited, &(this->module().queue()))
-  EDM_SPECIALIZE_WORKERT(stream::EDProducerAdaptorBase, kProducer, kStream, Worker::TaskQueueAdaptor{})
-  EDM_SPECIALIZE_WORKERT(stream::EDFilterAdaptorBase, kFilter, kStream, Worker::TaskQueueAdaptor{})
-  EDM_SPECIALIZE_WORKERT(stream::EDAnalyzerAdaptorBase, kAnalyzer, kStream, Worker::TaskQueueAdaptor{})
+  EDM_SPECIALIZE_WORKERT(stream::EDProducerAdaptorBase, kProducer, kStream, TransitionWorkerBase::TaskQueueAdaptor{})
+  EDM_SPECIALIZE_WORKERT(stream::EDFilterAdaptorBase, kFilter, kStream, TransitionWorkerBase::TaskQueueAdaptor{})
+  EDM_SPECIALIZE_WORKERT(stream::EDAnalyzerAdaptorBase, kAnalyzer, kStream, TransitionWorkerBase::TaskQueueAdaptor{})
 
 #undef EDM_SPECIALIZE_WORKERT
 #undef EDM_SPECIALIZE_WORKERT_FOR_TRANSITION

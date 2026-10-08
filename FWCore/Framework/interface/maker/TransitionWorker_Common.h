@@ -25,7 +25,7 @@ the worker is reset().
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
-#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/maker/TransitionWorkerBase.h"
 #include "FWCore/Framework/interface/maker/WorkerParams.h"
 #include "FWCore/Framework/interface/maker/ModuleSignalSentry.h"
 #include "FWCore/Framework/interface/maker/ModuleAttributes.h"
@@ -110,12 +110,13 @@ namespace edm {
   };
 
   template <typename TI, typename TP>
-  class TransitionWorker : public Worker {
+  class TransitionWorker : public TransitionWorkerBase {
   public:
     enum State { Ready, Pass, Fail, Exception };
     using Types = edm::modules::Type;
     using ConcurrencyTypes = edm::modules::Concurrency;
-    TransitionWorker(ModuleDescription const& iMD, ExceptionToActionTable const* iActions) : Worker(iMD, iActions) {}
+    TransitionWorker(ModuleDescription const& iMD, ExceptionToActionTable const* iActions)
+        : TransitionWorkerBase(iMD, iActions) {}
 
     virtual bool wantsGlobalTransitions() const noexcept = 0;
     virtual bool wantsWrites() const noexcept = 0;

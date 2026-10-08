@@ -204,7 +204,7 @@ namespace edm {
                                      EventSetupImpl const& iImpl,
                                      Transition iTrans,
                                      ServiceToken const& iToken) const noexcept {
-    //Based on Worker::esPrefetchAsync
+    //Based on TransitionWorkerBase::esPrefetchAsync
     if (iTrans >= edm::Transition::NumberOfEventSetupTransitions) {
       return;
     }

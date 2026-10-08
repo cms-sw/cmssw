@@ -85,10 +85,10 @@ namespace edm {
   }  // namespace eventsetup
 
   template <>
-  class TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal> : public Worker {
+  class TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal> : public TransitionWorkerBase {
   public:
     TransitionWorker(ModuleDescription const& iMD, ExceptionToActionTable const* iActions)
-        : Worker(iMD, iActions),
+        : TransitionWorkerBase(iMD, iActions),
           numberOfPathsOn_(0),
           numberOfPathsLeftToRun_(0),
           earlyDeleteHelper_(nullptr),
@@ -290,7 +290,7 @@ namespace edm {
         std::exception_ptr temp_excptr;
         auto excptr = exceptionPtr();
         if (!m_worker->hasAcquire()) {
-          // Caught exception is passed to Worker::runModuleAfterAsyncPrefetch(), which propagates it via WaitingTaskList
+          // Caught exception is passed to TransitionWorkerBase::runModuleAfterAsyncPrefetch(), which propagates it via WaitingTaskList
           CMS_SA_ALLOW try {
             //pre was called in prefetchAsync
             m_worker->emitPostModuleEventPrefetchingSignal();
@@ -355,7 +355,7 @@ namespace edm {
         // to hold the exception_ptr
         std::exception_ptr temp_excptr;
         auto excptr = exceptionPtr();
-        // Caught exception is passed to Worker::runModuleAfterAsyncPrefetch(), which propagates it via WaitingTaskHolder
+        // Caught exception is passed to TransitionWorkerBase::runModuleAfterAsyncPrefetch(), which propagates it via WaitingTaskHolder
         CMS_SA_ALLOW try {
           //pre was called in prefetchAsync
           m_worker->emitPostModuleEventPrefetchingSignal();

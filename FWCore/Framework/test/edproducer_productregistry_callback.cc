@@ -138,16 +138,16 @@ TEST_CASE("EDProducerProductRegistryCallback", "[Framework]") {
       signalslot::Signal<void(const ModuleDescription&)> aSignal;
 
       auto m1 = f->makeModule(params1, aSignal, aSignal);
-      std::unique_ptr<Worker> w1 =
+      std::unique_ptr<TransitionWorkerBase> w1 =
           m1->makeWorker(&table, edm::EventTransitionInfo::key(), edm::TransitionPhaseGlobal::value);
       auto ml1 = lM->makeModule(paramsl1, aSignal, aSignal);
-      std::unique_ptr<Worker> wl1 =
+      std::unique_ptr<TransitionWorkerBase> wl1 =
           ml1->makeWorker(&table, edm::EventTransitionInfo::key(), edm::TransitionPhaseGlobal::value);
       auto ml2 = lM->makeModule(paramsl2, aSignal, aSignal);
-      std::unique_ptr<Worker> wl2 =
+      std::unique_ptr<TransitionWorkerBase> wl2 =
           ml2->makeWorker(&table, edm::EventTransitionInfo::key(), edm::TransitionPhaseGlobal::value);
       auto m2 = f->makeModule(params2, aSignal, aSignal);
-      std::unique_ptr<Worker> w2 =
+      std::unique_ptr<TransitionWorkerBase> w2 =
           m2->makeWorker(&table, edm::EventTransitionInfo::key(), edm::TransitionPhaseGlobal::value);
 
       //Should be 5 products
@@ -215,16 +215,16 @@ TEST_CASE("EDProducerProductRegistryCallback", "[Framework]") {
 
       signalslot::Signal<void(const ModuleDescription&)> aSignal;
       auto ml1 = lM->makeModule(paramsl1, aSignal, aSignal);
-      std::unique_ptr<Worker> wl1 =
+      std::unique_ptr<TransitionWorkerBase> wl1 =
           ml1->makeWorker(&table, edm::EventTransitionInfo::key(), edm::TransitionPhaseGlobal::value);
       auto ml2 = lM->makeModule(paramsl2, aSignal, aSignal);
-      std::unique_ptr<Worker> wl2 =
+      std::unique_ptr<TransitionWorkerBase> wl2 =
           ml2->makeWorker(&table, edm::EventTransitionInfo::key(), edm::TransitionPhaseGlobal::value);
       auto m1 = f->makeModule(params1, aSignal, aSignal);
-      std::unique_ptr<Worker> w1 =
+      std::unique_ptr<TransitionWorkerBase> w1 =
           m1->makeWorker(&table, edm::EventTransitionInfo::key(), edm::TransitionPhaseGlobal::value);
       auto m2 = f->makeModule(params2, aSignal, aSignal);
-      std::unique_ptr<Worker> w2 =
+      std::unique_ptr<TransitionWorkerBase> w2 =
           m2->makeWorker(&table, edm::EventTransitionInfo::key(), edm::TransitionPhaseGlobal::value);
 
       //Would be 10 products
@@ -292,16 +292,16 @@ TEST_CASE("EDProducerProductRegistryCallback", "[Framework]") {
 
     signalslot::Signal<void(const ModuleDescription&)> aSignal;
     auto m1 = f->makeModule(params1, aSignal, aSignal);
-    std::unique_ptr<Worker> w1 =
+    std::unique_ptr<TransitionWorkerBase> w1 =
         m1->makeWorker(&table, edm::EventTransitionInfo::key(), edm::TransitionPhaseGlobal::value);
     auto ml1 = lM->makeModule(paramsl1, aSignal, aSignal);
-    std::unique_ptr<Worker> wl1 =
+    std::unique_ptr<TransitionWorkerBase> wl1 =
         ml1->makeWorker(&table, edm::EventTransitionInfo::key(), edm::TransitionPhaseGlobal::value);
     auto ml2 = lFM->makeModule(paramsl2, aSignal, aSignal);
-    std::unique_ptr<Worker> wl2 =
+    std::unique_ptr<TransitionWorkerBase> wl2 =
         ml2->makeWorker(&table, edm::EventTransitionInfo::key(), edm::TransitionPhaseGlobal::value);
     auto m2 = f->makeModule(params2, aSignal, aSignal);
-    std::unique_ptr<Worker> w2 =
+    std::unique_ptr<TransitionWorkerBase> w2 =
         m2->makeWorker(&table, edm::EventTransitionInfo::key(), edm::TransitionPhaseGlobal::value);
 
     //Should be 8 products
