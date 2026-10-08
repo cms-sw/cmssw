@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.simplePATJetFlatTableProducer_cfi import simplePATJetFlatTableProducer
+# the ONNX Runtime based b- and c-jet energy regressions require the ONNXService
+from PhysicsTools.ONNXRuntime.ONNXService_cfi import ONNXService
 
 ##################### User floats producers, selectors ##########################
 
