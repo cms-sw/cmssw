@@ -3,11 +3,15 @@
 <use name="FWCore/Utilities"/>
 <use name="SimGeneral/MixingModule"/>
 <use name="DataFormats/ForwardDetId"/>
+<use name="DataFormats/SoATemplate"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/MTDGeometryBuilder"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/MTDObjects"/>
 <use name="hepmc"/>
 <use name="CLHEP"/>
 <use name="CommonTools/Utils"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
 <use name="vdt_headers"/>
 <use name="rootmath"/>
 <export>
