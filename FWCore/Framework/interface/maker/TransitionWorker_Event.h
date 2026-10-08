@@ -24,6 +24,7 @@ the worker is reset().
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/TransitionEdge.h"
 #include "FWCore/Framework/interface/maker/TransitionWorker_Common.h"

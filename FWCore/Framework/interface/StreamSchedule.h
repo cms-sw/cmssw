@@ -57,7 +57,6 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/WorkerManager_stream.h"
 #include "FWCore/Framework/interface/WorkerManager_global.h"
 #include "FWCore/Framework/interface/Path.h"

@@ -30,7 +30,6 @@ the worker is reset().
 #include "FWCore/Framework/interface/maker/ModuleAttributes.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
-#include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"

@@ -4,7 +4,6 @@
 */
 
 #include "FWCore/Framework/interface/maker/Worker.h"
-#include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/TransitionEdge.h"
 #include "FWCore/Framework/interface/TransitionPhaseTypes.h"
 

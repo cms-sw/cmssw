@@ -32,6 +32,7 @@ the worker is reset().
 #include "FWCore/Framework/interface/maker/TransitionWorker_Common.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
+#include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"

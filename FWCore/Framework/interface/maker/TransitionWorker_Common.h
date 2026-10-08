@@ -31,8 +31,9 @@ the worker is reset().
 #include "FWCore/Framework/interface/maker/ModuleAttributes.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
-#include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
@@ -287,14 +288,26 @@ namespace edm {
     template <>
     class CallGlobalImpl<RunTransitionInfo, TransitionEdge::kBegin> {
     public:
-      typedef OccurrenceTraits<RunPrincipal, TransitionActionGlobalBegin> Arg;
       static bool call(TransitionWorker<RunTransitionInfo, TransitionPhaseGlobal>* iWorker,
                        StreamID,
                        RunTransitionInfo const& info,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        GlobalContext const* context) {
-        ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
+        struct SignalTrait {
+          using Context = GlobalContext;
+          static void preModuleSignal(ActivityRegistry* a,
+                                      GlobalContext const* globalContext,
+                                      ModuleCallingContext const* moduleCallingContext) {
+            a->preModuleGlobalBeginRunSignal_.emit(*globalContext, *moduleCallingContext);
+          }
+          static void postModuleSignal(ActivityRegistry* a,
+                                       GlobalContext const* globalContext,
+                                       ModuleCallingContext const* moduleCallingContext) {
+            a->postModuleGlobalBeginRunSignal_.emit(*globalContext, *moduleCallingContext);
+          }
+        };
+        ModuleSignalSentry<SignalTrait> cpp(actReg, context, mcc);
         // If preModuleSignal() throws, implDoBegin() is not called, and the
         // cpp destructor calls postModuleSignal (ignoring additional exceptions)
         cpp.preModuleSignal();
@@ -310,18 +323,31 @@ namespace edm {
     template <>
     class CallGlobalImpl<RunTransitionInfo, TransitionEdge::kEnd> {
     public:
-      typedef OccurrenceTraits<RunPrincipal, TransitionActionGlobalEnd> Arg;
       static bool call(TransitionWorker<RunTransitionInfo, TransitionPhaseGlobal>* iWorker,
                        StreamID,
                        RunTransitionInfo const& info,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
-                       Arg::Context const* context) {
+                       GlobalContext const* context) {
         bool returnValue = true;
         if (iWorker->beginSucceeded_) {
           iWorker->beginSucceeded_ = false;
 
-          ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
+          struct SignalTrait {
+            using Context = GlobalContext;
+
+            static void preModuleSignal(ActivityRegistry* a,
+                                        GlobalContext const* globalContext,
+                                        ModuleCallingContext const* moduleCallingContext) {
+              a->preModuleGlobalEndRunSignal_.emit(*globalContext, *moduleCallingContext);
+            }
+            static void postModuleSignal(ActivityRegistry* a,
+                                         GlobalContext const* globalContext,
+                                         ModuleCallingContext const* moduleCallingContext) {
+              a->postModuleGlobalEndRunSignal_.emit(*globalContext, *moduleCallingContext);
+            }
+          };
+          ModuleSignalSentry<SignalTrait> cpp(actReg, context, mcc);
           cpp.preModuleSignal();
           returnValue = iWorker->implDoEnd(info, mcc);
           cpp.postModuleSignal();
@@ -340,14 +366,26 @@ namespace edm {
     template <>
     class CallGlobalImpl<LumiTransitionInfo, TransitionEdge::kBegin> {
     public:
-      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalBegin>;
       static bool call(TransitionWorker<LumiTransitionInfo, TransitionPhaseGlobal>* iWorker,
                        StreamID,
                        LumiTransitionInfo const& info,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
-                       Arg::Context const* context) {
-        ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
+                       GlobalContext const* context) {
+        struct SignalTrait {
+          using Context = GlobalContext;
+          static void preModuleSignal(ActivityRegistry* a,
+                                      GlobalContext const* globalContext,
+                                      ModuleCallingContext const* moduleCallingContext) {
+            a->preModuleGlobalBeginLumiSignal_.emit(*globalContext, *moduleCallingContext);
+          }
+          static void postModuleSignal(ActivityRegistry* a,
+                                       GlobalContext const* globalContext,
+                                       ModuleCallingContext const* moduleCallingContext) {
+            a->postModuleGlobalBeginLumiSignal_.emit(*globalContext, *moduleCallingContext);
+          }
+        };
+        ModuleSignalSentry<SignalTrait> cpp(actReg, context, mcc);
         cpp.preModuleSignal();
         auto returnValue = iWorker->implDoBegin(info, mcc);
         cpp.postModuleSignal();
@@ -358,17 +396,29 @@ namespace edm {
     template <>
     class CallGlobalImpl<LumiTransitionInfo, TransitionEdge::kEnd> {
     public:
-      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalEnd>;
       static bool call(TransitionWorker<LumiTransitionInfo, TransitionPhaseGlobal>* iWorker,
                        StreamID,
                        LumiTransitionInfo const& info,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
-                       Arg::Context const* context) {
+                       GlobalContext const* context) {
         bool returnValue = true;
         if (iWorker->beginSucceeded_) {
           iWorker->beginSucceeded_ = false;
-          ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
+          struct SignalTrait {
+            using Context = GlobalContext;
+            static void preModuleSignal(ActivityRegistry* a,
+                                        GlobalContext const* globalContext,
+                                        ModuleCallingContext const* moduleCallingContext) {
+              a->preModuleGlobalEndLumiSignal_.emit(*globalContext, *moduleCallingContext);
+            }
+            static void postModuleSignal(ActivityRegistry* a,
+                                         GlobalContext const* globalContext,
+                                         ModuleCallingContext const* moduleCallingContext) {
+              a->postModuleGlobalEndLumiSignal_.emit(*globalContext, *moduleCallingContext);
+            }
+          };
+          ModuleSignalSentry<SignalTrait> cpp(actReg, context, mcc);
           cpp.preModuleSignal();
           returnValue = iWorker->implDoEnd(info, mcc);
           cpp.postModuleSignal();

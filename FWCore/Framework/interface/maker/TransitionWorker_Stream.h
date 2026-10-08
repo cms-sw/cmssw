@@ -32,7 +32,6 @@ the worker is reset().
 #include "FWCore/Framework/interface/maker/TransitionWorker_Common.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
-#include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
@@ -217,14 +216,26 @@ namespace edm {
     template <>
     class CallStreamImpl<RunTransitionInfo, TransitionEdge::kBegin> {
     public:
-      typedef OccurrenceTraits<RunPrincipal, TransitionActionStreamBegin> Arg;
       static bool call(TransitionWorker<RunTransitionInfo, TransitionPhaseStream>* iWorker,
                        StreamID id,
                        RunTransitionInfo const& info,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
-                       Arg::Context const* context) {
-        ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
+                       StreamContext const* context) {
+        struct SignalTrait {
+          using Context = StreamContext;
+          static void preModuleSignal(ActivityRegistry* a,
+                                      StreamContext const* streamContext,
+                                      ModuleCallingContext const* moduleCallingContext) {
+            a->preModuleStreamBeginRunSignal_.emit(*streamContext, *moduleCallingContext);
+          }
+          static void postModuleSignal(ActivityRegistry* a,
+                                       StreamContext const* streamContext,
+                                       ModuleCallingContext const* moduleCallingContext) {
+            a->postModuleStreamBeginRunSignal_.emit(*streamContext, *moduleCallingContext);
+          }
+        };
+        ModuleSignalSentry<SignalTrait> cpp(actReg, context, mcc);
         cpp.preModuleSignal();
         auto returnValue = iWorker->implDoStreamBegin(id, info, mcc);
         cpp.postModuleSignal();
@@ -238,23 +249,10 @@ namespace edm {
                                   Transition transition) noexcept {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
-      template <typename T>
-      static bool wantsTransition(T const* iWorker) noexcept {
-        return true;
-      }
-      template <typename T>
-      static SerialTaskQueue* pauseGlobalQueue(T* iWorker) noexcept {
-        return nullptr;
-      }
-      template <typename T>
-      static SerialTaskQueue* enableGlobalQueue(T*) noexcept {
-        return nullptr;
-      }
     };
     template <>
     class CallStreamImpl<RunTransitionInfo, TransitionEdge::kEnd> {
     public:
-      typedef OccurrenceTraits<RunPrincipal, TransitionActionStreamEnd> Arg;
       static bool call(TransitionWorker<RunTransitionInfo, TransitionPhaseStream>* iWorker,
                        StreamID id,
                        RunTransitionInfo const& info,
@@ -264,7 +262,20 @@ namespace edm {
         if (iWorker->beginSucceeded_) {
           iWorker->beginSucceeded_ = false;
 
-          ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
+          struct SignalTrait {
+            using Context = StreamContext;
+            static void preModuleSignal(ActivityRegistry* a,
+                                        StreamContext const* streamContext,
+                                        ModuleCallingContext const* moduleCallingContext) {
+              a->preModuleStreamEndRunSignal_.emit(*streamContext, *moduleCallingContext);
+            }
+            static void postModuleSignal(ActivityRegistry* a,
+                                         StreamContext const* streamContext,
+                                         ModuleCallingContext const* moduleCallingContext) {
+              a->postModuleStreamEndRunSignal_.emit(*streamContext, *moduleCallingContext);
+            }
+          };
+          ModuleSignalSentry<SignalTrait> cpp(actReg, context, mcc);
           cpp.preModuleSignal();
           auto returnValue = iWorker->implDoStreamEnd(id, info, mcc);
           cpp.postModuleSignal();
@@ -284,14 +295,26 @@ namespace edm {
     template <>
     class CallStreamImpl<LumiTransitionInfo, TransitionEdge::kBegin> {
     public:
-      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamBegin>;
       static bool call(TransitionWorker<LumiTransitionInfo, TransitionPhaseStream>* iWorker,
                        StreamID id,
                        LumiTransitionInfo const& info,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        StreamContext const* context) {
-        ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
+        struct SignalTrait {
+          using Context = StreamContext;
+          static void preModuleSignal(ActivityRegistry* a,
+                                      StreamContext const* streamContext,
+                                      ModuleCallingContext const* moduleCallingContext) {
+            a->preModuleStreamBeginLumiSignal_.emit(*streamContext, *moduleCallingContext);
+          }
+          static void postModuleSignal(ActivityRegistry* a,
+                                       StreamContext const* streamContext,
+                                       ModuleCallingContext const* moduleCallingContext) {
+            a->postModuleStreamBeginLumiSignal_.emit(*streamContext, *moduleCallingContext);
+          }
+        };
+        ModuleSignalSentry<SignalTrait> cpp(actReg, context, mcc);
         cpp.preModuleSignal();
         auto returnValue = iWorker->implDoStreamBegin(id, info, mcc);
         cpp.postModuleSignal();
@@ -309,7 +332,6 @@ namespace edm {
     template <>
     class CallStreamImpl<LumiTransitionInfo, TransitionEdge::kEnd> {
     public:
-      using Arg = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamEnd>;
       static bool call(TransitionWorker<LumiTransitionInfo, TransitionPhaseStream>* iWorker,
                        StreamID id,
                        LumiTransitionInfo const& info,
@@ -319,7 +341,20 @@ namespace edm {
         if (iWorker->beginSucceeded_) {
           iWorker->beginSucceeded_ = false;
 
-          ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
+          struct SignalTrait {
+            using Context = StreamContext;
+            static void preModuleSignal(ActivityRegistry* a,
+                                        StreamContext const* streamContext,
+                                        ModuleCallingContext const* moduleCallingContext) {
+              a->preModuleStreamEndLumiSignal_.emit(*streamContext, *moduleCallingContext);
+            }
+            static void postModuleSignal(ActivityRegistry* a,
+                                         StreamContext const* streamContext,
+                                         ModuleCallingContext const* moduleCallingContext) {
+              a->postModuleStreamEndLumiSignal_.emit(*streamContext, *moduleCallingContext);
+            }
+          };
+          ModuleSignalSentry<SignalTrait> cpp(actReg, context, mcc);
           cpp.preModuleSignal();
           auto returnValue = iWorker->implDoStreamEnd(id, info, mcc);
           cpp.postModuleSignal();
