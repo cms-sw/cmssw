@@ -96,3 +96,23 @@ MTDCPEBase::TimeValue MTDCPEBase::clusterTime(DetParam const& dp, ClusterParam& 
 MTDCPEBase::TimeValueError MTDCPEBase::clusterTimeError(DetParam const& dp, ClusterParam& cp) const {
   return cp.theCluster->timeError();
 }
+
+LocalPoint MTDCPEBase::localPosition(DetParam const& dp, MergedClusterParam& mcp) const {
+  return LocalPoint(
+      mcp.theMergedCluster->x(), mcp.theMergedCluster->y(), 0.0f);  // no need to use topology here, just take x,y
+}
+
+LocalError MTDCPEBase::localError(DetParam const& dp, MergedClusterParam& mcp) const {
+  float errX = mcp.theMergedCluster->xError();
+  float errY = mcp.theMergedCluster->yError();
+
+  return LocalError(errX * errX, 0, errY * errY);
+}
+
+MTDCPEBase::TimeValue MTDCPEBase::clusterTime(DetParam const& dp, MergedClusterParam& mcp) const {
+  return mcp.theMergedCluster->time();
+}
+
+MTDCPEBase::TimeValueError MTDCPEBase::clusterTimeError(DetParam const& dp, MergedClusterParam& mcp) const {
+  return mcp.theMergedCluster->timeError();
+}
