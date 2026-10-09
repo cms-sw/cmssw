@@ -27,3 +27,8 @@ printf "testing writing Phase2 Tracker Cabling Map  \n\n"
 cmsRun ${TEST_DIR}/DTCCablingMapProducer_write.py || die "Failure running DTCCablingMapProducer_write.py" $?
 cmsRun ${TEST_DIR}/DTCCablingMapProducer_retrieve.py || die "Failure running DTCCablingMapProducer_retrieve.py " $?
 cmsRun ${TEST_DIR}/DTCCablingMapProducer_dump.py || die "Failure running DTCCablingMapProducer_dump.py" $?
+
+printf "testing writing Phase2 Bad Components by hand (module list and sensor list combined) \n\n"
+## need to be in order (don't read before writing)
+cmsRun ${TEST_DIR}/SiPhase2BadComponentsByHandBuilder_cfg.py outputName=BadComponents.db || die "Failure running SiPhase2BadComponentsByHandBuilder_cfg.py" $?
+cmsRun ${TEST_DIR}/SiPhase2BadComponentsByHandReader_cfg.py outputName=BadComponents.db || die "Failure running SiPhase2BadComponentsByHandReader_cfg.py" $?
