@@ -75,7 +75,6 @@ void InputRouter::execute() {
       }
     }
     if (not settings_.reduced()) {
-      // Verbose error message to debug crash.
       // Expect each stub to be associated with exactly one phi region, but can rarely happen that it is associated to zero,
       // because of correction of stub phi to nominal radius of layer.
       if (iadd > 1) {

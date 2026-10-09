@@ -11,13 +11,13 @@
 
 namespace trackerTFP {
 
-  DuplicateRemoval::DuplicateRemoval(const tt::Setup* setup,
+  DuplicateRemoval::DuplicateRemoval(const Setup* setup,
                                      const DataFormats* dataFormats,
                                      std::vector<TrackDR>& tracks,
                                      std::vector<StubDR>& stubs)
       : setup_(setup), dataFormats_(dataFormats), tracks_(tracks), stubs_(stubs) {
     numChannel_ = dataFormats_->numChannel(Process::kf);
-    numLayers_ = setup_->numLayers();
+    numLayers_ = setup_->sysNumLayer();
     numInv2R_ = setup_->htNumBinsInv2R() + 2;
     numPhiT_ = setup_->htNumBinsPhiT() * setup_->gpNumBinsPhiT();
     numZT_ = setup_->gpNumBinsZT();
@@ -58,8 +58,8 @@ namespace trackerTFP {
       }
     }
     // truncate if desired
-    if (setup_->enableTruncation() && static_cast<int>(stream.size()) > setup_->numFramesHigh()) {
-      const auto limit = std::next(stream.begin(), setup_->numFramesHigh());
+    if (setup_->enableTruncation() && static_cast<int>(stream.size()) > setup_->numFrames()) {
+      const auto limit = std::next(stream.begin(), setup_->numFrames());
       stream.erase(limit, stream.end());
     }
     // remove duplicates
@@ -86,8 +86,8 @@ namespace trackerTFP {
       stream.push_back(track);
     }
     // truncate
-    if (setup_->enableTruncation() && static_cast<int>(stream.size()) > setup_->numFramesHigh()) {
-      const auto limit = std::next(stream.begin(), setup_->numFramesHigh());
+    if (setup_->enableTruncation() && static_cast<int>(stream.size()) > setup_->numFrames()) {
+      const auto limit = std::next(stream.begin(), setup_->numFrames());
       stream.erase(limit, stream.end());
     }
     // remove trailing nullptr
@@ -109,7 +109,7 @@ namespace trackerTFP {
       const double inv2R = trackKF->inv2R();
       const double phiT = trackKF->phiT();
       const double zT = trackKF->zT();
-      const double cot = trackKF->cot() + gp.digi(zT) / setup_->chosenRofZ();
+      const double cot = trackKF->cot() + gp.digi(zT) / setup_->regChosenRofZ();
       tracks_.emplace_back(*trackKF, inv2R, phiT, cot, zT);
       tracksOut[0].push_back(&tracks_.back());
       for (int layer = 0; layer < numLayers_; layer++) {

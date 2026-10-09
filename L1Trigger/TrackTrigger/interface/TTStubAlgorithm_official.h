@@ -37,6 +37,7 @@ template <typename T>
 class TTStubAlgorithm_official : public TTStubAlgorithm<T> {
 private:
   /// Data members
+  bool mCosmics;
   bool mPerformZMatchingPS;
   bool mPerformZMatching2S;
   bool m_tilted;
@@ -56,7 +57,8 @@ public:
                            std::vector<std::vector<double>> setTiltedCut,
                            std::vector<double> setBarrelNTilt,
                            bool aPerformZMatchingPS,
-                           bool aPerformZMatching2S)
+                           bool aPerformZMatching2S,
+                           bool cosmics)
       : TTStubAlgorithm<T>(theTrackerGeom, theTrackerTopo, __func__) {
     barrelCut = setBarrelCut;
     ringCut = setRingCut;
@@ -64,6 +66,7 @@ public:
     barrelNTilt = setBarrelNTilt;
     mPerformZMatchingPS = aPerformZMatchingPS;
     mPerformZMatching2S = aPerformZMatching2S;
+    mCosmics = cosmics;
   }
 
   /// Destructor
@@ -125,9 +128,13 @@ private:
   bool mPerformZMatchingPS;
   bool mPerformZMatching2S;
 
+  /// Cosmics
+  bool mCosmics;
+
 public:
   /// Constructor
   ES_TTStubAlgorithm_official(const edm::ParameterSet &p) {
+    mCosmics = p.getParameter<bool>("cosmics");
     mPerformZMatchingPS = p.getParameter<bool>("zMatchingPS");
     mPerformZMatching2S = p.getParameter<bool>("zMatching2S");
     setBarrelCut = p.getParameter<std::vector<double>>("BarrelCut");
@@ -162,7 +169,8 @@ public:
                                                          setTiltedCut,
                                                          setBarrelNTilt,
                                                          mPerformZMatchingPS,
-                                                         mPerformZMatching2S);
+                                                         mPerformZMatching2S,
+                                                         mCosmics);
   }
 };
 

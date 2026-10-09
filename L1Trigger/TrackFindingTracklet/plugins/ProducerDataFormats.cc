@@ -4,7 +4,6 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "L1Trigger/TrackFindingTracklet/interface/ChannelAssignment.h"
 #include "L1Trigger/TrackFindingTracklet/interface/DataFormats.h"
 
 #include <memory>
@@ -20,10 +19,10 @@ namespace trklet {
   public:
     ProducerDataFormats(const edm::ParameterSet& iConfig);
     ~ProducerDataFormats() override = default;
-    std::unique_ptr<DataFormats> produce(const ChannelAssignmentRcd& rcd);
+    std::unique_ptr<DataFormats> produce(const trackerDTC::SetupRcd& rcd);
 
   private:
-    edm::ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetToken_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetToken_;
   };
 
   ProducerDataFormats::ProducerDataFormats(const edm::ParameterSet& iConfig) {
@@ -31,9 +30,9 @@ namespace trklet {
     esGetToken_ = cc.consumes();
   }
 
-  std::unique_ptr<DataFormats> ProducerDataFormats::produce(const ChannelAssignmentRcd& rcd) {
-    const ChannelAssignment* ca = &rcd.get(esGetToken_);
-    return std::make_unique<DataFormats>(ca);
+  std::unique_ptr<DataFormats> ProducerDataFormats::produce(const trackerDTC::SetupRcd& rcd) {
+    const Setup* setup = &rcd.get(esGetToken_);
+    return std::make_unique<DataFormats>(setup);
   }
 
 }  // namespace trklet

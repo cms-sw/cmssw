@@ -156,13 +156,14 @@ namespace tmtt {
 
       // If this module is in the deadModule list, don't also try to kill the stub here
       if (deadModules_.empty() || deadModules_.find(geoDetId) == deadModules_.end()) {
-        bool isInBarrel = geoDetId.subdetId() == StripSubdetector::TOB || geoDetId.subdetId() == StripSubdetector::TIB;
+        bool isInBarrel =
+            geoDetId.subdetId() == Phase2Tracker::Subdetector::Barrel || geoDetId.subdetId() == StripSubdetector::TIB;
 
         int layerID = 0;
         if (isInBarrel) {
           layerID = trackerTopology_->layer(geoDetId);
         } else {
-          layerID = 10 * trackerTopology_->side(geoDetId) + trackerTopology_->tidWheel(geoDetId);
+          layerID = 10 * trackerTopology_->side(geoDetId) + trackerTopology_->endcapWheelP2(geoDetId);
         }
 
         if (find(layersToKill.begin(), layersToKill.end(), layerID) != layersToKill.end()) {
@@ -242,13 +243,14 @@ namespace tmtt {
       float moduleZ = gd->position().z();
       float modulePhi = reco::deltaPhi(gd->position().phi(), 0.);
       DetId geoDetId = gd->geographicalId();
-      bool isInBarrel = geoDetId.subdetId() == StripSubdetector::TOB || geoDetId.subdetId() == StripSubdetector::TIB;
+      bool isInBarrel =
+          geoDetId.subdetId() == Phase2Tracker::Subdetector::Barrel || geoDetId.subdetId() == StripSubdetector::TIB;
 
       int layerID = 0;
       if (isInBarrel) {
         layerID = trackerTopology_->layer(geoDetId);
       } else {
-        layerID = 10 * trackerTopology_->side(geoDetId) + trackerTopology_->tidWheel(geoDetId);
+        layerID = 10 * trackerTopology_->side(geoDetId) + trackerTopology_->endcapWheelP2(geoDetId);
       }
       if (find(layersToKill_.begin(), layersToKill_.end(), layerID) != layersToKill_.end()) {
         if (modulePhi > minPhiToKill_ && modulePhi < maxPhiToKill_ && moduleZ > minZToKill_ && moduleZ < maxZToKill_ &&

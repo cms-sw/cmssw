@@ -3,7 +3,7 @@
 // It can be accessed via TTTrack: hitPattern()
 //
 // There are two classes declared in HitPatternHelper (hph) namesapce:
-// 1)Setup: This is used to produce a layermap and a collection of <tt::SensorModule> needed by HitPatternHelper.
+// 1)Setup: This is used to produce a layermap and a collection of <trackerDTC::SensorModule> needed by HitPatternHelper.
 // 2)HitPatternHelper: This function returns more specific information (e.g. module type, layer id,...) about each stub on the TTTrack objects.
 // This function needs three variables from TTTrack: hitPattern(),tanL() and z0().
 // It makes predictions in two different ways depending on which version of the KF is deployed:
@@ -15,6 +15,9 @@
 // New KF (L1Trigger/TrackerTFP/plugins/ProducerKF.cc) is a new CMSSW emulation of KF firmware that
 // considers truncaton effect and is bit/clock cycle accurate.
 // With this version of the KF, HitPatternHelper makes predictions based on the spatial coordinates of tracks and detector modules.
+//
+// WARNING: This code needs major revision. There is several bugs, and half the functions here only work
+// correctly for HYBRID_NEWKF, and the other half only work correctly for HYBRID.
 //
 //  Created by J.Li on 1/23/21.
 //
@@ -28,10 +31,8 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "L1Trigger/TrackFindingTracklet/interface/HitPatternHelperRcd.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
-#include "L1Trigger/TrackerTFP/interface/DataFormats.h"
-#include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Setup.h"
+#include "L1Trigger/TrackFindingTracklet/interface/DataFormats.h"
 
 #include <bitset>
 #include <iostream>
@@ -51,29 +52,28 @@ namespace hph {
       double chosenRofZ_;
       std::vector<double> etaRegions_;
     };
-    Setup(const Config& iConfig,
-          const tt::Setup& setupTT,
-          const trackerTFP::DataFormats& dataFormats,
-          const trackerTFP::LayerEncoding& layerEncoding);
+    Setup(const Config& iConfig, const trklet::Setup& setupTT, const trklet::DataFormats& dataFormats);
     ~Setup() {}
 
     bool hphDebug() const { return hphDebug_; }
     bool useNewKF() const { return useNewKF_; }
-    double chosenRofZ() const { return chosenRofZ_; }
+    double regChosenRofZ() const { return chosenRofZ_; }
     const std::vector<double>& etaRegions() const { return etaRegions_; }
     const std::map<int, std::map<int, std::vector<int>>>& layermap() const { return layermap_; }
     int nKalmanLayers() const { return nKalmanLayers_; }
     int etaRegion(double z0, double cot, bool useNewKF) const;
-    const std::vector<int>& layerEncoding(double zT) const { return layerEncoding_->layerEncoding(zT); }
     // LayerEncoding call filling numPS, num2S, numMissingPS and numMissingPS for given hitPattern and trajectory
-    void analyze(
-        int hitpattern, double cot, double z0, int& numPS, int& num2S, int& numMissingPS, int& numMissing2S) const {
-      layerEncoding_->analyze(hitpattern, cot, z0, numPS, num2S, numMissingPS, numMissing2S);
-    }
+    void analyze(int hitpattern,
+                 double cot,
+                 double z0,
+                 int& rzSect,
+                 int& numPS,
+                 int& num2S,
+                 int& numMissingPS,
+                 int& numMissing2S) const {}
 
   private:
-    const tt::Setup* setupTT_;  // Helper class to store TrackTrigger configuration
-    const trackerTFP::LayerEncoding* layerEncoding_;
+    const trklet::Setup* setupTT_;  // Helper class to store TrackTrigger configuration
     bool hphDebug_;
     bool useNewKF_;
     double chosenRofZNewKF_;
@@ -117,6 +117,7 @@ namespace hph {
     int reducedId(
         int layerId);  //Converts layer ID (1~6->L1~L6;11~15->D1~D5) to reduced layer ID (0~5->L1~L6;6~10->D1~D5)
     int findLayer(int layerId);  //Search for a layer ID from sensor modules
+    bool newKF() const { return useNewKF_; }
 
   private:
     const Setup* setup_;
@@ -143,6 +144,6 @@ namespace hph {
 
 }  // namespace hph
 
-EVENTSETUP_DATA_DEFAULT_RECORD(hph::Setup, hph::SetupRcd);
+EVENTSETUP_DATA_DEFAULT_RECORD(hph::Setup, trackerDTC::SetupRcd);
 
 #endif
