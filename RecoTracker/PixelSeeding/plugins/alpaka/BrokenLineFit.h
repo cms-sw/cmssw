@@ -316,92 +316,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::cout << "Kernel_BLFit(3) -> done! " << std::endl;
 #endif
 
-      if (fitNas4_) {
-        // fit all as 4
-        riemannFit::rolling_fits<4, TrackerTraits::maxHitsOnTrack, 1>([this,
-                                                                       &hv,
-                                                                       &cm,
-                                                                       &tkidDevice,
-                                                                       &hitsDevice,
-                                                                       &hits_geDevice,
-                                                                       &fast_fit_resultsDevice,
-                                                                       &offset,
-                                                                       &queue,
-                                                                       &workDivQuadsPenta](auto i) {
-          alpaka::exec<Acc1D>(queue,
-                              workDivQuadsPenta,
-                              Kernel_BLFastFit<4>{},
-                              tuples_,
-                              tupleMultiplicity_,
-                              hv,
-                              cm,
-                              tkidDevice.data(),
-                              hitsDevice.data(),
-                              hits_geDevice.data(),
-                              fast_fit_resultsDevice.data(),
-                              4,
-                              4,
-                              offset);
-
-          alpaka::exec<Acc1D>(queue,
-                              workDivQuadsPenta,
-                              Kernel_BLFit<4, TrackerTraits>{},
-                              tupleMultiplicity_,
-                              bField_,
-                              outputSoa_,
-                              tkidDevice.data(),
-                              hitsDevice.data(),
-                              hits_geDevice.data(),
-                              fast_fit_resultsDevice.data());
-        });
-      } else {
-        riemannFit::rolling_fits<4, TrackerTraits::maxHitsOnTrackForFullFit, 1>([this,
-                                                                                 &hv,
-                                                                                 &cm,
-                                                                                 &tkidDevice,
-                                                                                 &hitsDevice,
-                                                                                 &hits_geDevice,
-                                                                                 &fast_fit_resultsDevice,
-                                                                                 &offset,
-                                                                                 &queue,
-                                                                                 &workDivQuadsPenta](auto i) {
-          alpaka::exec<Acc1D>(queue,
-                              workDivQuadsPenta,
-                              Kernel_BLFastFit<i>{},
-                              tuples_,
-                              tupleMultiplicity_,
-                              hv,
-                              cm,
-                              tkidDevice.data(),
-                              hitsDevice.data(),
-                              hits_geDevice.data(),
-                              fast_fit_resultsDevice.data(),
-                              i,
-                              i,
-                              offset);
-
-          alpaka::exec<Acc1D>(queue,
-                              workDivQuadsPenta,
-                              Kernel_BLFit<i, TrackerTraits>{},
-                              tupleMultiplicity_,
-                              bField_,
-                              outputSoa_,
-                              tkidDevice.data(),
-                              hitsDevice.data(),
-                              hits_geDevice.data(),
-                              fast_fit_resultsDevice.data());
-#ifdef GPU_DEBUG
-          alpaka::wait(queue);
-          std::cout << "Kernel_BLFastFit(" << i << ") and Kernel_BLFit(" << i << ") -> done! " << std::endl;
-#endif
-        });
-
-        static_assert(TrackerTraits::maxHitsOnTrackForFullFit < TrackerTraits::maxHitsOnTrack);
-
-        //Fit all the rest using the maximum from previous call
+      riemannFit::rolling_fits<4, TrackerTraits::maxHitsOnTrackForFullFit, 1>([this,
+                                                                               &hv,
+                                                                               &cm,
+                                                                               &tkidDevice,
+                                                                               &hitsDevice,
+                                                                               &hits_geDevice,
+                                                                               &fast_fit_resultsDevice,
+                                                                               &offset,
+                                                                               &queue,
+                                                                               &workDivQuadsPenta](auto i) {
         alpaka::exec<Acc1D>(queue,
                             workDivQuadsPenta,
-                            Kernel_BLFastFit<TrackerTraits::maxHitsOnTrackForFullFit>{},
+                            Kernel_BLFastFit<i>{},
                             tuples_,
                             tupleMultiplicity_,
                             hv,
@@ -410,13 +337,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             hitsDevice.data(),
                             hits_geDevice.data(),
                             fast_fit_resultsDevice.data(),
-                            TrackerTraits::maxHitsOnTrackForFullFit,
-                            TrackerTraits::maxHitsOnTrack - 1,
+                            i,
+                            i,
                             offset);
 
         alpaka::exec<Acc1D>(queue,
                             workDivQuadsPenta,
-                            Kernel_BLFit<TrackerTraits::maxHitsOnTrackForFullFit, TrackerTraits>{},
+                            Kernel_BLFit<i, TrackerTraits>{},
                             tupleMultiplicity_,
                             bField_,
                             outputSoa_,
@@ -424,8 +351,40 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             hitsDevice.data(),
                             hits_geDevice.data(),
                             fast_fit_resultsDevice.data());
-      }
+#ifdef GPU_DEBUG
+        alpaka::wait(queue);
+        std::cout << "Kernel_BLFastFit(" << i << ") and Kernel_BLFit(" << i << ") -> done! " << std::endl;
+#endif
+      });
 
+      static_assert(TrackerTraits::maxHitsOnTrackForFullFit < TrackerTraits::maxHitsOnTrack);
+
+      //Fit all the rest using the maximum from previous call
+      alpaka::exec<Acc1D>(queue,
+                          workDivQuadsPenta,
+                          Kernel_BLFastFit<TrackerTraits::maxHitsOnTrackForFullFit>{},
+                          tuples_,
+                          tupleMultiplicity_,
+                          hv,
+                          cm,
+                          tkidDevice.data(),
+                          hitsDevice.data(),
+                          hits_geDevice.data(),
+                          fast_fit_resultsDevice.data(),
+                          TrackerTraits::maxHitsOnTrackForFullFit,
+                          TrackerTraits::maxHitsOnTrack - 1,
+                          offset);
+
+      alpaka::exec<Acc1D>(queue,
+                          workDivQuadsPenta,
+                          Kernel_BLFit<TrackerTraits::maxHitsOnTrackForFullFit, TrackerTraits>{},
+                          tupleMultiplicity_,
+                          bField_,
+                          outputSoa_,
+                          tkidDevice.data(),
+                          hitsDevice.data(),
+                          hits_geDevice.data(),
+                          fast_fit_resultsDevice.data());
     }  // loop on concurrent fits
   }
 

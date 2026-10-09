@@ -309,85 +309,44 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           circle_fit_resultsDevice_,
                           offset);
 
-      if (fitNas4_) {
-        // penta
-        alpaka::exec<Acc1D>(queue,
-                            workDivQuadsPenta,
-                            Kernel_FastFit<4, TrackerTraits>{},
-                            tuples_,
-                            tupleMultiplicity_,
-                            5,
-                            hv,
-                            cm,
-                            hitsDevice.data(),
-                            hits_geDevice.data(),
-                            fast_fit_resultsDevice.data(),
-                            offset);
+      // penta all 5
+      alpaka::exec<Acc1D>(queue,
+                          workDivQuadsPenta,
+                          Kernel_FastFit<5, TrackerTraits>{},
+                          tuples_,
+                          tupleMultiplicity_,
+                          5,
+                          hv,
+                          cm,
+                          hitsDevice.data(),
+                          hits_geDevice.data(),
+                          fast_fit_resultsDevice.data(),
+                          offset);
 
-        alpaka::exec<Acc1D>(queue,
-                            workDivQuadsPenta,
-                            Kernel_CircleFit<4, TrackerTraits>{},
-                            tupleMultiplicity_,
-                            5,
-                            bField_,
-                            hitsDevice.data(),
-                            hits_geDevice.data(),
-                            fast_fit_resultsDevice.data(),
-                            circle_fit_resultsDevice_,
-                            offset);
+      alpaka::exec<Acc1D>(queue,
+                          workDivQuadsPenta,
+                          Kernel_CircleFit<5, TrackerTraits>{},
+                          tupleMultiplicity_,
+                          5,
+                          bField_,
+                          hitsDevice.data(),
+                          hits_geDevice.data(),
+                          fast_fit_resultsDevice.data(),
+                          circle_fit_resultsDevice_,
+                          offset);
 
-        alpaka::exec<Acc1D>(queue,
-                            workDivQuadsPenta,
-                            Kernel_LineFit<4, TrackerTraits>{},
-                            tupleMultiplicity_,
-                            5,
-                            bField_,
-                            outputSoa_,
-                            hitsDevice.data(),
-                            hits_geDevice.data(),
-                            fast_fit_resultsDevice.data(),
-                            circle_fit_resultsDevice_,
-                            offset);
-      } else {
-        // penta all 5
-        alpaka::exec<Acc1D>(queue,
-                            workDivQuadsPenta,
-                            Kernel_FastFit<5, TrackerTraits>{},
-                            tuples_,
-                            tupleMultiplicity_,
-                            5,
-                            hv,
-                            cm,
-                            hitsDevice.data(),
-                            hits_geDevice.data(),
-                            fast_fit_resultsDevice.data(),
-                            offset);
-
-        alpaka::exec<Acc1D>(queue,
-                            workDivQuadsPenta,
-                            Kernel_CircleFit<5, TrackerTraits>{},
-                            tupleMultiplicity_,
-                            5,
-                            bField_,
-                            hitsDevice.data(),
-                            hits_geDevice.data(),
-                            fast_fit_resultsDevice.data(),
-                            circle_fit_resultsDevice_,
-                            offset);
-
-        alpaka::exec<Acc1D>(queue,
-                            workDivQuadsPenta,
-                            Kernel_LineFit<5, TrackerTraits>{},
-                            tupleMultiplicity_,
-                            5,
-                            bField_,
-                            outputSoa_,
-                            hitsDevice.data(),
-                            hits_geDevice.data(),
-                            fast_fit_resultsDevice.data(),
-                            circle_fit_resultsDevice_,
-                            offset);
-      }
+      alpaka::exec<Acc1D>(queue,
+                          workDivQuadsPenta,
+                          Kernel_LineFit<5, TrackerTraits>{},
+                          tupleMultiplicity_,
+                          5,
+                          bField_,
+                          outputSoa_,
+                          hitsDevice.data(),
+                          hits_geDevice.data(),
+                          fast_fit_resultsDevice.data(),
+                          circle_fit_resultsDevice_,
+                          offset);
     }
   }
 

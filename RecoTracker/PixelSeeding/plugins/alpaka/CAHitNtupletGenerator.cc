@@ -349,7 +349,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       desc.add<unsigned int>("minHitsForSharingCut", kPhase2OT ? 1 : 10)
           ->setComment("Maximum number of hits in a tuple to clean also if the shared hit is on bpx1");
 
-      desc.add<bool>("fitNas4", false)->setComment("fit only 4 hits out of N");
       desc.add<bool>("useRiemannFit", false)->setComment("true for Riemann, false for BrokenLine");
       desc.add<bool>("doSharedHitCut", true)->setComment("Sharing hit nTuples cleaning");
       desc.add<bool>("dupPassThrough", false)->setComment("Do not reject duplicate");
@@ -436,7 +435,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           // Flags
           .useRiemannFit_ = cfg.getParameter<bool>("useRiemannFit"),
-          .fitNas4_ = cfg.getParameter<bool>("fitNas4"),
           .earlyFishbone_ = cfg.getParameter<bool>("earlyFishbone"),
           .lateFishbone_ = cfg.getParameter<bool>("lateFishbone"),
           .onlySameLayersFishbone_ = cfg.getParameter<bool>("onlySameLayersFishbone"),
@@ -813,7 +811,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const uint32_t nTracks = pending.maxTuples;
     const float bfield = pending.bfield;
 
-    HelixFit fitter(bfield, m_params.algoParams_.fitNas4_);
+    HelixFit fitter(bfield);
     fitter.allocate(kernels.tupleMultiplicity(), tracks, kernels.hitContainer());
     if (m_params.algoParams_.useRiemannFit_) {
       fitter.launchRiemannKernels(trackingHits, modules, nHits, nTracks, queue);
