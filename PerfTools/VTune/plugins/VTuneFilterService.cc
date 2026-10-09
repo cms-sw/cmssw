@@ -55,6 +55,3 @@ namespace edm {
     }
   }
 }  // namespace edm
-
-//using edm::VTuneFilterService;
-DEFINE_FWK_SERVICE(VTuneFilterService);
