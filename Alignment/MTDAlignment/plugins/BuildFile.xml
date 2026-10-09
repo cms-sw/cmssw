@@ -1,0 +1,5 @@
+<library name="MTDMisalignedProducer" file="MTDMisalignedProducer.cc">
+  <use name="Alignment/MTDAlignment" />
+  <use name="Geometry/MTDGeometryBuilder" />
+  <flags EDM_PLUGIN="1" />
+</library>
