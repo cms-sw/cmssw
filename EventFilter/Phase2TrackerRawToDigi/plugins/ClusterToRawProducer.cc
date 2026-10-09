@@ -43,16 +43,19 @@ private:
     size_t block_start = (word_index / 4) * 4;
     size_t offset_within_block = word_index % 4;
     size_t remapped_index = block_start + (3 - offset_within_block);
-    data_ptr[remapped_index * 4 + 0] = (hex_word >> 0) & 0xFF; // Most significant byte (bits 31-24)
-    data_ptr[remapped_index * 4 + 1] = (hex_word >> 8) & 0xFF; // Next byte (bits 23-16)
+    data_ptr[remapped_index * 4 + 0] = (hex_word >> 0) & 0xFF;   // Most significant byte (bits 31-24)
+    data_ptr[remapped_index * 4 + 1] = (hex_word >> 8) & 0xFF;   // Next byte (bits 23-16)
     data_ptr[remapped_index * 4 + 2] = (hex_word >> 16) & 0xFF;  // Next byte (bits 15-8)
     data_ptr[remapped_index * 4 + 3] = (hex_word >> 24) & 0xFF;  // Least significant byte (bits 7-0)
   }
 
   void dumpPacket(const unsigned char* data, size_t dataSize);
-  void addSLinkHeader(const SLinkRocketHeader_v3& header, std::vector<Phase2DAQFormatSpecification::Word32Bits>& daqPacket);
-  void addSLinkTrailer(const SLinkRocketTrailer_v3& trailer, std::vector<Phase2DAQFormatSpecification::Word32Bits>& daqPacket);
-  void addTrackerTrailer(const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_BOARD_TYPE_INV>& board_type_inv, std::vector<Phase2DAQFormatSpecification::Word32Bits>& daqPacket);
+  void addSLinkHeader(const SLinkRocketHeader_v3& header,
+                      std::vector<Phase2DAQFormatSpecification::Word32Bits>& daqPacket);
+  void addSLinkTrailer(const SLinkRocketTrailer_v3& trailer,
+                       std::vector<Phase2DAQFormatSpecification::Word32Bits>& daqPacket);
+  void addTrackerTrailer(const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_BOARD_TYPE_INV>& board_type_inv,
+                         std::vector<Phase2DAQFormatSpecification::Word32Bits>& daqPacket);
   void addTrackerHeader(const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_BOARD_TYPE>& board_type,
                         const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_VERSION_MAJOR>& version_major,
                         const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_VERSION_MINOR>& version_minor,
@@ -61,8 +64,8 @@ private:
                         const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_BOARD_ID>& board_id,
                         const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_CORE_ID>& core_id,
                         std::vector<Phase2DAQFormatSpecification::Word32Bits>& daqPacket);
-  void allocateBytesToBinary(const std::vector<Phase2DAQFormatSpecification::Word32Bits>& daqPacket, 
-                           std::vector<unsigned char>& binaryBuffer);
+  void allocateBytesToBinary(const std::vector<Phase2DAQFormatSpecification::Word32Bits>& daqPacket,
+                             std::vector<unsigned char>& binaryBuffer);
 };
 
 ClusterToRawProducer::ClusterToRawProducer(const edm::ParameterSet& iConfig)
@@ -76,10 +79,9 @@ ClusterToRawProducer::ClusterToRawProducer(const edm::ParameterSet& iConfig)
 ClusterToRawProducer::~ClusterToRawProducer() {}
 
 void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   using namespace Phase2TrackerSpecifications;
   using namespace Phase2DAQFormatSpecification;
-  
+
   // Retrieve TrackerGeometry from EventSetup
   const TrackerGeometry& trackerGeometry = iSetup.getData(trackerGeometryToken_);
 
@@ -130,24 +132,20 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       uint16_t l1a_types = 1;
       uint8_t l1a_phys = 0xAA;
       uint8_t emu_status = 2;
-      SLinkRocketHeader_v3 header (sourceId, 
-                                   l1a_types, 
-                                   l1a_phys, 
-                                   emu_status, 
-                                   static_cast<uint64_t>(eventId_));
+      SLinkRocketHeader_v3 header(sourceId, l1a_types, l1a_phys, emu_status, static_cast<uint64_t>(eventId_));
       addSLinkHeader(header, daq_packet);
 
       /** Configure defaults for OT Tracker Header
        * @see: https://docs.google.com/spreadsheets/d/1RHZFqeHCoJhRaAfaKEO1Gx6U6c1Y3tRGhL_aSbZQROY/edit?gid=256168213#gid=256168213 for definition.
        **/
-      std::bitset<C_NUM_BITS_BOARD_TYPE> board_type(0);                   // 8 bits  (bits 31-24)
-      std::bitset<C_NUM_BITS_BOARD_TYPE_INV> board_type_inv(0);           // 8 bits  (bits 31-24)
-      std::bitset<C_NUM_BITS_VERSION_MAJOR> version_major(VERSION_MAJOR_V1_0); // 5 bits  (bits 23-19)
-      std::bitset<C_NUM_BITS_VERSION_MINOR> version_minor(VERSION_MINOR_V1_0); // 3 bits  (bits 18-16)
-      std::bitset<C_NUM_BITS_MODE> mode(0);                               // 3 bits  (bits 15-13)
-      std::bitset<C_NUM_BITS_ED> ed(0);                                   // 1 bit   (bit 12)
-      std::bitset<C_NUM_BITS_BOARD_ID> board_id(0);                       // 8 bits  (bits 11-4)
-      std::bitset<C_NUM_BITS_CORE_ID> core_id(0);                         // 4 bits  (bits 3-0)
+      std::bitset<C_NUM_BITS_BOARD_TYPE> board_type(0);                         // 8 bits  (bits 31-24)
+      std::bitset<C_NUM_BITS_BOARD_TYPE_INV> board_type_inv(0);                 // 8 bits  (bits 31-24)
+      std::bitset<C_NUM_BITS_VERSION_MAJOR> version_major(VERSION_MAJOR_V1_0);  // 5 bits  (bits 23-19)
+      std::bitset<C_NUM_BITS_VERSION_MINOR> version_minor(VERSION_MINOR_V1_0);  // 3 bits  (bits 18-16)
+      std::bitset<C_NUM_BITS_MODE> mode(0);                                     // 3 bits  (bits 15-13)
+      std::bitset<C_NUM_BITS_ED> ed(0);                                         // 1 bit   (bit 12)
+      std::bitset<C_NUM_BITS_BOARD_ID> board_id(0);                             // 8 bits  (bits 11-4)
+      std::bitset<C_NUM_BITS_CORE_ID> core_id(0);                               // 4 bits  (bits 3-0)
       bool board_type_set = false;
 
       /** Firmware Accurate Offset Counter **/
@@ -170,7 +168,8 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
           if (board_type_set == false) {
             TrackerGeometry::ModuleType moduleType = trackerGeometry.getDetectorType(det_id);
-            if (moduleType == TrackerGeometry::ModuleType::Ph2PSS || moduleType == TrackerGeometry::ModuleType::Ph2PSP) {
+            if (moduleType == TrackerGeometry::ModuleType::Ph2PSS ||
+                moduleType == TrackerGeometry::ModuleType::Ph2PSP) {
               board_type = DTC_HEADER_OT_PS;
               board_type_inv = DTC_HEADER_OT_PS_INV;
             } else if (moduleType == TrackerGeometry::ModuleType::Ph2SS) {
@@ -183,7 +182,7 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             board_id = dtc_id;
             board_type_set = true;
           }
-          
+
           edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator sensor_1_cluster_collection =
               clusters_handle->find(det_id + 1);
           edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator sensor_2_cluster_collection =
@@ -191,12 +190,22 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
           const edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator nullIter = clusters_handle->end();
 
           // sensor_1_cic_0 and sensor_2_cic_0 form a single output daq channel.
-          SensorHybrid hybrid_1(
-              det_id, sensor_1_cluster_collection, sensor_2_cluster_collection, nullIter, false, trackerGeometry, eventId_);
+          SensorHybrid hybrid_1(det_id,
+                                sensor_1_cluster_collection,
+                                sensor_2_cluster_collection,
+                                nullIter,
+                                false,
+                                trackerGeometry,
+                                eventId_);
 
           // // sensor_1_cic_1 and sensor_2_cic_1 form a single output daq channel.
-          SensorHybrid hybrid_2(
-              det_id, sensor_1_cluster_collection, sensor_2_cluster_collection, nullIter, true, trackerGeometry, eventId_);
+          SensorHybrid hybrid_2(det_id,
+                                sensor_1_cluster_collection,
+                                sensor_2_cluster_collection,
+                                nullIter,
+                                true,
+                                trackerGeometry,
+                                eventId_);
 
           // sensor_2 is always isUpper == 1 for 2S.
           // sensor_2 is always isLower == 0 for 2S.
@@ -218,8 +227,8 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         } catch (const cms::Exception& e) {
           // exception here means that the link is not connected to a detector
           uint32_t eventID = CIC_CONSTANT_EVENT_ID & L1ID_MAX_VALUE;  // eventId_ (9 bits)
-          uint32_t channelErrors = 0;                    // 9 bits for errors, all set to 0
-          uint32_t numClusters = 0;                      // no clusters here.
+          uint32_t channelErrors = 0;                                 // 9 bits for errors, all set to 0
+          uint32_t numClusters = 0;                                   // no clusters here.
 
           // Build the channel header
           uint32_t header_ = (eventID << (N_BITS_PER_WORD - L1ID_BITS)) |
@@ -258,14 +267,15 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       for (int i = 0; i < RESERVED_N_LINES; ++i) {
         daq_packet.push_back(Word32Bits(0));
       }
-//       daq_packet.push_back(0x0);
-//       daq_packet.push_back(0x0);
+      //       daq_packet.push_back(0x0);
+      //       daq_packet.push_back(0x0);
 
       daq_packet.reserve(daq_packet.size() + payload.size());
 
       // Pad payload to 128b  // is it needed ? FIXME
       size_t payload_data_bytes = payload.size() * N_BYTES_PER_WORD;
-      size_t padded_payload_bytes = (payload_data_bytes + 15) & ~static_cast<size_t>(15);  // pad to 16-byte boundary, required by RawDataBuffer
+      size_t padded_payload_bytes =
+          (payload_data_bytes + 15) & ~static_cast<size_t>(15);  // pad to 16-byte boundary, required by RawDataBuffer
       size_t padding_bytes = padded_payload_bytes - payload_data_bytes;
       size_t padding_words = padding_bytes / N_BYTES_PER_WORD;
       for (size_t i = 0; i < padding_words; ++i) {
@@ -292,10 +302,10 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
        * Following the pattern from TestWriteRawDataBuffer.cc:
        * @see: https://github.com/cms-sw/cmssw/blob/2f70a0116630c1586a2a26ffb4b7d256bb8f4b36/DataFormats/FEDRawData/test/TestWriteRawDataBuffer.cc#L36
        */
-      uint16_t slt_status = 0;               // SLink trailer status (0 = OK)
-      uint16_t crc = 0;                      // CRC (not computed, set to 0)
-      uint32_t orbit_id = 0;                 // Orbit ID (test value from reference)
-      uint16_t bx_id = 0;                    // Bunch crossing ID (test value from reference)
+      uint16_t slt_status = 0;                               // SLink trailer status (0 = OK)
+      uint16_t crc = 0;                                      // CRC (not computed, set to 0)
+      uint32_t orbit_id = 0;                                 // Orbit ID (test value from reference)
+      uint16_t bx_id = 0;                                    // Bunch crossing ID (test value from reference)
       uint32_t fragment_size_words = daq_packet.size() + 4;  // Total fragment size in 32-bit words (including trailer)
       SLinkRocketTrailer_v3 trailer(slt_status, crc, orbit_id, bx_id, fragment_size_words, 0);
       addSLinkTrailer(trailer, daq_packet);
@@ -306,7 +316,7 @@ void ClusterToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
       /** Update Total Size and Store Fragment **/
       const size_t fragment_bytes = slink_daq_stream.size() * N_BYTES_PER_WORD;
-      totalSize += fragment_bytes;  
+      totalSize += fragment_bytes;
       allSlinkFragments.push_back({sourceId, std::move(slink_daq_stream)});
     }
   }
@@ -331,7 +341,8 @@ void ClusterToRawProducer::dumpPacket(const unsigned char* data, size_t dataSize
   for (size_t l16byteslineID = 0; l16byteslineID < (dataSize + 15) / 16; l16byteslineID++) {
     for (size_t byte_within_line = 0; byte_within_line < 16; byte_within_line++) {
       size_t index = l16byteslineID * 16 + byte_within_line;
-      if (index >= dataSize) break;  // Stop if we've printed all bytes
+      if (index >= dataSize)
+        break;  // Stop if we've printed all bytes
       printf("%02X ", (unsigned int)data[index]);
     }
     printf("\n");
@@ -343,18 +354,18 @@ void ClusterToRawProducer::dumpPacket(const unsigned char* data, size_t dataSize
  * @param header The SLink header to add
  * @param daqPacket The vector to append the header words to
  */
-void ClusterToRawProducer::addSLinkHeader(const SLinkRocketHeader_v3& header, std::vector<Phase2DAQFormatSpecification::Word32Bits>& daqPacket) {
-
+void ClusterToRawProducer::addSLinkHeader(const SLinkRocketHeader_v3& header,
+                                          std::vector<Phase2DAQFormatSpecification::Word32Bits>& daqPacket) {
   const unsigned char* header_bytes = reinterpret_cast<const unsigned char*>(&header);
   size_t header_size = sizeof(SLinkRocketHeader_v3);
-  
+
   // Add each word (assuming header is multiple of 4 bytes)
   for (size_t i = 0; i < header_size; i += 4) {
-      uint32_t word = 0;
-      for (size_t j = 0; j < 4 && (i + j) < header_size; j++) {
-          word |= (header_bytes[i + j] << (j * 8));
-      }
-      daqPacket.push_back(Phase2DAQFormatSpecification::Word32Bits(word));
+    uint32_t word = 0;
+    for (size_t j = 0; j < 4 && (i + j) < header_size; j++) {
+      word |= (header_bytes[i + j] << (j * 8));
+    }
+    daqPacket.push_back(Phase2DAQFormatSpecification::Word32Bits(word));
   }
 }
 
@@ -363,18 +374,19 @@ void ClusterToRawProducer::addSLinkHeader(const SLinkRocketHeader_v3& header, st
  * @param trailer The SLink trailer to add
  * @param daqPacket The vector to append the trailer words to
  */
-void ClusterToRawProducer::addSLinkTrailer(const SLinkRocketTrailer_v3& trailer, std::vector<Phase2DAQFormatSpecification::Word32Bits>& daqPacket) {
-    const unsigned char* trailer_bytes = reinterpret_cast<const unsigned char*>(&trailer);
-    size_t trailer_size = sizeof(SLinkRocketTrailer_v3);
-    
-    // Add each word (assuming trailer is multiple of 4 bytes)
-    for (size_t i = 0; i < trailer_size; i += 4) {
-        uint32_t word = 0;
-        for (size_t j = 0; j < 4 && (i + j) < trailer_size; j++) {
-            word |= (trailer_bytes[i + j] << (j * 8));
-        }
-        daqPacket.push_back(Phase2DAQFormatSpecification::Word32Bits(word));
+void ClusterToRawProducer::addSLinkTrailer(const SLinkRocketTrailer_v3& trailer,
+                                           std::vector<Phase2DAQFormatSpecification::Word32Bits>& daqPacket) {
+  const unsigned char* trailer_bytes = reinterpret_cast<const unsigned char*>(&trailer);
+  size_t trailer_size = sizeof(SLinkRocketTrailer_v3);
+
+  // Add each word (assuming trailer is multiple of 4 bytes)
+  for (size_t i = 0; i < trailer_size; i += 4) {
+    uint32_t word = 0;
+    for (size_t j = 0; j < 4 && (i + j) < trailer_size; j++) {
+      word |= (trailer_bytes[i + j] << (j * 8));
     }
+    daqPacket.push_back(Phase2DAQFormatSpecification::Word32Bits(word));
+  }
 }
 
 /**
@@ -382,13 +394,14 @@ void ClusterToRawProducer::addSLinkTrailer(const SLinkRocketTrailer_v3& trailer,
  * @param board_type_inv The inverted board type (placed in bits 31-24)
  * @param daqPacket The vector to append the trailer words to
  */
-void ClusterToRawProducer::addTrackerTrailer(const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_BOARD_TYPE_INV>& board_type_inv, 
-                                              std::vector<Phase2DAQFormatSpecification::Word32Bits>& daqPacket) {
-    uint32_t last_word = board_type_inv.to_ulong() << 24;  // Put it in bits 31-24
-    daqPacket.push_back(Phase2DAQFormatSpecification::Word32Bits(last_word));
-    daqPacket.push_back(Phase2DAQFormatSpecification::Word32Bits(0x0));
-    daqPacket.push_back(Phase2DAQFormatSpecification::Word32Bits(0x0));
-    daqPacket.push_back(Phase2DAQFormatSpecification::Word32Bits(0x0));
+void ClusterToRawProducer::addTrackerTrailer(
+    const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_BOARD_TYPE_INV>& board_type_inv,
+    std::vector<Phase2DAQFormatSpecification::Word32Bits>& daqPacket) {
+  uint32_t last_word = board_type_inv.to_ulong() << 24;  // Put it in bits 31-24
+  daqPacket.push_back(Phase2DAQFormatSpecification::Word32Bits(last_word));
+  daqPacket.push_back(Phase2DAQFormatSpecification::Word32Bits(0x0));
+  daqPacket.push_back(Phase2DAQFormatSpecification::Word32Bits(0x0));
+  daqPacket.push_back(Phase2DAQFormatSpecification::Word32Bits(0x0));
 }
 
 /**
@@ -403,27 +416,24 @@ void ClusterToRawProducer::addTrackerTrailer(const std::bitset<Phase2DAQFormatSp
  * @param daqPacket The vector to append the header words to
  * @see: https://docs.google.com/spreadsheets/d/1RHZFqeHCoJhRaAfaKEO1Gx6U6c1Y3tRGhL_aSbZQROY/edit?gid=256168213#gid=256168213 for definition.
  */
-void ClusterToRawProducer::addTrackerHeader(const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_BOARD_TYPE>& board_type,
-                                            const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_VERSION_MAJOR>& version_major,
-                                            const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_VERSION_MINOR>& version_minor,
-                                            const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_MODE>& mode,
-                                            const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_ED>& ed,
-                                            const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_BOARD_ID>& board_id,
-                                            const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_CORE_ID>& core_id,
-                                            std::vector<Phase2DAQFormatSpecification::Word32Bits>& daqPacket) {
-    // Build the first word from all the bit fields
-    Phase2DAQFormatSpecification::Word32Bits first_word(board_type.to_string() + 
-                          version_major.to_string() + 
-                          version_minor.to_string() + 
-                          mode.to_string() + 
-                          ed.to_string() + 
-                          board_id.to_string() + 
-                          core_id.to_string());
-    
-    daqPacket.push_back(first_word);
-    daqPacket.push_back(Phase2DAQFormatSpecification::Word32Bits(0x0));
-    daqPacket.push_back(Phase2DAQFormatSpecification::Word32Bits(0x0));
-    daqPacket.push_back(Phase2DAQFormatSpecification::Word32Bits(0x0));
+void ClusterToRawProducer::addTrackerHeader(
+    const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_BOARD_TYPE>& board_type,
+    const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_VERSION_MAJOR>& version_major,
+    const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_VERSION_MINOR>& version_minor,
+    const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_MODE>& mode,
+    const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_ED>& ed,
+    const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_BOARD_ID>& board_id,
+    const std::bitset<Phase2DAQFormatSpecification::C_NUM_BITS_CORE_ID>& core_id,
+    std::vector<Phase2DAQFormatSpecification::Word32Bits>& daqPacket) {
+  // Build the first word from all the bit fields
+  Phase2DAQFormatSpecification::Word32Bits first_word(board_type.to_string() + version_major.to_string() +
+                                                      version_minor.to_string() + mode.to_string() + ed.to_string() +
+                                                      board_id.to_string() + core_id.to_string());
+
+  daqPacket.push_back(first_word);
+  daqPacket.push_back(Phase2DAQFormatSpecification::Word32Bits(0x0));
+  daqPacket.push_back(Phase2DAQFormatSpecification::Word32Bits(0x0));
+  daqPacket.push_back(Phase2DAQFormatSpecification::Word32Bits(0x0));
 }
 
 /**
@@ -436,31 +446,33 @@ void ClusterToRawProducer::addTrackerHeader(const std::bitset<Phase2DAQFormatSpe
  * 3. Applies 128-bit block reversal to the middle payload words
  * 4. Adds padding to match the captured binary format
  */
-void ClusterToRawProducer::allocateBytesToBinary(const std::vector<Phase2DAQFormatSpecification::Word32Bits>& daqPacket, 
-                                                   std::vector<unsigned char>& binaryBuffer) {
-    // Calculate size and padding
-    size_t size_in_bytes = daqPacket.size() * Phase2DAQFormatSpecification::N_BYTES_PER_WORD;
-    size_t padding = (Phase2DAQFormatSpecification::N_BYTES_PER_DTH_BINARY_WORD - (size_in_bytes % Phase2DAQFormatSpecification::N_BYTES_PER_DTH_BINARY_WORD)) % Phase2DAQFormatSpecification::N_BYTES_PER_DTH_BINARY_WORD;
-    
-    // Resize and initialize binary buffer
-    binaryBuffer.resize(size_in_bytes + padding, Phase2DAQFormatSpecification::N_BYTES_PER_DTH_BINARY_WORD);
-    unsigned char* data_ptr = binaryBuffer.data();
-    
-    // Write each 32-bit word to the raw buffer
-    for (size_t word_index = 0; word_index < daqPacket.size(); ++word_index) {
-        // Handle both SLink Header (first 4 words) and SLink Trailer (last 4 words)
-        if (word_index < 4 || word_index >= daqPacket.size() - 4) {
-            // SLink Header/Trailer: write in little-endian order
-            uint32_t word = daqPacket[word_index].to_ulong();
-            data_ptr[word_index * 4 + 0] = (word >> 0) & 0xFF;
-            data_ptr[word_index * 4 + 1] = (word >> 8) & 0xFF;
-            data_ptr[word_index * 4 + 2] = (word >> 16) & 0xFF;
-            data_ptr[word_index * 4 + 3] = (word >> 24) & 0xFF;
-        } else {
-            // Payload: apply 128-bit block reversal
-            insertHexWordAt(data_ptr, word_index, daqPacket[word_index].to_ulong());
-        }
+void ClusterToRawProducer::allocateBytesToBinary(const std::vector<Phase2DAQFormatSpecification::Word32Bits>& daqPacket,
+                                                 std::vector<unsigned char>& binaryBuffer) {
+  // Calculate size and padding
+  size_t size_in_bytes = daqPacket.size() * Phase2DAQFormatSpecification::N_BYTES_PER_WORD;
+  size_t padding = (Phase2DAQFormatSpecification::N_BYTES_PER_DTH_BINARY_WORD -
+                    (size_in_bytes % Phase2DAQFormatSpecification::N_BYTES_PER_DTH_BINARY_WORD)) %
+                   Phase2DAQFormatSpecification::N_BYTES_PER_DTH_BINARY_WORD;
+
+  // Resize and initialize binary buffer
+  binaryBuffer.resize(size_in_bytes + padding, Phase2DAQFormatSpecification::N_BYTES_PER_DTH_BINARY_WORD);
+  unsigned char* data_ptr = binaryBuffer.data();
+
+  // Write each 32-bit word to the raw buffer
+  for (size_t word_index = 0; word_index < daqPacket.size(); ++word_index) {
+    // Handle both SLink Header (first 4 words) and SLink Trailer (last 4 words)
+    if (word_index < 4 || word_index >= daqPacket.size() - 4) {
+      // SLink Header/Trailer: write in little-endian order
+      uint32_t word = daqPacket[word_index].to_ulong();
+      data_ptr[word_index * 4 + 0] = (word >> 0) & 0xFF;
+      data_ptr[word_index * 4 + 1] = (word >> 8) & 0xFF;
+      data_ptr[word_index * 4 + 2] = (word >> 16) & 0xFF;
+      data_ptr[word_index * 4 + 3] = (word >> 24) & 0xFF;
+    } else {
+      // Payload: apply 128-bit block reversal
+      insertHexWordAt(data_ptr, word_index, daqPacket[word_index].to_ulong());
     }
+  }
 }
 
 DEFINE_FWK_MODULE(ClusterToRawProducer);

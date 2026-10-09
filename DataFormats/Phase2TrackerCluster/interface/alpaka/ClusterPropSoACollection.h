@@ -8,7 +8,9 @@
 namespace Phase2RawToCluster {
 
   using ClusterPropSoACollection =
-      std::conditional_t<std::is_same_v<ALPAKA_ACCELERATOR_NAMESPACE::Device, alpaka::DevCpu>, Phase2RawToCluster::ClusterPropHostCollection, ALPAKA_ACCELERATOR_NAMESPACE::Phase2RawToCluster::ClusterPropDeviceCollection>;
+      std::conditional_t<std::is_same_v<ALPAKA_ACCELERATOR_NAMESPACE::Device, alpaka::DevCpu>,
+                         Phase2RawToCluster::ClusterPropHostCollection,
+                         ALPAKA_ACCELERATOR_NAMESPACE::Phase2RawToCluster::ClusterPropDeviceCollection>;
 
 }  // namespace Phase2RawToCluster
 

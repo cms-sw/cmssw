@@ -33,7 +33,7 @@
 #include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include <unordered_map>
-#include <numeric> // exclusive_scan
+#include <numeric>  // exclusive_scan
 #include <algorithm>
 #include <limits>
 #include "EventFilter/Phase2TrackerRawToDigi/interface/TrackerBlock.h"
@@ -41,7 +41,7 @@
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerSpecifications.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2DAQFormatSpecification.h"
 #include "EventFilter/Phase2TrackerRawToDigi/plugins/alpaka/RawToClusterAlgo.h"
-#include <iomanip> // for std::setw
+#include <iomanip>  // for std::setw
 #include <future>
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/chooseDevice.h"
@@ -56,7 +56,7 @@ using namespace Phase2RawToCluster;
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace cms::alpakatools;
 
-class Phase2RawToClusterProducer : public stream::EDProducer<edm::stream::WatchRuns> {
+  class Phase2RawToClusterProducer : public stream::EDProducer<edm::stream::WatchRuns> {
   public:
     explicit Phase2RawToClusterProducer(const edm::ParameterSet&);
     static void fillDescriptions(edm::ConfigurationDescriptions&);
@@ -66,7 +66,7 @@ class Phase2RawToClusterProducer : public stream::EDProducer<edm::stream::WatchR
     void beginStream(edm::StreamID sid) override { sid_ = sid; }
 
     // enumeration declaration for the module types
-    enum WhichModule:int { undef=0, TwoS=1, PS=2 };
+    enum WhichModule : int { undef = 0, TwoS = 1, PS = 2 };
 
   private:
     void produce(device::Event&, device::EventSetup const&) override;
@@ -84,35 +84,35 @@ class Phase2RawToClusterProducer : public stream::EDProducer<edm::stream::WatchR
     const TrackerDetToDTCELinkCablingMap* cablingMap_ = nullptr;
     const TrackerGeometry* trackerGeometry_ = nullptr;
     const TrackerTopology* trackerTopology_ = nullptr;
-    std::map<int, std::pair<int,int>> stackMap_; // detId -> (inner, outer)
+    std::map<int, std::pair<int, int>> stackMap_;  // detId -> (inner, outer)
 
     // StreamID data member; populated in beginStream, used in beginRun
     //         to pick the correct device via detail::chooseDevice(sid_)
     //         initialized with invalidStreamID() because StreamID() = delete
     edm::StreamID sid_{edm::StreamID::invalidStreamID()};
     // Global maps sized as (#DTC * #SLINK * #CIC)
-    std::optional<cms::alpakatools::host_buffer<int[]>>           detIdxModuleTypeMap_;
+    std::optional<cms::alpakatools::host_buffer<int[]>> detIdxModuleTypeMap_;
     std::optional<cms::alpakatools::device_buffer<Device, int[]>> detIdxModuleTypeDevice_;
 
     // stack map mirrored into aligned flatIdx arrays (inner/outer)
-    std::optional<cms::alpakatools::host_buffer<uint32_t[]>>           innerDetIdHost_;
-    std::optional<cms::alpakatools::host_buffer<uint32_t[]>>           outerDetIdHost_;
+    std::optional<cms::alpakatools::host_buffer<uint32_t[]>> innerDetIdHost_;
+    std::optional<cms::alpakatools::host_buffer<uint32_t[]>> outerDetIdHost_;
     std::optional<cms::alpakatools::device_buffer<Device, uint32_t[]>> innerDetIdDevice_;
     std::optional<cms::alpakatools::device_buffer<Device, uint32_t[]>> outerDetIdDevice_;
 
     // flat detId per flatIdx
-    std::optional<cms::alpakatools::host_buffer<int[]>>           detIdMapHost_;
+    std::optional<cms::alpakatools::host_buffer<int[]>> detIdMapHost_;
     std::optional<cms::alpakatools::device_buffer<Device, int[]>> detIdMapDevice_;
   };
 
   Phase2RawToClusterProducer::Phase2RawToClusterProducer(const edm::ParameterSet& iConfig)
-    : stream::EDProducer<edm::stream::WatchRuns>(iConfig)
-      , fedRawDataToken_(consumes<RawDataBuffer>(iConfig.getParameter<edm::InputTag>("fedRawDataCollection")))
-      , cablingMapToken_(esConsumes<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd, edm::Transition::BeginRun>())
-      , trackerGeometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>())
-      , trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>())
-      , outputToken_{ produces() }
-  {}
+      : stream::EDProducer<edm::stream::WatchRuns>(iConfig),
+        fedRawDataToken_(consumes<RawDataBuffer>(iConfig.getParameter<edm::InputTag>("fedRawDataCollection"))),
+        cablingMapToken_(
+            esConsumes<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd, edm::Transition::BeginRun>()),
+        trackerGeometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
+        trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
+        outputToken_{produces()} {}
 
   void Phase2RawToClusterProducer::beginRun(edm::Run const&, edm::EventSetup const& iSetup) {
     cablingMap_ = &iSetup.getData(cablingMapToken_);
@@ -145,16 +145,16 @@ class Phase2RawToClusterProducer : public stream::EDProducer<edm::stream::WatchR
     const unsigned M = (MAX_DTC_ID - MIN_DTC_ID + 1) * SLINKS_PER_DTC * CICs_PER_SLINK;
 
     //allocate host buffers
-    detIdxModuleTypeMap_ = cms::alpakatools::make_host_buffer<int[],      Platform>(M);
-    innerDetIdHost_      = cms::alpakatools::make_host_buffer<uint32_t[], Platform>(M);
-    outerDetIdHost_      = cms::alpakatools::make_host_buffer<uint32_t[], Platform>(M);
-    detIdMapHost_        = cms::alpakatools::make_host_buffer<int[],      Platform>(M);
+    detIdxModuleTypeMap_ = cms::alpakatools::make_host_buffer<int[], Platform>(M);
+    innerDetIdHost_ = cms::alpakatools::make_host_buffer<uint32_t[], Platform>(M);
+    outerDetIdHost_ = cms::alpakatools::make_host_buffer<uint32_t[], Platform>(M);
+    detIdMapHost_ = cms::alpakatools::make_host_buffer<int[], Platform>(M);
 
     //allocate device buffers on the correct device
-    detIdxModuleTypeDevice_ = cms::alpakatools::make_device_buffer<int[]>     (queue, M);
-    innerDetIdDevice_       = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, M);
-    outerDetIdDevice_       = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, M);
-    detIdMapDevice_         = cms::alpakatools::make_device_buffer<int[]>     (queue, M);
+    detIdxModuleTypeDevice_ = cms::alpakatools::make_device_buffer<int[]>(queue, M);
+    innerDetIdDevice_ = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, M);
+    outerDetIdDevice_ = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, M);
+    detIdMapDevice_ = cms::alpakatools::make_device_buffer<int[]>(queue, M);
 
     // Initialize per channel lookup tables with invalid defaults
     //
@@ -162,9 +162,9 @@ class Phase2RawToClusterProducer : public stream::EDProducer<edm::stream::WatchR
     // by channel. This ensures disconnected or unused channels are ignored by the kernels.
     for (unsigned i = 0; i < M; ++i) {
       (*detIdxModuleTypeMap_)[i] = WhichModule::undef;
-      (*innerDetIdHost_)[i]      = 0u; // 0 == invalid
-      (*outerDetIdHost_)[i]      = 0u;
-      (*detIdMapHost_)[i]        = -1;
+      (*innerDetIdHost_)[i] = 0u;  // 0 == invalid
+      (*outerDetIdHost_)[i] = 0u;
+      (*detIdMapHost_)[i] = -1;
     }
 
     // Fill per-flatIdx (module type, inner/outer detIds)
@@ -173,12 +173,14 @@ class Phase2RawToClusterProducer : public stream::EDProducer<edm::stream::WatchR
         for (unsigned iChannel = 0; iChannel < CICs_PER_SLINK; ++iChannel) {
           const unsigned int gbt_id = iSlink * MODULES_PER_SLINK + std::div(iChannel, 2).quot;
           DTCELinkId thisDTCElinkId(dtcID, gbt_id, 0);
-          const unsigned flatIdx = iChannel + (CICs_PER_SLINK * iSlink) + (CICs_PER_SLINK * SLINKS_PER_DTC * (dtcID - MIN_DTC_ID));
+          const unsigned flatIdx =
+              iChannel + (CICs_PER_SLINK * iSlink) + (CICs_PER_SLINK * SLINKS_PER_DTC * (dtcID - MIN_DTC_ID));
           if (cablingMap_->knowsDTCELinkId(thisDTCElinkId)) {
             auto possibleDetIds = cablingMap_->dtcELinkIdToDetId(thisDTCElinkId);
             const int thisDetId = possibleDetIds->second;
             (*detIdMapHost_)[flatIdx] = thisDetId;
-            const bool is2S = trackerGeometry_->getDetectorType(stackMap_[thisDetId].first) == TrackerGeometry::ModuleType::Ph2SS;
+            const bool is2S =
+                trackerGeometry_->getDetectorType(stackMap_[thisDetId].first) == TrackerGeometry::ModuleType::Ph2SS;
             (*detIdxModuleTypeMap_)[flatIdx] = is2S ? WhichModule::TwoS : WhichModule::PS;
             const auto it = stackMap_.find(thisDetId);
             if (it != stackMap_.end()) {
@@ -193,9 +195,9 @@ class Phase2RawToClusterProducer : public stream::EDProducer<edm::stream::WatchR
     // Copy maps to device
     //dereference std::optional to get the underlying buffer for memcpy
     alpaka::memcpy(queue, *detIdxModuleTypeDevice_, *detIdxModuleTypeMap_, M);
-    alpaka::memcpy(queue, *innerDetIdDevice_,       *innerDetIdHost_,      M);
-    alpaka::memcpy(queue, *outerDetIdDevice_,       *outerDetIdHost_,      M);
-    alpaka::memcpy(queue, *detIdMapDevice_,         *detIdMapHost_,        M);
+    alpaka::memcpy(queue, *innerDetIdDevice_, *innerDetIdHost_, M);
+    alpaka::memcpy(queue, *outerDetIdDevice_, *outerDetIdHost_, M);
+    alpaka::memcpy(queue, *detIdMapDevice_, *detIdMapHost_, M);
     alpaka::wait(queue);
   }
 
@@ -204,7 +206,8 @@ class Phase2RawToClusterProducer : public stream::EDProducer<edm::stream::WatchR
 
     // Upper bound on the total number of clusters across the full readout:
     // (max clusters per channel) × (channels per Slink) × (Slinks per DTC × number of DTCs).
-    static constexpr size_t MaxTotalClusters = (N_CLUSTER_MASK + 1) * CICs_PER_SLINK * (MAX_DTC_ID - MIN_DTC_ID + 1) * SLINKS_PER_DTC;
+    static constexpr size_t MaxTotalClusters =
+        (N_CLUSTER_MASK + 1) * CICs_PER_SLINK * (MAX_DTC_ID - MIN_DTC_ID + 1) * SLINKS_PER_DTC;
 
     // 1) Flatten FED buffers into a single contiguous memory block.
     //    Each Slink buffer (raw FED data) is concatenated into one linearData vector.
@@ -224,7 +227,7 @@ class Phase2RawToClusterProducer : public stream::EDProducer<edm::stream::WatchR
         const unsigned totID = iSlink + SLINKS_PER_DTC * (dtcID - 1) + CMSSW_TRACKER_ID;
         totIDs[slinkIdx] = totID;
         auto const fedData = rawColl.fragmentData(totID);
-        size[slinkIdx] = fedData.size(); // payload size in bytes
+        size[slinkIdx] = fedData.size();  // payload size in bytes
         ++slinkIdx;
       }
     }
@@ -237,7 +240,8 @@ class Phase2RawToClusterProducer : public stream::EDProducer<edm::stream::WatchR
     // Copy each FED buffer into its slot inside the linearData vector.
     unsigned char* start = linearData.data();
     for (size_t idx = 0; idx < numSlinks; ++idx) {
-      if (size[idx] == 0) continue; // skip empty FED buffers
+      if (size[idx] == 0)
+        continue;  // skip empty FED buffers
       auto const frag = rawColl.fragmentData(totIDs[idx]);
       if (offset[idx] + size[idx] > totalBytes) {
         throw std::runtime_error("BUFFER OVERFLOW DETECTED IN RAW DATA COPYING");
@@ -246,37 +250,40 @@ class Phase2RawToClusterProducer : public stream::EDProducer<edm::stream::WatchR
     }
 
     // 2) Device buffers and copies
-    auto linearData_HostView = cms::alpakatools::make_host_view<unsigned char>(linearData.data(), static_cast<unsigned long>(linearData.size()));
-    auto linearData_DevBuffer = cms::alpakatools::make_device_buffer<unsigned char[]>(queue, static_cast<unsigned long>(linearData.size()));
+    auto linearData_HostView = cms::alpakatools::make_host_view<unsigned char>(
+        linearData.data(), static_cast<unsigned long>(linearData.size()));
+    auto linearData_DevBuffer =
+        cms::alpakatools::make_device_buffer<unsigned char[]>(queue, static_cast<unsigned long>(linearData.size()));
     alpaka::memcpy(queue, linearData_DevBuffer, linearData_HostView);
 
     auto size_HostView = cms::alpakatools::make_host_view<size_t>(size.data(), static_cast<unsigned long>(size.size()));
-    auto size_DevBuffer = cms::alpakatools::make_device_buffer<size_t[]>(queue, static_cast<unsigned long>(size.size()));
+    auto size_DevBuffer =
+        cms::alpakatools::make_device_buffer<size_t[]>(queue, static_cast<unsigned long>(size.size()));
     alpaka::memcpy(queue, size_DevBuffer, size_HostView);
 
-    auto offset_HostView = cms::alpakatools::make_host_view<size_t>(offset.data(), static_cast<unsigned long>(offset.size()));
-    auto offset_DevBuffer = cms::alpakatools::make_device_buffer<size_t[]>(queue, static_cast<unsigned long>(offset.size()));
+    auto offset_HostView =
+        cms::alpakatools::make_host_view<size_t>(offset.data(), static_cast<unsigned long>(offset.size()));
+    auto offset_DevBuffer =
+        cms::alpakatools::make_device_buffer<size_t[]>(queue, static_cast<unsigned long>(offset.size()));
     alpaka::memcpy(queue, offset_DevBuffer, offset_HostView);
 
     // 3) Output SoA and counter
     auto devClusterProp = Phase2RawToCluster::ClusterPropDeviceCollection(queue, MaxTotalClusters);
-    devClusterProp.zeroInitialise(queue); // to track number of clusters filled
+    devClusterProp.zeroInitialise(queue);  // to track number of clusters filled
     auto globalCounter = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, 1u);
     alpaka::memset(queue, globalCounter, 0u);
 
     // 4) Kernel launch
     //dereference std::optional members when passing to kernel
-    launchUnpacker(
-        queue,
-        linearData_DevBuffer,
-        size_DevBuffer,
-        offset_DevBuffer,
-        *detIdxModuleTypeDevice_,
-        *innerDetIdDevice_,
-        *outerDetIdDevice_,
-        devClusterProp.view(),
-        globalCounter.data()
-    );
+    launchUnpacker(queue,
+                   linearData_DevBuffer,
+                   size_DevBuffer,
+                   offset_DevBuffer,
+                   *detIdxModuleTypeDevice_,
+                   *innerDetIdDevice_,
+                   *outerDetIdDevice_,
+                   devClusterProp.view(),
+                   globalCounter.data());
 
     // 5) Put SoA into the event (keep the SoA output)
     iEvent.emplace(outputToken_, std::move(devClusterProp));
@@ -288,7 +295,7 @@ class Phase2RawToClusterProducer : public stream::EDProducer<edm::stream::WatchR
     descriptions.addWithDefaultLabel(desc);
   }
 
-} // namespace ALPAKA_ACCELERATOR_NAMESPACE
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 // define as a plugin
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"

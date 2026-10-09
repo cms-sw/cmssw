@@ -213,7 +213,7 @@ void Phase2ITValidateELink::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
                                                 maxELinksPerModule_ - 0.5,
                                                 0.,
                                                 0.);
-  me_elinkOccupancyMap_->getTH1()->SetStats(0);
+  me_elinkOccupancyMap_->getTH1()->SetStats(false);
 
   mes_elinkOccupancyMapQuad_.assign(quadrantVals_.size(), nullptr);
   for (size_t r = 0; r < quadrantVals_.size(); ++r) {
@@ -230,7 +230,7 @@ void Phase2ITValidateELink::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
         maxELinksPerModule_ - 0.5,
         0.,
         0.);
-    me->getTH1()->SetStats(0);
+    me->getTH1()->SetStats(false);
     mes_elinkOccupancyMapQuad_[r] = me;
   }
 
@@ -264,18 +264,12 @@ void Phase2ITValidateELink::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
                                                80,
                                                0.,
                                                1.6);
-  me_elinkOccupancyVsSection_->getTH1()->SetStats(0);
+  me_elinkOccupancyVsSection_->getTH1()->SetStats(false);
   me_elinkOccupancyVsSection_->getTH1()->SetOption("COLZ");
 
-  me_elinkOccupancyVsSubType_ = ibooker.book2D("eLinkOccupancyVsSubType",
-                                               "Full Spectrum ELink Occupancy;SubType;Occupancy",
-                                               nSub,
-                                               -0.5,
-                                               nSub - 0.5,
-                                               80,
-                                               0.,
-                                               1.6);
-  me_elinkOccupancyVsSubType_->getTH1()->SetStats(0);
+  me_elinkOccupancyVsSubType_ = ibooker.book2D(
+      "eLinkOccupancyVsSubType", "Full Spectrum ELink Occupancy;SubType;Occupancy", nSub, -0.5, nSub - 0.5, 80, 0., 1.6);
+  me_elinkOccupancyVsSubType_->getTH1()->SetStats(false);
   me_elinkOccupancyVsSubType_->getTH1()->SetOption("COLZ");
 
   // Label section axes (TBPX_L1.., TFPX_R1.., TEPX_R1..) and subtype axes (subtype IDs)
@@ -305,7 +299,7 @@ void Phase2ITValidateELink::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
         nQuad - 0.5,
         0.,
         0.);
-    me->getTH1()->SetStats(0);
+    me->getTH1()->SetStats(false);
     me->getTH1()->SetOption("COLZ");
     me->getTH1()->SetMinimum(0);
     me->getTH1()->SetMaximum(1.6);

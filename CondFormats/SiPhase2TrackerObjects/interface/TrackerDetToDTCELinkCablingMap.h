@@ -37,11 +37,11 @@ public:
   /// Per-module Aurora/cabling info (in addition to the per-elink mapping).
   /// Default-constructed = "unknown / not filled in this DB version".
   struct ModuleInfo {
-    uint8_t nChips  = 0;  // chips on the module
+    uint8_t nChips = 0;   // chips on the module
     uint8_t nElinks = 0;  // elinks on the module
     uint8_t section = 0;  // see Section enum
-    uint8_t layer   = 0;  // layer/disk indexes
-    uint8_t ring    = 0;  // ring indexes
+    uint8_t layer = 0;    // layer/disk indexes
+    uint8_t ring = 0;     // ring indexes
     uint8_t subtype = 0;  // subtype of the module
 
     COND_SERIALIZABLE;

@@ -54,8 +54,8 @@ void ClusterPropSoAToLegacyED::fillDescriptions(edm::ConfigurationDescriptions& 
 }
 
 void ClusterPropSoAToLegacyED::produce(edm::Event& iEvent, edm::EventSetup const&) {
-  auto const& soa  = iEvent.get(soaToken_);
-  auto const view  = soa.view();
+  auto const& soa = iEvent.get(soaToken_);
+  auto const view = soa.view();
   const int nHits = view.metadata().size();
 
   // group legacy clusters by detId
@@ -63,10 +63,10 @@ void ClusterPropSoAToLegacyED::produce(edm::Event& iEvent, edm::EventSetup const
   perDet.reserve(1024);
   perDet.max_load_factor(0.7f);
 
-  int skippedInvalid = 0; // counter for skipped invalid detIds
+  int skippedInvalid = 0;  // counter for skipped invalid detIds
 
   for (int i = 0; i < nHits; ++i) {
-    const uint32_t detId  = view[i].detId();
+    const uint32_t detId = view[i].detId();
 
     // skip invalid placeholder entries to match CPU EDAnalyzer behavior
     // detId == 0    placeholder clusters (invalid, should not be output)
@@ -76,10 +76,10 @@ void ClusterPropSoAToLegacyED::produce(edm::Event& iEvent, edm::EventSetup const
       continue;
     }
 
-    const uint32_t x      = view[i].x();       // legacy "firstStrip"
-    const uint32_t y      = view[i].y();       // legacy "firstRow"
-    const uint32_t width  = view[i].width();   // cluster size (already 0->8 fixed upstream)
-    const bool     isSeed = view[i].isSeed();  // for 2S this was the threshold bit
+    const uint32_t x = view[i].x();          // legacy "firstStrip"
+    const uint32_t y = view[i].y();          // legacy "firstRow"
+    const uint32_t width = view[i].width();  // cluster size (already 0->8 fixed upstream)
+    const bool isSeed = view[i].isSeed();    // for 2S this was the threshold bit
 
     // Build Phase2TrackerCluster1D exactly like the CPU unpacker:
     Phase2TrackerDigi firstDigi{x, y};
@@ -99,7 +99,7 @@ void ClusterPropSoAToLegacyED::produce(edm::Event& iEvent, edm::EventSetup const
     // Keep same ordering convention as legacy: sort by firstStrip()
     std::sort(vec.begin(), vec.end());
 
-    edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller filler(*out, detId, vec.size());
+    edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller filler(*out, detId, !vec.empty());
     for (auto const& c : vec)
       filler.push_back(c);
   }

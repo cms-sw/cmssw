@@ -121,7 +121,7 @@ namespace Phase2AuroraPacker {
 
   // Aurora service block: insert one full 66-b K-block per nD data blocks
   inline std::vector<bool> applyServiceBlocks(const std::vector<bool>& headeredStream,
-                                                int nD = AURORA_SERVICE_BLOCK_INTERVAL_DEFAULT) {
+                                              int nD = AURORA_SERVICE_BLOCK_INTERVAL_DEFAULT) {
     if (nD < AURORA_SERVICE_BLOCK_INTERVAL_MIN || nD > AURORA_SERVICE_BLOCK_INTERVAL_MAX)
       throw cms::Exception("Phase2AuroraPacker")
           << "applyServiceBlocks: nD=" << nD << " out of range [" << AURORA_SERVICE_BLOCK_INTERVAL_MIN << ", "

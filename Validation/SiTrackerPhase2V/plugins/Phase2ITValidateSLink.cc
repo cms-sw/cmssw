@@ -131,14 +131,14 @@ void Phase2ITValidateSLink::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
                                                 nslinksPerDTC_ - 0.5,
                                                 0.,
                                                 1.6);
-  me_slinkOccupancyMap_->getTH1()->SetStats(0);
+  me_slinkOccupancyMap_->getTH1()->SetStats(false);
   me_slinkOccupancyMap_->getTH1()->SetMinimum(0);
   me_slinkOccupancyMap_->getTH1()->SetMaximum(1.6);
   me_slinkOccupancyMap_->getTH1()->SetOption("COLZ");
 
   me_slinkOccupancyVsDTC_ = ibooker.book2D(
       "slinkOccupancyVsDTC", "Full Spectrum SLink Occupancy;DTC;Occupancy", nDTCs_, -0.5, nDTCs_ - 0.5, 80, 0., 1.6);
-  me_slinkOccupancyVsDTC_->getTH1()->SetStats(0);
+  me_slinkOccupancyVsDTC_->getTH1()->SetStats(false);
   me_slinkOccupancyVsDTC_->getTH1()->SetOption("COLZ");
 
   // Label DTC axes with the real DTC numbers (11-19, 21-29, ...) instead of index

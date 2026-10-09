@@ -53,8 +53,7 @@ namespace Phase2ITUnpacker {
       throw cms::Exception("Phase2ITUnpacker") << "Invalid SLinkRocket EOE for fed " << fedId;
     if (st->eventLenBytes() != fragSize)
       throw cms::Exception("Phase2ITUnpacker") << "SLinkRocket trailer length mismatch for fed " << fedId
-                                               << ": trailer says " << st->eventLenBytes()
-					       << ", actual " << fragSize;
+                                               << ": trailer says " << st->eventLenBytes() << ", actual " << fragSize;
     fedSizeInWords = static_cast<int>(fragSize / BYTES_PER_WORD) - (kSlinkHdrBytes + kSlinkTrlBytes) / BYTES_PER_WORD;
     return fragPtr + kSlinkHdrBytes;
   }

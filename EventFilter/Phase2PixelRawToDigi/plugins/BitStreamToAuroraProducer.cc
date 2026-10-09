@@ -167,7 +167,7 @@ void BitStreamToAuroraProducer::produce(edm::Event& iEvent, const edm::EventSetu
       for (int e = 0; e < nElinks; ++e) {
         Phase2ITAuroraBitStream aurora(e, eventsPerStream_);
         aurora.addAuroraStream(elinkBits[e]);
-        detset.push_back(std::move(aurora));
+        detset.push_back(aurora);
       }
       detsets.push_back(std::move(detset));
     }

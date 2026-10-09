@@ -9,8 +9,8 @@ SensorHybrid::SensorHybrid(const DetId& det_id,
                            const TrackerGeometry& trackerGeometry,
                            const unsigned int eventId)
     : cic_id_(cic_id), eventId_(eventId) {
-  const unsigned int cic_boundary_1 = set_sensor_type(det_id+1, trackerGeometry, 1);
-  const unsigned int cic_boundary_2 = set_sensor_type(det_id+2, trackerGeometry, 2);
+  const unsigned int cic_boundary_1 = set_sensor_type(det_id + 1, trackerGeometry, 1);
+  const unsigned int cic_boundary_2 = set_sensor_type(det_id + 2, trackerGeometry, 2);
   // Sensors containing no clusters are missing from the DetSetVector, so must protect against this.
   if (sensor_1 != nullIter)
     sensor_1_clusters_ = get_clusters_on_cic(sensor_1, cic_boundary_1);
@@ -18,10 +18,9 @@ SensorHybrid::SensorHybrid(const DetId& det_id,
     sensor_2_clusters_ = get_clusters_on_cic(sensor_2, cic_boundary_2);
 }
 
-unsigned int SensorHybrid::set_sensor_type(
-    const DetId& det_id,
-    const TrackerGeometry& trackerGeometry,
-    const int internal_id) {
+unsigned int SensorHybrid::set_sensor_type(const DetId& det_id,
+                                           const TrackerGeometry& trackerGeometry,
+                                           const int internal_id) {
   using namespace Phase2TrackerSpecifications;
 
   const GeomDetUnit* sensor_unit = trackerGeometry.idToDetUnit(det_id);
@@ -61,21 +60,20 @@ unsigned int SensorHybrid::set_sensor_type(
       throw cms::Exception("InvalidModuleType")
           << "Unexpected TrackerGeometry::ModuleType for detId: " << det_id << ".";
   }
-  return cic_boundary_in_z;  
+  return cic_boundary_in_z;
 }
 
 std::vector<Phase2TrackerCluster1D*> SensorHybrid::get_clusters_on_cic(
     edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator clusterIterator,
-    const unsigned int cic_boundary_in_z
-    ) {
+    const unsigned int cic_boundary_in_z) {
   using namespace Phase2TrackerSpecifications;
 
   std::vector<Phase2TrackerCluster1D*> filteredClusters;
 
   for (auto& cluster : *clusterIterator) {
-    if (cic_id_ == true && cluster.column() > cic_boundary_in_z && cluster.size() <=7 ) {
+    if (cic_id_ == true && cluster.column() > cic_boundary_in_z && cluster.size() <= 7) {
       filteredClusters.push_back(&cluster);
-    } else if (cic_id_ == false && cluster.column() <= cic_boundary_in_z  && cluster.size() <=7 ) {
+    } else if (cic_id_ == false && cluster.column() <= cic_boundary_in_z && cluster.size() <= 7) {
       filteredClusters.push_back(&cluster);
     }
   }
@@ -240,7 +238,7 @@ void SensorHybrid::get_payload(std::vector<Phase2DAQFormatSpecification::Word32B
 
   // Extracting values
   uint32_t eventID = CIC_CONSTANT_EVENT_ID & L1ID_MAX_VALUE;  // 9 bits for eventId_
-  uint32_t channelErrors = 0;                    // 9 bits for errors, set to 0
+  uint32_t channelErrors = 0;                                 // 9 bits for errors, set to 0
   uint32_t num_strip_clusters =
       get_number_of_strip_clusters() & ((1 << N_STRIP_CLUSTER_BITS) - 1);  // 7 bits for strip clusters
   uint32_t num_pixel_clusters =

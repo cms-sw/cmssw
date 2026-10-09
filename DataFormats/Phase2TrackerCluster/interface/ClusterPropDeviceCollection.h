@@ -1,4 +1,4 @@
-//================================== alpaka device-side collection wrapper for ClusterPropSoA. ====================================== 
+//================================== alpaka device-side collection wrapper for ClusterPropSoA. ======================================
 #ifndef DataFormats_Phase2TrackerCluster_interface_ClusterPropDeviceCollection_h
 #define DataFormats_Phase2TrackerCluster_interface_ClusterPropDeviceCollection_h
 

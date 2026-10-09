@@ -28,20 +28,20 @@ public:
 
   void printValues() const {
     for (size_t i = 0; i < offsetMap_.size(); ++i) {
-      std::cout << "ChannelsOffset[" << i << "]: " << offsetMap_[i] << "   " << std::bitset<N_BITS_PER_WORD>(offsetMap_[i])
-                << std::endl;
+      std::cout << "ChannelsOffset[" << i << "]: " << offsetMap_[i] << "   "
+                << std::bitset<N_BITS_PER_WORD>(offsetMap_[i]) << std::endl;
     }
   }
   void printValue(size_t i) const {
-    std::cout << "ChannelsOffset[" << i << "]: " << offsetMap_[i] << "   " << std::bitset<N_BITS_PER_WORD>(offsetMap_[i])
-              << std::endl;
+    std::cout << "ChannelsOffset[" << i << "]: " << offsetMap_[i] << "   "
+              << std::bitset<N_BITS_PER_WORD>(offsetMap_[i]) << std::endl;
   }
 
   void fillOffsetMap() {
-    // channel 0 offset is always 0 
-    offsetMap_[0] = static_cast<uint16_t>(0);  
-    for (size_t i = 1; i < CICs_PER_SLINK ; ++i) {
-      offsetMap_[i] = static_cast<uint16_t>((values_[i-1]) & 0xFFFF);
+    // channel 0 offset is always 0
+    offsetMap_[0] = static_cast<uint16_t>(0);
+    for (size_t i = 1; i < CICs_PER_SLINK; ++i) {
+      offsetMap_[i] = static_cast<uint16_t>((values_[i - 1]) & 0xFFFF);
     }
   }
 

@@ -20,12 +20,12 @@ namespace Phase2DAQFormatSpecification {
   static constexpr int AURORA_BLOCK_TOTAL_BITS = 66;  // aurora block body + 2 bits sync header
   static constexpr int AURORA_SYNC_HEADER_BITS = 2;   // aurora synching header (2 bits)
   static constexpr int AURORA_NS_BITS = 1;
-  static constexpr int AURORA_CHIP_ID_BITS = 2;       // 2 bits for multi-chip module chip indexing
+  static constexpr int AURORA_CHIP_ID_BITS = 2;  // 2 bits for multi-chip module chip indexing
   static constexpr int AURORA_EOS_MIN_TRAILING_ZEROS = 6;
   static constexpr int AURORA_SERVICE_BLOCK_INTERVAL_DEFAULT = 50;  // ND service block interval
   static constexpr int AURORA_SERVICE_BLOCK_INTERVAL_MIN = 1;
   static constexpr int AURORA_SERVICE_BLOCK_INTERVAL_MAX = 256;
-  static constexpr int AURORA_EVENTS_PER_STREAM_DEFAULT = 16;       // NE events unaligned stream group
+  static constexpr int AURORA_EVENTS_PER_STREAM_DEFAULT = 16;  // NE events unaligned stream group
   static constexpr int AURORA_EVENTS_PER_STREAM_MIN = 1;
   static constexpr int AURORA_EVENTS_PER_STREAM_MAX = 64;
 

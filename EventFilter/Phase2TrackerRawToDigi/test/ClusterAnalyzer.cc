@@ -172,7 +172,7 @@ void ClusterAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& es
       auto equal_range = cablingMap_->detIdToDTCELinkId(current_detId - 1);
       for (auto it = equal_range.first; it != equal_range.second; ++it) {
         current_dtcID = it->second.dtc_id();
-        break; // Take the first one
+        break;  // Take the first one
       }
     } else if (cablingMap_->knowsDetId(current_detId - 2)) {
       auto equal_range = cablingMap_->detIdToDTCELinkId(current_detId - 2);
@@ -190,7 +190,7 @@ void ClusterAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& es
       isPSModulePixel_.push_back(current_isPSModulePixel);
       isPSModuleStrip_.push_back(current_isPSModuleStrip);
       is2SModule_.push_back(current_is2SModule);
-      
+
       // Store cluster-specific info
       clusterCenter_.push_back(clusterItr.center());
       clusterSize_.push_back(clusterItr.size());
@@ -210,10 +210,9 @@ void ClusterAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& es
 
       clusterR_.push_back(globalPosCluster.perp());
       clusterZ_.push_back(globalPosCluster.z());
-
     }
   }
-  
+
   // Fill the tree with one entry per event (containing all clusters as vectors)
   outTree_->Fill();
 }

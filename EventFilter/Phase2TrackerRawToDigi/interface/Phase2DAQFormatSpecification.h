@@ -31,7 +31,7 @@ namespace Phase2DAQFormatSpecification {
   static const int DTC_HEADER_OT_2S = 0xC4;
   static const int DTC_HEADER_OT_2S_INV = 0x4C;
 
-  static const int DTC_HEADER_OFFSET = 0; // location where DTC HEADER Starts
+  static const int DTC_HEADER_OFFSET = 0;  // location where DTC HEADER Starts
   static const int DTC_TRAILER_OFFSET = 26;
 
   static const int DTC_CHANNEL_MASK_OFFSET = 22;
@@ -39,12 +39,12 @@ namespace Phase2DAQFormatSpecification {
 
   static const int SLINK_HEADER_SIZE = sizeof(SLinkRocketHeader_v3) * 8 / 32;
   static const int SLINK_TRAILER_SIZE = sizeof(SLinkRocketTrailer_v3) * 8 / 32;
-  static const int DTC_MASK_PROFILE_SIZE = 2; // in 32bit words
+  static const int DTC_MASK_PROFILE_SIZE = 2;  // in 32bit words
 
   // This CMSSW Version should be compatible against the versioining variables below.
   static const int VERSION_MAJOR_V1_0 = 0x1;
   static const int VERSION_MINOR_V1_0 = 0x0;
-  
+
   static const int DTC_DAQ_HEADER = 0xFFFFFFFF;
   static const int N_BITS_PER_WORD = 32;
   static const int N_BYTES_PER_WORD = 4;
@@ -85,9 +85,9 @@ namespace Phase2DAQFormatSpecification {
 
   static const int CMSSW_TRACKER_ID = 0;
 
-  static const int HEADER_N_LINES = 4;  // number of 32b lines of the tracker header
-  static const int TRAILER_N_LINES = 4; // number of 32b lines of the tracker trailer
-  static const int OFFSET_BITS = 16;    // length of the offset word
+  static const int HEADER_N_LINES = 4;   // number of 32b lines of the tracker header
+  static const int TRAILER_N_LINES = 4;  // number of 32b lines of the tracker trailer
+  static const int OFFSET_BITS = 16;     // length of the offset word
   static const int RESERVED_N_LINES = 2;
 
   static const int CIC_ERROR_MASK = 0x1FF;

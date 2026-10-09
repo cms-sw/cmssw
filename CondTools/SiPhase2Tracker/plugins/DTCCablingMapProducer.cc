@@ -92,7 +92,7 @@ private:
   unsigned csvFormat_igbtlinkid_;
   unsigned csvFormat_ielinkid_;
   // Optional per-module Aurora info columns; populated when read_innertracker_module_info_ is true.
-  bool     read_innertracker_module_info_;
+  bool read_innertracker_module_info_;
   unsigned csvFormat_inchips_;
   unsigned csvFormat_inelinks_;
   unsigned csvFormat_isection_;
@@ -116,12 +116,12 @@ void DTCCablingMapProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<unsigned>("csvFormat_ielinkid", 0);
   // Below fields are only relelvant for IT cabling map
   desc.add<bool>("read_innertracker_module_info", false);
-  desc.add<unsigned>("csvFormat_inchips",   0);
-  desc.add<unsigned>("csvFormat_inelinks",  0);
-  desc.add<unsigned>("csvFormat_isection",  0);
-  desc.add<unsigned>("csvFormat_ilayer",    0);
-  desc.add<unsigned>("csvFormat_iring",     0);
-  desc.add<unsigned>("csvFormat_isubtype",  0);
+  desc.add<unsigned>("csvFormat_inchips", 0);
+  desc.add<unsigned>("csvFormat_inelinks", 0);
+  desc.add<unsigned>("csvFormat_isection", 0);
+  desc.add<unsigned>("csvFormat_ilayer", 0);
+  desc.add<unsigned>("csvFormat_iring", 0);
+  desc.add<unsigned>("csvFormat_isubtype", 0);
   // Above fields are only relelvant for IT cabling map
   desc.add<long long unsigned int>("iovBeginTime", 1);
   desc.add<std::string>("record", "TrackerDTCCablingMapRcd");
@@ -276,16 +276,20 @@ void DTCCablingMapProducer::LoadModulesToDTCCablingMapFromCSV(
           // Optional: per-module cabling info for innertracker
           if (read_innertracker_module_info_) {
             TrackerDetToDTCELinkCablingMap::ModuleInfo info;
-            info.nChips  = static_cast<uint8_t>(strtoul(csvColumn.at(csvFormat_inchips_ ).c_str(), nullptr, 10));
+            info.nChips = static_cast<uint8_t>(strtoul(csvColumn.at(csvFormat_inchips_).c_str(), nullptr, 10));
             info.nElinks = static_cast<uint8_t>(strtoul(csvColumn.at(csvFormat_inelinks_).c_str(), nullptr, 10));
             // Section is a short string in the CSV; map to enum value.
-            std::string const sec = csvColumn.at(csvFormat_isection_);
-            if      (sec == "TBPX") info.section = 1;
-            else if (sec == "TFPX") info.section = 2;
-            else if (sec == "TEPX") info.section = 3;
-            else                    info.section = 0;
-            info.layer   = static_cast<uint8_t>(strtoul(csvColumn.at(csvFormat_ilayer_  ).c_str(), nullptr, 10));
-            info.ring    = static_cast<uint8_t>(strtoul(csvColumn.at(csvFormat_iring_   ).c_str(), nullptr, 10));
+            std::string const& sec = csvColumn.at(csvFormat_isection_);
+            if (sec == "TBPX")
+              info.section = 1;
+            else if (sec == "TFPX")
+              info.section = 2;
+            else if (sec == "TEPX")
+              info.section = 3;
+            else
+              info.section = 0;
+            info.layer = static_cast<uint8_t>(strtoul(csvColumn.at(csvFormat_ilayer_).c_str(), nullptr, 10));
+            info.ring = static_cast<uint8_t>(strtoul(csvColumn.at(csvFormat_iring_).c_str(), nullptr, 10));
             info.subtype = static_cast<uint8_t>(strtoul(csvColumn.at(csvFormat_isubtype_).c_str(), nullptr, 10));
             pCablingMap_->setModuleInfo(detIdRaw, info);
           }
