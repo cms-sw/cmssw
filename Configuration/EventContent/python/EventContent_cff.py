@@ -732,6 +732,8 @@ rawSecond.toModify(FEVTDEBUGHLTEventContent,
 phase2_hgcal.toModify(FEVTDEBUGHLTEventContent,
     outputCommands = FEVTDEBUGHLTEventContent.outputCommands + TICL_FEVTHLT.outputCommands)
 
+phase2_l1scout.toModify(FEVTDEBUGHLTEventContent, outputCommands = L1TriggerPhase2L1Scout.outputCommands)
+
 from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
 mtd_at_hlt.toModify(FEVTDEBUGHLTEventContent,
                     outputCommands = FEVTDEBUGHLTEventContent.outputCommands + RecoLocalFastTimeFEVTHLT.outputCommands + RecoMTDFEVTHLT.outputCommands)
@@ -993,7 +995,7 @@ MINIAODSIMEventContent= cms.PSet(
 MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
 MINIAODSIMEventContent.outputCommands.extend(HLTriggerMINIAODSIM.outputCommands)
 
-phase2_l1scout.toModify(MINIAODSIMEventContent, outputCommands = L1TriggerPhase2L1ScoutMINIAODSIM.outputCommands)
+phase2_l1scout.toModify(MINIAODSIMEventContent, outputCommands = L1TriggerPhase2L1Scout.outputCommands)
 
 MINIGENEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
