@@ -1,0 +1,2 @@
+from PhysicsTools.PyTorchAlpaka.ProcessAcceleratorPyTorchAlpaka_cfi import ProcessAcceleratorPyTorchAlpaka
+

@@ -1,0 +1,3 @@
+from PhysicsTools.PyTorchAlpaka.ProcessAcceleratorPyTorchAlpaka import ProcessAcceleratorPyTorchAlpaka
+
+ProcessAcceleratorPyTorchAlpaka = ProcessAcceleratorPyTorchAlpaka()

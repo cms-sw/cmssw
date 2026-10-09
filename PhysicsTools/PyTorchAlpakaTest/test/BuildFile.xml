@@ -5,3 +5,11 @@
 <test name="testPyTorchAlpakaTestROCmAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/PyTorchAlpakaTest/test/runPyTorchAlpakaTest.py -b rocm_async -ne 8 -ns 2 -nt 2">
   <use name="rocm"/>
 </test>
+<test name="testPyTorchAlpakaTestCudaAsyncCMSSWAllocator"
+      command="cmsRun ${LOCALTOP}/src/PhysicsTools/PyTorchAlpakaTest/test/runPyTorchAlpakaTest.py -b cuda_async -ne 8 -ns 2 -nt 2 --useCMSSWAllocator">
+  <use name="cuda"/>
+</test>
+<test name="testPyTorchAlpakaTestROCmAsyncCMSSWAllocator"
+      command="cmsRun ${LOCALTOP}/src/PhysicsTools/PyTorchAlpakaTest/test/runPyTorchAlpakaTest.py -b rocm_async -ne 8 -ns 2 -nt 2 --useCMSSWAllocator">
+  <use name="rocm"/>
+</test>

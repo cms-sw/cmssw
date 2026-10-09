@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/EventCache.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/FixedQueueRegistry.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/QueueCache.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
@@ -151,9 +152,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     }
 
-    // initialise the queue and event caches
+    // initialise the queue, event caches, and fixed queue registry
     cms::alpakatools::getQueueCache<Queue>().clear();
     cms::alpakatools::getEventCache<Event>().clear();
+#if defined(ALPAKA_ACC_GPU_CUDA_ENABLED) || defined(ALPAKA_ACC_GPU_HIP_ENABLED)
+    cms::alpakatools::getFixedQueueRegistry<Queue>().clear();
+#endif  // ALPAKA_ACC_GPU_CUDA_ENABLED || ALPAKA_ACC_GPU_HIP_ENABLED
 
     // initialise the caching memory allocators
     cms::alpakatools::AllocatorConfig hostAllocatorConfig =
@@ -174,6 +178,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // clean up the queue and event caches
     cms::alpakatools::getQueueCache<Queue>().clear();
     cms::alpakatools::getEventCache<Event>().clear();
+#if defined(ALPAKA_ACC_GPU_CUDA_ENABLED) || defined(ALPAKA_ACC_GPU_HIP_ENABLED)
+    cms::alpakatools::getFixedQueueRegistry<Queue>().clear();
+#endif  // ALPAKA_ACC_GPU_CUDA_ENABLED || ALPAKA_ACC_GPU_HIP_ENABLED
   }
 
   void AlpakaService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

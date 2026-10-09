@@ -19,6 +19,19 @@ process.MessageLogger.PyTorchService = {}
 process.load("Configuration.StandardSequences.Accelerators_cff")
 process.PyTorchService = cms.Service("PyTorchService")
 
+# optionally use the CMSSW Caching Allocator
+if args.useCMSSWAllocator:
+    if args.backend == "cuda_async":
+        process.PyTorchAlpakaServiceCudaAsync = cms.Service(
+            "PyTorchAlpakaServiceCudaAsync"
+        )
+        process.MessageLogger.PyTorchAlpakaServiceCudaAsync = {}
+    elif args.backend == "rocm_async":
+        process.PyTorchAlpakaServiceROCmAsync = cms.Service(
+            "PyTorchAlpakaServiceROCmAsync"
+        )
+        process.MessageLogger.PyTorchAlpakaServiceROCmAsync = {}
+
 # process a limited number of events
 process.maxEvents.input = args.numberOfEvents if args.numberOfEvents > 1 else 1 
 
