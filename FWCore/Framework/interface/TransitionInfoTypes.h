@@ -52,6 +52,7 @@ namespace edm {
   };
   class EventTransitionInfo {
   public:
+    using PrincipalType = EventPrincipal;
     EventTransitionInfo() {}
 
     EventTransitionInfo(EventPrincipal& iPrincipal, EventSetupImpl const& iEventSetupImpl)
@@ -70,6 +71,7 @@ namespace edm {
 
   class LumiTransitionInfo {
   public:
+    using PrincipalType = LuminosityBlockPrincipal;
     LumiTransitionInfo() {}
 
     LumiTransitionInfo(LuminosityBlockPrincipal& iPrincipal, EventSetupImpl const& iEventSetupImpl)
@@ -88,6 +90,7 @@ namespace edm {
 
   class RunTransitionInfo {
   public:
+    using PrincipalType = RunPrincipal;
     RunTransitionInfo() {}
 
     RunTransitionInfo(RunPrincipal& iPrincipal, EventSetupImpl const& iEventSetupImpl)
@@ -106,6 +109,7 @@ namespace edm {
 
   class ProcessBlockTransitionInfo {
   public:
+    using PrincipalType = ProcessBlockPrincipal;
     ProcessBlockTransitionInfo() {}
 
     ProcessBlockTransitionInfo(ProcessBlockPrincipal& iPrincipal) : processBlockPrincipal_(&iPrincipal) {}
@@ -121,6 +125,7 @@ namespace edm {
 
   class InputProcessBlockTransitionInfo {
   public:
+    using PrincipalType = ProcessBlockPrincipal;
     InputProcessBlockTransitionInfo() {}
 
     InputProcessBlockTransitionInfo(ProcessBlockPrincipal& iPrincipal) : processBlockPrincipal_(&iPrincipal) {}
