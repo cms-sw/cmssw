@@ -3,6 +3,11 @@
 #include "RecoTracker/MkFitCore/interface/IterationConfig.h"
 #include "Matriplex/Memory.h"
 
+#include <bit>
+#include <cmath>
+#include <cstdint>
+#include <limits>
+
 #include "Debug.h"
 
 namespace mkfit {
@@ -249,6 +254,50 @@ namespace mkfit {
     tc.setLastCcIndex(m_lastHitIdx_before_bkwsearch);
     tc.setNInsideMinusOneHits(m_nInsideMinusOneHits_before_bkwsearch + tc.nInsideMinusOneHits());
     tc.setNTailMinusOneHits(m_nTailMinusOneHits_before_bkwsearch + tc.nTailMinusOneHits());
+  }
+
+  //==============================================================================
+  // EventOfCombCandidates
+  //==============================================================================
+
+  void EventOfCombCandidates::beginBkwSearch(int min_pixel_layers, float prompt_max_d0, float bs_x, float bs_y) {
+    const bool gate = min_pixel_layers > 0;
+    m_pre_bkw_cands.resize(gate ? m_size : 0);
+    m_bkw_min_pixel_layers.resize(gate ? m_size : 0);
+    for (int i = 0; i < m_size; ++i) {
+      CombCandidate &cc = m_candidates[i];
+      if (gate)
+        m_bkw_min_pixel_layers[i] = std::abs(cc[0].d0BeamSpot(bs_x, bs_y)) < prompt_max_d0 ? 1 : min_pixel_layers;
+      cc.beginBkwSearch();
+      if (gate)
+        m_pre_bkw_cands[i] = cc[0];
+    }
+    m_cands_in_backward_rep = true;
+  }
+
+  namespace {
+    // Number of distinct pixel layers with found hits that the backward search added to tc.
+    int bkwSearchPixelLayers(const CombCandidate &cc, const TrackCand &tc, const TrackerInfo &trk_info) {
+      uint64_t layers = 0;
+      for (int idx = tc.lastCcIndex(); idx > 0; idx = cc.hot_node(idx).m_prev_idx) {
+        const HitOnTrack &hot = cc.hot_node(idx).m_hot;
+        if (hot.index >= 0 && hot.layer < std::numeric_limits<uint64_t>::digits && trk_info[hot.layer].is_pixel())
+          layers |= uint64_t(1) << hot.layer;
+      }
+      return std::popcount(layers);
+    }
+  }  // namespace
+
+  void EventOfCombCandidates::gateBkwSearch(const TrackerInfo &trk_info) {
+    if (m_bkw_min_pixel_layers.empty())
+      return;
+    for (int i = 0; i < m_size; ++i) {
+      CombCandidate &cc = m_candidates[i];
+      if (cc.empty() || bkwSearchPixelLayers(cc, cc[0], trk_info) >= m_bkw_min_pixel_layers[i])
+        continue;
+      cc[0] = m_pre_bkw_cands[i];
+      cc.resize(1);
+    }
   }
 
 }  // namespace mkfit
