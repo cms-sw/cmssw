@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/UnscheduledCallProducer.h"
 #include "FWCore/Framework/interface/WorkerRegistry.h"
+#include "FWCore/Framework/interface/maker/TransitionWorker.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
@@ -22,7 +23,6 @@
 namespace edm {
   class ExceptionToActionTable;
   class ModuleRegistry;
-  class Worker;
   namespace eventsetup {
     class ESRecordsToProductResolverIndices;
   }
@@ -30,7 +30,7 @@ namespace edm {
   template <typename TI, typename TP>
   class WorkerManagerCore {
   public:
-    typedef std::vector<Worker*> AllWorkers;
+    using AllWorkers = std::vector<TransitionWorker<TI, TP>*>;
     WorkerManagerCore(WorkerManagerCore&&) = default;
 
     WorkerManagerCore(std::shared_ptr<ModuleRegistry> modReg,
@@ -39,20 +39,20 @@ namespace edm {
 
     AllWorkers const& allWorkers() const { return allWorkers_; }
 
-    void addToAllWorkers(Worker* w);
+    void addToAllWorkers(TransitionWorker<TI, TP>* w);
 
     ExceptionToActionTable const& actionTable() const { return *actionTable_; }
 
     template <typename T>
       requires requires(T const& x) { x.moduleDescription(); }
-    Worker* getWorkerForModule(T const& module) {
+    TransitionWorker<TI, TP>* getWorkerForModule(T const& module) {
       auto* worker = getWorkerForExistingModule(module.moduleDescription().moduleLabel());
       assert(worker != nullptr);
       assert(worker->matchesBaseClassPointer(static_cast<typename T::ModuleType const*>(&module)));
       return worker;
     }
 
-    Worker* getWorkerForModule(edm::ModuleDescription const& iDescription) {
+    TransitionWorker<TI, TP>* getWorkerForModule(edm::ModuleDescription const& iDescription) {
       auto* worker = getWorkerForExistingModule(iDescription.moduleLabel());
       assert(worker != nullptr);
       assert(worker->description() == &iDescription);
@@ -62,22 +62,19 @@ namespace edm {
     void resetAll();
 
   protected:
-    Worker const* deleteModuleIfExists(std::string const& moduleLabel);
+    TransitionWorker<TI, TP> const* deleteModuleIfExists(std::string const& moduleLabel);
     AllWorkers& allWorkers() { return allWorkers_; }
 
-    Worker* getWorkerForExistingModuleUnattached(std::string const& label) {
+    TransitionWorker<TI, TP>* getWorkerForExistingModuleUnattached(std::string const& label) {
       return workerReg_.getWorkerFromExistingModule(label, actionTable_);
     }
 
-    void setupResolvers(Principal& principal, UnscheduledAuxiliary const* aux);
-
   private:
-    Worker* getWorkerForExistingModule(std::string const& label);
+    TransitionWorker<TI, TP>* getWorkerForExistingModule(std::string const& label);
 
     WorkerRegistry<TI, TP> workerReg_;
     ExceptionToActionTable const* actionTable_;
     AllWorkers allWorkers_;
-    void const* lastSetupPrincipal_;
   };
 
   template <typename TI, typename TP>

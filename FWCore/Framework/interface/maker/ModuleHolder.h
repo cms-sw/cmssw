@@ -93,7 +93,7 @@ namespace edm {
       virtual void finishModuleInitialization(ModuleDescription const& iDesc,
                                               PreallocationConfiguration const& iPrealloc,
                                               SignallingProductRegistryFiller* iReg) = 0;
-      virtual void replaceModuleFor(Worker*) const = 0;
+      virtual void replaceModuleFor(Worker*, TransitionInfoKey, TransitionPhaseType) const = 0;
 
       virtual void beginJob() = 0;
       virtual void endJob() = 0;
@@ -137,16 +137,80 @@ namespace edm {
       ModuleHolderT(std::shared_ptr<T> iModule) : m_mod(iModule) {}
       ~ModuleHolderT() override {}
       std::shared_ptr<T> module() const { return m_mod; }
-      void replaceModuleFor(Worker* iWorker) const override {
-        auto w = dynamic_cast<WorkerT<T>*>(iWorker);
-        assert(nullptr != w);
-        w->setModule(m_mod);
+      void replaceModuleFor(Worker* iWorker, TransitionInfoKey key, TransitionPhaseType phase) const override {
+        bool replaced = false;
+        auto replace = [&](auto* w) {
+          assert(w);
+          w->setModule(m_mod);
+          replaced = true;
+        };
+        if (wantsTransition(key, phase)) {
+          if (key == EventTransitionInfo::key()) {
+            if (phase == TransitionPhaseType::Global) {
+              replace(dynamic_cast<WorkerT<T, EventTransitionInfo, TransitionPhaseGlobal>*>(iWorker));
+            } else {
+              assert(false);  // EventTransitionInfo is only valid for TransitionPhaseGlobal
+            }
+          }
+          if (key == RunTransitionInfo::key()) {
+            if (phase == TransitionPhaseType::Global) {
+              replace(dynamic_cast<WorkerT<T, RunTransitionInfo, TransitionPhaseGlobal>*>(iWorker));
+            } else {
+              replace(dynamic_cast<WorkerT<T, RunTransitionInfo, TransitionPhaseStream>*>(iWorker));
+            }
+          }
+          if (key == LumiTransitionInfo::key()) {
+            if (phase == TransitionPhaseType::Global) {
+              replace(dynamic_cast<WorkerT<T, LumiTransitionInfo, TransitionPhaseGlobal>*>(iWorker));
+            } else {
+              replace(dynamic_cast<WorkerT<T, LumiTransitionInfo, TransitionPhaseStream>*>(iWorker));
+            }
+          }
+          if (key == ProcessBlockTransitionInfo::key() and phase == TransitionPhaseType::Global) {
+            replace(dynamic_cast<WorkerT<T, ProcessBlockTransitionInfo, TransitionPhaseGlobal>*>(iWorker));
+          }
+          if (key == InputProcessBlockTransitionInfo::key() and phase == TransitionPhaseType::Global) {
+            replace(dynamic_cast<WorkerT<T, InputProcessBlockTransitionInfo, TransitionPhaseGlobal>*>(iWorker));
+          }
+          assert(replaced);
+        }
       }
       std::unique_ptr<Worker> makeWorker(ExceptionToActionTable const* actions,
                                          TransitionInfoKey key,
                                          TransitionPhaseType phase) const final {
         if (wantsTransition(key, phase)) {
-          return std::make_unique<edm::WorkerT<T>>(module(), moduleDescription(), actions);
+          if (key == EventTransitionInfo::key()) {
+            if (phase == TransitionPhaseType::Global) {
+              return std::make_unique<WorkerT<T, EventTransitionInfo, TransitionPhaseGlobal>>(
+                  module(), moduleDescription(), actions);
+            }
+            assert(false);  // EventTransitionInfo is only valid for TransitionPhaseGlobal
+          }
+          if (key == RunTransitionInfo::key()) {
+            if (phase == TransitionPhaseType::Global) {
+              return std::make_unique<WorkerT<T, RunTransitionInfo, TransitionPhaseGlobal>>(
+                  module(), moduleDescription(), actions);
+            }
+            return std::make_unique<WorkerT<T, RunTransitionInfo, TransitionPhaseStream>>(
+                module(), moduleDescription(), actions);
+          }
+          if (key == LumiTransitionInfo::key()) {
+            if (phase == TransitionPhaseType::Global) {
+              return std::make_unique<WorkerT<T, LumiTransitionInfo, TransitionPhaseGlobal>>(
+                  module(), moduleDescription(), actions);
+            }
+            return std::make_unique<WorkerT<T, LumiTransitionInfo, TransitionPhaseStream>>(
+                module(), moduleDescription(), actions);
+          }
+          if (key == ProcessBlockTransitionInfo::key() and phase == TransitionPhaseType::Global) {
+            return std::make_unique<WorkerT<T, ProcessBlockTransitionInfo, TransitionPhaseGlobal>>(
+                module(), moduleDescription(), actions);
+          }
+          if (key == InputProcessBlockTransitionInfo::key() and phase == TransitionPhaseType::Global) {
+            return std::make_unique<WorkerT<T, InputProcessBlockTransitionInfo, TransitionPhaseGlobal>>(
+                module(), moduleDescription(), actions);
+          }
+          assert(false);
         }
         return {};
       }

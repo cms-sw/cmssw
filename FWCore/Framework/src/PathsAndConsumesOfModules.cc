@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/Schedule.h"
-#include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/interface/ESModuleProducesInfo.h"
 #include "FWCore/Framework/interface/ESModuleConsumesMinimalInfo.h"

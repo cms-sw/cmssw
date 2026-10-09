@@ -11,7 +11,7 @@
 
 */
 
-#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/maker/TransitionWorker.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
@@ -28,7 +28,7 @@ namespace edm {
   public:
     enum FilterAction { Normal = 0, Ignore, Veto };
 
-    WorkerInPath(Worker*, FilterAction theAction, unsigned int placeInPath, bool runConcurrently);
+    WorkerInPath(GlobalEventWorker*, FilterAction theAction, unsigned int placeInPath, bool runConcurrently);
 
     void runWorkerAsync(
         WaitingTaskHolder, EventTransitionInfo const&, ServiceToken const&, StreamID, StreamContext const*) noexcept;
@@ -38,7 +38,7 @@ namespace edm {
     void skipWorker(EventPrincipal const& iPrincipal) { worker_->skipOnPath(iPrincipal); }
 
     FilterAction filterAction() const { return filterAction_; }
-    Worker* getWorker() const { return worker_; }
+    GlobalEventWorker* getWorker() const { return worker_; }
     bool runConcurrently() const noexcept { return runConcurrently_; }
     unsigned int bitPosition() const noexcept { return placeInPathContext_.placeInPath(); }
 
@@ -46,7 +46,7 @@ namespace edm {
 
   private:
     FilterAction filterAction_;
-    Worker* worker_;
+    GlobalEventWorker* worker_;
 
     PlaceInPathContext placeInPathContext_;
     bool runConcurrently_;
@@ -85,8 +85,7 @@ namespace edm {
                                            StreamID streamID,
                                            StreamContext const* context) noexcept {
     ParentContext parentContext(&placeInPathContext_);
-    worker_->doWorkAsync<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>>(
-        std::move(iTask), info, token, streamID, parentContext, context);
+    worker_->doWorkAsync<TransitionEdge::kBegin>(std::move(iTask), info, token, streamID, parentContext, context);
   }
 }  // namespace edm
 

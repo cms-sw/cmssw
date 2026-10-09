@@ -35,6 +35,10 @@ namespace edm {
   class SharedResourcesAcquirer;
   class UnscheduledAuxiliary;
   class Worker;
+  template <typename TI, typename TP>
+  class TransitionWorker;
+  class EventTransitionInfo;
+  struct TransitionPhaseGlobal;
   class ServiceToken;
 
   class DataManagingOrAliasProductResolver : public ProductResolverBase {
@@ -239,7 +243,7 @@ namespace edm {
 
     CMS_THREAD_SAFE mutable WaitingTaskList waitingTasks_;
     UnscheduledAuxiliary const* aux_ = nullptr;
-    Worker* worker_ = nullptr;
+    TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>* worker_ = nullptr;
     mutable std::atomic<bool> prefetchRequested_ = false;
   };
 
@@ -266,7 +270,7 @@ namespace edm {
 
     CMS_THREAD_SAFE mutable WaitingTaskList waitingTasks_;
     UnscheduledAuxiliary const* aux_ = nullptr;
-    Worker* worker_ = nullptr;
+    TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>* worker_ = nullptr;
     CMS_THREAD_GUARD(prefetchRequested_) mutable ModuleCallingContext mcc_;
     size_t index_;
     mutable std::atomic<bool> prefetchRequested_ = false;
