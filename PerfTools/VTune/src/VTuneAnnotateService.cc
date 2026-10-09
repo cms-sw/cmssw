@@ -1,21 +1,21 @@
-#include "PerfTools/VTune/interface/VtuneAnnotateService.h"
+#include "PerfTools/VTune/interface/VTuneAnnotateService.h"
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
 namespace edm {
-  VtuneAnnotateService::VtuneAnnotateService(const ParameterSet& iPS, ActivityRegistry& iRegistry)
+  VTuneAnnotateService::VTuneAnnotateService(const ParameterSet& iPS, ActivityRegistry& iRegistry)
       : targetModules_(iPS.getUntrackedParameter<std::vector<std::string>>("targetModules")),
         ittDomain_(__itt_domain_create("CMSSW.ModuleTracker")) {
-    iRegistry.watchPreModuleEvent(this, &VtuneAnnotateService::preModuleEvent);
-    iRegistry.watchPostModuleEvent(this, &VtuneAnnotateService::postModuleEvent);
+    iRegistry.watchPreModuleEvent(this, &VTuneAnnotateService::preModuleEvent);
+    iRegistry.watchPostModuleEvent(this, &VTuneAnnotateService::postModuleEvent);
   }
 
-  bool VtuneAnnotateService::isTargetModule(std::string const& label) const {
+  bool VTuneAnnotateService::isTargetModule(std::string const& label) const {
     return std::find(targetModules_.begin(), targetModules_.end(), label) != targetModules_.end();
   }
 
-  void VtuneAnnotateService::preModuleEvent(StreamContext const&, ModuleCallingContext const& mcc) {
+  void VTuneAnnotateService::preModuleEvent(StreamContext const&, ModuleCallingContext const& mcc) {
     std::string const& moduleLabel = mcc.moduleDescription()->moduleLabel();
     std::string const& moduleName = mcc.moduleDescription()->moduleName();
 
@@ -26,7 +26,7 @@ namespace edm {
     }
   }
 
-  void VtuneAnnotateService::postModuleEvent(StreamContext const&, ModuleCallingContext const& mcc) {
+  void VTuneAnnotateService::postModuleEvent(StreamContext const&, ModuleCallingContext const& mcc) {
     std::string const& moduleLabel = mcc.moduleDescription()->moduleLabel();
     std::string const& moduleName = mcc.moduleDescription()->moduleName();
 

@@ -8,9 +8,9 @@
 #include "ittnotify.h"
 
 namespace edm {
-  class VtuneFilterService {
+  class VTuneFilterService {
   public:
-    VtuneFilterService(const ParameterSet&, ActivityRegistry&);
+    VTuneFilterService(const ParameterSet&, ActivityRegistry&);
 
     void preModuleEvent(StreamContext const&, ModuleCallingContext const&);
     void postModuleEvent(StreamContext const&, ModuleCallingContext const&);

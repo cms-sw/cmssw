@@ -1,4 +1,4 @@
-<bin name="testPerfToolsVtuneFilter" file="testVtuneServices.cc">
+<bin name="testPerfToolsVTuneFilter" file="testVTuneServices.cc">
   <use name="PerfTools/VTune"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/ServiceRegistry"/>

@@ -1,20 +1,20 @@
-#include "PerfTools/VTune/interface/VtuneFilterService.h"
+#include "PerfTools/VTune/interface/VTuneFilterService.h"
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
 namespace edm {
-  VtuneFilterService::VtuneFilterService(const ParameterSet& iPS, ActivityRegistry& iRegistry)
+  VTuneFilterService::VTuneFilterService(const ParameterSet& iPS, ActivityRegistry& iRegistry)
       : targetModules_(iPS.getUntrackedParameter<std::vector<std::string>>("targetModules")) {
-    iRegistry.watchPreModuleEvent(this, &VtuneFilterService::preModuleEvent);
-    iRegistry.watchPostModuleEvent(this, &VtuneFilterService::postModuleEvent);
+    iRegistry.watchPreModuleEvent(this, &VTuneFilterService::preModuleEvent);
+    iRegistry.watchPostModuleEvent(this, &VTuneFilterService::postModuleEvent);
   }
 
-  bool VtuneFilterService::isTargetModule(std::string const& label) const {
+  bool VTuneFilterService::isTargetModule(std::string const& label) const {
     return std::find(targetModules_.begin(), targetModules_.end(), label) != targetModules_.end();
   }
 
-  void VtuneFilterService::preModuleEvent(StreamContext const&, ModuleCallingContext const& mcc) {
+  void VTuneFilterService::preModuleEvent(StreamContext const&, ModuleCallingContext const& mcc) {
     std::string const& moduleLabel = mcc.moduleDescription()->moduleLabel();
     std::string const& moduleName = mcc.moduleDescription()->moduleName();
 
@@ -23,7 +23,7 @@ namespace edm {
     }
   }
 
-  void VtuneFilterService::postModuleEvent(StreamContext const&, ModuleCallingContext const& mcc) {
+  void VTuneFilterService::postModuleEvent(StreamContext const&, ModuleCallingContext const& mcc) {
     std::string const& moduleLabel = mcc.moduleDescription()->moduleLabel();
     std::string const& moduleName = mcc.moduleDescription()->moduleName();
 

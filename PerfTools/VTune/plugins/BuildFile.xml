@@ -1,5 +1,5 @@
 <use name="PerfTools/VTune"/>
-<library file="*.cc" name="VtuneFilterPlugin">
+<library file="*.cc" name="VTuneFilterPlugin">
 	  <flags EDM_PLUGIN="1"/>
 </library>
 
