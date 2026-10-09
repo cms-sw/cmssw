@@ -1,6 +1,7 @@
 #include "RecoParticleFlow/PFProducer/interface/MLPFModel.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
@@ -233,6 +234,25 @@ namespace reco::mlpf {
 
         time = ref->time();
         timeerror = ref->timeError();
+
+        // Protection against the un-physical cluster time value from
+        // RecoParticleFlow/PFSimProducer/plugins/EcalBarrelClusterFastTimer.cc
+        // in Phase2 workflows
+        if (type == reco::PFBlockElement::ECAL) {
+          if (fabs(time) > std::numeric_limits<float>::max() * 0.9) {  // i.e. when time is set to some non-sense value
+            const std::vector<reco::PFRecHitFraction>& PFRecHits = ref->recHitFractions();
+            double maxE = 0.;
+            for (std::vector<reco::PFRecHitFraction>::const_iterator it = PFRecHits.begin(); it != PFRecHits.end();
+                 ++it) {
+              const PFRecHitRef& RefPFRecHit = it->recHitRef();
+              double energyHit = RefPFRecHit->energy() * it->fraction();
+              if (energyHit > maxE) {
+                maxE = energyHit;
+                time = RefPFRecHit->time();  // set cluster time based on the max energy hit
+              }
+            }
+          }
+        }
 
         std::vector<double> hitE(ref->recHitFractions().size(), 0.0);
         std::vector<double> posEta(ref->recHitFractions().size(), 0.0);
@@ -480,7 +500,7 @@ namespace reco::mlpf {
     }
 
     //set the muon ref
-    if (std::abs(cand.pdgId()) == 13) {
+    else if (std::abs(cand.pdgId()) == 13) {
       const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(elem);
       const auto& muonRef = eltTrack->muonRef();
       cand.setTrackRef(muonRef->track());
@@ -489,14 +509,40 @@ namespace reco::mlpf {
       cand.setMuonRef(muonRef);
     }
 
-    if (std::abs(cand.pdgId()) == 11) {
+    else if (std::abs(cand.pdgId()) == 11) {
       if (elem->type() == reco::PFBlockElement::GSF) {
         const auto* eltTrack = dynamic_cast<const reco::PFBlockElementGsfTrack*>(elem);
         const auto& ref = eltTrack->GsftrackRef();
         cand.setGsfTrackRef(ref);
         cand.setVertex(ref->vertex());
+      } else if (elem->type() == reco::PFBlockElement::TRACK && elem->trackRef().isNonnull()) {
+        const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(elem);
+        cand.setTrackRef(eltTrack->trackRef());
+        cand.setVertex(eltTrack->trackRef()->vertex());
+        cand.setPositionAtECALEntrance(eltTrack->positionAtECALEntrance());
       }
     }
+  }
+
+  TrackToCaloLinks getTrackToCaloLinks(const reco::PFBlock* block, const reco::PFBlockElement* elem) {
+    TrackToCaloLinks links;
+    const auto& linkData = block->linkData();
+    const auto& elements = block->elements();
+
+    const auto it = std::find_if(elements.begin(), elements.end(), [elem](const auto& e) { return &e == elem; });
+
+    if (it == elements.end())
+      throw cms::Exception("MLPFModel") << "PFBlockElement not found in this PFBlock.";
+
+    const unsigned ielem = std::distance(elements.begin(), it);
+
+    links.ecal = block->hasAssociatedElement(ielem, linkData, reco::PFBlockElement::ECAL, reco::PFBlock::LINKTEST_ALL);
+    links.hcal = block->hasAssociatedElement(ielem, linkData, reco::PFBlockElement::HCAL, reco::PFBlock::LINKTEST_ALL);
+    links.hfEm = block->hasAssociatedElement(ielem, linkData, reco::PFBlockElement::HFEM, reco::PFBlock::LINKTEST_ALL);
+    links.hfHad =
+        block->hasAssociatedElement(ielem, linkData, reco::PFBlockElement::HFHAD, reco::PFBlock::LINKTEST_ALL);
+
+    return links;
   }
 
 };  // namespace reco::mlpf

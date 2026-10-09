@@ -15,21 +15,11 @@ import yaml
 import subprocess
 import logging
 import json
-import argparse
 import glob
 import multiprocessing
 import optparse
 import shlex
 import os
-
-parser = argparse.ArgumentParser()
-parser.add_argument(
-    "--phase",
-    choices=["phase1", "phase2"],
-    default="phase1"
-)
-
-args = parser.parse_args()
 
 LOG_MODULE_NAME = logging.getLogger(__name__)
 
@@ -132,12 +122,7 @@ class Dataset:
 
 if __name__ == "__main__":
 
-    json_file = {
-        "phase1": "datasets.json",
-        "phase2": "datasets_phase2.json"
-    }[args.phase]
-
-    with open(json_file) as f:
+    with open("datasets.json") as f:
         dataset_configs = json.load(f)
 
     #prefix = ""

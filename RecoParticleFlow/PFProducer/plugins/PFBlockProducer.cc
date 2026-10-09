@@ -183,6 +183,7 @@ void PFBlockProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
     psd.add<double>("maxDPtOPt", 0);
     psd.add<uint32_t>("vetoMode", 0);
     psd.add<edm::InputTag>("vetoSrc", {});
+    psd.add<edm::InputTag>("tracksSrc", {});
     psd.add<edm::InputTag>("timeValueMap", {});
     psd.add<edm::InputTag>("timeErrorMap", {});
     psd.add<edm::InputTag>("timeQualityMap", {});
