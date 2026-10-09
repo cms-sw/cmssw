@@ -279,7 +279,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
     else if (tdcResolutionInNs_ != 0)
       timeToA = CLHEP::RandGaussQ::shoot(engine, timeToA, tdcResolutionInNs_);
     timeToA += eventTimeOffset_ns_[thickness - 1];
-    if (timeToA >= 0.f && timeToA <= 25.f)
+    if (timeToA >= 0.f && timeToA <= nsPerBx_)
       toaFlags_[fireBX] = true;
   }
 
@@ -289,7 +289,8 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
   assert(chargeColl.size() <= busyFlags_.size());
   assert(chargeColl.size() <= totFlags_.size());
   assert(chargeColl.size() <= newCharge_.size());
-  for (int it = 0; it < (int)(chargeColl.size()); ++it) {
+  const int maxBxs = (int)chargeColl.size();
+  for (int it = 0; it < maxBxs; ++it) {
     debug = debug_state;
     //if already flagged as busy it can't be re-used to trigger the ToT
     if (busyFlags_[it])
@@ -318,29 +319,48 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
     int busyBxs(0);
     float totalCharge(charge), finalToA(toa), integTime(0);
     while (true) {
+      //start by checking if charge has crossed the saturation limit
+      if (totalCharge > tdcSaturation_fC_) {
+        integTime = maxBxs * nsPerBx_;
+        busyBxs = maxBxs;
+
+        //declare all bunches busy and integrate charge
+        for (int jt = it + 1; jt < it + busyBxs && jt < dataFrame.size(); ++jt) {
+          busyFlags_[jt] = true;
+          const float extraCharge = chargeColl[jt];
+          totalCharge += extraCharge;
+          if (toaMode_ == WEIGHTEDBYE)
+            finalToA += extraCharge * toaColl[jt];
+        }
+
+        edm::LogWarning("HGCFEElectronics")
+            << "\t\t !!! Caught large energy deposit q=" << totalCharge * 1e-3
+            << " pC => draining time set to max. window possible: " << integTime << " ns  (" << busyBxs << " bx)"
+            << "\n\t\t You may want to check the energy deposits for DetId=0x" << std::hex << dataFrame.id().rawId()
+            << std::dec;
+        break;
+      }
+
       //compute integration time in ns and # bunches
       //float newIntegTime(0);
+      const float charge_pC(totalCharge * 1e-3);
       int poffset = 0;
       float charge_offset = 0.f;
-      const float charge_kfC(totalCharge * 1e-3);
-      if (charge_kfC < tdcChargeDrainParameterisation_[3]) {
-        //newIntegTime=tdcChargeDrainParameterisation_[0]*pow(charge_kfC,2)+tdcChargeDrainParameterisation_[1]*charge_kfC+tdcChargeDrainParameterisation_[2];
-      } else if (charge_kfC < tdcChargeDrainParameterisation_[7]) {
-        poffset = 4;
-        charge_offset = tdcChargeDrainParameterisation_[3];
-        //newIntegTime=tdcChargeDrainParameterisation_[4]*pow(charge_kfC-tdcChargeDrainParameterisation_[3],2)+tdcChargeDrainParameterisation_[5]*(charge_kfC-tdcChargeDrainParameterisation_[3])+tdcChargeDrainParameterisation_[6];
-      } else {
-        poffset = 8;
-        charge_offset = tdcChargeDrainParameterisation_[7];
-        //newIntegTime=tdcChargeDrainParameterisation_[8]*pow(charge_kfC-tdcChargeDrainParameterisation_[7],2)+tdcChargeDrainParameterisation_[9]*(charge_kfC-tdcChargeDrainParameterisation_[7])+tdcChargeDrainParameterisation_[10];
+      if (charge_pC > tdcChargeDrainParameterisation_[3]) {
+        if (charge_pC < tdcChargeDrainParameterisation_[7]) {
+          poffset = 4;
+          charge_offset = tdcChargeDrainParameterisation_[3];
+        } else {
+          poffset = 8;
+          charge_offset = tdcChargeDrainParameterisation_[7];
+        }
       }
-      const float charge_mod = charge_kfC - charge_offset;
+      const float charge_mod = charge_pC - charge_offset;
       const float newIntegTime =
           ((tdcChargeDrainParameterisation_[poffset] * charge_mod + tdcChargeDrainParameterisation_[poffset + 1]) *
                charge_mod +
            tdcChargeDrainParameterisation_[poffset + 2]);
-
-      const int newBusyBxs = std::floor(newIntegTime / 25.f) + 1;
+      const int newBusyBxs = std::floor(newIntegTime / nsPerBx_) + 1;
 
       //if no update is needed regarding the number of bunches,
       //then the ToT integration time has converged
@@ -378,7 +398,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
         if (debug)
           edm::LogVerbatim("HGCFE") << "\t\t leaking " << chargeColl[jt] << " fC @ deltaT=-" << deltaT << " -> +"
                                     << leakCharge << " with avgT=" << pulseAvgT_[deltaT + 2];
-      }
+      }  //end leakage loop
 
       //add contamination from posterior bunches
       for (int jt = it + 1; jt < it + busyBxs && jt < dataFrame.size(); ++jt) {
@@ -400,7 +420,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
       //finalize ToA contamination
       if (toaMode_ == WEIGHTEDBYE)
         finalToA /= totalCharge;
-    }
+    }  //end while loop
 
     newCharge_[it] = (totalCharge - tdcOnset);
 
@@ -414,7 +434,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
     constexpr size_t tdcLeakageTauIdx_ = 11;
     if (ft > it && ft < static_cast<int>(newCharge_.size()) &&
         tdcChargeDrainParameterisation_.size() > tdcLeakageTauIdx_) {
-      const float deltaT2nextBx((busyBxs * 25.0f - integTime));
+      const float deltaT2nextBx((busyBxs * nsPerBx_ - integTime));
       const float tdcOnsetLeakage(tdcOnset *
                                   vdt::fast_expf(-deltaT2nextBx / tdcChargeDrainParameterisation_[tdcLeakageTauIdx_]));
       if (debug)
@@ -462,8 +482,8 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
     if(toaFlags_[it]){
       finalToA = toaFromToT_[it];
       //to avoid +=25 for small negative time taken as 0
-      while(finalToA < -1.e-5)  finalToA+=25.f;
-      while(finalToA > 25.f) finalToA-=25.f;
+      while(finalToA < -1.e-5)  finalToA+=nsPerBx_;
+      while(finalToA > nsPerBx_) finalToA-=nsPerBx_;
       toaFromToT_[it] = finalToA;
     }
   }
