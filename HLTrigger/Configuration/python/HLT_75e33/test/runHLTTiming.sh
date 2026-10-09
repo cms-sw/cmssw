@@ -145,7 +145,7 @@ run_benchmark() {
     ensure_patatrack_scripts
 
     patatrack-scripts/benchmark \
-        -j 8 -t 32 -s 24 \
+        -j 16 -t 16 -s 16 \
         -e ${EVENTS} \
         --no-input-benchmark \
         --event-skip 100 \
