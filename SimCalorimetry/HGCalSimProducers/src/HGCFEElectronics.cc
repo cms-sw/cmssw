@@ -332,12 +332,12 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
           if (toaMode_ == WEIGHTEDBYE)
             finalToA += extraCharge * toaColl[jt];
         }
-
+        
         edm::LogWarning("HGCFEElectronics")
             << "\t\t !!! Caught large energy deposit q=" << totalCharge * 1e-3
             << " pC => draining time set to max. window possible: " << integTime << " ns  (" << busyBxs << " bx)"
             << "\n\t\t You may want to check the energy deposits for DetId=0x" << std::hex << dataFrame.id().rawId()
-            << std::hex;
+            << std::dec;
         break;
       }
 
@@ -346,16 +346,14 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
       const float charge_pC(totalCharge * 1e-3);
       int poffset = 0;
       float charge_offset = 0.f;
-      if (charge_pC < tdcChargeDrainParameterisation_[3]) {
-        //newIntegTime=tdcChargeDrainParameterisation_[0]*pow(charge_pC,2)+tdcChargeDrainParameterisation_[1]*charge_pC+tdcChargeDrainParameterisation_[2];
-      } else if (charge_pC < tdcChargeDrainParameterisation_[7]) {
-        poffset = 4;
-        charge_offset = tdcChargeDrainParameterisation_[3];
-        //newIntegTime=tdcChargeDrainParameterisation_[4]*pow(charge_pC-tdcChargeDrainParameterisation_[3],2)+tdcChargeDrainParameterisation_[5]*(charge_pC-tdcChargeDrainParameterisation_[3])+tdcChargeDrainParameterisation_[6];
-      } else {
-        poffset = 8;
-        charge_offset = tdcChargeDrainParameterisation_[7];
-        //newIntegTime=tdcChargeDrainParameterisation_[8]*pow(charge_pC-tdcChargeDrainParameterisation_[7],2)+tdcChargeDrainParameterisation_[9]*(charge_pC-tdcChargeDrainParameterisation_[7])+tdcChargeDrainParameterisation_[10];
+      if (charge_pC > tdcChargeDrainParameterisation_[3]) {
+        if (charge_pC < tdcChargeDrainParameterisation_[7]) {
+          poffset = 4;
+          charge_offset = tdcChargeDrainParameterisation_[3];
+        } else {
+          poffset = 8;
+          charge_offset = tdcChargeDrainParameterisation_[7];
+        }
       }
       const float charge_mod = charge_pC - charge_offset;
       const float newIntegTime =
