@@ -18,6 +18,7 @@
 <use name="MagneticField/Records"/>
 <use name="PhysicsTools/NanoAOD"/>
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
+<use name="RecoTICL/Common"/>
 <use name="TrackingTools/GeomPropagators"/>
 <use name="TrackingTools/Records"/>
 <use name="TrackingTools/TrajectoryState"/>
