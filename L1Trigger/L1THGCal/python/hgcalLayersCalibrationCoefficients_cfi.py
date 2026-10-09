@@ -131,9 +131,9 @@ def trigger_dedx_weights(ecal_layers, reco_weights):
     return weights
 
 triggerWeights = cms.PSet(
-    weights = cms.vdouble(trigger_dedx_weights(geomparam.CEE_LAYERS, dEdX.weights))
+    weights = cms.vfloat(trigger_dedx_weights(geomparam.CEE_LAYERS, dEdX.weights))
 )
 
 phase2_hgcalV16.toModify(triggerWeights,
-                         weights = cms.vdouble(trigger_dedx_weights(geomparam.CEE_LAYERS_V16, dEdX_v16.weights))
+                         weights = cms.vfloat(trigger_dedx_weights(geomparam.CEE_LAYERS_V16, dEdX_v16.weights))
 )

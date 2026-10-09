@@ -81,7 +81,7 @@ calibration_params_ee = cms.PSet(
         lsb = cms.double(triggerCellLsbBeforeCompression_si),
         fCperMIP = fCperMIPee,
         dEdXweights = layercalibparam.triggerWeights.weights,
-        thicknessCorrection = cms.vdouble(thicknessCorrectionSi[0:NTHICKNESS]),
+        thicknessCorrection = cms.vfloat(thicknessCorrectionSi[0:NTHICKNESS]),
         chargeCollectionEfficiency = cms.PSet(),
         )
 
@@ -89,7 +89,7 @@ calibration_params_hesi = cms.PSet(
         lsb = cms.double(triggerCellLsbBeforeCompression_si),
         fCperMIP = fCperMIPhe,
         dEdXweights = layercalibparam.triggerWeights.weights,
-        thicknessCorrection = cms.vdouble(thicknessCorrectionSi[NTHICKNESS:2*NTHICKNESS]),
+        thicknessCorrection = cms.vfloat(thicknessCorrectionSi[NTHICKNESS:2*NTHICKNESS]),
         chargeCollectionEfficiency = cms.PSet(),
         )
 
@@ -97,7 +97,7 @@ calibration_params_hesc = cms.PSet(
         lsb = cms.double(triggerCellLsbBeforeCompression_sc),
         fCperMIP = cms.vdouble(1.),
         dEdXweights = layercalibparam.triggerWeights.weights,
-        thicknessCorrection = cms.vdouble(thicknessCorrectionSc.value()),
+        thicknessCorrection = cms.vfloat(thicknessCorrectionSc.value()),
         chargeCollectionEfficiency = cms.PSet(values=cms.vdouble(1.)),
         )
 

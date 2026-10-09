@@ -18,8 +18,8 @@ private:
   double lsb_;
   std::vector<double> fCperMIP_;
   std::vector<double> chargeCollectionEfficiency_;
-  std::vector<double> thicknessCorrection_;
-  std::vector<double> dEdX_weights_;
+  std::vector<float> thicknessCorrection_;
+  std::vector<float> dEdX_weights_;
 
   HGCalTriggerTools triggerTools_;
 };

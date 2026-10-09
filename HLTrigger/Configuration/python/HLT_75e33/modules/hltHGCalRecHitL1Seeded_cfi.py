@@ -47,7 +47,7 @@ hltHGCalRecHitL1Seeded = cms.EDProducer("HGCalRecHitProducer",
     algo = cms.string('HGCalRecHitWorkerSimple'),
     constSiPar = cms.double(0.02),
     deltasi_index_regemfac = cms.int32(3),
-    layerNoseWeights = cms.vdouble(
+    layerNoseWeights = cms.vfloat(
         0.0, 39.500245, 39.756638, 39.756638, 39.756638,
         39.756638, 66.020266, 92.283895, 92.283895
     ),
@@ -59,7 +59,7 @@ hltHGCalRecHitL1Seeded = cms.EDProducer("HGCalRecHitProducer",
     rangeMatch = cms.uint32(1161838592),
     sciThicknessCorrection = HGCAL_reco_constants.sciThicknessCorrection,
     thicknessCorrection = HGCAL_reco_constants.thicknessCorrection,
-    thicknessNoseCorrection = cms.vdouble(1.132, 1.092, 1.084)
+    thicknessNoseCorrection = cms.vfloat(1.132, 1.092, 1.084)
 )
 
 phase2_hgcalV19.toModify(hltHGCalRecHitL1Seeded, 

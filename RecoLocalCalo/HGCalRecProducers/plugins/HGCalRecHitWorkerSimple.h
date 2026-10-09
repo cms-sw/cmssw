@@ -66,7 +66,7 @@ protected:
   uint32_t rangeMatch_;
   uint32_t rangeMask_;
 
-  std::vector<double> rcorr_, rcorrNose_;
+  std::vector<float> rcorr_, rcorrNose_;
   double rcorrscint_;
   int deltasi_index_regemfac_;
   std::vector<float> weights_, weightsNose_;
