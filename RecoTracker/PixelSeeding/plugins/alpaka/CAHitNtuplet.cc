@@ -37,6 +37,10 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/Record/interface/StackedModuleGeometryRecord.h"
 #include "RecoTracker/PixelSeeding/interface/alpaka/CAGeometrySoACollection.h"
+#include "RecoTracker/PixelTrackFitting/interface/alpaka/BLMaterialMapDevice.h"
+#include "RecoTracker/Record/interface/BLMaterialMapRecord.h"
+#include "RecoTracker/PixelTrackFitting/interface/alpaka/BLBFieldMapDevice.h"
+#include "RecoTracker/Record/interface/BLBFieldMapRecord.h"
 #include "RecoTracker/PixelSeeding/interface/CAGeometryHost.h"
 #include "RecoTracker/PixelSeeding/interface/StackedModuleGeometryHost.h"
 #include "RecoTracker/PixelSeeding/interface/alpaka/StackedModuleGeometrySoACollection.h"
@@ -820,6 +824,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenField_;
+    // The material map and the (Bz, Br) field map of the BrokenLine fit, consumed only with useFitCorrections.
+    device::ESGetToken<BLMaterialMapDevice, BLMaterialMapRecord> tokenBLMaterialMap_;
+    device::ESGetToken<BLBFieldMapDevice, BLBFieldMapRecord> tokenBLBFieldMap_;
     const device::EDGetToken<HitsOnDevice> pixelRecHitToken_;
     device::EDGetToken<HitsOnDevice> trackerRecHitToken_;
     // Phase2OTVectorHits only: the outer-tracker vector hits SoA, read with the pixel rechits through the
@@ -866,6 +873,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     if (!trackerRecHitsSoAInputTag.label().empty()) {
       trackerRecHitToken_ = consumes(trackerRecHitsSoAInputTag);
       usePhase2_ = true;
+    }
+    if (deviceAlgo_.useFitCorrections()) {
+      if (iConfig.getParameter<bool>("useRiemannFit")) {
+        throw cms::Exception("Configuration") << "CAHitNtupletAlpaka: useFitCorrections applies to the BrokenLine fit; "
+                                                 "set it to false with useRiemannFit";
+      }
+      tokenBLMaterialMap_ = esConsumes();
+      tokenBLBFieldMap_ = esConsumes();
     }
     iCache->tokenGeometry_ = esConsumes<edm::Transition::BeginRun>();
     iCache->tokenTopology_ = esConsumes<edm::Transition::BeginRun>();
@@ -959,9 +974,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // zero readbacks, zero waits.
     auto const& geometry = runCache()->geometry_.get(iEvent.queue());
     HitsInput const hitsInput = makeHitsInput(iEvent);
+    // The device copies of the two maps, null with useFitCorrections off.
+    const bool fitCorrections = deviceAlgo_.useFitCorrections();
+    const BLFitConfig fitCfg{.rhoMap = fitCorrections ? es.getData(tokenBLMaterialMap_).data() : nullptr,
+                             .bMap = fitCorrections ? es.getData(tokenBLBFieldMap_).data() : nullptr,
+                             .fitCorrections = fitCorrections};
 
     iEvent.emplace(tokenTrack_,
-                   deviceAlgo_.finishTuplesAsync(std::move(*pending_), hitsInput, geometry, iEvent.queue()));
+                   deviceAlgo_.finishTuplesAsync(std::move(*pending_), hitsInput, geometry, fitCfg, iEvent.queue()));
     pending_.reset();
 
 #ifdef CA_TRIPLET_DUMP

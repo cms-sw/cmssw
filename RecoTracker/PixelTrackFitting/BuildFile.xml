@@ -16,6 +16,7 @@
 <use name="FWCore/Utilities"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>
 <use name="HeterogeneousCore/AlpakaCore"/>
+<use name="HeterogeneousCore/AlpakaMath"/>
 <use name="Geometry/CommonTopologies" source_only="1"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="Geometry/TrackerNumberingBuilder"/>
