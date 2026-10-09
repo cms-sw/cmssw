@@ -12,6 +12,7 @@
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "SimG4Core/CustomPhysics/interface/CMSExoticaPhysics.h"
+#include "SimG4Core/CustomPhysics/interface/CMSQuirkPhysics.h"
 
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
@@ -175,6 +176,10 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   bool exotica = m_pPhysics.getUntrackedParameter<bool>("ExoticaTransport", false);
   if (exotica) {
     CMSExoticaPhysics exo(phys, m_pPhysics);
+  }
+  double quirkMass = m_pPhysics.getUntrackedParameter<double>("QuirkMass", 0);
+  if (quirkMass > 0.0) {
+    phys->RegisterPhysics(new CMSQuirkPhysics(m_pPhysics));
   }
 
   // adding GFlash, Russian Roulette for eletrons and gamma,

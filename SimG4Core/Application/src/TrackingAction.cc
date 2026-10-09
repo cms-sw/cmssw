@@ -13,6 +13,7 @@
 #include "G4UImanager.hh"
 #include "G4TrackingManager.hh"
 #include <CLHEP/Units/SystemOfUnits.h>
+#include <algorithm>
 
 //#define EDM_ML_DEBUG
 
@@ -43,6 +44,11 @@ TrackingAction::TrackingAction(SimTrackManager* stm, CMSSteppingVerbose* sv, con
 }
 
 void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
+  // a resumed track continues with its history, no new BeginOfTrack
+  if (aTrack->GetCurrentStepNumber() > 0 && resumeSuspended(aTrack)) {
+    return;
+  }
+  resumed_ = false;
   g4Track_ = aTrack;
   currentHistory_ = new TrackWithHistory(aTrack, aTrack->GetParentID());
   interface_->setCurrentTrack(aTrack);
@@ -82,6 +88,10 @@ void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
 }
 
 void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
+  if (resumed_) {
+    endResumed(aTrack);
+    return;
+  }
   // Tracks in history may be upgraded to stored secondary tracks,
   // which cross the boundary between Tracker and Calo
   int id = aTrack->GetTrackID();
@@ -113,10 +123,59 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
                                      << " end point " << aTrack->GetPosition();
 #endif
 
+  // suspended: keep the history, the track ends later
+  if (isSuspended(aTrack)) {
+    suspended_.push_back({id, currentHistory_, !isInHistory});
+    return;
+  }
+
   if (!isInHistory) {
     delete currentHistory_;
   }
 
+  EndOfTrack et(aTrack);
+  m_endOfTrackSignal(&et);
+}
+
+bool TrackingAction::resumeSuspended(const G4Track* aTrack) {
+  const int id = aTrack->GetTrackID();
+  auto itr = std::find_if(suspended_.begin(), suspended_.end(), [id](const SuspendedTrack& s) { return s.id == id; });
+  if (itr == suspended_.end()) {
+    return false;
+  }
+  g4Track_ = aTrack;
+  currentHistory_ = itr->history;
+  owned_ = itr->owned;
+  suspended_.erase(itr);
+  resumed_ = true;
+  interface_->setCurrentTrack(aTrack);
+  trkInfo_ = dynamic_cast<TrackInformation*>(aTrack->GetUserInformation());
+  return true;
+}
+
+void TrackingAction::endResumed(const G4Track* aTrack) {
+  // history already given to the track manager at the first suspension
+  const int id = aTrack->GetTrackID();
+  if (nullptr != trkInfo_) {
+    if (trkInfo_->storeTrack()) {
+      currentHistory_->setToBeSaved();
+    }
+    if (trkInfo_->crossedBoundary()) {
+      currentHistory_->setCrossedBoundaryPosMom(
+          id, trkInfo_->getPositionAtBoundary(), trkInfo_->getMomentumAtBoundary());
+      if (saveCaloBoundaryInformation_ || doFineCalo_) {
+        currentHistory_->setToBeSaved();
+      }
+    }
+  }
+  if (isSuspended(aTrack)) {
+    suspended_.push_back({id, currentHistory_, owned_});
+    return;
+  }
+  resumed_ = false;
+  if (owned_) {
+    delete currentHistory_;
+  }
   EndOfTrack et(aTrack);
   m_endOfTrackSignal(&et);
 }

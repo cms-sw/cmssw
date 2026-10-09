@@ -7,6 +7,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "G4StackManager.hh"
+
 #include "G4VProcess.hh"
 #include "G4EmProcessSubType.hh"
 #include "G4LogicalVolumeStore.hh"
@@ -166,6 +168,10 @@ StackingAction::StackingAction(const edm::ParameterSet& p, const CMSSteppingVerb
 }
 
 G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrack) {
+  // a resumed (suspended) track is not new: keep the Geant4 default classification
+  if (aTrack->GetTrackStatus() == fSuspend || aTrack->GetTrackStatus() == fSuspendAndWait) {
+    return stackManager->GetDefaultClassification();
+  }
   // G4 interface part
   G4ClassificationOfNewTrack classification = fUrgent;
   const int pdg = aTrack->GetDefinition()->GetPDGEncoding();

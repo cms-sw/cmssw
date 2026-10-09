@@ -17,6 +17,7 @@
 
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
+#include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "CondFormats/GeometryObjects/interface/MuonOffsetMap.h"
@@ -36,7 +37,9 @@ class G4Step;
 class G4ProcessTypeEnumerator;
 class SimTrackManager;
 
-class MuonSensitiveDetector : public SensitiveTkDetector, public Observer<const BeginOfEvent*> {
+class MuonSensitiveDetector : public SensitiveTkDetector,
+                              public Observer<const BeginOfEvent*>,
+                              public Observer<const BeginOfTrack*> {
 public:
   explicit MuonSensitiveDetector(const std::string&,
                                  const MuonOffsetMap*,
@@ -56,6 +59,7 @@ public:
 
 protected:
   void update(const BeginOfEvent*) override;
+  void update(const BeginOfTrack*) override;
 
 private:
   inline Local3DPoint cmsUnits(const Local3DPoint& v) { return Local3DPoint(v.x() * 0.1, v.y() * 0.1, v.z() * 0.1); }
@@ -71,6 +75,8 @@ private:
   void createHit(const G4Step*);
   void updateHit(const G4Step*);
   void saveHit();
+  void swapParked();
+  void flushHits();
 
   /**
    * Transform from local coordinates of a volume to local coordinates of a parent volume
@@ -85,6 +91,11 @@ private:
   uint32_t theDetUnitId;
   uint32_t newDetUnitId;
   int theTrackID;
+  // open hit of a suspended track (quirk pairs alternate without BeginOfTrack)
+  const G4VPhysicalVolume* parkedPV{nullptr};
+  UpdatablePSimHit* parkedHit{nullptr};
+  uint32_t parkedDetUnitId{0};
+  int parkedTrackID{0};
 
   bool printHits_;
   SimHitPrinter* thePrinter;

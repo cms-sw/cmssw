@@ -233,6 +233,22 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         MonopoleMass         = cms.untracked.double(0),
         ExoticaTransport     = cms.untracked.bool(False),
         ExoticaPhysicsSS     = cms.untracked.bool(False),
+        QuirkMass            = cms.untracked.double(0),   # GeV, > 0 enables quirks
+        QuirkPDGID           = cms.untracked.int32(17),
+        QuirkCharge          = cms.untracked.double(-1),  # of the positive PDG code
+        QuirkLambda          = cms.untracked.double(0),   # eV, F = Lambda^2/(hbar c)
+        QuirkFirstStringLength = cms.untracked.double(1.e-6),  # mm
+        QuirkMaxBoost        = cms.untracked.double(0.1),     # max rapidity change per step (Athena: 0.01)
+        QuirkMaxMerge        = cms.untracked.double(1.e-6),    # mm
+        QuirkLooperTrials    = cms.untracked.int32(10),
+        QuirkMaxRadius       = cms.untracked.double(800.),  # cm, quirks killed outside (<= 0: never)
+        QuirkMaxZ            = cms.untracked.double(1100.), # cm (<= 0: no envelope kill)
+        QuirkKeepStopped     = cms.untracked.bool(False),   # keep quirks stopped by dE/dx while the partner moves
+        QuirkStopThreshold   = cms.untracked.double(10.),   # MeV, partner below it: pair stopped
+        QuirkMoveTinySteps   = cms.untracked.bool(True),    # move quirks on sub-tolerance steps (head-on crossings)
+        QuirkCrossingLength  = cms.untracked.double(0.), # mm, shorter incoming string: restart it (0: never, experimental)
+        QuirkPairProduction  = cms.untracked.bool(False),   # hPairProd, no Geant4 element data for PDG 17 (em0033)
+        QuirkVerbose         = cms.untracked.int32(0),
         RhadronPhysics       = cms.bool(False),
         DarkMPFactor         = cms.double(1.0),
         # GFlash methods
