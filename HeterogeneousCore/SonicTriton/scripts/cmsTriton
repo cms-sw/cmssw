@@ -31,6 +31,7 @@ fi
 DEVICE=auto
 THREADCONTROL=""
 GLOBALCONNECT=
+MODELCONTROL="explicit"
 
 get_sandbox(){
 	if [ -z "$SANDBOX" ]; then
@@ -55,6 +56,7 @@ usage() {
 	$ECHO "-G          \t accept connections globally (default: only accept connections from localhost)"
 	$ECHO "-i [name]   \t server image name (default: ${IMAGE})"
 	$ECHO "-I [num]    \t number of model instances (default: ${INSTANCES} -> means no local editing of config files)"
+	$ECHO "-L          \t disable explicit model control mode (enabled by default for dynamic model loading)"
 	$ECHO "-M [dir]    \t model repository (can be given more than once)"
 	$ECHO "-m [dir]    \t specific model directory (can be given more than once)"
 	$ECHO "-n [name]   \t name of container instance, also used for default hidden temporary dir (default: ${SERVER})"
@@ -80,7 +82,7 @@ if [ -e /run/shm ]; then
 	SHM=/run/shm
 fi
 
-while getopts "cC:Dd:fg:i:I:M:m:n:P:p:r:s:t:vw:h" opt; do
+while getopts "cC:Dd:fg:i:I:LM:m:n:P:p:r:s:t:vw:h" opt; do
 	case "$opt" in
 		c) CLEANUP=""
 		;;
@@ -99,6 +101,8 @@ while getopts "cC:Dd:fg:i:I:M:m:n:P:p:r:s:t:vw:h" opt; do
 		i) IMAGE="$OPTARG"
 		;;
 		I) INSTANCES="$OPTARG"
+		;;
+		L) MODELCONTROL="none"
 		;;
 		M) REPOS+=("$OPTARG")
 		;;
@@ -250,6 +254,9 @@ start_docker(){
 	# mount all model repositories
 	MOUNTARGS=""
 	REPOARGS=""
+	if [ -n "$MODELCONTROL" ]; then
+		REPOARGS="--model-control-mode=${MODELCONTROL}"
+	fi
 	for REPO in ${REPOS[@]}; do
 		MOUNTARGS="$MOUNTARGS -v$REPO:$REPO"
 		REPOARGS="$REPOARGS --model-repository=${REPO}"
@@ -276,6 +283,9 @@ start_podman(){
 	# mount all model repositories
 	MOUNTARGS=""
 	REPOARGS=""
+	if [ -n "$MODELCONTROL" ]; then
+		REPOARGS="--model-control-mode=${MODELCONTROL}"
+	fi
 	for REPO in ${REPOS[@]}; do
 		MOUNTARGS="$MOUNTARGS --volume $REPO:$REPO"
 		REPOARGS="$REPOARGS --model-repository=${REPO}"
@@ -302,6 +312,9 @@ start_apptainer(){
 	# mount all model repositories
 	MOUNTARGS=""
 	REPOARGS=""
+	if [ -n "$MODELCONTROL" ]; then
+		REPOARGS="--model-control-mode=${MODELCONTROL}"
+	fi
 	for REPO in ${REPOS[@]}; do
 		MOUNTARGS="$MOUNTARGS -B $REPO"
 		REPOARGS="$REPOARGS --model-repository=${REPO}"

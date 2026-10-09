@@ -4,9 +4,7 @@ from RecoEgamma.EgammaTools.patPhotonDRNCorrectionProducer_cfi import patPhotonD
 patPhotonsDRN = patPhotonDRNCorrectionProducer.clone(
                             particleSource = 'selectedPatPhotons',
                             rhoName = 'fixedGridRhoFastjetAll',
-                            Client = patPhotonDRNCorrectionProducer.Client.clone(
-                              mode = 'Async',
-                              allowedTries = 1,
+                            Client = dict(
                               modelName = 'photonObjectCombined',
                               modelConfigPath = 'RecoEgamma/EgammaPhotonProducers/data/models/photonObjectCombined/config.pbtxt',
                               timeout = 10
