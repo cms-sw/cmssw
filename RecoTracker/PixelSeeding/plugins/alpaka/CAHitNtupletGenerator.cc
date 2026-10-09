@@ -350,6 +350,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           ->setComment("Maximum number of hits in a tuple to clean also if the shared hit is on bpx1");
 
       desc.add<bool>("useRiemannFit", false)->setComment("true for Riemann, false for BrokenLine");
+      desc.add<bool>("useFitCorrections", false)
+          ->setComment(
+              "Corrections of the BrokenLine fit: multiple scattering and ionization energy loss from the tracker "
+              "material map, the magnetic field's profile from the field map, and a fit that cannot be done "
+              "published as failed; false: flat material, uniform field. False by default on every topology.");
       desc.add<bool>("doSharedHitCut", true)->setComment("Sharing hit nTuples cleaning");
       desc.add<bool>("dupPassThrough", false)->setComment("Do not reject duplicate");
       desc.add<bool>("useSimpleTripletCleaner", true)->setComment("use alternate implementation");
@@ -435,6 +440,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           // Flags
           .useRiemannFit_ = cfg.getParameter<bool>("useRiemannFit"),
+          .useFitCorrections_ = cfg.getParameter<bool>("useFitCorrections"),
           .earlyFishbone_ = cfg.getParameter<bool>("earlyFishbone"),
           .lateFishbone_ = cfg.getParameter<bool>("lateFishbone"),
           .onlySameLayersFishbone_ = cfg.getParameter<bool>("onlySameLayersFishbone"),
@@ -777,13 +783,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       kernels.allocateAfterNtuplets(0u, queue);
     }
 
+    // Copy the tuple-multiplicity offsets to the host, for finishTuplesAsync.
+    constexpr uint32_t kNOff = TrackerTraits::maxHitsOnTrack + 2u;
+    pending.offsetsHost.emplace(cms::alpakatools::make_host_buffer<uint32_t[]>(queue, std::size_t(kNOff)));
+    auto offSrc = cms::alpakatools::make_device_view(queue, kernels.tupleMultiplicityOffsets(), std::size_t(kNOff));
+    alpaka::memcpy(queue, *pending.offsetsHost, offSrc);
     pending.built = true;
     return pending;
   }
 
   template <typename TrackerTraits>
-  reco::TracksSoACollection CAHitNtupletGenerator<TrackerTraits>::finishTuplesAsync(
-      PendingTuples&& pending, HitsInput const& hitsInput, CAGeometryOnDevice const& geometry_d, Queue& queue) const {
+  reco::TracksSoACollection CAHitNtupletGenerator<TrackerTraits>::finishTuplesAsync(PendingTuples&& pending,
+                                                                                    HitsInput const& hitsInput,
+                                                                                    CAGeometryOnDevice const& geometry_d,
+                                                                                    BLFitConfig const& fitCfg,
+                                                                                    Queue& queue) const {
     using HelixFit = HelixFit<TrackerTraits>;
 
     if (!pending.built) {
@@ -806,17 +820,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     auto tracks = pending.tracks->view().tracks();
     auto const& trackingHits = hitsInput.hits;
-    const uint32_t nHits = hitsInput.nHits;
     auto modules = geometry_d.view().modules();
-    const uint32_t nTracks = pending.maxTuples;
     const float bfield = pending.bfield;
 
     HelixFit fitter(bfield);
+    fitter.setFitConfig(fitCfg);
     fitter.allocate(kernels.tupleMultiplicity(), tracks, kernels.hitContainer());
+    // the offsets copied in beginTuplesAsync
+    fitter.setHostTupleMultiplicityOffsets(pending.offsetsHost->data());
     if (m_params.algoParams_.useRiemannFit_) {
-      fitter.launchRiemannKernels(trackingHits, modules, nHits, nTracks, queue);
+      fitter.launchRiemannKernels(trackingHits, modules, queue);
     } else {
-      fitter.launchBrokenLineKernels(trackingHits, modules, nHits, nTracks, queue);
+      fitter.launchBrokenLineKernels(trackingHits, modules, queue);
     }
     kernels.classifyTuples(trackingHits, tracks, queue);
 
@@ -830,6 +845,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // the actual per-container demand and the caps they were sized against. The readback is a
     // single D2H sync of the 5-word extraStorage (APC + nCells + nTriplets + nCellTracks).
     {
+      const uint32_t nTracks = pending.maxTuples;
       uint32_t dumpNTracks, dumpNHitsInTracks, dumpNCells, dumpNTriplets, dumpNCellTracks;
       kernels.readbackAllCounts(queue, dumpNTracks, dumpNHitsInTracks, dumpNCells, dumpNTriplets, dumpNCellTracks);
       // The cell->cell edge count is the triplet count (Kernel_connect writes triplets into
@@ -839,7 +855,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       printf(
           "[CA Sizing] nHits=%u nCells=%u capCells=%u nTriplets=%u capTrips=%u "
           "nTracks=%u capTuples=%u nHitsInTracks=%u capHitCont=%u nCellTracks=%u capCellTrk=%u\n",
-          nHits,
+          hitsInput.nHits,
           dumpNCells,
           pending.maxDoublets,
           dumpNTriplets,

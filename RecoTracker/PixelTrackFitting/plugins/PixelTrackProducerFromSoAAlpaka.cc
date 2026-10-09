@@ -605,13 +605,8 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
 
     // ndof: upstream's hit-count convention (2 * nhits - 5) on every path that does not expand vector hits.
     // Vector-hit-expanded tracks (expandVectorHits_, the vector hits arm only) carry both outer-tracker rechits of every
-    // vector hit in `hits` while the fit used one position per vector hit, so there ndof counts the positions the
-    // fit used: min(nHits, maxHitsOnTrackForFullFit), nHits being the SoA count (each vector hit once).
-    int ndof = 2 * int(hits.size()) - 5;
-    if (expandVectorHits_) {
-      constexpr int maxHitsOnTrackForFullFit = pixelTopology::Phase2OTVectorHits::maxHitsOnTrackForFullFit;
-      ndof = 2 * std::min(nHits, maxHitsOnTrackForFullFit) - 5;
-    }
+    // vector hit in `hits` while the fit used one position per vector hit, so there ndof comes from the SoA.
+    const int ndof = expandVectorHits_ ? int(tsoa.view().tracks()[it].ndof()) : 2 * int(hits.size()) - 5;
     chi2 = chi2 * ndof;
     GlobalPoint vv = gp.position();
     math::XYZPoint pos(vv.x(), vv.y(), vv.z());

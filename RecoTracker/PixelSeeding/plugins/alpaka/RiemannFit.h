@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstdint>
 
 #include <alpaka/alpaka.hpp>
@@ -182,6 +183,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         results_view[tkid].pt() = bField / std::abs(circle_fit[local_idx].par(2));
         results_view[tkid].eta() = asinhf(line_fit.par(0));
         results_view[tkid].chi2() = (circle_fit[local_idx].chi2 + line_fit.chi2) / (2 * N - 5);
+        results_view[tkid].ndof() = 2 * N - 5;
 
 #ifdef RIEMANN_DEBUG
         printf("kernelLineFit size %d for %d hits circle.par(0,1,2): %d %f,%f,%f\n",
@@ -208,8 +210,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   void HelixFit<TrackerTraits>::launchRiemannKernels(const HitsMultiView &hv,
                                                      const ::reco::CAModulesConstView &cm,
-                                                     uint32_t nhits,
-                                                     uint32_t maxNumberOfTuples,
                                                      Queue &queue) {
     assert(tuples_);
 
@@ -220,17 +220,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     //  Fit internals
     auto hitsDevice = cms::alpakatools::make_device_buffer<double[]>(
-        queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix3xNd<5>) / sizeof(double));
+        queue, riemannFit::stride * sizeof(riemannFit::Matrix3xNd<5>) / sizeof(double));
     auto hits_geDevice = cms::alpakatools::make_device_buffer<float[]>(
-        queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix6xNf<5>) / sizeof(float));
+        queue, riemannFit::stride * sizeof(riemannFit::Matrix6xNf<5>) / sizeof(float));
     auto fast_fit_resultsDevice = cms::alpakatools::make_device_buffer<double[]>(
-        queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Vector4d) / sizeof(double));
+        queue, riemannFit::stride * sizeof(riemannFit::Vector4d) / sizeof(double));
     auto circle_fit_resultsDevice_holder =
         cms::alpakatools::make_device_buffer<char[]>(queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::CircleFit));
     riemannFit::CircleFit *circle_fit_resultsDevice_ =
         (riemannFit::CircleFit *)(circle_fit_resultsDevice_holder.data());
 
-    for (uint32_t offset = 0; offset < maxNumberOfTuples; offset += maxNumberOfConcurrentFits_) {
+    // The largest of the bins of 3, 4 and 5 hits sets the rounds. off[n + 1] - off[n] tuples have n hits.
+    ALPAKA_ASSERT_ACC(hostTupleMultiplicityOffsets_);
+    const uint32_t *off = hostTupleMultiplicityOffsets_;
+    const uint32_t largestBin = std::max({off[4] - off[3], off[5] - off[4], off[6] - off[5]});
+    for (uint32_t offset = 0; offset < largestBin; offset += maxNumberOfConcurrentFits_) {
       // triplets
       alpaka::exec<Acc1D>(queue,
                           workDivTriplets,

@@ -7,6 +7,8 @@
 
 #include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
+#include "RecoTracker/PixelTrackFitting/interface/BLBFieldMap.h"
+#include "RecoTracker/PixelTrackFitting/interface/BLMaterialMap.h"
 #include "RecoTracker/PixelTrackFitting/interface/FitResult.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
@@ -16,14 +18,11 @@
 
 namespace riemannFit {
 
-  // TODO: Can this be taken from TrackerTraits or somewhere else?
-  // in case of memory issue can be made smaller
-  constexpr uint32_t maxNumberOfConcurrentFits = 32 * 1024;
-  constexpr uint32_t stride = maxNumberOfConcurrentFits;
-  using Matrix3x4d = Eigen::Matrix<double, 3, 4>;
-  using Map3x4d = Eigen::Map<Matrix3x4d, 0, Eigen::Stride<3 * stride, stride> >;
-  using Matrix6x4f = Eigen::Matrix<float, 6, 4>;
-  using Map6x4f = Eigen::Map<Matrix6x4f, 0, Eigen::Stride<6 * stride, stride> >;
+  // The lanes of one round of the fits.
+  constexpr uint32_t maxNumberOfConcurrentFits = 8 * 1024;
+  // The element stride of every per-lane buffer (element e of lane l at e * stride + l): the lane count padded by 16,
+  // as a power-of-two stride puts a lane in one CPU cache set.
+  constexpr uint32_t stride = maxNumberOfConcurrentFits + 16;
 
   // hits
   template <int N>
@@ -38,17 +37,16 @@ namespace riemannFit {
   // fast fit
   using Map4d = Eigen::Map<Vector4d, 0, Eigen::InnerStride<stride> >;
 
-  template <auto Start, auto End, auto Inc, class F>  //a compile-time bounded for loop
-  constexpr void rolling_fits(F &&f) {
-    if constexpr (Start < End) {
-      f(std::integral_constant<decltype(Start), Start>());
-      rolling_fits<Start + Inc, End, Inc>(f);
-    }
-  }
-
 }  // namespace riemannFit
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
+
+  // Configuration of the BrokenLine fit. The maps are read only with fitCorrections, and are not owned.
+  struct BLFitConfig {
+    const blMaterialMap::Map *rhoMap = nullptr;
+    const blBFieldMap::Map *bMap = nullptr;
+    bool fitCorrections = false;
+  };
 
   template <typename TrackerTraits>
   class HelixFit {
@@ -59,7 +57,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using HitView = ::reco::TrackingRecHitView;
     using HitConstView = ::reco::TrackingRecHitConstView;
     using OutputSoAView = ::reco::TrackSoAView;
-    using OutputHitSoAView = ::reco::TrackHitSoAView;
 
     using Tuples = caStructures::SequentialContainer;
     using TupleMultiplicity = caStructures::GenericContainer;
@@ -68,16 +65,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ~HelixFit() { deallocate(); }
 
     void setBField(double bField) { bField_ = bField; }
-    void launchRiemannKernels(const HitsMultiView &hv,
-                              const ::reco::CAModulesConstView &fr,
-                              uint32_t nhits,
-                              uint32_t maxNumberOfTuples,
-                              Queue &queue);
-    void launchBrokenLineKernels(const HitsMultiView &hv,
-                                 const ::reco::CAModulesConstView &fr,
-                                 uint32_t nhits,
-                                 uint32_t maxNumberOfTuples,
-                                 Queue &queue);
+
+    void setFitConfig(const BLFitConfig &cfg) { fitCfg_ = cfg; }
+    // Host copy of the tuple-multiplicity offsets per hit-count bin (CAHitNtupletGeneratorKernels::
+    // tupleMultiplicityOffsets), read back by the producer before the fit, not owned: both launchers bound their
+    // rounds by them.
+    void setHostTupleMultiplicityOffsets(const uint32_t *off) { hostTupleMultiplicityOffsets_ = off; }
+
+    void launchRiemannKernels(const HitsMultiView &hv, const ::reco::CAModulesConstView &fr, Queue &queue);
+    // One fused fast-fit launch and one fused fit launch per round (BrokenLineFitKernels.h).
+    void launchBrokenLineKernels(const HitsMultiView &hv, const ::reco::CAModulesConstView &fr, Queue &queue);
 
     void allocate(TupleMultiplicity const *tupleMultiplicity,
                   OutputSoAView &helix_fit_results,
@@ -92,6 +89,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     TupleMultiplicity const *tupleMultiplicity_ = nullptr;
     OutputSoAView outputSoa_;
     float bField_;
+    BLFitConfig fitCfg_;
+    const uint32_t *hostTupleMultiplicityOffsets_ = nullptr;  // see setHostTupleMultiplicityOffsets
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

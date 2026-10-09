@@ -193,6 +193,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ~CAHitNtupletGeneratorKernels() = default;
 
     TupleMultiplicity const* tupleMultiplicity() const { return device_tupleMultiplicity_->data(); }
+    // The prefix-scanned offsets of the tuple multiplicity: off[b] tuples have fewer than b hits (maxHitsOnTrack + 2
+    // entries); the host copy bounds the rounds of the fit (HelixFit::setHostTupleMultiplicityOffsets).
+    GenericContainerOffsets const* tupleMultiplicityOffsets() const { return device_tupleMultiplicityOffsets_->data(); }
     HitContainer const* hitContainer() const { return device_hitContainer_->data(); }
     HitToCell const* hitToCell() const { return device_hitToCell_->data(); }
 

@@ -1326,11 +1326,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // promotion gate downstream is an FP comparison written in the REJECTING sense --
           // QualityCuts::strictCut returns `chi2 >= maxChi2`, the vector-hit-curvature walk tests
           // `chi2VectorHit > cut` -- and a comparison with a NaN operand is false, so a NaN chi2 would PASS
-          // them all. edm::isNotFinite is a bit-pattern test on the exponent field, so it keeps
-          // working under -Ofast / -ffinite-math-only, where an `x != x` idiom would be folded away.
+          // them all. clang and hipcc fold edm::isNotFinite to false under -Ofast, so a failed BrokenLine fit
+          // also publishes q/pT = 0, which the exact test below catches.
           isNaN |= edm::isNotFinite(tracks_view[it].chi2());
-          // state(2) is the (finite) inverse pt: an exactly-zero value from a straight-line or
-          // numerically-degenerate fit maps to an infinite momentum in the host local-to-global
+          // state(2) is the inverse pt: exactly zero for a failed BrokenLine fit, and from a straight-line or
+          // degenerate fit, which maps to an infinite momentum in the host local-to-global
           // transform, so treat it as bad here too and never promote such a track
           isNaN |= (tracks_view[it].state()(2) == 0.f);
           if (isNaN) {
