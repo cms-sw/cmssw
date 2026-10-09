@@ -204,6 +204,7 @@ private:
   uint32_t toaMode_;
   uint32_t tdcNbits_;
   bool thresholdFollowsMIP_;
+  static constexpr float nsPerBx_ = 25.0f; 
   //caches
   std::array<bool, hgc::nSamples> busyFlags_, totFlags_, toaFlags_;
   hgc::HGCSimHitData newCharge_, toaFromToT_;

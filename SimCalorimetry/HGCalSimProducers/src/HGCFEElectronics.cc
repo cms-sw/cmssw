@@ -279,7 +279,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
     else if (tdcResolutionInNs_ != 0)
       timeToA = CLHEP::RandGaussQ::shoot(engine, timeToA, tdcResolutionInNs_);
     timeToA += eventTimeOffset_ns_[thickness - 1];
-    if (timeToA >= 0.f && timeToA <= 25.f)
+    if (timeToA >= 0.f && timeToA <= nsPerBx_)
       toaFlags_[fireBX] = true;
   }
 
@@ -321,7 +321,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
     while (true) {
       //start by checking if charge has crossed the saturation limit
       if (totalCharge > tdcSaturation_fC_) {
-        integTime = maxBxs * 25.;
+        integTime = maxBxs * nsPerBx_;
         busyBxs = maxBxs;
 
         //declare all bunches busy and integrate charge
@@ -360,7 +360,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
           ((tdcChargeDrainParameterisation_[poffset] * charge_mod + tdcChargeDrainParameterisation_[poffset + 1]) *
                charge_mod +
            tdcChargeDrainParameterisation_[poffset + 2]);
-      const int newBusyBxs = std::floor(newIntegTime / 25.f) + 1;
+      const int newBusyBxs = std::floor(newIntegTime / nsPerBx_) + 1;
 
       //if no update is needed regarding the number of bunches,
       //then the ToT integration time has converged
@@ -434,7 +434,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
     constexpr size_t tdcLeakageTauIdx_ = 11;
     if (ft > it && ft < static_cast<int>(newCharge_.size()) &&
         tdcChargeDrainParameterisation_.size() > tdcLeakageTauIdx_) {
-      const float deltaT2nextBx((busyBxs * 25.0f - integTime));
+      const float deltaT2nextBx((busyBxs * nsPerBx_ - integTime));
       const float tdcOnsetLeakage(tdcOnset *
                                   vdt::fast_expf(-deltaT2nextBx / tdcChargeDrainParameterisation_[tdcLeakageTauIdx_]));
       if (debug)
@@ -482,8 +482,8 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
     if(toaFlags_[it]){
       finalToA = toaFromToT_[it];
       //to avoid +=25 for small negative time taken as 0
-      while(finalToA < -1.e-5)  finalToA+=25.f;
-      while(finalToA > 25.f) finalToA-=25.f;
+      while(finalToA < -1.e-5)  finalToA+=nsPerBx_;
+      while(finalToA > nsPerBx_) finalToA-=nsPerBx_;
       toaFromToT_[it] = finalToA;
     }
   }
