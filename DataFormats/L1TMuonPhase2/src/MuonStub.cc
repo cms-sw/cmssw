@@ -94,9 +94,8 @@ bool MuonStub::operator==(const MuonStub& id) const {
 void MuonStub::print() const {
   LogDebug("MuonStub") << " MuonStub : BX=" << bxNum_ << " etaRegion=" << etaRegion_ << " phiRegion=" << phiRegion_
                        << " depth=" << depthRegion_ << " ID=" << id_ << " coord1=" << coord1_ << " coord2=" << coord2_
-                       << " quality=" << quality_ << " eta1=" << eta1_ << " eta2=" << eta2_
-                       << " z=" << z_ << " kSlope=" << kSlope_ << " etaQuality=" << etaQuality_
-                       << " type=" << type_;
+                       << " quality=" << quality_ << " eta1=" << eta1_ << " eta2=" << eta2_ << " z=" << z_
+                       << " kSlope=" << kSlope_ << " etaQuality=" << etaQuality_ << " type=" << type_;
 }
 
 const Phase2L1GMT::wordtype MuonStub::hybridStubWord() const {
