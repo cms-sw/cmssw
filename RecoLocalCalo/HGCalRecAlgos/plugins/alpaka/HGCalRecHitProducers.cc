@@ -62,6 +62,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const HGCalRecHitCalibrationAlgorithms calibrator_;
     const double k_noise_;
     const int n_hits_scale_;
+    const bool skipAnalyticCM_;
     int ndigis_;
     cms::alpakatools::host_buffer<int32_t> nsel_;
     std::optional<cms::alpakatools::device_buffer<Device, int32_t[]>> sidx_;
@@ -79,6 +80,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         calibrator_{iConfig.getParameter<int>("n_blocks"), iConfig.getParameter<int>("n_threads")},
         k_noise_{iConfig.getParameter<double>("k_noise")},
         n_hits_scale_{iConfig.getParameter<int>("n_hits_scale")},
+        skipAnalyticCM_{iConfig.getParameter<bool>("skipAnalyticCM")},
         nsel_{cms::alpakatools::make_host_buffer<int32_t, Platform>()} {
 #ifndef HGCAL_PERF_TEST
     if (n_hits_scale_ > 1) {
@@ -97,6 +99,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<int>("n_blocks", -1);
     desc.add<int>("n_threads", -1);
     desc.add<int>("n_hits_scale", -1);
+    desc.add<bool>("skipAnalyticCM", false)->setComment("If true, skip the analytic CM correction (use when ML-based CM correction is applied upstream)");
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -187,7 +190,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                      deviceModuleInfoProvider,
                                      deviceMappingCellParamProvider,
                                      deviceIndexingParamProvider,
-                                     k_noise_);
+                                     k_noise_,
+                                     skipAnalyticCM_);
 #endif
 
 #ifdef EDM_ML_DEBUG

@@ -17,6 +17,8 @@
 <use name="Geometry/Records"/>
 <use name="HeterogeneousCore/AlpakaCore"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>
+<use name="pytorch"/>
+<use name="PhysicsTools/PyTorchAlpaka"/>
 <flags ALPAKA_BACKENDS="1"/>
 <export>
   <lib name="1"/>
