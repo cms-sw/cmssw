@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <map>
+#include <tuple>
 
 //#define EDM_ML_DEBUG
 
@@ -87,6 +89,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   double RM2 = rM / sqrt3;
   const int nFine(nCells), nCoarse(nCells);
   HGCalCell wafer(waferSize, nFine, nCoarse);
+  // Passive layers have no sensitive detector and can share identical volumes.
+  std::map<std::tuple<std::string, std::vector<double>, std::vector<double>, double, double>, dd4hep::Volume>
+      passiveLayers;
   for (unsigned int k = 0; k < tag.size(); ++k) {
     // First the mother
     std::vector<double> xM = {rM, 0, -rM, -rM, 0, rM};
@@ -128,24 +133,32 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           zw[0] = -0.5 * layerThick[i];
           zw[1] = 0.5 * layerThick[i];
         }
-        std::string layerName = layerNames[i] + tag[k] + waferTag;
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Layer " << l << ": " << i << ":" << layerName << " "
-                                      << layerSizeOff[i] << " r " << r2 << ":" << R2;
-#endif
-        solid = dd4hep::ExtrudedPolygon(xL, yL, zw, zx, zy, scale);
-        ns.addSolidNS(ns.prepend(layerName), solid);
         matter = ns.material(materials[i]);
-        glogs[i] = dd4hep::Volume(solid.name(), solid, matter);
-        ns.addVolumeNS(glogs[i]);
+        std::string layerName = layerNames[i] + tag[k] + waferTag;
+        auto key = std::make_tuple(materials[i], xL, yL, zw[0], zw[1]);
+        auto found = passiveLayers.find(key);
+        if ((layerType[i] <= 0) && (found != passiveLayers.end())) {
+          glogs[i] = found->second;
+        } else {
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: " << solid.name() << " extruded polygon made of "
-                                      << materials[i] << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":"
-                                      << scale[0] << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":"
-                                      << scale[1] << " and " << xL.size() << " edges";
-        for (unsigned int kk = 0; kk < xL.size(); ++kk)
-          edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xL[kk] << ":" << yL[kk];
+          edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Layer " << l << ": " << i << ":" << layerName
+                                        << " " << layerSizeOff[i] << " r " << r2 << ":" << R2;
 #endif
+          solid = dd4hep::ExtrudedPolygon(xL, yL, zw, zx, zy, scale);
+          ns.addSolidNS(ns.prepend(layerName), solid);
+          glogs[i] = dd4hep::Volume(solid.name(), solid, matter);
+          ns.addVolumeNS(glogs[i]);
+          if (layerType[i] <= 0)
+            passiveLayers.emplace(std::move(key), glogs[i]);
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: " << solid.name() << " extruded polygon made of "
+                                        << materials[i] << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0]
+                                        << ":" << scale[0] << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1]
+                                        << ":" << scale[1] << " and " << xL.size() << " edges";
+          for (unsigned int kk = 0; kk < xL.size(); ++kk)
+            edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xL[kk] << ":" << yL[kk];
+#endif
+        }
       }
       dd4hep::Position tran0(0, 0, (zi + 0.5 * layerThick[i]));
       glogM.placeVolume(glogs[i], copyNumber[i], tran0);
