@@ -114,6 +114,8 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFTrajectorySm
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPStackedModuleGeometry_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltLSTGeometry_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPModulesDevLST_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPBLMaterialMap_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPBLBFieldMap_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPTTRHBuilderWithoutRefit_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltMTDCPEESProducer_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltMTDTimeCalibESProducer_cfi")
