@@ -49,6 +49,8 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 process.load("DQM.EcalMonitorTasks.EcalMonitorTask_cfi")
 process.load("DQM.EcalMonitorClient.EcalMonitorClient_cfi")
+# required by the MLClient of the EcalDQMonitorClient, which uses the ONNX Runtime
+process.load("PhysicsTools.ONNXRuntime.ONNXService_cfi")
 
 ### Individual module setups ###
 

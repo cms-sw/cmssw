@@ -98,6 +98,12 @@ from Configuration.ProcessModifiers.mlpf_cff import mlpf
 from RecoParticleFlow.PFProducer.mlpfProducer_cfi import mlpfProducer
 mlpf.toReplaceWith(particleFlowTmp, mlpfProducer)
 
+# the MLPF producer uses the ONNX Runtime, which requires the ONNXService
+def _addONNXService(process):
+    process.load("PhysicsTools.ONNXRuntime.ONNXService_cfi")
+
+modifyRecoParticleFlow_addONNXService = mlpf.makeProcessModifier(_addONNXService)
+
 #
 # switch from pfTICL to simPF
 def _findIndicesByModule(process,name):
