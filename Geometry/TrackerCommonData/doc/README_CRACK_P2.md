@@ -1,13 +1,10 @@
 # CRACK for Phase-II:
 
-To use the most up-to-date CRACK software, you should use `CMSSW_17_0_0_pre2`.
-```
-cmsrel CMSSW_17_0_0_pre2
-cd CMSSW_17_0_0_pre2/src
-cmsenv
+This was last validated in CMSSW_20_1_0_pre1.
 
-```
 ## Geometry generation
+
+CHECK: WHY NOT MENTIONS Geometry/TrackerCommonData/data/CRack_PhaseII/ ???
 
 This section provides complete instructions for creating the CRACK geometry.
 If you only wish to use the geometry without generating it, please skip to the next section.
@@ -51,29 +48,29 @@ Alternatively, use a ROOT macro to visualize the geometry. This method works on 
 ```
  root Geometry_plotter.C
 ```
-# Run the CRACK workflow 
-## Gen-Sim step 
+# Create P2 C-RACK Monte Carlo
 
-The CRACK (D500) geometry is integrated in CMSSW and can be called and used as any other CMS detector geometry in the header of your python configuration file.  
+This simulates cosmic rays traversing the CRACK. The CRACK (D500) geometry is integrated in CMSSW and can be called and used as any other CMS detector geometry.
 
-To run the cosmic-ray generation and simulation for the CRACK geometry, execute:
-```
-cmsRun step1_cosmics_for_crack.py
-```
-
-This creates a `step1.root` file. To analyze the hits in the ROOT file, you can use the [SimHitAnalyzer](https://github.com/hayfasfar/SimHitAnalyzer/tree/master/SimHitAnalyzer).
-
-## DIGI step: digitization, clusters, stubs and cluster1D objects 
-
-To perform the digitization, clustering, stub formation, and 1D cluster object creation, run:
-```
-
-cmsRun step2_digi_ttclusters_ttstubs_cluster1Dobj.py
+## Gen-Sim step
 
 ```
+cmsDriver.py UndergroundCosmicSPLooseMu_cfi -s GEN,SIM -n 10000 --conditions auto:phase2_realistic_0T --beamspot DBrealisticHLLHC --datatier GEN-SIM --eventcontent FEVTDEBUG --geometry ExtendedRun4D500 --era phase2_tracker --fileout file:step1.root --nThreads 16 --python step1.py --customise SimTracker/Configuration/customise_P2_CRACK.step1
+```
+Here, the --customise option refers to a python file that disables simulation of detectors other than the Tracker, and configures the cosmic ray generator appropriately for the CRACK.
+
+## DIGI step:
+
+This does Tracker digitisation and adds offline clusters, TTClusters & TTStubs, plus truth & truth-association info.
+
+```
+cmsDriver.py -s DIGI:pdigi_valid,L1TrackTrigger --conditions auto:phase2_realistic_0T --datatier GEN-SIM-DIGI --eventcontent FEVTDEBUG --geometry ExtendedRun4D500 --era phase2_tracker --magField 0T -n -1 --filein file:step1.root --fileout file:step2.root --nThreads 16  --python step2.py --customise SimTracker/Configuration/customise_P2_CRACK.step2
+
+```
+
 ## Packer and Unpacker: 
 
-Instructions for running the packer/unpacker can be found in the CRACK-unpacker repository [CRACK-unpacker](https://github.com/P2-Tracker-BES-SW/cmssw/tree/unpackers_16_0_0_pre1/EventFilter/Phase2TrackerRawToDigi/doc). you have then to switch to the specific CRACK branch `rebase_unpackers_to_16_0_0_crack`. If you cannot find this branch, its name may have changed; in that case, look for another branch containing `CRACK` in its name.
+Instructions for running the packer/unpacker can be found in the CRACK-unpacker repository [CRACK-unpacker](https://github.com/P2-Tracker-BES-SW/cmssw/tree/unpackers_20_1_0_pre3/EventFilter/Phase2TrackerRawToDigi/doc). you have then to switch to the specific CRACK branch `rebase_unpackers_to_16_0_0_crack`. If you cannot find this branch, its name may have changed; in that case, look for another branch containing `CRACK` in its name.
 
 
 ## DQM 
