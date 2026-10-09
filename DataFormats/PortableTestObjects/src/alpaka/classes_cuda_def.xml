@@ -23,6 +23,18 @@
   <class name="edm::DeviceProduct<alpaka_cuda_async::portabletest::ParticleDeviceCollection>" persistent="false"/>
   <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portabletest::ParticleDeviceCollection>>" persistent="false"/>
 
+  <class name="alpaka_cuda_async::portabletest::HitDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::portabletest::HitDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portabletest::HitDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_cuda_async::portabletest::HitToTrackDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::portabletest::HitToTrackDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portabletest::HitToTrackDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_cuda_async::portabletest::TrackBeginDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::portabletest::TrackBeginDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portabletest::TrackBeginDeviceCollection>>" persistent="false"/>
+
   <class name="alpaka_cuda_async::portabletest::SimpleNetDeviceCollection" persistent="false"/>
   <class name="edm::DeviceProduct<alpaka_cuda_async::portabletest::SimpleNetDeviceCollection>" persistent="false"/>
   <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portabletest::SimpleNetDeviceCollection>>" persistent="false"/>
