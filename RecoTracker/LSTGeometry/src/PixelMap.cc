@@ -11,8 +11,7 @@ namespace lstgeometry {
     maps.reserve(12);
 
     std::size_t nSuperbin = kPtBounds.size() * kNPhi * kNEta * kNZ;
-    constexpr float zBinWidth = 60.f / kNZ;
-    constexpr float etaBinScale = kNEta / 5.2f;
+    constexpr float zBinWidth = 2.f * kZMax / kNZ;
     constexpr float inversePhiBinWidth = kNPhi / (2.f * std::numbers::pi_v<float>);
     constexpr float curvatureToPhi = kC * kB / 2.f;
 
@@ -78,8 +77,8 @@ namespace lstgeometry {
 
         for (unsigned int iz = 0; iz < kNZ; iz++) {
           // The zmin, zmax of consideration
-          float zmin = -30.f + iz * zBinWidth - 0.05f;
-          float zmax = -30.f + (iz + 1) * zBinWidth + 0.05f;
+          float zmin = -kZMax + iz * zBinWidth - 0.05f;
+          float zmax = -kZMax + (iz + 1) * zBinWidth + 0.05f;
           float etamin = std::asinh((minZ - zmin) * minEtaInvR);
           float etamax = std::asinh((maxZ - zmax) * maxEtaInvR);
           if (etamax < etamin)
@@ -88,17 +87,24 @@ namespace lstgeometry {
           etamin -= 0.05;
           etamax += 0.05;
 
+          // Disk 2 is only connected beyond |eta| = 2.3, on both sides
           if (layer == 2 && location == Location::endcap) {
-            if (etamax < 2.3)
-              continue;
-            if (etamin < 2.3)
-              etamin = 2.3;
+            if (maxZ < 0) {
+              if (etamin > -2.3)
+                continue;
+              if (etamax > -2.3)
+                etamax = -2.3;
+            } else {
+              if (etamax < 2.3)
+                continue;
+              if (etamin < 2.3)
+                etamin = 2.3;
+            }
           }
 
-          // Compute the indices of the compatible eta range
-          unsigned int ietamin = static_cast<unsigned int>(std::max((etamin + 2.6f) * etaBinScale, 0.0f));
-          unsigned int ietamax =
-              static_cast<unsigned int>(std::min((etamax + 2.6f) * etaBinScale, static_cast<float>(kNEta - 1)));
+          // Compute the indices of the compatible eta range; windows beyond the binning range go to the edge bins
+          unsigned int ietamin = std::clamp(etaBin(etamin), 0, static_cast<int>(kNEta) - 1);
+          unsigned int ietamax = std::clamp(etaBin(etamax), 0, static_cast<int>(kNEta) - 1);
 
           // <= to cover some inefficiencies
           for (unsigned int ieta = ietamin; ieta <= ietamax; ieta++) {

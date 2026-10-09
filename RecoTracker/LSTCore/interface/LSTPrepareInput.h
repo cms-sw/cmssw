@@ -203,13 +203,14 @@ namespace lst {
           isQuad = true;
           hitIdxs.push_back(see_hitIdx[iSeed].back());
         }
-        float neta = 25.;
-        float nphi = 72.;
-        float nz = 25.;
-        int etabin = (p3PCA_Eta + 2.6) / ((2 * 2.6) / neta);
-        int phibin = (p3PCA_Phi + std::numbers::pi_v<float>) / ((2. * std::numbers::pi_v<float>) / nphi);
-        int dzbin = (std::clamp(see_dz[iSeed], -30.f, 30.f) + 30) / (2 * 30 / nz);
-        int isuperbin = (nz * nphi) * etabin + (nz)*phibin + dzbin;
+        // Superbin of the pLS, binned as the pixel maps. pLSs up to one eta bin beyond the binning range use the edge bins,
+        // which hold the modules beyond the range; further out they are not connected (superbin -1).
+        constexpr int nEta = lstgeometry::kNEta, nPhi = lstgeometry::kNPhi, nZ = lstgeometry::kNZ;
+        int etabin = lstgeometry::etaBin(p3PCA_Eta);
+        int isuperbin = -1;
+        if (etabin >= -1 && etabin <= nEta)
+          isuperbin = nZ * nPhi * std::clamp(etabin, 0, nEta - 1) + nZ * lstgeometry::phiBin(p3PCA_Phi) +
+                      lstgeometry::zBin(see_dz[iSeed]);
         superbin_vec.push_back(isuperbin);
         pixelType_vec.push_back(pixtype);
         isQuad_vec.push_back(isQuad);
