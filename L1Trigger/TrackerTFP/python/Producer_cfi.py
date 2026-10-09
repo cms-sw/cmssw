@@ -16,6 +16,6 @@ TrackerTFPProducer_params = cms.PSet (
   BranchTracks     = cms.string( "TrackAccepted" ),  # branch for prodcut with passed tracks
   BranchTTTracks   = cms.string( "TrackAccepted" ),  # branch for prodcut with passed TTTracks
   BranchTruncated  = cms.string( "Truncated"     ),  # branch for truncated prodcuts
-  PrintKFDebug     = cms.bool  ( True  )             # print end job internal unused MSB
+  PrintKFDebug     = cms.bool  ( False )             # print end job internal unused MSB
 
 )

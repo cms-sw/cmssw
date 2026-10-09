@@ -115,7 +115,8 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
 
   for (const auto& gd : theTrackerGeom->dets()) {
     DetId detid = (*gd).geographicalId();
-    if (detid.subdetId() != StripSubdetector::TOB && detid.subdetId() != StripSubdetector::TID)
+    if (detid.subdetId() != Phase2Tracker::Subdetector::Barrel &&
+        detid.subdetId() != Phase2Tracker::Subdetector::Endcap)
       continue;  // only run on OT
     if (!tTopo->isLower(detid))
       continue;  // loop on the stacks: choose the lower sensor
@@ -130,11 +131,11 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
     //
     // TO FIX: take this info from Tracker -> DTC cabling map.
 
-    if (detid.subdetId() == StripSubdetector::TOB) {
+    if (detid.subdetId() == Phase2Tracker::Subdetector::Barrel) {
       if (tTopo->layer(detid) <= high_rate_max_layer)
         is10G_PS = true;
-    } else if (detid.subdetId() == StripSubdetector::TID) {
-      if (tTopo->tidRing(detid) <= high_rate_max_ring[tTopo->tidWheel(detid) - 1])
+    } else if (detid.subdetId() == Phase2Tracker::Subdetector::Endcap) {
+      if (tTopo->endcapRingP2(detid) <= high_rate_max_ring[tTopo->endcapWheelP2(detid) - 1])
         is10G_PS = true;
     }
 

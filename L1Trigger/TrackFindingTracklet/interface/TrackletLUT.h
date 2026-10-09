@@ -15,7 +15,7 @@
 #include <vector>
 #include <string>
 
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Setup.h"
 
 class Setup;
 
@@ -120,19 +120,19 @@ namespace trklet {
 
   private:
     const Settings& settings_;
-    const tt::Setup* setup_;
+    const Setup* setup_;
 
     //Determine bend/bend cuts in LUT regions
-    std::vector<const tt::SensorModule*> getSensorModules(unsigned int layerdisk,
-                                                          bool isPS,
-                                                          std::array<double, 2> tan_range = {{-1, -1}},
-                                                          unsigned int nzbins = 1,
-                                                          unsigned int zbin = 0);
+    std::vector<const trackerDTC::SensorModule*> getSensorModules(unsigned int layerdisk,
+                                                                  bool isPS,
+                                                                  std::array<double, 2> tan_range = {{-1, -1}},
+                                                                  unsigned int nzbins = 1,
+                                                                  unsigned int zbin = 0);
 
-    std::array<double, 2> getTanRange(const std::vector<const tt::SensorModule*>& sensorModules);
+    std::array<double, 2> getTanRange(const std::vector<const trackerDTC::SensorModule*>& sensorModules);
 
     std::vector<std::array<double, 2>> getBendCut(unsigned int layerdisk,
-                                                  const std::vector<const tt::SensorModule*>& sensorModules,
+                                                  const std::vector<const trackerDTC::SensorModule*>& sensorModules,
                                                   bool isPS,
                                                   double FEbendcut = 0);
 
@@ -140,6 +140,8 @@ namespace trklet {
         unsigned int layerdisk, double bend, unsigned int irbin, double rmean, double dr, double drmax) const;
 
     int getVMRLookup(unsigned int layerdisk, double z, double r, double dz, double dr, int iseed = -1) const;
+
+    unsigned int ringId(const DetId& detId) const;
 
     std::string name_;
 

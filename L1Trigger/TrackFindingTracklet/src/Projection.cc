@@ -32,7 +32,11 @@ void Projection::init(Settings const& settings,
   if (layerdisk < N_LAYER) {
     fpgarzproj_.set(irzproj, settings.nzbitsstub(layerdisk), false, __LINE__, __FILE__);
   } else {
-    fpgarzproj_.set(irzproj, settings.nrbitsstub(layerdisk), false, __LINE__, __FILE__);
+    fpgarzproj_.set(irzproj,
+                    settings.nrbitsstub(layerdisk) + 1,
+                    true,
+                    __LINE__,
+                    __FILE__);  // + 1 to account for artificially reduced nrbits from r value offset for diskps stubs
   }
 
   if (layerdisk < N_LAYER) {
@@ -45,7 +49,7 @@ void Projection::init(Settings const& settings,
     }
   } else {
     fpgaphiprojder_.set(iphider, settings.nbitsphiprojderL123(), false, __LINE__, __FILE__);
-    fpgarzprojder_.set(irzder, settings.nrbitsprojderdisk(), false, __LINE__, __FILE__);
+    fpgarzprojder_.set(irzder, 1 + settings.nrbitsprojderdisk(), false, __LINE__, __FILE__);
   }
 
   if (layerdisk < N_LAYER) {
@@ -83,9 +87,9 @@ void Projection::init(Settings const& settings,
     //TODO the -3 and +3 should be evaluated and efficiency for matching hits checked.
     //This code should be migrated in the ProjectionRouter
     double roffset = 3.0;
-    int rbin1 = 8.0 * (irzproj * settings.krprojshiftdisk() - roffset - settings.rmindiskvm()) /
+    int rbin1 = 8.0 * (irzproj * settings.kr() - roffset - settings.rmindiskvm()) /
                 (settings.rmaxdisk() - settings.rmindiskvm());
-    int rbin2 = 8.0 * (irzproj * settings.krprojshiftdisk() + roffset - settings.rmindiskvm()) /
+    int rbin2 = 8.0 * (irzproj * settings.kr() + roffset - settings.rmindiskvm()) /
                 (settings.rmaxdisk() - settings.rmindiskvm());
 
     if (rbin1 < 0) {
@@ -97,7 +101,7 @@ void Projection::init(Settings const& settings,
     assert(rbin2 - rbin1 <= 1);
 
     int finer = 64 *
-                ((irzproj * settings.krprojshiftdisk() - settings.rmindiskvm()) -
+                ((irzproj * settings.kr() - settings.rmindiskvm()) -
                  rbin1 * (settings.rmaxdisk() - settings.rmindiskvm()) / 8.0) /
                 (settings.rmaxdisk() - settings.rmindiskvm());
 

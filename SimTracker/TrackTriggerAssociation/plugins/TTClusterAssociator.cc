@@ -7,6 +7,12 @@
  *
  */
 
+// NOTE TO CHECK (I.Tomalin 2026) -- For each cluster, this stores all TP associated with any of the digis
+// in the cluster in clusterToTrackingParticleVectorMap. It also stores null TPs, for digis that
+// were not associated with any TP, though this only happens rarely. Are these really needed, or could
+// we get rid of the null TP? It will also store the same TP multiple times if it contributes to
+// several digis in the cluster. Is this needed?
+
 #include "SimTracker/TrackTriggerAssociation/plugins/TTClusterAssociator.h"
 
 /// Implement the producer
@@ -67,7 +73,8 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
     /// Loop over the input Clusters
     for (const auto& gd : theTrackerGeom->dets()) {
       DetId detid = gd->geographicalId();
-      if (detid.subdetId() != StripSubdetector::TOB && detid.subdetId() != StripSubdetector::TID)
+      if (detid.subdetId() != Phase2Tracker::Subdetector::Barrel &&
+          detid.subdetId() != Phase2Tracker::Subdetector::Endcap)
         continue;  // only run on OT
 
       if (TTClusterHandle->find(detid) == TTClusterHandle->end())

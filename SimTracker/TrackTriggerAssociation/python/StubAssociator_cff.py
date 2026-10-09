@@ -7,7 +7,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.TrackTrigger.Setup_cff import TrackTriggerSetup
 from SimTracker.TrackTriggerAssociation.StubAssociator_cfi import StubAssociator_params
+from L1Trigger.TrackTrigger.Associator_cff import *
 
 StubAssociator = cms.EDProducer('tt::StubAssociator', StubAssociator_params)

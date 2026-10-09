@@ -31,7 +31,6 @@ namespace trklet {
   class AllInnerStubsMemory;
   class VMStubsTEMemory;
   class VMStubsMEMemory;
-  class StubTripletsMemory;
   class TrackletParametersMemory;
   class TrackletProjectionsMemory;
   class FullMatchMemory;
@@ -43,7 +42,8 @@ namespace trklet {
   class VMRouterCM;
   class TrackletProcessor;
   class TrackletProcessorDisplaced;
-  class TrackletCalculatorDisplaced;
+  class ProjectionCalculator;
+  class VMStubMERouter;
   class MatchProcessor;
   class FitTrack;
   class PurgeDuplicate;
@@ -57,20 +57,20 @@ namespace trklet {
     //Set the sector
     void setSector(unsigned int isector);
 
-    bool addStub(L1TStub stub, std::string dtc);  //TODO - should be pointer or string
+    bool addStub(L1TStub stub, const std::string& dtc);  //TODO - should be pointer or string
 
     // Creates all required memory modules based on wiring map (args: module type, module instance)
-    void addMem(std::string memType, std::string memName);
+    void addMem(const std::string& memType, const std::string& memName);
 
     // Creates all required processing modules based on wiring map (args: module type, module instance)
-    void addProc(std::string procType, std::string procName);
+    void addProc(const std::string& procType, const std::string& procName);
 
     //--- Create all required proc -> mem module connections, based on wiring map
     //--- (args: memory instance & input/output proc modules it connects to in format procName.pinName)
-    void addWire(std::string mem, std::string procinfull, std::string procoutfull);
+    void addWire(const std::string& mem, const std::string& procinfull, const std::string& procoutfull);
 
-    ProcessBase* getProc(std::string procName);
-    MemoryBase* getMem(std::string memName);
+    ProcessBase* getProc(const std::string& procName);
+    MemoryBase* getMem(const std::string& memName);
 
     void writeDTCStubs(bool first);
     void writeIRStubs(bool first);
@@ -78,23 +78,23 @@ namespace trklet {
     void writeVMSME(bool first);
     void writeAS(bool first);
     void writeAIS(bool first);
-    void writeST(bool first);
     void writeTPAR(bool first);
     void writeTPROJ(bool first);
     void writeMC(bool first);
     void writeTF(bool first);
     void writeCT(bool first);
 
+    void incrBXEvent();
+
     void clean();
 
     // execute the different tracklet processing modules
     void executeIR();
     void executeVMR();
-    void executeTED();
-    void executeTRE();
     void executeTP();
     void executeTPD();
-    void executeTCD();
+    void executePC();
+    void executeVMSMER();
     void executeMP();
     void executeFT(std::vector<std::vector<std::string>>& streamsTrackRaw,
                    std::vector<std::vector<StubStreamData>>& streamsStubRaw);
@@ -136,7 +136,6 @@ namespace trklet {
     std::vector<std::unique_ptr<AllInnerStubsMemory>> AIS_;
     std::vector<std::unique_ptr<VMStubsTEMemory>> VMSTE_;
     std::vector<std::unique_ptr<VMStubsMEMemory>> VMSME_;
-    std::vector<std::unique_ptr<StubTripletsMemory>> ST_;
     std::vector<std::unique_ptr<TrackletParametersMemory>> TPAR_;
     std::vector<std::unique_ptr<TrackletProjectionsMemory>> TPROJ_;
     std::vector<std::unique_ptr<FullMatchMemory>> FM_;
@@ -148,7 +147,8 @@ namespace trklet {
     std::vector<std::unique_ptr<VMRouterCM>> VMRCM_;
     std::vector<std::unique_ptr<TrackletProcessor>> TP_;
     std::vector<std::unique_ptr<TrackletProcessorDisplaced>> TPD_;
-    std::vector<std::unique_ptr<TrackletCalculatorDisplaced>> TCD_;
+    std::vector<std::unique_ptr<ProjectionCalculator>> PC_;
+    std::vector<std::unique_ptr<VMStubMERouter>> VMSMER_;
     std::vector<std::unique_ptr<MatchProcessor>> MP_;
     std::vector<std::unique_ptr<FitTrack>> FT_;
     std::vector<std::unique_ptr<PurgeDuplicate>> PD_;

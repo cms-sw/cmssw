@@ -13,6 +13,7 @@
 #include "L1Trigger/TrackFindingTMTT/interface/HTrphi.h"
 #include "L1Trigger/TrackFindingTMTT/interface/DigitalTrack.h"
 #include "L1Trigger/TrackFindingTMTT/interface/KFTrackletTrack.h"
+#include "DataFormats/Math/interface/Error.h"
 
 #include <vector>
 #include <set>
@@ -29,6 +30,8 @@ namespace tmtt {
 
   class L1fittedTrack : public L1trackBase {
   public:
+    typedef math::ErrorF<5>::type CovMat;
+
     // Store a new fitted track, specifying the input Hough transform track, the stubs used for the fit,
     // bit-encoded hit layer pattern (numbered by increasing distance from origin),
     // the fitted helix parameters & chi2,
@@ -43,6 +46,7 @@ namespace tmtt {
                   float phi0,
                   float z0,
                   float tanLambda,
+                  const TMatrixD& helCovMat,
                   float chi2rphi,
                   float chi2rz,
                   unsigned int nHelixParam,
@@ -84,6 +88,11 @@ namespace tmtt {
         nLayers_ = Utility::countLayers(settings, stubs_);
         // Find associated truth particle & calculate info about match.
         matchedTP_ = Utility::matchingTP(settings, stubs_, nMatchedLayers_, matchedStubs_);
+        for (unsigned int i = 0; i < nHelixParam; i++) {
+          for (unsigned int j = i; j < nHelixParam; j++) {
+            helixCovMat_[i][j] = helCovMat[i][j];
+          }
+        }
       } else {  // Rejected track
         nLayers_ = 0;
         matchedTP_ = nullptr;
@@ -106,7 +115,8 @@ namespace tmtt {
     }
 
     // Creates track rejected by fitter.
-    L1fittedTrack() : L1fittedTrack(nullptr, nullptr, noStubs_, 0, 0., 0., 0., 0., 0., 0., 0., 0, false) {}
+    L1fittedTrack()
+        : L1fittedTrack(nullptr, nullptr, noStubs_, 0, 0., 0., 0., 0., 0., TMatrixD(5, 5), 0., 0., 0, false) {}
 
     ~L1fittedTrack() override = default;
 
@@ -157,6 +167,7 @@ namespace tmtt {
                            phi0(),
                            z0(),
                            tanLambda(),
+                           helixCovMat(),
                            chi2rphi(),
                            chi2rz(),
                            nHelixParam(),
@@ -254,6 +265,9 @@ namespace tmtt {
     }
     float phi0_bcon() const { return phi0_bcon_; }
     float d0_bcon() const { return d0_bcon_; }
+
+    // Helix covariance matrix (always 5x5) in (1/2R, phi0, tanL, z0, d0).
+    const CovMat& helixCovMat() const { return helixCovMat_; }
 
     // Phi and z coordinates at which track crosses "chosenR" values used by r-phi HT and rapidity sectors respectively.
     // (Optionally with beam-spot constraint applied).
@@ -386,6 +400,9 @@ namespace tmtt {
 
     //--- The number of helix parameters being fitted (=5 if d0 is fitted or =4 if d0 is not fitted).
     unsigned int nHelixParam_;
+
+    //--- Helix covariance matrix (always 5x5)
+    CovMat helixCovMat_;
 
     //--- Phi sector and eta region used track finding code that this track was in.
     unsigned int iPhiSec_;
