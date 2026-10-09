@@ -47,8 +47,7 @@ namespace trklet {
     x1,
     x2,
     x3,
-    H00,
-    H12,
+    H,
     m0,
     m1,
     v0,
@@ -141,15 +140,19 @@ namespace trklet {
     int baseShiftC22_;
     int baseShiftC23_;
     int baseShiftC33_;
+    int baseShiftInvDH_;
+    int baseShiftInvDH2_;
+    int baseShiftHv0_;
+    int baseShiftHv1_;
+    int baseShiftH2v0_;
+    int baseShiftH2v1_;
   };
 
   class DataFormatKF {
   public:
     DataFormatKF(const VariableKF& v, bool twos, bool enableIntegerEmulation, int width, double base, double range);
     ~DataFormatKF() = default;
-    double digi(double val) const {
-      return enableIntegerEmulation_ ? (std::floor(val / base_ + 1.e-11) + .5) * base_ : val;
-    }
+    double digi(double val) const { return enableIntegerEmulation_ ? (tt::floor(val / base_) + .5) * base_ : val; }
     bool twos() const { return twos_; }
     int width() const { return width_; }
     double base() const { return base_; }
@@ -160,7 +163,7 @@ namespace trklet {
     // returns false if data format would oferflow for this double value
     bool inRange(double d) const;
     void updateRangeActual(double d);
-    int integer(double d) const { return floor(d / base_ + 1.e-11); }
+    int integer(double d) const { return tt::floor(d / base_); }
 
   protected:
     VariableKF v_;
@@ -179,7 +182,7 @@ namespace trklet {
     KalmanFilterFormats();
     ~KalmanFilterFormats() = default;
     DataFormatKF& format(VariableKF v) { return formats_[+v]; }
-    const tt::Setup* setup() const { return dataFormats_->setup(); }
+    const Setup* setup() const { return dataFormats_->setup(); }
     const DataFormats* dataFormats() const { return dataFormats_; }
     void consume(const DataFormats* dataFormats, const ConfigKF& iConfig);
     void endJob(std::stringstream& ss);
@@ -205,9 +208,7 @@ namespace trklet {
   template <>
   DataFormatKF makeDataFormat<VariableKF::x3>(const DataFormats* dataFormats, const ConfigKF& iConfig);
   template <>
-  DataFormatKF makeDataFormat<VariableKF::H00>(const DataFormats* dataFormats, const ConfigKF& iConfig);
-  template <>
-  DataFormatKF makeDataFormat<VariableKF::H12>(const DataFormats* dataFormats, const ConfigKF& iConfig);
+  DataFormatKF makeDataFormat<VariableKF::H>(const DataFormats* dataFormats, const ConfigKF& iConfig);
   template <>
   DataFormatKF makeDataFormat<VariableKF::m0>(const DataFormats* dataFormats, const ConfigKF& iConfig);
   template <>

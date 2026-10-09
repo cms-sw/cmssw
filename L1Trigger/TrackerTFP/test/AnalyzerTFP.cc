@@ -12,8 +12,9 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "SimTracker/TrackTriggerAssociation/interface/StubAssociation.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "SimDataFormats/Associations/interface/StubAssociation.h"
+#include "L1Trigger/TrackTrigger/interface/Associator.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 
 #include <TProfile.h>
 #include <TH1F.h>
@@ -45,7 +46,7 @@ namespace trackerTFP {
   private:
     // gets all TPs associated too any of the tracks & number of tracks matching at least one TP
     void associate(const std::vector<std::vector<TTStubRef>>& tracks,
-                   const tt::StubAssociation* ass,
+                   const tt::Associator& ass,
                    std::set<TPPtr>& tps,
                    int& nMatchTrk,
                    bool perfect = false) const;
@@ -57,9 +58,11 @@ namespace trackerTFP {
     // ED input token of TTStubRef to recontructable TPPtr association
     edm::EDGetTokenT<tt::StubAssociation> edGetTokenReconstructable_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
+    // Associator token
+    edm::ESGetToken<tt::Associator, trackerDTC::SetupRcd> esGetTokenAssociator_;
     // stores, calculates and provides run-time constants
-    const tt::Setup* setup_ = nullptr;
+    const Setup* setup_ = nullptr;
     // enables analyze of TPs
     bool useMCTruth_;
     //
@@ -94,6 +97,7 @@ namespace trackerTFP {
     }
     // book ES products
     esGetTokenSetup_ = esConsumes<edm::Transition::BeginRun>();
+    esGetTokenAssociator_ = esConsumes();
     // log config
     log_.setf(std::ios::fixed, std::ios::floatfield);
     log_.precision(4);
@@ -119,7 +123,7 @@ namespace trackerTFP {
     prof_->GetXaxis()->SetBinLabel(10, "Perfectly Found selected TPs");
     // channel occupancy
     constexpr int maxOcc = 180;
-    const int numChannels = setup_->numRegions();
+    const int numChannels = setup_->sysNumRegion();
     hisChannel_ = dir.make<TH1F>("His Channel Occupancy", ";", maxOcc, -.5, maxOcc - .5);
     profChannel_ = dir.make<TProfile>("Prof Channel Occupancy", ";", numChannels, -.5, numChannels - .5);
     // Efficiencies
@@ -133,32 +137,28 @@ namespace trackerTFP {
     // read in tracklet products
     edm::Handle<tt::TTTracks> handle;
     iEvent.getByToken<tt::TTTracks>(edGetToken_, handle);
+    const tt::TTTracks& ttTracks = *handle;
     // read in MCTruth
-    const tt::StubAssociation* selection = nullptr;
-    const tt::StubAssociation* reconstructable = nullptr;
+    tt::Associator selection = iSetup.getData(esGetTokenAssociator_);
+    tt::Associator reconstructable = iSetup.getData(esGetTokenAssociator_);
     if (useMCTruth_) {
-      edm::Handle<tt::StubAssociation> handleSelection;
-      iEvent.getByToken<tt::StubAssociation>(edGetTokenSelection_, handleSelection);
-      selection = handleSelection.product();
-      prof_->Fill(9, selection->numTPs());
-      edm::Handle<tt::StubAssociation> handleReconstructable;
-      iEvent.getByToken<tt::StubAssociation>(edGetTokenReconstructable_, handleReconstructable);
-      reconstructable = handleReconstructable.product();
-      for (const auto& p : selection->getTrackingParticleToTTStubsMap())
+      selection.consume(iEvent.get(edGetTokenSelection_));
+      reconstructable.consume(iEvent.get(edGetTokenReconstructable_));
+      prof_->Fill(9, selection.numTPs());
+      for (const auto& p : selection.getTrackingParticleToTTStubsMap())
         fill(p.first, hisEffTotal_);
     }
     //
-    const tt::TTTracks& ttTracks = *handle.product();
-    std::vector<std::vector<TTTrackRef>> ttTrackRefsRegions(setup_->numRegions());
-    std::vector<int> nTTTracksRegions(setup_->numRegions(), 0);
+    std::vector<std::vector<TTTrackRef>> ttTrackRefsRegions(setup_->sysNumRegion());
+    std::vector<int> nTTTracksRegions(setup_->sysNumRegion(), 0);
     for (const TTTrack<Ref_Phase2TrackerDigi_>& ttTrack : ttTracks)
       nTTTracksRegions[ttTrack.phiSector()]++;
-    for (int region = 0; region < setup_->numRegions(); region++)
+    for (int region = 0; region < setup_->sysNumRegion(); region++)
       ttTrackRefsRegions[region].reserve(nTTTracksRegions[region]);
     int i(0);
     for (const TTTrack<Ref_Phase2TrackerDigi_>& ttTrack : ttTracks)
       ttTrackRefsRegions[ttTrack.phiSector()].emplace_back(TTTrackRef(handle, i++));
-    for (int region = 0; region < setup_->numRegions(); region++) {
+    for (int region = 0; region < setup_->sysNumRegion(); region++) {
       const std::vector<TTTrackRef>& ttTrackRefs = ttTrackRefsRegions[region];
       const int nStubs =
           std::accumulate(ttTrackRefs.begin(), ttTrackRefs.end(), 0, [](int sum, const TTTrackRef& ttTrackRef) {
@@ -177,6 +177,7 @@ namespace trackerTFP {
     std::set<TPPtr> tpPtrsSelection;
     std::set<TPPtr> tpPtrsPerfect;
     int nAllMatched(0);
+    int nAllMatchedPerf(0);
     // convert vector of tracks to vector of vector of associated stubs
     std::vector<std::vector<TTStubRef>> tracks;
     tracks.reserve(ttTracks.size());
@@ -187,8 +188,8 @@ namespace trackerTFP {
     if (useMCTruth_) {
       int tmp(0);
       associate(tracks, selection, tpPtrsSelection, tmp);
-      associate(tracks, selection, tpPtrsPerfect, tmp, true);
-      associate(tracks, reconstructable, tpPtrs, nAllMatched);
+      associate(tracks, selection, tpPtrsPerfect, nAllMatchedPerf, true);
+      associate(tracks, reconstructable, tpPtrs, nAllMatched, true);
     }
     for (const TPPtr& tpPtr : tpPtrsSelection)
       fill(tpPtr, hisEff_);
@@ -211,8 +212,8 @@ namespace trackerTFP {
     // printout SF summary
     const double totalTPs = prof_->GetBinContent(9);
     const double numStubs = prof_->GetBinContent(1);
-    const double numTracks = prof_->GetBinContent(2);
-    const double totalTracks = prof_->GetBinContent(5);
+    const double numTracks = prof_->GetBinContent(2);    // tracks/nonant/event
+    const double totalTracks = prof_->GetBinContent(5);  // tracks/tracker/event
     const double numTracksMatched = prof_->GetBinContent(4);
     const double numTPsAll = prof_->GetBinContent(6);
     const double numTPsEff = prof_->GetBinContent(7);
@@ -246,12 +247,12 @@ namespace trackerTFP {
 
   // gets all TPs associated too any of the tracks & number of tracks matching at least one TP
   void AnalyzerTFP::associate(const std::vector<std::vector<TTStubRef>>& tracks,
-                              const tt::StubAssociation* ass,
+                              const tt::Associator& ass,
                               std::set<TPPtr>& tps,
                               int& nMatchTrk,
                               bool perfect) const {
     for (const std::vector<TTStubRef>& ttStubRefs : tracks) {
-      const std::vector<TPPtr>& tpPtrs = perfect ? ass->associateFinal(ttStubRefs) : ass->associate(ttStubRefs);
+      const std::vector<TPPtr>& tpPtrs = perfect ? ass.associateFinal(ttStubRefs) : ass.associate(ttStubRefs);
       if (tpPtrs.empty())
         continue;
       nMatchTrk++;
