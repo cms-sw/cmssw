@@ -1,11 +1,13 @@
 # Phase2-L1Nano
 NanoAOD ntupler for Phase-2 L1 Objects
 
-Initially an independent package here: https://github.com/cms-l1-dpg/Phase2-L1Nano/
+Initially an independent package (prior to CMSSW_15_1_0_pre2) here: https://github.com/cms-l1-dpg/Phase2-L1Nano/
 
 ## Setup
 
-For more information on the latest L1T Phase 2 software developments in CMSSW see: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideL1TPhase2Instructions#Development
+For more information on the latest L1T Phase 2 software developments in CMSSW see: https://cmsl1tofflinesw.docs.cern.ch/Phase2/phase2recipe/
+
+Previous twiki page: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideL1TPhase2Instructions#Development
 
 Corresponding menu twiki section: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PhaseIIL1TriggerMenuTools#Phase_2_L1_Trigger_objects_based
 
@@ -16,7 +18,7 @@ Corresponding menu twiki section: https://twiki.cern.ch/twiki/bin/viewauth/CMS/P
 
 One can append the L1Nano output to the `cmsDriver` command via the `NANO:@Phase2L1DPGwithGen` autoNANO handle, e.g.:
 ```bash
-cmsDriver.py -s L1,L1TrackTrigger,L1P2GT,NANO:@Phase2L1DPGwithGen
+cmsDriver.py -s L1TrackTrigger,L1,L1P2GT,NANO:@Phase2L1DPGwithGen
 ```
 
 Check `PhysicsTools/NanoAOD/python/autoNANO.py` for the way this command is defined.
@@ -24,11 +26,29 @@ Check `PhysicsTools/NanoAOD/python/autoNANO.py` for the way this command is defi
 Note that the step key `Phase2L1DPG` does not include the generator and reco-level objects used for MenuTools studies in the nano!
 It is mostly created for workflow tests.
 
-An example `cmsDriver` command for 14x files:
+An example `cmsDriver` command for 14x files (valid from CMSSW_16_1_0_pre2):
 ```bash
-cmsDriver.py -s L1,L1TrackTrigger,L1P2GT,NANO:@Phase2L1DPGwithGen \
---conditions auto:phase2_realistic_T35 \
---geometry ExtendedRun4D110 \
+cmsDriver.py -s L1TrackTrigger,L1,L1P2GT,NANO:@Phase2L1DPGwithGen \
+--processName L1TReRun \
+--conditions auto:phase2_realistic \
+--geometry ExtendedRun4D121 \
+--era Phase2C17I13M9 \
+--eventcontent NANOAOD \
+--datatier GEN-SIM-DIGI-RAW-MINIAOD \
+--customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000,Configuration/DataProcessing/Utils.addMonitoring,L1Trigger/Configuration/customisePhase2TTOn110.customisePhase2TTOn110 \
+--filein /store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_AllTP_140X_mcRun4_realistic_v4-v1/2560000/11d1f6f0-5f03-421e-90c7-b5815197fc85.root \
+--fileout file:output_Phase2_L1T.root \
+--python_filename rerunL1_cfg.py \
+--inputCommands="keep *, drop l1tPFJets_*_*_*, drop l1tTrackerMuons_l1tTkMuonsGmt*_*_HLT" \
+--mc \
+-n 10 --nThreads 4 --no_exec
+```
+
+For CMSSW_15_1_0_pre4, used in the 2025 L1T Annual Review, an example command is:
+```bash
+cmsDriver.py -s L1TrackTrigger,L1,L1P2GT,NANO:@Phase2L1DPGwithGen \
+--conditions auto:phase2_realistic_T33 \
+--geometry ExtendedRun4D121 \
 --era Phase2C17I13M9 \
 --eventcontent NANOAOD \
 --datatier GEN-SIM-DIGI-RAW-MINIAOD \
