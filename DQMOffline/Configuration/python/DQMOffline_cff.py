@@ -40,7 +40,10 @@ DQMOfflineScoutingForRelVals = DQMOfflineScouting.copy()
 DQMOfflineScoutingForRelVals.replace(hltScoutingDqmOffline, hltScoutingDqmOfflineForRelVals)
 
 # HLT Heterogeneous monitoring sequence
-DQMOfflineHLTGPUvsCPU =  cms.Sequence( HLTHeterogeneousMonitoringSequence )
+DQMOfflineHLTGPUvsCPU = cms.Sequence( HLTHeterogeneousMonitoringSequence )
+
+# Offline Heterogeneous monitoring sequence
+DQMOfflineGPUvsCPU = cms.Sequence( HeterogeneousMonitoringSequence )
 
 # L1 trigger sequences
 DQMOfflineL1T = cms.Sequence( l1TriggerDqmOffline ) # L1 emulator is run within this sequence for real data
@@ -130,7 +133,7 @@ from DQMOffline.RecoB.PrimaryVertexMonitor_cff import *
 from DQM.TrackingMonitor.trackingRecoMaterialAnalyzer_cfi import materialDumperAnalyzer
 from DQMOffline.Muon.muonMonitors_cff import *
 from DQMOffline.JetMET.jetMETDQMOfflineSource_cff import *
-from DQMOffline.ParticleFlow.runBasic_cff import *
+from DQMOffline.ParticleFlow.DQMForPF_cff import DQMOfflinePFAnalyzer
 from DQMOffline.EGamma.egammaDQMOffline_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_cff import *
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
@@ -249,15 +252,15 @@ DQMOfflineTrackerPixel = cms.Sequence( siPixelOfflineDQM_source )
 
 DQMOfflineCommon = cms.Sequence( DQMOfflineDCS *
                                  DQMMessageLogger *
-				 DQMOfflineTrackerStrip *
-				 DQMOfflineTrackerPixel *
+				                 DQMOfflineTrackerStrip *
+				                 DQMOfflineTrackerPixel *
                                  DQMOfflineTracking *
                                  DQMOfflineTrigger *
                                  DQMOfflineScoutingForRelVals *
                                  DQMOfflineBeam *
                                  DQMOfflineCASTOR *
                                  DQMOfflinePhysics *
-				                 DQMOfflineTAU *
+                                 DQMOfflineTAU *
                                  DQMOfflinePFAnalyzer
                                 )
 
@@ -311,14 +314,14 @@ pp_on_AA.toReplaceWith(DQMOfflineTAU, _DQMOfflineTAU)
 
 # miniAOD DQM validation
 from Validation.RecoParticleFlow.miniAODDQM_cff import * # On MiniAOD vs RECO
-from Validation.RecoParticleFlow.DQMForPF_MiniAOD_cff import * # MiniAOD PF variables
+from DQMOffline.ParticleFlow.DQMForPF_cff import *
 from DQM.TrackingMonitor.tracksDQMMiniAOD_cff import *
 from DQMOffline.RecoB.bTagMiniDQM_cff import *
 from DQMOffline.Muon.miniAOD_cff import *
 from DQM.Physics.DQMTopMiniAOD_cff import *
-from DQMOffline.ParticleFlow.runMini_cff import PFAnalyzerMiniAOD 
+from DQMOffline.ParticleFlow.particleFlowDQM_cff import *
 
-DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*bTagMiniDQMSource*muonMonitors_miniAOD*MuonMiniAOD*DQMOfflinePF*PFAnalyzerMiniAOD)
+DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*bTagMiniDQMSource*muonMonitors_miniAOD*MuonMiniAOD*DQMOfflinePFMiniAOD*pfAnalyzerMiniAODDQM)
 DQMOfflineMiniAODBTagOnly = cms.Sequence(bTagMiniDQMSource)
 
 #Post sequences are automatically placed in the EndPath by ConfigBuilder if PAT is run.

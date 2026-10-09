@@ -15,13 +15,13 @@ import FWCore.ParameterSet.Config as cms
 # )
 
 # Particle Flow 
-from DQM.PFTasks.pfHcalGPUComparisonTask_cfi import *  
+from DQM.PFTasks.pfHcalGPUComparisonTask_cfi import *
 
 hltPfHcalGPUComparisonTask = pfHcalGPUComparisonTask.clone(
-    subsystem = cms.untracked.string("HLT"),
-    name = cms.untracked.string('HeterogeneousComparisons/ParticleFlow'),
+    subsystem = cms.untracked.string('HLT'),
+    compDir = cms.untracked.string('HLT/HeterogeneousComparisons/ParticleFlow'),
     pfClusterToken_ref = cms.untracked.InputTag('hltParticleFlowClusterHCALSerialSync'),
-    pfClusterToken_target = cms.untracked.InputTag('hltParticleFlowClusterHCAL'),   
+    pfClusterToken_target = cms.untracked.InputTag('hltParticleFlowClusterHCAL'),
 )
 
 # Tracker
@@ -30,30 +30,29 @@ from DQM.SiPixelHeterogeneous.SiPixelHeterogenousDQM_FirstStep_cff import *
 hltSiPixelPhase1CompareDigiErrors = siPixelPhase1RawDataErrorComparator.clone(
     pixelErrorSrcGPU = 'hltSiPixelDigiErrors',
     pixelErrorSrcCPU = 'hltSiPixelDigiErrorsSerialSync',
-    topFolderName = 'HLT/HeterogeneousComparisons/PixelErrors'
+    topFolderName = 'HLT/HeterogeneousComparisons/PixelErrors',
 )
 
 hltSiPixelPhase1CompareRecHits = siPixelCompareRecHitsSoA.clone(
     pixelHitsReferenceSoA = 'hltSiPixelRecHitsSoASerialSync',
     pixelHitsTargetSoA  = 'hltSiPixelRecHitsSoA',
-    topFolderName = 'HLT/HeterogeneousComparisons/PixelRecHits'
+    topFolderName = 'HLT/HeterogeneousComparisons/PixelRecHits',
 )
 
 hltSiPixelPhase1CompareTracks = siPixelCompareTracksSoA.clone(
     pixelTrackReferenceSoA = 'hltPixelTracksSoASerialSync',
     pixelTrackTargetSoA = 'hltPixelTracksSoA',
-    topFolderName = 'HLT/HeterogeneousComparisons/PixelTracks'
+    topFolderName = 'HLT/HeterogeneousComparisons/PixelTracks',
 )
 
 hltSiPixelCompareVertices = siPixelCompareVerticesSoA.clone(
     pixelVertexReferenceSoA = 'hltPixelVerticesSoASerialSync',
     pixelVertexTargetSoA = 'hltPixelVerticesSoA',
     beamSpotSrc = 'hltOnlineBeamSpot',
-    topFolderName = 'HLT/HeterogeneousComparisons/PixelVertices'
+    topFolderName = 'HLT/HeterogeneousComparisons/PixelVertices',
 )
 
 # Ecal
-
 from DQM.EcalMonitorTasks.EcalMonitorTask_cfi import *
 from DQM.EcalMonitorTasks.ecalGpuTask_cfi import ecalGpuTask as _ecalGpuTask
 
@@ -99,7 +98,7 @@ hltEcalMonitorTask = ecalMonitorTask.clone(
         EBCpuUncalibRecHit   = cms.untracked.InputTag("hltEcalUncalibRecHitSerialSync", "EcalUncalibRecHitsEB"),
         EECpuUncalibRecHit   = cms.untracked.InputTag("hltEcalUncalibRecHitSerialSync", "EcalUncalibRecHitsEE"),
         EBGpuUncalibRecHit   = cms.untracked.InputTag("hltEcalUncalibRecHit", "EcalUncalibRecHitsEB"),
-        EEGpuUncalibRecHit   = cms.untracked.InputTag("hltEcalUncalibRecHit", "EcalUncalibRecHitsEE")
+        EEGpuUncalibRecHit   = cms.untracked.InputTag("hltEcalUncalibRecHit", "EcalUncalibRecHitsEE"),
     )
 )
 
@@ -109,7 +108,12 @@ from DQM.HcalTasks.hcalGPUComparisonTask_cfi import *
 hltHcalGPUComparisonTask = hcalGPUComparisonTask.clone(
     subsystem = "HLT",
     tagHBHE_ref = "hltHbherecoSerialSync",
-    tagHBHE_target = "hltHbhereco"
+    tagHBHE_target = "hltHbhereco",
+)
+
+from DQMOffline.ParticleFlow.DQMForPF_Heterogeneous_cff import pfClusterHBHEOnlyAlpakaComparison
+HeterogeneousMonitoringSequence = cms.Sequence(
+    pfClusterHBHEOnlyAlpakaComparison
 )
 
 HLTHeterogeneousMonitoringSequence = cms.Sequence(
@@ -122,5 +126,15 @@ HLTHeterogeneousMonitoringSequence = cms.Sequence(
     hltHcalGPUComparisonTask
 )
 
+_phase2_HLTHeterogeneousMonitoringSequence = HLTHeterogeneousMonitoringSequence.copyAndExclude([
+    # hltPfHcalGPUComparisonTask,
+    hltSiPixelPhase1CompareDigiErrors,
+    hltSiPixelPhase1CompareRecHits,
+    hltSiPixelPhase1CompareTracks,
+    hltSiPixelCompareVertices,
+    hltEcalMonitorTask,
+    hltHcalGPUComparisonTask,
+])
+
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toReplaceWith(HLTHeterogeneousMonitoringSequence,cms.Sequence())
+phase2_common.toReplaceWith(HLTHeterogeneousMonitoringSequence, _phase2_HLTHeterogeneousMonitoringSequence)

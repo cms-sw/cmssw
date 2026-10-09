@@ -1,14 +1,6 @@
 #ifndef PFAnalyzer_H
 #define PFAnalyzer_H
 
-/** \class JetMETAnalyzer
- *
- *  DQM PF candidate analysis monitoring
- *
- *  \author J. Roloff - Brown University
- *
- */
-
 #include <memory>
 #include <fstream>
 #include <utility>
@@ -33,6 +25,9 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/JetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
@@ -47,6 +42,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -65,10 +61,15 @@ public:
   /// Destructor
   ~PFAnalyzer() override;
 
-  /// Inizialize parameters for histo binning
+  // Check the MonitorElement was defined in the map to avoid segmentation violations
+  MonitorElement* getME(const std::string& key) const;
+  void fillME(const std::string& key, double val, double weight) const;
+  void fillME2D(const std::string& key, double valX, double valY, double weight) const;
+
+  // Initialize parameters for histo binning
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-  /// Get the analysis
+  // Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   /// Initialize run-based parameters
@@ -78,46 +79,86 @@ public:
 
 private:
   struct binInfo;
+
+  // The input collections are read polymorphically, so that the same code can
+  // handle RECO / AOD / HLT (reco::PFCandidate / reco::PFJet) and miniAOD
+  // (pat::PackedCandidate / pat::Jet) inputs without duplicating anything.
+  typedef edm::View<reco::Candidate> CandView;
+  typedef edm::View<reco::Jet> JetView;
+
+  // Resolve the concrete type hiding behind a generic candidate pointer.
+  // Observables that are only defined for one of the two representations use
+  // these to check whether they are applicable.
+  static const reco::PFCandidate* asPF(const reco::CandidatePtr& cand) {
+    return dynamic_cast<const reco::PFCandidate*>(cand.get());
+  }
+  static const pat::PackedCandidate* asPacked(const reco::CandidatePtr& cand) {
+    return dynamic_cast<const pat::PackedCandidate*>(cand.get());
+  }
+
+  // The equivalent of reco::PFCandidate::particleId(), but usable for any
+  // reco::Candidate. reco::PFCandidate::particleId() is itself defined as
+  // translatePdgIdToType(pdgId()), which only ever looks at the pdgId, so this
+  // gives the same answer for PF candidates and extends it to packed ones.
+  static reco::PFCandidate::ParticleType particleType(const reco::CandidatePtr& cand) {
+    if (!cand)
+      return reco::PFCandidate::ParticleType::X;
+    switch (std::abs(cand->pdgId())) {
+      case 211:
+        return reco::PFCandidate::ParticleType::h;
+      case 11:
+        return reco::PFCandidate::ParticleType::e;
+      case 13:
+        return reco::PFCandidate::ParticleType::mu;
+      case 22:
+        return reco::PFCandidate::ParticleType::gamma;
+      case 130:
+        return reco::PFCandidate::ParticleType::h0;
+      case 1:
+        return reco::PFCandidate::ParticleType::h_HF;
+      case 2:
+        return reco::PFCandidate::ParticleType::egamma_HF;
+      default:
+        return reco::PFCandidate::ParticleType::X;
+    }
+  }
+
+  // The puppi weight comes either from an external ValueMap (RECO/HLT) or from
+  // the candidate itself (miniAOD). Returns -1 when it is not available, which
+  // includes the cases where the ValueMap was not produced and where it was
+  // keyed on a different collection than the one being read here.
+  static double puppiWeightOf(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>& puppiWeight) {
+    if (puppiWeight.isValid() && puppiWeight->contains(cand.id()))
+      return (*puppiWeight)[cand];
+    if (const pat::PackedCandidate* packedPart = asPacked(cand))
+      return packedPart->puppiWeight();
+    return -1;
+  }
+
   // A map between an observable name and a function that obtains that observable from a  PFCandidate.
   // This allows us to construct more complicated observables easily, and have it more configurable
   // in the config file.
-  std::map<std::string,
-           std::function<double(const reco::PFCandidatePtr,
-                                const pat::PackedCandidate,
-                                const reco::CandidatePtr,
-                                int,
-                                edm::Handle<edm::ValueMap<float>>)>>
+  std::map<std::string, std::function<double(const reco::CandidatePtr&, const edm::Handle<edm::ValueMap<float>>&)>>
       m_funcMap;
   std::map<std::string,
-           std::function<double(const std::vector<reco::PFCandidatePtr>, reco::PFCandidate::ParticleType pfType)>>
+           std::function<double(const std::vector<reco::CandidatePtr>& pfCands, reco::PFCandidate::ParticleType pfType)>>
       m_eventFuncMap;
 
   std::map<std::string,
            std::function<double(
-               const std::vector<reco::PFCandidatePtr> pfCands, reco::PFCandidate::ParticleType pfType, const reco::Jet)>>
+               const std::vector<reco::CandidatePtr>& pfCands, reco::PFCandidate::ParticleType pfType, const reco::Jet&)>>
       m_jetWideFuncMap;
 
-  std::map<std::string,
-           std::function<double(
-               const reco::PFCandidatePtr, const pat::PackedCandidate, const reco::CandidatePtr, int, const reco::Jet)>>
-      m_pfInJetFuncMap;
-  std::map<std::string, std::function<double(const reco::Jet, const std::vector<reco::PFCandidatePtr> pfCands)>>
+  std::map<std::string, std::function<double(const reco::CandidatePtr&, const reco::Jet&)>> m_pfInJetFuncMap;
+  std::map<std::string, std::function<double(const reco::Jet&, const std::vector<reco::CandidatePtr>& pfCands)>>
       m_jetFuncMap;
 
-  std::map<std::string, std::function<bool(const std::vector<reco::Jet>& pfJets)>> m_eventSelectionMap;
+  std::map<std::string, std::function<bool(const JetView& pfJets)>> m_eventSelectionMap;
 
   binInfo getBinInfo(std::string);
 
-  // Book MonitorElements
-  void bookMESetSelection(std::string, DQMStore::IBooker&);
-
-  int getPFBin(const reco::PFCandidatePtr pfCand,
-               const pat::PackedCandidate packedCand,
-               const reco::CandidatePtr cand,
-               int partType,
-               int i,
-               edm::Handle<edm::ValueMap<float>> puppiWeight);
-  int getJetBin(const reco::Jet jetCand, const std::vector<reco::PFCandidatePtr> pfCands, int i);
+  int getPFBin(const reco::CandidatePtr& cand, unsigned int i, const edm::Handle<edm::ValueMap<float>>& puppiWeight);
+  int getJetBin(const reco::Jet& jetCand, const std::vector<reco::CandidatePtr>& pfCands, unsigned int i);
 
   int getBinNumber(double binVal, std::vector<double> bins);
   int getBinNumbers(std::vector<double> binVal, std::vector<std::vector<double>> bins);
@@ -131,821 +172,509 @@ private:
                         std::vector<std::string> observables,
                         std::vector<std::vector<double>> binnings);
 
-  static double getEnergySpectrum(const reco::PFCandidatePtr pfCand,
-                                  const pat::PackedCandidate packedPart,
-                                  const reco::CandidatePtr cand,
-                                  int partType,
-                                  const reco::Jet jet) {
+  static double getEnergySpectrum(const reco::CandidatePtr& cand, const reco::Jet& jet) {
     if (!jet.pt())
       return -1;
-    if (partType == 0) {
-      return pfCand.get()->pt() / jet.pt();
-    }
-    if (partType == 1) {
-      return packedPart.pt() / jet.pt();
-    }
-    if (partType == 2) {
-      return cand->pt() / jet.pt();
-    }
-    return -1;
+    return cand->pt() / jet.pt();
   }
 
-  static double getNPFC(const std::vector<reco::PFCandidatePtr> pfCands, reco::PFCandidate::ParticleType pfType) {
+  static double getNPFC(const std::vector<reco::CandidatePtr>& pfCands, reco::PFCandidate::ParticleType pfType) {
     int nPF = 0;
     for (const auto& pfCand : pfCands) {
       // We use X to indicate all
-      if (pfCand.get()->particleId() == pfType || pfType == reco::PFCandidate::ParticleType::X) {
+      if (particleType(pfCand) == pfType || pfType == reco::PFCandidate::ParticleType::X) {
         nPF++;
       }
     }
     return nPF;
   }
 
-  static double getNPFCinJet(const std::vector<reco::PFCandidatePtr> pfCands,
+  static double getNPFCinJet(const std::vector<reco::CandidatePtr>& pfCands,
                              reco::PFCandidate::ParticleType pfType,
-                             const reco::Jet jet) {
+                             const reco::Jet& jet) {
     int nPF = 0;
     for (const auto& pfCand : pfCands) {
       if (!pfCand)
         continue;
       // We use X to indicate all
-      if (pfCand.get()->particleId() == pfType || pfType == reco::PFCandidate::ParticleType::X)
+      if (particleType(pfCand) == pfType || pfType == reco::PFCandidate::ParticleType::X)
         nPF++;
     }
     return nPF;
   }
 
-  static double getMaxPt(const std::vector<reco::PFCandidatePtr> pfCands, reco::PFCandidate::ParticleType pfType) {
+  static double getMaxPt(const std::vector<reco::CandidatePtr>& pfCands, reco::PFCandidate::ParticleType pfType) {
     double maxPt = 0;
     for (const auto& pfCand : pfCands) {
+      if (!pfCand)
+        continue;
       // We use X to indicate all
-      if (pfCand.get()->particleId() == pfType || pfType == reco::PFCandidate::ParticleType::X) {
-        if (pfCand.get()->pt() > maxPt)
-          maxPt = pfCand.get()->pt();
+      if (particleType(pfCand) == pfType || pfType == reco::PFCandidate::ParticleType::X) {
+        if (pfCand->pt() > maxPt)
+          maxPt = pfCand->pt();
       }
     }
     return maxPt;
   }
 
-  static double getMaxPtFracJet(const std::vector<reco::PFCandidatePtr> pfCands,
+  static double getMaxPtFracJet(const std::vector<reco::CandidatePtr>& pfCands,
                                 reco::PFCandidate::ParticleType pfType,
-                                const reco::Jet jet) {
+                                const reco::Jet& jet) {
+    if (!jet.pt())
+      return -1;
     double maxPt = 0;
     for (const auto& pfCand : pfCands) {
       if (!pfCand)
         continue;
       // We use X to indicate all
-      if (pfCand.get()->particleId() == pfType || pfType == reco::PFCandidate::ParticleType::X)
-        if (pfCand.get()->pt() > maxPt)
-          maxPt = pfCand.get()->pt();
+      if (particleType(pfCand) == pfType || pfType == reco::PFCandidate::ParticleType::X)
+        if (pfCand->pt() > maxPt)
+          maxPt = pfCand->pt();
     }
     return maxPt / jet.pt();
   }
 
-  // Various functions designed to get information from a PF canddidate
-  static double getPt(const reco::PFCandidatePtr pfCand,
-                      const pat::PackedCandidate packedPart,
-                      const reco::CandidatePtr cand,
-                      int partType,
-                      edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return pfCand.get()->pt();
+  // Various functions designed to get information from a PF canddidate.
+  // The kinematic ones only need the reco::Candidate interface, and so are
+  // valid whatever the concrete type of the candidate is.
+  static double getPt(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) { return cand->pt(); }
+
+  static double getLogPt(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    return cand->pt() > 0 ? log10(cand->pt()) : -10;
+  }
+
+  static double getEnergy(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    return cand->energy();
+  }
+  static double getEta(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) { return cand->eta(); }
+  static double getAbsEta(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    return std::abs(cand->eta());
+  }
+  static double getPhi(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) { return cand->phi(); }
+
+  static double getHadCalibration(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand)
+      return -1;
+    if (pfCand->rawHcalEnergy() == 0) {
+      return -1;
     }
-    if (partType == 1) {
-      return packedPart.pt();
+    return pfCand->hcalEnergy() / pfCand->rawHcalEnergy();
+  }
+  static double getPuppiWeight(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>& puppiWeight) {
+    return puppiWeightOf(cand, puppiWeight);
+  }
+  static double getPuppiPt(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>& puppiWeight) {
+    double weight = puppiWeightOf(cand, puppiWeight);
+    if (weight < 0)
+      return -1;
+    return weight * cand->pt();
+  }
+
+  static double getLogPuppiPt(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>& puppiWeight) {
+    double weight = puppiWeightOf(cand, puppiWeight);
+    if (weight < 0)
+      return -1;
+    return weight * cand->pt() > 0 ? log10(weight * cand->pt()) : -10;
+  }
+
+  static double getPuppiEta(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>& puppiWeight) {
+    double weight = puppiWeightOf(cand, puppiWeight);
+    if (weight < 0)
+      return -1;
+    fastjet::PseudoJet weightedPF =
+        fastjet::PseudoJet(weight * cand->px(), weight * cand->py(), weight * cand->pz(), weight * cand->energy());
+    return weightedPF.eta();
+  }
+
+  static double getTime(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    if (const pat::PackedCandidate* packedPart = asPacked(cand)) {
+      return packedPart->time();
     }
-    if (partType == 2) {
-      return cand->pt();
+    if (const reco::PFCandidate* pfCand = asPF(cand)) {
+      return pfCand->time();
     }
     return -1;
   }
 
-  // Various functions designed to get information from a PF canddidate
-  static double getLogPt(const reco::PFCandidatePtr pfCand,
-                         const pat::PackedCandidate packedPart,
-                         const reco::CandidatePtr cand,
-                         int partType,
-                         edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return pfCand.get()->pt() > 0 ? log10(pfCand.get()->pt()) : -10;
+  static double getHcalEnergyDepth(const reco::CandidatePtr& cand, unsigned int depth) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand)
+      return -1;
+    return pfCand->hcalDepthEnergyFraction(depth);
+  }
+
+  static double getHcalEnergy_depth1(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    return getHcalEnergyDepth(cand, 1);
+  }
+  static double getHcalEnergy_depth2(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    return getHcalEnergyDepth(cand, 2);
+  }
+  static double getHcalEnergy_depth3(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    return getHcalEnergyDepth(cand, 3);
+  }
+  static double getHcalEnergy_depth4(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    return getHcalEnergyDepth(cand, 4);
+  }
+  static double getHcalEnergy_depth5(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    return getHcalEnergyDepth(cand, 5);
+  }
+  static double getHcalEnergy_depth6(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    return getHcalEnergyDepth(cand, 6);
+  }
+  static double getHcalEnergy_depth7(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    return getHcalEnergyDepth(cand, 7);
+  }
+
+  static double getEcalEnergy(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    if (const reco::PFCandidate* pfCand = asPF(cand)) {
+      return pfCand->ecalEnergy();
     }
-    if (partType == 1) {
-      return packedPart.pt() > 0 ? log10(packedPart.pt()) : -10;
+    if (const pat::PackedCandidate* packedPart = asPacked(cand)) {
+      return (1.0 - packedPart->hcalFraction()) * packedPart->energy();
     }
-    if (partType == 2) {
-      return cand->pt() > 0 ? log10(cand->pt()) : -10;
+    return -1;
+  }
+  static double getRawEcalEnergy(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    if (const reco::PFCandidate* pfCand = asPF(cand)) {
+      return pfCand->rawEcalEnergy();
+    }
+    if (const pat::PackedCandidate* packedPart = asPacked(cand)) {
+      return (1.0 - packedPart->rawHcalFraction()) * packedPart->energy();
+    }
+    return -1;
+  }
+  static double getHcalEnergy(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    if (const reco::PFCandidate* pfCand = asPF(cand)) {
+      return pfCand->hcalEnergy();
+    }
+    if (const pat::PackedCandidate* packedPart = asPacked(cand)) {
+      return packedPart->hcalFraction() * packedPart->energy();
+    }
+    return -1;
+  }
+  static double getRawHcalEnergy(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    if (const reco::PFCandidate* pfCand = asPF(cand)) {
+      return pfCand->rawHcalEnergy();
+    }
+    if (const pat::PackedCandidate* packedPart = asPacked(cand)) {
+      return packedPart->rawHcalFraction() * packedPart->energy();
+    }
+    return -1;
+  }
+  static double getHOEnergy(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
+    }
+    return pfCand->hoEnergy();
+  }
+  static double getRawHOEnergy(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
+    }
+    return pfCand->rawHoEnergy();
+  }
+
+  static double getRelEcalEnergy(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    if (const reco::PFCandidate* pfCand = asPF(cand)) {
+      return pfCand->ecalEnergy() / pfCand->energy();
+    }
+    if (const pat::PackedCandidate* packedPart = asPacked(cand)) {
+      return (1.0 - packedPart->hcalFraction()) * packedPart->energy();
+    }
+    return -1;
+  }
+  static double getRelRawEcalEnergy(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    if (const reco::PFCandidate* pfCand = asPF(cand)) {
+      return pfCand->rawEcalEnergy() / (pfCand->rawHoEnergy() + pfCand->rawHcalEnergy() + pfCand->rawEcalEnergy());
+    }
+    if (const pat::PackedCandidate* packedPart = asPacked(cand)) {
+      return (1.0 - packedPart->rawHcalFraction()) * packedPart->energy();
+    }
+    return -1;
+  }
+  static double getRelHcalEnergy(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    if (const reco::PFCandidate* pfCand = asPF(cand)) {
+      return pfCand->hcalEnergy() / pfCand->energy();
+    }
+    if (const pat::PackedCandidate* packedPart = asPacked(cand)) {
+      return packedPart->hcalFraction() * packedPart->energy();
+    }
+    return -1;
+  }
+  static double getRelRawHcalEnergy(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    if (const reco::PFCandidate* pfCand = asPF(cand)) {
+      return pfCand->rawHcalEnergy() / (pfCand->rawHoEnergy() + pfCand->rawHcalEnergy() + pfCand->rawEcalEnergy());
+    }
+    if (const pat::PackedCandidate* packedPart = asPacked(cand)) {
+      return packedPart->rawHcalFraction() * packedPart->energy();
     }
     return -1;
   }
 
-  static double getEnergy(const reco::PFCandidatePtr pfCand,
-                          const pat::PackedCandidate packedPart,
-                          const reco::CandidatePtr cand,
-                          int partType,
-                          edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return pfCand.get()->energy();
+  static double getRelHOEnergy(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
     }
-    if (partType == 1) {
-      return packedPart.energy();
-    }
-    if (partType == 2) {
-      return cand->energy();
-    }
-    return -1;
+    return pfCand->hoEnergy() / pfCand->energy();
   }
-  static double getEta(const reco::PFCandidatePtr pfCand,
-                       const pat::PackedCandidate packedPart,
-                       const reco::CandidatePtr cand,
-                       int partType,
-                       edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return pfCand.get()->eta();
+  static double getRelRawHOEnergy(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
     }
-    if (partType == 1) {
-      return packedPart.eta();
-    }
-    if (partType == 2) {
-      return cand->eta();
-    }
-    return -1;
+    return pfCand->rawHoEnergy() / (pfCand->rawHoEnergy() + pfCand->rawHcalEnergy() + pfCand->rawEcalEnergy());
   }
-  static double getAbsEta(const reco::PFCandidatePtr pfCand,
-                          const pat::PackedCandidate packedPart,
-                          const reco::CandidatePtr cand,
-                          int partType,
-                          edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return std::abs(pfCand.get()->eta());
+
+  static double getMVAIsolated(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
     }
-    if (partType == 1) {
-      return std::abs(packedPart.eta());
-    }
-    if (partType == 2) {
-      return std::abs(cand->eta());
-    }
-    return -1;
+    return pfCand->mva_Isolated();
   }
-  static double getPhi(const reco::PFCandidatePtr pfCand,
-                       const pat::PackedCandidate packedPart,
-                       const reco::CandidatePtr cand,
-                       int partType,
-                       edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return pfCand.get()->phi();
+  static double getMVAEPi(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
     }
-    if (partType == 1) {
-      return packedPart.phi();
+    return pfCand->mva_e_pi();
+  }
+  static double getMVAEMu(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
     }
-    if (partType == 2) {
-      return cand->phi();
+    return pfCand->mva_e_mu();
+  }
+  static double getMVAPiMu(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
     }
+    return pfCand->mva_pi_mu();
+  }
+  static double getMVANothingGamma(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
+    }
+    return pfCand->mva_nothing_gamma();
+  }
+  static double getMVANothingNH(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
+    }
+    return pfCand->mva_nothing_nh();
+  }
+  static double getMVAGammaNH(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
+    }
+    return pfCand->mva_gamma_nh();
+  }
+
+  static double getDNNESigIsolated(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
+    }
+    return pfCand->dnn_e_sigIsolated();
+  }
+  static double getDNNESigNonIsolated(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
+    }
+    return pfCand->dnn_e_sigNonIsolated();
+  }
+  static double getDNNEBkgNonIsolated(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
+    }
+    return pfCand->dnn_e_bkgNonIsolated();
+  }
+  static double getDNNEBkgTauIsolated(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
+    }
+    return pfCand->dnn_e_bkgTau();
+  }
+  static double getDNNEBkgPhotonIsolated(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
+    }
+    return pfCand->dnn_e_bkgPhoton();
+  }
+
+  static double getECalEFrac(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
+    }
+    return pfCand->ecalEnergy() / pfCand->energy();
+  }
+  static double getHCalEFrac(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
+    }
+    return pfCand->hcalEnergy() / pfCand->energy();
+  }
+  static double getPS1Energy(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
+    }
+    return pfCand->pS1Energy();
+  }
+  static double getPS2Energy(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
+    }
+    return pfCand->pS2Energy();
+  }
+  static double getPSEnergy(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
+    }
+    return pfCand->pS1Energy() + pfCand->pS2Energy();
+  }
+
+  static double getTrackPt(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
+    }
+    if (pfCand->trackRef().isNonnull())
+      return (pfCand->trackRef())->pt();
     return -1;
   }
 
-  static double getHadCalibration(const reco::PFCandidatePtr pfCand,
-                                  const pat::PackedCandidate packedPart,
-                                  const reco::CandidatePtr cand,
-                                  int partType,
-                                  edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      if (pfCand.get()->rawHcalEnergy() == 0) {
-        return -1;
-      }
-      return pfCand.get()->hcalEnergy() / pfCand.get()->rawHcalEnergy();
+  static double getTrackNStripHits(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
+      return -1;
     }
-    return -1;
-  }
-  static double getPuppiWeight(const reco::PFCandidatePtr pfCand,
-                               const pat::PackedCandidate packedPart,
-                               const reco::CandidatePtr cand,
-                               int partType,
-                               edm::Handle<edm::ValueMap<float>> puppiWeight) {
-    if (partType == 0) {
-      return (*puppiWeight)[pfCand];
-    }
-    if (partType == 1) {
-      return packedPart.puppiWeight();
-    }
-    return -1;
-  }
-  static double getPuppiPt(const reco::PFCandidatePtr pfCand,
-                           const pat::PackedCandidate packedPart,
-                           const reco::CandidatePtr cand,
-                           int partType,
-                           edm::Handle<edm::ValueMap<float>> puppiWeight) {
-    if (partType == 0) {
-      return (*puppiWeight)[pfCand] * pfCand.get()->pt();
-    }
-    if (partType == 1) {
-      return packedPart.puppiWeight() * packedPart.pt();
-    }
+    if (pfCand->trackRef().isNonnull())
+      return (pfCand->trackRef())->hitPattern().numberOfValidStripHits();
     return -1;
   }
 
-  static double getLogPuppiPt(const reco::PFCandidatePtr pfCand,
-                              const pat::PackedCandidate packedPart,
-                              const reco::CandidatePtr cand,
-                              int partType,
-                              edm::Handle<edm::ValueMap<float>> puppiWeight) {
-    if (partType == 0) {
-      return (*puppiWeight)[pfCand] * pfCand.get()->pt() > 0 ? log10((*puppiWeight)[pfCand] * pfCand.get()->pt()) : -10;
-    }
-    if (partType == 1) {
-      return packedPart.puppiWeight() * packedPart.pt() > 0 ? log10(packedPart.puppiWeight() * packedPart.pt()) : -10;
-    }
-    return -1;
-  }
-
-  static double getPuppiEta(const reco::PFCandidatePtr pfCand,
-                            const pat::PackedCandidate packedPart,
-                            const reco::CandidatePtr cand,
-                            int partType,
-                            edm::Handle<edm::ValueMap<float>> puppiWeight) {
-    double weight = (*puppiWeight)[pfCand];
-    if (partType == 0) {
-      fastjet::PseudoJet weightedPF = fastjet::PseudoJet(weight * pfCand.get()->px(),
-                                                         weight * pfCand.get()->py(),
-                                                         weight * pfCand.get()->pz(),
-                                                         weight * pfCand.get()->energy());
-      return weightedPF.eta();
-    }
-    if (partType == 1) {
-      fastjet::PseudoJet weightedPF = fastjet::PseudoJet(
-          weight * packedPart.px(), weight * packedPart.py(), weight * packedPart.pz(), weight * packedPart.energy());
-      return weightedPF.eta();
-    }
-    return -1;
-  }
-
-  static double getTime(const reco::PFCandidatePtr pfCand,
-                        const pat::PackedCandidate packedPart,
-                        const reco::CandidatePtr cand,
-                        int partType,
-                        edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 1) {
-      return packedPart.time();
-    }
-    if (partType == 0) {
-      return pfCand.get()->time();
-    }
-    return -1;
-  }
-
-  static double getHcalEnergy_depth1(const reco::PFCandidatePtr pfCand,
-                                     const pat::PackedCandidate packedPart,
-                                     const reco::CandidatePtr cand,
-                                     int partType,
-                                     edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return pfCand.get()->hcalDepthEnergyFraction(1);
-    }
-    return -1;
-  }
-  static double getHcalEnergy_depth2(const reco::PFCandidatePtr pfCand,
-                                     const pat::PackedCandidate packedPart,
-                                     const reco::CandidatePtr cand,
-                                     int partType,
-                                     edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return pfCand.get()->hcalDepthEnergyFraction(2);
-    }
-    return -1;
-  }
-  static double getHcalEnergy_depth3(const reco::PFCandidatePtr pfCand,
-                                     const pat::PackedCandidate packedPart,
-                                     const reco::CandidatePtr cand,
-                                     int partType,
-                                     edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return pfCand.get()->hcalDepthEnergyFraction(3);
-    }
-    return -1;
-  }
-  static double getHcalEnergy_depth4(const reco::PFCandidatePtr pfCand,
-                                     const pat::PackedCandidate packedPart,
-                                     const reco::CandidatePtr cand,
-                                     int partType,
-                                     edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return pfCand.get()->hcalDepthEnergyFraction(4);
-    }
-    return -1;
-  }
-  static double getHcalEnergy_depth5(const reco::PFCandidatePtr pfCand,
-                                     const pat::PackedCandidate packedPart,
-                                     const reco::CandidatePtr cand,
-                                     int partType,
-                                     edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return pfCand.get()->hcalDepthEnergyFraction(5);
-    }
-    return -1;
-  }
-  static double getHcalEnergy_depth6(const reco::PFCandidatePtr pfCand,
-                                     const pat::PackedCandidate packedPart,
-                                     const reco::CandidatePtr cand,
-                                     int partType,
-                                     edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return pfCand.get()->hcalDepthEnergyFraction(6);
-    }
-    return -1;
-  }
-  static double getHcalEnergy_depth7(const reco::PFCandidatePtr pfCand,
-                                     const pat::PackedCandidate packedPart,
-                                     const reco::CandidatePtr cand,
-                                     int partType,
-                                     edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return pfCand.get()->hcalDepthEnergyFraction(7);
-    }
-    return -1;
-  }
-
-  static double getEcalEnergy(const reco::PFCandidatePtr pfCand,
-                              const pat::PackedCandidate packedPart,
-                              const reco::CandidatePtr cand,
-                              int partType,
-                              edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return pfCand.get()->ecalEnergy();
-    }
-    if (partType == 1) {
-      return (1.0 - packedPart.hcalFraction()) * packedPart.energy();
-    }
-    return -1;
-  }
-  static double getRawEcalEnergy(const reco::PFCandidatePtr pfCand,
-                                 const pat::PackedCandidate packedPart,
-                                 const reco::CandidatePtr cand,
-                                 int partType,
-                                 edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return pfCand.get()->rawEcalEnergy();
-    }
-    if (partType == 1) {
-      return (1.0 - packedPart.rawHcalFraction()) * packedPart.energy();
-    }
-    return -1;
-  }
-  static double getHcalEnergy(const reco::PFCandidatePtr pfCand,
-                              const pat::PackedCandidate packedPart,
-                              const reco::CandidatePtr cand,
-                              int partType,
-                              edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return pfCand.get()->hcalEnergy();
-    }
-    if (partType == 1) {
-      return packedPart.hcalFraction() * packedPart.energy();
-    }
-    return -1;
-  }
-  static double getRawHcalEnergy(const reco::PFCandidatePtr pfCand,
-                                 const pat::PackedCandidate packedPart,
-                                 const reco::CandidatePtr cand,
-                                 int partType,
-                                 edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return pfCand.get()->rawHcalEnergy();
-    }
-    if (partType == 1) {
-      return packedPart.rawHcalFraction() * packedPart.energy();
-    }
-    return -1;
-  }
-  static double getHOEnergy(const reco::PFCandidatePtr pfCand,
-                            const pat::PackedCandidate packedPart,
-                            const reco::CandidatePtr cand,
-                            int partType,
-                            edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
+  static double getTrackNPixHits(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
       return -1;
     }
-    return pfCand.get()->hoEnergy();
-  }
-  static double getRawHOEnergy(const reco::PFCandidatePtr pfCand,
-                               const pat::PackedCandidate packedPart,
-                               const reco::CandidatePtr cand,
-                               int partType,
-                               edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    return pfCand.get()->rawHoEnergy();
-  }
-
-  static double getRelEcalEnergy(const reco::PFCandidatePtr pfCand,
-                                 const pat::PackedCandidate packedPart,
-                                 const reco::CandidatePtr cand,
-                                 int partType,
-                                 edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return pfCand.get()->ecalEnergy() / pfCand.get()->energy();
-    }
-    if (partType == 1) {
-      return (1.0 - packedPart.hcalFraction()) * packedPart.energy();
-    }
-    return -1;
-  }
-  static double getRelRawEcalEnergy(const reco::PFCandidatePtr pfCand,
-                                    const pat::PackedCandidate packedPart,
-                                    const reco::CandidatePtr cand,
-                                    int partType,
-                                    edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return pfCand.get()->rawEcalEnergy() /
-             (pfCand.get()->rawHoEnergy() + pfCand.get()->rawHcalEnergy() + pfCand.get()->rawEcalEnergy());
-    }
-    if (partType == 1) {
-      return (1.0 - packedPart.rawHcalFraction()) * packedPart.energy();
-    }
-    return -1;
-  }
-  static double getRelHcalEnergy(const reco::PFCandidatePtr pfCand,
-                                 const pat::PackedCandidate packedPart,
-                                 const reco::CandidatePtr cand,
-                                 int partType,
-                                 edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return pfCand.get()->hcalEnergy() / pfCand.get()->energy();
-    }
-    if (partType == 1) {
-      return packedPart.hcalFraction() * packedPart.energy();
-    }
-    return -1;
-  }
-  static double getRelRawHcalEnergy(const reco::PFCandidatePtr pfCand,
-                                    const pat::PackedCandidate packedPart,
-                                    const reco::CandidatePtr cand,
-                                    int partType,
-                                    edm::Handle<edm::ValueMap<float>>) {
-    if (partType == 0) {
-      return pfCand.get()->rawHcalEnergy() /
-             (pfCand.get()->rawHoEnergy() + pfCand.get()->rawHcalEnergy() + pfCand.get()->rawEcalEnergy());
-    }
-    if (partType == 1) {
-      return packedPart.rawHcalFraction() * packedPart.energy();
-    }
-    return -1;
-  }
-
-  static double getRelHOEnergy(const reco::PFCandidatePtr pfCand,
-                               const pat::PackedCandidate packedPart,
-                               const reco::CandidatePtr cand,
-                               int partType,
-                               edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    return pfCand.get()->hoEnergy() / pfCand.get()->energy();
-  }
-  static double getRelRawHOEnergy(const reco::PFCandidatePtr pfCand,
-                                  const pat::PackedCandidate packedPart,
-                                  const reco::CandidatePtr cand,
-                                  int partType,
-                                  edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    return pfCand.get()->rawHoEnergy() /
-           (pfCand.get()->rawHoEnergy() + pfCand.get()->rawHcalEnergy() + pfCand.get()->rawEcalEnergy());
-  }
-
-  static double getMVAIsolated(const reco::PFCandidatePtr pfCand,
-                               const pat::PackedCandidate packedPart,
-                               const reco::CandidatePtr cand,
-                               int partType,
-                               edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    return pfCand.get()->mva_Isolated();
-  }
-  static double getMVAEPi(const reco::PFCandidatePtr pfCand,
-                          const pat::PackedCandidate packedPart,
-                          const reco::CandidatePtr cand,
-                          int partType,
-                          edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    return pfCand.get()->mva_e_pi();
-  }
-  static double getMVAEMu(const reco::PFCandidatePtr pfCand,
-                          const pat::PackedCandidate packedPart,
-                          const reco::CandidatePtr cand,
-                          int partType,
-                          edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    return pfCand.get()->mva_e_mu();
-  }
-  static double getMVAPiMu(const reco::PFCandidatePtr pfCand,
-                           const pat::PackedCandidate packedPart,
-                           const reco::CandidatePtr cand,
-                           int partType,
-                           edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    return pfCand.get()->mva_pi_mu();
-  }
-  static double getMVANothingGamma(const reco::PFCandidatePtr pfCand,
-                                   const pat::PackedCandidate packedPart,
-                                   const reco::CandidatePtr cand,
-                                   int partType,
-                                   edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    return pfCand.get()->mva_nothing_gamma();
-  }
-  static double getMVANothingNH(const reco::PFCandidatePtr pfCand,
-                                const pat::PackedCandidate packedPart,
-                                const reco::CandidatePtr cand,
-                                int partType,
-                                edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    return pfCand.get()->mva_nothing_nh();
-  }
-  static double getMVAGammaNH(const reco::PFCandidatePtr pfCand,
-                              const pat::PackedCandidate packedPart,
-                              const reco::CandidatePtr cand,
-                              int partType,
-                              edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    return pfCand.get()->mva_gamma_nh();
-  }
-
-  static double getDNNESigIsolated(const reco::PFCandidatePtr pfCand,
-                                   const pat::PackedCandidate packedPart,
-                                   const reco::CandidatePtr cand,
-                                   int partType,
-                                   edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    return pfCand.get()->dnn_e_sigIsolated();
-  }
-  static double getDNNESigNonIsolated(const reco::PFCandidatePtr pfCand,
-                                      const pat::PackedCandidate packedPart,
-                                      const reco::CandidatePtr cand,
-                                      int partType,
-                                      edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    return pfCand.get()->dnn_e_sigNonIsolated();
-  }
-  static double getDNNEBkgNonIsolated(const reco::PFCandidatePtr pfCand,
-                                      const pat::PackedCandidate packedPart,
-                                      const reco::CandidatePtr cand,
-                                      int partType,
-                                      edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    return pfCand.get()->dnn_e_bkgNonIsolated();
-  }
-  static double getDNNEBkgTauIsolated(const reco::PFCandidatePtr pfCand,
-                                      const pat::PackedCandidate packedPart,
-                                      const reco::CandidatePtr cand,
-                                      int partType,
-                                      edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    return pfCand.get()->dnn_e_bkgTau();
-  }
-  static double getDNNEBkgPhotonIsolated(const reco::PFCandidatePtr pfCand,
-                                         const pat::PackedCandidate packedPart,
-                                         const reco::CandidatePtr cand,
-                                         int partType,
-                                         edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    return pfCand.get()->dnn_e_bkgPhoton();
-  }
-
-  static double getECalEFrac(const reco::PFCandidatePtr pfCand,
-                             const pat::PackedCandidate packedPart,
-                             const reco::CandidatePtr cand,
-                             int partType,
-                             edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    return pfCand.get()->ecalEnergy() / pfCand.get()->energy();
-  }
-  static double getHCalEFrac(const reco::PFCandidatePtr pfCand,
-                             const pat::PackedCandidate packedPart,
-                             const reco::CandidatePtr cand,
-                             int partType,
-                             edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    return pfCand.get()->hcalEnergy() / pfCand.get()->energy();
-  }
-  static double getPS1Energy(const reco::PFCandidatePtr pfCand,
-                             const pat::PackedCandidate packedPart,
-                             const reco::CandidatePtr cand,
-                             int partType,
-                             edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    return pfCand.get()->pS1Energy();
-  }
-  static double getPS2Energy(const reco::PFCandidatePtr pfCand,
-                             const pat::PackedCandidate packedPart,
-                             const reco::CandidatePtr cand,
-                             int partType,
-                             edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    return pfCand.get()->pS2Energy();
-  }
-  static double getPSEnergy(const reco::PFCandidatePtr pfCand,
-                            const pat::PackedCandidate packedPart,
-                            const reco::CandidatePtr cand,
-                            int partType,
-                            edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    return pfCand.get()->pS1Energy() + pfCand.get()->pS2Energy();
-  }
-
-  static double getTrackPt(const reco::PFCandidatePtr pfCand,
-                           const pat::PackedCandidate packedPart,
-                           const reco::CandidatePtr cand,
-                           int partType,
-                           edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    if (pfCand.get()->trackRef().isNonnull())
-      return (pfCand.get()->trackRef())->pt();
-    return -1;
-  }
-
-  static double getTrackNStripHits(const reco::PFCandidatePtr pfCand,
-                                   const pat::PackedCandidate packedPart,
-                                   const reco::CandidatePtr cand,
-                                   int partType,
-                                   edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    if (pfCand.get()->trackRef().isNonnull())
-      return (pfCand.get()->trackRef())->hitPattern().numberOfValidStripHits();
-    return -1;
-  }
-
-  static double getTrackNPixHits(const reco::PFCandidatePtr pfCand,
-                                 const pat::PackedCandidate packedPart,
-                                 const reco::CandidatePtr cand,
-                                 int partType,
-                                 edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
-      return -1;
-    }
-    if (pfCand.get()->trackRef().isNonnull())
-      return (pfCand.get()->trackRef())->hitPattern().numberOfValidPixelHits();
+    if (pfCand->trackRef().isNonnull())
+      return (pfCand->trackRef())->hitPattern().numberOfValidPixelHits();
 
     return -1;
   }
 
-  static double getTrackChi2(const reco::PFCandidatePtr pfCand,
-                             const pat::PackedCandidate packedPart,
-                             const reco::CandidatePtr cand,
-                             int partType,
-                             edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
+  static double getTrackChi2(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
       return -1;
     }
-    if (pfCand.get()->trackRef().isNonnull())
-      return (pfCand.get()->trackRef())->chi2();
+    if (pfCand->trackRef().isNonnull())
+      return (pfCand->trackRef())->chi2();
     return -1;
   }
 
-  static double getTrackPtError(const reco::PFCandidatePtr pfCand,
-                                const pat::PackedCandidate packedPart,
-                                const reco::CandidatePtr cand,
-                                int partType,
-                                edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
+  static double getTrackPtError(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
       return -1;
     }
-    if (pfCand.get()->trackRef().isNonnull())
-      return (pfCand.get()->trackRef())->ptError();
+    if (pfCand->trackRef().isNonnull())
+      return (pfCand->trackRef())->ptError();
     return -1;
   }
 
-  static double getTrackRelPtError(const reco::PFCandidatePtr pfCand,
-                                   const pat::PackedCandidate packedPart,
-                                   const reco::CandidatePtr cand,
-                                   int partType,
-                                   edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
+  static double getTrackRelPtError(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
       return -1;
     }
-    if (pfCand.get()->trackRef().isNonnull())
-      return (pfCand.get()->trackRef())->ptError() / (pfCand->trackRef())->pt();
+    if (pfCand->trackRef().isNonnull())
+      return (pfCand->trackRef())->ptError() / (pfCand->trackRef())->pt();
     return -1;
   }
 
-  static double getTrackD0(const reco::PFCandidatePtr pfCand,
-                           const pat::PackedCandidate packedPart,
-                           const reco::CandidatePtr cand,
-                           int partType,
-                           edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
+  static double getTrackD0(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
       return -1;
     }
-    if (pfCand.get()->trackRef().isNonnull())
-      return (pfCand.get()->trackRef())->d0();
+    if (pfCand->trackRef().isNonnull())
+      return (pfCand->trackRef())->d0();
     return -1;
   }
 
-  static double getTrackDZ(const reco::PFCandidatePtr pfCand,
-                           const pat::PackedCandidate packedPart,
-                           const reco::CandidatePtr cand,
-                           int partType,
-                           edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
+  static double getTrackDZ(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
       return -1;
     }
-    if (pfCand.get()->trackRef().isNonnull())
-      return (pfCand.get()->trackRef())->dz();
+    if (pfCand->trackRef().isNonnull())
+      return (pfCand->trackRef())->dz();
     return -1;
   }
 
-  static double getTrackThetaError(const reco::PFCandidatePtr pfCand,
-                                   const pat::PackedCandidate packedPart,
-                                   const reco::CandidatePtr cand,
-                                   int partType,
-                                   edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
+  static double getTrackThetaError(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
       return -1;
     }
-    if (pfCand.get()->trackRef().isNonnull())
-      return (pfCand.get()->trackRef())->thetaError();
+    if (pfCand->trackRef().isNonnull())
+      return (pfCand->trackRef())->thetaError();
     return -1;
   }
 
-  static double getTrackEtaError(const reco::PFCandidatePtr pfCand,
-                                 const pat::PackedCandidate packedPart,
-                                 const reco::CandidatePtr cand,
-                                 int partType,
-                                 edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
+  static double getTrackEtaError(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
       return -1;
     }
-    if (pfCand.get()->trackRef().isNonnull())
-      return (pfCand.get()->trackRef())->etaError();
+    if (pfCand->trackRef().isNonnull())
+      return (pfCand->trackRef())->etaError();
     return -1;
   }
 
-  static double getTrackPhiError(const reco::PFCandidatePtr pfCand,
-                                 const pat::PackedCandidate packedPart,
-                                 const reco::CandidatePtr cand,
-                                 int partType,
-                                 edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
+  static double getTrackPhiError(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
       return -1;
     }
-    if (pfCand.get()->trackRef().isNonnull())
-      return (pfCand.get()->trackRef())->phiError();
+    if (pfCand->trackRef().isNonnull())
+      return (pfCand->trackRef())->phiError();
     return -1;
   }
 
-  static double getEoverP(const reco::PFCandidatePtr pfCand,
-                          const pat::PackedCandidate packedPart,
-                          const reco::CandidatePtr cand,
-                          int partType,
-                          edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
+  static double getEoverP(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
       return -1;
     }
     double energy = 0;
-    int maxElement = pfCand.get()->elementsInBlocks().size();
+    int maxElement = pfCand->elementsInBlocks().size();
     for (int e = 0; e < maxElement; ++e) {
       // Get elements from block
-      reco::PFBlockRef blockRef = pfCand.get()->elementsInBlocks()[e].first;
+      reco::PFBlockRef blockRef = pfCand->elementsInBlocks()[e].first;
       const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
       for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
-        if (elements[iEle].index() == pfCand.get()->elementsInBlocks()[e].second) {
+        if (elements[iEle].index() == pfCand->elementsInBlocks()[e].second) {
           if (elements[iEle].type() == reco::PFBlockElement::HCAL ||
               elements[iEle].type() == reco::PFBlockElement::ECAL) {  // Element is HB or HE
             reco::PFClusterRef clusterref = elements[iEle].clusterRef();
@@ -955,25 +684,22 @@ private:
         }
       }
     }
-    return energy / pfCand.get()->p();
+    return energy / pfCand->p();
   }
 
-  static double getHCalEnergy(const reco::PFCandidatePtr pfCand,
-                              const pat::PackedCandidate packedPart,
-                              const reco::CandidatePtr cand,
-                              int partType,
-                              edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
+  static double getHCalEnergy(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
       return -1;
     }
     double energy = 0;
-    int maxElement = pfCand.get()->elementsInBlocks().size();
+    int maxElement = pfCand->elementsInBlocks().size();
     for (int e = 0; e < maxElement; ++e) {
       // Get elements from block
-      reco::PFBlockRef blockRef = pfCand.get()->elementsInBlocks()[e].first;
+      reco::PFBlockRef blockRef = pfCand->elementsInBlocks()[e].first;
       const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
       for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
-        if (elements[iEle].index() == pfCand.get()->elementsInBlocks()[e].second) {
+        if (elements[iEle].index() == pfCand->elementsInBlocks()[e].second) {
           if (elements[iEle].type() == reco::PFBlockElement::HCAL) {  // Element is HB or HE
             // Get cluster and hits
             reco::PFClusterRef clusterref = elements[iEle].clusterRef();
@@ -986,22 +712,19 @@ private:
     return energy;
   }
 
-  static double getECalEnergy(const reco::PFCandidatePtr pfCand,
-                              const pat::PackedCandidate packedPart,
-                              const reco::CandidatePtr cand,
-                              int partType,
-                              edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
+  static double getECalEnergy(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
       return -1;
     }
     double energy = 0;
-    int maxElement = pfCand.get()->elementsInBlocks().size();
+    int maxElement = pfCand->elementsInBlocks().size();
     for (int e = 0; e < maxElement; ++e) {
       // Get elements from block
-      reco::PFBlockRef blockRef = pfCand.get()->elementsInBlocks()[e].first;
+      reco::PFBlockRef blockRef = pfCand->elementsInBlocks()[e].first;
       const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
       for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
-        if (elements[iEle].index() == pfCand.get()->elementsInBlocks()[e].second) {
+        if (elements[iEle].index() == pfCand->elementsInBlocks()[e].second) {
           if (elements[iEle].type() == reco::PFBlockElement::ECAL) {  // Element is HB or HE
             // Get cluster and hits
             reco::PFClusterRef clusterref = elements[iEle].clusterRef();
@@ -1015,23 +738,20 @@ private:
     return energy;
   }
 
-  static double getNTracksInBlock(const reco::PFCandidatePtr pfCand,
-                                  const pat::PackedCandidate packedPart,
-                                  const reco::CandidatePtr cand,
-                                  int partType,
-                                  edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
+  static double getNTracksInBlock(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
       return -1;
     }
     // We need this function to return a double, even though this is an integer value
     double nTrack = 0;
-    int maxElement = pfCand.get()->elementsInBlocks().size();
+    int maxElement = pfCand->elementsInBlocks().size();
     for (int e = 0; e < maxElement; ++e) {
       // Get elements from block
-      reco::PFBlockRef blockRef = pfCand.get()->elementsInBlocks()[e].first;
+      reco::PFBlockRef blockRef = pfCand->elementsInBlocks()[e].first;
       const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
       for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
-        if (elements[iEle].index() == pfCand.get()->elementsInBlocks()[e].second) {
+        if (elements[iEle].index() == pfCand->elementsInBlocks()[e].second) {
           if (elements[iEle].type() == reco::PFBlockElement::TRACK) {  // Element is HB or HE
             nTrack += 1;
           }
@@ -1041,23 +761,20 @@ private:
     return nTrack;
   }
 
-  static double getCellsInBlock(const reco::PFCandidatePtr pfCand,
-                                const pat::PackedCandidate packedPart,
-                                const reco::CandidatePtr cand,
-                                int partType,
-                                edm::Handle<edm::ValueMap<float>>) {
-    if (partType) {
+  static double getCellsInBlock(const reco::CandidatePtr& cand, const edm::Handle<edm::ValueMap<float>>&) {
+    const reco::PFCandidate* pfCand = asPF(cand);
+    if (!pfCand) {
       return -1;
     }
     // We need this function to return a double, even though this is an integer value
     double nTrack = 0;
-    int maxElement = pfCand.get()->elementsInBlocks().size();
+    int maxElement = pfCand->elementsInBlocks().size();
     for (int e = 0; e < maxElement; ++e) {
       // Get elements from block
-      reco::PFBlockRef blockRef = pfCand.get()->elementsInBlocks()[e].first;
+      reco::PFBlockRef blockRef = pfCand->elementsInBlocks()[e].first;
       const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
       for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
-        if (elements[iEle].index() == pfCand.get()->elementsInBlocks()[e].second) {
+        if (elements[iEle].index() == pfCand->elementsInBlocks()[e].second) {
           if (elements[iEle].type() == reco::PFBlockElement::HCAL) {  // Element is HB or HE
             reco::PFClusterRef clusterref = elements[iEle].clusterRef();
             const reco::PFCluster& cluster = *clusterref;
@@ -1070,31 +787,32 @@ private:
     return nTrack;
   }
 
-  static double getJetPt(const reco::Jet jet, const std::vector<reco::PFCandidatePtr> pfCands) { return jet.pt(); }
-  static double getJetChargeFrac(const reco::Jet jet, const std::vector<reco::PFCandidatePtr> pfCands) {
+  static double getJetPt(const reco::Jet& jet, const std::vector<reco::CandidatePtr>& pfCands) { return jet.pt(); }
+  static double getJetChargeFrac(const reco::Jet& jet, const std::vector<reco::CandidatePtr>& pfCands) {
+    if (!jet.pt())
+      return -1;
     double chargeFrac = 0;
-    //std::vector<reco::PFCandidatePtr> pfConstits = jet.getPFConstituents();
-    //std::vector<edm::Ptr<reco::Candidate>> pfConstits = jet.getJetConstituents();
 
     for (const auto& recoPF : pfCands) {
-      if (recoPF->particleId() == reco::PFCandidate::ParticleType::h ||
-          recoPF->particleId() == reco::PFCandidate::ParticleType::e ||
-          recoPF->particleId() == reco::PFCandidate::ParticleType::mu)
+      if (!recoPF)
+        continue;
+      reco::PFCandidate::ParticleType pfType = particleType(recoPF);
+      if (pfType == reco::PFCandidate::ParticleType::h || pfType == reco::PFCandidate::ParticleType::e ||
+          pfType == reco::PFCandidate::ParticleType::mu)
         chargeFrac += recoPF->pt();
     }
     return chargeFrac / jet.pt();
   }
 
-  bool passesTriggerSelection(const std::vector<reco::Jet>& pfJets,
+  bool passesTriggerSelection(const JetView& pfJets,
                               const edm::Handle<edm::TriggerResults>& triggerResults,
                               const edm::TriggerNames& triggerNames,
                               const std::vector<std::string> triggerOptions) {
     // Hack to make it pass the lowest unprescaled HLT?
     Int_t JetHiPass = 0;
 
-    const unsigned int nTrig(triggerNames.size());
-    for (unsigned int i = 0; i < nTrig; ++i) {
-      for (unsigned int j = 0; j < triggerOptions.size(); ++j) {
+    for (unsigned i = 0; i < triggerNames.size(); ++i) {
+      for (unsigned j = 0; j < triggerOptions.size(); ++j) {
         if (triggerOptions[j].empty()) {
           JetHiPass = 1;
           break;
@@ -1113,12 +831,14 @@ private:
     return true;
   }
 
-  static bool passesNoCutSelection(const std::vector<reco::Jet>& pfJets) { return true; }
+  static bool passesNoCutSelection(const JetView& pfJets) { return true; }
 
-  static bool passesDijetSelection(const std::vector<reco::Jet>& pfJets) {
+  static bool passesDijetSelection(const JetView& pfJets) {
     if (pfJets.size() < 2)
       return false;
     if (pfJets[0].pt() < 450)
+      return false;
+    if (!pfJets[1].pt())
       return false;
     if (pfJets[0].pt() / pfJets[1].pt() > 2)
       return false;
@@ -1126,7 +846,7 @@ private:
     return true;
   }
 
-  static bool passesAnomalousSelection(const std::vector<reco::Jet>& pfJets) {
+  static bool passesAnomalousSelection(const JetView& pfJets) {
     if (pfJets.size() < 2)
       return false;
     if (pfJets[0].pt() < 450)
@@ -1137,22 +857,17 @@ private:
     return true;
   }
 
+  bool m_isHLT;
   bool m_isMiniAOD;
   unsigned int m_runNumber;
 
-  typedef edm::View<reco::Candidate> CandView;
-  edm::EDGetTokenT<CandView> thePfCandidateCollection_;
-
-  edm::EDGetTokenT<pat::PackedCandidateCollection> patPfCandidateCollection_;
-
-  edm::EDGetTokenT<reco::PFJetCollection> pfJetsToken_;
-  edm::EDGetTokenT<pat::JetCollection> patJetsToken_;
+  edm::EDGetTokenT<CandView> pfCandidateToken_;
+  edm::EDGetTokenT<JetView> jetsToken_;
 
   edm::EDGetTokenT<std::vector<reco::Vertex>> vertexToken_;
   edm::InputTag srcWeights;
 
   edm::EDGetTokenT<edm::ValueMap<float>> puppiWeightToken_;
-  edm::Handle<edm::ValueMap<float>> puppiWeight;
 
   edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
 
@@ -1165,7 +880,7 @@ private:
   std::vector<std::vector<std::string>> m_allJetSuffixes;
 
   // The directory where the output is stored
-  std::string m_directory;
+  std::string mDir;
 
   // All of the histograms, stored as a map between the histogram name and the histogram
   std::map<std::string, MonitorElement*> map_of_MEs;
@@ -1225,8 +940,6 @@ private:
   // The dR radius used to match PFCs to jets.
   // Making this configurable is useful in case you want to look at the core of a jet.
   double m_matchingRadius;
-
-  //std::vector<std::string> m_pfNames;
 };
 
 struct PFAnalyzer::binInfo {
