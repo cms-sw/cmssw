@@ -12,15 +12,15 @@ generator = cms.EDFilter("Herwig7HadronizerFilter",
     herwig7MGMergingSettingsBlock,
     configFiles = cms.vstring(),
     hw_user_settings = cms.vstring(
-        'set FxFxHandler:MergeMode TreeMG5',
-        'set FxFxHandler:njetsmax 4'
+        'set /Herwig/Shower/FxFxHandler:MergeMode TreeMG5',
+        'set /Herwig/Shower/FxFxHandler:njetsmax 4'
     ),
     parameterSets = cms.vstring(
-        'herwig7CH3PDF',
         'herwig7CH3AlphaS',
         'herwig7CH3MPISettings',
         'herwig7StableParticlesForDetector',
         'hw_mg_merging_settings',
+        'herwig7_mg_merging_CH3PDF',
         'hw_user_settings'
         ),
     crossSection = cms.untracked.double(-1),
