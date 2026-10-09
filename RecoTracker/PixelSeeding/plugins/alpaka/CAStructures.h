@@ -40,6 +40,7 @@ namespace caStructures {
 
     // Flags
     bool useRiemannFit_;
+    bool useFitCorrections_;
     bool earlyFishbone_;
     bool lateFishbone_;
     bool onlySameLayersFishbone_;
