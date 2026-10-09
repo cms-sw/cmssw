@@ -14,7 +14,7 @@ namespace mkfit {
     finding_inter_layer_pflags.tracker_info = ti;
     finding_intra_layer_pflags.tracker_info = ti;
     backward_fit_pflags.tracker_info = ti;
-    forward_fit_pflags.tracker_info = ti;
+    final_fit_pflags.tracker_info = ti;
     seed_fit_pflags.tracker_info = ti;
     pca_prop_pflags.tracker_info = ti;
   }

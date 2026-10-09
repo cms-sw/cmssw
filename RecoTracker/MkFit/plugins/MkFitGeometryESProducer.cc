@@ -3,6 +3,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "MagneticField/Portable/interface/ParabolicMagneticField.h"
 #include "DataFormats/TrackerCommon/interface/TrackerDetSide.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
@@ -140,6 +141,15 @@ private:
   const TrackerGeometry *trackerGeom_ = nullptr;
   mkfit::LayerNumberConverter layerNrConv_ = {mkfit::TkLayout::phase1};
   layer_module_shape_vec_t layerModuleShapeVec_;
+
+  // constants of mkfit::Config::bFieldFromZR, and the final fit's field-model switches
+  std::vector<double> bFieldParams_;
+  bool refitBFieldAtMid_;
+  bool refitRadialFieldCorr_;
+  bool refitElossSignFromPass_;
+  bool refitBkwMsFixedMomentum_;
+  int refitBkwSubSteps_;
+  bool refitMaterialPerModule_;
 };
 
 MkFitGeometryESProducer::MkFitGeometryESProducer(const edm::ParameterSet &iConfig) {
@@ -147,10 +157,49 @@ MkFitGeometryESProducer::MkFitGeometryESProducer(const edm::ParameterSet &iConfi
   geomToken_ = cc.consumes();
   ttopoToken_ = cc.consumes();
   trackerToken_ = cc.consumes();
+  bFieldParams_ = iConfig.getParameter<std::vector<double>>("bFieldParams");
+  if (bFieldParams_.size() != 4)
+    throw cms::Exception("Configuration") << "bFieldParams needs 4 values {c1, b0, b1, a}";
+  refitBFieldAtMid_ = iConfig.getParameter<bool>("refitBFieldAtMid");
+  refitRadialFieldCorr_ = iConfig.getParameter<bool>("refitRadialFieldCorr");
+  refitElossSignFromPass_ = iConfig.getParameter<bool>("refitElossSignFromPass");
+  refitBkwMsFixedMomentum_ = iConfig.getParameter<bool>("refitBkwMsFixedMomentum");
+  refitBkwSubSteps_ = iConfig.getParameter<int>("refitBkwSubSteps");
+  if (refitBkwSubSteps_ < 1)
+    throw cms::Exception("Configuration") << "refitBkwSubSteps must be >= 1";
+  refitMaterialPerModule_ = iConfig.getParameter<bool>("refitMaterialPerModule");
 }
 
 void MkFitGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<std::vector<double>>("bFieldParams", {3.81036, -2.03767e-06, 7.34495e-06, 3.01291e-07})
+      ->setComment(
+          "{c1, b0, b1, a} of the final fit's parametrised Bz = (b0 z^2 + b1 z + c1)(a r^2 + 1), fitted to the CMS "
+          "field map over the tracker volume (0.03 % rms); track building uses those of ParabolicMf");
+  desc.add<bool>("refitBFieldAtMid", true)
+      ->setComment(
+          "refit only: sample B at the chord midpoint of each propagate-to-plane step rather than at its start, "
+          "so that the outward and inward propagations are inverses of each other");
+  desc.add<bool>("refitRadialFieldCorr", true)
+      ->setComment(
+          "refit only: correct each propagate-to-plane step for the radial field Br = -(r/2) dBz/dz, "
+          "antisymmetrically (half of the change in r*p_phi at each end of the step)");
+  desc.add<bool>("refitElossSignFromPass", true)
+      ->setComment(
+          "refit only: energy-loss sign from the pass (forward loses, backward gains) instead of from each step's "
+          "path-length sign, which is wrong wherever the refit visits two modules in reverse order");
+  desc.add<bool>("refitBkwMsFixedMomentum", true)
+      ->setComment(
+          "refit only: multiple-scattering noise of the backward pass at the momentum of its start state (the "
+          "forward result), fixed per track, instead of at the running estimate");
+  desc.add<int>("refitBkwSubSteps", 2)
+      ->setComment(
+          "refit only: number of sub-steps of each propagation of the backward pass (fixed path length, parameters "
+          "only, covariance with the whole-step Jacobian); 1 = one step");
+  desc.add<bool>("refitMaterialPerModule", true)
+      ->setComment(
+          "refit only: material of each crossed module from its own MediumProperties instead of the (|z|,r) grid, "
+          "which averages over the modules overlapping a 1 cm cell and has no phi dimension");
   descriptions.addWithDefaultLabel(desc);
 }
 
@@ -599,6 +648,17 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
 
   const float *qBinDefaults = nullptr;
 
+  // parametrised field, for every geometry: track building with the constants of CMSSW's ParabolicMf, the final fit
+  // with its own, fitted to the field map (mkfit::Config)
+  mkfit::Config::mag_c1 = portableParabolicMagneticField::Parameters::c1;
+  mkfit::Config::mag_b0 = portableParabolicMagneticField::Parameters::b0;
+  mkfit::Config::mag_b1 = portableParabolicMagneticField::Parameters::b1;
+  mkfit::Config::mag_a = portableParabolicMagneticField::Parameters::a;
+  mkfit::Config::mag_fit_c1 = bFieldParams_[0];
+  mkfit::Config::mag_fit_b0 = bFieldParams_[1];
+  mkfit::Config::mag_fit_b1 = bFieldParams_[2];
+  mkfit::Config::mag_fit_a = bFieldParams_[3];
+
   // std::string path = "Geometry/TrackerCommonData/data/";
   if (trackerGeom_->isThere(GeomDetEnumerators::P1PXB) || trackerGeom_->isThere(GeomDetEnumerators::P1PXEC)) {
     edm::LogInfo("MkFitGeometryESProducer") << "Extracting PhaseI geometry";
@@ -702,7 +762,13 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
     else
       pconf.finding_intra_layer_pflags = PropagationFlags(PF_none);
     pconf.backward_fit_pflags = PropagationFlags(PF_use_param_b_field | PF_apply_material);
-    pconf.forward_fit_pflags = PropagationFlags(PF_use_param_b_field | PF_apply_material);
+    pconf.final_fit_pflags = PropagationFlags(PF_use_param_b_field | PF_apply_material | PF_use_fit_b_field);
+    pconf.final_fit_ffflags.b_field_at_mid = refitBFieldAtMid_;
+    pconf.final_fit_ffflags.radial_field_corr = refitRadialFieldCorr_;
+    pconf.final_fit_ffflags.eloss_sign_from_pass = refitElossSignFromPass_;
+    pconf.final_fit_ffflags.bkw_ms_fixed_momentum = refitBkwMsFixedMomentum_;
+    pconf.final_fit_ffflags.bkw_sub_steps = refitBkwSubSteps_;
+    pconf.final_fit_ffflags.material_per_module = refitMaterialPerModule_;
     pconf.seed_fit_pflags = PropagationFlags(PF_none);
     pconf.pca_prop_pflags = PropagationFlags(PF_none);
     pconf.apply_tracker_info(trackerInfo.get());

@@ -1296,25 +1296,24 @@ namespace mkfit {
 
   //------------------------------------------------------------------------------
 
-  void kalmanPropagateAndUpdateAndChi2Plane(
-      const MPlexLS& psErr,
-      const MPlexLV& psPar,
-      MPlexQI& Chg,
-      const MPlexHS& msErr,
-      const MPlexHV& msPar,
-      const MPlexHV& plNrm,
-      const MPlexHV& plDir,
-      const MPlexHV& plPnt,
-      MPlexLS& outErr,
-      MPlexLV& outPar,
-      MPlexQI& outFailFlag,
-      MPlexQF& outChi2,
-      const int N_proc,
-      const PropagationFlags& propFlags,
-      const bool propToHit,
-      const MPlexQI* noMatEffPtr,
-      const MPlexQI* doCPE,
-      cpe_func cpe_corr_func) {  //last args are const MkJob*,  const MPlexQI* noMatEffPtr, const MPlexQI* doCPE (?)
+  void kalmanPropagateAndUpdateAndChi2Plane(const MPlexLS& psErr,
+                                            const MPlexLV& psPar,
+                                            MPlexQI& Chg,
+                                            const MPlexHS& msErr,
+                                            const MPlexHV& msPar,
+                                            const MPlexHV& plNrm,
+                                            const MPlexHV& plDir,
+                                            const MPlexHV& plPnt,
+                                            MPlexLS& outErr,
+                                            MPlexLV& outPar,
+                                            MPlexQI& outFailFlag,
+                                            MPlexQF& outChi2,
+                                            const int N_proc,
+                                            const PropagationFlags& propFlags,
+                                            const bool propToHit,
+                                            const MPlexQI* noMatEffPtr,
+                                            const MPlexQI* doCPE,
+                                            cpe_func cpe_corr_func) {
     if (propToHit) {
       MPlexLS propErr;
       MPlexLV propPar;
@@ -1450,14 +1449,14 @@ namespace mkfit {
   namespace plane {
 
     // sol/100 * Bz at the predicted state: the field both local-frame Jacobians are evaluated in.
-    void local_field(const TrackRef& pred, const bool use_param_b_field, MPlexQF& bFld) {
+    void local_field(const TrackRef& pred, const bool use_param_b_field, MPlexQF& bFld, const bool fit_b_field) {
       const MPlexLV& psPar = pred.par;
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
-        bFld(n, 0, 0) =
-            use_param_b_field
-                ? 0.01f * Const::sol * Config::bFieldFromZR(psPar(n, 2, 0), hipo(psPar(n, 0, 0), psPar(n, 1, 0)))
-                : 0.01f * Const::sol * Config::Bfield;
+        bFld(n, 0, 0) = use_param_b_field ? 0.01f * Const::sol *
+                                                Config::bFieldFromZR(
+                                                    psPar(n, 2, 0), hipo(psPar(n, 0, 0), psPar(n, 1, 0)), fit_b_field)
+                                          : 0.01f * Const::sol * Config::Bfield;
       }
     }
 
@@ -1479,130 +1478,130 @@ namespace mkfit {
       MPlex5S& psErrLoc = L.err;
 
 #pragma omp simd
-    for (int n = 0; n < NN; ++n) {
-      rot(n, 0, 0) = plDir(n, 0, 0);
-      rot(n, 0, 1) = plDir(n, 1, 0);
-      rot(n, 0, 2) = plDir(n, 2, 0);
-      rot(n, 1, 0) = plNrm(n, 1, 0) * plDir(n, 2, 0) - plNrm(n, 2, 0) * plDir(n, 1, 0);
-      rot(n, 1, 1) = plNrm(n, 2, 0) * plDir(n, 0, 0) - plNrm(n, 0, 0) * plDir(n, 2, 0);
-      rot(n, 1, 2) = plNrm(n, 0, 0) * plDir(n, 1, 0) - plNrm(n, 1, 0) * plDir(n, 0, 0);
-      rot(n, 2, 0) = plNrm(n, 0, 0);
-      rot(n, 2, 1) = plNrm(n, 1, 0);
-      rot(n, 2, 2) = plNrm(n, 2, 0);
-    }
+      for (int n = 0; n < NN; ++n) {
+        rot(n, 0, 0) = plDir(n, 0, 0);
+        rot(n, 0, 1) = plDir(n, 1, 0);
+        rot(n, 0, 2) = plDir(n, 2, 0);
+        rot(n, 1, 0) = plNrm(n, 1, 0) * plDir(n, 2, 0) - plNrm(n, 2, 0) * plDir(n, 1, 0);
+        rot(n, 1, 1) = plNrm(n, 2, 0) * plDir(n, 0, 0) - plNrm(n, 0, 0) * plDir(n, 2, 0);
+        rot(n, 1, 2) = plNrm(n, 0, 0) * plDir(n, 1, 0) - plNrm(n, 1, 0) * plDir(n, 0, 0);
+        rot(n, 2, 0) = plNrm(n, 0, 0);
+        rot(n, 2, 1) = plNrm(n, 1, 0);
+        rot(n, 2, 2) = plNrm(n, 2, 0);
+      }
 
-    // get local parameters
-    MPlexHV xd;
+      // get local parameters
+      MPlexHV xd;
 #pragma omp simd
-    for (int n = 0; n < NN; ++n) {
-      xd(n, 0, 0) = psPar(n, 0, 0) - plPnt(n, 0, 0);
-      xd(n, 0, 1) = psPar(n, 0, 1) - plPnt(n, 0, 1);
-      xd(n, 0, 2) = psPar(n, 0, 2) - plPnt(n, 0, 2);
-    }
-    RotateResidualsOnPlane(rot, xd, xlo);
+      for (int n = 0; n < NN; ++n) {
+        xd(n, 0, 0) = psPar(n, 0, 0) - plPnt(n, 0, 0);
+        xd(n, 0, 1) = psPar(n, 0, 1) - plPnt(n, 0, 1);
+        xd(n, 0, 2) = psPar(n, 0, 2) - plPnt(n, 0, 2);
+      }
+      RotateResidualsOnPlane(rot, xd, xlo);
 
-    MPlexQF sinP, sinT, cosP, cosT, pt;  //fixme VDT or something?
+      MPlexQF sinP, sinT, cosP, cosT, pt;  //fixme VDT or something?
 #pragma omp simd
-    for (int n = 0; n < NN; ++n) {
-      pt(n, 0, 0) = 1.f / psPar(n, 3, 0);
-      sinP(n, 0, 0) = std::sin(psPar(n, 4, 0));
-      cosP(n, 0, 0) = std::cos(psPar(n, 4, 0));
-      sinT(n, 0, 0) = std::sin(psPar(n, 5, 0));
-      cosT(n, 0, 0) = std::cos(psPar(n, 5, 0));
-    }
+      for (int n = 0; n < NN; ++n) {
+        pt(n, 0, 0) = 1.f / psPar(n, 3, 0);
+        sinP(n, 0, 0) = std::sin(psPar(n, 4, 0));
+        cosP(n, 0, 0) = std::cos(psPar(n, 4, 0));
+        sinT(n, 0, 0) = std::sin(psPar(n, 5, 0));
+        cosT(n, 0, 0) = std::cos(psPar(n, 5, 0));
+      }
 
-    MPlexHV pgl;
+      MPlexHV pgl;
 #pragma omp simd
-    for (int n = 0; n < NN; ++n) {
-      pgl(n, 0, 0) = cosP(n, 0, 0) * pt(n, 0, 0);
-      pgl(n, 0, 1) = sinP(n, 0, 0) * pt(n, 0, 0);
-      pgl(n, 0, 2) = cosT(n, 0, 0) * pt(n, 0, 0) / sinT(n, 0, 0);
-    }
+      for (int n = 0; n < NN; ++n) {
+        pgl(n, 0, 0) = cosP(n, 0, 0) * pt(n, 0, 0);
+        pgl(n, 0, 1) = sinP(n, 0, 0) * pt(n, 0, 0);
+        pgl(n, 0, 2) = cosT(n, 0, 0) * pt(n, 0, 0) / sinT(n, 0, 0);
+      }
 
-    MPlexHV plo;
-    RotateVectorOnPlane(rot, pgl, plo);
+      MPlexHV plo;
+      RotateVectorOnPlane(rot, pgl, plo);
 #pragma omp simd
-    for (int n = 0; n < NN; ++n) {
-      lp(n, 0, 0) = inChg(n, 0, 0) * psPar(n, 3, 0) * sinT(n, 0, 0);
-      lp(n, 0, 1) = plo(n, 0, 0) / plo(n, 0, 2);
-      lp(n, 0, 2) = plo(n, 0, 1) / plo(n, 0, 2);
-      lp(n, 0, 3) = xlo(n, 0, 0);
-      lp(n, 0, 4) = xlo(n, 0, 1);
-    }
+      for (int n = 0; n < NN; ++n) {
+        lp(n, 0, 0) = inChg(n, 0, 0) * psPar(n, 3, 0) * sinT(n, 0, 0);
+        lp(n, 0, 1) = plo(n, 0, 0) / plo(n, 0, 2);
+        lp(n, 0, 2) = plo(n, 0, 1) / plo(n, 0, 2);
+        lp(n, 0, 3) = xlo(n, 0, 0);
+        lp(n, 0, 4) = xlo(n, 0, 1);
+      }
 #pragma omp simd
-    for (int n = 0; n < NN; ++n) {
-      pzSign(n, 0, 0) = plo(n, 0, 2) > 0.f ? 1 : -1;
-    }
+      for (int n = 0; n < NN; ++n) {
+        pzSign(n, 0, 0) = plo(n, 0, 2) > 0.f ? 1 : -1;
+      }
 
-    //now we need the jacobian to convert from CCS to curvilinear
-    // code from TrackState::jacobianCCSToCurvilinear
-    MPlex56 jacCCS2Curv(0.f);
+      //now we need the jacobian to convert from CCS to curvilinear
+      // code from TrackState::jacobianCCSToCurvilinear
+      MPlex56 jacCCS2Curv(0.f);
 #pragma omp simd
-    for (int n = 0; n < NN; ++n) {
-      jacCCS2Curv(n, 0, 3) = inChg(n, 0, 0) * sinT(n, 0, 0);
-      jacCCS2Curv(n, 0, 5) = inChg(n, 0, 0) * cosT(n, 0, 0) * psPar(n, 3, 0);
-      jacCCS2Curv(n, 1, 5) = -1.f;
-      jacCCS2Curv(n, 2, 4) = 1.f;
-      jacCCS2Curv(n, 3, 0) = -sinP(n, 0, 0);
-      jacCCS2Curv(n, 3, 1) = cosP(n, 0, 0);
-      jacCCS2Curv(n, 4, 0) = -cosP(n, 0, 0) * cosT(n, 0, 0);
-      jacCCS2Curv(n, 4, 1) = -sinP(n, 0, 0) * cosT(n, 0, 0);
-      jacCCS2Curv(n, 4, 2) = sinT(n, 0, 0);
-    }
+      for (int n = 0; n < NN; ++n) {
+        jacCCS2Curv(n, 0, 3) = inChg(n, 0, 0) * sinT(n, 0, 0);
+        jacCCS2Curv(n, 0, 5) = inChg(n, 0, 0) * cosT(n, 0, 0) * psPar(n, 3, 0);
+        jacCCS2Curv(n, 1, 5) = -1.f;
+        jacCCS2Curv(n, 2, 4) = 1.f;
+        jacCCS2Curv(n, 3, 0) = -sinP(n, 0, 0);
+        jacCCS2Curv(n, 3, 1) = cosP(n, 0, 0);
+        jacCCS2Curv(n, 4, 0) = -cosP(n, 0, 0) * cosT(n, 0, 0);
+        jacCCS2Curv(n, 4, 1) = -sinP(n, 0, 0) * cosT(n, 0, 0);
+        jacCCS2Curv(n, 4, 2) = sinT(n, 0, 0);
+      }
 
-    //now we need the jacobian from curv to local
-    // code from TrackingTools/AnalyticalJacobians/src/JacobianCurvilinearToLocal.cc
-    MPlexHV un;
-    MPlexHV vn;
+      //now we need the jacobian from curv to local
+      // code from TrackingTools/AnalyticalJacobians/src/JacobianCurvilinearToLocal.cc
+      MPlexHV un;
+      MPlexHV vn;
 #pragma omp simd
-    for (int n = 0; n < NN; ++n) {
-      const float abslp00 = std::abs(lp(n, 0, 0));
-      vn(n, 0, 2) = std::max(1.e-30f, abslp00 * pt(n, 0, 0));
-      un(n, 0, 0) = -pgl(n, 0, 1) * abslp00 / vn(n, 0, 2);
-      un(n, 0, 1) = pgl(n, 0, 0) * abslp00 / vn(n, 0, 2);
-      un(n, 0, 2) = 0.f;
-      vn(n, 0, 0) = -pgl(n, 0, 2) * abslp00 * un(n, 0, 1);
-      vn(n, 0, 1) = pgl(n, 0, 2) * abslp00 * un(n, 0, 0);
-    }
-    MPlexHV u;
-    RotateVectorOnPlane(rot, un, u);
-    MPlexHV v;
-    RotateVectorOnPlane(rot, vn, v);
-    MPlex55 jacCurv2Loc(0.f);
+      for (int n = 0; n < NN; ++n) {
+        const float abslp00 = std::abs(lp(n, 0, 0));
+        vn(n, 0, 2) = std::max(1.e-30f, abslp00 * pt(n, 0, 0));
+        un(n, 0, 0) = -pgl(n, 0, 1) * abslp00 / vn(n, 0, 2);
+        un(n, 0, 1) = pgl(n, 0, 0) * abslp00 / vn(n, 0, 2);
+        un(n, 0, 2) = 0.f;
+        vn(n, 0, 0) = -pgl(n, 0, 2) * abslp00 * un(n, 0, 1);
+        vn(n, 0, 1) = pgl(n, 0, 2) * abslp00 * un(n, 0, 0);
+      }
+      MPlexHV u;
+      RotateVectorOnPlane(rot, un, u);
+      MPlexHV v;
+      RotateVectorOnPlane(rot, vn, v);
+      MPlex55 jacCurv2Loc(0.f);
 #pragma omp simd
-    for (int n = 0; n < NN; ++n) {
-      const float bF = bFld(n, 0, 0);
-      const float qh2 = bF * lp(n, 0, 0);
-      const float t1r = std::sqrt(1.f + lp(n, 0, 1) * lp(n, 0, 1) + lp(n, 0, 2) * lp(n, 0, 2)) * pzSign(n, 0, 0);
-      const float t2r = t1r * t1r;
-      const float t3r = t1r * t2r;
-      jacCurv2Loc(n, 0, 0) = 1.f;
-      jacCurv2Loc(n, 1, 1) = -u(n, 0, 1) * t2r;
-      jacCurv2Loc(n, 1, 2) = v(n, 0, 1) * vn(n, 0, 2) * t2r;
-      jacCurv2Loc(n, 2, 1) = u(n, 0, 0) * t2r;
-      jacCurv2Loc(n, 2, 2) = -v(n, 0, 0) * vn(n, 0, 2) * t2r;
-      jacCurv2Loc(n, 3, 3) = v(n, 0, 1) * t1r;
-      jacCurv2Loc(n, 3, 4) = -u(n, 0, 1) * t1r;
-      jacCurv2Loc(n, 4, 3) = -v(n, 0, 0) * t1r;
-      jacCurv2Loc(n, 4, 4) = u(n, 0, 0) * t1r;
-      const float cosz = -vn(n, 0, 2) * qh2;
-      const float ui = u(n, 0, 2) * t3r;
-      const float vi = v(n, 0, 2) * t3r;
-      jacCurv2Loc(n, 1, 3) = -ui * v(n, 0, 1) * cosz;
-      jacCurv2Loc(n, 1, 4) = -vi * v(n, 0, 1) * cosz;
-      jacCurv2Loc(n, 2, 3) = ui * v(n, 0, 0) * cosz;
-      jacCurv2Loc(n, 2, 4) = vi * v(n, 0, 0) * cosz;
-      //
-    }
+      for (int n = 0; n < NN; ++n) {
+        const float bF = bFld(n, 0, 0);
+        const float qh2 = bF * lp(n, 0, 0);
+        const float t1r = std::sqrt(1.f + lp(n, 0, 1) * lp(n, 0, 1) + lp(n, 0, 2) * lp(n, 0, 2)) * pzSign(n, 0, 0);
+        const float t2r = t1r * t1r;
+        const float t3r = t1r * t2r;
+        jacCurv2Loc(n, 0, 0) = 1.f;
+        jacCurv2Loc(n, 1, 1) = -u(n, 0, 1) * t2r;
+        jacCurv2Loc(n, 1, 2) = v(n, 0, 1) * vn(n, 0, 2) * t2r;
+        jacCurv2Loc(n, 2, 1) = u(n, 0, 0) * t2r;
+        jacCurv2Loc(n, 2, 2) = -v(n, 0, 0) * vn(n, 0, 2) * t2r;
+        jacCurv2Loc(n, 3, 3) = v(n, 0, 1) * t1r;
+        jacCurv2Loc(n, 3, 4) = -u(n, 0, 1) * t1r;
+        jacCurv2Loc(n, 4, 3) = -v(n, 0, 0) * t1r;
+        jacCurv2Loc(n, 4, 4) = u(n, 0, 0) * t1r;
+        const float cosz = -vn(n, 0, 2) * qh2;
+        const float ui = u(n, 0, 2) * t3r;
+        const float vi = v(n, 0, 2) * t3r;
+        jacCurv2Loc(n, 1, 3) = -ui * v(n, 0, 1) * cosz;
+        jacCurv2Loc(n, 1, 4) = -vi * v(n, 0, 1) * cosz;
+        jacCurv2Loc(n, 2, 3) = ui * v(n, 0, 0) * cosz;
+        jacCurv2Loc(n, 2, 4) = vi * v(n, 0, 0) * cosz;
+        //
+      }
 
-    // jacobian for converting from CCS to Loc (via Curv)
-    MPlex56 jacCCS2Loc;
-    JacCCS2Loc(jacCurv2Loc, jacCCS2Curv, jacCCS2Loc);
+      // jacobian for converting from CCS to Loc (via Curv)
+      MPlex56 jacCCS2Loc;
+      JacCCS2Loc(jacCurv2Loc, jacCCS2Curv, jacCCS2Loc);
 
-    // local error!
-    MPlex56 temp56;
-    PsErrLoc(jacCCS2Loc, psErr, temp56);
-    PsErrLocTransp(temp56, jacCCS2Loc, psErrLoc);
+      // local error!
+      MPlex56 temp56;
+      PsErrLoc(jacCCS2Loc, psErr, temp56);
+      PsErrLocTransp(temp56, jacCCS2Loc, psErrLoc);
     }
 
     // The measurement (msPar, msErr) in the local frame of the plane.
@@ -1614,15 +1613,15 @@ namespace mkfit {
 
       MPlexHV md;
 #pragma omp simd
-    for (int n = 0; n < NN; ++n) {
-      md(n, 0, 0) = msPar(n, 0, 0) - plPnt(n, 0, 0);
-      md(n, 0, 1) = msPar(n, 0, 1) - plPnt(n, 0, 1);
-      md(n, 0, 2) = msPar(n, 0, 2) - plPnt(n, 0, 2);
-    }
-    RotateResidualsOnPlane(rot, md, mslo);
-    MPlex2H temp2Hmsl;
-    ProjectResErr(rot, msErr, temp2Hmsl);
-    ProjectResErrTransp(rot, temp2Hmsl, msErr_loc);
+      for (int n = 0; n < NN; ++n) {
+        md(n, 0, 0) = msPar(n, 0, 0) - plPnt(n, 0, 0);
+        md(n, 0, 1) = msPar(n, 0, 1) - plPnt(n, 0, 1);
+        md(n, 0, 2) = msPar(n, 0, 2) - plPnt(n, 0, 2);
+      }
+      RotateResidualsOnPlane(rot, md, mslo);
+      MPlex2H temp2Hmsl;
+      ProjectResErr(rot, msErr, temp2Hmsl);
+      ProjectResErrTransp(rot, temp2Hmsl, msErr_loc);
     }
 
     // The CPE's local position and error replace the measurement on the lanes where doCPE holds a hit index
@@ -1666,16 +1665,16 @@ namespace mkfit {
       }
 
 #pragma omp simd
-    for (int n = 0; n < NN; ++n) {
-      resErr_loc(n, 0, 0) = psErrLoc(n, 3, 3) + msErr_loc(n, 0, 0);
-      resErr_loc(n, 0, 1) = psErrLoc(n, 3, 4) + msErr_loc(n, 0, 1);
-      resErr_loc(n, 1, 1) = psErrLoc(n, 4, 4) + msErr_loc(n, 1, 1);
-    }
-    //invert the 2x2 matrix, keeping the determinant (Cramer computes it in double either way)
-    double determ[NN];
-    Matriplex::invertCramerSym(resErr_loc, determ);
-    for (int n = 0; n < NN; ++n)
-      R.det[n] = (float)determ[n];
+      for (int n = 0; n < NN; ++n) {
+        resErr_loc(n, 0, 0) = psErrLoc(n, 3, 3) + msErr_loc(n, 0, 0);
+        resErr_loc(n, 0, 1) = psErrLoc(n, 3, 4) + msErr_loc(n, 0, 1);
+        resErr_loc(n, 1, 1) = psErrLoc(n, 4, 4) + msErr_loc(n, 1, 1);
+      }
+      //invert the 2x2 matrix, keeping the determinant (Cramer computes it in double either way)
+      double determ[NN];
+      Matriplex::invertCramerSym(resErr_loc, determ);
+      for (int n = 0; n < NN; ++n)
+        R.det[n] = (float)determ[n];
     }
 
     // chi2 of the residual.
@@ -1687,17 +1686,17 @@ namespace mkfit {
         Chi2Similarity(res_loc, resErr_loc, outChi2);
 
 #ifdef DEBUG
-      {
-        dmutex_guard;
-        printf("resErr_loc (Inv):\n");
-        for (int i = 0; i < 2; ++i) {
-          for (int j = 0; j < 2; ++j)
-            printf("%8f ", resErr_loc.At(0, i, j));
+        {
+          dmutex_guard;
+          printf("resErr_loc (Inv):\n");
+          for (int i = 0; i < 2; ++i) {
+            for (int j = 0; j < 2; ++j)
+              printf("%8f ", resErr_loc.At(0, i, j));
+            printf("\n");
+          }
           printf("\n");
+          printf("chi2: %8f\n", outChi2.At(0, 0, 0));
         }
-        printf("\n");
-        printf("chi2: %8f\n", outChi2.At(0, 0, 0));
-      }
 #endif
       }
     }

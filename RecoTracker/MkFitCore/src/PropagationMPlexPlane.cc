@@ -53,10 +53,10 @@ namespace {
 
   using MPF = MPlexQF;
 
-  MPF getBFieldFromZXY(const MPF& z, const MPF& x, const MPF& y) {
+  MPF getBFieldFromZXY(const MPF& z, const MPF& x, const MPF& y, const bool fit) {
     MPF b;
     for (int n = 0; n < NN; ++n)
-      b[n] = Config::bFieldFromZR(z[n], hipo(x[n], y[n]));
+      b[n] = Config::bFieldFromZR(z[n], hipo(x[n], y[n]), fit);
     return b;
   }
 
@@ -155,8 +155,21 @@ namespace {
     const MPF bF = Const::sol_over_100 * bFld;
     const MPF q = -bF * qbp;
     const MPF theta = q * s;
-    MPF sint, cost;
-    mpt::fast_sincos(theta, sint, cost);
+    // from the half angle: 1 - cos and theta - sin without cancellation at small turning angle
+    MPF sinth, costh;
+    mpt::fast_sincos(0.5f * theta, sinth, costh);
+    const MPF sint = 2.f * sinth * costh;
+    const MPF omcost = 2.f * sinth * sinth;
+    const MPF cost = 1.f - omcost;
+    // theta - sin(theta): below theta = 1 from its series to theta^9, which is accurate to float precision there (the
+    // first omitted term is below 2e-7 of the sum); above it the difference loses less than a digit
+    MPF tmsint;
+    for (int n = 0; n < NN; ++n) {
+      const float t2 = theta[n] * theta[n];
+      tmsint[n] = std::abs(theta[n]) < 1.f
+                      ? theta[n] * t2 / 6.f * (1.f - t2 / 20.f * (1.f - t2 / 42.f * (1.f - t2 / 72.f)))
+                      : theta[n] - sint[n];
+    }
     const MPF dx1 = inPar(0, 0) - outPar(0, 0);
     const MPF dx2 = inPar(1, 0) - outPar(1, 0);
     const MPF dx3 = inPar(2, 0) - outPar(2, 0);
@@ -171,8 +184,6 @@ namespace {
     const MPF v22 = cosT * u21;
     const MPF v23 = sinT;
     // now prepare the transport matrix
-    const MPF omcost = 1.f - cost;
-    const MPF tmsint = theta - sint;
 
     MPlex55 errorPropCurv{0.0f};
     //   1/p - doesn't change since |p1| = |p2|
@@ -411,33 +422,34 @@ namespace {
     sl = -(plNrm(0, 0) * delta0 + plNrm(1, 0) * delta1 + plNrm(2, 0) * delta2) /
          (plNrm(0, 0) * cosP * sinT + plNrm(1, 0) * sinP * sinT + plNrm(2, 0) * cosT);
 
-    //float s[nmax - nmin];
-    //first iteration outside the loop
-#pragma omp simd
-    for (int n = 0; n < N_proc; ++n) {
-      s[n] = (std::abs(plNrm(n, 2, 0)) < 1.f ? getS(delta0[n],
-                                                    delta1[n],
-                                                    delta2[n],
-                                                    plNrm(n, 0, 0),
-                                                    plNrm(n, 1, 0),
-                                                    plNrm(n, 2, 0),
-                                                    sinP[n],
-                                                    cosP[n],
-                                                    sinT[n],
-                                                    cosT[n],
-                                                    inPar(n, 3, 0),
-                                                    inChg(n, 0, 0),
-                                                    kinv[n])
-                                             : (plPnt.constAt(n, 2, 0) - inPar.constAt(n, 2, 0)) / cosT[n]);
-    }
+    // The helix and the disk solutions are computed for every lane without a branch, so that they vectorise (a
+    // select around the square root and the divisions keeps the loop scalar), and the plane type picks one after.
+    MPF sH, sZ;
+    for (int n = 0; n < NN; ++n)
+      sH[n] = getS(delta0[n],
+                   delta1[n],
+                   delta2[n],
+                   plNrm(n, 0, 0),
+                   plNrm(n, 1, 0),
+                   plNrm(n, 2, 0),
+                   sinP[n],
+                   cosP[n],
+                   sinT[n],
+                   cosT[n],
+                   inPar(n, 3, 0),
+                   inChg(n, 0, 0),
+                   kinv[n]);
+    for (int n = 0; n < NN; ++n)
+      sZ[n] = (plPnt.constAt(n, 2, 0) - inPar.constAt(n, 2, 0)) / cosT[n];
+    for (int n = 0; n < N_proc; ++n)
+      s[n] = std::abs(plNrm(n, 2, 0)) < 1.f ? sH[n] : sZ[n];
   }
 
   void pathRefine_impl(const MPlexLV& __restrict__ inPar,
                        const MPlexQI& __restrict__ inChg,
                        const MPlexHV& __restrict__ plPnt,
                        const MPlexHV& __restrict__ plNrm,
-                       const MPlexQF& __restrict__ sinP0,
-                       const MPlexQF& __restrict__ cosP0,
+                       const MPlexLV& __restrict__ outParTmp,
                        const MPlexQF& __restrict__ sinT,
                        const MPlexQF& __restrict__ cosT,
                        const MPlexQF& __restrict__ kinv,
@@ -445,9 +457,6 @@ namespace {
                        const int N_proc) {
     namespace mpt = Matriplex;
     using MPF = MPlexQF;
-
-    MPlexLV outParTmp{0.0f};
-    parsFromPathL_impl(inPar, sinP0, cosP0, sinT, cosT, outParTmp, kinv, s);
 
     const MPF delta0 = outParTmp(0, 0) - plPnt(0, 0);
     const MPF delta1 = outParTmp(1, 0) - plPnt(1, 0);
@@ -457,24 +466,28 @@ namespace {
     mpt::fast_sincos(outParTmp(4, 0), sinP, cosP);
     // Note, sinT/cosT not updated
 
-#pragma omp simd
-    for (int n = 0; n < N_proc; ++n) {
-      s[n] += (std::abs(plNrm(n, 2, 0)) < 1.f
-                   ? getS(delta0[n],
-                          delta1[n],
-                          delta2[n],
-                          plNrm(n, 0, 0),
-                          plNrm(n, 1, 0),
-                          plNrm(n, 2, 0),
-                          sinP[n],
-                          cosP[n],
-                          sinT[n],
-                          cosT[n],
-                          inPar(n, 3, 0),
-                          inChg(n, 0, 0),
-                          kinv[n])
-                   : (plPnt.constAt(n, 2, 0) - outParTmp.constAt(n, 2, 0)) / std::cos(outParTmp.constAt(n, 5, 0)));
-    }
+    // As in pathInit_impl: the helix solution for every lane, then the disk one, with its scalar cos, only on
+    // the lanes that need it.
+    MPF sH;
+    for (int n = 0; n < NN; ++n)
+      sH[n] = getS(delta0[n],
+                   delta1[n],
+                   delta2[n],
+                   plNrm(n, 0, 0),
+                   plNrm(n, 1, 0),
+                   plNrm(n, 2, 0),
+                   sinP[n],
+                   cosP[n],
+                   sinT[n],
+                   cosT[n],
+                   inPar(n, 3, 0),
+                   inChg(n, 0, 0),
+                   kinv[n]);
+    for (int n = 0; n < N_proc; ++n)
+      if (!(std::abs(plNrm(n, 2, 0)) < 1.f))
+        sH[n] = (plPnt.constAt(n, 2, 0) - outParTmp.constAt(n, 2, 0)) / std::cos(outParTmp.constAt(n, 5, 0));
+    for (int n = 0; n < N_proc; ++n)
+      s[n] += sH[n];
   }
 
   void pathClose_impl(const MPlexQF& __restrict__ sl, MPlexQF& __restrict__ s, const int N_proc) {
@@ -508,7 +521,7 @@ namespace mkfit::plane {
   void field_at_start(const TrackRef& in, const PropagationFlags& pf, FieldAt& f) {
     f.kinv = Matriplex::negate_if_ltz(MPlexQF(-Const::sol_over_100), in.chg);
     if (pf.use_param_b_field) {
-      f.b = getBFieldFromZXY(in.par(2, 0), in.par(0, 0), in.par(1, 0));
+      f.b = getBFieldFromZXY(in.par(2, 0), in.par(0, 0), in.par(1, 0), pf.use_fit_b_field);
     } else {
       f.b.setVal(Config::Bfield);
     }
@@ -524,8 +537,15 @@ namespace mkfit::plane {
     pathInit_impl(in.par, in.chg, pl.pnt, pl.nrm, t.sinP, t.cosP, t.sinT, t.cosT, f.kinv, p.s, p.s_line, in.n_proc);
   }
 
+  void path_refine_from(
+      const TrackRef& in, const StartTrig& t, const PlaneRef& pl, const FieldAt& f, const MPlexLV& at, PathSolve& p) {
+    pathRefine_impl(in.par, in.chg, pl.pnt, pl.nrm, at, t.sinT, t.cosT, f.kinv, p.s, in.n_proc);
+  }
+
   void path_refine(const TrackRef& in, const StartTrig& t, const PlaneRef& pl, const FieldAt& f, PathSolve& p) {
-    pathRefine_impl(in.par, in.chg, pl.pnt, pl.nrm, t.sinP, t.cosP, t.sinT, t.cosT, f.kinv, p.s, in.n_proc);
+    MPlexLV at{0.0f};
+    drift(in, t, f, p.s, at);
+    path_refine_from(in, t, pl, f, at, p);
   }
 
   void path_close(const TrackRef& in, PathSolve& p) { pathClose_impl(p.s_line, p.s, in.n_proc); }
@@ -538,9 +558,7 @@ namespace mkfit::plane {
     path_close(in, p);
   }
 
-  void path_from_perp(const TrackRef& in, const StartTrig& t, const MPlexQF& sPerp, MPlexQF& s) {
-    s = sPerp / t.sinT;
-  }
+  void path_from_perp(const TrackRef& in, const StartTrig& t, const MPlexQF& sPerp, MPlexQF& s) { s = sPerp / t.sinT; }
 
   void drift(const TrackRef& in, const StartTrig& t, const FieldAt& f, const MPlexQF& s, MPlexLV& outPar) {
     parsFromPathL_impl(in.par, t.sinP, t.cosP, t.sinT, t.cosT, outPar, f.kinv, s);
@@ -603,8 +621,9 @@ namespace mkfit::plane {
     }
   }
 
-  void apply_material(const MaterialAt& m, const MPlexHV& plNrm, MPlexLS& err, MPlexLV& par, const int N_proc) {
-    applyMaterialEffects(m.radl, m.xi, m.sign, plNrm, err, par, N_proc);
+  void apply_material(
+      const MaterialAt& m, const MPlexHV& plNrm, MPlexLS& err, MPlexLV& par, const int N_proc, const float* ms_ref_p) {
+    applyMaterialEffects(m.radl, m.xi, m.sign, plNrm, err, par, N_proc, ms_ref_p);
   }
 
   void finish(const TrackRef& in, const MPlexLS& inErr, const MPlexQI& failFlag, MPlexLV& par, MPlexLS& err) {

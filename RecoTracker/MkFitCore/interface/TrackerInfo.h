@@ -62,7 +62,8 @@ namespace mkfit {
     // geometry files meaningless.
     unsigned short pad_ = 0;
     // The module's own material (MediumProperties): radiation length and Bethe-Bloch xi at normal incidence.
-    // The (|z|, r) material grid averages over every module overlapping a cell and has no phi dimension.
+    // The (|z|, r) material grid averages over every module overlapping a cell and has no phi dimension; the
+    // final fit can use these instead (FinalFitFlags::material_per_module).
     float radl = 0.f;
     float bbxi = 0.f;
 

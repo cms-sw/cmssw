@@ -108,8 +108,12 @@ namespace mkfit {
     // The path length from the start state to the plane in the field f: a first solve, refinements
     // from the state the current solution reaches, and the straight line where the helix solution is
     // not finite.  path_solve() does the three with Config::nSStepsInProp2Plane - 1 refinements.
+    // path_refine() is drift() to the current solution followed by path_refine_from() that state, at;
+    // a caller can change the field between the two.
     void path_init(const TrackRef& in, const StartTrig& t, const PlaneRef& pl, const FieldAt& f, PathSolve& p);
     void path_refine(const TrackRef& in, const StartTrig& t, const PlaneRef& pl, const FieldAt& f, PathSolve& p);
+    void path_refine_from(
+        const TrackRef& in, const StartTrig& t, const PlaneRef& pl, const FieldAt& f, const MPlexLV& at, PathSolve& p);
     void path_close(const TrackRef& in, PathSolve& p);
     void path_solve(const TrackRef& in, const StartTrig& t, const PlaneRef& pl, const FieldAt& f, PathSolve& p);
 
@@ -138,7 +142,13 @@ namespace mkfit {
     void eloss_sign_of_pass(const bool outward, const MPlexQI* noMatEffPtr, const int N_proc, MaterialAt& m);
 
     // Multiple scattering and energy loss of the material m on the plane with normal plNrm.
-    void apply_material(const MaterialAt& m, const MPlexHV& plNrm, MPlexLS& err, MPlexLV& par, const int N_proc);
+    // ms_ref_p: per-lane |p| at which the scattering noise is evaluated; nullptr = the state's own momentum.
+    void apply_material(const MaterialAt& m,
+                        const MPlexHV& plNrm,
+                        MPlexLS& err,
+                        MPlexLV& par,
+                        const int N_proc,
+                        const float* ms_ref_p = nullptr);
 
     // Phi into [-pi, pi), and the start state (in, inErr) restored on lanes whose propagation failed.
     void finish(const TrackRef& in, const MPlexLS& inErr, const MPlexQI& failFlag, MPlexLV& par, MPlexLS& err);
@@ -146,7 +156,8 @@ namespace mkfit {
     // ---- Kalman operation on a plane (KalmanUtilsMPlex.cc)
 
     // sol/100 * Bz at the predicted state: the field both local-frame Jacobians are evaluated in.
-    void local_field(const TrackRef& pred, const bool use_param_b_field, MPlexQF& bFld);
+    // fit_b_field: the parametrised field of the final fit (Config::bFieldFromZRFit)
+    void local_field(const TrackRef& pred, const bool use_param_b_field, MPlexQF& bFld, const bool fit_b_field = false);
 
     // The predicted state and its covariance psErr in the local frame of the plane (pl.nrm, plDir).
     void to_local(const TrackRef& pred,

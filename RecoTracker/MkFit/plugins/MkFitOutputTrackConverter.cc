@@ -3,12 +3,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/CommonTopologies/interface/GeomDetEnumerators.h"
 
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
@@ -20,6 +20,8 @@
 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryError.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -30,8 +32,10 @@
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
 #include "RecoTracker/MkFit/interface/MkFitEventOfHits.h"
@@ -44,12 +48,15 @@
 // mkFit indludes
 #include "RecoTracker/MkFitCMS/interface/LayerNumberConverter.h"
 #include "RecoTracker/MkFitCore/interface/Track.h"
+#include "RecoTracker/MkFitCore/interface/HitStateOnTrack.h"
 #include "RecoTracker/MkFitCore/interface/HitStructures.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
@@ -61,18 +68,25 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
+#include <algorithm>
+#include <limits>
+#include <memory>
+#include <unordered_map>
+
 namespace {
-  template <typename T>
-  bool isPhase1Barrel(T subdet) {
-    return subdet == PixelSubdetector::PixelBarrel || subdet == StripSubdetector::TIB ||
-           subdet == StripSubdetector::TOB;
+  // a final-fit state on a hit's module (mkfit::HitStateOnTrack: that module's local frame)
+  TrajectoryStateOnSurface toTSOS(const mkfit::HitStateOnTrack& st, const GeomDet& det, const MagneticField& mf) {
+    AlgebraicSymMatrix55 m;
+    for (int i = 0; i < 5; ++i)
+      for (int j = 0; j <= i; ++j)
+        m(i, j) = st.err[i * (i + 1) / 2 + j];
+    return TrajectoryStateOnSurface(
+        LocalTrajectoryParameters(st.par[0], st.par[1], st.par[2], st.par[3], st.par[4], st.pzSign, true),
+        LocalTrajectoryError(m),
+        det.surface(),
+        &mf);
   }
 
-  template <typename T>
-  bool isPhase1Endcap(T subdet) {
-    return subdet == PixelSubdetector::PixelEndcap || subdet == StripSubdetector::TID ||
-           subdet == StripSubdetector::TEC;
-  }
 }  // namespace
 
 class MkFitOutputTrackConverter : public edm::global::EDProducer<> {
@@ -103,9 +117,16 @@ private:
                          const MeasurementTrackerEvent& measTk,
                          reco::TrackCollection& trks,
                          std::vector<int>& seedIndices,
-                         std::vector<edm::OwnVector<TrackingRecHit>>& hitsVecs) const;
+                         std::vector<edm::OwnVector<TrackingRecHit>>& hitsVecs,
+                         std::vector<int>& candIndices,
+                         std::vector<std::vector<int>>& hotVecs) const;
 
-  float ptcorr(const float abstheta, const float pt) const;
+  // validation of the per-hit states (validateHitStates): the mkFit smoother against TrajectoryStateCombiner
+  void validateHitStates(const MkFitOutputWrapper& mkFitOutput,
+                         const std::vector<int>& candIndices,
+                         const std::vector<edm::OwnVector<TrackingRecHit>>& hitsVecs,
+                         const std::vector<std::vector<int>>& hotVecs,
+                         const MagneticField& mf) const;
 
   const edm::EDGetTokenT<MkFitEventOfHits> eventOfHitsToken_;
   const edm::EDGetTokenT<MkFitClusterIndexToHit> pixelClusterIndexToHitToken_;
@@ -131,16 +152,19 @@ private:
   const float qualityMaxPosErrSq_;
   const bool qualitySignPt_;
 
-  const bool calibrate_;
-  std::vector<double> calibBinCenter_;
-  std::vector<double> calibBinCoeff_;
-  std::vector<double> calibBinOffset_;
-
   const edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerEventToken_;
   const edm::ESGetToken<NavigationSchool, NavigationSchoolRecord> navToken_;
 
   const int algo_;
   const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+
+  // trajectoryInEvent: also produce the Trajectories and their association to the tracks (as TrackProducer); needs
+  // the final fit's per-hit states (MkFitFitProducer storeHitStates).  With per-hit states the TrackExtras are filled
+  // in full either way.
+  const bool trajectoryInEvent_;
+  const bool validateHitStates_;
+  edm::EDPutTokenT<std::vector<Trajectory>> putTrajToken_;
+  edm::EDPutTokenT<TrajTrackAssociationCollection> putTrajAssocToken_;
 };
 
 MkFitOutputTrackConverter::MkFitOutputTrackConverter(edm::ParameterSet const& iConfig)
@@ -166,18 +190,22 @@ MkFitOutputTrackConverter::MkFitOutputTrackConverter(edm::ParameterSet const& iC
       qualityMaxZ_{float(iConfig.getParameter<double>("qualityMaxZ"))},
       qualityMaxPosErrSq_{float(pow(iConfig.getParameter<double>("qualityMaxPosErr"), 2))},
       qualitySignPt_{iConfig.getParameter<bool>("qualitySignPt")},
-      calibrate_{iConfig.getParameter<bool>("calibrate")},
-      calibBinCenter_{iConfig.getParameter<std::vector<double>>("calibBinCenter")},
-      calibBinCoeff_{iConfig.getParameter<std::vector<double>>("calibBinCoeff")},
-      calibBinOffset_{iConfig.getParameter<std::vector<double>>("calibBinOffset")},
       measurementTrackerEventToken_{consumes(iConfig.getParameter<edm::InputTag>("measurementTrackerEvent"))},
       navToken_{esConsumes(iConfig.getParameter<edm::ESInputTag>("NavigationSchool"))},
       algo_{reco::TrackBase::algoByName(
-          TString(iConfig.getParameter<edm::InputTag>("seeds").label()).ReplaceAll("Seeds", "").Data())},
-      bsToken_(consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"))) {
+          iConfig.getParameter<std::string>("algorithmName").empty()
+              ? TString(iConfig.getParameter<edm::InputTag>("seeds").label()).ReplaceAll("Seeds", "").Data()
+              : iConfig.getParameter<std::string>("algorithmName"))},
+      bsToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
+      trajectoryInEvent_{iConfig.getParameter<bool>("trajectoryInEvent")},
+      validateHitStates_{iConfig.getUntrackedParameter<bool>("validateHitStates")} {
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
+  if (trajectoryInEvent_) {
+    putTrajToken_ = produces<std::vector<Trajectory>>();
+    putTrajAssocToken_ = produces<TrajTrackAssociationCollection>();
+  }
 }
 
 void MkFitOutputTrackConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -189,6 +217,8 @@ void MkFitOutputTrackConverter::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add("mkFitSeeds", edm::InputTag{"mkFitSeedConverter"});
   desc.add("src", edm::InputTag{"mkFitProducer"});
   desc.add("seeds", edm::InputTag{"initialStepSeeds"});
+  desc.add<std::string>("algorithmName", "")->setComment("track algorithm; if empty, the seeds label without 'Seeds'");
+  desc.add("beamSpot", edm::InputTag{"offlineBeamSpot"});
   desc.add("ttrhBuilder", edm::ESInputTag{"", "WithTrackAngle"});
   desc.add("propagatorAlong", edm::ESInputTag{"", "PropagatorWithMaterial"});
   desc.add("propagatorOpposite", edm::ESInputTag{"", "PropagatorWithMaterialOpposite"});
@@ -200,15 +230,11 @@ void MkFitOutputTrackConverter::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<double>("qualityMaxPosErr", 100)->setComment("max position error for converted tracks");
   desc.add<bool>("qualitySignPt", true)->setComment("check sign of 1/pt for converted tracks");
 
-  desc.add<bool>("calibrate", true)->setComment("true if mkFit fit pT calibration is needed");
-  desc.add<std::vector<double>>("calibBinCenter", {0.1704, 0.6028, 1.0188, 1.2898, 1.4390, 1.4908, 1.5500})
-      ->setComment("calibration bin center (in |theta|)");
-  desc.add<std::vector<double>>("calibBinCoeff", {1.0000, 1.0004, 1.00014, 1.0027, 1.0029, 1.0009, 0.9999})
-      ->setComment("calibration coeff for bin");
-  desc.add<std::vector<double>>("calibBinOffset", {0.0016, 0.0032, 0.0033, 0.0045, 0.0005, 0.0012, 0.0003})
-      ->setComment("calibration offset for bin");
-
   desc.add<edm::ESInputTag>("NavigationSchool", edm::ESInputTag{"", "SimpleNavigationSchool"});
+  desc.add<bool>("trajectoryInEvent", false)
+      ->setComment("also produce Trajectories and the trajectory-track association; needs per-hit states (src)");
+  desc.addUntracked<bool>("validateHitStates", false)
+      ->setComment("compare the per-hit smoothed states with TrajectoryStateCombiner (validation only)");
   desc.add<edm::InputTag>("measurementTrackerEvent", edm::InputTag("MeasurementTrackerEvent"));
 
   descriptions.addWithDefaultLabel(desc);
@@ -238,12 +264,14 @@ void MkFitOutputTrackConverter::produce(edm::StreamID iID, edm::Event& iEvent, c
   //beamspot for trk
   const reco::BeamSpot* beamspot = &iEvent.get(bsToken_);
 
-  std::unique_ptr<reco::TrackCollection> trks(new reco::TrackCollection);
-  std::unique_ptr<TrackingRecHitCollection> hits(new TrackingRecHitCollection());
-  std::unique_ptr<reco::TrackExtraCollection> extras(new reco::TrackExtraCollection());
+  std::unique_ptr<reco::TrackCollection> trks = std::make_unique<reco::TrackCollection>();
+  std::unique_ptr<TrackingRecHitCollection> hits = std::make_unique<TrackingRecHitCollection>();
+  std::unique_ptr<reco::TrackExtraCollection> extras = std::make_unique<reco::TrackExtraCollection>();
 
   std::vector<int> seedIndices;
   std::vector<edm::OwnVector<TrackingRecHit>> hitsVecs;
+  std::vector<int> candIndices;
+  std::vector<std::vector<int>> hotVecs;
 
   // product references
   reco::TrackExtraRefProd ref_trackextras = iEvent.getRefBeforePut<reco::TrackExtraCollection>();
@@ -270,35 +298,118 @@ void MkFitOutputTrackConverter::produce(edm::StreamID iID, edm::Event& iEvent, c
                     *measurementTracker,
                     *trks,
                     seedIndices,
-                    hitsVecs);
+                    hitsVecs,
+                    candIndices,
+                    hotVecs);
+
+  // per-hit states of the final fit, aligned with the tracks of src (empty: not stored, or no tracks in the event)
+  const auto& mkFitOutput = iEvent.get(tracksToken_);
+  const auto& hitStates = mkFitOutput.hitStates();
+  const bool haveStates = !hitStates.empty();
+  if (trajectoryInEvent_ && !haveStates && !mkFitOutput.tracks().empty())
+    throw cms::Exception("Configuration") << "MkFitOutputTrackConverter: trajectoryInEvent needs the final fit's "
+                                             "per-hit states (MkFitFitProducer storeHitStates = True)";
+  const auto& mf = iSetup.getData(mfToken_);
+  const auto& detLayers = mkFitGeom.detLayers();
+  auto trajs = std::make_unique<std::vector<Trajectory>>();
+  if (trajectoryInEvent_)
+    trajs->reserve(trks->size());
 
   int i = 0;
   for (auto& trk : *trks) {
     for (auto& h : hitsVecs[i])
       hits->push_back(h);
 
-    reco::TrackExtra extra;
+    if (haveStates) {
+      // as TrackProducer (KfTrackProducerBase::putInEvt): inner and outer state, a local state and a chi2 per hit
+      const auto& hs = hitStates[candIndices[i]];
+      const auto& rh = hitsVecs[i];
+      const auto& hot = hotVecs[i];
+      const unsigned int nh = rh.size();
+      const auto innerTsos = toTSOS(hs[hot.front()], *rh.front().det(), mf);
+      const auto outerTsos = toTSOS(hs[hot.back()], *rh.back().det(), mf);
+      const auto& ip = innerTsos.globalPosition();
+      const auto& im = innerTsos.globalMomentum();
+      const auto& op = outerTsos.globalPosition();
+      const auto& om = outerTsos.globalMomentum();
+      reco::TrackExtra extra(math::XYZPoint(op.x(), op.y(), op.z()),
+                             math::XYZVector(om.x(), om.y(), om.z()),
+                             true,
+                             math::XYZPoint(ip.x(), ip.y(), ip.z()),
+                             math::XYZVector(im.x(), im.y(), im.z()),
+                             true,
+                             outerTsos.curvilinearError().matrix(),
+                             rh.back().geographicalId().rawId(),
+                             innerTsos.curvilinearError().matrix(),
+                             rh.front().geographicalId().rawId(),
+                             alongMomentum,
+                             edm::RefToBase<TrajectorySeed>(hseeds, seedIndices[i]));
+      extra.setHits(ref_rechits, hidx, nh);
+      hidx += nh;
+      reco::TrackExtra::TrajParams trajParams;
+      reco::TrackExtra::Chi2sFive chi2s;
+      trajParams.reserve(nh);
+      chi2s.reserve(nh);
+      for (unsigned int k = 0; k < nh; ++k) {
+        const auto& st = hs[hot[k]];
+        trajParams.emplace_back(st.par[0], st.par[1], st.par[2], st.par[3], st.par[4], st.pzSign, true);
+        chi2s.push_back(Traj2TrackHits::toChi2x5(st.chi2));
+      }
+      extra.setTrajParams(std::move(trajParams), std::move(chi2s));
+      extras->push_back(extra);
 
-    extra.setHits(ref_rechits, hidx, trk.numberOfValidHits());
-    hidx += trk.numberOfValidHits();
+      if (trajectoryInEvent_) {
+        Trajectory traj(std::shared_ptr<const TrajectorySeed>(&seeds[seedIndices[i]], edm::do_nothing_deleter()),
+                        alongMomentum);
+        traj.setSeedRef(edm::RefToBase<TrajectorySeed>(hseeds, seedIndices[i]));
+        traj.reserve(nh);
+        for (unsigned int k = 0; k < nh; ++k) {
+          const auto& st = hs[hot[k]];
+          const auto* det = rh[k].det();
+          traj.push(TrajectoryMeasurement(k == 0        ? innerTsos
+                                          : k == nh - 1 ? outerTsos
+                                                        : toTSOS(st, *det, mf),
+                                          rh[k].cloneSH(),
+                                          st.chi2,
+                                          detLayers.at(mkFitGeom.mkFitLayerNumber(rh[k].geographicalId()))),
+                    st.chi2);
+        }
+        trajs->push_back(std::move(traj));
+      }
+    } else {
+      reco::TrackExtra extra;
 
-    extra.setSeedRef(edm::RefToBase<TrajectorySeed>(hseeds, seedIndices[i]));
+      extra.setHits(ref_rechits, hidx, trk.numberOfValidHits());
+      hidx += trk.numberOfValidHits();
 
-    AlgebraicVector5 v = AlgebraicVector5(0, 0, 0, 0, 0);
-    reco::TrackExtra::TrajParams trajParams(trk.numberOfValidHits(), LocalTrajectoryParameters(v, 1.));
-    reco::TrackExtra::Chi2sFive chi2s(trk.numberOfValidHits(), 0);
-    extra.setTrajParams(std::move(trajParams), std::move(chi2s));
+      extra.setSeedRef(edm::RefToBase<TrajectorySeed>(hseeds, seedIndices[i]));
 
-    extras->push_back(extra);
+      AlgebraicVector5 v = AlgebraicVector5(0, 0, 0, 0, 0);
+      reco::TrackExtra::TrajParams trajParams(trk.numberOfValidHits(), LocalTrajectoryParameters(v, 1.));
+      reco::TrackExtra::Chi2sFive chi2s(trk.numberOfValidHits(), 0);
+      extra.setTrajParams(std::move(trajParams), std::move(chi2s));
+
+      extras->push_back(extra);
+    }
 
     trk.setExtra(reco::TrackExtraRef(ref_trackextras, idx++));
 
     i++;
   }
 
-  iEvent.put(std::move(trks));
+  if (validateHitStates_ && haveStates && !mkFitOutput.hitStatesFwd().empty())
+    validateHitStates(mkFitOutput, candIndices, hitsVecs, hotVecs, mf);
+
+  auto rTracks = iEvent.put(std::move(trks));
   iEvent.put(std::move(extras));
   iEvent.put(std::move(hits));
+  if (trajectoryInEvent_) {
+    auto rTrajs = iEvent.emplace(putTrajToken_, std::move(*trajs));
+    TrajTrackAssociationCollection assoc(rTrajs, rTracks);
+    for (unsigned int k = 0; k < rTrajs->size(); ++k)
+      assoc.insert(edm::Ref<std::vector<Trajectory>>(rTrajs, k), reco::TrackRef(rTracks, k));
+    iEvent.emplace(putTrajAssocToken_, std::move(assoc));
+  }
 
   // TODO: SeedStopInfo is currently unfilled
   iEvent.emplace(putSeedStopInfoToken_, seeds.size());
@@ -322,7 +433,9 @@ void MkFitOutputTrackConverter::convertCandidates(const MkFitOutputWrapper& mkFi
                                                   const MeasurementTrackerEvent& measTk,
                                                   reco::TrackCollection& trks,
                                                   std::vector<int>& seedIndices,
-                                                  std::vector<edm::OwnVector<TrackingRecHit>>& hitsVecs) const {
+                                                  std::vector<edm::OwnVector<TrackingRecHit>>& hitsVecs,
+                                                  std::vector<int>& candIndices,
+                                                  std::vector<std::vector<int>>& hotVecs) const {
   const auto& candidates = mkFitOutput.tracks();
   trks.reserve(candidates.size());
   seedIndices.reserve(candidates.size());
@@ -334,14 +447,16 @@ void MkFitOutputTrackConverter::convertCandidates(const MkFitOutputWrapper& mkFi
     LogTrace("MkFitOutputTrackConverter") << "Candidate " << candIndex << " pT " << cand.pT() << " eta "
                                           << cand.momEta() << " phi " << cand.momPhi() << " chi2 " << cand.chi2();
 
-    // state: check for basic quality first
+    // state and chi2: check for basic quality first (a fit with a non-finite or negative chi2 has failed, as
+    // KFFittingSmoother treats it)
     if (cand.state().invpT() > qualityMaxInvPt_ || (qualitySignPt_ && cand.state().invpT() < 0) ||
         cand.state().theta() < qualityMinTheta_ || (M_PI - cand.state().theta()) < qualityMinTheta_ ||
         cand.state().posRsq() > qualityMaxRsq_ || std::abs(cand.state().z()) > qualityMaxZ_ ||
         (cand.state().errors.At(0, 0) + cand.state().errors.At(1, 1) + cand.state().errors.At(2, 2)) >
-            qualityMaxPosErrSq_) {
-      edm::LogInfo("MkFitOutputTrackConverter")
-          << "Candidate " << candIndex << " failed state quality checks" << cand.state().parameters;
+            qualityMaxPosErrSq_ ||
+        edm::isNotFinite(cand.chi2()) || cand.chi2() < 0.f) {
+      edm::LogInfo("MkFitOutputTrackConverter") << "Candidate " << candIndex << " failed state quality checks"
+                                                << cand.state().parameters << " chi2 " << cand.chi2();
       continue;
     }
 
@@ -389,6 +504,8 @@ void MkFitOutputTrackConverter::convertCandidates(const MkFitOutputWrapper& mkFi
 
     // hits
     edm::OwnVector<TrackingRecHit> recHits;
+    std::vector<std::pair<const TrackingRecHit*, int>> hitHoT;  // rec hit -> HitOnTrack position
+    std::vector<std::pair<float, float>> hitR2Z;                // mkFit hit R^2 and z, as hitHoT
     // nTotalHits() gives sum of valid hits (nFoundHits()) and invalid/missing hits.
     const int nhits = cand.nTotalHits();
     //std::cout << candIndex << ": " << nhits << " " << cand.nFoundHits() << std::endl;
@@ -442,6 +559,9 @@ void MkFitOutputTrackConverter::convertCandidates(const MkFitOutputWrapper& mkFi
                 thit.firstClusterRef().cluster_phase2OT()));
           }
         }
+        hitHoT.emplace_back(&recHits.back(), i);
+        const auto* mkHitPos = eventOfHits[hitOnTrack.layer].refHit(hitOnTrack.index).posArray();
+        hitR2Z.emplace_back(mkHitPos[0] * mkHitPos[0] + mkHitPos[1] * mkHitPos[1], mkHitPos[2]);
         LogTrace("MkFitOutputTrackConverter")
             << "  pos " << recHits.back().globalPosition().x() << " " << recHits.back().globalPosition().y() << " "
             << recHits.back().globalPosition().z() << " mag2 " << recHits.back().globalPosition().mag2() << " detid "
@@ -450,58 +570,23 @@ void MkFitOutputTrackConverter::convertCandidates(const MkFitOutputWrapper& mkFi
       }
     }
 
-    // MkFit hits are *not* in the order of propagation, sort by 3D radius for now (as we don't have loopers)
-    // TODO: Improve the sorting (extract keys? maybe even bubble sort would work well as the hits are almost in the correct order)
-    recHits.sort([&tTopo, &isPhase1](const auto& a, const auto& b) {
-      //const GeomDetEnumerators::SubDetector asub = a.det()->subDetector();
-      //const GeomDetEnumerators::SubDetector bsub = b.det()->subDetector();
-      //const auto& apos = a.globalPosition();
-      //const auto& bpos = b.globalPosition();
-      // For Phase-1, can rely on subdetector index
-      if (isPhase1) {
-        const auto asub_ph1 = a.geographicalId().subdetId();
-        const auto bsub_ph1 = b.geographicalId().subdetId();
-        const auto& apos_ph1 = a.globalPosition();
-        const auto& bpos_ph1 = b.globalPosition();
-        if (asub_ph1 != bsub_ph1) {
-          // Subdetector order (BPix, FPix, TIB, TID, TOB, TEC) corresponds also the navigation
-          return asub_ph1 < bsub_ph1;
-        } else {
-          //if (GeomDetEnumerators::isBarrel(asub)) {
-          if (isPhase1Barrel(asub_ph1)) {
-            return apos_ph1.perp2() < bpos_ph1.perp2();
-          } else {
-            return std::abs(apos_ph1.z()) < std::abs(bpos_ph1.z());
-          }
+    // The hits in the order of the final fit (MkFitter::reFitIndices): by R^2 + (z - z0)^2 of the mkFit hit positions,
+    // z0 the z of the hit with the smallest R, ties by HitOnTrack position.  recHits[0] is then the hit on whose plane
+    // the fit's innermost state lies.
+    std::unordered_map<const TrackingRecHit*, std::pair<float, int>> fitOrder;
+    {
+      float minR2 = std::numeric_limits<float>::max(), z0 = 0.f;
+      for (const auto& [r2, z] : hitR2Z)
+        if (r2 < minR2) {
+          minR2 = r2;
+          z0 = z;
         }
+      for (unsigned int k = 0; k < hitHoT.size(); ++k) {
+        const float dz = hitR2Z[k].second - z0;
+        fitOrder.emplace(hitHoT[k].first, std::make_pair(hitR2Z[k].first + dz * dz, hitHoT[k].second));
       }
-
-      // For Phase-2, can not rely uniquely on subdetector index
-      const GeomDetEnumerators::SubDetector asub = a.det()->subDetector();
-      const GeomDetEnumerators::SubDetector bsub = b.det()->subDetector();
-      const auto& apos = a.globalPosition();
-      const auto& bpos = b.globalPosition();
-      const auto aid = a.geographicalId().rawId();
-      const auto bid = b.geographicalId().rawId();
-      const auto asubid = a.geographicalId().subdetId();
-      const auto bsubid = b.geographicalId().subdetId();
-      if (GeomDetEnumerators::isBarrel(asub) || GeomDetEnumerators::isBarrel(bsub)) {
-        // For barrel tilted modules, or in case (only) one of the two modules is barrel, use 3D position
-        if ((asubid == StripSubdetector::TOB && tTopo.tobSide(aid) < 3) ||
-            (bsubid == StripSubdetector::TOB && tTopo.tobSide(bid) < 3) ||
-            !(GeomDetEnumerators::isBarrel(asub) && GeomDetEnumerators::isBarrel(bsub))) {
-          return apos.mag2() < bpos.mag2();
-        }
-        // For fully barrel comparisons and no tilt, use 2D position
-        else {
-          return apos.perp2() < bpos.perp2();
-        }
-      }
-      // For fully endcap comparisons, use z position
-      else {
-        return std::abs(apos.z()) < std::abs(bpos.z());
-      }
-    });
+    }
+    recHits.sort([&fitOrder](const auto& a, const auto& b) { return fitOrder.at(&a) < fitOrder.at(&b); });
 
     // seed
     const auto seedIndex = cand.label();
@@ -512,6 +597,10 @@ void MkFitOutputTrackConverter::convertCandidates(const MkFitOutputWrapper& mkFi
     // Error is only rescaled for candidates propagated to first layer;
     // otherwise, candidates undergo backwardFit where error is already rescaled
 
+    // The backward refit leaves the state on the plane of the hit that reFitIndices
+    // ordered innermost (smallest R), so no propagation is needed here -- propagating
+    // would re-apply that module material a second time.  recHits was sorted above by
+    // 3D distance from the origin; for a track from the beam line the two agree.
     auto detH0 = recHits[0].det();
 
     if (detH0 == nullptr) {
@@ -542,15 +631,8 @@ void MkFitOutputTrackConverter::convertCandidates(const MkFitOutputWrapper& mkFi
     auto v0 = stateAtPCA.position();
     auto p = stateAtPCA.momentum();
 
-    float factor = 1.f;
-    if (calibrate_) {
-      const float abstheta = std::fabs(tsosState.globalMomentum().theta() - 1.570796);
-      const float pt = tsosState.globalMomentum().perp();
-      factor = ptcorr(abstheta, pt);
-    }
-
     math::XYZPoint pos(v0.x(), v0.y(), v0.z());
-    math::XYZVector mom(p.x() * factor, p.y() * factor, p.z() * factor);  //can I just multiply p??
+    math::XYZVector mom(p.x(), p.y(), p.z());
 
     int ndof = -5;
     for (auto const& recHit : recHits)
@@ -567,16 +649,59 @@ void MkFitOutputTrackConverter::convertCandidates(const MkFitOutputWrapper& mkFi
 
     trk.appendHits(recHits.begin(), recHits.end(), tTopo);
 
+    // the HitOnTrack position of every (sorted) rec hit; with per-hit states, each must have a valid one
+    std::vector<int> hot;
+    hot.reserve(recHits.size());
+    for (const auto& h : recHits)
+      for (const auto& [ptr, pos] : hitHoT)
+        if (ptr == &h) {
+          hot.push_back(pos);
+          break;
+        }
+    if (!mkFitOutput.hitStates().empty()) {
+      const auto& hs = mkFitOutput.hitStates()[candIndex];
+      bool ok = hot.size() == recHits.size();
+      for (int pos : hot)
+        ok = ok && pos < (int)hs.size() && hs[pos].valid;
+      if (!ok) {
+        edm::LogInfo("MkFitOutputTrackConverter") << "Candidate " << candIndex << " has no valid final-fit state at "
+                                                  << "every hit, ignoring the candidate";
+        continue;
+      }
+    }
+    // the state for the navigation outward: the final fit's state at its outermost hit when that is the outermost
+    // rec hit (the same with and without per-hit states), else the innermost one
+    const auto& outer = mkFitOutput.outerStates();
+    const bool useOuter =
+        !outer.empty() && !hot.empty() && outer[candIndex].hot == hot.back() && outer[candIndex].state.valid;
+    const auto outerTsos = useOuter ? toTSOS(outer[candIndex].state, *recHits.back().det(), mf) : tsosState;
+
     //extra hits (taken from TrackProducerBase<T>::setSecondHitPattern)
     const auto* outerLayer = detLayers.at(mkFitGeom.mkFitLayerNumber(recHits.back().geographicalId()));
     const auto* innerLayer = detLayers.at(mkFitGeom.mkFitLayerNumber(recHits.front().geographicalId()));
     auto const& innerCompLayers =
         navSchool.compatibleLayers(*innerLayer, fts, oppositeToMomentum);  //fts only innermost hit here
-    auto const& outerCompLayers =
-        navSchool.compatibleLayers(*outerLayer, fts, alongMomentum);  //fts only innermost hit here
+    auto const& outerCompLayers = navSchool.compatibleLayers(*outerLayer, *outerTsos.freeState(), alongMomentum);
 
     //use negative sigma=-3.0 in order to use a more conservative definition of isInside() for Bounds classes.
     Chi2MeasurementEstimator estimator(30., -3.0, 0.5, 2.0, 0.5, 1.e12);  // same as defauts....
+
+    // Lost hits between the innermost and the outermost hit (beyond them, the navigation below finds the missing
+    // ones): the hits the final fit removed as outliers, recorded on their own modules as the CKF fit records its
+    // outliers. They follow the valid hits, so the track hits of the hit pattern stay in step with the rec hits.
+    {
+      const auto [firstPos, lastPos] = std::minmax_element(hot.begin(), hot.end());
+      for (int pos = *firstPos + 1; pos < *lastPos; ++pos) {
+        const auto& lostHoT = cand.getHitOnTrack(pos);
+        if (!mkfit::Hit::isFitOutlierIdx(lostHoT.index))
+          continue;
+        auto const& hits =
+            eventOfHits[lostHoT.layer].is_pixel() ? pixelClusterIndexToHit.hits() : stripClusterIndexToHit.hits();
+        InvalidTrackingRecHit lostHit(*hits[mkfit::Hit::hitIdxOfFitOutlier(lostHoT.index)]->det(),
+                                      TrackingRecHit::missing);
+        trk.appendHitPattern(lostHit, tTopo);
+      }
+    }
 
     //inner
     for (auto it : innerCompLayers) {
@@ -600,8 +725,7 @@ void MkFitOutputTrackConverter::convertCandidates(const MkFitOutputWrapper& mkFi
     for (auto it : outerCompLayers) {
       if (it->basicComponents().empty())
         continue;
-      //tsosState is innermost (not good, but does it mean anyhting is fully wrong?)
-      auto const& detWithState = it->compatibleDets(tsosState, propagatorAlong, estimator);
+      auto const& detWithState = it->compatibleDets(outerTsos, propagatorAlong, estimator);
       if (detWithState.empty())
         continue;
       DetId id = detWithState.front().first->geographicalId();
@@ -620,32 +744,58 @@ void MkFitOutputTrackConverter::convertCandidates(const MkFitOutputWrapper& mkFi
     //need to return also seed indices and hits in some way
     seedIndices.push_back(cand.label());
     hitsVecs.push_back(recHits);
+    candIndices.push_back(candIndex);
+    hotVecs.push_back(std::move(hot));
   }
 }
 
-float MkFitOutputTrackConverter::ptcorr(const float abstheta, float pt) const {
-  const int N = calibBinCenter_.size();
-
-  if (abstheta <= calibBinCenter_[0])
-    return calibBinOffset_[0] / pt + calibBinCoeff_[0];  // pt_new=a+b*pt, return pt_new/pt
-  if (abstheta >= calibBinCenter_[N - 1])
-    return calibBinOffset_[N - 1] / pt + calibBinCoeff_[N - 1];  // pt_new=a+b*pt, return pt_new/pt
-
-  // interpolation
-  // a_interp = a_1 + (a_2-a_1)/(x_2-x_1) * (x-x1)
-
-  for (int i = 0; i < N - 1; ++i) {
-    if (abstheta >= calibBinCenter_[i] && abstheta < calibBinCenter_[i + 1]) {
-      float t = (abstheta - calibBinCenter_[i]) / (calibBinCenter_[i + 1] - calibBinCenter_[i]);
-      float offset_interp = calibBinOffset_[i] + t * (calibBinOffset_[i + 1] - calibBinOffset_[i]);
-      float coeff_interp = calibBinCoeff_[i] + t * (calibBinCoeff_[i + 1] - calibBinCoeff_[i]);
-
-      return offset_interp / pt + coeff_interp;  // pt_new=a+b*pt, return pt_new/pt
+void MkFitOutputTrackConverter::validateHitStates(const MkFitOutputWrapper& mkFitOutput,
+                                                  const std::vector<int>& candIndices,
+                                                  const std::vector<edm::OwnVector<TrackingRecHit>>& hitsVecs,
+                                                  const std::vector<std::vector<int>>& hotVecs,
+                                                  const MagneticField& mf) const {
+  // mkFit's single-precision smoothed state against the double-precision combination of the same two states
+  TrajectoryStateCombiner combiner;
+  int n = 0, nFail = 0;
+  double maxPull[5] = {0}, sumPull[5] = {0}, maxErrRel[5] = {0};
+  for (unsigned int t = 0; t < candIndices.size(); ++t) {
+    const auto& sm = mkFitOutput.hitStates()[candIndices[t]];
+    const auto& fw = mkFitOutput.hitStatesFwd()[candIndices[t]];
+    const auto& bw = mkFitOutput.hitStatesBwd()[candIndices[t]];
+    for (unsigned int k = 0; k < hotVecs[t].size(); ++k) {
+      const int pos = hotVecs[t][k];
+      if (sm[pos].kind != mkfit::HitStateOnTrack::Combined)
+        continue;
+      if (!fw[pos].valid || !bw[pos].valid) {
+        ++nFail;
+        continue;
+      }
+      const auto* det = hitsVecs[t][k].det();
+      const auto c = combiner(toTSOS(fw[pos], *det, mf), toTSOS(bw[pos], *det, mf));
+      if (!c.isValid()) {
+        ++nFail;
+        continue;
+      }
+      const auto& cp = c.localParameters().vector();
+      const auto& ce = c.localError().matrix();
+      ++n;
+      for (int j = 0; j < 5; ++j) {
+        const double sig = std::sqrt(ce(j, j));
+        const double pull = std::abs(sm[pos].par[j] - cp[j]) / sig;
+        const double rel = std::abs(std::sqrt(sm[pos].err[j * (j + 3) / 2]) / sig - 1.);
+        maxPull[j] = std::max(maxPull[j], pull);
+        sumPull[j] += pull;
+        maxErrRel[j] = std::max(maxErrRel[j], rel);
+      }
     }
   }
-
-  // Should never reach here
-  return 1.f;
+  edm::LogPrint log("MkFitHitStateValidation");
+  log << "combined hits " << n << " failed " << nFail << " | |d par|/sigma mean/max (q/p, dxdz, dydz, x, y):";
+  for (int j = 0; j < 5; ++j)
+    log << " " << (n ? sumPull[j] / n : 0.) << "/" << maxPull[j];
+  log << " | max |sigma ratio - 1|:";
+  for (int j = 0; j < 5; ++j)
+    log << " " << maxErrRel[j];
 }
 
 DEFINE_FWK_MODULE(MkFitOutputTrackConverter);
