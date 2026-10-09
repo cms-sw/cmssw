@@ -92,7 +92,7 @@ namespace cms::torch::alpakatools {
   //
 
   template <typename TQueue>
-    requires alpaka::isQueue<TQueue>
+    requires alpaka::concepts::Queue<TQueue>
   class TensorCollection {
   public:
     friend class alpaka_cuda_async::torch::AlpakaModel;
