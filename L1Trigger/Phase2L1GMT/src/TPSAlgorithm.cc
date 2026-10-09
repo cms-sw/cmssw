@@ -540,8 +540,8 @@ match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& st
   else {
     bool match1 = (coord1Matched == 1 && eta1Matched == 1);
     bool match2 = (coord2Matched == 1 && eta2Matched == 1);
-    bool match3 =
-        (coord1Matched == 1 && (eta1Matched || eta2Matched) && stub->etaQuality() == 3 && stub->isEndcap() && stub->quality() == 1);
+    bool match3 = (coord1Matched == 1 && (eta1Matched || eta2Matched) && stub->etaQuality() == 3 && stub->isEndcap() &&
+                   stub->quality() == 1);
     out.valid = (match1 || match2 || match3) ? 1 : 0;
     if (out.valid == 0)
       out.quality = 0;
