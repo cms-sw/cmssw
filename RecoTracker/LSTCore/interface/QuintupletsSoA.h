@@ -19,10 +19,8 @@ namespace lst {
                       SOA_COLUMN(Params_T5::ArrayFxEmbed, t5Embed),                // t5 embedding vector
                       SOA_COLUMN(FPX, eta),
                       SOA_COLUMN(FPX, phi),
-                      SOA_COLUMN(FPX, score_rphisum),     // r-phi based score
                       SOA_COLUMN(char, isDup),            // duplicate flag
                       SOA_COLUMN(unsigned int, nLayers),  // number of active layers (5 base)
-                      SOA_COLUMN(bool, tightCutFlag),     // tight pass to be a TC
                       SOA_COLUMN(bool, partOfPT5),
                       SOA_COLUMN(float, regressionRadius),
                       SOA_COLUMN(float, regressionCenterX),
@@ -36,9 +34,14 @@ namespace lst {
                           ,
                       SOA_COLUMN(float, rzChiSquared),  // r-z only chi2
                       SOA_COLUMN(float, chiSquared),
-                      SOA_COLUMN(float, nonAnchorChiSquared),
                       SOA_COLUMN(float, dBeta1),
-                      SOA_COLUMN(float, dBeta2)
+                      SOA_COLUMN(float, dBeta2),
+                      SOA_COLUMN(float, mdDirMeanW),  // T5 DNN extra inputs: MD direction, mean and largest
+                      SOA_COLUMN(float, mdDirMaxW),
+                      SOA_COLUMN(float, nT3OutMid),    // T3s leaving the middle MD
+                      SOA_COLUMN(float, nT3OutFirst),  // T3s leaving the first MD
+                      SOA_COLUMN(float, nMDFirstMod),  // MDs in the first module
+                      SOA_COLUMN(float, dcaXY)
 #endif
   );
 
