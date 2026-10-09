@@ -1,539 +1,2441 @@
 <?xml version="1.0"?>
 <!--
 ============= XML GENERATION METADATA HEADER =============
-tkLayout revision: dev-splitsensors-3556-2e96df9
-tkLayout developed by https://github.com/tkLayout/tkLayout/graphs/contributors .
-Adinda De Wit (adewit on lxplus780.cern.ch) responsible for cross-check of the automatically-generated description below.
-generation date: 2023-05-25.16:08:21
-note: see OT800_IT711_2023_05_25.cfg for full config files
+Brunella D'Anzi (brunella.danzi@cern.ch) responsible for the fine-grained phi-resolved
+regrouping and Geant4 remeasurement described below.
+Derived from CMSSW's own Geant4 based TrackingMaterialProducer/TrackingMaterialAnalyser chain,
+NOT from tkLayout. 404 groups: 374 are the same per ring/disc groups as the production
+27 group scheme, split down to one SpecPar per individual sensor volume, plus 30 new
+phi resolved groups splitting IT Layer1/Layer2 by alternating Flipped/Unflipped rod (v3),
+see SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseII/v3/.
+200000 event 10 GeV neutrino gun sample, no B field, SplitMode=NearestLayer.
 =========== END XML GENERATION METADATA HEADER ===========
 -->
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
   <SpecParSection label="spec-pars2.xml">
 
-<SpecPar name="TrackerRecMaterialPhase2PixelBarrelLayer1" eval="true">
-<PartSelector path="//ITLayer1R1BModuleInnerPixel3DActiveOne"/>
-<PartSelector path="//ITLayer1R1BModuleInnerPixel3DActiveTwo"/>
-<PartSelector path="//ITLayer1R2BModuleInnerPixel3DActiveOne"/>
-<PartSelector path="//ITLayer1R2BModuleInnerPixel3DActiveTwo"/>
-<PartSelector path="//ITLayer1R3BModuleInnerPixel3DActiveOne"/>
-<PartSelector path="//ITLayer1R3BModuleInnerPixel3DActiveTwo"/>
-<PartSelector path="//ITLayer1R4BModuleInnerPixel3DActiveOne"/>
-<PartSelector path="//ITLayer1R4BModuleInnerPixel3DActiveTwo"/>
-<PartSelector path="//ITLayer1R5BModuleInnerPixel3DActiveOne"/>
-<PartSelector path="//ITLayer1R5BModuleInnerPixel3DActiveTwo"/>
-<Parameter name="TrackerRadLength" value="0.018519"/>
-<Parameter name="TrackerXi" value="3.7038e-05"/>
+<SpecPar name="TrackerRecMaterial_ITLayer1R1BModuleInnerPixel3DActiveOneFlipped" eval="true">
+<PartSelector path="//ITLayer1RodFlipped/ITLayer1R1BModule/ITLayer1R1BModuleInnerPixelOnewafer/ITLayer1R1BModuleInnerPixel3DActiveOne"/>
+<Parameter name="TrackerRadLength" value="0.0215435"/>
+<Parameter name="TrackerXi" value="4.408e-05"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2PixelBarrelLayer2" eval="true">
-<PartSelector path="//ITLayer2R1BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer2R2BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer2R3BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer2R4BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer2R5BModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.01868"/>
-<Parameter name="TrackerXi" value="3.736e-05"/>
+<SpecPar name="TrackerRecMaterial_ITLayer1R1BModuleInnerPixel3DActiveOneUnflipped" eval="true">
+<PartSelector path="//ITLayer1RodUnflipped/ITLayer1R1BModule/ITLayer1R1BModuleInnerPixelOnewafer/ITLayer1R1BModuleInnerPixel3DActiveOne"/>
+<Parameter name="TrackerRadLength" value="0.0216298"/>
+<Parameter name="TrackerXi" value="4.39483e-05"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2PixelBarrelLayer3" eval="true">
+<SpecPar name="TrackerRecMaterial_ITLayer1R1BModuleInnerPixel3DActiveTwoFlipped" eval="true">
+<PartSelector path="//ITLayer1RodFlipped/ITLayer1R1BModule/ITLayer1R1BModuleInnerPixelTwowafer/ITLayer1R1BModuleInnerPixel3DActiveTwo"/>
+<Parameter name="TrackerRadLength" value="0.021549"/>
+<Parameter name="TrackerXi" value="4.40933e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer1R1BModuleInnerPixel3DActiveTwoUnflipped" eval="true">
+<PartSelector path="//ITLayer1RodUnflipped/ITLayer1R1BModule/ITLayer1R1BModuleInnerPixelTwowafer/ITLayer1R1BModuleInnerPixel3DActiveTwo"/>
+<Parameter name="TrackerRadLength" value="0.0215997"/>
+<Parameter name="TrackerXi" value="4.39021e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer1R2BModuleInnerPixel3DActiveOneFlipped" eval="true">
+<PartSelector path="//ITLayer1RodFlipped/ITLayer1R2BModule/ITLayer1R2BModuleInnerPixelOnewafer/ITLayer1R2BModuleInnerPixel3DActiveOne"/>
+<Parameter name="TrackerRadLength" value="0.0224129"/>
+<Parameter name="TrackerXi" value="4.52821e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer1R2BModuleInnerPixel3DActiveOneUnflipped" eval="true">
+<PartSelector path="//ITLayer1RodUnflipped/ITLayer1R2BModule/ITLayer1R2BModuleInnerPixelOnewafer/ITLayer1R2BModuleInnerPixel3DActiveOne"/>
+<Parameter name="TrackerRadLength" value="0.0225235"/>
+<Parameter name="TrackerXi" value="4.54418e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer1R2BModuleInnerPixel3DActiveTwoFlipped" eval="true">
+<PartSelector path="//ITLayer1RodFlipped/ITLayer1R2BModule/ITLayer1R2BModuleInnerPixelTwowafer/ITLayer1R2BModuleInnerPixel3DActiveTwo"/>
+<Parameter name="TrackerRadLength" value="0.022335"/>
+<Parameter name="TrackerXi" value="4.51203e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer1R2BModuleInnerPixel3DActiveTwoUnflipped" eval="true">
+<PartSelector path="//ITLayer1RodUnflipped/ITLayer1R2BModule/ITLayer1R2BModuleInnerPixelTwowafer/ITLayer1R2BModuleInnerPixel3DActiveTwo"/>
+<Parameter name="TrackerRadLength" value="0.022475"/>
+<Parameter name="TrackerXi" value="4.53055e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer1R3BModuleInnerPixel3DActiveOneFlipped" eval="true">
+<PartSelector path="//ITLayer1RodFlipped/ITLayer1R3BModule/ITLayer1R3BModuleInnerPixelOnewafer/ITLayer1R3BModuleInnerPixel3DActiveOne"/>
+<Parameter name="TrackerRadLength" value="0.023934"/>
+<Parameter name="TrackerXi" value="4.74823e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer1R3BModuleInnerPixel3DActiveOneUnflipped" eval="true">
+<PartSelector path="//ITLayer1RodUnflipped/ITLayer1R3BModule/ITLayer1R3BModuleInnerPixelOnewafer/ITLayer1R3BModuleInnerPixel3DActiveOne"/>
+<Parameter name="TrackerRadLength" value="0.023278"/>
+<Parameter name="TrackerXi" value="4.58864e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer1R3BModuleInnerPixel3DActiveTwoFlipped" eval="true">
+<PartSelector path="//ITLayer1RodFlipped/ITLayer1R3BModule/ITLayer1R3BModuleInnerPixelTwowafer/ITLayer1R3BModuleInnerPixel3DActiveTwo"/>
+<Parameter name="TrackerRadLength" value="0.0237762"/>
+<Parameter name="TrackerXi" value="4.71659e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer1R3BModuleInnerPixel3DActiveTwoUnflipped" eval="true">
+<PartSelector path="//ITLayer1RodUnflipped/ITLayer1R3BModule/ITLayer1R3BModuleInnerPixelTwowafer/ITLayer1R3BModuleInnerPixel3DActiveTwo"/>
+<Parameter name="TrackerRadLength" value="0.0231553"/>
+<Parameter name="TrackerXi" value="4.56327e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer1R4BModuleInnerPixel3DActiveOneFlipped" eval="true">
+<PartSelector path="//ITLayer1RodFlipped/ITLayer1R4BModule/ITLayer1R4BModuleInnerPixelOnewafer/ITLayer1R4BModuleInnerPixel3DActiveOne"/>
+<Parameter name="TrackerRadLength" value="0.0228181"/>
+<Parameter name="TrackerXi" value="4.6193e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer1R4BModuleInnerPixel3DActiveOneUnflipped" eval="true">
+<PartSelector path="//ITLayer1RodUnflipped/ITLayer1R4BModule/ITLayer1R4BModuleInnerPixelOnewafer/ITLayer1R4BModuleInnerPixel3DActiveOne"/>
+<Parameter name="TrackerRadLength" value="0.0245402"/>
+<Parameter name="TrackerXi" value="4.76198e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer1R4BModuleInnerPixel3DActiveTwoFlipped" eval="true">
+<PartSelector path="//ITLayer1RodFlipped/ITLayer1R4BModule/ITLayer1R4BModuleInnerPixelTwowafer/ITLayer1R4BModuleInnerPixel3DActiveTwo"/>
+<Parameter name="TrackerRadLength" value="0.0228022"/>
+<Parameter name="TrackerXi" value="4.61768e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer1R4BModuleInnerPixel3DActiveTwoUnflipped" eval="true">
+<PartSelector path="//ITLayer1RodUnflipped/ITLayer1R4BModule/ITLayer1R4BModuleInnerPixelTwowafer/ITLayer1R4BModuleInnerPixel3DActiveTwo"/>
+<Parameter name="TrackerRadLength" value="0.0247796"/>
+<Parameter name="TrackerXi" value="4.81785e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer1R5BModuleInnerPixel3DActiveOneFlipped" eval="true">
+<PartSelector path="//ITLayer1RodFlipped/ITLayer1R5BModule/ITLayer1R5BModuleInnerPixelOnewafer/ITLayer1R5BModuleInnerPixel3DActiveOne"/>
+<Parameter name="TrackerRadLength" value="0.0207147"/>
+<Parameter name="TrackerXi" value="4.26134e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer1R5BModuleInnerPixel3DActiveOneUnflipped" eval="true">
+<PartSelector path="//ITLayer1RodUnflipped/ITLayer1R5BModule/ITLayer1R5BModuleInnerPixelOnewafer/ITLayer1R5BModuleInnerPixel3DActiveOne"/>
+<Parameter name="TrackerRadLength" value="0.0223355"/>
+<Parameter name="TrackerXi" value="4.52298e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer1R5BModuleInnerPixel3DActiveTwoFlipped" eval="true">
+<PartSelector path="//ITLayer1RodFlipped/ITLayer1R5BModule/ITLayer1R5BModuleInnerPixelTwowafer/ITLayer1R5BModuleInnerPixel3DActiveTwo"/>
+<Parameter name="TrackerRadLength" value="0.0210376"/>
+<Parameter name="TrackerXi" value="4.32709e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer1R5BModuleInnerPixel3DActiveTwoUnflipped" eval="true">
+<PartSelector path="//ITLayer1RodUnflipped/ITLayer1R5BModule/ITLayer1R5BModuleInnerPixelTwowafer/ITLayer1R5BModuleInnerPixel3DActiveTwo"/>
+<Parameter name="TrackerRadLength" value="0.0229797"/>
+<Parameter name="TrackerXi" value="4.6507e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer2R1BModuleInnerPixelActiveFlipped" eval="true">
+<PartSelector path="//ITLayer2RodFlipped/ITLayer2R1BModule/ITLayer2R1BModuleInnerPixelwafer/ITLayer2R1BModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0200846"/>
+<Parameter name="TrackerXi" value="3.58951e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer2R1BModuleInnerPixelActiveUnflipped" eval="true">
+<PartSelector path="//ITLayer2RodUnflipped/ITLayer2R1BModule/ITLayer2R1BModuleInnerPixelwafer/ITLayer2R1BModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0202539"/>
+<Parameter name="TrackerXi" value="3.62899e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer2R2BModuleInnerPixelActiveFlipped" eval="true">
+<PartSelector path="//ITLayer2RodFlipped/ITLayer2R2BModule/ITLayer2R2BModuleInnerPixelwafer/ITLayer2R2BModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0218845"/>
+<Parameter name="TrackerXi" value="4.14583e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer2R2BModuleInnerPixelActiveUnflipped" eval="true">
+<PartSelector path="//ITLayer2RodUnflipped/ITLayer2R2BModule/ITLayer2R2BModuleInnerPixelwafer/ITLayer2R2BModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0220768"/>
+<Parameter name="TrackerXi" value="4.19002e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer2R3BModuleInnerPixelActiveFlipped" eval="true">
+<PartSelector path="//ITLayer2RodFlipped/ITLayer2R3BModule/ITLayer2R3BModuleInnerPixelwafer/ITLayer2R3BModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0204699"/>
+<Parameter name="TrackerXi" value="3.6062e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer2R3BModuleInnerPixelActiveUnflipped" eval="true">
+<PartSelector path="//ITLayer2RodUnflipped/ITLayer2R3BModule/ITLayer2R3BModuleInnerPixelwafer/ITLayer2R3BModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0205779"/>
+<Parameter name="TrackerXi" value="3.63071e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer2R4BModuleInnerPixelActiveFlipped" eval="true">
+<PartSelector path="//ITLayer2RodFlipped/ITLayer2R4BModule/ITLayer2R4BModuleInnerPixelwafer/ITLayer2R4BModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0206117"/>
+<Parameter name="TrackerXi" value="3.60867e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer2R4BModuleInnerPixelActiveUnflipped" eval="true">
+<PartSelector path="//ITLayer2RodUnflipped/ITLayer2R4BModule/ITLayer2R4BModuleInnerPixelwafer/ITLayer2R4BModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0207565"/>
+<Parameter name="TrackerXi" value="3.64086e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer2R5BModuleInnerPixelActiveFlipped" eval="true">
+<PartSelector path="//ITLayer2RodFlipped/ITLayer2R5BModule/ITLayer2R5BModuleInnerPixelwafer/ITLayer2R5BModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0192343"/>
+<Parameter name="TrackerXi" value="3.33169e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer2R5BModuleInnerPixelActiveUnflipped" eval="true">
+<PartSelector path="//ITLayer2RodUnflipped/ITLayer2R5BModule/ITLayer2R5BModuleInnerPixelwafer/ITLayer2R5BModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0211256"/>
+<Parameter name="TrackerXi" value="3.65281e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer3R1BModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITLayer3R1BModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0163627"/>
+<Parameter name="TrackerXi" value="2.92135e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer3R2BModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITLayer3R2BModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.018804"/>
+<Parameter name="TrackerXi" value="3.6817e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer3R3BModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITLayer3R3BModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0165914"/>
+<Parameter name="TrackerXi" value="2.93596e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer3R4BModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITLayer3R4BModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0196508"/>
+<Parameter name="TrackerXi" value="3.61357e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer3R5BModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITLayer3R5BModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0147835"/>
-<Parameter name="TrackerXi" value="2.95669e-05"/>
+<Parameter name="TrackerRadLength" value="0.0195884"/>
+<Parameter name="TrackerXi" value="3.46902e-05"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2PixelBarrelLayer4" eval="true">
+<SpecPar name="TrackerRecMaterial_ITLayer4R1BModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITLayer4R1BModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.028178"/>
+<Parameter name="TrackerXi" value="6.72003e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer4R2BModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITLayer4R2BModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0300358"/>
+<Parameter name="TrackerXi" value="7.3017e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer4R3BModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITLayer4R3BModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.028476"/>
+<Parameter name="TrackerXi" value="6.7788e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer4R4BModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITLayer4R4BModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0289994"/>
+<Parameter name="TrackerXi" value="6.93428e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITLayer4R5BModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITLayer4R5BModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0147835"/>
-<Parameter name="TrackerXi" value="2.95669e-05"/>
+<Parameter name="TrackerRadLength" value="0.0298401"/>
+<Parameter name="TrackerXi" value="6.34913e-05"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk1" eval="true">
+<SpecPar name="TrackerRecMaterial_ITDisc1R1EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc1R1EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0377595"/>
+<Parameter name="TrackerXi" value="8.89885e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc1R2EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc1R2EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0289182"/>
+<Parameter name="TrackerXi" value="5.04781e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc1R3EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc1R3EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0355794"/>
+<Parameter name="TrackerXi" value="7.57865e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc1R4EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc1R4EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0133596"/>
-<Parameter name="TrackerXi" value="2.67192e-05"/>
+<Parameter name="TrackerRadLength" value="0.0691943"/>
+<Parameter name="TrackerXi" value="0.000147394"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk2" eval="true">
+<SpecPar name="TrackerRecMaterial_ITDisc2R1EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc2R1EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0387499"/>
+<Parameter name="TrackerXi" value="9.52042e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc2R2EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc2R2EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.022266"/>
+<Parameter name="TrackerXi" value="3.75225e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc2R3EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc2R3EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.03146"/>
+<Parameter name="TrackerXi" value="6.61613e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc2R4EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc2R4EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0133596"/>
-<Parameter name="TrackerXi" value="2.67192e-05"/>
+<Parameter name="TrackerRadLength" value="0.0745231"/>
+<Parameter name="TrackerXi" value="0.000160232"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk3" eval="true">
+<SpecPar name="TrackerRecMaterial_ITDisc3R1EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc3R1EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0405392"/>
+<Parameter name="TrackerXi" value="0.000103005"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc3R2EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc3R2EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0223456"/>
+<Parameter name="TrackerXi" value="3.77118e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc3R3EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc3R3EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0316152"/>
+<Parameter name="TrackerXi" value="6.65155e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc3R4EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc3R4EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0133596"/>
-<Parameter name="TrackerXi" value="2.67192e-05"/>
+<Parameter name="TrackerRadLength" value="0.0852754"/>
+<Parameter name="TrackerXi" value="0.000182325"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk4" eval="true">
+<SpecPar name="TrackerRecMaterial_ITDisc4R1EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc4R1EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0427746"/>
+<Parameter name="TrackerXi" value="0.000112864"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc4R2EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc4R2EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0223401"/>
+<Parameter name="TrackerXi" value="3.77572e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc4R3EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc4R3EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0316593"/>
+<Parameter name="TrackerXi" value="6.67099e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc4R4EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc4R4EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0133596"/>
-<Parameter name="TrackerXi" value="2.67192e-05"/>
+<Parameter name="TrackerRadLength" value="0.1015"/>
+<Parameter name="TrackerXi" value="0.000219404"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk5" eval="true">
+<SpecPar name="TrackerRecMaterial_ITDisc5R1EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc5R1EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0456474"/>
+<Parameter name="TrackerXi" value="0.000125494"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc5R2EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc5R2EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0224703"/>
+<Parameter name="TrackerXi" value="3.80845e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc5R3EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc5R3EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.031718"/>
+<Parameter name="TrackerXi" value="6.68507e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc5R4EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc5R4EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0133596"/>
-<Parameter name="TrackerXi" value="2.67192e-05"/>
+<Parameter name="TrackerRadLength" value="0.13525"/>
+<Parameter name="TrackerXi" value="0.000288763"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk6" eval="true">
+<SpecPar name="TrackerRecMaterial_ITDisc6R1EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc6R1EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0476422"/>
+<Parameter name="TrackerXi" value="0.000134199"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc6R2EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc6R2EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0225668"/>
+<Parameter name="TrackerXi" value="3.84121e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc6R3EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc6R3EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0668092"/>
+<Parameter name="TrackerXi" value="0.000156984"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc6R4EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc6R4EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0133596"/>
-<Parameter name="TrackerXi" value="2.67192e-05"/>
+<Parameter name="TrackerRadLength" value="0.19735"/>
+<Parameter name="TrackerXi" value="0.000446443"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk7" eval="true">
+<SpecPar name="TrackerRecMaterial_ITDisc7R1EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc7R1EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0309193"/>
+<Parameter name="TrackerXi" value="6.60909e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc7R2EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc7R2EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0227887"/>
+<Parameter name="TrackerXi" value="3.89753e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc7R3EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc7R3EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.032069"/>
+<Parameter name="TrackerXi" value="6.77969e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc7R4EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc7R4EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0133596"/>
-<Parameter name="TrackerXi" value="2.67192e-05"/>
+<Parameter name="TrackerRadLength" value="0.128832"/>
+<Parameter name="TrackerXi" value="0.000289796"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk8" eval="true">
+<SpecPar name="TrackerRecMaterial_ITDisc8R1EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc8R1EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0292944"/>
+<Parameter name="TrackerXi" value="6.27419e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc8R2EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc8R2EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0228563"/>
+<Parameter name="TrackerXi" value="3.9417e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc8R3EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc8R3EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0322158"/>
+<Parameter name="TrackerXi" value="6.8175e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc8R4EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc8R4EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0133596"/>
-<Parameter name="TrackerXi" value="2.67192e-05"/>
+<Parameter name="TrackerRadLength" value="0.043599"/>
+<Parameter name="TrackerXi" value="9.48038e-05"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk9" eval="true">
+<SpecPar name="TrackerRecMaterial_ITDisc9R1EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc9R1EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0451899"/>
+<Parameter name="TrackerXi" value="9.12616e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc9R2EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc9R2EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0444329"/>
+<Parameter name="TrackerXi" value="8.9491e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc9R3EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc9R3EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0408385"/>
+<Parameter name="TrackerXi" value="8.26558e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc9R4EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc9R4EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.129127"/>
+<Parameter name="TrackerXi" value="0.000282081"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc9R5EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc9R5EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0199721"/>
-<Parameter name="TrackerXi" value="3.99442e-05"/>
+<Parameter name="TrackerRadLength" value="0.252844"/>
+<Parameter name="TrackerXi" value="0.000646424"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk10" eval="true">
+<SpecPar name="TrackerRecMaterial_ITDisc10R1EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc10R1EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0425363"/>
+<Parameter name="TrackerXi" value="8.57968e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc10R2EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc10R2EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0444299"/>
+<Parameter name="TrackerXi" value="8.94174e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc10R3EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc10R3EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0406152"/>
+<Parameter name="TrackerXi" value="8.21141e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc10R4EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc10R4EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0434815"/>
+<Parameter name="TrackerXi" value="8.74883e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc10R5EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc10R5EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0199721"/>
-<Parameter name="TrackerXi" value="3.99442e-05"/>
+<Parameter name="TrackerRadLength" value="0.0327129"/>
+<Parameter name="TrackerXi" value="6.79149e-05"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk11" eval="true">
+<SpecPar name="TrackerRecMaterial_ITDisc11R1EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc11R1EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0393325"/>
+<Parameter name="TrackerXi" value="7.94892e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc11R2EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc11R2EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0446801"/>
+<Parameter name="TrackerXi" value="9.0023e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc11R3EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc11R3EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0407117"/>
+<Parameter name="TrackerXi" value="8.24116e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc11R4EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc11R4EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0435267"/>
+<Parameter name="TrackerXi" value="8.7648e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc11R5EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc11R5EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0199721"/>
-<Parameter name="TrackerXi" value="3.99442e-05"/>
+<Parameter name="TrackerRadLength" value="0.016085"/>
+<Parameter name="TrackerXi" value="3.06074e-05"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk12" eval="true">
+<SpecPar name="TrackerRecMaterial_ITDisc12R1EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc12R1EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0154442"/>
+<Parameter name="TrackerXi" value="3.07299e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc12R2EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc12R2EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0204668"/>
+<Parameter name="TrackerXi" value="4.59204e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc12R3EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc12R3EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0147623"/>
+<Parameter name="TrackerXi" value="2.82627e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc12R4EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc12R4EModuleInnerPixelActive"/>
+<Parameter name="TrackerRadLength" value="0.0197972"/>
+<Parameter name="TrackerXi" value="4.44671e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_ITDisc12R5EModuleInnerPixelActive" eval="true">
 <PartSelector path="//ITDisc12R5EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0199721"/>
-<Parameter name="TrackerXi" value="3.99442e-05"/>
+<Parameter name="TrackerRadLength" value="0.0112803"/>
+<Parameter name="TrackerXi" value="2.06285e-05"/>
 </SpecPar>
 
-
-<SpecPar name="TrackerRecMaterialPhase2OTBarrelLayer1" eval="true">
+<SpecPar name="TrackerRecMaterial_OTLayer1R1BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer1R1BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0460388"/>
+<Parameter name="TrackerXi" value="0.000119306"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R1BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer1R1BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0157486"/>
+<Parameter name="TrackerXi" value="3.04827e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R2BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer1R2BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0318594"/>
+<Parameter name="TrackerXi" value="7.32713e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R2BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer1R2BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0331053"/>
+<Parameter name="TrackerXi" value="8.56512e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R3BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer1R3BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0450866"/>
+<Parameter name="TrackerXi" value="0.000116232"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R3BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer1R3BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0157491"/>
+<Parameter name="TrackerXi" value="3.05368e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R4BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer1R4BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0272387"/>
+<Parameter name="TrackerXi" value="6.40645e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R4BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer1R4BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0317121"/>
+<Parameter name="TrackerXi" value="8.22876e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R5BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer1R5BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0384886"/>
+<Parameter name="TrackerXi" value="9.30628e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R5BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer1R5BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0213807"/>
+<Parameter name="TrackerXi" value="5.06954e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R6BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer1R6BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0398816"/>
+<Parameter name="TrackerXi" value="9.78739e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R6BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer1R6BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0259538"/>
+<Parameter name="TrackerXi" value="6.60333e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R7BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer1R7BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0407379"/>
+<Parameter name="TrackerXi" value="0.000100924"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R7BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer1R7BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0263557"/>
+<Parameter name="TrackerXi" value="6.8238e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R8BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer1R8BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0447419"/>
+<Parameter name="TrackerXi" value="0.000110788"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R8BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer1R8BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0303155"/>
+<Parameter name="TrackerXi" value="7.83629e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R9BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer1R9BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0452781"/>
+<Parameter name="TrackerXi" value="0.000112445"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R9BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer1R9BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0310645"/>
+<Parameter name="TrackerXi" value="8.07813e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R10BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer1R10BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0468014"/>
+<Parameter name="TrackerXi" value="0.000118393"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R10BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer1R10BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0326157"/>
+<Parameter name="TrackerXi" value="8.70543e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R11BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer1R11BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0476845"/>
+<Parameter name="TrackerXi" value="0.000120577"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R11BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer1R11BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0347909"/>
+<Parameter name="TrackerXi" value="9.45655e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R12BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer1R12BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0509525"/>
+<Parameter name="TrackerXi" value="0.000130921"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R12BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer1R12BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0356664"/>
+<Parameter name="TrackerXi" value="9.66365e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R13BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer1R13BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0546425"/>
+<Parameter name="TrackerXi" value="0.000142048"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R13BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer1R13BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0419149"/>
+<Parameter name="TrackerXi" value="0.000116314"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R14BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer1R14BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0585284"/>
+<Parameter name="TrackerXi" value="0.000154421"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R14BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer1R14BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0465453"/>
+<Parameter name="TrackerXi" value="0.000130455"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R15BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer1R15BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0594914"/>
+<Parameter name="TrackerXi" value="0.000161114"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R15BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer1R15BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0471631"/>
+<Parameter name="TrackerXi" value="0.000137461"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R16BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer1R16BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0600896"/>
+<Parameter name="TrackerXi" value="0.000164566"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer1R16BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer1R16BModuleUpperPSStripactive"/>
-<Parameter name="TrackerRadLength" value="0.0449237"/>
-<Parameter name="TrackerXi" value="8.98475e-05"/>
+<Parameter name="TrackerRadLength" value="0.0527995"/>
+<Parameter name="TrackerXi" value="0.000153096"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2OTBarrelLayer2" eval="true">
+<SpecPar name="TrackerRecMaterial_OTLayer2R1BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer2R1BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0284684"/>
+<Parameter name="TrackerXi" value="6.51997e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R1BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer2R1BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0146964"/>
+<Parameter name="TrackerXi" value="2.80986e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R2BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer2R2BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0284369"/>
+<Parameter name="TrackerXi" value="6.51529e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R2BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer2R2BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0143316"/>
+<Parameter name="TrackerXi" value="2.73374e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R3BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer2R3BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0294426"/>
+<Parameter name="TrackerXi" value="6.73841e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R3BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer2R3BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0147914"/>
+<Parameter name="TrackerXi" value="2.85336e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R4BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer2R4BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0284317"/>
+<Parameter name="TrackerXi" value="6.52177e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R4BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer2R4BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0149137"/>
+<Parameter name="TrackerXi" value="2.85102e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R5BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer2R5BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0284869"/>
+<Parameter name="TrackerXi" value="6.51119e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R5BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer2R5BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0146556"/>
+<Parameter name="TrackerXi" value="2.83729e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R6BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer2R6BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0261976"/>
+<Parameter name="TrackerXi" value="6.11035e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R6BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer2R6BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0148853"/>
+<Parameter name="TrackerXi" value="2.85078e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R7BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer2R7BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0335596"/>
+<Parameter name="TrackerXi" value="7.52357e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R7BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer2R7BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.014436"/>
+<Parameter name="TrackerXi" value="3.01332e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R8BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer2R8BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0331231"/>
+<Parameter name="TrackerXi" value="7.49739e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R8BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer2R8BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0144054"/>
+<Parameter name="TrackerXi" value="3.05234e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R9BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer2R9BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0332184"/>
+<Parameter name="TrackerXi" value="7.53833e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R9BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer2R9BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0144492"/>
+<Parameter name="TrackerXi" value="3.07219e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R10BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer2R10BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.033479"/>
+<Parameter name="TrackerXi" value="7.59078e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R10BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer2R10BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0148743"/>
+<Parameter name="TrackerXi" value="3.1671e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R11BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer2R11BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.033064"/>
+<Parameter name="TrackerXi" value="7.49752e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R11BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer2R11BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0158058"/>
+<Parameter name="TrackerXi" value="3.39668e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R12BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer2R12BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0340138"/>
+<Parameter name="TrackerXi" value="7.7189e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R12BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer2R12BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0155666"/>
+<Parameter name="TrackerXi" value="3.334e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R13BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer2R13BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0347512"/>
+<Parameter name="TrackerXi" value="7.88939e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R13BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer2R13BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0161131"/>
+<Parameter name="TrackerXi" value="3.47611e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R14BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer2R14BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.034798"/>
+<Parameter name="TrackerXi" value="7.91991e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R14BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer2R14BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0168649"/>
+<Parameter name="TrackerXi" value="3.64501e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R15BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer2R15BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0358428"/>
+<Parameter name="TrackerXi" value="8.17131e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R15BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer2R15BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0180055"/>
+<Parameter name="TrackerXi" value="3.92436e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R16BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer2R16BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.036489"/>
+<Parameter name="TrackerXi" value="8.32721e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R16BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer2R16BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0184097"/>
+<Parameter name="TrackerXi" value="4.02507e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R17BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer2R17BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0346203"/>
+<Parameter name="TrackerXi" value="7.8658e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R17BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer2R17BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0171257"/>
+<Parameter name="TrackerXi" value="3.7064e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R18BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer2R18BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0346903"/>
+<Parameter name="TrackerXi" value="7.8639e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer2R18BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer2R18BModuleUpperPSStripactive"/>
-<Parameter name="TrackerRadLength" value="0.0429501"/>
-<Parameter name="TrackerXi" value="8.59001e-05"/>
+<Parameter name="TrackerRadLength" value="0.0183734"/>
+<Parameter name="TrackerXi" value="3.77669e-05"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2OTBarrelLayer3" eval="true">
+<SpecPar name="TrackerRecMaterial_OTLayer3R1BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer3R1BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0285037"/>
+<Parameter name="TrackerXi" value="6.51881e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R1BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer3R1BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0195245"/>
+<Parameter name="TrackerXi" value="4.41441e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R2BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer3R2BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0330825"/>
+<Parameter name="TrackerXi" value="8.03352e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R2BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer3R2BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0140666"/>
+<Parameter name="TrackerXi" value="2.67646e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R3BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer3R3BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0289134"/>
+<Parameter name="TrackerXi" value="6.59536e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R3BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer3R3BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0194438"/>
+<Parameter name="TrackerXi" value="4.4152e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R4BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer3R4BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0327325"/>
+<Parameter name="TrackerXi" value="7.95926e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R4BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer3R4BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.014719"/>
+<Parameter name="TrackerXi" value="2.8135e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R5BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer3R5BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0286593"/>
+<Parameter name="TrackerXi" value="6.52915e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R5BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer3R5BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.019445"/>
+<Parameter name="TrackerXi" value="4.43185e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R6BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer3R6BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0321383"/>
+<Parameter name="TrackerXi" value="7.81821e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R6BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer3R6BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0145945"/>
+<Parameter name="TrackerXi" value="2.78625e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R7BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer3R7BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0277418"/>
+<Parameter name="TrackerXi" value="6.33383e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R7BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer3R7BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0198446"/>
+<Parameter name="TrackerXi" value="4.55204e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R8BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer3R8BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0290107"/>
+<Parameter name="TrackerXi" value="7.08161e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R8BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer3R8BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0143765"/>
+<Parameter name="TrackerXi" value="2.75835e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R9BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer3R9BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.036072"/>
+<Parameter name="TrackerXi" value="8.36436e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R9BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer3R9BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0171398"/>
+<Parameter name="TrackerXi" value="3.91673e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R10BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer3R10BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0350605"/>
+<Parameter name="TrackerXi" value="8.25334e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R10BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer3R10BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.017621"/>
+<Parameter name="TrackerXi" value="4.10211e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R11BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer3R11BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0362288"/>
+<Parameter name="TrackerXi" value="8.5336e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R11BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer3R11BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0177644"/>
+<Parameter name="TrackerXi" value="4.15755e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R12BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer3R12BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0364627"/>
+<Parameter name="TrackerXi" value="8.61472e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R12BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer3R12BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.018089"/>
+<Parameter name="TrackerXi" value="4.25357e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R13BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer3R13BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.036938"/>
+<Parameter name="TrackerXi" value="8.74624e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R13BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer3R13BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0181133"/>
+<Parameter name="TrackerXi" value="4.27793e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R14BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer3R14BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0362569"/>
+<Parameter name="TrackerXi" value="8.56781e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R14BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer3R14BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0185848"/>
+<Parameter name="TrackerXi" value="4.41995e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R15BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer3R15BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0381034"/>
+<Parameter name="TrackerXi" value="9.04789e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R15BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer3R15BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0195284"/>
+<Parameter name="TrackerXi" value="4.65685e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R16BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer3R16BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0381596"/>
+<Parameter name="TrackerXi" value="9.12258e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R16BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer3R16BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0198067"/>
+<Parameter name="TrackerXi" value="4.76214e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R17BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer3R17BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0394584"/>
+<Parameter name="TrackerXi" value="9.42865e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R17BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer3R17BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0210385"/>
+<Parameter name="TrackerXi" value="5.09415e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R18BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer3R18BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0401621"/>
+<Parameter name="TrackerXi" value="9.63809e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R18BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer3R18BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0213996"/>
+<Parameter name="TrackerXi" value="5.21619e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R19BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer3R19BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0393449"/>
+<Parameter name="TrackerXi" value="9.36328e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R19BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer3R19BModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0217934"/>
+<Parameter name="TrackerXi" value="5.23201e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R20BModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTLayer3R20BModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0443953"/>
+<Parameter name="TrackerXi" value="9.69261e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer3R20BModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTLayer3R20BModuleUpperPSStripactive"/>
-<Parameter name="TrackerRadLength" value="0.0421542"/>
-<Parameter name="TrackerXi" value="8.43085e-05"/>
+<Parameter name="TrackerRadLength" value="0.0285482"/>
+<Parameter name="TrackerXi" value="5.66694e-05"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2OTBarrelLayer4" eval="true">
+<SpecPar name="TrackerRecMaterial_OTLayer4R1BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer4R1BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0164277"/>
+<Parameter name="TrackerXi" value="3.73778e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R1BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer4R1BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0134517"/>
+<Parameter name="TrackerXi" value="3.11157e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R2BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer4R2BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0162663"/>
+<Parameter name="TrackerXi" value="3.71113e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R2BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer4R2BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0132822"/>
+<Parameter name="TrackerXi" value="3.0783e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R3BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer4R3BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0196401"/>
+<Parameter name="TrackerXi" value="4.76847e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R3BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer4R3BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0166033"/>
+<Parameter name="TrackerXi" value="4.16106e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R4BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer4R4BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0164555"/>
+<Parameter name="TrackerXi" value="3.74296e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R4BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer4R4BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.013549"/>
+<Parameter name="TrackerXi" value="3.14571e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R5BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer4R5BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0163874"/>
+<Parameter name="TrackerXi" value="3.73148e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R5BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer4R5BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.01388"/>
+<Parameter name="TrackerXi" value="3.21194e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R6BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer4R6BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0166682"/>
+<Parameter name="TrackerXi" value="3.78704e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R6BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer4R6BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0138491"/>
+<Parameter name="TrackerXi" value="3.21018e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R7BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer4R7BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0164665"/>
+<Parameter name="TrackerXi" value="3.74298e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R7BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer4R7BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0138306"/>
+<Parameter name="TrackerXi" value="3.21361e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R8BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer4R8BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.016279"/>
+<Parameter name="TrackerXi" value="3.70377e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R8BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer4R8BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0139979"/>
+<Parameter name="TrackerXi" value="3.25121e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R9BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer4R9BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0164565"/>
+<Parameter name="TrackerXi" value="3.73834e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R9BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer4R9BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0140245"/>
+<Parameter name="TrackerXi" value="3.26387e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R10BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer4R10BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0166297"/>
+<Parameter name="TrackerXi" value="3.77803e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R10BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer4R10BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0142703"/>
+<Parameter name="TrackerXi" value="3.31561e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R11BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer4R11BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.016803"/>
+<Parameter name="TrackerXi" value="3.87956e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R11BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer4R11BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.01527"/>
+<Parameter name="TrackerXi" value="3.67108e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R12BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer4R12BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0238511"/>
+<Parameter name="TrackerXi" value="5.35515e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer4R12BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer4R12BModuleUpper2Sactive"/>
-<Parameter name="TrackerRadLength" value="0.0189131"/>
-<Parameter name="TrackerXi" value="3.78262e-05"/>
+<Parameter name="TrackerRadLength" value="0.0228511"/>
+<Parameter name="TrackerXi" value="5.25666e-05"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2OTBarrelLayer5" eval="true">
+<SpecPar name="TrackerRecMaterial_OTLayer5R1BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer5R1BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0142277"/>
+<Parameter name="TrackerXi" value="2.98374e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R1BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer5R1BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0109953"/>
+<Parameter name="TrackerXi" value="2.3031e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R2BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer5R2BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0141635"/>
+<Parameter name="TrackerXi" value="2.96893e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R2BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer5R2BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0109608"/>
+<Parameter name="TrackerXi" value="2.3051e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R3BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer5R3BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.019744"/>
+<Parameter name="TrackerXi" value="4.79723e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R3BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer5R3BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0160168"/>
+<Parameter name="TrackerXi" value="3.92185e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R4BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer5R4BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0180975"/>
+<Parameter name="TrackerXi" value="4.27424e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R4BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer5R4BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0149322"/>
+<Parameter name="TrackerXi" value="3.56253e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R5BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer5R5BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0143092"/>
+<Parameter name="TrackerXi" value="3.01178e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R5BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer5R5BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0114535"/>
+<Parameter name="TrackerXi" value="2.41059e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R6BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer5R6BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0143583"/>
+<Parameter name="TrackerXi" value="3.0318e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R6BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer5R6BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0115054"/>
+<Parameter name="TrackerXi" value="2.42045e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R7BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer5R7BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0141938"/>
+<Parameter name="TrackerXi" value="2.99484e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R7BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer5R7BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0116318"/>
+<Parameter name="TrackerXi" value="2.45176e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R8BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer5R8BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0143515"/>
+<Parameter name="TrackerXi" value="3.0282e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R8BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer5R8BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0117175"/>
+<Parameter name="TrackerXi" value="2.47751e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R9BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer5R9BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0142846"/>
+<Parameter name="TrackerXi" value="3.0169e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R9BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer5R9BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.011584"/>
+<Parameter name="TrackerXi" value="2.46218e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R10BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer5R10BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0131389"/>
+<Parameter name="TrackerXi" value="2.7627e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R10BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer5R10BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0113489"/>
+<Parameter name="TrackerXi" value="2.40028e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R11BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer5R11BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0160106"/>
+<Parameter name="TrackerXi" value="3.60381e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R11BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer5R11BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0144739"/>
+<Parameter name="TrackerXi" value="3.37832e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R12BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer5R12BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0231277"/>
+<Parameter name="TrackerXi" value="5.06652e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer5R12BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer5R12BModuleUpper2Sactive"/>
-<Parameter name="TrackerRadLength" value="0.0189131"/>
-<Parameter name="TrackerXi" value="3.78262e-05"/>
+<Parameter name="TrackerRadLength" value="0.0231495"/>
+<Parameter name="TrackerXi" value="5.1719e-05"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2OTBarrelLayer6" eval="true">
+<SpecPar name="TrackerRecMaterial_OTLayer6R1BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer6R1BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0140649"/>
+<Parameter name="TrackerXi" value="3.0567e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R1BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer6R1BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0120291"/>
+<Parameter name="TrackerXi" value="2.72622e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R2BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer6R2BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0139995"/>
+<Parameter name="TrackerXi" value="3.04149e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R2BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer6R2BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0121078"/>
+<Parameter name="TrackerXi" value="2.75532e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R3BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer6R3BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0145675"/>
+<Parameter name="TrackerXi" value="3.25851e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R3BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer6R3BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0124929"/>
+<Parameter name="TrackerXi" value="2.87374e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R4BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer6R4BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0197035"/>
+<Parameter name="TrackerXi" value="4.91692e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R4BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer6R4BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0168441"/>
+<Parameter name="TrackerXi" value="4.31967e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R5BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer6R5BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0137774"/>
+<Parameter name="TrackerXi" value="2.99813e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R5BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer6R5BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0123929"/>
+<Parameter name="TrackerXi" value="2.82386e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R6BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer6R6BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0139724"/>
+<Parameter name="TrackerXi" value="3.0511e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R6BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer6R6BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0121407"/>
+<Parameter name="TrackerXi" value="2.76486e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R7BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer6R7BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0138202"/>
+<Parameter name="TrackerXi" value="3.02324e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R7BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer6R7BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0124392"/>
+<Parameter name="TrackerXi" value="2.83384e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R8BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer6R8BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0142854"/>
+<Parameter name="TrackerXi" value="3.13077e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R8BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer6R8BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0123829"/>
+<Parameter name="TrackerXi" value="2.81857e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R9BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer6R9BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0141411"/>
+<Parameter name="TrackerXi" value="3.08414e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R9BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer6R9BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0127761"/>
+<Parameter name="TrackerXi" value="2.91339e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R10BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer6R10BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0137564"/>
+<Parameter name="TrackerXi" value="3.00483e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R10BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer6R10BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0125652"/>
+<Parameter name="TrackerXi" value="2.88088e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R11BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer6R11BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0136713"/>
+<Parameter name="TrackerXi" value="2.98326e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R11BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer6R11BModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0131772"/>
+<Parameter name="TrackerXi" value="3.01024e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R12BModuleLower2Sactive" eval="true">
 <PartSelector path="//OTLayer6R12BModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0151739"/>
+<Parameter name="TrackerXi" value="3.16407e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTLayer6R12BModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTLayer6R12BModuleUpper2Sactive"/>
-<Parameter name="TrackerRadLength" value="0.0189131"/>
-<Parameter name="TrackerXi" value="3.78262e-05"/>
+<Parameter name="TrackerRadLength" value="0.0149226"/>
+<Parameter name="TrackerXi" value="3.23106e-05"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2OTForwardDisk1" eval="true">
+<SpecPar name="TrackerRecMaterial_OTDisc1R1EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc1R1EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0429296"/>
+<Parameter name="TrackerXi" value="0.00010196"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R1EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc1R1EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0367393"/>
+<Parameter name="TrackerXi" value="9.4399e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R2EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc1R2EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0357"/>
+<Parameter name="TrackerXi" value="6.92911e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R2EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc1R2EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0331202"/>
+<Parameter name="TrackerXi" value="6.47576e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R3EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc1R3EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0449764"/>
+<Parameter name="TrackerXi" value="8.57597e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R3EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc1R3EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.036168"/>
+<Parameter name="TrackerXi" value="7.02348e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R4EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc1R4EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0343608"/>
+<Parameter name="TrackerXi" value="6.98195e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R4EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc1R4EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0258424"/>
+<Parameter name="TrackerXi" value="5.44018e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R5EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc1R5EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0317351"/>
+<Parameter name="TrackerXi" value="6.05325e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R5EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc1R5EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0299151"/>
+<Parameter name="TrackerXi" value="5.71829e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R6EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc1R6EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.045034"/>
+<Parameter name="TrackerXi" value="8.67946e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R6EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc1R6EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0315359"/>
+<Parameter name="TrackerXi" value="6.22033e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R7EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc1R7EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0339286"/>
+<Parameter name="TrackerXi" value="6.94655e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R7EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc1R7EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0259728"/>
+<Parameter name="TrackerXi" value="5.54444e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R8EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc1R8EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0363757"/>
+<Parameter name="TrackerXi" value="7.48632e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R8EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc1R8EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0298516"/>
+<Parameter name="TrackerXi" value="6.36198e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R9EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc1R9EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0256994"/>
+<Parameter name="TrackerXi" value="5.01386e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R9EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc1R9EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0191904"/>
+<Parameter name="TrackerXi" value="3.82735e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R10EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc1R10EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0452685"/>
+<Parameter name="TrackerXi" value="9.01354e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R10EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc1R10EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0401787"/>
+<Parameter name="TrackerXi" value="8.17483e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R11EModuleLower2Sactive" eval="true">
 <PartSelector path="//OTDisc1R11EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0293834"/>
+<Parameter name="TrackerXi" value="6.34072e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R11EModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTDisc1R11EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0269854"/>
+<Parameter name="TrackerXi" value="6.08745e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R12EModuleLower2Sactive" eval="true">
 <PartSelector path="//OTDisc1R12EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0276702"/>
+<Parameter name="TrackerXi" value="5.54654e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R12EModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTDisc1R12EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0261547"/>
+<Parameter name="TrackerXi" value="5.39493e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R13EModuleLower2Sactive" eval="true">
 <PartSelector path="//OTDisc1R13EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0326999"/>
+<Parameter name="TrackerXi" value="7.2954e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R13EModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTDisc1R13EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.031283"/>
+<Parameter name="TrackerXi" value="7.40881e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R14EModuleLower2Sactive" eval="true">
 <PartSelector path="//OTDisc1R14EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0294762"/>
+<Parameter name="TrackerXi" value="6.00089e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R14EModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTDisc1R14EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0273874"/>
+<Parameter name="TrackerXi" value="5.73373e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R15EModuleLower2Sactive" eval="true">
 <PartSelector path="//OTDisc1R15EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0291458"/>
+<Parameter name="TrackerXi" value="6.18608e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc1R15EModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTDisc1R15EModuleUpper2Sactive"/>
-<Parameter name="TrackerRadLength" value="0.0288826"/>
-<Parameter name="TrackerXi" value="5.77652e-05"/>
+<Parameter name="TrackerRadLength" value="0.0280862"/>
+<Parameter name="TrackerXi" value="6.37684e-05"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2OTForwardDisk2" eval="true">
+<SpecPar name="TrackerRecMaterial_OTDisc2R1EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc2R1EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.107482"/>
+<Parameter name="TrackerXi" value="0.000288305"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R1EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc2R1EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.141879"/>
+<Parameter name="TrackerXi" value="0.000395393"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R2EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc2R2EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0368471"/>
+<Parameter name="TrackerXi" value="8.12764e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R2EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc2R2EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0357908"/>
+<Parameter name="TrackerXi" value="8.90253e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R3EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc2R3EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0269383"/>
+<Parameter name="TrackerXi" value="5.27651e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R3EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc2R3EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0182721"/>
+<Parameter name="TrackerXi" value="3.65744e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R4EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc2R4EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0284217"/>
+<Parameter name="TrackerXi" value="5.60228e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R4EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc2R4EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0198788"/>
+<Parameter name="TrackerXi" value="4.00914e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R5EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc2R5EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0285162"/>
+<Parameter name="TrackerXi" value="5.542e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R5EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc2R5EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0175574"/>
+<Parameter name="TrackerXi" value="3.50351e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R6EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc2R6EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0291813"/>
+<Parameter name="TrackerXi" value="5.76359e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R6EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc2R6EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0186725"/>
+<Parameter name="TrackerXi" value="3.77061e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R7EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc2R7EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0265871"/>
+<Parameter name="TrackerXi" value="5.20495e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R7EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc2R7EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0166753"/>
+<Parameter name="TrackerXi" value="3.32338e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R8EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc2R8EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0295493"/>
+<Parameter name="TrackerXi" value="5.87323e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R8EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc2R8EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.021002"/>
+<Parameter name="TrackerXi" value="4.24803e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R9EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc2R9EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.02574"/>
+<Parameter name="TrackerXi" value="5.04674e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R9EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc2R9EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0172947"/>
+<Parameter name="TrackerXi" value="3.46668e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R10EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc2R10EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.028913"/>
+<Parameter name="TrackerXi" value="5.6854e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R10EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc2R10EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0197288"/>
+<Parameter name="TrackerXi" value="3.96406e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R11EModuleLower2Sactive" eval="true">
 <PartSelector path="//OTDisc2R11EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0178557"/>
+<Parameter name="TrackerXi" value="3.50723e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R11EModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTDisc2R11EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0126972"/>
+<Parameter name="TrackerXi" value="2.56837e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R12EModuleLower2Sactive" eval="true">
 <PartSelector path="//OTDisc2R12EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0193527"/>
+<Parameter name="TrackerXi" value="3.8116e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R12EModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTDisc2R12EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0144591"/>
+<Parameter name="TrackerXi" value="2.92777e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R13EModuleLower2Sactive" eval="true">
 <PartSelector path="//OTDisc2R13EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0179562"/>
+<Parameter name="TrackerXi" value="3.5204e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R13EModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTDisc2R13EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0116131"/>
+<Parameter name="TrackerXi" value="2.32849e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R14EModuleLower2Sactive" eval="true">
 <PartSelector path="//OTDisc2R14EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0179016"/>
+<Parameter name="TrackerXi" value="3.52137e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R14EModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTDisc2R14EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0126519"/>
+<Parameter name="TrackerXi" value="2.5496e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R15EModuleLower2Sactive" eval="true">
 <PartSelector path="//OTDisc2R15EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0175903"/>
+<Parameter name="TrackerXi" value="3.3709e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc2R15EModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTDisc2R15EModuleUpper2Sactive"/>
-<Parameter name="TrackerRadLength" value="0.0288826"/>
-<Parameter name="TrackerXi" value="5.77652e-05"/>
+<Parameter name="TrackerRadLength" value="0.00971329"/>
+<Parameter name="TrackerXi" value="1.89417e-05"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2OTForwardDisk3" eval="true">
+<SpecPar name="TrackerRecMaterial_OTDisc3R4EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc3R4EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0304336"/>
+<Parameter name="TrackerXi" value="6.2068e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R4EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc3R4EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0205822"/>
+<Parameter name="TrackerXi" value="4.30405e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R5EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc3R5EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0278518"/>
+<Parameter name="TrackerXi" value="5.42804e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R5EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc3R5EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0184377"/>
+<Parameter name="TrackerXi" value="3.68268e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R6EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc3R6EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0292865"/>
+<Parameter name="TrackerXi" value="5.73035e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R6EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc3R6EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0204403"/>
+<Parameter name="TrackerXi" value="4.11094e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R7EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc3R7EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0262715"/>
+<Parameter name="TrackerXi" value="5.14056e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R7EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc3R7EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0171018"/>
+<Parameter name="TrackerXi" value="3.41194e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R8EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc3R8EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0294129"/>
+<Parameter name="TrackerXi" value="5.8212e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R8EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc3R8EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0194579"/>
+<Parameter name="TrackerXi" value="3.91704e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R9EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc3R9EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0279502"/>
+<Parameter name="TrackerXi" value="5.47275e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R9EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc3R9EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0179593"/>
+<Parameter name="TrackerXi" value="3.59724e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R10EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc3R10EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0298368"/>
+<Parameter name="TrackerXi" value="5.80334e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R10EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc3R10EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.021113"/>
+<Parameter name="TrackerXi" value="4.23447e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R11EModuleLower2Sactive" eval="true">
 <PartSelector path="//OTDisc3R11EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0188734"/>
+<Parameter name="TrackerXi" value="3.71458e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R11EModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTDisc3R11EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0145005"/>
+<Parameter name="TrackerXi" value="2.94468e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R12EModuleLower2Sactive" eval="true">
 <PartSelector path="//OTDisc3R12EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0193768"/>
+<Parameter name="TrackerXi" value="3.82148e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R12EModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTDisc3R12EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0140002"/>
+<Parameter name="TrackerXi" value="2.82387e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R13EModuleLower2Sactive" eval="true">
 <PartSelector path="//OTDisc3R13EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0183269"/>
+<Parameter name="TrackerXi" value="3.58762e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R13EModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTDisc3R13EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.012347"/>
+<Parameter name="TrackerXi" value="2.47632e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R14EModuleLower2Sactive" eval="true">
 <PartSelector path="//OTDisc3R14EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0180186"/>
+<Parameter name="TrackerXi" value="3.55086e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R14EModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTDisc3R14EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0124219"/>
+<Parameter name="TrackerXi" value="2.49706e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R15EModuleLower2Sactive" eval="true">
 <PartSelector path="//OTDisc3R15EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0177213"/>
+<Parameter name="TrackerXi" value="3.43996e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc3R15EModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTDisc3R15EModuleUpper2Sactive"/>
-<Parameter name="TrackerRadLength" value="0.0277056"/>
-<Parameter name="TrackerXi" value="5.54112e-05"/>
+<Parameter name="TrackerRadLength" value="0.0110683"/>
+<Parameter name="TrackerXi" value="2.21692e-05"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2OTForwardDisk4" eval="true">
+<SpecPar name="TrackerRecMaterial_OTDisc4R4EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc4R4EModuleLowerPSMacroPixelactive"/>
-<PartSelector path="//OTDisc4R4EModuleUpperPSStripactive"/>
-<PartSelector path="//OTDisc4R5EModuleLowerPSMacroPixelactive"/>
-<PartSelector path="//OTDisc4R5EModuleUpperPSStripactive"/>
-<PartSelector path="//OTDisc4R6EModuleLowerPSMacroPixelactive"/>
-<PartSelector path="//OTDisc4R6EModuleUpperPSStripactive"/>
-<PartSelector path="//OTDisc4R7EModuleLowerPSMacroPixelactive"/>
-<PartSelector path="//OTDisc4R7EModuleUpperPSStripactive"/>
-<PartSelector path="//OTDisc4R8EModuleLowerPSMacroPixelactive"/>
-<PartSelector path="//OTDisc4R8EModuleUpperPSStripactive"/>
-<PartSelector path="//OTDisc4R9EModuleLowerPSMacroPixelactive"/>
-<PartSelector path="//OTDisc4R9EModuleUpperPSStripactive"/>
-<PartSelector path="//OTDisc4R10EModuleLowerPSMacroPixelactive"/>
-<PartSelector path="//OTDisc4R10EModuleUpperPSStripactive"/>
-<PartSelector path="//OTDisc4R11EModuleLower2Sactive"/>
-<PartSelector path="//OTDisc4R11EModuleUpper2Sactive"/>
-<PartSelector path="//OTDisc4R12EModuleLower2Sactive"/>
-<PartSelector path="//OTDisc4R12EModuleUpper2Sactive"/>
-<PartSelector path="//OTDisc4R13EModuleLower2Sactive"/>
-<PartSelector path="//OTDisc4R13EModuleUpper2Sactive"/>
-<PartSelector path="//OTDisc4R14EModuleLower2Sactive"/>
-<PartSelector path="//OTDisc4R14EModuleUpper2Sactive"/>
-<PartSelector path="//OTDisc4R15EModuleLower2Sactive"/>
-<PartSelector path="//OTDisc4R15EModuleUpper2Sactive"/>
-<Parameter name="TrackerRadLength" value="0.0277056"/>
-<Parameter name="TrackerXi" value="5.54112e-05"/>
+<Parameter name="TrackerRadLength" value="0.0742512"/>
+<Parameter name="TrackerXi" value="0.000189988"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialPhase2OTForwardDisk5" eval="true">
+<SpecPar name="TrackerRecMaterial_OTDisc4R4EModuleUpperPSStripactive" eval="true">
+<PartSelector path="//OTDisc4R4EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0868759"/>
+<Parameter name="TrackerXi" value="0.000239233"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R5EModuleLowerPSMacroPixelactive" eval="true">
+<PartSelector path="//OTDisc4R5EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0327733"/>
+<Parameter name="TrackerXi" value="6.7213e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R5EModuleUpperPSStripactive" eval="true">
+<PartSelector path="//OTDisc4R5EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0258722"/>
+<Parameter name="TrackerXi" value="5.52025e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R6EModuleLowerPSMacroPixelactive" eval="true">
+<PartSelector path="//OTDisc4R6EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0295106"/>
+<Parameter name="TrackerXi" value="5.78088e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R6EModuleUpperPSStripactive" eval="true">
+<PartSelector path="//OTDisc4R6EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0205024"/>
+<Parameter name="TrackerXi" value="4.1327e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R7EModuleLowerPSMacroPixelactive" eval="true">
+<PartSelector path="//OTDisc4R7EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0264727"/>
+<Parameter name="TrackerXi" value="5.19838e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R7EModuleUpperPSStripactive" eval="true">
+<PartSelector path="//OTDisc4R7EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0173292"/>
+<Parameter name="TrackerXi" value="3.47024e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R8EModuleLowerPSMacroPixelactive" eval="true">
+<PartSelector path="//OTDisc4R8EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0289717"/>
+<Parameter name="TrackerXi" value="5.73552e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R8EModuleUpperPSStripactive" eval="true">
+<PartSelector path="//OTDisc4R8EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.019597"/>
+<Parameter name="TrackerXi" value="3.95643e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R9EModuleLowerPSMacroPixelactive" eval="true">
+<PartSelector path="//OTDisc4R9EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0280679"/>
+<Parameter name="TrackerXi" value="5.50134e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R9EModuleUpperPSStripactive" eval="true">
+<PartSelector path="//OTDisc4R9EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0183092"/>
+<Parameter name="TrackerXi" value="3.67772e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R10EModuleLowerPSMacroPixelactive" eval="true">
+<PartSelector path="//OTDisc4R10EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0292913"/>
+<Parameter name="TrackerXi" value="5.74294e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R10EModuleUpperPSStripactive" eval="true">
+<PartSelector path="//OTDisc4R10EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0211152"/>
+<Parameter name="TrackerXi" value="4.24198e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R11EModuleLower2Sactive" eval="true">
+<PartSelector path="//OTDisc4R11EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0191167"/>
+<Parameter name="TrackerXi" value="3.77426e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R11EModuleUpper2Sactive" eval="true">
+<PartSelector path="//OTDisc4R11EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0143225"/>
+<Parameter name="TrackerXi" value="2.92179e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R12EModuleLower2Sactive" eval="true">
+<PartSelector path="//OTDisc4R12EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0195043"/>
+<Parameter name="TrackerXi" value="3.85639e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R12EModuleUpper2Sactive" eval="true">
+<PartSelector path="//OTDisc4R12EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0139175"/>
+<Parameter name="TrackerXi" value="2.81674e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R13EModuleLower2Sactive" eval="true">
+<PartSelector path="//OTDisc4R13EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0186648"/>
+<Parameter name="TrackerXi" value="3.66162e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R13EModuleUpper2Sactive" eval="true">
+<PartSelector path="//OTDisc4R13EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0124799"/>
+<Parameter name="TrackerXi" value="2.5115e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R14EModuleLower2Sactive" eval="true">
+<PartSelector path="//OTDisc4R14EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0104826"/>
+<Parameter name="TrackerXi" value="2.01147e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R14EModuleUpper2Sactive" eval="true">
+<PartSelector path="//OTDisc4R14EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0079604"/>
+<Parameter name="TrackerXi" value="1.55077e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R15EModuleLower2Sactive" eval="true">
+<PartSelector path="//OTDisc4R15EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0147903"/>
+<Parameter name="TrackerXi" value="2.91129e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc4R15EModuleUpper2Sactive" eval="true">
+<PartSelector path="//OTDisc4R15EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.00900216"/>
+<Parameter name="TrackerXi" value="1.80818e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R4EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc5R4EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0578887"/>
+<Parameter name="TrackerXi" value="0.00016515"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R4EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc5R4EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.072111"/>
+<Parameter name="TrackerXi" value="0.000218017"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R5EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc5R5EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0490712"/>
+<Parameter name="TrackerXi" value="0.000118432"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R5EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc5R5EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0563488"/>
+<Parameter name="TrackerXi" value="0.00014292"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R6EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc5R6EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0176352"/>
+<Parameter name="TrackerXi" value="3.41329e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R6EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc5R6EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0138996"/>
+<Parameter name="TrackerXi" value="2.74769e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R7EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc5R7EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.014593"/>
+<Parameter name="TrackerXi" value="2.72543e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R7EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc5R7EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.00756942"/>
+<Parameter name="TrackerXi" value="1.38262e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R8EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc5R8EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0181009"/>
+<Parameter name="TrackerXi" value="3.54672e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R8EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc5R8EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.012593"/>
+<Parameter name="TrackerXi" value="2.47733e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R9EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc5R9EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.0153345"/>
+<Parameter name="TrackerXi" value="2.8685e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R9EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc5R9EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.00794641"/>
+<Parameter name="TrackerXi" value="1.45079e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R10EModuleLowerPSMacroPixelactive" eval="true">
 <PartSelector path="//OTDisc5R10EModuleLowerPSMacroPixelactive"/>
+<Parameter name="TrackerRadLength" value="0.01798"/>
+<Parameter name="TrackerXi" value="3.46496e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R10EModuleUpperPSStripactive" eval="true">
 <PartSelector path="//OTDisc5R10EModuleUpperPSStripactive"/>
+<Parameter name="TrackerRadLength" value="0.0141011"/>
+<Parameter name="TrackerXi" value="2.76222e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R11EModuleLower2Sactive" eval="true">
 <PartSelector path="//OTDisc5R11EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.00897216"/>
+<Parameter name="TrackerXi" value="1.69115e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R11EModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTDisc5R11EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.00525442"/>
+<Parameter name="TrackerXi" value="9.88066e-06"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R12EModuleLower2Sactive" eval="true">
 <PartSelector path="//OTDisc5R12EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0100306"/>
+<Parameter name="TrackerXi" value="1.93698e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R12EModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTDisc5R12EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.00782372"/>
+<Parameter name="TrackerXi" value="1.52983e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R13EModuleLower2Sactive" eval="true">
 <PartSelector path="//OTDisc5R13EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.00869534"/>
+<Parameter name="TrackerXi" value="1.62421e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R13EModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTDisc5R13EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.00487508"/>
+<Parameter name="TrackerXi" value="8.98503e-06"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R14EModuleLower2Sactive" eval="true">
 <PartSelector path="//OTDisc5R14EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.0104273"/>
+<Parameter name="TrackerXi" value="1.99675e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R14EModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTDisc5R14EModuleUpper2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.00687981"/>
+<Parameter name="TrackerXi" value="1.32436e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R15EModuleLower2Sactive" eval="true">
 <PartSelector path="//OTDisc5R15EModuleLower2Sactive"/>
+<Parameter name="TrackerRadLength" value="0.00851613"/>
+<Parameter name="TrackerXi" value="1.59067e-05"/>
+</SpecPar>
+
+<SpecPar name="TrackerRecMaterial_OTDisc5R15EModuleUpper2Sactive" eval="true">
 <PartSelector path="//OTDisc5R15EModuleUpper2Sactive"/>
-<Parameter name="TrackerRadLength" value="0.0277748"/>
-<Parameter name="TrackerXi" value="5.55497e-05"/>
+<Parameter name="TrackerRadLength" value="0.00453755"/>
+<Parameter name="TrackerXi" value="8.36351e-06"/>
 </SpecPar>
 
   </SpecParSection>
