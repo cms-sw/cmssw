@@ -249,7 +249,6 @@ hltPhase2PixelTracksSoAWithVectorHits = cms.EDProducer('CAHitNtupletAlpakaPhase2
     maxPhiResid = cms.double(0.006),
     maxVectorHitTip  = cms.double(0.1),   # transverse displacement this iteration admits [cm]
     minHitsForSharingCut = cms.uint32(1),
-    fitNas4 = cms.bool(False),
     useRiemannFit = cms.bool(False),
     doSharedHitCut = cms.bool(True),
     dupPassThrough = cms.bool(False),
