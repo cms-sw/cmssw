@@ -2,11 +2,15 @@
 #include "CondFormats/SiPhase2TrackerObjects/interface/TrackerDetToDTCELinkCablingMap.h"
 #include "CondFormats/SiPhase2TrackerObjects/interface/SiPhase2OuterTrackerLorentzAngle.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 
 #include "CondFormats/DataRecord/interface/TrackerDetToDTCELinkCablingMapRcd.h"
 #include "CondFormats/DataRecord/interface/SiPhase2OuterTrackerCondDataRecords.h"
+#include "CondFormats/DataRecord/interface/SiPhase2InnerTrackerCondDataRecords.h"
 
 REGISTER_PLUGIN(TrackerDetToDTCELinkCablingMapRcd, TrackerDetToDTCELinkCablingMap);
 REGISTER_PLUGIN(SiPhase2OuterTrackerLorentzAngleRcd, SiPhase2OuterTrackerLorentzAngle);
 REGISTER_PLUGIN_NO_SERIAL(SiPhase2OuterTrackerLorentzAngleSimRcd, SiPhase2OuterTrackerLorentzAngle);
 REGISTER_PLUGIN_NO_SERIAL(SiPhase2OuterTrackerBadStripRcd, SiStripBadStrip);
+REGISTER_PLUGIN(SiPhase2OuterTrackerBadModuleRcd, SiPixelQuality);
+REGISTER_PLUGIN_NO_SERIAL(SiPhase2InnerTrackerBadModuleRcd, SiPixelQuality);
