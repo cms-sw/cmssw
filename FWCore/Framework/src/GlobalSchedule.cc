@@ -143,7 +143,7 @@ namespace edm {
       for (auto& wm : workerManagers) {
         for (auto const& worker : wm.allWorkers()) {
           if (worker->description()->moduleLabel() == iLabel) {
-            iMod->replaceModuleFor(worker);
+            iMod->replaceModuleFor(worker, T::key(), TransitionPhaseGlobal::value);
             returnValue = true;
             break;
           }

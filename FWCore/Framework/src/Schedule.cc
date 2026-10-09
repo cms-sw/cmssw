@@ -410,7 +410,7 @@ namespace edm {
       std::transform(workers.begin(),
                      workers.end(),
                      std::back_inserter(modDesc),
-                     [](const Worker* iWorker) -> const ModuleDescription* { return iWorker->description(); });
+                     [](const auto* iWorker) -> const ModuleDescription* { return iWorker->description(); });
 
       // propagate_const<T> has no reset() function
       summaryTimeKeeper_ = std::make_unique<SystemTimeKeeper>(prealloc.numberOfStreams(), modDesc, tns, processContext);
@@ -868,7 +868,7 @@ namespace edm {
                               ParameterSet const& iPSet,
                               const SignallingProductRegistryFiller& iRegistry,
                               eventsetup::ESRecordsToProductResolverIndices const& iIndices) {
-    Worker* found = nullptr;
+    GlobalEventWorker* found = nullptr;
     for (auto const& worker : allWorkersEvents()) {
       if (worker->description()->moduleLabel() == iLabel) {
         found = worker;
@@ -937,9 +937,9 @@ namespace edm {
     moduleRegistry_->forAllModuleHolders([&](auto const* iHolder) { result.push_back(&iHolder->moduleDescription()); });
     return result;
   }
-  Schedule::AllWorkers const& Schedule::allWorkersEvents() const { return streamSchedules_[0]->allWorkersEvents(); }
-  Schedule::AllWorkers const& Schedule::allWorkersRun() const { return globalSchedule_->runWorkers(); }
-  Schedule::AllWorkers const& Schedule::allWorkersLumis() const { return globalSchedule_->lumiWorkers(); }
+  Schedule::EventWorkers const& Schedule::allWorkersEvents() const { return streamSchedules_[0]->allWorkersEvents(); }
+  Schedule::RunWorkers const& Schedule::allWorkersRun() const { return globalSchedule_->runWorkers(); }
+  Schedule::LuminosityBlockWorkers const& Schedule::allWorkersLumis() const { return globalSchedule_->lumiWorkers(); }
 
   void Schedule::convertCurrentProcessAlias(std::string const& processName) {
     moduleRegistry_->forAllModuleHolders([&](auto& iHolder) { iHolder->convertCurrentProcessAlias(processName); });

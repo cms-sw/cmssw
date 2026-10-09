@@ -7,7 +7,7 @@
 */
 #include <memory>
 #include "FWCore/Framework/interface/WorkerRegistry.h"
-#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/maker/TransitionWorker.h"
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
 #include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
@@ -29,8 +29,8 @@ namespace edm {
   }
 
   template <typename TI, typename TP>
-  Worker const* WorkerRegistry<TI, TP>::get(std::string const& moduleLabel) const {
-    WorkerMap::const_iterator workerIt = m_workerMap.find(moduleLabel);
+  TransitionWorker<TI, TP> const* WorkerRegistry<TI, TP>::get(std::string const& moduleLabel) const {
+    auto workerIt = m_workerMap.find(moduleLabel);
     if (workerIt != m_workerMap.end()) {
       return workerIt->second;
     }
@@ -38,28 +38,30 @@ namespace edm {
   }
 
   template <typename TI, typename TP>
-  Worker* WorkerRegistry<TI, TP>::getWorkerFromExistingModule(std::string const& moduleLabel,
-                                                              ExceptionToActionTable const* actions) {
-    WorkerMap::iterator workerIt = m_workerMap.find(moduleLabel);
+  TransitionWorker<TI, TP>* WorkerRegistry<TI, TP>::getWorkerFromExistingModule(std::string const& moduleLabel,
+                                                                                ExceptionToActionTable const* actions) {
+    auto workerIt = m_workerMap.find(moduleLabel);
     if (workerIt == m_workerMap.end()) {
       auto modulePtr = modRegistry_->getExistingModule(moduleLabel);
       if (!modulePtr) {
         return nullptr;
       }
       auto workerPtr = modulePtr->makeWorker(actions, TI::key(), TP::value);
+      auto tworkerPtr = dynamic_cast<TransitionWorker<TI, TP>*>(workerPtr.get());
+      assert(tworkerPtr != nullptr);
 
       workerPtr->setActivityRegistry(actReg_);
 
       // Transfer ownership of worker to the registry
-      m_workerMap[moduleLabel] =
-          std::shared_ptr<Worker>(workerPtr.release());  // propagate_const<T> has no reset() function
+      workerPtr.release();  // propagate_const<T> has no release() function
+      m_workerMap[moduleLabel] = std::shared_ptr<TransitionWorker<TI, TP>>(tworkerPtr);
       return m_workerMap[moduleLabel].get();
     }
     return (workerIt->second.get());
   }
   template <typename TI, typename TP>
   void WorkerRegistry<TI, TP>::deleteModule(std::string const& moduleLabel) {
-    WorkerMap::iterator workerIt = m_workerMap.find(moduleLabel);
+    auto workerIt = m_workerMap.find(moduleLabel);
     if (workerIt == m_workerMap.end()) {
       throw cms::Exception("LogicError")
           << "WorkerRegistry::deleteModule() Trying to delete the module of a Worker with label " << moduleLabel
