@@ -88,10 +88,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto out_d = cms::alpakatools::make_device_buffer<float[]>(queue, size_);
 
       // copy the input data to the device
-      // FIXME: pass the explicit size of type uint32_t to avoid compilation error
-      // The destination view and the extent are required to have compatible index types!
-      alpaka::memcpy(queue, in1_d, in1_h, size_);
-      alpaka::memcpy(queue, in2_d, in2_h, size_);
+      alpaka::memcpy(queue, in1_d, in1_h);
+      alpaka::memcpy(queue, in2_d, in2_h);
 
       // fill the output buffer with zeros
       alpaka::memset(queue, out_d, 0);

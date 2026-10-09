@@ -78,8 +78,7 @@ The implicit host-to-device and device-to-host copies rely on specialization of 
 namespace cms::alpakatools {
   template<>
   struct CopyToDevice<TSrc> {
-    template <typename TQueue>
-      requires alpaka::isQueue<TQueue>
+    template <alpaka::concepts::Queue TQueue>
     static auto copyAsync(TQueue& queue, TSrc const& hostProduct) -> TDst {
       // code to construct TDst object, and launch the asynchronous memcpy from the host to the device of TQueue
       return ...;
@@ -94,8 +93,7 @@ or
 namespace cms::alpakatools {
   template <>
   struct CopyToHost<TSrc> {
-    template <typename TQueue>
-      requires alpaka::isQueue<TQueue>
+    template <alpaka::concepts::Queue TQueue>
     static auto copyAsync(TQueue& queue, TSrc const& deviceProduct) -> TDst {
       // code to construct TDst object, and launch the asynchronous memcpy from the device of TQueue to the host
       return ...;

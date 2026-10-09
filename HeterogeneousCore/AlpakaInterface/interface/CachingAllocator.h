@@ -107,8 +107,8 @@ namespace cms::alpakatools {
     using Buffer = alpaka::Buf<Device, std::byte, alpaka::DimInt<1u>, size_t>;
 
     // The "memory device" type can either be the same as the "synchronisation device" type, or be the host CPU.
-    static_assert(alpaka::isDevice<Device>, "TDev should be an alpaka Device type.");
-    static_assert(alpaka::isQueue<Queue>, "TQueue should be an alpaka Queue type.");
+    static_assert(alpaka::concepts::Device<Device>, "TDev should be an alpaka Device type.");
+    static_assert(alpaka::concepts::Queue<Queue>, "TQueue should be an alpaka Queue type.");
     static_assert(std::is_same_v<Device, alpaka::Dev<Queue>> or std::is_same_v<Device, alpaka::DevCpu>,
                   "The \"memory device\" type can either be the same as the \"synchronisation device\" type, or be the "
                   "host CPU.");
