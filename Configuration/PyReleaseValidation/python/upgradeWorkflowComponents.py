@@ -607,6 +607,65 @@ upgradeWFs['lstmkFitOnGPUIters01TrackingOnlyAlpakaValidationLST'].step3 = upgrad
     '--procModifiers': 'alpakaValidationLST,trackingLST,seedingLST,trackingMkFitHighPtTripletStep,trackingIters01'
 }
 
+# LST and mkFit on CPU, all tracking iterations (not restricted to initialStep+highPtTripletStep), full reco
+class UpgradeWorkflow_lstmkFitOnCPUAllIters(UpgradeWorkflowTracking):
+    def setup__(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        result = (fragment=="TTbar_14TeV") and hasHarvest and ('Run4' in key)
+        return result
+upgradeWFs['lstmkFitOnCPUAllIters'] = UpgradeWorkflow_lstmkFitOnCPUAllIters(
+    steps = [
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+        'RecoNano',
+        'RecoNanoFakeHLT',
+    ],
+    PU = [
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+        'RecoNano',
+        'RecoNanoFakeHLT',
+    ],
+    suffix = '_lstmkFitOnCPUAllIters',
+    offset = 0.714,
+)
+upgradeWFs['lstmkFitOnCPUAllIters'].step3 = {
+    '--procModifiers': 'trackingLST,seedingLST,trackingMkFitHighPtTripletStep',
+    '--accelerators' : 'cpu'
+}
+
+# LST and mkFit on GPU (if available), all tracking iterations (not restricted to initialStep+highPtTripletStep), full reco
+class UpgradeWorkflow_lstmkFitOnGPUAllIters(UpgradeWorkflowTracking):
+    def setup__(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        result = (fragment=="TTbar_14TeV") and hasHarvest and ('Run4' in key)
+        return result
+upgradeWFs['lstmkFitOnGPUAllIters'] = UpgradeWorkflow_lstmkFitOnGPUAllIters(
+    steps = [
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+        'RecoNano',
+        'RecoNanoFakeHLT',
+    ],
+    PU = [
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+        'RecoNano',
+        'RecoNanoFakeHLT',
+    ],
+    suffix = '_lstmkFitOnGPUAllIters',
+    offset = 0.715,
+)
+upgradeWFs['lstmkFitOnGPUAllIters'].step3 = {
+    '--procModifiers': 'trackingLST,seedingLST,trackingMkFitHighPtTripletStep'
+}
+
 #DeepCore seeding for JetCore iteration workflow
 class UpgradeWorkflow_seedingDeepCore(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
