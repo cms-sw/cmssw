@@ -332,7 +332,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
           if (toaMode_ == WEIGHTEDBYE)
             finalToA += extraCharge * toaColl[jt];
         }
-        
+
         edm::LogWarning("HGCFEElectronics")
             << "\t\t !!! Caught large energy deposit q=" << totalCharge * 1e-3
             << " pC => draining time set to max. window possible: " << integTime << " ns  (" << busyBxs << " bx)"
