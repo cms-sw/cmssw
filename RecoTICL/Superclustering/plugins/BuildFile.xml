@@ -1,0 +1,16 @@
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/EcalObjects"/>
+<use name="DataFormats/EgammaReco"/>
+<use name="DataFormats/HGCalReco"/>
+<use name="DataFormats/Math"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="PhysicsTools/ONNXRuntime"/>
+<use name="RecoEcal/EgammaCoreTools"/>
+<use name="RecoTICL/Linking"/>
+<use name="RecoTICL/Superclustering"/>
+<library file="*.cc" name="RecoTICLSuperclusteringPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
