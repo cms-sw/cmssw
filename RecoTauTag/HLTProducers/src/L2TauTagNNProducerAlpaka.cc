@@ -45,6 +45,7 @@
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 
@@ -625,12 +626,12 @@ std::pair<float, float> L2TauNNProducerAlpaka::impactParameter(int it,
   riemannFit::Vector5d ipar, opar;
   riemannFit::Matrix5d icov, ocov;
   copyToDense(patatracks_tsoa.view().tracks(), ipar, icov, it);
-  riemannFit::transformToPerigeePlane(ipar, icov, opar, ocov);
+  GlobalPoint BeamSpotPoint(beamspot.x0(), beamspot.y0(), beamspot.z0());
+  riemannFit::transformToPerigeePlane(ipar, icov, magfi->inInverseGeV(BeamSpotPoint).z(), opar, ocov);
   LocalTrajectoryParameters lpar(opar(0), opar(1), opar(2), opar(3), opar(4), 1.);
   float sp = std::sin(patatrackPhi);
   float cp = std::cos(patatrackPhi);
   Surface::RotationType Rotation(sp, -cp, 0, 0, 0, -1.f, cp, sp, 0);
-  GlobalPoint BeamSpotPoint(beamspot.x0(), beamspot.y0(), beamspot.z0());
   Plane impPointPlane(BeamSpotPoint, Rotation);
   GlobalTrajectoryParameters gp(
       impPointPlane.toGlobal(lpar.position()), impPointPlane.toGlobal(lpar.momentum()), lpar.charge(), magfi);
