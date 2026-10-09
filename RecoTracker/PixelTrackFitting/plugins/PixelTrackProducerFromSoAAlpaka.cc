@@ -36,6 +36,7 @@
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/FitUtils.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
@@ -242,6 +243,7 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
   // get beamspot
   const auto &bsh = iEvent.get(beamSpotToken_);
   GlobalPoint bs(bsh.x0(), bsh.y0(), bsh.z0());
+  const double bField = idealField.inInverseGeV(bs).z();
 
   // get the module's starting indices in the hit collection
   auto const &pixelHitsModuleStart = iEvent.get(pixelHMSToken_);
@@ -582,7 +584,7 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     riemannFit::Vector5d ipar, opar;
     riemannFit::Matrix5d icov, ocov;
     reco::copyToDense<riemannFit::Vector5d, riemannFit::Matrix5d>(tsoa.view().tracks(), ipar, icov, it);
-    riemannFit::transformToPerigeePlane(ipar, icov, opar, ocov);
+    riemannFit::transformToPerigeePlane(ipar, icov, bField, opar, ocov);
 
     LocalTrajectoryParameters lpar(opar(0), opar(1), opar(2), opar(3), opar(4), 1.);
     AlgebraicSymMatrix55 m;
