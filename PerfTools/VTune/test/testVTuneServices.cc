@@ -127,9 +127,7 @@ namespace {
     return makeServices({std::move(config)}, registry);
   }
 
-  void emitModule(edm::ActivityRegistry& registry,
-                  std::string const& moduleName,
-                  std::string const& moduleLabel) {
+  void emitModule(edm::ActivityRegistry& registry, std::string const& moduleName, std::string const& moduleLabel) {
     edm::StreamContext stream{edm::StreamID::invalidStreamID(), nullptr};
     edm::ModuleDescription description{moduleName, moduleLabel};
     edm::ModuleCallingContext context{&description};
@@ -227,7 +225,8 @@ TEST_CASE("VTuneAnnotateService requires targetModules", "[VTuneAnnotateService]
 TEST_CASE("VTune services ignore modules with an empty target list", "[VTuneFilterService][VTuneAnnotateService]") {
   IttMock mock;
   edm::ActivityRegistry registry;
-  auto services = makeServices({parameters("VTuneFilterService", {}), parameters("VTuneAnnotateService", {})}, registry);
+  auto services =
+      makeServices({parameters("VTuneFilterService", {}), parameters("VTuneAnnotateService", {})}, registry);
 
   emitModule(registry, "OtherType", "otherLabel");
   CHECK(calls.order == std::vector<std::string>{"domain_create"});

@@ -58,4 +58,3 @@ namespace edm {
     }
   }
 }  // namespace edm
-
