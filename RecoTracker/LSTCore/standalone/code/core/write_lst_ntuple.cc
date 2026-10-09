@@ -142,12 +142,14 @@ void createT3DNNBranches() {
 
   // Hit-specific branches (T3 has 4 hits from two segments)
   std::vector<std::string> hitIndices = {"0", "1", "2", "3", "4", "5"};
-  std::vector<std::string> hitProperties = {"r", "x", "y", "z", "eta", "phi", "detId", "layer", "moduleType"};
+  std::vector<std::string> hitProperties = {"r", "x", "y", "z", "eta", "phi", "detId", "layer", "moduleType", "simIdx"};
 
   for (const auto& idx : hitIndices) {
     for (const auto& prop : hitProperties) {
       std::string branchName = "t3_hit_" + idx + "_" + prop;
-      if (prop == "detId" || prop == "layer" || prop == "moduleType") {
+      if (prop == "simIdx") {
+        ana.tx->createBranch<std::vector<std::vector<int>>>(branchName);
+      } else if (prop == "detId" || prop == "layer" || prop == "moduleType") {
         ana.tx->createBranch<std::vector<int>>(branchName);
       } else {
         ana.tx->createBranch<std::vector<float>>(branchName);
@@ -2586,6 +2588,8 @@ void fillT3DNNBranches(LSTEvent* event, unsigned int iT3) {
   auto const& trk_ph2_subdet = trk.getVUS("ph2_subdet");
   auto const& trk_ph2_layer = trk.getVUS("ph2_layer");
   auto const& trk_ph2_detId = trk.getVU("ph2_detId");
+  auto const& trk_ph2_simHitIdx = trk.getVVI("ph2_simHitIdx");
+  auto const& trk_simhit_simTrkIdx = trk.getVI("simhit_simTrkIdx");
 
   auto const& hitsBase = event->getInput<HitsBaseSoA>();
   auto const& hitsExtended = event->getHits<HitsExtendedSoA>();
@@ -2601,6 +2605,11 @@ void fillT3DNNBranches(LSTEvent* event, unsigned int iT3) {
     float z = hitsBase.zs()[hit];
     lst_math::Hit hitObj(x, y, z);
     hitObjects.push_back(hitObj);
+
+    std::vector<int> simTrkIdxs;
+    for (const auto& idx : trk_ph2_simHitIdx[hitsBase.idxs()[hit]]) {
+      simTrkIdxs.push_back(trk_simhit_simTrkIdx[idx]);
+    }
 
     std::string idx = std::to_string(i);
     ana.tx->pushbackToBranch<float>("t3_hit_" + idx + "_r", sqrt(x * x + y * y));
@@ -2619,6 +2628,7 @@ void fillT3DNNBranches(LSTEvent* event, unsigned int iT3) {
     ana.tx->pushbackToBranch<int>("t3_hit_" + idx + "_detId", detId);
     ana.tx->pushbackToBranch<int>("t3_hit_" + idx + "_layer", layer);
     ana.tx->pushbackToBranch<int>("t3_hit_" + idx + "_moduleType", modules.moduleType()[module]);
+    ana.tx->pushbackToBranch<std::vector<int>>("t3_hit_" + idx + "_simIdx", simTrkIdxs);
   }
 }
 
