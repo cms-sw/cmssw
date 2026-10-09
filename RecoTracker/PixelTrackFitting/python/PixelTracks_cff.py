@@ -229,8 +229,10 @@ phase2CAVectorHits.toReplaceWith(pixelTracksTask, cms.Task(
     pixelTracks)
 )
 
-# event setup of the vector hit CA: stacked-module geometry
+# event setup of the vector hit CA: stacked-module geometry, material and field maps of the BrokenLine fit
 def _addProcessESPhase2CAVectorHits(process):
     process.load("RecoTracker.PixelSeeding.stackedModuleGeometryESProducer_cfi")
+    process.load("RecoTracker.PixelTrackFitting.blMaterialMapESProducerAlpaka_cfi")
+    process.load("RecoTracker.PixelTrackFitting.blbFieldMapESProducerAlpaka_cfi")
 
 modifyConfigurationForPhase2CAVectorHits_ = (alpaka & phase2CAVectorHits).makeProcessModifier(_addProcessESPhase2CAVectorHits)

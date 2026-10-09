@@ -350,11 +350,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           ->setComment("Maximum number of hits in a tuple to clean also if the shared hit is on bpx1");
 
       desc.add<bool>("useRiemannFit", false)->setComment("true for Riemann, false for BrokenLine");
-      desc.add<bool>("useFitCorrections", false)
+      desc.add<bool>("useFitCorrections", kVectorHits)
           ->setComment(
               "Corrections of the BrokenLine fit: multiple scattering and ionization energy loss from the tracker "
-              "material map, the magnetic field's profile from the field map, and a fit that cannot be done "
-              "published as failed; false: flat material, uniform field. False by default on every topology.");
+              "material map, the magnetic field's profile from the field map, and failed fits published as failed "
+              "(q/pT = 0, infinite chi2); false: flat material, uniform field. True by default on "
+              "Phase2OTVectorHits only.");
       desc.add<bool>("doSharedHitCut", true)->setComment("Sharing hit nTuples cleaning");
       desc.add<bool>("dupPassThrough", false)->setComment("Do not reject duplicate");
       desc.add<bool>("useSimpleTripletCleaner", true)->setComment("use alternate implementation");
