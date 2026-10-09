@@ -8,6 +8,11 @@
 </bin>
 
 <test
+  name="testMPIConcurrentRunLumi"
+  command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_concurrent_run_lumi_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_concurrent_run_lumi_cfg.py"
+/>
+
+<test
   name="testMPIEventId"
   command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_cfg.py"
 />
