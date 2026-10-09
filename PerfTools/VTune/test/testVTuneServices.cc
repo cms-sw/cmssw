@@ -3,12 +3,14 @@
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "PerfTools/VTune/interface/VTuneAnnotateService.h"
-#include "PerfTools/VTune/interface/VTuneFilterService.h"
+#include "ittnotify.h"
 
 #include <string>
 #include <utility>
@@ -103,15 +105,29 @@ namespace {
     decltype(__itt_task_end_ptr) taskEnd_;
   };
 
-  edm::ParameterSet parameters(std::vector<std::string> targets) {
+  edm::ParameterSet parameters(std::string serviceType, std::vector<std::string> targets) {
     edm::ParameterSet result;
+    result.addParameter("@service_type", std::move(serviceType));
     result.addUntrackedParameter("targetModules", std::move(targets));
     return result;
   }
 
-  template <typename Service>
+  edm::ServiceToken makeServices(std::vector<edm::ParameterSet> configs, edm::ActivityRegistry& registry) {
+    static bool const configured = [] {
+      edmplugin::PluginManager::configure(edmplugin::standard::config());
+      return true;
+    }();
+    static_cast<void>(configured);
+    auto token = edm::ServiceRegistry::createSet(configs);
+    token.copySlotsTo(registry);
+    return token;
+  }
+
+  edm::ServiceToken makeService(edm::ParameterSet config, edm::ActivityRegistry& registry) {
+    return makeServices({std::move(config)}, registry);
+  }
+
   void emitModule(edm::ActivityRegistry& registry,
-                  Service&,
                   std::string const& moduleName,
                   std::string const& moduleLabel) {
     edm::StreamContext stream{edm::StreamID::invalidStreamID(), nullptr};
@@ -125,34 +141,32 @@ namespace {
 TEST_CASE("VTuneFilterService enables configured modules", "[VTuneFilterService]") {
   IttMock mock;
   edm::ActivityRegistry registry;
-  auto config = parameters({"selectedLabel", "SelectedType"});
-  edm::VTuneFilterService service{config, registry};
+  auto service = makeService(parameters("VTuneFilterService", {"selectedLabel", "SelectedType"}), registry);
 
   SECTION("matches a module label") {
-    emitModule(registry, service, "OtherType", "selectedLabel");
+    emitModule(registry, "OtherType", "selectedLabel");
     CHECK(calls.order == std::vector<std::string>{"resume", "pause"});
   }
 
   SECTION("matches a module type") {
-    emitModule(registry, service, "SelectedType", "otherLabel");
+    emitModule(registry, "SelectedType", "otherLabel");
     CHECK(calls.order == std::vector<std::string>{"resume", "pause"});
   }
 
   SECTION("ignores an unconfigured module") {
-    emitModule(registry, service, "OtherType", "otherLabel");
+    emitModule(registry, "OtherType", "otherLabel");
     CHECK(calls.order.empty());
   }
 
   SECTION("matches all modules when configured") {
     edm::ActivityRegistry allRegistry;
-    auto allConfig = parameters({"all"});
-    edm::VTuneFilterService allService{allConfig, allRegistry};
-    emitModule(allRegistry, allService, "OtherType", "otherLabel");
+    auto allService = makeService(parameters("VTuneFilterService", {"all"}), allRegistry);
+    emitModule(allRegistry, "OtherType", "otherLabel");
     CHECK(calls.order == std::vector<std::string>{"resume", "pause"});
   }
 
   SECTION("acts once when label and type both match") {
-    emitModule(registry, service, "SelectedType", "selectedLabel");
+    emitModule(registry, "SelectedType", "selectedLabel");
     CHECK(calls.resumes == 1);
     CHECK(calls.pauses == 1);
   }
@@ -160,20 +174,20 @@ TEST_CASE("VTuneFilterService enables configured modules", "[VTuneFilterService]
 
 TEST_CASE("VTuneFilterService requires targetModules", "[VTuneFilterService]") {
   edm::ParameterSet config;
+  config.addParameter("@service_type", std::string{"VTuneFilterService"});
   edm::ActivityRegistry registry;
-  REQUIRE_THROWS(edm::VTuneFilterService(config, registry));
+  REQUIRE_THROWS(makeService(std::move(config), registry));
 }
 
 TEST_CASE("VTuneAnnotateService annotates configured modules", "[VTuneAnnotateService]") {
   IttMock mock;
   edm::ActivityRegistry registry;
-  auto config = parameters({"selectedLabel", "SelectedType"});
-  edm::VTuneAnnotateService service{config, registry};
+  auto service = makeService(parameters("VTuneAnnotateService", {"selectedLabel", "SelectedType"}), registry);
 
   REQUIRE(calls.domainName == "CMSSW.ModuleTracker");
 
   SECTION("matches a module label") {
-    emitModule(registry, service, "OtherType", "selectedLabel");
+    emitModule(registry, "OtherType", "selectedLabel");
     CHECK(calls.handleName == "OtherType/selectedLabel");
     CHECK(calls.beginDomain == &domain);
     CHECK(calls.endDomain == &domain);
@@ -182,21 +196,21 @@ TEST_CASE("VTuneAnnotateService annotates configured modules", "[VTuneAnnotateSe
   }
 
   SECTION("matches a module type") {
-    emitModule(registry, service, "SelectedType", "otherLabel");
+    emitModule(registry, "SelectedType", "otherLabel");
     CHECK(calls.handleName == "SelectedType/otherLabel");
     CHECK(calls.taskBegins == 1);
     CHECK(calls.taskEnds == 1);
   }
 
   SECTION("ignores an unconfigured module") {
-    emitModule(registry, service, "OtherType", "otherLabel");
+    emitModule(registry, "OtherType", "otherLabel");
     CHECK(calls.order == std::vector<std::string>{"domain_create"});
     CHECK(calls.taskBegins == 0);
     CHECK(calls.taskEnds == 0);
   }
 
   SECTION("acts once when label and type both match") {
-    emitModule(registry, service, "SelectedType", "selectedLabel");
+    emitModule(registry, "SelectedType", "selectedLabel");
     CHECK(calls.taskBegins == 1);
     CHECK(calls.taskEnds == 1);
   }
@@ -205,17 +219,16 @@ TEST_CASE("VTuneAnnotateService annotates configured modules", "[VTuneAnnotateSe
 TEST_CASE("VTuneAnnotateService requires targetModules", "[VTuneAnnotateService]") {
   IttMock mock;
   edm::ParameterSet config;
+  config.addParameter("@service_type", std::string{"VTuneAnnotateService"});
   edm::ActivityRegistry registry;
-  REQUIRE_THROWS(edm::VTuneAnnotateService(config, registry));
+  REQUIRE_THROWS(makeService(std::move(config), registry));
 }
 
 TEST_CASE("VTune services ignore modules with an empty target list", "[VTuneFilterService][VTuneAnnotateService]") {
   IttMock mock;
   edm::ActivityRegistry registry;
-  auto config = parameters({});
-  edm::VTuneFilterService filter{config, registry};
-  edm::VTuneAnnotateService annotate{config, registry};
+  auto services = makeServices({parameters("VTuneFilterService", {}), parameters("VTuneAnnotateService", {})}, registry);
 
-  emitModule(registry, filter, "OtherType", "otherLabel");
+  emitModule(registry, "OtherType", "otherLabel");
   CHECK(calls.order == std::vector<std::string>{"domain_create"});
 }
