@@ -145,10 +145,9 @@ run_benchmark() {
     ensure_patatrack_scripts
 
     patatrack-scripts/benchmark \
-        -j 8 -t 16 -s 16 \
+        -j 8 -t 32 -s 24 \
         -e ${EVENTS} \
         --no-input-benchmark \
-        --slot "numa=0-3:mem=0-3" \
         --event-skip 100 \
         --event-resolution 10 \
         --output-log \
