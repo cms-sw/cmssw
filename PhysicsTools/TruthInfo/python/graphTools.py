@@ -321,8 +321,9 @@ class TruthGraphView:
         return out
 
     def signalParticles(self):
-        """What the selection preset named as the signal. Signal is a stamped flag and not
-        a level row, so no preset means an empty list."""
+        """What the selection preset named as the signal, or with no preset the shot
+        particles of a particle gun. Signal is a stamped flag and not a level row, so a
+        collision with no preset gives an empty list."""
         return self.particlesOfLevel("signal")
 
     # --- vertices ----------------------------------------------------------------

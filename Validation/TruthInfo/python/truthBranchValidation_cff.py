@@ -435,12 +435,14 @@ for _d in _domains:
     # signalSeedPdgIds travels with truthLevels because the analyzer books the signal
     # folders from it, and it must carry the SAME value the associators get. A production
     # that applies a preset sets it on the analyzers as well as on the associators; with
-    # no preset it stays empty and the signal folders are simply not booked.
+    # no preset it stays empty and the signal folders are not booked, unless
+    # bookGunSignal is set for a particle gun.
     _truthArgs = (dict(vertexResolution=cms.string(_d["vertexResolution"]))
                   if "vertexResolution" in _d
                   else dict(truthLevels=cms.vstring(*_levels),
                             signalSeedPdgIds=cms.vint32(*_signalSeedPdgIds),
-                            signalSeedHadronFlavors=cms.vint32(*_signalSeedHadronFlavors)))
+                            signalSeedHadronFlavors=cms.vint32(*_signalSeedHadronFlavors),
+                            bookGunSignal=cms.bool(False)))
     _analyzer = cms.EDProducer(
         _d["module"],
         src=cms.InputTag("truthLogicalGraphProducer"),

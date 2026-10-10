@@ -165,7 +165,7 @@ _RULES = (
     (r"(?i)jpsi|psi2s|chic", "heavyflavor", dict(seedHadronFlavors=[4])),
     (r"(?i)sms-|displacedsusy|(^|[_-])susy|glugluto2jets", "full", {}),
     (r"(?i)singlenu|nugun|(^|[_-])nu(e|mu|tau|gun)", "full", {}),
-    (r"(?i)^(single|double|triple|four|five|six|ten|eleven|twelve|flat|closeby|ce_)", "gun", {}),
+    (r"(?i)^(single|double|triple|four|five|six|ten|eleven|twelve|flat|closeby|ce_)|pgun|particlegun", "gun", {}),
     (r"(?i)qcd|minbias|photonjet", "full", {}),
 )
 

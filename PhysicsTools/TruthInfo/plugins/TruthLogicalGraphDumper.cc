@@ -633,13 +633,20 @@ public:
         perLevel << "  " << truth::levelName(level) << " stored=" << stored << " recomputed=" << antichain.size()
                  << " disagree=" << bad << "\n";
       }
-      // Signal cannot be recomputed from the graph alone, so it is checked against the
-      // RECORDED seed species instead: every flagged particle must either match a seed or
-      // be the synthetic stand-in, and no flagged particle may have a seed-matching
-      // ancestor, which is what "most upstream match" means.
+      // With seed species, Signal is checked against the RECORDED seeds: every flagged
+      // particle must either match a seed or be the synthetic stand-in, and no flagged
+      // particle may have a seed-matching ancestor, which is what "most upstream match"
+      // means. With none, Signal is the shot particles of a gun, recomputed from the graph.
       std::size_t signalFlagged = 0, signalBad = 0, syntheticSignal = 0;
       auto const& seeds = g.signalSeedPdgIds();
       auto const& flavors = g.seedHadronFlavors();
+      const bool resonanceSeeds = truth::seedsNameAResonance(seeds, flavors);
+      std::vector<uint8_t> gunSignal(g.nParticles(), 0);
+      if (!resonanceSeeds) {
+        for (const uint32_t id : truth::gunSignalRoots(g)) {
+          gunSignal[id] = 1;
+        }
+      }
       // A particle is a legitimate seed either by pdg id or by heavy-flavour hadron
       // content, matching the two ways a selection preset can name its signal.
       auto isSeed = [&](int32_t pdgId) {
@@ -681,7 +688,13 @@ public:
 
       for (uint32_t id = 0; id < g.nParticles(); ++id) {
         auto const& d = g.particles()[id];
-        if (!d.isAtLevel(truth::LevelFlag::Signal)) {
+        const bool flagged = d.isAtLevel(truth::LevelFlag::Signal);
+        if (!resonanceSeeds) {
+          signalFlagged += flagged ? 1 : 0;
+          signalBad += (flagged != (gunSignal[id] != 0)) ? 1 : 0;
+          continue;
+        }
+        if (!flagged) {
           continue;
         }
         ++signalFlagged;

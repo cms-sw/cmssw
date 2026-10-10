@@ -136,7 +136,7 @@ namespace truth {
     // RE-DERIVABLE. Every other level bit can be recomputed from the graph alone, which
     // is what lets a reader detect a graph written before a definition changed; Signal
     // cannot, unless the seeds that produced it travel with it. Empty means no selection
-    // ran, and then no particle carries the Signal bit.
+    // ran, and then only the shot particles of a particle gun carry the Signal bit.
     [[nodiscard]] std::vector<int32_t> const& signalSeedPdgIds() const { return signalSeedPdgIds_; }
     [[nodiscard]] std::vector<int32_t>& signalSeedPdgIds() { return signalSeedPdgIds_; }
 

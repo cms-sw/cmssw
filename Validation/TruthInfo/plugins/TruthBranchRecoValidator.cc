@@ -314,11 +314,11 @@ TruthBranchRecoValidator<RECO>::TruthBranchRecoValidator(edm::ParameterSet const
     // selected roots (the tau, not its decay legs), so the folder measures the signal
     // object's own efficiency.
     //
-    // NOT BOOKED AT ALL on a sample with no resonance, rather than booked empty: the
-    // question "how well is the signal reconstructed" has no meaning where the
-    // configuration names no signal, and an empty folder invites the reading that the
-    // efficiency is zero.
-    if (truth::seedsNameAResonance(cfg.getParameter<std::vector<int>>("signalSeedPdgIds"),
+    // Booked only when the configuration names a signal, by seed species or for a
+    // particle gun, rather than booked empty: an empty folder invites the reading that
+    // the efficiency is zero.
+    if (cfg.getParameter<bool>("bookGunSignal") ||
+        truth::seedsNameAResonance(cfg.getParameter<std::vector<int>>("signalSeedPdgIds"),
                                    cfg.getParameter<std::vector<int>>("signalSeedHadronFlavors"))) {
       truthTargets.emplace_back("signal", "signalSeeds");
       // The same seed objects with NO selector cut, so the efficiency is quoted against
@@ -944,11 +944,15 @@ void TruthBranchRecoValidator<RECO>::fillDescriptions(edm::ConfigurationDescript
         ->setComment(
             "The selection preset's seed species, the SAME values the associators get. Empty, or the full-graph "
             "escape hatch {0}, means the sample has no resonance, and then the signal and signalNoSelection "
-            "folders are NOT BOOKED: the question has no meaning where the configuration names no signal");
+            "folders are NOT BOOKED unless bookGunSignal is set");
     desc.add<std::vector<int>>("signalSeedHadronFlavors", {})
         ->setComment(
             "The preset's heavy-flavour hadron seeds, the SAME values the associators get; flavours alone also "
             "name a resonance and book the signal folders");
+    desc.add<bool>("bookGunSignal", false)
+        ->setComment(
+            "Book the signal and signalNoSelection folders for a particle gun, whose shot particles carry the "
+            "Signal bit with no seed species configured");
   }
   if constexpr (Traits::calorimetric) {
     desc.add<double>("minSharedEnergyFractionForIndividual", 0.5)

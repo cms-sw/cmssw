@@ -25,7 +25,8 @@ namespace truth {
     StableDecayProducts = 1u << 2,
     CaloBoundary = 1u << 3,
     // The resonance the preset's seed species name: the most upstream matching GEN
-    // particles of the signal interaction. Empty recorded seeds mean no Signal bits.
+    // particles of the signal interaction. With no seed species, the shot particles of a
+    // particle gun (gunSignalRoots in TruthLevels.h), and none for a collision.
     Signal = 1u << 4,
     // First reconstructable decay products of the signal: the walk from each Signal
     // root stops at the graph's reconstructablePdgIds (a pi0 is one object, not two

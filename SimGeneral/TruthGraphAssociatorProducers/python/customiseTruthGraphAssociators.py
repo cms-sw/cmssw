@@ -133,6 +133,19 @@ def customiseTruthBranchValidation(process):
     return process
 
 
+def customiseTruthBranchValidationGun(process):
+    """customiseTruthBranchValidation for a particle gun, which also books the signal and
+    signalNoSelection folders: the shot particles carry the Signal bit with no seed
+    species configured. The .88 workflow applies it to the reconstruction step of every
+    gun sample.
+    """
+    process = customiseTruthBranchValidation(process)
+    for module in process.producers_().values():
+        if module.hasParameter("bookGunSignal"):
+            module.bookGunSignal = True
+    return process
+
+
 def customiseTruthHltValidation(process):
     """Schedule the HLT association maps and their performance plots.
 

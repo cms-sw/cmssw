@@ -289,8 +289,8 @@ namespace truth {
   // Two spellings mean "no selection" and both must be read that way: an EMPTY list, which
   // is what a production with no preset configures, and {0}, the full-graph escape hatch,
   // since no real particle carries pdgId 0. Neither may be read as "the resonance is
-  // missing", and neither may be read as "everything is signal": on such a sample the
-  // signal level is NOT ANSWERABLE, so it is not offered at all.
+  // missing", and neither may be read as "everything is signal": the signal is then the
+  // shot particles of a particle gun (gunSignalRoots), and empty for a collision.
   //
   // Templated because the seed list is std::vector<int> in the module parameters and
   // std::vector<int32_t> on the Graph. One definition, so every consumer decides
@@ -576,29 +576,81 @@ namespace truth {
         graph, [&graph](uint32_t p) { return graph.particles()[p].isAtLevel(LevelFlag::Signal); });
   }
 
-  // The same walk seeded from every GEN root, the particles with a GEN record and no GEN
-  // parent, so the level exists on every sample: a pi0 is one object inside a QCD jet,
-  // the underlying event and each pileup interaction, none of which has a resonance to
-  // seed from. reconstructableFromSignal answers "what did the resonance produce"; this
-  // level answers "what could the detector see", event-wide.
-  [[nodiscard]] inline std::vector<uint32_t> reconstructableFinalState(Graph const& graph) {
-    auto const isGenRoot = [&graph](uint32_t p) {
-      if (!graph.particles()[p].hasGen()) {
-        return false;
+  // A particle with a GEN record and no GEN parent: a beam particle, a gun particle, or a
+  // stable particle of a collapsed pile-up GEN record.
+  [[nodiscard]] inline bool isGenRoot(Graph const& graph, uint32_t p) {
+    if (!graph.particles()[p].hasGen()) {
+      return false;
+    }
+    for (const uint32_t vertexId : graph.productionVertices(p)) {
+      if (vertexId >= graph.nVertices()) {
+        continue;
       }
+      for (const uint32_t parent : graph.incomingParticles(vertexId)) {
+        if (parent != p && graph.particles()[parent].hasGen()) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  // The same walk seeded from every GEN root, so the level exists on every sample: a pi0
+  // is one object inside a QCD jet, the underlying event and each pileup interaction,
+  // none of which has a resonance to seed from. reconstructableFromSignal answers "what
+  // did the resonance produce"; this level answers "what could the detector see",
+  // event-wide.
+  [[nodiscard]] inline std::vector<uint32_t> reconstructableFinalState(Graph const& graph) {
+    return detail::reconstructableLegsFrom(graph, [&graph](uint32_t p) { return isGenRoot(graph, p); });
+  }
+
+  // The shot particles of a particle gun: the GEN roots of the signal interaction, or the
+  // GEN daughters of a root with no production vertex, which is the dummy mother (pdgId
+  // 990) of the Pythia8 guns. Empty for a collision, whose beam particles carry HepMC
+  // status 4, and for a signal interaction with no GEN record. The ten taus of TenTau are
+  // ten shot particles.
+  [[nodiscard]] inline std::vector<uint32_t> gunSignalRoots(Graph const& graph) {
+    constexpr int16_t kBeamStatus = 4;
+    auto const isSignalGen = [&graph](uint32_t p) {
+      auto const& data = graph.particles()[p];
+      return data.isSignal() && data.hasGen() && !data.isSynthetic();
+    };
+    auto const hasRealProductionVertex = [&graph](uint32_t p) {
       for (const uint32_t vertexId : graph.productionVertices(p)) {
+        if (vertexId < graph.nVertices() && !graph.vertices()[vertexId].isArtificial()) {
+          return true;
+        }
+      }
+      return false;
+    };
+    for (uint32_t p = 0; p < graph.nParticles(); ++p) {
+      if (isSignalGen(p) && graph.particles()[p].status == kBeamStatus) {
+        return {};
+      }
+    }
+    std::vector<uint32_t> roots;
+    for (uint32_t p = 0; p < graph.nParticles(); ++p) {
+      if (!isSignalGen(p) || !isGenRoot(graph, p)) {
+        continue;
+      }
+      if (hasRealProductionVertex(p)) {
+        roots.push_back(p);
+        continue;
+      }
+      for (const uint32_t vertexId : graph.decayVertices(p)) {
         if (vertexId >= graph.nVertices()) {
           continue;
         }
-        for (const uint32_t parent : graph.incomingParticles(vertexId)) {
-          if (parent != p && graph.particles()[parent].hasGen()) {
-            return false;
+        for (const uint32_t child : graph.outgoingParticles(vertexId)) {
+          if (child != p && isSignalGen(child) && hasRealProductionVertex(child)) {
+            roots.push_back(child);
           }
         }
       }
-      return true;
-    };
-    return detail::reconstructableLegsFrom(graph, isGenRoot);
+    }
+    std::sort(roots.begin(), roots.end());
+    roots.erase(std::unique(roots.begin(), roots.end()), roots.end());
+    return roots;
   }
 
   // PartonJets is defined in terms of the HardProcess antichain and levelAntichain
