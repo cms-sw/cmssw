@@ -1,5 +1,5 @@
-#ifndef IRPCDigi_IRPCDigi_h
-#define IRPCDigi_IRPCDigi_h
+#ifndef DataFormats_RPCDigi_IRPCDigi_h
+#define DataFormats_RPCDigi_IRPCDigi_h
 
 /** \class IRPCDigi
  *

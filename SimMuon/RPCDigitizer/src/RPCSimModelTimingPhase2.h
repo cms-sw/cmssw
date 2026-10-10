@@ -1,69 +1,30 @@
-#ifndef RPCDigitizer_RPCSimModelTimingPhase2_h
-#define RPCDigitizer_RPCSimModelTimingPhase2_h
+#ifndef SimMuon_RPCDigitizer_RPCSimModelTimingPhase2_h
+#define SimMuon_RPCDigitizer_RPCSimModelTimingPhase2_h
 
-/** \class RPCSimAverage
- *   Class for the RPC strip response simulation based
- *   on a parametrized model (ORCA-based)
- *
- *  \author Borislav Pavlov -- University of Sofia
- */
-#include "SimMuon/RPCDigitizer/src/RPCSim.h"
-#include "SimMuon/RPCDigitizer/src/RPCSynchronizer.h"
-#include "SimMuon/RPCDigitizer/src/RPCSimAsymmetricCls.h"
-#include "SimMuon/RPCDigitizer/src/RPCSimAverageNoiseEffCls.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiPhase2Collection.h"
+#include "SimMuon/RPCDigitizer/src/RPCSimModelTimingBase.h"
 
-#include <cstring>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <cstdlib>
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-class RPCGeometry;
-
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
-class RPCSimModelTimingPhase2 : public RPCSim {
+class RPCSimModelTimingPhase2 : public RPCSimModelTimingBase {
 public:
-  RPCSimModelTimingPhase2(const edm::ParameterSet& config);
+  explicit RPCSimModelTimingPhase2(const edm::ParameterSet& config);
+
   ~RPCSimModelTimingPhase2() override;
-  void simulate(const RPCRoll* roll, const edm::PSimHitContainer& rpcHits, CLHEP::HepRandomEngine*) override;
-  void simulateNoise(const RPCRoll*, CLHEP::HepRandomEngine*) override;
-  int getClSize(uint32_t id, float posX, CLHEP::HepRandomEngine*);
-  int LeftRightNeighbour(const RPCRoll& roll, const LocalPoint& hit_pos, int strip);
 
 protected:
-  void init() override {}
+  //---------------------------------------------------------
+  // Create Phase-2 digis from simulated hits
+  //---------------------------------------------------------
 
-  double aveEff;
-  double aveCls;
-  double resRPC;
-  double timOff;
-  double dtimCs;
-  double resEle;
-  double sspeed;
-  double lbGate;
-  bool rpcdigiprint;
-  bool eledig;
+  void digitizeCluster(const RPCRoll* roll,
+                       const PSimHit& hit,
+                       const std::vector<int>& cls,
+                       float striplength,
+                       CLHEP::HepRandomEngine* engine) override;
 
-  int N_hits;
-  int nbxing;
-  double rate;
-  double gate;
-  double frate;
-  bool do_Y;
-  double sigmaY;
-
-  std::map<int, std::vector<double> > clsMap;
-  std::vector<double> sum_clsize;
-  std::vector<double> clsForDetId;
-  std::ifstream* infile;
-
-  RPCSynchronizer* _rpcSync;
+  //---------------------------------------------------------
+  // Create Phase-2 noise digis
+  //---------------------------------------------------------
+  void createNoiseDigi(int strip, int hits, CLHEP::HepRandomEngine* engine) override;
 };
+
 #endif

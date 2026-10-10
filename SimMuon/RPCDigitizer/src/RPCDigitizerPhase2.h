@@ -9,14 +9,16 @@
  *
  */
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
-#include "SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiPhase2Collection.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include <string>
+#include "SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+
 #include "CLHEP/Random/RandomEngine.h"
+
+#include <string>
 
 namespace edm {
   class ParameterSet;
@@ -43,20 +45,20 @@ public:
                 CLHEP::HepRandomEngine*);
 
   /// sets geometry
-  void setGeometry(const RPCGeometry* geom) { theGeometry = geom; }
+  void setGeometry(const RPCGeometry* geom) { theGeometry_ = geom; }
 
-  void setRPCSimSetUp(RPCSimSetUp* simsetup) { theSimSetUp = simsetup; }
+  void setRPCSimSetUp(RPCSimSetUp* simsetup) { theSimSetUp_ = simsetup; }
 
-  RPCSimSetUp* getRPCSimSetUp() { return theSimSetUp; }
+  RPCSimSetUp* theSimSetUp() { return theSimSetUp_; }
 
   /// finds the rpc det unit in the geometry associated with this det ID
   const RPCRoll* findDet(int detId) const;
 
 private:
-  const RPCGeometry* theGeometry;
-  std::unique_ptr<RPCSim> theRPCSim;
-  RPCSimSetUp* theSimSetUp;
-  bool theNoise;
+  const RPCGeometry* theGeometry_;
+  std::unique_ptr<RPCSim> theRPCSim_;
+  RPCSimSetUp* theSimSetUp_;
+  bool theNoise_;
 };
 
 #endif

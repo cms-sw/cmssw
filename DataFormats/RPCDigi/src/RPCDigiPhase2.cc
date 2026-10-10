@@ -13,11 +13,7 @@ RPCDigiPhase2::RPCDigiPhase2(int strip, int bx, int sbx) : strip_(strip), bx_(bx
 RPCDigiPhase2::RPCDigiPhase2() : strip_(0), bx_(0), sbx_(0) {}
 
 // Comparison
-bool RPCDigiPhase2::operator==(const RPCDigiPhase2& digi) const {
-  if (strip_ != digi.strip() || bx_ != digi.bx())
-    return false;
-  return true;
-}
+bool RPCDigiPhase2::operator==(const RPCDigiPhase2& digi) const { return strip_ == digi.strip() && bx_ == digi.bx(); }
 
 ///Precedence operator
 bool RPCDigiPhase2::operator<(const RPCDigiPhase2& digi) const {

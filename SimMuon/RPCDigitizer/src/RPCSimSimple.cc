@@ -18,9 +18,9 @@
 #include <map>
 
 RPCSimSimple::RPCSimSimple(const edm::ParameterSet& config) : RPCSim(config) {
-  rate = config.getParameter<double>("Rate");
-  nbxing = config.getParameter<int>("Nbxing");
-  gate = config.getParameter<double>("Gate");
+  rate = config.getParameter<double>("rate");
+  nbxing = config.getParameter<int>("nBXing");
+  gate = config.getParameter<double>("gate");
 
   _rpcSync = new RPCSynchronizer(config);
 }

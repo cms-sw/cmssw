@@ -1,34 +1,27 @@
-#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
-#include "SimMuon/RPCDigitizer/src/RPCDigiPhase2Producer.h"
-#include "SimMuon/RPCDigitizer/src/RPCDigitizerPhase2.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimMuon/RPCDigitizer/src/RPCSynchronizer.h"
-#include <sstream>
-#include <string>
-
-#include <map>
-#include <vector>
-
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-
-//Random Number
-#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimMuon/RPCDigitizer/src/RPCDigiPhase2Producer.h"
+#include "SimMuon/RPCDigitizer/src/RPCDigitizerPhase2.h"
+#include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
+#include "SimMuon/RPCDigitizer/src/RPCSynchronizer.h"
+
 #include "CLHEP/Random/RandFlat.h"
+
+#include <map>
+#include <sstream>
+#include <string>
+#include <vector>
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -40,13 +33,13 @@ RPCDigiPhase2Producer::RPCDigiPhase2Producer(const edm::ParameterSet& ps) {
 
   //Name of Collection used for create the XF
   const std::string& mix = ps.getParameter<std::string>("mixLabel");
-  const std::set<std::string> collections_for_XF{ps.getParameter<std::string>("InputCollection"),
-                                                 ps.getParameter<std::string>("InputCollectionPU")};
-  for (const auto& cname : collections_for_XF) {
+  const std::set<std::string> collections_for_XF_{ps.getParameter<std::string>("inputCollection"),
+                                                  ps.getParameter<std::string>("inputCollectionPU")};
+  for (const auto& cname : collections_for_XF_) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("RPCDigiProducer") << "Creating CrossingFrame Consumers for InputTag " << mix << ":" << cname;
 #endif
-    crossingFrameTokens.push_back(consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix, cname)));
+    crossingFrameTokens_.push_back(consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix, cname)));
   }
 
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -57,33 +50,29 @@ RPCDigiPhase2Producer::RPCDigiPhase2Producer(const edm::ParameterSet& ps) {
            "in the configuration file or remove the modules that require it.";
   };
 
-  theRPCSimSetUpRPC = new RPCSimSetUp(ps);
-  theRPCDigitizerPhase2 = new RPCDigitizerPhase2(ps);
-  geomToken = esConsumes<RPCGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
-  noiseToken = esConsumes<RPCStripNoises, RPCStripNoisesRcd, edm::Transition::BeginRun>();
-  clsToken = esConsumes<RPCClusterSize, RPCClusterSizeRcd, edm::Transition::BeginRun>();
+  theRPCSimSetUpRPC_ = std::make_unique<RPCSimSetUp>(ps);
+  theRPCDigitizerPhase2_ = std::make_unique<RPCDigitizerPhase2>(ps);
+  geomToken_ = esConsumes<RPCGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
+  noiseToken_ = esConsumes<RPCStripNoises, RPCStripNoisesRcd, edm::Transition::BeginRun>();
+  clsToken_ = esConsumes<RPCClusterSize, RPCClusterSizeRcd, edm::Transition::BeginRun>();
 }
 
-RPCDigiPhase2Producer::~RPCDigiPhase2Producer() {
-  delete theRPCDigitizerPhase2;
-  delete theRPCSimSetUpRPC;
-}
+RPCDigiPhase2Producer::~RPCDigiPhase2Producer() {}
 
 void RPCDigiPhase2Producer::beginRun(const edm::Run& r, const edm::EventSetup& eventSetup) {
-  edm::ESHandle<RPCGeometry> hGeom = eventSetup.getHandle(geomToken);
-  const RPCGeometry* pGeom = &*hGeom;
-  _pGeom = &*hGeom;
-  edm::ESHandle<RPCStripNoises> noiseRcd = eventSetup.getHandle(noiseToken);
+  edm::ESHandle<RPCGeometry> hGeom = eventSetup.getHandle(geomToken_);
+  pGeom_ = &*hGeom;
 
-  edm::ESHandle<RPCClusterSize> clsRcd = eventSetup.getHandle(clsToken);
+  edm::ESHandle<RPCStripNoises> noiseRcd = eventSetup.getHandle(noiseToken_);
+  edm::ESHandle<RPCClusterSize> clsRcd = eventSetup.getHandle(clsToken_);
 
   //setup the two digi models
-  theRPCSimSetUpRPC->setGeometry(pGeom);
-  theRPCSimSetUpRPC->setRPCSetUp(noiseRcd->getVNoise(), clsRcd->getCls());
+  theRPCSimSetUpRPC_->setGeometry(pGeom_);
+  theRPCSimSetUpRPC_->setRPCSetUp(noiseRcd->getVNoise(), clsRcd->getCls());
 
   //setup the two digitizers
-  theRPCDigitizerPhase2->setGeometry(pGeom);
-  theRPCDigitizerPhase2->setRPCSimSetUp(theRPCSimSetUpRPC);
+  theRPCDigitizerPhase2_->setGeometry(pGeom_);
+  theRPCDigitizerPhase2_->setRPCSimSetUp(theRPCSimSetUpRPC_.get());
 }
 
 void RPCDigiPhase2Producer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
@@ -99,7 +88,7 @@ void RPCDigiPhase2Producer::produce(edm::Event& e, const edm::EventSetup& eventS
 
   //New code, based on tokens
   std::vector<const CrossingFrame<PSimHit>*> cf_list;
-  for (const auto& token : crossingFrameTokens) {
+  for (const auto& token : crossingFrameTokens_) {
     const auto& handle = e.getHandle(token);
     if (handle.isValid()) {
       cf_list.emplace_back(handle.product());
@@ -108,10 +97,10 @@ void RPCDigiPhase2Producer::produce(edm::Event& e, const edm::EventSetup& eventS
   auto hits = std::make_unique<MixCollection<PSimHit>>(cf_list);
 
   // Create empty output
-  std::unique_ptr<RPCDigiPhase2Collection> pDigis(new RPCDigiPhase2Collection());
-  std::unique_ptr<RPCDigitizerPhase2SimLinks> RPCDigitSimLink(new RPCDigitizerPhase2SimLinks());
+  auto pDigis = std::make_unique<RPCDigiPhase2Collection>();
+  auto RPCDigitSimLink = std::make_unique<RPCDigitizerPhase2SimLinks>();
 
-  theRPCDigitizerPhase2->doAction(
+  theRPCDigitizerPhase2_->doAction(
       *hits, *pDigis, *RPCDigitSimLink, engine);  //make "bakelite RPC" digitizer do the action
 
   e.put(std::move(pDigis));

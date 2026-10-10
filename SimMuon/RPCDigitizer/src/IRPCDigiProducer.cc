@@ -1,34 +1,29 @@
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
-#include "SimMuon/RPCDigitizer/src/IRPCDigiProducer.h"
-#include "SimMuon/RPCDigitizer/src/IRPCDigitizer.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimMuon/RPCDigitizer/src/RPCSynchronizer.h"
-#include <sstream>
-#include <string>
-
-#include <map>
-#include <vector>
-
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-
-//Random Number
-#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimMuon/RPCDigitizer/src/IRPCDigiProducer.h"
+#include "SimMuon/RPCDigitizer/src/IRPCDigitizer.h"
+#include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
+#include "SimMuon/RPCDigitizer/src/RPCSynchronizer.h"
+
 #include "CLHEP/Random/RandFlat.h"
+
+#include <map>
+#include <sstream>
+#include <string>
+#include <vector>
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -40,13 +35,13 @@ IRPCDigiProducer::IRPCDigiProducer(const edm::ParameterSet& ps) {
 
   //Name of Collection used for create the XF
   const std::string& mix = ps.getParameter<std::string>("mixLabel");
-  const std::set<std::string> collections_for_XF{ps.getParameter<std::string>("InputCollection"),
-                                                 ps.getParameter<std::string>("InputCollectionPU")};
+  const std::set<std::string> collections_for_XF{ps.getParameter<std::string>("inputCollection"),
+                                                 ps.getParameter<std::string>("inputCollectionPU")};
   for (const auto& cname : collections_for_XF) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("RPCDigiProducer") << "Creating CrossingFrame Consumers for InputTag " << mix << ":" << cname;
 #endif
-    crossingFrameTokens.push_back(consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix, cname)));
+    crossingFrameTokens_.push_back(consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix, cname)));
   }
 
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -57,51 +52,39 @@ IRPCDigiProducer::IRPCDigiProducer(const edm::ParameterSet& ps) {
            "in the configuration file or remove the modules that require it.";
   };
 
-  theRPCSimSetUpIRPC = new RPCSimSetUp(ps);
-  theIRPCDigitizer = new IRPCDigitizer(ps);
-  geomToken = esConsumes<RPCGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
-  noiseToken = esConsumes<RPCStripNoises, RPCStripNoisesRcd, edm::Transition::BeginRun>();
-  clsToken = esConsumes<RPCClusterSize, RPCClusterSizeRcd, edm::Transition::BeginRun>();
+  theRPCSimSetUpIRPC_ = std::make_unique<RPCSimSetUp>(ps);
+  theIRPCDigitizer_ = std::make_unique<IRPCDigitizer>(ps);
+  geomToken_ = esConsumes<RPCGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
+  noiseToken_ = esConsumes<RPCStripNoises, RPCStripNoisesRcd, edm::Transition::BeginRun>();
+  clsToken_ = esConsumes<RPCClusterSize, RPCClusterSizeRcd, edm::Transition::BeginRun>();
 }
 
-IRPCDigiProducer::~IRPCDigiProducer() {
-  delete theIRPCDigitizer;
-  delete theRPCSimSetUpIRPC;
-}
+IRPCDigiProducer::~IRPCDigiProducer() {}
 
 void IRPCDigiProducer::beginRun(const edm::Run& r, const edm::EventSetup& eventSetup) {
-  edm::ESHandle<RPCGeometry> hGeom = eventSetup.getHandle(geomToken);
-  const RPCGeometry* pGeom = &*hGeom;
-  _pGeom = &*hGeom;
+  edm::ESHandle<RPCGeometry> hGeom = eventSetup.getHandle(geomToken_);
+  pGeom_ = &*hGeom;
 
-  edm::ESHandle<RPCStripNoises> noiseRcd = eventSetup.getHandle(noiseToken);
+  edm::ESHandle<RPCStripNoises> noiseRcd = eventSetup.getHandle(noiseToken_);
 
-  edm::ESHandle<RPCClusterSize> clsRcd = eventSetup.getHandle(clsToken);
-  //eventSetup.get<RPCClusterSizeRcd>().get(clsRcd);
+  edm::ESHandle<RPCClusterSize> clsRcd = eventSetup.getHandle(clsToken_);
 
   //setup the two digi models
-  theRPCSimSetUpIRPC->setGeometry(pGeom);
-  theRPCSimSetUpIRPC->setRPCSetUp(noiseRcd->getVNoise(), clsRcd->getCls());
+  theRPCSimSetUpIRPC_->setGeometry(pGeom_);
+  theRPCSimSetUpIRPC_->setRPCSetUp(noiseRcd->getVNoise(), clsRcd->getCls());
 
   //setup the two digitizers
-  theIRPCDigitizer->setGeometry(pGeom);
-  theIRPCDigitizer->setRPCSimSetUp(theRPCSimSetUpIRPC);
+  theIRPCDigitizer_->setGeometry(pGeom_);
+  theIRPCDigitizer_->setRPCSimSetUp(theRPCSimSetUpIRPC_.get());
 }
 
 void IRPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
-  LogDebug("IRPCDigiProducer") << "[IRPCDigiProducer::produce] got the CLHEP::HepRandomEngine engine from "
-                                  "the edm::Event.streamID() and edm::Service<edm::RandomNumberGenerator>";
-  LogDebug("IRPCDigiProducer") << "[IRPCDigiProducer::produce] test the CLHEP::HepRandomEngine by firing "
-                                  "once RandFlat ---- this must be the first time in SimMuon/RPCDigitizer";
-  LogDebug("IRPCDigiProducer") << "[IRPCDigiProducer::produce] to activate the test go in "
-                                  "IRPCDigiProducer.cc and uncomment the line below";
-
   //New code, based on tokens
   std::vector<const CrossingFrame<PSimHit>*> cf_list;
-  for (const auto& token : crossingFrameTokens) {
+  for (const auto& token : crossingFrameTokens_) {
     const auto& handle = e.getHandle(token);
     if (handle.isValid()) {
       cf_list.emplace_back(handle.product());
@@ -110,10 +93,10 @@ void IRPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   auto hits = std::make_unique<MixCollection<PSimHit>>(cf_list);
 
   // Create empty output
-  std::unique_ptr<IRPCDigiCollection> pDigis(new IRPCDigiCollection());
-  std::unique_ptr<IRPCDigitizerSimLinks> IRPCDigitSimLink(new IRPCDigitizerSimLinks());
+  auto pDigis = std::make_unique<IRPCDigiCollection>();
+  auto IRPCDigitSimLink = std::make_unique<IRPCDigitizerSimLinks>();
 
-  theIRPCDigitizer->doAction(*hits, *pDigis, *IRPCDigitSimLink, engine);  //make "IRPC" digitizer do the action
+  theIRPCDigitizer_->doAction(*hits, *pDigis, *IRPCDigitSimLink, engine);  //make "IRPC" digitizer do the action
 
   e.put(std::move(pDigis));
   //store the SimDigiLinks in the event

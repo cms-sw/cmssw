@@ -22,7 +22,6 @@ class RPCSynchronizer;
 
 class IRPCDigiProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
-  //  typedef edm::DetSetVector<RPCDigiSimLink> RPCDigiSimLinks;
   typedef IRPCDigitizer::RPCDigiSimLinks IRPCDigitizerSimLinks;
 
   explicit IRPCDigiProducer(const edm::ParameterSet& ps);
@@ -36,22 +35,21 @@ public:
   void setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>&, const std::vector<double>&);
 
 private:
-  IRPCDigitizer* theIRPCDigitizer;
-  RPCSimSetUp* theRPCSimSetUpIRPC;
-  //  RPCSimSetUp* theRPCSimSetUp;
+  std::unique_ptr<IRPCDigitizer> theIRPCDigitizer_;
+  std::unique_ptr<RPCSimSetUp> theRPCSimSetUpIRPC_;
 
   //Name of Collection used for create the XF
   std::string mix_;
-  std::string collection_for_XF;
+  std::string collection_for_XF_;
 
   //Token for accessing data
-  std::vector<edm::EDGetTokenT<CrossingFrame<PSimHit>>> crossingFrameTokens;
-  const RPCGeometry* _pGeom;
+  std::vector<edm::EDGetTokenT<CrossingFrame<PSimHit>>> crossingFrameTokens_;
+  const RPCGeometry* pGeom_;
 
   //EventSetup Tokens
-  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> geomToken;
-  edm::ESGetToken<RPCStripNoises, RPCStripNoisesRcd> noiseToken;
-  edm::ESGetToken<RPCClusterSize, RPCClusterSizeRcd> clsToken;
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> geomToken_;
+  edm::ESGetToken<RPCStripNoises, RPCStripNoisesRcd> noiseToken_;
+  edm::ESGetToken<RPCClusterSize, RPCClusterSizeRcd> clsToken_;
 };
 
 #endif

@@ -14,11 +14,7 @@ IRPCDigi::IRPCDigi(int strip, int bxLR, int bxHR, int sbxLR, int sbxHR, int fine
 IRPCDigi::IRPCDigi() : strip_(0), bxLR_(0), sbxLR_(0) {}
 
 // Comparison
-bool IRPCDigi::operator==(const IRPCDigi& digi) const {
-  if (strip_ != digi.strip() || bxLR_ != digi.bx())
-    return false;
-  return true;
-}
+bool IRPCDigi::operator==(const IRPCDigi& digi) const { return strip_ == digi.strip() && bxLR_ == digi.bx(); }
 
 ///Precedence operator
 bool IRPCDigi::operator<(const IRPCDigi& digi) const {

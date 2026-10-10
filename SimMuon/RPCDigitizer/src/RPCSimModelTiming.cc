@@ -48,10 +48,10 @@ RPCSimModelTiming::RPCSimModelTiming(const edm::ParameterSet& config) : RPCSim(c
   lbGate = config.getParameter<double>("linkGateWidth");
   rpcdigiprint = config.getParameter<bool>("printOutDigitizer");
 
-  rate = config.getParameter<double>("Rate");
-  nbxing = config.getParameter<int>("Nbxing");
-  gate = config.getParameter<double>("Gate");
-  frate = config.getParameter<double>("Frate");
+  rate = config.getParameter<double>("rate");
+  nbxing = config.getParameter<int>("nBXing");
+  gate = config.getParameter<double>("gate");
+  frate = config.getParameter<double>("fRate");
   do_Y = config.getParameter<bool>("do_Y_coordinate");
   sigmaY = config.getParameter<double>("sigmaY");
   eledig = config.getParameter<bool>("digitizeElectrons");

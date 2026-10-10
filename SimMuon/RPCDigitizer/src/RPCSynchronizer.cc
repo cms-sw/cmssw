@@ -17,6 +17,7 @@
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
 #include <cstring>
@@ -36,19 +37,16 @@ RPCSynchronizer::RPCSynchronizer(const edm::ParameterSet& config) {
   resEle = config.getParameter<double>("timeJitter");
   sspeed = config.getParameter<double>("signalPropagationSpeed");
   lbGate = config.getParameter<double>("linkGateWidth");
-  LHCGate = config.getParameter<double>("Gate");
+  LHCGate = config.getParameter<double>("gate");
   cosmics = config.getParameter<bool>("cosmics");
-  irpc_timing_res = config.getParameter<double>("IRPC_time_resolution");
-  irpc_electronics_jitter = config.getParameter<double>("IRPC_electronics_jitter");
-  N_BX = config.getParameter<int>("BX_range");
+  irpc_timing_res = config.getParameter<double>("iRPCTimeResolution");
+  irpc_electronics_jitter = config.getParameter<double>("iRPCElectronicsJitter");
+  N_BX = config.getParameter<int>("bxRange");
   //"magic" parameter for cosmics
   cosmicPar = 37.62;
 
-  double c = 299792458;  // [m/s]
-  //light speed in [cm/ns]
-  cspeed = c * 1e+2 * 1e-9;
   //signal propagation speed [cm/ns]
-  sspeed = sspeed * cspeed;
+  sspeed = sspeed * CLHEP::c_light * CLHEP::ns / CLHEP::cm;  // CLHEP::c_light is in [mm/ns], we need [cm/ns]
 }
 
 RPCSynchronizer::~RPCSynchronizer() {}
@@ -246,7 +244,6 @@ float RPCSynchronizer::getTiming(const PSimHit* simhit, CLHEP::HepRandomEngine* 
 
   float prop_time = distanceFromEdge / sspeed;
 
-  //    double rr_tim1 = CLHEP::RandGaussQ::shoot(engine, 0.,resRPC);
   double rr_tim1 = CLHEP::RandGaussQ::shoot(engine, 0., irpc_timing_res);
 
   double total_time = tof + prop_time + timOff + rr_tim1 + rr_el;
@@ -295,9 +292,7 @@ std::pair<float, float> RPCSynchronizer::getDoubleTiming(const PSimHit* simhit,
     tdc_HR_time /= cosmicPar;
   }
 
-  std::pair<float, float> TDCs;
-  TDCs.first = tdc_LR_time;
-  TDCs.second = tdc_HR_time;
+  auto TDCs = std::make_pair(tdc_LR_time, tdc_HR_time);
   return TDCs;
 }
 
@@ -331,9 +326,7 @@ std::pair<int, int> RPCSynchronizer::getBX_SBX(float time) {
     BX--;
   double dt = time - BX * LB_clock;
   int SBX = int(dt / LB_precise_clock);
-  std::pair<int, int> tdc;
-  tdc.first = BX;
-  tdc.second = SBX;
+  auto tdc = std::make_pair(BX, SBX);
   return tdc;
 }
 

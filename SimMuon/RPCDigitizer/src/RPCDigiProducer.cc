@@ -38,8 +38,8 @@ RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
 
   //Name of Collection used for create the XF
   const std::string& mix = ps.getParameter<std::string>("mixLabel");
-  const std::set<std::string> collections_for_XF{ps.getParameter<std::string>("InputCollection"),
-                                                 ps.getParameter<std::string>("InputCollectionPU")};
+  const std::set<std::string> collections_for_XF{ps.getParameter<std::string>("inputCollection"),
+                                                 ps.getParameter<std::string>("inputCollectionPU")};
   for (const auto& cname : collections_for_XF) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("RPCDigiProducer") << "Creating CrossingFrame Consumers for InputTag " << mix << ":" << cname;

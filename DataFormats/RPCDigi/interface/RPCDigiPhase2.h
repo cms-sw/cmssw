@@ -1,5 +1,5 @@
-#ifndef RPCDigi_RPCDigiPhase2_h
-#define RPCDigi_RPCDigiPhase2_h
+#ifndef DataFormats_RPCDigi_RPCDigiPhase2_h
+#define DataFormats_RPCDigi_RPCDigiPhase2_h
 
 /** \class RPCDigiPhase2
  *
