@@ -1025,13 +1025,32 @@ upgradeWFs['ticlv5_TrackLinkingGNN'].step4 = {'--procModifiers': 'ticlv5_TrackLi
 
 
 class UpgradeWorkflow_enableTruth(UpgradeWorkflow):
+    # The reco-to-truth association producers and their performance plots are not part of
+    # the default validation, because they book 54242 monitor elements and 21.9 MiB of the
+    # harvested DQM file on ten ttbar events. This workflow is where they are exercised.
+    truthValidationCustomise = ('SimGeneral/TruthGraphAssociatorProducers/'
+                                'customiseTruthGraphAssociators.customiseTruthBranchValidation')
+    # A particle gun also books the signal folders, because its shot particles are the
+    # signal. The reconstruction step of a gun sample is a separate step for this.
+    truthGunValidationCustomise = ('SimGeneral/TruthGraphAssociatorProducers/'
+                                   'customiseTruthGraphAssociators.customiseTruthBranchValidationGun')
+    gunExtra = 'Gun'
+
+    def init(self, stepDict):
+        super(UpgradeWorkflow_enableTruth, self).init(stepDict)
+        stepDict[self.getStepName('RecoGlobal', self.gunExtra)] = {}
+        stepDict[self.getStepNamePU('RecoGlobal', self.gunExtra)] = {}
+
+    def gunStep(self, stepDictEntry):
+        gun = deepcopy(stepDictEntry)
+        gun['--customise'] = gun['--customise'].replace(self.truthValidationCustomise,
+                                                        self.truthGunValidationCustomise)
+        return gun
+
     def setup_(self, step, stepName, stepDict, k, properties):
-        # enableTruth runs the truth-graph producers in RecoGlobal (step3). The Branch
-        # validators run in the RecoGlobal VALIDATION and their efficiency harvesting
-        # in HARVESTGlobal (step4), so the modifier must reach the harvesting step too.
-        # GenSim (step1) needs no modifier: SimVertex ancestor reconnection
-        # (g4SimHits TrackingAction.ReconnectDroppedAncestors) is a baseline default,
-        # so the truth graph is connected to the generator in every sample.
+        # The modifier goes to the GenSim, RecoGlobal and HARVESTGlobal steps. The graph
+        # validators run in the RecoGlobal VALIDATION and their harvesting in
+        # HARVESTGlobal (step4), so the modifier must reach the harvesting step too.
         if 'GenSim' in step or 'RecoGlobal' in step or 'HARVESTGlobal' in step:
             stepDict[stepName][k] = deepcopy(stepDict[step][k])
 
@@ -1040,8 +1059,32 @@ class UpgradeWorkflow_enableTruth(UpgradeWorkflow):
             else:
                 stepDict[stepName][k]['--procModifiers'] = 'enableTruth'
 
+            # The customise books and fills the association plots in RecoGlobal and turns
+            # them into ratios in HARVESTGlobal.
+            if 'RecoGlobal' in step or 'HARVESTGlobal' in step:
+                if '--customise' in stepDict[stepName][k]:
+                    stepDict[stepName][k]['--customise'] += ',' + self.truthValidationCustomise
+                else:
+                    stepDict[stepName][k]['--customise'] = self.truthValidationCustomise
+
+            if step == 'RecoGlobal':
+                stepDict[self.getStepName(step, self.gunExtra)][k] = self.gunStep(stepDict[stepName][k])
+
+    def setupPU_(self, step, stepName, stepDict, k, properties):
+        if step == 'RecoGlobal' and stepDict[stepName].get(k) is not None:
+            stepDict[self.getStepNamePU(step, self.gunExtra)][k] = self.gunStep(stepDict[stepName][k])
+
     def condition(self, fragment, stepList, key, hasHarvest):
         return 'Run4' in key
+
+    def workflow_(self, workflows, num, fragment, stepList, key):
+        from PhysicsTools.TruthInfo.truthGraphSelections import templateForFragment
+        if templateForFragment(fragment)[0] == 'gun':
+            reco = (self.getStepName('RecoGlobal') + '_', self.getStepNamePU('RecoGlobal') + '_')
+            gunReco = (self.getStepName('RecoGlobal', self.gunExtra) + '_',
+                       self.getStepNamePU('RecoGlobal', self.gunExtra) + '_')
+            stepList = [s.replace(reco[0], gunReco[0]).replace(reco[1], gunReco[1]) for s in stepList]
+        super(UpgradeWorkflow_enableTruth, self).workflow_(workflows, num, fragment, stepList, key)
 
 
 upgradeWFs['enableTruth'] = UpgradeWorkflow_enableTruth(

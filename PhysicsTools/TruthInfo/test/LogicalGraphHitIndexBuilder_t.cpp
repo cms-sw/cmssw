@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndexBuilder.h"
+#include "PhysicsTools/TruthInfo/interface/SubgraphHitView.h"
 
 // These tests lock in the layout property the Branch view relies on: a particle's
 // subgraph hits are a single contiguous std::span, sorted by detId, deduplicated
@@ -25,6 +26,9 @@ class TestLogicalGraphHitIndexBuilder : public CppUnit::TestFixture {
   CPPUNIT_TEST(testSharedStoreFallsBackWhenNotAForest);
   CPPUNIT_TEST(testSharedStoreFallsBackAcrossAGenOnlyChild);
   CPPUNIT_TEST(testSharedStoreFallsBackAcrossAGenOnlyCycle);
+  CPPUNIT_TEST(testSubgraphViewKeepsTrackerCellsApart);
+  CPPUNIT_TEST(testTimedChannelKeepsTimesInStep);
+  CPPUNIT_TEST(testMixedChannelCarriesNoTime);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -35,6 +39,9 @@ public:
   void testSharedStoreFallsBackWhenNotAForest();
   void testSharedStoreFallsBackAcrossAGenOnlyChild();
   void testSharedStoreFallsBackAcrossAGenOnlyCycle();
+  void testSubgraphViewKeepsTrackerCellsApart();
+  void testTimedChannelKeepsTimesInStep();
+  void testMixedChannelCarriesNoTime();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestLogicalGraphHitIndexBuilder);
@@ -259,4 +266,94 @@ void TestLogicalGraphHitIndexBuilder::testSharedStoreFallsBackAcrossAGenOnlyCycl
   CPPUNIT_ASSERT_EQUAL(std::size_t(2), sub.size());
   CPPUNIT_ASSERT_EQUAL(uint32_t(10), sub[0].detId);
   CPPUNIT_ASSERT_EQUAL(uint32_t(20), sub[1].detId);
+}
+
+// REQUIRED: the tracker channel names a cell and carries it in recHitIndex, so two cells
+// of one module are two hits for an ancestor as well as for a leaf. A consumer that
+// compares hit counts between an ancestor and its descendant, such as the tightest-match
+// rule of the tracking validator, reads the wrong one as tighter otherwise. The calo
+// channel is keyed by DetId alone, so there the two merge into one.
+void TestLogicalGraphHitIndexBuilder::testSubgraphViewKeepsTrackerCellsApart() {
+  auto build = [](truth::HitChannel channel, bool cellKeyed) {
+    truth::LogicalGraphHitIndexBuilder builder(2, true);
+    builder.setCellKeyed(channel, cellKeyed);
+    builder.setSimTrackForParticle(0, 0, 100);
+    builder.setSimTrackForParticle(1, 0, 101);
+    builder.addParticleChild(0, 1);
+    // One module, two cells: the parent hits cell 3 and its child hits cell 7.
+    builder.addHit(channel, 0, 100, 42, 1.0f, 3);
+    builder.addHit(channel, 0, 101, 42, 2.0f, 7);
+    return builder.finish();
+  };
+
+  const auto tracker = build(truth::HitChannel::Tracker, true);
+  truth::SubgraphHitView trackerView(tracker);
+  const auto ancestor = trackerView.subgraphHits(truth::HitChannel::Tracker, 0);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), ancestor.size());
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), trackerView.subgraphHits(truth::HitChannel::Tracker, 1).size());
+
+  const auto calo = build(truth::HitChannel::Calo, false);
+  truth::SubgraphHitView caloView(calo);
+  const auto merged = caloView.subgraphHits(truth::HitChannel::Calo, 0);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), merged.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.0, merged[0].energy, 1e-6);
+}
+
+void TestLogicalGraphHitIndexBuilder::testTimedChannelKeepsTimesInStep() {
+  // REQUIRED, in both layouts: each direct hit keeps its own time; hits of one cell and
+  // one category merge with the earliest time; a category keeps its own entry on a
+  // shared cell; a dropped hit adds no time.
+  constexpr uint32_t kCell = 1u << 16 | 5u;
+  constexpr uint32_t kOtherCategoryCell = 1u << 24 | kCell;
+  for (const bool shared : {true, false}) {
+    truth::LogicalGraphHitIndexBuilder builder(2, shared);
+    builder.setSimTrackForParticle(0, 0, 100);
+    builder.setSimTrackForParticle(1, 0, 101);
+    builder.addParticleChild(0, 1);
+    builder.setCellKeyed(truth::HitChannel::MTD, true);
+    const auto mtd = truth::HitChannel::MTD;
+    CPPUNIT_ASSERT(builder.addTimedHit(mtd, 0, 100, 50, 1.0f, kCell, 2.0f));
+    CPPUNIT_ASSERT(builder.addTimedHit(mtd, 0, 100, 50, 0.5f, kCell, 1.5f));
+    CPPUNIT_ASSERT(!builder.addTimedHit(mtd, 0, 100, 50, 0.0f, kCell, 0.1f));  // no energy
+    CPPUNIT_ASSERT(!builder.addTimedHit(mtd, 0, 999, 50, 1.0f, kCell, 0.2f));  // no particle
+    CPPUNIT_ASSERT(builder.addTimedHit(mtd, 0, 100, 50, 1.0f, kOtherCategoryCell, 3.0f));
+    CPPUNIT_ASSERT(builder.addTimedHit(mtd, 0, 100, 40, 2.0f, 7, 5.0f));
+    CPPUNIT_ASSERT(builder.addTimedHit(mtd, 0, 101, 60, 1.0f, 1, 4.0f));
+    builder.addHit(truth::HitChannel::Calo, 0, 101, 10, 1.0f, 0);
+    const auto index = builder.finish();
+    CPPUNIT_ASSERT_EQUAL(shared, builder.usedSharedStore());
+
+    CPPUNIT_ASSERT(index.isCellKeyed(mtd));
+    CPPUNIT_ASSERT(!index.isCellKeyed(truth::HitChannel::Calo));
+    const auto hits = index.directHits(mtd, 0);
+    const auto times = index.directHitTimes(mtd, 0);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(3), hits.size());
+    CPPUNIT_ASSERT_EQUAL(hits.size(), times.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t(40), hits[0].detId);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(5.0, times[0], 1e-6);
+    CPPUNIT_ASSERT_EQUAL(kCell, hits[1].recHitIndex);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5, hits[1].energy, 1e-6);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5, times[1], 1e-6);
+    CPPUNIT_ASSERT_EQUAL(kOtherCategoryCell, hits[2].recHitIndex);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(3.0, times[2], 1e-6);
+    const auto childTimes = index.directHitTimes(mtd, 1);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), childTimes.size());
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(4.0, childTimes[0], 1e-6);
+    CPPUNIT_ASSERT(index.directHitTimes(truth::HitChannel::Calo, 1).empty());
+  }
+}
+
+void TestLogicalGraphHitIndexBuilder::testMixedChannelCarriesNoTime() {
+  // REQUIRED: a channel that took both timed and untimed hits keeps its hits and drops
+  // its times, rather than pair a time with the wrong hit.
+  for (const bool shared : {true, false}) {
+    truth::LogicalGraphHitIndexBuilder builder(1, shared);
+    builder.setSimTrackForParticle(0, 0, 100);
+    builder.addHit(truth::HitChannel::MTD, 0, 100, 50, 1.0f, 1);
+    builder.addTimedHit(truth::HitChannel::MTD, 0, 100, 51, 1.0f, 1, 2.0f);
+    const auto index = builder.finish();
+    CPPUNIT_ASSERT_EQUAL(shared, builder.usedSharedStore());
+    CPPUNIT_ASSERT_EQUAL(std::size_t(2), index.directHits(truth::HitChannel::MTD, 0).size());
+    CPPUNIT_ASSERT(index.directHitTimes(truth::HitChannel::MTD, 0).empty());
+  }
 }

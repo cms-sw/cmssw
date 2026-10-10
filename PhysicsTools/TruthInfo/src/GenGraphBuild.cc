@@ -8,6 +8,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenStatusFlags.h"
 #include "PhysicsTools/HepMCCandAlgos/interface/MCTruthHelper.h"
 #include "PhysicsTools/TruthInfo/interface/GenGraphBuild.h"
+#include "PhysicsTools/TruthInfo/interface/TruthLevels.h"
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
@@ -25,24 +26,11 @@ namespace {
   // case for the incoming beam particles.
   constexpr int kNoVertex = std::numeric_limits<int>::min();
 
-  // Shower bookkeeping objects rather than particles reconstruction can be asked
-  // about: partons, diquarks, Pythia strings and clusters, and the beam/system
-  // pseudoparticles. Their last copy carries no physics of its own.
-  [[nodiscard]] bool isShowerObject(int32_t pdgId) {
-    const int32_t id = std::abs(pdgId);
-    if (id >= 1 && id <= 6)
-      return true;
-    if (id == 21)
-      return true;
-    if (id >= 91 && id <= 94)  // cluster, string and the other hadronization placeholders
-      return true;
-    if (id == 990)  // pomeron
-      return true;
-    if (id >= 1000 && id <= 9999 && (id / 10) % 10 == 0 && (id / 100) % 10 != 0)  // diquarks, e.g. 2101, 2203
-      return true;
-    if (id >= 9900000 && id < 1000000000)  // generator-internal states such as 9922212, below the nuclei codes
-      return true;
-    return false;
+  constexpr int kBeamStatus = 4;
+
+  template <typename P>
+  [[nodiscard]] math::XYZTLorentzVectorD hepmcPosition(P const& position, double toMm = 1.) {
+    return truth::graphPosition(position.x() * toMm, position.y() * toMm, position.z() * toMm, position.t() * toMm);
   }
 
   template <typename V>
@@ -61,7 +49,7 @@ namespace {
     const uint16_t flags = lookup(gb.particleStatusFlagsByBarcode, barcode, static_cast<uint16_t>(0));
     if ((flags & kIsHardProcess) != 0)
       return true;
-    return (flags & kIsLastCopy) != 0 && !isShowerObject(lookup(gb.particlePdgIdByBarcode, barcode, int32_t{0}));
+    return (flags & kIsLastCopy) != 0 && !truth::isShowerObject(lookup(gb.particlePdgIdByBarcode, barcode, int32_t{0}));
   }
 
   void sortUnique(std::vector<uint32_t>& v) {
@@ -79,7 +67,7 @@ namespace {
 
 namespace truth {
 
-  GenBuild buildFromHepMC2(HepMC::GenEvent const& ev) {
+  GenBuild buildFromHepMC2(HepMC::GenEvent const& ev, bool withStatusFlags) {
     GenBuild gb;
 
     std::unordered_set<int> seenV;
@@ -95,8 +83,10 @@ namespace truth {
 
       const int vbc = (*v)->barcode();
 
-      if (seenV.insert(vbc).second)
+      if (seenV.insert(vbc).second) {
         gb.vtxBarcodes.push_back(vbc);
+        gb.vertexPositionByBarcode.emplace(vbc, hepmcPosition((*v)->position()));
+      }
 
       for (auto po = (*v)->particles_out_const_begin(); po != (*v)->particles_out_const_end(); ++po) {
         if (*po == nullptr)
@@ -120,6 +110,8 @@ namespace truth {
           gb.partBarcodes.push_back(pbc);
 
         gb.partToVtx.emplace_back(pbc, vbc);
+        if ((*pi)->status() == kBeamStatus)
+          gb.interactionPosition = gb.vertexPositionByBarcode.at(vbc);
       }
     }
 
@@ -133,10 +125,14 @@ namespace truth {
       gb.particleBarcodeByIndex.push_back(pbc);
       gb.particlePdgIdByBarcode.emplace(pbc, (*p)->pdg_id());
       gb.particleStatusByBarcode.emplace(pbc, static_cast<int16_t>((*p)->status()));
+      auto const& p4 = (*p)->momentum();
+      gb.particleMomentumByBarcode.emplace(pbc, math::XYZTLorentzVectorD(p4.px(), p4.py(), p4.pz(), p4.e()));
 
-      reco::GenStatusFlags flags;
-      mcTruthHelper.fillGenStatusFlags(**p, flags);
-      gb.particleStatusFlagsByBarcode.emplace(pbc, static_cast<uint16_t>(flags.flags_.to_ulong()));
+      if (withStatusFlags) {
+        reco::GenStatusFlags flags;
+        mcTruthHelper.fillGenStatusFlags(**p, flags);
+        gb.particleStatusFlagsByBarcode.emplace(pbc, static_cast<uint16_t>(flags.flags_.to_ulong()));
+      }
 
       if (seenP.insert(pbc).second)
         gb.partBarcodes.push_back(pbc);
@@ -147,6 +143,8 @@ namespace truth {
 
   GenBuild buildFromHepMC3(HepMC3::GenEvent const& ev) {
     GenBuild gb;
+    const double toMm = ev.length_unit() == HepMC3::Units::CM ? 10. : 1.;
+    const double toGeV = ev.momentum_unit() == HepMC3::Units::MEV ? 1.e-3 : 1.;
 
     std::unordered_set<int> seenV;
     std::unordered_set<int> seenP;
@@ -161,8 +159,10 @@ namespace truth {
 
       const int vbc = vptr->id();
 
-      if (seenV.insert(vbc).second)
+      if (seenV.insert(vbc).second) {
         gb.vtxBarcodes.push_back(vbc);
+        gb.vertexPositionByBarcode.emplace(vbc, hepmcPosition(vptr->position(), toMm));
+      }
 
       for (auto const& po : vptr->particles_out()) {
         if (!po)
@@ -186,6 +186,8 @@ namespace truth {
           gb.partBarcodes.push_back(pbc);
 
         gb.partToVtx.emplace_back(pbc, vbc);
+        if (pi->status() == kBeamStatus)
+          gb.interactionPosition = gb.vertexPositionByBarcode.at(vbc);
       }
     }
 
@@ -198,6 +200,9 @@ namespace truth {
       gb.particleBarcodeByIndex.push_back(pbc);
       gb.particlePdgIdByBarcode.emplace(pbc, pptr->pid());
       gb.particleStatusByBarcode.emplace(pbc, static_cast<int16_t>(pptr->status()));
+      auto const& p4 = pptr->momentum();
+      gb.particleMomentumByBarcode.emplace(
+          pbc, math::XYZTLorentzVectorD(p4.px() * toGeV, p4.py() * toGeV, p4.pz() * toGeV, p4.e() * toGeV));
 
       if (seenP.insert(pbc).second)
         gb.partBarcodes.push_back(pbc);
@@ -348,6 +353,7 @@ namespace truth {
     pruneMap(gb.particlePdgIdByBarcode, keptBarcodes);
     pruneMap(gb.particleStatusByBarcode, keptBarcodes);
     pruneMap(gb.particleStatusFlagsByBarcode, keptBarcodes);
+    pruneMap(gb.particleMomentumByBarcode, keptBarcodes);
 
     gb.partBarcodes = std::move(partBarcodes);
     gb.vtxBarcodes = std::move(vtxBarcodes);
@@ -356,6 +362,66 @@ namespace truth {
     gb.partToVtx = std::move(partToVtx);
 
     return statusFlagsAvailable;
+  }
+
+  std::vector<CompactGenParticle> compactGen(GenBuild const& gb, std::vector<int32_t> const& keptPdgIds) {
+    std::unordered_map<int, int> productionVertex;
+    productionVertex.reserve(gb.vtxToPart.size() * 2);
+    for (auto const& [vbc, pbc] : gb.vtxToPart)
+      productionVertex.emplace(pbc, vbc);
+
+    std::unordered_map<int, int> decayVertex;
+    std::unordered_map<int, std::vector<int>> incoming;
+    decayVertex.reserve(gb.partToVtx.size() * 2);
+    for (auto const& [pbc, vbc] : gb.partToVtx) {
+      decayVertex.emplace(pbc, vbc);
+      incoming[vbc].push_back(pbc);
+    }
+
+    auto statusOf = [&gb](int barcode) { return lookup(gb.particleStatusByBarcode, barcode, int16_t{0}); };
+    auto pdgIdOf = [&gb](int barcode) { return lookup(gb.particlePdgIdByBarcode, barcode, int32_t{0}); };
+    auto survives = [&](int barcode) {
+      if (statusOf(barcode) == 1)
+        return true;
+      return decayVertex.count(barcode) != 0 &&
+             std::find(keptPdgIds.begin(), keptPdgIds.end(), pdgIdOf(barcode)) != keptPdgIds.end();
+    };
+
+    std::vector<CompactGenParticle> out;
+    for (const int barcode : gb.partBarcodes) {
+      if (!survives(barcode))
+        continue;
+
+      // The step bound makes the walk terminate on a record with a cycle.
+      int parent = 0;
+      int current = barcode;
+      for (std::size_t step = 0; step < gb.partBarcodes.size(); ++step) {
+        const auto itVertex = productionVertex.find(current);
+        if (itVertex == productionVertex.end())
+          break;
+        const auto itIncoming = incoming.find(itVertex->second);
+        if (itIncoming == incoming.end() || itIncoming->second.size() != 1)
+          break;
+        current = itIncoming->second.front();
+        if (survives(current)) {
+          parent = current;
+          break;
+        }
+      }
+
+      const int16_t status = statusOf(barcode);
+      const auto itDecay = decayVertex.find(barcode);
+      const int decay = (status != 1 && itDecay != decayVertex.end()) ? itDecay->second : 0;
+      out.push_back({barcode,
+                     pdgIdOf(barcode),
+                     status,
+                     parent,
+                     decay,
+                     lookup(gb.particleMomentumByBarcode, barcode, math::XYZTLorentzVectorD()),
+                     decay != 0 ? lookup(gb.vertexPositionByBarcode, decay, math::XYZTLorentzVectorD())
+                                : math::XYZTLorentzVectorD()});
+    }
+    return out;
   }
 
 }  // namespace truth

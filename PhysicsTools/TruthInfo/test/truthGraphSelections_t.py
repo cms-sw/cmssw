@@ -110,6 +110,14 @@ class TestTruthGraphSelections(unittest.TestCase):
     def test_heavy_flavor(self):
         self.assertEqual(tgs.selectionForFragment("BsToMuMu")["seedHadronFlavors"], [5])
         self.assertEqual(tgs.selectionForFragment("JpsiMM")["seedHadronFlavors"], [4])
+        # A B hadron decaying to charmonium is a b sample, and bottomonium is b.
+        for frag in ["BsToJpsiPhi_mumuKK_14TeV", "BuToJpsiK", "B0ToJpsiK0s", "LbToJpsiLambda",
+                     "Upsilon1SToMuMu_forSTEAM_14TeV_TuneCP5", "Chib1PToUpsilon1SGamma", "EtaBToJpsiJpsi"]:
+            self.assertEqual(tgs.selectionForFragment(frag)["seedHadronFlavors"], [5], frag)
+
+    def test_wprime(self):
+        self.assertEqual(tgs.selectionForFragment("WprimeToLNu_M2000_14TeV_TuneCP5_pythia8_cfi")["seedPdgIds"],
+                         [34, -34])
         # Heavy flavor seeds by flavor content, not PDG -> the dumper must not pass -s.
         self.assertNotIn("-s", tgs.dumperArgs("BsToMuMu"))
         self.assertIn("-f", tgs.dumperArgs("BsToMuMu"))

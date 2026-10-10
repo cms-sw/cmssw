@@ -2,6 +2,13 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/Phase2TrackerCluster"/>
+<use name="DataFormats/Phase2TrackerDigi"/>
+<use name="DataFormats/SiPixelCluster"/>
+<use name="DataFormats/SiPixelDetId"/>
+<use name="DataFormats/SiPixelDigi"/>
+<use name="DataFormats/TrackerRecHit2D"/>
 <use name="DataFormats/Math"/>
 <use name="FWCore/ParameterSet"/>
 <use name="SimDataFormats/EncodedEventId"/>
@@ -12,7 +19,6 @@
 <use name="PhysicsTools/HepMCCandAlgos"/>
 <use name="hepmc"/>
 <use name="hepmc3"/>
-<use name="heppdt"/>
 
 <export>
   <lib name="1"/>
