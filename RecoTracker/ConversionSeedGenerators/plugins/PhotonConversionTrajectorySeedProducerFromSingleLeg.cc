@@ -27,8 +27,8 @@ public:
 private:
   std::string _newSeedCandidates;
   PhotonConversionTrajectorySeedProducerFromSingleLegAlgo* _theFinder;
-  edm::EDGetTokenT<CaloTowerCollection> _towerToken;
-  double _maxHFTowerSum;
+  const edm::EDGetTokenT<CaloTowerCollection> _towerToken;
+  const double _maxHFTowerSum;
 };
 
 PhotonConversionTrajectorySeedProducerFromSingleLeg::PhotonConversionTrajectorySeedProducerFromSingleLeg(
