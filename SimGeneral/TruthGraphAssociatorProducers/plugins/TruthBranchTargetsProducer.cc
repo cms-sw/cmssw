@@ -50,10 +50,9 @@ TruthBranchTargetsProducer::TruthBranchTargetsProducer(edm::ParameterSet const& 
       signalSeedHadronFlavors_(cfg.getParameter<std::vector<int>>("signalSeedHadronFlavors")),
       truthToRecoSignalOnly_(cfg.getParameter<bool>("truthToRecoSignalOnly")) {
   {
-    // Restrict which branches are candidates at all. Without this the maps and the
-    // efficiency denominators are dominated by soft particles that no reconstruction
-    // was ever going to find, exactly as CaloParticleSelector and the TrackingParticle
-    // selectors guard their own denominators.
+    // The cuts of the efficiency denominators, as CaloParticleSelector and the
+    // TrackingParticle selectors cut theirs. The candidates take every cut except the pt
+    // floor, so a reco object made by a soft particle is matched and is not a fake.
     auto const& sel = cfg.getParameter<edm::ParameterSet>("branchSelector");
     truth::BranchSelector::Config selectorConfig;
     selectorConfig.ptMin = sel.getParameter<float>("ptMin");
@@ -83,6 +82,10 @@ TruthBranchTargetsProducer::TruthBranchTargetsProducer(edm::ParameterSet const& 
   // The associators' candidate roots. NOT an efficiency denominator: the set can hold a
   // particle together with its own ancestor, so it is not an antichain.
   produces<std::vector<unsigned int>>("selectedRoots");
+  // The roots a denominator can hold: those that pass every selector cut, the pt floor
+  // included, and the level targets. A vertex denominator counts its findable tracks
+  // over them.
+  produces<std::vector<unsigned int>>("denominatorRoots");
   // The candidate roots a reco object may be ASSIGNED to: the subset of selectedRoots
   // that are detector particles. The barred ones stay candidates, because they are the
   // members of the hard-process and parton-jet denominators and a truth object that is
@@ -117,7 +120,10 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
   // candidates", not "every particle", which would silently undo the selection.
   auto selectedRoots = std::make_unique<std::vector<unsigned int>>();
   selectedRoots->reserve(nBranches);
+  auto denominatorRoots = std::make_unique<std::vector<unsigned int>>();
   std::vector<bool> isCandidate(nBranches, false);
+  std::vector<bool> isDenominatorRoot(nBranches, false);
+  constexpr auto kEtaCut = static_cast<uint32_t>(truth::BranchSelector::CutBit::Eta);
   for (uint32_t id = 0; id < nBranches; ++id) {
     // A parton, a diquark or a string is shower bookkeeping, not an object a reco
     // collection can be asked about, and the main event carries its whole shower: on one
@@ -133,9 +139,18 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
     if (graph.particles()[id].isSynthetic()) {
       continue;
     }
-    if (branchSelector_(truth::Branch(&graph, id))) {
+    const truth::Branch branch(&graph, id);
+    if (!branchSelector_.passesNonKinematic(branch)) {
+      continue;
+    }
+    const uint32_t failed = branchSelector_.failedKinematicCuts(branch);
+    if ((failed & kEtaCut) == 0u) {
       selectedRoots->push_back(id);
       isCandidate[id] = true;
+    }
+    if (failed == 0u) {
+      denominatorRoots->push_back(id);
+      isDenominatorRoot[id] = true;
     }
   }
 
@@ -175,7 +190,9 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
     // their own ancestors, so it is not an antichain and an efficiency over it counts the
     // same energy twice (on QCD it is 518.89 per event against 164 generator-stable
     // particles).
-    for (uint32_t id : *selectedRoots) {
+    // denominatorRoots holds only the selector-passing roots here; the level targets
+    // join it below.
+    for (uint32_t id : *denominatorRoots) {
       if (isSignalSeed(id)) {
         signalSeeds->push_back(id);
       }
@@ -219,6 +236,10 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
         isCandidate[id] = true;
         extraCandidates.push_back(id);
       }
+      if (!isDenominatorRoot[id]) {
+        isDenominatorRoot[id] = true;
+        denominatorRoots->push_back(id);
+      }
       targets->push_back(id);
       eligibility->push_back(failed);
     }
@@ -228,10 +249,8 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
 
   // Everything a denominator can ask about must be matchable, or its row is empty for
   // every reco collection and the plot that suppresses its own cut reads a structural
-  // zero in the first bin. Exactly the targets emitted above join the candidates, and
-  // not every particle that fails one cut: that would carry the soft tail of all 200
-  // pileup interactions for no denominator, at 128% more time per PU200 ttbar event in
-  // the track associator alone.
+  // zero in the first bin. So the targets emitted above join the candidates: the partons
+  // of hardProcess and partonJets, and the targets outside the eta range.
   selectedRoots->insert(selectedRoots->end(), extraCandidates.begin(), extraCandidates.end());
   std::sort(selectedRoots->begin(), selectedRoots->end());
 
@@ -244,6 +263,8 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
   }
 
   event.put(std::move(selectedRoots), "selectedRoots");
+  std::sort(denominatorRoots->begin(), denominatorRoots->end());
+  event.put(std::move(denominatorRoots), "denominatorRoots");
   event.put(std::move(assignableRoots), "assignableRoots");
 }
 
@@ -252,7 +273,8 @@ void TruthBranchTargetsProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("src", edm::InputTag("truthLogicalGraphProducer"));
 
   edm::ParameterSetDescription selector;
-  selector.add<float>("ptMin", 1.f)->setComment("Reject branches whose root is softer than this");
+  selector.add<float>("ptMin", 1.f)
+      ->setComment("Pt floor of the denominators and of denominatorRoots; the candidates do not apply it");
   selector.add<float>("ptMax", std::numeric_limits<float>::max());
   selector.add<float>("etaMin", -4.f);
   selector.add<float>("etaMax", 4.f);

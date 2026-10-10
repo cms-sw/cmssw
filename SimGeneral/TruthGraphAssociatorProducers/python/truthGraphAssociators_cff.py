@@ -16,9 +16,8 @@ from SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociationLabels_cff im
     _signalSeedHadronFlavors,
 )
 
-# Shared selection of which truth branches are candidates at all. A 1 GeV floor keeps
-# the maps and the efficiency denominators from being dominated by soft particles that
-# no reconstruction was going to find; loosen it per domain if a study needs to.
+# The cuts of the efficiency denominators. The candidate roots take every cut except the
+# pt floor, so a reco object made by a soft particle is matched and is not a fake.
 truthBranchSelectorBlock = cms.PSet(
     ptMin=cms.float(1.0),
     # ptMax deliberately not set: the producer default is the float maximum, no cut.
@@ -60,9 +59,9 @@ def _tags(domain, flavour="offline"):
     return cms.VInputTag(*[cms.InputTag(*label.split(":")) for label in recoLabels(domain, flavour)])
 
 
-# The truth-side targets, once per event: the selector-passing candidate roots the
-# associators consume, the signal-seed denominators and one TruthToReco denominator
-# per level with its eligibility mask. They depend only on the graph and this
+# The truth-side targets, once per event: the candidate roots the associators consume,
+# the signal-seed denominators and one TruthToReco denominator per level with its
+# eligibility mask. They depend only on the graph and this
 # configuration, so every associator below shares this one producer.
 truthBranchTargets = cms.EDProducer(
     "TruthBranchTargetsProducer",
@@ -90,7 +89,8 @@ allTrackToTruthBranchAssociators = cms.EDProducer(
 allVertexToTruthBranchAssociators = cms.EDProducer(
     "AllVertexToTruthBranchAssociatorsProducer",
     recoCollections=_tags("vertices"),
-    targetsSrc=cms.InputTag("truthBranchTargets", "selectedRoots"),
+    # The findable tracks of a vertex denominator keep the pt floor.
+    targetsSrc=cms.InputTag("truthBranchTargets", "denominatorRoots"),
     assignableTargetsSrc=cms.InputTag("truthBranchTargets", "assignableRoots"),
     constituentAssociator=cms.string("allTrackToTruthBranchAssociators"),
     constituentCollection=cms.string("generalTracks"),
