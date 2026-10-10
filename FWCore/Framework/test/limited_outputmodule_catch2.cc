@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/limited/OutputModule.h"
 #include "FWCore/Framework/interface/OutputModuleCommunicatorT.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
-#include "FWCore/Framework/interface/maker/WorkerT.h"
+#include "FWCore/Framework/interface/maker/ModuleTransitionWorker.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
@@ -286,12 +286,12 @@ namespace {
     oneapi::tbb::global_control control(oneapi::tbb::global_control::max_allowed_parallelism, 1);
 
     iMod->doPreallocate(m_preallocConfig);
-    edm::WorkerT<edm::limited::OutputModuleBase, edm::EventTransitionInfo, edm::TransitionPhaseGlobal> wOther{
-        iMod, m_desc, m_params.actions_};
-    edm::WorkerT<edm::limited::OutputModuleBase, edm::LumiTransitionInfo, edm::TransitionPhaseGlobal> wGlobalLumi{
-        iMod, m_desc, m_params.actions_};
-    edm::WorkerT<edm::limited::OutputModuleBase, edm::RunTransitionInfo, edm::TransitionPhaseGlobal> wGlobalRun{
-        iMod, m_desc, m_params.actions_};
+    edm::ModuleTransitionWorker<edm::limited::OutputModuleBase, edm::EventTransitionInfo, edm::TransitionPhaseGlobal>
+        wOther{iMod, m_desc, m_params.actions_};
+    edm::ModuleTransitionWorker<edm::limited::OutputModuleBase, edm::LumiTransitionInfo, edm::TransitionPhaseGlobal>
+        wGlobalLumi{iMod, m_desc, m_params.actions_};
+    edm::ModuleTransitionWorker<edm::limited::OutputModuleBase, edm::RunTransitionInfo, edm::TransitionPhaseGlobal>
+        wGlobalRun{iMod, m_desc, m_params.actions_};
     edm::OutputModuleCommunicatorT<edm::limited::OutputModuleBase> comm(iMod.get());
     for (auto& keyVal : m_transToFunc) {
       WorkerTypes worker = &wOther;

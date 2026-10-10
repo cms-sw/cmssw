@@ -56,13 +56,13 @@ namespace edm {
     auto state = worker_->state();
     bool rc = true;
     switch (state) {
-      case Worker::Fail: {
+      case TransitionWorkerBase::Fail: {
         rc = false;
         break;
       }
-      case Worker::Pass:
+      case TransitionWorkerBase::Pass:
         break;
-      case Worker::Exception: {
+      case TransitionWorkerBase::Exception: {
         return true;
       }
 

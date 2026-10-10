@@ -70,7 +70,7 @@ namespace edm {
       template <typename U>
       friend class edm::maker::ModuleHolderT;
       template <typename T, typename TI, typename TP>
-      friend class ::edm::WorkerT;
+      friend class ::edm::ModuleTransitionWorker;
       template <typename T>
       friend class ::edm::OutputModuleCommunicatorT;
       typedef OutputModuleCore ModuleType;

@@ -33,7 +33,7 @@
 // forward declarations
 namespace edm {
   template <typename T, typename TI, typename TP>
-  class WorkerT;
+  class ModuleTransitionWorker;
   class ProductRegistry;
   class EventForTransformer;
   class WaitingTaskHolder;

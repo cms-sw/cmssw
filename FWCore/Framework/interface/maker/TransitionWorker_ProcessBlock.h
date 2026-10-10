@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_maker_TransitionWorker_Common_h
-#define FWCore_Framework_maker_TransitionWorker_Common_h
+#ifndef FWCore_Framework_maker_TransitionWorker_ProcessBlock_h
+#define FWCore_Framework_maker_TransitionWorker_ProcessBlock_h
 
 /*----------------------------------------------------------------------
 
@@ -25,16 +25,15 @@ the worker is reset().
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
-#include "FWCore/Framework/interface/TransitionEdge.h"
 #include "FWCore/Framework/interface/maker/TransitionWorkerBase.h"
 #include "FWCore/Framework/interface/maker/WorkerParams.h"
 #include "FWCore/Framework/interface/maker/ModuleSignalSentry.h"
 #include "FWCore/Framework/interface/maker/ModuleAttributes.h"
+#include "FWCore/Framework/interface/maker/TransitionWorker_Common.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
+#include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
@@ -79,39 +78,18 @@ namespace edm {
   class ProductResolverIndexAndSkipBit;
 
   namespace workerhelper {
-    template <typename TI, TransitionEdge E>
-    class CallGlobalImpl;
+    template <TransitionEdge E>
+    class CallProcessImpl;
   }
   namespace eventsetup {
     struct ComponentDescription;
     class ESRecordsToProductResolverIndices;
   }  // namespace eventsetup
 
-  class RunTransitionInfo;
-  class LumiTransitionInfo;
   struct TransitionPhaseGlobal;
 
-  template <typename TI, TransitionEdge E>
-  struct TransitionTrait;
   template <>
-  struct TransitionTrait<RunTransitionInfo, TransitionEdge::kBegin> {
-    static constexpr Transition value = Transition::BeginRun;
-  };
-  template <>
-  struct TransitionTrait<RunTransitionInfo, TransitionEdge::kEnd> {
-    static constexpr Transition value = Transition::EndRun;
-  };
-  template <>
-  struct TransitionTrait<LumiTransitionInfo, TransitionEdge::kBegin> {
-    static constexpr Transition value = Transition::BeginLuminosityBlock;
-  };
-  template <>
-  struct TransitionTrait<LumiTransitionInfo, TransitionEdge::kEnd> {
-    static constexpr Transition value = Transition::EndLuminosityBlock;
-  };
-
-  template <typename TI, typename TP>
-  class TransitionWorker : public TransitionWorkerBase {
+  class TransitionWorker<ProcessBlockTransitionInfo, TransitionPhaseGlobal> : public TransitionWorkerBase {
   public:
     enum State { Ready, Pass, Fail, Exception };
     using Types = edm::modules::Type;
@@ -119,75 +97,52 @@ namespace edm {
     TransitionWorker(ModuleDescription const& iMD, ExceptionToActionTable const* iActions)
         : TransitionWorkerBase(iMD, iActions) {}
 
-    virtual bool wantsGlobalTransitions() const noexcept = 0;
-    virtual bool wantsWrites() const noexcept = 0;
-
-    //returns non-nullptr if the module can only process one Transition at a time
-    virtual SerialTaskQueue* globalTransitionsQueue() = 0;
-
     void reset() { resetBase(); }
 
     template <TransitionEdge E>
     void doWorkAsync(WaitingTaskHolder iTask,
-                     TI const& iTransitionInfo,
+                     ProcessBlockTransitionInfo const& iTransitionInfo,
                      ServiceToken const& iToken,
                      StreamID iStreamID,
                      ParentContext const& iParentContext,
                      GlobalContext const* iContext) noexcept {
-      this->template doWorkAsyncImpl<E>(std::move(iTask), iTransitionInfo, iToken, iStreamID, iParentContext, iContext);
-    }
-
-    //called by processOneOccurrenceAsync which is only used for globals by the SecondaryEventProvider and
-    // WokerManager<stream>::processOneOccurrenceAsync
-    template <TransitionEdge E>
-    void doWorkNoEDPrefetchingAsync(WaitingTaskHolder iTask,
-                                    TI const& iTransitionInfo,
-                                    ServiceToken const& iToken,
-                                    StreamID iStreamID,
-                                    ParentContext const& iParentContext,
-                                    GlobalContext const* iContext) noexcept {
-      this->template doWorkNoEDPrefetchingAsyncImpl<E>(
-          std::move(iTask), iTransitionInfo, iToken, iStreamID, iParentContext, iContext);
+      this->doWorkAsyncImpl<E>(std::move(iTask), iTransitionInfo, iToken, iStreamID, iParentContext, iContext);
     }
 
   protected:
     //Called by GlobalSchedule::processOneGlobalAsync, UnscheduledCallProducer::runAccumulatorsAsync, WorkerInPath::runWorkerAsync, UnscheduledProductResolver::prefetchAsync_
     template <TransitionEdge E>
     void doWorkAsyncImpl(WaitingTaskHolder,
-                         TI const&,
+                         ProcessBlockTransitionInfo const&,
                          ServiceToken const&,
                          StreamID,
                          ParentContext const&,
                          GlobalContext const*) noexcept;
 
-    //called by processOneOccurrenceAsync which is only used for globals by the SecondaryEventProvider and
-    // WokerManager<stream>::processOneOccurrenceAsync
     template <TransitionEdge E>
-    void doWorkNoEDPrefetchingAsyncImpl(WaitingTaskHolder,
-                                        TI const&,
-                                        ServiceToken const&,
-                                        StreamID,
-                                        ParentContext const&,
-                                        GlobalContext const*) noexcept;
+    friend class workerhelper::CallProcessImpl;
 
-    template <typename TINFO, TransitionEdge E>
-    friend class workerhelper::CallGlobalImpl;
-
-    virtual bool implDoBegin(TI const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoEnd(TI const&, ModuleCallingContext const*) = 0;
-    virtual bool implDoWrite(TI const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
 
   private:
     template <TransitionEdge E>
-    bool runModule(TI const&, StreamID, ParentContext const&, GlobalContext const*);
+    bool runModule(ProcessBlockTransitionInfo const&, StreamID, ParentContext const&, GlobalContext const*);
 
-    void prefetchAsync(WaitingTaskHolder, ServiceToken const&, ParentContext const&, TI const&, Transition) noexcept;
+    void prefetchAsync(WaitingTaskHolder,
+                       ServiceToken const&,
+                       ParentContext const&,
+                       ProcessBlockTransitionInfo const&,
+                       Transition) noexcept;
 
     void emitPostModuleGlobalPrefetchingSignal();
 
     template <TransitionEdge E>
-    std::exception_ptr runModuleAfterAsyncPrefetch(
-        std::exception_ptr, TI const&, StreamID, ParentContext const&, GlobalContext const*) noexcept;
+    std::exception_ptr runModuleAfterAsyncPrefetch(std::exception_ptr,
+                                                   ProcessBlockTransitionInfo const&,
+                                                   StreamID,
+                                                   ParentContext const&,
+                                                   GlobalContext const*) noexcept;
 
     template <TransitionEdge E>
     class RunModuleTask;
