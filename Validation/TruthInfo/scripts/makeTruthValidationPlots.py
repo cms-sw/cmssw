@@ -96,9 +96,10 @@ LEVEL_MEANING = {
         "vertices are what the preset builds, and is EMPTY rather than wrong otherwise.",
     "signal":
         "the preset's seed species among the selected roots, that is THE RESONANCE itself and not its decay "
-        "products: two tops for the top preset, one Z for Drell-Yan, one Higgs for VBF and ggF, ten taus for "
-        "the TenTau gun. Verified present in all eleven generator templates. This is the series that answers "
-        "'was the object I generated reconstructed', and the one to read when hardProcess looks wrong.",
+        "products: two tops for the top preset, one Z for Drell-Yan, one Higgs for VBF and ggF. Verified "
+        "present in all eleven generator templates. With no preset, the shot particles of a particle gun: ten "
+        "taus for TenTau. This is the series that answers 'was the object I generated reconstructed', and the "
+        "one to read when hardProcess looks wrong.",
     "signalNoSelection":
         "the same seed species with the kinematic selector removed. Equal to signal whenever every seed passes "
         "the selector, which is the case for tops; a difference between the two is the selector's own cost.",

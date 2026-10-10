@@ -212,8 +212,9 @@ _truthLevels = cms.vstring(
 # The selection preset's seed species, so the signalSeeds product (the _signal
 # efficiency denominator) is the preset's signal object itself. A production that
 # applies a preset must set this to the SAME pdgIds the preset seeds with, via
-# PhysicsTools.TruthInfo.truthGraphSelections.seedPdgIdsForPreset. With no preset
-# there is no resonance and the signal products stay empty.
+# PhysicsTools.TruthInfo.truthGraphSelections.seedPdgIdsForPreset. With no preset the
+# signal products hold the particles with the Signal bit: the shot particles of a
+# particle gun, and none for a collision.
 _signalSeedPdgIds = cms.vint32()
 _signalSeedHadronFlavors = cms.vint32()
 

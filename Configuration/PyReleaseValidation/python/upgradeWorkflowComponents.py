@@ -1030,6 +1030,22 @@ class UpgradeWorkflow_enableTruth(UpgradeWorkflow):
     # harvested DQM file on ten ttbar events. This workflow is where they are exercised.
     truthValidationCustomise = ('SimGeneral/TruthGraphAssociatorProducers/'
                                 'customiseTruthGraphAssociators.customiseTruthBranchValidation')
+    # A particle gun also books the signal folders, because its shot particles are the
+    # signal. The reconstruction step of a gun sample is a separate step for this.
+    truthGunValidationCustomise = ('SimGeneral/TruthGraphAssociatorProducers/'
+                                   'customiseTruthGraphAssociators.customiseTruthBranchValidationGun')
+    gunExtra = 'Gun'
+
+    def init(self, stepDict):
+        super(UpgradeWorkflow_enableTruth, self).init(stepDict)
+        stepDict[self.getStepName('RecoGlobal', self.gunExtra)] = {}
+        stepDict[self.getStepNamePU('RecoGlobal', self.gunExtra)] = {}
+
+    def gunStep(self, stepDictEntry):
+        gun = deepcopy(stepDictEntry)
+        gun['--customise'] = gun['--customise'].replace(self.truthValidationCustomise,
+                                                        self.truthGunValidationCustomise)
+        return gun
 
     def setup_(self, step, stepName, stepDict, k, properties):
         # The modifier goes to the GenSim, RecoGlobal and HARVESTGlobal steps. The graph
@@ -1051,8 +1067,24 @@ class UpgradeWorkflow_enableTruth(UpgradeWorkflow):
                 else:
                     stepDict[stepName][k]['--customise'] = self.truthValidationCustomise
 
+            if step == 'RecoGlobal':
+                stepDict[self.getStepName(step, self.gunExtra)][k] = self.gunStep(stepDict[stepName][k])
+
+    def setupPU_(self, step, stepName, stepDict, k, properties):
+        if step == 'RecoGlobal' and stepDict[stepName].get(k) is not None:
+            stepDict[self.getStepNamePU(step, self.gunExtra)][k] = self.gunStep(stepDict[stepName][k])
+
     def condition(self, fragment, stepList, key, hasHarvest):
         return 'Run4' in key
+
+    def workflow_(self, workflows, num, fragment, stepList, key):
+        from PhysicsTools.TruthInfo.truthGraphSelections import templateForFragment
+        if templateForFragment(fragment)[0] == 'gun':
+            reco = (self.getStepName('RecoGlobal') + '_', self.getStepNamePU('RecoGlobal') + '_')
+            gunReco = (self.getStepName('RecoGlobal', self.gunExtra) + '_',
+                       self.getStepNamePU('RecoGlobal', self.gunExtra) + '_')
+            stepList = [s.replace(reco[0], gunReco[0]).replace(reco[1], gunReco[1]) for s in stepList]
+        super(UpgradeWorkflow_enableTruth, self).workflow_(workflows, num, fragment, stepList, key)
 
 
 upgradeWFs['enableTruth'] = UpgradeWorkflow_enableTruth(

@@ -1533,6 +1533,14 @@ namespace truth {
       input = collapseIgnoredParticles(input, config_.ignoredPdgIds, config_.ignoredParticleIds);
     }
 
+    // With no seed species, the shot particles of a particle gun are the signal. They are
+    // found on the finished graph, which is the graph a reader re-derives them from.
+    if (!seedsNameAResonance(config_.seedPdgIds, config_.seedHadronFlavors)) {
+      for (const uint32_t root : gunSignalRoots(input)) {
+        input.particles()[root].setLevel(truth::LevelFlag::Signal);
+      }
+    }
+
     return input;
   }
 

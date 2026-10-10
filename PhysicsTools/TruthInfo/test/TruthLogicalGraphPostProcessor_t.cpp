@@ -379,6 +379,9 @@ class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(testSignalStampRequiresGenProvenance);
   CPPUNIT_TEST(testSeedPdgIdZeroStampsNothing);
   CPPUNIT_TEST(testSignalStampSkipsPileup);
+  CPPUNIT_TEST(testGunShotParticlesAreTheSignal);
+  CPPUNIT_TEST(testPythia8GunMotherIsNotTheSignal);
+  CPPUNIT_TEST(testCollisionWithoutSeedsStampsNothing);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -414,6 +417,9 @@ public:
   void testSignalStampRequiresGenProvenance();
   void testSeedPdgIdZeroStampsNothing();
   void testSignalStampSkipsPileup();
+  void testGunShotParticlesAreTheSignal();
+  void testPythia8GunMotherIsNotTheSignal();
+  void testCollisionWithoutSeedsStampsNothing();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestTruthLogicalGraphPostProcessor);
@@ -2218,6 +2224,100 @@ void TestTruthLogicalGraphPostProcessor::testSignalStampSkipsPileup() {
       if (particle.isAtLevel(truth::LevelFlag::Signal))
         CPPUNIT_ASSERT_EQUAL(uint64_t(0), uint64_t(particle.eventId));
     }
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testGunShotParticlesAreTheSignal() {
+  try {
+    // A gun with no preset: an electron and a tau leave a GEN vertex with no incoming
+    // particle, and both are the signal. The tau decay products, a Geant4 secondary of
+    // the electron and a pile-up particle are not.
+    GraphBuilder builder(6, 4);
+
+    builder.setGenVertex(0, 200);
+    builder.setGenSimParticle(0, 11, 1, 100, 1000);
+    builder.setGenParticle(1, 15, 2, 101);
+    builder.setGenVertex(1, 201);
+    builder.setGenParticle(2, 211, 1, 102);
+    builder.setGenParticle(3, 16, 1, 103);
+    builder.setSimVertex(2, 2000);
+    builder.setSimParticle(4, 22, 1001);
+    builder.setGenVertex(3, 202);
+    builder.graph.vertices()[3].eventId = 0x2a;  // a pile-up EncodedEventId
+    builder.setGenParticle(5, 211, 1, 104);
+    builder.graph.particles()[5].eventId = 0x2a;
+
+    builder.addProduction(0, 0);
+    builder.addProduction(0, 1);
+    builder.addDecay(1, 1);
+    builder.addProduction(1, 2);
+    builder.addProduction(1, 3);
+    builder.addDecay(0, 2);
+    builder.addProduction(2, 4);
+    builder.addProduction(3, 5);
+
+    auto output = runPostProcessing(builder.finish(), defaultConfig());
+
+    CPPUNIT_ASSERT_EQUAL(uint32_t(2), countSignalStamped(output));
+    CPPUNIT_ASSERT(output.particles()[0].isAtLevel(truth::LevelFlag::Signal));
+    CPPUNIT_ASSERT(output.particles()[1].isAtLevel(truth::LevelFlag::Signal));
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testPythia8GunMotherIsNotTheSignal() {
+  try {
+    // A Pythia8 gun writes a dummy mother, pdgId 990 with no production vertex, above the
+    // shot particles. The two taus are the signal, the mother and the tau decay are not.
+    GraphBuilder builder(4, 2);
+
+    builder.setGenParticle(0, 990, 11, 100);
+    builder.setGenVertex(0, 200);
+    builder.setGenParticle(1, 15, 2, 101);
+    builder.setGenParticle(2, -15, 2, 102);
+    builder.setGenVertex(1, 201);
+    builder.setGenParticle(3, 211, 1, 103);
+
+    builder.addDecay(0, 0);
+    builder.addProduction(0, 1);
+    builder.addProduction(0, 2);
+    builder.addDecay(1, 1);
+    builder.addProduction(1, 3);
+
+    auto output = runPostProcessing(builder.finish(), defaultConfig());
+
+    CPPUNIT_ASSERT_EQUAL(uint32_t(2), countSignalStamped(output));
+    CPPUNIT_ASSERT(output.particles()[1].isAtLevel(truth::LevelFlag::Signal));
+    CPPUNIT_ASSERT(output.particles()[2].isAtLevel(truth::LevelFlag::Signal));
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testCollisionWithoutSeedsStampsNothing() {
+  try {
+    // Two beam protons, HepMC status 4, make a Z. With no preset a collision has no
+    // signal.
+    GraphBuilder builder(3, 1);
+
+    builder.setGenVertex(0, 200);
+    builder.setGenParticle(0, 2212, 4, 100);
+    builder.setGenParticle(1, 2212, 4, 101);
+    builder.setGenParticle(2, 23, 2, 102);
+
+    builder.addDecay(0, 0);
+    builder.addDecay(1, 0);
+    builder.addProduction(0, 2);
+
+    auto output = runPostProcessing(builder.finish(), defaultConfig());
+
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countSignalStamped(output));
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);

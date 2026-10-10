@@ -146,10 +146,15 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
     // interactions, among the Geant4 secondaries of a gun, and repeatedly along a heavy
     // flavour chain, where B**, B* and B all carry the quark. LevelFlag::Signal is the
     // graph's own answer: the post-processing stamps it on the most upstream seed-species
-    // particle of the signal interaction only, with the decay groups applied.
-    auto const isSignalSeed = [this, &graph](uint32_t id) {
+    // particle of the signal interaction only, with the decay groups applied. With no
+    // seed species configured, the bit alone names the seed: the shot particles of a gun.
+    const bool resonanceSeeds = truth::seedsNameAResonance(signalSeedPdgIds_, signalSeedHadronFlavors_);
+    auto const isSignalSeed = [this, &graph, resonanceSeeds](uint32_t id) {
       if (!graph.particles()[id].isAtLevel(truth::LevelFlag::Signal)) {
         return false;
+      }
+      if (!resonanceSeeds) {
+        return true;
       }
       const int32_t pdgId = graph.particles()[id].pdgId;
       if (std::find(signalSeedPdgIds_.begin(), signalSeedPdgIds_.end(), pdgId) != signalSeedPdgIds_.end()) {
@@ -164,22 +169,20 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
     };
     auto signalSeeds = std::make_unique<std::vector<unsigned int>>();
     auto signalSeedsNoSelection = std::make_unique<std::vector<unsigned int>>();
-    // NoSelection drops the kinematic selector, not the signal requirement.
-    // With no seed species there is no resonance in this sample, so BOTH products stay
-    // EMPTY. A graph built with no preset carries no Signal flag, so they stay empty too. Every selected root is not a substitute: that set holds particles together
-    // with their own ancestors, so it is not an antichain and an efficiency over it
-    // counts the same energy twice (on QCD it is 518.89 per event against 164
-    // generator-stable particles).
-    if (truth::seedsNameAResonance(signalSeedPdgIds_, signalSeedHadronFlavors_)) {
-      for (uint32_t id : *selectedRoots) {
-        if (isSignalSeed(id)) {
-          signalSeeds->push_back(id);
-        }
+    // NoSelection drops the kinematic selector, not the signal requirement. Both products
+    // are EMPTY when no particle carries the Signal bit, as for a collision with no preset.
+    // Every selected root is not a substitute: that set holds particles together with
+    // their own ancestors, so it is not an antichain and an efficiency over it counts the
+    // same energy twice (on QCD it is 518.89 per event against 164 generator-stable
+    // particles).
+    for (uint32_t id : *selectedRoots) {
+      if (isSignalSeed(id)) {
+        signalSeeds->push_back(id);
       }
-      for (uint32_t id = 0; id < nBranches; ++id) {
-        if (isSignalSeed(id)) {
-          signalSeedsNoSelection->push_back(id);
-        }
+    }
+    for (uint32_t id = 0; id < nBranches; ++id) {
+      if (isSignalSeed(id)) {
+        signalSeedsNoSelection->push_back(id);
       }
     }
     event.put(std::move(signalSeeds), "signalSeeds");
@@ -280,7 +283,9 @@ void TruthBranchTargetsProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<std::vector<std::string>>("truthLevels", {"caloBoundary"})
       ->setComment("Graph levels to emit a TruthToReco denominator for, one product per level");
   desc.add<std::vector<int>>("signalSeedPdgIds", {})
-      ->setComment("The selection preset's seed species; empty or {0} means no resonance and empty signal products");
+      ->setComment(
+          "The selection preset's seed species; empty or {0} means no species, and every particle with the Signal "
+          "bit is a seed");
   desc.add<std::vector<int>>("signalSeedHadronFlavors", {})
       ->setComment("Heavy-flavour hadron seeds; flavours alone also name a resonance");
   desc.add<bool>("truthToRecoSignalOnly", true)
