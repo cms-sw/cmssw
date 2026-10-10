@@ -1,5 +1,5 @@
-#ifndef RPCandIRPCDigiProducer_h
-#define RPCandIRPCDigiProducer_h
+#ifndef RPCDigiPhase2Producer_h
+#define RPCDigiPhase2Producer_h
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -9,7 +9,7 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
+#include "SimMuon/RPCDigitizer/src/RPCDigitizerPhase2.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
 #include "CondFormats/DataRecord/interface/RPCStripNoisesRcd.h"
@@ -20,13 +20,13 @@ class RPCGeometry;
 class RPCSimSetUp;
 class RPCSynchronizer;
 
-class RPCandIRPCDigiProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
+class RPCDigiPhase2Producer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   //  typedef edm::DetSetVector<RPCDigiSimLink> RPCDigiSimLinks;
-  typedef RPCDigitizer::RPCDigiSimLinks RPCDigitizerSimLinks;
+  typedef RPCDigitizerPhase2::RPCDigiSimLinks RPCDigitizerPhase2SimLinks;
 
-  explicit RPCandIRPCDigiProducer(const edm::ParameterSet& ps);
-  ~RPCandIRPCDigiProducer() override;
+  explicit RPCDigiPhase2Producer(const edm::ParameterSet& ps);
+  ~RPCDigiPhase2Producer() override;
 
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
@@ -36,24 +36,21 @@ public:
   void setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>&, const std::vector<double>&);
 
 private:
-  RPCDigitizer* theRPCDigitizer;
-  RPCDigitizer* theIRPCDigitizer;
-  RPCSimSetUp* theRPCSimSetUpRPC;
-  RPCSimSetUp* theRPCSimSetUpIRPC;
-  //  RPCSimSetUp* theRPCSimSetUp;
+  std::unique_ptr<RPCDigitizerPhase2> theRPCDigitizerPhase2_;
+  std::unique_ptr<RPCSimSetUp> theRPCSimSetUpRPC_;
 
   //Name of Collection used for create the XF
   std::string mix_;
-  std::string collection_for_XF;
+  std::string collection_for_XF_;
 
   //Token for accessing data
-  edm::EDGetTokenT<CrossingFrame<PSimHit>> crossingFrameToken;
-  const RPCGeometry* _pGeom;
+  std::vector<edm::EDGetTokenT<CrossingFrame<PSimHit>>> crossingFrameTokens_;
+  const RPCGeometry* pGeom_;
 
   //EventSetup Tokens
-  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> geomToken;
-  edm::ESGetToken<RPCStripNoises, RPCStripNoisesRcd> noiseToken;
-  edm::ESGetToken<RPCClusterSize, RPCClusterSizeRcd> clsToken;
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> geomToken_;
+  edm::ESGetToken<RPCStripNoises, RPCStripNoisesRcd> noiseToken_;
+  edm::ESGetToken<RPCClusterSize, RPCClusterSizeRcd> clsToken_;
 };
 
 #endif
