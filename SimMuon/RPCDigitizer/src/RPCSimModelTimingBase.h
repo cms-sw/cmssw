@@ -15,9 +15,7 @@ class RPCRoll;
 class Topology;
 
 class RPCSimModelTimingBase : public RPCSim {
-
 public:
-
   explicit RPCSimModelTimingBase(const edm::ParameterSet&);
 
   ~RPCSimModelTimingBase() override;
@@ -34,7 +32,11 @@ protected:
   //------------------------------------------------------
   // Detector-dependent digi creation
   //------------------------------------------------------
-  virtual void digitizeCluster(const RPCRoll* roll, const PSimHit& hit, const std::vector<int>& cls, float striplength, CLHEP::HepRandomEngine* engine) = 0;
+  virtual void digitizeCluster(const RPCRoll* roll,
+                               const PSimHit& hit,
+                               const std::vector<int>& cls,
+                               float striplength,
+                               CLHEP::HepRandomEngine* engine) = 0;
   virtual void createNoiseDigi(int strip, int hits, CLHEP::HepRandomEngine*) = 0;
 
   //------------------------------------------------------
@@ -48,7 +50,6 @@ protected:
   //------------------------------------------------------
   float stripLength(const RPCRoll*) const;
   double detectorArea(const RPCRoll*) const;
-
 
   //------------------------------------------------------
   // Cluster calculation
@@ -84,4 +85,3 @@ protected:
 };
 
 #endif
-
