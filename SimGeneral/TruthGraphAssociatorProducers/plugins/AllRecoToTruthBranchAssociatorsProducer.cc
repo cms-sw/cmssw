@@ -901,8 +901,9 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::fillDescriptions(edm::Config
           "denominators and the truth-driven direction reads its pair scores from that map");
   desc.add<edm::InputTag>("targetsSrc", edm::InputTag("truthBranchTargets", "selectedRoots"))
       ->setComment(
-          "The selector-passing candidate roots from TruthBranchTargetsProducer, which also emits the level "
-          "denominators and the signal seeds every associator module shares");
+          "The candidate roots from TruthBranchTargetsProducer, which also emits the level denominators and the "
+          "signal seeds every associator module shares. A composite domain counts the findable tracks of its "
+          "denominator over them, so it reads denominatorRoots");
   desc.add<std::vector<std::string>>("denominatorDetectors", {})
       ->setComment(
           "DetId::Detector names the sim-normalised shared-energy denominator covers. Empty means the whole hit "
