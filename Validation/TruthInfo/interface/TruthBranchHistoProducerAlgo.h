@@ -152,7 +152,9 @@ namespace truth {
     // measures level coverage rather than reconstruction: on no-PU ttbar it is 32.5% of
     // tracksters and 36.8% of tracks, against 0.3% of tracks matched to nothing.
     // h_levelCandidate counts the objects where the question IS defined, so the
-    // complement is published as its own page and stays visible.
+    // complement is published as its own page and stays visible. It is read from the
+    // first working point's map, so it is booked in the first working-point folder of a
+    // collection only, and its row is empty for the other working points.
     //
     // h_assoc_recoToSim counts objects matched to anything, one entry each, published as
     // the no-candidate rate and named for what it measures so it cannot be read as a
@@ -166,8 +168,8 @@ namespace truth {
     //
     // h_assoc_strict is the calorimetric domains' numerator for HGCalValidator's
     // non-fake criterion, matched AND below maxRecoToSimScore, kept only so the two
-    // validators stay comparable. That criterion is not a fake rate: it is normalised
-    // against the cell's total truth energy, so pileup on a cell drives it towards 1
+    // validators stay comparable. That criterion is not a fake rate: a branch owns only
+    // its share of the truth energy of each cell, so pileup on a cell drives it towards 1
     // even for a good match. Booked for calorimetric domains only; empty elsewhere.
     std::vector<MERow> h_reco, h_dominated, h_levelCandidate, h_assoc_recoToSim, h_recopurity, h_pileup, h_assoc_strict;
 
@@ -187,7 +189,8 @@ namespace truth {
     // is the leading branch's shared energy over the shared energy of ALL candidate
     // branches; dominance_ratio is leading over runner-up, capped at 20. Reco side, and
     // both are read from the FIRST working point's map, the only one that carries every
-    // candidate. Filled for every reco object with at least one candidate.
+    // candidate. Filled for every reco object with at least one candidate, and booked in
+    // the first working-point folder only (nullptr for the other working points).
     std::vector<METype> h_leadingShare, h_dominanceRatio;
 
     // The axis the calorimetric efficiency cut acts on: shared energy over the truth
@@ -210,9 +213,12 @@ namespace truth {
     // bookTruthHistos once per (collection, level), each in the order the fill side
     // will index that list.
     // calorimetric additionally books the strict numerator described above.
+    // firstWorkingPoint books the quantities read from the first working point's map,
+    // which are the same in every working-point folder of a collection.
     void bookRecoHistos(dqm::implementation::IBooker& booker,
                         TruthBranchHistograms& histograms,
-                        bool calorimetric) const;
+                        bool calorimetric,
+                        bool firstWorkingPoint) const;
     // calorimetric books the shared-energy-fraction monitor element, the axis those
     // domains gate efficiency on, and skips the duplicate ones the same domains cannot
     // fill. It must be the same for every truth entry of one module, so the row index
@@ -224,7 +230,10 @@ namespace truth {
     // One region's worth of rows, into the booker's current folder. bookTruthHistos and
     // bookRecoHistos call these once per region.
     void bookTruthRow(dqm::implementation::IBooker& booker, TruthBranchHistograms& histograms, bool calorimetric) const;
-    void bookRecoRow(dqm::implementation::IBooker& booker, TruthBranchHistograms& histograms, bool calorimetric) const;
+    void bookRecoRow(dqm::implementation::IBooker& booker,
+                     TruthBranchHistograms& histograms,
+                     bool calorimetric,
+                     bool firstWorkingPoint) const;
 
     // The once-per-entry distributions, booked in the base folder only.
     void bookTruthDiagnostics(dqm::implementation::IBooker& booker,
@@ -232,7 +241,8 @@ namespace truth {
                               bool calorimetric) const;
     void bookRecoDiagnostics(dqm::implementation::IBooker& booker,
                              TruthBranchHistograms& histograms,
-                             bool calorimetric) const;
+                             bool calorimetric,
+                             bool firstWorkingPoint) const;
 
     // Values of every x variable for one object, in the enum order. A domain fills only
     // the ones it has; which of them are booked is decided by the variable lists.

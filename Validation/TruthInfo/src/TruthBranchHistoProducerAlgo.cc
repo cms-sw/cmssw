@@ -191,23 +191,28 @@ namespace truth {
 
   void TruthBranchHistoProducerAlgo::bookRecoHistos(dqm::implementation::IBooker& booker,
                                                     TruthBranchHistograms& h,
-                                                    bool calorimetric) const {
+                                                    bool calorimetric,
+                                                    bool firstWorkingPoint) const {
     const std::string base = booker.pwd();
-    bookRecoRow(booker, h, calorimetric);
+    bookRecoRow(booker, h, calorimetric, firstWorkingPoint);
     for (const EtaRegion region : bookedRegions_) {
       booker.setCurrentFolder(base + "/" + kEtaRegionFolders[static_cast<std::size_t>(region)]);
-      bookRecoRow(booker, h, calorimetric);
+      bookRecoRow(booker, h, calorimetric, firstWorkingPoint);
     }
     booker.setCurrentFolder(base);
-    bookRecoDiagnostics(booker, h, calorimetric);
+    bookRecoDiagnostics(booker, h, calorimetric, firstWorkingPoint);
   }
 
   void TruthBranchHistoProducerAlgo::bookRecoRow(dqm::implementation::IBooker& booker,
                                                  TruthBranchHistograms& h,
-                                                 bool calorimetric) const {
+                                                 bool calorimetric,
+                                                 bool firstWorkingPoint) const {
     bookRow(booker, h.h_reco, "num_reco", recoVarNames_, recoAxes_);
     bookRow(booker, h.h_dominated, "num_dominated", recoVarNames_, recoAxes_);
-    bookRow(booker, h.h_levelCandidate, "num_levelcandidate", recoVarNames_, recoAxes_);
+    if (firstWorkingPoint)
+      bookRow(booker, h.h_levelCandidate, "num_levelcandidate", recoVarNames_, recoAxes_);
+    else
+      h.h_levelCandidate.emplace_back();
     bookRow(booker, h.h_assoc_recoToSim, "num_assoc(recoToSim)", recoVarNames_, recoAxes_);
     bookRow(booker, h.h_recopurity, "num_recopurity", recoVarNames_, recoAxes_);
     bookRow(booker, h.h_pileup, "num_pileup", recoVarNames_, recoAxes_);
@@ -218,13 +223,17 @@ namespace truth {
 
   void TruthBranchHistoProducerAlgo::bookRecoDiagnostics(dqm::implementation::IBooker& booker,
                                                          TruthBranchHistograms& h,
-                                                         bool calorimetric) const {
+                                                         bool calorimetric,
+                                                         bool firstWorkingPoint) const {
     h.h_score.push_back(booker.book1D("association_score", "Association score", nintScore_, minScore_, maxScore_));
     h.h_sharedQuantity.push_back(
         booker.book1D("shared_quantity", "Shared hits or energy", nintShared_, minShared_, maxShared_));
-    h.h_leadingShare.push_back(booker.book1D("leading_truth_share", "Leading truth contributor share", 50, 0., 1.));
+    h.h_leadingShare.push_back(firstWorkingPoint
+                                   ? booker.book1D("leading_truth_share", "Leading truth contributor share", 50, 0., 1.)
+                                   : nullptr);
     h.h_dominanceRatio.push_back(
-        booker.book1D("dominance_ratio", "Leading over runner-up truth contributor", 40, 0., 20.));
+        firstWorkingPoint ? booker.book1D("dominance_ratio", "Leading over runner-up truth contributor", 40, 0., 20.)
+                          : nullptr);
 
     // Reco purity: the reco object is the denominator, on a [0, 1] axis.
     h.h_recoPurity.push_back(booker.book1D("reco_purity", "Reco purity", 50, 0., 1.));
@@ -350,7 +359,7 @@ namespace truth {
       if (outcome.dominated) {
         h.h_dominated[i][v]->Fill(x);
       }
-      if (outcome.hasLevelCandidate) {
+      if (outcome.hasLevelCandidate && !h.h_levelCandidate[i].empty()) {
         h.h_levelCandidate[i][v]->Fill(x);
       }
       if (outcome.associated) {
@@ -387,7 +396,7 @@ namespace truth {
                                                     std::size_t i,
                                                     double leadingShare,
                                                     double dominanceRatio) const {
-    if (leadingShare < 0.) {
+    if (leadingShare < 0. || h.h_leadingShare[i] == nullptr) {
       return;
     }
     h.h_leadingShare[i]->Fill(leadingShare);

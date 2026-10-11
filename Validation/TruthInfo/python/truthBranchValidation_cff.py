@@ -386,11 +386,6 @@ def _recoDrivenStrings(recoVariables, strict=False):
         out.append(f"fakerate_vs_{var} 'Fake rate vs {var}' num_dominated_{var} num_reco_{var} fake")
         out.append(f"nocandidate_vs_{var} 'No-candidate rate vs {var}' "
                    f"num_assoc(recoToSim)_{var} num_reco_{var} fake")
-        # Where the dominance question is UNDEFINED: the object matched truth, but none
-        # of its candidates sits at the dominance level. Deliberately not folded into
-        # the fake rate, which would measure level coverage rather than reconstruction.
-        out.append(f"nolevelcandidate_vs_{var} 'No dominance-level candidate vs {var}' "
-                   f"num_levelcandidate_{var} num_reco_{var} fake")
         if strict:
             out.append(f"contaminated_vs_{var} 'Contaminated rate vs {var}' "
                        f"num_assoc_strict_{var} num_reco_{var} fake")
@@ -399,6 +394,15 @@ def _recoDrivenStrings(recoVariables, strict=False):
         # match count by num_reco would give the matched fraction a second time.
         out.append(f"recopurity_vs_{var} 'Reco purity vs {var}' num_recopurity_{var} num_reco_{var}")
     return out
+
+
+def _levelCandidateStrings(recoVariables):
+    # Where the dominance question is UNDEFINED: the object matched truth, but none of its
+    # candidates sits at the dominance level. Deliberately not folded into the fake rate,
+    # which would measure level coverage rather than reconstruction. It is read from the
+    # first working point's map, so only the first working-point folder books it.
+    return [f"nolevelcandidate_vs_{var} 'No dominance-level candidate vs {var}' "
+            f"num_levelcandidate_{var} num_reco_{var} fake" for var in recoVariables]
 
 
 # Gaussian slice fits, the same mechanism MTV uses: DQMGenericClient books <prefix>_Mean
@@ -413,8 +417,8 @@ _resolutions = [
 ]
 
 truthBranchValidationSequence = cms.Sequence()
-# One harvester per domain: DQMGenericClient applies one string list to all its subDirs,
-# so a folder that never booked num_reco_pt must not be asked for fakerate_vs_pt.
+# One harvester per folder family: DQMGenericClient applies one string list to all its
+# subDirs, so a folder that never booked num_reco_pt must not be asked for fakerate_vs_pt.
 truthBranchHarvestingSequence = cms.Sequence()
 # The HLT twins read HLT collections, which an offline reconstruction does not produce,
 # so they are kept apart from the offline sequences.
@@ -467,9 +471,9 @@ for _d in _domains:
     else:
         truthBranchValidationSequence += _analyzer
 
-    # Two harvesters per domain because DQMGenericClient applies one string list to all
-    # its subDirs: the per-WP folders carry only reco-driven MEs, the per-level folders
-    # only truth-driven ones, and asking a folder for a ratio it never booked is noise.
+    # Three harvesters per domain because DQMGenericClient applies one string list to all
+    # its subDirs: the per-WP folders carry the reco-driven MEs, the first-WP folder also
+    # the level-candidate MEs, and the per-level folders only the truth-driven ones.
     _harvester = DQMEDHarvester(
         "DQMGenericClient",
         subDirs=cms.untracked.vstring(*_harvestedFolders(_d, _wps)),
@@ -488,6 +492,20 @@ for _d in _domains:
         truthBranchHltHarvestingSequence += _harvester
     else:
         truthBranchHarvestingSequence += _harvester
+
+    _levelCandidateHarvester = DQMEDHarvester(
+        "DQMGenericClient",
+        subDirs=cms.untracked.vstring(*_harvestedFolders(_d, _wps[:1])),
+        efficiency=cms.vstring(*_levelCandidateStrings(_d["recoVariables"])),
+        resolution=cms.vstring(),
+        verbose=cms.untracked.uint32(0),
+        outputFileName=cms.untracked.string(""),
+    )
+    globals()[_d["label"].replace("Validator", "LevelCandidatePostProcessor")] = _levelCandidateHarvester
+    if _d["flavour"] == "hlt":
+        truthBranchHltHarvestingSequence += _levelCandidateHarvester
+    else:
+        truthBranchHarvestingSequence += _levelCandidateHarvester
 
     _truthHarvester = DQMEDHarvester(
         "DQMGenericClient",
