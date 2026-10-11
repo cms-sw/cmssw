@@ -1,5 +1,6 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
 
+#include "PhysicsTools/TruthInfo/interface/CSRBuilder.h"
 #include "PhysicsTools/TruthInfo/interface/TruthLogicalGraphPostProcessor.h"
 
 #include <algorithm>
@@ -104,35 +105,6 @@ namespace {
     return particle.hasGen() && particle.status == 1;
   }
 
-  void buildCSR(uint32_t nSources,
-                std::vector<std::pair<uint32_t, uint32_t>>& pairs,
-                std::vector<uint32_t>& offsets,
-                std::vector<uint32_t>& flat) {
-    std::sort(pairs.begin(), pairs.end());
-    pairs.erase(std::unique(pairs.begin(), pairs.end()), pairs.end());
-
-    pairs.erase(
-        std::remove_if(pairs.begin(), pairs.end(), [nSources](auto const& edge) { return edge.first >= nSources; }),
-        pairs.end());
-
-    offsets.assign(nSources + 1, 0);
-
-    for (auto const& edge : pairs) {
-      ++offsets[edge.first + 1];
-    }
-
-    for (uint32_t i = 1; i <= nSources; ++i) {
-      offsets[i] += offsets[i - 1];
-    }
-
-    flat.assign(pairs.size(), 0);
-
-    auto cursor = offsets;
-    for (auto const& edge : pairs) {
-      flat[cursor[edge.first]++] = edge.second;
-    }
-  }
-
   // Rebuild the four CSR adjacency arrays of `output` from the edges of
   // `input`, remapping particle and vertex ids and dropping edges with an
   // unmapped endpoint. `extraProductionEdges` are additional
@@ -197,25 +169,25 @@ namespace {
       vertexToIncomingParticlePairs.emplace_back(newVertex, newParticle);
     }
 
-    buildCSR(output.nParticles(),
-             particleToDecayVertexPairs,
-             output.particleToDecayVertexOffsets(),
-             output.particleToDecayVertices());
+    truth::buildCSR(output.nParticles(),
+                    particleToDecayVertexPairs,
+                    output.particleToDecayVertexOffsets(),
+                    output.particleToDecayVertices());
 
-    buildCSR(output.nParticles(),
-             particleToProductionVertexPairs,
-             output.particleToProductionVertexOffsets(),
-             output.particleToProductionVertices());
+    truth::buildCSR(output.nParticles(),
+                    particleToProductionVertexPairs,
+                    output.particleToProductionVertexOffsets(),
+                    output.particleToProductionVertices());
 
-    buildCSR(output.nVertices(),
-             vertexToOutgoingParticlePairs,
-             output.vertexToOutgoingParticleOffsets(),
-             output.vertexToOutgoingParticles());
+    truth::buildCSR(output.nVertices(),
+                    vertexToOutgoingParticlePairs,
+                    output.vertexToOutgoingParticleOffsets(),
+                    output.vertexToOutgoingParticles());
 
-    buildCSR(output.nVertices(),
-             vertexToIncomingParticlePairs,
-             output.vertexToIncomingParticleOffsets(),
-             output.vertexToIncomingParticles());
+    truth::buildCSR(output.nVertices(),
+                    vertexToIncomingParticlePairs,
+                    output.vertexToIncomingParticleOffsets(),
+                    output.vertexToIncomingParticles());
   }
 
   bool directCollapsibleGenParticleChain(truth::Graph const& graph,
@@ -280,7 +252,7 @@ namespace {
     return true;
   }
 
-  truth::Graph collapseIntermediateGenParticleChains(truth::Graph const& input) {
+  truth::Graph collapseIntermediateGenParticleChains(truth::Graph input) {
     if (input.empty())
       return input;
 
@@ -339,24 +311,19 @@ namespace {
 
     truth::Graph output;
 
-    std::unordered_map<uint32_t, uint32_t> representativeToNewParticle;
-    representativeToNewParticle.reserve(nParticles);
-
+    std::vector<int32_t> representativeToNewParticle(nParticles, -1);
     std::vector<int32_t> oldParticleToNew(nParticles, -1);
 
     for (uint32_t oldParticle = 0; oldParticle < nParticles; ++oldParticle) {
       const uint32_t representative = particleRepresentative[oldParticle];
 
-      auto inserted =
-          representativeToNewParticle.emplace(representative, static_cast<uint32_t>(output.particles().size()));
-
-      const uint32_t newParticle = inserted.first->second;
-
-      if (inserted.second) {
+      int32_t& newParticle = representativeToNewParticle[representative];
+      if (newParticle < 0) {
+        newParticle = static_cast<int32_t>(output.particles().size());
         output.particles().push_back(input.particles()[representative]);
       }
 
-      oldParticleToNew[oldParticle] = static_cast<int32_t>(newParticle);
+      oldParticleToNew[oldParticle] = newParticle;
     }
 
     // A status flag describes the particle, not the copy, so the flags of the collapsed
@@ -912,8 +879,7 @@ namespace {
     return roots;
   }
 
-  truth::Graph filterGraphBySelection(truth::Graph const& input,
-                                      truth::LogicalGraphPostProcessingConfig const& config) {
+  truth::Graph filterGraphBySelection(truth::Graph input, truth::LogicalGraphPostProcessingConfig const& config) {
     if (input.empty())
       return input;
 
@@ -1058,8 +1024,7 @@ namespace {
   // keepBunchCrossings, no seeds) actually removes the out-of-time / pile-up
   // particles. Keeps every in-time particle and the topology connecting them;
   // no-op unless a pile-up filter is configured.
-  truth::Graph filterGraphByBunchCrossing(truth::Graph const& input,
-                                          truth::LogicalGraphPostProcessingConfig const& config) {
+  truth::Graph filterGraphByBunchCrossing(truth::Graph input, truth::LogicalGraphPostProcessingConfig const& config) {
     if (input.empty() || (!config.signalOnly && config.keepBunchCrossings.empty()))
       return input;
 
@@ -1087,7 +1052,7 @@ namespace {
     return rebuildFilteredGraph(input, keepParticle, keepVertex, attachRole);
   }
 
-  truth::Graph collapseIgnoredParticles(truth::Graph const& input,
+  truth::Graph collapseIgnoredParticles(truth::Graph input,
                                         std::vector<int32_t> const& ignoredPdgIds,
                                         std::vector<uint32_t> const& ignoredParticleIds) {
     if (input.empty())
@@ -1187,7 +1152,7 @@ namespace {
   // producer, aligned to input ids). subgraphHasHit[p] = "p or some logical
   // descendant of p carries a hit"; it is computed by propagating the direct-hit
   // flag UP the production edges (an ancestor inherits a hit from any descendant).
-  truth::Graph dropHitlessSimSubgraphs(truth::Graph const& input, std::vector<uint8_t> const& particleDirectHit) {
+  truth::Graph dropHitlessSimSubgraphs(truth::Graph input, std::vector<uint8_t> const& particleDirectHit) {
     const uint32_t nParticles = input.nParticles();
     const uint32_t nVertices = input.nVertices();
 
@@ -1471,17 +1436,17 @@ namespace truth {
     // Run before any collapsing/selection so particleDirectHit stays aligned to
     // the input particle ids the producer computed it for.
     if (config_.dropHitlessSimSubgraphs && !particleDirectHit.empty()) {
-      input = dropHitlessSimSubgraphs(input, particleDirectHit);
+      input = dropHitlessSimSubgraphs(std::move(input), particleDirectHit);
     }
 
     if (config_.collapseIntermediateGenParticles) {
-      input = collapseIntermediateGenParticleChains(input);
+      input = collapseIntermediateGenParticleChains(std::move(input));
     }
 
     // Pile-up removal runs before the seed selection so it composes with any
     // preset (including the full-graph / no-seed case) and operates on the
     // post-collapse indexing.
-    input = filterGraphByBunchCrossing(input, config_);
+    input = filterGraphByBunchCrossing(std::move(input), config_);
 
     // Mark the resonance BEFORE the selection rewrite. The members are the most upstream
     // particles matching the preset's seed species, so the two tops rather than their
@@ -1503,10 +1468,10 @@ namespace truth {
       }
     }
 
-    input = filterGraphBySelection(input, config_);
+    input = filterGraphBySelection(std::move(input), config_);
 
     if (!config_.ignoredPdgIds.empty() || !config_.ignoredParticleIds.empty()) {
-      input = collapseIgnoredParticles(input, config_.ignoredPdgIds, config_.ignoredParticleIds);
+      input = collapseIgnoredParticles(std::move(input), config_.ignoredPdgIds, config_.ignoredParticleIds);
     }
 
     // With no seed species, the shot particles of a particle gun are the signal. They are
