@@ -21,7 +21,7 @@ parser.add_argument('-c', "--collapse", action=BooleanOptionalAction, default=Tr
 parser.add_argument('-t', "--tag",      default='', help="tag for output file" )
 parser.add_argument('-s', "--seeds",    default=None,
                     help="comma-separated seed PDG ids, e.g. '15,-15'; '0' keeps the full graph; "
-                         "default=%(default)s uses the hardcoded list" )
+                         "default: Z, tau, H, c, b and t with their antiparticles" )
 parser.add_argument('-g', "--groups",   default=None,
                     help="semicolon-separated decay PDG id groups, e.g. '13,-14,16;-13,14,-16'" )
 parser.add_argument('-f', "--flavors",   default=None,
@@ -57,7 +57,7 @@ args = parser.parse_args()
 def _parsePdgIds(text):
     return [int(token) for token in text.replace(' ', '').split(',') if token]
 
-seedPdgIds = _parsePdgIds(args.seeds) if args.seeds is not None else [23, 15, -15, 25, 4, 5, 6]
+seedPdgIds = _parsePdgIds(args.seeds) if args.seeds is not None else [23, 15, -15, 25, 4, -4, 5, -5, 6, -6]
 decayPdgIdGroups = [_parsePdgIds(group) for group in args.groups.split(';')] if args.groups else []
 ignoredPdgIds = _parsePdgIds(args.ignore) if args.ignore else []
 seedHadronFlavors = _parsePdgIds(args.flavors) if args.flavors else []
@@ -326,6 +326,9 @@ process.MessageLogger.cerr.TruthLogicalGraphHitIndexProducer = cms.untracked.PSe
     limit=cms.untracked.int32(-1)
 )
 process.MessageLogger.cerr.DetIdToRecHitMapProducer = cms.untracked.PSet(
+    limit=cms.untracked.int32(-1)
+)
+process.MessageLogger.cerr.TruthLogicalGraphDumper = cms.untracked.PSet(
     limit=cms.untracked.int32(-1)
 )
 

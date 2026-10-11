@@ -24,8 +24,8 @@ class TestLogicalGraphHitIndexBuilder : public CppUnit::TestFixture {
   CPPUNIT_TEST(testSubgraphDiamondCountsSharedDescendantOnce);
   CPPUNIT_TEST(testSharedStoreKeepsEachHitOnce);
   CPPUNIT_TEST(testSharedStoreFallsBackWhenNotAForest);
-  CPPUNIT_TEST(testSharedStoreFallsBackAcrossAGenOnlyChild);
-  CPPUNIT_TEST(testSharedStoreFallsBackAcrossAGenOnlyCycle);
+  CPPUNIT_TEST(testSharedStoreWalksThroughAGenOnlyChild);
+  CPPUNIT_TEST(testSharedStoreWalksThroughAGenOnlyCycle);
   CPPUNIT_TEST(testSubgraphViewKeepsTrackerCellsApart);
   CPPUNIT_TEST(testTimedChannelKeepsTimesInStep);
   CPPUNIT_TEST(testMixedChannelCarriesNoTime);
@@ -37,8 +37,8 @@ public:
   void testSubgraphDiamondCountsSharedDescendantOnce();
   void testSharedStoreKeepsEachHitOnce();
   void testSharedStoreFallsBackWhenNotAForest();
-  void testSharedStoreFallsBackAcrossAGenOnlyChild();
-  void testSharedStoreFallsBackAcrossAGenOnlyCycle();
+  void testSharedStoreWalksThroughAGenOnlyChild();
+  void testSharedStoreWalksThroughAGenOnlyCycle();
   void testSubgraphViewKeepsTrackerCellsApart();
   void testTimedChannelKeepsTimesInStep();
   void testMixedChannelCarriesNoTime();
@@ -98,8 +98,7 @@ void TestLogicalGraphHitIndexBuilder::testDirectHitsAreSortedByDetId() {
 void TestLogicalGraphHitIndexBuilder::testSubgraphDiamondCountsSharedDescendantOnce() {
   // Re-convergent DAG: 0 -> 1 -> 3 and 0 -> 2 -> 3. Particle 3 is a descendant of
   // 0 along two distinct paths; its hit must contribute to subgraphHits(0) exactly
-  // once. (Regression: the old recursive child-subgraph merge summed it once per
-  // path, since coalesce() sums equal detIds, doubling the energy.)
+  // once.
   truth::LogicalGraphHitIndexBuilder builder(4, /*sharedSubgraphStore=*/false);
   builder.setSimTrackForParticle(0, 0, 100);
   builder.setSimTrackForParticle(1, 0, 101);
@@ -189,17 +188,10 @@ void TestLogicalGraphHitIndexBuilder::testSharedStoreFallsBackWhenNotAForest() {
   }
 }
 
-// A hit-carrying particle whose child carries no hits but whose grandchild does. The tree
-// is built from hasSimTrack-to-hasSimTrack edges, so the grandchild would land outside the
-// grandparent's subtree run and its hits would go missing from that subgraph. finish()
-// must fall back rather than answer short.
-void TestLogicalGraphHitIndexBuilder::testSharedStoreFallsBackAcrossAGenOnlyChild() {
-  // REQUIRED: a SIM to GEN-only to SIM sandwich stays on the SHARED store. This is a
-  // decay in flight, and central heavy-ion events carry it at scale: 71 bridges in one
-  // Hydjet event. Falling back to the materialised layout there duplicated every hit
-  // per ancestor and produced an index above ROOT's 1 GiB single-object limit
-  // (cms-sw/cmssw#51638). The bridge is walked through, so the grandparent's subgraph
-  // still sees everything below it and the GEN-only node keeps its own union view.
+// A SIM to GEN-only to SIM chain (a decay in flight) keeps the shared store. The
+// grandparent subgraph holds the grandchild hits, and the GEN-only particle sees the
+// hits below it.
+void TestLogicalGraphHitIndexBuilder::testSharedStoreWalksThroughAGenOnlyChild() {
   truth::LogicalGraphHitIndexBuilder builder(3, /*sharedSubgraphStore=*/true);
   builder.setSimTrackForParticle(0, 0, 100);
   // particle 1 is GEN-only: no SimTrack, so it never carries hits itself.
@@ -236,11 +228,9 @@ void TestLogicalGraphHitIndexBuilder::testSharedStoreFallsBackAcrossAGenOnlyChil
   }
 }
 
-// A GEN-only CYCLE between the hit-carrying parent and a hit-carrying descendant. The
-// closure walk must not memoize "reaches nothing" for a cycle member whose exit leads to
-// a SimTrack: a child still being computed counts as reaching, so the guard fires and the
-// builder falls back rather than answer a subgraph short of the descendant's hits.
-void TestLogicalGraphHitIndexBuilder::testSharedStoreFallsBackAcrossAGenOnlyCycle() {
+// A GEN-only cycle between a hit-carrying parent and a hit-carrying descendant keeps the
+// shared store, and the parent subgraph holds the descendant hits.
+void TestLogicalGraphHitIndexBuilder::testSharedStoreWalksThroughAGenOnlyCycle() {
   truth::LogicalGraphHitIndexBuilder builder(4, /*sharedSubgraphStore=*/true);
   builder.setSimTrackForParticle(0, 0, 100);
   // particles 1 and 2 are GEN-only and form a cycle; the exit from 1 reaches particle 3.
@@ -260,8 +250,7 @@ void TestLogicalGraphHitIndexBuilder::testSharedStoreFallsBackAcrossAGenOnlyCycl
   CPPUNIT_ASSERT(builder.usedSharedStore());
   CPPUNIT_ASSERT(index.sharedSubgraphStore());
 
-  // The parent still sees the descendant's cell through the cycle, which was always the
-  // required behaviour; only the layout that provides it changed.
+  // The parent sees the descendant's cell through the cycle.
   auto sub = index.subgraphHits(truth::HitChannel::Calo, 0);
   CPPUNIT_ASSERT_EQUAL(std::size_t(2), sub.size());
   CPPUNIT_ASSERT_EQUAL(uint32_t(10), sub[0].detId);
