@@ -6,6 +6,8 @@
 #include "G4Field.hh"
 #include "G4ios.hh"
 
+#include <span>
+
 QuirkHyperbolaStepper::QuirkHyperbolaStepper(QuirkInfracolorForce& string, const G4Track& track, const G4Field* field)
     : G4MagIntegratorStepper(new QuirkDummyEquation(), m_NUM_VARS),
       m_string(string),
@@ -90,10 +92,10 @@ void QuirkHyperbolaStepper::Update(G4FieldTrack& fieldTrack, G4bool forceStep, G
 
   // update the string vectors
   m_string.PopTo(m_currStep.GetStringPtr(), m_currStep.GetFracLeft());
-  for (std::vector<QuirkHyperbolaStep>::size_type i = 0; i < m_nPrevSteps; ++i) {
+  for (const auto& step : std::span(m_steps).first(m_nPrevSteps)) {
     if (m_debug)
-      G4cout << "QuirkHyperbolaStepper: pushing vector " << m_steps[i].GetStringOut().lv() << G4endl;
-    m_string.GetReactionForce()->PushStringVector(m_steps[i].GetStringOut());
+      G4cout << "QuirkHyperbolaStepper: pushing vector " << step.GetStringOut().lv() << G4endl;
+    m_string.GetReactionForce()->PushStringVector(step.GetStringOut());
   }
   if (m_debug)
     G4cout << "QuirkHyperbolaStepper: pushing vector " << m_currStep.GetStringOut().lv() << G4endl;

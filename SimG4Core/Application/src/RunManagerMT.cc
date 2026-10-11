@@ -177,7 +177,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   if (exotica) {
     CMSExoticaPhysics exo(phys, m_pPhysics);
   }
-  double quirkMass = m_pPhysics.getUntrackedParameter<double>("QuirkMass", 0);
+  double quirkMass = m_pPhysics.getParameter<double>("QuirkMass");
   if (quirkMass > 0.0) {
     phys->RegisterPhysics(new CMSQuirkPhysics(m_pPhysics));
   }

@@ -13,12 +13,12 @@ def customiseQuirk(process, mass, lambdaEV, pdgId=17, charge=-1., debugStep=0., 
     if not hasattr(process, 'g4SimHits'):
         return process
     g4 = process.g4SimHits
-    g4.Physics.QuirkMass = cms.untracked.double(mass)
-    g4.Physics.QuirkLambda = cms.untracked.double(lambdaEV)
-    g4.Physics.QuirkPDGID = cms.untracked.int32(pdgId)
-    g4.Physics.QuirkCharge = cms.untracked.double(charge)
+    g4.Physics.QuirkMass = cms.double(mass)
+    g4.Physics.QuirkLambda = cms.double(lambdaEV)
+    g4.Physics.QuirkPDGID = cms.int32(pdgId)
+    g4.Physics.QuirkCharge = cms.double(charge)
     g4.Physics.QuirkVerbose = cms.untracked.int32(verbose)
-    g4.Physics.QuirkKeepStopped = cms.untracked.bool(keepStopped)
+    g4.Physics.QuirkKeepStopped = cms.bool(keepStopped)
     # suspend/resume of the two quirks needs the Geant4 event manager
     g4.UseG4EventManager = True
     # quirks take 1e5 to 1e7 steps and can be slow in the beam-pipe vacuum

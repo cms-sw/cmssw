@@ -19,34 +19,36 @@
 #include <CLHEP/Units/SystemOfUnits.h>
 #include <CLHEP/Units/PhysicalConstants.h>
 
-CMSQuirkPhysics::CMSQuirkPhysics(const edm::ParameterSet& p) : G4VPhysicsConstructor("Quirk Physics") {
-  m_verbose = p.getUntrackedParameter<int>("QuirkVerbose", 0);
-  m_pdg = std::abs(p.getUntrackedParameter<int>("QuirkPDGID", 17));
-  m_mass = p.getUntrackedParameter<double>("QuirkMass", 0.) * CLHEP::GeV;
-  m_charge = p.getUntrackedParameter<double>("QuirkCharge", -1.) * CLHEP::eplus;
+namespace {
   // string tension F = Lambda^2 / hbar c
-  const double lambda = p.getUntrackedParameter<double>("QuirkLambda", 0.) * CLHEP::eV;
-  m_stringForce = lambda * lambda / CLHEP::hbarc;
-  m_firstStringLength = p.getUntrackedParameter<double>("QuirkFirstStringLength", 1.e-6) * CLHEP::mm;
-  m_maxBoost = p.getUntrackedParameter<double>("QuirkMaxBoost", 0.1);
-  m_maxMergeT = p.getUntrackedParameter<double>("QuirkMaxMerge", 1.e-6) * CLHEP::mm;
-  m_maxMergeMag = m_maxMergeT;
-  m_looperTrials = p.getUntrackedParameter<int>("QuirkLooperTrials", 10);
-  m_rMax = p.getUntrackedParameter<double>("QuirkMaxRadius", 800.) * CLHEP::cm;
-  m_zMax = p.getUntrackedParameter<double>("QuirkMaxZ", 1100.) * CLHEP::cm;
-  m_keepStopped = p.getUntrackedParameter<bool>("QuirkKeepStopped", false);
-  m_moveTinySteps = p.getUntrackedParameter<bool>("QuirkMoveTinySteps", true);
-  // off by default: G4MuPairProductionModel has no element data for PDG 17 (em0033 above 8 m_Q)
-  m_pairProduction = p.getUntrackedParameter<bool>("QuirkPairProduction", false);
-  m_crossingLength = p.getUntrackedParameter<double>("QuirkCrossingLength", 0.) * CLHEP::mm;
-  // must stay well below the first string, else the restart repeats at production
-  m_crossingLength = std::min(m_crossingLength, 0.1 * m_firstStringLength);
-  m_stopThreshold = p.getUntrackedParameter<double>("QuirkStopThreshold", 10.) * CLHEP::MeV;
+  double stringForce(double lambda) { return lambda * lambda / CLHEP::hbarc; }
+}  // namespace
 
+CMSQuirkPhysics::CMSQuirkPhysics(const edm::ParameterSet& p)
+    : G4VPhysicsConstructor("Quirk Physics"),
+      m_verbose(p.getUntrackedParameter<int>("QuirkVerbose", 0)),
+      m_pdg(std::abs(p.getParameter<int>("QuirkPDGID"))),
+      m_mass(p.getParameter<double>("QuirkMass") * CLHEP::GeV),
+      m_charge(p.getParameter<double>("QuirkCharge") * CLHEP::eplus),
+      m_stringForce(stringForce(p.getParameter<double>("QuirkLambda") * CLHEP::eV)),
+      m_firstStringLength(p.getParameter<double>("QuirkFirstStringLength") * CLHEP::mm),
+      m_maxBoost(p.getParameter<double>("QuirkMaxBoost")),
+      m_maxMergeT(p.getParameter<double>("QuirkMaxMerge") * CLHEP::mm),
+      m_maxMergeMag(m_maxMergeT),
+      m_looperTrials(p.getParameter<int>("QuirkLooperTrials")),
+      m_rMax(p.getParameter<double>("QuirkMaxRadius") * CLHEP::cm),
+      m_zMax(p.getParameter<double>("QuirkMaxZ") * CLHEP::cm),
+      m_keepStopped(p.getParameter<bool>("QuirkKeepStopped")),
+      m_moveTinySteps(p.getParameter<bool>("QuirkMoveTinySteps")),
+      // off by default: G4MuPairProductionModel has no element data for PDG 17 (em0033 above 8 m_Q)
+      m_pairProduction(p.getParameter<bool>("QuirkPairProduction")),
+      // must stay well below the first string, else the restart repeats at production
+      m_crossingLength(std::min(p.getParameter<double>("QuirkCrossingLength") * CLHEP::mm, 0.1 * m_firstStringLength)),
+      m_stopThreshold(p.getParameter<double>("QuirkStopThreshold") * CLHEP::MeV) {
   if (m_mass <= 0. || m_stringForce <= 0. || m_maxBoost <= 0. || m_maxBoost >= 1.) {
     throw cms::Exception("Configuration")
         << "CMSQuirkPhysics: invalid parameters QuirkMass= " << m_mass / CLHEP::GeV
-        << " GeV, QuirkLambda= " << lambda / CLHEP::eV << " eV, QuirkMaxBoost= " << m_maxBoost;
+        << " GeV, QuirkLambda= " << p.getParameter<double>("QuirkLambda") << " eV, QuirkMaxBoost= " << m_maxBoost;
   }
   edm::LogVerbatim("SimG4CoreCustomPhysics")
       << "CMSQuirkPhysics: PDG " << m_pdg << " mass " << m_mass / CLHEP::GeV << " GeV, charge "
