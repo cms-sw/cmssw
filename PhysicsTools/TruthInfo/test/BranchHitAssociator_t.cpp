@@ -196,7 +196,7 @@ void TestBranchHitAssociator::testSharedEnergyBestBranch() {
   truth::BranchHitAssociator assoc(index);  // SharedEnergy, all roots
 
   // A reco object that perfectly covers cells 10,11,12 (fraction 1).
-  std::vector<truth::RecoHit> reco{{10, 1.0f, 1.0f}, {11, 2.0f, 1.0f}, {12, 2.0f, 1.0f}};
+  std::vector<truth::RecoHit> reco{{10, 1.0f}, {11, 1.0f}, {12, 1.0f}};
   auto matches = assoc.bestBranches(reco);
 
   CPPUNIT_ASSERT(!matches.empty());
@@ -218,7 +218,7 @@ void TestBranchHitAssociator::testSharedHitsMetric() {
   auto index = buildIndex();
   truth::BranchHitAssociator assoc(index, {}, truth::BranchHitAssociator::Metric::SharedHits);
 
-  std::vector<truth::RecoHit> reco{{10, 1.0f, 1.0f}, {11, 1.0f, 1.0f}, {12, 1.0f, 1.0f}};
+  std::vector<truth::RecoHit> reco{{10, 1.0f}, {11, 1.0f}, {12, 1.0f}};
   auto matches = assoc.bestBranches(reco, /*maxResults=*/1);
 
   CPPUNIT_ASSERT_EQUAL(std::size_t(1), matches.size());
@@ -234,7 +234,7 @@ void TestBranchHitAssociator::testGenericRecoObjectInterface() {
 
   // The generic interface: any object with truthHits() works.
   MyRecoObject obj;
-  obj.hits = {{11, 2.0f, 1.0f}, {12, 2.0f, 1.0f}};
+  obj.hits = {{11, 1.0f}, {12, 1.0f}};
   auto matches = assoc.bestBranches(obj);
 
   CPPUNIT_ASSERT(!matches.empty());
@@ -251,14 +251,14 @@ void TestBranchHitAssociator::testTrackerChannel() {
       index, {}, truth::BranchHitAssociator::Metric::SharedHits, truth::HitChannel::Tracker);
 
   // Tracker modules 20,21,22 are fully covered by root 0's tracker subgraph.
-  std::vector<truth::RecoHit> reco{{20, 1.0f, 1.0f, 1}, {21, 1.0f, 1.0f, 1}, {22, 1.0f, 1.0f, 1}};
+  std::vector<truth::RecoHit> reco{{20, 1.0f, 1}, {21, 1.0f, 1}, {22, 1.0f, 1}};
   auto matches = assoc.bestBranches(reco, /*maxResults=*/1);
   CPPUNIT_ASSERT_EQUAL(std::size_t(1), matches.size());
   CPPUNIT_ASSERT_EQUAL(uint32_t(0), matches.front().rootParticleId);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3.0, matches.front().sharedEnergy, 1e-6);
 
   // Channel separation: the tracker associator ignores the calo-only cell (10)...
-  std::vector<truth::RecoHit> caloReco{{10, 1.0f, 1.0f}};
+  std::vector<truth::RecoHit> caloReco{{10, 1.0f}};
   CPPUNIT_ASSERT(assoc.bestBranches(caloReco).empty());
   // ...and a calo associator ignores the tracker cells.
   truth::BranchHitAssociator caloAssoc(
@@ -278,7 +278,7 @@ void TestBranchHitAssociator::testEmptyRootsMatchNothingWhenRestricted() {
                                         truth::BranchHitAssociator::Metric::SharedEnergy,
                                         truth::HitChannel::Calo,
                                         /*emptyRootsMeansAll=*/false);
-  std::vector<truth::RecoHit> reco{{10, 1.0f, 1.0f}, {11, 2.0f, 1.0f}, {12, 2.0f, 1.0f}};
+  std::vector<truth::RecoHit> reco{{10, 1.0f}, {11, 1.0f}, {12, 1.0f}};
   CPPUNIT_ASSERT(restricted.bestBranches(reco).empty());
 
   // Sanity: the default (empty roots => all) still matches the same object.
@@ -292,7 +292,7 @@ void TestBranchHitAssociator::testReverseScoreIsBranchNormalized() {
 
   // Reco object fully covers cells 10,11,12. Root 1's branch is only {11,12},
   // which the reco object fully contains.
-  std::vector<truth::RecoHit> reco{{10, 1.0f, 1.0f}, {11, 2.0f, 1.0f}, {12, 2.0f, 1.0f}};
+  std::vector<truth::RecoHit> reco{{10, 1.0f}, {11, 1.0f}, {12, 1.0f}};
   auto matches = assoc.bestBranches(reco);
 
   bool sawRoot1 = false;
@@ -317,9 +317,8 @@ void TestBranchHitAssociator::testTiclScoreArithmetic() {
   auto index = buildScoreIndex();
   truth::BranchHitAssociator assoc(index);  // SharedEnergy, all roots
 
-  // Reco object: half of cell 10 and all of cell 11. RecoHit::energy is deliberately
-  // absurd, because the shared-energy metric must take the cell energy from the index.
-  std::vector<truth::RecoHit> reco{{10, 99.f, 0.5f}, {11, 99.f, 1.0f}};
+  // Reco object: half of cell 10 and all of cell 11.
+  std::vector<truth::RecoHit> reco{{10, 0.5f}, {11, 1.0f}};
   auto matches = assoc.bestBranches(reco);
   CPPUNIT_ASSERT_EQUAL(std::size_t(2), matches.size());
 
@@ -418,7 +417,7 @@ void TestBranchHitAssociator::testEqualScoresRankTheTightestBranchFirst() {
   // first, even though the parent has the lower id.
   auto index = buildIndex();
   truth::BranchHitAssociator assoc(index, {}, truth::BranchHitAssociator::Metric::SharedHits, truth::HitChannel::Calo);
-  std::vector<truth::RecoHit> reco{{11, 0.f, 1.0f}, {12, 0.f, 1.0f}};
+  std::vector<truth::RecoHit> reco{{11, 1.0f}, {12, 1.0f}};
   auto matches = assoc.bestBranches(reco);
   CPPUNIT_ASSERT_EQUAL(std::size_t(2), matches.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(matches[0].score, matches[1].score, 1e-6);
@@ -431,7 +430,7 @@ void TestBranchHitAssociator::testAnExactTieRanksTheDescendantFirst() {
   // REQUIRED: when a particle and its ancestor own the same cells, the particle comes
   // first, and the adaptive search picks it.
   auto index = buildSameCellsIndex();
-  std::vector<truth::RecoHit> reco{{11, 0.f, 1.0f}, {12, 0.f, 1.0f}};
+  std::vector<truth::RecoHit> reco{{11, 1.0f}, {12, 1.0f}};
   const std::vector<uint32_t> generations{0, 1};
   truth::BranchHitAssociator assoc(index,
                                    {},
@@ -459,7 +458,7 @@ void TestBranchHitAssociator::testRecHitEnergyTableWeightsCells() {
 
   // Reco object: half of cell 10, all of cell 11, and all of cell 13, which no
   // particle touched (a noise rechit).
-  std::vector<truth::RecoHit> reco{{10, 0.f, 0.5f}, {11, 0.f, 1.0f}, {13, 0.f, 1.0f}};
+  std::vector<truth::RecoHit> reco{{10, 0.5f}, {11, 1.0f}, {13, 1.0f}};
 
   // Without a table the noise cell weighs nothing and the scores are those of
   // testTiclScoreArithmetic.
@@ -535,7 +534,7 @@ void TestBranchHitAssociator::testSharedEnergyFractionCountsOnlyTheRequestedDete
 
   // A reco object that takes the whole endcap cell and nothing else, which is what an
   // endcap reco collection can do at best for this branch.
-  std::vector<truth::RecoHit> reco{{kEndcapCell, 99.f, 1.0f}};
+  std::vector<truth::RecoHit> reco{{kEndcapCell, 1.0f}};
 
   // Whole channel in the denominator: shared 2 over the branch's 2 + 8, which is below
   // the 0.5 efficiency gate although the reco object took everything it could reach.
@@ -569,7 +568,7 @@ void TestBranchHitAssociator::testSharedEnergyFractionCountsOnlyTheRequestedDete
   // A mixed object covering both cells against the endcap-only denominator: the
   // fraction numerator counts the same detectors as its denominator, so the fraction
   // is 1, not (2 + 8) / 2. sharedEnergy keeps the whole channel.
-  std::vector<truth::RecoHit> mixed{{kBarrelCell, 99.f, 1.0f}, {kEndcapCell, 99.f, 1.0f}};
+  std::vector<truth::RecoHit> mixed{{kBarrelCell, 1.0f}, {kEndcapCell, 1.0f}};
   auto mixedMatches = endcapOnly.bestBranches(mixed);
   CPPUNIT_ASSERT_EQUAL(std::size_t(1), mixedMatches.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(10.0, mixedMatches.front().sharedEnergy, 1e-6);
@@ -582,7 +581,7 @@ void TestBranchHitAssociator::testZeroFractionObjectScoresWorst() {
 
   // Every hit of the object carries fraction 0, so its self-energy denominator is
   // 0. Such an object must score 1 (worst) on every candidate, never 0 (best).
-  std::vector<truth::RecoHit> reco{{10, 1.0f, 0.0f}, {11, 2.0f, 0.0f}, {12, 2.0f, 0.0f}};
+  std::vector<truth::RecoHit> reco{{10, 0.0f}, {11, 0.0f}, {12, 0.0f}};
   auto matches = assoc.bestBranches(reco);
 
   CPPUNIT_ASSERT(!matches.empty());
@@ -599,12 +598,8 @@ void TestBranchHitAssociator::testReverseScoreNeverExceedsOne() {
   // on this bound, so pin it here.
   auto index = buildScoreIndex();
   truth::BranchHitAssociator assoc(index);
-  const std::vector<std::vector<truth::RecoHit>> probes = {{{10, 4.0f, 1.0f}},
-                                                           {{10, 4.0f, 0.25f}},
-                                                           {{11, 4.0f, 1.0f}},
-                                                           {{10, 4.0f, 1.0f}, {11, 4.0f, 1.0f}},
-                                                           {{10, 4.0f, 0.0f}},
-                                                           {{10, 4.0f, 4.0f}}};
+  const std::vector<std::vector<truth::RecoHit>> probes = {
+      {{10, 1.0f}}, {{10, 0.25f}}, {{11, 1.0f}}, {{10, 1.0f}, {11, 1.0f}}, {{10, 0.0f}}, {{10, 4.0f}}};
   for (auto const& probe : probes) {
     for (auto const& m : assoc.bestBranches(probe)) {
       CPPUNIT_ASSERT(m.reverseScore >= 0.f);
@@ -622,7 +617,7 @@ void TestBranchHitAssociator::testCellsSeparateTwoParticlesOnOneModule() {
   auto assoc = trackerAssociator(index);
   // A cluster on cells 5 and 6 of module 10 belongs to particle 0 alone. Keyed by module
   // this object would have matched particle 1 just as well.
-  std::vector<truth::RecoHit> reco{{10, 1.f, 1.f, 5}, {10, 1.f, 1.f, 6}};
+  std::vector<truth::RecoHit> reco{{10, 1.f, 5}, {10, 1.f, 6}};
   auto matches = assoc.bestBranches(reco);
   CPPUNIT_ASSERT_EQUAL(std::size_t(1), matches.size());
   CPPUNIT_ASSERT_EQUAL(uint32_t(0), matches.front().rootParticleId);
@@ -630,7 +625,7 @@ void TestBranchHitAssociator::testCellsSeparateTwoParticlesOnOneModule() {
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, matches.front().reverseScore, 1e-6);
 
   // The other particle's cell picks the other particle.
-  std::vector<truth::RecoHit> other{{10, 1.f, 1.f, 7}};
+  std::vector<truth::RecoHit> other{{10, 1.f, 7}};
   auto otherMatches = assoc.bestBranches(other);
   CPPUNIT_ASSERT_EQUAL(std::size_t(1), otherMatches.size());
   CPPUNIT_ASSERT_EQUAL(uint32_t(1), otherMatches.front().rootParticleId);
@@ -641,7 +636,7 @@ void TestBranchHitAssociator::testAHitWithoutACellMatchesNothing() {
   auto assoc = trackerAssociator(index);
   // The tracker truth is keyed by (module, cell), so a hit that names a module and no
   // cell matches no particle on it.
-  std::vector<truth::RecoHit> reco{{10, 1.f, 1.f}};
+  std::vector<truth::RecoHit> reco{{10, 1.f}};
   CPPUNIT_ASSERT(assoc.bestBranches(reco).empty());
 }
 
@@ -652,7 +647,7 @@ void TestBranchHitAssociator::testAnAncestorKeepsEveryCellOfAModule() {
   // Two rechits: one on the cell the child fired, one on the cell only the parent fired.
   // The parent's subgraph holds both, so it owns the object entirely. Coalescing that
   // subgraph by module alone would drop cell 7 from it and score the parent 0.5.
-  std::vector<truth::RecoHit> reco{{10, 1.f, 1.f, 7}, {20, 1.f, 1.f, 5}};
+  std::vector<truth::RecoHit> reco{{10, 1.f, 7}, {20, 1.f, 5}};
   auto matches = assoc.bestBranches(reco);
   CPPUNIT_ASSERT_EQUAL(std::size_t(2), matches.size());
   CPPUNIT_ASSERT_EQUAL(uint32_t(0), matches.front().rootParticleId);
@@ -671,7 +666,7 @@ void TestBranchHitAssociator::testAModuleKeyedIndexIsRecognisedAndMatchesNothing
   auto moduleKeyed = buildModuleKeyedIndex();
   CPPUNIT_ASSERT(truth::isModuleKeyedTracker(moduleKeyed));
   auto assoc = trackerAssociator(moduleKeyed);
-  std::vector<truth::RecoHit> reco{{10, 1.f, 1.f, 5}, {10, 1.f, 1.f, 6}, {10, 1.f, 1.f, 7}};
+  std::vector<truth::RecoHit> reco{{10, 1.f, 5}, {10, 1.f, 6}, {10, 1.f, 7}};
   CPPUNIT_ASSERT(assoc.bestBranches(reco).empty());
 
   // A cell-keyed index is not, and neither is an index with no tracker truth at all.

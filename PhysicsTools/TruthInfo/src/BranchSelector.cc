@@ -28,17 +28,20 @@ namespace truth {
     return passesNonKinematic(branch) && failedKinematicCuts(branch) == 0u;
   }
 
-  bool BranchSelector::passesNonKinematic(Branch const& branch) const {
-    if (config_.signalOnly && !branch.isSignal())
+  bool BranchSelector::passesNonKinematic(Branch const& branch) const { return passesNonKinematic(branch.root()); }
+
+  bool BranchSelector::passesNonKinematic(Particle const& root) const {
+    auto const& data = root.data();
+    if (config_.signalOnly && !data.isSignal())
       return false;
 
-    if (config_.intimeOnly && !branch.isInTime())
+    if (config_.intimeOnly && data.bunchCrossing() != 0)
       return false;
 
-    if (config_.chargedOnly && branch.root().charge() == 0.)
+    if (config_.chargedOnly && root.charge() == 0.)
       return false;
 
-    const int32_t pdgId = branch.rootPdgId();
+    const int32_t pdgId = data.pdgId;
     if (!config_.pdgIds.empty() &&
         std::find(config_.pdgIds.begin(), config_.pdgIds.end(), pdgId) == config_.pdgIds.end())
       return false;
@@ -47,18 +50,18 @@ namespace truth {
   }
 
   uint32_t BranchSelector::failedKinematicCuts(Branch const& branch) const {
-    // Kinematics from the defining root particle. Copy by value: root() returns
-    // a temporary Particle, so a reference to its momentum() would dangle.
-    const auto rootParticle = branch.root();
+    return failedKinematicCuts(branch.root());
+  }
 
+  uint32_t BranchSelector::failedKinematicCuts(Particle const& root) const {
     // A resonance at rest carries pt about 0 with |eta| unbounded, so a track-shaped cut
     // would throw it away while its decay products fill the calorimeter.
-    if (config_.kinematicsOnStableOnly && !hasObservableMomentum(rootParticle.data()))
+    if (config_.kinematicsOnStableOnly && !hasObservableMomentum(root.data()))
       return 0u;
 
     uint32_t failed = 0u;
 
-    const auto& p4 = rootParticle.momentum();
+    const auto& p4 = root.momentum();
     const double pt = p4.pt();
     if (pt < config_.ptMin || pt > config_.ptMax)
       failed |= static_cast<uint32_t>(CutBit::Pt);

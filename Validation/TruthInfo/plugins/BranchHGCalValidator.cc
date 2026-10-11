@@ -327,7 +327,7 @@ void BranchHGCalValidator::validate(Collection const& objects,
     double branchSimOnObject = 0.;
     double branchRecoOnObject = 0.;
     for (auto const& [detId, fraction] : hitsAndFractions) {
-      recoHits.push_back(truth::RecoHit{detId, 1.f, fraction});
+      recoHits.push_back(truth::RecoHit{.detId = detId, .fraction = fraction});
       totalFraction += fraction;
       if (auto cs = cellSimEnergy.find(detId); cs != cellSimEnergy.end())
         objectSimEnergy += static_cast<double>(fraction) * static_cast<double>(cs->second);

@@ -14,13 +14,11 @@
 namespace truth {
 
   // The hit format the graph matches against. Any reco object can be matched by
-  // exposing its hits as a range of RecoHit.
+  // exposing its hits as a range of RecoHit. A hit carries no energy: the SharedEnergy
+  // metric weights a cell by the associator's CellEnergyTable, or by the truth hit index
+  // without one, because the weight of a cell is the same for every object that shares it.
   struct RecoHit {
     uint32_t detId = 0;
-    // The cell (rec)hit energy, for callers that need a per-object weight. The
-    // SharedEnergy metric does not read it: the per-cell weight comes from the
-    // associator's CellEnergyTable when it has one, else from the truth hit index.
-    float energy = 0.f;
     float fraction = 1.f;  // fraction of the cell assigned to this reco object
     // The cell inside the module, on the tracker channel, where a DetId names a module
     // rather than a cell. A tracker hit matches only the same cell, so a hit left at
@@ -150,7 +148,7 @@ namespace truth {
     [[nodiscard]] std::vector<BranchMatch> bestBranches(R const& reco, std::size_t maxResults = 0) const {
       std::vector<RecoHit> hits;
       for (auto const& h : reco.truthHits())
-        hits.push_back(RecoHit{h.detId, h.energy, h.fraction, h.cell});
+        hits.push_back(RecoHit{.detId = h.detId, .fraction = h.fraction, .cell = h.cell});
       return bestBranches(std::span<const RecoHit>(hits), maxResults);
     }
 
@@ -193,6 +191,12 @@ namespace truth {
     // A branch hit's energy in the SharedEnergy metric: its sim fraction of the cell
     // times the cell weight.
     [[nodiscard]] float branchHitEnergy(LogicalGraphHitIndex::Hit const& hit) const;
+    // The same with a table, from the hit energy and the two values of its cell.
+    [[nodiscard]] static float branchHitEnergy(float hitEnergy, float cellTotal, float cellRecHitEnergy) {
+      return cellTotal > 0.f ? hitEnergy / cellTotal * cellRecHitEnergy : 0.f;
+    }
+    // The position of a cell in cellEnergyKeys_, or its size if the cell has no sim hit.
+    [[nodiscard]] std::size_t cellSlot(uint32_t detId) const;
 
     LogicalGraphHitIndex const* hitIndex_;
     CellEnergyTable const* recHitEnergies_ = nullptr;
@@ -217,6 +221,8 @@ namespace truth {
     // Per-cell total sim energy as parallel sorted arrays (cellEnergyKeys_ ascending).
     std::vector<uint32_t> cellEnergyKeys_;
     std::vector<float> cellEnergyValues_;
+    // With a table, the rechit energy of each cell of cellEnergyKeys_.
+    std::vector<float> cellRecHitEnergy_;
 
     // Per-root branch self-energy (sum of subgraph-hit energy^2 on channel_),
     // indexed by particle id; the denominator for the branch-normalized reverse

@@ -14,11 +14,9 @@
 // dependency. Each adapter therefore takes the object plus whatever external
 // collection it needs.
 //
-// Tracker hits carry no per-cell energy to share, so they are exposed with unit
-// energy and fraction (matching is by shared-hit multiplicity). Calorimeter hits
-// are exposed with unit energy and the cell fraction, matching the convention the
-// calo association producer / validator already use for CaloParticle/SimCluster, so
-// the shared-energy metric compares cell fractions.
+// Tracker hits are exposed with unit fraction, for the SharedHits metric.
+// Calorimeter hits are exposed with the cell fraction, and the shared-energy metric
+// weights each cell by its rechit energy from the associator's CellEnergyTable.
 
 #include <algorithm>
 #include <vector>
@@ -63,14 +61,14 @@ namespace truth {
       auto const* single = static_cast<TrackerSingleRecHit const*>(hit);
       if (single->cluster_pixel().isNonnull()) {
         for (auto const& pixel : single->cluster_pixel()->pixels()) {
-          hits.push_back(RecoHit{detId, 1.f, 1.f, pixelCell(pixel.x, pixel.y)});
+          hits.push_back(RecoHit{.detId = detId, .cell = pixelCell(pixel.x, pixel.y)});
         }
       } else if (single->cluster_phase2OT().isNonnull()) {
         auto const& cluster = *single->cluster_phase2OT();
         const unsigned int column = cluster.column();
         const unsigned int firstRow = cluster.firstRow();
         for (unsigned int i = 0; i < cluster.size(); ++i) {
-          hits.push_back(RecoHit{detId, 1.f, 1.f, outerTrackerCell(firstRow + i, column)});
+          hits.push_back(RecoHit{.detId = detId, .cell = outerTrackerCell(firstRow + i, column)});
         }
       }
     }
@@ -104,8 +102,7 @@ namespace truth {
     hits.resize(w);
   }
 
-  // reco::CaloCluster (a single layer cluster) -> its (DetId, fraction) hits (unit
-  // energy; the calo shared-energy metric compares cell fractions). Sorted by detId,
+  // reco::CaloCluster (a single layer cluster) -> its (DetId, fraction) hits. Sorted by detId,
   // and coalesced (fractions summed) so a repeated cell is seen once by the merge-join
   // in BranchHitAssociator. HGCAL layer clusters list each cell once, but the overload
   // is generic over reco::CaloCluster, so the dedup keeps it correct for any input.
@@ -113,13 +110,12 @@ namespace truth {
     std::vector<RecoHit> hits;
     hits.reserve(layerCluster.hitsAndFractions().size());
     for (auto const& [detId, fraction] : layerCluster.hitsAndFractions())
-      hits.push_back(RecoHit{detId.rawId(), 1.f, fraction});
+      hits.push_back(RecoHit{.detId = detId.rawId(), .fraction = fraction});
     sortAndCoalesce(hits);
     return hits;
   }
 
-  // ticl::Trackster -> the (DetId, fraction) of its layer clusters (unit energy; the
-  // calo shared-energy metric then compares cell fractions). A layer cluster shared
+  // ticl::Trackster -> the (DetId, fraction) of its layer clusters. A layer cluster shared
   // by several tracksters contributes 1/multiplicity of its fraction, as in the TICL
   // trackster associations. Duplicate cells across the trackster's layer clusters
   // are coalesced (fractions summed) so the merge-join in BranchHitAssociator sees
@@ -142,7 +138,7 @@ namespace truth {
         continue;
       const float multiplicity = v < multiplicities.size() && multiplicities[v] > 0.f ? multiplicities[v] : 1.f;
       for (auto const& [detId, fraction] : layerClusters[lc].hitsAndFractions())
-        hits.push_back(RecoHit{detId.rawId(), 1.f, fraction / multiplicity});
+        hits.push_back(RecoHit{.detId = detId.rawId(), .fraction = fraction / multiplicity});
     }
     sortAndCoalesce(hits);
     return hits;

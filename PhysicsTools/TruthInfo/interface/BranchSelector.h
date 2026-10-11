@@ -60,11 +60,14 @@ namespace truth {
     // The cuts that are not plot axes. A branch failing any of them is not a candidate at
     // all and may not enter any plot, whatever its kinematics.
     [[nodiscard]] bool passesNonKinematic(Branch const& branch) const;
+    // The same cuts on the root particle of a branch, without building the branch.
+    [[nodiscard]] bool passesNonKinematic(Particle const& root) const;
 
     // Which of the plotted-axis cuts this branch FAILS; 0 means it passes both. A branch
     // whose root Geant4 never tracked fails neither, since the kinematic cuts do not
     // apply to it at all.
     [[nodiscard]] uint32_t failedKinematicCuts(Branch const& branch) const;
+    [[nodiscard]] uint32_t failedKinematicCuts(Particle const& root) const;
 
     [[nodiscard]] Config const& config() const { return config_; }
 
