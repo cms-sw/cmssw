@@ -139,11 +139,11 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
     if (graph.particles()[id].isSynthetic()) {
       continue;
     }
-    const truth::Branch branch(&graph, id);
-    if (!branchSelector_.passesNonKinematic(branch)) {
+    const truth::Particle root = graph.particle(id);
+    if (!branchSelector_.passesNonKinematic(root)) {
       continue;
     }
-    const uint32_t failed = branchSelector_.failedKinematicCuts(branch);
+    const uint32_t failed = branchSelector_.failedKinematicCuts(root);
     if ((failed & kEtaCut) == 0u) {
       selectedRoots->push_back(id);
       isCandidate[id] = true;
@@ -219,13 +219,13 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
     // alone.
     auto eligibility = std::make_unique<std::vector<unsigned int>>();
     for (uint32_t id : truth::levelAntichain(graph, level)) {
-      const truth::Branch branch(&graph, id);
-      if (!branchSelector_.passesNonKinematic(branch)) {
+      const truth::Particle root = graph.particle(id);
+      if (!branchSelector_.passesNonKinematic(root)) {
         continue;
       }
       // No plot can suppress two cuts at once, so a branch failing more than one enters
       // none of them and is dropped here rather than carried and filtered everywhere.
-      const uint32_t failed = branchSelector_.failedKinematicCuts(branch);
+      const uint32_t failed = branchSelector_.failedKinematicCuts(root);
       if ((failed & (failed - 1u)) != 0u) {
         continue;
       }

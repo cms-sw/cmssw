@@ -221,11 +221,11 @@ namespace {
       }
       return it->second;
     }
-    const auto production = truth::Particle(&graph, particleId).productionVertices();
+    const auto production = graph.productionVertices(particleId);
     if (production.empty()) {
       return std::nullopt;
     }
-    return production.front().id();
+    return production.front();
   }
 
   template <typename RECO>
@@ -541,7 +541,7 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
         // In-time only, as the reference vertex validation counts only bunch-crossing-0
         // simulated vertices in its denominator
         // (Validation/RecoVertex/src/PrimaryVertexAnalyzer4PUSlimmed.cc:877-883).
-        if (!truth::Branch(&graph, root).isInTime()) {
+        if (graph.particles()[root].bunchCrossing() != 0) {
           continue;
         }
         if (graph.particle(root).charge() == 0.) {
@@ -611,7 +611,7 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
       if (std::abs(graph.vertices()[vertexId].position.z()) > 1000.) {
         continue;
       }
-      if (heavyFlavorOnly_ && heavyFlavorDecayVertices.count(vertexId) == 0u) {
+      if (heavyFlavorOnly_ && !heavyFlavorDecayVertices.contains(vertexId)) {
         continue;
       }
       selectedVertices->push_back(vertexId);
@@ -634,8 +634,10 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
   std::vector<uint32_t> generations;
   if constexpr (!ConstituentBasedDomain<RECO>)
     generations = truth::particleGenerations(graph);
-  // Associator cache shared by all collections of this domain, keyed by mask.
-  std::vector<std::pair<uint32_t, std::unique_ptr<truth::BranchHitAssociator>>> associatorPerMask;
+  // The hit associator depends on the graph, the selected roots and the detector mask,
+  // never on the reco collection, so every collection of this domain shares one build,
+  // made for the first collection that has an object.
+  std::optional<truth::BranchHitAssociator> sharedHitAssociator;
 
   for (std::size_t collectionIndex = 0; collectionIndex < recoTokens_.size(); ++collectionIndex) {
     auto const& [key, token] = recoTokens_[collectionIndex];
@@ -681,28 +683,20 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
     // reco object of the collection has contributed.
     std::unordered_map<unsigned int, std::vector<std::pair<unsigned int, float>>> sharedWeightPerTruthVertex;
 
-    // Hit-based domains: the associator depends on the graph, the selected roots and
-    // the detector mask, never on the reco collection itself, so it is cached per
-    // mask; collections of one domain produce the same mask, giving one build.
     truth::BranchHitAssociator const* hitAssociator = nullptr;
     if constexpr (!ConstituentBasedDomain<RECO>) {
-      for (auto const& [mask, cached] : associatorPerMask) {
-        if (mask == denominatorDetectors_) {
-          hitAssociator = cached.get();
-          break;
+      if (nReco > 0) {
+        if (!sharedHitAssociator) {
+          sharedHitAssociator.emplace(hitIndex,
+                                      selectedRoots,
+                                      Traits::metric,
+                                      Traits::channel,
+                                      /*emptyRootsMeansAll=*/false,
+                                      denominatorDetectors_,
+                                      recHitEnergiesPtr,
+                                      generations);
         }
-      }
-      if (hitAssociator == nullptr) {
-        associatorPerMask.emplace_back(denominatorDetectors_,
-                                       std::make_unique<truth::BranchHitAssociator>(hitIndex,
-                                                                                    selectedRoots,
-                                                                                    Traits::metric,
-                                                                                    Traits::channel,
-                                                                                    /*emptyRootsMeansAll=*/false,
-                                                                                    denominatorDetectors_,
-                                                                                    recHitEnergiesPtr,
-                                                                                    generations));
-        hitAssociator = associatorPerMask.back().second.get();
+        hitAssociator = &*sharedHitAssociator;
       }
     }
 
