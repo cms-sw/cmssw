@@ -6,6 +6,7 @@
 // graph was built as intended; without them a pile-up regression is only visible by
 // dumping a graph by hand.
 
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -98,8 +99,16 @@ public:
     std::size_t signalParticles = 0;
     std::size_t withoutMomentum = 0;
 
-    auto indexOfInteraction = [&interactions](uint64_t eventId) {
-      return interactions.try_emplace(eventId, interactions.size()).first->second;
+    // The particles and the vertices of one interaction are mostly contiguous, so the
+    // last answer is kept and the map is searched only when the interaction changes.
+    std::optional<uint64_t> lastEventId;
+    std::size_t lastIndex = 0;
+    auto indexOfInteraction = [&](uint64_t eventId) {
+      if (eventId != lastEventId) {
+        lastIndex = interactions.try_emplace(eventId, interactions.size()).first->second;
+        lastEventId = eventId;
+      }
+      return lastIndex;
     };
 
     for (auto const& particle : graph.particles()) {

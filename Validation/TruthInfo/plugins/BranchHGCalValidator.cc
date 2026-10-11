@@ -16,7 +16,6 @@
 #include <span>
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
 #include <vector>
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -261,6 +260,12 @@ namespace {
     }
     return out;
   }
+  // The hit of a detId-sorted span with one entry per cell, or nullptr.
+  truth::LogicalGraphHitIndex::Hit const* findCell(std::span<const truth::LogicalGraphHitIndex::Hit> hits,
+                                                   uint32_t detId) {
+    auto it = std::ranges::lower_bound(hits, detId, {}, &truth::LogicalGraphHitIndex::Hit::detId);
+    return it != hits.end() && it->detId == detId ? &*it : nullptr;
+  }
 }  // namespace
 
 template <class Collection>
@@ -300,17 +305,15 @@ void BranchHGCalValidator::validate(Collection const& objects,
       continue;  // unmapped -> counts as inefficiency
     const uint32_t particleId = it->second;
 
-    // Branch subgraph calo hits for the mapped logical particle. branchEnergy is the
-    // total deposited (sim) energy; branchCellEnergy is its per-cell breakdown, used
-    // to restrict the raw response to the object's own footprint (a tiny object whose
+    // Branch subgraph calo hits for the mapped logical particle, one per cell and sorted
+    // by detId. branchEnergy is the total deposited (sim) energy; the per-cell energies
+    // restrict the raw response to the object's own footprint (a tiny object whose
     // trackId maps to a large shower would otherwise blow up the un-thresholded sim
     // ratio - the reco ratio stays finite only because the extra cells lack RecHits).
-    std::unordered_map<uint32_t, double> branchCellEnergy;
+    const auto branchHits = hitIndex.subgraphHits(truth::HitChannel::Calo, particleId);
     double branchEnergy = 0.;
-    for (auto const& hit : hitIndex.subgraphHits(truth::HitChannel::Calo, particleId)) {
-      branchCellEnergy[hit.detId] += hit.energy;
+    for (auto const& hit : branchHits)
       branchEnergy += hit.energy;
-    }
 
     std::vector<truth::RecoHit> recoHits;
     recoHits.reserve(hitsAndFractions.size());
@@ -332,16 +335,16 @@ void BranchHGCalValidator::validate(Collection const& objects,
       if (auto cs = cellSimEnergy.find(detId); cs != cellSimEnergy.end())
         objectSimEnergy += static_cast<double>(fraction) * static_cast<double>(cs->second);
       objectRecoEnergy += static_cast<double>(fraction) * recoEnergyOf(detId);
-      if (auto be = branchCellEnergy.find(detId); be != branchCellEnergy.end()) {
+      if (auto const* be = findCell(branchHits, detId)) {
         ++shared;
         sharedFraction += fraction;
-        branchSimOnObject += be->second;
+        branchSimOnObject += be->energy;
         branchRecoOnObject += recoEnergyOf(detId);
       }
     }
 
     const double completenessHits = static_cast<double>(shared) / hitsAndFractions.size();
-    const double purity = branchCellEnergy.empty() ? 0. : static_cast<double>(shared) / branchCellEnergy.size();
+    const double purity = branchHits.empty() ? 0. : static_cast<double>(shared) / branchHits.size();
     const double completenessEnergy = totalFraction > 0. ? sharedFraction / totalFraction : 0.;
     // Energy containment: Branch subgraph sim-hit energy over the object energy.
     // (CaloParticle::simEnergy() is not populated in these samples, so the
@@ -407,21 +410,19 @@ void BranchHGCalValidator::validate(Collection const& objects,
       plots.nSharingBranches->Fill(std::min<uint32_t>(nSharing, 50));
 
       // Best Branch's purity / completeness / response vs the object.
-      std::unordered_set<uint32_t> bestDetIds;
+      const auto bestHits = hitIndex.subgraphHits(truth::HitChannel::Calo, tightest);
       double bestBranchEnergy = 0.;
-      for (auto const& hit : hitIndex.subgraphHits(truth::HitChannel::Calo, tightest)) {
-        bestDetIds.insert(hit.detId);
+      for (auto const& hit : bestHits)
         bestBranchEnergy += hit.energy;
-      }
       uint32_t bestShared = 0;
       double bestSharedFraction = 0.;
       for (auto const& [detId, fraction] : hitsAndFractions) {
-        if (bestDetIds.count(detId)) {
+        if (findCell(bestHits, detId) != nullptr) {
           ++bestShared;
           bestSharedFraction += fraction;
         }
       }
-      plots.bestPurity->Fill(bestDetIds.empty() ? 0. : static_cast<double>(bestShared) / bestDetIds.size());
+      plots.bestPurity->Fill(bestHits.empty() ? 0. : static_cast<double>(bestShared) / bestHits.size());
       plots.bestCompletenessHits->Fill(static_cast<double>(bestShared) / hitsAndFractions.size());
       plots.bestCompletenessEnergy->Fill(totalFraction > 0. ? bestSharedFraction / totalFraction : 0.);
       if (energy > 0.)

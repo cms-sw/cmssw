@@ -622,9 +622,9 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
       // [0] is the best match: the best detector particle when one matches. "Associated" means the
       // object corresponds to something in the truth graph, and it is published on its
       // own as the no-candidate rate. The calorimetric recoToSim score is not folded in
-      // here, because it is reco-normalised against the cell's total truth energy and at
-      // PU200 a cell shared with overlaid interactions drives it towards 1 for a matched
-      // object too. That score is the strict numerator instead, which is HGCalValidator's
+      // here, because it is normalised to the object's own rechit energy and at PU200 a
+      // cell shared with overlaid interactions drives it towards 1 for a matched object
+      // too. That score is the strict numerator instead, which is HGCalValidator's
       // non-fake criterion.
       const bool associated = r < recoToTruth.size() && !recoToTruth[r].empty();
       bool strictMatch = associated;
