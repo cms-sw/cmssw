@@ -24,6 +24,9 @@
 #include "RecoTICL/Inference/interface/TICLONNXGlobalCache.h"
 #include "RecoTICL/Inference/interface/TracksterInferenceAlgoBase.h"
 #include "RecoTICL/Inference/interface/TracksterInferenceAlgoFactory.h"
+#include "RecoTICL/Inference/interface/TracksterInferenceByCNN.h"
+#include "RecoTICL/Inference/interface/TracksterInferenceByDNN.h"
+#include "RecoTICL/Inference/interface/TracksterInferenceByPFN.h"
 #include "PatternRecognitionPluginFactory.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
@@ -269,20 +272,15 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::ParameterSetDescription>("pluginPatternRecognitionByRecovery", pluginDescRecovery);
 
   // Inference plugins
-  edm::ParameterSetDescription inferenceDescDNN;
-  inferenceDescDNN.addNode(
-      edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByDNN", true));
-  desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByDNN", inferenceDescDNN);
-
-  edm::ParameterSetDescription inferenceDescCNN;
-  inferenceDescCNN.addNode(
-      edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByCNN", true));
-  desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByCNN", inferenceDescCNN);
-
-  edm::ParameterSetDescription inferenceDescPFN;
-  inferenceDescPFN.addNode(
-      edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByPFN", true));
-  desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByPFN", inferenceDescPFN);
+  desc.add<edm::ParameterSetDescription>(
+      "pluginInferenceAlgoTracksterInferenceByDNN",
+      ticl::inferencePluginPSetDescription<ticl::TracksterInferenceByDNN>("TracksterInferenceByDNN"));
+  desc.add<edm::ParameterSetDescription>(
+      "pluginInferenceAlgoTracksterInferenceByCNN",
+      ticl::inferencePluginPSetDescription<ticl::TracksterInferenceByCNN>("TracksterInferenceByCNN"));
+  desc.add<edm::ParameterSetDescription>(
+      "pluginInferenceAlgoTracksterInferenceByPFN",
+      ticl::inferencePluginPSetDescription<ticl::TracksterInferenceByPFN>("TracksterInferenceByPFN"));
 
   descriptions.add("trackstersProducer", desc);
 }

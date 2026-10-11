@@ -53,6 +53,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "RecoTICL/Inference/interface/TracksterInferenceAlgoFactory.h"
+#include "RecoTICL/Inference/interface/TracksterInferenceByPFN.h"
 
 #include "RecoTICL/Common/interface/TrackstersPCA.h"
 
@@ -596,9 +597,9 @@ void TICLCandidateProducer::fillDescriptions(edm::ConfigurationDescriptions &des
   edm::ParameterSetDescription muonInterpretationDesc;
   muonInterpretationDesc.addNode(edm::PluginDescription<TICLGeneralInterpretationPluginFactory>("type", "Muon", true));
   desc.add<edm::ParameterSetDescription>("muonInterpretationDescPSet", muonInterpretationDesc);
-  edm::ParameterSetDescription inferenceDesc;
-  inferenceDesc.addNode(edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByPFN", true));
-  desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByPFN", inferenceDesc);
+  desc.add<edm::ParameterSetDescription>(
+      "pluginInferenceAlgoTracksterInferenceByPFN",
+      ticl::inferencePluginPSetDescription<ticl::TracksterInferenceByPFN>("TracksterInferenceByPFN"));
   desc.add<edm::ParameterSetDescription>("interpretationDescPSet", interpretationDesc);
   desc.add<std::vector<edm::InputTag>>("egamma_tracksters_collections", {edm::InputTag("ticlTracksterLinks")});
   desc.add<std::vector<edm::InputTag>>("egamma_tracksterlinks_collections", {edm::InputTag("ticlTracksterLinks")});
