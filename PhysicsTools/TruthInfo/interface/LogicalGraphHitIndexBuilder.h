@@ -6,6 +6,7 @@
 #include <array>
 #include <cstdint>
 #include <limits>
+#include <span>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -145,7 +146,15 @@ namespace truth {
     bool usedSharedStore_ = false;
 
     std::unordered_map<uint64_t, uint32_t> trackIdToParticle_;
-    std::vector<std::vector<uint32_t>> children_;
+    // The (parent, child) links in the order addParticleChild received them, and the CSR
+    // that finish() builds from them in the same order.
+    std::vector<std::pair<uint32_t, uint32_t>> childLinks_;
+    std::vector<uint32_t> childOffsets_;
+    std::vector<uint32_t> childList_;
+    void buildChildren();
+    [[nodiscard]] std::span<const uint32_t> children(uint32_t particleId) const {
+      return {childList_.data() + childOffsets_[particleId], childList_.data() + childOffsets_[particleId + 1]};
+    }
 
     // Whether a particle has a SimTrack, so it can carry hits and take part in the
     // SIM parentage tree.

@@ -44,11 +44,11 @@ std::vector<truth::Interaction> truth::interactions(truth::Graph const& graph) {
     std::unordered_map<uint64_t, uint32_t> placeholderOnly;
 
     for (uint32_t id = 0; id < graph.nParticles(); ++id) {
-      const auto production = Particle(&graph, id).productionVertices();
+      const auto production = graph.productionVertices(id);
       if (production.empty()) {
         continue;
       }
-      const uint32_t vertexId = production.front().id();
+      const uint32_t vertexId = production.front();
       const uint64_t eventId = graph.particles()[id].eventId;
       auto& target = usableAsInteractionVertex(graph.vertices()[vertexId]) ? elected : placeholderOnly;
       auto [it, inserted] = target.emplace(eventId, vertexId);

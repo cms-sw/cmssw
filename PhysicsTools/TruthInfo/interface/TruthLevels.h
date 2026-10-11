@@ -820,38 +820,43 @@ namespace truth {
     const uint32_t nParticles = graph.nParticles();
     std::vector<uint8_t> state(nParticles, kUnseen);
     std::vector<uint32_t> onCycle;
-    // (particle, index of the next child to visit) so the walk can resume after a child.
-    std::vector<std::pair<uint32_t, std::size_t>> stack;
-    std::vector<uint32_t> children;
+    // The particle and the position of its next child, so the walk resumes after a child.
+    struct Frame {
+      uint32_t id;
+      std::size_t vertex = 0;
+      std::size_t child = 0;
+    };
+    std::vector<Frame> stack;
 
-    auto childrenOf = [&graph](uint32_t id, std::vector<uint32_t>& out) {
-      out.clear();
-      for (const uint32_t vertexId : graph.decayVertices(id)) {
-        if (vertexId >= graph.nVertices()) {
+    // The next child of the frame in decay-vertex order, or false when there is none.
+    auto nextChild = [&graph](Frame& frame, uint32_t& child) {
+      auto const vertices = graph.decayVertices(frame.id);
+      for (; frame.vertex < vertices.size(); ++frame.vertex, frame.child = 0) {
+        if (vertices[frame.vertex] >= graph.nVertices()) {
           continue;
         }
-        for (const uint32_t child : graph.outgoingParticles(vertexId)) {
-          out.push_back(child);
+        auto const children = graph.outgoingParticles(vertices[frame.vertex]);
+        if (frame.child < children.size()) {
+          child = children[frame.child++];
+          return true;
         }
       }
+      return false;
     };
 
     for (uint32_t root = 0; root < nParticles; ++root) {
       if (state[root] != kUnseen) {
         continue;
       }
-      stack.emplace_back(root, 0);
+      stack.push_back({root});
       state[root] = kOnStack;
       while (!stack.empty()) {
-        auto& [id, next] = stack.back();
-        childrenOf(id, children);
-        if (next >= children.size()) {
-          state[id] = kDone;
+        uint32_t child = 0;
+        if (!nextChild(stack.back(), child)) {
+          state[stack.back().id] = kDone;
           stack.pop_back();
           continue;
         }
-        const uint32_t child = children[next];
-        ++next;
         if (child >= nParticles) {
           continue;
         }
@@ -859,14 +864,14 @@ namespace truth {
           // Back edge: the child reaches itself through the particles above it on the
           // stack, so the whole loop is named, not only the point the walk re-entered.
           for (auto it = stack.rbegin(); it != stack.rend(); ++it) {
-            onCycle.push_back(it->first);
-            if (it->first == child) {
+            onCycle.push_back(it->id);
+            if (it->id == child) {
               break;
             }
           }
         } else if (state[child] == kUnseen) {
           state[child] = kOnStack;
-          stack.emplace_back(child, 0);
+          stack.push_back({child});
         }
       }
     }
