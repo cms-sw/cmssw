@@ -1,8 +1,11 @@
+<use name="DataFormats/L1TMuonPhase2"/>
+<use name="DataFormats/Math"/>
 <use name="DataFormats/TrackReco"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
 <use name="RecoMuon/GlobalTrackingTools"/>
 <use name="RecoMuon/TrackingTools"/>
 <use name="RecoTracker/CkfPattern"/>
