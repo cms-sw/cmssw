@@ -63,6 +63,10 @@ namespace {
   // The bin of the reason axis is the vertex reason itself, whatever side it came from.
   unsigned int reasonBin(truth::VertexData const& vertex) { return static_cast<unsigned int>(vertex.reason); }
 
+  // The truth-to-reco denominator instance. A hit-based domain appends the capitalized
+  // level name, one product per configured level.
+  constexpr const char* kDenominatorInstance = "truthToRecoTargets";
+
   template <typename RECO>
   struct RecoValidationTraits;
 
@@ -87,15 +91,11 @@ namespace {
       kin.dz = track.dz();
       return kin;
     }
-    static bool hasDirection(reco::Track const&) { return true; }
     // The truth side of a hit-based domain iterates branch roots, which are particles.
-    // The denominator instance is a PREFIX: the capitalized level name is appended, one
-    // product per configured level.
     static constexpr bool truthIsVertex = false;
     // A domain matched on shared ENERGY in the calorimeter channel, which is judged by
     // the HGCal validation criteria; everything else is judged on shared components.
     static constexpr bool calorimetric = false;
-    static constexpr const char* denominatorInstance = "truthToRecoTargets";
   };
 
   // A vertex has no momentum, so only its position and its track multiplicity are
@@ -118,12 +118,10 @@ namespace {
       kin.zpos = vertex.z();
       return kin;
     }
-    static bool hasDirection(reco::Vertex const&) { return false; }
     // A composite object is associated to a truth VERTEX, so the truth side iterates
     // vertices and the denominator is the set of reconstructable ones.
     static constexpr bool truthIsVertex = true;
     static constexpr bool calorimetric = false;
-    static constexpr const char* denominatorInstance = "truthToRecoTargets";
   };
 
   // A trackster carries calorimeter energy through its layer clusters. Its momentum
@@ -151,10 +149,8 @@ namespace {
       kin.zpos = bary.z();
       return kin;
     }
-    static bool hasDirection(ticl::Trackster const&) { return true; }
     static constexpr bool truthIsVertex = false;
     static constexpr bool calorimetric = true;
-    static constexpr const char* denominatorInstance = "truthToRecoTargets";
   };
 
   // A particle-flow cluster carries calorimeter energy through its own cells. Its
@@ -182,10 +178,8 @@ namespace {
       kin.zpos = pos.z();
       return kin;
     }
-    static bool hasDirection(reco::PFCluster const&) { return true; }
     static constexpr bool truthIsVertex = false;
     static constexpr bool calorimetric = true;
-    static constexpr const char* denominatorInstance = "truthToRecoTargets";
   };
 }  // namespace
 
@@ -308,12 +302,12 @@ TruthBranchRecoValidator<RECO>::TruthBranchRecoValidator(edm::ParameterSet const
   // target set, named by the domain's vertex resolution.
   std::vector<std::pair<std::string, std::string>> truthTargets;
   if constexpr (Traits::truthIsVertex) {
-    truthTargets.emplace_back(cfg.getParameter<std::string>("vertexResolution"), Traits::denominatorInstance);
+    truthTargets.emplace_back(cfg.getParameter<std::string>("vertexResolution"), kDenominatorInstance);
   } else {
     for (auto const& level : cfg.getParameter<std::vector<std::string>>("truthLevels")) {
       std::string capitalized = level;
       capitalized[0] = std::toupper(static_cast<unsigned char>(capitalized[0]));
-      truthTargets.emplace_back(level, std::string(Traits::denominatorInstance) + capitalized);
+      truthTargets.emplace_back(level, std::string(kDenominatorInstance) + capitalized);
     }
     // The overall signal entry: its denominator is the preset SEED objects among the
     // selected roots (the tau, not its decay legs), so the folder measures the signal
@@ -347,7 +341,7 @@ TruthBranchRecoValidator<RECO>::TruthBranchRecoValidator(edm::ParameterSet const
     std::string capitalized = wanted;
     capitalized[0] = std::toupper(static_cast<unsigned char>(capitalized[0]));
     dominanceTargetsToken_ = consumes<std::vector<unsigned int>>(
-        edm::InputTag(targetsProducer, std::string(Traits::denominatorInstance) + capitalized));
+        edm::InputTag(targetsProducer, std::string(kDenominatorInstance) + capitalized));
   }
 
   for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("recoCollections")) {
@@ -375,7 +369,7 @@ TruthBranchRecoValidator<RECO>::TruthBranchRecoValidator(edm::ParameterSet const
       entry.targetsToken = consumes<std::vector<unsigned int>>(edm::InputTag(targetsLabel, instance));
       // Only the per-level denominators carry it: the signal entries are seed lists with
       // no kinematic selection to suppress.
-      entry.hasEligibility = (instance.rfind(Traits::denominatorInstance, 0) == 0);
+      entry.hasEligibility = !Traits::truthIsVertex && instance.starts_with(kDenominatorInstance);
       if (entry.hasEligibility) {
         entry.eligibilityToken =
             consumes<std::vector<unsigned int>>(edm::InputTag(targetsLabel, instance + "Eligibility"));
@@ -702,7 +696,7 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
         // composite truth object is a vertex with no direction, so no residual there.
         if constexpr (!Traits::truthIsVertex) {
           const unsigned int matched = recoToTruth[r][0].index();
-          if (matched < graph.nParticles() && Traits::hasDirection((*recoHandle)[r])) {
+          if (matched < graph.nParticles()) {
             auto const& p4 = graph.particles()[matched].momentum;
             if (p4.pt() > 0.) {
               Kinematics truthKin;

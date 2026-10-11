@@ -97,8 +97,6 @@ private:
 
   template <class Collection>
   void validate(Collection const& objects,
-                truth::Graph const& graph,
-                TruthGraph const& raw,
                 truth::SubgraphHitView& hitIndex,
                 truth::BranchHitAssociator const& assoc,
                 std::unordered_map<uint64_t, uint32_t> const& tidToParticle,
@@ -267,8 +265,6 @@ namespace {
 
 template <class Collection>
 void BranchHGCalValidator::validate(Collection const& objects,
-                                    truth::Graph const& graph,
-                                    TruthGraph const& raw,
                                     truth::SubgraphHitView& hitIndex,
                                     truth::BranchHitAssociator const& assoc,
                                     std::unordered_map<uint64_t, uint32_t> const& tidToParticle,
@@ -491,23 +487,14 @@ void BranchHGCalValidator::analyze(edm::Event const& event, edm::EventSetup cons
   const auto recHitEnergyByDetId = collectRecHitEnergyByDetId(event);
 
   validate(event.get(caloParticleToken_),
-           graph,
-           raw,
            hitIndex,
            assoc,
            tidToParticle,
            cellSimEnergy,
            recHitEnergyByDetId,
            caloParticlePlots_);
-  validate(event.get(simClusterToken_),
-           graph,
-           raw,
-           hitIndex,
-           assoc,
-           tidToParticle,
-           cellSimEnergy,
-           recHitEnergyByDetId,
-           simClusterPlots_);
+  validate(
+      event.get(simClusterToken_), hitIndex, assoc, tidToParticle, cellSimEnergy, recHitEnergyByDetId, simClusterPlots_);
 }
 
 void BranchHGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
