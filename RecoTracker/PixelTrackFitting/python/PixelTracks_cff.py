@@ -133,7 +133,7 @@ from RecoTracker.PixelTrackFitting.pixelTracksExtended_cfg import pixelTracksExt
 phase2CAExtension.toReplaceWith(pixelTracksAlpaka,_pixelTracksExtendedSoA.clone(
     pixelRecHitSrc = "siPixelRecHitsPreSplittingAlpaka",
     trackerRecHitsSoA = "phase2OTRecHitsSoAConverter",
-    hitMask = "siPixelRecHitsExtendedPreSplittingAlpaka",
+    hitMask = "",
 ))
 
 # pixel tracks SoA producer on the cpu, for validation

@@ -1223,11 +1223,7 @@ trackValidatorBHadronPixelTrackingOnly = trackValidatorPixelTrackingOnly.clone(
 tracksValidationTruthPixelTrackingOnly = tracksValidationTruth.copy()
 tracksValidationTruthPixelTrackingOnly.replace(trackingParticleRecoTrackAsssociation, trackingParticlePixelTrackAsssociation)
 tracksValidationTruthPixelTrackingOnly.replace(vertexAssociatorByPositionAndTracksProducer, PixelVertexAssociatorByPositionAndTracks)
-##### TODO: put this behind a modifier
-tracksValidationTruthPixelTrackingOnly.add(trackingParticleHighPtPixelTrackAsssociation)
-tracksValidationTruthPixelTrackingOnly.add(PixelVertexAssociatorByPositionAndHighPtTracks)
-tracksValidationTruthPixelTrackingOnly.add(trackingParticleLowPtPixelTrackAsssociation)
-tracksValidationTruthPixelTrackingOnly.add(PixelVertexAssociatorByPositionAndLowPtTracks)
+
 ###########################
 tracksValidationTruthPixelTrackingOnly.add(trackingParticlesBHadron)
 tracksValidationTruthPixelTrackingOnly.add( pixelTracks3hits )
@@ -1237,9 +1233,24 @@ tracksValidationTruthPixelTrackingOnly.add( pixelTracksFromPV )
 tracksValidationTruthPixelTrackingOnly.add( pixelTracksFromPVPt09 )
 tracksValidationTruthPixelTrackingOnly.add( pixelTracksFromPV4hits )
 
+
+## Two iterations CA
+tracksValidationTruthPixelTrackingTwoIterationsOnly = tracksValidationTruthPixelTrackingOnly.copy()
+tracksValidationTruthPixelTrackingTwoIterationsOnly.add(trackingParticleHighPtPixelTrackAsssociation)
+tracksValidationTruthPixelTrackingTwoIterationsOnly.add(PixelVertexAssociatorByPositionAndHighPtTracks)
+tracksValidationTruthPixelTrackingTwoIterationsOnly.add(trackingParticleLowPtPixelTrackAsssociation)
+tracksValidationTruthPixelTrackingTwoIterationsOnly.add(PixelVertexAssociatorByPositionAndLowPtTracks)
+
 tracksPreValidationPixelTrackingOnly = cms.Task(
     tracksValidationTruthPixelTrackingOnly,
     trackingParticlesSignal)
+
+tracksPreValidationPixelTrackingTwoIterationsOnly = cms.Task(
+    tracksValidationTruthPixelTrackingTwoIterationsOnly,
+    trackingParticlesSignal)
+
+from Configuration.ProcessModifiers.caTwoIterations_cff import caTwoIterations
+caTwoIterations.toReplaceWith(tracksPreValidationPixelTrackingOnly, tracksPreValidationPixelTrackingTwoIterationsOnly)
 
 ##https://cmssdt.cern.ch/lxr/source/DataFormats/TrackReco/interface/TrackBase.h#0150
 quality = {
@@ -1287,8 +1298,8 @@ for key,value in quality.items():
     cutstring = "hitPattern.trackerLayersWithMeasurement == 3 & qualityMask <= 7 & qualityMask >= " + str(qualityBit)
     locals()[label] = trackRefSelector.clone( cut = cutstring )
     tracksPreValidationPixelTrackingOnly.add(locals()[label])
-     
-tracksValidationPixelTrackingOnly = cms.Sequence(
+ 
+tracksValidationPixelTrackingTwoIterationsOnly = cms.Sequence(
     trackValidatorPixelTrackingOnly +
     trackValidatorHighPtPixelTrackingOnly +
     trackValidatorLowPtPixelTrackingOnly +
@@ -1297,6 +1308,14 @@ tracksValidationPixelTrackingOnly = cms.Sequence(
     trackValidatorBHadronPixelTrackingOnly,
     tracksPreValidationPixelTrackingOnly
 )
+
+tracksValidationPixelTrackingOnly = tracksValidationPixelTrackingTwoIterationsOnly.copyAndExclude([
+    trackValidatorLowPtPixelTrackingOnly,
+    trackValidatorHighPtPixelTrackingOnly,
+])
+
+caTwoIterations.toReplaceWith(tracksValidationPixelTrackingOnly, tracksValidationPixelTrackingTwoIterationsOnly)
+
 ####################################################################################################
 
 ### Lite mode (only generalTracks and HP)
