@@ -36,6 +36,7 @@
 // pileupIndex) for pileup, so signal and pileup stay distinguishable.
 
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <cstring>
 #include <map>
@@ -261,6 +262,22 @@ private:
   edm::SimTrackContainer mergedSimTracks_;
   edm::SimVertexContainer mergedSimVertices_;
 
+  // The sizes of the merged vectors in the previous event of this stream. Each event
+  // reserves them plus kReserveMarginPercent percent.
+  enum MergedVector : std::size_t {
+    kCaloHits,
+    kEcalHits,
+    kHcalHits,
+    kTrackerHits,
+    kMuonHits,
+    kMtdHits,
+    kSimTracks,
+    kSimVertices,
+    kMergedVectors
+  };
+  static constexpr std::size_t kReserveMarginPercent = 10;
+  std::array<std::size_t, kMergedVectors> lastMergedSizes_{};
+
   [[nodiscard]] bool keepBx(int bx) const {
     return std::find(pileupBunchCrossings_.begin(), pileupBunchCrossings_.end(), bx) != pileupBunchCrossings_.end();
   }
@@ -334,6 +351,17 @@ void TruthGraphAccumulator::initializeEvent(edm::Event const&, edm::EventSetup c
   genPayload_.clear();
   mergedSimTracks_.clear();
   mergedSimVertices_.clear();
+  auto reserve = [this](auto& merged, MergedVector v) {
+    merged.reserve(lastMergedSizes_[v] + lastMergedSizes_[v] * kReserveMarginPercent / 100);
+  };
+  reserve(mergedCaloHits_, kCaloHits);
+  reserve(mergedEcalHits_, kEcalHits);
+  reserve(mergedHcalHits_, kHcalHits);
+  reserve(mergedTrackerHits_, kTrackerHits);
+  reserve(mergedMuonHits_, kMuonHits);
+  reserve(mergedMtdHits_, kMtdHits);
+  reserve(mergedSimTracks_, kSimTracks);
+  reserve(mergedSimVertices_, kSimVertices);
 }
 
 void TruthGraphAccumulator::addSubEvent(std::vector<truth::CompactGenParticle> const& compactGen,
@@ -343,12 +371,10 @@ void TruthGraphAccumulator::addSubEvent(std::vector<truth::CompactGenParticle> c
                                         edm::SimVertexContainer const& vertices,
                                         EncodedEventId const& eid,
                                         int32_t genEvent) {
-  mergedSimTracks_.reserve(mergedSimTracks_.size() + tracks.size());
   for (SimTrack t : tracks) {
     t.setEventId(eid);
     mergedSimTracks_.push_back(std::move(t));
   }
-  mergedSimVertices_.reserve(mergedSimVertices_.size() + vertices.size());
   // The mixing adds the crossing offset in ns to a SimVertex time that is in seconds.
   // Remove it and add it back in seconds, so every merged vertex time is in seconds.
   constexpr double kNsToS = 1e-9;
@@ -622,10 +648,10 @@ void TruthGraphAccumulator::mergeHits(EvT const& ev,
       }
       continue;
     }
-    out.reserve(out.size() + hits->size());
-    for (HitT hit : *hits) {  // copy: re-tag the eventId to this sub-event
-      hit.setEventId(eid);
-      out.push_back(hit);
+    const auto first = out.size();
+    out.insert(out.end(), hits->begin(), hits->end());
+    for (auto it = out.begin() + first; it != out.end(); ++it) {
+      it->setEventId(eid);
     }
   }
 }
@@ -744,6 +770,14 @@ void TruthGraphAccumulator::finalizeEvent(edm::Event& event, edm::EventSetup con
   event.put(std::make_unique<std::vector<uint32_t>>(std::move(genPayloadNodes_)), "genPayloadNodes");
   event.put(std::make_unique<std::vector<math::XYZTLorentzVectorD>>(std::move(genPayload_)), "genPayload");
 
+  lastMergedSizes_[kCaloHits] = mergedCaloHits_.size();
+  lastMergedSizes_[kEcalHits] = mergedEcalHits_.size();
+  lastMergedSizes_[kHcalHits] = mergedHcalHits_.size();
+  lastMergedSizes_[kTrackerHits] = mergedTrackerHits_.size();
+  lastMergedSizes_[kMuonHits] = mergedMuonHits_.size();
+  lastMergedSizes_[kMtdHits] = mergedMtdHits_.size();
+  lastMergedSizes_[kSimTracks] = mergedSimTracks_.size();
+  lastMergedSizes_[kSimVertices] = mergedSimVertices_.size();
   event.put(std::make_unique<std::vector<PCaloHit>>(std::move(mergedCaloHits_)), "mergedHGCHits");
   event.put(std::make_unique<std::vector<PCaloHit>>(std::move(mergedEcalHits_)), "mergedEcalHits");
   event.put(std::make_unique<std::vector<PCaloHit>>(std::move(mergedHcalHits_)), "mergedHcalHits");
