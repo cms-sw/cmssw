@@ -296,81 +296,6 @@ namespace {
     return summary;
   }
 
-  template <typename F>
-  void forEachDescendantParticle(truth::Graph const& g, uint32_t particleId, F&& f) {
-    if (particleId >= g.nParticles())
-      return;
-
-    // Iterative DFS with a visited set: cycle-safe (a stray cycle would otherwise
-    // overflow the stack) and visits each descendant exactly once (no exponential
-    // blow-up on re-convergent / diamond topologies). f is invoked once per
-    // distinct descendant, never on the start particle itself.
-    std::vector<uint8_t> visited(g.nParticles(), 0);
-    std::vector<uint32_t> stack;
-    visited[particleId] = 1;
-    stack.push_back(particleId);
-
-    while (!stack.empty()) {
-      const uint32_t current = stack.back();
-      stack.pop_back();
-
-      for (const uint32_t vertexId : g.decayVertices(current)) {
-        if (vertexId >= g.nVertices())
-          continue;
-
-        for (const uint32_t childId : g.outgoingParticles(vertexId)) {
-          if (childId >= g.nParticles() || visited[childId])
-            continue;
-          visited[childId] = 1;
-          f(childId);
-          stack.push_back(childId);
-        }
-      }
-    }
-  }
-
-  bool hasVisibleIncomingParticle(truth::Graph const& g, uint32_t vertexId, std::vector<uint8_t> const& hideParticle) {
-    for (const uint32_t p : g.incomingParticles(vertexId)) {
-      if (p < hideParticle.size() && !hideParticle[p])
-        return true;
-    }
-
-    return false;
-  }
-
-  bool hasVisibleOutgoingParticle(truth::Graph const& g, uint32_t vertexId, std::vector<uint8_t> const& hideParticle) {
-    for (const uint32_t p : g.outgoingParticles(vertexId)) {
-      if (p < hideParticle.size() && !hideParticle[p])
-        return true;
-    }
-
-    return false;
-  }
-
-  bool shouldHideVertexAfterParticleFiltering(truth::Graph const& g,
-                                              uint32_t vertexId,
-                                              std::vector<uint8_t> const& hideParticle) {
-    const bool hasIncoming = !g.incomingParticles(vertexId).empty();
-    const bool hasOutgoing = !g.outgoingParticles(vertexId).empty();
-
-    const bool hasVisibleIncoming = hasVisibleIncomingParticle(g, vertexId, hideParticle);
-    const bool hasVisibleOutgoing = hasVisibleOutgoingParticle(g, vertexId, hideParticle);
-
-    // Hide vertices fully disconnected by the particle filter.
-    if (!hasVisibleIncoming && !hasVisibleOutgoing)
-      return true;
-
-    // Hide decay vertices that no longer have visible daughters.
-    if (hasOutgoing && !hasVisibleOutgoing)
-      return true;
-
-    // Hide production/source vertices that no longer have visible outgoing particles.
-    if (!hasIncoming && hasOutgoing && !hasVisibleOutgoing)
-      return true;
-
-    return false;
-  }
-
   // The same graph as the dot file, for a script that has to read numbers rather than a
   // picture: one JSON object per event, with the momenta and positions at full precision.
   // Full precision, and null where JSON has no number: it knows no NaN and no infinity.
@@ -589,19 +514,6 @@ public:
     const uint32_t nParticles = g.nParticles();
     const uint32_t nVertices = g.nVertices();
 
-    std::vector<uint8_t> hideVertex(nVertices, 0);
-
-    std::vector<uint8_t> hideParticle(nParticles, 0);
-
-    for (uint32_t i = 0; i < nVertices; ++i) {
-      if (hideVertex[i])
-        continue;
-
-      if (shouldHideVertexAfterParticleFiltering(g, i, hideParticle)) {
-        hideVertex[i] = 1;
-      }
-    }
-
     // ------------------------------------------------------------------
     // Particle nodes
     // ------------------------------------------------------------------
@@ -725,9 +637,6 @@ public:
     }
 
     for (uint32_t i = 0; i < nParticles; ++i) {
-      if (hideParticle[i])
-        continue;
-
       auto p = g.particle(i);
       auto const& d = p.data();
 
@@ -958,7 +867,8 @@ public:
     // Vertex nodes
     // ------------------------------------------------------------------
     for (uint32_t i = 0; i < nVertices; ++i) {
-      if (hideVertex[i])
+      // An isolated vertex has no edge to draw.
+      if (g.incomingParticles(i).empty() && g.outgoingParticles(i).empty())
         continue;
 
       auto v = g.vertex(i);
@@ -1065,14 +975,8 @@ public:
     // Edges: physics-forward only
     // ------------------------------------------------------------------
     for (uint32_t i = 0; i < nParticles; ++i) {
-      if (hideParticle[i])
-        continue;
-
       for (uint32_t v : g.decayVertices(i)) {
         if (v >= nVertices)
-          continue;
-
-        if (hideVertex[v])
           continue;
 
         os << "  p" << i << " -> v" << v << ";\n";
@@ -1080,14 +984,8 @@ public:
     }
 
     for (uint32_t i = 0; i < nVertices; ++i) {
-      if (hideVertex[i])
-        continue;
-
       for (uint32_t p : g.outgoingParticles(i)) {
         if (p >= nParticles)
-          continue;
-
-        if (hideParticle[p])
           continue;
 
         os << "  v" << i << " -> p" << p << ";\n";

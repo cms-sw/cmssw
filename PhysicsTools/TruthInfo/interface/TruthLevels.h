@@ -24,6 +24,7 @@
 #include <string>
 #include <vector>
 
+#include "DataFormats/HepMCCandidate/interface/GenStatusFlags.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
@@ -134,9 +135,9 @@ namespace truth {
   }
 
   namespace detail {
-    // reco::GenStatusFlags bit positions, as packed into ParticleData::statusFlags.
-    constexpr uint16_t kIsHardProcess = 1u << 7;
-    constexpr uint16_t kIsLastCopy = 1u << 13;
+    // The reco::GenStatusFlags bits, as packed into ParticleData::statusFlags.
+    constexpr uint16_t kIsHardProcess = 1u << reco::GenStatusFlags::kIsHardProcess;
+    constexpr uint16_t kIsLastCopy = 1u << reco::GenStatusFlags::kIsLastCopy;
   }  // namespace detail
 
   // Quarks and gluons.

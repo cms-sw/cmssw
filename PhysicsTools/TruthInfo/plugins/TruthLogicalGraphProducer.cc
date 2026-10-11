@@ -189,11 +189,6 @@ namespace {
     }
   }
 
-  template <typename HandleT>
-  bool validHandle(HandleT const& handle) {
-    return handle.isValid();
-  }
-
   void fillGenPayloadFromHepMC2(HepMC::GenEvent const& ev,
                                 std::unordered_map<int, GenParticlePayload>& particlePayload,
                                 std::unordered_map<int, GenVertexPayload>& vertexPayload) {
@@ -261,20 +256,12 @@ namespace {
     }
   }
 
-  std::vector<uint8_t> buildKeepMaskForAllRawNodes(TruthGraph const& raw) {
-    return std::vector<uint8_t>(raw.nNodes(), 1);
-  }
-
-  std::vector<int32_t> buildGenParticleToProductionGenVertexMap(TruthGraph const& raw,
-                                                                std::vector<uint8_t> const& keepRawNode) {
+  std::vector<int32_t> buildGenParticleToProductionGenVertexMap(TruthGraph const& raw) {
     const uint32_t nRawNodes = raw.nNodes();
 
     std::vector<int32_t> genParticleToProductionGenVertex(nRawNodes, -1);
 
     for (uint32_t src = 0; src < nRawNodes; ++src) {
-      if (!keepRawNode[src])
-        continue;
-
       if (raw.nodeRef(src).kind != TruthGraph::NodeKind::GenVertex)
         continue;
 
@@ -284,7 +271,7 @@ namespace {
       for (std::size_t i = 0; i < dsts.size(); ++i) {
         const uint32_t dst = dsts[i];
 
-        if (dst >= nRawNodes || !keepRawNode[dst])
+        if (dst >= nRawNodes)
           continue;
 
         if (raw.nodeRef(dst).kind != TruthGraph::NodeKind::GenParticle)
@@ -302,7 +289,6 @@ namespace {
   }
 
   void buildRawSimVertexDegrees(TruthGraph const& raw,
-                                std::vector<uint8_t> const& keepRawNode,
                                 std::vector<uint32_t>& simVertexIncomingSimTracks,
                                 std::vector<uint32_t>& simVertexOutgoingSimTracks) {
     const uint32_t nRawNodes = raw.nNodes();
@@ -311,16 +297,13 @@ namespace {
     simVertexOutgoingSimTracks.assign(nRawNodes, 0);
 
     for (uint32_t src = 0; src < nRawNodes; ++src) {
-      if (!keepRawNode[src])
-        continue;
-
       const auto dsts = raw.children(src);
       const auto edgeKinds = raw.childrenEdgeKinds(src);
 
       for (std::size_t i = 0; i < dsts.size(); ++i) {
         const uint32_t dst = dsts[i];
 
-        if (dst >= nRawNodes || !keepRawNode[dst])
+        if (dst >= nRawNodes)
           continue;
 
         if (static_cast<TruthGraph::EdgeKind>(edgeKinds[i]) != TruthGraph::EdgeKind::Sim)
@@ -354,14 +337,12 @@ public:
             rawGenPayloadTag_.label(), rawGenPayloadTag_.instance() + "Nodes", rawGenPayloadTag_.process()))),
         mergeGenSimVertices_(cfg.getParameter<bool>("mergeGenSimVertices")),
         verbosity_(cfg.getUntrackedParameter<unsigned>("verbosity")),
-        dropHitlessSimSubgraphs_(
-            cfg.getParameter<edm::ParameterSet>("postProcessing").getParameter<bool>("dropHitlessSimSubgraphs")),
         postProcessor_(truth::TruthLogicalGraphPostProcessor::configFromPSet(
             cfg.getParameter<edm::ParameterSet>("postProcessing"))) {
     // The hitless-subgraph pruning needs to know which SimTracks left a sim-hit;
     // consume the same collections the hit-index producer uses, on every channel it
     // indexes. A channel missing here is silently turned into deleted truth.
-    if (dropHitlessSimSubgraphs_) {
+    if (postProcessor_.config().dropHitlessSimSubgraphs) {
       for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("simHitCollections"))
         caloSimHitTokens_.push_back(consumes<std::vector<PCaloHit>>(tag));
       for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("trackerSimHitCollections"))
@@ -411,15 +392,7 @@ public:
                                          {edm::InputTag("g4SimHits", "TrackerHitsPixelBarrelLowTof"),
                                           edm::InputTag("g4SimHits", "TrackerHitsPixelBarrelHighTof"),
                                           edm::InputTag("g4SimHits", "TrackerHitsPixelEndcapLowTof"),
-                                          edm::InputTag("g4SimHits", "TrackerHitsPixelEndcapHighTof"),
-                                          edm::InputTag("g4SimHits", "TrackerHitsTIBLowTof"),
-                                          edm::InputTag("g4SimHits", "TrackerHitsTIBHighTof"),
-                                          edm::InputTag("g4SimHits", "TrackerHitsTIDLowTof"),
-                                          edm::InputTag("g4SimHits", "TrackerHitsTIDHighTof"),
-                                          edm::InputTag("g4SimHits", "TrackerHitsTOBLowTof"),
-                                          edm::InputTag("g4SimHits", "TrackerHitsTOBHighTof"),
-                                          edm::InputTag("g4SimHits", "TrackerHitsTECLowTof"),
-                                          edm::InputTag("g4SimHits", "TrackerHitsTECHighTof")})
+                                          edm::InputTag("g4SimHits", "TrackerHitsPixelEndcapHighTof")})
         ->setComment(
             "Tracker PSimHit collections used only to decide which SimTracks left a hit, for the "
             "postProcessing.dropHitlessSimSubgraphs pruning. Matched to particles via PSimHit::trackId().");
@@ -464,7 +437,7 @@ public:
     // container holds every sub-event's in order.
     std::unordered_map<uint64_t, uint32_t> simTrackIdToIndex;
     std::unordered_map<uint64_t, uint32_t> simVertexIdToIndex;
-    if (validHandle(hSimVertices)) {
+    if (hSimVertices.isValid()) {
       simVertexIdToIndex.reserve(hSimVertices->size() * 2);
       uint32_t local = 0;
       uint32_t currentEventId = 0;
@@ -479,7 +452,7 @@ public:
       }
     }
 
-    if (validHandle(hSimTracks)) {
+    if (hSimTracks.isValid()) {
       simTrackIdToIndex.reserve(hSimTracks->size() * 2);
 
       for (uint32_t i = 0; i < hSimTracks->size(); ++i) {
@@ -497,7 +470,7 @@ public:
       edm::Handle<edm::HepMC3Product> h3;
       evt.getByToken(hepmc3Token_, h3);
 
-      if (validHandle(h3) && h3->GetEvent() != nullptr) {
+      if (h3.isValid() && h3->GetEvent() != nullptr) {
         const HepMC3::GenEventData* data = h3->GetEvent();
 
         HepMC3::GenEvent ev3;
@@ -513,7 +486,7 @@ public:
       edm::Handle<edm::HepMCProduct> h2;
       evt.getByToken(hepmc2Token_, h2);
 
-      if (validHandle(h2) && h2->GetEvent() != nullptr) {
+      if (h2.isValid() && h2->GetEvent() != nullptr) {
         fillGenPayloadFromHepMC2(*h2->GetEvent(), genParticlePayload, genVertexPayload);
         haveGenPayload = true;
       }
@@ -544,12 +517,11 @@ public:
       return &(*rawGenPayload)[static_cast<std::size_t>(it - rawGenPayloadNodes->begin())];
     };
 
-    const auto keepRawNode = buildKeepMaskForAllRawNodes(raw);
-    const auto genParticleToProductionGenVertex = buildGenParticleToProductionGenVertexMap(raw, keepRawNode);
+    const auto genParticleToProductionGenVertex = buildGenParticleToProductionGenVertexMap(raw);
 
     std::vector<uint32_t> rawSimVertexIncomingSimTracks;
     std::vector<uint32_t> rawSimVertexOutgoingSimTracks;
-    buildRawSimVertexDegrees(raw, keepRawNode, rawSimVertexIncomingSimTracks, rawSimVertexOutgoingSimTracks);
+    buildRawSimVertexDegrees(raw, rawSimVertexIncomingSimTracks, rawSimVertexOutgoingSimTracks);
 
     // ------------------------------------------------------------------
     // 1. Temporary ids
@@ -561,9 +533,6 @@ public:
     int nVertexTmp = 0;
 
     for (uint32_t nodeId = 0; nodeId < nRawNodes; ++nodeId) {
-      if (!keepRawNode[nodeId])
-        continue;
-
       const auto kind = raw.nodeRef(nodeId).kind;
 
       if (isParticleKind(kind)) {
@@ -599,9 +568,6 @@ public:
       if (gv >= nRawNodes || sv >= nRawNodes)
         return;
 
-      if (!keepRawNode[gv] || !keepRawNode[sv])
-        return;
-
       if (rawToVertexTmp[gv] < 0 || rawToVertexTmp[sv] < 0)
         return;
 
@@ -618,9 +584,6 @@ public:
     // 2. Merge particles across GEN <-> SIM and collect vertex merge candidates
     // ------------------------------------------------------------------
     for (uint32_t nodeId = 0; nodeId < nRawNodes; ++nodeId) {
-      if (!keepRawNode[nodeId])
-        continue;
-
       auto const& ref = raw.nodeRef(nodeId);
 
       if (ref.kind != TruthGraph::NodeKind::SimTrack)
@@ -634,9 +597,6 @@ public:
       if (genNodeU32 >= nRawNodes)
         continue;
 
-      if (!keepRawNode[genNodeU32])
-        continue;
-
       if (raw.nodeRef(genNodeU32).kind != TruthGraph::NodeKind::GenParticle)
         continue;
 
@@ -648,16 +608,13 @@ public:
     }
 
     for (uint32_t src = 0; src < nRawNodes; ++src) {
-      if (!keepRawNode[src])
-        continue;
-
       const auto dsts = raw.children(src);
       const auto ekinds = raw.childrenEdgeKinds(src);
 
       for (std::size_t i = 0; i < dsts.size(); ++i) {
         const uint32_t dst = dsts[i];
 
-        if (dst >= nRawNodes || !keepRawNode[dst])
+        if (dst >= nRawNodes)
           continue;
 
         const auto ek = static_cast<TruthGraph::EdgeKind>(ekinds[i]);
@@ -721,9 +678,6 @@ public:
     std::vector<int32_t> rawToParticle(nRawNodes, -1);
 
     for (uint32_t nodeId = 0; nodeId < nRawNodes; ++nodeId) {
-      if (!keepRawNode[nodeId])
-        continue;
-
       if (rawToParticleTmp[nodeId] >= 0) {
         const int rep = particleDSU.find(rawToParticleTmp[nodeId]);
         auto result = particleRepToLogical.emplace(rep, static_cast<uint32_t>(particleRepToLogical.size()));
@@ -736,9 +690,6 @@ public:
     std::vector<int32_t> rawToVertex(nRawNodes, -1);
 
     for (uint32_t nodeId = 0; nodeId < nRawNodes; ++nodeId) {
-      if (!keepRawNode[nodeId])
-        continue;
-
       if (rawToVertexTmp[nodeId] >= 0) {
         const int rep = vertexDSU.find(rawToVertexTmp[nodeId]);
         auto result = vertexRepToLogical.emplace(rep, static_cast<uint32_t>(vertexRepToLogical.size()));
@@ -761,9 +712,6 @@ public:
     // 4. Fill payload
     // ------------------------------------------------------------------
     for (uint32_t nodeId = 0; nodeId < nRawNodes; ++nodeId) {
-      if (!keepRawNode[nodeId])
-        continue;
-
       auto const& ref = raw.nodeRef(nodeId);
 
       if (rawToParticle[nodeId] >= 0) {
@@ -834,7 +782,7 @@ public:
           if (p.eventId == 0)
             p.eventId = raw.nodeEventId(nodeId);
 
-          if (validHandle(hSimTracks)) {
+          if (hSimTracks.isValid()) {
             const auto trackId = static_cast<uint32_t>(ref.key);
             auto it = simTrackIdToIndex.find(truth::simObjectKey(raw.nodeEventId(nodeId), trackId));
 
@@ -913,7 +861,7 @@ public:
           if (v.eventId == 0)
             v.eventId = raw.nodeEventId(nodeId);
 
-          if (validHandle(hSimVertices)) {
+          if (hSimVertices.isValid()) {
             auto it =
                 simVertexIdToIndex.find(truth::simObjectKey(raw.nodeEventId(nodeId), static_cast<uint32_t>(ref.key)));
 
@@ -944,14 +892,11 @@ public:
     std::vector<std::pair<uint32_t, uint32_t>> vertexToIncomingParticlePairs;
 
     for (uint32_t src = 0; src < nRawNodes; ++src) {
-      if (!keepRawNode[src])
-        continue;
-
       auto const& srcRef = raw.nodeRef(src);
       const auto dsts = raw.children(src);
 
       for (uint32_t dst : dsts) {
-        if (dst >= nRawNodes || !keepRawNode[dst])
+        if (dst >= nRawNodes)
           continue;
 
         auto const& dstRef = raw.nodeRef(dst);
@@ -1038,7 +983,7 @@ public:
     // index. Left empty (pruning disabled) when no sim-hit collection is present.
     std::vector<uint8_t> particleDirectHit;
 
-    if (dropHitlessSimSubgraphs_) {
+    if (postProcessor_.config().dropHitlessSimSubgraphs) {
       // trackId is event-local (each mixing sub-event reuses 1,2,3,...), so it MUST
       // be namespaced by the packed EncodedEventId or signal and pileup collide and
       // the wrong particles get flagged as hit-bearing. Mirrors the same key in
@@ -1173,7 +1118,6 @@ private:
 
   bool mergeGenSimVertices_;
   unsigned verbosity_ = 0;
-  bool dropHitlessSimSubgraphs_;
   truth::TruthLogicalGraphPostProcessor postProcessor_;
 };
 

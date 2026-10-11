@@ -74,8 +74,6 @@ namespace truth {
     // each channel), which dominated CPU and memory at high hit multiplicity.
     using HitList = std::vector<Hit>;
 
-    static void appendHit(HitList& hits, uint32_t detId, uint32_t recHitIndex, float energy);
-
     // Sort by detId and merge entries that share a detId: energies are summed and
     // the recHitIndex is the unique valid index for that detId, if any (a detId
     // maps to a single recHit, so all valid entries agree). Entries that coalesce

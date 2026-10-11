@@ -10,14 +10,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "PhysicsTools/TruthInfo/interface/TruthLevels.h"
 
-namespace {
-
-  using truth::isInvisible;
-
-  using truth::hadronHasQuark;
-
-}  // namespace
-
 namespace truth {
 
   Branch::Branch(Graph const* graph, uint32_t rootId, ClosureSpec spec)

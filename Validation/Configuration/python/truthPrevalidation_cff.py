@@ -70,8 +70,6 @@ truthLogicalGraphHitIndexProducer = cms.EDProducer(
         cms.InputTag("g4SimHits", "EcalHitsEB"),
         cms.InputTag("g4SimHits", "HcalHits"),
     ),
-
-    doHGCalRelabelling = cms.bool(False),
 )
 
 truthGraphDumper = cms.EDAnalyzer(

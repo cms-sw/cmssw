@@ -1,6 +1,5 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
 
-#include <array>
 #include <cstdint>
 #include <limits>
 #include <memory>
@@ -22,14 +21,11 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
-#include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/SimHitCategory.h"
@@ -52,35 +48,6 @@
 #include "SimCalorimetry/HGCalAssociatorProducers/interface/DetIdRecHitMap.h"
 
 namespace {
-
-  struct LogicalGraphView {
-    explicit LogicalGraphView(truth::Graph const& graph) : graph_(graph) {}
-
-    uint32_t nParticles() const { return graph_.nParticles(); }
-
-    bool particleHasSim(uint32_t particleId) const {
-      return particleId < graph_.particles().size() && graph_.particles()[particleId].hasSim();
-    }
-
-    int32_t particleSimNode(uint32_t particleId) const { return graph_.particles()[particleId].simNode; }
-
-    template <typename F>
-    void forEachParticleChild(uint32_t parentParticleId, F&& f) const {
-      if (parentParticleId >= graph_.nParticles())
-        return;
-
-      for (const uint32_t vertexId : graph_.decayVertices(parentParticleId)) {
-        if (vertexId >= graph_.nVertices())
-          continue;
-
-        for (const uint32_t childId : graph_.outgoingParticles(vertexId)) {
-          f(childId);
-        }
-      }
-    }
-
-    truth::Graph const& graph_;
-  };
 
   uint32_t checkedTrackId(int64_t key) {
     if (key < 0 || key > static_cast<int64_t>(std::numeric_limits<uint32_t>::max()))
@@ -110,25 +77,7 @@ namespace {
     return false;
   }
 
-  bool inputTagLooksLikeHGCal(edm::InputTag const& tag) {
-    const std::string& instance = tag.instance();
-    return instance.find("HGCHits") != std::string::npos || instance.find("HGCEE") != std::string::npos ||
-           instance.find("HGCHE") != std::string::npos;
-  }
-
-  bool inputTagLooksLikeHcal(edm::InputTag const& tag) {
-    const std::string& instance = tag.instance();
-    return instance.find("HcalHits") != std::string::npos || instance.find("Hcal") != std::string::npos;
-  }
-
-  struct RelabelContext {
-    int geometryType = -1;
-
-    std::array<HGCalTopology const*, 3> hgTopologies = {nullptr, nullptr, nullptr};
-    std::array<HGCalDDDConstants const*, 3> hgConstants = {nullptr, nullptr, nullptr};
-
-    HcalDDDRecConstants const* hcalConstants = nullptr;
-  };
+  bool inputTagLooksLikeHcal(edm::InputTag const& tag) { return tag.instance().find("Hcal") != std::string::npos; }
 
 }  // namespace
 
@@ -142,7 +91,7 @@ public:
 private:
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
-  void fillTrackToParticleMap(LogicalGraphView const& graph,
+  void fillTrackToParticleMap(truth::Graph const& graph,
                               TruthGraph const& rawGraph,
                               truth::LogicalGraphHitIndexBuilder& builder) const;
 
@@ -161,12 +110,8 @@ private:
   // interaction, one hit per (sensor module, cell, category) with its earliest time.
   void fillMtdHits(edm::Event& event, edm::EventSetup const& setup, truth::LogicalGraphHitIndexBuilder& builder) const;
 
-  RelabelContext makeRelabelContext(edm::EventSetup const& setup) const;
-
-  uint32_t recoDetIdForSimHit(PCaloHit const& simHit,
-                              bool isHGCalCollection,
-                              bool isHcalCollection,
-                              RelabelContext const& context) const;
+  // The HCAL constants for HcalHitRelabeller, or nullptr when the relabelling is off.
+  HcalDDDRecConstants const* hcalConstants(edm::EventSetup const& setup) const;
 
   edm::EDGetTokenT<truth::Graph> graphToken_;
   edm::EDGetTokenT<TruthGraph> rawGraphToken_;
@@ -191,9 +136,7 @@ private:
 
   std::array<bool, truth::kNumHitChannels> fillChannel_{};
 
-  // Sim-to-reco DetId conversion, one switch per calorimeter numbering scheme: the
-  // HGCAL hexagon unpacking and the HCAL HcalHitRelabeller are selected independently.
-  bool doHGCalRelabelling_ = true;
+  // Convert the HCAL simulation DetIds to reco DetIds with HcalHitRelabeller.
   bool doHcalRelabelling_ = true;
   bool sharedSubgraphStore_ = false;
 };
@@ -206,7 +149,6 @@ TruthLogicalGraphHitIndexProducer::TruthLogicalGraphHitIndexProducer(edm::Parame
       digiSimLinkTags_(cfg.getParameter<std::vector<edm::InputTag>>("trackerDigiSimLinks")),
       muonSimHitTags_(cfg.getParameter<std::vector<edm::InputTag>>("muonSimHitCollections")),
       geomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
-      doHGCalRelabelling_(cfg.getParameter<bool>("doHGCalRelabelling")),
       doHcalRelabelling_(cfg.getParameter<bool>("doHcalRelabelling")),
       sharedSubgraphStore_(cfg.getParameter<bool>("sharedSubgraphStore")) {
   simHitTokens_.reserve(simHitTags_.size());
@@ -281,10 +223,6 @@ void TruthLogicalGraphHitIndexProducer::fillDescriptions(edm::ConfigurationDescr
                                         edm::InputTag("g4SimHits", "MuonME0Hits")})
       ->setComment("Muon-chamber PSimHit collections matched to particles via PSimHit::trackId()");
 
-  desc.add<bool>("doHGCalRelabelling", true)
-      ->setComment(
-          "Convert old HGCAL simulation DetIds to reco DetIds before looking up recHits. No-op for the Run4 "
-          "geometries, whose HGCAL simulation DetId is already the reco DetId. Affects the HGCAL collections only.");
   desc.add<bool>("doHcalRelabelling", true)
       ->setComment(
           "Apply HcalHitRelabeller to the HCAL simulation DetIds, which are in packed test numbering, so the index "
@@ -317,11 +255,9 @@ void TruthLogicalGraphHitIndexProducer::produce(edm::StreamID, edm::Event& event
   event.getByToken(recHitMapToken_, hRecHitMap);
   auto const* recHitMap = hRecHitMap.isValid() ? &(*hRecHitMap) : nullptr;
 
-  LogicalGraphView graphView(graph);
+  truth::LogicalGraphHitIndexBuilder builder(graph.nParticles(), sharedSubgraphStore_);
 
-  truth::LogicalGraphHitIndexBuilder builder(graphView.nParticles(), sharedSubgraphStore_);
-
-  fillTrackToParticleMap(graphView, rawGraph, builder);
+  fillTrackToParticleMap(graph, rawGraph, builder);
 
   // Each subdetector channel is filled only when selected (see "subdetectors").
   if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::Calo)])
@@ -354,14 +290,15 @@ void TruthLogicalGraphHitIndexProducer::produce(edm::StreamID, edm::Event& event
   event.put(std::move(output));
 }
 
-void TruthLogicalGraphHitIndexProducer::fillTrackToParticleMap(LogicalGraphView const& graph,
+void TruthLogicalGraphHitIndexProducer::fillTrackToParticleMap(truth::Graph const& graph,
                                                                TruthGraph const& rawGraph,
                                                                truth::LogicalGraphHitIndexBuilder& builder) const {
   for (uint32_t particleId = 0; particleId < graph.nParticles(); ++particleId) {
-    if (!graph.particleHasSim(particleId))
+    auto const& particle = graph.particles()[particleId];
+    if (!particle.hasSim())
       continue;
 
-    const int32_t simNode = graph.particleSimNode(particleId);
+    const int32_t simNode = particle.simNode;
     if (simNode < 0)
       continue;
 
@@ -381,125 +318,28 @@ void TruthLogicalGraphHitIndexProducer::fillTrackToParticleMap(LogicalGraphView 
   }
 
   for (uint32_t parentId = 0; parentId < graph.nParticles(); ++parentId) {
-    graph.forEachParticleChild(parentId, [&](uint32_t childId) { builder.addParticleChild(parentId, childId); });
+    for (const uint32_t vertexId : graph.decayVertices(parentId)) {
+      if (vertexId >= graph.nVertices())
+        continue;
+      for (const uint32_t childId : graph.outgoingParticles(vertexId))
+        builder.addParticleChild(parentId, childId);
+    }
   }
 }
 
-RelabelContext TruthLogicalGraphHitIndexProducer::makeRelabelContext(edm::EventSetup const& setup) const {
-  RelabelContext context;
-
-  if (!doHGCalRelabelling_ && !doHcalRelabelling_)
-    return context;
-
-  auto const& geom = setup.getData(geomToken_);
-
-  if (doHcalRelabelling_) {
-    auto const* hcalGeometry = static_cast<HcalGeometry const*>(geom.getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
-    if (hcalGeometry != nullptr) {
-      context.hcalConstants = hcalGeometry->topology().dddConstants();
-    }
-  }
-
-  if (!doHGCalRelabelling_)
-    return context;
-
-  auto const* eeGeometry =
-      static_cast<HGCalGeometry const*>(geom.getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));
-
-  if (eeGeometry != nullptr) {
-    context.geometryType = 1;
-
-    auto const* fhGeometry = static_cast<HGCalGeometry const*>(
-        geom.getSubdetectorGeometry(DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty));
-    auto const* bhGeometry = static_cast<HGCalGeometry const*>(
-        geom.getSubdetectorGeometry(DetId::HGCalHSc, ForwardSubdetector::ForwardEmpty));
-
-    context.hgTopologies[0] = &eeGeometry->topology();
-    context.hgTopologies[1] = fhGeometry != nullptr ? &fhGeometry->topology() : nullptr;
-    context.hgTopologies[2] = bhGeometry != nullptr ? &bhGeometry->topology() : nullptr;
-
-    for (unsigned i = 0; i < context.hgTopologies.size(); ++i) {
-      if (context.hgTopologies[i] != nullptr)
-        context.hgConstants[i] = &context.hgTopologies[i]->dddConstants();
-    }
-
-    return context;
-  }
-
-  context.geometryType = 0;
-
-  eeGeometry = static_cast<HGCalGeometry const*>(geom.getSubdetectorGeometry(DetId::Forward, HGCEE));
-  auto const* fhGeometry = static_cast<HGCalGeometry const*>(geom.getSubdetectorGeometry(DetId::Forward, HGCHEF));
-
-  context.hgTopologies[0] = eeGeometry != nullptr ? &eeGeometry->topology() : nullptr;
-  context.hgTopologies[1] = fhGeometry != nullptr ? &fhGeometry->topology() : nullptr;
-
-  for (unsigned i = 0; i < context.hgTopologies.size(); ++i) {
-    if (context.hgTopologies[i] != nullptr)
-      context.hgConstants[i] = &context.hgTopologies[i]->dddConstants();
-  }
-
-  return context;
-}
-
-uint32_t TruthLogicalGraphHitIndexProducer::recoDetIdForSimHit(PCaloHit const& simHit,
-                                                               bool isHGCalCollection,
-                                                               bool isHcalCollection,
-                                                               RelabelContext const& context) const {
-  const uint32_t simId = simHit.id();
-
-  if (isHcalCollection) {
-    if (doHcalRelabelling_ && context.hcalConstants != nullptr)
-      return HcalHitRelabeller::relabel(simId, context.hcalConstants).rawId();
-    return simId;
-  }
-
-  if (!doHGCalRelabelling_) {
-    return simId;
-  }
-
-  if (isHGCalCollection) {
-    if (context.geometryType == 1) {
-      return simId;
-    }
-
-    int subdet = 0;
-    int layer = 0;
-    int cell = 0;
-    int sec = 0;
-    int subsec = 0;
-    int zp = 0;
-
-    HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell);
-
-    const int hgcalIndex = subdet - 3;
-    if (hgcalIndex < 0 || hgcalIndex >= static_cast<int>(context.hgConstants.size()))
-      return 0;
-
-    auto const* constants = context.hgConstants[hgcalIndex];
-    auto const* topology = context.hgTopologies[hgcalIndex];
-
-    if (constants == nullptr || topology == nullptr)
-      return 0;
-
-    const auto recoLayerCell = constants->simToReco(cell, layer, sec, topology->detectorType());
-    cell = recoLayerCell.first;
-    layer = recoLayerCell.second;
-
-    if (layer < 0)
-      return 0;
-
-    return HGCalDetId(static_cast<ForwardSubdetector>(subdet), zp, layer, subsec, sec, cell).rawId();
-  }
-
-  return simId;
+HcalDDDRecConstants const* TruthLogicalGraphHitIndexProducer::hcalConstants(edm::EventSetup const& setup) const {
+  if (!doHcalRelabelling_)
+    return nullptr;
+  auto const* hcalGeometry =
+      static_cast<HcalGeometry const*>(setup.getData(geomToken_).getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
+  return hcalGeometry != nullptr ? hcalGeometry->topology().dddConstants() : nullptr;
 }
 
 void TruthLogicalGraphHitIndexProducer::fillSimHits(edm::Event& event,
                                                     edm::EventSetup const& setup,
                                                     truth::LogicalGraphHitIndexBuilder& builder,
                                                     hgcal::DetIdRecHitMap const* recHitMap) const {
-  const RelabelContext relabelContext = makeRelabelContext(setup);
+  HcalDDDRecConstants const* const hcal = hcalConstants(setup);
 
   for (uint32_t tokenIndex = 0; tokenIndex < simHitTokens_.size(); ++tokenIndex) {
     auto const& token = simHitTokens_[tokenIndex];
@@ -514,15 +354,15 @@ void TruthLogicalGraphHitIndexProducer::fillSimHits(edm::Event& event,
       continue;
     }
 
-    const bool isHGCalCollection = inputTagLooksLikeHGCal(tag);
-    const bool isHcalCollection = inputTagLooksLikeHcal(tag);
+    HcalDDDRecConstants const* const relabel = inputTagLooksLikeHcal(tag) ? hcal : nullptr;
 
     for (auto const& simHit : *hSimHits) {
       const int geantTrackId = simHit.geantTrackId();
       if (geantTrackId <= 0)
         continue;
 
-      const uint32_t detId = recoDetIdForSimHit(simHit, isHGCalCollection, isHcalCollection, relabelContext);
+      const uint32_t detId =
+          relabel != nullptr ? HcalHitRelabeller::relabel(simHit.id(), relabel).rawId() : simHit.id();
       if (detId == 0)
         continue;
 

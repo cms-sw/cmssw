@@ -43,11 +43,7 @@ truthGraphAccumulator = cms.PSet(
     trackerHits=_tags(
         "TrackerHitsPixelBarrelLowTof", "TrackerHitsPixelBarrelHighTof",
         "TrackerHitsPixelEndcapLowTof", "TrackerHitsPixelEndcapHighTof",
-        "TrackerHitsTIBLowTof", "TrackerHitsTIBHighTof",
-        "TrackerHitsTIDLowTof", "TrackerHitsTIDHighTof",
-        "TrackerHitsTOBLowTof", "TrackerHitsTOBHighTof",
-        "TrackerHitsTECLowTof", "TrackerHitsTECHighTof",
-    ),   # full detector by default; customiseTruthReduced empties this
+    ),   # the Phase-2 tracker writes only these; customiseTruthReduced empties this
     muonHits=_tags("MuonDTHits", "MuonCSCHits", "MuonRPCHits", "MuonGEMHits", "MuonME0Hits"),
     mtdHits=_tags("FastTimerHitsBarrel", "FastTimerHitsEndcap"),
     pileupBunchCrossings=cms.vint32(0),   # in-time pileup for the per-particle graph
@@ -63,19 +59,6 @@ truthGraphAccumulator = cms.PSet(
     collapseGenShowerSignal=cms.bool(False),  # the main event keeps its shower, so the partons
                                               # that feed the hard-scatter strings from the beam
                                               # side are there for the BeamSideInput vertex
-
-)
-
-# The Phase-2 tracker, inner and outer, writes its sim hits into the four Pixel
-# collections only. The others exist in the file but are empty, and each would warn in
-# every event that it is not found.
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(
-    truthGraphAccumulator,
-    trackerHits=_tags(
-        "TrackerHitsPixelBarrelLowTof", "TrackerHitsPixelBarrelHighTof",
-        "TrackerHitsPixelEndcapLowTof", "TrackerHitsPixelEndcapHighTof",
-    ),
 )
 
 # The post-mixing build: logical graph + unresolved hit index from the mixed raw
@@ -112,8 +95,8 @@ truthLogicalGraphHitIndexProducer = _truthLogicalGraphHitIndexProducer.clone(
     rawSrc=cms.InputTag("mix"),
     recHitMap=cms.InputTag(""),   # UNRESOLVED: association is by DetId
     # HCAL simulation DetIds are in packed test numbering; HcalHitRelabeller converts
-    # them to the reco HcalDetIds the association matches on. ECAL barrel and the Run4
-    # HGCAL geometries carry reco DetIds already, so only the HCAL switch is set here.
+    # them to the reco HcalDetIds the association matches on. ECAL barrel and HGCAL
+    # carry reco DetIds already.
     doHcalRelabelling=cms.bool(True),
     subdetectors=cms.vstring("Calo", "Muon", "Tracker"),  # MTD on request, see the header
     # The tracker truth is keyed by (module, cell): a tracker DetId names a module, so

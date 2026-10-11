@@ -43,7 +43,7 @@ namespace truth {
       return false;
 
     const std::size_t ch = static_cast<std::size_t>(channel);
-    appendHit(directHits_[ch][it->second], detId, recHitIndex, energy);
+    directHits_[ch][it->second].push_back(Hit{detId, recHitIndex, energy});
     channelTouched_[ch] = true;
     return true;
   }
@@ -66,14 +66,10 @@ namespace truth {
     auto it = trackIdToParticle_.find(simKey(eventId, trackId));
     if (it == trackIdToParticle_.end())
       return false;
-    appendHit(directHits_[ch][it->second], detId, recHitIndex, energy);
+    directHits_[ch][it->second].push_back(Hit{detId, recHitIndex, energy});
     directTimes_[ch][it->second].push_back(time);
     channelTouched_[ch] = true;
     return true;
-  }
-
-  void LogicalGraphHitIndexBuilder::appendHit(HitList& hits, uint32_t detId, uint32_t recHitIndex, float energy) {
-    hits.push_back(Hit{detId, recHitIndex, energy});
   }
 
   void LogicalGraphHitIndexBuilder::coalesce(HitList& hits, bool cellKeyed) {

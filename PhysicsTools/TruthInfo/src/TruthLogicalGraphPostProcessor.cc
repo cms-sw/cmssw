@@ -528,39 +528,6 @@ namespace {
     }
   }
 
-  // Pile-up filter (orthogonal to the seed selection): drop already-kept particles
-  // by the provenance of their pp collision. signalOnly keeps only (bx 0, event 0);
-  // a non-empty keepBunchCrossings keeps only the listed bunch crossings; the two
-  // AND. A no-op when both are unset (every particle is signal in a no-PU sample).
-  void applyBunchCrossingFilter(truth::Graph const& graph,
-                                bool signalOnly,
-                                std::vector<int32_t> const& keepBunchCrossings,
-                                std::vector<uint8_t>& keepParticle,
-                                std::vector<uint8_t>& stableSpectator) {
-    if (!signalOnly && keepBunchCrossings.empty())
-      return;
-
-    for (uint32_t particleId = 0; particleId < graph.nParticles(); ++particleId) {
-      if (!keepParticle[particleId])
-        continue;
-
-      auto const& data = graph.particles()[particleId];
-      const EncodedEventId eid = truth::decodeEventId(data.eventId);
-
-      bool keep = true;
-      if (signalOnly)
-        keep = data.isSignal();
-      if (keep && !keepBunchCrossings.empty())
-        keep = std::find(keepBunchCrossings.begin(), keepBunchCrossings.end(), eid.bunchCrossing()) !=
-               keepBunchCrossings.end();
-
-      if (!keep) {
-        keepParticle[particleId] = 0;
-        stableSpectator[particleId] = 0;
-      }
-    }
-  }
-
   // Restrict matches to the most upstream ones: a match that is a strict
   // descendant of another match is covered by that match's subgraph and is not
   // an independent root. Single multi-source downstream BFS, O(V + E).
@@ -1099,9 +1066,18 @@ namespace {
     const uint32_t nParticles = input.nParticles();
     const uint32_t nVertices = input.nVertices();
 
+    // signalOnly keeps only (bx 0, event 0); a non-empty keepBunchCrossings keeps only
+    // the listed bunch crossings; the two AND.
     std::vector<uint8_t> keepParticle(nParticles, 1);
-    std::vector<uint8_t> stableSpectator(nParticles, 0);  // unused outside applyBunchCrossingFilter
-    applyBunchCrossingFilter(input, config.signalOnly, config.keepBunchCrossings, keepParticle, stableSpectator);
+    for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
+      auto const& data = input.particles()[particleId];
+      if (config.signalOnly && !data.isSignal()) {
+        keepParticle[particleId] = 0;
+      } else if (!config.keepBunchCrossings.empty()) {
+        const int bx = truth::decodeEventId(data.eventId).bunchCrossing();
+        keepParticle[particleId] = std::ranges::find(config.keepBunchCrossings, bx) != config.keepBunchCrossings.end();
+      }
+    }
 
     std::vector<uint8_t> keepVertex(nVertices, 1);
     dropVerticesWithoutVisibleParticles(input, keepParticle, keepVertex);

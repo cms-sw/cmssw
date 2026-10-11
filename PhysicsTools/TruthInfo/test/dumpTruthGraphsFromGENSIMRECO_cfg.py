@@ -219,7 +219,6 @@ process.truthLogicalGraphHitIndexProducer = cms.EDProducer(
         cms.InputTag("g4SimHits", "HcalHits", "SIM"),
     ),
 
-    doHGCalRelabelling=cms.bool(False),
 )
 
 process.truthLogicalGraphDumper = cms.EDAnalyzer(
@@ -279,14 +278,6 @@ process.trackerSimHitTable = cms.EDProducer(
         cms.InputTag("g4SimHits", "TrackerHitsPixelBarrelHighTof"),
         cms.InputTag("g4SimHits", "TrackerHitsPixelEndcapLowTof"),
         cms.InputTag("g4SimHits", "TrackerHitsPixelEndcapHighTof"),
-        cms.InputTag("g4SimHits", "TrackerHitsTIBLowTof"),
-        cms.InputTag("g4SimHits", "TrackerHitsTIBHighTof"),
-        cms.InputTag("g4SimHits", "TrackerHitsTIDLowTof"),
-        cms.InputTag("g4SimHits", "TrackerHitsTIDHighTof"),
-        cms.InputTag("g4SimHits", "TrackerHitsTOBLowTof"),
-        cms.InputTag("g4SimHits", "TrackerHitsTOBHighTof"),
-        cms.InputTag("g4SimHits", "TrackerHitsTECLowTof"),
-        cms.InputTag("g4SimHits", "TrackerHitsTECHighTof"),
     ),
 )
 # process.load('Configuration.EventContent.EventContent_cff')

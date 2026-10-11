@@ -46,10 +46,6 @@ namespace truth {
     std::vector<int> vtxBarcodes;
     std::vector<int> partBarcodes;
 
-    // index -> barcode in HepMC iteration order, for diagnostics only.
-    // SimTrack::genpartIndex() is a barcode, not an index into this vector.
-    std::vector<int> particleBarcodeByIndex;
-
     std::vector<std::pair<int, int>> vtxToPart;
     std::vector<std::pair<int, int>> partToVtx;
 

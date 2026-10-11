@@ -75,7 +75,6 @@ namespace truth {
 
     gb.particlePdgIdByBarcode.reserve(ev.particles_size() * 2);
     gb.particleStatusByBarcode.reserve(ev.particles_size() * 2);
-    gb.particleBarcodeByIndex.reserve(ev.particles_size());
 
     for (auto v = ev.vertices_begin(); v != ev.vertices_end(); ++v) {
       if (*v == nullptr)
@@ -122,7 +121,6 @@ namespace truth {
 
       const int pbc = (*p)->barcode();
 
-      gb.particleBarcodeByIndex.push_back(pbc);
       gb.particlePdgIdByBarcode.emplace(pbc, (*p)->pdg_id());
       gb.particleStatusByBarcode.emplace(pbc, static_cast<int16_t>((*p)->status()));
       auto const& p4 = (*p)->momentum();
@@ -151,7 +149,6 @@ namespace truth {
 
     gb.particlePdgIdByBarcode.reserve(ev.particles().size() * 2);
     gb.particleStatusByBarcode.reserve(ev.particles().size() * 2);
-    gb.particleBarcodeByIndex.reserve(ev.particles().size());
 
     for (auto const& vptr : ev.vertices()) {
       if (!vptr)
@@ -197,7 +194,6 @@ namespace truth {
 
       const int pbc = pptr->id();
 
-      gb.particleBarcodeByIndex.push_back(pbc);
       gb.particlePdgIdByBarcode.emplace(pbc, pptr->pid());
       gb.particleStatusByBarcode.emplace(pbc, static_cast<int16_t>(pptr->status()));
       auto const& p4 = pptr->momentum();
@@ -344,12 +340,6 @@ namespace truth {
         vtxBarcodes.push_back(vbc);
     }
 
-    std::vector<int> particleBarcodeByIndex;
-    for (const int pbc : gb.particleBarcodeByIndex) {
-      if (keptBarcodes.count(pbc) != 0)
-        particleBarcodeByIndex.push_back(pbc);
-    }
-
     pruneMap(gb.particlePdgIdByBarcode, keptBarcodes);
     pruneMap(gb.particleStatusByBarcode, keptBarcodes);
     pruneMap(gb.particleStatusFlagsByBarcode, keptBarcodes);
@@ -357,7 +347,6 @@ namespace truth {
 
     gb.partBarcodes = std::move(partBarcodes);
     gb.vtxBarcodes = std::move(vtxBarcodes);
-    gb.particleBarcodeByIndex = std::move(particleBarcodeByIndex);
     gb.vtxToPart = std::move(vtxToPart);
     gb.partToVtx = std::move(partToVtx);
 

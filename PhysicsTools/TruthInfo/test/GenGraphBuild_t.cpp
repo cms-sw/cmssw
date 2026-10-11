@@ -73,7 +73,6 @@ namespace {
 
     for (auto const& p : particles) {
       gb.partBarcodes.push_back(p.barcode);
-      gb.particleBarcodeByIndex.push_back(p.barcode);
       gb.particlePdgIdByBarcode.emplace(p.barcode, p.pdgId);
       gb.particleStatusByBarcode.emplace(p.barcode, p.status);
       gb.particleStatusFlagsByBarcode.emplace(p.barcode, p.flags);
@@ -129,7 +128,6 @@ namespace {
 
     for (auto const& p : particles) {
       gb.partBarcodes.push_back(p.barcode);
-      gb.particleBarcodeByIndex.push_back(p.barcode);
       gb.particlePdgIdByBarcode.emplace(p.barcode, p.pdgId);
       gb.particleStatusByBarcode.emplace(p.barcode, p.status);
       if (p.prodVertex != 0)
@@ -243,7 +241,6 @@ void TestGenGraphBuild::testKeptSet() {
   CPPUNIT_ASSERT(gb.particlePdgIdByBarcode.size() == expected.size());
   CPPUNIT_ASSERT(gb.particleStatusByBarcode.size() == expected.size());
   CPPUNIT_ASSERT(gb.particleStatusFlagsByBarcode.size() == expected.size());
-  CPPUNIT_ASSERT(gb.particleBarcodeByIndex.size() == expected.size());
 
   // A vertex survives only if it still produces a survivor: V-6 produced the string
   // only, so it is bypassed.
