@@ -57,10 +57,30 @@ namespace edm {
 
   void ServiceRegistry::unsetContext(ServiceToken const& iOldToken) { manager_ = iOldToken.manager_; }
 
+  void ServiceRegistry::setContextNonOwning(ServiceToken const& iNewToken, OperateNonOwning& iSaved) {
+    iSaved.oldManager_ = std::move(manager_);
+    iSaved.oldOwner_ = owner_;
+    // aliasing constructor with an empty owner: a non-owning pointer without a control block
+    manager_ = std::shared_ptr<serviceregistry::ServicesManager>(std::shared_ptr<serviceregistry::ServicesManager>(),
+                                                                 iNewToken.manager_.get());
+    owner_ = &iNewToken;
+  }
+
+  void ServiceRegistry::unsetContextNonOwning(OperateNonOwning& iSaved) {
+    manager_ = std::move(iSaved.oldManager_);
+    owner_ = iSaved.oldOwner_;
+  }
+
   //
   // const member functions
   //
-  ServiceToken ServiceRegistry::presentToken() const { return manager_; }
+  ServiceToken ServiceRegistry::presentToken() const {
+    // while the services are made available by OperateNonOwning, manager_ does not own them: return the owning token
+    if (owner_ and owner_->manager_.get() == manager_.get()) {
+      return *owner_;
+    }
+    return manager_;
+  }
 
   //
   // static member functions

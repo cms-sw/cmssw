@@ -2080,7 +2080,7 @@ namespace edm {
   void EventProcessor::processEventAsyncImpl(WaitingTaskHolder iHolder, unsigned int iStreamIndex) {
     auto pep = &(principalCache_.eventPrincipal(iStreamIndex));
 
-    ServiceRegistry::Operate operate(serviceToken_);
+    ServiceRegistry::OperateNonOwning operate(serviceToken_);
     Service<RandomNumberGenerator> rng;
     if (rng.isAvailable()) {
       Event ev(*pep, ModuleDescription(), nullptr);
@@ -2095,7 +2095,7 @@ namespace edm {
       chain::first([this, pep](auto nextTask) {
         prefetchForRandomNumberGeneratorAsync(std::move(nextTask), *pep, serviceToken_);
       }) | then([this, pep](auto nextTask) {
-        ServiceRegistry::Operate operate(serviceToken_);
+        ServiceRegistry::OperateNonOwning operate(serviceToken_);
         Service<RandomNumberGenerator> rng;
         if (rng.isAvailable()) {
           Event ev(*pep, ModuleDescription(), nullptr);
@@ -2108,7 +2108,7 @@ namespace edm {
       schedule_->processOneEventAsync(std::move(nextTask), iStreamIndex, info, serviceToken_);
     }) | ifThen(looper_, [this, iStreamIndex, pep](auto nextTask) {
       //NOTE: behavior change. previously if an exception happened looper was still called. Now it will not be called
-      ServiceRegistry::Operate operateLooper(serviceToken_);
+      ServiceRegistry::OperateNonOwning operateLooper(serviceToken_);
       processEventWithLooper(*pep, iStreamIndex);
     }) | then([this, pep](auto nextTask) {
       StreamContext streamContext(pep->streamID(),

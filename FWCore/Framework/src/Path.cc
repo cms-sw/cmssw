@@ -182,7 +182,7 @@ namespace edm {
     waitingTasks_.add(iTask);
     printedException_ = false;
     if (actReg_) {
-      ServiceRegistry::Operate guard(iToken);
+      ServiceRegistry::OperateNonOwning guard(iToken);
       actReg_->prePathEventSignal_.emit(*iStreamContext, pathContext_);
     }
     //If the Path succeeds, these are the values we have at the end
@@ -190,7 +190,7 @@ namespace edm {
     failedModuleIndex_ = workers_.size() - 1;
 
     if (workers_.empty()) {
-      ServiceRegistry::Operate guard(iToken);
+      ServiceRegistry::OperateNonOwning guard(iToken);
       finished(std::exception_ptr(), iStreamContext, iInfo, iStreamID);
       return;
     }
@@ -206,7 +206,7 @@ namespace edm {
                             StreamContext const* iContext,
                             oneapi::tbb::task_group& iGroup) {
     EventPrincipal const& iEP = iInfo.principal();
-    ServiceRegistry::Operate guard(iToken);
+    ServiceRegistry::OperateNonOwning guard(iToken);
 
     //This call also allows the WorkerInPath to update statistics
     // so should be done even if an exception happened
@@ -310,10 +310,12 @@ namespace edm {
       ++lastModuleIndex;
     }
     for (; lastModuleIndex >= firstModuleIndex; --lastModuleIndex) {
-      ServiceWeakToken weakToken = iToken;
-      auto nextTask = make_waiting_task([this, lastModuleIndex, info = iInfo, iID, iContext, weakToken, &iGroup](
+      // iToken is owned by the EventProcessor and outlives the processing of the event: refer to it instead of
+      // copying it, to avoid updating its reference count from every module of every path
+      ServiceToken const* token = &iToken;
+      auto nextTask = make_waiting_task([this, lastModuleIndex, info = iInfo, iID, iContext, token, &iGroup](
                                             std::exception_ptr const* iException) {
-        this->workerFinished(iException, lastModuleIndex, info, weakToken.lock(), iID, iContext, iGroup);
+        this->workerFinished(iException, lastModuleIndex, info, *token, iID, iContext, iGroup);
       });
       workers_[lastModuleIndex].runWorkerAsync(WaitingTaskHolder(iGroup, nextTask), iInfo, iToken, iID, iContext);
     }

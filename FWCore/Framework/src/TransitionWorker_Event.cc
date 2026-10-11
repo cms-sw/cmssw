@@ -11,10 +11,11 @@ namespace edm {
       EventPrincipal const* iPrincipal) noexcept {
     successTask->increment_ref_count();
 
-    ServiceWeakToken weakToken = token;
+    // the token is owned by the EventProcessor and outlives the task: refer to it instead of copying it
+    ServiceToken const* serviceToken = &token;
     auto choiceTask =
-        edm::make_waiting_task([id, successTask, iPrincipal, this, weakToken, &group](std::exception_ptr const*) {
-          ServiceRegistry::Operate guard(weakToken.lock());
+        edm::make_waiting_task([id, successTask, iPrincipal, this, serviceToken, &group](std::exception_ptr const*) {
+          ServiceRegistry::OperateNonOwning guard(*serviceToken);
           try {
             bool selected = convertException::wrap([&]() {
               if (not implDoPrePrefetchSelection(id, *iPrincipal, &moduleCallingContext_)) {

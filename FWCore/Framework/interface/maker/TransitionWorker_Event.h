@@ -274,12 +274,12 @@ namespace edm {
             m_streamID(streamID),
             m_parentContext(parentContext),
             m_context(context),
-            m_serviceToken(token),
+            m_serviceToken(&token),
             m_group(iGroup) {}
 
       void execute() final {
         //Need to make the services available early so other services can see them
-        ServiceRegistry::Operate guard(m_serviceToken.lock());
+        ServiceRegistry::OperateNonOwning guard(*m_serviceToken);
 
         using OccTraits = OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>;
         //incase the emit causes an exception, we need a memory location
@@ -308,7 +308,7 @@ namespace edm {
                       sContext = m_context,
                       serviceToken = m_serviceToken]() {
               //Need to make the services available
-              ServiceRegistry::Operate operateRunModule(serviceToken.lock());
+              ServiceRegistry::OperateNonOwning operateRunModule(*serviceToken);
 
               std::exception_ptr ptr;
               worker->runModuleAfterAsyncPrefetch(ptr, info, streamID, parentContext, sContext);
@@ -327,7 +327,8 @@ namespace edm {
       StreamID m_streamID;
       ParentContext const m_parentContext;
       StreamContext const* m_context;
-      ServiceWeakToken m_serviceToken;
+      // the token is owned by the EventProcessor and outlives the task: refer to it instead of copying it
+      ServiceToken const* m_serviceToken;
       oneapi::tbb::task_group* m_group;
     };
 
@@ -342,11 +343,11 @@ namespace edm {
             m_eventTransitionInfo(eventTransitionInfo),
             m_parentContext(parentContext),
             m_holder(std::move(holder)),
-            m_serviceToken(token) {}
+            m_serviceToken(&token) {}
 
       void execute() final {
         //Need to make the services available early so other services can see them
-        ServiceRegistry::Operate guard(m_serviceToken.lock());
+        ServiceRegistry::OperateNonOwning guard(*m_serviceToken);
 
         //incase the emit causes an exception, we need a memory location
         // to hold the exception_ptr
@@ -372,7 +373,7 @@ namespace edm {
                         serviceToken = m_serviceToken,
                         holder = std::move(m_holder)]() mutable {
                          //Need to make the services available
-                         ServiceRegistry::Operate operateRunAcquire(serviceToken.lock());
+                         ServiceRegistry::OperateNonOwning operateRunAcquire(*serviceToken);
 
                          std::exception_ptr ptr;
                          worker->runAcquireAfterAsyncPrefetch(ptr, info, parentContext, std::move(holder));
@@ -389,7 +390,8 @@ namespace edm {
       EventTransitionInfo m_eventTransitionInfo;
       ParentContext const m_parentContext;
       WaitingTaskHolder m_holder;
-      ServiceWeakToken m_serviceToken;
+      // the token is owned by the EventProcessor and outlives the task: refer to it instead of copying it
+      ServiceToken const* m_serviceToken;
     };
 
     // This class does nothing unless there is an exception originating
@@ -480,25 +482,25 @@ namespace edm {
         };
         if (hasAcquire()) {
           auto ownRunTask = std::make_shared<DestroyTask>(moduleTask);
-          ServiceWeakToken weakToken = token;
+          ServiceToken const* serviceToken = &token;
           auto* group = task.group();
           moduleTask = make_waiting_task(
-              [this, weakToken, transitionInfo, parentContext, ownRunTask, group](std::exception_ptr const* iExcept) {
+              [this, serviceToken, transitionInfo, parentContext, ownRunTask, group](std::exception_ptr const* iExcept) {
                 WaitingTaskHolder runTaskHolder(
                     *group, new HandleExternalWorkExceptionTask(this, group, ownRunTask->release(), parentContext));
-                AcquireTask t(this, transitionInfo, weakToken.lock(), parentContext, runTaskHolder);
+                AcquireTask t(this, transitionInfo, *serviceToken, parentContext, runTaskHolder);
                 t.execute();
               });
         }
         auto* group = task.group();
         auto ownModuleTask = std::make_shared<DestroyTask>(moduleTask);
-        ServiceWeakToken weakToken = token;
+        ServiceToken const* serviceToken = &token;
         auto selectionTask =
-            make_waiting_task([ownModuleTask, parentContext, info = transitionInfo, weakToken, group, this](
+            make_waiting_task([ownModuleTask, parentContext, info = transitionInfo, serviceToken, group, this](
                                   std::exception_ptr const*) mutable {
-              ServiceRegistry::Operate guard(weakToken.lock());
+              ServiceRegistry::OperateNonOwning guard(*serviceToken);
               prefetchAsync(WaitingTaskHolder(*group, ownModuleTask->release()),
-                            weakToken.lock(),
+                            *serviceToken,
                             parentContext,
                             info,
                             OccTraits::transition_);
