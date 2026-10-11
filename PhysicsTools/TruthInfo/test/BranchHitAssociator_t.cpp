@@ -131,6 +131,22 @@ namespace {
     return b.finish();
   }
 
+  // Two independent roots on two cells whose low 16 bits order them the other way round:
+  //   p0 direct: cell 0x00020001 (e3), cell 0x00010002 (e1)
+  //   p1 direct: cell 0x00010002 (e1)
+  constexpr uint32_t kHighCell = 0x00020001u;
+  constexpr uint32_t kLowCell = 0x00010002u;
+
+  truth::LogicalGraphHitIndex buildHighBitsIndex() {
+    truth::LogicalGraphHitIndexBuilder b(2);
+    b.setSimTrackForParticle(0, 0, 100);
+    b.setSimTrackForParticle(1, 0, 101);
+    b.addHit(truth::HitChannel::Calo, 0, 100, kHighCell, 3.0f, 0);
+    b.addHit(truth::HitChannel::Calo, 0, 100, kLowCell, 1.0f, 0);
+    b.addHit(truth::HitChannel::Calo, 0, 101, kLowCell, 1.0f, 0);
+    return b.finish();
+  }
+
   truth::BranchHitAssociator trackerAssociator(truth::LogicalGraphHitIndex const& index) {
     return truth::BranchHitAssociator(
         index, {}, truth::BranchHitAssociator::Metric::SharedHits, truth::HitChannel::Tracker);
@@ -162,6 +178,8 @@ class TestBranchHitAssociator : public CppUnit::TestFixture {
   CPPUNIT_TEST(testAnAncestorKeepsEveryCellOfAModule);
   CPPUNIT_TEST(testAModuleKeyedIndexIsRecognisedAndMatchesNothing);
   CPPUNIT_TEST(testTheTwoTrackerPackingsAreNotInterchangeable);
+  CPPUNIT_TEST(testTheCellIndexOrdersTheFullDetId);
+  CPPUNIT_TEST(testTheCandidateRootsAreASet);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -187,6 +205,8 @@ public:
   void testAnAncestorKeepsEveryCellOfAModule();
   void testAModuleKeyedIndexIsRecognisedAndMatchesNothing();
   void testTheTwoTrackerPackingsAreNotInterchangeable();
+  void testTheCellIndexOrdersTheFullDetId();
+  void testTheCandidateRootsAreASet();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranchHitAssociator);
@@ -690,4 +710,34 @@ void TestBranchHitAssociator::testTheTwoTrackerPackingsAreNotInterchangeable() {
   // Distinct cells of one module stay distinct in both, which is the whole point.
   CPPUNIT_ASSERT(truth::pixelCell(3, 5) != truth::pixelCell(3, 6));
   CPPUNIT_ASSERT(truth::outerTrackerCell(3, 5) != truth::outerTrackerCell(4, 5));
+}
+
+void TestBranchHitAssociator::testTheCellIndexOrdersTheFullDetId() {
+  // A cell that differs from another only above bit 16 still finds every root on it.
+  auto index = buildHighBitsIndex();
+  truth::BranchHitAssociator assoc(index);
+  std::vector<truth::RecoHit> onLow{{kLowCell, 1.0f}};
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), assoc.bestBranches(onLow).size());
+  std::vector<truth::RecoHit> onHigh{{kHighCell, 1.0f}};
+  auto matches = assoc.bestBranches(onHigh);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), matches.size());
+  CPPUNIT_ASSERT_EQUAL(uint32_t(0), matches[0].rootParticleId);
+}
+
+void TestBranchHitAssociator::testTheCandidateRootsAreASet() {
+  // The order and the repeats of candidateRoots do not change any match.
+  auto index = buildHighBitsIndex();
+  std::vector<truth::RecoHit> reco{{kHighCell, 1.0f}, {kLowCell, 1.0f}};
+  auto expected = truth::BranchHitAssociator(index, {0, 1}).bestBranches(reco);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), expected.size());
+  for (std::vector<uint32_t> roots : {std::vector<uint32_t>{1, 0}, std::vector<uint32_t>{1, 1, 0, 0}}) {
+    auto matches = truth::BranchHitAssociator(index, roots).bestBranches(reco);
+    CPPUNIT_ASSERT_EQUAL(expected.size(), matches.size());
+    for (std::size_t i = 0; i < matches.size(); ++i) {
+      CPPUNIT_ASSERT_EQUAL(expected[i].rootParticleId, matches[i].rootParticleId);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[i].score, matches[i].score, 1e-6);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[i].reverseScore, matches[i].reverseScore, 1e-6);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[i].sharedEnergyFraction, matches[i].sharedEnergyFraction, 1e-6);
+    }
+  }
 }

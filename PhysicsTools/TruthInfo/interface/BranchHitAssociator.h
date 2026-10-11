@@ -118,11 +118,12 @@ namespace truth {
     static constexpr uint32_t kAllDetectors = 0xFFFFu;
     [[nodiscard]] static uint32_t detectorBit(uint32_t detId);
 
-    // candidateRoots restricts the branch roots considered. By default an empty
-    // list means "every particle" (the common unrestricted case). Pass
-    // emptyRootsMeansAll = false to instead treat an empty list as "no candidates"
-    // (match nothing) - needed when a caller asked for a restriction that happened
-    // to select no particle in this event, which must not silently fall back to all.
+    // candidateRoots restricts the branch roots considered, in any order; a repeated id
+    // counts once. By default an empty list means "every particle" (the common
+    // unrestricted case). Pass emptyRootsMeansAll = false to instead treat an empty list
+    // as "no candidates" (match nothing) - needed when a caller asked for a restriction
+    // that happened to select no particle in this event, which must not silently fall
+    // back to all.
     // recHitEnergies, when given, weights every cell of the SharedEnergy metric by its
     // reconstructed energy instead of its total sim energy; it must outlive the
     // associator.
@@ -188,15 +189,20 @@ namespace truth {
     // The weight of a cell in the SharedEnergy metric: its rechit energy with a
     // CellEnergyTable, its total sim energy without one.
     [[nodiscard]] float cellWeight(uint32_t detId) const;
-    // A branch hit's energy in the SharedEnergy metric: its sim fraction of the cell
-    // times the cell weight.
-    [[nodiscard]] float branchHitEnergy(LogicalGraphHitIndex::Hit const& hit) const;
-    // The same with a table, from the hit energy and the two values of its cell.
+    // A branch hit's energy in the SharedEnergy metric with a table: its sim fraction of
+    // the cell times the rechit energy of the cell.
     [[nodiscard]] static float branchHitEnergy(float hitEnergy, float cellTotal, float cellRecHitEnergy) {
       return cellTotal > 0.f ? hitEnergy / cellTotal * cellRecHitEnergy : 0.f;
     }
-    // The position of a cell in cellEnergyKeys_, or its size if the cell has no sim hit.
-    [[nodiscard]] std::size_t cellSlot(uint32_t detId) const;
+
+    // One subgraph hit of one candidate root, for the build of the inverted index.
+    struct CellRootHit {
+      uint32_t detId;
+      uint32_t root;
+      float energy;
+    };
+    // Orders the entries by detId and keeps their order within one detId.
+    static void stableSortByDetId(std::vector<CellRootHit>& entries);
 
     LogicalGraphHitIndex const* hitIndex_;
     CellEnergyTable const* recHitEnergies_ = nullptr;

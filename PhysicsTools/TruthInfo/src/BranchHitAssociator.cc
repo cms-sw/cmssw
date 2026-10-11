@@ -12,6 +12,24 @@
 
 namespace truth {
 
+  void BranchHitAssociator::stableSortByDetId(std::vector<CellRootHit>& entries) {
+    // Two stable counting passes, on the low and on the high half of the detId.
+    constexpr unsigned int kDigitBits = 16;
+    constexpr uint32_t kDigitMask = (1u << kDigitBits) - 1u;
+    std::vector<CellRootHit> scratch(entries.size());
+    std::vector<uint32_t> start(kDigitMask + 2u);
+    for (const unsigned int shift : {0u, kDigitBits}) {
+      std::ranges::fill(start, 0u);
+      for (auto const& e : entries)
+        ++start[((e.detId >> shift) & kDigitMask) + 1];
+      for (std::size_t b = 1; b < start.size(); ++b)
+        start[b] += start[b - 1];
+      for (auto const& e : entries)
+        scratch[start[(e.detId >> shift) & kDigitMask]++] = e;
+      entries.swap(scratch);
+    }
+  }
+
   uint32_t BranchHitAssociator::detectorBit(uint32_t detId) { return 1u << DetId(detId).det(); }
 
   void CellEnergyTable::finalize() {
@@ -61,6 +79,11 @@ namespace truth {
     if (roots_.empty() && emptyRootsMeansAll) {
       roots_.resize(hitIndex_->nParticles());
       std::iota(roots_.begin(), roots_.end(), 0u);
+    } else {
+      // The cell index needs each root once, in ascending order.
+      if (!std::ranges::is_sorted(roots_))
+        std::ranges::sort(roots_);
+      roots_.erase(std::ranges::unique(roots_).begin(), roots_.end());
     }
 
     // Only the SharedEnergy metric reads the cell energies and the root energies.
@@ -97,56 +120,66 @@ namespace truth {
 
     buildRootHits();
 
-    // Inverted index detId -> candidate roots, from each candidate's subgraph
-    // hits. Built as a flat (detId, root) list, sorted, then packed CSR-style so
-    // lookups are a binary search plus a contiguous root span (no hashing).
-    if (energyWeighted) {
-      rootSelfEnergySq_.assign(hitIndex_->nParticles(), 0.0);
-      rootEnergy_.assign(hitIndex_->nParticles(), 0.0);
-    }
-    std::vector<std::pair<uint32_t, uint32_t>> pairs;  // (detId, root)
+    // Inverted index detId -> candidate roots, from each candidate's subgraph hits,
+    // packed CSR-style so a lookup is a binary search plus a contiguous root span. The
+    // entries are ordered by detId, then root, and one pass over them fills the index
+    // and the root energies, reading the cell values by a merge with cellEnergyKeys_.
+    std::vector<CellRootHit> entries;
     std::size_t totalRootHits = 0;
     for (const uint32_t root : roots_) {
       if (root < hitIndex_->nParticles())
         totalRootHits += rootHits(root).size();
     }
-    pairs.reserve(totalRootHits);
+    entries.reserve(totalRootHits);
     for (const uint32_t root : roots_) {
       if (root >= hitIndex_->nParticles())
         continue;
-      double selfEnergySq = 0.0;
-      double selfEnergy = 0.0;
-      for (auto const& hit : rootHits(root)) {
-        pairs.emplace_back(hit.detId, root);
+      for (auto const& hit : rootHits(root))
+        entries.push_back({hit.detId, root, hit.energy});
+    }
+    // The entries are grouped by ascending root, so a stable sort by detId gives the
+    // (detId, root) order, and each root accumulates its energies in the order of its hits.
+    stableSortByDetId(entries);
+
+    if (energyWeighted) {
+      rootSelfEnergySq_.assign(hitIndex_->nParticles(), 0.0);
+      rootEnergy_.assign(hitIndex_->nParticles(), 0.0);
+    }
+    cellRootsOffsets_.push_back(0);
+    cellRoots_.reserve(entries.size());
+    std::size_t slot = 0;
+    for (std::size_t i = 0; i < entries.size();) {
+      const uint32_t detId = entries[i].detId;
+      cellRootsKeys_.push_back(detId);
+      float cellTotal = 0.f;
+      float cellRecHit = 0.f;
+      bool knownCell = false;
+      if (energyWeighted) {
+        while (slot < cellEnergyKeys_.size() && cellEnergyKeys_[slot] < detId)
+          ++slot;
+        knownCell = slot < cellEnergyKeys_.size() && cellEnergyKeys_[slot] == detId;
+        if (knownCell) {
+          cellTotal = cellEnergyValues_[slot];
+          cellRecHit = recHitEnergies_ != nullptr ? cellRecHitEnergy_[slot] : 0.f;
+        }
+      }
+      // The linear total is the sharedEnergyFraction denominator, so it counts only the
+      // detectors the caller reconstructs; the squared one is the TICL score denominator
+      // and stays over the whole channel, as the reference computes it.
+      const bool inDenominator = (denominatorDetectors_ & detectorBit(detId)) != 0u;
+      for (; i < entries.size() && entries[i].detId == detId; ++i) {
+        const uint32_t root = entries[i].root;
+        cellRoots_.push_back(root);
         if (!energyWeighted)
           continue;
-        const float energy = branchHitEnergy(hit);
-        selfEnergySq += static_cast<double>(energy) * energy;
-        // The linear total is the sharedEnergyFraction denominator, so it counts only
-        // the detectors the caller reconstructs; the squared one is the TICL score
-        // denominator and stays over the whole channel, as the reference computes it.
-        if ((denominatorDetectors_ & detectorBit(hit.detId)) != 0u)
-          selfEnergy += energy;
-      }
-      if (energyWeighted) {
-        rootSelfEnergySq_[root] = selfEnergySq;
-        rootEnergy_[root] = selfEnergy;
-      }
-    }
-    std::sort(pairs.begin(), pairs.end());  // by detId, then root
-
-    cellRootsOffsets_.push_back(0);
-    cellRoots_.reserve(pairs.size());
-    for (std::size_t i = 0; i < pairs.size();) {
-      const uint32_t detId = pairs[i].first;
-      cellRootsKeys_.push_back(detId);
-      std::size_t j = i;
-      while (j < pairs.size() && pairs[j].first == detId) {
-        cellRoots_.push_back(pairs[j].second);
-        ++j;
+        const float energy = recHitEnergies_ == nullptr
+                                 ? entries[i].energy
+                                 : (knownCell ? branchHitEnergy(entries[i].energy, cellTotal, cellRecHit) : 0.f);
+        rootSelfEnergySq_[root] += static_cast<double>(energy) * energy;
+        if (inDenominator)
+          rootEnergy_[root] += energy;
       }
       cellRootsOffsets_.push_back(static_cast<uint32_t>(cellRoots_.size()));
-      i = j;
     }
   }
 
@@ -237,25 +270,11 @@ namespace truth {
     return recHitEnergies_ != nullptr ? recHitEnergies_->energy(detId) : cellTotalEnergy(detId);
   }
 
-  float BranchHitAssociator::branchHitEnergy(LogicalGraphHitIndex::Hit const& hit) const {
-    if (recHitEnergies_ == nullptr)
-      return hit.energy;
-    const std::size_t k = cellSlot(hit.detId);
-    if (k == cellEnergyKeys_.size())
-      return 0.f;
-    return branchHitEnergy(hit.energy, cellEnergyValues_[k], cellRecHitEnergy_[k]);
-  }
-
-  std::size_t BranchHitAssociator::cellSlot(uint32_t detId) const {
+  float BranchHitAssociator::cellTotalEnergy(uint32_t detId) const {
     auto it = std::lower_bound(cellEnergyKeys_.begin(), cellEnergyKeys_.end(), detId);
     if (it == cellEnergyKeys_.end() || *it != detId)
-      return cellEnergyKeys_.size();
-    return static_cast<std::size_t>(it - cellEnergyKeys_.begin());
-  }
-
-  float BranchHitAssociator::cellTotalEnergy(uint32_t detId) const {
-    const std::size_t k = cellSlot(detId);
-    return k == cellEnergyKeys_.size() ? 0.f : cellEnergyValues_[k];
+      return 0.f;
+    return cellEnergyValues_[static_cast<std::size_t>(it - cellEnergyKeys_.begin())];
   }
 
   std::vector<BranchMatch> BranchHitAssociator::bestBranches(std::span<const RecoHit> recoHitsIn,
