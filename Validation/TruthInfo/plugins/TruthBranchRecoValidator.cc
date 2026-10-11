@@ -26,9 +26,11 @@
 
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
@@ -224,7 +226,6 @@ private:
   // single overwhelming winner. Restricting the candidates to one level makes them
   // distinct physical particles, which is what "different generated particles" means.
   edm::EDGetTokenT<std::vector<unsigned int>> dominanceTargetsToken_;
-  bool hasDominanceTargets_ = false;
 
   // One entry per (collection, graph level) for a hit-based domain, per collection for
   // a composite one, in booking order: the truth-driven monitor elements.
@@ -273,6 +274,7 @@ private:
   // zero rather than as a configuration error. Warn once per job per entry.
   mutable std::vector<std::once_flag> wpMissingWarned_;
   mutable std::vector<std::once_flag> truthMissingWarned_;
+  mutable std::once_flag dominanceMissingWarned_;
   const truth::TruthBranchHistoProducerAlgo algo_;
 };
 
@@ -296,7 +298,10 @@ TruthBranchRecoValidator<RECO>::TruthBranchRecoValidator(edm::ParameterSet const
   const auto associator = cfg.getParameter<std::string>("associator");
   const auto targetsProducer = cfg.getParameter<std::string>("targetsProducer");
   const auto workingPoints = cfg.getParameter<std::vector<std::string>>("workingPoints");
-  nWorkingPoints_ = std::max<std::size_t>(1, workingPoints.size());
+  if (workingPoints.empty()) {
+    throw cms::Exception("Configuration") << "TruthBranchRecoValidator: workingPoints is empty";
+  }
+  nWorkingPoints_ = workingPoints.size();
 
   // The truth-driven folder suffixes and the denominator instance each consumes. A
   // hit-based domain has one target set per graph level; a composite one has a single
@@ -335,13 +340,14 @@ TruthBranchRecoValidator<RECO>::TruthBranchRecoValidator(edm::ParameterSet const
   if constexpr (!Traits::truthIsVertex) {
     auto const& levels = cfg.getParameter<std::vector<std::string>>("truthLevels");
     const std::string wanted = cfg.getParameter<std::string>("dominanceLevel");
-    if (std::find(levels.begin(), levels.end(), wanted) != levels.end()) {
-      std::string capitalized = wanted;
-      capitalized[0] = std::toupper(static_cast<unsigned char>(capitalized[0]));
-      dominanceTargetsToken_ = consumes<std::vector<unsigned int>>(
-          edm::InputTag(targetsProducer, std::string(Traits::denominatorInstance) + capitalized));
-      hasDominanceTargets_ = true;
+    if (std::find(levels.begin(), levels.end(), wanted) == levels.end()) {
+      throw cms::Exception("Configuration")
+          << "TruthBranchRecoValidator: dominanceLevel '" << wanted << "' is not in truthLevels";
     }
+    std::string capitalized = wanted;
+    capitalized[0] = std::toupper(static_cast<unsigned char>(capitalized[0]));
+    dominanceTargetsToken_ = consumes<std::vector<unsigned int>>(
+        edm::InputTag(targetsProducer, std::string(Traits::denominatorInstance) + capitalized));
   }
 
   for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("recoCollections")) {
@@ -478,16 +484,20 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
   // guard for a collection whose associator does insert ancestor roots, not because it
   // changes any number quoted here.
   //
-  // Empty means the criterion cannot be applied, either because the domain configures no
-  // antichain or because the product was missing, and the fake rate falls back to
-  // "matched to nothing". Gating on this rather than on hasDominanceTargets_ keeps a
-  // missing product from silently computing dominance over an unprojected candidate list.
+  // Empty for a composite domain, whose candidates are truth vertices and need no
+  // projection, and for a hit-based domain whose product is missing: that domain then
+  // fills no dominance quantity and its fake rate is "matched to nothing".
   constexpr uint32_t kNoDominanceRoot = std::numeric_limits<uint32_t>::max();
   std::vector<uint32_t> dominanceRoot;
-  if (hasDominanceTargets_) {
+  if constexpr (!Traits::truthIsVertex) {
     edm::Handle<std::vector<unsigned int>> targets;
     event.getByToken(dominanceTargetsToken_, targets);
-    if (targets.isValid()) {
+    if (!targets.isValid()) {
+      std::call_once(dominanceMissingWarned_, []() {
+        edm::LogWarning("TruthBranchRecoValidator")
+            << "no dominance-level targets: no object gets a dominance measure or a level candidate in this job.";
+      });
+    } else {
       dominanceRoot.assign(graph.nParticles(), kNoDominanceRoot);
       std::vector<uint32_t> worklist;
       worklist.reserve(graph.nParticles());
@@ -567,7 +577,7 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
         // contamination quadratically and so condemns an object that one branch
         // plainly dominates. The row is not sorted by shared energy, so the leader is
         // taken by scan.
-        if (allCandidates == nullptr) {
+        if (allCandidates == nullptr || (!Traits::truthIsVertex && dominanceRoot.empty())) {
           continue;
         }
         auto const& row = allCandidates->getMap()[r];

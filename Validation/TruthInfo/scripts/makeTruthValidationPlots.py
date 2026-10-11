@@ -35,7 +35,7 @@ plt.style.use(hep.style.CMS)
 # keeps the first colour of the Petroff cycle everywhere in the gallery so colour
 # follows the entity.
 REFERENCE_WP = "Fixed"
-WP_ORDER = ["Fixed", "AdaptiveTight", "AdaptiveNominal", "AdaptiveLoose"]
+WP_ORDER = ["Fixed", "AdaptiveTight", "AdaptiveNominal"]
 # Truth-driven folders are keyed by graph LEVEL (hit-based domains) or by the vertex
 # resolution (composite domains). Every truth-driven ratio is taken against
 # caloBoundary, falling back to the first suffix present. The signal suffix is the
@@ -171,7 +171,7 @@ METRICS = {
         "counting it would measure how much of the event the level covers rather than how well the collection "
         "reconstructs. That category has its own NOLEVELCANDIDATE page. "
         "A fraction of OBJECTS, one per object. It is not one minus the purity: an object can be owned and "
-        "impure, and the purity page is where that shows. Identical at all four working points by construction, "
+        "impure, and the purity page is where that shows. Identical at every working point by construction, "
         "since dominance is read from the only map carrying every candidate; the climb changes which branch an "
         "object is attributed to, never whether one dominates.",
         "1 - num_dominated / num_reco",
@@ -190,8 +190,9 @@ METRICS = {
         "Contaminated rate (RecoToTruth), calorimetry only",
         "Of the reco objects, the fraction whose best truth candidate does NOT pass HGCalValidator's non-fake "
         "criterion, recoToSim score below maxRecoToSimScore = 0.6. This is NOT a fake rate and the fake page is "
-        "the one to read for that. The score is normalised against the cell's TOTAL truth energy, so a cell "
-        "shared with overlaid interactions pushes it towards 1 even for a perfectly matched object, and at PU200 "
+        "the one to read for that. The score is normalised to the object's own rechit energy, and a branch owns "
+        "only its share of the truth energy of each cell, so a cell shared with overlaid interactions pushes it "
+        "towards 1 even for a perfectly matched object, and at PU200 "
         "it saturates: measured on ttbar PU200, ticlCandidate AdaptiveNominal, 73.8% of tracksters fail this cut "
         "while only 2.3% have no truth candidate at all. Read it as cell-level contamination, which is what the "
         "reconstruction is up against, and use it to compare against HGCalValidator, which applies the same cut.",
@@ -204,7 +205,8 @@ METRICS = {
         "of the level, not as a reconstruction failure: on no-PU ttbar it is 32.5% of tracksters and 36.8% of "
         "tracks, while only 0.3% of tracks match nothing at all, and moving the tracking level to "
         "stableDecayProducts only takes it to 27.7%. A large value here means the fake rate is being formed on "
-        "a small subset of the collection and should be quoted with this page beside it.",
+        "a small subset of the collection and should be quoted with this page beside it. It does not depend on "
+        "the working point, so only the first working-point folder books it and the page has one series.",
         "1 - num_levelcandidate / num_reco",
     ),
     "pileuprate": (
@@ -387,9 +389,7 @@ CATEGORY_NOTE = {
     ),
     "Calorimetry": (
         "Tracksters are matched on SHARED ENERGY in the calorimeter channel, the same quantity the TICL trackster "
-        "validation scores against. One thing differs from TICL and is worth knowing: TICL weights each cell by its "
-        "RECHIT energy, while a trackster reaches the truth graph as (DetId, fraction) with no per-cell reco energy, "
-        "so the weight here is the cell's total energy in the truth hit index. The truth denominator spans the whole "
+        "validation scores against: each cell is weighted by its rechit energy. The truth denominator spans the whole "
         "selector acceptance, so the efficiency correctly falls to zero outside the HGCAL coverage rather than being "
         "renormalised to it."
     ),
@@ -1288,7 +1288,7 @@ def main():
                     "the truth object, cumulative (open, dashed, same colour) means all reco objects of the "
                     "collection together do; a multi-prong decay separates the two. The "
                     f"lower panel is the ratio to {REFERENCE_LEVEL}.")
-        return ("Each plot overlays the four branch-association working points. Fixed keeps every matching "
+        return ("Each plot overlays the branch-association working points. Fixed keeps every matching "
                 "branch; the Adaptive points keep the single graph level that best matches the reco object, "
                 "differing only in how much branch spread they tolerate. The lower panel is the ratio to "
                 f"{REFERENCE_WP}.")
