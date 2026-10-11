@@ -285,9 +285,9 @@ void TruthBranchTargetsProducer::fillDescriptions(edm::ConfigurationDescriptions
   selector.add<bool>("invertEta", false);
   selector.add<bool>("kinematicsOnStableOnly", true)
       ->setComment(
-          "Apply ptMin/ptMax/etaMin/etaMax only to a root that decayed nowhere. The momentum of a root "
-          "that decayed is not a detector observable: a resonance at rest has pt about 0 and |eta| "
-          "unbounded, so a track-shaped cut rejects it while its decay products fill the calorimeter.");
+          "Skip ptMin/ptMax/etaMin/etaMax for a root whose momentum is not a detector observable: a "
+          "parton, a top quark, a boson or another GEN-only resonance. Hadrons, leptons and photons keep "
+          "the cuts, decayed or not.");
   desc.add<edm::ParameterSetDescription>("branchSelector", selector);
 
   // Which candidate roots a reco object may be assigned to. Every clause bars one class

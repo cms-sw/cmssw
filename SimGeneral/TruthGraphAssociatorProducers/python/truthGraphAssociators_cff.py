@@ -89,7 +89,7 @@ allTrackToTruthBranchAssociators = cms.EDProducer(
 allVertexToTruthBranchAssociators = cms.EDProducer(
     "AllVertexToTruthBranchAssociatorsProducer",
     recoCollections=_tags("vertices"),
-    # The findable tracks of a vertex denominator keep the pt floor.
+    # The findable tracks: the roots that pass every selector cut, and the level targets.
     targetsSrc=cms.InputTag("truthBranchTargets", "denominatorRoots"),
     assignableTargetsSrc=cms.InputTag("truthBranchTargets", "assignableRoots"),
     constituentAssociator=cms.string("allTrackToTruthBranchAssociators"),

@@ -4,18 +4,19 @@ Association maps between reconstructed objects and truth branches of the MC-trut
 (`SimDataFormats/TruthInfo`, `PhysicsTools/TruthInfo`).
 
 `TruthBranchTargetsProducer` computes the truth-side targets once per event:
-`selectedRoots`, the candidate roots the associators match against; `assignableRoots`,
-the subset an adaptive working point may answer with; the signal-seed denominators; and
-one truth-to-reco denominator per truth level.
+`selectedRoots`, the candidate roots the associators match against; `denominatorRoots`,
+the roots a denominator can hold; `assignableRoots`, the subset an adaptive working point
+may answer with; the signal-seed denominators; and one truth-to-reco denominator per
+truth level.
 
 One associator per domain consumes those targets and a reco collection:
 
-| Module | cfi label |
+| Module | Labels in `truthGraphAssociators_cff` |
 |---|---|
 | `AllTrackToTruthBranchAssociatorsProducer` | `allTrackToTruthBranchAssociators` |
 | `TruthBranchTracksterAssociatorsProducer` | `truthBranchTracksterAssociators` |
-| `AllVertexToTruthBranchAssociatorsProducer` | `allVertexToTruthBranchAssociators` |
-| `AllSecondaryVertexToTruthBranchAssociatorsProducer` | `allSecondaryVertexToTruthBranchAssociators` |
+| `TruthBranchPFClusterAssociatorsProducer` | `truthBranchPFClusterEcalAssociators`, `truthBranchPFClusterHcalAssociators` |
+| `AllVertexToTruthBranchAssociatorsProducer` | `allVertexToTruthBranchAssociators`, `allSecondaryVertexToTruthBranchAssociators` |
 
 Each emits one reco-driven `ticl::TICLAssociationMap` per working point,
 `<key>RecoToTruth<WorkingPoint>`, and one truth-driven map, `<key>TruthToReco`. The
