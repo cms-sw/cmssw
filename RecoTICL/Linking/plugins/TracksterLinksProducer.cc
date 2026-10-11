@@ -41,6 +41,8 @@
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 #include "RecoTICL/Inference/interface/TracksterInferenceAlgoFactory.h"
+#include "RecoTICL/Inference/interface/TracksterInferenceByDNN.h"
+#include "RecoTICL/Inference/interface/TracksterInferenceByPFN.h"
 
 #include "RecoTICL/Common/interface/TrackstersPCA.h"
 
@@ -301,14 +303,12 @@ void TracksterLinksProducer::fillDescriptions(edm::ConfigurationDescriptions &de
   edm::ParameterSetDescription linkingDesc;
   linkingDesc.addNode(edm::PluginDescription<TracksterLinkingPluginFactory>("type", "Skeletons", true));
   // Inference Plugins
-  edm::ParameterSetDescription inferenceDesc;
-  inferenceDesc.addNode(edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByDNN", true));
-  desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByDNN", inferenceDesc);
-
-  edm::ParameterSetDescription inferenceDescPFN;
-  inferenceDescPFN.addNode(
-      edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByPFN", true));
-  desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByPFN", inferenceDescPFN);
+  desc.add<edm::ParameterSetDescription>(
+      "pluginInferenceAlgoTracksterInferenceByDNN",
+      ticl::inferencePluginPSetDescription<ticl::TracksterInferenceByDNN>("TracksterInferenceByDNN"));
+  desc.add<edm::ParameterSetDescription>(
+      "pluginInferenceAlgoTracksterInferenceByPFN",
+      ticl::inferencePluginPSetDescription<ticl::TracksterInferenceByPFN>("TracksterInferenceByPFN"));
   desc.add<edm::ParameterSetDescription>("linkingPSet", linkingDesc);
   desc.add<std::vector<edm::InputTag>>("tracksters_collections", {edm::InputTag("ticlTrackstersCLUE3DHigh")});
   desc.add<std::vector<edm::InputTag>>("original_masks",
