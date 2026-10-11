@@ -50,9 +50,10 @@ job these run behind the `enableTruth` process modifier (the
   `BranchHitAssociator`, the `truth::recoHits` adapters (`RecoHitAdapters.h`), and
   `TruthLogicalGraphPostProcessor` (merge/collapse/filter; covered by the cppunit).
 - `plugins/`: the producers above, the DOT dumpers, the flat-table producers and
-  the pileup `TruthGraphAccumulator`/`TruthGraphMixedProducer`.
-- `python/`: the DIGI and RECO customisations (`truthGraphMixedDigi_cff`,
-  `mixedTruthGraphCustomize`, `customiseTruthMixedReco`) and the event content.
+  the pileup `TruthGraphAccumulator`.
+- `python/`: the DIGI configuration (`truthGraphMixedDigi_cff`), the reduced variant
+  (`mixedTruthGraphCustomize.customiseTruthReduced`), the RECO content customise
+  (`customiseTruthMixedReco`) and the event content.
 - `test/`: cppunit unit tests and standalone `cmsRun` drivers (graph dumps,
   topology checks).
 

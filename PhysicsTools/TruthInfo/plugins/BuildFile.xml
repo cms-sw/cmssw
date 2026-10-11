@@ -49,10 +49,6 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<library file="TruthGraphMixedProducer.cc" name="TruthGraphMixedProducerPlugins">
-  <flags EDM_PLUGIN="1"/>
-</library>
-
 <library file="TruthGraphAccumulator.cc" name="TruthGraphAccumulatorPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
