@@ -16,10 +16,8 @@
 // across every working point.
 
 #include <algorithm>
-#include <cctype>
 #include <cmath>
 #include <concepts>
-#include <limits>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -53,7 +51,6 @@
 #include "PhysicsTools/TruthInfo/interface/AssignableTarget.h"
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
 #include "PhysicsTools/TruthInfo/interface/Interactions.h"
-#include "PhysicsTools/TruthInfo/interface/BranchSelector.h"
 #include "PhysicsTools/TruthInfo/interface/RecoHitAdapters.h"
 #include "PhysicsTools/TruthInfo/interface/TrackerCells.h"
 #include "PhysicsTools/TruthInfo/interface/TruthLevels.h"
