@@ -77,32 +77,52 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
     // For the CPU backend, threadsPerBlock effectively represents the number
     // of elements per thread and must be set to 1, since some compute kernels
     // rely on thread-private local variables.
-    const unsigned int threadsPerBlock =
+    const unsigned int threadsPerBlock_sskernel =
+        std::is_same_v<Device, alpaka::DevCpu>
+            ? 1
+            : (nClusters > 768 ? 256 : ::cms::alpakatools::round_up_by(nClusters, wExtend));
+
+    const unsigned int threadsPerBlock_clkernel =
         std::is_same_v<Device, alpaka::DevCpu>
             ? 1
             : (nClusters > 512 ? 256 : ::cms::alpakatools::round_up_by(nClusters, wExtend));
 
-    const unsigned int blocks = ::cms::alpakatools::divide_up_by(nClusters, threadsPerBlock);
+    const unsigned int threadsPerBlock_prolkernel =
+        (nClusters > 512 ? 128 : ::cms::alpakatools::round_up_by(nClusters, wExtend));
+
+    const unsigned int threadsPerBlock_epikernel =
+        (nClusters > 512 ? 128 : ::cms::alpakatools::round_up_by(nClusters, wExtend));
+
+    const unsigned int threadsPerBlock_eclcckernel =
+        std::is_same_v<Device, alpaka::DevCpu>
+            ? 1
+            : (nClusters > 768 ? 256 : ::cms::alpakatools::round_up_by(nClusters, wExtend));
+
+    const unsigned int blocks_sskernel = ::cms::alpakatools::divide_up_by(nClusters, threadsPerBlock_sskernel);
+    const unsigned int blocks_clkernel = ::cms::alpakatools::divide_up_by(nClusters, threadsPerBlock_clkernel);
+    const unsigned int blocks_prolkernel = ::cms::alpakatools::divide_up_by(nClusters, threadsPerBlock_prolkernel);
+    const unsigned int blocks_epikernel = ::cms::alpakatools::divide_up_by(nClusters, threadsPerBlock_epikernel);
+    const unsigned int blocks_eclcckernel = ::cms::alpakatools::divide_up_by(nClusters, threadsPerBlock_eclcckernel);
 
     reco::PFMultiDepthClusteringVarsDeviceCollection mdpfClusteringVars{queue, static_cast<int>(nClusters)};
     reco::PFMultiDepthClusteringCCLabelsDeviceCollection mdpfCCLabels{queue, static_cast<int>(nClusters) + 1};
     reco::PFMultiDepthClusteringEdgeVarsDeviceCollection mdpfClusteringEdgeVars{queue, 2 * static_cast<int>(nClusters)};
 
     alpaka::exec<Acc1D>(queue,
-                        ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                        ::cms::alpakatools::make_workdiv<Acc1D>(blocks_sskernel, threadsPerBlock_sskernel),
                         ShowerShapeKernel{},
                         mdpfClusteringVars.view(),
                         pfCluster.view(),
                         pfRecHitFracs.view(),
                         pfRecHit.view());
     alpaka::exec<Acc1D>(queue,
-                        ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                        ::cms::alpakatools::make_workdiv<Acc1D>(blocks_clkernel, threadsPerBlock_clkernel),
                         ConstructLinksKernel{},
                         mdpfCCLabels.view(),
                         mdpfClusteringVars.view(),
                         params);
 
-    const bool do_opt_prologue = enable_multiblock_prologue && (blocks > 1);
+    const bool do_opt_prologue = enable_multiblock_prologue && (blocks_prolkernel > 1);
 
     if (do_opt_prologue) {
       // All multi-block prologue kernels must use the same launch parameters.
@@ -111,35 +131,35 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
       prologueArgs.zeroInitialise(queue);
 
       alpaka::exec<Acc1D>(queue,
-                          ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                          ::cms::alpakatools::make_workdiv<Acc1D>(blocks_prolkernel, threadsPerBlock_prolkernel),
                           ECLCCComputeExternNeighsKernel{},
                           prologueArgs.view(),
                           mdpfCCLabels.view());
 
-      if (threadsPerBlock <= 256) {
+      if (threadsPerBlock_prolkernel <= 256) {
         constexpr unsigned int max_w_items = 8;
         alpaka::exec<Acc1D>(queue,
-                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks_prolkernel, threadsPerBlock_prolkernel),
                             ECLCCPrologueComputeOffsetsKernel<max_w_items>{},
                             prologueArgs.view(),
                             mdpfCCLabels.view());
 
         alpaka::exec<Acc1D>(queue,
-                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks_prolkernel, threadsPerBlock_prolkernel),
                             ECLCCFinalizePrologueKernel<max_w_items>{},
                             mdpfClusteringEdgeVars.view(),
                             prologueArgs.view(),
                             mdpfCCLabels.view());
-      } else if (threadsPerBlock <= 512) {
+      } else if (threadsPerBlock_prolkernel <= 512) {
         constexpr unsigned int max_w_items = 16;
         alpaka::exec<Acc1D>(queue,
-                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks_prolkernel, threadsPerBlock_prolkernel),
                             ECLCCPrologueComputeOffsetsKernel<max_w_items>{},
                             prologueArgs.view(),
                             mdpfCCLabels.view());
 
         alpaka::exec<Acc1D>(queue,
-                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks_prolkernel, threadsPerBlock_prolkernel),
                             ECLCCFinalizePrologueKernel<max_w_items>{},
                             mdpfClusteringEdgeVars.view(),
                             prologueArgs.view(),
@@ -148,13 +168,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
       } else {
         constexpr unsigned int max_w_items = 32;
         alpaka::exec<Acc1D>(queue,
-                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks_prolkernel, threadsPerBlock_prolkernel),
                             ECLCCPrologueComputeOffsetsKernel<max_w_items>{},
                             prologueArgs.view(),
                             mdpfCCLabels.view());
 
         alpaka::exec<Acc1D>(queue,
-                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks_prolkernel, threadsPerBlock_prolkernel),
                             ECLCCFinalizePrologueKernel<max_w_items>{},
                             mdpfClusteringEdgeVars.view(),
                             prologueArgs.view(),
@@ -162,7 +182,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
       }
 
       alpaka::exec<Acc1D>(queue,
-                          ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                          ::cms::alpakatools::make_workdiv<Acc1D>(blocks_prolkernel, threadsPerBlock_prolkernel),
                           ECLCCLoadCrossBlockNeighKernel{},
                           mdpfClusteringEdgeVars.view(),
                           prologueArgs.view(),
@@ -171,30 +191,30 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
     } else {
       if constexpr (std::is_same_v<Device, alpaka::DevCpu>) {
         alpaka::exec<Acc1D>(queue,
-                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                            ::cms::alpakatools::make_workdiv<Acc1D>(nClusters, 1),
                             ECLCCPrologueNaiveKernel{},
                             mdpfClusteringEdgeVars.view(),
                             mdpfCCLabels.view());
       } else {
         // ECL-CC prologue:
-        if (threadsPerBlock <= 256) {
+        if (threadsPerBlock_prolkernel <= 256) {
           constexpr unsigned int max_w_items = 8;
           alpaka::exec<Acc1D>(queue,
-                              ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                              ::cms::alpakatools::make_workdiv<Acc1D>(blocks_prolkernel, threadsPerBlock_prolkernel),
                               ECLCCPrologueKernel<max_w_items>{},
                               mdpfClusteringEdgeVars.view(),
                               mdpfCCLabels.view());
-        } else if (threadsPerBlock <= 512) {
+        } else if (threadsPerBlock_prolkernel <= 512) {
           constexpr unsigned int max_w_items = 16;
           alpaka::exec<Acc1D>(queue,
-                              ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                              ::cms::alpakatools::make_workdiv<Acc1D>(blocks_prolkernel, threadsPerBlock_prolkernel),
                               ECLCCPrologueKernel<max_w_items>{},
                               mdpfClusteringEdgeVars.view(),
                               mdpfCCLabels.view());
         } else {
           constexpr unsigned int max_w_items = 32;
           alpaka::exec<Acc1D>(queue,
-                              ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                              ::cms::alpakatools::make_workdiv<Acc1D>(blocks_prolkernel, threadsPerBlock_prolkernel),
                               ECLCCPrologueKernel<max_w_items>{},
                               mdpfClusteringEdgeVars.view(),
                               mdpfCCLabels.view());
@@ -205,36 +225,36 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
     // Launch ECL-CC algorithm:
     // ECL-CC init stage:
     alpaka::exec<Acc1D>(queue,
-                        ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                        ::cms::alpakatools::make_workdiv<Acc1D>(blocks_eclcckernel, threadsPerBlock_eclcckernel),
                         ECLCCInitKernel{},
                         mdpfCCLabels.view(),
                         mdpfClusteringEdgeVars.view());
 
     // ECL-CC run low-degree hooking:
     alpaka::exec<Acc1D>(queue,
-                        ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                        ::cms::alpakatools::make_workdiv<Acc1D>(blocks_eclcckernel, threadsPerBlock_eclcckernel),
                         ECLCCLowDegreeComputeKernel{},
                         mdpfCCLabels.view(),
                         mdpfClusteringEdgeVars.view());
     // ECL-CC run mid-degree hooking:
     alpaka::exec<Acc1D>(queue,
-                        ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                        ::cms::alpakatools::make_workdiv<Acc1D>(blocks_eclcckernel, threadsPerBlock_eclcckernel),
                         ECLCCMidDegreeComputeKernel{},
                         mdpfCCLabels.view(),
                         mdpfClusteringEdgeVars.view());
     // ECL-CC run high-degree hooking:
     alpaka::exec<Acc1D>(queue,
-                        ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                        ::cms::alpakatools::make_workdiv<Acc1D>(blocks_eclcckernel, threadsPerBlock_eclcckernel),
                         ECLCCHighDegreeComputeKernel{},
                         mdpfCCLabels.view(),
                         mdpfClusteringEdgeVars.view());
     // ECL-CC run finalizing stage:
     alpaka::exec<Acc1D>(queue,
-                        ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                        ::cms::alpakatools::make_workdiv<Acc1D>(blocks_eclcckernel, threadsPerBlock_eclcckernel),
                         ECLCCFlattenKernel{},
                         mdpfCCLabels.view());
 
-    const bool do_opt_epilogue = enable_multiblock_epilogue && (blocks > 1);
+    const bool do_opt_epilogue = enable_multiblock_epilogue && (blocks_epikernel > 1);
 
     if (do_opt_epilogue) {
       reco::PFMultiDepthECLCCEpilogueArgsDeviceCollection epilogueArgs{queue, static_cast<int>(nClusters)};
@@ -244,15 +264,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
       // All multi-block epilogue kernels must use the same launch parameters.
 
       alpaka::exec<Acc1D>(queue,
-                          ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                          ::cms::alpakatools::make_workdiv<Acc1D>(blocks_epikernel, threadsPerBlock_epikernel),
                           ECLCCEpilogueRecHitFracOffsetsKernel{},
                           epilogueArgs.view(),
                           mdpfCCLabels.view(),
                           pfCluster.view());
-      if (threadsPerBlock <= 256) {
+      if (threadsPerBlock_epikernel <= 256) {
         constexpr unsigned int max_w_items = 8;
         alpaka::exec<Acc1D>(queue,
-                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks_epikernel, threadsPerBlock_epikernel),
                             ECLCCEpilogueCCOffsetsKernel<max_w_items>{},
                             outPFCluster.view(),
                             epilogueArgs.view(),
@@ -260,7 +280,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
                             pfCluster.view());
 
         alpaka::exec<Acc1D>(queue,
-                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks_epikernel, threadsPerBlock_epikernel),
                             ECLCCFinalizeEpilogueKernel<max_w_items, is_cooperative>{},
                             outPFCluster.view(),
                             outPFRecHitFracs.view(),
@@ -270,10 +290,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
                             pfRecHitFracs.view(),
                             pfRecHit.view());
 
-      } else if (threadsPerBlock <= 256) {
+      } else if (threadsPerBlock_epikernel <= 256) {
         constexpr unsigned int max_w_items = 16;
         alpaka::exec<Acc1D>(queue,
-                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks_epikernel, threadsPerBlock_epikernel),
                             ECLCCEpilogueCCOffsetsKernel<max_w_items>{},
                             outPFCluster.view(),
                             epilogueArgs.view(),
@@ -281,7 +301,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
                             pfCluster.view());
 
         alpaka::exec<Acc1D>(queue,
-                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks_epikernel, threadsPerBlock_epikernel),
                             ECLCCFinalizeEpilogueKernel<max_w_items, is_cooperative>{},
                             outPFCluster.view(),
                             outPFRecHitFracs.view(),
@@ -293,7 +313,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
       } else {
         constexpr unsigned int max_w_items = 32;
         alpaka::exec<Acc1D>(queue,
-                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks_epikernel, threadsPerBlock_epikernel),
                             ECLCCEpilogueCCOffsetsKernel<max_w_items>{},
                             outPFCluster.view(),
                             epilogueArgs.view(),
@@ -301,7 +321,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
                             pfCluster.view());
 
         alpaka::exec<Acc1D>(queue,
-                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks_epikernel, threadsPerBlock_epikernel),
                             ECLCCFinalizeEpilogueKernel<max_w_items, is_cooperative>{},
                             outPFCluster.view(),
                             outPFRecHitFracs.view(),
@@ -313,7 +333,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
       }
 
       alpaka::exec<Acc1D>(queue,
-                          ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                          ::cms::alpakatools::make_workdiv<Acc1D>(blocks_epikernel, threadsPerBlock_epikernel),
                           ECLCCLoadSeedsKernel{},
                           outPFCluster.view(),
                           epilogueArgs.view());
@@ -321,7 +341,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
     } else {
       if constexpr (std::is_same_v<Device, alpaka::DevCpu>) {
         alpaka::exec<Acc1D>(queue,
-                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                            ::cms::alpakatools::make_workdiv<Acc1D>(nClusters, 1),
                             ECLCCEpilogueNaiveKernel{},
                             outPFCluster.view(),
                             outPFRecHitFracs.view(),
@@ -331,10 +351,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
                             pfRecHit.view());
       } else {
         // ECL-CC epilogue:
-        if (threadsPerBlock <= 256) {
+        if (threadsPerBlock_epikernel <= 256) {
           constexpr unsigned int max_w_items = 8;
           alpaka::exec<Acc1D>(queue,
-                              ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                              ::cms::alpakatools::make_workdiv<Acc1D>(blocks_epikernel, threadsPerBlock_epikernel),
                               ECLCCEpilogueKernel<max_w_items, is_cooperative>{},
                               outPFCluster.view(),
                               outPFRecHitFracs.view(),
@@ -343,10 +363,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
                               pfRecHitFracs.view(),
                               pfRecHit.view());
 
-        } else if (threadsPerBlock <= 512) {
+        } else if (threadsPerBlock_epikernel <= 512) {
           constexpr unsigned int max_w_items = 16;
           alpaka::exec<Acc1D>(queue,
-                              ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                              ::cms::alpakatools::make_workdiv<Acc1D>(blocks_epikernel, threadsPerBlock_epikernel),
                               ECLCCEpilogueKernel<max_w_items, is_cooperative>{},
                               outPFCluster.view(),
                               outPFRecHitFracs.view(),
@@ -357,7 +377,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
         } else {
           constexpr unsigned int max_w_items = 32;
           alpaka::exec<Acc1D>(queue,
-                              ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                              ::cms::alpakatools::make_workdiv<Acc1D>(blocks_epikernel, threadsPerBlock_epikernel),
                               ECLCCEpilogueKernel<max_w_items, is_cooperative>{},
                               outPFCluster.view(),
                               outPFRecHitFracs.view(),
