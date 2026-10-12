@@ -136,9 +136,11 @@ namespace edm {
 
       WaitingTaskHolder makeAcquireTask(WaitingTaskHolder waitingTaskHolder,
                                         oneapi::tbb::task_group* group,
-                                        ServiceToken const* serviceToken,
+                                        ServiceToken const& token,
                                         EventSetupRecordImpl const* record,
                                         EventSetupImpl const* eventSetupImpl) {
+        // the token is owned by the EventProcessor and outlives the tasks: refer to it instead of copying it
+        ServiceToken const* serviceToken = &token;
         return WaitingTaskHolder(
             *group,
             make_waiting_task(

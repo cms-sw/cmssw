@@ -84,11 +84,13 @@ namespace edm {
 
       template <typename ProduceFunctor>  // ProduceFunctor executes TProduceFunc
       WaitingTaskHolder makeProduceTask(oneapi::tbb::task_group* group,
-                                        ServiceToken const* serviceToken,
+                                        ServiceToken const& token,
                                         EventSetupRecordImpl const* record,
                                         EventSetupImpl const* eventSetupImpl,
                                         bool emitPostPrefetchingSignal,
                                         ProduceFunctor&& produceFunctor) {
+        // the token is owned by the EventProcessor and outlives the tasks: refer to it instead of copying it
+        ServiceToken const* serviceToken = &token;
         return WaitingTaskHolder(
             *group,
             make_waiting_task([this,
@@ -166,13 +168,13 @@ namespace edm {
         taskList_.add(iTask);
         if (doPrefetch) {
           auto group = iTask.group();
-          // the token is owned by the EventProcessor and outlives the tasks: refer to it instead of copying it
-          ServiceToken const* serviceToken = &token;
-          WaitingTaskHolder runModuleTaskHolder = runModuleFnctr(group, serviceToken, iRecord, iEventSetupImpl);
+          WaitingTaskHolder runModuleTaskHolder = runModuleFnctr(group, token, iRecord, iEventSetupImpl);
           callingContext_.setContext(ESModuleCallingContext::State::kPrefetching, iParent);
           iRecord->activityRegistry()->preESModulePrefetchingSignal_.emit(iRecord->key(), callingContext_);
           if UNLIKELY (producer_->hasMayConsumes()) {
             //after prefetching need to do the mayGet
+            // the token is owned by the EventProcessor and outlives the tasks: refer to it instead of copying it
+            ServiceToken const* serviceToken = &token;
             auto mayGetTask = make_waiting_task(
                 [this, iRecord, iEventSetupImpl, serviceToken, runModuleTaskHolder = std::move(runModuleTaskHolder)](
                     std::exception_ptr const* iExcept) mutable {
