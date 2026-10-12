@@ -7,6 +7,7 @@ process.options.numberOfStreams = 4
 process.options.wantSummary = False
 
 process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
+process.load("HeterogeneousCore.MPIServices.MPIConsistencyChecker_cfi")
 
 process.load("Configuration.StandardSequences.Accelerators_cff")
 process.load("HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka_cfi")
@@ -30,7 +31,7 @@ process.receiver = cms.EDProducer("MPIReceiverPortable@alpaka",
     products = cms.VPSet(
         cms.PSet(
             type = cms.string("MPIToken"),
-            src = cms.InputTag("", ""),
+            label = cms.string(""),
         ),
     )
 )
