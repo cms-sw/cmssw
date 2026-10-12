@@ -3,8 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from RecoTICL.Linking.tracksterLinksProducer_cfi import tracksterLinksProducer as _tracksterLinksProducer
 from RecoTICL.Superclustering.ticlEGammaSuperClusterProducer_cfi import ticlEGammaSuperClusterProducer
 
-from Configuration.ProcessModifiers.ticl_superclustering_mustache_pf_cff import ticl_superclustering_mustache_pf
-from Configuration.ProcessModifiers.ticl_superclustering_mustache_ticl_cff import ticl_superclustering_mustache_ticl
 
 ticlTracksterLinksSuperclusteringDNN = _tracksterLinksProducer.clone(
     linkingPSet = cms.PSet(

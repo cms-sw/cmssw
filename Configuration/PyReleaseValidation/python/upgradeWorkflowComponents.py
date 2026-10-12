@@ -859,23 +859,6 @@ upgradeWFs['ticl_v5_superclustering_mustache_ticl'].step2 = {'--procModifiers': 
 upgradeWFs['ticl_v5_superclustering_mustache_ticl'].step3 = {'--procModifiers': 'ticl_superclustering_mustache_ticl'}
 upgradeWFs['ticl_v5_superclustering_mustache_ticl'].step4 = {'--procModifiers': 'ticl_superclustering_mustache_ticl'}
 
-upgradeWFs['ticl_v5_superclustering_mustache_pf'] = UpgradeWorkflow_ticl_v5_superclustering(
-    steps = [
-        'RecoGlobal',
-        'RecoGlobalFakeHLT',
-        'HARVESTGlobal'
-    ],
-    PU = [
-        'RecoGlobal',
-        'RecoGlobalFakeHLT',
-        'HARVESTGlobal'
-    ],
-    suffix = '_ticl_v5_mustache_pf',
-    offset = 0.205,
-)
-upgradeWFs['ticl_v5_superclustering_mustache_pf'].step3 = {'--procModifiers': 'ticl_superclustering_mustache_pf'}
-upgradeWFs['ticl_v5_superclustering_mustache_pf'].step4 = {'--procModifiers': 'ticl_superclustering_mustache_pf'}
-
 class UpgradeWorkflow_TICLdumper(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'RecoGlobal' in step:
