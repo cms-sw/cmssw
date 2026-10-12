@@ -1,4 +1,5 @@
 #include "SimG4Core/CustomPhysics/interface/QuirkWatcher.h"
+#include "SimG4Core/Notification/interface/MCTruthUtil.h"
 #include "SimG4Core/CustomPhysics/interface/QuirkStringStore.h"
 #include "SimG4Core/CustomPhysics/interface/Quirk.h"
 
@@ -69,7 +70,7 @@ G4VParticleChange* QuirkWatcher::PostStepDoIt(const G4Track& track, const G4Step
   if (pos.perp2() > m_rMax2 || std::abs(pos.z()) > m_zMax) {
     stat = fStopAndKill;
   }
-  if (stat == fAlive || stat == fSuspend || stat == fSuspendAndWait) {
+  if (stat == fAlive || MCTruthUtil::isSuspended(stat)) {
     // no string left to absorb: pass control to the partner
     if (!string.HasNextStringVector()) {
       if (!string.IsSourceAlive()) {

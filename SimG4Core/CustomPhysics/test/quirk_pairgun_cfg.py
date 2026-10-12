@@ -9,7 +9,7 @@ import argparse
 import math
 import sys
 parser = argparse.ArgumentParser(prog=sys.argv[0], description='Quirk pair gun SIM test')
-parser.add_argument("--inputFile", type=str, default="file:quirkPair.hepmc", help="HepMC2 input")
+parser.add_argument("--inputFile", type=str, default="file:quirkPair.hepmc3", help="HepMC3 input")
 parser.add_argument("--outputFile", type=str, default="quirkPair_SIM.root", help="output file")
 parser.add_argument("--maxEvents", type=int, default=-1, help="number of events")
 parser.add_argument("--threads", type=int, default=1, help="number of threads")
@@ -42,7 +42,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2024_realistic', '')
 
-process.source = cms.Source("MCFileSource",
+process.source = cms.Source("MCFileSource3",
     fileNames = cms.untracked.vstring(args.inputFile),
     firstLuminosityBlockForEachRun = cms.untracked.VLuminosityBlockID()
 )

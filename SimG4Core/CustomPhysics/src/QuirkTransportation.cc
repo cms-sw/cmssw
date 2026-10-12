@@ -1,4 +1,5 @@
 #include "SimG4Core/CustomPhysics/interface/QuirkTransportation.h"
+#include "SimG4Core/Notification/interface/MCTruthUtil.h"
 #include "SimG4Core/CustomPhysics/interface/QuirkHyperbolaStepper.h"
 #include "SimG4Core/CustomPhysics/interface/QuirkStringStore.h"
 #include "SimG4Core/CustomPhysics/interface/Quirk.h"
@@ -281,8 +282,7 @@ void QuirkTransportation::StartTracking(G4Track* aTrack) {
 
 void QuirkTransportation::EndTracking() {
   // killed by anything (envelope, time cut, user actions): the partner must not wait for it
-  if (nullptr != fCurrentTrack && fCurrentTrack->GetTrackStatus() != fSuspend &&
-      fCurrentTrack->GetTrackStatus() != fSuspendAndWait) {
+  if (nullptr != fCurrentTrack && !MCTruthUtil::isSuspended(fCurrentTrack)) {
     QuirkStringStore::instance().stringFor(fCurrentTrack->GetDefinition()->GetPDGEncoding()).TrackKilled();
   }
   fCurrentTrack = nullptr;

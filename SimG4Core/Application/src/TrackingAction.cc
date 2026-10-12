@@ -5,6 +5,7 @@
 #include "SimG4Core/Notification/interface/EndOfTrack.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
+#include "SimG4Core/Notification/interface/MCTruthUtil.h"
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 
@@ -124,7 +125,7 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
 #endif
 
   // suspended: keep the history, the track ends later
-  if (isSuspended(aTrack)) {
+  if (MCTruthUtil::isSuspended(aTrack)) {
     suspended_.push_back({id, currentHistory_, !isInHistory});
     return;
   }
@@ -168,7 +169,7 @@ void TrackingAction::endResumed(const G4Track* aTrack) {
       }
     }
   }
-  if (isSuspended(aTrack)) {
+  if (MCTruthUtil::isSuspended(aTrack)) {
     suspended_.push_back({id, currentHistory_, owned_});
     return;
   }

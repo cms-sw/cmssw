@@ -12,7 +12,6 @@
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 
 #include "G4UserTrackingAction.hh"
-#include "G4Track.hh"
 #include "G4Region.hh"
 
 #include <vector>
@@ -57,9 +56,6 @@ private:
     TrackWithHistory* history;
     bool owned;
   };
-  static bool isSuspended(const G4Track* aTrack) {
-    return aTrack->GetTrackStatus() == fSuspend || aTrack->GetTrackStatus() == fSuspendAndWait;
-  }
   bool resumeSuspended(const G4Track* aTrack);
   void endResumed(const G4Track* aTrack);
   std::vector<SuspendedTrack> suspended_;

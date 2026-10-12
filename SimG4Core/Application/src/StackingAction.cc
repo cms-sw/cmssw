@@ -169,7 +169,7 @@ StackingAction::StackingAction(const edm::ParameterSet& p, const CMSSteppingVerb
 
 G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrack) {
   // a resumed (suspended) track is not new: keep the Geant4 default classification
-  if (aTrack->GetTrackStatus() == fSuspend || aTrack->GetTrackStatus() == fSuspendAndWait) {
+  if (MCTruthUtil::isSuspended(aTrack)) {
     return stackManager->GetDefaultClassification();
   }
   // G4 interface part

@@ -133,7 +133,7 @@ void Phase2TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
 #endif
 
   // suspended: keep the history, the track ends later
-  if (isSuspended(aTrack)) {
+  if (MCTruthUtil::isSuspended(aTrack)) {
     suspended_.push_back({id, currentHistory_, !isInHistory});
     return;
   }
@@ -177,7 +177,7 @@ void Phase2TrackingAction::endResumed(const G4Track* aTrack) {
       }
     }
   }
-  if (isSuspended(aTrack)) {
+  if (MCTruthUtil::isSuspended(aTrack)) {
     suspended_.push_back({id, currentHistory_, owned_});
     return;
   }

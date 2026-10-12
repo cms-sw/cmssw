@@ -11,22 +11,28 @@ parser.add_argument("inputFile", type=str, help="SIM output file")
 parser.add_argument("--pdgId", type=int, default=17, help="quirk PDG code")
 args = parser.parse_args()
 
-hitColls = ["TrackerHitsPixelBarrelLowTof", "TrackerHitsPixelBarrelHighTof",
-            "TrackerHitsPixelEndcapLowTof", "TrackerHitsPixelEndcapHighTof",
-            "TrackerHitsTIBLowTof", "TrackerHitsTIBHighTof", "TrackerHitsTOBLowTof", "TrackerHitsTOBHighTof",
-            "TrackerHitsTIDLowTof", "TrackerHitsTIDHighTof", "TrackerHitsTECLowTof", "TrackerHitsTECHighTof",
-            "MuonDTHits", "MuonCSCHits", "MuonRPCHits"]
-caloColls = ["EcalHitsEB", "EcalHitsEE", "HcalHits"]
+def simHitCollections(fileName, product):
+    # all g4SimHits collections of this type in the file (detector and era independent)
+    tf = ROOT.TFile.Open(fileName)
+    names = [b.GetName().split("_")[2] for b in tf.Get("Events").GetListOfBranches()
+             if b.GetName().startswith(product + "_g4SimHits_")]
+    tf.Close()
+    return sorted(names)
+
 
 ROOT.gSystem.Load("libFWCoreFWLite")
 ROOT.FWLiteEnabler.enable()
+hitColls = simHitCollections(args.inputFile, "PSimHits")
+caloColls = simHitCollections(args.inputFile, "PCaloHits")
 trkH = Handle("std::vector<io_v1::SimTrack>")
 vtxH = Handle("std::vector<io_v1::SimVertex>")
 hitH = Handle("std::vector<io_v1::PSimHit>")
 caloH = Handle("std::vector<io_v1::PCaloHit>")
 
 ok = True
+nEvents = 0
 for iev, ev in enumerate(Events(args.inputFile)):
+    nEvents += 1
     ev.getByLabel("g4SimHits", trkH)
     ev.getByLabel("g4SimHits", vtxH)
     trks = trkH.product()
@@ -64,6 +70,10 @@ for iev, ev in enumerate(Events(args.inputFile)):
         if caloH.isValid():
             hits = caloH.product()
             qh = [h for h in hits if h.geantTrackId() in qids]
+            if len(qh) == 0:
+                continue
             print("   %-32s quirk hits %4d (of %5d)" % (c, len(qh), len(hits)))
-print("RESULT", "OK" if ok else "FAIL: not exactly two quirk SimTracks per event")
+if nEvents == 0:
+    ok = False
+print("RESULT", "OK" if ok else "FAIL: no events, or not exactly two quirk SimTracks per event")
 sys.exit(0 if ok else 1)
