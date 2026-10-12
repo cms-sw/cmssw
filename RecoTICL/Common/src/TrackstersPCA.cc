@@ -25,7 +25,7 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
   LogDebug("TrackstersPCA_Eigen") << "------- Eigen -------" << std::endl;
 
   for (auto &trackster : tracksters) {
-    LogDebug("TrackstersPCA_Eigen") << "start testing teackster with size:" << trackster.vertices().size() << std::endl;
+    LogDebug("TrackstersPCA_Eigen") << "start testing trackster with size:" << trackster.vertices().size() << std::endl;
 
     Eigen::Vector3f point;
     point << 0., 0., 0.;
@@ -101,6 +101,10 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
       auto vertices_by_layer = sortByLayer(trackster, layerClusters, rhtools);
 
       for (unsigned i = 1; i <= rhtools.lastLayer(); ++i) {
+        // layer based filtering of what goes into the PCA
+        if ((int)i < (int)maxE_layer - minLayer || (int)i > (int)maxE_layer + maxLayer)
+          continue;
+
         auto vertices_in_layer = vertices_by_layer[i];
         if (vertices_in_layer.empty())
           continue;
@@ -112,18 +116,15 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
         unsigned maxEid_inLayer = std::distance(energies_in_layer.begin(),
                                                 std::max_element(energies_in_layer.begin(), energies_in_layer.end()));
 
-        // layer based filtering of what goes into the PCA
-        if ((int)i >= (int)maxE_layer - minLayer && (int)i <= (int)maxE_layer + maxLayer) {
-          auto filtered_vert = vertices_in_layer[maxEid_inLayer];
-          filtered_idx.push_back(filtered_vert);
+        auto filtered_vert = vertices_in_layer[maxEid_inLayer];
+        filtered_idx.push_back(filtered_vert);
 
-          const auto &maxE_LC = layerClusters[trackster.vertices(filtered_vert)];
-          const float maxE_LC_energy = maxE_LC.energy() * (1.f / trackster.vertex_multiplicity(filtered_vert));
-          fillPoint(maxE_LC, maxE_LC_energy);
-          for (size_t j = 0; j < 3; ++j)
-            filtered_barycenter[j] += point[j];
-          filtered_energy += maxE_LC_energy;
-        }
+        const auto &maxE_LC = layerClusters[trackster.vertices(filtered_vert)];
+        const float maxE_LC_energy = maxE_LC.energy() * (1.f / trackster.vertex_multiplicity(filtered_vert));
+        fillPoint(maxE_LC, maxE_LC_energy);
+        for (size_t j = 0; j < 3; ++j)
+          filtered_barycenter[j] += point[j];
+        filtered_energy += maxE_LC_energy;
       }
       inv_filtered_energy = 1. / filtered_energy;
       filtered_barycenter *= inv_filtered_energy;
