@@ -23,6 +23,9 @@ process.options.numberOfStreams = args.threads
 process.options.wantSummary = True
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
+# with several streams the per-event messages can fill the MessageLogger queue (100 by default),
+# and the messages that do not fit, possibly the exception report, are dropped
+process.MessageLogger.waiting_threshold = cms.untracked.uint32(10000)
 
 process.tester = cms.EDAnalyzer("OtherThingAnalyzer",
     other = cms.untracked.InputTag("otherThing","testUserTag")
