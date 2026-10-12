@@ -186,20 +186,22 @@ std::shared_ptr<gxsec::LumiCache> GenXSecAnalyzer::globalBeginLuminosityBlock(ed
 }
 
 void GenXSecAnalyzer::analyze(edm::StreamID, const edm::Event &iEvent, const edm::EventSetup &) const {
-  edm::Handle<LHEEventProduct> lheEvent;
-  iEvent.getByToken(lheEventProductToken_, lheEvent);
+  if (verbose_) {
+    edm::Handle<LHEEventProduct> lheEvent;
+    iEvent.getByToken(lheEventProductToken_, lheEvent);
 
-  if (!lheEvent.isValid())
-    return;
+    if (!lheEvent.isValid())
+      return;
 
-  auto runC = runCache(iEvent.getRun().index());
+    auto runC = runCache(iEvent.getRun().index());
 
-  double weight = lheEvent->originalXWGTUP();  // event weight
+    double weight = lheEvent->originalXWGTUP();  // event weight
 
-  {
-    std::lock_guard g{mutex_};
-    runC->lheEventCount_++;
-    runC->lheEventWeights_.push_back(weight);
+    {
+      std::lock_guard g{mutex_};
+      runC->lheEventCount_++;
+      runC->lheEventWeights_.push_back(weight);
+    }
   }
 }
 
@@ -373,10 +375,16 @@ void GenXSecAnalyzer::globalEndRun(edm::Run const &iRun, edm::EventSetup const &
 
   if (iRun.getByToken(genRunInfoToken_, run_gen)) {
     const GenRunInfoProduct::XSec thisRunXSecPre_gen = run_gen->internalXSec();
-    thisRunXSecPre_value = thisRunXSecPre_gen.value();
-    thisRunXSecPre_error = thisRunXSecPre_gen.error();
-    ratio_lhe_gen_ = thisRunXSecPre_gen.value() / thisRunXSecPre_lhe.value();
-    thisRunXSecPre_error = thisRunXSecPre_lhe.error() * ratio_lhe_gen_;
+    if (thisRunXSecPre_lhe.value() != 0) {
+      double difference_lhe_gen =
+          fabs((thisRunXSecPre_gen.value() - thisRunXSecPre_lhe.value()) / thisRunXSecPre_lhe.value());
+      if (difference_lhe_gen >= 0.1) {
+        ratio_lhe_gen_ = thisRunXSecPre_gen.value() / thisRunXSecPre_lhe.value();
+        thisRunXSecPre_value = thisRunXSecPre_gen.value();
+        thisRunXSecPre_error = thisRunXSecPre_lhe.error() * ratio_lhe_gen_;
+      }
+    }
+
     if (verbose_) {
       edm::LogPrint("GenXSecAnalyzer") << "GenRunInfoProduct\n"
                                        << "    value       : " << std::scientific << std::setprecision(3)
@@ -386,18 +394,18 @@ void GenXSecAnalyzer::globalEndRun(edm::Run const &iRun, edm::EventSetup const &
     }
   }
 
-  double event_lhe_value = 0.0;
-  double event_lhe_error = 0.0;
-  if (runC->lheEventCount_ > 0) {
-    for (const auto &w : runC->lheEventWeights_) {
-      event_lhe_value += w;
-    }
-    event_lhe_value /= runC->lheEventCount_;
-    for (const auto &w : runC->lheEventWeights_) {
-      event_lhe_error += (w - event_lhe_value) * (w - event_lhe_value);
-    }
-    event_lhe_error = sqrt(event_lhe_error / runC->lheEventCount_);
-    if (verbose_) {
+  if (verbose_) {
+    double event_lhe_value = 0.0;
+    double event_lhe_error = 0.0;
+    if (runC->lheEventCount_ > 0) {
+      for (const auto &w : runC->lheEventWeights_) {
+        event_lhe_value += w;
+      }
+      event_lhe_value /= runC->lheEventCount_;
+      for (const auto &w : runC->lheEventWeights_) {
+        event_lhe_error += (w - event_lhe_value) * (w - event_lhe_value);
+      }
+      event_lhe_error = sqrt(event_lhe_error / runC->lheEventCount_);
       edm::LogPrint("GenXSecAnalyzer") << "LHEEventInfoProduct\n"
                                        << "    value       : " << std::scientific << std::setprecision(3)
                                        << event_lhe_value << " pb\n"
@@ -409,7 +417,7 @@ void GenXSecAnalyzer::globalEndRun(edm::Run const &iRun, edm::EventSetup const &
   if (verbose_) {
     edm::LogPrint("GenXSecAnalyzer")
         << "------------------------------------------------------------------------------------------";
-    if (iRun.getByToken(genRunInfoToken_, run_gen)) {
+    if (iRun.getByToken(genRunInfoToken_, run_gen) && ratio_lhe_gen_ != -1.0) {
       edm::LogPrint("GenXSecAnalyzer") << "Scaling with   : value(GenRunInfoProduct) / value(LHERunInfoProduct)\n"
                                        << "Scaling factor : " << std::scientific << std::setprecision(3)
                                        << ratio_lhe_gen_ << "\n"
@@ -449,8 +457,9 @@ void GenXSecAnalyzer::globalEndRun(edm::Run const &iRun, edm::EventSetup const &
   double thisGenFilterErr = 0;
 
   if (runC->filterOnlyEffRun_.sumWeights2() > 0) {
-    thisGenFilterEff = runC->filterOnlyEffRun_.filterEfficiency(hepidwtup_);
-    thisGenFilterErr = runC->filterOnlyEffRun_.filterEfficiencyError(hepidwtup_);
+    int input_genfilter_efficiency = ResonanceDecayFilterCounter::getInstance().getFilterBool() ? 1 : hepidwtup_.load();
+    thisGenFilterEff = runC->filterOnlyEffRun_.filterEfficiency(input_genfilter_efficiency);
+    thisGenFilterErr = runC->filterOnlyEffRun_.filterEfficiencyError(input_genfilter_efficiency);
     if (thisGenFilterEff < 0) {
       thisGenFilterEff = 1;
       thisGenFilterErr = 0;
