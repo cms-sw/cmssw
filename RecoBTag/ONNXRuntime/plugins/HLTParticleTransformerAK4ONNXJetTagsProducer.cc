@@ -4,7 +4,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/HLTParticleTransformerAK4Features.h"
 #include "DataFormats/BTauReco/interface/HLTParticleTransformerAK4TagInfo.h"
@@ -33,6 +37,7 @@ private:
   void get_input_sizes(const reco::HLTParticleTransformerAK4TagInfo& taginfo);
 
   const edm::EDGetTokenT<TagInfoCollection> src_;
+  edm::EDGetTokenT<edm::View<reco::Jet>> jet_;
   std::vector<std::string> flav_names_;
   std::vector<std::string> input_names_;
   std::vector<std::string> output_names_;
@@ -48,6 +53,7 @@ private:
   std::vector<std::vector<int64_t>> input_shapes_;
 
   FloatArrays data_;
+  bool produceValueMap_;
 };
 
 HLTParticleTransformerAK4ONNXJetTagsProducer::HLTParticleTransformerAK4ONNXJetTagsProducer(
@@ -55,9 +61,17 @@ HLTParticleTransformerAK4ONNXJetTagsProducer::HLTParticleTransformerAK4ONNXJetTa
     : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
       input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
-      output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")) {
+      output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")),
+      produceValueMap_(iConfig.getUntrackedParameter<bool>("produceValueMap", false)) {
+  if (produceValueMap_) {
+    jet_ = consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("jets"));
+  }
+
   for (const auto& flav_name : flav_names_) {
     produces<JetTagCollection>(flav_name);
+    if (produceValueMap_) {
+      produces<edm::ValueMap<float>>(flav_name);
+    }
   }
 }
 
@@ -70,6 +84,8 @@ void HLTParticleTransformerAK4ONNXJetTagsProducer::fillDescriptions(edm::Configu
       edm::FileInPath("RecoBTag/Combined/data/HLT/hltParticleTransformerAK4/hltParTAK4_CMSSW15_082026.onnx"));
   desc.add<std::vector<std::string>>("output_names", {"output"});
   desc.add<std::vector<std::string>>("flav_names", {"probb", "probbb", "problepb"});
+  desc.add<edm::InputTag>("jets", edm::InputTag("hltAK4PFPuppiJets"));
+  desc.addOptionalUntracked<bool>("produceValueMap", false);
 
   descriptions.addWithDefaultLabel(desc);
 }
@@ -85,6 +101,15 @@ void HLTParticleTransformerAK4ONNXJetTagsProducer::produce(edm::Event& iEvent, c
   edm::Handle<TagInfoCollection> tag_infos;
   iEvent.getByToken(src_, tag_infos);
 
+  edm::Handle<edm::View<reco::Jet>> jets;
+  if (produceValueMap_) {
+    iEvent.getByToken(jet_, jets);
+    if (!jets.isValid()) {
+      edm::LogWarning("HLTParticleTransformerAK4ONNXJetTagsProducer") << "Invalid handle in jet input collection";
+      return;
+    }
+  }
+
   std::vector<std::unique_ptr<JetTagCollection>> output_tags;
   if (!tag_infos->empty()) {
     auto jet_ref = tag_infos->begin()->jet();
@@ -96,6 +121,12 @@ void HLTParticleTransformerAK4ONNXJetTagsProducer::produce(edm::Event& iEvent, c
     for (std::size_t i = 0; i < flav_names_.size(); i++) {
       output_tags.emplace_back(std::make_unique<JetTagCollection>());
     }
+  }
+
+  // scores per flavour, indexed by jet position, only filled when producing ValueMaps
+  std::vector<std::vector<float>> output_scores;
+  if (produceValueMap_) {
+    output_scores.assign(flav_names_.size(), std::vector<float>(jets->size(), -1.0));
   }
 
   for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
@@ -115,10 +146,20 @@ void HLTParticleTransformerAK4ONNXJetTagsProducer::produce(edm::Event& iEvent, c
     const auto& jet_ref = taginfo.jet();
     for (std::size_t flav_n = 0; flav_n < flav_names_.size(); flav_n++) {
       (*(output_tags[flav_n]))[jet_ref] = outputs[flav_n];
+      if (produceValueMap_ && jet_n < output_scores[flav_n].size()) {
+        output_scores[flav_n][jet_n] = outputs[flav_n];
+      }
     }
   }
 
   for (std::size_t flav_n = 0; flav_n < flav_names_.size(); ++flav_n) {
+    if (produceValueMap_) {
+      auto valueMap = std::make_unique<edm::ValueMap<float>>();
+      edm::ValueMap<float>::Filler filler(*valueMap);
+      filler.insert(jets, output_scores[flav_n].begin(), output_scores[flav_n].end());
+      filler.fill();
+      iEvent.put(std::move(valueMap), flav_names_[flav_n]);
+    }
     iEvent.put(std::move(output_tags[flav_n]), flav_names_[flav_n]);
   }
 }
