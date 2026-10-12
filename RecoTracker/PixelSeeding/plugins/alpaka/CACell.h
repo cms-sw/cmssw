@@ -7,6 +7,9 @@
 
 #include <cmath>
 #include <limits>
+#include <Eigen/Core>
+// ^ Eigen is needed here to be 100% sure that it is included **before**
+//   any SoA headers to enable support for Eigen columns (for all the SoAs).
 
 #include <alpaka/alpaka.hpp>
 
@@ -16,8 +19,8 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/VecArray.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "RecoTracker/PixelSeeding/interface/CircleEq.h"
-#include "RecoTracker/PixelSeeding/interface/CAPairSoA.h"  // this come first since it has eigen includes
 #include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
+#include "RecoTracker/PixelSeeding/interface/CAPairSoA.h"
 
 #include "CAStructures.h"
 

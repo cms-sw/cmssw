@@ -359,7 +359,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const device::EDPutToken<TkSoADevice> tokenTrack_;
 
     const bool useHitMask_;
-    device::EDGetToken<MapToHit> tokenHitMask_;
+    const device::EDGetToken<MapToHit> tokenHitMask_;
 
     const ::reco::FormulaEvaluator maxNumberOfDoublets_;
     const ::reco::FormulaEvaluator maxNumberOfTuples_;
@@ -377,6 +377,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         pixelRecHitToken_(consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
         tokenTrack_(produces()),
         useHitMask_(not iConfig.getParameter<edm::InputTag>("hitMask").label().empty()),
+        tokenHitMask_{useHitMask_ ? consumes(iConfig.getParameter<edm::InputTag>("hitMask"))
+                                  : device::EDGetToken<MapToHit>{}},
         maxNumberOfDoublets_(iConfig.getParameter<std::string>("maxNumberOfDoublets")),
         maxNumberOfTuples_(iConfig.getParameter<std::string>("maxNumberOfTuples")),
         deviceAlgo_(iConfig) {
@@ -387,10 +389,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
     iCache->tokenGeometry_ = esConsumes<edm::Transition::BeginRun>();
     iCache->tokenTopology_ = esConsumes<edm::Transition::BeginRun>();
-
-    if (useHitMask_) {
-      tokenHitMask_ = device::EDGetToken<MapToHit>(consumes(iConfig.getParameter<edm::InputTag>("hitMask")));
-    }
   }
 
   template <typename TrackerTraits>
@@ -400,11 +398,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<edm::InputTag>("pixelRecHitSrc", edm::InputTag("siPixelRecHitsPreSplittingAlpaka"));
     desc.add<edm::InputTag>("trackerRecHitsSoA", edm::InputTag(""));
 
-    desc.add<edm::InputTag>("hitMask",
-                            edm::InputTag(""))
-        ->setComment(
-            "Hit mask for the rec hits at doublets level.");  // This is just an example, it has to be changed for each tracking iteration
-                                                              // Set as the HLT module to not modify the HLT menu
+    desc.add<edm::InputTag>("hitMask", edm::InputTag(""))
+        ->setComment("Hit mask with the rechits to be skipped, or empty for no mask");
 
     Algo::fillPSetDescription(desc);
     descriptions.addWithDefaultLabel(desc);
@@ -459,7 +454,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     if (globalCache()->startNoBPix1_ or offsetBPIX2 > 0) {
-      std::array<double, 1> nHitsV = {{static_cast<double>(nHits)}};
+      std::array<double, 1> nHitsV = {static_cast<double>(nHits)};
       std::array<double, 1> emptyV;
 
       uint32_t const maxTuples = maxNumberOfTuples_.evaluate(nHitsV, emptyV);
