@@ -615,7 +615,6 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
         h2d_responseMass_[genKey + "mass"]->Fill(genTau.mass(), ResponseMass_bestDeltaR);
       }
 
-
       if (nRecoMatchedToOneGen > 1) {
         // Fill gen tau histograms for multi-matched taus
         h_genTauMultiMatched_["pt"]->Fill(genTau.pt());
