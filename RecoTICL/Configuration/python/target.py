@@ -88,7 +88,7 @@ OFFLINE = Target(
         "layer_tile": "ticlLayerTileTask",
         "step": "ticl{name}StepTask",
         "iterations": "ticlIterationsTask",
-        "superclustering": "ticlSuperclusteringTask",
+        "superclustering": "ticlEndcapSuperclusteringTask",
         "links": "ticlTracksterLinksTask",
         "merge": "mergeTICLTask",
         "mtd": "mtdSoATask",

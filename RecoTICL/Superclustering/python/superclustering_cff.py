@@ -23,11 +23,13 @@ ticlTracksterLinksSuperclusteringMustache = _tracksterLinksProducer.clone(
 )
 
 ### Superclustering : 3 options : DNN, Mustache-TICL (from tracksters)
-ticlSuperclusteringTask = cms.Task(ticlTracksterLinksSuperclusteringDNN, ticlEGammaSuperClusterProducer)
+particleFlowSuperClusterHGCal = ticlEGammaSuperClusterProducer.clone()
+ticlSuperclusteringTask = cms.Task(ticlTracksterLinksSuperclusteringDNN)
 
 # Mustache-TICL
-ticl_superclustering_mustache_ticl.toModify(ticlEGammaSuperClusterProducer,
+from Configuration.ProcessModifiers.ticl_superclustering_mustache_ticl_cff import ticl_superclustering_mustache_ticl
+ticl_superclustering_mustache_ticl.toModify(particleFlowSuperClusterHGCal,
                                             ticlSuperClusters=cms.InputTag("ticlTracksterLinksSuperclusteringMustache"),
                                             enableRegression=cms.bool(False))
-_mustache_ticl_task = cms.Task(ticlTracksterLinksSuperclusteringMustache, ticlEGammaSuperClusterProducer)
+_mustache_ticl_task = cms.Task(ticlTracksterLinksSuperclusteringMustache)
 ticl_superclustering_mustache_ticl.toReplaceWith(ticlSuperclusteringTask, _mustache_ticl_task)

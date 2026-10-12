@@ -16,8 +16,8 @@ from RecoTICL.LayerClustering.ticlLayerTileProducer_cfi import ticlLayerTileProd
 from RecoTICL.ParticleFlow.pfTICLProducer_cfi import pfTICLProducer as _pfTICLProducer
 
 from RecoTICL.Linking.tracksterLinksProducer_cfi import tracksterLinksProducer as _tracksterLinksProducer
-from RecoTICL.Superclustering.superclustering_cff import *
 from RecoTICL.Interpretation.ticlCandidateProducer_cfi import ticlCandidateProducer as _ticlCandidateProducer
+from RecoTICL.Superclustering.superclustering_cff import *
 
 from RecoTICL.Interpretation.mtdSoAProducer_cfi import mtdSoAProducer as _mtdSoAProducer
 from Configuration.ProcessModifiers.ticlv5_TrackLinkingGNN_cff import ticlv5_TrackLinkingGNN
@@ -160,7 +160,7 @@ for labelts in ticlIterLabelsPSet.labels:
         associatorsInstances.append(labelts + "To" + labelsts)
         associatorsInstances.append(labelsts + "To" + labelts)
 
-ticlTracksterLinksTask = cms.Task(ticlTracksterLinks, ticlSuperclusteringTask) 
+ticlTracksterLinksTask = cms.Task(ticlTracksterLinks, ticlSuperclusteringTask)
 
 # mergeTICLTask default for v5
 mergeTICLTask = cms.Task(
