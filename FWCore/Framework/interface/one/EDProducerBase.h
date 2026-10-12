@@ -37,7 +37,7 @@ namespace edm {
   class PreallocationConfiguration;
   class ActivityRegistry;
   class EventForTransformer;
-  class ServiceWeakToken;
+  class ServiceToken;
 
   namespace maker {
     template <typename T>
@@ -89,7 +89,7 @@ namespace edm {
                             EventPrincipal const& iEvent,
                             ActivityRegistry*,
                             ModuleCallingContext,
-                            ServiceWeakToken const&) noexcept;
+                            ServiceToken const&) noexcept;
       void doPreallocate(PreallocationConfiguration const&);
       virtual void preallocRuns(unsigned int);
       virtual void preallocLumis(unsigned int);
@@ -139,7 +139,7 @@ namespace edm {
                                    std::size_t iIndex,
                                    edm::EventForTransformer& iEvent,
                                    edm::ActivityRegistry* iAct,
-                                   ServiceWeakToken const& iToken) const noexcept;
+                                   ServiceToken const& iToken) const noexcept;
 
       virtual void clearInputProcessBlockCaches();
       virtual bool hasAccumulator() const noexcept { return false; }

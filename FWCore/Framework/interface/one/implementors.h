@@ -56,7 +56,7 @@
 namespace edm {
   class SharedResourcesAcquirer;
   class WaitingTaskHolder;
-  class ServiceWeakToken;
+  class ServiceToken;
   class ActivityRegistry;
 
   namespace one {
@@ -412,7 +412,7 @@ namespace edm {
                              std::size_t iIndex,
                              edm::EventForTransformer& iEvent,
                              edm::ActivityRegistry* iAct,
-                             ServiceWeakToken const& iToken) const noexcept final {
+                             ServiceToken const& iToken) const noexcept final {
           return TransformerBase::transformImpAsync(std::move(iTask), iIndex, iAct, *this, iEvent);
         }
         void extendUpdateLookup(BranchType iBranchType, ProductResolverIndexHelper const& iHelper) override {

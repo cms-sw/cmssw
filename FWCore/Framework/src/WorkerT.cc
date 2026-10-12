@@ -268,8 +268,7 @@ namespace edm {
                                  ModuleCallingContext::State::kRunning,
                                  iParent,
                                  nullptr);
-        this->module().doTransformAsync(
-            iTask, iTransformIndex, iEvent, this->activityRegistry(), mcc, ServiceWeakToken(iToken));
+        this->module().doTransformAsync(iTask, iTransformIndex, iEvent, this->activityRegistry(), mcc, iToken);
       } catch (...) {
         iTask.doneWaiting(std::current_exception());
         return;
