@@ -166,27 +166,25 @@ const char tccFlagMarker[] = {'.', 'S', '?', 'C', '4', '5', '6', '7'};
 char srp2roFlags[128];
 
 typedef enum { suppress = 0, sr2, sr1, full, fsuppress, fsr2, fsr1, ffull } roAction_t;
-char roFlagMarker[] = {
-    /*suppress*/ '.',
-    /*sr1*/ 'z',
-    /*sr1*/ 'Z',
-    /*full*/ 'F',
-    /*fsuppress*/ '4',
-    /*fsr2*/ '5',
-    /*fsr1*/ '6',
-    /*ffull*/ '7'};
+char roFlagMarker[] = {/*suppress*/ '.',
+                       /*sr1*/ 'z',
+                       /*sr1*/ 'Z',
+                       /*full*/ 'F',
+                       /*fsuppress*/ '4',
+                       /*fsr2*/ '5',
+                       /*fsr1*/ '6',
+                       /*ffull*/ '7'};
 
 const int nactions = 8;
 // can be overwritten according by cmd line arguments
-roAction_t actions[nactions] = {
-    /*LI->*/ sr2,
-    /*S->*/ full,
-    /*N->*/ full,
-    /*C->*/ full,
-    /*fLI->*/ sr2,
-    /*fS->*/ sr2,
-    /*fN->*/ sr2,
-    /*fC->*/ sr2};
+roAction_t actions[nactions] = {/*LI->*/ sr2,
+                                /*S->*/ full,
+                                /*N->*/ full,
+                                /*C->*/ full,
+                                /*fLI->*/ sr2,
+                                /*fS->*/ sr2,
+                                /*fN->*/ sr2,
+                                /*fC->*/ sr2};
 
 // list of SC deserves by an endcap DCC [0(EE-)|1(EE+)][iDCCPhi]
 vector<pair<int, int>> ecalDccSC[nEndcaps][nDCCEE];

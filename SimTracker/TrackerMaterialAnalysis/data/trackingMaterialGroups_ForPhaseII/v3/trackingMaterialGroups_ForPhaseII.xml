@@ -1,0 +1,2026 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+  <SpecParSection label="spec-pars2.xml">
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer1R1BModuleInnerPixel3DActiveOneFlipped">
+      <PartSelector path="//ITLayer1RodFlipped/ITLayer1R1BModule/ITLayer1R1BModuleInnerPixelOnewafer/ITLayer1R1BModuleInnerPixel3DActiveOne"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer1R1BModuleInnerPixel3DActiveOneFlipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer1R1BModuleInnerPixel3DActiveOneUnflipped">
+      <PartSelector path="//ITLayer1RodUnflipped/ITLayer1R1BModule/ITLayer1R1BModuleInnerPixelOnewafer/ITLayer1R1BModuleInnerPixel3DActiveOne"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer1R1BModuleInnerPixel3DActiveOneUnflipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer1R1BModuleInnerPixel3DActiveTwoFlipped">
+      <PartSelector path="//ITLayer1RodFlipped/ITLayer1R1BModule/ITLayer1R1BModuleInnerPixelTwowafer/ITLayer1R1BModuleInnerPixel3DActiveTwo"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer1R1BModuleInnerPixel3DActiveTwoFlipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer1R1BModuleInnerPixel3DActiveTwoUnflipped">
+      <PartSelector path="//ITLayer1RodUnflipped/ITLayer1R1BModule/ITLayer1R1BModuleInnerPixelTwowafer/ITLayer1R1BModuleInnerPixel3DActiveTwo"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer1R1BModuleInnerPixel3DActiveTwoUnflipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer1R2BModuleInnerPixel3DActiveOneFlipped">
+      <PartSelector path="//ITLayer1RodFlipped/ITLayer1R2BModule/ITLayer1R2BModuleInnerPixelOnewafer/ITLayer1R2BModuleInnerPixel3DActiveOne"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer1R2BModuleInnerPixel3DActiveOneFlipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer1R2BModuleInnerPixel3DActiveOneUnflipped">
+      <PartSelector path="//ITLayer1RodUnflipped/ITLayer1R2BModule/ITLayer1R2BModuleInnerPixelOnewafer/ITLayer1R2BModuleInnerPixel3DActiveOne"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer1R2BModuleInnerPixel3DActiveOneUnflipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer1R2BModuleInnerPixel3DActiveTwoFlipped">
+      <PartSelector path="//ITLayer1RodFlipped/ITLayer1R2BModule/ITLayer1R2BModuleInnerPixelTwowafer/ITLayer1R2BModuleInnerPixel3DActiveTwo"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer1R2BModuleInnerPixel3DActiveTwoFlipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer1R2BModuleInnerPixel3DActiveTwoUnflipped">
+      <PartSelector path="//ITLayer1RodUnflipped/ITLayer1R2BModule/ITLayer1R2BModuleInnerPixelTwowafer/ITLayer1R2BModuleInnerPixel3DActiveTwo"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer1R2BModuleInnerPixel3DActiveTwoUnflipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer1R3BModuleInnerPixel3DActiveOneFlipped">
+      <PartSelector path="//ITLayer1RodFlipped/ITLayer1R3BModule/ITLayer1R3BModuleInnerPixelOnewafer/ITLayer1R3BModuleInnerPixel3DActiveOne"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer1R3BModuleInnerPixel3DActiveOneFlipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer1R3BModuleInnerPixel3DActiveOneUnflipped">
+      <PartSelector path="//ITLayer1RodUnflipped/ITLayer1R3BModule/ITLayer1R3BModuleInnerPixelOnewafer/ITLayer1R3BModuleInnerPixel3DActiveOne"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer1R3BModuleInnerPixel3DActiveOneUnflipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer1R3BModuleInnerPixel3DActiveTwoFlipped">
+      <PartSelector path="//ITLayer1RodFlipped/ITLayer1R3BModule/ITLayer1R3BModuleInnerPixelTwowafer/ITLayer1R3BModuleInnerPixel3DActiveTwo"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer1R3BModuleInnerPixel3DActiveTwoFlipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer1R3BModuleInnerPixel3DActiveTwoUnflipped">
+      <PartSelector path="//ITLayer1RodUnflipped/ITLayer1R3BModule/ITLayer1R3BModuleInnerPixelTwowafer/ITLayer1R3BModuleInnerPixel3DActiveTwo"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer1R3BModuleInnerPixel3DActiveTwoUnflipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer1R4BModuleInnerPixel3DActiveOneFlipped">
+      <PartSelector path="//ITLayer1RodFlipped/ITLayer1R4BModule/ITLayer1R4BModuleInnerPixelOnewafer/ITLayer1R4BModuleInnerPixel3DActiveOne"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer1R4BModuleInnerPixel3DActiveOneFlipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer1R4BModuleInnerPixel3DActiveOneUnflipped">
+      <PartSelector path="//ITLayer1RodUnflipped/ITLayer1R4BModule/ITLayer1R4BModuleInnerPixelOnewafer/ITLayer1R4BModuleInnerPixel3DActiveOne"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer1R4BModuleInnerPixel3DActiveOneUnflipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer1R4BModuleInnerPixel3DActiveTwoFlipped">
+      <PartSelector path="//ITLayer1RodFlipped/ITLayer1R4BModule/ITLayer1R4BModuleInnerPixelTwowafer/ITLayer1R4BModuleInnerPixel3DActiveTwo"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer1R4BModuleInnerPixel3DActiveTwoFlipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer1R4BModuleInnerPixel3DActiveTwoUnflipped">
+      <PartSelector path="//ITLayer1RodUnflipped/ITLayer1R4BModule/ITLayer1R4BModuleInnerPixelTwowafer/ITLayer1R4BModuleInnerPixel3DActiveTwo"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer1R4BModuleInnerPixel3DActiveTwoUnflipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer1R5BModuleInnerPixel3DActiveOneFlipped">
+      <PartSelector path="//ITLayer1RodFlipped/ITLayer1R5BModule/ITLayer1R5BModuleInnerPixelOnewafer/ITLayer1R5BModuleInnerPixel3DActiveOne"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer1R5BModuleInnerPixel3DActiveOneFlipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer1R5BModuleInnerPixel3DActiveOneUnflipped">
+      <PartSelector path="//ITLayer1RodUnflipped/ITLayer1R5BModule/ITLayer1R5BModuleInnerPixelOnewafer/ITLayer1R5BModuleInnerPixel3DActiveOne"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer1R5BModuleInnerPixel3DActiveOneUnflipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer1R5BModuleInnerPixel3DActiveTwoFlipped">
+      <PartSelector path="//ITLayer1RodFlipped/ITLayer1R5BModule/ITLayer1R5BModuleInnerPixelTwowafer/ITLayer1R5BModuleInnerPixel3DActiveTwo"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer1R5BModuleInnerPixel3DActiveTwoFlipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer1R5BModuleInnerPixel3DActiveTwoUnflipped">
+      <PartSelector path="//ITLayer1RodUnflipped/ITLayer1R5BModule/ITLayer1R5BModuleInnerPixelTwowafer/ITLayer1R5BModuleInnerPixel3DActiveTwo"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer1R5BModuleInnerPixel3DActiveTwoUnflipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer2R1BModuleInnerPixelActiveFlipped">
+      <PartSelector path="//ITLayer2RodFlipped/ITLayer2R1BModule/ITLayer2R1BModuleInnerPixelwafer/ITLayer2R1BModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer2R1BModuleInnerPixelActiveFlipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer2R1BModuleInnerPixelActiveUnflipped">
+      <PartSelector path="//ITLayer2RodUnflipped/ITLayer2R1BModule/ITLayer2R1BModuleInnerPixelwafer/ITLayer2R1BModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer2R1BModuleInnerPixelActiveUnflipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer2R2BModuleInnerPixelActiveFlipped">
+      <PartSelector path="//ITLayer2RodFlipped/ITLayer2R2BModule/ITLayer2R2BModuleInnerPixelwafer/ITLayer2R2BModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer2R2BModuleInnerPixelActiveFlipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer2R2BModuleInnerPixelActiveUnflipped">
+      <PartSelector path="//ITLayer2RodUnflipped/ITLayer2R2BModule/ITLayer2R2BModuleInnerPixelwafer/ITLayer2R2BModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer2R2BModuleInnerPixelActiveUnflipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer2R3BModuleInnerPixelActiveFlipped">
+      <PartSelector path="//ITLayer2RodFlipped/ITLayer2R3BModule/ITLayer2R3BModuleInnerPixelwafer/ITLayer2R3BModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer2R3BModuleInnerPixelActiveFlipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer2R3BModuleInnerPixelActiveUnflipped">
+      <PartSelector path="//ITLayer2RodUnflipped/ITLayer2R3BModule/ITLayer2R3BModuleInnerPixelwafer/ITLayer2R3BModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer2R3BModuleInnerPixelActiveUnflipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer2R4BModuleInnerPixelActiveFlipped">
+      <PartSelector path="//ITLayer2RodFlipped/ITLayer2R4BModule/ITLayer2R4BModuleInnerPixelwafer/ITLayer2R4BModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer2R4BModuleInnerPixelActiveFlipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer2R4BModuleInnerPixelActiveUnflipped">
+      <PartSelector path="//ITLayer2RodUnflipped/ITLayer2R4BModule/ITLayer2R4BModuleInnerPixelwafer/ITLayer2R4BModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer2R4BModuleInnerPixelActiveUnflipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer2R5BModuleInnerPixelActiveFlipped">
+      <PartSelector path="//ITLayer2RodFlipped/ITLayer2R5BModule/ITLayer2R5BModuleInnerPixelwafer/ITLayer2R5BModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer2R5BModuleInnerPixelActiveFlipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer2R5BModuleInnerPixelActiveUnflipped">
+      <PartSelector path="//ITLayer2RodUnflipped/ITLayer2R5BModule/ITLayer2R5BModuleInnerPixelwafer/ITLayer2R5BModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer2R5BModuleInnerPixelActiveUnflipped" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer3R1BModuleInnerPixelActive">
+      <PartSelector path="//ITLayer3R1BModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer3R1BModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer3R2BModuleInnerPixelActive">
+      <PartSelector path="//ITLayer3R2BModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer3R2BModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer3R3BModuleInnerPixelActive">
+      <PartSelector path="//ITLayer3R3BModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer3R3BModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer3R4BModuleInnerPixelActive">
+      <PartSelector path="//ITLayer3R4BModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer3R4BModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer3R5BModuleInnerPixelActive">
+      <PartSelector path="//ITLayer3R5BModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer3R5BModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer4R1BModuleInnerPixelActive">
+      <PartSelector path="//ITLayer4R1BModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer4R1BModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer4R2BModuleInnerPixelActive">
+      <PartSelector path="//ITLayer4R2BModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer4R2BModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer4R3BModuleInnerPixelActive">
+      <PartSelector path="//ITLayer4R3BModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer4R3BModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer4R4BModuleInnerPixelActive">
+      <PartSelector path="//ITLayer4R4BModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer4R4BModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITLayer4R5BModuleInnerPixelActive">
+      <PartSelector path="//ITLayer4R5BModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITLayer4R5BModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc1R1EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc1R1EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc1R1EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc1R2EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc1R2EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc1R2EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc1R3EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc1R3EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc1R3EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc1R4EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc1R4EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc1R4EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc2R1EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc2R1EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc2R1EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc2R2EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc2R2EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc2R2EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc2R3EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc2R3EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc2R3EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc2R4EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc2R4EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc2R4EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc3R1EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc3R1EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc3R1EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc3R2EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc3R2EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc3R2EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc3R3EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc3R3EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc3R3EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc3R4EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc3R4EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc3R4EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc4R1EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc4R1EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc4R1EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc4R2EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc4R2EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc4R2EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc4R3EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc4R3EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc4R3EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc4R4EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc4R4EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc4R4EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc5R1EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc5R1EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc5R1EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc5R2EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc5R2EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc5R2EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc5R3EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc5R3EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc5R3EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc5R4EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc5R4EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc5R4EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc6R1EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc6R1EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc6R1EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc6R2EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc6R2EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc6R2EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc6R3EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc6R3EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc6R3EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc6R4EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc6R4EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc6R4EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc7R1EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc7R1EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc7R1EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc7R2EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc7R2EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc7R2EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc7R3EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc7R3EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc7R3EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc7R4EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc7R4EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc7R4EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc8R1EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc8R1EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc8R1EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc8R2EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc8R2EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc8R2EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc8R3EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc8R3EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc8R3EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc8R4EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc8R4EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc8R4EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc9R1EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc9R1EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc9R1EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc9R2EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc9R2EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc9R2EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc9R3EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc9R3EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc9R3EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc9R4EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc9R4EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc9R4EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc9R5EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc9R5EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc9R5EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc10R1EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc10R1EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc10R1EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc10R2EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc10R2EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc10R2EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc10R3EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc10R3EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc10R3EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc10R4EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc10R4EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc10R4EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc10R5EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc10R5EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc10R5EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc11R1EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc11R1EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc11R1EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc11R2EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc11R2EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc11R2EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc11R3EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc11R3EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc11R3EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc11R4EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc11R4EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc11R4EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc11R5EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc11R5EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc11R5EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc12R1EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc12R1EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc12R1EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc12R2EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc12R2EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc12R2EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc12R3EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc12R3EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc12R3EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc12R4EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc12R4EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc12R4EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_ITDisc12R5EModuleInnerPixelActive">
+      <PartSelector path="//ITDisc12R5EModuleInnerPixelActive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_ITDisc12R5EModuleInnerPixelActive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R1BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer1R1BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R1BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R1BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer1R1BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R1BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R2BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer1R2BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R2BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R2BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer1R2BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R2BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R3BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer1R3BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R3BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R3BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer1R3BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R3BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R4BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer1R4BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R4BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R4BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer1R4BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R4BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R5BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer1R5BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R5BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R5BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer1R5BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R5BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R6BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer1R6BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R6BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R6BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer1R6BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R6BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R7BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer1R7BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R7BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R7BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer1R7BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R7BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R8BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer1R8BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R8BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R8BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer1R8BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R8BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R9BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer1R9BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R9BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R9BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer1R9BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R9BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R10BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer1R10BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R10BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R10BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer1R10BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R10BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R11BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer1R11BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R11BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R11BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer1R11BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R11BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R12BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer1R12BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R12BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R12BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer1R12BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R12BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R13BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer1R13BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R13BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R13BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer1R13BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R13BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R14BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer1R14BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R14BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R14BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer1R14BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R14BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R15BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer1R15BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R15BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R15BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer1R15BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R15BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R16BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer1R16BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R16BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer1R16BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer1R16BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer1R16BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R1BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer2R1BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R1BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R1BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer2R1BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R1BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R2BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer2R2BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R2BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R2BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer2R2BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R2BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R3BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer2R3BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R3BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R3BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer2R3BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R3BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R4BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer2R4BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R4BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R4BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer2R4BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R4BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R5BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer2R5BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R5BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R5BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer2R5BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R5BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R6BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer2R6BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R6BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R6BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer2R6BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R6BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R7BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer2R7BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R7BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R7BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer2R7BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R7BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R8BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer2R8BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R8BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R8BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer2R8BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R8BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R9BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer2R9BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R9BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R9BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer2R9BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R9BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R10BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer2R10BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R10BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R10BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer2R10BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R10BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R11BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer2R11BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R11BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R11BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer2R11BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R11BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R12BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer2R12BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R12BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R12BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer2R12BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R12BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R13BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer2R13BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R13BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R13BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer2R13BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R13BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R14BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer2R14BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R14BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R14BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer2R14BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R14BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R15BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer2R15BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R15BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R15BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer2R15BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R15BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R16BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer2R16BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R16BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R16BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer2R16BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R16BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R17BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer2R17BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R17BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R17BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer2R17BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R17BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R18BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer2R18BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R18BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer2R18BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer2R18BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer2R18BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R1BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer3R1BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R1BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R1BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer3R1BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R1BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R2BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer3R2BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R2BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R2BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer3R2BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R2BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R3BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer3R3BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R3BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R3BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer3R3BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R3BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R4BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer3R4BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R4BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R4BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer3R4BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R4BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R5BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer3R5BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R5BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R5BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer3R5BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R5BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R6BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer3R6BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R6BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R6BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer3R6BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R6BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R7BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer3R7BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R7BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R7BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer3R7BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R7BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R8BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer3R8BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R8BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R8BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer3R8BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R8BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R9BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer3R9BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R9BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R9BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer3R9BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R9BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R10BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer3R10BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R10BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R10BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer3R10BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R10BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R11BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer3R11BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R11BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R11BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer3R11BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R11BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R12BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer3R12BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R12BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R12BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer3R12BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R12BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R13BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer3R13BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R13BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R13BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer3R13BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R13BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R14BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer3R14BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R14BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R14BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer3R14BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R14BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R15BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer3R15BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R15BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R15BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer3R15BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R15BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R16BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer3R16BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R16BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R16BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer3R16BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R16BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R17BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer3R17BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R17BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R17BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer3R17BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R17BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R18BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer3R18BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R18BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R18BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer3R18BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R18BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R19BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer3R19BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R19BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R19BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer3R19BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R19BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R20BModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTLayer3R20BModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R20BModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer3R20BModuleUpperPSStripactive">
+      <PartSelector path="//OTLayer3R20BModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer3R20BModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R1BModuleLower2Sactive">
+      <PartSelector path="//OTLayer4R1BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R1BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R1BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer4R1BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R1BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R2BModuleLower2Sactive">
+      <PartSelector path="//OTLayer4R2BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R2BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R2BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer4R2BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R2BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R3BModuleLower2Sactive">
+      <PartSelector path="//OTLayer4R3BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R3BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R3BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer4R3BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R3BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R4BModuleLower2Sactive">
+      <PartSelector path="//OTLayer4R4BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R4BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R4BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer4R4BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R4BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R5BModuleLower2Sactive">
+      <PartSelector path="//OTLayer4R5BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R5BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R5BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer4R5BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R5BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R6BModuleLower2Sactive">
+      <PartSelector path="//OTLayer4R6BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R6BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R6BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer4R6BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R6BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R7BModuleLower2Sactive">
+      <PartSelector path="//OTLayer4R7BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R7BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R7BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer4R7BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R7BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R8BModuleLower2Sactive">
+      <PartSelector path="//OTLayer4R8BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R8BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R8BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer4R8BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R8BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R9BModuleLower2Sactive">
+      <PartSelector path="//OTLayer4R9BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R9BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R9BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer4R9BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R9BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R10BModuleLower2Sactive">
+      <PartSelector path="//OTLayer4R10BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R10BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R10BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer4R10BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R10BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R11BModuleLower2Sactive">
+      <PartSelector path="//OTLayer4R11BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R11BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R11BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer4R11BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R11BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R12BModuleLower2Sactive">
+      <PartSelector path="//OTLayer4R12BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R12BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer4R12BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer4R12BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer4R12BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R1BModuleLower2Sactive">
+      <PartSelector path="//OTLayer5R1BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R1BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R1BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer5R1BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R1BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R2BModuleLower2Sactive">
+      <PartSelector path="//OTLayer5R2BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R2BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R2BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer5R2BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R2BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R3BModuleLower2Sactive">
+      <PartSelector path="//OTLayer5R3BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R3BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R3BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer5R3BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R3BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R4BModuleLower2Sactive">
+      <PartSelector path="//OTLayer5R4BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R4BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R4BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer5R4BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R4BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R5BModuleLower2Sactive">
+      <PartSelector path="//OTLayer5R5BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R5BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R5BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer5R5BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R5BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R6BModuleLower2Sactive">
+      <PartSelector path="//OTLayer5R6BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R6BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R6BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer5R6BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R6BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R7BModuleLower2Sactive">
+      <PartSelector path="//OTLayer5R7BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R7BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R7BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer5R7BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R7BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R8BModuleLower2Sactive">
+      <PartSelector path="//OTLayer5R8BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R8BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R8BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer5R8BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R8BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R9BModuleLower2Sactive">
+      <PartSelector path="//OTLayer5R9BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R9BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R9BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer5R9BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R9BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R10BModuleLower2Sactive">
+      <PartSelector path="//OTLayer5R10BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R10BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R10BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer5R10BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R10BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R11BModuleLower2Sactive">
+      <PartSelector path="//OTLayer5R11BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R11BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R11BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer5R11BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R11BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R12BModuleLower2Sactive">
+      <PartSelector path="//OTLayer5R12BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R12BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer5R12BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer5R12BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer5R12BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R1BModuleLower2Sactive">
+      <PartSelector path="//OTLayer6R1BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R1BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R1BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer6R1BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R1BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R2BModuleLower2Sactive">
+      <PartSelector path="//OTLayer6R2BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R2BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R2BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer6R2BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R2BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R3BModuleLower2Sactive">
+      <PartSelector path="//OTLayer6R3BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R3BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R3BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer6R3BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R3BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R4BModuleLower2Sactive">
+      <PartSelector path="//OTLayer6R4BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R4BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R4BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer6R4BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R4BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R5BModuleLower2Sactive">
+      <PartSelector path="//OTLayer6R5BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R5BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R5BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer6R5BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R5BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R6BModuleLower2Sactive">
+      <PartSelector path="//OTLayer6R6BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R6BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R6BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer6R6BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R6BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R7BModuleLower2Sactive">
+      <PartSelector path="//OTLayer6R7BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R7BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R7BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer6R7BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R7BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R8BModuleLower2Sactive">
+      <PartSelector path="//OTLayer6R8BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R8BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R8BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer6R8BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R8BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R9BModuleLower2Sactive">
+      <PartSelector path="//OTLayer6R9BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R9BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R9BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer6R9BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R9BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R10BModuleLower2Sactive">
+      <PartSelector path="//OTLayer6R10BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R10BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R10BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer6R10BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R10BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R11BModuleLower2Sactive">
+      <PartSelector path="//OTLayer6R11BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R11BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R11BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer6R11BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R11BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R12BModuleLower2Sactive">
+      <PartSelector path="//OTLayer6R12BModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R12BModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTLayer6R12BModuleUpper2Sactive">
+      <PartSelector path="//OTLayer6R12BModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTLayer6R12BModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R1EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc1R1EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R1EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R1EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc1R1EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R1EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R2EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc1R2EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R2EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R2EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc1R2EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R2EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R3EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc1R3EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R3EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R3EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc1R3EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R3EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R4EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc1R4EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R4EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R4EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc1R4EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R4EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R5EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc1R5EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R5EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R5EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc1R5EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R5EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R6EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc1R6EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R6EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R6EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc1R6EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R6EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R7EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc1R7EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R7EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R7EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc1R7EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R7EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R8EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc1R8EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R8EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R8EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc1R8EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R8EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R9EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc1R9EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R9EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R9EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc1R9EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R9EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R10EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc1R10EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R10EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R10EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc1R10EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R10EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R11EModuleLower2Sactive">
+      <PartSelector path="//OTDisc1R11EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R11EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R11EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc1R11EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R11EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R12EModuleLower2Sactive">
+      <PartSelector path="//OTDisc1R12EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R12EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R12EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc1R12EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R12EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R13EModuleLower2Sactive">
+      <PartSelector path="//OTDisc1R13EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R13EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R13EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc1R13EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R13EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R14EModuleLower2Sactive">
+      <PartSelector path="//OTDisc1R14EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R14EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R14EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc1R14EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R14EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R15EModuleLower2Sactive">
+      <PartSelector path="//OTDisc1R15EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R15EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc1R15EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc1R15EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc1R15EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R1EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc2R1EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R1EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R1EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc2R1EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R1EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R2EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc2R2EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R2EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R2EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc2R2EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R2EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R3EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc2R3EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R3EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R3EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc2R3EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R3EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R4EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc2R4EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R4EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R4EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc2R4EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R4EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R5EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc2R5EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R5EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R5EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc2R5EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R5EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R6EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc2R6EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R6EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R6EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc2R6EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R6EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R7EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc2R7EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R7EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R7EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc2R7EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R7EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R8EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc2R8EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R8EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R8EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc2R8EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R8EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R9EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc2R9EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R9EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R9EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc2R9EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R9EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R10EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc2R10EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R10EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R10EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc2R10EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R10EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R11EModuleLower2Sactive">
+      <PartSelector path="//OTDisc2R11EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R11EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R11EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc2R11EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R11EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R12EModuleLower2Sactive">
+      <PartSelector path="//OTDisc2R12EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R12EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R12EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc2R12EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R12EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R13EModuleLower2Sactive">
+      <PartSelector path="//OTDisc2R13EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R13EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R13EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc2R13EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R13EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R14EModuleLower2Sactive">
+      <PartSelector path="//OTDisc2R14EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R14EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R14EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc2R14EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R14EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R15EModuleLower2Sactive">
+      <PartSelector path="//OTDisc2R15EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R15EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc2R15EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc2R15EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc2R15EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R4EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc3R4EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R4EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R4EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc3R4EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R4EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R5EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc3R5EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R5EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R5EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc3R5EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R5EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R6EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc3R6EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R6EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R6EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc3R6EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R6EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R7EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc3R7EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R7EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R7EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc3R7EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R7EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R8EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc3R8EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R8EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R8EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc3R8EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R8EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R9EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc3R9EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R9EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R9EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc3R9EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R9EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R10EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc3R10EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R10EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R10EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc3R10EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R10EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R11EModuleLower2Sactive">
+      <PartSelector path="//OTDisc3R11EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R11EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R11EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc3R11EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R11EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R12EModuleLower2Sactive">
+      <PartSelector path="//OTDisc3R12EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R12EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R12EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc3R12EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R12EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R13EModuleLower2Sactive">
+      <PartSelector path="//OTDisc3R13EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R13EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R13EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc3R13EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R13EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R14EModuleLower2Sactive">
+      <PartSelector path="//OTDisc3R14EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R14EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R14EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc3R14EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R14EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R15EModuleLower2Sactive">
+      <PartSelector path="//OTDisc3R15EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R15EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc3R15EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc3R15EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc3R15EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R4EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc4R4EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R4EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R4EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc4R4EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R4EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R5EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc4R5EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R5EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R5EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc4R5EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R5EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R6EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc4R6EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R6EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R6EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc4R6EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R6EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R7EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc4R7EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R7EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R7EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc4R7EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R7EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R8EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc4R8EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R8EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R8EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc4R8EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R8EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R9EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc4R9EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R9EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R9EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc4R9EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R9EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R10EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc4R10EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R10EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R10EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc4R10EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R10EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R11EModuleLower2Sactive">
+      <PartSelector path="//OTDisc4R11EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R11EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R11EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc4R11EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R11EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R12EModuleLower2Sactive">
+      <PartSelector path="//OTDisc4R12EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R12EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R12EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc4R12EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R12EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R13EModuleLower2Sactive">
+      <PartSelector path="//OTDisc4R13EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R13EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R13EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc4R13EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R13EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R14EModuleLower2Sactive">
+      <PartSelector path="//OTDisc4R14EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R14EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R14EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc4R14EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R14EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R15EModuleLower2Sactive">
+      <PartSelector path="//OTDisc4R15EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R15EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc4R15EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc4R15EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc4R15EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R4EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc5R4EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R4EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R4EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc5R4EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R4EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R5EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc5R5EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R5EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R5EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc5R5EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R5EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R6EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc5R6EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R6EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R6EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc5R6EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R6EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R7EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc5R7EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R7EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R7EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc5R7EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R7EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R8EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc5R8EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R8EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R8EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc5R8EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R8EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R9EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc5R9EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R9EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R9EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc5R9EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R9EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R10EModuleLowerPSMacroPixelactive">
+      <PartSelector path="//OTDisc5R10EModuleLowerPSMacroPixelactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R10EModuleLowerPSMacroPixelactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R10EModuleUpperPSStripactive">
+      <PartSelector path="//OTDisc5R10EModuleUpperPSStripactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R10EModuleUpperPSStripactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R11EModuleLower2Sactive">
+      <PartSelector path="//OTDisc5R11EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R11EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R11EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc5R11EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R11EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R12EModuleLower2Sactive">
+      <PartSelector path="//OTDisc5R12EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R12EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R12EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc5R12EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R12EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R13EModuleLower2Sactive">
+      <PartSelector path="//OTDisc5R13EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R13EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R13EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc5R13EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R13EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R14EModuleLower2Sactive">
+      <PartSelector path="//OTDisc5R14EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R14EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R14EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc5R14EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R14EModuleUpper2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R15EModuleLower2Sactive">
+      <PartSelector path="//OTDisc5R15EModuleLower2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R15EModuleLower2Sactive" />
+    </SpecPar>
+
+    <SpecPar name="TrackingMaterialGroup_OTDisc5R15EModuleUpper2Sactive">
+      <PartSelector path="//OTDisc5R15EModuleUpper2Sactive"/>
+      <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterial_OTDisc5R15EModuleUpper2Sactive" />
+    </SpecPar>
+
+  </SpecParSection>
+</DDDefinition>

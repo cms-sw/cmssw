@@ -1,0 +1,13 @@
+<use name="DataFormats/CaloRecHit"/>
+<use name="DataFormats/ForwardDetId"/>
+<use name="DataFormats/HGCalReco"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/TrackReco"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="RecoLocalCalo/HGCalRecAlgos"/>
+<use name="SimDataFormats/CaloAnalysis"/>
+<library file="*.cc" name="testValidationTICLValidation">
+  <flags EDM_PLUGIN="1"/>
+</library>

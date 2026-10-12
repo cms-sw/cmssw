@@ -22,13 +22,13 @@ namespace reco {
 
     /// compare reco to sim the handle of Vertex and TrackingVertex
     /// collections
-    virtual RecoToSimCollection associateRecoToSim(const edm::Handle<edm::View<VertexType>> &,
-                                                   const edm::Handle<TrackingVertexCollection> &) const = 0;
+    virtual RecoToSimCollection associateRecoToSim(const edm::Handle<edm::View<VertexType>>&,
+                                                   const edm::Handle<TrackingVertexCollection>&) const = 0;
 
     /// compare sim to reco the handle of Vertex and TrackingVertex
     /// collections
-    virtual SimToRecoCollection associateSimToReco(const edm::Handle<edm::View<VertexType>> &,
-                                                   const edm::Handle<TrackingVertexCollection> &) const = 0;
+    virtual SimToRecoCollection associateSimToReco(const edm::Handle<edm::View<VertexType>>&,
+                                                   const edm::Handle<TrackingVertexCollection>&) const = 0;
   };
 }  // namespace reco
 

@@ -15,6 +15,8 @@ process.MessageLogger.cerr.MPI = cms.untracked.PSet(
 process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
 process.load("HeterogeneousCore.MPIServices.MPIConsistencyChecker_cfi")
 
+process.load("Configuration.StandardSequences.Accelerators_cff")
+
 from HeterogeneousCore.MPICore.modules import *
 
 process.source = MPISource(mode = 'CommWorld',

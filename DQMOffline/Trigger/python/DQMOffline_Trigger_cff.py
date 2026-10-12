@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # online trigger objects monitoring
+from DQM.HLTEvF.FourVectorHLT_cfi import *
+from DQM.HLTEvF.HLTObjectMonitor_cfi import *
 from DQM.HLTEvF.HLTObjectsMonitor_cfi import *
 
 # monitoring of efficiencies of HLT paths and filters
@@ -284,4 +286,11 @@ triggerOfflineDQMSource =  cms.Sequence(
 offlineValidationHLTSource = cms.Sequence(
       offlineHLTSource
     + offlineHLTSourceOnAODextra
+)
+
+# this sequence can be used to monitor a la online
+onlinehlt4vector = cms.Sequence(
+    hltResults
+    + hltObjectMonitor
+    + hltObjectsMonitor
 )

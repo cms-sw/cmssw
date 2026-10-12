@@ -18,11 +18,11 @@
 #include <mutex>
 
 namespace {
-  template <typename T, typename M, typename U>
+  template <edm::TransitionEdge E, typename TI, typename TC, typename M, typename U>
   void processOneOccurrence(M& manager,
-                            typename T::TransitionInfoType& info,
+                            TI& info,
                             edm::StreamID streamID,
-                            typename T::Context const* topContext,
+                            TC topContext,
                             U const* context,
                             bool cleaningUpAfterException = false) {
     manager.resetAll();
@@ -36,7 +36,7 @@ namespace {
     tbb::task_arena localArena{tbb::this_task_arena::max_concurrency()};
     std::exception_ptr exceptPtr = localArena.execute([&]() {
       return edm::syncWait([&](edm::WaitingTaskHolder&& iHolder) {
-        manager.template processOneOccurrenceAsync<T, U>(
+        manager.template processOneOccurrenceAsync<E, U>(
             std::move(iHolder), info, token, streamID, topContext, context);
       });
     });
@@ -112,10 +112,8 @@ namespace edm {
                                         ModuleCallingContext const* mcc,
                                         StreamContext& sContext) {
     RunTransitionInfo info(run, setup);
-    processOneOccurrence<OccurrenceTraits<RunPrincipal, TransitionActionGlobalBegin>>(
-        runWorkerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
-    processOneOccurrence<OccurrenceTraits<RunPrincipal, TransitionActionStreamBegin>>(
-        runStreamWorkerManager_, info, sContext.streamID(), &sContext, mcc);
+    processOneOccurrence<TransitionEdge::kBegin>(runWorkerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
+    processOneOccurrence<TransitionEdge::kBegin>(runStreamWorkerManager_, info, sContext.streamID(), &sContext, mcc);
   }
 
   void SecondaryEventProvider::beginLuminosityBlock(LuminosityBlockPrincipal& lumi,
@@ -123,10 +121,8 @@ namespace edm {
                                                     ModuleCallingContext const* mcc,
                                                     StreamContext& sContext) {
     LumiTransitionInfo info(lumi, setup);
-    processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalBegin>>(
-        lumiWorkerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
-    processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamBegin>>(
-        lumiStreamWorkerManager_, info, sContext.streamID(), &sContext, mcc);
+    processOneOccurrence<TransitionEdge::kBegin>(lumiWorkerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
+    processOneOccurrence<TransitionEdge::kBegin>(lumiStreamWorkerManager_, info, sContext.streamID(), &sContext, mcc);
   }
 
   void SecondaryEventProvider::endRun(RunPrincipal& run,
@@ -134,10 +130,8 @@ namespace edm {
                                       ModuleCallingContext const* mcc,
                                       StreamContext& sContext) {
     RunTransitionInfo info(run, setup);
-    processOneOccurrence<OccurrenceTraits<RunPrincipal, TransitionActionStreamEnd>>(
-        runStreamWorkerManager_, info, sContext.streamID(), &sContext, mcc);
-    processOneOccurrence<OccurrenceTraits<RunPrincipal, TransitionActionGlobalEnd>>(
-        runWorkerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
+    processOneOccurrence<TransitionEdge::kEnd>(runStreamWorkerManager_, info, sContext.streamID(), &sContext, mcc);
+    processOneOccurrence<TransitionEdge::kEnd>(runWorkerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
   }
 
   void SecondaryEventProvider::endLuminosityBlock(LuminosityBlockPrincipal& lumi,
@@ -145,10 +139,8 @@ namespace edm {
                                                   ModuleCallingContext const* mcc,
                                                   StreamContext& sContext) {
     LumiTransitionInfo info(lumi, setup);
-    processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamEnd>>(
-        lumiStreamWorkerManager_, info, sContext.streamID(), &sContext, mcc);
-    processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalEnd>>(
-        lumiWorkerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
+    processOneOccurrence<TransitionEdge::kEnd>(lumiStreamWorkerManager_, info, sContext.streamID(), &sContext, mcc);
+    processOneOccurrence<TransitionEdge::kEnd>(lumiWorkerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
   }
 
   void SecondaryEventProvider::setupPileUpEvent(EventPrincipal& ep,
@@ -168,8 +160,7 @@ namespace edm {
     std::exception_ptr exceptPtr = tbb::this_task_arena::isolate([&]() {
       return edm::syncWait([&](edm::WaitingTaskHolder&& iHolder) {
         for (auto& worker : eventWorkerManager_.unscheduledWorkers()) {
-          worker->doWorkAsync<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>>(
-              iHolder, info, token, sContext.streamID(), pc, &sContext);
+          worker->doWorkAsync<TransitionEdge::kBegin>(iHolder, info, token, sContext.streamID(), pc, &sContext);
         }
       });
     });

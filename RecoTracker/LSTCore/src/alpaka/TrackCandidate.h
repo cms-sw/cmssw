@@ -22,6 +22,7 @@
 #include "RecoTracker/LSTCore/interface/QuadrupletsSoA.h"
 
 #include "NeuralNetwork.h"
+#include "TripletAccessors.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addpLSTrackCandidateToMemory(TrackCandidatesBase& candsBase,
@@ -397,6 +398,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   QuintupletsConst quintuplets,
                                   TrackCandidatesBase candsBase,
                                   TrackCandidatesExtended candsExtended,
+                                  MiniDoubletsConst mds,
+                                  SegmentsConst segments,
                                   TripletsConst triplets,
                                   ObjectRangesConst ranges) const {
       for (int lowmod : cms::alpakatools::uniform_elements_z(acc, modules.nLowerModules())) {
@@ -417,15 +420,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           for (unsigned int trackCandidateIndex : cms::alpakatools::uniform_elements_x(acc, nTrackCandidates)) {
             short type = candsBase.trackCandidateType()[trackCandidateIndex];
             unsigned int outerTrackletIdx = candsExtended.objectIndices()[trackCandidateIndex][1];
-            // Deleted when a promoted candidate owns three of its hits, or two for a pixel quintuplet.
-            const int minShared = (type == LSTObjType::pT5) ? 2 : 3;
+            // Deleted when a promoted candidate owns three of its hits, or two for a pixel quintuplet or triplet.
+            const int minShared = (type == LSTObjType::pT5 || type == LSTObjType::pT3) ? 2 : 3;
             if (type == LSTObjType::T5 || type == LSTObjType::pT5) {
               unsigned int const* t5Hits = quintuplets.hitIndices()[outerTrackletIdx].data();
               if (nSharedHitsT4(t4Hits, t5Hits, Params_T5::kHits) >= minShared)
                 quadruplets.isDup()[iT4] = true;
             } else if (type == LSTObjType::pT3) {
               int innerTripletIndex = pixelTriplets.tripletIndices()[outerTrackletIdx];
-              unsigned int const* t3Hits = triplets.hitIndices()[innerTripletIndex].data();
+              unsigned int t3Hits[Params_T3::kHits];
+              getTripletHitIndices(mds, segments, triplets, innerTripletIndex, t3Hits);
               if (nSharedHitsT4(t4Hits, t3Hits, Params_T3::kHits) >= minShared)
                 quadruplets.isDup()[iT4] = true;
             }
@@ -471,8 +475,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         unsigned int nQuints = quintupletsOccupancy.nQuintuplets()[idx];
         for (unsigned int jdx = 0; jdx < nQuints; ++jdx) {
           unsigned int quintupletIndex = ranges.quintupletModuleIndices()[idx] + jdx;
-          if (!quintuplets.isDup()[quintupletIndex] && !quintuplets.partOfPT5()[quintupletIndex] &&
-              quintuplets.tightCutFlag()[quintupletIndex])
+          if (!quintuplets.isDup()[quintupletIndex] && !quintuplets.partOfPT5()[quintupletIndex])
             alpaka::atomicAdd(acc, &nSurviving[2], 1u, alpaka::hierarchy::Threads{});
         }
       }
@@ -567,8 +570,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         for (unsigned int jdx : cms::alpakatools::uniform_elements_x(acc, nQuints)) {
           unsigned int quintupletIndex = ranges.quintupletModuleIndices()[idx] + jdx;
           if (quintuplets.isDup()[quintupletIndex] or quintuplets.partOfPT5()[quintupletIndex])
-            continue;
-          if (!(quintuplets.tightCutFlag()[quintupletIndex]))
             continue;
 
           unsigned int trackCandidateIdx =
@@ -735,7 +736,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                       quadruplets.regressionRadius()[quadrupletIndex],
                                       trackCandidateIdx,
                                       quadrupletIndex);
-            quadruplets.partOfTC()[quadrupletIndex] = true;
           }
         }
       }

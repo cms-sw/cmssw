@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/TransitionPhaseTypes.h"
 #include "FWCore/Framework/interface/WorkerManager_global.h"
-#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/maker/TransitionWorker.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
@@ -51,7 +51,6 @@ namespace edm {
   class GlobalSchedule {
   public:
     using vstring = std::vector<std::string>;
-    using WorkerPtr = std::shared_ptr<Worker>;
     template <typename TI>
     using GlobalWorkerManager = WorkerManager<TI, TransitionPhaseGlobal>;
 
@@ -81,8 +80,12 @@ namespace edm {
     /// Delete the module with label iLabel
     void deleteModule(std::string const& iLabel);
 
-    std::vector<Worker*> const& lumiWorkers() const { return lumiManagers()[0].allWorkers(); }
-    std::vector<Worker*> const& runWorkers() const { return runManagers()[0].allWorkers(); }
+    std::vector<TransitionWorker<LumiTransitionInfo, TransitionPhaseGlobal>*> const& lumiWorkers() const {
+      return lumiManagers()[0].allWorkers();
+    }
+    std::vector<TransitionWorker<RunTransitionInfo, TransitionPhaseGlobal>*> const& runWorkers() const {
+      return runManagers()[0].allWorkers();
+    }
 
   private:
     std::span<GlobalWorkerManager<LumiTransitionInfo>> lumiManagers() {
@@ -139,7 +142,6 @@ namespace edm {
     GlobalWorkerManager<InputProcessBlockTransitionInfo> inputProcessBlockWorkerManager_;
     std::vector<unsigned int> beginJobFailedForModule_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
-    std::vector<edm::propagate_const<WorkerPtr>> extraWorkers_;
     ProcessContext const* processContext_;
   };
 
@@ -186,8 +188,8 @@ namespace edm {
         workerManager.setupResolvers(transitionInfo.principal());
 
         auto& aw = workerManager.allWorkers();
-        for (Worker* worker : boost::adaptors::reverse(aw)) {
-          worker->doWorkAsync<T>(
+        for (auto* worker : boost::adaptors::reverse(aw)) {
+          worker->template doWorkAsync<T::transitionEdge_>(
               holdForLoop, transitionInfo, token, StreamID::invalidStreamID(), parentContext, globalContext.get());
         }
       } catch (...) {

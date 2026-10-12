@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+  <SpecParSection label="FbcmSpecs.xml" eval="true">
+    <SpecPar name="FbcmGeomFilter">
+      <PartSelector path="//FBCM"/>
+      <PartSelector path="//FBCM_Station"/>
+      <PartSelector path="//FBCM_SiliconDie.."/>
+      <PartSelector path="//FBCM_SensorCol.."/>
+      <PartSelector path="//FBCM_SensorPad."/>
+      <Parameter name="FbcmDDDGeom" value="FbcmTopLevelGeometry" eval="false">
+    </SpecPar>
+  
+    <SpecPar name="NumOfStationsPerEnd" eval="true">
+      <PartSelector path="//FBCM"/>
+      <Parameter name="nStations" value="[fbcm:NumOfStations]"/>
+    </SpecPar>
+  
+    <SpecPar name="SiDiesPerRingStation" eval="true">
+      <PartSelector path="//FBCM_Station"/>
+      <Parameter name="nSiDiesPerStationPerRing" value="[fbcm:NumOfSiDiesPerStationPerRing]"/>
+      <Parameter name="nRingsPerStation" value="[fbcm:NumOfRingsPerStation]"/>
+    </SpecPar>
+    
+    <SpecPar name="SpecSiDie01" eval="true">
+      <PartSelector path="//FBCM_SiliconDie01"/>
+      <Parameter name="nCols" value="[fbcm:SiDie1_NumOfCols]"/>
+      <Parameter name="nRows" value="[fbcm:SiDie1_NumOfRowsR0]"/>
+    </SpecPar>
+    <SpecPar name="SpecSiDie02" eval="true">
+      <PartSelector path="//FBCM_SiliconDie02"/>
+      <Parameter name="nCols" value="[fbcm:SiDie2_NumOfCols]"/>
+      <Parameter name="nRows" value="[fbcm:SiDie2_NumOfRowsR0]"/>
+    </SpecPar>
+  </SpecParSection>
+</DDDefinition>

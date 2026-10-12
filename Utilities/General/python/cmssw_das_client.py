@@ -80,7 +80,8 @@ def get_data(query, limit=None, threshold=None, idx=None, host=None, cmd=None):
         cmd = "dasgoclient"
         break
 
-  p = subprocess.Popen("%s %s --query '%s'" % (cmd, cmd_opts, query),shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+  # keep stderr (e.g. ASAN leak reports) out of the JSON
+  p = subprocess.Popen("%s %s --query '%s'" % (cmd, cmd_opts, query),shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
   stdout, stderr = p.communicate()
   if not p.returncode: return loads(stdout)
-  return {'status' : 'error', 'reason' : stdout}
+  return {'status' : 'error', 'reason' : stdout + stderr}

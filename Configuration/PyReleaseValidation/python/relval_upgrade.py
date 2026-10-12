@@ -37,21 +37,18 @@ for year in upgradeKeys:
             hasHarvest = False
             for step in upgradeProperties[year][key]['ScenToRun']:
                 stepMaker = makeStepName
+                if step.endswith('HLBeamSpot') and '14TeV' in frag:
+                    step = step.replace('HLBeamSpot', 'HLBeamSpot14')
                 if 'Sim' in step and 'Fast' not in step and step != "Sim":
                     if 'DisplacedParticleGun' in frag:
                         step = 'GenSimDisplaced'
-                    elif 'HLBeamSpot' in step:
-                        if '14TeV' in frag:
-                            step = 'GenSimHLBeamSpot14'
-                        elif 'CloseBy' in frag or 'CE_E' in frag or 'CE_H' in frag:
-                            step = 'GenSimHLBeamSpotCloseBy'
                     elif 'CloseBy' in frag or 'CE_E' in frag or 'CE_H' in frag:
-                        step = 'GenSimCloseBy'
+                        if 'HLBeamSpot' in step:
+                            step = 'GenSimHLBeamSpotCloseBy'
+                        else:
+                            step = 'GenSimCloseBy'
                     stepMaker = makeStepNameSim
                 elif 'Gen' in step:
-                    if 'HLBeamSpot' in step:
-                        if '14TeV' in frag:
-                            step = 'GenHLBeamSpot14'
                     stepMaker = makeStepNameSim
 
                 if 'HARVEST' in step: hasHarvest = True
@@ -82,14 +79,6 @@ for year in upgradeKeys:
                                     if 'S2' in specialType: stepList[specialType].append(stepMade)
                                     # replace for s1
                                     else: stepList[specialType][-1] = stepMade
-                        # similar hack for fastpu
-                        if 'HybridPU' in specialType:
-                            if 'GenSim' in step:
-                                s = step.replace('GenSim','GenSimFS')+'PU' # later processing requires to have PU here
-                                if step in specialWF.PU:
-                                    stepMade = stepMaker(key,'HYBRID',s,specialWF.suffix)
-                                    # append for combined
-                                    if 'S2' in specialType: stepList[specialType].append(stepMade)
                     else:
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,''))
             for specialType,specialWF in upgradeWFs.items():
@@ -97,6 +86,6 @@ for year in upgradeKeys:
                 if notForGenOnly(key,specialType):
                     continue
                 if specialType=="PMXS1":
-                    stepList[specialType] = stepList[specialType][:1]
+                    stepList[specialType] = stepList[specialType][:2]
                 specialWF.workflow(workflows, numWF, info.dataset, stepList[specialType], key, hasHarvest)
             numWF+=1

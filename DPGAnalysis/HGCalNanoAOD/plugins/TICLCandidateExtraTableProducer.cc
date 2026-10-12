@@ -12,7 +12,7 @@
 #include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "RecoHGCal/TICL/interface/TICLUtils.h"
+#include "RecoTICL/Common/interface/TICLUtils.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"

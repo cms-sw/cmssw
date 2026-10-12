@@ -58,7 +58,7 @@ namespace cms::alpakamath {
  * @brief Compute the pseudorapidity from Cartesian coordinates
  *        using a ROOT-based implementation optimized for numerical stability.
  * 
- * @tparam TAcc Alpaka accelerator type. Enabled only if `alpaka::isAccelerator<TAcc>` is true.
+ * @tparam TAcc Alpaka accelerator type. Enabled only if `alpaka::concepts::Acc<TAcc>` is true.
  * @tparam T    Floating-point value type.
  *
  * @param acc Alpaka accelerator instance.

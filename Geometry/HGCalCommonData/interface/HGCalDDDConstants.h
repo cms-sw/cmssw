@@ -164,6 +164,7 @@ public:
     return part;
   }
   int32_t placementIndex(const HGCSiliconDetId&) const;
+  int32_t placementIndexMod(const HGCSiliconDetId&) const;
   std::pair<double, double> rangeR(double z, bool reco) const;
   std::pair<double, double> rangeRLayer(int lay, bool reco) const;
   std::pair<double, double> rangeZ(bool reco) const;

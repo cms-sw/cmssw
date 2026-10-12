@@ -86,19 +86,19 @@ private:
   edm::ParameterSet CosPhi3DConfiguration_;
   DiLepPlotHelp::PlotsVsKinematics CosPhi3DPlots_ = DiLepPlotHelp::PlotsVsKinematics(DiLepPlotHelp::MM);
 
-  // 2D histograms of 3D PV-SV distance vs variable
+  // 2D histograms of PV-SV transverse distance vs variable
   edm::ParameterSet SVDistConfiguration_;
   DiLepPlotHelp::PlotsVsKinematics SVDistPlots_ = DiLepPlotHelp::PlotsVsKinematics(DiLepPlotHelp::MM);
 
-  // 2D histograms of 3D PV-SV distance significance vs variable
+  // 2D histograms of PV-SV transverse distance significance vs variable
   edm::ParameterSet SVDistSigConfiguration_;
   DiLepPlotHelp::PlotsVsKinematics SVDistSigPlots_ = DiLepPlotHelp::PlotsVsKinematics(DiLepPlotHelp::MM);
 
-  // 2D histograms of PV-SV transverse distance vs variable
+  // 2D histograms of 3D PV-SV distance vs variable
   edm::ParameterSet SVDist3DConfiguration_;
   DiLepPlotHelp::PlotsVsKinematics SVDist3DPlots_ = DiLepPlotHelp::PlotsVsKinematics(DiLepPlotHelp::MM);
 
-  // 2D histograms of PV-SV transverse distance significance vs variable
+  // 2D histograms of 3D PV-SV distance significance vs variable
   edm::ParameterSet SVDist3DSigConfiguration_;
   DiLepPlotHelp::PlotsVsKinematics SVDist3DSigPlots_ = DiLepPlotHelp::PlotsVsKinematics(DiLepPlotHelp::MM);
 

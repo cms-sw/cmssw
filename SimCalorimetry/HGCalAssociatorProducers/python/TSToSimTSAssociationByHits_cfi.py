@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HGCalAssociatorProducers.HitToTracksterAssociation_cfi import *
 from SimCalorimetry.HGCalAssociatorProducers.AllTracksterToSimTracksterAssociatorsByHitsProducer_cfi import AllTracksterToSimTracksterAssociatorsByHitsProducer
-from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsPSet
+from RecoTICL.Configuration.iterativeTICL_cff import ticlIterLabelsPSet
 
 allTrackstersToSimTrackstersAssociationsByHits = AllTracksterToSimTracksterAssociatorsByHitsProducer.clone(    
     tracksterCollections = cms.VInputTag(

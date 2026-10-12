@@ -13,7 +13,7 @@
 // Forward declaration for friend
 namespace cms::torch::alpakatools {
   template <typename TQueue>
-    requires alpaka::isQueue<TQueue>
+    requires alpaka::concepts::Queue<TQueue>
   class TensorCollection;
 }
 
@@ -72,7 +72,7 @@ namespace cms::torch::alpakatools::detail {
   }
 
   template <typename TQueue>
-    requires alpaka::isQueue<TQueue>
+    requires alpaka::concepts::Queue<TQueue>
   class ITensorHandle {
   public:
     virtual ~ITensorHandle() = default;
@@ -89,14 +89,14 @@ namespace cms::torch::alpakatools::detail {
     friend class ::cms::torch::alpakatools::TensorCollection<TQueue>;
 
   private:
-    virtual void copy(TQueue& queue, const cms::torch::alpakatools::detail::MemcpyKind kind) = 0;
+    virtual void copy(TQueue& queue) = 0;
     virtual void* data() = 0;
   };
 
   // TODO: handle case when user register only one column:
   // e.g. .register_tensor("test", soa.pt()); (stride should be [1] instead of e.g. [1, 32])
   template <typename TQueue, typename T>
-    requires alpaka::isQueue<TQueue>
+    requires alpaka::concepts::Queue<TQueue>
   class TensorHandle : public ITensorHandle<TQueue> {
   public:
     explicit TensorHandle(const size_t alignment,
@@ -131,9 +131,7 @@ namespace cms::torch::alpakatools::detail {
     iterator_t cend() const { return dims_.cend(); }
 
   private:
-    void copy(TQueue& queue, const cms::torch::alpakatools::detail::MemcpyKind kind) override {
-      policy_.copy(queue, kind);
-    }
+    void copy(TQueue& queue) override { policy_.copy(queue); }
     void* data() override { return static_cast<void*>(policy_.data()); }
     void init_sizes() {
       sizes_ = std::vector<long int>(dims_.size() + 1);

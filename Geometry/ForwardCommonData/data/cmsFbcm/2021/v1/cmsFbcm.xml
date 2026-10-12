@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<ConstantsSection label="cmsFbcm" eval="true">
+  <Constant name="FBCM_Z1" value="1810*mm"/>
+  <Constant name="FBCM_Z2" value="1850*mm"/>
+  <Constant name="FBCM_Z"  value="([FBCM_Z2]+[FBCM_Z1])/2."/>  <!-- z position of the center of FBCM volume wrt to CMS -->
+  <Constant name="FBCM_Thickness"    value="([FBCM_Z2]-[FBCM_Z1])"/>
+  <Constant name="FBCM_InnerRadius"  value="[cms:TrackBeamR12]"/> <!-- [cms:TrackBeamR12] for BCM1F, or should be similar to pixel:Disc12 -->
+  <Constant name="FBCM_OuterRadius"  value="[pixfwdCylinder:CylindersServiceRmin]"/>
+</ConstantsSection>
+ 
+ <SolidSection label="cmsFbcm">
+   <Polycone name="FbcmVolPlusZ" startPhi="0*deg" deltaPhi="360*deg" >
+     <ZSection z="[FBCM_Z1]"   rMin="[FBCM_InnerRadius]"  rMax="[FBCM_OuterRadius]" />
+     <ZSection z="[FBCM_Z2]"   rMin="[FBCM_InnerRadius]"  rMax="[FBCM_OuterRadius]" />
+   </Polycone> 
+
+   <Polycone name="FbcmVolMinusZ" startPhi="0*deg" deltaPhi="360*deg" >
+     <ZSection z="-[FBCM_Z1]"   rMin="[FBCM_InnerRadius]"  rMax="[FBCM_OuterRadius]" />
+     <ZSection z="-[FBCM_Z2]"   rMin="[FBCM_InnerRadius]"  rMax="[FBCM_OuterRadius]" />
+   </Polycone> 
+
+   <UnionSolid name="FbcmVolume">
+     <rSolid name="FbcmVolPlusZ"/>
+     <rSolid name="FbcmVolMinusZ"/>
+     <Translation x="0*fm" y="0*fm" z="0*fm"/>
+   </UnionSolid>
+ </SolidSection>
+ 
+ <LogicalPartSection label="FbcmVolume">
+   <LogicalPart name="FbcmVolume" category="unspecified">
+     <rSolid name="FbcmVolume"/>
+     <rMaterial name="materials:Air"></rMaterial>
+   </LogicalPart>    
+ </LogicalPartSection>
+ 
+  
+ <PosPartSection label="FbcmVolume">
+   <PosPart copyNumber="1">
+     <rParent name="tracker:Tracker"/>
+     <rChild name="FbcmVolume"></rChild>
+     <Translation x="0*fm" y="0*fm" z="0*fm"/>
+   </PosPart>
+ </PosPartSection>
+</DDDefinition>

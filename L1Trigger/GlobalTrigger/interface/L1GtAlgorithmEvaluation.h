@@ -51,7 +51,7 @@ public:
 
   // typedef std::map<std::string, L1GtConditionEvaluation*>
   // ConditionEvaluationMap;
-  typedef std ::unordered_map<std::string, L1GtConditionEvaluation *> ConditionEvaluationMap;
+  typedef std::unordered_map<std::string, L1GtConditionEvaluation *> ConditionEvaluationMap;
   typedef ConditionEvaluationMap::const_iterator CItEvalMap;
   typedef ConditionEvaluationMap::iterator ItEvalMap;
 

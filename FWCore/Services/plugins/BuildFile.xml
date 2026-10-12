@@ -1,6 +1,7 @@
 <use name="boost"/>
 <use name="cpu_features"/>
 <use name="gcc-atomic"/>
+<use name="json"/>
 <use name="rootcore"/>
 <use name="roothistmatrix"/>
 <use name="tinyxml2"/>

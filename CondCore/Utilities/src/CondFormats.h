@@ -167,6 +167,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelQualityProbabilities.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelClusterShapeLimits.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelVCal.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGenErrorDBObject.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"

@@ -381,8 +381,8 @@ id_score_t l1ct::TkEgCID_EB_v1::compute_score(const CompositeCandidate &cand,
 
   float cl_pt = calo.floatPt();
   //This two ratios will be computed in the calotrigger and passed to the CTL1 in 6 bits
-  float cl_ss = emcalo[cand.cluster_idx].hwShowerShape.to_float();
-  float cl_relIso = emcalo[cand.cluster_idx].hwRelIso.to_float();
+  float cl_ss = calo.hwShowerShape.to_float();
+  float cl_relIso = calo.hwRelIso.to_float();
   float cl_staWP = calo.hwEmID & 0x1;
   float cl_looseTkWP = (calo.hwEmID & 0x2) == 0x2;
   float tk_chi2RPhi = chi2RPhiBins[tk.hwRedChi2RPhi.to_int()];
@@ -827,6 +827,13 @@ EGIsoEleObjEmu &PFTkEGAlgoEmulator::addEGIsoEleToPF(std::vector<EGIsoEleObjEmu> 
   egiso.srcCluster = calo.src;
   egiso.srcTrack = track.src;
   egiso.hwIDScore = bdtScore;
+  // additional variables for pt regression on layer-2
+  egiso.hwTkRedChi2RPhi = track.hwRedChi2RPhi;
+  egiso.hwTkCaloDphi = abs(track.hwPhi - calo.hwPhi);
+  egiso.hwCaloShowerShape = calo.hwShowerShape;
+
+  ap_ufixed<16, 0> tk_invPt = l1ct::invert_with_shift<pt_t, ap_ufixed<16, 0>, 1024>(track.hwPt);
+  egiso.hwCaloTkPtRatio = l1ct::Scales::makeCaloTkPtRatio(calo.hwPt * tk_invPt);
   egobjs.push_back(egiso);
 
   if (debug_ > 2)

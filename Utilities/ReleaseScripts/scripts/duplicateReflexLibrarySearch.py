@@ -34,7 +34,8 @@ equivDict = \
      [
          {'SelectorUtils': ['VersionedSelector']},
          {'Associations': ['TTTrackTruthPair',
-                           'edm::Wrapper.+edm::AssociationMap.+TrackingParticle',
+                           f'reco::{io_v}Track.+TrackingParticle',
+                           f'TrackingParticle.+reco::{io_v}Track',
                            'MtdSimLayerCluster.+TrackingParticle',
                            'TrackingParticle.+MtdSimLayerCluster',
                            '(TTClusterAssociationMap|TTStubAssociationMap|TTTrackAssociationMap|TrackingParticle).*Phase2TrackerDigi',

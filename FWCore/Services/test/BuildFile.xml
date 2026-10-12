@@ -35,3 +35,4 @@
 <test name="TestResourceInformationService" command="test_resourceInformationService.sh"/>
 <test name="TestSignalMessages" command="test_signal.sh"/>
 <test name="TestTimingFJR" command="test_Timing.sh"/>
+<test name="TestDumpDependencyGraph" command="test_dumpDependencyGraph.sh"/>

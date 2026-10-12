@@ -1,0 +1,32 @@
+<use name="CommonTools/Utils"/>
+<use name="DataFormats/CaloRecHit"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/GsfTrackReco"/>
+<use name="DataFormats/HGCalReco"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/MuonReco"/>
+<use name="DataFormats/TrackReco"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/CommonTopologies" source_only="1"/>
+<use name="Geometry/HGCalCommonData"/>
+<use name="Geometry/Records"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<use name="MagneticField/Engine"/>
+<use name="MagneticField/Records"/>
+<use name="RecoLocalCalo/HGCalRecAlgos"/>
+<use name="RecoParticleFlow/PFProducer"/>
+<use name="RecoTICL/Common"/>
+<use name="RecoTICL/Inference"/>
+<use name="RecoTICL/Interpretation"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="TrackingTools/Records"/>
+<use name="TrackingTools/TrajectoryState"/>
+<library file="*.cc" name="RecoTICLInterpretationPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

@@ -95,18 +95,18 @@ def runRecoForSep2024TB(process):
                                              k_noise=cms.double(5.)
                                              )
 
-    from RecoLocalCalo.HGCalRecProducers.hgCalSoARecHitsLayerClustersProducer_cfi import hgCalSoARecHitsLayerClustersProducer
+    from RecoTICL.LayerClustering.hgCalSoARecHitsLayerClustersProducer_cfi import hgCalSoARecHitsLayerClustersProducer
     process.hgcalSoARecHitsLayerClusters = hgCalSoARecHitsLayerClustersProducer.clone(
         hgcalRecHitsSoA="hgcalSoARecHits"
     )
 
-    from RecoLocalCalo.HGCalRecProducers.hgCalSoALayerClustersProducer_cfi import hgCalSoALayerClustersProducer
+    from RecoTICL.LayerClustering.hgCalSoALayerClustersProducer_cfi import hgCalSoALayerClustersProducer
     process.hgcalSoALayerClusters = hgCalSoALayerClustersProducer.clone(
         hgcalRecHitsLayerClustersSoA="hgcalSoARecHitsLayerClusters",
         hgcalRecHitsSoA="hgcalSoARecHits"
     )
 
-    from RecoLocalCalo.HGCalRecProducers.hgCalLayerClustersFromSoAProducer_cfi import hgCalLayerClustersFromSoAProducer
+    from RecoTICL.LayerClustering.hgCalLayerClustersFromSoAProducer_cfi import hgCalLayerClustersFromSoAProducer
     process.hgcalMergeLayerClusters = hgCalLayerClustersFromSoAProducer.clone(
         hgcalRecHitsLayerClustersSoA="hgcalSoARecHitsLayerClusters",
         hgcalRecHitsSoA="hgcalSoARecHits",

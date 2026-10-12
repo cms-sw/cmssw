@@ -41,7 +41,7 @@ def main():
 
     gen = _load_fragment(path)
     base = cms.Process("TEST")
-    base.load("RecoHGCal.TICL.iterativeTICL_cff")
+    base.load("RecoTICL.Configuration.iterativeTICL_cff")
 
     diff = diff_tasks(base, base.iterTICLTask, gen, gen.iterTICLTask)
     if diff:

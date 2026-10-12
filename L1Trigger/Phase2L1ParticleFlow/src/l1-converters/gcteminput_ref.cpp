@@ -1,4 +1,5 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/l1-converters/gcteminput_ref.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/GCTEmDigiCluster.h"
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -28,13 +29,17 @@ l1ct::EmCaloObjEmu l1ct::GctEmClusterDecoderEmulator::decode(const l1ct::PFRegio
   constexpr float ETA_LSB = 2 * ETA_RANGE_ONE_SIDE / 170.;
   constexpr float PHI_LSB = 2 * M_PI / 360.;
 
+  l1tp2::GCTEmDigiCluster inclus(in);
+
   // need to add emid
   l1ct::EmCaloObjEmu calo;
   calo.clear();
-  calo.hwPt = pt(in) * l1ct::pt_t(0.5);  // the LSB for GCT objects
+  calo.hwPt = inclus.pt() * l1ct::pt_t(inclus.ptLSB());  // the LSB for GCT objects
   // We add half a crystal both in eta and phi to avoid a bias
-  calo.hwEta = l1ct::Scales::makeGlbEta(eta(in) * ETA_LSB + ETA_LSB / 2.);  // at this point eta is abs(globalEta)
-  calo.hwPhi = l1ct::Scales::makePhi(phi(in) * PHI_LSB + (PHI_LSB / 2));    // This is already in the local frame
+  calo.hwEta = l1ct::Scales::makeGlbEta(inclus.eta() * ETA_LSB + ETA_LSB / 2.);  // at this point eta is abs(globalEta)
+  calo.hwPhi = l1ct::Scales::makePhi(inclus.phi() * PHI_LSB + (PHI_LSB / 2));    // This is already in the local frame
+
+  calo.hwHoe = inclus.hoe();
 
   if (corrector_.valid()) {
     float newpt =
@@ -42,7 +47,6 @@ l1ct::EmCaloObjEmu l1ct::GctEmClusterDecoderEmulator::decode(const l1ct::PFRegio
     calo.hwPt = l1ct::Scales::makePtFromFloat(newpt);
   }
 
-  // Note: at this point still
   calo.hwPtErr =
       l1ct::Scales::makePtFromFloat(resol_(calo.floatPt(), calo.floatEta()));  // NOTE: this is still abs(globalEta)
 
@@ -50,8 +54,11 @@ l1ct::EmCaloObjEmu l1ct::GctEmClusterDecoderEmulator::decode(const l1ct::PFRegio
   // bit 0: standaloneWP: is_iso && is_ss
   // bit 1: looseL1TkMatchWP: is_looseTkiso && is_looseTkss
   // bit 2: photonWP:
-  calo.hwEmID = (passes_iso(in) && passes_ss(in)) | ((passes_looseTkiso(in) && passes_looseTkss(in)) << 1) |
-                ((passes_looseTkiso(in) && passes_looseTkss(in)) << 2);
+  calo.hwEmID = inclus.wp();
+
+  // Copying the bits directly.
+  calo.hwRelIso(rel_iso_t::width - 1, 0) = inclus.iso()(rel_iso_t::width - 1, 0);
+  calo.hwShowerShape(shower_shape_t::width - 1, 0) = inclus.shape()(shower_shape_t::width - 1, 0);
 
   // convert eta to local
   if (sector.hwEtaCenter < 0) {

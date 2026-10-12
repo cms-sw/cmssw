@@ -215,6 +215,19 @@ namespace {
                                                        {align::AlignableGEMEtaPartition, "GEMEtaPartition"},
                                                        {align::AlignableMuon, "Muon"},
 
+                                                       {align::AlignableBTL, "BTL"},
+                                                       {align::AlignableBTLTray, "BTLTray"},
+                                                       {align::AlignableBTLRU, "BTLRU"},
+                                                       {align::AlignableBTLModule, "BTLModule"},
+                                                       {align::AlignableBTLSensorModule, "BTLSensorModule"},
+                                                       {align::AlignableETLEndcap, "ETLEndcap"},
+                                                       {align::AlignableETLDisk, "ETLDisk"},
+                                                       {align::AlignableETLDee, "ETLDee"},
+                                                       {align::AlignableETLServiceHybrid, "ETLServiceHybrid"},
+                                                       {align::AlignableETLModule, "ETLModule"},
+                                                       {align::AlignableETLSensor, "ETLSensor"},
+                                                       {align::AlignableMTD, "MTD"},
+
                                                        {align::BeamSpot, "BeamSpot"},
                                                        {align::notfound, nullptr}};
 
@@ -232,7 +245,7 @@ namespace {
 }  // namespace
 
 //_____________________________________________________________________________
-AlignableObjectId ::AlignableObjectId(AlignableObjectId::Geometry geometry) : geometry_(geometry) {
+AlignableObjectId::AlignableObjectId(AlignableObjectId::Geometry geometry) : geometry_(geometry) {
   switch (geometry) {
     case AlignableObjectId::Geometry::RunI:
       entries_ = entries_RunI;
@@ -257,11 +270,15 @@ AlignableObjectId ::AlignableObjectId(AlignableObjectId::Geometry geometry) : ge
 }
 
 //_____________________________________________________________________________
-AlignableObjectId ::AlignableObjectId(const TrackerGeometry *tracker,
-                                      const DTGeometry *muonDt,
-                                      const CSCGeometry *muonCsc,
-                                      const GEMGeometry *muonGem)
+AlignableObjectId::AlignableObjectId(const TrackerGeometry *tracker,
+                                     const DTGeometry *muonDt,
+                                     const CSCGeometry *muonCsc,
+                                     const GEMGeometry *muonGem)
     : AlignableObjectId(commonGeometry(trackerGeometry(tracker), muonGeometry(muonDt, muonCsc, muonGem))) {}
+
+//_____________________________________________________________________________
+AlignableObjectId::AlignableObjectId(const TrackerGeometry *tracker, const MTDGeometry *mtd)
+    : AlignableObjectId(commonGeometry(trackerGeometry(tracker), mtdGeometry(mtd))) {}
 
 //_____________________________________________________________________________
 align::StructureType AlignableObjectId::nameToType(const std::string &name) const { return stringToId(name.c_str()); }
@@ -291,7 +308,7 @@ align::StructureType AlignableObjectId::stringToId(const char *name) const {
 }
 
 //______________________________________________________________________________
-AlignableObjectId::Geometry AlignableObjectId ::trackerGeometry(const TrackerGeometry *geometry) {
+AlignableObjectId::Geometry AlignableObjectId::trackerGeometry(const TrackerGeometry *geometry) {
   if (!geometry)
     return Geometry::General;
 
@@ -313,14 +330,19 @@ AlignableObjectId::Geometry AlignableObjectId ::trackerGeometry(const TrackerGeo
   }
 }
 
-AlignableObjectId::Geometry AlignableObjectId ::muonGeometry(const DTGeometry *,
-                                                             const CSCGeometry *,
-                                                             const GEMGeometry *) {
+AlignableObjectId::Geometry AlignableObjectId::muonGeometry(const DTGeometry *,
+                                                            const CSCGeometry *,
+                                                            const GEMGeometry *) {
   // muon alignment structure types are identical for all kinds of geometries
   return Geometry::General;
 }
 
-AlignableObjectId::Geometry AlignableObjectId ::commonGeometry(Geometry first, Geometry second) {
+AlignableObjectId::Geometry AlignableObjectId::mtdGeometry(const MTDGeometry *) {
+  // MTD alignment structure types are identical for all kinds of geometries
+  return Geometry::PhaseII;
+}
+
+AlignableObjectId::Geometry AlignableObjectId::commonGeometry(Geometry first, Geometry second) {
   if (first == Geometry::General)
     return second;
   if (second == Geometry::General)
@@ -333,7 +355,7 @@ AlignableObjectId::Geometry AlignableObjectId ::commonGeometry(Geometry first, G
                                                  << "different and none of them is 'General'";
 }
 
-AlignableObjectId AlignableObjectId ::commonObjectIdProvider(const AlignableObjectId &first,
-                                                             const AlignableObjectId &second) {
+AlignableObjectId AlignableObjectId::commonObjectIdProvider(const AlignableObjectId &first,
+                                                            const AlignableObjectId &second) {
   return AlignableObjectId{commonGeometry(first.geometry(), second.geometry())};
 }

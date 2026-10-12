@@ -1,4 +1,5 @@
 <lcgdict>
+  <class name="edm::OneToOne<std::vector<Trajectory>, std::vector<reco::io_v1::GsfTrack>, unsigned short>"/>
   <class name="edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>, std::vector<reco::io_v1::GsfTrack>, unsigned short > >" >
     <field name="transientMap_" transient="true" />
   </class>

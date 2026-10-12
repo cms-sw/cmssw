@@ -1433,6 +1433,30 @@ int32_t HGCalDDDConstants::placementIndex(const HGCSiliconDetId& id) const {
   return place;
 }
 
+int32_t HGCalDDDConstants::placementIndexMod(const HGCSiliconDetId& id) const {
+  int32_t layer = id.layer();
+  int32_t layertype = layerType(layer);
+  if (layertype == 1)
+    layertype = 0;
+  else
+    layertype = 1;
+  int32_t indx = HGCalWaferIndex::waferIndex(layer, id.waferU(), id.waferV());
+  auto ktr = hgpar_->waferInfoMap_.find(indx);
+  if (ktr == hgpar_->waferInfoMap_.end()) {
+    indx = HGCalWaferIndex::waferIndex(layer, -id.waferU(), id.waferV());
+    ktr = hgpar_->waferInfoMap_.find(indx);
+  }
+  int32_t orient = (ktr == hgpar_->waferInfoMap_.end()) ? -1 : (ktr->second).orient;
+  int32_t place = HGCalCell::cellPlacementIndex(id.zside(), layertype, orient);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "PlacementIndex2::ID: " << id << " Layer " << layer << " Layer Type " << layertype
+                                << " Zside " << id.zside() << " Wafer " << id.waferU() << ":" << id.waferV()
+                                << " Orient " << orient << " Index " << indx << ":"
+                                << (ktr != hgpar_->waferInfoMap_.end()) << " Placement Index " << place;
+#endif
+  return place;
+}
+
 std::pair<double, double> HGCalDDDConstants::rangeR(double z, bool reco) const {
   double rmin(0), rmax(0), zz(0);
   if (hgpar_->detectorType_ > 0) {

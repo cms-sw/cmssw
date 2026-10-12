@@ -18,7 +18,7 @@ public:
   EcalFenixBypassLin();
   virtual ~EcalFenixBypassLin();
 
-  void process(std::vector<int> &, std::vector<int> &);
+  void process(std::vector<int>&, std::vector<int>&);
 };
 
 #endif

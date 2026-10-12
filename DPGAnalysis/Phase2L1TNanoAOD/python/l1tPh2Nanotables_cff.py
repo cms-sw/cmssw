@@ -86,25 +86,23 @@ gttTripletTable = cms.EDProducer(
     singleton = cms.bool(False), # the number of entries is variable
     variables = cms.PSet(
         valid = Var("valid()", float, doc="valid"),
-        pt = Var("pt()", float, doc="pt"),
-        eta = Var("glbeta()", float, doc="eta"),
-        phi = Var("glbphi()", float, doc="phi"),
-        mass = Var("mass()", float, doc="mass"),
-        charge = Var("charge()", float, doc="charge"),
-        ditrackMinMass = Var("ditrackMinMass()", float, doc="ditrackMinMass"),
-        ditrackMaxMass = Var("ditrackMaxMass()", float, doc="ditrackMaxMass"),
-        ditrackMinZ0 = Var("ditrackMinZ0()", float, doc="ditrackMinZ0"),
-        ditrackMaxZ0 = Var("ditrackMaxZ0()", float, doc="ditrackMaxZ0"),
+        pt = Var("pt()", float, doc="pt (placeholder, currently 0)"),
+        eta = Var("eta()", float, doc="eta (placeholder, currently 0)"),
+        phi = Var("phi()", float, doc="phi (placeholder, currently 0)"),
+        mass = Var("mass()", float, doc="triplet invariant mass"),
+        charge = Var("charge()", "int16", doc="charge sign (placeholder, currently +1)"),
+        trk1Pt = Var("trk1Pt()", float, doc="leading triplet track pt"),
+        trk2Pt = Var("trk2Pt()", float, doc="subleading triplet track pt"),
+        trk3Pt = Var("trk3Pt()", float, doc="third triplet track pt"),
         hwValid = Var("validBits()", "uint", doc="hardware valid"),
         hwPt = Var("ptBits()", "uint", doc="hardware pt"),
-        hwEta = Var("glbEtaBits()", "uint", doc="hardware eta"),
-        hwPhi = Var("glbPhiBits()", "uint", doc="hardware eta"),
+        hwEta = Var("etaBits()", "uint", doc="hardware eta"),
+        hwPhi = Var("phiBits()", "uint", doc="hardware phi"),
         hwMass = Var("massBits()", "uint", doc="hardware mass"),
         hwCharge = Var("chargeBits()", "uint", doc="hardware charge"),
-        hwDitrackMinMass = Var("ditrackMinMassBits()", "uint", doc="hardware DitrackMinMass"),
-        hwDitrackMaxMass = Var("ditrackMaxMassBits()", "uint", doc="hardware DitrackMaxMass"),
-        hwDitrackMinZ0 = Var("ditrackMinZ0Bits()", "uint", doc="hardware DitrackMinZ0"),
-        hwDitrackMaxZ0 = Var("ditrackMaxZ0Bits()", "uint", doc="hardware DitrackMaxZ0")
+        hwTrk1Pt = Var("trk1PtBits()", "uint", doc="hardware leading triplet track pt"),
+        hwTrk2Pt = Var("trk2PtBits()", "uint", doc="hardware subleading triplet track pt"),
+        hwTrk3Pt = Var("trk3PtBits()", "uint", doc="hardware third triplet track pt")
     )
 )
 
@@ -394,12 +392,13 @@ sc4JetTable = pfJetTable.clone(
 )
 
 sc8JetTable = pfJetTable.clone(
-    src = 'l1tSC8PFL1PuppiCorrectedEmulator',
+    src = cms.InputTag('l1tSC82ProngJetProducer', 'l1tSC82ProngJets'),
     name = "L1puppiJetSC8",
     doc = "SeededCone 0.8 Puppi jet,  origin: Correlator",
     variables = cms.PSet(
         pfJetTable.variables.clone(),
-        mass = Var("mass", float)
+        mass = Var("mass", float),
+        nprongTagScore = Var('getTagScore("nprong")', float)
     )
 )
 
@@ -580,7 +579,7 @@ p2L1TablesTask = cms.Task(
     # ## jets
     sc4JetTable,
     sc8JetTable,
-    sc4ExtJetTable, 
+    sc4ExtJetTable,
     sc4NGJetTable,
     histoJetTable,
     caloJetTable,

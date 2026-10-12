@@ -1,7 +1,6 @@
 #ifndef FWCore_Framework_ModuleHolderFactory_h
 #define FWCore_Framework_ModuleHolderFactory_h
 
-#include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Framework/interface/maker/ModuleMaker.h"
 #include "FWCore/Framework/interface/maker/MakeModuleParams.h"
 

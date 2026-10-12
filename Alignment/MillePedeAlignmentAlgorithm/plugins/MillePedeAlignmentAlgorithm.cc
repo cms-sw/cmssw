@@ -853,14 +853,14 @@ int MillePedeAlignmentAlgorithm::addGlobalData(const edm::EventSetup &setup,
 }
 
 //____________________________________________________
-bool MillePedeAlignmentAlgorithm ::globalDerivativesHierarchy(const EventInfo &eventInfo,
-                                                              const TrajectoryStateOnSurface &tsos,
-                                                              Alignable *ali,
-                                                              const AlignableDetOrUnitPtr &alidet,
-                                                              std::vector<float> &globalDerivativesX,
-                                                              std::vector<float> &globalDerivativesY,
-                                                              std::vector<int> &globalLabels,
-                                                              AlignmentParameters *&lowestParams) const {
+bool MillePedeAlignmentAlgorithm::globalDerivativesHierarchy(const EventInfo &eventInfo,
+                                                             const TrajectoryStateOnSurface &tsos,
+                                                             Alignable *ali,
+                                                             const AlignableDetOrUnitPtr &alidet,
+                                                             std::vector<float> &globalDerivativesX,
+                                                             std::vector<float> &globalDerivativesY,
+                                                             std::vector<int> &globalLabels,
+                                                             AlignmentParameters *&lowestParams) const {
   // derivatives and labels are recursively attached
   if (!ali)
     return true;  // no mother might be OK
@@ -908,14 +908,14 @@ bool MillePedeAlignmentAlgorithm ::globalDerivativesHierarchy(const EventInfo &e
 }
 
 //____________________________________________________
-bool MillePedeAlignmentAlgorithm ::globalDerivativesHierarchy(const EventInfo &eventInfo,
-                                                              const TrajectoryStateOnSurface &tsos,
-                                                              Alignable *ali,
-                                                              const AlignableDetOrUnitPtr &alidet,
-                                                              std::vector<double> &globalDerivativesX,
-                                                              std::vector<double> &globalDerivativesY,
-                                                              std::vector<int> &globalLabels,
-                                                              AlignmentParameters *&lowestParams) const {
+bool MillePedeAlignmentAlgorithm::globalDerivativesHierarchy(const EventInfo &eventInfo,
+                                                             const TrajectoryStateOnSurface &tsos,
+                                                             Alignable *ali,
+                                                             const AlignableDetOrUnitPtr &alidet,
+                                                             std::vector<double> &globalDerivativesX,
+                                                             std::vector<double> &globalDerivativesY,
+                                                             std::vector<int> &globalLabels,
+                                                             AlignmentParameters *&lowestParams) const {
   // derivatives and labels are recursively attached
   if (!ali)
     return true;  // no mother might be OK
@@ -1299,7 +1299,7 @@ void MillePedeAlignmentAlgorithm::diagonalize(Eigen::MatrixBase<CovarianceMatrix
 
 //__________________________________________________________________________________________________
 template <typename CovarianceMatrix, typename ResidualMatrix, typename LocalDerivativeMatrix>
-void MillePedeAlignmentAlgorithm ::addRefTrackVirtualMeas1D(
+void MillePedeAlignmentAlgorithm::addRefTrackVirtualMeas1D(
     const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
     unsigned int iVirtualMeas,
     Eigen::MatrixBase<CovarianceMatrix> &aHitCovarianceM,
@@ -1320,11 +1320,11 @@ void MillePedeAlignmentAlgorithm ::addRefTrackVirtualMeas1D(
 
 //__________________________________________________________________________________________________
 template <typename CovarianceMatrix, typename ResidualMatrix, typename LocalDerivativeMatrix>
-void MillePedeAlignmentAlgorithm ::addRefTrackData2D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-                                                     unsigned int iTrajHit,
-                                                     Eigen::MatrixBase<CovarianceMatrix> &aHitCovarianceM,
-                                                     Eigen::MatrixBase<ResidualMatrix> &aHitResidualsM,
-                                                     Eigen::MatrixBase<LocalDerivativeMatrix> &aLocalDerivativesM) {
+void MillePedeAlignmentAlgorithm::addRefTrackData2D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+                                                    unsigned int iTrajHit,
+                                                    Eigen::MatrixBase<CovarianceMatrix> &aHitCovarianceM,
+                                                    Eigen::MatrixBase<ResidualMatrix> &aHitResidualsM,
+                                                    Eigen::MatrixBase<LocalDerivativeMatrix> &aLocalDerivativesM) {
   // This Method is valid for 2D measurements only
 
   const unsigned int xIndex = iTrajHit * 2;
@@ -1346,11 +1346,11 @@ void MillePedeAlignmentAlgorithm ::addRefTrackData2D(const ReferenceTrajectoryBa
 }
 
 //__________________________________________________________________________________________________
-int MillePedeAlignmentAlgorithm ::callMille(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-                                            unsigned int iTrajHit,
-                                            const std::vector<int> &globalLabels,
-                                            const std::vector<float> &globalDerivativesX,
-                                            const std::vector<float> &globalDerivativesY) {
+int MillePedeAlignmentAlgorithm::callMille(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+                                           unsigned int iTrajHit,
+                                           const std::vector<int> &globalLabels,
+                                           const std::vector<float> &globalDerivativesX,
+                                           const std::vector<float> &globalDerivativesY) {
   const ConstRecHitPointer aRecHit(refTrajPtr->recHits()[iTrajHit]);
 
   if ((aRecHit)->dimension() == 1) {
@@ -1361,10 +1361,10 @@ int MillePedeAlignmentAlgorithm ::callMille(const ReferenceTrajectoryBase::Refer
 }
 
 //__________________________________________________________________________________________________
-int MillePedeAlignmentAlgorithm ::callMille1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-                                              unsigned int iTrajHit,
-                                              const std::vector<int> &globalLabels,
-                                              const std::vector<float> &globalDerivativesX) {
+int MillePedeAlignmentAlgorithm::callMille1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+                                             unsigned int iTrajHit,
+                                             const std::vector<int> &globalLabels,
+                                             const std::vector<float> &globalDerivativesX) {
   const ConstRecHitPointer aRecHit(refTrajPtr->recHits()[iTrajHit]);
   const unsigned int xIndex = iTrajHit * 2;  // the even ones are local x
 
@@ -1400,11 +1400,11 @@ int MillePedeAlignmentAlgorithm ::callMille1D(const ReferenceTrajectoryBase::Ref
 }
 
 //__________________________________________________________________________________________________
-int MillePedeAlignmentAlgorithm ::callMille2D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-                                              unsigned int iTrajHit,
-                                              const std::vector<int> &globalLabels,
-                                              const std::vector<float> &globalDerivativesx,
-                                              const std::vector<float> &globalDerivativesy) {
+int MillePedeAlignmentAlgorithm::callMille2D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+                                             unsigned int iTrajHit,
+                                             const std::vector<int> &globalLabels,
+                                             const std::vector<float> &globalDerivativesx,
+                                             const std::vector<float> &globalDerivativesy) {
   const ConstRecHitPointer aRecHit(refTrajPtr->recHits()[iTrajHit]);
 
   if ((aRecHit)->dimension() != 2) {
@@ -1503,7 +1503,7 @@ int MillePedeAlignmentAlgorithm ::callMille2D(const ReferenceTrajectoryBase::Ref
 
   return (isReal2DHit ? 2 : 1);
 }
-void MillePedeAlignmentAlgorithm ::prepareLocalLabels(size_t nLocal) {
+void MillePedeAlignmentAlgorithm::prepareLocalLabels(size_t nLocal) {
   // content always the same - so only need to do something upon size change
   if (nLocal != theLocalLabelBuffer_.size()) {
     // build the list of local labels, numbered consecutively starting at 1
@@ -1513,8 +1513,8 @@ void MillePedeAlignmentAlgorithm ::prepareLocalLabels(size_t nLocal) {
 }
 
 //__________________________________________________________________________________________________
-void MillePedeAlignmentAlgorithm ::addVirtualMeas(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-                                                  unsigned int iVirtualMeas) {
+void MillePedeAlignmentAlgorithm::addVirtualMeas(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+                                                 unsigned int iVirtualMeas) {
   Eigen::Matrix<double, 1, 1> aHitCovarianceM;
   Eigen::Matrix<float, 1, 1> aHitResidualsM;
   Eigen::Matrix<float, 1, Eigen::Dynamic> aLocalDerivativesM{1, refTrajPtr->derivatives().num_col()};

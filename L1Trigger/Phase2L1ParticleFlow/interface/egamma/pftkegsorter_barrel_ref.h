@@ -17,10 +17,14 @@ namespace l1ct {
 #ifdef CMSSW_GIT_HASH
     PFTkEGSorterBarrelEmulator(const edm::ParameterSet& iConfig)
         : PFTkEGSorterEmulator(iConfig.getParameter<uint32_t>("nObjToSort"),
-                               iConfig.getParameter<uint32_t>("nObjSorted")) {}
+                               iConfig.getParameter<uint32_t>("nObjSorted")) {
+      debug_ = iConfig.getUntrackedParameter<bool>("debug");
+    }
 
     static edm::ParameterSetDescription getParameterSetDescription() {
-      return PFTkEGSorterEmulator::getParameterSetDescription();
+      auto description = PFTkEGSorterEmulator::getParameterSetDescription();
+      description.addUntracked<bool>("debug", false);
+      return description;
     }
 #endif
 

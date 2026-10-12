@@ -2,7 +2,7 @@
 """Standard TICL v5 iteration & singleton presets.
 
 The algorithm parameter sets here are transcribed verbatim from the baseline
-``RecoHGCal/TICL/python`` cff files (``CLUE3DHighStep_cff``, ``PRbyRecovery_cff``,
+``RecoTICL`` cff files (``CLUE3DHighStep_cff``, ``PRbyRecovery_cff``,
 ``superclustering_cff``, ``iterativeTICL_cff``).  pyTICL clones the same ``_cfi``
 defaults and re-applies these overrides, so the generated config reproduces the
 baseline byte-for-byte.  The *plumbing* (filtered_mask, seeding_regions,

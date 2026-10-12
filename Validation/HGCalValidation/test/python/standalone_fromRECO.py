@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-geomName = "Run4D121"
+geomName = "Run4D128"
 geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
@@ -54,7 +54,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '')
 
-process.load("RecoHGCal.TICL.TICLGeom_cff")
+process.load("RecoTICL.Geometry.TICLGeom_cff")
 process.load("Validation.HGCalValidation.hgcalHitValidation_cfi")
 process.load("Validation.HGCalValidation.hgcalHitCalibration_cfi")
 

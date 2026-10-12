@@ -59,10 +59,10 @@ TEST_CASE("Maker2", "[Framework][Factory]") {
     signalslot::Signal<void(const ModuleDescription&)> aSignal;
     auto m1 = f->makeModule(params1, aSignal, aSignal);
     std::unique_ptr<Worker> w1 =
-        m1->makeWorker(&table, edm::EventTransitionInfo::key(), edm::TransitionPhaseStream::value);
+        m1->makeWorker(&table, edm::EventTransitionInfo::key(), edm::TransitionPhaseGlobal::value);
     auto m2 = f->makeModule(params2, aSignal, aSignal);
     std::unique_ptr<Worker> w2 =
-        m2->makeWorker(&table, edm::EventTransitionInfo::key(), edm::TransitionPhaseStream::value);
+        m2->makeWorker(&table, edm::EventTransitionInfo::key(), edm::TransitionPhaseGlobal::value);
 
     //  return 0;
   }

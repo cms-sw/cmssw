@@ -11,7 +11,7 @@
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 
 //_____________________________________________________________________________
-AlignableTracker ::AlignableTracker(const TrackerGeometry* trackerGeometry, const TrackerTopology* trackerTopology)
+AlignableTracker::AlignableTracker(const TrackerGeometry* trackerGeometry, const TrackerTopology* trackerTopology)
     :  // id not yet known, will be set by builder
       AlignableComposite(0, align::Tracker, RotationType()),
       tTopo_(trackerTopology),

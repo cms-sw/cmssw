@@ -116,6 +116,7 @@
   <class name="edm::RefVector<std::vector<reco::io_v1::PreshowerCluster>,reco::io_v1::PreshowerCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PreshowerCluster>,reco::io_v1::PreshowerCluster> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::io_v1::PreshowerCluster>,reco::io_v1::PreshowerCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PreshowerCluster>,reco::io_v1::PreshowerCluster> > >" splitLevel="0"/>
 
+  <class name="edm::OneToOne<std::vector<reco::BasicCluster>, std::vector<reco::ClusterShape>, unsigned int >"/>
   <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::BasicCluster>, std::vector<reco::ClusterShape>, unsigned int > >">
     <field name="transientMap_" transient="true" />
   </class>

@@ -232,8 +232,11 @@
 			   >>" >
 		 <field name="transientMap_" transient="true"/>
   </class>
-		
+
+  <class name="edm::OneToManyWithQualityGeneric<edm::View<reco::Track>,vector<io_v1::TrackingParticle>,double,unsigned int,edm::RefToBaseProd<reco::Track>,edm::RefProd<vector<io_v1::TrackingParticle> >,edm::RefToBase<reco::Track>,edm::Ref<vector<io_v1::TrackingParticle>,io_v1::TrackingParticle,edm::refhelper::FindUsingAdvance<vector<io_v1::TrackingParticle>,io_v1::TrackingParticle> > >"/>
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQualityGeneric<edm::View<reco::Track>,vector<io_v1::TrackingParticle>,double,unsigned int,edm::RefToBaseProd<reco::Track>,edm::RefProd<vector<io_v1::TrackingParticle> >,edm::RefToBase<reco::Track>,edm::Ref<vector<io_v1::TrackingParticle>,io_v1::TrackingParticle,edm::refhelper::FindUsingAdvance<vector<io_v1::TrackingParticle>,io_v1::TrackingParticle> > > > >" />
+
+  <class name="edm::OneToManyWithQualityGeneric<vector<io_v1::TrackingParticle>,edm::View<reco::Track>,double,unsigned int,edm::RefProd<vector<io_v1::TrackingParticle> >,edm::RefToBaseProd<reco::Track>,edm::Ref<vector<io_v1::TrackingParticle>,io_v1::TrackingParticle,edm::refhelper::FindUsingAdvance<vector<io_v1::TrackingParticle>,io_v1::TrackingParticle> >,edm::RefToBase<reco::Track> >"/>
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQualityGeneric<vector<io_v1::TrackingParticle>,edm::View<reco::Track>,double,unsigned int,edm::RefProd<vector<io_v1::TrackingParticle> >,edm::RefToBaseProd<reco::Track>,edm::Ref<vector<io_v1::TrackingParticle>,io_v1::TrackingParticle,edm::refhelper::FindUsingAdvance<vector<io_v1::TrackingParticle>,io_v1::TrackingParticle> >,edm::RefToBase<reco::Track> > > >" />
 
   <class name="std::pair<TrackingParticleRef, TrackPSimHitRef>"/>

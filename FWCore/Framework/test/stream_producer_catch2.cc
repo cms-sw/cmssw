@@ -9,6 +9,7 @@
 #include <vector>
 #include <map>
 #include <functional>
+#include <variant>
 #include "oneapi/tbb/global_control.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Framework/interface/maker/WorkerT.h"
@@ -365,9 +366,15 @@ namespace {
   unsigned int EndLumiSummaryProd::m_count = 0;
   bool EndLumiSummaryProd::m_globalEndLuminosityBlockSummaryCalled = false;
 
+  using WorkerTypes = std::variant<edm::TransitionWorker<edm::EventTransitionInfo, edm::TransitionPhaseGlobal>*,
+                                   edm::TransitionWorker<edm::RunTransitionInfo, edm::TransitionPhaseGlobal>*,
+                                   edm::TransitionWorker<edm::LumiTransitionInfo, edm::TransitionPhaseGlobal>*,
+                                   edm::TransitionWorker<edm::RunTransitionInfo, edm::TransitionPhaseStream>*,
+                                   edm::TransitionWorker<edm::LumiTransitionInfo, edm::TransitionPhaseStream>*>;
+
   // Test fixture struct
   struct TestFixture {
-    std::map<Trans, std::function<void(edm::Worker*, edm::maker::ModuleHolder*)>> m_transToFunc;
+    std::map<Trans, std::function<void(WorkerTypes, edm::maker::ModuleHolder*)>> m_transToFunc;
 
     edm::ProcessConfiguration m_procConfig;
     std::shared_ptr<edm::ProductRegistry> m_prodReg;
@@ -385,11 +392,16 @@ namespace {
     void testTransitions(std::shared_ptr<U> iMod, Expectations const& iExpect);
 
     template <typename Traits, typename Info>
-    void doWork(edm::Worker* iBase, Info const& info, edm::ParentContext const& iContext) {
+    void doWork(WorkerTypes iBase, Info const& info, edm::ParentContext const& iContext) {
       oneapi::tbb::task_group group;
       edm::FinalWaitingTask task{group};
       edm::ServiceToken token;
-      iBase->doWorkAsync<Traits>(edm::WaitingTaskHolder(group, &task), info, token, s_streamID0, iContext, nullptr);
+      auto worker =
+          std::get<edm::TransitionWorker<typename Traits::TransitionInfoType, typename Traits::TransitionPhaseType>*>(
+              iBase);
+      assert(worker != nullptr);
+      worker->template doWorkAsync<Traits::transitionEdge_>(
+          edm::WaitingTaskHolder(group, &task), info, token, s_streamID0, iContext, nullptr);
       task.wait();
     }
 
@@ -427,94 +439,94 @@ namespace {
       m_actReg.reset(new edm::ActivityRegistry);
 
       //For each transition, bind a lambda which will call the proper method of the Worker
-      m_transToFunc[Trans::kBeginJob] = [](edm::Worker* iBase, edm::maker::ModuleHolder* iHolder) {
+      m_transToFunc[Trans::kBeginJob] = [](WorkerTypes iBase, edm::maker::ModuleHolder* iHolder) {
         iHolder->beginJob();
       };
-      m_transToFunc[Trans::kBeginStream] = [](edm::Worker* iBase, edm::maker::ModuleHolder* iHolder) {
+      m_transToFunc[Trans::kBeginStream] = [](WorkerTypes iBase, edm::maker::ModuleHolder* iHolder) {
         iHolder->beginStream(s_streamID0);
       };
 
-      m_transToFunc[Trans::kGlobalBeginRun] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
+      m_transToFunc[Trans::kGlobalBeginRun] = [this](WorkerTypes iBase, edm::maker::ModuleHolder*) {
         typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::TransitionActionGlobalBegin> Traits;
         edm::GlobalContext gc(edm::GlobalContext::Transition::kBeginRun, nullptr);
         edm::ParentContext parentContext(&gc);
-        iBase->setActivityRegistry(m_actReg);
+        std::visit([&](auto* worker) { worker->setActivityRegistry(m_actReg); }, iBase);
         edm::RunTransitionInfo info(*m_rp, m_es);
         doWork<Traits>(iBase, info, parentContext);
       };
-      m_transToFunc[Trans::kStreamBeginRun] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
+      m_transToFunc[Trans::kStreamBeginRun] = [this](WorkerTypes iBase, edm::maker::ModuleHolder*) {
         typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::TransitionActionStreamBegin> Traits;
         edm::StreamContext streamContext(s_streamID0, nullptr);
         edm::ParentContext parentContext(&streamContext);
-        iBase->setActivityRegistry(m_actReg);
+        std::visit([&](auto* worker) { worker->setActivityRegistry(m_actReg); }, iBase);
         edm::RunTransitionInfo info(*m_rp, m_es);
         doWork<Traits>(iBase, info, parentContext);
       };
 
-      m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
+      m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](WorkerTypes iBase, edm::maker::ModuleHolder*) {
         typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::TransitionActionGlobalBegin> Traits;
         edm::GlobalContext gc(edm::GlobalContext::Transition::kBeginLuminosityBlock, nullptr);
         edm::ParentContext parentContext(&gc);
-        iBase->setActivityRegistry(m_actReg);
+        std::visit([&](auto* worker) { worker->setActivityRegistry(m_actReg); }, iBase);
         edm::LumiTransitionInfo info(*m_lbp, m_es);
         doWork<Traits>(iBase, info, parentContext);
       };
-      m_transToFunc[Trans::kStreamBeginLuminosityBlock] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
+      m_transToFunc[Trans::kStreamBeginLuminosityBlock] = [this](WorkerTypes iBase, edm::maker::ModuleHolder*) {
         typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::TransitionActionStreamBegin> Traits;
         edm::StreamContext streamContext(s_streamID0, nullptr);
         edm::ParentContext parentContext(&streamContext);
-        iBase->setActivityRegistry(m_actReg);
+        std::visit([&](auto* worker) { worker->setActivityRegistry(m_actReg); }, iBase);
         edm::LumiTransitionInfo info(*m_lbp, m_es);
         doWork<Traits>(iBase, info, parentContext);
       };
 
-      m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
+      m_transToFunc[Trans::kEvent] = [this](WorkerTypes iBase, edm::maker::ModuleHolder*) {
         typedef edm::OccurrenceTraits<edm::EventPrincipal, edm::TransitionActionGlobalBegin> Traits;
         edm::StreamContext streamContext(s_streamID0, nullptr);
         edm::ParentContext parentContext(&streamContext);
-        iBase->setActivityRegistry(m_actReg);
+        std::visit([&](auto* worker) { worker->setActivityRegistry(m_actReg); }, iBase);
         edm::EventTransitionInfo info(*m_ep, m_es);
         doWork<Traits>(iBase, info, parentContext);
       };
 
-      m_transToFunc[Trans::kStreamEndLuminosityBlock] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
+      m_transToFunc[Trans::kStreamEndLuminosityBlock] = [this](WorkerTypes iBase, edm::maker::ModuleHolder*) {
         typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::TransitionActionStreamEnd> Traits;
         edm::StreamContext streamContext(s_streamID0, nullptr);
         edm::ParentContext parentContext(&streamContext);
-        iBase->setActivityRegistry(m_actReg);
+        std::visit([&](auto* worker) { worker->setActivityRegistry(m_actReg); }, iBase);
         edm::LumiTransitionInfo info(*m_lbp, m_es);
         doWork<Traits>(iBase, info, parentContext);
       };
-      m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
+      m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](WorkerTypes iBase, edm::maker::ModuleHolder*) {
         typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::TransitionActionGlobalEnd> Traits;
         edm::GlobalContext gc(edm::GlobalContext::Transition::kEndLuminosityBlock, nullptr);
         edm::ParentContext parentContext(&gc);
-        iBase->setActivityRegistry(m_actReg);
+        std::visit([&](auto* worker) { worker->setActivityRegistry(m_actReg); }, iBase);
         edm::LumiTransitionInfo info(*m_lbp, m_es);
         doWork<Traits>(iBase, info, parentContext);
       };
 
-      m_transToFunc[Trans::kStreamEndRun] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
+      m_transToFunc[Trans::kStreamEndRun] = [this](WorkerTypes iBase, edm::maker::ModuleHolder*) {
         typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::TransitionActionStreamEnd> Traits;
         edm::StreamContext streamContext(s_streamID0, nullptr);
         edm::ParentContext parentContext(&streamContext);
-        iBase->setActivityRegistry(m_actReg);
+        std::visit([&](auto* worker) { worker->setActivityRegistry(m_actReg); }, iBase);
         edm::RunTransitionInfo info(*m_rp, m_es);
         doWork<Traits>(iBase, info, parentContext);
       };
-      m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
+      m_transToFunc[Trans::kGlobalEndRun] = [this](WorkerTypes iBase, edm::maker::ModuleHolder*) {
         typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::TransitionActionGlobalEnd> Traits;
         edm::GlobalContext gc(edm::GlobalContext::Transition::kEndRun, nullptr);
         edm::ParentContext parentContext(&gc);
-        iBase->setActivityRegistry(m_actReg);
+        std::visit([&](auto* worker) { worker->setActivityRegistry(m_actReg); }, iBase);
         edm::RunTransitionInfo info(*m_rp, m_es);
         doWork<Traits>(iBase, info, parentContext);
       };
 
-      m_transToFunc[Trans::kEndStream] = [](edm::Worker* iBase, edm::maker::ModuleHolder* iHolder) {
+      m_transToFunc[Trans::kEndStream] = [](WorkerTypes iBase, edm::maker::ModuleHolder* iHolder) {
         iHolder->endStream(s_streamID0);
       };
-      m_transToFunc[Trans::kEndJob] = [](edm::Worker* iBase, edm::maker::ModuleHolder* iHolder) { iHolder->endJob(); };
+      m_transToFunc[Trans::kEndJob] = [](WorkerTypes iBase, edm::maker::ModuleHolder* iHolder) { iHolder->endJob(); };
     }
   };
 
@@ -529,11 +541,11 @@ namespace {
   }
 
   template <typename T>
-  void testTransition(edm::Worker* iWorker,
+  void testTransition(WorkerTypes iWorker,
                       edm::maker::ModuleHolder* iMod,
                       Trans iTrans,
                       Expectations const& iExpect,
-                      std::function<void(edm::Worker*, edm::maker::ModuleHolder*)> iFunc) {
+                      std::function<void(WorkerTypes, edm::maker::ModuleHolder*)> iFunc) {
     assert(0 == T::m_count);
     iFunc(iWorker, iMod);
     auto count = std::count(iExpect.begin(), iExpect.end(), iTrans);
@@ -543,7 +555,7 @@ namespace {
     }
     REQUIRE(T::m_count == count);
     T::m_count = 0;
-    iWorker->reset();
+    std::visit([](auto* worker) { worker->reset(); }, iWorker);
   }
 
   template <typename T, typename U>
@@ -552,14 +564,20 @@ namespace {
 
     edm::maker::ModuleHolderT<edm::stream::EDProducerAdaptorBase> h(iMod);
 
-    edm::WorkerT<edm::stream::EDProducerAdaptorBase> wBeginJobEndJob{iMod, m_desc, nullptr};
-    edm::WorkerT<edm::stream::EDProducerAdaptorBase> wBeginStreamEndStream{iMod, m_desc, nullptr};
-    edm::WorkerT<edm::stream::EDProducerAdaptorBase> wGlobalLumi{iMod, m_desc, nullptr};
-    edm::WorkerT<edm::stream::EDProducerAdaptorBase> wStreamLumi{iMod, m_desc, nullptr};
-    edm::WorkerT<edm::stream::EDProducerAdaptorBase> wGlobalRun{iMod, m_desc, nullptr};
-    edm::WorkerT<edm::stream::EDProducerAdaptorBase> wStreamRun{iMod, m_desc, nullptr};
+    edm::WorkerT<edm::stream::EDProducerAdaptorBase, edm::EventTransitionInfo, edm::TransitionPhaseGlobal>
+        wBeginJobEndJob{iMod, m_desc, nullptr};
+    edm::WorkerT<edm::stream::EDProducerAdaptorBase, edm::EventTransitionInfo, edm::TransitionPhaseGlobal>
+        wBeginStreamEndStream{iMod, m_desc, nullptr};
+    edm::WorkerT<edm::stream::EDProducerAdaptorBase, edm::LumiTransitionInfo, edm::TransitionPhaseGlobal> wGlobalLumi{
+        iMod, m_desc, nullptr};
+    edm::WorkerT<edm::stream::EDProducerAdaptorBase, edm::LumiTransitionInfo, edm::TransitionPhaseStream> wStreamLumi{
+        iMod, m_desc, nullptr};
+    edm::WorkerT<edm::stream::EDProducerAdaptorBase, edm::RunTransitionInfo, edm::TransitionPhaseGlobal> wGlobalRun{
+        iMod, m_desc, nullptr};
+    edm::WorkerT<edm::stream::EDProducerAdaptorBase, edm::RunTransitionInfo, edm::TransitionPhaseStream> wStreamRun{
+        iMod, m_desc, nullptr};
     for (auto& keyVal : m_transToFunc) {
-      edm::Worker* worker = &wBeginJobEndJob;
+      WorkerTypes worker = &wBeginJobEndJob;
       if (keyVal.first == Trans::kBeginStream || keyVal.first == Trans::kEndStream) {
         worker = &wBeginStreamEndStream;
       } else if (keyVal.first == Trans::kStreamBeginLuminosityBlock ||

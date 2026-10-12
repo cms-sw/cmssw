@@ -5,7 +5,7 @@ from Configuration.ProcessModifiers.ticl_superclustering_mustache_ticl_cff impor
 
 
 from SimCalorimetry.HGCalAssociatorProducers.AllTracksterToSimTracksterAssociatorsByLCsProducer_cfi import AllTracksterToSimTracksterAssociatorsByLCsProducer
-from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsPSet, associatorsInstances
+from RecoTICL.Configuration.iterativeTICL_cff import ticlIterLabelsPSet, associatorsInstances
 
 allTrackstersToSimTrackstersAssociationsByLCs = AllTracksterToSimTracksterAssociatorsByLCsProducer.clone(    
     tracksterCollections = cms.VInputTag(

@@ -5,7 +5,8 @@ l1tTrackJetsEmulation = cms.EDProducer('L1TrackJetEmulatorProducer',
         trk_zMax = cms.double (15.) ,    # maximum track z
 	trk_ptMax = cms.double(200.),    # maximumum track pT before saturation [GeV]
    	trk_etaMax = cms.double(2.4),    # maximum track eta
-	minTrkJetpT=cms.double(-1.),      # minimum track pt to be considered for track jet
+	minTrkJetpT=cms.double(10.0),    # minimum track pt to be considered for track jet (set to 10 for congruence with FW)
+        minTrkJetTrackMultiplicity=cms.int32(1), # minimum number of tracks in a jet
 	etaBins=cms.int32(24),
 	phiBins=cms.int32(27),
 	zBins=cms.int32(1),
@@ -16,7 +17,8 @@ l1tTrackJetsEmulation = cms.EDProducer('L1TrackJetEmulatorProducer',
 	highpTJetMinTrackMultiplicity=cms.int32(3),
         highpTJetThreshold=cms.double(100.),
 	displaced=cms.bool(False), #Flag for displaced tracks
-	nDisplacedTracks=cms.int32(2) #Number of displaced tracks required per jet
+	nDisplacedTracks=cms.int32(2), #Number of displaced tracks required per jet
+        export_binmap=cms.bool(False) #Flag to create geometry file containing bin centers and jet cuts to FW
 )
 
 l1tTrackJetsExtendedEmulation = l1tTrackJetsEmulation.clone(

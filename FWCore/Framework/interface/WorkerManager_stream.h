@@ -17,13 +17,10 @@ namespace edm {
     using WorkerManagerCore<TI, TransitionPhaseStream>::addToAllWorkers;
     using WorkerManagerCore<TI, TransitionPhaseStream>::getWorkerForModule;
     using WorkerManagerCore<TI, TransitionPhaseStream>::actionTable;
-    using WorkerManagerCore<TI, TransitionPhaseStream>::setupResolvers;
     using WorkerManagerCore<TI, TransitionPhaseStream>::resetAll;
     using AllWorkers = typename WorkerManagerCore<TI, TransitionPhaseStream>::AllWorkers;
 
-    template <typename T, typename U>
-      requires std::is_same_v<TI, typename T::TransitionInfoType> &&
-               std::is_same_v<typename TransitionPhaseStream::ContextType, typename T::Context>
+    template <TransitionEdge E, typename U>
     void processOneOccurrenceAsync(WaitingTaskHolder task,
                                    TI& info,
                                    ServiceToken const& token,
@@ -31,12 +28,10 @@ namespace edm {
                                    typename TransitionPhaseStream::ContextType const* topContext,
                                    U const* context) noexcept {
       {
-        static_assert(!T::isEvent_);
-
         // Spawn them in reverse order. At least in the single threaded case that makes
         // them run in forward order (and more likely to with multiple threads).
         for (auto it = allWorkers().rbegin(), itEnd = allWorkers().rend(); it != itEnd; ++it) {
-          Worker* worker = *it;
+          auto* worker = *it;
 
           ParentContext parentContext(context);
 
@@ -49,12 +44,10 @@ namespace edm {
           // global begin/end run/lumi transitions through here. They shouldn't
           // need prefetching either and for some years nothing has been using
           // that part of the code anyway...)
-          worker->doWorkNoPrefetchingAsync<T>(task, info, token, streamID, parentContext, topContext);
+          worker->template doWorkNoPrefetchingAsync<E>(task, info, token, streamID, parentContext, topContext);
         }
       }
     }
-    //used by all but specialized for events
-    void setupResolvers(Principal& principal);
 
     void deleteModuleIfExists(std::string const& moduleLabel);
   };

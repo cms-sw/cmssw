@@ -64,7 +64,7 @@
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
-#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/maker/TransitionWorker.h"
 #include "FWCore/Framework/interface/GlobalSchedule.h"
 #include "FWCore/Framework/interface/StreamSchedule.h"
 #include "FWCore/Framework/interface/SystemTimeKeeper.h"
@@ -123,10 +123,11 @@ namespace edm {
   class Schedule {
   public:
     typedef std::vector<std::string> vstring;
-    typedef std::vector<Worker*> AllWorkers;
     typedef std::vector<edm::propagate_const<std::shared_ptr<OutputModuleCommunicator>>> AllOutputModuleCommunicators;
 
-    typedef std::vector<Worker*> Workers;
+    using EventWorkers = std::vector<TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>*>;
+    using RunWorkers = std::vector<TransitionWorker<RunTransitionInfo, TransitionPhaseGlobal>*>;
+    using LuminosityBlockWorkers = std::vector<TransitionWorker<LumiTransitionInfo, TransitionPhaseGlobal>*>;
 
     Schedule(ParameterSet& proc_pset,
              service::TriggerNamesService const& tns,
@@ -272,9 +273,9 @@ namespace edm {
                                edm::ProductRegistry const& preg);
 
     /// returns the collection of pointers to workers
-    AllWorkers const& allWorkersEvents() const;
-    AllWorkers const& allWorkersRun() const;
-    AllWorkers const& allWorkersLumis() const;
+    EventWorkers const& allWorkersEvents() const;
+    RunWorkers const& allWorkersRun() const;
+    LuminosityBlockWorkers const& allWorkersLumis() const;
 
     ModuleRegistry const& moduleRegistry() const { return *moduleRegistry_; }
 

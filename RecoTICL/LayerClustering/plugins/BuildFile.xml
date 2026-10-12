@@ -1,0 +1,47 @@
+<library file="*.cc" name="RecoTICLLayerClusteringPlugins">
+  <use name="CondFormats/DataRecord"/>
+  <use name="CondFormats/EcalObjects"/>
+  <use name="CondFormats/HcalObjects"/>
+  <use name="DataFormats/CaloRecHit"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/DetId"/>
+  <use name="DataFormats/EgammaReco"/>
+  <use name="DataFormats/HGCRecHit"/>
+  <use name="DataFormats/HGCalReco"/>
+  <use name="DataFormats/HcalDetId"/>
+  <use name="DataFormats/Math"/>
+  <use name="DataFormats/ParticleFlowReco"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="Geometry/CaloGeometry"/>
+  <use name="Geometry/CaloTopology"/>
+  <use name="Geometry/HGCalGeometry"/>
+  <use name="Geometry/Records"/>
+  <use name="RecoEcal/EgammaCoreTools"/>
+  <use name="RecoLocalCalo/HGCalRecAlgos"/>
+  <use name="RecoLocalCalo/HGCalRecProducers"/>
+  <use name="RecoParticleFlow/PFClusterProducer"/>
+  <use name="RecoTICL/LayerClustering"/>
+  <use name="tbb"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="alpaka/*.cc" name="RecoTICLLayerClusteringPluginsPortable">
+  <use name="DataFormats/HGCRecHit"/>
+  <use name="DataFormats/HGCalReco"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="Geometry/HGCalGeometry"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="RecoLocalCalo/HGCalRecAlgos"/>
+  <use name="RecoLocalCalo/HGCalRecProducers"/>
+  <use name="RecoTICL/LayerClustering"/>
+  <use name="alpaka"/>
+  <use name="clue"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

@@ -64,7 +64,7 @@
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/TransitionPhaseTypes.h"
 #include "FWCore/Framework/interface/ModuleInPath.h"
-#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/maker/TransitionWorker.h"
 #include "FWCore/Framework/interface/EarlyDeleteHelper.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
@@ -121,9 +121,6 @@ namespace edm {
     using TrigPaths = std::vector<Path>;
     using TrigResPtr = std::shared_ptr<HLTGlobalStatus>;
     using TrigResConstPtr = std::shared_ptr<HLTGlobalStatus const>;
-    using AllWorkers = std::vector<Worker*>;
-
-    using Workers = std::vector<Worker*>;
 
     using PathWorkers = std::vector<WorkerInPath>;
 
@@ -228,11 +225,11 @@ namespace edm {
                                edm::ProductRegistry const& preg);
 
     /// returns the collection of pointers to workers
-    AllWorkers const& allWorkersRuns() const { return workerManagerRuns_.allWorkers(); }
-    AllWorkers const& allWorkersLumis() const { return workerManagerLumis_.allWorkers(); }
-    AllWorkers const& allWorkersEvents() const { return workerManagerEvents_.allWorkers(); }
+    auto const& allWorkersRuns() const { return workerManagerRuns_.allWorkers(); }
+    auto const& allWorkersLumis() const { return workerManagerLumis_.allWorkers(); }
+    auto const& allWorkersEvents() const { return workerManagerEvents_.allWorkers(); }
 
-    AllWorkers const& unscheduledWorkersEvents() const { return workerManagerEvents_.unscheduledWorkers(); }
+    auto const& unscheduledWorkersEvents() const { return workerManagerEvents_.unscheduledWorkers(); }
     unsigned int numberOfUnscheduledModules() const { return number_of_unscheduled_modules_; }
 
     StreamContext const& context() const { return streamContext_; }
@@ -289,9 +286,11 @@ namespace edm {
 
     edm::propagate_const<TrigResPtr> results_;
 
-    edm::propagate_const<Worker*> results_inserter_;
-    std::vector<edm::propagate_const<Worker*>> pathStatusInserterWorkers_;
-    std::vector<edm::propagate_const<Worker*>> endPathStatusInserterWorkers_;
+    edm::propagate_const<TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>*> results_inserter_;
+    std::vector<edm::propagate_const<TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>*>>
+        pathStatusInserterWorkers_;
+    std::vector<edm::propagate_const<TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>*>>
+        endPathStatusInserterWorkers_;
 
     TrigPaths trig_paths_;
     TrigPaths end_paths_;
@@ -368,7 +367,7 @@ namespace edm {
             return;
           }
 
-          workerManager.template processOneOccurrenceAsync<T>(
+          workerManager.template processOneOccurrenceAsync<T::transitionEdge_>(
               h, info, token, streamID_, &streamContext_, &streamContext_);
         });
 

@@ -5,24 +5,47 @@
 
 namespace edm {
   template <typename TI>
-  class WorkerManager<TI, TransitionPhaseGlobal> : private WorkerManagerCore<TI, TransitionPhaseGlobal> {
+  class GlobalWorkerManagerCore : private WorkerManagerCore<TI, TransitionPhaseGlobal> {
   public:
-    WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
-                  std::shared_ptr<ActivityRegistry> actReg,
-                  ExceptionToActionTable const& actions);
+    GlobalWorkerManagerCore(std::shared_ptr<ModuleRegistry> modReg,
+                            std::shared_ptr<ActivityRegistry> actReg,
+                            ExceptionToActionTable const& actions)
+        : WorkerManagerCore<TI, TransitionPhaseGlobal>(modReg, actReg, actions), lastSetupPrincipal_(nullptr) {}
 
     using WorkerManagerCore<TI, TransitionPhaseGlobal>::allWorkers;
     using WorkerManagerCore<TI, TransitionPhaseGlobal>::addToAllWorkers;
     using WorkerManagerCore<TI, TransitionPhaseGlobal>::getWorkerForModule;
     using WorkerManagerCore<TI, TransitionPhaseGlobal>::actionTable;
     using WorkerManagerCore<TI, TransitionPhaseGlobal>::resetAll;
-    using WorkerManagerCore<TI, TransitionPhaseGlobal>::setupResolvers;
     using AllWorkers = typename WorkerManagerCore<TI, TransitionPhaseGlobal>::AllWorkers;
 
+  protected:
+    void setupResolvers(typename TI::PrincipalType& principal, UnscheduledAuxiliary const* aux);
+    using WorkerManagerCore<TI, TransitionPhaseGlobal>::deleteModuleIfExists;
+    using WorkerManagerCore<TI, TransitionPhaseGlobal>::getWorkerForExistingModuleUnattached;
+
+  private:
+    void const* lastSetupPrincipal_;
+  };
+  template <typename TI>
+  class WorkerManager<TI, TransitionPhaseGlobal> : private GlobalWorkerManagerCore<TI> {
+  public:
+    WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
+                  std::shared_ptr<ActivityRegistry> actReg,
+                  ExceptionToActionTable const& actions);
+
+    using GlobalWorkerManagerCore<TI>::allWorkers;
+    using GlobalWorkerManagerCore<TI>::addToAllWorkers;
+    using GlobalWorkerManagerCore<TI>::getWorkerForModule;
+    using GlobalWorkerManagerCore<TI>::actionTable;
+    using GlobalWorkerManagerCore<TI>::resetAll;
+    using GlobalWorkerManagerCore<TI>::setupResolvers;
+    using GlobalWorkerManagerCore<TI>::deleteModuleIfExists;
+    using GlobalWorkerManagerCore<TI>::getWorkerForExistingModuleUnattached;
+    using AllWorkers = typename GlobalWorkerManagerCore<TI>::AllWorkers;
+
     //Called by SecondaryEventProvider
-    template <typename T, typename U>
-      requires std::is_same_v<TI, typename T::TransitionInfoType> &&
-               std::is_same_v<typename TransitionPhaseGlobal::ContextType, typename T::Context>
+    template <TransitionEdge E, typename U>
     void processOneOccurrenceAsync(WaitingTaskHolder task,
                                    TI& info,
                                    ServiceToken const& token,
@@ -33,7 +56,7 @@ namespace edm {
         // Spawn them in reverse order. At least in the single threaded case that makes
         // them run in forward order (and more likely to with multiple threads).
         for (auto it = allWorkers().rbegin(), itEnd = allWorkers().rend(); it != itEnd; ++it) {
-          Worker* worker = *it;
+          auto* worker = *it;
 
           ParentContext parentContext(context);
 
@@ -46,19 +69,19 @@ namespace edm {
           // global begin/end run/lumi transitions through here. They shouldn't
           // need prefetching either and for some years nothing has been using
           // that part of the code anyway...)
-          worker->doWorkNoPrefetchingAsync<T>(task, info, token, streamID, parentContext, topContext);
+          worker->template doWorkNoPrefetchingAsync<E>(task, info, token, streamID, parentContext, topContext);
         }
       }
     }
 
-    void setupResolvers(Principal& principal);
+    void setupResolvers(typename TI::PrincipalType& principal);
 
     void deleteModuleIfExists(std::string const& moduleLabel);
   };
 
   template <>
   class WorkerManager<EventTransitionInfo, TransitionPhaseGlobal>
-      : private WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal> {
+      : private GlobalWorkerManagerCore<EventTransitionInfo> {
   public:
     WorkerManager(WorkerManager&&) = default;
 
@@ -66,13 +89,14 @@ namespace edm {
                   std::shared_ptr<ActivityRegistry> actReg,
                   ExceptionToActionTable const& actions);
 
-    using WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal>::allWorkers;
-    using WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal>::addToAllWorkers;
-    using WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal>::getWorkerForModule;
-    using WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal>::actionTable;
-    using WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal>::setupResolvers;
-    using WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal>::resetAll;
-    using AllWorkers = typename WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal>::AllWorkers;
+    using GlobalWorkerManagerCore<EventTransitionInfo>::allWorkers;
+    using GlobalWorkerManagerCore<EventTransitionInfo>::addToAllWorkers;
+    using GlobalWorkerManagerCore<EventTransitionInfo>::getWorkerForModule;
+    using GlobalWorkerManagerCore<EventTransitionInfo>::actionTable;
+    using GlobalWorkerManagerCore<EventTransitionInfo>::setupResolvers;
+    using GlobalWorkerManagerCore<EventTransitionInfo>::resetAll;
+
+    using AllWorkers = typename GlobalWorkerManagerCore<EventTransitionInfo>::AllWorkers;
 
     void addToUnscheduledWorkers(ModuleDescription const& iDescription);
 
@@ -88,13 +112,15 @@ namespace edm {
     }
     void setupOnDemandSystem(EventTransitionInfo const&);
 
-    void setupResolvers(Principal& principal);
+    void setupResolvers(typename EventTransitionInfo::PrincipalType& principal);
 
     void deleteModuleIfExists(std::string const& moduleLabel);
 
     AllWorkers const& unscheduledWorkers() const { return unscheduled_.workers(); }
 
   private:
+    using GlobalWorkerManagerCore<EventTransitionInfo>::deleteModuleIfExists;
+    using GlobalWorkerManagerCore<EventTransitionInfo>::getWorkerForExistingModuleUnattached;
     UnscheduledCallProducer unscheduled_;
   };
 

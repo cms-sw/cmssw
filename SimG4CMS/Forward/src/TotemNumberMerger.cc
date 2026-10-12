@@ -19,13 +19,13 @@
 //
 // constructors and destructor
 //
-TotemNumberMerger ::TotemNumberMerger() {
+TotemNumberMerger::TotemNumberMerger() {
 #ifdef SCRIVI
   LogDebug("ForwardSim") << "Creating TotemNumberMerger";
 #endif
 }
 
-TotemNumberMerger ::~TotemNumberMerger() {
+TotemNumberMerger::~TotemNumberMerger() {
 #ifdef SCRIVI
   LogDebug("ForwardSim") << "Destruction of TotemNumberMerger";
 #endif
@@ -35,7 +35,7 @@ TotemNumberMerger ::~TotemNumberMerger() {
 // member functions
 //
 
-unsigned long TotemNumberMerger ::Merge(unsigned long value1, unsigned long value2) const {
+unsigned long TotemNumberMerger::Merge(unsigned long value1, unsigned long value2) const {
   unsigned long c(value1 + value2);
   unsigned long result(((c * (c + 1)) >> 1) + value1);
 
@@ -52,18 +52,18 @@ unsigned long TotemNumberMerger ::Merge(unsigned long value1, unsigned long valu
   return result;
 }
 
-unsigned long TotemNumberMerger ::Merge(unsigned long value1, unsigned long value2, unsigned long value3) const {
+unsigned long TotemNumberMerger::Merge(unsigned long value1, unsigned long value2, unsigned long value3) const {
   return Merge(Merge(value1, value2), value3);
 }
 
-unsigned long TotemNumberMerger ::Merge(unsigned long value1,
-                                        unsigned long value2,
-                                        unsigned long value3,
-                                        unsigned long value4) const {
+unsigned long TotemNumberMerger::Merge(unsigned long value1,
+                                       unsigned long value2,
+                                       unsigned long value3,
+                                       unsigned long value4) const {
   return Merge(Merge(value1, value2), Merge(value3, value4));
 }
 
-void TotemNumberMerger ::Split(unsigned long source, unsigned long &value1, unsigned long &value2) const {
+void TotemNumberMerger::Split(unsigned long source, unsigned long &value1, unsigned long &value2) const {
   unsigned long c(static_cast<unsigned long>(floor(sqrt(1. + 8. * static_cast<float>(source)) * 0.5 - 0.5)));
 
   value1 = source - ((c * (c + 1)) >> 1);
@@ -74,21 +74,21 @@ void TotemNumberMerger ::Split(unsigned long source, unsigned long &value1, unsi
 #endif
 }
 
-void TotemNumberMerger ::Split(unsigned long source,
-                               unsigned long &value1,
-                               unsigned long &value2,
-                               unsigned long &value3) const {
+void TotemNumberMerger::Split(unsigned long source,
+                              unsigned long &value1,
+                              unsigned long &value2,
+                              unsigned long &value3) const {
   unsigned long mix12;
 
   Split(source, mix12, value3);
   Split(mix12, value1, value2);
 }
 
-void TotemNumberMerger ::Split(unsigned long source,
-                               unsigned long &value1,
-                               unsigned long &value2,
-                               unsigned long &value3,
-                               unsigned long &value4) const {
+void TotemNumberMerger::Split(unsigned long source,
+                              unsigned long &value1,
+                              unsigned long &value2,
+                              unsigned long &value3,
+                              unsigned long &value4) const {
   unsigned long mix12, mix34;
 
   Split(source, mix12, mix34);

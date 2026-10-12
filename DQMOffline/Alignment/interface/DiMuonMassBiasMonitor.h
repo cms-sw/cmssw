@@ -84,7 +84,7 @@ public:
                       float,
                       float distanceScaleFactor = 1.) const;
 
-  void bookDecayComponentHistograms(DQMStore::IBooker& ibook, DecayHists& histos) const;
+  void bookDecayComponentHistograms(DQMStore::IBooker& ibook, DecayHists& histos, float distanceScaleFactor = 1.) const;
 
   void bookComponentHists(DQMStore::IBooker&,
                           DecayHists&,

@@ -26,7 +26,8 @@
 #include "ap_int.h"
 #include "ap_fixed.h"
 
-namespace L1METEmu {
+class L1METEmu {
+public:
   // Define Data types for P2 L1 MET Emulator
   typedef l1ct::pt_t pt_t;
   typedef l1ct::glbphi_t phi_t;
@@ -50,67 +51,48 @@ namespace L1METEmu {
     unsigned int phi_bins = 0;
   };
 
-  struct Poly2_Path {
-    std::string path = "L1Trigger/Phase2L1ParticleFlow/data/met/l1met_ptphi2pxpy_poly2_v1.json";
-  };
-
-  inline Poly2_Path& poly2_path_config() {
-    static Poly2_Path met_p;
-    return met_p;
-  }
-
-  inline void SetPoly2File(std::string met_p) { poly2_path_config().path = std::move(met_p); }
-
-  inline const Poly2_param& Get_Poly2_param() {
-    static Poly2_param P = [] {
-      Poly2_param t{};
-      std::string path = poly2_path_config().path;
-
+  explicit L1METEmu(const std::string& filename) {
 #ifdef CMSSW_GIT_HASH
-      edm::FileInPath f(path);
-      std::ifstream in(f.fullPath());
-      if (!in) {
-        throw cms::Exception("FileNotFound") << f.fullPath();
-      }
+    std::ifstream in(filename);
+    if (!in) {
+      throw cms::Exception("FileNotFound") << filename;
+    }
 #else
-      path = "l1met_ptphi2pxpy_poly2_v1.json";  // For HLS Emulator
-      std::ifstream in(path);
-      if (!in) {
-        throw std::runtime_error(std::string("File not found: ") + path);
-      }
+    std::string path = "l1met_ptphi2pxpy_poly2_v1.json";  // For HLS Emulator
+    std::ifstream in(path);
+    if (!in) {
+      throw std::runtime_error(std::string("File not found: ") + path);
+    }
 #endif
 
-      nlohmann::json j;
-      in >> j;
+    nlohmann::json j;
+    in >> j;
 
-      unsigned int N = j["phi_bins"].get<unsigned int>();
-      t.phi_bins = N;
+    unsigned int N = j["phi_bins"].get<unsigned int>();
+    params_.phi_bins = N;
 
-      t.c0.resize(N);
-      t.c1.resize(N);
-      t.c2.resize(N);
-      t.s0.resize(N);
-      t.s1.resize(N);
-      t.s2.resize(N);
-      t.phi_edges.resize(N + 1);
+    params_.c0.resize(N);
+    params_.c1.resize(N);
+    params_.c2.resize(N);
+    params_.s0.resize(N);
+    params_.s1.resize(N);
+    params_.s2.resize(N);
+    params_.phi_edges.resize(N + 1);
 
-      for (unsigned int i = 0; i < N; ++i) {
-        t.c0[i] = poly_t(j["cos"]["par0"][i].get<double>());
-        t.c1[i] = poly_t(j["cos"]["par1"][i].get<double>());
-        t.c2[i] = poly_t(j["cos"]["par2"][i].get<double>());
-        t.s0[i] = poly_t(j["sin"]["par0"][i].get<double>());
-        t.s1[i] = poly_t(j["sin"]["par1"][i].get<double>());
-        t.s2[i] = poly_t(j["sin"]["par2"][i].get<double>());
-      }
-      for (unsigned int i = 0; i < N + 1; ++i) {
-        t.phi_edges[i] = l1ct::Scales::makeGlbPhi(j["phi_edges"][i].get<double>() * M_PI);
-      }
-      return t;
-    }();
-    return P;
+    for (unsigned int i = 0; i < N; ++i) {
+      params_.c0[i] = poly_t(j["cos"]["par0"][i].get<double>());
+      params_.c1[i] = poly_t(j["cos"]["par1"][i].get<double>());
+      params_.c2[i] = poly_t(j["cos"]["par2"][i].get<double>());
+      params_.s0[i] = poly_t(j["sin"]["par0"][i].get<double>());
+      params_.s1[i] = poly_t(j["sin"]["par1"][i].get<double>());
+      params_.s2[i] = poly_t(j["sin"]["par2"][i].get<double>());
+    }
+    for (unsigned int i = 0; i < N + 1; ++i) {
+      params_.phi_edges[i] = l1ct::Scales::makeGlbPhi(j["phi_edges"][i].get<double>() * M_PI);
+    }
   }
 
-  inline Particle_xy Get_xy(const l1ct::pt_t hwPt, const l1ct::glbphi_t hwPhi) {
+  Particle_xy Get_xy(const l1ct::pt_t hwPt, const l1ct::glbphi_t hwPhi) const {
     /*
       Convert pt, phi to px, py
       - Use 2nd order Polynomial interpolation for cos, sin
@@ -118,7 +100,7 @@ namespace L1METEmu {
       - Fitting the value with 2nd order function
     */
 
-    const auto& P = L1METEmu::Get_Poly2_param();
+    const auto& P = params_;
     int phibin = 0;
 
     for (unsigned int i = 0; i < P.phi_bins; i++) {
@@ -145,7 +127,7 @@ namespace L1METEmu {
     return proj_xy;
   }
 
-  inline void Sum_Particles(const std::vector<Particle_xy>& particles_xy, Particle_xy& met_xy) {
+  static void Sum_Particles(const std::vector<Particle_xy>& particles_xy, Particle_xy& met_xy) {
     met_xy.hwPx = 0;
     met_xy.hwPy = 0;
 
@@ -155,7 +137,7 @@ namespace L1METEmu {
     }
   }
 
-  inline void pxpy_to_ptphi(const Particle_xy met_xy, l1ct::Sum& hls_met) {
+  static void pxpy_to_ptphi(const Particle_xy met_xy, l1ct::Sum& hls_met) {
     // convert x, y coordinate to pt, phi coordinate using math library
     hls_met.clear();
 
@@ -172,24 +154,24 @@ namespace L1METEmu {
 #endif
   }
 
-  inline void met_format(const l1ct::Sum d, ap_uint<l1gt::Sum::BITWIDTH>& q) {
+  static void met_format(const l1ct::Sum d, ap_uint<l1gt::Sum::BITWIDTH>& q) {
     // Change output formats to GT formats
     q = d.toGT().pack();
   }
 
-}  // namespace L1METEmu
-
-inline void puppimet_emu(const std::vector<l1ct::PuppiObjEmu>& particles, l1ct::Sum& out_met) {
-  std::vector<L1METEmu::Particle_xy> particles_xy;
-
-  for (unsigned int i = 0; i < particles.size(); i++) {
-    L1METEmu::Particle_xy each_particle_xy = L1METEmu::Get_xy(particles[i].hwPt, particles[i].hwPhi);
-    particles_xy.push_back(each_particle_xy);
+  void puppimet_emu(const std::vector<l1ct::PuppiObjEmu>& particles, l1ct::Sum& out_met) const {
+    std::vector<Particle_xy> particles_xy;
+    particles_xy.reserve(particles.size());
+    for (unsigned int i = 0; i < particles.size(); i++) {
+      particles_xy.push_back(Get_xy(particles[i].hwPt, particles[i].hwPhi));
+    }
+    Particle_xy met_xy;
+    Sum_Particles(particles_xy, met_xy);
+    pxpy_to_ptphi(met_xy, out_met);
   }
 
-  L1METEmu::Particle_xy met_xy;
-  L1METEmu::Sum_Particles(particles_xy, met_xy);
-  L1METEmu::pxpy_to_ptphi(met_xy, out_met);
-}
+private:
+  Poly2_param params_;
+};
 
 #endif

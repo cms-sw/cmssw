@@ -1,0 +1,16 @@
+<library file="alpaka/*.cc" name="RecoTICLGeometryPluginsPortable">
+  <use name="CondFormats/HGCalObjects"/>
+  <use name="DataFormats/DetId"/>
+  <use name="DataFormats/ForwardDetId"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="Geometry/CaloGeometry"/>
+  <use name="Geometry/Records"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="RecoLocalCalo/HGCalRecAlgos"/>
+  <use name="alpaka"/>
+  <use name="tbb"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

@@ -157,7 +157,7 @@ namespace edm {
     }
   }
 
-  void Path::setEarlyDeleteHelpers(std::map<const Worker*, EarlyDeleteHelper*> const& iWorkerToDeleter) {
+  void Path::setEarlyDeleteHelpers(std::map<const GlobalEventWorker*, EarlyDeleteHelper*> const& iWorkerToDeleter) {
     for (unsigned int index = 0; index != size(); ++index) {
       auto found = iWorkerToDeleter.find(getWorker(index));
       if (found != iWorkerToDeleter.end()) {
@@ -166,7 +166,8 @@ namespace edm {
     }
   }
 
-  void Path::setPathStatusInserter(PathStatusInserter* pathStatusInserter, Worker* pathStatusInserterWorker) {
+  void Path::setPathStatusInserter(PathStatusInserter* pathStatusInserter,
+                                   GlobalEventWorker* pathStatusInserterWorker) {
     pathStatusInserter_ = pathStatusInserter;
     pathStatusInserterWorker_ = pathStatusInserterWorker;
   }
@@ -282,8 +283,7 @@ namespace edm {
       }
       if (pathStatusInserterWorker_) {
         std::exception_ptr jException =
-            pathStatusInserterWorker_->runModuleDirectly<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>>(
-                iInfo, streamID, ParentContext(iContext), iContext);
+            pathStatusInserterWorker_->runModuleDirectly(iInfo, streamID, ParentContext(iContext), iContext);
         if (jException && not iException) {
           iException = jException;
         }

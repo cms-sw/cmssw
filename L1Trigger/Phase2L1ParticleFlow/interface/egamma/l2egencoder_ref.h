@@ -7,7 +7,8 @@
 
 namespace edm {
   class ParameterSet;
-}
+  class ParameterSetDescription;
+}  // namespace edm
 
 namespace l1ct {
 
@@ -19,6 +20,8 @@ namespace l1ct {
     };
 
     L2EgEncoderEmulator(const edm::ParameterSet& iConfig);
+
+    static edm::ParameterSetDescription getParameterSetDescription();
 
     void toFirmware(const std::vector<ap_uint<64>>& encoded_in, ap_uint<64> encoded_fw[]) const;
 

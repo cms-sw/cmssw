@@ -55,6 +55,27 @@ phase2_tracker.toModify(hltMerged2highPurityPV,
                         monitoredPrimaryVertices = cms.InputTag("hltOfflinePrimaryVertices"))
 
 #
+# same as above, but associating the tracks by shared hit DetIds instead of by dR
+# (needs TrackExtras and TrackingRecHits of both collections, i.e. RECO content)
+#
+
+hltMerged2highPurityByHits = hltMerged2highPurity.clone(
+    matchByHits              = True,
+    topDirName               = "HLT/Tracking/ValidationWRTOffline/hltMergedWrtHighPurityByHits"
+)
+
+pp_on_PbPb_run3.toModify(hltMerged2highPurityByHits,
+                         topDirName               = "HLT/Tracking/ValidationWRTOffline/hltMergedPPonAAWrtHighPurityByHits")
+
+hltMerged2highPurityPVByHits = hltMerged2highPurityPV.clone(
+    matchByHits              = True,
+    topDirName               = "HLT/Tracking/ValidationWRTOffline/hltMergedWrtHighPurityPVByHits"
+)
+
+pp_on_PbPb_run3.toModify(hltMerged2highPurityPVByHits,
+                         topDirName               = "HLT/Tracking/ValidationWRTOffline/hltMergedPPonAAWrtHighPurityPVByHits")
+
+#
 # E/gamma monitoring
 #
 
@@ -92,6 +113,8 @@ hltToOfflineTrackValidatorSequence = cms.Sequence(
     cms.ignore(highPurityTracks)
     + hltMerged2highPurity
     + hltMerged2highPurityPV
+    + hltMerged2highPurityByHits
+    + hltMerged2highPurityPVByHits
     + hltEgammaGsfTracksVsOffline
     + hltEgammaGsfTracksVsOfflinePV
 )

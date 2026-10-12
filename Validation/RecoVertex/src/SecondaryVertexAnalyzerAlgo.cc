@@ -296,6 +296,8 @@ std::vector<SimSecondaryVertex> SecondaryVertexAnalyzerAlgo::buildAllSimSVs(
   const TrackingVertexCollection &simVertices = *simVerticesH;
 
   std::vector<SimSecondaryVertex> result;
+  if (simVertices.empty())
+    return result;
   result.reserve(simVertices.size());
 
   // get the PV for the decay length calculation
