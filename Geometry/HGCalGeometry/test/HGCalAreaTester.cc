@@ -70,8 +70,11 @@ private:
 HGCalAreaTester::HGCalAreaTester(const edm::ParameterSet &iC)
     : nameDetector_(iC.getParameter<std::string>("nameDetector")),
       fileName_(iC.getParameter<std::string>("fileName")),
-      tok_hgcal_(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_})),
-      dets_((nameDetector_ == "HGCalEESensitive") ? DetId::HGCalEE : ((nameDetector_ == "HGCalHESilicnSensitive") ? DetId::HGCalHSi : DetId::HGCalHSc)) {
+      tok_hgcal_(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})),
+      dets_((nameDetector_ == "HGCalEESensitive")
+                ? DetId::HGCalEE
+                : ((nameDetector_ == "HGCalHESilicnSensitive") ? DetId::HGCalHSi : DetId::HGCalHSc)) {
   edm::LogVerbatim("HGCalGeom") << "Test validity of cells for " << nameDetector_ << " with inputs from " << fileName_;
 
   if (!fileName_.empty()) {
@@ -86,15 +89,15 @@ HGCalAreaTester::HGCalAreaTester(const edm::ParameterSet &iC)
         std::vector<std::string> items = HGCalGeomUtils::splitString(std::string(buffer));
         unsigned int id = static_cast<unsigned int>(std::atoi(items[0].c_str()));
         DetId::Detector det = DetId(id).det();
-	edm::LogVerbatim("HGCGeom") << "ID " << std::hex << id << std::dec << " Detector " << det;
+        edm::LogVerbatim("HGCGeom") << "ID " << std::hex << id << std::dec << " Detector " << det;
         if (det == dets_) {
           auto itr = std::find(detIds_.begin(), detIds_.end(), DetId(id));
           if (itr == detIds_.end()) {
             detIds_.emplace_back(DetId(id));
-	    if (dets_ == DetId::HGCalHSc)
-	      edm::LogVerbatim("HGCGeom") << "[" << detIds_.size() << "] " <<   HGCScintillatorDetId(id);
-	    else
-	      edm::LogVerbatim("HGCGeom") << "[" << detIds_.size() << "] " << HGCSiliconDetId(id);
+            if (dets_ == DetId::HGCalHSc)
+              edm::LogVerbatim("HGCGeom") << "[" << detIds_.size() << "] " << HGCScintillatorDetId(id);
+            else
+              edm::LogVerbatim("HGCGeom") << "[" << detIds_.size() << "] " << HGCSiliconDetId(id);
           }
         }
       }
@@ -129,20 +132,20 @@ void HGCalAreaTester::beginRun(edm::Run const &iRun, edm::EventSetup const &iSet
     std::unique_ptr<HGCalNeighbourFinder> finder = std::make_unique<HGCalNeighbourFinder>(geom);
     for (unsigned int k = 0; k < detIds_.size(); ++k) {
       if (geom->validDetId(detIds_[k])) {
-	std::ostringstream st1;
-	st1 << "[" << k << "] ";
-	if (dets_ == DetId::HGCalHSc)
-	  st1 << HGCScintillatorDetId(detIds_[k]);
-	else 
-	  st1 << HGCSiliconDetId(detIds_[k]);
-	std::vector<GlobalPoint> corner1 = geom->getCorners(detIds_[k]);
-	std::vector<GlobalPoint> corner2 = geom->getNewCorners(detIds_[k], false);
-	st1 << " Method 1:Area " << geom->getAreaX(detIds_[k]) << " with " << corner1.size() << " corners:";
-	for (auto const& cor : corner1)
-	  st1 << " (" << cor.perp() << ":" << cor.x() << ":" << cor.y() << ":" << cor.z() << ")";
-	st1 << " and Method 2: Area " << geom->getArea(detIds_[k]) << " with "<< corner2.size() << " corners:";
-	for (auto const& cor : corner2)
-	  st1 << " (" << cor.perp() << ":" << cor.x() << ":" << cor.y() << ":" << cor.z() << ")";
+        std::ostringstream st1;
+        st1 << "[" << k << "] ";
+        if (dets_ == DetId::HGCalHSc)
+          st1 << HGCScintillatorDetId(detIds_[k]);
+        else
+          st1 << HGCSiliconDetId(detIds_[k]);
+        std::vector<GlobalPoint> corner1 = geom->getCorners(detIds_[k]);
+        std::vector<GlobalPoint> corner2 = geom->getNewCorners(detIds_[k], false);
+        st1 << " Method 1:Area " << geom->getAreaX(detIds_[k]) << " with " << corner1.size() << " corners:";
+        for (auto const &cor : corner1)
+          st1 << " (" << cor.perp() << ":" << cor.x() << ":" << cor.y() << ":" << cor.z() << ")";
+        st1 << " and Method 2: Area " << geom->getArea(detIds_[k]) << " with " << corner2.size() << " corners:";
+        for (auto const &cor : corner2)
+          st1 << " (" << cor.perp() << ":" << cor.x() << ":" << cor.y() << ":" << cor.z() << ")";
         edm::LogVerbatim("HGCalGeom") << st1.str();
       }
     }
