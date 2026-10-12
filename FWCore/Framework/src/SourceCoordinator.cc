@@ -142,7 +142,7 @@ namespace edm {
     sourceResourcesAcquirer_.serialQueueChain().push(
         *group, [this, run, reducedProcessHistoryID, nextHolder = std::move(nextTask), &lastTransition]() mutable {
           CMS_SA_ALLOW try {
-            ServiceRegistry::Operate operate(serviceToken_);
+            ServiceRegistry::OperateNonOwning operate(serviceToken_);
             std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
             lastTransition = thread_unsafe_peekNextTransitionType();
             if (lastTransition.nextTransitionType() == InputSource::ItemType::IsRun &&
@@ -188,7 +188,7 @@ namespace edm {
         *group,
         [this, iRunStatus, &historyAppender, &processContext, &lastTransition, iHolder = std::move(iHolder)]() mutable {
           CMS_SA_ALLOW try {
-            ServiceRegistry::Operate operate(serviceToken_);
+            ServiceRegistry::OperateNonOwning operate(serviceToken_);
 
             {
               std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
@@ -259,7 +259,7 @@ namespace edm {
     sourceResourcesAcquirer_.serialQueueChain().push(
         *group, [this, iLumiStatus, &processContext, &historyAppender, iNextTask = std::move(iNextTask)]() mutable {
           CMS_SA_ALLOW try {
-            ServiceRegistry::Operate operate(serviceToken_);
+            ServiceRegistry::OperateNonOwning operate(serviceToken_);
             {
               std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
               assert(iLumiStatus);
@@ -346,7 +346,7 @@ namespace edm {
     // This function returns true if it successfully reads an event for the stream and that
     // requires both that an event is next and there are no problems or requests to stop.
 
-    ServiceRegistry::Operate operate(serviceToken_);
+    ServiceRegistry::OperateNonOwning operate(serviceToken_);
 
     // need to use lock in addition to the serial task queue because
     // of delayed provenance reading and reading data in response to
@@ -431,7 +431,7 @@ namespace edm {
                          .mustStartNextLumiOrEndRun = false};
             } else {
               CMS_SA_ALLOW try {
-                ServiceRegistry::Operate operate(serviceToken_);
+                ServiceRegistry::OperateNonOwning operate(serviceToken_);
                 oResult = readNextEventForStream(event, processContext, iLumiStatus, runStatus);
               } catch (...) {
                 aFailureHappened = true;

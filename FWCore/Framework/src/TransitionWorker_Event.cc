@@ -81,18 +81,19 @@ namespace edm {
                                                                                       StreamID,
                                                                                       ModuleCallingContext const& mcc,
                                                                                       StreamContext const*) noexcept {
-    ServiceWeakToken weakToken = iToken;
+    // the token is owned by the EventProcessor and outlives the task: refer to it instead of copying it
+    ServiceToken const* token = &iToken;
 
     //Need to make the services available early so other services can see them
     auto task = make_waiting_task(
-        [this, iTask, weakToken, &iPrincipal, iTransformIndex, mcc](std::exception_ptr const* iExcept) mutable {
+        [this, iTask, token, &iPrincipal, iTransformIndex, mcc](std::exception_ptr const* iExcept) mutable {
           //post prefetch signal
           actReg_->postModuleTransformPrefetchingSignal_.emit(*mcc.getStreamContext(), mcc);
           if (iExcept) {
             iTask.doneWaiting(*iExcept);
             return;
           }
-          implDoTransformAsync(iTask, iTransformIndex, iPrincipal, mcc.parent(), weakToken);
+          implDoTransformAsync(iTask, iTransformIndex, iPrincipal, mcc.parent(), *token);
         });
 
     //pre prefetch signal

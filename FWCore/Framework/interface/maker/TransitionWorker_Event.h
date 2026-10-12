@@ -196,7 +196,7 @@ namespace edm {
                                       size_t iTransformIndex,
                                       EventPrincipal const&,
                                       ParentContext const&,
-                                      ServiceWeakToken const&) noexcept = 0;
+                                      ServiceToken const&) noexcept = 0;
     virtual ProductResolverIndex itemToGetForTransform(size_t iTransformIndex) const noexcept = 0;
 
     virtual bool implDoPrePrefetchSelection(StreamID, EventPrincipal const&, ModuleCallingContext const*) = 0;
@@ -484,13 +484,13 @@ namespace edm {
           auto ownRunTask = std::make_shared<DestroyTask>(moduleTask);
           ServiceToken const* serviceToken = &token;
           auto* group = task.group();
-          moduleTask = make_waiting_task(
-              [this, serviceToken, transitionInfo, parentContext, ownRunTask, group](std::exception_ptr const* iExcept) {
-                WaitingTaskHolder runTaskHolder(
-                    *group, new HandleExternalWorkExceptionTask(this, group, ownRunTask->release(), parentContext));
-                AcquireTask t(this, transitionInfo, *serviceToken, parentContext, runTaskHolder);
-                t.execute();
-              });
+          moduleTask = make_waiting_task([this, serviceToken, transitionInfo, parentContext, ownRunTask, group](
+                                             std::exception_ptr const* iExcept) {
+            WaitingTaskHolder runTaskHolder(
+                *group, new HandleExternalWorkExceptionTask(this, group, ownRunTask->release(), parentContext));
+            AcquireTask t(this, transitionInfo, *serviceToken, parentContext, runTaskHolder);
+            t.execute();
+          });
         }
         auto* group = task.group();
         auto ownModuleTask = std::make_shared<DestroyTask>(moduleTask);
@@ -568,13 +568,14 @@ namespace edm {
 
     waitingTasks_.add(task);
     if (workStarted) {
-      ServiceWeakToken weakToken = serviceToken;
-      auto toDo = [this, info = transitionInfo, streamID, parentContext, context, weakToken]() {
+      // the token is owned by the EventProcessor and outlives the task: refer to it instead of copying it
+      ServiceToken const* token = &serviceToken;
+      auto toDo = [this, info = transitionInfo, streamID, parentContext, context, token]() {
         std::exception_ptr exceptionPtr;
         // Caught exception is propagated via WaitingTaskList
         CMS_SA_ALLOW try {
           //Need to make the services available
-          ServiceRegistry::Operate guard(weakToken.lock());
+          ServiceRegistry::OperateNonOwning guard(*token);
           this->runModule(info, streamID, parentContext, context);
         } catch (...) {
           exceptionPtr = std::current_exception();

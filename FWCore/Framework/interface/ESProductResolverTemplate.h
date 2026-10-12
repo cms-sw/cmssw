@@ -69,11 +69,12 @@ namespace edm {
         taskList_.add(iTask);
 
         if (doPrefetch) {
-          iTask.group()->run([this, &iRecord, iKey, iEventSetupImpl, iToken, iParent]() {
+          // the token is owned by the EventProcessor and outlives the task: refer to it instead of copying it
+          iTask.group()->run([this, &iRecord, iKey, iEventSetupImpl, token = &iToken, iParent]() {
             try {
               RecordT rec;
               rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl, &iParent);
-              ServiceRegistry::Operate operate(iToken);
+              ServiceRegistry::OperateNonOwning operate(*token);
               this->make(rec, iKey);
             } catch (...) {
               this->taskList_.doneWaiting(std::current_exception());

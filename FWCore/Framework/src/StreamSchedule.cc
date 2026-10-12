@@ -628,18 +628,18 @@ namespace edm {
       // run under that condition.
       WaitingTaskHolder allPathsHolder(*iTask.group(), allPathsDone);
 
-      auto pathsDone = make_waiting_task([allPathsHolder, pathErrorPtr, transitionInfo = info, this, token](
-                                             std::exception_ptr const* iPtr) mutable {
-        ServiceRegistry::OperateNonOwning operate(*token);
+      auto pathsDone = make_waiting_task(
+          [allPathsHolder, pathErrorPtr, transitionInfo = info, this, token](std::exception_ptr const* iPtr) mutable {
+            ServiceRegistry::OperateNonOwning operate(*token);
 
-        if (iPtr) {
-          // free previous value of pathErrorPtr, if any;
-          // prioritize this error over one that happens in EndPath or Accumulate
-          [[maybe_unused]] auto currentPtr = pathErrorPtr->exchange(new std::exception_ptr(*iPtr));
-          assert(currentPtr == nullptr);
-        }
-        finishedPaths(*pathErrorPtr, std::move(allPathsHolder), transitionInfo);
-      });
+            if (iPtr) {
+              // free previous value of pathErrorPtr, if any;
+              // prioritize this error over one that happens in EndPath or Accumulate
+              [[maybe_unused]] auto currentPtr = pathErrorPtr->exchange(new std::exception_ptr(*iPtr));
+              assert(currentPtr == nullptr);
+            }
+            finishedPaths(*pathErrorPtr, std::move(allPathsHolder), transitionInfo);
+          });
 
       //The holder guarantees that if the paths finish before the loop ends
       // that we do not start too soon. It also guarantees that the task will

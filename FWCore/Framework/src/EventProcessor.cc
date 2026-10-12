@@ -1203,7 +1203,7 @@ namespace edm {
           copyHolder.doneWaiting(*iException);
           // Finish handling the exception in the task pushed to runQueue_
         }
-        ServiceRegistry::Operate operate(serviceToken_);
+        ServiceRegistry::OperateNonOwning operate(serviceToken_);
 
         runQueue_->pushAndPause(
             *nextTask.group(),
@@ -1277,7 +1277,7 @@ namespace edm {
                                     if (runStatus->stopBeforeProcessingRun()) {
                                       return;
                                     }
-                                    ServiceRegistry::Operate operateLooper(serviceToken_);
+                                    ServiceRegistry::OperateNonOwning operateLooper(serviceToken_);
                                     looper_->doBeginRun(*runStatus->runPrincipal(), es, &processContext_);
                                   }) |
                     chain::then([this, runStatus, sourceStatus = std::move(newSourceStatus)](
@@ -1315,7 +1315,7 @@ namespace edm {
 
                       // After this point we are committed to end the run via endRunAsync
 
-                      ServiceRegistry::Operate operate(serviceToken_);
+                      ServiceRegistry::OperateNonOwning operate(serviceToken_);
 
                       // The only purpose of the pause is to cause stream begin run to execute before
                       // global begin lumi in the single threaded case (maintains consistency with
@@ -1422,7 +1422,7 @@ namespace edm {
         iRunStatus->setEndingEventSetupSucceeded(false);
         handleEndRunExceptions(*iException, nextTask);
       }
-      ServiceRegistry::Operate operate(serviceToken_);
+      ServiceRegistry::OperateNonOwning operate(serviceToken_);
       streamQueuesInserter_.push(*nextTask.group(), [this, nextTask]() mutable {
         for (auto i : std::views::iota(0U, preallocations_.numberOfStreams())) {
           CMS_SA_ALLOW try {
@@ -1481,7 +1481,7 @@ namespace edm {
                }) |
         ifThen(looper_ && endingEventSetupSucceeded,
                [this, &runPrincipal, &es](auto nextTask) {
-                 ServiceRegistry::Operate operate(serviceToken_);
+                 ServiceRegistry::OperateNonOwning operate(serviceToken_);
                  looper_->doEndRun(runPrincipal, es, &processContext_);
                }) |
         then([status = std::move(iRunStatus),
@@ -1495,7 +1495,7 @@ namespace edm {
           if (iException) {
             handleEndRunExceptions(*iException, nextTask);
           }
-          ServiceRegistry::Operate operate(serviceToken_);
+          ServiceRegistry::OperateNonOwning operate(serviceToken_);
 
           std::exception_ptr ptr;
 
@@ -1592,7 +1592,7 @@ namespace edm {
     void prefetchForRandomNumberGeneratorAsync(edm::WaitingTaskHolder const& iTask,
                                                edm::Principal const& iPrincipal,
                                                edm::ServiceToken const& iServiceToken) {
-      edm::ServiceRegistry::Operate operate(iServiceToken);
+      edm::ServiceRegistry::OperateNonOwning operate(iServiceToken);
       Service<edm::RandomNumberGenerator> rng;
       if (rng.isAvailable()) {
         auto consumer = rng->consumer();
@@ -1653,7 +1653,7 @@ namespace edm {
                   return;
                 }
 
-                ServiceRegistry::Operate operate(serviceToken_);
+                ServiceRegistry::OperateNonOwning operate(serviceToken_);
                 Service<RandomNumberGenerator> rng;
                 using namespace edm::waiting_task::chain;
 
@@ -1674,7 +1674,7 @@ namespace edm {
                   auto& lumiPrincipal = *status->lumiPrincipal();
                   prefetchForRandomNumberGeneratorAsync(std::move(nextTask), lumiPrincipal, serviceToken_);
                 }) | ifThen(rng.isAvailable() and rng->consumer() != nullptr, [this, status](auto nextTask) {
-                  ServiceRegistry::Operate operate(serviceToken_);
+                  ServiceRegistry::OperateNonOwning operate(serviceToken_);
                   Service<RandomNumberGenerator> rng;
                   auto& lumiPrincipal = *status->lumiPrincipal();
                   LuminosityBlock lb(lumiPrincipal, ModuleDescription(), nullptr, false);
@@ -1691,7 +1691,7 @@ namespace edm {
                   looper_->prefetchAsync(
                       nextTask, serviceToken_, Transition::BeginLuminosityBlock, *(status->lumiPrincipal()), es);
                 }) | ifThen(looper_, [this, status](auto nextTask) {
-                  ServiceRegistry::Operate operateLooper(serviceToken_);
+                  ServiceRegistry::OperateNonOwning operateLooper(serviceToken_);
                   looper_->doBeginLuminosityBlock(
                       *(status->lumiPrincipal()), status->eventSetupImpl(), &processContext_);
                 }) | then([this, status, iRunStatus](std::exception_ptr const* iException, auto holder) mutable {
@@ -1822,13 +1822,13 @@ namespace edm {
       looper_->prefetchAsync(std::move(nextTask), serviceToken_, Transition::EndLuminosityBlock, lp, es);
     }) | ifThen(looper_, [this, &lp, &es](auto nextTask) {
       //any thrown exception auto propagates to nextTask via the chain
-      ServiceRegistry::Operate operate(serviceToken_);
+      ServiceRegistry::OperateNonOwning operate(serviceToken_);
       looper_->doEndLuminosityBlock(lp, es, &processContext_);
     }) | then([status = std::move(iLumiStatus), this](std::exception_ptr const* iException, auto nextTask) mutable {
       if (iException) {
         handleEndLumiExceptions(*iException, nextTask);
       }
-      ServiceRegistry::Operate operate(serviceToken_);
+      ServiceRegistry::OperateNonOwning operate(serviceToken_);
 
       std::exception_ptr ptr;
       // Try hard to clean up resources so the
@@ -1914,7 +1914,7 @@ namespace edm {
   }
 
   void EventProcessor::writeProcessBlockAsync(WaitingTaskHolder task, ProcessBlockType processBlockType) {
-    ServiceRegistry::Operate op(serviceToken_);
+    ServiceRegistry::OperateNonOwning op(serviceToken_);
     // Don't move task because the lifetime of the task should be greater than the lifetime of the Operate object
     schedule_->writeProcessBlockAsync(
         task, principalCache_.processBlockPrincipal(processBlockType), &processContext_, actReg_.get());
@@ -1947,7 +1947,7 @@ namespace edm {
     }) |
         chain::then([this, iRunStatus, sourceStatus = std::move(sourceStatus)](std::exception_ptr const* iException,
                                                                                auto nextTask) {
-          ServiceRegistry::Operate operate(serviceToken_);
+          ServiceRegistry::OperateNonOwning operate(serviceToken_);
           if (iException) {
             WaitingTaskHolder copyHolder(nextTask);
             copyHolder.doneWaiting(*iException);

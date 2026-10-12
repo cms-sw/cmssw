@@ -313,10 +313,10 @@ namespace edm {
       // iToken is owned by the EventProcessor and outlives the processing of the event: refer to it instead of
       // copying it, to avoid updating its reference count from every module of every path
       ServiceToken const* token = &iToken;
-      auto nextTask = make_waiting_task([this, lastModuleIndex, info = iInfo, iID, iContext, token, &iGroup](
-                                            std::exception_ptr const* iException) {
-        this->workerFinished(iException, lastModuleIndex, info, *token, iID, iContext, iGroup);
-      });
+      auto nextTask = make_waiting_task(
+          [this, lastModuleIndex, info = iInfo, iID, iContext, token, &iGroup](std::exception_ptr const* iException) {
+            this->workerFinished(iException, lastModuleIndex, info, *token, iID, iContext, iGroup);
+          });
       workers_[lastModuleIndex].runWorkerAsync(WaitingTaskHolder(iGroup, nextTask), iInfo, iToken, iID, iContext);
     }
   }
