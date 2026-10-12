@@ -16,11 +16,33 @@ namespace portablecollection {
     requires requires { Descriptor::num_cols; }
   void deepCopy(TQueue& queue, Descriptor& dest, ConstDescriptor const& src) {
     if constexpr (I < ConstDescriptor::num_cols) {
-      assert(std::get<I>(dest.buff).size_bytes() == std::get<I>(src.buff).size_bytes());
-      alpaka::memcpy(
-          queue,
-          alpaka::createView(alpaka::getDev(queue), std::get<I>(dest.buff).data(), std::get<I>(dest.buff).size()),
-          alpaka::createView(alpaka::getDev(queue), std::get<I>(src.buff).data(), std::get<I>(src.buff).size()));
+      const auto dest_size = std::get<I>(dest.buff).size();
+      const auto src_size = std::get<I>(src.buff).size();
+      assert(dest_size <= src_size && "portablecollection deepCopy: Destination buffer is larger than source buffer");
+
+      if constexpr (ConstDescriptor::template isEigenColumn<I>()) {
+        if (dest_size != src_size) {
+          using EigenType = typename std::tuple_element_t<I, decltype(dest.parameterTypes)>::ValueType;
+          const auto row_size = dest_size / (EigenType::RowsAtCompileTime * EigenType::ColsAtCompileTime);
+          for (int i = 0; i < EigenType::RowsAtCompileTime * EigenType::ColsAtCompileTime; ++i) {
+            const auto dest_offset = i * std::get<I>(dest.parameterTypes).stride();
+            const auto src_offset = i * std::get<I>(src.parameterTypes).stride();
+
+            alpaka::memcpy(
+                queue,
+                alpaka::createView(alpaka::getDev(queue), std::get<I>(dest.buff).data() + dest_offset, row_size),
+                alpaka::createView(alpaka::getDev(queue), std::get<I>(src.buff).data() + src_offset, row_size));
+          }
+        } else {
+          alpaka::memcpy(queue,
+                         alpaka::createView(alpaka::getDev(queue), std::get<I>(dest.buff).data(), dest_size),
+                         alpaka::createView(alpaka::getDev(queue), std::get<I>(src.buff).data(), dest_size));
+        }
+      } else {
+        alpaka::memcpy(queue,
+                       alpaka::createView(alpaka::getDev(queue), std::get<I>(dest.buff).data(), dest_size),
+                       alpaka::createView(alpaka::getDev(queue), std::get<I>(src.buff).data(), dest_size));
+      }
       deepCopy<I + 1>(queue, dest, src);
     }
   }

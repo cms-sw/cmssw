@@ -7,8 +7,8 @@
 
 #include <array>
 #include <cstddef>
+#include <format>
 #include <ostream>
-#include <stdexcept>
 #include <tuple>
 
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
@@ -237,10 +237,16 @@
 /*
  * Check the equality of sizes for each block
  */
-#define _CHECK_VIEW_SIZES_IMPL(NAME, CLASS_NAME)                                                                      \
-  if (sizes_[index] < view.NAME().metadata().size()) {                                                                \
-    throw std::runtime_error("In " #CLASS_NAME "::deepCopy method: number of elements mismatch for block " #NAME ""); \
-  }                                                                                                                   \
+#define _CHECK_VIEW_SIZES_IMPL(NAME, CLASS_NAME)                                                             \
+  if (sizes_[index] > view.NAME().metadata().size()) {                                                       \
+    cms::soa::detail::throwRuntimeError(std::format("In {}::deepCopy: block '{}' is larger than the input. " \
+                                                    "Buffer Size: {}, Input size: {}.",                      \
+                                                    #CLASS_NAME,                                             \
+                                                    #NAME,                                                   \
+                                                    sizes_[index],                                           \
+                                                    view.NAME().metadata().size())                           \
+                                            .c_str());                                                       \
+  }                                                                                                          \
   index++;
 
 #define _CHECK_VIEW_SIZES(R, DATA, SPEC) _EXEC_IF_BLOCK(SPEC, _CHECK_VIEW_SIZES_IMPL, (_BLOCK_GET_NAME(SPEC), DATA))
