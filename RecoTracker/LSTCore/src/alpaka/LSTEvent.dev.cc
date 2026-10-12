@@ -943,6 +943,7 @@ void LSTEvent::createQuintuplets() {
                         tripletsDC_->const_view().tripletsByMD(),
                         tripletsDC_->const_view().tripletsRangesByMD(),
                         rangesDC_->const_view(),
+                        miniDoubletsDC_->const_view().miniDoubletsOccupancy(),
                         ptCut_);
   };
   if (reduceMemByFullPrecompute_)
@@ -1003,8 +1004,6 @@ void LSTEvent::createQuintuplets() {
     alpaka::memset(queue_, isDup_view, 0u);
     auto nLayers_view = cms::alpakatools::make_device_view(queue_, quintuplets.nLayers());
     alpaka::memset(queue_, nLayers_view, 0u);
-    auto tightCutFlag_view = cms::alpakatools::make_device_view(queue_, quintuplets.tightCutFlag());
-    alpaka::memset(queue_, tightCutFlag_view, 0u);
     auto partOfPT5_view = cms::alpakatools::make_device_view(queue_, quintuplets.partOfPT5());
     alpaka::memset(queue_, partOfPT5_view, 0u);
   }
@@ -1242,6 +1241,8 @@ void LSTEvent::createQuadruplets() {
                         tripletsDC_->const_view().tripletsOccupancy(),
                         tripletsDC_->const_view().tripletsBySegment(),
                         tripletsDC_->const_view().tripletsRangesBySegment(),
+                        miniDoubletsDC_->const_view().miniDoubletsOccupancy(),
+                        tripletsDC_->const_view().tripletsRangesByMD(),
                         rangesDC_->const_view(),
                         ptCut_);
   };
@@ -1305,6 +1306,8 @@ void LSTEvent::createQuadruplets() {
                         tripletsDC_->const_view().tripletsOccupancy(),
                         tripletsDC_->const_view().tripletsBySegment(),
                         tripletsDC_->const_view().tripletsRangesBySegment(),
+                        miniDoubletsDC_->const_view().miniDoubletsOccupancy(),
+                        tripletsDC_->const_view().tripletsRangesByMD(),
                         quadrupletsDC_->view().quadruplets(),
                         quadrupletsDC_->view().quadrupletsOccupancy(),
                         rangesDC_->const_view(),
