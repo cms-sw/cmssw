@@ -79,6 +79,7 @@ public:
 
   /// Returns area of a cell
   double getArea(const DetId& detid) const;
+  double getAreaX(const DetId& detid) const;
 
   /// Returns the corner points of this cell's volume.
   CornersVec getCorners(const DetId& id) const;

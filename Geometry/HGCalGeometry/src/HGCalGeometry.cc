@@ -300,6 +300,20 @@ GlobalPoint HGCalGeometry::getWaferPosition(const DetId& detid) const {
   return glob;
 }
 
+double HGCalGeometry::getAreaX(const DetId& detid) const {
+  HGCalGeometry::CornersVec corners = getCorners(detid);
+  double area(0);
+  if (corners.size() > 1) {
+    unsigned int n = corners.size() / 2;
+    unsigned int j = n - 1;
+    for (unsigned int i = 0; i < corners.size(); ++i) {
+      area += ((corners[j].x() + corners[i].x()) * (corners[j].y() - corners[i].y()));
+      j = i;
+    }
+  }
+  return std::abs(0.5 * area);
+}
+
 double HGCalGeometry::getArea(const DetId& detid) const {
   HGCalGeometry::CornersVec corners = getNewCorners(detid);
   double area(0);
