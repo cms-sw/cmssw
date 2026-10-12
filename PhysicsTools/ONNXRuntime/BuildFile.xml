@@ -1,4 +1,6 @@
 <use name="onnxruntime"/>
+<use name="FWCore/AbstractServices"/>
+<use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
 <export>
   <lib name="1"/>
