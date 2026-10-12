@@ -55,27 +55,28 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
     std::vector<float> layerClusterEnergies;
 
     for (size_t i = 0; i < N; ++i) {
+      const auto &layerCluster = layerClusters[trackster.vertices(i)];
       auto fraction = 1.f / trackster.vertex_multiplicity(i);
-      trackster.addToRawEnergy(layerClusters[trackster.vertices(i)].energy() * fraction);
+      trackster.addToRawEnergy(layerCluster.energy() * fraction);
       bool isEM = false;
       if (isBarrel) {
-        auto x2 = std::pow(layerClusters[trackster.vertices(i)].x(), 2);
-        auto y2 = std::pow(layerClusters[trackster.vertices(i)].y(), 2);
+        auto x2 = std::pow(layerCluster.x(), 2);
+        auto y2 = std::pow(layerCluster.y(), 2);
         isEM = std::sqrt(x2 + y2) < z_limit_em;
       } else {
-        isEM = std::abs(layerClusters[trackster.vertices(i)].z()) <= z_limit_em;
+        isEM = std::abs(layerCluster.z()) <= z_limit_em;
       }
       if (isEM)
-        trackster.addToRawEmEnergy(layerClusters[trackster.vertices(i)].energy() * fraction);
+        trackster.addToRawEmEnergy(layerCluster.energy() * fraction);
 
       // Compute the weighted barycenter.
       if (energyWeight)
-        weight = layerClusters[trackster.vertices(i)].energy() * fraction;
-      fillPoint(layerClusters[trackster.vertices(i)], weight);
+        weight = layerCluster.energy() * fraction;
+      fillPoint(layerCluster, weight);
       for (size_t j = 0; j < 3; ++j)
         barycenter[j] += point[j];
 
-      layerClusterEnergies.push_back(layerClusters[trackster.vertices(i)].energy());
+      layerClusterEnergies.push_back(layerCluster.energy());
     }
     float raw_energy = trackster.raw_energy();
     float inv_raw_energy = 1.f / raw_energy;
@@ -117,10 +118,11 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
           filtered_idx.push_back(filtered_vert);
 
           const auto &maxE_LC = layerClusters[trackster.vertices(filtered_vert)];
-          fillPoint(maxE_LC, maxE_LC.energy() * (1.f / trackster.vertex_multiplicity(filtered_vert)));
+          const float maxE_LC_energy = maxE_LC.energy() * (1.f / trackster.vertex_multiplicity(filtered_vert));
+          fillPoint(maxE_LC, maxE_LC_energy);
           for (size_t j = 0; j < 3; ++j)
             filtered_barycenter[j] += point[j];
-          filtered_energy += maxE_LC.energy() * (1.f / trackster.vertex_multiplicity(filtered_vert));
+          filtered_energy += maxE_LC_energy;
         }
       }
       inv_filtered_energy = 1. / filtered_energy;
