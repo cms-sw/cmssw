@@ -14,6 +14,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 
 // system include files
+#include <cassert>
 
 namespace edm {
   //
@@ -79,6 +80,8 @@ namespace edm {
     if (owner_ and owner_->manager_.get() == manager_.get()) {
       return *owner_;
     }
+    // never hand out the non-owning pointer set by OperateNonOwning: it has no control block (use_count() == 0)
+    assert(not manager_ or manager_.use_count() != 0);
     return manager_;
   }
 
