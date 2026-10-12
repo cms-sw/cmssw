@@ -61,7 +61,7 @@
 />
 
 <test
-  name="testMPIAutosplitter"
+  name="testMPIAutosplitterMultiProcess"
   command="testAutomaticSplitterMultiProcess.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/configutration_for_automatic_splitter.py"
 />
 

@@ -16,6 +16,7 @@ process.source = cms.Source("EmptySource")
 process.maxEvents.input = 10
 
 process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
+process.load("HeterogeneousCore.MPIServices.MPIConsistencyChecker_cfi")
 
 process.load("Configuration.StandardSequences.Accelerators_cff")
 process.load("HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka_cfi")
@@ -38,7 +39,7 @@ process.sender = cms.EDProducer("MPISenderPortable@alpaka",
     products = cms.VPSet(
         cms.PSet(
             type = cms.string("MPIToken"),
-            src = cms.InputTag("mpiController"),
+            name = cms.InputTag("mpiController"),
         ),
     )
 )
