@@ -127,43 +127,51 @@ namespace edm::streamer {
     }
   }
 
-  bool StreamerFileReader::claimAndDecode(DecodeSlot& slot) const {
+  bool StreamerFileReader::claimAndDecode(DecodeSlot& slot, std::atomic<int>& state) const {
     int expected = DecodeSlot::kQueued;
-    if (not slot.state.compare_exchange_strong(expected, DecodeSlot::kClaimed)) {
+    if (not state.compare_exchange_strong(expected, DecodeSlot::kClaimed)) {
+      // claimed by someone else: do not touch the slot, it may already be in use for another event
       return false;
     }
     decodeSlot(slot);
-    slot.state.store(DecodeSlot::kDone, std::memory_order_release);
-    // only the source waits for an event
-    slot.state.notify_one();
+    state.store(DecodeSlot::kDone, std::memory_order_release);
+    // only the source waits for an event; the state outlives the slot's use
+    state.notify_one();
     return true;
   }
 
-  // mark an event that will not be used as done, so that its task returns without decoding it
+  // an event that will not be used: if its decoding has not started, mark it as done so that its task
+  // returns without decoding it; if its task is decoding it, wait until it is done with the slot
   void StreamerFileReader::discard(DecodeSlot& slot) {
-    int expected = DecodeSlot::kQueued;
-    if (slot.state.compare_exchange_strong(expected, DecodeSlot::kDone)) {
-      slot.state.notify_one();
+    std::atomic<int>& state = *slot.state;
+    int current = DecodeSlot::kQueued;
+    if (state.compare_exchange_strong(current, DecodeSlot::kDone)) {
+      return;
+    }
+    while (current != DecodeSlot::kDone) {
+      state.wait(current, std::memory_order_acquire);
+      current = state.load(std::memory_order_acquire);
     }
   }
 
   void StreamerFileReader::waitForFront() {
     DecodeSlot& front = *decodeWindow_.front();
-    if (claimAndDecode(front)) {
+    std::atomic<int>& state = *front.state;
+    if (claimAndDecode(front, state)) {
       return;
     }
     // the first event is being decoded by its task: meanwhile, decode the next ones, in order,
     // then wait for it without using a core (std::atomic::wait spins briefly, then sleeps)
     auto next = std::next(decodeWindow_.begin());
-    int state = front.state.load(std::memory_order_acquire);
-    while (state != DecodeSlot::kDone) {
+    int current = state.load(std::memory_order_acquire);
+    while (current != DecodeSlot::kDone) {
       if (next != decodeWindow_.end()) {
-        claimAndDecode(**next);
+        claimAndDecode(**next, *(*next)->state);
         ++next;
       } else {
-        front.state.wait(state, std::memory_order_acquire);
+        state.wait(current, std::memory_order_acquire);
       }
-      state = front.state.load(std::memory_order_acquire);
+      current = state.load(std::memory_order_acquire);
     }
   }
 
@@ -198,73 +206,54 @@ namespace edm::streamer {
 
       std::unique_ptr<DecodeSlot> slot = takeSlot();
       slot->message.assign(eview->startAddress(), eview->startAddress() + eview->size());
-      DecodeSlot* s = slot.get();
-      s->group.run([this, s]() {
-        claimAndDecode(*s);
-        s->taskFinished.store(true, std::memory_order_release);
-      });
+      // if the tasks spawned earlier are still waiting for a thread, the source decodes this event itself
+      if (pendingTasks_.load(std::memory_order_relaxed) < 4 * decodeWindowSize_) {
+        pendingTasks_.fetch_add(1, std::memory_order_relaxed);
+        group_.run([this, s = slot.get(), state = slot->state]() {
+          pendingTasks_.fetch_sub(1, std::memory_order_relaxed);
+          claimAndDecode(*s, *state);
+        });
+      }
       decodeWindow_.push_back(std::move(slot));
     }
   }
 
   std::unique_ptr<StreamerFileReader::DecodeSlot> StreamerFileReader::takeSlot() {
-    // slots whose task has run in the meantime can be reused
-    for (auto& slot : retiredSlots_) {
-      if (slot->taskFinished.load(std::memory_order_acquire)) {
-        // release the products of a skipped event, keep the buffers for reuse
-        slot->decoded = DecodedEvent();
-        freeSlots_.push_back(std::move(slot));
-      }
-    }
-    std::erase(retiredSlots_, nullptr);
+    std::unique_ptr<DecodeSlot> slot;
     if (freeSlots_.empty()) {
-      return std::make_unique<DecodeSlot>();
+      slot = std::make_unique<DecodeSlot>();
+    } else {
+      slot = std::move(freeSlots_.back());
+      freeSlots_.pop_back();
     }
-    std::unique_ptr<DecodeSlot> slot = std::move(freeSlots_.back());
-    freeSlots_.pop_back();
     slot->decoded = DecodedEvent();
     slot->exception = nullptr;
-    slot->state = DecodeSlot::kQueued;
-    slot->taskFinished = false;
+    // a new state for each event: a task still holding the previous one will not touch the slot
+    slot->state = std::make_shared<std::atomic<int>>(DecodeSlot::kQueued);
     return slot;
   }
 
+  // the slot's event must be done (decoded and taken, or discarded): no task uses the slot any more
   void StreamerFileReader::releaseSlot(std::unique_ptr<DecodeSlot> slot) {
-    if (not slot->taskFinished.load(std::memory_order_acquire)) {
-      // its task may still be using the slot
-      retiredSlots_.push_back(std::move(slot));
-    } else if (freeSlots_.size() < decodeWindowSize_) {
+    if (freeSlots_.size() < decodeWindowSize_) {
       // release the products of a skipped event, keep the buffers for reuse
       slot->decoded = DecodedEvent();
+      slot->state.reset();
       freeSlots_.push_back(std::move(slot));
-    } else {
-      // do not keep more buffers than the window needs; the task has run, make sure it has also
-      // returned before destroying its task_group, without running unrelated tasks meanwhile
-      oneapi::tbb::this_task_arena::isolate([&slot]() { slot->group.wait(); });
     }
+    // otherwise the slot is destroyed: do not keep more buffers than the window needs
   }
 
   void StreamerFileReader::drainDecodeWindow() {
     if (arena_) {
-      // the events read ahead will not be used: skip the decoding that has not started yet, and
-      // wait from within the arena, so that this thread can run the pending tasks itself; also
-      // wait for the reusable slots, whose task may not have completely returned yet
+      // the events read ahead will not be used: their tasks that have not started will return without
+      // decoding them; wait for all the tasks from within the arena, so that this thread can run the
+      // pending ones itself
       for (auto& slot : decodeWindow_) {
-        slot->group.cancel();
+        discard(*slot);
       }
-      arena_->execute([this]() {
-        for (auto& slot : decodeWindow_) {
-          slot->group.wait();
-        }
-        for (auto& slot : retiredSlots_) {
-          slot->group.wait();
-        }
-        for (auto& slot : freeSlots_) {
-          slot->group.wait();
-        }
-      });
       decodeWindow_.clear();
-      retiredSlots_.clear();
+      arena_->execute([this]() { group_.wait(); });
     }
     barrier_ = Barrier::kNone;
     readError_ = nullptr;
@@ -302,7 +291,7 @@ namespace edm::streamer {
 
   void StreamerFileReader::skip(int toSkip) {
     // the events already read ahead come first: they are not decoded if their task has not started
-    // yet, otherwise their slot is retired until the task has finished, and the result is dropped
+    // yet, otherwise the source waits for their task to finish, and the result is dropped
     while (toSkip > 0 and not decodeWindow_.empty()) {
       std::unique_ptr<DecodeSlot> slot = std::move(decodeWindow_.front());
       decodeWindow_.pop_front();
