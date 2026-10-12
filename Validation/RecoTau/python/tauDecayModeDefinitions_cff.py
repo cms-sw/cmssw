@@ -1,15 +1,4 @@
-genDecayModes = [
-    "oneProng0Pi0",
-    "oneProng1Pi0",
-    "oneProng2Pi0",
-    "oneProngOther",
-    "threeProng0Pi0",
-    "threeProng1Pi0",
-    "threeProngOther",
-    "rare",
-]
-
-recoDecayModes = [
+decayModes = (
     "oneProng0Pi0",
     "oneProng1Pi0",
     "oneProng2Pi0",
@@ -19,9 +8,10 @@ recoDecayModes = [
     "threeProngOther",
     "rare",
     "unknown",
-]
+)
 
-decayModes = recoDecayModes
+genDecayModes = tuple(dm for dm in decayModes if dm != "unknown")
+recoDecayModes = decayModes
 
 kinVars = {
     "pt": "p_{T}",

@@ -1,45 +1,43 @@
 #!/usr/bin/env bash
 set -euo pipefail
- 
+
 : <<'COMMENT'
 Usage:
-  run_tau_decaymode_plots.sh [HLT|RECO] [SUBDIR] [DQM_FILE] [MATCHING_DR]
- 
+  run_tau_decaymode_plots.sh [HLT|RECO] [SUBDIR] DQM_FILE [MATCHING_DR]
+
 Arguments:
   [HLT|RECO]   Which DQM path to use. Default: HLT
   [SUBDIR]     Optional TauValidation subdirectory, e.g. CutWP_VSjet0 or CutID_VSjet0p70
                Leave empty to use TauValidation/DecayModes.
                With SUBDIR, read TauValidation/SUBDIR/DecayModes.
-  [DQM_FILE]   Optional harvested DQM ROOT file.
-               Default: DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root
+  [DQM_FILE]   Harvested DQM ROOT file for the selected step.
+               Required for the selected HLT or RECO step.
   [MATCHING_DR] Matching radius used to PRODUCE the input, for labels only. Default: 0.3
- 
+
 Examples:
-  ./run_tau_decaymode_plots.sh HLT
-  ./run_tau_decaymode_plots.sh RECO
-  ./run_tau_decaymode_plots.sh HLT CutWP_VSjet0
-  ./run_tau_decaymode_plots.sh HLT CutID_VSjet0p70
-  ./run_tau_decaymode_plots.sh HLT "" step3_hlt_HARVESTING_ALL.root
-  ./run_tau_decaymode_plots.sh RECO CutWP_VSjet0 /path/to/step3_reco_HARVESTING.root
- 
+  ./run_tau_decaymode_plots.sh HLT "" /path/to/step3_hlt_HARVESTING.root
+  ./run_tau_decaymode_plots.sh RECO "" /path/to/step4_reco_HARVESTING.root
+  ./run_tau_decaymode_plots.sh HLT CutWP_VSjet0 /path/to/step3_hlt_HARVESTING.root
+  ./run_tau_decaymode_plots.sh HLT CutID_VSjet0p70 /path/to/step3_hlt_HARVESTING.root
+  ./run_tau_decaymode_plots.sh RECO CutWP_VSjet0 /path/to/step4_reco_HARVESTING.root
+
 This script overlays tau validation quantities split by decay mode.
- 
 The default HLT and RECO configuration uses DeltaR = 0.3.
 COMMENT
 
-set -euo pipefail
 if [[ -z "${CMSSW_BASE:-}" ]]; then
     echo "ERROR: run this script from an initialized CMSSW area (cmsenv)." >&2
     exit 2
 fi
-if [[ "$#" -gt 4 ]]; then
-    echo "Usage: $0 [HLT|RECO] [SUBDIR] [DQM_FILE] [MATCHING_DR]" >&2
+usage() {
+    echo "Usage: $0 [HLT|RECO] [SUBDIR] DQM_FILE [MATCHING_DR]" >&2
+}
+if (($# > 4)); then
+    usage
     exit 2
 fi
 STEP_IN="${1:-HLT}"
 SUB_DIR="${2:-}"
-DQM_FILE_HLT="/eos/user/s/smeriano/UCLouvain/Authorship_task/CMSSW_20_1_0_pre3/src/local_run_28_Sept_v1_condor_HLT_condor_HLT_HARVESTING_ALL_DELTAR_0p3/step3_hlt_HARVESTING_local.root"
-DQM_FILE_RECO="/eos/user/s/smeriano/UCLouvain/Authorship_task/CMSSW_20_1_0_pre3/src/local_run_28_Sept_v1_condor_RECO_HARVESTING_ALL_D128_DELTAR_0p3/step4_reco_HARVESTING_local.root"
 DQM_FILE="${3:-}"
 MATCHING_DR="${4:-0.3}"
 STEP_UPPER="${STEP_IN^^}"
@@ -47,19 +45,22 @@ case "$STEP_UPPER" in
     HLT)
         STEP="HLT"
         BASE_DIR="DQMData/Run 1/HLT/Run summary/Tau/TauValidation"
-        DQM_FILE="${DQM_FILE:-$DQM_FILE_HLT}"
         ;;
     RECO)
         STEP="Reco"
         BASE_DIR="DQMData/Run 1/Tau/Run summary/TauValidation"
-        DQM_FILE="${DQM_FILE:-$DQM_FILE_RECO}"
         ;;
     *)
-        echo "Invalid step: $STEP_IN"
-        echo "Use HLT or RECO"
-        exit 1
+        echo "Invalid step: $STEP_IN" >&2
+        echo "Use HLT or RECO" >&2
+        exit 2
         ;;
 esac
+if [[ -z "$DQM_FILE" ]]; then
+    echo "ERROR: provide a harvested ROOT file as DQM_FILE." >&2
+    usage
+    exit 2
+fi
 SCRIPT_DIR="${CMSSW_BASE}/src/Validation/RecoTau/scripts"
 MAKE_COMPARISON="${SCRIPT_DIR}/makeComparisonPlots.py"
 MAKE_TAU_VALIDATION="${SCRIPT_DIR}/makeTauValidationPlots.py"

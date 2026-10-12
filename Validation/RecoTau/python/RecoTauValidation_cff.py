@@ -4,6 +4,7 @@ from PhysicsTools.JetMCAlgos.TauGenJetsDecayModeSelectorAllHadrons_cfi import *
 tauPreValidSeq = cms.Sequence(tauGenJetsSelectorAllHadrons)
 
 from Validation.RecoTau.TauValidator import TauValidator as _TauValidator
+from Validation.RecoTau.tauDecayModeDefinitions_cff import decayModes as tauDecayModes
 
 # recoTauValidation = _TauValidator(
 #     recoTauCollection = "hpsPFTauProducer",
@@ -28,17 +29,7 @@ recoTauValidation = _TauValidator(
     minDeltaR = 0.3,
     outFolder = "Tau/TauValidation",
     isPatTaus = True,
-    decayModes = [
-        "oneProng0Pi0",
-        "oneProng1Pi0",
-        "oneProng2Pi0",
-        "oneProngOther",
-        "threeProng0Pi0",
-        "threeProng1Pi0",
-        "threeProngOther",
-        "rare",
-        "unknown",
-    ],
+    decayModes=cms.vstring(*tauDecayModes),
 )
 
 recoTauValidation_cutWPVsJet_0 = recoTauValidation.clone(cutIDs_wp = [0, -1, -1])

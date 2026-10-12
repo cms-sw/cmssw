@@ -545,16 +545,18 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
     h2d_genTau_["mass_phi"]->Fill(genTau.mass(), genTau.phi());
 
     const std::string genDM = JetMCTagUtils::genTauDecayMode(genTau);
-    if (std::find(decayModes_.begin(), decayModes_.end(), genDM) == decayModes_.end()) {
+    const bool hasGenDM = std::find(decayModes_.begin(), decayModes_.end(), genDM) != decayModes_.end();
+    if (!hasGenDM) {
       edm::LogWarning("TauValidator") << "Unexpected gen tau decay mode: '" << genDM << "'";
-      continue;
     }
     const std::string genKey = genDM + "_";
 
-    h_genTau_[genKey + "pt"]->Fill(genTau.pt());
-    h_genTau_[genKey + "eta"]->Fill(genTau.eta());
-    h_genTau_[genKey + "phi"]->Fill(genTau.phi());
-    h_genTau_[genKey + "mass"]->Fill(genTau.mass());
+    if (hasGenDM) {
+      h_genTau_[genKey + "pt"]->Fill(genTau.pt());
+      h_genTau_[genKey + "eta"]->Fill(genTau.eta());
+      h_genTau_[genKey + "phi"]->Fill(genTau.phi());
+      h_genTau_[genKey + "mass"]->Fill(genTau.mass());
+    }
 
     // Count how many reco taus are matched to the gen tau
     int nRecoMatchedToOneGen = 0;
@@ -597,20 +599,22 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
       h2d_responseMass_["mass"]->Fill(genTau.mass(), ResponseMass_bestDeltaR);
 
       // Filling histos per decay mode!
-      h_genTauMatched_[genKey + "pt"]->Fill(genTau.pt());
-      h_genTauMatched_[genKey + "eta"]->Fill(genTau.eta());
-      h_genTauMatched_[genKey + "phi"]->Fill(genTau.phi());
-      h_genTauMatched_[genKey + "mass"]->Fill(genTau.mass());
+      if (hasGenDM) {
+        h_genTauMatched_[genKey + "pt"]->Fill(genTau.pt());
+        h_genTauMatched_[genKey + "eta"]->Fill(genTau.eta());
+        h_genTauMatched_[genKey + "phi"]->Fill(genTau.phi());
+        h_genTauMatched_[genKey + "mass"]->Fill(genTau.mass());
+        h2d_responsePt_[genKey + "pt"]->Fill(genTau.pt(), ResponsePt_bestDeltaR);
+        h2d_responsePt_[genKey + "eta"]->Fill(genTau.eta(), ResponsePt_bestDeltaR);
+        h2d_responsePt_[genKey + "phi"]->Fill(genTau.phi(), ResponsePt_bestDeltaR);
+        h2d_responsePt_[genKey + "mass"]->Fill(genTau.mass(), ResponsePt_bestDeltaR);
 
-      h2d_responsePt_[genKey + "pt"]->Fill(genTau.pt(), ResponsePt_bestDeltaR);
-      h2d_responsePt_[genKey + "eta"]->Fill(genTau.eta(), ResponsePt_bestDeltaR);
-      h2d_responsePt_[genKey + "phi"]->Fill(genTau.phi(), ResponsePt_bestDeltaR);
-      h2d_responsePt_[genKey + "mass"]->Fill(genTau.mass(), ResponsePt_bestDeltaR);
+        h2d_responseMass_[genKey + "pt"]->Fill(genTau.pt(), ResponseMass_bestDeltaR);
+        h2d_responseMass_[genKey + "eta"]->Fill(genTau.eta(), ResponseMass_bestDeltaR);
+        h2d_responseMass_[genKey + "phi"]->Fill(genTau.phi(), ResponseMass_bestDeltaR);
+        h2d_responseMass_[genKey + "mass"]->Fill(genTau.mass(), ResponseMass_bestDeltaR);
+      }
 
-      h2d_responseMass_[genKey + "pt"]->Fill(genTau.pt(), ResponseMass_bestDeltaR);
-      h2d_responseMass_[genKey + "eta"]->Fill(genTau.eta(), ResponseMass_bestDeltaR);
-      h2d_responseMass_[genKey + "phi"]->Fill(genTau.phi(), ResponseMass_bestDeltaR);
-      h2d_responseMass_[genKey + "mass"]->Fill(genTau.mass(), ResponseMass_bestDeltaR);
 
       if (nRecoMatchedToOneGen > 1) {
         // Fill gen tau histograms for multi-matched taus
@@ -625,10 +629,12 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
         h2d_genTauMultiMatched_["mass_phi"]->Fill(genTau.mass(), genTau.phi());
 
         //Per decay mode
-        h_genTauMultiMatched_[genKey + "pt"]->Fill(genTau.pt());
-        h_genTauMultiMatched_[genKey + "eta"]->Fill(genTau.eta());
-        h_genTauMultiMatched_[genKey + "phi"]->Fill(genTau.phi());
-        h_genTauMultiMatched_[genKey + "mass"]->Fill(genTau.mass());
+        if (hasGenDM) {
+          h_genTauMultiMatched_[genKey + "pt"]->Fill(genTau.pt());
+          h_genTauMultiMatched_[genKey + "eta"]->Fill(genTau.eta());
+          h_genTauMultiMatched_[genKey + "phi"]->Fill(genTau.phi());
+          h_genTauMultiMatched_[genKey + "mass"]->Fill(genTau.mass());
+        }
       }
     }
   }
@@ -812,16 +818,7 @@ void TauValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   ps_presel.add<double>("EtaMaxRecoCut", 3.);
 
   desc.add<edm::ParameterSetDescription>("TauPreSelection", ps_presel);
-  desc.add<std::vector<std::string>>("decayModes",
-                                     std::vector<std::string>{"oneProng0Pi0",
-                                                              "oneProng1Pi0",
-                                                              "oneProng2Pi0",
-                                                              "oneProngOther",
-                                                              "threeProng0Pi0",
-                                                              "threeProng1Pi0",
-                                                              "threeProngOther",
-                                                              "rare",
-                                                              "unknown"});
+  desc.add<std::vector<std::string>>("decayModes");
   descriptions.addWithDefaultLabel(desc);
 }
 
