@@ -64,7 +64,7 @@ private:
   const std::string folder_;
   const float hitMinEnergy2Dis_;
   const bool optionalPlots_;
-  const bool uncalibRecHitsPlots_;
+  const bool baseRecHitsPlots_;
   const double hitMinAmplitude_;
 
   edm::EDGetTokenT<etlrechit::ETLBaseRecHitHostCollection> etlBaseRecHitsSoAToken_;
@@ -120,14 +120,14 @@ EtlLocalRecoSoAValidation::EtlLocalRecoSoAValidation(const edm::ParameterSet& iC
     : folder_(iConfig.getParameter<std::string>("folder")),
       hitMinEnergy2Dis_(iConfig.getParameter<double>("hitMinimumEnergy2Dis")),
       optionalPlots_(iConfig.getParameter<bool>("optionalPlots")),
-      uncalibRecHitsPlots_(iConfig.getParameter<bool>("BaseRecHitsPlots")),
+      baseRecHitsPlots_(iConfig.getParameter<bool>("BaseRecHitsPlots")),
       hitMinAmplitude_(iConfig.getParameter<double>("HitMinimumAmplitude")),
       mtdgeoToken_(esConsumes<MTDGeometry, MTDDigiGeometryRecord>()),
       mtdtopoToken_(esConsumes<MTDTopology, MTDTopologyRcd>()) {
   etlRecHitsSoAToken_ =
       consumes<etlrechit::ETLRecHitHostCollection>(iConfig.getParameter<edm::InputTag>("recHitsSoATag"));
   etlBaseRecHitsSoAToken_ =
-      consumes<etlrechit::ETLBaseRecHitHostCollection>(iConfig.getParameter<edm::InputTag>("uncalibRecHitsSoATag"));
+      consumes<etlrechit::ETLBaseRecHitHostCollection>(iConfig.getParameter<edm::InputTag>("baseRecHitsSoATag"));
   etlSimHitsToken_ = consumes<CrossingFrame<PSimHit>>(iConfig.getParameter<edm::InputTag>("simHitsTag"));
   mtdTrackingHitToken_ = consumes<MTDTrackingDetSetVector>(iConfig.getParameter<edm::InputTag>("trkHitTag"));
 }
@@ -306,63 +306,65 @@ void EtlLocalRecoSoAValidation::analyze(const edm::Event& iEvent, const edm::Eve
     meNhits_[i]->Fill(std::log10(n_reco_etl[i]));
   }
 
-  // --- Loop over the ETL Uncalibrated RECO hits
+  // --- Loop over the ETL Base RECO hits
   if (optionalPlots_) {
-    auto etlBaseRecHitsSoAHandle = makeValid(iEvent.getHandle(etlBaseRecHitsSoAToken_));
+    if (baseRecHitsPlots_) {
+      auto etlBaseRecHitsSoAHandle = makeValid(iEvent.getHandle(etlBaseRecHitsSoAToken_));
 
-    for (int i = 0; i < etlBaseRecHitsSoAHandle->view().metadata().size(); i++) {
-      auto uRecHit = etlBaseRecHitsSoAHandle->view()[i];
-      ETLDetId detId = uRecHit.detId();
-      int idet = detId.zside() + detId.nDisc();
+      for (int i = 0; i < etlBaseRecHitsSoAHandle->view().metadata().size(); i++) {
+        auto uRecHit = etlBaseRecHitsSoAHandle->view()[i];
+        ETLDetId detId = uRecHit.detId();
+        int idet = detId.zside() + detId.nDisc();
 
-      LogTrace("EtlLocalRecoSoAValidation")
-          << "@URH detid " << detId.rawId() << " T " << uRecHit.toa() << " " << uRecHit.tot();
+        LogTrace("EtlLocalRecoSoAValidation")
+            << "@URH detid " << detId.rawId() << " T " << uRecHit.toa() << " " << uRecHit.tot();
 
-      DetId geoId = detId.geographicalId();
-      const MTDGeomDet* thedet = geom->idToDet(geoId);
-      const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
-      const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
+        DetId geoId = detId.geographicalId();
+        const MTDGeomDet* thedet = geom->idToDet(geoId);
+        const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
+        const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
-      Local3DPoint local_point(topo.localX(uRecHit.row()), topo.localY(uRecHit.column()), 0.);
-      const auto& global_point = thedet->toGlobal(local_point);
+        Local3DPoint local_point(topo.localX(uRecHit.row()), topo.localY(uRecHit.column()), 0.);
+        const auto& global_point = thedet->toGlobal(local_point);
 
-      std::pair<uint8_t, uint8_t> pixel = geomUtil.pixelInModule(detId, local_point);
-      mtd_digitizer::MTDCellId pixelId(detId.rawId(), pixel.first, pixel.second);
+        std::pair<uint8_t, uint8_t> pixel = geomUtil.pixelInModule(detId, local_point);
+        mtd_digitizer::MTDCellId pixelId(detId.rawId(), pixel.first, pixel.second);
 
-      // --- Skip UncalibratedRecHits not matched to SimHits
-      if (m_etlSimHits[idet].count(pixelId) == 0)
-        continue;
+        // --- Skip BaseRecHits not matched to SimHits
+        if (m_etlSimHits[idet].count(pixelId) == 0)
+          continue;
 
-      if (thedet == nullptr)
-        throw cms::Exception("EtlLocalRecoValidation") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
-                                                       << detId.rawId() << ") is invalid!" << std::dec << std::endl;
+        if (thedet == nullptr)
+          throw cms::Exception("EtlLocalRecoValidation") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
+                                                         << detId.rawId() << ") is invalid!" << std::dec << std::endl;
 
-      // --- Fill the histograms
+        // --- Fill the histograms
 
-      if (uRecHit.tot() < hitMinAmplitude_)
-        continue;
+        if (uRecHit.tot() < hitMinAmplitude_)
+          continue;
 
-      float time_res = uRecHit.toa() - m_etlSimHits[idet][pixelId].time;
+        float time_res = uRecHit.toa() - m_etlSimHits[idet][pixelId].time;
 
-      int iside = (detId.zside() == -1 ? 0 : 1);
+        int iside = (detId.zside() == -1 ? 0 : 1);
 
-      // amplitude histograms
+        // amplitude histograms
 
-      int totBin = (int)(uRecHit.tot() / binWidthTot_);
-      if (totBin > nBinsTot_ - 1)
-        totBin = nBinsTot_ - 1;
+        int totBin = (int)(uRecHit.tot() / binWidthTot_);
+        if (totBin > nBinsTot_ - 1)
+          totBin = nBinsTot_ - 1;
 
-      meTimeResTot_[iside][totBin]->Fill(time_res);
+        meTimeResTot_[iside][totBin]->Fill(time_res);
 
-      // eta histograms
+        // eta histograms
 
-      int etaBin = (int)((fabs(global_point.eta()) - etaMin_) / binWidthEta_);
-      if (etaBin < 0)
-        etaBin = 0;
-      else if (etaBin > nBinsEta_ - 1)
-        etaBin = nBinsEta_ - 1;
+        int etaBin = (int)((fabs(global_point.eta()) - etaMin_) / binWidthEta_);
+        if (etaBin < 0)
+          etaBin = 0;
+        else if (etaBin > nBinsEta_ - 1)
+          etaBin = nBinsEta_ - 1;
 
-      meTimeResEta_[iside][etaBin]->Fill(time_res);
+        meTimeResEta_[iside][etaBin]->Fill(time_res);
+      }
     }
   }
 }
@@ -573,9 +575,9 @@ void EtlLocalRecoSoAValidation::bookHistograms(DQMStore::IBooker& ibook,
                                     5.,
                                     "S");
 
-  // --- UncalibratedRecHits histograms
+  // --- BaseRecHits histograms
 
-  if (uncalibRecHitsPlots_) {
+  if (baseRecHitsPlots_) {
     const std::string det_name[2] = {"ETL-", "ETL+"};
     for (unsigned int iside = 0; iside < 2; ++iside) {
       for (unsigned int ihistoTot = 0; ihistoTot < nBinsTot_; ++ihistoTot) {
@@ -603,7 +605,7 @@ void EtlLocalRecoSoAValidation::fillDescriptions(edm::ConfigurationDescriptions&
 
   desc.add<std::string>("folder", "MTD/ETL/LocalRecoSoA");
   desc.add<edm::InputTag>("recHitsSoATag", edm::InputTag("etlRecHitsSoA"));
-  desc.add<edm::InputTag>("uncalibRecHitsSoATag", edm::InputTag("etlBaseRecHitsSoA"));
+  desc.add<edm::InputTag>("baseRecHitsSoATag", edm::InputTag("etlBaseRecHitsSoA"));
   desc.add<edm::InputTag>("simHitsTag", edm::InputTag("mix", "g4SimHitsFastTimerHitsEndcap"));
   desc.add<edm::InputTag>("trkHitTag", edm::InputTag("mtdTrackingRecHits"));
   desc.add<double>("hitMinimumEnergy2Dis", 0.001);  // [MeV]
