@@ -4683,34 +4683,13 @@ steps['NanoFullHEfail']={'-s':'NANO',
 from Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 # imported from above, only non-empty values should be provided here
-defaultDataSets['2017']='CMSSW_12_0_0_pre4-113X_mc2017_realistic_v5-v'
-defaultDataSets['2017Design']='CMSSW_12_0_0_pre4-113X_mc2017_design_v5-v'
-defaultDataSets['2018']='CMSSW_12_0_0_pre4-113X_upgrade2018_realistic_v5-v'
-defaultDataSets['2018Design']='CMSSW_12_0_0_pre4-113X_upgrade2018_design_v5-v'
-defaultDataSets['2022']='CMSSW_14_0_18-140X_mcRun3_2022_realistic_v12_STD_noPU_2022_reMC-v'
-defaultDataSets['2022Design']='CMSSW_12_5_0_pre4-124X_mcRun3_2022_design_v7_design_BS2022-v'
-defaultDataSets['2022FS']='CMSSW_14_0_18-140X_mcRun3_2022_realistic_v12_2022_FastSim_Run3_FastSim-v'
-defaultDataSets['2023']='CMSSW_13_0_10-130X_mcRun3_2023_realistic_withEarly2023BS_v1_2023-v'
-defaultDataSets['2023FS']='CMSSW_13_0_11-130X_mcRun3_2023_realistic_withEarly2023BS_v1_FastSim-v'
-defaultDataSets['2024']='CMSSW_14_2_0_pre4-140X_mcRun3_2024_realistic_v26_STD_RegeneratedGS_2024_noPU-v'
-defaultDataSets['2025']='CMSSW_15_1_0_pre5-151X_mcRun3_2025_realistic_v4_STD_RegeneratedGS_2025_noPU-v'
-defaultDataSets['2026']='CMSSW_15_1_0_pre5-151X_mcRun3_2025_realistic_v4_STD_RegeneratedGS_2025_noPU-v'
-defaultDataSets['2024HLTOnDigi'] = defaultDataSets["2024SimOnGen"] = defaultDataSets['2024']
-defaultDataSets["2025HLTOnDigi"] = defaultDataSets["2025SimOnGen"] = defaultDataSets['2025']
-defaultDataSets["2026HLTOnDigi"] = defaultDataSets["2026SimOnGen"] = defaultDataSets['2026']
-defaultDataSets['2024FS']='CMSSW_13_0_11-130X_mcRun3_2023_realistic_withEarly2023BS_v1_FastSim-v' #To replace with new dataset
-defaultDataSets['2025FS']='CMSSW_13_0_11-130X_mcRun3_2023_realistic_withEarly2023BS_v1_FastSim-v' #To replace with new dataset
+# all pre-CMSSW20 defaults now removed, incompatible data formats
 
 # Run4
 defaultRun4Geometry = 'D128'
-defaultDataSets['Run4D110']='CMSSW_15_1_0_pre5-150X_mcRun4_realistic_v1_STD_RegeneratedGS_Run4D110_noPU-v'
 defaultDataSets['Run4D121']='CMSSW_20_0_0_pre1-150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v'
 defaultDataSets['Run4D127']='CMSSW_20_0_0-150X_mcRun4_realistic_v1_D127_GSOnly-v'
 defaultDataSets['Run4D128']='CMSSW_20_1_0_pre3-150X_mcRun4_realistic_v1_STD_D128_GSOnly_GSInputs-v'
-
-## HIN
-defaultDataSets['2023HIN']='CCMSSW_14_1_0-PU_140X_mcRun3_2023_realistic_HI_v4_STD_2023HIN_PU-v'
-defaultDataSets['2024HIN']='CMSSW_15_1_0_pre5-141X_mcRun3_2024_realistic_HI_v14_STD_RegeneratedGS_2024HIN_noPU-v'
 
 puDataSets = {}
 for key, value in defaultDataSets.items(): puDataSets[key+'PU'] = value
