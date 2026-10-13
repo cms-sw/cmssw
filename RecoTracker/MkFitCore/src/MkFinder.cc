@@ -49,8 +49,12 @@ namespace mkfit {
     m_in_fwd = infwd;
   }
 
-  void MkFinder::setup_bkfit(const PropagationConfig &pc, const SteeringParams &sp, const Event *ev) {
+  void MkFinder::setup_bkfit(const PropagationConfig &pc,
+                             const IterationConfig &ic,
+                             const SteeringParams &sp,
+                             const Event *ev) {
     m_prop_config = &pc;
+    m_iteration_config = &ic;
     m_steering_params = &sp;
     m_event = ev;
   }
@@ -2461,6 +2465,8 @@ namespace mkfit {
 
     MPlexQF tmp_chi2{0.0f};
     MPlexQI done_flag(0);
+    const float outlierChi2 = m_iteration_config->m_backward_fit_outlier_chi2;
+    int nOutliers[NN] = {0};
 
     MPlexHV plNrm{0.0f};  // input detector plane [pl - plane]
     MPlexHV plDir{0.0f};  // ""
@@ -2479,6 +2485,8 @@ namespace mkfit {
       const Hit *last_hit_ptr[NN];
 #endif
 
+      int fitNode[NN];  // HoT node fitted in this step, -1 if none
+      std::fill_n(fitNode, NN, -1);
       int here_count = 0;
       for (int i = 0; i < N_proc; ++i) {
         if (done_flag[i])
@@ -2526,6 +2534,7 @@ namespace mkfit {
           plDir.copyIn(i, mi.xdir.Array());
           plPnt.copyIn(i, mi.pos.Array());
 
+          fitNode[i] = m_CurNode[i];
           ++here_count;
 
           m_CurNode[i] = m_HoTNodeArr[i][m_CurNode[i]].m_prev_idx;
@@ -2552,6 +2561,7 @@ namespace mkfit {
       // clang-format off
 
       m_FailFlag.setVal(0);
+      const MPlexQI chgPrev = m_Chg;
       propagateHelixToPlaneMPlex(m_Err[iC], m_Par[iC], m_Chg, plPnt, plNrm,
                                  m_Err[iP], m_Par[iP], m_FailFlag,
                                  N_proc, m_prop_config->backward_fit_pflags, nullptr);
@@ -2657,6 +2667,27 @@ namespace mkfit {
       }
       // clang-format on
 #endif
+
+      // Outlier rejection: the hit becomes a missing hit and the propagated state is kept.
+      if (outlierChi2 > 0.f) {
+        const int maxOutliers = m_iteration_config->m_backward_fit_max_outliers;
+        const float minPt = m_iteration_config->m_backward_fit_outlier_min_pt;
+        for (int i = 0; i < N_proc; ++i) {
+          // Negated comparison on purpose: a NaN chi2 is not treated as an outlier.
+          if (fitNode[i] < 0 || !(tmp_chi2[i] > outlierChi2) || nOutliers[i] >= maxOutliers ||
+              m_TrkCand[i]->pT() < minPt)
+            continue;
+          m_Err[iC].copySlot(i, m_Err[iP]);
+          m_Par[iC].copySlot(i, m_Par[iP]);
+          m_Chg[i] = chgPrev[i];
+          tmp_chi2[i] = 0.f;
+          TrackCand &trk = *m_TrkCand[i];
+          trk.combCandidate()->hot_node_nc(fitNode[i]).m_hot.index = Hit::kHitMissIdx;
+          trk.setNFoundHits(trk.nFoundHits() - 1);
+          trk.setNMissingHits(trk.nMissingHits() + 1);
+          ++nOutliers[i];
+        }
+      }
 
       // update chi2
       m_Chi2.add(tmp_chi2);
