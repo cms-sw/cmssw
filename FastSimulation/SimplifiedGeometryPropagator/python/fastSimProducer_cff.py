@@ -13,8 +13,8 @@ fastSimProducer = cms.EDProducer(
     particleFilter =  ParticleFilterBlock.ParticleFilter,
     trackerDefinition = TrackerMaterialBlock.TrackerMaterial,
     mtdDefinition = cms.PSet(
-        BarrelLayers = cms.PSet(),
-        EndcapLayers = cms.PSet(),
+        BarrelLayers = cms.VPSet(),
+        EndcapLayers = cms.VPSet(),
     ),
     simulateCalorimetry = cms.bool(True),
     simulateMuons = cms.bool(True),
