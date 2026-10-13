@@ -352,7 +352,7 @@ namespace mkfit {
                    tracks.end());
     }
 
-    void clean_duplicates(TrackVec &tracks, const IterationConfig &) {
+    void clean_duplicates(TrackVec &tracks, const IterationConfig &, const TrackerInfo &) {
       const auto ntracks = tracks.size();
       float eta1, phi1, pt1, deta, dphi, dr2;
 
@@ -438,7 +438,7 @@ namespace mkfit {
     // SHARED HITS DUPLICATE CLEANING
     //=========================================================================
 
-    void clean_duplicates_sharedhits(TrackVec &tracks, const IterationConfig &itconf) {
+    void clean_duplicates_sharedhits(TrackVec &tracks, const IterationConfig &itconf, const TrackerInfo &) {
       const float fraction = itconf.dc_fracSharedHits;
       const auto ntracks = tracks.size();
 
@@ -502,7 +502,11 @@ namespace mkfit {
       remove_duplicates(tracks);
     }
 
-    void clean_duplicates_sharedhits_pixelseed(TrackVec &tracks, const IterationConfig &itconf) {
+    // pixelPriority = false is the phase-1 pixelseed cleaner; true adds the pixel-priority rules.
+    template <bool pixelPriority>
+    void clean_duplicates_sharedhits_pixelseed_impl(TrackVec &tracks,
+                                                    const IterationConfig &itconf,
+                                                    const TrackerInfo &trk_inf) {
       const float fraction = itconf.dc_fracSharedHits;
       const float drth_central = itconf.dc_drth_central;
       const float drth_obarrel = itconf.dc_drth_obarrel;
@@ -510,10 +514,37 @@ namespace mkfit {
       const auto ntracks = tracks.size();
 
       std::vector<float> ctheta(ntracks);
+      std::vector<bool> hasPixel(pixelPriority ? ntracks : 0, false);
       for (auto itrack = 0U; itrack < ntracks; itrack++) {
         auto &trk = tracks[itrack];
         ctheta[itrack] = 1.f / std::tan(trk.theta());
+        if constexpr (pixelPriority) {
+          int npix = 0;
+          for (int i = 0; i < trk.nTotalHits(); ++i)
+            if (trk.getHitIdx(i) >= 0 && trk_inf[trk.getHitLyr(i)].is_pixel())
+              ++npix;
+          hasPixel[itrack] = npix >= 2;
+        }
       }
+      // Two tracks with pixel hits but no shared pixel hit come from different pixel seeds: not duplicates.
+      auto sharePixelHit = [&](const Track &t1, const Track &t2) {
+        for (int i = 0; i < t1.nTotalHits(); ++i) {
+          if (t1.getHitIdx(i) < 0 || !trk_inf[t1.getHitLyr(i)].is_pixel())
+            continue;
+          for (int j = 0; j < t2.nTotalHits(); ++j)
+            if (t2.getHitIdx(j) == t1.getHitIdx(i) && t2.getHitLyr(j) == t1.getHitLyr(i))
+              return true;
+        }
+        return false;
+      };
+      // With pixelPriority a track with pixel hits beats a pixel-less one; otherwise the higher score wins.
+      auto pixelOrScoreWins = [&](unsigned i, unsigned j) -> bool {
+        if constexpr (pixelPriority) {
+          if (hasPixel[i] != hasPixel[j])
+            return hasPixel[i];
+        }
+        return tracks[i].score() > tracks[j].score();
+      };
 
       float phi1, invpt1, dctheta, ctheta1, dphi, dr2;
       for (auto itrack = 0U; itrack < ntracks; itrack++) {
@@ -536,6 +567,11 @@ namespace mkfit {
           if (dphi > Config::maxdphi)
             continue;
 
+          if constexpr (pixelPriority) {
+            if (hasPixel[itrack] && hasPixel[jtrack] && !sharePixelHit(trk, track2))
+              continue;
+          }
+
           float maxdRSquared = drth_central * drth_central;
           if (std::abs(ctheta1) > Config::maxcth_fw)
             maxdRSquared = drth_forward * drth_forward;
@@ -544,7 +580,7 @@ namespace mkfit {
           dr2 = dphi * dphi + dctheta * dctheta;
           if (dr2 < maxdRSquared) {
             //Keep track with best score
-            if (trk.score() > track2.score())
+            if (pixelOrScoreWins(itrack, jtrack))
               track2.setDuplicateValue(true);
             else
               trk.setDuplicateValue(true);
@@ -584,7 +620,7 @@ namespace mkfit {
 
           //selection here - 11percent fraction of shared hits to label a duplicate
           if ((sharedCount - sharedFirst) >= ((minFoundHits - sharedFirst) * fraction)) {
-            if (trk.score() > track2.score())
+            if (pixelOrScoreWins(itrack, jtrack))
               track2.setDuplicateValue(true);
             else
               trk.setDuplicateValue(true);
@@ -595,6 +631,18 @@ namespace mkfit {
       remove_duplicates(tracks);
     }
 
+    void clean_duplicates_sharedhits_pixelseed(TrackVec &tracks,
+                                               const IterationConfig &itconf,
+                                               const TrackerInfo &trk_inf) {
+      clean_duplicates_sharedhits_pixelseed_impl<false>(tracks, itconf, trk_inf);
+    }
+
+    void clean_duplicates_sharedhits_pixelpriority(TrackVec &tracks,
+                                                   const IterationConfig &itconf,
+                                                   const TrackerInfo &trk_inf) {
+      clean_duplicates_sharedhits_pixelseed_impl<true>(tracks, itconf, trk_inf);
+    }
+
     namespace {
       CMS_SA_ALLOW struct register_duplicate_cleaners {
         register_duplicate_cleaners() {
@@ -603,6 +651,8 @@ namespace mkfit {
                                                       clean_duplicates_sharedhits);
           IterationConfig::register_duplicate_cleaner("phase1:clean_duplicates_sharedhits_pixelseed",
                                                       clean_duplicates_sharedhits_pixelseed);
+          IterationConfig::register_duplicate_cleaner("phase2:clean_duplicates_sharedhits_pixelpriority",
+                                                      clean_duplicates_sharedhits_pixelpriority);
         }
       } rdc_instance;
     }  // namespace
