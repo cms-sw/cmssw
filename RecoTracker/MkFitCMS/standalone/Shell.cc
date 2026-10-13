@@ -268,6 +268,7 @@ namespace mkfit {
         if (itconf.m_backward_search) {
           builder.beginBkwSearch();
           builder.findTracksCloneEngine(SteeringParams::IT_BkwSearch);
+          builder.gateBkwSearch();
         }
 
         printf("Shell::ProcessEvent post backward fit / search: %d comb-cands\n", builder.ref_eocc().size());
@@ -293,7 +294,7 @@ namespace mkfit {
       builder.export_best_comb_cands(out_tracks, true);
 
       if (do_remove_duplicates && itconf.m_duplicate_cleaner) {
-        itconf.m_duplicate_cleaner(out_tracks, itconf);
+        itconf.m_duplicate_cleaner(out_tracks, itconf, trackerInfo);
       }
 
       printf("Shell::ProcessEvent post remove-duplicates: %d comb-cands\n", (int) out_tracks.size());

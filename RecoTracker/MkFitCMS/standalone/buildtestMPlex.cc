@@ -508,7 +508,7 @@ namespace mkfit {
       {
         builder.export_tracks(tmp_tvec);
         if (itconf.m_duplicate_cleaner)
-          itconf.m_duplicate_cleaner(builder.ref_tracks_nc(), itconf);
+          itconf.m_duplicate_cleaner(builder.ref_tracks_nc(), itconf, Config::TrkInfo);
         ev.candidateTracks_.reserve(ev.candidateTracks_.size() + tmp_tvec.size());
         for (auto &&t : tmp_tvec)
           ev.candidateTracks_.emplace_back(std::move(t));
@@ -537,6 +537,7 @@ namespace mkfit {
         if (do_backward_search) {
           builder.beginBkwSearch();
           builder.findTracksCloneEngine(SteeringParams::IT_BkwSearch);
+          builder.gateBkwSearch();
         }
 
         // Post backward-fit filtering.
@@ -558,7 +559,7 @@ namespace mkfit {
         builder.select_best_comb_cands(true);  // true -> clear m_tracks as they were already filled once above
 
         if (itconf.m_duplicate_cleaner)
-          itconf.m_duplicate_cleaner(builder.ref_tracks_nc(), itconf);
+          itconf.m_duplicate_cleaner(builder.ref_tracks_nc(), itconf, Config::TrkInfo);
 
         builder.export_tracks(ev.fitTracks_);
       }
