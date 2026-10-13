@@ -376,13 +376,9 @@ void GenXSecAnalyzer::globalEndRun(edm::Run const &iRun, edm::EventSetup const &
   if (iRun.getByToken(genRunInfoToken_, run_gen)) {
     const GenRunInfoProduct::XSec thisRunXSecPre_gen = run_gen->internalXSec();
     if (thisRunXSecPre_lhe.value() != 0) {
-      double difference_lhe_gen =
-          fabs((thisRunXSecPre_gen.value() - thisRunXSecPre_lhe.value()) / thisRunXSecPre_lhe.value());
-      if (difference_lhe_gen >= 0.1) {
-        ratio_lhe_gen_ = thisRunXSecPre_gen.value() / thisRunXSecPre_lhe.value();
-        thisRunXSecPre_value = thisRunXSecPre_gen.value();
-        thisRunXSecPre_error = thisRunXSecPre_lhe.error() * ratio_lhe_gen_;
-      }
+      ratio_lhe_gen_ = thisRunXSecPre_gen.value() / thisRunXSecPre_lhe.value();
+      thisRunXSecPre_value = thisRunXSecPre_gen.value();
+      thisRunXSecPre_error = thisRunXSecPre_lhe.error() * ratio_lhe_gen_;
     }
 
     if (verbose_) {
