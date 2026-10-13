@@ -1,4 +1,3 @@
-#define EIGEN_NO_DEBUG  // kill throws in eigen code
 #include "RecoLocalCalo/HcalRecAlgos/interface/MahiFit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
