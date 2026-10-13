@@ -64,6 +64,7 @@ hltDqmOnlyScouting = cms.Sequence(recoTrackFromScoutingMonitorSequence +
                                     hltScoutingTrackMonitor +
                                     run3ScoutingElectronBestTrack +
                                     hltScoutingDileptonMonitor +
+                                    ScoutingMuonPropertiesMonitor +
                                     hltScoutingDiMuonVertexMonitor +
                                     hltScoutingPi0Monitor +
                                     hltScoutingCollectionMonitor)
