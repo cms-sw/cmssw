@@ -8,10 +8,12 @@
   <version ClassVersion="10" checksum="3791198690"/>
   <field name="error_x" transient="true"/>
  </class>
- <ioread sourceClass="SiStripCluster" version="[10-11]" targetClass="SiStripCluster" source="std::vector<uint8_t> amplitudes_; uint16_t firstStrip_;" target="amplitudes_,firstStrip_,barycenter_,charge_" >
+ <!-- keep the first target of each rule equal to its last source: otherwise ROOT does not execute
+      a rule with several same-named sources when the class is read from split sub-branches -->
+ <ioread sourceClass="SiStripCluster" version="[10-11]" targetClass="SiStripCluster" source="std::vector<uint8_t> amplitudes_; uint16_t firstStrip_;" target="firstStrip_,amplitudes_,barycenter_,charge_" >
    <![CDATA[amplitudes_ = onfile.amplitudes_; firstStrip_ = onfile.firstStrip_; newObj->initQB();]]>
  </ioread>
- <ioread sourceClass="SiStripCluster" version="[12-13]" targetClass="SiStripCluster" source="std::vector<uint8_t> amplitudes_; uint16_t firstStrip_; float barycenter_; int charge_;" target="amplitudes_,firstStrip_,barycenter_,charge_" >
+ <ioread sourceClass="SiStripCluster" version="[12-13]" targetClass="SiStripCluster" source="std::vector<uint8_t> amplitudes_; uint16_t firstStrip_; float barycenter_; int charge_;" target="charge_,amplitudes_,firstStrip_,barycenter_" >
    <![CDATA[amplitudes_ = onfile.amplitudes_; firstStrip_ = onfile.firstStrip_; barycenter_ = onfile.barycenter_; charge_ = onfile.charge_; if (onfile.barycenter_ == 0) { newObj->initQB(); } else { firstStrip_ |= SiStripCluster::approximateMask; }]]>
  </ioread>
  <class name="std::vector<SiStripCluster>"/>
