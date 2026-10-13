@@ -74,6 +74,9 @@ namespace reco {
                               reco::PFBlockElement::Type type = PFBlockElement::NONE,
                               LinkTest test = LINKTEST_RECHIT) const;
 
+      /// check if an element has a specified associated element
+      bool hasAssociatedElement(unsigned i, const LinkData& linkData, PFBlockElement::Type type, LinkTest test) const;
+
       /// \return distance of link
       double dist(unsigned ie1, unsigned ie2, const LinkData& linkData, LinkTest test) const {
         return dist(ie1, ie2, linkData);
