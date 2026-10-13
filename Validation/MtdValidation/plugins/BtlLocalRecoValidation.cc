@@ -272,13 +272,8 @@ private:
   MonitorElement* meUncTimeMinusVsX_;
   MonitorElement* meUncTimePlusVsX_;
 
-<<<<<<< HEAD
   static constexpr int nBinsQ_ = 44;
-  static constexpr float binWidthQ_ = 0.5;  // [MeV]
-=======
-  static constexpr int nBinsQ_ = 30;
   static constexpr float binWidthQ_ = 0.0005;  // [GeV]
->>>>>>> 5efcfb2168e (Squashed commit of the following:)
   static constexpr int nBinsQEta_ = 3;
   static constexpr float binsQEta_[nBinsQEta_ + 1] = {0., 0.65, 1.15, 1.55};
 
