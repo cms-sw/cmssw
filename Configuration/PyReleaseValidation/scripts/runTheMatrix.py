@@ -22,14 +22,15 @@ def showRaw(opt):
 def runSelected(opt):
 
     mrd = MatrixReader(opt)
-    mrd.prepare(opt.useInput, opt.refRel, opt.fromScratch)
+    mrd.prepare(opt.useInput, opt.refRel, opt.fromScratch, opt.testList)
 
     # test for wrong input workflows
     if opt.testList:
         definedWf = [dwf.numId for dwf in mrd.workFlows]
         definedSet = set(definedWf)
         testSet = set(opt.testList)
-        undefSet = testSet - definedSet
+        # built by iterating testSet, so the order does not depend on the size of definedSet
+        undefSet = {wf for wf in testSet if wf not in definedSet}
         if len(undefSet)>0: raise ValueError('Undefined workflows: '+', '.join(map(str,list(undefSet))))
         if not opt.allowDuplicates:
             testList = testSet
