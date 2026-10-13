@@ -84,10 +84,12 @@ struct FillSoA {
   }
 };
 
-void check(NestedBlocksConstView nestedBlocksConstView, GenericSoAConstView genericSoABlocksView) {
+void check(NestedBlocksConstView nestedBlocksConstView,
+           GenericSoAConstView genericSoABlocksView,
+           const int truncationFactor) {
   REQUIRE(nestedBlocksConstView.metadata().size()[0] == genericSoABlocksView.metadata().size()[0]);
   REQUIRE(nestedBlocksConstView.metadata().size()[1] == genericSoABlocksView.metadata().size()[1]);
-  REQUIRE(nestedBlocksConstView.metadata().size()[5] / 2 == genericSoABlocksView.metadata().size()[2]);
+  REQUIRE(nestedBlocksConstView.metadata().size()[5] / truncationFactor == genericSoABlocksView.metadata().size()[2]);
   // Verify data
   for (NestedBlocksSoA::size_type i = 0; i < genericSoABlocksView.metadata().size()[0]; ++i) {
     auto nestedFirst = nestedBlocksConstView.firstBlocks().first()[i];
@@ -145,6 +147,8 @@ TEST_CASE("Heterogeneous Deep Copy SoABlocks") {
     PortableHostCollection<NestedBlocksSoA> h_nestedBlocksCollection(queue, sizes);
     alpaka::memcpy(queue, h_nestedBlocksCollection.buffer(), nestedBlocksCollection.buffer());
 
+    const int truncationFactor = 2;
+
     SECTION("Deep copy the View host to host and device to device") {
       GenericSoAView genericView{nestedBlocksView.firstBlocks(), nestedBlocksView.secondLayout()};
 
@@ -171,7 +175,7 @@ TEST_CASE("Heterogeneous Deep Copy SoABlocks") {
               nestedBlocksView.secondLayout().metadata().addressOf_vector());
 
       // PortableCollection that will host the aggregated columns
-      PortableCollection<Device, GenericSoA> blocksCollection(queue, sizes[0], sizes[1], sizes[5] / 2);
+      PortableCollection<Device, GenericSoA> blocksCollection(queue, sizes[0], sizes[1], sizes[5]);
       blocksCollection.deepCopy(queue, genericView);
 
       GenericSoAView copiedBlocksView = blocksCollection.view();
@@ -188,11 +192,21 @@ TEST_CASE("Heterogeneous Deep Copy SoABlocks") {
       REQUIRE(copiedBlocksView.layout().metadata().addressOf_vector() !=
               nestedBlocksView.secondLayout().metadata().addressOf_vector());
 
-      PortableHostCollection<GenericSoA> outputHost(cms::alpakatools::host(), sizes[0], sizes[1], sizes[5] / 2);
+      PortableHostCollection<GenericSoA> outputHost(cms::alpakatools::host(), sizes[0], sizes[1], sizes[5]);
       alpaka::memcpy(queue, outputHost.buffer(), blocksCollection.buffer());
       alpaka::wait(queue);
 
-      check(h_nestedBlocksCollection.const_view(), outputHost.const_view());
+      check(h_nestedBlocksCollection.const_view(), outputHost.const_view(), 1);
+
+      PortableCollection<Device, GenericSoA> blocksCollectionShrinked(
+          queue, sizes[0], sizes[1], sizes[5] / truncationFactor);
+      blocksCollectionShrinked.deepCopyTruncated(queue, genericView);
+      PortableHostCollection<GenericSoA> outputHostShrinked(
+          cms::alpakatools::host(), sizes[0], sizes[1], sizes[5] / truncationFactor);
+      alpaka::memcpy(queue, outputHostShrinked.buffer(), blocksCollectionShrinked.buffer());
+      alpaka::wait(queue);
+
+      check(h_nestedBlocksCollection.const_view(), outputHostShrinked.const_view(), truncationFactor);
     }
 
     SECTION("Deep copy the ConstView host to host and device to device") {
@@ -221,7 +235,7 @@ TEST_CASE("Heterogeneous Deep Copy SoABlocks") {
               nestedBlocksConstView.secondLayout().metadata().addressOf_vector());
 
       // PortableCollection that will host the aggregated columns
-      PortableCollection<Device, GenericSoA> genericCollection(queue, sizes[0], sizes[1], sizes[5] / 2);
+      PortableCollection<Device, GenericSoA> genericCollection(queue, sizes[0], sizes[1], sizes[5]);
       genericCollection.deepCopy(queue, genericConstView);
 
       GenericSoAConstView copiedGenericConstView = genericCollection.const_view();
@@ -238,18 +252,28 @@ TEST_CASE("Heterogeneous Deep Copy SoABlocks") {
       REQUIRE(copiedGenericConstView.layout().metadata().addressOf_vector() !=
               nestedBlocksConstView.secondLayout().metadata().addressOf_vector());
 
-      PortableHostCollection<GenericSoA> outputHost(cms::alpakatools::host(), sizes[0], sizes[1], sizes[5] / 2);
+      PortableHostCollection<GenericSoA> outputHost(cms::alpakatools::host(), sizes[0], sizes[1], sizes[5]);
       alpaka::memcpy(queue, outputHost.buffer(), genericCollection.buffer());
       alpaka::wait(queue);
 
-      check(h_nestedBlocksCollection.const_view(), outputHost.const_view());
+      check(h_nestedBlocksCollection.const_view(), outputHost.const_view(), 1);
+
+      PortableCollection<Device, GenericSoA> genericCollectionTruncated(
+          queue, sizes[0], sizes[1], sizes[5] / truncationFactor);
+      genericCollectionTruncated.deepCopyTruncated(queue, genericConstView);
+      PortableHostCollection<GenericSoA> outputHostTruncated(
+          cms::alpakatools::host(), sizes[0], sizes[1], sizes[5] / truncationFactor);
+      alpaka::memcpy(queue, outputHostTruncated.buffer(), genericCollectionTruncated.buffer());
+      alpaka::wait(queue);
+
+      check(h_nestedBlocksCollection.const_view(), outputHostTruncated.const_view(), truncationFactor);
     }
 
     SECTION("Deep copy the ConstView device to host") {
       GenericSoAConstView genericConstView{nestedBlocksConstView.firstBlocks(), nestedBlocksConstView.secondLayout()};
 
       // PortableCollection that will host the aggregated columns
-      PortableHostCollection<GenericSoA> genericCollection(queue, sizes[0], sizes[1], sizes[5] / 2);
+      PortableHostCollection<GenericSoA> genericCollection(queue, sizes[0], sizes[1], sizes[5]);
       genericCollection.deepCopy(queue, genericConstView);
       alpaka::wait(queue);
 
@@ -267,7 +291,14 @@ TEST_CASE("Heterogeneous Deep Copy SoABlocks") {
       REQUIRE(copiedGenericConstView.layout().metadata().addressOf_vector() !=
               nestedBlocksConstView.secondLayout().metadata().addressOf_vector());
 
-      check(h_nestedBlocksCollection.const_view(), genericCollection.const_view());
+      check(h_nestedBlocksCollection.const_view(), genericCollection.const_view(), 1);
+
+      PortableHostCollection<GenericSoA> genericCollectionTruncated(
+          queue, sizes[0], sizes[1], sizes[5] / truncationFactor);
+      genericCollectionTruncated.deepCopyTruncated(queue, genericConstView);
+      alpaka::wait(queue);
+
+      check(h_nestedBlocksCollection.const_view(), genericCollectionTruncated.const_view(), truncationFactor);
     }
 
     SECTION("Deep copy the ConstView host to device") {
@@ -275,7 +306,7 @@ TEST_CASE("Heterogeneous Deep Copy SoABlocks") {
                                            h_nestedBlocksCollection.const_view().secondLayout()};
 
       // PortableCollection that will host the aggregated columns
-      PortableCollection<Device, GenericSoA> genericCollection(queue, sizes[0], sizes[1], sizes[5] / 2);
+      PortableCollection<Device, GenericSoA> genericCollection(queue, sizes[0], sizes[1], sizes[5]);
       genericCollection.deepCopy(queue, genericConstView);
       alpaka::wait(queue);
 
@@ -293,11 +324,24 @@ TEST_CASE("Heterogeneous Deep Copy SoABlocks") {
       REQUIRE(copiedGenericConstView.layout().metadata().addressOf_vector() !=
               h_nestedBlocksCollection.const_view().secondLayout().metadata().addressOf_vector());
 
-      PortableHostCollection<GenericSoA> outputHost(cms::alpakatools::host(), sizes[0], sizes[1], sizes[5] / 2);
+      PortableHostCollection<GenericSoA> outputHost(cms::alpakatools::host(), sizes[0], sizes[1], sizes[5]);
       alpaka::memcpy(queue, outputHost.buffer(), genericCollection.buffer());
       alpaka::wait(queue);
 
-      check(h_nestedBlocksCollection.const_view(), outputHost.const_view());
+      check(h_nestedBlocksCollection.const_view(), outputHost.const_view(), 1);
+
+      // PortableCollection that will host the aggregated columns
+      PortableCollection<Device, GenericSoA> genericCollectionTruncated(
+          queue, sizes[0], sizes[1], sizes[5] / truncationFactor);
+      genericCollectionTruncated.deepCopyTruncated(queue, genericConstView);
+      alpaka::wait(queue);
+
+      PortableHostCollection<GenericSoA> outputHostTruncated(
+          cms::alpakatools::host(), sizes[0], sizes[1], sizes[5] / truncationFactor);
+      alpaka::memcpy(queue, outputHostTruncated.buffer(), genericCollectionTruncated.buffer());
+      alpaka::wait(queue);
+
+      check(h_nestedBlocksCollection.const_view(), outputHostTruncated.const_view(), truncationFactor);
     }
   }
 }

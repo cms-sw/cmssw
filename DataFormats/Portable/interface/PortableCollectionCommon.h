@@ -16,9 +16,23 @@ namespace portablecollection {
     requires requires { Descriptor::num_cols; }
   void deepCopy(TQueue& queue, Descriptor& dest, ConstDescriptor const& src) {
     if constexpr (I < ConstDescriptor::num_cols) {
+      assert(std::get<I>(dest.buff).size_bytes() == std::get<I>(src.buff).size_bytes());
+      alpaka::memcpy(
+          queue,
+          alpaka::createView(alpaka::getDev(queue), std::get<I>(dest.buff).data(), std::get<I>(dest.buff).size()),
+          alpaka::createView(alpaka::getDev(queue), std::get<I>(src.buff).data(), std::get<I>(src.buff).size()));
+      deepCopy<I + 1>(queue, dest, src);
+    }
+  }
+
+  template <std::size_t I = 0, typename TQueue, typename Descriptor, typename ConstDescriptor>
+    requires requires { Descriptor::num_cols; }
+  void deepCopyTruncated(TQueue& queue, Descriptor& dest, ConstDescriptor const& src) {
+    if constexpr (I < ConstDescriptor::num_cols) {
       const auto dest_size = std::get<I>(dest.buff).size();
       const auto src_size = std::get<I>(src.buff).size();
-      assert(dest_size <= src_size && "portablecollection deepCopy: Destination buffer is larger than source buffer");
+      assert(dest_size <= src_size &&
+             "portablecollection deepCopyTruncated: Destination buffer is larger than source buffer");
 
       if constexpr (ConstDescriptor::template isEigenColumn<I>()) {
         if (dest_size != src_size) {
@@ -43,7 +57,7 @@ namespace portablecollection {
                        alpaka::createView(alpaka::getDev(queue), std::get<I>(dest.buff).data(), dest_size),
                        alpaka::createView(alpaka::getDev(queue), std::get<I>(src.buff).data(), dest_size));
       }
-      deepCopy<I + 1>(queue, dest, src);
+      deepCopyTruncated<I + 1>(queue, dest, src);
     }
   }
 
@@ -54,6 +68,16 @@ namespace portablecollection {
     if constexpr (I < ConstDescriptor::blocksNumber) {
       deepCopy(queue, std::get<I>(dest.buff), std::get<I>(src.buff));
       deepCopy<I + 1>(queue, dest, src);
+    }
+  }
+
+  // Helper function implementing the recursive deep copy for blocks
+  template <std::size_t I = 0, typename TQueue, typename Descriptor, typename ConstDescriptor>
+    requires requires { Descriptor::blocksNumber; }
+  void deepCopyTruncated(TQueue& queue, Descriptor& dest, ConstDescriptor const& src) {
+    if constexpr (I < ConstDescriptor::blocksNumber) {
+      deepCopyTruncated(queue, std::get<I>(dest.buff), std::get<I>(src.buff));
+      deepCopyTruncated<I + 1>(queue, dest, src);
     }
   }
 

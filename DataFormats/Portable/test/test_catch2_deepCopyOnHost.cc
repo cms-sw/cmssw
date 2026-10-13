@@ -158,7 +158,7 @@ TEST_CASE("Deep copy from SoA Generic View") {
     // PortableHostCollection smaller than the original SoA
     const std::size_t smallerElems = elems / 2;
     PortableHostCollection<GenericSoA> genericCollection(cms::alpakatools::host(), smallerElems);
-    genericCollection.deepCopy(genericConstView);
+    genericCollection.deepCopyTruncated(genericConstView);
 
     // Check for inequality of memory addresses
     REQUIRE(genericCollection.const_view().metadata().addressOf_xPos() !=

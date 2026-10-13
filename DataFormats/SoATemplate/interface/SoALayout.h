@@ -1810,8 +1810,21 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
      * Host-only data can be handled by this method.                                                                   \
      */                                                                                                                \
     SOA_HOST_ONLY void deepCopy(ConstView const& view) {                                                               \
+      if (elements_ != view.metadata().size()) {                                                                       \
+        cms::soa::detail::throwRuntimeError(std::format("In {}::deepCopy: Buffer and Input view must have same size. " \
+                                                        "Buffer Size: {}, Input size: {}.",                            \
+                                                        #CLASS, elements_, view.metadata().size()).c_str());           \
+      }                                                                                                                \
+      _ITERATE_ON_ALL(_COPY_VIEW_COLUMNS, ~, __VA_ARGS__)                                                              \
+    }                                                                                                                  \
+                                                                                                                       \
+    /*                                                                                                                 \
+     * Method for copying the data from a generic View to a memory blob.                                               \
+     * Host-only data can be handled by this method.                                                                   \
+     */                                                                                                                \
+    SOA_HOST_ONLY void deepCopyTruncated(ConstView const& view) {                                                      \
       if (elements_ > view.metadata().size()) {                                                                        \
-        cms::soa::detail::throwRuntimeError(std::format("In {}::deepCopy: input view is too small. "                   \
+        cms::soa::detail::throwRuntimeError(std::format("In {}::deepCopyTruncated: input view is too small. "          \
                                                         "Buffer Size: {}, Input size: {}.",                            \
                                                         #CLASS, elements_, view.metadata().size()).c_str());           \
       }                                                                                                                \

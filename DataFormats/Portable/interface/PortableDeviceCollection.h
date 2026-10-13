@@ -135,6 +135,15 @@ public:
     portablecollection::deepCopy(queue, desc_, desc);
   }
 
+  // Copy column by column or block by block heterogeneously for device to host data transfer.
+  // This function allows that the destination collection is smaller than the source collection.
+  template <typename TQueue>
+  void deepCopyTruncated(TQueue& queue, ConstView const& view) {
+    ConstDescriptor desc{view};
+    Descriptor desc_{view_};
+    portablecollection::deepCopyTruncated(queue, desc_, desc);
+  }
+
   // Either Layout::size_type for normal layouts or std::array<Layout::size_type, N> for SoABlocks layouts
   auto size() const { return layout_.metadata().size(); }
 

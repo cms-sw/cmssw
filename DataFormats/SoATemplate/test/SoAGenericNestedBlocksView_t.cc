@@ -183,7 +183,7 @@ TEST_CASE("SoAGenericNestedBlocksView") {
     BlocksView genericBlocksView{nestedBlocksView.blocks().first(), nestedBlocksView.blocks().second()};
 
     // Instantiate a SoABlocks, with a smaller size than the original SoABlocks
-    std::array<NestedBlocksSoA::size_type, 2> size = {sizes[0] / 2, sizes[1] / 2};
+    std::array<NestedBlocksSoA::size_type, 2> size = {sizes[0], sizes[1]};
     const std::size_t blocksBufferSize = BlocksSoA::computeDataSize(size);
     std::unique_ptr<std::byte, decltype(std::free) *> bufferBlocks{
         reinterpret_cast<std::byte *>(aligned_alloc(BlocksSoA::alignment, blocksBufferSize)), std::free};
@@ -191,6 +191,54 @@ TEST_CASE("SoAGenericNestedBlocksView") {
     BlocksSoA genericBlocks{bufferBlocks.get(), size};
 
     genericBlocks.deepCopy(genericBlocksView);
+
+    BlocksView genericSoABlocksView{genericBlocks};
+    REQUIRE(genericSoABlocksView.metadata().size()[0] == size[0]);
+    REQUIRE(genericSoABlocksView.first().metadata().size() == size[0]);
+    REQUIRE(genericSoABlocksView.metadata().size()[1] == size[1]);
+    REQUIRE(genericSoABlocksView.second().metadata().size() == size[1]);
+    // Check for inequality of memory addresses
+    REQUIRE(genericSoABlocksView.first().metadata().addressOf_column() !=
+            nestedBlocksView.blocks().first().metadata().addressOf_column());
+    REQUIRE(genericSoABlocksView.first().metadata().addressOf_vector() !=
+            nestedBlocksView.blocks().first().metadata().addressOf_vector());
+    REQUIRE(genericSoABlocksView.second().metadata().addressOf_column() !=
+            nestedBlocksView.blocks().second().metadata().addressOf_column());
+    REQUIRE(genericSoABlocksView.second().metadata().addressOf_vector() !=
+            nestedBlocksView.blocks().second().metadata().addressOf_vector());
+
+    // Verify data
+    for (NestedBlocksSoA::size_type i = 0; i < size[0]; ++i) {
+      auto nestedFirst = nestedBlocksConstView.blocks().first()[i];
+      auto first = genericSoABlocksView.first()[i];
+      REQUIRE(first.column() == nestedFirst.column());
+      REQUIRE(first.vector() == nestedFirst.vector());
+    }
+
+    for (NestedBlocksSoA::size_type i = 0; i < size[1]; ++i) {
+      auto nestedSecond = nestedBlocksConstView.blocks().second()[i];
+      auto second = genericSoABlocksView.second()[i];
+      REQUIRE(second.column() == nestedSecond.column());
+      REQUIRE(second.vector() == nestedSecond.vector());
+    }
+
+    REQUIRE(nestedBlocksConstView.blocks().first().id() == genericSoABlocksView.first().id());
+    REQUIRE(nestedBlocksConstView.blocks().second().id() == genericSoABlocksView.second().id());
+  }
+
+  SECTION("Deep copy truncated the nested blocks to a normal blocks layout") {
+    // building the SoABlocks View, there is no need for runtime check for the size since they are different
+    BlocksView genericBlocksView{nestedBlocksView.blocks().first(), nestedBlocksView.blocks().second()};
+
+    // Instantiate a SoABlocks, with a smaller size than the original SoABlocks
+    std::array<NestedBlocksSoA::size_type, 2> size = {sizes[0] / 2, sizes[1] / 2};
+    const std::size_t blocksBufferSize = BlocksSoA::computeDataSize(size);
+    std::unique_ptr<std::byte, decltype(std::free) *> bufferBlocks{
+        reinterpret_cast<std::byte *>(aligned_alloc(BlocksSoA::alignment, blocksBufferSize)), std::free};
+
+    BlocksSoA genericBlocks{bufferBlocks.get(), size};
+
+    genericBlocks.deepCopyTruncated(genericBlocksView);
 
     BlocksView genericSoABlocksView{genericBlocks};
     REQUIRE(genericSoABlocksView.metadata().size()[0] == size[0]);
