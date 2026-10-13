@@ -162,61 +162,7 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
 
     //a particle was predicted for this PFElement, otherwise it was a spectator
     if (pred_pid != 0) {
-      //muons and charged hadrons should only come from tracks, otherwise we won't have track references to pass downstream
-      if (((pred_pid == 13) || (pred_pid == 211)) && elem->type() != reco::PFBlockElement::TRACK) {
-        pred_pid = 130;
-      }
-
-      float pred_charge = 0.0;
-      if (elem->type() == reco::PFBlockElement::TRACK) {
-        const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(elem);
-        //for now, just take the charge from the track
-        if (eltTrack->trackRef().isNonnull()) {
-          pred_charge = eltTrack->trackRef()->charge();
-        }
-
-        //a track with no muon ref should not produce a muon candidate, instead we interpret it as a charged hadron here
-        if (pred_pid == 13 && eltTrack->muonRef().isNull()) {
-          pred_pid = 211;
-        }
-
-        //taus are reconstructed downstream based on other criteria, instead we interpret it as a charged hadron here
-        if (pred_pid == 15) {
-          pred_pid = 211;
-        }
-
-        //tracks from displaced vertices need reference debugging downstream as well, so we just treat them as neutrals for the moment
-        if ((pred_pid == 211) && (eltTrack->isLinkedToDisplacedVertex())) {
-          pred_pid = 130;
-        }
-      }
-
-      //do not attempt to do PID in the HF
-      if (elem->type() == reco::PFBlockElement::HFEM) {
-        pred_pid = 2;
-      } else if (elem->type() == reco::PFBlockElement::HFHAD) {
-        pred_pid = 1;
-      }
-
-      //get the predicted momentum components from the model
-      float pred_pt = output_p4[ielem * NUM_OUTPUT_FEATURES_P4 + IDX_PT];
-      pred_pt = exp(pred_pt) * inputs[0][ielem * NUM_ELEMENT_FEATURES + 1];
-      float pred_eta = output_p4[ielem * NUM_OUTPUT_FEATURES_P4 + IDX_ETA];
-      float pred_sin_phi = output_p4[ielem * NUM_OUTPUT_FEATURES_P4 + IDX_SIN_PHI];
-      float pred_cos_phi = output_p4[ielem * NUM_OUTPUT_FEATURES_P4 + IDX_COS_PHI];
-      float pred_e = output_p4[ielem * NUM_OUTPUT_FEATURES_P4 + IDX_ENERGY];
-      pred_e = exp(pred_e) * inputs[0][ielem * NUM_ELEMENT_FEATURES + 5];
-
-      if (elem->type() == reco::PFBlockElement::TRACK) {
-        const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(elem);
-        if (eltTrack->trackRef().isNonnull()) {
-          pred_eta = eltTrack->trackRef()->eta();
-          pred_sin_phi = sin(eltTrack->trackRef()->phi());
-          pred_cos_phi = cos(eltTrack->trackRef()->phi());
-        }
-      }
-
-      auto cand = makeCandidate(pred_pid, pred_charge, pred_pt, pred_eta, pred_sin_phi, pred_cos_phi, pred_e);
+      auto cand = makeCandidate(inputs, output_p4, ielem, pred_pid, elem);
       setCandidateRefs(cand, selected_elements, ielem);
       pOutputCandidateCollection.push_back(cand);
 
