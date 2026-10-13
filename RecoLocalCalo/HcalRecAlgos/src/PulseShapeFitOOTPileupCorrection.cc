@@ -75,10 +75,12 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool iPedestalConstraint,
 void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShapes::Shape &ps,
                                                              bool isHPD,
                                                              unsigned nSamples,
-                                                             const HcalTimeSlew *hcalTimeSlewDelay) {
+                                                             const HcalTimeSlew *hcalTimeSlewDelay,
+                                                             const bool usingChannelPulseShapes) {
   // initialize for every different channel types (HPD vs SiPM)
-
-  if (!(&ps == currentPulseShape_ && isHPD == isCurrentChannelHPD_)) {
+  // or initialize for every channel if channel-by-channel pulse
+  // shapes are used
+  if (!(&ps == currentPulseShape_ && isHPD == isCurrentChannelHPD_) || usingChannelPulseShapes) {
     resetPulseShapeTemplate(ps, nSamples);
 
     // redefine the inverttimeSig2
