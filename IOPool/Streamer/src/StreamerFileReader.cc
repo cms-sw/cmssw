@@ -248,7 +248,9 @@ namespace edm::streamer {
     if (arena_) {
       // the events read ahead will not be used: their tasks that have not started will return without
       // decoding them; wait for all the tasks from within the arena, so that this thread can run the
-      // pending ones itself
+      // pending ones itself. This happens only when the source is destroyed or rewound, when no events
+      // are being processed. Do not use this_task_arena::isolate: the tasks were spawned outside of the
+      // isolated region, so this thread could not run them, and with a single thread the wait would hang.
       for (auto& slot : decodeWindow_) {
         discard(*slot);
       }
