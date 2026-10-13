@@ -6,8 +6,9 @@
 namespace portableParabolicMagneticField {
 
   struct Parameters {
-    // The defaults of ParabolicParametrizedMagneticField: fitted to the 3.8 T field map (160812) over the tracker
-    // volume, 0.03 % rms.
+    // The constants of the parabolic field, also of ParabolicParametrizedMagneticField and of the "Parabolic" version
+    // of AutoParametrizedMagneticFieldProducer: fitted to the 3.8 T field map (160812) over the tracker volume,
+    // |z| < 280 cm and r < 115 cm, 0.03 % rms.
 
     static constexpr float c1 = 3.81036;
     static constexpr float b0 = -2.03767e-06;

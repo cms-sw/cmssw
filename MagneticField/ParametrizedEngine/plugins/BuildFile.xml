@@ -1,6 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="MagneticField/Engine"/>
+<use name="MagneticField/Portable"/>
 <use name="MagneticField/Records"/>
 <use name="MagneticField/ParametrizedEngine"/>
 <use name="CondFormats/RunInfo"/>

@@ -1,6 +1,7 @@
 <use name="DataFormats/Math"/>
 <use name="FWCore/ParameterSet"/>
 <use name="MagneticField/Engine"/>
+<use name="MagneticField/Portable"/>
 <use name="MagneticField/UniformEngine"/>
 <export>
   <lib name="1"/>
