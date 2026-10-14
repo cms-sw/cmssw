@@ -20,17 +20,19 @@
   <class name="edm::RefProd<FTLRecHitCollection>"/>
 
   <class name="io_v1::FTLCluster" ClassVersion="3">
-   <version ClassVersion="4" checksum="291411646"/>
-    <version ClassVersion="3" checksum="2743481150"/>
+  <version ClassVersion="3" checksum="2743481150"/>
   </class>
+
   <class name="std::vector<io_v1::FTLCluster>"/>
   <class name="FTLClusterCollection"/>
   <class name="edm::Wrapper<FTLClusterCollection>" />
   <class name="edm::Ref<FTLClusterCollection,io_v1::FTLCluster>"/>
   <class name="edm::RefVector<FTLClusterCollection>"/>
   <class name="edm::RefProd<FTLClusterCollection>"/>
-
-  <class name="FTLMergedCluster"/>
+  
+  <class name="FTLMergedCluster" ClassVersion="3">
+   <version ClassVersion="3" checksum="134474062"/>
+  </class>
   <class name="std::vector<FTLMergedCluster>"/>
   <class name="edmNew::DetSetVector<FTLMergedCluster>"/>
   <class name="edm::Wrapper<std::vector<FTLMergedCluster> >"/>
