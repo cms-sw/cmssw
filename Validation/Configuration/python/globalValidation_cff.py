@@ -271,6 +271,11 @@ globalPrevalidationHGCal = cms.Sequence(hgcalAssociators, ticlSimTrackstersTask)
 
 globalValidationHGCal = cms.Sequence(hgcalValidation)
 
+## remove the DQM modules depending on tracks from the HGCalOnly validation workflows
+globalValidationHGCalOnly = globalValidationHGCal.copy()
+globalValidationHGCalOnly.remove(hgcalTiclPFValidation)
+globalValidationHGCalOnly.remove(hgcalPFJetValidation)
+
 globalPrevalidationBarrel = cms.Sequence()
 _globalPrevalidationBarrel = globalPrevalidationBarrel.copy()
 _globalPrevalidationBarrel += cms.Sequence(barrelAssociators)
