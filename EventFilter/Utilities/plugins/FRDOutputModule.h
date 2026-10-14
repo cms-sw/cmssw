@@ -30,7 +30,6 @@ private:
   void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
 
   void finishFileWrite(unsigned int run, int ls);
-  uint32_t adler32() const { return (adlerb_ << 16) | adlera_; }
 
   const edm::EDGetTokenT<FEDRawDataCollection> token_;
 
@@ -40,8 +39,6 @@ private:
   std::string fileName_;
 
   int outfd_ = -1;
-  uint32_t adlera_;
-  uint32_t adlerb_;
 
   uint32_t perFileEventCount_;
   uint64_t perFileSize_;
