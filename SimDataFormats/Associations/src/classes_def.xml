@@ -302,14 +302,18 @@
   <class name="reco::MtdRecoClusterToSimLayerClusterAssociator" persistent="false"/>
   <class name="edm::Wrapper<reco::MtdRecoClusterToSimLayerClusterAssociator>" persistent="false"/>
 
-  <class name="std::pair<FTLMergedClusterRef, std::vector<MtdSimMergedClusterRef> >" />
-  <class name="std::vector<std::pair<FTLMergedClusterRef, std::vector<MtdSimMergedClusterRef> > >" />
-  <class name="MtdRecoMergedClusterToSimMergedClusterAssociationMap"/>
+  <class name="std::pair<FTLMergedClusterRef,std::vector<MtdSimMergedClusterRef>>"/>
+  <class name="std::vector<std::pair<FTLMergedClusterRef,std::vector<MtdSimMergedClusterRef>>>"/>
+  <class name="MtdRecoMergedClusterToSimMergedClusterAssociationMap" ClassVersion="3">
+   <version ClassVersion="3" checksum="4076096546"/>
+  </class>
   <class name="edm::Wrapper<MtdRecoMergedClusterToSimMergedClusterAssociationMap>" />
 
-  <class name="std::pair<MtdSimMergedClusterRef, std::vector<FTLMergedClusterRef> >" />
-  <class name="std::vector<std::pair<MtdSimMergedClusterRef, std::vector<FTLMergedClusterRef> > >" />
-  <class name="MtdSimMergedClusterToRecoMergedClusterAssociationMap"/>
+  <class name="std::pair<MtdSimMergedClusterRef,std::vector<FTLMergedClusterRef>>"/>
+  <class name="std::vector<std::pair<MtdSimMergedClusterRef,std::vector<FTLMergedClusterRef>>>"/>
+  <class name="MtdSimMergedClusterToRecoMergedClusterAssociationMap" ClassVersion="3">
+   <version ClassVersion="3" checksum="530404702"/>
+  </class>
   <class name="edm::Wrapper<MtdSimMergedClusterToRecoMergedClusterAssociationMap>" />
 
   <class name="reco::MtdRecoMergedClusterToSimMergedClusterAssociator" persistent="false"/>
