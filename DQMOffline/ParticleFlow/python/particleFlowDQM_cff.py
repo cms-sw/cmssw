@@ -112,9 +112,8 @@ pfPuppiJetAnalyzerDQM = pfJetAnalyzerDQM.clone(
 from DQMOffline.ParticleFlow.pfAnalyzer_cfi import pfAnalyzer
 
 pfAnalyzerDQM = pfAnalyzer.clone(
-    isHLT               = False,
-    isMiniAOD           = False,
-    pfCandidates        = "particleFlow",
+    folder = "ParticleFlow",
+    pfCandidates = "particleFlow",
     TriggerResultsLabel = cms.InputTag("TriggerResults::HLT"),
     TriggerNames = ["HLT_PFJet450"],
     pfAnalysis = cms.PSet(
@@ -143,8 +142,7 @@ pfAnalyzerDQM = pfAnalyzer.clone(
 )
 
 pfAnalyzerMiniAODDQM = pfAnalyzer.clone(
-    isHLT        = False,
-    isMiniAOD    = True,
+    folder = "HLT/ParticleFlow_MiniAOD",
     pfCandidates = "packedPFCandidates",
     pfJetCollection = cms.InputTag("slimmedJets"),
     TriggerResultsLabel = cms.InputTag("TriggerResults::HLT"),

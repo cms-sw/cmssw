@@ -3,22 +3,7 @@
 
 PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   m_runNumber = pSet.getParameter<unsigned int>("runNumber");
-
-  m_isHLT = pSet.getParameter<bool>("isHLT");
-  if (m_isHLT)
-    mDir = "HLT/ParticleFlow";
-  else
-    mDir = "ParticleFlow";
-
-  m_isMiniAOD = pSet.getParameter<bool>("isMiniAOD");
-  if (m_isMiniAOD)
-    mDir = mDir + "_MiniAOD";
-
-  if (m_isHLT && m_isMiniAOD) {
-    edm::LogError("PFAnalyzer") << "The HLT and MiniAOD data format flags cannot be active at the same time! "
-                                << "Check the configuration.";
-    return;
-  }
+  mDir = pSet.getParameter<std::string>("folder");
 
   pfCandidateToken_ = consumes<CandView>(pSet.getParameter<edm::InputTag>("pfCandidates"));
   jetsToken_ = consumes<JetView>(pSet.getParameter<edm::InputTag>("pfJetCollection"));
@@ -511,8 +496,7 @@ void PFAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
       ->setComment("The name of the puppi weight in the file");
 
   desc.add<unsigned int>("runNumber", 0)->setComment("The run number to filter on (0 for no selection on the run)");
-  desc.add<bool>("isHLT", false)->setComment("Are we running the HLT or the offline chain?");
-  desc.add<bool>("isMiniAOD", true)->setComment("Is the input file in miniAOD format? Alternative would be RECO");
+  desc.add<unsigned int>("folder", 0)->setComment("The top directory where to store the results.");
   desc.add<edm::InputTag>("pfCandidates", edm::InputTag("particleFlow"))
       ->setComment("Input collection of PF candidates");
   desc.add<edm::InputTag>("pfJetCollection", edm::InputTag("ak4PFJets"))->setComment("Input collection of PF jets");
@@ -800,11 +784,7 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     iEvent.getByToken(puppiWeightToken_, puppiWeight);
 
   if (!puppiWeight.isValid()) {
-    if (m_isMiniAOD) {
-      LogDebug("PFAnalyzer") << "No puppi weight collection; using the weights stored in the candidates";
-    } else {
-      edm::LogError("PFAnalyzer") << "Invalid collection: Puppi weights \n";
-    }
+    edm::LogError("PFAnalyzer") << "Invalid collection: Puppi weights \n";
   }
 
   if (!passesTriggerSelection(jets, triggerResults, triggerNames, m_triggerOptions)) {

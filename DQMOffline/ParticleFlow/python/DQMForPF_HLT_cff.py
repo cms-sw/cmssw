@@ -67,8 +67,7 @@ offsetAnalyzerDQMHLT = offsetAnalyzerDQM.clone(
 from DQMOffline.ParticleFlow.particleFlowDQM_cff import pfAnalyzerDQM
 
 pfAnalyzerDQMHLT = pfAnalyzerDQM.clone(
-    isHLT               = True,
-    isMiniAOD           = False,
+    folder = "HLT/ParticleFlow",
     pfCandidates        = "hltParticleFlowTmp",
     pfJetCollection     = "hltAK4PFPuppiJets",
     PVCollection        = "hltOfflinePrimaryVertices",

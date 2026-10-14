@@ -66,7 +66,7 @@ offsetAnalyzerDQM = DQMEDAnalyzer("OffsetAnalyzerDQM",
     dqmDir = cms.string("ParticleFlow/Offset/"),
     pvTag = cms.InputTag('offlineSlimmedPrimaryVertices'),
     muTag = cms.InputTag('slimmedAddPileupInfo'),
-    pfTag = cms.InputTag('packedPFCandidates'),
+    pfTag = cms.InputTag('particleFlow'),
 
     pdgKeys = cms.vuint32( default.candidateDict.keys() ),
     pdgStrs = cms.vstring( default.candidateDict.values() ),
@@ -79,6 +79,10 @@ offsetAnalyzerDQM = DQMEDAnalyzer("OffsetAnalyzerDQM",
     etabins = cms.vdouble( default.etaBinsOffset ),
     muHigh = cms.untracked.int32( default.muHighOffset ),
     npvHigh = cms.untracked.int32( default.npvHighOffset )
+)
+
+offsetAnalyzerMiniAODDQM = offsetAnalyzerDQM.clone(
+    pfTag = cms.InputTag('packedPFCandidates'),
 )
 
 offsetDQMPostProcessor = DQMEDHarvester("OffsetDQMPostProcessor",

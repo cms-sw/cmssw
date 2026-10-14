@@ -321,7 +321,7 @@ from DQMOffline.Muon.miniAOD_cff import *
 from DQM.Physics.DQMTopMiniAOD_cff import *
 from DQMOffline.ParticleFlow.particleFlowDQM_cff import *
 
-DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*bTagMiniDQMSource*muonMonitors_miniAOD*MuonMiniAOD*DQMOfflinePF)
+DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*bTagMiniDQMSource*muonMonitors_miniAOD*MuonMiniAOD*DQMOfflinePFMiniAOD)
 DQMOfflineMiniAODBTagOnly = cms.Sequence(bTagMiniDQMSource)
 
 #Post sequences are automatically placed in the EndPath by ConfigBuilder if PAT is run.

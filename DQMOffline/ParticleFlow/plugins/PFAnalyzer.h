@@ -826,8 +826,8 @@ private:
         break;
     }
 
-	// if no options are specified the trigger selection is always satisfied	
-    if (!JetHiPass && triggerOptions.size() > 0)
+    // if no options are specified the trigger selection is always satisfied
+    if (!JetHiPass && !triggerOptions.empty())
       return false;
     return true;
   }
