@@ -1,4 +1,4 @@
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeoTesterBase.h"
+#include "L1Trigger/L1THGCal/test/geometry/HGCalTriggerGeoTesterBase.h"
 
 const std::unordered_map<HGCalTriggerGeoTesterErrors::ErrorCode, std::string> HGCalTriggerGeoTesterErrors::messages = {
     {HGCalTriggerGeoTesterErrors::CellValidity, "Found invalid cell(s)"},

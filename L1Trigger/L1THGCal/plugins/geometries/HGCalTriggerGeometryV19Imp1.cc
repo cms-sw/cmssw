@@ -526,7 +526,8 @@ HGCalTriggerGeometryBase::geom_ordered_set HGCalTriggerGeometryV19Imp1::getOrder
     DetId::Detector det = (subdet == HGCalTriggerSubdetector::HGCalEETrigger ? DetId::HGCalEE : DetId::HGCalHSi);
 
     unsigned wafer_type = detIdWaferType(det, layer, moduleU, moduleV);
-    int nroc = (wafer_type == HGCSiliconDetId::HGCalFineTrigger ? 6 : 3);
+    bool wafer_ishd = waferIsHD(det, layer, moduleU, moduleV);
+    int nroc = (wafer_ishd ? 6 : 3);
     // Loop on ROCs in wafer
     for (int roc = 1; roc <= nroc; roc++) {
       // loop on TCs in ROC

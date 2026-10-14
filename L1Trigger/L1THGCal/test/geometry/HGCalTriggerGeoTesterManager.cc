@@ -6,12 +6,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeoTesterBase.h"
+#include "L1Trigger/L1THGCal/test/geometry/HGCalTriggerGeoTesterBase.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "SimGeneral/HepPDTRecord/interface/PDTRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 class HGCalTriggerGeoTesterManager : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {

@@ -10,11 +10,8 @@
 #include "TTree.h"
 #include <unordered_map>
 #include <string>
+#include <set>
 
-namespace HepPDT {
-  class ParticleDataTable;
-}
-class MagneticField;
 class HGCalTriggerGeometryBase;
 
 struct HGCalTriggerGeoTesterEventSetup {
@@ -60,7 +57,7 @@ public:
   virtual void initialize(TTree*, const edm::ParameterSet&) = 0;
   virtual void check(const HGCalTriggerGeoTesterEventSetup&) = 0;
   virtual void fill(const HGCalTriggerGeoTesterEventSetup&) = 0;
-  const HGCalTriggerGeoTesterErrors& errors() { return errors_; }
+  const HGCalTriggerGeoTesterErrors& errors() const { return errors_; }
 
 protected:
   virtual void clear() = 0;

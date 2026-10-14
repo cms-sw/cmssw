@@ -3,8 +3,8 @@
 #include "DataFormats/ForwardDetId/interface/HGCalTriggerModuleDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalTriggerBackendDetId.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeoTesterBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
+#include "L1Trigger/L1THGCal/test/geometry/HGCalTriggerGeoTesterBase.h"
 
 class HGCalTriggerGeoTesterBackendStage1 : public HGCalTriggerGeoTesterBase {
 public:
@@ -102,6 +102,7 @@ void HGCalTriggerGeoTesterBackendStage1::fill(const HGCalTriggerGeoTesterEventSe
 
 void HGCalTriggerGeoTesterBackendStage1::check(const HGCalTriggerGeoTesterEventSetup& es) {
   edm::LogPrint("GeoTesterBackendStage1") << "Checking Stage 1";
+  triggerTools_.setGeometry(es.geometry.product());
   // Create list of modules from valid cells
   std::unordered_set<uint32_t> modules;
   for (const auto& id : es.geometry->eeGeometry()->getValidDetIds()) {

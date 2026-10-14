@@ -1,5 +1,5 @@
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeoTesterBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
+#include "L1Trigger/L1THGCal/test/geometry/HGCalTriggerGeoTesterBase.h"
 
 class HGCalTriggerGeoTesterCells : public HGCalTriggerGeoTesterBase {
 public:
