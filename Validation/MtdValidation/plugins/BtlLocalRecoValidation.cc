@@ -1,5 +1,3 @@
-#define EDM_ML_DEBUG
-
 // -*- C++ -*-
 //
 // Package:    Validation/MtdValidation
@@ -492,7 +490,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       DetId detIdObject(cluId);
       const auto& genericDet = geom->idToDetUnit(detIdObject);
       if (genericDet == nullptr) {
-        throw cms::Exception("EtlLocalRecoValidation")
+        throw cms::Exception("BtlLocalRecoValidation")
             << "GeographicalID: " << std::hex << cluId << " is invalid!" << std::dec << std::endl;
       }
       LogTrace("BtlLocalRecoValidation") << " BTL Cluster above threshold # " << n_clus_btl << cluster;
@@ -519,7 +517,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       const auto& trkHits = mtdTrkHitHandle->find(detIdObject);
       if (trkHits != mtdTrkHitHandle->end()) {
         for (const auto& trkHit : *trkHits) {
-          const auto mergedCluster = trkHit.mtdCluster();
+          const auto& mergedCluster = trkHit.mtdCluster();
           if (mergedCluster == cluster) {
             LogTrace("BtlLocalRecoValidation")
                 << "MTD_TRH: " << trkHit.localPosition().x() << "," << trkHit.localPosition().y() << " : "

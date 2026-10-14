@@ -1,5 +1,3 @@
-#define EDM_ML_DEBUG
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -76,7 +74,6 @@ private:
   MonitorElement* h_mc_nClusters_;
   MonitorElement* h_mc_nRecHits_merged_;
   MonitorElement* h_mc_energy_merged_;
-  MonitorElement* h_mc_eta_total_;
   MonitorElement* h_mc_eta_merged_;
   MonitorElement* h_mc_time_merged_;
   MonitorElement* h_mc_timeError_merged_;
@@ -183,7 +180,6 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
   for (const auto& detSet : *mergedClustersHandle) {
     for (const auto& mc : detSet) {
       h_mc_nClusters_->Fill(mc.nClusters());
-      h_mc_nRecHits_merged_->Fill(mc.nHits());
       const MTDGeomDet* mcdet = geom->idToDet(mc.id());
 
       if (mc.nClusters() > 1) {
@@ -344,18 +340,12 @@ void MtdMergedClusterValidation::bookHistograms(DQMStore::IBooker& ibooker, edm:
   h_mc_y_merged_ = ibooker.book1D("MC_y_merged", "MergedCluster Y, MC with >1 FTLCluster;Y [mm];Count", 20, -4, 4);
   h_mc_y_unmerged_ = ibooker.book1D("MC_y_unmerged", "MergedCluster Y, MC with =1 FTLCluster;Y [mm];Count", 20, -4, 4);
 
-  h_mc_eta_total_ = ibooker.book1D("MC_eta_total", "MergedClusterEta, total;#eta;Count", 50, -1.5, 1.5);
   h_mc_eta_merged_ =
       ibooker.book1D("MC_eta_merged", "MergedClusterEta, MC with >1 FTLCluster;#eta;Count", 50, -1.5, 1.5);
   h_mc_eta_unmerged_ =
       ibooker.book1D("MC_eta_unmerged", "MergedClusterEta, MC with =1 FTLCluster;#eta;Count", 50, -1.5, 1.5);
   h_eta_merging_fraction_ = ibooker.bookProfile(
       "MC_eta_merging_fraction", "Merging Fraction vs Eta;#eta;Fraction", 50, -1.5, 1.5, 0.0, 1.0, "");
-
-  h_mc_time_unmerged_ =
-      ibooker.book1D("MC_time_unmerged", "MergedCluster Time, MC with =1 FTLCluster;Time [ns];Count", 100, -5, 20);
-  h_mc_timeError_unmerged_ = ibooker.book1D(
-      "MC_timeError_unmerged", "MergedCluster Time Error, MC with =1 FTLCluster;Time Error [ns];Count", 100, 0, 1);
 
   h_mc_comp_energy_merged_ =
       ibooker.book1D("MC_comp_energy_merged",

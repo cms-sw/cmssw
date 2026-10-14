@@ -71,7 +71,7 @@ process.load("SimFastTiming.MtdAssociatorProducers.mtdRecoClusterToSimLayerClust
 process.load("SimFastTiming.MtdAssociatorProducers.mtdRecoClusterToSimLayerClusterAssociation_cfi")
 process.load("SimFastTiming.MtdAssociatorProducers.mtdSimLayerClusterToTPAssociatorByTrackId_cfi")
 process.load("SimFastTiming.MtdAssociatorProducers.mtdSimLayerClusterToTPAssociation_cfi")
-process.load("SimFastTiming.MtdSimMergedClusterProducers.mtdSimMergedClusterProducer_cfi")
+process.load("SimGeneral.CaloAnalysis.mtdSimMergedClusterProducer_cfi")
 process.load("SimFastTiming.MtdAssociatorProducers.mtdRecoMergedClusterToSimMergedClusterAssociation_cfi")
 process.load("SimFastTiming.MtdAssociatorProducers.mtdSimMergedClusterToTPAssociation_cfi")
 process.load('SimFastTiming.MtdAssociatorProducers.mtdRecoMergedClusterToSimMergedClusterAssociatorByHits_cfi')
