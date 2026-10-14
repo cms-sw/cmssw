@@ -26,6 +26,16 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace pixelRecHits {
 
+    struct CopyModuleStartKernel {
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                    ::reco::HitModuleSoAView modsView,
+                                    SiPixelClustersSoAConstView clustersView) const {
+        for (auto i : cms::alpakatools::uniform_elements(acc, clustersView.metadata().size())) {
+          modsView[i].moduleStart() = clustersView[i].clusModuleStart();
+        }
+      }
+    };
+
     template <typename TrackerTraits>
     class GetHits {
     public:
