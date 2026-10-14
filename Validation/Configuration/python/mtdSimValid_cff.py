@@ -5,7 +5,7 @@ from RecoLocalFastTime.FTLClusterizer.mtdMergedClusters_cfi import mtdMergedClus
 mtdMergedClusters.saveMergedClusterConstituents = True
 
 
-from SimFastTiming.MtdSimMergedClusterProducers.mtdSimMergedClusterProducer_cfi import mtdSimMergedClusterProducer
+from SimGeneral.CaloAnalysis.mtdSimMergedClusterProducer_cfi import mtdSimMergedClusterProducer
 
 # --- Cluster associations maps producers
 from SimFastTiming.MtdAssociatorProducers.mtdRecoClusterToSimLayerClusterAssociatorByHits_cfi import mtdRecoClusterToSimLayerClusterAssociatorByHits
