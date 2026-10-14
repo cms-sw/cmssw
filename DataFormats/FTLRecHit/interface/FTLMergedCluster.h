@@ -32,40 +32,6 @@ public:
   float y() const { return y_; }
   float xError() const { return xError_; }
   float yError() const { return yError_; }
-  const std::vector<DetId> clusterIds() const {
-    if (hitsDetId_.size() == 1) {
-      return hitsDetId_;
-    }
-    auto listId = hitsDetId_;
-    std::sort(listId.begin(), listId.end());
-    auto it = std::unique(listId.begin(), listId.end());
-    listId.resize(std::distance(listId.begin(), it));
-    return listId;
-  }
-
-  size_t nClusters() const {
-    if (hitsDetId_.size() == 1) {
-      return 1;
-    }
-    std::unordered_set<DetId> seen;
-    for (const auto& x : hitsDetId_) {
-      seen.insert(x);
-    }
-    return seen.size();
-  }
-
-  void addHit(
-      const DetId& id, const int row, const int col, const float time, const float timeError, const float energy) {
-    hitsDetId_.push_back(id);
-    uint8_t row8 = static_cast<uint8_t>(std::clamp(row, 0, 15));
-    uint8_t col8 = static_cast<uint8_t>(std::clamp(col, 0, 15));
-    uint8_t rowcol = static_cast<uint8_t>((row8 << krcOffset) | col8);
-    hitsRowCol_.push_back(rowcol);
-    hitsTime_.push_back(time);
-    hitsTimeError_.push_back(timeError);
-    hitsEnergy_.push_back(energy);
-  }
-
   size_t size() const { return hitsDetId_.size(); }
   size_t nHits() const { return hitsDetId_.size(); }
   DetId hDetId(size_t index) const { return hitsDetId_[index]; }
@@ -79,15 +45,14 @@ public:
   float hTimeError(size_t index) const { return hitsTimeError_[index]; }
   float hEnergy(size_t index) const { return hitsEnergy_[index]; }
 
-  bool operator==(FTLMergedCluster const& lh) const {
-    bool isSame = nHits() == lh.nHits();
-    if (isSame) {
-      for (size_t index = 0; index < nHits(); index++) {
-        isSame = isSame && (hUniqueId(index) == lh.hUniqueId(index));
-      }
-    }
-    return isSame;
-  }
+  bool operator==(FTLMergedCluster const& lh) const;
+
+  void addHit(
+      const DetId& id, const int row, const int col, const float time, const float timeError, const float energy);
+
+  const std::vector<DetId> clusterIds() const;
+
+  size_t nClusters() const;
 
 private:
   static constexpr uint32_t krcOffset = 4;

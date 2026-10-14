@@ -604,7 +604,7 @@ void MTDMergedClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<double>("timeThreshold", 10.0);
   desc.add<double>("energyThreshold", 0.0);  // MeV
   desc.add<bool>("saveMergedClusterConstituents", false);
-  descriptions.add("MTDMergedClusterProducer", desc);
+  descriptions.add("mtdMergedClusters", desc);
 }
 
 DEFINE_FWK_MODULE(MTDMergedClusterProducer);

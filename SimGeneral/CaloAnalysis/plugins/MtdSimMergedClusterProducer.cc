@@ -76,7 +76,9 @@ class MtdSimMergedClusterProducer : public edm::one::EDProducer<edm::one::Shared
 public:
   explicit MtdSimMergedClusterProducer(const edm::ParameterSet&);
   ~MtdSimMergedClusterProducer() override = default;
-
+  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions); // <-- ADD THIS LINE
+  
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
@@ -552,5 +554,17 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
 
   iEvent.put(std::move(outputClusters));
 }
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void MtdSimMergedClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("trackingParticles", edm::InputTag("mix", "MergedTrackTruth"));
+  desc.add<edm::InputTag>("mtdSimLayerClusters", edm::InputTag("mix", "MergedMtdTruthLC"));
+  desc.add<edm::InputTag>("tp2SimAssociationMap", edm::InputTag("mtdSimLayerClusterToTPAssociation"));
+  desc.add<double>("minClusterEnergy", 0.0); // GeV
+  
+  descriptions.add("mtdSimMergedClusterProducer" ,desc); 
+}
+
 
 DEFINE_FWK_MODULE(MtdSimMergedClusterProducer);
