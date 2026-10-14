@@ -1,19 +1,16 @@
 #include "FWCore/Utilities/interface/HRRealTime.h"
 
+#include <chrono>
 #include <ctime>
-#include <cmath>
 #include <typeinfo>
 #include <iostream>
+#include <thread>
 
 #include <catch2/catch_all.hpp>
 
 namespace {
 
-  double gcrap = 0;
-  void waiste() {
-    for (double i = 1; i < 100000; i++)
-      gcrap += std::log(std::sqrt(i));
-  }
+  void waiste() { std::this_thread::sleep_for(std::chrono::microseconds(2)); }
 }  // namespace
 
 // Helper for timing checks

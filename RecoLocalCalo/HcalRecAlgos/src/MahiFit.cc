@@ -46,6 +46,11 @@ void MahiFit::setParameters(bool iDynamicPed,
   bxSizeConf_ = activeBXs_.size();
 }
 
+void MahiFit::resetPulseShapesBuffer(const unsigned bufferSize) {
+  channelPulseShapes_.clear();
+  channelPulseShapes_.resize(bufferSize);
+}
+
 void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
                           float& reconstructedEnergy,
                           float& soiPlusOneEnergy,

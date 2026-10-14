@@ -16,7 +16,6 @@
 #include "EventFilter/Utilities/interface/JsonMonitorable.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
