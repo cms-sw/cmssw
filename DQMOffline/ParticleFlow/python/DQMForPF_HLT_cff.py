@@ -74,10 +74,7 @@ pfAnalyzerDQMHLT = pfAnalyzerDQM.clone(
     PVCollection        = "hltOfflinePrimaryVertices",
     puppiWeight         = "hltPFPuppi",
     TriggerResultsLabel = cms.InputTag("TriggerResults::HLT"),
-    # passesTriggerSelection accepts everything only if the list contains an
-    # EMPTY STRING; an empty list makes its inner loop never run, so every
-    # event is rejected and nothing fills.
-    TriggerNames        = [""], #HLT_PFJet450
+    TriggerNames        = [""],
     eventSelection      = "nocut",     # W' is not a dijet sample
     pfAnalysis = cms.PSet(
         NPVBins = cms.vdouble(0, 100, 250),

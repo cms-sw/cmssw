@@ -516,9 +516,9 @@ void PFAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<edm::InputTag>("pfCandidates", edm::InputTag("particleFlow"))
       ->setComment("Input collection of PF candidates");
   desc.add<edm::InputTag>("pfJetCollection", edm::InputTag("ak4PFJets"))->setComment("Input collection of PF jets");
+  desc.add<std::string>("eventSelection", "nocut")->setComment("Event selection to apply (nocut, dijet, anomalous)");
   desc.add<edm::InputTag>("TriggerResultsLabel", edm::InputTag("TriggerResults", "", "HLT"))
       ->setComment("Input tag for trigger results");
-  desc.add<std::string>("eventSelection", "nocut")->setComment("Event selection to apply (nocut, dijet, anomalous)");
   desc.add<std::vector<std::string>>("TriggerNames", std::vector<std::string>())
       ->setComment("List of trigger path names to require");
   desc.add<edm::InputTag>("PVCollection", edm::InputTag("offlinePrimaryVertices"))
