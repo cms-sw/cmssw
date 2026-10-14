@@ -185,7 +185,7 @@ private:
       psfPtr_ = nullptr;
       for (auto& elem : knownPulseShapes_) {
         if (elem.first == pulseShapeId) {
-          psfPtr_ = &*elem.second;
+          psfPtr_ = elem.second.get();
           break;
         }
       }
@@ -200,7 +200,7 @@ private:
         channelPulseShapes_.at(pulseShapeId) = p;
       else
         knownPulseShapes_.emplace_back(pulseShapeId, p);
-      psfPtr_ = &*p;
+      psfPtr_ = p.get();
     }
 
     currentPulseShapeId_ = pulseShapeId;
