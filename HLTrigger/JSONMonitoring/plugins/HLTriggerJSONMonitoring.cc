@@ -480,7 +480,7 @@ void HLTriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlo
 
     jsndataFileList = jsndataFileName;
     jsndataSize = result.size();
-    jsndataAdler32 = cms::Adler32(result.c_str(), result.size());
+    jsndataAdler32 = cms::adler32(result.c_str(), result.size());
   }
 
   // create a metadata json file for the "HLT rates" pseudo-stream
