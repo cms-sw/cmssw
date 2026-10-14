@@ -278,6 +278,29 @@ trackingLowPU.toModify(photonConvTrajSeedFromSingleLeg, primaryVerticesTag   = '
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toModify(photonConvTrajSeedFromSingleLeg, vtxMinDoF = 999999.)
     
+
+# Run-3 heavy-ion single-leg recovery, limited by the event HF tower sum.
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+(pp_on_AA & run3_common).toReplaceWith(
+    photonConvTrajSeedFromSingleLeg,
+    photonConvTrajSeedFromSingleLeg.clone(
+        vtxMinDoF = 4.0,
+        ClusterCheckPSet = dict(MaxNumberOfStripClusters = 1000000),
+        OrderedHitsFactoryPSet = dict(maxHitPairsPerTrackAndGenerator = 10),
+        RegionFactoryPSet = dict(
+            ComponentName = "GlobalRegionProducerFromBeamSpot",
+            RegionPSet = dict(
+                originRadius = 10.0,
+                ptMin = 0.20,
+                useMultipleScattering = cms.bool(True),
+            ),
+        ),
+        towers = cms.InputTag("towerMaker"),
+        maxHFTowerSum = cms.double(5300.0),
+    ),
+)
+
+
 # TRACKER DATA CONTROL
 
 # QUALITY CUTS DURING TRACK BUILDING
@@ -312,6 +335,11 @@ convCkfTrajectoryBuilder = _convCkfTrajectoryBuilderBase.clone(
     estimator = 'convStepChi2Est'
 )
 
+(pp_on_AA & run3_common).toModify(
+    convCkfTrajectoryBuilder,
+    lostHitPenalty = 15.0,
+)
+
 trackingPhase2PU140.toReplaceWith(convCkfTrajectoryBuilder, _convCkfTrajectoryBuilderBase.clone(
     maxCand = 2
 ))
@@ -322,6 +350,11 @@ convTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCand
     src = 'photonConvTrajSeedFromSingleLeg:convSeedCandidates',
     clustersToSkip = 'convClusters',
     TrajectoryBuilderPSet = dict(refToPSet_ = 'convCkfTrajectoryBuilder')
+)
+
+(pp_on_AA & run3_common).toModify(
+    convTrackCandidates,
+    numHitsForSeedCleaner = 2,
 )
 
 trackingPhase2PU140.toModify(convTrackCandidates,

@@ -1,6 +1,7 @@
 <use name="root"/>
 <use name="FWCore/Framework"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/CaloTowers"/>
 <use name="FWCore/ParameterSet"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/CommonTopologies" source_only="1"/>
