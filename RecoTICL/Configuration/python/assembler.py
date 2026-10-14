@@ -147,10 +147,6 @@ def _build_supercluster_dnn(source_label, overrides, target):
     return base.clone(**ov)
 
 
-def _build_egamma(target):
-    return _cfi_default("EGammaSuperclusterProducer").clone()
-
-
 def _build_candidate(overrides, links_label, target):
     base = _cfi_default("TICLCandidateProducer")
     ov = {}
@@ -265,9 +261,9 @@ def assemble(cfg):
         sc = cfg.superclustering_spec
         src = target.trackster_label(sc.source)
         m[target.supercluster_dnn_label] = _build_supercluster_dnn(src, sc.overrides, target)
-        m[target.egamma_label] = _build_egamma(target)
         mkgroup(target.gname("superclustering"),
-                target.supercluster_dnn_label, target.egamma_label)
+                target.supercluster_dnn_label)
+
 
     if target.links_label in m:
         links_children = [target.links_label]
