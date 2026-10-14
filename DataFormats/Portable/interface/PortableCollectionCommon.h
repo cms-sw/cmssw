@@ -17,7 +17,7 @@
 namespace portablecollection {
 
   template <std::size_t I = 0, typename TQueue, typename Descriptor, typename ConstDescriptor>
-    requires requires { Descriptor::num_cols; }
+    requires(alpaka::concepts::Queue<TQueue> && requires { Descriptor::num_cols; })
   void deepCopy(TQueue& queue, Descriptor& dest, ConstDescriptor const& src) {
     if constexpr (I < ConstDescriptor::num_cols) {
       assert(std::get<I>(dest.buff).size_bytes() == std::get<I>(src.buff).size_bytes());
@@ -31,7 +31,7 @@ namespace portablecollection {
 
   // Helper function implementing the recursive deep copy for blocks
   template <std::size_t I = 0, typename TQueue, typename Descriptor, typename ConstDescriptor>
-    requires requires { Descriptor::blocksNumber; }
+    requires(alpaka::concepts::Queue<TQueue> && requires { Descriptor::blocksNumber; })
   void deepCopy(TQueue& queue, Descriptor& dest, ConstDescriptor const& src) {
     if constexpr (I < ConstDescriptor::blocksNumber) {
       deepCopy(queue, std::get<I>(dest.buff), std::get<I>(src.buff));
@@ -44,22 +44,24 @@ namespace portablecollection {
     template <alpaka::concepts::Acc TAcc, typename DstView, typename SrcView>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void operator()(const TAcc& acc,
                                                    DstView destView,
-                                                   const SrcView& sourceView,
-                                                   const int n) const {
+                                                   const SrcView sourceView,
+                                                   const alpaka_common::Idx n) const {
       for (auto local_idx : cms::alpakatools::uniform_elements(acc, n)) {
         destView.transpose(sourceView, local_idx);
       }
     }
   };
 
-  template <alpaka::concepts::Acc TAcc, typename TQueue, typename DstView, typename SrcView, std::integral Int>
-    requires(alpaka::isQueue<TQueue>)
-  ALPAKA_FN_HOST ALPAKA_FN_INLINE void transpose(TQueue& queue, DstView& dstView, const SrcView& srcView, const Int n) {
-    constexpr uint32_t BlockSize = 256;
-    auto const workDiv = cms::alpakatools::make_workdiv<TAcc>(
-        cms::alpakatools::divide_up_by(static_cast<alpaka_common::Idx>(n), BlockSize), BlockSize);
+  template <alpaka::concepts::Acc TAcc, typename TQueue, typename DstView, typename SrcView>
+    requires(alpaka::concepts::Queue<TQueue>)
+  ALPAKA_FN_HOST ALPAKA_FN_INLINE void transpose(TQueue& queue,
+                                                 DstView& dstView,
+                                                 const SrcView& srcView,
+                                                 alpaka_common::Idx n) {
+    constexpr uint32_t blocksize = 256;
+    auto const workDiv = cms::alpakatools::make_workdiv<TAcc>(cms::alpakatools::divide_up_by(n, blocksize), blocksize);
 
-    alpaka::exec<TAcc>(queue, workDiv, portablecollection::Transpose{}, dstView, srcView, static_cast<int>(n));
+    alpaka::exec<TAcc>(queue, workDiv, portablecollection::Transpose{}, dstView, srcView, n);
   }
 
   template <std::integral Int>

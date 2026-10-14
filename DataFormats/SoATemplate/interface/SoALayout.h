@@ -1450,17 +1450,17 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
  * Declare the const forward declarations
  */
 // clang-format off
-#define _DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                  \
-  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
-    /* Scalar */                                                                                                       \
-    ,                                                                                                                  \
-    /* Column */                                                                                                       \
-    SOA_HOST_DEVICE SOA_INLINE                                                                                         \
-    const CPP_TYPE& NAME() const { return record_type_ptr_->BOOST_PP_CAT(NAME, _);},                                   \
-    /* Eigen column */                                                                                                 \
-    SOA_HOST_DEVICE SOA_INLINE                                                                                         \
-    cms::soa::EigenNonStridedConstMapType<CPP_TYPE> NAME() const                                                       \
-    { return cms::soa::EigenNonStridedConstMapType<CPP_TYPE>(record_type_ptr_->BOOST_PP_CAT(NAME, _).data());}         \
+#define _DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                          \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                  \
+    /* Scalar */                                                                                               \
+    ,                                                                                                          \
+    /* Column */                                                                                               \
+    SOA_HOST_DEVICE SOA_INLINE                                                                                 \
+    decltype(auto) NAME() const { return (record_type_ptr_->BOOST_PP_CAT(NAME, _));},                          \
+    /* Eigen column */                                                                                         \
+    SOA_HOST_DEVICE SOA_INLINE                                                                                 \
+    cms::soa::EigenNonStridedConstMapType<CPP_TYPE> NAME() const                                               \
+    { return cms::soa::EigenNonStridedConstMapType<CPP_TYPE>(record_type_ptr_->BOOST_PP_CAT(NAME, _).data());} \
   )
 // clang-format on
 
