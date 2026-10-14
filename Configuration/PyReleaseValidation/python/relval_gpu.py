@@ -56,7 +56,7 @@ numWFIB = [
            prefixDet+34.402, prefixDet+34.4021, prefixDet+34.403, prefixDet+34.404, prefixDet+34.406,
            prefixDet+34.612,
            prefixDet+61.402,
-           prefixDet+34.712, prefixDet+34.713,
+           prefixDet+34.712, prefixDet+34.713, prefixDet+34.715,
            prefixDet+34.7503,
            prefixDet+34.751,
            prefixDet+61.751,

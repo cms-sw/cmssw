@@ -51,9 +51,11 @@ The offsets currently in use are:
 * 0.7: trackingMkFit modifier
 * 0.701: DisplacedRegionalStep tracking iteration for Run-3
 * 0.702: trackingMkFit modifier for Phase-2 (initialStep only)
-* 0.711: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on CPU
-* 0.712: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available)
-* 0.713: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available), CPU vs. GPU
+* 0.711: LST+mkFit tracking (Phase-2 only), initialStep+HighPtTripletStep only, on CPU
+* 0.712: LST+mkFit tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available)
+* 0.713: LST+mkFit tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available), CPU vs. GPU
+* 0.714: LST+mkFit tracking (Phase-2 only), all iterations, full reco, on CPU
+* 0.715: LST+mkFit tracking (Phase-2 only), all iterations, full reco, on GPU (if available)
 * 0.75: HLT phase-2 timing menu
 * 0.7501: HLT phase-2 tracking-only menu
 * 0.7502: HLT phase-2 menu, with tracking ntuple

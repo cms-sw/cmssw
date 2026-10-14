@@ -44,7 +44,8 @@ numWFIB.extend([prefixDet+34.702]) #mkFit tracking (initialStep)
 numWFIB.extend([prefixDet+34.5])   #pixelTrackingOnly
 numWFIB.extend([prefixDet+34.9])   #vector hits
 numWFIB.extend([prefixDet+34.402]) #Alpaka local reconstruction offloaded on device (GPU if available)
-numWFIB.extend([prefixDet+34.711]) #LST tracking on CPU (initialStep+HighPtTripletStep only)
+numWFIB.extend([prefixDet+34.711]) #LST+mkFit tracking on CPU (initialStep+HighPtTripletStep only)
+numWFIB.extend([prefixDet+34.714]) #LST+mkFit tracking on CPU (all iterations, full reco)
 numWFIB.extend([prefixDet+34.21])  #prodlike
 numWFIB.extend([prefixDet+96.0])   #CloseByPGun CE_E_Front_120um
 numWFIB.extend([prefixDet+100.0])  #CloseByPGun CE_H_Coarse_Scint
