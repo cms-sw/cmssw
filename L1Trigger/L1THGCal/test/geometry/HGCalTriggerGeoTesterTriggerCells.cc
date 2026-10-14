@@ -2,8 +2,8 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeoTesterBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
+#include "L1Trigger/L1THGCal/test/geometry/HGCalTriggerGeoTesterBase.h"
 
 class HGCalTriggerGeoTesterTriggerCells : public HGCalTriggerGeoTesterBase {
 public:
@@ -150,6 +150,7 @@ void HGCalTriggerGeoTesterTriggerCells::fill(const HGCalTriggerGeoTesterEventSet
 
 void HGCalTriggerGeoTesterTriggerCells::check(const HGCalTriggerGeoTesterEventSetup& es) {
   edm::LogPrint("GeoTesterTriggerCells") << "Checking trigger cells";
+  triggerTools_.setGeometry(es.geometry.product());
   // Create list of TCs from valid cells
   std::unordered_map<uint32_t, std::unordered_set<uint32_t>> triggercells_to_cells;
   for (const auto& id : es.geometry->eeGeometry()->getValidDetIds()) {
