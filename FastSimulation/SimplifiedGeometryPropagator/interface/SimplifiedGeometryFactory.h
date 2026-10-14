@@ -1,7 +1,8 @@
-#ifndef FASTSIM_SIMPLIFIEDGEOMETRYFACTORY
-#define FASTSIM_SIMPLIFIEDGEOMETRYFACTORY
+#ifndef FastSimulation_SimplifiedGeometryPropagator_SimplifiedGeometryFactory_h
+#define FastSimulation_SimplifiedGeometryPropagator_SimplifiedGeometryFactory_h
 
 class GeometricSearchTracker;
+class MTDDetLayerGeometry;
 class MagneticField;
 class DetLayer;
 class BarrelDetLayer;
@@ -18,6 +19,8 @@ class ForwardDetLayer;
 //
 // Revision: Class structure modified to match SimplifiedGeometryPropagator
 //           S. Kurz, 29 May 2017
+//
+// Revision: Modified for MTD by H. Jeong at Aug 2026
 //////////////////////////////////////////////////////////
 
 namespace edm {
@@ -47,6 +50,7 @@ namespace fastsim {
             \param magneticFieldHistMaxZ Max Z for initialization of magnetic field histogram (TH1, limit of axis).
         */
     SimplifiedGeometryFactory(const GeometricSearchTracker *geometricSearchTracker,
+                              const MTDDetLayerGeometry *mtdDetLayerGeometry,
                               const MagneticField &magneticField,
                               const std::vector<std::string> &interactionModelNames,
                               double magneticFieldHistMaxR,
@@ -93,6 +97,7 @@ namespace fastsim {
                                 const GeometricSearchTracker &geometricSearchTracker) const;
 
     const GeometricSearchTracker *const geometricSearchTracker_;  //!< The full tracker geometry.
+    const MTDDetLayerGeometry *const mtdDetLayerGeometry_;        //!< The MTD geometry
     const MagneticField *const magneticField_;                    //!< The full magnetic field.
     const std::vector<std::string> *interactionModelNames_;       //!< Map of interaction models.
     const double magneticFieldHistMaxR_;                          //!< Limit in R for histogram of magnetic field.
@@ -101,6 +106,9 @@ namespace fastsim {
         barrelDetLayersMap_;  //!< A map of strings and pointers to detLayers.
     std::map<std::string, const std::vector<ForwardDetLayer const *> *>
         forwardDetLayersMap_;  //!< A map of strings and pointers to detLayers.
+
+    std::vector<const DetLayer *> btlDetLayers_;  //!< BTL detLayers without string mapping
+    std::vector<const DetLayer *> etlDetLayers_;  //!< ETL detLayers without string mapping
   };
 }  // namespace fastsim
 

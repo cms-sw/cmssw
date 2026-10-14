@@ -1,7 +1,6 @@
 #ifndef PulseChiSqSNNLS_h
 #define PulseChiSqSNNLS_h
 
-#define EIGEN_NO_DEBUG  // kill throws in eigen code
 #include "RecoLocalCalo/EcalRecAlgos/interface/EigenMatrixTypes.h"
 
 #include <set>
