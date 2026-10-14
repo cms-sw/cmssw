@@ -284,7 +284,7 @@ from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_low
     )
 )
 
-egamma_lowPt_exclusive.toReplaceWith(regressionModifier,regressionModifier103XLowPtPho)
+(egamma_lowPt_exclusive & (run2_egamma_2018 | run3_egamma)).toReplaceWith(regressionModifier,regressionModifier103XLowPtPho)
 
 # Regression for heavy-ion data
 regressionModifierHIN = regressionModifierRun3.clone(
