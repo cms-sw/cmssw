@@ -13,10 +13,10 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
 
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
-#include <filesystem>
 #include <memory>
 #include <string>
 
@@ -42,11 +42,8 @@ private:
 };
 
 PixelCPENNRecoESProducer::PixelCPENNRecoESProducer(const edm::ParameterSet& p) {
-  const auto modelDirectory = p.getParameter<std::string>("modelDirectory");
-  const std::string ModelName = "PixelCPENNReco.onnx";
-
-  auto path = std::filesystem::path(modelDirectory) / ModelName;
-  model_ = std::make_unique<cms::Ort::ONNXRuntime>(path.string());
+  const auto modelPath = p.getParameter<edm::FileInPath>("modelPath");
+  model_ = std::make_unique<cms::Ort::ONNXRuntime>(modelPath.fullPath());
 
   // Same conditions as PixelCPEGenericESProducer, used for the generic fallback
   useLAWidthFromDB_ = p.getParameter<bool>("useLAWidthFromDB");
@@ -101,7 +98,7 @@ void PixelCPENNRecoESProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   // specific to PixelCPENNRecoESProducer
   desc.add<std::string>("ComponentName", "PixelCPENNReco");
   desc.add<edm::ESInputTag>("MagneticFieldRecord", edm::ESInputTag(""));
-  desc.add<std::string>("modelDirectory");
+  desc.add<edm::FileInPath>("modelPath");
   descriptions.add("_NN_default", desc);
 }
 

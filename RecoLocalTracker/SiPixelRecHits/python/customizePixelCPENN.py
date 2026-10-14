@@ -1,11 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-# To set up NN CPE for track refitting, do:
+## To set up NN CPE for track refitting, do:
 #from RecoLocalTracker.SiPixelRecHits.customizePixelCPENN import customizePixelCPENN
-#process = customizePixelCPENN(process, "<modelDirectory>")
+## Use the centrally installed default model:
+#process = customizePixelCPENN(process)
 
+## Select another installed or local model:
+#process = customizePixelCPENN(process, "<CMSSW-relative model path>")
 
-def customizePixelCPENN(process, modelDirectory):
+_defaultModelPath = "RecoLocalTracker/SiPixelRecHits/data/PixelCPENN/PixelCPENNReco_Run3_2025_v1.onnx"
+def customizePixelCPENN(process, modelPath=_defaultModelPath):
     # Start from the PixelCPEGeneric configuration of this process, so that the generic
     # fallback (FPIX, failed NN inference) is the same as the standard generic CPE
     if hasattr(process, "PixelCPEGenericESProducer"):
@@ -14,10 +18,10 @@ def customizePixelCPENN(process, modelDirectory):
         from RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi import PixelCPEGenericESProducer
         genericParams = PixelCPEGenericESProducer.parameters_()
     genericParams["ComponentName"] = cms.string("PixelCPENNReco")
+    genericParams["modelPath"] = cms.FileInPath(modelPath)
 
     process.PixelCPENNReco = cms.ESProducer(
         "PixelCPENNRecoESProducer",
-        modelDirectory=cms.string(modelDirectory),
         **genericParams
     )
 
