@@ -117,6 +117,7 @@ theDigitizers.mergedtruth.select.signalOnlyTP = True
 
 (fastSim & phase2_hgcal).toModify(theDigitizersValid, calotruth = None)
 #No calo clustering for fastsim phase2
+(fastSim & phase2_timing_layer).toModify(theDigitizersValid, MC_fastTimingLayer = None)
 
 from Configuration.ProcessModifiers.run3_ecalclustering_cff import run3_ecalclustering
 run3_ecalclustering.toModify( theDigitizersValid, 

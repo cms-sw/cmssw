@@ -32,13 +32,13 @@
 <bin file="PixelTrackFits.cc">
   <use name="eigen"/>
   <use name="root"/>
-  <flags CXXFLAGS="-DEIGEN_NO_DEBUG -O2"/>
+  <flags CXXFLAGS="-O2"/>
 </bin>
 
 <bin file="PixelTrackFits.cc" name="PixelTrackBrokenLineFit">
   <use name="eigen"/>
   <use name="root"/>
-  <flags CXXFLAGS="-DEIGEN_NO_DEBUG -DUSE_BL"/>
+  <flags CXXFLAGS="-DUSE_BL"/>
 </bin>
 
 <bin file="PixelTrackFits.cc" name="PixelTrackFits_Debug">
