@@ -496,7 +496,7 @@ void PFAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
       ->setComment("The name of the puppi weight in the file");
 
   desc.add<unsigned int>("runNumber", 0)->setComment("The run number to filter on (0 for no selection on the run)");
-  desc.add<unsigned int>("folder", 0)->setComment("The top directory where to store the results.");
+  desc.add<std::string>("folder", "ParticleFlow")->setComment("The top directory where to store the results.");
   desc.add<edm::InputTag>("pfCandidates", edm::InputTag("particleFlow"))
       ->setComment("Input collection of PF candidates");
   desc.add<edm::InputTag>("pfJetCollection", edm::InputTag("ak4PFJets"))->setComment("Input collection of PF jets");
