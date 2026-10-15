@@ -25,6 +25,8 @@ namespace edm {
     static inline const char* const kEnableJobreportOpt = "enablejobreport";
     static inline const char* const kJobModeCommandOpt = "mode,m";
     static inline const char* const kJobModeOpt = "mode";
+    static inline const char* const kOptionCommandOpt = "option,o";
+    static inline const char* const kOptionOpt = "option";
     static inline const char* const kNumberOfThreadsCommandOpt = "numThreads,n";
     static inline const char* const kNumberOfThreadsOpt = "numThreads";
     static inline const char* const kSizeOfStackForThreadCommandOpt = "sizeOfStackForThreadsInKB,s";
