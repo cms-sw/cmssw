@@ -1,7 +1,0 @@
-<use name="FWCore/Framework"/>
-<use name="DataFormats/ParticleFlowReco"/>
-<use name="DataFormats/ParticleFlowCandidate"/>
-<use name="rootmath"/>
-<use name="DQM/HcalTasks"/>
-<use name="DQM/HcalCommon"/>
-<flags EDM_PLUGIN="1"/>

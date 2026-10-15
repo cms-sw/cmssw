@@ -15,12 +15,12 @@ import FWCore.ParameterSet.Config as cms
 # )
 
 # Particle Flow 
-from DQM.PFTasks.pfHcalGPUComparisonTask_cfi import *
+from DQMOffline.ParticleFlow.pfHcalGPUComparisonTask_cfi import pfHcalGPUComparisonTask
 
 hltPfHcalGPUComparisonTask = pfHcalGPUComparisonTask.clone(
-    subsystem = cms.untracked.string('HLT'),
-    compDir = cms.untracked.string('HLT/HeterogeneousComparisons/ParticleFlow'),
-    pfClusterToken_ref = cms.untracked.InputTag('hltParticleFlowClusterHCALSerialSync'),
+    compDir = cms.untracked.string('HLT/HeterogeneousComparisons/ParticleFlow/HCAL'),
+    #pfClusterToken_ref = cms.untracked.InputTag('hltParticleFlowClusterHCALSerialSync'),
+    pfClusterToken_ref = cms.untracked.InputTag('hltParticleFlowClusterHCAL'),
     pfClusterToken_target = cms.untracked.InputTag('hltParticleFlowClusterHCAL'),
 )
 

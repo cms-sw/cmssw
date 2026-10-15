@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.PFTasks.pfHcalGPUComparisonTask_cfi import *
+from DQMOffline.ParticleFlow.pfHcalGPUComparisonTask_cfi import pfHcalGPUComparisonTask
 
 pfClusterHBHEOnlyAlpakaComparison = pfHcalGPUComparisonTask.clone(
-    compDir = cms.untracked.string('HeterogeneousComparisons/ParticleFlow'),
+    compDir = cms.untracked.string('HeterogeneousComparisons/ParticleFlow/HCAL'),
     pfClusterToken_ref = cms.untracked.InputTag('particleFlowClusterHBHEOnlyLegacy'),
     pfClusterToken_target = cms.untracked.InputTag('particleFlowClusterHBHEOnly'),
 )
