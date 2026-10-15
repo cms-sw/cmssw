@@ -49,7 +49,7 @@ protected:
   void SetParameters(double const* param) override;
   double DoEvalPar(double, const double*) const override;
   double DoEval(double x) const override;
-  double DoDerivative(double x) const;
+  double DoDerivative(double x) const override;
   void DoParameterGradient(double x, double* paramGradient) const;
   double DoParameterDerivative(double, const double*, unsigned int) const override;
 
