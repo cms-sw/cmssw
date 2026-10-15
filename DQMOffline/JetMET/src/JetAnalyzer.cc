@@ -425,8 +425,6 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
   mPt_2 = ibooker.book1D("Pt_2", "Pt spectrum of jets - range 2", 60, 0, 300);
   mPt_3 = ibooker.book1D("Pt_3", "Pt spectrum of jets - range 3", 100, 0, 5000);
   mPt_log = ibooker.book1D("Pt_log", "Pt spectrum of jets - log", 100, 0, 50);
-  // Low and high pt trigger paths
-  //mEta_Lo                 = ibooker.book1D("Eta_Lo", "Eta (Pass Low Pt Jet Trigger)", etaBin_, etaMin_, etaMax_);
 
   mNJets = ibooker.book1D("NJets", "number of jets", 100, 0, 100);
 
@@ -6063,7 +6061,6 @@ void JetAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<edm::InputTag>("InputJetIDValueMap", edm::InputTag("ak4JetID"));
   desc.add<std::string>("JetIDQuality", "LOOSE");
   desc.add<std::string>("JetIDVersion", "PURE09");
-  desc.add<edm::InputTag>("InputMVAPUIDDiscriminant", edm::InputTag("pileupJetIdEvaluatorDQM", "fullDiscriminant"));
   desc.add<edm::InputTag>("InputCutPUIDDiscriminant", edm::InputTag("pileupJetIdEvaluatorDQM", "cutbasedDiscriminant"));
   desc.add<edm::InputTag>("InputMVAPUIDValue", edm::InputTag("pileupJetIdEvaluatorDQM", "fullId"));
   desc.add<edm::InputTag>("InputCutPUIDValue", edm::InputTag("pileupJetIdEvaluatorDQM", "cutbasedId"));
