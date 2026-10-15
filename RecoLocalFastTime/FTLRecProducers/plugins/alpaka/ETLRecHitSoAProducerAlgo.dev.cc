@@ -35,7 +35,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::etlrechit {
         float toa = 0;
         float tot = 0;
         float time_error = 0;
-        uint8_t flag = 0;   // assumed to be ok
+        uint8_t flag = 0;  // assumed to be ok
 
         //!!!!!!! position error calculation to be added
 

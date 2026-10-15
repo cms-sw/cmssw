@@ -31,7 +31,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::etlrechit {
         auto entry = input[i];
 
         // ETROC2 measures the ToA wrt the end of the measurement window
-        constexpr float measWindowEnd = 12.5; // ns
+        constexpr float measWindowEnd = 12.5;  // ns
         float time = measWindowEnd - entry.ToAdata() * toaLSB_ns_ + tdcWindowStart_;
         float time_over_threshold = entry.ToTdata() * toaLSB_ns_;
 
