@@ -43,7 +43,6 @@ btlRecHitsSoA = cms.EDProducer('btlrechit::BTLRecHitSoAProducer@alpaka',
 etlRecHitsSoA = cms.EDProducer('etlrechit::ETLRecHitSoAProducer@alpaka',
     baserh = cms.InputTag("etlBaseRecHitsSoA"),
     thresholdToKeep = cms.double(4.25e-5), # [GeV]
-    calibrationConstant = cms.double(8.5e-5), # [GeV / ns]
     timeResInNs = cms.double(0.037), # [ns]
     timeCorr_p0 = cms.double(0.967683), # 0.974683 - 0.007, ad hoc correction for bias from global delay removal
     timeCorr_p1 = cms.double(-0.237274),

@@ -8,7 +8,9 @@
    <class name="edm::Wrapper<BTLDigiContentCollection>"/>
    <class name="edm::SortedCollection<btldigi::BTLDigi,edm::StrictWeakOrdering<btldigi::BTLDigi> >"/>
    <class name="edm::Wrapper<edm::SortedCollection<btldigi::BTLDigi,edm::StrictWeakOrdering<btldigi::BTLDigi> > >"/>
-   <class name="etldigi::ETLDigi"/>
+   <class name="etldigi::ETLDigi" ClassVersion="3">
+    <version ClassVersion="3" checksum="4069807456"/>
+   </class>
    <class name="std::vector<etldigi::ETLDigi>"/>
    <class name="ETLDigiContentCollection"/>
    <class name="edm::Wrapper<ETLDigiContentCollection>"/>

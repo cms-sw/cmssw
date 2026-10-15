@@ -29,11 +29,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::etlrechit {
       // make a strided loop over the kernel grid, covering up to "size" elements
       for (int32_t i : cms::alpakatools::uniform_elements(acc, input.metadata().size())) {
         auto entry = input[i];
-        // here you should call your functions to apply TDC and QDC, reading timecoarse, fine, ... etc from digi
 
-        // for the times at first and second th, still in clock units
-        // atm tdc and qdc calibs are fixed to dummy values for each channel, hence rawId, ch, and the bool to select branch 1 or 2 are not used.
-        float time = 12.5 - entry.ToAdata() * toaLSB_ns_ + tdcWindowStart_;
+        // ETROC2 measures the ToA wrt the end of the measurement window
+        constexpr float measWindowEnd = 12.5; // ns
+        float time = measWindowEnd - entry.ToAdata() * toaLSB_ns_ + tdcWindowStart_;
         float time_over_threshold = entry.ToTdata() * toaLSB_ns_;
 
         // detId from rawId
