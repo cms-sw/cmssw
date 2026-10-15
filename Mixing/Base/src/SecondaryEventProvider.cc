@@ -10,9 +10,11 @@
 #include "FWCore/Framework/interface/ModuleRegistryUtilities.h"
 #include "FWCore/Framework/interface/maker/MakeModuleParams.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
+#include "FWCore/ServiceRegistry/interface/GlobalContext.h"
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/make_sentry.h"
-#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "oneapi/tbb/task_arena.h"
 
 #include <mutex>

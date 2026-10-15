@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/OutputModuleCommunicatorT.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
-#include "FWCore/Framework/interface/maker/WorkerT.h"
+#include "FWCore/Framework/interface/maker/ModuleTransitionWorker.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
@@ -389,19 +389,22 @@ namespace {
                      std::unique_ptr<edm::TransitionWorker<edm::EventTransitionInfo, edm::TransitionPhaseGlobal>>>;
     std::vector<WorkerStorage> workers;
     workers.emplace_back(
-        std::make_unique<edm::WorkerT<edm::one::OutputModuleBase, edm::RunTransitionInfo, edm::TransitionPhaseGlobal>>(
+        std::make_unique<
+            edm::ModuleTransitionWorker<edm::one::OutputModuleBase, edm::RunTransitionInfo, edm::TransitionPhaseGlobal>>(
             iMod, m_desc, m_params.actions_));
     workers.emplace_back(
-        std::make_unique<edm::WorkerT<edm::one::OutputModuleBase, edm::LumiTransitionInfo, edm::TransitionPhaseGlobal>>(
+        std::make_unique<
+            edm::ModuleTransitionWorker<edm::one::OutputModuleBase, edm::LumiTransitionInfo, edm::TransitionPhaseGlobal>>(
             iMod, m_desc, m_params.actions_));
     workers.emplace_back(
-        std::make_unique<edm::WorkerT<edm::one::OutputModuleBase, edm::EventTransitionInfo, edm::TransitionPhaseGlobal>>(
-            iMod, m_desc, m_params.actions_));
+        std::make_unique<edm::ModuleTransitionWorker<edm::one::OutputModuleBase,
+                                                     edm::EventTransitionInfo,
+                                                     edm::TransitionPhaseGlobal>>(iMod, m_desc, m_params.actions_));
     for (unsigned int i = 3; i < m_numWorkerIdices + 1; ++i) {
       workers.emplace_back(
-          std::make_unique<
-              edm::WorkerT<edm::one::OutputModuleBase, edm::EventTransitionInfo, edm::TransitionPhaseGlobal>>(
-              iMod, m_desc, m_params.actions_));
+          std::make_unique<edm::ModuleTransitionWorker<edm::one::OutputModuleBase,
+                                                       edm::EventTransitionInfo,
+                                                       edm::TransitionPhaseGlobal>>(iMod, m_desc, m_params.actions_));
     }
     edm::maker::ModuleHolderT<edm::one::OutputModuleBase> h(iMod);
     h.beginJob();

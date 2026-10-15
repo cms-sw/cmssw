@@ -2180,7 +2180,7 @@ namespace edm {
        << "require synchronizing on LuminosityBlock boundaries:";
     bool found = false;
     for (auto worker : schedule_->allWorkersLumis()) {
-      if (worker->wantsGlobalLuminosityBlocks() and worker->globalLuminosityBlocksQueue()) {
+      if (worker->wantsGlobalTransitions() and worker->globalTransitionsQueue()) {
         found = true;
         ex << "\n  " << worker->description()->moduleName() << " " << worker->description()->moduleLabel();
       }
@@ -2196,7 +2196,7 @@ namespace edm {
   void EventProcessor::warnAboutModulesRequiringRunSynchronization() const {
     std::unique_ptr<LogSystem> s;
     for (auto worker : schedule_->allWorkersRun()) {
-      if (worker->wantsGlobalRuns() and worker->globalRunsQueue()) {
+      if (worker->wantsGlobalTransitions() and worker->globalTransitionsQueue()) {
         if (not s) {
           s = std::make_unique<LogSystem>("ModulesSynchingOnRuns");
           (*s) << "The following modules require synchronizing on Run boundaries:";
