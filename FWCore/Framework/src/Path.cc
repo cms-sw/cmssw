@@ -2,7 +2,6 @@
 #include "FWCore/Framework/interface/Path.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
-#include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/EarlyDeleteHelper.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"

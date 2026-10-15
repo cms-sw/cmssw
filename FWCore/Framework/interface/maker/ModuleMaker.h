@@ -5,7 +5,7 @@
 #include <memory>
 #include <string>
 
-#include "FWCore/Framework/interface/maker/WorkerT.h"
+#include "FWCore/Framework/interface/maker/ModuleTransitionWorker.h"
 #include "FWCore/Framework/interface/maker/MakeModuleParams.h"
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
 #include "FWCore/Framework/interface/maker/MakeModuleHelper.h"
