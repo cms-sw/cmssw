@@ -73,6 +73,12 @@ namespace edm {
             kJobModeCommandOpt,
             boost::program_options::value<std::string>(),
             "Job Mode for MessageLogger defaults - default mode is grid")
+        // -o, --option
+        (  //
+            kOptionCommandOpt,
+            boost::program_options::value<std::vector<std::string>>(),
+            "set a process option: '-o name=value' is equivalent to 'process.options.name = value' at the end of the "
+            "configuration, where a single value can be given for a list option; can be repeated")
         // -n, --numThreads
         (  //
             kNumberOfThreadsCommandOpt,
