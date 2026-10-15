@@ -189,11 +189,8 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
   meshAlgo_ = std::make_unique<MuonMesh>(iConfig.getParameter<edm::ParameterSet>("arbitrationCleanerOptions"));
 
   gemgeomToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
-  edm::InputTag rpcHitTag("rpcRecHits");
-  rpcHitToken_ = consumes<RPCRecHitCollection>(rpcHitTag);
-
-  edm::InputTag gemHitTag("gemRecHits");
-  gemHitToken_ = consumes<GEMRecHitCollection>(gemHitTag);
+  rpcHitToken_ = consumes<RPCRecHitCollection>(iConfig.getParameter<edm::InputTag>("rpcHitInputTag"));
+  gemHitToken_ = consumes<GEMRecHitCollection>(iConfig.getParameter<edm::InputTag>("gemHitInputTag"));
 
   //Consumes... UGH
   inputCollectionTypes_.resize(inputCollectionLabels_.size());
@@ -1695,6 +1692,8 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
       edm::ParameterDescription<bool>("selectHighPurity", false, true),
       true >> (edm::ParameterDescription<edm::InputTag>("pvInputTag", edm::InputTag("offlinePrimaryVertices"), true)) or
           false >> (edm::ParameterDescription<edm::InputTag>("pvInputTag", edm::InputTag(""), true)));
+  desc.add<edm::InputTag>("rpcHitInputTag", edm::InputTag("rpcRecHits"));
+  desc.add<edm::InputTag>("gemHitInputTag", edm::InputTag("gemRecHits"));
 
   edm::ParameterSetDescription descTrkAsoPar;
   descTrkAsoPar.add<edm::InputTag>("GEMSegmentCollectionLabel", edm::InputTag("gemSegments"));
