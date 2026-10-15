@@ -28,7 +28,32 @@ public:
   void addCluster(const MtdSimLayerClusterRef& clusterRef, const TrackingParticleRef& tpRef);
 
   /// energy-weighted average of composing cluster times
-  float simTime() const;
+  float simTime() const {
+    // use energy-weighted average of cluster times:
+    float time = 0;
+    float totalEnergy = 0;
+    for (const auto& clu : clusters_) {
+      totalEnergy += clu->simLCEnergy();
+      time += clu->simLCTime() * clu->simLCEnergy();
+    }
+    if (totalEnergy > 0) {
+      return time / totalEnergy;
+    } else {
+      return -999;
+    }
+  }
+
+  /// Retrieve cluster production type
+  /// take the lowest hitprodtype among the composing clusters
+
+  unsigned int hitProdType() const {
+    unsigned int thisType(0), oldType(999);
+    for (auto const& clu : clusters_) {
+      thisType = std::min((*clu).hitProdType(), oldType);
+      oldType = thisType;
+    }
+    return thisType;
+  }
 
   /// Position of the earliest cluster
   LocalPoint simPos() const { return simMC_pos_; }
@@ -50,10 +75,6 @@ public:
 
   /// Retrieve list of times and positions of all sim hits in the clusters
   std::vector<std::pair<float, LocalPoint>> hitTimesAndPositions() const;
-
-  /// Retrieve cluster production type
-  /// if primary is present, use that
-  unsigned int hitProdType() const;
 
   unsigned int seedHitProdType() const;
 

@@ -29,21 +29,6 @@ void MtdSimMergedCluster::addCluster(const MtdSimLayerClusterRef& clusterRef, co
     clusters_.push_back(ref);
 }
 
-float MtdSimMergedCluster::simTime() const {
-  // use energy-weighted average of cluster times:
-  float time = 0;
-  float totalEnergy = 0;
-  for (const auto& clu : clusters_) {
-    totalEnergy += clu->simLCEnergy();
-    time += clu->simLCTime() * clu->simLCEnergy();
-  }
-  if (totalEnergy > 0) {
-    return time / totalEnergy;
-  } else {
-    return -999;
-  }
-}
-
 float MtdSimMergedCluster::simEnergy() const {
   float totalEnergy = 0;
   for (const auto& clu : clusters_) {
@@ -103,15 +88,6 @@ std::vector<std::pair<float, LocalPoint>> MtdSimMergedCluster::hitTimesAndPositi
       [](const std::pair<float, LocalPoint>& a, const std::pair<float, LocalPoint>& b) { return a.first < b.first; });
 
   return hitTimesAndPositions;
-}
-
-unsigned int MtdSimMergedCluster::hitProdType() const {
-  unsigned int thisType(0), oldType(999);
-  for (auto const& clu : clusters_) {
-    thisType = std::min((*clu).hitProdType(), oldType);
-    oldType = thisType;
-  }
-  return thisType;
 }
 
 unsigned int MtdSimMergedCluster::seedHitProdType() const {
