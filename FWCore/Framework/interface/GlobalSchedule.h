@@ -129,12 +129,9 @@ namespace edm {
     void preScheduleSignal(GlobalContext const*, ServiceToken const&);
 
     template <typename T>
-    void postScheduleSignal(GlobalContext const*, ServiceWeakToken const&, std::exception_ptr&);
+    void postScheduleSignal(GlobalContext const*, ServiceToken const&, std::exception_ptr&);
 
-    void handleException(GlobalContext const*,
-                         ServiceWeakToken const&,
-                         bool cleaningUpAfterException,
-                         std::exception_ptr&);
+    void handleException(GlobalContext const*, ServiceToken const&, bool cleaningUpAfterException, std::exception_ptr&);
 
     std::vector<GlobalWorkerManager<LumiTransitionInfo>> lumiWorkerManagers_;
     std::vector<GlobalWorkerManager<RunTransitionInfo>> runWorkerManagers_;
@@ -157,18 +154,19 @@ namespace edm {
       //need the doneTask to own the memory
       auto globalContext = std::make_shared<GlobalContext>(T::makeGlobalContext(principal, processContext_));
 
-      ServiceWeakToken weakToken = token;
-      auto doneTask = make_waiting_task(
-          [this, iHolder, cleaningUpAfterException, globalContext, weakToken](std::exception_ptr const* iPtr) mutable {
-            std::exception_ptr excpt;
-            if (iPtr) {
-              excpt = *iPtr;
-              // add context information to the exception and print message
-              handleException(globalContext.get(), weakToken, cleaningUpAfterException, excpt);
-            }
-            postScheduleSignal<T>(globalContext.get(), weakToken, excpt);
-            iHolder.doneWaiting(excpt);
-          });
+      // the token is owned by the EventProcessor and outlives the tasks: refer to it instead of copying it
+      ServiceToken const* serviceToken = &token;
+      auto doneTask = make_waiting_task([this, iHolder, cleaningUpAfterException, globalContext, serviceToken](
+                                            std::exception_ptr const* iPtr) mutable {
+        std::exception_ptr excpt;
+        if (iPtr) {
+          excpt = *iPtr;
+          // add context information to the exception and print message
+          handleException(globalContext.get(), *serviceToken, cleaningUpAfterException, excpt);
+        }
+        postScheduleSignal<T>(globalContext.get(), *serviceToken, excpt);
+        iHolder.doneWaiting(excpt);
+      });
 
       //make sure the task doesn't get run until all workers have beens started
       WaitingTaskHolder holdForLoop(*iHolder.group(), doneTask);
@@ -204,7 +202,7 @@ namespace edm {
   void GlobalSchedule::preScheduleSignal(GlobalContext const* globalContext, ServiceToken const& token) {
     if (actReg_) {
       try {
-        ServiceRegistry::Operate op(token);
+        ServiceRegistry::OperateNonOwning op(token);
         convertException::wrap([this, globalContext]() { T::preScheduleSignal(actReg_.get(), globalContext); });
       } catch (cms::Exception& ex) {
         exceptionContext(ex, *globalContext, "Handling pre signal, likely in a service function");
@@ -215,12 +213,12 @@ namespace edm {
 
   template <typename T>
   void GlobalSchedule::postScheduleSignal(GlobalContext const* globalContext,
-                                          ServiceWeakToken const& weakToken,
+                                          ServiceToken const& token,
                                           std::exception_ptr& excpt) {
     if (actReg_) {
       try {
-        convertException::wrap([this, &weakToken, globalContext]() {
-          ServiceRegistry::Operate op(weakToken.lock());
+        convertException::wrap([this, &token, globalContext]() {
+          ServiceRegistry::OperateNonOwning op(token);
           T::postScheduleSignal(actReg_.get(), globalContext);
         });
       } catch (cms::Exception& ex) {

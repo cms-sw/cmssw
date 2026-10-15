@@ -54,7 +54,7 @@ namespace edm {
   class ProductResolverIndexAndSkipBit;
   class ActivityRegistry;
   class WaitingTaskHolder;
-  class ServiceWeakToken;
+  class ServiceToken;
   class SignallingProductRegistryFiller;
   struct ModuleConsumesMinimalESInfo;
 
@@ -136,7 +136,7 @@ namespace edm {
                             EventPrincipal const& iEvent,
                             ActivityRegistry*,
                             ModuleCallingContext,
-                            ServiceWeakToken const&) noexcept;
+                            ServiceToken const&) noexcept;
 
     protected:
       template <typename F>

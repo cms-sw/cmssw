@@ -50,9 +50,27 @@ namespace edm {
       ServiceToken oldToken_;
     };
 
+    /// Like Operate, but without copying the token: the services are made available through a non-owning
+    /// pointer, and the previous context is saved and restored by moving it. This does not touch the reference
+    /// count of the token, so it can be used in tasks that run concurrently on many threads without making them
+    /// all update the same atomic counter. The caller must guarantee that iToken outlives the guard.
+    class OperateNonOwning {
+    public:
+      OperateNonOwning(ServiceToken const& iToken) { ServiceRegistry::instance().setContextNonOwning(iToken, *this); }
+      OperateNonOwning(OperateNonOwning const&) = delete;
+      OperateNonOwning const& operator=(OperateNonOwning const&) = delete;
+      ~OperateNonOwning() { ServiceRegistry::instance().unsetContextNonOwning(*this); }
+
+    private:
+      friend class ServiceRegistry;
+      std::shared_ptr<serviceregistry::ServicesManager> oldManager_;
+      ServiceToken const* oldOwner_ = nullptr;
+    };
+
     friend class edm::FwkImpl;
     friend int main(int argc, char* argv[]);
     friend class Operate;
+    friend class OperateNonOwning;
 
     ServiceRegistry(ServiceRegistry const&) = delete;                   // stop default
     ServiceRegistry const& operator=(ServiceRegistry const&) = delete;  // stop default
@@ -136,11 +154,16 @@ namespace edm {
     //returns old token
     ServiceToken setContext(ServiceToken const& iNewToken);
     void unsetContext(ServiceToken const& iOldToken);
+    void setContextNonOwning(ServiceToken const& iNewToken, OperateNonOwning& iSaved);
+    void unsetContextNonOwning(OperateNonOwning& iSaved);
 
     ServiceRegistry();
 
     // ---------- member data --------------------------------
     std::shared_ptr<serviceregistry::ServicesManager> manager_;
+    // owning token of the services made available by OperateNonOwning, while manager_ is a non-owning pointer to them;
+    // used by presentToken() to return an owning token
+    ServiceToken const* owner_ = nullptr;
   };
 }  // namespace edm
 

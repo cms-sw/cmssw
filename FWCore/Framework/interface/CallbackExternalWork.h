@@ -136,9 +136,11 @@ namespace edm {
 
       WaitingTaskHolder makeAcquireTask(WaitingTaskHolder waitingTaskHolder,
                                         oneapi::tbb::task_group* group,
-                                        ServiceWeakToken const& serviceToken,
+                                        ServiceToken const& token,
                                         EventSetupRecordImpl const* record,
                                         EventSetupImpl const* eventSetupImpl) {
+        // the token is owned by the EventProcessor and outlives the tasks: refer to it instead of copying it
+        ServiceToken const* serviceToken = &token;
         return WaitingTaskHolder(
             *group,
             make_waiting_task(
@@ -150,7 +152,7 @@ namespace edm {
                   }
                   try {
                     convertException::wrap([this, &serviceToken, &record] {
-                      ServiceRegistry::Operate guard(serviceToken.lock());
+                      ServiceRegistry::OperateNonOwning guard(*serviceToken);
                       record->activityRegistry()->postESModulePrefetchingSignal_.emit(record->key(),
                                                                                       Base::callingContext());
                     });
@@ -179,7 +181,7 @@ namespace edm {
                             TRecord rec;
                             edm::ESParentContext pc{&context};
                             rec.setImpl(record, Base::produceMethodID(), resolvers, eventSetupImpl, &pc);
-                            ServiceRegistry::Operate operate(serviceToken.lock());
+                            ServiceRegistry::OperateNonOwning operate(*serviceToken);
                             auto guard = signalslot::make_sentry([&record, &context]() {
                               record->activityRegistry()->postESModuleAcquireSignal_.emit(record->key(), context);
                             });

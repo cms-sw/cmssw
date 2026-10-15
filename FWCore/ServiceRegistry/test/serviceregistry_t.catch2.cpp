@@ -13,14 +13,22 @@
 #include "catch2/catch_all.hpp"
 
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <thread>
 
 #include <atomic>
+#include <memory>
+#include <optional>
 
 namespace {
   struct DummyService {
     int value_;
+  };
+
+  struct LifetimeService {
+    ~LifetimeService() { destroyed_ = true; }
+    static inline bool destroyed_ = false;
   };
 
   struct UniqueRegistry {
@@ -212,6 +220,87 @@ TEST_CASE("ServiceRegistry", "[ServiceRegistry]") {
       edm::Service<testserviceregistry::DummyService> dummy;
       REQUIRE(dummy->value() == 1);
     }
+  }
+
+  SECTION("operateNonOwningTest") {
+    edm::AssertHandler ah;
+
+    auto makeToken = [](int value) {
+      std::vector<edm::ParameterSet> pss;
+      edm::ParameterSet ps;
+      std::string typeName("DummyService");
+      ps.addParameter("@service_type", typeName);
+      ps.addParameter("value", value);
+      pss.push_back(ps);
+      return edm::ServiceToken(edm::ServiceRegistry::createSet(pss));
+    };
+    edm::ServiceToken token1 = makeToken(1);
+    edm::ServiceToken token2 = makeToken(2);
+    auto value = []() { return edm::Service<testserviceregistry::DummyService>()->value(); };
+
+    // no services on this thread
+    REQUIRE_THROWS_AS(edm::Service<testserviceregistry::DummyService>().isAvailable(), cms::Exception);
+    {
+      edm::ServiceRegistry::OperateNonOwning operate1(token1);
+      REQUIRE(value() == 1);
+      {
+        edm::ServiceRegistry::Operate operate2(token2);
+        REQUIRE(value() == 2);
+        {
+          edm::ServiceRegistry::OperateNonOwning operate1Again(token1);
+          REQUIRE(value() == 1);
+        }
+        REQUIRE(value() == 2);
+      }
+      REQUIRE(value() == 1);
+      {
+        edm::ServiceRegistry::OperateNonOwning operate2(token2);
+        REQUIRE(value() == 2);
+      }
+      REQUIRE(value() == 1);
+    }
+    // no services on this thread
+    REQUIRE_THROWS_AS(edm::Service<testserviceregistry::DummyService>().isAvailable(), cms::Exception);
+    {
+      edm::ServiceRegistry::Operate operate2(token2);
+      {
+        edm::ServiceRegistry::OperateNonOwning operate1(token1);
+        REQUIRE(value() == 1);
+      }
+      REQUIRE(value() == 2);
+    }
+    // no services on this thread
+    REQUIRE_THROWS_AS(edm::Service<testserviceregistry::DummyService>().isAvailable(), cms::Exception);
+  }
+
+  SECTION("operateNonOwningPresentTokenTest") {
+    // presentToken() must return an owning token also while the services are made available by OperateNonOwning
+    LifetimeService::destroyed_ = false;
+
+    std::optional<edm::ServiceToken> token(edm::ServiceRegistry::createContaining(std::make_unique<LifetimeService>()));
+    edm::ServiceToken present;
+    {
+      edm::ServiceRegistry::OperateNonOwning operate(*token);
+      REQUIRE(edm::Service<LifetimeService>().isAvailable());
+      present = edm::ServiceRegistry::instance().presentToken();
+      {
+        // also through an owning Operate nested inside the OperateNonOwning
+        edm::ServiceRegistry::Operate operateAgain(*token);
+        REQUIRE(edm::Service<LifetimeService>().isAvailable());
+      }
+      REQUIRE(edm::Service<LifetimeService>().isAvailable());
+    }
+    // no services on this thread
+    REQUIRE_THROWS_AS(edm::Service<LifetimeService>().isAvailable(), cms::Exception);
+
+    token.reset();
+    REQUIRE(not LifetimeService::destroyed_);
+    {
+      edm::ServiceRegistry::Operate operate(present);
+      REQUIRE(edm::Service<LifetimeService>().isAvailable());
+    }
+    present = edm::ServiceToken();
+    REQUIRE(LifetimeService::destroyed_);
   }
 
   SECTION("threadTest") {

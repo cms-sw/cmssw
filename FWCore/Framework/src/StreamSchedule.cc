@@ -569,7 +569,7 @@ namespace edm {
 
       Traits::setStreamContext(streamContext_, ep);
       //a service may want to communicate with another service
-      ServiceRegistry::Operate guard(serviceToken);
+      ServiceRegistry::OperateNonOwning guard(serviceToken);
       Traits::preScheduleSignal(actReg_.get(), &streamContext_);
 
       // Data dependencies need to be set up before marking empty
@@ -606,10 +606,12 @@ namespace edm {
       //use to give priorities on an error to ones from Paths
       auto pathErrorHolder = std::make_unique<std::atomic<std::exception_ptr*>>(nullptr);
       auto pathErrorPtr = pathErrorHolder.get();
-      ServiceWeakToken weakToken = serviceToken;
+      // the token is owned by the EventProcessor and outlives the processing of the event: refer to it instead of
+      // copying it
+      ServiceToken const* token = &serviceToken;
       auto allPathsDone = make_waiting_task(
-          [iTask, this, weakToken, pathError = std::move(pathErrorHolder)](std::exception_ptr const* iPtr) mutable {
-            ServiceRegistry::Operate operate(weakToken.lock());
+          [iTask, this, token, pathError = std::move(pathErrorHolder)](std::exception_ptr const* iPtr) mutable {
+            ServiceRegistry::OperateNonOwning operate(*token);
 
             std::exception_ptr ptr;
             if (pathError->load()) {
@@ -626,18 +628,18 @@ namespace edm {
       // run under that condition.
       WaitingTaskHolder allPathsHolder(*iTask.group(), allPathsDone);
 
-      auto pathsDone = make_waiting_task([allPathsHolder, pathErrorPtr, transitionInfo = info, this, weakToken](
-                                             std::exception_ptr const* iPtr) mutable {
-        ServiceRegistry::Operate operate(weakToken.lock());
+      auto pathsDone = make_waiting_task(
+          [allPathsHolder, pathErrorPtr, transitionInfo = info, this, token](std::exception_ptr const* iPtr) mutable {
+            ServiceRegistry::OperateNonOwning operate(*token);
 
-        if (iPtr) {
-          // free previous value of pathErrorPtr, if any;
-          // prioritize this error over one that happens in EndPath or Accumulate
-          [[maybe_unused]] auto currentPtr = pathErrorPtr->exchange(new std::exception_ptr(*iPtr));
-          assert(currentPtr == nullptr);
-        }
-        finishedPaths(*pathErrorPtr, std::move(allPathsHolder), transitionInfo);
-      });
+            if (iPtr) {
+              // free previous value of pathErrorPtr, if any;
+              // prioritize this error over one that happens in EndPath or Accumulate
+              [[maybe_unused]] auto currentPtr = pathErrorPtr->exchange(new std::exception_ptr(*iPtr));
+              assert(currentPtr == nullptr);
+            }
+            finishedPaths(*pathErrorPtr, std::move(allPathsHolder), transitionInfo);
+          });
 
       //The holder guarantees that if the paths finish before the loop ends
       // that we do not start too soon. It also guarantees that the task will

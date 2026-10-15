@@ -285,10 +285,11 @@ namespace edm {
     m_waitingTasks.add(waitTask);
 
     if (prefetchRequested) {
-      ServiceWeakToken weakToken = token;
-      auto workToDo = [this, mcc, &principal, weakToken]() {
+      // the token is owned by the EventProcessor and outlives the task: refer to it instead of copying it
+      ServiceToken const* serviceToken = &token;
+      auto workToDo = [this, mcc, &principal, serviceToken]() {
         //need to make sure Service system is activated on the reading thread
-        ServiceRegistry::Operate operate(weakToken.lock());
+        ServiceRegistry::OperateNonOwning operate(*serviceToken);
         // Caught exception is propagated via WaitingTaskList
         CMS_SA_ALLOW try {
           resolveProductImpl<true>([this, &principal, mcc]() {

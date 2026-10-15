@@ -334,12 +334,13 @@ namespace edm {
     auto const& principal = transitionInfo.principal();
     T::setStreamContext(streamContext_, principal);
 
-    ServiceWeakToken weakToken = token;
-    auto doneTask = make_waiting_task([this, iHolder = std::move(iHolder), cleaningUpAfterException, weakToken](
+    // the token is owned by the EventProcessor and outlives the tasks: refer to it instead of copying it
+    ServiceToken const* serviceToken = &token;
+    auto doneTask = make_waiting_task([this, iHolder = std::move(iHolder), cleaningUpAfterException, serviceToken](
                                           std::exception_ptr const* iPtr) mutable {
       std::exception_ptr excpt;
       {
-        ServiceRegistry::Operate op(weakToken.lock());
+        ServiceRegistry::OperateNonOwning op(*serviceToken);
 
         if (iPtr) {
           excpt = *iPtr;
@@ -350,10 +351,10 @@ namespace edm {
       iHolder.doneWaiting(excpt);
     });
 
-    auto task =
-        make_functor_task([this, h = WaitingTaskHolder(*group, doneTask), info = transitionInfo, weakToken]() mutable {
-          auto token = weakToken.lock();
-          ServiceRegistry::Operate op(token);
+    auto task = make_functor_task(
+        [this, h = WaitingTaskHolder(*group, doneTask), info = transitionInfo, serviceToken]() mutable {
+          ServiceToken const& token = *serviceToken;
+          ServiceRegistry::OperateNonOwning op(token);
           // Caught exception is propagated via WaitingTaskHolder
           auto& workerManager = workerManagers<typename T::TransitionInfoType>();
           CMS_SA_ALLOW try {
