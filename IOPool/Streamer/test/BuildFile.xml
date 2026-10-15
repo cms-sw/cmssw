@@ -26,6 +26,10 @@
 
   <test name="NewStreamerZSTD" command="RunZSTD.sh"/>
 
+  <test name="NewStreamerLZ4" command="RunLZ4.sh"/>
+
+  <test name="NewStreamerLZ4HC" command="RunLZ4HC.sh"/>
+
   <test name="TestIOPoolStreamerRefProductIDMetadataConsistency" command="run_TestRefProductIDMetadataConsistencyStreamer.sh"/>
   
   <test name="TestIOPoolStreamerRefMerge" command="run_RefMerge.sh"/>

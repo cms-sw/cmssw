@@ -4,6 +4,7 @@
 #include "zlib.h"
 #include "lzma.h"
 #include "zstd.h"
+#include "lz4.h"
 
 #include <cstring>
 
@@ -23,6 +24,16 @@ namespace {
    */
   bool isBufferZSTD(unsigned char const* inputBuffer, unsigned int inputSize) {
     if (inputSize >= 4 && !strcmp((const char*)inputBuffer, "ZS"))
+      return true;
+    else
+      return false;
+  }
+
+  /**
+   * Detect if buffer starts with "L4\0" which means it is compressed in LZ4 format
+   */
+  bool isBufferLZ4(unsigned char const* inputBuffer, unsigned int inputSize) {
+    if (inputSize >= 4 && !strcmp((const char*)inputBuffer, "L4"))
       return true;
     else
       return false;
@@ -113,6 +124,27 @@ namespace {
     }
     return (unsigned int)ret;
   }
+  unsigned int uncompressBufferLZ4(unsigned char* inputBuffer,
+                                   unsigned int inputSize,
+                                   std::vector<unsigned char>& outputBuffer,
+                                   unsigned int expectedFullSize,
+                                   bool hasHeader) {
+    // LZ4 blocks do not store their uncompressed size: the expected size is exact
+    outputBuffer.resize(expectedFullSize);
+
+    size_t hdrSize = hasHeader ? 4 : 0;
+    int ret = LZ4_decompress_safe(
+        (const char*)(inputBuffer + hdrSize), (char*)&(outputBuffer[0]), inputSize - hdrSize, expectedFullSize);
+
+    if (ret < 0) {
+      throw cms::Exception("StreamDeserializationLZ4", "LZ4 uncompression error") << "Error code " << ret;
+    }
+    if ((unsigned int)ret != expectedFullSize) {
+      throw cms::Exception("StreamDeserialization", "LZ4 uncompression error")
+          << "mismatch event lengths should be" << expectedFullSize << " got " << ret << "\n";
+    }
+    return (unsigned int)ret;
+  }
 }  // namespace
 
 namespace edm::streamer::uncompress {
@@ -121,6 +153,8 @@ namespace edm::streamer::uncompress {
       return Algo::kLZMA;
     } else if (isBufferZSTD(inputBuffer, inputSize)) {
       return Algo::kZSTD;
+    } else if (isBufferLZ4(inputBuffer, inputSize)) {
+      return Algo::kLZ4;
     } else {
       return Algo::kZLIB;
     }
@@ -136,6 +170,9 @@ namespace edm::streamer::uncompress {
           const_cast<unsigned char*>(inputBuffer), inputSize, outputBuffer, expectedFullSize, hasHeader);
     } else if (isBufferZSTD(inputBuffer, inputSize)) {
       return uncompressBufferZSTD(
+          const_cast<unsigned char*>(inputBuffer), inputSize, outputBuffer, expectedFullSize, hasHeader);
+    } else if (isBufferLZ4(inputBuffer, inputSize)) {
+      return uncompressBufferLZ4(
           const_cast<unsigned char*>(inputBuffer), inputSize, outputBuffer, expectedFullSize, hasHeader);
     } else
       return uncompressBufferZLIB(const_cast<unsigned char*>(inputBuffer), inputSize, outputBuffer, expectedFullSize);
