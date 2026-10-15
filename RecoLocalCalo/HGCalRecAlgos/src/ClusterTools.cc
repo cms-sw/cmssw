@@ -56,8 +56,8 @@ float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) cons
       float hitEnergy = rhspan[rechitIndex].energy() * fraction;
       energy += hitEnergy;
       if (id.det() == DetId::HGCalHSi || id.det() == DetId::HGCalHSc ||
-	  (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap)) {
-	energyHad += hitEnergy;
+          (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap)) {
+        energyHad += hitEnergy;
       }
     }
   }
