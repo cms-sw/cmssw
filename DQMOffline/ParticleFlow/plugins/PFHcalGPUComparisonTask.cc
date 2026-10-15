@@ -1,4 +1,3 @@
-#include "DQM/HcalCommon/interface/DQTask.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -9,6 +8,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
@@ -24,25 +24,16 @@
 #define LOGVERB(x) LogTrace(x)
 #endif
 
-using namespace hcaldqm;
-using namespace hcaldqm::constants;
-using namespace hcaldqm::filter;
-
-class PFHcalGPUComparisonTask : public hcaldqm::DQTask {
+class PFHcalGPUComparisonTask : public DQMEDAnalyzer {
 public:
   PFHcalGPUComparisonTask(edm::ParameterSet const&);
   ~PFHcalGPUComparisonTask() override = default;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  std::shared_ptr<hcaldqm::Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const&,
-                                                             edm::EventSetup const&) const override;
-  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void _process(edm::Event const&, edm::EventSetup const&) override;
-  void _resetMonitors(hcaldqm::UpdateFreq) override;
-
   edm::EDGetTokenT<reco::PFClusterCollection> pfClusterTok_ref_;
   edm::EDGetTokenT<reco::PFClusterCollection> pfClusterTok_target_;
 
@@ -63,25 +54,18 @@ private:
   MonitorElement* pfCluster_Eta_Diff_HostvsDevice_;
   MonitorElement* pfCluster_Phi_Diff_HostvsDevice_;
 
-  std::string subsystemDir_;
   std::string compDir_;
 };
 
 PFHcalGPUComparisonTask::PFHcalGPUComparisonTask(edm::ParameterSet const& conf)
-    : DQTask(conf),
-      pfClusterTok_ref_{
+    : pfClusterTok_ref_{
           consumes<reco::PFClusterCollection>(conf.getUntrackedParameter<edm::InputTag>("pfClusterToken_ref"))},
       pfClusterTok_target_{
           consumes<reco::PFClusterCollection>(conf.getUntrackedParameter<edm::InputTag>("pfClusterToken_target"))},
-      subsystemDir_{conf.getUntrackedParameter<std::string>("subsystem")},
       compDir_{conf.getUntrackedParameter<std::string>("compDir")} {}
 
-void PFHcalGPUComparisonTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& r, edm::EventSetup const& es) {
-  _subsystem = subsystemDir_;
-
+void PFHcalGPUComparisonTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
   ibooker.setCurrentFolder(compDir_);
-
-  DQTask::bookHistograms(ibooker, r, es);
 
   // Book monitoring elements
   const char* histo;
@@ -133,9 +117,7 @@ void PFHcalGPUComparisonTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
       ibooker.book1D("PhiDiff", "PFCluster #phi Difference; (Reference - Target);#entries", 100, -0.5, 0.5);
 }
 
-void PFHcalGPUComparisonTask::_resetMonitors(hcaldqm::UpdateFreq uf) { DQTask::_resetMonitors(uf); }
-
-void PFHcalGPUComparisonTask::_process(edm::Event const& event, edm::EventSetup const&) {
+void PFHcalGPUComparisonTask::analyze(edm::Event const& event, edm::EventSetup const&) {
   const auto& pfClusters_ref = event.getHandle(pfClusterTok_ref_);
   const auto& pfClusters_target = event.getHandle(pfClusterTok_target_);
 
@@ -149,9 +131,6 @@ void PFHcalGPUComparisonTask::_process(edm::Event const& event, edm::EventSetup 
     out << "the comparison will not run.";
     return;
   }
-
-  auto lumiCache = luminosityBlockCache(event.getLuminosityBlock().index());
-  _currentLS = lumiCache->currentLS;
 
   // Compare per-event PF cluster multiplicity
   if (pfClusters_ref->size() != pfClusters_target->size()) {
@@ -203,25 +182,8 @@ void PFHcalGPUComparisonTask::_process(edm::Event const& event, edm::EventSetup 
   }
 }
 
-std::shared_ptr<hcaldqm::Cache> PFHcalGPUComparisonTask::globalBeginLuminosityBlock(edm::LuminosityBlock const& lb,
-                                                                                    edm::EventSetup const& es) const {
-  return DQTask::globalBeginLuminosityBlock(lb, es);
-}
-
-void PFHcalGPUComparisonTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  if (_ptype != fOnline)
-    return;
-
-  auto lumiCache = luminosityBlockCache(lb.index());
-  _currentLS = lumiCache->currentLS;
-
-  //	in the end always do the DQTask::endLumi
-  DQTask::globalEndLuminosityBlock(lb, es);
-}
-
 void PFHcalGPUComparisonTask::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<std::string>("subsystem", "ParticleFlow");
   desc.addUntracked<std::string>("compDir", "pfCaloGPUCompDir");
   desc.addUntracked<edm::InputTag>("pfClusterToken_ref", edm::InputTag("hltParticleFlowClusterHCALSerialSync"));
   desc.addUntracked<edm::InputTag>("pfClusterToken_target", edm::InputTag("hltParticleFlowClusterHCAL"));
