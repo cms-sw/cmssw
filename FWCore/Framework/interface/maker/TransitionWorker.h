@@ -3,13 +3,16 @@
 /*----------------------------------------------------------------------    
 */
 
-#include "FWCore/Framework/interface/maker/Worker.h"
-#include "FWCore/Framework/interface/OccurrenceTraits.h"
+#include "FWCore/Framework/interface/maker/TransitionWorkerBase.h"
 #include "FWCore/Framework/interface/TransitionEdge.h"
 #include "FWCore/Framework/interface/TransitionPhaseTypes.h"
 
 #include "TransitionWorker_Common.h"
 #include "TransitionWorker_Event.h"
+#include "TransitionWorker_InputProcessBlock.h"
+#include "TransitionWorker_ProcessBlock.h"
+#include "TransitionWorker_Stream.h"
+
 namespace edm {
   using StreamRunWorker = TransitionWorker<RunTransitionInfo, TransitionPhaseStream>;
   using StreamLumiWorker = TransitionWorker<LumiTransitionInfo, TransitionPhaseStream>;

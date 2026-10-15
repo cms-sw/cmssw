@@ -10,6 +10,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Sources/interface/VectorInputSourceDescription.h"
 #include "FWCore/Sources/interface/VectorInputSourceFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

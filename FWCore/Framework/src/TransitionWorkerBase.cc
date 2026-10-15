@@ -2,7 +2,7 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 #include "FWCore/Concurrency/interface/include_first_syncWait.h"
-#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/maker/TransitionWorkerBase.h"
 #include "FWCore/Framework/interface/EarlyDeleteHelper.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSetupImpl.h"
@@ -18,7 +18,7 @@
 
 namespace edm {
 
-  Worker::Worker(ModuleDescription const& iMD, ExceptionToActionTable const* iActions)
+  TransitionWorkerBase::TransitionWorkerBase(ModuleDescription const& iMD, ExceptionToActionTable const* iActions)
       : state_(Ready),
         moduleCallingContext_(&iMD),
         actions_(iActions),
@@ -28,21 +28,21 @@ namespace edm {
     checkForShouldTryToContinue(iMD);
   }
 
-  Worker::~Worker() {}
+  TransitionWorkerBase::~TransitionWorkerBase() {}
 
-  void Worker::setActivityRegistry(std::shared_ptr<ActivityRegistry> areg) { actReg_ = areg; }
+  void TransitionWorkerBase::setActivityRegistry(std::shared_ptr<ActivityRegistry> areg) { actReg_ = areg; }
 
-  void Worker::checkForShouldTryToContinue(ModuleDescription const& iDesc) {
+  void TransitionWorkerBase::checkForShouldTryToContinue(ModuleDescription const& iDesc) {
     auto pset = edm::pset::Registry::instance()->getMapped(iDesc.parameterSetID());
     if (pset and pset->exists("@shouldTryToContinue")) {
       shouldTryToContinue_ = true;
     }
   }
 
-  bool Worker::shouldRethrowException(std::exception_ptr iPtr,
-                                      ParentContext const& parentContext,
-                                      bool isEvent,
-                                      bool shouldTryToContinue) const noexcept {
+  bool TransitionWorkerBase::shouldRethrowException(std::exception_ptr iPtr,
+                                                    ParentContext const& parentContext,
+                                                    bool isEvent,
+                                                    bool shouldTryToContinue) const noexcept {
     // NOTE: the warning printed as a result of ignoring or failing
     // a module will only be printed during the full true processing
     // pass of this module
@@ -74,10 +74,10 @@ namespace edm {
     return true;
   }
 
-  void Worker::esPrefetchAsync(WaitingTaskHolder iTask,
-                               EventSetupImpl const& iImpl,
-                               Transition iTrans,
-                               ServiceToken const& iToken) noexcept {
+  void TransitionWorkerBase::esPrefetchAsync(WaitingTaskHolder iTask,
+                                             EventSetupImpl const& iImpl,
+                                             Transition iTrans,
+                                             ServiceToken const& iToken) noexcept {
     if (iTrans >= edm::Transition::NumberOfEventSetupTransitions) {
       return;
     }
@@ -99,9 +99,9 @@ namespace edm {
     }
   }
 
-  void Worker::edPrefetchAsync(WaitingTaskHolder iTask,
-                               ServiceToken const& token,
-                               Principal const& iPrincipal) const noexcept {
+  void TransitionWorkerBase::edPrefetchAsync(WaitingTaskHolder iTask,
+                                             ServiceToken const& token,
+                                             Principal const& iPrincipal) const noexcept {
     // Prefetch products the module declares it consumes
     std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFrom(iPrincipal.branchType());
 
@@ -112,7 +112,7 @@ namespace edm {
       }
     }
   }
-  void Worker::resetModuleDescription(ModuleDescription const* iDesc) {
+  void TransitionWorkerBase::resetModuleDescription(ModuleDescription const* iDesc) {
     ModuleCallingContext temp(iDesc,
                               0,
                               moduleCallingContext_.state(),

@@ -34,7 +34,7 @@ namespace edm {
   class DelayedReader;
   class SharedResourcesAcquirer;
   class UnscheduledAuxiliary;
-  class Worker;
+  class TransitionWorkerBase;
   template <typename TI, typename TP>
   class TransitionWorker;
   class EventTransitionInfo;
