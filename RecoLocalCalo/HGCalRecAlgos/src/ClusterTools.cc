@@ -50,7 +50,7 @@ float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) cons
   for (const auto& hit : hits) {
     const auto& id = hit.first;
     const float fraction = hit.second;
-    auto hitIter_= hitMap_->find(id.rawId());
+    auto hitIter = hitMap_->find(id.rawId());
     if (hitIter != hitMap_->end()) {
       unsigned int rechitIndex = hitIter->second;
       float hitEnergy = rhspan[rechitIndex].energy() * fraction;
