@@ -242,8 +242,6 @@ void L1TJetsMatching<T>::produce(edm::StreamID iSId, edm::Event& iEvent, const e
   l1t::JetVectorRef jetCandRefVec;
   l1TriggeredJets->getObjects(trigger::TriggerL1Jet, jetCandRefVec);
 
-  math::XYZPoint a(0., 0., 0.);
-
   //std::cout<<"PFsize= "<<pfJets->size()<<endl<<" L1size= "<<jetCandRefVec.size()<<std::endl;
   for (unsigned int iJet = 0; iJet < pfJets->size(); iJet++) {
     const T& myJet = (*pfJets)[iJet];
