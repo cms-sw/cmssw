@@ -40,7 +40,9 @@ export PATH=$DIR/bin:$PATH
 export PATH=$DIR/efficiency/bin:$PATH
 export PATH=$DIR/efficiency/python:$PATH
 export TRACKLOOPERDIR=$DIR
-export TRACKINGNTUPLEDIR=/data2/segmentlinking/CMSSW_12_2_0_pre2/
+#export TRACKINGNTUPLEDIR=/blue/avery/matthew.dittrich/PT2_Studies/Root_Files/
+export TRACKINGNTUPLEDIR=/blue/avery/aaponteutani/samples/
+#export TRACKINGNTUPLEDIR=/blue/p.chang/mayrasilva/CMSSW_16_1_0/src/
 export LSTOUTPUTDIR=.
 
 hostname=$(hostname)

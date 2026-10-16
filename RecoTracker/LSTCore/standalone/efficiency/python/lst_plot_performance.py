@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/bin/env python3
 
 import argparse
 import ROOT as r
@@ -9,9 +9,8 @@ from math import sqrt
 
 sel_choices = ["base", "loweta", "xtr", "vtr", "none"]
 metric_choices = ["eff", "fakerate", "duplrate", "fakeorduplrate", "avgOTlen"]
-variable_choices = ["pt", "ptmtv", "ptlow", "eta", "phi", "dxy", "dz", "vxy", "deltaEta", "deltaPhi", "deltaR", "genJetEta", "genJetPhi", "genJetPt"]
-objecttype_choices = ["TC", "pT5", "T5", "pT3", "pLS", "T4", "pT5_lower", "pT3_lower", "T5_lower", "pLS_lower"]
-#lowerObjectType = ["pT5_lower", "pT3_lower", "T5_lower"]
+variable_choices = ["pt", "ptmtv", "ptlow", "eta", "phi", "dxy", "dz", "vxy", "deltaEta", "deltaPhi", "deltaR", "jet_eta", "jet_phi", "jet_pt"]
+objecttype_choices = ["TC", "pT5", "T5", "pT3", "pLS", "T4", "pT2", "pT5_lower", "pT3_lower", "T5_lower", "pLS_lower", "pT2_lower"]
 
 r.gROOT.SetBatch(True)
 
@@ -33,6 +32,7 @@ parser.add_argument('--yzoom'       , '-y' , dest='yzoom'       , action="store_
 parser.add_argument('--xcoarse'     , '-x' , dest='xcoarse'     , action="store_true" , help='coarse in x')
 parser.add_argument('--sample_name' , '-S' , dest='sample_name' , type=str            , help='sample name in case one wants to override')
 parser.add_argument('--pt_cut'      ,        dest='pt_cut'      , type=float          , default=0.9, help='transverse momentum cut [DEFAULT=0.9]')
+parser.add_argument('--pt_max'      ,        dest='pt_max'      , type=float          , default=None, help='maximum transverse momentum, only used for the label (match createPerfNumDenHists -P)')
 parser.add_argument('--eta_cut'     ,        dest='eta_cut'     , type=float          , default=4.5, help='pseudorapidity cut [DEFAULT=4.5]')
 parser.add_argument('--compare'     , '-C' , dest='compare'     , action="store_true" , help='plot comparisons of input files')
 parser.add_argument('--comp_labels' , '-L' , dest='comp_labels' , type=str            , help='comma separated legend labels for comparison plots (e.g. reference,pT5_update')
@@ -41,40 +41,7 @@ parser.add_argument('--jet_branches' , '-j', dest='jet_branches', action="store_
 
 #______________________________________________________________________________________________________
 def main():
-
-    # Plotting a set of performance plots
-    #
-    #   $ lst_plot_performance.py -t myRun1 INPUT.root
-    #
-    # where INPUT.root contains a set of numerator and denominator histograms named in following convention
-    #
-    #  Efficiency histogram:
-    #
-    #     Root__<OBJ>_<SEL>_<PDGID>_<CHARGE>_ef_numer_<VARIABLE>
-    #     Root__<OBJ>_<SEL>_<PDGID>_<CHARGE>_ef_denom_<VARIABLE>
-    #
-    #     e.g. Root__pT5_loweta_321_-1_ef_numer_eta
-    #
-    #          OBJ=pT5
-    #          SEL=loweta
-    #          PDGID=Kaon
-    #          CHARGE=-1
-    #          METRIC=ef (efficiency)
-    #          VARIABLE=eta
-    #
-    #  Fake rate or duplicate rate histogram:
-    #
-    #     Root__<OBJ>_fr_numer_<VARIABLE> (fake rate numerator)
-    #     Root__<OBJ>_fr_denom_<VARIABLE> (fake rate denominator)
-    #     Root__<OBJ>_dr_numer_<VARIABLE> (duplicate rate numerator)
-    #     Root__<OBJ>_dr_denom_<VARIABLE> (duplicate rate denominator)
-    #
-    # Once ran, the output will be stored in performance/myRun1_<githash>
-    # Also a ROOT file with the efficiency graphs will be saved to performance/myRun1_<githash>/efficiency.root
-    #
-
     args = parser.parse_args()
-
     plot_standard_performance_plots(args)
 
 #______________________________________________________________________________________________________
@@ -95,10 +62,7 @@ def plot(args):
         params["output_name"] += "coarse"
     if params["yzoom"]:
         params["output_name"] += "zoom"
-    # if params["breakdown"]:
-    #     params["output_name"] += "_breakdown"
-    # if params["compare"]:
-    #     params["output_name"] += "_breakdown"
+
     # Get histogram names
     if params["metric"] == "eff":
         params["denom"] = "Root__{objecttype}_{selection}_{pdgid}_{charge}_{metricsuffix}_denom_{variable}".format(**params)
@@ -107,9 +71,6 @@ def plot(args):
         params["denom"] = "Root__{objecttype}_{metricsuffix}_denom_{variable}".format(**params)
         params["numer"] = "Root__{objecttype}_{metricsuffix}_numer_{variable}".format(**params)
 
-    # print(params["numer"])
-    # print(params["denom"])
-    # print(params["output_name"])
 
     #skip if histograms not found!
     if (not params["input_file"].GetListOfKeys().Contains(params["numer"])) or \
@@ -134,7 +95,7 @@ def plot(args):
     else:
         numer.append(params["input_file"].Get(params["numer"]).Clone())
 
-    breakdown_hist_types = ["pT5", "pT3", "T5", "pLS", "T4"]
+    breakdown_hist_types = ["pT5", "pT3", "T5", "pLS", "T4", "pT2"]
     print("breakdown = ", params["breakdown"])
     if params["breakdown"]:
         for breakdown_hist_type in breakdown_hist_types:
@@ -157,7 +118,7 @@ def plot(args):
 
 
     if params["breakdown"]:
-        params["legend_labels"] = ["TC" ,"pT5" ,"pT3" ,"T5" ,"pLS", "T4"]
+        params["legend_labels"] = ["TC" ,"pT5" ,"pT3" ,"T5" ,"pLS", "T4", "pT2"]
     else:
         params["legend_labels"] = [args.objecttype]
 
@@ -232,14 +193,15 @@ def process_arguments_into_params(args):
     params["input_file"] = f
 
     # git version hash
-    git_hash = f.Get("githash").GetTitle()
+    git_hash = f.Get("githash").GetTitle() if f.Get("githash") else "pT2_Run"
     params["git_hash"] = git_hash
 
     params["pt_cut"] = args.pt_cut
+    params["pt_max"] = args.pt_max
     params["eta_cut"] = args.eta_cut
 
     # sample name
-    sample_name = f.Get("input").GetTitle()
+    sample_name = f.Get("input").GetTitle() if f.Get("input") else "pT2_Sample"
     if args.sample_name:
         sample_name = args.sample_name
     params["sample_name"] = sample_name
@@ -250,8 +212,10 @@ def process_arguments_into_params(args):
         params["additional_sample_names"] = []
         for i in args.inputs[1:]:
             params["additional_input_files"].append(r.TFile(i))
-            params["additional_git_hashes"].append(params["additional_input_files"][-1].Get("githash").GetTitle())
-            params["additional_sample_names"].append(params["additional_input_files"][-1].Get("input").GetTitle())
+            gh_obj = params["additional_input_files"][-1].Get("githash")
+            params["additional_git_hashes"].append(gh_obj.GetTitle() if gh_obj else "pT2_Run")
+            in_obj = params["additional_input_files"][-1].Get("input")
+            params["additional_sample_names"].append(in_obj.GetTitle() if in_obj else "pT2_Sample")
 
     if params["metric"] == "eff": params["metricsuffix"] = "ef"
     if params["metric"] == "duplrate": params["metricsuffix"] = "dr"
@@ -261,13 +225,6 @@ def process_arguments_into_params(args):
 
     # If breakdown it must be object type of TC
     params["breakdown"] = args.breakdown
-#    if args.individual:
-#        params["breakdown"] = False
-#    else:
-        # if params["objecttype"] != "TC":
-        #     print("Warning! objecttype is set to \"TC\" because individual is False!")
-        # params["objecttype"] = "TC"
-#        params["breakdown"] = True
 
     # If compare we compare the different files
     params["compare"] = False
@@ -452,6 +409,8 @@ def parse_plot_name(output_name):
         rtnstr.append("Pixel Line Segment")
     elif "T5_" in output_name:
         rtnstr.append("Quintuplet")
+    elif "pT2_" in output_name:
+        rtnstr.append("Pixel Doublet")
     return " ".join(rtnstr)
 
 #______________________________________________________________________________________________________
@@ -478,11 +437,11 @@ def set_label(eff, output_name, raw_number):
         title = "#phi diffs"
     elif "_deltaR" in output_name:
         title = "#Delta R"
-    elif "_genJetEta" in output_name:
+    elif "_jet_eta" in output_name:
         title = "jet #eta"
-    elif "_genJetPhi" in output_name:
+    elif "_jet_phi" in output_name:
         title = "jet #phi"
-    elif "_genJetPt" in output_name:
+    elif "_jet_pt" in output_name:
         title = "jet pT"
     elif "_dz" in output_name:
         title = "z [cm]"
@@ -526,7 +485,10 @@ def draw_label(params):
     chargestr = get_chargestr(params["charge"])
     output_name = params["output_name"]
     n_events_processed = params["nevts"]
-    ptcut = params["pt_cut"]
+    if params["pt_max"] is not None:
+        ptcut = "{} < p_{{T}} < {} GeV".format(params["pt_cut"], params["pt_max"])
+    else:
+        ptcut = "p_{{T}} > {} GeV".format(params["pt_cut"])
     etacut = params["eta_cut"]
     # Label
     t = r.TLatex()
@@ -557,15 +519,15 @@ def draw_label(params):
         if "_pt" in output_name:
             fiducial_label = "{etacutstr}, |Vtx_{{z}}| < 30 cm, |Vtx_{{xy}}| < 2.5 cm".format(etacutstr=etacutstr)
         elif "_eta" in output_name:
-            fiducial_label = "p_{{T}} > {pt} GeV, |Vtx_{{z}}| < 30 cm, |Vtx_{{xy}}| < 2.5 cm".format(pt=ptcut)
+            fiducial_label = "{pt}, |Vtx_{{z}}| < 30 cm, |Vtx_{{xy}}| < 2.5 cm".format(pt=ptcut)
         elif "_dz" in output_name:
-            fiducial_label = "{etacutstr}, p_{{T}} > {pt} GeV, |Vtx_{{xy}}| < 2.5 cm".format(pt=ptcut, etacutstr=etacutstr)
+            fiducial_label = "{etacutstr}, {pt}, |Vtx_{{xy}}| < 2.5 cm".format(pt=ptcut, etacutstr=etacutstr)
         elif "_dxy" in output_name:
-            fiducial_label = "{etacutstr}, p_{{T}} > {pt} GeV, |Vtx_{{z}}| < 30 cm".format(pt=ptcut, etacutstr=etacutstr)
+            fiducial_label = "{etacutstr}, {pt}, |Vtx_{{z}}| < 30 cm".format(pt=ptcut, etacutstr=etacutstr)
         elif "_vxy" in output_name:
-            fiducial_label = "{etacutstr}, p_{{T}} > {pt} GeV, |Vtx_{{z}}| < 30 cm".format(pt=ptcut, etacutstr=etacutstr)
+            fiducial_label = "{etacutstr}, {pt}, |Vtx_{{z}}| < 30 cm".format(pt=ptcut, etacutstr=etacutstr)
         else:
-            fiducial_label = "{etacutstr}, p_{{T}} > {pt} GeV, |Vtx_{{z}}| < 30 cm, |Vtx_{{xy}}| < 2.5 cm".format(pt=ptcut, etacutstr=etacutstr)
+            fiducial_label = "{etacutstr}, {pt}, |Vtx_{{z}}| < 30 cm, |Vtx_{{xy}}| < 2.5 cm".format(pt=ptcut, etacutstr=etacutstr)
         particleselection = ((", Particle:" + pdgidstr) if pdgidstr else "" ) + ((", Charge:" + chargestr) if chargestr else "" )
         fiducial_label += particleselection
     # If fake rate or duplicate rate plot follow the following fiducial label rule
@@ -573,9 +535,9 @@ def draw_label(params):
         if "_pt" in output_name:
             fiducial_label = "|#eta| < {eta}".format(eta=etacut)
         elif "_eta" in output_name:
-            fiducial_label = "p_{{T}} > {pt} GeV".format(pt=ptcut)
+            fiducial_label = "{pt}".format(pt=ptcut)
         else:
-            fiducial_label = "|#eta| < {eta}, p_{{T}} > {pt} GeV".format(pt=ptcut, eta=etacut)
+            fiducial_label = "|#eta| < {eta}, {pt}".format(pt=ptcut, eta=etacut)
     t.DrawLatexNDC(x,y,"#scale[0.9]{#font[42]{%s}}" % fiducial_label)
 
     # Draw CMS label
@@ -610,8 +572,9 @@ def draw_plot(effs, nums, dens, params):
     effs[0].SetTitle(parse_plot_name(output_name))
 
     # Draw the efficiency graphs
-    colors = [1, 2, 3, 4, 6, 7]
-    markerstyles = [20, 26, 28, 24, 27, 25]
+    # 7th item (pT2) is neon pink (#FF1493) with an open inverted triangle (32)
+    colors = [1, 2, 3, 4, 6, 7, r.TColor.GetColor("#FF1493")]
+    markerstyles = [20, 26, 28, 24, 27, 25, 32]
     markersize = 1.2
     linewidth = 2
     for i, eff in enumerate(effs):
@@ -735,11 +698,7 @@ def plot_standard_performance_plots(args):
             "fakeorduplrate": ["pt", "ptlow", "ptmtv", "eta", "phi"],
             "avgOTlen": ["eta"],
             }
-    if (args.jet_branches): 
-        variables["eff"] = ["pt", "ptlow", "ptmtv", "eta", "phi", "dxy", "dz", "vxy", "deltaEta", "deltaPhi", "deltaR", "genJetEta", "genJetPhi", "genJetPt"]
-        variables["duplrate"] = ["pt", "ptlow", "ptmtv", "eta", "phi", "deltaR"]
-        variables["fakerate"] = ["pt", "ptlow", "ptmtv", "eta", "phi", "deltaR"]
-        variables["fakeorduplrate"] = ["pt", "ptlow", "ptmtv", "eta", "phi", "deltaR"]
+    if (args.jet_branches): variables["eff"] = ["pt", "ptlow", "ptmtv", "eta", "phi", "dxy", "dz", "vxy", "deltaEta", "deltaPhi", "deltaR", "jet_eta", "jet_phi", "jet_pt"]
     sels = {
             "eff": ["base", "loweta"],
             "fakerate": ["none"],
@@ -761,9 +720,9 @@ def plot_standard_performance_plots(args):
         xcoarses["deltaEta"] = [False, True]
         xcoarses["deltaPhi"] = [False, True]
         xcoarses["deltaR"] = [False, True]
-        xcoarses["genJetEta"] = [False, True]
-        xcoarses["genJetPhi"] = [False, True]
-        xcoarses["genJetPt"] = [False, True]
+        xcoarses["jet_eta"] = [False, True]
+        xcoarses["jet_phi"] = [False, True]
+        xcoarses["jet_pt"] = [False, True]
 
     types = objecttype_choices
     breakdowns = {
@@ -774,10 +733,12 @@ def plot_standard_performance_plots(args):
                 "T5": [False],
                 "pLS": [False],
                 "T4": [False],
+                "pT2": [False],
                 "pT5_lower":[False],
                 "pT3_lower":[False],
                 "T5_lower":[False],
                 "pLS_lower":[False],
+                "pT2_lower":[False],
                 },
             "fakerate":{
                 "TC": [True, False],
@@ -786,10 +747,12 @@ def plot_standard_performance_plots(args):
                 "T5": [False],
                 "pLS": [False],
                 "T4": [False],
+                "pT2": [False],
                 "pT5_lower":[False],
                 "pT3_lower":[False],
                 "T5_lower":[False],
                 "pLS_lower":[False],
+                "pT2_lower":[False],
                 },
             "duplrate":{
                 "TC": [True, False],
@@ -798,10 +761,12 @@ def plot_standard_performance_plots(args):
                 "T5": [False],
                 "pLS": [False],
                 "T4": [False],
+                "pT2": [False],
                 "pT5_lower":[False],
                 "pT3_lower":[False],
                 "T5_lower":[False],
                 "pLS_lower":[False],
+                "pT2_lower":[False],
             },
             "fakeorduplrate":{
                 "TC": [True, False],
@@ -810,10 +775,12 @@ def plot_standard_performance_plots(args):
                 "T5": [False],
                 "pLS": [False],
                 "T4": [False],
+                "pT2": [False],
                 "pT5_lower":[False],
                 "pT3_lower":[False],
                 "T5_lower":[False],
                 "pLS_lower":[False],
+                "pT2_lower":[False],
             },
             "avgOTlen":{
                 "TC":[False],
@@ -881,18 +848,18 @@ def plot_standard_performance_plots(args):
 
     if args.individual:
         # Only eff / TC matters here
-        breakdowns = {"eff":{"TC":[False], "pT5_lower":[False], "pT3_lower":[False], "T5_lower":[False], "pLS_lower":[False]},
-                "fakerate": {"TC":[False], "pT5_lower":[False], "pT3_lower":[False], "T5_lower":[False], "pLS_lower":[False]},
-                "duplrate": {"TC":[False], "pT5_lower":[False], "pT3_lower":[False], "T5_lower":[False], "pLS_lower":[False]},
-                "fakeorduplrate": {"TC":[False], "pT5_lower":[False], "pT3_lower":[False], "T5_lower":[False], "pLS_lower":[False]},
-                "avgOTlen":{"TC":[False], "pT5_lower":[False], "pT3_lower":[False], "T5_lower":[False], "pLS_lower":[False]}}
+        breakdowns = {"eff":{"TC":[False], "pT5_lower":[False], "pT3_lower":[False], "T5_lower":[False], "pLS_lower":[False], "pT2_lower":[False]},
+                "fakerate": {"TC":[False], "pT5_lower":[False], "pT3_lower":[False], "T5_lower":[False], "pLS_lower":[False], "pT2_lower":[False]},
+                "duplrate": {"TC":[False], "pT5_lower":[False], "pT3_lower":[False], "T5_lower":[False], "pLS_lower":[False], "pT2_lower":[False]},
+                "fakeorduplrate": {"TC":[False], "pT5_lower":[False], "pT3_lower":[False], "T5_lower":[False], "pLS_lower":[False], "pT2_lower":[False]},
+                "avgOTlen":{"TC":[False], "pT5_lower":[False], "pT3_lower":[False], "T5_lower":[False], "pLS_lower":[False], "pT2_lower":[False]}}
     else:
         # Only eff / TC matters here
-        breakdowns = {"eff":{"TC":[True], "pT5_lower":[False], "pT3_lower":[False], "T5_lower":[False], "pLS_lower":[False]},
-                "fakerate": {"TC":[True], "pT5_lower":[False], "pT3_lower":[False], "T5_lower":[False], "pLS_lower":[False]},
-                "duplrate": {"TC":[True], "pT5_lower":[False], "pT3_lower":[False], "T5_lower":[False], "pLS_lower":[False]},
-                "fakeorduplrate": {"TC":[True], "pT5_lower":[False], "pT3_lower":[False], "T5_lower":[False], "pLS_lower":[False]},
-                "avgOTlen":{"TC":[False], "pT5_lower":[False], "pT3_lower":[False], "T5_lower":[False], "pLS_lower":[False]}}
+        breakdowns = {"eff":{"TC":[True], "pT5_lower":[False], "pT3_lower":[False], "T5_lower":[False], "pLS_lower":[False], "pT2_lower":[False]},
+                "fakerate": {"TC":[True], "pT5_lower":[False], "pT3_lower":[False], "T5_lower":[False], "pLS_lower":[False], "pT2_lower":[False]},
+                "duplrate": {"TC":[True], "pT5_lower":[False], "pT3_lower":[False], "T5_lower":[False], "pLS_lower":[False], "pT2_lower":[False]},
+                "fakeorduplrate": {"TC":[True], "pT5_lower":[False], "pT3_lower":[False], "T5_lower":[False], "pLS_lower":[False], "pT2_lower":[False]},
+                "avgOTlen":{"TC":[False], "pT5_lower":[False], "pT3_lower":[False], "T5_lower":[False], "pLS_lower":[False], "pT2_lower":[False]}}
     if args.yzoom:
         args.yzooms = [args.yzoom]
 

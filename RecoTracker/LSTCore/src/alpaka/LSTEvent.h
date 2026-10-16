@@ -122,8 +122,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           pixelMapping_(*deviceESData->pixelMapping),
           endcapGeometry_(*deviceESData->endcapGeometry),
           objectsStatistics_(verbose) {
-      if (ptCut < 0.6f) {
-        throw std::invalid_argument("Minimum pT cut must be at least 0.6 GeV. Provided value: " +
+      if (ptCut < 0.3f) {
+        throw std::invalid_argument("Minimum pT cut must be at least 0.4 GeV. Provided value: " +
                                     std::to_string(ptCut));
       }
     }

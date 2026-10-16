@@ -29,6 +29,7 @@ void parseArguments(int argc, char** argv) {
       cxxopts::value<int>())(
       "g,pdgid", "additional pdgid filtering to use (must be comma separated)", cxxopts::value<std::string>())(
       "p,pt_cut", "Transverse momentum cut", cxxopts::value<float>()->default_value("0.9"))(
+      "P,pt_max", "Maximum transverse momentum (inclusive)", cxxopts::value<float>()->default_value("1e9"))(
       "e,eta_cut", "Pseudorapidity cut", cxxopts::value<float>()->default_value("4.5"))(
       "d,debug", "Run debug job. i.e. overrides output option to 'debug.root' and 'recreate's the file.")(
       "J,jet_branches", "Accounts for specific jet branches in input root file for testing")("h,help", "Print help");
@@ -70,6 +71,10 @@ void parseArguments(int argc, char** argv) {
   //_______________________________________________________________________________
   // --pt_cut
   ana.pt_cut = result["pt_cut"].as<float>();
+
+  //_______________________________________________________________________________
+  // --pt_max
+  ana.pt_max = result["pt_max"].as<float>();
 
   //_______________________________________________________________________________
   // --eta_cut
@@ -162,6 +167,7 @@ void parseArguments(int argc, char** argv) {
   std::cout << " ana.output_tfile: " << ana.output_tfile->GetName() << std::endl;
   std::cout << " ana.n_events: " << ana.n_events << std::endl;
   std::cout << " ana.pt_cut: " << ana.pt_cut << std::endl;
+  std::cout << " ana.pt_max: " << ana.pt_max << std::endl;
   std::cout << " ana.eta_cut: " << ana.eta_cut << std::endl;
   std::cout << " ana.nsplit_jobs: " << ana.nsplit_jobs << std::endl;
   std::cout << " ana.job_index: " << ana.job_index << std::endl;
@@ -206,16 +212,23 @@ void initializeInputsAndOutputs() {
   TFile* firstFile = new TFile(vstr[0]);
 
   // Obtain the info from the input file
-  TString code_tag_data = firstFile->Get("code_tag_data")->GetTitle();
-  TString gitdiff = firstFile->Get("gitdiff")->GetTitle();
-  TString input = firstFile->Get("input")->GetTitle();
+  // (ntuples rewritten by the pT2 injector carry only the tree, so fall back to placeholder names)
+  TObject* code_tag_data_obj = firstFile->Get("code_tag_data");
+  TObject* gitdiff_obj = firstFile->Get("gitdiff");
+  TObject* input_obj = firstFile->Get("input");
+  TString code_tag_data = code_tag_data_obj ? code_tag_data_obj->GetTitle() : "";
+  TString gitdiff = gitdiff_obj ? gitdiff_obj->GetTitle() : "";
+  TString input = input_obj ? input_obj->GetTitle() : "pT2_Sample";
 
   // cd to output file
   ana.output_tfile->cd();
 
   // Write the githash after parsing whether there is any gitdiff
-  TString githash = RooUtil::StringUtil::split(code_tag_data, "\n")[0];
-  githash = githash(0, 6);
+  TString githash = "pT2_Run";
+  if (code_tag_data.Length() > 0) {
+    githash = RooUtil::StringUtil::split(code_tag_data, "\n")[0];
+    githash = githash(0, 6);
+  }
   std::cout << " gitdiff.Length(): " << gitdiff.Length() << std::endl;
   if (gitdiff.Length() > 0)
     githash += "D";

@@ -45,6 +45,9 @@ def simTrkInfo(event,dict_):
             if event.tc_type[tc] == 8:
               dict_["N_matchedWpLS"] = dict_["N_matchedWpLS"] + 1
               if isGood: dict_["N_goodMatchedWpLS"] = dict_["N_goodMatchedWpLS"] + 1
+            if event.tc_type[tc] == 2:
+              dict_["N_matchedWpT2"] = dict_["N_matchedWpT2"] + 1
+              if isGood: dict_["N_goodMatchedWpT2"] = dict_["N_goodMatchedWpT2"] + 1
 
   return dict_
 
@@ -55,6 +58,7 @@ def dupOfTCObj(tc,objType,event,dict_,debug=False):
   isDuplicateWpT3 = False
   isDuplicateWT5 = False
   isDuplicateWpLS = False
+  isDuplicateWpT2 = False
 
   dict_["N_"+objType] = dict_["N_"+objType] + 1
 
@@ -75,12 +79,14 @@ def dupOfTCObj(tc,objType,event,dict_,debug=False):
           if event.tc_type[tcOther] == 5: isDuplicateWpT3 = True
           if event.tc_type[tcOther] == 4: isDuplicateWT5 = True
           if event.tc_type[tcOther] == 8: isDuplicateWpLS = True
+          if event.tc_type[tcOther] == 2: isDuplicateWpT2 = True
 
   if isDuplicate: dict_["Ndup_"+objType+"Total"] = dict_["Ndup_"+objType+"Total"] + 1
   if isDuplicateWpT5: dict_["Ndup_"+objType+"WpT5"] = dict_["Ndup_"+objType+"WpT5"] + 1
   if isDuplicateWpT3: dict_["Ndup_"+objType+"WpT3"] = dict_["Ndup_"+objType+"WpT3"] + 1
   if isDuplicateWT5: dict_["Ndup_"+objType+"WT5"] = dict_["Ndup_"+objType+"WT5"] + 1
   if isDuplicateWpLS: dict_["Ndup_"+objType+"WpLS"] = dict_["Ndup_"+objType+"WpLS"] + 1
+  if isDuplicateWpT2: dict_["Ndup_"+objType+"WpT2"] = dict_["Ndup_"+objType+"WpT2"] + 1
 
   return dict_
 
@@ -91,6 +97,7 @@ def dupOfTC(event,dict_,debug=False):
     if event.tc_type[tc] == 5: dict_ = dupOfTCObj(tc,"pT3",event,dict_,debug=debug)
     if event.tc_type[tc] == 4: dict_ = dupOfTCObj(tc,"T5",event,dict_,debug=debug)
     if event.tc_type[tc] == 8: dict_ = dupOfTCObj(tc,"pLS",event,dict_,debug=debug)
+    if event.tc_type[tc] == 2: dict_ = dupOfTCObj(tc,"pT2",event,dict_,debug=debug)
 
   return dict_
 
@@ -310,6 +317,7 @@ def printSimComp(dict_):
   print "Matched with pT3 = %d (%.2f%%)" %( dict_["N_matchedWpT3"], float(dict_["N_matchedWpT3"])/float(dict_["N"])*100 )
   print "Matched with T5 = %d (%.2f%%)" %( dict_["N_matchedWT5"], float(dict_["N_matchedWT5"])/float(dict_["N"])*100 )
   print "Matched with pLS = %d (%.2f%%)" %( dict_["N_matchedWpLS"], float(dict_["N_matchedWpLS"])/float(dict_["N"])*100 )
+  print "Matched with pT2 = %d (%.2f%%)" %( dict_["N_matchedWpT2"], float(dict_["N_matchedWpT2"])/float(dict_["N"])*100 )
   print ""
   print "Good sim = %d (%.2f%%)" %( dict_["N_good"], float(dict_["N_good"])/float(dict_["N"])*100 )
   print "Matched good sim = %d (%.2f%%)" %( dict_["N_goodMatched"], float(dict_["N_goodMatched"])/float(dict_["N_good"])*100 )
@@ -319,6 +327,7 @@ def printSimComp(dict_):
   print "Good sim matched with pT3 = %d (%.2f%%)" %( dict_["N_goodMatchedWpT3"], float(dict_["N_goodMatchedWpT3"])/float(dict_["N_good"])*100 )
   print "Good sim matched with T5 = %d (%.2f%%)" %( dict_["N_goodMatchedWT5"], float(dict_["N_goodMatchedWT5"])/float(dict_["N_good"])*100 )
   print "Good sim matched with pLS = %d (%.2f%%)" %( dict_["N_goodMatchedWpLS"], float(dict_["N_goodMatchedWpLS"])/float(dict_["N_good"])*100 )
+  print "Good sim matched with pT2 = %d (%.2f%%)" %( dict_["N_goodMatchedWpT2"], float(dict_["N_goodMatchedWpT2"])/float(dict_["N_good"])*100 )
   print ""
   return
 
@@ -336,6 +345,7 @@ def printTCComp(objType,dict_):
   print objType+" Duplicates with pT3 = %d (%.2f%%)" %( dict_["Ndup_"+objType+"WpT3"], float(dict_["Ndup_"+objType+"WpT3"])/float(dict_["N_"+objType])*100 )
   print objType+" Duplicates with T5 = %d (%.2f%%)" %( dict_["Ndup_"+objType+"WT5"], float(dict_["Ndup_"+objType+"WT5"])/float(dict_["N_"+objType])*100 )
   print objType+" Duplicates with pLS = %d (%.2f%%)" %( dict_["Ndup_"+objType+"WpLS"], float(dict_["Ndup_"+objType+"WpLS"])/float(dict_["N_"+objType])*100 )
+  print objType+" Duplicates with pT2 = %d (%.2f%%)" %( dict_["Ndup_"+objType+"WpT2"], float(dict_["Ndup_"+objType+"WpT2"])/float(dict_["N_"+objType])*100 )
   print objType+" Total duplicates = %d (%.2f%%)" %( dict_["Ndup_"+objType+"Total"], float(dict_["Ndup_"+objType+"Total"])/float(dict_["N_"+objType])*100 )
   print objType+" Single matched non-fakes = %d (%.2f%%)" %( dict_["N_"+objType+"singleMatched"], float(dict_["N_"+objType+"singleMatched"])/float(dict_["N_"+objType])*100 )
   print ""
@@ -365,16 +375,21 @@ def printObjComp(objType,dict_):
   return
 
 
-dict_sim = { "N": 0, "N_matched": 0, "N_singleMatched": 0, "N_dup": 0, "N_matchedWpT5": 0, "N_matchedWpT3": 0, "N_matchedWT5": 0, "N_matchedWpLS": 0,\
-    "N_good": 0, "N_goodMatched": 0, "N_goodSingleMatched": 0, "N_goodDup": 0, "N_goodMatchedWpT5": 0, "N_goodMatchedWpT3": 0, "N_goodMatchedWT5": 0, "N_goodMatchedWpLS": 0 }
-dict_TCTot = { "N_": 0, "N_fakes": 0, "Ndup_WpT5": 0, "Ndup_WpT3": 0, "Ndup_WT5": 0, "Ndup_WpLS": 0, "Ndup_Total": 0, "N_singleMatched": 0 }
-dict_TC = { "N_pT5": 0, "N_pT5fakes": 0, "Ndup_pT5WpT5": 0, "Ndup_pT5WpT3": 0, "Ndup_pT5WT5": 0, "Ndup_pT5WpLS": 0, "Ndup_pT5Total": 0, "N_pT5singleMatched": 0,\
-    "N_pT3": 0, "N_pT3fakes": 0, "Ndup_pT3WpT5": 0, "Ndup_pT3WpT3": 0, "Ndup_pT3WT5": 0, "Ndup_pT3WpLS": 0, "Ndup_pT3Total": 0, "N_pT3singleMatched": 0,\
-    "N_T5": 0, "N_T5fakes": 0, "Ndup_T5WpT5": 0, "Ndup_T5WpT3": 0, "Ndup_T5WT5": 0, "Ndup_T5WpLS": 0, "Ndup_T5Total": 0, "N_T5singleMatched": 0,\
-    "N_pLS": 0, "N_pLSfakes": 0, "Ndup_pLSWpT5": 0, "Ndup_pLSWpT3": 0, "Ndup_pLSWT5": 0, "Ndup_pLSWpLS": 0, "Ndup_pLSTotal": 0, "N_pLSsingleMatched": 0 }
+dict_sim = { "N": 0, "N_matched": 0, "N_singleMatched": 0, "N_dup": 0, "N_matchedWpT5": 0, "N_matchedWpT3": 0, "N_matchedWT5": 0, "N_matchedWpLS": 0, "N_matchedWpT2": 0,\
+    "N_good": 0, "N_goodMatched": 0, "N_goodSingleMatched": 0, "N_goodDup": 0, "N_goodMatchedWpT5": 0, "N_goodMatchedWpT3": 0, "N_goodMatchedWT5": 0, "N_goodMatchedWpLS": 0, "N_goodMatchedWpT2": 0 }
+
+dict_TCTot = { "N_": 0, "N_fakes": 0, "Ndup_WpT5": 0, "Ndup_WpT3": 0, "Ndup_WT5": 0, "Ndup_WpLS": 0, "Ndup_WpT2": 0, "Ndup_Total": 0, "N_singleMatched": 0 }
+
+dict_TC = { "N_pT5": 0, "N_pT5fakes": 0, "Ndup_pT5WpT5": 0, "Ndup_pT5WpT3": 0, "Ndup_pT5WT5": 0, "Ndup_pT5WpLS": 0, "Ndup_pT5WpT2": 0, "Ndup_pT5Total": 0, "N_pT5singleMatched": 0,\
+    "N_pT3": 0, "N_pT3fakes": 0, "Ndup_pT3WpT5": 0, "Ndup_pT3WpT3": 0, "Ndup_pT3WT5": 0, "Ndup_pT3WpLS": 0, "Ndup_pT3WpT2": 0, "Ndup_pT3Total": 0, "N_pT3singleMatched": 0,\
+    "N_T5": 0, "N_T5fakes": 0, "Ndup_T5WpT5": 0, "Ndup_T5WpT3": 0, "Ndup_T5WT5": 0, "Ndup_T5WpLS": 0, "Ndup_T5WpT2": 0, "Ndup_T5Total": 0, "N_T5singleMatched": 0,\
+    "N_pLS": 0, "N_pLSfakes": 0, "Ndup_pLSWpT5": 0, "Ndup_pLSWpT3": 0, "Ndup_pLSWT5": 0, "Ndup_pLSWpLS": 0, "Ndup_pLSWpT2": 0, "Ndup_pLSTotal": 0, "N_pLSsingleMatched": 0,\
+    "N_pT2": 0, "N_pT2fakes": 0, "Ndup_pT2WpT5": 0, "Ndup_pT2WpT3": 0, "Ndup_pT2WT5": 0, "Ndup_pT2WpLS": 0, "Ndup_pT2WpT2": 0, "Ndup_pT2Total": 0, "N_pT2singleMatched": 0 }
+
 dict_pT5 = { "N": 0, "Nfakes": 0, "Ndup_WpT5": 0, "Ndup_WpT3": 0, "Ndup_WT5": 0, "Ndup_WpT5ApT3": 0, "Ndup_WpT5AT5": 0, "Ndup_WpT3AT5": 0, "Ndup_Wall": 0, "Ndup_Total": 0, "NsingleMatched": 0 }
 dict_pT3 = { "N": 0, "Nfakes": 0, "Ndup_WpT5": 0, "Ndup_WpT3": 0, "Ndup_WT5": 0, "Ndup_WpT5ApT3": 0, "Ndup_WpT5AT5": 0, "Ndup_WpT3AT5": 0, "Ndup_Wall": 0, "Ndup_Total": 0, "NsingleMatched": 0 }
 dict_T5 = { "N": 0, "Nfakes": 0, "Ndup_WpT5": 0, "Ndup_WpT3": 0, "Ndup_WT5": 0, "Ndup_WpT5ApT3": 0, "Ndup_WpT5AT5": 0, "Ndup_WpT3AT5": 0, "Ndup_Wall": 0, "Ndup_Total": 0, "NsingleMatched": 0 }
+
 
 debug = False
 if args.debugLevel==2: debug=True # Object level debugging
@@ -396,6 +411,7 @@ for i,event in enumerate(intree):
     printTCComp("pT3",dict_TC)
     printTCComp("T5",dict_TC)
     printTCComp("pLS",dict_TC)
+    printTCComp("pT2",dict_TC)
     if args.runExtraObjects:
       printObjComp("pT5",dict_pT5)
       printObjComp("pT3",dict_pT3)
@@ -405,20 +421,23 @@ for i,event in enumerate(intree):
 
 printSimComp(dict_sim)
 if not args.dontRunTCs:
-  dict_TCTot["N_"] = dict_TC["N_pT5"] + dict_TC["N_pT3"] + dict_TC["N_T5"] + dict_TC["N_pLS"]
-  dict_TCTot["N_fakes"] = dict_TC["N_pT5fakes"] + dict_TC["N_pT3fakes"] + dict_TC["N_T5fakes"] + dict_TC["N_pLSfakes"]
-  dict_TCTot["Ndup_WpT5"] = dict_TC["Ndup_pT5WpT5"] + dict_TC["Ndup_pT3WpT5"] + dict_TC["Ndup_T5WpT5"] + dict_TC["Ndup_pLSWpT5"]
-  dict_TCTot["Ndup_WpT3"] = dict_TC["Ndup_pT5WpT3"] + dict_TC["Ndup_pT3WpT3"] + dict_TC["Ndup_T5WpT3"] + dict_TC["Ndup_pLSWpT3"]
-  dict_TCTot["Ndup_WT5"] = dict_TC["Ndup_pT5WT5"] + dict_TC["Ndup_pT3WT5"] + dict_TC["Ndup_T5WT5"] + dict_TC["Ndup_pLSWT5"]
-  dict_TCTot["Ndup_WpLS"] = dict_TC["Ndup_pT5WpLS"] + dict_TC["Ndup_pT3WpLS"] + dict_TC["Ndup_T5WpLS"] + dict_TC["Ndup_pLSWpLS"]
-  dict_TCTot["Ndup_Total"] = dict_TC["Ndup_pT5Total"] + dict_TC["Ndup_pT3Total"] + dict_TC["Ndup_T5Total"] + dict_TC["Ndup_pLSTotal"]
-  dict_TCTot["N_singleMatched"] = dict_TC["N_pT5singleMatched"] + dict_TC["N_pT3singleMatched"] + dict_TC["N_T5singleMatched"] + dict_TC["N_pLSsingleMatched"]
+  dict_TCTot["N_"] = dict_TC["N_pT5"] + dict_TC["N_pT3"] + dict_TC["N_T5"] + dict_TC["N_pLS"] + dict_TC["N_pT2"]
+  dict_TCTot["N_fakes"] = dict_TC["N_pT5fakes"] + dict_TC["N_pT3fakes"] + dict_TC["N_T5fakes"] + dict_TC["N_pLSfakes"] + dict_TC["N_pT2fakes"]
+  dict_TCTot["Ndup_WpT5"] = dict_TC["Ndup_pT5WpT5"] + dict_TC["Ndup_pT3WpT5"] + dict_TC["Ndup_T5WpT5"] + dict_TC["Ndup_pLSWpT5"] + dict_TC["Ndup_pT2WpT5"]
+  dict_TCTot["Ndup_WpT3"] = dict_TC["Ndup_pT5WpT3"] + dict_TC["Ndup_pT3WpT3"] + dict_TC["Ndup_T5WpT3"] + dict_TC["Ndup_pLSWpT3"] + dict_TC["Ndup_pT2WpT3"]
+  dict_TCTot["Ndup_WT5"] = dict_TC["Ndup_pT5WT5"] + dict_TC["Ndup_pT3WT5"] + dict_TC["Ndup_T5WT5"] + dict_TC["Ndup_pLSWT5"] + dict_TC["Ndup_pT2WT5"]
+  dict_TCTot["Ndup_WpLS"] = dict_TC["Ndup_pT5WpLS"] + dict_TC["Ndup_pT3WpLS"] + dict_TC["Ndup_T5WpLS"] + dict_TC["Ndup_pLSWpLS"] + dict_TC["Ndup_pT2WpLS"]
+  dict_TCTot["Ndup_WpT2"] = dict_TC["Ndup_pT5WpT2"] + dict_TC["Ndup_pT3WpT2"] + dict_TC["Ndup_T5WpT2"] + dict_TC["Ndup_pLSWpT2"] + dict_TC["Ndup_pT2WpT2"]
+  dict_TCTot["Ndup_Total"] = dict_TC["Ndup_pT5Total"] + dict_TC["Ndup_pT3Total"] + dict_TC["Ndup_T5Total"] + dict_TC["Ndup_pLSTotal"] + dict_TC["Ndup_pT2Total"]
+  dict_TCTot["N_singleMatched"] = dict_TC["N_pT5singleMatched"] + dict_TC["N_pT3singleMatched"] + dict_TC["N_T5singleMatched"] + dict_TC["N_pLSsingleMatched"] + dict_TC["N_pT2singleMatched"]
 
   printTCComp("",dict_TCTot)
   printTCComp("pT5",dict_TC)
   printTCComp("pT3",dict_TC)
   printTCComp("T5",dict_TC)
   printTCComp("pLS",dict_TC)
+  printTCComp("pT2",dict_TC)
+
 if args.runExtraObjects:
   printObjComp("pT5",dict_pT5)
   printObjComp("pT3",dict_pT3)

@@ -1,6 +1,6 @@
 #include "performance.h"
 
-enum { pT5 = 7, pT3 = 5, T5 = 4, pLS = 8, T4 = 9 };
+enum { pT2 = 2, pT5 = 7, pT3 = 5, T5 = 4, pLS = 8, T4 = 9 };
 
 //__________________________________________________________________________________________________________________________________________________________________________
 int main(int argc, char** argv) {
@@ -41,13 +41,24 @@ int main(int argc, char** argv) {
   for (auto& pdgid : pdgids) {
     for (auto& charge : charges) {
       for (unsigned int isel = 0; isel < sels.size(); ++isel) {
+
         list_effSetDef.push_back(
-            SimTrackSetDefinition(/* name  */
-                                  TString("TC_") + selnames[isel],
+            SimTrackSetDefinition(/* name  */ TString("TC_") + selnames[isel],
                                   /* pdgid */ pdgid,
                                   /* q     */ charge,
-                                  /* pass  */ [&](unsigned int isim) { return lstEff.getVI("sim_tcIdx").at(isim) >= 0; },
+                                  /* pass  */ [&](unsigned int isim) {
+                                      // Get the values using the new syntax:
+                                      bool found_TC = lstEff.getVI("sim_tcIdx").at(isim) >= 0;
+                                      bool found_pT2 = lstEff.getVI("sim_pT2_matched").at(isim) > 0;
+
+                                      // To get the BOOSTED efficiency (TC + pT2), use this:
+                                      return found_TC or found_pT2;
+
+                                      // To get the OLD BASELINE efficiency, use this instead:
+                                      // return found_TC;
+                                  },
                                   /* sel   */ sels[isel]));
+
         list_effSetDef.push_back(SimTrackSetDefinition(
             /* name  */
             TString("pT5_") + selnames[isel],
@@ -108,6 +119,20 @@ int main(int argc, char** argv) {
               return lstEff_sim_tcIdx.at(isim) >= 0 ? lstEff_tc_type.at(lstEff_sim_tcIdx.at(isim)) == T4 : false;
             },
             /* sel   */ sels[isel]));
+
+        list_effSetDef.push_back(SimTrackSetDefinition(
+            /* name  */
+            TString("pT2_") + selnames[isel],
+            /* pdgid */ pdgid,
+            /* q     */ charge,
+            /* pass  */
+            [&](unsigned int isim) {
+              auto& lstEff_sim_tcIdx = lstEff.getVI("sim_tcIdx");
+              auto& lstEff_tc_type = lstEff.getVI("tc_type");
+              return lstEff_sim_tcIdx.at(isim) >= 0 ? lstEff_tc_type.at(lstEff_sim_tcIdx.at(isim)) == pT2 : false;
+            },
+            /* sel   */ sels[isel]));
+
 
         if (ana.do_lower_level) {
           //lower objects - name will have pT5_lower_, T5_lower_, pT3_lower_
@@ -170,6 +195,13 @@ int main(int argc, char** argv) {
                 }
                 return false;
               },
+              /* sel   */ sels[isel]));
+
+          list_effSetDef.push_back(SimTrackSetDefinition(
+              /* name  */ TString("pT2_lower_") + selnames[isel],
+              /* pdgid */ pdgid,
+              /* q     */ charge,
+              /* pass  */ [&](unsigned int isim) { return lstEff.getVI("sim_pT2_matched").at(isim) > 0; },
               /* sel   */ sels[isel]));
         }
       }
@@ -259,6 +291,17 @@ int main(int argc, char** argv) {
                              /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
                              /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
                              /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
+  list_FRSetDef.push_back(
+      RecoTrackSetDefinition(/* name  */
+                             "pT2",
+                             /* pass  */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_isFake").at(itc) > 0; },
+                             /* sel   */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_type").at(itc) == pT2; },
+                             /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                             /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                             /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                             /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
 
   if (ana.do_lower_level) {
     list_FRSetDef.push_back(RecoTrackSetDefinition(
@@ -297,6 +340,15 @@ int main(int argc, char** argv) {
         /* eta   */ [&]() { return lstEff.getVF("pLS_eta"); },
         /* phi   */ [&]() { return lstEff.getVF("pLS_phi"); },
         /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pLS_pt").size(), 1); }));
+    list_FRSetDef.push_back(RecoTrackSetDefinition(
+        /* name  */ "pT2_lower",
+        /* pass  */ [&](unsigned int ipT2) { return lstEff.getVI("pT2_isFake").at(ipT2) > 0; },
+        /* sel   */ [&](unsigned int ipT2) { return 1; },
+        /* pt    */ [&]() { return lstEff.getVF("pT2_pt"); },
+        /* eta   */ [&]() { return lstEff.getVF("pT2_eta"); },
+        /* phi   */ [&]() { return lstEff.getVF("pT2_phi"); },
+        /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pT2_pt").size(), 1); }));
+
   }
 
   bookFakeRateSets(list_FRSetDef);
@@ -368,6 +420,17 @@ int main(int argc, char** argv) {
                              /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
                              /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
                              /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
+  list_DRSetDef.push_back(
+      RecoTrackSetDefinition(/* name  */
+                             "pT2",
+                             /* pass  */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_isDuplicate").at(itc) > 0; },
+                             /* sel   */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_type").at(itc) == pT2; },
+                             /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                             /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                             /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                             /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
 
   if (ana.do_lower_level) {
     list_DRSetDef.push_back(RecoTrackSetDefinition(
@@ -406,6 +469,15 @@ int main(int argc, char** argv) {
         /* eta   */ [&]() { return lstEff.getVF("pLS_eta"); },
         /* phi   */ [&]() { return lstEff.getVF("pLS_phi"); },
         /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pLS_pt").size(), 1); }));
+    list_DRSetDef.push_back(RecoTrackSetDefinition(
+        /* name  */ "pT2_lower",
+        /* pass  */ [&](unsigned int ipT2) { return lstEff.getVI("pT2_isDuplicate").at(ipT2) > 0; },
+        /* sel   */ [&](unsigned int ipT2) { return 1; },
+        /* pt    */ [&]() { return lstEff.getVF("pT2_pt"); },
+        /* eta   */ [&]() { return lstEff.getVF("pT2_eta"); },
+        /* phi   */ [&]() { return lstEff.getVF("pT2_phi"); },
+        /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pT2_pt").size(), 1); }));
+
   }
 
   bookDuplicateRateSets(list_DRSetDef);
@@ -494,6 +566,20 @@ int main(int argc, char** argv) {
                              /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
                              /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
                              /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
+  list_FDRSetDef.push_back(
+      RecoTrackSetDefinition(/* name  */
+                             "pT2",
+                             /* pass  */
+                             [&](unsigned int itc) {
+                               return (lstEff.getVI("tc_isDuplicate").at(itc) > 0) or
+                                      (lstEff.getVI("tc_isFake").at(itc) > 0);
+                             },
+                             /* sel   */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_type").at(itc) == pT2; },
+                             /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                             /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                             /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                             /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
 
   if (ana.do_lower_level) {
     list_FDRSetDef.push_back(RecoTrackSetDefinition(
@@ -544,6 +630,18 @@ int main(int argc, char** argv) {
         /* eta   */ [&]() { return lstEff.getVF("pLS_eta"); },
         /* phi   */ [&]() { return lstEff.getVF("pLS_phi"); },
         /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pLS_pt").size(), 1); }));
+    list_FDRSetDef.push_back(RecoTrackSetDefinition(
+        /* name  */ "pT2_lower",
+        /* pass  */
+        [&](unsigned int ipT2) {
+          return (lstEff.getVI("pT2_isDuplicate").at(ipT2) > 0) or (lstEff.getVI("pT2_isFake").at(ipT2) > 0);
+        },
+        /* sel   */ [&](unsigned int ipT2) { return 1; },
+        /* pt    */ [&]() { return lstEff.getVF("pT2_pt"); },
+        /* eta   */ [&]() { return lstEff.getVF("pT2_eta"); },
+        /* phi   */ [&]() { return lstEff.getVF("pT2_phi"); },
+        /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pT2_pt").size(), 1); }));
+
   }
 
   bookFakeOrDuplicateRateSets(list_FDRSetDef);
@@ -650,7 +748,7 @@ void fillOTLengthSet(int itc, RecoTrackSetDefinition& OLset, float pt, float eta
     return;
   const int otlen = tc_nhitOT[itc];
 
-  if (pt > ana.pt_cut) {
+  if (pt > ana.pt_cut and pt <= ana.pt_max) {
     // Denominator: one entry per TC
     ana.tx.pushbackToBranch<float>(category_name + "_ol_denom_eta", eta);
 
@@ -1186,7 +1284,7 @@ void fillEfficiencySet(int isimtrk,
   const float vtx_perp_thresh = 2.5;
 
   // N minus eta cut
-  if (pt > ana.pt_cut and std::abs(vtx_z) < vtx_z_thresh and std::abs(vtx_perp) < vtx_perp_thresh) {
+  if (pt > ana.pt_cut and pt <= ana.pt_max and std::abs(vtx_z) < vtx_z_thresh and std::abs(vtx_perp) < vtx_perp_thresh) {
     // vs. eta plot
     ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_eta", eta);
     if (pass)
@@ -1206,7 +1304,7 @@ void fillEfficiencySet(int isimtrk,
   }
 
   // N minus dxy cut
-  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and std::abs(vtx_z) < vtx_z_thresh) {
+  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and pt <= ana.pt_max and std::abs(vtx_z) < vtx_z_thresh) {
     // vs. dxy plot
     ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_dxy", dxy);
     ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_vxy", vtx_perp);
@@ -1220,7 +1318,7 @@ void fillEfficiencySet(int isimtrk,
   }
 
   // N minus dz cut
-  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and std::abs(vtx_perp) < vtx_perp_thresh) {
+  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and pt <= ana.pt_max and std::abs(vtx_perp) < vtx_perp_thresh) {
     // vs. dz plot
     ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_dz", dz);
     if (pass)
@@ -1230,7 +1328,7 @@ void fillEfficiencySet(int isimtrk,
   }
 
   // All phase-space cuts
-  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and std::abs(vtx_z) < vtx_z_thresh and
+  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and pt <= ana.pt_max and std::abs(vtx_z) < vtx_z_thresh and
       std::abs(vtx_perp) < vtx_perp_thresh) {
     // vs. Phi plot
     ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_phi", phi);
@@ -1319,7 +1417,7 @@ void fillEfficiencySet(int isimtrk,
   const float vtx_perp_thresh = 2.5;
 
   // N minus eta cut
-  if (pt > ana.pt_cut and std::abs(vtx_z) < vtx_z_thresh and std::abs(vtx_perp) < vtx_perp_thresh) {
+  if (pt > ana.pt_cut and pt <= ana.pt_max and std::abs(vtx_z) < vtx_z_thresh and std::abs(vtx_perp) < vtx_perp_thresh) {
     // vs. eta plot
     ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_eta", eta);
     if (pass)
@@ -1339,7 +1437,7 @@ void fillEfficiencySet(int isimtrk,
   }
 
   // N minus dxy cut
-  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and std::abs(vtx_z) < vtx_z_thresh) {
+  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and pt <= ana.pt_max and std::abs(vtx_z) < vtx_z_thresh) {
     // vs. dxy plot
     ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_dxy", dxy);
     ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_vxy", vtx_perp);
@@ -1353,7 +1451,7 @@ void fillEfficiencySet(int isimtrk,
   }
 
   // N minus dz cut
-  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and std::abs(vtx_perp) < vtx_perp_thresh) {
+  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and pt <= ana.pt_max and std::abs(vtx_perp) < vtx_perp_thresh) {
     // vs. dz plot
     ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_dz", dz);
     if (pass)
@@ -1363,7 +1461,7 @@ void fillEfficiencySet(int isimtrk,
   }
 
   // All phase-space cuts
-  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and std::abs(vtx_z) < vtx_z_thresh and
+  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and pt <= ana.pt_max and std::abs(vtx_z) < vtx_z_thresh and
       std::abs(vtx_perp) < vtx_perp_thresh) {
     // vs. Phi plot
     ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_phi", phi);
@@ -1395,7 +1493,7 @@ void fillFakeRateSet(int itc, RecoTrackSetDefinition& FRset, float pt, float eta
   if (not sel)
     return;
 
-  if (pt > ana.pt_cut) {
+  if (pt > ana.pt_cut and pt <= ana.pt_max) {
     ana.tx.pushbackToBranch<float>(category_name + "_fr_denom_eta", eta);
     if (pass)
       ana.tx.pushbackToBranch<float>(category_name + "_fr_numer_eta", eta);
@@ -1405,7 +1503,7 @@ void fillFakeRateSet(int itc, RecoTrackSetDefinition& FRset, float pt, float eta
     if (pass)
       ana.tx.pushbackToBranch<float>(category_name + "_fr_numer_pt", pt);
   }
-  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut) {
+  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and pt <= ana.pt_max) {
     ana.tx.pushbackToBranch<float>(category_name + "_fr_denom_phi", phi);
     if (pass)
       ana.tx.pushbackToBranch<float>(category_name + "_fr_numer_phi", phi);
@@ -1445,7 +1543,7 @@ void fillDuplicateRateSet(int itc, RecoTrackSetDefinition& DRset, float pt, floa
   if (not sel)
     return;
 
-  if (pt > ana.pt_cut) {
+  if (pt > ana.pt_cut and pt <= ana.pt_max) {
     ana.tx.pushbackToBranch<float>(category_name + "_dr_denom_eta", eta);
     if (pass)
       ana.tx.pushbackToBranch<float>(category_name + "_dr_numer_eta", eta);
@@ -1455,7 +1553,7 @@ void fillDuplicateRateSet(int itc, RecoTrackSetDefinition& DRset, float pt, floa
     if (pass)
       ana.tx.pushbackToBranch<float>(category_name + "_dr_numer_pt", pt);
   }
-  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut) {
+  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and pt <= ana.pt_max) {
     ana.tx.pushbackToBranch<float>(category_name + "_dr_denom_phi", phi);
     if (pass)
       ana.tx.pushbackToBranch<float>(category_name + "_dr_numer_phi", phi);
@@ -1495,7 +1593,7 @@ void fillFakeOrDuplicateRateSet(int itc, RecoTrackSetDefinition& FDRset, float p
   if (not sel)
     return;
 
-  if (pt > ana.pt_cut) {
+  if (pt > ana.pt_cut and pt <= ana.pt_max) {
     ana.tx.pushbackToBranch<float>(category_name + "_fdr_denom_eta", eta);
     if (pass)
       ana.tx.pushbackToBranch<float>(category_name + "_fdr_numer_eta", eta);
@@ -1505,7 +1603,7 @@ void fillFakeOrDuplicateRateSet(int itc, RecoTrackSetDefinition& FDRset, float p
     if (pass)
       ana.tx.pushbackToBranch<float>(category_name + "_fdr_numer_pt", pt);
   }
-  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut) {
+  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and pt <= ana.pt_max) {
     ana.tx.pushbackToBranch<float>(category_name + "_fdr_denom_phi", phi);
     if (pass)
       ana.tx.pushbackToBranch<float>(category_name + "_fdr_numer_phi", phi);

@@ -39,6 +39,6 @@ rooutil:
 	$(MAKE) -C ../code/rooutil
 
 clean:
-	rm -r src/performance.o src/helper.o src/LSTEff.o $(EXE)
+	rm -rf src/performance.o src/helper.o src/LSTEff.o $(EXE)
 
 .PHONY: all clean rooutil

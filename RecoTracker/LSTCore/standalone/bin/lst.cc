@@ -106,12 +106,13 @@ int main(int argc, char **argv) {
   TString TrackingNtupleDir = gSystem->Getenv("TRACKINGNTUPLEDIR");
 
   if (ana.input_raw_string.EqualTo("muonGun"))
-    ana.input_file_list_tstring = TString::Format("%s/trackingNtuple_10mu_pt_0p5_2.root", TrackingNtupleDir.Data());
+   // ana.input_file_list_tstring = TString::Format("%s/trackingNtuple_piongun_0p5_2.root", TrackingNtupleDir.Data());
+      ana.input_file_list_tstring = TString::Format("%s/trackingNtuple_kaon_0p5_2p0.root", TrackingNtupleDir.Data());  
   else if (ana.input_raw_string.EqualTo("muonGun_highPt"))
     ana.input_file_list_tstring = TString::Format("%s/trackingNtuple_10mu_pt_0p5_50.root", TrackingNtupleDir.Data());
   else if (ana.input_raw_string.EqualTo("pionGun"))
-    ana.input_file_list_tstring =
-        TString::Format("%s/trackingNtuple_6pion_1k_pt_0p5_50.root", TrackingNtupleDir.Data());
+    ana.input_file_list_tstring = TString::Format("%s/trackingNtuple_multipi_cmssw12.root", TrackingNtupleDir.Data());
+  //      TString::Format("%s/trackingNtuple_6pion_1k_pt_0p5_50.root", TrackingNtupleDir.Data());
   else if (ana.input_raw_string.EqualTo("PU200"))
     ana.input_file_list_tstring = TString::Format("%s/trackingNtuple_ttbar_PU200.root", TrackingNtupleDir.Data());
   else if (ana.input_raw_string.EqualTo("PU200RelVal"))

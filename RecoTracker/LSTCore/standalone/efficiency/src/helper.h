@@ -22,6 +22,9 @@ public:
   // Minimum pt cut
   float pt_cut;
 
+  // Maximum pt cut
+  float pt_max;
+
   // Max eta cut
   float eta_cut;
 
