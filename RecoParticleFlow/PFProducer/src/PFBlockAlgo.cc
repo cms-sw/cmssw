@@ -131,7 +131,7 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
   }
 
   const auto elem_size = elements_.size();
-  QuickUnion qu(elem_size);
+  QuickUnion qu(static_cast<unsigned>(elem_size));
   
   for (unsigned i = 0; i < elem_size; ++i) {
 	const auto* p1(elements_[i].get());
@@ -157,6 +157,7 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
 
   std::unordered_multimap<unsigned, unsigned> blocksmap(elem_size);
   std::vector<unsigned> keys; // stores all roots
+  keys.reserve(elem_size);
   for (unsigned i = 0; i < elem_size; ++i) {
 	unsigned key = qu.find(i); // finds the root of 'i'
 	if (key == i)
@@ -166,8 +167,7 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
 
   // !Glowinski & Gouzevitch
   reco::PFBlockCollection blocks;
-  // the blocks have not been passed to the event, and need to be cleared
-  blocks.reserve(elem_size);
+  blocks.reserve(keys.size()); // one block per root
 
   for (auto key : keys) { // loops over all roots
     blocks.push_back(reco::PFBlock());
@@ -261,7 +261,7 @@ void PFBlockAlgo::buildElements(const edm::Event& evt) {
   unsigned last_type = (!elements_.empty() ? elements_.back()->type() : 0);
   const auto elem_size = elements_.size();
   ranges_[current_type].first = 0;
-  ranges_[last_type].second = elem_size - 1;
+  ranges_[last_type].second = elem_size - 1; // it can overflow when elem_size==0 but doesn't enter the loop
   for (size_t i = 0; i < elem_size; ++i) {
     const auto the_type = elements_[i]->type();
     if (the_type != current_type) {
