@@ -897,8 +897,8 @@ void IPTagPlotter<Container, Base>::analyzeTag(const reco::BaseTagInfo* baseTagI
 
   std::vector<float> prob2d, prob3d;
   if (tagInfo->hasProbabilities()) {
-    prob2d = tagInfo->probabilities(0);
-    prob3d = tagInfo->probabilities(1);
+    prob2d = tagInfo->probabilities(1);
+    prob3d = tagInfo->probabilities(0);
   }
 
   std::vector<std::size_t> sortedIndices = tagInfo->sortedIndexes(reco::btag::IP2DSig);
