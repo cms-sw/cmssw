@@ -45,7 +45,6 @@ private:
   std::string jetAlgo;
 
   edm::InputTag inputMETLabelRECO_;
-  edm::InputTag inputMETLabelRECOUncleaned_;
   edm::InputTag inputMETLabelMiniAOD_;
   edm::InputTag inputJetLabelRECO_;
   edm::InputTag inputJetLabelMiniAOD_;
@@ -81,16 +80,6 @@ private:
   bool metTests[5][2];  //one for each type of met certification/test type
 
   bool isHI;
-
-  //MET: filter efficiencies, started from uncleaned directories
-  MonitorElement* mMET_EffHBHENoiseFilter;
-  MonitorElement* mMET_EffCSCTightHaloFilter;
-  MonitorElement* mMET_EffeeBadScFilter;
-  MonitorElement* mMET_EffEcalDeadCellTriggerFilter;
-  MonitorElement* mMET_EffEcalDeadCellBoundaryFilter;
-  MonitorElement* mMET_EffHBHEIsoNoiseFilter;
-  MonitorElement* mMET_EffCSCTightHalo2015Filter;
-  MonitorElement* mMET_EffHcalStripHaloFilter;
 
   //MET: RECO vs MiniAOD histos
   MonitorElement* mMET_MiniAOD_over_Reco;

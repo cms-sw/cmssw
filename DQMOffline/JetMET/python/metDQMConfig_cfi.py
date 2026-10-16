@@ -173,8 +173,6 @@ pfMetDQMAnalyzer = caloMetDQMAnalyzer.clone(
         ),
     fillMetHighLevel = False,
     fillCandidateMaps = True,
-    # if this flag is changed, the METTypeRECOUncleaned flag in dataCertificationJetMET_cfi.py
-    #has to be updated (by a string not pointing to an existing directory)
     onlyCleaned       = False,
     DCSFilter = cms.PSet(
         DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
