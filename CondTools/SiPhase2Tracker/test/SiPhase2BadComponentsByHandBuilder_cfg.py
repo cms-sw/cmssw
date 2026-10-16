@@ -1,11 +1,10 @@
-import os
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
 options = VarParsing('analysis')
-options.register('inputModuleList', os.path.join(os.environ['CMSSW_BASE'], 'src/CondTools/SiPhase2Tracker/data/bad_modules_example.txt'),
+options.register('inputModuleList', 'CondTools/SiPhase2Tracker/data/bad_modules_example.txt',
                  VarParsing.multiplicity.singleton, VarParsing.varType.string, 'text file with one DetId per line, each expanded to its full module')
-options.register('inputSensorList', os.path.join(os.environ['CMSSW_BASE'], 'src/CondTools/SiPhase2Tracker/data/bad_sensors_example.txt'),
+options.register('inputSensorList', 'CondTools/SiPhase2Tracker/data/bad_sensors_example.txt',
                  VarParsing.multiplicity.singleton, VarParsing.varType.string, 'text file with one DetId per line, each written as it is')
 options.register('outputName', 'BadComponentsByHand_v0.db',
                  VarParsing.multiplicity.singleton, VarParsing.varType.string, 'output sqlite file')

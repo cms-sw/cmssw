@@ -166,12 +166,14 @@ std::unique_ptr<SiPixelQuality> SiPhase2BadComponentsByHandBuilder::getNewObject
   uint32_t id;
 
   if (!badModuleListFile_.empty()) {
-    std::ifstream infile(badModuleListFile_);
-    if (!infile.is_open()) {
+    edm::FileInPath moduleListPath(badModuleListFile_);
+    std::ifstream moduleFile;
+    moduleFile.open(moduleListPath.fullPath().c_str());
+    if (!moduleFile.is_open()) {
       throw cms::Exception("SiPhase2BadComponentsByHandBuilder")
           << "Could not open badModuleListFile: " << badModuleListFile_;
     }
-    while (infile >> id) {
+    while (moduleFile >> id) {
       for (uint32_t detId : selectDetIds(id, true)) {
         badDetIds.insert(detId);
       }
@@ -179,7 +181,9 @@ std::unique_ptr<SiPixelQuality> SiPhase2BadComponentsByHandBuilder::getNewObject
   }
 
   if (!badSensorListFile_.empty()) {
-    std::ifstream sensorFile(badSensorListFile_);
+    edm::FileInPath sensorListPath(badSensorListFile_);
+    std::ifstream sensorFile;
+    sensorFile.open(sensorListPath.fullPath().c_str());
     if (!sensorFile.is_open()) {
       throw cms::Exception("SiPhase2BadComponentsByHandBuilder")
           << "Could not open badSensorListFile: " << badSensorListFile_;
