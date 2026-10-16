@@ -271,6 +271,15 @@ def customizeHLTfor52006(process):
     return process
 
 
+def customizeHLTfor52289(process):
+    """The ClusterShapeHitFilter limits are read from SiPixelClusterShapeLimitsRcd instead of ASCII files"""
+    for prod in esproducers_by_type(process, 'ClusterShapeHitFilterESProducer'):
+        for par in ['PixelShapeFile', 'PixelShapeFileL1']:
+            if hasattr(prod, par):
+                delattr(prod, par)
+    return process
+
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -281,5 +290,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customizeHLTfor49436(process)
     process = customizeHLTfor51085(process)
     process = customizeHLTfor52006(process)
+    process = customizeHLTfor52289(process)
 
     return process
