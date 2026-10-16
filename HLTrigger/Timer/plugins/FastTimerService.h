@@ -20,6 +20,7 @@
 // tbb headers
 #include <oneapi/tbb/concurrent_unordered_set.h>
 #include <oneapi/tbb/enumerable_thread_specific.h>
+#include <oneapi/tbb/task_arena.h>
 #include <oneapi/tbb/task_scheduler_observer.h>
 
 // JSON headers
@@ -193,6 +194,22 @@ private:
   // inherited from TBB task_scheduler_observer
   void on_scheduler_entry(bool worker) final;
   void on_scheduler_exit(bool worker) final;
+
+  // forward the threads entering and leaving another TBB arena (e.g. the per-NUMA-domain arenas of the framework)
+  class ArenaObserver : public tbb::task_scheduler_observer {
+  public:
+    ArenaObserver(tbb::task_arena& arena, FastTimerService& service)
+        : tbb::task_scheduler_observer(arena), service_(service) {
+      observe(true);
+    }
+    ~ArenaObserver() override { observe(false); }
+
+    void on_scheduler_entry(bool worker) final { service_.on_scheduler_entry(worker); }
+    void on_scheduler_exit(bool worker) final { service_.on_scheduler_exit(worker); }
+
+  private:
+    FastTimerService& service_;
+  };
 
 public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -513,6 +530,9 @@ private:
 
   //
   ThreadGuard guard_;
+
+  // observers of the per-NUMA-domain arenas, if the framework uses them (process.options.numaLocality)
+  std::vector<std::unique_ptr<ArenaObserver>> arena_observers_;
 
   // retrieve the current thread's per-thread quantities
   Measurement& thread();
