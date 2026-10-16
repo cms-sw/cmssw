@@ -118,7 +118,6 @@ public:
                  const reco::CaloMET*,
                  const reco::Candidate::PolarLorentzVector&,
                  std::map<std::string, MonitorElement*>&,
-                 std::vector<bool>,
                  std::vector<bool>);
   void fillMonitorElement(const edm::Event&,
                           std::string,
@@ -131,7 +130,6 @@ public:
                           std::map<std::string, MonitorElement*>&,
                           bool,
                           bool,
-                          std::vector<bool>,
                           std::vector<bool>);
   void makeRatePlot(std::string, double);
 
@@ -310,15 +308,6 @@ private:
   MonitorElement* hMET;
   MonitorElement* hMET_2;
 
-  MonitorElement* hMET_HBHENoiseFilter;
-  MonitorElement* hMET_CSCTightHaloFilter;
-  MonitorElement* hMET_eeBadScFilter;
-  MonitorElement* hMET_EcalDeadCellTriggerFilter;
-  MonitorElement* hMET_EcalDeadCellBoundaryFilter;
-  MonitorElement* hMET_HBHEIsoNoiseFilter;
-  MonitorElement* hMET_CSCTightHalo2015Filter;
-  MonitorElement* hMET_HcalStripHaloFilter;
-
   MonitorElement* hMETPhi;
   MonitorElement* hSumET;
 
@@ -379,20 +368,6 @@ private:
   MonitorElement* meChargedHadronEtFraction_BXm2BXm1Empty;
   MonitorElement* meMET_BXm2BXm1Empty;
   MonitorElement* meSumET_BXm2BXm1Empty;
-
-  MonitorElement* meMETPhiChargedHadronsBarrel_BXm2BXm1Empty;
-  MonitorElement* meMETPhiChargedHadronsEndcapPlus_BXm2BXm1Empty;
-  MonitorElement* meMETPhiChargedHadronsEndcapMinus_BXm2BXm1Empty;
-  MonitorElement* meMETPhiNeutralHadronsBarrel_BXm2BXm1Empty;
-  MonitorElement* meMETPhiNeutralHadronsEndcapPlus_BXm2BXm1Empty;
-  MonitorElement* meMETPhiNeutralHadronsEndcapMinus_BXm2BXm1Empty;
-  MonitorElement* meMETPhiPhotonsBarrel_BXm2BXm1Empty;
-  MonitorElement* meMETPhiPhotonsEndcapPlus_BXm2BXm1Empty;
-  MonitorElement* meMETPhiPhotonsEndcapMinus_BXm2BXm1Empty;
-  MonitorElement* meMETPhiHFHadronsPlus_BXm2BXm1Empty;
-  MonitorElement* meMETPhiHFHadronsMinus_BXm2BXm1Empty;
-  MonitorElement* meMETPhiHFEGammasPlus_BXm2BXm1Empty;
-  MonitorElement* meMETPhiHFEGammasMinus_BXm2BXm1Empty;
   */
   //MEs where we fill if the previous bunch is empty (25 ns bunch spacing)
   MonitorElement* mePhotonEtFraction_BXm1Empty;
@@ -466,15 +441,9 @@ private:
   MonitorElement* meNHF_Barrel_BXm1Empty;
   MonitorElement* meNHF_EndcapPlus_BXm1Empty;
   MonitorElement* meNHF_EndcapMinus_BXm1Empty;
-  //MonitorElement* meNHF_Barrel_BXm2BXm1Empty;
-  //MonitorElement* meNHF_EndcapPlus_BXm2BXm1Empty;
-  //MonitorElement* meNHF_EndcapMinus_BXm2BXm1Empty;
   MonitorElement* meNHF_Barrel_BXm1Filled;
   MonitorElement* meNHF_EndcapPlus_BXm1Filled;
   MonitorElement* meNHF_EndcapMinus_BXm1Filled;
-  //MonitorElement* meNHF_Barrel_BXm2BXm1Filled;
-  //MonitorElement* meNHF_EndcapPlus_BXm2BXm1Filled;
-  //MonitorElement* meNHF_EndcapMinus_BXm2BXm1Filled;
 
   MonitorElement* mePhF_Barrel;
   MonitorElement* mePhF_EndcapPlus;
@@ -482,52 +451,23 @@ private:
   MonitorElement* mePhF_Barrel_BXm1Empty;
   MonitorElement* mePhF_EndcapPlus_BXm1Empty;
   MonitorElement* mePhF_EndcapMinus_BXm1Empty;
-  //MonitorElement* mePhF_Barrel_BXm2BXm1Empty;
-  //MonitorElement* mePhF_EndcapPlus_BXm2BXm1Empty;
-  //MonitorElement* mePhF_EndcapMinus_BXm2BXm1Empty;
   MonitorElement* mePhF_Barrel_BXm1Filled;
   MonitorElement* mePhF_EndcapPlus_BXm1Filled;
   MonitorElement* mePhF_EndcapMinus_BXm1Filled;
-  //MonitorElement* mePhF_Barrel_BXm2BXm1Filled;
-  //MonitorElement* mePhF_EndcapPlus_BXm2BXm1Filled;
-  //MonitorElement* mePhF_EndcapMinus_BXm2BXm1Filled;
 
   MonitorElement* meHFHadF_Plus;
   MonitorElement* meHFHadF_Minus;
   MonitorElement* meHFHadF_Plus_BXm1Empty;
   MonitorElement* meHFHadF_Minus_BXm1Empty;
-  //MonitorElement* meHFHadF_Plus_BXm2BXm1Empty;
-  //MonitorElement* meHFHadF_Minus_BXm2BXm1Empty;
   MonitorElement* meHFHadF_Plus_BXm1Filled;
   MonitorElement* meHFHadF_Minus_BXm1Filled;
-  //MonitorElement* meHFHadF_Plus_BXm2BXm1Filled;
-  //MonitorElement* meHFHadF_Minus_BXm2BXm1Filled;
 
   MonitorElement* meHFEMF_Plus;
   MonitorElement* meHFEMF_Minus;
   MonitorElement* meHFEMF_Plus_BXm1Empty;
   MonitorElement* meHFEMF_Minus_BXm1Empty;
-  //MonitorElement* meHFEMF_Plus_BXm2BXm1Empty;
-  //MonitorElement* meHFEMF_Minus_BXm2BXm1Empty;
   MonitorElement* meHFEMF_Plus_BXm1Filled;
   MonitorElement* meHFEMF_Minus_BXm1Filled;
-  //MonitorElement* meHFEMF_Plus_BXm2BXm1Filled;
-  //MonitorElement* meHFEMF_Minus_BXm2BXm1Filled;
-  /*
-  MonitorElement* meMETPhiChargedHadronsBarrel_BXm2BXm1Filled;
-  MonitorElement* meMETPhiChargedHadronsEndcapPlus_BXm2BXm1Filled;
-  MonitorElement* meMETPhiChargedHadronsEndcapMinus_BXm2BXm1Filled;
-  MonitorElement* meMETPhiNeutralHadronsBarrel_BXm2BXm1Filled;
-  MonitorElement* meMETPhiNeutralHadronsEndcapPlus_BXm2BXm1Filled;
-  MonitorElement* meMETPhiNeutralHadronsEndcapMinus_BXm2BXm1Filled;
-  MonitorElement* meMETPhiPhotonsBarrel_BXm2BXm1Filled;
-  MonitorElement* meMETPhiPhotonsEndcapPlus_BXm2BXm1Filled;
-  MonitorElement* meMETPhiPhotonsEndcapMinus_BXm2BXm1Filled;
-  MonitorElement* meMETPhiHFHadronsPlus_BXm2BXm1Filled;
-  MonitorElement* meMETPhiHFHadronsMinus_BXm2BXm1Filled;
-  MonitorElement* meMETPhiHFEGammasPlus_BXm2BXm1Filled;
-  MonitorElement* meMETPhiHFEGammasMinus_BXm2BXm1Filled;
-  */
   double ptMinCand_;
 
   //PFcandidate maps

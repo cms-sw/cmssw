@@ -18,7 +18,6 @@
 DataCertificationJetMET::DataCertificationJetMET(const edm::ParameterSet& iConfig) : conf_(iConfig) {
   // now do what ever initialization is needed
   inputMETLabelRECO_ = iConfig.getParameter<edm::InputTag>("METTypeRECO");
-  inputMETLabelRECOUncleaned_ = iConfig.getParameter<edm::InputTag>("METTypeRECOUncleaned");
   inputMETLabelMiniAOD_ = iConfig.getParameter<edm::InputTag>("METTypeMiniAOD");
   inputJetLabelRECO_ = iConfig.getParameter<edm::InputTag>("JetTypeRECO");
   inputJetLabelMiniAOD_ = iConfig.getParameter<edm::InputTag>("JetTypeMiniAOD");
@@ -91,107 +90,6 @@ void DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGe
     ibook_.setCurrentFolder(subDirVecMET[i]);
     if ((subDirVecMET[i] + "/Cleaned") == (RunDirMET + inputMETLabelRECO_.label() + "/Cleaned")) {
       found_METreco_dir = true;
-    }
-    if (((subDirVecMET[i] + "/Uncleaned") == (RunDirMET + inputMETLabelRECOUncleaned_.label() + "/Uncleaned")) ||
-        ((subDirVecMET[i] + "/Uncleaned") == (RunDirMET + inputMETLabelMiniAOD_.label() + "/Uncleaned"))) {
-      //check filters in uncleaned directory
-      std::string rundirMET_reco = "";
-      if ((subDirVecMET[i] + "/Uncleaned") == (RunDirMET + inputMETLabelRECOUncleaned_.label() + "/Uncleaned")) {
-        rundirMET_reco = RunDirMET + inputMETLabelRECOUncleaned_.label() + "/Uncleaned";
-      } else {
-        rundirMET_reco = RunDirMET + inputMETLabelMiniAOD_.label() + "/Uncleaned";
-      }
-      MonitorElement* mMET_Reco = iget_.get(rundirMET_reco + "/" + "MET");
-      MonitorElement* mMET_Reco_HBHENoiseFilter = iget_.get(rundirMET_reco + "/" + "MET_HBHENoiseFilter");
-      MonitorElement* mMET_Reco_CSCTightHaloFilter = iget_.get(rundirMET_reco + "/" + "MET_CSCTightHaloFilter");
-      MonitorElement* mMET_Reco_eeBadScFilter = iget_.get(rundirMET_reco + "/" + "MET_eeBadScFilter");
-      MonitorElement* mMET_Reco_HBHEIsoNoiseFilter = iget_.get(rundirMET_reco + "/" + "MET_HBHEIsoNoiseFilter");
-      MonitorElement* mMET_Reco_CSCTightHalo2015Filter = iget_.get(rundirMET_reco + "/" + "MET_CSCTightHalo2015Filter");
-      MonitorElement* mMET_Reco_EcalDeadCellTriggerFilter =
-          iget_.get(rundirMET_reco + "/" + "MET_EcalDeadCellTriggerFilter");
-      MonitorElement* mMET_Reco_EcalDeadCellBoundaryFilter =
-          iget_.get(rundirMET_reco + "/" + "MET_EcalDeadCellBoundaryFilter");
-      MonitorElement* mMET_Reco_HcalStripHaloFilter = iget_.get(rundirMET_reco + "/" + "MET_HcalStripHaloFilter");
-      ibook_.setCurrentFolder(rundirMET_reco);
-      mMET_EffHBHENoiseFilter =
-          ibook_.book1D("MET_EffHBHENoiseFilter", (TH1F*)mMET_Reco_HBHENoiseFilter->getRootObject());
-      for (int i = 0; i <= (mMET_Reco->getNbinsX() + 1); i++) {
-        if (mMET_Reco->getBinContent(i) != 0) {
-          mMET_EffHBHENoiseFilter->setBinContent(
-              i, mMET_Reco_HBHENoiseFilter->getBinContent(i) / mMET_Reco->getBinContent(i));
-        } else {
-          mMET_EffHBHENoiseFilter->setBinContent(i, 0);
-        }
-      }
-      mMET_EffCSCTightHaloFilter =
-          ibook_.book1D("MET_EffCSCTightHaloFilter", (TH1F*)mMET_Reco_CSCTightHaloFilter->getRootObject());
-      for (int i = 0; i <= (mMET_Reco->getNbinsX() + 1); i++) {
-        if (mMET_Reco->getBinContent(i) != 0) {
-          mMET_EffCSCTightHaloFilter->setBinContent(
-              i, mMET_Reco_CSCTightHaloFilter->getBinContent(i) / mMET_Reco->getBinContent(i));
-        } else {
-          mMET_EffCSCTightHaloFilter->setBinContent(i, 0);
-        }
-      }
-      mMET_EffeeBadScFilter = ibook_.book1D("MET_EffeeBadScFilter", (TH1F*)mMET_Reco_eeBadScFilter->getRootObject());
-      for (int i = 0; i <= (mMET_Reco->getNbinsX() + 1); i++) {
-        if (mMET_Reco->getBinContent(i) != 0) {
-          mMET_EffeeBadScFilter->setBinContent(i,
-                                               mMET_Reco_eeBadScFilter->getBinContent(i) / mMET_Reco->getBinContent(i));
-        } else {
-          mMET_EffeeBadScFilter->setBinContent(i, 0);
-        }
-      }
-      mMET_EffHBHEIsoNoiseFilter =
-          ibook_.book1D("MET_EffHBHEIsoNoiseFilter", (TH1F*)mMET_Reco_HBHEIsoNoiseFilter->getRootObject());
-      for (int i = 0; i <= (mMET_Reco->getNbinsX() + 1); i++) {
-        if (mMET_Reco->getBinContent(i) != 0) {
-          mMET_EffHBHEIsoNoiseFilter->setBinContent(
-              i, mMET_Reco_HBHEIsoNoiseFilter->getBinContent(i) / mMET_Reco->getBinContent(i));
-        } else {
-          mMET_EffHBHEIsoNoiseFilter->setBinContent(i, 0);
-        }
-      }
-      mMET_EffCSCTightHalo2015Filter =
-          ibook_.book1D("MET_EffCSCTightHalo2015Filter", (TH1F*)mMET_Reco_CSCTightHalo2015Filter->getRootObject());
-      for (int i = 0; i <= (mMET_Reco->getNbinsX() + 1); i++) {
-        if (mMET_Reco->getBinContent(i) != 0) {
-          mMET_EffCSCTightHalo2015Filter->setBinContent(
-              i, mMET_Reco_CSCTightHalo2015Filter->getBinContent(i) / mMET_Reco->getBinContent(i));
-        } else {
-          mMET_EffCSCTightHalo2015Filter->setBinContent(i, 0);
-        }
-      }
-      mMET_EffEcalDeadCellTriggerFilter = ibook_.book1D("MET_EffEcalDeadCellTriggerFilter",
-                                                        (TH1F*)mMET_Reco_EcalDeadCellTriggerFilter->getRootObject());
-      for (int i = 0; i <= (mMET_Reco->getNbinsX() + 1); i++) {
-        if (mMET_Reco->getBinContent(i) != 0) {
-          mMET_EffEcalDeadCellTriggerFilter->setBinContent(
-              i, mMET_Reco_EcalDeadCellTriggerFilter->getBinContent(i) / mMET_Reco->getBinContent(i));
-        } else {
-          mMET_EffEcalDeadCellTriggerFilter->setBinContent(i, 0);
-        }
-      }
-      mMET_EffEcalDeadCellBoundaryFilter = ibook_.book1D("MET_EffEcalDeadCellBoundaryFilter",
-                                                         (TH1F*)mMET_Reco_EcalDeadCellBoundaryFilter->getRootObject());
-      for (int i = 0; i <= (mMET_Reco->getNbinsX() + 1); i++) {
-        if (mMET_Reco->getBinContent(i) != 0) {
-          mMET_EffEcalDeadCellBoundaryFilter->setBinContent(
-              i, mMET_Reco_EcalDeadCellBoundaryFilter->getBinContent(i) / mMET_Reco->getBinContent(i));
-        } else {
-          mMET_EffEcalDeadCellBoundaryFilter->setBinContent(i, 0);
-        }
-      }
-      mMET_EffHcalStripHaloFilter =
-          ibook_.book1D("MET_EffHcalStripHaloFilter", (TH1F*)mMET_Reco_HcalStripHaloFilter->getRootObject());
-      for (int i = 0; i <= (mMET_Reco->getNbinsX() + 1); i++) {
-        if (mMET_Reco->getBinContent(i) != 0) {
-          mMET_EffHcalStripHaloFilter->setBinContent(
-              i, mMET_Reco_HcalStripHaloFilter->getBinContent(i) / mMET_Reco->getBinContent(i));
-        } else {
-          mMET_EffHcalStripHaloFilter->setBinContent(i, 0);
-        }
-      }
     }
     if ((subDirVecMET[i] + "/Cleaned") == (RunDirMET + inputMETLabelMiniAOD_.label() + "/Cleaned")) {
       found_METminiaod_dir = true;
@@ -384,25 +282,9 @@ void DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGe
     MonitorElement* mJetEnergyCorr_Reco = iget_.get(rundirJet_reco + "/" + "JetEnergyCorr");
     MonitorElement* mJetEnergyCorrVSeta_Reco = iget_.get(rundirJet_reco + "/" + "JetEnergyCorrVSEta");
     MonitorElement* mDPhi_Reco = iget_.get(rundirJet_reco + "/" + "DPhi");
-    MonitorElement* mLooseJIDPassFractionVSeta_Reco = iget_.get(rundirJet_reco + "/" + "JetIDPassFractionVSeta");
     MonitorElement* mPt_Barrel_Reco = iget_.get(rundirJet_reco + "/" + "Pt_Barrel");
     MonitorElement* mPt_EndCap_Reco = iget_.get(rundirJet_reco + "/" + "Pt_EndCap");
     MonitorElement* mPt_Forward_Reco = iget_.get(rundirJet_reco + "/" + "Pt_Forward");
-    MonitorElement* mMVAPUJIDDiscriminant_lowPt_Barrel_Reco =
-        iget_.get(rundirJet_reco + "/" + "MVAPUJIDDiscriminant_lowPt_Barrel");
-    MonitorElement* mMVAPUJIDDiscriminant_lowPt_EndCap_Reco =
-        iget_.get(rundirJet_reco + "/" + "MVAPUJIDDiscriminant_lowPt_EndCap");
-    MonitorElement* mMVAPUJIDDiscriminant_lowPt_Forward_Reco =
-        iget_.get(rundirJet_reco + "/" + "MVAPUJIDDiscriminant_lowPt_Forward");
-    MonitorElement* mMVAPUJIDDiscriminant_mediumPt_EndCap_Reco =
-        iget_.get(rundirJet_reco + "/" + "MVAPUJIDDiscriminant_mediumPt_EndCap");
-    MonitorElement* mMVAPUJIDDiscriminant_highPt_Barrel_Reco =
-        iget_.get(rundirJet_reco + "/" + "MVAPUJIDDiscriminant_highPt_Barrel");
-    MonitorElement* mCHFracVSpT_Barrel_Reco = iget_.get(rundirJet_reco + "/" + "CHFracVSpT_Barrel");
-    MonitorElement* mNHFracVSpT_EndCap_Reco = iget_.get(rundirJet_reco + "/" + "NHFracVSpT_EndCap");
-    MonitorElement* mPhFracVSpT_Barrel_Reco = iget_.get(rundirJet_reco + "/" + "PhFracVSpT_Barrel");
-    MonitorElement* mHFHFracVSpT_Forward_Reco = iget_.get(rundirJet_reco + "/" + "HFHFracVSpT_Forward");
-    MonitorElement* mHFEFracVSpT_Forward_Reco = iget_.get(rundirJet_reco + "/" + "HFEFracVSpT_Forward");
     MonitorElement* mCHFrac_Reco = iget_.get(rundirJet_reco + "/DiJet/" + "CHFrac");
     MonitorElement* mNHFrac_Reco = iget_.get(rundirJet_reco + "/DiJet/" + "NHFrac");
     MonitorElement* mPhFrac_Reco = iget_.get(rundirJet_reco + "/DiJet/" + "PhFrac");
@@ -422,20 +304,9 @@ void DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGe
     me_Jet_Reco.push_back(mJetEnergyCorr_Reco);
     me_Jet_Reco.push_back(mJetEnergyCorrVSeta_Reco);
     me_Jet_Reco.push_back(mDPhi_Reco);
-    me_Jet_Reco.push_back(mLooseJIDPassFractionVSeta_Reco);
     me_Jet_Reco.push_back(mPt_Barrel_Reco);
     me_Jet_Reco.push_back(mPt_EndCap_Reco);
     me_Jet_Reco.push_back(mPt_Forward_Reco);
-    me_Jet_Reco.push_back(mMVAPUJIDDiscriminant_lowPt_Barrel_Reco);
-    me_Jet_Reco.push_back(mMVAPUJIDDiscriminant_lowPt_EndCap_Reco);
-    me_Jet_Reco.push_back(mMVAPUJIDDiscriminant_lowPt_Forward_Reco);
-    me_Jet_Reco.push_back(mMVAPUJIDDiscriminant_mediumPt_EndCap_Reco);
-    me_Jet_Reco.push_back(mMVAPUJIDDiscriminant_highPt_Barrel_Reco);
-    me_Jet_Reco.push_back(mCHFracVSpT_Barrel_Reco);
-    me_Jet_Reco.push_back(mNHFracVSpT_EndCap_Reco);
-    me_Jet_Reco.push_back(mPhFracVSpT_Barrel_Reco);
-    me_Jet_Reco.push_back(mHFHFracVSpT_Forward_Reco);
-    me_Jet_Reco.push_back(mHFEFracVSpT_Forward_Reco);
     me_Jet_Reco.push_back(mCHFrac_Reco);
     me_Jet_Reco.push_back(mNHFrac_Reco);
     me_Jet_Reco.push_back(mPhFrac_Reco);
@@ -454,25 +325,9 @@ void DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGe
     MonitorElement* mJetEnergyCorr_MiniAOD = iget_.get(rundirJet_miniaod + "/" + "JetEnergyCorr");
     MonitorElement* mJetEnergyCorrVSeta_MiniAOD = iget_.get(rundirJet_miniaod + "/" + "JetEnergyCorrVSEta");
     MonitorElement* mDPhi_MiniAOD = iget_.get(rundirJet_miniaod + "/" + "DPhi");
-    MonitorElement* mLooseJIDPassFractionVSeta_MiniAOD = iget_.get(rundirJet_miniaod + "/" + "JetIDPassFractionVSeta");
     MonitorElement* mPt_Barrel_MiniAOD = iget_.get(rundirJet_miniaod + "/" + "Pt_Barrel");
     MonitorElement* mPt_EndCap_MiniAOD = iget_.get(rundirJet_miniaod + "/" + "Pt_EndCap");
     MonitorElement* mPt_Forward_MiniAOD = iget_.get(rundirJet_miniaod + "/" + "Pt_Forward");
-    MonitorElement* mMVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD =
-        iget_.get(rundirJet_miniaod + "/" + "MVAPUJIDDiscriminant_lowPt_Barrel");
-    MonitorElement* mMVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD =
-        iget_.get(rundirJet_miniaod + "/" + "MVAPUJIDDiscriminant_lowPt_EndCap");
-    MonitorElement* mMVAPUJIDDiscriminant_lowPt_Forward_MiniAOD =
-        iget_.get(rundirJet_miniaod + "/" + "MVAPUJIDDiscriminant_lowPt_Forward");
-    MonitorElement* mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD =
-        iget_.get(rundirJet_miniaod + "/" + "MVAPUJIDDiscriminant_mediumPt_EndCap");
-    MonitorElement* mMVAPUJIDDiscriminant_highPt_Barrel_MiniAOD =
-        iget_.get(rundirJet_miniaod + "/" + "MVAPUJIDDiscriminant_highPt_Barrel");
-    MonitorElement* mCHFracVSpT_Barrel_MiniAOD = iget_.get(rundirJet_miniaod + "/" + "CHFracVSpT_Barrel");
-    MonitorElement* mNHFracVSpT_EndCap_MiniAOD = iget_.get(rundirJet_miniaod + "/" + "NHFracVSpT_EndCap");
-    MonitorElement* mPhFracVSpT_Barrel_MiniAOD = iget_.get(rundirJet_miniaod + "/" + "PhFracVSpT_Barrel");
-    MonitorElement* mHFHFracVSpT_Forward_MiniAOD = iget_.get(rundirJet_miniaod + "/" + "HFHFracVSpT_Forward");
-    MonitorElement* mHFEFracVSpT_Forward_MiniAOD = iget_.get(rundirJet_miniaod + "/" + "HFEFracVSpT_Forward");
     MonitorElement* mCHFrac_MiniAOD = iget_.get(rundirJet_miniaod + "/DiJet/" + "CHFrac");
     MonitorElement* mNHFrac_MiniAOD = iget_.get(rundirJet_miniaod + "/DiJet/" + "NHFrac");
     MonitorElement* mPhFrac_MiniAOD = iget_.get(rundirJet_miniaod + "/DiJet/" + "PhFrac");
@@ -492,20 +347,9 @@ void DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGe
     me_Jet_MiniAOD.push_back(mJetEnergyCorr_MiniAOD);
     me_Jet_MiniAOD.push_back(mJetEnergyCorrVSeta_MiniAOD);
     me_Jet_MiniAOD.push_back(mDPhi_MiniAOD);
-    me_Jet_MiniAOD.push_back(mLooseJIDPassFractionVSeta_MiniAOD);
     me_Jet_MiniAOD.push_back(mPt_Barrel_MiniAOD);
     me_Jet_MiniAOD.push_back(mPt_EndCap_MiniAOD);
     me_Jet_MiniAOD.push_back(mPt_Forward_MiniAOD);
-    me_Jet_MiniAOD.push_back(mMVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD);
-    me_Jet_MiniAOD.push_back(mMVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD);
-    me_Jet_MiniAOD.push_back(mMVAPUJIDDiscriminant_lowPt_Forward_MiniAOD);
-    me_Jet_MiniAOD.push_back(mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD);
-    me_Jet_MiniAOD.push_back(mMVAPUJIDDiscriminant_highPt_Barrel_MiniAOD);
-    me_Jet_MiniAOD.push_back(mCHFracVSpT_Barrel_MiniAOD);
-    me_Jet_MiniAOD.push_back(mNHFracVSpT_EndCap_MiniAOD);
-    me_Jet_MiniAOD.push_back(mPhFracVSpT_Barrel_MiniAOD);
-    me_Jet_MiniAOD.push_back(mHFHFracVSpT_Forward_MiniAOD);
-    me_Jet_MiniAOD.push_back(mHFEFracVSpT_Forward_MiniAOD);
     me_Jet_MiniAOD.push_back(mCHFrac_MiniAOD);
     me_Jet_MiniAOD.push_back(mNHFrac_MiniAOD);
     me_Jet_MiniAOD.push_back(mPhFrac_MiniAOD);
@@ -529,39 +373,12 @@ void DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGe
     mJetEnergyCorrVSeta_MiniAOD_over_Reco = ibook_.book1D(
         "JetEnergyCorrVSEta_MiniAOD_over_RECO", "jet energy correction factor VS eta", etaBin_, etaMin_, etaMax_);
     mDPhi_MiniAOD_over_Reco = ibook_.book1D("DPhi_MiniAOD_over_RECO", (TH1F*)mDPhi_Reco->getRootObject());
-    mLooseJIDPassFractionVSeta_MiniAOD_over_Reco =
-        ibook_.book1D("JetIDPassFractionVSeta_MiniAOD_over_RECO", "JetIDPassFractionVSeta", etaBin_, etaMin_, etaMax_);
     mPt_Barrel_MiniAOD_over_Reco =
         ibook_.book1D("Pt_Barrel_MiniAOD_over_RECO", (TH1F*)mPt_Barrel_Reco->getRootObject());
     mPt_EndCap_MiniAOD_over_Reco =
         ibook_.book1D("Pt_EndCap_MiniAOD_over_RECO", (TH1F*)mPt_EndCap_Reco->getRootObject());
     mPt_Forward_MiniAOD_over_Reco =
         ibook_.book1D("Pt_Forward_MiniAOD_over_RECO", (TH1F*)mPt_Forward_Reco->getRootObject());
-    mMVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD_over_Reco =
-        ibook_.book1D("MVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD_over_RECO",
-                      (TH1F*)mMVAPUJIDDiscriminant_lowPt_Barrel_Reco->getRootObject());
-    mMVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD_over_Reco =
-        ibook_.book1D("MVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD_over_RECO",
-                      (TH1F*)mMVAPUJIDDiscriminant_lowPt_EndCap_Reco->getRootObject());
-    mMVAPUJIDDiscriminant_lowPt_Forward_MiniAOD_over_Reco =
-        ibook_.book1D("MVAPUJIDDiscriminant_lowPt_Forward_MiniAOD_over_RECO",
-                      (TH1F*)mMVAPUJIDDiscriminant_lowPt_Forward_Reco->getRootObject());
-    mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD_over_Reco =
-        ibook_.book1D("MVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD_over_RECO",
-                      (TH1F*)mMVAPUJIDDiscriminant_mediumPt_EndCap_Reco->getRootObject());
-    mMVAPUJIDDiscriminant_highPt_Barrel_MiniAOD_over_Reco =
-        ibook_.book1D("MVAPUJIDDiscriminant_highPt_Barrel_MiniAOD_over_RECO",
-                      (TH1F*)mMVAPUJIDDiscriminant_highPt_Barrel_Reco->getRootObject());
-    mCHFracVSpT_Barrel_MiniAOD_over_Reco =
-        ibook_.book1D("CHFracVSpT_Barrel_MiniAOD_over_RECO", "CHFracVSpT_Barrel", ptBin_, ptMin_, ptMax_);
-    mNHFracVSpT_EndCap_MiniAOD_over_Reco =
-        ibook_.book1D("NHFracVSpT_EndCap_MiniAOD_over_RECO", "NHFracVSpT_EndCap", ptBin_, ptMin_, ptMax_);
-    mPhFracVSpT_Barrel_MiniAOD_over_Reco =
-        ibook_.book1D("PhFracVSpT_Barrel_MiniAOD_over_RECO", "PhFracVSpT_Barrel", ptBin_, ptMin_, ptMax_);
-    mHFHFracVSpT_Forward_MiniAOD_over_Reco =
-        ibook_.book1D("HFHFracVSpT_Forward_MiniAOD_over_RECO", "HFHFracVSpT_Forward", ptBin_, ptMin_, ptMax_);
-    mHFEFracVSpT_Forward_MiniAOD_over_Reco =
-        ibook_.book1D("HFEFracVSpT_Forward_MiniAOD_over_RECO", "HFEFracVSpT_Forward", ptBin_, ptMin_, ptMax_);
     ibook_.setCurrentFolder(RunDirJet + "MiniAOD_over_RECO" + "/" + "DiJet");
     mCHFrac_MiniAOD_over_Reco = ibook_.book1D("CHFrac_MiniAOD_over_RECO", (TH1F*)mCHFrac_Reco->getRootObject());
     mNHFrac_MiniAOD_over_Reco = ibook_.book1D("NHFrac_MiniAOD_over_RECO", (TH1F*)mNHFrac_Reco->getRootObject());
@@ -586,20 +403,9 @@ void DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGe
     me_Jet_MiniAOD_over_Reco.push_back(mJetEnergyCorr_MiniAOD_over_Reco);
     me_Jet_MiniAOD_over_Reco.push_back(mJetEnergyCorrVSeta_MiniAOD_over_Reco);
     me_Jet_MiniAOD_over_Reco.push_back(mDPhi_MiniAOD_over_Reco);
-    me_Jet_MiniAOD_over_Reco.push_back(mLooseJIDPassFractionVSeta_MiniAOD_over_Reco);
     me_Jet_MiniAOD_over_Reco.push_back(mPt_Barrel_MiniAOD_over_Reco);
     me_Jet_MiniAOD_over_Reco.push_back(mPt_EndCap_MiniAOD_over_Reco);
     me_Jet_MiniAOD_over_Reco.push_back(mPt_Forward_MiniAOD_over_Reco);
-    me_Jet_MiniAOD_over_Reco.push_back(mMVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD_over_Reco);
-    me_Jet_MiniAOD_over_Reco.push_back(mMVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD_over_Reco);
-    me_Jet_MiniAOD_over_Reco.push_back(mMVAPUJIDDiscriminant_lowPt_Forward_MiniAOD_over_Reco);
-    me_Jet_MiniAOD_over_Reco.push_back(mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD_over_Reco);
-    me_Jet_MiniAOD_over_Reco.push_back(mMVAPUJIDDiscriminant_highPt_Barrel_MiniAOD_over_Reco);
-    me_Jet_MiniAOD_over_Reco.push_back(mCHFracVSpT_Barrel_MiniAOD_over_Reco);
-    me_Jet_MiniAOD_over_Reco.push_back(mNHFracVSpT_EndCap_MiniAOD_over_Reco);
-    me_Jet_MiniAOD_over_Reco.push_back(mPhFracVSpT_Barrel_MiniAOD_over_Reco);
-    me_Jet_MiniAOD_over_Reco.push_back(mHFHFracVSpT_Forward_MiniAOD_over_Reco);
-    me_Jet_MiniAOD_over_Reco.push_back(mHFEFracVSpT_Forward_MiniAOD_over_Reco);
     me_Jet_MiniAOD_over_Reco.push_back(mCHFrac_MiniAOD_over_Reco);
     me_Jet_MiniAOD_over_Reco.push_back(mNHFrac_MiniAOD_over_Reco);
     me_Jet_MiniAOD_over_Reco.push_back(mPhFrac_MiniAOD_over_Reco);

@@ -573,6 +573,8 @@ namespace pixelTopology {
     static constexpr int nStartingPairs = phase2PixelTopology::nStartingPairs;
 
     static constexpr uint16_t numberOfModules = phase2PixelTopology::nModulesPix;
+    // Pixel-module count; sizes pixel-only conditions such as the CPE parameters.
+    static constexpr uint16_t numberOfPixelModules = phase2PixelTopology::nModulesPix;
 
     // 1000 bins < 1024 bins (10 bits) must be:
     // - < 32*32 (warpSize*warpSize for block prefix scan for CUDA)
@@ -590,7 +592,9 @@ namespace pixelTopology {
     static constexpr uint16_t firstEndcapPos = 4;
     static constexpr uint16_t firstEndcapNeg = 16;
 
-    static constexpr int16_t xOffset = -1e4;  // not used actually, to suppress static analyzer warnings
+    // No single value: Phase-2 modules differ in width. The fast CPE takes the half width from each module's
+    // row count instead; kept only for the legacy pixelCPEforGPU code.
+    static constexpr int16_t xOffset = -1e4;
 
     static constexpr char const *nameModifier = "Phase2";
 
@@ -717,6 +721,8 @@ namespace pixelTopology {
     static constexpr int nStartingPairs = phase1PixelTopology::nStartingPairs;
 
     static constexpr uint16_t numberOfModules = phase1PixelTopology::numberOfModules;
+    // Pixel-module count; equals numberOfModules for pixel-only topologies.
+    static constexpr uint16_t numberOfPixelModules = phase1PixelTopology::numberOfModules;
 
     static constexpr uint16_t numRowsInRoc = 80;
     static constexpr uint16_t numColsInRoc = 52;
