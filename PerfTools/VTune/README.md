@@ -30,4 +30,3 @@ This service enables VTune profiling for selected modules or all modules using t
 If `allModules=true` the list of module names is ignored.
 
 If `allModules=false` and the list of module names is empty no module is profiled.
-
