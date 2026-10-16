@@ -4,6 +4,7 @@
 #include <TFile.h>
 #include <TH1F.h>
 #include <TString.h>
+#include <cmath>
 #include <iostream>
 #include <map>
 #include <string>
@@ -62,8 +63,8 @@ inline void FlatOccupancy::LoadWeigths(TString FileName) {
 inline float FlatOccupancy::GiveCorrection(int Wheel, int Station, int Sector, float positionX, float positionY) {
   TString Name =
       "Occupancy_XYweight_" + std::to_string(Wheel) + "_" + std::to_string(Station) + "_" + std::to_string(Sector);
-  int BinX = floor((positionX + 210) / 4.2) + 1;  //Assuming the histrograms are from -210 to 210 with 100 bins
-  int BinY = floor((positionY + 210) / 4.2) + 1;  //Assuming the histrograms are from -210 to 210 with 100 bins
+  int BinX = std::floor((positionX + 210) / 4.2) + 1;  //Assuming the histrograms are from -210 to 210 with 100 bins
+  int BinY = std::floor((positionY + 210) / 4.2) + 1;  //Assuming the histrograms are from -210 to 210 with 100 bins
   if (map_created) {
     auto it = Occup_weights.find(Name);
     if (it != Occup_weights.end() && it->second) {
