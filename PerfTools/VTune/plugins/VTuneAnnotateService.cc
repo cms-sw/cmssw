@@ -30,8 +30,7 @@ namespace perftools {
   VTuneAnnotateService::VTuneAnnotateService(const edm::ParameterSet& iPS, edm::ActivityRegistry& iRegistry)
       : moduleNames_(iPS.getUntrackedParameter<std::vector<std::string>>("moduleNames")),
         allModules_(iPS.getUntrackedParameter<bool>("allModules")),
-        ittDomain_(
-            __itt_domain_create(iPS.getUntrackedParameter<std::string>("ittDomain").c_str())) {
+        ittDomain_(__itt_domain_create(iPS.getUntrackedParameter<std::string>("ittDomain").c_str())) {
     iRegistry.watchPreModuleEvent(this, &VTuneAnnotateService::preModuleEvent);
     iRegistry.watchPostModuleEvent(this, &VTuneAnnotateService::postModuleEvent);
   }
