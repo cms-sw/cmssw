@@ -91,67 +91,70 @@ namespace edm {
                                         ProduceFunctor&& produceFunctor) {
         return WaitingTaskHolder(
             *group,
-            make_waiting_task([this,
-                               group,
-                               serviceToken,
-                               record,
-                               eventSetupImpl,
-                               emitPostPrefetchingSignal,
-                               produceFunctor =
-                                   std::forward<ProduceFunctor>(produceFunctor)](std::exception_ptr const* iException) {
-              std::exception_ptr excptr;
-              if (iException) {
-                excptr = *iException;
-              }
-              if (emitPostPrefetchingSignal) {
-                try {
-                  convertException::wrap([this, &serviceToken, &record] {
-                    ServiceRegistry::Operate guard(serviceToken.lock());
-                    record->activityRegistry()->postESModulePrefetchingSignal_.emit(record->key(), callingContext_);
-                  });
-                } catch (cms::Exception& caughtException) {
-                  if (not excptr) {
-                    exceptionContext(caughtException, callingContext_);
-                    excptr = std::current_exception();
+            make_waiting_task(
+                [this,
+                 group,
+                 serviceToken,
+                 record,
+                 eventSetupImpl,
+                 emitPostPrefetchingSignal,
+                 produceFunctor = std::forward<ProduceFunctor>(produceFunctor)](std::exception_ptr const* iException) {
+                  std::exception_ptr excptr;
+                  if (iException) {
+                    excptr = *iException;
                   }
-                }
-              }
-              if (excptr) {
-                taskList_.doneWaiting(excptr);
-                return;
-              }
-
-              producer_->queue().push(
-                  *group, [this, serviceToken, record, eventSetupImpl, produceFunctor = std::move(produceFunctor)]() {
-                    callingContext_.setState(ESModuleCallingContext::State::kRunning);
-                    std::exception_ptr exceptPtr;
+                  if (emitPostPrefetchingSignal) {
                     try {
-                      convertException::wrap([this, &serviceToken, &record, &eventSetupImpl, &produceFunctor] {
-                        ESModuleCallingContext const& context = callingContext_;
-                        auto resolvers = getTokenIndices();
-                        if (postMayGetResolvers_) {
-                          resolvers = &((*postMayGetResolvers_).front());
-                        }
-                        TRecord rec;
-                        ESParentContext pc{&context};
-                        rec.setImpl(record, produceMethodID(), resolvers, eventSetupImpl, &pc);
-                        ServiceRegistry::Operate operate(serviceToken.lock());
-                        auto guard = signalslot::make_sentry([&record, &context]() {
-                          record->activityRegistry()->postESModuleSignal_.emit(record->key(), context);
-                        });
-                        record->activityRegistry()->preESModuleSignal_.emit(record->key(), context);
-                        decorator_.pre(rec);
-                        storeReturnedValues(produceFunctor(rec));
-                        decorator_.post(rec);
-                        guard.succeeded();
+                      convertException::wrap([this, &serviceToken, &record] {
+                        ServiceRegistry::Operate guard(serviceToken.lock());
+                        record->activityRegistry()->postESModulePrefetchingSignal_.emit(record->key(), callingContext_);
                       });
-                    } catch (cms::Exception& iException) {
-                      exceptionContext(iException, callingContext_);
-                      exceptPtr = std::current_exception();
+                    } catch (cms::Exception& caughtException) {
+                      if (not excptr) {
+                        exceptionContext(caughtException, callingContext_);
+                        excptr = std::current_exception();
+                      }
                     }
-                    taskList_.doneWaiting(exceptPtr);
-                  });
-            }));
+                  }
+                  if (excptr) {
+                    taskList_.doneWaiting(excptr);
+                    return;
+                  }
+
+                  // with EventSetup replication, produce the copy of a NUMA domain in the arena of that domain
+                  producer_->queue().push(
+                      *group,
+                      record->numaDomain(),
+                      [this, serviceToken, record, eventSetupImpl, produceFunctor = std::move(produceFunctor)]() {
+                        callingContext_.setState(ESModuleCallingContext::State::kRunning);
+                        std::exception_ptr exceptPtr;
+                        try {
+                          convertException::wrap([this, &serviceToken, &record, &eventSetupImpl, &produceFunctor] {
+                            ESModuleCallingContext const& context = callingContext_;
+                            auto resolvers = getTokenIndices();
+                            if (postMayGetResolvers_) {
+                              resolvers = &((*postMayGetResolvers_).front());
+                            }
+                            TRecord rec;
+                            ESParentContext pc{&context};
+                            rec.setImpl(record, produceMethodID(), resolvers, eventSetupImpl, &pc);
+                            ServiceRegistry::Operate operate(serviceToken.lock());
+                            auto guard = signalslot::make_sentry([&record, &context]() {
+                              record->activityRegistry()->postESModuleSignal_.emit(record->key(), context);
+                            });
+                            record->activityRegistry()->preESModuleSignal_.emit(record->key(), context);
+                            decorator_.pre(rec);
+                            storeReturnedValues(produceFunctor(rec));
+                            decorator_.post(rec);
+                            guard.succeeded();
+                          });
+                        } catch (cms::Exception& iException) {
+                          exceptionContext(iException, callingContext_);
+                          exceptPtr = std::current_exception();
+                        }
+                        taskList_.doneWaiting(exceptPtr);
+                      });
+                }));
       }
 
       template <typename RunModuleFnctr>

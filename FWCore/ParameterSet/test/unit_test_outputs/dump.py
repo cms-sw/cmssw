@@ -26,6 +26,8 @@ process.options = cms.untracked.PSet(
         forceNumberOfConcurrentIOVs = cms.untracked.PSet(
             allowAnyLabel_=cms.required.untracked.uint32
         ),
+        numaExcludedRecords = cms.untracked.vstring(),
+        numaReplicatedRecords = cms.untracked.vstring(),
         numberOfConcurrentIOVs = cms.untracked.uint32(0)
     ),
     fileMode = cms.untracked.string('FULLMERGE'),

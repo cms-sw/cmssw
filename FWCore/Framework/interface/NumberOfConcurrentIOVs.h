@@ -45,6 +45,10 @@ namespace edm {
 
       unsigned int numberOfConcurrentIOVs(EventSetupRecordKey const&, bool printInfoMsg = false) const;
 
+      // number of copies of each IOV of the record: one per NUMA domain with numaLocality for the records
+      // that allow concurrent IOVs, otherwise 1
+      unsigned int numberOfReplicas(EventSetupRecordKey const&) const;
+
       void clear();
 
     private:
