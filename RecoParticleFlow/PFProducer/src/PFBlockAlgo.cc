@@ -140,13 +140,10 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
   for (const auto& kdtree : kdtrees_) {
     kdtree->process();
   }
-  // !Glowinski & Gouzevitch
-  reco::PFBlockCollection blocks;
-  // the blocks have not been passed to the event, and need to be cleared
-  blocks.reserve(elements_.size());
 
-  QuickUnion qu(elements_.size());
   const auto elem_size = elements_.size();
+  QuickUnion qu(elem_size);
+  
   for (unsigned i = 0; i < elem_size; ++i) {
     for (unsigned j = i + 1; j < elem_size; ++j) {
       if (qu.connected(i, j))
@@ -169,10 +166,10 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
     }
   }
 
-  std::unordered_multimap<unsigned, unsigned> blocksmap(elements_.size());
+  std::unordered_multimap<unsigned, unsigned> blocksmap(elem_size);
   std::vector<unsigned> keys;
-  keys.reserve(elements_.size());
-  for (unsigned i = 0; i < elements_.size(); ++i) {
+  keys.reserve(elem_size);
+  for (unsigned i = 0; i < elem_size; ++i) {
     unsigned key = i;
     while (key != qu.find(key))
       key = qu.find(key);  // make sure we always find the root node...
@@ -182,6 +179,11 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
     }
     blocksmap.emplace(key, i);
   }
+
+  // !Glowinski & Gouzevitch
+  reco::PFBlockCollection blocks;
+  // the blocks have not been passed to the event, and need to be cleared
+  blocks.reserve(elem_size);
 
   for (auto key : keys) {
     blocks.push_back(reco::PFBlock());
@@ -294,9 +296,10 @@ void PFBlockAlgo::buildElements(const edm::Event& evt) {
   // list is now partitioned, so mark the boundaries so we can efficiently skip chunks
   unsigned current_type = (!elements_.empty() ? elements_[0]->type() : 0);
   unsigned last_type = (!elements_.empty() ? elements_.back()->type() : 0);
+  const auto elem_size = elements_.size();
   ranges_[current_type].first = 0;
-  ranges_[last_type].second = elements_.size() - 1;
-  for (size_t i = 0; i < elements_.size(); ++i) {
+  ranges_[last_type].second = elem_size - 1;
+  for (size_t i = 0; i < elem_size; ++i) {
     const auto the_type = elements_[i]->type();
     if (the_type != current_type) {
       ranges_[the_type].first = i;
