@@ -5,10 +5,6 @@
 
 #include <algorithm>
 #include <iostream>
-#include <array>
-#include <iterator>
-#include <sstream>
-#include <type_traits>
 #include <utility>
 #include <numeric>
 
@@ -160,16 +156,11 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
   }
 
   std::unordered_multimap<unsigned, unsigned> blocksmap(elem_size);
-  std::vector<unsigned> keys;
-  keys.reserve(elem_size);
+  std::vector<unsigned> keys; // stores all roots
   for (unsigned i = 0; i < elem_size; ++i) {
-    unsigned key = i;
-    while (key != qu.find(key))
-      key = qu.find(key);  // make sure we always find the root node...
-    auto pos = std::lower_bound(keys.begin(), keys.end(), key);
-    if (pos == keys.end() || *pos != key) {
-      keys.insert(pos, key);
-    }
+	unsigned key = qu.find(i); // finds the root of 'i'
+	if (key == i)
+	  keys.push_back(i); // roots are added in ascending order
     blocksmap.emplace(key, i);
   }
 
@@ -178,7 +169,7 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
   // the blocks have not been passed to the event, and need to be cleared
   blocks.reserve(elem_size);
 
-  for (auto key : keys) {
+  for (auto key : keys) { // loops over all roots
     blocks.push_back(reco::PFBlock());
     auto range = blocksmap.equal_range(key);
     auto& the_block = blocks.back();
@@ -188,7 +179,7 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
     //reserve up to 1M or 8MB; pay rehash cost for more
     std::unordered_map<std::pair<unsigned int, unsigned int>, double> links(min(1000000u, block_size * block_size));
     auto itr = range.first;
-    ++itr;
+    ++itr; // skips comparison with itself
     for (; itr != range.second; ++itr) {
       ElementList::value_type::pointer p2(elements_[itr->second].get());
       const PFBlockElement::Type type1 = p1->type();
