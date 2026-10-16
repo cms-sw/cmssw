@@ -1,0 +1,20 @@
+import FWCore.ParameterSet.Config as cms
+
+generator = cms.EDFilter("Pythia8PtGun",
+    PGunParameters = cms.PSet(
+        MaxPt = cms.double(2.0),
+        MinPt = cms.double(0.5),
+        ParticleID = cms.vint32(321),
+        AddAntiParticle = cms.bool(True),
+        MaxEta = cms.double(4.5),
+        MinEta = cms.double(-4.5),
+        MaxPhi = cms.double(3.14159265359),
+        MinPhi = cms.double(-3.14159265359)
+    ),
+    Verbosity = cms.untracked.int32(0),
+    psethack = cms.string('single kaon pt 0.5 to 2.0'),
+    firstRun = cms.untracked.uint32(1),
+    PythiaParameters = cms.PSet(
+        parameterSets = cms.vstring()
+    )
+)
