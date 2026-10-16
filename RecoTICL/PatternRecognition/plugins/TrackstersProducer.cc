@@ -25,6 +25,7 @@
 #include "RecoTICL/Inference/interface/TracksterInferenceAlgoBase.h"
 #include "RecoTICL/Inference/interface/TracksterInferenceAlgoFactory.h"
 #include "RecoTICL/Inference/interface/TracksterInferenceByCNN.h"
+#include "RecoTICL/Inference/interface/TracksterInferenceByShowerShape.h"
 #include "RecoTICL/Inference/interface/TracksterInferenceByDNN.h"
 #include "RecoTICL/Inference/interface/TracksterInferenceByPFN.h"
 #include "PatternRecognitionPluginFactory.h"
@@ -274,6 +275,9 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::ParameterSetDescription>(
       "pluginInferenceAlgoTracksterInferenceByPFN",
       ticl::inferencePluginPSetDescription<ticl::TracksterInferenceByPFN>("TracksterInferenceByPFN"));
+  desc.add<edm::ParameterSetDescription>(
+      "pluginInferenceAlgoTracksterInferenceByShowerShape",
+      ticl::inferencePluginPSetDescription<ticl::TracksterInferenceByShowerShape>("TracksterInferenceByShowerShape"));
 
   descriptions.add("trackstersProducer", desc);
 }
