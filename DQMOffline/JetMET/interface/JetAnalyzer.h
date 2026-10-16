@@ -127,7 +127,6 @@ private:
 
   edm::EDGetTokenT<reco::MuonCollection> MuonsToken_;
   edm::EDGetTokenT<pat::JetCollection> patJetsToken_;
-  edm::EDGetTokenT<edm::ValueMap<float>> mvaFullPUDiscriminantToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> cutBasedPUDiscriminantToken_;
   edm::EDGetTokenT<edm::ValueMap<int>> cutBasedPUIDToken_;
   edm::EDGetTokenT<edm::ValueMap<int>> mvaPUIDToken_;
@@ -224,8 +223,6 @@ private:
   double nPVhigh_;
 
   //variables which are present both in
-  int jetLoPass_;
-  int jetHiPass_;
   int leadJetFlag_;
   double ptThreshold_;
   double ptThresholdUnc_;
@@ -256,7 +253,6 @@ private:
   MonitorElement* mEta_uncor;
   MonitorElement* mPhi_uncor;
   MonitorElement* mConstituents_uncor;
-  MonitorElement* mJetArea_uncor;
 
   MonitorElement* mJetEnergyCorr;
   MonitorElement* mJetEnergyCorrVSEta;
@@ -268,7 +264,6 @@ private:
   MonitorElement* mPhiVSEta;
 
   MonitorElement* mPt_Barrel;
-  MonitorElement* mEta_Barrel;
   MonitorElement* mPhi_Barrel;
   MonitorElement* mConstituents_Barrel;
   MonitorElement* mHFrac_Barrel;
@@ -282,32 +277,23 @@ private:
   MonitorElement* mEFrac_EndCap;
 
   MonitorElement* mPt_Forward;
-  MonitorElement* mEta_Forward;
   MonitorElement* mPhi_Forward;
   MonitorElement* mConstituents_Forward;
   MonitorElement* mHFrac_Forward;
   MonitorElement* mEFrac_Forward;
 
-  MonitorElement* mPt_Barrel_Hi;
-  MonitorElement* mEta_Barrel_Hi;
-  MonitorElement* mPhi_Barrel_Hi;
   MonitorElement* mConstituents_Barrel_Hi;
   MonitorElement* mHFrac_Barrel_Hi;
 
   MonitorElement* mPt_EndCap_Hi;
   MonitorElement* mEta_EndCap_Hi;
-  MonitorElement* mPhi_EndCap_Hi;
   MonitorElement* mConstituents_EndCap_Hi;
   MonitorElement* mHFrac_EndCap_Hi;
 
-  MonitorElement* mPt_Forward_Hi;
-  MonitorElement* mEta_Forward_Hi;
-  MonitorElement* mPhi_Forward_Hi;
   MonitorElement* mConstituents_Forward_Hi;
   MonitorElement* mHFrac_Forward_Hi;
 
   MonitorElement* mNJets;
-  MonitorElement* mNJets_Hi;
   MonitorElement* mDPhi;
 
   // Leading Jet Parameters
@@ -315,33 +301,12 @@ private:
   MonitorElement* mPhiFirst;
   MonitorElement* mPtFirst;
 
-  // Events passing the jet triggers
-  MonitorElement* mPhi_Lo;
-  MonitorElement* mPt_Lo;
-
-  MonitorElement* mEta_Hi;
-  MonitorElement* mPhi_Hi;
-  MonitorElement* mPt_Hi;
-
-  MonitorElement* mLooseJIDPassFractionVSeta;
-  MonitorElement* mLooseJIDPassFractionVSpt;
-  MonitorElement* mLooseJIDPassFractionVSptNoHF;
-
   MonitorElement* mLooseMVAPUJIDPassFractionVSeta;
   MonitorElement* mLooseMVAPUJIDPassFractionVSpt;
   MonitorElement* mMediumMVAPUJIDPassFractionVSeta;
   MonitorElement* mMediumMVAPUJIDPassFractionVSpt;
   MonitorElement* mTightMVAPUJIDPassFractionVSeta;
   MonitorElement* mTightMVAPUJIDPassFractionVSpt;
-  MonitorElement* mMVAPUJIDDiscriminant_lowPt_Barrel;
-  MonitorElement* mMVAPUJIDDiscriminant_lowPt_EndCap;
-  MonitorElement* mMVAPUJIDDiscriminant_lowPt_Forward;
-  MonitorElement* mMVAPUJIDDiscriminant_mediumPt_Barrel;
-  MonitorElement* mMVAPUJIDDiscriminant_mediumPt_EndCap;
-  MonitorElement* mMVAPUJIDDiscriminant_mediumPt_Forward;
-  MonitorElement* mMVAPUJIDDiscriminant_highPt_Barrel;
-  MonitorElement* mMVAPUJIDDiscriminant_highPt_EndCap;
-  MonitorElement* mMVAPUJIDDiscriminant_highPt_Forward;
 
   MonitorElement* mLooseCutPUJIDPassFractionVSeta;
   MonitorElement* mLooseCutPUJIDPassFractionVSpt;
@@ -447,15 +412,6 @@ private:
   MonitorElement* mChMultiplicity_highPt_Barrel;
   MonitorElement* mNeutMultiplicity_highPt_Barrel;
   MonitorElement* mMuMultiplicity_highPt_Barrel;
-
-  MonitorElement* mCHFracVSpT_Barrel;
-  MonitorElement* mNHFracVSpT_Barrel;
-  MonitorElement* mPhFracVSpT_Barrel;
-  MonitorElement* mCHFracVSpT_EndCap;
-  MonitorElement* mNHFracVSpT_EndCap;
-  MonitorElement* mPhFracVSpT_EndCap;
-  MonitorElement* mHFHFracVSpT_Forward;
-  MonitorElement* mHFEFracVSpT_Forward;
 
   MonitorElement* mCHFracVSeta_lowPt;
   MonitorElement* mNHFracVSeta_lowPt;
@@ -744,7 +700,6 @@ private:
   */
   MonitorElement* mePhFracBarrel_BXm1Empty;
   MonitorElement* meNHFracBarrel_BXm1Empty;
-  MonitorElement* meCHFracBarrel_BXm1Empty;
   MonitorElement* mePtBarrel_BXm1Empty;
   MonitorElement* mePhFracEndCapMinus_BXm1Empty;
   MonitorElement* meNHFracEndCapMinus_BXm1Empty;
@@ -784,7 +739,6 @@ private:
   */
   MonitorElement* mePhFracBarrel_BXm1Filled;
   MonitorElement* meNHFracBarrel_BXm1Filled;
-  MonitorElement* meCHFracBarrel_BXm1Filled;
   MonitorElement* mePtBarrel_BXm1Filled;
   MonitorElement* mePhFracEndCapMinus_BXm1Filled;
   MonitorElement* meNHFracEndCapMinus_BXm1Filled;
