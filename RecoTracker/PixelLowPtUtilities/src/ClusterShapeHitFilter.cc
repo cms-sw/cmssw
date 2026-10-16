@@ -23,6 +23,8 @@
 
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include <fstream>
 #include <cassert>
 
@@ -34,17 +36,15 @@ ClusterShapeHitFilter::ClusterShapeHitFilter(const TrackerGeometry* theTracker_,
                                              const MagneticField* theMagneticField_,
                                              const SiPixelLorentzAngle* theSiPixelLorentzAngle_,
                                              const SiStripLorentzAngle* theSiStripLorentzAngle_,
-                                             const std::string& pixelShapeFile_,
-                                             const std::string& pixelShapeFileL1_)
+                                             const SiPixelClusterShapeLimits& thePixelShapeLimits_)
     : theTracker(theTracker_),
       theTkTopol(theTkTopol_),
       theMagneticField(theMagneticField_),
       theSiPixelLorentzAngle(theSiPixelLorentzAngle_),
       theSiStripLorentzAngle(theSiStripLorentzAngle_) {
   // Load pixel limits
-  loadPixelLimits(pixelShapeFile_, pixelLimits);
-  loadPixelLimits(pixelShapeFileL1_, pixelLimitsL1);
-  fillPixelData();
+  loadPixelLimits(thePixelShapeLimits_);
+  fillPixelData(thePixelShapeLimits_);
 
   // Load strip limits
   loadStripLimits();
@@ -57,35 +57,19 @@ ClusterShapeHitFilter::ClusterShapeHitFilter(const TrackerGeometry* theTracker_,
 ClusterShapeHitFilter::~ClusterShapeHitFilter() {}
 
 /*****************************************************************************/
-void ClusterShapeHitFilter::loadPixelLimits(std::string const& file, PixelLimits* plim) {
-  edm::FileInPath fileInPath(file.c_str());
-  ifstream inFile(fileInPath.fullPath().c_str());
+void ClusterShapeHitFilter::loadPixelLimits(const SiPixelClusterShapeLimits& pixelShapeLimits) {
+  pixelLimits.resize(pixelShapeLimits.tables().size());
+  for (unsigned int i = 0; i < pixelLimits.size(); ++i)
+    for (const auto& entry : pixelShapeLimits.tables()[i].entries) {
+      const PixelKeys key(entry.part, entry.dx, entry.dy);
+      auto& pl = pixelLimits[i][key];
 
-  while (inFile.eof() == false) {
-    int part, dx, dy;
-
-    inFile >> part;  // 0or 1
-    inFile >> dx;    // 0 to 10
-    inFile >> dy;    // 0 to 15 ...
-
-    const PixelKeys key(part, dx, dy);
-    auto& pl = plim[key];
-
-    for (int b = 0; b < 2; b++)      // branch
-      for (int d = 0; d < 2; d++)    // direction
-        for (int k = 0; k < 2; k++)  // lower and upper
-          inFile >> pl.data[b][d][k];
-
-    double f;
-    int d;
-
-    inFile >> f;  // density
-    inFile >> d;  // points
-    inFile >> f;  // density
-    inFile >> d;  // points
-  }
-
-  inFile.close();
+      auto limit = entry.limits.begin();
+      for (int b = 0; b < 2; b++)      // branch
+        for (int d = 0; d < 2; d++)    // direction
+          for (int k = 0; k < 2; k++)  // lower and upper
+            pl.data[b][d][k] = *limit++;
+    }
 
   LogTrace("MinBiasTracking|ClusterShapeHitFilter") << " [ClusterShapeHitFilter] pixel-cluster-shape filter loaded";
 }
@@ -113,7 +97,16 @@ void ClusterShapeHitFilter::loadStripLimits() {
   LogTrace("MinBiasTracking|ClusterShapeHitFilter") << " [ClusterShapeHitFilter] strip-cluster-width filter loaded";
 }
 
-void ClusterShapeHitFilter::fillPixelData() {
+void ClusterShapeHitFilter::fillPixelData(const SiPixelClusterShapeLimits& pixelShapeLimits) {
+  pixelShapeLimits.checkComplete();
+
+  auto limitsFor = [&](DetId id, int subdet, int layerOrDisk) -> PixelLimits const* {
+    const int table = pixelShapeLimits.tableIndex(subdet, layerOrDisk);
+    if (table < 0)
+      throw cms::Exception("ClusterShapeHitFilter") << "no SiPixelClusterShapeLimits table for module " << id.rawId();
+    return pixelLimits[table].data();
+  };
+
   //barrel
   for (auto det : theTracker->detsPXB()) {
     // better not to fail..
@@ -123,6 +116,7 @@ void ClusterShapeHitFilter::fillPixelData() {
       pd.det = pixelDet;
       pd.part = 0;
       pd.layer = theTkTopol->pxbLayer(pixelDet->geographicalId());
+      pd.limits = limitsFor(pixelDet->geographicalId(), SiPixelClusterShapeLimits::kBPix, pd.layer);
       pd.cotangent = getCotangent(pixelDet);
       pd.drift = getDrift(pixelDet);
     }
@@ -137,6 +131,8 @@ void ClusterShapeHitFilter::fillPixelData() {
     pd.det = pixelDet;
     pd.part = 1;
     pd.layer = 0;
+    const DetId id = pixelDet->geographicalId();
+    pd.limits = limitsFor(id, SiPixelClusterShapeLimits::kFPix, theTkTopol->pxfDisk(id));
     pd.cotangent = getCotangent(pixelDet);
     pd.drift = getDrift(pixelDet);
   }
@@ -297,7 +293,7 @@ bool ClusterShapeHitFilter::isCompatible(const SiPixelRecHit& recHit,
   ClusterData::ArrayType meas;
   pair<float, float> pred;
 
-  PixelLimits const* pl = pd.layer == 1 ? pixelLimitsL1 : pixelLimits;
+  PixelLimits const* pl = pd.limits;
   if (getSizes(recHit, ldir, clusterShapeCache, part, meas, pred, &pd)) {
     for (const auto& m : meas) {
       PixelKeys key(part, m.first, m.second);

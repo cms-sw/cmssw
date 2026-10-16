@@ -44,9 +44,7 @@ process.GlobalTrackingGeometryESProducer = cms.ESProducer( "GlobalTrackingGeomet
 process.HLTSiStripClusterChargeCutNone = cms.PSet(  value = cms.double( -1.0 ) )
 process.ClusterShapeHitFilterESProducer = cms.ESProducer( "ClusterShapeHitFilterESProducer",
     ComponentName = cms.string( "ClusterShapeHitFilter" ),
-    PixelShapeFileL1 = cms.string( "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase1_loose.par" ),
     clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
-    PixelShapeFile = cms.string( "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase1_noL1.par" )
 )
 #SiStrip Local Reco
 process.load("CalibTracker.SiStripCommon.TkDetMapESProducer_cfi")
