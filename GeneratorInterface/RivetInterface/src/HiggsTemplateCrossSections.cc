@@ -30,13 +30,13 @@ namespace Rivet {
     /// @{
 
     /// follow a "propagating" particle and return its last instance
-    Particle getLastInstance(const Particle& ptcl) {
+    Particle getLastInstance(const Particle &ptcl) {
       Particle current = ptcl;
       // Until no later copy of the particle is found, keep following the decay chain
       while (current.genParticle()->end_vertex()) {
         bool found = false;
 
-        for (const auto& c : current.children()) {
+        for (const auto &c : current.children()) {
           if (c.pid() == current.pid()) {
             current = c;
             found = true;
@@ -44,7 +44,8 @@ namespace Rivet {
           }
         }
 
-        if (!found) break;
+        if (!found)
+          break;
       }
       return current;
     }
@@ -210,12 +211,11 @@ namespace Rivet {
           if (PID::isW(ptcl->pdg_id())) {
             ++nWs;
             cat.V = Particle(ptcl);
-          }
-          else if (PID::isZ(ptcl->pdg_id())) {
+          } else if (PID::isZ(ptcl->pdg_id())) {
             ++nZs;
             cat.V = Particle(ptcl);
-          }
-          else if (fabs(ptcl->pdg_id()) == 11 || fabs(ptcl->pdg_id()) == 12 || fabs(ptcl->pdg_id()) == 13 || fabs(ptcl->pdg_id()) == 14 || fabs(ptcl->pdg_id()) == 15 || fabs(ptcl->pdg_id()) == 16) {
+          } else if (fabs(ptcl->pdg_id()) == 11 || fabs(ptcl->pdg_id()) == 12 || fabs(ptcl->pdg_id()) == 13 ||
+                     fabs(ptcl->pdg_id()) == 14 || fabs(ptcl->pdg_id()) == 15 || fabs(ptcl->pdg_id()) == 16) {
             ++nLep;
           }
         }
@@ -235,9 +235,9 @@ namespace Rivet {
           // consider event as categorised if exactly 2 leptons produced with Higgs;
           // pretend they come from a V-decay (practical reason only, do not consider EFT contact interaction separately)
           if (nLep == 2 && uncatV_decays.size() == 2) {
-            if( prodMode == HTXS::WH)
+            if (prodMode == HTXS::WH)
               nWs++;
-            else if( prodMode == HTXS::QQ2ZH || prodMode == HTXS::GG2ZH)
+            else if (prodMode == HTXS::QQ2ZH || prodMode == HTXS::GG2ZH)
               nZs++;
           } else
             is_uncatdV = true;
@@ -348,7 +348,7 @@ namespace Rivet {
         cat.V_pt = -999;
       }
       // Single jet variable
-      if (cat.jets30.size() >= 1) {
+      if (!cat.jets30.empty()) {
         cat.ptHj_over_ptH = (cat.jets30[0].mom() + cat.higgs.momentum()).pt() / cat.higgs.pt();
       } else {
         cat.ptHj_over_ptH = -999;
@@ -357,10 +357,8 @@ namespace Rivet {
       if (cat.jets30.size() >= 2) {
         cat.Mjj = (cat.jets30[0].mom() + cat.jets30[1].mom()).mass();
         cat.ptHjj = (cat.jets30[0].mom() + cat.jets30[1].mom() + cat.higgs.momentum()).pt();
-        cat.dPhijj =
-          cat.jets30[0].eta() > cat.jets30[1].eta()
-          ? deltaPhi(cat.jets30[0], cat.jets30[1])
-          : -1*deltaPhi(cat.jets30[0], cat.jets30[1]);
+        cat.dPhijj = cat.jets30[0].eta() > cat.jets30[1].eta() ? deltaPhi(cat.jets30[0], cat.jets30[1])
+                                                               : -1 * deltaPhi(cat.jets30[0], cat.jets30[1]);
       } else {
         cat.Mjj = -999;
         cat.ptHjj = -999;
@@ -478,15 +476,12 @@ namespace Rivet {
     /// @brief VBF topology selection for Stage1.3 Fine
     /// Extends upon vbfTopology_Stage1_X_Fine with additional deltaphi_jj binning
     int vbfTopology_Stage1_3_Fine(const Jets &jets, const Particle &higgs) {
-      if (jets.size() < 2) 
+      if (jets.size() < 2)
         return 0;
       const FourMomentum &j1 = jets[0].momentum(), &j2 = jets[1].momentum();
       double mjj = (j1 + j2).mass();
       double pthjj = (j1 + j2 + higgs.momentum()).pt();
-      double deltaphijj = 
-        j1.eta() > j2.eta()
-        ? deltaPhi(j1, j2)
-        : -1*deltaPhi(j1, j2);
+      double deltaphijj = j1.eta() > j2.eta() ? deltaPhi(j1, j2) : -1 * deltaPhi(j1, j2);
       // mjj-pthjj binning
       int mjj_pthjj_bin = 0;
       if (mjj > 350 && mjj <= 700)
@@ -501,7 +496,7 @@ namespace Rivet {
         mjj_pthjj_bin = 0;
       // deltaphijj binning
       constexpr double pi = 3.14159265358979323846;
-      int deltaphijj_bin = mjj > 350 ? 8*getBin(deltaphijj, {-1*pi, -0.5*pi, 0, 0.5*pi, pi}) : 0;
+      int deltaphijj_bin = mjj > 350 ? 8 * getBin(deltaphijj, {-1 * pi, -0.5 * pi, 0, 0.5 * pi, pi}) : 0;
       // total vbfTopo binning
       return deltaphijj_bin + mjj_pthjj_bin;
     }
@@ -1038,9 +1033,9 @@ namespace Rivet {
     }
 
     /// @brief Stage-1.3 categorization
-    HTXS::Stage1_3::Category getStage1_3_Category(const HTXS::HiggsProdMode prodMode, 
+    HTXS::Stage1_3::Category getStage1_3_Category(const HTXS::HiggsProdMode prodMode,
                                                   const Particle &higgs,
-                                                  const Jets &jets, 
+                                                  const Jets &jets,
                                                   const Particle &V) {
       using namespace HTXS::Stage1_3;
       int Njets = jets.size(), ctrlHiggs = std::abs(higgs.rapidity()) < 2.5, fwdHiggs = !ctrlHiggs;
@@ -1048,17 +1043,17 @@ namespace Rivet {
 
       // 1. GGF Stage 1.3 categories
       if (prodMode == HTXS::GGF || (prodMode == HTXS::GG2ZH && quarkDecay(V))) {
-        if (fwdHiggs) 
+        if (fwdHiggs)
           return GG2H_FWDH;
-        if (higgs.pt() > 200) 
+        if (higgs.pt() > 200)
           return Category(GG2H_PTH_200_300 + getBin(higgs.pt(), {200, 300, 450, 650, 1000}));
-        if (Njets == 0) 
+        if (Njets == 0)
           return Category(GG2H_0J_PTH_0_5 + getBin(higgs.pt(), {0, 5, 10, 15, 20, 25, 30, 200}));
-        if (Njets == 1) 
+        if (Njets == 1)
           return Category(GG2H_1J_PTH_0_30 + getBin(higgs.pt(), {0, 30, 60, 120, 200}));
         if (Njets > 1) {
           // VBF topology
-          if (vbfTopo) 
+          if (vbfTopo)
             return Category(GG2H_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25 + vbfTopo - 1);
           // Njets >= 2jets without VBF topology (mjj<350)
           return Category(GG2H_GE2J_MJJ_0_350_PTH_0_30 + getBin(higgs.pt(), {0, 30, 60, 120, 200}));
@@ -1066,7 +1061,7 @@ namespace Rivet {
       }
       // 2. Electroweak qq->Hqq Stage 1.3 categories
       else if (prodMode == HTXS::VBF || (isVH(prodMode) && quarkDecay(V))) {
-        if (std::abs(higgs.rapidity()) > 2.5) 
+        if (std::abs(higgs.rapidity()) > 2.5)
           return QQ2HQQ_FWDH;
         int Njets = jets.size();
         if (Njets == 0)
@@ -1084,7 +1079,7 @@ namespace Rivet {
           else if (mjj > 350) {
             if (higgs.pt() > 200)
               return higgs.pt() < 450 ? QQ2HQQ_GE2J_MJJ_GT350_PTH_200_450 : QQ2HQQ_GE2J_MJJ_GT350_PTH_GT450;
-            if (vbfTopo) 
+            if (vbfTopo)
               return Category(QQ2HQQ_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25 + vbfTopo - 1);
           }
         }
@@ -1098,9 +1093,9 @@ namespace Rivet {
         else if (V.pt() < 150)
           return QQ2HLNU_PTV_75_150;
         else if (V.pt() < 250)
-          return jets.size() == 0 ? QQ2HLNU_PTV_150_250_0J : QQ2HLNU_PTV_150_250_GE1J;
+          return jets.empty() ? QQ2HLNU_PTV_150_250_0J : QQ2HLNU_PTV_150_250_GE1J;
         else if (V.pt() < 400)
-          return jets.size() == 0 ? QQ2HLNU_PTV_250_400_0J : QQ2HLNU_PTV_250_400_GE1J;
+          return jets.empty() ? QQ2HLNU_PTV_250_400_0J : QQ2HLNU_PTV_250_400_GE1J;
         else if (V.pt() < 600)
           return QQ2HLNU_PTV_400_600;
         return QQ2HLNU_PTV_GT600;
@@ -1114,9 +1109,9 @@ namespace Rivet {
         else if (V.pt() < 150)
           return QQ2HLL_PTV_75_150;
         else if (V.pt() < 250)
-          return jets.size() == 0 ? QQ2HLL_PTV_150_250_0J : QQ2HLL_PTV_150_250_GE1J;
+          return jets.empty() ? QQ2HLL_PTV_150_250_0J : QQ2HLL_PTV_150_250_GE1J;
         else if (V.pt() < 400)
-          return jets.size() == 0 ? QQ2HLL_PTV_250_400_0J : QQ2HLL_PTV_250_400_GE1J;
+          return jets.empty() ? QQ2HLL_PTV_250_400_0J : QQ2HLL_PTV_250_400_GE1J;
         else if (V.pt() < 600)
           return QQ2HLL_PTV_400_600;
         return QQ2HLL_PTV_GT600;
@@ -1130,9 +1125,9 @@ namespace Rivet {
         else if (V.pt() < 150)
           return GG2HLL_PTV_75_150;
         else if (V.pt() < 250)
-          return jets.size() == 0 ? GG2HLL_PTV_150_250_0J : GG2HLL_PTV_150_250_GE1J;
+          return jets.empty() ? GG2HLL_PTV_150_250_0J : GG2HLL_PTV_150_250_GE1J;
         else if (V.pt() < 400)
-          return jets.size() == 0 ? GG2HLL_PTV_250_400_0J : GG2HLL_PTV_250_400_GE1J;
+          return jets.empty() ? GG2HLL_PTV_250_400_0J : GG2HLL_PTV_250_400_GE1J;
         else if (V.pt() < 600)
           return GG2HLL_PTV_400_600;
         return GG2HLL_PTV_GT600;
@@ -1151,10 +1146,10 @@ namespace Rivet {
     }
 
     /// @brief Stage-1.3 Fine categorization
-    HTXS::Stage1_3_Fine::Category getStage1_3_Fine_Category(const HTXS::HiggsProdMode prodMode, 
+    HTXS::Stage1_3_Fine::Category getStage1_3_Fine_Category(const HTXS::HiggsProdMode prodMode,
                                                             const Particle &higgs,
-                                                            const Jets &jets, 
-                                                            const Particle &V, 
+                                                            const Jets &jets,
+                                                            const Particle &V,
                                                             const bool isTHW) {
       using namespace HTXS::Stage1_3_Fine;
       int Njets = jets.size(), ctrlHiggs = std::abs(higgs.rapidity()) < 2.5, fwdHiggs = !ctrlHiggs;
@@ -1162,7 +1157,7 @@ namespace Rivet {
 
       // 1. GGF Stage 1.3 categories (fine)
       if (prodMode == HTXS::GGF || (prodMode == HTXS::GG2ZH && quarkDecay(V))) {
-        if (fwdHiggs) 
+        if (fwdHiggs)
           return GG2H_FWDH;
         if (higgs.pt() > 200) {
           if (Njets > 0) {
@@ -1174,27 +1169,27 @@ namespace Rivet {
           } else
             return Category(GG2H_PTH_200_300_PTHJoverPTH_0_15 + getBin(higgs.pt(), {200, 300, 450, 650, 1000}));
         }
-        if (Njets == 0) 
+        if (Njets == 0)
           return Category(GG2H_0J_PTH_0_5 + getBin(higgs.pt(), {0, 5, 10, 15, 20, 25, 30, 200}));
-        if (Njets == 1) 
+        if (Njets == 1)
           return Category(GG2H_1J_PTH_0_30 + getBin(higgs.pt(), {0, 30, 60, 120, 200}));
         if (Njets > 1) {
-          double mjj = (jets[0].mom()+jets[1].mom()).mass();
+          double mjj = (jets[0].mom() + jets[1].mom()).mass();
           double pthjj = (jets[0].momentum() + jets[1].momentum() + higgs.momentum()).pt();
           // VBF topology
-          if (mjj < 350){
-              if (pthjj < 25)
-                return Category(GG2H_GE2J_MJJ_0_350_PTH_0_30_PTHJJ_0_25 + getBin(higgs.pt(), {0, 30, 60, 120, 200}));
-              else
-                return Category(GG2H_GE2J_MJJ_0_350_PTH_0_30_PTHJJ_GT25 + getBin(higgs.pt(), {0, 30, 60, 120, 200}));
+          if (mjj < 350) {
+            if (pthjj < 25)
+              return Category(GG2H_GE2J_MJJ_0_350_PTH_0_30_PTHJJ_0_25 + getBin(higgs.pt(), {0, 30, 60, 120, 200}));
+            else
+              return Category(GG2H_GE2J_MJJ_0_350_PTH_0_30_PTHJJ_GT25 + getBin(higgs.pt(), {0, 30, 60, 120, 200}));
           } else
-              return Category(GG2H_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25_DPHIJJ_MPI_MPIO2 + vbfTopo - 1);
+            return Category(GG2H_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25_DPHIJJ_MPI_MPIO2 + vbfTopo - 1);
         }
       }
 
       // 2. Electroweak qq->Hqq Stage 1.3 categories (fine)
       else if (prodMode == HTXS::VBF || (isVH(prodMode) && quarkDecay(V))) {
-        if (std::abs(higgs.rapidity()) > 2.5) 
+        if (std::abs(higgs.rapidity()) > 2.5)
           return QQ2HQQ_FWDH;
         int Njets = jets.size();
         if (Njets == 0)
@@ -1205,11 +1200,11 @@ namespace Rivet {
           double mjj = (jets[0].mom() + jets[1].mom()).mass();
           double pthjj = (jets[0].momentum() + jets[1].momentum() + higgs.momentum()).pt();
           if (mjj < 350) {
-            if (higgs.pt() < 200){
+            if (higgs.pt() < 200) {
               if (pthjj < 25)
                 return Category(QQ2HQQ_GE2J_MJJ_0_60_PTH_0_200_PTHJJ_0_25 + getBin(mjj, {0, 60, 120, 350}));
               else
-                return Category(QQ2HQQ_GE2J_MJJ_0_60_PTH_0_200_PTHJJ_GT25 + getBin(mjj, {0, 60, 120, 350}));              
+                return Category(QQ2HQQ_GE2J_MJJ_0_60_PTH_0_200_PTHJJ_GT25 + getBin(mjj, {0, 60, 120, 350}));
             } else {
               if (pthjj < 25)
                 return Category(QQ2HQQ_GE2J_MJJ_0_60_PTH_GT200_PTHJJ_0_25 + getBin(mjj, {0, 60, 120, 350}));
@@ -1229,36 +1224,36 @@ namespace Rivet {
 
       // 3. WH->Hlv Stage 1.3 categories (fine)
       else if (prodMode == HTXS::WH) {
-        if (fwdHiggs) 
+        if (fwdHiggs)
           return QQ2HLNU_FWDH;
         int Njets = jets.size();
-        if (Njets == 0) 
+        if (Njets == 0)
           return Category(QQ2HLNU_PTV_0_75_0J + getBin(V.pt(), {0, 75, 150, 250, 400, 600}));
-        if (Njets == 1) 
+        if (Njets == 1)
           return Category(QQ2HLNU_PTV_0_75_1J + getBin(V.pt(), {0, 75, 150, 250, 400, 600}));
         return Category(QQ2HLNU_PTV_0_75_GE2J + getBin(V.pt(), {0, 75, 150, 250, 400, 600}));
       }
 
       // 4. qq->ZH->llH Stage 1.3 categories (fine)
       else if (prodMode == HTXS::QQ2ZH) {
-        if (fwdHiggs) 
+        if (fwdHiggs)
           return QQ2HLL_FWDH;
         int Njets = jets.size();
-        if (Njets == 0) 
+        if (Njets == 0)
           return Category(QQ2HLL_PTV_0_75_0J + getBin(V.pt(), {0, 75, 150, 250, 400, 600}));
-        if (Njets == 1) 
+        if (Njets == 1)
           return Category(QQ2HLL_PTV_0_75_1J + getBin(V.pt(), {0, 75, 150, 250, 400, 600}));
         return Category(QQ2HLL_PTV_0_75_GE2J + getBin(V.pt(), {0, 75, 150, 250, 400, 600}));
-        }
+      }
 
       // 5. gg->ZH->llH Stage 1.3 categories (fine)
       else if (prodMode == HTXS::GG2ZH) {
-        if (fwdHiggs) 
+        if (fwdHiggs)
           return GG2HLL_FWDH;
         int Njets = jets.size();
-        if (Njets == 0) 
+        if (Njets == 0)
           return Category(GG2HLL_PTV_0_75_0J + getBin(V.pt(), {0, 75, 150, 250, 400, 600}));
-        if (Njets == 1) 
+        if (Njets == 1)
           return Category(GG2HLL_PTV_0_75_1J + getBin(V.pt(), {0, 75, 150, 250, 400, 600}));
         return Category(GG2HLL_PTV_0_75_GE2J + getBin(V.pt(), {0, 75, 150, 250, 400, 600}));
       }
@@ -1272,10 +1267,9 @@ namespace Rivet {
       } else if (prodMode == HTXS::BBH)
         return Category(BBH_FWDH + ctrlHiggs);
       else if (prodMode == HTXS::TH)
-        return Category(THQ_FWDH + 2*isTHW + ctrlHiggs);
+        return Category(THQ_FWDH + 2 * isTHW + ctrlHiggs);
       return UNKNOWN;
     }
-
 
     /// @}
 
@@ -1390,16 +1384,13 @@ namespace Rivet {
         hist_deltay_jj->fill(std::abs(j1.rapidity() - j2.rapidity()), weight);
         hist_dijet_mass->fill((j1 + j2).mass(), weight);
         hist_pT_Hjj->fill((j1 + j2 + cat.higgs.momentum()).pt(), weight);
-        double delta_phi_jj = 
-          cat.jets30[0].eta() > cat.jets30[1].eta()
-          ? deltaPhi(cat.jets30[0], cat.jets30[1])
-          : -1*deltaPhi(cat.jets30[0], cat.jets30[1]);
+        double delta_phi_jj = cat.jets30[0].eta() > cat.jets30[1].eta() ? deltaPhi(cat.jets30[0], cat.jets30[1])
+                                                                        : -1 * deltaPhi(cat.jets30[0], cat.jets30[1]);
         hist_deltaphi_jj->fill(delta_phi_jj, weight);
       }
 
       // Variable for Z decay
       hist_isZ2vv->fill(cat.isZ2vvDecay, weight);
-
     }
 
     void printClassificationSummary() {

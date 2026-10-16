@@ -1071,9 +1071,10 @@ namespace HTXS {
   }
 
   // Same for Stage1_3 categories
-  inline int HTXSstage1_3_to_HTXSstage1_3_FineIndex(HTXS::Stage1_3::Category stage1_3, HiggsProdMode prodMode,
+  inline int HTXSstage1_3_to_HTXSstage1_3_FineIndex(HTXS::Stage1_3::Category stage1_3,
+                                                    HiggsProdMode prodMode,
                                                     tH_type tH) {
-    if (stage1_3 == HTXS::Stage1_3::Category::UNKNOWN) 
+    if (stage1_3 == HTXS::Stage1_3::Category::UNKNOWN)
       return 0;
     int P = (int)(stage1_3 / 100);
     int F = (int)(stage1_3 % 100);
@@ -1081,7 +1082,7 @@ namespace HTXS {
     if (prodMode == HiggsProdMode::TH) {
       // check that tH splitting is valid for Stage-1 FineIndex
       // else return unknown category
-      if (tH == tH_type::noTH) 
+      if (tH == tH_type::noTH)
         return 0;
       // check if forward tH
       int fwdH = F == 0 ? 0 : 1;
@@ -1091,10 +1092,10 @@ namespace HTXS {
     // offset vector 1: input is the Higgs prodMode
     // first two indicies are dummies, given that this is only called for prodMode=2,3,4
     std::vector<int> pMode_offset = {0, 0, 51, 66, 81};
-    if (P == 2) 
+    if (P == 2)
       return (F + pMode_offset[prodMode]);
     // 1.c GG2ZH split into gg->ZH-had and gg->ZH-lep
-    if (prodMode == HiggsProdMode::GG2ZH && P == 1) 
+    if (prodMode == HiggsProdMode::GG2ZH && P == 1)
       return F + 26;
     // 1.d remaining categories
     // offset vector 2: input is the Stage-1 category P
@@ -1103,11 +1104,11 @@ namespace HTXS {
     return (F + catP_offset[P]);
   }
 
-  inline int HTXSstage1_3_to_HTXSstage1_3_FineIndex(const HiggsClassification &stxs, 
+  inline int HTXSstage1_3_to_HTXSstage1_3_FineIndex(const HiggsClassification &stxs,
                                                     tH_type tH = noTH,
                                                     bool jets_pT25 = false) {
-    HTXS::Stage1_3::Category stage1_3 
-        = jets_pT25 == false ? stxs.stage1_3_cat_pTjet30GeV : stxs.stage1_3_cat_pTjet25GeV;
+    HTXS::Stage1_3::Category stage1_3 =
+        jets_pT25 == false ? stxs.stage1_3_cat_pTjet30GeV : stxs.stage1_3_cat_pTjet25GeV;
     return HTXSstage1_3_to_HTXSstage1_3_FineIndex(stage1_3, stxs.prodMode, tH);
   }
 
@@ -1122,9 +1123,9 @@ namespace HTXS {
 
   // Same for Stage1_3_Fine categories
   inline int HTXSstage1_3_Fine_to_HTXSstage1_3_Fine_FineIndex(HTXS::Stage1_3_Fine::Category Stage1_3_Fine,
-                                                              HiggsProdMode prodMode, 
+                                                              HiggsProdMode prodMode,
                                                               tH_type tH) {
-    if (Stage1_3_Fine == HTXS::Stage1_3_Fine::Category::UNKNOWN) 
+    if (Stage1_3_Fine == HTXS::Stage1_3_Fine::Category::UNKNOWN)
       return 0;
     int P = (int)(Stage1_3_Fine / 100);
     int F = (int)(Stage1_3_Fine % 100);
@@ -1132,7 +1133,7 @@ namespace HTXS {
     if (prodMode == HiggsProdMode::TH) {
       // check that tH splitting is valid for Stage-1 FineIndex
       // else return unknown category
-      if (tH == tH_type::noTH) 
+      if (tH == tH_type::noTH)
         return 0;
       // check if forward tH
       int fwdH = F == 0 || F == 2 ? 0 : 1;
@@ -1142,10 +1143,10 @@ namespace HTXS {
     // offset vector 1: input is the Higgs prodMode
     // first two indicies are dummies, given that this is only called for prodMode=2,3,4
     std::vector<int> pMode_offset = {0, 0, 125, 211, 297};
-    if (P == 2) 
+    if (P == 2)
       return (F + pMode_offset[prodMode]);
     // 1.c GG2ZH split into gg->ZH-had and gg->ZH-lep
-    if (prodMode == HiggsProdMode::GG2ZH && P == 1) 
+    if (prodMode == HiggsProdMode::GG2ZH && P == 1)
       return F + 63;
     // 1.d remaining categories
     // offset vector 2: input is the Stage-1 category P
@@ -1154,7 +1155,7 @@ namespace HTXS {
     return (F + catP_offset[P]);
   }
 
-  inline int HTXSstage1_3_Fine_to_HTXSstage1_3_Fine_FineIndex(const HiggsClassification &stxs, 
+  inline int HTXSstage1_3_Fine_to_HTXSstage1_3_Fine_FineIndex(const HiggsClassification &stxs,
                                                               tH_type tH = noTH,
                                                               bool jets_pT25 = false) {
     HTXS::Stage1_3_Fine::Category Stage1_3_Fine =
