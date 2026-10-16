@@ -10,6 +10,7 @@
 #include <sstream>
 #include <type_traits>
 #include <utility>
+#include <numeric>
 
 using namespace std;
 using namespace reco;
@@ -20,24 +21,15 @@ namespace {
   class QuickUnion {
     std::vector<unsigned> id_;
     std::vector<unsigned> size_;
-    int count_;
 
   public:
-    QuickUnion(const unsigned NBranches) {
-      count_ = NBranches;
-      id_.resize(NBranches);
-      size_.resize(NBranches);
-      for (unsigned i = 0; i < NBranches; ++i) {
-        id_[i] = i;
-        size_[i] = 1;
-      }
-    }
-
-    int count() const { return count_; }
+	QuickUnion(unsigned NBranches) : id_(NBranches), size_(NBranches, 1) {
+	  std::iota(id_.begin(), id_.end(), 0u);
+	}
 
     unsigned find(unsigned p) {
       while (p != id_[p]) {
-        id_[p] = id_[id_[p]];
+        id_[p] = id_[id_[p]]; // path halving
         p = id_[p];
       }
       return p;
@@ -48,16 +40,17 @@ namespace {
     void unite(unsigned p, unsigned q) {
       unsigned rootP = find(p);
       unsigned rootQ = find(q);
-      id_[p] = q;
+	  // if (rootP == rootQ) return; // needed if the connected() check in findBlocks() is ever removed
 
+	  // size_ checks prevent the tree to become very tall (weighted quick union)
       if (size_[rootP] < size_[rootQ]) {
         id_[rootP] = rootQ;
         size_[rootQ] += size_[rootP];
-      } else {
+      }
+	  else {
         id_[rootQ] = rootP;
         size_[rootP] += size_[rootQ];
       }
-      --count_;
     }
   };
 }  // namespace
