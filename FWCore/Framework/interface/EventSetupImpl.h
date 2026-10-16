@@ -20,6 +20,7 @@
 
 // system include files
 #include <map>
+#include <memory>
 #include <optional>
 #include <vector>
 
@@ -72,6 +73,16 @@ namespace edm {
 
     bool validRecord(eventsetup::EventSetupRecordKey const& iKey) const;
 
+    ///the EventSetupImpl holding the copies of the EventSetup data for a NUMA domain (numaLocality);
+    /// this one for domain 0, or if the data are not replicated
+    EventSetupImpl const& forDomain(unsigned int domain) const {
+      return (domain == 0 or replicas_.empty()) ? *this : *replicas_[domain - 1];
+    }
+    EventSetupImpl& forDomain(unsigned int domain) {
+      return (domain == 0 or replicas_.empty()) ? *this : *replicas_[domain - 1];
+    }
+    unsigned int numberOfDomains() const { return replicas_.size() + 1; }
+
     ///Only EventSetupProvider allowed to create an EventSetupImpl
     friend class eventsetup::EventSetupProvider;
     friend class ::testEventsetup;
@@ -94,6 +105,8 @@ namespace edm {
     std::vector<eventsetup::EventSetupRecordKey>::const_iterator keysBegin_;
     std::vector<eventsetup::EventSetupRecordKey>::const_iterator keysEnd_;
     std::vector<eventsetup::EventSetupRecordImpl const*> recordImpls_;
+    // the EventSetupImpls of the other NUMA domains, with EventSetup replication
+    std::vector<std::shared_ptr<EventSetupImpl>> replicas_;
   };
 }  // namespace edm
 #endif
