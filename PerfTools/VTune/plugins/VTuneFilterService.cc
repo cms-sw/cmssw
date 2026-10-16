@@ -27,8 +27,8 @@ namespace perftools {
   };
 
   VTuneFilterService::VTuneFilterService(const edm::ParameterSet& iPS, edm::ActivityRegistry& iRegistry)
-      : moduleNames_(iPS.getUntrackedParameter<std::vector<std::string>>("moduleNames", std::vector<std::string>{})),
-        allModules_(iPS.getUntrackedParameter<bool>("allModules", false)) {
+      : moduleNames_(iPS.getUntrackedParameter<std::vector<std::string>>("moduleNames")),
+        allModules_(iPS.getUntrackedParameter<bool>("allModules")) {
     iRegistry.watchPreModuleEvent(this, &VTuneFilterService::preModuleEvent);
     iRegistry.watchPostModuleEvent(this, &VTuneFilterService::postModuleEvent);
   }
