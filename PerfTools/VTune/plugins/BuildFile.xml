@@ -1,4 +1,8 @@
-<use name="PerfTools/VTune"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Framework"/>
+<use name="DataFormats/Provenance"/>
+<use name="ittnotify"/>
 <library file="*.cc" name="VTuneFilterPlugin">
 	  <flags EDM_PLUGIN="1"/>
 </library>
