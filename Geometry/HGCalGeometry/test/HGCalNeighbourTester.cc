@@ -94,8 +94,14 @@ HGCalNeighbourTester::HGCalNeighbourTester(const edm::ParameterSet &iC)
           int cellV = std::atoi(items[4].c_str());
           DetId id1 = HGCSiliconDetId(dets_, 1, 0, layer, waferU, waferV, cellU, cellV);
           detIds_.emplace_back(id1);
+          edm::LogVerbatim("HGCGeom") << "Input ID: ZSide +1 Type 0 Layer " << layer << " Wafer " << waferU << ":"
+                                      << waferV << " Cell " << cellU << ":" << cellV;
+          edm::LogVerbatim("HGCGeom") << "Stored ID: " << HGCSiliconDetId(id1);
           DetId id2 = HGCSiliconDetId(dets_, -1, 0, layer, waferU, waferV, cellU, cellV);
           detIds_.emplace_back(id2);
+          edm::LogVerbatim("HGCGeom") << "Input ID: ZSide -1 Type 0 Layer " << layer << " Wafer " << waferU << ":"
+                                      << waferV << " Cell " << cellU << ":" << cellV;
+          edm::LogVerbatim("HGCGeom") << "Stored ID: " << HGCSiliconDetId(id2);
         }
       }
       fInput.close();
@@ -130,12 +136,12 @@ void HGCalNeighbourTester::beginRun(edm::Run const &iRun, edm::EventSetup const 
     if (detIds_.empty()) {
       detIds = geom->getValidDetIds(dets_);
     } else {
-      static constexpr uint32_t mask = 0xFFFFFF;
+      static constexpr uint32_t mask = 0x1FFFFFF;
       std::vector<DetId> allIds = geom->getValidDetIds(dets_);
       for (auto const &id : detIds_) {
         for (auto const &idz : allIds) {
           if ((id & mask) == (idz & mask)) {
-            detIds.emplace_back(idz);
+            detIds.emplace_back(id);
             edm::LogVerbatim("HGCGeom") << "Finds " << HGCSiliconDetId(idz) << " for " << HGCSiliconDetId(id);
             break;
           }
@@ -156,9 +162,7 @@ void HGCalNeighbourTester::beginRun(edm::Run const &iRun, edm::EventSetup const 
           if (idZ != 0)
             if (geom->validDetId(DetId(idZ)))
               ++nn;
-        edm::LogVerbatim("HGCalGeom") << "[" << kk << "] z-Side " << id.zside() << " Layer " << id.layer() << " Wafer "
-                                      << id.waferU() << ":" << id.waferV() << " Cell " << id.cellU() << ":"
-                                      << id.cellV() << " Type " << id.waferTypeX() << " has " << nn << " neighbours:";
+        edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << id << " has " << nn << " neighbours:";
         unsigned int k1(0);
         for (auto const &idZ : ids) {
           if (idZ != 0) {
@@ -172,6 +176,8 @@ void HGCalNeighbourTester::beginRun(edm::Run const &iRun, edm::EventSetup const 
           }
         }
         ++kk;
+      } else {
+        edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << id << " is not a valid cell";
       }
     }
   } else {
