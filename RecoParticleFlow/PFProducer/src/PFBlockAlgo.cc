@@ -145,16 +145,17 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
   QuickUnion qu(elem_size);
   
   for (unsigned i = 0; i < elem_size; ++i) {
+	const auto* p1(elements_[i].get());
+	const PFBlockElement::Type type1 = p1->type();
     for (unsigned j = i + 1; j < elem_size; ++j) {
       if (qu.connected(i, j))
         continue;
-      if (!linkTests_[linkTestSquare_[elements_[i]->type()][elements_[j]->type()]]) {
-        j = ranges_[elements_[j]->type()].second;
+	  const auto* p2(elements_[j].get());
+	  const PFBlockElement::Type type2 = p2->type();
+      if (!linkTests_[linkTestSquare_[type1][type2]]) {
+        j = ranges_[type2].second;
         continue;
       }
-      auto p1(elements_[i].get()), p2(elements_[j].get());
-      const PFBlockElement::Type type1 = p1->type();
-      const PFBlockElement::Type type2 = p2->type();
       const unsigned index = linkTestSquare_[type1][type2];
       if (linkTests_[index]->linkPrefilter(p1, p2)) {
         const double dist = linkTests_[index]->testLink(p1, p2);
