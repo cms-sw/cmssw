@@ -414,8 +414,6 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                  << " at (" << cms::convert2mm(xyIOff) << ", " << cms::convert2mm(xyIOff) << ", "
                                  << cms::convert2mm(zIOff) << ")";
 #endif
-    DDTranslation croffset(0., 0., 0.);
-
     // Position crystals within parent supercrystal interior volume
     static const unsigned int ncol(5);
 
