@@ -94,12 +94,14 @@ HGCalNeighbourTester::HGCalNeighbourTester(const edm::ParameterSet &iC)
           int cellV = std::atoi(items[4].c_str());
           DetId id1 = HGCSiliconDetId(dets_, 1, 0, layer, waferU, waferV, cellU, cellV);
           detIds_.emplace_back(id1);
-	  edm::LogVerbatim("HGCGeom") << "Input ID: ZSide +1 Type 0 Layer " << layer << " Wafer " << waferU << ":" << waferV << " Cell " << cellU << ":" << cellV;
-	  edm::LogVerbatim("HGCGeom") << "Stored ID: " << HGCSiliconDetId(id1);
+          edm::LogVerbatim("HGCGeom") << "Input ID: ZSide +1 Type 0 Layer " << layer << " Wafer " << waferU << ":"
+                                      << waferV << " Cell " << cellU << ":" << cellV;
+          edm::LogVerbatim("HGCGeom") << "Stored ID: " << HGCSiliconDetId(id1);
           DetId id2 = HGCSiliconDetId(dets_, -1, 0, layer, waferU, waferV, cellU, cellV);
           detIds_.emplace_back(id2);
-	  edm::LogVerbatim("HGCGeom") << "Input ID: ZSide -1 Type 0 Layer " << layer << " Wafer " << waferU << ":" << waferV << " Cell " << cellU << ":" << cellV;
-	  edm::LogVerbatim("HGCGeom") << "Stored ID: " << HGCSiliconDetId(id2);
+          edm::LogVerbatim("HGCGeom") << "Input ID: ZSide -1 Type 0 Layer " << layer << " Wafer " << waferU << ":"
+                                      << waferV << " Cell " << cellU << ":" << cellV;
+          edm::LogVerbatim("HGCGeom") << "Stored ID: " << HGCSiliconDetId(id2);
         }
       }
       fInput.close();
@@ -175,7 +177,7 @@ void HGCalNeighbourTester::beginRun(edm::Run const &iRun, edm::EventSetup const 
         }
         ++kk;
       } else {
-	edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << id << " is not a valid cell";
+        edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << id << " is not a valid cell";
       }
     }
   } else {
