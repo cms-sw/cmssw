@@ -148,18 +148,17 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
 	const auto* p1(elements_[i].get());
 	const PFBlockElement::Type type1 = p1->type();
     for (unsigned j = i + 1; j < elem_size; ++j) {
-      if (qu.connected(i, j))
+      if (qu.connected(i, j)) // same root
         continue;
 	  const auto* p2(elements_[j].get());
 	  const PFBlockElement::Type type2 = p2->type();
-      if (!linkTests_[linkTestSquare_[type1][type2]]) {
+	  const unsigned index = linkTestSquare_[type1][type2];
+      if (!linkTests_[index]) {
         j = ranges_[type2].second;
         continue;
       }
-      const unsigned index = linkTestSquare_[type1][type2];
       if (linkTests_[index]->linkPrefilter(p1, p2)) {
         const double dist = linkTests_[index]->testLink(p1, p2);
-        // compute linking info if it is possible
         if (dist > -0.5) {
           qu.unite(i, j);
         }
@@ -233,25 +232,18 @@ void PFBlockAlgo::packLinks(reco::PFBlock& block,
 
       double dist = -1;
 
-      bool linked = false;
-
-      // are these elements already linked ?
-      // this can be optimized
       const auto link_itr = links.find(std::make_pair(i2, i1));
       if (link_itr != links.end()) {
         dist = link_itr->second;
-        linked = true;
       }
-
-      if (!linked) {
-        const PFBlockElement::Type type1 = els[i1].type();
+	  else {
+		const PFBlockElement::Type type1 = els[i1].type();
         const PFBlockElement::Type type2 = els[i2].type();
         const auto minmax = std::minmax(type1, type2);
         const unsigned index = rowsize * minmax.second + minmax.first;
-        bool bTestLink =
-            (nullptr == linkTests_[index] ? false : linkTests_[index]->linkPrefilter(&(els[i1]), &(els[i2])));
-        if (bTestLink)
-          link(&els[i1], &els[i2], dist);
+		const auto& linker = linkTests_[index];
+        if (linker && linker->linkPrefilter(&els[i1], &els[i2]))
+		  dist = linker->testLink(&els[i1], &els[i2]);
       }
 
       //loading link data according to link test used: RECHIT
@@ -259,20 +251,6 @@ void PFBlockAlgo::packLinks(reco::PFBlock& block,
       block.setLink(i1, i2, dist, block.linkData());
     }
   }
-}
-
-inline void PFBlockAlgo::link(const reco::PFBlockElement* el1, const reco::PFBlockElement* el2, double& dist) const {
-  constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
-  dist = -1.0;
-  const PFBlockElement::Type type1 = el1->type();
-  const PFBlockElement::Type type2 = el2->type();
-  const unsigned index = rowsize * std::max(type1, type2) + std::min(type1, type2);
-  if (debug_) {
-    std::cout << " PFBlockAlgo links type1 " << type1 << " type2 " << type2 << std::endl;
-  }
-
-  // index is always checked in the preFilter above, no need to check here
-  dist = linkTests_[index]->testLink(el1, el2);
 }
 
 void PFBlockAlgo::updateEventSetup(const edm::EventSetup& es) {
