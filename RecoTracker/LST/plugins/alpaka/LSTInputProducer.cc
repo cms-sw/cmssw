@@ -23,6 +23,7 @@
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
 
 #include "RecoTracker/LSTCore/interface/LSTInputHostCollection.h"
+#include "RecoTracker/LSTCore/interface/LSTOTHits.h"
 #include "RecoTracker/LSTCore/interface/LSTPrepareInput.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -44,9 +45,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
     const edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
     const std::vector<edm::EDGetTokenT<TrajectorySeedCollection>> seedTokens_;
-    const edm::EDPutTokenT<TrajectorySeedCollection> lstPixelSeedsPutToken_;
 
     const edm::EDPutTokenT<lst::LSTInputHostCollection> lstInputPutToken_;
+    // OT hit pointers stay on the host (read only by LSTOutputConverter), same order as the OT hits of lstInput
+    const edm::EDPutTokenT<lst::LSTOTHits> lstOTHitsPutToken_;
   };
 
   LSTInputProducer::LSTInputProducer(edm::ParameterSet const& iConfig)
@@ -58,8 +60,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         seedTokens_(
             edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag>>("pixelSeeds"),
                                   [&](const edm::InputTag& tag) { return consumes<TrajectorySeedCollection>(tag); })),
-        lstPixelSeedsPutToken_(produces()),
-        lstInputPutToken_(produces()) {}
+        lstInputPutToken_(produces()),
+        lstOTHitsPutToken_(produces()) {}
 
   void LSTInputProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -128,7 +130,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::vector<int> see_q;
     std::vector<std::vector<int>> see_hitIdx;
     std::vector<std::vector<int>> see_hitType;
-    TrajectorySeedCollection see_seeds;
 
     for (auto const& seedToken : seedTokens_) {
       auto const& seeds = iEvent.get(seedToken);
@@ -215,7 +216,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         see_q.push_back(charge);
         see_hitIdx.emplace_back(std::move(hitIdx));
         see_hitType.emplace_back(std::move(hitType));
-        see_seeds.push_back(seed);
       }
     }
 
@@ -241,12 +241,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                         ph2_x,
                                         ph2_y,
                                         ph2_z,
-                                        ph2_hits,
                                         ptCut_,
                                         iEvent.queue());
 
     iEvent.emplace(lstInputPutToken_, std::move(lstInputHC));
-    iEvent.emplace(lstPixelSeedsPutToken_, std::move(see_seeds));
+    iEvent.emplace(lstOTHitsPutToken_, lst::LSTOTHits{std::move(ph2_hits)});
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

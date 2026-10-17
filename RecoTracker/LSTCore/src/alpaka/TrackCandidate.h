@@ -23,6 +23,7 @@
 
 #include "NeuralNetwork.h"
 #include "TripletAccessors.h"
+#include "PixelQuintupletAccessors.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addpLSTrackCandidateToMemory(TrackCandidatesBase& candsBase,
@@ -250,17 +251,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             if (isPT5 ? pixelQuintuplets.isDup()[ptidx] : pixelTriplets.isDup()[ptidx])
               continue;
 
-            unsigned int const* ptHits =
-                isPT5 ? pixelQuintuplets.hitIndices()[ptidx].data() : pixelTriplets.hitIndices()[ptidx].data();
-            const int nPtHits = isPT5 ? Params_pT5::kHits : Params_pT3::kHits;
-            // Shared outer-tracker hits: the pixel object's hits after its pLS slots.
+            // Shared outer-tracker hits: the pixel object's hits after its pLS slots (for a pT5, its T5's hits).
+            unsigned int const* ptOTHits =
+                isPT5 ? quintuplets.hitIndices()[pixelQuintuplets.quintupletIndices()[ptidx]].data()
+                      : pixelTriplets.hitIndices()[ptidx].data() + Params_pLS::kHits;
+            const int nPtOTHits = isPT5 ? Params_T5::kHits : Params_pT3::kHits - Params_pLS::kHits;
             int nOTMatched = 0;
             for (int i = 0; i < Params_T5::kHits; ++i) {
               const unsigned int hitI = iT5Hits[i];
               if (hitI == lst::kTCEmptyHitIdx)
                 continue;
-              for (int j = Params_pLS::kHits; j < nPtHits; ++j) {
-                if (ptHits[j] == hitI) {
+              for (int j = 0; j < nPtOTHits; ++j) {
+                if (ptOTHits[j] == hitI) {
                   nOTMatched++;
                   break;
                 }
@@ -642,6 +644,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   struct AddpT5asTrackCandidate {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   uint16_t nLowerModules,
+                                  MiniDoubletsConst mds,
+                                  SegmentsConst segments,
+                                  QuintupletsConst quintuplets,
                                   PixelQuintupletsConst pixelQuintuplets,
                                   TrackCandidatesBase candsBase,
                                   TrackCandidatesExtended candsExtended,
@@ -672,6 +677,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           float radius = 0.5f * (__H2F(pixelQuintuplets.pixelRadius()[pixelQuintupletIndex]) +
                                  __H2F(pixelQuintuplets.quintupletRadius()[pixelQuintupletIndex]));
           unsigned int pT5PixelIndex = pixelQuintuplets.pixelSegmentIndices()[pixelQuintupletIndex];
+          unsigned int pT5Hits[Params_pT5::kHits];
+          getPixelQuintupletHitIndices(mds, segments, quintuplets, pixelQuintuplets, pixelQuintupletIndex, pT5Hits);
           addTrackCandidateToMemory(candsBase,
                                     candsExtended,
                                     LSTObjType::pT5,
@@ -679,7 +686,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                     pixelQuintuplets.quintupletIndices()[pixelQuintupletIndex],
                                     pixelQuintuplets.logicalLayers()[pixelQuintupletIndex].data(),
                                     pixelQuintuplets.lowerModuleIndices()[pixelQuintupletIndex].data(),
-                                    pixelQuintuplets.hitIndices()[pixelQuintupletIndex].data(),
+                                    pT5Hits,
                                     pixelSeeds.seedIdx()[pT5PixelIndex - pLS_offset],
                                     __H2F(pixelQuintuplets.centerX()[pixelQuintupletIndex]),
                                     __H2F(pixelQuintuplets.centerY()[pixelQuintupletIndex]),

@@ -8,6 +8,8 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   using MiniDoubletsDeviceCollection = PortableCollection<MiniDoubletsSoABlocks>;
+  using MiniDoubletsBuildDeviceCollection = PortableCollection<MiniDoubletsBuildSoA>;
+  using MiniDoubletsT5BuildDeviceCollection = PortableCollection<MiniDoubletsT5BuildSoABlocks>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::lst
 
 #endif

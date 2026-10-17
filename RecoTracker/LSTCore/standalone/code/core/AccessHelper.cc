@@ -9,11 +9,12 @@ using namespace ALPAKA_ACCELERATOR_NAMESPACE::lst;
 //____________________________________________________________________________________________
 std::tuple<std::vector<unsigned int>, std::vector<HitType>> convertHitsToHitIdxsAndHitTypes(
     LSTEvent* event, std::vector<unsigned int> hits) {
-  auto hitsBase = event->getInput<HitsBaseSoA>();
+  auto hitsBase = event->getInput().hits();
+  auto const hitsIT = event->getInput().hitsIT();
   std::vector<unsigned int> hitidxs;
   std::vector<HitType> hittypes;
   for (auto& hit : hits) {
-    hitidxs.push_back(hitsBase.idxs()[hit]);
+    hitidxs.push_back(lst::hitOrigIdx(hitsBase, hitsIT, hit));
     if (hitsBase.detid()[hit] == kPixelModuleId)
       hittypes.push_back(HitType::Pixel);
     else
@@ -47,12 +48,13 @@ std::vector<unsigned int> getHitsFrompLS(LSTEvent* event, unsigned int pLS) {
 
 //____________________________________________________________________________________________
 std::vector<unsigned int> getHitIdxsFrompLS(LSTEvent* event, unsigned int pLS) {
-  auto hitsBase = event->getInput<HitsBaseSoA>();
+  auto hitsBase = event->getInput().hits();
+  auto const hitsIT = event->getInput().hitsIT();
   std::vector<unsigned int> hits = getHitsFrompLS(event, pLS);
   std::vector<unsigned int> hitidxs;
   hitidxs.reserve(hits.size());
   for (auto& hit : hits)
-    hitidxs.push_back(hitsBase.idxs()[hit]);
+    hitidxs.push_back(lst::hitOrigIdx(hitsBase, hitsIT, hit));
   return hitidxs;
 }
 
@@ -61,7 +63,7 @@ std::vector<HitType> getHitTypesFrompLS(LSTEvent* event, unsigned int pLS) {
   std::vector<unsigned int> hits = getHitsFrompLS(event, pLS);
   std::vector<HitType> hittypes;
   hittypes.reserve(hits.size());
-  auto hitsBase = event->getInput<HitsBaseSoA>();
+  auto hitsBase = event->getInput().hits();
   for (auto& hit : hits)
     hittypes.push_back(hitsBase.detid()[hit] == kPixelModuleId ? HitType::Pixel : HitType::Phase2OT);
   return hittypes;
@@ -190,11 +192,12 @@ std::vector<unsigned int> getHitsFromT4(LSTEvent* event, unsigned int T4) {
 
 //____________________________________________________________________________________________
 std::vector<unsigned int> getHitIdxsFromT4(LSTEvent* event, unsigned int T4) {
-  auto hitsBase = event->getInput<HitsBaseSoA>();
+  auto hitsBase = event->getInput().hits();
+  auto const hitsIT = event->getInput().hitsIT();
   std::vector<unsigned int> hits = getHitsFromT4(event, T4);
   std::vector<unsigned int> hitidxs;
   for (auto& hit : hits)
-    hitidxs.push_back(hitsBase.idxs()[hit]);
+    hitidxs.push_back(lst::hitOrigIdx(hitsBase, hitsIT, hit));
   return hitidxs;
 }
 //____________________________________________________________________________________________
@@ -260,11 +263,12 @@ std::vector<unsigned int> getHitsFromT5(LSTEvent* event, unsigned int T5) {
 
 //____________________________________________________________________________________________
 std::vector<unsigned int> getHitIdxsFromT5(LSTEvent* event, unsigned int T5) {
-  auto hitsBase = event->getInput<HitsBaseSoA>();
+  auto hitsBase = event->getInput().hits();
+  auto const hitsIT = event->getInput().hitsIT();
   std::vector<unsigned int> hits = getHitsFromT5(event, T5);
   std::vector<unsigned int> hitidxs;
   for (auto& hit : hits)
-    hitidxs.push_back(hitsBase.idxs()[hit]);
+    hitidxs.push_back(lst::hitOrigIdx(hitsBase, hitsIT, hit));
   return hitidxs;
 }
 //____________________________________________________________________________________________
@@ -360,11 +364,12 @@ std::vector<unsigned int> getHitsFrompT3(LSTEvent* event, unsigned int pT3) {
 
 //____________________________________________________________________________________________
 std::vector<unsigned int> getHitIdxsFrompT3(LSTEvent* event, unsigned int pT3) {
-  auto hitsBase = event->getInput<HitsBaseSoA>();
+  auto hitsBase = event->getInput().hits();
+  auto const hitsIT = event->getInput().hitsIT();
   std::vector<unsigned int> hits = getHitsFrompT3(event, pT3);
   std::vector<unsigned int> hitidxs;
   for (auto& hit : hits)
-    hitidxs.push_back(hitsBase.idxs()[hit]);
+    hitidxs.push_back(lst::hitOrigIdx(hitsBase, hitsIT, hit));
   return hitidxs;
 }
 //____________________________________________________________________________________________
@@ -442,7 +447,20 @@ std::vector<unsigned int> getpLSHitsFrompT5(LSTEvent* event, unsigned int pT5) {
 
 //____________________________________________________________________________________________
 std::vector<unsigned int> getHitsFrompT5(LSTEvent* event, unsigned int pT5) {
-  auto const& allHits = event->getPixelQuintuplets().hitIndices()[pT5];
+  // pT5 hits = the pLS pixel-MD hits followed by the T5 hit slots (see getPixelQuintupletHitIndices)
+  auto const& pixelQuintuplets = event->getPixelQuintuplets();
+  SegmentsConst segments = event->getSegments<SegmentsSoA>();
+  MiniDoubletsConst miniDoublets = event->getMiniDoublets<MiniDoubletsSoA>();
+  auto const& quintuplets = event->getQuintuplets<QuintupletsSoA>();
+  unsigned int const pixelIndex = pixelQuintuplets.pixelSegmentIndices()[pT5];
+  unsigned int const pixelInnerMD = segments.mdIndices()[pixelIndex][0];
+  unsigned int const pixelOuterMD = segments.mdIndices()[pixelIndex][1];
+  std::vector<unsigned int> allHits = {miniDoublets.anchorHitIndices()[pixelInnerMD],
+                                       miniDoublets.outerHitIndices()[pixelInnerMD],
+                                       miniDoublets.anchorHitIndices()[pixelOuterMD],
+                                       miniDoublets.outerHitIndices()[pixelOuterMD]};
+  for (auto const hit : quintuplets.hitIndices()[pixelQuintuplets.quintupletIndices()[pT5]])
+    allHits.push_back(hit);
   std::vector<unsigned int> hits;
   hits.reserve(allHits.size());
   for (auto const hit : allHits)
@@ -453,11 +471,12 @@ std::vector<unsigned int> getHitsFrompT5(LSTEvent* event, unsigned int pT5) {
 
 //____________________________________________________________________________________________
 std::vector<unsigned int> getHitIdxsFrompT5(LSTEvent* event, unsigned int pT5) {
-  auto hitsBase = event->getInput<HitsBaseSoA>();
+  auto hitsBase = event->getInput().hits();
+  auto const hitsIT = event->getInput().hitsIT();
   std::vector<unsigned int> hits = getHitsFrompT5(event, pT5);
   std::vector<unsigned int> hitidxs;
   for (auto& hit : hits)
-    hitidxs.push_back(hitsBase.idxs()[hit]);
+    hitidxs.push_back(lst::hitOrigIdx(hitsBase, hitsIT, hit));
   return hitidxs;
 }
 
@@ -549,7 +568,8 @@ std::pair<std::vector<unsigned int>, std::vector<HitType>> getHitIdxsAndHitTypes
                                                                                        unsigned int tc_idx) {
   auto const& base = event->getTrackCandidatesBase();
   auto const& ext = event->getTrackCandidatesExtended();
-  auto const& hitsBase = event->getInput<HitsBaseSoA>();
+  auto const& hitsBase = event->getInput().hits();
+  auto const hitsIT = event->getInput().hitsIT();
 
   std::vector<unsigned int> hitIdx;
   hitIdx.reserve(Params_TC::kHits);
@@ -567,7 +587,7 @@ std::pair<std::vector<unsigned int>, std::vector<HitType>> getHitIdxsAndHitTypes
         continue;
 
       // Get the GLOBAL ntuple indices
-      const auto hitGlobal = hitsBase.idxs()[hitLocal];
+      const auto hitGlobal = lst::hitOrigIdx(hitsBase, hitsIT, hitLocal);
 
       // Determine the type from the hit's detid
       const auto type = (hitsBase.detid()[hitLocal] == kPixelModuleId) ? HitType::Pixel : HitType::Phase2OT;
