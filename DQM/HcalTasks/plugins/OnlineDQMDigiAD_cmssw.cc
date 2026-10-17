@@ -41,7 +41,7 @@ OnlineDQMDigiAD::OnlineDQMDigiAD(const std::string model_system_name,
   auto session_options = ONNXRuntime::defaultSessionOptions(backend);
   // Create session by loading the onnx model
   model_path = edm::FileInPath(modelFilepath).fullPath();
-  auto uOrtSession = std::make_unique<ONNXRuntime>(model_path, &session_options);
+  auto uOrtSession = std::make_unique<ONNXRuntime>(model_path, session_options);
   ort_mSession = std::move(uOrtSession);
 
   // check model availability
