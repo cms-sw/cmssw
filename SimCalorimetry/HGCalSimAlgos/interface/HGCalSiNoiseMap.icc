@@ -177,12 +177,9 @@ typename HGCalSiNoiseMap<T>::SiCellOpCharacteristics HGCalSiNoiseMap<T>::getSiCe
   }
 
   //capacitance an volume are re-scaled by the scaling factor of the area with respect to a reference full cell
-  double areaSF = geom()->getArea(cellId) / cellRefArea_[cellType];
-
-  //calibration channels
-  if (chType == 0) {
-    double areaSF = calibCellRefArea_[cellType] / cellRefArea_[cellType];
-  }
+  //calibration channels use the pre-stored value
+  double areaSF = (chType == 0) ? calibCellRefArea_[cellType] / cellRefArea_[cellType]
+                                : geom()->getArea(cellId) / cellRefArea_[cellType];
 
   double cellCap(cellCapacitance_[cellType] * areaSF);
   double cellVol(cellVolume_[cellType] * areaSF);
