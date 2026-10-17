@@ -422,7 +422,6 @@ void ElectronTagProbeAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
       float SCenergy = moIter->energy();
       math::XYZPoint caloposition = moIter->position();
       float theta = caloposition.Theta();
-      math::XYZVector momentum;
       float SCmomentumX = SCenergy * sin(theta) * cos(moIter->phi());
       float SCmomentumY = SCenergy * sin(theta) * sin(moIter->phi());
       float SCmomentumZ = SCenergy * cos(theta);
