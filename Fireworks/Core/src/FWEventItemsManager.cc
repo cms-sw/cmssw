@@ -181,6 +181,34 @@ void FWEventItemsManager::addTo(FWConfiguration& iTo) const {
   }
 }
 
+
+namespace {
+std::string addIoV1Namespace(std::string type)
+{
+    const std::string reco = "reco::";
+    const std::string io_v1 = "io_v1::";
+
+    size_t pos = 0;
+    while ((pos = type.find(reco, pos)) != std::string::npos) {
+
+        // Skip if already reco::io_v1::
+        if (type.compare(pos + reco.size(),
+                        io_v1.size(),
+                        io_v1) != 0)
+        {
+            type.insert(pos + reco.size(), io_v1);
+            pos += reco.size() + io_v1.size();
+        }
+        else {
+            pos += reco.size() + io_v1.size();
+        }
+    }
+
+    return type;
+}
+}
+
+
 /** This is responsible for resetting the status of items from configuration  
   */
 void FWEventItemsManager::setFrom(const FWConfiguration& iFrom) {
@@ -235,6 +263,8 @@ void FWEventItemsManager::setFrom(const FWConfiguration& iFrom) {
 
     unsigned int layer = strtol((*keyValues)[7].second.value().c_str(), nullptr, 10);
 
+    std::string cr_type = addIoV1Namespace(type);
+
     //For older configs assume name is the same as purpose
     std::string purpose(name);
     if (conf.version() > 1)
@@ -256,7 +286,7 @@ void FWEventItemsManager::setFrom(const FWConfiguration& iFrom) {
     }
 
     FWPhysicsObjectDesc desc(name,
-                             TClass::GetClass(type.c_str()),
+                             TClass::GetClass(cr_type.c_str()),
                              purpose,
                              dp,
                              moduleLabel,
