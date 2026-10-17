@@ -4,14 +4,18 @@
  */
 
 #include "ParabolicParametrizedMagneticField.h"
+#include "MagneticField/Portable/interface/ParabolicMagneticField.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 using namespace std;
 
-// Default parameters are the best fit of 3.8T to the OAEParametrizedMagneticField parametrization.
+// Default parameters: those of portableParabolicMagneticField::Parameters (see there).
 ParabolicParametrizedMagneticField::ParabolicParametrizedMagneticField()
-    : c1(3.8114), b0(-3.94991e-06), b1(7.53701e-06), a(2.43878e-11) {
+    : c1(portableParabolicMagneticField::Parameters::c1),
+      b0(portableParabolicMagneticField::Parameters::b0),
+      b1(portableParabolicMagneticField::Parameters::b1),
+      a(portableParabolicMagneticField::Parameters::a) {
   setNominalValue();
 }
 
