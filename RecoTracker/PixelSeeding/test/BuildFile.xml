@@ -9,6 +9,59 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
+<library file="models/CATrackFeaturesTableProducer.cc" name="CATrackFeaturesTableProducer">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/NanoAOD"/>
+  <use name="DataFormats/TrackSoA"/>
+  <use name="DataFormats/TrackingRecHitSoA"/>
+  <use name="DataFormats/TrackerRecHit2D"/>
+  <use name="DataFormats/TrackerCommon"/>
+  <use name="DataFormats/SiStripDetId"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/CommonTopologies"/>
+  <use name="Geometry/TrackerGeometryBuilder"/>
+  <use name="SimDataFormats/TrackingAnalysis"/>
+  <use name="SimTracker/TrackerHitAssociation"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="RecoTracker/PixelSeeding"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="models/TripletFeaturesTableProducer.cc" name="TripletFeaturesTableProducer">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/NanoAOD"/>
+  <use name="DataFormats/Portable"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="RecoTracker/PixelSeeding"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="models/HitTruthTableProducer.cc" name="HitTruthTableProducer">
+  <use name="Geometry/CommonTopologies"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/TrackerGeometryBuilder"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/NanoAOD"/>
+  <use name="DataFormats/TrackingRecHitSoA"/>
+  <use name="DataFormats/TrackerRecHit2D"/>
+  <use name="DataFormats/TrackerCommon"/>
+  <use name="DataFormats/SiPixelCluster"/>
+  <use name="DataFormats/SiPixelDetId"/>
+  <use name="DataFormats/SiStripDetId"/>
+  <use name="SimDataFormats/TrackingAnalysis"/>
+  <use name="SimTracker/TrackerHitAssociation"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <bin file="PixelTriplets_InvPrbl_t.cpp">
   <use name="RecoTracker/PixelSeeding"/>
 </bin>

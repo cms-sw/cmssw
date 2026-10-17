@@ -14,7 +14,7 @@ hltInitialStepSeeds = cms.EDProducer("SeedGeneratorFromProtoTracksEDProducer",
     TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
     usePV = cms.bool(False),
     includeFourthHit = cms.bool(True),
-    removeOTRechits = cms.bool(False),
+    removeOTRechits = cms.bool(True),
     produceComplement = cms.bool(False)
 )
 

@@ -1,5 +1,5 @@
-#ifndef PixelTrackTorchHighPuritySelectorKernels_h
-#define PixelTrackTorchHighPuritySelectorKernels_h
+#ifndef RecoTracker_FinalTrackSelectors_plugins_alpaka_PixelTrackTorchHighPuritySelectorKernels_h
+#define RecoTracker_FinalTrackSelectors_plugins_alpaka_PixelTrackTorchHighPuritySelectorKernels_h
 
 #include <alpaka/alpaka.hpp>
 
@@ -11,9 +11,11 @@
 #include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
 #include "DataFormats/TrackSoA/interface/TracksSoA.h"
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
+#include "DataFormats/TrackingRecHitSoA/interface/OTRecHitsSoA.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 
 #include "RecoTracker/FinalTrackSelectors/interface/PixelTrackFeaturesSoA.h"
+#include "RecoTracker/PixelSeeding/interface/CAHitsView.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -29,14 +31,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void launchFeaturesExtractor(Queue& queue,
                                const int maxPreselectedTracks,
                                const ::reco::TrackSoAConstView tracks,
+                               const ::reco::TrackHitSoAConstView track_hits,
+                               const caStructures::CAHitsView hits,
+                               const int nHitsTot,
+                               // Raw OT-rechit view + count so the feature walk resolves tagged
+                               // OT extras (nOTHits == 0 / empty view => merged-hits-only).
+                               const ::reco::OTRecHitsConstView otHits,
+                               const uint32_t nOTHits,
                                const int* preselectedTrackIndices,
                                const int* nPreselectedTracks,
-                               PixelTrackFeaturesSoA::View trackFeatures,
+                               PixelTrackFitFeaturesView fitFeatures,
+                               PixelTrackHitFeaturesView hitFeatures,  // sized 0: no hit-feature walk
                                int* trackHitCounts);
 
   void launchScoreFilter(Queue& queue,
                          const int maxPreselectedTracks,
                          const double scoreThreshold,
+                         const double scoreThresholdLowDxy,
+                         const double dxyRampKnee,
+                         const PixelTrackFitFeaturesConstView fitFeatures,
                          const PixelTrackScoresSoA::View trackScores,
                          const int* preselectedTrackIndices,
                          const int* nPreselectedTracks,
@@ -45,6 +58,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                          int* nSelectedTracks,
                          int* selectedTrackHitOffsets);
 
+  // selectedCounts (optional, may be null): 2-word device buffer the compaction kernel fills with
+  // [0] tracks written into the output SoA, [1] hits written into the output hit block. Both are exact,
+  // so a consumer can size against them.
   reco::TracksSoACollection launchProduceOutputTracks(Queue& queue,
                                                       const int maxPreselectedTracks,
                                                       const int avgHitsPerTrack,
@@ -52,7 +68,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                       const ::reco::TrackHitSoAConstView track_hits,
                                                       const int* selectedTrackIndices,
                                                       const int* nSelectedTracks,
-                                                      const int* selectedTrackHitOffsets);
+                                                      const int* selectedTrackHitOffsets,
+                                                      uint32_t* selectedCounts = nullptr);
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
-#endif
+#endif  // RecoTracker_FinalTrackSelectors_plugins_alpaka_PixelTrackTorchHighPuritySelectorKernels_h
