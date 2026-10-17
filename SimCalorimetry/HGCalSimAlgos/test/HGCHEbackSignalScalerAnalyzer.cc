@@ -56,7 +56,6 @@ private:
 
   std::string doseMap_;
   uint32_t doseMapAlgo_;
-  std::string sipmMap_;
   double refIdark_;
 
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
@@ -77,7 +76,6 @@ private:
 HGCHEbackSignalScalerAnalyzer::HGCHEbackSignalScalerAnalyzer(const edm::ParameterSet& iConfig)
     : doseMap_(iConfig.getParameter<std::string>("doseMap")),
       doseMapAlgo_(iConfig.getParameter<uint32_t>("doseMapAlgo")),
-      sipmMap_(iConfig.getParameter<std::string>("sipmMap")),
       refIdark_(iConfig.getParameter<double>("referenceIdark")),
       geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag("", "HGCalHEScintillatorSensitive"))),
       dddToken_(
@@ -159,7 +157,6 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
   HGCalSciNoiseMap scal;
   scal.setDoseMap(doseMap_, doseMapAlgo_);
   scal.setReferenceDarkCurrent(refIdark_);
-  scal.setSipmMap(sipmMap_);
   scal.setGeometry(gHGCal_);
 
   //loop over valid detId from the HGCHEback
