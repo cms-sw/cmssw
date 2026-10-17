@@ -140,20 +140,20 @@ void EcalDigisValidationPh2::bookHistograms(DQMStore::IBooker& ibooker, edm::Run
 
   for (int i = 0; i < kMaxSamples_; ++i) {
     histo = std::format("EcalDigiTask analog pulse {:02d}", i + 1);
-    meDigiADCAnalog_[i] = ibooker.book1D(histo, histo, 4000, 0., 400.);
+    meDigiADCAnalog_[i] = ibooker.book1DD(histo, histo, 4000, 0., 400.);
 
     histo = std::format("EcalDigiTask ADC pulse {:02d} Gain 10", i + 1);
-    meDigiADCg10_[i] = ibooker.book1D(histo, histo, 4096, -0.5, 4095.5);
+    meDigiADCg10_[i] = ibooker.book1DD(histo, histo, 4096, -0.5, 4095.5);
 
     histo = std::format("EcalDigiTask ADC pulse {:02d} Gain 1", i + 1);
     meDigiADCg1_[i] = ibooker.book1D(histo, histo, 4096, -0.5, 4095.5);
 
     histo = std::format("EcalDigiTask gain pulse {:02d}", i + 1);
-    meDigiGain_[i] = ibooker.book1D(histo, histo, 2, 0, 2);
+    meDigiGain_[i] = ibooker.book1DD(histo, histo, 2, 0, 2);
   }
 
   histo = "EcalDigiTask pedestal for pre-sample";
-  mePedestal_ = ibooker.book1D(histo, histo, 4096, -0.5, 4095.5);
+  mePedestal_ = ibooker.book1DD(histo, histo, 4096, -0.5, 4095.5);
 
   histo = "EcalDigiTask maximum position gt 10 ADC";
   meMaximumgt10ADC_ = ibooker.book1D(histo, histo, kMaxSamples_, 0., static_cast<double>(kMaxSamples_));
@@ -162,7 +162,7 @@ void EcalDigisValidationPh2::bookHistograms(DQMStore::IBooker& ibooker, edm::Run
   meMaximumgt100ADC_ = ibooker.book1D(histo, histo, kMaxSamples_, 0., static_cast<double>(kMaxSamples_));
 
   histo = "EcalDigiTask ADC counts after gain switch";
-  menADCafterSwitch_ = ibooker.book1D(histo, histo, kMaxSamples_, 0., static_cast<double>(kMaxSamples_));
+  menADCafterSwitch_ = ibooker.book1DD(histo, histo, kMaxSamples_, 0., static_cast<double>(kMaxSamples_));
 }
 
 void EcalDigisValidationPh2::analyze(edm::Event const& event, edm::EventSetup const& eventSetup) {
