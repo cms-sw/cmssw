@@ -7,7 +7,9 @@
  *
  *  \author Nicola Pozzobon
  *  \date   2013, Jul 19
- *  (tidy up: Ian Tomalin, 2020)
+ *  (tidy up: Ian Tomalin, 2020 + 2026)
+ *
+ *  TO FIX: This code remains extremely CPU intensive.
  *
  */
 
