@@ -8,12 +8,14 @@
 <use name="rootgraphics"/>
 <use name="DataFormats/Math"/>
 <bin file="Matrices_t.cpp" name="DataFormatsMatrices_t">
+  <use name="google-benchmark"/>
 </bin>
 
 <bin file="ProjectMatrix_t.cpp" name="DataFormatsProjectMatrix_t">
 </bin>
 
 <bin file="FastMath_t.cpp" name="DataFormatsFastMath_t">
+  <use name="google-benchmark"/>
   <flags CXXFLAGS="-Wno-error=format -Wno-format -Wno-format-contains-nul"/>
   <flags REM_CXXFLAGS="-Wformat -ansi"/>
   <flags REM_CXXFLAGS="-Wformat-contains-nul"/>
@@ -79,13 +81,16 @@
 </bin>
 
 <bin file="Similarity_t.cpp" name="DataFormatsSimilarity_t">
+  <use name="google-benchmark"/>
 </bin>
 
 <bin file="Similarity_t.cpp" name="DataFormatsSimilarityFast_t">
+  <use name="google-benchmark"/>
   <use name="ofast-flag"/>
 </bin>
 
 <bin file="MulSymMatrix_t.cpp" name="DataFormatsMulSymMatrix_t">
+  <use name="google-benchmark"/>
 </bin>
 
 <bin file="CholeskyInvert_t.cpp" name="CholeskyInvert_t">
