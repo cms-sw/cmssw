@@ -11,7 +11,7 @@
 
 namespace trackerTFP {
 
-  KalmanFilter::KalmanFilter(const tt::Setup* setup,
+  KalmanFilter::KalmanFilter(const Setup* setup,
                              const DataFormats* dataFormats,
                              const LayerEncoding* layerEncoding,
                              KalmanFilterFormats* kalmanFilterFormats,
@@ -43,14 +43,14 @@ namespace trackerTFP {
       // calulcate seed parameter
       calcSeeds(stream);
       // Propagate state to each layer in turn, updating it with all viable stub combinations there, using KF maths
-      for (layer_ = setup_->kfNumSeedStubs(); layer_ < setup_->numLayers(); layer_++)
+      for (layer_ = setup_->kfNumSeedStubs(); layer_ < setup_->sysNumLayer(); layer_++)
         addLayer(stream);
       // count total number of final states
       const int nStates =
           accumulate(stream.begin(), stream.end(), 0, [](int sum, State* state) { return sum + (state ? 1 : 0); });
       // apply truncation
-      if (setup_->enableTruncation() && static_cast<int>(stream.size()) > setup_->numFramesHigh())
-        stream.resize(setup_->numFramesHigh());
+      if (setup_->enableTruncation() && static_cast<int>(stream.size()) > setup_->numFrames())
+        stream.resize(setup_->numFrames());
       // cycle event, remove gaps
       stream.erase(std::remove(stream.begin(), stream.end(), nullptr), stream.end());
       // store number of states which got taken into account
@@ -80,7 +80,7 @@ namespace trackerTFP {
                                        const std::vector<std::vector<Stub*>>& stubsIn,
                                        int channel,
                                        std::deque<State*>& stream) {
-    const int numLayers = setup_->numLayers();
+    const int numLayers = setup_->sysNumLayer();
     const int offsetL = channel * numLayers;
     const std::vector<TrackCTB*>& tracksChannel = tracksIn[channel];
     int trackId(0);
@@ -108,8 +108,8 @@ namespace trackerTFP {
       }
       const TTBV& maybePattern = layerEncoding_->maybePattern(track->zT());
       states_.emplace_back(kalmanFilterFormats_, track, stubs, maybePattern, trackId++);
-      stream.insert(stream.end(), size - 1, nullptr);
       stream.push_back(&states_.back());
+      stream.insert(stream.end(), size - 1, nullptr);
       frame += size;
     }
   }
@@ -131,7 +131,7 @@ namespace trackerTFP {
       State* s0 = s1->parent();
       update(s0);
       update(s1);
-      const double dH = digi(VariableKF::dH, s1->H00() - s0->H00());
+      const double dH = digi(VariableKF::dH, s1->H00() - s0->H00()) - .5 * base(VariableKF::dH);
       const double invdH = digi(VariableKF::invdH, 1.0 / dH);
       const double invdH2 = digi(VariableKF::invdH2, 1.0 / dH / dH);
       const double H12 = digi(VariableKF::H2, s1->H00() * s1->H00());
@@ -163,8 +163,28 @@ namespace trackerTFP {
       // create updated state
       const double chi20 = digi(VariableKF::chi20, 0.);
       const double chi21 = digi(VariableKF::chi21, 0.);
-      states_.emplace_back(State(s1, {x0, x1, x2, x3, chi20, chi21, C00, C11, C22, C33, C01, C23}));
+      // cut on triple found inv2R window
+      const bool invalidX0 = abs(x0) > 1.5 * dataFormats_->base(Variable::inv2R, Process::ctb);
+      // cut on triple found phiT window
+      const bool invalidX1 = abs(x1) > 1.5 * dataFormats_->base(Variable::phiT, Process::ctb);
+      // cut on eta sector boundaries
+      const bool invalidX2 = abs(x2) > 0.5 * dataFormats_->base(Variable::cot, Process::ctb);
+      // cot cut
+      const bool invalidX3 = abs(x3) > 0.5 * dataFormats_->base(Variable::zT, Process::ctb);
+      if (invalidX3 || invalidX0 || invalidX1 || invalidX2) {
+        state = nullptr;
+        continue;
+      }
+      states_.emplace_back(State(s1, x0, x1, x2, x3, chi20, chi21, C00, C11, C22, C33, C01, C23));
       state = &states_.back();
+      updateRangeActual(VariableKF::Hv0, H1v0);
+      updateRangeActual(VariableKF::Hv0, H0v1);
+      updateRangeActual(VariableKF::Hv1, H3v2);
+      updateRangeActual(VariableKF::Hv1, H2v3);
+      updateRangeActual(VariableKF::H2v0, H12v0);
+      updateRangeActual(VariableKF::H2v0, H02v1);
+      updateRangeActual(VariableKF::H2v1, H32v2);
+      updateRangeActual(VariableKF::H2v1, H22v3);
       updateRangeActual(VariableKF::x0, x0);
       updateRangeActual(VariableKF::x1, x1);
       updateRangeActual(VariableKF::x2, x2);
@@ -185,48 +205,41 @@ namespace trackerTFP {
       int numConsistent(0);
       int numConsistentPS(0);
       TTBV hitPattern = state->hitPattern();
-      std::vector<StubCTB*> stubs;
-      std::vector<double> phis;
-      std::vector<double> zs;
-      stubs.reserve(setup_->numLayers());
-      phis.reserve(setup_->numLayers());
-      zs.reserve(setup_->numLayers());
-      double chi20(0.);
-      double chi21(0.);
+      TTBV ttBV = state->hitPattern();
+      std::vector<StubCTB*> stubs(setup_->sysNumLayer(), nullptr);
+      std::vector<double> phis(setup_->sysNumLayer());
+      std::vector<double> zs(setup_->sysNumLayer());
       // stub residual cut
       State* s = state;
       while ((s = s->parent())) {
+        StubCTB& stub = s->stub()->stubCTB_;
         const double dPhi = state->x1() + s->H00() * state->x0();
         const double dZ = state->x3() + s->H12() * state->x2();
         const double phi = digi(VariableKF::m0, s->m0() - dPhi);
         const double z = digi(VariableKF::m1, s->m1() - dZ);
         const bool validPhi = dataFormats_->format(Variable::phi, Process::kf).inRange(phi);
         const bool validZ = dataFormats_->format(Variable::z, Process::kf).inRange(z);
-        StubCTB& stubCTB = s->stub()->stubCTB_;
+        const int layer = ttBV.pmEncode();
+        ttBV.reset(layer);
         if (validPhi && validZ) {
-          chi20 += pow(phi, 2);
-          chi21 += pow(z, 2);
-          stubs.push_back(&stubCTB);
-          phis.push_back(phi);
-          zs.push_back(z);
+          stubs[layer] = &stub;
+          phis[layer] = phi;
+          zs[layer] = z;
           if (std::abs(phi) <= s->dPhi() && std::abs(z) <= s->dZ()) {
             numConsistent++;
-            if (setup_->psModule(stubCTB.frame().first))
+            const trackerDTC::SensorModule* sm = setup_->sensorModule(stub.frame().first);
+            if (sm->psModule())
               numConsistentPS++;
           }
         } else
-          hitPattern.reset(s->layer());
+          hitPattern.reset(layer);
       }
-      const double ndof = hitPattern.count() - 2;
-      chi20 /= ndof;
-      chi21 /= ndof;
       // layer cut
       bool invalidLayers = hitPattern.count() < setup_->kfMinLayers();
       // track parameter cuts
-      const double cotTrack = dataFormats_->format(Variable::cot, Process::kf).digi(track->zT() / setup_->chosenRofZ());
       const double inv2R = state->x0() + track->inv2R();
       const double phiT = state->x1() + track->phiT();
-      const double cot = state->x2() + cotTrack;
+      const double cot = state->x2();
       const double zT = state->x3() + track->zT();
       // pt cut
       const bool validX0 = dataFormats_->format(Variable::inv2R, Process::kf).inRange(inv2R);
@@ -239,20 +252,26 @@ namespace trackerTFP {
       if (invalidLayers || !validX0 || !validX1 || !validX2 || !validX3)
         continue;
       const int trackId = state->trackId();
-      finals_.emplace_back(trackId,
-                           numConsistent,
-                           numConsistentPS,
-                           inv2R,
-                           phiT,
-                           cot,
-                           zT,
-                           chi20,
-                           chi21,
-                           hitPattern,
-                           track,
-                           stubs,
-                           phis,
-                           zs);
+      const double ndof = hitPattern.count() - 2;
+      const double chi2 = digi(VariableKF::chi2, state->chi20() / 2. + state->chi21() / 2.);
+      updateRangeActual(VariableKF::chi2, chi2);
+      const double chi20 = state->chi20() / ndof;
+      const double chi21 = state->chi21() / ndof;
+      finals.emplace_back(trackId,
+                          numConsistent,
+                          numConsistentPS,
+                          inv2R,
+                          phiT,
+                          cot,
+                          zT,
+                          chi2,
+                          chi20,
+                          chi21,
+                          hitPattern,
+                          track,
+                          stubs,
+                          phis,
+                          zs);
     }
   }
 
@@ -266,12 +285,13 @@ namespace trackerTFP {
     for (std::vector<StubKF*>& layer : stubs)
       layer.reserve(best.size());
     for (Track* track : best) {
-      const std::vector<int> layers = track->hitPattern_.ids();
-      for (int iStub = 0; iStub < track->hitPattern_.count(); iStub++) {
-        StubCTB* s = track->stubs_[iStub];
-        stubs_.emplace_back(*s, s->r(), track->phi_[iStub], track->z_[iStub], s->dPhi(), s->dZ());
-        stubs[layers[iStub]].push_back(&stubs_.back());
+      for (int iLayer : track->hitPattern_.ids()) {
+        StubCTB* s = track->stubs_[iLayer];
+        stubs_.emplace_back(*s, s->r(), track->phi_[iLayer], track->z_[iLayer], s->dPhi(), s->dZ());
+        stubs[iLayer].push_back(&stubs_.back());
       }
+      for (int iLayer : track->hitPattern_.ids(false))
+        stubs[iLayer].push_back(nullptr);
       TrackCTB* trackCTB = track->track_;
       const bool inInv2R = dfInv2R.integer(track->inv2R_) == dfInv2R.integer(trackCTB->inv2R());
       const bool inPhiT = dfPhiT.integer(track->phiT_) == dfPhiT.integer(trackCTB->phiT());
@@ -311,7 +331,7 @@ namespace trackerTFP {
     stream = streamOutput;
     // Update state with next stub using KF maths
     for (State*& state : stream)
-      if (state && state->hitPattern().pmEncode() == layer_)
+      if (state && state->hitPattern().test(layer_) && state->hitPattern().count(0, layer_) >= setup_->kfNumSeedStubs())
         update(state);
   }
 
@@ -451,7 +471,7 @@ namespace trackerTFP {
     const double invR00 = digi(VariableKF::invR00, invR00Approx * invR00Cor);
     const double invR11 = digi(VariableKF::invR11, invR11Approx * invR11Cor);
     // shift S to "undo" shifting of R
-    auto digiShifted = [](double val, double base) { return floor(val / base * 2. + 1.e-11) * base / 2.; };
+    auto digiShifted = [](double val, double base) { return tt::floor(val / base * 2.) * base / 2.; };
     const double S00Shifted = digiShifted(S00 * std::pow(2., shift0), base(VariableKF::S00Shifted));
     const double S01Shifted = digiShifted(S01 * std::pow(2., shift0), base(VariableKF::S01Shifted));
     const double S12Shifted = digiShifted(S12 * std::pow(2., shift1), base(VariableKF::S12Shifted));
@@ -473,12 +493,12 @@ namespace trackerTFP {
     C23 = digi(VariableKF::C23, C23 - S13 * K21);
     C33 = digi(VariableKF::C33, C33 - S13 * K31);
     // squared residuals
-    const double r0Shifted = digiShifted(r0 * std::pow(2., shift0), base(VariableKF::r0Shifted));
-    const double r1Shifted = digiShifted(r1 * std::pow(2., shift1), base(VariableKF::r1Shifted));
     const double r02 = digi(VariableKF::r02, r0 * r0);
     const double r12 = digi(VariableKF::r12, r1 * r1);
-    chi20 = digi(VariableKF::chi20, chi20 + r02 * invR00);
-    chi21 = digi(VariableKF::chi21, chi21 + r12 * invR11);
+    const double r02Shifted = digiShifted(r02 * pow(2., shift0), base(VariableKF::r02Shifted));
+    const double r12Shifted = digiShifted(r12 * pow(2., shift1), base(VariableKF::r12Shifted));
+    chi20 = digi(VariableKF::chi20, chi20 + r02Shifted * invR00);
+    chi21 = digi(VariableKF::chi21, chi21 + r12Shifted * invR11);
     // update variable ranges to tune variable granularity
     updateRangeActual(VariableKF::r0, r0);
     updateRangeActual(VariableKF::r1, r1);
@@ -504,25 +524,28 @@ namespace trackerTFP {
     updateRangeActual(VariableKF::K10, K10);
     updateRangeActual(VariableKF::K21, K21);
     updateRangeActual(VariableKF::K31, K31);
-    updateRangeActual(VariableKF::r0Shifted, r0Shifted);
-    updateRangeActual(VariableKF::r1Shifted, r1Shifted);
     updateRangeActual(VariableKF::r02, r02);
     updateRangeActual(VariableKF::r12, r12);
-    // range checks
-    const bool validX0 = inRange(VariableKF::x0, x0);
-    const bool validX1 = inRange(VariableKF::x1, x1);
-    const bool validX2 = inRange(VariableKF::x2, x2);
-    const bool validX3 = inRange(VariableKF::x3, x3);
+    updateRangeActual(VariableKF::r02Shifted, r02Shifted);
+    updateRangeActual(VariableKF::r12Shifted, r12Shifted);
+    // cut on triple found inv2R window
+    const bool invalidX0 = abs(x0) > 1.5 * dataFormats_->base(Variable::inv2R, Process::ctb);
+    // cut on triple found phiT window
+    const bool invalidX1 = abs(x1) > 1.5 * dataFormats_->base(Variable::phiT, Process::ctb);
+    // cut on eta sector boundaries
+    const bool invalidX2 = abs(x2) > 0.5 * dataFormats_->base(Variable::cot, Process::ctb);
+    // cot cut
+    const bool invalidX3 = abs(x3) > 0.5 * dataFormats_->base(Variable::zT, Process::ctb);
     // chi2 cut
-    const double dof = state->hitPattern().count() - 1;
+    const double dof = state->hitPattern().count() - setup_->kfNumSeedStubs();
     const double chi2 = (chi20 + chi21) / 2.;
     const bool validChi2 = chi2 < setup_->kfCutChi2() * dof;
-    if (!validX0 || !validX1 || !validX2 || !validX3 || !validChi2) {
+    if (invalidX0 || invalidX1 || invalidX2 || invalidX3 || !validChi2) {
       state = nullptr;
       return;
     }
     // create updated state
-    states_.emplace_back(State(state, {x0, x1, x2, x3, chi20, chi21, C00, C11, C22, C33, C01, C23}));
+    states_.emplace_back(state, x0, x1, x2, x3, C00, C01, C11, C22, C23, C33, chi20, chi21);
     state = &states_.back();
     updateRangeActual(VariableKF::x0, x0);
     updateRangeActual(VariableKF::x1, x1);

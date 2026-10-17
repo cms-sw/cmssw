@@ -16,6 +16,7 @@
 <use name="DataFormats/GeometryCommonDetAlgo"/>
 <use name="SimDataFormats/TrackerDigiSimLink"/>
 <use name="L1Trigger/TrackTrigger"/>
+<use name="L1Trigger/TrackerDTC"/>
 <export>
   <flags SEALPLUGIN="1"/>
   <lib name="1"/>
