@@ -1,3 +1,10 @@
+#include <cmath>
+#include <limits>
+#include <map>
+#include <string>
+#include <tuple>
+#include <vector>
+
 namespace scaling {
   struct PfCand {
     inline static const std::vector<std::vector<float>> mean = {{0, 0},
