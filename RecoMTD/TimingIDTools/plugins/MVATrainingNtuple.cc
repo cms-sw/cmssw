@@ -15,8 +15,8 @@
 // #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
-#include "SimDataFormats/Associations/interface/MtdSimLayerClusterToTPAssociatorBaseImpl.h"
-#include "SimDataFormats/Associations/interface/MtdRecoClusterToSimLayerClusterAssociationMap.h"
+#include "SimDataFormats/Associations/interface/MtdSimMergedClusterToTPAssociatorBaseImpl.h"
+#include "SimDataFormats/Associations/interface/MtdRecoMergedClusterToSimMergedClusterAssociationMap.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -113,10 +113,10 @@ private:
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoAssociationToken_;
   edm::EDGetTokenT<TrackingVertexCollection> trackingVertexCollectionToken_;
   edm::EDGetTokenT<edm::ValueMap<int>> trackAssocToken_;
-  edm::EDGetTokenT<reco::TPToSimCollectionMtd> tp2SimAssociationMapToken_;
-  edm::EDGetTokenT<MtdRecoClusterToSimLayerClusterAssociationMap> r2sAssociationMapToken_;
-  edm::EDGetTokenT<FTLClusterCollection> btlRecCluToken_;
-  edm::EDGetTokenT<FTLClusterCollection> etlRecCluToken_;
+  edm::EDGetTokenT<reco::TPToMergedSimCollectionMtd> tp2SimAssociationMapToken_;
+  edm::EDGetTokenT<MtdRecoMergedClusterToSimMergedClusterAssociationMap> r2sAssociationMapToken_;
+  edm::EDGetTokenT<FTLMergedClusterCollection> btlRecCluToken_;
+  edm::EDGetTokenT<FTLMergedClusterCollection> etlRecCluToken_;
 
   edm::EDGetTokenT<edm::ValueMap<float>> pathLengthToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> momentumToken_;
@@ -147,8 +147,8 @@ MVATrainingNtuple::MVATrainingNtuple(const edm::ParameterSet& iConfig)
   RecMTDTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagT"));
   RecVertexToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("inputTagV"));
   tp2SimAssociationMapToken_ =
-      consumes<reco::TPToSimCollectionMtd>(iConfig.getParameter<edm::InputTag>("tp2SimAssociationMapTag"));
-  r2sAssociationMapToken_ = consumes<MtdRecoClusterToSimLayerClusterAssociationMap>(
+      consumes<reco::TPToMergedSimCollectionMtd>(iConfig.getParameter<edm::InputTag>("tp2SimAssociationMapTag"));
+  r2sAssociationMapToken_ = consumes<MtdRecoMergedClusterToSimMergedClusterAssociationMap>(
       iConfig.getParameter<edm::InputTag>("r2sAssociationMapTag"));
   trackAssocToken_ = consumes<edm::ValueMap<int>>(iConfig.getParameter<edm::InputTag>("trackAssocSrc"));
   RecBeamSpotToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("offlineBS"));
@@ -159,8 +159,8 @@ MVATrainingNtuple::MVATrainingNtuple(const edm::ParameterSet& iConfig)
   simToRecoAssociationToken_ =
       consumes<reco::SimToRecoCollection>(iConfig.getParameter<edm::InputTag>("TPtoRecoTrackAssoc"));
   trackingVertexCollectionToken_ = consumes<TrackingVertexCollection>(iConfig.getParameter<edm::InputTag>("SimTag"));
-  btlRecCluToken_ = consumes<FTLClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTagBTL"));
-  etlRecCluToken_ = consumes<FTLClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTagETL"));
+  btlRecCluToken_ = consumes<FTLMergedClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTagBTL"));
+  etlRecCluToken_ = consumes<FTLMergedClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTagETL"));
   pathLengthToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("pathLengthSrc"));
   momentumToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("momentumSrc"));
   sigmatimeToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmaSrc"));
@@ -642,7 +642,7 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
                  "sigmat0 ValueMap: this should not happen";
         }
 
-        std::vector<edm::Ref<edmNew::DetSetVector<FTLCluster>, FTLCluster>> recoClustersRefs;
+        std::vector<edm::Ref<edmNew::DetSetVector<FTLMergedCluster>, FTLMergedCluster>> recoClustersRefs;
 
         if (std::abs(trackGen.eta()) < etacutBTL_) {
           // --- all BTL tracks (with and without hit in MTD) ---
@@ -696,8 +696,8 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
           // If there is a mtdSimLayerCluster from the tracking particle
           if (withMTD) {
-            // -- Get the refs to MtdSimLayerClusters associated to the TP
-            std::vector<edm::Ref<MtdSimLayerClusterCollection>> simClustersRefs;
+            // -- Get the refs to MtdSimMergedClusters associated to the TP
+            std::vector<edm::Ref<MtdSimMergedClusterCollection>> simClustersRefs;
             for (const auto& ref : simClustersRefsIt->val) {
               simClustersRefs.push_back(ref);
             }
@@ -705,7 +705,7 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
             // -- Sort ETL sim clusters by time
             if (std::abs(trackGen.eta()) >= etacutBTL_ && !simClustersRefs.empty()) {
               std::sort(simClustersRefs.begin(), simClustersRefs.end(), [](const auto& a, const auto& b) {
-                return a->simLCTime() < b->simLCTime();
+                return a->simTime() < b->simTime();
               });
               // Check if TP has direct or other sim cluster for BTL
               for (const auto& simClusterRef : simClustersRefs) {
@@ -720,7 +720,7 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
             // -- Sort BTL sim clusters by time
             if (std::abs(trackGen.eta()) < etacutBTL_ && !simClustersRefs.empty()) {
               std::sort(simClustersRefs.begin(), simClustersRefs.end(), [](const auto& a, const auto& b) {
-                return a->simLCTime() < b->simLCTime();
+                return a->simTime() < b->simTime();
               });
               // Check if TP has direct or other sim cluster for BTL
               for (const auto& simClusterRef : simClustersRefs) {
