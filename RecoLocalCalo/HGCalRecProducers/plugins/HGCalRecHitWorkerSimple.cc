@@ -161,19 +161,6 @@ void HGCalRecHitWorkerSimple::run(const edm::Event& evt,
         break;
       default:
         switch (detid.subdetId()) {
-          case HGCEE:
-            idtype = hgcee;
-            thickness = ddds_[detid.subdetId() - 3]->waferTypeL(HGCalDetId(detid).wafer());
-            break;
-          case HGCHEF:
-            idtype = hgcfh;
-            thickness = ddds_[detid.subdetId() - 3]->waferTypeL(HGCalDetId(detid).wafer());
-            break;
-          case HcalEndcap:
-            [[fallthrough]];
-          case HGCHEB:
-            idtype = hgcbh;
-            break;
           case HFNose:
             idtype = hgchfnose;
             thickness = 1 + HFNoseDetId(detid).type();
