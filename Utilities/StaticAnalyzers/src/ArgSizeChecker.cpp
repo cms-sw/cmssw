@@ -25,7 +25,7 @@ namespace clangcms {
     clang::PrintingPolicy Policy(LangOpts);
 
     const clang::ento::PathDiagnosticLocation ELoc =
-        clang::ento::PathDiagnosticLocation::createBegin(E, ctx.getSourceManager(), ctx.getLocationContext());
+        clang::ento::PathDiagnosticLocation::createBegin(E, ctx.getSourceManager(), ctx.getStackFrame());
 
     if (!m_exception.reportGeneral(ELoc, ctx.getBugReporter()))
       return;
