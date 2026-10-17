@@ -1,5 +1,5 @@
-// Checks HGCalDDDConstants::cellSizeHex for each silicon wafer type: the
-// high-density types get the fine cell size, the low-density types the coarse one.
+// Checks the cell quantities of HGCalDDDConstants for each silicon wafer type:
+// the high-density types get the fine cells, the low-density types the coarse ones.
 
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -50,6 +50,15 @@ void HGCalCellSizeHexTester::analyze(const edm::Event&, const edm::EventSetup& i
                                   HGCSiliconDetId::HGCalLD300,
                                   HGCSiliconDetId::HGCalHD200};
   unsigned int nFail(0);
+  auto check =
+      [&nFail](const std::string& name, const char* what, int type, bool highDensity, double value, double expected) {
+        const bool ok = (std::abs(value - expected) < kTolerance);
+        if (!ok)
+          ++nFail;
+        edm::LogVerbatim("HGCalGeom") << name << " wafer type " << type
+                                      << (highDensity ? " (high density) " : " (low density) ") << what << " " << value
+                                      << " expected " << expected << (ok ? " OK" : " FAIL");
+      };
   for (unsigned int k = 0; k < nameDetectors_.size(); ++k) {
     const HGCalDDDConstants& cons = iSetup.getData(tokens_[k]);
     if (!cons.waferHexagon8()) {
@@ -61,18 +70,17 @@ void HGCalCellSizeHexTester::analyze(const edm::Event&, const edm::EventSetup& i
     const double coarse = 0.5 * par->waferSize_ / par->nCellsCoarse_;
     for (const int type : types) {
       const bool highDensity = HGCSiliconDetId(DetId::HGCalEE, 1, type, 1, 0, 0, 0, 0).highDensity();
-      const double expected = highDensity ? fine : coarse;
-      const double size = cons.cellSizeHex(type);
-      const bool ok = (std::abs(size - expected) < kTolerance);
-      if (!ok)
-        ++nFail;
-      edm::LogVerbatim("HGCalGeom") << nameDetectors_[k] << " wafer type " << type
-                                    << (highDensity ? " (high density)" : " (low density)") << " cellSizeHex " << size
-                                    << " expected " << expected << (ok ? " OK" : " FAIL");
+      check(nameDetectors_[k], "cellSizeHex", type, highDensity, cons.cellSizeHex(type), highDensity ? fine : coarse);
+      check(nameDetectors_[k],
+            "getUVMax",
+            type,
+            highDensity,
+            cons.getUVMax(type),
+            highDensity ? par->nCellsFine_ : par->nCellsCoarse_);
     }
   }
   if (nFail > 0)
-    throw cms::Exception("HGCalCellSizeHex") << nFail << " wafer types get a wrong cellSizeHex";
+    throw cms::Exception("HGCalCellSizeHex") << nFail << " checks fail";
 }
 
 DEFINE_FWK_MODULE(HGCalCellSizeHexTester);
