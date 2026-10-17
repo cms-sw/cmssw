@@ -1,0 +1,56 @@
+#ifndef RPCDigiPhase2Producer_h
+#define RPCDigiPhase2Producer_h
+
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimMuon/RPCDigitizer/src/RPCDigitizerPhase2.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
+#include "CondFormats/DataRecord/interface/RPCStripNoisesRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCClusterSize.h"
+#include "CondFormats/DataRecord/interface/RPCClusterSizeRcd.h"
+
+class RPCGeometry;
+class RPCSimSetUp;
+class RPCSynchronizer;
+
+class RPCDigiPhase2Producer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
+public:
+  //  typedef edm::DetSetVector<RPCDigiSimLink> RPCDigiSimLinks;
+  typedef RPCDigitizerPhase2::RPCDigiSimLinks RPCDigitizerPhase2SimLinks;
+
+  explicit RPCDigiPhase2Producer(const edm::ParameterSet& ps);
+  ~RPCDigiPhase2Producer() override;
+
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+
+  /**Produces the EDM products,*/
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+  void setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>&, const std::vector<double>&);
+
+private:
+  std::unique_ptr<RPCDigitizerPhase2> theRPCDigitizerPhase2_;
+  std::unique_ptr<RPCSimSetUp> theRPCSimSetUpRPC_;
+
+  //Name of Collection used for create the XF
+  std::string mix_;
+  std::string collection_for_XF_;
+
+  //Token for accessing data
+  std::vector<edm::EDGetTokenT<CrossingFrame<PSimHit>>> crossingFrameTokens_;
+  const RPCGeometry* pGeom_;
+
+  //EventSetup Tokens
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> geomToken_;
+  edm::ESGetToken<RPCStripNoises, RPCStripNoisesRcd> noiseToken_;
+  edm::ESGetToken<RPCClusterSize, RPCClusterSizeRcd> clsToken_;
+};
+
+#endif

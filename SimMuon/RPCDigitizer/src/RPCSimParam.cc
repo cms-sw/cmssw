@@ -20,9 +20,9 @@ RPCSimParam::RPCSimParam(const edm::ParameterSet& config) : RPCSim(config) {
   lbGate = config.getParameter<double>("linkGateWidth");
   rpcdigiprint = config.getParameter<bool>("printOutDigitizer");
 
-  rate = config.getParameter<double>("Rate");
-  nbxing = config.getParameter<int>("Nbxing");
-  gate = config.getParameter<double>("Gate");
+  rate = config.getParameter<double>("rate");
+  nbxing = config.getParameter<int>("nBXing");
+  gate = config.getParameter<double>("gate");
 
   if (rpcdigiprint) {
     std::cout << "Average Efficiency        = " << aveEff << std::endl;

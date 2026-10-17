@@ -48,10 +48,10 @@ RPCSimAsymmetricCls::RPCSimAsymmetricCls(const edm::ParameterSet& config) : RPCS
   rpcdigiprint = config.getParameter<bool>("printOutDigitizer");
   eledig = config.getParameter<bool>("digitizeElectrons");
 
-  rate = config.getParameter<double>("Rate");
-  nbxing = config.getParameter<int>("Nbxing");
-  gate = config.getParameter<double>("Gate");
-  frate = config.getParameter<double>("Frate");
+  rate = config.getParameter<double>("rate");
+  nbxing = config.getParameter<int>("nBXing");
+  gate = config.getParameter<double>("gate");
+  frate = config.getParameter<double>("fRate");
 
   if (rpcdigiprint) {
     std::cout << "Average Efficiency        = " << aveEff << std::endl;
