@@ -459,9 +459,9 @@ namespace edm::streamer {
       tgt[3] = 0;
     }
 
-    // levels 1-3: fast compression, levels 4-12: high compression (LZ4 HC)
+    // level 1: fast compressor, level 2: mid-level compressor introduced in LZ4 1.10.0, levels 3-12: high compression (LZ4 HC)
     char *dst = (char *)&outputBuffer[reserveSize + hdr_size];
-    int dest_size = (compressionLevel < 4)
+    int dest_size = (compressionLevel < LZ4HC_CLEVEL_MIN)
                         ? LZ4_compress_default((const char *)inputBuffer, dst, inputSize, worst_size)
                         : LZ4_compress_HC((const char *)inputBuffer, dst, inputSize, worst_size, compressionLevel);
 
