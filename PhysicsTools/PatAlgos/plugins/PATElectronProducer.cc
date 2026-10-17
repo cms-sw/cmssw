@@ -518,7 +518,6 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   // prepare the high level selection:
   // needs beamline
-  reco::TrackBase::Point beamPoint(0, 0, 0);
   reco::Vertex primaryVertex;
   reco::BeamSpot beamSpot;
   bool beamSpotIsValid = false;

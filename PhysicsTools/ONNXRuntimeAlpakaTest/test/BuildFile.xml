@@ -1,0 +1,28 @@
+<test name="testONNXRuntimeAlpakaSimpleNetSerialSync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b serial_sync --only SimpleNet -ne 8 -ns 2 -nt 2"/>
+<test name="testONNXRuntimeAlpakaMultiHeadNetSerialSync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b serial_sync --only MultiHeadNet -ne 8 -ns 2 -nt 2"/>
+<test name="testONNXRuntimeAlpakaMaskedNetSerialSync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b serial_sync --only MaskedNet -ne 8 -ns 2 -nt 2"/>
+<test name="testONNXRuntimeAlpakaTinyResNetSerialSync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b serial_sync --only TinyResNet -ne 8 -ns 2 -nt 2"/>
+<test name="testONNXRuntimeAlpakaSimpleNetCudaAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b cuda_async --only SimpleNet -ne 8 -ns 2 -nt 2">
+  <use name="cuda"/>
+</test>
+<test name="testONNXRuntimeAlpakaMultiHeadNetCudaAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b cuda_async --only MultiHeadNet -ne 8 -ns 2 -nt 2">
+  <use name="cuda"/>
+</test>
+<test name="testONNXRuntimeAlpakaMaskedNetCudaAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b cuda_async --only MaskedNet -ne 8 -ns 2 -nt 2">
+  <use name="cuda"/>
+</test>
+<test name="testONNXRuntimeAlpakaTinyResNetCudaAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b cuda_async --only TinyResNet -ne 8 -ns 2 -nt 2">
+  <use name="cuda"/>
+</test>
+<test name="testONNXRuntimeAlpakaSimpleNetROCmAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b rocm_async --only SimpleNet -ne 8 -ns 2 -nt 2">
+  <use name="rocm"/>
+</test>
+<test name="testONNXRuntimeAlpakaMultiHeadNetROCmAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b rocm_async --only MultiHeadNet -ne 8 -ns 2 -nt 2">
+  <use name="rocm"/>
+</test>
+<test name="testONNXRuntimeAlpakaMaskedNetROCmAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b rocm_async --only MaskedNet -ne 8 -ns 2 -nt 2">
+  <use name="rocm"/>
+</test>
+<test name="testONNXRuntimeAlpakaTinyResNetROCmAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b rocm_async --only TinyResNet -ne 8 -ns 2 -nt 2">
+  <use name="rocm"/>
+</test>
