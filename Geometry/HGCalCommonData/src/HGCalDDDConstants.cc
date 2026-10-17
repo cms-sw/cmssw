@@ -447,7 +447,9 @@ double HGCalDDDConstants::cellThickness(int layer, int waferU, int waferV) const
 }
 
 double HGCalDDDConstants::cellSizeHex(int type) const {
-  int indx = ((waferHexagon8()) ? ((type >= 1) ? 1 : 0) : ((type == 1) ? 1 : 0));
+  int indx =
+      ((waferHexagon8()) ? (((type == HGCSiliconDetId::HGCalHD120) || (type == HGCSiliconDetId::HGCalHD200)) ? 0 : 1)
+                         : ((type == 1) ? 1 : 0));
   double cell = (tileTrapezoid() ? 0.5 * hgpar_->cellSize_[indx]
                                  : 0.5 * HGCalParameters::k_ScaleFromDDD * hgpar_->cellSize_[indx]);
   return cell;
