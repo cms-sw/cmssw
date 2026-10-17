@@ -44,7 +44,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         //radiation map
         auto doseMapPath = iConfig.getParameter<edm::FileInPath>("doseMapURL");
-        auto doseMapURL = doseMapPath.fullPath();
+        const auto& doseMapURL = doseMapPath.fullPath();
         auto doseMapAlgo = iConfig.getParameter<uint32_t>("doseMapAlgo");
 
         //Si
