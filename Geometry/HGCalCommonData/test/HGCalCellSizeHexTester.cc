@@ -14,8 +14,11 @@
 #include "FWCore/Utilities/interface/transform.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
+#include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
+#include <algorithm>
 #include <cmath>
 #include <string>
 #include <vector>
@@ -44,21 +47,27 @@ void HGCalCellSizeHexTester::fillDescriptions(edm::ConfigurationDescriptions& de
 }
 
 void HGCalCellSizeHexTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
-  constexpr double kTolerance = 1.e-6;  // cm
+  constexpr double kTolerance = 1.e-6;      // cm
+  constexpr double kToleranceArea = 1.e-3;  // cm2
   const std::vector<int> types = {HGCSiliconDetId::HGCalHD120,
                                   HGCSiliconDetId::HGCalLD200,
                                   HGCSiliconDetId::HGCalLD300,
                                   HGCSiliconDetId::HGCalHD200};
   unsigned int nFail(0);
-  auto check =
-      [&nFail](const std::string& name, const char* what, int type, bool highDensity, double value, double expected) {
-        const bool ok = (std::abs(value - expected) < kTolerance);
-        if (!ok)
-          ++nFail;
-        edm::LogVerbatim("HGCalGeom") << name << " wafer type " << type
-                                      << (highDensity ? " (high density) " : " (low density) ") << what << " " << value
-                                      << " expected " << expected << (ok ? " OK" : " FAIL");
-      };
+  auto check = [&nFail](const std::string& name,
+                        const char* what,
+                        int type,
+                        bool highDensity,
+                        double value,
+                        double expected,
+                        double tolerance) {
+    const bool ok = (std::abs(value - expected) < tolerance);
+    if (!ok)
+      ++nFail;
+    edm::LogVerbatim("HGCalGeom") << name << " wafer type " << type
+                                  << (highDensity ? " (high density) " : " (low density) ") << what << " " << value
+                                  << " expected " << expected << (ok ? " OK" : " FAIL");
+  };
   for (unsigned int k = 0; k < nameDetectors_.size(); ++k) {
     const HGCalDDDConstants& cons = iSetup.getData(tokens_[k]);
     if (!cons.waferHexagon8()) {
@@ -70,13 +79,31 @@ void HGCalCellSizeHexTester::analyze(const edm::Event&, const edm::EventSetup& i
     const double coarse = 0.5 * par->waferSize_ / par->nCellsCoarse_;
     for (const int type : types) {
       const bool highDensity = HGCSiliconDetId(DetId::HGCalEE, 1, type, 1, 0, 0, 0, 0).highDensity();
-      check(nameDetectors_[k], "cellSizeHex", type, highDensity, cons.cellSizeHex(type), highDensity ? fine : coarse);
+      const int nCells = highDensity ? par->nCellsFine_ : par->nCellsCoarse_;
       check(nameDetectors_[k],
-            "getUVMax",
+            "cellSizeHex",
             type,
             highDensity,
-            cons.getUVMax(type),
-            highDensity ? par->nCellsFine_ : par->nCellsCoarse_);
+            cons.cellSizeHex(type),
+            highDensity ? fine : coarse,
+            kTolerance);
+      check(nameDetectors_[k], "getUVMax", type, highDensity, cons.getUVMax(type), nCells, kTolerance);
+      // Central cell of a full wafer of this type. The wafer file describes the z = -1 wafers.
+      auto itr = std::find_if(par->waferInfoMap_.begin(), par->waferInfoMap_.end(), [type](const auto& wafer) {
+        return ((wafer.second.type == type) && (wafer.second.part == HGCalTypes::WaferFull));
+      });
+      if (itr != par->waferInfoMap_.end()) {
+        const HGCSiliconDetId id((par->detectorType_ == 2) ? DetId::HGCalHSi : DetId::HGCalEE,
+                                 -1,
+                                 type,
+                                 HGCalWaferIndex::waferLayer(itr->first),
+                                 HGCalWaferIndex::waferU(itr->first),
+                                 HGCalWaferIndex::waferV(itr->first),
+                                 nCells,
+                                 nCells);
+        const double area = par->waferSize_ * par->waferSize_ / (2.0 * std::sqrt(3.0) * nCells * nCells);
+        check(nameDetectors_[k], "cellArea", type, highDensity, cons.cellArea(id, true), area, kToleranceArea);
+      }
     }
   }
   if (nFail > 0)

@@ -355,11 +355,11 @@ double HGCalDDDConstants::cellArea(const HGCSiliconDetId& id, bool reco) const {
   int32_t indx = HGCalWaferIndex::waferIndex(id.layer(), waferU, id.waferV());
   auto ktr = hgpar_->waferInfoMap_.find(indx);
   if (ktr != hgpar_->waferInfoMap_.end()) {
+    const int32_t fineCoarse = HGCalTypes::waferHD(ktr->second.type) ? 0 : 1;
     if (ktr->second.part == HGCalTypes::WaferFull) {
-      area = cellOffset_->cellAreaUV(id.cellU(), id.cellV(), placementIndex(id), ktr->second.type, reco);
+      area = cellOffset_->cellAreaUV(id.cellU(), id.cellV(), placementIndex(id), fineCoarse, reco);
     } else {
-      area =
-          cellOffset_->cellAreaUV(id.cellU(), id.cellV(), placementIndex(id), ktr->second.type, ktr->second.part, reco);
+      area = cellOffset_->cellAreaUV(id.cellU(), id.cellV(), placementIndex(id), fineCoarse, ktr->second.part, reco);
     }
   }
 #ifdef EDM_ML_DEBUG
