@@ -15,6 +15,10 @@ Examples demonstrating the interoperability of PyTorch with Alpaka in the CMSSW 
 - *TinyResNetMiniBatch* to test the inference in mini-batches in a more complex scenario 
 - *MulitHeadNet* handle networks that return more than one output tensor 
 
+## Using the CMSSW device caching allocator
+
+PyTorch can optionally use the CMSSW caching allocator. To do so, use a `PyTorchEDProducer` to implement the inference and load the backend-specific `PyTorchAlpakaService`, which changes PyTorch's GPU allocator process-wide. If the `PyTorchAlpakaService` is not loaded, the `PyTorchEDProducer` still run with the PyTorch's default caching allocator.
+
 ## Model behavior
 
 The `Model` wrapper automatically sets the loaded TorchScript module to evaluation mode (`eval()`).
