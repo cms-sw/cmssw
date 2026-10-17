@@ -224,3 +224,6 @@ from Configuration.Eras.Modifier_run3_oxygen_cff import run3_oxygen
         1: dict(chi2cutoff = 4.0, minNdof = -2.0),
     })
 )
+
+from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
+pA_2016.toReplaceWith(offlinePrimaryVertices, _offlinePrimaryVerticesPP.clone())

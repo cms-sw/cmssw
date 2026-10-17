@@ -5,5 +5,6 @@ from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_low
 from Configuration.Eras.Modifier_highBetaStar_cff import highBetaStar
 from Configuration.Eras.Modifier_dedx_lfit_cff import dedx_lfit
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
+from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
 
-Run2_2016_UPC = cms.ModifierChain(Run2_2016, egamma_lowPt_exclusive, highBetaStar, dedx_lfit, run3_upc)
+Run2_2016_UPC = cms.ModifierChain(Run2_2016, egamma_lowPt_exclusive, highBetaStar, dedx_lfit, run3_upc, pA_2016)
