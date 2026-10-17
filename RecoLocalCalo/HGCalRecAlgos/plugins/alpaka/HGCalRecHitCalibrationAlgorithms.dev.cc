@@ -35,15 +35,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   };
 
+
   // @short subtract pedestals, linearize ADC & TOT to charge (fC), and convert to energy (GeV)
   struct HGCalRecHitCalibrationKernel_adcToEnergy {
+    bool skipAnalyticCM_;
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   HGCalSoARecHitsDeviceCollection::View recHits,
                                   HGCalDigiDevice::ConstView digis,
                                   HGCalCalibParamDevice::ConstView calibs) const {
       auto adc_denoise =
           [&](uint32_t adc, uint32_t cm, uint32_t adcm1, float adc_ped, float cm_slope, float cm_ped, float bxm1_slope) {
-            float cmf = cm_slope * (0.5 * float(cm) - cm_ped);
+            float cmf = skipAnalyticCM_ ? 0.f : cm_slope * (0.5f * float(cm) - cm_ped);
             return ((adc - adc_ped) - cmf - bxm1_slope * (adcm1 - adc_ped - cmf));
           };
 
@@ -283,7 +285,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       HGCalMappingModuleParamDevice const& device_mapmod,
       HGCalMappingCellParamDevice const& device_cell_mapping,
       HGCalDenseIndexInfoDevice const& device_index,
-      double k_noise) const {
+      double k_noise,
+      bool skipAnalyticCM) const {
     LogDebug("HGCalRecHitCalibrationAlgorithms") << "\n\nINFO -- Start of calibrate\n\n" << std::endl;
 
     LogDebug("HGCalRecHitCalibrationAlgorithms") << "\n\nINFO -- Copying the digis to the device\n\n" << std::endl;
@@ -313,7 +316,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         device_calib.const_view());
     alpaka::exec<Acc1D>(queue,
                         grid,
-                        HGCalRecHitCalibrationKernel_adcToEnergy{},
+                        HGCalRecHitCalibrationKernel_adcToEnergy{skipAnalyticCM},
                         device_recHits.view(),
                         device_digis.const_view(),
                         device_calib.const_view());
