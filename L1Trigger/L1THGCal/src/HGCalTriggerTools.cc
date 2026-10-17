@@ -46,7 +46,7 @@ void HGCalTriggerTools::setGeometry(const HGCalTriggerGeometryBase* const geom) 
 
   bhLayers_ = geom_->hscTopology().dddConstants().layers(true);
   totalLayers_ = eeLayers_ + fhLayers_;
-  scintillatorPseudoThicknessIndex_ = nSiWaferTypes() + 1;
+  scintillatorPseudoThicknessIndex_ = nSiWaferTypes();  // Index starts at 0
 }
 
 GlobalPoint HGCalTriggerTools::getTCPosition(const DetId& id) const {
