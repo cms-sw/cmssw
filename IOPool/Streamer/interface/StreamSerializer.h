@@ -118,7 +118,8 @@ namespace edm::streamer {
                                            unsigned int reserveSize,
                                            bool addHeader = true);
 
-    // levels 1-3 use the fast LZ4 compressor, levels 4-12 LZ4 HC with that level (like ROOT, which stops at 9)
+    // level 1 uses the fast LZ4 compressor, level 2 uses the mid-level compression introduced in LZ4 1.10.0,
+    // while levels 3-12 use the LZ4 HC with that level (like the lz4 command line tool)
     static unsigned int compressBufferLZ4(unsigned char *inputBuffer,
                                           unsigned int inputSize,
                                           std::vector<unsigned char> &outputBuffer,

@@ -309,7 +309,7 @@ namespace edm::streamer {
     desc.addUntracked<int>("compression_level", 1)
         ->setComment(
             "Compression level to use on serialized ROOT events: 1-9 for ZLIB, 0-9 for LZMA, 1-20 for ZSTD, 1-12 for "
-            "LZ4 (1-3 fast, 4-12 LZ4 HC)");
+            "LZ4 (1 fast, 2 mid, 3-12 LZ4 HC)");
     desc.addUntracked<int>("lumiSection_interval", 0)
         ->setComment(
             "If 0, use lumi section number from event.\n"
