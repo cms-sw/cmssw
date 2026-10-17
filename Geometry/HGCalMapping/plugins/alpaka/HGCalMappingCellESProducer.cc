@@ -2,6 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ModuleFactory.h"

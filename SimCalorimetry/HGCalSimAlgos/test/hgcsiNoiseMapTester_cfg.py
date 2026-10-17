@@ -6,15 +6,16 @@ from Configuration.StandardSequences.Eras import eras
 
 options = VarParsing()
 options.register ("doseMap",    "SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
-options.register ("geometry",   "GeometryExtendedRun4D49Reco",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
-options.register ("conditions", "TDR_600V",                     VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register ("geometry",   "ExtendedRun4D122",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register ("conditions", "TDR_600V",          VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.parseArguments()
 
-from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-process = cms.Process('demo',Phase2C11I13M9)
+from Configuration.Eras.Era_Phase2C26I13M9_cff import Phase2C26I13M9
+process = cms.Process('demo',Phase2C26I13M9)
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load('Configuration.Geometry.{}_cff'.format(options.geometry))
+process.load(f'Configuration.Geometry.Geometry{options.geometry}_cff')
+process.load(f'Configuration.Geometry.Geometry{options.geometry}Reco_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 

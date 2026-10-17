@@ -13,49 +13,68 @@ HGCalSiNoiseMap<T>::HGCalSiNoiseMap()
       ignoreNoise_(false),
       ignoreGainDependentPulse_(false),
       activateCachedOp_(false) {
-  //q80fC
-  encsParam_.push_back({636., 15.6, 0.0328});   //2nd order polynomial coefficients as function of capacitance
-  chargeAtFullScaleADCPerGain_.push_back(80.);  //the num of fC (charge) which corresponds to the max ADC value
+  //ROC GAINS
+  //High gain: q80fC
+  encsParam_.push_back({636., 15.6, 0.0328});  //2nd order polynomial coefficients as function of capacitance
+  chargeAtFullScaleADCPerGain_.push_back(80.);
   adcPulses_.push_back({{0., 0., 1.0, 0.066 / 0.934, 0., 0.}});  //in-time bunch is the 3rd entry in the array
-  //q160fC
+
+  //Medium gain: q160fC
   encsParam_.push_back({1045., 8.74, 0.0685});
   chargeAtFullScaleADCPerGain_.push_back(160.);
   adcPulses_.push_back({{0., 0., 1.0, 0.153 / 0.847, 0., 0.}});
-  // q320fC
+
+  //Low gain: q320fC
   encsParam_.push_back({1915., 2.79, 0.0878});
   chargeAtFullScaleADCPerGain_.push_back(320.);
   adcPulses_.push_back({{0., 0., 1.0, 0.0963 / 0.9037, 0., 0.}});
 
-  //start with a default value
+  //turn-on gain is the medium one
   defaultADCPulse_ = adcPulses_[(GainRange_t)q160fC];
 
   // adc has 10 bits -> 1024 counts at max ( >0 baseline to be handled)
   for (auto i : chargeAtFullScaleADCPerGain_)
     lsbPerGain_.push_back(i / 1024.);
 
-  //fine sensors: 120 mum -  67: MPV of charge[number of e-]/mum for a mip in silicon; srouce PDG
+  //SI SENSOR REFERENCE VALUES
+  //HD 120 mum -  67: MPV of charge[number of e-]/mum for a mip in silicon; srouce PDG
   const double mipEqfC_120 = 120. * 67. * qe2fc_;
-  mipEqfC_[0] = mipEqfC_120;
-  const double cellCapacitance_120 = 50;
-  cellCapacitance_[0] = cellCapacitance_120;
-  const double cellVolume_120 = 0.56 * (120.e-4);
-  cellVolume_[0] = cellVolume_120;
+  mipEqfC_[HGCSiliconDetId::HGCalHD120] = mipEqfC_120;
+  const double cellCapacitance_hd120 = 48.;
+  cellCapacitance_[HGCSiliconDetId::HGCalHD120] = cellCapacitance_hd120;
+  cellRefArea_[HGCSiliconDetId::HGCalHD120] = 0.56204;
+  calibCellRefArea_[HGCSiliconDetId::HGCalHD120] = 29.086;
+  const double cellVolume_hd120 = cellRefArea_[HGCSiliconDetId::HGCalHD120] * (120.e-4);
+  cellVolume_[HGCSiliconDetId::HGCalHD120] = cellVolume_hd120;
 
-  //thin sensors: 200 mum
+  //LD 200 mum
   const double mipEqfC_200 = 200. * 70. * qe2fc_;
-  mipEqfC_[1] = mipEqfC_200;
-  const double cellCapacitance_200 = 65;
-  cellCapacitance_[1] = cellCapacitance_200;
-  const double cellVolume_200 = 1.26 * (200.e-4);
-  cellVolume_[1] = cellVolume_200;
+  mipEqfC_[HGCSiliconDetId::HGCalLD200] = mipEqfC_200;
+  const double cellCapacitance_ld200 = 67.;
+  cellCapacitance_[HGCSiliconDetId::HGCalLD200] = cellCapacitance_ld200;
+  cellRefArea_[HGCSiliconDetId::HGCalLD200] = 1.2646;
+  calibCellRefArea_[HGCSiliconDetId::HGCalLD200] = 29.086;
+  const double cellVolume_ld200 = cellRefArea_[HGCSiliconDetId::HGCalLD200] * (200.e-4);
+  cellVolume_[HGCSiliconDetId::HGCalLD200] = cellVolume_ld200;
 
-  //thick sensors: 300 mum
+  //LD 300 mum
   const double mipEqfC_300 = 300. * 73. * qe2fc_;
-  mipEqfC_[2] = mipEqfC_300;
-  const double cellCapacitance_300 = 45;
-  cellCapacitance_[2] = cellCapacitance_300;
-  const double cellVolume_300 = 1.26 * (300.e-4);
-  cellVolume_[2] = cellVolume_300;
+  mipEqfC_[HGCSiliconDetId::HGCalLD300] = mipEqfC_300;
+  const double cellCapacitance_ld300 = 45.;
+  cellCapacitance_[HGCSiliconDetId::HGCalLD300] = cellCapacitance_ld300;
+  cellRefArea_[HGCSiliconDetId::HGCalLD300] = cellRefArea_[HGCSiliconDetId::HGCalLD200];
+  calibCellRefArea_[HGCSiliconDetId::HGCalLD300] = calibCellRefArea_[HGCSiliconDetId::HGCalLD200];
+  const double cellVolume_ld300 = cellRefArea_[HGCSiliconDetId::HGCalLD300] * (300.e-4);
+  cellVolume_[HGCSiliconDetId::HGCalLD300] = cellVolume_ld300;
+
+  //HD 200 mum
+  mipEqfC_[HGCSiliconDetId::HGCalHD200] = mipEqfC_200;
+  const double cellCapacitance_hd200 = 29.;
+  cellCapacitance_[HGCSiliconDetId::HGCalHD200] = cellCapacitance_hd200;
+  cellRefArea_[HGCSiliconDetId::HGCalHD200] = cellRefArea_[HGCSiliconDetId::HGCalHD120];
+  calibCellRefArea_[HGCSiliconDetId::HGCalHD200] = calibCellRefArea_[HGCSiliconDetId::HGCalHD120];
+  const double cellVolume_hd200 = cellRefArea_[HGCSiliconDetId::HGCalHD200] * (200.e-4);
+  cellVolume_[HGCSiliconDetId::HGCalHD200] = cellVolume_hd200;
 }
 
 //
@@ -147,19 +166,37 @@ const typename HGCalSiNoiseMap<T>::SiCellOpCharacteristicsCore HGCalSiNoiseMap<T
 template <typename T>
 typename HGCalSiNoiseMap<T>::SiCellOpCharacteristics HGCalSiNoiseMap<T>::getSiCellOpCharacteristics(const T &cellId,
                                                                                                     GainRange_t gain,
-                                                                                                    int aimMIPtoADC) {
+                                                                                                    int aimMIPtoADC,
+                                                                                                    int chType) {
   //decode cell properties
   int layer = cellId.layer();
-  unsigned int cellThick = cellId.type();
-  double cellCap(cellCapacitance_[cellThick]);
-  double cellVol(cellVolume_[cellThick]);
-  double mipEqfC(mipEqfC_[cellThick]);
-  std::vector<double> &cceParam = cceParam_[cellThick];
+  const size_t cellType = (size_t)cellId.type();
+  if (cellType >= cellCapacitance_.size()) {
+    throw cms::Exception("HGCalSiNoiseMap")
+        << "Received invalid Si cell type: " << cellType << " from detId=0x" << std::hex << cellId.rawId();
+  }
+
+  //capacitance an volume are re-scaled by the scaling factor of the area with respect to a reference full cell
+  double areaSF = geom()->getArea(cellId) / cellRefArea_[cellType];
+  
+  //calibration channels
+  if(chType==0) {
+    double areaSF = calibCellRefArea_[cellType] / cellRefArea_[cellType];
+  }
+
+  double cellCap(cellCapacitance_[cellType] * areaSF);
+  double cellVol(cellVolume_[cellType] * areaSF);
+  double mipEqfC(mipEqfC_[cellType]);
+  if (cellType >= cceParam_.size()) {
+    throw cms::Exception("HGCalSiNoiseMap")
+        << "Si cell type: " << cellType << " has no valid cce parameterization configured";
+  }
+  std::vector<double> &cceParam = cceParam_[cellType];
 
   //location of the cell
   int subdet = cellId.subdet();
   const auto &xy(ddd()->locateCell(cellId.zside(),
-                                   cellId.layer(),
+                                   layer,
                                    cellId.waferU(),
                                    cellId.waferV(),
                                    cellId.cellU(),
@@ -204,6 +241,7 @@ typename HGCalSiNoiseMap<T>::SiCellOpCharacteristics HGCalSiNoiseMap<T>::getSiCe
 
     siop.lnfluence = getFluenceValue(subdet, layer, radius, true);
     siop.fluence = exp(siop.lnfluence);
+    siop.lndose = getDoseValue(subdet, layer, radius, true);
 
     double conv(log(cellVol) + unitToMicroLog_);
     siop.ileak = exp(ileakParam_[0] * siop.lnfluence + ileakParam_[1] + conv);
@@ -252,6 +290,12 @@ typename HGCalSiNoiseMap<T>::SiCellOpCharacteristics HGCalSiNoiseMap<T>::getSiCe
   siop.mipfC = S;
   siop.mipADC = std::floor(S / lsbPerGain_[gain]);
   siop.core.thrADC = std::floor(S / 2. / lsbPerGain_[gain]);
+
+  //ROC operation parameters for Si
+  siop.adc_lsb = lsbPerGain_[gain];
+  siop.tot_lsb = 3.918;
+  siop.tot_thr = 0.9 * chargeAtFullScaleADCPerGain_[gain];
+  siop.toa_thr = 12.;
 
   //build noise estimate
   if (ignoreNoise_) {

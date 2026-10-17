@@ -1,0 +1,80 @@
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ModuleFactory.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/host.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+#include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalDenseIndexInfoRcd.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHost.h"
+#include "CondFormats/HGCalObjects/interface/HGCalAgeingCondsHost.h"
+
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
+namespace ALPAKA_ACCELERATOR_NAMESPACE {
+
+  namespace hgcal {
+
+    class HGCalAlgoBasedAgeingCondProducer : public ESProducer {
+    public:
+      //
+      HGCalAlgoBasedAgeingCondProducer(const edm::ParameterSet& iConfig) 
+      : ESProducer(iConfig), 
+        denseIndexInfoTkn_(esConsumes()) {
+        auto cc = setWhatProduced(this);
+      }
+
+      //
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+        edm::ParameterSetDescription desc;
+        //desc.add<edm::ESInputTag>("moduleindexer", edm::ESInputTag(""))->setComment("Module index tool");
+        descriptions.addWithDefaultLabel(desc);
+      }
+
+      //
+      std::optional<HGCalAgeingCondsHost> produce(const HGCalDenseIndexInfoRcd& iRecord) {
+    
+        using namespace edm;
+
+        //geometry
+        auto const& geo = iRecord.get(caloGeomToken_);
+
+        //dense indexer
+        auto const& denseIndexInfo = iSetup.getData(denseIndexInfoTkn_);
+        auto const& denseIndexInfo_view = denseIndexInfo.const_view();
+        int nIndices = denseIndexInfo_view.metadata().size();
+
+        HGCalAgeingCondsHost ageingConds(cms::alpakatools::host(), nIndices);
+        for(int i=0; i<nIndices; i++) {
+
+          auto x = denseIndexInfo_view.x()[i];
+          auto y = denseIndexInfo_view.y()[i];
+          auto z = denseIndexInfo_view.z()[i];
+          auto layer = denseIndexInfo_view.layer()[i];
+
+          auto row = ageingConds.view()[i];
+          row.fluence() = 0.0;
+          row.dose() = 0.0;
+
+
+        } // end of loop over indices
+
+
+        return ageingConds;
+
+      }  // end of produce()
+
+    private:
+      edm::ESGetToken<hgcal::HGCalDenseIndexInfoHost, HGCalDenseIndexInfoRcd> denseIndexInfoTkn_;
+    };
+
+  }  // namespace hgcal
+
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+
+DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE(hgcal::HGCalAlgoBasedAgeingCondProducer);
