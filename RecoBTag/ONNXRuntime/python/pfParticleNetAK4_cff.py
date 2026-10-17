@@ -41,16 +41,11 @@ for discriminator in pfParticleNetAK4DiscriminatorsJetTagsForRECO.discriminators
 particleNetSonicTriton.toReplaceWith(pfParticleNetAK4JetTags, _particleNetSonicJetTagsProducer.clone(
     src = 'pfParticleNetAK4TagInfos',
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetAK4/CHS/V00/preprocess.json',
-    Client = cms.PSet(
+    Client = dict(
         timeout = cms.untracked.uint32(300),
-        mode = cms.string("Async"),
         modelName = cms.string("particlenet_AK4"),
         modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particlenet_AK4/config.pbtxt"),
         modelVersion = cms.string(""),
-        verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(0),
-        useSharedMemory = cms.untracked.bool(True),
-        compression = cms.untracked.string(""),
     ),
     flav_names = pfParticleNetAK4JetTags.flav_names,
 ))
