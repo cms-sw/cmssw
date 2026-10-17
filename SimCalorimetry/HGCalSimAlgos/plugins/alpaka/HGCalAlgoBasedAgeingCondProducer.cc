@@ -50,7 +50,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         //Si
         edm::ParameterSet siPSet = iConfig.getParameter<edm::ParameterSet>("si");
         auto scaleByDoseFactor = siPSet.getParameter<double>("scaleByDoseFactor");
-        std::vector<double> ileakParam(siPSet.getParameter<std::vector<double> > ("ileakParam"));
+        std::vector<double> ileakParam(siPSet.getParameter<std::vector<double>>("ileakParam"));
         std::vector<double> cceParam120(siPSet.getParameter<edm::ParameterSet>("cceParams")
                                             .template getParameter<std::vector<double>>("cceParam120"));
         std::vector<double> cceParam200(siPSet.getParameter<edm::ParameterSet>("cceParams")
@@ -66,7 +66,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         //init the noise map for the SiPM-on-tile
         edm::ParameterSet sipmPSet = iConfig.getParameter<edm::ParameterSet>("sipm");
         auto refIdark = sipmPSet.getParameter<double>("refIdark");
-        auto refXtalk = sipmPSet.getParameter<double>("refXtalk");        
+        auto refXtalk = sipmPSet.getParameter<double>("refXtalk");
         sipmNoiseMap_ = std::make_unique<HGCalSciNoiseMap>();
         sipmNoiseMap_->setDoseMap(doseMapURL, doseMapAlgo);
         sipmNoiseMap_->setFluenceScaleFactor(scaleByDoseFactor);
@@ -117,9 +117,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           auto cell_info_idx = di_row.cellInfoIdx();
           auto chType = cell_info_view[cell_info_idx].t();
           bool isSiPM = cell_info_view[cell_info_idx].isSiPM();
-          
+
           // unconnected channels
-          if(chType<0) {
+          if (chType < 0) {
             ac_view[i].signal() = 0;
             ac_view[i].signalScale() = 0;
             ac_view[i].enc() = 0;
@@ -137,24 +137,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             ac_view[i].ln_dose() = 0;
           }
           //SiPM-on-tile
-          else if(isSiPM) {
+          else if (isSiPM) {
             HGCScintillatorDetId sciid(did);
-            sipmNoiseMap_->setGeometry( geom.getSubdetectorGeometry(did.det(), ForwardSubdetector::ForwardEmpty) );
+            sipmNoiseMap_->setGeometry(geom.getSubdetectorGeometry(did.det(), ForwardSubdetector::ForwardEmpty));
 
             auto sipmop = sipmNoiseMap_->scaleByDose(sciid);
             ac_view[i].signal() = sipmop.s;
             ac_view[i].signalScale() = sipmop.lySF;
             ac_view[i].enc() = sipmop.n;
             ac_view[i].enc_s() = sipmop.n;
-            ac_view[i].enc_p() = 0.; //FIXME
-            ac_view[i].ileak() = 0.; //FIXME
+            ac_view[i].enc_p() = 0.;  //FIXME
+            ac_view[i].ileak() = 0.;  //FIXME
             ac_view[i].xtalk() = sipmop.xtalk;
             ac_view[i].ntotalPE() = sipmop.ntotalPE;
             ac_view[i].gain() = sipmop.gain;
-            ac_view[i].toa_thr() = 0.; //FIXME
-            ac_view[i].tot_thr() = sipmNoiseMap_->getMaxADCPerGain()[ sipmop.gain ]-1e-6;
-            ac_view[i].adc_lsb() = sipmNoiseMap_->getLSBPerGain()[ sipmop.gain ];
-            ac_view[i].tot_lsb() = 0.; //FIXME
+            ac_view[i].toa_thr() = 0.;  //FIXME
+            ac_view[i].tot_thr() = sipmNoiseMap_->getMaxADCPerGain()[sipmop.gain] - 1e-6;
+            ac_view[i].adc_lsb() = sipmNoiseMap_->getLSBPerGain()[sipmop.gain];
+            ac_view[i].tot_lsb() = 0.;  //FIXME
             ac_view[i].ln_f() = sipmop.lnfluence;
             ac_view[i].ln_dose() = sipmop.lndose;
           }
@@ -162,7 +162,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           else {
             HGCSiliconDetId siid(did);
             siNoiseMap_->setGeometry(geom.getSubdetectorGeometry(did.det(), ForwardSubdetector::ForwardEmpty));
-            auto siop = siNoiseMap_->getSiCellOpCharacteristics(siid, HGCalSiNoiseMap<HGCSiliconDetId>::GainRange_t::AUTO, 10, chType);
+            auto siop = siNoiseMap_->getSiCellOpCharacteristics(
+                siid, HGCalSiNoiseMap<HGCSiliconDetId>::GainRange_t::AUTO, 10, chType);
             ac_view[i].signal() = siop.mipfC;
             ac_view[i].signalScale() = siop.core.cce;
             ac_view[i].enc() = siop.core.noise;

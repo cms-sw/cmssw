@@ -36,7 +36,8 @@ public:
   };
 
   struct SiPMonTileCharacteristics {
-    SiPMonTileCharacteristics() : s(0.), lySF(0.), n(0.), xtalk(0), lnfluence(0), lndose(0), gain(0), thrADC(0), ntotalPE(0) {}
+    SiPMonTileCharacteristics()
+        : s(0.), lySF(0.), n(0.), xtalk(0), lnfluence(0), lndose(0), gain(0), thrADC(0), ntotalPE(0) {}
     float s, lySF, n, xtalk, lnfluence, lndose;
     unsigned short gain, thrADC, ntotalPE;
   };
@@ -79,8 +80,8 @@ private:
   const double refEdge_;
 
   //flags used to disable specific SiPM-on-tile operation parameters
-  bool ignoreSiPMarea_, ignoreTileArea_, ignoreDoseScale_, ignoreFluenceScale_, ignoreNoise_,
-      ignoreTileType_, ignoreAutoPedestalSub_;
+  bool ignoreSiPMarea_, ignoreTileArea_, ignoreDoseScale_, ignoreFluenceScale_, ignoreNoise_, ignoreTileType_,
+      ignoreAutoPedestalSub_;
 
   //reference dark current for the noise (mA)
   double refDarkCurrent_;

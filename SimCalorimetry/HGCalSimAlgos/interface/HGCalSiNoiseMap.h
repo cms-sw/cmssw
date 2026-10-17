@@ -89,9 +89,9 @@ public:
     return getSiCellOpCharacteristicsCore(did, defaultGain_, defaultAimMIPtoADC_);
   }
 
-  SiCellOpCharacteristics getSiCellOpCharacteristics(const T &did,                            
+  SiCellOpCharacteristics getSiCellOpCharacteristics(const T &did,
                                                      GainRange_t gain = GainRange_t::AUTO,
-                                                     int aimMIPtoADC = 10, 
+                                                     int aimMIPtoADC = 10,
                                                      int chType = 1);
   SiCellOpCharacteristics getSiCellOpCharacteristics(double &cellCap,
                                                      double &cellVol,

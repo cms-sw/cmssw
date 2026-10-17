@@ -45,7 +45,6 @@ void HGCalSciNoiseMap::setDoseMap(const std::string& fullpath, const unsigned in
   HGCalRadiationMap::setDoseMap(fullpath, algo);
 }
 
-
 //
 void HGCalSciNoiseMap::setNpePerMIP(float npePerMIP) {
   nPEperMIP_[CAST] = npePerMIP;
@@ -62,7 +61,7 @@ HGCalSciNoiseMap::SiPMonTileCharacteristics HGCalSciNoiseMap::scaleByDose(const 
   //position
   GlobalPoint global = geom()->getPosition(cellId);
   double radius = std::sqrt(std::pow(global.x(), 2) + std::pow(global.y(), 2));
-  
+
   int layer = cellId.layer();
   bool hasDoseMap(!(getDoseMap().empty()));
   double cellDose(0.), cellFluence(0.);
@@ -156,7 +155,6 @@ double HGCalSciNoiseMap::scaleByTileArea(const HGCScintillatorDetId& cellId, con
 //
 std::pair<double, HGCalSciNoiseMap::GainRange_t> HGCalSciNoiseMap::scaleBySipmArea(
     const HGCScintillatorDetId& cellId, const HGCalSciNoiseMap::GainRange_t& gainPreChoice) {
-
   //start with the prechosen gain
   //if auto then override it according to the SiPM area
   HGCalSciNoiseMap::GainRange_t gain(gainPreChoice);
