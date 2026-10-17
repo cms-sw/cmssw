@@ -18,7 +18,7 @@ namespace truth {
   // outer by detector radius. The value is the channel index and must stay stable;
   // code refers to channels by name, never by literal index.
   enum class HitChannel : uint8_t {
-    Tracker = 0,  // tracker PSimHits, energy = energyLoss, no recHit link
+    Tracker = 0,  // tracker PSimHits, energy = energyLoss, keyed by module and cell
     MTD = 1,      // MIP timing layer (BTL/ETL)
     Calo = 2,  // all calorimeter PCaloHits (HGCAL endcap + ECAL barrel + HCAL), recHit-mapped via the DetId->RecHit map
     Muon = 3   // muon chambers (DT/CSC/RPC/GEM)
@@ -29,12 +29,24 @@ namespace truth {
   public:
     struct Hit {
       static constexpr uint32_t kInvalidRecHitIndex = std::numeric_limits<uint32_t>::max();
+      // The same field, read as the cell inside the module on the Tracker channel,
+      // where a DetId names a module rather than a cell and no rechit is mapped.
+      static constexpr uint32_t kNoCell = kInvalidRecHitIndex;
+      // The MTD cell word: the category above kMtdCategoryShift, row << 16 | col below.
+      static constexpr unsigned kMtdCategoryShift = 24;
+      static constexpr uint32_t kMtdCellMask = (1u << kMtdCategoryShift) - 1u;
 
       uint32_t detId = 0;
+      // Calo: the global recHit index from the DetId map. Tracker: the digi channel of
+      // the cell. MTD, when the channel is cell keyed: the cell as
+      // category << kMtdCategoryShift | row << 16 | col, with the category a SimHitCategory
+      // prodTypeMTD value and detId the sensor module; mask the category before a
+      // comparison with a reco pixel. Muon: always kNoCell.
       uint32_t recHitIndex = kInvalidRecHitIndex;
       float energy = 0.f;
 
       [[nodiscard]] bool hasRecHit() const { return recHitIndex != kInvalidRecHitIndex; }
+      [[nodiscard]] bool hasCell() const { return recHitIndex != kNoCell; }
     };
 
     // One detector channel. Two storage layouts exist, and which one an index carries
@@ -62,6 +74,13 @@ namespace truth {
       std::vector<uint32_t> subgraphOffsets;
       std::vector<Hit> subgraphHits;
       std::vector<uint32_t> dfsOffsets;
+      // The time of each direct hit in ns, the earliest one of its cell, in the order of
+      // directHits. Empty on a channel that carries no time.
+      std::vector<float> directHitTimes;
+      // Whether recHitIndex holds a cell, so that two hits on one detId are two cells.
+      // isCellKeyed() reads the Tracker channel as cell keyed whatever this flag says. An
+      // index digitised before the tracker cells carries none: truth::isModuleKeyedTracker.
+      bool cellKeyed = false;
     };
 
     // A run of consecutive DFS slots. Particles that carry hits own exactly one, their
@@ -96,7 +115,10 @@ namespace truth {
 
     // The slot ranges a particle's subgraph covers. Empty in the materialised layout.
     [[nodiscard]] std::span<const SlotRange> subgraphRanges(uint32_t particleId) const {
-      if (particleId + 1 >= rangeOffsets_.size())
+      // Widened before the increment: particleId is read back from a file and the
+      // builder's own kNoParent sentinel is 0xFFFFFFFF, which wraps to 0 in uint32 and
+      // turns the bound into an out-of-range read.
+      if (static_cast<std::size_t>(particleId) + 1 >= rangeOffsets_.size())
         return {};
       const auto begin = rangeOffsets_[particleId];
       const auto end = rangeOffsets_[particleId + 1];
@@ -108,7 +130,7 @@ namespace truth {
       Channel const* channelData = channelOrNull(channel);
       if (channelData == nullptr || range.slotCount == 0)
         return {};
-      if (range.firstSlot + range.slotCount >= channelData->dfsOffsets.size())
+      if (static_cast<std::size_t>(range.firstSlot) + range.slotCount >= channelData->dfsOffsets.size())
         return {};
       const auto begin = channelData->dfsOffsets[range.firstSlot];
       const auto end = channelData->dfsOffsets[range.firstSlot + range.slotCount];
@@ -128,11 +150,30 @@ namespace truth {
           return {};
         return rangeHits(channel, SlotRange{dfsPos_[particleId], 1});
       }
-      if (particleId + 1 >= channelData->directOffsets.size())
+      if (static_cast<std::size_t>(particleId) + 1 >= channelData->directOffsets.size())
         return {};
       const auto begin = channelData->directOffsets[particleId];
       const auto end = channelData->directOffsets[particleId + 1];
       return std::span<const Hit>(channelData->directHits.data() + begin, end - begin);
+    }
+
+    // The times of directHits(channel, particleId), one per hit. Empty when the channel
+    // carries no time.
+    [[nodiscard]] std::span<const float> directHitTimes(HitChannel channel, uint32_t particleId) const {
+      Channel const* channelData = channelOrNull(channel);
+      if (channelData == nullptr || channelData->directHitTimes.size() != channelData->directHits.size())
+        return {};
+      const auto hits = directHits(channel, particleId);
+      if (hits.empty())
+        return {};
+      const auto begin = static_cast<std::size_t>(hits.data() - channelData->directHits.data());
+      return std::span<const float>(channelData->directHitTimes.data() + begin, hits.size());
+    }
+
+    // Whether the hits of a channel are keyed by (detId, cell), the cell in recHitIndex.
+    [[nodiscard]] bool isCellKeyed(HitChannel channel) const {
+      Channel const* channelData = channelOrNull(channel);
+      return channel == HitChannel::Tracker || (channelData != nullptr && channelData->cellKeyed);
     }
 
     // A particle's own hits plus those of every descendant, as one span. Coalesced and
@@ -148,7 +189,7 @@ namespace truth {
         const auto ranges = subgraphRanges(particleId);
         return ranges.size() == 1 ? rangeHits(channel, ranges[0]) : std::span<const Hit>{};
       }
-      if (particleId + 1 >= channelData->subgraphOffsets.size())
+      if (static_cast<std::size_t>(particleId) + 1 >= channelData->subgraphOffsets.size())
         return {};
       const auto begin = channelData->subgraphOffsets[particleId];
       const auto end = channelData->subgraphOffsets[particleId + 1];

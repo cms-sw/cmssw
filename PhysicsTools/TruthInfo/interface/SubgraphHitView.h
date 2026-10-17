@@ -39,6 +39,7 @@ namespace truth {
       return hitIndex_->directHits(channel, particleId);
     }
     [[nodiscard]] bool hasChannel(HitChannel channel) const { return hitIndex_->hasChannel(channel); }
+    [[nodiscard]] bool isCellKeyed(HitChannel channel) const { return hitIndex_->isCellKeyed(channel); }
     [[nodiscard]] uint32_t nParticles() const { return hitIndex_->nParticles(); }
     [[nodiscard]] LogicalGraphHitIndex const& index() const { return *hitIndex_; }
 
