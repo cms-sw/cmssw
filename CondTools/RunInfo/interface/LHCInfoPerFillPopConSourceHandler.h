@@ -92,4 +92,6 @@ protected:
   bool m_lastPayloadEmpty = false;
   // to hold correspondance between timestamp-type IOVs and lumiid-type IOVs
   std::map<cond::Time_t, cond::Time_t> m_timestampToLumiid;
+
+  size_t _sizeLumiPerBX;
 };
