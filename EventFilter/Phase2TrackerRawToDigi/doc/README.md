@@ -73,20 +73,3 @@ You can create your own binary file containing RAW data, where the data consists
 ```
 cmsRun startBU.py fffBaseDir=myDTHdataDir maxLS=1 fedMeanSize=128 eventsPerFile=256 frdFileVersion=0 dataType=DTH
 ```
-
-=== Instruction to run the alpaka based unpacker
-
-A GPU version of the unpacker code that uses alpaka exists. To run it, log in to a machine where a GPU is available, then from the CMSSW/src directory:
-
-```
-cd EventFilter/Phase2TrackerRawToDigi/test/
-cmsRun PackerAndUnpackerProducer_alpaka_cfg.py
-```
-
-This runs the packing and unpacking steps, where unpacking is run both with only CPU based unpacker labeled in the file as Unpacker process and the alpaka unpacker labeld as alpakaUnpacker process.
-Additionally, this cfg.py file includes a flag `Legacy_Format`, which if you set it to True, will also run the conversion step from the `SoA` output product of the alpaka unpacking EDProducer to the `edmNew::DetSetVector` which is the output product of the only CPU based unpacking EDproducer. Furthermore, it runs in parallel the non-alpaka code (outputting a different EDProduct label) for comparison.
-
---- Note: 
-If the alpaka based code is run on a machine with no GPU, it still runs but only using the serial backend of alpaka which only involves CPUs.   
-
-
