@@ -2,8 +2,8 @@
 <DDDefinition>
 
 <ConstantsSection label="cmsFbcm" eval="true">
-  <Constant name="FBCM_Z1" value="1810*mm"/>
-  <Constant name="FBCM_Z2" value="1850*mm"/>
+  <Constant name="FBCM_Z1" value="1670*mm"/>
+  <Constant name="FBCM_Z2" value="1690*mm"/>
   <Constant name="FBCM_Z"  value="([fbcm:FBCM_ModuleZ]+80*mm)"/>  <!-- z position of the center of FBCM volume wrt to CMS -->
   <Constant name="FBCM_Thickness"    value="([FBCM_Z2]-[FBCM_Z1])"/>
   <Constant name="FBCM_InnerRadius"  value="[cms:TrackBeamR12]"/> <!-- [cms:TrackBeamR12] for BCM1F, or should be similar to pixel:Disc12 -->
