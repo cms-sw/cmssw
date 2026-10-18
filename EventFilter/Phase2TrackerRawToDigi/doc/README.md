@@ -6,10 +6,10 @@ The RAW data is represented by the RawDataBuffer EDProduct,
 which is common to all CMS subdetectors.
 
 ```
-cmsrel CMSSW_20_1_0_pre3
-cd CMSSW_20_1_0_pre3/src
+cmsrel CMSSW_20_1_0_pre4
+cd CMSSW_20_1_0_pre4/src
 cmsenv
-git cms-checkout-topic -u P2-Tracker-BES-SW:unpackers_20_1_0_pre3
+git cms-checkout-topic -u P2-Tracker-BES-SW:unpackers_20_1_0_pre4
 # Need these as depend on changed TrackerDetToDTCELinkCablingMap.h class
 git cms-addpkg CondFormats/DataRecord
 git cms-addpkg CondCore/SiPhase2TrackerPlugins
@@ -39,7 +39,7 @@ with variables UNPACK_CRACK and ANALYZE_CRACK = True.
 If you have a personal branch of this code, and wish to update it with changes made by others to tomalin:masterP2TrackerUnpackers , then in new project area:
 
 ```
-git cms-checkout-topic -u P2-Tracker-BES-SW:unpackers_20_1_0_pre3
+git cms-checkout-topic -u P2-Tracker-BES-SW:unpackers_20_1_0_pre4
 git cms-rebase-topic -u myFork:myBranch
 ```
 
