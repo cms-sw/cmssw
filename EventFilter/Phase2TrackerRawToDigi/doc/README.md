@@ -15,12 +15,24 @@ git cms-addpkg CondFormats/DataRecord
 git cms-addpkg CondCore/SiPhase2TrackerPlugins
 scram b -j
 cd EventFilter/Phase2TrackerRawToDigi/test/
-# Run cluster --> RAW --> cluster sequence for Outer Tracker.
+
+-- To process MC
+
+To add to a MC dataset the result of running the cluster --> RAW --> cluster sequence, use:
+```
 cmsRun PackerAndUnpackerProducer_cfg.py*
 ```
 
-You can analyzer the clusters before and after this sequence using
-the job ClusterAnalyzer_cfg.py, which makes a TTree of them.
+You can produce a TTTree of the original clusters using the job ClusterAnalyzer_cfg.py, and do the same for the clusters created from
+the pack + unpack sequence by rerunning the same job with variable ANALYZE_PACKUNPACK = True.
+
+Then use ROOT macro CompareClusters.C to check if the two sets of clusters
+are consistent.
+
+-- Processing real RAW data from Cosmic Rack
+
+Run PackerAndUnpackerProducer_cfg.py followed by ClusterAnalyzer_cfg.py,
+with variables UNPACK_CRACK and ANALYZE_CRACK = True. 
 
 -- Rebase Instructions
 
