@@ -134,25 +134,10 @@ namespace cms::alpakatools {
     }
   }
 
-  // Throws an exception with a message containing the shared memory requirements and limit.
-  void throwSharedMemoryLimitExceeded(const size_t nElements,
-                                      const uint32_t nBlocks,
-                                      const size_t requiredSharedMem,
-                                      const size_t sharedMemLimit);
-
-  // Verify shared memory requirements
-  template <alpaka::concepts::Acc TAcc, typename TSize>
-  ALPAKA_FN_INLINE static void checkSharedMemoryPrefixScan(TSize nElements,
-                                                           uint32_t nBlocks,
-                                                           alpaka::Dev<TAcc> const& device) {
-    auto requiredSharedMem = (nBlocks + alpaka::getPreferredWarpSize(device)) * sizeof(TSize);
-    auto sharedMemLimit = alpaka::getAccDevProps<TAcc>(device).m_sharedMemSizeBytes;
-    if (requiredSharedMem > sharedMemLimit) {
-      throwSharedMemoryLimitExceeded(static_cast<size_t>(nElements), nBlocks, requiredSharedMem, sharedMemLimit);
-    }
-  }
-
-  // in principle not limited.... in practice limited by shared memory size and occupancy.
+  // in principle not limited.... in practice limited by the standard 48 KiB shared memory limit
+  // per block: it requires (nBlocks + warpSize) * sizeof(T) bytes; use cms::alpakatools::prefixScan
+  // for the automatic dispatch to multiBlockPrefixScan or iterativePrefixScan, which handles this
+  // limit transparently.
   template <typename T>
   struct multiBlockPrefixScan {
     template <alpaka::concepts::Acc TAcc>
