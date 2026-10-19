@@ -921,31 +921,40 @@ namespace edm {
     try {
       FilesProcessor fp(fileModeNoMerge_);
       convertException::wrap([&]() {
-        bool firstTime = true;
-        do {
-          if (not firstTime) {
-            prepareForNextLoop();
-            rewindInput();
-          } else {
-            firstTime = false;
-          }
-          startingNewLoop();
+        auto loop = [&]() {
+          bool firstTime = true;
+          do {
+            if (not firstTime) {
+              prepareForNextLoop();
+              rewindInput();
+            } else {
+              firstTime = false;
+            }
+            startingNewLoop();
 
-          auto trans = fp.processFiles(*this);
+            auto trans = fp.processFiles(*this);
 
-          fp.normalEnd();
+            fp.normalEnd();
 
-          if (deferredExceptionPtrIsSet_.load()) {
-            std::rethrow_exception(deferredExceptionPtr_);
-          }
-          if (trans.nextTransitionType() != InputSource::ItemType::IsStop) {
-            //problem with the source
-            doErrorStuff(trans.nextTransitionType().itemType());
+            if (deferredExceptionPtrIsSet_.load()) {
+              std::rethrow_exception(deferredExceptionPtr_);
+            }
+            if (trans.nextTransitionType() != InputSource::ItemType::IsStop) {
+              //problem with the source
+              doErrorStuff(trans.nextTransitionType().itemType());
 
-            throw cms::Exception("BadTransition")
-                << "Unexpected transition change " << static_cast<int>(trans.nextTransitionType().itemType());
-          }
-        } while (not endOfLoop());
+              throw cms::Exception("BadTransition")
+                  << "Unexpected transition change " << static_cast<int>(trans.nextTransitionType().itemType());
+            }
+          } while (not endOfLoop());
+        };
+        if (streamArenas_.empty()) {
+          loop();
+        } else {
+          // the main thread is one of the job's threads: run the event loop in the arena of the first NUMA domain, in
+          // the slot reserved for it, so that while it waits for the transitions it runs that domain's tasks
+          streamArenas_[0]->execute(loop);
+        }
       });  // convertException::wrap
 
     }  // Try block
@@ -2186,12 +2195,14 @@ namespace edm {
       }
       edm::LogSystem("NumaDomains") << message.str();
     }
-    // one arena per NUMA domain, with as many slots as the job's threads on that domain (in proportion to its cpus); no
-    // slot is reserved for an external thread, since the events are enqueued and run only by worker threads. All arenas
-    // draw their workers from TBB's single pool of worker threads, whose size is limited by the global_control set by
-    // cmsRun (number of threads).
+    // one arena per NUMA domain, with as many slots as the job's threads on that domain (in proportion to its cpus).
+    // All arenas draw their workers from TBB's single pool of worker threads, whose size is limited by the
+    // global_control set by cmsRun (number of threads) and includes the main thread: the first arena reserves one of
+    // its slots for the main thread, which runs the event loop inside it (see runToCompletion), so that the job keeps
+    // one thread per cpu.
     for (unsigned int i = 0; i < domains.size(); ++i) {
-      streamArenas_.push_back(std::make_unique<oneapi::tbb::task_arena>(static_cast<int>(domainThreads[i]), 0));
+      streamArenas_.push_back(
+          std::make_unique<oneapi::tbb::task_arena>(static_cast<int>(domainThreads[i]), i == 0 ? 1 : 0));
       streamArenas_.back()->initialize();
       // TBB's own NUMA binding (tbbbind) does not take effect inside a restricted cpuset, so pin the threads explicitly
       streamArenaObservers_.push_back(

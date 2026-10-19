@@ -97,13 +97,18 @@ namespace edm::numa {
     std::vector<oneapi::tbb::task_arena*> domainArenas_;
   };
 
-  // the domain of the per-domain arena the calling thread is running in, or -1; kept up to date by the arena observers,
-  // which call enterArena() and leaveArena().
-  // This assumes that the per-domain arenas are never nested, i.e. that a thread never enters one of them (with
-  // task_arena::execute) while it is already running in another one: leaving the inner arena would then set the
-  // domain to -1 instead of the outer one, and the arena observers would set the thread's affinity to all the cpus of
-  // the job instead of those of the outer domain. The framework only ever enqueues work into another domain's arena
-  // (see runInDomain and EventProcessor::processEventAsync).
+  // The domain of the per-domain arena the calling thread is running in, or -1 if it is not running in any of them.
+  // It is set by the observers of the per-domain arenas, which call enterArena() when a thread enters one of them and
+  // leaveArena() when the thread leaves it. Other arenas are not tracked: a thread that calls task_arena::execute() on
+  // an arena created elsewhere (e.g. by a module or an external library) while running in a per-domain arena still
+  // reports the outer domain. The value is therefore reliable only for code that runs directly in a per-domain arena,
+  // or outside of all arenas, as the framework's own tasks do. Two cases are not handled:
+  //   - entering a per-domain arena from inside another one: leaving the inner arena resets the value to -1, and the
+  //     observers set the thread's affinity to all the cpus of the job instead of those of the outer domain;
+  //   - entering a foreign arena from inside a per-domain arena: the value still names the outer domain.
+  // The framework does neither: it only enqueues work into another domain's arena (see runInDomain and
+  // EventProcessor::processEventAsync), and the main thread enters the first arena only from outside of any of them,
+  // to run the event loop (see EventProcessor::runToCompletion).
   int currentArenaDomain();
   void enterArena(unsigned int domain);
   void leaveArena();
@@ -117,8 +122,12 @@ namespace edm::numa {
   ArenaStatistics& arenaStatistics();
   std::string reportArenaStatistics();
 
-  // Run f as part of group, in the arena of the given NUMA domain. If domain is negative, there is no arena for it, or
-  // the calling thread already runs in that arena, this is group.run(f).
+  // Run f as part of group, in the arena of the given NUMA domain. If domain is negative or there is no arena for it,
+  // this is group.run(f). If currentArenaDomain() is already that domain, f is also started with group.run(f), on the
+  // local queue of the calling thread, and runs in the arena the thread is actually in; otherwise f is enqueued into
+  // the arena of the domain. Call it only from the framework's own tasks: from inside a foreign arena (see
+  // currentArenaDomain) f could run outside of the arena of its domain without any warning. A stale value of -1 is
+  // harmless: f is then enqueued into the arena of its domain.
   template <typename F>
   void runInDomain(oneapi::tbb::task_group& group, int domain, F&& f) {
     if (domain >= 0 and domain != currentArenaDomain()) {
