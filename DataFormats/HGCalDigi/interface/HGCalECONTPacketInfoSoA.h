@@ -15,7 +15,7 @@ namespace hgcaldigi {
   using Mtrxu16t148 = Eigen::Matrix<uint16_t, 1, 48>;
   namespace ECONTUnpackingFlags {
     constexpr uint8_t NormalUnpacking = 0, Stage1IOConversionError = 1, WrongSubpacketHeader = 2, tdaqIdxOutRange = 3;
-  } // namespace ECONTUnpackingFlags
+  }  // namespace ECONTUnpackingFlags
 
   inline constexpr bool isNotNormalECONT(uint16_t econtUnpackingFlag) {
     return !((econtUnpackingFlag >> ECONTUnpackingFlags::NormalUnpacking) & 0x1);
@@ -56,7 +56,6 @@ namespace hgcaldigi {
                       //number of TCs saved
                       SOA_COLUMN(uint8_t, nTCs))
 
-                      
   using HGCalECONTPacketInfoSoA = HGCalECONTPacketInfoSoALayout<>;
 }  // namespace hgcaldigi
 

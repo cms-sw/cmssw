@@ -19,8 +19,7 @@ GENERATE_SOA_LAYOUT(
     SOA_COLUMN(float, time_weight),
     SOA_COLUMN(float, time_weighted_sum),
     SOA_EIGEN_COLUMN(hgcalreco::VariationVector, time_weight_variations),
-    SOA_EIGEN_COLUMN(hgcalreco::VariationVector, time_weighted_sum_variations)
-)
+    SOA_EIGEN_COLUMN(hgcalreco::VariationVector, time_weighted_sum_variations))
 
 using HGCalSoAClustersExtra = HGCalSoAClustersExtraLayout<>;
 

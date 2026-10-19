@@ -107,7 +107,7 @@ public:
                   << " or SWAP offset size "  << fed_config_data[fedkey]["econtSwapOffset"].size() 
                   << " do not match " << moduleMap.getNumModules(fedid) << "in module locator" << std::endl;
         continue;
-      } *///TODO readd taking into acount TL type with 2 econts 
+      } *///TODO readd taking into acount TL type with 2 econts
 
       std::cout << fedid << " has " << nTDAQ << " nTDAQ and " << totalECONTs << " ECONTs" << std::endl;
       // fill FED configurations
@@ -119,11 +119,12 @@ public:
         fedConfig.econtSwapOffset[iecont] = int(fed_config_data[fedkey]["econtSwapOffset"][iecont]);
       }
       // fill elinksMap (only if present in cfg)
-      if(hgcal::check_keys(fed_config_data, fedkey, {"elinksMap"}, fedjsonurl)) { 
-     
-        for (auto itdaq = fed_config_data[fedkey]["elinksMap"].begin(); itdaq!=fed_config_data[fedkey]["elinksMap"].end(); ++itdaq) {
+      if (hgcal::check_keys(fed_config_data, fedkey, {"elinksMap"}, fedjsonurl)) {
+        for (auto itdaq = fed_config_data[fedkey]["elinksMap"].begin();
+             itdaq != fed_config_data[fedkey]["elinksMap"].end();
+             ++itdaq) {
           fedConfig.elinksMap[(uint8_t)stoi(itdaq.key())].resize(itdaq.value().size());
-          for (std::size_t ielink = 0; ielink < itdaq.value().size(); ielink++) {   
+          for (std::size_t ielink = 0; ielink < itdaq.value().size(); ielink++) {
             //fedConfig.elinksMap[(uint8_t)stoi(it.key())].push_back(it.value()[ielink]);
             fedConfig.elinksMap[(uint8_t)stoi(itdaq.key())][ielink] = itdaq.value()[ielink];
           }
@@ -144,81 +145,77 @@ public:
             continue;
           }
           const auto modkey = hgcal::search_modkey(typecode, mod_config_data, modjsonurl);  // search matching key
-	  bool isSiPM = std::regex_match(typecode, std::regex(R"(T[LH]-.*)"));
+          bool isSiPM = std::regex_match(typecode, std::regex(R"(T[LH]-.*)"));
           if (isSiPM) {
-             if (nECONT != 2){
-                  throw cms::Exception("Configuration") << "SiPM module " << modkey
-                          << " requires exactly 2 ECON-Ts, but nECONT = " << nECONT;
-
-            } 
+            if (nECONT != 2) {
+              throw cms::Exception("Configuration")
+                  << "SiPM module " << modkey << " requires exactly 2 ECON-Ts, but nECONT = " << nECONT;
+            }
           }
           uint32_t iecont = imod - totalECONTs;
-          
-          const auto& modcfg = !isSiPM    ? mod_config_data[modkey]    : mod_config_data[modkey][std::to_string(iecont)];
+
+          const auto& modcfg = !isSiPM ? mod_config_data[modkey] : mod_config_data[modkey][std::to_string(iecont)];
           tdaqConfig.econts.resize(nECONT);
           if (!isSiPM) {
+            hgcal::check_keys(
+                mod_config_data, modkey, modkeys, modjsonurl);  // check required keys are in the JSON, warn otherwise
+            //sanity check
+            size_t nTC_calv = mod_config_data[modkey]["calv"].size();
+            size_t nTC_mux = mod_config_data[modkey]["mux"].size();
+            //size_t nTC = moduleMap.getNumChannels(typecode);
+            size_t nTC = mod_config_data[modkey]["mux"].size();
+            if (nTC != nTC_mux || nTC != nTC_calv) {
+              continue;
+            }
+            HGCalECONTConfig econtConfig;
 
-          hgcal::check_keys(
-              mod_config_data, modkey, modkeys, modjsonurl);  // check required keys are in the JSON, warn otherwise
-          //sanity check
-          size_t nTC_calv = mod_config_data[modkey]["calv"].size();
-          size_t nTC_mux = mod_config_data[modkey]["mux"].size();
-          //size_t nTC = moduleMap.getNumChannels(typecode);
-          size_t nTC = mod_config_data[modkey]["mux"].size();
-          if (nTC != nTC_mux || nTC != nTC_calv) {
-            continue;
-          }
-          HGCalECONTConfig econtConfig;
-          
-          econtConfig.density = uint8_t(mod_config_data[modkey]["density"]);
-          econtConfig.dropLSB = uint8_t(mod_config_data[modkey]["dropLSB"]);
-          econtConfig.select = uint8_t(mod_config_data[modkey]["select"]);
-          econtConfig.stcType = uint8_t(mod_config_data[modkey]["stc_type"]);
-          econtConfig.eportTxNumen = uint8_t(mod_config_data[modkey]["eporttx_numen"]);
-          econtConfig.sumType = uint8_t(mod_config_data[modkey]["use_sum"]);
+            econtConfig.density = uint8_t(mod_config_data[modkey]["density"]);
+            econtConfig.dropLSB = uint8_t(mod_config_data[modkey]["dropLSB"]);
+            econtConfig.select = uint8_t(mod_config_data[modkey]["select"]);
+            econtConfig.stcType = uint8_t(mod_config_data[modkey]["stc_type"]);
+            econtConfig.eportTxNumen = uint8_t(mod_config_data[modkey]["eporttx_numen"]);
+            econtConfig.sumType = uint8_t(mod_config_data[modkey]["use_sum"]);
 
-          econtConfig.calv.resize(nTC);
-          econtConfig.tcMux.resize(nTC);
-          econtConfig.offset.resize(nTC);
-          for (std::size_t iTC = 0; iTC < nTC; iTC++) {
-            econtConfig.calv[iTC] = mod_config_data[modkey]["calv"][iTC];
-            econtConfig.tcMux[iTC] = mod_config_data[modkey]["mux"][iTC];
-            econtConfig.offset[iTC] = calculateCellOffset();  //TODO: change this when we know how to calcualte
-          }
-          // Caculate module number in the TDAQ
-          uint32_t iecont = imod - totalECONTs;
-          tdaqConfig.econts.resize(nECONT);  //resize so length is the number of econTs
-          tdaqConfig.econts[iecont] = econtConfig;
-        }
-        else { //SiPM
+            econtConfig.calv.resize(nTC);
+            econtConfig.tcMux.resize(nTC);
+            econtConfig.offset.resize(nTC);
+            for (std::size_t iTC = 0; iTC < nTC; iTC++) {
+              econtConfig.calv[iTC] = mod_config_data[modkey]["calv"][iTC];
+              econtConfig.tcMux[iTC] = mod_config_data[modkey]["mux"][iTC];
+              econtConfig.offset[iTC] = calculateCellOffset();  //TODO: change this when we know how to calcualte
+            }
+            // Caculate module number in the TDAQ
+            uint32_t iecont = imod - totalECONTs;
+            tdaqConfig.econts.resize(nECONT);  //resize so length is the number of econTs
+            tdaqConfig.econts[iecont] = econtConfig;
+          } else {  //SiPM
             for (int econtIdx = 0; econtIdx < 2; ++econtIdx) {
-                const auto& modcfg = mod_config_data[modkey][std::to_string(econtIdx)];
-                size_t nTC_calv = modcfg["calv"].size();
-                size_t nTC_mux = modcfg["mux"].size();
-                //size_t nTC = moduleMap.getNumChannels(typecode);
-                size_t nTC = modcfg["mux"].size();
-               if (nTC != nTC_mux || nTC != nTC_calv) {
+              const auto& modcfg = mod_config_data[modkey][std::to_string(econtIdx)];
+              size_t nTC_calv = modcfg["calv"].size();
+              size_t nTC_mux = modcfg["mux"].size();
+              //size_t nTC = moduleMap.getNumChannels(typecode);
+              size_t nTC = modcfg["mux"].size();
+              if (nTC != nTC_mux || nTC != nTC_calv) {
                 continue;
-               }
-          HGCalECONTConfig econtConfig;
+              }
+              HGCalECONTConfig econtConfig;
 
-          econtConfig.density = uint8_t(modcfg["density"]);
-          econtConfig.dropLSB = uint8_t(modcfg["dropLSB"]);
-          econtConfig.select = uint8_t(modcfg["select"]);
-          econtConfig.stcType = uint8_t(modcfg["stc_type"]);
-          econtConfig.eportTxNumen = uint8_t(modcfg["eporttx_numen"]);
-          econtConfig.sumType = uint8_t(modcfg["use_sum"]);
+              econtConfig.density = uint8_t(modcfg["density"]);
+              econtConfig.dropLSB = uint8_t(modcfg["dropLSB"]);
+              econtConfig.select = uint8_t(modcfg["select"]);
+              econtConfig.stcType = uint8_t(modcfg["stc_type"]);
+              econtConfig.eportTxNumen = uint8_t(modcfg["eporttx_numen"]);
+              econtConfig.sumType = uint8_t(modcfg["use_sum"]);
 
-          econtConfig.calv.resize(nTC);
-          econtConfig.tcMux.resize(nTC);
-          econtConfig.offset.resize(nTC);
-          for (std::size_t iTC = 0; iTC < nTC; iTC++) {
-            econtConfig.calv[iTC] = modcfg["calv"][iTC];
-            econtConfig.tcMux[iTC] = modcfg["mux"][iTC];
-            econtConfig.offset[iTC] = calculateCellOffset();  //TODO: change this when we know how to calcualte
-          }
-          tdaqConfig.econts[econtIdx] = econtConfig;
-
+              econtConfig.calv.resize(nTC);
+              econtConfig.tcMux.resize(nTC);
+              econtConfig.offset.resize(nTC);
+              for (std::size_t iTC = 0; iTC < nTC; iTC++) {
+                econtConfig.calv[iTC] = modcfg["calv"][iTC];
+                econtConfig.tcMux[iTC] = modcfg["mux"][iTC];
+                econtConfig.offset[iTC] = calculateCellOffset();  //TODO: change this when we know how to calcualte
+              }
+              tdaqConfig.econts[econtIdx] = econtConfig;
             }
           }
         }

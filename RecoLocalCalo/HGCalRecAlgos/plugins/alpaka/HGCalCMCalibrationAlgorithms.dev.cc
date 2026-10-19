@@ -9,7 +9,7 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace cms::alpakatools;
-  namespace F = hgcalcmml::Feature; // This is actually just an index map defined in HGCALSoACMML.h
+  namespace F = hgcalcmml::Feature;  // This is actually just an index map defined in HGCALSoACMML.h
 
   static constexpr uint32_t kChPerErx = 37u;
   static constexpr float kCMScale = 2.0f;  // training convention: cm - 2*CM_ped
@@ -33,7 +33,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto f = module_features[m].features();
         if (!d_inScope[m]) {
           for (uint32_t k = 0; k < F::NMODULE; ++k)
-            f(k) = 0.f; // sets all the module feautures = 0
+            f(k) = 0.f;  // sets all the module feautures = 0
           continue;
         }
         uint32_t const base = d_chDataOffsets[m];
@@ -108,7 +108,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           corrections[idx].valid() = 0;
           continue;
         }
-
 
         auto const mf = module_features[m].features();
         for (uint32_t k = 0; k < F::NMODULE; ++k)
@@ -201,7 +200,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                     HGCalSoACMMLDeviceCollection& device_digi_features,
                                                     HGCalCMCorrectionDeviceCollection& device_corrections) const {
     if (ndigis == 0)
-      return; // ha lets hope this doesn't happen, goodbye neutral hadrons.
+      return;  // ha lets hope this doesn't happen, goodbye neutral hadrons.
     alpaka::exec<Acc1D>(queue,
                         make_workdiv<Acc1D>(divide_up_by(ndigis, uint32_t(n_threads_)), uint32_t(n_threads_)),
                         HGCalCMCalibKernel_fillDigiInputs{},

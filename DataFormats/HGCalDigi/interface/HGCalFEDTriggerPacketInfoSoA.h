@@ -10,7 +10,6 @@
 
 namespace hgcaldigi {
 
-
   GENERATE_SOA_LAYOUT(HGCalFEDTriggerPacketInfoSoALayout,
                       //FED unpacking flag
                       SOA_COLUMN(uint16_t, FEDBX_trig))
@@ -19,4 +18,3 @@ namespace hgcaldigi {
 }  // namespace hgcaldigi
 
 #endif
-

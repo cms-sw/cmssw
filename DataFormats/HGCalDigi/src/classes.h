@@ -17,4 +17,3 @@
 #include "DataFormats/HGCalDigi/interface/HGCalDigiTriggerSoA.h"
 #include "DataFormats/HGCalDigi/interface/HGCalFEDTriggerPacketInfoHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalFEDTriggerPacketInfoSoA.h"
-

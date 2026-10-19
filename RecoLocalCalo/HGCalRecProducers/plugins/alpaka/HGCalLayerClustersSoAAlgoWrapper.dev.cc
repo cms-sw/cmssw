@@ -234,7 +234,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     uint32_t group_clusters = divide_up_by(size, items);
     auto workDivClusters = make_workdiv<Acc1D>(group_clusters, items);
     if (size > 0)
-      alpaka::exec<Acc1D>(queue, workDivClusters, HGCalLayerClustersSoAAlgoKernelInitVariations{}, outputs, outputs_service);
+      alpaka::exec<Acc1D>(
+          queue, workDivClusters, HGCalLayerClustersSoAAlgoKernelInitVariations{}, outputs, outputs_service);
 
     alpaka::exec<Acc1D>(queue,
                         workDiv,

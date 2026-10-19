@@ -35,7 +35,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   };
 
-
   // @short subtract pedestals, linearize ADC & TOT to charge (fC), and convert to energy (GeV)
   // energy: linear CM correction; energy_variations(CM_ALT): DNN CM correction
   struct HGCalRecHitCalibrationKernel_adcToEnergy {
@@ -46,7 +45,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   HGCalCalibParamDevice::ConstView calibs,
                                   HGCalCMCorrectionDeviceCollection::ConstView corrections) const {
       auto ped_sub = [&](uint32_t adc, float adc_ped) { return adc - adc_ped; };
-      auto cm_linear = [&](uint32_t cm, float cm_slope, float cm_ped) { return cm_slope * (0.5f * float(cm) - cm_ped); };
+      auto cm_linear = [&](uint32_t cm, float cm_slope, float cm_ped) {
+        return cm_slope * (0.5f * float(cm) - cm_ped);
+      };
       // before there was just one python lambda like function adc_denoise but now there are two denoise functions.
       auto denoise_linear = [&](float pedsub, float pedsub_m1, float cmf, float bxm1_slope) {
         return (pedsub - cmf - bxm1_slope * (pedsub_m1 - cmf));
@@ -72,8 +73,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         float pedsub = ped_sub(digi.adc(), calib.ADC_ped());
         float pedsub_m1 = ped_sub(digi.adcm1(), calib.ADC_ped());
-        float adc_linear =
-            denoise_linear(pedsub, pedsub_m1, cm_linear(digi.cm(), calib.CM_slope(), calib.CM_ped()), calib.BXm1_slope());
+        float adc_linear = denoise_linear(
+            pedsub, pedsub_m1, cm_linear(digi.cm(), calib.CM_slope(), calib.CM_ped()), calib.BXm1_slope());
         bool useNN(corrections[idx].valid());
         float adc_cm_alt = useNN ? denoise_nn(pedsub, corrections[idx].correction()) : adc_linear;
 
@@ -164,13 +165,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       };
 
       for (auto idx : uniform_elements(acc, digis.metadata().size())) {
-
         auto cellIndex = index[idx].cellInfoIdx();
 
         //only applies to Si
         bool isSiPM(cell_maps[cellIndex].isSiPM());
-        if(isSiPM) continue;
-        
+        if (isSiPM)
+          continue;
+
         auto calib = calibs[idx];
         bool calibvalid = calib.valid();
         auto digi = digis[idx];
@@ -276,7 +277,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       for (auto idx : uniform_elements(acc, recHits.metadata().size())) {
         //quality + ZS cuts + connected (non-calib) channel
         auto cellIndex = index[idx].cellInfoIdx();
-        if(!recHits[idx].flags() && recHits[idx].energy() > k_noise * recHits[idx].sigmaNoise() && cell_maps[cellIndex].t()>0)
+        if (!recHits[idx].flags() && recHits[idx].energy() > k_noise * recHits[idx].sigmaNoise() &&
+            cell_maps[cellIndex].t() > 0)
           sidx[alpaka::atomicAdd(acc, nsel, 1)] = idx;
       }
     }

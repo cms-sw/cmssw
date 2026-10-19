@@ -21,19 +21,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     explicit HGCalCMCalibrationAlgorithms(int n_threads) : n_threads_(n_threads) {}
 
     // features 0..250, one row per module; ADC_ped/CM_ped/valid from the calibration, per dense channel index
-    void fillModuleInputs(Queue& queue,
-                          uint32_t nmodules,
-                          uint32_t ndigis,
-                          hgcaldigi::HGCalDigiDevice const& device_digis,
-                          uint32_t const* d_chDataOffsets,
-                          uint32_t const* d_enabledErx,
-                          int const* d_onehotIdx,
-                          unsigned char const* d_inScope,
-                          hgcalrechit::HGCalCalibParamDevice const& device_calib, // if channel is invalid ped sub adc set to 0
-                          bool normalize, // if true we normalise features, this is required for z score model, these come from two variables below!
-                          float const* d_inMean,
-                          float const* d_inInvStd,
-                          HGCalSoACMMLDeviceCollection& device_module_features) const;
+    void fillModuleInputs(
+        Queue& queue,
+        uint32_t nmodules,
+        uint32_t ndigis,
+        hgcaldigi::HGCalDigiDevice const& device_digis,
+        uint32_t const* d_chDataOffsets,
+        uint32_t const* d_enabledErx,
+        int const* d_onehotIdx,
+        unsigned char const* d_inScope,
+        hgcalrechit::HGCalCalibParamDevice const& device_calib,  // if channel is invalid ped sub adc set to 0
+        bool normalize,  // if true we normalise features, this is required for z score model, these come from two variables below!
+        float const* d_inMean,
+        float const* d_inInvStd,
+        HGCalSoACMMLDeviceCollection& device_module_features) const;
 
     // per digi: module row with the own ADC masked, per-channel features, device_corrections.valid
     void fillDigiInputs(Queue& queue,

@@ -131,15 +131,13 @@ void HGCalMappingTriggerESProducer::prepareModuleMapperIndexer() {
 
     int fedid = modulesMap_.getIntAttr("trig_fedid", row);
     int econtidx = modulesMap_.getIntAttr("econtidx", row);
-    if (!matched_sipm){
-        modIndexer_.processNewModule(fedid, econtidx, typecodeidx, nTrLinks, nwords, typecode);
+    if (!matched_sipm) {
+      modIndexer_.processNewModule(fedid, econtidx, typecodeidx, nTrLinks, nwords, typecode);
     }
-    if (matched_sipm) { //acout for 2 ECONTs on SiPM
-      modIndexer_.processNewModule(fedid, econtidx, typecodeidx, nTrLinks, nwords, typecode+"_1");
-      modIndexer_.processNewModule(fedid, econtidx+1, typecodeidx, nTrLinks, nwords, typecode+"_2");
+    if (matched_sipm) {  //acout for 2 ECONTs on SiPM
+      modIndexer_.processNewModule(fedid, econtidx, typecodeidx, nTrLinks, nwords, typecode + "_1");
+      modIndexer_.processNewModule(fedid, econtidx + 1, typecodeidx, nTrLinks, nwords, typecode + "_2");
     }
-
- 
   }
 
   modIndexer_.finalize();

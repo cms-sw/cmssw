@@ -47,8 +47,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto output_v = output.view();
 
       // the cluster count is uninitialised and CLUE never writes it for an event without rechits
-      auto device_numclusters =
-          cms::alpakatools::make_device_view<unsigned int>(alpaka::getDev(iEvent.queue()), output_v.numberOfClustersScalar());
+      auto device_numclusters = cms::alpakatools::make_device_view<unsigned int>(alpaka::getDev(iEvent.queue()),
+                                                                                 output_v.numberOfClustersScalar());
       alpaka::memset(iEvent.queue(), device_numclusters, 0x0);
 
       if (deviceInput->metadata().size() > 0)

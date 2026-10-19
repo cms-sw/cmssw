@@ -82,7 +82,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                     hgcaldigi::HGCalDigiDevice const& deviceDigis,
                     HGCalCalibParamDevice const& deviceCalib,
                     HGCalCMCorrectionDeviceCollection& deviceCorrections);
-    void putCMMLDebug(device::Event& iEvent); // I used to make some CSV, this is an alternative way to do this with another produceer in HGCALCOM.
+    void putCMMLDebug(
+        device::Event&
+            iEvent);  // I used to make some CSV, this is an alternative way to do this with another produceer in HGCALCOM.
 
     edm::ESWatcher<HGCalElectronicsMappingRcd> calibWatcher_;
     const edm::EDGetTokenT<hgcaldigi::HGCalDigiHost> digisToken_;
@@ -108,9 +110,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::vector<std::string> featureNames_;
     std::map<std::string, int> moduleVocabulary_;  // "ML_F3WC_IH0180" -> one-hot index
     bool normalize_ = false;                       // z-score model
-    std::vector<float> inMean_, inInvStd_;  // F::Size
-    std::vector<float> tgtMean_, tgtStd_;   // F::NCH, by within-module channel
-    std::vector<float> h_sfLD_, h_sfHD_;    // cell area fractions, by within-module channel
+    std::vector<float> inMean_, inInvStd_;         // F::Size
+    std::vector<float> tgtMean_, tgtStd_;          // F::NCH, by within-module channel
+    std::vector<float> h_sfLD_, h_sfHD_;           // cell area fractions, by within-module channel
 
     // produceCMMLDebug: DNN inputs as fed to the model (ndigis x F::Size, row-major), raw model output,
     // correction and valid per digi; empty when the DNN did not run
@@ -142,8 +144,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       names.insert(names.end(), {"channel_indices", "erx_indices", "cell_area_fraction"});
       return names;
     }
-// Json helpers for the manifest, the z-score mean/std file and the cell areas
-// I have not bothered to code review these helper functions and have also not looked into if better way to do this
+    // Json helpers for the manifest, the z-score mean/std file and the cell areas
+    // I have not bothered to code review these helper functions and have also not looked into if better way to do this
     nlohmann::json readJson(std::string const& path) {
       std::ifstream file(path);
       if (!file.is_open())
@@ -216,7 +218,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     h_sfHD_ = areas.at("MH_F").at("SF").get<std::vector<float>>();
     if (h_sfLD_.size() < F::NCH)
       throw cms::Exception("Configuration") << "cellAreas: ML_F has " << h_sfLD_.size() << " SF entries";
-
   }
 
   void HGCalRecHitsProducer::loadCMModelMetadata(std::string const& manifestPath,
@@ -241,8 +242,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // if normalise json exists, we know we need to normalise the inputs!
     normalize_ = man.at("preprocess_inputs").get<bool>();
     if (normalize_ == preprocessingPath.empty())
-      throw cms::Exception("Configuration") << manifestPath << ": preprocess_inputs=" << normalize_
-                                            << " requires 'inputPreprocessing' to be " << (normalize_ ? "set" : "empty");
+      throw cms::Exception("Configuration")
+          << manifestPath << ": preprocess_inputs=" << normalize_ << " requires 'inputPreprocessing' to be "
+          << (normalize_ ? "set" : "empty");
     if (!normalize_)
       return;
 
@@ -250,7 +252,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto const pre = readJson(preprocessingPath);
     if (!pre.at("enabled").get<bool>() || pre.at("method") != "zscore" || !pre.at("targets_enabled").get<bool>() ||
         pre.at("target_method") != "per_channel_zscore")
-      throw cms::Exception("Configuration") << preprocessingPath << ": expected zscore inputs, per_channel_zscore targets";
+      throw cms::Exception("Configuration")
+          << preprocessingPath << ": expected zscore inputs, per_channel_zscore targets";
     if (pre.at("feature_names").get<std::vector<std::string>>() != featureNames_)
       throw cms::Exception("Configuration") << preprocessingPath << ": feature_names differ from the manifest";
     std::vector<uint32_t> channels(F::NCH);
@@ -437,8 +440,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::replace(key.begin(), key.end(), '-', '_');
       if (auto it = moduleVocabulary_.find(key); it != moduleVocabulary_.end())
         h_onehotIdx[m] = it->second;
-      h_inScope[m] = uint32_t(__builtin_popcount(h_enabledErx[m])) * 37u == F::NCH &&
-                     h_chDataOffsets[m] + F::NCH <= ndigis;
+      h_inScope[m] =
+          uint32_t(__builtin_popcount(h_enabledErx[m])) * 37u == F::NCH && h_chDataOffsets[m] + F::NCH <= ndigis;
     }
 
     const uint32_t ncalib = uint32_t(deviceCalib.view().metadata().size());
@@ -495,7 +498,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     cms::torch::alpakatools::TensorCollection<Queue> inputs{int(ndigis)};
     inputs.template add<hgcalcmml::HGCalCMMLSoA>("features", deviceFeatures.const_view().records().features());
     cms::torch::alpakatools::TensorCollection<Queue> outputs{int(ndigis)};
-    outputs.template add<hgcalcmml::HGCalCMCorrectionSoA>("correction", deviceCorrections.view().records().correction());
+    outputs.template add<hgcalcmml::HGCalCMCorrectionSoA>("correction",
+                                                          deviceCorrections.view().records().correction());
     model_->forward(queue, inputs, outputs);
 
     // debug products: inputs and raw output before denormalisation, read in produce() after the queue sync

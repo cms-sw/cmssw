@@ -28,9 +28,9 @@ public:
                     const HGCalTriggerConfiguration& config,
                     const HGCalMappingModuleIndexerTrigger& moduleIndexer,
                     hgcaldigi::HGCalDigiTriggerHost& digisTrigger,
-		    hgcaldigi::HGCalFEDTriggerPacketInfoHost& fedTriggerPacketInfo,
+                    hgcaldigi::HGCalFEDTriggerPacketInfoHost& fedTriggerPacketInfo,
                     hgcaldigi::HGCalECONTPacketInfoHost& econtPacketInfo);
-  bool parseTDAQBlock() ;
+  bool parseTDAQBlock();
 
 private:
   // std::unique_ptr<HGCalUnpackerTriggerSpecialization> unpackerSpecialization_;
