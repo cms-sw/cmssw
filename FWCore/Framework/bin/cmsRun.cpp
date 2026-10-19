@@ -3,6 +3,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about it.
 ----------------------------------------------------------------------*/
 
+#include "FWCore/Concurrency/interface/numaLocality.h"
 #include "FWCore/AbstractServices/interface/TimingServiceBase.h"
 #include "FWCore/Framework/interface/CmsRunParser.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
@@ -234,6 +235,12 @@ int main(int argc, const char* argv[]) {
         }
         if (vm.count(edm::CmsRunParser::kSizeOfStackForThreadOpt)) {
           threadsInfo.stackSize_ = vm[edm::CmsRunParser::kSizeOfStackForThreadOpt].as<unsigned int>();
+        }
+
+        // with numaLocality, set a local memory policy before the TBB worker threads are created, so that they inherit it
+        if (pset->exists("options") and
+            pset->getUntrackedParameterSet("options").getUntrackedParameter<bool>("numaLocality", false)) {
+          edm::numa::setLocalMemoryPolicy();
         }
 
         // if needed, re-initialise TBB
