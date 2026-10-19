@@ -14,10 +14,12 @@
 #include <cstdint>
 #include <string>
 
+#include <ROOT/REntry.hxx>
 #include <ROOT/RNTupleModel.hxx>
 #include <ROOT/RNTupleWriteOptions.hxx>
 #include <ROOT/RNTupleWriter.hxx>
 
+#include "Compression.h"
 #include "TObjString.h"
 
 #include "FWCore/Framework/interface/one/OutputModule.h"
@@ -31,6 +33,7 @@
 #include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "DataFormats/NanoAOD/interface/UniqueString.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
@@ -60,10 +63,14 @@ private:
   void writeProvenance();
 
   void initializeNTuple(edm::EventForOutput const& e);
+  // Create the entry the Events ntuple is filled through and point every field at its value. The
+  // Events model is bare, so there is no default entry to fall back on, and a schema update
+  // invalidates the entry, so this runs again after each one.
+  void bindEntry();
 
   std::string m_fileName;
   std::string m_logicalFileName;
-  std::string m_compressionAlgorithm;
+  ROOT::RCompressionSetting::EAlgorithm::EValues m_compressionAlgorithm;
   int m_compressionLevel;
   bool m_writeProvenance;
   edm::ProcessHistoryRegistry m_processHistoryRegistry;
@@ -71,6 +78,7 @@ private:
 
   std::unique_ptr<TFile> m_file;
   std::unique_ptr<RNTupleWriter> m_ntuple;
+  std::unique_ptr<ROOT::REntry> m_entry;
   std::vector<edm::EDGetToken> m_eventTableTokens;
   TableCollectionSet m_tables;
   std::vector<TriggerOutputFields> m_triggers;
@@ -82,17 +90,33 @@ private:
       m_run = RNTupleFieldPtr<std::uint32_t>("run", "", model);
       m_luminosityBlock = RNTupleFieldPtr<std::uint32_t>("luminosityBlock", "", model);
       m_event = RNTupleFieldPtr<std::uint64_t>("event", "", model);
+      m_bunchCrossing = RNTupleFieldPtr<std::uint32_t>("bunchCrossing", "", model);
+      m_orbitNumber = RNTupleFieldPtr<std::uint32_t>("orbitNumber", "", model);
     }
-    void fill(const edm::EventID& id) {
-      m_run.fill(id.run());
-      m_luminosityBlock.fill(id.luminosityBlock());
-      m_event.fill(id.event());
+    void bind(ROOT::REntry& entry) const {
+      m_run.bind(entry);
+      m_luminosityBlock.bind(entry);
+      m_event.bind(entry);
+      m_bunchCrossing.bind(entry);
+      m_orbitNumber.bind(entry);
+    }
+    void fill(const edm::EventAuxiliary& aux) {
+      m_run.fill(aux.id().run());
+      m_luminosityBlock.fill(aux.id().luminosityBlock());
+      m_event.fill(aux.id().event());
+      // EventAuxiliary reports both of these as a signed int, using -1 for "not available" (as in
+      // simulation). NanoAOD has always published them unsigned, so an unavailable value shows up
+      // as 0xffffffff; keep that rather than inventing a representation the TTree output lacks.
+      m_bunchCrossing.fill(static_cast<std::uint32_t>(aux.bunchCrossing()));
+      m_orbitNumber.fill(static_cast<std::uint32_t>(aux.orbitNumber()));
     }
 
   private:
     RNTupleFieldPtr<std::uint32_t> m_run;
     RNTupleFieldPtr<std::uint32_t> m_luminosityBlock;
     RNTupleFieldPtr<std::uint64_t> m_event;
+    RNTupleFieldPtr<std::uint32_t> m_bunchCrossing;
+    RNTupleFieldPtr<std::uint32_t> m_orbitNumber;
   } m_commonFields;
 
   LumiNTuple m_lumi;
@@ -101,10 +125,31 @@ private:
   std::vector<std::pair<std::string, edm::EDGetToken>> m_nanoMetadata;
 
   std::vector<std::string> m_noSplitFields;
+  // Whether the members of the grouped fields also get the flat TTree names; see rntupleprojection.
+  bool m_flatProjections;
   ROOT::RNTupleWriteOptions m_writeOptions;
 };
 
 namespace {
+  // The four algorithms the TTree NanoAODOutputModule accepts. RNTuple compresses its pages through
+  // the same ROOT machinery, so it supports all of them; parse here so a bad name fails at
+  // construction rather than when the first output file is opened.
+  ROOT::RCompressionSetting::EAlgorithm::EValues compressionAlgorithm(const std::string& name) {
+    using EAlgorithm = ROOT::RCompressionSetting::EAlgorithm;
+    if (name == "ZLIB") {
+      return EAlgorithm::kZLIB;
+    } else if (name == "LZMA") {
+      return EAlgorithm::kLZMA;
+    } else if (name == "ZSTD") {
+      return EAlgorithm::kZSTD;
+    } else if (name == "LZ4") {
+      return EAlgorithm::kLZ4;
+    }
+    throw cms::Exception("Configuration")
+        << "NanoAODRNTupleOutputModule configured with unknown compression algorithm '" << name << "'\n"
+        << "Allowed compression algorithms are ZLIB, LZMA, ZSTD, and LZ4\n";
+  }
+
   ROOT::RNTupleWriteOptions writeOptions(edm::ParameterSet const& iConfig) {
     ROOT::RNTupleWriteOptions options;
 
@@ -126,16 +171,17 @@ NanoAODRNTupleOutputModule::NanoAODRNTupleOutputModule(edm::ParameterSet const& 
       edm::one::OutputModule<>(pset),
       m_fileName(pset.getUntrackedParameter<std::string>("fileName")),
       m_logicalFileName(pset.getUntrackedParameter<std::string>("logicalFileName")),
-      m_compressionAlgorithm(pset.getUntrackedParameter<std::string>("compressionAlgorithm")),
+      m_compressionAlgorithm(compressionAlgorithm(pset.getUntrackedParameter<std::string>("compressionAlgorithm"))),
       m_compressionLevel(pset.getUntrackedParameter<int>("compressionLevel")),
       m_writeProvenance(pset.getUntrackedParameter<bool>("saveProvenance", true)),
       m_noSplitFields{pset.getUntrackedParameter<std::vector<std::string>>("noSplitFields")},
+      m_flatProjections(pset.getUntrackedParameter<bool>("flatProjections")),
       m_writeOptions(writeOptions(pset.getUntrackedParameterSet("rntupleWriteOptions"))) {}
 
 void NanoAODRNTupleOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput const& iLumi) {
   edm::Service<edm::JobReport> jr;
   jr->reportLumiSection(m_jrToken, iLumi.id().run(), iLumi.id().value());
-  m_lumi.fill(iLumi.id(), *m_file);
+  m_lumi.fill(iLumi, *m_file);
   m_processHistoryRegistry.registerProcessHistory(iLumi.processHistory());
 }
 
@@ -179,16 +225,8 @@ void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
                                    branchHash.digest().toString(),
                                    std::vector<std::string>());
 
-  if (m_compressionAlgorithm == "ZLIB") {
-    m_file->SetCompressionAlgorithm(ROOT::RCompressionSetting::EAlgorithm::kZLIB);
-  } else if (m_compressionAlgorithm == "LZMA") {
-    m_file->SetCompressionAlgorithm(ROOT::RCompressionSetting::EAlgorithm::kLZMA);
-  } else {
-    throw cms::Exception("Configuration")
-        << "NanoAODRNTupleOutputModule configured with unknown compression algorithm '" << m_compressionAlgorithm
-        << "'\n"
-        << "Allowed compression algorithms are ZLIB and LZMA\n";
-  }
+  m_file->SetCompressionAlgorithm(m_compressionAlgorithm);
+  // Every RNTuple in the file takes its compression from the file, so this must follow the setter.
   m_writeOptions.SetCompression(m_file->GetCompressionSettings());
 
   // With fileMode NOMERGE the framework closes and reopens the output on every input file, so
@@ -198,12 +236,13 @@ void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
   m_triggers.clear();
   m_evstrings = EventStringOutputFields();
   m_lumi = LumiNTuple();
+  m_lumi.setFlatProjections(m_flatProjections);
   m_run = RunNTuple();
+  m_run.setFlatProjections(m_flatProjections);
   m_nanoMetadata.clear();
 
-  // Sorting the kept products by class only needs their descriptions, so it happens here rather
-  // than on the first event. What the Events model looks like does depend on the payloads, and is
-  // left to initializeNTuple().
+  // Sorting the kept products by class only needs their descriptions, so it happens here; what the
+  // Events model looks like does depend on the payloads and is left to initializeNTuple().
   const auto& keeps = keptProducts();
   for (const auto& keep : keeps[edm::InRun]) {
     if (keep.first->className() == "nanoaod::MergeableCounterTable") {
@@ -216,6 +255,20 @@ void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
       throw cms::Exception(
           "Configuration",
           "NanoAODRNTupleOutputModule cannot handle class " + keep.first->className() + " in Run RNTuple");
+    }
+  }
+
+  // nanoaod::UniqueString is deliberately absent here: UniqueStringProducer only produces InRun, so
+  // a lumi-level one would need handling that cannot be exercised, and the throw below says so.
+  for (const auto& keep : keeps[edm::InLumi]) {
+    if (keep.first->className() == "nanoaod::MergeableCounterTable") {
+      m_lumi.registerCounterTableToken(keep.second);
+    } else if (keep.first->className() == "nanoaod::FlatTable") {
+      m_lumi.registerFlatTableToken(keep.second);
+    } else {
+      throw cms::Exception(
+          "Configuration",
+          "NanoAODRNTupleOutputModule cannot handle class " + keep.first->className() + " in LuminosityBlock RNTuple");
     }
   }
 
@@ -266,7 +319,11 @@ namespace {
 void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEvent) {
   // RNTuple needs the whole schema before the first Fill, and which fields a FlatTable needs is
   // only visible from its contents, so the Events model is built on the first event.
-  auto model = RNTupleModel::Create();
+  //
+  // Bare, i.e. with no default entry of its own: ROOT refuses to add a subfield to an untyped
+  // record of a non-bare model, and that is how a trigger path first seen in a later run gets a
+  // field (TriggerRecordFields::update). Every field is therefore bound to m_entry by hand.
+  auto model = RNTupleModel::CreateBare();
   m_commonFields.createFields(*model);
 
   edm::Handle<nanoaod::FlatTable> handle;
@@ -277,7 +334,7 @@ void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEv
   m_tables.createFields(iEvent, *model);
 
   // Most recent process first, as the TTree module orders them: where two processes both have a
-  // path -- Flag paths, in data reprocessed to MiniAOD -- the most recent one gets the plain name.
+  // group -- Flag, in data reprocessed to MiniAOD -- the most recent one gets the plain names.
   std::vector<std::string> processNames;
   for (const auto& process : iEvent.processHistory()) {
     processNames.push_back(process.processName());
@@ -306,11 +363,31 @@ void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEv
     }
   }
 
+  // After the noSplit pass, so that a projection never lands on a source field whose column
+  // representation is about to be pinned, and so that the pass itself only ever sees real fields.
+  if (m_flatProjections) {
+    m_tables.addProjections(*model);
+    for (auto& trigger : m_triggers) {
+      trigger.addProjections(*model);
+    }
+  }
+
   // Model needs to be frozen before we bind buffers
   model->Freeze();
 
-  m_tables.bindBuffers(*model);
   m_ntuple = RNTupleWriter::Append(std::move(model), "Events", *m_file, m_writeOptions);
+  bindEntry();
+}
+
+void NanoAODRNTupleOutputModule::bindEntry() {
+  const auto& model = m_ntuple->GetModel();
+  m_entry = model.CreateBareEntry();
+  m_commonFields.bind(*m_entry);
+  m_tables.bind(*m_entry);
+  for (auto& trigger : m_triggers) {
+    trigger.bind(*m_entry, model);
+  }
+  m_evstrings.bind(*m_entry);
 }
 
 void NanoAODRNTupleOutputModule::write(edm::EventForOutput const& iEvent) {
@@ -321,13 +398,23 @@ void NanoAODRNTupleOutputModule::write(edm::EventForOutput const& iEvent) {
   edm::Service<edm::JobReport> jr;
   jr->eventWrittenToFile(m_jrToken, iEvent.id().run(), iEvent.id().event());
 
-  m_commonFields.fill(iEvent.id());
+  // A run boundary can bring a menu that the schema was not built from, and a trigger record that
+  // grows to fit it leaves every entry of the old schema invalid.
+  bool schemaChanged = false;
+  for (auto& trigger : m_triggers) {
+    schemaChanged |= trigger.updateForRun(iEvent, *m_ntuple, m_flatProjections);
+  }
+  if (schemaChanged) {
+    bindEntry();
+  }
+
+  m_commonFields.fill(iEvent.eventAuxiliary());
   m_tables.fill(iEvent);
   for (auto& trigger : m_triggers) {
     trigger.fill(iEvent);
   }
   m_evstrings.fill(iEvent);
-  m_ntuple->Fill();
+  m_ntuple->Fill(*m_entry);
   m_processHistoryRegistry.registerProcessHistory(iEvent.processHistory());
 }
 
@@ -335,7 +422,9 @@ void NanoAODRNTupleOutputModule::reallyCloseFile() {
   if (m_writeProvenance) {
     writeProvenance();
   }
-  // write ntuple to disk by calling the RNTupleWriter destructor
+  // write ntuple to disk by calling the RNTupleWriter destructor, after letting go of the entry
+  // that borrows the model the writer owns
+  m_entry.reset();
   m_ntuple.reset();
   m_lumi.finalizeWrite();
   m_run.finalizeWrite();
@@ -361,9 +450,15 @@ void NanoAODRNTupleOutputModule::fillDescriptions(edm::ConfigurationDescriptions
   desc.addUntracked<std::string>("compressionAlgorithm", "ZLIB")
       ->setComment(
           "Algorithm used to "
-          "compress data in the ROOT output file, allowed values are ZLIB and LZMA");
+          "compress data in the ROOT output file, allowed values are ZLIB, LZMA, ZSTD, and LZ4");
   desc.addUntracked<std::vector<std::string>>("noSplitFields", {})
       ->setComment("Name of fields to avoid the standard ROOT split optimization.");
+  desc.addUntracked<bool>("flatProjections", true)
+      ->setComment(
+          "Also give every member of a grouped field the flat name the TTree output uses for it: "
+          "GenJet_pt beside GenJet.pt, HLT_IsoMu24 beside HLT.IsoMu24. These are projected fields, "
+          "i.e. second names for the same columns, so they add nothing to the file but their schema "
+          "entry. Set false to write the grouped names only.");
   {
     edm::ParameterSetDescription optimizations;
 

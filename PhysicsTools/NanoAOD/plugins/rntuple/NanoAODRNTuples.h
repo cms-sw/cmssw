@@ -19,14 +19,24 @@
 class LumiNTuple {
 public:
   LumiNTuple() = default;
-  void fill(const edm::LuminosityBlockID& id, TFile& file);
+  void registerCounterTableToken(const edm::EDGetToken& token);
+  void registerFlatTableToken(const edm::EDGetToken& token);
+  // Whether the collections also get their members under the flat TTree names; see
+  // rntupleprojection. Has to be set before the first fill, which is what builds the schema.
+  void setFlatProjections(bool flatProjections) { m_flatProjections = flatProjections; }
+  void fill(const edm::LuminosityBlockForOutput& iLumi, TFile& file);
   void finalizeWrite();
 
 private:
-  void createFields(TFile& file);
+  void createFields(const edm::LuminosityBlockForOutput& iLumi, TFile& file);
+  bool m_flatProjections = true;
+  std::vector<edm::EDGetToken> m_counterTableTokens;
+  std::vector<edm::EDGetToken> m_flatTableTokens;
   std::unique_ptr<ROOT::RNTupleWriter> m_ntuple;
   RNTupleFieldPtr<std::uint32_t> m_run;
   RNTupleFieldPtr<std::uint32_t> m_luminosityBlock;
+  std::vector<SummaryTableOutputFields> m_counterTables;
+  TableCollectionSet m_flatTables;
 };
 
 class RunNTuple {
@@ -34,11 +44,15 @@ public:
   RunNTuple() = default;
   void registerCounterTableToken(const edm::EDGetToken& token);
   void registerFlatTableToken(const edm::EDGetToken& token);
+  // Whether the collections also get their members under the flat TTree names; see
+  // rntupleprojection. Has to be set before the first fill, which is what builds the schema.
+  void setFlatProjections(bool flatProjections) { m_flatProjections = flatProjections; }
   void fill(const edm::RunForOutput& iRun, TFile& file);
   void finalizeWrite();
 
 private:
   void createFields(const edm::RunForOutput& iRun, TFile& file);
+  bool m_flatProjections = true;
   std::vector<edm::EDGetToken> m_counterTableTokens;
   std::vector<edm::EDGetToken> m_flatTableTokens;
   std::unique_ptr<ROOT::RNTupleWriter> m_ntuple;
