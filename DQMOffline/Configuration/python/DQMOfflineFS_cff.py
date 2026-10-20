@@ -28,7 +28,7 @@ DQMOfflineFS = cms.Sequence(DQMOfflinePrePOG)
 from DQMOffline.JetMET.jetMETDQMOfflineSource_cff import *
 from DQMOffline.Muon.muonMonitors_cff import *
 from Validation.RecoParticleFlow.miniAODDQM_cff import * # On MiniAOD vs RECO
-from Validation.RecoParticleFlow.DQMForPF_MiniAOD_cff import * # MiniAOD PF variables
+from DQMOffline.ParticleFlow.DQMForPF_cff import * # MiniAOD PF variables
 from DQM.TrackingMonitor.tracksDQMMiniAOD_cff import *
 from DQMOffline.RecoB.bTagMiniDQM_cff import *
 from DQMOffline.Muon.miniAOD_cff import *

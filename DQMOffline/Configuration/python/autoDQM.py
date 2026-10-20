@@ -92,6 +92,10 @@ autoDQM = {'DQMMessageLogger': ['DQMMessageLoggerSeq',
                            'PostDQMOffline',
                            'DQMHarvestHLTGPUvsCPU'],
 
+           'gpuvsCPU': ['DQMOfflineGPUvsCPU',
+                        '',
+                        'DQMHarvestHLTGPUvsCPU'],
+
            'hltScouting': ['DQMOfflineScouting',
                            'PostDQMOffline',
                            'DQMHarvestHLTScouting'],
