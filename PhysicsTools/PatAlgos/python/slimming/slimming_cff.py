@@ -95,6 +95,9 @@ from PhysicsTools.PatAlgos.packedPFCandidateTrackChi2_cfi import packedPFCandida
 from RecoHI.HiCentralityAlgos.CentralityBin_cfi import centralityBin
 from RecoHI.HiCentralityAlgos.hiHFfilters_cfi import hiHFfilters
 lostTrackChi2 = packedPFCandidateTrackChi2.clone(candidates = "lostTracks", doLostTracks = True)
+from RecoVertex.AdaptiveVertexFinder.inclusiveNegativeVertexing_cff import *
+slimmedNegativeSecondaryVertices = slimmedSecondaryVertices.clone(src = "inclusiveCandidateNegativeSecondaryVertices")
+pp_on_AA.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), inclusiveCandidateNegativeVertexingTask.copy(), slimmedNegativeSecondaryVertices))
 
 pp_on_AA.toReplaceWith(
     slimmingTask,
