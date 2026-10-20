@@ -5,11 +5,8 @@
 
 #include <algorithm>
 #include <iostream>
-#include <array>
-#include <iterator>
-#include <sstream>
-#include <type_traits>
 #include <utility>
+#include <numeric>
 
 using namespace std;
 using namespace reco;
@@ -20,24 +17,13 @@ namespace {
   class QuickUnion {
     std::vector<unsigned> id_;
     std::vector<unsigned> size_;
-    int count_;
 
   public:
-    QuickUnion(const unsigned NBranches) {
-      count_ = NBranches;
-      id_.resize(NBranches);
-      size_.resize(NBranches);
-      for (unsigned i = 0; i < NBranches; ++i) {
-        id_[i] = i;
-        size_[i] = 1;
-      }
-    }
-
-    int count() const { return count_; }
+    QuickUnion(unsigned NBranches) : id_(NBranches), size_(NBranches, 1) { std::iota(id_.begin(), id_.end(), 0u); }
 
     unsigned find(unsigned p) {
       while (p != id_[p]) {
-        id_[p] = id_[id_[p]];
+        id_[p] = id_[id_[p]];  // path halving
         p = id_[p];
       }
       return p;
@@ -48,8 +34,10 @@ namespace {
     void unite(unsigned p, unsigned q) {
       unsigned rootP = find(p);
       unsigned rootQ = find(q);
-      id_[p] = q;
+      if (rootP == rootQ)
+        return;  // should never run due to the connected() check in findBlocks()
 
+      // size_ checks prevent the tree to become very tall (weighted quick union)
       if (size_[rootP] < size_[rootQ]) {
         id_[rootP] = rootQ;
         size_[rootQ] += size_[rootP];
@@ -57,7 +45,6 @@ namespace {
         id_[rootQ] = rootP;
         size_[rootP] += size_[rootQ];
       }
-      --count_;
     }
   };
 }  // namespace
@@ -140,28 +127,25 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
   for (const auto& kdtree : kdtrees_) {
     kdtree->process();
   }
-  // !Glowinski & Gouzevitch
-  reco::PFBlockCollection blocks;
-  // the blocks have not been passed to the event, and need to be cleared
-  blocks.reserve(elements_.size());
 
-  QuickUnion qu(elements_.size());
   const auto elem_size = elements_.size();
+  QuickUnion qu(static_cast<unsigned>(elem_size));
+
   for (unsigned i = 0; i < elem_size; ++i) {
+    const auto* p1(elements_[i].get());
+    const PFBlockElement::Type type1 = p1->type();
     for (unsigned j = i + 1; j < elem_size; ++j) {
-      if (qu.connected(i, j))
+      if (qu.connected(i, j))  // same root
         continue;
-      if (!linkTests_[linkTestSquare_[elements_[i]->type()][elements_[j]->type()]]) {
-        j = ranges_[elements_[j]->type()].second;
-        continue;
-      }
-      auto p1(elements_[i].get()), p2(elements_[j].get());
-      const PFBlockElement::Type type1 = p1->type();
+      const auto* p2(elements_[j].get());
       const PFBlockElement::Type type2 = p2->type();
       const unsigned index = linkTestSquare_[type1][type2];
+      if (!linkTests_[index]) {
+        j = ranges_[type2].second;
+        continue;
+      }
       if (linkTests_[index]->linkPrefilter(p1, p2)) {
         const double dist = linkTests_[index]->testLink(p1, p2);
-        // compute linking info if it is possible
         if (dist > -0.5) {
           qu.unite(i, j);
         }
@@ -169,21 +153,21 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
     }
   }
 
-  std::unordered_multimap<unsigned, unsigned> blocksmap(elements_.size());
-  std::vector<unsigned> keys;
-  keys.reserve(elements_.size());
-  for (unsigned i = 0; i < elements_.size(); ++i) {
-    unsigned key = i;
-    while (key != qu.find(key))
-      key = qu.find(key);  // make sure we always find the root node...
-    auto pos = std::lower_bound(keys.begin(), keys.end(), key);
-    if (pos == keys.end() || *pos != key) {
-      keys.insert(pos, key);
-    }
+  std::unordered_multimap<unsigned, unsigned> blocksmap(elem_size);
+  std::vector<unsigned> keys;  // stores all roots
+  keys.reserve(elem_size);
+  for (unsigned i = 0; i < elem_size; ++i) {
+    unsigned key = qu.find(i);  // finds the root of 'i'
+    if (key == i)
+      keys.push_back(i);  // roots are added in ascending order
     blocksmap.emplace(key, i);
   }
 
-  for (auto key : keys) {
+  // !Glowinski & Gouzevitch
+  reco::PFBlockCollection blocks;
+  blocks.reserve(keys.size());  // one block per root
+
+  for (auto key : keys) {  // loops over all roots
     blocks.push_back(reco::PFBlock());
     auto range = blocksmap.equal_range(key);
     auto& the_block = blocks.back();
@@ -193,7 +177,7 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
     //reserve up to 1M or 8MB; pay rehash cost for more
     std::unordered_map<std::pair<unsigned int, unsigned int>, double> links(min(1000000u, block_size * block_size));
     auto itr = range.first;
-    ++itr;
+    ++itr;  // skips comparison with itself
     for (; itr != range.second; ++itr) {
       ElementList::value_type::pointer p2(elements_[itr->second].get());
       const PFBlockElement::Type type1 = p1->type();
@@ -230,25 +214,17 @@ void PFBlockAlgo::packLinks(reco::PFBlock& block,
 
       double dist = -1;
 
-      bool linked = false;
-
-      // are these elements already linked ?
-      // this can be optimized
       const auto link_itr = links.find(std::make_pair(i2, i1));
       if (link_itr != links.end()) {
         dist = link_itr->second;
-        linked = true;
-      }
-
-      if (!linked) {
+      } else {
         const PFBlockElement::Type type1 = els[i1].type();
         const PFBlockElement::Type type2 = els[i2].type();
         const auto minmax = std::minmax(type1, type2);
         const unsigned index = rowsize * minmax.second + minmax.first;
-        bool bTestLink =
-            (nullptr == linkTests_[index] ? false : linkTests_[index]->linkPrefilter(&(els[i1]), &(els[i2])));
-        if (bTestLink)
-          link(&els[i1], &els[i2], dist);
+        const auto& linker = linkTests_[index];
+        if (linker && linker->linkPrefilter(&els[i1], &els[i2]))
+          dist = linker->testLink(&els[i1], &els[i2]);
       }
 
       //loading link data according to link test used: RECHIT
@@ -256,20 +232,6 @@ void PFBlockAlgo::packLinks(reco::PFBlock& block,
       block.setLink(i1, i2, dist, block.linkData());
     }
   }
-}
-
-inline void PFBlockAlgo::link(const reco::PFBlockElement* el1, const reco::PFBlockElement* el2, double& dist) const {
-  constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
-  dist = -1.0;
-  const PFBlockElement::Type type1 = el1->type();
-  const PFBlockElement::Type type2 = el2->type();
-  const unsigned index = rowsize * std::max(type1, type2) + std::min(type1, type2);
-  if (debug_) {
-    std::cout << " PFBlockAlgo links type1 " << type1 << " type2 " << type2 << std::endl;
-  }
-
-  // index is always checked in the preFilter above, no need to check here
-  dist = linkTests_[index]->testLink(el1, el2);
 }
 
 void PFBlockAlgo::updateEventSetup(const edm::EventSetup& es) {
@@ -294,9 +256,10 @@ void PFBlockAlgo::buildElements(const edm::Event& evt) {
   // list is now partitioned, so mark the boundaries so we can efficiently skip chunks
   unsigned current_type = (!elements_.empty() ? elements_[0]->type() : 0);
   unsigned last_type = (!elements_.empty() ? elements_.back()->type() : 0);
+  const auto elem_size = elements_.size();
   ranges_[current_type].first = 0;
-  ranges_[last_type].second = elements_.size() - 1;
-  for (size_t i = 0; i < elements_.size(); ++i) {
+  ranges_[last_type].second = elem_size - 1;  // it can overflow when elem_size==0 but doesn't enter the loop
+  for (size_t i = 0; i < elem_size; ++i) {
     const auto the_type = elements_[i]->type();
     if (the_type != current_type) {
       ranges_[the_type].first = i;
