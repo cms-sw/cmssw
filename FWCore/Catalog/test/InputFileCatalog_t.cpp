@@ -1,3 +1,6 @@
+#include <string>
+#include <vector>
+
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
@@ -11,57 +14,80 @@ TEST_CASE("InputFileCatalog with Rucio data catalog", "[FWCore/Catalog]") {
 
   SECTION("Empty") {
     edm::ServiceRegistry::Operate operate(tempToken);
-    edm::InputFileCatalog catalog({}, "");
+    edm::InputFileCatalog catalog(std::vector<std::string>{}, "");
     REQUIRE(catalog.empty());
+    REQUIRE(catalog.configuredFileNames().empty());
   }
 
-  SECTION("isPhysical") {
-    REQUIRE(edm::InputFileCatalog::isPhysical(""));
-    REQUIRE(not edm::InputFileCatalog::isPhysical("/foo/bar"));
-    REQUIRE(edm::InputFileCatalog::isPhysical("file:/foo/bar"));
+  SECTION("isPhysicalFileName") {
+    REQUIRE(not edm::InputFileCatalog::isPhysicalFileName("/foo/bar"));
+    REQUIRE(not edm::InputFileCatalog::isPhysicalFileName(""));
+    REQUIRE(edm::InputFileCatalog::isPhysicalFileName("file:/foo/bar"));
   }
 
   SECTION("Default behavior") {
     edm::ServiceRegistry::Operate operate(tempToken);
 
     edm::InputFileCatalog catalog(std::vector<std::string>{"/store/foo/bar", "   file:/foo/bar", "root://foobar "}, "");
-    REQUIRE(!catalog.empty());
 
-    SECTION("fileNames") {
-      SECTION("Catalog 0") {
-        auto const names = catalog.fileNames(0);
-        REQUIRE(names.size() == 3);
-        CHECK(names[0] == "root://cmsxrootd.fnal.gov/store/foo/bar");
-        CHECK(names[1] == "file:/foo/bar");
-        CHECK(names[2] == "root://foobar");
-      }
-      // The fileNames() works only for catalog 0
-      // Catalog 1 or 2 leads to a crash because the input file list
-      // is a mixture of LFNs and PFNs
-      // This isn't really good behavior...
+    SECTION("notEmpty") { REQUIRE(!catalog.empty()); }
+
+    SECTION("logicalFileNames") {
+      auto const& configuredFileNames = catalog.configuredFileNames();
+      REQUIRE(configuredFileNames.size() == 3);
+      CHECK(configuredFileNames[0] == "/store/foo/bar");
+      CHECK(configuredFileNames[1] == "file:/foo/bar");
+      CHECK(configuredFileNames[2] == "root://foobar");
     }
 
-    SECTION("fileCatalogItems") {
-      auto const& items = catalog.fileCatalogItems();
-      REQUIRE(items.size() == 3);
-      CHECK(items[0].logicalFileName() == "/store/foo/bar");
-      CHECK(items[1].logicalFileName() == "");
-      CHECK(items[2].logicalFileName() == "");
+    SECTION("physicalFileNames") {
+      auto const& configuredFileNames = catalog.configuredFileNames();
 
-      REQUIRE(items[0].fileNames().size() == 3);
-      REQUIRE(items[1].fileNames().size() == 1);
-      REQUIRE(items[2].fileNames().size() == 1);
+      REQUIRE(catalog.physicalFileNames(configuredFileNames[0]).size() == 3);
+      REQUIRE(catalog.physicalFileNames(configuredFileNames[1]).size() == 1);
+      REQUIRE(catalog.physicalFileNames(configuredFileNames[2]).size() == 1);
 
       SECTION("Catalog 0") {
-        CHECK(items[0].fileName(0) == "root://cmsxrootd.fnal.gov/store/foo/bar");
-        CHECK(items[1].fileName(0) == "file:/foo/bar");
-        CHECK(items[2].fileName(0) == "root://foobar");
+        CHECK(catalog.physicalFileNames(configuredFileNames[0])[0] == "root://cmsxrootd.fnal.gov/store/foo/bar");
+        CHECK(catalog.physicalFileNames(configuredFileNames[1])[0] == "file:/foo/bar");
+        CHECK(catalog.physicalFileNames(configuredFileNames[2])[0] == "root://foobar");
       }
       SECTION("Catalog 1") {
-        CHECK(items[0].fileName(1) == "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar");
-        CHECK(items[0].fileNames()[1] == "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar");
+        CHECK(catalog.physicalFileNames(configuredFileNames[0])[1] ==
+              "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar");
       }
-      SECTION("Catalog 2") { CHECK(items[0].fileName(2) == "root://host.domain//pnfs/cms/store/foo/bar"); }
+      SECTION("Catalog 2") {
+        CHECK(catalog.physicalFileNames(configuredFileNames[0])[2] == "root://host.domain//pnfs/cms/store/foo/bar");
+      }
+    }
+
+    SECTION("physicalFileNamesUsingIndex") {
+      REQUIRE(catalog.physicalFileNames(0).size() == 3);
+      REQUIRE(catalog.physicalFileNames(1).size() == 1);
+      REQUIRE(catalog.physicalFileNames(2).size() == 1);
+
+      SECTION("Catalog 0") {
+        CHECK(catalog.physicalFileNames(0)[0] == "root://cmsxrootd.fnal.gov/store/foo/bar");
+        CHECK(catalog.physicalFileNames(1)[0] == "file:/foo/bar");
+        CHECK(catalog.physicalFileNames(2)[0] == "root://foobar");
+      }
+      SECTION("Catalog 1") {
+        CHECK(catalog.physicalFileNames(0)[1] == "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar");
+      }
+      SECTION("Catalog 2") { CHECK(catalog.physicalFileNames(0)[2] == "root://host.domain//pnfs/cms/store/foo/bar"); }
+    }
+
+    SECTION("allPFNsFromFirstCatalog") {
+      auto const pfns = catalog.allPFNsFromFirstCatalog();
+      REQUIRE(pfns.size() == 3);
+      CHECK(pfns[0] == "root://cmsxrootd.fnal.gov/store/foo/bar");
+      CHECK(pfns[1] == "file:/foo/bar");
+      CHECK(pfns[2] == "root://foobar");
+    }
+
+    SECTION("firstPFNFromFirstCatalog") {
+      auto const pfn = catalog.firstPFNFromFirstCatalog();
+      CHECK(pfn == "root://cmsxrootd.fnal.gov/store/foo/bar");
     }
   }
 
@@ -71,29 +97,29 @@ TEST_CASE("InputFileCatalog with Rucio data catalog", "[FWCore/Catalog]") {
     edm::InputFileCatalog catalog(std::vector<std::string>{"/store/foo/bar", "   file:/foo/bar", "root://foobar "},
                                   "T1_US_FNAL,,T1_US_FNAL,FNAL_dCache_EOS,XRootD");
 
-    SECTION("fileNames") {
-      auto const names = catalog.fileNames(0);
-      REQUIRE(names.size() == 3);
-      CHECK(names[0] == "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar");
-      CHECK(names[1] == "file:/foo/bar");
-      CHECK(names[2] == "root://foobar");
+    SECTION("physicalFileNames") {
+      auto const& configuredFileNames = catalog.configuredFileNames();
+      REQUIRE(configuredFileNames.size() == 3);
+      CHECK(configuredFileNames[0] == "/store/foo/bar");
+      CHECK(configuredFileNames[1] == "file:/foo/bar");
+      CHECK(configuredFileNames[2] == "root://foobar");
+
+      REQUIRE(catalog.physicalFileNames(configuredFileNames[0]).size() == 1);
+      REQUIRE(catalog.physicalFileNames(configuredFileNames[1]).size() == 1);
+      REQUIRE(catalog.physicalFileNames(configuredFileNames[2]).size() == 1);
+
+      CHECK(catalog.physicalFileNames(configuredFileNames[0])[0] ==
+            "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar");
+      CHECK(catalog.physicalFileNames(configuredFileNames[1])[0] == "file:/foo/bar");
+      CHECK(catalog.physicalFileNames(configuredFileNames[2])[0] == "root://foobar");
     }
 
-    SECTION("fileCatalogItems") {
-      auto const& items = catalog.fileCatalogItems();
-      REQUIRE(items.size() == 3);
-
-      CHECK(items[0].logicalFileName() == "/store/foo/bar");
-      CHECK(items[1].logicalFileName() == "");
-      CHECK(items[2].logicalFileName() == "");
-
-      REQUIRE(items[0].fileNames().size() == 1);
-      REQUIRE(items[1].fileNames().size() == 1);
-      REQUIRE(items[2].fileNames().size() == 1);
-
-      CHECK(items[0].fileName(0) == "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar");
-      CHECK(items[1].fileName(0) == "file:/foo/bar");
-      CHECK(items[2].fileName(0) == "root://foobar");
+    SECTION("allPFNsFromFirstCatalog") {
+      auto const pfns = catalog.allPFNsFromFirstCatalog();
+      REQUIRE(pfns.size() == 3);
+      CHECK(pfns[0] == "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar");
+      CHECK(pfns[1] == "file:/foo/bar");
+      CHECK(pfns[2] == "root://foobar");
     }
   }
 
@@ -103,39 +129,40 @@ TEST_CASE("InputFileCatalog with Rucio data catalog", "[FWCore/Catalog]") {
     edm::InputFileCatalog catalog(
         std::vector<std::string>{"/store/foo/bar", "/tmp/foo/bar", "root://foobar "}, "", true);
 
-    SECTION("fileNames") {
+    SECTION("physicalFileNames") {
+      auto const& configuredFileNames = catalog.configuredFileNames();
+      REQUIRE(configuredFileNames.size() == 3);
+      CHECK(configuredFileNames[0] == "/store/foo/bar");
+      CHECK(configuredFileNames[1] == "/tmp/foo/bar");
+      CHECK(configuredFileNames[2] == "root://foobar");
+
+      REQUIRE(catalog.physicalFileNames(configuredFileNames[0]).size() == 3);
+      REQUIRE(catalog.physicalFileNames(configuredFileNames[1]).size() == 3);
+      REQUIRE(catalog.physicalFileNames(configuredFileNames[2]).size() == 1);
+
       SECTION("Catalog 0") {
-        auto const names = catalog.fileNames(0);
-        REQUIRE(names.size() == 3);
-        CHECK(names[0] == "root://cmsxrootd.fnal.gov/store/foo/bar");
-        CHECK(names[1] == "/tmp/foo/bar");
-        CHECK(names[2] == "root://foobar");
+        CHECK(catalog.physicalFileNames(configuredFileNames[0])[0] == "root://cmsxrootd.fnal.gov/store/foo/bar");
+        CHECK(catalog.physicalFileNames(configuredFileNames[1])[0] == "/tmp/foo/bar");
+        CHECK(catalog.physicalFileNames(configuredFileNames[2])[0] == "root://foobar");
+      }
+      SECTION("Catalog 1") {
+        CHECK(catalog.physicalFileNames(configuredFileNames[0])[1] ==
+              "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar");
+        CHECK(catalog.physicalFileNames(configuredFileNames[1])[1] == "/tmp/foo/bar");
+      }
+      SECTION("Catalog 2") {
+        CHECK(catalog.physicalFileNames(configuredFileNames[0])[2] == "root://host.domain//pnfs/cms/store/foo/bar");
+        CHECK(catalog.physicalFileNames(configuredFileNames[1])[2] == "/tmp/foo/bar");
       }
     }
 
-    SECTION("fileCatalogItems") {
-      auto const& items = catalog.fileCatalogItems();
-      REQUIRE(items.size() == 3);
-      CHECK(items[0].logicalFileName() == "/store/foo/bar");
-      CHECK(items[1].logicalFileName() == "/tmp/foo/bar");
-      CHECK(items[2].logicalFileName() == "");
-
-      REQUIRE(items[0].fileNames().size() == 3);
-      REQUIRE(items[1].fileNames().size() == 3);
-      REQUIRE(items[2].fileNames().size() == 1);
-
+    SECTION("allPFNsFromFirstCatalog") {
       SECTION("Catalog 0") {
-        CHECK(items[0].fileName(0) == "root://cmsxrootd.fnal.gov/store/foo/bar");
-        CHECK(items[1].fileName(0) == "/tmp/foo/bar");
-        CHECK(items[2].fileName(0) == "root://foobar");
-      }
-      SECTION("Catalog 1") {
-        CHECK(items[0].fileName(1) == "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar");
-        CHECK(items[1].fileName(1) == "/tmp/foo/bar");
-      }
-      SECTION("Catalog 2") {
-        CHECK(items[0].fileName(2) == "root://host.domain//pnfs/cms/store/foo/bar");
-        CHECK(items[1].fileName(2) == "/tmp/foo/bar");
+        auto const pfns = catalog.allPFNsFromFirstCatalog();
+        REQUIRE(pfns.size() == 3);
+        CHECK(pfns[0] == "root://cmsxrootd.fnal.gov/store/foo/bar");
+        CHECK(pfns[1] == "/tmp/foo/bar");
+        CHECK(pfns[2] == "root://foobar");
       }
     }
   }
