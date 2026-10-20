@@ -140,20 +140,20 @@ void RecHitTools::setGeometry(const CaloGeometry& geom) {
       eeOffset_ = (geomEE->topology().dddConstants()).getLayerOffset();
       wmaxEE = 1 + (geomEE->topology().dddConstants()).waferMax();
       auto geomFH = static_cast<const HGCalGeometry*>(
-						      geom_->getSubdetectorGeometry(DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty));
+          geom_->getSubdetectorGeometry(DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty));
       if (geomFH) {
-	fhOffset_ = (geomFH->topology().dddConstants()).getLayerOffset();
-	fhLastLayer_ = fhOffset_ + (geomFH->topology().dddConstants()).layers(true);
-	bhOffset_ = fhLastLayer_;
-	bhFirstLayer_ = bhOffset_ + 1;
-	wmaxFH = 1 + (geomFH->topology().dddConstants()).waferMax();
-	auto geomBH =
-	  static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal, HcalSubdetector::HcalEndcap));
-	if (geomBH) {
-	  bhLastLayer_ = bhOffset_ + (geomBH->topology().dddConstants())->getMaxDepth(1);
-	}
-	theNumberOfLayersOfComp_.push_back(0);
-	theFirstLayersOfComp_.push_back(1);
+        fhOffset_ = (geomFH->topology().dddConstants()).getLayerOffset();
+        fhLastLayer_ = fhOffset_ + (geomFH->topology().dddConstants()).layers(true);
+        bhOffset_ = fhLastLayer_;
+        bhFirstLayer_ = bhOffset_ + 1;
+        wmaxFH = 1 + (geomFH->topology().dddConstants()).waferMax();
+        auto geomBH =
+            static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal, HcalSubdetector::HcalEndcap));
+        if (geomBH) {
+          bhLastLayer_ = bhOffset_ + (geomBH->topology().dddConstants())->getMaxDepth(1);
+        }
+        theNumberOfLayersOfComp_.push_back(0);
+        theFirstLayersOfComp_.push_back(1);
       }
     }
   }
@@ -191,7 +191,7 @@ GlobalPoint RecHitTools::getPosition(const DetId& id) const {
       position = geom->getGeometry(id)->getPosition();
   } else {
     auto hg = static_cast<const HGCalGeometry*>(geom);
-    if (hg) 
+    if (hg)
       position = hg->getPosition(id);
   }
   return position;
