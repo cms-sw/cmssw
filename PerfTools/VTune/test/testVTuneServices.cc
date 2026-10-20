@@ -131,10 +131,14 @@ namespace {
     return makeServices({std::move(config)}, registry);
   }
 
-  void emitModule(edm::ActivityRegistry& registry, std::string const& moduleName, std::string const& moduleLabel) {
+  void emitModule(edm::ActivityRegistry& registry,
+                  std::string const& moduleName,
+                  std::string const& moduleLabel,
+                  unsigned int id = 0) {
     edm::StreamContext stream{edm::StreamID::invalidStreamID(), nullptr};
-    edm::ModuleDescription description{moduleName, moduleLabel};
+    edm::ModuleDescription description{edm::ParameterSetID{}, moduleName, moduleLabel, nullptr, id};
     edm::ModuleCallingContext context{&description};
+    registry.preModuleConstructionSignal_.emit(description);
     registry.preModuleEventSignal_.emit(stream, context);
     registry.postModuleEventSignal_.emit(stream, context);
   }

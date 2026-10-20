@@ -18,11 +18,13 @@ namespace perftools {
 
     void preModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
     void postModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
+    void preModuleConstruction(const edm::ModuleDescription& description);
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     std::vector<std::string> moduleNames_;
-    bool isTargetModule(std::string const& label) const;
+    std::vector<int> moduleIDs_;
+    bool isTargetModule(unsigned int id) const;
     bool allModules_ = false;
     __itt_domain* ittDomain_;
   };
@@ -33,17 +35,41 @@ namespace perftools {
         ittDomain_(__itt_domain_create(iPS.getUntrackedParameter<std::string>("ittDomain").c_str())) {
     iRegistry.watchPreModuleEvent(this, &VTuneAnnotateService::preModuleEvent);
     iRegistry.watchPostModuleEvent(this, &VTuneAnnotateService::postModuleEvent);
+
+    if (not moduleNames_.empty()) {
+      iRegistry.watchPreModuleConstruction([this](auto const& description) {
+        unsigned int idlabel = description.id();
+        auto foundlabel = std::find(moduleNames_.begin(), moduleNames_.end(), description.moduleLabel());
+        if (foundlabel != moduleNames_.end()) {
+          moduleIDs_.push_back(idlabel);
+        }
+        auto foundname = std::find(moduleNames_.begin(), moduleNames_.end(), description.moduleName());
+        if (foundname != moduleNames_.end() and foundlabel == moduleNames_.end()) {
+          moduleIDs_.push_back(description.id());
+        }
+        std::sort(moduleIDs_.begin(), moduleIDs_.end());
+      });
+    }
+
+    if (not moduleIDs_.empty()) {
+      iRegistry.watchPostModuleConstruction([this](auto const& description) {
+        unsigned int id = description.id();
+        auto found = std::find(moduleIDs_.begin(), moduleIDs_.end(), id);
+        if (found != moduleIDs_.end()) {
+          moduleIDs_.erase(found);
+        }
+      });
+    }
   }
 
-  bool VTuneAnnotateService::isTargetModule(std::string const& label) const {
-    return std::find(moduleNames_.begin(), moduleNames_.end(), label) != moduleNames_.end();
+  bool VTuneAnnotateService::isTargetModule(unsigned int id) const {
+    return allModules_ or std::binary_search(moduleIDs_.begin(), moduleIDs_.end(), id);
   }
 
   void VTuneAnnotateService::preModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const& mcc) {
     std::string const& moduleLabel = mcc.moduleDescription()->moduleLabel();
     std::string const& moduleName = mcc.moduleDescription()->moduleName();
-
-    if (allModules_ || isTargetModule(moduleLabel) || isTargetModule(moduleName)) {
+    if (allModules_ || isTargetModule(mcc.moduleDescription()->id())) {
       std::string handleName = moduleName + "/" + moduleLabel;
       __itt_string_handle* handle = __itt_string_handle_create(handleName.c_str());
       __itt_task_begin(ittDomain_, __itt_null, __itt_null, handle);
@@ -51,10 +77,7 @@ namespace perftools {
   }
 
   void VTuneAnnotateService::postModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const& mcc) {
-    std::string const& moduleLabel = mcc.moduleDescription()->moduleLabel();
-    std::string const& moduleName = mcc.moduleDescription()->moduleName();
-
-    if (allModules_ || isTargetModule(moduleLabel) || isTargetModule(moduleName)) {
+    if (allModules_ || isTargetModule(mcc.moduleDescription()->id())) {
       __itt_task_end(ittDomain_);
     }
   }
