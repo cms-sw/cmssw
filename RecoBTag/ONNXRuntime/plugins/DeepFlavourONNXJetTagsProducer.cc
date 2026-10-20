@@ -59,7 +59,7 @@ private:
 };
 
 const std::vector<unsigned> DeepFlavourONNXJetTagsProducer::input_sizes_{
-    n_features_global_, n_cpf_* n_features_cpf_, n_npf_* n_features_npf_, n_sv_* n_features_sv_, n_features_jetpt_};
+    n_features_global_, n_cpf_ * n_features_cpf_, n_npf_ * n_features_npf_, n_sv_ * n_features_sv_, n_features_jetpt_};
 
 DeepFlavourONNXJetTagsProducer::DeepFlavourONNXJetTagsProducer(const edm::ParameterSet& iConfig,
                                                                const ONNXRuntime* cache)
