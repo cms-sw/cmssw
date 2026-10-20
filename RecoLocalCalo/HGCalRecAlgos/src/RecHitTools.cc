@@ -63,7 +63,7 @@ namespace {
 
   inline const HGCalDDDConstants* get_ddd(const CaloGeometry* geom, int type, int maxLayerEE, int layer) {
     DetId::Detector det = ((type == 0) ? DetId::Forward : ((layer > maxLayerEE) ? DetId::HGCalHSi : DetId::HGCalEE));
-    int subdet = (type == 0) ? ForwardSubdetector::ForwardEmpty : ForwardSubdetector::HFNose;
+    int subdet = (type != 0) ? ForwardSubdetector::ForwardEmpty : ForwardSubdetector::HFNose;
     const HGCalGeometry* hg = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(det, subdet));
     const HGCalDDDConstants* ddd = &(hg->topology().dddConstants());
     check_ddd(ddd);
@@ -136,20 +136,26 @@ void RecHitTools::setGeometry(const CaloGeometry& geom) {
     geometryType_ = 0;
     geomEE = static_cast<const HGCalGeometry*>(
         geom_->getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));
-    eeOffset_ = (geomEE->topology().dddConstants()).getLayerOffset();
-    wmaxEE = 1 + (geomEE->topology().dddConstants()).waferMax();
-    auto geomFH = static_cast<const HGCalGeometry*>(
-        geom_->getSubdetectorGeometry(DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty));
-    fhOffset_ = (geomFH->topology().dddConstants()).getLayerOffset();
-    fhLastLayer_ = fhOffset_ + (geomFH->topology().dddConstants()).layers(true);
-    bhOffset_ = fhLastLayer_;
-    bhFirstLayer_ = bhOffset_ + 1;
-    wmaxFH = 1 + (geomFH->topology().dddConstants()).waferMax();
-    auto geomBH =
-        static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal, HcalSubdetector::HcalEndcap));
-    bhLastLayer_ = bhOffset_ + (geomBH->topology().dddConstants())->getMaxDepth(1);
-    theNumberOfLayersOfComp_.push_back(0);
-    theFirstLayersOfComp_.push_back(1);
+    if (geomEE) {
+      eeOffset_ = (geomEE->topology().dddConstants()).getLayerOffset();
+      wmaxEE = 1 + (geomEE->topology().dddConstants()).waferMax();
+      auto geomFH = static_cast<const HGCalGeometry*>(
+						      geom_->getSubdetectorGeometry(DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty));
+      if (geomFH) {
+	fhOffset_ = (geomFH->topology().dddConstants()).getLayerOffset();
+	fhLastLayer_ = fhOffset_ + (geomFH->topology().dddConstants()).layers(true);
+	bhOffset_ = fhLastLayer_;
+	bhFirstLayer_ = bhOffset_ + 1;
+	wmaxFH = 1 + (geomFH->topology().dddConstants()).waferMax();
+	auto geomBH =
+	  static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal, HcalSubdetector::HcalEndcap));
+	if (geomBH) {
+	  bhLastLayer_ = bhOffset_ + (geomBH->topology().dddConstants())->getMaxDepth(1);
+	}
+	theNumberOfLayersOfComp_.push_back(0);
+	theFirstLayersOfComp_.push_back(1);
+      }
+    }
   }
   maxNumberOfWafersPerLayer_ = std::max(wmaxEE, wmaxFH);
   // For nose geometry
@@ -181,10 +187,12 @@ GlobalPoint RecHitTools::getPosition(const DetId& id) const {
   auto geom = getSubdetectorGeometry(id);
   GlobalPoint position;
   if (id.det() == DetId::Hcal || id.det() == DetId::Ecal) {
-    position = geom->getGeometry(id)->getPosition();
+    if (geom->getGeometry(id))
+      position = geom->getGeometry(id)->getPosition();
   } else {
     auto hg = static_cast<const HGCalGeometry*>(geom);
-    position = hg->getPosition(id);
+    if (hg) 
+      position = hg->getPosition(id);
   }
   return position;
 }
