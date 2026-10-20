@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
@@ -169,7 +171,7 @@ void DeepFlavourONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Even
   for (std::size_t flav_n = 0; flav_n < flav_names_.size(); ++flav_n) {
     if (produceValueMap_) {
       for (size_t k = 0; k < output_scores.size(); k++) {
-        std::unique_ptr<edm::ValueMap<float>> VM(new edm::ValueMap<float>());
+        std::unique_ptr<edm::ValueMap<float>> VM = std::make_unique<edm::ValueMap<float>>();
         edm::ValueMap<float>::Filler filler(*VM);
         filler.insert(jets, output_scores.at(k).begin(), output_scores.at(k).end());
         filler.fill();
