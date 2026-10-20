@@ -2,6 +2,7 @@
 #define IOPool_Streamer_StreamerFileReader_h
 
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
+#include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <memory>
@@ -15,7 +16,6 @@ namespace edm {
   class ConfigurationDescriptions;
   class EventPrincipal;
   class EventSkipperByID;
-  class FileCatalogItem;
   struct InputSourceDescription;
   class ParameterSet;
   namespace streamer {
@@ -44,7 +44,7 @@ namespace edm {
       }
       std::shared_ptr<EventSkipperByID>& eventSkipperByID() { return get_underlying_safe(eventSkipperByID_); }
 
-      std::vector<FileCatalogItem> streamerNames_;  // names of Streamer files
+      edm::InputFileCatalog inputFileCatalog_;
       edm::propagate_const<std::unique_ptr<StreamerInputFile>> streamReader_;
       edm::propagate_const<std::shared_ptr<EventSkipperByID>> eventSkipperByID_;
       int initialNumberOfEventsToSkip_;
