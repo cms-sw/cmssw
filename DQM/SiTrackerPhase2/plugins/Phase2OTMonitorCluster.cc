@@ -179,7 +179,7 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
           local_mes.clusterCounterS++;
           if (mType == TrackerGeometry::ModuleType::Ph2SS) {
             if (!local_mes.PositionOfClusters_2S.empty())
-              if (local_mes.PositionOfClusters_2S[module])
+              if (local_mes.PositionOfClusters_2S[module - 1])
                 local_mes.PositionOfClusters_2S[module - 1]->Fill(clusterItr.center(), topOrBottomColumn);
 
             if (!local_mes.PositionOfClusters_2SLadder.empty()) {
