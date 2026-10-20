@@ -36,12 +36,12 @@ simMuonRPCDigis = cms.EDProducer("RPCDigiProducer",
 #the digitizer for PhaseII muon upgrade is RPCSimModelTiming and for the moment is based on  RPCSimAverageNoiseEffCls
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(simMuonRPCDigis,
-                 InputCollection = cms.string('MuonSimHitsMuonRPCHits'),
-                 InputCollectionPU = cms.string('MuonSimHitsMuonRPCHits'))
+                 inputCollection = cms.string('MuonSimHitsMuonRPCHits'),
+                 inputCollectionPU = cms.string('MuonSimHitsMuonRPCHits'))
 
 from Configuration.ProcessModifiers.fastSimPU_cff import fastSimPU
 fastSimPU.toModify(simMuonRPCDigis,
-                 InputCollectionPU = cms.string('MuonSimHitsMuonRPCHits'))
+                 inputCollectionPU = cms.string('MuonSimHitsMuonRPCHits'))
 
 _simMuonRPCDigisUpgradeTDR = cms.EDProducer("RPCandIRPCDigiProducer",
     noise = cms.bool(True),
@@ -169,4 +169,4 @@ phase2_muon.toReplaceWith( simMuonRPCDigis, _simMuonRPCDigisUpgradeTDR )
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(simMuonRPCDigis, mixLabel = "mixData")
 
-fastSim.toModify(simMuonRPCDigis, InputCollection = 'MuonSimHitsMuonRPCHits')
+fastSim.toModify(simMuonRPCDigis, inputCollection = 'MuonSimHitsMuonRPCHits')
