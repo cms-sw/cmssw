@@ -13,6 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimMuon/RPCDigitizer/src/RPCSynchronizer.h"
+#include <memory>
 #include <sstream>
 #include <string>
 
@@ -103,8 +104,8 @@ void RPCandIRPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& event
   std::unique_ptr<MixCollection<PSimHit>> hits(new MixCollection<PSimHit>(cf.product()));
 
   // Create empty output
-  std::unique_ptr<RPCDigiCollection> pDigis(new RPCDigiCollection());
-  std::unique_ptr<RPCDigitizerSimLinks> RPCDigitSimLink(new RPCDigitizerSimLinks());
+  std::unique_ptr<RPCDigiCollection> pDigis = std::make_unique<RPCDigiCollection>();
+  std::unique_ptr<RPCDigitizerSimLinks> RPCDigitSimLink = std::make_unique<RPCDigitizerSimLinks>();
 
   theRPCDigitizer->doAction(*hits, *pDigis, *RPCDigitSimLink, engine);   //make "bakelite RPC" digitizer do the action
   theIRPCDigitizer->doAction(*hits, *pDigis, *RPCDigitSimLink, engine);  //make "IRPC" digitizer do the action
