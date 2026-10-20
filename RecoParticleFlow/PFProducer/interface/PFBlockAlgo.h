@@ -64,9 +64,6 @@ private:
   void packLinks(reco::PFBlock& block,
                  const std::unordered_map<std::pair<unsigned int, unsigned int>, double>& links) const;
 
-  /// check whether 2 elements are linked. Returns distance
-  inline void link(const reco::PFBlockElement* el1, const reco::PFBlockElement* el2, double& dist) const;
-
   // the test elements will be transferred to the blocks
   ElementList elements_;
   ElementRanges ranges_;
