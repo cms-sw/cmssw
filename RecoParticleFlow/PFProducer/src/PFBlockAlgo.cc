@@ -34,7 +34,8 @@ namespace {
     void unite(unsigned p, unsigned q) {
       unsigned rootP = find(p);
       unsigned rootQ = find(q);
-      // if (rootP == rootQ) return; // needed if the connected() check in findBlocks() is ever removed
+      if (rootP == rootQ)
+        return;  // should never run due to the connected() check in findBlocks()
 
       // size_ checks prevent the tree to become very tall (weighted quick union)
       if (size_[rootP] < size_[rootQ]) {
