@@ -29,7 +29,7 @@ PatternRecognitionbyFastJet<TILES>::PatternRecognitionbyFastJet(const edm::Param
     : PatternRecognitionAlgoBaseT<TILES>(conf, iC),
       antikt_radius_(conf.getParameter<float>("antikt_radius")),
       minNumLayerCluster_(conf.getParameter<int>("minNumLayerCluster")),
-      computeLocalTime_(conf.getParameter<bool>("computeLocalTime")){};
+      computeLocalTime_(conf.getParameter<bool>("computeLocalTime")) {};
 
 template <typename TILES>
 void PatternRecognitionbyFastJet<TILES>::setGeometry(ticlgeom::Tools const &rhtools) {

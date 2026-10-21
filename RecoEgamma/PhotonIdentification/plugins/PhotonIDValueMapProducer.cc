@@ -121,29 +121,29 @@ private:
 
 constexpr int nVars_ = 19;
 
-const std::string names[nVars_] = {  // Cluster shapes
-    "phoFull5x5SigmaIEtaIEta",       // 0
-    "phoFull5x5SigmaIEtaIPhi",
-    "phoFull5x5E1x3",
-    "phoFull5x5E2x2",
-    "phoFull5x5E2x5Max",
-    "phoFull5x5E5x5",  // 5
-    "phoESEffSigmaRR",
-    // Cluster shape ratios
-    "phoFull5x5E1x3byE5x5",
-    "phoFull5x5E2x2byE5x5",
-    "phoFull5x5E2x5byE5x5",
-    // Isolations
-    "phoChargedIsolation",  // 10
-    "phoNeutralHadronIsolation",
-    "phoPhotonIsolation",
-    "phoWorstChargedIsolation",
-    "phoWorstChargedIsolationConeVeto",
-    "phoWorstChargedIsolationConeVetoPVConstr",  // 15
-    // PFCluster Isolation
-    "phoTrkIsolation",
-    "phoHcalPFClIsolation",
-    "phoEcalPFClIsolation"};
+const std::string names[nVars_] = {                            // Cluster shapes
+                                   "phoFull5x5SigmaIEtaIEta",  // 0
+                                   "phoFull5x5SigmaIEtaIPhi",
+                                   "phoFull5x5E1x3",
+                                   "phoFull5x5E2x2",
+                                   "phoFull5x5E2x5Max",
+                                   "phoFull5x5E5x5",  // 5
+                                   "phoESEffSigmaRR",
+                                   // Cluster shape ratios
+                                   "phoFull5x5E1x3byE5x5",
+                                   "phoFull5x5E2x2byE5x5",
+                                   "phoFull5x5E2x5byE5x5",
+                                   // Isolations
+                                   "phoChargedIsolation",  // 10
+                                   "phoNeutralHadronIsolation",
+                                   "phoPhotonIsolation",
+                                   "phoWorstChargedIsolation",
+                                   "phoWorstChargedIsolationConeVeto",
+                                   "phoWorstChargedIsolationConeVetoPVConstr",  // 15
+                                   // PFCluster Isolation
+                                   "phoTrkIsolation",
+                                   "phoHcalPFClIsolation",
+                                   "phoEcalPFClIsolation"};
 
 // options and bitflags
 constexpr float coneSizeDR2 = 0.3 * 0.3;

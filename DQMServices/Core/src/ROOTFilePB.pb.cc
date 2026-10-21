@@ -297,7 +297,7 @@ namespace dqmstorepb {
           {{"\33\15\0\0\0\0\0\0"
             "dqmstorepb.ROOTFilePB.Histo"
             "full_pathname"}},
-      };
+  };
   PROTOBUF_NOINLINE void ROOTFilePB_Histo::Clear() {
     // @@protoc_insertion_point(message_clear_start:dqmstorepb.ROOTFilePB.Histo)
     ::google::protobuf::internal::TSanWrite(&_impl_);

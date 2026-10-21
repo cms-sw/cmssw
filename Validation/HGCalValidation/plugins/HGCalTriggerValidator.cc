@@ -140,8 +140,8 @@ private:
 };
 
 HGCalTriggerValidator::HGCalTriggerValidator(const edm::ParameterSet &iConfig)
-    : trigger_cells_token_{consumes<l1t::HGCalTriggerCellBxCollection>(
-          iConfig.getParameter<edm::InputTag>("TriggerCells"))},
+    : trigger_cells_token_{
+          consumes<l1t::HGCalTriggerCellBxCollection>(iConfig.getParameter<edm::InputTag>("TriggerCells"))},
       clusters_token_{consumes<l1t::HGCalClusterBxCollection>(iConfig.getParameter<edm::InputTag>("Clusters"))},
       multiclusters_token_{
           consumes<l1t::HGCalMulticlusterBxCollection>(iConfig.getParameter<edm::InputTag>("Multiclusters"))},
