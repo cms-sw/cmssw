@@ -55,12 +55,11 @@ private:
                       int &Cluster_sizeX,
                       int &Cluster_sizeY,
                       float &ClusterCenter_x,
-                      float &ClusterCenter_y,
-                      int &Row_offset,
-                      int &Col_offset) const;
+                      float &ClusterCenter_y) const;
 
-  std::string inputTensorName_x, inputTensorName_y, anglesTensorName, cchargeTensorName, modelCategoryName;
-  std::string outputTensorName_x, outputTensorName_y;
+  std::string pixelProjectionXInputName_, pixelProjectionYInputName_, anglesInputName_, clusterChargeInputName_,
+      modelCategoryInputName_;
+  std::string positionXOutputName_, positionYOutputName_;
 
   const cms::Ort::ONNXRuntime *model;
 };

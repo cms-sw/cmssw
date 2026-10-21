@@ -12,8 +12,6 @@
 
 namespace {
   constexpr float micronsToCm = 1.0e-4;
-  constexpr float output_scale =
-      50.;  //Defined by NN value = CMSSW value * output_scale. To read the NN outputs back to CMSSW, do CMSSW value = NN value / output_scale
   constexpr float CHARGENORM = 25000.;
 }  // namespace
 
@@ -30,15 +28,15 @@ PixelCPENNReco::PixelCPENNReco(edm::ParameterSet const& conf,
                                const SiPixelLorentzAngle* lorentzAngleWidth,
                                const cms::Ort::ONNXRuntime* model_)
     : PixelCPEGeneric(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, lorentzAngleWidth), model(model_) {
-  inputTensorName_x = conf.getParameter<std::string>("inputTensorName_x");
-  outputTensorName_x = conf.getParameter<std::string>("outputTensorName_x");
+  pixelProjectionXInputName_ = conf.getParameter<std::string>("pixelProjectionXInputName");
+  positionXOutputName_ = conf.getParameter<std::string>("positionXOutputName");
 
-  inputTensorName_y = conf.getParameter<std::string>("inputTensorName_y");
-  outputTensorName_y = conf.getParameter<std::string>("outputTensorName_y");
+  pixelProjectionYInputName_ = conf.getParameter<std::string>("pixelProjectionYInputName");
+  positionYOutputName_ = conf.getParameter<std::string>("positionYOutputName");
 
-  anglesTensorName = conf.getParameter<std::string>("anglesTensorName");
-  cchargeTensorName = conf.getParameter<std::string>("cchargeTensorName");
-  modelCategoryName = conf.getParameter<std::string>("modelCategoryName");
+  anglesInputName_ = conf.getParameter<std::string>("anglesInputName");
+  clusterChargeInputName_ = conf.getParameter<std::string>("clusterChargeInputName");
+  modelCategoryInputName_ = conf.getParameter<std::string>("modelCategoryInputName");
 }
 
 std::unique_ptr<PixelCPEBase::ClusterParam> PixelCPENNReco::createClusterParam(const SiPixelCluster& cl) const {
@@ -59,9 +57,7 @@ int PixelCPENNReco::PixelPreprocess(const SiPixelCluster& cluster,
                                     int& Cluster_sizeX,
                                     int& Cluster_sizeY,
                                     float& ClusterCenter_x,
-                                    float& ClusterCenter_y,
-                                    int& Row_offset,
-                                    int& Col_offset) const {
+                                    float& ClusterCenter_y) const {
   //-------------------------------------------------------
   //Cluster preprocessing. This step should align with training cluster preprocessing!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   //-------------------------------------------------------
@@ -71,10 +67,8 @@ int PixelCPENNReco::PixelPreprocess(const SiPixelCluster& cluster,
       clusbuf_temp[i][j] = 0.;
     }
   }
-  Row_offset = cluster.minPixelRow();
-  Col_offset = cluster.minPixelCol();
-  int row_offset = Row_offset;
-  int col_offset = Col_offset;
+  int row_offset = cluster.minPixelRow();
+  int col_offset = cluster.minPixelCol();
   int mrow = 0, mcol = 0;  //maximum row and column of the cluster
   for (int i = 0; i != cluster.size(); ++i) {
     auto pix = cluster.pixel(i);
@@ -336,6 +330,7 @@ LocalPoint PixelCPENNReco::localPosition(DetParam const& theDetParam, ClusterPar
 
   // category order matches the combined graph's category mapping
   // outer ladders = unflipped = odd nos
+  // 0:L1U, 1:L1F, 2:L2, 3:L3M, 4:L3P, 5:L4M, 6:L4P
   unsigned int iModel;
   if (layer == 1)
     iModel = (ladder % 2 != 0) ? 0 : 1;
@@ -368,8 +363,6 @@ LocalPoint PixelCPENNReco::localPosition(DetParam const& theDetParam, ClusterPar
 
   float ClusterCenter_x = std::numeric_limits<float>::max();
   float ClusterCenter_y = std::numeric_limits<float>::max();
-  int Row_offset = std::numeric_limits<int>::max();
-  int Col_offset = std::numeric_limits<int>::max();
   int Cluster_size = std::numeric_limits<int>::max();
   int Cluster_sizeX = std::numeric_limits<int>::max();
   int Cluster_sizeY = std::numeric_limits<int>::max();
@@ -388,9 +381,7 @@ LocalPoint PixelCPENNReco::localPosition(DetParam const& theDetParam, ClusterPar
                                Cluster_sizeX,
                                Cluster_sizeY,
                                ClusterCenter_x,
-                               ClusterCenter_y,
-                               Row_offset,
-                               Col_offset);
+                               ClusterCenter_y);
   if (status != 0)
     return PixelCPEGeneric::localPosition(theDetParam, theClusterParam);
 
@@ -404,11 +395,11 @@ LocalPoint PixelCPENNReco::localPosition(DetParam const& theDetParam, ClusterPar
   };
 
   const std::vector<std::string> inputNames{
-      inputTensorName_x,
-      inputTensorName_y,
-      cchargeTensorName,
-      anglesTensorName,
-      modelCategoryName,
+      pixelProjectionXInputName_,
+      pixelProjectionYInputName_,
+      clusterChargeInputName_,
+      anglesInputName_,
+      modelCategoryInputName_,
   };
 
   const std::vector<std::vector<int64_t>> inputShapes{
@@ -419,16 +410,16 @@ LocalPoint PixelCPENNReco::localPosition(DetParam const& theDetParam, ClusterPar
       {1, 1},
   };
 
-  auto output = model->run(inputNames, inputs, inputShapes, {outputTensorName_x, outputTensorName_y}, 1);
+  auto output = model->run(inputNames, inputs, inputShapes, {positionXOutputName_, positionYOutputName_}, 1);
 
   if (output.size() != 2 || output[0].size() != 2 || output[1].size() != 2) {
     throw cms::Exception("Configuration") << "Unexpected PixelCPENN ONNX output dimensions";
   }
 
-  const float nnOffsetX = output[0][0] / output_scale;
-  const float nnSigmaX = output[0][1] / output_scale;
-  const float nnOffsetY = output[1][0] / output_scale;
-  const float nnSigmaY = output[1][1] / output_scale;
+  const float nnOffsetX = output[0][0];
+  const float nnSigmaX = output[0][1];
+  const float nnOffsetY = output[1][0];
+  const float nnSigmaY = output[1][1];
 
   constexpr float maxPositionX = 1300.f * micronsToCm;
   constexpr float maxPositionY = 3150.f * micronsToCm;
@@ -529,11 +520,11 @@ LocalError PixelCPENNReco::localError(DetParam const& theDetParam, ClusterParam&
 
 void PixelCPENNReco::fillPSetDescription(edm::ParameterSetDescription& desc) {
   PixelCPEGeneric::fillPSetDescription(desc);
-  desc.add<std::string>("inputTensorName_x", "pixel_projection_x");
-  desc.add<std::string>("outputTensorName_x", "output_x");
-  desc.add<std::string>("inputTensorName_y", "pixel_projection_y");
-  desc.add<std::string>("outputTensorName_y", "output_y");
-  desc.add<std::string>("anglesTensorName", "angles");
-  desc.add<std::string>("cchargeTensorName", "cluster_charge");
-  desc.add<std::string>("modelCategoryName", "model_category");
+  desc.add<std::string>("pixelProjectionXInputName", "pixel_projection_x");
+  desc.add<std::string>("positionXOutputName", "output_x");
+  desc.add<std::string>("pixelProjectionYInputName", "pixel_projection_y");
+  desc.add<std::string>("positionYOutputName", "output_y");
+  desc.add<std::string>("anglesInputName", "angles");
+  desc.add<std::string>("clusterChargeInputName", "cluster_charge");
+  desc.add<std::string>("modelCategoryInputName", "model_category");
 }
