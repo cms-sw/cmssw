@@ -419,6 +419,7 @@ HLTDebugFEVT = cms.PSet(
         'keep *_hltMuonRPCDigis_*_*',
         'keep *_hltOfflinePrimaryVertices_*_*',
         'keep *_hltOnlineBeamSpot_*_*',
+        'keep *_hltOnlineMetaDataDigis_*_*',
         'keep *_hltPFJetForBtag_*_*',
         'keep *_hltPFJetForPNetAK8_*_*',
         'keep *_hltPFJetsCorrectedMatchedToCaloJets10AK8_*_*',
