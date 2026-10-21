@@ -164,20 +164,6 @@ _SPECS = [
         ),
     ),
     ModuleSpec(
-        key="EGammaSuperclusterProducer",
-        cfi_module="RecoTICL.Superclustering.ticlEGammaSuperClusterProducer_cfi",
-        cfi_symbol="ticlEGammaSuperClusterProducer",
-        produces=(
-            Product(T_SUPERCLUSTERS),
-            Product(T_CALOCLUSTERS),
-        ),
-        consumes=(
-            Consumed("ticlSuperClusters", T_TRACKSTERS),
-            Consumed("ticlTrackstersEM", T_TRACKSTERS),
-            Consumed("layerClusters", T_CALOCLUSTERS),
-        ),
-    ),
-    ModuleSpec(
         key="TICLCandidateProducer",
         cfi_module="RecoTICL.Interpretation.ticlCandidateProducer_cfi",
         cfi_symbol="ticlCandidateProducer",

@@ -23,7 +23,6 @@ class Target:
     layer_tile_label: str
     links_label: str
     supercluster_dnn_label: str
-    egamma_label: str
     candidate_label: str
     mtd_label: str
     pf_label: str
@@ -79,7 +78,6 @@ OFFLINE = Target(
     layer_tile_label="ticlLayerTileProducer",
     links_label="ticlTracksterLinks",
     supercluster_dnn_label="ticlTracksterLinksSuperclusteringDNN",
-    egamma_label="ticlEGammaSuperClusterProducer",
     candidate_label="ticlCandidate",
     mtd_label="mtdSoA",
     pf_label="pfTICL",
@@ -88,7 +86,7 @@ OFFLINE = Target(
         "layer_tile": "ticlLayerTileTask",
         "step": "ticl{name}StepTask",
         "iterations": "ticlIterationsTask",
-        "superclustering": "ticlSuperclusteringTask",
+        "superclustering": "ticlEndcapSuperclusteringTask",
         "links": "ticlTracksterLinksTask",
         "merge": "mergeTICLTask",
         "mtd": "mtdSoATask",
@@ -110,7 +108,6 @@ HLT = Target(
     layer_tile_label="hltTiclLayerTileProducer",
     links_label="hltTiclTracksterLinks",
     supercluster_dnn_label="hltTiclTracksterLinksSuperclusteringDNN",
-    egamma_label="hltTiclEGammaSuperClusterProducer",
     candidate_label="hltTiclCandidate",
     mtd_label="hltMtdSoA",
     pf_label="hltPfTICL",
