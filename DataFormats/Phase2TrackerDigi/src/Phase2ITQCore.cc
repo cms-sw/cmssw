@@ -11,16 +11,6 @@
 // Finally, "01 -> 0" replacing is done.
 namespace {
 
-  std::vector<bool> encPairBits(bool a, bool b) {
-    if (!a && !b)
-      return std::vector<bool>();
-    if (!a && b)  // "01 -> 0" substitue
-      return std::vector<bool>({false});
-    if (a && !b)
-      return std::vector<bool>({true, false});
-    return std::vector<bool>({true, true});
-  }
-
   // Encoding
   void appendPairBits(Phase2ITBitBuffer& out, bool a, bool b) {
     if (!a && !b)
@@ -225,17 +215,6 @@ std::vector<bool> Phase2ITQCore::intToBinary(int num, int length) {
   }
 
   return biNum;
-}
-
-static uint32_t binaryToInt(const std::vector<bool>& binary, size_t& bitPos, int length) {
-  uint32_t result = 0;
-  for (int i = 0; i < length; ++i) {
-    if ((bitPos + i) < binary.size() && binary[bitPos + i]) {
-      result |= (1 << (length - 1 - i));
-    }
-  }
-  bitPos += length;
-  return result;
 }
 
 //Takes a hitmap and returns true if it contains any hits

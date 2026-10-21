@@ -66,7 +66,6 @@ private:
   int ccol_;               // QCore position column
   int qcrow_;              // QCore position row
 
-  uint32_t binaryToInt(const std::vector<bool>& binary, size_t& bitPos, int length);
   std::vector<bool> intToBinary(int num, int length);
   static bool containsHit(std::vector<bool>& hitmap);
 };
