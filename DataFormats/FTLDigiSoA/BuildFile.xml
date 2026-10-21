@@ -2,7 +2,7 @@
 <use name="DataFormats/ForwardDetId"/>
 <use name="DataFormats/DetId"/>
 <use name="alpaka"/>
-<use name="rootcore"/>
+<use name="rootcling"/>
 <use name="DataFormats/Portable"/>
 <use name="DataFormats/SoATemplate"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>

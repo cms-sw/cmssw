@@ -1,7 +1,4 @@
-#include <ostream>
 #include <bitset>
-#include <fmt/format.h>
-
 #include "DataFormats/FTLRecHitSoA/interface/ETLRecHitSoA.h"
 
 namespace etlrechit {

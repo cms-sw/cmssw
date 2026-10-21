@@ -1,7 +1,6 @@
 <lcgdict>
-   <class name="btldigi::BTLDigi" ClassVersion="4">
-    <version ClassVersion="4" checksum="3404699942"/>
-    <version ClassVersion="3" checksum="3692647978"/>
+   <class name="btldigi::BTLDigi" ClassVersion="3">
+    <version ClassVersion="3" checksum="3404699942"/>
    </class>
    <class name="std::vector<btldigi::BTLDigi>"/>
    <class name="BTLDigiContentCollection"/>
