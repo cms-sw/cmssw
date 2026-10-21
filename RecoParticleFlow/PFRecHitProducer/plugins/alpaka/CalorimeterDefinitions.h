@@ -3,9 +3,6 @@
 
 #include <limits>
 
-// Include Eigen core library before include the SoA definitions
-#include <Eigen/Core>
-
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"

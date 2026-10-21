@@ -19,7 +19,6 @@
 <use name="vdt_headers"/>
 <use name="rootmath"/>
 <use name="root"/>
-<use name="eigen"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/Portable"/>

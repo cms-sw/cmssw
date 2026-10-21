@@ -3,8 +3,6 @@
 
 #include <alpaka/alpaka.hpp>
 
-#include <Eigen/Core>
-
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "DataFormats/SoATemplate/interface/SoABlocks.h"
 

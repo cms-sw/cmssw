@@ -181,7 +181,8 @@ namespace cms::soa {
   // the Map type itself comes from C::StridedMapType<DynamicInnerStride>.
   // The Eigen stride class uses std::ptrdiff_t for indexing by default, hence used here to match what eigen expects
   // See https://github.com/PX4/eigen/blob/master/Eigen/src/Core/util/Macros.h#L336
-  struct DynamicInnerStride {
+  class DynamicInnerStride {
+  public:
     enum {
       InnerStrideAtCompileTime = -1,  // -1 means that the inner stride can be set dynamically at runtime
       OuterStrideAtCompileTime = 0    // 0 means that the outer stride is hard fixed to 0 and can not be changed
@@ -193,6 +194,7 @@ namespace cms::soa {
     SOA_HOST_DEVICE SOA_INLINE constexpr std::ptrdiff_t outer() const noexcept { return OuterStrideAtCompileTime; }
     SOA_HOST_DEVICE SOA_INLINE constexpr std::ptrdiff_t inner() const noexcept { return inner_; }
 
+  private:
     const std::ptrdiff_t inner_;
   };
 
