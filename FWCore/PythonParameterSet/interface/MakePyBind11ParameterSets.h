@@ -8,6 +8,7 @@
 #include <memory>
 
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace edm {
@@ -16,11 +17,16 @@ namespace edm {
     // input can either be a python file name or a python config string
     std::unique_ptr<ParameterSet> readConfig(std::string const& config);
 
-    /// same, but with arguments
-    std::unique_ptr<ParameterSet> readConfig(std::string const& config, const std::vector<std::string>& args);
+    /// same, but with arguments, and process options to be set after reading the configuration
+    std::unique_ptr<ParameterSet> readConfig(
+        std::string const& config,
+        const std::vector<std::string>& args,
+        std::vector<std::pair<std::string, std::string>> const& processOptions = {});
 
     /// essentially the same as the previous method
-    void makeParameterSets(std::string const& configtext, std::unique_ptr<ParameterSet>& main);
+    void makeParameterSets(std::string const& configtext,
+                           std::unique_ptr<ParameterSet>& main,
+                           std::vector<std::pair<std::string, std::string>> const& processOptions = {});
 
     /**finds all the PSets used in the top level module referred as a file or as a string containing
        python commands. These PSets are bundled into a top level PSet from which they can be retrieved
