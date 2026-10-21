@@ -60,17 +60,17 @@ private:
 };
 
 const std::vector<unsigned> DeepVertexONNXJetTagsProducer::input_sizes_{n_features_global_,
-                                                                        n_seed_* n_features_seed_,
-                                                                        n_neighbor_* n_features_neighbor_,
-                                                                        n_neighbor_* n_features_neighbor_,
-                                                                        n_neighbor_* n_features_neighbor_,
-                                                                        n_neighbor_* n_features_neighbor_,
-                                                                        n_neighbor_* n_features_neighbor_,
-                                                                        n_neighbor_* n_features_neighbor_,
-                                                                        n_neighbor_* n_features_neighbor_,
-                                                                        n_neighbor_* n_features_neighbor_,
-                                                                        n_neighbor_* n_features_neighbor_,
-                                                                        n_neighbor_* n_features_neighbor_};
+                                                                        n_seed_ * n_features_seed_,
+                                                                        n_neighbor_ * n_features_neighbor_,
+                                                                        n_neighbor_ * n_features_neighbor_,
+                                                                        n_neighbor_ * n_features_neighbor_,
+                                                                        n_neighbor_ * n_features_neighbor_,
+                                                                        n_neighbor_ * n_features_neighbor_,
+                                                                        n_neighbor_ * n_features_neighbor_,
+                                                                        n_neighbor_ * n_features_neighbor_,
+                                                                        n_neighbor_ * n_features_neighbor_,
+                                                                        n_neighbor_ * n_features_neighbor_,
+                                                                        n_neighbor_ * n_features_neighbor_};
 
 DeepVertexONNXJetTagsProducer::DeepVertexONNXJetTagsProducer(const edm::ParameterSet& iConfig, const ONNXRuntime* cache)
     : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
