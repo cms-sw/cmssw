@@ -52,11 +52,8 @@ hgcalAssociators = cms.Task(lcAssocByEnergyScoreProducer, layerClusterCaloPartic
                             # hitToTrackstersAssociationLinking, hitToTrackstersAssociationPR,
                             # hitToSimTracksterAssociation, hitToSimTracksterFromCPsAssociation,
                             hitToSimClusterCaloParticleAssociator,
-                            SimClusterToCaloParticleAssociation, 
+                            SimClusterToCaloParticleAssociation,
                             )
-
-from Configuration.ProcessModifiers.ticl_superclustering_mustache_pf_cff import ticl_superclustering_mustache_pf
-
 
 hgcalValidation = cms.Sequence(hgcalSimHitValidationEE
                                + hgcalSimHitValidationHEF
