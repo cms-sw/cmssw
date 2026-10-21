@@ -171,6 +171,15 @@ namespace cms::soa {
     };
   };
 
+  template <class M>
+  struct SoAStrideFromMap;
+
+  template <template <class, auto, class> class MapT, class Plain, auto Opts,
+            template <auto, auto> class StrideT, auto Outer, auto Inner>
+  struct SoAStrideFromMap<MapT<Plain, Opts, StrideT<Outer, Inner>>> {
+      using DynInner = StrideT<0, -1>;
+  };
+
   // Templated parameter sets for scalars, columns and Eigen columns
   template <SoAColumnType COLUMN_TYPE, typename T>
   struct SoAParametersImpl {
@@ -346,15 +355,14 @@ namespace cms::soa {
     T* col_;
   };
 
-  // Eigen/Core should be pre-included before the SoA headers to enable support for Eigen columns.
-#ifdef EIGEN_WORLD_VERSION
   // Helper template managing an Eigen-type value at index idx within a column.
   template <class C, byte_size_type ALIGNMENT, bool RESTRICT_QUALIFY>
   class SoAValue<SoAColumnType::eigen, C, ALIGNMENT, RESTRICT_QUALIFY> {
   public:
     using Type = C;
-    using MapType = Eigen::Map<C, 0, Eigen::InnerStride<Eigen::Dynamic>>;
-    using CMapType = const Eigen::Map<const C, 0, Eigen::InnerStride<Eigen::Dynamic>>;
+    using StrideT = typename SoAStrideFromMap<typename C::MapType>::DynInner;
+    using MapType = typename C::template StridedMapType<StrideT>::type;
+    using CMapType = const typename C::template StridedConstMapType<StrideT>::type;
     using Restr = add_restrict<typename C::Scalar, RESTRICT_QUALIFY>;
     using Val = typename Restr::Value;
     using Ptr = typename Restr::Pointer;
@@ -363,21 +371,21 @@ namespace cms::soa {
     using RefToConst = typename Restr::ReferenceToConst;
 
     SOA_HOST_DEVICE SOA_INLINE SoAValue(size_type i, typename C::Scalar* col, byte_size_type stride)
-        : val_(col + i, C::RowsAtCompileTime, C::ColsAtCompileTime, Eigen::InnerStride<Eigen::Dynamic>(stride)),
+        : val_(col + i, C::RowsAtCompileTime, C::ColsAtCompileTime, StrideT(0, stride)),
           crCol_(col),
-          cVal_(crCol_ + i, C::RowsAtCompileTime, C::ColsAtCompileTime, Eigen::InnerStride<Eigen::Dynamic>(stride)),
+          cVal_(crCol_ + i, C::RowsAtCompileTime, C::ColsAtCompileTime, StrideT(0, stride)),
           stride_(stride) {}
 
     SOA_HOST_DEVICE SOA_INLINE SoAValue(size_type i, SoAParametersImpl<SoAColumnType::eigen, C> params)
         : val_(params.addr_ + i,
                C::RowsAtCompileTime,
                C::ColsAtCompileTime,
-               Eigen::InnerStride<Eigen::Dynamic>(params.stride_)),
+               StrideT(0, params.stride_)),
           crCol_(params.addr_),
           cVal_(crCol_ + i,
                 C::RowsAtCompileTime,
                 C::ColsAtCompileTime,
-                Eigen::InnerStride<Eigen::Dynamic>(params.stride_)),
+                StrideT(0, params.stride_)),
           stride_(params.stride_) {}
 
     SOA_HOST_DEVICE SOA_INLINE MapType& operator()() { return val_; }
@@ -407,14 +415,6 @@ namespace cms::soa {
     CMapType cVal_;
     byte_size_type stride_;
   };
-#else
-  // Raise a compile-time error
-  template <class C, byte_size_type ALIGNMENT, bool RESTRICT_QUALIFY>
-  class SoAValue<SoAColumnType::eigen, C, ALIGNMENT, RESTRICT_QUALIFY> {
-    static_assert(!sizeof(C),
-                  "Eigen/Core should be pre-included before the SoA headers to enable support for Eigen columns.");
-  };
-#endif
 
   // Matryoshka template to avoid commas inside macros
   template <SoAColumnType COLUMN_TYPE>
@@ -486,20 +486,19 @@ namespace cms::soa {
     const T* col_;
   };
 
-  // Eigen/Core should be pre-included before the SoA headers to enable support for Eigen columns.
-#ifdef EIGEN_WORLD_VERSION
   // Helper template managing a const Eigen-type value at index idx within a column.
   template <class C, byte_size_type ALIGNMENT, bool RESTRICT_QUALIFY>
   class SoAConstValue<SoAColumnType::eigen, C, ALIGNMENT, RESTRICT_QUALIFY> {
   public:
     using Type = C;
-    using CMapType = Eigen::Map<const C, 0, Eigen::InnerStride<Eigen::Dynamic>>;
+    using StrideT = typename SoAStrideFromMap<typename C::MapType>::DynInner;
+    using CMapType = const typename C::template StridedConstMapType<StrideT>::type;
     using RefToConst = const CMapType&;
     using ConstParams = SoAConstParametersImpl<SoAColumnType::eigen, C>;
 
     SOA_HOST_DEVICE SOA_INLINE SoAConstValue(size_type i, typename C::Scalar* col, byte_size_type stride)
         : crCol_(col),
-          cVal_(crCol_ + i, C::RowsAtCompileTime, C::ColsAtCompileTime, Eigen::InnerStride<Eigen::Dynamic>(stride)),
+          cVal_(crCol_ + i, C::RowsAtCompileTime, C::ColsAtCompileTime, StrideT(0, stride)),
           stride_(stride) {}
 
     SOA_HOST_DEVICE SOA_INLINE SoAConstValue(size_type i, SoAConstParametersImpl<SoAColumnType::eigen, C> params)
@@ -507,7 +506,7 @@ namespace cms::soa {
           cVal_(crCol_ + i,
                 C::RowsAtCompileTime,
                 C::ColsAtCompileTime,
-                Eigen::InnerStride<Eigen::Dynamic>(params.stride_)),
+                StrideT(0, params.stride_)),
           stride_(params.stride_) {}
 
     SOA_HOST_DEVICE SOA_INLINE const CMapType& operator()() const { return cVal_; }
@@ -526,14 +525,6 @@ namespace cms::soa {
     CMapType cVal_;
     byte_size_type stride_;
   };
-#else
-  // Raise a compile-time error
-  template <class C, byte_size_type ALIGNMENT, bool RESTRICT_QUALIFY>
-  class SoAConstValue<SoAColumnType::eigen, C, ALIGNMENT, RESTRICT_QUALIFY> {
-    static_assert(!sizeof(C),
-                  "Eigen/Core should be pre-included before the SoA headers to enable support for Eigen columns.");
-  };
-#endif
 
   // Matryoshka template to avoid commas inside macros
   template <SoAColumnType COLUMN_TYPE>
