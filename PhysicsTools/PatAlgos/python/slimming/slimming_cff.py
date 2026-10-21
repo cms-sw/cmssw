@@ -97,7 +97,8 @@ from RecoHI.HiCentralityAlgos.hiHFfilters_cfi import hiHFfilters
 lostTrackChi2 = packedPFCandidateTrackChi2.clone(candidates = "lostTracks", doLostTracks = True)
 from RecoVertex.AdaptiveVertexFinder.inclusiveNegativeVertexing_cff import *
 slimmedNegativeSecondaryVertices = slimmedSecondaryVertices.clone(src = "inclusiveCandidateNegativeSecondaryVertices")
-pp_on_AA.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), inclusiveCandidateNegativeVertexingTask.copy(), slimmedNegativeSecondaryVertices))
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), inclusiveCandidateNegativeVertexingTask.copy(), slimmedNegativeSecondaryVertices))
 
 pp_on_AA.toReplaceWith(
     slimmingTask,
