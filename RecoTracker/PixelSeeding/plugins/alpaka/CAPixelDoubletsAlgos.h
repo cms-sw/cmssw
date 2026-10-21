@@ -321,8 +321,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
              pairLayerId,
              cc.phiCuts()[pairLayerId],
              cc.maxDR()[pairLayerId],
-             cc.maxInnerZ()[pairLayerId],
-             cc.minInnerZ()[pairLayerId]);
+             cc.maxInner()[pairLayerId],
+             cc.minInner()[pairLayerId]);
 #endif
 
       auto khh = kh;
