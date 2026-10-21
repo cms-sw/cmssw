@@ -134,6 +134,22 @@ void Phase2OTMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
       continue;
     // determine the detector we are in
     TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(detId);
+    // Get the histograms for each depth of this detId
+    std::vector<RecHitME*> thisDetDepthMEs;
+    for (int fillingDepth = phase2tkutil::WHOLE_TK; fillingDepth <= phase2tkutil::LAYER; fillingDepth++) {
+      // Skip filling for barrel detIds on endcap-only depths
+      if ((fillingDepth >= phase2tkutil::SHELL && fillingDepth < phase2tkutil::LAYER) &&
+          DetId(detId).subdetId() == SiStripSubdetector::TOB)
+        continue;
+      int key = phase2tkutil::getNumericHistoId(detId.rawId(), tTopo_, 0, fillingDepth);
+
+      if (layerMEs_.find(key) == layerMEs_.end())
+        continue;
+      RecHitME* depthLayerMEs = &layerMEs_.find(key)->second;
+
+      thisDetDepthMEs.push_back(depthLayerMEs);
+    }
+
     edmNew::DetSet<Phase2TrackerRecHit1D>::const_iterator rechitIt;
     //loop over rechits for a single detId
     for (rechitIt = DSViter->begin(); rechitIt != DSViter->end(); ++rechitIt) {
@@ -152,21 +168,16 @@ void Phase2OTMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
         globalXY_S_->Fill(gx, gy);
         globalRZ_S_->Fill(gz, gr);
       }
-      for (int fillingDepth = phase2tkutil::WHOLE_TK; fillingDepth <= phase2tkutil::LAYER; fillingDepth++) {
-        // Skip filling for barrel detIds on endcap-only depths
-        if ((fillingDepth >= phase2tkutil::SHELL && fillingDepth < phase2tkutil::LAYER) &&
-            DetId(detId).subdetId() == SiStripSubdetector::TOB)
-          continue;
-        int key = phase2tkutil::getNumericHistoId(detId, tTopo_, 0.0, fillingDepth);
-
+      // Iterate through found depths for this det
+      for (auto depthMEs : thisDetDepthMEs) {
         if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
-          if (layerMEs_[key].clusterSize_P)
-            layerMEs_[key].clusterSize_P->Fill(rechitIt->cluster()->size());
-          layerMEs_[key].recHitCounter_P++;
+          if (depthMEs->clusterSize_P)
+            depthMEs->clusterSize_P->Fill(rechitIt->cluster()->size());
+          depthMEs->recHitCounter_P++;
         } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
-          if (layerMEs_[key].clusterSize_S)
-            layerMEs_[key].clusterSize_S->Fill(rechitIt->cluster()->size());
-          layerMEs_[key].recHitCounter_S++;
+          if (depthMEs->clusterSize_S)
+            depthMEs->clusterSize_S->Fill(rechitIt->cluster()->size());
+          depthMEs->recHitCounter_S++;
         }
       }
     }  //end loop over rechits of a detId

@@ -54,7 +54,7 @@ private:
     MonitorElement* ClusterSizeX = nullptr;
     MonitorElement* ClusterSizeY = nullptr;
     MonitorElement* ClusterCharge = nullptr;
-    unsigned int clusterCounter{0};
+    unsigned int clusterCounter = 0;
     MonitorElement* ClusterPos_Mod_Ladder = nullptr;            // Only in Barrel and LAYER
     std::vector<MonitorElement*> XY_byWheel;                    // Only in Endcap and SUBSTRUCTURE
     std::vector<MonitorElement*> ClusterPos_BLayer_Mod_Ladder;  // Only in Barrel and SUBSTRUCTURE
@@ -121,6 +121,23 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
       continue;
     GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
     int signedModule = 0, signedLadder = 0, signedWheel = 0, layer = 0;
+
+    // Get the histograms for each depth of this detId
+    std::vector<ClusterMEs*> thisDetDepthMEs;
+    for (int fillingDepth = phase2tkutil::WHOLE_TK; fillingDepth <= phase2tkutil::LAYER; fillingDepth++) {
+      // Skip filling for barrel detIds on endcap-only depths
+      if ((fillingDepth == phase2tkutil::ENDCAP_RING || fillingDepth == phase2tkutil::ENDCAP_WHEEL) &&
+          DetId(detId).subdetId() == PixelSubdetector::PixelBarrel)
+        continue;
+      int key = phase2tkutil::getNumericHistoId(detId.rawId(), tTopo_, detPos.phi(), fillingDepth);
+
+      if (layerMEs_.find(key) == layerMEs_.end())
+        continue;
+      ClusterMEs* depthLayerMEs = &layerMEs_.find(key)->second;
+
+      thisDetDepthMEs.push_back(depthLayerMEs);
+    }
+
     for (const auto& clusterItr : DSVItr) {
       MeasurementPoint mpCluster(clusterItr.x(), clusterItr.y());
       Local3DPoint localPosCluster = geomDetUnit->topology().localPosition(mpCluster);
@@ -144,31 +161,22 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
         // get values for endcap
         signedWheel = phase2tkutil::getITSignedWheel(detId, tTopo_);
       }
-      for (int fillingDepth = phase2tkutil::WHOLE_TK; fillingDepth <= phase2tkutil::LAYER; fillingDepth++) {
-        // Skip filling for barrel detIds on endcap-only depths
-        if ((fillingDepth == phase2tkutil::ENDCAP_RING || fillingDepth == phase2tkutil::ENDCAP_WHEEL) &&
-            DetId(detId).subdetId() == PixelSubdetector::PixelBarrel)
-          continue;
-        int key = phase2tkutil::getNumericHistoId(detId, tTopo_, detPos.phi(), fillingDepth);
-        auto local_mesIT = layerMEs_.find(key);
-        if (local_mesIT == layerMEs_.end())
-          continue;
-        ClusterMEs& local_mes = local_mesIT->second;
+      // Iterate through found depths for this det
+      for (auto depthMEs : thisDetDepthMEs) {
+        if (!depthMEs->XY_byWheel.empty())
+          if (depthMEs->XY_byWheel[signedWheel + 12])  // -12 to +12 -> 0 to 24
+            depthMEs->XY_byWheel[signedWheel + 12]->Fill(gx, gy);
+        if (depthMEs->ClusterPos_Mod_Ladder)
+          depthMEs->ClusterPos_Mod_Ladder->Fill(signedModule, signedLadder);
+        if (!depthMEs->ClusterPos_BLayer_Mod_Ladder.empty())
+          if (depthMEs->ClusterPos_BLayer_Mod_Ladder[layer - 1])
+            depthMEs->ClusterPos_BLayer_Mod_Ladder[layer - 1]->Fill(signedModule, signedLadder);
 
-        if (!local_mes.XY_byWheel.empty())
-          if (local_mes.XY_byWheel[signedWheel + 12])  // -12 to +12 -> 0 to 24
-            local_mes.XY_byWheel[signedWheel + 12]->Fill(gx, gy);
-        if (local_mes.ClusterPos_Mod_Ladder)
-          local_mes.ClusterPos_Mod_Ladder->Fill(signedModule, signedLadder);
-        if (!local_mes.ClusterPos_BLayer_Mod_Ladder.empty())
-          if (local_mes.ClusterPos_BLayer_Mod_Ladder[layer - 1])
-            local_mes.ClusterPos_BLayer_Mod_Ladder[layer - 1]->Fill(signedModule, signedLadder);
-
-        local_mes.ClusterSize->Fill(clusterItr.size());
-        local_mes.ClusterSizeX->Fill(clusterItr.sizeX());
-        local_mes.ClusterSizeY->Fill(clusterItr.sizeY());
-        local_mes.ClusterCharge->Fill(clusterItr.charge());
-        local_mes.clusterCounter++;
+        depthMEs->ClusterSize->Fill(clusterItr.size());
+        depthMEs->ClusterSizeX->Fill(clusterItr.sizeX());
+        depthMEs->ClusterSizeY->Fill(clusterItr.sizeY());
+        depthMEs->ClusterCharge->Fill(clusterItr.charge());
+        depthMEs->clusterCounter++;
       }
     }
   }

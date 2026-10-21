@@ -123,6 +123,22 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
 
     TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(detId);
 
+    // Get the histograms for each depth of this detId
+    std::vector<ClusterMEs*> thisDetDepthMEs;
+    for (int fillingDepth = phase2tkutil::WHOLE_TK; fillingDepth <= phase2tkutil::LAYER; fillingDepth++) {
+      // Skip filling for barrel detIds on endcap-only depths
+      if ((fillingDepth >= phase2tkutil::SHELL && fillingDepth < phase2tkutil::LAYER) &&
+          DetId(detId).subdetId() == SiStripSubdetector::TOB)
+        continue;
+      int key = phase2tkutil::getNumericHistoId(detId.rawId(), tTopo_, 0, fillingDepth);
+
+      if (layerMEs_.find(key) == layerMEs_.end())
+        continue;
+      ClusterMEs* depthLayerMEs = &layerMEs_.find(key)->second;
+
+      thisDetDepthMEs.push_back(depthLayerMEs);
+    }
+
     for (const auto& clusterItr : DSVItr) {
       MeasurementPoint mpCluster(clusterItr.center(), clusterItr.column() + 0.5);
       Local3DPoint localPosCluster = geomDetUnit->topology().localPosition(mpCluster);
@@ -155,41 +171,31 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
         }
       }
 
-      for (int fillingDepth = phase2tkutil::WHOLE_TK; fillingDepth <= phase2tkutil::LAYER; fillingDepth++) {
-        // Skip filling for barrel detIds on endcap-only depths
-        if ((fillingDepth >= phase2tkutil::SHELL && fillingDepth < phase2tkutil::LAYER) &&
-            DetId(detId).subdetId() == SiStripSubdetector::TOB)
-          continue;
-        int folderkey = phase2tkutil::getNumericHistoId(detId, tTopo_, 0, fillingDepth);
-
-        auto layerMEit = layerMEs_.find(folderkey);
-        if (layerMEit == layerMEs_.end())
-          continue;
-        ClusterMEs& local_mes = layerMEit->second;
-
+      // Iterate through found depths for this det
+      for (auto depthMEs : thisDetDepthMEs) {
         if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
           // Pixels
-          if (local_mes.ClusterSize_P)
-            local_mes.ClusterSize_P->Fill(clusterItr.size());
-          local_mes.clusterCounterP++;
+          if (depthMEs->ClusterSize_P)
+            depthMEs->ClusterSize_P->Fill(clusterItr.size());
+          depthMEs->clusterCounterP++;
         } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
           // Strips
-          if (local_mes.ClusterSize_S)
-            local_mes.ClusterSize_S->Fill(clusterItr.size());
-          local_mes.clusterCounterS++;
+          if (depthMEs->ClusterSize_S)
+            depthMEs->ClusterSize_S->Fill(clusterItr.size());
+          depthMEs->clusterCounterS++;
           if (mType == TrackerGeometry::ModuleType::Ph2SS) {
-            if (!local_mes.PositionOfClusters_2S.empty())
-              if (local_mes.PositionOfClusters_2S[module - 1])
-                local_mes.PositionOfClusters_2S[module - 1]->Fill(clusterItr.center(), topOrBottomColumn);
+            if (!depthMEs->PositionOfClusters_2S.empty())
+              if (depthMEs->PositionOfClusters_2S[module - 1])
+                depthMEs->PositionOfClusters_2S[module - 1]->Fill(clusterItr.center(), topOrBottomColumn);
 
-            if (!local_mes.PositionOfClusters_2SLadder.empty()) {
-              if (local_mes.PositionOfClusters_2SLadder[ladder - 1]) {
+            if (!depthMEs->PositionOfClusters_2SLadder.empty()) {
+              if (depthMEs->PositionOfClusters_2SLadder[ladder - 1]) {
                 int signedModule = module;
                 // CRACK has numbers 1 to 12 while Tracker has 1 to 24
                 // Adapt module numbers from 1 to 24 into -12 to +12
                 if (!crackOverview_)
                   signedModule = module <= 12 ? module - 13 : module - 12;
-                local_mes.PositionOfClusters_2SLadder[ladder - 1]->Fill(signedModule, topOrBottomColumn);
+                depthMEs->PositionOfClusters_2SLadder[ladder - 1]->Fill(signedModule, topOrBottomColumn);
               }
             }
           }

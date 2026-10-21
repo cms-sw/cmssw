@@ -90,7 +90,7 @@ private:
   void bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id);
   void fillITPixelDigiHistos(const edm::Handle<edm::DetSetVector<PixelDigi>> handle);
   void fillOTDigiHistos(const edm::Handle<edm::DetSetVector<Phase2TrackerDigi>> handle);
-  void fillDigiClusters(DigiMEs& mes, std::vector<Ph2DigiCluster>& digi_clusters);
+  void fillDigiClusters(DigiMEs* mes, std::vector<Ph2DigiCluster>& digi_clusters);
 
   const edm::ParameterSet config_;
   std::map<int, DigiMEs> layerMEs;
@@ -182,6 +182,21 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
     if (nRows * nColumns == 0)
       continue;
 
+    // Get the histograms for each depth of this detId
+    std::vector<DigiMEs*> thisDetDepthMEs;
+    for (int fillingDepth = phase2tkutil::WHOLE_TK; fillingDepth <= phase2tkutil::LAYER; fillingDepth++) {
+      // Skip filling for barrel detIds on endcap-only depths
+      if ((fillingDepth == phase2tkutil::ENDCAP_RING || fillingDepth == phase2tkutil::ENDCAP_WHEEL) &&
+          DetId(detId).subdetId() == PixelSubdetector::PixelBarrel)
+        continue;
+      int key = phase2tkutil::getNumericHistoId(detId.rawId(), tTopo_, detPos.phi(), fillingDepth);
+
+      if (layerMEs.find(key) == layerMEs.end())
+        continue;
+      DigiMEs* depthLayerMEs = &layerMEs.find(key)->second;
+
+      thisDetDepthMEs.push_back(depthLayerMEs);
+    }
     int nDigi = 0;
     int row_last = -1;
     int col_last = -1;
@@ -221,36 +236,25 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
         row_last = row;
         col_last = col;
       }
-      // Fill layer histograms
-      for (int fillingDepth = phase2tkutil::WHOLE_TK; fillingDepth <= phase2tkutil::LAYER; fillingDepth++) {
-        // Skip filling for barrel detIds on endcap-only depths
-        if ((fillingDepth == phase2tkutil::ENDCAP_RING || fillingDepth == phase2tkutil::ENDCAP_WHEEL) &&
-            DetId(detId).subdetId() == PixelSubdetector::PixelBarrel)
-          continue;
-
-        int key = phase2tkutil::getNumericHistoId(detId, tTopo_, detPos.phi(), fillingDepth);
-        std::map<int, DigiMEs>::iterator pos = layerMEs.find(key);
-        if (pos == layerMEs.end())
-          continue;
-        DigiMEs& local_mes = pos->second;
-
-        local_mes.nDigiPerLayer++;
+      // Iterate through found depths for this det
+      for (auto depthMEs : thisDetDepthMEs) {
+        depthMEs->nDigiPerLayer++;
 
         if (clsFlag_)
-          fillDigiClusters(local_mes, digiClusters);
+          fillDigiClusters(depthMEs, digiClusters);
 
-        if (local_mes.ChargeXYMap)
-          local_mes.ChargeXYMap->Fill(col, row, adc);
+        if (depthMEs->ChargeXYMap)
+          depthMEs->ChargeXYMap->Fill(col, row, adc);
 
-        if (local_mes.ChargeOfDigis)
-          local_mes.ChargeOfDigis->Fill(adc);
+        if (depthMEs->ChargeOfDigis)
+          depthMEs->ChargeOfDigis->Fill(adc);
 
         if (nDigi == int(DSViter->size())) {
           // Reached the end of digis in this det
           // Fill local histos that should only be filled once per det
-          local_mes.nHitDetsPerLayer++;
-          if (local_mes.NumberOfDigisPerDet)
-            local_mes.NumberOfDigisPerDet->Fill(nDigi);
+          depthMEs->nHitDetsPerLayer++;
+          if (depthMEs->NumberOfDigisPerDet)
+            depthMEs->NumberOfDigisPerDet->Fill(nDigi);
 
           float occupancy = 1.0;
           if (nRows * nColumns > 0)
@@ -258,11 +262,11 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
           if (geomDet) {
             GlobalPoint gp = geomDet->surface().toGlobal(
                 gDetUnit->topology().localPosition(MeasurementPoint(nRows / 2.0, nColumns / 2.0)));
-            if (local_mes.EtaOccupancyProfP)
-              local_mes.EtaOccupancyProfP->Fill(gp.eta(), occupancy);
+            if (depthMEs->EtaOccupancyProfP)
+              depthMEs->EtaOccupancyProfP->Fill(gp.eta(), occupancy);
           }
-          if (local_mes.DigiOccupancyP)
-            local_mes.DigiOccupancyP->Fill(occupancy);
+          if (depthMEs->DigiOccupancyP)
+            depthMEs->DigiOccupancyP->Fill(occupancy);
         }
       }
     }
@@ -295,8 +299,6 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
 
     const GeomDetUnit* gDetUnit = tkGeom_->idToDetUnit(detId);
     const GeomDet* geomDet = tkGeom_->idToDet(detId);
-    GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
-
     const Phase2TrackerGeomDetUnit* tkDetUnit = dynamic_cast<const Phase2TrackerGeomDetUnit*>(gDetUnit);
     int module = tTopo_->module(detId);
     // CRACK is viewed from behind, so to align plots with what is seen in real life, modules are flipped
@@ -307,6 +309,22 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
     int nColumns = tkDetUnit->specificTopology().ncolumns();
     if (nRows * nColumns == 0)
       continue;
+
+    // Get the histograms for each depth of this detId
+    std::vector<DigiMEs*> thisDetDepthMEs;
+    for (int fillingDepth = phase2tkutil::WHOLE_TK; fillingDepth <= phase2tkutil::LAYER; fillingDepth++) {
+      // Skip filling for barrel detIds on endcap-only depths
+      if ((fillingDepth >= phase2tkutil::SHELL && fillingDepth < phase2tkutil::LAYER) &&
+          DetId(detId).subdetId() == SiStripSubdetector::TOB)
+        continue;
+      int key = phase2tkutil::getNumericHistoId(detId.rawId(), tTopo_, 0, fillingDepth);
+
+      if (layerMEs.find(key) == layerMEs.end())
+        continue;
+      DigiMEs* depthLayerMEs = &layerMEs.find(key)->second;
+
+      thisDetDepthMEs.push_back(depthLayerMEs);
+    }
 
     int nDigi = 0;
     int row_last = -1;
@@ -360,34 +378,24 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
       if (CrackOverview)
         CrackOverview->Fill(module, layer + 0.05 - (module % 2 * 0.1));
 
-      // Fill layer histograms
-      for (int fillingDepth = phase2tkutil::WHOLE_TK; fillingDepth <= phase2tkutil::LAYER; fillingDepth++) {
-        // Skip filling for barrel detIds on endcap-only depths
-        if ((fillingDepth >= phase2tkutil::SHELL && fillingDepth < phase2tkutil::LAYER) &&
-            DetId(detId).subdetId() == SiStripSubdetector::TOB)
-          continue;
-        int key = phase2tkutil::getNumericHistoId(detId, tTopo_, detPos.phi(), fillingDepth);
-        std::map<int, DigiMEs>::iterator pos = layerMEs.find(key);
-        if (pos == layerMEs.end())
-          continue;
-        DigiMEs& local_mes = pos->second;
-
-        local_mes.nDigiPerLayer++;
+      // Iterate through found depths for this det
+      for (auto depthMEs : thisDetDepthMEs) {
+        depthMEs->nDigiPerLayer++;
 
         if (clsFlag_)
-          fillDigiClusters(local_mes, digiClusters);
+          fillDigiClusters(depthMEs, digiClusters);
 
         if (nDigi == int(DSViter->size())) {
           // Reached the end of digis in this det
           // Fill local histos that should only be filled once per det
-          local_mes.nHitDetsPerLayer++;
-          if (local_mes.NumberOfDigisPerDet)
-            local_mes.NumberOfDigisPerDet->Fill(nDigi);
+          depthMEs->nHitDetsPerLayer++;
+          if (depthMEs->NumberOfDigisPerDet)
+            depthMEs->NumberOfDigisPerDet->Fill(nDigi);
 
           if (nDigi > 0)
             frac_ot = over_threshold / nDigi;
-          if (local_mes.FractionOfOvTBits && moduleType == TrackerGeometry::ModuleType::Ph2PSS)
-            local_mes.FractionOfOvTBits->Fill(frac_ot);
+          if (depthMEs->FractionOfOvTBits && moduleType == TrackerGeometry::ModuleType::Ph2PSS)
+            depthMEs->FractionOfOvTBits->Fill(frac_ot);
 
           float occupancy = 1.0;
           if (nRows * nColumns > 0)
@@ -396,17 +404,17 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
             GlobalPoint gp =
                 geomDet->surface().toGlobal(gDetUnit->topology().localPosition(MeasurementPoint(0.0, 0.0)));
             if (moduleType == TrackerGeometry::ModuleType::Ph2PSP) {
-              if (local_mes.DigiOccupancyP)
-                local_mes.DigiOccupancyP->Fill(occupancy);
-              if (local_mes.EtaOccupancyProfP)
-                local_mes.EtaOccupancyProfP->Fill(gp.eta(), occupancy);
+              if (depthMEs->DigiOccupancyP)
+                depthMEs->DigiOccupancyP->Fill(occupancy);
+              if (depthMEs->EtaOccupancyProfP)
+                depthMEs->EtaOccupancyProfP->Fill(gp.eta(), occupancy);
             } else {
-              if (local_mes.DigiOccupancyS)
-                local_mes.DigiOccupancyS->Fill(occupancy);
-              if (local_mes.EtaOccupancyProfS)
-                local_mes.EtaOccupancyProfS->Fill(gp.eta(), occupancy);
-              if (local_mes.FractionOfOvTBitsVsEta && moduleType == TrackerGeometry::ModuleType::Ph2PSS)
-                local_mes.FractionOfOvTBitsVsEta->Fill(gp.eta(), frac_ot);
+              if (depthMEs->DigiOccupancyS)
+                depthMEs->DigiOccupancyS->Fill(occupancy);
+              if (depthMEs->EtaOccupancyProfS)
+                depthMEs->EtaOccupancyProfS->Fill(gp.eta(), occupancy);
+              if (depthMEs->FractionOfOvTBitsVsEta && moduleType == TrackerGeometry::ModuleType::Ph2PSS)
+                depthMEs->FractionOfOvTBitsVsEta->Fill(gp.eta(), frac_ot);
             }
           }
         }
@@ -575,15 +583,15 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
   }
 }
 
-void Phase2TrackerMonitorDigi::fillDigiClusters(DigiMEs& mes, std::vector<Ph2DigiCluster>& digi_clusters) {
+void Phase2TrackerMonitorDigi::fillDigiClusters(DigiMEs* mes, std::vector<Ph2DigiCluster>& digi_clusters) {
   int nclus = digi_clusters.size();
-  if (mes.NumberOfClustersPerDet)
-    mes.NumberOfClustersPerDet->Fill(nclus);
+  if (mes->NumberOfClustersPerDet)
+    mes->NumberOfClustersPerDet->Fill(nclus);
   for (auto& iclus : digi_clusters) {
-    if (mes.ClusterWidth)
-      mes.ClusterWidth->Fill(iclus.width);
-    if (pixelFlag_ && mes.ChargeOfDigisVsWidth)
-      mes.ChargeOfDigisVsWidth->Fill(iclus.charge, iclus.width);
+    if (mes->ClusterWidth)
+      mes->ClusterWidth->Fill(iclus.width);
+    if (pixelFlag_ && mes->ChargeOfDigisVsWidth)
+      mes->ChargeOfDigisVsWidth->Fill(iclus.charge, iclus.width);
   }
 }
 // define this as a plug-in
