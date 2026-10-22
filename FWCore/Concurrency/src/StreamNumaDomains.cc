@@ -82,7 +82,8 @@ namespace edm::numa {
     out << " came from the arena of a different domain: the thread moved to the cpus of another NUMA node, where its\n"
         << "    caches are cold and the data it touched before are remote (its jemalloc thread cache is flushed);\n";
     out << "  " << dispatched << " tasks were sent to the arena of their domain from a thread running outside of it\n"
-        << "    (e.g. the production of the EventSetup copies of a domain, or the tasks queued for it).";
+        << "    (the events read by a thread of another domain, the production of the EventSetup copies of a domain,\n"
+        << "    or the tasks queued for it).";
     return out.str();
   }
 
