@@ -6,7 +6,6 @@ from Configuration.StandardSequences.Eras import eras
 
 options = VarParsing()
 options.register("doseMap",  "SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
-options.register("sipmMap",  "SimCalorimetry/HGCalSimProducers/data/sipmParams_geom-10.txt",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register("geometry", "GeometryExtendedRun4D49Reco",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.parseArguments()
 
@@ -27,7 +26,6 @@ process.source = cms.Source("EmptySource")
 process.startup = cms.EDAnalyzer("HGCHEbackSignalScalerAnalyzer",
                                  doseMap  = cms.string( options.doseMap ),
                                  doseMapAlgo = cms.uint32( 2+8+16 ), 
-                                 sipmMap  = cms.string( options.sipmMap ),
                                  referenceIdark = cms.double( 0.125 ) )
 
 #end-of-life (same radiation/sipm maps)

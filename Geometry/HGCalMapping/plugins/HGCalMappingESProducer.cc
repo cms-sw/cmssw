@@ -82,15 +82,6 @@ void HGCalMappingESProducer::prepareCellMapperIndexer() {
 
 //
 void HGCalMappingESProducer::prepareModuleMapperIndexer() {
-  //default values to assign in case module type has not yet been mapped
-  //a high density module (max possible) will be assigned so that the mapping doesn't block
-  auto defaultTypeCodeIdx = cellIndexer_.getEnumFromTypecode("MH-F");
-  auto typecodeidx = defaultTypeCodeIdx;
-  auto defaultNerx = cellIndexer_.getNErxExpectedFor(defaultTypeCodeIdx);
-  auto nerx = defaultNerx;
-  auto defaultTypeNWords = cellIndexer_.getNWordsExpectedFor(defaultTypeCodeIdx);
-  auto nwords = defaultTypeNWords;
-
   const auto& entities = modulesMap_.getEntries();
   for (const auto& row : entities) {
     const std::string& typecode = modulesMap_.getAttr("typecode", row);  // module type code
@@ -116,10 +107,9 @@ void HGCalMappingESProducer::prepareModuleMapperIndexer() {
       }
     }
 
-    typecodeidx = cellIndexer_.getEnumFromTypecode(wtypecode);
-    nwords = cellIndexer_.getNWordsExpectedFor(wtypecode);
-    nerx = cellIndexer_.getNErxExpectedFor(wtypecode);
-
+    auto typecodeidx = cellIndexer_.getEnumFromTypecode(wtypecode);
+    auto nwords = cellIndexer_.getNWordsExpectedFor(wtypecode);
+    auto nerx = cellIndexer_.getNErxExpectedFor(wtypecode);
     int fedid = modulesMap_.getIntAttr("fedid", row);
     int captureblockidx = modulesMap_.getIntAttr("captureblockidx", row);
     int econdidx = modulesMap_.getIntAttr("econdidx", row);
