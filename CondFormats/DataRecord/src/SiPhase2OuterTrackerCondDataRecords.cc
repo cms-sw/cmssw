@@ -4,3 +4,4 @@
 EVENTSETUP_RECORD_REG(SiPhase2OuterTrackerLorentzAngleRcd);
 EVENTSETUP_RECORD_REG(SiPhase2OuterTrackerLorentzAngleSimRcd);
 EVENTSETUP_RECORD_REG(SiPhase2OuterTrackerBadStripRcd);
+EVENTSETUP_RECORD_REG(SiPhase2OuterTrackerBadModuleRcd);
