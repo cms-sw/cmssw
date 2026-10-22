@@ -35,7 +35,6 @@ private:
   const G4double m_zMax;
   const G4bool m_keepStopped;
   const G4bool m_moveTinySteps;
-  const G4bool m_pairProduction;
   const G4double m_crossingLength;
   const G4double m_stopThreshold;
   Quirk* m_quirk{nullptr};

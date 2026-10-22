@@ -56,6 +56,7 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
   bool dd4hep = p.getParameter<bool>("g4GeometryDD4hepSource");
   edm::ParameterSet muonSD = p.getParameter<edm::ParameterSet>("MuonSD");
   printHits_ = muonSD.getParameter<bool>("PrintHits");
+  quirkTracking_ = p.getParameter<bool>("QuirkTracking");
   ePersistentCutGeV_ = muonSD.getParameter<double>("EnergyThresholdForPersistency") / CLHEP::GeV;  //Default 1. GeV
   allMuonsPersistent_ = muonSD.getParameter<bool>("AllMuonsPersistent");
   haveDemo_ = muonSD.getParameter<bool>("HaveDemoChambers");
@@ -147,7 +148,7 @@ bool MuonSensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory* ROhis
       edm::LogVerbatim("MuonSim") << "DETID " << namx << " " << RPCDetId(newDetUnitId);
 #endif
     // another track without BeginOfTrack: a suspended track resumed
-    if (theHit && aStep->GetTrack()->GetTrackID() != theTrackID) {
+    if (quirkTracking_ && theHit && aStep->GetTrack()->GetTrackID() != theTrackID) {
       if (parkedHit && parkedTrackID != aStep->GetTrack()->GetTrackID()) {
         swapParked();
         saveHit();
@@ -345,7 +346,8 @@ void MuonSensitiveDetector::EndOfEvent(G4HCofThisEvent*) { flushHits(); }
 
 void MuonSensitiveDetector::update(const BeginOfTrack*) {
   // a new track: the previous one has ended
-  flushHits();
+  if (quirkTracking_)
+    flushHits();
 }
 
 void MuonSensitiveDetector::swapParked() {

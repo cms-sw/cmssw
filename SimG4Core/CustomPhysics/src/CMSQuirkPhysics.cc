@@ -15,7 +15,6 @@
 #include "G4hMultipleScattering.hh"
 #include "G4hIonisation.hh"
 #include "G4hBremsstrahlung.hh"
-#include "G4hPairProduction.hh"
 #include <CLHEP/Units/SystemOfUnits.h>
 #include <CLHEP/Units/PhysicalConstants.h>
 
@@ -40,8 +39,6 @@ CMSQuirkPhysics::CMSQuirkPhysics(const edm::ParameterSet& p)
       m_zMax(p.getParameter<double>("QuirkMaxZ") * CLHEP::cm),
       m_keepStopped(p.getParameter<bool>("QuirkKeepStopped")),
       m_moveTinySteps(p.getParameter<bool>("QuirkMoveTinySteps")),
-      // off by default: G4MuPairProductionModel has no element data for PDG 17 (em0033 above 8 m_Q)
-      m_pairProduction(p.getParameter<bool>("QuirkPairProduction")),
       // must stay well below the first string, else the restart repeats at production
       m_crossingLength(std::min(p.getParameter<double>("QuirkCrossingLength") * CLHEP::mm, 0.1 * m_firstStringLength)),
       m_stopThreshold(p.getParameter<double>("QuirkStopThreshold") * CLHEP::MeV) {
@@ -56,8 +53,7 @@ CMSQuirkPhysics::CMSQuirkPhysics(const edm::ParameterSet& p)
       << " eV (string force " << m_stringForce / (CLHEP::MeV / CLHEP::mm) << " MeV/mm), first string length "
       << m_firstStringLength / CLHEP::mm << " mm, max boost " << m_maxBoost << ", max merge " << m_maxMergeT / CLHEP::mm
       << " mm, killed at r > " << m_rMax / CLHEP::cm << " cm or |z| > " << m_zMax / CLHEP::cm
-      << " cm (<= 0: never), pair production " << (m_pairProduction ? "on" : "off") << ", stopped quirks "
-      << (m_keepStopped ? "kept while the partner moves" : "killed");
+      << " cm (<= 0: never), stopped quirks " << (m_keepStopped ? "kept while the partner moves" : "killed");
 }
 
 void CMSQuirkPhysics::ConstructParticle() {
@@ -93,12 +89,9 @@ void CMSQuirkPhysics::ConstructProcess() {
     auto transport = new QuirkTransportation(m_verbose, m_moveTinySteps, m_crossingLength);
     transport->SetThresholdTrials(m_looperTrials);
     pmanager->AddProcess(transport, -1, 0, 0);
-    pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
+    pmanager->AddProcess(new G4hMultipleScattering, -1, 1, -1);
     pmanager->AddProcess(new G4hIonisation, -1, 2, 2);
-    pmanager->AddProcess(new G4hBremsstrahlung, -1, 3, 3);
-    if (m_pairProduction) {
-      pmanager->AddProcess(new G4hPairProduction, -1, 4, 4);
-    }
+    pmanager->AddProcess(new G4hBremsstrahlung, -1, -1, 3);
     pmanager->AddProcess(new QuirkWatcher(m_rMax, m_zMax, m_keepStopped, m_stopThreshold), -1, -1, 5);
     if (m_verbose > 1) {
       pmanager->DumpInfo();

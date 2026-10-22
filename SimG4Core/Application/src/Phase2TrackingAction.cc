@@ -18,9 +18,13 @@
 
 //#define EDM_ML_DEBUG
 
-Phase2TrackingAction::Phase2TrackingAction(SimTrackManager* stm, CMSSteppingVerbose* sv, const edm::ParameterSet& p)
+Phase2TrackingAction::Phase2TrackingAction(SimTrackManager* stm,
+                                           CMSSteppingVerbose* sv,
+                                           const edm::ParameterSet& p,
+                                           bool quirkTracking)
     : trackManager_(stm),
       steppingVerbose_(sv),
+      quirkTracking_(quirkTracking),
       endPrintTrackID_(p.getParameter<int>("EndPrintTrackID")),
       checkTrack_(p.getUntrackedParameter<bool>("CheckTrack", false)),
       doFineCalo_(p.getParameter<bool>("DoFineCalo")),
@@ -46,7 +50,7 @@ Phase2TrackingAction::Phase2TrackingAction(SimTrackManager* stm, CMSSteppingVerb
 
 void Phase2TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
   // a resumed track continues with its history, no new BeginOfTrack
-  if (aTrack->GetCurrentStepNumber() > 0 && resumeSuspended(aTrack)) {
+  if (quirkTracking_ && aTrack->GetCurrentStepNumber() > 0 && resumeSuspended(aTrack)) {
     return;
   }
   resumed_ = false;
@@ -133,7 +137,7 @@ void Phase2TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
 #endif
 
   // suspended: keep the history, the track ends later
-  if (MCTruthUtil::isSuspended(aTrack)) {
+  if (quirkTracking_ && MCTruthUtil::isSuspended(aTrack)) {
     suspended_.push_back({id, currentHistory_, !isInHistory});
     return;
   }
@@ -177,7 +181,7 @@ void Phase2TrackingAction::endResumed(const G4Track* aTrack) {
       }
     }
   }
-  if (MCTruthUtil::isSuspended(aTrack)) {
+  if (quirkTracking_ && MCTruthUtil::isSuspended(aTrack)) {
     suspended_.push_back({id, currentHistory_, owned_});
     return;
   }

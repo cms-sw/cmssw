@@ -71,6 +71,7 @@ private:
   bool allowZeroEnergyLoss;
   bool printHits;
   bool neverAccumulate;
+  bool quirkTracking;
   double rTracker2;  // tracker volume R^2
   double rTracker;   // tracker volume R
   double zTracker;   // tracker volume Z

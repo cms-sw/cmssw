@@ -9,8 +9,8 @@
 #include "G4TransportationManager.hh"
 #include "G4VSolid.hh"
 
-Phase2StackingAction::Phase2StackingAction(const edm::ParameterSet& p, const CMSSteppingVerbose* sv)
-    : steppingVerbose(sv) {
+Phase2StackingAction::Phase2StackingAction(const edm::ParameterSet& p, const CMSSteppingVerbose* sv, bool qt)
+    : steppingVerbose(sv), quirkTracking(qt) {
   trackNeutrino = p.getParameter<bool>("TrackNeutrino");
   worldSolid = G4TransportationManager::GetTransportationManager()
                    ->GetNavigatorForTracking()
@@ -21,7 +21,7 @@ Phase2StackingAction::Phase2StackingAction(const edm::ParameterSet& p, const CMS
 
 G4ClassificationOfNewTrack Phase2StackingAction::ClassifyNewTrack(const G4Track* aTrack) {
   // a resumed (suspended) track is not new: keep the Geant4 default classification
-  if (MCTruthUtil::isSuspended(aTrack)) {
+  if (quirkTracking && MCTruthUtil::isSuspended(aTrack)) {
     return stackManager->GetDefaultClassification();
   }
   G4ClassificationOfNewTrack classification = fUrgent;

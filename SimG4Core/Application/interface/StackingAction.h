@@ -18,7 +18,7 @@ class CMSG4TrackInterface;
 
 class StackingAction : public G4UserStackingAction {
 public:
-  explicit StackingAction(const edm::ParameterSet& ps, const CMSSteppingVerbose*);
+  explicit StackingAction(const edm::ParameterSet& ps, const CMSSteppingVerbose*, bool quirkTracking = false);
 
   ~StackingAction() override = default;
 
@@ -69,6 +69,7 @@ private:
   G4VSolid* worldSolid;
   CMSG4TrackInterface* m_trackInterface;
   const CMSSteppingVerbose* steppingVerbose;
+  bool quirkTracking;
   const G4VProcess* m_Compton{nullptr};
 
   // Russian roulette regions

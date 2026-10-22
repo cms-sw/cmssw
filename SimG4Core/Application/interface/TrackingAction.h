@@ -19,7 +19,10 @@ class TrackInformation;
 
 class TrackingAction : public G4UserTrackingAction {
 public:
-  explicit TrackingAction(SimTrackManager*, CMSSteppingVerbose*, const edm::ParameterSet& ps);
+  explicit TrackingAction(SimTrackManager*,
+                          CMSSteppingVerbose*,
+                          const edm::ParameterSet& ps,
+                          bool quirkTracking = false);
   ~TrackingAction() override = default;
 
   void PreUserTrackingAction(const G4Track* aTrack) override;
@@ -52,6 +55,7 @@ private:
   bool resumeSuspended(const G4Track* aTrack);
   void endResumed(const G4Track* aTrack);
   std::vector<SuspendedTrack> suspended_;
+  bool quirkTracking_;
   bool resumed_ = false;
   bool owned_ = false;
   int endPrintTrackID_;

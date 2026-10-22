@@ -60,6 +60,7 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::stri
   allowZeroEnergyLoss = m_TrackerSD.getParameter<bool>("ZeroEnergyLoss");
   neverAccumulate = m_TrackerSD.getParameter<bool>("NeverAccumulate");
   printHits = m_TrackerSD.getParameter<bool>("PrintHits");
+  quirkTracking = p.getParameter<bool>("QuirkTracking");
   theTofLimit = m_TrackerSD.getParameter<double>("ElectronicSigmaInNanoSeconds") * 3 * CLHEP::ns;  // 3 sigma
   energyCut =
       m_TrackerSD.getParameter<double>("EnergyThresholdForPersistencyInGeV") * CLHEP::GeV;  //default must be 0.5
@@ -106,7 +107,7 @@ bool TkAccumulatingSensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHist
 
   if (aStep->GetTotalEnergyDeposit() > 0. || allowZeroEnergyLoss) {
     // another track without BeginOfTrack: a suspended track resumed
-    if (mySimHit && aStep->GetTrack()->GetTrackID() != lastTrack) {
+    if (quirkTracking && mySimHit && aStep->GetTrack()->GetTrackID() != lastTrack) {
       swapParked(aStep->GetTrack()->GetTrackID());
     }
     if (!mySimHit) {
@@ -156,7 +157,8 @@ void TkAccumulatingSensitiveDetector::flushHits() {
 void TkAccumulatingSensitiveDetector::update(const BeginOfTrack* bot) {
   const G4Track* gTrack = (*bot)();
   // a new track: the previous one has ended
-  flushHits();
+  if (quirkTracking)
+    flushHits();
 
 #ifdef DUMPPROCESSES
   if (gTrack->GetCreatorProcess()) {

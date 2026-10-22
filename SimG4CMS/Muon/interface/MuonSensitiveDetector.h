@@ -98,6 +98,7 @@ private:
   int parkedTrackID{0};
 
   bool printHits_;
+  bool quirkTracking_;
   SimHitPrinter* thePrinter;
 
   //--- SimTracks cuts
