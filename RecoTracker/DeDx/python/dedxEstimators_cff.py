@@ -7,6 +7,8 @@ dedxHitInfo = cms.EDProducer("DeDxHitInfoProducer",
     minTrackPt         = cms.double(10),
     minTrackPtPrescale = cms.double(0.5), # minimal pT for prescaled low pT tracks
     maxTrackEta        = cms.double(5.0),
+    maxNTracks         = cms.int32(-1), # maximum track multiplicity passing nTrackSel
+    nTrackSel          = cms.string(""),
 
     useStrip           = cms.bool(True),
     usePixel           = cms.bool(True),
@@ -93,9 +95,7 @@ run3_common.toModify(dedxHitInfo,
 # dEdx for Run-3 UPC
 dedxAllHitInfo = dedxHitInfo.clone(minTrackPt = 0)
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
-run3_upc.toModify(dedxHitInfo, lowPtTracksPrescalePass = 50, lowPtTracksPrescaleFail = 50, minTrackPtPrescale = 0, usePixelForPrescales = True, storeMomentumAtHit = True)
-from Configuration.Eras.Modifier_run3_oxygen_cff import run3_oxygen
-(run3_upc & ~run3_oxygen).toModify(dedxHitInfo, lowPtTracksPrescalePass = 4, lowPtTracksPrescaleFail = 4)
+run3_upc.toModify(dedxHitInfo, maxNTracks = 50, nTrackSel = 'quality("highPurity") && abs(eta)<2.4 && pt>0.5', minTrackPt = 0, storeMomentumAtHit = True)
 
 from RecoTracker.DeDx.dedxHitCalibrator_cfi import dedxHitCalibrator as _dedxHitCalibrator
 from SimGeneral.MixingModule.SiStripSimParameters_cfi import SiStripSimBlock as _SiStripSimBlock
