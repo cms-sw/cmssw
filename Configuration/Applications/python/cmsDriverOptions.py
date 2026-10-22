@@ -4,7 +4,6 @@
 
 import optparse
 import sys
-import os
 import re
 import Configuration.Applications
 from Configuration.Applications.ConfigBuilder import ConfigBuilder, defaultOptions
@@ -288,8 +287,28 @@ def OptionsFromItems(items):
     # options incompatible with fastsim
     if options.fast and not options.scenario == "pp":
         raise Exception("ERROR: the --option fast is only compatible with the default scenario (--scenario=pp)")
+    customisation_files = getattr(options, "customisation_file", []) or []
+    if isinstance(customisation_files, str):
+        customisation_files = [customisation_files]
+    fastsimHLTResurrection = any(
+        customisation.endswith("customizeFastSimHLT.customizeFastSimHLTGRunReviewDefault")
+        for customisation in customisation_files
+    )
     if options.fast and 'HLT' in options.trimmedStep:
-        raise Exception("ERROR: the --option fast is incompatible with HLT (HLT is no longer available in FastSim)")
+        if not fastsimHLTResurrection:
+            raise Exception(
+                "ERROR: the --option fast is incompatible with HLT by default. "
+                "Use the following to enable the experimental FastSim HLT prototype: "
+                "--customise FastSimulation/HighLevelTrigger/customizeFastSimHLT.customizeFastSimHLTGRunReviewDefault"
+            )
+        fastsimHLTRun3Era = any(
+            era.strip() == "Run3" or era.strip().startswith("Run3_")
+            for era in (options.era or "").split(",")
+        )
+        if not fastsimHLTRun3Era:
+            raise Exception(
+                "ERROR: the experimental FastSim HLT prototype is supported only for Run 3 FastSim configurations. "
+                "Use a Run3-era FastSim option, e.g. --era Run3_2023_FastSim."
+            )
 
     return options
-
