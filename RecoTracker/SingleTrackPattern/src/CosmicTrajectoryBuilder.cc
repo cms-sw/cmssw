@@ -2,12 +2,15 @@
 // Package:         RecoTracker/SingleTrackPattern
 // Class:           CosmicTrajectoryBuilder
 // Original Author:  Michele Pioppi-INFN perugia
+#include <algorithm>
 #include <vector>
 #include <iostream>
 #include <cmath>
 
 #include "RecoTracker/SingleTrackPattern/interface/CosmicTrajectoryBuilder.h"
+#include "CondFormats/SiPhase2TrackerObjects/interface/SiPhase2OuterTrackerLorentzAngle.h"
 #include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -17,6 +20,28 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
 using namespace std;
+
+namespace {
+
+  /// @brief check for hits already on a seed. As the latter are cloned,
+  /// use identical global position (with a tolerance) rather than
+  /// testing pointer equality.
+  /// @param globHit: global-frame position of the hit to check against the seed
+  /// @param seedHits: List of hits on the seed
+  /// @return true if the passed position matches one of the hits on the seed
+  ///         within the given tolerance.
+  bool onSeed(const GlobalPoint &globHit, const std::vector<std::shared_ptr<const TrackingRecHit>> &seedHits) {
+    /// tolerance: 1 um - should be well below expected distance between genuine separate hits
+    static constexpr double epsilon = 0.0001 * 0.0001;
+    for (const std::shared_ptr<const TrackingRecHit> &rh : seedHits) {
+      if ((rh->globalPosition() - globHit).mag2() < epsilon) {
+        return true;
+      }
+    }
+    return false;
+  };
+}  // namespace
+
 CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet &conf, edm::ConsumesCollector iC)
     : magfieldToken_(iC.esConsumes()),
       trackerToken_(iC.esConsumes()),
@@ -63,14 +88,16 @@ void CosmicTrajectoryBuilder::init(const edm::EventSetup &es, bool seedplus) {
   theSmoother->setHitCloner(&hitCloner);
 }
 
-void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
-                                  const SiStripRecHit2DCollection &collstereo,
-                                  const SiStripRecHit2DCollection &collrphi,
-                                  const SiStripMatchedRecHit2DCollection &collmatched,
-                                  const SiPixelRecHitCollection &collpixel,
-                                  const edm::EventSetup &es,
-                                  edm::Event &e,
-                                  vector<Trajectory> &trajoutput) {
+void CosmicTrajectoryBuilder::run(
+    const TrajectorySeedCollection &collseed,
+    std::optional<std::reference_wrapper<const SiStripRecHit2DCollection>> collstereo,
+    std::optional<std::reference_wrapper<const SiStripRecHit2DCollection>> collrphi,
+    std::optional<std::reference_wrapper<const SiStripMatchedRecHit2DCollection>> collmatched,
+    std::optional<std::reference_wrapper<const SiPixelRecHitCollection>> collpixel,
+    std::optional<std::reference_wrapper<const Phase2TrackerRecHit1DCollectionNew>> p2RecHits1D,
+    const edm::EventSetup &es,
+    edm::Event &e,
+    vector<Trajectory> &trajoutput) {
   std::vector<Trajectory> trajSmooth;
   std::vector<Trajectory>::iterator trajIter;
 
@@ -83,7 +110,8 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
     trajFit.clear();
     trajSmooth.clear();
     //order all the hits
-    vector<const TrackingRecHit *> allHits = SortHits(collstereo, collrphi, collmatched, collpixel, *iseed);
+    vector<const TrackingRecHit *> allHits =
+        SortHits(collstereo, collrphi, collmatched, collpixel, p2RecHits1D, *iseed);
     Trajectory startingTraj = createStartingTrajectory(*iseed);
     AddHit(startingTraj, allHits);
     for (trajIter = trajFit.begin(); trajIter != trajFit.end(); trajIter++) {
@@ -135,43 +163,58 @@ std::vector<TrajectoryMeasurement> CosmicTrajectoryBuilder::seedMeasurements(con
   return result;
 }
 
-vector<const TrackingRecHit *> CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
-                                                                 const SiStripRecHit2DCollection &collrphi,
-                                                                 const SiStripMatchedRecHit2DCollection &collmatched,
-                                                                 const SiPixelRecHitCollection &collpixel,
-                                                                 const TrajectorySeed &seed) {
-  //The Hits with global y more than the seed are discarded
-  //The Hits correspondign to the seed are discarded
+vector<const TrackingRecHit *> CosmicTrajectoryBuilder::SortHits(
+    std::optional<std::reference_wrapper<const SiStripRecHit2DCollection>> collstereo,
+    std::optional<std::reference_wrapper<const SiStripRecHit2DCollection>> collrphi,
+    std::optional<std::reference_wrapper<const SiStripMatchedRecHit2DCollection>> collmatched,
+    std::optional<std::reference_wrapper<const SiPixelRecHitCollection>> collpixel,
+    std::optional<std::reference_wrapper<const Phase2TrackerRecHit1DCollectionNew>> p2RecHits1D,
+    const TrajectorySeed &seed) {
+  //The Hits corresponding to the seed are discarded
   //At the end all the hits are sorted in y
   vector<const TrackingRecHit *> allHits;
 
   SiStripRecHit2DCollection::DataContainer::const_iterator istrip;
-  float yref = 0.;
+
   for (auto const &recHit : seed.recHits()) {
-    yref = RHBuilder->build(&recHit)->globalPosition().y();
     hits.push_back((RHBuilder->build(&recHit)));
-    LogDebug("CosmicTrackFinder") << "SEED HITS" << RHBuilder->build(&recHit)->globalPosition();
   }
 
   SiPixelRecHitCollection::DataContainer::const_iterator ipix;
-  for (ipix = collpixel.data().begin(); ipix != collpixel.data().end(); ipix++) {
-    float ych = RHBuilder->build(&(*ipix))->globalPosition().y();
-    if ((seed_plus && (ych < yref)) || (!(seed_plus) && (ych > yref)))
-      allHits.push_back(&(*ipix));
+  if (collpixel.has_value()) {
+    for (const SiPixelRecHit &iPix : collpixel.value().get().data()) {
+      if (onSeed(RHBuilder->build(&iPix)->globalPosition(), hits)) {
+        continue;
+      }
+      allHits.push_back(&iPix);
+    }
   }
 
-  for (istrip = collrphi.data().begin(); istrip != collrphi.data().end(); istrip++) {
-    float ych = RHBuilder->build(&(*istrip))->globalPosition().y();
-    if ((seed_plus && (ych < yref)) || (!(seed_plus) && (ych > yref)))
-      allHits.push_back(&(*istrip));
+  if (collrphi.has_value()) {
+    for (const SiStripRecHit2D &iStrip : collrphi.value().get().data()) {
+      if (onSeed(RHBuilder->build(&iStrip)->globalPosition(), hits)) {
+        continue;
+      }
+      allHits.push_back(&iStrip);
+    }
+  }
+  if (collstereo.has_value()) {
+    for (const SiStripRecHit2D &istrip : collstereo.value().get().data()) {
+      if (onSeed(RHBuilder->build(&istrip)->globalPosition(), hits)) {
+        continue;
+      }
+      allHits.push_back(&istrip);
+    }
   }
 
-  for (istrip = collstereo.data().begin(); istrip != collstereo.data().end(); istrip++) {
-    float ych = RHBuilder->build(&(*istrip))->globalPosition().y();
-    if ((seed_plus && (ych < yref)) || (!(seed_plus) && (ych > yref)))
-      allHits.push_back(&(*istrip));
+  if (p2RecHits1D.has_value()) {
+    for (const Phase2TrackerRecHit1D &otHit : p2RecHits1D.value().get().data()) {
+      if (onSeed(RHBuilder->build(&otHit)->globalPosition(), hits)) {
+        continue;
+      }
+      allHits.push_back(&otHit);
+    }
   }
-
   if (seed_plus)
     stable_sort(allHits.begin(), allHits.end(), CompareHitY_plus(*tracker));
   else
