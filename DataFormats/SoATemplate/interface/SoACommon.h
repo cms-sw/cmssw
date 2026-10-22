@@ -6,6 +6,7 @@
  */
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <cassert>
 #include <cstring>
@@ -171,13 +172,28 @@ namespace cms::soa {
     };
   };
 
-  template <class M>
-  struct SoAStrideFromMap;
+  // Stride type for the Eigen::Map objects that give access to the elements of an Eigen column.
+  //
+  // The elements of a matrix in an Eigen column are stored "stride" positions apart, with the stride known only at
+  // runtime. Eigen describes this layout with Eigen::InnerStride<Eigen::Dynamic>.
+  // See https://github.com/PX4/eigen/blob/master/Eigen/src/Core/Stride.h for more information
+  // This class replaces it so that the SoA headers do not depend on Eigen;
+  // the Map type itself comes from C::StridedMapType<DynamicInnerStride>.
+  // The Eigen stride class uses std::ptrdiff_t for indexing by default, hence used here to match what eigen expects
+  // See https://github.com/PX4/eigen/blob/master/Eigen/src/Core/util/Macros.h#L336
+  struct DynamicInnerStride {
+    enum {
+      InnerStrideAtCompileTime = -1,  // -1 means that the inner stride can be set dynamically at runtime
+      OuterStrideAtCompileTime = 0    // 0 means that the outer stride is hard fixed to 0 and can not be changed
+    };
 
-  template <template <class, auto, class> class MapT, class Plain, auto Opts,
-            template <auto, auto> class StrideT, auto Outer, auto Inner>
-  struct SoAStrideFromMap<MapT<Plain, Opts, StrideT<Outer, Inner>>> {
-      using DynInner = StrideT<0, -1>;
+    SOA_HOST_DEVICE SOA_INLINE constexpr explicit DynamicInnerStride(byte_size_type inner) noexcept
+        : inner_(static_cast<std::ptrdiff_t>(inner)) {}
+
+    SOA_HOST_DEVICE SOA_INLINE constexpr std::ptrdiff_t outer() const noexcept { return OuterStrideAtCompileTime; }
+    SOA_HOST_DEVICE SOA_INLINE constexpr std::ptrdiff_t inner() const noexcept { return inner_; }
+
+    const std::ptrdiff_t inner_;
   };
 
   // Templated parameter sets for scalars, columns and Eigen columns
@@ -360,7 +376,7 @@ namespace cms::soa {
   class SoAValue<SoAColumnType::eigen, C, ALIGNMENT, RESTRICT_QUALIFY> {
   public:
     using Type = C;
-    using StrideT = typename SoAStrideFromMap<typename C::MapType>::DynInner;
+    using StrideT = DynamicInnerStride;
     using MapType = typename C::template StridedMapType<StrideT>::type;
     using CMapType = const typename C::template StridedConstMapType<StrideT>::type;
     using Restr = add_restrict<typename C::Scalar, RESTRICT_QUALIFY>;
@@ -371,21 +387,15 @@ namespace cms::soa {
     using RefToConst = typename Restr::ReferenceToConst;
 
     SOA_HOST_DEVICE SOA_INLINE SoAValue(size_type i, typename C::Scalar* col, byte_size_type stride)
-        : val_(col + i, C::RowsAtCompileTime, C::ColsAtCompileTime, StrideT(0, stride)),
+        : val_(col + i, C::RowsAtCompileTime, C::ColsAtCompileTime, StrideT(stride)),
           crCol_(col),
-          cVal_(crCol_ + i, C::RowsAtCompileTime, C::ColsAtCompileTime, StrideT(0, stride)),
+          cVal_(crCol_ + i, C::RowsAtCompileTime, C::ColsAtCompileTime, StrideT(stride)),
           stride_(stride) {}
 
     SOA_HOST_DEVICE SOA_INLINE SoAValue(size_type i, SoAParametersImpl<SoAColumnType::eigen, C> params)
-        : val_(params.addr_ + i,
-               C::RowsAtCompileTime,
-               C::ColsAtCompileTime,
-               StrideT(0, params.stride_)),
+        : val_(params.addr_ + i, C::RowsAtCompileTime, C::ColsAtCompileTime, StrideT(params.stride_)),
           crCol_(params.addr_),
-          cVal_(crCol_ + i,
-                C::RowsAtCompileTime,
-                C::ColsAtCompileTime,
-                StrideT(0, params.stride_)),
+          cVal_(crCol_ + i, C::RowsAtCompileTime, C::ColsAtCompileTime, StrideT(params.stride_)),
           stride_(params.stride_) {}
 
     SOA_HOST_DEVICE SOA_INLINE MapType& operator()() { return val_; }
@@ -491,22 +501,19 @@ namespace cms::soa {
   class SoAConstValue<SoAColumnType::eigen, C, ALIGNMENT, RESTRICT_QUALIFY> {
   public:
     using Type = C;
-    using StrideT = typename SoAStrideFromMap<typename C::MapType>::DynInner;
+    using StrideT = DynamicInnerStride;
     using CMapType = const typename C::template StridedConstMapType<StrideT>::type;
     using RefToConst = const CMapType&;
     using ConstParams = SoAConstParametersImpl<SoAColumnType::eigen, C>;
 
     SOA_HOST_DEVICE SOA_INLINE SoAConstValue(size_type i, typename C::Scalar* col, byte_size_type stride)
         : crCol_(col),
-          cVal_(crCol_ + i, C::RowsAtCompileTime, C::ColsAtCompileTime, StrideT(0, stride)),
+          cVal_(crCol_ + i, C::RowsAtCompileTime, C::ColsAtCompileTime, StrideT(stride)),
           stride_(stride) {}
 
     SOA_HOST_DEVICE SOA_INLINE SoAConstValue(size_type i, SoAConstParametersImpl<SoAColumnType::eigen, C> params)
         : crCol_(params.addr_),
-          cVal_(crCol_ + i,
-                C::RowsAtCompileTime,
-                C::ColsAtCompileTime,
-                StrideT(0, params.stride_)),
+          cVal_(crCol_ + i, C::RowsAtCompileTime, C::ColsAtCompileTime, StrideT(params.stride_)),
           stride_(params.stride_) {}
 
     SOA_HOST_DEVICE SOA_INLINE const CMapType& operator()() const { return cVal_; }
