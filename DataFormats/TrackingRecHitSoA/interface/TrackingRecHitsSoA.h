@@ -49,15 +49,18 @@ namespace reco {
                       SOA_SCALAR(int32_t, endCapZPos),
                       SOA_SCALAR(int32_t, endCapZNeg))
 
-  using TrackingRecHitSoA = TrackingHitsLayout<>;
+  using TrackingRecHitSoA = TrackingHitsLayout<>::AoSWrapper;
+  ;
   using TrackingRecHitView = TrackingRecHitSoA::View;
   using TrackingRecHitConstView = TrackingRecHitSoA::ConstView;
 
-  using HitModuleSoA = HitModulesLayout<>;
+  using HitModuleSoA = HitModulesLayout<>::AoSWrapper;
+  ;
   using HitModuleSoAView = HitModuleSoA::View;
   using HitModuleSoAConstView = HitModuleSoA::ConstView;
 
-  using TrackingBlocksSoA = TrackingBlocksLayout<>;
+  using TrackingBlocksSoA = TrackingBlocksLayout<>::AoSWrapper;
+  ;
   using TrackingBlocksSoAView = TrackingBlocksSoA::View;
   using TrackingBlocksSoAConstView = TrackingBlocksSoA::ConstView;
 

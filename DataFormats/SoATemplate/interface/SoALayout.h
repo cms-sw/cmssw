@@ -299,8 +299,28 @@ namespace cms::soa {
  * Declare the value_element data members
  */
 // clang-format off
+#define _DEFINE_RECORD_TYPE_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                 \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                              \
+    /* Scalar */                                                                                           \
+    ,                                                                                                      \
+    /* Column */                                                                                           \
+    CPP_TYPE BOOST_PP_CAT(NAME, _);,                                                                       \
+    /* Eigen column */                                                                                     \
+    cms::soa::detail::EigenRecordType<CPP_TYPE> BOOST_PP_CAT(NAME, _);                                     \
+  )
+// clang-format on
+
+#define _DEFINE_RECORD_TYPE_MEMBERS(R, DATA, TYPE_NAME)                                     \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DEFINE_RECORD_TYPE_MEMBERS_IMPL TYPE_NAME))
+
+/**
+ * Declare the RecordType data members
+ */
+// clang-format off
 #define _DEFINE_VALUE_ELEMENT_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
-  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, CPP_TYPE NAME;)
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, CPP_TYPE BOOST_PP_CAT(NAME, _);)
 // clang-format on
 
 #define _DEFINE_VALUE_ELEMENT_MEMBERS(R, DATA, TYPE_NAME)                                   \
@@ -326,7 +346,7 @@ namespace cms::soa {
  */
 // clang-format off
 #define _VALUE_ELEMENT_INITIALIZERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
-  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (NAME{NAME}))
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (BOOST_PP_CAT(NAME, _){NAME}))
 // clang-format on
 
 #define _VALUE_ELEMENT_INITIALIZERS(R, DATA, TYPE_NAME)                                     \
@@ -1082,6 +1102,17 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
               BOOST_PP_EXPAND(_DECLARE_VIEW_ELEMENT_VALUE_ARG_IMPL TYPE_NAME))
 
 /**
+ * Generator of parameters for value_element (expanded comma separated).
+ */
+#define _DECLARE_VALUE_ELEMENT_ARG_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (CPP_TYPE NAME))
+
+#define _DECLARE_VALUE_ELEMENT_ARG(R, DATA, TYPE_NAME)                                      \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_VALUE_ELEMENT_ARG_IMPL TYPE_NAME))
+
+/**
  * Generator of element members initializer.
  */
 #define _DECLARE_VIEW_ELEM_MEMBER_INIT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS, DATA) \
@@ -1104,17 +1135,57 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
               BOOST_PP_EXPAND(_DECLARE_VIEW_ELEMENT_VALUE_COPY_IMPL TYPE_NAME))
 
 /**
- * Assign the value of the view from the values in the value_element.
+ * Assign the value of the view from the value_element.
  */
 // clang-format off
 #define _TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
-  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, NAME() = _soa_impl_value.NAME;)
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, NAME() = _soa_impl_value.BOOST_PP_CAT(NAME, _);)
 // clang-format on
 
 #define _TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT(R, DATA, TYPE_NAME)                              \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
               BOOST_PP_EMPTY(),                                                             \
               BOOST_PP_EXPAND(_TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT_IMPL TYPE_NAME))
+
+/**
+ * Assign a RecordType to the view.
+ */
+// clang-format off
+#define _TRIVIAL_VIEW_ASSIGN_RECORDTYPE_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)              \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                                               \
+    /* Scalar */                                                                            \
+    ,                                                                                       \
+    /* Column */                                                                            \
+    NAME() = record.NAME();,                                                                \
+    /* Eigen column */                                                                      \
+    NAME() = cms::soa::EigenConstMap<CPP_TYPE>((record.NAME()).data());                     \
+  )
+// clang-format on
+
+#define _TRIVIAL_VIEW_ASSIGN_RECORDTYPE(R, DATA, TYPE_NAME)                                 \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_TRIVIAL_VIEW_ASSIGN_RECORDTYPE_IMPL TYPE_NAME))
+
+/**
+ * List initialization for value_element from RecordType.
+ */
+// clang-format off
+#define _TRIVIAL_LIST_INIT_RECORDTYPE_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                               \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                              \
+    /* Scalar */                                                                                           \
+    ,                                                                                                      \
+    /* Column */                                                                                           \
+    (BOOST_PP_CAT(NAME, _){record.BOOST_PP_CAT(NAME, _)}),                                                 \
+    /* Eigen column */                                                                                     \
+    (BOOST_PP_CAT(NAME, _){cms::soa::EigenConstMap<CPP_TYPE>((record.BOOST_PP_CAT(NAME, _)).data())})      \
+  )
+// clang-format on
+
+#define _TRIVIAL_LIST_INIT_RECORDTYPE(R, DATA, TYPE_NAME)                                   \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_TRIVIAL_LIST_INIT_RECORDTYPE_IMPL TYPE_NAME))
 
 /**
  * Declaration of the private members of the element subclass
@@ -1259,6 +1330,313 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
               BOOST_PP_EMPTY(),                                                             \
               BOOST_PP_EXPAND(_DECLARE_VIEW_SOA_ACCESSOR_IMPL TYPE_NAME))
 
+// ============================================== AoS Macros ===========================================================
+/**
+ * Declare the AoS scalars as data members
+ */
+// clang-format off
+#define _DECLARE_SCALAR_MEMBERS_AOS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE, CPP_TYPE* BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(scalar_) = nullptr;)
+// clang-format on
+
+#define _DECLARE_SCALAR_MEMBERS_AOS(R, DATA, TYPE_NAME)                                     \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_SCALAR_MEMBERS_AOS_IMPL TYPE_NAME))
+
+/**
+ * Expand copy assignments of scalars
+ */
+// clang-format off
+#define _DECLARE_AOS_MEMBER_COPY_CONSTRUCTION_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE,(BOOST_PP_CAT(NAME, _){_aos_impl_other.BOOST_PP_CAT(NAME, _)}))
+// clang-format on
+
+#define _DECLARE_AOS_MEMBER_COPY_CONSTRUCTION(R, DATA, TYPE_NAME)                           \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_AOS_MEMBER_COPY_CONSTRUCTION_IMPL TYPE_NAME))
+
+// clang-format off
+#define _DECLARE_AOS_MEMBER_ASSIGNMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE, BOOST_PP_CAT(NAME, _) = _aos_impl_other.BOOST_PP_CAT(NAME, _);)
+// clang-format on
+
+#define _DECLARE_AOS_MEMBER_ASSIGNMENT(R, DATA, TYPE_NAME)                                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_AOS_MEMBER_ASSIGNMENT_IMPL TYPE_NAME))
+
+/**
+ * Declare the const AoS scalars as data members
+ */
+// clang-format off
+#define _DECLARE_SCALAR_MEMBERS_AOS_CONSTVIEW_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE, CPP_TYPE* BOOST_PP_CAT(NAME, _) = nullptr;)
+// clang-format on
+
+#define _DECLARE_SCALAR_MEMBERS_AOS_CONSTVIEW(R, DATA, TYPE_NAME)                           \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_SCALAR_MEMBERS_AOS_CONSTVIEW_IMPL TYPE_NAME))
+
+/**
+ * Construct AoSView scalars from AoS Layout
+ */
+// clang-format off
+#define _INSTANTIATE_CONSTVIEW_AOS_SCALARS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE, (BOOST_PP_CAT(NAME, _){layout.BOOST_PP_CAT(NAME, _)}))
+// clang-format on
+
+#define _INSTANTIATE_CONSTVIEW_AOS_SCALARS(R, DATA, TYPE_NAME)                              \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_INSTANTIATE_CONSTVIEW_AOS_SCALARS_IMPL TYPE_NAME))
+
+/**
+ * Construct AoSView scalars from AoS Layout
+ */
+// clang-format off
+#define _DECLARE_AOS_VIEW_OTHER_MEMBER_LIST_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE, (other.BOOST_PP_CAT(NAME, _)))
+// clang-format on
+
+#define _DECLARE_AOS_VIEW_OTHER_MEMBER_LIST(R, DATA, TYPE_NAME)                             \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_AOS_VIEW_OTHER_MEMBER_LIST_IMPL TYPE_NAME))
+
+/**
+ * Computation of the scalar size for AoS size computation
+ */
+// clang-format off
+#define _ACCUMULATE_AOS_SCALARS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE, _aos_impl_ret += cms::soa::alignSize(sizeof(CPP_TYPE), alignment);)
+// clang-format on
+
+#define _ACCUMULATE_AOS_SCALARS(R, DATA, TYPE_NAME)                                         \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_ACCUMULATE_AOS_SCALARS_IMPL TYPE_NAME))
+
+/**
+ * Assign the memory to the AoS scalars
+ */
+// clang-format off
+#define _ASSIGN_AOS_SCALAR_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)    \
+  _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE,                                         \
+      BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(_aos_impl_curMem); \
+      _aos_impl_curMem += cms::soa::alignSize(sizeof(CPP_TYPE), alignment);)
+// clang-format on
+
+#define _ASSIGN_AOS_SCALAR_MEMBERS(R, DATA, TYPE_NAME)                                      \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_ASSIGN_AOS_SCALAR_MEMBERS_IMPL TYPE_NAME))
+
+/**
+ * Copy the AoS scalars from a SoA view
+ */
+// clang-format off
+#define _COPY_AOS_SCALAR_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE, this->NAME() = view.NAME();)
+
+#define _COPY_AOS_SCALAR_MEMBERS(R, DATA, TYPE_NAME)                                        \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_COPY_AOS_SCALAR_MEMBERS_IMPL TYPE_NAME))
+
+/**
+ * Declare the const forward declarations
+ */
+// clang-format off
+#define _DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                      \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                              \
+    /* Scalar */                                                                                           \
+    ,                                                                                                      \
+    /* Column */                                                                                           \
+    SOA_HOST_DEVICE SOA_INLINE                                                                             \
+    decltype(auto) NAME() const { return (record_type_ptr_->BOOST_PP_CAT(NAME, _));},                      \
+    /* Eigen column */                                                                                     \
+    SOA_HOST_DEVICE SOA_INLINE                                                                             \
+    cms::soa::EigenConstMap<CPP_TYPE> NAME() const                                                         \
+    { return cms::soa::EigenConstMap<CPP_TYPE>(record_type_ptr_->BOOST_PP_CAT(NAME, _).data());}           \
+  )
+// clang-format on
+
+#define _DECLARE_VALUE_ELEMENT_CONST_ACCESSORS(R, DATA, TYPE_NAME)                          \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_IMPL TYPE_NAME))
+
+/**
+ * Declare the forward declarations
+ */
+// clang-format off
+#define _DECLARE_VALUE_ELEMENT_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                            \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                              \
+    /* Scalar */                                                                                           \
+    ,                                                                                                      \
+    /* Column */                                                                                           \
+    SOA_HOST_DEVICE SOA_INLINE                                                                             \
+    decltype(auto) NAME() { return (record_type_ptr_->BOOST_PP_CAT(NAME, _));},                            \
+    /* Eigen column */                                                                                     \
+    SOA_HOST_DEVICE SOA_INLINE                                                                             \
+    cms::soa::EigenMap<CPP_TYPE> NAME()                                                                    \
+    { return cms::soa::EigenMap<CPP_TYPE>(record_type_ptr_->BOOST_PP_CAT(NAME, _).data());}                \
+  )
+// clang-format on
+
+#define _DECLARE_VALUE_ELEMENT_ACCESSORS(R, DATA, TYPE_NAME)                                \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_VALUE_ELEMENT_ACCESSORS_IMPL TYPE_NAME))
+
+/**
+ * Operator to assign a SoA element to an AoS element 
+ */
+// clang-format off
+#define _DECLARE_AOS_ELEMENT_PARAMS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                 \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                              \
+    /* Scalar */                                                                                           \
+    ,                                                                                                      \
+    /* Column */                                                                                           \
+    record_type_ptr_->BOOST_PP_CAT(NAME, _) = elem.NAME();,                                                \
+    /* Eigen column */                                                                                     \
+    cms::soa::EigenMap<CPP_TYPE>(record_type_ptr_->BOOST_PP_CAT(NAME, _).data()) = elem.NAME();            \
+  )
+// clang-format on
+
+#define _DECLARE_AOS_ELEMENT_PARAMS(R, DATA, TYPE_NAME)                                     \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_AOS_ELEMENT_PARAMS_IMPL TYPE_NAME))
+
+/**
+ * Declare the const accessors for the AoSView scalars
+ */
+// clang-format off
+#define _DECLARE_AOS_VIEW_CONST_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                       \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
+      /* Scalar */                                                                                                     \
+      SOA_HOST_DEVICE SOA_INLINE const auto& NAME() const { return *BOOST_PP_CAT(NAME, _); }                           \
+      ,                                                                                                                \
+      /* Column */                                                                                                     \
+      SOA_HOST_DEVICE SOA_INLINE auto NAME() const {                                                                   \
+        using ColumnType = typename cms::soa::AoSConstColumn<RecordType>::                                             \
+                           template Member<&RecordType::BOOST_PP_CAT(NAME, _)>::                                       \
+                           template Value<CPP_TYPE>::template Type<cms::soa::SoAColumnType::column>;                   \
+        return ColumnType(aos_, elements_);                                                                            \
+      }                                                                                                                \
+                                                                                                                       \
+      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
+      const auto& NAME(cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) const {                         \
+        return (*this)[index].NAME();                                                                                  \
+      }                                                                                                                \
+      ,                                                                                                                \
+      /* Eigen column */                                                                                               \
+      SOA_HOST_DEVICE SOA_INLINE auto NAME() const {                                                                   \
+        using ColumnType = typename cms::soa::AoSConstColumn<RecordType>::                                             \
+                           template Member<&RecordType::BOOST_PP_CAT(NAME, _)>::                                       \
+                           template Value<CPP_TYPE>::template Type<cms::soa::SoAColumnType::eigen>;                    \
+        return ColumnType(aos_, elements_);                                                                            \
+      }                                                                                                                \
+                                                                                                                       \
+      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
+      const auto NAME(cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) const {                          \
+        return cms::soa::EigenConstMap<CPP_TYPE>(((*this)[index].NAME()).data());                                      \
+      }                                                                                                                \
+  )
+
+#define _DECLARE_AOS_VIEW_CONST_ACCESSORS(R, DATA, TYPE_NAME)                                                          \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
+              BOOST_PP_EMPTY(),                                                                                        \
+              BOOST_PP_EXPAND(_DECLARE_AOS_VIEW_CONST_ACCESSORS_IMPL TYPE_NAME))
+
+/**
+ * Declare the mutable accessors for the AoSView scalars
+ */
+// clang-format off
+#define _DECLARE_AOS_VIEW_SCALAR_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                      \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
+      /* Scalar */                                                                                                     \
+      SOA_HOST_DEVICE SOA_INLINE auto& NAME() { return *this->BOOST_PP_CAT(NAME, _); }                                 \
+      ,                                                                                                                \
+      /* Column */                                                                                                     \
+      SOA_HOST_DEVICE SOA_INLINE auto NAME() {                                                                         \
+        using ColumnType = typename cms::soa::AoSColumn<RecordType>::                                                  \
+                           template Member<&RecordType::BOOST_PP_CAT(NAME, _)>::                                       \
+                           template Value<CPP_TYPE>::template Type<cms::soa::SoAColumnType::column>;                   \
+        return ColumnType(base_type::aos_, base_type::elements_);                                                      \
+      }                                                                                                                \
+      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
+      auto& NAME(cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) {                                     \
+        return (*this)[index].NAME();                                                                                  \
+      }                                                                                                                \
+      ,                                                                                                                \
+      /* Eigen column */                                                                                               \
+      SOA_HOST_DEVICE SOA_INLINE auto NAME() {                                                                         \
+        using ColumnType = typename cms::soa::AoSColumn<RecordType>::                                                  \
+                           template Member<&RecordType::BOOST_PP_CAT(NAME, _)>::                                       \
+                           template Value<CPP_TYPE>::template Type<cms::soa::SoAColumnType::eigen>;                    \
+        return ColumnType(base_type::aos_, base_type::elements_);                                                      \
+      }                                                                                                                \
+      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
+      auto NAME(cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) {                                      \
+        return cms::soa::EigenMap<CPP_TYPE>(((*this)[index].NAME()).data());                                           \
+      }                                                                                                                \
+  )
+
+#define _DECLARE_AOS_VIEW_SCALAR_ACCESSORS(R, DATA, TYPE_NAME)                                                         \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
+              BOOST_PP_EMPTY(),                                                                                        \
+              BOOST_PP_EXPAND(_DECLARE_AOS_VIEW_SCALAR_ACCESSORS_IMPL TYPE_NAME))
+
+/**
+ * Declare the aliases for the const accessors from the base class
+ */              
+#define _DECLARE_USING_AOS_VIEW_CONST_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)      \
+  using base_type::NAME;                                                                    \
+
+#define _DECLARE_USING_AOS_VIEW_CONST_ACCESSORS(R, DATA, TYPE_NAME)                         \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_USING_AOS_VIEW_CONST_ACCESSORS_IMPL TYPE_NAME))      \
+              
+/**
+ * AoS member ROOT streamer read (column pointers).
+ */
+// clang-format off
+#define _STREAMER_READ_AOS_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)               \
+    _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE,                                                      \
+      if(onfile.BOOST_PP_CAT(NAME, _) != nullptr){                                          \
+        memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _), sizeof(CPP_TYPE));      \
+      }                                                                                     \
+      else{                                                                                 \
+        memset(BOOST_PP_CAT(NAME, _), 0x00, sizeof(CPP_TYPE));                              \
+      })
+// clang-format on
+
+#define _STREAMER_READ_AOS_DATA_MEMBER(R, DATA, TYPE_NAME)                                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_STREAMER_READ_AOS_DATA_MEMBER_IMPL TYPE_NAME))
+
+/**
+ * Freeing of the ROOT-allocated column or scalar buffer
+ */
+// clang-format off
+#define _ROOT_FREE_AOS_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE,                                           \
+    delete[] BOOST_PP_CAT(NAME, _);                                            \
+    BOOST_PP_CAT(NAME, _) = nullptr;)
+// clang-format on
+
+#define _ROOT_FREE_AOS_COLUMN_OR_SCALAR(R, DATA, TYPE_NAME)                                 \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_ROOT_FREE_AOS_COLUMN_OR_SCALAR_IMPL TYPE_NAME))
+
 /*
  * A macro defining a SoA layout (collection of scalars and columns of equal lengths)
  */
@@ -1282,6 +1660,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     constexpr static bool alignmentEnforcement = ALIGNMENT_ENFORCEMENT;                                                \
     constexpr static byte_size_type conditionalAlignment =                                                             \
         alignmentEnforcement == cms::soa::AlignmentEnforcement::enforced ? alignment : 0;                              \
+    constexpr static bool isSoA = true;                                                                                \
     /* Those typedefs avoid having commas in macros (which is problematic) */                                          \
     template <cms::soa::SoAColumnType COLUMN_TYPE, class C>                                                            \
     using SoAValueWithConf = cms::soa::SoAValue<COLUMN_TYPE, C, conditionalAlignment>;                                 \
@@ -1314,6 +1693,10 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       _ITERATE_ON_ALL(_ACCUMULATE_SOA_ELEMENT, ~, __VA_ARGS__)                                                         \
       return _soa_impl_ret;                                                                                            \
     }                                                                                                                  \
+    /* Underlying RecordType of the SoA, i.e., a struct that contains all columns and eigen columns as data member */  \
+    struct RecordType {                                                                                                \
+      _ITERATE_ON_ALL(_DEFINE_RECORD_TYPE_MEMBERS, ~, __VA_ARGS__)                                                     \
+    };                                                                                                                 \
                                                                                                                        \
     /**                                                                                                                \
      * Helper/friend class allowing SoA introspection.                                                                 \
@@ -1336,15 +1719,12 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         SOA_HOST_DEVICE SOA_INLINE value_element                                                                       \
           BOOST_PP_IF(                                                                                                 \
             BOOST_PP_SEQ_SIZE(_ITERATE_ON_ALL(_VALUE_ELEMENT_CTOR_ARGS, ~, __VA_ARGS__) ),                             \
-            (_ITERATE_ON_ALL_COMMA(_VALUE_ELEMENT_CTOR_ARGS, ~, __VA_ARGS__)):,                                        \
+            (_ITERATE_ON_ALL_COMMA(_VALUE_ELEMENT_CTOR_ARGS, ~, __VA_ARGS__)),                                         \
             ())                                                                                                        \
-          BOOST_PP_TUPLE_ENUM(BOOST_PP_IF(                                                                             \
-            BOOST_PP_SEQ_SIZE(_ITERATE_ON_ALL(_VALUE_ELEMENT_CTOR_ARGS, ~, __VA_ARGS__)),                              \
-            BOOST_PP_SEQ_TO_TUPLE(_ITERATE_ON_ALL(_VALUE_ELEMENT_INITIALIZERS, ~, __VA_ARGS__)),                       \
-            ()                                                                                                         \
-          )                                                                                                            \
-        )                                                                                                              \
-        {}                                                                                                             \
+            _APPEND_LIST_INIT(_ITERATE_ON_ALL(_VALUE_ELEMENT_INITIALIZERS, ~, __VA_ARGS__)) {}                         \
+                                                                                                                       \
+        SOA_HOST_DEVICE SOA_INLINE value_element(const CLASS::RecordType& record)                                      \
+        _APPEND_LIST_INIT(_ITERATE_ON_ALL(_TRIVIAL_LIST_INIT_RECORDTYPE, ~, __VA_ARGS__)) {}                           \
                                                                                                                        \
         _ITERATE_ON_ALL(_DEFINE_VALUE_ELEMENT_MEMBERS, ~, __VA_ARGS__)                                                 \
       };                                                                                                               \
@@ -1358,8 +1738,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       using ParentClass = CLASS;                                                                                       \
     };                                                                                                                 \
                                                                                                                        \
-    friend Metadata;                                                                                                   \
-                                                                                                                       \
     SOA_HOST_DEVICE SOA_INLINE const Metadata metadata() const { return Metadata(*this); }                             \
     SOA_HOST_DEVICE SOA_INLINE Metadata metadata() { return Metadata(*this); }                                         \
                                                                                                                        \
@@ -1369,7 +1747,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
               cms::soa::RangeChecking::Mode RANGE_CHECKING>                                                            \
     struct ConstViewTemplateFreeParams {                                                                               \
       /* these could be moved to an external type trait to free up the symbol names */                                 \
-      using self_type = ConstViewTemplateFreeParams;                                                                   \
       using BOOST_PP_CAT(CLASS, _parametrized) = CLASS<VIEW_ALIGNMENT, VIEW_ALIGNMENT_ENFORCEMENT>;                    \
       using size_type = cms::soa::size_type;                                                                           \
       using byte_size_type = cms::soa::byte_size_type;                                                                 \
@@ -1377,9 +1754,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
       template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, cms::soa::RangeChecking::Mode>                                     \
       friend struct ViewTemplateFreeParams;                                                                            \
-                                                                                                                       \
-      template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, cms::soa::RangeChecking::Mode>                                     \
-      friend struct ConstViewTemplateFreeParams;                                                                       \
                                                                                                                        \
       /* For CUDA applications, we align to the 128 bytes of the cache lines.                                          \
         * See https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#global-memory-3-0 this is still valid   \
@@ -1392,6 +1766,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           alignmentEnforcement == AlignmentEnforcement::enforced ? alignment : 0;                                      \
       constexpr static bool restrictQualify = RESTRICT_QUALIFY;                                                        \
       constexpr static cms::soa::RangeChecking::Mode rangeChecking = RANGE_CHECKING;                                   \
+      constexpr static bool isSoA = BOOST_PP_CAT(CLASS, _parametrized)::isSoA;                                         \
                                                                                                                        \
       /**                                                                                                              \
        * Helper/friend class allowing SoA introspection.                                                               \
@@ -1416,8 +1791,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         const ConstViewTemplateFreeParams& parent_;                                                                    \
       };                                                                                                               \
                                                                                                                        \
-      friend Metadata;                                                                                                 \
-                                                                                                                       \
       /**                                                                                                              \
       * Helper/friend class allowing access to size from columns.                                                      \
       */                                                                                                               \
@@ -1439,7 +1812,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
       /* Constructor relying the layout */                                                                             \
       SOA_HOST_ONLY ConstViewTemplateFreeParams(const Metadata::TypeOf_Layout& layout)                                 \
-      : elements_(layout.metadata().size()),                                                                           \
+      : elements_(layout.elements_),                                                                                   \
         _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_MEMBER_INITIALIZERS, ~, __VA_ARGS__) {}                                    \
                                                                                                                        \
       /* Constructor relying on individually provided column structs */                                                \
@@ -1500,30 +1873,31 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         _ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER, ~, __VA_ARGS__)                                      \
       };                                                                                                               \
                                                                                                                        \
-        SOA_HOST_DEVICE SOA_INLINE                                                                                     \
-        const_element operator[](cms::soa::detail::IndexWithSourceLocation<rangeChecking> _soa_impl_index) const {     \
-          if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                          \
-            if (_soa_impl_index.value_ >= elements_ or _soa_impl_index.value_ < 0)                                     \
-              SOA_THROW_OUT_OF_RANGE("Out of range index in ConstViewTemplateFreeParams " #CLASS "::operator[]",       \
-                _soa_impl_index, elements_)                                                                            \
-          }                                                                                                            \
-          return const_element{_soa_impl_index.value_                                                                  \
-             _APPEND_COMMA(_ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__))                   \
-          };                                                                                                           \
+      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
+      const const_element operator[](cms::soa::detail::IndexWithSourceLocation<rangeChecking> _soa_impl_index) const { \
+        if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                            \
+          if (_soa_impl_index.value_ >= elements_ or _soa_impl_index.value_ < 0)                                       \
+            SOA_THROW_OUT_OF_RANGE("Out of range index in ConstViewTemplateFreeParams " #CLASS "::operator[]",         \
+              _soa_impl_index, elements_)                                                                              \
         }                                                                                                              \
+        return const_element{_soa_impl_index.value_                                                                    \
+            _APPEND_COMMA(_ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__))                    \
+        };                                                                                                             \
+      }                                                                                                                \
                                                                                                                        \
-        /* const accessors */                                                                                          \
-        _ITERATE_ON_ALL(_DECLARE_VIEW_SOA_CONST_ACCESSOR, ~, __VA_ARGS__)                                              \
-        ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_VIEW_METHODS, ~, __VA_ARGS__))                                    \
+      /* const methods */                                                                                              \
+      ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_VIEW_METHODS, ~, __VA_ARGS__))                                      \
+      /* const accessors */                                                                                            \
+      _ITERATE_ON_ALL(_DECLARE_VIEW_SOA_CONST_ACCESSOR, ~, __VA_ARGS__)                                                \
                                                                                                                        \
-        /* dump the SoA internal structure */                                                                          \
-        template <typename T>                                                                                          \
-        SOA_HOST_ONLY friend void dump();                                                                              \
+      /* dump the SoA internal structure */                                                                            \
+      template <typename T>                                                                                            \
+      SOA_HOST_ONLY friend void dump();                                                                                \
                                                                                                                        \
-        private:                                                                                                       \
-          size_type elements_ = 0;                                                                                     \
-          _ITERATE_ON_ALL(_DECLARE_CONST_VIEW_SOA_MEMBER, ~, __VA_ARGS__)                                              \
-      };                                                                                                               \
+      private:                                                                                                         \
+        size_type elements_ = 0;                                                                                       \
+        _ITERATE_ON_ALL(_DECLARE_CONST_VIEW_SOA_MEMBER, ~, __VA_ARGS__)                                                \
+    };                                                                                                                 \
                                                                                                                        \
     template <bool RESTRICT_QUALIFY, cms::soa::RangeChecking::Mode RANGE_CHECKING>                                     \
     using ConstViewTemplate = ConstViewTemplateFreeParams<ALIGNMENT, ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY,          \
@@ -1539,7 +1913,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       : public ConstViewTemplateFreeParams<VIEW_ALIGNMENT, VIEW_ALIGNMENT_ENFORCEMENT,                                 \
                                            RESTRICT_QUALIFY, RANGE_CHECKING> {                                         \
       /* these could be moved to an external type trait to free up the symbol names */                                 \
-      using self_type = ViewTemplateFreeParams;                                                                        \
       using base_type = ConstViewTemplateFreeParams<VIEW_ALIGNMENT, VIEW_ALIGNMENT_ENFORCEMENT,                        \
                                                     RESTRICT_QUALIFY, RANGE_CHECKING>;                                 \
       using BOOST_PP_CAT(CLASS, _parametrized) = CLASS<VIEW_ALIGNMENT, VIEW_ALIGNMENT_ENFORCEMENT>;                    \
@@ -1558,9 +1931,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           alignmentEnforcement == AlignmentEnforcement::enforced ? alignment : 0;                                      \
       constexpr static bool restrictQualify = RESTRICT_QUALIFY;                                                        \
       constexpr static cms::soa::RangeChecking::Mode rangeChecking = RANGE_CHECKING;                                   \
-                                                                                                                       \
-      template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, cms::soa::RangeChecking::Mode>                                     \
-      friend struct ViewTemplateFreeParams;                                                                            \
                                                                                                                        \
       /**                                                                                                              \
        * Helper/friend class allowing SoA introspection.                                                               \
@@ -1585,8 +1955,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         : parent_(_soa_impl_parent) {}                                                                                 \
         const ViewTemplateFreeParams& parent_;                                                                         \
       };                                                                                                               \
-                                                                                                                       \
-      friend Metadata;                                                                                                 \
                                                                                                                        \
       /**                                                                                                              \
        * Helper/friend class allowing access to size from columns.                                                     \
@@ -1656,11 +2024,12 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
       /* AoS-like accessor (const) */                                                                                  \
       using const_element = typename base_type::const_element;                                                         \
-                                                                                                                       \
       using base_type::operator[];                                                                                     \
                                                                                                                        \
       /* AoS-like accessor (mutable) */                                                                                \
       struct element {                                                                                                 \
+        using value_element = typename BOOST_PP_CAT(CLASS, _parametrized)::Metadata::value_element;                    \
+        using RecordType = typename BOOST_PP_CAT(CLASS, _parametrized)::RecordType;                                    \
         SOA_HOST_DEVICE SOA_INLINE                                                                                     \
         element(size_type                                                                                              \
                 _APPEND_TOKEN(_ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_VALUE_ARG, ~, __VA_ARGS__), _soa_impl_index)       \
@@ -1677,9 +2046,15 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           return *this;                                                                                                \
         }                                                                                                              \
         /* Extra operator=() for mutable element to emulate the aggregate initialisation syntax */                     \
-        SOA_HOST_DEVICE SOA_INLINE constexpr element & operator=(const typename                                        \
-            BOOST_PP_CAT(CLASS, _parametrized)::Metadata::value_element _soa_impl_value) {                             \
+        SOA_HOST_DEVICE SOA_INLINE constexpr element& operator=(const value_element _soa_impl_value) {                 \
           _ITERATE_ON_ALL(_TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT, ~, __VA_ARGS__)                                          \
+          return *this;                                                                                                \
+        }                                                                                                              \
+        /* TODO: Check if better solution Assignment operator for record types, used to convert from an AoS View */    \
+        template <typename T>                                                                                          \
+          requires (std::is_convertible_v<T, RecordType>) && (!std::is_same_v<std::decay_t<T>, value_element>)         \
+        SOA_HOST_DEVICE SOA_INLINE constexpr element& operator=(T&& record) {                                          \
+          _ITERATE_ON_ALL(_TRIVIAL_VIEW_ASSIGN_RECORDTYPE, ~, __VA_ARGS__)                                             \
           return *this;                                                                                                \
         }                                                                                                              \
                                                                                                                        \
@@ -1707,6 +2082,18 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       _ITERATE_ON_ALL(_DECLARE_VIEW_SOA_ACCESSOR, ~, __VA_ARGS__)                                                      \
       ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_VIEW_METHODS, ~, __VA_ARGS__))                                            \
                                                                                                                        \
+      /* Helper method to transpose the AoS into an SoA */                                                             \
+      template <typename AoSConstView>                                                                                 \
+      requires (!AoSConstView::isSoA)                                                                                  \
+      SOA_HOST_DEVICE SOA_INLINE void transpose(AoSConstView const& view, size_type index) {                           \
+        if (index < base_type::elements_) {                                                                            \
+          (*this)[index] = view[index];                                                                                \
+          if (index == base_type::elements_ - 1){                                                                      \
+            _ITERATE_ON_ALL(_COPY_AOS_SCALAR_MEMBERS, ~, __VA_ARGS__)                                                  \
+          }                                                                                                            \
+        }                                                                                                              \
+      }                                                                                                                \
+                                                                                                                       \
       /* dump the SoA internal structure */                                                                            \
       template <typename T>                                                                                            \
       SOA_HOST_ONLY friend void dump();                                                                                \
@@ -1716,6 +2103,313 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     using ViewTemplate = ViewTemplateFreeParams<ALIGNMENT, ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY, RANGE_CHECKING>;   \
                                                                                                                        \
     using View = ViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::Default>;                   \
+                                                                                                                       \
+    /* AoS as subclass of the SoA  */                                                                                  \
+    struct AoSWrapper {                                                                                                \
+      friend CLASS;                                                                                                    \
+      using RecordType = typename CLASS::RecordType;                                                                   \
+      static constexpr byte_size_type alignment = CLASS::alignment;                                                    \
+      static constexpr bool isSoA = false;                                                                             \
+                                                                                                                       \
+      /* Helper function used by caller to externally allocate the storage */                                          \
+      static constexpr byte_size_type computeDataSize(size_type elements) {                                            \
+        byte_size_type _aos_impl_ret = cms::soa::alignSize(elements * sizeof(RecordType), alignment);                  \
+        _ITERATE_ON_ALL(_ACCUMULATE_AOS_SCALARS, ~, __VA_ARGS__)                                                       \
+        /* Align the total buffer size. Important when multiple layouts use the same buffer */                         \
+        return _aos_impl_ret;                                                                                          \
+      }                                                                                                                \
+                                                                                                                       \
+      /* Default constructor */                                                                                        \
+      AoSWrapper() = default;                                                                                          \
+                                                                                                                       \
+      /* Standard constructor for the PortableCollections */                                                           \
+      AoSWrapper(std::byte* mem, size_type elements)                                                                   \
+        : mem_{mem},                                                                                                   \
+          byteSize_{computeDataSize(elements)},                                                                        \
+          elements_{elements},                                                                                         \
+          aos_{reinterpret_cast<RecordType*>(mem)} {                                                                   \
+        if (reinterpret_cast<std::uintptr_t>(mem) % alignof(RecordType) != 0)                                          \
+          cms::soa::detail::throwRuntimeError("In " #CLASS "::AoSWrapper: misaligned memory.");                        \
+        auto _aos_impl_curMem = mem_;                                                                                  \
+        _aos_impl_curMem += cms::soa::alignSize(elements * sizeof(RecordType), alignment);                             \
+        _ITERATE_ON_ALL(_ASSIGN_AOS_SCALAR_MEMBERS, ~, __VA_ARGS__)                                                    \
+        if (mem_ + byteSize_ != _aos_impl_curMem)                                                                      \
+          cms::soa::detail::throwRuntimeError("In " #CLASS "::AoSWrapper: unexpected end pointer.");                   \
+      }                                                                                                                \
+                                                                                                                       \
+      /* Explicit copy constructor and assignment operator */                                                          \
+      SOA_HOST_ONLY AoSWrapper(AoSWrapper const& _aos_impl_other)                                                      \
+          : mem_(_aos_impl_other.mem_),                                                                                \
+            byteSize_(_aos_impl_other.byteSize_),                                                                      \
+            elements_(_aos_impl_other.elements_),                                                                      \
+            aos_(_aos_impl_other.aos_)                                                                                 \
+            _APPEND_COMMA(_ITERATE_ON_ALL(_DECLARE_AOS_MEMBER_COPY_CONSTRUCTION, ~, __VA_ARGS__)) {}                   \
+                                                                                                                       \
+      SOA_HOST_ONLY AoSWrapper& operator=(AoSWrapper const& _aos_impl_other) {                                         \
+          mem_ = _aos_impl_other.mem_;                                                                                 \
+          byteSize_ = _aos_impl_other.byteSize_;                                                                       \
+          elements_ = _aos_impl_other.elements_;                                                                       \
+          aos_ = _aos_impl_other.aos_;                                                                                 \
+          _ITERATE_ON_ALL(_DECLARE_AOS_MEMBER_ASSIGNMENT, ~, __VA_ARGS__)                                              \
+          return *this;                                                                                                \
+      }                                                                                                                \
+                                                                                                                       \
+      /*Helper/friend class allowing AoS introspection */                                                              \
+      struct AoSMetadata {                                                                                             \
+        friend AoSWrapper;                                                                                             \
+        SOA_HOST_DEVICE SOA_INLINE size_type size() const { return parent_.elements_; }                                \
+        SOA_HOST_DEVICE SOA_INLINE byte_size_type byteSize() const { return parent_.byteSize_; }                       \
+        SOA_HOST_DEVICE SOA_INLINE std::byte* data() { return parent_.mem_; }                                          \
+        SOA_HOST_DEVICE SOA_INLINE const std::byte* data() const { return parent_.mem_; }                              \
+        SOA_HOST_DEVICE SOA_INLINE std::byte* nextByte() const { return parent_.mem_ + parent_.byteSize_; }            \
+        SOA_HOST_DEVICE SOA_INLINE CLASS::AoSWrapper cloneToNewAddress(std::byte* _soa_impl_addr) const {              \
+          return CLASS::AoSWrapper(_soa_impl_addr, parent_.elements_);                                                 \
+        }                                                                                                              \
+                                                                                                                       \
+        AoSMetadata& operator=(const AoSMetadata&) = delete;                                                           \
+        AoSMetadata(const AoSMetadata&) = delete;                                                                      \
+                                                                                                                       \
+      private:                                                                                                         \
+        SOA_HOST_DEVICE SOA_INLINE AoSMetadata(const CLASS::AoSWrapper& _soa_impl_parent)                              \
+          : parent_(_soa_impl_parent) {}                                                                               \
+        const CLASS::AoSWrapper& parent_;                                                                              \
+      };                                                                                                               \
+                                                                                                                       \
+      SOA_HOST_DEVICE SOA_INLINE const AoSMetadata metadata() const { return AoSMetadata(*this); }                     \
+      SOA_HOST_DEVICE SOA_INLINE AoSMetadata metadata() { return AoSMetadata(*this); }                                 \
+                                                                                                                       \
+      template <cms::soa::RangeChecking::Mode RANGE_CHECKING>                                                          \
+      struct ConstViewTemplate {                                                                                       \
+        friend CLASS::AoSWrapper;                                                                                      \
+        using RecordType = typename CLASS::RecordType;                                                                 \
+        constexpr static cms::soa::RangeChecking::Mode rangeChecking = RANGE_CHECKING;                                 \
+        constexpr static bool isSoA = AoSWrapper::isSoA;                                                               \
+                                                                                                                       \
+        /**                                                                                                            \
+        * Helper/friend class allowing AoS introspection.                                                              \
+        */                                                                                                             \
+        struct AoSMetadata {                                                                                           \
+          friend ConstViewTemplate;                                                                                    \
+          SOA_HOST_DEVICE SOA_INLINE size_type size() const { return parent_.elements_; }                              \
+                                                                                                                       \
+          /* Forbid copying to avoid const correctness evasion */                                                      \
+          AoSMetadata& operator=(const AoSMetadata&) = delete;                                                         \
+          AoSMetadata(const AoSMetadata&) = delete;                                                                    \
+                                                                                                                       \
+        private:                                                                                                       \
+          SOA_HOST_DEVICE SOA_INLINE AoSMetadata(const ConstViewTemplate& _soa_impl_parent)                            \
+          : parent_(_soa_impl_parent) {}                                                                               \
+          const ConstViewTemplate& parent_;                                                                            \
+        };                                                                                                             \
+                                                                                                                       \
+        SOA_HOST_DEVICE SOA_INLINE const AoSMetadata metadata() const { return AoSMetadata(*this); }                   \
+                                                                                                                       \
+        struct const_element {                                                                                         \
+          SOA_HOST_DEVICE SOA_INLINE                                                                                   \
+          explicit const_element(const RecordType* record_type_ptr) : record_type_ptr_(record_type_ptr) {}             \
+                                                                                                                       \
+          /* Forward getters */                                                                                        \
+          _ITERATE_ON_ALL(_DECLARE_VALUE_ELEMENT_CONST_ACCESSORS, ~, __VA_ARGS__)                                      \
+                                                                                                                       \
+          /* conversion operator for SoA::View::element to AoS const_element, needed for transpose SoA -> AoS */       \
+          SOA_HOST_DEVICE SOA_INLINE operator const RecordType&() const { return *record_type_ptr_; }                  \
+                                                                                                                       \
+          /* element methods defined const */                                                                          \
+          ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_METHODS, ~, __VA_ARGS__))                                       \
+                                                                                                                       \
+          private:                                                                                                     \
+            const RecordType* record_type_ptr_{nullptr};                                                               \
+        };                                                                                                             \
+                                                                                                                       \
+        SOA_HOST_DEVICE SOA_INLINE                                                                                     \
+        const const_element operator[] (cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) const {        \
+          if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                          \
+            if (index.value_ >= elements_ or index.value_ < 0)                                                         \
+              SOA_THROW_OUT_OF_RANGE("Out of range index in AoS ConstViewTemplate" #CLASS "::operator[]",              \
+                index, elements_)                                                                                      \
+          }                                                                                                            \
+          return const_element{&aos_[index.value_]};                                                                   \
+        }                                                                                                              \
+                                                                                                                       \
+        /* const methods */                                                                                            \
+        ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_VIEW_METHODS, ~, __VA_ARGS__))                                    \
+        /* Const accessors */                                                                                          \
+        _ITERATE_ON_ALL(_DECLARE_AOS_VIEW_CONST_ACCESSORS, ~, __VA_ARGS__)                                             \
+                                                                                                                       \
+        /* Trivial constuctor */                                                                                       \
+        ConstViewTemplate() = default;                                                                                 \
+                                                                                                                       \
+        /* Copiable */                                                                                                 \
+        ConstViewTemplate(ConstViewTemplate const&) = default;                                                         \
+        /* Copy constructor for other parameters */                                                                    \
+        template <cms::soa::RangeChecking::Mode OTHER_RANGE_CHECKING>                                                  \
+        ConstViewTemplate(ConstViewTemplate<OTHER_RANGE_CHECKING> const& other)                                        \
+          : ConstViewTemplate{other.elements_,                                                                         \
+                              other.aos_                                                                               \
+                              _APPEND_COMMA(_ITERATE_ON_ALL(_DECLARE_AOS_VIEW_OTHER_MEMBER_LIST, ~, __VA_ARGS__))} {}  \
+                                                                                                                       \
+        ConstViewTemplate& operator=(ConstViewTemplate const&) = default;                                              \
+        template <cms::soa::RangeChecking::Mode OTHER_RANGE_CHECKING>                                                  \
+        ConstViewTemplate& operator=(ConstViewTemplate<OTHER_RANGE_CHECKING> const& other) {                           \
+          *this = other;                                                                                               \
+        }                                                                                                              \
+                                                                                                                       \
+        /* Movable */                                                                                                  \
+        ConstViewTemplate(ConstViewTemplate &&) = default;                                                             \
+        ConstViewTemplate& operator=(ConstViewTemplate &&) = default;                                                  \
+                                                                                                                       \
+        /* Trivial destuctor */                                                                                        \
+        ~ConstViewTemplate() = default;                                                                                \
+                                                                                                                       \
+        /* Constructor relying the layout */                                                                           \
+        SOA_HOST_ONLY ConstViewTemplate(const CLASS::AoSWrapper& layout)                                               \
+        : elements_{layout.elements_},                                                                                 \
+          aos_{layout.aos_}                                                                                            \
+          _APPEND_COMMA(_ITERATE_ON_ALL(_INSTANTIATE_CONSTVIEW_AOS_SCALARS, ~, __VA_ARGS__)) {}                        \
+                                                                                                                       \
+        private:                                                                                                       \
+          size_type elements_ = 0;                                                                                     \
+          RecordType* aos_ = nullptr;                                                                                  \
+          _ITERATE_ON_ALL(_DECLARE_SCALAR_MEMBERS_AOS_CONSTVIEW, ~, __VA_ARGS__)                                       \
+      };                                                                                                               \
+      using ConstView = ConstViewTemplate<cms::soa::RangeChecking::Default>;                                           \
+                                                                                                                       \
+      template <cms::soa::RangeChecking::Mode RANGE_CHECKING>                                                          \
+      struct ViewTemplate : public ConstViewTemplate<RANGE_CHECKING> {                                                 \
+        friend CLASS::AoSWrapper;                                                                                      \
+        using base_type = ConstViewTemplate<RANGE_CHECKING>;                                                           \
+        using RecordType = typename CLASS::RecordType;                                                                 \
+        constexpr static cms::soa::RangeChecking::Mode rangeChecking = RANGE_CHECKING;                                 \
+        constexpr static bool isSoA = AoSWrapper::isSoA;                                                               \
+                                                                                                                       \
+        struct element {                                                                                               \
+          SOA_HOST_DEVICE SOA_INLINE                                                                                   \
+          explicit element(RecordType* record_type_ptr) : record_type_ptr_(record_type_ptr) {}                         \
+                                                                                                                       \
+          /* Forward getters */                                                                                        \
+          _ITERATE_ON_ALL(_DECLARE_VALUE_ELEMENT_ACCESSORS, ~, __VA_ARGS__)                                            \
+          _ITERATE_ON_ALL(_DECLARE_VALUE_ELEMENT_CONST_ACCESSORS, ~, __VA_ARGS__)                                      \
+                                                                                                                       \
+          /* generic assignment operator */                                                                            \
+          template<class T>                                                                                            \
+          SOA_HOST_DEVICE SOA_INLINE constexpr element& operator=(T const& elem) {                                     \
+            _ITERATE_ON_ALL(_DECLARE_AOS_ELEMENT_PARAMS, ~, __VA_ARGS__)                                               \
+            return *this;                                                                                              \
+          }                                                                                                            \
+          /* Extra operator=() for mutable element to emulate the aggregate initialisation syntax */                   \
+          SOA_HOST_DEVICE SOA_INLINE                                                                                   \
+          constexpr element& operator=(const typename CLASS::Metadata::value_element _soa_impl_value) {                \
+            _ITERATE_ON_ALL(_TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT, ~, __VA_ARGS__)                                        \
+            return *this;                                                                                              \
+          }                                                                                                            \
+                                                                                                                       \
+          /* element methods defined const */                                                                          \
+          ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_METHODS, ~, __VA_ARGS__))                                       \
+          ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_METHODS, ~, __VA_ARGS__))                                             \
+                                                                                                                       \
+          private:                                                                                                     \
+            RecordType* record_type_ptr_{nullptr};                                                                     \
+        };                                                                                                             \
+                                                                                                                       \
+        SOA_HOST_DEVICE SOA_INLINE                                                                                     \
+        element operator[] (cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) {                          \
+          if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                          \
+            if (index.value_ >= this->elements_ or index.value_ < 0)                                                   \
+              SOA_THROW_OUT_OF_RANGE("Out of range index in AoS ViewTemplate" #CLASS "::operator[]",                   \
+                index, this->elements_)                                                                                \
+          }                                                                                                            \
+          return element{&this->aos_[index.value_]};                                                                   \
+        }                                                                                                              \
+                                                                                                                       \
+        /* Using the const accessors of the View */                                                                    \
+        _ITERATE_ON_ALL(_DECLARE_USING_AOS_VIEW_CONST_ACCESSORS, ~, __VA_ARGS__)                                       \
+        /* Mutable accessors */                                                                                        \
+        _ITERATE_ON_ALL(_DECLARE_AOS_VIEW_SCALAR_ACCESSORS, ~, __VA_ARGS__)                                            \
+        ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_VIEW_METHODS, ~, __VA_ARGS__))                                          \
+                                                                                                                       \
+        /* Trivial constuctor */                                                                                       \
+        ViewTemplate() = default;                                                                                      \
+                                                                                                                       \
+        /* Copiable */                                                                                                 \
+        ViewTemplate(ViewTemplate const&) = default;                                                                   \
+        /* Copy constructor for other parameters */                                                                    \
+        template <cms::soa::RangeChecking::Mode OTHER_RANGE_CHECKING>                                                  \
+        ViewTemplate(ViewTemplate<OTHER_RANGE_CHECKING> const& other)                                                  \
+          : ViewTemplate{other.elements_,                                                                              \
+                         other.aos_                                                                                    \
+                        _APPEND_COMMA(_ITERATE_ON_ALL(_DECLARE_AOS_VIEW_OTHER_MEMBER_LIST, ~, __VA_ARGS__))} {}        \
+        ViewTemplate& operator=(ViewTemplate const&) = default;                                                        \
+        template <cms::soa::RangeChecking::Mode OTHER_RANGE_CHECKING>                                                  \
+        ViewTemplate& operator=(ViewTemplate<OTHER_RANGE_CHECKING> const& other) {                                     \
+          static_cast<base_type>(*this) = static_cast<base_type>(other);                                               \
+        }                                                                                                              \
+                                                                                                                       \
+        /* Movable */                                                                                                  \
+        ViewTemplate(ViewTemplate &&) = default;                                                                       \
+        ViewTemplate& operator=(ViewTemplate &&) = default;                                                            \
+                                                                                                                       \
+        /* Trivial destuctor */                                                                                        \
+        ~ViewTemplate() = default;                                                                                     \
+                                                                                                                       \
+        /* Constructor relying the layout */                                                                           \
+        SOA_HOST_ONLY ViewTemplate(const CLASS::AoSWrapper& layout)                                                    \
+        : base_type{layout} {}                                                                                         \
+                                                                                                                       \
+        /* Helper method to transpose the SoA into an AoS */                                                           \
+        template <typename SoAConstView>                                                                               \
+        requires (SoAConstView::isSoA)                                                                                 \
+        SOA_HOST_DEVICE SOA_INLINE void transpose(SoAConstView const& view, size_type index) {                         \
+          if (index < this->elements_){                                                                                \
+            (*this)[index] = view[index];                                                                              \
+            if(index == this->elements_ - 1){                                                                          \
+              _ITERATE_ON_ALL(_COPY_AOS_SCALAR_MEMBERS, ~, __VA_ARGS__)                                                \
+            }                                                                                                          \
+          }                                                                                                            \
+        }                                                                                                              \
+      };                                                                                                               \
+      using View = ViewTemplate<cms::soa::RangeChecking::Default>;                                                     \
+                                                                                                                       \
+      /* Declarations to make compatible with PortableCollections */                                                   \
+      struct Descriptor;                                                                                               \
+      struct ConstDescriptor;                                                                                          \
+                                                                                                                       \
+      template <cms::soa::RangeChecking::Mode RANGE_CHECKING>                                                          \
+      SOA_HOST_DEVICE SOA_INLINE static ViewTemplate<RANGE_CHECKING> const_cast_View(                                  \
+          ConstViewTemplate<RANGE_CHECKING> const& constView) {                                                        \
+        return static_cast<ViewTemplate<RANGE_CHECKING> const&>(constView);                                            \
+      }                                                                                                                \
+                                                                                                                       \
+      /* ROOT read streamer */                                                                                         \
+      template <typename T>                                                                                            \
+      void ROOTReadStreamer(T& onfile) {                                                                               \
+        if constexpr (std::is_trivially_copyable_v<RecordType>) {                                                      \
+          memcpy(aos_, onfile.aos_, sizeof(RecordType) * onfile.elements_);                                            \
+        }                                                                                                              \
+        else{                                                                                                          \
+          for (size_type i = 0; i < onfile.elements_; ++i){                                                            \
+            aos_[i] = onfile.aos_[i];                                                                                  \
+          }                                                                                                            \
+        }                                                                                                              \
+        _ITERATE_ON_ALL(_STREAMER_READ_AOS_DATA_MEMBER, ~, __VA_ARGS__)                                                \
+      }                                                                                                                \
+                                                                                                                       \
+      /* ROOT allocation cleanup */                                                                                    \
+      void ROOTStreamerCleaner() {                                                                                     \
+        /* This function should only be called from the PortableCollection ROOT streamer */                            \
+        delete[] aos_;                                                                                                 \
+        aos_ = nullptr;                                                                                                \
+        _ITERATE_ON_ALL(_ROOT_FREE_AOS_COLUMN_OR_SCALAR, ~, __VA_ARGS__)                                               \
+      }                                                                                                                \
+                                                                                                                       \
+      private:                                                                                                         \
+        /* Data members */                                                                                             \
+        std::byte* mem_ EDM_REFLEX_TRANSIENT = nullptr;                                                                \
+        byte_size_type byteSize_ EDM_REFLEX_TRANSIENT = 0;                                                             \
+        size_type elements_ = 0;                                                                                       \
+        const size_type scalar_ = 1;                                                                                   \
+        CLASS::RecordType* aos_ EDM_REFLEX_SIZE(elements_) = nullptr;                                                  \
+        _ITERATE_ON_ALL(_DECLARE_SCALAR_MEMBERS_AOS, ~, __VA_ARGS__)                                                   \
+    };                                                                                                                 \
                                                                                                                        \
     /* Helper struct to loop over the columns without using name for non-mutable data */                               \
     struct ConstDescriptor {                                                                                           \
