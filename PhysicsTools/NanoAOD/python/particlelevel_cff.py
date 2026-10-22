@@ -125,7 +125,7 @@ HTXSCategoryTable = simpleHTXSFlatTableProducer.clone(
 )
 
 lheInfoTable = cms.EDProducer("LHETablesProducer",
-     lheInfo = cms.VInputTag(cms.InputTag("externalLHEProducer"), cms.InputTag("source")),
+     lheInfo = cms.VInputTag(cms.InputTag("lheWeights"), cms.InputTag("externalLHEProducer"), cms.InputTag("source")),
      precision = cms.int32(14),
      storeLHEParticles = cms.bool(True)
  )

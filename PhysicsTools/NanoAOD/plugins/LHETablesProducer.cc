@@ -17,7 +17,8 @@ public:
       : lheTag_(edm::vector_transform(params.getParameter<std::vector<edm::InputTag>>("lheInfo"),
                                       [this](const edm::InputTag& tag) { return mayConsume<LHEEventProduct>(tag); })),
         precision_(params.getParameter<int>("precision")),
-        storeLHEParticles_(params.getParameter<bool>("storeLHEParticles")) {
+        storeLHEParticles_(params.getParameter<bool>("storeLHEParticles")),
+        storeAllLHEInfo_(params.getParameter<bool>("storeAllLHEInfo")) {
     produces<nanoaod::FlatTable>("LHE");
     if (storeLHEParticles_)
       produces<nanoaod::FlatTable>("LHEPart");
@@ -54,6 +55,9 @@ public:
     unsigned int lheNj = 0, lheNb = 0, lheNc = 0, lheNuds = 0, lheNglu = 0;
     double lheVpt = 0;
     double alphaS = 0;
+    double alphaQED = 0;
+    double scale = 0;
+    int idproc = 0;
 
     const auto& hepeup = lheProd.hepeup();
     const auto& pup = hepeup.PUP;
@@ -68,7 +72,16 @@ public:
     std::vector<int> vals_spin;
     std::vector<int16_t> vals_firstMotherIdx;
     std::vector<int16_t> vals_lastMotherIdx;
+    // storeAllLHEInfo: the raw LHE record (WMass, ported from 10_6)
+    std::vector<int> vals_col1;
+    std::vector<int> vals_col2;
+    std::vector<int> vals_mother1;
+    std::vector<int> vals_mother2;
+    std::vector<float> vals_time;
     alphaS = hepeup.AQCDUP;
+    alphaQED = hepeup.AQEDUP;
+    scale = hepeup.SCALUP;
+    idproc = hepeup.IDPRUP;
 
     int nOutPart = 0;
     std::vector<int> newIdxs(pup.size());
@@ -77,7 +90,7 @@ public:
       int status = hepeup.ISTUP[i];
       int idabs = std::abs(hepeup.IDUP[i]);
 
-      if (status == 1 || status == -1 || (status == 2 && (idabs >= 23 && idabs <= 25))) {
+      if (storeAllLHEInfo_ || status == 1 || status == -1 || (status == 2 && (idabs >= 23 && idabs <= 25))) {
         newIdxs[i] = nOutPart;
 
         nOutPart += 1;
@@ -85,6 +98,17 @@ public:
         vals_pid.push_back(hepeup.IDUP[i]);
         vals_spin.push_back(hepeup.SPINUP[i]);
         vals_status.push_back(status);
+        if (storeAllLHEInfo_) {
+          // Raw record: colour flow, 1-based MOTHUP indices (0 = none) and
+          // lifetime, i.e. what regenerating the LHE event needs. The remapped
+          // firstMotherIdx/lastMotherIdx below are indices into LHEPart and
+          // are not a substitute.
+          vals_col1.push_back(hepeup.ICOLUP[i].first);
+          vals_col2.push_back(hepeup.ICOLUP[i].second);
+          vals_mother1.push_back(hepeup.MOTHUP[i].first);
+          vals_mother2.push_back(hepeup.MOTHUP[i].second);
+          vals_time.push_back(hepeup.VTIMUP[i]);
+        }
         if (status == -1) {
           vals_pt.push_back(0);
           vals_eta.push_back(0);
@@ -160,6 +184,11 @@ public:
     out.addColumnValue<uint8_t>("NpNLO", lheProd.npNLO(), "number of partons at NLO");
     out.addColumnValue<uint8_t>("NpLO", lheProd.npLO(), "number of partons at LO");
     out.addColumnValue<float>("AlphaS", alphaS, "Per-event alphaS");
+    if (storeAllLHEInfo_) {
+      out.addColumnValue<float>("AlphaQED", alphaQED, "Per-event alphaQED");
+      out.addColumnValue<float>("Scale", scale, "Per-event scale");
+      out.addColumnValue<uint8_t>("ProcessID", idproc, "Process id (as in the card ordering)");
+    }
 
     auto outPart = std::make_unique<nanoaod::FlatTable>(vals_pt.size(), "LHEPart", false);
     outPart->addColumn<float>("pt", vals_pt, "Pt of LHE particles", this->precision_);
@@ -174,17 +203,32 @@ public:
         "firstMotherIdx", vals_firstMotherIdx, "Index of this particle's first mother in the LHEPart collection");
     outPart->addColumn<int16_t>(
         "lastMotherIdx", vals_lastMotherIdx, "Index of this particle's last mother in the LHEPart collection");
+    if (storeAllLHEInfo_) {
+      outPart->addColumn<int>("color1", vals_col1, "First color index of LHE particles");
+      outPart->addColumn<int>("color2", vals_col2, "Second color index of LHE particles");
+      outPart->addColumn<int>(
+          "mother1", vals_mother1, "First mother index of LHE particles (1-based, as in the LHE record; 0 = none)");
+      outPart->addColumn<int>(
+          "mother2", vals_mother2, "Second mother index of LHE particles (1-based, as in the LHE record; 0 = none)");
+      outPart->addColumn<float>("lifetime", vals_time, "Own lifetime of LHE particles", this->precision_);
+    }
 
     return outPart;
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<std::vector<edm::InputTag>>("lheInfo", std::vector<edm::InputTag>{{"externalLHEProducer"}, {"source"}})
+    desc.add<std::vector<edm::InputTag>>(
+            "lheInfo", std::vector<edm::InputTag>{{"lheWeights"}, {"externalLHEProducer"}, {"source"}})
         ->setComment("tag(s) for the LHE information (LHEEventProduct)");
     desc.add<int>("precision", -1)->setComment("precision on the 4-momenta of the LHE particles");
     desc.add<bool>("storeLHEParticles", false)
         ->setComment("Whether we want to store the 4-momenta of the status 1 particles at LHE level");
+    desc.add<bool>("storeAllLHEInfo", false)
+        ->setComment(
+            "Whether to store the whole set of LHE particles (not only status +/-1 and the status-2 W/Z/H) together "
+            "with the raw LHE record: colour flow, 1-based mother indices, lifetime, per-event alphaQED/scale/process "
+            "id");
     descriptions.add("lheInfoTable", desc);
   }
 
@@ -192,6 +236,7 @@ protected:
   const std::vector<edm::EDGetTokenT<LHEEventProduct>> lheTag_;
   const unsigned int precision_;
   const bool storeLHEParticles_;
+  const bool storeAllLHEInfo_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
