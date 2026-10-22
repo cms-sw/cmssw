@@ -27,6 +27,7 @@ defaultOptions.isData=True
 defaultOptions.step=''
 defaultOptions.pileup='NoPileUp'
 defaultOptions.pileup_input = None
+defaultOptions.pileup_filetype = 'EDM'
 defaultOptions.pileup_dasoption = ''
 defaultOptions.geometry = 'SimDB'
 defaultOptions.geometryExtendedOptions = ['ExtendedGFlash','Extended','NoCastor']
@@ -626,10 +627,9 @@ class ConfigBuilder(object):
                 defaultFileName=self._options.outfile_name
             else:
                 defaultFileName=self._options.outfile_name.replace('.root','_in'+theTier+'.root')
-                defaultFileName=defaultFileName.replace('.rntpl','_in'+theTier+'.rntpl')
 
             theFileName=self._options.dirout+anyOf(['fn','fileName'],outDefDict,defaultFileName)
-            if not theFileName.endswith('.root') and not theFileName.endswith('.rntpl'):
+            if not theFileName.endswith('.root'):
                 theFileName+='.root'
 
             if len(outDefDict):
@@ -706,7 +706,6 @@ class ConfigBuilder(object):
                 theFileName=self._options.outfile_name
             else:
                 theFileName=self._options.outfile_name.replace('.root','_in'+streamType+'.root')
-                theFileName=theFileName.replace('.rntpl','_in'+streamType+'.rntpl')
             theFilterName=self._options.filtername
             if streamType=='ALCARECO':
                 theFilterName = 'StreamALCACombined'
@@ -735,10 +734,6 @@ class ConfigBuilder(object):
             CppType='NanoAODRNTupleOutputModule' if self._options.rntuple_out else 'NanoAODOutputModule'
         elif self._options.rntuple_out:
             CppType='RNTupleTempOutputModule'
-        if 'RNTuple' in CppType:
-            fileName = fileName.replace('.root', '.rntpl')
-        else:
-            fileName = fileName.replace('.rntpl', '.root')
         output = cms.OutputModule(CppType,
                                   eventContent.clone(),
                                   fileName = cms.untracked.string(fileName),
@@ -819,7 +814,7 @@ class ConfigBuilder(object):
                     else:
                         mixingDict['F']=self._options.pileup_input.split(',')
 
-                self.customizeMixingModuleForRNTuple(mixingDict.get('F', []), 'mix')
+                self.customizeMixingModuleForRNTuple('mix')
                 specialization=defineMixing(mixingDict)
                 for command in specialization:
                     self.executeAndRemember(command)
@@ -879,18 +874,9 @@ class ConfigBuilder(object):
                 else:
                     self._options.inputCommands='keep *_randomEngineStateProducer_*_*,'
 
-    def customizeMixingModuleForRNTuple(self, files, mixingModuleLabel):
-        # Do we want a command-line option as well to switch the input type?
-        # Naively the 'filetype' looks attractive, but it would
-        # couple the primary Source and the SecSource to the same
-        # file format, which is not strictly necessary
-        useRNTuple= len(files) > 0 and files[0].lower().endswith(".rntpl")
-        if useRNTuple:
-            rntupleSrc = cms.SecSource("EmbeddedRNTupleRootSource")
-            mixingModule = getattr(self.process, mixingModuleLabel)
-            rntupleSrc.update_(mixingModule.input.parameters_())
-            mixingModule.input = rntupleSrc
-            self.additionalCommands.append('rntupleSrc = cms.SecSource("EmbeddedRNTupleTempSource")')
+    def customizeMixingModuleForRNTuple(self, mixingModuleLabel):
+        if self._options.pileup_filetype == "EDM_RNTUPLE":
+            self.additionalCommands.append(f'rntupleSrc = cms.SecSource("EmbeddedRNTupleTempSource")')
             self.additionalCommands.append(f'rntupleSrc.update_(process.{mixingModuleLabel}.input.parameters_())')
             self.additionalCommands.append(f'process.{mixingModuleLabel}.input = rntupleSrc')
 
@@ -1273,7 +1259,7 @@ class ConfigBuilder(object):
     def addExtraStream(self, name, stream, workflow='full'):
             # define output module and go from there
         if self._options.rntuple_out:
-            extension = '.rntpl'
+            extension = '.root'
             output = cms.OutputModule('RNTupleTempOutputModule')
         else:
             extension = '.root'
@@ -1625,7 +1611,7 @@ class ConfigBuilder(object):
             else:
                 theFiles=self._options.pileup_input.split(',')
 
-            self.customizeMixingModuleForRNTuple(theFiles, 'mixData')
+            self.customizeMixingModuleForRNTuple('mixData')
             #print theFiles
             self.executeAndRemember( "process.mixData.input.fileNames = cms.untracked.vstring(%s)"%(  theFiles ) )
 
@@ -2652,4 +2638,3 @@ class ConfigBuilder(object):
             import json
             io.write(json.dumps(ioJson))
         return
-
