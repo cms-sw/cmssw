@@ -2213,14 +2213,13 @@ namespace edm {
   }
 
   void EventProcessor::processEventAsync(WaitingTaskHolder iHolder, unsigned int iStreamIndex) {
-    if (streamArenas_.empty()) {
-      iHolder.group()->run([this, iHolder, iStreamIndex]() { processEventAsyncImpl(iHolder, iStreamIndex); });
-    } else {
-      // run the event in the arena of the stream's NUMA node; all the tasks it spawns stay in that arena
-      unsigned int domain = numa::StreamNumaDomains::instance().domainOfStream(iStreamIndex);
-      streamArenas_[domain]->enqueue([this, iHolder, iStreamIndex]() { processEventAsyncImpl(iHolder, iStreamIndex); },
-                                     *iHolder.group());
-    }
+    // run the event in the arena of the stream's NUMA domain (numaLocality); all the tasks it spawns stay in that arena.
+    // If the calling thread (the one that read the event from the source) already runs in that arena, the event is
+    // spawned on its local queue rather than enqueued into the shared queue of the arena.
+    int domain =
+        streamArenas_.empty() ? -1 : static_cast<int>(numa::StreamNumaDomains::instance().domainOfStream(iStreamIndex));
+    numa::runInDomain(
+        *iHolder.group(), domain, [this, iHolder, iStreamIndex]() { processEventAsyncImpl(iHolder, iStreamIndex); });
   }
 
   void EventProcessor::processEventAsyncImpl(WaitingTaskHolder iHolder, unsigned int iStreamIndex) {
