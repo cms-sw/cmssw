@@ -118,13 +118,13 @@ void SimG4HGCalValidation::registerConsumes(edm::ConsumesCollector cc) {
     G4String nameX = "HGCal";
     if (types_[type] <= 1) {
       if (detType == 0) {
-	dets_.emplace_back(static_cast<unsigned int>(DetId::HGCalEE));
+        dets_.emplace_back(static_cast<unsigned int>(DetId::HGCalEE));
         subdet_.emplace_back(static_cast<int>(ForwardSubdetector::ForwardEmpty));
       } else if (detType == 1) {
-	dets_.emplace_back(static_cast<unsigned int>(DetId::HGCalHSi));
+        dets_.emplace_back(static_cast<unsigned int>(DetId::HGCalHSi));
         subdet_.emplace_back(static_cast<int>(ForwardSubdetector::ForwardEmpty));
       } else {
-	dets_.emplace_back(static_cast<unsigned int>(DetId::HGCalHSc));
+        dets_.emplace_back(static_cast<unsigned int>(DetId::HGCalHSc));
         subdet_.emplace_back(static_cast<int>(ForwardSubdetector::ForwardEmpty));
       }
       if (detType == 0)
