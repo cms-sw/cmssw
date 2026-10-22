@@ -1133,6 +1133,11 @@ void FastTimerService::postEndJob() {
   // stop observing to avoid potential race conditions at exit
   tbb::task_scheduler_observer::observe(false);
   guard_.finalize();
+  if (auto unobserved = guard_.unobserved(); unobserved > 0) {
+    edm::LogWarning("FastTimerService") << unobserved
+                                        << " threads were first seen outside of the TBB arenas observed by the "
+                                           "FastTimerService, and were registered on their first measurement";
+  }
   // print the job summaries
   if (print_job_summary_) {
     edm::LogVerbatim out("FastReport");
@@ -1744,8 +1749,14 @@ FastTimerService::ThreadGuard::Entry FastTimerService::ThreadGuard::enter(Atomic
   return {register_thread(r), true};
 }
 
-FastTimerService::Measurement& FastTimerService::ThreadGuard::thread() {
-  return (*ptr(::pthread_getspecific(key_)))->measurement_;
+FastTimerService::Measurement& FastTimerService::ThreadGuard::thread(AtomicResources& r) {
+  if (auto p = ::pthread_getspecific(key_)) [[likely]] {
+    return (*ptr(p))->measurement_;
+  }
+  ++unobserved_;
+  Measurement& measurement = register_thread(r);
+  measurement.measure();
+  return measurement;
 }
 
 std::shared_ptr<FastTimerService::ThreadGuard::specific_t>* FastTimerService::ThreadGuard::ptr(void* p) {
@@ -1796,7 +1807,7 @@ void FastTimerService::on_scheduler_exit(bool worker) {
   thread().measure_and_accumulate(job_summary_.idle);
 }
 
-FastTimerService::Measurement& FastTimerService::thread() { return guard_.thread(); }
+FastTimerService::Measurement& FastTimerService::thread() { return guard_.thread(job_summary_.idle); }
 
 // describe the module's configuration
 void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

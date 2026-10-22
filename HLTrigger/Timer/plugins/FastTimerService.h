@@ -486,7 +486,7 @@ private:
   std::vector<ResourcesPerJob> run_summary_;  // whole event time accounting per-run
   std::mutex summary_mutex_;                  // synchronise access to the summary objects across different threads
 
-  // per-thread measurements, kept in thread-specific storage and looked up once per access; enter() registers the
+  // per-thread measurements, kept in thread-specific storage; each accessor looks them up once, and registers the
   // calling thread the first time it is seen
   class ThreadGuard {
   public:
@@ -500,8 +500,12 @@ private:
     // the measurement of a thread entering an observed TBB arena; a new thread is registered, and the resources it
     // uses after its last measurement are accounted to r when it leaves the TBB pool
     Entry enter(AtomicResources& r);
-    // the measurement of the calling thread, which must have been registered by enter()
-    Measurement& thread();
+    // the measurement of the calling thread. A thread seen here for the first time has not entered an observed TBB
+    // arena (e.g. it runs in another arena, or outside of TBB): it is registered as by enter(), and counted in
+    // unobserved()
+    Measurement& thread(AtomicResources& r);
+    // the number of threads registered by thread()
+    unsigned int unobserved() const { return unobserved_; }
     // account the resources of the threads that have not left the TBB pool
     void finalize();
 
@@ -519,6 +523,7 @@ private:
     static std::shared_ptr<specific_t>* ptr(void* p);
     Measurement& register_thread(AtomicResources& r);
 
+    std::atomic<unsigned int> unobserved_ = 0;
     tbb::concurrent_vector<std::shared_ptr<specific_t>> thread_resources_;
     pthread_key_t key_;
   };
