@@ -4,9 +4,21 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/FTLDigi"/>
+<use name="DataFormats/FTLDigiSoA"/>
 <use name="DataFormats/FTLRecHit"/>
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="FWCore/MessageLogger"/>
 <library file="*.cc" name="RecoLocalFastTimeFTLRecProducersPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
+<library file="alpaka/*.cc" name="RecoLocalFastTimeFTLCommonAlgosPluginsPortable">
+  <use name="alpaka"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="DataFormats/SoATemplate"/>
+  <use name="DataFormats/Portable"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
