@@ -43,7 +43,8 @@ SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(const int firstSampleShift,
       useChannelPulseShapesForMC_(useChannelPulseShapesForMC),
       psFitOOTpuCorr_(std::move(m2)),
       hltOOTpuCorr_(std::move(detFit)),
-      mahiOOTpuCorr_(std::move(mahi)) {
+      mahiOOTpuCorr_(std::move(mahi)),
+      firstInARun_(true) {
   hcalTimeSlew_delay_ = nullptr;
 }
 
@@ -52,6 +53,7 @@ void SimpleHBHEPhase1Algo::beginRun(const edm::Run& r, const edm::EventSetup& es
 
   runnum_ = r.run();
   pulseCorr_.beginRun(es);
+  firstInARun_ = true;
 }
 
 void SimpleHBHEPhase1Algo::endRun() { runnum_ = 0; }
@@ -83,11 +85,17 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
   const PulseShapeFitOOTPileupCorrection* method2 = psFitOOTpuCorr_.get();
   if (method2) {
     if (channelPulseShapes_ && (isData || useChannelPulseShapesForMC_)) {
-      psFitOOTpuCorr_->setPulseShapeTemplate(
-          channelPulseShapes_->getChannelShape(info.id()), !info.hasTimeInfo(), info.nSamples(), hcalTimeSlew_delay_);
+      psFitOOTpuCorr_->setPulseShapeTemplate(channelPulseShapes_->getChannelShape(info.id()),
+                                             !info.hasTimeInfo(),
+                                             info.nSamples(),
+                                             hcalTimeSlew_delay_,
+                                             true);
     } else {
-      psFitOOTpuCorr_->setPulseShapeTemplate(
-          theHcalPulseShapes_.getShape(info.recoShape()), !info.hasTimeInfo(), info.nSamples(), hcalTimeSlew_delay_);
+      psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()),
+                                             !info.hasTimeInfo(),
+                                             info.nSamples(),
+                                             hcalTimeSlew_delay_,
+                                             false);
     }
     // "phase1Apply" call below sets m2E, m2t, useTriple, and chi2.
     // These parameters are pased by non-const reference.
@@ -113,6 +121,8 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
 
   if (mahi) {
     if (channelPulseShapes_ && (isData || useChannelPulseShapesForMC_)) {
+      if (firstInARun_)
+        mahiOOTpuCorr_->resetPulseShapesBuffer(channelPulseShapes_->nShapeTypes());
       const int recoShape = channelPulseShapes_->getShapeType(info.id());
       mahiOOTpuCorr_->setPulseShapeTemplate(
           recoShape, *channelPulseShapes_, info.hasTimeInfo(), hcalTimeSlew_delay_, info.nSamples(), info.tsGain(0));
@@ -166,6 +176,7 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
   if (useTriple || m4UseTriple)
     rh.setFlagField(1, HcalPhase1FlagLabels::HBHEPulseFitBit);
 
+  firstInARun_ = false;
   return rh;
 }
 
