@@ -287,10 +287,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<bool>("useCMML", false)->setComment("Run the CM DNN for energy_variations(CM_ALT), else CM_ALT = energy");
     desc.add<bool>("cmAltAsNominal", false)
         ->setComment("use the DNN CM for energy (ZS, clustering), the linear CM for energy_variations(CM_ALT)");
-    desc.add<std::string>("model", "")->setComment("TorchScript CM DNN");
-    desc.add<std::string>("modelManifest", "")->setComment("feature order, module vocabulary, preprocess_inputs");
+    desc.add<std::string>("model", "RecoLocalCalo/HGCalRecProducers/data/CMCalibrations/cm_dnn_multimodule.pth")
+        ->setComment("TorchScript CM DNN");
+    desc.add<std::string>("modelManifest",
+                          "RecoLocalCalo/HGCalRecProducers/data/CMCalibrations/cm_dnn_multimodule_manifest.json")
+        ->setComment("feature order, module vocabulary, preprocess_inputs");
     desc.add<std::string>("inputPreprocessing", "")->setComment("z-score normalisation JSON (preprocess_inputs=true)");
-    desc.add<std::string>("cellAreas", "")->setComment("cellareas.json (ML_F/MH_F SF)");
+    desc.add<std::string>("cellAreas", "RecoLocalCalo/HGCalRecProducers/data/CMCalibrations/cellareas.json")
+        ->setComment("cellareas.json (ML_F/MH_F SF)");
     desc.add<int>("cm_n_threads", 256);
     desc.add<bool>("produceCMMLDebug", false)
         ->setComment("put the DNN inputs, raw output, correction and valid per digi in the event (debugging)");

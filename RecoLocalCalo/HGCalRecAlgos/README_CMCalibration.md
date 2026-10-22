@@ -174,7 +174,7 @@ same as the nominal energy (the model was trained with Run112044 pedestals; not 
 
 ## Models
 
-| `cmModel` | Files in `HGCalCommissioning/Calibrations/NNBased/` | Source (Arne Reimers, `dnn_best.pth`) |
+| `cmModel` | Files in `RecoLocalCalo/HGCalRecProducers/data/CMCalibrations/` | Source (Arne Reimers, `dnn_best.pth`) |
 |---|---|---|
 | `plain` (default) | `cm_dnn_multimodule.pth`, `_manifest.json` | `allchannels_multimodule_perchannel_F254__256-256-256-32__dr0`, md5 `823ecb38…` |
 | `zscore` | `cm_dnn_multimodule_zscore.pth`, `_manifest.json`, `_preprocessing.json` | `allchannels_multimodule_inputzscore_perchannel_F254__256-256-256-32__dr0`, md5 `b5116811…` |
@@ -185,6 +185,11 @@ Source directory: `/eos/user/a/areimers/hgcal/Sep2025TB/corrections/MULTI_ML_F3W
 - Arne's checkpoints are `state_dict`s; `NNBased/convert_multimodule_dnn.py` rebuilds the network,
   checks the md5, scripts it and checks TorchScript == eager (max |diff| 0). Run under `cmsenv`.
 - Normalisation is applied in CMSSW, not baked into the model file.
+- The model files and `cellareas.json` are shipped in the cms-data package
+  [`RecoLocalCalo-HGCalRecProducers`](https://github.com/cms-data/RecoLocalCalo-HGCalRecProducers)
+  under `CMCalibrations/`. The `hgcalRecHits` defaults point to the `plain` model there. To test
+  a new version before it is in a release, clone the package into
+  `$CMSSW_BASE/external/$SCRAM_ARCH/data/RecoLocalCalo/HGCalRecProducers/data`.
 
 **z-score model.** From `input_preprocessing.json`:
 
@@ -352,8 +357,9 @@ Paths relative to `src/`.
 - `DataFormats/HGCalReco/interface/HGCalRecoVariations.h` — `Variation::CM_ALT/SCALE_ALT`, `VariationVector`
 - `HGCalCommissioning/DQM/plugins/HGCalCMVariationValidation.cc`, `HGCalCMVariationValidationHarvester.cc`
   (+ `DQM/python/hgcalCMVariationValidation[Harvester]_cfi.py`)
-- `HGCalCommissioning/Calibrations/NNBased/convert_multimodule_dnn.py`,
-  `cm_dnn_multimodule[_zscore].pth`, `…_manifest.json`, `cm_dnn_multimodule_zscore_preprocessing.json`
+- `HGCalCommissioning/Calibrations/NNBased/convert_multimodule_dnn.py`
+- cms-data `RecoLocalCalo/HGCalRecProducers/data/CMCalibrations/`: `cm_dnn_multimodule[_zscore].pth`,
+  `…_manifest.json`, `cm_dnn_multimodule_zscore_preprocessing.json`, `cellareas.json`
 - `HGCalCommissioning/SystemTestEventFilters/plugins/HGCalTrigTimeFilter.cc` — trig-time selection
 
 **Modified**
