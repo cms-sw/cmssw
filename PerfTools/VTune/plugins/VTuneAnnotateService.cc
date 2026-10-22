@@ -50,16 +50,6 @@ namespace perftools {
         std::sort(moduleIDs_.begin(), moduleIDs_.end());
       });
     }
-
-    if (not moduleIDs_.empty()) {
-      iRegistry.watchPostModuleConstruction([this](auto const& description) {
-        unsigned int id = description.id();
-        auto found = std::find(moduleIDs_.begin(), moduleIDs_.end(), id);
-        if (found != moduleIDs_.end()) {
-          moduleIDs_.erase(found);
-        }
-      });
-    }
   }
 
   bool VTuneAnnotateService::isTargetModule(unsigned int id) const {
@@ -69,7 +59,7 @@ namespace perftools {
   void VTuneAnnotateService::preModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const& mcc) {
     std::string const& moduleLabel = mcc.moduleDescription()->moduleLabel();
     std::string const& moduleName = mcc.moduleDescription()->moduleName();
-    if (allModules_ || isTargetModule(mcc.moduleDescription()->id())) {
+    if (isTargetModule(mcc.moduleDescription()->id())) {
       std::string handleName = moduleName + "/" + moduleLabel;
       __itt_string_handle* handle = __itt_string_handle_create(handleName.c_str());
       __itt_task_begin(ittDomain_, __itt_null, __itt_null, handle);
@@ -77,7 +67,7 @@ namespace perftools {
   }
 
   void VTuneAnnotateService::postModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const& mcc) {
-    if (allModules_ || isTargetModule(mcc.moduleDescription()->id())) {
+    if (isTargetModule(mcc.moduleDescription()->id())) {
       __itt_task_end(ittDomain_);
     }
   }

@@ -47,16 +47,6 @@ namespace perftools {
         std::sort(moduleIDs_.begin(), moduleIDs_.end());
       });
     }
-
-    if (not moduleIDs_.empty()) {
-      iRegistry.watchPostModuleConstruction([this](auto const& description) {
-        unsigned int id = description.id();
-        auto found = std::find(moduleIDs_.begin(), moduleIDs_.end(), id);
-        if (found != moduleIDs_.end()) {
-          moduleIDs_.erase(found);
-        }
-      });
-    }
   }
 
   bool VTuneFilterService::isTargetModule(unsigned int id) const {
@@ -64,13 +54,13 @@ namespace perftools {
   }
 
   void VTuneFilterService::preModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const& mcc) {
-    if (allModules_ || isTargetModule(mcc.moduleDescription()->id())) {
+    if (isTargetModule(mcc.moduleDescription()->id())) {
       __itt_resume();
     }
   }
 
   void VTuneFilterService::postModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const& mcc) {
-    if (allModules_ || isTargetModule(mcc.moduleDescription()->id())) {
+    if (isTargetModule(mcc.moduleDescription()->id())) {
       __itt_pause();
     }
   }
