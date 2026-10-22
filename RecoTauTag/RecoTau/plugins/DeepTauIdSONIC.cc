@@ -1,16 +1,16 @@
 /*
  * \class DeepTauIdSONIC
  *
- * Tau identification using Deep NN with SONIC
+ * Tau identification using Deep NN with SONIC (using DeepTauIdBaseONNX)
  *
  */
 
 #include "HeterogeneousCore/SonicTriton/interface/TritonEDProducer.h"
-#include "RecoTauTag/RecoTau/interface/DeepTauIdBase.h"
+#include "RecoTauTag/RecoTau/interface/DeepTauIdBaseONNX.h"
 
-class DeepTauIdSonicProducer : public DeepTauIdBase<TritonEDProducer<>> {
+class DeepTauIdSonicProducer : public DeepTauIdBaseONNX<TritonEDProducer<>> {
 public:
-  explicit DeepTauIdSonicProducer(edm::ParameterSet const& cfg) : DeepTauIdBase<TritonEDProducer<>>(cfg) {}
+  explicit DeepTauIdSonicProducer(edm::ParameterSet const& cfg) : DeepTauIdBaseONNX<TritonEDProducer<>>(cfg) {}
 
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override;
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup, Output const& iOutput) override;
