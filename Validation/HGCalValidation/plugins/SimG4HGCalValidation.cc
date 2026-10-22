@@ -146,7 +146,7 @@ void SimG4HGCalValidation::registerConsumes(edm::ConsumesCollector cc) {
 }
 
 void SimG4HGCalValidation::produce(edm::Event& e, const edm::EventSetup&) {
-  std::unique_ptr<PHGCalValidInfo> productLayer(new PHGCalValidInfo);
+  std::unique_ptr<PHGCalValidInfo> productLayer = std::make_unique<PHGCalValidInfo>();
   layerAnalysis(*productLayer);
   e.put(std::move(productLayer), labelLayer_);
 }
