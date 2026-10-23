@@ -143,8 +143,17 @@ int phase2tkutil::getNumericHistoId(uint32_t det_id, const TrackerTopology* tTop
     numericID = (inout << 17) | (structure << 15);
   if (LEVEL == 3)
     numericID = (inout << 17) | (structure << 15) | (side << 13) | (shellIO << 11);
-  if (LEVEL == 4)
-    numericID = (inout << 17) | (structure << 15) | (side << 13) | (shellIO << 11) | (0b00 << 7) | (ring << 3);
+  if (LEVEL == 4) {
+    // Outer Tracker must contain split between TEDD1 & TEDD2
+    // Wheels 1-5 are real OT wheels, so 6 and 7 are used
+    // This way numeric ID can tell TEDD1 & 2 apart without
+    // clashing with Level 5 & 6 numeric IDs
+    if (inner)
+      numericID = (inout << 17) | (structure << 15) | (side << 13) | (shellIO << 11) | (0b00 << 7) | (ring << 3);
+    else
+      numericID =
+          (inout << 17) | (structure << 15) | (side << 13) | (shellIO << 11) | ((wheel > 2 ? 6 : 7) << 7) | (ring << 3);
+  }
   if (LEVEL == 5)
     numericID = (inout << 17) | (structure << 15) | (side << 13) | (shellIO << 11) | (wheel << 7);
   if (LEVEL == 6)
