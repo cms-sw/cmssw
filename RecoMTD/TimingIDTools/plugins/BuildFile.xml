@@ -1,4 +1,4 @@
-<library name="RecoMTDTimingIDTools_plugins" file="*.cc">
+<library name="RecoMTDTimingIDTools_plugins" file="MTDTrackQualityMVAProducer.cc, TOFPIDProducer.cc">
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="DataFormats/TrackReco"/>
@@ -7,4 +7,17 @@
   <use name="RecoMTD/TimingIDTools"/>
   <use name="RecoVertex/PrimaryVertexProducer"/>
   <use name="PhysicsTools/UtilAlgos"/>
+</library>
+
+<library name="RecoMTDTimingIDTools_MVATraining" file="MVATrainingNtuple.cc">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="DataFormats/TrackReco"/>
+  <use name="DataFormats/BeamSpot"/>
+  <use name="DataFormats/VertexReco"/>
+  <use name="RecoMTD/TimingIDTools"/>
+  <use name="RecoVertex/PrimaryVertexProducer"/>
+  <use name="PhysicsTools/UtilAlgos"/>
+  <use name="SimDataFormats/CaloAnalysis"/>
+  <use name="SimDataFormats/Associations"/>
 </library>

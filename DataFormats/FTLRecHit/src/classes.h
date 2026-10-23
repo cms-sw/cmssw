@@ -4,6 +4,12 @@
 
 #include "DataFormats/FTLRecHit/interface/FTLCluster.h"
 #include "DataFormats/FTLRecHit/interface/FTLClusterCollections.h"
+
+// FTLMergedClusters
+#include "DataFormats/FTLRecHit/interface/FTLMergedClusterCollections.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/Common/interface/Wrapper.h"
+
 #include "DataFormats/FTLRecHit/interface/FTLTrackingRecHit.h"
 #include "DataFormats/FTLRecHit/interface/FTLSeverityLevel.h"
 #include "DataFormats/Common/interface/RefProd.h"
