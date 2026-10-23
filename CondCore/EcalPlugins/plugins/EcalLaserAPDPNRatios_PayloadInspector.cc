@@ -581,9 +581,9 @@ namespace {
       return true;
     }  // fill method
   };  // class EcalLaserAPDPNRatiosDiffBase
-  using EcalLaserAPDPNRatiosDiffOneTag = EcalLaserAPDPNRatiosBase<cond::payloadInspector::SINGLE_IOV, 1, 0>;
+  using EcalLaserAPDPNRatiosDiffOneTag = EcalLaserAPDPNRatiosBase<cond::payloadInspector::MULTI_IOV, 1, 0>;
   using EcalLaserAPDPNRatiosDiffTwoTags = EcalLaserAPDPNRatiosBase<cond::payloadInspector::SINGLE_IOV, 2, 0>;
-  using EcalLaserAPDPNRatiosRatioOneTag = EcalLaserAPDPNRatiosBase<cond::payloadInspector::SINGLE_IOV, 1, 1>;
+  using EcalLaserAPDPNRatiosRatioOneTag = EcalLaserAPDPNRatiosBase<cond::payloadInspector::MULTI_IOV, 1, 1>;
   using EcalLaserAPDPNRatiosRatioTwoTags = EcalLaserAPDPNRatiosBase<cond::payloadInspector::SINGLE_IOV, 2, 1>;
 
   // human readable label of an IOV since: run, run:lumi or date for time type IOVs
