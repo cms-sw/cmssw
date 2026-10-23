@@ -20,7 +20,7 @@
 // Create the ResourceInformationService and the given accelerator service (e.g. CUDAService or ROCmService), that
 // are used by cms::Ort::ONNXRuntime::defaultSessionOptions() to check which GPU backends are available in the job.
 // The services are available while the returned token is used with an edm::ServiceRegistry::Operate object.
-inline edm::ServiceToken makeServices(std::string const& acceleratorService) {
+inline edm::OwningServiceToken makeServices(std::string const& acceleratorService) {
   if (not edmplugin::PluginManager::isAvailable()) {
     edmplugin::PluginManager::configure(edmplugin::standard::config());
   }
@@ -92,7 +92,7 @@ inline void testGPUBackend(cms::Ort::Backend backend,
   // a device index that is not expected to be available in the job
   constexpr int kUnavailableDevice = 1024;
 
-  edm::ServiceToken token = makeServices(acceleratorService);
+  edm::OwningServiceToken token = makeServices(acceleratorService);
   edm::ServiceRegistry::Operate operate(token);
   if (testDevices()) {
     testModel(backend);
