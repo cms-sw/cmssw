@@ -692,7 +692,7 @@ class UpgradeWorkflow_pixelNNCPE(UpgradeWorkflow):
             )
 
     def condition(self, fragment, stepList, key, hasHarvest):
-        return fragment == "TTbar_14TeV" and key == "2025"
+        return fragment == "TTbar_14TeV" and key in ["2025", "2025PU"]
 
 upgradeWFs["pixelNNCPE"] = UpgradeWorkflow_pixelNNCPE(
     steps=[
@@ -703,7 +703,14 @@ upgradeWFs["pixelNNCPE"] = UpgradeWorkflow_pixelNNCPE(
         "RecoNano",
         "RecoNanoFakeHLT",
     ],
-    PU=[],
+    PU=[
+        "Reco",
+        "RecoFakeHLT",
+        "RecoGlobal",
+        "RecoGlobalFakeHLT",
+        "RecoNano",
+        "RecoNanoFakeHLT",
+    ],
     suffix="_pixelNNCPE",
     offset=0.187,
 )
