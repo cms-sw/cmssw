@@ -64,6 +64,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         //get cell and module info
         auto const& moduleInfo = iRecord.get(moduleInfoTkn_);
         auto const& cellInfo = iRecord.get(cellInfoTkn_);
+        constexpr float calibCellRefArea = 0.29086;
 
         //declare the dense index info collection to be produced
         //the size is determined by the module indexer
@@ -139,7 +140,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   row.detid() = module_row.detid() + cell_row.detid();
                   HGCSiliconDetId siDetId(row.detid());
                   row.layer() = siDetId.layer() + layerOffset;
-                  row.area() = hgcal_geom->getArea(siDetId);
+                  row.area() = cell_row.t()==0 ?  calibCellRefArea : hgcal_geom->getArea(siDetId);
                 }
 
                 //assign position from geometry

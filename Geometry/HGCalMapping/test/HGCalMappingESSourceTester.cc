@@ -344,12 +344,12 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
   auto const& denseIndexInfo = iSetup.getData(denseIndexTkn_);
   printf("Retrieved %d dense index info\n", denseIndexInfo.view().metadata().size());
   int nindices = denseIndexInfo.view().metadata().size();
-  printf("fedId fedReadoutSeq detId eleid modix cellidx channel x y z");
+  printf("fedId fedReadoutSeq detId eleid modix cellidx channel x y z layer area");
   for (int i = 0; i < nindices; i++) {
     auto row = denseIndexInfo.view()[i];
     if (verbosity_ < 2)
       continue;
-    printf("%d %d 0x%x 0x%x %d %d %d %f %f %f\n",
+    printf("%d %d 0x%x 0x%x %d %d %d %f %f %f %d %f\n",
            row.fedId(),
            row.fedReadoutSeq(),
            row.detid(),
@@ -359,7 +359,10 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
            row.chNumber(),
            row.x(),
            row.y(),
-           row.z());
+           row.z(),
+           row.layer(),
+           row.area()
+           );
   }
 }
 
