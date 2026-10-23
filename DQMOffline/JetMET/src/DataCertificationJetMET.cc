@@ -557,7 +557,7 @@ void DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGe
     meJetPt[0] = iget_.get(newHistoName + cleaningdir + jetAlgo + "PFJets/Pt_Barrel");
     meJetPt[1] = iget_.get(newHistoName + cleaningdir + jetAlgo + "PFJets/Pt_EndCap");
     meJetPt[2] = iget_.get(newHistoName + cleaningdir + jetAlgo + "PFJets/Pt_Forward");
-    meJetPt[3] = iget_.get(newHistoName + cleaningdir + jetAlgo + "CaloJets/Pt_2");
+    meJetPt[3] = iget_.get(newHistoName + cleaningdir + jetAlgo + "CaloJets/Pt_extended");
 
     //Jet Constituents histos
     meJetConstituents[0] = iget_.get(newHistoName + cleaningdir + jetAlgo + "PFJets/Constituents_Barrel");
