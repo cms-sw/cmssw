@@ -22,7 +22,7 @@ namespace edm {
 
     void execute() final {
       //Need to make the services available early so other services can see them
-      ServiceRegistry::Operate guard(m_serviceToken.lock());
+      ServiceRegistry::Operate guard(m_serviceToken);
 
       //incase the emit causes an exception, we need a memory location
       // to hold the exception_ptr
@@ -50,7 +50,7 @@ namespace edm {
                     sContext = m_context,
                     serviceToken = m_serviceToken]() {
             //Need to make the services available
-            ServiceRegistry::Operate operateRunModule(serviceToken.lock());
+            ServiceRegistry::Operate operateRunModule(serviceToken);
 
             std::exception_ptr ptr;
             worker->runModuleAfterAsyncPrefetch(ptr, info, streamID, parentContext, sContext);
@@ -69,7 +69,7 @@ namespace edm {
     StreamID m_streamID;
     ParentContext const m_parentContext;
     StreamContext const* m_context;
-    ServiceWeakToken m_serviceToken;
+    ServiceToken m_serviceToken;
     oneapi::tbb::task_group* m_group;
   };
 
@@ -88,7 +88,7 @@ namespace edm {
 
     void execute() final {
       //Need to make the services available early so other services can see them
-      ServiceRegistry::Operate guard(m_serviceToken.lock());
+      ServiceRegistry::Operate guard(m_serviceToken);
 
       //incase the emit causes an exception, we need a memory location
       // to hold the exception_ptr
@@ -114,7 +114,7 @@ namespace edm {
                       serviceToken = m_serviceToken,
                       holder = std::move(m_holder)]() mutable {
                        //Need to make the services available
-                       ServiceRegistry::Operate operateRunAcquire(serviceToken.lock());
+                       ServiceRegistry::Operate operateRunAcquire(serviceToken);
 
                        std::exception_ptr ptr;
                        worker->runAcquireAfterAsyncPrefetch(ptr, info, parentContext, std::move(holder));
@@ -131,7 +131,7 @@ namespace edm {
     EventTransitionInfo m_eventTransitionInfo;
     ParentContext const m_parentContext;
     WaitingTaskHolder m_holder;
-    ServiceWeakToken m_serviceToken;
+    ServiceToken m_serviceToken;
   };
 
   class TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>::HandleExternalWorkExceptionTask
@@ -159,10 +159,9 @@ namespace edm {
       EventPrincipal const* iPrincipal) noexcept {
     successTask->increment_ref_count();
 
-    ServiceWeakToken weakToken = token;
     auto choiceTask =
-        edm::make_waiting_task([id, successTask, iPrincipal, this, weakToken, &group](std::exception_ptr const*) {
-          ServiceRegistry::Operate guard(weakToken.lock());
+        edm::make_waiting_task([id, successTask, iPrincipal, this, token, &group](std::exception_ptr const*) {
+          ServiceRegistry::Operate guard(token);
           try {
             bool selected = convertException::wrap([&]() {
               if (not implDoPrePrefetchSelection(id, *iPrincipal, &moduleCallingContext_)) {
@@ -228,18 +227,16 @@ namespace edm {
                                                                                       StreamID,
                                                                                       ModuleCallingContext const& mcc,
                                                                                       StreamContext const*) noexcept {
-    ServiceWeakToken weakToken = iToken;
-
     //Need to make the services available early so other services can see them
     auto task = make_waiting_task(
-        [this, iTask, weakToken, &iPrincipal, iTransformIndex, mcc](std::exception_ptr const* iExcept) mutable {
+        [this, iTask, iToken, &iPrincipal, iTransformIndex, mcc](std::exception_ptr const* iExcept) mutable {
           //post prefetch signal
           actReg_->postModuleTransformPrefetchingSignal_.emit(*mcc.getStreamContext(), mcc);
           if (iExcept) {
             iTask.doneWaiting(*iExcept);
             return;
           }
-          implDoTransformAsync(iTask, iTransformIndex, iPrincipal, mcc.parent(), weakToken);
+          implDoTransformAsync(iTask, iTransformIndex, iPrincipal, mcc.parent(), iToken);
         });
 
     //pre prefetch signal
@@ -394,28 +391,23 @@ namespace edm {
         };
         if (hasAcquire()) {
           auto ownRunTask = std::make_shared<DestroyTask>(moduleTask);
-          ServiceWeakToken weakToken = token;
           auto* group = task.group();
           moduleTask = make_waiting_task(
-              [this, weakToken, transitionInfo, parentContext, ownRunTask, group](std::exception_ptr const* iExcept) {
+              [this, token, transitionInfo, parentContext, ownRunTask, group](std::exception_ptr const* iExcept) {
                 WaitingTaskHolder runTaskHolder(
                     *group, new HandleExternalWorkExceptionTask(this, group, ownRunTask->release(), parentContext));
-                AcquireTask t(this, transitionInfo, weakToken.lock(), parentContext, runTaskHolder);
+                AcquireTask t(this, transitionInfo, token, parentContext, runTaskHolder);
                 t.execute();
               });
         }
         auto* group = task.group();
         auto ownModuleTask = std::make_shared<DestroyTask>(moduleTask);
-        ServiceWeakToken weakToken = token;
         auto selectionTask =
-            make_waiting_task([ownModuleTask, parentContext, info = transitionInfo, weakToken, group, this](
+            make_waiting_task([ownModuleTask, parentContext, info = transitionInfo, token, group, this](
                                   std::exception_ptr const*) mutable {
-              ServiceRegistry::Operate guard(weakToken.lock());
-              prefetchAsync(WaitingTaskHolder(*group, ownModuleTask->release()),
-                            weakToken.lock(),
-                            parentContext,
-                            info,
-                            Transition::Event);
+              ServiceRegistry::Operate guard(token);
+              prefetchAsync(
+                  WaitingTaskHolder(*group, ownModuleTask->release()), token, parentContext, info, Transition::Event);
             });
         prePrefetchSelectionAsync(*group, selectionTask, token, streamID, &transitionInfo.principal());
       } else {
@@ -477,13 +469,12 @@ namespace edm {
 
     waitingTasks_.add(task);
     if (workStarted) {
-      ServiceWeakToken weakToken = serviceToken;
-      auto toDo = [this, info = transitionInfo, streamID, parentContext, context, weakToken]() {
+      auto toDo = [this, info = transitionInfo, streamID, parentContext, context, serviceToken]() {
         std::exception_ptr exceptionPtr;
         // Caught exception is propagated via WaitingTaskList
         CMS_SA_ALLOW try {
           //Need to make the services available
-          ServiceRegistry::Operate guard(weakToken.lock());
+          ServiceRegistry::Operate guard(serviceToken);
           this->runModule(info, streamID, parentContext, context);
         } catch (...) {
           exceptionPtr = std::current_exception();

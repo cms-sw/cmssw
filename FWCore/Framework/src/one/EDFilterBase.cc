@@ -81,7 +81,7 @@ namespace edm {
                                         EventPrincipal const& iEvent,
                                         ActivityRegistry* iAct,
                                         ModuleCallingContext iMCC,
-                                        ServiceWeakToken const& iToken) noexcept {
+                                        ServiceToken const& iToken) noexcept {
       EventForTransformer ev(iEvent, iMCC);
       transformAsync_(iTask, iTransformIndex, ev, iAct, iToken);
     }
@@ -92,7 +92,7 @@ namespace edm {
                                        std::size_t iIndex,
                                        edm::EventForTransformer& iEvent,
                                        edm::ActivityRegistry* iAct,
-                                       ServiceWeakToken const& iToken) const noexcept {}
+                                       ServiceToken const& iToken) const noexcept {}
 
     void EDFilterBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       auto const nThreads = iPrealloc.numberOfThreads();
