@@ -122,7 +122,7 @@ namespace edm {
       randomGenerator_ = randomGenerator.get();
       std::unique_ptr<edm::RandomNumberGenerator> baseGen = std::move(randomGenerator);
       serviceToken_ = edm::ServiceRegistry::createContaining(
-          std::move(baseGen), edm::ServiceRegistry::instance().presentToken(), true);
+          std::move(baseGen), edm::OwningServiceToken(edm::ServiceRegistry::instance().presentToken()), true);
 
       provider_ = std::make_unique<SecondaryEventProvider>(producers, filler, processConfiguration_);
     }
