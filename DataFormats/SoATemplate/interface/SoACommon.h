@@ -548,36 +548,6 @@ namespace cms::soa {
     };
   };
 
-  // Helper template to avoid commas inside macros
-#ifdef EIGEN_WORLD_VERSION
-  template <class C>
-  struct EigenConstMapMaker {
-    using Type = Eigen::Map<const C, Eigen::AlignmentType::Unaligned, Eigen::InnerStride<Eigen::Dynamic>>;
-
-    class DataHolder {
-    public:
-      DataHolder(const typename C::Scalar* data) : data_(data) {}
-
-      EigenConstMapMaker::Type withStride(byte_size_type stride) {
-        return EigenConstMapMaker::Type(
-            data_, C::RowsAtCompileTime, C::ColsAtCompileTime, Eigen::InnerStride<Eigen::Dynamic>(stride));
-      }
-
-    private:
-      const typename C::Scalar* const data_;
-    };
-
-    static DataHolder withData(const typename C::Scalar* data) { return DataHolder(data); }
-  };
-#else
-  template <class C>
-  struct EigenConstMapMaker {
-    // Eigen/Core should be pre-included before the SoA headers to enable support for Eigen columns.
-    static_assert(!sizeof(C),
-                  "Eigen/Core should be pre-included before the SoA headers to enable support for Eigen columns.");
-  };
-#endif
-
   // Helper function to compute aligned size
   // this is an integer division -> it rounds size to the next multiple of alignment
   constexpr inline byte_size_type alignSize(byte_size_type size, byte_size_type alignment) {
