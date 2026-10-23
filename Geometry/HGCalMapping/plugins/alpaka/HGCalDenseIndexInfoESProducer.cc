@@ -64,6 +64,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         //get cell and module info
         auto const& moduleInfo = iRecord.get(moduleInfoTkn_);
         auto const& cellInfo = iRecord.get(cellInfoTkn_);
+        constexpr float calibCellRefArea = 0.29086;
 
         //declare the dense index info collection to be produced
         //the size is determined by the module indexer
@@ -104,6 +105,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             uint32_t cellInfoOffset = cellIndexer.offsets_[typeidx];
 
             //now fill the information sequentially on the cells of this module
+            std::vector<uint32_t> surroundingCellAreas;
             for (uint32_t ich = 0; ich < nch; ich++) {
               //finalize assigning the dense index
               uint32_t denseIdx = off + ich;
@@ -124,6 +126,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               //assign det id only for full and calibration cells
               row.detid() = 0;
               row.layer() = 0;
+              row.area() = 0;
               if (cell_row.t() == 1 || cell_row.t() == 0) {
                 if (isSiPM) {
                   row.detid() = ::hgcal::mappingtools::getSiPMDetId(module_row.zside(),
@@ -132,10 +135,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                     module_row.celltype(),
                                                                     cell_row.i1(),
                                                                     cell_row.i2());
-                  row.layer() = HGCScintillatorDetId(row.detid()).layer() + layerOffset;
+                  HGCScintillatorDetId sciDetId(row.detid());
+                  row.layer() = sciDetId.layer() + layerOffset;
+                  row.area() = 0;  //hgcal_geom->getArea( row.detid() );
                 } else {
                   row.detid() = module_row.detid() + cell_row.detid();
-                  row.layer() = HGCSiliconDetId(row.detid()).layer() + layerOffset;
+                  HGCSiliconDetId siDetId(row.detid());
+                  row.layer() = siDetId.layer() + layerOffset;
+                  float area = hgcal_geom->getArea(siDetId);
+                  if (cell_row.t() == 0) {
+                    int offset = cell_row.caliboffset();
+                    if (offset != 0) {
+                      surroundingCellAreas.push_back(denseIdx + offset);
+                    }
+                    area = (float)calibCellRefArea;
+                  }
+                  row.area() = area;
                 }
 
                 //assign position from geometry
@@ -147,6 +162,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 row.phi() = position.phi();
               }
             }  // end cell loop
+
+            //fix the assignment of cell areas in the surrounding cells
+            for (auto it : surroundingCellAreas) {
+              auto row = denseIdxInfo.view()[it];
+              row.area() = row.area() - calibCellRefArea;
+            }
 
           }  // end module loop
 
