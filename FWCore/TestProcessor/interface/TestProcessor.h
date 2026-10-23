@@ -162,7 +162,7 @@ namespace edm {
     public:
       using Config = TestProcessorConfig;
 
-      TestProcessor(Config const& iConfig, ServiceToken iToken = ServiceToken());
+      TestProcessor(Config const& iConfig, OwningServiceToken const& iToken = OwningServiceToken());
       TestProcessor(const TestProcessor&) = delete;
       const TestProcessor& operator=(const TestProcessor&) = delete;
       ~TestProcessor() noexcept(false);
@@ -346,7 +346,7 @@ This simulates a problem happening early in the job which causes processing not 
       std::shared_ptr<ProductRegistry> preg_;
       std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
       std::shared_ptr<ProcessBlockHelper> processBlockHelper_;
-      ServiceToken serviceToken_;
+      OwningServiceToken serviceToken_;
       std::unique_ptr<ModuleTypeResolverMaker const> moduleTypeResolverMaker_;
       std::unique_ptr<eventsetup::EventSetupsController> espController_;
       std::shared_ptr<eventsetup::EventSetupProvider> esp_;
