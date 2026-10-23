@@ -101,6 +101,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto const idxinfo = index_view[idx];
         uint32_t const m = idxinfo.modInfoIdx();
         uint32_t const chIdx = idxinfo.chNumber();
+
         auto f = digi_features[idx].features();
         if (m >= nmodules || !d_inScope[m] || chIdx >= F::NCH) {
           for (uint32_t k = 0; k < F::Size; ++k)
@@ -122,7 +123,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         f(F::CHIDX) = float(chIdx) - (float(nErx) * float(kChPerErx) - 1.0f) / 2.0f;
         f(F::ERXIDX) = float(chIdx / kChPerErx) - (float(nErx) - 1.0f) / 2.0f;
         // We can clean this up with a new method added by p.silva but will probably merge this first.
-        float const cellfrac = cellmap_view[idxinfo.cellInfoIdx()].isHD() ? d_sfHD[chIdx] : d_sfLD[chIdx];
+        //float const cellfrac = cellmap_view[idxinfo.cellInfoIdx()].isHD() ? d_sfHD[chIdx] : d_sfLD[chIdx];
+        bool isHD = cellmap_view[idxinfo.cellInfoIdx()].isHD();
+        float const cellfrac = idxinfo.area() / (isHD*0.56204 + (1-isHD)*1.2646); //FIXME: what is the reference the area of a full cell area depending on HD or LD or the full cell area LD
         f(F::CELLFRAC) = cellfrac;
         // Z score model nornmalise.
         if (normalize) {
