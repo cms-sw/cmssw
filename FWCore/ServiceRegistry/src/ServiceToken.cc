@@ -55,25 +55,22 @@
 //
 // member functions
 //
-void edm::ServiceToken::connectTo(edm::ActivityRegistry& iConnectTo) {
-  if (nullptr != manager_.get()) {
-    manager_->connectTo(iConnectTo);
-  }
-}
-void edm::ServiceToken::connect(edm::ActivityRegistry& iConnectTo) {
-  if (nullptr != manager_.get()) {
+edm::OwningServiceToken::OwningServiceToken(edm::ServiceToken iToken)
+    : manager_(iToken.manager_ ? iToken.manager_->shared_from_this() : nullptr) {}
+
+edm::WeakServiceToken::WeakServiceToken(edm::ServiceToken iToken)
+    : manager_(iToken.manager_ ? iToken.manager_->weak_from_this()
+                               : std::weak_ptr<edm::serviceregistry::ServicesManager>()) {}
+
+void edm::OwningServiceToken::connect(edm::ActivityRegistry& iConnectTo) {
+  if (manager_) {
     manager_->connect(iConnectTo);
   }
 }
 
-void edm::ServiceToken::copySlotsTo(edm::ActivityRegistry& iConnectTo) {
-  if (nullptr != manager_.get()) {
+void edm::OwningServiceToken::copySlotsTo(edm::ActivityRegistry& iConnectTo) {
+  if (manager_) {
     manager_->copySlotsTo(iConnectTo);
-  }
-}
-void edm::ServiceToken::copySlotsFrom(edm::ActivityRegistry& iConnectTo) {
-  if (nullptr != manager_.get()) {
-    manager_->copySlotsFrom(iConnectTo);
   }
 }
 
