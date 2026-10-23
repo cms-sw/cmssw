@@ -25,11 +25,13 @@ private:
   const std::string topFolder_;
   const std::vector<std::string> shellNames_;  // FOR IT mO/pI // FOR OT PLUS/MINUS
   const unsigned int nbarrelLayers_;
-  const unsigned int ndisk1Rings_;  //FOR IT epix//FOR OT TEDD1 rings
-  const unsigned int ndisk2Rings_;  //FOR IT epix//FOR OT TEDD2 rings
+  const unsigned int ndisk1Rings_;  //FOR IT Fpix//FOR OT TEDD1 rings
+  const unsigned int ndisk1Wheels_;
+  const unsigned int ndisk2Rings_;  //FOR IT Epix//FOR OT TEDD2 rings
+  const unsigned int ndisk2Wheels_;
   const unsigned int fitThreshold_;
-  const std::string ecapdisk1Name_;  //FOR IT Epix//FOR OT TEDD_1
-  const std::string ecapdisk2Name_;  //FOR IT Fpix//FOR OT TEDD_2
+  const std::string ecapdisk1Name_;  //FOR IT Fpix//FOR OT TEDD_1
+  const std::string ecapdisk2Name_;  //FOR IT Epix//FOR OT TEDD_2
   const std::string histoPhiname_;
   const std::string deltaXvsEtaname_;
   const std::string deltaXvsPhiname_;
@@ -43,7 +45,9 @@ Phase2ITRecHitHarvester::Phase2ITRecHitHarvester(const edm::ParameterSet& iConfi
       shellNames_(iConfig.getParameter<std::vector<std::string>>("ShellNames")),
       nbarrelLayers_(iConfig.getParameter<uint32_t>("NbarrelLayers")),
       ndisk1Rings_(iConfig.getParameter<uint32_t>("NDisk1Rings")),
+      ndisk1Wheels_(iConfig.getParameter<uint32_t>("NDisk1Wheels")),
       ndisk2Rings_(iConfig.getParameter<uint32_t>("NDisk2Rings")),
+      ndisk2Wheels_(iConfig.getParameter<uint32_t>("NDisk2Wheels")),
       fitThreshold_(iConfig.getParameter<uint32_t>("NFitThreshold")),
       ecapdisk1Name_(iConfig.getParameter<std::string>("EcapDisk1Name")),
       ecapdisk2Name_(iConfig.getParameter<std::string>("EcapDisk2Name")),
@@ -73,24 +77,31 @@ void Phase2ITRecHitHarvester::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IG
     std::string ecapbasedisk1;
     std::string ecapbasedisk2;
     if (topFolder_ == "TrackerPhase2ITTrackingRecHitV" || topFolder_ == "TrackerPhase2ITRecHitV") {  // IT
-      ecapbasedisk1 = topFolder_ + "/Endcaps/" + ecapdisk1Name_ + "/" + shellNames_[shell] + "/Ring";
-      ecapbasedisk2 = topFolder_ + "/Endcaps/" + ecapdisk2Name_ + "/" + shellNames_[shell] + "/Ring";
+      ecapbasedisk1 = topFolder_ + "/Endcaps/" + ecapdisk1Name_ + "/" + shellNames_[shell] + "/Wheel";
+      ecapbasedisk2 = topFolder_ + "/Endcaps/" + ecapdisk2Name_ + "/" + shellNames_[shell] + "/Wheel";
     } else {  // OT
-      ecapbasedisk1 = topFolder_ + "/Endcaps/" + shellNames_[shell] + "/" + ecapdisk1Name_ + "/Ring";
-      ecapbasedisk2 = topFolder_ + "/Endcaps/" + shellNames_[shell] + "/" + ecapdisk2Name_ + "/Ring";
+      ecapbasedisk1 = topFolder_ + "/Endcaps/" + shellNames_[shell] + "/" + ecapdisk1Name_ + "/Wheel";
+      ecapbasedisk2 = topFolder_ + "/Endcaps/" + shellNames_[shell] + "/" + ecapdisk2Name_ + "/Wheel";
     }
-    //EPix or TEDD_1
-    for (unsigned int epixr = 1; epixr <= ndisk1Rings_; epixr++) {
-      std::string iFolder = ecapbasedisk1 + std::to_string(epixr);
-      dofitsForLayer(iFolder, ibooker, igetter);
+    //FPix or TEDD_1
+    for (unsigned int fpixw = 1; fpixw <= ndisk1Wheels_; fpixw++) {
+      std::string iFolder = ecapbasedisk1 + std::to_string(fpixw) + "/Ring";
+      for (unsigned int epixr = 1; epixr <= ndisk1Rings_; epixr++) {
+        std::string folderKey = iFolder + std::to_string(epixr);
+        dofitsForLayer(folderKey, ibooker, igetter);
+      }
     }
-    //FPix or TEDD_2
-    for (unsigned int fpixr = 1; fpixr <= ndisk2Rings_; fpixr++) {
-      std::string iFolder = ecapbasedisk2 + std::to_string(fpixr);
-      dofitsForLayer(iFolder, ibooker, igetter);
+    //EPix or TEDD_2
+    for (unsigned int epixw = ndisk1Wheels_ + 1; epixw <= ndisk1Wheels_ + ndisk2Wheels_; epixw++) {
+      std::string iFolder = ecapbasedisk2 + std::to_string(epixw) + "/Ring";
+      for (unsigned int epixr = 1; epixr <= ndisk2Rings_; epixr++) {
+        std::string folderKey = iFolder + std::to_string(epixr);
+        dofitsForLayer(folderKey, ibooker, igetter);
+      }
     }
   }
 }
+
 //Function for Layer/Ring
 void Phase2ITRecHitHarvester::dofitsForLayer(const std::string& iFolder,
                                              DQMStore::IBooker& ibooker,
@@ -173,10 +184,12 @@ void Phase2ITRecHitHarvester::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<std::string>("TopFolder", "TrackerPhase2ITRecHitV");
   desc.add<std::vector<std::string>>("ShellNames", {"mI", "mO", "pI", "pO"});
   desc.add<unsigned int>("NbarrelLayers", 4);
-  desc.add<unsigned int>("NDisk1Rings", 5);
-  desc.add<unsigned int>("NDisk2Rings", 4);
-  desc.add<std::string>("EcapDisk1Name", "EndcapPix");
-  desc.add<std::string>("EcapDisk2Name", "ForwardPix");
+  desc.add<unsigned int>("NDisk1Rings", 4);
+  desc.add<unsigned int>("NDisk1Wheels", 8);
+  desc.add<unsigned int>("NDisk2Rings", 5);
+  desc.add<unsigned int>("NDisk2Wheels", 4);
+  desc.add<std::string>("EcapDisk1Name", "ForwardPix");
+  desc.add<std::string>("EcapDisk2Name", "EndcapPix");
   desc.add<std::string>("ResidualXvsEta", "Delta_X_vs_Eta");
   desc.add<std::string>("ResidualXvsPhi", "Delta_X_vs_Phi");
   desc.add<std::string>("ResidualYvsEta", "Delta_Y_vs_Eta");
