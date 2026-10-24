@@ -10,7 +10,8 @@
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 
-#include "FWCore/Utilities/interface/HRRealTime.h"
+#include <benchmark/benchmark.h>
+#include <cassert>
 #include <iostream>
 #include <vector>
 
@@ -19,9 +20,6 @@ bool isAligned(const void* data, long alignment) {
   assert((alignment & (alignment - 1)) == 0);
   return ((long)data & (alignment - 1)) == 0;
 }
-
-void st() {}
-void en() {}
 
 typedef DistanceBetweenComponents<5> Distance;
 typedef KullbackLeiblerDistance<5> KDistance;
@@ -52,6 +50,53 @@ Matrix buildCovariance(float y) {
   // return  ROOT::Math::Transpose(jl2c.jacobian())* jl2c.jacobian();
 }
 
+namespace {
+  struct Fixture {
+    Fixture()
+        : gs1(Vector(1., 1., 1., 1., 1.), buildCovariance(1.)),
+          gs2(Vector(2., 2., 2., 2., 2.), buildCovariance(2.)),
+          vgs(10000) {
+      vgs.front() = gs1;
+      vgs.back() = gs2;
+    }
+    GS gs1;
+    GS gs2;
+    std::vector<GS> vgs;
+  };
+
+  void BM_DistanceSingle(benchmark::State& state) {
+    Distance const& d = distance();
+    Fixture f;
+    for (auto _ : state) {
+      double res = d(f.gs1, f.gs2);
+      benchmark::DoNotOptimize(res);
+    }
+  }
+  BENCHMARK(BM_DistanceSingle);
+
+  void BM_DistanceFromVector(benchmark::State& state) {
+    Distance const& d = distance();
+    Fixture f;
+    for (auto _ : state) {
+      double res = d(f.vgs.front(), f.vgs.back());
+      benchmark::DoNotOptimize(res);
+    }
+  }
+  BENCHMARK(BM_DistanceFromVector);
+
+  void BM_DistanceLoop(benchmark::State& state) {
+    Distance const& d = distance();
+    Fixture f;
+    for (auto _ : state) {
+      double res = 0;
+      for (auto const& s : f.vgs)
+        res += d(f.vgs.front(), s);
+      benchmark::DoNotOptimize(res);
+    }
+  }
+  BENCHMARK(BM_DistanceLoop);
+}  // namespace
+
 int main(int argc, char* argv[]) {
   std::cout << "size of  SingleGaussianState<5>" << sizeof(GS) << std::endl;
   std::cout << "size of  Matrix" << sizeof(Matrix) << std::endl;
@@ -59,68 +104,32 @@ int main(int argc, char* argv[]) {
 
   Distance const& d = distance();
 
-  Matrix cov1 = buildCovariance(1.);
-  Matrix cov2 = buildCovariance(2.);
-
-  GS* gs1 = new GS(Vector(1., 1., 1., 1., 1.), cov1);
-  // GS gs1(Vector(1., 1.,1., 1.,1.),Matrix(ROOT::Math::SMatrixIdentity()));
-
+  GS* gs1 = new GS(Vector(1., 1., 1., 1., 1.), buildCovariance(1.));
   GS* gs0 = new GS(Vector(1., 1., 1., 0., 0.), Matrix(ROOT::Math::SMatrixIdentity()));
   GS* gsP = new GS(Vector(1., 1., 1., 10., 10.), Matrix(ROOT::Math::SMatrixIdentity()));
+  GS* gs2 = new GS(Vector(2., 2., 2., 2., 2.), buildCovariance(2.));
 
   std::cout << "GS " << ((isAligned(gs0, 16)) ? "a " : "n ") << std::endl;
   std::cout << "cov " << ((isAligned(&gs0->covariance(), 16)) ? "a " : "n ") << std::endl;
   std::cout << "mean " << ((isAligned(&gs0->mean(), 16)) ? "a " : "n ") << std::endl;
   std::cout << "weightM " << ((isAligned(&gs0->weightMatrix(), 16)) ? "a " : "n ") << std::endl;
 
-  // GS gs2(Vector(2., 2., 2., 2.,2.),cov);
-  GS* gs2 = new GS(Vector(2., 2., 2., 2., 2.), cov2);
-
   std::vector<GS> vgs(10000);
   vgs.front() = *gs1;
   vgs.back() = *gs2;
 
-  // make sure we load all code...
-  edm::HRTimeType s0 = edm::hrRealTime();
   double res = d(*gs0, *gsP);
-  edm::HRTimeType e0 = edm::hrRealTime();
-  std::cout << e0 - s0 << std::endl;
-
-  double res2 = 0;
-
-  bool both = (argc < 2);
-
-  if (both || argv[1][0] == 'a') {
-    st();
-    edm::HRTimeType s = edm::hrRealTime();
-    res2 = d(*gs1, *gs2);
-    edm::HRTimeType e = edm::hrRealTime();
-    en();
-    std::cout << e - s << std::endl;
-  }
-  if (both || argv[1][0] == 'b') {
-    st();
-    edm::HRTimeType s = edm::hrRealTime();
-    res2 = d(vgs.front(), vgs.back());
-    edm::HRTimeType e = edm::hrRealTime();
-    en();
-    std::cout << e - s << std::endl;
-  }
-
+  double res2 = d(*gs1, *gs2);
   std::cout << res << " " << res2 << std::endl;
 
   res = 0;
-  st();
-  edm::HRTimeType s = edm::hrRealTime();
-  for (int i = 0; i < 100; ++i)
-    for (auto const& s : vgs)
-      res += d(vgs.front(), s);
-  edm::HRTimeType e = edm::hrRealTime();
-  en();
-
-  std::cout << e - s << std::endl;
-
+  for (auto const& s : vgs)
+    res += d(vgs.front(), s);
   std::cout << res << std::endl;
+
+  benchmark::Initialize(&argc, argv);
+  benchmark::RunSpecifiedBenchmarks();
+  benchmark::Shutdown();
 
   return 0;
 }
