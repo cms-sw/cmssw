@@ -4,7 +4,6 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Tracklet.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Stub.h"
 #include "L1Trigger/TrackFindingTracklet/interface/L1TStub.h"
-#include "L1Trigger/TrackFindingTracklet/interface/IMATH_TrackletCalculator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -139,173 +138,13 @@ TrackletCalculatorDisplaced::TrackletCalculatorDisplaced(string name, Settings c
   }
 }
 
-void TrackletCalculatorDisplaced::addOutputProjection(TrackletProjectionsMemory*& outputProj, MemoryBase* memory) {
-  outputProj = dynamic_cast<TrackletProjectionsMemory*>(memory);
-  assert(outputProj != nullptr);
-}
-
-void TrackletCalculatorDisplaced::addOutput(MemoryBase* memory, string output) {
-  if (settings_.writetrace()) {
-    edm::LogVerbatim("Tracklet") << "In " << name_ << " adding output to " << memory->getName() << " to output "
-                                 << output;
-  }
-
-  if (output == "trackpar") {
-    auto* tmp = dynamic_cast<TrackletParametersMemory*>(memory);
-    assert(tmp != nullptr);
-    trackletpars_ = tmp;
-    return;
-  }
-
-  if (output.substr(0, 7) == "projout") {
-    //output is on the form 'projoutL2PHIC' or 'projoutD3PHIB'
-    auto* tmp = dynamic_cast<TrackletProjectionsMemory*>(memory);
-    assert(tmp != nullptr);
-
-    unsigned int layerdisk = output[8] - '1';   //layer or disk counting from 0
-    unsigned int phiregion = output[12] - 'A';  //phiregion counting from 0
-
-    if (output[7] == 'L') {
-      assert(layerdisk < N_LAYER);
-      assert(phiregion < trackletprojlayers_[layerdisk].size());
-      //check that phiregion not already initialized
-      assert(trackletprojlayers_[layerdisk][phiregion] == nullptr);
-      trackletprojlayers_[layerdisk][phiregion] = tmp;
-      return;
-    }
-
-    if (output[7] == 'D') {
-      assert(layerdisk < N_DISK);
-      assert(phiregion < trackletprojdisks_[layerdisk].size());
-      //check that phiregion not already initialized
-      assert(trackletprojdisks_[layerdisk][phiregion] == nullptr);
-      trackletprojdisks_[layerdisk][phiregion] = tmp;
-      return;
-    }
-  }
-
-  throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " Could not find output : " << output;
-}
-
-void TrackletCalculatorDisplaced::addInput(MemoryBase* memory, string input) {
-  if (settings_.writetrace()) {
-    edm::LogVerbatim("Tracklet") << "In " << name_ << " adding input from " << memory->getName() << " to input "
-                                 << input;
-  }
-
-  if (input == "thirdallstubin") {
-    auto* tmp = dynamic_cast<AllStubsMemory*>(memory);
-    assert(tmp != nullptr);
-    innerallstubs_.push_back(tmp);
-    return;
-  }
-  if (input == "firstallstubin") {
-    auto* tmp = dynamic_cast<AllStubsMemory*>(memory);
-    assert(tmp != nullptr);
-    middleallstubs_.push_back(tmp);
-    return;
-  }
-  if (input == "secondallstubin") {
-    auto* tmp = dynamic_cast<AllStubsMemory*>(memory);
-    assert(tmp != nullptr);
-    outerallstubs_.push_back(tmp);
-    return;
-  }
-  if (input.find("stubtriplet") == 0) {
-    auto* tmp = dynamic_cast<StubTripletsMemory*>(memory);
-    assert(tmp != nullptr);
-    stubtriplets_.push_back(tmp);
-    return;
-  }
-  throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " Could not find input : " << input;
-}
-
-void TrackletCalculatorDisplaced::execute(unsigned int iSector, double phimin, double phimax) {
-  unsigned int countall = 0;
-  unsigned int countsel = 0;
-
-  phimin_ = phimin;
-  phimax_ = phimax;
-  iSector_ = iSector;
-
-  for (auto& stubtriplet : stubtriplets_) {
-    if (trackletpars_->nTracklets() >= settings_.ntrackletmax()) {
-      edm::LogVerbatim("Tracklet") << "Will break on too many tracklets in " << getName();
-      break;
-    }
-    for (unsigned int i = 0; i < stubtriplet->nStubTriplets(); i++) {
-      countall++;
-
-      const Stub* innerFPGAStub = stubtriplet->getFPGAStub1(i);
-      const L1TStub* innerStub = innerFPGAStub->l1tstub();
-
-      const Stub* middleFPGAStub = stubtriplet->getFPGAStub2(i);
-      const L1TStub* middleStub = middleFPGAStub->l1tstub();
-
-      const Stub* outerFPGAStub = stubtriplet->getFPGAStub3(i);
-      const L1TStub* outerStub = outerFPGAStub->l1tstub();
-
-      if (settings_.debugTracklet())
-        edm::LogVerbatim("Tracklet") << "TrackletCalculatorDisplaced execute " << getName() << "[" << iSector_ << "]";
-
-      if (innerFPGAStub->layerdisk() < N_LAYER && middleFPGAStub->layerdisk() < N_LAYER &&
-          outerFPGAStub->layerdisk() < N_LAYER) {
-        //barrel+barrel seeding
-        bool accept = LLLSeeding(innerFPGAStub, innerStub, middleFPGAStub, middleStub, outerFPGAStub, outerStub);
-        if (accept)
-          countsel++;
-      } else if (innerFPGAStub->layerdisk() >= N_LAYER && middleFPGAStub->layerdisk() >= N_LAYER &&
-                 outerFPGAStub->layerdisk() >= N_LAYER) {
-        throw cms::Exception("LogicError") << __FILE__ << " " << __LINE__ << " Invalid seeding!";
-      } else {
-        //layer+disk seeding
-        if (innerFPGAStub->layerdisk() < N_LAYER && middleFPGAStub->layerdisk() >= N_LAYER &&
-            outerFPGAStub->layerdisk() >= N_LAYER) {  //D1D2L2
-          bool accept = DDLSeeding(innerFPGAStub, innerStub, middleFPGAStub, middleStub, outerFPGAStub, outerStub);
-          if (accept)
-            countsel++;
-        } else if (innerFPGAStub->layerdisk() >= N_LAYER && middleFPGAStub->layerdisk() < N_LAYER &&
-                   outerFPGAStub->layerdisk() < N_LAYER) {  //L2L3D1
-          bool accept = LLDSeeding(innerFPGAStub, innerStub, middleFPGAStub, middleStub, outerFPGAStub, outerStub);
-          if (accept)
-            countsel++;
-        } else {
-          throw cms::Exception("LogicError") << __FILE__ << " " << __LINE__ << " Invalid seeding!";
-        }
-      }
-
-      if (trackletpars_->nTracklets() >= settings_.ntrackletmax()) {
-        edm::LogVerbatim("Tracklet") << "Will break on number of tracklets in " << getName();
-        break;
-      }
-
-      if (countall >= settings_.maxStep("TC")) {
-        if (settings_.debugTracklet())
-          edm::LogVerbatim("Tracklet") << "Will break on MAXTC 1";
-        break;
-      }
-      if (settings_.debugTracklet())
-        edm::LogVerbatim("Tracklet") << "TrackletCalculatorDisplaced execute done";
-    }
-    if (countall >= settings_.maxStep("TC")) {
-      if (settings_.debugTracklet())
-        edm::LogVerbatim("Tracklet") << "Will break on MAXTC 2";
-      break;
-    }
-  }
-
-  if (settings_.writeMonitorData("TPD")) {
-    globals_->ofstream("trackletcalculatordisplaced.txt") << getName() << " " << countall << " " << countsel << endl;
-  }
-}
-
 void TrackletCalculatorDisplaced::addDiskProj(Tracklet* tracklet, int disk) {
   disk = std::abs(disk);
   FPGAWord fpgar = tracklet->proj(N_LAYER + disk - 1).fpgarzproj();
 
-  if (fpgar.value() * settings_.krprojshiftdisk() < settings_.rmindiskvm())
+  if (fpgar.value() * settings_.kr() < settings_.rmindiskvm())
     return;
-  if (fpgar.value() * settings_.krprojshiftdisk() > settings_.rmaxdisk())
+  if (fpgar.value() * settings_.kr() > settings_.rmaxdisk())
     return;
 
   FPGAWord fpgaphi = tracklet->proj(N_LAYER + disk - 1).fpgaphiproj();
@@ -546,11 +385,8 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
   }
 
   //now binary
-  double krinv = settings_.kphi1() / settings_.kr() * pow(2, settings_.rinv_shift()),
-         kphi0 = settings_.kphi1() * pow(2, settings_.phi0_shift()),
-         kt = settings_.kz() / settings_.kr() * pow(2, settings_.t_shift()),
-         kz0 = settings_.kz() * pow(2, settings_.z0_shift()),
-         kphiproj = settings_.kphi1() * pow(2, settings_.SS_phiL_shift()),
+  double krinv = settings_.krinvpars(), kphi0 = settings_.kphi0pars(), kt = settings_.ktpars(),
+         kz0 = settings_.kz0pars(), kphiproj = settings_.kphi1() * pow(2, settings_.SS_phiL_shift()),
          kphider = settings_.kphi1() / settings_.kr() * pow(2, settings_.SS_phiderL_shift()),
          kzproj = settings_.kz() * pow(2, settings_.PS_zL_shift()),
          kzder = settings_.kz() / settings_.kr() * pow(2, settings_.PS_zderL_shift()),
@@ -600,8 +436,8 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
   double phicritapprox = phi0approx - asin((0.5 * settings_.rcrit() * rinvapprox) + (d0approx / settings_.rcrit()));
   int phicrit = iphi0 - 2 * irinv - 2 * id0;
 
-  int iphicritmincut = settings_.phicritminmc() / globals_->ITC_L1L2()->phi0_final.K();
-  int iphicritmaxcut = settings_.phicritmaxmc() / globals_->ITC_L1L2()->phi0_final.K();
+  int iphicritmincut = settings_.phicritminmc() / settings_.kphi0pars();
+  int iphicritmaxcut = settings_.phicritmaxmc() / settings_.kphi0pars();
 
   bool keepapprox = (phicritapprox > settings_.phicritminmc()) && (phicritapprox < settings_.phicritmaxmc()),
        keep = (phicrit > iphicritmincut) && (phicrit < iphicritmaxcut);
@@ -725,6 +561,7 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
   }
 
   Tracklet* tracklet = new Tracklet(settings_,
+                                    globals_,
                                     iSeed_,
                                     innerFPGAStub,
                                     middleFPGAStub,
@@ -744,8 +581,8 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
                                     id0,
                                     iz0,
                                     it,
-                                    projs,
                                     false);
+  tracklet->addProjs(projs);  // add projections to tracklet
 
   if (settings_.debugTracklet())
     edm::LogVerbatim("Tracklet") << "TrackletCalculatorDisplaced " << getName()
@@ -963,11 +800,8 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
   }
 
   //now binary
-  double krinv = settings_.kphi1() / settings_.kr() * pow(2, settings_.rinv_shift()),
-         kphi0 = settings_.kphi1() * pow(2, settings_.phi0_shift()),
-         kt = settings_.kz() / settings_.kr() * pow(2, settings_.t_shift()),
-         kz0 = settings_.kz() * pow(2, settings_.z0_shift()),
-         kphiproj = settings_.kphi1() * pow(2, settings_.SS_phiL_shift()),
+  double krinv = settings_.krinvpars(), kphi0 = settings_.kphi0pars(), kt = settings_.ktpars(),
+         kz0 = settings_.kz0pars(), kphiproj = settings_.kphi1() * pow(2, settings_.SS_phiL_shift()),
          kphider = settings_.kphi1() / settings_.kr() * pow(2, settings_.SS_phiderL_shift()),
          kzproj = settings_.kz() * pow(2, settings_.PS_zL_shift()),
          kzder = settings_.kz() / settings_.kr() * pow(2, settings_.PS_zderL_shift()),
@@ -1016,8 +850,8 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
   double phicritapprox = phi0approx - asin((0.5 * settings_.rcrit() * rinvapprox) + (d0approx / settings_.rcrit()));
   int phicrit = iphi0 - 2 * irinv - 2 * id0;
 
-  int iphicritmincut = settings_.phicritminmc() / globals_->ITC_L1L2()->phi0_final.K();
-  int iphicritmaxcut = settings_.phicritmaxmc() / globals_->ITC_L1L2()->phi0_final.K();
+  int iphicritmincut = settings_.phicritminmc() / settings_.kphi0pars();
+  int iphicritmaxcut = settings_.phicritmaxmc() / settings_.kphi0pars();
 
   bool keepapprox = (phicritapprox > settings_.phicritminmc()) && (phicritapprox < settings_.phicritmaxmc()),
        keep = (phicrit > iphicritmincut) && (phicrit < iphicritmaxcut);
@@ -1132,6 +966,7 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
   }
 
   Tracklet* tracklet = new Tracklet(settings_,
+                                    globals_,
                                     iSeed_,
                                     innerFPGAStub,
                                     middleFPGAStub,
@@ -1151,8 +986,8 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
                                     id0,
                                     iz0,
                                     it,
-                                    projs,
                                     true);
+  tracklet->addProjs(projs);  // add projections to tracklet
 
   if (settings_.debugTracklet())
     edm::LogVerbatim("Tracklet") << "TrackletCalculatorDisplaced " << getName()
@@ -1367,11 +1202,8 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
   }
 
   //now binary
-  double krinv = settings_.kphi1() / settings_.kr() * pow(2, settings_.rinv_shift()),
-         kphi0 = settings_.kphi1() * pow(2, settings_.phi0_shift()),
-         kt = settings_.kz() / settings_.kr() * pow(2, settings_.t_shift()),
-         kz0 = settings_.kz() * pow(2, settings_.z0_shift()),
-         kphiproj = settings_.kphi1() * pow(2, settings_.SS_phiL_shift()),
+  double krinv = settings_.krinvpars(), kphi0 = settings_.kphi0pars(), kt = settings_.ktpars(),
+         kz0 = settings_.kz0pars(), kphiproj = settings_.kphi1() * pow(2, settings_.SS_phiL_shift()),
          kphider = settings_.kphi1() / settings_.kr() * pow(2, settings_.SS_phiderL_shift()),
          kzproj = settings_.kz() * pow(2, settings_.PS_zL_shift()),
          kzder = settings_.kz() / settings_.kr() * pow(2, settings_.PS_zderL_shift()),
@@ -1420,8 +1252,8 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
   double phicritapprox = phi0approx - asin((0.5 * settings_.rcrit() * rinvapprox) + (d0approx / settings_.rcrit()));
   int phicrit = iphi0 - 2 * irinv - 2 * id0;
 
-  int iphicritmincut = settings_.phicritminmc() / globals_->ITC_L1L2()->phi0_final.K();
-  int iphicritmaxcut = settings_.phicritmaxmc() / globals_->ITC_L1L2()->phi0_final.K();
+  int iphicritmincut = settings_.phicritminmc() / settings_.kphi0pars();
+  int iphicritmaxcut = settings_.phicritmaxmc() / settings_.kphi0pars();
 
   bool keepapprox = (phicritapprox > settings_.phicritminmc()) && (phicritapprox < settings_.phicritmaxmc()),
        keep = (phicrit > iphicritmincut) && (phicrit < iphicritmaxcut);
@@ -1537,6 +1369,7 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
   }
 
   Tracklet* tracklet = new Tracklet(settings_,
+                                    globals_,
                                     iSeed_,
                                     innerFPGAStub,
                                     middleFPGAStub,
@@ -1556,8 +1389,8 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
                                     id0,
                                     iz0,
                                     it,
-                                    projs,
                                     false);
+  tracklet->addProjs(projs);  // add projections to tracklet
 
   if (settings_.debugTracklet())
     edm::LogVerbatim("Tracklet") << "TrackletCalculatorDisplaced " << getName()

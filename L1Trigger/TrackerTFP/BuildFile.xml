@@ -1,5 +1,5 @@
 <use name="L1Trigger/TrackTrigger"/>
-<use name="SimTracker/TrackTriggerAssociation"/>
+<use name="L1Trigger/TrackerDTC"/>
 <export>
     <lib name="1"/>
 </export>

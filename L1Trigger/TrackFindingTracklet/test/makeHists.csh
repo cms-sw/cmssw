@@ -9,7 +9,7 @@
 #                                                                      #
 # (where rootFileName is the name of the input .root file,             #
 #  including its directory name, if its not in the current one.        #
-#  If rootFileName not specified, it defaults to TTbar_PU200_D76.root) #
+#  If rootFileName not specified, it defaults to L1TrkNtuple.root).    #
 ########################################################################
 
 if ($#argv == 0) then
@@ -43,9 +43,8 @@ echo "MVA track quality Histograms written to MVA_plots/"
 # Run track performance plotting macro
 set plotMacro = $CMSSW_BASE/src/L1Trigger/TrackFindingTracklet/test/L1TrackNtuplePlot.C
 if (-e TrkPlots) rm -r TrkPlots
-\root -b -q ${plotMacro}'("'${inputFileStem}'","'${dirName}'")' | tail -n 26 >! results.out 
+\root -b -q ${plotMacro}'("'${inputFileStem}'","'${dirName}'")' | tail -n 29 >! results.out 
 cat results.out
 echo "Tracking performance summary written to results.out"
 echo "Track performance histograms written to TrkPlots/"  
-
 exit

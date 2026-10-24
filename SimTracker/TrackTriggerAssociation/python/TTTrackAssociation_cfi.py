@@ -6,6 +6,9 @@ TTTrackAssociatorFromPixelDigis = cms.EDProducer("TTTrackAssociator_Phase2Tracke
     ),
     TTClusterTruth = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
     TTStubTruth = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
-    TTTrackAllowOneFalse2SStub = cms.bool(True),
+                                                 # The following cfg param has been removed, as it was unnecessary.
+                                                 # You can specify if an incorrect 2S or PS stub are allowed
+                                                 # via function TTTrackAssociationMap::isGenuine().
+    #TTTrackAllowOneFalse2SStub = cms.bool(True),
 )
 
