@@ -59,23 +59,9 @@ namespace ticl::associator::detail {
     alpaka::exec<TAcc>(queue, workdiv, KernelComputeAssociationSizes{}, keys, keys_counts.data(), keys.size());
 
     // prepare for prefix scan
-    auto block_counter = make_device_buffer<int32_t>(queue);
-    alpaka::memset(queue, block_counter, 0);
     auto temp_offsets = make_device_buffer<TKey[]>(queue, nkeys + 1);
     alpaka::memset(queue, temp_offsets, 0);
-    const auto blocksize_multiblockscan = 1024;
-    auto gridsize_multiblockscan = divide_up_by(nkeys, blocksize_multiblockscan);
-    const auto workdiv_multiblockscan = make_workdiv<TAcc>(gridsize_multiblockscan, blocksize_multiblockscan);
-    auto warp_size = alpaka::getPreferredWarpSize(alpaka::getDev(queue));
-    alpaka::exec<TAcc>(queue,
-                       workdiv_multiblockscan,
-                       multiBlockPrefixScan<TKey>{},
-                       keys_counts.data(),
-                       temp_offsets.data() + 1,
-                       nkeys,
-                       gridsize_multiblockscan,
-                       block_counter.data(),
-                       warp_size);
+    prefixScan<TAcc>(keys_counts.data(), temp_offsets.data() + 1, static_cast<uint32_t>(nkeys), queue);
 
     alpaka::memcpy(queue,
                    make_device_view(queue, map.offsets().keys_offsets().data(), nkeys + 1),

@@ -26,7 +26,6 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/prefixScan.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/warpsize.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelClusterThresholds.h"
 
@@ -618,23 +617,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // available in the rechit producer without additional points of
         // synchronization/ExternalWork
 
-        constexpr auto threadsPrefixScan = 1024;
-        constexpr auto blocksPrefixScan = (TrackerTraits::numberOfModules + threadsPrefixScan - 1) / threadsPrefixScan;
-        auto workDivPrefixScan = cms::alpakatools::make_workdiv<Acc1D>(blocksPrefixScan, threadsPrefixScan);
-        auto bCounter = cms::alpakatools::make_device_buffer<int32_t>(queue);
-        alpaka::memset(queue, bCounter, 0);
-
-        cms::alpakatools::checkSharedMemoryPrefixScan<Acc1D>(
-            TrackerTraits::numberOfModules, blocksPrefixScan, alpaka::getDev(queue));
-        alpaka::exec<Acc1D>(queue,
-                            workDivPrefixScan,
-                            cms::alpakatools::multiBlockPrefixScan<uint32_t>(),
-                            clusters_d->view().clusInModule().data(),
-                            clusters_d->view().clusModuleStart().data() + 1,
-                            TrackerTraits::numberOfModules,
-                            blocksPrefixScan,
-                            bCounter.data(),
-                            alpaka::getPreferredWarpSize(alpaka::getDev(queue)));
+        cms::alpakatools::prefixScan<Acc1D>(clusters_d->const_view().clusInModule().data(),
+                                            clusters_d->view().clusModuleStart().data() + 1,
+                                            TrackerTraits::numberOfModules,
+                                            queue);
 
         // last element holds the number of all clusters
         const auto clusModuleStartLastElement = cms::alpakatools::make_device_view(
@@ -730,23 +716,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // available in the rechit producer without additional points of
       // synchronization/ExternalWork
 
-      constexpr auto threadsPrefixScan = 1024;
-      constexpr auto blocksPrefixScan = (TrackerTraits::numberOfModules + threadsPrefixScan - 1) / threadsPrefixScan;
-      auto workDivPrefixScan = cms::alpakatools::make_workdiv<Acc1D>(blocksPrefixScan, threadsPrefixScan);
-      auto bCounter = cms::alpakatools::make_device_buffer<int32_t>(queue);
-      alpaka::memset(queue, bCounter, 0);
-
-      cms::alpakatools::checkSharedMemoryPrefixScan<Acc1D>(
-          TrackerTraits::numberOfModules, blocksPrefixScan, alpaka::getDev(queue));
-      alpaka::exec<Acc1D>(queue,
-                          workDivPrefixScan,
-                          cms::alpakatools::multiBlockPrefixScan<uint32_t>(),
-                          clusters_d->view().clusInModule().data(),
-                          clusters_d->view().clusModuleStart().data() + 1,
-                          TrackerTraits::numberOfModules,
-                          blocksPrefixScan,
-                          bCounter.data(),
-                          alpaka::getPreferredWarpSize(alpaka::getDev(queue)));
+      cms::alpakatools::prefixScan<Acc1D>(clusters_d->const_view().clusInModule().data(),
+                                          clusters_d->view().clusModuleStart().data() + 1,
+                                          TrackerTraits::numberOfModules,
+                                          queue);
 
       // last element holds the number of all clusters
       const auto clusModuleStartLastElement = cms::alpakatools::make_device_view(

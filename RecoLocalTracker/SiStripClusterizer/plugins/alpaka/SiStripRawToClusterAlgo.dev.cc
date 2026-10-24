@@ -1,7 +1,6 @@
 #include <alpaka/alpaka.hpp>
 
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/warpsize.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/prefixScan.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/moveToDeviceAsync.h"
@@ -724,23 +723,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         stripMapping_d_->view(),
                         conditions_DetToFeds);
 
-    const uint32_t threads = 1024u;
-    const uint32_t nBlocks = divide_up_by(stripMapping_d_->view().metadata().size(), threads);
-    const auto workDivMultiBlock = make_workdiv<Acc1D>(nBlocks, threads);
-    auto blockCounter_d = make_device_buffer<int32_t>(queue);
-    alpaka::memset(queue, blockCounter_d, 0);
-
-    cms::alpakatools::checkSharedMemoryPrefixScan<Acc1D>(
-        static_cast<uint32_t>(stripMapping_d_->view().metadata().size()), nBlocks, alpaka::getDev(queue));
-    alpaka::exec<Acc1D>(queue,
-                        workDivMultiBlock,
-                        multiBlockPrefixScan<uint32_t>(),
-                        stripMapping_d_->const_view().fedChStripsN().data(),
-                        stripMapping_d_->view().fedChStripsN().data(),
-                        static_cast<uint32_t>(stripMapping_d_->view().metadata().size()),
-                        nBlocks,
-                        blockCounter_d.data(),
-                        alpaka::getPreferredWarpSize(alpaka::getDev(queue)));
+    cms::alpakatools::prefixScan<Acc1D>(stripMapping_d_->const_view().fedChStripsN().data(),
+                                        stripMapping_d_->view().fedChStripsN().data(),
+                                        static_cast<uint32_t>(stripMapping_d_->view().metadata().size()),
+                                        queue);
 
     // To do: merge the two kernels for applyQualConds and sum into a single one.
 
@@ -811,21 +797,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     // Calculate the discrete integral (prefix sum) of seedStripsNCMask.
     // When the integral increase AND I am at a non-contigous strip, the beginning of new cluster is marked.
-    const uint32_t nThreads = 1024u;
-    const int32_t nBlocks = divide_up_by(nStrips, nThreads);
-    auto blockCounter_d = make_device_buffer<int32_t>(queue);
-    alpaka::memset(queue, blockCounter_d, 0);
-
-    cms::alpakatools::checkSharedMemoryPrefixScan<Acc1D>(nStrips, nBlocks, alpaka::getDev(queue));
-    alpaka::exec<Acc1D>(queue,
-                        make_workdiv<Acc1D>(nBlocks, nThreads),
-                        multiBlockPrefixScan<uint32_t>(),
-                        sClustersAux_d_->const_view().seedStripsNCMask().data(),
-                        sClustersAux_d_->view().prefixSeedStripsNCMask().data(),
-                        nStrips,
-                        nBlocks,
-                        blockCounter_d.data(),
-                        alpaka::getPreferredWarpSize(alpaka::getDev(queue)));
+    cms::alpakatools::prefixScan<Acc1D>(sClustersAux_d_->const_view().seedStripsNCMask().data(),
+                                        sClustersAux_d_->view().prefixSeedStripsNCMask().data(),
+                                        nStrips,
+                                        queue);
 
     // Get the total number of non-contiguous seeds (ready on the host in produce)
     nSeeds_h_ = cms::alpakatools::make_host_buffer<uint32_t>(queue);
@@ -877,21 +852,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         calibs);
 
     // Fill the prefix indexes for the candidateAccepted
-    const uint32_t nThreads = 1024u;
-    const int32_t nBlocks = divide_up_by(kMaxSeedStrips_, nThreads);
-    auto blockCounter_d = make_device_buffer<int32_t>(queue);
-    alpaka::memset(queue, blockCounter_d, 0);
-
-    cms::alpakatools::checkSharedMemoryPrefixScan<Acc1D>(kMaxSeedStrips_, nBlocks, alpaka::getDev(queue));
-    alpaka::exec<Acc1D>(queue,
-                        make_workdiv<Acc1D>(nBlocks, nThreads),
-                        multiBlockPrefixScan<uint32_t>(),
-                        clusters_d->const_view().candidateAcceptedPrefix().data(),
-                        clusters_d->view().candidateAcceptedPrefix().data(),
-                        kMaxSeedStrips_,
-                        nBlocks,
-                        blockCounter_d.data(),
-                        alpaka::getPreferredWarpSize(alpaka::getDev(queue)));
+    cms::alpakatools::prefixScan<Acc1D>(clusters_d->const_view().candidateAcceptedPrefix().data(),
+                                        clusters_d->view().candidateAcceptedPrefix().data(),
+                                        kMaxSeedStrips_,
+                                        queue);
 
     // Store the total number of good cluster candidates into the scalar of the StripDigi SoA
     auto viewSrc_realClusters =
