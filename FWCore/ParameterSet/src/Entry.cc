@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/types.h"
 #include "FWCore/Utilities/interface/Digest.h"
 
+#include <algorithm>
 #include <map>
 #include <sstream>
 #include <ostream>
@@ -20,16 +21,32 @@
 #include <string_view>
 
 using namespace edm::detail;
-static constexpr const std::array<std::string_view, 34> s_types = {{"bool",
+static constexpr const std::array<std::string_view, 34> s_types = {{"ESInputTag",
+                                                                    "EventID",
+                                                                    "EventRange",
+                                                                    "FileInPath",
+                                                                    "InputTag",
+                                                                    "LuminosityBlockID",
+                                                                    "LuminosityBlockRange",
+                                                                    "PSet",
+                                                                    "VESInputTag",
+                                                                    "VEventID",
+                                                                    "VEventRange",
+                                                                    "VInputTag",
+                                                                    "VLuminosityBlockID",
+                                                                    "VLuminosityBlockRange",
+                                                                    "bool",
                                                                     "double",
                                                                     "float",
                                                                     "int32",
                                                                     "int64",
                                                                     "path",
                                                                     "string",
-                                                                    "deprecated_string",
+                                                                    "string_deprecated",
                                                                     "uint32",
                                                                     "uint64",
+                                                                    "vBool",
+                                                                    "vPSet",
                                                                     "vdouble",
                                                                     "vfloat",
                                                                     "vint32",
@@ -37,25 +54,23 @@ static constexpr const std::array<std::string_view, 34> s_types = {{"bool",
                                                                     "vstring",
                                                                     "vstring_deprecated",
                                                                     "vuint32",
-                                                                    "vuint64",
-                                                                    "vBool",
-                                                                    "vPSet",
-                                                                    "EventID",
-                                                                    "EventRange",
-                                                                    "ESInputTag",
-                                                                    "FileInPath",
-                                                                    "InputTag",
-                                                                    "LuminosityBlockID",
-                                                                    "LuminosityBlockRange",
-                                                                    "PSet",
-                                                                    "VEventID",
-                                                                    "VEventRange",
-                                                                    "VESInputTag",
-                                                                    "VInputTag",
-                                                                    "VLuminosityBlockID",
-                                                                    "VLuminosityBlockRange"}};
+                                                                    "vuint64"}};
 
-static constexpr const std::array<char, 34> s_codes = {{kTbool,
+static constexpr const std::array<char, 34> s_codes = {{kTESInputTag,
+                                                        kTEventID,
+                                                        kTEventRange,
+                                                        kTFileInPath,
+                                                        kTInputTag,
+                                                        kTLuminosityBlockID,
+                                                        kTLuminosityBlockRange,
+                                                        kTPSet,
+                                                        kTVESInputTag,
+                                                        kTVEventID,
+                                                        kTVEventRange,
+                                                        kTVInputTag,
+                                                        kTVLuminosityBlockID,
+                                                        kTVLuminosityBlockRange,
+                                                        kTbool,
                                                         kTdouble,
                                                         kTfloat,
                                                         kTint32,
@@ -65,6 +80,8 @@ static constexpr const std::array<char, 34> s_codes = {{kTbool,
                                                         kTstringHex,
                                                         kTuint32,
                                                         kTuint64,
+                                                        kTvBool,
+                                                        kTvPSet,
                                                         kTvdouble,
                                                         kTvfloat,
                                                         kTvint32,
@@ -72,23 +89,10 @@ static constexpr const std::array<char, 34> s_codes = {{kTbool,
                                                         kTvstringRaw,
                                                         kTvstringHex,
                                                         kTvuint32,
-                                                        kTvuint64,
-                                                        kTvBool,
-                                                        kTvPSet,
-                                                        kTEventID,
-                                                        kTEventRange,
-                                                        kTESInputTag,
-                                                        kTFileInPath,
-                                                        kTInputTag,
-                                                        kTLuminosityBlockID,
-                                                        kTLuminosityBlockRange,
-                                                        kTPSet,
-                                                        kTVEventID,
-                                                        kTVEventRange,
-                                                        kTVESInputTag,
-                                                        kTVInputTag,
-                                                        kTVLuminosityBlockID,
-                                                        kTVLuminosityBlockRange}};
+                                                        kTvuint64}};
+
+// codeFromType() uses std::lower_bound, so the type names must be sorted
+static_assert(std::is_sorted(s_types.begin(), s_types.end()));
 
 //a compile time function to convert code to type
 // not used at runtime since does linear search
@@ -725,7 +729,7 @@ namespace edm {
 
   Entry::Entry(std::string name, std::string_view type, std::string_view value, bool is_tracked)
       : name_(std::move(name)), rep_(), type_('?'), tracked_('?') {
-    std::string codedString(is_tracked ? "-" : "+");
+    std::string codedString(is_tracked ? "+" : "-");
 
     codedString += codeFromType(type);
     codedString += '(';
@@ -741,7 +745,7 @@ namespace edm {
 
   Entry::Entry(std::string name, std::string_view type, std::vector<std::string> const& value, bool is_tracked)
       : name_(std::move(name)), rep_(), type_('?'), tracked_('?') {
-    std::string codedString(is_tracked ? "-" : "+");
+    std::string codedString(is_tracked ? "+" : "-");
 
     codedString += codeFromType(type);
     codedString += '(';
