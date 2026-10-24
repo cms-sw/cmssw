@@ -19,7 +19,9 @@
 #     rechits share the cell-level DetId space. The raw graph is small (~3 MB/ev)
 #     and is kept because the branch validators consume it (rawSrc, for the
 #     trackId->particle map) and it lets the logical graph / index be rebuilt
-#     offline.
+#     offline. mix:genPayload is not kept, so a rebuild sets rawGenPayload to "";
+#     then a stable pileup GEN-only particle has no momentum and a pileup GEN
+#     vertex that merged with no SimVertex has no position.
 #
 #     INVARIANT: the persisted index must stay COMPLETE - every hit-leaving
 #     contributor present, no pdgId pruning. The per-cell denominator is the sum
