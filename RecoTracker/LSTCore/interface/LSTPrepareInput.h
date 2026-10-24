@@ -44,9 +44,6 @@ namespace lst {
                                              std::vector<float> const& ph2_x,
                                              std::vector<float> const& ph2_y,
                                              std::vector<float> const& ph2_z,
-#ifndef LST_STANDALONE
-                                             std::vector<TrackingRecHit const*> const& ph2_hits,
-#endif
                                              float const ptCut,
                                              TQueue const& queue) {
     std::vector<float> trkX;
@@ -224,7 +221,7 @@ namespace lst {
       nPixelSeeds = n_max_pixel_segments_per_module;
     }
 
-    LSTInputHostCollection lstInputHC(queue, nHitsIT + nHitsOT, nPixelSeeds);
+    LSTInputHostCollection lstInputHC(queue, nHitsIT + nHitsOT, nPixelSeeds, nHitsIT);
 
     auto hits = lstInputHC.view().hits();
     hits.nHitsOT() = nHitsOT;
@@ -233,20 +230,15 @@ namespace lst {
     std::copy_n(ph2_z.data(), nHitsOT, hits.zs().data());
     std::copy_n(ph2_detId.data(), nHitsOT, hits.detid().data());
     std::copy_n(ph2_clustSize.data(), nHitsOT, hits.clustsize().data());
-#ifndef LST_STANDALONE
-    std::copy_n(ph2_hits.data(), nHitsOT, hits.hits().data());
-#endif
 
     std::copy_n(trkX.data(), nHitsIT, hits.xs().data() + nHitsOT);
     std::copy_n(trkY.data(), nHitsIT, hits.ys().data() + nHitsOT);
     std::copy_n(trkZ.data(), nHitsIT, hits.zs().data() + nHitsOT);
     std::copy_n(hitId.data(), nHitsIT, hits.detid().data() + nHitsOT);
     std::copy_n(hitClustSize.data(), nHitsIT, hits.clustsize().data() + nHitsOT);
-#ifndef LST_STANDALONE
-    std::fill_n(hits.hits().data() + nHitsOT, nHitsIT, nullptr);
-#endif
 
-    std::copy_n(hitIdxs.data(), nHitsIT + nHitsOT, hits.idxs().data());
+    // the OT part of hitIdxs is the identity (hitOrigIdx); only the pLS section is stored
+    std::copy_n(hitIdxs.data() + nHitsOT, nHitsIT, lstInputHC.view().hitsIT().idxs().data());
 
     auto pixelSeeds = lstInputHC.view().pixelSeeds();
     std::copy_n(firstHit_vec.data(), nPixelSeeds, pixelSeeds.firstHit().data());

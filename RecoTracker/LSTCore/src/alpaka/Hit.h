@@ -16,9 +16,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return cms::alpakatools::deltaPhi(acc, x1, y1, x2 - x1, y2 - y1);
   }
 
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE unsigned int packedHitIdx(unsigned int ih, HitsBaseConst hitsBase) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE unsigned int packedHitIdx(unsigned int ih,
+                                                           HitsBaseConst hitsBase,
+                                                           HitsITConst hitsIT) {
     constexpr int kOTBit = 1 << 31;
-    return hitsBase.idxs()[ih] | (hitsBase.detid()[ih] == kPixelModuleId ? 0 : kOTBit);
+    return hitOrigIdx(hitsBase, hitsIT, ih) | (hitsBase.detid()[ih] == kPixelModuleId ? 0 : kOTBit);
   }
 
   struct ModuleRangesKernel {
@@ -42,34 +44,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
   struct HitLoopKernel {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
-                                  uint16_t Endcap,          // Integer corresponding to endcap in module subdets
-                                  uint16_t TwoS,            // Integer corresponding to TwoS in moduleType
-                                  unsigned int nModules,    // Number of modules
-                                  unsigned int nEndCapMap,  // Number of elements in endcap map
-                                  EndcapGeometryDevConst endcapGeometry,
+                                  unsigned int nModules,  // Number of modules
                                   ModulesConst modules,
                                   HitsBaseConst hitsBase,
                                   HitsExtended hitsExtended,
                                   HitsRanges hitsRanges) const  // Total number of hits in event
     {
-      auto geoMapDetId = endcapGeometry.geoMapDetId();  // DetId's from endcap map
-      auto geoMapPhi = endcapGeometry.geoMapPhi();      // Phi values from endcap map
       int nHits = hitsExtended.metadata().size();
       auto const nHitsOT = hitsBase.nHitsOT();
       ALPAKA_ASSERT_ACC(nHits == hitsBase.metadata().size());
       for (unsigned int ihit : cms::alpakatools::uniform_elements(acc, nHits)) {
         float ihit_x = hitsBase.xs()[ihit];
         float ihit_y = hitsBase.ys()[ihit];
-        float ihit_z = hitsBase.zs()[ihit];
         int iDetId = hitsBase.detid()[ihit];
 
         hitsExtended.rts()[ihit] = alpaka::math::sqrt(acc, ihit_x * ihit_x + ihit_y * ihit_y);
         hitsExtended.phis()[ihit] = cms::alpakatools::phi(acc, ihit_x, ihit_y);
-        hitsExtended.etas()[ihit] =
-            ((ihit_z > 0) - (ihit_z < 0)) *
-            alpaka::math::acosh(acc,
-                                alpaka::math::sqrt(acc, ihit_x * ihit_x + ihit_y * ihit_y + ihit_z * ihit_z) /
-                                    hitsExtended.rts()[ihit]);
         auto found_pointer =
             alpaka_std::lower_bound(modules.mapdetId().data(), modules.mapdetId().data() + nModules, iDetId);
         ALPAKA_ASSERT_ACC(found_pointer != modules.mapdetId().data() + nModules);
@@ -78,18 +68,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
         hitsExtended.moduleIndices()[ihit] = lastModuleIndex;
 
-        if (modules.subdets()[lastModuleIndex] == Endcap && modules.moduleType()[lastModuleIndex] == TwoS) {
-          found_pointer = alpaka_std::lower_bound(geoMapDetId.data(), geoMapDetId.data() + nEndCapMap, iDetId);
-          ALPAKA_ASSERT_ACC(found_pointer != geoMapDetId.data() + nEndCapMap);
-          found_index = std::distance(geoMapDetId.data(), found_pointer);
-          float phi = geoMapPhi[found_index];
-          float cos_phi = alpaka::math::cos(acc, phi);
-          hitsExtended.highEdgeXs()[ihit] = ihit_x + 2.5f * cos_phi;
-          hitsExtended.lowEdgeXs()[ihit] = ihit_x - 2.5f * cos_phi;
-          float sin_phi = alpaka::math::sin(acc, phi);
-          hitsExtended.highEdgeYs()[ihit] = ihit_y + 2.5f * sin_phi;
-          hitsExtended.lowEdgeYs()[ihit] = ihit_y - 2.5f * sin_phi;
-        }
         // hits above nHitsOT are from seed tracks: don't reindex the full OT hits (all below nHitsOT)
         if (ihit < nHitsOT || iDetId == kPixelModuleId) {
           // Need to set initial value if index hasn't been seen before.

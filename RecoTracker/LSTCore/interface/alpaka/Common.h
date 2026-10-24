@@ -2,9 +2,14 @@
 #define RecoTracker_LSTCore_interface_alpaka_Common_h
 
 #include <numbers>
+#include <stdexcept>
+#include <string>
 
 #include "FWCore/Utilities/interface/HostDeviceConstant.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#ifndef LST_STANDALONE
+#include "FWCore/Utilities/interface/Exception.h"
+#endif
 #include "RecoTracker/LSTCore/interface/Common.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
@@ -16,6 +21,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     printf("%s\n", warning.data());
 #else
     edm::LogWarning("LST") << warning;
+#endif
+  }
+
+  [[noreturn]] ALPAKA_FN_HOST ALPAKA_FN_INLINE void lstLogicError(std::string const& message) {
+#ifdef LST_STANDALONE
+    throw std::runtime_error(message);
+#else
+    throw cms::Exception("LogicError") << message;
 #endif
   }
 
@@ -35,6 +48,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   HOST_DEVICE_CONSTANT float k2Rinv1GeVf = (kC * kB) / 2;
   HOST_DEVICE_CONSTANT float kR1GeVf = 1. / (kC * kB);
   HOST_DEVICE_CONSTANT float kSinAlphaMax = 0.95;
+  // Relative slack on a creation cut copied into a counting kernel, so that codegen differences can never make the
+  // count reject a candidate that creation accepts.
+  HOST_DEVICE_CONSTANT float kCountCutSlack = 1.001f;
   HOST_DEVICE_CONSTANT float kDeltaZLum = 15.0;
   HOST_DEVICE_CONSTANT float kPixelPSZpitch = 0.15;
   HOST_DEVICE_CONSTANT float kStripPSZpitch = 2.4;
