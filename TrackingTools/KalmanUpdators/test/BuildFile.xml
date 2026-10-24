@@ -6,4 +6,5 @@
 <use name="MagneticField/Engine"/>
 <use name="clhep"/>
 <bin file="KFUpdator_t.cpp">
+  <use name="google-benchmark"/>
 </bin>

@@ -85,7 +85,7 @@ namespace p2eg {
   static constexpr int N_GCTINTERNAL_FIBERS = 64;
   static constexpr int N_GCTPOSITIVE_FIBERS = 32;
   static constexpr int N_GCTETA = 34;
-  static constexpr int N_GCTPHI = 36;
+  static constexpr int N_GCTPHI = 32;
 
   // Note: this follows old GCT geometry, where each GCT has 8 RCT cards (6 unique) with each RCT having 4 towers in phi
   // leading to the offset of 6*4 = 24 towers between two GCT card boundaries

@@ -21,6 +21,9 @@
 <!-- test script check_phase2_hlt_duplicates.sh -->
 <test name="test_check_phase2_hlt_duplicates" command="check_phase2_hlt_duplicates.sh"/>
 
+<!-- check that DST_NGTScouting accepts exactly the events accepted by hltL1GTAcceptFilter -->
+<test name="test_NGTScoutingL1GTAccept" command="test_NGTScoutingL1GTAccept.sh"/>
+
 <!-- test script to check the consistency of event content of HLTScoutingExtra and HLTScoutingAll -->
 <test name="testHLTScoutingEventContent"  command="python3 ${CMSSW_BASE}/src/HLTrigger/Configuration/test/testHLTScoutingEventContent.py"/>
 

@@ -8,14 +8,22 @@
 // the data format of the condition to be inspected
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 
+#include "TH1F.h"
 #include "TH2F.h"
 #include "TCanvas.h"
 #include "TStyle.h"
 #include "TLine.h"
 #include "TLatex.h"
+#include "TLegend.h"
+#include "TText.h"
 
+#include <algorithm>
+#include <array>
+#include <ctime>
 #include <memory>
 #include <sstream>
+#include <string>
+#include <vector>
 
 namespace {
   enum { kEBChannels = 61200, kEEChannels = 14648 };
@@ -134,7 +142,7 @@ namespace {
       setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
       TH2F** barrel = new TH2F*[3];
       TH2F** endc_p = new TH2F*[3];
       TH2F** endc_m = new TH2F*[3];
@@ -573,10 +581,163 @@ namespace {
       return true;
     }  // fill method
   };  // class EcalLaserAPDPNRatiosDiffBase
-  using EcalLaserAPDPNRatiosDiffOneTag = EcalLaserAPDPNRatiosBase<cond::payloadInspector::SINGLE_IOV, 1, 0>;
+  using EcalLaserAPDPNRatiosDiffOneTag = EcalLaserAPDPNRatiosBase<cond::payloadInspector::MULTI_IOV, 1, 0>;
   using EcalLaserAPDPNRatiosDiffTwoTags = EcalLaserAPDPNRatiosBase<cond::payloadInspector::SINGLE_IOV, 2, 0>;
-  using EcalLaserAPDPNRatiosRatioOneTag = EcalLaserAPDPNRatiosBase<cond::payloadInspector::SINGLE_IOV, 1, 1>;
+  using EcalLaserAPDPNRatiosRatioOneTag = EcalLaserAPDPNRatiosBase<cond::payloadInspector::MULTI_IOV, 1, 1>;
   using EcalLaserAPDPNRatiosRatioTwoTags = EcalLaserAPDPNRatiosBase<cond::payloadInspector::SINGLE_IOV, 2, 1>;
+
+  // human readable label of an IOV since: run, run:lumi or date for time type IOVs
+  inline std::string laserIOVLabel(cond::Time_t since) {
+    if (since < 4294967296)  // run type IOV
+      return std::to_string(since);
+    cond::Time_t high = since >> 32;
+    if (high < 100000000)  // lumi type IOV, the upper 32 bits are a run number, not a unix time
+      return std::to_string(high) + ":" + std::to_string(since & 0xFFFFFFFF);
+    time_t t = high;  // time type IOV
+    char buf[256];
+    struct tm lt;
+    localtime_r(&t, &lt);
+    strftime(buf, sizeof(buf), "%F %R:%S", &lt);
+    buf[sizeof(buf) - 1] = 0;
+    return std::string(buf);
+  }
+
+  /************************************************************************
+     1d distributions of ECAL Laser APDPNRatios p1, p2 and p3 in EE-, EB
+     and EE+, superimposed for 2 IOVs of one tag or 2 IOVs of two tags
+  *************************************************************************/
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
+  class EcalLaserAPDPNRatiosHistCompareBase
+      : public cond::payloadInspector::PlotImage<EcalLaserAPDPNRatios, nIOVs, ntags> {
+  public:
+    EcalLaserAPDPNRatiosHistCompareBase()
+        : cond::payloadInspector::PlotImage<EcalLaserAPDPNRatios, nIOVs, ntags>(
+              "ECAL Laser APDPNRatios distributions comparison") {}
+
+    bool fill() override {
+      constexpr int kParams = 3;  // p1, p2, p3
+      constexpr int kParts = 3;   // EE-, EB, EE+
+      constexpr int kBins = 100;
+      const std::array<const char*, kParts> partName = {{"EE-", "EB", "EE+"}};
+      const std::array<int, 2> color = {{kRed, kBlue}};
+
+      auto tag1 = cond::payloadInspector::PlotBase::getTag<0>();
+      std::array<std::string, 2> l_tagname = {{tag1.name, tag1.name}};
+      std::array<std::tuple<cond::Time_t, cond::Hash>, 2> theIOVs = {{tag1.iovs.front(), tag1.iovs.back()}};
+      if constexpr (ntags == 2) {
+        auto tag2 = cond::payloadInspector::PlotBase::getTag<1>();
+        l_tagname[1] = tag2.name;
+        theIOVs[1] = tag2.iovs.front();
+      }
+
+      // values[iov][param][partition]
+      std::vector<float> values[2][kParams][kParts];
+      for (int irun = 0; irun < 2; irun++) {
+        std::shared_ptr<EcalLaserAPDPNRatios> payload = this->fetchPayload(std::get<1>(theIOVs[irun]));
+        if (!payload.get())
+          return false;
+        const auto& laserMap = payload->getLaserMap();
+
+        // looping over the EB channels, via the dense-index, mapped into EBDetId's
+        for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
+          uint32_t rawid = EBDetId::unhashIndex(cellid);
+          const auto& apdpn = laserMap[rawid];
+          values[irun][0][1].push_back(apdpn.p1);
+          values[irun][1][1].push_back(apdpn.p2);
+          values[irun][2][1].push_back(apdpn.p3);
+        }  // loop over cellid
+
+        // looping over the EE channels
+        for (int cellid = 0; cellid < EEDetId::kSizeForDenseIndexing; ++cellid) {
+          if (!EEDetId::validHashIndex(cellid))
+            continue;
+          uint32_t rawid = EEDetId::unhashIndex(cellid);
+          int part = (EEDetId(rawid).zside() == 1) ? 2 : 0;
+          const auto& apdpn = laserMap[rawid];
+          values[irun][0][part].push_back(apdpn.p1);
+          values[irun][1][part].push_back(apdpn.p2);
+          values[irun][2][part].push_back(apdpn.p3);
+        }  // loop over cellid
+      }  // loop over IOVs
+
+      // book the histograms with a common range for the two IOVs, covering all the values
+      std::unique_ptr<TH1F> hist[2][kParams][kParts];
+      for (int i = 0; i < kParams; i++) {
+        for (int part = 0; part < kParts; part++) {
+          for (int irun = 0; irun < 2; irun++) {
+            hist[irun][i][part] = std::make_unique<TH1F>(Form("%s_p%i_%i", partName[part], i + 1, irun),
+                                                         Form("%s p%i;p%i;crystals", partName[part], i + 1, i + 1),
+                                                         kBins,
+                                                         0.,
+                                                         1.01);
+            hist[irun][i][part]->SetDirectory(nullptr);
+            for (float v : values[irun][i][part])
+              hist[irun][i][part]->Fill(v);
+            hist[irun][i][part]->SetLineColor(color[irun]);
+            hist[irun][i][part]->SetLineWidth(2);
+          }
+        }
+      }
+
+      gStyle->SetOptStat(0);
+      TCanvas canvas("CC hist", "CC hist", 2400, 2400);
+      // rows: p1, p2, p3 ; columns: EE-, EB, EE+
+      canvas.Divide(kParts, kParams);
+      std::vector<std::unique_ptr<TLegend>> legends;
+      for (int i = 0; i < kParams; i++) {
+        for (int part = 0; part < kParts; part++) {
+          float yma = 0.93 - (0.31 * i);
+          float ymi = yma - 0.31;
+          TVirtualPad* pad = canvas.cd(i * kParts + part + 1);
+          pad->SetPad(part / 3., ymi, (part + 1) / 3., yma);  // leave room for the header
+          pad->SetLeftMargin(0.13);
+          pad->SetRightMargin(0.04);
+
+          double ymax = std::max(hist[0][i][part]->GetMaximum(), hist[1][i][part]->GetMaximum());
+          hist[0][i][part]->SetMaximum(1.25 * ymax);
+          hist[0][i][part]->Draw("HIST");
+          hist[1][i][part]->Draw("HIST SAME");
+
+          legends.push_back(std::make_unique<TLegend>(0.15, 0.78, 0.95, 0.89));
+          legends.back()->SetTextSize(0.035);
+          legends.back()->SetBorderSize(0);
+          legends.back()->SetFillStyle(0);
+          for (int irun = 0; irun < 2; irun++)
+            legends.back()->AddEntry(hist[irun][i][part].get(),
+                                     Form("(%i) mean %.4f, rms %.4f",
+                                          irun + 1,
+                                          hist[irun][i][part]->GetMean(),
+                                          hist[irun][i][part]->GetRMS()),
+                                     "l");
+          legends.back()->Draw();
+        }
+      }
+
+      // header, TText instead of TLatex to keep the underscores of the tag names
+      canvas.cd();
+      TText t1;
+      t1.SetNDC();
+      t1.SetTextAlign(22);
+      t1.SetTextSize(0.018);
+      for (int irun = 0; irun < 2; irun++) {
+        t1.SetTextColor(color[irun]);
+        t1.DrawText(0.5,
+                    0.975 - 0.025 * irun,
+                    Form("(%i) %s, IOV %s",
+                         irun + 1,
+                         l_tagname[irun].c_str(),
+                         laserIOVLabel(std::get<0>(theIOVs[irun])).c_str()));
+      }
+
+      std::string ImageName(this->m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
+      return true;
+    }  // fill method
+  };  // class EcalLaserAPDPNRatiosHistCompareBase
+  using EcalLaserAPDPNRatiosHistCompareOneTag =
+      EcalLaserAPDPNRatiosHistCompareBase<cond::payloadInspector::MULTI_IOV, 1>;
+  using EcalLaserAPDPNRatiosHistCompareTwoTags =
+      EcalLaserAPDPNRatiosHistCompareBase<cond::payloadInspector::SINGLE_IOV, 2>;
 
 }  // namespace
 
@@ -589,4 +750,6 @@ PAYLOAD_INSPECTOR_MODULE(EcalLaserAPDPNRatios) {
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosDiffTwoTags);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosRatioOneTag);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosRatioTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosHistCompareOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosHistCompareTwoTags);
 }
