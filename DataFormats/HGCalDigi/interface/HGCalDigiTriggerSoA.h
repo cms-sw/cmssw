@@ -1,9 +1,6 @@
 #ifndef DataFormats_HGCalDigi_interface_HGCalDigiTriggerSoA_h
 #define DataFormats_HGCalDigi_interface_HGCalDigiTriggerSoA_h
 
-#include <Eigen/Core>
-#include <Eigen/Dense>
-
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
