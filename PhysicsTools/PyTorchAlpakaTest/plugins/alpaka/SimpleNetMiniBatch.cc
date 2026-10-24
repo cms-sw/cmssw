@@ -5,7 +5,6 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -15,6 +14,7 @@
 #include "DataFormats/PortableTestObjects/interface/alpaka/SimpleNetDeviceCollection.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/TensorCollection.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/alpaka/AlpakaModel.h"
+#include "PhysicsTools/PyTorchAlpaka/interface/alpaka/PyTorchEDProducer.h"
 #include "PhysicsTools/PyTorchAlpakaTest/interface/Environment.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
@@ -24,10 +24,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     cms::torch::alpakatools::TensorCollection<Queue> outputs;
   };
 
-  class SimpleNetMiniBatch : public stream::EDProducer<> {
+  class SimpleNetMiniBatch : public stream::PyTorchEDProducer<> {
   public:
     SimpleNetMiniBatch(const edm::ParameterSet &params)
-        : EDProducer<>(params),
+        : PyTorchEDProducer<>(params),
           particles_token_(consumes(params.getParameter<edm::InputTag>("particles"))),
           simple_net_token_{produces()},
           model_(params.getParameter<edm::FileInPath>("model").fullPath()),

@@ -52,7 +52,6 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/FixedQueueEDProducer.h"
 
 #include <deque>
 
@@ -73,6 +72,7 @@
 
 #include "PhysicsTools/PyTorchAlpaka/interface/TensorCollection.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/alpaka/AlpakaModel.h"
+#include "PhysicsTools/PyTorchAlpaka/interface/alpaka/PyTorchEDProducer.h"
 
 // #define PIXEL_TRACK_HP_DEBUG
 
@@ -84,7 +84,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     cms::torch::alpakatools::TensorCollection<Queue> outputs;
   };
 
-  class PixelTrackTorchHighPuritySelector : public stream::FixedQueueEDProducer<> {
+  class PixelTrackTorchHighPuritySelector : public stream::PyTorchEDProducer<> {
     using TkSoADevice = reco::TracksSoACollection;
     using TrackHitSoA = ::reco::TrackHitSoA;
 
@@ -94,7 +94,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     void produce(device::Event&, const device::EventSetup&) override;
-    void beginStream(edm::StreamID /*sid*/, Queue queue) override;
+    void beginStreamHook(edm::StreamID /*sid*/, Queue queue) override;
 
     const device::EDGetToken<TkSoADevice> pixelTrackToken_;
     const int maxNumberOfTracks_;
@@ -110,7 +110,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };
 
   PixelTrackTorchHighPuritySelector::PixelTrackTorchHighPuritySelector(const edm::ParameterSet& iConfig)
-      : FixedQueueEDProducer(iConfig),
+      : PyTorchEDProducer(iConfig),
         pixelTrackToken_(consumes(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"))),
         maxNumberOfTracks_(iConfig.getParameter<int>("maxNumberOfTracks")),
         maxPreselectedTracks_(iConfig.getParameter<int>("maxPreselectedTracks")),
@@ -134,7 +134,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   }
 
-  void PixelTrackTorchHighPuritySelector::beginStream(edm::StreamID /*sid*/, Queue queue) {
+  void PixelTrackTorchHighPuritySelector::beginStreamHook(edm::StreamID /*sid*/, Queue queue) {
     // Warmup the model with dummy data
 
     // Create temporary feature and score buffers used to warm up the model.
