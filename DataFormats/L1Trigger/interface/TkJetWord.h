@@ -34,7 +34,7 @@ namespace l1t {
         kDispFlagSize = 1,
         kUnassignedSize = 64,
         kTkJetWordSize = kValidSize + kPtSize + kGlbEtaSize + kGlbPhiSize + kZ0Size + kNtSize + kXtSize +
-                         kDispFlagSize + kUnassignedSize,
+            kDispFlagSize + kUnassignedSize,
       };
 
       enum TkJetBitLocations {

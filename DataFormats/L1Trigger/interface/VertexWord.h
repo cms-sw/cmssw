@@ -39,7 +39,7 @@ namespace l1t {
         kUnassignedSize = 15,   // Width of the unassigned bits
 
         kVertexWordSize = kValidSize + kZ0Size + kNTrackInPVSize + kSumPtSize + kQualitySize + kNTrackOutPVSize +
-                          kUnassignedSize,  // Width of the vertex word in bits
+            kUnassignedSize,  // Width of the vertex word in bits
       };
 
       enum VertexBitLocations {
