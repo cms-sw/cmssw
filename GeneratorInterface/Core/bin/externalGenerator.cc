@@ -61,7 +61,7 @@ namespace {
 using namespace edm::shared_memory;
 class Harness {
 public:
-  Harness(std::string const& iConfig, edm::ServiceToken iToken)
+  Harness(std::string const& iConfig, edm::OwningServiceToken const& iToken)
       : tester_(edm::test::TestProcessor::Config{iConfig}, iToken) {}
 
   ExternalGeneratorLumiInfo getBeginLumiValue(unsigned int iLumi) {

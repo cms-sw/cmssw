@@ -607,10 +607,9 @@ namespace edm {
       //use to give priorities on an error to ones from Paths
       auto pathErrorHolder = std::make_unique<std::atomic<std::exception_ptr*>>(nullptr);
       auto pathErrorPtr = pathErrorHolder.get();
-      ServiceWeakToken weakToken = serviceToken;
       auto allPathsDone = make_waiting_task(
-          [iTask, this, weakToken, pathError = std::move(pathErrorHolder)](std::exception_ptr const* iPtr) mutable {
-            ServiceRegistry::Operate operate(weakToken.lock());
+          [iTask, this, serviceToken, pathError = std::move(pathErrorHolder)](std::exception_ptr const* iPtr) mutable {
+            ServiceRegistry::Operate operate(serviceToken);
 
             std::exception_ptr ptr;
             if (pathError->load()) {
@@ -627,9 +626,9 @@ namespace edm {
       // run under that condition.
       WaitingTaskHolder allPathsHolder(*iTask.group(), allPathsDone);
 
-      auto pathsDone = make_waiting_task([allPathsHolder, pathErrorPtr, transitionInfo = info, this, weakToken](
+      auto pathsDone = make_waiting_task([allPathsHolder, pathErrorPtr, transitionInfo = info, this, serviceToken](
                                              std::exception_ptr const* iPtr) mutable {
-        ServiceRegistry::Operate operate(weakToken.lock());
+        ServiceRegistry::Operate operate(serviceToken);
 
         if (iPtr) {
           // free previous value of pathErrorPtr, if any;

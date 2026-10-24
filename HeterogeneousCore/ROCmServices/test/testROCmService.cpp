@@ -45,10 +45,10 @@ process.add_(cms.Service('ROCmService',
                           enabled ? "True" : "False");
   }
 
-  edm::ServiceToken getServiceToken(std::string const& config) {
+  edm::OwningServiceToken getServiceToken(std::string const& config) {
     std::unique_ptr<edm::ParameterSet> params;
     edm::makeParameterSets(config, params);
-    return edm::ServiceToken(edm::ServiceRegistry::createServicesFromConfig(std::move(params)));
+    return edm::ServiceRegistry::createServicesFromConfig(std::move(params));
   }
 }  // namespace
 

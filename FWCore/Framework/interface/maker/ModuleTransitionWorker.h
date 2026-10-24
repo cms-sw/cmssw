@@ -182,7 +182,7 @@ namespace edm {
                               size_t iTransformIndex,
                               EventPrincipal const&,
                               ParentContext const&,
-                              ServiceWeakToken const&) noexcept final;
+                              ServiceToken const&) noexcept final;
     ProductResolverIndex itemToGetForTransform(size_t iTransformIndex) const noexcept final;
 
     bool implDoPrePrefetchSelection(StreamID, EventPrincipal const&, ModuleCallingContext const*) override;

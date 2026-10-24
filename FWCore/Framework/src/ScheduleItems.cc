@@ -32,12 +32,12 @@ namespace edm {
         act_table_(),
         processConfiguration_() {}
 
-  ServiceToken ScheduleItems::initServices(std::vector<ParameterSet>& pServiceSets,
-                                           ParameterSet& parameterSet,
-                                           ServiceToken const& iToken,
-                                           serviceregistry::ServiceLegacy iLegacy) {
+  OwningServiceToken ScheduleItems::initServices(std::vector<ParameterSet>& pServiceSets,
+                                                 ParameterSet& parameterSet,
+                                                 OwningServiceToken const& iToken,
+                                                 serviceregistry::ServiceLegacy iLegacy) {
     //create the services
-    ServiceToken token(ServiceRegistry::createSet(pServiceSets, iToken, iLegacy));
+    OwningServiceToken token = ServiceRegistry::createSet(pServiceSets, iToken, iLegacy);
 
     //see if any of the Services have to have their PSets stored
     for (auto const& item : pServiceSets) {
@@ -51,7 +51,7 @@ namespace edm {
     return token;
   }
 
-  ServiceToken ScheduleItems::addTNS(ParameterSet const& parameterSet, ServiceToken const& token) {
+  OwningServiceToken ScheduleItems::addTNS(ParameterSet const& parameterSet, OwningServiceToken const& iToken) {
     // This is ugly: pull out the trigger path pset and
     // create a service and extra token for it
 
@@ -60,7 +60,7 @@ namespace edm {
 
     auto tnsptr = std::make_shared<w_TNS>(std::make_unique<TNS>(parameterSet));
 
-    return ServiceRegistry::createContaining(tnsptr, token, serviceregistry::kOverlapIsError);
+    return ServiceRegistry::createContaining(tnsptr, iToken, serviceregistry::kOverlapIsError);
   }
 
   std::shared_ptr<CommonParams> ScheduleItems::initMisc(ParameterSet& parameterSet) {

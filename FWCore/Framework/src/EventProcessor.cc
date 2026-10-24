@@ -220,7 +220,7 @@ namespace edm {
 
   // ---------------------------------------------------------------
   EventProcessor::EventProcessor(std::unique_ptr<ParameterSet> parameterSet,  //std::string const& config,
-                                 ServiceToken const& iToken,
+                                 OwningServiceToken const& iToken,
                                  serviceregistry::ServiceLegacy iLegacy,
                                  std::vector<std::string> const& defaultServices,
                                  std::vector<std::string> const& forcedServices)
@@ -239,8 +239,7 @@ namespace edm {
         looper_(),
         deferredExceptionPtrIsSet_(false),
         sourceCoordinator_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first,
-                           SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second,
-                           serviceToken_),
+                           SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
         principalCache_(),
         beginJobCalled_(false),
         shouldWeStop_(false),
@@ -273,8 +272,7 @@ namespace edm {
         looper_(),
         deferredExceptionPtrIsSet_(false),
         sourceCoordinator_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first,
-                           SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second,
-                           serviceToken_),
+                           SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
         principalCache_(),
         beginJobCalled_(false),
         shouldWeStop_(false),
@@ -286,11 +284,11 @@ namespace edm {
         looperBeginJobRun_(false) {
     auto processDesc = std::make_shared<ProcessDesc>(std::move(parameterSet));
     processDesc->addServices(defaultServices, forcedServices);
-    init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
+    init(processDesc, OwningServiceToken(), serviceregistry::kOverlapIsError);
   }
 
   EventProcessor::EventProcessor(std::shared_ptr<ProcessDesc> processDesc,
-                                 ServiceToken const& token,
+                                 OwningServiceToken const& token,
                                  serviceregistry::ServiceLegacy legacy)
       : actReg_(),
         preg_(),
@@ -307,8 +305,7 @@ namespace edm {
         looper_(),
         deferredExceptionPtrIsSet_(false),
         sourceCoordinator_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first,
-                           SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second,
-                           serviceToken_),
+                           SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
         principalCache_(),
         beginJobCalled_(false),
         shouldWeStop_(false),
@@ -322,7 +319,7 @@ namespace edm {
   }
 
   void EventProcessor::init(std::shared_ptr<ProcessDesc>& processDesc,
-                            ServiceToken const& iToken,
+                            OwningServiceToken const& iToken,
                             serviceregistry::ServiceLegacy iLegacy) {
     //std::cerr << processDesc->dump() << std::endl;
 
@@ -432,10 +429,11 @@ namespace edm {
     //initialize the services
     edm::TimingServiceBase::servicesStarting();
     auto& serviceSets = processDesc->getServicesPSets();
-    ServiceToken token = items.initServices(serviceSets, *parameterSet, iToken, iLegacy);
+    OwningServiceToken token = items.initServices(serviceSets, *parameterSet, iToken, iLegacy);
     serviceToken_ = items.addTNS(*parameterSet, token);
     items.actReg_->postServicesConstructionSignal_.emit();
 
+    sourceCoordinator_.setServiceToken(serviceToken_);
     sourceCoordinator_.setSignals(*items.actReg_);
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);

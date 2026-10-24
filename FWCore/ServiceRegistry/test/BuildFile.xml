@@ -1,6 +1,6 @@
 <use name="boost"/>
 <use name="FWCore/ServiceRegistry"/>
-<library file="stubs/DummyService.cc,stubs/DummyServiceE0.cc,stubs/DependsOnDummyService.cc,stubs/DummyStoreConfigService.cc" name="FWCoreServiceRegistryTestDummyService">
+<library file="stubs/DummyService.cc,stubs/DummyServiceE0.cc,stubs/DependsOnDummyService.cc,stubs/DummyStoreConfigService.cc,stubs/TokenHolderService.cc" name="FWCoreServiceRegistryTestDummyService">
 </library>
 
 <library file="stubs/Modules.cc" name="FWCoreServiceRegistryTestDummyServicePlugin">

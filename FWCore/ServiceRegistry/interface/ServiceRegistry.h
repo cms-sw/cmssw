@@ -26,6 +26,7 @@
 #include "FWCore/Utilities/interface/TypeDemangler.h"
 
 // system include files
+#include <utility>
 #include <vector>
 
 // forward declarations
@@ -50,6 +51,21 @@ namespace edm {
       ServiceToken oldToken_;
     };
 
+    /// Makes the services owned by an OwningServiceToken available, and keeps them alive, as long as it exists.
+    /// When constructed from a WeakServiceToken, it locks it first. If the services have already been destroyed, no
+    /// services are made available.
+    class LockedOperate {
+    public:
+      explicit LockedOperate(OwningServiceToken iToken) : token_(std::move(iToken)), operate_(token_) {}
+      explicit LockedOperate(WeakServiceToken const& iToken) : LockedOperate(iToken.lock()) {}
+      LockedOperate(LockedOperate const&) = delete;                   //stop default
+      LockedOperate const& operator=(LockedOperate const&) = delete;  //stop default
+
+    private:
+      OwningServiceToken token_;
+      Operate operate_;
+    };
+
     friend class edm::FwkImpl;
     friend int main(int argc, char* argv[]);
     friend class Operate;
@@ -61,7 +77,7 @@ namespace edm {
     // ---------- const member functions ---------------------
     template <typename T>
     T& get() const {
-      if (nullptr == manager_.get()) {
+      if (nullptr == manager_) {
         auto demangled = typeDemangle(typeid(T).name());
         Exception::throwThis(errors::NotFound,
                              "No ServiceRegistry has been set for this thread. Tried to get a Service ",
@@ -72,7 +88,7 @@ namespace edm {
 
     template <typename T>
     bool isAvailable() const {
-      if (nullptr == manager_.get()) {
+      if (nullptr == manager_) {
         auto demangled = typeDemangle(typeid(T).name());
         Exception::throwThis(errors::NotFound,
                              "No ServiceRegistry has been set for this thread. Tried to ask availability of a Service ",
@@ -81,7 +97,8 @@ namespace edm {
       return manager_->template isAvailable<T>();
     }
     /** The token can be passed to another thread in order to have the
-         same services available in the other thread.
+         same services available in the other thread. It does not own the
+         services: use OwningServiceToken(presentToken()) to keep them alive.
          */
     ServiceToken presentToken() const;
     // ---------- static member functions --------------------
@@ -89,45 +106,49 @@ namespace edm {
 
     // ---------- member functions ---------------------------
 
-    static ServiceToken createServicesFromConfig(std::unique_ptr<ParameterSet> params);
+    static OwningServiceToken createServicesFromConfig(std::unique_ptr<ParameterSet> params);
 
   public:  // Made public (temporarily) at the request of Emilio Meschi.
-    static ServiceToken createSet(std::vector<ParameterSet>&);
-    static ServiceToken createSet(std::vector<ParameterSet>&, ServiceToken, serviceregistry::ServiceLegacy);
+    static OwningServiceToken createSet(std::vector<ParameterSet>&);
+    /// create a service token that holds the services described by the ParameterSets on top of those owned by the
+    /// OwningServiceToken, sharing their ownership
+    static OwningServiceToken createSet(std::vector<ParameterSet>&,
+                                        OwningServiceToken const&,
+                                        serviceregistry::ServiceLegacy);
     /// create a service token that holds the service defined by iService
     template <typename T>
-    static ServiceToken createContaining(std::unique_ptr<T> iService) {
+    static OwningServiceToken createContaining(std::unique_ptr<T> iService) {
       std::vector<edm::ParameterSet> config;
-      auto manager = std::make_shared<serviceregistry::ServicesManager>(config);
+      auto manager = serviceregistry::ServicesManager::create(config);
       auto wrapper = std::make_shared<serviceregistry::ServiceWrapper<T> >(std::move(iService));
       manager->put(wrapper);
       return manager;
     }
     template <typename T>
-    static ServiceToken createContaining(std::unique_ptr<T> iService,
-                                         ServiceToken iToken,
-                                         bool iOverrideIfServiceInToken) {
+    static OwningServiceToken createContaining(std::unique_ptr<T> iService,
+                                               OwningServiceToken const& iToken,
+                                               bool iOverrideIfServiceInToken) {
       std::vector<edm::ParameterSet> config;
       auto manager =
-          std::make_shared<serviceregistry::ServicesManager>(iToken, serviceregistry::kOverlapIsError, config);
+          serviceregistry::ServicesManager::create(iToken.manager_, serviceregistry::kOverlapIsError, config);
       auto wrapper = std::make_shared<serviceregistry::ServiceWrapper<T> >(std::move(iService));
       manager->put(wrapper, iOverrideIfServiceInToken);
       return manager;
     }
     /// create a service token that holds the service held by iWrapper
     template <typename T>
-    static ServiceToken createContaining(std::shared_ptr<serviceregistry::ServiceWrapper<T> > iWrapper) {
+    static OwningServiceToken createContaining(std::shared_ptr<serviceregistry::ServiceWrapper<T> > iWrapper) {
       std::vector<edm::ParameterSet> config;
-      auto manager = std::make_shared<serviceregistry::ServicesManager>(config);
+      auto manager = serviceregistry::ServicesManager::create(config);
       manager->put(iWrapper);
       return manager;
     }
     template <typename T>
-    static ServiceToken createContaining(std::shared_ptr<serviceregistry::ServiceWrapper<T> > iWrapper,
-                                         ServiceToken iToken,
-                                         serviceregistry::ServiceLegacy iLegacy) {
+    static OwningServiceToken createContaining(std::shared_ptr<serviceregistry::ServiceWrapper<T> > iWrapper,
+                                               OwningServiceToken const& iToken,
+                                               serviceregistry::ServiceLegacy iLegacy) {
       std::vector<edm::ParameterSet> config;
-      auto manager = std::make_shared<serviceregistry::ServicesManager>(iToken, iLegacy, config);
+      auto manager = serviceregistry::ServicesManager::create(iToken.manager_, iLegacy, config);
       manager->put(iWrapper);
       return manager;
     }
@@ -140,7 +161,8 @@ namespace edm {
     ServiceRegistry();
 
     // ---------- member data --------------------------------
-    std::shared_ptr<serviceregistry::ServicesManager> manager_;
+    // non-owning: the owner of the services is whoever created the ServiceRegistry::Operate
+    serviceregistry::ServicesManager* manager_ = nullptr;
   };
 }  // namespace edm
 

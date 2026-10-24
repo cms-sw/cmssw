@@ -45,7 +45,7 @@ namespace edm {
 
     void execute() final {
       //Need to make the services available early so other services can see them
-      ServiceRegistry::Operate guard(m_serviceToken.lock());
+      ServiceRegistry::Operate guard(m_serviceToken);
 
       //incase the emit causes an exception, we need a memory location
       // to hold the exception_ptr
@@ -62,7 +62,7 @@ namespace edm {
                     sContext = m_context,
                     serviceToken = m_serviceToken]() {
             //Need to make the services available
-            ServiceRegistry::Operate operateRunModule(serviceToken.lock());
+            ServiceRegistry::Operate operateRunModule(serviceToken);
 
             std::exception_ptr ptr;
             worker->template runModuleAfterAsyncPrefetch<E>(ptr, info, streamID, parentContext, sContext);
@@ -81,7 +81,7 @@ namespace edm {
     StreamID m_streamID;
     ParentContext const m_parentContext;
     GlobalContext const* m_context;
-    ServiceWeakToken m_serviceToken;
+    ServiceToken m_serviceToken;
     oneapi::tbb::task_group* m_group;
   };
 
