@@ -86,6 +86,11 @@ def buildPSetWithoutRAWs(blocks):
     statements.update( statement for statement in block if statement.find('drop') != 0 and statement.find('keep FEDRawDataCollection') != 0)
   return makePSet(statements)
 
+def extendUnique(target, statements):
+  """append to target only the statements it does not already contain"""
+  # pass a list, not a generator: cms.vstring.extend iterates its argument twice (validation, then insertion)
+  target.extend( [statement for statement in statements if statement not in target] )
+
 # customisation of AOD event content, requested by David Dagenhart
 def dropL1GlobalTriggerObjectMapRecord(block):
   """drop the old L1GlobalTriggerObjectMapRecord data format from the block (meant for the AOD data tier)"""
@@ -119,6 +124,7 @@ def printHLTriggerEventContentCff(process):
       'hltOutputA',
       'hltOutputPhysicsCommissioning',
       'hltOutputDQM',
+      'hltOutputDQMTestDataScouting',
       'hltOutputDQMGPUvsCPU',
       'hltOutputHLTMonitor',
       'hltOutputReleaseValidation',
@@ -139,6 +145,8 @@ def printHLTriggerEventContentCff(process):
     hltOutputMON_cff.block_hltOutputA = hltOutputMON_cff.block_hltOutputPhysicsCommissioning
   if not hasattr(hltOutputMON_cff,'block_hltOutputDQM'):
     hltOutputMON_cff.block_hltOutputDQM = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+  if not hasattr(hltOutputMON_cff,'block_hltOutputDQMTestDataScouting'):
+    hltOutputMON_cff.block_hltOutputDQMTestDataScouting = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
   if not hasattr(hltOutputMON_cff,'block_hltOutputDQMGPUvsCPU'):
     hltOutputMON_cff.block_hltOutputDQMGPUvsCPU = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
   if not hasattr(hltOutputMON_cff,'block_hltOutputHLTMonitor'):
@@ -150,6 +158,7 @@ def printHLTriggerEventContentCff(process):
     # the DQM and HLTMON streams have the HLT debug outputs used online
     hltOutputMON_cff.block_hltOutputA.outputCommands,
     hltOutputMON_cff.block_hltOutputDQM.outputCommands,
+    hltOutputMON_cff.block_hltOutputDQMTestDataScouting.outputCommands,
     hltOutputMON_cff.block_hltOutputDQMGPUvsCPU.outputCommands,
     hltOutputMON_cff.block_hltOutputHLTMonitor.outputCommands,
     hltOutputMON_cff.block_hltOutputReleaseValidation.outputCommands,
@@ -179,6 +188,7 @@ def printHLTriggerEventContentCff(process):
     # the DQM and HLTMON streams have the HLT debug outputs used online
     hltOutputMON_cff.block_hltOutputA.outputCommands,
     hltOutputMON_cff.block_hltOutputDQM.outputCommands,
+    hltOutputMON_cff.block_hltOutputDQMTestDataScouting.outputCommands,
     hltOutputMON_cff.block_hltOutputDQMGPUvsCPU.outputCommands,
     hltOutputMON_cff.block_hltOutputHLTMonitor.outputCommands,
     hltOutputMON_cff.block_hltOutputReleaseValidation.outputCommands,
@@ -224,21 +234,21 @@ def printHLTriggerEventContentCff(process):
       outputCommands = cms.vstring()
   )
   HLTriggerRAW.outputCommands.extend(hltDefaultOutputWithFEDsContent.outputCommands)
-  HLTriggerRAW.outputCommands.extend(hltScoutingOutputContentNoDrop.outputCommands)
+  extendUnique(HLTriggerRAW.outputCommands, hltScoutingOutputContentNoDrop.outputCommands)
 
   # RECO event content
   HLTriggerRECO = cms.PSet(
       outputCommands = cms.vstring()
   )
   HLTriggerRECO.outputCommands.extend(hltDefaultOutputContent.outputCommands)
-  HLTriggerRECO.outputCommands.extend(hltScoutingOutputContentNoDrop.outputCommands)
+  extendUnique(HLTriggerRECO.outputCommands, hltScoutingOutputContentNoDrop.outputCommands)
 
   # AOD event content
   HLTriggerAOD = cms.PSet(
       outputCommands = cms.vstring()
   )
   HLTriggerAOD.outputCommands.extend(hltDefaultOutputContent.outputCommands)
-  HLTriggerAOD.outputCommands.extend(hltScoutingOutputContentNoDrop.outputCommands)
+  extendUnique(HLTriggerAOD.outputCommands, hltScoutingOutputContentNoDrop.outputCommands)
   dropL1GlobalTriggerObjectMapRecord(HLTriggerAOD)
 
   # MINIAOD event content
@@ -261,14 +271,14 @@ def printHLTriggerEventContentCff(process):
       outputCommands = cms.vstring()
   )
   HLTDebugRAW.outputCommands.extend(hltDebugWithAlCaOutputContent.outputCommands)
-  HLTDebugRAW.outputCommands.extend(hltScoutingOutputContentNoDrop.outputCommands)
+  extendUnique(HLTDebugRAW.outputCommands, hltScoutingOutputContentNoDrop.outputCommands)
 
   # HLTDEBUG FEVT event content
   HLTDebugFEVT = cms.PSet(
       outputCommands = cms.vstring()
   )
   HLTDebugFEVT.outputCommands.extend(hltDebugWithAlCaOutputContent.outputCommands)
-  HLTDebugFEVT.outputCommands.extend(hltScoutingOutputContentNoDrop.outputCommands)
+  extendUnique(HLTDebugFEVT.outputCommands, hltScoutingOutputContentNoDrop.outputCommands)
 
   # Scouting event content
   HLTScouting = cms.PSet(
