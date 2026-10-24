@@ -7,6 +7,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "G4StackManager.hh"
+
 #include "G4VProcess.hh"
 #include "G4EmProcessSubType.hh"
 #include "G4LogicalVolumeStore.hh"
@@ -18,7 +20,8 @@
 #include "G4GammaGeneralProcess.hh"
 #include "G4LossTableManager.hh"
 
-StackingAction::StackingAction(const edm::ParameterSet& p, const CMSSteppingVerbose* sv) : steppingVerbose(sv) {
+StackingAction::StackingAction(const edm::ParameterSet& p, const CMSSteppingVerbose* sv, bool qt)
+    : steppingVerbose(sv), quirkTracking(qt) {
   trackNeutrino = p.getParameter<bool>("TrackNeutrino");
   killHeavy = p.getParameter<bool>("KillHeavy");
   killGamma = p.getParameter<bool>("KillGamma");
@@ -166,6 +169,10 @@ StackingAction::StackingAction(const edm::ParameterSet& p, const CMSSteppingVerb
 }
 
 G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrack) {
+  // a resumed (suspended) track is not new: keep the Geant4 default classification
+  if (quirkTracking && MCTruthUtil::isSuspended(aTrack)) {
+    return stackManager->GetDefaultClassification();
+  }
   // G4 interface part
   G4ClassificationOfNewTrack classification = fUrgent;
   const int pdg = aTrack->GetDefinition()->GetPDGEncoding();

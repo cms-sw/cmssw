@@ -168,6 +168,7 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& p, edm::Consumes
       m_theLHCTlinkToken(iC.consumes<edm::LHCTransportLinkContainer>(p.getParameter<edm::InputTag>("theLHCTlinkTag"))),
       m_nonBeam(p.getParameter<bool>("NonBeamEvent")),
       m_UseG4EventManager(p.getParameter<bool>("UseG4EventManager")),
+      m_quirkTracking(p.getParameter<bool>("QuirkTracking")),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_LHCTransport(p.getParameter<bool>("LHCTransport")),
       m_thread_index{(get_new_thread_index())},
@@ -457,11 +458,12 @@ void RunManagerMTWorker::initializeUserActions() {
   // different tracking actions for Run2,3 and Phase2
   G4UserTrackingAction* userTrackingAction;
   if (m_isPhase2) {
-    auto ptr = new Phase2TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction);
+    auto ptr =
+        new Phase2TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction, m_quirkTracking);
     Connect(ptr);
     userTrackingAction = (G4UserTrackingAction*)ptr;
   } else {
-    auto ptr = new TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction);
+    auto ptr = new TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction, m_quirkTracking);
     Connect(ptr);
     userTrackingAction = (G4UserTrackingAction*)ptr;
   }
@@ -482,9 +484,9 @@ void RunManagerMTWorker::initializeUserActions() {
   // stacking actions and event manager
   G4UserStackingAction* userStackingAction{nullptr};
   if (m_isPhase2) {
-    userStackingAction = new Phase2StackingAction(m_pStackingAction, m_sVerbose.get());
+    userStackingAction = new Phase2StackingAction(m_pStackingAction, m_sVerbose.get(), m_quirkTracking);
   } else {
-    userStackingAction = new StackingAction(m_pStackingAction, m_sVerbose.get());
+    userStackingAction = new StackingAction(m_pStackingAction, m_sVerbose.get(), m_quirkTracking);
   }
   if (m_UseG4EventManager) {
     eventManager->SetUserAction(userEventAction);

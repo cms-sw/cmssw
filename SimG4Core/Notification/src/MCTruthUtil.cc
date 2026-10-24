@@ -92,6 +92,8 @@ void MCTruthUtil::updateSecondary(G4Track* aTrack) {
   trkInfo->setMCTruthID(aTrack->GetTrackID());
 }
 
+bool MCTruthUtil::isSuspended(const G4Track* aTrack) { return isSuspended(aTrack->GetTrackStatus()); }
+
 bool MCTruthUtil::isInBTL(const G4Track* aTrack) {
   bool out = false;
   G4String tName(aTrack->GetVolume()->GetLogicalVolume()->GetRegion()->GetName());

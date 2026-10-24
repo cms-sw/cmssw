@@ -84,6 +84,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     NonBeamEvent = cms.bool(False),
     EventVerbose = cms.int32(0),
     UseG4EventManager = cms.bool(True),
+    QuirkTracking = cms.bool(False),  # resume suspended quirk tracks in user actions and SDs
     UseMagneticField = cms.bool(True),
     UseCommandBaseScorer = cms.bool(False),
     StoreRndmSeeds = cms.bool(False),
@@ -233,6 +234,21 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         MonopoleMass         = cms.untracked.double(0),
         ExoticaTransport     = cms.untracked.bool(False),
         ExoticaPhysicsSS     = cms.untracked.bool(False),
+        QuirkMass            = cms.double(0),        # GeV, > 0 enables quirks
+        QuirkPDGID           = cms.int32(17),
+        QuirkCharge          = cms.double(-1),       # of the positive PDG code
+        QuirkLambda          = cms.double(0),        # eV, F = Lambda^2/(hbar c)
+        QuirkFirstStringLength = cms.double(1.e-6),  # mm
+        QuirkMaxBoost        = cms.double(0.1),      # max rapidity change per step (Athena: 0.01)
+        QuirkMaxMerge        = cms.double(1.e-6),    # mm
+        QuirkLooperTrials    = cms.int32(10),
+        QuirkMaxRadius       = cms.double(800.),     # cm, quirks killed outside (<= 0: never)
+        QuirkMaxZ            = cms.double(1100.),    # cm (<= 0: no envelope kill)
+        QuirkKeepStopped     = cms.bool(False),      # keep quirks stopped by dE/dx while the partner moves
+        QuirkStopThreshold   = cms.double(10.),      # MeV, partner below it: pair stopped
+        QuirkMoveTinySteps   = cms.bool(True),       # move quirks on sub-tolerance steps (head-on crossings)
+        QuirkCrossingLength  = cms.double(0.),       # mm, shorter incoming string: restart it (0: never, experimental)
+        QuirkVerbose         = cms.untracked.int32(0),
         RhadronPhysics       = cms.bool(False),
         DarkMPFactor         = cms.double(1.0),
         # GFlash methods
