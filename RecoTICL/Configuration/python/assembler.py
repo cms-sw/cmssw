@@ -54,12 +54,37 @@ class Assembled:
         self.task_children = {}  # name  -> [child identifier, ...]
         self.top = None          # the top group (iterTICLTask / HLTIterTICLSequence)
 
+    def uses_onnx(self):
+        """True if any module runs an ONNX Runtime model, and requires the ONNXService."""
+        return any(_uses_onnx(mod) for mod in self.modules.values())
+
     def add_to_process(self, process):
         for label, mod in self.modules.items():
             setattr(process, label, mod)
         for name, group in self.tasks.items():
             setattr(process, name, group)
+        if self.uses_onnx():
+            process.load("PhysicsTools.ONNXRuntime.ONNXService_cfi")
         return process
+
+
+def _uses_onnx(mod):
+    """True if the module runs an ONNX Runtime model (see TICLONNXGlobalCache.h, GNNInterpretationAlgo.cc and
+    EGammaSuperclusterProducer.cc)."""
+    def value(pset, name, default):
+        return getattr(pset, name).value() if hasattr(pset, name) else default
+
+    if mod.type_() == "EGammaSuperclusterProducer":
+        return bool(value(mod, "enableRegression", False))
+    if hasattr(mod, "linkingPSet") and value(mod.linkingPSet, "onnxModelPath", ""):
+        return True
+    if hasattr(mod, "interpretationDescPSet") and value(mod.interpretationDescPSet, "type", "") == "GNNLink":
+        return True
+    algo = value(mod, "inferenceAlgo", "")
+    if algo and hasattr(mod, "pluginInferenceAlgo" + algo):
+        pset = getattr(mod, "pluginInferenceAlgo" + algo)
+        return any(value(pset, key, "") for key in ("onnxModelPath", "onnxPIDModelPath", "onnxEnergyModelPath"))
+    return False
 
 
 # --------------------------------------------------------------------------- #
