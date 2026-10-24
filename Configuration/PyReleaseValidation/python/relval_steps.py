@@ -1190,6 +1190,7 @@ steps['BeamHalo_UP21']=merge([{'cfg':'BeamHalo_13TeV_cfi.py','-n':'500','--condi
 # Phase2 HGCAL test beam
 hgcalTB=upgradeProperties['Run4']['Run4D104'] # so if the default changes, change wf only here
 steps['HGCal_TestBeam']={'--conditions':hgcalTB['GT'],'--era':hgcalTB['Era'],'--customise':'RecoLocalCalo/Configuration/hgcalTestBeamLocalReco_cff.runRecoForSep2024TB','-s':'NONE','--datatier':'RECO','--eventcontent':'FEVTDEBUG','--data':'','--process':'RECO','-n':'10','--filein':'/store/group/dpg_hgcal/comm_hgcal/relval/RAW2DIGI.root'}
+steps['HARVEST_HGCal_TestBeam']={'--conditions':hgcalTB['GT'],'--era':hgcalTB['Era'],'--customise':'RecoLocalCalo/Configuration/hgcalTestBeamLocalReco_cff.setupConditionsForSep2024TB','-s':'HARVESTING:DQM/HGCAL/hgcalDQM_cff.hgcalDQMHarvesting','--data':'','--filetype':'DQM','--scenario':'pp','--geometry':hgcalTB['Geom']}
 
 steps['QCD_Pt_50_80']=genS('QCD_Pt_50_80_8TeV_TuneCUETP8M1_cfi',Kby(25,100))
 steps['QCD_Pt_15_20']=genS('QCD_Pt_15_20_8TeV_TuneCUETP8M1_cfi',Kby(25,100))
