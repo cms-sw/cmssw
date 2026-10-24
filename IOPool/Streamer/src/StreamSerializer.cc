@@ -24,6 +24,8 @@
 #include "zlib.h"
 #include "lzma.h"
 #include "zstd.h"
+#include "lz4.h"
+#include "lz4hc.h"
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
@@ -246,6 +248,13 @@ namespace edm::streamer {
                                        compression_level,
                                        reserveSize);
         break;
+      case LZ4:
+        dest_size = compressBufferLZ4((unsigned char *)data_buffer.rootbuf_.Buffer(),
+                                      data_buffer.curr_event_size_,
+                                      data_buffer.comp_buf_,
+                                      compression_level,
+                                      reserveSize);
+        break;
       default:
         dest_size = data_buffer.rootbuf_.Length();
         if (data_buffer.comp_buf_.size() < dest_size + reserveSize)
@@ -421,6 +430,48 @@ namespace edm::streamer {
     }
 
     return resultSize;
+  }
+
+  unsigned int StreamSerializer::compressBufferLZ4(unsigned char *inputBuffer,
+                                                   unsigned int inputSize,
+                                                   std::vector<unsigned char> &outputBuffer,
+                                                   int compressionLevel,
+                                                   unsigned int reserveSize,
+                                                   bool addHeader) {
+    unsigned int hdr_size = addHeader ? 4 : 0;
+
+    if (inputSize > static_cast<unsigned int>(LZ4_MAX_INPUT_SIZE)) {
+      throw cms::Exception("StreamSerializer", "compressBufferLZ4")
+          << "Compression (LZ4) Error: the input size " << inputSize << " is larger than the maximum "
+          << LZ4_MAX_INPUT_SIZE;
+    }
+    unsigned int worst_size = LZ4_compressBound(inputSize);
+    //this can has some overhead in memory usage (capacity > size) due to the way std::vector allocator works
+    if (outputBuffer.size() < worst_size + reserveSize + hdr_size)
+      outputBuffer.resize(worst_size + reserveSize + hdr_size);
+
+    //Add compression-specific header at the buffer start. This will be used to detect LZ4 format after streamer header
+    unsigned char *tgt = &outputBuffer[reserveSize];
+    if (addHeader) {
+      tgt[0] = 'L';
+      tgt[1] = '4';
+      tgt[2] = 0;
+      tgt[3] = 0;
+    }
+
+    // level 1: fast compressor, level 2: mid-level compressor introduced in LZ4 1.10.0, levels 3-12: high compression (LZ4 HC)
+    char *dst = (char *)&outputBuffer[reserveSize + hdr_size];
+    int dest_size = (compressionLevel < LZ4HC_CLEVEL_MIN)
+                        ? LZ4_compress_default((const char *)inputBuffer, dst, inputSize, worst_size)
+                        : LZ4_compress_HC((const char *)inputBuffer, dst, inputSize, worst_size, compressionLevel);
+
+    // check status
+    if (dest_size <= 0) {
+      throw cms::Exception("StreamSerializer", "compressBufferLZ4")
+          << "Compression (LZ4) Error: return value " << dest_size;
+    }
+
+    return (unsigned int)dest_size + hdr_size;
   }
 
 }  // namespace edm::streamer

@@ -12,15 +12,20 @@ TEST_COMPRESSION_ALGO="ZLIB"
 fi
 echo "TEST_COMPRESSION_ALGO = $TEST_COMPRESSION_ALGO"
 
+if [ -z  $TEST_COMPRESSION_LEVEL ]; then
+TEST_COMPRESSION_LEVEL=1
+fi
+echo "TEST_COMPRESSION_LEVEL = $TEST_COMPRESSION_LEVEL"
+
 RC=0
 
 rm -rf {out,outPadded,log,*.txt,*.dat,*.root}
 
-cmsRun ${SCRAM_TEST_PATH}/NewStreamOut_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} > log 2>&1 || die "cmsRun NewStreamOut_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
-cmsRun ${SCRAM_TEST_PATH}/NewStreamOutAlt_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} > log 2>&1 || die "cmsRun NewStreamOut_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
-cmsRun ${SCRAM_TEST_PATH}/NewStreamOutExt_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} > log 2>&1 || die "cmsRun NewStreamOut_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
-cmsRun ${SCRAM_TEST_PATH}/NewStreamOutExt2_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} > log 2>&1 || die "cmsRun NewStreamOutExt2_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
-cmsRun ${SCRAM_TEST_PATH}/NewStreamOutPadding_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} > log 2>&1 || die "cmsRun NewStreamOutPadding_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
+cmsRun ${SCRAM_TEST_PATH}/NewStreamOut_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} compLevel=${TEST_COMPRESSION_LEVEL} > log 2>&1 || die "cmsRun NewStreamOut_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
+cmsRun ${SCRAM_TEST_PATH}/NewStreamOutAlt_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} compLevel=${TEST_COMPRESSION_LEVEL} > log 2>&1 || die "cmsRun NewStreamOut_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
+cmsRun ${SCRAM_TEST_PATH}/NewStreamOutExt_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} compLevel=${TEST_COMPRESSION_LEVEL} > log 2>&1 || die "cmsRun NewStreamOut_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
+cmsRun ${SCRAM_TEST_PATH}/NewStreamOutExt2_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} compLevel=${TEST_COMPRESSION_LEVEL} > log 2>&1 || die "cmsRun NewStreamOutExt2_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
+cmsRun ${SCRAM_TEST_PATH}/NewStreamOutPadding_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} compLevel=${TEST_COMPRESSION_LEVEL} > log 2>&1 || die "cmsRun NewStreamOutPadding_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
 cmsRun ${SCRAM_TEST_PATH}/NewStreamIn_cfg.py  > log  2>&1 || die "cmsRun NewStreamIn_cfg.py" $?
 cmsRun ${SCRAM_TEST_PATH}/NewStreamIn2_cfg.py  > log  2>&1 || die "cmsRun NewStreamIn2_cfg.py" $?
 cmsRun ${SCRAM_TEST_PATH}/NewStreamCopy_cfg.py  > log  2>&1 || die "cmsRun NewStreamCopy_cfg.py" $?
