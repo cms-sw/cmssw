@@ -26,6 +26,47 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest::kernels {
         particles.view());
   }
 
+  void randomFillHitCollection(Queue& queue,
+                               portabletest::HitDeviceCollection& hits,
+                               portabletest::HitToTrackDeviceCollection& hit_to_track,
+                               uint32_t hits_per_track,
+                               float hit_scale) {
+    const auto n_hits = hits.view().metadata().size();
+    constexpr uint32_t threads_per_block = 64;
+    const auto blocks_per_grid = cms::alpakatools::divide_up_by(n_hits, threads_per_block);
+    const auto grid = cms::alpakatools::make_workdiv<Acc1D>(blocks_per_grid, threads_per_block);
+
+    alpaka::exec<Acc1D>(
+        queue,
+        grid,
+        [] ALPAKA_FN_ACC(Acc1D const& acc,
+                         portabletest::HitDeviceCollection::View hits_view,
+                         portabletest::HitToTrackDeviceCollection::View hit_to_track_view,
+                         uint32_t hits_per_track,
+                         float hit_scale) {
+          if (cms::alpakatools::once_per_grid(acc))
+            hits_view.hitScale() = hit_scale;
+
+          const auto n_hits = hits_view.metadata().size();
+
+          for (auto hit_idx : cms::alpakatools::uniform_elements(acc, n_hits)) {
+            auto rnd_gen = alpaka::rand::engine::createDefault(acc, 43, hit_idx);
+
+            auto dist = alpaka::rand::distribution::createUniformReal<float>(acc);
+
+            hits_view[hit_idx].x() = dist(rnd_gen);
+            hits_view[hit_idx].y() = dist(rnd_gen);
+            hits_view[hit_idx].z() = dist(rnd_gen);
+
+            hit_to_track_view[hit_idx].trackIndex() = hit_idx / hits_per_track;
+          }
+        },
+        hits.view(),
+        hit_to_track.view(),
+        hits_per_track,
+        hit_scale);
+  }
+
   struct RandomFillImageCollectionKernel {
     ALPAKA_FN_ACC void operator()(Acc3D const& acc, portabletest::ImageDeviceCollection::View images_view) const {
       Vec3D size = Vec3D{images_view.metadata().size(), 9, 9};
@@ -93,6 +134,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest::kernels {
           }
         },
         mask.view());
+  }
+
+  void fillTrackBegin(Queue& queue, portabletest::TrackBeginDeviceCollection& track_begin, uint32_t batch_size) {
+    const auto n_batches = track_begin.view().metadata().size();
+    constexpr uint32_t threads_per_block = 64;
+    const auto blocks_per_grid = cms::alpakatools::divide_up_by(n_batches, threads_per_block);
+    const auto grid = cms::alpakatools::make_workdiv<Acc1D>(blocks_per_grid, threads_per_block);
+
+    alpaka::exec<Acc1D>(
+        queue,
+        grid,
+        [] ALPAKA_FN_ACC(
+            Acc1D const& acc, portabletest::TrackBeginDeviceCollection::View track_begin_view, uint32_t batch_size) {
+          for (auto batch_id : cms::alpakatools::uniform_elements(acc, track_begin_view.metadata().size())) {
+            track_begin_view[batch_id].trackBegin() = batch_id * batch_size;
+          }
+        },
+        track_begin.view(),
+        batch_size);
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest::kernels

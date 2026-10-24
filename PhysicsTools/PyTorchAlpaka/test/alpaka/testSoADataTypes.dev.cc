@@ -207,7 +207,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     fill(queue, deviceCollection);
     auto records = deviceCollection.view().records();
 
-    cms::torch::alpakatools::TensorCollection<Queue> input(batch_size);
+    cms::torch::alpakatools::TensorCollection<Queue> input;
     input.add<SoA>("vector", records.a(), records.b());
     input.add<SoA>("single_vector", records.a());
     input.add<SoA>("matrix", records.c());
@@ -242,11 +242,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     fill(queue, deviceCollection);
 
     auto records = deviceCollection.view().records();
-    cms::torch::alpakatools::TensorCollection<Queue> input(batch_size);
+    cms::torch::alpakatools::TensorCollection<Queue> input;
     input.add<SoA>("x", records.x());
     input.add<SoA>("y", records.y());
 
-    cms::torch::alpakatools::TensorCollection<Queue> output(batch_size);
+    cms::torch::alpakatools::TensorCollection<Queue> output;
     output.add<SoA>("v", records.v());
     output.add<SoA>("w", records.w());
 
@@ -272,7 +272,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     auto records = deviceCollection.view().records();
 
     // Run Converter for single tensor
-    cms::torch::alpakatools::TensorCollection<Queue> input(batch_size);
+    cms::torch::alpakatools::TensorCollection<Queue> input;
     input.add<SoA>("vector", records.a(), records.b());
     input.add<SoA>("single_vector", records.a(), records.b());
     input.add<SoA>("matrix", records.c());
@@ -281,7 +281,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     input.add<SoA>("scalar", records.type());
     input.change_order({"column", "scalar", "matrix", "vector", "single_column", "single_vector"});
 
-    cms::torch::alpakatools::TensorCollection<Queue> output(batch_size);
+    cms::torch::alpakatools::TensorCollection<Queue> output;
     output.add<SoA>("result", records.v());
 
     std::vector<::torch::IValue> tensors = cms::torch::alpakatools::detail::convertInput(input, torchDevice);
@@ -307,7 +307,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     auto records = deviceCollection.view().records();
 
     // Run Converter
-    cms::torch::alpakatools::TensorCollection<Queue> input(batch_size);
+    cms::torch::alpakatools::TensorCollection<Queue> input;
     input.add<SoA>("vector", records.a(), records.b());
     input.add<SoA>("matrix", records.c());
     input.add<SoA>("column", records.x(), records.y(), records.z());
@@ -338,7 +338,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     fill(queue, deviceCollection);
 
     // Run Converter for empty metadata
-    cms::torch::alpakatools::TensorCollection<Queue> input(batch_size);
+    cms::torch::alpakatools::TensorCollection<Queue> input;
 
     std::vector<::torch::IValue> tensors = cms::torch::alpakatools::detail::convertInput(input, torchDevice);
 

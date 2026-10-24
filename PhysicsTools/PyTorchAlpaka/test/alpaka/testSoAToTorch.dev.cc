@@ -102,11 +102,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     model.to(queue);
 
     // Create SoA Metadata
-    cms::torch::alpakatools::TensorCollection<Queue> input(batch_size);
+    cms::torch::alpakatools::TensorCollection<Queue> input;
     auto posRecords = positionCollection.const_view().records();
     input.add<SoAPosition>("main", posRecords.x(), posRecords.y(), posRecords.z());
 
-    cms::torch::alpakatools::TensorCollection<Queue> output(batch_size);
+    cms::torch::alpakatools::TensorCollection<Queue> output;
     auto resultRecords = resultCollection.view().records();
     output.add<SoAResult>("result", resultRecords.x(), resultRecords.y());
 
