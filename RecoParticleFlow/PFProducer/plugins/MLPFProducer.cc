@@ -1,9 +1,12 @@
+#include <atomic>
 #include <cmath>
+#include <memory>
+#include <optional>
+
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
-#include "FWCore/AbstractServices/interface/ResourceInformation.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -11,7 +14,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXInterface.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
+#include "PhysicsTools/ONNXRuntime/interface/SessionCache.h"
 #include "RecoParticleFlow/PFProducer/interface/MLPFModel.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
@@ -23,16 +28,40 @@ using namespace reco::mlpf;
 //use this to switch on detailed print statements in MLPF
 //#define MLPF_DEBUG
 
-class MLPFProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
+// The ONNX Runtime sessions used by MLPFProducer.
+//
+// MIGraphX compiles the model for the shape of its inputs, and recompiles it whenever the shape changes, which happens
+// at almost every event. So on ROCm the inputs are padded to a fixed number of elements, rocmMaxElements, and the
+// events with more elements run instead on a CPU session, created only if one such event is found.
+struct MLPFSessions {
+  MLPFSessions(std::string const& model_path, Backend backend, unsigned int maxElements)
+      : sessions(model_path, backend), maxElements(maxElements) {
+    if (backend == Backend::rocm) {
+      fallback.emplace(model_path, Backend::cpu);
+    }
+  }
+
+  SessionCache sessions;
+  std::optional<SessionCache> fallback;  // only on ROCm; its session is created on first use
+  const unsigned int maxElements;        // only on ROCm: the inputs are padded to this size
+  mutable std::atomic<unsigned int> events = 0;
+  mutable std::atomic<unsigned int> fallbackEvents = 0;
+};
+
+class MLPFProducer : public edm::stream::EDProducer<edm::GlobalCache<MLPFSessions>> {
 public:
-  explicit MLPFProducer(const edm::ParameterSet&, const ONNXRuntime*);
+  explicit MLPFProducer(const edm::ParameterSet&, const MLPFSessions*);
+
+  // Create the ONNX Runtime session used by this framework stream before the first event: on the CPU all the streams
+  // share the same session, on a GPU each stream has its own, running in its own compute stream.
+  void beginStream(edm::StreamID id) override;
 
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   // static methods for handling the global cache
-  static std::unique_ptr<ONNXRuntime> initializeGlobalCache(const edm::ParameterSet&);
-  static void globalEndJob(const ONNXRuntime*);
+  static std::unique_ptr<MLPFSessions> initializeGlobalCache(const edm::ParameterSet&);
+  static void globalEndJob(const MLPFSessions*);
 
   bool passAdditionalTrackFilterNoHCAL(const reco::PFBlockElement* elem, const TrackToCaloLinks& links);
 
@@ -54,7 +83,7 @@ private:
   using ElementMap = std::multimap<double, unsigned>;
 };
 
-MLPFProducer::MLPFProducer(const edm::ParameterSet& cfg, const ONNXRuntime* cache)
+MLPFProducer::MLPFProducer(const edm::ParameterSet& cfg, const MLPFSessions* cache)
     : pfCandidatesPutToken_{produces<reco::PFCandidateCollection>()},
       gsfElectrons_{consumes<edm::View<reco::GsfElectron>>(edm::InputTag("gedGsfElectronsTmp"))},
       inputTagBlocks_{consumes<reco::PFBlockCollection>(cfg.getParameter<edm::InputTag>("src"))},
@@ -66,6 +95,8 @@ MLPFProducer::MLPFProducer(const edm::ParameterSet& cfg, const ONNXRuntime* cach
               cfg.getParameter<edm::ParameterSet>("AdditionalTrackFilterNoHCALParams")
                   .getParameter<std::string>("additionalFilterTk")),
           cfg.getParameter<edm::ParameterSet>("AdditionalTrackFilterNoHCALParams").getParameter<double>("pt_Error")} {}
+
+void MLPFProducer::beginStream(edm::StreamID id) { globalCache()->sessions.get(id); }
 
 void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   using namespace reco::mlpf;
@@ -86,10 +117,20 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
 
   const auto tensor_size = selected_elements.size();
 
-  //Fill the input tensor (batch, elems, features) = (1, tensor_size, NUM_ELEMENT_FEATURES)
+  // On ROCm, pad the inputs to the fixed size, or run on the CPU if the event has more elements
+  const MLPFSessions& cache = *globalCache();
+  const bool fallback = cache.fallback and tensor_size > cache.maxElements;
+  const std::size_t input_size = (cache.fallback and not fallback) ? cache.maxElements : tensor_size;
+  ++cache.events;
+  if (fallback) {
+    ++cache.fallbackEvents;
+  }
+
+  //Fill the input tensor (batch, elems, features) = (1, input_size, NUM_ELEMENT_FEATURES)
+  //the padding elements beyond tensor_size are zero, and masked
   std::vector<std::vector<float>> inputs;
-  inputs.push_back(std::vector<float>(NUM_ELEMENT_FEATURES * tensor_size, 0.0));
-  inputs.push_back(std::vector<float>(tensor_size, 0.0));
+  inputs.push_back(std::vector<float>(NUM_ELEMENT_FEATURES * input_size, 0.0));
+  inputs.push_back(std::vector<float>(input_size, 0.0));
   unsigned int ielem = 0;
   for (const auto* pelem : selected_elements) {
     if (ielem > tensor_size) {
@@ -122,24 +163,26 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   std::cout << std::endl;
 #endif
 
-  //run the GNN inference, given the inputs and the output.
-  const auto& outputs = globalCache()->run(
-      {"Xfeat_normed", "mask"},
-      inputs,
-      {{1, static_cast<long int>(tensor_size), NUM_ELEMENT_FEATURES}, {1, static_cast<long int>(tensor_size)}});
+  //run the GNN inference, given the inputs and the output; the outputs of the padding elements are ignored
+  const SessionCache& sessions = fallback ? *cache.fallback : cache.sessions;
+  const auto& outputs =
+      sessions.get(event.streamID())
+          .run({"Xfeat_normed", "mask"},
+               inputs,
+               {{1, static_cast<long int>(input_size), NUM_ELEMENT_FEATURES}, {1, static_cast<long int>(input_size)}});
   const auto& output_binary = outputs[0];
   const auto& output_pid = outputs[1];
   const auto& output_p4 = outputs[2];
 
 #ifdef MLPF_DEBUG
   std::cout << "output_binary=" << output_binary.size() << std::endl;
-  assert(output_binary.size() == tensor_size * 2);
+  assert(output_binary.size() == input_size * 2);
 
   std::cout << "output_pid=" << output_pid.size() << std::endl;
-  assert(output_pid.size() == tensor_size * NUM_OUTPUT_FEATURES_CLS);
+  assert(output_pid.size() == input_size * NUM_OUTPUT_FEATURES_CLS);
 
   std::cout << "output_p4=" << output_p4.size() << std::endl;
-  assert(output_p4.size() == tensor_size * NUM_OUTPUT_FEATURES_P4);
+  assert(output_p4.size() == input_size * NUM_OUTPUT_FEATURES_P4);
 #endif
 
   std::vector<reco::PFCandidate> pOutputCandidateCollection;
@@ -302,31 +345,36 @@ bool MLPFProducer::passAdditionalTrackFilterNoHCAL(const reco::PFBlockElement* e
   return true;
 }
 
-std::unique_ptr<ONNXRuntime> MLPFProducer::initializeGlobalCache(const edm::ParameterSet& params) {
-  edm::Service<edm::ResourceInformation> ri;
-
-  Backend backend = Backend::cpu;
-
-  if (ri.isAvailable() && ri->hasGpuNvidia()) {
-    backend = Backend::cuda;
-    edm::LogInfo("MLPFProducer") << "NVIDIA GPU detected. Running ONNX model on CUDA.";
-  } else {
-    edm::LogInfo("MLPFProducer") << "No NVIDIA GPU detected. Running ONNX model on CPU.";
+std::unique_ptr<MLPFSessions> MLPFProducer::initializeGlobalCache(const edm::ParameterSet& params) {
+  edm::Service<ONNXInterface> onnx;
+  Backend backend = onnx->chooseBackend();
+  auto cache = std::make_unique<MLPFSessions>(params.getParameter<edm::FileInPath>("model_path").fullPath(),
+                                              backend,
+                                              params.getParameter<unsigned int>("rocmMaxElements"));
+  edm::LogInfo log("MLPFProducer");
+  log << "Running the MLPF model on the " << backendName(backend) << " backend";
+  if (cache->fallback) {
+    log << ", up to " << cache->maxElements << " elements (padded), and on the CPU for larger events";
   }
-
-  auto session_options = ONNXRuntime::defaultSessionOptions(backend);
-  return std::make_unique<ONNXRuntime>(params.getParameter<edm::FileInPath>("model_path").fullPath(), &session_options);
+  return cache;
 }
 
-void MLPFProducer::globalEndJob(const ONNXRuntime* cache) {}
+void MLPFProducer::globalEndJob(const MLPFSessions* cache) {
+  if (cache->fallback) {
+    edm::LogInfo("MLPFProducer") << "MLPF ran " << cache->events - cache->fallbackEvents << " events on ROCm and "
+                                 << cache->fallbackEvents << " events on the CPU fallback";
+  }
+}
 
 void MLPFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("particleFlowBlock"));
-  desc.add<edm::FileInPath>(
-      "model_path",
-      edm::FileInPath("RecoParticleFlow/PFProducer/data/mlpf/"
-                      "mlpf_5M_attn2x3x256_bm12_relu_checkpoint10_8xmi250_fp32_fused_20250722.onnx"));
+  desc.add<edm::FileInPath>("model_path", edm::FileInPath("RecoParticleFlow/PFProducer/data/mlpf/mlpf_padded.onnx"))
+      ->setComment("the model must support padded inputs (masked elements) to run on ROCm");
+  desc.add<unsigned int>("rocmMaxElements", 4096)
+      ->setComment(
+          "ROCm only: maximum number of elements run on the GPU, where the inputs are padded to this size; larger "
+          "events run on the CPU");
   //
   desc.add<bool>("additionalTrackFilterNoHCAL", false)
       ->setComment("Apply tight requirments for tracks not linked to HCAL clusters.");

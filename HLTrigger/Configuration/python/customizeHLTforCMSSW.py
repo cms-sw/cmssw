@@ -248,6 +248,29 @@ def customizeHLTfor51085(process):
     return process
 
 
+def customizeHLTfor52006(process):
+    """ This customizer
+        - adds the ONNXService, required by all the modules that use the ONNX Runtime,
+          if the menu contains any of them.
+    """
+
+    onnx_modules = [
+        'BoostedJetONNXJetTagsProducer',
+        'DeepCombinedONNXJetTagsProducer',
+        'DeepDoubleXONNXJetTagsProducer',
+        'DeepFlavourONNXJetTagsProducer',
+        'DeepVertexONNXJetTagsProducer',
+        'HLTParticleTransformerAK4ONNXJetTagsProducer',
+        'ParticleTransformerAK4ONNXJetTagsProducer',
+        'UnifiedParticleTransformerAK4ONNXJetTagsProducer',
+    ]
+
+    if not hasattr(process, 'ONNXService') and next(producers_by_type(process, *onnx_modules), None) is not None:
+        process.ONNXService = cms.Service('ONNXService')
+
+    return process
+
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -257,5 +280,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # process = customizeHLTfor49436(process)
     process = customizeHLTfor51085(process)
+    process = customizeHLTfor52006(process)
 
     return process
