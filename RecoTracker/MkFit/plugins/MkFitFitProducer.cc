@@ -29,6 +29,7 @@
 #include "RecoTracker/MkFitCMS/interface/runFunctions.h"
 #include "RecoTracker/MkFitCore/interface/IterationConfig.h"
 #include "RecoTracker/MkFitCore/interface/MkBuilderWrapper.h"
+#include "RecoTracker/MkFitCore/interface/MkBuilder.h"
 
 // TBB includes
 #include "oneapi/tbb/task_arena.h"
@@ -62,6 +63,8 @@ private:
   const edm::EDPutTokenT<MkFitOutputWrapper> putToken_;
   const bool mkFitSilent_;
   const bool limitConcurrency_;
+  const bool storeHitStates_;
+  const bool validateHitStates_;
 };
 
 MkFitFitProducer::MkFitFitProducer(edm::ParameterSet const& iConfig)
@@ -78,7 +81,9 @@ MkFitFitProducer::MkFitFitProducer(edm::ParameterSet const& iConfig)
       algoCandMinAbsEtaForRelaxedCut_{float(iConfig.getParameter<double>("candMinAbsEtaForRelaxedCut"))},
       putToken_{produces<MkFitOutputWrapper>()},
       mkFitSilent_{iConfig.getUntrackedParameter<bool>("mkFitSilent")},
-      limitConcurrency_{iConfig.getUntrackedParameter<bool>("limitConcurrency")} {
+      limitConcurrency_{iConfig.getUntrackedParameter<bool>("limitConcurrency")},
+      storeHitStates_{iConfig.getParameter<bool>("storeHitStates")},
+      validateHitStates_{iConfig.getUntrackedParameter<bool>("validateHitStates")} {
   // TODO: what to do when we have multiple instances of MkFitFitProducer in a job?
   mkfit::MkBuilderWrapper::populate();
 }
@@ -106,6 +111,12 @@ void MkFitFitProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<int>("candMinNHitsCut", 0)->setComment("min cut on number of hits at cand level");
   desc.add<double>("candMinPtRelaxedCut", 0)->setComment("min pt cut at cand level");
   desc.add<double>("candMinAbsEtaForRelaxedCut", 0)->setComment("eta region for different selection");
+  desc.add<bool>("storeHitStates", false)
+      ->setComment(
+          "Store the smoothed state of the final fit at every hit (what the converter needs for full TrackExtras and "
+          "Trajectories); off: no per-hit work");
+  desc.addUntracked<bool>("validateHitStates", false)
+      ->setComment("With storeHitStates: also store the two states each smoothed state combines (validation only)");
 
   descriptions.add("MkFitFitProducerDefault", desc);
 }
@@ -157,9 +168,15 @@ void MkFitFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm:
     return true;
   };
 
+  // the state at each track's outermost hit always (the converter navigates outward from it), the per-hit states
+  // with storeHitStates
+  mkfit::FinalFitHitStates hitStates;
+  hitStates.perHit = storeHitStates_;
+  hitStates.validate = validateHitStates_;
+  auto& builder = streamCache(iID)->get();
+  builder.set_hit_states_output(&hitStates);
   auto lambda = [&]() {
-    mkfit::run_MkFitFit(
-        mkFitGeom.trackerInfo(), mkFitIterConfig, eventOfHits.get(), streamCache(iID)->get(), intracks, tracks, cpe);
+    mkfit::run_MkFitFit(mkFitGeom.trackerInfo(), mkFitIterConfig, eventOfHits.get(), builder, intracks, tracks, cpe);
   };
 
   if (limitConcurrency_) {
@@ -169,7 +186,8 @@ void MkFitFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm:
     tbb::this_task_arena::isolate(std::move(lambda));
   }
 
-  iEvent.emplace(putToken_, std::move(tracks), true);
+  builder.set_hit_states_output(nullptr);
+  iEvent.emplace(putToken_, std::move(tracks), true, std::move(hitStates));
 }
 
 DEFINE_FWK_MODULE(MkFitFitProducer);

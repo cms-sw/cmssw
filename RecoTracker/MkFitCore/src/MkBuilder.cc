@@ -1436,6 +1436,11 @@ namespace mkfit {
   // ReFit
   //==============================================================================
 
+  namespace {
+    // outlier cut for the innermost and outermost hits: the EstimateCut of the CKF final fit (KFFittingSmoother)
+    constexpr float kEndHitChi2Cut = 20.f;
+  }  // namespace
+
   void MkBuilder::fit_tracks(MkFitter *mkfitter,
                              int nFoundHits,
                              std::vector<int> inds,
@@ -1444,13 +1449,18 @@ namespace mkfit {
                              std::map<int, std::vector<int>> *remap) {
     //could be wrapped into some setup_fit
     const TrackerInfo &ti = m_job->m_trk_info;
-    PropagationFlags my_flags = PropagationFlags(PF_use_param_b_field | PF_apply_material);
-    my_flags.tracker_info = &ti;
     //clean at the end
-    mkfitter->refit_flags = &my_flags;
+    mkfitter->refit_flags = &ti.prop_config().final_fit_pflags;
+    mkfitter->refit_ffflags = &ti.prop_config().final_fit_ffflags;
     mkfitter->set_cpe(m_job->m_cpe_corr_func);
 
     mkfitter->m_event = m_event;
+
+    // per-hit states: each lane writes into its track's entries (reset: a refit after outlier removal
+    // uses fewer hits)
+    mkfitter->m_storeHitStates = m_hsOut && m_hsOut->perHit;
+    mkfitter->m_validateHitStates = mkfitter->m_storeHitStates && m_hsOut->validate;
+    mkfitter->m_storeOuter = m_hsOut != nullptr;
 
     int size_trks = (end_trk - start_trk);
     int size_hits = size_trks * nFoundHits;
@@ -1471,6 +1481,21 @@ namespace mkfit {
     for (int icand = start_trk; icand < end_trk; icand += NN) {
       // size
       const int end = std::min(icand + NN, end_trk);
+      for (int i = 0; i < NN; ++i) {
+        const int it = icand + i < end ? inds[icand + i] : -1;
+        auto lane = [&](HitStatesOnTracks &out) -> HitStateOnTrack * {
+          if (it < 0)
+            return nullptr;
+          const auto hs = out[it];
+          assert(int(hs.size()) == m_tracks[it].nTotalHits());
+          std::fill(hs.begin(), hs.end(), HitStateOnTrack{});
+          return hs.data();
+        };
+        mkfitter->m_hsOut[i] = mkfitter->m_storeHitStates ? lane(m_hsOut->smoothed) : nullptr;
+        mkfitter->m_outerOut[i] = m_hsOut && it >= 0 ? &(m_hsOut->outer[it] = OuterHitState{}) : nullptr;
+        mkfitter->m_hsFwdOut[i] = mkfitter->m_validateHitStates ? lane(m_hsOut->fwd) : nullptr;
+        mkfitter->m_hsBwdOut[i] = mkfitter->m_validateHitStates ? lane(m_hsOut->bwd) : nullptr;
+      }
       // input candidate tracks
       mkfitter->fwdFitInputTracks(m_tracks, inds, icand, end);
       //prepare indices
@@ -1481,7 +1506,7 @@ namespace mkfit {
       // fwdFitOutput
       mkfitter->reFitOutputTracks(m_tracks, inds, icand, end, nFoundHits);
       // input candidate tracks
-      mkfitter->bkReFitInputTracks(m_tracks, inds, icand, end);
+      mkfitter->bkReFitInputTracks(m_tracks, inds, icand, end, nFoundHits);
       // fit the tracks from the input in bkw direction
       mkfitter->bkReFitFitTracks(m_job->m_event_of_hits, end - icand, nFoundHits, indices_R2, chi2bkwd);
       // fwdFitOutput
@@ -1512,41 +1537,53 @@ namespace mkfit {
         }
         std::cout << "\n ";
 #endif
-        std::map<float, int> scorerAndIdx;
+        std::multimap<float, int> scorerAndIdx;  // worst first; hits with equal scores are all kept
         for (int j = 0; j < nFoundHits; j++) {
           //95% qunatiles for FWD and BWD didn't work
           //float TF = 23.7 * j / nFoundHits + 0.8;
           //float TB = 23.6 * (nFoundHits - 1 - j) / nFoundHits + 3.6;
-          if (chi2fwd[j + nFoundHits * i] != chi2fwd[j + nFoundHits * i])
+          // isFinite, not x != x: -Ofast assumes finite math and folds x != x to false
+          if (!isFinite(chi2fwd[j + nFoundHits * i]))
             chi2fwd[j + nFoundHits * i] = 1000000;
-          if (chi2bkwd[nFoundHits - 1 - j + nFoundHits * i] != chi2bkwd[nFoundHits - 1 - j + nFoundHits * i])
+          if (!isFinite(chi2bkwd[nFoundHits - 1 - j + nFoundHits * i]))
             chi2bkwd[nFoundHits - 1 - j + nFoundHits * i] = 1000000;
           float scorer =
               (chi2fwd[j + nFoundHits * i]) +
               (chi2bkwd[nFoundHits - 1 - j + nFoundHits * i]);  //simpler alternative to metric based on quantiles
-          scorerAndIdx[-scorer] = j;
+          scorerAndIdx.emplace(-scorer, j);
         }
 
         int remove_i = 0;
+        bool blocked = false;  // an outlier that the minimum of three hits keeps on the track
         for (auto idscore : scorerAndIdx) {
           //if(idscore.first<0)
 #ifdef DEBUG_FIT
           std::cout << "scorer " << idscore.first << " " << chi2fwd[idscore.second + nFoundHits * i] << " "
                     << chi2bkwd[nFoundHits - 1 - idscore.second + nFoundHits * i] << " \n";
 #endif
-          if ((m_tracks[inds[i + start_trk]].pT() > 1 && -idscore.first > 20 &&
-               chi2fwd[idscore.second + nFoundHits * i] > 8 &&
-               chi2bkwd[nFoundHits - 1 - idscore.second + nFoundHits * i] > 8) ||
-              (m_tracks[inds[i + start_trk]].pT() <= 1 && -idscore.first > 15 &&
-               chi2fwd[idscore.second + nFoundHits * i] > 7 &&
-               chi2bkwd[nFoundHits - 1 - idscore.second + nFoundHits * i] > 7)) {
-            if ((nFoundHits - remove_i) <= 3)
+          // The innermost and the outermost hit have no information on one side (the pass that starts there updates
+          // the inflated start state with them), so they are tested with the pass that predicts them from all the
+          // other hits, at the cut of the CKF final fit (KFFittingSmoother EstimateCut).
+          const float chi2F = chi2fwd[idscore.second + nFoundHits * i];
+          const float chi2B = chi2bkwd[nFoundHits - 1 - idscore.second + nFoundHits * i];
+          const bool innermost = idscore.second == 0, outermost = idscore.second == nFoundHits - 1;
+          if ((innermost && chi2B > kEndHitChi2Cut) || (outermost && chi2F > kEndHitChi2Cut) ||
+              (m_tracks[inds[i + start_trk]].pT() > 1 && -idscore.first > 20 && chi2F > 8 && chi2B > 8) ||
+              (m_tracks[inds[i + start_trk]].pT() <= 1 && -idscore.first > 15 && chi2F > 7 && chi2B > 7)) {
+            if ((nFoundHits - remove_i) <= 3) {
+              blocked = true;
               continue;  // 3 hits is the minimum...
+            }
             remove_i++;
             n_removed[i] += 1;
             m_tracks[inds[i + start_trk]].removeHit(sortedIdxs[nFoundHits - 1 - idscore.second + nFoundHits * i]);
           }
         }
+        // An outlier that cannot be removed without going below three hits, with no other hit removed (so no refit
+        // will test it again): the fit has failed, as KFFittingSmoother rejects a track left with too few hits; the
+        // negative chi2 makes the converter drop the candidate.
+        if (blocked && remove_i == 0)
+          m_tracks[inds[i + start_trk]].setChi2(-1.f);
       }
 
       for (int i = 0; i < end_trk - start_trk; i++) {
@@ -1580,6 +1617,9 @@ namespace mkfit {
 #endif
     int N = 0;
 
+    if (m_hsOut)
+      m_hsOut->reset(m_tracks.size(), [this](int i) { return m_tracks[i].nTotalHits(); });
+
     std::map<int, std::vector<int>> mapFoundHits;
     std::map<int, std::vector<int>> remap;
     for (auto &t : m_tracks) {
@@ -1593,7 +1633,13 @@ namespace mkfit {
         std::cout << "index " << t.getHitIdx(i) << " layer " << t.getHitLyr(i) << std::endl;
       }
 #endif
-      int foundh = t.nFoundHits();
+      // Grouped by the number of hits the fit uses, the hits with index >= 0 (MkFitter::reFitIndices): every lane
+      // of a group then has exactly the group's number of hits. nFoundHits() also counts hits removed by the cluster
+      // charge cut (Hit::kHitCCCFilterIdx), which have no hit to fit.
+      int foundh = 0;
+      for (int ih = 0; ih < t.nTotalHits(); ++ih)
+        if (t.getHitIdx(ih) >= 0)
+          ++foundh;
       if (mapFoundHits.count(foundh)) {
         mapFoundHits[foundh].push_back(N);
       } else
@@ -1646,25 +1692,31 @@ namespace mkfit {
     }
     std::cout << "total REMAP " << n << std::endl;
 #endif
-    for (auto &m : remap) {
-      int size = m.second.size();
-      int ntimes = size / NN;
+    // Refit the tracks with removed hits and test them again, until a round removes nothing (as the CKF final fit
+    // iterates); every round removes at least one hit and a track keeps at least 3, so this ends.
+    while (!remap.empty()) {
+      std::map<int, std::vector<int>> nextRemap;
+      for (auto &m : remap) {
+        int size = m.second.size();
+        int ntimes = size / NN;
 #ifdef DEBUG_FIT
-      std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-      std::cout << "ntimes " << ntimes << " size  " << size << " extra " << size - NN * ntimes << std::endl;
+        std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+        std::cout << "ntimes " << ntimes << " size  " << size << " extra " << size - NN * ntimes << std::endl;
 #endif
-      for (int i = 0; i < ntimes; i++) {
+        for (int i = 0; i < ntimes; i++) {
 #ifdef DEBUG_FIT
-        check_tracks(m.second, NN * i, NN * (i + 1));
+          check_tracks(m.second, NN * i, NN * (i + 1));
 #endif
-        fit_tracks(mkfitter.get(), m.first, m.second, NN * i, NN * (i + 1));
+          fit_tracks(mkfitter.get(), m.first, m.second, NN * i, NN * (i + 1), &nextRemap);
+        }
+#ifdef DEBUG_FIT
+        if (size % NN)
+          check_tracks(m.second, NN * ntimes, size);
+#endif
+        if (size % NN)
+          fit_tracks(mkfitter.get(), m.first, m.second, NN * ntimes, size, &nextRemap);
       }
-#ifdef DEBUG_FIT
-      if (size % NN)
-        check_tracks(m.second, NN * ntimes, size);
-#endif
-      if (size % NN)
-        fit_tracks(mkfitter.get(), m.first, m.second, NN * ntimes, size);
+      remap.swap(nextRemap);
     }
     mkfitter.release();
   }
