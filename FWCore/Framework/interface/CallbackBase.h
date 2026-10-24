@@ -121,8 +121,11 @@ namespace edm {
                 return;
               }
 
+              // with EventSetup replication, produce the copy of a NUMA domain in the arena of that domain
               producer_->queue().push(
-                  *group, [this, serviceToken, record, eventSetupImpl, produceFunctor = std::move(produceFunctor)]() {
+                  *group,
+                  record->numaDomain(),
+                  [this, serviceToken, record, eventSetupImpl, produceFunctor = std::move(produceFunctor)]() {
                     callingContext_.setState(ESModuleCallingContext::State::kRunning);
                     std::exception_ptr exceptPtr;
                     try {

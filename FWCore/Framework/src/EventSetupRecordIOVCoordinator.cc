@@ -20,7 +20,9 @@
 namespace edm {
   namespace eventsetup {
 
-    EventSetupRecordIOVCoordinator::EventSetupRecordIOVCoordinator(unsigned int nConcurrentIOVs)
+    EventSetupRecordIOVCoordinator::EventSetupRecordIOVCoordinator(unsigned int nConcurrentIOVs,
+                                                                   unsigned int nReplicas,
+                                                                   unsigned int nDomains)
         : iovQueue_(nConcurrentIOVs),
           isAvailable_(nConcurrentIOVs),
           // start valid cacheIdentifiers at 1 and only increment them
@@ -28,7 +30,9 @@ namespace edm {
           // as a cacheIdentifier. Then clients which store a cache identifier
           // identifying the state of their own cache can store a 0 when their
           // cache is uninitialized.
-          cacheIdentifier_(1) {
+          cacheIdentifier_(1),
+          nReplicas_(nReplicas),
+          nDomains_(nDomains) {
       for (auto& i : isAvailable_) {
         i.store(true);
       }
@@ -118,8 +122,11 @@ namespace edm {
       if (intervalStatus_ == IntervalStatus::UpdateIntervalEnd) {
         validityInterval = &validityInterval_;
       }
-      auto const& recordImpl = recordProvider_->continueIOV(lastUsedIovIndex_, validityInterval);
-      eventSetupImpl.addRecordImpl(recordImpl);
+      for (unsigned int domain = 0; domain < nDomains_; ++domain) {
+        auto const& recordImpl =
+            recordProvider_->continueIOV(instanceIndex(lastUsedIovIndex_, domain), validityInterval);
+        eventSetupImpl.forDomain(domain).addRecordImpl(recordImpl);
+      }
     }
 
     void EventSetupRecordIOVCoordinator::startNewIOVAsync(WaitingTaskHolder const& taskToStartAfterIOVInit,
@@ -152,11 +159,19 @@ namespace edm {
                 << "Contact a Framework Developer\n";
           }
           lastUsedIovIndex_ = iovIndex;
-          auto const& recordImpl = recordProvider_->initializeForNewIOV(iovIndex, cacheIdentifier_, validityInterval_);
-          eventSetupImpl.addRecordImpl(recordImpl);
+          // with EventSetup replication, each NUMA domain has its own instance (and data) for the IOV
+          for (unsigned int replica = 0; replica < nReplicas_; ++replica) {
+            recordProvider_->initializeForNewIOV(instanceIndex(iovIndex, replica), cacheIdentifier_, validityInterval_);
+          }
+          for (unsigned int domain = 0; domain < nDomains_; ++domain) {
+            eventSetupImpl.forDomain(domain).addRecordImpl(
+                recordProvider_->continueIOV(instanceIndex(iovIndex, domain), nullptr));
+          }
 
           auto endIOVWaitingTask = make_waiting_task([this, iResumer, iovIndex](std::exception_ptr const*) mutable {
-            recordProvider_->endIOV(iovIndex);
+            for (unsigned int replica = 0; replica < nReplicas_; ++replica) {
+              recordProvider_->endIOV(instanceIndex(iovIndex, replica));
+            }
             isAvailable_[iovIndex].store(true);
             iResumer.resume();
             endIOVTasks_.doneWaiting(std::exception_ptr());

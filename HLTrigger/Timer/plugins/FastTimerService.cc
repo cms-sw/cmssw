@@ -24,6 +24,7 @@ using json = nlohmann::json;
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "FWCore/Concurrency/interface/StreamNumaDomains.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
@@ -989,6 +990,14 @@ void FastTimerService::fixForDQM(std::string& label) {
 }
 
 void FastTimerService::preallocate(edm::service::SystemBounds const& bounds) {
+  // also observe the threads entering and leaving the per-NUMA-domain arenas, which exist by now
+  auto& numaDomains = edm::numa::StreamNumaDomains::instance();
+  for (unsigned int domain = 0; domain < numaDomains.size(); ++domain) {
+    if (auto* arena = numaDomains.arena(domain)) {
+      arena_observers_.push_back(std::make_unique<ArenaObserver>(*arena, *this));
+    }
+  }
+
   concurrent_lumis_ = bounds.maxNumberOfConcurrentLuminosityBlocks();
   concurrent_runs_ = bounds.maxNumberOfConcurrentRuns();
   concurrent_streams_ = bounds.maxNumberOfStreams();
@@ -1131,6 +1140,7 @@ void FastTimerService::postSourceLumi(edm::LuminosityBlockIndex index) {
 
 void FastTimerService::postEndJob() {
   // stop observing to avoid potential race conditions at exit
+  arena_observers_.clear();
   tbb::task_scheduler_observer::observe(false);
   guard_.finalize();
   // print the job summaries

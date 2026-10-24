@@ -17,6 +17,8 @@ configured in the user's main() function, and is set running.
 #include <vector>
 
 #include "oneapi/tbb/task_group.h"
+#include "oneapi/tbb/task_arena.h"
+#include "oneapi/tbb/task_scheduler_observer.h"
 
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
@@ -265,6 +267,7 @@ namespace edm {
 
     //process the already read event using Stream iStreamIndex
     void processEventAsync(WaitingTaskHolder iHolder, unsigned int iStreamIndex);
+    void setupNumaDomains(unsigned int nStreams, ParameterSet const& options);
 
     void processEventAsyncImpl(WaitingTaskHolder iHolder, unsigned int iStreamIndex);
 
@@ -293,6 +296,12 @@ namespace edm {
 
     //Guarantee that task group is the last to be destroyed
     oneapi::tbb::task_group taskGroup_;
+
+    // one TBB arena per NUMA node used by the job, with the streams distributed among them, so that each
+    // event runs on the cpus of a single NUMA node (process.options.numaLocality; empty otherwise)
+    std::vector<std::unique_ptr<oneapi::tbb::task_arena>> streamArenas_;
+    // pin the threads of each arena to the cpus of its NUMA node (declared after the arenas, so destroyed first)
+    std::vector<std::unique_ptr<oneapi::tbb::task_scheduler_observer>> streamArenaObservers_;
 
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     edm::propagate_const<std::shared_ptr<ProductRegistry>> preg_;
