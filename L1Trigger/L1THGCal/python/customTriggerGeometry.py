@@ -11,6 +11,21 @@ def custom_geometry_V11_Imp3(process, stage1links=120):
         raise RuntimeError('{} Stage 1 input links is not supported. Supported options are 72 or 120 links'.format(stage1links))
     return process
 
+def custom_geometry_V16_Imp1(process):
+    process.l1tHGCalTriggerGeometryESProducer.TriggerGeometry.TriggerGeometryName = cms.string('HGCalTriggerGeometryV16Imp1')
+    process.l1tHGCalTriggerGeometryESProducer.TriggerGeometry.ScintillatorTriggerCellSize = cms.uint32(2)
+    process.l1tHGCalTriggerGeometryESProducer.TriggerGeometry.JsonMappingFile = cms.FileInPath("L1Trigger/L1THGCal/data/hgcal_trigger_link_mapping_120links_v1.json")
+    process.l1tHGCalTriggerGeometryESProducer.TriggerGeometry.BypassBackendMapping = cms.bool(True)
+    return process
+
+def custom_geometry_V19_Imp1(process):
+    process.l1tHGCalTriggerGeometryESProducer.TriggerGeometry.TriggerGeometryName = cms.string('HGCalTriggerGeometryV19Imp1')
+    process.l1tHGCalTriggerGeometryESProducer.TriggerGeometry.ScintillatorSDTriggerCellSize = cms.uint32(2)
+    process.l1tHGCalTriggerGeometryESProducer.TriggerGeometry.ScintillatorHDTriggerCellSize = cms.uint32(3)
+    process.l1tHGCalTriggerGeometryESProducer.TriggerGeometry.JsonMappingFile = cms.FileInPath("L1Trigger/L1THGCal/data/hgcal_trigger_link_mapping_120links_v1.json")
+    process.l1tHGCalTriggerGeometryESProducer.TriggerGeometry.BypassBackendMapping = cms.bool(True)
+    return process
+
 def custom_geometry_V11_Imp2(process, links='signaldriven'):
     process.l1tHGCalTriggerGeometryESProducer.TriggerGeometry.TriggerGeometryName = cms.string('HGCalTriggerGeometryV9Imp2')
     if links=='signaldriven':
