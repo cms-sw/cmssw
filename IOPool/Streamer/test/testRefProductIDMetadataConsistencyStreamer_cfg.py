@@ -5,6 +5,7 @@ import sys
 
 parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test ModuleTypeResolver and Ref')
 parser.add_argument("--enableOther", action="store_true", help="Enable other accelerator. Also sets Lumi to 2")
+parser.add_argument("--maxEvents", type=int, default=3, help="Number of events to write")
 args = parser.parse_args()
 
 class ModuleTypeResolverTest:
@@ -48,7 +49,7 @@ process.add_(ProcessAcceleratorTest())
 process.source = cms.Source("EmptySource",
     firstEvent = cms.untracked.uint32(10 if args.enableOther else 1),
 )
-process.maxEvents.input = 3
+process.maxEvents.input = args.maxEvents
 
 process.intprod = cms.EDProducer("generic::IntTransformer", valueCpu = cms.int32(1), valueOther = cms.int32(2))
 
