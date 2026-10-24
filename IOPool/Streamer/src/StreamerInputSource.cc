@@ -266,8 +266,11 @@ namespace edm::streamer {
 
     processHistoryRegistryForUpdate().registerProcessHistory(sendEvent_->processHistory());
 
+    // Compare the reduced process histories, as done by PoolSource
+    auto const& registry = processHistoryRegistry();
     if (runAuxiliary().get() == nullptr || runAuxiliary()->run() != sendEvent_->aux().run() ||
-        runAuxiliary()->processHistoryID() != sendEvent_->processHistory().id()) {
+        registry.reducedProcessHistoryID(runAuxiliary()->processHistoryID()) !=
+            registry.reducedProcessHistoryID(sendEvent_->processHistory().id())) {
       RunAuxiliary* runAuxiliary =
           new RunAuxiliary(sendEvent_->aux().run(), sendEvent_->aux().time(), Timestamp::invalidTimestamp());
       runAuxiliary->setProcessHistoryID(sendEvent_->processHistory().id());
