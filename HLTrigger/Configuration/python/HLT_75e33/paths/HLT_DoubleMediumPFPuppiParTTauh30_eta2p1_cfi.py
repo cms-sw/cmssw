@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
 from ..sequences.HLTAK4PFPuppiJetsReconstruction_cfi import *
+from ..modules.hltPFJetForBtagSelector_cfi import *
 from ..sequences.HLTJetFlavourTagParticleTransformerSequencePF_cfi import *
 from ..modules.hltL1P2GTTau_cfi import *
 from ..sequences.HLTTICLLocalRecoSequence_cfi import *
@@ -23,6 +24,7 @@ HLT_DoubleMediumPFPuppiParTTauh30_eta2p1 = cms.Path(
     HLTMuonsSequence +
     HLTParticleFlowSequence +
     HLTAK4PFPuppiJetsReconstruction +
+    hltPFJetForBtagSelector +
     HLTJetFlavourTagParticleTransformerSequencePF +
     hltDoublePFJets30ParTTauhTagMediumWPL2DoubleTau +
     HLTEndSequence
