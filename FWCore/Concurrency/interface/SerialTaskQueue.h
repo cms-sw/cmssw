@@ -119,29 +119,35 @@ namespace edm {
     template <typename T>
     void push(oneapi::tbb::task_group&, T&& iAction);
 
+    /// as above, but iAction runs in the TBB arena of the NUMA domain iDomain (see edm::numa::runInDomain)
+    template <typename T>
+    void push(oneapi::tbb::task_group&, int iDomain, T&& iAction);
+
   private:
     /** Base class for all tasks held by the SerialTaskQueue */
     class TaskBase {
       friend class SerialTaskQueue;
 
       oneapi::tbb::task_group* group() { return m_group; }
+      int domain() const { return m_domain; }
       virtual void execute() = 0;
 
     public:
       virtual ~TaskBase() = default;
 
     protected:
-      explicit TaskBase(oneapi::tbb::task_group* iGroup) : m_group(iGroup) {}
+      explicit TaskBase(oneapi::tbb::task_group* iGroup, int iDomain) : m_group(iGroup), m_domain(iDomain) {}
 
     private:
       oneapi::tbb::task_group* m_group;
+      int m_domain;
     };
 
     template <typename T>
     class QueuedTask : public TaskBase {
     public:
-      QueuedTask(oneapi::tbb::task_group& iGroup, T&& iAction)
-          : TaskBase(&iGroup), m_action(std::forward<T>(iAction)) {}
+      QueuedTask(oneapi::tbb::task_group& iGroup, int iDomain, T&& iAction)
+          : TaskBase(&iGroup, iDomain), m_action(std::forward<T>(iAction)) {}
 
     private:
       void execute() final;
@@ -168,7 +174,12 @@ namespace edm {
 
   template <typename T>
   void SerialTaskQueue::push(oneapi::tbb::task_group& iGroup, T&& iAction) {
-    QueuedTask<T>* pTask{new QueuedTask<T>{iGroup, std::forward<T>(iAction)}};
+    push(iGroup, -1, std::forward<T>(iAction));
+  }
+
+  template <typename T>
+  void SerialTaskQueue::push(oneapi::tbb::task_group& iGroup, int iDomain, T&& iAction) {
+    QueuedTask<T>* pTask{new QueuedTask<T>{iGroup, iDomain, std::forward<T>(iAction)}};
     pushTask(pTask);
   }
 
