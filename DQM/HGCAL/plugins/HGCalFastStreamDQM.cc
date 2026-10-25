@@ -351,7 +351,15 @@ void HGCalFastStreamDQM::bookHistograms(DQMStore::IBooker& ibook, edm::Run const
   const HGCalMappingModuleIndexer& moduleIndexer = iSetup.getData(moduleIdxTkn_);
   const hgcal::HGCalMappingModuleParamHost& moduleInfo = iSetup.getData(moduleInfoTkn_);
 
-  // Loop oveer available FEDs
+  // bookHistograms runs once per run: rebuild the FED/module maps instead of appending to them.
+  followedFEDs_.clear();
+  fedIdToBinMap_.clear();
+  modulesByFED_.clear();
+  followedModules_.clear();
+  HGCALMap.clear();
+  unique_directionallayers.clear();
+
+  // Loop over available FEDs
   int binIndex = 0;
   for (const auto& fed : moduleIndexer.fedReadoutSequences()) {
     if (fed.totalECONs_ == 0)

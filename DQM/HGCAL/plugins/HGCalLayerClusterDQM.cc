@@ -53,8 +53,6 @@ private:
   const unsigned int prescaleFactor_;
   unsigned int nProcessed_;
 
-  std::map<MonitoredElementKey_t, MonitoredElement_t> followedModules_;
-  std::map<uint32_t, std::vector<std::pair<MonitoredElementKey_t, MonitoredElement_t>>> modulesByFED_;
   std::map<int, std::map<int, std::map<int, std::map<std::string, MonitoredElement_t>>>> HGCALMap;
 
   std::map<int, std::map<int, std::map<std::string, MonitorElement*>>> LCSummariesLayers_;
@@ -181,20 +179,10 @@ void HGCalLayerClusterDQM::bookHistograms(DQMStore::IBooker& ibook,
   const HGCalMappingModuleIndexer& moduleIndexer = iSetup.getData(moduleIdxTkn_);
   const hgcal::HGCalMappingModuleParamHost& moduleInfo = iSetup.getData(moduleInfoTkn_);
 
-  for (auto ele : hgcal::dqm::readoutModules(moduleIndexer, moduleInfo)) {
-    const uint32_t fedid = ele.fedid;
-    const uint32_t imod = ele.modid;
-    const std::string& typecode = ele.typecode;
-
-    MonitoredElementKey_t key(fedid, imod);
-    ele.fedModuleIndex = modulesByFED_[fedid].size();
-    modulesByFED_[fedid].emplace_back(key, ele);
-    followedModules_[key] = ele;
-
-    auto& cassetteMap = HGCALMap[ele.endcap][ele.layer][ele.cassette];
-    cassetteMap[typecode] = ele;
-    cassetteMap[typecode].moduleIndex = cassetteMap.size() - 1;
-  }
+  // bookHistograms runs once per run: rebuild the module map instead of appending to it.
+  HGCALMap.clear();
+  for (const auto& ele : hgcal::dqm::readoutModules(moduleIndexer, moduleInfo))
+    HGCALMap[ele.endcap][ele.layer][ele.cassette][ele.typecode] = ele;
 
   //EndCap Level, no plots just for endcaps!
   for (const auto& endcapPair : HGCALMap) {

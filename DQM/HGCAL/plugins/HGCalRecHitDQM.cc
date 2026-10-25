@@ -47,7 +47,6 @@ private:
   unsigned int nProcessed_;
 
   std::map<MonitoredElementKey_t, MonitoredElement_t> followedModules_;
-  std::map<uint32_t, std::vector<std::pair<MonitoredElementKey_t, MonitoredElement_t>>> modulesByFED_;
 
   std::map<int, std::map<int, std::map<int, std::map<std::string, MonitoredElement_t>>>> HGCALMap;
 
@@ -198,18 +197,12 @@ void HGCalRecHitDQM::bookHistograms(DQMStore::IBooker& ibook, edm::Run const& ru
   const HGCalMappingModuleIndexer& moduleIndexer = iSetup.getData(moduleIdxTkn_);
   const hgcal::HGCalMappingModuleParamHost& moduleInfo = iSetup.getData(moduleInfoTkn_);
 
-  for (auto ele : hgcal::dqm::readoutModules(moduleIndexer, moduleInfo)) {
-    const uint32_t fedid = ele.fedid;
-    const uint32_t imod = ele.modid;
-    const std::string& typecode = ele.typecode;
-
-    MonitoredElementKey_t key(fedid, imod);
-    followedModules_[key] = ele;
-    modulesByFED_[fedid].emplace_back(key, ele);
-
-    auto& cassetteMap = HGCALMap[ele.endcap][ele.layer][ele.cassette];
-    cassetteMap[typecode] = ele;
-    cassetteMap[typecode].moduleIndex = cassetteMap.size() - 1;
+  // bookHistograms runs once per run: rebuild the module maps instead of appending to them.
+  followedModules_.clear();
+  HGCALMap.clear();
+  for (const auto& ele : hgcal::dqm::readoutModules(moduleIndexer, moduleInfo)) {
+    followedModules_[MonitoredElementKey_t(ele.fedid, ele.modid)] = ele;
+    HGCALMap[ele.endcap][ele.layer][ele.cassette][ele.typecode] = ele;
   }
 
   // Per-module <E_nMIPs> vs channel TProfile. Folder must match HGCalDigiDQM's
