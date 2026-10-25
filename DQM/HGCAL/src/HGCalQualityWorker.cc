@@ -179,11 +179,14 @@ namespace hgcal {
             std::string cassettePayloadPath = cassetteFolder + "econdPayloadCassette_" + std::to_string(cassette);
             MonitorElement* quality_me = igetter.get(cassetteQualityPath);
             MonitorElement* payload_me = igetter.get(cassettePayloadPath);
-            if (!quality_me) {
-              edm::LogError("HGCalQualityWorker") << "Did not find quality_me in " << cassetteQualityPath;
-            }
-            if (!payload_me) {
-              edm::LogError("HGCalQualityWorker") << "Did not find payload_me in " << cassettePayloadPath;
+            if (!quality_me || !payload_me) {
+              edm::LogError("HGCalQualityWorker")
+                  << "Did not find " << (quality_me ? cassettePayloadPath : cassetteQualityPath)
+                  << ", skipping cassette";
+              // keep the cassette and TH2Poly bin indices aligned for the following cassettes
+              module_bin_index += cassettePair.second.size();
+              cassette_idx++;
+              continue;
             }
 
             // fill layer-level ECON-D TH2F
