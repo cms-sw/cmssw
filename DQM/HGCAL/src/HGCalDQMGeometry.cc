@@ -82,11 +82,11 @@ namespace hgcal {
       return templateFile(fip.fullPath());
     }
 
-    TGraph* HGCalDQMGeometry::moduleBin(uint32_t dqmIndex) const {
+    TGraph const* HGCalDQMGeometry::moduleBin(uint32_t dqmIndex) const {
       return dqmIndex < binstates_.size() ? binstates_[dqmIndex] : nullptr;
     }
 
-    TGraph* HGCalDQMGeometry::triggerModuleBin(uint32_t dqmIndex) const {
+    TGraph const* HGCalDQMGeometry::triggerModuleBin(uint32_t dqmIndex) const {
       return dqmIndex < trigBinstates_.size() ? trigBinstates_[dqmIndex] : nullptr;
     }
 
@@ -102,7 +102,6 @@ namespace hgcal {
 
     // ------------------------------------------------------------------------
     //  Template-file readers
-    //  Ownership rule: file owns everything returned; callers do not delete.
     // ------------------------------------------------------------------------
     TGraph* HGCalDQMGeometry::readModuleBin(TFile* file, bool isSiPM, int plane, int u, int v) {
       std::ostringstream oss;

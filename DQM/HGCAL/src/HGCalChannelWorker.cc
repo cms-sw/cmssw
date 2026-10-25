@@ -6,6 +6,7 @@
 #include <cmath>
 #include <algorithm>
 #include <map>
+#include <memory>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -368,12 +369,13 @@ namespace hgcal {
 
               // Loop over cells/channels from the cached module template.
               while ((key = static_cast<TKey*>(nextkey()))) {
-                TObject* obj = key->ReadObj();
+                // TH2Poly owns its bin polygons: every addBin below gets its own copy of gr.
+                std::unique_ptr<TObject> obj(key->ReadObj());
                 if (!obj->InheritsFrom("TGraph")) {
                   continue;
                 }
 
-                auto* gr = static_cast<TGraph*>(obj);
+                auto* gr = static_cast<TGraph*>(obj.get());
 
                 // Skip common-mode and known non-connected channels.
                 bool const isCM = (iobj % 39 == 37) || (iobj % 39 == 38);
@@ -418,27 +420,27 @@ namespace hgcal {
 
                 float const nHits = avgadc_me->getBinEntries(bin) + avgtot_me->getBinEntries(bin);
 
-                modulePlots[enumIDX_occupancy]->addBin(gr);
+                modulePlots[enumIDX_occupancy]->addBin(new TGraph(*gr));
                 modulePlots[enumIDX_occupancy]->setBinContent(bin, nHits);
                 value_module[enumIDX_occupancy] += nHits;
 
                 float const nHitsToa = avgtoa_me->getBinEntries(bin);
-                modulePlots[enumIDX_toaoccupancy]->addBin(gr);
+                modulePlots[enumIDX_toaoccupancy]->addBin(new TGraph(*gr));
                 modulePlots[enumIDX_toaoccupancy]->setBinContent(bin, nHitsToa);
                 value_module[enumIDX_toaoccupancy] += nHitsToa;
 
                 float const nHitsTot = avgtot_me->getBinEntries(bin);
-                modulePlots[enumIDX_totoccupancy]->addBin(gr);
+                modulePlots[enumIDX_totoccupancy]->addBin(new TGraph(*gr));
                 modulePlots[enumIDX_totoccupancy]->setBinContent(bin, nHitsTot);
                 value_module[enumIDX_totoccupancy] += nHitsTot;
 
                 float const avgcm = avgcm_me->getBinContent(bin);
-                modulePlots[enumIDX_avgcm]->addBin(gr);
+                modulePlots[enumIDX_avgcm]->addBin(new TGraph(*gr));
                 modulePlots[enumIDX_avgcm]->setBinContent(bin, avgcm);
                 value_module[enumIDX_avgcm] += avgcm;
 
                 float const avgadc = avgadc_me->getBinContent(bin);
-                modulePlots[enumIDX_avgadc]->addBin(gr);
+                modulePlots[enumIDX_avgadc]->addBin(new TGraph(*gr));
                 modulePlots[enumIDX_avgadc]->setBinContent(bin, avgadc);
                 value_module[enumIDX_avgadc] += avgadc;
 
@@ -446,7 +448,7 @@ namespace hgcal {
                   saturated_channels += 1.f;
 
                 float const stdadc = avgadc_me->getBinError(bin);
-                modulePlots[enumIDX_stdadc]->addBin(gr);
+                modulePlots[enumIDX_stdadc]->addBin(new TGraph(*gr));
                 modulePlots[enumIDX_stdadc]->setBinContent(bin, stdadc);
                 value_module[enumIDX_stdadc] += stdadc;
 
@@ -454,17 +456,17 @@ namespace hgcal {
                   stdadc_me_.at(ele.dqmIndex)->Fill(bin - 1, stdadc);
 
                 float const deltaadc = avgdeltaadc_me->getBinContent(bin);
-                modulePlots[enumIDX_deltaadc]->addBin(gr);
+                modulePlots[enumIDX_deltaadc]->addBin(new TGraph(*gr));
                 modulePlots[enumIDX_deltaadc]->setBinContent(bin, deltaadc);
                 value_module[enumIDX_deltaadc] += deltaadc;
 
                 float const avgtoa = avgtoa_me->getBinContent(bin);
-                modulePlots[enumIDX_avgtoa]->addBin(gr);
+                modulePlots[enumIDX_avgtoa]->addBin(new TGraph(*gr));
                 modulePlots[enumIDX_avgtoa]->setBinContent(bin, avgtoa);
                 value_module[enumIDX_avgtoa] += avgtoa;
 
                 float const avgtot = avgtot_me->getBinContent(bin);
-                modulePlots[enumIDX_avgtot]->addBin(gr);
+                modulePlots[enumIDX_avgtot]->addBin(new TGraph(*gr));
                 modulePlots[enumIDX_avgtot]->setBinContent(bin, avgtot);
                 value_module[enumIDX_avgtot] += avgtot;
 
@@ -475,11 +477,11 @@ namespace hgcal {
                   stdmips = avgmips_me->getBinError(bin);
                 }
 
-                modulePlots[enumIDX_avgmips]->addBin(gr);
+                modulePlots[enumIDX_avgmips]->addBin(new TGraph(*gr));
                 modulePlots[enumIDX_avgmips]->setBinContent(bin, avgmips);
                 value_module[enumIDX_avgmips] += avgmips;
 
-                modulePlots[enumIDX_stdmips]->addBin(gr);
+                modulePlots[enumIDX_stdmips]->addBin(new TGraph(*gr));
                 modulePlots[enumIDX_stdmips]->setBinContent(bin, stdmips);
                 value_module[enumIDX_stdmips] += stdmips;
 
@@ -493,26 +495,26 @@ namespace hgcal {
                 frac_mpips_module += (avgmips > 0.f) ? 1.f : 0.f;
 
                 if (!isNC && !isSiPMNC) {
-                  auto* grLayer = new TGraph(*gr);
+                  TGraph grLayer(*gr);
 
                   if (!ele.isSiPM)
-                    HGCalDQMGeometry::translateBin(grLayer, x0, y0);
+                    HGCalDQMGeometry::translateBin(&grLayer, x0, y0);
 
                   int const hexbin = static_cast<int>(iMod + chIdx - deltaIdx + 1);
 
-                  hexCassette_[layer][cassette][enumIDX_avgcm]->addBin(grLayer);
+                  hexCassette_[layer][cassette][enumIDX_avgcm]->addBin(new TGraph(grLayer));
                   hexCassette_[layer][cassette][enumIDX_avgcm]->setBinContent(hexbin, avgcm);
 
-                  hexCassette_[layer][cassette][enumIDX_avgadc]->addBin(grLayer);
+                  hexCassette_[layer][cassette][enumIDX_avgadc]->addBin(new TGraph(grLayer));
                   hexCassette_[layer][cassette][enumIDX_avgadc]->setBinContent(hexbin, avgadc);
 
-                  hexCassette_[layer][cassette][enumIDX_n_vacant_channels]->addBin(grLayer);
+                  hexCassette_[layer][cassette][enumIDX_n_vacant_channels]->addBin(new TGraph(grLayer));
                   if (avgadc == 0.f) {
                     value_module[enumIDX_n_vacant_channels] += 1.f;
                     hexCassette_[layer][cassette][enumIDX_n_vacant_channels]->setBinContent(hexbin, 1.f);
                   }
 
-                  hexCassette_[layer][cassette][enumIDX_stdadc]->addBin(grLayer);
+                  hexCassette_[layer][cassette][enumIDX_stdadc]->addBin(new TGraph(grLayer));
                   hexCassette_[layer][cassette][enumIDX_stdadc]->setBinContent(hexbin, stdadc);
 
                   if (enable_overflow_markers_ && (stdadc > overflow_threshold_)) {
@@ -527,22 +529,22 @@ namespace hgcal {
                     overflow_markers_cassette->SetNextPoint(xCenter + x0, yCenter + y0);
                   }
 
-                  hexCassette_[layer][cassette][enumIDX_deltaadc]->addBin(grLayer);
+                  hexCassette_[layer][cassette][enumIDX_deltaadc]->addBin(new TGraph(grLayer));
                   hexCassette_[layer][cassette][enumIDX_deltaadc]->setBinContent(hexbin, deltaadc);
 
-                  hexCassette_[layer][cassette][enumIDX_avgtoa]->addBin(grLayer);
+                  hexCassette_[layer][cassette][enumIDX_avgtoa]->addBin(new TGraph(grLayer));
                   hexCassette_[layer][cassette][enumIDX_avgtoa]->setBinContent(hexbin, avgtoa);
 
-                  hexCassette_[layer][cassette][enumIDX_avgtot]->addBin(grLayer);
+                  hexCassette_[layer][cassette][enumIDX_avgtot]->addBin(new TGraph(grLayer));
                   hexCassette_[layer][cassette][enumIDX_avgtot]->setBinContent(hexbin, avgtot);
 
-                  hexCassette_[layer][cassette][enumIDX_occupancy]->addBin(grLayer);
+                  hexCassette_[layer][cassette][enumIDX_occupancy]->addBin(new TGraph(grLayer));
                   hexCassette_[layer][cassette][enumIDX_occupancy]->setBinContent(hexbin, nHits);
 
-                  hexCassette_[layer][cassette][enumIDX_avgmips]->addBin(grLayer);
+                  hexCassette_[layer][cassette][enumIDX_avgmips]->addBin(new TGraph(grLayer));
                   hexCassette_[layer][cassette][enumIDX_avgmips]->setBinContent(hexbin, avgmips);
 
-                  hexCassette_[layer][cassette][enumIDX_stdmips]->addBin(grLayer);
+                  hexCassette_[layer][cassette][enumIDX_stdmips]->addBin(new TGraph(grLayer));
                   hexCassette_[layer][cassette][enumIDX_stdmips]->setBinContent(hexbin, stdmips);
                 }
 
@@ -593,12 +595,14 @@ namespace hgcal {
               fedSummary->setBinContent(fedBin, 8, frac_mpips_module);
 
               // Whole-layer module summaries.
-              TGraph* grModule = geom.moduleBin(ele.dqmIndex);
+              TGraph const* outline = geom.moduleBin(ele.dqmIndex);
 
-              if (!grModule) {
+              if (!outline) {
                 edm::LogError("HGCalChannelWorker") << "Could not obtain module bin for dqmIndex " << ele.dqmIndex;
               } else {
-                grModule->SetName(typecode.c_str());
+                // Named copy: the geometry outline is shared and must not be renamed or handed to a TH2Poly.
+                TGraph grModule(*outline);
+                grModule.SetName(typecode.c_str());
 
                 for (size_t vi = 0; vi < variables_.size(); ++vi) {
                   std::string const& variable = variables_[vi];
@@ -607,7 +611,7 @@ namespace hgcal {
                     value_module[vi] /= norm_cells;
                   }
 
-                  hexLayer_[layer][variable]->addBin(grModule);
+                  hexLayer_[layer][variable]->addBin(new TGraph(grModule));
 
                   if (vi == enumIDX_stdadc) {
                     hexLayer_[layer][variable]->setBinContent(module_count + 1, value_module[vi]);
@@ -618,13 +622,13 @@ namespace hgcal {
                     int const noisy_channels = stats.at("noisy");
                     int const stuck_channels = stats.at("stuck");
 
-                    hexLayer_[layer]["noisy"]->addBin(grModule);
+                    hexLayer_[layer]["noisy"]->addBin(new TGraph(grModule));
                     hexLayer_[layer]["noisy"]->setBinContent(module_count + 1, noisy_channels);
 
-                    hexLayer_[layer]["stuck"]->addBin(grModule);
+                    hexLayer_[layer]["stuck"]->addBin(new TGraph(grModule));
                     hexLayer_[layer]["stuck"]->setBinContent(module_count + 1, stuck_channels);
 
-                    hexLayer_[layer]["saturated"]->addBin(grModule);
+                    hexLayer_[layer]["saturated"]->addBin(new TGraph(grModule));
                     hexLayer_[layer]["saturated"]->setBinContent(module_count + 1, saturated_channels);
                   } else {
                     hexLayer_[layer][variable]->setBinContent(module_count + 1, value_module[vi]);

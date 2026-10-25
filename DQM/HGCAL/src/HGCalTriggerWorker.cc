@@ -12,6 +12,7 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <memory>
 #include <sstream>
 #include <utility>
 
@@ -212,10 +213,11 @@ namespace hgcal {
               bool isMHB = (typecode[1] == 'H') && (typecode[3] == 'B');
 
               while ((tkey = (TKey*)nextkey())) {
-                TObject* obj = tkey->ReadObj();
+                // TH2Poly owns its bin polygons: every addBin below gets its own copy of TCBin.
+                std::unique_ptr<TObject> obj(tkey->ReadObj());
                 if (!obj->InheritsFrom("TGraph"))
                   continue;
-                TGraph* TCBin = (TGraph*)obj;
+                TGraph* TCBin = static_cast<TGraph*>(obj.get());
 
                 bool isNC = (isML5 && (chIdx >= 24 && chIdx < 32)) || (isMHB && (chIdx == 12 || chIdx == 14));
                 if (isNC) {
@@ -249,31 +251,31 @@ namespace hgcal {
                   value_module[BX + "_rms_energy"] += rms_energy_count;
                   value_module[BX + "_occupancy"] += occupancy;
 
-                  hexTriggerPlots_[typecode][BX + "_energy"]->addBin(TCBin);
+                  hexTriggerPlots_[typecode][BX + "_energy"]->addBin(new TGraph(*TCBin));
                   hexTriggerPlots_[typecode][BX + "_energy"]->setBinContent(binIdx + 1, energy_count);
 
-                  hexTriggerPlots_[typecode][BX + "_rms_energy"]->addBin(TCBin);
+                  hexTriggerPlots_[typecode][BX + "_rms_energy"]->addBin(new TGraph(*TCBin));
                   hexTriggerPlots_[typecode][BX + "_rms_energy"]->setBinContent(binIdx + 1, rms_energy_count);
 
-                  hexTriggerPlots_[typecode][BX + "_occupancy"]->addBin(TCBin);
+                  hexTriggerPlots_[typecode][BX + "_occupancy"]->addBin(new TGraph(*TCBin));
                   hexTriggerPlots_[typecode][BX + "_occupancy"]->setBinContent(binIdx + 1, occupancy);
 
-                  TGraph* TCBinCassette = new TGraph(*static_cast<TGraph*>(TCBin));
+                  TGraph TCBinCassette(*TCBin);
                   double x0 = trModule.x0y0[0];
                   double y0 = trModule.x0y0[1];
                   if (!inGlobalCoordinates) {
-                    HGCalDQMGeometry::translateBin(TCBinCassette, x0, y0);
+                    HGCalDQMGeometry::translateBin(&TCBinCassette, x0, y0);
                   }
 
-                  hexTriggerCassette_[layer][cassette][BX + "_energy"]->addBin(TCBinCassette);
+                  hexTriggerCassette_[layer][cassette][BX + "_energy"]->addBin(new TGraph(TCBinCassette));
                   hexTriggerCassette_[layer][cassette][BX + "_energy"]->setBinContent(cassetteBinOffset + binIdx + 1,
                                                                                       energy_count);
 
-                  hexTriggerCassette_[layer][cassette][BX + "_rms_energy"]->addBin(TCBinCassette);
+                  hexTriggerCassette_[layer][cassette][BX + "_rms_energy"]->addBin(new TGraph(TCBinCassette));
                   hexTriggerCassette_[layer][cassette][BX + "_rms_energy"]->setBinContent(
                       cassetteBinOffset + binIdx + 1, rms_energy_count);
 
-                  hexTriggerCassette_[layer][cassette][BX + "_occupancy"]->addBin(TCBinCassette);
+                  hexTriggerCassette_[layer][cassette][BX + "_occupancy"]->addBin(new TGraph(TCBinCassette));
                   hexTriggerCassette_[layer][cassette][BX + "_occupancy"]->setBinContent(cassetteBinOffset + binIdx + 1,
                                                                                          occupancy);
                 }
@@ -285,17 +287,20 @@ namespace hgcal {
               for (auto& [k, v] : value_module)
                 v /= binIdx;
 
-              TGraph* trigBin = geom.triggerModuleBin(trModule.dqmIndex);
+              TGraph const* trigBin = geom.triggerModuleBin(trModule.dqmIndex);
+              if (!trigBin) {
+                throw cms::Exception("HGCalTriggerWorker") << "No module outline for dqmIndex " << trModule.dqmIndex;
+              }
 
               for (const std::string& BX : BXlist_) {
-                hexTriggerLayer_[layer][BX + "_energy"]->addBin(trigBin);
+                hexTriggerLayer_[layer][BX + "_energy"]->addBin(new TGraph(*trigBin));
                 hexTriggerLayer_[layer][BX + "_energy"]->setBinContent(layerBinIdx + 1, value_module[BX + "_energy"]);
 
-                hexTriggerLayer_[layer][BX + "_rms_energy"]->addBin(trigBin);
+                hexTriggerLayer_[layer][BX + "_rms_energy"]->addBin(new TGraph(*trigBin));
                 hexTriggerLayer_[layer][BX + "_rms_energy"]->setBinContent(layerBinIdx + 1,
                                                                            value_module[BX + "_rms_energy"]);
 
-                hexTriggerLayer_[layer][BX + "_occupancy"]->addBin(trigBin);
+                hexTriggerLayer_[layer][BX + "_occupancy"]->addBin(new TGraph(*trigBin));
                 hexTriggerLayer_[layer][BX + "_occupancy"]->setBinContent(layerBinIdx + 1,
                                                                           value_module[BX + "_occupancy"]);
               }

@@ -84,10 +84,10 @@ namespace hgcal {
       size_t nLayers() const { return nLayers_; }
       bool tileboardExists() const { return flag_tileboard_exists_; }
 
-      // Objects read from the cached template files: valid for the lifetime of this
-      // object; callers must not delete them or close the files.
-      TGraph* moduleBin(uint32_t dqmIndex) const;
-      TGraph* triggerModuleBin(uint32_t dqmIndex) const;
+      // Module outlines read once in build(), shared by all workers and valid for the
+      // lifetime of this object. TH2Poly::AddBin takes ownership, so pass it a copy.
+      TGraph const* moduleBin(uint32_t dqmIndex) const;
+      TGraph const* triggerModuleBin(uint32_t dqmIndex) const;
 
       // Each template file is opened once and cached (see templateFile()).
       TFile* moduleTemplateFile(std::string const& typecode, bool isSiPM) const;  // wafer.root or tileboard.root
@@ -104,8 +104,8 @@ namespace hgcal {
       // Filename-construction helper shared by moduleTemplateFile/trigTemplateFile.
       static std::string sipmLookupKeyFromTypecode(std::string const& typecode);
 
-      // Template-file readers. Ownership: file owns everything returned;
-      // callers borrow, never delete.
+      // Template-file readers. The returned TGraph is not owned by the file (TGraph is
+      // not registered in its directory); it is kept in binstates_ for the whole job.
       TGraph* readModuleBin(TFile* file, bool isSiPM, int plane, int u, int v);
       std::vector<double> readModuleCenter(TFile* file, bool isSiPM, int plane, int u, int v);
       BoundingBox readModuleScope(TFile* file, bool isSiPM, int plane, int u, int v);

@@ -6,6 +6,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <TGraph.h>
+
 namespace hgcal {
   namespace dqm {
 
@@ -97,10 +99,17 @@ namespace hgcal {
                                    ymax);
           }
           // Module outlines are added once; endLumi only updates the bin contents, in the same module order.
+          // TH2Poly owns its bin polygons, so each plot gets its own copy of the geometry outline.
           for (const auto& cassettePair : cassetteMap)
-            for (const auto& econdPair : cassettePair.second)
+            for (const auto& econdPair : cassettePair.second) {
+              TGraph const* outline = geom.moduleBin(econdPair.second.dqmIndex);
+              if (!outline) {
+                throw cms::Exception("HGCalQualityWorker")
+                    << "No module outline for dqmIndex " << econdPair.second.dqmIndex;
+              }
               for (const std::string& plotKey : hexPlotsFastStreamKey_)
-                hexPlotsFastStream_[plotKey][layer]->addBin(geom.moduleBin(econdPair.second.dqmIndex));
+                hexPlotsFastStream_[plotKey][layer]->addBin(new TGraph(*outline));
+            }
 
           // register layer-level summaries of the ECON-D
           econdQualityLayer_[endcap][layer] = ibooker.book2D("econdQuality" + layerStr,
