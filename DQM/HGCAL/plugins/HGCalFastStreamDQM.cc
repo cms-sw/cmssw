@@ -1,10 +1,11 @@
-#include <atomic>
+#include <ctime>
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -22,6 +23,7 @@
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHost.h"
 
+#include <TDatime.h>
 #include <TFile.h>
 #include <TTree.h>
 
@@ -63,7 +65,7 @@ private:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void bookHistogramsFastStream(DQMStore::IBooker& ibook, edm::Run const& run, edm::EventSetup const& iSetup);
   void bookPerFEDComparisonHistograms(DQMStore::IBooker& ibook);
-  void bookEventInfo(DQMStore::IBooker& ibooker);
+  void bookEventInfo(DQMStore::IBooker& ibooker, edm::Run const& run);
   void bookLSSummary(DQMStore::IBooker& ibooker);
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -340,7 +342,7 @@ void HGCalFastStreamDQM::fillPerFEDComparisonHistograms(
 
 void HGCalFastStreamDQM::bookHistograms(DQMStore::IBooker& ibook, edm::Run const& run, edm::EventSetup const& iSetup) {
   // Book event information
-  bookEventInfo(ibook);
+  bookEventInfo(ibook, run);
 
   // Fetch module index and module info from the EventSetup
   const HGCalMappingModuleIndexer& moduleIndexer = iSetup.getData(moduleIdxTkn_);
@@ -484,25 +486,20 @@ void HGCalFastStreamDQM::analyzeLSFastStream(const edm::Event& iEvent, const edm
   currentLS = lumi;
 }
 
-void HGCalFastStreamDQM::bookEventInfo(DQMStore::IBooker& ibooker) {
+void HGCalFastStreamDQM::bookEventInfo(DQMStore::IBooker& ibooker, edm::Run const& run) {
   ibooker.setCurrentFolder("HGCAL/EventInfo");
   runNumberME = ibooker.bookInt("iRun");                // INT
   lumiSectionME = ibooker.bookInt("iLumiSection");      // INT
   eventNumberME = ibooker.bookInt("iEvent");            // INT
   runStartME = ibooker.bookFloat("runStartTimeStamp");  // REAL
 
-  // Shared by all stream instances: only the first one records the run-start time stamp.
-  static std::atomic<bool> timeRecorded{false};
-  if (!timeRecorded.exchange(true)) {
-    auto now = std::chrono::system_clock::now();
-    std::time_t timestamp = std::chrono::system_clock::to_time_t(now);
-    double unixTimestamp = static_cast<double>(timestamp);
-    runStartME->Fill(unixTimestamp);
-
-    TDatime dt(timestamp);
-    TString timeString = dt.AsSQLString();
-    timeStampME = ibooker.bookString("timeStamp", timeString);
-  }
+  // Run start from the run itself: identical in every stream and reproducible.
+  // Sources without a run time (e.g. DAQSource in the test beam: beginOfTime) fall back to the booking time.
+  std::time_t timestamp = run.beginTime().unixTime();
+  if (timestamp == 0)
+    timestamp = std::time(nullptr);
+  runStartME->Fill(static_cast<double>(timestamp));
+  timeStampME = ibooker.bookString("timeStamp", TDatime(timestamp).AsSQLString());
 }
 
 void HGCalFastStreamDQM::bookLSSummary(DQMStore::IBooker& ibooker) {
