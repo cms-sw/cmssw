@@ -1546,6 +1546,34 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                           ptCut);
   }
 
+  // passInnerT3OuterLS2Cuts depends only on the inner T3's first segment and the outer LS2. outerLS2PassCache[outer LS2]
+  // keeps the decision for the last first-inner segment it was tested with, as firstSegment << 1 | pass (0xFFFFFFFF =
+  // empty), so a repeated (first-inner segment, outer LS2) pair reuses it. Threads of different blocks read and write
+  // an entry without atomics on purpose: each 32-bit word is a self-consistent (segment, decision) pair written by one
+  // aligned store, and a reader uses it only if the segment matches, so a value from another writer is only a miss.
+  template <alpaka::concepts::Acc TAcc>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passInnerT3OuterLS2CutsCached(TAcc const& acc,
+                                                                    ModulesConst modules,
+                                                                    MiniDoubletsConst mds,
+                                                                    SegmentsConst segments,
+                                                                    TripletsConst triplets,
+                                                                    uint16_t lowerModuleIndex1,
+                                                                    unsigned int innerTripletIndex,
+                                                                    unsigned int outerTripletIndex,
+                                                                    const float ptCut,
+                                                                    unsigned int* __restrict__ outerLS2PassCache) {
+    const unsigned int tag = triplets.segmentIndices()[innerTripletIndex][0] << 1;
+    const unsigned int fourthSegmentIndex = triplets.segmentIndices()[outerTripletIndex][1];
+    const unsigned int cached = outerLS2PassCache[fourthSegmentIndex];
+    if ((cached & ~1u) == tag)
+      return cached & 1u;
+    float dBeta2;
+    const bool pass = passInnerT3OuterLS2Cuts(
+        acc, modules, mds, segments, triplets, lowerModuleIndex1, innerTripletIndex, outerTripletIndex, dBeta2, ptCut);
+    outerLS2PassCache[fourthSegmentIndex] = tag | (pass ? 1u : 0u);
+    return pass;
+  }
+
   // Radius of the circle through the anchor hits of MDs 2, 3, 4 (inner triplet and the outer triplet's first segment).
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE float computeT5BridgeRadius(TAcc const& acc,
@@ -2014,15 +2042,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                         TripletCountsConst tripletCountsByMD,
                                                         MiniDoubletsOccupancyConst mdOccupancy,
                                                         const float ptCut,
+                                                        unsigned int* __restrict__ outerLS2PassCache,
                                                         unsigned int* __restrict__ moduleT5Count,
                                                         SelectedT5Pairs selected,
                                                         unsigned int innerTripletIndex,
                                                         unsigned int outerTripletIndex,
                                                         float bridgeRadius) {
     const uint16_t lowerModule1 = triplets.lowerModuleIndices()[innerTripletIndex][0];
-    float dBeta2;
-    if (!passInnerT3OuterLS2Cuts(
-            acc, modules, mds, segments, triplets, lowerModule1, innerTripletIndex, outerTripletIndex, dBeta2, ptCut))
+    // Reuses the decision of an outer LS2 already tested with the same first-inner segment.
+    if (!passInnerT3OuterLS2CutsCached(acc,
+                                       modules,
+                                       mds,
+                                       segments,
+                                       triplets,
+                                       lowerModule1,
+                                       innerTripletIndex,
+                                       outerTripletIndex,
+                                       ptCut,
+                                       outerLS2PassCache))
       return;
     float innerRadius, outerRadius, rzChi2, dnnScore;
     if (!runQuintupletSelectionOuter(acc,
@@ -2084,6 +2121,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   unsigned int const* __restrict__ indexLSonT3,
                                   const unsigned int nTriplets,
                                   const float ptCut,
+                                  unsigned int* __restrict__ outerLS2PassCache,
                                   unsigned int* __restrict__ moduleT5Count,
                                   SelectedT5Pairs selected) const {
       const auto& mdIndices = segments.mdIndices();
@@ -2174,6 +2212,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                 tripletCountsByMD,
                 mdOccupancy,
                 ptCut,
+                outerLS2PassCache,
                 moduleT5Count,
                 selected,
                 innerTripletIndex,

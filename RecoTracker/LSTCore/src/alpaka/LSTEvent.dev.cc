@@ -1287,14 +1287,18 @@ void LSTEvent::createQuintuplets() {
   const unsigned int nT5Tiles = std::max(cms::alpakatools::divide_up_by(nTripletSlots, kT5TileInnerT3s), 1u);
   auto const countT5_workDiv = cms::alpakatools::make_workdiv<Acc1D>(nT5Tiles, kT5BlockThreads);
 
-  // Counting-kernel buffers (transient, this stage only): the T5 count per module and the selected-pair count.
+  // Counting-kernel buffers (transient, this stage only): the outer LS2 cut decisions per segment (see
+  // passInnerT3OuterLS2CutsCached; valid for both counting runs), the T5 count per module and the selected-pair count.
+  auto outerLS2PassCache_buf = cms::alpakatools::make_device_buffer<unsigned int[]>(queue_, nTotalSegmentsOT_);
+  alpaka::memset(queue_, outerLS2PassCache_buf, 0xFF);
   auto moduleT5Count_buf = cms::alpakatools::make_device_buffer<unsigned int[]>(queue_, nLowerModules_);
   auto nSelected_d = cms::alpakatools::make_device_buffer<unsigned int[]>(queue_, 1u);
   double countingMB = 0;
   if (objectsStatistics_) {
     // Transient: live until the end of this function, not added to the allocated total.
     countingMB = (alpaka::getExtentProduct(nLSonT3ByMD_buf) + alpaka::getExtentProduct(offsetLSonT3ByMD_buf) +
-                  alpaka::getExtentProduct(indexLSonT3_buf) + alpaka::getExtentProduct(moduleT5Count_buf)) *
+                  alpaka::getExtentProduct(indexLSonT3_buf) + alpaka::getExtentProduct(outerLS2PassCache_buf) +
+                  alpaka::getExtentProduct(moduleT5Count_buf)) *
                  sizeof(unsigned int) / 1e6;
     trackTransientMB(countingMB);
     lstWarning(std::format("[MEM] (transient) T5 counting buffers: {:.1f} MB", countingMB));
@@ -1341,6 +1345,7 @@ void LSTEvent::createQuintuplets() {
                         indexLSonT3_buf.data(),
                         nTripletSlots,
                         ptCut_,
+                        outerLS2PassCache_buf.data(),
                         moduleT5Count_buf.data(),
                         SelectedT5Pairs{nSelected_d.data(),
                                         capacity,
