@@ -142,6 +142,7 @@ namespace hgcal {
       if (!(tree->GetEntries() > 0))
         edm::LogError("HGCalDQMGeometry") << "TTree empty in " << moduleDir;
       tree->GetEntry(0);
+      tree->ResetBranchAddresses();  // the tree is cached with the file: do not leave it pointing at locals
       x0y0[0] = x0;
       x0y0[1] = y0;
       gDirectory->cd("/");
@@ -171,6 +172,7 @@ namespace hgcal {
       if (!(tree->GetEntries() > 0))
         edm::LogError("HGCalDQMGeometry") << "TTree empty in " << moduleDir;
       tree->GetEntry(0);
+      tree->ResetBranchAddresses();  // the tree is cached with the file: do not leave it pointing at locals
       box = BoundingBox(
           static_cast<float>(xmin), static_cast<float>(xmax), static_cast<float>(ymin), static_cast<float>(ymax));
       gDirectory->cd("/");
