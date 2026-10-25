@@ -254,12 +254,9 @@ namespace hgcal {
                                     HGCalDQMGeometry& geom) {
       auto const& HGCALMap = geom.hgcalMap();
 
-      // Known issue: fed_module_bin is keyed by a global module ordinal but looked up by
-      // layer_idx below, so modules of the same layer share one bin of summaryPerModule_FED<id>.
+      // X-axis labels of summaryPerModule_FED<id>: the FED's modules in HGCALMap order.
       std::map<uint32_t, int> fed_module_count;
       std::map<uint32_t, std::vector<std::string>> fed_modules_typecode_map;
-      std::map<uint32_t, std::map<uint32_t, int>> fed_module_bin;
-      uint32_t globalModuleIndex = 0;
 
       for (auto const& endcapPair : HGCALMap) {
         auto const& layerMap = endcapPair.second;
@@ -270,8 +267,6 @@ namespace hgcal {
             for (auto const& econdPair : econdMap) {
               auto const& ele = econdPair.second;
               ++fed_module_count[ele.fedid];
-              fed_module_bin[ele.fedid][globalModuleIndex] = globalModuleIndex;
-              ++globalModuleIndex;
               fed_modules_typecode_map[ele.fedid].push_back(ele.typecode);
             }
           }
@@ -279,6 +274,7 @@ namespace hgcal {
       }
 
       int layer_idx = 0;
+      std::map<uint32_t, int> fed_bin_counter;  // same HGCALMap order as the labels above
 
       for (auto const& endcapPair : HGCALMap) {
         int const endcap = endcapPair.first;
@@ -304,6 +300,8 @@ namespace hgcal {
             for (auto const& econdPair : econdMap) {
               std::string const& typecode = econdPair.first;
               auto const& ele = econdPair.second;
+              // Counted before any skip so the bins stay aligned with the labels.
+              int const fedBin = ++fed_bin_counter[ele.fedid];
               std::string const uvStr = "(u" + std::to_string(ele.i1) + "-v" + std::to_string(ele.i2) + ") ";
               std::string const plotFolder = cassetteFolder + uvStr + typecode;
 
@@ -581,10 +579,7 @@ namespace hgcal {
               frac_mpips_module /= norm_cells;
 
               // Per-FED module summary.
-              uint32_t const fedid = ele.fedid;
-              int const fedBin = fed_module_bin[fedid][layer_idx] + 1;
-
-              auto* fedSummary = summary_ME_perFED_.at(fedid);
+              auto* fedSummary = summary_ME_perFED_.at(ele.fedid);
               fedSummary->setBinContent(fedBin, 1, frac_adc_module);
               fedSummary->setBinContent(fedBin, 2, frac_tot_module);
               fedSummary->setBinContent(fedBin, 3, frac_toa_module);
