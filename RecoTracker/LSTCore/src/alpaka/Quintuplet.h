@@ -2436,17 +2436,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   ModulesConst modules,
                                   TripletsOccupancyConst tripletsOcc,
                                   ObjectRanges ranges,
-                                  unsigned int const* __restrict__ moduleT5Count,
-                                  MiniDoubletsT5CountsConst mdT5Counts,
-                                  MiniDoubletsOccupancyConst mdsOcc,
-                                  QuintupletsRanges quintupletsRangesByMD0,
-                                  QuintupletsRanges quintupletsRangesByMD1) const {
+                                  unsigned int const* __restrict__ moduleT5Count) const {
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
       constexpr unsigned int kMaxThreads = 1024;
       auto& partialSlots = alpaka::declareSharedVar<unsigned int[kMaxThreads], __COUNTER__>(acc);
       auto& partialModules = alpaka::declareSharedVar<unsigned int[kMaxThreads], __COUNTER__>(acc);
-      int& nTotalQuintuplets0x = alpaka::declareSharedVar<int, __COUNTER__>(acc);
-      int& nTotalQuintuplets1x = alpaka::declareSharedVar<int, __COUNTER__>(acc);
       const unsigned int nThreads = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
       const unsigned int tid = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u];
       ALPAKA_ASSERT_ACC(nThreads <= kMaxThreads);
@@ -2479,8 +2473,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         ranges.nQuintupletOverflows() = 0;
         ranges.nT5byMDOverflows() = 0;
         ranges.nQuintupletCapDrops() = 0;
-        nTotalQuintuplets0x = 0;
-        nTotalQuintuplets1x = 0;
       }
       alpaka::syncBlockThreads(acc);
 
@@ -2496,49 +2488,30 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         offset += moduleSlots;
         ++eligibleIndex;
       }
-
-      auto setMDranges = [&](uint16_t const lowerModule,
-                             unsigned int const nMDs,
-                             unsigned int const* __restrict__ connectedMax,
-                             QuintupletsRanges qRanges,
-                             int& nTotal) {
-        // Sum the real connectivity for MDs in this module
-        // There should be no truncation (unlike in nTotalQuintupletsx),
-        // else need to keep track which T3's MD can be used in T5 reco
-        int connectedInModule = 0;
-        const unsigned int firstIdx = ranges.miniDoubletModuleIndices()[lowerModule];
-        for (unsigned int idx = 0; idx < nMDs; ++idx) {
-          unsigned int mdIndex = firstIdx + idx;
-          connectedInModule += connectedMax[mdIndex];
-        }
-
-        int nStart = alpaka::atomicAdd(acc, &nTotal, connectedInModule, alpaka::hierarchy::Threads{});
-
-        for (unsigned int idx = 0; idx < nMDs; ++idx) {
-          unsigned int mdIndex = firstIdx + idx;
-          qRanges.offset()[mdIndex] = nStart;
-          qRanges.n()[mdIndex] = 0;
-          nStart += connectedMax[mdIndex];
-        }
-      };
-      for (uint16_t lowerModule : cms::alpakatools::uniform_elements(acc, modules.nLowerModules())) {
-        unsigned int nMDs = mdsOcc.nMDs()[lowerModule];
-        if (nMDs == 0)
-          continue;
-
-        setMDranges(
-            lowerModule, nMDs, mdT5Counts.connectedT5s0Max().data(), quintupletsRangesByMD0, nTotalQuintuplets0x);
-        setMDranges(
-            lowerModule, nMDs, mdT5Counts.connectedT5s1Max().data(), quintupletsRangesByMD1, nTotalQuintuplets1x);
-      }
-
-      alpaka::syncBlockThreads(acc);
-      if (cms::alpakatools::once_per_block(acc)) {
-        ranges.nTotalQuintsByMD0() = static_cast<unsigned int>(nTotalQuintuplets0x);
-        ranges.nTotalQuintsByMD1() = static_cast<unsigned int>(nTotalQuintuplets1x);
-      }
     }
   };
 
+  // The ranges of the T5-by-MD lists: each MD gets as many slots as T5s were counted for it, one thread per MD (the
+  // totals are zeroed before the launch). The slices are taken in arrival order: this is only the layout of transient
+  // lookup lists, filled in arrival order anyway, and no result depends on it.
+  struct SetQuintupletRangesByMD {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  unsigned int nMDs,
+                                  MiniDoubletsT5CountsConst mdT5Counts,
+                                  QuintupletsRanges quintupletsRangesByMD0,
+                                  QuintupletsRanges quintupletsRangesByMD1,
+                                  ObjectRanges ranges) const {
+      for (unsigned int mdIndex : cms::alpakatools::uniform_elements(acc, nMDs)) {
+        const unsigned int nT5s0 = mdT5Counts.connectedT5s0Max()[mdIndex];
+        quintupletsRangesByMD0.offset()[mdIndex] =
+            nT5s0 > 0 ? alpaka::atomicAdd(acc, &ranges.nTotalQuintsByMD0(), nT5s0, alpaka::hierarchy::Blocks{}) : 0;
+        quintupletsRangesByMD0.n()[mdIndex] = 0;
+        const unsigned int nT5s1 = mdT5Counts.connectedT5s1Max()[mdIndex];
+        quintupletsRangesByMD1.offset()[mdIndex] =
+            nT5s1 > 0 ? alpaka::atomicAdd(acc, &ranges.nTotalQuintsByMD1(), nT5s1, alpaka::hierarchy::Blocks{}) : 0;
+        quintupletsRangesByMD1.n()[mdIndex] = 0;
+      }
+    }
+  };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::lst
 #endif

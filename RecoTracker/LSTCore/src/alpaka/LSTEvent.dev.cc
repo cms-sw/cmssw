@@ -1359,11 +1359,24 @@ void LSTEvent::createQuintuplets() {
                         modules_.const_view().modules(),
                         tripletsDC_->const_view().tripletsOccupancy(),
                         rangesDC_->view(),
-                        moduleT5Count_buf.data(),
-                        miniDoubletsT5BuildDC_->const_view().t5Counts(),
-                        miniDoubletsDC_->const_view().miniDoubletsOccupancy(),
-                        miniDoubletsT5BuildDC_->view().quintupletsRangesByMD0(),
-                        miniDoubletsT5BuildDC_->view().quintupletsRangesByMD1());
+                        moduleT5Count_buf.data());
+
+    // SetQuintupletRangesByMD accumulates the T5-by-MD totals.
+    auto nTotalQuintsByMD0_view =
+        cms::alpakatools::make_device_view(queue_, &rangesDC_->view().nTotalQuintsByMD0(), 1u);
+    alpaka::memset(queue_, nTotalQuintsByMD0_view, 0u);
+    auto nTotalQuintsByMD1_view =
+        cms::alpakatools::make_device_view(queue_, &rangesDC_->view().nTotalQuintsByMD1(), 1u);
+    alpaka::memset(queue_, nTotalQuintsByMD1_view, 0u);
+    alpaka::exec<Acc1D>(
+        queue_,
+        cms::alpakatools::make_workdiv<Acc1D>(std::max(cms::alpakatools::divide_up_by(nTotalMDsOT_, 256u), 1u), 256),
+        SetQuintupletRangesByMD{},
+        nTotalMDsOT_,
+        miniDoubletsT5BuildDC_->const_view().t5Counts(),
+        miniDoubletsT5BuildDC_->view().quintupletsRangesByMD0(),
+        miniDoubletsT5BuildDC_->view().quintupletsRangesByMD1(),
+        rangesDC_->view());
 
     alpaka::memcpy(queue_, nTotalQuintuplets_buf, nTotalQuintuplets_view_d);
     alpaka::memcpy(queue_, nTotalQuintuplets0_buf, nTotalQuintuplets0_view_d);
