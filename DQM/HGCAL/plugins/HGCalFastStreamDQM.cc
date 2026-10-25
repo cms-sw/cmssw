@@ -83,7 +83,7 @@ private:
   MonitorElement *runNumberME, *lumiSectionME, *eventNumberME, *runStartME, *timeStampME;
   MonitorElement* me_econd_quality_layer;
   MonitorElement* fedSummaryME;
-  MonitorElement *fedQualityH_, *fedPayload2D_, *econdQualityH_, *econdPayload_;
+  MonitorElement *fedQualityH_, *fedPayload2D_;
 
   edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIdxTkn_;
   const edm::EDGetTokenT<hgcaldigi::HGCalECONDPacketInfoHost> econdInfoTkn_;
@@ -103,7 +103,12 @@ private:
 
   std::map<int, std::map<int, std::map<int, std::map<std::string, MonitoredElement_t>>>> HGCALMap;
 
-  std::map<std::string, std::map<MonitoredElementKey_t, MonitorElement*>> moduleHistos_;
+  // Per-module MEs, resolved at booking so analyze does no map lookups.
+  struct ModuleMEs {
+    MonitoredElement_t mod;
+    MonitorElement *quality, *payload, *cm;
+  };
+  std::vector<ModuleMEs> moduleMEs_;
   const edm::EDGetTokenT<hgcaldigi::HGCalFEDPacketInfoHost> fedInfoTkn_;
   edm::ESGetToken<hgcal::HGCalMappingModuleParamHost, HGCalElectronicsMappingRcd> moduleInfoTkn_;
   std::map<uint32_t, std::map<std::string, std::map<std::string, MonitorElement*>>> fedComparisonHistos_;
@@ -198,30 +203,22 @@ void HGCalFastStreamDQM::analyzeECONDFlags(const edm::Event& iEvent, const edm::
   const auto& raw_data = iEvent.getHandle(fedRawToken_);
 
   // first fill module level
-  for (const auto& [key, mod] : followedModules_) {
+  for (const auto& [mod, qualityME, payloadME, cmME] : moduleMEs_) {
     int endcap = mod.endcap;
     int layer = mod.layer;
     int directionalLayer = layer * endcap;
-    int cassette = mod.cassette;
-    std::string typecode = mod.typecode;
-
-    const std::string& binlabels = typecode;
-    auto binlabel = binlabels.c_str();
-    int bin_id = HGCALMap[endcap][layer][cassette][typecode].moduleIndex;
-    econdQualityH_ = econdQualityCassettes_[endcap][layer][cassette];
-    econdPayload_ = econdPayloadCassettes_[endcap][layer][cassette];
-    econdQualityH_->setBinLabel(bin_id + 1, binlabel, 1);
+    int bin_id = mod.moduleIndex;
 
     const uint32_t imod = mod.dqmIndex;  // global/dense module index
     const auto econd = econdInfo->const_view()[imod];
-    econdPayload_->Fill(econd.payloadLength());
+    payloadME->Fill(econd.payloadLength());
 
     // error flags
     std::vector<int> errorBin = getErrorBinsForECONDCBFlags(
         (unsigned int)econd.cbFlag(), (unsigned int)econd.econdFlag(), (unsigned int)econd.exception());
 
     for (int errorID : errorBin) {
-      econdQualityH_->Fill(bin_id, errorID - 0.5);
+      qualityME->Fill(bin_id, errorID - 0.5);
       iterateEcondLSCounts(directionalLayer, errorID - 0.5);
     }
 
@@ -237,8 +234,8 @@ void HGCalFastStreamDQM::analyzeECONDFlags(const edm::Event& iEvent, const edm::
       uint16_t cm0 = hasCommonMode ? econd.cm()(erxIdx, 0) : 0;
       uint16_t cm1 = hasCommonMode ? econd.cm()(erxIdx, 1) : 0;
       uint32_t idx = erxIdx * 2;
-      moduleHistos_["cmChannels"][key]->Fill(idx, cm0);
-      moduleHistos_["cmChannels"][key]->Fill(idx + 1, cm1);
+      cmME->Fill(idx, cm0);
+      cmME->Fill(idx + 1, cm1);
     }
 
   }  // end of loop over followed modules
@@ -266,6 +263,7 @@ void HGCalFastStreamDQM::analyzeBXComparison(const edm::Event& iEvent, const edm
 
     // Collect all CB and ECOND values for this FED
     std::vector<std::map<std::string, double>> fedValues;
+    MonitorElement* econdQualityFED = econdQualityFEDs_[fedid];
 
     for (const auto& [key, mod] : modules) {
       const uint32_t imod = mod.dqmIndex;
@@ -291,15 +289,12 @@ void HGCalFastStreamDQM::analyzeBXComparison(const edm::Event& iEvent, const edm
       //--------------------------------------------------
       // Fill ECON-D Quality per FED
       //--------------------------------------------------
-      std::string typecode = mod.typecode;
-      auto binlabel = typecode.c_str();
       int bin_id = mod.fedModuleIndex;
-      econdQualityFEDs_[fedid]->setBinLabel(bin_id + 1, binlabel, 1);
 
       std::vector<int> errorBin = getErrorBinsForECONDCBFlags(
           (unsigned int)econd.cbFlag(), (unsigned int)econd.econdFlag(), (unsigned int)econd.exception());
       for (int errorID : errorBin) {
-        econdQualityFEDs_[fedid]->Fill(bin_id, errorID - 0.5);
+        econdQualityFED->Fill(bin_id, errorID - 0.5);
       }
     }
   }
@@ -358,6 +353,7 @@ void HGCalFastStreamDQM::bookHistograms(DQMStore::IBooker& ibook, edm::Run const
   followedModules_.clear();
   HGCALMap.clear();
   unique_directionallayers.clear();
+  moduleMEs_.clear();
 
   // Loop over available FEDs
   int binIndex = 0;
@@ -376,16 +372,17 @@ void HGCalFastStreamDQM::bookHistograms(DQMStore::IBooker& ibook, edm::Run const
     const std::string& typecode = ele.typecode;
     unique_directionallayers.insert(ele.zside ? static_cast<int>(ele.layer) : -static_cast<int>(ele.layer));
 
-    // Store in maps
+    // Build hierarchical HGCALMap: endcap -> layer -> cassette -> typecode
+    // moduleIndex (bin in the cassette) and fedModuleIndex (bin in the FED) are set before the copies below.
+    auto& cassetteMap = HGCALMap[ele.endcap][ele.layer][ele.cassette];
+    ele.moduleIndex = cassetteMap.size();
     MonitoredElementKey_t key(fedid, imod);
     ele.fedModuleIndex = modulesByFED_[fedid].size();
+    cassetteMap[typecode] = ele;
+
+    // Store in maps
     modulesByFED_[fedid].emplace_back(key, ele);
     followedModules_[key] = ele;
-
-    // Build hierarchical HGCALMap: endcap -> layer -> cassette -> typecode
-    auto& cassetteMap = HGCALMap[ele.endcap][ele.layer][ele.cassette];
-    cassetteMap[typecode] = ele;
-    cassetteMap[typecode].moduleIndex = cassetteMap.size() - 1;
   }
 
   bookPerFEDComparisonHistograms(ibook);
@@ -457,8 +454,12 @@ void HGCalFastStreamDQM::bookHistogramsFastStream(DQMStore::IBooker& ibook,
     // Use "s" option to show data spread (RMS) in TProfile
     // Other options: "" (sigma/sqrt{N}), "i" (integral), "g" (weighted)
     // See: https://root.cern.ch/doc/master/TProfileHelper_8h_source.html#l00693
-    moduleHistos_["cmChannels"][key] =
+    MonitorElement* cmME =
         ibook.bookProfile("cmChannels", typecode + ";Channel; <CM>", ncm, -0.5, ncm - 0.5, 100, 0, 1024, "s");
+
+    MonitorElement* qualityME = econdQualityCassettes_[endcap][layer][cassette];
+    qualityME->setBinLabel(mod.moduleIndex + 1, typecode, 1);
+    moduleMEs_.push_back({mod, qualityME, econdPayloadCassettes_[endcap][layer][cassette], cmME});
   }
 
   // Book versus LS plots
@@ -623,6 +624,8 @@ void HGCalFastStreamDQM::bookPerFEDComparisonHistograms(DQMStore::IBooker& ibook
                                             0,
                                             necondWithCBflags);
     hgcal::dqm::addBinLabels(econdWithCBflags, econdQualityFEDs_[fedid], 2);
+    for (const auto& [key, mod] : modulesByFED_[fedid])
+      econdQualityFEDs_[fedid]->setBinLabel(mod.fedModuleIndex + 1, mod.typecode, 1);
   }
 
   // Set descriptive labels
