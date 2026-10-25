@@ -277,7 +277,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p, UInt_t w, UInt_t h, FWGUIM
 
   TGCompositeFrame *buttonFrame = new TGHorizontalFrame(controlFrame, 10, 10, 0, backgroundColor);
   TImage *imgBtn = TImage::Open(FWCheckBoxIcon::coreIcondir() + "slider-bg-up.png");
-  buttonFrame->SetBackgroundPixmap(imgBtn->GetPixmap());
+  buttonFrame->SetBackgroundPixmap(imgBtn->GetImagePixmap());
 
   goToFirst->createCustomIconsButton(
       buttonFrame,
@@ -330,7 +330,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p, UInt_t w, UInt_t h, FWGUIM
 
   TGHorizontalFrame *sliderFrame = new TGHorizontalFrame(controlFrame, 10, 10, 0, backgroundColor);
   TImage *imgSld = TImage::Open(FWCheckBoxIcon::coreIcondir() + "slider-bg-down.png");
-  sliderFrame->SetBackgroundPixmap(imgSld->GetPixmap());
+  sliderFrame->SetBackgroundPixmap(imgSld->GetImagePixmap());
   TString sldBtn = FWCheckBoxIcon::coreIcondir() + "slider-button.png";
 
   m_delaySlider = new TGHSlider(sliderFrame, 109, kSlider1 | kScaleNo);
@@ -465,7 +465,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p, UInt_t w, UInt_t h, FWGUIM
 
     TGVerticalFrame *logoFrame = new TGVerticalFrame(parentLogoFrame, 53, 53, kFixedSize);
     TImage *logoImg = TImage::Open(FWCheckBoxIcon::coreIcondir() + "CMSRedOnBlackThick.png");
-    logoFrame->SetBackgroundPixmap(logoImg->GetPixmap());
+    logoFrame->SetBackgroundPixmap(logoImg->GetImagePixmap());
     parentLogoFrame->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight | kLHintsCenterY, 0, 14, 0, 0));
   }
   {
@@ -479,7 +479,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p, UInt_t w, UInt_t h, FWGUIM
     logoFrame->AddFrame(infoBut);
     infoBut->Connect("Clicked()", "CmsShowMainFrame", this, "showFWorksInfo()");
     //TImage *logoImg  = TImage::Open( FWCheckBoxIcon::coreIcondir() + "fireworksSmallGray.png");
-    //logoFrame->SetBackgroundPixmap(logoImg->GetPixmap());
+    //logoFrame->SetBackgroundPixmap(logoImg->GetImagePixmap());
     menuTopFrame->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight | kLHintsBottom, 0, 13, 3, 1));
   }
 

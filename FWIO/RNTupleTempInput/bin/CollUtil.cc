@@ -116,7 +116,7 @@ namespace edm::rntuple_temp {
         }
         auto id = col.GetPhysicalId();
 
-        for (auto &cluster : iDesc.GetClusterIterable()) {
+        for (auto &cluster : iDesc.GetActiveClusterIterable()) {
           auto columnRange = cluster.GetColumnRange(id);
           if (columnRange.IsSuppressed()) {
             continue;
