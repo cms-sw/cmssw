@@ -4,13 +4,6 @@
 #include <stdexcept>
 
 namespace gen {
-  void ScaleWeightGroupInfo::copy(const ScaleWeightGroupInfo& other) {
-    muIndices_ = other.muIndices_;
-    dynVec_ = other.dynVec_;
-    dynNames_ = other.dynNames_;
-    WeightGroupInfo::copy(other);
-  }
-
   ScaleWeightGroupInfo* ScaleWeightGroupInfo::clone() const { return new ScaleWeightGroupInfo(*this); }
 
   int ScaleWeightGroupInfo::addContainedId(int globalIndex, std::string id, std::string label, float muR, float muF) {

@@ -92,7 +92,7 @@ namespace gen {
       muF = std::stof(muFText);
     } catch (std::invalid_argument& e) {
       if (debug_)
-        std::cout << "Tried to convert (" << muR << ", " << muF << ") to an int" << std::endl;
+        std::cout << "Tried to convert (" << muRText << ", " << muFText << ") to a float" << std::endl;
       scaleGroup.setWeightIsCorrupt();
       return;
       /// do something

@@ -7,17 +7,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 namespace gen {
-  void WeightGroupInfo::copy(const WeightGroupInfo& other) {
-    isWellFormed_ = other.isWellFormed_;
-    headerEntry_ = other.headerEntry_;
-    name_ = other.name_;
-    description_ = other.description_;
-    weightType_ = other.weightType_;
-    idsContained_ = other.idsContained_;
-    firstId_ = other.firstId_;
-    lastId_ = other.lastId_;
-  }
-
   WeightGroupInfo* WeightGroupInfo::clone() const {
     throw cms::Exception("WeightGroupInfo") << "In group " << name_
                                             << ": WeightGroupInfo is abstract, so it's clone() method can't be "

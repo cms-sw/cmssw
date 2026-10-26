@@ -10,11 +10,6 @@ namespace gen {
     weightType_ = WeightType::kPartonShowerWeights;
   }
 
-  void PartonShowerWeightGroupInfo::copy(const PartonShowerWeightGroupInfo& other) {
-    WeightGroupInfo::copy(other);
-    nameIsPythiaSyntax_ = other.nameIsPythiaSyntax_;
-  }
-
   PartonShowerWeightGroupInfo* PartonShowerWeightGroupInfo::clone() const {
     return new PartonShowerWeightGroupInfo(*this);
   }

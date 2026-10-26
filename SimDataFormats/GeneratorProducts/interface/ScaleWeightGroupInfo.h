@@ -41,9 +41,7 @@ namespace gen {
       isFunctionalFormVar_ = false;
     }
     ScaleWeightGroupInfo(std::string header) : ScaleWeightGroupInfo(header, header) {}
-    ScaleWeightGroupInfo(const ScaleWeightGroupInfo& other) : WeightGroupInfo(other) { copy(other); }
     ~ScaleWeightGroupInfo() override {}
-    void copy(const ScaleWeightGroupInfo& other);
     ScaleWeightGroupInfo* clone() const override;
     bool containsCentralWeight() const { return containsCentral_; }
     // Return 0 on success, 1 for invalid muR/muF values, 2 if the group is still missing variations

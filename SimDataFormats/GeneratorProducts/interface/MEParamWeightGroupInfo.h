@@ -12,8 +12,6 @@ namespace gen {
     }
     MEParamWeightGroupInfo(std::string header) : MEParamWeightGroupInfo(header, header) {}
     ~MEParamWeightGroupInfo() override {}
-    MEParamWeightGroupInfo(const MEParamWeightGroupInfo& other) : WeightGroupInfo(other) { copy(other); }
-    void copy(const MEParamWeightGroupInfo& other);
     MEParamWeightGroupInfo* clone() const override;
   };
 }  // namespace gen

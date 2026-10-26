@@ -18,10 +18,10 @@ namespace gen {
 
   class PdfWeightGroupInfo : public WeightGroupInfo {
   private:
-    PdfUncertaintyType uncertaintyType_;
-    bool hasAlphasVars_;
-    int alphasUpIndex_;
-    int alphasDownIndex_;
+    PdfUncertaintyType uncertaintyType_ = kUnknownUnc;
+    bool hasAlphasVars_ = false;
+    int alphasUpIndex_ = -1;
+    int alphasDownIndex_ = -1;
     int parentLhapdfId_ = -1;
     size_t parentLhapdfSize_ = -1;
     std::string parentLhapdfError_;
@@ -34,9 +34,7 @@ namespace gen {
       weightType_ = WeightType::kPdfWeights;
     }
     PdfWeightGroupInfo(std::string header) : WeightGroupInfo(header) { weightType_ = WeightType::kPdfWeights; }
-    PdfWeightGroupInfo(const PdfWeightGroupInfo& other) : WeightGroupInfo(other) { copy(other); }
     ~PdfWeightGroupInfo() override {}
-    void copy(const PdfWeightGroupInfo& other);
     PdfWeightGroupInfo* clone() const override;
 
     void setUncertaintyType(PdfUncertaintyType uncertaintyType) { uncertaintyType_ = uncertaintyType; }

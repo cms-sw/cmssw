@@ -46,13 +46,10 @@ namespace gen {
         : isWellFormed_(false), headerEntry_(header), name_(name), firstId_(-1), lastId_(-1) {}
     WeightGroupInfo(std::string header)
         : isWellFormed_(false), headerEntry_(header), name_(header), firstId_(-1), lastId_(-1) {}
-    WeightGroupInfo(const WeightGroupInfo& other) { copy(other); }
-    WeightGroupInfo& operator=(const WeightGroupInfo& other) {
-      copy(other);
-      return *this;
-    }
+    // The default copy keeps every member; the derived classes rely on it as well
+    WeightGroupInfo(const WeightGroupInfo& other) = default;
+    WeightGroupInfo& operator=(const WeightGroupInfo& other) = default;
     virtual ~WeightGroupInfo() {};
-    void copy(const WeightGroupInfo& other);
     virtual WeightGroupInfo* clone() const;
     const WeightMetaInfo& weightMetaInfo(int weightEntry) const;
     const WeightMetaInfo& weightMetaInfoByGlobalIndex(std::string& wgtId, int weightEntry) const;
@@ -93,7 +90,7 @@ namespace gen {
     std::string headerEntry_;
     std::string name_;
     std::string description_;
-    WeightType weightType_;
+    WeightType weightType_ = WeightType::kUnknownWeights;
     std::vector<WeightMetaInfo> idsContained_;
     int firstId_;
     int lastId_;

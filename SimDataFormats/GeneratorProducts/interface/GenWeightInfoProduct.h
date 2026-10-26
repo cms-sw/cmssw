@@ -27,10 +27,13 @@ public:
   GenWeightInfoProduct(std::unique_ptr<GenWeightInfoProduct> other) { copy(*other); }
   GenWeightInfoProduct(const GenWeightInfoProduct& other) { copy(other); }
   GenWeightInfoProduct& operator=(const GenWeightInfoProduct& other) {
-    copy(other);
+    if (this != &other)
+      copy(other);
     return *this;
   }
   void copy(const GenWeightInfoProduct& other) {
+    weightGroupsInfo_.clear();
+    weightGroupsInfo_.reserve(other.weightGroupsInfo_.size());
     for (auto& ptr : other.weightGroupsInfo_) {
       std::unique_ptr<gen::WeightGroupInfo> cloneptr(ptr->clone());
       weightGroupsInfo_.emplace_back(std::move(cloneptr));

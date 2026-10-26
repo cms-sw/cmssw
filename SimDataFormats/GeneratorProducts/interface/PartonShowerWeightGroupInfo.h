@@ -12,9 +12,7 @@ namespace gen {
     PartonShowerWeightGroupInfo() : PartonShowerWeightGroupInfo("") {}
     PartonShowerWeightGroupInfo(std::string header, std::string name);
     PartonShowerWeightGroupInfo(std::string header) : PartonShowerWeightGroupInfo(header, header) {}
-    PartonShowerWeightGroupInfo(const PartonShowerWeightGroupInfo &other) : WeightGroupInfo(other) { copy(other); }
     ~PartonShowerWeightGroupInfo() override {}
-    void copy(const PartonShowerWeightGroupInfo &other);
     PartonShowerWeightGroupInfo *clone() const override;
     void setNameIsPythiaSyntax(bool isPythiaSyntax) { nameIsPythiaSyntax_ = isPythiaSyntax; }
     bool nameIsPythiaSyntax() const { return nameIsPythiaSyntax_; }
@@ -33,7 +31,7 @@ namespace gen {
     bool nameIsPythiaSyntax_ = false;
     static inline bool guessPSWeightIdx_ = false;
 
-    const std::vector<std::string> expectedOrderPythiaSyntax_ = {
+    static inline const std::vector<std::string> expectedOrderPythiaSyntax_ = {
         "fsr:murfac=0.707",    "fsr:murfac=1.414",    "fsr:murfac=0.5",      "fsr:murfac=2.0",
         "fsr:murfac=0.25",     "fsr:murfac=4.0",      "fsr:g2gg:murfac=0.5", "fsr:g2gg:murfac=2.0",
         "fsr:g2qq:murfac=0.5", "fsr:g2qq:murfac=2.0", "fsr:q2qg:murfac=0.5", "fsr:q2qg:murfac=2.0",
@@ -46,7 +44,7 @@ namespace gen {
         "isr:g2gg:cns=-2.0",   "isr:g2gg:cns=2.0",    "isr:g2qq:cns=-2.0",   "isr:g2qq:cns=2.0",
         "isr:q2qg:cns=-2.0",   "isr:q2qg:cns=2.0",    "isr:x2xg:cns=-2.0",   "isr:x2xg:cns=2.0",
     };
-    const std::vector<std::string> expectedOrder_ = {
+    static inline const std::vector<std::string> expectedOrder_ = {
         "isrRedHi",        "fsrRedHi",        "isrRedLo",        "fsrRedLo",        "isrDefHi",
         "fsrDefHi",        "isrDefLo",        "fsrDefLo",        "isrConHi",        "fsrConHi",
         "isrConLo",        "fsrConLo",        "fsr_G2GG_muR_dn", "fsr_G2GG_muR_up", "fsr_G2QQ_muR_dn",
