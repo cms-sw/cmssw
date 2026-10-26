@@ -421,16 +421,14 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
   mPhiVSEta->setAxisTitle("#phi", 2);
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "PhiVSEta", mPhiVSEta));
 
-  mPt_1 = ibooker.book1D("Pt_1", "Pt spectrum of jets - range 1", 20, 0, 100);
-  mPt_2 = ibooker.book1D("Pt_2", "Pt spectrum of jets - range 2", 60, 0, 300);
-  mPt_3 = ibooker.book1D("Pt_3", "Pt spectrum of jets - range 3", 100, 0, 5000);
+  mPt_extended = ibooker.book1D("Pt_extended", "Inclusive corrected jet p_{T} — extended range", 140, 0, 7000);
+  mPt_extended->setAxisTitle("Corrected jet p_{T} [GeV]", 1);
+  mPt_extended->setAxisTitle("Jets / 50 GeV", 2);
   mPt_log = ibooker.book1D("Pt_log", "Pt spectrum of jets - log", 100, 0, 50);
 
   mNJets = ibooker.book1D("NJets", "number of jets", 100, 0, 100);
 
-  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_1", mPt_1));
-  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_2", mPt_2));
-  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_3", mPt_3));
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_extended", mPt_extended));
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_log", mPt_log));
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "NJets", mNJets));
 
@@ -4592,15 +4590,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         mPt = map_of_MEs[DirName + "/" + "Pt"];
         if (mPt && mPt->getRootObject())
           mPt->Fill(correctedJet.pt());
-        mPt_1 = map_of_MEs[DirName + "/" + "Pt_1"];
-        if (mPt_1 && mPt_1->getRootObject())
-          mPt_1->Fill(correctedJet.pt());
-        mPt_2 = map_of_MEs[DirName + "/" + "Pt_2"];
-        if (mPt_2 && mPt_2->getRootObject())
-          mPt_2->Fill(correctedJet.pt());
-        mPt_3 = map_of_MEs[DirName + "/" + "Pt_3"];
-        if (mPt_3 && mPt_3->getRootObject())
-          mPt_3->Fill(correctedJet.pt());
+        mPt_extended = map_of_MEs[DirName + "/" + "Pt_extended"];
+        if (mPt_extended && mPt_extended->getRootObject())
+          mPt_extended->Fill(correctedJet.pt());
         mPt_log = map_of_MEs[DirName + "/" + "Pt_log"];
         if (mPt_log && mPt_log->getRootObject())
           mPt_log->Fill(log10(correctedJet.pt()));
