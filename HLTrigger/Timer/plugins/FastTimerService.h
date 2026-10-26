@@ -295,7 +295,7 @@ private:
   public:
     Resources active;  // resources used by all modules on this path
     Resources total;   // resources used by all modules on this path, and their dependencies
-    unsigned last;     // one-past-the last module that ran on this path
+    unsigned index;    // one-past-the last module that ran on this path, as an index into modules_on_path_
     bool status;       // whether the path accepted or rejected the event
   };
 
@@ -429,6 +429,8 @@ private:
     // resources spent in each path and endpath
     std::vector<PlotsPerPath> paths_;
     std::vector<PlotsPerPath> endpaths_;
+    // whether the paths and endpaths plots have been booked
+    bool bypath_ = false;
   };
 
   class PlotsPerJob {
@@ -575,6 +577,14 @@ private:
   // print the resource usage summary for en event, a run, or the while job
   template <typename T>
   void printHeader(T& out, std::string const& label) const;
+
+  // sum the resources of the modules that ran on each path and endpath, once per event
+  void accumulatePaths(ResourcesPerJob& stream) const;
+
+  // one-past-the last module that ran on a path, including dependencies, as an index into modules_and_dependencies_
+  static unsigned int lastDependency(ProcessCallGraph::PathType const& path, unsigned int index) {
+    return index == 0 ? 0 : path.last_dependency_of_module_[index - 1];
+  }
 
   template <typename T>
   void printEventHeader(T& out, std::string const& label) const;
