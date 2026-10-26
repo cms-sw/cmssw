@@ -26,8 +26,7 @@ HLTriggerRAW = cms.PSet(
         'keep *_hltScoutingRecHitPacker_*_*',
         'keep *_hltScoutingTrackPacker_*_*',
         'keep CTPPSDiamondDigiedmDetSetVector_hltCTPPSDiamondRawToDigi_*_*',
-        'keep CTPPSPixelDigiedmDetSetVector_hltCTPPSPixelDigis_*_*',
-        'keep edmTriggerResults_*_*_*'
+        'keep CTPPSPixelDigiedmDetSetVector_hltCTPPSPixelDigis_*_*'
     ) )
 )
 
@@ -46,8 +45,7 @@ HLTriggerRECO = cms.PSet(
         'keep *_hltScoutingRecHitPacker_*_*',
         'keep *_hltScoutingTrackPacker_*_*',
         'keep CTPPSDiamondDigiedmDetSetVector_hltCTPPSDiamondRawToDigi_*_*',
-        'keep CTPPSPixelDigiedmDetSetVector_hltCTPPSPixelDigis_*_*',
-        'keep edmTriggerResults_*_*_*'
+        'keep CTPPSPixelDigiedmDetSetVector_hltCTPPSPixelDigis_*_*'
     ) )
 )
 
@@ -66,8 +64,7 @@ HLTriggerAOD = cms.PSet(
         'keep *_hltScoutingRecHitPacker_*_*',
         'keep *_hltScoutingTrackPacker_*_*',
         'keep CTPPSDiamondDigiedmDetSetVector_hltCTPPSDiamondRawToDigi_*_*',
-        'keep CTPPSPixelDigiedmDetSetVector_hltCTPPSPixelDigis_*_*',
-        'keep edmTriggerResults_*_*_*'
+        'keep CTPPSPixelDigiedmDetSetVector_hltCTPPSPixelDigis_*_*'
     ) )
 )
 
@@ -209,6 +206,7 @@ HLTDebugRAW = cms.PSet(
         'keep *_hltMuonDTDigis_*_*',
         'keep *_hltMuonRPCDigis_*_*',
         'keep *_hltOnlineBeamSpot_*_*',
+        'keep *_hltOnlineMetaDataDigis_*_*',
         'keep *_hltPFJetForBtag_*_*',
         'keep *_hltPFJetForPNetAK8_*_*',
         'keep *_hltPFJetsCorrectedMatchedToCaloJets10AK8_*_*',
@@ -241,6 +239,13 @@ HLTDebugRAW = cms.PSet(
         'keep *_hltPixelVerticesSoA_*_*',
         'keep *_hltPixelVertices_*_*',
         'keep *_hltRpcRecHits_*_*',
+        'keep *_hltScoutingEgammaPacker_*_*',
+        'keep *_hltScoutingMuonPackerNoVtx_*_*',
+        'keep *_hltScoutingMuonPackerVtx_*_*',
+        'keep *_hltScoutingPFPacker_*_*',
+        'keep *_hltScoutingPrimaryVertexPacker_*_*',
+        'keep *_hltScoutingRecHitPacker_*_*',
+        'keep *_hltScoutingTrackPacker_*_*',
         'keep *_hltSelector4CentralJetsL1FastJet_*_*',
         'keep *_hltSelectorJets20L1FastJet_*_*',
         'keep *_hltSiPixelClustersAfterSplittingPPOnAA_*_*',
@@ -261,6 +266,8 @@ HLTDebugRAW = cms.PSet(
         'keep *_hltVerticesPFFilterPPOnAA_*_*',
         'keep *_hltVerticesPFFilter_*_*',
         'keep *_hltVerticesPFSelector_*_*',
+        'keep CTPPSDiamondDigiedmDetSetVector_hltCTPPSDiamondRawToDigi_*_*',
+        'keep CTPPSPixelDigiedmDetSetVector_hltCTPPSPixelDigis_*_*',
         'keep DetIds_hltSiStripRawToDigi_*_*',
         'keep FEDRawDataCollection_rawDataCollector_*_*',
         'keep FEDRawDataCollection_rawDataRepacker_*_*',
@@ -284,26 +291,13 @@ HLTDebugRAW = cms.PSet(
         'keep recoRecoEcalCandidates_*_*_*',
         'keep triggerTriggerEventWithRefs_*_*_*',
         'keep triggerTriggerEvent_*_*_*',
-        'keep triggerTriggerFilterObjectWithRefs_*_*_*',
-        'keep *_hltFEDSelectorL1_*_*',
-        'keep *_hltScoutingEgammaPacker_*_*',
-        'keep *_hltScoutingMuonPackerNoVtx_*_*',
-        'keep *_hltScoutingMuonPackerVtx_*_*',
-        'keep *_hltScoutingPFPacker_*_*',
-        'keep *_hltScoutingPrimaryVertexPacker_*_*',
-        'keep *_hltScoutingRecHitPacker_*_*',
-        'keep *_hltScoutingTrackPacker_*_*',
-        'keep CTPPSDiamondDigiedmDetSetVector_hltCTPPSDiamondRawToDigi_*_*',
-        'keep CTPPSPixelDigiedmDetSetVector_hltCTPPSPixelDigis_*_*',
-        'keep edmTriggerResults_*_*_*'
+        'keep triggerTriggerFilterObjectWithRefs_*_*_*'
     ) )
 )
 
 HLTDebugFEVT = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
-        'keep *_hltParticleTransformerONNXJetTags_*_*',
-        'keep *_hltParticleTransformerDiscriminatorsJetTags_*_*',
         'keep *RecHit*_hltSiPixelRecHitsSoASerialSync_*_*',
         'keep *RecHit*_hltSiPixelRecHitsSoA_*_*',
         'keep *_hltAK4CaloJetsCorrectedIDPassed_*_*',
@@ -406,6 +400,7 @@ HLTDebugFEVT = cms.PSet(
         'keep *_hltMuonDTDigis_*_*',
         'keep *_hltMuonRPCDigis_*_*',
         'keep *_hltOnlineBeamSpot_*_*',
+        'keep *_hltOnlineMetaDataDigis_*_*',
         'keep *_hltPFJetForBtag_*_*',
         'keep *_hltPFJetForPNetAK8_*_*',
         'keep *_hltPFJetsCorrectedMatchedToCaloJets10AK8_*_*',
@@ -438,6 +433,13 @@ HLTDebugFEVT = cms.PSet(
         'keep *_hltPixelVerticesSoA_*_*',
         'keep *_hltPixelVertices_*_*',
         'keep *_hltRpcRecHits_*_*',
+        'keep *_hltScoutingEgammaPacker_*_*',
+        'keep *_hltScoutingMuonPackerNoVtx_*_*',
+        'keep *_hltScoutingMuonPackerVtx_*_*',
+        'keep *_hltScoutingPFPacker_*_*',
+        'keep *_hltScoutingPrimaryVertexPacker_*_*',
+        'keep *_hltScoutingRecHitPacker_*_*',
+        'keep *_hltScoutingTrackPacker_*_*',
         'keep *_hltSelector4CentralJetsL1FastJet_*_*',
         'keep *_hltSelectorJets20L1FastJet_*_*',
         'keep *_hltSiPixelClustersAfterSplittingPPOnAA_*_*',
@@ -458,6 +460,8 @@ HLTDebugFEVT = cms.PSet(
         'keep *_hltVerticesPFFilterPPOnAA_*_*',
         'keep *_hltVerticesPFFilter_*_*',
         'keep *_hltVerticesPFSelector_*_*',
+        'keep CTPPSDiamondDigiedmDetSetVector_hltCTPPSDiamondRawToDigi_*_*',
+        'keep CTPPSPixelDigiedmDetSetVector_hltCTPPSPixelDigis_*_*',
         'keep DetIds_hltSiStripRawToDigi_*_*',
         'keep FEDRawDataCollection_rawDataCollector_*_*',
         'keep FEDRawDataCollection_rawDataRepacker_*_*',
@@ -481,18 +485,7 @@ HLTDebugFEVT = cms.PSet(
         'keep recoRecoEcalCandidates_*_*_*',
         'keep triggerTriggerEventWithRefs_*_*_*',
         'keep triggerTriggerEvent_*_*_*',
-        'keep triggerTriggerFilterObjectWithRefs_*_*_*',
-        'keep *_hltFEDSelectorL1_*_*',
-        'keep *_hltScoutingEgammaPacker_*_*',
-        'keep *_hltScoutingMuonPackerNoVtx_*_*',
-        'keep *_hltScoutingMuonPackerVtx_*_*',
-        'keep *_hltScoutingPFPacker_*_*',
-        'keep *_hltScoutingPrimaryVertexPacker_*_*',
-        'keep *_hltScoutingRecHitPacker_*_*',
-        'keep *_hltScoutingTrackPacker_*_*',
-        'keep CTPPSDiamondDigiedmDetSetVector_hltCTPPSDiamondRawToDigi_*_*',
-        'keep CTPPSPixelDigiedmDetSetVector_hltCTPPSPixelDigis_*_*',
-        'keep edmTriggerResults_*_*_*'
+        'keep triggerTriggerFilterObjectWithRefs_*_*_*'
     ) )
 )
 
