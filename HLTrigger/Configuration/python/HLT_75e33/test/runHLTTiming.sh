@@ -148,7 +148,9 @@ run_benchmark() {
         -j 8 -t 16 -s 16 \
         -e ${EVENTS} \
         --no-input-benchmark \
-        --slot "numa=0-3:mem=0-3" \
+        --slot "numa=0-3:mem=0-3:nv=0" \
+        --slot "numa=0-3:mem=0-3:nv=1" \
+        --nvidia-mps \
         --event-skip 100 \
         --event-resolution 10 \
         --output-log \
