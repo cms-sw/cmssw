@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
@@ -17,8 +19,6 @@
 #include "DataFormats/HGCalReco/interface/HGCalSoARecHitsExtraHostCollection.h"
 #include "DataFormats/HGCalReco/interface/HGCalSoARecHitsHostCollection.h"
 
-#include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
-
 #define DEBUG_CLUSTERS_ALPAKA 0
 
 #if DEBUG_CLUSTERS_ALPAKA
@@ -32,7 +32,6 @@ public:
         getTokenSoACells_(consumes(config.getParameter<edm::InputTag>("hgcalRecHitsSoA"))),
         getTokenSoARecHitsExtra_(consumes(config.getParameter<edm::InputTag>("hgcalRecHitsLayerClustersSoA"))),
         detector_(config.getParameter<std::string>("detector")),
-        hitsTime_(config.getParameter<unsigned int>("nHitsTime")),
         timeClname_(config.getParameter<std::string>("timeClname")) {
 #if DEBUG_CLUSTERS_ALPAKA
     moduleLabel_ = config.getParameter<std::string>("@module_label");
@@ -65,14 +64,8 @@ public:
 
     auto const deviceView = deviceData.view();
 
-    std::unique_ptr<std::vector<reco::BasicCluster>> clusters(new std::vector<reco::BasicCluster>);
+    std::unique_ptr<std::vector<reco::BasicCluster>> clusters = std::make_unique<std::vector<reco::BasicCluster>>();
     clusters->reserve(deviceData->metadata().size()[0u]);
-
-    // Create a vector of <clusters> locations, where each location holds a
-    // vector of <nCells> floats. These vectors are used to compute the time for
-    // each cluster.
-    std::vector<std::vector<float>> times(deviceData->metadata().size()[0u]);
-    std::vector<std::vector<float>> timeErrors(deviceData->metadata().size()[0u]);
 
     for (auto i = 0; i < deviceData->metadata().size()[0u]; ++i) {
       std::vector<std::pair<DetId, float>> thisCluster;
@@ -84,12 +77,9 @@ public:
           std::move(thisCluster),
           algoId_);
       clusters->back().setSeed(deviceView.indexes()[i].seedID());
-      times[i].reserve(deviceView.position()[i].cells());
-      timeErrors[i].reserve(deviceView.position()[i].cells());
     }
 
-    // Populate hits and fractions required to compute the cluster's time.
-    // This procedure is complex and involves two SoAs: the original RecHits
+    // Populate hits and fractions. This involves two SoAs: the original RecHits
     // SoA and the clustering algorithm's output SoA. Both SoAs have the same
     // cardinality, and crucially, the output SoA includes the cluster index.
     for (int32_t i = 0; i < soaRecHitsExtra_v.metadata().size(); ++i) {
@@ -98,24 +88,13 @@ public:
       }
       assert(soaRecHitsExtra_v[i].clusterIndex() < (int)clusters->size());
       (*clusters)[soaRecHitsExtra_v[i].clusterIndex()].addHitAndFraction(soaCells_v[i].detid(), 1.f);
-      if (soaCells_v[i].timeError() < 0.f) {
-        continue;
-      }
-      times[soaRecHitsExtra_v[i].clusterIndex()].push_back(soaCells_v[i].time());
-      timeErrors[soaRecHitsExtra_v[i].clusterIndex()].push_back(
-          1.f / (soaCells_v[i].timeError() * soaCells_v[i].timeError()));
     }
 
-    // Finally, compute and assign the time to each cluster.
+    // The time of each cluster is computed on the device by HGCalSoALayerClustersProducer
     std::vector<std::pair<float, float>> cluster_times;
     cluster_times.reserve(clusters->size());
-    hgcalsimclustertime::ComputeClusterTime timeEstimator;
     for (unsigned i = 0; i < clusters->size(); ++i) {
-      if (detector_ != "BH") {
-        cluster_times.push_back(timeEstimator.fixSizeHighestDensity(times[i], timeErrors[i], hitsTime_));
-      } else {
-        cluster_times.push_back(std::pair<float, float>(-99.f, -1.f));
-      }
+      cluster_times.emplace_back(deviceView.timing()[i].time(), deviceView.timing()[i].timeError());
     }
 
 #if DEBUG_CLUSTERS_ALPAKA
@@ -147,7 +126,7 @@ public:
     // since there is no further merging step needed, we create the
     // layerClustersMask directly here.
     if (detector_ == "HFNose") {
-      std::unique_ptr<std::vector<float>> layerClustersMask(new std::vector<float>);
+      std::unique_ptr<std::vector<float>> layerClustersMask = std::make_unique<std::vector<float>>();
       layerClustersMask->resize(clusterHandle->size(), 1.0);
       iEvent.put(std::move(layerClustersMask), "InitialLayerClustersMask");
     }
@@ -158,7 +137,6 @@ public:
     desc.add<edm::InputTag>("src", edm::InputTag("hltHgcalSoALayerClustersProducer"));
     desc.add<edm::InputTag>("hgcalRecHitsLayerClustersSoA", edm::InputTag("hltHgcalSoARecHitsLayerClustersProducer"));
     desc.add<edm::InputTag>("hgcalRecHitsSoA", edm::InputTag("hltHgcalSoARecHitsProducer"));
-    desc.add<unsigned int>("nHitsTime", 3);
     desc.add<std::string>("timeClname", "timeLayerCluster");
     desc.ifValue(edm::ParameterDescription<std::string>(
                      "detector", "EE", true, edm::Comment("the HGCAL component used to create clusters.")),
@@ -171,7 +149,6 @@ private:
   edm::EDGetTokenT<HGCalSoARecHitsHostCollection> const getTokenSoACells_;
   edm::EDGetTokenT<HGCalSoARecHitsExtraHostCollection> const getTokenSoARecHitsExtra_;
   std::string detector_;
-  unsigned int hitsTime_;
   std::string timeClname_;
   reco::CaloCluster::AlgoId algoId_;
 #if DEBUG_CLUSTERS_ALPAKA

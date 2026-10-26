@@ -1,82 +1,58 @@
-#include "DataFormats/HGCalReco/interface/HGCalSoAClusters.h"
-#include "DataFormats/HGCalReco/interface/HGCalSoARecHitsHostCollection.h"
-#include "DataFormats/HGCalReco/interface/alpaka/HGCalSoAClustersDeviceCollection.h"
-#include "DataFormats/HGCalReco/interface/alpaka/HGCalSoARecHitsExtraDeviceCollection.h"
+#include <string>
+#include <utility>
+
 #include "DataFormats/CaloRecHit/interface/alpaka/CaloClusterDeviceCollection.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/HGCalReco/interface/alpaka/HGCalSoARecHitsDeviceCollection.h"
+#include "DataFormats/HGCalReco/interface/alpaka/HGCalSoARecHitsExtraDeviceCollection.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/SynchronizingEDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalSoAClustersExtra.h"
-#include "RecoTICL/LayerClustering/interface/HGCalTilesConstants.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
 #include "HGCalLayerClustersSoAAlgoWrapper.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
+  // Builds the layer clusters of one HGCAL component (energy, number of cells, seed, position and time) from its
+  // rechits and their clustering (the layer cluster and the seed flag of each rechit)
   class HGCalSoALayerClustersProducer : public stream::SynchronizingEDProducer<> {
   public:
     HGCalSoALayerClustersProducer(edm::ParameterSet const& config)
         : SynchronizingEDProducer(config),
-          getTokenDeviceRecHits_{consumes(config.getParameter<edm::InputTag>("hgcalRecHitsSoA"))},
-          getTokenDeviceClusters_{consumes(config.getParameter<edm::InputTag>("hgcalRecHitsLayerClustersSoA"))},
-          deviceTokenSoAClusters_{produces()},
+          recHitsToken_{consumes(config.getParameter<edm::InputTag>("hgcalRecHitsSoA"))},
+          recHitsClusteringToken_{consumes(config.getParameter<edm::InputTag>("hgcalRecHitsLayerClustersSoA"))},
+          layerClustersToken_{produces()},
           thresholdW0_(config.getParameter<float>("thresholdW0")),
           positionDeltaRho2_(config.getParameter<float>("positionDeltaRho2")),
-          isScintillator_(config.getParameter<std::string>("detector") == "BH") {}
+          isScintillator_(config.getParameter<std::string>("detector") == "BH"),
+          nHitsTime_(config.getParameter<unsigned int>("nHitsTime")) {}
 
-    ~HGCalSoALayerClustersProducer() override = default;
-
-    void acquire(device::Event const& iEvent, device::EventSetup const& iSetup) override {
-      // Get LayerClusters almost-SoA on device: this has still the same
-      // cardinality as the RecHitsSoA, but has all the required information
-      // to assemble the clusters, i.e., it has the cluster index assigned to
-      // each rechit.
-      auto const& deviceInputClusters = iEvent.get(getTokenDeviceClusters_);
-      auto const inputClusters_v = deviceInputClusters.view();
-      //
-      // Allocate output SoA for the clusters, one entry for each cluster
-      auto device_numclusters = cms::alpakatools::make_device_view<const unsigned int>(
-          alpaka::getDev(iEvent.queue()), inputClusters_v.numberOfClustersScalar());
-      auto host_numclusters = cms::alpakatools::make_host_view<unsigned int>(num_clusters_);
-      alpaka::memcpy(iEvent.queue(), host_numclusters, device_numclusters);
+    // The number of layer clusters is on the device, and the host needs it to allocate them
+    void acquire(const device::Event& iEvent, const device::EventSetup&) override {
+      const auto recHitsClustering = iEvent.get(recHitsClusteringToken_).view();
+      alpaka::memcpy(iEvent.queue(),
+                     cms::alpakatools::make_host_view<unsigned int>(nLayerClusters_),
+                     cms::alpakatools::make_device_view<const unsigned int>(
+                         alpaka::getDev(iEvent.queue()), recHitsClustering.numberOfClustersScalar()));
     }
 
-    void produce(device::Event& iEvent, device::EventSetup const& iSetup) override {
-      // Get RecHitsSoA on the device
-      auto const& deviceInputRecHits = iEvent.get(getTokenDeviceRecHits_);
-      auto const inputRechits_v = deviceInputRecHits.view();
-
-      // Get LayerClusters almost-SoA on device: this has still the same
-      // cardinality as the RecHitsSoA, but has all the required information
-      // to assemble the clusters, i.e., it has the cluster index assigned to
-      // each rechit.
-      auto const& deviceInputClusters = iEvent.get(getTokenDeviceClusters_);
-      auto const inputClusters_v = deviceInputClusters.view();
-
-      reco::CaloClusterDeviceCollection output(
-          iEvent.queue(), num_clusters_, num_clusters_, num_clusters_, num_clusters_);
-      auto output_v = output.view();
-      // Allocate workspace SoA cluster
-      HGCalSoAClustersExtraDeviceCollection outputWorkspace(iEvent.queue(), num_clusters_);
-      auto output_workspace_v = outputWorkspace.view();
-
+    void produce(device::Event& iEvent, const device::EventSetup&) override {
+      reco::CaloClusterDeviceCollection layerClusters(
+          iEvent.queue(), nLayerClusters_, nLayerClusters_, nLayerClusters_, nLayerClusters_);
       algo_.run(iEvent.queue(),
-                num_clusters_,
+                nLayerClusters_,
                 thresholdW0_,
                 positionDeltaRho2_,
                 isScintillator_,
-                inputRechits_v,
-                inputClusters_v,
-                output_v,
-                output_workspace_v);
-      iEvent.emplace(deviceTokenSoAClusters_, std::move(output));
+                nHitsTime_,
+                iEvent.get(recHitsToken_).view(),
+                iEvent.get(recHitsClusteringToken_).view(),
+                layerClusters.view());
+      iEvent.emplace(layerClustersToken_, std::move(layerClusters));
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -87,18 +63,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       desc.add<float>("positionDeltaRho2", 1.69);
       desc.add<std::string>("detector", "EE")
           ->setComment("HGCAL component; 'BH' computes the scintillator centroid in cartesian (eta,phi->x,y).");
+      desc.add<unsigned int>("nHitsTime", 3)
+          ->setComment("Minimum number of rechits with a time for a layer cluster to get a time.");
       descriptions.addWithDefaultLabel(desc);
     }
 
   private:
-    device::EDGetToken<HGCalSoARecHitsDeviceCollection> const getTokenDeviceRecHits_;
-    device::EDGetToken<HGCalSoARecHitsExtraDeviceCollection> const getTokenDeviceClusters_;
-    device::EDPutToken<reco::CaloClusterDeviceCollection> const deviceTokenSoAClusters_;
-    HGCalLayerClustersSoAAlgoWrapper algo_;
-    unsigned int num_clusters_;
-    float thresholdW0_;
-    float positionDeltaRho2_;
+    const device::EDGetToken<HGCalSoARecHitsDeviceCollection> recHitsToken_;
+    const device::EDGetToken<HGCalSoARecHitsExtraDeviceCollection> recHitsClusteringToken_;
+    const device::EDPutToken<reco::CaloClusterDeviceCollection> layerClustersToken_;
+    const float thresholdW0_;
+    const float positionDeltaRho2_;
     const bool isScintillator_;
+    const unsigned int nHitsTime_;
+    const HGCalLayerClustersSoAAlgoWrapper algo_{};
+    // copied from the device in acquire, used in produce
+    unsigned int nLayerClusters_ = 0;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
