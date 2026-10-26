@@ -484,9 +484,10 @@ private:
   std::vector<AtomicResources> run_transition_;   // resources spent in the modules' global and stream run transitions
 
   // summary data
-  ResourcesPerJob job_summary_;               // whole event time accounting per-job
-  std::vector<ResourcesPerJob> run_summary_;  // whole event time accounting per-run
-  std::mutex summary_mutex_;                  // synchronise access to the summary objects across different threads
+  ResourcesPerJob job_summary_;                // whole event time accounting per-job
+  std::vector<ResourcesPerJob> run_summary_;   // whole event time accounting per-run
+  std::vector<ResourcesPerJob> lumi_summary_;  // whole event time accounting per-lumi, only if print_lumi_summary_
+  std::mutex summary_mutex_;                   // synchronise access to the summary objects across different threads
 
   // per-thread measurements, kept in thread-specific storage; each accessor looks them up once, and registers the
   // calling thread the first time it is seen
@@ -544,6 +545,7 @@ private:
 
   // logging configuration
   const bool print_event_summary_;  // print the time spent in each process, path and module after every event
+  const bool print_lumi_summary_;   // print the time spent in each process, path and module for each lumisection
   const bool print_run_summary_;    // print the time spent in each process, path and module for each run
   const bool print_job_summary_;    // print the time spent in each process, path and module for the whole job
 

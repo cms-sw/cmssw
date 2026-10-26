@@ -776,6 +776,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet& config, edm::Activit
       concurrent_streams_(0),
       concurrent_threads_(0),
       print_event_summary_(config.getUntrackedParameter<bool>("printEventSummary")),
+      print_lumi_summary_(config.getUntrackedParameter<bool>("printLumiSummary")),
       print_run_summary_(config.getUntrackedParameter<bool>("printRunSummary")),
       print_job_summary_(config.getUntrackedParameter<bool>("printJobSummary")),
       // JSON configuration
@@ -937,6 +938,9 @@ void FastTimerService::finalizeEventMeasurement(edm::StreamContext const& sc) {
     std::lock_guard<std::mutex> guard(summary_mutex_);
     job_summary_ += stream;
     run_summary_[sc.runIndex()] += stream;
+    if (print_lumi_summary_) {
+      lumi_summary_[sc.luminosityBlockIndex()] += stream;
+    }
   }
 
   if (print_event_summary_) {
@@ -1067,6 +1071,9 @@ void FastTimerService::lookupInitializationComplete(edm::PathsAndConsumesOfModul
   ResourcesPerJob temp(callgraph_, highlight_modules_);
   streams_.resize(concurrent_streams_, temp);
   run_summary_.resize(concurrent_runs_, temp);
+  if (print_lumi_summary_) {
+    lumi_summary_.resize(concurrent_lumis_, temp);
+  }
   job_summary_ = temp;
 
   // check that the DQMStore service is available
@@ -1094,6 +1101,9 @@ void FastTimerService::preGlobalBeginLumi(edm::GlobalContext const& gc) {
   // reset the lumi counters
   auto index = gc.luminosityBlockIndex();
   lumi_transition_[index].reset();
+  if (print_lumi_summary_) {
+    lumi_summary_[index].reset();
+  }
 }
 
 void FastTimerService::postGlobalBeginLumi(edm::GlobalContext const& gc) { ignoredSignal(__func__); }
@@ -1106,10 +1116,13 @@ void FastTimerService::postGlobalEndLumi(edm::GlobalContext const& gc) {
   // handle the summaries
   auto index = gc.luminosityBlockIndex();
 
-  edm::LogVerbatim out("FastReport");
-  auto const& label =
-      fmt::sprintf("run %d, lumisection %d", gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock());
-  printTransition(out, lumi_transition_[index], label);
+  if (print_lumi_summary_) {
+    edm::LogVerbatim out("FastReport");
+    auto const& label =
+        fmt::sprintf("run %d, lumisection %d", gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock());
+    printSummary(out, lumi_summary_[index], label);
+    printTransition(out, lumi_transition_[index], label);
+  }
 
   if (enable_dqm_ and enable_dqm_transitions_) {
     plots_->fill_lumi(lumi_transition_[index], gc.luminosityBlockID().luminosityBlock());
@@ -1132,12 +1145,12 @@ void FastTimerService::postGlobalEndRun(edm::GlobalContext const& gc) {
   // handle the summaries
   auto index = gc.runIndex();
 
-  edm::LogVerbatim out("FastReport");
-  auto const& label = fmt::sprintf("run %d", gc.luminosityBlockID().run());
   if (print_run_summary_) {
+    edm::LogVerbatim out("FastReport");
+    auto const& label = fmt::sprintf("run %d", gc.luminosityBlockID().run());
     printSummary(out, run_summary_[index], label);
+    printTransition(out, run_transition_[index], label);
   }
-  printTransition(out, run_transition_[index], label);
 
   if (enable_dqm_ and enable_dqm_transitions_) {
     plots_->fill_run(run_transition_[index]);
@@ -1831,6 +1844,7 @@ FastTimerService::Measurement& FastTimerService::thread() { return guard_.thread
 void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<bool>("printEventSummary", false);
+  desc.addUntracked<bool>("printLumiSummary", false);
   desc.addUntracked<bool>("printRunSummary", true);
   desc.addUntracked<bool>("printJobSummary", true);
   // JSON configuration
