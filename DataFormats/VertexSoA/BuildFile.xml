@@ -1,5 +1,4 @@
 <use name="alpaka"/>
-<use name="eigen"/>
 <use name="rootcling"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Portable"/>
