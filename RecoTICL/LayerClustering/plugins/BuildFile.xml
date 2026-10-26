@@ -39,11 +39,9 @@
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="RecoLocalCalo/HGCalRecAlgos"/>
-  <use name="RecoLocalCalo/HGCalRecProducers"/>
   <use name="RecoTICL/LayerClustering"/>
   <use name="alpaka"/>
   <use name="cluestering"/>
-  <use name="xtd"/>
   <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
 </library>

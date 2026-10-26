@@ -17,41 +17,39 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
+  // Clusters the rechits of one HGCAL component, layer by layer, with CLUEstering: produces the layer cluster and the
+  // seed flag of each rechit, and the number of layer clusters
   class HGCalCLUEsteringLayerClustersProducer : public stream::EDProducer<> {
   public:
-    HGCalCLUEsteringLayerClustersProducer(edm::ParameterSet const& config)
+    HGCalCLUEsteringLayerClustersProducer(const edm::ParameterSet& config)
         : EDProducer(config),
-          getTokenDevice_{consumes(config.getParameter<edm::InputTag>("hgcalRecHitsSoA"))},
-          getTokenLayerSizes_{consumes<std::vector<uint32_t>>(
+          recHitsToken_{consumes(config.getParameter<edm::InputTag>("hgcalRecHitsSoA"))},
+          layerSizesToken_{consumes<std::vector<uint32_t>>(
               edm::InputTag(config.getParameter<edm::InputTag>("hgcalRecHitsSoA").label(), "layerSizes"))},
-          deviceToken_{produces()},
+          recHitsClusteringToken_{produces()},
           deltac_(config.getParameter<float>("deltac")),
           kappa_(config.getParameter<float>("kappa")),
           outlierDeltaFactor_(config.getParameter<float>("outlierDeltaFactor")),
           isScintillator_(config.getParameter<std::string>("detector") == "BH") {}
 
-    ~HGCalCLUEsteringLayerClustersProducer() override = default;
-
-    void produce(device::Event& iEvent, device::EventSetup const& iSetup) override {
-      auto const& deviceInput = iEvent.get(getTokenDevice_);
-      auto const input_v = deviceInput.view();
+    void produce(device::Event& iEvent, const device::EventSetup&) override {
+      const auto& recHits = iEvent.get(recHitsToken_);
       // Per-layer batch sizes computed upstream by the rechit producer (the SoA
       // is emitted layer-contiguous), used directly as the CLUEstering batch sizes.
-      auto const& layerSizes = iEvent.get(getTokenLayerSizes_);
-      // Allocate output SoA, same size as the input RecHit SoA.
-      HGCalSoARecHitsExtraDeviceCollection output(iEvent.queue(), deviceInput->metadata().size());
-      auto output_v = output.view();
+      const auto& layerSizes = iEvent.get(layerSizesToken_);
+      // One row per rechit, like the rechit SoA
+      HGCalSoARecHitsExtraDeviceCollection recHitsClustering(iEvent.queue(), recHits->metadata().size());
 
       algo_.run(iEvent.queue(),
-                deviceInput->metadata().size(),
+                recHits->metadata().size(),
                 deltac_,
                 kappa_,
                 outlierDeltaFactor_,
                 isScintillator_,
                 std::span<const uint32_t>(layerSizes),
-                input_v,
-                output_v);
-      iEvent.emplace(deviceToken_, std::move(output));
+                recHits.view(),
+                recHitsClustering.view());
+      iEvent.emplace(recHitsClusteringToken_, std::move(recHitsClustering));
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -66,14 +64,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
   private:
-    device::EDGetToken<HGCalSoARecHitsDeviceCollection> const getTokenDevice_;
-    edm::EDGetTokenT<std::vector<uint32_t>> const getTokenLayerSizes_;
-    device::EDPutToken<HGCalSoARecHitsExtraDeviceCollection> const deviceToken_;
-    HGCalCLUEsteringAlgoWrapper algo_;
+    const device::EDGetToken<HGCalSoARecHitsDeviceCollection> recHitsToken_;
+    const edm::EDGetTokenT<std::vector<uint32_t>> layerSizesToken_;
+    const device::EDPutToken<HGCalSoARecHitsExtraDeviceCollection> recHitsClusteringToken_;
     const float deltac_;
     const float kappa_;
     const float outlierDeltaFactor_;
     const bool isScintillator_;
+    const HGCalCLUEsteringAlgoWrapper algo_{};
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

@@ -112,8 +112,7 @@ hgcalLayerClustersHFNose = hgCalLayerClustersFromSoAProducer.clone(
     src = 'hgcalSoALayerClustersHFNose',
     hgcalRecHitsSoA = 'hgcalSoARecHitsHFNose',
     hgcalRecHitsLayerClustersSoA = 'hgcalCLUEsteringHFNose',
-    detector = 'HFNose',
-    nHitsTime = 3)
+    detector = 'HFNose')
 
 _v19SiSoAParams = dict(
     maxNumberOfThickIndices = 8,
