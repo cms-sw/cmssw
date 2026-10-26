@@ -80,7 +80,7 @@
 
  <class name="edm::Ref<L1MuKBMTCombinedStubCollection>" splitLevel="0"/>
  <class name="edm::Wrapper<edm::Ref<L1MuKBMTCombinedStubCollection > >"/>
-
+ <class name="std::vector<edm::Ref<std::vector<L1MuKBMTCombinedStub>,L1MuKBMTCombinedStub,edm::refhelper::FindUsingAdvance<std::vector<L1MuKBMTCombinedStub>,L1MuKBMTCombinedStub> > >"/>
 
 
   <class name="L1MuBMTrack" ClassVersion="15">
