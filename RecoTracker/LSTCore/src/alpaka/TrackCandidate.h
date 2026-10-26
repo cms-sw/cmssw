@@ -460,14 +460,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       unsigned int nPixelQuintuplets = pixelQuintuplets.nPixelQuintuplets();
       for (unsigned int i : cms::alpakatools::uniform_elements(acc, nPixelQuintuplets)) {
         if (!pixelQuintuplets.isDup()[i])
-          alpaka::atomicAdd(acc, &nSurviving[0], 1u, alpaka::hierarchy::Threads{});
+          alpaka::atomicAdd(acc, &nSurviving[0], 1u, alpaka::hierarchy::Blocks{});
       }
 
       // Count surviving pT3s
       unsigned int nPixelTriplets = pixelTriplets.nPixelTriplets();
       for (unsigned int i : cms::alpakatools::uniform_elements(acc, nPixelTriplets)) {
         if (!pixelTriplets.isDup()[i])
-          alpaka::atomicAdd(acc, &nSurviving[1], 1u, alpaka::hierarchy::Threads{});
+          alpaka::atomicAdd(acc, &nSurviving[1], 1u, alpaka::hierarchy::Blocks{});
       }
 
       // Count surviving T5s
@@ -478,7 +478,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         for (unsigned int jdx = 0; jdx < nQuints; ++jdx) {
           unsigned int quintupletIndex = ranges.quintupletModuleIndices()[idx] + jdx;
           if (!quintuplets.isDup()[quintupletIndex] && !quintuplets.partOfPT5()[quintupletIndex])
-            alpaka::atomicAdd(acc, &nSurviving[2], 1u, alpaka::hierarchy::Threads{});
+            alpaka::atomicAdd(acc, &nSurviving[2], 1u, alpaka::hierarchy::Blocks{});
         }
       }
 
@@ -490,7 +490,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         for (unsigned int jdx = 0; jdx < nQuads; ++jdx) {
           unsigned int quadrupletIndex = ranges.quadrupletModuleIndices()[idx] + jdx;
           if (!quadruplets.isDup()[quadrupletIndex])
-            alpaka::atomicAdd(acc, &nSurviving[3], 1u, alpaka::hierarchy::Threads{});
+            alpaka::atomicAdd(acc, &nSurviving[3], 1u, alpaka::hierarchy::Blocks{});
         }
       }
 
@@ -498,7 +498,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       unsigned int nPixels = segmentsOccupancy.nSegments()[nLowerModules];
       for (unsigned int i : cms::alpakatools::uniform_elements(acc, nPixels)) {
         if ((tc_pls_triplets || pixelSeeds.isQuad()[i]) && !pixelSegments.isDup()[i])
-          alpaka::atomicAdd(acc, &nSurviving[4], 1u, alpaka::hierarchy::Threads{});
+          alpaka::atomicAdd(acc, &nSurviving[4], 1u, alpaka::hierarchy::Blocks{});
       }
     }
   };
@@ -575,15 +575,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             continue;
 
           unsigned int trackCandidateIdx =
-              alpaka::atomicAdd(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
+              alpaka::atomicAdd(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Blocks{});
           if (trackCandidateIdx >= nAllocated) {
 #ifdef WARNINGS
             printf("Track Candidate excess alert! Type = T5");
 #endif
-            alpaka::atomicSub(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
+            alpaka::atomicSub(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Blocks{});
             break;
           } else {
-            alpaka::atomicAdd(acc, &candsExtended.nTrackCandidatesT5(), 1u, alpaka::hierarchy::Threads{});
+            alpaka::atomicAdd(acc, &candsExtended.nTrackCandidatesT5(), 1u, alpaka::hierarchy::Blocks{});
             addTrackCandidateToMemory(candsBase,
                                       candsExtended,
                                       LSTObjType::T5,
@@ -620,16 +620,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           continue;
 
         unsigned int trackCandidateIdx =
-            alpaka::atomicAdd(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
+            alpaka::atomicAdd(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Blocks{});
         if (trackCandidateIdx >= nAllocated) {
 #ifdef WARNINGS
           printf("Track Candidate excess alert! Type = pLS");
 #endif
-          alpaka::atomicSub(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
+          alpaka::atomicSub(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Blocks{});
           break;
 
         } else {
-          alpaka::atomicAdd(acc, &candsExtended.nTrackCandidatespLS(), 1u, alpaka::hierarchy::Threads{});
+          alpaka::atomicAdd(acc, &candsExtended.nTrackCandidatespLS(), 1u, alpaka::hierarchy::Blocks{});
           addpLSTrackCandidateToMemory(candsBase,
                                        candsExtended,
                                        pixelArrayIndex,
@@ -720,15 +720,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             continue;
 
           unsigned int trackCandidateIdx =
-              alpaka::atomicAdd(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
+              alpaka::atomicAdd(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Blocks{});
           if (trackCandidateIdx >= nAllocated) {
 #ifdef WARNINGS
             printf("Track Candidate excess alert! Type = T4");
 #endif
-            alpaka::atomicSub(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
+            alpaka::atomicSub(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Blocks{});
             break;
           } else {
-            alpaka::atomicAdd(acc, &candsExtended.nTrackCandidatesT4(), 1u, alpaka::hierarchy::Threads{});
+            alpaka::atomicAdd(acc, &candsExtended.nTrackCandidatesT4(), 1u, alpaka::hierarchy::Blocks{});
             addTrackCandidateToMemory(candsBase,
                                       candsExtended,
                                       LSTObjType::T4,

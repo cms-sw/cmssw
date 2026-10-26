@@ -75,14 +75,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                       &(hitsRanges.hitRanges()[lastModuleIndex][0]),
                                       -1,
                                       static_cast<int>(ihit),
-                                      alpaka::hierarchy::Threads{});
+                                      alpaka::hierarchy::Blocks{});
           // For subsequent visits, stores the min value.
           if (old != -1)
             alpaka::atomicMin(
-                acc, &hitsRanges.hitRanges()[lastModuleIndex][0], static_cast<int>(ihit), alpaka::hierarchy::Threads{});
+                acc, &hitsRanges.hitRanges()[lastModuleIndex][0], static_cast<int>(ihit), alpaka::hierarchy::Blocks{});
 
           alpaka::atomicMax(
-              acc, &hitsRanges.hitRanges()[lastModuleIndex][1], static_cast<int>(ihit), alpaka::hierarchy::Threads{});
+              acc, &hitsRanges.hitRanges()[lastModuleIndex][1], static_cast<int>(ihit), alpaka::hierarchy::Blocks{});
         }
       }
     }
