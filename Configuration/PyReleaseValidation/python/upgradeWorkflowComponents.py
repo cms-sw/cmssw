@@ -693,6 +693,43 @@ upgradeWFs['siPixelGoodEdgeAlgo'] = UpgradeWorkflow_siPixelGoodEdgeAlgo(
     offset = 0.186,
 )
 
+class UpgradeWorkflow_pixelNNCPE(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if "Reco" in step:
+            stepDict[stepName][k] = merge(
+                [
+                    {
+                        "--customise": "RecoLocalTracker/SiPixelRecHits/customizePixelCPENN.customizePixelCPENN"
+                    },
+                    stepDict[step][k],
+                ]
+            )
+
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment == "TTbar_14TeV" and key in ["2025", "2025PU"]
+
+upgradeWFs["pixelNNCPE"] = UpgradeWorkflow_pixelNNCPE(
+    steps=[
+        "Reco",
+        "RecoFakeHLT",
+        "RecoGlobal",
+        "RecoGlobalFakeHLT",
+        "RecoNano",
+        "RecoNanoFakeHLT",
+    ],
+    PU=[
+        "Reco",
+        "RecoFakeHLT",
+        "RecoGlobal",
+        "RecoGlobalFakeHLT",
+        "RecoNano",
+        "RecoNanoFakeHLT",
+    ],
+    suffix="_pixelNNCPE",
+    offset=0.187,
+)
+
+
 #Workflow to enable displacedRegionalStep tracking iteration
 class UpgradeWorkflow_displacedRegional(UpgradeWorkflowTracking):
     def setup__(self, step, stepName, stepDict, k, properties):
