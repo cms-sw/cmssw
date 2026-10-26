@@ -60,6 +60,7 @@
    <version ClassVersion="11" checksum="4176894391"/>
    <version ClassVersion="10" checksum="103124692"/>
   </class>
+  <class name="std::vector<Point3DBase<float,LocalTag> >"/>
   <class name="Vector2DBase<float,LocalTag>" ClassVersion="11">
    <version ClassVersion="11" checksum="1674632992"/>
    <version ClassVersion="10" checksum="2683233520"/>
@@ -68,6 +69,7 @@
    <version ClassVersion="11" checksum="3937908268"/>
    <version ClassVersion="10" checksum="4046292710"/>
   </class>
+  <class name="std::vector<Vector3DBase<float,LocalTag> >"/>
   <class name="PV2DBase<float,PointTag,GlobalTag>" ClassVersion="10">
    <version ClassVersion="10" checksum="3486336729"/>
   </class>

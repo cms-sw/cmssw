@@ -83,6 +83,7 @@
  <class name="std::vector<edm::Ref<std::vector<L1MuKBMTCombinedStub>,L1MuKBMTCombinedStub,edm::refhelper::FindUsingAdvance<std::vector<L1MuKBMTCombinedStub>,L1MuKBMTCombinedStub> > >"/>
 
 
+
   <class name="L1MuBMTrack" ClassVersion="15">
    <version ClassVersion="15" checksum="99482231"/>
    <version ClassVersion="14" checksum="2164413511"/>
