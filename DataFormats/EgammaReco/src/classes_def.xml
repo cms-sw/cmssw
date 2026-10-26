@@ -104,6 +104,7 @@
   <class name="reco::ElectronSeed::PMVars" ClassVersion="3">
     <version ClassVersion="3" checksum="1322802316"/>
   </class>
+  <class name="std::vector<reco::ElectronSeed::PMVars>"/>
 
   <class name="std::vector<reco::ElectronSeed>"/>
   <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronSeed>,reco::ElectronSeed>"/>
