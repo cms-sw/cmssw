@@ -7,10 +7,6 @@
   <flags NO_TESTRUN="1"/>
 </bin>
 
-<bin file="test_catch2HRTime.cc,test_catch2_main.cc" name="testFWCoreUtilitiesHRTime">
-  <use name="catch2"/>
-</bin>
-
 <bin file="test_catch2Slow_cputimer.cc,test_catch2_main.cc" name="testFWCoreUtilitiesCPUTimer">
   <use name="catch2"/>
 </bin>
