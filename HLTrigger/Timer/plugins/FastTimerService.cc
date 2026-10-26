@@ -1133,6 +1133,11 @@ void FastTimerService::postEndJob() {
   // stop observing to avoid potential race conditions at exit
   tbb::task_scheduler_observer::observe(false);
   guard_.finalize();
+  if (auto unobserved = guard_.unobserved(); unobserved > 0) {
+    edm::LogWarning("FastTimerService") << unobserved
+                                        << " threads were first seen outside of the TBB arenas observed by the "
+                                           "FastTimerService, and were registered on their first measurement";
+  }
   // print the job summaries
   if (print_job_summary_) {
     edm::LogVerbatim out("FastReport");
@@ -1726,20 +1731,32 @@ FastTimerService::ThreadGuard::ThreadGuard() {
   }
 }
 
-// If this is a new thread, register it and return true
-bool FastTimerService::ThreadGuard::register_thread(FastTimerService::AtomicResources& r) {
-  auto ptr = ::pthread_getspecific(key_);
-
-  if (not ptr) {
-    auto it = thread_resources_.emplace_back(std::make_shared<specific_t>(r));
-    auto pp = new std::shared_ptr<specific_t>(*it);
-    auto err = ::pthread_setspecific(key_, pp);
-    if (err) {
-      throw cms::Exception("FastTimerService") << "ThreadGuard pthread_setspecific failed: " << ::strerror(err);
-    }
-    return true;
+// register the calling thread
+FastTimerService::Measurement& FastTimerService::ThreadGuard::register_thread(AtomicResources& r) {
+  auto it = thread_resources_.emplace_back(std::make_shared<specific_t>(r));
+  auto pp = new std::shared_ptr<specific_t>(*it);
+  auto err = ::pthread_setspecific(key_, pp);
+  if (err) {
+    throw cms::Exception("FastTimerService") << "ThreadGuard pthread_setspecific failed: " << ::strerror(err);
   }
-  return false;
+  return (*it)->measurement_;
+}
+
+FastTimerService::ThreadGuard::Entry FastTimerService::ThreadGuard::enter(AtomicResources& r) {
+  if (auto p = ::pthread_getspecific(key_)) [[likely]] {
+    return {(*ptr(p))->measurement_, false};
+  }
+  return {register_thread(r), true};
+}
+
+FastTimerService::Measurement& FastTimerService::ThreadGuard::thread(AtomicResources& r) {
+  if (auto p = ::pthread_getspecific(key_)) [[likely]] {
+    return (*ptr(p))->measurement_;
+  }
+  ++unobserved_;
+  Measurement& measurement = register_thread(r);
+  measurement.measure();
+  return measurement;
 }
 
 std::shared_ptr<FastTimerService::ThreadGuard::specific_t>* FastTimerService::ThreadGuard::ptr(void* p) {
@@ -1767,24 +1784,21 @@ void FastTimerService::ThreadGuard::finalize() {
   }
 }
 
-FastTimerService::Measurement& FastTimerService::ThreadGuard::thread() {
-  return (*ptr(::pthread_getspecific(key_)))->measurement_;
-}
-
 void FastTimerService::on_scheduler_entry(bool worker) {
-  // The AtomicResources passed to register_thread are used to account the resources
+  // The AtomicResources passed to the ThreadGuard are used to account the resources
   // used or freed by the thread after the last active measurement and before leaving the TBB pool.
-  if (guard_.register_thread(job_summary_.idle)) {
+  auto [measurement, registered] = guard_.enter(job_summary_.idle);
+  if (registered) {
     // initialise the measurement point for a thread that has newly joined the TBB pool
-    thread().measure();
+    measurement.measure();
   } else {
     // An existing thread is re-joining the TBB pool.
     // Note: unsure whether the resources used outside of the TBB pool should be
-    //   - not accounted:       thread().measure()
-    //   - considered as idle:  thread().measure_and_accumulate(job_summary_.idle)
-    //   - considered as other: thread().measure_and_accumulate(job_summary_.overhead)
+    //   - not accounted:       measurement.measure()
+    //   - considered as idle:  measurement.measure_and_accumulate(job_summary_.idle)
+    //   - considered as other: measurement.measure_and_accumulate(job_summary_.overhead)
     // FIXME "considered as other" has been seen to produce unreliable results; revert to "not accounted" for the time being.
-    thread().measure();
+    measurement.measure();
   }
 }
 
@@ -1793,7 +1807,7 @@ void FastTimerService::on_scheduler_exit(bool worker) {
   thread().measure_and_accumulate(job_summary_.idle);
 }
 
-FastTimerService::Measurement& FastTimerService::thread() { return guard_.thread(); }
+FastTimerService::Measurement& FastTimerService::thread() { return guard_.thread(job_summary_.idle); }
 
 // describe the module's configuration
 void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
