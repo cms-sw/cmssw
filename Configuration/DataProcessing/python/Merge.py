@@ -28,6 +28,7 @@ def mergeProcess(*inputFiles, **options):
     - output_file : sets the output file name
     - output_lfn : sets the output LFN
     - mergeNANO : to merge NanoAOD
+    - rntuple : use RNTuple source and output modules for EDM and NanoAOD merges
     - bypassVersionCheck : to bypass version check in case merging happened in lower version of CMSSW (i.e. UL HLT case). This will be FALSE by default.
 
     """
@@ -41,6 +42,7 @@ def mergeProcess(*inputFiles, **options):
     dropDQM = options.get("drop_dqm", False)
     newDQMIO = options.get("newDQMIO", False)
     mergeNANO = options.get("mergeNANO", False)
+    rntuple = options.get("rntuple", False)
     bypassVersionCheck = options.get("bypassVersionCheck", False)
     isL1Scouting = options.get("isL1Scouting", False)
     #  //
@@ -55,7 +57,7 @@ def mergeProcess(*inputFiles, **options):
         process.source = Source("DQMRootSource", reScope = CfgTypes.untracked.string(""))
         process.add_(Service("DQMStore"))
     else:
-        process.source = Source("PoolSource")
+        process.source = Source("RNTupleTempSource" if rntuple else "PoolSource")
         if bypassVersionCheck:
             process.source.bypassVersionCheck = CfgTypes.untracked.bool(True)
         if dropDQM:
@@ -84,9 +86,10 @@ def mergeProcess(*inputFiles, **options):
                 skipEmptyBXs = CfgTypes.bool(True)
             )
         else:
-            outMod = OutputModule("NanoAODOutputModule", Configuration.EventContent.EventContent_cff.NANOAODEventContent.clone())
+            outMod = OutputModule("NanoAODRNTupleOutputModule" if rntuple else "NanoAODOutputModule",
+                                  Configuration.EventContent.EventContent_cff.NANOAODEventContent.clone())
     else:
-        outMod = OutputModule("PoolOutputModule")
+        outMod = OutputModule("RNTupleTempOutputModule" if rntuple else "PoolOutputModule")
         outMod.mergeJob = CfgTypes.untracked.bool(True)
         outMod.eventAuxiliaryBasketSize = CfgTypes.untracked.int32(2*1024*1024)
 
