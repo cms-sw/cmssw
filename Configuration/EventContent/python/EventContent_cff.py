@@ -742,7 +742,9 @@ phase2_common.toModify(FEVTDEBUGHLTEventContent,
                            'keep *_hltPFMET_*_*',
                            'keep *_hltPFPuppiMET_*_*',
                            'keep *_hltPFPuppiMETTypeOne_*_*',
-                           'keep *_hltHpsPFTauDeepTauProducer_*_*'
+                           'keep *_hltHpsPFTauDeepTauProducer_*_*',
+                           'keep *_hltParticleTransformerONNXJetTags_*_*',
+                           'keep *_hltParticleTransformerDiscriminatorsJetTags_*_*'
                        ])
 
 phase2_muon.toModify(FEVTDEBUGHLTEventContent, 
