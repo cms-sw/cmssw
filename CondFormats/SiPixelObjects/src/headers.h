@@ -20,6 +20,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelQualityProbabilities.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelVCal.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelClusterShapeLimits.h"
 
 #include "CondFormats/External/interface/DetID.h"
 #include "CondFormats/External/interface/PixelFEDChannel.h"
