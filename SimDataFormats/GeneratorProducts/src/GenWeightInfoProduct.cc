@@ -28,6 +28,7 @@ const std::vector<std::unique_ptr<gen::WeightGroupInfo>>& GenWeightInfoProduct::
 
 const std::vector<gen::WeightGroupData> GenWeightInfoProduct::allWeightGroupsInfoWithIndices() const {
   std::vector<gen::WeightGroupData> groupInfo;
+  groupInfo.reserve(weightGroupsInfo_.size());
   for (size_t i = 0; i < weightGroupsInfo_.size(); i++)
     groupInfo.push_back({i, weightGroupsInfo_[i].get()});
   return groupInfo;
