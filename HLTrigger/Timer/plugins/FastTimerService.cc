@@ -199,14 +199,14 @@ FastTimerService::ResourcesPerModule FastTimerService::ResourcesPerModule::opera
 void FastTimerService::ResourcesPerPath::reset() {
   active.reset();
   total.reset();
-  last = 0;
+  index = 0;
   status = false;
 }
 
 FastTimerService::ResourcesPerPath& FastTimerService::ResourcesPerPath::operator+=(ResourcesPerPath const& other) {
   active += other.active;
   total += other.total;
-  last = 0;  // summing these makes no sense, reset them instead
+  index = 0;  // summing these makes no sense, reset them instead
   status = false;
   return *this;
 }
@@ -614,8 +614,9 @@ void FastTimerService::PlotsPerPath::fill(ProcessCallGraph::PathType const& desc
   // fill the total path time
   total_.fill(path.total, ls);
 
-  // fill the modules that actually ran and the total time spent in each od them
-  for (unsigned int i = 0; i < path.last; ++i) {
+  // fill the modules that actually ran and the total time spent in each of them
+  unsigned int last = lastDependency(description, path.index);
+  for (unsigned int i = 0; i < last; ++i) {
     auto const& module = data.modules[description.modules_and_dependencies_[i]];
     if (module_counter_)
       module_counter_->Fill(i);
@@ -633,7 +634,7 @@ void FastTimerService::PlotsPerPath::fill(ProcessCallGraph::PathType const& desc
       module_deallocated_total_->Fill(i, kB(module.total.deallocated));
   }
   if (module_counter_ and path.status)
-    module_counter_->Fill(path.last);
+    module_counter_->Fill(last);
 }
 
 FastTimerService::PlotsPerProcess::PlotsPerProcess(ProcessCallGraph::ProcessType const& process)
@@ -649,6 +650,7 @@ void FastTimerService::PlotsPerProcess::book(dqm::reco::DQMStore::IBooker& booke
                                              bool byls) {
   const std::string basedir = booker.pwd();
   event_.book(booker, "process " + process.name_, "process " + process.name_, event_ranges, lumisections, byls);
+  bypath_ = bypath;
   if (bypath) {
     booker.setCurrentFolder(basedir + "/process " + process.name_ + " paths");
     for (unsigned int id : boost::irange(0ul, paths_.size())) {
@@ -667,6 +669,10 @@ void FastTimerService::PlotsPerProcess::fill(ProcessCallGraph::ProcessType const
                                              unsigned int ls) {
   // fill process event plots
   event_.fill(process.total, ls);
+
+  // the paths and endpaths plots are booked only if enableDQMbyPath is set
+  if (not bypath_)
+    return;
 
   // fill all paths plots
   for (unsigned int id : boost::irange(0ul, paths_.size()))
@@ -770,6 +776,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet& config, edm::Activit
       concurrent_streams_(0),
       concurrent_threads_(0),
       print_event_summary_(config.getUntrackedParameter<bool>("printEventSummary")),
+      print_lumi_summary_(config.getUntrackedParameter<bool>("printLumiSummary")),
       print_run_summary_(config.getUntrackedParameter<bool>("printRunSummary")),
       print_job_summary_(config.getUntrackedParameter<bool>("printJobSummary")),
       // JSON configuration
@@ -915,6 +922,9 @@ void FastTimerService::finalizeEventMeasurement(edm::StreamContext const& sc) {
   }
   stream.total += data;
 
+  // measure the resources used by each path and endpath
+  accumulatePaths(stream);
+
   // add to the event resources those used by source (which is not part of any process)
   stream.total += stream.source;
 
@@ -928,6 +938,9 @@ void FastTimerService::finalizeEventMeasurement(edm::StreamContext const& sc) {
     std::lock_guard<std::mutex> guard(summary_mutex_);
     job_summary_ += stream;
     run_summary_[sc.runIndex()] += stream;
+    if (print_lumi_summary_) {
+      lumi_summary_[sc.luminosityBlockIndex()] += stream;
+    }
   }
 
   if (print_event_summary_) {
@@ -938,6 +951,24 @@ void FastTimerService::finalizeEventMeasurement(edm::StreamContext const& sc) {
   if (enable_dqm_) {
     plots_->fill(callgraph_, stream, sc.eventID().luminosityBlock());
   }
+}
+
+void FastTimerService::accumulatePaths(ResourcesPerJob& stream) const {
+  // sum the resources of the modules that ran on each path once per event, after all the modules have run, instead of
+  // in postPathEvent: the per-stream module resources are read in one pass, while they are still in the cache
+  auto const& process = callgraph_.processDescription();
+  auto accumulate = [&stream](ProcessCallGraph::PathType const& path, ResourcesPerPath& data) {
+    for (unsigned int i = 0; i < data.index; ++i) {
+      data.active += stream.modules[path.modules_on_path_[i]].total;
+    }
+    for (unsigned int i = 0, last = lastDependency(path, data.index); i < last; ++i) {
+      data.total += stream.modules[path.modules_and_dependencies_[i]].total;
+    }
+  };
+  for (unsigned int id = 0; id < process.paths_.size(); ++id)
+    accumulate(process.paths_[id], stream.process.paths[id]);
+  for (unsigned int id = 0; id < process.endPaths_.size(); ++id)
+    accumulate(process.endPaths_[id], stream.process.endpaths[id]);
 }
 
 void FastTimerService::preGlobalBeginRun(edm::GlobalContext const& gc) {
@@ -1040,6 +1071,9 @@ void FastTimerService::lookupInitializationComplete(edm::PathsAndConsumesOfModul
   ResourcesPerJob temp(callgraph_, highlight_modules_);
   streams_.resize(concurrent_streams_, temp);
   run_summary_.resize(concurrent_runs_, temp);
+  if (print_lumi_summary_) {
+    lumi_summary_.resize(concurrent_lumis_, temp);
+  }
   job_summary_ = temp;
 
   // check that the DQMStore service is available
@@ -1067,6 +1101,9 @@ void FastTimerService::preGlobalBeginLumi(edm::GlobalContext const& gc) {
   // reset the lumi counters
   auto index = gc.luminosityBlockIndex();
   lumi_transition_[index].reset();
+  if (print_lumi_summary_) {
+    lumi_summary_[index].reset();
+  }
 }
 
 void FastTimerService::postGlobalBeginLumi(edm::GlobalContext const& gc) { ignoredSignal(__func__); }
@@ -1079,10 +1116,13 @@ void FastTimerService::postGlobalEndLumi(edm::GlobalContext const& gc) {
   // handle the summaries
   auto index = gc.luminosityBlockIndex();
 
-  edm::LogVerbatim out("FastReport");
-  auto const& label =
-      fmt::sprintf("run %d, lumisection %d", gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock());
-  printTransition(out, lumi_transition_[index], label);
+  if (print_lumi_summary_) {
+    edm::LogVerbatim out("FastReport");
+    auto const& label =
+        fmt::sprintf("run %d, lumisection %d", gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock());
+    printSummary(out, lumi_summary_[index], label);
+    printTransition(out, lumi_transition_[index], label);
+  }
 
   if (enable_dqm_ and enable_dqm_transitions_) {
     plots_->fill_lumi(lumi_transition_[index], gc.luminosityBlockID().luminosityBlock());
@@ -1105,12 +1145,12 @@ void FastTimerService::postGlobalEndRun(edm::GlobalContext const& gc) {
   // handle the summaries
   auto index = gc.runIndex();
 
-  edm::LogVerbatim out("FastReport");
-  auto const& label = fmt::sprintf("run %d", gc.luminosityBlockID().run());
   if (print_run_summary_) {
+    edm::LogVerbatim out("FastReport");
+    auto const& label = fmt::sprintf("run %d", gc.luminosityBlockID().run());
     printSummary(out, run_summary_[index], label);
+    printTransition(out, run_transition_[index], label);
   }
-  printTransition(out, run_transition_[index], label);
 
   if (enable_dqm_ and enable_dqm_transitions_) {
     plots_->fill_run(run_transition_[index]);
@@ -1472,7 +1512,7 @@ void FastTimerService::prePathEvent(edm::StreamContext const& sc, edm::PathConte
   auto& stream = streams_[sid];
   auto& data = pc.isEndPath() ? stream.process.endpaths[id] : stream.process.paths[id];
   data.status = false;
-  data.last = 0;
+  data.index = 0;
 }
 
 void FastTimerService::postPathEvent(edm::StreamContext const& sc,
@@ -1485,17 +1525,8 @@ void FastTimerService::postPathEvent(edm::StreamContext const& sc,
 
   auto const& path =
       pc.isEndPath() ? callgraph_.processDescription().endPaths_[id] : callgraph_.processDescription().paths_[id];
-  unsigned int index = path.modules_on_path_.empty() ? 0 : status.index() + 1;
-  data.last = path.modules_on_path_.empty() ? 0 : path.last_dependency_of_module_[status.index()];
-
-  for (unsigned int i = 0; i < index; ++i) {
-    auto const& module = stream.modules[path.modules_on_path_[i]];
-    data.active += module.total;
-  }
-  for (unsigned int i = 0; i < data.last; ++i) {
-    auto const& module = stream.modules[path.modules_and_dependencies_[i]];
-    data.total += module.total;
-  }
+  // the resources of the modules on the path are summed once per event, in accumulatePaths()
+  data.index = path.modules_on_path_.empty() ? 0 : status.index() + 1;
 }
 
 void FastTimerService::preModuleEventAcquire(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
@@ -1813,6 +1844,7 @@ FastTimerService::Measurement& FastTimerService::thread() { return guard_.thread
 void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<bool>("printEventSummary", false);
+  desc.addUntracked<bool>("printLumiSummary", false);
   desc.addUntracked<bool>("printRunSummary", true);
   desc.addUntracked<bool>("printJobSummary", true);
   // JSON configuration
