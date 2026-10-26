@@ -33,6 +33,7 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/warnAboutMissingDictionaries.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -163,6 +164,7 @@ namespace edm {
         std::string context("Calling OutputModuleCore::keepThisBranch, checking dictionaries for kept types");
         throwMissingDictionariesException(missingDictionaries, context);
       }
+      warnAboutMissingDictionaries(desc);
 
       switch (desc.branchType()) {
         case InEvent: {
