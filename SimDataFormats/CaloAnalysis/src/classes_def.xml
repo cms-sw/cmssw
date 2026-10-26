@@ -61,6 +61,7 @@
   <class name="MtdSimLayerClusterRefVector"/>
   <class name="MtdSimLayerClusterRefProd"/>
   <class name="MtdSimLayerClusterContainer"/>
+  <class name="std::vector<edm::Ref<std::vector<MtdSimLayerCluster>,MtdSimLayerCluster,edm::refhelper::FindUsingAdvance<std::vector<MtdSimLayerCluster>,MtdSimLayerCluster> > >"/>
 
   <class name="MtdSimTrackster" ClassVersion="3">
     <version ClassVersion="3" checksum="1833899382"/>
@@ -77,6 +78,9 @@
   </class>
   <class name="std::vector<SimTauCPLink>"/>
   <class name="edm::Wrapper<std::vector<SimTauCPLink> >" />
+
+  <class name="SimTauCPLink::DecayNav"/>
+  <class name="std::vector<SimTauCPLink::DecayNav>"/>
 
   <class name="std::pair<uint64_t,float>"/>
   <class name="std::vector<std::pair<uint64_t,float>>"/>

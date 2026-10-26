@@ -13,6 +13,7 @@
   <class name="edm::Wrapper<l1t::L1CandidateRefVector>"/>
   <class name="l1t::L1CandidateVectorRef"/>
   <class name="edm::Wrapper<l1t::L1CandidateVectorRef>"/>
+  <class name="std::vector<std::pair<edm::Ptr<l1t::L1Candidate>,float> >"/>
 
 
   <class name="l1t::P2GTCandidate::Optional<int>"/>
