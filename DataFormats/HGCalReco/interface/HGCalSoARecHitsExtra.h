@@ -4,12 +4,10 @@
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
-// SoA layout with delta, rho, weight, nearestHigher, clusterIndex, layer, isSeed, and cellsCount fields
+// Layer clustering of RecHits: the layer cluster id of each rechit,
+// whether it is the seed of the layer cluster and the number of layer clusters
 GENERATE_SOA_LAYOUT(HGCalSoARecHitsExtraLayout,
                     // columns: one value per element
-                    SOA_COLUMN(float, delta),
-                    SOA_COLUMN(float, rho),
-                    SOA_COLUMN(unsigned int, nearestHigher),
                     SOA_COLUMN(int, clusterIndex),
                     SOA_COLUMN(uint8_t, isSeed),
                     SOA_SCALAR(unsigned int, numberOfClustersScalar))

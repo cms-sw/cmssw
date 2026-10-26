@@ -93,15 +93,7 @@ namespace hgcalUtils {
       std::ofstream outfile(filename.str());
       for (int i = 0; i < clustersSoA->metadata().size(); ++i) {
         auto clusterSoAV = clustersSoA.view()[i];
-        outfile << fmt::format("Idx: {}, delta: {:.{}f}, rho: {:.{}f}, nearest: {}, clsIdx: {}, isSeed: {}",
-                               i,
-                               clusterSoAV.delta(),
-                               std::numeric_limits<float>::max_digits10,
-                               clusterSoAV.rho(),
-                               std::numeric_limits<float>::max_digits10,
-                               clusterSoAV.nearestHigher(),
-                               clusterSoAV.clusterIndex(),
-                               clusterSoAV.isSeed())
+        outfile << fmt::format("Idx: {}, clsIdx: {}, isSeed: {}", i, clusterSoAV.clusterIndex(), clusterSoAV.isSeed())
                 << std::endl;
       }
       outfile.close();

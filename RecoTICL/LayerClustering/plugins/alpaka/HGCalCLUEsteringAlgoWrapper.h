@@ -12,15 +12,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class HGCalCLUEsteringAlgoWrapper {
   public:
+    // Clusters the rechits of each layer (one batch per layer, of batchItemSizes rechits) with CLUEstering: writes
+    // the layer cluster and the seed flag of each rechit, and the number of layer clusters
     void run(Queue& queue,
-             const unsigned int size,
-             const float dc,
-             const float kappa,
-             const float outlierDeltaFactor,
-             const bool isScintillator,
+             uint32_t nRecHits,
+             float dc,
+             float kappa,
+             float outlierDeltaFactor,
+             bool isScintillator,
              std::span<const uint32_t> batchItemSizes,
-             const HGCalSoARecHitsDeviceCollection::ConstView inputs,
-             HGCalSoARecHitsExtraDeviceCollection::View outputs) const;
+             HGCalSoARecHitsDeviceCollection::ConstView recHits,
+             HGCalSoARecHitsExtraDeviceCollection::View recHitsClustering) const;
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 

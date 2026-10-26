@@ -4,7 +4,6 @@ hltHgCalLayerClustersFromSoAProducerHSi = cms.EDProducer("HGCalLayerClustersFrom
     detector = cms.string('FH'),
     hgcalRecHitsLayerClustersSoA = cms.InputTag("hltHgcalSoARecHitsLayerClustersProducerHSi"),
     hgcalRecHitsSoA = cms.InputTag("hltHgcalSoARecHitsProducerHSi"),
-    nHitsTime = cms.uint32(3),
     src = cms.InputTag("hltHgcalSoALayerClustersProducerHSi"),
     timeClname = cms.string('timeLayerCluster')
 )
@@ -13,7 +12,6 @@ hltHgCalLayerClustersFromSoAProducerHSiSerialSync = cms.EDProducer("HGCalLayerCl
     detector = cms.string('FH'),
     hgcalRecHitsLayerClustersSoA = cms.InputTag("hltHgcalSoARecHitsLayerClustersProducerHSiSerialSync"),
     hgcalRecHitsSoA = cms.InputTag("hltHgcalSoARecHitsProducerHSiSerialSync"),
-    nHitsTime = cms.uint32(3),
     src = cms.InputTag("hltHgcalSoALayerClustersProducerHSiSerialSync"),
     timeClname = cms.string('timeLayerCluster')
 )
