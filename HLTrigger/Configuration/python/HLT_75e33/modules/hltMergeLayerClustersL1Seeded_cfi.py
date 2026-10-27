@@ -1,21 +1,24 @@
 import FWCore.ParameterSet.Config as cms
 
-hltMergeLayerClustersL1Seeded = cms.EDProducer("MergeClusterProducer",
-    layerClusters = cms.VInputTag("hltHgCalLayerClustersFromSoAProducerL1Seeded", "hltHgCalLayerClustersFromSoAProducerHSciL1Seeded", "hltHgCalLayerClustersFromSoAProducerHSiL1Seeded"),
-    mightGet = cms.optional.untracked.vstring,
-    time_layerclusters = cms.VInputTag("hltHgCalLayerClustersFromSoAProducerL1Seeded:timeLayerCluster","hltHgCalLayerClustersFromSoAProducerHSciL1Seeded:timeLayerCluster","hltHgCalLayerClustersFromSoAProducerHSiL1Seeded:timeLayerCluster")
+# The HGCAL components, in the order of the merged layer clusters: EE, HSci, HSi
+hgcal_components = ["", "HSci", "HSi"]
+
+# The legacy layer clusters of the HGCAL components, converted from their SoA layer clusters into one merged
+# collection in one step
+hltMergeLayerClustersL1Seeded = cms.EDProducer("HGCalMergedLayerClustersFromSoAProducer",
+    layerClustersSoA = cms.VInputTag(*["hltHgcalSoALayerClustersProducer" + x + "L1Seeded" for x in hgcal_components]),
+    hgcalRecHitsSoA = cms.VInputTag(*["hltHgcalSoARecHitsProducer" + x + "L1Seeded" for x in hgcal_components]),
+    hgcalRecHitsLayerClustersSoA = cms.VInputTag(*["hltHgcalSoARecHitsLayerClustersProducer" + x + "L1Seeded" for x in hgcal_components]),
+    detectors = cms.vstring("EE", "BH", "FH"),
+    extraLayerClusters = cms.VInputTag(),
+    extraTimeLayerClusters = cms.VInputTag(),
+    timeClname = cms.string("timeLayerCluster")
 )
 
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 
-layerClusters = ["hltHgCalLayerClustersFromSoAProducerL1Seeded",
-                 "hltHgCalLayerClustersFromSoAProducerHSciL1Seeded",
-                 "hltHgCalLayerClustersFromSoAProducerHSiL1Seeded",
-                 "hltBarrelLayerClustersEBL1Seeded"]
-
-time_layerclusters = ["hltHgCalLayerClustersFromSoAProducerL1Seeded:timeLayerCluster",
-                      "hltHgCalLayerClustersFromSoAProducerHSciL1Seeded:timeLayerCluster",
-                      "hltHgCalLayerClustersFromSoAProducerHSiL1Seeded:timeLayerCluster",
-                      "hltBarrelLayerClustersEBL1Seeded:timeLayerCluster"]
-
-ticl_barrel.toModify(hltMergeLayerClustersL1Seeded, layerClusters = layerClusters, time_layerclusters = time_layerclusters)
+# with the barrel, its layer clusters come after the HGCAL ones
+ticl_barrel.toModify(hltMergeLayerClustersL1Seeded,
+    extraLayerClusters = ["hltBarrelLayerClustersEBL1Seeded"],
+    extraTimeLayerClusters = ["hltBarrelLayerClustersEBL1Seeded:timeLayerCluster"]
+)
