@@ -125,8 +125,8 @@ void Phase2OTValidateTrackingRecHit::fillOTHistos(const edm::Event& iEvent,
   const auto& tracks = iEvent.getHandle(tokenTracks_);
   if (!tracks.isValid())
     return;
-  std::map<std::string, unsigned int> nrechitLayerMapP_primary;
-  std::map<std::string, unsigned int> nrechitLayerMapS_primary;
+  std::map<int, unsigned int> nrechitLayerMapP_primary;
+  std::map<int, unsigned int> nrechitLayerMapS_primary;
   // Loop over tracks
   for (const auto& track : *tracks) {
     for (const auto& hit : track.recHits()) {
@@ -141,7 +141,7 @@ void Phase2OTValidateTrackingRecHit::fillOTHistos(const edm::Event& iEvent,
 
       // determine the detector we are in
       TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(detId);
-      std::string key = phase2tkutil::getOTHistoId(detId.rawId(), tTopo_);
+      int key = phase2tkutil::getNumericHistoId(detId.rawId(), tTopo_, 0.0, 6);
       if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
         if (nrechitLayerMapP_primary.find(key) == nrechitLayerMapP_primary.end()) {
           nrechitLayerMapP_primary.emplace(key, 1);
