@@ -51,7 +51,7 @@ protected:
   void fillRechitHistos(const PSimHit* simhitClosest,
                         const SiPixelRecHit* rechit,
                         const std::map<unsigned int, SimTrack>& selectedSimTrackMap,
-                        std::map<std::string, unsigned int>& nrechitLayerMap_primary);
+                        std::map<int, unsigned int>& nrechitLayerMap_primary);
 
   edm::ParameterSet config_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
@@ -85,7 +85,7 @@ protected:
     MonitorElement* deltaX_primary;
     MonitorElement* deltaY_primary;
   };
-  std::map<std::string, RecHitME> layerMEs_;
+  std::map<int, RecHitME> layerMEs_;
 };
 
 #endif
