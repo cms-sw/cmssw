@@ -8,5 +8,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   using TripletsDeviceCollection = PortableCollection<TripletsSoABlocks>;
+  using TripletsListRangesDeviceCollection = PortableCollection<TripletsListRangesSoABlocks>;
+  using TripletsBuildDeviceCollection = PortableCollection<TripletsBuildSoABlocks>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::lst
 #endif

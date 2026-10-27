@@ -11,9 +11,6 @@ namespace lst {
   GENERATE_SOA_LAYOUT(ObjectRangesSoALayout,
                       SOA_COLUMN(ArrayIx2, mdRanges),
                       SOA_COLUMN(ArrayIx2, segmentRanges),
-                      SOA_COLUMN(ArrayIx2, tripletRanges),
-                      SOA_COLUMN(ArrayIx2, quintupletRanges),
-                      SOA_COLUMN(ArrayIx2, quadrupletRanges),
                       SOA_COLUMN(int, miniDoubletModuleIndices),
                       SOA_COLUMN(int, miniDoubletModuleOccupancy),
                       SOA_COLUMN(int, segmentModuleIndices),
@@ -33,6 +30,11 @@ namespace lst {
                       SOA_SCALAR(unsigned int, nTotalQuints),
                       SOA_SCALAR(unsigned int, nTotalQuintsByMD0),
                       SOA_SCALAR(unsigned int, nTotalQuintsByMD1),
+                      SOA_SCALAR(unsigned int, nSegmentOverflows),
+                      SOA_SCALAR(unsigned int, nTripletOverflows),
+                      SOA_SCALAR(unsigned int, nQuintupletOverflows),
+                      SOA_SCALAR(unsigned int, nT5byMDOverflows),
+                      SOA_SCALAR(unsigned int, nQuintupletCapDrops),
                       SOA_SCALAR(uint16_t, nEligibleT4Modules),
                       SOA_SCALAR(uint16_t, nEligibleT5Modules))
 

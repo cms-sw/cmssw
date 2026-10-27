@@ -17,7 +17,6 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addPixelQuintupletToMemory(ModulesConst modules,
-                                                                 MiniDoubletsConst mds,
                                                                  SegmentsConst segments,
                                                                  QuintupletsConst quintuplets,
                                                                  PixelQuintuplets pixelQuintuplets,
@@ -54,31 +53,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     pixelQuintuplets.lowerModuleIndices()[pixelQuintupletIndex][0] = segments.outerLowerModuleIndices()[pixelIndex];
     pixelQuintuplets.lowerModuleIndices()[pixelQuintupletIndex][1] = segments.outerLowerModuleIndices()[pixelIndex];
 
-    unsigned int pixelInnerMD = segments.mdIndices()[pixelIndex][0];
-    unsigned int pixelOuterMD = segments.mdIndices()[pixelIndex][1];
-    pixelQuintuplets.hitIndices()[pixelQuintupletIndex][0] = mds.anchorHitIndices()[pixelInnerMD];
-    pixelQuintuplets.hitIndices()[pixelQuintupletIndex][1] = mds.outerHitIndices()[pixelInnerMD];
-    pixelQuintuplets.hitIndices()[pixelQuintupletIndex][2] = mds.anchorHitIndices()[pixelOuterMD];
-    pixelQuintuplets.hitIndices()[pixelQuintupletIndex][3] = mds.outerHitIndices()[pixelOuterMD];
-
     // Copy T5 layers (respects nLayers for extended T5s); fill remaining slots with sentinels.
     unsigned int t5Layers = quintuplets.nLayers()[t5Index];
     auto& dstLayers = pixelQuintuplets.logicalLayers()[pixelQuintupletIndex];
     auto& dstModules = pixelQuintuplets.lowerModuleIndices()[pixelQuintupletIndex];
-    auto& dstHits = pixelQuintuplets.hitIndices()[pixelQuintupletIndex];
     auto const& srcLayers = quintuplets.logicalLayers()[t5Index];
     auto const& srcModules = quintuplets.lowerModuleIndices()[t5Index];
-    auto const& srcHits = quintuplets.hitIndices()[t5Index];
     for (unsigned int i = 0; i < Params_T5::kLayers; ++i) {
       const bool inT5 = (i < t5Layers);
       dstLayers[2 + i] = inT5 ? srcLayers[i] : uint8_t{0};
       dstModules[2 + i] = inT5 ? srcModules[i] : lst::kTCEmptyLowerModule;
-      dstHits[4 + 2 * i] = inT5 ? srcHits[2 * i] : lst::kTCEmptyHitIdx;
-      dstHits[4 + 2 * i + 1] = inT5 ? srcHits[2 * i + 1] : lst::kTCEmptyHitIdx;
     }
-
-    // Set pT5 nLayers = 2 pixel + T5 layers
-    pixelQuintuplets.nLayers()[pixelQuintupletIndex] = 2 + t5Layers;
 
 #ifdef CUT_VALUE_DEBUG
     pixelQuintuplets.rzChiSquared()[pixelQuintupletIndex] = rzChiSquared;
@@ -701,19 +686,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                          ptCut);
             if (success) {
               unsigned int totOccupancyPixelQuintuplets = alpaka::atomicAdd(
-                  acc, &pixelQuintuplets.totOccupancyPixelQuintuplets(), 1u, alpaka::hierarchy::Threads{});
+                  acc, &pixelQuintuplets.totOccupancyPixelQuintuplets(), 1u, alpaka::hierarchy::Blocks{});
               if (totOccupancyPixelQuintuplets >= n_max_pixel_quintuplets) {
 #ifdef WARNINGS
                 printf("Pixel Quintuplet excess alert!\n");
 #endif
               } else {
                 unsigned int pixelQuintupletIndex =
-                    alpaka::atomicAdd(acc, &pixelQuintuplets.nPixelQuintuplets(), 1u, alpaka::hierarchy::Threads{});
+                    alpaka::atomicAdd(acc, &pixelQuintuplets.nPixelQuintuplets(), 1u, alpaka::hierarchy::Blocks{});
                 float eta = __H2F(quintuplets.eta()[quintupletIndex]);
                 float phi = __H2F(quintuplets.phi()[quintupletIndex]);
 
                 addPixelQuintupletToMemory(modules,
-                                           mds,
                                            segments,
                                            quintuplets,
                                            pixelQuintuplets,
