@@ -18,6 +18,8 @@
 #include "RecoTracker/LSTCore/interface/TripletsSoA.h"
 #include "RecoTracker/LSTCore/interface/QuadrupletsSoA.h"
 
+#include "PixelQuintupletAccessors.h"
+
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void rmQuintupletFromMemory(Quintuplets quintuplets,
                                                              unsigned int quintupletIndex,
@@ -79,14 +81,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE int checkHitspT5(unsigned int ix,
                                                   unsigned int jx,
+                                                  MiniDoubletsConst mds,
+                                                  SegmentsConst segments,
+                                                  QuintupletsConst quintuplets,
                                                   PixelQuintupletsConst pixelQuintuplets) {
     unsigned int hits1[Params_pT5::kHits];
     unsigned int hits2[Params_pT5::kHits];
-
-    for (int i = 0; i < Params_pT5::kHits; i++) {
-      hits1[i] = pixelQuintuplets.hitIndices()[ix][i];
-      hits2[i] = pixelQuintuplets.hitIndices()[jx][i];
-    }
+    getPixelQuintupletHitIndices(mds, segments, quintuplets, pixelQuintuplets, ix, hits1);
+    getPixelQuintupletHitIndices(mds, segments, quintuplets, pixelQuintuplets, jx, hits2);
 
     int nMatched = 0;
     for (int i = 0; i < Params_pT5::kHits; i++) {
@@ -722,7 +724,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   };
 
   struct RemoveDupPixelQuintupletsFromMap {
-    ALPAKA_FN_ACC void operator()(Acc2D const& acc, PixelQuintuplets pixelQuintuplets) const {
+    ALPAKA_FN_ACC void operator()(Acc2D const& acc,
+                                  MiniDoubletsConst mds,
+                                  SegmentsConst segments,
+                                  QuintupletsConst quintuplets,
+                                  PixelQuintuplets pixelQuintuplets) const {
       unsigned int nPixelQuintuplets = pixelQuintuplets.nPixelQuintuplets();
       for (unsigned int ix : cms::alpakatools::uniform_elements_y(acc, nPixelQuintuplets)) {
         float eta1 = __H2F(pixelQuintuplets.eta()[ix]);
@@ -740,7 +746,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           if (alpaka::math::abs(acc, cms::alpakatools::deltaPhi(acc, phi1, phi2)) > 0.2f)
             continue;
 
-          int nMatched = checkHitspT5(ix, jx, pixelQuintuplets);
+          int nMatched = checkHitspT5(ix, jx, mds, segments, quintuplets, pixelQuintuplets);
           float score2 = __H2F(pixelQuintuplets.score()[jx]);
           const int minNHitsForDup_pT5 = 7;
           if (nMatched >= minNHitsForDup_pT5) {

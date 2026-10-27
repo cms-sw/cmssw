@@ -26,8 +26,14 @@ namespace lst {
                       SOA_COLUMN(FPX, dAlphaInnerOuters),
 #endif
                       SOA_COLUMN(uint16_t, outerLowerModuleIndices),
-                      SOA_COLUMN(Params_LS::ArrayUxLayers, mdIndices),
-                      SOA_COLUMN(unsigned int, connectedMax))
+                      SOA_COLUMN(Params_LS::ArrayUxLayers, mdIndices))
+
+  // Per-segment T3 counter (T3 count -> T3 create), in a collection that lives only in the T3 stage
+  GENERATE_SOA_LAYOUT(SegmentsT3CountsSoALayout, SOA_COLUMN(unsigned int, connectedMax))
+
+  using SegmentsT3CountsSoA = SegmentsT3CountsSoALayout<>;
+  using SegmentsT3Counts = SegmentsT3CountsSoA::View;
+  using SegmentsT3CountsConst = SegmentsT3CountsSoA::ConstView;
 
   GENERATE_SOA_LAYOUT(SegmentsOccupancySoALayout,
                       SOA_COLUMN(unsigned int, nSegments),  //number of segments per inner lower module
@@ -37,6 +43,17 @@ namespace lst {
                       SOA_BLOCK(segments, SegmentsSoALayout),
                       SOA_BLOCK(segmentsOccupancy, SegmentsOccupancySoALayout))
 
+  // Loose-sized scratch filled by CreateSegments, 5 B per slot: the MD pair of each produced segment as its index
+  // in the inner x outer MD product of the module pair, and the outer module as its slot in the inner module's map.
+  GENERATE_SOA_LAYOUT(SegmentCandidatesSoALayout,
+                      SOA_COLUMN(uint32_t, mdPairIndices),
+                      SOA_COLUMN(uint8_t, connectedModuleSlots))
+  static_assert(max_connected_modules <= 256, "connectedModuleSlots is a uint8_t");
+
+  GENERATE_SOA_BLOCKS(SegmentCandidatesSoABlocksLayout,
+                      SOA_BLOCK(candidates, SegmentCandidatesSoALayout),
+                      SOA_BLOCK(segmentsOccupancy, SegmentsOccupancySoALayout))
+
   using SegmentsSoA = SegmentsSoALayout<>;
   using SegmentsOccupancySoA = SegmentsOccupancySoALayout<>;
 
@@ -44,6 +61,11 @@ namespace lst {
   using SegmentsConst = SegmentsSoA::ConstView;
   using SegmentsOccupancy = SegmentsOccupancySoA::View;
   using SegmentsOccupancyConst = SegmentsOccupancySoA::ConstView;
+
+  using SegmentCandidatesSoA = SegmentCandidatesSoALayout<>;
+  using SegmentCandidates = SegmentCandidatesSoA::View;
+  using SegmentCandidatesConst = SegmentCandidatesSoA::ConstView;
+  using SegmentCandidatesSoABlocks = SegmentCandidatesSoABlocksLayout<>;
 
   using SegmentsSoABlocks = SegmentsSoABlocksLayout<>;
   using SegmentsSoABlocksView = SegmentsSoABlocks::View;
