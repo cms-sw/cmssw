@@ -1125,22 +1125,47 @@ namespace {
   using EcalLaserAPDPNRatiosP2RMSHistoryTwoTags = EcalLaserAPDPNRatiosStatHistory<2, kRMS, 2>;
   using EcalLaserAPDPNRatiosP3RMSHistoryTwoTags = EcalLaserAPDPNRatiosStatHistory<3, kRMS, 2>;
 
+  // median and central 68% interval (16th - 84th percentile, +-1 sigma for a gaussian) of a set of values,
+  // insensitive to the few crystals with broken or very small values
+  struct EcalLaserRobustSummary {
+    double median = 0.;
+    double low = 0.;
+    double high = 0.;
+
+    // the values are reordered
+    static EcalLaserRobustSummary compute(std::vector<double>& values) {
+      EcalLaserRobustSummary summary;
+      if (values.empty())
+        return summary;
+      auto quantile = [&values](double q) {
+        auto nth = values.begin() + static_cast<long>(q * (values.size() - 1) + 0.5);
+        std::nth_element(values.begin(), nth, values.end());
+        return *nth;
+      };
+      summary.median = quantile(0.5);
+      summary.low = quantile(0.16);
+      summary.high = quantile(0.84);
+      return summary;
+    }
+  };
+
   /************************************************************************
-     history of the difference of the crystal mean of p1, p2 or p3 in EB,
+     history of the crystal-by-crystal difference of p1, p2 or p3 in EB,
      EE+ and EE- between two tags, (2) - (1). The difference is evaluated on
-     the union of the IOV boundaries of the two tags, the band is the RMS
-     of the crystal-by-crystal difference, which accounts for the two tags
-     measuring the same crystals.
+     the union of the IOV boundaries of the two tags, for every point the
+     line is the median over the crystals of the difference and the band
+     its central 68% interval: both account for the two tags measuring the
+     same crystals and are not biased by a few outlier crystals.
      With percent = true the crystal-by-crystal difference is relative to
      the first tag, 100 * ((2) - (1)) / (1), crystals with (1) = 0 are skipped
   *************************************************************************/
   template <int param, bool percent>
-  class EcalLaserAPDPNRatiosMeanDiffHistory : public EcalLaserAPDPNRatiosHistoryBase<param, 2> {
+  class EcalLaserAPDPNRatiosDiffHistory : public EcalLaserAPDPNRatiosHistoryBase<param, 2> {
   public:
     typedef EcalLaserAPDPNRatiosHistoryBase<param, 2> Base;
-    EcalLaserAPDPNRatiosMeanDiffHistory()
-        : Base(percent ? "ECAL Laser APDPNRatios crystal mean relative difference history"
-                       : "ECAL Laser APDPNRatios crystal mean difference history") {}
+    EcalLaserAPDPNRatiosDiffHistory()
+        : Base(percent ? "ECAL Laser APDPNRatios crystal relative difference history"
+                       : "ECAL Laser APDPNRatios crystal difference history") {}
 
     bool fill() override {
       if (!this->collect())
@@ -1161,11 +1186,12 @@ namespace {
 
       // walk along the points keeping in memory only the crystal values of the current payload of each tag,
       // the statistics of the crystal-by-crystal difference are recomputed only when one of the payloads changes
-      std::array<std::vector<double>, kNLaserPartitions> diff, err;
+      std::array<std::vector<EcalLaserRobustSummary>, kNLaserPartitions> summary;
       std::array<size_t, 2> index = {{0, 0}};  // last IOV of each tag starting before the current point
       std::array<cond::Hash, 2> currentHash;
       std::array<EcalLaserValues, 2> values;
-      EcalLaserStats diffStats;
+      std::array<EcalLaserRobustSummary, kNLaserPartitions> current;
+      std::vector<double> diffs;
       for (double xp : xd) {
         bool changed = false;
         for (int itag = 0; itag < 2; itag++) {
@@ -1182,23 +1208,22 @@ namespace {
           changed = true;
         }
         if (changed) {
-          diffStats = EcalLaserStats();
           for (int part = 0; part < kNLaserPartitions; part++) {
+            diffs.clear();
             for (size_t i = 0; i < values[0][part].size(); i++) {
               const double v1 = values[0][part][i], v2 = values[1][part][i];
               if constexpr (percent) {
                 if (v1 != 0.)
-                  diffStats[part].add(100. * (v2 - v1) / v1);
+                  diffs.push_back(100. * (v2 - v1) / v1);
               } else {
-                diffStats[part].add(v2 - v1);
+                diffs.push_back(v2 - v1);
               }
             }
+            current[part] = EcalLaserRobustSummary::compute(diffs);
           }
         }
-        for (int part = 0; part < kNLaserPartitions; part++) {
-          diff[part].push_back(diffStats[part].mean());
-          err[part].push_back(diffStats[part].rms());
-        }
+        for (int part = 0; part < kNLaserPartitions; part++)
+          summary[part].push_back(current[part]);
       }
 
       const auto [xmin, xmax] = this->xRange(xd.front());
@@ -1209,10 +1234,11 @@ namespace {
       this->makePads(canvas);
       for (int ipad = 0; ipad < kNLaserPartitions; ipad++) {
         const int part = kLaserPadOrder[ipad];
-        std::vector<double> up, down;
-        for (size_t i = 0; i < xd.size(); i++) {
-          up.push_back(diff[part][i] + err[part][i]);
-          down.push_back(diff[part][i] - err[part][i]);
+        std::vector<double> median, up, down;
+        for (const auto& point : summary[part]) {
+          median.push_back(point.median);
+          up.push_back(point.high);
+          down.push_back(point.low);
         }
         const double ymin = std::min(*std::min_element(down.begin(), down.end()), 0.);
         const double ymax = std::max(*std::max_element(up.begin(), up.end()), 0.);
@@ -1221,21 +1247,21 @@ namespace {
         canvas.cd(ipad + 1);
         this->drawFrame(keep,
                         part,
-                        percent ? Form("%s #Delta mean p%i, ((2) - (1)) / (1) [%%]", laserPartitionName(part), param)
-                                : Form("%s #Delta mean p%i, (2) - (1)", laserPartitionName(part), param),
+                        percent ? Form("%s #Delta p%i, ((2) - (1)) / (1) [%%]", laserPartitionName(part), param)
+                                : Form("%s #Delta p%i, (2) - (1)", laserPartitionName(part), param),
                         xmin,
                         xmax,
                         ymin - ymargin,
                         ymax + 3.5 * ymargin);  // leave room for the legend
 
-        // the band is a variable bin histogram, one bin per step, drawn as error boxes
+        // the band is a variable bin histogram, one bin per step, drawn as error boxes from low to high
         std::vector<double> edges(xd);
         edges.push_back(xmax);
         auto band = std::make_unique<TH1D>(Form("band_%s", laserPartitionName(part)), "", int(xd.size()), edges.data());
         band->SetDirectory(nullptr);
         for (size_t i = 0; i < xd.size(); i++) {
-          band->SetBinContent(i + 1, diff[part][i]);
-          band->SetBinError(i + 1, err[part][i]);
+          band->SetBinContent(i + 1, 0.5 * (up[i] + down[i]));
+          band->SetBinError(i + 1, 0.5 * (up[i] - down[i]));
         }
         band->SetFillColorAlpha(kAzure + 1, 0.35);
         band->SetLineColor(kAzure + 1);
@@ -1245,20 +1271,23 @@ namespace {
         zero->SetLineStyle(kDashed);
         zero->Draw();
         auto line = std::make_unique<TGraph>();
-        Base::addSteps(*line, xd, diff[part], xmax);
+        Base::addSteps(*line, xd, median, xmax);
         line->SetLineColor(kBlack);
         line->SetLineWidth(2);
         line->Draw("L SAME");
 
-        const double averageDiff = std::accumulate(diff[part].begin(), diff[part].end(), 0.) / xd.size();
-        const double averageErr = std::accumulate(err[part].begin(), err[part].end(), 0.) / xd.size();
+        const double averageMedian = std::accumulate(median.begin(), median.end(), 0.) / xd.size();
+        double averageWidth = 0.;
+        for (size_t i = 0; i < xd.size(); i++)
+          averageWidth += 0.5 * (up[i] - down[i]) / xd.size();
         TLegend* legend = this->drawLegend(keep, 1);
         if constexpr (percent) {
-          legend->AddEntry(line.get(), Form("mean of ((2) - (1)) / (1), average %.3f%%", averageDiff), "l");
-          legend->AddEntry(band.get(), Form("#pm RMS over crystals, average %.3f%%", averageErr), "f");
+          legend->AddEntry(line.get(), Form("median over crystals, average %.3f%%", averageMedian), "l");
+          legend->AddEntry(
+              band.get(), Form("16%% - 84%% of the crystals, average half width %.3f%%", averageWidth), "f");
         } else {
-          legend->AddEntry(line.get(), Form("mean (2) - mean (1), average %.4f", averageDiff), "l");
-          legend->AddEntry(band.get(), Form("#pm RMS of the crystal differences, average %.4f", averageErr), "f");
+          legend->AddEntry(line.get(), Form("median over crystals, average %.4f", averageMedian), "l");
+          legend->AddEntry(band.get(), Form("16%% - 84%% of the crystals, average half width %.4f", averageWidth), "f");
         }
         legend->Draw();
         keep.push_back(std::move(band));
@@ -1267,19 +1296,19 @@ namespace {
       }
 
       this->drawHeader(canvas,
-                       Form("ECAL laser crystal mean %sdifference history 'p%i'", percent ? "relative " : "", param));
+                       Form("ECAL laser crystal %sdifference history 'p%i'", percent ? "relative " : "", param));
 
       std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };  // class EcalLaserAPDPNRatiosMeanDiffHistory
-  using EcalLaserAPDPNRatiosP1MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<1, false>;
-  using EcalLaserAPDPNRatiosP2MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<2, false>;
-  using EcalLaserAPDPNRatiosP3MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<3, false>;
-  using EcalLaserAPDPNRatiosP1MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<1, true>;
-  using EcalLaserAPDPNRatiosP2MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<2, true>;
-  using EcalLaserAPDPNRatiosP3MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<3, true>;
+  };  // class EcalLaserAPDPNRatiosDiffHistory
+  using EcalLaserAPDPNRatiosP1DiffHistory = EcalLaserAPDPNRatiosDiffHistory<1, false>;
+  using EcalLaserAPDPNRatiosP2DiffHistory = EcalLaserAPDPNRatiosDiffHistory<2, false>;
+  using EcalLaserAPDPNRatiosP3DiffHistory = EcalLaserAPDPNRatiosDiffHistory<3, false>;
+  using EcalLaserAPDPNRatiosP1PercentDiffHistory = EcalLaserAPDPNRatiosDiffHistory<1, true>;
+  using EcalLaserAPDPNRatiosP2PercentDiffHistory = EcalLaserAPDPNRatiosDiffHistory<2, true>;
+  using EcalLaserAPDPNRatiosP3PercentDiffHistory = EcalLaserAPDPNRatiosDiffHistory<3, true>;
 
 }  // namespace
 
@@ -1306,10 +1335,10 @@ PAYLOAD_INSPECTOR_MODULE(EcalLaserAPDPNRatios) {
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP1RMSHistoryTwoTags);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP2RMSHistoryTwoTags);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP3RMSHistoryTwoTags);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP1MeanDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP2MeanDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP3MeanDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP1MeanPercentDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP2MeanPercentDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP3MeanPercentDiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP1DiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP2DiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP3DiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP1PercentDiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP2PercentDiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP3PercentDiffHistory);
 }
