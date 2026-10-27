@@ -237,8 +237,8 @@ void BarrelCLUEAlgoT<T>::calculateLocalDensity(const T& lt, const unsigned int l
                                << " -> " << cellsOnLayer.eta[i] + delta
                                << " phi window: " << cellsOnLayer.phi[i] - delta << " -> "
                                << cellsOnLayer.phi[i] + delta << "\n";
-    for (int etaBin = search_box[0]; etaBin < search_box[1]; ++etaBin) {
-      for (int phiBin = search_box[2]; phiBin < search_box[3]; ++phiBin) {
+    for (int etaBin = search_box[0]; etaBin <= search_box[1]; ++etaBin) {
+      for (int phiBin = search_box[2]; phiBin <= search_box[3]; ++phiBin) {
         int phi = (phiBin % T::type::nRows);
         int binId = lt.getGlobalBinByBin(etaBin, phi);
         size_t binSize = lt[binId].size();
@@ -271,8 +271,8 @@ void BarrelCLUEAlgoT<T>::calculateDistanceToHigher(const T& lt, const unsigned i
                                                  cellsOnLayer.phi[i] - range,
                                                  cellsOnLayer.phi[i] + range);
 
-    for (int etaBin = search_box[0]; etaBin < search_box[1]; ++etaBin) {
-      for (int phiBin = search_box[2]; phiBin < search_box[3]; ++phiBin) {
+    for (int etaBin = search_box[0]; etaBin <= search_box[1]; ++etaBin) {
+      for (int phiBin = search_box[2]; phiBin <= search_box[3]; ++phiBin) {
         int phi = (phiBin % T::type::nRows);
         size_t binId = lt.getGlobalBinByBin(etaBin, phi);
         size_t binSize = lt[binId].size();
