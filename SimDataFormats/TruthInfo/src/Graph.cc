@@ -32,122 +32,6 @@ namespace {
   }
 }  // namespace
 
-const truth::ParticleData& truth::Particle::data() const {
-  // Graph::particle() returns an invalid (null-graph) view for an out-of-range id,
-  // and a default-constructed Particle is likewise invalid. The scalar getters all
-  // route through data(), so return a shared empty record instead of dereferencing
-  // a null graph_ (the traversal methods already guard with valid()).
-  if (graph_ == nullptr) {
-    static const truth::ParticleData kEmpty{};
-    return kEmpty;
-  }
-  return graph_->particles_.at(id_);
-}
-
-bool truth::Particle::hasGen() const { return data().hasGen(); }
-
-bool truth::Particle::hasSim() const { return data().hasSim(); }
-
-int32_t truth::Particle::pdgId() const { return data().pdgId; }
-
-int16_t truth::Particle::status() const { return data().status; }
-
-uint64_t truth::Particle::eventId() const { return data().eventId; }
-
-int32_t truth::Particle::genEvent() const { return data().genEvent; }
-
-const math::XYZTLorentzVectorD& truth::Particle::momentum() const { return data().momentum; }
-
-std::span<const truth::Checkpoint> truth::Particle::checkpoints() const {
-  return std::span<const truth::Checkpoint>(data().checkpoints.data(), data().checkpoints.size());
-}
-
-bool truth::Particle::hasCheckpoints() const { return !data().checkpoints.empty(); }
-
-std::optional<truth::Checkpoint> truth::Particle::checkpoint(uint32_t checkpointId) const {
-  for (auto const& cp : data().checkpoints) {
-    if (cp.checkpointId == checkpointId)
-      return cp;
-  }
-  return std::nullopt;
-}
-
-uint16_t truth::Particle::statusFlags() const { return data().statusFlags; }
-
-bool truth::Particle::backscattered() const { return data().backscattered; }
-
-bool truth::Particle::isRoot() const { return valid() && graph_->productionVertices(id_).empty(); }
-
-bool truth::Particle::isLeaf() const { return valid() && graph_->decayVertices(id_).empty(); }
-
-std::vector<truth::Vertex> truth::Particle::productionVertices() const {
-  return valid() ? graph_->productionVerticesOf(id_) : std::vector<truth::Vertex>{};
-}
-
-std::vector<truth::Vertex> truth::Particle::decayVertices() const {
-  return valid() ? graph_->decayVerticesOf(id_) : std::vector<truth::Vertex>{};
-}
-
-std::vector<truth::Particle> truth::Particle::parents() const {
-  return valid() ? graph_->parentsOf(id_) : std::vector<truth::Particle>{};
-}
-
-std::vector<truth::Particle> truth::Particle::children() const {
-  return valid() ? graph_->childrenOf(id_) : std::vector<truth::Particle>{};
-}
-
-std::vector<truth::Particle> truth::Particle::ancestors() const {
-  return valid() ? graph_->ancestorsOf(id_) : std::vector<truth::Particle>{};
-}
-
-std::vector<truth::Particle> truth::Particle::descendants() const {
-  return valid() ? graph_->descendantsOf(id_) : std::vector<truth::Particle>{};
-}
-
-bool truth::Particle::hasAncestorPdgId(int pdgId) const { return firstAncestorWithPdgId(pdgId).has_value(); }
-
-std::optional<truth::Particle> truth::Particle::firstAncestorWithPdgId(int pdgId) const {
-  return valid() ? graph_->firstAncestorWithPdgIdOf(id_, pdgId) : std::nullopt;
-}
-
-std::optional<truth::Particle> truth::Particle::firstCommonAncestor(Particle other) const {
-  if (!valid() || !other.valid() || graph_ != other.graph_)
-    return std::nullopt;
-  return graph_->firstCommonAncestorOf(id_, other.id_);
-}
-
-const truth::VertexData& truth::Vertex::data() const {
-  // See Particle::data(): return a shared empty record for an invalid view rather
-  // than dereferencing a null graph_.
-  if (graph_ == nullptr) {
-    static const truth::VertexData kEmpty{};
-    return kEmpty;
-  }
-  return graph_->vertices_.at(id_);
-}
-
-bool truth::Vertex::hasGen() const { return data().hasGen(); }
-
-bool truth::Vertex::hasSim() const { return data().hasSim(); }
-
-uint64_t truth::Vertex::eventId() const { return data().eventId; }
-
-int32_t truth::Vertex::genEvent() const { return data().genEvent; }
-
-const math::XYZTLorentzVectorD& truth::Vertex::position() const { return data().position; }
-
-bool truth::Vertex::isSource() const { return valid() && graph_->incomingParticles(id_).empty(); }
-
-bool truth::Vertex::isSink() const { return valid() && graph_->outgoingParticles(id_).empty(); }
-
-std::vector<truth::Particle> truth::Vertex::incomingParticles() const {
-  return valid() ? graph_->incomingParticlesOf(id_) : std::vector<truth::Particle>{};
-}
-
-std::vector<truth::Particle> truth::Vertex::outgoingParticles() const {
-  return valid() ? graph_->outgoingParticlesOf(id_) : std::vector<truth::Particle>{};
-}
-
 truth::Particle truth::Graph::particle(size_type id) const {
   return id < nParticles() ? Particle(this, id) : Particle{};
 }
@@ -289,6 +173,32 @@ std::vector<truth::Particle> truth::Graph::childrenOf(size_type particleId) cons
   return out;
 }
 
+uint32_t truth::Graph::ancestorCount(size_type particleId) const {
+  if (particleId >= nParticles())
+    return 0;
+
+  // The start is seen first, so a cycle back to it cannot count it as its own ancestor.
+  std::vector<uint32_t> seen{static_cast<uint32_t>(particleId)};
+  std::vector<uint32_t> stack{static_cast<uint32_t>(particleId)};
+  std::vector<uint32_t> buf;
+
+  while (!stack.empty()) {
+    const uint32_t cur = stack.back();
+    stack.pop_back();
+
+    buf.clear();
+    appendParents(cur, buf);
+    for (uint32_t p : buf) {
+      if (std::find(seen.begin(), seen.end(), p) != seen.end())
+        continue;
+      seen.push_back(p);
+      stack.push_back(p);
+    }
+  }
+
+  return static_cast<uint32_t>(seen.size() - 1);
+}
+
 std::vector<truth::Particle> truth::Graph::ancestorsOf(size_type particleId) const {
   std::vector<truth::Particle> out;
   if (particleId >= nParticles())
@@ -366,6 +276,92 @@ std::vector<truth::Particle> truth::Graph::descendantsOf(size_type particleId) c
     }
   }
 
+  return out;
+}
+
+std::vector<truth::Vertex> truth::Graph::interactionVertices() const {
+  std::vector<Vertex> out;
+  for (uint32_t id = 0; id < nVertices(); ++id) {
+    if (vertices_[id].vertexRole() == VertexRole::Interaction)
+      out.emplace_back(this, id);
+  }
+  return out;
+}
+
+std::vector<truth::Particle> truth::Graph::signalParticles() const {
+  std::vector<Particle> out;
+  for (uint32_t id = 0; id < nParticles(); ++id) {
+    if (particles_[id].isAtLevel(LevelFlag::Signal))
+      out.emplace_back(this, id);
+  }
+  return out;
+}
+
+truth::Graph::size_type truth::Graph::lastCopyOf(size_type particleId) const {
+  if (particleId >= nParticles())
+    return particleId;
+
+  const int32_t pdgId = particles_[particleId].pdgId;
+  size_type current = particleId;
+
+  for (uint32_t guard = 0; guard < nParticles(); ++guard) {
+    if (particles_[current].status == 1)
+      break;
+
+    // The copy collapse can leave a radiating particle with several decay vertices, one
+    // of them holding only the radiation, so the next copy is looked for in all of them.
+    // A copy is a generator particle: a Geant4 delta ray is not a copy of its electron.
+    uint32_t sameIdChild = 0;
+    uint32_t nSameId = 0;
+    for (const uint32_t vertexId : decayVertices(current)) {
+      for (const uint32_t childId : outgoingParticles(vertexId)) {
+        if (childId < nParticles() && childId != current && particles_[childId].pdgId == pdgId &&
+            particles_[childId].hasGen()) {
+          sameIdChild = childId;
+          ++nSameId;
+        }
+      }
+    }
+
+    // Two same-species children, or none, is not a copy: the chain ends here.
+    if (nSameId != 1)
+      break;
+
+    current = sameIdChild;
+  }
+
+  return current;
+}
+
+std::optional<truth::Particle> truth::Graph::firstChildWithPdgIdOf(size_type particleId, int pdgId) const {
+  if (particleId >= nParticles())
+    return std::nullopt;
+
+  // The direct children only, in the order the decay vertices list them. The id bound is
+  // checked as in the other walks: a truncated graph would read out of range otherwise.
+  for (const uint32_t vertexId : decayVertices(particleId)) {
+    for (const uint32_t child : outgoingParticles(vertexId)) {
+      if (child < nParticles() && child != particleId && particles_[child].pdgId == pdgId)
+        return particle(child);
+    }
+  }
+  return std::nullopt;
+}
+
+std::vector<truth::Particle> truth::Graph::productionSiblingsOf(size_type particleId) const {
+  std::vector<Particle> out;
+  if (particleId >= nParticles())
+    return out;
+
+  for (const uint32_t vertexId : productionVertices(particleId)) {
+    for (const uint32_t sibling : outgoingParticles(vertexId)) {
+      if (sibling == particleId)
+        continue;
+      // Two production vertices can list the same particle, so report each one once.
+      if (std::find_if(out.begin(), out.end(), [sibling](Particle const& p) { return p.id() == sibling; }) == out.end())
+        out.emplace_back(this, sibling);
+    }
+  }
   return out;
 }
 
