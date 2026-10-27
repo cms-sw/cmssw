@@ -286,7 +286,8 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
 
     if (lowest_col == 0) {
       edgeHitIn0 = true;
-    } else if (highest_col == 15) {
+    }
+    if (highest_col == 15) {
       edgeHitIn15 = true;
     }
 
