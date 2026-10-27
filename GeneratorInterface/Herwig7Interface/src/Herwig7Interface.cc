@@ -34,6 +34,7 @@
 #include <ThePEG/Vectors/HepMCConverter.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "GeneratorInterface/Core/interface/ParameterCollector.h"
 
@@ -163,26 +164,19 @@ void Herwig7Interface::callHerwigGenerator() {
         break;
       }
       case Herwig::RunMode::ERROR:
-        edm::LogError("Herwig7Interface") << "Error during read in of command line parameters.\n"
-                                          << "Program execution will stop now.";
-        return;
+        throw cms::Exception("HerwigError").format("Error during read in of command line parameters.");
       default:
-        HwUI_->quitWithHelp();
+        throw cms::Exception("Herwig7Interface")
+            .format("unknown runMode {} seen in callHerwigGenerator", int(HwUI_->runMode()));
     }
 
     return;
 
   } catch (ThePEG::Exception &e) {
-    edm::LogError("Herwig7Interface") << ": ThePEG::Exception caught.\n"
-                                      << e.what() << '\n'
-                                      << "See logfile for details.\n";
-    return;
-  } catch (std::exception &e) {
-    edm::LogError("Herwig7Interface") << ": " << e.what() << '\n';
-    return;
+    throw cms::Exception("ThePEG::Exception")
+        .format("caught exception of type ThePEG::Exception.\n {}\nSee logfile for details.", e.what());
   } catch (const char *what) {
-    edm::LogError("Herwig7Interface") << ": caught exception: " << what << "\n";
-    return;
+    throw cms::Exception("HerwigException").format("caught char* exception.\n{}", what);
   }
 }
 
