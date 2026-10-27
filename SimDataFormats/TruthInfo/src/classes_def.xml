@@ -37,7 +37,8 @@
     <version ClassVersion="3" checksum="611807671"/>
   </class>
   <class name="std::vector<truth::LogicalGraphHitIndex::Hit>"/>
-  <class name="truth::LogicalGraphHitIndex::Channel" ClassVersion="4">
+  <class name="truth::LogicalGraphHitIndex::Channel" ClassVersion="5">
+    <version ClassVersion="5" checksum="1153586987"/>
     <version ClassVersion="4" checksum="2575462028"/>
     <version ClassVersion="3" checksum="1904217884"/>
   </class>
