@@ -144,3 +144,14 @@
   <use name="SimDataFormats/TruthInfo"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="TruthBranchNanoTableProducers.cc" name="TruthBranchNanoTableProducerPlugins">
+  <use name="DataFormats/DetId"/>
+  <use name="DataFormats/NanoAOD"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="SimDataFormats/Associations"/>
+  <use name="SimDataFormats/TruthInfo"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

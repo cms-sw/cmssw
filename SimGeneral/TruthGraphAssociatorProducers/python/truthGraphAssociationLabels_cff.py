@@ -17,18 +17,18 @@ import FWCore.ParameterSet.Config as cms
 from RecoTICL.Configuration.iterativeTICL_cff import ticlIterLabelsPSet
 from Validation.HGCalValidation.HLT_TICLIterLabels_cff import hltTiclIterLabelsPSet
 
-# EDProducer types whose produces<> declares a vector<ticl::Trackster>, so a trackster
-# collection is recognised BY TYPE and a new TICL iteration or HLT trackster module
-# joins the validation without an edit here. The plugins are in RecoTICL/PatternRecognition,
-# RecoTICL/Linking and RecoTICL/Interpretation. TICLCandidateProducer emits the post-linking
-# trackster collection next to its vector<TICLCandidate>; EDM resolves the two by type from
-# the bare module label.
+# EDProducer types whose products include a vector<ticl::Trackster>. A trackster
+# collection is recognised BY TYPE, so a new TICL iteration or HLT trackster module
+# joins the validation without an edit here. TICLCandidateProducer puts its tracksters
+# next to its vector<TICLCandidate>; EDM resolves the two by type from the module label.
+# A type with no module in the process matches nothing.
 # SimTrackstersProducer is deliberately absent: its tracksters are truth, not reco.
 tracksterProducerTypes = (
     "TrackstersProducer",
     "TracksterLinksProducer",
     "MergedTrackstersProducer",
     "TICLCandidateProducer",
+    "TICLInterpretationProducer",
 )
 
 # Reco collections per domain. Each entry is a module label; a collection that also
@@ -48,6 +48,12 @@ truthGraphRecoLabelsPSet = cms.PSet(
     # that does run them replaces this with what its process actually schedules, via
     # setTracksterLabelsFromProcess below.
     tracksters=cms.vstring(*sorted(ticlIterLabelsPSet.labels)),
+    # TICL candidates, matched on the layer clusters of their tracksters; their tracks are matched as tracks.
+    candidates=cms.vstring("ticlCandidate"),
+    # HGCAL layer clusters, the constituents of the tracksters, matched on their own cells
+    # against the same candidate roots as the tracksters, so a layer cluster and the
+    # trackster built from it point at the same truth.
+    layerClusters=cms.vstring("hgcalMergeLayerClusters"),
 )
 
 # The same domains reconstructed by the HLT menu. Kept as a separate PSet rather than
@@ -65,6 +71,8 @@ truthGraphHltRecoLabelsPSet = cms.PSet(
     # Validation/HGCalValidation. A RECO or DQM job reads the HLT tracksters from its
     # input file and so has no HLT producer to discover.
     tracksters=cms.vstring(*sorted(hltTiclIterLabelsPSet.labels)),
+    candidates=cms.vstring(),
+    layerClusters=cms.vstring(),
 )
 
 # Working points of the branch association. Fixed is the plain per-root match; the
