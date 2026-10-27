@@ -36,6 +36,7 @@ process.simulation_step = cms.Path(process.g4SimHits)
 process.analysis_step = cms.Path(process.materialBudgetHcalAnalysis)
 
 process.g4SimHits.UseMagneticField = False
+process.g4SimHits.LHCTransport = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.StackingAction.TrackNeutrino = True
 process.g4SimHits.Physics.DummyEMPhysics = True
