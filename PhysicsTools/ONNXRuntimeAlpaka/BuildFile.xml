@@ -1,0 +1,12 @@
+<use name="alpaka"/>
+<use name="eigen"/>
+<use name="onnxruntime"/>
+<use name="DataFormats/SoATemplate"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<use name="PhysicsTools/ONNXRuntime"/>
+<flags ALPAKA_BACKENDS="1"/>
+<export>
+  <lib name="1"/>
+</export>
