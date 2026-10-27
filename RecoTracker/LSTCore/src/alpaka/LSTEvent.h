@@ -43,7 +43,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     Queue& queue_;
     const float ptCut_;
     const uint16_t clustSizeCut_;
-    const bool reduceMemByFullPrecompute_;
 
     std::array<unsigned int, 6> n_minidoublets_by_layer_barrel_{};
     std::array<unsigned int, 5> n_minidoublets_by_layer_endcap_{};
@@ -60,15 +59,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     unsigned int nTotalSegmentsOT_;
     unsigned int pixelSize_;
     uint16_t pixelModuleIndex_;
+    unsigned int nSegmentOverflows_ = 0;  // created but found no slot in the counting-kernel allocation
+    unsigned int nTripletOverflows_ = 0;
+    unsigned int nQuintupletOverflows_ = 0;
+    unsigned int nT5byMDOverflows_ = 0;  // T5s kept but missing from their by-MD list
+    unsigned int nT5CapDrops_ = 0;       // T5s dropped at the fixed per-module cap kNQuintupletThreshold
 
     //Device stuff
     LSTInputDeviceCollection const* lstInputDC_;  // not owned
     std::optional<ObjectRangesDeviceCollection> rangesDC_;
     std::optional<HitsDeviceCollection> hitsDC_;
     std::optional<MiniDoubletsDeviceCollection> miniDoubletsDC_;
+    std::optional<MiniDoubletsBuildDeviceCollection> miniDoubletsBuildDC_;      // MD -> LS stage only
+    std::optional<SegmentsT3CountsDeviceCollection> segmentsT3CountsDC_;        // T3 stage only
+    std::optional<MiniDoubletsT5BuildDeviceCollection> miniDoubletsT5BuildDC_;  // T5 stage only
     std::optional<SegmentsDeviceCollection> segmentsDC_;
     std::optional<PixelSegmentsDeviceCollection> pixelSegmentsDC_;
     std::optional<TripletsDeviceCollection> tripletsDC_;
+    std::optional<TripletsListRangesDeviceCollection> tripletsListRangesDC_;
     std::optional<QuintupletsDeviceCollection> quintupletsDC_;
     std::optional<QuadrupletsDeviceCollection> quadrupletsDC_;
     std::optional<TrackCandidatesBaseDeviceCollection> trackCandidatesBaseDC_;
@@ -81,6 +89,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     std::optional<ObjectRangesHostCollection> rangesHC_;
     std::optional<HitsHostCollection> hitsHC_;
     std::optional<MiniDoubletsHostCollection> miniDoubletsHC_;
+    std::optional<MiniDoubletsBuildHostCollection> miniDoubletsBuildHC_;
     std::optional<SegmentsHostCollection> segmentsHC_;
     std::optional<PixelSegmentsHostCollection> pixelSegmentsHC_;
     std::optional<TripletsHostCollection> tripletsHC_;
@@ -95,32 +104,38 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     const uint16_t nModules_;
     const uint16_t nLowerModules_;
     const unsigned int nPixels_;
-    const unsigned int nEndCapMap_;
     ModulesDeviceCollection const& modules_;
     PixelMap const& pixelMapping_;
-    EndcapGeometryDevDeviceCollection const& endcapGeometry_;
     bool objectsStatistics_ = false;
+    bool keepHostCopies_ = false;  // copy a device collection to host before it is released (standalone writer)
     double memoryAllocatedMB_ = 0;
+    double memoryLiveMB_ = 0;
+    double memoryPeakLiveMB_ = 0;
+
+    void trackAllocatedMB(double mb);
+    void trackTransientMB(double mb);  // live (peak) accounting only, not added to the allocated total
+    // Releases a device collection after its last use; with keepHostCopies_ its host copy is made first.
+    template <typename TDC, typename THC>
+    void releaseDeviceCollection(std::optional<TDC>& dc, std::optional<THC>& hc);
+    template <typename TDC>
+    void releaseDeviceCollection(std::optional<TDC>& dc);  // stage-local collection without a host reader
+    // Shrink pT5 and pT3 (fixed caps) and T4 (counting-kernel size) to the produced objects; each waits on the queue.
+    void compactPixelQuintuplets(Queue& queue);
+    void compactPixelTriplets(Queue& queue);
+    void compactQuadruplets(Queue& queue, uint16_t nEligibleT4Modules);
 
   public:
     // Constructor used for CMSSW integration. Uses an external queue.
-    LSTEvent(bool verbose,
-             const float ptCut,
-             const uint16_t clustSizeCut,
-             Queue& q,
-             const LSTESData<Device>* deviceESData,
-             bool reduce_mem_by_full_precompute)
+    LSTEvent(
+        bool verbose, const float ptCut, const uint16_t clustSizeCut, Queue& q, const LSTESData<Device>* deviceESData)
         : queue_(q),
           ptCut_(ptCut),
           clustSizeCut_(clustSizeCut),
-          reduceMemByFullPrecompute_(reduce_mem_by_full_precompute),
           nModules_(deviceESData->nModules),
           nLowerModules_(deviceESData->nLowerModules),
           nPixels_(deviceESData->nPixels),
-          nEndCapMap_(deviceESData->nEndCapMap),
           modules_(*deviceESData->modules),
           pixelMapping_(*deviceESData->pixelMapping),
-          endcapGeometry_(*deviceESData->endcapGeometry),
           objectsStatistics_(verbose) {
       if (ptCut < 0.6f) {
         throw std::invalid_argument("Minimum pT cut must be at least 0.6 GeV. Provided value: " +
@@ -130,15 +145,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     void initSync();        // synchronizes, for standalone usage
     void resetEventSync();  // synchronizes, for standalone usage
     void wait() const { alpaka::wait(queue_); }
+    void setKeepHostCopies(bool keep) { keepHostCopies_ = keep; }
 
     void addInputToEvent(LSTInputDeviceCollection const* lstInputDC);
     // Calls the appropriate hit function, then increments the counter
     void addHitToEvent();
-    void addPixelSegmentToEventStart();
 
     void createMiniDoublets();
-    void addPixelSegmentToEventFinalize();
+    void addPixelSegmentToEvent();
     void createSegmentsWithModuleMap();
+    void compactSegments(SegmentCandidatesDeviceCollection const& candidatesDC);
     void createTriplets();
     void createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets);
     void createPixelTriplets();
@@ -187,19 +203,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     unsigned int getNumberOfQuadrupletsByLayerEndcap(unsigned int layer);
 
     double getMemoryAllocatedMB() const { return memoryAllocatedMB_; }
+    double getMemoryPeakLiveMB() const { return memoryPeakLiveMB_; }
 
     // sync adds alpaka::wait at the end of filling a buffer during lazy fill
     // (has no effect on repeated calls)
     // set to false may allow faster operation with concurrent calls of get*
     // HANDLE WITH CARE
-    template <typename TSoA, typename TDev = Device>
-    typename TSoA::ConstView getInput(bool sync = true);
+    template <typename TDev = Device>
+    LSTInputConstView getInput(bool sync = true);
     template <typename TSoA, typename TDev = Device>
     typename TSoA::ConstView getHits(bool sync = true);
     template <typename TDev = Device>
     ObjectRangesConst getRanges(bool sync = true);
     template <typename TSoA, typename TDev = Device>
     typename TSoA::ConstView getMiniDoublets(bool sync = true);
+    // build-only MD columns; after the LS stage only available with setKeepHostCopies(true)
+    template <typename TDev = Device>
+    MiniDoubletsBuildConst getMiniDoubletsBuild(bool sync = true);
     template <typename TSoA, typename TDev = Device>
     typename TSoA::ConstView getSegments(bool sync = true);
     template <typename TSoA, typename TDev = Device>

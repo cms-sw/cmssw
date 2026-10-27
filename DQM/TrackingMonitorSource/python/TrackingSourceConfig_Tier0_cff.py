@@ -397,13 +397,19 @@ seedingDeepCore.toReplaceWith(TrackSeedMonSequence,_seedingDeepCore_TrackSeedMon
 
 from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
 from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
+# the LST track candidates have one seed stop info per LST input seed of both steps, so the monitor reads them merged
+import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi as _GlobalCombinedSeeds_cfi
+lstInputSeedsForSeedMon = _GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone(
+    seedCollections = ['initialStepSeeds', 'highPtTripletStepSeeds']
+)
 trackingLST.toModify(locals()["TrackSeedMonhighPtTripletStep"],
-    SeedProducer = "lstInputProducer"
+    SeedProducer = "lstInputSeedsForSeedMon"
 )
 seedingLST.toModify(locals()["TrackSeedMonhighPtTripletStep"],
     SeedProducer = "highPtTripletStepSeedsPixelsWithLST"
 )
 _LST_TrackSeedMonSequence = TrackSeedMonSequence.copyAndExclude([locals()["TrackSeedMoninitialStep"]])
+_LST_TrackSeedMonSequence.associate(cms.Task(lstInputSeedsForSeedMon))
 (seedingLST | trackingLST).toReplaceWith(TrackSeedMonSequence, _LST_TrackSeedMonSequence)
 
 TrackingDQMSourceTier0 += TrackSeedMonSequence
