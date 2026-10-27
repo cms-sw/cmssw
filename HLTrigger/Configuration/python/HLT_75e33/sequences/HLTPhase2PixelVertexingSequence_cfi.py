@@ -11,7 +11,7 @@ HLTPhase2PixelVertexingSequence = cms.Sequence(
 HLTPhase2PixelVertexingSequenceSerialSync = cms.Sequence()
 
 hltPhase2PixelVerticesSerialSync = hltPhase2PixelVertices.clone(
-    TrackCollection = "hltPhase2PixelTracksCAExtensionSerialSync"
+    TrackCollection = "hltPhase2PixelTracksSerialSync"
 )
 # Serial sequence for CPU vs. GPU validation, to be kept in sync with default sequence
 from Configuration.ProcessModifiers.alpakaValidationHLT_cff import alpakaValidationHLT
