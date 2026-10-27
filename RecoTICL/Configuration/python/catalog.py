@@ -208,6 +208,20 @@ _SPECS = [
         external_inputs=("layerClusters", "time_layerclusters"),
     ),
     ModuleSpec(
+        key="HGCalMergedLayerClustersFromSoAProducer",
+        cfi_module="RecoTICL.LayerClustering.hgCalMergedLayerClustersFromSoAProducer_cfi",
+        cfi_symbol="hgCalMergedLayerClustersFromSoAProducer",
+        # the same products as MergeClusterProducer, converted from the SoA layer clusters of the HGCAL components
+        produces=(
+            Product(T_CALOCLUSTERS),
+            Product(T_MASK, "fixed:InitialLayerClustersMask"),
+            Product(T_TIME, "fixed:timeLayerCluster"),
+        ),
+        consumes=(),
+        external_inputs=("layerClustersSoA", "hgcalRecHitsSoA", "hgcalRecHitsLayerClustersSoA", "extraLayerClusters",
+                         "extraTimeLayerClusters"),
+    ),
+    ModuleSpec(
         key="PFTICLProducer",
         cfi_module="RecoTICL.ParticleFlow.pfTICLProducer_cfi",
         cfi_symbol="pfTICLProducer",
