@@ -62,10 +62,8 @@ private:
   edm::EDGetTokenT<FTLClusterCollection> clustersToken_;
 
   edm::EDGetTokenT<MtdSimMergedClusterCollection> simMergedClustersToken_;
-  edm::EDGetTokenT<MtdSimLayerClusterCollection> simClustersToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
 
-  edm::EDGetTokenT<reco::SimToTPCollectionMtd> sim2tpAssociationMapToken_;
   edm::EDGetTokenT<MtdRecoMergedClusterToSimMergedClusterAssociationMap> r2sAssociationMapToken_;
 
   edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
@@ -132,13 +130,8 @@ MtdMergedClusterValidation::MtdMergedClusterValidation(const edm::ParameterSet& 
       mtdtopoToken_(esConsumes<MTDTopology, MTDTopologyRcd>()) {
   mergedClustersToken_ = consumes<FTLMergedClusterCollection>(iConfig.getParameter<edm::InputTag>("mergedClusters"));
   clustersToken_ = consumes<FTLClusterCollection>(iConfig.getParameter<edm::InputTag>("clusters"));
-
   simMergedClustersToken_ =
       consumes<MtdSimMergedClusterCollection>(iConfig.getParameter<edm::InputTag>("simMergedClusters"));
-  simClustersToken_ = consumes<MtdSimLayerClusterCollection>(iConfig.getParameter<edm::InputTag>("simLayerClusters"));
-
-  sim2tpAssociationMapToken_ =
-      consumes<reco::SimToTPCollectionMtd>(iConfig.getParameter<edm::InputTag>("sim2tpAssociationMapTag"));
   r2sAssociationMapToken_ = consumes<MtdRecoMergedClusterToSimMergedClusterAssociationMap>(
       iConfig.getParameter<edm::InputTag>("r2sAssociationMapTag"));
 }
@@ -155,18 +148,13 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
   edm::Handle<MtdSimMergedClusterCollection> simMergedClustersHandle;
   iEvent.getByToken(simMergedClustersToken_, simMergedClustersHandle);
 
-  edm::Handle<MtdSimLayerClusterCollection> mtdSimLCHandle;
-  iEvent.getByToken(simClustersToken_, mtdSimLCHandle);
-
   const auto& r2sAssociationMap = iEvent.get(r2sAssociationMapToken_);
 
-  if (!mergedClustersHandle.isValid() || !clustersHandle.isValid() || !simMergedClustersHandle.isValid() ||
-      !mtdSimLCHandle.isValid()) {
+  if (!mergedClustersHandle.isValid() || !clustersHandle.isValid() || !simMergedClustersHandle.isValid()) {
     edm::LogWarning("MtdMergedClusterValidation") << "Invalid handles!"
                                                   << "  mergedClustersHandle: " << mergedClustersHandle.isValid()
                                                   << "  clustersHandle: " << clustersHandle.isValid()
-                                                  << "  simMergedClustersHandle: " << simMergedClustersHandle.isValid()
-                                                  << "  mtdSimLCHandle: " << mtdSimLCHandle.isValid();
+                                                  << "  simMergedClustersHandle: " << simMergedClustersHandle.isValid();
     return;
   }
 
@@ -463,8 +451,6 @@ void MtdMergedClusterValidation::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("mergedClusters", edm::InputTag("mtdMergedClusters", "FTLBarrel"));
   desc.add<edm::InputTag>("clusters", edm::InputTag("mtdClusters", "FTLBarrel"));
   desc.add<edm::InputTag>("simMergedClusters", edm::InputTag("mtdSimMergedClusterProducer"));
-  desc.add<edm::InputTag>("simLayerClusters", edm::InputTag("mix", "MergedMtdTruthLC"));
-  desc.add<edm::InputTag>("sim2tpAssociationMapTag", edm::InputTag("mtdSimLayerClusterToTPAssociation", ""));
   desc.add<edm::InputTag>("r2sAssociationMapTag",
                           edm::InputTag("mtdRecoMergedClusterToSimMergedClusterAssociation", ""));
 
