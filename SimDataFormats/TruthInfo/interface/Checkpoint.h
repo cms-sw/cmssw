@@ -13,8 +13,8 @@ namespace truth {
   // crossing): the position and momentum recorded at a labelled point.
   struct Checkpoint {
     uint32_t checkpointId = 0;
-    math::XYZTLorentzVectorF position;
-    math::XYZTLorentzVectorF momentum;
+    math::XYZTLorentzVectorF position;  // (cm, ns)
+    math::XYZTLorentzVectorF momentum;  // GeV
   };
 
 }  // namespace truth
