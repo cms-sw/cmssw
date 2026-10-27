@@ -1119,13 +1119,17 @@ namespace {
      EB or EE+ between two tags, (2) - (1). The difference is evaluated on
      the union of the IOV boundaries of the two tags, the band is the RMS
      of the crystal-by-crystal difference, which accounts for the two tags
-     measuring the same crystals
+     measuring the same crystals.
+     With percent = true the crystal-by-crystal difference is relative to
+     the first tag, 100 * ((2) - (1)) / (1), crystals with (1) = 0 are skipped
   *************************************************************************/
-  template <int param, int part>
+  template <int param, int part, bool percent>
   class EcalLaserAPDPNRatiosMeanDiffHistory : public EcalLaserAPDPNRatiosHistoryCompareBase<param, part> {
   public:
     typedef EcalLaserAPDPNRatiosHistoryCompareBase<param, part> Base;
-    EcalLaserAPDPNRatiosMeanDiffHistory() : Base("ECAL Laser APDPNRatios crystal mean difference history") {}
+    EcalLaserAPDPNRatiosMeanDiffHistory()
+        : Base(percent ? "ECAL Laser APDPNRatios crystal mean relative difference history"
+                       : "ECAL Laser APDPNRatios crystal mean difference history") {}
 
     bool fill() override {
       if (!this->collect())
@@ -1168,8 +1172,15 @@ namespace {
         }
         if (changed) {
           diffStats = EcalLaserPartitionStats::compute([&values](auto&& add) {
-            for (size_t i = 0; i < values[0].size(); i++)
-              add(double(values[1][i]) - double(values[0][i]));
+            for (size_t i = 0; i < values[0].size(); i++) {
+              const double v1 = values[0][i], v2 = values[1][i];
+              if constexpr (percent) {
+                if (v1 != 0.)
+                  add(100. * (v2 - v1) / v1);
+              } else {
+                add(v2 - v1);
+              }
+            }
           });
         }
         diff.push_back(diffStats.mean);
@@ -1210,8 +1221,11 @@ namespace {
       canvas.SetTopMargin(0.14);
       canvas.SetGrid();
 
-      auto frame =
-          this->makeFrame(Form("%s #Delta crystal mean p%i, (2) - (1)", laserPartitionName(part), param), xmin, xmax);
+      auto frame = this->makeFrame(
+          percent ? Form("%s #Delta crystal mean p%i, ((2) - (1)) / (1) [%%]", laserPartitionName(part), param)
+                  : Form("%s #Delta crystal mean p%i, (2) - (1)", laserPartitionName(part), param),
+          xmin,
+          xmax);
       frame->SetMinimum(ymin - ymargin);
       frame->SetMaximum(ymax + 2 * ymargin);  // leave room for the legend
       frame->Draw();
@@ -1227,26 +1241,42 @@ namespace {
       legend.SetBorderSize(0);
       legend.SetFillStyle(0);
       legend.SetTextSize(0.025);
-      legend.AddEntry(&line, Form("mean (2) - mean (1), average %.4f", averageDiff), "l");
-      legend.AddEntry(&band, Form("#pm RMS of the crystal-by-crystal difference, average %.4f", averageErr), "f");
+      if constexpr (percent) {
+        legend.AddEntry(&line, Form("mean of ((2) - (1)) / (1), average %.3f%%", averageDiff), "l");
+        legend.AddEntry(
+            &band, Form("#pm RMS of the crystal-by-crystal relative difference, average %.3f%%", averageErr), "f");
+      } else {
+        legend.AddEntry(&line, Form("mean (2) - mean (1), average %.4f", averageDiff), "l");
+        legend.AddEntry(&band, Form("#pm RMS of the crystal-by-crystal difference, average %.4f", averageErr), "f");
+      }
       legend.Draw();
 
-      this->drawHeader(Form("%s crystal mean difference history 'p%i'", laserPartitionName(part), param));
+      this->drawHeader(Form(
+          "%s crystal mean %sdifference history 'p%i'", laserPartitionName(part), percent ? "relative " : "", param));
 
       std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
   };  // class EcalLaserAPDPNRatiosMeanDiffHistory
-  using EcalLaserAPDPNRatiosEEMinusP1MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<1, kEEMinus>;
-  using EcalLaserAPDPNRatiosEEMinusP2MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<2, kEEMinus>;
-  using EcalLaserAPDPNRatiosEEMinusP3MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<3, kEEMinus>;
-  using EcalLaserAPDPNRatiosEBP1MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<1, kEB>;
-  using EcalLaserAPDPNRatiosEBP2MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<2, kEB>;
-  using EcalLaserAPDPNRatiosEBP3MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<3, kEB>;
-  using EcalLaserAPDPNRatiosEEPlusP1MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<1, kEEPlus>;
-  using EcalLaserAPDPNRatiosEEPlusP2MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<2, kEEPlus>;
-  using EcalLaserAPDPNRatiosEEPlusP3MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<3, kEEPlus>;
+  using EcalLaserAPDPNRatiosEEMinusP1MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<1, kEEMinus, false>;
+  using EcalLaserAPDPNRatiosEEMinusP2MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<2, kEEMinus, false>;
+  using EcalLaserAPDPNRatiosEEMinusP3MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<3, kEEMinus, false>;
+  using EcalLaserAPDPNRatiosEBP1MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<1, kEB, false>;
+  using EcalLaserAPDPNRatiosEBP2MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<2, kEB, false>;
+  using EcalLaserAPDPNRatiosEBP3MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<3, kEB, false>;
+  using EcalLaserAPDPNRatiosEEPlusP1MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<1, kEEPlus, false>;
+  using EcalLaserAPDPNRatiosEEPlusP2MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<2, kEEPlus, false>;
+  using EcalLaserAPDPNRatiosEEPlusP3MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<3, kEEPlus, false>;
+  using EcalLaserAPDPNRatiosEEMinusP1MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<1, kEEMinus, true>;
+  using EcalLaserAPDPNRatiosEEMinusP2MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<2, kEEMinus, true>;
+  using EcalLaserAPDPNRatiosEEMinusP3MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<3, kEEMinus, true>;
+  using EcalLaserAPDPNRatiosEBP1MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<1, kEB, true>;
+  using EcalLaserAPDPNRatiosEBP2MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<2, kEB, true>;
+  using EcalLaserAPDPNRatiosEBP3MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<3, kEB, true>;
+  using EcalLaserAPDPNRatiosEEPlusP1MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<1, kEEPlus, true>;
+  using EcalLaserAPDPNRatiosEEPlusP2MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<2, kEEPlus, true>;
+  using EcalLaserAPDPNRatiosEEPlusP3MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<3, kEEPlus, true>;
 
 }  // namespace
 
@@ -1306,4 +1336,13 @@ PAYLOAD_INSPECTOR_MODULE(EcalLaserAPDPNRatios) {
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP1MeanDiffHistory);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP2MeanDiffHistory);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP3MeanDiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP1MeanPercentDiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP2MeanPercentDiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP3MeanPercentDiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP1MeanPercentDiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP2MeanPercentDiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP3MeanPercentDiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP1MeanPercentDiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP2MeanPercentDiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP3MeanPercentDiffHistory);
 }
