@@ -12,6 +12,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TCanvas.h"
+#include "TColor.h"
 #include "TStyle.h"
 #include "TLine.h"
 #include "TLatex.h"
@@ -840,11 +841,30 @@ namespace {
       : public cond::payloadInspector::PlotImage<EcalLaserAPDPNRatios, cond::payloadInspector::MULTI_IOV, ntags> {
   public:
     explicit EcalLaserAPDPNRatiosHistoryBase(const std::string& title)
-        : cond::payloadInspector::PlotImage<EcalLaserAPDPNRatios, cond::payloadInspector::MULTI_IOV, ntags>(title) {}
+        : cond::payloadInspector::PlotImage<EcalLaserAPDPNRatios, cond::payloadInspector::MULTI_IOV, ntags>(title) {
+      // text after "CMS" (default "Internal") and on the top right of the plot (default "13.6 TeV")
+      cond::payloadInspector::PlotBase::addInputParam("cmsLabel");
+      cond::payloadInspector::PlotBase::addInputParam("rightLabel");
+    }
 
   protected:
     static_assert(ntags == 1 || ntags == 2, "the history plots support one or two tags");
-    static constexpr std::array<int, 2> kColor = {{kRed, kBlue}};
+
+    // CMS style: canvas size in pixels, text sizes in pixels (precision 3 fonts), layout in canvas fractions
+    static constexpr int kCanvasWidth = 2000;
+    static constexpr int kCanvasHeight = 2400;
+    static constexpr double kLeftMargin = 0.11;
+    static constexpr double kRightMargin = 0.04;
+    static constexpr double kBottomArea = 0.065;  // below the bottom frame, for the x axis labels and title
+    static constexpr double kPadGap = 0.016;      // between two frames
+    static constexpr double kTickLength = 0.012;
+    static constexpr int kLabelSize = 40;
+    static constexpr int kTitleSize = 44;
+    static constexpr int kLegendSize = 38;
+    static constexpr int kHeaderSize = 34;
+
+    // colors of the tags, from the CMS recommended (Petroff) palette
+    static int tagColor(int itag) { return (itag == 0) ? TColor::GetColor("#5790fc") : TColor::GetColor("#e42536"); }
 
     std::array<std::string, ntags> m_tagName;
     std::array<std::string, ntags> m_iovRange;  // human readable first - last IOV of each tag
@@ -912,25 +932,36 @@ namespace {
       return {xfirst - xmargin, xmax + xmargin};
     }
 
-    // the canvas has a header for the title and the tag names, then one pad per partition
+    // top of the pads, above there are the tag names and the CMS label
+    static constexpr double padsTop() { return 0.985 - 0.018 * ntags - 0.035; }
+
+    // one pad per partition, the frames have the same height and share the x axis of the bottom one
     void makePads(TCanvas& canvas) const {
-      const double top = 0.95 - 0.025 * ntags;
-      const double height = top / kNLaserPartitions;
+      const double frameHeight = (padsTop() - kBottomArea - 2.5 * kPadGap) / kNLaserPartitions;
       canvas.Divide(1, kNLaserPartitions);
+      double frameTop = padsTop() - 0.5 * kPadGap;
       for (int ipad = 0; ipad < kNLaserPartitions; ipad++) {
+        const double frameBottom = frameTop - frameHeight;
+        const double below = (ipad == kNLaserPartitions - 1) ? kBottomArea : 0.5 * kPadGap;
+        const double low = frameBottom - below, high = frameTop + 0.5 * kPadGap;
         TVirtualPad* pad = canvas.cd(ipad + 1);
-        pad->SetPad(0., std::max(top - (ipad + 1) * height, 0.), 1., top - ipad * height);
-        pad->SetLeftMargin(0.09);
-        pad->SetRightMargin(0.03);
-        pad->SetTopMargin(0.04);
-        pad->SetBottomMargin(0.14);
-        pad->SetGrid();
+        pad->SetPad(0., std::max(low, 0.), 1., high);
+        pad->SetLeftMargin(kLeftMargin);
+        pad->SetRightMargin(kRightMargin);
+        pad->SetTopMargin(0.5 * kPadGap / (high - low));
+        pad->SetBottomMargin(below / (high - low));
+        pad->SetTickx(1);
+        pad->SetTicky(1);
+        pad->SetFillStyle(4000);
+        frameTop = frameBottom - kPadGap;
       }
     }
 
-    // empty histogram setting the axes of the pad of one partition, drawn in the current pad
+    // empty histogram setting the axes of the pad of one partition, drawn in the current pad,
+    // only the bottom pad shows the labels and the title of the x axis
     TH1F* drawFrame(std::vector<std::unique_ptr<TObject>>& keep,
                     int part,
+                    bool bottom,
                     const std::string& yTitle,
                     double xmin,
                     double xmax,
@@ -945,60 +976,114 @@ namespace {
       frame->SetDirectory(nullptr);
       frame->SetMinimum(ymin);
       frame->SetMaximum(ymax);
-      for (auto* axis : {frame->GetXaxis(), frame->GetYaxis()}) {
-        axis->SetLabelSize(0.06);
-        axis->SetTitleSize(0.06);
+      TAxis* xaxis = frame->GetXaxis();
+      TAxis* yaxis = frame->GetYaxis();
+      for (auto* axis : {xaxis, yaxis}) {
+        axis->SetLabelFont(43);
+        axis->SetTitleFont(43);
+        axis->SetLabelSize(kLabelSize);
+        axis->SetTitleSize(kTitleSize);
       }
-      frame->GetXaxis()->SetTitleOffset(1.05);
-      frame->GetYaxis()->SetTitleOffset(0.7);
-      frame->GetYaxis()->SetNdivisions(505);
+      if (!bottom) {
+        xaxis->SetLabelSize(0);
+        xaxis->SetTitleSize(0);
+      }
+      // the tick lengths are fractions of the pad size, keep them the same in all the pads
+      xaxis->SetTickLength(kTickLength / gPad->GetHNDC());
+      yaxis->SetTickLength(kTickLength * kCanvasHeight / kCanvasWidth);
+      xaxis->SetTitleOffset(1.1);
+      yaxis->SetTitleOffset(2.1);
+      xaxis->SetLabelOffset(0.008 / gPad->GetHNDC());
+      yaxis->SetNdivisions(505);
       if (m_timeAxis) {
-        frame->GetXaxis()->SetTimeDisplay(1);
-        frame->GetXaxis()->SetTimeFormat("%d/%m/%y%F1970-01-01 00:00:00");
-        frame->GetXaxis()->SetNdivisions(510);
+        xaxis->SetTimeDisplay(1);
+        xaxis->SetTimeFormat("%d/%m/%y%F1970-01-01 00:00:00");
+        xaxis->SetNdivisions(510);
       } else {
-        frame->GetXaxis()->SetNoExponent();
-        frame->GetXaxis()->SetMaxDigits(7);
+        xaxis->SetNoExponent();
+        xaxis->SetMaxDigits(7);
+        xaxis->SetNdivisions(510);
       }
-      frame->Draw();
-      // partition name in the top left corner of the pad
-      auto label = std::make_unique<TLatex>(0.11, 0.86, laserPartitionName(part));
+      frame->Draw("AXIS");
+      // partition name in the top left corner of the frame
+      auto label =
+          std::make_unique<TLatex>(kLeftMargin + 0.02, 1. - gPad->GetTopMargin() - 0.05, laserPartitionName(part));
       label->SetNDC();
-      label->SetTextFont(62);
-      label->SetTextSize(0.08);
+      label->SetTextAlign(13);
+      label->SetTextFont(63);
+      label->SetTextSize(48);
       label->Draw();
       keep.push_back(std::move(label));
       keep.push_back(std::move(frame));
       return static_cast<TH1F*>(keep.back().get());
     }
 
-    // legend at the top of the current pad, right of the partition name
+    // redraws the axes on top of the drawn objects
+    static void redrawAxes(TH1F* frame) { frame->Draw("AXIS SAME"); }
+
+    // legend at the top of the current frame, right of the partition name
     TLegend* drawLegend(std::vector<std::unique_ptr<TObject>>& keep, int ncolumns = 2) const {
-      auto legend = std::make_unique<TLegend>(0.20, 0.80, 0.96, 0.95);
+      const double frameTop = 1. - gPad->GetTopMargin();
+      const double frameHeight = frameTop - gPad->GetBottomMargin();
+      auto legend = std::make_unique<TLegend>(
+          kLeftMargin + 0.11, frameTop - 0.25 * frameHeight, 1. - kRightMargin - 0.02, frameTop - 0.03 * frameHeight);
       legend->SetNColumns(ncolumns);
       legend->SetBorderSize(0);
       legend->SetFillStyle(0);
-      legend->SetTextSize(0.055);
+      legend->SetTextFont(43);
+      legend->SetTextSize(kLegendSize);
       keep.push_back(std::move(legend));
       return static_cast<TLegend*>(keep.back().get());
     }
 
-    // header, TText instead of TLatex to keep the underscores of the tag names
-    void drawHeader(TCanvas& canvas, const std::string& title) const {
+    // value of an input parameter of the plot, def if it is not set
+    std::string inputParam(const std::string& name, const std::string& def) const {
+      const auto& values = cond::payloadInspector::PlotBase::inputParamValues();
+      auto it = values.find(name);
+      return (it == values.end()) ? def : it->second;
+    }
+
+    // CMS label on top of the frames, tag names (TText to keep the underscores) above it
+    void drawHeader(TCanvas& canvas) const {
       canvas.cd();
-      TText t1;
-      t1.SetNDC();
-      t1.SetTextAlign(22);
-      t1.SetTextSize(0.02);
-      t1.DrawText(0.5, 0.975, title.c_str());
-      t1.SetTextSize(0.014);
+      const double y = padsTop() + 0.006;
+      TLatex cms;
+      cms.SetNDC();
+      cms.SetTextAlign(11);
+      cms.SetTextFont(63);
+      cms.SetTextSize(62);
+      cms.DrawLatex(kLeftMargin, y, "CMS");
+      const std::string cmsLabel = inputParam("cmsLabel", "Internal");
+      if (!cmsLabel.empty()) {
+        TLatex extra;
+        extra.SetNDC();
+        extra.SetTextAlign(11);
+        extra.SetTextFont(53);
+        extra.SetTextSize(48);
+        TLatex width(0., 0., "CMS ");
+        width.SetTextFont(63);
+        width.SetTextSize(62);
+        extra.DrawLatex(kLeftMargin + width.GetXsize(), y, cmsLabel.c_str());
+      }
+      TLatex right;
+      right.SetNDC();
+      right.SetTextAlign(31);
+      right.SetTextFont(43);
+      right.SetTextSize(48);
+      right.DrawLatex(1. - kRightMargin, y, inputParam("rightLabel", "13.6 TeV").c_str());
+
+      TText tags;
+      tags.SetNDC();
+      tags.SetTextAlign(13);
+      tags.SetTextFont(43);
+      tags.SetTextSize(kHeaderSize);
       for (int itag = 0; itag < ntags; itag++) {
-        t1.SetTextColor((ntags == 1) ? kBlack : kColor[itag]);
-        t1.DrawText(0.5,
-                    0.95 - 0.02 * itag,
-                    (ntags == 1)
-                        ? Form("%s, IOVs %s", m_tagName[itag].c_str(), m_iovRange[itag].c_str())
-                        : Form("(%i) %s, IOVs %s", itag + 1, m_tagName[itag].c_str(), m_iovRange[itag].c_str()));
+        tags.SetTextColor((ntags == 1) ? kBlack : tagColor(itag));
+        tags.DrawText(kLeftMargin,
+                      0.99 - 0.018 * itag,
+                      (ntags == 1)
+                          ? Form("%s, IOVs %s", m_tagName[itag].c_str(), m_iovRange[itag].c_str())
+                          : Form("(%i) %s, IOVs %s", itag + 1, m_tagName[itag].c_str(), m_iovRange[itag].c_str()));
       }
     }
 
@@ -1052,7 +1137,7 @@ namespace {
 
       gStyle->SetOptStat(0);
       std::vector<std::unique_ptr<TObject>> keep;  // ROOT objects drawn on the canvas
-      TCanvas canvas("CC history", "CC history", 2000, 2400);
+      TCanvas canvas("CC history", "CC history", Base::kCanvasWidth, Base::kCanvasHeight);
       this->makePads(canvas);
       for (int ipad = 0; ipad < kNLaserPartitions; ipad++) {
         const int part = kLaserPadOrder[ipad];
@@ -1067,20 +1152,22 @@ namespace {
         const double ymargin = (ymax > ymin) ? 0.1 * (ymax - ymin) : 0.01;
 
         canvas.cd(ipad + 1);
-        this->drawFrame(keep,
-                        part,
-                        Form("%s crystal %s p%i", laserPartitionName(part), laserStatisticName(stat), param),
-                        xmin,
-                        xmax,
-                        ymin - ymargin,
-                        ymax + 3.5 * ymargin);  // leave room for the legend
+        TH1F* frame = this->drawFrame(keep,
+                                      part,
+                                      ipad == kNLaserPartitions - 1,
+                                      Form("Crystal %s p%i", laserStatisticName(stat), param),
+                                      xmin,
+                                      xmax,
+                                      ymin - ymargin,
+                                      ymax + 4 * ymargin);  // leave room for the legend
         TLegend* legend = this->drawLegend(keep);
         for (int itag = 0; itag < ntags; itag++) {
-          const int color = (ntags == 1) ? int(kBlue) : Base::kColor[itag];
+          const int color = Base::tagColor(itag);
           const double average = std::accumulate(y[itag].begin(), y[itag].end(), 0.) / y[itag].size();
           auto averageLine = std::make_unique<TLine>(xmin, average, xmax, average);
           averageLine->SetLineColor(color);
           averageLine->SetLineStyle(kDashed);
+          averageLine->SetLineWidth(2);
           averageLine->Draw();
           // step graph (the value holds until the next IOV) and markers at the start of each IOV
           auto steps = std::make_unique<TGraph>();
@@ -1092,20 +1179,21 @@ namespace {
           }
           steps->SetLineWidth(2);
           points->SetMarkerStyle(marker[itag]);
-          points->SetMarkerSize(0.8);
+          points->SetMarkerSize(1.1);
           steps->Draw("L SAME");
           points->Draw("P SAME");
           const std::string prefix = (ntags == 1) ? "" : Form("(%i) ", itag + 1);
           legend->AddEntry(points.get(), Form("%s%zu IOVs", prefix.c_str(), x[itag].size()), "lp");
-          legend->AddEntry(averageLine.get(), Form("%saverage %.4f", prefix.c_str(), average), "l");
+          legend->AddEntry(averageLine.get(), Form("%sAverage %.4f", prefix.c_str(), average), "l");
           keep.push_back(std::move(averageLine));
           keep.push_back(std::move(steps));
           keep.push_back(std::move(points));
         }
         legend->Draw();
+        Base::redrawAxes(frame);
       }
 
-      this->drawHeader(canvas, Form("ECAL laser crystal %s history 'p%i'", laserStatisticName(stat), param));
+      this->drawHeader(canvas);
 
       std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
@@ -1230,7 +1318,7 @@ namespace {
 
       gStyle->SetOptStat(0);
       std::vector<std::unique_ptr<TObject>> keep;  // ROOT objects drawn on the canvas
-      TCanvas canvas("CC history", "CC history", 2000, 2400);
+      TCanvas canvas("CC history", "CC history", Base::kCanvasWidth, Base::kCanvasHeight);
       this->makePads(canvas);
       for (int ipad = 0; ipad < kNLaserPartitions; ipad++) {
         const int part = kLaserPadOrder[ipad];
@@ -1245,14 +1333,15 @@ namespace {
         const double ymargin = (ymax > ymin) ? 0.1 * (ymax - ymin) : 0.01;
 
         canvas.cd(ipad + 1);
-        this->drawFrame(keep,
-                        part,
-                        percent ? Form("%s #Delta p%i, ((2) - (1)) / (1) [%%]", laserPartitionName(part), param)
-                                : Form("%s #Delta p%i, (2) - (1)", laserPartitionName(part), param),
-                        xmin,
-                        xmax,
-                        ymin - ymargin,
-                        ymax + 3.5 * ymargin);  // leave room for the legend
+        TH1F* frame = this->drawFrame(keep,
+                                      part,
+                                      ipad == kNLaserPartitions - 1,
+                                      percent ? Form("(p%i^{(2)} - p%i^{(1)}) / p%i^{(1)} [%%]", param, param, param)
+                                              : Form("p%i^{(2)} - p%i^{(1)}", param, param),
+                                      xmin,
+                                      xmax,
+                                      ymin - ymargin,
+                                      ymax + 4 * ymargin);  // leave room for the legend
 
         // the band is a variable bin histogram, one bin per step, drawn as error boxes from low to high
         std::vector<double> edges(xd);
@@ -1263,12 +1352,14 @@ namespace {
           band->SetBinContent(i + 1, 0.5 * (up[i] + down[i]));
           band->SetBinError(i + 1, 0.5 * (up[i] - down[i]));
         }
-        band->SetFillColorAlpha(kAzure + 1, 0.35);
-        band->SetLineColor(kAzure + 1);
+        band->SetFillColorAlpha(Base::tagColor(0), 0.45);
+        band->SetLineWidth(0);
         band->SetMarkerSize(0);
         band->Draw("E2 SAME");
         auto zero = std::make_unique<TLine>(xmin, 0., xmax, 0.);
+        zero->SetLineColor(kGray + 2);
         zero->SetLineStyle(kDashed);
+        zero->SetLineWidth(2);
         zero->Draw();
         auto line = std::make_unique<TGraph>();
         Base::addSteps(*line, xd, median, xmax);
@@ -1282,21 +1373,22 @@ namespace {
           averageWidth += 0.5 * (up[i] - down[i]) / xd.size();
         TLegend* legend = this->drawLegend(keep, 1);
         if constexpr (percent) {
-          legend->AddEntry(line.get(), Form("median over crystals, average %.3f%%", averageMedian), "l");
+          legend->AddEntry(line.get(), Form("Median over crystals, average %.3f%%", averageMedian), "l");
           legend->AddEntry(
-              band.get(), Form("16%% - 84%% of the crystals, average half width %.3f%%", averageWidth), "f");
+              band.get(), Form("16-84%% quantiles of crystals, average half width %.3f%%", averageWidth), "f");
         } else {
-          legend->AddEntry(line.get(), Form("median over crystals, average %.4f", averageMedian), "l");
-          legend->AddEntry(band.get(), Form("16%% - 84%% of the crystals, average half width %.4f", averageWidth), "f");
+          legend->AddEntry(line.get(), Form("Median over crystals, average %.4f", averageMedian), "l");
+          legend->AddEntry(
+              band.get(), Form("16-84%% quantiles of crystals, average half width %.4f", averageWidth), "f");
         }
         legend->Draw();
         keep.push_back(std::move(band));
         keep.push_back(std::move(zero));
         keep.push_back(std::move(line));
+        Base::redrawAxes(frame);
       }
 
-      this->drawHeader(canvas,
-                       Form("ECAL laser crystal %sdifference history 'p%i'", percent ? "relative " : "", param));
+      this->drawHeader(canvas);
 
       std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
