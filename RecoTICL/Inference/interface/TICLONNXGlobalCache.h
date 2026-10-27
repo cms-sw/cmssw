@@ -86,7 +86,7 @@ namespace ticl {
 
       const std::string fullPath = edm::FileInPath(model).fullPath();
 
-      sessionsByFullPath.try_emplace(fullPath, std::make_unique<cms::Ort::ONNXRuntime>(fullPath, &sess_opts));
+      sessionsByFullPath.try_emplace(fullPath, std::make_unique<cms::Ort::ONNXRuntime>(fullPath, sess_opts));
     }
   };
 
