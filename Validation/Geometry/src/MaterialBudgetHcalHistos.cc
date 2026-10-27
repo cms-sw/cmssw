@@ -25,6 +25,7 @@ MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet& p) {
   etaHigh_ = p.getUntrackedParameter<double>("EtaHigh", 5.2);
   fillHistos_ = p.getUntrackedParameter<bool>("FillHisto", true);
   printSum_ = p.getUntrackedParameter<bool>("PrintSummary", false);
+  testVolumes_ = p.getUntrackedParameter<bool>("TestVolumes", true);
   fromdd4hep_ = p.getUntrackedParameter<bool>("Fromdd4hep", false);
   etaMinP_ = p.getUntrackedParameter<double>("EtaMinP", 5.2);
   etaMaxP_ = p.getUntrackedParameter<double>("EtaMaxP", 0.0);
@@ -34,7 +35,7 @@ MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet& p) {
   etaMidMax_ = p.getUntrackedParameter<double>("EtaMidMax", 2.868);
   etaHighMin_ = p.getUntrackedParameter<double>("EtaHighMin", 2.868);
   etaHighMax_ = p.getUntrackedParameter<double>("EtaHighMax", 3.000);
-  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: FillHisto : " << fillHistos_ << " PrintSummary "
+  edm::LogVerbatim("MaterialBudgetInit") << "MaterialBudgetHcalHistos: FillHisto : " << fillHistos_ << " PrintSummary "
                                      << printSum_ << " == Eta plot: NX " << binEta_ << " Range " << -maxEta_ << ":"
                                      << maxEta_ << " Phi plot: NX " << binPhi_ << " Range " << -1._pi << ":" << 1._pi
                                      << " (Eta limit " << etaLow_ << ":" << etaHigh_ << ")"
@@ -44,11 +45,13 @@ MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet& p) {
                                      << fromdd4hep_;
   if (fillHistos_)
     book();
+  edm::LogVerbatim("MaterialBudgetInit") << "MaterialBudgetHcalHistos: Booking completed";
 }
 
 void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView& cpv) {
   constexpr int32_t addLevel = 0;
-  if (fillHistos_) {
+  edm::LogVerbatim("MaterialBudgetinit") << "MaterialBudgetHcalHistos:Inside fillBeginJob";
+  if (fillHistos_ || testVolumes_) {
     std::string attribute = "ReadOutName";
     std::string value = "HcalHits";
     DDSpecificsMatchesValueFilter filter1{DDValue(attribute, value, 0)};
@@ -59,11 +62,10 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView& cpv) {
       if (std::find(sensitives_.begin(), sensitives_.end(), namx) == sensitives_.end())
         sensitives_.emplace_back(namx);
     }
-    edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = "
-                                           << value << " has " << sensitives_.size() << " elements";
+    edm::LogVerbatim("MaterialBudgetInit") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = "
+				       << value << " has " << sensitives_.size() << " elements";
     for (unsigned int i = 0; i < sensitives_.size(); i++)
-      edm::LogVerbatim("MaterialBudgetFull")
-          << "MaterialBudgetHcalHistos: sensitives[" << i << "] = " << sensitives_[i];
+      edm::LogVerbatim("MaterialBudgetInit") << "MaterialBudgetHcalHistos: sensitives[" << i << "] = " << sensitives_[i];
     attribute = "Volume";
     value = "HF";
     DDSpecificsMatchesValueFilter filter2{DDValue(attribute, value, 0)};
@@ -72,13 +74,11 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView& cpv) {
     fv2.firstChild();
     DDsvalues_type sv(fv2.mergedSpecifics());
     std::vector<double> temp = getDDDArray("Levels", sv);
-    edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = "
-                                           << value << " has " << hfNames_.size() << " elements";
+    edm::LogVerbatim("MaterialBudgetInit") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = " << value << " has " << hfNames_.size() << " elements";
     for (unsigned int i = 0; i < hfNames_.size(); i++) {
       int level = static_cast<int>(temp[i]);
       hfLevels_.push_back(level + addLevel);
-      edm::LogVerbatim("MaterialBudgetFull")
-          << "MaterialBudgetHcalHistos:  HF[" << i << "] = " << hfNames_[i] << " at level " << hfLevels_[i];
+      edm::LogVerbatim("MaterialBudgetInit") << "MaterialBudgetHcalHistos:  HF[" << i << "] = " << hfNames_[i] << " at level " << hfLevels_[i];
     }
 
     const std::string ecalRO[2] = {"EcalHitsEB", "EcalHitsEE"};
@@ -88,8 +88,7 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView& cpv) {
       DDSpecificsMatchesValueFilter filter3{DDValue(attribute, value, 0)};
       DDFilteredView fv3(cpv, filter3);
       std::vector<std::string> senstmp = getNames(fv3);
-      edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute
-                                             << " = " << value << " has " << senstmp.size() << " elements";
+      edm::LogVerbatim("MaterialBudgetInit") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = " << value << " has " << senstmp.size() << " elements";
       for (unsigned int i = 0; i < senstmp.size(); i++) {
         std::string name = senstmp[i].substr(0, 4);
         if (std::find(sensitiveEC_.begin(), sensitiveEC_.end(), name) == sensitiveEC_.end())
@@ -97,14 +96,13 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView& cpv) {
       }
     }
     for (unsigned int i = 0; i < sensitiveEC_.size(); i++)
-      edm::LogVerbatim("MaterialBudgetFull")
-          << "MaterialBudgetHcalHistos:sensitiveEC[" << i << "] = " << sensitiveEC_[i];
+      edm::LogVerbatim("MaterialBudgetInit") << "MaterialBudgetHcalHistos:sensitiveEC[" << i << "] = " << sensitiveEC_[i];
   }
 }
 
 void MaterialBudgetHcalHistos::fillBeginJob(const cms::DDCompactView& cpv) {
   constexpr int32_t addLevel = 1;
-  if (fillHistos_) {
+  if (fillHistos_ || testVolumes_) {
     std::string attribute = "ReadOutName";
     std::string value = "HcalHits";
     const cms::DDFilter filter1(attribute, value);
@@ -115,23 +113,19 @@ void MaterialBudgetHcalHistos::fillBeginJob(const cms::DDCompactView& cpv) {
       if (std::find(sensitives_.begin(), sensitives_.end(), namx) == sensitives_.end())
         sensitives_.emplace_back(namx);
     }
-    edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = "
-                                           << value << " has " << sensitives_.size() << " elements";
+    edm::LogVerbatim("MaterialBudgetInit") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = " << value << " has " << sensitives_.size() << " elements";
     for (unsigned int i = 0; i < sensitives_.size(); i++)
-      edm::LogVerbatim("MaterialBudgetFull")
-          << "MaterialBudgetHcalHistos: sensitives[" << i << "] = " << sensitives_[i];
+      edm::LogVerbatim("MaterialBudgetInit") << "MaterialBudgetHcalHistos: sensitives[" << i << "] = " << sensitives_[i];
     attribute = "Volume";
     value = "HF";
     const cms::DDFilter filter2(attribute, value);
     cms::DDFilteredView fv2(cpv, filter2);
     std::vector<int> temp = fv2.get<std::vector<int> >("hf", "Levels");
     hfNames_ = getNames(fv2);
-    edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = "
-                                           << value << " has " << hfNames_.size() << " elements";
+    edm::LogVerbatim("MaterialBudgetInit") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = " << value << " has " << hfNames_.size() << " elements";
     for (unsigned int i = 0; i < hfNames_.size(); i++) {
       hfLevels_.push_back(temp[i] + addLevel);
-      edm::LogVerbatim("MaterialBudgetFull")
-          << "MaterialBudgetHcalHistos:  HF[" << i << "] = " << hfNames_[i] << " at level " << hfLevels_[i];
+      edm::LogVerbatim("MaterialBudgetInit") << "MaterialBudgetHcalHistos:  HF[" << i << "] = " << hfNames_[i] << " at level " << hfLevels_[i];
     }
 
     const std::string ecalRO[2] = {"EcalHitsEB", "EcalHitsEE"};
@@ -141,8 +135,7 @@ void MaterialBudgetHcalHistos::fillBeginJob(const cms::DDCompactView& cpv) {
       const cms::DDFilter filter(attribute, value);
       cms::DDFilteredView fv(cpv, filter);
       std::vector<std::string> senstmp = getNames(fv);
-      edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute
-                                             << " = " << value << " has " << senstmp.size() << " elements";
+      edm::LogVerbatim("MaterialBudgetInit") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = " << value << " has " << senstmp.size() << " elements";
       for (unsigned int i = 0; i < senstmp.size(); i++) {
         std::string name = senstmp[i].substr(0, 4);
         if (std::find(sensitiveEC_.begin(), sensitiveEC_.end(), name) == sensitiveEC_.end())
@@ -150,8 +143,7 @@ void MaterialBudgetHcalHistos::fillBeginJob(const cms::DDCompactView& cpv) {
       }
     }
     for (unsigned int i = 0; i < sensitiveEC_.size(); i++)
-      edm::LogVerbatim("MaterialBudgetFull")
-          << "MaterialBudgetHcalHistos:sensitiveEC[" << i << "] = " << sensitiveEC_[i];
+      edm::LogVerbatim("MaterialBudgetInit") << "MaterialBudgetHcalHistos:sensitiveEC[" << i << "] = " << sensitiveEC_[i];
   }
 }
 
@@ -339,7 +331,7 @@ void MaterialBudgetHcalHistos::book() {
   double maxPhi = 1._pi;
   edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Booking user histos === with " << binEta_
                                          << " bins in eta from " << -maxEta_ << " to " << maxEta_ << " and " << binPhi_
-                                         << " bins in phi from " << -maxPhi << " to " << maxPhi;
+                                         << " bins in phi from " << -maxPhi << " to " << maxPhi << " for " << maxSet_ << ":" << maxSet2_ << " sets";
 
   std::string iter;
   std::string range0 = "(" + std::to_string(etaMidMin_) + ":" + std::to_string(etaMidMax_) + ") ";
@@ -348,99 +340,91 @@ void MaterialBudgetHcalHistos::book() {
   // total X0
   for (int i = 0; i < maxSet_; i++) {
     iter = std::to_string(i);
-    me100[i] = tfile->make<TProfile>(
-        std::to_string(i + 100).c_str(), ("MB(X0) prof Eta in region " + iter).c_str(), binEta_, -maxEta_, maxEta_);
-    me200[i] = tfile->make<TProfile>(
-        std::to_string(i + 200).c_str(), ("MB(L0) prof Eta in region " + iter).c_str(), binEta_, -maxEta_, maxEta_);
-    me300[i] = tfile->make<TProfile>(
-        std::to_string(i + 300).c_str(), ("MB(Step) prof Eta in region " + iter).c_str(), binEta_, -maxEta_, maxEta_);
-    me400[i] = tfile->make<TH1F>(
-        std::to_string(i + 400).c_str(), ("Eta in region " + iter).c_str(), binEta_, -maxEta_, maxEta_);
-    me500[i] = tfile->make<TProfile>(
-        std::to_string(i + 500).c_str(), ("MB(X0) prof Ph in region " + iter).c_str(), binPhi_, -maxPhi, maxPhi);
-    me600[i] = tfile->make<TProfile>(
-        std::to_string(i + 600).c_str(), ("MB(L0) prof Ph in region " + iter).c_str(), binPhi_, -maxPhi, maxPhi);
-    me700[i] = tfile->make<TProfile>(
-        std::to_string(i + 700).c_str(), ("MB(Step) prof Ph in region " + iter).c_str(), binPhi_, -maxPhi, maxPhi);
-    me800[i] =
-        tfile->make<TH1F>(std::to_string(i + 800).c_str(), ("Phi in region " + iter).c_str(), binPhi_, -maxPhi, maxPhi);
-    me900[i] = tfile->make<TProfile2D>(std::to_string(i + 900).c_str(),
-                                       ("MB(X0) prof Eta Phi in region " + iter).c_str(),
-                                       binEta_ / 2,
-                                       -maxEta_,
-                                       maxEta_,
-                                       binPhi_ / 2,
-                                       -maxPhi,
-                                       maxPhi);
-    me1000[i] = tfile->make<TProfile2D>(std::to_string(i + 1000).c_str(),
-                                        ("MB(L0) prof Eta Phi in region " + iter).c_str(),
-                                        binEta_ / 2,
-                                        -maxEta_,
-                                        maxEta_,
-                                        binPhi_ / 2,
-                                        -maxPhi,
-                                        maxPhi);
-    me1100[i] = tfile->make<TProfile2D>(std::to_string(i + 1100).c_str(),
-                                        ("MB(Step) prof Eta Phi in region " + iter).c_str(),
-                                        binEta_ / 2,
-                                        -maxEta_,
-                                        maxEta_,
-                                        binPhi_ / 2,
-                                        -maxPhi,
-                                        maxPhi);
-    me1200[i] = tfile->make<TH2F>(std::to_string(i + 1200).c_str(),
-                                  ("Eta vs Phi in region " + iter).c_str(),
-                                  binEta_ / 2,
-                                  -maxEta_,
-                                  maxEta_,
-                                  binPhi_ / 2,
-                                  -maxPhi,
-                                  maxPhi);
-    me1600[i] = tfile->make<TProfile>(std::to_string(i + 1600).c_str(),
-                                      ("MB(X0) prof Ph in region " + range0 + iter).c_str(),
-                                      binPhi_,
-                                      -maxPhi,
-                                      maxPhi);
-    me1700[i] = tfile->make<TProfile>(std::to_string(i + 1700).c_str(),
-                                      ("MB(L0) prof Ph in region " + range0 + iter).c_str(),
-                                      binPhi_,
-                                      -maxPhi,
-                                      maxPhi);
-    me1800[i] = tfile->make<TProfile>(std::to_string(i + 1800).c_str(),
-                                      ("MB(Step) prof Ph in region " + range0 + iter).c_str(),
-                                      binPhi_,
-                                      -maxPhi,
-                                      maxPhi);
-    me1900[i] = tfile->make<TProfile>(std::to_string(i + 1900).c_str(),
-                                      ("MB(X0) prof Ph in region " + range1 + iter).c_str(),
-                                      binPhi_,
-                                      -maxPhi,
-                                      maxPhi);
-    me2000[i] = tfile->make<TProfile>(std::to_string(i + 2000).c_str(),
-                                      ("MB(L0) prof Ph in region " + range1 + iter).c_str(),
-                                      binPhi_,
-                                      -maxPhi,
-                                      maxPhi);
-    me2100[i] = tfile->make<TProfile>(std::to_string(i + 2100).c_str(),
-                                      ("MB(Step) prof Ph in region " + range1 + iter).c_str(),
-                                      binPhi_,
-                                      -maxPhi,
-                                      maxPhi);
-    me2200[i] = tfile->make<TProfile>(std::to_string(i + 2200).c_str(),
-                                      ("MB(X0) prof Ph in region " + range2 + iter).c_str(),
-                                      binPhi_,
-                                      -maxPhi,
-                                      maxPhi);
-    me2300[i] = tfile->make<TProfile>(std::to_string(i + 2300).c_str(),
-                                      ("MB(L0) prof Ph in region " + range2 + iter).c_str(),
-                                      binPhi_,
-                                      -maxPhi,
-                                      maxPhi);
-    me2400[i] = tfile->make<TProfile>(std::to_string(i + 2400).c_str(),
-                                      ("MB(Step) prof Ph in region " + range2 + iter).c_str(),
-                                      binPhi_,
-                                      -maxPhi,
-                                      maxPhi);
+    std::string chid = std::to_string(i + 100);
+    std::string chtitl = "MB(X0) prof Eta in region " + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << binEta_ << ":" << -maxEta_ << ":" << maxEta_;
+    me100[i] = tfile->make<TProfile>(chid.c_str(), chtitl.c_str(), binEta_, -maxEta_, maxEta_, "");
+    chid = std::to_string(i + 200);
+    chtitl = "MB(L0) prof Eta in region " + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << binEta_ << ":" << -maxEta_ << ":" << maxEta_;
+    me200[i] = tfile->make<TProfile>(chid.c_str(), chtitl.c_str(), binEta_, -maxEta_, maxEta_);
+    chid = std::to_string(i + 300);
+    chtitl = "MB(Step) prof Eta in region " + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << binEta_ << ":" << -maxEta_ << ":" << maxEta_;
+    me300[i] = tfile->make<TProfile>(chid.c_str(), chtitl.c_str(), binEta_, -maxEta_, maxEta_);
+    chid = std::to_string(i + 400);
+    chtitl = "Eta in region " + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << binEta_ << ":" << -maxEta_ << ":" << maxEta_;
+    me400[i] = tfile->make<TH1F>(chid.c_str(), chtitl.c_str(), binEta_, -maxEta_, maxEta_);
+    chid = std::to_string(i + 500);
+    chtitl = "MB(X0) prof Ph in region " + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << binPhi_ << ":" << -maxPhi << ":" << maxPhi;
+    me500[i] = tfile->make<TProfile>(chid.c_str(), chtitl.c_str(), binPhi_, -maxPhi, maxPhi);
+    chid = std::to_string(i + 600);
+    chtitl = "MB(L0) prof Ph in region " + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << binPhi_ << ":" << -maxPhi << ":" << maxPhi;
+    me600[i] = tfile->make<TProfile>(chid.c_str(), chtitl.c_str(), binPhi_, -maxPhi, maxPhi);
+    chid = std::to_string(i + 700);
+    chtitl = "MB(Step) prof Ph in region " + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << binPhi_ << ":" << -maxPhi << ":" << maxPhi;
+    me700[i] = tfile->make<TProfile>(chid.c_str(), chtitl.c_str(), binPhi_, -maxPhi, maxPhi);
+    chid = std::to_string(i + 800);
+    chtitl = "Phi in region " + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << binPhi_ << ":" << -maxPhi << ":" << maxPhi;
+    me800[i] = tfile->make<TH1F>(chid.c_str(), chtitl.c_str(), binPhi_, -maxPhi, maxPhi);
+    chid = std::to_string(i + 900);
+    chtitl = "MB(X0) prof Eta Phi in region " + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << (binEta_ / 2) << ":" << -maxEta_ << ":" << maxEta_ << ":" << (binPhi_ / 2) << ":" << -maxPhi << ":" << maxPhi;
+    me900[i] = tfile->make<TProfile2D>(chid.c_str(), chtitl.c_str(), binEta_ / 2, -maxEta_, maxEta_, binPhi_ / 2,  -maxPhi, maxPhi);
+    chid = std::to_string(i + 1000);
+    chtitl = "MB(L0) prof Eta Phi in region " + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << (binEta_ / 2) << ":" << -maxEta_ << ":" << maxEta_ << ":" << (binPhi_ / 2) << ":" << -maxPhi << ":" << maxPhi;
+    me1000[i] = tfile->make<TProfile2D>(chid.c_str(), chtitl.c_str(), binEta_ / 2, -maxEta_, maxEta_, binPhi_ / 2, -maxPhi, maxPhi);
+    chid = std::to_string(i + 1100);
+    chtitl = "MB(Step) prof Eta Phi in region " + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << (binEta_ / 2) << ":" << -maxEta_ << ":" << maxEta_ << ":" << (binPhi_ / 2) << ":" << -maxPhi << ":" << maxPhi;
+    me1100[i] = tfile->make<TProfile2D>(chid.c_str(), chtitl.c_str(), binEta_ / 2, -maxEta_, maxEta_, binPhi_ / 2, -maxPhi, maxPhi);
+    chid = std::to_string(i + 1200);
+    chtitl = "Eta vs Phi in region " + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << (binEta_ / 2) << ":" << -maxEta_ << ":" << maxEta_ << ":" << (binPhi_ / 2) << ":" << -maxPhi << ":" << maxPhi;
+    me1200[i] = tfile->make<TH2F>(chid.c_str(), chtitl.c_str(), binEta_ / 2, -maxEta_, maxEta_, binPhi_ / 2, -maxPhi, maxPhi);
+    chid = std::to_string(i + 1600);
+    chtitl = "MB(X0) prof Ph in region " + range0 + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << binPhi_ << ":" << -maxPhi << ":" << maxPhi;
+    me1600[i] = tfile->make<TProfile>(chid.c_str(), chtitl.c_str(), binPhi_, -maxPhi, maxPhi);
+    chid = std::to_string(i + 1700);
+    chtitl = "MB(L0) prof Ph in region " + range0 + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << binPhi_ << ":" << -maxPhi << ":" << maxPhi;
+    me1700[i] = tfile->make<TProfile>(chid.c_str(), chtitl.c_str(), binPhi_, -maxPhi, maxPhi);
+    chid = std::to_string(i + 1800);
+    chtitl = "MB(Step) prof Ph in region " + range0 + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << binPhi_ << ":" << -maxPhi << ":" << maxPhi;
+    me1800[i] = tfile->make<TProfile>(chid.c_str(), chtitl.c_str(), binPhi_, -maxPhi, maxPhi);
+    chid = std::to_string(i + 1900);
+    chtitl = "MB(X0) prof Ph in region " + range1 + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << binPhi_ << ":" << -maxPhi << ":" << maxPhi;
+    me1900[i] = tfile->make<TProfile>(chid.c_str(), chtitl.c_str(), binPhi_, -maxPhi, maxPhi);
+    chid = std::to_string(i + 2000);
+    chtitl = "MB(L0) prof Ph in region " + range1 + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << binPhi_ << ":" << -maxPhi << ":" << maxPhi;
+    me2000[i] = tfile->make<TProfile>(chid.c_str(), chtitl.c_str(), binPhi_, -maxPhi, maxPhi);
+    chid = std::to_string(i + 2100);
+    chtitl = "MB(Step) prof Ph in region " + range1 + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << binPhi_ << ":" << -maxPhi << ":" << maxPhi;
+    me2100[i] = tfile->make<TProfile>(chid.c_str(), chtitl.c_str(), binPhi_, -maxPhi, maxPhi);
+    chid = std::to_string(i + 2200);
+    chtitl = "MB(X0) prof Ph in region " + range2 + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << binPhi_ << ":" << -maxPhi << ":" << maxPhi;
+    me2200[i] = tfile->make<TProfile>(chid.c_str(), chtitl.c_str(), binPhi_, -maxPhi, maxPhi);
+    chid = std::to_string(i + 2300);
+    chtitl = "MB(L0) prof Ph in region " + range2 + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << binPhi_ << ":" << -maxPhi << ":" << maxPhi;
+    me2300[i] = tfile->make<TProfile>(chid.c_str(), chtitl.c_str(), binPhi_, -maxPhi, maxPhi);
+    chid = std::to_string(i + 2400);
+    chtitl = "MB(Step) prof Ph in region " + range2 + iter;
+    edm::LogVerbatim("MaterialBudgetFull") << "Book " << chid << ":" << chtitl << " with " << binPhi_ << ":" << -maxPhi << ":" << maxPhi;
+    me2400[i] = tfile->make<TProfile>(chid.c_str(), chtitl.c_str(), binPhi_, -maxPhi, maxPhi);
+    edm::LogVerbatim("MaterialBudgetFull") << "Complete " << i << " out of " << maxSet_ << " first set";
   }
   for (int i = 0; i < maxSet2_; i++) {
     iter = std::to_string(i);
@@ -462,6 +446,7 @@ void MaterialBudgetHcalHistos::book() {
                                       binEta_,
                                       -maxEta_,
                                       maxEta_);
+    edm::LogVerbatim("MaterialBudgetFull") << "Now Complete " << i << " out of " << maxSet2_ << " second set";
   }
 
   edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: Booking user histos done ===";
