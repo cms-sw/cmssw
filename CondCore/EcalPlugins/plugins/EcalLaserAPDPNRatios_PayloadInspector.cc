@@ -8,6 +8,7 @@
 // the data format of the condition to be inspected
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 
+#include "TH1D.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TCanvas.h"
@@ -23,6 +24,7 @@
 #include <cmath>
 #include <ctime>
 #include <iterator>
+#include <limits>
 #include <map>
 #include <memory>
 #include <numeric>
@@ -753,10 +755,14 @@ namespace {
      plots above, 0 = EE-, 1 = EB, 2 = EE+, parameters as 1 = p1, 2 = p2, 3 = p3
   *************************************************************************/
   enum EcalLaserPartition { kEEMinus = 0, kEB = 1, kEEPlus = 2 };
+  constexpr int kNLaserPartitions = 3;
   enum EcalLaserStatistic { kMean = 0, kRMS = 1 };
 
+  // order of the partitions in the pads of the history plots, from top to bottom
+  constexpr std::array<int, kNLaserPartitions> kLaserPadOrder = {{kEB, kEEPlus, kEEMinus}};
+
   inline const char* laserPartitionName(int part) {
-    constexpr std::array<const char*, 3> names = {{"EE-", "EB", "EE+"}};
+    constexpr std::array<const char*, kNLaserPartitions> names = {{"EE-", "EB", "EE+"}};
     return names[part];
   }
 
@@ -773,171 +779,123 @@ namespace {
       return apdpn.p3;
   }
 
-  // calls f(value) for the parameter p<param> of every crystal of one partition, always in the same crystal order
-  template <int param, int part, typename F>
+  // calls f(partition, value) for the parameter p<param> of every crystal, always in the same crystal order
+  template <int param, typename F>
   void forEachLaserCrystal(const EcalLaserAPDPNRatios& payload, F&& f) {
-    static_assert(part >= kEEMinus && part <= kEEPlus, "the partition must be EE-, EB or EE+");
     const auto& laserMap = payload.getLaserMap();
-    if constexpr (part == kEB) {
-      for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid)
-        f(laserParam<param>(laserMap[EBDetId::unhashIndex(cellid).rawId()]));
-    } else {
-      constexpr int zside = (part == kEEPlus) ? 1 : -1;
-      for (int cellid = 0; cellid < EEDetId::kSizeForDenseIndexing; ++cellid) {
-        if (!EEDetId::validHashIndex(cellid))
-          continue;
-        EEDetId myEEId = EEDetId::unhashIndex(cellid);
-        if (myEEId.zside() == zside)
-          f(laserParam<param>(laserMap[myEEId.rawId()]));
-      }
+    for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid)
+      f(kEB, laserParam<param>(laserMap[EBDetId::unhashIndex(cellid).rawId()]));
+    for (int cellid = 0; cellid < EEDetId::kSizeForDenseIndexing; ++cellid) {
+      if (!EEDetId::validHashIndex(cellid))
+        continue;
+      EEDetId myEEId = EEDetId::unhashIndex(cellid);
+      f((myEEId.zside() == 1) ? kEEPlus : kEEMinus, laserParam<param>(laserMap[myEEId.rawId()]));
     }
   }
 
   // mean and RMS (standard deviation) of a set of values
   struct EcalLaserPartitionStats {
-    double mean = 0.;
-    double rms = 0.;
-    double get(int stat) const { return (stat == kMean) ? mean : rms; }
+    double sum = 0.;
+    double sum2 = 0.;
+    unsigned int n = 0;
 
-    template <typename Values>
-    static EcalLaserPartitionStats compute(const Values& values) {
-      double sum = 0., sum2 = 0.;
-      unsigned int n = 0;
-      values([&](double value) {
-        sum += value;
-        sum2 += value * value;
-        n++;
-      });
-      EcalLaserPartitionStats stats;
-      if (n > 0) {
-        stats.mean = sum / n;
-        stats.rms = std::sqrt(std::max(sum2 / n - stats.mean * stats.mean, 0.));
-      }
-      return stats;
+    void add(double value) {
+      sum += value;
+      sum2 += value * value;
+      n++;
     }
+    double mean() const { return (n > 0) ? sum / n : 0.; }
+    double rms() const { return (n > 0) ? std::sqrt(std::max(sum2 / n - mean() * mean(), 0.)) : 0.; }
+    double get(int stat) const { return (stat == kMean) ? mean() : rms(); }
   };
+  typedef std::array<EcalLaserPartitionStats, kNLaserPartitions> EcalLaserStats;
+  typedef std::array<std::vector<float>, kNLaserPartitions> EcalLaserValues;
 
-  // mean and RMS over the crystals of one partition
-  template <int param, int part>
-  EcalLaserPartitionStats laserPartitionStats(const EcalLaserAPDPNRatios& payload) {
-    return EcalLaserPartitionStats::compute([&payload](auto&& add) { forEachLaserCrystal<param, part>(payload, add); });
+  // mean and RMS over the crystals of each partition
+  template <int param>
+  EcalLaserStats laserPartitionStats(const EcalLaserAPDPNRatios& payload) {
+    EcalLaserStats stats;
+    forEachLaserCrystal<param>(payload, [&stats](int part, float value) { stats[part].add(value); });
+    return stats;
   }
 
-  // values of the parameter p<param> of the crystals of one partition
-  template <int param, int part>
-  std::vector<float> laserPartitionValues(const EcalLaserAPDPNRatios& payload) {
-    std::vector<float> values;
-    forEachLaserCrystal<param, part>(payload, [&values](float value) { values.push_back(value); });
+  // values of the crystals of each partition
+  template <int param>
+  EcalLaserValues laserPartitionValues(const EcalLaserAPDPNRatios& payload) {
+    EcalLaserValues values;
+    forEachLaserCrystal<param>(payload, [&values](int part, float value) { values[part].push_back(value); });
     return values;
   }
 
   /************************************************************************
-     history of the crystal mean or RMS of p1, p2 or p3 in EE-, EB or EE+
-     (one tag)
-  *************************************************************************/
-  template <int param, int part, int stat>
-  class EcalLaserAPDPNRatiosStatHistory : public cond::payloadInspector::HistoryPlot<EcalLaserAPDPNRatios, float> {
-  public:
-    EcalLaserAPDPNRatiosStatHistory()
-        : cond::payloadInspector::HistoryPlot<EcalLaserAPDPNRatios, float>(
-              std::string(laserPartitionName(part)) + " crystal " + laserStatisticName(stat) + " history 'p" +
-                  std::to_string(param) + "'",
-              std::string(laserStatisticName(stat)) + " p" + std::to_string(param)) {}
-
-    float getFromPayload(EcalLaserAPDPNRatios& payload) override {
-      return laserPartitionStats<param, part>(payload).get(stat);
-    }
-  };
-  using EcalLaserAPDPNRatiosEEMinusP1MeanHistory = EcalLaserAPDPNRatiosStatHistory<1, kEEMinus, kMean>;
-  using EcalLaserAPDPNRatiosEEMinusP2MeanHistory = EcalLaserAPDPNRatiosStatHistory<2, kEEMinus, kMean>;
-  using EcalLaserAPDPNRatiosEEMinusP3MeanHistory = EcalLaserAPDPNRatiosStatHistory<3, kEEMinus, kMean>;
-  using EcalLaserAPDPNRatiosEBP1MeanHistory = EcalLaserAPDPNRatiosStatHistory<1, kEB, kMean>;
-  using EcalLaserAPDPNRatiosEBP2MeanHistory = EcalLaserAPDPNRatiosStatHistory<2, kEB, kMean>;
-  using EcalLaserAPDPNRatiosEBP3MeanHistory = EcalLaserAPDPNRatiosStatHistory<3, kEB, kMean>;
-  using EcalLaserAPDPNRatiosEEPlusP1MeanHistory = EcalLaserAPDPNRatiosStatHistory<1, kEEPlus, kMean>;
-  using EcalLaserAPDPNRatiosEEPlusP2MeanHistory = EcalLaserAPDPNRatiosStatHistory<2, kEEPlus, kMean>;
-  using EcalLaserAPDPNRatiosEEPlusP3MeanHistory = EcalLaserAPDPNRatiosStatHistory<3, kEEPlus, kMean>;
-  using EcalLaserAPDPNRatiosEEMinusP1RMSHistory = EcalLaserAPDPNRatiosStatHistory<1, kEEMinus, kRMS>;
-  using EcalLaserAPDPNRatiosEEMinusP2RMSHistory = EcalLaserAPDPNRatiosStatHistory<2, kEEMinus, kRMS>;
-  using EcalLaserAPDPNRatiosEEMinusP3RMSHistory = EcalLaserAPDPNRatiosStatHistory<3, kEEMinus, kRMS>;
-  using EcalLaserAPDPNRatiosEBP1RMSHistory = EcalLaserAPDPNRatiosStatHistory<1, kEB, kRMS>;
-  using EcalLaserAPDPNRatiosEBP2RMSHistory = EcalLaserAPDPNRatiosStatHistory<2, kEB, kRMS>;
-  using EcalLaserAPDPNRatiosEBP3RMSHistory = EcalLaserAPDPNRatiosStatHistory<3, kEB, kRMS>;
-  using EcalLaserAPDPNRatiosEEPlusP1RMSHistory = EcalLaserAPDPNRatiosStatHistory<1, kEEPlus, kRMS>;
-  using EcalLaserAPDPNRatiosEEPlusP2RMSHistory = EcalLaserAPDPNRatiosStatHistory<2, kEEPlus, kRMS>;
-  using EcalLaserAPDPNRatiosEEPlusP3RMSHistory = EcalLaserAPDPNRatiosStatHistory<3, kEEPlus, kRMS>;
-
-  /************************************************************************
-     common base of the two tags history plots: collects the crystal mean and
-     RMS of p1, p2 or p3 in EE-, EB or EE+ for every IOV of the two tags.
-     The two tags can have different IOV types: run and lumi based IOVs are
-     put on a common run number axis (the lumi sections are squeezed in the
+     common base of the history plots of p1, p2 or p3: one or two tags, one
+     pad per partition (EB, EE+ and EE- from top to bottom).
+     Two tags can have different IOV types: run and lumi based IOVs are put
+     on a common run number axis (the lumi sections are squeezed in the
      [run, run+1) slot), time based IOVs can only be compared with other
      time based IOVs.
   *************************************************************************/
-  template <int param, int part>
-  class EcalLaserAPDPNRatiosHistoryCompareBase
-      : public cond::payloadInspector::PlotImage<EcalLaserAPDPNRatios, cond::payloadInspector::MULTI_IOV, 2> {
+  template <int param, int ntags>
+  class EcalLaserAPDPNRatiosHistoryBase
+      : public cond::payloadInspector::PlotImage<EcalLaserAPDPNRatios, cond::payloadInspector::MULTI_IOV, ntags> {
   public:
-    explicit EcalLaserAPDPNRatiosHistoryCompareBase(const std::string& title)
-        : cond::payloadInspector::PlotImage<EcalLaserAPDPNRatios, cond::payloadInspector::MULTI_IOV, 2>(title) {}
+    explicit EcalLaserAPDPNRatiosHistoryBase(const std::string& title)
+        : cond::payloadInspector::PlotImage<EcalLaserAPDPNRatios, cond::payloadInspector::MULTI_IOV, ntags>(title) {}
 
   protected:
+    static_assert(ntags == 1 || ntags == 2, "the history plots support one or two tags");
     static constexpr std::array<int, 2> kColor = {{kRed, kBlue}};
 
-    std::array<std::string, 2> m_tagName;
-    std::array<std::string, 2> m_iovRange;  // human readable first - last IOV of each tag
+    std::array<std::string, ntags> m_tagName;
+    std::array<std::string, ntags> m_iovRange;  // human readable first - last IOV of each tag
     // one entry per IOV, x is the start of the IOV on the common axis
-    std::array<std::vector<double>, 2> m_x;
-    std::array<std::vector<cond::Hash>, 2> m_hash;
-    std::array<std::vector<EcalLaserPartitionStats>, 2> m_stats;  // filled by computeStats()
+    std::array<std::vector<double>, ntags> m_x;
+    std::array<std::vector<cond::Hash>, ntags> m_hash;
+    std::array<std::vector<EcalLaserStats>, ntags> m_stats;  // filled by computeStats()
     bool m_timeAxis = false;
 
-    // puts the IOVs of the two tags on the common axis, returns false if one of them has no IOV in range
+    // puts the IOVs of the tags on the common axis, returns false if one of them has no IOV in range
     bool collect() {
-      auto tag1 = cond::payloadInspector::PlotBase::getTag<0>();
-      auto tag2 = cond::payloadInspector::PlotBase::getTag<1>();
-      m_tagName = {{tag1.name, tag2.name}};
-      std::array<std::vector<std::tuple<cond::Time_t, cond::Hash>>, 2> l_iovs = {{tag1.iovs, tag2.iovs}};
-      std::array<cond::Time_t, 2> l_start = {{tag1.boundary.first, tag2.boundary.first}};
-      std::array<cond::TimeType, 2> l_timeType;
-      for (int itag = 0; itag < 2; itag++)
-        l_timeType[itag] = this->getTagInfo(m_tagName[itag]).timeType;
-
-      const bool isTime1 = (l_timeType[0] == cond::timestamp), isTime2 = (l_timeType[1] == cond::timestamp);
-      if (isTime1 != isTime2) {
-        cond::throwException("cannot compare a time based tag with a run or lumi based tag",
-                             "EcalLaserAPDPNRatiosHistoryCompareBase::collect");
-      }
-      m_timeAxis = isTime1;
-
-      for (int itag = 0; itag < 2; itag++) {
-        if (l_iovs[itag].empty())
+      auto tagRef = [this](int itag) {
+        return (itag == 0) ? cond::payloadInspector::PlotBase::getTag<0>()
+                           : cond::payloadInspector::PlotBase::getTag<1>();
+      };
+      std::array<cond::TimeType, ntags> l_timeType;
+      for (int itag = 0; itag < ntags; itag++) {
+        auto tag = tagRef(itag);
+        m_tagName[itag] = tag.name;
+        l_timeType[itag] = this->getTagInfo(tag.name).timeType;
+        if (tag.iovs.empty())
           return false;
         // the first IOV can start well before the requested range (e.g. since = 1), clamp it
-        const double xstart = iovToAxis(l_start[itag], l_timeType[itag]);
-        for (const auto& iov : l_iovs[itag]) {
+        const double xstart = iovToAxis(tag.boundary.first, l_timeType[itag]);
+        for (const auto& iov : tag.iovs) {
           m_x[itag].push_back(std::max(xstart, iovToAxis(std::get<0>(iov), l_timeType[itag])));
           m_hash[itag].push_back(std::get<1>(iov));
         }
-        m_iovRange[itag] = laserIOVLabel(std::max(l_start[itag], std::get<0>(l_iovs[itag].front()))) + " - " +
-                           laserIOVLabel(std::get<0>(l_iovs[itag].back()));
+        m_iovRange[itag] = laserIOVLabel(std::max(tag.boundary.first, std::get<0>(tag.iovs.front()))) + " - " +
+                           laserIOVLabel(std::get<0>(tag.iovs.back()));
+      }
+      m_timeAxis = (l_timeType[0] == cond::timestamp);
+      if ((l_timeType[ntags - 1] == cond::timestamp) != m_timeAxis) {
+        cond::throwException("cannot compare a time based tag with a run or lumi based tag",
+                             "EcalLaserAPDPNRatiosHistoryBase::collect");
       }
       return true;
     }
 
-    // fetches the payloads and computes the crystal mean and RMS of every IOV of the two tags
+    // fetches the payloads and computes the crystal mean and RMS of every IOV of the tags
     bool computeStats() {
-      for (int itag = 0; itag < 2; itag++) {
+      for (int itag = 0; itag < ntags; itag++) {
         // payloads can be repeated in a tag, compute the statistics only once per hash
-        std::map<cond::Hash, EcalLaserPartitionStats> cache;
+        std::map<cond::Hash, EcalLaserStats> cache;
         for (const auto& hash : m_hash[itag]) {
           auto it = cache.find(hash);
           if (it == cache.end()) {
             std::shared_ptr<EcalLaserAPDPNRatios> payload = this->fetchPayload(hash);
             if (!payload.get())
               return false;
-            it = cache.emplace(hash, laserPartitionStats<param, part>(*payload)).first;
+            it = cache.emplace(hash, laserPartitionStats<param>(*payload)).first;
           }
           m_stats[itag].push_back(it->second);
         }
@@ -945,16 +903,55 @@ namespace {
       return true;
     }
 
-    // empty histogram setting the axes of the plot
-    std::unique_ptr<TH1F> makeFrame(const std::string& yTitle, double xmin, double xmax) const {
+    // common x range of the tags, the last IOV of each tag is extended up to the end of the plot
+    std::pair<double, double> xRange(double xfirst) const {
+      double xmax = m_x[0].back();
+      for (int itag = 1; itag < ntags; itag++)
+        xmax = std::max(xmax, m_x[itag].back());
+      const double xmargin = (xmax > xfirst) ? 0.02 * (xmax - xfirst) : 1.;
+      return {xfirst - xmargin, xmax + xmargin};
+    }
+
+    // the canvas has a header for the title and the tag names, then one pad per partition
+    void makePads(TCanvas& canvas) const {
+      const double top = 0.95 - 0.025 * ntags;
+      const double height = top / kNLaserPartitions;
+      canvas.Divide(1, kNLaserPartitions);
+      for (int ipad = 0; ipad < kNLaserPartitions; ipad++) {
+        TVirtualPad* pad = canvas.cd(ipad + 1);
+        pad->SetPad(0., std::max(top - (ipad + 1) * height, 0.), 1., top - ipad * height);
+        pad->SetLeftMargin(0.09);
+        pad->SetRightMargin(0.03);
+        pad->SetTopMargin(0.04);
+        pad->SetBottomMargin(0.14);
+        pad->SetGrid();
+      }
+    }
+
+    // empty histogram setting the axes of the pad of one partition, drawn in the current pad
+    TH1F* drawFrame(std::vector<std::unique_ptr<TObject>>& keep,
+                    int part,
+                    const std::string& yTitle,
+                    double xmin,
+                    double xmax,
+                    double ymin,
+                    double ymax) const {
       auto frame = std::make_unique<TH1F>(
-          "frame",
+          Form("frame_%s", laserPartitionName(part)),
           Form(";%s;%s", m_timeAxis ? "IOV start time (UTC)" : "IOV (run number)", yTitle.c_str()),
           1000,
           xmin,
           xmax);
       frame->SetDirectory(nullptr);
-      frame->GetYaxis()->SetTitleOffset(1.2);
+      frame->SetMinimum(ymin);
+      frame->SetMaximum(ymax);
+      for (auto* axis : {frame->GetXaxis(), frame->GetYaxis()}) {
+        axis->SetLabelSize(0.06);
+        axis->SetTitleSize(0.06);
+      }
+      frame->GetXaxis()->SetTitleOffset(1.05);
+      frame->GetYaxis()->SetTitleOffset(0.7);
+      frame->GetYaxis()->SetNdivisions(505);
       if (m_timeAxis) {
         frame->GetXaxis()->SetTimeDisplay(1);
         frame->GetXaxis()->SetTimeFormat("%d/%m/%y%F1970-01-01 00:00:00");
@@ -963,22 +960,45 @@ namespace {
         frame->GetXaxis()->SetNoExponent();
         frame->GetXaxis()->SetMaxDigits(7);
       }
-      return frame;
+      frame->Draw();
+      // partition name in the top left corner of the pad
+      auto label = std::make_unique<TLatex>(0.11, 0.86, laserPartitionName(part));
+      label->SetNDC();
+      label->SetTextFont(62);
+      label->SetTextSize(0.08);
+      label->Draw();
+      keep.push_back(std::move(label));
+      keep.push_back(std::move(frame));
+      return static_cast<TH1F*>(keep.back().get());
+    }
+
+    // legend at the top of the current pad, right of the partition name
+    TLegend* drawLegend(std::vector<std::unique_ptr<TObject>>& keep, int ncolumns = 2) const {
+      auto legend = std::make_unique<TLegend>(0.20, 0.80, 0.96, 0.95);
+      legend->SetNColumns(ncolumns);
+      legend->SetBorderSize(0);
+      legend->SetFillStyle(0);
+      legend->SetTextSize(0.055);
+      keep.push_back(std::move(legend));
+      return static_cast<TLegend*>(keep.back().get());
     }
 
     // header, TText instead of TLatex to keep the underscores of the tag names
-    void drawHeader(const std::string& title) const {
+    void drawHeader(TCanvas& canvas, const std::string& title) const {
+      canvas.cd();
       TText t1;
       t1.SetNDC();
       t1.SetTextAlign(22);
-      t1.SetTextSize(0.03);
-      t1.DrawText(0.5, 0.965, title.c_str());
-      t1.SetTextSize(0.022);
-      for (int itag = 0; itag < 2; itag++) {
-        t1.SetTextColor(kColor[itag]);
+      t1.SetTextSize(0.02);
+      t1.DrawText(0.5, 0.975, title.c_str());
+      t1.SetTextSize(0.014);
+      for (int itag = 0; itag < ntags; itag++) {
+        t1.SetTextColor((ntags == 1) ? kBlack : kColor[itag]);
         t1.DrawText(0.5,
-                    0.925 - 0.03 * itag,
-                    Form("(%i) %s, IOVs %s", itag + 1, m_tagName[itag].c_str(), m_iovRange[itag].c_str()));
+                    0.95 - 0.02 * itag,
+                    (ntags == 1)
+                        ? Form("%s, IOVs %s", m_tagName[itag].c_str(), m_iovRange[itag].c_str())
+                        : Form("(%i) %s, IOVs %s", itag + 1, m_tagName[itag].c_str(), m_iovRange[itag].c_str()));
       }
     }
 
@@ -1007,126 +1027,117 @@ namespace {
           return double(since);
       }
     }
-  };  // class EcalLaserAPDPNRatiosHistoryCompareBase
+  };  // class EcalLaserAPDPNRatiosHistoryBase
 
   /************************************************************************
-     history of the crystal mean or RMS of p1, p2 or p3 in EE-, EB or EE+,
-     overlaid for two tags
+     history of the crystal mean or RMS of p1, p2 or p3 in EB, EE+ and EE-
+     for one tag, or overlaid for two tags
   *************************************************************************/
-  template <int param, int part, int stat>
-  class EcalLaserAPDPNRatiosStatHistoryCompare : public EcalLaserAPDPNRatiosHistoryCompareBase<param, part> {
+  template <int param, int stat, int ntags>
+  class EcalLaserAPDPNRatiosStatHistory : public EcalLaserAPDPNRatiosHistoryBase<param, ntags> {
   public:
-    typedef EcalLaserAPDPNRatiosHistoryCompareBase<param, part> Base;
-    EcalLaserAPDPNRatiosStatHistoryCompare()
-        : Base(std::string("ECAL Laser APDPNRatios crystal ") + laserStatisticName(stat) + " history comparison") {}
+    typedef EcalLaserAPDPNRatiosHistoryBase<param, ntags> Base;
+    EcalLaserAPDPNRatiosStatHistory()
+        : Base(std::string("ECAL Laser APDPNRatios crystal ") + laserStatisticName(stat) + " history") {}
 
     bool fill() override {
       if (!this->collect() || !this->computeStats())
         return false;
       const std::array<int, 2> marker = {{kFullCircle, kFullSquare}};
       const auto& x = this->m_x;
-      std::array<std::vector<double>, 2> y;
-      for (int itag = 0; itag < 2; itag++)
-        for (const auto& stats : this->m_stats[itag])
-          y[itag].push_back(stats.get(stat));
-
-      // common range, the last IOV of each tag is extended up to the end of the plot
-      double xmin = std::min(x[0].front(), x[1].front());
-      double xmax = std::max(x[0].back(), x[1].back());
-      double ymin = std::min(*std::min_element(y[0].begin(), y[0].end()), *std::min_element(y[1].begin(), y[1].end()));
-      double ymax = std::max(*std::max_element(y[0].begin(), y[0].end()), *std::max_element(y[1].begin(), y[1].end()));
-      const double xmargin = (xmax > xmin) ? 0.02 * (xmax - xmin) : 1.;
-      const double ymargin = (ymax > ymin) ? 0.1 * (ymax - ymin) : 0.01;
-      xmin -= xmargin;
-      xmax += xmargin;
-
-      // step graphs (the value holds until the next IOV) and markers at the start of each IOV
-      std::array<std::unique_ptr<TGraph>, 2> steps, points;
-      std::array<double, 2> average;
-      for (int itag = 0; itag < 2; itag++) {
-        steps[itag] = std::make_unique<TGraph>();
-        Base::addSteps(*steps[itag], x[itag], y[itag], xmax);
-        points[itag] = std::make_unique<TGraph>(int(x[itag].size()), x[itag].data(), y[itag].data());
-        average[itag] = std::accumulate(y[itag].begin(), y[itag].end(), 0.) / y[itag].size();
-        for (auto* g : {steps[itag].get(), points[itag].get()}) {
-          g->SetLineColor(Base::kColor[itag]);
-          g->SetMarkerColor(Base::kColor[itag]);
-        }
-        steps[itag]->SetLineWidth(2);
-        points[itag]->SetMarkerStyle(marker[itag]);
-        points[itag]->SetMarkerSize(0.8);
-      }
+      double xfirst = x[0].front();
+      for (int itag = 1; itag < ntags; itag++)
+        xfirst = std::min(xfirst, x[itag].front());
+      const auto [xmin, xmax] = this->xRange(xfirst);
 
       gStyle->SetOptStat(0);
-      TCanvas canvas("CC history", "CC history", 2000, 1200);
-      canvas.SetLeftMargin(0.09);
-      canvas.SetRightMargin(0.03);
-      canvas.SetTopMargin(0.14);
-      canvas.SetGrid();
+      std::vector<std::unique_ptr<TObject>> keep;  // ROOT objects drawn on the canvas
+      TCanvas canvas("CC history", "CC history", 2000, 2400);
+      this->makePads(canvas);
+      for (int ipad = 0; ipad < kNLaserPartitions; ipad++) {
+        const int part = kLaserPadOrder[ipad];
+        std::array<std::vector<double>, ntags> y;
+        double ymin = std::numeric_limits<double>::max(), ymax = std::numeric_limits<double>::lowest();
+        for (int itag = 0; itag < ntags; itag++) {
+          for (const auto& stats : this->m_stats[itag])
+            y[itag].push_back(stats[part].get(stat));
+          ymin = std::min(ymin, *std::min_element(y[itag].begin(), y[itag].end()));
+          ymax = std::max(ymax, *std::max_element(y[itag].begin(), y[itag].end()));
+        }
+        const double ymargin = (ymax > ymin) ? 0.1 * (ymax - ymin) : 0.01;
 
-      auto frame = this->makeFrame(
-          Form("%s crystal %s p%i", laserPartitionName(part), laserStatisticName(stat), param), xmin, xmax);
-      frame->SetMinimum(ymin - ymargin);
-      frame->SetMaximum(ymax + 2 * ymargin);  // leave room for the legend
-      frame->Draw();
-
-      std::array<std::unique_ptr<TLine>, 2> averageLine;
-      TLegend legend(0.10, 0.75, 0.96, 0.85);
-      legend.SetNColumns(2);
-      legend.SetBorderSize(0);
-      legend.SetFillStyle(0);
-      legend.SetTextSize(0.025);
-      for (int itag = 0; itag < 2; itag++) {
-        averageLine[itag] = std::make_unique<TLine>(xmin, average[itag], xmax, average[itag]);
-        averageLine[itag]->SetLineColor(Base::kColor[itag]);
-        averageLine[itag]->SetLineStyle(kDashed);
-        averageLine[itag]->Draw();
-        steps[itag]->Draw("L SAME");
-        points[itag]->Draw("P SAME");
-        legend.AddEntry(points[itag].get(), Form("(%i) %zu IOVs", itag + 1, x[itag].size()), "lp");
-        legend.AddEntry(averageLine[itag].get(), Form("(%i) average %.4f", itag + 1, average[itag]), "l");
+        canvas.cd(ipad + 1);
+        this->drawFrame(keep,
+                        part,
+                        Form("%s crystal %s p%i", laserPartitionName(part), laserStatisticName(stat), param),
+                        xmin,
+                        xmax,
+                        ymin - ymargin,
+                        ymax + 3.5 * ymargin);  // leave room for the legend
+        TLegend* legend = this->drawLegend(keep);
+        for (int itag = 0; itag < ntags; itag++) {
+          const int color = (ntags == 1) ? int(kBlue) : Base::kColor[itag];
+          const double average = std::accumulate(y[itag].begin(), y[itag].end(), 0.) / y[itag].size();
+          auto averageLine = std::make_unique<TLine>(xmin, average, xmax, average);
+          averageLine->SetLineColor(color);
+          averageLine->SetLineStyle(kDashed);
+          averageLine->Draw();
+          // step graph (the value holds until the next IOV) and markers at the start of each IOV
+          auto steps = std::make_unique<TGraph>();
+          Base::addSteps(*steps, x[itag], y[itag], xmax);
+          auto points = std::make_unique<TGraph>(int(x[itag].size()), x[itag].data(), y[itag].data());
+          for (auto* g : {steps.get(), points.get()}) {
+            g->SetLineColor(color);
+            g->SetMarkerColor(color);
+          }
+          steps->SetLineWidth(2);
+          points->SetMarkerStyle(marker[itag]);
+          points->SetMarkerSize(0.8);
+          steps->Draw("L SAME");
+          points->Draw("P SAME");
+          const std::string prefix = (ntags == 1) ? "" : Form("(%i) ", itag + 1);
+          legend->AddEntry(points.get(), Form("%s%zu IOVs", prefix.c_str(), x[itag].size()), "lp");
+          legend->AddEntry(averageLine.get(), Form("%saverage %.4f", prefix.c_str(), average), "l");
+          keep.push_back(std::move(averageLine));
+          keep.push_back(std::move(steps));
+          keep.push_back(std::move(points));
+        }
+        legend->Draw();
       }
-      legend.Draw();
 
-      this->drawHeader(Form("%s crystal %s history 'p%i'", laserPartitionName(part), laserStatisticName(stat), param));
+      this->drawHeader(canvas, Form("ECAL laser crystal %s history 'p%i'", laserStatisticName(stat), param));
 
       std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };  // class EcalLaserAPDPNRatiosStatHistoryCompare
-  using EcalLaserAPDPNRatiosEEMinusP1MeanHistoryCompare = EcalLaserAPDPNRatiosStatHistoryCompare<1, kEEMinus, kMean>;
-  using EcalLaserAPDPNRatiosEEMinusP2MeanHistoryCompare = EcalLaserAPDPNRatiosStatHistoryCompare<2, kEEMinus, kMean>;
-  using EcalLaserAPDPNRatiosEEMinusP3MeanHistoryCompare = EcalLaserAPDPNRatiosStatHistoryCompare<3, kEEMinus, kMean>;
-  using EcalLaserAPDPNRatiosEBP1MeanHistoryCompare = EcalLaserAPDPNRatiosStatHistoryCompare<1, kEB, kMean>;
-  using EcalLaserAPDPNRatiosEBP2MeanHistoryCompare = EcalLaserAPDPNRatiosStatHistoryCompare<2, kEB, kMean>;
-  using EcalLaserAPDPNRatiosEBP3MeanHistoryCompare = EcalLaserAPDPNRatiosStatHistoryCompare<3, kEB, kMean>;
-  using EcalLaserAPDPNRatiosEEPlusP1MeanHistoryCompare = EcalLaserAPDPNRatiosStatHistoryCompare<1, kEEPlus, kMean>;
-  using EcalLaserAPDPNRatiosEEPlusP2MeanHistoryCompare = EcalLaserAPDPNRatiosStatHistoryCompare<2, kEEPlus, kMean>;
-  using EcalLaserAPDPNRatiosEEPlusP3MeanHistoryCompare = EcalLaserAPDPNRatiosStatHistoryCompare<3, kEEPlus, kMean>;
-  using EcalLaserAPDPNRatiosEEMinusP1RMSHistoryCompare = EcalLaserAPDPNRatiosStatHistoryCompare<1, kEEMinus, kRMS>;
-  using EcalLaserAPDPNRatiosEEMinusP2RMSHistoryCompare = EcalLaserAPDPNRatiosStatHistoryCompare<2, kEEMinus, kRMS>;
-  using EcalLaserAPDPNRatiosEEMinusP3RMSHistoryCompare = EcalLaserAPDPNRatiosStatHistoryCompare<3, kEEMinus, kRMS>;
-  using EcalLaserAPDPNRatiosEBP1RMSHistoryCompare = EcalLaserAPDPNRatiosStatHistoryCompare<1, kEB, kRMS>;
-  using EcalLaserAPDPNRatiosEBP2RMSHistoryCompare = EcalLaserAPDPNRatiosStatHistoryCompare<2, kEB, kRMS>;
-  using EcalLaserAPDPNRatiosEBP3RMSHistoryCompare = EcalLaserAPDPNRatiosStatHistoryCompare<3, kEB, kRMS>;
-  using EcalLaserAPDPNRatiosEEPlusP1RMSHistoryCompare = EcalLaserAPDPNRatiosStatHistoryCompare<1, kEEPlus, kRMS>;
-  using EcalLaserAPDPNRatiosEEPlusP2RMSHistoryCompare = EcalLaserAPDPNRatiosStatHistoryCompare<2, kEEPlus, kRMS>;
-  using EcalLaserAPDPNRatiosEEPlusP3RMSHistoryCompare = EcalLaserAPDPNRatiosStatHistoryCompare<3, kEEPlus, kRMS>;
+  };  // class EcalLaserAPDPNRatiosStatHistory
+  using EcalLaserAPDPNRatiosP1MeanHistoryOneTag = EcalLaserAPDPNRatiosStatHistory<1, kMean, 1>;
+  using EcalLaserAPDPNRatiosP2MeanHistoryOneTag = EcalLaserAPDPNRatiosStatHistory<2, kMean, 1>;
+  using EcalLaserAPDPNRatiosP3MeanHistoryOneTag = EcalLaserAPDPNRatiosStatHistory<3, kMean, 1>;
+  using EcalLaserAPDPNRatiosP1RMSHistoryOneTag = EcalLaserAPDPNRatiosStatHistory<1, kRMS, 1>;
+  using EcalLaserAPDPNRatiosP2RMSHistoryOneTag = EcalLaserAPDPNRatiosStatHistory<2, kRMS, 1>;
+  using EcalLaserAPDPNRatiosP3RMSHistoryOneTag = EcalLaserAPDPNRatiosStatHistory<3, kRMS, 1>;
+  using EcalLaserAPDPNRatiosP1MeanHistoryTwoTags = EcalLaserAPDPNRatiosStatHistory<1, kMean, 2>;
+  using EcalLaserAPDPNRatiosP2MeanHistoryTwoTags = EcalLaserAPDPNRatiosStatHistory<2, kMean, 2>;
+  using EcalLaserAPDPNRatiosP3MeanHistoryTwoTags = EcalLaserAPDPNRatiosStatHistory<3, kMean, 2>;
+  using EcalLaserAPDPNRatiosP1RMSHistoryTwoTags = EcalLaserAPDPNRatiosStatHistory<1, kRMS, 2>;
+  using EcalLaserAPDPNRatiosP2RMSHistoryTwoTags = EcalLaserAPDPNRatiosStatHistory<2, kRMS, 2>;
+  using EcalLaserAPDPNRatiosP3RMSHistoryTwoTags = EcalLaserAPDPNRatiosStatHistory<3, kRMS, 2>;
 
   /************************************************************************
-     history of the difference of the crystal mean of p1, p2 or p3 in EE-,
-     EB or EE+ between two tags, (2) - (1). The difference is evaluated on
+     history of the difference of the crystal mean of p1, p2 or p3 in EB,
+     EE+ and EE- between two tags, (2) - (1). The difference is evaluated on
      the union of the IOV boundaries of the two tags, the band is the RMS
      of the crystal-by-crystal difference, which accounts for the two tags
      measuring the same crystals.
      With percent = true the crystal-by-crystal difference is relative to
      the first tag, 100 * ((2) - (1)) / (1), crystals with (1) = 0 are skipped
   *************************************************************************/
-  template <int param, int part, bool percent>
-  class EcalLaserAPDPNRatiosMeanDiffHistory : public EcalLaserAPDPNRatiosHistoryCompareBase<param, part> {
+  template <int param, bool percent>
+  class EcalLaserAPDPNRatiosMeanDiffHistory : public EcalLaserAPDPNRatiosHistoryBase<param, 2> {
   public:
-    typedef EcalLaserAPDPNRatiosHistoryCompareBase<param, part> Base;
+    typedef EcalLaserAPDPNRatiosHistoryBase<param, 2> Base;
     EcalLaserAPDPNRatiosMeanDiffHistory()
         : Base(percent ? "ECAL Laser APDPNRatios crystal mean relative difference history"
                        : "ECAL Laser APDPNRatios crystal mean difference history") {}
@@ -1150,11 +1161,11 @@ namespace {
 
       // walk along the points keeping in memory only the crystal values of the current payload of each tag,
       // the statistics of the crystal-by-crystal difference are recomputed only when one of the payloads changes
-      std::vector<double> diff, err, up, down;
+      std::array<std::vector<double>, kNLaserPartitions> diff, err;
       std::array<size_t, 2> index = {{0, 0}};  // last IOV of each tag starting before the current point
       std::array<cond::Hash, 2> currentHash;
-      std::array<std::vector<float>, 2> values;
-      EcalLaserPartitionStats diffStats;
+      std::array<EcalLaserValues, 2> values;
+      EcalLaserStats diffStats;
       for (double xp : xd) {
         bool changed = false;
         for (int itag = 0; itag < 2; itag++) {
@@ -1166,117 +1177,109 @@ namespace {
           std::shared_ptr<EcalLaserAPDPNRatios> payload = this->fetchPayload(hash);
           if (!payload.get())
             return false;
-          values[itag] = laserPartitionValues<param, part>(*payload);
+          values[itag] = laserPartitionValues<param>(*payload);
           currentHash[itag] = hash;
           changed = true;
         }
         if (changed) {
-          diffStats = EcalLaserPartitionStats::compute([&values](auto&& add) {
-            for (size_t i = 0; i < values[0].size(); i++) {
-              const double v1 = values[0][i], v2 = values[1][i];
+          diffStats = EcalLaserStats();
+          for (int part = 0; part < kNLaserPartitions; part++) {
+            for (size_t i = 0; i < values[0][part].size(); i++) {
+              const double v1 = values[0][part][i], v2 = values[1][part][i];
               if constexpr (percent) {
                 if (v1 != 0.)
-                  add(100. * (v2 - v1) / v1);
+                  diffStats[part].add(100. * (v2 - v1) / v1);
               } else {
-                add(v2 - v1);
+                diffStats[part].add(v2 - v1);
               }
             }
-          });
+          }
         }
-        diff.push_back(diffStats.mean);
-        err.push_back(diffStats.rms);
-        up.push_back(diff.back() + err.back());
-        down.push_back(diff.back() - err.back());
+        for (int part = 0; part < kNLaserPartitions; part++) {
+          diff[part].push_back(diffStats[part].mean());
+          err[part].push_back(diffStats[part].rms());
+        }
       }
 
-      double xmin = xd.front();
-      double xmax = std::max(x[0].back(), x[1].back());
-      const double xmargin = (xmax > xmin) ? 0.02 * (xmax - xmin) : 1.;
-      xmin -= xmargin;
-      xmax += xmargin;
-      double ymin = std::min(*std::min_element(down.begin(), down.end()), 0.);
-      double ymax = std::max(*std::max_element(up.begin(), up.end()), 0.);
-      const double ymargin = (ymax > ymin) ? 0.1 * (ymax - ymin) : 0.01;
-
-      // the band is a closed polygon: upper edge forward, lower edge backward
-      TGraph band, line;
-      Base::addSteps(band, xd, up, xmax);
-      TGraph lower;
-      Base::addSteps(lower, xd, down, xmax);
-      for (int i = lower.GetN() - 1; i >= 0; i--)
-        band.AddPoint(lower.GetX()[i], lower.GetY()[i]);
-      band.SetFillColorAlpha(kAzure + 1, 0.35);
-      band.SetLineColor(kAzure + 1);
-      Base::addSteps(line, xd, diff, xmax);
-      line.SetLineColor(kBlack);
-      line.SetLineWidth(2);
-
-      const double averageDiff = std::accumulate(diff.begin(), diff.end(), 0.) / diff.size();
-      const double averageErr = std::accumulate(err.begin(), err.end(), 0.) / err.size();
+      const auto [xmin, xmax] = this->xRange(xd.front());
 
       gStyle->SetOptStat(0);
-      TCanvas canvas("CC history", "CC history", 2000, 1200);
-      canvas.SetLeftMargin(0.09);
-      canvas.SetRightMargin(0.03);
-      canvas.SetTopMargin(0.14);
-      canvas.SetGrid();
+      std::vector<std::unique_ptr<TObject>> keep;  // ROOT objects drawn on the canvas
+      TCanvas canvas("CC history", "CC history", 2000, 2400);
+      this->makePads(canvas);
+      for (int ipad = 0; ipad < kNLaserPartitions; ipad++) {
+        const int part = kLaserPadOrder[ipad];
+        std::vector<double> up, down;
+        for (size_t i = 0; i < xd.size(); i++) {
+          up.push_back(diff[part][i] + err[part][i]);
+          down.push_back(diff[part][i] - err[part][i]);
+        }
+        const double ymin = std::min(*std::min_element(down.begin(), down.end()), 0.);
+        const double ymax = std::max(*std::max_element(up.begin(), up.end()), 0.);
+        const double ymargin = (ymax > ymin) ? 0.1 * (ymax - ymin) : 0.01;
 
-      auto frame = this->makeFrame(
-          percent ? Form("%s #Delta crystal mean p%i, ((2) - (1)) / (1) [%%]", laserPartitionName(part), param)
-                  : Form("%s #Delta crystal mean p%i, (2) - (1)", laserPartitionName(part), param),
-          xmin,
-          xmax);
-      frame->SetMinimum(ymin - ymargin);
-      frame->SetMaximum(ymax + 2 * ymargin);  // leave room for the legend
-      frame->Draw();
+        canvas.cd(ipad + 1);
+        this->drawFrame(keep,
+                        part,
+                        percent ? Form("%s #Delta mean p%i, ((2) - (1)) / (1) [%%]", laserPartitionName(part), param)
+                                : Form("%s #Delta mean p%i, (2) - (1)", laserPartitionName(part), param),
+                        xmin,
+                        xmax,
+                        ymin - ymargin,
+                        ymax + 3.5 * ymargin);  // leave room for the legend
 
-      band.Draw("F SAME");
-      TLine zero(xmin, 0., xmax, 0.);
-      zero.SetLineStyle(kDashed);
-      zero.Draw();
-      line.Draw("L SAME");
+        // the band is a variable bin histogram, one bin per step, drawn as error boxes
+        std::vector<double> edges(xd);
+        edges.push_back(xmax);
+        auto band = std::make_unique<TH1D>(Form("band_%s", laserPartitionName(part)), "", int(xd.size()), edges.data());
+        band->SetDirectory(nullptr);
+        for (size_t i = 0; i < xd.size(); i++) {
+          band->SetBinContent(i + 1, diff[part][i]);
+          band->SetBinError(i + 1, err[part][i]);
+        }
+        band->SetFillColorAlpha(kAzure + 1, 0.35);
+        band->SetLineColor(kAzure + 1);
+        band->SetMarkerSize(0);
+        band->Draw("E2 SAME");
+        auto zero = std::make_unique<TLine>(xmin, 0., xmax, 0.);
+        zero->SetLineStyle(kDashed);
+        zero->Draw();
+        auto line = std::make_unique<TGraph>();
+        Base::addSteps(*line, xd, diff[part], xmax);
+        line->SetLineColor(kBlack);
+        line->SetLineWidth(2);
+        line->Draw("L SAME");
 
-      TLegend legend(0.10, 0.75, 0.96, 0.85);
-      legend.SetNColumns(2);
-      legend.SetBorderSize(0);
-      legend.SetFillStyle(0);
-      legend.SetTextSize(0.025);
-      if constexpr (percent) {
-        legend.AddEntry(&line, Form("mean of ((2) - (1)) / (1), average %.3f%%", averageDiff), "l");
-        legend.AddEntry(
-            &band, Form("#pm RMS of the crystal-by-crystal relative difference, average %.3f%%", averageErr), "f");
-      } else {
-        legend.AddEntry(&line, Form("mean (2) - mean (1), average %.4f", averageDiff), "l");
-        legend.AddEntry(&band, Form("#pm RMS of the crystal-by-crystal difference, average %.4f", averageErr), "f");
+        const double averageDiff = std::accumulate(diff[part].begin(), diff[part].end(), 0.) / xd.size();
+        const double averageErr = std::accumulate(err[part].begin(), err[part].end(), 0.) / xd.size();
+        TLegend* legend = this->drawLegend(keep, 1);
+        if constexpr (percent) {
+          legend->AddEntry(line.get(), Form("mean of ((2) - (1)) / (1), average %.3f%%", averageDiff), "l");
+          legend->AddEntry(band.get(), Form("#pm RMS over crystals, average %.3f%%", averageErr), "f");
+        } else {
+          legend->AddEntry(line.get(), Form("mean (2) - mean (1), average %.4f", averageDiff), "l");
+          legend->AddEntry(band.get(), Form("#pm RMS of the crystal differences, average %.4f", averageErr), "f");
+        }
+        legend->Draw();
+        keep.push_back(std::move(band));
+        keep.push_back(std::move(zero));
+        keep.push_back(std::move(line));
       }
-      legend.Draw();
 
-      this->drawHeader(Form(
-          "%s crystal mean %sdifference history 'p%i'", laserPartitionName(part), percent ? "relative " : "", param));
+      this->drawHeader(canvas,
+                       Form("ECAL laser crystal mean %sdifference history 'p%i'", percent ? "relative " : "", param));
 
       std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
   };  // class EcalLaserAPDPNRatiosMeanDiffHistory
-  using EcalLaserAPDPNRatiosEEMinusP1MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<1, kEEMinus, false>;
-  using EcalLaserAPDPNRatiosEEMinusP2MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<2, kEEMinus, false>;
-  using EcalLaserAPDPNRatiosEEMinusP3MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<3, kEEMinus, false>;
-  using EcalLaserAPDPNRatiosEBP1MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<1, kEB, false>;
-  using EcalLaserAPDPNRatiosEBP2MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<2, kEB, false>;
-  using EcalLaserAPDPNRatiosEBP3MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<3, kEB, false>;
-  using EcalLaserAPDPNRatiosEEPlusP1MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<1, kEEPlus, false>;
-  using EcalLaserAPDPNRatiosEEPlusP2MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<2, kEEPlus, false>;
-  using EcalLaserAPDPNRatiosEEPlusP3MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<3, kEEPlus, false>;
-  using EcalLaserAPDPNRatiosEEMinusP1MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<1, kEEMinus, true>;
-  using EcalLaserAPDPNRatiosEEMinusP2MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<2, kEEMinus, true>;
-  using EcalLaserAPDPNRatiosEEMinusP3MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<3, kEEMinus, true>;
-  using EcalLaserAPDPNRatiosEBP1MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<1, kEB, true>;
-  using EcalLaserAPDPNRatiosEBP2MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<2, kEB, true>;
-  using EcalLaserAPDPNRatiosEBP3MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<3, kEB, true>;
-  using EcalLaserAPDPNRatiosEEPlusP1MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<1, kEEPlus, true>;
-  using EcalLaserAPDPNRatiosEEPlusP2MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<2, kEEPlus, true>;
-  using EcalLaserAPDPNRatiosEEPlusP3MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<3, kEEPlus, true>;
+  using EcalLaserAPDPNRatiosP1MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<1, false>;
+  using EcalLaserAPDPNRatiosP2MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<2, false>;
+  using EcalLaserAPDPNRatiosP3MeanDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<3, false>;
+  using EcalLaserAPDPNRatiosP1MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<1, true>;
+  using EcalLaserAPDPNRatiosP2MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<2, true>;
+  using EcalLaserAPDPNRatiosP3MeanPercentDiffHistory = EcalLaserAPDPNRatiosMeanDiffHistory<3, true>;
 
 }  // namespace
 
@@ -1291,58 +1294,22 @@ PAYLOAD_INSPECTOR_MODULE(EcalLaserAPDPNRatios) {
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosRatioTwoTags);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosHistCompareOneTag);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosHistCompareTwoTags);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP1MeanHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP2MeanHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP3MeanHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP1MeanHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP2MeanHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP3MeanHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP1MeanHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP2MeanHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP3MeanHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP1RMSHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP2RMSHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP3RMSHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP1RMSHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP2RMSHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP3RMSHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP1RMSHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP2RMSHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP3RMSHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP1MeanHistoryCompare);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP2MeanHistoryCompare);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP3MeanHistoryCompare);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP1MeanHistoryCompare);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP2MeanHistoryCompare);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP3MeanHistoryCompare);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP1MeanHistoryCompare);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP2MeanHistoryCompare);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP3MeanHistoryCompare);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP1RMSHistoryCompare);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP2RMSHistoryCompare);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP3RMSHistoryCompare);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP1RMSHistoryCompare);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP2RMSHistoryCompare);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP3RMSHistoryCompare);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP1RMSHistoryCompare);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP2RMSHistoryCompare);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP3RMSHistoryCompare);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP1MeanDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP2MeanDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP3MeanDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP1MeanDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP2MeanDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP3MeanDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP1MeanDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP2MeanDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP3MeanDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP1MeanPercentDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP2MeanPercentDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP3MeanPercentDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP1MeanPercentDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP2MeanPercentDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP3MeanPercentDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP1MeanPercentDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP2MeanPercentDiffHistory);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP3MeanPercentDiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP1MeanHistoryOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP2MeanHistoryOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP3MeanHistoryOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP1RMSHistoryOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP2RMSHistoryOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP3RMSHistoryOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP1MeanHistoryTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP2MeanHistoryTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP3MeanHistoryTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP1RMSHistoryTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP2RMSHistoryTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP3RMSHistoryTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP1MeanDiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP2MeanDiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP3MeanDiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP1MeanPercentDiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP2MeanPercentDiffHistory);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP3MeanPercentDiffHistory);
 }
