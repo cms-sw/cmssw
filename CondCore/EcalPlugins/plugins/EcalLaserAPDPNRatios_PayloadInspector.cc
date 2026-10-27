@@ -16,11 +16,14 @@
 #include "TLatex.h"
 #include "TLegend.h"
 #include "TText.h"
+#include "TGraph.h"
 
 #include <algorithm>
 #include <array>
 #include <ctime>
+#include <map>
 #include <memory>
+#include <numeric>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -694,7 +697,11 @@ namespace {
           pad->SetRightMargin(0.04);
 
           double ymax = std::max(hist[0][i][part]->GetMaximum(), hist[1][i][part]->GetMaximum());
-          hist[0][i][part]->SetMaximum(1.25 * ymax);
+	  if(part==0 || part==2){
+	    hist[0][i][part]->SetMaximum(500);
+	  } else {
+	    hist[0][i][part]->SetMaximum(4500);
+	  }
           hist[0][i][part]->Draw("HIST");
           hist[1][i][part]->Draw("HIST SAME");
 
@@ -735,9 +742,271 @@ namespace {
     }  // fill method
   };  // class EcalLaserAPDPNRatiosHistCompareBase
   using EcalLaserAPDPNRatiosHistCompareOneTag =
-      EcalLaserAPDPNRatiosHistCompareBase<cond::payloadInspector::MULTI_IOV, 1>;
+      EcalLaserAPDPNRatiosHistCompareBase<cond::payloadInspector::SINGLE_IOV, 1>;
   using EcalLaserAPDPNRatiosHistCompareTwoTags =
       EcalLaserAPDPNRatiosHistCompareBase<cond::payloadInspector::SINGLE_IOV, 2>;
+
+  /************************************************************************
+     helpers for the history plots: partitions are indexed as in the
+     plots above, 0 = EE-, 1 = EB, 2 = EE+, parameters as 1 = p1, 2 = p2, 3 = p3
+  *************************************************************************/
+  enum EcalLaserPartition { kEEMinus = 0, kEB = 1, kEEPlus = 2 };
+
+  inline const char* laserPartitionName(int part) {
+    constexpr std::array<const char*, 3> names = {{"EE-", "EB", "EE+"}};
+    return names[part];
+  }
+
+  template <int param>
+  float laserParam(const EcalLaserAPDPNRatios::EcalLaserAPDPNpair& apdpn) {
+    static_assert(param >= 1 && param <= 3, "the APD/PN parameter must be p1, p2 or p3");
+    if constexpr (param == 1)
+      return apdpn.p1;
+    else if constexpr (param == 2)
+      return apdpn.p2;
+    else
+      return apdpn.p3;
+  }
+
+  // mean over the crystals of one partition of the parameter p<param>
+  template <int param, int part>
+  float laserPartitionMean(const EcalLaserAPDPNRatios& payload) {
+    static_assert(part >= kEEMinus && part <= kEEPlus, "the partition must be EE-, EB or EE+");
+    const auto& laserMap = payload.getLaserMap();
+    double sum = 0.;
+    unsigned int n = 0;
+    if constexpr (part == kEB) {
+      for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
+        sum += laserParam<param>(laserMap[EBDetId::unhashIndex(cellid).rawId()]);
+        n++;
+      }
+    } else {
+      constexpr int zside = (part == kEEPlus) ? 1 : -1;
+      for (int cellid = 0; cellid < EEDetId::kSizeForDenseIndexing; ++cellid) {
+        if (!EEDetId::validHashIndex(cellid))
+          continue;
+        EEDetId myEEId = EEDetId::unhashIndex(cellid);
+        if (myEEId.zside() != zside)
+          continue;
+        sum += laserParam<param>(laserMap[myEEId.rawId()]);
+        n++;
+      }
+    }
+    return n > 0 ? sum / n : 0.;
+  }
+
+  /************************************************************************
+     history of the crystal mean of p1, p2 or p3 in EE-, EB or EE+ (one tag)
+  *************************************************************************/
+  template <int param, int part>
+  class EcalLaserAPDPNRatiosMeanHistory : public cond::payloadInspector::HistoryPlot<EcalLaserAPDPNRatios, float> {
+  public:
+    EcalLaserAPDPNRatiosMeanHistory()
+        : cond::payloadInspector::HistoryPlot<EcalLaserAPDPNRatios, float>(
+              std::string(laserPartitionName(part)) + " crystal mean history 'p" + std::to_string(param) + "'",
+              "mean p" + std::to_string(param)) {}
+
+    float getFromPayload(EcalLaserAPDPNRatios& payload) override { return laserPartitionMean<param, part>(payload); }
+  };
+  using EcalLaserAPDPNRatiosEEMinusP1History = EcalLaserAPDPNRatiosMeanHistory<1, kEEMinus>;
+  using EcalLaserAPDPNRatiosEEMinusP2History = EcalLaserAPDPNRatiosMeanHistory<2, kEEMinus>;
+  using EcalLaserAPDPNRatiosEEMinusP3History = EcalLaserAPDPNRatiosMeanHistory<3, kEEMinus>;
+  using EcalLaserAPDPNRatiosEBP1History = EcalLaserAPDPNRatiosMeanHistory<1, kEB>;
+  using EcalLaserAPDPNRatiosEBP2History = EcalLaserAPDPNRatiosMeanHistory<2, kEB>;
+  using EcalLaserAPDPNRatiosEBP3History = EcalLaserAPDPNRatiosMeanHistory<3, kEB>;
+  using EcalLaserAPDPNRatiosEEPlusP1History = EcalLaserAPDPNRatiosMeanHistory<1, kEEPlus>;
+  using EcalLaserAPDPNRatiosEEPlusP2History = EcalLaserAPDPNRatiosMeanHistory<2, kEEPlus>;
+  using EcalLaserAPDPNRatiosEEPlusP3History = EcalLaserAPDPNRatiosMeanHistory<3, kEEPlus>;
+
+  /************************************************************************
+     history of the crystal mean of p1, p2 or p3 in EE-, EB or EE+,
+     overlaid for two tags. The two tags can have different IOV types:
+     run and lumi based IOVs are put on a common run number axis (the lumi
+     sections are squeezed in the [run, run+1) slot), time based IOVs can
+     only be compared with other time based IOVs.
+  *************************************************************************/
+  template <int param, int part>
+  class EcalLaserAPDPNRatiosMeanHistoryCompare
+      : public cond::payloadInspector::PlotImage<EcalLaserAPDPNRatios, cond::payloadInspector::MULTI_IOV, 2> {
+  public:
+    EcalLaserAPDPNRatiosMeanHistoryCompare()
+        : cond::payloadInspector::PlotImage<EcalLaserAPDPNRatios, cond::payloadInspector::MULTI_IOV, 2>(
+              "ECAL Laser APDPNRatios crystal mean history comparison") {}
+
+    bool fill() override {
+      const std::array<int, 2> color = {{kRed, kBlue}};
+      const std::array<int, 2> marker = {{kFullCircle, kFullSquare}};
+
+      auto tag1 = cond::payloadInspector::PlotBase::getTag<0>();
+      auto tag2 = cond::payloadInspector::PlotBase::getTag<1>();
+      std::array<std::string, 2> l_tagname = {{tag1.name, tag2.name}};
+      std::array<std::vector<std::tuple<cond::Time_t, cond::Hash>>, 2> l_iovs = {{tag1.iovs, tag2.iovs}};
+      std::array<cond::Time_t, 2> l_start = {{tag1.boundary.first, tag2.boundary.first}};
+      std::array<cond::TimeType, 2> l_timeType;
+      for (int itag = 0; itag < 2; itag++)
+        l_timeType[itag] = this->getTagInfo(l_tagname[itag]).timeType;
+
+      const bool isTime1 = (l_timeType[0] == cond::timestamp), isTime2 = (l_timeType[1] == cond::timestamp);
+      if (isTime1 != isTime2) {
+        cond::throwException("cannot overlay a time based tag with a run or lumi based tag",
+                             "EcalLaserAPDPNRatiosMeanHistoryCompare::fill");
+      }
+      const bool timeAxis = isTime1;
+
+      // x[tag], y[tag]: one point per IOV, x is the start of the IOV on the common axis
+      std::array<std::vector<double>, 2> x, y;
+      for (int itag = 0; itag < 2; itag++) {
+        if (l_iovs[itag].empty())
+          return false;
+        // the first IOV can start well before the requested range (e.g. since = 1), clamp it
+        const double xstart = iovToAxis(l_start[itag], l_timeType[itag]);
+        // payloads can be repeated in a tag, compute the mean only once per hash
+        std::map<cond::Hash, float> cache;
+        for (const auto& iov : l_iovs[itag]) {
+          const cond::Hash& hash = std::get<1>(iov);
+          auto it = cache.find(hash);
+          if (it == cache.end()) {
+            std::shared_ptr<EcalLaserAPDPNRatios> payload = this->fetchPayload(hash);
+            if (!payload.get())
+              continue;
+            it = cache.emplace(hash, laserPartitionMean<param, part>(*payload)).first;
+          }
+          x[itag].push_back(std::max(xstart, iovToAxis(std::get<0>(iov), l_timeType[itag])));
+          y[itag].push_back(it->second);
+        }
+        if (x[itag].empty())
+          return false;
+      }
+
+      // common range, the last IOV of each tag is extended up to the end of the plot
+      double xmin = std::min(x[0].front(), x[1].front());
+      double xmax = std::max(x[0].back(), x[1].back());
+      double ymin = std::min(*std::min_element(y[0].begin(), y[0].end()), *std::min_element(y[1].begin(), y[1].end()));
+      double ymax = std::max(*std::max_element(y[0].begin(), y[0].end()), *std::max_element(y[1].begin(), y[1].end()));
+      const double xmargin = (xmax > xmin) ? 0.02 * (xmax - xmin) : 1.;
+      const double ymargin = (ymax > ymin) ? 0.1 * (ymax - ymin) : 0.01;
+      xmax += xmargin;
+
+      // step graphs (the value holds until the next IOV) and markers at the start of each IOV
+      std::array<std::unique_ptr<TGraph>, 2> steps, points;
+      std::array<double, 2> mean;
+      for (int itag = 0; itag < 2; itag++) {
+        const auto& xs = x[itag];
+        const auto& ys = y[itag];
+        steps[itag] = std::make_unique<TGraph>();
+        for (size_t i = 0; i < xs.size(); i++) {
+          double xend = (i + 1 < xs.size()) ? xs[i + 1] : xmax;
+          steps[itag]->AddPoint(xs[i], ys[i]);
+          steps[itag]->AddPoint(xend, ys[i]);
+        }
+        points[itag] = std::make_unique<TGraph>(xs.size(), xs.data(), ys.data());
+        mean[itag] = std::accumulate(ys.begin(), ys.end(), 0.) / ys.size();
+        for (auto* g : {steps[itag].get(), points[itag].get()}) {
+          g->SetLineColor(color[itag]);
+          g->SetMarkerColor(color[itag]);
+        }
+        steps[itag]->SetLineWidth(2);
+        points[itag]->SetMarkerStyle(marker[itag]);
+        points[itag]->SetMarkerSize(0.8);
+      }
+
+      gStyle->SetOptStat(0);
+      TCanvas canvas("CC history", "CC history", 2000, 1200);
+      canvas.SetLeftMargin(0.09);
+      canvas.SetRightMargin(0.03);
+      canvas.SetTopMargin(0.14);
+      canvas.SetGrid();
+
+      TH1F frame("frame",
+                 Form(";%s;%s crystal mean p%i",
+                      timeAxis ? "IOV start time (UTC)" : "IOV (run number)",
+                      laserPartitionName(part),
+                      param),
+                 1000,
+                 xmin - xmargin,
+                 xmax);
+      frame.SetDirectory(nullptr);
+      frame.SetMinimum(ymin - ymargin);
+      frame.SetMaximum(ymax + 2 * ymargin);  // leave room for the legend
+      frame.GetYaxis()->SetTitleOffset(1.2);
+      if (timeAxis) {
+        frame.GetXaxis()->SetTimeDisplay(1);
+        frame.GetXaxis()->SetTimeFormat("%d/%m/%y%F1970-01-01 00:00:00");
+        frame.GetXaxis()->SetNdivisions(510);
+      } else {
+        frame.GetXaxis()->SetNoExponent();
+        frame.GetXaxis()->SetMaxDigits(7);
+      }
+      frame.Draw();
+
+      std::array<std::unique_ptr<TLine>, 2> meanLine;
+      TLegend legend(0.10, 0.75, 0.96, 0.85);
+      legend.SetNColumns(2);
+      legend.SetBorderSize(0);
+      legend.SetFillStyle(0);
+      legend.SetTextSize(0.025);
+      for (int itag = 0; itag < 2; itag++) {
+        meanLine[itag] = std::make_unique<TLine>(xmin - xmargin, mean[itag], xmax, mean[itag]);
+        meanLine[itag]->SetLineColor(color[itag]);
+        meanLine[itag]->SetLineStyle(kDashed);
+        meanLine[itag]->Draw();
+        steps[itag]->Draw("L SAME");
+        points[itag]->Draw("P SAME");
+        legend.AddEntry(points[itag].get(), Form("(%i) %zu IOVs", itag + 1, x[itag].size()), "lp");
+        legend.AddEntry(meanLine[itag].get(), Form("(%i) mean %.4f", itag + 1, mean[itag]), "l");
+      }
+      legend.Draw();
+
+      // header, TText instead of TLatex to keep the underscores of the tag names
+      TText t1;
+      t1.SetNDC();
+      t1.SetTextAlign(22);
+      t1.SetTextSize(0.03);
+      t1.DrawText(0.5, 0.965, Form("%s crystal mean history 'p%i'", laserPartitionName(part), param));
+      t1.SetTextSize(0.022);
+      for (int itag = 0; itag < 2; itag++) {
+        t1.SetTextColor(color[itag]);
+        t1.DrawText(0.5,
+                    0.925 - 0.03 * itag,
+                    Form("(%i) %s, IOVs %s - %s",
+                         itag + 1,
+                         l_tagname[itag].c_str(),
+                         laserIOVLabel(std::max(l_start[itag], std::get<0>(l_iovs[itag].front()))).c_str(),
+                         laserIOVLabel(std::get<0>(l_iovs[itag].back())).c_str()));
+      }
+
+      std::string ImageName(this->m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
+      return true;
+    }  // fill method
+
+  private:
+    // the lumi sections of a run are squeezed in the [run, run+1) slot of the run number axis
+    static constexpr double kLumisPerRunSlot = 10000.;
+
+    // position of an IOV since on the common axis: run number for run and lumi based IOVs, unix time otherwise
+    static double iovToAxis(cond::Time_t since, cond::TimeType timeType) {
+      switch (timeType) {
+        case cond::lumiid: {
+          double lumi = std::min<double>(since & 0xFFFFFFFF, kLumisPerRunSlot - 1);
+          return double(since >> 32) + std::max(lumi - 1., 0.) / kLumisPerRunSlot;
+        }
+        case cond::timestamp:
+          return double(since >> 32);
+        default:
+          return double(since);
+      }
+    }
+  };  // class EcalLaserAPDPNRatiosMeanHistoryCompare
+  using EcalLaserAPDPNRatiosEEMinusP1HistoryCompare = EcalLaserAPDPNRatiosMeanHistoryCompare<1, kEEMinus>;
+  using EcalLaserAPDPNRatiosEEMinusP2HistoryCompare = EcalLaserAPDPNRatiosMeanHistoryCompare<2, kEEMinus>;
+  using EcalLaserAPDPNRatiosEEMinusP3HistoryCompare = EcalLaserAPDPNRatiosMeanHistoryCompare<3, kEEMinus>;
+  using EcalLaserAPDPNRatiosEBP1HistoryCompare = EcalLaserAPDPNRatiosMeanHistoryCompare<1, kEB>;
+  using EcalLaserAPDPNRatiosEBP2HistoryCompare = EcalLaserAPDPNRatiosMeanHistoryCompare<2, kEB>;
+  using EcalLaserAPDPNRatiosEBP3HistoryCompare = EcalLaserAPDPNRatiosMeanHistoryCompare<3, kEB>;
+  using EcalLaserAPDPNRatiosEEPlusP1HistoryCompare = EcalLaserAPDPNRatiosMeanHistoryCompare<1, kEEPlus>;
+  using EcalLaserAPDPNRatiosEEPlusP2HistoryCompare = EcalLaserAPDPNRatiosMeanHistoryCompare<2, kEEPlus>;
+  using EcalLaserAPDPNRatiosEEPlusP3HistoryCompare = EcalLaserAPDPNRatiosMeanHistoryCompare<3, kEEPlus>;
 
 }  // namespace
 
@@ -752,4 +1021,22 @@ PAYLOAD_INSPECTOR_MODULE(EcalLaserAPDPNRatios) {
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosRatioTwoTags);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosHistCompareOneTag);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosHistCompareTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP1History);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP2History);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP3History);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP1History);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP2History);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP3History);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP1History);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP2History);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP3History);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP1HistoryCompare);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP2HistoryCompare);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMinusP3HistoryCompare);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP1HistoryCompare);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP2HistoryCompare);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBP3HistoryCompare);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP1HistoryCompare);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP2HistoryCompare);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEPlusP3HistoryCompare);
 }
