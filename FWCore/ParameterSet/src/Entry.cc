@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/types.h"
 #include "FWCore/Utilities/interface/Digest.h"
 
+#include <algorithm>
 #include <map>
 #include <sstream>
 #include <ostream>
@@ -20,40 +21,54 @@
 #include <string_view>
 
 using namespace edm::detail;
-static constexpr const std::array<std::string_view, 32> s_types = {{"bool",
+static constexpr const std::array<std::string_view, 32> s_types = {{"ESInputTag",
+                                                                    "EventID",
+                                                                    "EventRange",
+                                                                    "FileInPath",
+                                                                    "InputTag",
+                                                                    "LuminosityBlockID",
+                                                                    "LuminosityBlockRange",
+                                                                    "PSet",
+                                                                    "VESInputTag",
+                                                                    "VEventID",
+                                                                    "VEventRange",
+                                                                    "VInputTag",
+                                                                    "VLuminosityBlockID",
+                                                                    "VLuminosityBlockRange",
+                                                                    "bool",
                                                                     "double",
                                                                     "int32",
                                                                     "int64",
                                                                     "path",
                                                                     "string",
-                                                                    "deprecated_string",
+                                                                    "string_deprecated",
                                                                     "uint32",
                                                                     "uint64",
+                                                                    "vBool",
+                                                                    "vPSet",
                                                                     "vdouble",
                                                                     "vint32",
                                                                     "vint64",
                                                                     "vstring",
                                                                     "vstring_deprecated",
                                                                     "vuint32",
-                                                                    "vuint64",
-                                                                    "vBool",
-                                                                    "vPSet",
-                                                                    "EventID",
-                                                                    "EventRange",
-                                                                    "ESInputTag",
-                                                                    "FileInPath",
-                                                                    "InputTag",
-                                                                    "LuminosityBlockID",
-                                                                    "LuminosityBlockRange",
-                                                                    "PSet",
-                                                                    "VEventID",
-                                                                    "VEventRange",
-                                                                    "VESInputTag",
-                                                                    "VInputTag",
-                                                                    "VLuminosityBlockID",
-                                                                    "VLuminosityBlockRange"}};
+                                                                    "vuint64"}};
 
-static constexpr const std::array<char, 32> s_codes = {{kTbool,
+static constexpr const std::array<char, 32> s_codes = {{kTESInputTag,
+                                                        kTEventID,
+                                                        kTEventRange,
+                                                        kTFileInPath,
+                                                        kTInputTag,
+                                                        kTLuminosityBlockID,
+                                                        kTLuminosityBlockRange,
+                                                        kTPSet,
+                                                        kTVESInputTag,
+                                                        kTVEventID,
+                                                        kTVEventRange,
+                                                        kTVInputTag,
+                                                        kTVLuminosityBlockID,
+                                                        kTVLuminosityBlockRange,
+                                                        kTbool,
                                                         kTdouble,
                                                         kTint32,
                                                         kTint64,
@@ -62,33 +77,22 @@ static constexpr const std::array<char, 32> s_codes = {{kTbool,
                                                         kTstringHex,
                                                         kTuint32,
                                                         kTuint64,
+                                                        kTvBool,
+                                                        kTvPSet,
                                                         kTvdouble,
                                                         kTvint32,
                                                         kTvint64,
                                                         kTvstringRaw,
                                                         kTvstringHex,
                                                         kTvuint32,
-                                                        kTvuint64,
-                                                        kTvBool,
-                                                        kTvPSet,
-                                                        kTEventID,
-                                                        kTEventRange,
-                                                        kTESInputTag,
-                                                        kTFileInPath,
-                                                        kTInputTag,
-                                                        kTLuminosityBlockID,
-                                                        kTLuminosityBlockRange,
-                                                        kTPSet,
-                                                        kTVEventID,
-                                                        kTVEventRange,
-                                                        kTVESInputTag,
-                                                        kTVInputTag,
-                                                        kTVLuminosityBlockID,
-                                                        kTVLuminosityBlockRange}};
+                                                        kTvuint64}};
+
+// check that the type names are sorted, so they can be searched more efficiently
+static_assert(std::is_sorted(s_types.begin(), s_types.end()));
 
 //a compile time function to convert code to type
 // not used at runtime since does linear search
-static constexpr std::string_view c2t(char iCode) {
+static consteval std::string_view c2t(char iCode) {
   static_assert(s_codes.size() == s_types.size());
   for (size_t index = 0; index < s_codes.size(); ++index) {
     if (s_codes[index] == iCode) {
@@ -171,13 +175,6 @@ static constexpr const std::array<std::string_view, 255> s_table = fillTable();
 
 static constexpr std::string_view typeFromCode(char iCode) { return s_table[iCode]; }
 
-static char codeFromType(std::string_view iType) {
-  auto itFound = std::lower_bound(s_types.begin(), s_types.end(), iType);
-  if (itFound == s_types.end() or *itFound != iType) {
-    throw edm::Exception(edm::errors::Configuration) << "bad type name used for Entry : " << iType;
-  }
-  return s_codes[itFound - s_types.begin()];
-}
 namespace edm {
   // ----------------------------------------------------------------------
   // consistency-checker
@@ -680,48 +677,6 @@ namespace edm {
   Entry::Entry(std::string name, std::string_view code) : name_(std::move(name)), rep_(), type_('?'), tracked_('?') {
     if (!fromString(code.begin(), code.end()))
       throwEncodeError("coded string");
-    validate();
-  }
-
-  Entry::Entry(std::string name, std::string_view type, std::string_view value, bool is_tracked)
-      : name_(std::move(name)), rep_(), type_('?'), tracked_('?') {
-    std::string codedString(is_tracked ? "-" : "+");
-
-    codedString += codeFromType(type);
-    codedString += '(';
-    codedString += value;
-    codedString += ')';
-
-    std::string_view v = codedString;
-    if (!fromString(v.begin(), v.end())) {
-      throw Exception(errors::Configuration) << "bad encoded Entry string " << codedString;
-    }
-    validate();
-  }
-
-  Entry::Entry(std::string name, std::string_view type, std::vector<std::string> const& value, bool is_tracked)
-      : name_(std::move(name)), rep_(), type_('?'), tracked_('?') {
-    std::string codedString(is_tracked ? "-" : "+");
-
-    codedString += codeFromType(type);
-    codedString += '(';
-    codedString += '{';
-    std::vector<std::string>::const_iterator i = value.begin();
-    std::vector<std::string>::const_iterator e = value.end();
-    std::string const kSeparator(",");
-    std::string sep("");
-    for (; i != e; ++i) {
-      codedString += sep;
-      codedString += *i;
-      sep = kSeparator;
-    }
-    codedString += '}';
-    codedString += ')';
-
-    std::string_view v = codedString;
-    if (!fromString(v.begin(), v.end())) {
-      throw Exception(errors::Configuration) << "bad encoded Entry string " << codedString;
-    }
     validate();
   }
 
