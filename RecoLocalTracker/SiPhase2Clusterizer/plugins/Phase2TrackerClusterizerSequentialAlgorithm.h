@@ -49,7 +49,7 @@ void Phase2TrackerClusterizerSequentialAlgorithm::clusterizeDetUnit(
     const bool isAdjacent = digi - previous == 1;
     const bool isClusterFull = (maxClusterSize_ != 0) && (sizeCluster >= maxClusterSize_);
     const bool startsNewChip = (chipSize != 0) && (digi.strip() % chipSize == 0);
-    if ( (isAdjacent) && (!isClusterFull) && (!startsNewChip) ) {
+    if ((isAdjacent) && (!isClusterFull) && (!startsNewChip)) {
       HIPbit |= digi.overThreshold();
       ++sizeCluster;
     } else {

@@ -14,16 +14,16 @@ class Phase2TrackerClusterMergerAlgorithm {
 public:
   inline void mergeDetUnit(const edmNew::DetSet<Phase2TrackerCluster1D>&,
                            Phase2TrackerCluster1DCollectionNew::FastFiller&,
-                          const bool, const SiStripBadStrip*, const int) const;
+                           const bool,
+                           const SiStripBadStrip*,
+                           const int) const;
 };
 
-void Phase2TrackerClusterMergerAlgorithm::mergeDetUnit(
-    const edmNew::DetSet<Phase2TrackerCluster1D>& input,
-    Phase2TrackerCluster1DCollectionNew::FastFiller& merged,
-    const bool handleBadStrips_,
-    const SiStripBadStrip* badStripPayload_,
-    const int maxBadStrips
-  ) const {
+void Phase2TrackerClusterMergerAlgorithm::mergeDetUnit(const edmNew::DetSet<Phase2TrackerCluster1D>& input,
+                                                       Phase2TrackerCluster1DCollectionNew::FastFiller& merged,
+                                                       const bool handleBadStrips_,
+                                                       const SiStripBadStrip* badStripPayload_,
+                                                       const int maxBadStrips) const {
   if (input.empty())
     return;
 
@@ -50,66 +50,59 @@ void Phase2TrackerClusterMergerAlgorithm::mergeDetUnit(
   std::vector<unsigned int>::const_iterator badStripObject = badStripObjects.first;
 
   for (; ci != ordered.end(); ++ci) {
-    
     Phase2TrackerDigi nextClusterDigi = ci->firstDigi();
 
     if (nextClusterDigi.column() == firstClusterDigi.column()) {
-      
       // one past the last channel of the cluster
       const int firstClusterEdge = firstClusterDigi.channel() + sizeCluster;
       const int nextClusterFirst = nextClusterDigi.channel();
 
-      if(firstClusterEdge == nextClusterFirst){
+      if (firstClusterEdge == nextClusterFirst) {
         sizeCluster += ci->size();
         HIPbit |= ci->threshold();
-      }else if(handleBadStrips_ &&
-        (firstClusterEdge + maxBadStrips >= nextClusterFirst)
-      ){
-
+      } else if (handleBadStrips_ && (firstClusterEdge + maxBadStrips >= nextClusterFirst)) {
         // merging clusters with bad strips between them
         bool mergeWithBadStrips = false;
-        
+
         // iterate over bad strips to find if there's a bad strip block
         // between the two clusters
-        for(; badStripObject != badStripObjects.second; ++badStripObject){
-          
+        for (; badStripObject != badStripObjects.second; ++badStripObject) {
           const auto badStripObjectDecoded = badStripPayload_->decodePhase2(*badStripObject);
           // decoded to packed channel (same as digi)
           const auto badStripChannel = badStripObjectDecoded.firstStrip;
           const auto badStripBlockSize = badStripObjectDecoded.range;
           const auto badStripEdge = badStripChannel + badStripBlockSize;
-          
-          if(badStripEdge <= firstClusterEdge) continue;
+
+          if (badStripEdge <= firstClusterEdge)
+            continue;
 
           // strict matching, block of bad strips within the gap
           // no under/overflow
-          if(badStripChannel == firstClusterEdge &&
-            badStripEdge  == nextClusterFirst){
+          if (badStripChannel == firstClusterEdge && badStripEdge == nextClusterFirst) {
             mergeWithBadStrips = true;
             sizeCluster = sizeCluster + badStripBlockSize + ci->size();
             HIPbit |= ci->threshold();
 
-            std::cout << "Merging cluster with edge " << firstClusterEdge << " to cluster with first strip " << nextClusterFirst << " separated by bad strip block with channel " << badStripChannel << " and size " << badStripBlockSize << std::endl;
-          }           
+            std::cout << "Merging cluster with edge " << firstClusterEdge << " to cluster with first strip "
+                      << nextClusterFirst << " separated by bad strip block with channel " << badStripChannel
+                      << " and size " << badStripBlockSize << std::endl;
+          }
 
           break;
-          
         }
-        
-        if(!mergeWithBadStrips){
+
+        if (!mergeWithBadStrips) {
           merged.push_back(Phase2TrackerCluster1D(firstClusterDigi, sizeCluster, HIPbit));
           firstClusterDigi = nextClusterDigi;
           sizeCluster = ci->size();
-          HIPbit = ci->threshold();               
+          HIPbit = ci->threshold();
         }
 
-      }else{
-
+      } else {
         merged.push_back(Phase2TrackerCluster1D(firstClusterDigi, sizeCluster, HIPbit));
         firstClusterDigi = nextClusterDigi;
         sizeCluster = ci->size();
-        HIPbit = ci->threshold();               
-
+        HIPbit = ci->threshold();
       }
 
     } else {

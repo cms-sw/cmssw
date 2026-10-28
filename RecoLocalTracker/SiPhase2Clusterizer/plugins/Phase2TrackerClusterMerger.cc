@@ -42,18 +42,15 @@ private:
   const int maxBadStrips_;
   // <type of object from the payload, record name>
   edm::ESGetToken<SiStripBadStrip, SiPhase2OuterTrackerBadStripRcd> badStripToken_;
-
 };
 
 Phase2TrackerClusterMerger::Phase2TrackerClusterMerger(edm::ParameterSet const& conf)
     : token_(consumes<Phase2TrackerCluster1DCollectionNew>(conf.getParameter<edm::InputTag>("src"))),
-    handleBadStrips_(conf.getParameter<bool>("handleBadStrips")),
-    maxBadStrips_(conf.getParameter<int>("maxBadStrips")) {
-      
-      produces<Phase2TrackerCluster1DCollectionNew>();
+      handleBadStrips_(conf.getParameter<bool>("handleBadStrips")),
+      maxBadStrips_(conf.getParameter<int>("maxBadStrips")) {
+  produces<Phase2TrackerCluster1DCollectionNew>();
 
-      badStripToken_ = esConsumes<SiStripBadStrip, SiPhase2OuterTrackerBadStripRcd>();
-
+  badStripToken_ = esConsumes<SiStripBadStrip, SiPhase2OuterTrackerBadStripRcd>();
 }
 
 void Phase2TrackerClusterMerger::produce(edm::Event& event, const edm::EventSetup& eventSetup) {
@@ -71,8 +68,7 @@ void Phase2TrackerClusterMerger::produce(edm::Event& event, const edm::EventSetu
   for (const auto& DSViter : *inputClusters) {
     Phase2TrackerCluster1DCollectionNew::FastFiller clusters(*outputClusters, DSViter.detId());
     Phase2TrackerClusterMergerAlgorithm algo;
-    algo.mergeDetUnit(DSViter, clusters,
-                      handleBadStrips_, badStripPayload_, maxBadStrips_);
+    algo.mergeDetUnit(DSViter, clusters, handleBadStrips_, badStripPayload_, maxBadStrips_);
     if (clusters.empty())
       clusters.abort();
   }
@@ -86,7 +82,7 @@ void Phase2TrackerClusterMerger::fillDescriptions(edm::ConfigurationDescriptions
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("siPhase2Clusters"));
   desc.add<bool>("handleBadStrips", true);
-  desc.add<int>("maxBadStrips", 1);  
+  desc.add<int>("maxBadStrips", 1);
   descriptions.add("default_phase2TrackerClusterMerger", desc);
 }
 
