@@ -17,3 +17,11 @@
   <flags EDM_PLUGIN="1"/>
   <flags CXXFLAGS="-g3"/>
 </library>
+
+<bin file="alpaka/testPhase2StripCPEPosition.cc alpaka/testPhase2StripCPEPosition.dev.cc" name="testPhase2StripCPEPosition">
+  <use name="alpaka"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="RecoLocalTracker/Phase2TrackerRecHits"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
