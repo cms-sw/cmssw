@@ -198,7 +198,7 @@ class DefaultLHEMerger(BaseLHEMerger):
             for i in range(len(self._f)):
                 header = []
                 line = next(self._f[i])
-                while not re.search('\s*<init(>|\s)', line):
+                while not re.search(r'\s*<init(>|\s)', line):
                     header.append(line)
                     line = next(self._f[i])
                 # 'header' includes all contents before reaches <init>
@@ -209,7 +209,7 @@ class DefaultLHEMerger(BaseLHEMerger):
             for i in range(len(self._f)):
                 init = []
                 line = next(self._f[i])
-                while not re.search('\s*</init>', line):
+                while not re.search(r'\s*</init>', line):
                     init.append(line)
                     line = next(self._f[i])
                 # 'init_str' includes all contents inside <init>...</init>
@@ -222,9 +222,9 @@ class DefaultLHEMerger(BaseLHEMerger):
                     nevent = 0
                     while True:
                         line = next(self._f[i])
-                        if re.search('\s*</event>', line):
+                        if re.search(r'\s*</event>', line):
                             nevent += 1
-                        if re.search('\s*</LesHouchesEvents>', line):
+                        if re.search(r'\s*</LesHouchesEvents>', line):
                             break
                         _fwtmp.write(line)
                     self._nevent.append(nevent)
@@ -255,7 +255,7 @@ class DefaultLHEMerger(BaseLHEMerger):
                     sign = lambda x: -1 if x < 0 else 1
                     for line in ftmp:
                         event_line += 1
-                        if re.search('\s*<event.*>', line) and not re.search('\s*<event_num.*>', line):
+                        if re.search(r'\s*<event.*>', line) and not re.search(r'\s*<event_num.*>', line):
                             event_line = 0
                         if event_line == 1:
                             # modify the XWGTUP appeared in the first line of the
@@ -263,7 +263,7 @@ class DefaultLHEMerger(BaseLHEMerger):
                             orig_wgt = float(line.split()[2])
                             fw.write(re.sub(r'(^\s*\S+\s+\S+\s+)\S+(.+)', r'\g<1>%+.7E\g<2>' \
                                 % (sign(orig_wgt) * self._uwgt), line))
-                        elif re.search('\s*<wgt.*>.*</wgt>', line):
+                        elif re.search(r'\s*<wgt.*>.*</wgt>', line):
                             addi_wgt_str = re.search(r'\<wgt.*\>\s*(\S+)\s*\<\/wgt\>', line).group(1)
                             fw.write(line.replace(
                                 addi_wgt_str, '%+.7E' % (float(addi_wgt_str) / orig_wgt * self._uwgt)))

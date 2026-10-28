@@ -17,7 +17,7 @@ def number_events(input_file, output_file=None, offset=0):
     with open('tmp.txt', 'w') as fw:
         with open(input_file, 'r') as ftmp:
             for line in ftmp:
-                if re.search('\s*</event>', line):
+                if re.search(r'\s*</event>', line):
                     nevent += 1
                     fw.write('<event_num num="' + str(nevent) +  '"> ' + str(nevent) + '</event_num>\n')
                 fw.write(line)
