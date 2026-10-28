@@ -48,32 +48,31 @@ namespace hgcal {
     //--------------------------------------------------
     // ECON-D flags
     //--------------------------------------------------
-    std::vector<std::string> econdWithCBflags = {
-        // ECOND flags
-        "H/T good",
-        "H/T fail",
-        "H/T amb",
-        "E/B/O good",
-        "E/B/O fail",
-        "E/B/O amb",
-        "Unmatched (M)",
-        "Trunc (T)",
-        "Unexpected (E)",
-        "Sub-packet error (S)",
-        "Marker",
-        "Payload (OF)",
-        "Payload (mismatch)",
+    std::vector<std::string> econdWithCBflags = {// ECOND flags
+                                                 "H/T good",
+                                                 "H/T fail",
+                                                 "H/T amb",
+                                                 "E/B/O good",
+                                                 "E/B/O fail",
+                                                 "E/B/O amb",
+                                                 "Unmatched (M)",
+                                                 "Trunc (T)",
+                                                 "Unexpected (E)",
+                                                 "Sub-packet error (S)",
+                                                 "Marker",
+                                                 "Payload (OF)",
+                                                 "Payload (mismatch)",
 
-        // ---- CB flags below ----
-        "CB: !Normal",
-        "Payload",
-        "CRC Error",
-        "EvID Mis.",
-        "FSM T/O",
-        "BCID/OrbitID",
-        "MB Overflow",
-        "Inactive",
-        "CRC trailer error"};
+                                                 // ---- CB flags below ----
+                                                 "CB: !Normal",
+                                                 "Payload",
+                                                 "CRC Error",
+                                                 "EvID Mis.",
+                                                 "FSM T/O",
+                                                 "BCID/OrbitID",
+                                                 "MB Overflow",
+                                                 "Inactive",
+                                                 "CRC trailer error"};
 
     //--------------------------------------------------
     // Assigns the bins to filled with ECON-D flags
