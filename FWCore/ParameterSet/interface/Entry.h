@@ -201,8 +201,6 @@ namespace edm {
 
     // coded string
     Entry(std::string name, std::string_view);
-    Entry(std::string name, std::string_view type, std::string_view value, bool is_tracked);
-    Entry(std::string name, std::string_view type, std::vector<std::string> const& value, bool is_tracked);
 
     ~Entry() = default;
     Entry(Entry const&) = default;
