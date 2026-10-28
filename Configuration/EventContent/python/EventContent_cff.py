@@ -702,11 +702,17 @@ FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')
 # MC-truth graph: under enableTruth, persist the compact truth (logical graph +
 # unresolved hit index + raw merged graph). Kept in FEVTDEBUGHLT (the DIGI-RAW and
 # RECO tier for Phase-2) so it bridges DIGI->RECO, and in RECOSIM for downstream.
+# The full barrel and forward PFRecHits are kept too: they are the rechits that
+# DetIdToRecHitMapProducer resolves the barrel and forward cells of the hit index to.
 from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
 _truthKeeps = [
     'keep *_truthLogicalGraphProducer_*_*',
     'keep *_truthLogicalGraphHitIndexProducer_*_*',
     'keep TruthGraph_mix_*_*',
+    'keep recoPFRecHits_particleFlowRecHitECAL__*',
+    'keep recoPFRecHits_particleFlowRecHitHBHE__*',
+    'keep recoPFRecHits_particleFlowRecHitHF__*',
+    'keep recoPFRecHits_particleFlowRecHitHO__*',
 ]
 enableTruth.toModify(FEVTDEBUGHLTEventContent,
                      outputCommands=FEVTDEBUGHLTEventContent.outputCommands + _truthKeeps)

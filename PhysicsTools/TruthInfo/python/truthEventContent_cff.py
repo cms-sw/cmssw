@@ -40,11 +40,17 @@ import FWCore.ParameterSet.Config as cms
 
 # The compact, stage-independent truth: the physics graph, the unresolved
 # per-particle per-cell footprint, and the raw merged CSR graph (needed by the
-# branch validators' rawSrc and for offline rebuild; ~3 MB/ev).
+# branch validators' rawSrc and for offline rebuild; ~3 MB/ev). The full barrel and
+# forward PFRecHits are the rechits DetIdToRecHitMapProducer resolves the barrel and
+# forward cells of the index to; RECO keeps only their Cleaned instances otherwise.
 _truthGraphKeep = [
     'keep *_truthLogicalGraphProducer_*_*',
     'keep *_truthLogicalGraphHitIndexProducer_*_*',
     'keep TruthGraph_mix_*_*',
+    'keep recoPFRecHits_particleFlowRecHitECAL__*',
+    'keep recoPFRecHits_particleFlowRecHitHBHE__*',
+    'keep recoPFRecHits_particleFlowRecHitHF__*',
+    'keep recoPFRecHits_particleFlowRecHitHO__*',
 ]
 
 
