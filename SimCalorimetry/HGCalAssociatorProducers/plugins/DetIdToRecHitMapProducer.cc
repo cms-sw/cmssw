@@ -2,8 +2,10 @@
 // Part of the MC-truth-graph prototype - under heavy development, not yet open
 // to external contributions (see PhysicsTools/TruthInfo/README.md).
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <mutex>
 #include <vector>
 
 #include "FWCore/Framework/interface/Event.h"
@@ -32,21 +34,27 @@ public:
 private:
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
+  std::vector<edm::InputTag> hgcalRecHitTags_;
+  std::vector<edm::InputTag> pfRecHitTags_;
   std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hgcalRecHitTokens_;
   std::vector<edm::EDGetTokenT<reco::PFRecHitCollection>> pfRecHitTokens_;
+  // One warning per job per collection that is missing from the event.
+  mutable std::vector<std::once_flag> hgcalMissingWarned_;
+  mutable std::vector<std::once_flag> pfMissingWarned_;
 };
 
-DetIdToRecHitMapProducer::DetIdToRecHitMapProducer(edm::ParameterSet const& ps) {
-  const auto& hgcalTags = ps.getParameter<std::vector<edm::InputTag>>("hgcalRecHits");
-  const auto& pfTags = ps.getParameter<std::vector<edm::InputTag>>("pfRecHits");
-
-  hgcalRecHitTokens_.reserve(hgcalTags.size());
-  for (auto const& tag : hgcalTags) {
+DetIdToRecHitMapProducer::DetIdToRecHitMapProducer(edm::ParameterSet const& ps)
+    : hgcalRecHitTags_(ps.getParameter<std::vector<edm::InputTag>>("hgcalRecHits")),
+      pfRecHitTags_(ps.getParameter<std::vector<edm::InputTag>>("pfRecHits")),
+      hgcalMissingWarned_(hgcalRecHitTags_.size()),
+      pfMissingWarned_(pfRecHitTags_.size()) {
+  hgcalRecHitTokens_.reserve(hgcalRecHitTags_.size());
+  for (auto const& tag : hgcalRecHitTags_) {
     hgcalRecHitTokens_.push_back(consumes<HGCRecHitCollection>(tag));
   }
 
-  pfRecHitTokens_.reserve(pfTags.size());
-  for (auto const& tag : pfTags) {
+  pfRecHitTokens_.reserve(pfRecHitTags_.size());
+  for (auto const& tag : pfRecHitTags_) {
     pfRecHitTokens_.push_back(consumes<reco::PFRecHitCollection>(tag));
   }
 
@@ -58,12 +66,15 @@ void DetIdToRecHitMapProducer::produce(edm::StreamID, edm::Event& event, edm::Ev
 
   uint32_t globalRecHitIndex = 0;
 
-  for (auto const& token : hgcalRecHitTokens_) {
+  for (std::size_t i = 0; i < hgcalRecHitTokens_.size(); ++i) {
     edm::Handle<HGCRecHitCollection> handle;
-    event.getByToken(token, handle);
+    event.getByToken(hgcalRecHitTokens_[i], handle);
 
     if (!handle.isValid()) {
-      edm::LogWarning("DetIdToRecHitMapProducer") << "Missing HGCRecHitCollection. Skipping it.";
+      std::call_once(hgcalMissingWarned_[i], [this, i]() {
+        edm::LogWarning("DetIdToRecHitMapProducer") << "Missing HGCRecHitCollection " << hgcalRecHitTags_[i].encode()
+                                                    << ". Its cells get no recHit index in this job.";
+      });
       continue;
     }
 
@@ -75,12 +86,15 @@ void DetIdToRecHitMapProducer::produce(edm::StreamID, edm::Event& event, edm::Ev
     }
   }
 
-  for (auto const& token : pfRecHitTokens_) {
+  for (std::size_t i = 0; i < pfRecHitTokens_.size(); ++i) {
     edm::Handle<reco::PFRecHitCollection> handle;
-    event.getByToken(token, handle);
+    event.getByToken(pfRecHitTokens_[i], handle);
 
     if (!handle.isValid()) {
-      edm::LogWarning("DetIdToRecHitMapProducer") << "Missing reco::PFRecHitCollection. Skipping it.";
+      std::call_once(pfMissingWarned_[i], [this, i]() {
+        edm::LogWarning("DetIdToRecHitMapProducer") << "Missing reco::PFRecHitCollection " << pfRecHitTags_[i].encode()
+                                                    << ". Its cells get no recHit index in this job.";
+      });
       continue;
     }
 
