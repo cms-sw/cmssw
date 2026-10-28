@@ -6,7 +6,7 @@ hltTiclIterLabelsPSet = cms.PSet(
         "hltTiclTrackstersCLUE3DHigh",
         "hltTiclTrackstersCLUE3DHighL1Seeded",
         "hltTiclTracksterLinks",
-        "hltTiclTracksterLinksSuperclusteringDNN",
+        "hltTiclTracksterLinksSuperclusteringDNNUnseeded",
         "hltTiclTracksterLinksSuperclusteringDNNL1Seeded",
         "hltTiclCandidate"
     )
