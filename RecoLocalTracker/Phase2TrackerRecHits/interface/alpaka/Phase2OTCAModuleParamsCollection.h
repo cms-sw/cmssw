@@ -1,0 +1,14 @@
+#ifndef RecoLocalTracker_Phase2TrackerRecHits_interface_alpaka_Phase2OTCAModuleParamsCollection_h
+#define RecoLocalTracker_Phase2TrackerRecHits_interface_alpaka_Phase2OTCAModuleParamsCollection_h
+
+#include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2OTCAModuleParamsHost.h"
+
+namespace ALPAKA_ACCELERATOR_NAMESPACE {
+
+  using Phase2OTCAModuleParamsCollection = PortableCollection<Phase2OTCAModuleParamsSoA>;
+
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+
+#endif  // RecoLocalTracker_Phase2TrackerRecHits_interface_alpaka_Phase2OTCAModuleParamsCollection_h

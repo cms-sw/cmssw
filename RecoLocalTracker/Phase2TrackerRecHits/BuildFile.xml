@@ -1,8 +1,16 @@
+<use name="alpaka"/>
 <use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="RecoLocalTracker/ClusterParameterEstimator"/>
+<use name="DataFormats/GeometrySurface"/>
 <use name="DataFormats/Phase2TrackerCluster"/>
+<use name="DataFormats/Portable"/>
+<use name="DataFormats/SoATemplate"/>
 <use name="CondFormats/SiPhase2TrackerObjects"/>
+<use name="HeterogeneousCore/AlpakaCore"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<flags ALPAKA_BACKENDS="1"/>
 <export>
   <lib name="1"/>
 </export>
