@@ -8,7 +8,9 @@
 #include <vector>
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -82,6 +84,7 @@ private:
   edm::EDGetTokenT<Phase2TrackerRecHit1DCollectionNew> otRecHitsToken_;
   const edm::EDGetTokenT<HMSstorage> pixelHMSToken_;
   edm::EDGetTokenT<HMSstorage> otHMSToken_;
+  edm::EDGetTokenT<edm::RefProd<Phase2TrackerCluster1DCollectionNew>> otClustersToken_;
   // Event Setup tokens
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> idealMagneticFieldToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
@@ -127,6 +130,8 @@ PixelTrackProducerFromSoAAlpaka::PixelTrackProducerFromSoAAlpaka(const edm::Para
     otRecHitsToken_ =
         consumes<Phase2TrackerRecHit1DCollectionNew>(iConfig.getParameter<edm::InputTag>("outerTrackerRecHitSrc"));
     otHMSToken_ = consumes<HMSstorage>(iConfig.getParameter<edm::InputTag>("outerTrackerRecHitSoAConverterSrc"));
+    otClustersToken_ = consumes<edm::RefProd<Phase2TrackerCluster1DCollectionNew>>(
+        iConfig.getParameter<edm::InputTag>("outerTrackerRecHitSoAConverterSrc"));
   }
 }
 
@@ -171,7 +176,7 @@ void PixelTrackProducerFromSoAAlpaka::fillDescriptions(edm::ConfigurationDescrip
   desc.add<edm::InputTag>("trackSrc", edm::InputTag("pixelTracksAlpaka"));
   desc.add<edm::InputTag>("pixelRecHitLegacySrc", edm::InputTag("siPixelRecHitsPreSplittingLegacy"));
   desc.add<edm::InputTag>("outerTrackerRecHitSrc", edm::InputTag("hltSiPhase2RecHits"));
-  desc.add<edm::InputTag>("outerTrackerRecHitSoAConverterSrc", edm::InputTag("phase2OTRecHitsSoAConverter"));
+  desc.add<edm::InputTag>("outerTrackerRecHitSoAConverterSrc", edm::InputTag("phase2OtCAHitsSoA"));
   desc.add<int>("minNumberOfHits", 0);
   desc.add<std::string>("minQuality", "loose");
   desc.add<bool>("useOTExtension", false);
@@ -266,6 +271,16 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
 
     // get the module's starting indices in the hit collection
     auto const &otHitsModuleStart = iEvent.get(otHMSToken_);
+    // the OT hits in the SoA are made from these clusters: the OT RecHits must be made from them too, one per cluster
+    auto const otClustersID = iEvent.get(otClustersToken_).id();
+    // all the RecHits of the collection are made from one cluster collection, so the first RecHit tells which
+    auto const &otRecHits = otRecHitsDSV->data();
+    if (not otRecHits.empty() and otRecHits.front().cluster().id() != otClustersID)
+      throw cms::Exception("Configuration")
+          << "PixelTrackProducerFromSoAAlpaka: the OT RecHits (outerTrackerRecHitSrc) are made from the clusters "
+          << otRecHits.front().cluster().id()
+          << ", but the OT hits in the SoA (outerTrackerRecHitSoAConverterSrc) from " << otClustersID;
+    size_t nOTHitsInExtension = 0;
 
     // perform the exact same loop of how the SoA is initially filled with OT hits
     // and get the index by counting the hits (starting from the correpondign HitStartModule)
@@ -283,8 +298,15 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
           hitmap[idx] = &recHit;
           idx++;
         }
+        nOTHitsInExtension += detSet.size();
       }
     }
+    if (nOTHitsInExtension != otHitsModuleStart.back() - otHitsModuleStart.front())
+      throw cms::Exception("Configuration")
+          << "PixelTrackProducerFromSoAAlpaka: " << nOTHitsInExtension
+          << " OT RecHits (outerTrackerRecHitSrc) on the modules of the OT extension, but "
+          << otHitsModuleStart.back() - otHitsModuleStart.front()
+          << " OT hits in the SoA (outerTrackerRecHitSoAConverterSrc)";
   }
 
   // function that returns the number of skipped layers for a given pair of RecHits
