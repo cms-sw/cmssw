@@ -12,7 +12,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -69,15 +68,11 @@ HGCalTestRecHitTool::~HGCalTestRecHitTool() {}
 void HGCalTestRecHitTool::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   if (auto pG = iSetup.getHandle(geomToken_)) {
     geom_ = pG.product();
-    auto geomEE = ((mode_ == 0) ? static_cast<const HGCalGeometry*>(
-                                      geom_->getSubdetectorGeometry(DetId::Forward, ForwardSubdetector::HGCEE))
-                                : static_cast<const HGCalGeometry*>(
-                                      geom_->getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty)));
+    auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));
     layerEE_ = (geomEE->topology().dddConstants()).layers(true);
     eeOffset_ = (geomEE->topology().dddConstants()).getLayerOffset();
     layerEE1000_ = (geomEE->topology().dddConstants()).getLayer(10000., true);
-    edm::LogVerbatim("HGCalGeom") << "EE::Layers " << layerEE_ << " Offset " << eeOffset_ << " Layer # at 1000 cm "
-                                  << layerEE1000_;
+    edm::LogVerbatim("HGCalGeom") << "EE::Layers " << layerEE_ << " Offset " << eeOffset_ << " Layer # at 1000 cm " << layerEE1000_;
     auto geomFH = ((mode_ == 0) ? static_cast<const HGCalGeometry*>(
                                       geom_->getSubdetectorGeometry(DetId::Forward, ForwardSubdetector::HGCHEF))
                                 : static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(
@@ -151,12 +146,10 @@ std::vector<double> HGCalTestRecHitTool::retrieveLayerPositions(unsigned layers)
   for (int ilayer = 1; ilayer <= (int)(layers); ++ilayer) {
     int lay(ilayer), type(0);
     if (ilayer <= layerEE_) {
-      id = ((mode_ == 0) ? static_cast<DetId>(HGCalDetId(ForwardSubdetector::HGCEE, 1, lay, 1, 2, 1))
-                         : static_cast<DetId>(HGCSiliconDetId(DetId::HGCalEE, 1, 0, lay, 3, 3, 1, 1)));
+      id = static_cast<DetId>(HGCSiliconDetId(DetId::HGCalEE, 1, 0, lay, 3, 3, 1, 1));
     } else if (ilayer > layerEE_ && ilayer <= (layerEE_ + layerFH_)) {
       lay = ilayer - layerEE_;
-      id = ((mode_ == 0) ? static_cast<DetId>(HGCalDetId(ForwardSubdetector::HGCHEF, 1, lay, 1, 2, 1))
-                         : static_cast<DetId>(HGCSiliconDetId(DetId::HGCalHSi, 1, 0, lay, 3, 3, 1, 1)));
+      id = static_cast<DetId>(HGCSiliconDetId(DetId::HGCalHSi, 1, 0, lay, 3, 3, 1, 1));
       type = 1;
     } else {
       lay = ilayer - (layerEE_ + layerFH_);
@@ -166,8 +159,6 @@ std::vector<double> HGCalTestRecHitTool::retrieveLayerPositions(unsigned layers)
     const GlobalPoint pos = getPosition(id);
     if (id.det() == DetId::Hcal) {
       edm::LogVerbatim("HGCalGeom") << "GEOM  layer " << ilayer << " ID " << HcalDetId(id);
-    } else if (id.det() == DetId::Forward) {
-      edm::LogVerbatim("HGCalGeom") << "GEOM  layer " << ilayer << " ID " << HGCalDetId(id);
     } else if ((id.det() == DetId::HGCalEE) || (id.det() == DetId::HGCalHSi)) {
       edm::LogVerbatim("HGCalGeom") << "GEOM  layer " << ilayer << " ID " << HGCSiliconDetId(id);
     } else {
@@ -218,9 +209,7 @@ double HGCalTestRecHitTool::getLayerZ(const DetId& id) const {
     zpos = (static_cast<const HcalGeometry*>(geom))->getGeometry(id)->getPosition().z();
   } else {
     const HGCalDDDConstants* ddd = get_ddd(id);
-    int layer = ((id.det() == DetId::Forward) ? HGCalDetId(id).layer()
-                                              : ((id.det() != DetId::HGCalHSc) ? HGCSiliconDetId(id).layer()
-                                                                               : HGCScintillatorDetId(id).layer()));
+    int layer = ((id.det() != DetId::HGCalHSc) ? HGCSiliconDetId(id).layer() : HGCScintillatorDetId(id).layer());
     zpos = ddd->waferZ(layer, true);
   }
   return zpos;
@@ -229,22 +218,7 @@ double HGCalTestRecHitTool::getLayerZ(const DetId& id) const {
 double HGCalTestRecHitTool::getLayerZ(int type, int layer) const {
   double zpos(0);
   if (type == 2) {
-    auto geom =
-        static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal, HcalSubdetector::HcalEndcap));
-    check_geom(geom);
-    auto ddd = (geom->topology().dddConstants());
-    check_ddd(ddd);
-    std::pair<int, int> etar = ddd->getEtaRange(1);
-    zpos = ddd->getRZ(2, etar.second, layer);
-  } else {
-    auto geom = ((type == 1) ? ((mode_ == 0) ? static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(
-                                                   DetId::Forward, ForwardSubdetector::HGCHEF))
-                                             : static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(
-                                                   DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty)))
-                             : ((mode_ == 0) ? static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(
-                                                   DetId::Forward, ForwardSubdetector::HGCEE))
-                                             : static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(
-                                                   DetId::HGCalEE, ForwardSubdetector::ForwardEmpty))));
+    auto geom = (type == 1) ? static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty)) : static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));
     check_geom(geom);
     auto ddd = &(geom->topology().dddConstants());
     check_ddd(ddd);

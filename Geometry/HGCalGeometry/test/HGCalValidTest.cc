@@ -45,27 +45,14 @@ void HGCalValidTest::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 void HGCalValidTest::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   const auto& geom = &iSetup.getData(geomToken_);
   DetId::Detector det;
-  if (geom->topology().waferHexagon6()) {
-    ForwardSubdetector subdet;
-    if (name == "HGCalHESiliconSensitive")
-      subdet = HGCHEF;
-    else if (name == "HGCalHEScintillatorSensitive")
-      subdet = HGCHEB;
-    else
-      subdet = HGCEE;
-    edm::LogVerbatim("HGCalGeom") << "Cannot perform test for " << name << " Detector:Subdetector " << DetId::Forward
-                                  << ":" << subdet << " Mode " << geom->topology().dddConstants().geomMode();
-    return;
-  } else {
-    if (name == "HGCalHESiliconSensitive")
-      det = DetId::HGCalHSi;
-    else if (name == "HGCalHEScintillatorSensitive")
-      det = DetId::HGCalHSc;
-    else
-      det = DetId::HGCalEE;
-    edm::LogVerbatim("HGCalGeom") << "Perform test for " << name << " Detector " << det << " Mode "
-                                  << geom->topology().dddConstants().geomMode();
-  }
+  if (name == "HGCalHESiliconSensitive")
+    det = DetId::HGCalHSi;
+  else if (name == "HGCalHEScintillatorSensitive")
+    det = DetId::HGCalHSc;
+  else
+    det = DetId::HGCalEE;
+  edm::LogVerbatim("HGCalGeom") << "Perform test for " << name << " Detector " << det << " Mode "
+				<< geom->topology().dddConstants().geomMode();
 
   int firstLayer = geom->topology().dddConstants().firstLayer();
   int lastLayer = geom->topology().dddConstants().lastLayer(true);

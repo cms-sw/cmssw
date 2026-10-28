@@ -678,11 +678,11 @@ HGCalGeometry::DetIdSet HGCalGeometry::getCells(const GlobalPoint& r, double dR)
 }
 
 std::string HGCalGeometry::cellElement() const {
-  if (m_subdet == HGCEE || m_det == DetId::HGCalEE)
+  if (m_det == DetId::HGCalEE)
     return "HGCalEE";
-  else if (m_subdet == HGCHEF || m_det == DetId::HGCalHSi)
+  else if (m_det == DetId::HGCalHSi)
     return "HGCalHEFront";
-  else if (m_subdet == HGCHEB || m_det == DetId::HGCalHSc)
+  else if (m_det == DetId::HGCalHSc)
     return "HGCalHEBack";
   else
     return "Unknown";
