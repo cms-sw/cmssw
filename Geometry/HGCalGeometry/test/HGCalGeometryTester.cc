@@ -50,7 +50,8 @@ void HGCalGeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSet
     det = DetId::HGCalHSc;
   else
     det = DetId::HGCalEE;
-  edm::LogVerbatim("HGCalGeomX") << "Perform test for " << name << " Detector " << det << " Mode " << geom->topology().dddConstants().geomMode();
+  edm::LogVerbatim("HGCalGeomX") << "Perform test for " << name << " Detector " << det << " Mode "
+                                 << geom->topology().dddConstants().geomMode();
   if (name == "HGCalHEScintillatorSensitive") {
     doTestScint(geom, det);
   } else {

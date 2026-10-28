@@ -68,11 +68,13 @@ HGCalTestRecHitTool::~HGCalTestRecHitTool() {}
 void HGCalTestRecHitTool::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   if (auto pG = iSetup.getHandle(geomToken_)) {
     geom_ = pG.product();
-    auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));
+    auto geomEE = static_cast<const HGCalGeometry*>(
+        geom_->getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));
     layerEE_ = (geomEE->topology().dddConstants()).layers(true);
     eeOffset_ = (geomEE->topology().dddConstants()).getLayerOffset();
     layerEE1000_ = (geomEE->topology().dddConstants()).getLayer(10000., true);
-    edm::LogVerbatim("HGCalGeom") << "EE::Layers " << layerEE_ << " Offset " << eeOffset_ << " Layer # at 1000 cm " << layerEE1000_;
+    edm::LogVerbatim("HGCalGeom") << "EE::Layers " << layerEE_ << " Offset " << eeOffset_ << " Layer # at 1000 cm "
+                                  << layerEE1000_;
     auto geomFH = ((mode_ == 0) ? static_cast<const HGCalGeometry*>(
                                       geom_->getSubdetectorGeometry(DetId::Forward, ForwardSubdetector::HGCHEF))
                                 : static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(
@@ -218,7 +220,10 @@ double HGCalTestRecHitTool::getLayerZ(const DetId& id) const {
 double HGCalTestRecHitTool::getLayerZ(int type, int layer) const {
   double zpos(0);
   if (type == 2) {
-    auto geom = (type == 1) ? static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty)) : static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));
+    auto geom = (type == 1) ? static_cast<const HGCalGeometry*>(
+                                  geom_->getSubdetectorGeometry(DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty))
+                            : static_cast<const HGCalGeometry*>(
+                                  geom_->getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));
     check_geom(geom);
     auto ddd = &(geom->topology().dddConstants());
     check_ddd(ddd);

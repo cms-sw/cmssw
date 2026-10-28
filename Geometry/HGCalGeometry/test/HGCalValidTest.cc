@@ -52,7 +52,7 @@ void HGCalValidTest::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   else
     det = DetId::HGCalEE;
   edm::LogVerbatim("HGCalGeom") << "Perform test for " << name << " Detector " << det << " Mode "
-				<< geom->topology().dddConstants().geomMode();
+                                << geom->topology().dddConstants().geomMode();
 
   int firstLayer = geom->topology().dddConstants().firstLayer();
   int lastLayer = geom->topology().dddConstants().lastLayer(true);
