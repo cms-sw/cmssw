@@ -14,15 +14,21 @@ public:
   explicit Phase2TrackerClusterizerSequentialAlgorithm(unsigned int maxClusterSize = 0)
       : maxClusterSize_(maxClusterSize) {}
 
+  // chipSize is the number of strips read out by one front end chip: a cluster never
+  // extends over a chip boundary, so a strip that is a multiple of chipSize always opens
+  // a new cluster. 0 means no chip boundaries.
   inline void clusterizeDetUnit(const edm::DetSet<Phase2TrackerDigi>&,
-                                Phase2TrackerCluster1DCollectionNew::FastFiller&) const;
+                                Phase2TrackerCluster1DCollectionNew::FastFiller&,
+                                unsigned int chipSize = 0) const;
 
 private:
   unsigned int maxClusterSize_;
 };
 
 void Phase2TrackerClusterizerSequentialAlgorithm::clusterizeDetUnit(
-    const edm::DetSet<Phase2TrackerDigi>& digis, Phase2TrackerCluster1DCollectionNew::FastFiller& clusters) const {
+    const edm::DetSet<Phase2TrackerDigi>& digis,
+    Phase2TrackerCluster1DCollectionNew::FastFiller& clusters,
+    unsigned int chipSize) const {
   if (digis.empty())
     return;
   auto di = digis.begin();
@@ -37,9 +43,13 @@ void Phase2TrackerClusterizerSequentialAlgorithm::clusterizeDetUnit(
     if (!(previous < digi))
       std::cout << "not ordered " << previous << ' ' << digi << std::endl;
 #endif
-    // Once the open cluster has reached the front end limit the digi cannot go into it,
-    // so it opens the next one even though the two are adjacent.
-    if (digi - previous == 1 and (maxClusterSize_ == 0 or sizeCluster < maxClusterSize_)) {
+    // Once the open cluster has reached the front end limit, or the digi is the first strip
+    // of the next chip, the digi cannot go into it, so it opens the next one even though
+    // the two are adjacent.
+    const bool isAdjacent = digi - previous == 1;
+    const bool isClusterFull = (maxClusterSize_ != 0) && (sizeCluster >= maxClusterSize_);
+    const bool startsNewChip = (chipSize != 0) && (digi.strip() % chipSize == 0);
+    if ( (isAdjacent) && (!isClusterFull) && (!startsNewChip) ) {
       HIPbit |= digi.overThreshold();
       ++sizeCluster;
     } else {
