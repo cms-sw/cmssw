@@ -13,9 +13,9 @@ hltTiclIterLabelsPSet = cms.PSet(
 )
 
 
-## remove the L1Seeded iteration form the HLT Ticl labels for Scouting
+# The NGT scouting menu has no L1-seeded TICL collections
 from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
-_ngtLabels = [label for label in hltTiclIterLabelsPSet.labels if label != "hltTiclTrackstersCLUE3DHighL1Seeded"]
 ngtScouting.toModify(
-    globals(), lambda g: g.update({"hltTiclIterLabels": _ngtLabels})
+    hltTiclIterLabelsPSet,
+    labels=[label for label in hltTiclIterLabelsPSet.labels if "L1Seeded" not in label]
 )
