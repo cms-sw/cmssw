@@ -700,22 +700,16 @@ FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_StripDigiSimLink_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')
 
 # MC-truth graph: under enableTruth, persist the compact truth (logical graph +
-# unresolved hit index + raw merged graph). Kept in FEVTDEBUGHLT (the DIGI-RAW and
-# RECO tier for Phase-2) so it bridges DIGI->RECO, and in RECOSIM for downstream.
-# The full barrel and forward PFRecHits are kept too: they are the rechits that
-# DetIdToRecHitMapProducer resolves the barrel and forward cells of the hit index to.
+# unresolved hit index + raw merged graph) and the offline reco products its
+# associators read. Kept in FEVTDEBUGHLT (the DIGI-RAW and RECO tier for Phase-2)
+# so it bridges DIGI->RECO, and in RECOSIM for downstream. FEVTDEBUGHLT also keeps
+# the HLT reco products the HLT associators read.
 from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
-_truthKeeps = [
-    'keep *_truthLogicalGraphProducer_*_*',
-    'keep *_truthLogicalGraphHitIndexProducer_*_*',
-    'keep TruthGraph_mix_*_*',
-    'keep recoPFRecHits_particleFlowRecHitECAL__*',
-    'keep recoPFRecHits_particleFlowRecHitHBHE__*',
-    'keep recoPFRecHits_particleFlowRecHitHF__*',
-    'keep recoPFRecHits_particleFlowRecHitHO__*',
-]
+from PhysicsTools.TruthInfo.truthEventContent_cff import (truthContentCompact as _truthContentCompact,
+                                                          truthHltInputsKeep as _truthHltInputsKeep)
+_truthKeeps = list(_truthContentCompact)
 enableTruth.toModify(FEVTDEBUGHLTEventContent,
-                     outputCommands=FEVTDEBUGHLTEventContent.outputCommands + _truthKeeps)
+                     outputCommands=FEVTDEBUGHLTEventContent.outputCommands + _truthKeeps + _truthHltInputsKeep)
 enableTruth.toModify(RECOSIMEventContent,
                      outputCommands=RECOSIMEventContent.outputCommands + _truthKeeps)
 
