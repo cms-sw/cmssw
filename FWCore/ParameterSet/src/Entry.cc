@@ -175,13 +175,6 @@ static constexpr const std::array<std::string_view, 255> s_table = fillTable();
 
 static constexpr std::string_view typeFromCode(char iCode) { return s_table[iCode]; }
 
-static char codeFromType(std::string_view iType) {
-  auto itFound = std::lower_bound(s_types.begin(), s_types.end(), iType);
-  if (itFound == s_types.end() or *itFound != iType) {
-    throw edm::Exception(edm::errors::Configuration) << "bad type name used for Entry : " << iType;
-  }
-  return s_codes[itFound - s_types.begin()];
-}
 namespace edm {
   // ----------------------------------------------------------------------
   // consistency-checker
@@ -684,48 +677,6 @@ namespace edm {
   Entry::Entry(std::string name, std::string_view code) : name_(std::move(name)), rep_(), type_('?'), tracked_('?') {
     if (!fromString(code.begin(), code.end()))
       throwEncodeError("coded string");
-    validate();
-  }
-
-  Entry::Entry(std::string name, std::string_view type, std::string_view value, bool is_tracked)
-      : name_(std::move(name)), rep_(), type_('?'), tracked_('?') {
-    std::string codedString(is_tracked ? "+" : "-");
-
-    codedString += codeFromType(type);
-    codedString += '(';
-    codedString += value;
-    codedString += ')';
-
-    std::string_view v = codedString;
-    if (!fromString(v.begin(), v.end())) {
-      throw Exception(errors::Configuration) << "bad encoded Entry string " << codedString;
-    }
-    validate();
-  }
-
-  Entry::Entry(std::string name, std::string_view type, std::vector<std::string> const& value, bool is_tracked)
-      : name_(std::move(name)), rep_(), type_('?'), tracked_('?') {
-    std::string codedString(is_tracked ? "+" : "-");
-
-    codedString += codeFromType(type);
-    codedString += '(';
-    codedString += '{';
-    std::vector<std::string>::const_iterator i = value.begin();
-    std::vector<std::string>::const_iterator e = value.end();
-    std::string const kSeparator(",");
-    std::string sep("");
-    for (; i != e; ++i) {
-      codedString += sep;
-      codedString += *i;
-      sep = kSeparator;
-    }
-    codedString += '}';
-    codedString += ')';
-
-    std::string_view v = codedString;
-    if (!fromString(v.begin(), v.end())) {
-      throw Exception(errors::Configuration) << "bad encoded Entry string " << codedString;
-    }
     validate();
   }
 
