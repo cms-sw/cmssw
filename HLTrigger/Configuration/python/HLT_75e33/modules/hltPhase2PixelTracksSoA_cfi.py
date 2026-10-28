@@ -157,7 +157,7 @@ for i, lp in enumerate(layerPairsFinal):
 
 hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
     pixelRecHitSrc = cms.InputTag('hltPhase2SiPixelRecHitsSoA'),
-    trackerRecHitsSoA = cms.InputTag('hltPhase2OtRecHitsSoA'),
+    trackerRecHitsSoA = cms.InputTag('hltPhase2OtCAHitsSoA'),
     ptmin = cms.double(0.9),
     hardCurvCut = cms.double(0.02), # corresponds to 800 MeV in 3.8T.
     earlyFishbone = cms.bool(True),
