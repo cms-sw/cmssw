@@ -1,6 +1,0 @@
-<use name="FWCore/Framework"/>
-<use name="rootmath"/>
-<use name="DQM/HcalCommon"/>
-<export>
-  <lib name="PFTasks"/>
-</export>

@@ -49,6 +49,7 @@ from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
 
 # online dqm:
 from DQMOffline.Trigger.HLTMonTau_cfi import *
+from DQMOffline.ParticleFlow.DQMForPF_HLT_cff import *
 
 # additional producer sequence prior to hltvalidation
 # to evacuate producers/filters from the EndPath
@@ -124,6 +125,7 @@ _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
 _hltvalidationWithMC_Phase2.insert(-1, hgcalHitCalibrationHLT)
 _hltvalidationWithMC_Phase2.insert(-1, hltHgcalValidator)
 _hltvalidationWithMC_Phase2.insert(-1, hltTICLPFValidation)
+_hltvalidationWithMC_Phase2.insert(-1, hltPFDQM)
 _hltvalidationWithMC_Phase2.insert(0, hltGENValidation)
 
 # Add at the end only when mtd_at_hlt is active

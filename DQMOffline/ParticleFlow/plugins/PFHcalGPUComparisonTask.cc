@@ -1,0 +1,193 @@
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
+#include <cmath>
+#include <unordered_map>
+#include <vector>
+
+#ifdef PFLOW_DEBUG
+#define LOGVERB(x) edm::LogVerbatim(x)
+#else
+#define LOGVERB(x) LogTrace(x)
+#endif
+
+class PFHcalGPUComparisonTask : public DQMEDAnalyzer {
+public:
+  PFHcalGPUComparisonTask(edm::ParameterSet const&);
+  ~PFHcalGPUComparisonTask() override = default;
+
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  edm::EDGetTokenT<reco::PFClusterCollection> pfClusterTok_ref_;
+  edm::EDGetTokenT<reco::PFClusterCollection> pfClusterTok_target_;
+
+  MonitorElement* pfCluster_Multiplicity_HostvsDevice_;
+  MonitorElement* pfCluster_Energy_HostvsDevice_;
+  MonitorElement* pfCluster_RecHitMultiplicity_HostvsDevice_;
+  MonitorElement* pfCluster_Layer_HostvsDevice_;
+  MonitorElement* pfCluster_Depth_HostvsDevice_;
+  MonitorElement* pfCluster_Eta_HostvsDevice_;
+  MonitorElement* pfCluster_Phi_HostvsDevice_;
+  MonitorElement* pfCluster_DuplicateMatches_HostvsDevice_;
+
+  MonitorElement* pfCluster_Multiplicity_Diff_HostvsDevice_;
+  MonitorElement* pfCluster_Energy_Diff_HostvsDevice_;
+  MonitorElement* pfCluster_RecHitMultiplicity_Diff_HostvsDevice_;
+  MonitorElement* pfCluster_Layer_Diff_HostvsDevice_;
+  MonitorElement* pfCluster_Depth_Diff_HostvsDevice_;
+  MonitorElement* pfCluster_Eta_Diff_HostvsDevice_;
+  MonitorElement* pfCluster_Phi_Diff_HostvsDevice_;
+
+  std::string compDir_;
+};
+
+PFHcalGPUComparisonTask::PFHcalGPUComparisonTask(edm::ParameterSet const& conf)
+    : pfClusterTok_ref_{
+          consumes<reco::PFClusterCollection>(conf.getUntrackedParameter<edm::InputTag>("pfClusterToken_ref"))},
+      pfClusterTok_target_{
+          consumes<reco::PFClusterCollection>(conf.getUntrackedParameter<edm::InputTag>("pfClusterToken_target"))},
+      compDir_{conf.getUntrackedParameter<std::string>("compDir")} {}
+
+void PFHcalGPUComparisonTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
+  ibooker.setCurrentFolder(compDir_);
+
+  // Book monitoring elements
+  const char* histo;
+  histo = "pfCluster_Multiplicity_HostvsDevice";
+  const char* histoAxis = "pfCluster_Multiplicity_HostvsDevice;Multiplicity Host;Multiplicity Device";
+  pfCluster_Multiplicity_HostvsDevice_ = ibooker.book2I(histo, histoAxis, 1000, 0, 1000, 1000, 0, 1000);
+
+  histo = "pfCluster_Energy_HostvsDevice";
+  histoAxis = "pfCluster_Energy_HostvsDevice;Energy Host [GeV];Energy Device [GeV]";
+  pfCluster_Energy_HostvsDevice_ = ibooker.book2D(histo, histoAxis, 500, 0, 500, 500, 0, 500);
+
+  histo = "pfCluster_RecHitMultiplicity_HostvsDevice";
+  histoAxis = "pfCluster_RecHitMultiplicity_HostvsDevice;RecHit Multiplicity Host;RecHit Multiplicity Device";
+  pfCluster_RecHitMultiplicity_HostvsDevice_ = ibooker.book2I(histo, histoAxis, 100, 0, 100, 100, 0, 100);
+
+  histo = "pfCluster_Layer_HostvsDevice";
+  histoAxis = "pfCluster_Layer_HostvsDevice;Cluster Layer Host;Cluster Layer Device";
+  pfCluster_Layer_HostvsDevice_ = ibooker.book2I(histo, histoAxis, 4, 0, 4, 4, 0, 4);
+
+  histo = "pfCluster_Depth_HostvsDevice";
+  histoAxis = "pfCluster_Depth_HostvsDevice;Cluster Depth Host;Cluster Depth Device";
+  pfCluster_Depth_HostvsDevice_ = ibooker.book2I(histo, histoAxis, 8, 0, 8, 8, 0, 8);
+
+  histo = "pfCluster_Eta_HostvsDevice";
+  histoAxis = "pfCluster_Eta_HostvsDevice;Cluster #eta Host;Cluster #eta Device";
+  pfCluster_Eta_HostvsDevice_ = ibooker.book2D(histo, histoAxis, 100, -5.f, 5.f, 100, -5.f, 5.f);
+
+  histo = "pfCluster_Phi_HostvsDevice";
+  histoAxis = "pfCluster_Phi_HostvsDevice;Cluster #phi Host;Cluster #phi Device";
+  pfCluster_Phi_HostvsDevice_ = ibooker.book2D(histo, histoAxis, 100, -M_PI, M_PI, 100, -M_PI, M_PI);
+
+  histo = "pfCluster_DuplicateMatches_HostvsDevice";
+  histoAxis = "pfCluster_Duplicates_HostvsDevice;#Duplicates;#Events";
+  pfCluster_DuplicateMatches_HostvsDevice_ = ibooker.book1I(histo, histoAxis, 10, 0., 10);
+
+  pfCluster_Multiplicity_Diff_HostvsDevice_ = ibooker.book1D(
+      "MultiplicityDiff", "PFCluster Multiplicity Difference; (Reference - Target);#entries", 100, -2, 2);
+  pfCluster_Energy_Diff_HostvsDevice_ =
+      ibooker.book1D("EnergyDiff", "PFCluster Energy Difference; (Reference - Target);#entries", 100, -2, 2);
+  pfCluster_RecHitMultiplicity_Diff_HostvsDevice_ = ibooker.book1D(
+      "RHMultiplicityDiff", "PFCluster RecHit Multiplicity Difference; (Reference - Target);#entries", 100, -2, 2);
+  pfCluster_Layer_Diff_HostvsDevice_ =
+      ibooker.book1D("LayerDiff", "PFCluster Layer Difference; (Reference - Target);#entries", 100, -2, 2);
+  pfCluster_Depth_Diff_HostvsDevice_ =
+      ibooker.book1D("DepthDiff", "PFCluster Depth Difference; (Reference - Target);#entries", 100, -2, 2);
+  pfCluster_Eta_Diff_HostvsDevice_ =
+      ibooker.book1D("EtaDiff", "PFCluster #eta Difference; (Reference - Target);#entries", 100, -0.5, 0.5);
+  pfCluster_Phi_Diff_HostvsDevice_ =
+      ibooker.book1D("PhiDiff", "PFCluster #phi Difference; (Reference - Target);#entries", 100, -0.5, 0.5);
+}
+
+void PFHcalGPUComparisonTask::analyze(edm::Event const& event, edm::EventSetup const&) {
+  const auto& pfClusters_ref = event.getHandle(pfClusterTok_ref_);
+  const auto& pfClusters_target = event.getHandle(pfClusterTok_target_);
+
+  // Exit early if any handle is invalid
+  if (!pfClusters_ref || !pfClusters_target) {
+    edm::LogWarning out("PFHcalGPUComparisonTask");
+    if (!pfClusters_ref)
+      out << "reference PF cluster collection not found; ";
+    if (!pfClusters_target)
+      out << "target PF cluster collection not found; ";
+    out << "the comparison will not run.";
+    return;
+  }
+
+  // Compare per-event PF cluster multiplicity
+  if (pfClusters_ref->size() != pfClusters_target->size()) {
+    LOGVERB("PFHcalGPUComparisonTask") << " PFCluster multiplicity " << pfClusters_ref->size() << " "
+                                       << pfClusters_target->size();
+  }
+  pfCluster_Multiplicity_HostvsDevice_->Fill(static_cast<float>(pfClusters_ref->size()),
+                                             static_cast<float>(pfClusters_target->size()));
+  pfCluster_Multiplicity_Diff_HostvsDevice_->Fill(static_cast<float>(pfClusters_ref->size()) -
+                                                  static_cast<float>(pfClusters_target->size()));
+
+  // Build ref-target map to enable linear search in the next loop
+  std::unordered_map<DetId, std::vector<std::size_t>> targetBySeed;
+  targetBySeed.reserve(pfClusters_target->size());
+  for (std::size_t j = 0; j < pfClusters_target->size(); ++j) {
+    targetBySeed[pfClusters_target->at(j).seed()].push_back(j);
+  }
+
+  // Match and plot PF cluster variables
+  for (unsigned i = 0; i < pfClusters_ref->size(); ++i) {
+    auto const found = targetBySeed.find(pfClusters_ref->at(i).seed());
+
+    if (found == targetBySeed.end())
+      continue;
+
+    auto const& candidates = found->second;
+    if (candidates.size() > 1) {  //multiple clusters with the same seed
+      edm::LogWarning("PFHcalGPUComparisonTask") << "Found duplicate match";
+      pfCluster_DuplicateMatches_HostvsDevice_->Fill(candidates.size() - 1);
+    }
+
+    auto const& ref = pfClusters_ref->at(i);
+    auto const& target = pfClusters_target->at(candidates.front());
+
+    pfCluster_Energy_HostvsDevice_->Fill(ref.energy(), target.energy());
+    pfCluster_Layer_HostvsDevice_->Fill(ref.layer(), target.layer());
+    pfCluster_Eta_HostvsDevice_->Fill(ref.eta(), target.eta());
+    pfCluster_Phi_HostvsDevice_->Fill(ref.phi(), target.phi());
+    pfCluster_Depth_HostvsDevice_->Fill(ref.depth(), target.depth());
+    pfCluster_RecHitMultiplicity_HostvsDevice_->Fill(static_cast<float>(ref.recHitFractions().size()),
+                                                     static_cast<float>(target.recHitFractions().size()));
+    pfCluster_Energy_Diff_HostvsDevice_->Fill(ref.energy() - target.energy());
+    pfCluster_RecHitMultiplicity_Diff_HostvsDevice_->Fill(static_cast<float>(ref.recHitFractions().size()) -
+                                                          static_cast<float>(target.recHitFractions().size()));
+    pfCluster_Layer_Diff_HostvsDevice_->Fill(ref.layer() - target.layer());
+    pfCluster_Depth_Diff_HostvsDevice_->Fill(ref.depth() - target.depth());
+    pfCluster_Eta_Diff_HostvsDevice_->Fill(ref.eta() - target.eta());
+    pfCluster_Phi_Diff_HostvsDevice_->Fill(reco::deltaPhi(ref.phi(), target.phi()));
+  }
+}
+
+void PFHcalGPUComparisonTask::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<std::string>("compDir", "pfCaloGPUCompDir");
+  desc.addUntracked<edm::InputTag>("pfClusterToken_ref", edm::InputTag("hltParticleFlowClusterHCALSerialSync"));
+  desc.addUntracked<edm::InputTag>("pfClusterToken_target", edm::InputTag("hltParticleFlowClusterHCAL"));
+  descriptions.addWithDefaultLabel(desc);
+}
+
+DEFINE_FWK_MODULE(PFHcalGPUComparisonTask);
