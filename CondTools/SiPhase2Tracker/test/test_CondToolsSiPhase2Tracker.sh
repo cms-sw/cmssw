@@ -28,7 +28,7 @@ cmsRun ${TEST_DIR}/DTCCablingMapProducer_write.py || die "Failure running DTCCab
 cmsRun ${TEST_DIR}/DTCCablingMapProducer_retrieve.py || die "Failure running DTCCablingMapProducer_retrieve.py " $?
 cmsRun ${TEST_DIR}/DTCCablingMapProducer_dump.py || die "Failure running DTCCablingMapProducer_dump.py" $?
 
-printf "testing writing Phase2 Bad Components by hand (module list and sensor list combined) \n\n"
+printf "testing writing Phase2 Bad Sensors by hand (one sensor DetId list per subsystem) \n\n"
 ## need to be in order (don't read before writing)
-cmsRun ${TEST_DIR}/SiPhase2BadComponentsByHandBuilder_cfg.py outputName=BadComponents.db || die "Failure running SiPhase2BadComponentsByHandBuilder_cfg.py" $?
-cmsRun ${TEST_DIR}/SiPhase2BadComponentsByHandReader_cfg.py outputName=BadComponents.db || die "Failure running SiPhase2BadComponentsByHandReader_cfg.py" $?
+cmsRun ${TEST_DIR}/SiPhase2BadSensorsByHandBuilder_cfg.py outputName=BadSensors.db || die "Failure running SiPhase2BadSensorsByHandBuilder_cfg.py" $?
+cmsRun ${TEST_DIR}/SiPhase2BadSensorsByHandReader_cfg.py outputName=BadSensors.db || die "Failure running SiPhase2BadSensorsByHandReader_cfg.py" $?

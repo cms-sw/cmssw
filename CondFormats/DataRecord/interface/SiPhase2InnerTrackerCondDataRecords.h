@@ -8,7 +8,7 @@
 #include "FWCore/Utilities/interface/mplVector.h"
 
 /*Record associated to SiPixelQuality (IT) Object:*/
-class SiPhase2InnerTrackerBadModuleRcd
-    : public edm::eventsetup::DependentRecordImplementation<SiPhase2InnerTrackerBadModuleRcd,
+class SiPhase2InnerTrackerBadSensorRcd
+    : public edm::eventsetup::DependentRecordImplementation<SiPhase2InnerTrackerBadSensorRcd,
                                                             edm::mpl::Vector<TrackerDigiGeometryRecord> > {};
 #endif

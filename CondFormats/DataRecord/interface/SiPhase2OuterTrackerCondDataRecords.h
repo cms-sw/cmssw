@@ -21,7 +21,7 @@ class SiPhase2OuterTrackerBadStripRcd : public edm::eventsetup::DependentRecordI
                                             SiPhase2OuterTrackerBadStripRcd,
                                             edm::mpl::Vector<TrackerTopologyRcd, TrackerDigiGeometryRecord> > {};
 /*Record associated to SiPixelQuality (OT) Object:*/
-class SiPhase2OuterTrackerBadModuleRcd
-    : public edm::eventsetup::DependentRecordImplementation<SiPhase2OuterTrackerBadModuleRcd,
+class SiPhase2OuterTrackerBadSensorRcd
+    : public edm::eventsetup::DependentRecordImplementation<SiPhase2OuterTrackerBadSensorRcd,
                                                             edm::mpl::Vector<TrackerDigiGeometryRecord> > {};
 #endif
