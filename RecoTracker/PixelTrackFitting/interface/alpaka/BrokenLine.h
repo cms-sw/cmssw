@@ -132,7 +132,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
     scalar lambda = (0.5 * tempA) / (riemannFit::sqr(1. + tempU) * tempU);
     scalar mu = 1. / (tempU * (1. + tempU)) + rho * lambda;
     scalar zeta = riemannFit::sqr(deltaOrth) + riemannFit::sqr(deltaPara);
-    jacobian << xi * tempSmallU * tempV, -xi * riemannFit::sqr(rho) * deltaOrth, xi * deltaPara,
+    jacobian << xi * tempSmallU * tempV, -xi * riemannFit::sqr(rho) * deltaPara, xi * deltaPara,
         2. * mu * tempSmallU * deltaPara, 2. * mu * tempV, mu * zeta - lambda * tempA, 0, 0, 1.;
 
     // translated circle parameters
