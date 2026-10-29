@@ -16,6 +16,7 @@
 #include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelClusterShapeLimitsRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"  // FIXME should be in the dependencies of the SiPixelQualityRcd
 #include "FWCore/Utilities/interface/mplVector.h"
 
@@ -37,5 +38,6 @@ class CkfComponentsRecord
                                                                              SiPixelFedCablingMapRcd,
                                                                              IdealMagneticFieldRecord,
                                                                              SiPixelLorentzAngleRcd,
-                                                                             SiStripLorentzAngleDepRcd> > {};
+                                                                             SiStripLorentzAngleDepRcd,
+                                                                             SiPixelClusterShapeLimitsRcd> > {};
 #endif

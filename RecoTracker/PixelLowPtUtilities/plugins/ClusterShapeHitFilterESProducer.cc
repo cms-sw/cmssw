@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -13,6 +15,8 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/ClusterChargeCut.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelClusterShapeLimitsRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelClusterShapeLimits.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -36,9 +40,9 @@ private:
   edm::ESGetToken<SiPixelLorentzAngle, SiPixelLorentzAngleRcd> pixelToken_;
   // Retrieve strip Lorentz
   edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleDepRcd> stripToken_;
+  // Retrieve pixel cluster shape limits
+  edm::ESGetToken<SiPixelClusterShapeLimits, SiPixelClusterShapeLimitsRcd> limitsToken_;
 
-  const std::string pixelShapeFile;
-  const std::string pixelShapeFileL1;
   const float minGoodPixelCharge_, minGoodStripCharge_;
   const bool isPhase2_;
   const bool cutOnPixelCharge_, cutOnStripCharge_;
@@ -47,9 +51,7 @@ private:
 
 /*****************************************************************************/
 ClusterShapeHitFilterESProducer::ClusterShapeHitFilterESProducer(const edm::ParameterSet& iConfig)
-    : pixelShapeFile(iConfig.getParameter<std::string>("PixelShapeFile")),
-      pixelShapeFileL1(iConfig.getParameter<std::string>("PixelShapeFileL1")),
-      minGoodPixelCharge_(0),
+    : minGoodPixelCharge_(0),
       minGoodStripCharge_(clusterChargeCut(iConfig)),
       isPhase2_(iConfig.getParameter<bool>("isPhase2")),
       cutOnPixelCharge_(false),
@@ -65,6 +67,7 @@ ClusterShapeHitFilterESProducer::ClusterShapeHitFilterESProducer(const edm::Para
   geoToken_ = cc.consumes();
   topolToken_ = cc.consumes();
   pixelToken_ = cc.consumes();
+  limitsToken_ = cc.consumes(edm::ESInputTag("", iConfig.getParameter<std::string>("pixelShapeLimitsLabel")));
   if (!isPhase2_) {
     stripToken_ = cc.consumes();
   }
@@ -81,13 +84,13 @@ ClusterShapeHitFilterESProducer::ReturnType ClusterShapeHitFilterESProducer::pro
   }
 
   // Produce the filter using the plugin factory
-  ClusterShapeHitFilterESProducer::ReturnType aFilter(new ClusterShapeHitFilter(&iRecord.get(geoToken_),
-                                                                                &iRecord.get(topolToken_),
-                                                                                &iRecord.get(fieldToken_),
-                                                                                &iRecord.get(pixelToken_),
-                                                                                theSiStripLorentzAngle,
-                                                                                pixelShapeFile,
-                                                                                pixelShapeFileL1));
+  ClusterShapeHitFilterESProducer::ReturnType aFilter =
+      std::make_unique<ClusterShapeHitFilter>(&iRecord.get(geoToken_),
+                                              &iRecord.get(topolToken_),
+                                              &iRecord.get(fieldToken_),
+                                              &iRecord.get(pixelToken_),
+                                              theSiStripLorentzAngle,
+                                              iRecord.get(limitsToken_));
 
   aFilter->setShapeCuts(cutOnPixelShape_, cutOnStripShape_);
   aFilter->setChargeCuts(cutOnPixelCharge_, minGoodPixelCharge_, cutOnStripCharge_, minGoodStripCharge_);
@@ -97,8 +100,8 @@ ClusterShapeHitFilterESProducer::ReturnType ClusterShapeHitFilterESProducer::pro
 /*****************************************************************************/
 void ClusterShapeHitFilterESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("PixelShapeFile", "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase0.par");
-  desc.add<std::string>("PixelShapeFileL1", "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase0.par");
+  desc.add<std::string>("pixelShapeLimitsLabel", "")
+      ->setComment("label of the SiPixelClusterShapeLimits payload in SiPixelClusterShapeLimitsRcd");
   desc.add<std::string>("ComponentName", "");
   desc.add<bool>("isPhase2", false);
   desc.add<bool>("doPixelShapeCut", true);
