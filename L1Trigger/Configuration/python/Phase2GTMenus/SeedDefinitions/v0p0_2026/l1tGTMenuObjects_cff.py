@@ -68,6 +68,11 @@ l1tGTnnTau = cms.PSet(
     minQualityScore = get_object_ids("CL2Taus","default")
 )
 
+l1tGTnnTauExt = l1tGTnnTau.clone(
+    minEta = cms.double(-2.4),
+    maxEta = cms.double(2.4),
+)
+
 ############################################################
 # Sums
 ############################################################
