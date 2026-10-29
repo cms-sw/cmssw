@@ -88,17 +88,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
             ? 1
             : (nClusters > 768 ? 256 : ::cms::alpakatools::round_up_by(nClusters, wExtend));
 
-    auto const getThreadsPerBlock = [&](auto const& kernel, auto&&... args) -> unsigned int {
+    auto const getThreadsPerBlock = [devAcc, threadsPerBlock](auto const& kernel, auto&&... args) -> unsigned int {
       auto const attributes =
           alpaka::getFunctionAttributes<Acc1D>(devAcc, kernel, std::forward<decltype(args)>(args)...);
 
       return std::min(threadsPerBlock, static_cast<unsigned int>(attributes.maxThreadsPerBlock));
     };
 
-    const unsigned int showerShapeKernelThreadsPerBlock = getThreadsPerBlock(
+    static const unsigned int showerShapeKernelThreadsPerBlock = getThreadsPerBlock(
         ShowerShapeKernel{}, mdpfClusteringVars.view(), pfCluster.view(), pfRecHitFracs.view(), pfRecHit.view());
 
-    const unsigned int constructLinksKernelThreadsPerBlock =
+    static const unsigned int constructLinksKernelThreadsPerBlock =
         getThreadsPerBlock(ConstructLinksKernel{}, mdpfCCLabels.view(), mdpfClusteringVars.view(), params);
 
     const unsigned int threadsPerBlock_mbkernels =
