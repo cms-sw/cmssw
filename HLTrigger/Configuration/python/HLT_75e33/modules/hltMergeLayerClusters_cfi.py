@@ -1,10 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-ceh_layerClusters = [
-    "hltHgcalLayerClustersHSci", 
-    "hltHgcalLayerClustersHSi"
-]
-ceh_time_layerClusters = [x + ":timeLayerCluster" for x in ceh_layerClusters]
+# The HGCAL components, in the order of the merged layer clusters: EE, HSci, HSi
+hgcal_components = ["", "HSci", "HSi"]
+hgcal_detectors = ["EE", "BH", "FH"]
 
 barrel_layerClusters = [
     "hltBarrelLayerClustersEB",
@@ -12,32 +10,32 @@ barrel_layerClusters = [
 ]
 barrel_time_layerClusters = [x + ":timeLayerCluster" for x in barrel_layerClusters]
 
-# Define the producer with ceh lists
-hltMergeLayerClusters = cms.EDProducer("MergeClusterProducer",
-    layerClusters = cms.VInputTag("hltHgcalLayerClustersEE", *ceh_layerClusters),
-    time_layerclusters = cms.VInputTag("hltHgcalLayerClustersEE:timeLayerCluster", *ceh_time_layerClusters),
+# The legacy layer clusters of the HGCAL components, converted from their SoA layer clusters into one merged
+# collection in one step
+hltMergeLayerClusters = cms.EDProducer("HGCalMergedLayerClustersFromSoAProducer",
+    layerClustersSoA = cms.VInputTag(*["hltHgcalSoALayerClustersProducer" + x for x in hgcal_components]),
+    hgcalRecHitsSoA = cms.VInputTag(*["hltHgcalSoARecHitsProducer" + x for x in hgcal_components]),
+    hgcalRecHitsLayerClustersSoA = cms.VInputTag(*["hltHgcalSoARecHitsLayerClustersProducer" + x for x in hgcal_components]),
+    detectors = cms.vstring(*hgcal_detectors),
+    extraLayerClusters = cms.VInputTag(),
+    extraTimeLayerClusters = cms.VInputTag(),
+    timeClname = cms.string("timeLayerCluster")
 )
 
-hltMergeLayerClustersSerialSync = cms.EDProducer("MergeClusterProducer",
-    layerClusters = cms.VInputTag("hltHgCalLayerClustersFromSoAProducerSerialSync", *ceh_layerClusters),
-    time_layerclusters = cms.VInputTag("hltHgCalLayerClustersFromSoAProducerSerialSync:timeLayerCluster", *ceh_time_layerClusters),
+hltMergeLayerClustersSerialSync = cms.EDProducer("HGCalMergedLayerClustersFromSoAProducer",
+    layerClustersSoA = cms.VInputTag(*["hltHgcalSoALayerClustersProducer" + x + "SerialSync" for x in hgcal_components]),
+    hgcalRecHitsSoA = cms.VInputTag(*["hltHgcalSoARecHitsProducer" + x + "SerialSync" for x in hgcal_components]),
+    hgcalRecHitsLayerClustersSoA = cms.VInputTag(*["hltHgcalSoARecHitsLayerClustersProducer" + x + "SerialSync" for x in hgcal_components]),
+    detectors = cms.vstring(*hgcal_detectors),
+    extraLayerClusters = cms.VInputTag(),
+    extraTimeLayerClusters = cms.VInputTag(),
+    timeClname = cms.string("timeLayerCluster")
 )
 
-# Process modifiers: ticl_barrel and alpaka
-from Configuration.ProcessModifiers.alpaka_cff import alpaka
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 
-(alpaka & ~ticl_barrel).toModify(hltMergeLayerClusters,
-    layerClusters = ["hltHgCalLayerClustersFromSoAProducer", *ceh_layerClusters],
-    time_layerclusters = ["hltHgCalLayerClustersFromSoAProducer:timeLayerCluster", *ceh_time_layerClusters]
-)
-
-(ticl_barrel & ~alpaka).toModify(hltMergeLayerClusters,
-    layerClusters = ["hltHgcalLayerClustersEE", *ceh_layerClusters, *barrel_layerClusters],
-    time_layerclusters = ["hltHgcalLayerClustersEE:timeLayerCluster", *ceh_time_layerClusters, *barrel_time_layerClusters]
-)
-
-(ticl_barrel & alpaka).toModify(hltMergeLayerClusters,
-    layerClusters = ["hltHgCalLayerClustersFromSoAProducer", *ceh_layerClusters, *barrel_layerClusters],
-    time_layerclusters = ["hltHgCalLayerClustersFromSoAProducer:timeLayerCluster", *ceh_time_layerClusters, *barrel_time_layerClusters]
+# with the barrel, its layer clusters come after the HGCAL ones
+ticl_barrel.toModify(hltMergeLayerClusters,
+    extraLayerClusters = barrel_layerClusters,
+    extraTimeLayerClusters = barrel_time_layerClusters
 )
