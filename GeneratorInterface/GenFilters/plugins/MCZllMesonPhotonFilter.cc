@@ -7,9 +7,10 @@
 // An event passes if all three conditions are met:
 //   * a stable particle with |pdgId| == particleID and pT > minPt whose mother
 //     has |pdgId| in motherIDs (by default a photon from a pi0 or eta decay);
-//   * a cluster seeded by the highest-pT such particle, adding every other
-//     stable particle with |pdgId| == particleID within clusterDeltaR of the
-//     cluster axis (the axis is updated after each addition), has pT > minClusterPt;
+//   * the cluster made of the highest-pT such particle (the seed) and every other
+//     stable particle with |pdgId| == particleID within clusterDeltaR of the seed
+//     has pT > minClusterPt. The axis is the seed direction, so the result does not
+//     depend on the order of the particles in the HepMC record;
 //   * the leading e- and e+, or the leading mu- and mu+, have an invariant mass
 //     in (minDileptonMass, maxDileptonMass). Leptons of any status are used.
 //
@@ -80,7 +81,6 @@ bool MCZllMesonPhotonFilter::filter(edm::StreamID, edm::Event& iEvent, const edm
 
   bool foundPhoton = false;
   std::vector<math::XYZTLorentzVector> photons;
-  math::XYZTLorentzVector cluster;
   unsigned int seedIndex = 0;
   float seedPt = -1.f;
 
@@ -102,7 +102,6 @@ bool MCZllMesonPhotonFilter::filter(edm::StreamID, edm::Event& iEvent, const edm
         foundPhoton = true;
       if (isFromMeson && mom.perp() > seedPt) {
         seedPt = mom.perp();
-        cluster = p4;
         seedIndex = photons.size();
       }
       photons.push_back(p4);
@@ -127,8 +126,10 @@ bool MCZllMesonPhotonFilter::filter(edm::StreamID, edm::Event& iEvent, const edm
   if (!foundPhoton)
     return false;
 
+  const math::XYZTLorentzVector& seed = photons[seedIndex];
+  math::XYZTLorentzVector cluster = seed;
   for (unsigned int j = 0; j < photons.size(); ++j) {
-    if (j != seedIndex && reco::deltaR(cluster, photons[j]) < clusterDeltaR_)
+    if (j != seedIndex && reco::deltaR(seed, photons[j]) < clusterDeltaR_)
       cluster += photons[j];
   }
   if (!(cluster.pt() > minClusterPt_))
