@@ -60,44 +60,6 @@ class WorkFlowRunner(Thread):
 
         return ret
     
-    @staticmethod
-    def replace_filein_extensions(command_line, outputExtensionForStep, defaultExtension, fileOption='--filein'):
-        # Pattern to match --filein followed by file:file.ext entries (comma-separated)
-        filein_pattern = re.compile(
-            r'('+fileOption+r'\s+)((?:file:[a-zA-Z0-9_]+\.[a-z]+(?:,\s*)?)*)'
-        )
-
-        # Inner patterns to match individual file entries
-        # For stepN naming need to know the N
-        file_pattern_step = re.compile(r'file:step([1-9]+)(_[a-zA-Z]+)?\.[a-z]+')
-        # Some ALCA steps use special file names without stepN, those
-        # are assumed to use the default extension
-        file_pattern_gen = re.compile(r'file:([a-zA-Z0-9_]+)\.[a-z]+')
-
-        def replace_filein_match(filein_match):
-            filein_prefix = filein_match.group(1)
-            file_list_str = filein_match.group(2)
-
-            # Replace extensions in the file list
-            m = file_pattern_step.search(file_list_str)
-            if m:
-                new_file_list = file_pattern_step.sub(
-                    lambda m: 'file:step{0}{1}{2}'.format(m.group(1), m.group(2) or "", outputExtensionForStep[int(m.group(1))]),
-                    file_list_str
-                )
-            else:
-                new_file_list = file_pattern_gen.sub(
-                    lambda m: 'file:{0}{1}'.format(m.group(1), defaultExtension),
-                    file_list_str
-                )
-
-            return filein_prefix + new_file_list
-
-        # Replace the whole --filein section with updated extensions
-        new_command_line = filein_pattern.sub(replace_filein_match, command_line)
-
-        return new_command_line 
-
     def run(self):
 
         startDir = os.getcwd()
@@ -148,8 +110,33 @@ class WorkFlowRunner(Thread):
         lumiRangeFile=None
         aborted=False
         outputExtensionForStep = {}
+        rntupleOutputsStarted = False
         istepmone = -1
         foundLocalPU = False
+
+        def usesRNTupleInput(fileList):
+            # In a fresh workflow directory, non-DQM local files written after
+            # RNTuple output starts use RNTuple, regardless of their filename.
+            if not rntupleOutputsStarted:
+                return False
+            for inputFile in fileList.split(','):
+                if not inputFile.startswith('file:'):
+                    continue
+                path = inputFile[5:]
+                normalized = os.path.normpath(path)
+                if (path and not os.path.isabs(path) and
+                        normalized != '..' and not normalized.startswith('../') and
+                        not path.endswith('_inDQM.root')):
+                    # Earlier steps stay TTree when a later step uses --secondfilein.
+                    # Rely on step number being present in the file (this happens to be the case in wf 1000.0)
+                    # Supporting this decision making for arbitrary file names would require communicating
+                    # or recording all output files and their formats from each step
+                    match = re.fullmatch(r'step([0-9]+)(?:_in[A-Za-z0-9]+)?\.root', normalized)
+                    if match and lastStepWithSecondFileIn is not None and int(match.group(1)) < lastStepWithSecondFileIn:
+                        continue
+                    return True
+            return False
+
         for com in self.wf.cmds:
             # isInputOk is used to keep track of the das result. In case this
             # is False we use a different error message to indicate the failed
@@ -259,8 +246,6 @@ class WorkFlowRunner(Thread):
                     # & similar for on-the-fly MinBias creation for PU
                     # Ugly hack but works
                     extension = '.root'
-                    if '--rntuple_out' in cmd:
-                        extension = '.rntpl'
                     outputExtensionForStep[istep] = extension
                     if istep!=1 and not '--filein' in cmd and not 'premix_stage1' in cmd and not ("--fast" in cmd and "premix_stage2" in cmd) and not isLocalPU:
                         steps = cmd.split("-s ")[1].split(" ")[0] ## relying on the syntax: cmsDriver -s STEPS --otherFlags
@@ -275,12 +260,15 @@ class WorkFlowRunner(Thread):
                             cmd+=' --filein %s'%(self.recoOutput)
                         else:
                             cmd+=' --filein  file:step%s%s '%(istep-1,outputExtensionForStep[istep-1])
-                    elif istep!=1 and '--filein' in cmd and '--filetype' not in cmd:
-                        # make sure correct extension is being used
-                        cmd = self.replace_filein_extensions(cmd, outputExtensionForStep, extension)
-                    if '--pileup_input' in cmd and '--filetype' not in cmd:
-                        # make sure correct extension is being used
-                        cmd = self.replace_filein_extensions(cmd, outputExtensionForStep, extension, fileOption='--pileup_input')
+                    if istep!=1 and '--filein' in cmd and '--filetype' not in cmd:
+                        filein = cmd.split('--filein', 1)[1].split()[0]
+                        if usesRNTupleInput(filein):
+                            cmd += ' --filetype EDM_RNTUPLE'
+                    # Only local pileup files from an RNTuple step need EDM_RNTUPLE; remote inputs keep the EDM default for now.
+                    if '--pileup_input' in cmd and '--pileup_filetype' not in cmd:
+                        pileupInput = cmd.split('--pileup_input', 1)[1].split()[0]
+                        if usesRNTupleInput(pileupInput):
+                            cmd += ' --pileup_filetype EDM_RNTUPLE'
                     if not '--fileout' in com:
                         cmd+=' --fileout file:step%s%s '%(istep,extension)
                         if "RECO" in cmd:
@@ -304,6 +292,8 @@ class WorkFlowRunner(Thread):
                    wf_stats.write('step%s:%s\n' % (istep, cmd))
                    wf_stats.close()
                 else: retStep = self.doCmd(cmd)
+                if retStep == 0 and '--rntuple_out' in cmd:
+                    rntupleOutputsStarted = True
             
             self.retStep.append(retStep)
             if retStep == 32000:
@@ -342,4 +332,3 @@ class WorkFlowRunner(Thread):
         self.report='%s_%s %s - time %s; exit: '%(self.wf.numId,self.wf.nameId,logStat,tottime)+' '.join(map(str,self.retStep))+'\n'
 
         return 
-
