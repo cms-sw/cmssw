@@ -220,9 +220,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     //  Fit internals
     auto hitsDevice = cms::alpakatools::make_device_buffer<double[]>(
-        queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix3xNd<4>) / sizeof(double));
+        queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix3xNd<5>) / sizeof(double));
     auto hits_geDevice = cms::alpakatools::make_device_buffer<float[]>(
-        queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix6x4f) / sizeof(float));
+        queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix6xNf<5>) / sizeof(float));
     auto fast_fit_resultsDevice = cms::alpakatools::make_device_buffer<double[]>(
         queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Vector4d) / sizeof(double));
     auto circle_fit_resultsDevice_holder =
