@@ -94,7 +94,7 @@ int cond::Utilities::run(int argc, char** argv) {
   edm::ParameterSet pSet;
   pSet.addParameter("@service_type", std::string("SiteLocalConfigService"));
   psets.push_back(pSet);
-  edm::ServiceToken servToken(edm::ServiceRegistry::createSet(psets));
+  edm::OwningServiceToken servToken(edm::ServiceRegistry::createSet(psets));
   m_currentToken = &servToken;
   edm::ServiceRegistry::Operate operate(servToken);
 

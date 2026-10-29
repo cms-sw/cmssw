@@ -153,7 +153,7 @@ namespace edm {
     std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
     std::shared_ptr<RunPrincipal> runPrincipal_;
     PileupRandomNumberGenerator* randomGenerator_ = nullptr;
-    std::optional<ServiceToken> serviceToken_;
+    std::optional<OwningServiceToken> serviceToken_;
     std::unique_ptr<SecondaryEventProvider> provider_;
     std::unique_ptr<CLHEP::RandPoissonQ> PoissonDistribution_;
     std::unique_ptr<CLHEP::RandPoisson> PoissonDistr_OOT_;

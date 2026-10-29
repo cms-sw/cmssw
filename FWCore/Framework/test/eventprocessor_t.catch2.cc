@@ -7,6 +7,7 @@ Test of the EventProcessor class.
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/test/stubs/TestBeginEndJobAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
@@ -15,6 +16,7 @@ Test of the EventProcessor class.
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/ParameterSetReader/interface/ProcessDescImpl.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Presence.h"
@@ -383,7 +385,7 @@ TEST_CASE("EventProcessor", "[Framework]") {
     // We then use this ActivityRegistry to 'spy on' the signals being produced
     // inside the EventProcessor
     std::vector<edm::ParameterSet> serviceConfigs;
-    edm::ServiceToken token = edm::ServiceRegistry::createSet(serviceConfigs);
+    edm::OwningServiceToken token = edm::ServiceRegistry::createSet(serviceConfigs);
 
     edm::ActivityRegistry ar;
     token.connect(ar);
@@ -414,6 +416,38 @@ TEST_CASE("EventProcessor", "[Framework]") {
 
     REQUIRE(5 == proc.totalEvents());
     REQUIRE(5 == proc.totalEventsPassed());
+  }
+
+  SECTION("callerServiceSetUnchangedTest") {
+    std::string configuration(
+        "import FWCore.ParameterSet.Config as cms\n"
+        "process = cms.Process('p')\n"
+        "process.maxEvents = cms.untracked.PSet(\n"
+        "    input = cms.untracked.int32(5))\n"
+        "process.source = cms.Source('EmptySource')\n"
+        "process.m1 = cms.EDProducer('TestMod',\n"
+        "   ivalue = cms.int32(-3))\n"
+        "process.p1 = cms.Path(process.m1)\n");
+
+    std::shared_ptr<edm::ParameterSet> parameterSet = ProcessDescImpl(configuration, false).parameterSet();
+    auto processDesc = std::make_shared<edm::ProcessDesc>(parameterSet);
+
+    std::vector<edm::ParameterSet> serviceConfigs;
+    edm::OwningServiceToken token = edm::ServiceRegistry::createSet(serviceConfigs);
+
+    edm::EventProcessor proc(processDesc, token, edm::serviceregistry::kOverlapIsError);
+
+    // The EventProcessor creates its services in new service sets built on top of the caller's one: the caller's
+    // token still refers to its own service set, which does not gain any of the EventProcessor's services.
+    REQUIRE(proc.getToken() != token.token());
+    {
+      edm::ServiceRegistry::Operate operate(token);
+      REQUIRE(not edm::Service<edm::service::TriggerNamesService>().isAvailable());
+    }
+    {
+      edm::ServiceRegistry::Operate operate(proc.getToken());
+      REQUIRE(edm::Service<edm::service::TriggerNamesService>().isAvailable());
+    }
   }
 
   SECTION("moduleFailureTest") {

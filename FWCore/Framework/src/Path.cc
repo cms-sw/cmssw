@@ -309,11 +309,10 @@ namespace edm {
       ++lastModuleIndex;
     }
     for (; lastModuleIndex >= firstModuleIndex; --lastModuleIndex) {
-      ServiceWeakToken weakToken = iToken;
-      auto nextTask = make_waiting_task([this, lastModuleIndex, info = iInfo, iID, iContext, weakToken, &iGroup](
-                                            std::exception_ptr const* iException) {
-        this->workerFinished(iException, lastModuleIndex, info, weakToken.lock(), iID, iContext, iGroup);
-      });
+      auto nextTask = make_waiting_task(
+          [this, lastModuleIndex, info = iInfo, iID, iContext, iToken, &iGroup](std::exception_ptr const* iException) {
+            this->workerFinished(iException, lastModuleIndex, info, iToken, iID, iContext, iGroup);
+          });
       workers_[lastModuleIndex].runWorkerAsync(WaitingTaskHolder(iGroup, nextTask), iInfo, iToken, iID, iContext);
     }
   }

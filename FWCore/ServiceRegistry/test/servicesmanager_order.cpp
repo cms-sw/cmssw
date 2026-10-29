@@ -14,13 +14,6 @@
 #include <memory>
 #include <iostream>
 
-class TestServicesManagerOrder {
-public:
-  static edm::ServiceToken makeToken(std::shared_ptr<edm::serviceregistry::ServicesManager> iManager) {
-    return edm::ServiceToken(iManager);
-  }
-};
-
 int main() try {
   using namespace edm::serviceregistry;
 
@@ -43,13 +36,12 @@ int main() try {
   // demand is also tested.
 
   std::vector<edm::ParameterSet> vps;
-  auto legacy = std::make_shared<ServicesManager>(vps);
+  auto legacy = ServicesManager::create(vps);
 
   edm::ActivityRegistry ar;
   edm::ParameterSet pset;
   legacy->put(std::make_shared<ServiceWrapper<Service0>>(std::make_unique<Service0>(pset, ar)));
   legacy->copySlotsFrom(ar);
-  edm::ServiceToken legacyToken = TestServicesManagerOrder::makeToken(legacy);
 
   std::vector<edm::ParameterSet> vps1;
 
@@ -73,18 +65,17 @@ int main() try {
   ps2.addParameter("@service_type", typeName2);
   vps1.push_back(ps2);
 
-  auto legacy2 = std::make_shared<ServicesManager>(legacyToken, kTokenOverrides, vps1);
-  edm::ServiceToken legacyToken2 = TestServicesManagerOrder::makeToken(legacy2);
+  auto legacy2 = ServicesManager::create(legacy, kTokenOverrides, vps1);
 
-  ServicesManager sm(legacyToken2, kOverlapIsError, vps);
+  auto sm = ServicesManager::create(legacy2, kOverlapIsError, vps);
 
   edm::ActivityRegistry ar4;
   edm::ParameterSet pset4;
-  sm.put(std::make_shared<ServiceWrapper<Service4>>(std::make_unique<Service4>(pset4, ar4)));
-  sm.copySlotsFrom(ar4);
+  sm->put(std::make_shared<ServiceWrapper<Service4>>(std::make_unique<Service4>(pset4, ar4)));
+  sm->copySlotsFrom(ar4);
 
   edm::ActivityRegistry actReg;
-  sm.connectTo(actReg);
+  sm->connectTo(actReg);
   actReg.postBeginJobSignal_.emit();
   actReg.postEndJobSignal_.emit();
 

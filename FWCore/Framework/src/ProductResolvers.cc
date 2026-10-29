@@ -285,10 +285,9 @@ namespace edm {
     m_waitingTasks.add(waitTask);
 
     if (prefetchRequested) {
-      ServiceWeakToken weakToken = token;
-      auto workToDo = [this, mcc, &principal, weakToken]() {
+      auto workToDo = [this, mcc, &principal, token]() {
         //need to make sure Service system is activated on the reading thread
-        ServiceRegistry::Operate operate(weakToken.lock());
+        ServiceRegistry::Operate operate(token);
         // Caught exception is propagated via WaitingTaskList
         CMS_SA_ALLOW try {
           resolveProductImpl<true>([this, &principal, mcc]() {

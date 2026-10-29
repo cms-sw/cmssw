@@ -88,10 +88,10 @@ namespace edmtest::catalog {
     return tmp;
   }
 
-  inline edm::ServiceToken makeTestSiteLocalConfigToken() {
+  inline edm::OwningServiceToken makeTestSiteLocalConfigToken() {
     //create the services
-    return edm::ServiceToken(edm::ServiceRegistry::createContaining(
-        std::unique_ptr<edm::SiteLocalConfig>(std::make_unique<TestSiteLocalConfig>(makeVectorOfCatalogAttributes()))));
+    return edm::ServiceRegistry::createContaining(
+        std::unique_ptr<edm::SiteLocalConfig>(std::make_unique<TestSiteLocalConfig>(makeVectorOfCatalogAttributes())));
   }
 }  // namespace edmtest::catalog
 

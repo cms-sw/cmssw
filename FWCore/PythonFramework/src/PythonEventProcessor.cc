@@ -62,7 +62,7 @@ namespace {
     return iDesc;
   }
 
-  edm::ServiceToken createJobReport() {
+  edm::OwningServiceToken createJobReport() {
     return edm::ServiceRegistry::createContaining(
         std::make_shared<edm::serviceregistry::ServiceWrapper<edm::JobReport>>(
             std::make_unique<edm::JobReport>(nullptr)));
@@ -82,8 +82,9 @@ namespace {
 //
 PythonEventProcessor::PythonEventProcessor(PyBind11ProcessDesc const& iDesc)
     : forcePluginSetupFirst_(setupPluginSystem()),
+      jobReportToken_(createJobReport()),
       processor_(addDefaultServicesToProcessDesc(setupThreading(iDesc.processDesc())),
-                 createJobReport(),
+                 jobReportToken_,
                  edm::serviceregistry::kOverlapIsError) {}
 
 namespace {
