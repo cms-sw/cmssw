@@ -1,4 +1,5 @@
 #include "RecoEgamma/EgammaTools/interface/HGCalShowerShapeHelper.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 
 #include <Math/Vector3D.h>
 #include <TMatrixD.h>
@@ -35,7 +36,9 @@ HGCalShowerShapeHelper::ShowerShapeCalc::ShowerShapeCalc(
 }
 
 double HGCalShowerShapeHelper::ShowerShapeCalc::getCellSize(DetId detId) const {
-  return recHitTools_->getSiThickIndex(detId) == 0 ? kHDWaferCellSize_ : kLDWaferCellSize_;
+  const int type = recHitTools_->getSiThickIndex(detId);
+  return ((type == HGCSiliconDetId::HGCalHD120) || (type == HGCSiliconDetId::HGCalHD200)) ? kHDWaferCellSize_
+                                                                                          : kLDWaferCellSize_;
 }
 
 double HGCalShowerShapeHelper::ShowerShapeCalc::getRvar(double cylinderR, bool useFractions, bool useCellSize) const {
