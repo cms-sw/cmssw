@@ -50,6 +50,13 @@ l1tGTsc4Jet_er5 = l1tGTsc4Jet.clone(
     maxEta = cms.double(5),
 )
 
+l1tGTsc8Jet_er5 = cms.PSet(
+    tag = cms.InputTag("l1tGTProducer", "CL2JetsSC8"),
+    minEta = cms.double(-5),
+    maxEta = cms.double(5),
+    regionsAbsEtaLowerBounds = get_object_etalowbounds("CL2JetsSC8"),
+)
+
 ############################################################
 # Taus
 ############################################################
