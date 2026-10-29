@@ -1,7 +1,10 @@
 <lcgdict>
-	<class name="TrackerDetToDTCELinkCablingMap" class_version="0">
+	<class name="TrackerDetToDTCELinkCablingMap::ModuleInfo" class_version="0"/>
+	<class name="std::map<unsigned int, TrackerDetToDTCELinkCablingMap::ModuleInfo>"/>
+	<class name="TrackerDetToDTCELinkCablingMap" class_version="1">
 		<field name="cablingMapDetIdToDTCELinkId_" mapping="blob" />
 		<field name="cablingMapDTCELinkIdToDetId_" mapping="blob" />
+		<field name="moduleInfoByDetId_"           mapping="blob" />
 	</class>
 	<class name="DTCELinkId" class_version="0">
 	</class>
