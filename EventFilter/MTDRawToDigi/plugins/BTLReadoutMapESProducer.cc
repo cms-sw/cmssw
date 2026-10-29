@@ -47,6 +47,7 @@ std::unique_ptr<BTLReadoutMap> BTLReadoutMapESProducer::produce(const BTLReadout
     for (uint iCrystal = 0; iCrystal < BTLDetId::kCrystalsPerModuleV2; iCrystal++) {
       BTLDetId btlId(modId.mtdSide(), modId.mtdRR(), modId.runit(), modId.dmodule(), modId.smodule(), iCrystal);
 
+      int fed = btlElMapping.fed(btlId);
       int sl = btlElMapping.slink(btlId);
       int hs = btlElMapping.hslink(btlId);
       int el = btlElMapping.elink(btlId);
@@ -62,12 +63,18 @@ std::unique_ptr<BTLReadoutMap> BTLReadoutMapESProducer::produce(const BTLReadout
         if (sl < 0 || hs < 0 || (el < 0 || el > 23) || (ch[side] < 0 || ch[side] > 31)) {
           throw cms::Exception("BTLReadoutMapESProducer")
               << "Invalid electronics mapping for DetId " << btlId.rawId() << " (slink=" << sl << ", hs=" << hs
-              << ", elink=" << el << ", channel=" << ch << ")";
+              << ", elink=" << el << ", channel=" << ch[side] << ")";
         }
       }
 
-      elecIds.minus = BTLElectronicsId(sl, hs, el, ch[0]);
-      elecIds.plus = BTLElectronicsId(sl, hs, el, ch[1]);
+      elecIds.minus = BTLElectronicsId(fed, hs, el, ch[0]);
+      elecIds.plus = BTLElectronicsId(fed, hs, el, ch[1]);
+
+      // -- Check that the electronics ids respect the BTL DAQ ranges and FED/HS-link assignment used in the unpacker
+      if (!elecIds.minus.isValid() || !elecIds.plus.isValid()) {
+        throw cms::Exception("BTLReadoutMapESProducer") << "Invalid electronics id for DetId " << btlId.rawId()
+                                                        << ": minus " << elecIds.minus << ", plus " << elecIds.plus;
+      }
 
       readoutMap->add(btlId, elecIds);
     }

@@ -12,7 +12,7 @@ public:
   //
   //  0 -  4 : channelId 0..31  (5 bits)
   //  5 -  9 : eLinkId   0..23  (5 bits)
-  // 10 - 16 : hsLinkId  0..127 (7 bits)
+  // 10 - 16 : hsLinkId  0..127 (7 bits)  // !!! hslink id 0-35--> 6 bits are enough?
   // 17 - 29 : fedId     ?      (13 bits)
   // 30 - 31 : free for now
 
@@ -45,6 +45,10 @@ public:
   int channelId() const { return (rawid_ >> kChannelShift) & kChannelMask; }
 
   uint32_t rawId() const { return rawid_; };
+  uint32_t denseChannelIndex() const;
+
+  /** True if all fields are within the BTL DAQ ranges and the HS-link belongs to this FED **/
+  bool isValid() const;
 
   bool operator==(const BTLElectronicsId&) const;
   bool operator!=(const BTLElectronicsId&) const;
