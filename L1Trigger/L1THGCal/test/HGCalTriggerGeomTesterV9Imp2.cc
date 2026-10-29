@@ -1036,7 +1036,7 @@ void HGCalTriggerGeomTesterV9Imp2::fillTriggerGeometry()
     if (id.det() == DetId::HGCalHSc) {
       HGCScintillatorDetId sc_id(module_triggercells.first);
       moduleSide_ = sc_id.zside();
-      moduleSubdet_ = ForwardSubdetector::HGCHEB;
+      moduleSubdet_ = sc_id.subdetId();
       moduleLayer_ = sc_id.layer();
       moduleIEta_ = sc_id.ietaAbs();
       moduleIPhi_ = sc_id.iphi();
