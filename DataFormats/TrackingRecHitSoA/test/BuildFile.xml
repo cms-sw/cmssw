@@ -9,6 +9,7 @@
 <library name="testHitSoA" file="TestWriteHostHitSoA.cc,TestReadHostHitSoA.cc,">
   <flags EDM_PLUGIN="1"/>
   <use name="alpaka"/>
+  <use name="DataFormats/Portable"/>
   <use name="DataFormats/SoATemplate"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>

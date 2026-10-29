@@ -42,9 +42,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       TrackingRecHitsSoACollection hits_d(queue, clusters_d);
 
-      const uint32_t groups = divide_up_by(clusters_d.view().metadata().size(), 256);
-      auto workDiv = make_workdiv<Acc1D>(groups, 256);
-      alpaka::exec<Acc1D>(queue, workDiv, CopyModuleStartKernel{}, hits_d.view().hitModules(), clusters_d.view());
+      // protect from empty events
+      if (clusters_d.view().metadata().size() > 0) {
+        const int threadsPerBlock = 256;
+        const uint32_t groups = divide_up_by(clusters_d.view().metadata().size(), threadsPerBlock);
+        const auto workDiv = make_workdiv<Acc1D>(groups, threadsPerBlock);
+        alpaka::exec<Acc1D>(queue, workDiv, GetModules{}, hits_d.view().hitModules(), clusters_d.view());
+      }
 
       int activeModulesWithDigis = digis_d.nModules();
 

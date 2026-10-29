@@ -26,7 +26,7 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace pixelRecHits {
 
-    struct CopyModuleStartKernel {
+    struct GetModules {
       ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                     ::reco::HitModuleSoAView modsView,
                                     SiPixelClustersSoAConstView clustersView) const {

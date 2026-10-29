@@ -63,7 +63,8 @@ concept CanAssignS1 = requires(T view) { view.s1() = static_cast<int8_t>(1); };
 
 TEST_CASE("AoS Unit Tests") {
   // common number of elements for the SoAs
-  const SoA::size_type elems = 16;
+  const SoA::size_type elems = GENERATE(0, 16);
+  CAPTURE(elems);
   const auto soaBufferSize = SoA::computeDataSize(elems);
   const auto aosBufferSize = SoA::AoSWrapper::computeDataSize(elems);
   // The AoS is an array of SoA::RecordType
@@ -96,7 +97,7 @@ TEST_CASE("AoS Unit Tests") {
   SoA::AoSWrapper::ConstView aosConstView{aos};
 
   // fill up the SoA Layout
-  for (size_t i = 0; i < elems; i++) {
+  for (size_t i = 0; i < static_cast<size_t>(elems); i++) {
     soaView[i].f1() = static_cast<float>(i);
     soaView[i].f2() = static_cast<float>(i) + 0.1f;
     soaView[i].i1() = static_cast<int8_t>(i);
@@ -111,8 +112,12 @@ TEST_CASE("AoS Unit Tests") {
   soaView.s4() = static_cast<double>((int64_t(1) << 42) + 8.52516352);
   soaView.s5() = "Testing";
 
+  if (elems == 0) {
+    aosView.transposeScalars(soaConstView);
+  }
+
   // Copy to AoS
-  for (size_t i = 0; i < elems; i++) {
+  for (int i = 0; i < static_cast<int>(elems); i++) {
     aosView.transpose(soaConstView, i);
   }
 
@@ -123,7 +128,7 @@ TEST_CASE("AoS Unit Tests") {
     REQUIRE(soaConstView.metadata().size() == aosView.metadata().size());
     REQUIRE(elems == aosView.metadata().size());
 
-    for (size_t i = 0; i < elems; i++) {
+    for (size_t i = 0; i < static_cast<size_t>(elems); i++) {
       auto element = aosConstView[i];
       // check that all values match
       REQUIRE_THAT(element.f1(), Catch::Matchers::WithinAbs(static_cast<float>(i), 1.e-6));
@@ -158,38 +163,67 @@ TEST_CASE("AoS Unit Tests") {
     REQUIRE(std::string(aosConstView.s5()) == "Testing");
   }
 
-  SECTION("AoS View check assignment operator") {
-    soaView[0] = {42.75,
-                  -13.5,
-                  -37,
-                  {1.25, -2.5, 3.75},
-                  9876543210LL,
-                  RowMajorMatrix{{1, 2, 3, 4}, {5, 6, 7, 8}},
-                  ColMajorMatrix{{11, 12, 13, 14}, {15, 16, 17, 18}}};
+  if (elems != 0) {
+    SECTION("AoS View check assignment operator") {
+      soaView[0] = {42.75,
+                    -13.5,
+                    -37,
+                    {1.25, -2.5, 3.75},
+                    9876543210LL,
+                    RowMajorMatrix{{1, 2, 3, 4}, {5, 6, 7, 8}},
+                    ColMajorMatrix{{11, 12, 13, 14}, {15, 16, 17, 18}}};
 
-    REQUIRE_THAT(soaConstView[0].f1(), Catch::Matchers::WithinAbs(42.75, 1.e-6));
-    REQUIRE_THAT(soaConstView[0].f2(), Catch::Matchers::WithinAbs(-13.5, 1.e-6));
-    REQUIRE(soaConstView[0].i1() == static_cast<int8_t>(-37));
-    REQUIRE((soaConstView[0].candidateDirection() - TestVector{1.25, -2.5, 3.75}).norm() < 1.e-6);
-    REQUIRE(soaConstView[0].i2() == static_cast<int64_t>(9876543210LL));
-    REQUIRE(soaConstView[0].rowMatrix() == RowMajorMatrix{{1, 2, 3, 4}, {5, 6, 7, 8}});
-    REQUIRE(soaConstView[0].colMatrix() == ColMajorMatrix{{11, 12, 13, 14}, {15, 16, 17, 18}});
+      REQUIRE_THAT(soaConstView[0].f1(), Catch::Matchers::WithinAbs(42.75, 1.e-6));
+      REQUIRE_THAT(soaConstView[0].f2(), Catch::Matchers::WithinAbs(-13.5, 1.e-6));
+      REQUIRE(soaConstView[0].i1() == static_cast<int8_t>(-37));
+      REQUIRE((soaConstView[0].candidateDirection() - TestVector{1.25, -2.5, 3.75}).norm() < 1.e-6);
+      REQUIRE(soaConstView[0].i2() == static_cast<int64_t>(9876543210LL));
+      REQUIRE(soaConstView[0].rowMatrix() == RowMajorMatrix{{1, 2, 3, 4}, {5, 6, 7, 8}});
+      REQUIRE(soaConstView[0].colMatrix() == ColMajorMatrix{{11, 12, 13, 14}, {15, 16, 17, 18}});
 
-    aosView[0] = {-91.25,
-                  27.125,
-                  106,
-                  {-4.5, 8.25, -12.75},
-                  -1234567890123LL,
-                  RowMajorMatrix{{101, 202, 303, 404}, {505, 606, 707, 808}},
-                  ColMajorMatrix{{909, 808, 707, 606}, {505, 404, 303, 202}}};
+      aosView[0] = {-91.25,
+                    27.125,
+                    106,
+                    {-4.5, 8.25, -12.75},
+                    -1234567890123LL,
+                    RowMajorMatrix{{101, 202, 303, 404}, {505, 606, 707, 808}},
+                    ColMajorMatrix{{909, 808, 707, 606}, {505, 404, 303, 202}}};
 
-    REQUIRE_THAT(aosConstView[0].f1(), Catch::Matchers::WithinAbs(-91.25, 1.e-6));
-    REQUIRE_THAT(aosConstView[0].f2(), Catch::Matchers::WithinAbs(27.125, 1.e-6));
-    REQUIRE(aosConstView[0].i1() == static_cast<int8_t>(106));
-    REQUIRE((aosConstView[0].candidateDirection() - TestVector{-4.5, 8.25, -12.75}).norm() < 1.e-6);
-    REQUIRE(aosConstView[0].i2() == static_cast<int64_t>(-1234567890123LL));
-    REQUIRE(aosConstView[0].rowMatrix() == RowMajorMatrix{{101, 202, 303, 404}, {505, 606, 707, 808}});
-    REQUIRE(aosConstView[0].colMatrix() == ColMajorMatrix{{909, 808, 707, 606}, {505, 404, 303, 202}});
+      REQUIRE_THAT(aosConstView[0].f1(), Catch::Matchers::WithinAbs(-91.25, 1.e-6));
+      REQUIRE_THAT(aosConstView[0].f2(), Catch::Matchers::WithinAbs(27.125, 1.e-6));
+      REQUIRE(aosConstView[0].i1() == static_cast<int8_t>(106));
+      REQUIRE((aosConstView[0].candidateDirection() - TestVector{-4.5, 8.25, -12.75}).norm() < 1.e-6);
+      REQUIRE(aosConstView[0].i2() == static_cast<int64_t>(-1234567890123LL));
+      REQUIRE(aosConstView[0].rowMatrix() == RowMajorMatrix{{101, 202, 303, 404}, {505, 606, 707, 808}});
+      REQUIRE(aosConstView[0].colMatrix() == ColMajorMatrix{{909, 808, 707, 606}, {505, 404, 303, 202}});
+
+      // Check that copying and moving of a view element works
+      soaView[1] = soaView[0];
+      soaView[2] = std::move(soaView[0]);
+
+      for (int i = 1; i < 3; ++i) {
+        REQUIRE_THAT(soaConstView[i].f1(), Catch::Matchers::WithinAbs(42.75, 1.e-6));
+        REQUIRE_THAT(soaConstView[i].f2(), Catch::Matchers::WithinAbs(-13.5, 1.e-6));
+        REQUIRE(soaConstView[i].i1() == static_cast<int8_t>(-37));
+        REQUIRE((soaConstView[i].candidateDirection() - TestVector{1.25, -2.5, 3.75}).norm() < 1.e-6);
+        REQUIRE(soaConstView[i].i2() == static_cast<int64_t>(9876543210LL));
+        REQUIRE(soaConstView[i].rowMatrix() == RowMajorMatrix{{1, 2, 3, 4}, {5, 6, 7, 8}});
+        REQUIRE(soaConstView[i].colMatrix() == ColMajorMatrix{{11, 12, 13, 14}, {15, 16, 17, 18}});
+      }
+
+      aosView[1] = aosView[0];
+      aosView[2] = std::move(aosView[0]);
+
+      for (int i = 1; i < 3; ++i) {
+        REQUIRE_THAT(aosConstView[i].f1(), Catch::Matchers::WithinAbs(-91.25, 1.e-6));
+        REQUIRE_THAT(aosConstView[i].f2(), Catch::Matchers::WithinAbs(27.125, 1.e-6));
+        REQUIRE(aosConstView[i].i1() == static_cast<int8_t>(106));
+        REQUIRE((aosConstView[i].candidateDirection() - TestVector{-4.5, 8.25, -12.75}).norm() < 1.e-6);
+        REQUIRE(aosConstView[i].i2() == static_cast<int64_t>(-1234567890123LL));
+        REQUIRE(aosConstView[i].rowMatrix() == RowMajorMatrix{{101, 202, 303, 404}, {505, 606, 707, 808}});
+        REQUIRE(aosConstView[i].colMatrix() == ColMajorMatrix{{909, 808, 707, 606}, {505, 404, 303, 202}});
+      }
+    }
   }
 
   SECTION("AoS View check range checking") {
@@ -261,7 +295,7 @@ TEST_CASE("AoS Unit Tests") {
     STATIC_REQUIRE(CanAssignS1<SoA::AoSWrapper::View>);
   }
 
-  SECTION("Check views conversions") {
+  SECTION("Check view copy construction and conversion capability") {
     using AoSViewR_disabled = SoA::AoSWrapper::ViewTemplate<cms::soa::RangeChecking::disabled>;
     using AoSViewR_enabled = SoA::AoSWrapper::ViewTemplate<cms::soa::RangeChecking::enabled>;
     using AoSViewR_extended = SoA::AoSWrapper::ViewTemplate<cms::soa::RangeChecking::extended>;
@@ -303,12 +337,62 @@ TEST_CASE("AoS Unit Tests") {
     static_assert(!std::convertible_to<AoSConstViewR_extended, AoSViewR_disabled>);
     static_assert(!std::convertible_to<AoSConstViewR_extended, AoSViewR_enabled>);
     static_assert(!std::convertible_to<AoSConstViewR_extended, AoSViewR_extended>);
+
+    AoSViewR_disabled aosViewDisabled{aosView};
+    AoSViewR_enabled aosViewEnabled{aosView};
+    AoSViewR_extended aosViewExtended{aosView};
+
+    AoSConstViewR_disabled aosConstViewDisabled{aosConstView};
+    AoSConstViewR_enabled aosConstViewEnabled{aosConstView};
+    AoSConstViewR_extended aosConstViewExtended{aosConstView};
+
+    auto testAoSView = [&]<typename View>(View view) {
+      for (size_t i = 0; i < static_cast<size_t>(elems); i++) {
+        auto element = view[i];
+        // check that all values match
+        REQUIRE_THAT(element.f1(), Catch::Matchers::WithinAbs(static_cast<float>(i), 1.e-6));
+        REQUIRE_THAT(element.f2(), Catch::Matchers::WithinAbs(static_cast<float>(i) + 0.1f, 1.e-6));
+        REQUIRE(element.i1() == static_cast<int8_t>(i));
+        REQUIRE(element.candidateDirection().isApprox(TestVector(i + 0.3, i + 0.4, i + 0.5), 1.e-6));
+        REQUIRE(element.i2() == static_cast<int64_t>(i) * 4269420666);
+        REQUIRE(element.rowMatrix() == RowMajorMatrix{{i, i + 1, i + 2, i + 3}, {i + 4, i + 5, i + 6, i + 7}});
+        REQUIRE(element.colMatrix() == ColMajorMatrix{{i, i + 1, i + 2, i + 3}, {i + 4, i + 5, i + 6, i + 7}});
+
+        // check that alternative accessors work as well
+        REQUIRE_THAT(view.f1(i), Catch::Matchers::WithinAbs(element.f1(), 1.e-6));
+        REQUIRE_THAT(view.f1()[i], Catch::Matchers::WithinAbs(element.f1(), 1.e-6));
+        REQUIRE_THAT(view.f2(i), Catch::Matchers::WithinAbs(element.f2(), 1.e-6));
+        REQUIRE_THAT(view.f2()[i], Catch::Matchers::WithinAbs(element.f2(), 1.e-6));
+        REQUIRE(view.i1(i) == element.i1());
+        REQUIRE(view.i1()[i] == element.i1());
+        REQUIRE(view.candidateDirection(i).isApprox(element.candidateDirection(), 1.e-6));
+        REQUIRE(view.candidateDirection()[i].isApprox(element.candidateDirection(), 1.e-6));
+        REQUIRE(view.i2(i) == element.i2());
+        REQUIRE(view.i2()[i] == element.i2());
+        REQUIRE(view.rowMatrix(i) == element.rowMatrix());
+        REQUIRE(view.rowMatrix()[i] == element.rowMatrix());
+        REQUIRE(view.colMatrix(i) == element.colMatrix());
+        REQUIRE(view.colMatrix()[i] == element.colMatrix());
+      }
+      REQUIRE(view.s1() == 100);
+      REQUIRE_THAT(view.s2(), Catch::Matchers::WithinAbs(42.42f, 1.e-6));
+      REQUIRE(view.s3() == (int64_t(1) << 42) + 852516352);
+      REQUIRE_THAT(view.s4(), Catch::Matchers::WithinAbs(static_cast<double>((int64_t(1) << 42) + 8.52516352), 1.e-6));
+      REQUIRE(std::string(view.s5()) == "Testing");
+    };
+
+    testAoSView(aosViewDisabled);
+    testAoSView(aosViewEnabled);
+    testAoSView(aosViewExtended);
+    testAoSView(aosConstViewDisabled);
+    testAoSView(aosConstViewEnabled);
+    testAoSView(aosConstViewExtended);
   }
 
   SECTION("AoS test memory layout") {
     // Check that the AoS memory layout is as expected
     const auto stride = sizeof(SoA::RecordType);
-    for (size_t i = 0; i < elems; i++) {
+    for (size_t i = 0; i < static_cast<size_t>(elems); i++) {
       float f1;
       float f2;
       int8_t i1;
@@ -401,6 +485,61 @@ TEST_CASE("AoS Unit Tests") {
     REQUIRE(std::string(s5) == "Testing");
   }
 
+  SECTION("AoS test assign from SoA ConstView") {
+    using CVE_D = SoA::ConstViewTemplate<cms::soa::RestrictQualify::enabled, cms::soa::RangeChecking::disabled>;
+    using CVE_E = SoA::ConstViewTemplate<cms::soa::RestrictQualify::enabled, cms::soa::RangeChecking::enabled>;
+    using CVE_X = SoA::ConstViewTemplate<cms::soa::RestrictQualify::enabled, cms::soa::RangeChecking::extended>;
+
+    using CVD_D = SoA::ConstViewTemplate<cms::soa::RestrictQualify::disabled, cms::soa::RangeChecking::disabled>;
+    using CVD_E = SoA::ConstViewTemplate<cms::soa::RestrictQualify::disabled, cms::soa::RangeChecking::enabled>;
+    using CVD_X = SoA::ConstViewTemplate<cms::soa::RestrictQualify::disabled, cms::soa::RangeChecking::extended>;
+
+    auto testAoSViewAssignment = [&]<typename TSoAView>(const TSoAView &soaView) {
+      std::unique_ptr<std::byte, decltype(std::free) *> aosBuffer2{
+          reinterpret_cast<std::byte *>(aligned_alloc(SoA::alignment, SoA::AoSWrapper::computeDataSize(elems))),
+          std::free};
+
+      // AoS Layout and Views
+      SoA::AoSWrapper aos2{aosBuffer2.get(), elems};
+      SoA::AoSWrapper::View aosView{aos2};
+
+      for (size_t i = 0; i < static_cast<size_t>(elems); i++) {
+        aosView[i] = soaView[i];
+      }
+
+      for (size_t i = 0; i < static_cast<size_t>(elems); i++) {
+        REQUIRE_THAT(aosView[i].f1(), Catch::Matchers::WithinAbs(static_cast<float>(i), 1.e-6));
+        REQUIRE_THAT(aosView[i].f2(), Catch::Matchers::WithinAbs(static_cast<float>(i) + 0.1f, 1.e-6));
+        REQUIRE(aosView[i].i1() == static_cast<int8_t>(i));
+        REQUIRE(aosView[i].candidateDirection().isApprox(TestVector(i + 0.3, i + 0.4, i + 0.5), 1.e-6));
+        REQUIRE(aosView[i].i2() == static_cast<int64_t>(i) * 4269420666);
+        REQUIRE(aosView[i].rowMatrix() == RowMajorMatrix{{i, i + 1, i + 2, i + 3}, {i + 4, i + 5, i + 6, i + 7}});
+        REQUIRE(aosView[i].colMatrix() == ColMajorMatrix{{i, i + 1, i + 2, i + 3}, {i + 4, i + 5, i + 6, i + 7}});
+      }
+    };
+
+    SoAConstView baseSoAConstView{soa};
+    testAoSViewAssignment(baseSoAConstView);
+
+    CVE_D cve_d{soa};
+    testAoSViewAssignment(cve_d);
+
+    CVE_E cve_e{soa};
+    testAoSViewAssignment(cve_e);
+
+    CVE_X cve_x{soa};
+    testAoSViewAssignment(cve_x);
+
+    CVD_D cvd_d{soa};
+    testAoSViewAssignment(cvd_d);
+
+    CVD_E cvd_e{soa};
+    testAoSViewAssignment(cvd_e);
+
+    CVD_X cvd_x{soa};
+    testAoSViewAssignment(cvd_x);
+  }
+
   SECTION("AoS test transpose to SoA") {
     // check that we can go back from AoS to SoA
     std::unique_ptr<std::byte, decltype(std::free) *> soaBuffer2{
@@ -410,11 +549,15 @@ TEST_CASE("AoS Unit Tests") {
     SoAView soaView2{soa2};
     SoAConstView soaConstView2{soa2};
 
-    for (size_t i = 0; i < elems; i++) {
+    if (elems == 0) {
+      soaView2.transposeScalars(aosConstView);
+    }
+
+    for (size_t i = 0; i < static_cast<size_t>(elems); i++) {
       soaView2.transpose(aosConstView, i);
     }
 
-    for (size_t i = 0; i < elems; i++) {
+    for (size_t i = 0; i < static_cast<size_t>(elems); i++) {
       REQUIRE_THAT(soaConstView2[i].f1(), Catch::Matchers::WithinAbs(static_cast<float>(i), 1.e-6));
       REQUIRE_THAT(soaConstView2[i].f2(), Catch::Matchers::WithinAbs(static_cast<float>(i) + 0.1f, 1.e-6));
       REQUIRE(soaConstView2[i].i1() == static_cast<int8_t>(i));
@@ -434,7 +577,8 @@ TEST_CASE("AoS Unit Tests") {
 }
 
 TEST_CASE("AoS Unit Tests Scalar only") {
-  const SoA::size_type elems = 16;
+  const SoA::size_type elems = GENERATE(0, 16);
+  CAPTURE(elems);
   const auto soaBufferSize = SoAOnlyScalars::computeDataSize(elems);
   const auto aosBufferSize = SoAOnlyScalars::AoSWrapper::computeDataSize(elems);
   // The AoS buffer is just the size of the scalar members
@@ -470,7 +614,11 @@ TEST_CASE("AoS Unit Tests Scalar only") {
   SoAOnlyScalars::AoSWrapper::View aosView{aos};
   SoAOnlyScalars::AoSWrapper::ConstView aosConstView{aos};
 
-  for (size_t i = 0; i < elems; i++) {
+  if (elems == 0) {
+    aosView.transposeScalars(soaConstView);
+  }
+
+  for (size_t i = 0; i < static_cast<size_t>(elems); i++) {
     aosView.transpose(soaConstView, i);
   }
 

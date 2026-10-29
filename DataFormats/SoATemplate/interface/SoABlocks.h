@@ -283,10 +283,15 @@
 /*
  * Declare transpose functions for SoA to AoS layout
  */
-#define _DECLARE_BLOCKS_TRANSPOSE_IMPL(NAME) NAME().transpose(view.NAME(), index);
+#define _DECLARE_BLOCKS_TRANSPOSE_COLUMNS_IMPL(NAME) NAME().transposeColumns(view.NAME(), index);
 
-#define _DECLARE_BLOCKS_TRANSPOSE(R, DATA, SPEC) \
-  _EXEC_IF_BLOCK(SPEC, _DECLARE_BLOCKS_TRANSPOSE_IMPL, (_BLOCK_GET_NAME(SPEC)))
+#define _DECLARE_BLOCKS_TRANSPOSE_COLUMNS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_BLOCKS_TRANSPOSE_COLUMNS_IMPL, (_BLOCK_GET_NAME(SPEC)))
+
+#define _DECLARE_BLOCKS_TRANSPOSE_SCALARS_IMPL(NAME) NAME().transposeScalars(view.NAME());
+
+#define _DECLARE_BLOCKS_TRANSPOSE_SCALARS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_BLOCKS_TRANSPOSE_SCALARS_IMPL, (_BLOCK_GET_NAME(SPEC)))
 
 /*
  * A macro defining a SoA by blocks layout (collection of SoA layouts)
@@ -522,11 +527,24 @@
       _ITERATE_ON_ALL(_DECLARE_ACCESSORS_VIEW_BLOCKS, ~, __VA_ARGS__)                                                  \
       ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_VIEW_METHODS, ~, __VA_ARGS__))                                            \
                                                                                                                        \
-      /* Helper method to transpose the AoS into an SoA */                                                             \
+      /* Helper methods to transpose the AoS into an SoA */                                                            \
+      template <typename AoSConstView>                                                                                 \
+      requires (!AoSConstView::isSoA)                                                                                  \
+      SOA_HOST_DEVICE SOA_INLINE void transposeColumns(AoSConstView const& view, size_type index) {                    \
+        _ITERATE_ON_ALL(_DECLARE_BLOCKS_TRANSPOSE_COLUMNS, ~, __VA_ARGS__)                                             \
+      }                                                                                                                \
+      template <typename AoSConstView>                                                                                 \
+      requires (!AoSConstView::isSoA)                                                                                  \
+      SOA_HOST_DEVICE SOA_INLINE void transposeScalars(AoSConstView const& view) {                                     \
+        _ITERATE_ON_ALL(_DECLARE_BLOCKS_TRANSPOSE_SCALARS, ~, __VA_ARGS__)                                             \
+      }                                                                                                                \
       template <typename AoSConstView>                                                                                 \
       requires (!AoSConstView::isSoA)                                                                                  \
       SOA_HOST_DEVICE SOA_INLINE void transpose(AoSConstView const& view, size_type index) {                           \
-        _ITERATE_ON_ALL(_DECLARE_BLOCKS_TRANSPOSE, ~, __VA_ARGS__)                                                     \
+        transposeColumns(view, index);                                                                                 \
+        if(index == 0){                                                                                                \
+          transposeScalars(view);                                                                                      \
+        }                                                                                                              \
       }                                                                                                                \
     };                                                                                                                 \
     template <bool RESTRICT_QUALIFY, cms::soa::RangeChecking::Mode RANGE_CHECKING>                                     \
@@ -719,18 +737,35 @@
         _ITERATE_ON_ALL(_DECLARE_ACCESSORS_VIEW_BLOCKS, ~, __VA_ARGS__)                                                \
         ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_VIEW_METHODS, ~, __VA_ARGS__))                                          \
                                                                                                                        \
-        /* Helper method to transpose the SoA into an AoS */                                                           \
+        /* Helper methods to transpose the SoA into an AoS */                                                          \
+        template <typename SoAConstView>                                                                               \
+        requires (SoAConstView::isSoA)                                                                                 \
+        SOA_HOST_DEVICE SOA_INLINE void transposeColumns(SoAConstView const& view, size_type index) {                  \
+          _ITERATE_ON_ALL(_DECLARE_BLOCKS_TRANSPOSE_COLUMNS, ~, __VA_ARGS__)                                           \
+        }                                                                                                              \
+        template <typename SoAConstView>                                                                               \
+        requires (SoAConstView::isSoA)                                                                                 \
+        SOA_HOST_DEVICE SOA_INLINE void transposeScalars(SoAConstView const& view) {                                   \
+          _ITERATE_ON_ALL(_DECLARE_BLOCKS_TRANSPOSE_SCALARS, ~, __VA_ARGS__)                                           \
+        }                                                                                                              \
         template <typename SoAConstView>                                                                               \
         requires (SoAConstView::isSoA)                                                                                 \
         SOA_HOST_DEVICE SOA_INLINE void transpose(SoAConstView const& view, size_type index) {                         \
-          _ITERATE_ON_ALL(_DECLARE_BLOCKS_TRANSPOSE, ~, __VA_ARGS__)                                                   \
+          transposeColumns(view, index);                                                                               \
+          if(index == 0){                                                                                              \
+            transposeScalars(view);                                                                                    \
+          }                                                                                                            \
         }                                                                                                              \
       };                                                                                                               \
       using View = ViewTemplate<cms::soa::RangeChecking::Default>;                                                     \
                                                                                                                        \
       /* Declarations to make compatible with PortableCollections */                                                   \
-      struct Descriptor;                                                                                               \
-      struct ConstDescriptor;                                                                                          \
+      struct Descriptor{                                                                                               \
+        constexpr static bool isSoA = AoSWrapper::isSoA;                                                               \
+      };                                                                                                               \
+      struct ConstDescriptor{                                                                                          \
+        constexpr static bool isSoA = AoSWrapper::isSoA;                                                               \
+      };                                                                                                               \
       static constexpr byte_size_type alignment = CLASS::alignment;                                                    \
                                                                                                                        \
       /* Helper to implement View as derived from ConstView in SoABlocks implementation */                             \
@@ -760,6 +795,7 @@
     };                                                                                                                 \
                                                                                                                        \
     struct Descriptor {                                                                                                \
+      constexpr static bool isSoA = CLASS::isSoA;                                                                      \
       Descriptor() = default;                                                                                          \
                                                                                                                        \
       explicit Descriptor(View view)                                                                                   \
@@ -771,6 +807,7 @@
     };                                                                                                                 \
                                                                                                                        \
     struct ConstDescriptor {                                                                                           \
+      constexpr static bool isSoA = CLASS::isSoA;                                                                      \
       ConstDescriptor() = default;                                                                                     \
                                                                                                                        \
       explicit ConstDescriptor(ConstView const view)                                                                   \
