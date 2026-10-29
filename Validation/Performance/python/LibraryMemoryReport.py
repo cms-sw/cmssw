@@ -1,4 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 def customiseWithLibraryMemoryReport(process):
-    process.LibraryMemoryReport = cms.Service("LibraryMemoryReport")
-    return(process)
+    from FWCore.Services.modules import LibraryMemoryReport
+    process.add_(LibraryMemoryReport(allModules = False))
+    return process
+
