@@ -28,6 +28,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Services/plugins/ProcInfoFetcher.h"
+#include "FWCore/Services/plugins/ProcSmaps.h"
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -39,10 +40,8 @@
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
-#include <array>
-#include <cstring>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #ifdef __linux__
@@ -53,7 +52,6 @@
 #include <string>
 //#include <string.h>
 
-#include <cstdio>
 #include <atomic>
 #include <optional>
 
@@ -65,24 +63,6 @@ typedef int (*mallctl_t)(const char* name, void* oldp, size_t* oldlenp, void* ne
 
 namespace edm {
   namespace service {
-    enum class SmapsSection {
-      kSharedObject = 0,
-      kPcm = 1,
-      kOtherFile = 2,
-      kStack = 3,
-      kMmap = 4,
-      kOther = 5,
-      kSize = 6
-    };
-    struct smapsInfo {
-      double private_ = 0;        // in MB
-      double pss_ = 0;            // in MB
-      double anonHugePages_ = 0;  // in MB
-
-      static constexpr auto sectionsSize_ = static_cast<unsigned>(SmapsSection::kSize);
-      std::array<double, sectionsSize_> sectionRss_{};    // in MB
-      std::array<double, sectionsSize_> sectionVSize_{};  // in MB
-    };
     struct JemallocInfo {
       double allocated = 0;  // in MB
       double active = 0;     // in MB
@@ -121,7 +101,7 @@ namespace edm {
 
     private:
       ProcInfo fetch();
-      smapsInfo fetchSmaps();
+      SmapsInfo fetchSmaps();
       JemallocInfo fetchJemalloc() const;
       double pageSize() const { return pg_size_; }
       double averageGrowthRate(double current, double past, int count);
@@ -139,16 +119,13 @@ namespace edm {
       std::optional<std::string> openFilesNoThrow();
       void openFiles();
 
-      char const* smapsLineBuffer() const { return get_underlying_safe(smapsLineBuffer_); }
-      char*& smapsLineBuffer() { return get_underlying_safe(smapsLineBuffer_); }
-
       ProcInfo a_;
       ProcInfo b_;
       ProcInfo max_;
       edm::propagate_const<ProcInfo*> current_;
       edm::propagate_const<ProcInfo*> previous_;
 
-      smapsInfo currentSmaps_;
+      SmapsInfo currentSmaps_;
 
       ProcInfoFetcher piFetcher_;
       double pg_size_;
@@ -168,10 +145,7 @@ namespace edm {
 
       mallctl_t je_mallctl = nullptr;
 
-      //smaps
-      edm::propagate_const<FILE*> smapsFile_ = nullptr;
-      edm::propagate_const<char*> smapsLineBuffer_;
-      size_t smapsLineBufferLen_;
+      bool smapsFileAvailable_ = false;
 
       //Rates of growth
       double growthRateVsize_;
@@ -324,79 +298,7 @@ namespace edm {
 
     ProcInfo SimpleMemoryCheck::fetch() { return piFetcher_.fetch(); }
 
-    smapsInfo SimpleMemoryCheck::fetchSmaps() {
-      smapsInfo ret;
-#ifdef LINUX
-      fseek(smapsFile_, 0, SEEK_SET);
-      ssize_t read;
-      SmapsSection section = SmapsSection::kOther;
-
-      /*
-       The format of the report is
-       Private_Clean:        0 kB
-       Private_Dirty:       72 kB
-       Swap:                 0 kB
-       Pss:                 72 kB
-       AnonHugePages:    10240 kB
-       */
-
-      while ((read = getline(&smapsLineBuffer(), &smapsLineBufferLen_, smapsFile_)) != -1) {
-        if (read > 14) {
-          // Are we in a line that defines a mapping?
-          // (a character following ':' is not a space)
-          if (char const* ret = strchr(smapsLineBuffer_, ':'); ret != nullptr and *(ret + 1) != ' ') {
-            ret = strrchr(smapsLineBuffer_, ' ');
-            if (ret == nullptr) {
-              // shouldn't happen, but let's protect anyway
-              section = SmapsSection::kOther;
-            } else if (*(ret + 1) == '\n') {
-              // no "path" element
-              section = SmapsSection::kMmap;
-            } else if (*(ret + 1) == '/') {
-              // "path" starts with '/', assume it's file
-              // differentiate shared object and .pcm files
-              auto len = strlen(ret);
-              if (0 == strncmp(ret + len - 5, ".pcm", 4)) {
-                section = SmapsSection::kPcm;
-              } else if (strstr(ret, ".so") != nullptr) {
-                section = SmapsSection::kSharedObject;
-              } else {
-                section = SmapsSection::kOtherFile;
-              }
-            } else if (0 == strncmp("[stack]", ret + 1, 7)) {
-              section = SmapsSection::kStack;
-            } else {
-              section = SmapsSection::kOther;
-            }
-            continue;
-          }
-
-          //Private
-          if (0 == strncmp("Private_", smapsLineBuffer_, 8)) {
-            unsigned int value = atoi(smapsLineBuffer_ + 14);
-            //Convert from kB to MB
-            ret.private_ += static_cast<double>(value) / 1024.;
-          } else if (0 == strncmp("Pss:", smapsLineBuffer_, 4)) {
-            unsigned int value = atoi(smapsLineBuffer_ + 4);
-            //Convert from kB to MB
-            ret.pss_ += static_cast<double>(value) / 1024.;
-          } else if (0 == strncmp("AnonHugePages:", smapsLineBuffer_, 14)) {
-            unsigned int value = atoi(smapsLineBuffer_ + 14);
-            ret.anonHugePages_ += static_cast<double>(value) / 1024.;
-          } else if (0 == strncmp("Rss:", smapsLineBuffer_, 4)) {
-            unsigned int value = atoi(smapsLineBuffer_ + 4);
-            //Convert from kB to MB
-            ret.sectionRss_[static_cast<unsigned>(section)] += static_cast<double>(value) / 1024.;
-          } else if (0 == strncmp("Size:", smapsLineBuffer_, 5)) {
-            unsigned int value = atoi(smapsLineBuffer_ + 5);
-            //Convert from kB to MB
-            ret.sectionVSize_[static_cast<unsigned>(section)] += static_cast<double>(value) / 1024.;
-          }
-        }
-      }
-#endif
-      return ret;
-    }
+    SmapsInfo SimpleMemoryCheck::fetchSmaps() { return readProcSmaps(); }
 
     JemallocInfo SimpleMemoryCheck::fetchJemalloc() const {
       JemallocInfo info;
@@ -454,9 +356,7 @@ namespace edm {
           monitorPssAndPrivate_(iPS.getUntrackedParameter<bool>("monitorPssAndPrivate")),
           count_(),
           sampleEveryNSeconds_(iPS.getUntrackedParameter<unsigned int>("sampleEveryNSeconds")),
-          smapsFile_(nullptr),
-          smapsLineBuffer_(nullptr),
-          smapsLineBufferLen_(0),
+          smapsFileAvailable_(false),
           growthRateVsize_(),
           growthRateRss_(),
           moduleSummaryRequested_(iPS.getUntrackedParameter<bool>("moduleMemorySummary")),
@@ -527,17 +427,7 @@ namespace edm {
       }
     }
 
-    SimpleMemoryCheck::~SimpleMemoryCheck() {
-#ifdef LINUX
-      if (nullptr != smapsFile_) {
-        fclose(smapsFile_);
-      }
-#endif
-      if (smapsLineBuffer_) {
-        //getline will create the memory using malloc
-        free(smapsLineBuffer_);
-      }
-    }
+    SimpleMemoryCheck::~SimpleMemoryCheck() = default;
 
     void SimpleMemoryCheck::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;
@@ -568,11 +458,10 @@ namespace edm {
 
     std::optional<std::string> SimpleMemoryCheck::openFilesNoThrow() {
 #ifdef LINUX
-      std::ostringstream smapsNameOst;
-      smapsNameOst << "/proc/" << getpid() << "/smaps";
-      auto smapsName = smapsNameOst.str();
-      if ((smapsFile_ = fopen(smapsName.c_str(), "r")) == nullptr) {
-        return smapsName;
+      std::ifstream smaps("/proc/self/smaps");
+      smapsFileAvailable_ = static_cast<bool>(smaps);
+      if (not smapsFileAvailable_) {
+        return "/proc/self/smaps";
       }
 #endif
       return {};
@@ -642,10 +531,10 @@ namespace edm {
       }
       std::shared_ptr<void> guard(
           nullptr, [this](void const*) { measurementUnderway_.store(false, std::memory_order_release); });
-      if (not smapsFile_) {
+      if (not smapsFileAvailable_) {
         openFilesNoThrow();
       }
-      if (smapsFile_) {
+      if (smapsFileAvailable_) {
         currentSmaps_ = fetchSmaps();
       }
       update();
@@ -682,10 +571,10 @@ namespace edm {
         log << "MemoryReport> EndJob: virtual size " << current_->vsize << " Mbytes, RSS " << current_->rss
             << " Mbytes";
         // extract smaps information if file open succeeded
-        if (not smapsFile_) {
+        if (not smapsFileAvailable_) {
           openFilesNoThrow();
         }
-        if (smapsFile_) {
+        if (smapsFileAvailable_) {
           currentSmaps_ = fetchSmaps();
           auto soRss = currentSmaps_.sectionRss_[static_cast<unsigned>(SmapsSection::kSharedObject)];
           auto pcmRss = currentSmaps_.sectionRss_[static_cast<unsigned>(SmapsSection::kPcm)];
@@ -1118,7 +1007,7 @@ namespace edm {
 #endif
       }
       if (includeSmapsAndJe) {
-        if (smapsFile_) {
+        if (smapsFileAvailable_) {
           log << " PSS " << currentSmaps_.pss_ << " PRIVATE " << currentSmaps_.private_ << " ANONHUGEPAGES "
               << currentSmaps_.anonHugePages_;
         }
