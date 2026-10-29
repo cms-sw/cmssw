@@ -60,6 +60,7 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::stri
   allowZeroEnergyLoss = m_TrackerSD.getParameter<bool>("ZeroEnergyLoss");
   neverAccumulate = m_TrackerSD.getParameter<bool>("NeverAccumulate");
   printHits = m_TrackerSD.getParameter<bool>("PrintHits");
+  quirkTracking = p.getParameter<bool>("QuirkTracking");
   theTofLimit = m_TrackerSD.getParameter<double>("ElectronicSigmaInNanoSeconds") * 3 * CLHEP::ns;  // 3 sigma
   energyCut =
       m_TrackerSD.getParameter<double>("EnergyThresholdForPersistencyInGeV") * CLHEP::GeV;  //default must be 0.5
@@ -105,6 +106,10 @@ bool TkAccumulatingSensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHist
                               << aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName();
 
   if (aStep->GetTotalEnergyDeposit() > 0. || allowZeroEnergyLoss) {
+    // another track without BeginOfTrack: a suspended track resumed
+    if (quirkTracking && mySimHit && aStep->GetTrack()->GetTrackID() != lastTrack) {
+      swapParked(aStep->GetTrack()->GetTrackID());
+    }
     if (!mySimHit) {
       createHit(aStep);
     } else if (neverAccumulate || newHit(aStep)) {
@@ -122,8 +127,38 @@ uint32_t TkAccumulatingSensitiveDetector::setDetUnitId(const G4Step* step) {
   return theNumberingScheme->g4ToNumberingScheme(step->GetPreStepPoint()->GetTouchable());
 }
 
+void TkAccumulatingSensitiveDetector::swapParked(int trackID) {
+  // resume the open hit of this track, park the one of the other track
+  if (parkedHit && parkedTrack != trackID) {
+    std::swap(mySimHit, parkedHit);
+    std::swap(lastId, parkedId);
+    std::swap(lastTrack, parkedTrack);
+    sendHit();  // the parked hit is closed, the current one moves to parkedHit below
+    std::swap(mySimHit, parkedHit);
+    std::swap(lastId, parkedId);
+    std::swap(lastTrack, parkedTrack);
+  }
+  std::swap(mySimHit, parkedHit);
+  std::swap(lastId, parkedId);
+  std::swap(lastTrack, parkedTrack);
+}
+
+void TkAccumulatingSensitiveDetector::flushHits() {
+  if (mySimHit != nullptr)
+    sendHit();
+  if (parkedHit != nullptr) {
+    std::swap(mySimHit, parkedHit);
+    std::swap(lastId, parkedId);
+    std::swap(lastTrack, parkedTrack);
+    sendHit();
+  }
+}
+
 void TkAccumulatingSensitiveDetector::update(const BeginOfTrack* bot) {
   const G4Track* gTrack = (*bot)();
+  // a new track: the previous one has ended
+  if (quirkTracking)
+    flushHits();
 
 #ifdef DUMPPROCESSES
   if (gTrack->GetCreatorProcess()) {
@@ -336,8 +371,7 @@ bool TkAccumulatingSensitiveDetector::closeHit(const G4Step* aStep) {
 
 void TkAccumulatingSensitiveDetector::EndOfEvent(G4HCofThisEvent*) {
   LogDebug("TrackerSimDebug") << " Saving the last hit in a ROU " << GetName();
-  if (mySimHit != nullptr)
-    sendHit();
+  flushHits();
 }
 
 void TkAccumulatingSensitiveDetector::update(const BeginOfEvent* i) {
@@ -345,6 +379,8 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfEvent* i) {
   eventno = (*i)()->GetEventID();
   delete mySimHit;
   mySimHit = nullptr;
+  delete parkedHit;
+  parkedHit = nullptr;
 }
 
 void TkAccumulatingSensitiveDetector::update(const BeginOfJob* i) { theNumberingScheme = &(numberingScheme(*pDD_)); }

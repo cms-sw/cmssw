@@ -56,6 +56,7 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
   bool dd4hep = p.getParameter<bool>("g4GeometryDD4hepSource");
   edm::ParameterSet muonSD = p.getParameter<edm::ParameterSet>("MuonSD");
   printHits_ = muonSD.getParameter<bool>("PrintHits");
+  quirkTracking_ = p.getParameter<bool>("QuirkTracking");
   ePersistentCutGeV_ = muonSD.getParameter<double>("EnergyThresholdForPersistency") / CLHEP::GeV;  //Default 1. GeV
   allMuonsPersistent_ = muonSD.getParameter<bool>("AllMuonsPersistent");
   haveDemo_ = muonSD.getParameter<bool>("HaveDemoChambers");
@@ -146,6 +147,15 @@ bool MuonSensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory* ROhis
     if (name == "RE")
       edm::LogVerbatim("MuonSim") << "DETID " << namx << " " << RPCDetId(newDetUnitId);
 #endif
+    // another track without BeginOfTrack: a suspended track resumed
+    if (quirkTracking_ && theHit && aStep->GetTrack()->GetTrackID() != theTrackID) {
+      if (parkedHit && parkedTrackID != aStep->GetTrack()->GetTrackID()) {
+        swapParked();
+        saveHit();
+        swapParked();
+      }
+      swapParked();
+    }
     if (newHit(aStep)) {
       saveHit();
       createHit(aStep);
@@ -332,7 +342,29 @@ void MuonSensitiveDetector::saveHit() {
   }
 }
 
-void MuonSensitiveDetector::EndOfEvent(G4HCofThisEvent*) { saveHit(); }
+void MuonSensitiveDetector::EndOfEvent(G4HCofThisEvent*) { flushHits(); }
+
+void MuonSensitiveDetector::update(const BeginOfTrack*) {
+  // a new track: the previous one has ended
+  if (quirkTracking_)
+    flushHits();
+}
+
+void MuonSensitiveDetector::swapParked() {
+  std::swap(theHit, parkedHit);
+  std::swap(thePV, parkedPV);
+  std::swap(theDetUnitId, parkedDetUnitId);
+  std::swap(theTrackID, parkedTrackID);
+}
+
+void MuonSensitiveDetector::flushHits() {
+  saveHit();
+  if (parkedHit) {
+    swapParked();
+    saveHit();
+    swapParked();
+  }
+}
 
 void MuonSensitiveDetector::fillHits(edm::PSimHitContainer& cc, const std::string& hname) {
   if (slaveMuon->name() == hname) {
