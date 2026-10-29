@@ -31,6 +31,8 @@ The offsets currently in use are:
 * 0.3: 0.1 + 0.2
 * 0.4: LowPU tracking era, `Run2_2017_trackingLowPU`
 * 0.402: Alpaka, pixel only quadruplets, portable
+* 0.4021: Alpaka, pixel only quadruplets with CA extension to the outer tracker (`phase2CAExtension`), portable
+* 0.4022: Alpaka, pixel only quadruplets with CA extension to the outer tracker (`phase2CAExtension`), and two iterations (`caTwoIterations`), portable
 * 0.403: Alpaka, pixel only quadruplets, portable vs. CPU validation
 * 0.404: Alpaka, pixel only quadruplets, portable profiling
 * 0.406: Alpaka, pixel only triplets, portable

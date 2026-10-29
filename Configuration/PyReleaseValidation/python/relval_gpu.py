@@ -65,7 +65,7 @@ numWFIB = [
            prefixDet+61.751,
 
            # Run4, alpaka-based workflows with pileup
-           prefixDet+234.402, prefixDet+234.4021, prefixDet+234.403, prefixDet+234.404,
+           prefixDet+234.402, prefixDet+234.4021, prefixDet+234.4022, prefixDet+234.403, prefixDet+234.404,
            prefixDet+234.422, prefixDet+234.423, prefixDet+234.424,
            prefixDet+234.712, prefixDet+234.713,
            prefixDet+234.7503,
