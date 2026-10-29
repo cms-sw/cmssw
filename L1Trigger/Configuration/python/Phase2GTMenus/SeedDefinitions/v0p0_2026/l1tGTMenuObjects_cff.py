@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # Common objects for P2GT L1 seeds
 ############################################################
 
-from L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.step1p5_2026.l1tGTObject_constants import *
+from L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.v0p0_2026.l1tGTObject_constants import *
 
 ############################################################
 # Muons
