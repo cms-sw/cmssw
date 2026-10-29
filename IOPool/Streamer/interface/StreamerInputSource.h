@@ -8,8 +8,6 @@
  * framework objects (e.g. ProductRegistry and EventPrincipal)
  */
 
-#include "TBufferFile.h"
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Sources/interface/RawInputSource.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -19,6 +17,8 @@
 
 #include <memory>
 #include <vector>
+
+class TClass;
 
 namespace edm {
   class BranchIDListHelper;
@@ -58,9 +58,6 @@ namespace edm::streamer {
     static void buildClassCache(SendDescs const& descs);
     void resetAfterEndRun();
 
-  private:
-    void deserializeEventCommon(EventMsgView const& eventView, bool isMetaData);
-
     class EventPrincipalHolder : public EDProductGetter {
     public:
       EventPrincipalHolder();
@@ -76,13 +73,33 @@ namespace edm::streamer {
       EventPrincipal const* eventPrincipal_;
     };
 
+    // An event message deserialized into a SendEvent, before it is handed to the framework
+    struct DecodedEvent {
+      std::unique_ptr<SendEvent> sendEvent;
+      std::unique_ptr<EventPrincipalHolder> eventPrincipalHolder;
+      uint32_t adler32_chksum = 0;
+      uint32_t lumi = 0;
+    };
+
+    // Verify the checksum, uncompress and deserialize an event message, using dest as the
+    // uncompression buffer. It does not modify the state of the source, so different events
+    // can be decoded concurrently, each with its own buffer.
+    void decodeEvent(EventMsgView const& eventView, std::vector<unsigned char>& dest, DecodedEvent& decoded) const;
+
+    // Make a decoded (non meta data) event the next event of the source: check the meta data
+    // checksum, register the process history and update the run and lumi auxiliaries.
+    // Must be called serially and in input order.
+    void finishEvent(DecodedEvent&& decoded);
+
+  private:
+    void deserializeEventCommon(EventMsgView const& eventView, bool isMetaData);
+
     void read(EventPrincipal& eventPrincipal) override;
 
     void setRun(RunNumber_t r) override;
 
     edm::propagate_const<TClass*> tc_;
     std::vector<unsigned char> dest_;
-    TBufferFile xbuf_;
     edm::propagate_const<std::unique_ptr<SendEvent>> sendEvent_;
     edm::propagate_const<std::unique_ptr<EventPrincipalHolder>> eventPrincipalHolder_;
     std::vector<edm::propagate_const<std::unique_ptr<EventPrincipalHolder>>> streamToEventPrincipalHolders_;
