@@ -71,9 +71,9 @@ namespace edm::service {
       totalPssKB += library.pssKB;
       totalExecutableSizeKB += library.executableSizeKB;
     }
-    report << "\nLibraryMemoryReport summary libraries=" << smaps.libraries.size() << " sizeKB=" << smaps.totalSizeKB()
-           << " rssKB=" << smaps.totalRssKB() << " pssKB=" << smaps.totalPssKB()
-           << " executableSizeKB=" << smaps.totalExecutableSizeKB();
+    report << "\nLibraryMemoryReport summary libraries=" << smaps.libraries.size() << " sizeKB=" << totalSizeKB
+           << " rssKB=" << totalRssKB << " pssKB=" << totalPssKB
+           << " executableSizeKB=" << totalExecutableSizeKB;
     edm::LogAbsolute("LibraryMemoryReport") << report.str();
   }
 
