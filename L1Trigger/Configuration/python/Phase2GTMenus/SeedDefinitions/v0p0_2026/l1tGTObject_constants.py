@@ -3,8 +3,8 @@ Module for handling L1 trigger menu constants and conversions.
 """
 
 import FWCore.ParameterSet.Config as cms
-from L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.step1p5_2026.l1tGTObject_scalings import scalings
-from L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.step1p5_2026.l1tGTObject_ids import objectIDs
+from L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.v0p0_2026.l1tGTObject_scalings import scalings
+from L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.v0p0_2026.l1tGTObject_ids import objectIDs
 
 obj_regions_abseta_lowbounds = {
     "CL2Photons": { "barrel": 0, "endcap": 1.479 },
