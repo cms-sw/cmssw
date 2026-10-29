@@ -86,8 +86,8 @@ private:
 
 // initialises plugin configuration and prepares ROOT file for saving the sums
 Phase1L1TJetSumsProducer::Phase1L1TJetSumsProducer(const edm::ParameterSet& iConfig)
-    : inputJetCollectionTag_{consumes<std::vector<reco::CaloJet> >(
-          iConfig.getParameter<edm::InputTag>("inputJetCollectionTag"))},
+    : inputJetCollectionTag_{
+          consumes<std::vector<reco::CaloJet> >(iConfig.getParameter<edm::InputTag>("inputJetCollectionTag"))},
       sinPhi_(iConfig.getParameter<std::vector<double> >("sinPhi")),
       cosPhi_(iConfig.getParameter<std::vector<double> >("cosPhi")),
       nBinsPhi_(iConfig.getParameter<unsigned int>("nBinsPhi")),

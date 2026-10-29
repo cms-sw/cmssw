@@ -41,7 +41,7 @@ namespace l1t {
 
         // Output word size is a sum of the individual fields
         kTkTripletWordSize = kValidSize + kPtSize + kPhiSize + kEtaSize + kMassSize + kTrk1PtSize + kTrk2PtSize +
-                             kTrk3PtSize + kChargeSize + kUnassignedSize,
+            kTrk3PtSize + kChargeSize + kUnassignedSize,
       };
 
       enum TkTripletBitLocations {
