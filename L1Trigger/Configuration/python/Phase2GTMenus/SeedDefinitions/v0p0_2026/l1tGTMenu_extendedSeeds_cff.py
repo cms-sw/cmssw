@@ -108,3 +108,25 @@ DoubleJetIsoTauExt = l1tGTTripleObjectCond.clone(
 )
 pDoubleJet_IsoTau_Ext = cms.Path(DoubleJetIsoTauExt)
 algorithms.append(cms.PSet(expression = cms.string("pDoubleJet_IsoTau_Ext")))
+
+####### STANDALONE EG SEEDS, |eta| < 3.0 ###########
+# As for SingleEGEle/DoubleEGEle: CL2 photons without isolation stand in for standalone EG,
+# with the L1EG scalings.
+
+SingleEGEleExt = l1tGTSingleObjectCond.clone(
+    l1tGTtkPhotonExt.clone(),
+    regionsMinPt = get_object_thrs(51, "L1EG", "extended"),
+)
+pSingleEGEle_Ext = cms.Path(SingleEGEleExt)
+algorithms.append(cms.PSet(expression = cms.string("pSingleEGEle_Ext")))
+
+DoubleEGEleExt = l1tGTDoubleObjectCond.clone(
+    collection1 = l1tGTtkPhotonExt.clone(
+        regionsMinPt = get_object_thrs(37, "L1EG", "extended"),
+    ),
+    collection2 = l1tGTtkPhotonExt.clone(
+        regionsMinPt = get_object_thrs(24, "L1EG", "extended"),
+    ),
+)
+pDoubleEGEle_Ext = cms.Path(DoubleEGEleExt)
+algorithms.append(cms.PSet(expression = cms.string("pDoubleEGEle_Ext")))

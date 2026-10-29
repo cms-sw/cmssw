@@ -124,3 +124,9 @@ l1tGTtkPhoton = cms.PSet(
 l1tGTtkIsoPhoton = l1tGTtkPhoton.clone(
     regionsMaxRelIsolationPt = get_object_isos("CL2Photons","Iso"),
 )
+
+# CL2 photons include the HGCal region without tracker coverage, up to |eta| ~ 3
+l1tGTtkPhotonExt = l1tGTtkPhoton.clone(
+    minEta = cms.double(-3.0),
+    maxEta = cms.double(3.0),
+)
