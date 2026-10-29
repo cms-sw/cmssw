@@ -1,4 +1,5 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
+#include "FWCore/Framework/interface/warnAboutMissingDictionaries.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -194,6 +195,7 @@ namespace edm {
     roottree::BranchInfo info = roottree::BranchInfo(prod);
     info.productBranch_ = nullptr;
     if (prod.present()) {
+      warnAboutMissingDictionaries(prod);
       info.setBranch(branch, wrapperBaseTClass);
       //we want the new branch name for the JobReport
       branchNames_.push_back(prod.branchName());
