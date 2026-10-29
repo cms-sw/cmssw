@@ -4,6 +4,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include <unordered_map>
 #include <array>
+#include <vector>
 
 namespace mtd_digitizer {
 
@@ -16,8 +17,8 @@ namespace mtd_digitizer {
 
   struct MTDCellInfo {
     // for BTL:
-    //     0 --> number of photo-electrons (left side),  1 --> time of flight (left side)
-    //     2 --> number of photo-electrons (right side), 3 --> time of flight (right side)
+    //     0 --> number of photo-electrons (minus side),  1 --> time of flight (minus side)
+    //     2 --> number of photo-electrons (plus side), 3 --> time of flight (plus side)
     std::array<MTDSimHitData, 4> hit_info;
   };
 
