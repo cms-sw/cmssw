@@ -611,6 +611,66 @@ namespace {
   }
 
   /************************************************************************
+     CMS publication style helpers, shared by the distribution comparison
+     and the history plots. The text sizes are in pixels (precision 3 fonts)
+  *************************************************************************/
+  // colors of the two tags or IOVs, from the CMS recommended (Petroff) palette
+  inline int laserTagColor(int itag) { return (itag == 0) ? TColor::GetColor("#5790fc") : TColor::GetColor("#e42536"); }
+
+  // value of an input parameter of the plot, def if it is not set
+  inline std::string laserInputParam(const std::map<std::string, std::string>& values,
+                                     const std::string& name,
+                                     const std::string& def) {
+    auto it = values.find(name);
+    return (it == values.end()) ? def : it->second;
+  }
+
+  // "CMS <cmsLabel>" left aligned at xLeft and rightLabel right aligned at xRight, baseline at y (NDC of the current pad)
+  inline void drawLaserCMSLabel(
+      double xLeft, double xRight, double y, const std::string& cmsLabel, const std::string& rightLabel) {
+    TLatex cms;
+    cms.SetNDC();
+    cms.SetTextAlign(11);
+    cms.SetTextFont(63);
+    cms.SetTextSize(62);
+    cms.DrawLatex(xLeft, y, "CMS");
+    if (!cmsLabel.empty()) {
+      TLatex width(0., 0., "CMS ");
+      width.SetTextFont(63);
+      width.SetTextSize(62);
+      TLatex extra;
+      extra.SetNDC();
+      extra.SetTextAlign(11);
+      extra.SetTextFont(53);
+      extra.SetTextSize(48);
+      extra.DrawLatex(xLeft + width.GetXsize(), y, cmsLabel.c_str());
+    }
+    TLatex right;
+    right.SetNDC();
+    right.SetTextAlign(31);
+    right.SetTextFont(43);
+    right.SetTextSize(48);
+    right.DrawLatex(xRight, y, rightLabel.c_str());
+  }
+
+  // one line per tag, left aligned at x from yTop down, TText instead of TLatex to keep the underscores
+  inline void drawLaserTagLines(double x, double yTop, double step, int size, const std::vector<std::string>& lines) {
+    TText text;
+    text.SetNDC();
+    text.SetTextAlign(13);
+    text.SetTextFont(43);
+    text.SetTextSize(size);
+    for (size_t i = 0; i < lines.size(); i++) {
+      text.SetTextColor((lines.size() == 1) ? int(kBlack) : laserTagColor(i));
+      text.DrawText(x, yTop - step * i, lines[i].c_str());
+    }
+  }
+
+  // default labels, they can be changed with the plot input parameters cmsLabel and rightLabel
+  constexpr const char* kLaserCMSLabel = "Preliminary";
+  constexpr const char* kLaserRightLabel = "13.6 TeV";
+
+  /************************************************************************
      1d distributions of ECAL Laser APDPNRatios p1, p2 and p3 in EE-, EB
      and EE+, superimposed for 2 IOVs of one tag or 2 IOVs of two tags
   *************************************************************************/
@@ -620,14 +680,17 @@ namespace {
   public:
     EcalLaserAPDPNRatiosHistCompareBase()
         : cond::payloadInspector::PlotImage<EcalLaserAPDPNRatios, nIOVs, ntags>(
-              "ECAL Laser APDPNRatios distributions comparison") {}
+              "ECAL Laser APDPNRatios distributions comparison") {
+      // text after "CMS" and on the top right of the plot
+      cond::payloadInspector::PlotBase::addInputParam("cmsLabel");
+      cond::payloadInspector::PlotBase::addInputParam("rightLabel");
+    }
 
     bool fill() override {
       constexpr int kParams = 3;  // p1, p2, p3
       constexpr int kParts = 3;   // EE-, EB, EE+
       constexpr int kBins = 100;
       const std::array<const char*, kParts> partName = {{"EE-", "EB", "EE+"}};
-      const std::array<int, 2> color = {{kRed, kBlue}};
 
       auto tag1 = cond::payloadInspector::PlotBase::getTag<0>();
       std::array<std::string, 2> l_tagname = {{tag1.name, tag1.name}};
@@ -674,72 +737,97 @@ namespace {
         for (int part = 0; part < kParts; part++) {
           for (int irun = 0; irun < 2; irun++) {
             hist[irun][i][part] = std::make_unique<TH1F>(Form("%s_p%i_%i", partName[part], i + 1, irun),
-                                                         Form("%s p%i;p%i;crystals", partName[part], i + 1, i + 1),
+                                                         Form(";p%i;Crystals", i + 1),
                                                          kBins,
                                                          0.,
                                                          1.01);
             hist[irun][i][part]->SetDirectory(nullptr);
             for (float v : values[irun][i][part])
               hist[irun][i][part]->Fill(v);
-            hist[irun][i][part]->SetLineColor(color[irun]);
-            hist[irun][i][part]->SetLineWidth(2);
+            hist[irun][i][part]->SetLineColor(laserTagColor(irun));
+            hist[irun][i][part]->SetLineWidth(3);
           }
+          // (1) filled, (2) as a line on top of it
+          hist[0][i][part]->SetFillColorAlpha(laserTagColor(0), 0.35);
         }
       }
 
+      // CMS style: text sizes in pixels (precision 3 fonts), one pad per parameter (rows) and partition (columns),
+      // below the tag names and the CMS label
+      constexpr double kGridTop = 0.914;
+      constexpr double kLeft = 0.17, kRight = 0.04, kTop = 0.04, kBottom = 0.15;  // pad margins
       gStyle->SetOptStat(0);
       TCanvas canvas("CC hist", "CC hist", 2400, 2400);
-      // rows: p1, p2, p3 ; columns: EE-, EB, EE+
       canvas.Divide(kParts, kParams);
-      std::vector<std::unique_ptr<TLegend>> legends;
+      std::vector<std::unique_ptr<TObject>> keep;  // ROOT objects drawn on the canvas
       for (int i = 0; i < kParams; i++) {
         for (int part = 0; part < kParts; part++) {
-          float yma = 0.93 - (0.31 * i);
-          float ymi = yma - 0.31;
+          const double yhigh = kGridTop * (1. - double(i) / kParams), ylow = kGridTop * (1. - double(i + 1) / kParams);
           TVirtualPad* pad = canvas.cd(i * kParts + part + 1);
-          pad->SetPad(part / 3., ymi, (part + 1) / 3., yma);  // leave room for the header
-          pad->SetLeftMargin(0.13);
-          pad->SetRightMargin(0.04);
+          pad->SetPad(part / 3., ylow, (part + 1) / 3., yhigh);
+          pad->SetLeftMargin(kLeft);
+          pad->SetRightMargin(kRight);
+          pad->SetTopMargin(kTop);
+          pad->SetBottomMargin(kBottom);
+          pad->SetTickx(1);
+          pad->SetTicky(1);
 
-          double ymax = std::max(hist[0][i][part]->GetMaximum(), hist[1][i][part]->GetMaximum());
-	  if(part==0 || part==2){
-	    hist[0][i][part]->SetMaximum(500);
-	  } else {
-	    hist[0][i][part]->SetMaximum(4500);
-	  }
-          hist[0][i][part]->Draw("HIST");
-          hist[1][i][part]->Draw("HIST SAME");
+          TH1F* h1 = hist[0][i][part].get();
+          TH1F* h2 = hist[1][i][part].get();
+          h1->SetMaximum(1.5 * std::max(h1->GetMaximum(), h2->GetMaximum()));  // leave room for the legend
+          h1->SetMinimum(0.);
+          for (auto* axis : {h1->GetXaxis(), h1->GetYaxis()}) {
+            axis->SetLabelFont(43);
+            axis->SetTitleFont(43);
+            axis->SetLabelSize(32);
+            axis->SetTitleSize(36);
+          }
+          h1->GetXaxis()->SetNdivisions(505);
+          h1->GetYaxis()->SetNdivisions(505);
+          h1->GetYaxis()->SetMaxDigits(4);
+          h1->GetXaxis()->SetTitleOffset(1.2);
+          h1->GetYaxis()->SetTitleOffset(1.9);
+          h1->Draw("HIST");
+          h2->Draw("HIST SAME");
+          h1->Draw("AXIS SAME");
 
-          legends.push_back(std::make_unique<TLegend>(0.15, 0.78, 0.95, 0.89));
-          legends.back()->SetTextSize(0.035);
-          legends.back()->SetBorderSize(0);
-          legends.back()->SetFillStyle(0);
+          auto label = std::make_unique<TLatex>(kLeft + 0.04, 1. - kTop - 0.04, Form("%s", partName[part]));
+          label->SetNDC();
+          label->SetTextAlign(13);
+          label->SetTextFont(63);
+          label->SetTextSize(40);
+          label->Draw();
+          auto legend = std::make_unique<TLegend>(0.36, 0.78, 1. - kRight - 0.02, 1. - kTop - 0.03);
+          legend->SetBorderSize(0);
+          legend->SetFillStyle(0);
+          legend->SetTextFont(43);
+          legend->SetTextSize(28);
           for (int irun = 0; irun < 2; irun++)
-            legends.back()->AddEntry(hist[irun][i][part].get(),
-                                     Form("(%i) mean %.4f, rms %.4f",
-                                          irun + 1,
-                                          hist[irun][i][part]->GetMean(),
-                                          hist[irun][i][part]->GetRMS()),
-                                     "l");
-          legends.back()->Draw();
+            legend->AddEntry(hist[irun][i][part].get(),
+                             Form("(%i) mean %.4f, RMS %.4f",
+                                  irun + 1,
+                                  hist[irun][i][part]->GetMean(),
+                                  hist[irun][i][part]->GetRMS()),
+                             (irun == 0) ? "f" : "l");
+          legend->Draw();
+          keep.push_back(std::move(label));
+          keep.push_back(std::move(legend));
         }
       }
 
-      // header, TText instead of TLatex to keep the underscores of the tag names
+      // CMS label on top of the pads, tag names and IOVs above it
       canvas.cd();
-      TText t1;
-      t1.SetNDC();
-      t1.SetTextAlign(22);
-      t1.SetTextSize(0.018);
-      for (int irun = 0; irun < 2; irun++) {
-        t1.SetTextColor(color[irun]);
-        t1.DrawText(0.5,
-                    0.975 - 0.025 * irun,
-                    Form("(%i) %s, IOV %s",
-                         irun + 1,
-                         l_tagname[irun].c_str(),
-                         laserIOVLabel(std::get<0>(theIOVs[irun])).c_str()));
-      }
+      const auto& params = cond::payloadInspector::PlotBase::inputParamValues();
+      drawLaserCMSLabel(kLeft / kParts,
+                        1. - kRight / kParts,
+                        kGridTop + 0.006,
+                        laserInputParam(params, "cmsLabel", kLaserCMSLabel),
+                        laserInputParam(params, "rightLabel", kLaserRightLabel));
+      std::vector<std::string> lines;
+      for (int irun = 0; irun < 2; irun++)
+        lines.push_back(Form(
+            "(%i) %s, IOV %s", irun + 1, l_tagname[irun].c_str(), laserIOVLabel(std::get<0>(theIOVs[irun])).c_str()));
+      drawLaserTagLines(kLeft / kParts, 0.99, 0.018, 34, lines);
 
       std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
@@ -842,7 +930,7 @@ namespace {
   public:
     explicit EcalLaserAPDPNRatiosHistoryBase(const std::string& title)
         : cond::payloadInspector::PlotImage<EcalLaserAPDPNRatios, cond::payloadInspector::MULTI_IOV, ntags>(title) {
-      // text after "CMS" (default "Internal") and on the top right of the plot (default "13.6 TeV")
+      // text after "CMS" and on the top right of the plot
       cond::payloadInspector::PlotBase::addInputParam("cmsLabel");
       cond::payloadInspector::PlotBase::addInputParam("rightLabel");
     }
@@ -862,9 +950,6 @@ namespace {
     static constexpr int kTitleSize = 44;
     static constexpr int kLegendSize = 38;
     static constexpr int kHeaderSize = 34;
-
-    // colors of the tags, from the CMS recommended (Petroff) palette
-    static int tagColor(int itag) { return (itag == 0) ? TColor::GetColor("#5790fc") : TColor::GetColor("#e42536"); }
 
     std::array<std::string, ntags> m_tagName;
     std::array<std::string, ntags> m_iovRange;  // human readable first - last IOV of each tag
@@ -1036,55 +1121,21 @@ namespace {
       return static_cast<TLegend*>(keep.back().get());
     }
 
-    // value of an input parameter of the plot, def if it is not set
-    std::string inputParam(const std::string& name, const std::string& def) const {
-      const auto& values = cond::payloadInspector::PlotBase::inputParamValues();
-      auto it = values.find(name);
-      return (it == values.end()) ? def : it->second;
-    }
-
-    // CMS label on top of the frames, tag names (TText to keep the underscores) above it
+    // CMS label on top of the frames, tag names above it
     void drawHeader(TCanvas& canvas) const {
       canvas.cd();
-      const double y = padsTop() + 0.006;
-      TLatex cms;
-      cms.SetNDC();
-      cms.SetTextAlign(11);
-      cms.SetTextFont(63);
-      cms.SetTextSize(62);
-      cms.DrawLatex(kLeftMargin, y, "CMS");
-      const std::string cmsLabel = inputParam("cmsLabel", "Internal");
-      if (!cmsLabel.empty()) {
-        TLatex extra;
-        extra.SetNDC();
-        extra.SetTextAlign(11);
-        extra.SetTextFont(53);
-        extra.SetTextSize(48);
-        TLatex width(0., 0., "CMS ");
-        width.SetTextFont(63);
-        width.SetTextSize(62);
-        extra.DrawLatex(kLeftMargin + width.GetXsize(), y, cmsLabel.c_str());
-      }
-      TLatex right;
-      right.SetNDC();
-      right.SetTextAlign(31);
-      right.SetTextFont(43);
-      right.SetTextSize(48);
-      right.DrawLatex(1. - kRightMargin, y, inputParam("rightLabel", "13.6 TeV").c_str());
-
-      TText tags;
-      tags.SetNDC();
-      tags.SetTextAlign(13);
-      tags.SetTextFont(43);
-      tags.SetTextSize(kHeaderSize);
-      for (int itag = 0; itag < ntags; itag++) {
-        tags.SetTextColor((ntags == 1) ? kBlack : tagColor(itag));
-        tags.DrawText(kLeftMargin,
-                      0.99 - 0.018 * itag,
-                      (ntags == 1)
-                          ? Form("%s, IOVs %s", m_tagName[itag].c_str(), m_iovRange[itag].c_str())
-                          : Form("(%i) %s, IOVs %s", itag + 1, m_tagName[itag].c_str(), m_iovRange[itag].c_str()));
-      }
+      const auto& params = cond::payloadInspector::PlotBase::inputParamValues();
+      drawLaserCMSLabel(kLeftMargin,
+                        1. - kRightMargin,
+                        padsTop() + 0.006,
+                        laserInputParam(params, "cmsLabel", kLaserCMSLabel),
+                        laserInputParam(params, "rightLabel", kLaserRightLabel));
+      std::vector<std::string> lines;
+      for (int itag = 0; itag < ntags; itag++)
+        lines.push_back((ntags == 1)
+                            ? Form("%s, IOVs %s", m_tagName[itag].c_str(), m_iovRange[itag].c_str())
+                            : Form("(%i) %s, IOVs %s", itag + 1, m_tagName[itag].c_str(), m_iovRange[itag].c_str()));
+      drawLaserTagLines(kLeftMargin, 0.99, 0.018, kHeaderSize, lines);
     }
 
     // appends to the graph the steps of y(x): the value holds until the next point, the last one until xend
@@ -1162,7 +1213,7 @@ namespace {
                                       ymax + 4 * ymargin);  // leave room for the legend
         TLegend* legend = this->drawLegend(keep);
         for (int itag = 0; itag < ntags; itag++) {
-          const int color = Base::tagColor(itag);
+          const int color = laserTagColor(itag);
           const double average = std::accumulate(y[itag].begin(), y[itag].end(), 0.) / y[itag].size();
           auto averageLine = std::make_unique<TLine>(xmin, average, xmax, average);
           averageLine->SetLineColor(color);
@@ -1352,7 +1403,7 @@ namespace {
           band->SetBinContent(i + 1, 0.5 * (up[i] + down[i]));
           band->SetBinError(i + 1, 0.5 * (up[i] - down[i]));
         }
-        band->SetFillColorAlpha(Base::tagColor(0), 0.45);
+        band->SetFillColorAlpha(laserTagColor(0), 0.45);
         band->SetLineWidth(0);
         band->SetMarkerSize(0);
         band->Draw("E2 SAME");
