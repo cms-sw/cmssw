@@ -37,7 +37,7 @@ namespace edm {
   class ProductRegistry;
   class EventForTransformer;
   class WaitingTaskHolder;
-  class ServiceWeakToken;
+  class ServiceToken;
 
   namespace stream {
     class EDProducerAdaptorBase;
@@ -76,7 +76,7 @@ namespace edm {
                                    std::size_t iIndex,
                                    edm::EventForTransformer& iEvent,
                                    edm::ActivityRegistry* iAct,
-                                   ServiceWeakToken const& iToken) const noexcept;
+                                   ServiceToken const& iToken) const noexcept;
 
       void setModuleDescriptionPtr(ModuleDescription const* iDesc) { moduleDescriptionPtr_ = iDesc; }
       // ---------- member data --------------------------------

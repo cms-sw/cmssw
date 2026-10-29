@@ -196,7 +196,7 @@ namespace edm {
                                       size_t iTransformIndex,
                                       EventPrincipal const&,
                                       ParentContext const&,
-                                      ServiceWeakToken const&) noexcept = 0;
+                                      ServiceToken const&) noexcept = 0;
     virtual ProductResolverIndex itemToGetForTransform(size_t iTransformIndex) const noexcept = 0;
 
     virtual bool implDoPrePrefetchSelection(StreamID, EventPrincipal const&, ModuleCallingContext const*) = 0;

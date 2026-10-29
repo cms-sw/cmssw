@@ -25,9 +25,9 @@ namespace edmtest::catalog {
     std::vector<std::string> testSuffixes_;
   };
 
-  inline edm::ServiceToken makeTestScitagConfigToken(edm::ServiceToken const& token) {
-    return edm::ServiceToken(edm::ServiceRegistry::createContaining(
-        std::unique_ptr<edm::StorageURLModifier>(std::make_unique<TestScitagConfig>()), token, true));
+  inline edm::OwningServiceToken makeTestScitagConfigToken(edm::OwningServiceToken const& token) {
+    return edm::ServiceRegistry::createContaining(
+        std::unique_ptr<edm::StorageURLModifier>(std::make_unique<TestScitagConfig>()), token, true);
   }
 }  // namespace edmtest::catalog
 

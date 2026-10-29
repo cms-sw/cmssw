@@ -127,7 +127,7 @@ namespace {
     typedef edm::service::TriggerNamesService TNS;
     typedef edm::serviceregistry::ServiceWrapper<TNS> w_TNS;
     std::shared_ptr<w_TNS> tnsptr_;
-    edm::ServiceToken serviceToken_;
+    edm::OwningServiceToken serviceToken_;
 
     template <typename Traits, typename Info>
     void doWork(WorkerTypes iBase, Info const& info, edm::StreamID id, edm::ParentContext const& iContext) {

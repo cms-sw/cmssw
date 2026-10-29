@@ -139,7 +139,7 @@ namespace edm {
       size_t iTransformIndex,
       EventPrincipal const& iEvent,
       ParentContext const& iParent,
-      ServiceWeakToken const& weakToken) noexcept {
+      ServiceToken const& iToken) noexcept {
     if constexpr (workerimpl::is_one_of<T,
                                         edm::global::EDProducerBase,
                                         edm::global::EDFilterBase,
@@ -150,14 +150,14 @@ namespace edm {
                                         edm::stream::EDProducerAdaptorBase,
                                         edm::stream::EDFilterAdaptorBase>::value) {
       CMS_SA_ALLOW try {
-        ServiceRegistry::Operate guard(weakToken.lock());
+        ServiceRegistry::Operate guard(iToken);
 
         ModuleCallingContext mcc(&this->module().moduleDescription(),
                                  iTransformIndex + 1,
                                  ModuleCallingContext::State::kRunning,
                                  iParent,
                                  nullptr);
-        this->module().doTransformAsync(iTask, iTransformIndex, iEvent, this->activityRegistry(), mcc, weakToken);
+        this->module().doTransformAsync(iTask, iTransformIndex, iEvent, this->activityRegistry(), mcc, iToken);
       } catch (...) {
         iTask.doneWaiting(std::current_exception());
         return;

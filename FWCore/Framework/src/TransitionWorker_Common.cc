@@ -82,7 +82,7 @@ namespace edm {
 
     void execute() final {
       //Need to make the services available early so other services can see them
-      ServiceRegistry::Operate guard(m_serviceToken.lock());
+      ServiceRegistry::Operate guard(m_serviceToken);
 
       //incase the emit causes an exception, we need a memory location
       // to hold the exception_ptr
@@ -99,7 +99,7 @@ namespace edm {
                     sContext = m_context,
                     serviceToken = m_serviceToken]() {
             //Need to make the services available
-            ServiceRegistry::Operate operateRunModule(serviceToken.lock());
+            ServiceRegistry::Operate operateRunModule(serviceToken);
 
             //If needed, we pause the queue in begin transition and resume it
             // at the end transition. This can guarantee that the module
@@ -138,7 +138,7 @@ namespace edm {
     StreamID m_streamID;
     ParentContext const m_parentContext;
     GlobalContext const* m_context;
-    ServiceWeakToken m_serviceToken;
+    ServiceToken m_serviceToken;
     oneapi::tbb::task_group* m_group;
   };
 
@@ -394,13 +394,12 @@ namespace edm {
 
     waitingTasks_.add(task);
     if (workStarted) {
-      ServiceWeakToken weakToken = serviceToken;
-      auto toDo = [this, info = transitionInfo, streamID, parentContext, context, weakToken]() {
+      auto toDo = [this, info = transitionInfo, streamID, parentContext, context, serviceToken]() {
         std::exception_ptr exceptionPtr;
         // Caught exception is propagated via WaitingTaskList
         CMS_SA_ALLOW try {
           //Need to make the services available
-          ServiceRegistry::Operate guard(weakToken.lock());
+          ServiceRegistry::Operate guard(serviceToken);
 
           this->runModule<E>(info, streamID, parentContext, context);
         } catch (...) {

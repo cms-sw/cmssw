@@ -265,7 +265,7 @@ TEST_CASE("test EventSelector test", "[EventSelector]") {
 
   auto tnsptr = std::make_shared<w_TNS>(std::make_unique<TNS>(proc_pset));
 
-  ServiceToken serviceToken_ = ServiceRegistry::createContaining(tnsptr);
+  OwningServiceToken serviceToken_ = ServiceRegistry::createContaining(tnsptr);
 
   //make the services available
   ServiceRegistry::Operate operate(serviceToken_);

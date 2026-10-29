@@ -333,25 +333,23 @@ namespace edm {
     auto const& principal = transitionInfo.principal();
     T::setStreamContext(streamContext_, principal);
 
-    ServiceWeakToken weakToken = token;
-    auto doneTask = make_waiting_task([this, iHolder = std::move(iHolder), cleaningUpAfterException, weakToken](
-                                          std::exception_ptr const* iPtr) mutable {
-      std::exception_ptr excpt;
-      {
-        ServiceRegistry::Operate op(weakToken.lock());
+    auto doneTask = make_waiting_task(
+        [this, iHolder = std::move(iHolder), cleaningUpAfterException, token](std::exception_ptr const* iPtr) mutable {
+          std::exception_ptr excpt;
+          {
+            ServiceRegistry::Operate op(token);
 
-        if (iPtr) {
-          excpt = *iPtr;
-          handleException(streamContext_, cleaningUpAfterException, excpt);
-        }
-        postScheduleSignal<T>(&streamContext_, excpt);
-      }  // release service token before calling doneWaiting
-      iHolder.doneWaiting(excpt);
-    });
+            if (iPtr) {
+              excpt = *iPtr;
+              handleException(streamContext_, cleaningUpAfterException, excpt);
+            }
+            postScheduleSignal<T>(&streamContext_, excpt);
+          }  // release service token before calling doneWaiting
+          iHolder.doneWaiting(excpt);
+        });
 
     auto task =
-        make_functor_task([this, h = WaitingTaskHolder(*group, doneTask), info = transitionInfo, weakToken]() mutable {
-          auto token = weakToken.lock();
+        make_functor_task([this, h = WaitingTaskHolder(*group, doneTask), info = transitionInfo, token]() mutable {
           ServiceRegistry::Operate op(token);
           // Caught exception is propagated via WaitingTaskHolder
           auto& workerManager = workerManagers<typename T::TransitionInfoType>();
