@@ -11,4 +11,3 @@ from Configuration.ProcessModifiers.unifiedparticleTransformerAK4SonicTriton_cff
 
 # collect all SonicTriton-related process modifiers here
 allSonicTriton = cms.ModifierChain(enableSonicTriton,deepMETSonicTriton,particleNetSonicTriton,particleNetPTSonicTriton,deepTauSonicTriton,particleTransformerAK4SonicTriton,unifiedparticleTransformerAK4SonicTriton)
-
