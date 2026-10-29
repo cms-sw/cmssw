@@ -70,21 +70,19 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
       if (detid.subdetId() != StripSubdetector::TOB && detid.subdetId() != StripSubdetector::TID)
         continue;  // only run on OT
 
-      if (TTClusterHandle->find(detid) == TTClusterHandle->end())
+      const auto iter_clusDet = TTClusterHandle->find(detid);
+      if (iter_clusDet == TTClusterHandle->end())
         continue;
 
-      /// Get the DetSets of the Clusters
-      edmNew::DetSet<TTCluster<Ref_Phase2TrackerDigi_>> clusters = (*TTClusterHandle)[detid];
+      /// Get the DetSet of clusters in one tracker module
+      const edmNew::DetSet<TTCluster<Ref_Phase2TrackerDigi_>>& clusters = *iter_clusDet;
 
       for (auto contentIter = clusters.begin(); contentIter != clusters.end(); ++contentIter) {
         /// Make the reference to be put in the map
         TTClusterRef tempCluRef = edmNew::makeRefTo(TTClusterHandle, contentIter);
 
-        /// Prepare the maps wrt TTCluster
-        if (clusterToTrackingParticleVectorMap.find(tempCluRef) == clusterToTrackingParticleVectorMap.end()) {
-          std::vector<TrackingParticlePtr> tpVector;
-          clusterToTrackingParticleVectorMap.emplace(tempCluRef, tpVector);
-        }
+        // Add null entry for this cluster, if cluster is not already in map. And get iterator to clusters map entry.
+        auto iter_tempCluRefInMap = clusterToTrackingParticleVectorMap.try_emplace(tempCluRef).first;
 
         /// Get the PixelDigiSimLink
         /// Safety check added after new digitizer (Oct 2014)
@@ -92,29 +90,26 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
           /// Sensor is not found in DigiSimLink.
           /// Set MC truth to NULL for all hits in this sensor. Period.
 
-          /// Get the Digis and loop over them
-          std::vector<Ref_Phase2TrackerDigi_> theseHits = tempCluRef->getHits();
-          for (unsigned int i = 0; i < theseHits.size(); i++) {
-            /// No SimLink is found by definition
-            /// Then store NULL MC truth for all the digis
-            TrackingParticlePtr tempTPPtr;
-            clusterToTrackingParticleVectorMap.find(tempCluRef)->second.push_back(tempTPPtr);
-          }
+          /// Store a null TP in the map for each digi in the cluster.
+          unsigned int numHits = tempCluRef->getNumHits();
+          /// No SimLink is found. Then store null MC truth for each of the digis
+          const std::vector<TrackingParticlePtr> nullTPvec(numHits);
+          iter_tempCluRefInMap->second = nullTPvec;
 
           /// Go to the next sensor
           continue;
         }
 
-        edm::DetSet<PixelDigiSimLink> thisDigiSimLink = (*(thePixelDigiSimLinkHandle_))[detid];
+        const edm::DetSet<PixelDigiSimLink>& thisDigiSimLink = (*thePixelDigiSimLinkHandle_)[detid];
         edm::DetSet<PixelDigiSimLink>::const_iterator iterSimLink;
 
         /// Get the Digis and loop over them
-        std::vector<Ref_Phase2TrackerDigi_> theseHits = tempCluRef->getHits();
-        for (unsigned int i = 0; i < theseHits.size(); i++) {
+        unsigned int numHits = tempCluRef->getNumHits();
+        for (unsigned int i = 0; i < numHits; i++) {
           /// Loop over PixelDigiSimLink
           for (iterSimLink = thisDigiSimLink.data.begin(); iterSimLink != thisDigiSimLink.data.end(); iterSimLink++) {
             /// Find the link and, if there's not, skip
-            if (static_cast<int>(iterSimLink->channel()) != static_cast<int>(theseHits.at(i)->channel()))
+            if (static_cast<int>(iterSimLink->channel()) != static_cast<int>(tempCluRef->getChannel(i)))
               continue;
 
             /// Get SimTrack Id and type
@@ -122,35 +117,31 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
             EncodedEventId curSimEvId = iterSimLink->eventId();
 
             /// Prepare the SimTrack Unique ID
-            std::pair<unsigned int, EncodedEventId> thisUniqueId = std::make_pair(curSimTrkId, curSimEvId);
+            const std::pair<unsigned int, EncodedEventId> thisUniqueId(curSimTrkId, curSimEvId);
 
             /// Get the corresponding TrackingParticle
-            if (simTrackUniqueToTPMap.find(thisUniqueId) != simTrackUniqueToTPMap.end()) {
-              TrackingParticlePtr thisTrackingParticle = simTrackUniqueToTPMap.find(thisUniqueId)->second;
+            const auto iter_simTrackUniqueInMap = simTrackUniqueToTPMap.find(thisUniqueId);
+            if (iter_simTrackUniqueInMap != simTrackUniqueToTPMap.end()) {
+              const TrackingParticlePtr& thisTrackingParticle = iter_simTrackUniqueInMap->second;
 
               /// Store the TrackingParticle
-              clusterToTrackingParticleVectorMap.find(tempCluRef)->second.push_back(thisTrackingParticle);
+              iter_tempCluRefInMap->second.push_back(thisTrackingParticle);
 
-              /// Prepare the maps wrt TrackingParticle
-              if (trackingParticleToClusterVectorMap.find(thisTrackingParticle) ==
-                  trackingParticleToClusterVectorMap.end()) {
-                std::vector<TTClusterRef> clusterVector;
-                trackingParticleToClusterVectorMap.emplace(thisTrackingParticle, clusterVector);
-              }
-              trackingParticleToClusterVectorMap.find(thisTrackingParticle)
-                  ->second.push_back(tempCluRef);  /// Fill the auxiliary map
+              // Add null entry for this TP, if TP is not already in map. And get iterator to TP entry in map.
+              auto iter_thisTrackingParticleInMap =
+                  trackingParticleToClusterVectorMap.try_emplace(thisTrackingParticle).first;
+              iter_thisTrackingParticleInMap->second.push_back(tempCluRef);  /// Fill the auxiliary map
             } else {
               /// In case no TrackingParticle is found, store a NULL pointer
 
-              TrackingParticlePtr tempTPPtr;
-              clusterToTrackingParticleVectorMap.find(tempCluRef)->second.push_back(tempTPPtr);
+              const TrackingParticlePtr tempTPPtr;
+              iter_tempCluRefInMap->second.push_back(tempTPPtr);
             }
           }  /// End of loop over PixelDigiSimLink
         }  /// End of loop over all the hits composing the Cluster
 
         /// Check that the cluster has a non-NULL TP pointer
-        const std::vector<TrackingParticlePtr>& theseClusterTrackingParticlePtrs =
-            clusterToTrackingParticleVectorMap.find(tempCluRef)->second;
+        const std::vector<TrackingParticlePtr>& theseClusterTrackingParticlePtrs = iter_tempCluRefInMap->second;
         bool allOfThemAreNull = true;
         for (unsigned int tpi = 0; tpi < theseClusterTrackingParticlePtrs.size() && allOfThemAreNull; tpi++) {
           if (theseClusterTrackingParticlePtrs.at(tpi).isNull() == false)
