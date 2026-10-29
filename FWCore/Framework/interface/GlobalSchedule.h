@@ -128,12 +128,9 @@ namespace edm {
     void preScheduleSignal(GlobalContext const*, ServiceToken const&);
 
     template <typename T>
-    void postScheduleSignal(GlobalContext const*, ServiceWeakToken const&, std::exception_ptr&);
+    void postScheduleSignal(GlobalContext const*, ServiceToken const&, std::exception_ptr&);
 
-    void handleException(GlobalContext const*,
-                         ServiceWeakToken const&,
-                         bool cleaningUpAfterException,
-                         std::exception_ptr&);
+    void handleException(GlobalContext const*, ServiceToken const&, bool cleaningUpAfterException, std::exception_ptr&);
 
     std::vector<GlobalWorkerManager<LumiTransitionInfo>> lumiWorkerManagers_;
     std::vector<GlobalWorkerManager<RunTransitionInfo>> runWorkerManagers_;
@@ -156,16 +153,15 @@ namespace edm {
       //need the doneTask to own the memory
       auto globalContext = std::make_shared<GlobalContext>(T::makeGlobalContext(principal, processContext_));
 
-      ServiceWeakToken weakToken = token;
       auto doneTask = make_waiting_task(
-          [this, iHolder, cleaningUpAfterException, globalContext, weakToken](std::exception_ptr const* iPtr) mutable {
+          [this, iHolder, cleaningUpAfterException, globalContext, token](std::exception_ptr const* iPtr) mutable {
             std::exception_ptr excpt;
             if (iPtr) {
               excpt = *iPtr;
               // add context information to the exception and print message
-              handleException(globalContext.get(), weakToken, cleaningUpAfterException, excpt);
+              handleException(globalContext.get(), token, cleaningUpAfterException, excpt);
             }
-            postScheduleSignal<T>(globalContext.get(), weakToken, excpt);
+            postScheduleSignal<T>(globalContext.get(), token, excpt);
             iHolder.doneWaiting(excpt);
           });
 
@@ -214,12 +210,12 @@ namespace edm {
 
   template <typename T>
   void GlobalSchedule::postScheduleSignal(GlobalContext const* globalContext,
-                                          ServiceWeakToken const& weakToken,
+                                          ServiceToken const& token,
                                           std::exception_ptr& excpt) {
     if (actReg_) {
       try {
-        convertException::wrap([this, &weakToken, globalContext]() {
-          ServiceRegistry::Operate op(weakToken.lock());
+        convertException::wrap([this, &token, globalContext]() {
+          ServiceRegistry::Operate op(token);
           T::postScheduleSignal(actReg_.get(), globalContext);
         });
       } catch (cms::Exception& ex) {

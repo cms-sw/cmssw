@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
   edm::ParameterSet pSet;
   pSet.addParameter("@service_type", std::string("SiteLocalConfigService"));
   psets.push_back(pSet);
-  edm::ServiceToken servToken(edm::ServiceRegistry::createSet(psets));
+  edm::OwningServiceToken servToken(edm::ServiceRegistry::createSet(psets));
   edm::ServiceRegistry::Operate operate(servToken);
 
   std::string connectionString("frontier://FrontierProd/CMS_CONDITIONS");

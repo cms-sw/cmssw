@@ -28,11 +28,12 @@ namespace edm {
   class SourceCoordinator {
   public:
     explicit SourceCoordinator(SharedResourcesAcquirer&& sourceResourcesAcquirer,
-                               std::shared_ptr<std::recursive_mutex> sourceMutex,
-                               ServiceToken& token)
-        : serviceToken_(token),
-          sourceResourcesAcquirer_(std::move(sourceResourcesAcquirer)),
-          sourceMutex_(sourceMutex) {}
+                               std::shared_ptr<std::recursive_mutex> sourceMutex)
+        : sourceResourcesAcquirer_(std::move(sourceResourcesAcquirer)), sourceMutex_(sourceMutex) {}
+
+    // the services to make available to the source; they are created after the SourceCoordinator, and must be
+    // kept alive by the caller for the whole life of the SourceCoordinator
+    void setServiceToken(ServiceToken token) { serviceToken_ = token; }
 
     void setSignals(ActivityRegistry& iRegistry) {
       earlyTerminationSignal_ = &iRegistry.preSourceEarlyTerminationSignal_;
@@ -115,7 +116,7 @@ namespace edm {
                    LuminosityBlockProcessingStatus& lumiStatus,
                    RunProcessingStatus& runStatus);
     edm::propagate_const<std::unique_ptr<InputSource>> input_;
-    ServiceToken& serviceToken_;
+    ServiceToken serviceToken_;
     SharedResourcesAcquirer sourceResourcesAcquirer_;
     std::shared_ptr<std::recursive_mutex> sourceMutex_;
     SourceStatus sourceStatus_;

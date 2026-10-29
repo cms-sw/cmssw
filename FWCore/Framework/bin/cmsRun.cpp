@@ -178,7 +178,7 @@ int main(int argc, const char* argv[]) {
       // is called jobReportStreamPtr is still valid
       auto jobRepPtr = std::make_unique<edm::JobReport>(jobReportStreamPtr.get());
       jobRep = std::make_shared<edm::serviceregistry::ServiceWrapper<edm::JobReport>>(std::move(jobRepPtr));
-      edm::ServiceToken jobReportToken = edm::ServiceRegistry::createContaining(jobRep);
+      edm::OwningServiceToken jobReportToken = edm::ServiceRegistry::createContaining(jobRep);
 
       if (!fileName.empty()) {
         context = "Processing the python configuration file named ";

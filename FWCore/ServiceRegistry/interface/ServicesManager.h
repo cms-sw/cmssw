@@ -42,7 +42,13 @@ namespace edm {
 
   namespace serviceregistry {
 
-    class ServicesManager {
+    /// ServicesManager derives from std::enable_shared_from_this so that an OwningServiceToken or a WeakServiceToken
+    /// can be obtained from a non-owning ServiceToken, e.g. from ServiceRegistry::presentToken() inside a module
+    /// (PileUp extends the current service set, TStorageFactoryFile keeps a weak token to it).
+    /// This requires every ServicesManager to be owned by a std::shared_ptr, which create() guarantees: it builds the
+    /// services only once that std::shared_ptr exists, so that a service can take an owning or weak token to its own
+    /// service set in its constructor.
+    class ServicesManager : public std::enable_shared_from_this<ServicesManager> {
     public:
       struct MakerHolder {
         MakerHolder(std::shared_ptr<ServiceMakerBase> iMaker, ParameterSet& iPSet, ActivityRegistry&);
@@ -57,13 +63,16 @@ namespace edm {
       typedef std::map<TypeIDBase, std::shared_ptr<ServiceWrapperBase>> Type2Service;
       typedef std::map<TypeIDBase, MakerHolder> Type2Maker;
 
-      ServicesManager(std::vector<ParameterSet>& iConfiguration);
+      /// Creates a ServicesManager owned by a std::shared_ptr, and then the services described by iConfiguration.
+      static std::shared_ptr<ServicesManager> create(std::vector<ParameterSet>& iConfiguration);
 
-      /** Takes the services described by iToken and places them into the manager.
-             Conflicts over Services provided by both the iToken and iConfiguration
-             are resolved based on the value of iLegacy
+      /** Creates a ServicesManager owned by a std::shared_ptr, that takes the services of iAssociatedManager and
+             shares its ownership, and then the services described by iConfiguration. Conflicts over Services provided
+             by both iAssociatedManager and iConfiguration are resolved based on the value of iLegacy
          */
-      ServicesManager(ServiceToken iToken, ServiceLegacy iLegacy, std::vector<ParameterSet>& iConfiguration);
+      static std::shared_ptr<ServicesManager> create(std::shared_ptr<ServicesManager> iAssociatedManager,
+                                                     ServiceLegacy iLegacy,
+                                                     std::vector<ParameterSet>& iConfiguration);
 
       ServicesManager(ServicesManager const&) = delete;                   // stop default
       ServicesManager const& operator=(ServicesManager const&) = delete;  // stop default
@@ -145,12 +154,19 @@ namespace edm {
       void copySlotsFrom(ActivityRegistry&);
 
     private:
+      // only create() can construct a ServicesManager, so that it is always owned by a std::shared_ptr
+      ServicesManager(std::vector<ParameterSet>& iConfiguration);
+      ServicesManager(std::shared_ptr<ServicesManager> iAssociatedManager,
+                      ServiceLegacy iLegacy,
+                      std::vector<ParameterSet>& iConfiguration);
+
       void fillListOfMakers(std::vector<ParameterSet>&);
+      /// Creates the services listed in the configuration given to the constructor; called once by create().
       void createServices();
       void createServiceFor(MakerHolder const&);
 
       // ---------- member data --------------------------------
-      //hold onto the Manager passed in from the ServiceToken so that
+      //hold onto the Manager passed in from the OwningServiceToken so that
       // the ActivityRegistry of that Manager does not go out of scope
       // This must be first to get the Service destructors called in
       // the correct order.
