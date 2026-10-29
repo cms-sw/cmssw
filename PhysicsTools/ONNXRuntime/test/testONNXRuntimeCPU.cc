@@ -24,6 +24,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testONNXRuntime);
 void testONNXRuntime::checkCPU() {
   edm::OwningServiceToken token = makeServices();
   edm::ServiceRegistry::Operate operate(token);
+
   testModel(Backend::cpu);
 }
 

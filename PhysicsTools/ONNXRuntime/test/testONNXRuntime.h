@@ -80,32 +80,23 @@ inline void testModel(cms::Ort::Backend backend, int device = 0) {
 }
 
 // Test a GPU backend, using the given accelerator service (e.g. CUDAService or ROCmService) to fill the
-// ResourceInformation service, and the given function (e.g. cms::cudatest::testDevices or cms::rocmtest::testDevices)
-// to check if any GPU is available: if a GPU is available run the test model on the device 0, otherwise check that
-// requesting the backend throws an UnavailableAccelerator exception.
-// If checkUnavailableDevice is true, also check that requesting a device that is not available throws an
-// UnavailableAccelerator exception.
-// Note: all the checks share the same services, because the CUDAService and ROCmService reset the devices when they
+// ResourceInformation service, and running the test model on the device 0.
+// Check that requesting a device that is not available throws an UnavailableAccelerator exception.
+// Note: the checks share the same services, because the CUDAService and ROCmService reset the devices when they
 // are destroyed, invalidating the state of the execution providers, that are registered only once per process.
-inline void testGPUBackend(cms::Ort::Backend backend,
-                           std::string const& acceleratorService,
-                           bool (*testDevices)(),
-                           bool checkUnavailableDevice = false) {
+inline void testGPUBackend(cms::Ort::Backend backend, std::string const& acceleratorService) {
   using namespace cms::Ort;
 
-  // a device index that is not expected to be available in the job
-  constexpr int kUnavailableDevice = 1024;
-
+  // load the given accelerator service (e.g. CUDAService or ROCmService) to fill the ResourceInformation service
   edm::OwningServiceToken token = makeServices(acceleratorService);
   edm::ServiceRegistry::Operate operate(token);
-  if (testDevices()) {
-    testModel(backend);
-    if (checkUnavailableDevice) {
-      assertUnavailableAccelerator([backend]() { ONNXRuntime::defaultSessionOptions(backend, kUnavailableDevice); });
-    }
-  } else {
-    assertUnavailableAccelerator([backend]() { ONNXRuntime::defaultSessionOptions(backend); });
-  }
+
+  // run the test model on the device 0
+  testModel(backend, 0);
+
+  // test that using an invalid device index throws an exception
+  constexpr int kUnavailableDevice = 1024;
+  assertUnavailableAccelerator([backend]() { ONNXRuntime::defaultSessionOptions(backend, kUnavailableDevice); });
 }
 
 #endif  // PhysicsTools_ONNXRuntime_test_testONNXRuntime_h
