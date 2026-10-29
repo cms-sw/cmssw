@@ -10,7 +10,7 @@ void SAMuonCleaner::overlapCleanTrack(l1t::SAMuon& source, const l1t::SAMuon& ot
   for (const auto& s1 : source.stubs()) {
     bool ok = true;
     for (const auto& s2 : other.stubs()) {
-      if ((*s1) == (*s2) && (!keep))
+      if ((s1->address() == s2->address()) && (s1->tfLayer() == s2->tfLayer()) && (!keep))
         ok = false;
     }
     if (ok) {
@@ -26,7 +26,7 @@ void SAMuonCleaner::overlapCleanTrackInter(l1t::SAMuon& source, const l1t::SAMuo
   for (const auto& s1 : source.stubs()) {
     bool ok = true;
     for (const auto& s2 : other.stubs()) {
-      if ((*s1) == (*s2) && (!keep))
+      if ((s1->address() == s2->address()) && (s1->tfLayer() == s2->tfLayer()) && (!keep))
         ok = false;
     }
     if (ok) {
