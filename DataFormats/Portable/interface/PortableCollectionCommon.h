@@ -3,21 +3,17 @@
 
 #include <format>
 #include <limits>
-#include <stdexcept>
+#include <string>
 #include <typeinfo>
 
 #include <alpaka/alpaka.hpp>
 
 #include "FWCore/Utilities/interface/TypeDemangler.h"
 
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
-
 namespace portablecollection {
 
-  template <std::size_t I = 0, typename TQueue, typename Descriptor, typename ConstDescriptor>
-    requires(alpaka::concepts::Queue<TQueue> && requires { Descriptor::num_cols; })
+  template <std::size_t I = 0, alpaka::concepts::Queue TQueue, typename Descriptor, typename ConstDescriptor>
+    requires(Descriptor::isSoA && ConstDescriptor::isSoA) && requires { Descriptor::num_cols; }
   void deepCopy(TQueue& queue, Descriptor& dest, ConstDescriptor const& src) {
     if constexpr (I < ConstDescriptor::num_cols) {
       assert(std::get<I>(dest.buff).size_bytes() == std::get<I>(src.buff).size_bytes());
@@ -30,8 +26,8 @@ namespace portablecollection {
   }
 
   // Helper function implementing the recursive deep copy for blocks
-  template <std::size_t I = 0, typename TQueue, typename Descriptor, typename ConstDescriptor>
-    requires(alpaka::concepts::Queue<TQueue> && requires { Descriptor::blocksNumber; })
+  template <std::size_t I = 0, alpaka::concepts::Queue TQueue, typename Descriptor, typename ConstDescriptor>
+    requires(Descriptor::isSoA && ConstDescriptor::isSoA) && requires { Descriptor::blocksNumber; }
   void deepCopy(TQueue& queue, Descriptor& dest, ConstDescriptor const& src) {
     if constexpr (I < ConstDescriptor::blocksNumber) {
       deepCopy(queue, std::get<I>(dest.buff), std::get<I>(src.buff));
@@ -39,39 +35,16 @@ namespace portablecollection {
     }
   }
 
-  // Kernel for transposing layouts between SoA and AoS
-  struct Transpose {
-    template <alpaka::concepts::Acc TAcc, typename DstView, typename SrcView>
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE void operator()(const TAcc& acc,
-                                                   DstView destView,
-                                                   const SrcView sourceView,
-                                                   const alpaka_common::Idx n) const {
-      for (auto local_idx : cms::alpakatools::uniform_elements(acc, n)) {
-        destView.transpose(sourceView, local_idx);
-      }
-    }
-  };
-
-  template <alpaka::concepts::Acc TAcc, typename TQueue, typename DstView, typename SrcView>
-    requires(alpaka::concepts::Queue<TQueue>)
-  ALPAKA_FN_HOST ALPAKA_FN_INLINE void transpose(TQueue& queue,
-                                                 DstView& dstView,
-                                                 const SrcView& srcView,
-                                                 alpaka_common::Idx n) {
-    constexpr uint32_t blocksize = 256;
-    auto const workDiv = cms::alpakatools::make_workdiv<TAcc>(cms::alpakatools::divide_up_by(n, blocksize), blocksize);
-
-    alpaka::exec<TAcc>(queue, workDiv, portablecollection::Transpose{}, dstView, srcView, n);
-  }
+  [[noreturn]] void throwException(const std::string& category, const std::string& message);
 
   template <std::integral Int>
   constexpr int size_cast(Int input) {
     if ((std::is_signed_v<Int> && input < 0) || input > std::numeric_limits<int>::max()) {
-      throw std::runtime_error(
-          std::format("Invalid input value for size of PortableCollection: cannot be narrowed to positive int32. "
-                      "Source type: {}, value: {} ",
-                      edm::typeDemangle(typeid(Int).name()),
-                      input));
+      throwException("PortableCollection",
+                     std::format("Invalid input value for size: cannot be narrowed to positive int32. "
+                                 "Source type: {}, value: {} ",
+                                 edm::typeDemangle(typeid(Int).name()),
+                                 input));
     }
     return static_cast<int>(input);
   }

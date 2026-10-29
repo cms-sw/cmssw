@@ -12,6 +12,7 @@
 #include "DataFormats/SoATemplate/interface/SoABlocks.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "DataFormats/Portable/interface/PortableCollection.h"
+#include "DataFormats/Portable/interface/alpaka/Transpose.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
@@ -206,7 +207,7 @@ TEST_CASE("AoS testcase for PortableCollection", "[PortableCollectionAOS]") {
       alpaka::wait(queue);
 
       // Transpose the data from SoA to AoS
-      aosCollection.transpose<Acc1D>(queue, soaCollection);
+      transpose(queue, aosCollection, soaCollection);
       alpaka::wait(queue);
 
       // Check the results on host
@@ -221,7 +222,7 @@ TEST_CASE("AoS testcase for PortableCollection", "[PortableCollectionAOS]") {
       // Transpose the data back from AoS to SoA
       PortableCollection<Device, SoA> soaCollection2(queue, elems);
 
-      soaCollection2.transpose<Acc1D>(queue, aosCollection);
+      transpose(queue, soaCollection2, aosCollection);
       alpaka::wait(queue);
 
       // Check the results on host
@@ -252,7 +253,7 @@ TEST_CASE("AoS testcase for PortableCollection", "[PortableCollectionAOS]") {
       alpaka::wait(queue);
 
       // Transpose the data from SoA to AoS
-      aosCollection.transpose<Acc1D>(queue, soaCollection);
+      transpose(queue, aosCollection, soaCollection);
       alpaka::wait(queue);
 
       // Check the results on host
@@ -267,7 +268,7 @@ TEST_CASE("AoS testcase for PortableCollection", "[PortableCollectionAOS]") {
       // Transpose the data back from AoS to SoA
       PortableCollection<Device, NestedBlocks> soaCollection2(queue, elems);
 
-      soaCollection2.transpose<Acc1D>(queue, aosCollection);
+      transpose(queue, soaCollection2, aosCollection);
       alpaka::wait(queue);
 
       // Check the results on host

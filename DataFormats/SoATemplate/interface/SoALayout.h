@@ -1368,6 +1368,45 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
               BOOST_PP_EXPAND(_DECLARE_AOS_MEMBER_ASSIGNMENT_IMPL TYPE_NAME))
 
 /**
+ * Declare the const AoS scalars for ConstView constructor
+ */
+// clang-format off
+#define _DECLARE_CONSTRUCTOR_SCALARS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                 \
+  _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE, (CPP_TYPE* NAME))
+// clang-format on
+
+#define _DECLARE_CONSTRUCTOR_SCALARS(R, DATA, TYPE_NAME)                                    \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_CONSTRUCTOR_SCALARS_IMPL TYPE_NAME))
+
+/**
+ * Construct AoSView scalars from pointers
+ */
+// clang-format off
+#define _DECLARE_AOS_VIEW_FROM_POINTER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE, (BOOST_PP_CAT(NAME, _)(NAME)))
+// clang-format on
+
+#define _DECLARE_AOS_VIEW_FROM_POINTER(R, DATA, TYPE_NAME)                                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_AOS_VIEW_FROM_POINTER_IMPL TYPE_NAME))
+
+/**
+ * Construct AoSView scalars from pointers
+ */
+// clang-format off
+#define _ASSIGN_AOS_VIEW_MEMBERS_FROM_OTHER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE, BOOST_PP_CAT(NAME, _) = other.BOOST_PP_CAT(NAME, _);)
+// clang-format on
+
+#define _ASSIGN_AOS_VIEW_MEMBERS_FROM_OTHER(R, DATA, TYPE_NAME)                             \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_ASSIGN_AOS_VIEW_MEMBERS_FROM_OTHER_IMPL TYPE_NAME))
+
+/**
  * Declare the const AoS scalars as data members
  */
 // clang-format off
@@ -1860,6 +1899,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
       /* AoS-like accessor (const) */                                                                                  \
       struct const_element {                                                                                           \
+        using base_type = ConstViewTemplateFreeParams;                                                                 \
         SOA_HOST_DEVICE SOA_INLINE                                                                                     \
         const_element(size_type                                                                                        \
            _APPEND_TOKEN(_ITERATE_ON_ALL(_DECLARE_CONST_VIEW_ELEMENT_VALUE_ARG, ~, __VA_ARGS__), _soa_impl_index)      \
@@ -2050,7 +2090,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           _ITERATE_ON_ALL(_TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT, ~, __VA_ARGS__)                                          \
           return *this;                                                                                                \
         }                                                                                                              \
-        /* TODO: Check if better solution Assignment operator for record types, used to convert from an AoS View */    \
+        /* Assignment operator for record types, used to convert from an AoS View */                                   \
         template <typename T>                                                                                          \
           requires (std::is_convertible_v<T, RecordType>) && (!std::is_same_v<std::decay_t<T>, value_element>)         \
         SOA_HOST_DEVICE SOA_INLINE constexpr element& operator=(T&& record) {                                          \
@@ -2085,12 +2125,22 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       /* Helper method to transpose the AoS into an SoA */                                                             \
       template <typename AoSConstView>                                                                                 \
       requires (!AoSConstView::isSoA)                                                                                  \
-      SOA_HOST_DEVICE SOA_INLINE void transpose(AoSConstView const& view, size_type index) {                           \
+      SOA_HOST_DEVICE SOA_INLINE void transposeColumns(AoSConstView const& view, const size_type index) {              \
         if (index < base_type::elements_) {                                                                            \
           (*this)[index] = view[index];                                                                                \
-          if (index == base_type::elements_ - 1){                                                                      \
-            _ITERATE_ON_ALL(_COPY_AOS_SCALAR_MEMBERS, ~, __VA_ARGS__)                                                  \
-          }                                                                                                            \
+        }                                                                                                              \
+      }                                                                                                                \
+      template <typename AoSConstView>                                                                                 \
+      requires (!AoSConstView::isSoA)                                                                                  \
+      SOA_HOST_DEVICE SOA_INLINE void transposeScalars(AoSConstView const& view) {                                     \
+        _ITERATE_ON_ALL(_COPY_AOS_SCALAR_MEMBERS, ~, __VA_ARGS__)                                                      \
+      }                                                                                                                \
+      template <typename AoSConstView>                                                                                 \
+      requires (!AoSConstView::isSoA)                                                                                  \
+      SOA_HOST_DEVICE SOA_INLINE void transpose(AoSConstView const& view, const size_type index) {                     \
+        transposeColumns(view, index);                                                                                 \
+        if (index == 0){                                                                                               \
+          transposeScalars(view);                                                                                      \
         }                                                                                                              \
       }                                                                                                                \
                                                                                                                        \
@@ -2241,6 +2291,12 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
         /* Copiable */                                                                                                 \
         ConstViewTemplate(ConstViewTemplate const&) = default;                                                         \
+                                                                                                                       \
+        SOA_HOST_DEVICE                                                                                                \
+        ConstViewTemplate(size_type elems, RecordType* aos                                                             \
+                          _APPEND_COMMA(_ITERATE_ON_ALL(_DECLARE_CONSTRUCTOR_SCALARS, ~, __VA_ARGS__))) :              \
+        elements_{elems}, aos_{aos} _APPEND_COMMA(_ITERATE_ON_ALL(_DECLARE_AOS_VIEW_FROM_POINTER, ~, __VA_ARGS__)) {}  \
+                                                                                                                       \
         /* Copy constructor for other parameters */                                                                    \
         template <cms::soa::RangeChecking::Mode OTHER_RANGE_CHECKING>                                                  \
         ConstViewTemplate(ConstViewTemplate<OTHER_RANGE_CHECKING> const& other)                                        \
@@ -2251,7 +2307,10 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         ConstViewTemplate& operator=(ConstViewTemplate const&) = default;                                              \
         template <cms::soa::RangeChecking::Mode OTHER_RANGE_CHECKING>                                                  \
         ConstViewTemplate& operator=(ConstViewTemplate<OTHER_RANGE_CHECKING> const& other) {                           \
-          *this = other;                                                                                               \
+          elements_ = other.elements_;                                                                                 \
+          aos_ = other.aos_;                                                                                           \
+          _ITERATE_ON_ALL(_ASSIGN_AOS_VIEW_MEMBERS_FROM_OTHER, ~, __VA_ARGS__)                                         \
+          return *this;                                                                                                \
         }                                                                                                              \
                                                                                                                        \
         /* Movable */                                                                                                  \
@@ -2290,8 +2349,14 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           _ITERATE_ON_ALL(_DECLARE_VALUE_ELEMENT_ACCESSORS, ~, __VA_ARGS__)                                            \
           _ITERATE_ON_ALL(_DECLARE_VALUE_ELEMENT_CONST_ACCESSORS, ~, __VA_ARGS__)                                      \
                                                                                                                        \
-          /* generic assignment operator */                                                                            \
+          /* copy assignment operator */                                                                               \
+          SOA_HOST_DEVICE SOA_INLINE constexpr element& operator=(const element& elem) {                               \
+            _ITERATE_ON_ALL(_DECLARE_AOS_ELEMENT_PARAMS, ~, __VA_ARGS__)                                               \
+            return *this;                                                                                              \
+          }                                                                                                            \
+          /* copy assignment operator for ConstView of SoA */                                                          \
           template<class T>                                                                                            \
+            requires (std::is_convertible_v<typename T::base_type, typename CLASS::ConstView>)                         \
           SOA_HOST_DEVICE SOA_INLINE constexpr element& operator=(T const& elem) {                                     \
             _ITERATE_ON_ALL(_DECLARE_AOS_ELEMENT_PARAMS, ~, __VA_ARGS__)                                               \
             return *this;                                                                                              \
@@ -2335,13 +2400,14 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         /* Copy constructor for other parameters */                                                                    \
         template <cms::soa::RangeChecking::Mode OTHER_RANGE_CHECKING>                                                  \
         ViewTemplate(ViewTemplate<OTHER_RANGE_CHECKING> const& other)                                                  \
-          : ViewTemplate{other.elements_,                                                                              \
-                         other.aos_                                                                                    \
-                        _APPEND_COMMA(_ITERATE_ON_ALL(_DECLARE_AOS_VIEW_OTHER_MEMBER_LIST, ~, __VA_ARGS__))} {}        \
+          : base_type{other.elements_,                                                                                 \
+                      other.aos_                                                                                       \
+                      _APPEND_COMMA(_ITERATE_ON_ALL(_DECLARE_AOS_VIEW_OTHER_MEMBER_LIST, ~, __VA_ARGS__))} {}          \
         ViewTemplate& operator=(ViewTemplate const&) = default;                                                        \
         template <cms::soa::RangeChecking::Mode OTHER_RANGE_CHECKING>                                                  \
         ViewTemplate& operator=(ViewTemplate<OTHER_RANGE_CHECKING> const& other) {                                     \
-          static_cast<base_type>(*this) = static_cast<base_type>(other);                                               \
+          static_cast<base_type&>(*this) = static_cast<base_type const&>(other);                                       \
+          return *this;                                                                                                \
         }                                                                                                              \
                                                                                                                        \
         /* Movable */                                                                                                  \
@@ -2355,23 +2421,37 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         SOA_HOST_ONLY ViewTemplate(const CLASS::AoSWrapper& layout)                                                    \
         : base_type{layout} {}                                                                                         \
                                                                                                                        \
-        /* Helper method to transpose the SoA into an AoS */                                                           \
+        /* Helper methods to transpose the SoA into an AoS */                                                          \
+        template <typename SoAConstView>                                                                               \
+        requires (SoAConstView::isSoA)                                                                                 \
+        SOA_HOST_DEVICE SOA_INLINE void transposeColumns(SoAConstView const& view, size_type index) {                  \
+          if (index < this->elements_){                                                                                \
+            (*this)[index] = view[index];                                                                              \
+          }                                                                                                            \
+        }                                                                                                              \
+        template <typename SoAConstView>                                                                               \
+        requires (SoAConstView::isSoA)                                                                                 \
+        SOA_HOST_DEVICE SOA_INLINE void transposeScalars(SoAConstView const& view) {                                   \
+          _ITERATE_ON_ALL(_COPY_AOS_SCALAR_MEMBERS, ~, __VA_ARGS__)                                                    \
+        }                                                                                                              \
         template <typename SoAConstView>                                                                               \
         requires (SoAConstView::isSoA)                                                                                 \
         SOA_HOST_DEVICE SOA_INLINE void transpose(SoAConstView const& view, size_type index) {                         \
-          if (index < this->elements_){                                                                                \
-            (*this)[index] = view[index];                                                                              \
-            if(index == this->elements_ - 1){                                                                          \
-              _ITERATE_ON_ALL(_COPY_AOS_SCALAR_MEMBERS, ~, __VA_ARGS__)                                                \
-            }                                                                                                          \
+          transposeColumns(view, index);                                                                               \
+          if(index == 0){                                                                                              \
+            transposeScalars(view);                                                                                    \
           }                                                                                                            \
         }                                                                                                              \
       };                                                                                                               \
       using View = ViewTemplate<cms::soa::RangeChecking::Default>;                                                     \
                                                                                                                        \
       /* Declarations to make compatible with PortableCollections */                                                   \
-      struct Descriptor;                                                                                               \
-      struct ConstDescriptor;                                                                                          \
+      struct Descriptor{                                                                                               \
+        constexpr static bool isSoA = AoSWrapper::isSoA;                                                               \
+      };                                                                                                               \
+      struct ConstDescriptor{                                                                                          \
+        constexpr static bool isSoA = AoSWrapper::isSoA;                                                               \
+      };                                                                                                               \
                                                                                                                        \
       template <cms::soa::RangeChecking::Mode RANGE_CHECKING>                                                          \
       SOA_HOST_DEVICE SOA_INLINE static ViewTemplate<RANGE_CHECKING> const_cast_View(                                  \
@@ -2382,13 +2462,17 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       /* ROOT read streamer */                                                                                         \
       template <typename T>                                                                                            \
       void ROOTReadStreamer(T& onfile) {                                                                               \
-        if constexpr (std::is_trivially_copyable_v<RecordType>) {                                                      \
-          memcpy(aos_, onfile.aos_, sizeof(RecordType) * onfile.elements_);                                            \
-        }                                                                                                              \
-        else{                                                                                                          \
-          for (size_type i = 0; i < onfile.elements_; ++i){                                                            \
-            aos_[i] = onfile.aos_[i];                                                                                  \
+        if (onfile.aos_ != nullptr) {                                                                                  \
+          if constexpr (std::is_trivially_copyable_v<RecordType>) {                                                    \
+            memcpy(aos_, onfile.aos_, sizeof(RecordType) * onfile.elements_);                                          \
           }                                                                                                            \
+          else{                                                                                                        \
+            for (size_type i = 0; i < onfile.elements_; ++i){                                                          \
+              aos_[i] = onfile.aos_[i];                                                                                \
+            }                                                                                                          \
+          }                                                                                                            \
+        } else {                                                                                                       \
+          memset(aos_, 0x00, sizeof(RecordType) * onfile.elements_);                                                   \
         }                                                                                                              \
         _ITERATE_ON_ALL(_STREAMER_READ_AOS_DATA_MEMBER, ~, __VA_ARGS__)                                                \
       }                                                                                                                \
@@ -2413,6 +2497,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
     /* Helper struct to loop over the columns without using name for non-mutable data */                               \
     struct ConstDescriptor {                                                                                           \
+      constexpr static bool isSoA = CLASS::isSoA;                                                                      \
       ConstDescriptor() = default;                                                                                     \
                                                                                                                        \
       explicit ConstDescriptor(ConstView const view)                                                                   \
@@ -2429,6 +2514,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
     /* Helper struct to loop over the columns without using name for mutable data */                                   \
     struct Descriptor {                                                                                                \
+      constexpr static bool isSoA = CLASS::isSoA;                                                                      \
       Descriptor() = default;                                                                                          \
                                                                                                                        \
       explicit Descriptor(View view)                                                                                   \

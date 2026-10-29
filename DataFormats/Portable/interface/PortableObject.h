@@ -36,8 +36,7 @@ namespace cms::alpakatools {
   template <typename TDevice, typename TProduct>
     requires alpaka::concepts::Device<TDevice>
   struct CopyToHost<PortableDeviceObject<TDevice, TProduct>> {
-    template <typename TQueue>
-      requires alpaka::concepts::Queue<TQueue>
+    template <alpaka::concepts::Queue TQueue>
     static auto copyAsync(TQueue& queue, PortableDeviceObject<TDevice, TProduct> const& srcData) {
       PortableHostObject<TProduct> dstData(queue);
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());

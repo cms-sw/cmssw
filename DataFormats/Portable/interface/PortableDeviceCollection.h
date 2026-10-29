@@ -20,12 +20,13 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
 // generic SoA-based product in device memory
-template <typename TDev, typename T, typename = std::enable_if_t<alpaka::concepts::Device<TDev>>>
+template <alpaka::concepts::Device TDev, typename T>
 class PortableDeviceCollection {
   static_assert(not std::is_same_v<TDev, alpaka_common::DevHost>,
                 "Use PortableHostCollection<T> instead of PortableDeviceCollection<T, DevHost>");
 
 public:
+  using Device = TDev;
   using Layout = T;
   using View = typename Layout::View;
   using ConstView = typename Layout::ConstView;
@@ -49,8 +50,8 @@ public:
     assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
   }
 
-  template <typename TQueue, std::integral Int>
-    requires(alpaka::concepts::Queue<TQueue> && (!requires { Layout::blocksNumber; }))
+  template <alpaka::concepts::Queue TQueue, std::integral Int>
+    requires(!requires { Layout::blocksNumber; })
   PortableDeviceCollection(TQueue const& queue, const Int size)
       : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(
             queue, Layout::computeDataSize(portablecollection::size_cast(size)))},
@@ -67,8 +68,7 @@ public:
       : PortableDeviceCollection(device, std::to_array({portablecollection::size_cast(sizes)...})) {}
 
   // constructor for a SoABlocks-layout, taking per-block sizes as variadic integral arguments
-  template <typename TQueue, std::integral... Ints>
-    requires(alpaka::concepts::Queue<TQueue>)
+  template <alpaka::concepts::Queue TQueue, std::integral... Ints>
   explicit PortableDeviceCollection(TQueue const& queue, const Ints... sizes)
     requires requires { Layout::blocksNumber; } && (sizeof...(Ints) == static_cast<std::size_t>(Layout::blocksNumber))
       : PortableDeviceCollection(queue, std::to_array({portablecollection::size_cast(sizes)...})) {}
@@ -85,8 +85,7 @@ public:
   }
 
   // constructor for a SoABlocks-layout, taking per-block sizes as a fixed-size array
-  template <typename TQueue, std::size_t N>
-    requires(alpaka::concepts::Queue<TQueue>)
+  template <alpaka::concepts::Queue TQueue, std::size_t N>
   explicit PortableDeviceCollection(TQueue const& queue, std::array<int32_t, N> const& sizes)
     requires requires { Layout::blocksNumber; } && (N == static_cast<std::size_t>(Layout::blocksNumber))
       : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(queue, Layout::computeDataSize(sizes))},
@@ -124,57 +123,18 @@ public:
   ConstBuffer const_buffer() const { return *buffer_; }
 
   // erases the data in the Buffer by writing zeros (bytes containing '\0') to it
-  template <typename TQueue>
-    requires(alpaka::concepts::Queue<TQueue>)
+  template <alpaka::concepts::Queue TQueue>
   void zeroInitialise(TQueue&& queue) {
     alpaka::memset(std::forward<TQueue>(queue), *buffer_, 0x00);
   }
 
   // Copy column by column or block by block heterogeneously for device to host/device data transfer.
-  template <typename TQueue>
-    requires(alpaka::isQueue<TQueue> && Layout::isSoA)
+  template <alpaka::concepts::Queue TQueue>
+    requires(Layout::isSoA)
   void deepCopy(TQueue& queue, ConstView const& view) {
     ConstDescriptor desc{view};
     Descriptor desc_{view_};
     portablecollection::deepCopy(queue, desc_, desc);
-  }
-
-  // Transpose the data from a SoA view into an AoS collection.
-  // Requires that one of the two collections is SoA and the other is AoS,
-  // and that the AoS type is the AoSWrapper of the SoA type.
-  template <alpaka::concepts::Acc TAcc, typename TQueue, typename SourceCollection>
-  void transpose(TQueue& queue, const SourceCollection& sourceCollection)
-    requires alpaka::isQueue<TQueue> && (SourceCollection::Layout::isSoA != Layout::isSoA) &&
-             (std::is_same_v<typename SourceCollection::Layout, typename Layout::AoSWrapper> ||
-              std::is_same_v<typename SourceCollection::Layout::AoSWrapper, Layout>) &&
-             (requires { Layout::blocksNumber; } && requires { SourceCollection::Layout::blocksNumber; })
-  {
-    using SourceLayout = typename SourceCollection::Layout;
-    static_assert(Layout::blocksNumber == SourceLayout::blocksNumber,
-                  "PortableDeviceCollection::transpose: Source and target have differernt number of SoABlocks");
-
-    const auto sourceSize = sourceCollection.size();
-    auto maxSize = 0;
-    for (auto i = 0; i < Layout::blocksNumber; ++i) {
-      if (size()[i] != sourceSize[i]) {
-        throw std::runtime_error("PortableDeviceCollection::transpose: size mismatch between SoA and AoS");
-      }
-      maxSize = std::max(maxSize, size()[i]);
-    }
-    portablecollection::transpose<TAcc>(queue, view_, sourceCollection.const_view(), maxSize);
-  }
-
-  template <alpaka::concepts::Acc TAcc, typename TQueue, typename SourceCollection>
-  void transpose(TQueue& queue, const SourceCollection& sourceCollection)
-    requires alpaka::isQueue<TQueue> && (SourceCollection::Layout::isSoA != Layout::isSoA) &&
-             (std::is_same_v<typename SourceCollection::Layout, typename Layout::AoSWrapper> ||
-              std::is_same_v<typename SourceCollection::Layout::AoSWrapper, Layout>) &&
-             (!requires { Layout::blocksNumber; } && !requires { SourceCollection::Layout::blocksNumber; })
-  {
-    if (size() != sourceCollection.size()) {
-      throw std::runtime_error("PortableDeviceCollection::transpose: size mismatch between SoA and AoS");
-    }
-    portablecollection::transpose<TAcc>(queue, view_, sourceCollection.const_view(), size());
   }
 
   // Either Layout::size_type for normal layouts or std::array<Layout::size_type, N> for SoABlocks layouts
@@ -199,8 +159,7 @@ namespace ngt {
 
     static Properties properties(value_type const& object) { return object->metadata().size(); }
 
-    template <typename TQueue>
-      requires(alpaka::concepts::Queue<TQueue>)
+    template <alpaka::concepts::Queue TQueue>
     static void initialize(TQueue& queue, value_type& object, Properties const& size) {
       // Replace the default-constructed empty object with one where the buffer
       // has been allocated in global device memory
