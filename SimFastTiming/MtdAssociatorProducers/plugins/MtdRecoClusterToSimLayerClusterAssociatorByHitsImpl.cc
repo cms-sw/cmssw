@@ -107,22 +107,18 @@ reco::RecoToSimCollectionMtd MtdRecoClusterToSimLayerClusterAssociatorByHitsImpl
           if (sharedHitIds.empty())
             continue;
 
-          float dE = recoClus.energy() * 0.001 / simClus.simLCEnergy();  // reco cluster energy is in MeV!
-          float dtSig = std::abs((recoClus.time() - simClus.simLCTime()) / recoClus.timeError());
-
           // -- If the sim and reco clusters have common hits, fill the std:vector of sim clusters refs
-          if (!sharedHitIds.empty() &&
-              ((clusId.mtdSubDetector() == MTDDetId::BTL && dE < energyCut_ && dtSig < timeCut_) ||
-               (clusId.mtdSubDetector() == MTDDetId::ETL && dtSig < timeCut_))) {
+          if (!sharedHitIds.empty()) {
             simClusterRefs.push_back(simClusterRef);
 
             LogDebug("MtdRecoClusterToSimLayerClusterAssociatorByHitsImpl")
                 << "RecoToSim --> Found " << sharedHitIds.size() << " shared hits";
             LogDebug("MtdRecoClusterToSimLayerClusterAssociatorByHitsImpl")
                 << "E_recoClus = " << recoClus.energy() << "   E_simClus = " << simClus.simLCEnergy()
-                << "   E_recoClus/E_simClus = " << dE;
+                << "   E_recoClus/E_simClus = " << recoClus.energy() * 0.001 / simClus.simLCEnergy();
             LogDebug("MtdRecoClusterToSimLayerClusterAssociatorByHitsImpl")
-                << "(t_recoClus-t_simClus)/sigma_t = " << dtSig;
+                << "(t_recoClus-t_simClus)/sigma_t = "
+                << std::abs((recoClus.time() - simClus.simLCTime()) / recoClus.timeError());
           }
         }  // -- end loop over sim clus refs
 
@@ -210,13 +206,8 @@ reco::SimToRecoCollectionMtd MtdRecoClusterToSimLayerClusterAssociatorByHitsImpl
           if (sharedHitIds.empty())
             continue;
 
-          float dE = recoClus.energy() * 0.001 / simClus.simLCEnergy();  // reco cluster energy is in MeV
-          float dtSig = std::abs((recoClus.time() - simClus.simLCTime()) / recoClus.timeError());
-
           // -- If the sim and reco clusters have common hits, fill the std:vector of reco clusters refs
-          if (!sharedHitIds.empty() &&
-              ((clusId.mtdSubDetector() == MTDDetId::BTL && dE < energyCut_ && dtSig < timeCut_) ||
-               (clusId.mtdSubDetector() == MTDDetId::ETL && dtSig < timeCut_))) {
+          if (!sharedHitIds.empty()) {
             // Create a persistent edm::Ref to the cluster
             edm::Ref<edmNew::DetSetVector<FTLCluster>, FTLCluster> recoClusterRef =
                 edmNew::makeRefTo(recoClusH, &recoClus);
@@ -226,9 +217,10 @@ reco::SimToRecoCollectionMtd MtdRecoClusterToSimLayerClusterAssociatorByHitsImpl
                 << "SimToReco --> Found " << sharedHitIds.size() << " shared hits";
             LogDebug("MtdRecoClusterToSimLayerClusterAssociatorByHitsImpl")
                 << "E_recoClus = " << recoClus.energy() << "   E_simClus = " << simClus.simLCEnergy()
-                << "   E_recoClus/E_simClus = " << dE;
+                << "   E_recoClus/E_simClus = " << recoClus.energy() * 0.001 / simClus.simLCEnergy();
             LogDebug("MtdRecoClusterToSimLayerClusterAssociatorByHitsImpl")
-                << "(t_recoClus-t_simClus)/sigma_t = " << dtSig;
+                << "(t_recoClus-t_simClus)/sigma_t = "
+                << std::abs((recoClus.time() - simClus.simLCTime()) / recoClus.timeError());
           }
 
         }  // end loop ove reco clus
