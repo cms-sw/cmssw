@@ -253,6 +253,7 @@ class LevelFlags_t : public CppUnit::TestFixture {
   CPPUNIT_TEST(testLastCopyFollowsTheRadiatingChain);
   CPPUNIT_TEST(testParticlesAtSeveralLevels);
   CPPUNIT_TEST(testInvisibleParticleIsAStableInvisibleSpecies);
+  CPPUNIT_TEST(testInvisibleParticleFollowsTheCopyChain);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -1154,12 +1155,15 @@ public:
     CPPUNIT_ASSERT_EQUAL(uint32_t{4}, truth::lastCopyOf(radiating, 4));
   }
   // REQUIRED: a particle is invisible when its species is invisible and the graph does
-  // not decay it. A neutralino that decays is visible through its decay products.
+  // not decay it to a visible particle. A neutralino that decays is visible.
   //   p0 tau -> v0 -> p1 pi+, p2 nu_tau;  p3 neutralino -> v1 -> p4 pi+
   void testInvisibleParticleIsAStableInvisibleSpecies() {
     CPPUNIT_ASSERT(truth::isInvisible(-14));
     CPPUNIT_ASSERT(truth::isInvisible(1000022));
     CPPUNIT_ASSERT(truth::isInvisible(1000039));
+    CPPUNIT_ASSERT(truth::isInvisible(-1000012));
+    CPPUNIT_ASSERT(truth::isInvisible(1000014));
+    CPPUNIT_ASSERT(truth::isInvisible(1000016));
     CPPUNIT_ASSERT(!truth::isInvisible(13));
     CPPUNIT_ASSERT(!truth::isInvisible(22));
     CPPUNIT_ASSERT(!truth::isInvisible(1000023));
@@ -1191,6 +1195,47 @@ public:
     CPPUNIT_ASSERT(truth::isInvisibleParticle(g, 2));
     CPPUNIT_ASSERT(!truth::isInvisibleParticle(g, 3));
     CPPUNIT_ASSERT(!truth::isInvisibleParticle(g, 4));
+  }
+  // REQUIRED: a copy of an invisible particle does not make it visible. The particle is
+  // invisible only when every leaf below it is of an invisible species.
+  //   p0 nu (23) -> v0 -> p1 nu (1)
+  //   p2 neutralino -> v1 -> p3 neutralino copy -> v2 -> p4 pi+, p5 neutralino
+  //   p6 neutralino -> v3 -> p7 neutralino copy
+  void testInvisibleParticleFollowsTheCopyChain() {
+    GraphBuilder b(8, 4);
+    auto set = [&](uint32_t i, int32_t pdg, int16_t st) {
+      auto& d = b.graph.particles()[i];
+      d.genNode = 100 + i;
+      d.pdgId = pdg;
+      d.status = st;
+      d.momentum = math::XYZTLorentzVectorD(10., 0., 0., 10.);
+    };
+    set(0, 14, 23);
+    set(1, 14, 1);
+    set(2, 1000022, 22);
+    set(3, 1000022, 2);
+    set(4, 211, 1);
+    set(5, 1000022, 1);
+    set(6, 1000022, 22);
+    set(7, 1000022, 1);
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addDecay(2, 1);
+    b.addProduction(1, 3);
+    b.addDecay(3, 2);
+    b.addProduction(2, 4);
+    b.addProduction(2, 5);
+    b.addDecay(6, 3);
+    b.addProduction(3, 7);
+    const truth::Graph g = b.finish();
+
+    CPPUNIT_ASSERT(truth::isInvisibleParticle(g, 0));
+    CPPUNIT_ASSERT(truth::isInvisibleParticle(g, 1));
+    CPPUNIT_ASSERT(!truth::isInvisibleParticle(g, 2));
+    CPPUNIT_ASSERT(!truth::isInvisibleParticle(g, 3));
+    CPPUNIT_ASSERT(truth::isInvisibleParticle(g, 5));
+    CPPUNIT_ASSERT(truth::isInvisibleParticle(g, 6));
+    CPPUNIT_ASSERT(truth::isInvisibleParticle(g, 7));
   }
 };
 

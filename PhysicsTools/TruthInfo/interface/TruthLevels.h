@@ -487,28 +487,45 @@ namespace truth {
 
   // Species that leave the detector without a hit, so they are not part of the visible
   // final state: the neutrinos, the graviton (39), the PDG dark matter states (51, 52,
-  // 53), the lightest neutralino (1000022), the gravitino (1000039) and the Kaluza-Klein
-  // graviton (5100039).
+  // 53), the sneutrinos (1000012, 1000014, 1000016), the lightest neutralino (1000022),
+  // the gravitino (1000039) and the Kaluza-Klein graviton (5100039).
   [[nodiscard]] inline bool isInvisible(int32_t pdgId) {
     const int32_t a = std::abs(pdgId);
-    return isNeutrino(pdgId) || a == 39 || a == 51 || a == 52 || a == 53 || a == 1000022 || a == 1000039 ||
-           a == 5100039;
+    return isNeutrino(pdgId) || a == 39 || a == 51 || a == 52 || a == 53 || a == 1000012 || a == 1000014 ||
+           a == 1000016 || a == 1000022 || a == 1000039 || a == 5100039;
   }
 
-  // A particle of an invisible species that the graph does not decay. A neutralino that
-  // decays is visible through its decay products.
+  // A particle of an invisible species whose every descendant leaf is of an invisible
+  // species. A neutrino copy chain is invisible; a neutralino that decays to visible
+  // particles is not.
   [[nodiscard]] inline bool isInvisibleParticle(Graph const& graph, uint32_t id) {
     if (!isInvisible(graph.particles()[id].pdgId)) {
       return false;
     }
-    for (const uint32_t vertexId : graph.decayVertices(id)) {
-      if (vertexId >= graph.nVertices()) {
-        continue;
-      }
-      for (const uint32_t child : graph.outgoingParticles(vertexId)) {
-        if (child != id) {
-          return false;
+    std::vector<bool> seen(graph.nParticles(), false);
+    std::vector<uint32_t> stack{id};
+    seen[id] = true;
+    while (!stack.empty()) {
+      const uint32_t p = stack.back();
+      stack.pop_back();
+      bool isLeaf = true;
+      for (const uint32_t vertexId : graph.decayVertices(p)) {
+        if (vertexId >= graph.nVertices()) {
+          continue;
         }
+        for (const uint32_t child : graph.outgoingParticles(vertexId)) {
+          if (child == p) {
+            continue;
+          }
+          isLeaf = false;
+          if (!seen[child]) {
+            seen[child] = true;
+            stack.push_back(child);
+          }
+        }
+      }
+      if (isLeaf && !isInvisible(graph.particles()[p].pdgId)) {
+        return false;
       }
     }
     return true;
