@@ -2,7 +2,8 @@
 # Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
 
 """The collapsed pileup record keeps exactly the species the reconstructable levels
-stop at. The hitless-subgraph pruning reads every sim-hit family the accumulator merges."""
+stop at. The hitless-subgraph pruning reads every sim-hit family the accumulator merges,
+and the hit index fills the channel of each one."""
 
 import unittest
 
@@ -10,15 +11,15 @@ import FWCore.ParameterSet.Config as cms
 import PhysicsTools.TruthInfo.truthGraphMixedDigi_cff as digi
 from PhysicsTools.TruthInfo.mixedTruthGraphCustomize import customiseTruthReduced
 
-# The accumulator input of each sim-hit family, the merged product it writes, and the
-# pruning parameter that reads that product.
+# The accumulator input of each sim-hit family, the merged product it writes, the
+# pruning parameter that reads that product, and the hit index channel of the family.
 _hitFamilies = (
-    ("caloHits", "mergedHGCHits", "simHitCollections"),
-    ("ecalHits", "mergedEcalHits", "simHitCollections"),
-    ("hcalHits", "mergedHcalHits", "simHitCollections"),
-    ("trackerHits", "mergedTrackerHits", "trackerSimHitCollections"),
-    ("muonHits", "mergedMuonHits", "muonSimHitCollections"),
-    ("mtdHits", "mergedMtdHits", "mtdSimHitCollections"),
+    ("caloHits", "mergedHGCHits", "simHitCollections", "Calo"),
+    ("ecalHits", "mergedEcalHits", "simHitCollections", "Calo"),
+    ("hcalHits", "mergedHcalHits", "simHitCollections", "Calo"),
+    ("trackerHits", "mergedTrackerHits", "trackerSimHitCollections", "Tracker"),
+    ("muonHits", "mergedMuonHits", "muonSimHitCollections", "Muon"),
+    ("mtdHits", "mergedMtdHits", "mtdSimHitCollections", "MTD"),
 )
 
 
@@ -34,15 +35,16 @@ class TestKeptSpeciesMatchTheLevels(unittest.TestCase):
 
 
 class TestPruningReadsEveryMergedHitFamily(unittest.TestCase):
-    def check(self, accumulator, producer):
-        for accumulatorParameter, instance, pruningParameter in _hitFamilies:
+    def check(self, accumulator, producer, index):
+        for accumulatorParameter, instance, pruningParameter, channel in _hitFamilies:
             read = [(tag.getModuleLabel(), tag.getProductInstanceLabel())
                     for tag in getattr(producer, pruningParameter, [])]
             merged = len(getattr(accumulator, accumulatorParameter)) > 0
             self.assertEqual(("mix", instance) in read, merged, f"{instance} in {pruningParameter}")
+            self.assertEqual(channel in index.subdetectors, merged, f"{channel} in subdetectors")
 
     def test_default_configuration(self):
-        self.check(digi.truthGraphAccumulator, digi.truthLogicalGraphProducer)
+        self.check(digi.truthGraphAccumulator, digi.truthLogicalGraphProducer, digi.truthLogicalGraphHitIndexProducer)
 
     def test_reduced_configuration(self):
         process = cms.Process("TEST")
@@ -50,7 +52,8 @@ class TestPruningReadsEveryMergedHitFamily(unittest.TestCase):
         process.truthLogicalGraphProducer = digi.truthLogicalGraphProducer.clone()
         process.truthLogicalGraphHitIndexProducer = digi.truthLogicalGraphHitIndexProducer.clone()
         customiseTruthReduced(process)
-        self.check(process.mix.digitizers.truthGraph, process.truthLogicalGraphProducer)
+        self.check(process.mix.digitizers.truthGraph, process.truthLogicalGraphProducer,
+                   process.truthLogicalGraphHitIndexProducer)
 
 
 if __name__ == "__main__":
