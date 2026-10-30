@@ -137,10 +137,10 @@ void Herwig7Interface::initRepository(const edm::ParameterSet &pset) {
 }
 
 void Herwig7Interface::callHerwigGenerator() {
-  try {
-    edm::LogInfo("Herwig7Interface") << "callHerwigGenerator function invoked with run mode " << HwUI_->runMode()
-                                     << ".\n";
+  edm::LogInfo("Herwig7Interface") << "callHerwigGenerator function invoked with run mode " << HwUI_->runMode()
+                                   << ".\n";
 
+  try {
     // Call program switches according to runMode
     switch (HwUI_->runMode()) {
       case Herwig::RunMode::INIT:
@@ -178,6 +178,8 @@ void Herwig7Interface::callHerwigGenerator() {
   } catch (const char *what) {
     throw cms::Exception("HerwigException").format("caught char* exception.\n{}", what);
   }
+
+  return;
 }
 
 bool Herwig7Interface::initGenerator() {
