@@ -1156,12 +1156,15 @@ namespace {
   }
 
   // Remove every SIM particle whose calo+tracker sim-hit subgraph is empty,
-  // together with its whole downstream subtree. particleDirectHit[i] flags the
+  // together with its whole downstream subtree, except the decay products of a GEN
+  // particle of a reconstructablePdgIds species. particleDirectHit[i] flags the
   // particles that carry a sim-hit on their own SimTrack (supplied by the
   // producer, aligned to input ids). subgraphHasHit[p] = "p or some logical
   // descendant of p carries a hit"; it is computed by propagating the direct-hit
   // flag UP the production edges (an ancestor inherits a hit from any descendant).
-  truth::Graph dropHitlessSimSubgraphs(truth::Graph input, std::vector<uint8_t> const& particleDirectHit) {
+  truth::Graph dropHitlessSimSubgraphs(truth::Graph input,
+                                       std::vector<uint8_t> const& particleDirectHit,
+                                       std::vector<int32_t> const& reconstructablePdgIds) {
     const uint32_t nParticles = input.nParticles();
     const uint32_t nVertices = input.nVertices();
 
@@ -1201,8 +1204,26 @@ namespace {
     std::vector<uint8_t> removeParticle(nParticles, 0);
     std::vector<uint32_t> removalQueue;
 
+    // The decay products of a reconstructable particle stay, with or without hits, so
+    // the association sees all of them and decides whether reco merges them.
+    std::vector<uint8_t> reconstructableProduct(nParticles, 0);
     for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
-      if (input.particles()[particleId].hasSim() && !subgraphHasHit[particleId]) {
+      auto const& particle = input.particles()[particleId];
+      if (!particle.hasGen() || !containsPdgId(reconstructablePdgIds, particle.pdgId))
+        continue;
+      for (const uint32_t vertexId : input.decayVertices(particleId)) {
+        if (vertexId >= nVertices)
+          continue;
+        for (const uint32_t childId : input.outgoingParticles(vertexId)) {
+          if (childId < nParticles)
+            reconstructableProduct[childId] = 1;
+        }
+      }
+    }
+
+    for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
+      if (input.particles()[particleId].hasSim() && !subgraphHasHit[particleId] &&
+          !reconstructableProduct[particleId]) {
         removeParticle[particleId] = 1;
         removalQueue.push_back(particleId);
       }
@@ -1267,7 +1288,8 @@ namespace truth {
         ->setComment(
             "If true, remove every SIM logical particle whose calorimeter + tracker sim-hit subgraph is empty, "
             "together with its whole downstream subtree (GEN-only descendants such as neutrinos go with it; the "
-            "GEN skeleton outside removed SIM subtrees is preserved). Requires the producer to supply the "
+            "GEN skeleton outside removed SIM subtrees is preserved). The decay products of a GEN particle of a "
+            "reconstructablePdgIds species are kept, with or without hits. Requires the producer to supply the "
             "per-particle sim-hit presence (it consumes the calo/tracker sim-hit collections); a no-op otherwise.");
 
     desc.add<std::vector<int32_t>>("reconstructablePdgIds", {111})
@@ -1446,7 +1468,7 @@ namespace truth {
     // Run before any collapsing/selection so particleDirectHit stays aligned to
     // the input particle ids the producer computed it for.
     if (config_.dropHitlessSimSubgraphs && !particleDirectHit.empty()) {
-      input = dropHitlessSimSubgraphs(std::move(input), particleDirectHit);
+      input = dropHitlessSimSubgraphs(std::move(input), particleDirectHit, config_.reconstructablePdgIds);
     }
 
     if (config_.collapseIntermediateGenParticles) {

@@ -373,6 +373,7 @@ class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(testSeedHadronFlavorSelectsBHadron);
   CPPUNIT_TEST(testJetOriginLowestCommonAncestor);
   CPPUNIT_TEST(testHitlessSimSubgraphsAreDropped);
+  CPPUNIT_TEST(testHitlessReconstructableProductsAreKept);
   CPPUNIT_TEST(testAttachSelectionSourcesFalseRootsSeedsDirectly);
   CPPUNIT_TEST(testEventIdKeyingSplitsInteractions);
   CPPUNIT_TEST(testSignalOnlyAndBunchCrossingFilterDropPileup);
@@ -412,6 +413,7 @@ public:
   void testSeedHadronFlavorSelectsBHadron();
   void testJetOriginLowestCommonAncestor();
   void testHitlessSimSubgraphsAreDropped();
+  void testHitlessReconstructableProductsAreKept();
   void testAttachSelectionSourcesFalseRootsSeedsDirectly();
   void testEventIdKeyingSplitsInteractions();
   void testSignalOnlyAndBunchCrossingFilterDropPileup();
@@ -1938,6 +1940,56 @@ void TestTruthLogicalGraphPostProcessor::testHitlessSimSubgraphsAreDropped() {
     // Without a presence vector the pruning is a no-op: the full graph survives.
     auto untouched = runPostProcessing(graph, config);
     CPPUNIT_ASSERT_EQUAL(uint32_t(5), untouched.nParticles());
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+// REQUIRED: the hitless pruning keeps every decay product of a reconstructable particle,
+// and drops a hitless photon of another parent and the hitless subgraph below a kept photon.
+void TestTruthLogicalGraphPostProcessor::testHitlessReconstructableProductsAreKept() {
+  try {
+    //   eta -> v0 -> pi0 gamma(no hit) ; pi0 -> v1 -> gamma(hit) gamma(no hit) ; gamma(no hit) -> v2 -> e-
+    GraphBuilder builder(6, 3);
+
+    builder.setGenParticle(0, 221, 2, 100);
+    builder.setGenParticle(1, 111, 2, 101);
+    builder.setGenSimParticle(2, 22, 1, 102, 1002);
+    builder.setGenSimParticle(3, 22, 1, 103, 1003);
+    builder.setGenSimParticle(4, 22, 1, 104, 1004);
+    builder.setSimParticle(5, 11, 1005);
+
+    builder.setGenVertex(0, 200);
+    builder.setGenVertex(1, 201);
+    builder.setSimVertex(2, 2002);
+
+    builder.addDecay(0, 0);
+    builder.addProduction(0, 1);
+    builder.addProduction(0, 4);
+    builder.addDecay(1, 1);
+    builder.addProduction(1, 2);
+    builder.addProduction(1, 3);
+    builder.addDecay(3, 2);
+    builder.addProduction(2, 5);
+
+    auto config = defaultConfig();
+    config.dropHitlessSimSubgraphs = true;
+    config.reconstructablePdgIds = {111};
+
+    const std::vector<uint8_t> particleDirectHit = {0, 0, 1, 0, 0, 0};
+    auto output = runPostProcessing(builder.finish(), config, particleDirectHit);
+
+    CPPUNIT_ASSERT(output.isConsistent());
+    CPPUNIT_ASSERT_EQUAL(uint32_t(4), output.nParticles());
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 11));
+
+    const uint32_t pi0 = findParticleWithPdgId(output, 111);
+    const auto decayVertices = output.decayVertices(pi0);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), decayVertices.size());
+    CPPUNIT_ASSERT_EQUAL(std::size_t(2), output.outgoingParticles(decayVertices.front()).size());
+    for (const uint32_t photon : output.outgoingParticles(decayVertices.front()))
+      CPPUNIT_ASSERT_EQUAL(int32_t(22), output.particles()[photon].pdgId);
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);
