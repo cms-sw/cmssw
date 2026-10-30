@@ -80,7 +80,6 @@ Herwig7Hadronizer::Herwig7Hadronizer(const edm::ParameterSet& pset)
       eventsToPrint(pset.getUntrackedParameter<unsigned int>("eventsToPrint", 0)),
       handlerDirectory_(pset.getParameter<std::string>("eventHandlers")),
       runFileName(pset.getParameter<std::string>("run")) {
-  initRepository(pset);
   paramSettings = pset;
 }
 
@@ -88,11 +87,8 @@ Herwig7Hadronizer::~Herwig7Hadronizer() {}
 
 bool Herwig7Hadronizer::initializeForInternalPartons() {
   if (currentLumiBlock == firstLumiBlock) {
+    initRepository(paramSettings);
     std::ifstream runFile(runFileName + ".run");
-    if (runFile.fail())  //required for showering of LHE files
-    {
-      initRepository(paramSettings);
-    }
     if (!initGenerator()) {
       edm::LogInfo("Generator|Herwig7Hadronizer") << "No run step for Herwig chosen. Program will be aborted.";
       exit(0);
@@ -103,11 +99,8 @@ bool Herwig7Hadronizer::initializeForInternalPartons() {
 
 bool Herwig7Hadronizer::initializeForExternalPartons() {
   if (currentLumiBlock == firstLumiBlock) {
+    initRepository(paramSettings);
     std::ifstream runFile(runFileName + ".run");
-    if (runFile.fail())  //required for showering of LHE files
-    {
-      initRepository(paramSettings);
-    }
     if (!initGenerator()) {
       edm::LogInfo("Generator|Herwig7Hadronizer") << "No run step for Herwig chosen. Program will be aborted.";
       exit(0);
