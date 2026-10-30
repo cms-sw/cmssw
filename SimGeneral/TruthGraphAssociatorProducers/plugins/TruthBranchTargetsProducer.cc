@@ -240,6 +240,11 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
         isDenominatorRoot[id] = true;
         denominatorRoots->push_back(id);
       }
+      // An invisible member stays in the level but no reco object can find it, so it is
+      // not part of the efficiency denominator.
+      if (truth::isInvisibleParticle(graph, id)) {
+        continue;
+      }
       targets->push_back(id);
       eligibility->push_back(failed);
     }

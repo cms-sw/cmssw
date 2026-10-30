@@ -91,7 +91,7 @@ namespace truth {
     // Kinematics, summed over finalState(), so a particle is never counted together with
     // its own ancestor or with the secondaries Geant4 made from it.
     [[nodiscard]] math::XYZTLorentzVectorD p4() const;
-    [[nodiscard]] math::XYZTLorentzVectorD visibleP4() const;  // excludes neutrinos
+    [[nodiscard]] math::XYZTLorentzVectorD visibleP4() const;  // excludes the invisible species
     [[nodiscard]] double energy() const { return p4().energy(); }
     [[nodiscard]] double visibleEnergy() const { return visibleP4().energy(); }
     [[nodiscard]] double invisibleEnergy() const;

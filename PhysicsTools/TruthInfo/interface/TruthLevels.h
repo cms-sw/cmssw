@@ -146,7 +146,7 @@ namespace truth {
     return (a >= 1 && a <= 6) || a == 21;
   }
 
-  // Charged leptons. A neutrino is not one of these; ask isInvisible for that.
+  // Charged leptons. A neutrino is not one of these; ask isNeutrino for that.
   [[nodiscard]] inline bool isLepton(int32_t pdgId) {
     const int32_t a = std::abs(pdgId);
     return a == 11 || a == 13 || a == 15;
@@ -480,11 +480,38 @@ namespace truth {
     return stableLegsFromRole(graph, VertexRole::UnderlyingEvent);
   }
 
-  // Species a detector cannot reconstruct at all, so they are not part of the visible
-  // final state. Only the neutrinos today; anything else invisible would belong here.
-  [[nodiscard]] inline bool isInvisible(int32_t pdgId) {
+  [[nodiscard]] inline bool isNeutrino(int32_t pdgId) {
     const int32_t a = std::abs(pdgId);
     return a == 12 || a == 14 || a == 16;
+  }
+
+  // Species that leave the detector without a hit, so they are not part of the visible
+  // final state: the neutrinos, the graviton (39), the PDG dark matter states (51, 52,
+  // 53), the lightest neutralino (1000022), the gravitino (1000039) and the Kaluza-Klein
+  // graviton (5100039).
+  [[nodiscard]] inline bool isInvisible(int32_t pdgId) {
+    const int32_t a = std::abs(pdgId);
+    return isNeutrino(pdgId) || a == 39 || a == 51 || a == 52 || a == 53 || a == 1000022 || a == 1000039 ||
+           a == 5100039;
+  }
+
+  // A particle of an invisible species that the graph does not decay. A neutralino that
+  // decays is visible through its decay products.
+  [[nodiscard]] inline bool isInvisibleParticle(Graph const& graph, uint32_t id) {
+    if (!isInvisible(graph.particles()[id].pdgId)) {
+      return false;
+    }
+    for (const uint32_t vertexId : graph.decayVertices(id)) {
+      if (vertexId >= graph.nVertices()) {
+        continue;
+      }
+      for (const uint32_t child : graph.outgoingParticles(vertexId)) {
+        if (child != id) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   namespace detail {
@@ -533,8 +560,9 @@ namespace truth {
         if (reconstructableSpecies || genStable || !hasGenDecay) {
           // A synthetic particle is an accounting object with no hits, so it can never be
           // reconstructed and must not become a leg: the signal stand-in is Signal-flagged
-          // and vertex-less, and both terminals above are true for it.
-          if (!isInvisible(data.pdgId) && !data.isSynthetic()) {
+          // and vertex-less, and both terminals above are true for it. The level drops the
+          // neutrinos only; the efficiency denominators drop every invisible species.
+          if (!isNeutrino(data.pdgId) && !data.isSynthetic()) {
             legs.push_back(p);
           }
           continue;
