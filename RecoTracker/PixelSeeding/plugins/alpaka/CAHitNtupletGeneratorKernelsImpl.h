@@ -69,8 +69,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     constexpr float nSigma2Phase1 = 25.f;
     // The gate width nSigma^2 of the five-parameter compatibility check (all the other topologies) is
     // a runtime cfi parameter (AlgoParams::fastDupNSigma2_), reaching Kernel_fastDuplicateRemover and
-    // Kernel_rejectDuplicate as the fastDupNSigma2 argument rather than a constant here. Its default
-    // reproduces the constant upstream uses (5.f).
+    // Kernel_rejectDuplicate as the fastDupNSigma2 argument rather than a constant here.
     constexpr int nTrackParameters = 5;
     // map: index of a track parameter -> index of its covariance
     HOST_DEVICE_CONSTANT std::array<uint8_t, nTrackParameters> iParam2iCov = {0u, 5u, 9u, 12u, 14u};
@@ -537,37 +536,79 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // Fast duplicate removal on one cell: one thread takes all the i's (Coop == false), or the threads of a block share
     // them (Coop == true, tracks above `reject` only). Every pass skips the tracks at or below `reject` and the only
     // writes are atomicMin, so neither the split nor the order of the list changes the result. Under -Ofast both
-    // instantiations must give the same bits: keep each float test in one form and run the maxQual and min-chi2 passes
+    // instantiations must give the same bits: keep each float test in one form and run the maxRank and min-chi2 passes
     // whole on every thread.
-    template <bool Coop>
+    //
+    // LengthFirst (Phase2OTVectorHits only): a track with chi2/ndof below fastDupMaxChi2ForLengthFirst ranks by
+    // nLayers, total hits and quality, above all other tracks. The other tracks rank by quality alone.
+    // The chi2 breaks equal ranks. In the final pass, a worse track is demoted only if it has fewer than
+    // fastDupMinHitsToKeepApart hits or shares at least kMinSharedHitsWithKept hits with the kept track.
+    inline constexpr int kMinSharedHitsWithKept = 3;  // the two hits of the cell, plus one
+
+    // Order of two tracks for exact ties: the lower first differing hit id, then the shorter hit list, then the tuple
+    // index. Hit ids, unlike tuple indices, do not depend on the thread order.
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool hitsBefore(HitContainer const *__restrict__ foundNtuplets,
+                                                   uint32_t a,
+                                                   uint32_t b) {
+      auto ha = foundNtuplets->begin(a), hb = foundNtuplets->begin(b);
+      auto const endA = foundNtuplets->end(a), endB = foundNtuplets->end(b);
+      for (; ha != endA && hb != endB; ++ha, ++hb) {
+        if (*ha != *hb) {
+          return *ha < *hb;
+        }
+      }
+      if (ha != endA || hb != endB) {
+        return ha == endA;
+      }
+      return a < b;
+    }
+
+    template <bool Coop, bool LengthFirst>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void fastDupRemoverCell(Acc1D const &acc,
                                                            uint32_t const *__restrict__ thisCellTracks,
+                                                           HitContainer const *__restrict__ foundNtuplets,
                                                            TkSoAView tracks_view,
                                                            int32_t *__restrict__ qualityScratch,
                                                            int ntr,
                                                            int first,
                                                            int step,
                                                            Quality reject,
-                                                           float fastDupNSigma2) {
+                                                           float fastDupNSigma2,
+                                                           float fastDupMaxChi2ForLengthFirst,
+                                                           int fastDupMinHitsToKeepApart) {
       constexpr auto loose = Quality::loose;
 
       auto score = [&](uint32_t it) { return tracks_view[it].chi2(); };
       auto demote = [&](uint32_t it, Quality q) {
         alpaka::atomicMin(acc, &qualityScratch[it], static_cast<int32_t>(q), alpaka::hierarchy::Blocks{});
       };
+      // the rank, compared before the chi2: (nLayers, total hits, quality) packed in one integer for a LengthFirst
+      // track below fastDupMaxChi2ForLengthFirst, else the quality
+      auto rank = [&](uint32_t it) -> uint32_t {
+        auto const q = static_cast<uint32_t>(tracks_view[it].quality());
+        if constexpr (LengthFirst) {
+          if (score(it) < fastDupMaxChi2ForLengthFirst) {
+            auto const nl = static_cast<uint32_t>(tracks_view[it].nLayers());
+            auto const nh = static_cast<uint32_t>(::reco::nHits(tracks_view, it));
+            return (1u << 31) | (nl << 24) | (nh << 8) | q;
+          }
+        }
+        return q;
+      };
 
       // the i's this thread owns: (0, 1) at compile time when !Coop
       const int iFirst = Coop ? first : 0;
       const int iStep = Coop ? step : 1;
 
-      // Demote any track dominated by a compatible, strictly better one (higher quality, or equal
-      // quality and lower chi2); each track tests all others and exact ties keep both
+      // Demote any track dominated by a compatible, strictly better one (higher rank, or equal
+      // rank and lower chi2); each track tests all others and exact ties keep both
       for (int i = iFirst; i < ntr; i += iStep) {
         auto it = thisCellTracks[i];
         auto qi = tracks_view[it].quality();
         if (qi <= reject) {
           continue;
         }
+        auto const ri = rank(it);
 
         // get track parameters and covariances
         float iParams[nTrackParameters];
@@ -601,39 +642,76 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           if (incompatibleTrackParams(jt)) {
             continue;
           }
-          if ((qj > qi) || (qj == qi && score(jt) < score(it))) {
+          auto const rj = rank(jt);
+          if ((rj > ri) || (rj == ri && score(jt) < score(it))) {
             demote(it, reject);
             break;
           }
         }
       }
 
-      auto maxQual = reject;  // no duplicate!
+      // the best rank among the tracks above loose
+      uint32_t maxRank = 0;  // stays 0 if no track is above loose
       for (int i = 0; i < ntr; i++) {
-        auto q = tracks_view[thisCellTracks[i]].quality();
-        if (q > maxQual) {
-          maxQual = q;
+        auto it = thisCellTracks[i];
+        if (tracks_view[it].quality() > loose) {
+          maxRank = std::max(maxRank, rank(it));
         }
       }
 
-      if (maxQual <= loose) {
+      if (maxRank == 0) {
         return;
       }
 
-      // min chi2 among the tracks of quality maxQual (the demotions above go to qualityScratch)
+      // The kept track: min chi2 among the best-rank tracks. hitsBefore breaks an exact tie.
+      // The tracks tied with it are also kept.
       float mc = maxScore;
+      uint32_t kept = tkNotFound;
       for (int i = 0; i < ntr; i++) {
         auto it = thisCellTracks[i];
-        if (tracks_view[it].quality() == maxQual && score(it) < mc) {
-          mc = score(it);
+        if (rank(it) == maxRank) {
+          auto const s = score(it);
+          if (s < mc || (LengthFirst && s == mc && (kept == tkNotFound || hitsBefore(foundNtuplets, it, kept)))) {
+            mc = s;
+            kept = it;
+          }
         }
       }
+
+      auto sharesHitsWithKept = [&](uint32_t it) -> bool {
+        // no track is kept if no best-rank chi2 is finite
+        if (kept == tkNotFound) {
+          return false;
+        }
+        int shared = 0;
+        for (auto hi = foundNtuplets->begin(it); hi != foundNtuplets->end(it); ++hi) {
+          for (auto hk = foundNtuplets->begin(kept); hk != foundNtuplets->end(kept); ++hk) {
+            if (*hi == *hk) {
+              if (++shared == kMinSharedHitsWithKept) {
+                return true;
+              }
+              break;
+            }
+          }
+        }
+        return false;
+      };
 
       // demote the other tracks above loose to loose
       for (int i = iFirst; i < ntr; i += iStep) {
         auto it = thisCellTracks[i];
-        if (tracks_view[it].quality() > loose && score(it) > mc) {
-          demote(it, loose);
+        if (tracks_view[it].quality() <= loose) {
+          continue;
+        }
+        if constexpr (LengthFirst) {
+          if ((rank(it) < maxRank || score(it) > mc) &&
+              (::reco::nHits(tracks_view, it) < fastDupMinHitsToKeepApart || sharesHitsWithKept(it))) {
+            demote(it, loose);
+          }
+        } else {
+          if (score(it) > mc) {
+            demote(it, loose);
+          }
         }
       }
     }
@@ -646,14 +724,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     CACell<TrackerTraits> const *__restrict__ cells,
                                     uint32_t const *__restrict__ nCells,
                                     CellToTrack const *__restrict__ cellTracksHisto,
+                                    HitContainer const *__restrict__ foundNtuplets,
                                     TkSoAView tracks_view,
                                     int32_t *__restrict__ qualityScratch,
                                     uint32_t *__restrict__ heavyCells,
                                     uint32_t heavyCellsCapacity,
                                     bool dupPassThrough,
-                                    float fastDupNSigma2) const {
+                                    float fastDupNSigma2,
+                                    float fastDupMaxChi2ForLengthFirst,
+                                    int fastDupMinHitsToKeepApart) const {
         // quality to mark rejected
         auto const reject = dupPassThrough ? Quality::loose : Quality::dup;
+        // Phase2OTVectorHits ranks by length first, see fastDupRemoverCell
+        constexpr bool kLengthFirst = std::is_same_v<pixelTopology::Phase2OTVectorHits, TrackerTraits>;
 
         ALPAKA_ASSERT_ACC(nCells);
         for (auto idx : cms::alpakatools::uniform_elements(acc, *nCells)) {
@@ -663,8 +746,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             ALPAKA_ASSERT_ACC(slot < heavyCellsCapacity);
             heavyCells[1 + slot] = idx;
           } else if (ntr >= 2) {
-            fastDupRemoverCell<false>(
-                acc, cellTracksHisto->begin(idx), tracks_view, qualityScratch, ntr, 0, 1, reject, fastDupNSigma2);
+            fastDupRemoverCell<false, kLengthFirst>(acc,
+                                                    cellTracksHisto->begin(idx),
+                                                    foundNtuplets,
+                                                    tracks_view,
+                                                    qualityScratch,
+                                                    ntr,
+                                                    0,
+                                                    1,
+                                                    reject,
+                                                    fastDupNSigma2,
+                                                    fastDupMaxChi2ForLengthFirst,
+                                                    fastDupMinHitsToKeepApart);
           }
         }
       }
@@ -676,13 +769,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     public:
       ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                     CellToTrack const *__restrict__ cellTracksHisto,
+                                    HitContainer const *__restrict__ foundNtuplets,
                                     TkSoAView tracks_view,
                                     int32_t *__restrict__ qualityScratch,
                                     uint32_t const *__restrict__ heavyCells,
                                     uint32_t *__restrict__ aliveTracks,
                                     bool dupPassThrough,
-                                    float fastDupNSigma2) const {
+                                    float fastDupNSigma2,
+                                    float fastDupMaxChi2ForLengthFirst,
+                                    int fastDupMinHitsToKeepApart) const {
         auto const reject = dupPassThrough ? Quality::loose : Quality::dup;
+        constexpr bool kLengthFirst = std::is_same_v<pixelTopology::Phase2OTVectorHits, TrackerTraits>;
         const int thread = static_cast<int>(alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]);
         const int blockSize = static_cast<int>(alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u]);
         auto &nAlive = alpaka::declareSharedVar<uint32_t, __COUNTER__>(acc);
@@ -705,8 +802,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           alpaka::syncBlockThreads(acc);
           const int n = static_cast<int>(nAlive);
           if (n >= 2) {
-            fastDupRemoverCell<true>(
-                acc, alive, tracks_view, qualityScratch, n, thread, blockSize, reject, fastDupNSigma2);
+            fastDupRemoverCell<true, kLengthFirst>(acc,
+                                                   alive,
+                                                   foundNtuplets,
+                                                   tracks_view,
+                                                   qualityScratch,
+                                                   n,
+                                                   thread,
+                                                   blockSize,
+                                                   reject,
+                                                   fastDupNSigma2,
+                                                   fastDupMaxChi2ForLengthFirst,
+                                                   fastDupMinHitsToKeepApart);
           }
           // all threads have read nAlive before the next cell resets it
           alpaka::syncBlockThreads(acc);
@@ -722,10 +829,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     CACell<pixelTopology::Phase1> const *__restrict__ cells,
                                     uint32_t const *__restrict__ nCells,
                                     CellToTrack const *__restrict__ cellTracksHisto,
+                                    HitContainer const *__restrict__,
                                     TkSoAView tracks_view,
                                     int32_t *__restrict__ qualityScratch,
                                     bool dupPassThrough,
-                                    float fastDupNSigma2) const {
+                                    float fastDupNSigma2,
+                                    float,
+                                    int) const {
         // quality to mark rejected
         auto const reject = dupPassThrough ? Quality::loose : Quality::dup;
         constexpr auto loose = Quality::loose;
@@ -1785,24 +1895,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
       }
     };
-
-    // Order of two tracks for exact ties: the lower first differing hit id, then the shorter hit list, then the tuple
-    // index. Hit ids, unlike tuple indices, do not depend on the thread order.
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool hitsBefore(HitContainer const *__restrict__ foundNtuplets,
-                                                   uint32_t a,
-                                                   uint32_t b) {
-      auto ha = foundNtuplets->begin(a), hb = foundNtuplets->begin(b);
-      auto const endA = foundNtuplets->end(a), endB = foundNtuplets->end(b);
-      for (; ha != endA && hb != endB; ++ha, ++hb) {
-        if (*ha != *hb) {
-          return *ha < *hb;
-        }
-      }
-      if (ha != endA || hb != endB) {
-        return ha == endA;
-      }
-      return a < b;
-    }
 
     // a track with more entries than this in its hits' track lists (a heavy track) is processed by a whole block
     inline constexpr uint32_t kRejectDupHeavyMinPairs = 256;
@@ -3579,10 +3671,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             this->device_simpleCells_->data(),
                             this->device_nCells_->data(),
                             this->device_cellToTracks_->data(),
+                            this->device_hitContainer_->data(),
                             tracks_view,
                             qScratch,
                             this->m_params.algoParams_.dupPassThrough_,
-                            this->m_params.algoParams_.fastDupNSigma2_);
+                            this->m_params.algoParams_.fastDupNSigma2_,
+                            this->m_params.algoParams_.fastDupMaxChi2ForLengthFirst_,
+                            this->m_params.algoParams_.fastDupMinHitsToKeepApart_);
       } else {
         // at most tracksCellsN_ / (kDupHeavyMinTracks + 1) heavy cells, and their count in word 0
         const uint32_t heavyCapacity = this->tracksCellsN_ / (kDupHeavyMinTracks + 1) + 1;
@@ -3595,23 +3690,29 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             this->device_simpleCells_->data(),
                             this->device_nCells_->data(),
                             this->device_cellToTracks_->data(),
+                            this->device_hitContainer_->data(),
                             tracks_view,
                             qScratch,
                             this->device_dupHeavyCells_->data(),
                             heavyCapacity,
                             this->m_params.algoParams_.dupPassThrough_,
-                            this->m_params.algoParams_.fastDupNSigma2_);
+                            this->m_params.algoParams_.fastDupNSigma2_,
+                            this->m_params.algoParams_.fastDupMaxChi2ForLengthFirst_,
+                            this->m_params.algoParams_.fastDupMinHitsToKeepApart_);
         // one block per heavy cell
         alpaka::exec<Acc1D>(queue,
                             cms::alpakatools::make_workdiv<Acc1D>(1024u, 256u),
                             Kernel_fastDuplicateRemoverHeavyCells<TrackerTraits>{},
                             this->device_cellToTracks_->data(),
+                            this->device_hitContainer_->data(),
                             tracks_view,
                             qScratch,
                             this->device_dupHeavyCells_->data(),
                             this->device_dupAliveTracks_->data(),
                             this->m_params.algoParams_.dupPassThrough_,
-                            this->m_params.algoParams_.fastDupNSigma2_);
+                            this->m_params.algoParams_.fastDupNSigma2_,
+                            this->m_params.algoParams_.fastDupMaxChi2ForLengthFirst_,
+                            this->m_params.algoParams_.fastDupMinHitsToKeepApart_);
       }
       applyQuality();
 #ifdef GPU_DEBUG
