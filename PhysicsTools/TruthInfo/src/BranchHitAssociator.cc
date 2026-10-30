@@ -6,9 +6,11 @@
 #include <cstddef>
 #include <limits>
 #include <numeric>
+#include <string_view>
 #include <utility>
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 namespace truth {
 
@@ -31,6 +33,31 @@ namespace truth {
   }
 
   uint32_t BranchHitAssociator::detectorBit(uint32_t detId) { return 1u << DetId(detId).det(); }
+
+  uint32_t BranchHitAssociator::detectorMask(std::span<const std::string> names) {
+    static constexpr std::pair<std::string_view, DetId::Detector> kDetectors[] = {
+        {"Tracker", DetId::Tracker},
+        {"Muon", DetId::Muon},
+        {"Ecal", DetId::Ecal},
+        {"Hcal", DetId::Hcal},
+        {"Calo", DetId::Calo},
+        {"Forward", DetId::Forward},
+        {"VeryForward", DetId::VeryForward},
+        {"HGCalEE", DetId::HGCalEE},
+        {"HGCalHSi", DetId::HGCalHSi},
+        {"HGCalHSc", DetId::HGCalHSc},
+        {"HGCalTrigger", DetId::HGCalTrigger}};
+    if (names.empty())
+      return kAllDetectors;
+    uint32_t mask = 0u;
+    for (auto const& name : names) {
+      auto const it = std::ranges::find(kDetectors, std::string_view(name), [](auto const& d) { return d.first; });
+      if (it == std::ranges::end(kDetectors))
+        throw cms::Exception("Configuration") << "unknown DetId::Detector name '" << name << "'";
+      mask |= 1u << static_cast<uint32_t>(it->second);
+    }
+    return mask;
+  }
 
   void CellEnergyTable::finalize() {
     std::vector<std::pair<uint32_t, float>> cells;

@@ -39,6 +39,7 @@
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
+#include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
 #include "PhysicsTools/TruthInfo/interface/SubgraphHitView.h"
 #include "PhysicsTools/TruthInfo/interface/TruthLevels.h"
 #include "SimDataFormats/TruthInfo/interface/Particle.h"
@@ -232,6 +233,8 @@ private:
     // signal entries or for a composite domain, and then left unset.
     edm::EDGetTokenT<std::vector<unsigned int>> eligibilityToken;
     bool hasEligibility = false;
+    // Whether requireHits applies. The signalNoSelection denominator has no cut at all.
+    bool requireHits = false;
     // Truth-driven, one product per collection because the truth target is fixed a
     // priori: score is 1 - truth purity.
     edm::EDGetTokenT<MapType> truthToRecoToken;
@@ -260,8 +263,10 @@ private:
   // The fake criterion: a reco object is NOT a fake when one branch of the dominance
   // antichain owns at least this share of the shared quantity all of them contribute.
   const double minLeadingTruthShare_;
-  // A denominator member must have hits in the hit-index channel of this domain.
+  // A denominator member must have a subgraph hit in requireHitsDetectors_.
   const bool requireHits_;
+  // The detector bits of denominatorDetectors, the detectors the reco collection covers.
+  const uint32_t requireHitsDetectors_;
   std::vector<WpEntry> wpEntries_;
   // Working points per collection; wpEntries_ is collection-major with this stride.
   std::size_t nWorkingPoints_ = 1;
@@ -291,6 +296,10 @@ TruthBranchRecoValidator<RECO>::TruthBranchRecoValidator(edm::ParameterSet const
       minCollectiveCoverage_(cfg.getParameter<double>("minCollectiveCoverage")),
       minLeadingTruthShare_(Traits::truthIsVertex ? 0. : cfg.getParameter<double>("minLeadingTruthShare")),
       requireHits_(!Traits::truthIsVertex && cfg.getParameter<bool>("requireHits")),
+      requireHitsDetectors_(Traits::truthIsVertex
+                                ? truth::BranchHitAssociator::kAllDetectors
+                                : truth::BranchHitAssociator::detectorMask(
+                                      cfg.getParameter<std::vector<std::string>>("denominatorDetectors"))),
       algo_(cfg.getParameter<edm::ParameterSet>("histoProducerAlgoBlock")) {
   const auto associator = cfg.getParameter<std::string>("associator");
   const auto targetsProducer = cfg.getParameter<std::string>("targetsProducer");
@@ -373,6 +382,7 @@ TruthBranchRecoValidator<RECO>::TruthBranchRecoValidator(edm::ParameterSet const
       // Only the per-level denominators carry it: the signal entries are seed lists with
       // no kinematic selection to suppress.
       entry.hasEligibility = !Traits::truthIsVertex && instance.starts_with(kDenominatorInstance);
+      entry.requireHits = requireHits_ && suffix != "signalNoSelection";
       if (entry.hasEligibility) {
         entry.eligibilityToken =
             consumes<std::vector<unsigned int>>(edm::InputTag(targetsLabel, instance + "Eligibility"));
@@ -809,7 +819,9 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
         // The branch's own detector footprint, which is the truth analogue of a track's
         // hit count.
         const auto subgraph = hitIndex.subgraphHits(Traits::hitChannel, b);
-        if (requireHits_ && subgraph.empty()) {
+        if (entry.requireHits && std::ranges::none_of(subgraph, [this](auto const& hit) {
+              return (requireHitsDetectors_ & truth::BranchHitAssociator::detectorBit(hit.detId)) != 0u;
+            })) {
           continue;
         }
         kin.nhits = subgraph.size();
@@ -939,8 +951,12 @@ void TruthBranchRecoValidator<RECO>::fillDescriptions(edm::ConfigurationDescript
   } else {
     desc.add<bool>("requireHits", false)
         ->setComment(
-            "Keep in the truth-to-reco denominators only the members whose subgraph has hits in the hit-index "
-            "channel of this domain: Tracker for tracks, Calo for tracksters and PF clusters");
+            "Keep in the truth-to-reco denominators only the members whose subgraph has a hit in the hit-index "
+            "channel of this domain and in denominatorDetectors. The signalNoSelection denominator is exempt");
+    desc.add<std::vector<std::string>>("denominatorDetectors", {})
+        ->setComment(
+            "DetId::Detector names of the requireHits cut: the denominatorDetectors of this domain's associator. "
+            "Empty means the whole hit channel");
     desc.add<double>("minLeadingTruthShare", 0.5)
         ->setComment(
             "Fake criterion: one branch of dominanceLevel must own at least this share of the shared quantity all "

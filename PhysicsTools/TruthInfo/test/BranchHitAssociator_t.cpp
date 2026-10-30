@@ -5,7 +5,11 @@
 
 #include <cmath>
 #include <cstdint>
+#include <string>
+#include <tuple>
 #include <vector>
+
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
 #include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndexBuilder.h"
@@ -180,6 +184,7 @@ class TestBranchHitAssociator : public CppUnit::TestFixture {
   CPPUNIT_TEST(testTheTwoTrackerPackingsAreNotInterchangeable);
   CPPUNIT_TEST(testTheCellIndexOrdersTheFullDetId);
   CPPUNIT_TEST(testTheCandidateRootsAreASet);
+  CPPUNIT_TEST(testDetectorMaskOfNames);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -207,6 +212,7 @@ public:
   void testTheTwoTrackerPackingsAreNotInterchangeable();
   void testTheCellIndexOrdersTheFullDetId();
   void testTheCandidateRootsAreASet();
+  void testDetectorMaskOfNames();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranchHitAssociator);
@@ -740,4 +746,18 @@ void TestBranchHitAssociator::testTheCandidateRootsAreASet() {
       CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[i].sharedEnergyFraction, matches[i].sharedEnergyFraction, 1e-6);
     }
   }
+}
+
+void TestBranchHitAssociator::testDetectorMaskOfNames() {
+  // An empty list is the whole channel. A name selects the bit that detectorBit gives its cells.
+  CPPUNIT_ASSERT_EQUAL(truth::BranchHitAssociator::kAllDetectors, truth::BranchHitAssociator::detectorMask({}));
+  const std::vector<std::string> endcap{"HGCalEE"};
+  CPPUNIT_ASSERT_EQUAL(truth::BranchHitAssociator::detectorBit(kEndcapCell),
+                       truth::BranchHitAssociator::detectorMask(endcap));
+  const std::vector<std::string> both{"Ecal", "HGCalEE"};
+  CPPUNIT_ASSERT_EQUAL(
+      truth::BranchHitAssociator::detectorBit(kBarrelCell) | truth::BranchHitAssociator::detectorBit(kEndcapCell),
+      truth::BranchHitAssociator::detectorMask(both));
+  const std::vector<std::string> unknown{"Ecal", "Hgcal"};
+  CPPUNIT_ASSERT_THROW(std::ignore = truth::BranchHitAssociator::detectorMask(unknown), cms::Exception);
 }
