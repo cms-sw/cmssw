@@ -40,6 +40,9 @@ namespace truth {
     return (packedEventId << kLocalIdBits) | static_cast<uint64_t>(localId);
   }
 
+  // An in-time interaction is in bunch crossing 0: the signal and the in-time pile-up.
+  [[nodiscard]] inline bool isInTimeEventId(uint64_t packedEventId) { return bunchCrossingOf(packedEventId) == 0; }
+
   // The signal interaction is the in-time one with index 0.
   [[nodiscard]] inline bool isSignalEventId(uint64_t packedEventId) {
     return bunchCrossingOf(packedEventId) == 0 && eventIndexOf(packedEventId) == 0;

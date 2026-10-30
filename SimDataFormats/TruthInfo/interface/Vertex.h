@@ -36,6 +36,7 @@ namespace truth {
     // invalid view is neither.
     [[nodiscard]] bool isSignal() const;
     [[nodiscard]] bool isFromPileup() const;
+    [[nodiscard]] bool isInTime() const;
     [[nodiscard]] const math::XYZTLorentzVectorD& position() const;
 
     [[nodiscard]] bool isSource() const;
