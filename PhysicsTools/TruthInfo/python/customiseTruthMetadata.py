@@ -17,7 +17,6 @@ From cmsDriver, after the customise or the step that adds the graph producers:
 
 import os
 import re
-import subprocess
 
 import FWCore.ParameterSet.Config as cms
 
@@ -37,19 +36,41 @@ _DIGI_LABELS = dict(graphProducer="truthLogicalGraphProducer",
                     rawGraphProducer="mix",
                     hitIndexProducer="truthLogicalGraphHitIndexProducer")
 
+# The output module types that write EDM files and so can hold the truth products.
+_EDM_OUTPUT_TYPES = ("PoolOutputModule", "TimeoutPoolOutputModule", "RNTupleTempOutputModule")
+
 truthGraphMetadataEventContent = cms.untracked.vstring("keep *_truthGraphMetadata_*_*")
 
 
 def _toolVersion(tool):
-    """The version of a scram tool of this release, or "" when scram does not answer. scram
-    answers only inside the release area."""
-    try:
-        info = subprocess.run(["scram", "tool", "info", tool], capture_output=True, text=True, timeout=60,
-                              cwd=os.environ.get("CMSSW_BASE")).stdout
-    except (OSError, subprocess.SubprocessError):
-        return ""
-    match = re.search(r"^Version\s*:\s*(\S+)", info, re.MULTILINE)
-    return match.group(1) if match else ""
+    """The version of a scram tool of this release, from its toolbox file, or "" when the
+    file is not found."""
+    arch = os.environ.get("SCRAM_ARCH", "")
+    for base in (os.environ.get("CMSSW_BASE"), os.environ.get("CMSSW_RELEASE_BASE")):
+        if not base:
+            continue
+        path = os.path.join(base, "config", "toolbox", arch, "tools", "selected", tool + ".xml")
+        try:
+            with open(path) as toolFile:
+                match = re.search(r'<tool\s[^>]*\bversion="([^"]*)"', toolFile.read())
+        except OSError:
+            continue
+        if match:
+            return match.group(1)
+    return ""
+
+
+def truthOutputModules(process):
+    """The output modules that write EDM files of events: PoolOutputModule-type modules,
+    without the LHE stream, which also writes the events the GEN step rejects."""
+    modules = []
+    for out in process.outputModules_().values():
+        if out.type_() not in _EDM_OUTPUT_TYPES:
+            continue
+        if hasattr(out, "dataset") and hasattr(out.dataset, "dataTier") and out.dataset.dataTier.value() == "LHE":
+            continue
+        modules.append(out)
+    return modules
 
 
 def generatorInfo(process, label="generator"):
@@ -72,7 +93,9 @@ def generatorInfo(process, label="generator"):
 
 def addTruthMetadata(process, graphProducer, rawGraphProducer, hitIndexProducer=""):
     """Add the metadata producer for the named graph modules, and keep its product in every
-    output module."""
+    EDM output module."""
+    if hasattr(process, "truthGraphMetadata"):
+        raise RuntimeError("addTruthMetadata: the job already has truthGraphMetadata")
     info = generatorInfo(process)
     process.truthGraphMetadata = cms.EDProducer(
         "TruthGraphMetadataProducer",
@@ -85,13 +108,19 @@ def addTruthMetadata(process, graphProducer, rawGraphProducer, hitIndexProducer=
     process.truthGraphMetadataPath = cms.Path(process.truthGraphMetadata)
     if process.schedule is not None:
         process.schedule.insert(0, process.truthGraphMetadataPath)
-    for out in process.outputModules_().values():
+    for out in truthOutputModules(process):
         out.outputCommands.extend(truthGraphMetadataEventContent)
     return process
 
 
 def customiseTruthMetadata(process):
     """Add the metadata producer for the graph modules this job has: the GEN-only ones of
-    customiseTruthGenOnly, else the DIGI ones of the enableTruth chain."""
-    labels = _GEN_ONLY_LABELS if hasattr(process, _GEN_ONLY_LABELS["graphProducer"]) else _DIGI_LABELS
-    return addTruthMetadata(process, **labels)
+    customiseTruthGenOnly, or the DIGI ones of the enableTruth chain. A job with both, or
+    with neither, needs addTruthMetadata with explicit labels."""
+    hasGenOnly = hasattr(process, _GEN_ONLY_LABELS["graphProducer"])
+    hasDigi = hasattr(process, _DIGI_LABELS["graphProducer"])
+    if hasGenOnly == hasDigi:
+        raise RuntimeError("customiseTruthMetadata: the job has %s graph producer; "
+                           "call addTruthMetadata with the labels of the graph to describe"
+                           % ("a GEN-only and a DIGI" if hasGenOnly else "no"))
+    return addTruthMetadata(process, **(_GEN_ONLY_LABELS if hasGenOnly else _DIGI_LABELS))

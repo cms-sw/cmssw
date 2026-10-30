@@ -107,7 +107,8 @@ def applyTruthPreset(process, preset=None, fragment=None, **overrides):
     for producer in graphProducers:
         for field, value in fields.items():
             setattr(producer.postProcessing, field, _TYPES[field](value))
-        producer.postProcessing.presetName = cms.string(name)
+        producer.postProcessing.presetName = cms.string(
+            name if not overrides else "%s with %s" % (name, ",".join(sorted(overrides))))
     if not graphProducers:
         # The Signal flags are stamped on the graph by the job that builds it, which is
         # the DIGI step in the default production. Here only the seeds change, and they

@@ -75,6 +75,8 @@
 
 <test name="customiseTruthPreset_t" command="python3 ${LOCALTOP}/src/PhysicsTools/TruthInfo/test/customiseTruthPreset_t.py"/>
 
+<test name="customiseTruthMetadata_t" command="python3 ${LOCALTOP}/src/PhysicsTools/TruthInfo/test/customiseTruthMetadata_t.py"/>
+
 <test name="testTruthHistoryGuard" command="bash ${LOCALTOP}/src/PhysicsTools/TruthInfo/test/testTruthHistoryGuard.sh"/>
 
 <test name="testGenOnlyGraph" command="bash ${LOCALTOP}/src/PhysicsTools/TruthInfo/test/testGenOnlyGraph.sh"/>

@@ -12,8 +12,8 @@ From cmsDriver, on a job that runs the GEN step:
     cmsDriver.py ... -s GEN \\
         --customise PhysicsTools/TruthInfo/customiseTruthGenOnly.customiseTruthGenOnly
 
-The producers run on demand when an output module keeps their products, and every
-output module of the job keeps them. customiseTruthGenOnlyWithMetadata also writes
+The producers run on demand when an output module keeps their products. Every EDM
+output module of the job keeps them, except the LHE stream. customiseTruthGenOnlyWithMetadata also writes
 truth::GraphMetadata once per run (see customiseTruthMetadata).
 """
 
@@ -24,6 +24,7 @@ from Validation.Configuration.truthPrevalidation_cff import (
     truthLogicalGraphProducer as _truthLogicalGraphProducer,
 )
 from PhysicsTools.TruthInfo.truthGraphMixedDigi_cff import reconstructablePdgIds
+from PhysicsTools.TruthInfo.customiseTruthMetadata import customiseTruthMetadata, truthOutputModules
 
 truthGenOnlyGraphProducer = _truthGraphProducer.clone(
     simTracks=cms.InputTag(""),
@@ -58,10 +59,9 @@ def customiseTruthGenOnly(process, writeMetadata=False):
     process.truthGenOnlyGraphTask = cms.Task(process.truthGenOnlyGraphProducer,
                                              process.truthGenOnlyLogicalGraphProducer)
     process.generation_step.associate(process.truthGenOnlyGraphTask)
-    for out in process.outputModules_().values():
+    for out in truthOutputModules(process):
         out.outputCommands.extend(truthGenOnlyEventContent)
     if writeMetadata:
-        from PhysicsTools.TruthInfo.customiseTruthMetadata import customiseTruthMetadata
         customiseTruthMetadata(process)
     return process
 

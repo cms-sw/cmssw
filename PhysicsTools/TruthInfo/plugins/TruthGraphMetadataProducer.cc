@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -64,6 +65,13 @@ namespace {
   }
 
   std::string moduleType(edm::ParameterSet const& pset) { return pset.getParameter<std::string>("@module_type"); }
+
+  // A parameter of a module, or the fallback when the job that ran the module did not have
+  // the parameter: an earlier release can have fewer parameters.
+  template <typename T>
+  T parameterOr(edm::ParameterSet const& pset, std::string const& name, T fallback) {
+    return pset.existsAs<T>(name) ? pset.getParameter<T>(name) : std::move(fallback);
+  }
 
   std::string lowercase(std::string text) {
     std::transform(text.begin(), text.end(), text.begin(), [](unsigned char c) { return std::tolower(c); });
@@ -130,8 +138,6 @@ public:
     auto out = std::make_unique<truth::GraphMetadata>();
     edm::ParameterSet const& thisProcess = edm::getProcessParameterSetContainingModule(moduleDescription());
     edm::ProcessHistory const& history = run.processHistory();
-    out->cmsswVersion = releaseName(edm::getReleaseVersion());
-
     out->generatorName = generatorName_;
     out->generatorVersion = generatorVersion_;
     out->generatorFragment = generatorFragment_;
@@ -144,30 +150,39 @@ public:
     if (auto raw = findModule(thisProcess, history, rawGraphProducer_)) {
       edm::ParameterSet const& pset = raw->pset;
       if (moduleType(pset) == "MixingModule") {
-        auto const& digitizers = pset.getParameterSet("digitizers");
+        auto const digitizers = parameterOr(pset, "digitizers", edm::ParameterSet());
         if (digitizers.existsAs<edm::ParameterSet>("truthGraph")) {
           auto const& accumulator = digitizers.getParameterSet("truthGraph");
-          out->buildMode = truth::GraphMetadata::BuildMode::GenSimMixed;
-          out->pileupBunchCrossings = accumulator.getParameter<std::vector<int32_t>>("pileupBunchCrossings");
+          if (pset.existsAs<edm::ParameterSet>("input")) {
+            out->buildMode = truth::GraphMetadata::BuildMode::GenSimMixed;
+            out->pileupBunchCrossings = parameterOr(accumulator, "pileupBunchCrossings", std::vector<int32_t>());
+          } else {
+            out->buildMode = truth::GraphMetadata::BuildMode::GenSim;
+          }
           out->rawGraphProducerConfig = accumulator.dump();
         }
       } else {
-        out->buildMode = pset.getParameter<edm::InputTag>("simTracks").label().empty()
+        out->buildMode = parameterOr(pset, "simTracks", edm::InputTag()).label().empty()
                              ? truth::GraphMetadata::BuildMode::GenOnly
                              : truth::GraphMetadata::BuildMode::GenSim;
         out->rawGraphProducerConfig = pset.dump();
       }
     }
+    if (out->buildMode == truth::GraphMetadata::BuildMode::Unknown)
+      edm::LogWarning("TruthGraphMetadataProducer")
+          << "No truth graph builder under the label '" << rawGraphProducer_ << "' in this job or in the jobs "
+          << "before it: the build mode is Unknown.";
 
     if (auto graph = findModule(thisProcess, history, graphProducer_)) {
       edm::ParameterSet const& pset = graph->pset;
-      auto const& selection = pset.getParameterSet("postProcessing");
-      out->presetName = selection.getParameter<std::string>("presetName");
-      out->signalSeedPdgIds = selection.getParameter<std::vector<int32_t>>("seedPdgIds");
-      out->seedHadronFlavors = selection.getParameter<std::vector<int32_t>>("seedHadronFlavors");
-      out->reconstructablePdgIds = selection.getParameter<std::vector<int32_t>>("reconstructablePdgIds");
-      out->collapseIntermediateGenParticles = selection.getParameter<bool>("collapseIntermediateGenParticles");
-      out->dropHitlessSimSubgraphs = selection.getParameter<bool>("dropHitlessSimSubgraphs");
+      out->cmsswVersion = graph->release;
+      auto const selection = parameterOr(pset, "postProcessing", edm::ParameterSet());
+      out->presetName = parameterOr(selection, "presetName", std::string());
+      out->signalSeedPdgIds = parameterOr(selection, "seedPdgIds", std::vector<int32_t>());
+      out->seedHadronFlavors = parameterOr(selection, "seedHadronFlavors", std::vector<int32_t>());
+      out->reconstructablePdgIds = parameterOr(selection, "reconstructablePdgIds", std::vector<int32_t>());
+      out->collapseIntermediateGenParticles = parameterOr(selection, "collapseIntermediateGenParticles", false);
+      out->dropHitlessSimSubgraphs = parameterOr(selection, "dropHitlessSimSubgraphs", false);
       if (out->dropHitlessSimSubgraphs)
         out->pruningSimHitCollections = collections(pset, {"SimHitCollections"});
       out->graphProducerConfig = pset.dump();
@@ -182,7 +197,7 @@ public:
 
     if (auto index = findModule(thisProcess, history, hitIndexProducer_)) {
       edm::ParameterSet const& pset = index->pset;
-      out->hitIndexChannels = pset.getParameter<std::vector<std::string>>("subdetectors");
+      out->hitIndexChannels = parameterOr(pset, "subdetectors", std::vector<std::string>());
       out->hitIndexInputs = collections(pset, {"SimHitCollections", "DigiSimLinks"});
       out->hitIndexConfig = pset.dump();
       for (auto const& channel : out->hitIndexChannels) {
