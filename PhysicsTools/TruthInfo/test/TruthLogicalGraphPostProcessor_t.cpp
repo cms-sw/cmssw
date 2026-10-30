@@ -374,6 +374,7 @@ class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(testJetOriginLowestCommonAncestor);
   CPPUNIT_TEST(testHitlessSimSubgraphsAreDropped);
   CPPUNIT_TEST(testHitlessReconstructableProductsAreKept);
+  CPPUNIT_TEST(testDecayedGenParticleWithoutProductsIsDropped);
   CPPUNIT_TEST(testAttachSelectionSourcesFalseRootsSeedsDirectly);
   CPPUNIT_TEST(testEventIdKeyingSplitsInteractions);
   CPPUNIT_TEST(testSignalOnlyAndBunchCrossingFilterDropPileup);
@@ -414,6 +415,7 @@ public:
   void testJetOriginLowestCommonAncestor();
   void testHitlessSimSubgraphsAreDropped();
   void testHitlessReconstructableProductsAreKept();
+  void testDecayedGenParticleWithoutProductsIsDropped();
   void testAttachSelectionSourcesFalseRootsSeedsDirectly();
   void testEventIdKeyingSplitsInteractions();
   void testSignalOnlyAndBunchCrossingFilterDropPileup();
@@ -1990,6 +1992,55 @@ void TestTruthLogicalGraphPostProcessor::testHitlessReconstructableProductsAreKe
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), output.outgoingParticles(decayVertices.front()).size());
     for (const uint32_t photon : output.outgoingParticles(decayVertices.front()))
       CPPUNIT_ASSERT_EQUAL(int32_t(22), output.particles()[photon].pdgId);
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+// REQUIRED: the hitless pruning removes a status-2 GEN particle whose decay products it
+// removed, up the chain, and keeps one that still has a product, such as a GEN neutrino.
+void TestTruthLogicalGraphPostProcessor::testDecayedGenParticleWithoutProductsIsDropped() {
+  try {
+    //   D+ -> v0 -> pi+(hit) K*0 ; K*0 -> v1 -> K0 pi-(no hit) ; K0 -> v2 -> K_S(no hit)
+    //   tau -> v3 -> nu_tau pi-(no hit)
+    GraphBuilder builder(9, 4);
+
+    builder.setGenParticle(0, 411, 2, 100);
+    builder.setGenSimParticle(1, 211, 1, 101, 1001);
+    builder.setGenParticle(2, 313, 2, 102);
+    builder.setGenParticle(3, 311, 2, 103);
+    builder.setGenSimParticle(4, -211, 1, 104, 1004);
+    builder.setGenSimParticle(5, 310, 1, 105, 1005);
+    builder.setGenParticle(6, 15, 2, 106);
+    builder.setGenParticle(7, 16, 1, 107);
+    builder.setGenSimParticle(8, -211, 1, 108, 1008);
+
+    for (uint32_t vertexId = 0; vertexId < 4; ++vertexId)
+      builder.setGenVertex(vertexId, 200 + vertexId);
+
+    builder.addDecay(0, 0);
+    builder.addProduction(0, 1);
+    builder.addProduction(0, 2);
+    builder.addDecay(2, 1);
+    builder.addProduction(1, 3);
+    builder.addProduction(1, 4);
+    builder.addDecay(3, 2);
+    builder.addProduction(2, 5);
+    builder.addDecay(6, 3);
+    builder.addProduction(3, 7);
+    builder.addProduction(3, 8);
+
+    auto config = defaultConfig();
+    config.dropHitlessSimSubgraphs = true;
+
+    const std::vector<uint8_t> particleDirectHit = {0, 1, 0, 0, 0, 0, 0, 0, 0};
+    auto output = runPostProcessing(builder.finish(), config, particleDirectHit);
+
+    CPPUNIT_ASSERT(output.isConsistent());
+    CPPUNIT_ASSERT_EQUAL(uint32_t(4), output.nParticles());
+    for (const int32_t pdgId : {411, 211, 15, 16})
+      CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, pdgId));
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);

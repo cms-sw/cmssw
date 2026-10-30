@@ -1157,7 +1157,8 @@ namespace {
 
   // Remove every SIM particle whose calo+tracker sim-hit subgraph is empty,
   // together with its whole downstream subtree, except the decay products of a GEN
-  // particle of a reconstructablePdgIds species. particleDirectHit[i] flags the
+  // particle of a reconstructablePdgIds species. A status-2 GEN particle whose decay
+  // products are all removed is removed too. particleDirectHit[i] flags the
   // particles that carry a sim-hit on their own SimTrack (supplied by the
   // producer, aligned to input ids). subgraphHasHit[p] = "p or some logical
   // descendant of p carries a hit"; it is computed by propagating the direct-hit
@@ -1243,6 +1244,36 @@ namespace {
       }
     }
 
+    // A decayed GEN particle (status 2) whose decay products are all removed goes too,
+    // and so on upward, so no hitless GEN leaf is left where the GEN record has a decay.
+    auto allProductsRemoved = [&](uint32_t particleId) {
+      for (const uint32_t vertexId : input.decayVertices(particleId)) {
+        if (vertexId >= nVertices)
+          continue;
+        for (const uint32_t childId : input.outgoingParticles(vertexId)) {
+          if (childId < nParticles && !removeParticle[childId])
+            return false;
+        }
+      }
+      return true;
+    };
+    for (std::size_t head = 0; head < removalQueue.size(); ++head) {
+      const uint32_t particleId = removalQueue[head];
+      for (const uint32_t vertexId : input.productionVertices(particleId)) {
+        if (vertexId >= nVertices)
+          continue;
+        for (const uint32_t parentId : input.incomingParticles(vertexId)) {
+          if (parentId >= nParticles || removeParticle[parentId])
+            continue;
+          auto const& parent = input.particles()[parentId];
+          if (parent.hasGen() && parent.status == 2 && allProductsRemoved(parentId)) {
+            removeParticle[parentId] = 1;
+            removalQueue.push_back(parentId);
+          }
+        }
+      }
+    }
+
     if (std::none_of(removeParticle.begin(), removeParticle.end(), [](uint8_t value) { return value != 0; }))
       return input;
 
@@ -1289,7 +1320,8 @@ namespace truth {
             "If true, remove every SIM logical particle whose calorimeter + tracker sim-hit subgraph is empty, "
             "together with its whole downstream subtree (GEN-only descendants such as neutrinos go with it; the "
             "GEN skeleton outside removed SIM subtrees is preserved). The decay products of a GEN particle of a "
-            "reconstructablePdgIds species are kept, with or without hits. Requires the producer to supply the "
+            "reconstructablePdgIds species are kept, with or without hits. A status-2 GEN particle whose decay "
+            "products are all removed is removed too. Requires the producer to supply the "
             "per-particle sim-hit presence (it consumes the calo/tracker sim-hit collections); a no-op otherwise.");
 
     desc.add<std::vector<int32_t>>("reconstructablePdgIds", {111})

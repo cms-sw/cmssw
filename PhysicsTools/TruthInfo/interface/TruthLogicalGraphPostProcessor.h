@@ -25,7 +25,8 @@ namespace truth {
     // of a removed SIM particle (e.g. neutrinos) are swept out with it, while
     // the GEN skeleton outside removed SIM subtrees is preserved. The decay
     // products of a GEN particle of a reconstructablePdgIds species are kept,
-    // with or without hits (the photons of a pi0). This step
+    // with or without hits (the photons of a pi0). A status-2 GEN particle
+    // whose decay products are all removed is removed too. This step
     // only runs when the producer supplies a per-particle direct-hit presence
     // vector (it needs the sim-hit collections); without it it is a no-op.
     bool dropHitlessSimSubgraphs = true;
