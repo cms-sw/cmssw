@@ -1154,8 +1154,8 @@ public:
     CPPUNIT_ASSERT_EQUAL(uint32_t{1}, truth::lastCopyOf(radiating, 0));
     CPPUNIT_ASSERT_EQUAL(uint32_t{4}, truth::lastCopyOf(radiating, 4));
   }
-  // REQUIRED: a particle is invisible when its species is invisible and the graph does
-  // not decay it to a visible particle. A neutralino that decays is visible.
+  // REQUIRED: a particle is invisible when its species is invisible and every leaf below it
+  // is an invisible species. A neutralino that decays to a pi+ is visible.
   //   p0 tau -> v0 -> p1 pi+, p2 nu_tau;  p3 neutralino -> v1 -> p4 pi+
   void testInvisibleParticleIsAStableInvisibleSpecies() {
     CPPUNIT_ASSERT(truth::isInvisible(-14));
