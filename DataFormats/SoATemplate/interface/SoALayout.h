@@ -8,6 +8,7 @@
 
 #include <array>
 #include <cstddef>
+#include <format>
 #include <ostream>
 #include <string>
 #include <tuple>
@@ -522,19 +523,29 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
               BOOST_PP_EXPAND(_DECLARE_SOA_DATA_MEMBER_IMPL TYPE_NAME))
 
 // clang-format off
-#define _COPY_VIEW_COLUMNS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)           \
-  _SWITCH_ON_TYPE(VALUE_TYPE, /* Scalar */                                  \
-                  memcpy(BOOST_PP_CAT(this->metadata().addressOf_, NAME)(), \
-                         BOOST_PP_CAT(view.metadata().addressOf_, NAME)(),  \
-                         sizeof(CPP_TYPE));                                 \
-                  , /* Column */                                            \
-                  memcpy(BOOST_PP_CAT(this->metadata().addressOf_, NAME)(), \
-                         BOOST_PP_CAT(view.metadata().addressOf_, NAME)(),  \
-                         view.metadata().size() * sizeof(CPP_TYPE));        \
-                  , /* Eigen column */                                      \
-                  memcpy(BOOST_PP_CAT(this->metadata().addressOf_, NAME)(), \
-                         BOOST_PP_CAT(view.metadata().addressOf_, NAME)(),  \
-                         BOOST_PP_CAT(NAME, ElementsWithPadding_) * sizeof(CPP_TYPE::Scalar));)
+#define _COPY_VIEW_COLUMNS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                               \
+  _SWITCH_ON_TYPE(VALUE_TYPE, /* Scalar */                                                                      \
+                  memcpy(BOOST_PP_CAT(this->metadata().addressOf_, NAME)(),                                     \
+                         BOOST_PP_CAT(view.metadata().addressOf_, NAME)(),                                      \
+                         sizeof(CPP_TYPE));                                                                     \
+                  , /* Column */                                                                                \
+                  memcpy(BOOST_PP_CAT(this->metadata().addressOf_, NAME)(),                                     \
+                         BOOST_PP_CAT(view.metadata().addressOf_, NAME)(),                                      \
+                         elements_ * sizeof(CPP_TYPE));                                                         \
+                  , /* Eigen column */                                                                          \
+                  if(view.metadata().size() == elements_ && view.alignment == alignment) {                      \
+                    memcpy(BOOST_PP_CAT(this->metadata().addressOf_, NAME)(),                                   \
+                           BOOST_PP_CAT(view.metadata().addressOf_, NAME)(),                                    \
+                           BOOST_PP_CAT(NAME, ElementsWithPadding_) * sizeof(CPP_TYPE::Scalar));                \
+                  } else {                                                                                      \
+                    for (int i = 0; i < CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime; ++i) {       \
+                      const auto dest_offset = i * BOOST_PP_CAT(NAME, Stride_);                                 \
+                      const auto src_offset = i * view.metadata().BOOST_PP_CAT(parametersOf_, NAME)().stride(); \
+                      memcpy(BOOST_PP_CAT(this->metadata().addressOf_, NAME)() + dest_offset,                   \
+                             BOOST_PP_CAT(view.metadata().addressOf_, NAME)() + src_offset,                     \
+                             elements_ * sizeof(CPP_TYPE::Scalar));                                             \
+                    }                                                                                           \
+                  })
 // clang-format on
 
 #define _COPY_VIEW_COLUMNS(R, DATA, TYPE_NAME)                                              \
@@ -1731,6 +1742,11 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                     _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_DESCRIPTOR_SPANS, ~, __VA_ARGS__)>>::value;   \
       static constexpr std::array<cms::soa::SoAColumnType, num_cols> columnTypes = {{                                  \
         _ITERATE_ON_ALL_COMMA(_DECLARE_COLUMN_TYPE, ~, __VA_ARGS__)}};                                                 \
+      template <std::size_t I>                                                                                         \
+      static constexpr bool isEigenColumn() {                                                                          \
+        static_assert(I < num_cols, "Column index out of bounds");                                                     \
+        return columnTypes[I] == cms::soa::SoAColumnType::eigen;                                                       \
+      }                                                                                                                \
     };                                                                                                                 \
                                                                                                                        \
     /* Helper struct to loop over the columns without using name for mutable data */                                   \
@@ -1747,6 +1763,11 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                     _ITERATE_ON_ALL_COMMA(_DECLARE_DESCRIPTOR_SPANS, ~, __VA_ARGS__)>>::value;         \
       static constexpr std::array<cms::soa::SoAColumnType, num_cols> columnTypes = {{                                  \
         _ITERATE_ON_ALL_COMMA(_DECLARE_COLUMN_TYPE, ~, __VA_ARGS__)}};                                                 \
+      template <std::size_t I>                                                                                         \
+      static constexpr bool isEigenColumn() {                                                                          \
+        static_assert(I < num_cols, "Column index out of bounds");                                                     \
+        return columnTypes[I] == cms::soa::SoAColumnType::eigen;                                                       \
+      }                                                                                                                \
     };                                                                                                                 \
                                                                                                                        \
     /* Trivial constuctor */                                                                                           \
@@ -1789,9 +1810,24 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
      * Host-only data can be handled by this method.                                                                   \
      */                                                                                                                \
     SOA_HOST_ONLY void deepCopy(ConstView const& view) {                                                               \
-      if (elements_ < view.metadata().size())                                                                          \
-        cms::soa::detail::throwRuntimeError(                                                                           \
-            "In "#CLASS"::deepCopy method: number of elements mismatch ");                                             \
+      if (elements_ != view.metadata().size()) {                                                                       \
+        cms::soa::detail::throwRuntimeError(std::format("In {}::deepCopy: Buffer and Input view must have same size. " \
+                                                        "Buffer Size: {}, Input size: {}.",                            \
+                                                        #CLASS, elements_, view.metadata().size()).c_str());           \
+      }                                                                                                                \
+      _ITERATE_ON_ALL(_COPY_VIEW_COLUMNS, ~, __VA_ARGS__)                                                              \
+    }                                                                                                                  \
+                                                                                                                       \
+    /*                                                                                                                 \
+     * Method for copying the data from a generic View to a memory blob.                                               \
+     * Host-only data can be handled by this method.                                                                   \
+     */                                                                                                                \
+    SOA_HOST_ONLY void deepCopyTruncated(ConstView const& view) {                                                      \
+      if (elements_ > view.metadata().size()) {                                                                        \
+        cms::soa::detail::throwRuntimeError(std::format("In {}::deepCopyTruncated: input view is too small. "          \
+                                                        "Buffer Size: {}, Input size: {}.",                            \
+                                                        #CLASS, elements_, view.metadata().size()).c_str());           \
+      }                                                                                                                \
       _ITERATE_ON_ALL(_COPY_VIEW_COLUMNS, ~, __VA_ARGS__)                                                              \
     }                                                                                                                  \
                                                                                                                        \
