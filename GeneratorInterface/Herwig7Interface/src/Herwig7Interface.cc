@@ -243,7 +243,7 @@ void Herwig7Interface::createInputFile(const edm::ParameterSet &pset) {
   // Define output file to which input config is written, too, if dumpConfig parameter is set.
   // Otherwise use default file HerwigConfig.in which is read in by Herwig
   ofstream cfgDump;
-  cfgDump.open(dumpConfig_.c_str(), ios_base::app);
+  cfgDump.open(dumpConfig_.c_str(), ios_base::trunc);
 
   // Read Herwig config files as input
   vector<string> configFiles = pset.getParameter<vector<string> >("configFiles");
