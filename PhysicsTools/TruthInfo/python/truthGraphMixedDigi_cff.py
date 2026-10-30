@@ -13,7 +13,8 @@
 # plus tracker shared hits) needs the tracker channel, so it is in the default. The
 # tracker is the largest sim-hit family and the dominant cost, so the reduced variant
 # (mixedTruthGraphCustomize.customiseTruthReduced) drops it for cost-sensitive runs,
-# leaving calo + MTD + muon. MTD sim-hits are captured here. The MTD channel of the
+# leaving calo + MTD + muon. MTD sim-hits are captured here, and the hitless-subgraph
+# pruning reads them, so a particle with only MTD hits is kept. The MTD channel of the
 # hit index is not in the default list below; adding "MTD" to subdetectors fills it
 # from mix:MergedMtdTruthLC and the MTD topology, here or in a later job.
 
@@ -87,6 +88,9 @@ truthLogicalGraphProducer = _truthLogicalGraphProducer.clone(
     ),
     trackerSimHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedTrackerHits")),
     muonSimHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedMuonHits")),
+    # MTD is read even when the hit index leaves its channel out, so that a later job
+    # can still fill the MTD channel for the particles with only MTD hits.
+    mtdSimHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedMtdHits")),
 )
 truthLogicalGraphProducer.postProcessing.reconstructablePdgIds = cms.vint32(*reconstructablePdgIds)
 
