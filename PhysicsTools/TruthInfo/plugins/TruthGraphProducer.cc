@@ -594,7 +594,7 @@ public:
     unsigned nSimVtxToGenLinks = 0;
 
     for (uint32_t i = 0; i < out->nNodes(); ++i) {
-      switch (out->nodeRef(i).kind) {
+      switch (out->nodeRef(i).kind()) {
         case TruthGraph::NodeKind::GenEvent:
           ++nGenEventOut;
           break;

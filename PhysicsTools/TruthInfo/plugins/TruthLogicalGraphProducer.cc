@@ -227,7 +227,7 @@ namespace {
     std::vector<int32_t> genParticleToProductionGenVertex(nRawNodes, -1);
 
     for (uint32_t src = 0; src < nRawNodes; ++src) {
-      if (raw.nodeRef(src).kind != TruthGraph::NodeKind::GenVertex)
+      if (raw.nodeRef(src).kind() != TruthGraph::NodeKind::GenVertex)
         continue;
 
       const auto dsts = raw.children(src);
@@ -239,7 +239,7 @@ namespace {
         if (dst >= nRawNodes)
           continue;
 
-        if (raw.nodeRef(dst).kind != TruthGraph::NodeKind::GenParticle)
+        if (raw.nodeRef(dst).kind() != TruthGraph::NodeKind::GenParticle)
           continue;
 
         if (static_cast<TruthGraph::EdgeKind>(edgeKinds[i]) != TruthGraph::EdgeKind::Gen)
@@ -274,8 +274,8 @@ namespace {
         if (static_cast<TruthGraph::EdgeKind>(edgeKinds[i]) != TruthGraph::EdgeKind::Sim)
           continue;
 
-        const auto srcKind = raw.nodeRef(src).kind;
-        const auto dstKind = raw.nodeRef(dst).kind;
+        const auto srcKind = raw.nodeRef(src).kind();
+        const auto dstKind = raw.nodeRef(dst).kind();
 
         if (srcKind == TruthGraph::NodeKind::SimTrack && dstKind == TruthGraph::NodeKind::SimVertex) {
           ++simVertexIncomingSimTracks[dst];
@@ -498,7 +498,7 @@ public:
     int nVertexTmp = 0;
 
     for (uint32_t nodeId = 0; nodeId < nRawNodes; ++nodeId) {
-      const auto kind = raw.nodeRef(nodeId).kind;
+      const auto kind = raw.nodeRef(nodeId).kind();
 
       if (isParticleKind(kind)) {
         rawToParticleTmp[nodeId] = nParticleTmp++;
@@ -536,10 +536,10 @@ public:
       if (rawToVertexTmp[gv] < 0 || rawToVertexTmp[sv] < 0)
         return;
 
-      if (raw.nodeRef(gv).kind != TruthGraph::NodeKind::GenVertex)
+      if (raw.nodeRef(gv).kind() != TruthGraph::NodeKind::GenVertex)
         return;
 
-      if (raw.nodeRef(sv).kind != TruthGraph::NodeKind::SimVertex)
+      if (raw.nodeRef(sv).kind() != TruthGraph::NodeKind::SimVertex)
         return;
 
       productionVertexMergeCandidates.emplace_back(gv, sv);
@@ -551,7 +551,7 @@ public:
     for (uint32_t nodeId = 0; nodeId < nRawNodes; ++nodeId) {
       auto const& ref = raw.nodeRef(nodeId);
 
-      if (ref.kind != TruthGraph::NodeKind::SimTrack)
+      if (ref.kind() != TruthGraph::NodeKind::SimTrack)
         continue;
 
       const int32_t genNode = raw.nodeSimTrackToGen(nodeId);
@@ -562,7 +562,7 @@ public:
       if (genNodeU32 >= nRawNodes)
         continue;
 
-      if (raw.nodeRef(genNodeU32).kind != TruthGraph::NodeKind::GenParticle)
+      if (raw.nodeRef(genNodeU32).kind() != TruthGraph::NodeKind::GenParticle)
         continue;
 
       if (rawToParticleTmp[nodeId] < 0 || rawToParticleTmp[genNodeU32] < 0)
@@ -651,7 +651,7 @@ public:
       if (rawToParticle[nodeId] >= 0) {
         auto& p = out->particles()[static_cast<uint32_t>(rawToParticle[nodeId])];
 
-        if (ref.kind == TruthGraph::NodeKind::GenParticle) {
+        if (ref.kind() == TruthGraph::NodeKind::GenParticle) {
           p.genNode = static_cast<int32_t>(nodeId);
 
           if (nodeId < raw.genEventOfNode().size())
@@ -676,7 +676,7 @@ public:
           // The HepMC payload is the signal interaction's. A pileup GEN node with the
           // same barcode is a different particle and takes its own record's momentum.
           if (haveGenPayload && raw.nodeEventId(nodeId) == 0) {
-            const int barcode = static_cast<int>(ref.key);
+            const int barcode = static_cast<int>(ref.key());
             auto it = genParticlePayload.find(barcode);
 
             if (it != genParticlePayload.end()) {
@@ -700,7 +700,7 @@ public:
             }
           }
 
-        } else if (ref.kind == TruthGraph::NodeKind::SimTrack) {
+        } else if (ref.kind() == TruthGraph::NodeKind::SimTrack) {
           p.simNode = static_cast<int32_t>(nodeId);
 
           // Back-scattering (albedo) is a SimTrack property; OR it in so a merged
@@ -717,7 +717,7 @@ public:
             p.eventId = raw.nodeEventId(nodeId);
 
           if (hSimTracks.isValid()) {
-            const auto trackId = static_cast<uint32_t>(ref.key);
+            const auto trackId = static_cast<uint32_t>(ref.key());
             auto it = simTrackIdToIndex.find(truth::simObjectKey(raw.nodeEventId(nodeId), trackId));
 
             if (it != simTrackIdToIndex.end()) {
@@ -755,7 +755,7 @@ public:
       if (rawToVertex[nodeId] >= 0) {
         auto& v = out->vertices()[static_cast<uint32_t>(rawToVertex[nodeId])];
 
-        if (ref.kind == TruthGraph::NodeKind::GenVertex) {
+        if (ref.kind() == TruthGraph::NodeKind::GenVertex) {
           v.genNode = static_cast<int32_t>(nodeId);
 
           if (nodeId < raw.genEventOfNode().size())
@@ -767,7 +767,7 @@ public:
             v.eventId = raw.nodeEventId(nodeId);
 
           if (haveGenPayload && raw.nodeEventId(nodeId) == 0) {
-            const int barcode = static_cast<int>(ref.key);
+            const int barcode = static_cast<int>(ref.key());
             auto it = genVertexPayload.find(barcode);
 
             if (it != genVertexPayload.end()) {
@@ -785,7 +785,7 @@ public:
             }
           }
 
-        } else if (ref.kind == TruthGraph::NodeKind::SimVertex) {
+        } else if (ref.kind() == TruthGraph::NodeKind::SimVertex) {
           v.simNode = static_cast<int32_t>(nodeId);
 
           // Physical reason this vertex exists, from the SimVertex G4 process subtype.
@@ -797,7 +797,7 @@ public:
 
           if (hSimVertices.isValid()) {
             auto it =
-                simVertexIdToIndex.find(truth::simObjectKey(raw.nodeEventId(nodeId), static_cast<uint32_t>(ref.key)));
+                simVertexIdToIndex.find(truth::simObjectKey(raw.nodeEventId(nodeId), static_cast<uint32_t>(ref.key())));
 
             if (it != simVertexIdToIndex.end()) {
               auto const& sv = (*hSimVertices)[it->second];
@@ -835,7 +835,7 @@ public:
 
         auto const& dstRef = raw.nodeRef(dst);
 
-        if (isVertexKind(srcRef.kind) && isParticleKind(dstRef.kind)) {
+        if (isVertexKind(srcRef.kind()) && isParticleKind(dstRef.kind())) {
           const int32_t logicalVertex = rawToVertex[src];
           const int32_t logicalParticle = rawToParticle[dst];
 
@@ -846,7 +846,7 @@ public:
             // many-GEN-to-one-SIM, so drop that edge here. The GEN production edge is added
             // when the GEN side of this particle is visited. This replaces the former
             // position-based GEN/SIM vertex merge.
-            const bool redundantSimProduction = srcRef.kind == TruthGraph::NodeKind::SimVertex &&
+            const bool redundantSimProduction = srcRef.kind() == TruthGraph::NodeKind::SimVertex &&
                                                 out->particles()[static_cast<uint32_t>(logicalParticle)].hasGen();
 
             if (!redundantSimProduction) {
@@ -857,7 +857,7 @@ public:
             }
           }
 
-        } else if (isParticleKind(srcRef.kind) && isVertexKind(dstRef.kind)) {
+        } else if (isParticleKind(srcRef.kind()) && isVertexKind(dstRef.kind())) {
           const int32_t logicalParticle = rawToParticle[src];
           const int32_t logicalVertex = rawToVertex[dst];
 
@@ -932,11 +932,11 @@ public:
         if (simNodeU32 >= nRawNodes)
           continue;
         auto const& ref = raw.nodeRef(simNodeU32);
-        if (ref.kind != TruthGraph::NodeKind::SimTrack)
+        if (ref.kind() != TruthGraph::NodeKind::SimTrack)
           continue;
-        if (ref.key <= 0 || ref.key > static_cast<int64_t>(std::numeric_limits<uint32_t>::max()))
+        if (ref.key() <= 0 || ref.key() > static_cast<int64_t>(std::numeric_limits<uint32_t>::max()))
           continue;
-        particleOfKey.emplace(truth::simObjectKey(raw.nodeEventId(simNodeU32), static_cast<uint32_t>(ref.key)),
+        particleOfKey.emplace(truth::simObjectKey(raw.nodeEventId(simNodeU32), static_cast<uint32_t>(ref.key())),
                               particleId);
       }
       std::vector<uint8_t> hasHit(out->nParticles(), 0);
