@@ -176,8 +176,9 @@ namespace truth {
     if (a >= 1000 && a <= 9999 && (a / 10) % 10 == 0 && (a / 100) % 10 != 0) {  // diquarks, e.g. 2101, 2203
       return true;
     }
-    // Generator-internal states: diffractive and colour-octet onium states. The block
-    // 9900001-9900099 holds physical BSM particles (left-right symmetric W_R, Z_R, N, H++).
+    // Generator-internal states: diffractive states (99nqqq0) and colour-octet onium states.
+    // The codes 99000nj with j != 0 are physical BSM particles (left-right symmetric W_R, Z_R,
+    // N, H++).
     if (a >= 9900000 && a <= 9999999) {
       const bool physicalBsm = a / 100 == 99000 && a % 10 != 0;
       return !physicalBsm;
