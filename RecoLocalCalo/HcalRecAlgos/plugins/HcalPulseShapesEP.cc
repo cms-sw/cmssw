@@ -22,12 +22,15 @@
 #include <fstream>
 #include <sstream>
 #include <utility>
+#include <numeric>
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
 
 // Need to add #include statements for definitions of
 // the data type and record type here
@@ -51,7 +54,16 @@ static HcalPulseShapeLookup::Shape makeShiftedPulse(const HcalInterpolatedPulse&
   for (unsigned i = 0; i < len; ++i)
     values[i] = pulse(i - dt);
 
-  // Do we need to normalize this shape in some way?
+  // Let's keep pulse shapes consistently normalized
+  // even if we start chopping off the leading or the
+  // trailing part of the pulse
+  const double norm = std::accumulate(values.begin(), values.end(), 0.0);
+  if (norm <= 0.0)
+    // This should not happen for reasonable pulse shapes or time shifts
+    throw cms::Exception("makeShiftedPulse: bad pulse shape or time shift");
+  for (auto& elem : values)
+    elem /= norm;
+
   return HcalPulseShapeLookup::Shape(values, len);
 }
 
