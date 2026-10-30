@@ -1,7 +1,9 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "MagneticField/Portable/interface/ParabolicMagneticField.h"
 #include "DataFormats/TrackerCommon/interface/TrackerDetSide.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
@@ -25,8 +27,43 @@
 #include <vector>
 #include <unordered_map>
 #include <sstream>
+#include <algorithm>
+#include <cmath>
+#include <limits>
 
 // #define DUMP_MKF_GEO
+
+namespace {
+  // Squared distance from the beam line to the closest point of segment a-b in x-y.
+  double minTransverseR2(const GlobalPoint &a, const GlobalPoint &b) {
+    const double ax = a.x(), ay = a.y();
+    const double dx = b.x() - ax, dy = b.y() - ay;
+    const double d2 = dx * dx + dy * dy;
+    const double t = d2 > 0 ? std::clamp(-(ax * dx + ay * dy) / d2, 0.0, 1.0) : 0.0;
+    const double px = ax + t * dx, py = ay + t * dy;
+    return px * px + py * py;
+  }
+
+  // Smallest distance from the beam line to a module box, given its 8 corners,
+  // gp[2 * i] and gp[2 * i + 1] being corner i of the two faces. The largest
+  // distance is always at a corner, the smallest in general is not: for a flat
+  // barrel module it is where the perpendicular from the beam line meets the
+  // module, for a disc module at the middle of its inner edge. That point lies on
+  // the outline of the box's x-y projection, which is made of projected box edges,
+  // so the minimum over the 12 edges is exact. Assumes the beam line does not pass
+  // through the module.
+  float minTransverseRadius(const GlobalPoint (&gp)[8]) {
+    double r2_min = std::numeric_limits<double>::max();
+    for (int i = 0; i < 4; ++i) {
+      const int j = (i + 1) % 4;
+      r2_min = std::min({r2_min,
+                         minTransverseR2(gp[2 * i], gp[2 * j]),
+                         minTransverseR2(gp[2 * i + 1], gp[2 * j + 1]),
+                         minTransverseR2(gp[2 * i], gp[2 * i + 1])});
+    }
+    return std::sqrt(r2_min);
+  }
+}  // namespace
 
 //------------------------------------------------------------------------------
 
@@ -104,6 +141,15 @@ private:
   const TrackerGeometry *trackerGeom_ = nullptr;
   mkfit::LayerNumberConverter layerNrConv_ = {mkfit::TkLayout::phase1};
   layer_module_shape_vec_t layerModuleShapeVec_;
+
+  // constants of mkfit::Config::bFieldFromZR, and the final fit's field-model switches
+  std::vector<double> bFieldParams_;
+  bool refitBFieldAtMid_;
+  bool refitRadialFieldCorr_;
+  bool refitElossSignFromPass_;
+  bool refitBkwMsFixedMomentum_;
+  int refitBkwSubSteps_;
+  bool refitMaterialPerModule_;
 };
 
 MkFitGeometryESProducer::MkFitGeometryESProducer(const edm::ParameterSet &iConfig) {
@@ -111,10 +157,49 @@ MkFitGeometryESProducer::MkFitGeometryESProducer(const edm::ParameterSet &iConfi
   geomToken_ = cc.consumes();
   ttopoToken_ = cc.consumes();
   trackerToken_ = cc.consumes();
+  bFieldParams_ = iConfig.getParameter<std::vector<double>>("bFieldParams");
+  if (bFieldParams_.size() != 4)
+    throw cms::Exception("Configuration") << "bFieldParams needs 4 values {c1, b0, b1, a}";
+  refitBFieldAtMid_ = iConfig.getParameter<bool>("refitBFieldAtMid");
+  refitRadialFieldCorr_ = iConfig.getParameter<bool>("refitRadialFieldCorr");
+  refitElossSignFromPass_ = iConfig.getParameter<bool>("refitElossSignFromPass");
+  refitBkwMsFixedMomentum_ = iConfig.getParameter<bool>("refitBkwMsFixedMomentum");
+  refitBkwSubSteps_ = iConfig.getParameter<int>("refitBkwSubSteps");
+  if (refitBkwSubSteps_ < 1)
+    throw cms::Exception("Configuration") << "refitBkwSubSteps must be >= 1";
+  refitMaterialPerModule_ = iConfig.getParameter<bool>("refitMaterialPerModule");
 }
 
 void MkFitGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<std::vector<double>>("bFieldParams", {3.81036, -2.03767e-06, 7.34495e-06, 3.01291e-07})
+      ->setComment(
+          "{c1, b0, b1, a} of the final fit's parametrised Bz = (b0 z^2 + b1 z + c1)(a r^2 + 1), fitted to the CMS "
+          "field map over the tracker volume (0.03 % rms); track building uses those of ParabolicMf");
+  desc.add<bool>("refitBFieldAtMid", true)
+      ->setComment(
+          "refit only: sample B at the chord midpoint of each propagate-to-plane step rather than at its start, "
+          "so that the outward and inward propagations are inverses of each other");
+  desc.add<bool>("refitRadialFieldCorr", true)
+      ->setComment(
+          "refit only: correct each propagate-to-plane step for the radial field Br = -(r/2) dBz/dz, "
+          "antisymmetrically (half of the change in r*p_phi at each end of the step)");
+  desc.add<bool>("refitElossSignFromPass", true)
+      ->setComment(
+          "refit only: energy-loss sign from the pass (forward loses, backward gains) instead of from each step's "
+          "path-length sign, which is wrong wherever the refit visits two modules in reverse order");
+  desc.add<bool>("refitBkwMsFixedMomentum", true)
+      ->setComment(
+          "refit only: multiple-scattering noise of the backward pass at the momentum of its start state (the "
+          "forward result), fixed per track, instead of at the running estimate");
+  desc.add<int>("refitBkwSubSteps", 2)
+      ->setComment(
+          "refit only: number of sub-steps of each propagation of the backward pass (fixed path length, parameters "
+          "only, covariance with the whole-step Jacobian); 1 = one step");
+  desc.add<bool>("refitMaterialPerModule", true)
+      ->setComment(
+          "refit only: material of each crossed module from its own MediumProperties instead of the (|z|,r) grid, "
+          "which averages over the modules overlapping a 1 cm cell and has no phi dimension");
   descriptions.addWithDefaultLabel(desc);
 }
 
@@ -209,15 +294,24 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
                                                     layer_gap_map_t *lgc_map) {
   const DetId detid = det->geographicalId();
 
+  // A composite det, listed besides its sensors: it gets no module entry and no material.
   bool doubleSide = false;  //double modules have double material
-  if (detid.subdetId() == SiStripSubdetector::TIB)
-    doubleSide = trackerTopo_->tibIsDoubleSide(detid);
-  else if (detid.subdetId() == SiStripSubdetector::TID)
-    doubleSide = trackerTopo_->tidIsDoubleSide(detid);
-  else if (detid.subdetId() == SiStripSubdetector::TOB)
-    doubleSide = trackerTopo_->tobIsDoubleSide(detid);
-  else if (detid.subdetId() == SiStripSubdetector::TEC)
-    doubleSide = trackerTopo_->tecIsDoubleSide(detid);
+  if (layerNrConv_.isPhase2()) {
+    // Phase 2: a stack (PS or 2S module) is listed besides its lower and upper sensors,
+    // with the same material as each of them. The phase-1 double-side tests below
+    // match a stack only in TOB layers 1-2 and TEC rings 1, 2, 5.
+    if (detid.subdetId() > PixelSubdetector::PixelEndcap)
+      doubleSide = !trackerTopo_->isLower(detid) && !trackerTopo_->isUpper(detid);
+  } else {
+    if (detid.subdetId() == SiStripSubdetector::TIB)
+      doubleSide = trackerTopo_->tibIsDoubleSide(detid);
+    else if (detid.subdetId() == SiStripSubdetector::TID)
+      doubleSide = trackerTopo_->tidIsDoubleSide(detid);
+    else if (detid.subdetId() == SiStripSubdetector::TOB)
+      doubleSide = trackerTopo_->tobIsDoubleSide(detid);
+    else if (detid.subdetId() == SiStripSubdetector::TEC)
+      doubleSide = trackerTopo_->tecIsDoubleSide(detid);
+  }
 
   float xy[4][2];
   float dz;
@@ -297,21 +391,29 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
     (*lgc_map)[lay].reset_current();
   }
   float zbox_min = 1000, zbox_max = 0, rbox_min = 1000, rbox_max = 0;
+  GlobalPoint gp[8];
   for (int i = 0; i < 4; ++i) {
     Local3DPoint lp1(xy[i][0], xy[i][1], -dz);
     Local3DPoint lp2(xy[i][0], xy[i][1], dz);
-    GlobalPoint gp1 = det->surface().toGlobal(lp1);
-    GlobalPoint gp2 = det->surface().toGlobal(lp2);
-    considerPoint(gp1, layer_info);
-    considerPoint(gp2, layer_info);
-    findRZBox(gp1, rbox_min, rbox_max, zbox_min, zbox_max);
-    findRZBox(gp2, rbox_min, rbox_max, zbox_min, zbox_max);
+    gp[2 * i] = det->surface().toGlobal(lp1);
+    gp[2 * i + 1] = det->surface().toGlobal(lp2);
+  }
+  for (const GlobalPoint &g : gp) {
+    considerPoint(g, layer_info);
+    findRZBox(g, rbox_min, rbox_max, zbox_min, zbox_max);
     if (lgc_map) {
-      (*lgc_map)[lay].extend_current(gp1.perp2());
-      (*lgc_map)[lay].extend_current(gp2.perp2());
+      (*lgc_map)[lay].extend_current(g.perp2());
     }
   }
+  // The corners give the largest radius and the z extent, but not the smallest
+  // radius, see minTransverseRadius(). Layer radii are kept squared until produce()
+  // takes the root.
+  const float r_min = minTransverseRadius(gp);
+  if (r_min * r_min < layer_info.rin())
+    layer_info.set_limits(r_min * r_min, layer_info.rout(), layer_info.zmin(), layer_info.zmax());
+  rbox_min = std::min(rbox_min, r_min);
   if (lgc_map) {
+    (*lgc_map)[lay].extend_current(r_min * r_min);
     (*lgc_map)[lay].add_current();
   }
 
@@ -330,8 +432,11 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
   const auto &p = det->position();
   auto z = det->rotation().z();
   auto x = det->rotation().x();
+  // module material: stored on the module and spread into the (|z|, r) grid below
+  const float bbxi = det->surface().mediumProperties().xi();
+  const float radL = det->surface().mediumProperties().radLen();
   layer_info.register_module(
-      {{p.x(), p.y(), p.z()}, {z.x(), z.y(), z.z()}, {x.x(), x.y(), x.z()}, detid.rawId(), shape_id});
+      {{p.x(), p.y(), p.z()}, {z.x(), z.y(), z.z()}, {x.x(), x.y(), x.z()}, detid.rawId(), shape_id, radL, bbxi});
   // Set some layer parameters (repeatedly, would require hard-coding otherwise)
   layer_info.set_subdet(detid.subdetId());
   layer_info.set_is_pixel(detid.subdetId() <= 2);
@@ -341,9 +446,6 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
 
   // Fill material
   {
-    // module material
-    const float bbxi = det->surface().mediumProperties().xi();
-    const float radL = det->surface().mediumProperties().radLen();
     // loop over bins to fill histogram with bbxi, radL and their weight, which the overlap surface in r-z with the cmsquare of a bin
     const float iBin = trk_info.mat_range_z() / trk_info.mat_nbins_z();
     const float jBin = trk_info.mat_range_r() / trk_info.mat_nbins_r();
@@ -546,6 +648,17 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
 
   const float *qBinDefaults = nullptr;
 
+  // parametrised field, for every geometry: track building with the constants of CMSSW's ParabolicMf, the final fit
+  // with its own, fitted to the field map (mkfit::Config)
+  mkfit::Config::mag_c1 = portableParabolicMagneticField::Parameters::c1;
+  mkfit::Config::mag_b0 = portableParabolicMagneticField::Parameters::b0;
+  mkfit::Config::mag_b1 = portableParabolicMagneticField::Parameters::b1;
+  mkfit::Config::mag_a = portableParabolicMagneticField::Parameters::a;
+  mkfit::Config::mag_fit_c1 = bFieldParams_[0];
+  mkfit::Config::mag_fit_b0 = bFieldParams_[1];
+  mkfit::Config::mag_fit_b1 = bFieldParams_[2];
+  mkfit::Config::mag_fit_a = bFieldParams_[3];
+
   // std::string path = "Geometry/TrackerCommonData/data/";
   if (trackerGeom_->isThere(GeomDetEnumerators::P1PXB) || trackerGeom_->isThere(GeomDetEnumerators::P1PXEC)) {
     edm::LogInfo("MkFitGeometryESProducer") << "Extracting PhaseI geometry";
@@ -618,6 +731,25 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
   aggregateMaterialInfo(*trackerInfo, material_histogram);
   fillLayers(*trackerInfo);
 
+  // Safety net: every module must resolve to non-zero material through the very same
+  // lookup the propagator uses.  A zero here is silent in reco -- applyMaterialEffects()
+  // simply skips the hit -- so fail at geometry-build time instead.
+  {
+    unsigned int n_zero = 0;
+    for (const auto &det : trackerGeom_->dets()) {
+      const auto &mp = det->surface().mediumProperties();
+      if (!mp.isValid() || mp.xi() <= 0.f)
+        continue;
+      const auto &p = det->position();
+      if (trackerInfo->material_checked(std::abs(p.z()), p.perp()).bbxi <= 0.f)
+        ++n_zero;
+    }
+    if (n_zero > 0)
+      throw cms::Exception("LogicError") << "MkFitGeometryESProducer: " << n_zero
+                                         << " modules with material resolve to zero in the mkFit material grid; "
+                                         << "tracks through them would get no energy loss and no multiple scattering.";
+  }
+
   // Propagation configuration
   {
     using namespace mkfit;
@@ -630,7 +762,13 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
     else
       pconf.finding_intra_layer_pflags = PropagationFlags(PF_none);
     pconf.backward_fit_pflags = PropagationFlags(PF_use_param_b_field | PF_apply_material);
-    pconf.forward_fit_pflags = PropagationFlags(PF_use_param_b_field | PF_apply_material);
+    pconf.final_fit_pflags = PropagationFlags(PF_use_param_b_field | PF_apply_material | PF_use_fit_b_field);
+    pconf.final_fit_ffflags.b_field_at_mid = refitBFieldAtMid_;
+    pconf.final_fit_ffflags.radial_field_corr = refitRadialFieldCorr_;
+    pconf.final_fit_ffflags.eloss_sign_from_pass = refitElossSignFromPass_;
+    pconf.final_fit_ffflags.bkw_ms_fixed_momentum = refitBkwMsFixedMomentum_;
+    pconf.final_fit_ffflags.bkw_sub_steps = refitBkwSubSteps_;
+    pconf.final_fit_ffflags.material_per_module = refitMaterialPerModule_;
     pconf.seed_fit_pflags = PropagationFlags(PF_none);
     pconf.pca_prop_pflags = PropagationFlags(PF_none);
     pconf.apply_tracker_info(trackerInfo.get());

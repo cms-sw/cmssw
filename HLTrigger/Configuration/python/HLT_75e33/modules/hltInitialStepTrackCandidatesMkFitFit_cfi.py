@@ -13,5 +13,9 @@ hltInitialStepTrackCandidatesMkFitFit = cms.EDProducer("MkFitFitProducer",
     candMinNHitsCut = cms.int32(4),
     candMinPtCut = cms.double(0.85),
     candMinPtRelaxedCut = cms.double(0.8),
-    candMinAbsEtaForRelaxedCut = cms.double(1.4)                                
+    candMinAbsEtaForRelaxedCut = cms.double(1.4),
+    storeHitStates = cms.bool(False)
 )
+
+from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
+mtd_at_hlt.toModify(hltInitialStepTrackCandidatesMkFitFit, storeHitStates = True)

@@ -29,6 +29,9 @@ Idx == -7 = kHitInGapIdx     : Dummy hit to mark the location of an inactive mod
 
 Idx == -9 = kHitCCCFilterIdx : Reference track contained a hit that has since been filtered out via CCC before written to memory file. -9 hits are NOT stored in layerHits_.
 
+Idx <= -16 = kHitFitOutlierIdx: Hit removed by the final fit (MkBuilder::fittracks) as an outlier; the hit's index is
+                               kHitFitOutlierIdx - Idx (Hit::hitIdxOfFitOutlier).
+
 
 --------------------
  Section 2: mcHitID
