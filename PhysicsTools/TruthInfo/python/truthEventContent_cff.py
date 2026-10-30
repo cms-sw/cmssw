@@ -21,7 +21,8 @@
 #     trackId->particle map) and it lets the logical graph / index be rebuilt
 #     offline. mix:genPayload is not kept, so a rebuild sets rawGenPayload to "";
 #     then a stable pileup GEN-only particle has no momentum and a pileup GEN
-#     vertex that merged with no SimVertex has no position.
+#     vertex that merged with no SimVertex has no position. It also keeps the
+#     offline reco products that the truth associators read.
 #
 #     INVARIANT: the persisted index must stay COMPLETE - every hit-leaving
 #     contributor present, no pdgId pruning. The per-cell denominator is the sum
@@ -38,14 +39,55 @@
 
 import FWCore.ParameterSet.Config as cms
 
+from RecoTICL.Configuration.iterativeTICL_cff import ticlIterLabelsPSet
+
 # The compact, stage-independent truth: the physics graph, the unresolved
 # per-particle per-cell footprint, and the raw merged CSR graph (needed by the
 # branch validators' rawSrc and for offline rebuild; ~3 MB/ev).
-_truthGraphKeep = [
+_truthProductsKeep = [
     'keep *_truthLogicalGraphProducer_*_*',
     'keep *_truthLogicalGraphHitIndexProducer_*_*',
     'keep TruthGraph_mix_*_*',
 ]
+
+# The reco products the truth associators, validators and DetIdToRecHitMapProducer
+# read, so that a later job can associate them to the truth. Each
+# keep names the product type, so the other products of the same module are not kept.
+# The plain PFRecHits are needed because the Cleaned instances hold the rejected hits.
+# The offline tracksters are named one by one: a wildcard would also run every
+# unscheduled trackster producer.
+_truthOfflineInputsKeep = [
+    'keep HGCRecHits_HGCalRecHit_HGCEERecHits_*',
+    'keep HGCRecHits_HGCalRecHit_HGCHEFRecHits_*',
+    'keep HGCRecHits_HGCalRecHit_HGCHEBRecHits_*',
+    'keep recoPFRecHits_particleFlowRecHitECAL__*',
+    'keep recoPFRecHits_particleFlowRecHitHBHE__*',
+    'keep recoPFRecHits_particleFlowRecHitHF__*',
+    'keep recoPFRecHits_particleFlowRecHitHO__*',
+    'keep recoCaloClusters_hgcalMergeLayerClusters__*',
+    'keep recoPFClusters_particleFlowClusterECAL__*',
+    'keep recoPFClusters_particleFlowClusterHCAL__*',
+    'keep recoTracks_generalTracks__*',
+    'keep recoVertexs_offlinePrimaryVertices__*',
+    'keep recoVertexs_inclusiveSecondaryVertices__*',
+] + ['keep ticlTracksters_%s__*' % label for label in ticlIterLabelsPSet.labels]
+
+# The HLT twins, for the tiers that keep HLT products (FEVTDEBUGHLT).
+truthHltInputsKeep = [
+    'keep HGCRecHits_hltHGCalRecHit_HGCEERecHits_*',
+    'keep HGCRecHits_hltHGCalRecHit_HGCHEFRecHits_*',
+    'keep HGCRecHits_hltHGCalRecHit_HGCHEBRecHits_*',
+    'keep recoPFRecHits_hltParticleFlowRecHitECALUnseeded__*',
+    'keep recoPFRecHits_hltParticleFlowRecHitHBHE__*',
+    'keep recoPFRecHits_hltParticleFlowRecHitHF__*',
+    'keep recoPFRecHits_hltParticleFlowRecHitHO__*',
+    'keep recoCaloClusters_hltMergeLayerClusters__*',
+    'keep recoTracks_hltGeneralTracks__*',
+    'keep recoVertexs_hltOfflinePrimaryVertices__*',
+    'keep ticlTracksters_hltTicl*__*',
+]
+
+_truthGraphKeep = _truthProductsKeep + _truthOfflineInputsKeep
 
 
 def _truthSimHitsKeep(includeTrackingHits):
@@ -87,8 +129,9 @@ def truthEventContent(level='compact', includeTrackingHits=True):
 
 def setTruthEventContent(process, level='compact', includeTrackingHits=True):
     """Append a truth verbosity level to every output module in the process.
-    level='compact' (default, ~O(10) MB/ev: graph + unresolved hit index) or
-    'full' (adds raw graph + merged simHits for off-geometry re-association)."""
+    level='compact' (default: graph, unresolved hit index, raw graph and the reco
+    products the associators read) or 'full' (adds the merged simHits for
+    off-geometry re-association)."""
     commands = truthEventContent(level, includeTrackingHits)
     for out in process.outputModules_().values():
         out.outputCommands.extend(commands)
