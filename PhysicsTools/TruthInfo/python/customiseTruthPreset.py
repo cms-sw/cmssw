@@ -40,9 +40,9 @@ from PhysicsTools.TruthInfo.truthGraphSelections import (
     templateForFragment,
 )
 
-# The producer that builds the selected view. Every module that carries seed parameters
-# is found by name below, so a new validator needs no edit here.
-GRAPH_PRODUCER = "truthLogicalGraphProducer"
+# The type of the producer that builds the selected view. Every graph producer and every
+# module that carries seed parameters is found below, so a new module needs no edit here.
+GRAPH_PRODUCER_TYPE = "TruthLogicalGraphProducer"
 SEED_PARAMETERS = ("signalSeedPdgIds", "signalSeedHadronFlavors")
 
 # The postProcessing fields the preset owns. Anything outside this list, such as
@@ -103,17 +103,18 @@ def applyTruthPreset(process, preset=None, fragment=None, **overrides):
             raise KeyError("unknown postProcessing field %r" % field)
         fields[field] = value
 
-    if hasattr(process, GRAPH_PRODUCER):
-        postProcessing = getattr(process, GRAPH_PRODUCER).postProcessing
+    graphProducers = [module for module in process.producers_().values() if module.type_() == GRAPH_PRODUCER_TYPE]
+    for producer in graphProducers:
         for field, value in fields.items():
-            setattr(postProcessing, field, _TYPES[field](value))
-    else:
+            setattr(producer.postProcessing, field, _TYPES[field](value))
+        producer.postProcessing.presetName = cms.string(name)
+    if not graphProducers:
         # The Signal flags are stamped on the graph by the job that builds it, which is
         # the DIGI step in the default production. Here only the seeds change, and they
         # find a signal object only if that job applied the same preset.
         print("[truth] WARNING: no %s in this job, so the preset does not change the graph. "
               "The signal seeds below match only if the job that built the graph applied the same preset."
-              % GRAPH_PRODUCER)
+              % GRAPH_PRODUCER_TYPE)
 
     # The signal-seed denominator is the preset's own signal object, so every module that
     # reads seeds reads the same ones: the targets producer publishes the denominators and

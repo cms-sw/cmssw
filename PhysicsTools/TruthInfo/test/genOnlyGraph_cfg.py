@@ -1,5 +1,6 @@
 # Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-# A GEN-only job, a pi+ gun without SIM, with the GEN-only graph of customiseTruthGenOnly.
+# A GEN-only job, a pi+ gun without SIM, with the GEN-only graph and the metadata of
+# customiseTruthGenOnly.
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.TruthInfo.customiseTruthGenOnly import customiseTruthGenOnly
@@ -24,7 +25,7 @@ process.out = cms.OutputModule("PoolOutputModule", fileName=cms.untracked.string
                                outputCommands=cms.untracked.vstring("drop *"))
 process.e = cms.EndPath(process.out)
 
-customiseTruthGenOnly(process)
+customiseTruthGenOnly(process, writeMetadata=True)
 # The gun writes its record as generator:unsmeared and the job has no vertex smearing.
 process.truthGenOnlyGraphProducer.genEventHepMC = cms.InputTag("generator", "unsmeared")
 process.truthGenOnlyGraphProducer.genEventHepMC3 = cms.InputTag("generator", "unsmeared")

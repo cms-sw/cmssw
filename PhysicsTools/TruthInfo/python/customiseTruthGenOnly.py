@@ -13,7 +13,8 @@ From cmsDriver, on a job that runs the GEN step:
         --customise PhysicsTools/TruthInfo/customiseTruthGenOnly.customiseTruthGenOnly
 
 The producers run on demand when an output module keeps their products, and every
-output module of the job keeps them.
+output module of the job keeps them. customiseTruthGenOnlyWithMetadata also writes
+truth::GraphMetadata once per run (see customiseTruthMetadata).
 """
 
 import FWCore.ParameterSet.Config as cms
@@ -47,8 +48,9 @@ truthGenOnlyEventContent = cms.untracked.vstring(
 )
 
 
-def customiseTruthGenOnly(process):
-    """Add the GEN-only graph to the GEN step and keep it in every output module."""
+def customiseTruthGenOnly(process, writeMetadata=False):
+    """Add the GEN-only graph to the GEN step and keep it in every output module. With
+    writeMetadata, also write truth::GraphMetadata once per run."""
     if not hasattr(process, "generation_step"):
         raise RuntimeError("customiseTruthGenOnly needs a job with the GEN step (process.generation_step)")
     process.truthGenOnlyGraphProducer = truthGenOnlyGraphProducer.clone()
@@ -58,4 +60,12 @@ def customiseTruthGenOnly(process):
     process.generation_step.associate(process.truthGenOnlyGraphTask)
     for out in process.outputModules_().values():
         out.outputCommands.extend(truthGenOnlyEventContent)
+    if writeMetadata:
+        from PhysicsTools.TruthInfo.customiseTruthMetadata import customiseTruthMetadata
+        customiseTruthMetadata(process)
     return process
+
+
+def customiseTruthGenOnlyWithMetadata(process):
+    """customiseTruthGenOnly with the metadata, for cmsDriver."""
+    return customiseTruthGenOnly(process, writeMetadata=True)
