@@ -114,6 +114,12 @@ namespace truth {
   // that drops every intermediate resonance.
   [[nodiscard]] bool collapseGenShower(GenBuild& gb, std::unordered_set<int> const& simContinuedBarcodes);
 
+  // The GEN vertices that take an edge from the GenEvent node, in the order of
+  // gb.vtxBarcodes: every vertex with no incoming particle, and every vertex that none of
+  // those reaches along the directed edges. A collider record has no vertex without an
+  // incoming particle, because the beams enter the first one, so every vertex is listed.
+  [[nodiscard]] std::vector<int> genEventAttachedVertices(GenBuild const& gb);
+
   // The barcodes some SimTrack continues, which is the input to the first keep rule
   // above. Templated on the container so this header keeps its HepMC-only dependencies.
   template <typename SimTrackContainerT>
