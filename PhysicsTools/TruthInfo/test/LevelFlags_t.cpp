@@ -252,6 +252,8 @@ class LevelFlags_t : public CppUnit::TestFixture {
   CPPUNIT_TEST(testGenVertexReasonLeavesSimAndArtificialVertices);
   CPPUNIT_TEST(testLastCopyFollowsTheRadiatingChain);
   CPPUNIT_TEST(testParticlesAtSeveralLevels);
+  CPPUNIT_TEST(testShowerObjectsFollowThePdgScheme);
+  CPPUNIT_TEST(testLeftRightSymmetricDecayIsADecay);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -1151,6 +1153,55 @@ public:
     truth::Graph radiating = c.finish();
     CPPUNIT_ASSERT_EQUAL(uint32_t{1}, truth::lastCopyOf(radiating, 0));
     CPPUNIT_ASSERT_EQUAL(uint32_t{4}, truth::lastCopyOf(radiating, 4));
+  }
+
+  // REQUIRED: every code the PDG numbering scheme reserves for shower bookkeeping and
+  // every generator-internal state is a shower object, in either charge sign. A physical
+  // particle, including a left-right symmetric BSM state, is not. The top is a
+  // shower object that decays, so it does not hadronize.
+  void testShowerObjectsFollowThePdgScheme() {
+    for (const int32_t pdgId :
+         {1,    6,    9,       21,      81,      90,      91,      92,      100,     110,     990,     9990,
+          2101, 2203, 9900020, 9900110, 9900210, 9900440, 9902210, 9905330, 9940003, 9952203, 9900441, 9910441}) {
+      CPPUNIT_ASSERT(truth::isShowerObject(pdgId));
+      CPPUNIT_ASSERT(truth::isShowerObject(-pdgId));
+    }
+    for (const int32_t pdgId :
+         {11,      13,      22,      23,      24,      25,      111,     211,     2212,    1000022,
+          9000111, 9010221, 9900012, 9900014, 9900016, 9900023, 9900024, 9900041, 9900042, 1000010020}) {
+      CPPUNIT_ASSERT(!truth::isShowerObject(pdgId));
+      CPPUNIT_ASSERT(!truth::isShowerObject(-pdgId));
+    }
+    CPPUNIT_ASSERT(truth::isParton(9));
+    CPPUNIT_ASSERT(truth::hadronizes(9));
+    // A Regge exchange is a shower object like the pomeron, so it hadronizes.
+    CPPUNIT_ASSERT(truth::hadronizes(110));
+    CPPUNIT_ASSERT(truth::hadronizes(990));
+    CPPUNIT_ASSERT(!truth::hadronizes(9900024));
+    CPPUNIT_ASSERT(!truth::hadronizes(9900012));
+    CPPUNIT_ASSERT(!truth::hadronizes(6));
+    CPPUNIT_ASSERT(!truth::hadronizes(-6));
+  }
+
+  // REQUIRED: the decay of a left-right symmetric W_R into a lepton and a heavy neutrino
+  // is a decay, not a hadronization.
+  void testLeftRightSymmetricDecayIsADecay() {
+    GraphBuilder b(3, 1);
+    const int32_t pdgIds[] = {9900024, -11, 9900012};
+    const int16_t statuses[] = {62, 23, 22};
+    for (uint32_t id : {0u, 1u, 2u}) {
+      auto& particle = b.graph.particles()[id];
+      particle.genNode = 100 + static_cast<int32_t>(id);
+      particle.pdgId = pdgIds[id];
+      particle.status = statuses[id];
+    }
+
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addProduction(0, 2);
+
+    truth::Graph g = b.finish();
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Decay, truth::genVertexReason(g, 0));
   }
 };
 

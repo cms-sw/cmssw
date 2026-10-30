@@ -431,48 +431,17 @@ public:
     };
 
     if (haveGen) {
-      std::unordered_map<int, int> vtxIncoming;
-      vtxIncoming.reserve(nGenVtx * 2);
-
-      for (int vbc : gb.vtxBarcodes)
-        vtxIncoming.emplace(vbc, 0);
-
-      for (auto const& e : gb.partToVtx) {
-        auto it = vtxIncoming.find(e.second);
-        if (it != vtxIncoming.end())
-          ++it->second;
-      }
-
-      // Residual gap, shared with TruthGraphAccumulator so the two stay consistent: source
-      // counting is per undirected component, but reachability from the GenEvent node is
-      // DIRECTED. A component containing both a true source and a beam-fed branch would
-      // attach only the source and leave the branch unreachable. No current record mixes
-      // the two in one component: a collider record is wholly sourceless and a gun record
-      // wholly source-rooted.
-      std::vector<std::vector<int>> rootsByComp(nGenEvents);
-      std::vector<std::vector<int>> allVtxByComp(nGenEvents);
-
-      for (int vbc : gb.vtxBarcodes) {
-        const int tidx = tempIndex.at(genKeyVertex(vbc));
-        const int cid = compOfTemp[tidx];
-
-        if (cid < 0 || cid >= nGenEvents)
-          continue;
-
-        allVtxByComp[cid].push_back(vbc);
-
-        if (vtxIncoming[vbc] == 0)
-          rootsByComp[cid].push_back(vbc);
+      // Each component's GenEvent node takes the vertices genEventAttachedVertices lists.
+      std::vector<std::vector<int>> attachedByComp(nGenEvents);
+      for (int vbc : truth::genEventAttachedVertices(gb)) {
+        const int cid = compOfTemp[tempIndex.at(genKeyVertex(vbc))];
+        if (cid >= 0 && cid < nGenEvents)
+          attachedByComp[cid].push_back(vbc);
       }
 
       for (int cid = 0; cid < nGenEvents; ++cid) {
         const uint32_t genEventNode = baseGenEvent + static_cast<uint32_t>(cid);
-
-        auto roots = rootsByComp[cid];
-        if (roots.empty())
-          roots = allVtxByComp[cid];
-
-        for (int vbc : roots) {
+        for (int vbc : attachedByComp[cid]) {
           auto itV = genVtxBarcodeToNode.find(vbc);
           if (itV != genVtxBarcodeToNode.end()) {
             push_edge(genEventNode, itV->second, TruthGraph::EdgeKind::Gen);

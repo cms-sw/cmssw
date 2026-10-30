@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <functional>
 #include <unordered_set>
 #include <vector>
 
@@ -207,6 +208,7 @@ class TestGenGraphBuild : public CppUnit::TestFixture {
   CPPUNIT_TEST(testHepMC2Payload);
   CPPUNIT_TEST(testCompactCarriesPayload);
   CPPUNIT_TEST(testHepMC3PayloadInGraphUnits);
+  CPPUNIT_TEST(testGenEventReachesEveryVertex);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -222,6 +224,7 @@ public:
   void testHepMC2Payload();
   void testCompactCarriesPayload();
   void testHepMC3PayloadInGraphUnits();
+  void testGenEventReachesEveryVertex();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestGenGraphBuild);
@@ -548,4 +551,44 @@ void TestGenGraphBuild::testHepMC3PayloadInGraphUnits() {
     }
   }
   CPPUNIT_ASSERT(pionFound);
+}
+
+// REQUIRED: the GenEvent node reaches every GEN vertex. A record with no source vertex
+// attaches every vertex, a source-rooted record attaches its sources only, and a branch
+// that hangs on a beam particle next to a source is attached as well.
+void TestGenGraphBuild::testGenEventReachesEveryVertex() {
+  auto record = [](std::vector<std::pair<int, int>> vtxToPart, std::vector<std::pair<int, int>> partToVtx) {
+    truth::GenBuild gb;
+    for (auto const& [v, p] : vtxToPart) {
+      gb.vtxBarcodes.push_back(v);
+      gb.partBarcodes.push_back(p);
+    }
+    for (auto const& [p, v] : partToVtx) {
+      gb.vtxBarcodes.push_back(v);
+      gb.partBarcodes.push_back(p);
+    }
+    auto sortUnique = [](std::vector<int>& values) {
+      std::sort(values.begin(), values.end(), std::greater<int>());
+      values.erase(std::unique(values.begin(), values.end()), values.end());
+    };
+    sortUnique(gb.vtxBarcodes);
+    sortUnique(gb.partBarcodes);
+    gb.vtxToPart = std::move(vtxToPart);
+    gb.partToVtx = std::move(partToVtx);
+    return gb;
+  };
+
+  // Collider: beam 1 enters V-1, which makes 2, and 2 decays at V-2 into 3.
+  const auto collider = record({{-1, 2}, {-2, 3}}, {{1, -1}, {2, -2}});
+  CPPUNIT_ASSERT((truth::genEventAttachedVertices(collider) == std::vector<int>{-1, -2}));
+
+  // Gun: V-1 has no incoming particle and makes 2, which decays at V-2 into 3.
+  const auto gun = record({{-1, 2}, {-2, 3}}, {{2, -2}});
+  CPPUNIT_ASSERT((truth::genEventAttachedVertices(gun) == std::vector<int>{-1}));
+
+  // Mixed: the source V-1 makes 2, which ends at V-3. Beam 4 enters V-2, which makes 5,
+  // and 5 also ends at V-3. V-3 joins the two in one component, but V-1 does not reach
+  // V-2.
+  const auto mixed = record({{-1, 2}, {-2, 5}, {-3, 6}}, {{2, -3}, {4, -2}, {5, -3}});
+  CPPUNIT_ASSERT((truth::genEventAttachedVertices(mixed) == std::vector<int>{-1, -2}));
 }

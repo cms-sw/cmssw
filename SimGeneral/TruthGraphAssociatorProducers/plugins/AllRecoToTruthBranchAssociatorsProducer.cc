@@ -234,6 +234,18 @@ namespace {
   template <typename RECO>
   concept ConstituentBasedDomain = TruthAssociationTraits<RECO>::strategy == AssociationStrategy::ConstituentBased;
 
+  // The association map a constituent-based domain reads for its constituents. A
+  // hit-based domain reads none; its own map type stands in and is never consumed.
+  template <typename RECO>
+  struct ConstituentMapOf {
+    using type = typename TruthAssociationTraits<RECO>::MapType;
+  };
+
+  template <ConstituentBasedDomain RECO>
+  struct ConstituentMapOf<RECO> {
+    using type = typename TruthAssociationTraits<typename TruthAssociationTraits<RECO>::ConstituentType>::MapType;
+  };
+
   // A domain matched on shared calorimeter energy, whose cells are weighted by their
   // rechit energy as the TICL associators weight them.
   template <typename RECO>
@@ -297,9 +309,7 @@ private:
   // Composite domains read their constituents' association maps instead of hits. The
   // upstream module is named by a cms.string and the instance labels are rebuilt here,
   // the same way the HGCal All* producers reach allHitToTracksterAssociations.
-  // Constituents are tracks for every composite domain shipped here; a future
-  // non-track constituent belongs in the domain's own trait, not in a conditional.
-  using ConstituentMapType = TruthAssociationTraits<reco::Track>::MapType;
+  using ConstituentMapType = typename ConstituentMapOf<RECO>::type;
   std::vector<std::vector<edm::EDGetTokenT<ConstituentMapType>>> constituentMapTokens_;
   VertexResolution vertexResolution_ = VertexResolution::Immediate;
 };
