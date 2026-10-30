@@ -234,6 +234,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     myPrint("depthLayerF", phgp->depthLayerF_, 18);
     myPrint("waferCopy", phgp->waferCopy_, 10);
     myPrint("waferTypeL", phgp->waferTypeL_, 25);
+    myPrint("waferTypeT", phgp->waferTypeT_, 25);
     printTrform(phgp);
     myPrint("levelTop", phgp->levelT_, 10);
     printWaferType(phgp);
