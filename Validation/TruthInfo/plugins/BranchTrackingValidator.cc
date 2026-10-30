@@ -147,8 +147,8 @@ namespace {
       if (simNode < 0 || static_cast<uint32_t>(simNode) >= raw.nNodes())
         continue;
       auto const& nr = raw.nodeRef(static_cast<uint32_t>(simNode));
-      if (nr.kind == TruthGraph::NodeKind::SimTrack)
-        out[truth::simObjectKey(raw.nodeEventId(static_cast<uint32_t>(simNode)), static_cast<uint32_t>(nr.key))] = i;
+      if (nr.kind() == TruthGraph::NodeKind::SimTrack)
+        out[truth::simObjectKey(raw.nodeEventId(static_cast<uint32_t>(simNode)), static_cast<uint32_t>(nr.key()))] = i;
     }
     return out;
   }

@@ -31,9 +31,20 @@ public:
     SimToGen = 3   // reserved (we don't produce these now)
   };
 
-  struct NodeRef {
-    NodeKind kind = NodeKind::GenParticle;
-    int64_t key = 0;  // GenParticle: index; SimTrack: trackId; SimVertex: index; GenVertex: barcode/index
+  // The kind is stored as one byte: ROOT streams an enum member as a 4-byte int.
+  class NodeRef {
+  public:
+    NodeRef() = default;
+    NodeRef(NodeKind kind, int64_t key) : kind_(static_cast<uint8_t>(kind)), key_(key) {}
+
+    [[nodiscard]] NodeKind kind() const { return static_cast<NodeKind>(kind_); }
+    // GenEvent: GEN component id; GenVertex, GenParticle: HepMC barcode (0 for the
+    // collapsed GEN interaction vertex); SimVertex: vertexId or index; SimTrack: trackId.
+    [[nodiscard]] int64_t key() const { return key_; }
+
+  private:
+    uint8_t kind_ = static_cast<uint8_t>(NodeKind::GenParticle);
+    int64_t key_ = 0;
   };
 
   TruthGraph() = default;

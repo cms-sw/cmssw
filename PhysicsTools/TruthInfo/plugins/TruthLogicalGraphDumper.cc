@@ -179,7 +179,7 @@ namespace {
     auto const& r = raw->nodeRef(static_cast<uint32_t>(nodeId));
 
     std::ostringstream ss;
-    ss << rawKindName(r.kind) << " #" << nodeId << " key=" << r.key;
+    ss << rawKindName(r.kind()) << " #" << nodeId << " key=" << r.key();
     return ss.str();
   }
 
