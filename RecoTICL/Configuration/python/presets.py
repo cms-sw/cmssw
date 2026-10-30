@@ -250,8 +250,8 @@ def candidate_defaults():
 
 
 def pf_defaults():
-    """Standard ``pfTICL`` overrides."""
-    return dict(useTimingAverage=cms.bool(True))
+    """Standard ``pfTICL`` overrides: none, the module defaults."""
+    return dict()
 
 
 # --------------------------------------------------------------------------- #
