@@ -80,6 +80,10 @@ public:
   /// Returns area of a cell
   double getArea(const DetId& detid) const;
   double getAreaX(const DetId& detid) const;
+  double getAreaHex(const DetId& detid, bool reco) const {
+    HGCSiliconDetId id(detid);
+    return m_topology.dddConstants().cellArea(id, reco);
+  }
 
   /// Returns the corner points of this cell's volume.
   CornersVec getCorners(const DetId& id) const;
