@@ -134,6 +134,28 @@ phase2CAExtension.toReplaceWith(pixelTracksAlpaka,_pixelTracksAlpakaPhase2Extend
     trackerRecHitsSoA = "phase2OTRecHitsSoAConverter"
 ))
 
+# Phase-2 CA extended to outer-tracker vector hits: the outer-tracker hits in SoA format, the vector hits built from them
+# and the vector hit CA, on the device and on the cpu
+from Configuration.ProcessModifiers.phase2CAVectorHits_cff import phase2CAVectorHits
+from RecoTracker.PixelSeeding.caotRecHitsSoAConverter_cfi import caotRecHitsSoAConverter as _caOTRecHitsSoAConverter
+from RecoTracker.PixelSeeding.phase2OTVectorHitsSoAProducer_cfi import phase2OTVectorHitsSoAProducer as _phase2OTVectorHitsSoAProducer
+from RecoTracker.PixelSeeding.caHitNtupletAlpakaPhase2OTVectorHits_cfi import caHitNtupletAlpakaPhase2OTVectorHits as _pixelTracksAlpakaPhase2OTVectorHits
+from RecoTracker.FinalTrackSelectors.pixelTrackForestHighPuritySelector_cfi import pixelTrackForestHighPuritySelector as _pixelTrackForestHighPuritySelector
+
+caOTRecHitsSoA = _caOTRecHitsSoAConverter.clone()
+caOTRecHitsSoASerial = makeSerialClone(caOTRecHitsSoA)
+phase2OTVectorHitsSoA = _phase2OTVectorHitsSoAProducer.clone(
+    otRecHitsSoA = "caOTRecHitsSoA"
+)
+phase2OTVectorHitsSoASerial = makeSerialClone(phase2OTVectorHitsSoA,
+    otRecHitsSoA = "caOTRecHitsSoASerial"
+)
+
+phase2CAVectorHits.toReplaceWith(pixelTracksAlpaka, _pixelTracksAlpakaPhase2OTVectorHits.clone(
+    pixelRecHitSrc = "siPixelRecHitsPreSplittingAlpaka",
+    vectorHitsSrc = "phase2OTVectorHitsSoA"
+))
+
 # pixel tracks SoA producer on the cpu, for validation
 pixelTracksAlpakaSerial = makeSerialClone(pixelTracksAlpaka,
     pixelRecHitSrc = 'siPixelRecHitsPreSplittingAlpakaSerial'
@@ -142,6 +164,19 @@ pixelTracksAlpakaSerial = makeSerialClone(pixelTracksAlpaka,
 phase2CAExtension.toModify(pixelTracksAlpakaSerial,
                            pixelRecHitSrc = 'siPixelRecHitsExtendedPreSplittingAlpakaSerial'
                            )
+
+phase2CAVectorHits.toModify(pixelTracksAlpakaSerial,
+    vectorHitsSrc = "phase2OTVectorHitsSoASerial"
+)
+
+# high-purity selection of the vector hit CA tracks, as in the HLT menu
+pixelTracksAlpakaHighPurity = _pixelTrackForestHighPuritySelector.clone(
+    pixelTrackSrc = "pixelTracksAlpaka",
+    pixelRecHitSrc = "siPixelRecHitsPreSplittingAlpaka",
+    vectorHitsSrc = "phase2OTVectorHitsSoA",
+    otRecHitsSoASrc = "caOTRecHitsSoA",
+    model = "RecoTracker/FinalTrackSelectors/data/PixelTrackTorchHighPuritySelector/prompt_tree31_wp_20260914.bin"
+)
 
 # legacy pixel tracks from SoA
 from  RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAAlpaka_cfi import pixelTrackProducerFromSoAAlpaka as _pixelTrackProducerFromSoAAlpaka
@@ -162,6 +197,18 @@ phase2CAExtension.toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAAlpaka.cl
     requireQuadsFromConsecutiveLayers = cms.bool(True)
 ))
 
+# the vector hits are expanded back into their two outer-tracker rechits
+phase2CAVectorHits.toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAAlpaka.clone(
+    trackSrc = "pixelTracksAlpakaHighPurity",
+    pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
+    outerTrackerRecHitSrc = "siPhase2RecHits",
+    otRecHitsSoASrc = "caOTRecHitsSoA",
+    vectorHitsSoASrc = "phase2OTVectorHitsSoA",
+    minQuality = "tight",
+    useOTExtension = True,
+    expandVectorHits = True
+))
+
 alpaka.toReplaceWith(pixelTracksTask, cms.Task(
     # Build the pixel ntuplets and the pixel tracks in SoA format with alpaka on the device
     pixelTracksAlpaka,
@@ -170,3 +217,20 @@ alpaka.toReplaceWith(pixelTracksTask, cms.Task(
     # Convert the pixel tracks from SoA to legacy format
     pixelTracks)
 )
+
+phase2CAVectorHits.toReplaceWith(pixelTracksTask, cms.Task(
+    caOTRecHitsSoA,
+    caOTRecHitsSoASerial,
+    phase2OTVectorHitsSoA,
+    phase2OTVectorHitsSoASerial,
+    pixelTracksAlpaka,
+    pixelTracksAlpakaSerial,
+    pixelTracksAlpakaHighPurity,
+    pixelTracks)
+)
+
+# event setup of the vector hit CA: stacked-module geometry
+def _addProcessESPhase2CAVectorHits(process):
+    process.load("RecoTracker.PixelSeeding.stackedModuleGeometryESProducer_cfi")
+
+modifyConfigurationForPhase2CAVectorHits_ = (alpaka & phase2CAVectorHits).makeProcessModifier(_addProcessESPhase2CAVectorHits)

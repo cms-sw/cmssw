@@ -53,6 +53,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   class HelixFit {
   public:
+    // Hit view of the fit (see CAStructures.h).
+    using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
     using HitView = ::reco::TrackingRecHitView;
     using HitConstView = ::reco::TrackingRecHitConstView;
     using OutputSoAView = ::reco::TrackSoAView;
@@ -65,12 +68,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ~HelixFit() { deallocate(); }
 
     void setBField(double bField) { bField_ = bField; }
-    void launchRiemannKernels(const caStructures::HitsMultiView &hv,
+    void launchRiemannKernels(const HitsMultiView &hv,
                               const ::reco::CAModulesConstView &fr,
                               uint32_t nhits,
                               uint32_t maxNumberOfTuples,
                               Queue &queue);
-    void launchBrokenLineKernels(const caStructures::HitsMultiView &hv,
+    void launchBrokenLineKernels(const HitsMultiView &hv,
                                  const ::reco::CAModulesConstView &fr,
                                  uint32_t nhits,
                                  uint32_t maxNumberOfTuples,
