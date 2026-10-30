@@ -174,13 +174,11 @@ vector<const TrackingRecHit *> CosmicTrajectoryBuilder::SortHits(
   //At the end all the hits are sorted in y
   vector<const TrackingRecHit *> allHits;
 
-  SiStripRecHit2DCollection::DataContainer::const_iterator istrip;
 
   for (auto const &recHit : seed.recHits()) {
     hits.push_back((RHBuilder->build(&recHit)));
   }
 
-  SiPixelRecHitCollection::DataContainer::const_iterator ipix;
   if (collpixel.has_value()) {
     for (const SiPixelRecHit &iPix : collpixel.value().get().data()) {
       if (onSeed(RHBuilder->build(&iPix)->globalPosition(), hits)) {
