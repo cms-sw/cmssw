@@ -136,54 +136,40 @@ void Herwig7Interface::initRepository(const edm::ParameterSet &pset) {
 }
 
 void Herwig7Interface::callHerwigGenerator() {
-  try {
-    edm::LogInfo("Herwig7Interface") << "callHerwigGenerator function invoked with run mode " << HwUI_->runMode()
-                                     << ".\n";
+  edm::LogInfo("Herwig7Interface") << "callHerwigGenerator function invoked with run mode " << HwUI_->runMode()
+                                   << ".\n";
 
-    // Call program switches according to runMode
-    switch (HwUI_->runMode()) {
-      case Herwig::RunMode::INIT:
-        Herwig::API::init(*HwUI_);
-        break;
-      case Herwig::RunMode::READ:
-        Herwig::API::read(*HwUI_);
-        break;
-      case Herwig::RunMode::BUILD:
-        Herwig::API::build(*HwUI_);
-        break;
-      case Herwig::RunMode::INTEGRATE:
-        Herwig::API::integrate(*HwUI_);
-        break;
-      case Herwig::RunMode::MERGEGRIDS:
-        Herwig::API::mergegrids(*HwUI_);
-        break;
-      case Herwig::RunMode::RUN: {
-        HwUI_->setSeed(randomEngine->getSeed());
-        eg_ = Herwig::API::prepareRun(*HwUI_);
-        break;
-      }
-      case Herwig::RunMode::ERROR:
-        edm::LogError("Herwig7Interface") << "Error during read in of command line parameters.\n"
-                                          << "Program execution will stop now.";
-        return;
-      default:
-        HwUI_->quitWithHelp();
+  // Call program switches according to runMode
+  switch (HwUI_->runMode()) {
+    case Herwig::RunMode::INIT:
+      Herwig::API::init(*HwUI_);
+      break;
+    case Herwig::RunMode::READ:
+      Herwig::API::read(*HwUI_);
+      break;
+    case Herwig::RunMode::BUILD:
+      Herwig::API::build(*HwUI_);
+      break;
+    case Herwig::RunMode::INTEGRATE:
+      Herwig::API::integrate(*HwUI_);
+      break;
+    case Herwig::RunMode::MERGEGRIDS:
+      Herwig::API::mergegrids(*HwUI_);
+      break;
+    case Herwig::RunMode::RUN: {
+      HwUI_->setSeed(randomEngine->getSeed());
+      eg_ = Herwig::API::prepareRun(*HwUI_);
+      break;
     }
-
-    return;
-
-  } catch (ThePEG::Exception &e) {
-    edm::LogError("Herwig7Interface") << ": ThePEG::Exception caught.\n"
-                                      << e.what() << '\n'
-                                      << "See logfile for details.\n";
-    return;
-  } catch (std::exception &e) {
-    edm::LogError("Herwig7Interface") << ": " << e.what() << '\n';
-    return;
-  } catch (const char *what) {
-    edm::LogError("Herwig7Interface") << ": caught exception: " << what << "\n";
-    return;
+    case Herwig::RunMode::ERROR:
+      edm::LogError("Herwig7Interface") << "Error during read in of command line parameters.\n"
+                                        << "Program execution will stop now.";
+      return;
+    default:
+      HwUI_->quitWithHelp();
   }
+
+  return;
 }
 
 bool Herwig7Interface::initGenerator() {
