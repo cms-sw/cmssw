@@ -314,7 +314,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                SegmentsConst segments,
                                                                TripletsConst triplets,
                                                                MiniDoubletsOccupancyConst mdOccupancy,
-                                                               TripletsRangesConst tripletsRangesByMD,
+                                                               TripletCountsConst tripletCountsByMD,
                                                                uint16_t lowerModuleIndex1,
                                                                uint16_t lowerModuleIndex2,
                                                                uint16_t lowerModuleIndex3,
@@ -473,7 +473,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         lowerModuleIndex1, lowerModuleIndex2, lowerModuleIndex3, lowerModuleIndex4};
     const unsigned int t4Md[Params_T4::kLayers] = {firstMDIndex, secondMDIndex, thirdMDIndex, fourthMDIndex};
     const auto t4Feat = computeDnnFeatures<Params_T4::kLayers, 0, 1, 3, 1>(
-        acc, modules, mds, mdOccupancy, tripletsRangesByMD, t4Lm, t4Md);
+        acc, modules, mds, mdOccupancy, tripletCountsByMD, t4Lm, t4Md);
     // Reject if an MD's second hit is 6 sigma or more off the T4 direction.
     if (t4Feat.mdDirMaxPull >= 6.f)
       return false;
@@ -532,7 +532,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   TripletsBySegmentConst tripletsBySegment,
                                   TripletsRangesConst tripletsRangesBySegment,
                                   MiniDoubletsOccupancyConst mdOccupancy,
-                                  TripletsRangesConst tripletsRangesByMD,
+                                  TripletCountsConst tripletCountsByMD,
                                   Quadruplets quadruplets,
                                   QuadrupletsOccupancy quadrupletsOccupancy,
                                   ObjectRangesConst ranges,
@@ -649,7 +649,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                       segments,
                                                       triplets,
                                                       mdOccupancy,
-                                                      tripletsRangesByMD,
+                                                      tripletCountsByMD,
                                                       lowerModule1,
                                                       lowerModule2,
                                                       lowerModule3,
@@ -724,7 +724,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                    mdIndices[segIdx[innerTripletIndex][1]][1],
                                                                    mdIndices[segIdx[outerTripletIndex][1]][1]};
                     const auto t4Feat = computeDnnFeatures<Params_T4::kLayers, 0, 1, 3, 1>(
-                        acc, modules, mds, mdOccupancy, tripletsRangesByMD, t4Lm, t4Md);
+                        acc, modules, mds, mdOccupancy, tripletCountsByMD, t4Lm, t4Md);
                     quadruplets.mdDirMeanW()[quadrupletIndex] = t4Feat.mdDirMeanW;
                     quadruplets.mdDirMaxW()[quadrupletIndex] = t4Feat.mdDirMaxW;
                     quadruplets.nT3OutMid()[quadrupletIndex] = t4Feat.nT3OutMid;
@@ -788,7 +788,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                   segments,
                                                   triplets,
                                                   mdOccupancy,
-                                                  tripletsRangesByMD,
+                                                  tripletCountsByMD,
                                                   lowerModule1,
                                                   lowerModule2,
                                                   lowerModule3,
@@ -860,7 +860,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                mdIndices[segIdx[innerTripletIndex][1]][1],
                                                                mdIndices[segIdx[outerTripletIndex][1]][1]};
                 const auto t4Feat = computeDnnFeatures<Params_T4::kLayers, 0, 1, 3, 1>(
-                    acc, modules, mds, mdOccupancy, tripletsRangesByMD, t4Lm, t4Md);
+                    acc, modules, mds, mdOccupancy, tripletCountsByMD, t4Lm, t4Md);
                 quadruplets.mdDirMeanW()[quadrupletIndex] = t4Feat.mdDirMeanW;
                 quadruplets.mdDirMaxW()[quadrupletIndex] = t4Feat.mdDirMaxW;
                 quadruplets.nT3OutMid()[quadrupletIndex] = t4Feat.nT3OutMid;
@@ -893,7 +893,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   TripletsBySegmentConst tripletsBySegment,
                                   TripletsRangesConst tripletsRangesBySegment,
                                   MiniDoubletsOccupancyConst mdOccupancy,
-                                  TripletsRangesConst tripletsRangesByMD,
+                                  TripletCountsConst tripletCountsByMD,
                                   ObjectRangesConst ranges,
                                   const float ptCut,
                                   unsigned int* __restrict__ t3ConnectedLSMax) const {
@@ -967,7 +967,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                        segments,
                                                        triplets,
                                                        mdOccupancy,
-                                                       tripletsRangesByMD,
+                                                       tripletCountsByMD,
                                                        lowerModule1,
                                                        lowerModule2,
                                                        lowerModule3,

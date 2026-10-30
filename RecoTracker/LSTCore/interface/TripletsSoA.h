@@ -46,6 +46,13 @@ namespace lst {
   using TripletsRanges = TripletsRangesSoA::View;
   using TripletsRangesConst = TripletsRangesSoA::ConstView;
 
+  // Number of triplets per inner MD (read by the T4 and T5 DNN features).
+  GENERATE_SOA_LAYOUT(TripletCountsSoALayout, SOA_COLUMN(uint32_t, n));
+
+  using TripletCountsSoA = TripletCountsSoALayout<>;
+  using TripletCounts = TripletCountsSoA::View;
+  using TripletCountsConst = TripletCountsSoA::ConstView;
+
   // index and fast cached data if any
   GENERATE_SOA_LAYOUT(TripletsBySegmentSoALayout, SOA_COLUMN(unsigned int, tripletIndex));
 
@@ -53,28 +60,20 @@ namespace lst {
   using TripletsBySegment = TripletsBySegmentSoA::View;
   using TripletsBySegmentConst = TripletsBySegmentSoA::ConstView;
 
-  // index and fast cached data if any
-  GENERATE_SOA_LAYOUT(TripletsByMDSoALayout, SOA_COLUMN(unsigned int, tripletIndex));
-
-  using TripletsByMDSoA = TripletsByMDSoALayout<>;
-  using TripletsByMD = TripletsByMDSoA::View;
-  using TripletsByMDConst = TripletsByMDSoA::ConstView;
-
   GENERATE_SOA_BLOCKS(TripletsSoABlocksLayout,
                       SOA_BLOCK(triplets, TripletsSoALayout),
                       SOA_BLOCK(tripletsOccupancy, TripletsOccupancySoALayout),
-                      SOA_BLOCK(tripletsBySegment, TripletsBySegmentSoALayout),
-                      SOA_BLOCK(tripletsByMD, TripletsByMDSoALayout))
+                      SOA_BLOCK(tripletsBySegment, TripletsBySegmentSoALayout))
 
   using TripletsSoABlocks = TripletsSoABlocksLayout<>;
   using TripletsSoABlocksView = TripletsSoABlocks::View;
   using TripletsSoABlocksConstView = TripletsSoABlocks::ConstView;
 
-  // Per-segment and per-MD ranges of the by-segment/by-MD triplet lists, sized by segments and MDs,
-  // kept apart from the triplet-sized blocks so that the triplets can be compacted after creation.
+  // Per-segment ranges of triplets and per-MD triplet counts, kept apart from the triplet-sized blocks so that the
+  // triplets can be compacted after creation.
   GENERATE_SOA_BLOCKS(TripletsListRangesSoABlocksLayout,
                       SOA_BLOCK(tripletsRangesBySegment, TripletsRangesSoALayout),
-                      SOA_BLOCK(tripletsRangesByMD, TripletsRangesSoALayout))
+                      SOA_BLOCK(tripletCountsByMD, TripletCountsSoALayout))
 
   using TripletsListRangesSoABlocks = TripletsListRangesSoABlocksLayout<>;
 

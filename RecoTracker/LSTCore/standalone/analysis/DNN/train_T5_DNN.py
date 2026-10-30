@@ -2,8 +2,8 @@
 """Train the 3-class T5 DNN (fake / prompt / displaced) and write the model for wp_T5_DNN.py (replaces train_T5_DNN.ipynb).
 
 Training samples: build the standalone with -d (CUT_VALUE_DEBUG, which writes the t5x_* DNN-input branches) and with
-the T5 DNN creation cut in runQuintupletDefaultAlgo (Quintuplet.h, "if (!inference) return false") commented out, so the
-sample is the un-selected T5 population; run lst_cpu with --t5 --t5dnn (100-event chunks). Samples used in 2026-09:
+the T5 DNN creation cut in runQuintupletSelectionOuter (Quintuplet.h, "if (!inference) return false") commented out,
+so the sample is the un-selected T5 population; run lst_cpu with --t5 --t5dnn (100-event chunks). Samples used in 2026-09:
 PU200 ttbar 1000 events (reference), jets 500 events (-J), 10-muon 0.5-50 GeV 5 cm cube gun 10k events.
 
 Recipe:
