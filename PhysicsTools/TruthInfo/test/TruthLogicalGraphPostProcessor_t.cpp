@@ -355,6 +355,7 @@ class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(testUnattachedSelectionHasNoBeamSideInput);
   CPPUNIT_TEST(testSpectatorKeepsItsSimSubgraph);
   CPPUNIT_TEST(testSelectionKeepsReconstructableSpectators);
+  CPPUNIT_TEST(testSpectatorNeverSitsAboveTheSelection);
   CPPUNIT_TEST(testVertexReasonSurvivesTheRewrite);
   CPPUNIT_TEST(testMomentumFromDecayProducts);
   CPPUNIT_TEST(testMomentumPassStopsOnACycle);
@@ -374,6 +375,7 @@ class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(testJetOriginLowestCommonAncestor);
   CPPUNIT_TEST(testHitlessSimSubgraphsAreDropped);
   CPPUNIT_TEST(testHitlessReconstructableProductsAreKept);
+  CPPUNIT_TEST(testReconstructableWithoutHitsIsDropped);
   CPPUNIT_TEST(testDecayedGenParticleWithoutProductsIsDropped);
   CPPUNIT_TEST(testAttachSelectionSourcesFalseRootsSeedsDirectly);
   CPPUNIT_TEST(testEventIdKeyingSplitsInteractions);
@@ -396,6 +398,7 @@ public:
   void testUnattachedSelectionHasNoBeamSideInput();
   void testSpectatorKeepsItsSimSubgraph();
   void testSelectionKeepsReconstructableSpectators();
+  void testSpectatorNeverSitsAboveTheSelection();
   void testVertexReasonSurvivesTheRewrite();
   void testMomentumFromDecayProducts();
   void testMomentumPassStopsOnACycle();
@@ -415,6 +418,7 @@ public:
   void testJetOriginLowestCommonAncestor();
   void testHitlessSimSubgraphsAreDropped();
   void testHitlessReconstructableProductsAreKept();
+  void testReconstructableWithoutHitsIsDropped();
   void testDecayedGenParticleWithoutProductsIsDropped();
   void testAttachSelectionSourcesFalseRootsSeedsDirectly();
   void testEventIdKeyingSplitsInteractions();
@@ -768,6 +772,52 @@ void TestTruthLogicalGraphPostProcessor::testSelectionKeepsReconstructableSpecta
 
     // The underlying-event level is the stable legs: the pi+ and the two photons of the pi0.
     CPPUNIT_ASSERT_EQUAL(std::size_t(3), truth::levelAntichain(selected, truth::Level::UnderlyingEvent).size());
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+// REQUIRED: a reconstructable particle above selected particles is not a spectator, so the
+// underlying event does not contain the selection (a Dalitz pi0 above selected electrons).
+void TestTruthLogicalGraphPostProcessor::testSpectatorNeverSitsAboveTheSelection() {
+  try {
+    //   p -> v0 -> pi0 pi+ ; pi0 -> v1 -> gamma e+ e-
+    GraphBuilder builder(6, 2);
+
+    builder.setGenParticle(0, 2212, 4, 100);
+    builder.setGenParticle(1, 111, 2, 101);
+    builder.setGenSimParticle(2, 211, 1, 102, 1002);
+    builder.setGenSimParticle(3, 22, 1, 103, 1003);
+    builder.setGenSimParticle(4, -11, 1, 104, 1004);
+    builder.setGenSimParticle(5, 11, 1, 105, 1005);
+
+    builder.setGenVertex(0, 200);
+    builder.setGenVertex(1, 201);
+
+    builder.addDecay(0, 0);
+    builder.addProduction(0, 1);
+    builder.addProduction(0, 2);
+    builder.addDecay(1, 1);
+    builder.addProduction(1, 3);
+    builder.addProduction(1, 4);
+    builder.addProduction(1, 5);
+
+    auto config = defaultConfig();
+    config.reconstructablePdgIds = {111};
+    config.decayPdgIdGroups = {{11, -11}};
+
+    auto output = runPostProcessing(builder.finish(), config);
+    output.reconstructablePdgIds() = {111};
+
+    CPPUNIT_ASSERT(output.isConsistent());
+    const uint32_t pi0 = findParticleWithPdgId(output, 111);
+    CPPUNIT_ASSERT(isProducedAtRole(output, pi0, truth::VertexRole::BeamSideInput));
+    CPPUNIT_ASSERT(!isProducedAtRole(output, pi0, truth::VertexRole::UnderlyingEvent));
+    CPPUNIT_ASSERT(isProducedAtRole(output, findParticleWithPdgId(output, 211), truth::VertexRole::UnderlyingEvent));
+
+    for (const uint32_t leg : truth::levelAntichain(output, truth::Level::UnderlyingEvent))
+      CPPUNIT_ASSERT(std::abs(output.particles()[leg].pdgId) != 11);
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);
@@ -1998,13 +2048,53 @@ void TestTruthLogicalGraphPostProcessor::testHitlessReconstructableProductsAreKe
   }
 }
 
-// REQUIRED: the hitless pruning removes a status-2 GEN particle whose decay products it
-// removed, up the chain, and keeps one that still has a product, such as a GEN neutrino.
+// REQUIRED: the hitless pruning removes a reconstructable particle with no hit below it,
+// together with its decay products.
+void TestTruthLogicalGraphPostProcessor::testReconstructableWithoutHitsIsDropped() {
+  try {
+    //   p -> v0 -> pi0 pi+(hit) ; pi0 -> v1 -> gamma(no hit) gamma(no hit)
+    GraphBuilder builder(5, 2);
+
+    builder.setGenParticle(0, 2212, 4, 100);
+    builder.setGenParticle(1, 111, 2, 101);
+    builder.setGenSimParticle(2, 211, 1, 102, 1002);
+    builder.setGenSimParticle(3, 22, 1, 103, 1003);
+    builder.setGenSimParticle(4, 22, 1, 104, 1004);
+
+    builder.setGenVertex(0, 200);
+    builder.setGenVertex(1, 201);
+
+    builder.addDecay(0, 0);
+    builder.addProduction(0, 1);
+    builder.addProduction(0, 2);
+    builder.addDecay(1, 1);
+    builder.addProduction(1, 3);
+    builder.addProduction(1, 4);
+
+    auto config = defaultConfig();
+    config.dropHitlessSimSubgraphs = true;
+    config.reconstructablePdgIds = {111};
+
+    const std::vector<uint8_t> particleDirectHit = {0, 0, 1, 0, 0};
+    auto output = runPostProcessing(builder.finish(), config, particleDirectHit);
+
+    CPPUNIT_ASSERT(output.isConsistent());
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 111));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 22));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 211));
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+// REQUIRED: the hitless pruning removes a status-2 GEN particle left with only invisible
+// decay products, together with them, up the chain. A tau with a visible product stays.
 void TestTruthLogicalGraphPostProcessor::testDecayedGenParticleWithoutProductsIsDropped() {
   try {
     //   D+ -> v0 -> pi+(hit) K*0 ; K*0 -> v1 -> K0 pi-(no hit) ; K0 -> v2 -> K_S(no hit)
-    //   tau -> v3 -> nu_tau pi-(no hit)
-    GraphBuilder builder(9, 4);
+    //   tau -> v3 -> nu_tau pi-(no hit) ; tau -> v4 -> nu_tau pi-(hit)
+    GraphBuilder builder(12, 5);
 
     builder.setGenParticle(0, 411, 2, 100);
     builder.setGenSimParticle(1, 211, 1, 101, 1001);
@@ -2015,8 +2105,11 @@ void TestTruthLogicalGraphPostProcessor::testDecayedGenParticleWithoutProductsIs
     builder.setGenParticle(6, 15, 2, 106);
     builder.setGenParticle(7, 16, 1, 107);
     builder.setGenSimParticle(8, -211, 1, 108, 1008);
+    builder.setGenParticle(9, 15, 2, 109);
+    builder.setGenParticle(10, 16, 1, 110);
+    builder.setGenSimParticle(11, -211, 1, 111, 1011);
 
-    for (uint32_t vertexId = 0; vertexId < 4; ++vertexId)
+    for (uint32_t vertexId = 0; vertexId < 5; ++vertexId)
       builder.setGenVertex(vertexId, 200 + vertexId);
 
     builder.addDecay(0, 0);
@@ -2030,17 +2123,21 @@ void TestTruthLogicalGraphPostProcessor::testDecayedGenParticleWithoutProductsIs
     builder.addDecay(6, 3);
     builder.addProduction(3, 7);
     builder.addProduction(3, 8);
+    builder.addDecay(9, 4);
+    builder.addProduction(4, 10);
+    builder.addProduction(4, 11);
 
     auto config = defaultConfig();
     config.dropHitlessSimSubgraphs = true;
 
-    const std::vector<uint8_t> particleDirectHit = {0, 1, 0, 0, 0, 0, 0, 0, 0};
+    const std::vector<uint8_t> particleDirectHit = {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
     auto output = runPostProcessing(builder.finish(), config, particleDirectHit);
 
     CPPUNIT_ASSERT(output.isConsistent());
-    CPPUNIT_ASSERT_EQUAL(uint32_t(4), output.nParticles());
-    for (const int32_t pdgId : {411, 211, 15, 16})
+    CPPUNIT_ASSERT_EQUAL(uint32_t(5), output.nParticles());
+    for (const int32_t pdgId : {411, 211, 15, 16, -211})
       CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, pdgId));
+    CPPUNIT_ASSERT(truth::tauDecay(output, findParticleWithPdgId(output, 15)) == truth::TauDecay::Hadronic);
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);

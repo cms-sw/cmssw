@@ -414,6 +414,37 @@ namespace {
     }
   }
 
+  // True if a particle or vertex below particleId is kept. visitStamp holds one entry per
+  // particle and stamp is unique per call, so repeated calls need no clearing.
+  bool hasKeptDescendant(truth::Graph const& graph,
+                         uint32_t particleId,
+                         std::vector<uint8_t> const& keepParticle,
+                         std::vector<uint8_t> const& keepVertex,
+                         std::vector<uint32_t>& visitStamp,
+                         uint32_t stamp) {
+    std::vector<uint32_t> stack{particleId};
+    visitStamp[particleId] = stamp;
+    while (!stack.empty()) {
+      const uint32_t currentParticle = stack.back();
+      stack.pop_back();
+      for (const uint32_t vertexId : graph.decayVertices(currentParticle)) {
+        if (vertexId >= graph.nVertices())
+          continue;
+        if (keepVertex[vertexId])
+          return true;
+        for (const uint32_t childId : graph.outgoingParticles(vertexId)) {
+          if (childId >= graph.nParticles() || visitStamp[childId] == stamp)
+            continue;
+          if (keepParticle[childId])
+            return true;
+          visitStamp[childId] = stamp;
+          stack.push_back(childId);
+        }
+      }
+    }
+    return false;
+  }
+
   // Keep up to parentDepth generations of ancestors above each root as context
   // only: the ancestor particles and the connecting vertices are kept, but
   // their other descendants and their own deeper ancestry are not.
@@ -933,9 +964,17 @@ namespace {
     std::vector<uint8_t> stableSpectator(nParticles, 0);
 
     if (config.keepStableSpectators) {
+      // A spectator never sits above the selection, so the signal and the underlying
+      // event do not share a particle (a Dalitz pi0 above selected electrons).
+      const std::vector<uint8_t> selectedParticle = keepParticle;
+      const std::vector<uint8_t> selectedVertex = keepVertex;
+      std::vector<uint32_t> visitStamp(nParticles, 0);
+      uint32_t stamp = 0;
+
       auto keepSpectator = [&](uint32_t particleId) {
         if (keepParticle[particleId] ||
-            isIgnoredParticle(input, particleId, config.ignoredPdgIds, config.ignoredParticleIds))
+            isIgnoredParticle(input, particleId, config.ignoredPdgIds, config.ignoredParticleIds) ||
+            hasKeptDescendant(input, particleId, selectedParticle, selectedVertex, visitStamp, ++stamp))
           return;
 
         // The subgraph as well, which for a GEN-stable particle is its SIM
@@ -1157,10 +1196,10 @@ namespace {
 
   // Remove every SIM particle whose calo+tracker sim-hit subgraph is empty,
   // together with its whole downstream subtree, except the decay products of a GEN
-  // particle of a reconstructablePdgIds species. A status-2 GEN particle whose decay
-  // products are all removed is removed too. particleDirectHit[i] flags the
-  // particles that carry a sim-hit on their own SimTrack (supplied by the
-  // producer, aligned to input ids). subgraphHasHit[p] = "p or some logical
+  // particle of a reconstructablePdgIds species with a hit below it. A status-2 GEN
+  // particle left with only invisible decay products is removed with them.
+  // particleDirectHit[i] flags the particles that carry a sim-hit on their own
+  // SimTrack (supplied by the producer, aligned to input ids). subgraphHasHit[p] = "p or some logical
   // descendant of p carries a hit"; it is computed by propagating the direct-hit
   // flag UP the production edges (an ancestor inherits a hit from any descendant).
   truth::Graph dropHitlessSimSubgraphs(truth::Graph input,
@@ -1205,12 +1244,13 @@ namespace {
     std::vector<uint8_t> removeParticle(nParticles, 0);
     std::vector<uint32_t> removalQueue;
 
-    // The decay products of a reconstructable particle stay, with or without hits, so
-    // the association sees all of them and decides whether reco merges them.
+    // The decay products of a reconstructable particle with a hit below it stay, with or
+    // without hits of their own, so the association sees all of them and decides whether
+    // reco merges them.
     std::vector<uint8_t> reconstructableProduct(nParticles, 0);
     for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
       auto const& particle = input.particles()[particleId];
-      if (!particle.hasGen() || !containsPdgId(reconstructablePdgIds, particle.pdgId))
+      if (!particle.hasGen() || !subgraphHasHit[particleId] || !containsPdgId(reconstructablePdgIds, particle.pdgId))
         continue;
       for (const uint32_t vertexId : input.decayVertices(particleId)) {
         if (vertexId >= nVertices)
@@ -1230,28 +1270,33 @@ namespace {
       }
     }
 
-    for (std::size_t head = 0; head < removalQueue.size(); ++head) {
-      const uint32_t particleId = removalQueue[head];
-      for (const uint32_t vertexId : input.decayVertices(particleId)) {
-        if (vertexId >= nVertices)
-          continue;
-        for (const uint32_t childId : input.outgoingParticles(vertexId)) {
-          if (childId < nParticles && !removeParticle[childId]) {
-            removeParticle[childId] = 1;
-            removalQueue.push_back(childId);
+    // Removes the downstream closure of the removalQueue entries from index head on.
+    auto sweepDownstream = [&](std::size_t head) {
+      for (; head < removalQueue.size(); ++head) {
+        const uint32_t particleId = removalQueue[head];
+        for (const uint32_t vertexId : input.decayVertices(particleId)) {
+          if (vertexId >= nVertices)
+            continue;
+          for (const uint32_t childId : input.outgoingParticles(vertexId)) {
+            if (childId < nParticles && !removeParticle[childId]) {
+              removeParticle[childId] = 1;
+              removalQueue.push_back(childId);
+            }
           }
         }
       }
-    }
+    };
+    sweepDownstream(0);
 
-    // A decayed GEN particle (status 2) whose decay products are all removed goes too,
-    // and so on upward, so no hitless GEN leaf is left where the GEN record has a decay.
-    auto allProductsRemoved = [&](uint32_t particleId) {
+    // A decayed GEN particle whose remaining decay products are all invisible goes too,
+    // with those products, and so on upward. Status 2 is the HepMC code for a hadron or
+    // tau that the generator decayed (Pythia8, Herwig7, Sherpa).
+    auto leftWithoutVisibleProducts = [&](uint32_t particleId) {
       for (const uint32_t vertexId : input.decayVertices(particleId)) {
         if (vertexId >= nVertices)
           continue;
         for (const uint32_t childId : input.outgoingParticles(vertexId)) {
-          if (childId < nParticles && !removeParticle[childId])
+          if (childId < nParticles && !removeParticle[childId] && !truth::isInvisible(input.particles()[childId].pdgId))
             return false;
         }
       }
@@ -1266,9 +1311,11 @@ namespace {
           if (parentId >= nParticles || removeParticle[parentId])
             continue;
           auto const& parent = input.particles()[parentId];
-          if (parent.hasGen() && parent.status == 2 && allProductsRemoved(parentId)) {
+          if (parent.hasGen() && parent.status == 2 && leftWithoutVisibleProducts(parentId)) {
+            const std::size_t first = removalQueue.size();
             removeParticle[parentId] = 1;
             removalQueue.push_back(parentId);
+            sweepDownstream(first);
           }
         }
       }
@@ -1320,8 +1367,10 @@ namespace truth {
             "If true, remove every SIM logical particle whose calorimeter + tracker sim-hit subgraph is empty, "
             "together with its whole downstream subtree (GEN-only descendants such as neutrinos go with it; the "
             "GEN skeleton outside removed SIM subtrees is preserved). The decay products of a GEN particle of a "
-            "reconstructablePdgIds species are kept, with or without hits. A status-2 GEN particle whose decay "
-            "products are all removed is removed too. Requires the producer to supply the "
+            "reconstructablePdgIds species with a hit in its subgraph are kept, with or without hits of their own; "
+            "the removal of a hitless SIM ancestor still removes them, and their hitless SIM continuation is still "
+            "removed. A status-2 GEN particle left with only invisible decay products is removed with them. "
+            "Requires the producer to supply the "
             "per-particle sim-hit presence (it consumes the calo/tracker sim-hit collections); a no-op otherwise.");
 
     desc.add<std::vector<int32_t>>("reconstructablePdgIds", {111})
@@ -1352,8 +1401,8 @@ namespace truth {
     desc.add<bool>("keepStableSpectators", true)
         ->setComment(
             "If true, stable final-state GEN particles and GEN particles of the reconstructablePdgIds species "
-            "outside the selected subgraph are kept, with their subgraph, and attached to an artificial "
-            "UnderlyingEvent source vertex (tagged with their "
+            "outside the selected subgraph and with no selected particle below them are kept, with their subgraph, "
+            "and attached to an artificial UnderlyingEvent source vertex (tagged with their "
             "genEvent/eventId for pile-up provenance). "
             "If false, they are dropped, leaving the selection, its InitialState context and the BeamSideInput of "
             "its vertices. Only meaningful when a selection (seedPdgIds/decayPdgIdGroups) is active.");

@@ -24,9 +24,11 @@ namespace truth {
     // carries a positive-energy calo or tracker sim-hit". GEN-only descendants
     // of a removed SIM particle (e.g. neutrinos) are swept out with it, while
     // the GEN skeleton outside removed SIM subtrees is preserved. The decay
-    // products of a GEN particle of a reconstructablePdgIds species are kept,
-    // with or without hits (the photons of a pi0). A status-2 GEN particle
-    // whose decay products are all removed is removed too. This step
+    // products of a GEN particle of a reconstructablePdgIds species with a hit
+    // in its subgraph are kept, with or without hits of their own (the photons
+    // of a pi0). The removal of a hitless SIM ancestor still removes them, and
+    // their hitless SIM continuation is still removed. A status-2 GEN particle
+    // left with only invisible decay products is removed with them. This step
     // only runs when the producer supplies a per-particle direct-hit presence
     // vector (it needs the sim-hit collections); without it it is a no-op.
     bool dropHitlessSimSubgraphs = true;
@@ -58,11 +60,11 @@ namespace truth {
     uint32_t seedParentDepth = 0;
 
     // If true (default), stable final-state GEN particles and GEN particles of the
-    // reconstructablePdgIds species outside the selected subgraph are kept and
-    // attached to an artificial UnderlyingEvent source vertex, each with its
-    // subgraph, which is where its hits are. If false, they
-    // are dropped, leaving the selection, its truncated initial-state context and the
-    // beam-side input of its vertices.
+    // reconstructablePdgIds species outside the selected subgraph, with no
+    // selected particle below them, are kept and attached to an artificial
+    // UnderlyingEvent source vertex, each with its subgraph, which is where
+    // its hits are. If false, they are dropped, leaving the selection, its
+    // truncated initial-state context and the beam-side input of its vertices.
     // Only meaningful when a selection is active (seedPdgIds/decayPdgIdGroups).
     bool keepStableSpectators = true;
 
