@@ -412,16 +412,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       desc.add<double>("fastDupNSigma2", kVectorHits ? 2.5 : (kPhase1 ? 25.0 : 5.0))
           ->setComment(
-              "CA duplicate-removal parameter-covariance gate width nSigma^2: two tracks are duplicates "
+              "CA duplicate-removal parameter-covariance gate width nSigma^2: two tracks are compatible "
               "when every compared fitted parameter satisfies dp^2 <= fastDupNSigma2*(cov_i+cov_j) "
-              "(Kernel_fastDuplicateRemover + Kernel_rejectDuplicate). It is a width in units of the "
-              "fitted covariance, so it tracks the fit's covariance convention. Lower tightens (fewer "
-              "merges); higher merges more aggressively. The default reproduces, topology by topology, "
-              "the constant those kernels hard-wire upstream: 5 for the five-parameter check used by "
-              "every Phase-2 topology, 25 for the two-parameter check of the Phase-1 specializations "
-              "(which read their own nSigma2Phase1 constant and ignore this parameter, so the value is "
-              "only informative there). Phase2OTVectorHits uses 2.5, matching the tighter covariance its "
-              "fit emits.");
+              "(Kernel_fastDuplicateRemover + Kernel_rejectDuplicate). The Phase-1 specializations of "
+              "those kernels read their own nSigma2Phase1 constant and ignore this parameter.");
+
+      desc.add<double>("fastDupMaxChi2ForLengthFirst", 3.0)
+          ->setComment(
+              "Fast duplicate remover, Phase2OTVectorHits only: a longer track wins a cell on length only with "
+              "chi2/ndof below this value.");
+
+      desc.add<int>("fastDupMinHitsToKeepApart", 7)
+          ->setComment(
+              "Fast duplicate remover, Phase2OTVectorHits only: a worse track that shares only the cell's two hits "
+              "with the kept track stays only with at least this many hits, a vector hit counting once.");
     }
 
     AlgoParams makeCommonParams(edm::ParameterSet const& cfg) {
@@ -475,6 +479,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           // CA fast-duplicate / shared-hit covariance gate width, in units of the fitted covariance
           .fastDupNSigma2_ = (float)cfg.getParameter<double>("fastDupNSigma2"),
+          .fastDupMaxChi2ForLengthFirst_ = (float)cfg.getParameter<double>("fastDupMaxChi2ForLengthFirst"),
+          .fastDupMinHitsToKeepApart_ = cfg.getParameter<int>("fastDupMinHitsToKeepApart"),
       };
     }
 
