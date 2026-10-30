@@ -102,10 +102,10 @@ TripleTkMuon53p52p5OSMass5to17 = l1tGTTripleObjectCond.clone(
         minPt = cms.double(5),
     ),
     collection2 = l1tGTtkMuonLoose.clone(
-        minPt = cms.double(4),
+        minPt = cms.double(3.5),
     ),
     collection3 = l1tGTtkMuonLoose.clone(
-        minPt = cms.double(2),
+        minPt = cms.double(2.5),
     ),
     correl12 = cms.PSet(
         minDR = cms.double(0),

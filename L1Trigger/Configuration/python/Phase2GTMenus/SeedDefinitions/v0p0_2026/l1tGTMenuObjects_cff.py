@@ -1,0 +1,132 @@
+import FWCore.ParameterSet.Config as cms
+
+############################################################
+# Common objects for P2GT L1 seeds
+############################################################
+
+from L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.v0p0_2026.l1tGTObject_constants import *
+
+############################################################
+# Muons
+############################################################
+
+l1tGTtkMuon = cms.PSet(
+    tag = cms.InputTag("l1tGTProducer", "GMTTkMuons"),
+    minEta = cms.double(-2.4),
+    maxEta = cms.double(2.4),
+    regionsAbsEtaLowerBounds = get_object_etalowbounds("GMTTkMuons"),
+)
+l1tGTtkMuonLoose = l1tGTtkMuon.clone(
+    qualityFlags = get_object_ids("GMTTkMuons","Loose"),
+)
+l1tGTtkMuonVLoose = l1tGTtkMuonLoose.clone(
+    qualityFlags = get_object_ids("GMTTkMuons","VLoose"),
+)
+l1tGTtkMuonMedium = l1tGTtkMuonLoose.clone(
+    qualityFlags = get_object_ids("GMTTkMuons","Medium"),
+)
+
+# GMT standalone displaced muons (no track match, so no z0 and no online-to-offline scaling)
+l1tGTsaDisplacedMuon = cms.PSet(
+    tag = cms.InputTag("l1tGTProducer", "GMTSaDisplacedMuons"),
+    minEta = cms.double(-2.4),
+    maxEta = cms.double(2.4),
+)
+
+############################################################
+# Jets
+############################################################
+
+l1tGTsc4Jet = cms.PSet(
+    tag = cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
+    minEta = cms.double(-2.4),
+    maxEta = cms.double( 2.4),
+    regionsAbsEtaLowerBounds = get_object_etalowbounds("CL2JetsSC4"),
+    # minPt = cms.double(25), # safety cut - can be enabled everywhere (for now done in the get_threshold function)
+)
+
+l1tGTsc4Jet_er5 = l1tGTsc4Jet.clone(
+    minEta = cms.double(-5),
+    maxEta = cms.double(5),
+)
+
+l1tGTsc8Jet_er5 = cms.PSet(
+    tag = cms.InputTag("l1tGTProducer", "CL2JetsSC8"),
+    minEta = cms.double(-5),
+    maxEta = cms.double(5),
+    regionsAbsEtaLowerBounds = get_object_etalowbounds("CL2JetsSC8"),
+)
+
+############################################################
+# Taus
+############################################################
+l1tGTnnTau = cms.PSet(
+    tag = cms.InputTag("l1tGTProducer", "CL2Taus"),
+    minEta = cms.double(-2.172),
+    maxEta = cms.double(2.172),
+    regionsAbsEtaLowerBounds = get_object_etalowbounds("CL2Taus"),
+    minQualityScore = get_object_ids("CL2Taus","default")
+)
+
+l1tGTnnTauExt = l1tGTnnTau.clone(
+    minEta = cms.double(-2.4),
+    maxEta = cms.double(2.4),
+)
+
+############################################################
+# Sums
+############################################################
+
+l1tGTHtSum = cms.PSet(
+    tag = cms.InputTag("l1tGTProducer", "CL2HtSum")
+)
+
+l1tGTEtSum = cms.PSet(
+    tag = cms.InputTag("l1tGTProducer", "CL2EtSum")
+)
+
+############################################################
+# Electrons
+############################################################
+
+l1tGTtkElectronBase = cms.PSet(
+    tag = cms.InputTag("l1tGTProducer", "CL2Electrons"),
+    minEta = cms.double(-2.4),
+    maxEta = cms.double(2.4),
+    regionsAbsEtaLowerBounds = get_object_etalowbounds("CL2Electrons"),
+)
+
+l1tGTtkElectron = l1tGTtkElectronBase.clone(
+    regionsQualityFlags = get_object_ids("CL2Electrons","NoIso"),
+)
+
+l1tGTtkElectronLowPt = l1tGTtkElectronBase.clone(
+    regionsQualityFlags = get_object_ids("CL2Electrons","NoIsoLowPt"),
+)
+
+l1tGTtkIsoElectron = l1tGTtkElectronBase.clone(
+    regionsMaxRelIsolationPt = get_object_isos("CL2Electrons","Iso"),
+    regionsQualityFlags = get_object_ids("CL2Electrons","Iso"),
+)
+
+############################################################
+# Photons
+############################################################
+
+l1tGTtkPhoton = cms.PSet(
+    tag = cms.InputTag("l1tGTProducer", "CL2Photons"),
+    minEta = cms.double(-2.4),
+    maxEta = cms.double(2.4),
+    regionsAbsEtaLowerBounds = get_object_etalowbounds("CL2Photons"),
+    regionsQualityFlags = get_object_ids("CL2Photons","Iso"),
+)
+
+l1tGTtkIsoPhoton = l1tGTtkPhoton.clone(
+    regionsMaxRelIsolationPt = get_object_isos("CL2Photons","Iso"),
+)
+
+# CL2 photons include the HGCal region without tracker coverage, up to |eta| ~ 3
+l1tGTtkPhotonExt = l1tGTtkPhoton.clone(
+    minEta = cms.double(-3.0),
+    maxEta = cms.double(3.0),
+)
