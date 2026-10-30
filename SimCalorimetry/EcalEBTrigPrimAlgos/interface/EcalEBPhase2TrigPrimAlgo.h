@@ -146,7 +146,6 @@ private:
   std::vector<int64_t> outTime_;
 
   EcalEBPhase2TimeReconstructor *getTimeFinder() const { return time_reconstructor_; }
-  EcalEBPhase2SpikeTagger *getSpikeTagger() const { return spike_tagger_.get(); }
   EcalEBPhase2TPFormatter *getTPFormatter() const { return tpFormatter_; }
 
   //
