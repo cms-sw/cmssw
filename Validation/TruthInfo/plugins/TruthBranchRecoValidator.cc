@@ -260,6 +260,8 @@ private:
   // The fake criterion: a reco object is NOT a fake when one branch of the dominance
   // antichain owns at least this share of the shared quantity all of them contribute.
   const double minLeadingTruthShare_;
+  // A denominator member must have hits in the hit-index channel of this domain.
+  const bool requireHits_;
   std::vector<WpEntry> wpEntries_;
   // Working points per collection; wpEntries_ is collection-major with this stride.
   std::size_t nWorkingPoints_ = 1;
@@ -288,6 +290,7 @@ TruthBranchRecoValidator<RECO>::TruthBranchRecoValidator(edm::ParameterSet const
       maxRecoToSimScore_(Traits::calorimetric ? cfg.getParameter<double>("maxRecoToSimScore") : 0.),
       minCollectiveCoverage_(cfg.getParameter<double>("minCollectiveCoverage")),
       minLeadingTruthShare_(Traits::truthIsVertex ? 0. : cfg.getParameter<double>("minLeadingTruthShare")),
+      requireHits_(!Traits::truthIsVertex && cfg.getParameter<bool>("requireHits")),
       algo_(cfg.getParameter<edm::ParameterSet>("histoProducerAlgoBlock")) {
   const auto associator = cfg.getParameter<std::string>("associator");
   const auto targetsProducer = cfg.getParameter<std::string>("targetsProducer");
@@ -806,6 +809,9 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
         // The branch's own detector footprint, which is the truth analogue of a track's
         // hit count.
         const auto subgraph = hitIndex.subgraphHits(Traits::hitChannel, b);
+        if (requireHits_ && subgraph.empty()) {
+          continue;
+        }
         kin.nhits = subgraph.size();
         const truth::Particle branchRoot(&graph, b);
         // How deep in the graph the branch root sits. A frozen truth object has one
@@ -931,6 +937,10 @@ void TruthBranchRecoValidator<RECO>::fillDescriptions(edm::ConfigurationDescript
             "Names the one truth-driven folder of a composite domain, matching the associator's resolution: "
             "'interaction' for primary vertices, 'immediate' for secondary vertices");
   } else {
+    desc.add<bool>("requireHits", false)
+        ->setComment(
+            "Keep in the truth-to-reco denominators only the members whose subgraph has hits in the hit-index "
+            "channel of this domain: Tracker for tracks, Calo for tracksters and PF clusters");
     desc.add<double>("minLeadingTruthShare", 0.5)
         ->setComment(
             "Fake criterion: one branch of dominanceLevel must own at least this share of the shared quantity all "
