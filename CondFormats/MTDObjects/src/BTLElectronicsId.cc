@@ -1,5 +1,5 @@
 #include "CondFormats/MTDObjects/interface/BTLElectronicsId.h"
-#include "CondFormats/MTDObjects/interface/BTLElectronicsSpecs.h"
+#include "CondFormats/MTDObjects/interface/BTLElectronicsIndexing.h"
 
 #include <ostream>
 
@@ -16,20 +16,15 @@ BTLElectronicsId::BTLElectronicsId(int fed, int hsLink, int eLink, int channel) 
 }
 
 uint32_t BTLElectronicsId::denseChannelIndex() const {
-  using namespace BTLElectronicsSpecs;
-  const uint32_t serenityIdx = (fedId() - kFirstFEDId) / nFEDsPerSerenity;  // 0-11
-  return ((serenityIdx * nHSLinksPerSerenity + hsLinkId()) * nELinksPerHSLink + eLinkId()) * nChannelsPerELink +
-         channelId();
+  return BTLElectronicsIndexing::denseChannelIndex(fedId(), hsLinkId(), eLinkId(), channelId());
 }
 
 bool BTLElectronicsId::isValid() const {
-  using namespace BTLElectronicsSpecs;
-  const int fed = fedId() - static_cast<int>(kFirstFEDId);
-  const int hs = hsLinkId();
-  // FED k of a Serenity carries the HS-links [k * nHSLinksPerFED, (k + 1) * nHSLinksPerFED)
-  return fed >= 0 && fed < static_cast<int>(kNumberOfFEDs) && hs < nHSLinksPerSerenity &&
-         hs / nHSLinksPerFED == fed % nFEDsPerSerenity && eLinkId() < nELinksPerHSLink &&
-         channelId() < nChannelsPerELink;
+  const int32_t fed = fedId();
+  return fed >= BTLElectronicsSpecs::kFirstFEDId &&
+         fed < BTLElectronicsSpecs::kFirstFEDId + BTLElectronicsSpecs::kNumberOfFEDs &&
+         BTLElectronicsIndexing::isValidLink(fed, hsLinkId(), eLinkId()) &&
+         channelId() < BTLElectronicsSpecs::nChannelsPerELink;
 }
 
 // ------------------------------------------------------------

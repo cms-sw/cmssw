@@ -17,12 +17,10 @@ namespace BTLElectronicsSpecs {
   // ============================================================
   // DAQ constants
   // ============================================================
-  static constexpr uint32_t kNumberOfFEDs = 144;  // 72 trays x 2 Slinks for each tray (or 12 Slinks for each Serenity)
-  static constexpr uint32_t kNumberOfSlinks =
-      144;                                      // 72 trays x 2 Slinks for each tray (or 12 Slinks for each Serenity)
-  static constexpr uint32_t kFirstSlinkId = 0;  // arbitrary for now
-  static constexpr uint32_t kFirstFEDId = 0;    // arbitrary for now
-
+  static constexpr int32_t kNumberOfFEDs = 144;    // 72 trays x 2 Slinks for each tray (or 12 Slinks for each Serenity)
+  static constexpr int32_t kNumberOfSlinks = 144;  // 72 trays x 2 Slinks for each tray (or 12 Slinks for each Serenity)
+  static constexpr int32_t kFirstSlinkId = 0;      // arbitrary for now
+  static constexpr int32_t kFirstFEDId = 0;        // arbitrary for now
 
   static constexpr int32_t nSLinksPerSerenity = 12;  // number of S-links per Serenity board
   static constexpr int32_t nFEDsPerSerenity = 12;    // 1 S-link  = 1 FED ID
