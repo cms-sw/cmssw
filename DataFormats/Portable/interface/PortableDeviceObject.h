@@ -33,7 +33,7 @@ public:
     assert(reinterpret_cast<uintptr_t>(buffer_->data()) % alignof(Product) == 0);
   }
 
-  template <typename TQueue, typename = std::enable_if_t<alpaka::concepts::Queue<TQueue>>>
+  template <alpaka::concepts::Queue TQueue>
   PortableDeviceObject(TQueue const& queue)
       // allocate global device memory with queue-ordered semantic
       : buffer_{cms::alpakatools::make_device_buffer<Product>(queue)} {
@@ -72,7 +72,7 @@ public:
   ConstBuffer const_buffer() const { return *buffer_; }
 
   // erases the data in the Buffer by writing zeros (bytes containing '\0') to it
-  template <typename TQueue, typename = std::enable_if_t<alpaka::concepts::Queue<TQueue>>>
+  template <alpaka::concepts::Queue TQueue>
   void zeroInitialise(TQueue&& queue) {
     alpaka::memset(std::forward<TQueue>(queue), *buffer_, 0x00);
   }
@@ -86,8 +86,7 @@ namespace ngt {
   // Specialize MemoryCopyTraits for PortableDeviceObject
   template <typename TDev, typename T>
   struct MemoryCopyTraits<PortableDeviceObject<TDev, T>> {
-    template <typename TQueue>
-      requires(alpaka::concepts::Queue<TQueue>)
+    template <alpaka::concepts::Queue TQueue>
     static void initialize(TQueue& queue, PortableDeviceObject<TDev, T>& object) {
       // Replace the default-constructed empty object with one where the
       // buffer has been allocated in global device memory

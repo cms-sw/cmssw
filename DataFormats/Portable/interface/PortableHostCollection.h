@@ -1,6 +1,7 @@
 #ifndef DataFormats_Portable_interface_PortableHostCollection_h
 #define DataFormats_Portable_interface_PortableHostCollection_h
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <concepts>
@@ -23,6 +24,7 @@
 template <typename T>
 class PortableHostCollection {
 public:
+  using Device = alpaka_common::DevHost;
   using Layout = T;
   using View = typename Layout::View;
   using ConstView = typename Layout::ConstView;
@@ -47,8 +49,8 @@ public:
     assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
   }
 
-  template <typename TQueue, std::integral Int>
-    requires(alpaka::concepts::Queue<TQueue> && (!requires { Layout::blocksNumber; }))
+  template <alpaka::concepts::Queue TQueue, std::integral Int>
+    requires(!requires { Layout::blocksNumber; })
   PortableHostCollection(TQueue const& queue, const Int size)
       // allocate pinned host memory associated to the given work queue, accessible by the queue's device
       : buffer_{cms::alpakatools::make_host_buffer<std::byte[]>(
@@ -80,8 +82,7 @@ public:
       : PortableHostCollection(host, std::to_array({portablecollection::size_cast(sizes)...})) {}
 
   // constructor for a SoABlocks-layout, taking per-block sizes as variadic integral arguments
-  template <typename TQueue, std::integral... Ints>
-    requires(alpaka::concepts::Queue<TQueue>)
+  template <alpaka::concepts::Queue TQueue, std::integral... Ints>
   explicit PortableHostCollection(TQueue const& queue, const Ints... sizes)
     requires requires { Layout::blocksNumber; } && (sizeof...(Ints) == static_cast<std::size_t>(Layout::blocksNumber))
       // allocate pinned host memory associated to the given work queue, accessible by the queue's device
@@ -100,8 +101,7 @@ public:
   }
 
   // constructor for a SoABlocks-layout, taking per-block sizes as a fixed-size array
-  template <typename TQueue, std::size_t N>
-    requires(alpaka::concepts::Queue<TQueue>)
+  template <alpaka::concepts::Queue TQueue, std::size_t N>
   explicit PortableHostCollection(TQueue const& queue, std::array<int32_t, N> const& sizes)
     requires requires { Layout::blocksNumber; } && (N == static_cast<std::size_t>(Layout::blocksNumber))
       // allocate pinned host memory associated to the given work queue, accessible by the queue's device
@@ -144,8 +144,7 @@ public:
     std::memset(std::data(*buffer_), 0x00, alpaka::getExtentProduct(*buffer_) * sizeof(std::byte));
   }
 
-  template <typename TQueue>
-    requires(alpaka::concepts::Queue<TQueue>)
+  template <alpaka::concepts::Queue TQueue>
   void zeroInitialise(TQueue&& queue) {
     alpaka::memset(std::forward<TQueue>(queue), *buffer_, 0x00);
   }
@@ -169,7 +168,8 @@ public:
   void deepCopy(ConstView const& view) { layout_.deepCopy(view); }
 
   // Copy column by column or block by block heterogeneously for device to host data transfer.
-  template <typename TQueue>
+  template <alpaka::concepts::Queue TQueue>
+    requires(Layout::isSoA)
   void deepCopy(TQueue& queue, ConstView const& view) {
     ConstDescriptor desc{view};
     Descriptor desc_{view_};
@@ -198,8 +198,7 @@ namespace ngt {
     // The properties needed to initialize a new PrortableHostCollection are just its size.
     static Properties properties(value_type const& object) { return object->metadata().size(); }
 
-    template <typename TQueue>
-      requires(alpaka::concepts::Queue<TQueue>)
+    template <alpaka::concepts::Queue TQueue>
     static void initialize(TQueue& queue, value_type& object, Properties const& size) {
       // Replace the default-constructed empty object with one where the buffer
       // has been allocated in pinned host memory.
