@@ -55,8 +55,7 @@ bool TwoTrackMinimumDistanceHelixLine::updateCoeffs() {
     return true;
   };
 
-  // radius from the transverse momentum: Hn * sqrt(1 - pz^2 / Hn^2) cancels catastrophically in single
-  // precision for forward tracks
+  // radius from the transverse momentum
   const double hpx = theH->momentum().x(), hpy = theH->momentum().y();
   theh = -std::sqrt(hpx * hpx + hpy * hpy) / (theH->charge() * Bc2kH);
 
