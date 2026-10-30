@@ -111,10 +111,11 @@ struct testWarpPrefixScan {
   }
 };
 
+template <typename T = uint32_t>
 struct init {
-  ALPAKA_FN_ACC void operator()(Acc1D const& acc, uint32_t* v, uint32_t val, uint32_t n) const {
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, T* v, uint32_t val, uint32_t n) const {
     for (auto index : uniform_elements(acc, n)) {
-      v[index] = val;
+      v[index] = static_cast<T>(val);
 
       if (index == 0)
         printf("init\n");
@@ -122,10 +123,11 @@ struct init {
   }
 };
 
+template <typename T = uint32_t>
 struct verify {
-  ALPAKA_FN_ACC void operator()(Acc1D const& acc, uint32_t const* v, uint32_t n) const {
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, T const* v, uint32_t n) const {
     for (auto index : uniform_elements(acc, n)) {
-      ALPAKA_ASSERT_ACC(v[index] == index + 1);
+      ALPAKA_ASSERT_ACC(v[index] == static_cast<T>(index + 1));
 
       if (index == 0)
         printf("verify\n");
@@ -249,13 +251,118 @@ int main() {
                   << std::endl;
       }
 
-      iterativePrefixScan<Acc1D>(input_d.data(), output_d.data(), num_items, queue);
+      iterativePrefixScan<Acc1D>(queue, input_d.data(), output_d.data(), num_items);
       alpaka::wait(queue);
 
       alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, verify(), output_d.data(), num_items));
 
       alpaka::wait(queue);  // input_d and output_d end of scope
     }
+
+    // UNIFIED PREFIX SCAN (AUTO-DISPATCH)
+    std::cout << "unified prefix scan (auto-dispatch)" << std::endl;
+    // The dispatch predicates are pinned to the test sizes below (and to
+    // multiBlockPrefixScanMaxBlocks): a deliberate change of the thresholds must
+    // update both.
+    static_assert(not prefixScanUseMultiBlock(divide_up_by(1024u, iterativePrefixScanThreads)));
+    static_assert(prefixScanUseMultiBlock(divide_up_by(1025u, iterativePrefixScanThreads)));
+    static_assert(prefixScanUseMultiBlock(divide_up_by(65536u, iterativePrefixScanThreads)));
+    static_assert(prefixScanUseMultiBlock(divide_up_by(200000u, iterativePrefixScanThreads)));
+    static_assert(prefixScanUseMultiBlock(divide_up_by(262144u, iterativePrefixScanThreads)));
+    static_assert(not prefixScanUseMultiBlock(divide_up_by(262145u, iterativePrefixScanThreads)));
+    static_assert(not prefixScanUseMultiBlock(divide_up_by(2000000u, iterativePrefixScanThreads)));
+    static_assert(not prefixScanUseMultiBlock(divide_up_by(67108864u, iterativePrefixScanThreads)));
+    // Sizes 1024 (1 block) and 1025 (2 blocks) straddle the 1-block/2-block
+    // dispatch boundary; 262144 (256 blocks) and 262145 (257 blocks) straddle the
+    // upper multiBlockPrefixScan / iterativePrefixScan dispatch boundary;
+    // 67108864 (64M) elements exercise the multi-level iterativePrefixScan path
+    // on GPU backends (CPU single-thread-per-block backends run the serial path).
+    const uint32_t unifiedSizes[] = {1, 200, 1024, 1025, 2000, 8192, 65536, 200000, 262144, 262145, 2000000, 67108864};
+    for (uint32_t unifiedSize : unifiedSizes) {
+      num_items = unifiedSize;
+
+      auto input_d = make_device_buffer<uint32_t[]>(queue, num_items);
+      auto output_d = make_device_buffer<uint32_t[]>(queue, num_items);
+
+      const auto nThreads = 1024;
+      const auto nBlocks = divide_up_by(num_items, nThreads);
+      const auto workDiv = make_workdiv<Acc1D>(nBlocks, nThreads);
+
+      alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, init<>(), input_d.data(), 1, num_items));
+
+      std::cout << "launch prefixScan " << num_items << ' ' << nBlocks << std::endl;
+      prefixScan<Acc1D>(queue, input_d.data(), output_d.data(), num_items);
+      alpaka::wait(queue);
+
+      alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, verify<>(), output_d.data(), num_items));
+
+      alpaka::wait(queue);  // input_d and output_d end of scope
+    }
+
+    // SIGNED INT (INT32) PREFIX SCAN
+    const uint32_t intSizes[] = {200, 2000, 200000};
+    for (uint32_t intSize : intSizes) {
+      num_items = intSize;
+
+      auto input_d = make_device_buffer<int[]>(queue, num_items);
+      auto output_d = make_device_buffer<int[]>(queue, num_items);
+
+      const auto nThreads = 1024;
+      const auto nBlocks = divide_up_by(num_items, nThreads);
+      const auto workDiv = make_workdiv<Acc1D>(nBlocks, nThreads);
+
+      alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, init<int>(), input_d.data(), 1, num_items));
+
+      std::cout << "launch prefixScan (int) " << num_items << ' ' << nBlocks << std::endl;
+      prefixScan<Acc1D>(queue, input_d.data(), output_d.data(), num_items);
+      alpaka::wait(queue);
+
+      alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, verify<int>(), output_d.data(), num_items));
+
+      alpaka::wait(queue);  // input_d and output_d end of scope
+    }
+
+    // IN-PLACE UNIFIED PREFIX SCAN (INPUT AND OUTPUT POINTERS ALIAS)
+    num_items = 2000000;
+
+    auto buf = make_device_buffer<uint32_t[]>(queue, num_items);
+
+    {
+      // multiBlockPrefixScan path: 4096 elements in 4 blocks, in place
+      num_items = 4096;
+      const auto nThreads = 1024;
+      const auto nBlocks = divide_up_by(num_items, nThreads);
+      const auto workDiv = make_workdiv<Acc1D>(nBlocks, nThreads);
+
+      alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, init<>(), buf.data(), 1, num_items));
+
+      std::cout << "launch prefixScan (in-place) " << num_items << ' ' << nBlocks << std::endl;
+      prefixScan<Acc1D>(queue, buf.data(), buf.data(), num_items);
+      alpaka::wait(queue);
+
+      alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, verify<>(), buf.data(), num_items));
+      alpaka::wait(queue);
+
+      // a call with size 0 must be a no-op
+      prefixScan<Acc1D>(queue, buf.data(), buf.data(), 0u);
+      alpaka::wait(queue);
+    }
+
+    // iterativePrefixScan path: 2000000 elements, in place
+    num_items = 2000000;
+    const auto nThreads = 1024;
+    const auto nBlocks = divide_up_by(num_items, nThreads);
+    const auto workDiv = make_workdiv<Acc1D>(nBlocks, nThreads);
+
+    alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, init<>(), buf.data(), 1, num_items));
+
+    std::cout << "launch prefixScan (in-place) " << num_items << ' ' << nBlocks << std::endl;
+    prefixScan<Acc1D>(queue, buf.data(), buf.data(), num_items);
+    alpaka::wait(queue);
+
+    alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, verify<>(), buf.data(), num_items));
+
+    alpaka::wait(queue);  // buf end of scope
   }
 
   return 0;
