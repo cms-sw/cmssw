@@ -174,7 +174,6 @@ vector<const TrackingRecHit *> CosmicTrajectoryBuilder::SortHits(
   //At the end all the hits are sorted in y
   vector<const TrackingRecHit *> allHits;
 
-
   for (auto const &recHit : seed.recHits()) {
     hits.push_back((RHBuilder->build(&recHit)));
   }
