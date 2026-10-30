@@ -10,6 +10,7 @@ import FWCore.ParameterSet.Config as cms
 
 from SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociationLabels_cff import (
     truthBranchWorkingPointsPSet,
+    truthBranchDenominatorDetectors,
     recoLabels,
     _truthLevels,
     _signalSeedPdgIds,
@@ -124,7 +125,7 @@ truthBranchTracksterAssociators = cms.EDProducer(
     layerClusters=cms.InputTag("hgcalMergeLayerClusters"),
     # A trackster is an endcap object, so its shared-energy denominator covers the HGCAL
     # only, not the whole Calo hit channel. See the producer's fillDescriptions.
-    denominatorDetectors=cms.vstring("HGCalEE", "HGCalHSi", "HGCalHSc"),
+    denominatorDetectors=cms.vstring(*truthBranchDenominatorDetectors["tracksters"]),
     **_truthSources,
     **_workingPointArgs,
 )
@@ -140,13 +141,13 @@ truthBranchPFClusterEcalAssociators = cms.EDProducer(
     recoCollections=_tags("pfClustersEcal"),
     targetsSrc=cms.InputTag("truthBranchTargets", "selectedRoots"),
     assignableTargetsSrc=cms.InputTag("truthBranchTargets", "assignableRoots"),
-    denominatorDetectors=cms.vstring("Ecal"),
+    denominatorDetectors=cms.vstring(*truthBranchDenominatorDetectors["pfClustersEcal"]),
     **_truthSources,
     **_workingPointArgs,
 )
 truthBranchPFClusterHcalAssociators = truthBranchPFClusterEcalAssociators.clone(
     recoCollections=_tags("pfClustersHcal"),
-    denominatorDetectors=["Hcal"],
+    denominatorDetectors=cms.vstring(*truthBranchDenominatorDetectors["pfClustersHcal"]),
 )
 
 # The HLT menu's own reconstruction of the same event. Same producers, same working

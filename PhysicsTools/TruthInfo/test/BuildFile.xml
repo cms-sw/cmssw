@@ -42,6 +42,7 @@
 
 <bin name="BranchHitAssociator_t" file="BranchHitAssociator_t.cpp">
   <use name="PhysicsTools/TruthInfo"/>
+  <use name="FWCore/Utilities"/>
   <use name="SimDataFormats/TruthInfo"/>
   <use name="cppunit"/>
 </bin>

@@ -42,6 +42,7 @@ def _harvestedFolders(domain, suffixes):
 
 from SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociationLabels_cff import (
     truthBranchWorkingPointsPSet,
+    truthBranchDenominatorDetectors,
     recoLabels,
     instanceKey,
     _truthLevels,
@@ -446,7 +447,8 @@ for _d in _domains:
                   else dict(truthLevels=cms.vstring(*_levels),
                             signalSeedPdgIds=cms.vint32(*_signalSeedPdgIds),
                             signalSeedHadronFlavors=cms.vint32(*_signalSeedHadronFlavors),
-                            bookGunSignal=cms.bool(False)))
+                            bookGunSignal=cms.bool(False),
+                            denominatorDetectors=cms.vstring(*truthBranchDenominatorDetectors[_d["name"]])))
     _analyzer = cms.EDProducer(
         _d["module"],
         src=cms.InputTag("truthLogicalGraphProducer"),
