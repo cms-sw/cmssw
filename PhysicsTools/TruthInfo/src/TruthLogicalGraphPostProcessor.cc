@@ -1288,15 +1288,16 @@ namespace {
     };
     sweepDownstream(0);
 
-    // A decayed GEN particle whose remaining decay products are all invisible goes too,
-    // with those products, and so on upward. Status 2 is the HepMC code for a hadron or
+    // A decayed GEN particle whose remaining decay products are all invisible and without
+    // hits below them goes too, with those products, and so on upward. Status 2 is the HepMC code for a hadron or
     // tau that the generator decayed (Pythia8, Herwig7, Sherpa).
     auto leftWithoutVisibleProducts = [&](uint32_t particleId) {
       for (const uint32_t vertexId : input.decayVertices(particleId)) {
         if (vertexId >= nVertices)
           continue;
         for (const uint32_t childId : input.outgoingParticles(vertexId)) {
-          if (childId < nParticles && !removeParticle[childId] && !truth::isInvisible(input.particles()[childId].pdgId))
+          if (childId < nParticles && !removeParticle[childId] &&
+              (!truth::isInvisible(input.particles()[childId].pdgId) || subgraphHasHit[childId]))
             return false;
         }
       }

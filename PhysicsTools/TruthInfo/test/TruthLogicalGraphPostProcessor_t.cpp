@@ -377,6 +377,7 @@ class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(testHitlessReconstructableProductsAreKept);
   CPPUNIT_TEST(testReconstructableWithoutHitsIsDropped);
   CPPUNIT_TEST(testDecayedGenParticleWithoutProductsIsDropped);
+  CPPUNIT_TEST(testInvisibleProductWithHitsKeepsItsParent);
   CPPUNIT_TEST(testAttachSelectionSourcesFalseRootsSeedsDirectly);
   CPPUNIT_TEST(testEventIdKeyingSplitsInteractions);
   CPPUNIT_TEST(testSignalOnlyAndBunchCrossingFilterDropPileup);
@@ -420,6 +421,7 @@ public:
   void testHitlessReconstructableProductsAreKept();
   void testReconstructableWithoutHitsIsDropped();
   void testDecayedGenParticleWithoutProductsIsDropped();
+  void testInvisibleProductWithHitsKeepsItsParent();
   void testAttachSelectionSourcesFalseRootsSeedsDirectly();
   void testEventIdKeyingSplitsInteractions();
   void testSignalOnlyAndBunchCrossingFilterDropPileup();
@@ -2138,6 +2140,44 @@ void TestTruthLogicalGraphPostProcessor::testDecayedGenParticleWithoutProductsIs
     for (const int32_t pdgId : {411, 211, 15, 16, -211})
       CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, pdgId));
     CPPUNIT_ASSERT(truth::tauDecay(output, findParticleWithPdgId(output, 15)) == truth::TauDecay::Hadronic);
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testInvisibleProductWithHitsKeepsItsParent() {
+  try {
+    //   B0 -> v0 -> nu_mu, pi-(no hit) ; nu_mu -> v1 -> mu-(hit)
+    // The nu_mu is an invisible species with a hit below it, so the B0 stays. The shape
+    // stands for an invisible species that decays in the detector.
+    GraphBuilder builder(4, 2);
+
+    builder.setGenParticle(0, 511, 2, 100);
+    builder.setGenSimParticle(1, 14, 1, 101, 1001);
+    builder.setGenSimParticle(2, -211, 1, 102, 1002);
+    builder.setGenSimParticle(3, 13, 1, 103, 1003);
+
+    builder.setGenVertex(0, 200);
+    builder.setGenVertex(1, 201);
+
+    builder.addDecay(0, 0);
+    builder.addProduction(0, 1);
+    builder.addProduction(0, 2);
+    builder.addDecay(1, 1);
+    builder.addProduction(1, 3);
+
+    auto config = defaultConfig();
+    config.dropHitlessSimSubgraphs = true;
+
+    const std::vector<uint8_t> particleDirectHit = {0, 0, 0, 1};
+    auto output = runPostProcessing(builder.finish(), config, particleDirectHit);
+
+    CPPUNIT_ASSERT(output.isConsistent());
+    CPPUNIT_ASSERT_EQUAL(uint32_t(3), output.nParticles());
+    for (const int32_t pdgId : {511, 14, 13})
+      CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, pdgId));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, -211));
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);
