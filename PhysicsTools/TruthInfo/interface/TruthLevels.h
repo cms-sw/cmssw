@@ -176,7 +176,13 @@ namespace truth {
     if (a >= 1000 && a <= 9999 && (a / 10) % 10 == 0 && (a / 100) % 10 != 0) {  // diquarks, e.g. 2101, 2203
       return true;
     }
-    return a >= 9900000 && a < 1000000000;  // generator-internal states, below the nuclei codes
+    // Generator-internal states: diffractive and colour-octet onium states. The block
+    // 9900001-9900099 holds physical BSM particles (left-right symmetric W_R, Z_R, N, H++).
+    if (a >= 9900000 && a <= 9999999) {
+      const bool physicalBsm = a / 100 == 99000 && a % 10 != 0;
+      return !physicalBsm;
+    }
+    return false;
   }
 
   // The id form of Particle::lastCopy.
