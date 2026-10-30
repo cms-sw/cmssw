@@ -67,9 +67,11 @@ private:
 HGCalSiliconAreaTester::HGCalSiliconAreaTester(const edm::ParameterSet &iC)
     : nameDetector_(iC.getParameter<std::string>("nameDetector")),
       nskip_(iC.getParameter<int>("nSkip")),
-      tok_hgcal_(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_})),
-      dets_((nameDetector_ == "HGCalEESensitive") ? DetId::HGCalEE : DetId::HGCalHSi) { 
-  edm::LogVerbatim("HGCalGeom") << "Find area of cells for " << nameDetector_<< " of every " << nskip_ << " valid ones";
+      tok_hgcal_(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})),
+      dets_((nameDetector_ == "HGCalEESensitive") ? DetId::HGCalEE : DetId::HGCalHSi) {
+  edm::LogVerbatim("HGCalGeom") << "Find area of cells for " << nameDetector_ << " of every " << nskip_
+                                << " valid ones";
 }
 
 void HGCalSiliconAreaTester::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -91,7 +93,8 @@ void HGCalSiliconAreaTester::beginRun(edm::Run const &iRun, edm::EventSetup cons
     for (unsigned int k = 0; k < detIds.size(); ++k) {
       std::ostringstream st1;
       HGCSiliconDetId id(detIds[k]);
-      st1 << "[" << k << "] " << id << " Area from (Corners:Proper Subtractions) " << geom->getArea(detIds[k]) << ":" << geom->getAreaHex(detIds[k], true);
+      st1 << "[" << k << "] " << id << " Area from (Corners:Proper Subtractions) " << geom->getArea(detIds[k]) << ":"
+          << geom->getAreaHex(detIds[k], true);
       edm::LogVerbatim("HGCalGeom") << st1.str();
     }
   }
