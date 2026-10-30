@@ -305,14 +305,16 @@ public:
         postProcessor_(truth::TruthLogicalGraphPostProcessor::configFromPSet(
             cfg.getParameter<edm::ParameterSet>("postProcessing"))) {
     // The hitless-subgraph pruning needs to know which SimTracks left a sim-hit;
-    // consume the same collections the hit-index producer uses, on every channel it
-    // indexes. A channel missing here is silently turned into deleted truth.
+    // consume the sim hits of every channel the hit-index producer can fill. A channel
+    // missing here is silently turned into deleted truth.
     if (postProcessor_.config().dropHitlessSimSubgraphs) {
       for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("simHitCollections"))
         caloSimHitTokens_.push_back(consumes<std::vector<PCaloHit>>(tag));
       for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("trackerSimHitCollections"))
         trackerSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
       for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("muonSimHitCollections"))
+        trackerSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
+      for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("mtdSimHitCollections"))
         trackerSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
     }
 
@@ -373,6 +375,14 @@ public:
             "hit index carries a Muon channel: a particle whose only hits are in the chambers, for instance "
             "a punch-through secondary born past the calorimeters, would otherwise be pruned as hitless and "
             "leave those indexed hits with no node.");
+
+    desc.add<std::vector<edm::InputTag>>(
+            "mtdSimHitCollections",
+            {edm::InputTag("g4SimHits", "FastTimerHitsBarrel"), edm::InputTag("g4SimHits", "FastTimerHitsEndcap")})
+        ->setComment(
+            "MTD (BTL/ETL) PSimHit collections, same role as trackerSimHitCollections. A particle whose only hits "
+            "are in the MTD is kept. The MTD channel of the hit index reads MtdSimLayerClusters, so a kept "
+            "particle without a layer cluster has no hit in that channel.");
 
     desc.add<edm::ParameterSetDescription>("postProcessing", truth::TruthLogicalGraphPostProcessor::psetDescription())
         ->setComment("Logical graph post-processing configuration.");
@@ -911,10 +921,11 @@ public:
     }
 
     // Per-particle sim-hit presence for the hitless-subgraph pruning. A logical
-    // particle is flagged when a calo or tracker sim-hit carries its SimTrack
-    // trackId with positive energy -- exactly how the LogicalGraphHitIndex
-    // attributes direct hits, so the pruned graph stays consistent with the
-    // index. Left empty (pruning disabled) when no sim-hit collection is present.
+    // particle is flagged when a calo, tracker, MTD or muon sim-hit carries its SimTrack
+    // trackId with positive energy. The calo and muon channels of the hit index use the
+    // same rule. The tracker and MTD channels read digi sim links and MtdSimLayerClusters,
+    // so a kept particle can have no hit in them. Left empty (pruning disabled) when no
+    // sim-hit collection is present.
     std::vector<uint8_t> particleDirectHit;
 
     if (postProcessor_.config().dropHitlessSimSubgraphs) {
@@ -975,7 +986,7 @@ public:
         particleDirectHit = std::move(hasHit);
       } else {
         edm::LogWarning("TruthLogicalGraphProducer")
-            << "dropHitlessSimSubgraphs is enabled but no calo/tracker sim-hit collection was found; "
+            << "dropHitlessSimSubgraphs is enabled but no sim-hit collection was found; "
                "keeping the full logical graph for this event.";
       }
     }
