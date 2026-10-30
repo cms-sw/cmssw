@@ -1,8 +1,9 @@
 #include <cassert>
-
+#include <cmath>
 #include <fmt/format.h>
 
 #include "DataFormats/PortableTestObjects/interface/ParticleHostCollection.h"
+#include "DataFormats/PortableTestObjects/interface/HitHostCollection.h"
 #include "DataFormats/PortableTestObjects/interface/ImageHostCollection.h"
 #include "DataFormats/PortableTestObjects/interface/LogitsHostCollection.h"
 #include "DataFormats/PortableTestObjects/interface/SimpleNetHostCollection.h"
@@ -34,6 +35,8 @@ namespace torchtest {
           simple_net_token_{consumes(params.getParameter<edm::InputTag>("simple_net"))},
           simple_net_minibatch_token_{consumes(params.getParameter<edm::InputTag>("simple_net_minibatch"))},
           simple_net_runtimeFP16_token_{consumes(params.getParameter<edm::InputTag>("simple_net_runtimeFP16"))},
+          track_hit_deep_set_full_token_{consumes(params.getParameter<edm::InputTag>("track_hit_deep_set_full"))},
+          track_hit_deep_set_batched_token_{consumes(params.getParameter<edm::InputTag>("track_hit_deep_set_batched"))},
           masked_net_token_{consumes(params.getParameter<edm::InputTag>("masked_net"))},
           multi_head_net_token_{consumes(params.getParameter<edm::InputTag>("multi_head_net"))},
           images_token_{consumes(params.getParameter<edm::InputTag>("images"))},
@@ -43,6 +46,10 @@ namespace torchtest {
           simple_net_backend_{consumes(getBackendTag(params.getParameter<edm::InputTag>("simple_net")))},
           simple_net_minibatch_backend_{
               consumes(getBackendTag(params.getParameter<edm::InputTag>("simple_net_minibatch")))},
+          track_hit_deep_set_full_backend_{
+              consumes(getBackendTag(params.getParameter<edm::InputTag>("track_hit_deep_set_full")))},
+          track_hit_deep_set_batched_backend_{
+              consumes(getBackendTag(params.getParameter<edm::InputTag>("track_hit_deep_set_batched")))},
           masked_net_backend_{consumes(getBackendTag(params.getParameter<edm::InputTag>("masked_net")))},
           multi_head_net_backend_{consumes(getBackendTag(params.getParameter<edm::InputTag>("multi_head_net")))},
           images_backend_{consumes(getBackendTag(params.getParameter<edm::InputTag>("images")))},
@@ -57,6 +64,8 @@ namespace torchtest {
       desc.add<edm::InputTag>("simple_net");
       desc.add<edm::InputTag>("simple_net_minibatch");
       desc.add<edm::InputTag>("simple_net_runtimeFP16");
+      desc.add<edm::InputTag>("track_hit_deep_set_full");
+      desc.add<edm::InputTag>("track_hit_deep_set_batched");
       desc.add<edm::InputTag>("masked_net");
       desc.add<edm::InputTag>("multi_head_net");
       desc.add<edm::InputTag>("images");
@@ -80,112 +89,146 @@ namespace torchtest {
       auto simple_net_handle = event.getHandle(simple_net_token_);
       auto simple_net_minibatch_handle = event.getHandle(simple_net_minibatch_token_);
       auto simple_net_runtimeFP16_handle = event.getHandle(simple_net_runtimeFP16_token_);
+      auto track_hit_deep_set_full_handle = event.getHandle(track_hit_deep_set_full_token_);
+      auto track_hit_deep_set_batched_handle = event.getHandle(track_hit_deep_set_batched_token_);
       auto masked_net_handle = event.getHandle(masked_net_token_);
       auto multi_head_net_handle = event.getHandle(multi_head_net_token_);
       auto images_handle = event.getHandle(images_token_);
       auto logits_handle = event.getHandle(logits_token_);
       auto logits_minibatch_handle = event.getHandle(logits_minibatch_token_);
 
-      // debug
-      if (environment_ >= Environment::kDevelopment) {
-        // particles
-        if (particles_handle.isValid()) {
-          auto const& particles = *particles_handle;
-          auto const particles_backend = static_cast<cms::alpakatools::Backend>(event.get(particles_backend_));
-          if (simple_net_handle.isValid() || masked_net_handle.isValid() || multi_head_net_handle.isValid()) {
-            print(particles.const_view(), cms::alpakatools::toString(particles_backend));
-            // assert ranges
-            for (int32_t idx = 0; idx < particles.const_view().metadata().size(); idx++) {
-              assert(0.0 <= particles.const_view().pt()[idx] && particles.const_view().pt()[idx] <= 1.0);
-              assert(0.0 <= particles.const_view().eta()[idx] && particles.const_view().eta()[idx] <= 1.0);
-              assert(0.0 <= particles.const_view().phi()[idx] && particles.const_view().phi()[idx] <= 1.0);
-            }
-          }
-          // simple_net
-          if (simple_net_handle.isValid()) {
-            auto const& simple_net = *simple_net_handle;
-            auto const simple_net_backend = static_cast<cms::alpakatools::Backend>(event.get(simple_net_backend_));
-            print(simple_net.const_view(), cms::alpakatools::toString(simple_net_backend));
-          }
-          if (simple_net_minibatch_handle.isValid()) {
-            auto const& simple_net_minibatch = *simple_net_minibatch_handle;
-            auto const simple_net_minibatch_backend =
-                static_cast<cms::alpakatools::Backend>(event.get(simple_net_minibatch_backend_));
-            print(simple_net_minibatch.const_view(), cms::alpakatools::toString(simple_net_minibatch_backend));
-          }
-          if (simple_net_runtimeFP16_handle.isValid()) {
-            auto const& simple_net_runtimeFP16 = *simple_net_runtimeFP16_handle;
-            print(simple_net_runtimeFP16.const_view(), "runtimeFP16", "SimpleNetCollection");
-          }
-          // assert the FP16 precision si producing compatible results
-          if (simple_net_handle.isValid() && simple_net_runtimeFP16_handle.isValid()) {
-            auto const& ref = *simple_net_handle;
-            auto const& FP16 = *simple_net_runtimeFP16_handle;
-
-            assert(ref.const_view().metadata().size() == FP16.const_view().metadata().size());
-            for (auto i = 0; i < ref.const_view().metadata().size(); i++) {
-              auto diff = std::abs(ref.const_view()[i].reco_pt() - FP16.const_view()[i].reco_pt()) /
-                          ref.const_view()[i].reco_pt();
-              assert(diff < 1e-2 && "Results from simple_net and simple_net_runtimeFP16 do not match!");
-            }
-          }
-          // masked_net
-          if (masked_net_handle.isValid()) {
-            auto const& masked_net = *masked_net_handle;
-            auto const masked_net_backend = static_cast<cms::alpakatools::Backend>(event.get(masked_net_backend_));
-            print(masked_net.const_view(), cms::alpakatools::toString(masked_net_backend), "MaskedNetCollection");
-            // assert, eta feature is always masked and do not contribute
-            for (int32_t idx = 0; idx < masked_net.const_view().metadata().size(); idx++) {
-              assert(masked_net.const_view().reco_pt()[idx] ==
-                     particles.const_view().pt()[idx] + particles.const_view().phi()[idx]);
-            }
-          }
-          // multihead_net
-          if (multi_head_net_handle.isValid()) {
-            auto const& multi_head_net = *multi_head_net_handle;
-            auto const multi_head_net_backend =
-                static_cast<cms::alpakatools::Backend>(event.get(multi_head_net_backend_));
-            print(multi_head_net.const_view(), cms::alpakatools::toString(multi_head_net_backend));
-            // assert, regressiona and classification heads
-            const int dims = portabletest::ClassificationHead::RowsAtCompileTime;
-            for (int32_t idx = 0; idx < multi_head_net.const_view().metadata().size(); idx++) {
-              auto r = multi_head_net.const_view()[idx].regression_head();
-              auto c = multi_head_net.const_view()[idx].classification_head();
-              float sum = 0.0;
-              for (int i = 0; i < dims; i++) {
-                sum += c[i];
-              }
-              assert(4.0 <= r && r <= 5.0);
-              assert(std::abs(sum - 1.0) < 1e-4);
-            }
+      // particles
+      if (particles_handle.isValid()) {
+        auto const& particles = *particles_handle;
+        auto const particles_backend = static_cast<cms::alpakatools::Backend>(event.get(particles_backend_));
+        if (simple_net_handle.isValid() || masked_net_handle.isValid() || multi_head_net_handle.isValid()) {
+          print(particles.const_view(), cms::alpakatools::toString(particles_backend));
+          // assert ranges
+          for (int32_t idx = 0; idx < particles.const_view().metadata().size(); idx++) {
+            assert(0.0 <= particles.const_view().pt()[idx] && particles.const_view().pt()[idx] <= 1.0);
+            assert(0.0 <= particles.const_view().eta()[idx] && particles.const_view().eta()[idx] <= 1.0);
+            assert(0.0 <= particles.const_view().phi()[idx] && particles.const_view().phi()[idx] <= 1.0);
           }
         }
-        // images
-        if (images_handle.isValid() && logits_handle.isValid()) {
-          auto const& images = *images_handle;
-          auto const images_backend = static_cast<cms::alpakatools::Backend>(event.get(images_backend_));
-          print(images.const_view(), cms::alpakatools::toString(images_backend));
+        // simple_net
+        if (simple_net_handle.isValid()) {
+          auto const& simple_net = *simple_net_handle;
+          auto const simple_net_backend = static_cast<cms::alpakatools::Backend>(event.get(simple_net_backend_));
+          print(simple_net.const_view(), cms::alpakatools::toString(simple_net_backend));
+        }
+        if (simple_net_minibatch_handle.isValid()) {
+          auto const& simple_net_minibatch = *simple_net_minibatch_handle;
+          auto const simple_net_minibatch_backend =
+              static_cast<cms::alpakatools::Backend>(event.get(simple_net_minibatch_backend_));
+          print(simple_net_minibatch.const_view(), cms::alpakatools::toString(simple_net_minibatch_backend));
+        }
+        if (simple_net_runtimeFP16_handle.isValid()) {
+          auto const& simple_net_runtimeFP16 = *simple_net_runtimeFP16_handle;
+          print(simple_net_runtimeFP16.const_view(), "runtimeFP16", "SimpleNetCollection");
+        }
+        // assert the FP16 precision si producing compatible results
+        if (simple_net_handle.isValid() && simple_net_runtimeFP16_handle.isValid()) {
+          auto const& ref = *simple_net_handle;
+          auto const& FP16 = *simple_net_runtimeFP16_handle;
 
-          auto const& logits = *logits_handle;
-          auto const logits_backend = static_cast<cms::alpakatools::Backend>(event.get(logits_backend_));
-          print(logits.const_view(), cms::alpakatools::toString(logits_backend));
+          assert(ref.const_view().metadata().size() == FP16.const_view().metadata().size());
+          for (auto i = 0; i < ref.const_view().metadata().size(); i++) {
+            auto diff = std::abs(ref.const_view()[i].reco_pt() - FP16.const_view()[i].reco_pt()) /
+                        ref.const_view()[i].reco_pt();
+            assert(diff < 1e-2 && "Results from simple_net and simple_net_runtimeFP16 do not match!");
+          }
+        }
 
-          const int dims = portabletest::LogitsType::RowsAtCompileTime;
-          for (int32_t idx = 0; idx < logits.const_view().metadata().size(); idx++) {
-            float sum = 0.0f;
-            const auto& logit = logits.const_view()[idx];
+        // track_hit_deep_set_full
+        if (track_hit_deep_set_full_handle.isValid()) {
+          auto const& output = track_hit_deep_set_full_handle->const_view();
+          auto const& particles_view = particles.const_view();
+          auto const backend = static_cast<cms::alpakatools::Backend>(event.get(track_hit_deep_set_full_backend_));
+
+          print(output, cms::alpakatools::toString(backend), "TrackHitDeepSetCollection");
+
+          assert(output.metadata().size() == particles_view.metadata().size());
+          for (int32_t i = 0; i < output.metadata().size(); ++i) {
+            const float score = output[i].reco_pt();
+            assert(std::isfinite(score) && 0.0f <= score && score <= 1.0f);
+          }
+        }
+
+        if (track_hit_deep_set_full_handle.isValid() && track_hit_deep_set_batched_handle.isValid()) {
+          const auto& batched_view = track_hit_deep_set_batched_handle->const_view();
+          const auto& full_view = track_hit_deep_set_full_handle->const_view();
+
+          assert(full_view.metadata().size() == batched_view.metadata().size());
+
+          constexpr float tol = 1.e-6f;
+
+          for (int32_t i = 0; i < batched_view.metadata().size(); ++i) {
+            const float batched = batched_view[i].reco_pt();
+            const float full = full_view[i].reco_pt();
+
+            assert(std::isfinite(batched));
+            assert(std::isfinite(full));
+
+            assert(std::abs(batched - full) <= tol && "Full and batched TrackHitDeepSets do not match");
+          }
+        }
+
+        // masked_net
+        if (masked_net_handle.isValid()) {
+          auto const& masked_net = *masked_net_handle;
+          auto const masked_net_backend = static_cast<cms::alpakatools::Backend>(event.get(masked_net_backend_));
+          print(masked_net.const_view(), cms::alpakatools::toString(masked_net_backend), "MaskedNetCollection");
+          // assert, eta feature is always masked and do not contribute
+          for (int32_t idx = 0; idx < masked_net.const_view().metadata().size(); idx++) {
+            assert(masked_net.const_view().reco_pt()[idx] ==
+                   particles.const_view().pt()[idx] + particles.const_view().phi()[idx]);
+          }
+        }
+        // multihead_net
+        if (multi_head_net_handle.isValid()) {
+          auto const& multi_head_net = *multi_head_net_handle;
+          auto const multi_head_net_backend =
+              static_cast<cms::alpakatools::Backend>(event.get(multi_head_net_backend_));
+          print(multi_head_net.const_view(), cms::alpakatools::toString(multi_head_net_backend));
+          // assert, regressiona and classification heads
+          const int dims = portabletest::ClassificationHead::RowsAtCompileTime;
+          for (int32_t idx = 0; idx < multi_head_net.const_view().metadata().size(); idx++) {
+            auto r = multi_head_net.const_view()[idx].regression_head();
+            auto c = multi_head_net.const_view()[idx].classification_head();
+            float sum = 0.0;
             for (int i = 0; i < dims; i++) {
-              sum += logit.logits()[i];
+              sum += c[i];
             }
+            assert(4.0 <= r && r <= 5.0);
             assert(std::abs(sum - 1.0) < 1e-4);
           }
         }
-        if (logits_minibatch_handle) {
-          auto const& logits_minibatch = *logits_minibatch_handle;
-          auto const logits_minibatch_backend =
-              static_cast<cms::alpakatools::Backend>(event.get(logits_minibatch_backend_));
-          print(logits_minibatch.const_view(), cms::alpakatools::toString(logits_minibatch_backend));
+      }
+      // images
+      if (images_handle.isValid() && logits_handle.isValid()) {
+        auto const& images = *images_handle;
+        auto const images_backend = static_cast<cms::alpakatools::Backend>(event.get(images_backend_));
+        print(images.const_view(), cms::alpakatools::toString(images_backend));
+
+        auto const& logits = *logits_handle;
+        auto const logits_backend = static_cast<cms::alpakatools::Backend>(event.get(logits_backend_));
+        print(logits.const_view(), cms::alpakatools::toString(logits_backend));
+
+        const int dims = portabletest::LogitsType::RowsAtCompileTime;
+        for (int32_t idx = 0; idx < logits.const_view().metadata().size(); idx++) {
+          float sum = 0.0f;
+          const auto& logit = logits.const_view()[idx];
+          for (int i = 0; i < dims; i++) {
+            sum += logit.logits()[i];
+          }
+          assert(std::abs(sum - 1.0) < 1e-4);
         }
+      }
+      if (logits_minibatch_handle) {
+        auto const& logits_minibatch = *logits_minibatch_handle;
+        auto const logits_minibatch_backend =
+            static_cast<cms::alpakatools::Backend>(event.get(logits_minibatch_backend_));
+        print(logits_minibatch.const_view(), cms::alpakatools::toString(logits_minibatch_backend));
       }
     }
 
@@ -212,6 +255,8 @@ namespace torchtest {
     const edm::EDGetTokenT<portabletest::SimpleNetHostCollection> simple_net_token_;
     const edm::EDGetTokenT<portabletest::SimpleNetHostCollection> simple_net_minibatch_token_;
     const edm::EDGetTokenT<portabletest::SimpleNetHostCollection> simple_net_runtimeFP16_token_;
+    const edm::EDGetTokenT<portabletest::SimpleNetHostCollection> track_hit_deep_set_full_token_;
+    const edm::EDGetTokenT<portabletest::SimpleNetHostCollection> track_hit_deep_set_batched_token_;
     const edm::EDGetTokenT<portabletest::SimpleNetHostCollection> masked_net_token_;
     const edm::EDGetTokenT<portabletest::MultiHeadNetHostCollection> multi_head_net_token_;
     const edm::EDGetTokenT<portabletest::ImageHostCollection> images_token_;
@@ -221,6 +266,8 @@ namespace torchtest {
     const edm::EDGetTokenT<unsigned short> particles_backend_;
     const edm::EDGetTokenT<unsigned short> simple_net_backend_;
     const edm::EDGetTokenT<unsigned short> simple_net_minibatch_backend_;
+    const edm::EDGetTokenT<unsigned short> track_hit_deep_set_full_backend_;
+    const edm::EDGetTokenT<unsigned short> track_hit_deep_set_batched_backend_;
     const edm::EDGetTokenT<unsigned short> masked_net_backend_;
     const edm::EDGetTokenT<unsigned short> multi_head_net_backend_;
     const edm::EDGetTokenT<unsigned short> images_backend_;
@@ -230,6 +277,8 @@ namespace torchtest {
     const int32_t kMaxView = 5;
 
     void print(const portabletest::LogitsHostCollection::ConstView& logits, const std::string_view logits_backend) {
+      if (environment_ < Environment::kDevelopment)
+        return;
       if (logits.metadata().size() == 0) {
         fmt::print("[DEBUG] LogitsCollection[0]: empty\n");
         return;
@@ -249,6 +298,8 @@ namespace torchtest {
     }
 
     void print(const portabletest::ImageHostCollection::ConstView& images, const std::string_view images_backend) {
+      if (environment_ < Environment::kDevelopment)
+        return;
       const auto size = images.metadata().size();
       if (size == 0) {
         fmt::print("[DEBUG] ImageCollection[0]: empty\n");
@@ -292,6 +343,8 @@ namespace torchtest {
 
     void print(const portabletest::MultiHeadNetHostCollection::ConstView& multi_head_net,
                const std::string_view multi_head_net_backend) {
+      if (environment_ < Environment::kDevelopment)
+        return;
       constexpr auto line = "+-------+-----------------+-------+-------+-------+\n";
       const auto size = multi_head_net.metadata().size();
       if (size == 0) {
@@ -340,6 +393,8 @@ namespace torchtest {
 
     template <typename ViewT>
     void print_view(const ViewT& simple_net) {
+      if (environment_ < Environment::kDevelopment)
+        return;
       constexpr auto line = "+-------+---------+\n";
       const auto size = simple_net.metadata().size();
       if (size == 0) {
@@ -367,6 +422,8 @@ namespace torchtest {
 
     template <typename ViewT>
     void print(const ViewT& simple_net, std::string_view backend, const std::string& label = "SimpleNetCollection") {
+      if (environment_ < Environment::kDevelopment)
+        return;
       constexpr auto line = "+-------+---------+\n";
       const auto size = simple_net.metadata().size();
       fmt::memory_buffer buffer;
@@ -384,6 +441,8 @@ namespace torchtest {
 
     void print(const portabletest::ParticleHostCollection::ConstView& particles,
                const std::string_view particles_backend) {
+      if (environment_ < Environment::kDevelopment)
+        return;
       constexpr auto line = "+-------+---------+---------+---------+\n";
       const auto size = particles.metadata().size();
       if (size == 0) {

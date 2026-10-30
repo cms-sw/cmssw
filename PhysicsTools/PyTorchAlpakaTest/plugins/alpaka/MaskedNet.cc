@@ -54,14 +54,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
       // auto scalar_mask_records = scalar_mask.view().records();
       auto output_records = masked_net_output.view().records();
       // input tensor definition
-      cms::torch::alpakatools::TensorCollection<Queue> inputs(total_size);
+      cms::torch::alpakatools::TensorCollection<Queue> inputs;
       inputs.add<portabletest::ParticleSoA>(
           "particles", particle_records.pt(), particle_records.eta(), particle_records.phi());
       // note override of default `ParticleSoA` layout with `MaskSoA`
       inputs.add<portabletest::MaskSoA>("mask", mask_records.mask());
       // inputs.add<ScalarMaskSoA>("scalar_mask", scalar_mask_records.scalar_mask());
       // output tensor definition
-      cms::torch::alpakatools::TensorCollection<Queue> outputs(total_size);
+      cms::torch::alpakatools::TensorCollection<Queue> outputs;
       outputs.add<portabletest::SimpleNetSoA>("regression_head", output_records.reco_pt());
       // metadata for automatic tensor conversion
       // ModelMetadata metadata(inputs, outputs);

@@ -42,7 +42,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto input_records = features.const_view().records();
       auto output_records = scores_device.view().records();
 
-      cms::torch::alpakatools::TensorCollection<Queue> inputs(batch_size);
+      cms::torch::alpakatools::TensorCollection<Queue> inputs;
       inputs.add<TrackTorchClassifierFeaturesSoA>("features",
                                                   input_records.dxyBeamSpot(),
                                                   input_records.dzBeamSpot(),
@@ -60,7 +60,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                   input_records.validPixelHits(),
                                                   input_records.validStripHits());
 
-      cms::torch::alpakatools::TensorCollection<Queue> outputs(batch_size);
+      cms::torch::alpakatools::TensorCollection<Queue> outputs;
       outputs.add<TrackTorchClassifierScoresSoA>("scores", output_records.score());
 
       model_.forward(iEvent.queue(), inputs, outputs);
@@ -79,8 +79,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto output_records = scores_device.view().records();
 
       for (auto it = 0; it < warmupIterations_; ++it) {
-        cms::torch::alpakatools::TensorCollection<Queue> dummy_inputs(warmupBatchSize);
-        cms::torch::alpakatools::TensorCollection<Queue> dummy_outputs(warmupBatchSize);
+        cms::torch::alpakatools::TensorCollection<Queue> dummy_inputs;
+        cms::torch::alpakatools::TensorCollection<Queue> dummy_outputs;
 
         dummy_inputs.add<TrackTorchClassifierFeaturesSoA>("features",
                                                           input_records.dxyBeamSpot(),
