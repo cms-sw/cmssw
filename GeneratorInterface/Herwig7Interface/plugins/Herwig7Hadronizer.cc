@@ -70,8 +70,7 @@ private:
   edm::ParameterSet paramSettings;
   const std::string runFileName;
 
-  unsigned int firstLumiBlock = 0;
-  unsigned int currentLumiBlock = 0;
+  bool repositoryInitialized_ = false;
 };
 
 Herwig7Hadronizer::Herwig7Hadronizer(const edm::ParameterSet& pset)
@@ -80,38 +79,31 @@ Herwig7Hadronizer::Herwig7Hadronizer(const edm::ParameterSet& pset)
       eventsToPrint(pset.getUntrackedParameter<unsigned int>("eventsToPrint", 0)),
       handlerDirectory_(pset.getParameter<std::string>("eventHandlers")),
       runFileName(pset.getParameter<std::string>("run")) {
-  initRepository(pset);
   paramSettings = pset;
 }
 
 Herwig7Hadronizer::~Herwig7Hadronizer() {}
 
 bool Herwig7Hadronizer::initializeForInternalPartons() {
-  if (currentLumiBlock == firstLumiBlock) {
-    std::ifstream runFile(runFileName + ".run");
-    if (runFile.fail())  //required for showering of LHE files
-    {
-      initRepository(paramSettings);
-    }
+  if (!repositoryInitialized_) {
+    initRepository(paramSettings);
     if (!initGenerator()) {
       edm::LogInfo("Generator|Herwig7Hadronizer") << "No run step for Herwig chosen. Program will be aborted.";
       exit(0);
     }
+    repositoryInitialized_ = true;
   }
   return true;
 }
 
 bool Herwig7Hadronizer::initializeForExternalPartons() {
-  if (currentLumiBlock == firstLumiBlock) {
-    std::ifstream runFile(runFileName + ".run");
-    if (runFile.fail())  //required for showering of LHE files
-    {
-      initRepository(paramSettings);
-    }
+  if (!repositoryInitialized_) {
+    initRepository(paramSettings);
     if (!initGenerator()) {
       edm::LogInfo("Generator|Herwig7Hadronizer") << "No run step for Herwig chosen. Program will be aborted.";
       exit(0);
     }
+    repositoryInitialized_ = true;
   }
   return true;
 }
@@ -229,11 +221,6 @@ std::unique_ptr<GenLumiInfoHeader> Herwig7Hadronizer::getGenLumiInfoHeader() con
 
 void Herwig7Hadronizer::randomizeIndex(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine) {
   BaseHadronizer::randomizeIndex(lumi, rengine);
-
-  if (firstLumiBlock == 0) {
-    firstLumiBlock = lumi.id().luminosityBlock();
-  }
-  currentLumiBlock = lumi.id().luminosityBlock();
 }
 
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
