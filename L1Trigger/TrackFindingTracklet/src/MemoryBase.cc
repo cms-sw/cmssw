@@ -72,7 +72,35 @@ void MemoryBase::findAndReplaceAll(std::string& data, std::string toSearch, std:
   }
 }
 
-void MemoryBase::openFile(bool first, std::string dirName, std::string filebase) {
+std::string MemoryBase::fnameWithSuffix(const std::string& fname) {
+  std::string newFname(fname);
+
+  if (settings_.splitmembysect()) {
+    newFname += "_";
+    if (iSector_ + 1 < 10)
+      newFname += "0";
+    newFname += std::to_string(iSector_ + 1);
+  }
+  newFname += ".dat";
+
+  return newFname;
+}
+
+std::string MemoryBase::eventHeader() {
+  std::stringstream ss;
+  ss << "BX : " << (bitset<3>)bx_ << " Event : " << event_ << " Sector : " << (iSector_ + 1);
+
+  return ss.str();
+}
+
+void MemoryBase::incrBXEvent() {
+  bx_++;
+  event_++;
+  if (bx_ > 7)
+    bx_ = 0;
+}
+
+void MemoryBase::openFile(const bool first, const std::string& dirName, const std::string& filebase) {
   std::string fname = filebase + getName();
 
   findAndReplaceAll(fname, "PHIa", "PHIaa");
@@ -85,20 +113,11 @@ void MemoryBase::openFile(bool first, std::string dirName, std::string filebase)
   findAndReplaceAll(fname, "PHIz", "PHIzz");
   findAndReplaceAll(fname, "PHIw", "PHIww");
 
-  fname += "_";
-  if (iSector_ + 1 < 10)
-    fname += "0";
-  fname += std::to_string(iSector_ + 1);
-  fname += ".dat";
+  fname = fnameWithSuffix(fname);
 
   openfile(out_, first, dirName, dirName + fname, __FILE__, __LINE__);
 
-  out_ << "BX = " << (bitset<3>)bx_ << " Event : " << event_ << endl;
-
-  bx_++;
-  event_++;
-  if (bx_ > 7)
-    bx_ = 0;
+  out_ << eventHeader() << endl;
 }
 
 size_t MemoryBase::find_nth(const string& haystack, size_t pos, const string& needle, size_t nth) {
