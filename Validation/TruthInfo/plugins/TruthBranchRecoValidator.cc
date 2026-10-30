@@ -322,7 +322,8 @@ TruthBranchRecoValidator<RECO>::TruthBranchRecoValidator(edm::ParameterSet const
       truthTargets.emplace_back("signal", "signalSeeds");
       // The same seed objects with NO selector cut, so the efficiency is quoted against
       // every seed in the event rather than against the ones the kinematic selection
-      // kept. The gap to the signal folder is what the selection removed.
+      // kept. The gap to the signal folder is what the selection removed, the invisible
+      // seeds included.
       truthTargets.emplace_back("signalNoSelection", "signalSeedsNoSelection");
     }
     // Every denominator above is an ANTICHAIN. A set of all selected roots is not one,

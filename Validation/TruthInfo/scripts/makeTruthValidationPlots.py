@@ -42,7 +42,8 @@ WP_ORDER = ["Fixed", "AdaptiveTight", "AdaptiveNominal"]
 # overall signal entry: its denominator is the preset SEED objects among the selected
 # roots, so with a selection preset it is the efficiency of the signal object itself
 # (the tau, not its decay legs). signalNoSelection is the same seed objects with no
-# selector cut at all, so the efficiency is quoted against every seed in the event.
+# selector cut at all, so the efficiency is quoted against every seed in the event. The
+# signal denominator also drops the invisible seeds; signalNoSelection keeps them.
 # Every entry here is an ANTICHAIN: no member is an ancestor of another, so no efficiency
 # counts one object twice. That is the entry requirement for a truth denominator.
 LEVEL_ORDER = ["stableLegsFromInitialState", "caloBoundary", "stableDecayProducts", "hardProcess",
@@ -101,8 +102,9 @@ LEVEL_MEANING = {
         "taus for TenTau. This is the series that answers 'was the object I generated reconstructed', and the "
         "one to read when hardProcess looks wrong.",
     "signalNoSelection":
-        "the same seed species with the kinematic selector removed. Equal to signal whenever every seed passes "
-        "the selector, which is the case for tops; a difference between the two is the selector's own cost.",
+        "the same seed species with the kinematic selector removed and the invisible seeds kept. Equal to signal "
+        "whenever every seed passes the selector and is visible, which is the case for tops; a difference between "
+        "the two is the selector's own cost plus the invisible seeds.",
 }
 
 VERTEX_SUFFIXES = ["interaction", "immediate"]
@@ -1280,7 +1282,8 @@ def main():
                     "among the selected roots, so with a selection preset it is the signal object's own "
                     "efficiency (the tau, not its decay legs), signalNoSelection, the same seed objects with "
                     "no branch-selector cut at all, so the efficiency is quoted against every seed in the "
-                    "event and the gap to signal is what the selection removed. Every one of these is an "
+                    "event and the gap to signal is what the selection removed, the invisible seeds included. "
+                    "Every one of these is an "
                     "ANTICHAIN, so no object is counted twice: a denominator holding both a particle and "
                     "its own daughter would count the same energy twice. A "
                     "composite domain has a single folder named by its vertex resolution. On the efficiency "
