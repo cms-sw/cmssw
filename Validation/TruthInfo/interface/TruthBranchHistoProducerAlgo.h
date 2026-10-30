@@ -95,7 +95,7 @@ namespace truth {
     const int32_t a = std::abs(pdgId);
     if (a >= 1 && a <= 6)
       return static_cast<double>(a) + 0.5;
-    if (a == 21)
+    if (a == 9 || a == 21)  // 9 is the PDG alternative gluon code
       return static_cast<double>(FlavourBin::Gluon) + 0.5;
     return static_cast<double>(FlavourBin::Other) + 0.5;
   }
