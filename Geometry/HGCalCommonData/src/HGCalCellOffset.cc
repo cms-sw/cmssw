@@ -1266,7 +1266,9 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
 }
 
 std::pair<double, double> HGCalCellOffset::cellOffsetUV2XY1(int32_t u, int32_t v, int32_t placementIndex, int32_t type) {
-  if (type != 0)
+  if ((type == 0) || (type == 3))
+    type = 0;
+  else
     type = 1;
   double x_off(0), y_off(0);
   std::pair<int, int> cell = hgcalcell_->cellType(u, v, ncell_[type], placementIndex);
@@ -1295,7 +1297,9 @@ std::pair<double, double> HGCalCellOffset::cellOffsetUV2XY1(int32_t u, int32_t v
 
 std::pair<double, double> HGCalCellOffset::cellOffsetUV2XY1(
     int32_t u, int32_t v, int32_t placementIndex, int32_t type, int32_t partialType) {
-  if (type != 0)
+  if ((type == 0) || (type == 3))
+    type = 0;
+  else
     type = 1;
   std::pair<double, double> offset = HGCalCellOffset::cellOffsetUV2XY1(u, v, placementIndex, type);
   double x_off = offset.first;
@@ -1348,7 +1352,9 @@ std::pair<double, double> HGCalCellOffset::cellOffsetUV2XY1(
 }
 
 double HGCalCellOffset::cellAreaUV(int32_t u, int32_t v, int32_t placementIndex, int32_t type, bool reco) {
-  if (type != 0)
+  if ((type == 0) || (type == 3))
+    type = 0;
+  else
     type = 1;
   double area(0);
   std::pair<int, int> cell = hgcalcell_->cellType(u, v, ncell_[type], placementIndex);
@@ -1359,7 +1365,9 @@ double HGCalCellOffset::cellAreaUV(int32_t u, int32_t v, int32_t placementIndex,
 
 double HGCalCellOffset::cellAreaUV(
     int32_t u, int32_t v, int32_t placementIndex, int32_t type, int32_t partialType, bool reco) {
-  if (type != 0)
+  if ((type == 0) || (type == 3))
+    type = 0;
+  else
     type = 1;
   double area(0);
   area = cellAreaUV(u, v, placementIndex, type, reco);

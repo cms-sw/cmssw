@@ -20,7 +20,9 @@ HGCalCell::HGCalCell(double waferSize, int32_t nFine, int32_t nCoarse) {
 }
 
 std::pair<double, double> HGCalCell::cellUV2XY1(int32_t u, int32_t v, int32_t placementIndex, int32_t type) {
-  if (type != 0)
+  if ((type == 0) || (type == 3))
+    type = 0;
+  else
     type = 1;
   double x(0), y(0);
   switch (placementIndex) {
@@ -77,7 +79,9 @@ std::pair<double, double> HGCalCell::cellUV2XY1(int32_t u, int32_t v, int32_t pl
 }
 
 std::pair<double, double> HGCalCell::cellUV2XY2(int32_t u, int32_t v, int32_t placementIndex, int32_t type) {
-  if (type != 0)
+  if ((type == 0) || (type == 3))
+    type = 0;
+  else
     type = 1;
   double x(0), y(0);
   if (placementIndex < HGCalCell::cellPlacementExtra) {
@@ -101,7 +105,9 @@ std::pair<double, double> HGCalCell::cellUV2XY2(int32_t u, int32_t v, int32_t pl
 }
 
 std::pair<int, int> HGCalCell::cellUV2Cell(int32_t u, int32_t v, int32_t placementIndex, int32_t type) {
-  if (type != 0)
+  if ((type == 0) || (type == 3))
+    type = 0;
+  else
     type = 1;
   int cell(0), cellx(0), cellt(HGCalCell::fullCell);
   if (placementIndex >= HGCalCell::cellPlacementExtra) {
