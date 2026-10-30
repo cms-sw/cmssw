@@ -171,7 +171,7 @@ public:
     if (out->buildMode == truth::GraphMetadata::BuildMode::Unknown)
       edm::LogWarning("TruthGraphMetadataProducer")
           << "No truth graph builder under the label '" << rawGraphProducer_ << "' in this job or in the jobs "
-          << "before it: the build mode is Unknown.";
+          << "before it, or a MixingModule without the truthGraph accumulator: the build mode is Unknown.";
 
     if (auto graph = findModule(thisProcess, history, graphProducer_)) {
       edm::ParameterSet const& pset = graph->pset;

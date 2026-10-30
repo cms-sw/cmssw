@@ -50,8 +50,8 @@ truthGenOnlyEventContent = cms.untracked.vstring(
 
 
 def customiseTruthGenOnly(process, writeMetadata=False):
-    """Add the GEN-only graph to the GEN step and keep it in every output module. With
-    writeMetadata, also write truth::GraphMetadata once per run."""
+    """Add the GEN-only graph to the GEN step and keep it in every EDM output module except
+    the LHE stream. With writeMetadata, also write truth::GraphMetadata once per run."""
     if not hasattr(process, "generation_step"):
         raise RuntimeError("customiseTruthGenOnly needs a job with the GEN step (process.generation_step)")
     process.truthGenOnlyGraphProducer = truthGenOnlyGraphProducer.clone()
