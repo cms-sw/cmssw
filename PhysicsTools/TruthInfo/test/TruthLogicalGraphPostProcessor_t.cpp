@@ -354,6 +354,7 @@ class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(testBeamSideInputKeepsNoSubgraph);
   CPPUNIT_TEST(testUnattachedSelectionHasNoBeamSideInput);
   CPPUNIT_TEST(testSpectatorKeepsItsSimSubgraph);
+  CPPUNIT_TEST(testSelectionKeepsReconstructableSpectators);
   CPPUNIT_TEST(testVertexReasonSurvivesTheRewrite);
   CPPUNIT_TEST(testMomentumFromDecayProducts);
   CPPUNIT_TEST(testMomentumPassStopsOnACycle);
@@ -392,6 +393,7 @@ public:
   void testBeamSideInputKeepsNoSubgraph();
   void testUnattachedSelectionHasNoBeamSideInput();
   void testSpectatorKeepsItsSimSubgraph();
+  void testSelectionKeepsReconstructableSpectators();
   void testVertexReasonSurvivesTheRewrite();
   void testMomentumFromDecayProducts();
   void testMomentumPassStopsOnACycle();
@@ -692,6 +694,76 @@ void TestTruthLogicalGraphPostProcessor::testSpectatorKeepsItsSimSubgraph() {
     const auto legs = truth::levelAntichain(output, truth::Level::UnderlyingEvent);
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), legs.size());
     CPPUNIT_ASSERT_EQUAL(int32_t(211), output.particles()[legs.front()].pdgId);
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+// REQUIRED: a selection keeps a spectator pi0 as one reconstructableFinalState member, as
+// the graph without a selection does, and the underlying-event level still ends at its photons.
+void TestTruthLogicalGraphPostProcessor::testSelectionKeepsReconstructableSpectators() {
+  try {
+    auto makeGraph = []() {
+      GraphBuilder builder(8, 4);
+
+      //   p -> v0 -> H rho+ ; H -> v1 -> gamma ; rho+ -> v2 -> pi+ pi0 ; pi0 -> v3 -> gamma gamma
+      // The pi0 has the highest index, so the spectator passes cannot depend on the order.
+      builder.setGenParticle(0, 2212, 4, 100);
+      builder.setGenParticle(1, 25, 2, 101);
+      builder.setGenParticle(2, 213, 2, 102);
+      builder.setGenSimParticle(3, 22, 1, 103, 1003);
+      builder.setGenSimParticle(4, 211, 1, 104, 1004);
+      builder.setGenSimParticle(5, 22, 1, 105, 1005);
+      builder.setGenSimParticle(6, 22, 1, 106, 1006);
+      builder.setGenParticle(7, 111, 2, 107);
+
+      for (uint32_t vertexId = 0; vertexId < 4; ++vertexId)
+        builder.setGenVertex(vertexId, 200 + vertexId);
+
+      builder.addDecay(0, 0);
+      builder.addProduction(0, 1);
+      builder.addProduction(0, 2);
+      builder.addDecay(1, 1);
+      builder.addProduction(1, 3);
+      builder.addDecay(2, 2);
+      builder.addProduction(2, 4);
+      builder.addProduction(2, 7);
+      builder.addDecay(7, 3);
+      builder.addProduction(3, 5);
+      builder.addProduction(3, 6);
+      return builder.finish();
+    };
+
+    auto finalStatePdgIds = [](truth::Graph const& graph) {
+      std::vector<int32_t> pdgIds;
+      for (const uint32_t leg : truth::levelAntichain(graph, truth::Level::ReconstructableFinalState))
+        pdgIds.push_back(graph.particles()[leg].pdgId);
+      std::sort(pdgIds.begin(), pdgIds.end());
+      return pdgIds;
+    };
+
+    auto config = defaultConfig();
+    config.reconstructablePdgIds = {111};
+
+    auto full = runPostProcessing(makeGraph(), config);
+    full.reconstructablePdgIds() = {111};
+
+    config.seedPdgIds = {25};
+    auto selected = runPostProcessing(makeGraph(), config);
+    selected.reconstructablePdgIds() = {111};
+
+    CPPUNIT_ASSERT(selected.isConsistent());
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(selected, 111));
+    CPPUNIT_ASSERT(
+        isProducedAtRole(selected, findParticleWithPdgId(selected, 111), truth::VertexRole::UnderlyingEvent));
+
+    const std::vector<int32_t> expected = {22, 111, 211};
+    CPPUNIT_ASSERT(finalStatePdgIds(full) == expected);
+    CPPUNIT_ASSERT(finalStatePdgIds(selected) == expected);
+
+    // The underlying-event level is the stable legs: the pi+ and the two photons of the pi0.
+    CPPUNIT_ASSERT_EQUAL(std::size_t(3), truth::levelAntichain(selected, truth::Level::UnderlyingEvent).size());
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);

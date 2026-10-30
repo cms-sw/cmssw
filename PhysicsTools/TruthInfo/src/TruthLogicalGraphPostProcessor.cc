@@ -933,21 +933,30 @@ namespace {
     std::vector<uint8_t> stableSpectator(nParticles, 0);
 
     if (config.keepStableSpectators) {
-      for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
-        if (!isStableGenParticle(input, particleId))
-          continue;
-
-        if (isIgnoredParticle(input, particleId, config.ignoredPdgIds, config.ignoredParticleIds))
-          continue;
-
-        if (keepParticle[particleId])
-          continue;
+      auto keepSpectator = [&](uint32_t particleId) {
+        if (keepParticle[particleId] ||
+            isIgnoredParticle(input, particleId, config.ignoredPdgIds, config.ignoredParticleIds))
+          return;
 
         // The subgraph as well, which for a GEN-stable particle is its SIM
         // continuation: the shower, the conversion, the annihilation. That is where the
         // spectator's hits are, so a spectator without it matches no reco object.
         markDownstreamFromParticle(input, particleId, keepParticle, keepVertex);
         stableSpectator[particleId] = 1;
+      };
+
+      // A GEN particle of a reconstructable species is a spectator with its decay
+      // products below it, so the reconstructable levels stop at it as they do without
+      // a selection. Its decay products are then kept, so they are not spectators.
+      for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
+        auto const& particle = input.particles()[particleId];
+        if (particle.hasGen() && containsPdgId(config.reconstructablePdgIds, particle.pdgId))
+          keepSpectator(particleId);
+      }
+
+      for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
+        if (isStableGenParticle(input, particleId))
+          keepSpectator(particleId);
       }
     }
 
@@ -1288,8 +1297,9 @@ namespace truth {
 
     desc.add<bool>("keepStableSpectators", true)
         ->setComment(
-            "If true, stable final-state GEN particles outside the selected subgraph are kept, with their SIM "
-            "subgraph, and attached to an artificial UnderlyingEvent source vertex (tagged with their "
+            "If true, stable final-state GEN particles and GEN particles of the reconstructablePdgIds species "
+            "outside the selected subgraph are kept, with their subgraph, and attached to an artificial "
+            "UnderlyingEvent source vertex (tagged with their "
             "genEvent/eventId for pile-up provenance). "
             "If false, they are dropped, leaving the selection, its InitialState context and the BeamSideInput of "
             "its vertices. Only meaningful when a selection (seedPdgIds/decayPdgIdGroups) is active.");

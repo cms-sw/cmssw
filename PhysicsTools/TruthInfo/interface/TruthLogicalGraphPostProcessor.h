@@ -54,9 +54,10 @@ namespace truth {
     // their other descendants.
     uint32_t seedParentDepth = 0;
 
-    // If true (default), stable final-state GEN particles outside the selected
-    // subgraph are kept and attached to an artificial UnderlyingEvent source
-    // vertex, each with its SIM subgraph, which is where its hits are. If false, they
+    // If true (default), stable final-state GEN particles and GEN particles of the
+    // reconstructablePdgIds species outside the selected subgraph are kept and
+    // attached to an artificial UnderlyingEvent source vertex, each with its
+    // subgraph, which is where its hits are. If false, they
     // are dropped, leaving the selection, its truncated initial-state context and the
     // beam-side input of its vertices.
     // Only meaningful when a selection is active (seedPdgIds/decayPdgIdGroups).
