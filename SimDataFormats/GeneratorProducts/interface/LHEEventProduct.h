@@ -24,6 +24,16 @@ namespace io_v1 {
     LHEEventProduct(const lhef::HEPEUP &hepeup, const double originalXWGTUP)
         : hepeup_(hepeup), originalXWGTUP_(originalXWGTUP) {}
     LHEEventProduct(LHEEventProduct &&other) = default;
+    LHEEventProduct(const LHEEventProduct &other)
+        : hepeup_(other.hepeup_),
+          comments_(other.comments_),
+          pdf_(other.pdf_ ? std::make_unique<PDF>(*other.pdf_) : nullptr),
+          weights_(other.weights_),
+          originalXWGTUP_(other.originalXWGTUP_),
+          scales_(other.scales_),
+          npLO_(other.npLO_),
+          npNLO_(other.npNLO_),
+          evtnum_(other.evtnum_) {}
 
     LHEEventProduct &operator=(LHEEventProduct &&other) = default;
 
@@ -31,6 +41,7 @@ namespace io_v1 {
 
     void setPDF(const PDF &pdf) { pdf_ = std::make_unique<PDF>(pdf); }
     void addWeight(const WGT &wgt) { weights_.push_back(wgt); }
+    void clearWeights() { weights_.clear(); }
     void addComment(const std::string &line) { comments_.push_back(line); }
 
     double originalXWGTUP() const { return originalXWGTUP_; }

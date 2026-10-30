@@ -129,6 +129,9 @@ private:
   } m_commonRunBranches;
 
   std::vector<TableOutputBranches> m_tables;
+  // WMass: std::vector<nanoaod::FlatTable> products (a variable number of tables
+  // per product, e.g. the grouped LHE weight tables); one TableOutputBranches per element
+  std::vector<std::pair<edm::EDGetToken, std::vector<TableOutputBranches>>> m_tableVectors;
   std::vector<TriggerOutputBranches> m_triggers;
   bool m_triggers_areSorted = false;
   std::vector<EventStringOutputBranches> m_evstrings;
@@ -205,10 +208,26 @@ void NanoAODOutputModule::write(edm::EventForOutput const& iEvent) {
   }
 
   m_commonBranches.fill(iEvent.eventAuxiliary());
+  // WMass: fetch the vector-of-tables products once; the number of tables is fixed per file
+  std::vector<std::pair<std::vector<TableOutputBranches>*, edm::Handle<std::vector<nanoaod::FlatTable>>>> vecTables;
+  for (auto& tv : m_tableVectors) {
+    edm::Handle<std::vector<nanoaod::FlatTable>> handle;
+    iEvent.getByToken(tv.first, handle);
+    if (tv.second.empty())
+      tv.second.resize(handle->size());
+    else if (tv.second.size() != handle->size())
+      throw cms::Exception("LogicError",
+                           "Number of tables in a std::vector<nanoaod::FlatTable> product changed within a file (" +
+                               std::to_string(tv.second.size()) + " -> " + std::to_string(handle->size()) + ")");
+    vecTables.emplace_back(&tv.second, handle);
+  }
   // fill all tables, starting from main tables and then doing extension tables
   for (unsigned int extensions = 0; extensions <= 1; ++extensions) {
     for (auto& t : m_tables)
       t.fill(iEvent, *m_tree, extensions);
+    for (auto& vt : vecTables)
+      for (size_t i = 0, n = vt.first->size(); i < n; ++i)
+        (*vt.first)[i].fill((*vt.second)[i], *m_tree, extensions);
   }
   if (!m_triggers_areSorted) {  // sort triggers/flags in inverse processHistory order, to save without any special label the most recent ones
     std::vector<std::string> pnames;
@@ -313,6 +332,7 @@ void NanoAODOutputModule::openFile(edm::FileBlock const&) {
   }
   /* Setup file structure here */
   m_tables.clear();
+  m_tableVectors.clear();
   m_triggers.clear();
   m_triggers_areSorted = false;
   m_evstrings.clear();
@@ -324,6 +344,8 @@ void NanoAODOutputModule::openFile(edm::FileBlock const&) {
   for (const auto& keep : keeps[edm::InEvent]) {
     if (keep.first->className() == "nanoaod::FlatTable")
       m_tables.emplace_back(keep.first, keep.second);
+    else if (keep.first->className() == "std::vector<nanoaod::FlatTable>")
+      m_tableVectors.emplace_back(keep.second, std::vector<TableOutputBranches>());
     else if (keep.first->className() == "edm::TriggerResults") {
       m_triggers.emplace_back(keep.first, keep.second);
     } else if (keep.first->className() == "std::basic_string<char,std::char_traits<char> >" &&

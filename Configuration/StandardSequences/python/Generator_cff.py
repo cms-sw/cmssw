@@ -5,6 +5,8 @@ import FWCore.ParameterSet.Config as cms
 #
 from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *
 from GeneratorInterface.Core.generatorSmeared_cfi import *
+from GeneratorInterface.Core.genWeights_cfi import genWeights
+from GeneratorInterface.Core.lheWeights_cfi import lheWeights
 from RecoJets.Configuration.RecoGenJets_cff import *
 from RecoMET.Configuration.RecoGenMET_cff import *
 from RecoJets.Configuration.GenJetParticles_cff import *
@@ -53,6 +55,11 @@ genJetMETTask = cms.Task(genJetParticlesTask, recoGenJetsTask, genMETParticlesTa
 VertexSmearing = cms.Sequence(cms.SequencePlaceholder("VtxSmeared"))
 GenSmeared = cms.Sequence(generatorSmeared)
 GeneInfo = cms.Sequence(GeneInfoTask)
+genWeightsSeq = cms.Sequence(genWeights*lheWeights)
+# Fail on weights that cannot be associated to a group, or an invalid LHE header, so that problems
+# are fixed at the generator level before samples are produced
+genWeights.allowUnassociatedWeights = False
+lheWeights.failIfInvalidXML = cms.untracked.bool(True)
 genJetMET = cms.Sequence(genJetMETTask)
 
 from SimPPS.Configuration.GenPPS_cff import *
@@ -74,3 +81,8 @@ genstepfilter = HLTrigger.HLTfilters.triggerResultsFilter_cfi.triggerResultsFilt
     hltResults = cms.InputTag('TriggerResults'),
     triggerConditions = cms.vstring()
 )
+
+pgenWithWeight = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+GenSmeared+GeneInfo+genWeightsSeq+genJetMET, PPSTransportTask)
+
+from Configuration.ProcessModifiers.genWeightAddition_cff import genWeightAddition
+genWeightAddition.toReplaceWith(pgen, pgenWithWeight)
