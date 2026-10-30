@@ -140,10 +140,10 @@ namespace truth {
     constexpr uint16_t kIsLastCopy = 1u << reco::GenStatusFlags::kIsLastCopy;
   }  // namespace detail
 
-  // Quarks and gluons.
+  // Quarks and gluons. Some generators write the gluon as 9, the PDG alternative code.
   [[nodiscard]] inline bool isParton(int32_t pdgId) {
     const int32_t a = std::abs(pdgId);
-    return (a >= 1 && a <= 6) || a == 21;
+    return (a >= 1 && a <= 6) || a == 9 || a == 21;
   }
 
   // Charged leptons. A neutrino is not one of these; ask isInvisible for that.
@@ -159,17 +159,18 @@ namespace truth {
   }
 
   // Shower bookkeeping rather than a particle a detector could be asked about: a parton,
-  // a diquark, a Pythia string or cluster, a beam or generator-internal pseudoparticle.
-  // The main event keeps its shower, so these are in the graph.
+  // a diquark, a generator pseudoparticle such as a string or a cluster, a Regge
+  // exchange, or a generator-internal state. The main event keeps its shower, so these
+  // are in the graph.
   [[nodiscard]] inline bool isShowerObject(int32_t pdgId) {
     const int32_t a = std::abs(pdgId);
     if (isParton(pdgId)) {
       return true;
     }
-    if (a >= 91 && a <= 94) {  // cluster, string and the other hadronization placeholders
+    if (a >= 81 && a <= 100) {  // generator-specific pseudoparticles: string, cluster, beam remnant
       return true;
     }
-    if (a == 990) {  // pomeron
+    if (a == 110 || a == 990 || a == 9990) {  // reggeon, pomeron, odderon
       return true;
     }
     if (a >= 1000 && a <= 9999 && (a / 10) % 10 == 0 && (a / 100) % 10 != 0) {  // diquarks, e.g. 2101, 2203

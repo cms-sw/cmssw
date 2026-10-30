@@ -252,6 +252,7 @@ class LevelFlags_t : public CppUnit::TestFixture {
   CPPUNIT_TEST(testGenVertexReasonLeavesSimAndArtificialVertices);
   CPPUNIT_TEST(testLastCopyFollowsTheRadiatingChain);
   CPPUNIT_TEST(testParticlesAtSeveralLevels);
+  CPPUNIT_TEST(testShowerObjectsFollowThePdgScheme);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -1151,6 +1152,25 @@ public:
     truth::Graph radiating = c.finish();
     CPPUNIT_ASSERT_EQUAL(uint32_t{1}, truth::lastCopyOf(radiating, 0));
     CPPUNIT_ASSERT_EQUAL(uint32_t{4}, truth::lastCopyOf(radiating, 4));
+  }
+
+  // REQUIRED: every code the PDG numbering scheme reserves for shower bookkeeping is a
+  // shower object, in either charge sign, and a physical particle is not. The top is a
+  // shower object that decays, so it does not hadronize.
+  void testShowerObjectsFollowThePdgScheme() {
+    for (const int32_t pdgId : {1, 6, 9, 21, 81, 90, 91, 92, 100, 110, 990, 9990, 2101, 2203, 9900110}) {
+      CPPUNIT_ASSERT(truth::isShowerObject(pdgId));
+      CPPUNIT_ASSERT(truth::isShowerObject(-pdgId));
+    }
+    for (const int32_t pdgId : {11, 13, 22, 23, 24, 25, 111, 211, 2212, 1000022, 1000010020}) {
+      CPPUNIT_ASSERT(!truth::isShowerObject(pdgId));
+      CPPUNIT_ASSERT(!truth::isShowerObject(-pdgId));
+    }
+    CPPUNIT_ASSERT(truth::isParton(9));
+    CPPUNIT_ASSERT(truth::hadronizes(9));
+    CPPUNIT_ASSERT(truth::hadronizes(110));
+    CPPUNIT_ASSERT(!truth::hadronizes(6));
+    CPPUNIT_ASSERT(!truth::hadronizes(-6));
   }
 };
 
