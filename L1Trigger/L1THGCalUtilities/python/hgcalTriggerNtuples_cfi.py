@@ -23,7 +23,7 @@ ntuple_gen = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleGen'),
     GenParticles = cms.InputTag('genParticles'),
     GenPU = cms.InputTag('addPileupInfo'),
-    MCEvent = cms.InputTag('generatorSmeared'),
+    MCEvent = cms.InputTag("generatorSmeared","","SIM"),
     SimTracks = cms.InputTag('g4SimHits'),
     SimVertices = cms.InputTag('g4SimHits'),
     particleFilter = PartFilterConfig
@@ -71,6 +71,7 @@ ntuple_triggercells = cms.PSet(
 ntuple_triggersums = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCTriggerSums'),
     TriggerSums = cms.InputTag('l1tHGCalConcentratorProducer:HGCalConcentratorProcessorSelection'),
+    ScintillatorModulesPerSector = cms.uint32(12),
 )
 
 ntuple_econdata = cms.PSet(
