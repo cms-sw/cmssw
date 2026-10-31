@@ -1245,6 +1245,10 @@ bool KMTFCore::getBit(int bitmask, int pos) { return (bitmask & (1 << pos)) >> p
 
 void KMTFCore::setFourVectors(l1t::KMTFTrack& track) {
   //int etaINT = track.coarseEta();
+  //legacy version of KMTF used coarse Eta to set the eta in SAMuons based on wheel-based LUT
+  //new approach uses kSlope to build eta for SAMuons
+  //matched KMTF output to gen muons and performed linear fit of gen eta vs kSlope of KMTF output
+  //eta=m*kslope+b where m and b come from fit
   ap_ufixed<18, 0> m = 0.03602;
   ap_ufixed<18, 0> b = 0.66840;
   int etaINT = int(round(double(m * track.kSlope() + b)));
