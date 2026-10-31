@@ -51,6 +51,7 @@ DoubleTkMu0er1p4SQOSdRMax1p4 = l1tGTDoubleObjectCond.clone(
         maxEta = cms.double(1.4),
         regionsMinPt = get_object_thrs(1, "GMTTkMuons", "VLoose"),
     ),
+    minDR = cms.double(0),
     maxDR = cms.double(1.4),
     maxDz = cms.double(1),
     os = cms.bool(True),
@@ -69,6 +70,7 @@ DoubleTkMu4er2p0SQOSdRMax1p6 = l1tGTDoubleObjectCond.clone(
         maxEta = cms.double(2.0),
         regionsMinPt = get_object_thrs(6, "GMTTkMuons", "VLoose"),
     ),
+    minDR = cms.double(0),
     maxDR = cms.double(1.6),
     maxDz = cms.double(1),
     os = cms.bool(True),
@@ -83,6 +85,7 @@ DoubleTkMu = l1tGTDoubleObjectCond.clone(
     collection2 = l1tGTtkMuonVLoose.clone(
         regionsMinPt = get_object_thrs(10, "GMTTkMuons", "VLoose"),
     ),
+    minDR = cms.double(0),
     maxDz = cms.double(1),
 )
 pDoubleTkMu = cms.Path(DoubleTkMu)
@@ -99,12 +102,16 @@ TripleTkMu = l1tGTTripleObjectCond.clone(
         regionsMinPt = get_object_thrs(5, "GMTTkMuons", "VLoose"),
     ),
     correl12 = cms.PSet(
+        minDR = cms.double(0),
         maxDz = cms.double(1),
     ),
     correl13 = cms.PSet(
+        minDR = cms.double(0),
         maxDz = cms.double(1),
     ),
-    correl23 = cms.PSet(),
+    correl23 = cms.PSet(
+        minDR = cms.double(0),
+    ),
 )
 pTripleTkMu = cms.Path(TripleTkMu)
 algorithms.append(cms.PSet(expression = cms.string("pTripleTkMu")))
@@ -122,22 +129,26 @@ _TripleTkMu42p50MassMax12Base = l1tGTTripleObjectCond.clone(
         regionsMinPt = get_object_thrs(1, "GMTTkMuons", "VLoose"),
     ),
     correl12 = cms.PSet(
+        minDR = cms.double(0),
         maxDz = cms.double(1),
     ),
     correl13 = cms.PSet(
+        minDR = cms.double(0),
         maxDz = cms.double(1),
     ),
-    correl23 = cms.PSet(),
+    correl23 = cms.PSet(
+        minDR = cms.double(0),
+    ),
     maxInvMass = cms.double(12),  # three-body mass
 )
 TripleTkMu42p50OS12MassMax12 = _TripleTkMu42p50MassMax12Base.clone(
-    correl12 = cms.PSet(maxDz = cms.double(1), os = cms.bool(True)),
+    correl12 = cms.PSet(minDR = cms.double(0), maxDz = cms.double(1), os = cms.bool(True)),
 )
 TripleTkMu42p50OS13MassMax12 = _TripleTkMu42p50MassMax12Base.clone(
-    correl13 = cms.PSet(maxDz = cms.double(1), os = cms.bool(True)),
+    correl13 = cms.PSet(minDR = cms.double(0), maxDz = cms.double(1), os = cms.bool(True)),
 )
 TripleTkMu42p50OS23MassMax12 = _TripleTkMu42p50MassMax12Base.clone(
-    correl23 = cms.PSet(os = cms.bool(True)),
+    correl23 = cms.PSet(minDR = cms.double(0), os = cms.bool(True)),
 )
 pTripleTkMu_4_2p5_0_OS12_Mass_Max12 = cms.Path(TripleTkMu42p50OS12MassMax12)
 pTripleTkMu_4_2p5_0_OS13_Mass_Max12 = cms.Path(TripleTkMu42p50OS13MassMax12)

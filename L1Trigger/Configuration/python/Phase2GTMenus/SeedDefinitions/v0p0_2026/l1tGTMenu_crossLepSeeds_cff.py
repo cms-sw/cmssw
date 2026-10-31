@@ -75,6 +75,7 @@ DoubleTkMuTkEle = l1tGTTripleObjectCond.clone(
         regionsMinPt = get_object_thrs(12, "CL2Electrons", "NoIso"),
     ),
     correl12 = cms.PSet(
+        minDR = cms.double(0),
         maxDz = cms.double(1),
     ),
     correl13 = cms.PSet(
@@ -102,6 +103,7 @@ DoubleTkMuDoubleTkEle = l1tGTQuadObjectCond.clone(
         regionsMinPt = get_object_thrs(9, "CL2Electrons", "NoIso"),
     ),
     correl12 = cms.PSet(
+        minDR = cms.double(0),
         maxDz = cms.double(1),
         maxInvMass = cms.double(14),
     ),

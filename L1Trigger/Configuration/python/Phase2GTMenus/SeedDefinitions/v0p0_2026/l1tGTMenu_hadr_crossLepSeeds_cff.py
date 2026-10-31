@@ -63,6 +63,9 @@ DoubleTkMuHTSum = l1tGTTripleObjectCond.clone(
     collection3 = l1tGTHtSum.clone(
         minScalarSumPt = get_object_thrs(305, "CL2HtSum", "HT"),
     ),
+    correl12 = cms.PSet(
+        minDR = cms.double(0),
+    ),
 )
 pDoubleTkMu_HTSum = cms.Path(DoubleTkMuHTSum)
 algorithms.append(cms.PSet(expression = cms.string("pDoubleTkMu_HTSum")))
@@ -121,6 +124,9 @@ DoubleTkMuMETSumHTSum = l1tGTQuadObjectCond.clone(
     collection4 = l1tGTHtSum.clone(
         minScalarSumPt = get_object_thrs(109, "CL2HtSum", "HT"),
     ),
+    correl12 = cms.PSet(
+        minDR = cms.double(0),
+    ),
 )
 pDoubleTkMu_METSum_HTSum = cms.Path(DoubleTkMuMETSumHTSum)
 algorithms.append(cms.PSet(expression = cms.string("pDoubleTkMu_METSum_HTSum")))
@@ -143,6 +149,7 @@ DoubleTkMuJetMu1 = l1tGTTripleObjectCond.clone(
         regionsMinPt = get_object_thrs(138, "CL2JetsSC4", "default"),
     ),
     correl12 = cms.PSet(
+        minDR = cms.double(0),
         maxDR = cms.double(1.6),
     ),
     correl13 = cms.PSet(
