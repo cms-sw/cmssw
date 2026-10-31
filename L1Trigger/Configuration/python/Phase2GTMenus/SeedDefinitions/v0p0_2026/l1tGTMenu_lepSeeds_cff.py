@@ -218,6 +218,17 @@ algorithms.append(cms.PSet(expression = cms.string("pDoubleTkEle")))
 
 DoubleTkPhoIso = l1tGTDoubleObjectCond.clone(
     collection1 = l1tGTtkIsoPhoton.clone(
+        regionsMinPt = get_object_thrs(30, "CL2Photons", "Iso"),
+    ),
+    collection2 = l1tGTtkIsoPhoton.clone(
+        regionsMinPt = get_object_thrs(15, "CL2Photons", "Iso"),
+    ),
+)
+pDoubleTkPhoIso = cms.Path(DoubleTkPhoIso)
+algorithms.append(cms.PSet(expression = cms.string("pDoubleTkPhoIso")))
+
+DoubleTkPhoIsoer1p5 = l1tGTDoubleObjectCond.clone(
+    collection1 = l1tGTtkIsoPhoton.clone(
         minEta = cms.double(-1.5),
         maxEta = cms.double(1.5),
         regionsMinPt = get_object_thrs(24, "CL2Photons", "Iso"),
@@ -228,8 +239,24 @@ DoubleTkPhoIso = l1tGTDoubleObjectCond.clone(
         regionsMinPt = get_object_thrs(15, "CL2Photons", "Iso"),
     ),
 )
-pDoubleTkPhoIso = cms.Path(DoubleTkPhoIso)
-algorithms.append(cms.PSet(expression = cms.string("pDoubleTkPhoIso")))
+pDoubleTkPhoIso_er1p5 = cms.Path(DoubleTkPhoIsoer1p5)
+algorithms.append(cms.PSet(expression = cms.string("pDoubleTkPhoIso_er1p5")))
+
+DoubleTkEleIsoer1p5 = l1tGTDoubleObjectCond.clone(
+    collection1 = l1tGTtkIsoElectron.clone(
+        minEta = cms.double(-1.5),
+        maxEta = cms.double(1.5),
+        regionsMinPt = get_object_thrs(24, "CL2Electrons", "Iso"),
+    ),
+    collection2 = l1tGTtkIsoElectron.clone(
+        minEta = cms.double(-1.5),
+        maxEta = cms.double(1.5),
+        regionsMinPt = get_object_thrs(15, "CL2Electrons", "Iso"),
+    ),
+    maxDz = cms.double(1),
+)
+pDoubleTkEleIso_er1p5 = cms.Path(DoubleTkEleIsoer1p5)
+algorithms.append(cms.PSet(expression = cms.string("pDoubleTkEleIso_er1p5")))
 
 # Standalone EG: as in Step 1, CL2 photons without isolation with the L1EG scalings
 SingleEGEle = l1tGTSingleObjectCond.clone(
