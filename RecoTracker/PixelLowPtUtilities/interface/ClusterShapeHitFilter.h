@@ -14,6 +14,9 @@
 
 #include "RecoTracker/PixelLowPtUtilities/interface/ClusterData.h"
 
+#include "CondFormats/SiPixelObjects/interface/SiPixelClusterShapeLimits.h"
+
+#include <array>
 #include <utility>
 #include <unordered_map>
 #include <cstring>
@@ -157,6 +160,7 @@ public:
     unsigned short part;
     unsigned short layer;
     bool applyShapeCut;
+    PixelLimits const* limits;  // table of limits for this module, chosen by the rules of SiPixelClusterShapeLimits
     std::pair<float, float> drift;
     std::pair<float, float> cotangent;
   };
@@ -185,8 +189,7 @@ public:
                         const MagneticField* theMagneticField_,
                         const SiPixelLorentzAngle* theSiPixelLorentzAngle_,
                         const SiStripLorentzAngle* theSiStripLorentzAngle_,
-                        const std::string& pixelShapeFile_,
-                        const std::string& pixelShapeFileL1_,
+                        const SiPixelClusterShapeLimits& thePixelShapeLimits_,
                         const std::vector<BPixShapeCutRegion>& noBPixShapeCutRegions_ = {});
 
   ~ClusterShapeHitFilter();
@@ -252,9 +255,8 @@ public:
 
 private:
   // for testing purposes only
-  ClusterShapeHitFilter(std::string const& f1, std::string const& f2) {
-    loadPixelLimits(f1, pixelLimits);
-    loadPixelLimits(f2, pixelLimitsL1);
+  ClusterShapeHitFilter(const SiPixelClusterShapeLimits& pixelShapeLimits) {
+    loadPixelLimits(pixelShapeLimits);
     loadStripLimits();
   }
 
@@ -269,9 +271,9 @@ private:
 
   const StripData& getsd(DetId id) const { return stripData.find(id)->second; }
 
-  void loadPixelLimits(std::string const& file, PixelLimits* plim);
+  void loadPixelLimits(const SiPixelClusterShapeLimits& pixelShapeLimits);
   void loadStripLimits();
-  void fillPixelData();
+  void fillPixelData(const SiPixelClusterShapeLimits& pixelShapeLimits);
   bool isBPixShapeCutDisabled(DetId id) const;
   void fillStripData();
 
@@ -295,8 +297,8 @@ private:
   std::unordered_map<unsigned int, PixelData> pixelData;
   std::unordered_map<unsigned int, StripData> stripData;
 
-  PixelLimits pixelLimits[PixelKeys::N + 1];    // [2][2][2]
-  PixelLimits pixelLimitsL1[PixelKeys::N + 1];  // for BPIX1
+  // one array of limits per table of SiPixelClusterShapeLimits
+  std::vector<std::array<PixelLimits, PixelKeys::N + 1>> pixelLimits;
 
   StripLimits stripLimits[StripKeys::N + 1];  // [2][2]
 
