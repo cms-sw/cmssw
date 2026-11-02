@@ -13,9 +13,9 @@
 # plus tracker shared hits) needs the tracker channel, so it is in the default. The
 # tracker is the largest sim-hit family and the dominant cost, so the reduced variant
 # (mixedTruthGraphCustomize.customiseTruthReduced) drops it for cost-sensitive runs,
-# leaving calo + MTD + muon. MTD sim-hits are captured here. The MTD channel of the
-# hit index is not in the default list below; adding "MTD" to subdetectors fills it
-# from mix:MergedMtdTruthLC and the MTD topology, here or in a later job.
+# leaving calo + MTD + muon. The hitless-subgraph pruning reads the MTD sim-hits, so a
+# particle with only MTD hits is kept. The MTD channel of the hit index is filled from
+# mix:MergedMtdTruthLC and the MTD topology.
 
 import FWCore.ParameterSet.Config as cms
 
@@ -87,6 +87,7 @@ truthLogicalGraphProducer = _truthLogicalGraphProducer.clone(
     ),
     trackerSimHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedTrackerHits")),
     muonSimHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedMuonHits")),
+    mtdSimHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedMtdHits")),
 )
 truthLogicalGraphProducer.postProcessing.reconstructablePdgIds = cms.vint32(*reconstructablePdgIds)
 
@@ -98,7 +99,7 @@ truthLogicalGraphHitIndexProducer = _truthLogicalGraphHitIndexProducer.clone(
     # them to the reco HcalDetIds the association matches on. ECAL barrel and HGCAL
     # carry reco DetIds already.
     doHcalRelabelling=cms.bool(True),
-    subdetectors=cms.vstring("Calo", "Muon", "Tracker"),  # MTD on request, see the header
+    subdetectors=cms.vstring("Calo", "MTD", "Muon", "Tracker"),
     # The tracker truth is keyed by (module, cell): a tracker DetId names a module, so
     # without the cell two particles crossing one module share every hit they leave
     # there. The links are the digitizer's own record of which cell each particle fired.
