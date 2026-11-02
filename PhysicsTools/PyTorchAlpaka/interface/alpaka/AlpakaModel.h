@@ -6,6 +6,8 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "PhysicsTools/PyTorch/interface/Model.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/GetDevice.h"
+#include "PhysicsTools/PyTorchAlpaka/interface/BatchedTensorCollection.h"
+#include "PhysicsTools/PyTorchAlpaka/interface/Exception.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/TensorCollection.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/SoAConversion.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/alpaka/QueueGuard.h"
@@ -33,7 +35,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torch {
 
     // Forward pass (inference) of model with SoA metadata input/output.
     // Allows to run inference directly using SoA portable objects/collections without excessive copies and conversions.
-    // Refer: PhysicsTools/PyTorch/interface/SoAConversion.h for details about wrapping memory layouts.
+    // Refer: PhysicsTools/PyTorchAlpaka/interface/SoAConversion.h for details about wrapping memory layouts.
     void forward(Queue &queue,
                  cms::torch::alpakatools::TensorCollection<Queue> &inputs,
                  cms::torch::alpakatools::TensorCollection<Queue> &outputs,
@@ -50,6 +52,31 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torch {
         cms::torch::alpakatools::detail::convertOutput(output_tensors, outputs, device_);
       } else {
         cms::torch::alpakatools::detail::convertOutput(outputs, device_) = model_.forward(input_tensor).toTensor();
+      }
+    }
+
+    // Batched inference requires equal input/output batchCount() values
+    void forward(Queue &queue,
+                 cms::torch::alpakatools::BatchedTensorCollection<Queue> &inputs,
+                 cms::torch::alpakatools::BatchedTensorCollection<Queue> &outputs,
+                 std::optional<::torch::Dtype> dtype = std::nullopt) {
+      const auto input_batches = inputs.batchCount();
+      const auto output_batches = outputs.batchCount();
+
+      if (input_batches != output_batches)
+        cms::torch::alpakatools::detail::throwException("AlpakaModel", "incompatible batch counts");
+
+      const auto n_batches = input_batches;
+
+      // Materialize registrations locally and retain their handles until this call returns.
+      for (auto batch_id = 0u; batch_id < n_batches; batch_id++) {
+        cms::torch::alpakatools::TensorCollection<Queue> batch_input;
+        cms::torch::alpakatools::TensorCollection<Queue> batch_output;
+
+        inputs.materializeBatch(batch_id, batch_input);
+        outputs.materializeBatch(batch_id, batch_output);
+
+        forward(queue, batch_input, batch_output, dtype);
       }
     }
 
