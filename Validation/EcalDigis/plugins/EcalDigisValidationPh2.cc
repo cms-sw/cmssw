@@ -70,6 +70,13 @@ private:
   MonitorElement* meMaximumgt10ADC_;
   MonitorElement* meMaximumgt100ADC_;
   MonitorElement* menADCafterSwitch_;
+
+  MonitorElement* meSm1OverSmax_;
+  MonitorElement* meSm2OverSmax_;
+  MonitorElement* meSp1OverSmax_;
+  MonitorElement* meSp2OverSmax_;
+  MonitorElement* meSp1OverSmaxvsSm1OverSmax_;
+  MonitorElement* meSp2OverSmaxvsSm2OverSmax_;
 };
 
 EcalDigisValidationPh2::EcalDigisValidationPh2(const edm::ParameterSet& ps)
@@ -91,7 +98,13 @@ EcalDigisValidationPh2::EcalDigisValidationPh2(const edm::ParameterSet& ps)
       mePedestal_(nullptr),
       meMaximumgt10ADC_(nullptr),
       meMaximumgt100ADC_(nullptr),
-      menADCafterSwitch_(nullptr) {
+      menADCafterSwitch_(nullptr),
+      meSm1OverSmax_(nullptr),
+      meSm2OverSmax_(nullptr),
+      meSp1OverSmax_(nullptr),
+      meSp2OverSmax_(nullptr),
+      meSp1OverSmaxvsSm1OverSmax_(nullptr),
+      meSp2OverSmaxvsSm2OverSmax_(nullptr) {
   for (int i = 0; i < kMaxSamples_; ++i) {
     meDigiADCAnalog_[i] = nullptr;
     meDigiADCg10_[i] = nullptr;
@@ -163,6 +176,26 @@ void EcalDigisValidationPh2::bookHistograms(DQMStore::IBooker& ibooker, edm::Run
 
   histo = "EcalDigiTask ADC counts after gain switch";
   menADCafterSwitch_ = ibooker.book1DD(histo, histo, kMaxSamples_, 0., static_cast<double>(kMaxSamples_));
+
+  histo = "EcalDigiTask ADC sample ratio A_maxminus1 over A_max gt 100 ADC";
+  meSm1OverSmax_ = ibooker.book1D(histo, histo + ";A_{max-1}/A_{max}", 110, 0., 1.1);
+
+  histo = "EcalDigiTask ADC sample ratio A_maxminus2 over A_max gt 100 ADC";
+  meSm2OverSmax_ = ibooker.book1D(histo, histo + ";A_{max-2}/A_{max}", 110, 0., 1.1);
+
+  histo = "EcalDigiTask ADC sample ratio A_maxplus1 over A_max gt 100 ADC";
+  meSp1OverSmax_ = ibooker.book1D(histo, histo + ";A_{max+1}/A_{max}", 110, 0., 1.1);
+
+  histo = "EcalDigiTask ADC sample ratio A_maxplus2 over A_max gt 100 ADC";
+  meSp2OverSmax_ = ibooker.book1D(histo, histo + ";A_{max+2}/A_{max}", 110, 0., 1.1);
+
+  histo = "EcalDigiTask ADC sample ratio comparison R_plus1 vs R_minus1 gt 100 ADC";
+  meSp1OverSmaxvsSm1OverSmax_ =
+      ibooker.book2D(histo, histo + ";A_{max-1}/A_{max};A_{max+1}/A_{max}", 100, 0., 1., 100, 0., 1.);
+
+  histo = "EcalDigiTask ADC sample ratio comparison R_plus2 vs R_minus2 gt 100 ADC";
+  meSp2OverSmaxvsSm2OverSmax_ =
+      ibooker.book2D(histo, histo + ";A_{max-2}/A_{max};A_{max+2}/A_{max}", 100, 0., 1., 100, 0., 1.);
 }
 
 void EcalDigisValidationPh2::analyze(edm::Event const& event, edm::EventSetup const& eventSetup) {
@@ -319,6 +352,40 @@ void EcalDigisValidationPh2::analyze(edm::Event const& event, edm::EventSetup co
           meMaximumgt100ADC_->Fill(pmax);
       }
       menADCafterSwitch_->Fill(countsAfterGainSwitch);
+
+      // Sample ratios
+      if (Erec > 100. * adcToGeV) {
+        double erecp1 = 0.;
+        double erecp2 = 0.;
+        if (pmax < static_cast<int>(nrSamples) - 1) {
+          erecp1 = ebAnalogSignal[pmax + 1] -
+                   pedestalPreSampleAnalog * gainConv[static_cast<EcalLiteDTUSample>(ebdf[pmax + 1]).gainId()];
+          meSp1OverSmax_->Fill(erecp1 / Erec);
+          if (pmax < static_cast<int>(nrSamples) - 2) {
+            erecp2 = ebAnalogSignal[pmax + 2] -
+                     pedestalPreSampleAnalog * gainConv[static_cast<EcalLiteDTUSample>(ebdf[pmax + 2]).gainId()];
+            meSp2OverSmax_->Fill(erecp2 / Erec);
+          }
+        }
+        if (pmax > 1) {
+          auto const erecm1 =
+              ebAnalogSignal[pmax - 1] -
+              pedestalPreSampleAnalog * gainConv[static_cast<EcalLiteDTUSample>(ebdf[pmax - 1]).gainId()];
+          meSm1OverSmax_->Fill(erecm1 / Erec);
+          if (pmax < static_cast<int>(nrSamples) - 1) {
+            meSp1OverSmaxvsSm1OverSmax_->Fill(erecm1 / Erec, erecp1 / Erec);
+          }
+          if (pmax > 2) {
+            auto const erecm2 =
+                ebAnalogSignal[pmax - 2] -
+                pedestalPreSampleAnalog * gainConv[static_cast<EcalLiteDTUSample>(ebdf[pmax - 2]).gainId()];
+            meSm2OverSmax_->Fill(erecm2 / Erec);
+            if (pmax < static_cast<int>(nrSamples) - 2) {
+              meSp2OverSmaxvsSm2OverSmax_->Fill(erecm2 / Erec, erecp2 / Erec);
+            }
+          }
+        }
+      }
     }
   }
 }
