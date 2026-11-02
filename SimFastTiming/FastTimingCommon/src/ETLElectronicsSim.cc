@@ -215,11 +215,8 @@ bool ETLElectronicsSim::checkValidHit(const ETLDataFrame& rawDataFrame) const {
   if (rawDataFrame.size() <= itIdx + 2)
     return false;
 
-  ETLDataFrame dataFrame(rawDataFrame.id());
-  dataFrame.resize(dfSIZE);
   bool putInEvent(false);
   for (int it = 0; it < dfSIZE; ++it) {
-    dataFrame.setSample(it, rawDataFrame[itIdx - 2 + it]);
     if (it == 2)
       putInEvent = rawDataFrame[itIdx - 2 + it].threshold();
   }
@@ -227,20 +224,7 @@ bool ETLElectronicsSim::checkValidHit(const ETLDataFrame& rawDataFrame) const {
 }
 
 void ETLElectronicsSim::updateOutput(ETLDigiCollection& coll, const ETLDataFrame& rawDataFrame) const {
-  int itIdx(mtd_digitizer::kInTimeBX);
-  if (rawDataFrame.size() <= itIdx + 2)
-    return;
-
   ETLDataFrame dataFrame(rawDataFrame.id());
   dataFrame.resize(dfSIZE);
-  bool putInEvent(false);
-  for (int it = 0; it < dfSIZE; ++it) {
-    dataFrame.setSample(it, rawDataFrame[itIdx - 2 + it]);
-    if (it == 2)
-      putInEvent = rawDataFrame[itIdx - 2 + it].threshold();
-  }
-
-  if (putInEvent) {
-    coll.push_back(dataFrame);
-  }
+  coll.push_back(dataFrame);
 }

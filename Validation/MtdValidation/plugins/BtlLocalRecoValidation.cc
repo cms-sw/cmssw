@@ -454,7 +454,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       meTimeRes_->Fill(time_res);
       meTimeResVsE_->Fill(0.001 * recHit.energy(), time_res);
       meEnergyRes_->Fill(energy_res);
-      meEnergyRelResVsE_->Fill(0.001 * recHit.energy(), 0.001 * (energy_res / recHit.energy()));
+      meEnergyRelResVsE_->Fill(0.001 * recHit.energy(), (energy_res / 0.001 * recHit.energy()));
 
       meLongPosPull_->Fill(longpos_res / recHit.positionError());
       meLongPosPullvsEta_->Fill(std::abs(global_point_sim.eta()), longpos_res / recHit.positionError());

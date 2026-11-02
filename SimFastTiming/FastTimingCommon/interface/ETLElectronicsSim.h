@@ -34,8 +34,6 @@ public:
 
   void getEventSetup(const edm::EventSetup& evt);
 
-  void run(const mtd::MTDSimHitDataAccumulator& input, ETLDigiCollection& output, CLHEP::HepRandomEngine* hre) const;
-
   void run(const mtd::MTDSimHitDataAccumulator& input,
            ETLDigiCollection& output,
            ETLDigiContentCollection& etloutput,

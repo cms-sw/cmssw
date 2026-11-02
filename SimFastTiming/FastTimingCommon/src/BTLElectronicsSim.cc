@@ -367,11 +367,8 @@ void BTLElectronicsSim::runTrivialShaper(BTLDataFrame& dataFrame,
 }
 
 bool BTLElectronicsSim::checkValidHit(const BTLDataFrame& rawDataFrame) const {
-  BTLDataFrame dataFrame(rawDataFrame.id());
-  dataFrame.resize(dfSIZE);
   bool putInEvent(false);
   for (int it = 0; it < dfSIZE; ++it) {
-    dataFrame.setSample(it, rawDataFrame[it]);
     if (it == 0)
       putInEvent = rawDataFrame[it].threshold();
   }
@@ -381,7 +378,7 @@ bool BTLElectronicsSim::checkValidHit(const BTLDataFrame& rawDataFrame) const {
 void BTLElectronicsSim::updateOutput(BTLDigiCollection& coll, const BTLDataFrame& rawDataFrame) const {
   BTLDataFrame dataFrame(rawDataFrame.id());
   dataFrame.resize(dfSIZE);
-  coll.push_back(rawDataFrame);
+  coll.push_back(dataFrame);
 }
 
 float BTLElectronicsSim::rearming_time(const float& hit_time, const float& hit_npe) const {
