@@ -130,7 +130,6 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleEle25_CaloIdL_P
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleEle25_CaloIdL_PMS2_Unseeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleMediumChargedIsoPFTauHPS40_eta2p1_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleMediumDeepTauPFTauHPS35_eta2p1_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepCSV_2p4_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepFlavour_2p4_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Ele115_NonIso_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Ele26_WP70_L1Seeded_cfi")
@@ -214,8 +213,6 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTAK4PFPuppiJetsReco
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTAK8PFJetsReconstruction_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTBeamSpotSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTBeginSequence_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTBtagDeepCSVSequencePFPuppi_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTBtagDeepCSVSequencePFPuppiModEta2p4_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTBtagDeepFlavourSequencePFPuppi_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTBtagDeepFlavourSequencePFPuppiModEta2p4_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTCaloMETReconstruction_cfi")
@@ -312,7 +309,6 @@ fragment.schedule = cms.Schedule(*[
     fragment.HLT_PFPuppiHT1070,
     fragment.HLT_PFPuppiMETTypeOne140_PFPuppiMHT140,
 
-    fragment.HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepCSV_2p4,
     fragment.HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepFlavour_2p4,
     fragment.HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepFlavour_2p4,
     fragment.HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepFlavour_2p4,
