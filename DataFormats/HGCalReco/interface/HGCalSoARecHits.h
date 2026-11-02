@@ -6,6 +6,7 @@
 
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
+#include "DataFormats/HGCalReco/interface/HGCalRecoVariations.h"
 
 // SoA layout with dim1, dim2, weight, sigmaNoise, recHitsIndex layer and cellsCount fields
 GENERATE_SOA_LAYOUT(HGCalSoARecHitsLayout,
@@ -15,6 +16,7 @@ GENERATE_SOA_LAYOUT(HGCalSoARecHitsLayout,
                     SOA_COLUMN(float, dim3),
                     SOA_COLUMN(int, layer),
                     SOA_COLUMN(float, energy),
+                    SOA_EIGEN_COLUMN(hgcalreco::VariationVector, energy_variations),  // by hgcalreco::Variation
                     SOA_COLUMN(float, mipEnergy),
                     SOA_COLUMN(float, sigmaNoise),
                     SOA_COLUMN(unsigned int, recHitIndex),
