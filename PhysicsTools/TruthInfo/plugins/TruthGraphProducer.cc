@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -100,12 +101,16 @@ namespace {
 class TruthGraphProducer : public edm::stream::EDProducer<> {
 public:
   explicit TruthGraphProducer(const edm::ParameterSet& cfg)
-      : hepmc3Token_(mayConsume<edm::HepMC3Product>(cfg.getParameter<edm::InputTag>("genEventHepMC3"))),
-        hepmc2Token_(mayConsume<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
-        simTrackToken_(consumes<edm::SimTrackContainer>(cfg.getParameter<edm::InputTag>("simTracks"))),
-        simVertexToken_(consumes<edm::SimVertexContainer>(cfg.getParameter<edm::InputTag>("simVertices"))),
+      : hepmc3Tag_(cfg.getParameter<edm::InputTag>("genEventHepMC3")),
+        hepmc2Tag_(cfg.getParameter<edm::InputTag>("genEventHepMC")),
+        hepmc3Token_(mayConsume<edm::HepMC3Product>(hepmc3Tag_)),
+        hepmc2Token_(mayConsume<edm::HepMCProduct>(hepmc2Tag_)),
         addGenToSimEdges_(cfg.getParameter<bool>("addGenToSimEdges")),
         collapseGenShower_(cfg.getParameter<bool>("collapseGenShower")) {
+    if (auto const& tag = cfg.getParameter<edm::InputTag>("simTracks"); !tag.label().empty())
+      simTrackToken_ = consumes<edm::SimTrackContainer>(tag);
+    if (auto const& tag = cfg.getParameter<edm::InputTag>("simVertices"); !tag.label().empty())
+      simVertexToken_ = consumes<edm::SimVertexContainer>(tag);
     produces<TruthGraph>();
   }
 
@@ -118,9 +123,9 @@ public:
         ->setComment("edm::HepMCProduct label, legacy fallback");
 
     desc.add<edm::InputTag>("simTracks", edm::InputTag("g4SimHits"))
-        ->setComment("SimTrackContainer label, typically g4SimHits");
+        ->setComment("SimTrackContainer label, typically g4SimHits. Empty for a GEN-only graph.");
     desc.add<edm::InputTag>("simVertices", edm::InputTag("g4SimHits"))
-        ->setComment("SimVertexContainer label, typically g4SimHits");
+        ->setComment("SimVertexContainer label, typically g4SimHits. Empty for a GEN-only graph.");
 
     desc.add<bool>("addGenToSimEdges", true)
         ->setComment(
@@ -143,8 +148,10 @@ public:
   void produce(edm::Event& evt, const edm::EventSetup&) override {
     auto out = std::make_unique<TruthGraph>();
 
-    const auto& simTracks = evt.get(simTrackToken_);
-    const auto& simVertices = evt.get(simVertexToken_);
+    static const edm::SimTrackContainer kNoSimTracks;
+    static const edm::SimVertexContainer kNoSimVertices;
+    const auto& simTracks = simTrackToken_.isUninitialized() ? kNoSimTracks : evt.get(simTrackToken_);
+    const auto& simVertices = simVertexToken_.isUninitialized() ? kNoSimVertices : evt.get(simVertexToken_);
 
     GenBuild gb;
     bool haveGen = false;
@@ -173,6 +180,10 @@ public:
         haveGen = true;
       }
     }
+
+    if (!haveGen && simTrackToken_.isUninitialized())
+      throw cms::Exception("TruthGraphProducer") << "GEN-only graph and no GEN record under '" << hepmc3Tag_.encode()
+                                                 << "' or '" << hepmc2Tag_.encode() << "'";
 
     if (haveGen && collapseGenShower_)
       if (!truth::collapseGenShower(gb, truth::simContinuedGenBarcodes(simTracks)) && !degradedCollapseWarned_) {
@@ -629,6 +640,8 @@ public:
   }
 
 private:
+  edm::InputTag hepmc3Tag_;
+  edm::InputTag hepmc2Tag_;
   edm::EDGetTokenT<edm::HepMC3Product> hepmc3Token_;
   edm::EDGetTokenT<edm::HepMCProduct> hepmc2Token_;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken_;
