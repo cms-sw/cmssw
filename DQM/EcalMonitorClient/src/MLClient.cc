@@ -1,17 +1,15 @@
-#include "DQM/EcalMonitorClient/interface/MLClient.h"
-
-#include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
-
-#include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
-
-#include "DQM/EcalCommon/interface/MESetNonObject.h"
-
 #include <fstream>
 #include <string>
+
+#include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
+#include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
+#include "DQM/EcalCommon/interface/MESetNonObject.h"
+#include "DQM/EcalMonitorClient/interface/MLClient.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/ONNXRuntime/interface/Backend.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXInterface.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
 using namespace cms::Ort;
 
@@ -284,12 +282,12 @@ namespace ecaldqm {
     //after which it is stored as a quality summary ME.
 
     ///ONNX model running///
-    std::string instanceName{"AE-DQM-inference"};
     std::string modelFilepath = edm::FileInPath("DQM/EcalMonitorClient/data/onnxModels/resnet.onnx").fullPath();
 
-    Ort::SessionOptions sessionOptions;
-    sessionOptions.SetIntraOpNumThreads(1);
-    Ort::Env env(OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING, instanceName.c_str());
+    // the ONNX Runtime environment and the session options are provided by the ONNXService
+    edm::Service<cms::Ort::ONNXInterface> onnx;
+    Ort::SessionOptions sessionOptions = onnx->sessionOptions(cms::Ort::Backend::cpu);
+    Ort::Env& env = onnx->environment();
     Ort::Session session(env, modelFilepath.c_str(), sessionOptions);
 
     Ort::AllocatorWithDefaultOptions allocator;

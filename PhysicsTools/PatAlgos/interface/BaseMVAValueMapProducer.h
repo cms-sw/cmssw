@@ -64,7 +64,7 @@ public:
         Ort::SessionOptions sess_opts;
         sess_opts = cms::Ort::ONNXRuntime::defaultSessionOptions();
         sess_opts.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_DISABLE_ALL);
-        ort_ = std::make_unique<cms::Ort::ONNXRuntime>(model_path, &sess_opts);
+        ort_ = std::make_unique<cms::Ort::ONNXRuntime>(model_path, sess_opts);
       } else {
         ort_ = std::make_unique<cms::Ort::ONNXRuntime>(model_path);
       }
