@@ -169,6 +169,14 @@ hltTruthBranchTracksterAssociators = truthBranchTracksterAssociators.clone(
     ),
     pfRecHits=cms.VInputTag("hltParticleFlowRecHitECALUnseeded", "hltParticleFlowRecHitHBHE"),
 )
+hltTruthBranchPFClusterEcalAssociators = truthBranchPFClusterEcalAssociators.clone(
+    recoCollections=cms.VInputTag("hltParticleFlowClusterECAL"),
+    pfRecHits=cms.VInputTag("hltParticleFlowRecHitECAL"),
+)
+hltTruthBranchPFClusterHcalAssociators = truthBranchPFClusterHcalAssociators.clone(
+    recoCollections=cms.VInputTag("hltParticleFlowClusterHCAL"),
+    pfRecHits=cms.VInputTag("hltParticleFlowRecHitHBHE"),
+)
 
 # Sequences, not Tasks: a Task runs a module only when another module consumes its
 # product, so a job that keeps the maps without validating them would produce nothing.
@@ -187,5 +195,10 @@ truthGraphAssociatorsSequence = cms.Sequence(
 # The HLT twins read HLT collections, which an offline reconstruction does not produce,
 # so they are kept apart from the offline sequence.
 truthGraphHltAssociatorsSequence = cms.Sequence(
-    hltTrackToTruthBranchAssociators + hltTruthBranchTracksterAssociators + hltVertexToTruthBranchAssociators
+    truthBranchTargets 
+    + hltTrackToTruthBranchAssociators 
+    + hltTruthBranchTracksterAssociators 
+    + hltTruthBranchPFClusterEcalAssociators
+    + hltTruthBranchPFClusterHcalAssociators
+    + hltVertexToTruthBranchAssociators
 )
