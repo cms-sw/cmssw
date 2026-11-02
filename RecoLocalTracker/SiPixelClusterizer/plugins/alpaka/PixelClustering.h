@@ -1,6 +1,7 @@
 #ifndef RecoLocalTracker_SiPixelClusterizer_alpaka_PixelClustering_h
 #define RecoLocalTracker_SiPixelClusterizer_alpaka_PixelClustering_h
 
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -12,6 +13,7 @@
 #include "FWCore/Utilities/interface/DeviceGlobal.h"
 #include "FWCore/Utilities/interface/HostDeviceConstant.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "RecoLocalTracker/SiPixelClusterizer/plugins/alpaka/SiPixelMorphingConfig.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/SimpleVector.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
@@ -87,21 +89,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
       return ((image[index] >> shift) & mask) && ((temp[index] >> shift) & mask);
     }
 
+    // Position of moduleId in the sorted morphingModules, or -1 if digi morphing is not applied to this module
     ALPAKA_FN_ACC
-    inline bool isMorphingModule(uint32_t moduleId, const uint32_t* morphingModules, uint32_t nMorphingModules) {
+    inline int32_t morphingModuleIndex(uint32_t moduleId, const uint32_t* morphingModules, uint32_t nMorphingModules) {
       // Binary search for moduleId in sorted morphingModules
       int left = 0, right = static_cast<int>(nMorphingModules) - 1;
       while (left <= right) {
         int mid = left + (right - left) / 2;
         uint32_t val = morphingModules[mid];
         if (val == moduleId)
-          return true;
+          return mid;
         if (val < moduleId)
           left = mid + 1;
         else
           right = mid - 1;
       }
-      return false;
+      return -1;
     }
   }  // namespace pixelStatus
 
@@ -161,11 +164,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
                                   SiPixelDigisSoAView fakes_view,
                                   bool enableDigiMorphing,
                                   uint32_t* morphingModules,
+                                  uint32_t const* morphingModuleSizes,
                                   uint32_t nMorphingModules,
                                   uint32_t maxFakesInModule,
                                   SiPixelClustersSoAView clus_view,
                                   const unsigned int numElements) const {
       static_assert(TrackerTraits::numberOfModules < ::pixelClustering::maxNumModules);
+      constexpr bool isPhase2 = std::is_base_of<pixelTopology::Phase2, TrackerTraits>::value;
 
       auto& lastPixel = alpaka::declareSharedVar<unsigned int, __COUNTER__>(acc);
       auto& fakePixels = alpaka::declareSharedVar<unsigned int, __COUNTER__>(acc);
@@ -180,8 +185,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
         auto firstPixel = clus_view[1 + module].moduleStart();
         uint32_t thisModuleId = digi_view[firstPixel].moduleId();
         uint32_t rawModuleId = digi_view[firstPixel].rawIdArr();
-        bool applyDigiMorphing =
-            enableDigiMorphing && pixelStatus::isMorphingModule(rawModuleId, morphingModules, nMorphingModules);
+        const int32_t morphingIndex =
+            enableDigiMorphing ? pixelStatus::morphingModuleIndex(rawModuleId, morphingModules, nMorphingModules) : -1;
+        const bool applyDigiMorphing = morphingIndex >= 0;
         ALPAKA_ASSERT_ACC(thisModuleId < TrackerTraits::numberOfModules);
 
 #ifdef GPU_DEBUG
@@ -197,7 +203,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
         // Note: modules are not consecutive in clus_view, so we cannot use something like
         // lastPixel = (module + 1 == lastModule) ? numElements : clus_view[2 + module].moduleStart();
         lastPixel = firstPixel;
-        const uint32_t firstFake = maxFakesInModule * block;
+        // Phase-1 runs a fixed number of blocks, and reuses the fake pixels of each block for all its modules.
+        // Phase-2 runs one block per module, so the fake pixels are allocated only for the morphing modules.
+        const uint32_t firstFake =
+            maxFakesInModule * (isPhase2 ? static_cast<uint32_t>(applyDigiMorphing ? morphingIndex : 0) : block);
         fakePixels = 0;
 #ifdef GPU_DEBUG
         goodPixels = 0;
@@ -219,15 +228,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
         // clear the fake pixels
         if (applyDigiMorphing) {
           // Assume no more than `maxFakesInModule` fake (recovered) pixels per module.
-          // The fake pixels for the `module`-th module are stored in `fakes_view[...]` starting at index `firstFake`,
-          // equal to `maxFakesInModule * module`.
+          // The fake pixels of this module are stored in `fakes_view[...]` starting at index `firstFake`, equal to
+          // `maxFakesInModule` times the block index for Phase-1, and times the position of the module in the sorted
+          // list of morphing modules for Phase-2.
           ALPAKA_ASSERT_ACC(static_cast<unsigned int>(fakes_view.metadata().size()) >= firstFake + maxFakesInModule);
           for (uint32_t i :
                cms::alpakatools::independent_group_elements(acc, firstFake, firstFake + maxFakesInModule)) {
-            // The cluster id of the fake pixels do not need to be unique across modules, as they are transient and only
-            // using within each module. They can start independently at `numElements` on each module.
-            // This ensures that when comparing the cluser id of a valid pixel with a fake pixel (with `atomicMin`) the
-            // resulting cluster id will be the one of the valid pixel.
+            // The cluster ids of the fake pixels are `numElements` plus their index in `fakes_view`: they are larger
+            // than the index of any valid pixel, so that when comparing the cluster id of a valid pixel with that of a
+            // fake pixel (with `atomicMin`) the resulting cluster id is the one of the valid pixel.
             fakes_view[i] = {static_cast<int32_t>(numElements + i),  // cluster id
                              0,                                      // pdigi
                              0,                                      // rawIdArr
@@ -257,35 +266,39 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
         ALPAKA_ASSERT_ACC((lastPixel == numElements) or
                           ((lastPixel < numElements) and (digi_view[lastPixel].moduleId() != thisModuleId)));
         // Limit the number of pixels to to maxPixInModule.
+        // Phase-2 does not reserve extra space in the histogram for the pixels recovered by the digi morphing: in the
+        // morphing modules, maxFakesInModule of the maxPixInModule entries are kept for them. This keeps the block size,
+        // which is limited by the number of registers per block, the same as without digi morphing.
+        const uint32_t maxPixels = (isPhase2 and applyDigiMorphing) ? TrackerTraits::maxPixInModule - maxFakesInModule
+                                                                    : TrackerTraits::maxPixInModule;
         // FIXME if this happens frequently (and not only in simulation with low threshold) one will need to implement something cleverer.
         if (cms::alpakatools::once_per_block(acc)) {
-          if (lastPixel - firstPixel > TrackerTraits::maxPixInModule) {
+          if (lastPixel - firstPixel > maxPixels) {
             // The pixels past the clamp point are never clustered, so they still carry
             // clus == their digi index (set by CountModules) together with a valid moduleId.
             // Drop them explicitly
-            for (uint32_t i = TrackerTraits::maxPixInModule + firstPixel; i < lastPixel; ++i) {
+            for (uint32_t i = maxPixels + firstPixel; i < lastPixel; ++i) {
               digi_view[i].moduleId() = ::pixelClustering::invalidModuleId;
               digi_view[i].clus() = ::pixelClustering::invalidClusterId;
             }
-            printf("Too many pixels in module %u: %u > %u\n",
-                   thisModuleId,
-                   lastPixel - firstPixel,
-                   TrackerTraits::maxPixInModule);
-            lastPixel = TrackerTraits::maxPixInModule + firstPixel;
+            printf("Too many pixels in module %u: %u > %u\n", thisModuleId, lastPixel - firstPixel, maxPixels);
+            lastPixel = maxPixels + firstPixel;
           }
         }
         alpaka::syncBlockThreads(acc);
-        ALPAKA_ASSERT_ACC(lastPixel - firstPixel <= TrackerTraits::maxPixInModule);
+        ALPAKA_ASSERT_ACC(lastPixel - firstPixel <= maxPixels);
+
+        // New 2-buffer scheme: 1-bit per pixel (32 pixels per 32-bit word)
+        // image: 0=empty, 1=found/duplicate
+        // temp:  0=empty/found, 1=fake/duplicate
+        // Phase-1 uses them for a whole module, Phase-2 for a strip of columns of a module. The buffers are declared
+        // here, with the same type for both, so that the Phase-2 kernel does not reserve a second pair.
+        auto& image = alpaka::declareSharedVar<uint32_t[pixelStatus::size], __COUNTER__>(acc);
+        auto& temp = alpaka::declareSharedVar<uint32_t[pixelStatus::size], __COUNTER__>(acc);
+        static_assert(::pixelClustering::phase2Morphing::size <= pixelStatus::size);
 
         // remove duplicate pixels
-        constexpr bool isPhase2 = std::is_base_of<pixelTopology::Phase2, TrackerTraits>::value;
         if constexpr (not isPhase2) {
-          // New 2-buffer scheme: 1-bit per pixel (32 pixels per 32-bit word)
-          // image: 0=empty, 1=found/duplicate
-          // temp:  0=empty/found, 1=fake/duplicate
-          auto& image = alpaka::declareSharedVar<uint32_t[pixelStatus::size], __COUNTER__>(acc);
-          auto& temp = alpaka::declareSharedVar<uint32_t[pixelStatus::size], __COUNTER__>(acc);
-
           if (lastPixel > 1) {
             for (uint32_t i : cms::alpakatools::independent_group_elements(acc, pixelStatus::size)) {
               image[i] = 0;
@@ -490,6 +503,183 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
             }  // if (applyDigiMorphing)
           }  // if (lastPixel > 1)
         }  // if constexpr (not isPhase2)
+
+        // apply the digi morphing recovery algorithm to Phase-2 modules, one strip of columns at a time
+        if constexpr (isPhase2) {
+          if (applyDigiMorphing) {
+            namespace morphing = ::pixelClustering::phase2Morphing;
+
+            const uint32_t moduleSize = morphingModuleSizes[morphingIndex];
+            const uint32_t nRows = morphing::rows(moduleSize);
+            const uint32_t nCols = morphing::cols(moduleSize);
+            const uint32_t wordsPerColumn = cms::alpakatools::divide_up_by(nRows, morphing::valuesPerWord);
+            // bits of the last word of each column that correspond to rows inside the module
+            const uint32_t lastWordMask =
+                (nRows % morphing::valuesPerWord == 0) ? 0xffffffff : (1u << (nRows % morphing::valuesPerWord)) - 1;
+            const uint32_t bufferWords = morphing::bufferCols * wordsPerColumn;
+            ALPAKA_ASSERT_ACC(wordsPerColumn <= morphing::maxWordsPerColumn);
+            ALPAKA_ASSERT_ACC(nCols < Hist::nbins());
+
+            // Fill the histogram with the valid pixels only: it is used to find the pixels in each strip, and is
+            // filled again with both the valid and the recovered pixels after the morphing.
+            for (uint32_t i : cms::alpakatools::independent_group_elements(acc, firstPixel, lastPixel)) {
+              if (digi_view[i].moduleId() != ::pixelClustering::invalidModuleId) {
+                ALPAKA_ASSERT_ACC(digi_view[i].xx() < nRows and digi_view[i].yy() < nCols);
+                hist.count(acc, digi_view[i].yy());
+              }
+            }
+            for (uint32_t i : cms::alpakatools::independent_group_elements(acc, warpSize)) {
+              ws[i] = 0;  // used by prefix scan...
+            }
+            alpaka::syncBlockThreads(acc);
+            hist.finalize(acc, ws);
+            alpaka::syncBlockThreads(acc);
+            for (uint32_t i : cms::alpakatools::independent_group_elements(acc, firstPixel, lastPixel)) {
+              if (digi_view[i].moduleId() != ::pixelClustering::invalidModuleId) {
+                hist.fill(acc, digi_view[i].yy(), i - firstPixel);
+              }
+            }
+            alpaka::syncBlockThreads(acc);
+            // after the fill, hist.off[b] is the index of the first pixel in column b, so the pixels in the
+            // columns [first, last) are hist.content[hist.off[first] ... hist.off[last]]
+
+            for (uint32_t firstCol = 0; firstCol < nCols; firstCol += morphing::stripCols) {
+              // Skip the strips with no pixel within one column: they cannot have any fake pixel.
+              // The histogram is in shared memory and is not modified within the loop, so all threads in the block
+              // take the same decision.
+              const uint32_t nearFirst = (firstCol > 0) ? firstCol - 1 : 0;
+              const uint32_t nearLast = std::min(firstCol + morphing::stripCols + 1, nCols);
+              if (hist.off[Hist::bin(nearLast)] == hist.off[Hist::bin(nearFirst)])
+                continue;
+
+              // the buffers start `halo` columns before the strip; columns outside the module stay empty
+              const int32_t bufferFirstCol = static_cast<int32_t>(firstCol) - static_cast<int32_t>(morphing::halo);
+              const uint32_t loadFirst = std::max(bufferFirstCol, 0);
+              const uint32_t loadLast = std::min(static_cast<uint32_t>(bufferFirstCol + morphing::bufferCols), nCols);
+
+              for (uint32_t i : cms::alpakatools::independent_group_elements(acc, bufferWords)) {
+                image[i] = 0;
+                temp[i] = 0;
+              }
+              alpaka::syncBlockThreads(acc);
+
+              // mark the valid pixels in the image buffer
+              for (uint32_t j : cms::alpakatools::independent_group_elements(
+                       acc, hist.off[Hist::bin(loadFirst)], hist.off[Hist::bin(loadLast)])) {
+                auto pixel = digi_view[hist.content[j] + firstPixel];
+                uint32_t col = pixel.yy() - bufferFirstCol;
+                uint32_t index = col * wordsPerColumn + pixel.xx() / morphing::valuesPerWord;
+                alpaka::atomicOr(
+                    acc, &image[index], 1u << (pixel.xx() % morphing::valuesPerWord), alpaka::hierarchy::Threads{});
+              }
+              alpaka::syncBlockThreads(acc);
+
+              // first step: expand - read from image, write to temp (where image is 0)
+              // Mark empty pixels (image=0) as fake (temp=1) if any of their 8 neighbours has image=1.
+              // The first and last buffer columns are only read, as neighbours of the next ones.
+              for (uint32_t i : cms::alpakatools::independent_group_elements(acc, bufferWords)) {
+                uint32_t col = i / wordsPerColumn;
+                uint32_t word = i % wordsPerColumn;
+                int32_t moduleCol = bufferFirstCol + static_cast<int32_t>(col);
+                if (col == 0 or col == morphing::bufferCols - 1 or moduleCol < 0 or
+                    moduleCol >= static_cast<int32_t>(nCols))
+                  continue;
+                uint32_t img = image[i];
+
+                // Build 64-bit buffer: OR together the current and neighbouring columns
+                // Shifted by 1 to make room for the pixel from the previous word at bit 0
+                uint64_t buffer = static_cast<uint64_t>(img | image[i - wordsPerColumn] | image[i + wordsPerColumn])
+                                  << 1;
+                // Add the last pixel of the previous word in the three columns -> bit 0 of buffer
+                if (word > 0) {
+                  buffer |= ((image[i - 1] | image[i - wordsPerColumn - 1] | image[i + wordsPerColumn - 1]) >>
+                             (morphing::valuesPerWord - 1)) &
+                            1;
+                }
+                // Add the first pixel of the next word in the three columns -> bit 33 of buffer
+                if (word < wordsPerColumn - 1) {
+                  buffer |= static_cast<uint64_t>(
+                                (image[i + 1] | image[i - wordsPerColumn + 1] | image[i + wordsPerColumn + 1]) & 1)
+                            << 33;
+                }
+
+                // OR together 3 shifted versions of buffer to check all neighbours at once
+                uint32_t neighbours = static_cast<uint32_t>(buffer) | static_cast<uint32_t>(buffer >> 1) |
+                                      static_cast<uint32_t>(buffer >> 2);
+                // Mark as fake only where image=0 (empty) AND neighbours exist, and only inside the module
+                uint32_t fake = neighbours & ~img;
+                if (word == wordsPerColumn - 1)
+                  fake &= lastWordMask;
+                temp[i] = fake;
+              }
+              alpaka::syncBlockThreads(acc);
+
+              // second step: erode, and create new fake pixels for the remaining ones
+              // A fake pixel (image=0, temp=1) is kept if the pixels to the left, right, above and below are
+              // not empty (image=1 OR temp=1). As in Phase-1, a neighbour beyond the first or last row of the
+              // module counts as not empty, while a neighbour beyond the first or last column counts as empty.
+              for (uint32_t i :
+                   cms::alpakatools::independent_group_elements(acc, morphing::stripCols * wordsPerColumn)) {
+                uint32_t col = morphing::halo + i / wordsPerColumn;
+                uint32_t word = i % wordsPerColumn;
+                uint32_t moduleCol = bufferFirstCol + col;
+                if (moduleCol >= nCols)
+                  continue;
+                uint32_t index = col * wordsPerColumn + word;
+                uint32_t tmp = temp[index];
+                if (tmp == 0)
+                  continue;
+                uint32_t value = image[index] | tmp;
+                uint32_t above = image[index - wordsPerColumn] | temp[index - wordsPerColumn];
+                uint32_t below = image[index + wordsPerColumn] | temp[index + wordsPerColumn];
+                // pixels beyond the last row count as not empty
+                if (word == wordsPerColumn - 1)
+                  value |= ~lastWordMask;
+                uint32_t previous =
+                    (word > 0) ? ((image[index - 1] | temp[index - 1]) >> (morphing::valuesPerWord - 1)) : 1;
+                uint32_t next = (word < wordsPerColumn - 1) ? ((image[index + 1] | temp[index + 1]) & 1) : 1;
+                uint32_t left = (value << 1) | previous;
+                uint32_t right = (value >> 1) | (next << (morphing::valuesPerWord - 1));
+                uint32_t recovered = tmp & left & right & above & below;
+                if (recovered == 0)
+                  continue;
+
+                // Create the fake pixels, up to maxFakesInModule pixels per module.
+                uint32_t n = alpaka::popcount(acc, recovered);
+                uint32_t first = alpaka::atomicAdd(acc, &fakePixels, n, alpaka::hierarchy::Threads{});
+                for (uint32_t k = first; recovered != 0; ++k) {
+                  uint32_t bit = alpaka::ffs(acc, static_cast<std::int32_t>(recovered)) - 1;
+                  recovered &= recovered - 1;
+                  if (k < maxFakesInModule) {
+                    auto fake = fakes_view[firstFake + k];
+                    ALPAKA_ASSERT_ACC(fake.clus() == static_cast<int32_t>(numElements + firstFake + k));
+                    fake.xx() = word * morphing::valuesPerWord + bit;
+                    fake.yy() = moduleCol;
+                    fake.moduleId() = thisModuleId;
+                  } else if (k == maxFakesInModule) {
+                    printf("Too many pixels recovered by digi morphing in module %u: more than %u\n",
+                           thisModuleId,
+                           maxFakesInModule);
+                  }
+                }
+              }
+              alpaka::syncBlockThreads(acc);
+            }  // strip loop
+            // A thread can leave the loop right after skipping the last strip, without a barrier: wait for all the
+            // threads to have read the histogram before it is cleared.
+            alpaka::syncBlockThreads(acc);
+
+            // Clamp fakePixels to maxFakesInModule, and clear the histogram to fill it again
+            if (cms::alpakatools::once_per_block(acc)) {
+              if (fakePixels > maxFakesInModule)
+                fakePixels = maxFakesInModule;
+            }
+            for (uint32_t j : cms::alpakatools::independent_group_elements(acc, Hist::totbins())) {
+              hist.off[j] = 0;
+            }
+            alpaka::syncBlockThreads(acc);
+          }  // if (applyDigiMorphing)
+        }  // if constexpr (isPhase2)
 
         // fill histo
         for (uint32_t i : cms::alpakatools::independent_group_elements(acc, firstPixel, lastPixel)) {

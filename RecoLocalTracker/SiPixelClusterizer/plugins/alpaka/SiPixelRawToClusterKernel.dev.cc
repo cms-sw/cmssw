@@ -594,6 +594,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                               fakes_d.view(),
                               digiMorphingConfig.applyDigiMorphing,
                               morphingModulesDevice,
+                              static_cast<uint32_t const *>(nullptr),
                               digiMorphingConfig.numMorphingModules,
                               digiMorphingConfig.maxFakesInModule,
                               clusters_d->view(),
@@ -666,7 +667,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         const SiPixelClusterThresholds clusterThresholds,
         SiPixelDigisSoAView &digis_view,
         const uint32_t numDigis,
-        const uint32_t offsetBPIX2) {
+        const uint32_t offsetBPIX2,
+        SiPixelMorphingConfig digiMorphingConfig,
+        uint32_t *morphingModulesDevice,
+        uint32_t const *morphingModuleSizesDevice) {
       using namespace pixelClustering;
       using pixelTopology::Phase2;
       nDigis = numDigis;
@@ -691,7 +695,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto moduleStartFirstElement = cms::alpakatools::make_device_view(queue, clusters_d->view().moduleStart(), 1u);
       alpaka::memcpy(queue, nModules_Clusters_h, moduleStartFirstElement);
 
-      const auto elementsPerBlockFindClus = FindClus<TrackerTraits>::maxElementsPerBlock;
+      const auto elementsPerBlockFindClus = digiMorphingConfig.applyDigiMorphing
+                                                ? FindClus<TrackerTraits>::maxElementsPerBlockMorph
+                                                : FindClus<TrackerTraits>::maxElementsPerBlock;
       const auto workDivMaxNumModules =
           cms::alpakatools::make_workdiv<Acc1D>(numberOfModules, elementsPerBlockFindClus);
 #ifdef GPU_DEBUG
@@ -699,17 +705,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::cout << "FindClus kernel launch with " << numberOfModules << " blocks of " << elementsPerBlockFindClus
                 << " threadsPerBlockOrElementsPerThread\n";
 #endif
-      auto unused = SiPixelDigisSoACollection(queue, 0);
+      // allocate a transient collection for the fake pixels recovered by the digi morphing algorithm;
+      // each block processes a single module, so only the morphing modules need space for fake pixels
+      auto fakes_d =
+          SiPixelDigisSoACollection(queue,
+                                    digiMorphingConfig.applyDigiMorphing
+                                        ? digiMorphingConfig.numMorphingModules * digiMorphingConfig.maxFakesInModule
+                                        : 0);
 
       alpaka::exec<Acc1D>(queue,
                           workDivMaxNumModules,
                           FindClus<TrackerTraits>{},
                           digis_view,
-                          unused.view(),
-                          false,
-                          static_cast<uint32_t *>(nullptr),
-                          static_cast<uint32_t>(0),
-                          static_cast<uint32_t>(0),
+                          fakes_d.view(),
+                          digiMorphingConfig.applyDigiMorphing,
+                          morphingModulesDevice,
+                          morphingModuleSizesDevice,
+                          digiMorphingConfig.numMorphingModules,
+                          digiMorphingConfig.maxFakesInModule,
                           clusters_d->view(),
                           numDigis);
 #ifdef GPU_DEBUG
