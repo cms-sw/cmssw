@@ -31,5 +31,6 @@
   <use name="TrackingTools/IPTools"/>
   <use name="TrackingTools/Records"/>
   <use name="TrackingTools/TransientTrack"/>
+  <use name="PhysicsTools/ONNXRuntime"/>
   <flags EDM_PLUGIN="1"/>
 </library>
