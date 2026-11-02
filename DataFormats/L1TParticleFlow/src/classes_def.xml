@@ -34,6 +34,8 @@
         <version ClassVersion="3" checksum="4253860178"/>
   </class>
   <class name="l1t::PFCandidateCollection" />
+  <class name="edm::Ptr<l1t::PFCandidate>"/>
+  <class name="std::vector<edm::Ptr<l1t::PFCandidate> >"/>
   <class name="edm::Wrapper<l1t::PFCandidateCollection>" />
   <class name="edm::Ref<l1t::PFCandidateCollection>" />
   <class name="edm::RefVector<l1t::PFCandidateCollection>" />
@@ -61,6 +63,10 @@
   <class name="edm::Ref<l1t::PFJetCollection>" />
   <class name="edm::RefVector<l1t::PFJetCollection>" />
   <class name="std::vector<edm::Ref<std::vector<l1t::PFJet>,l1t::PFJet,edm::refhelper::FindUsingAdvance<std::vector<l1t::PFJet>,l1t::PFJet> > >" />
+  <class name="l1ct::JetTagClass" ClassVersion="3">
+    <version ClassVersion="3" checksum="3064238301"/>
+  </class>
+  <class name="std::vector<l1ct::JetTagClass>"/>
 
   <class name="l1t::PFTau"  ClassVersion="5">
         <version ClassVersion="5" checksum="549313204"/>
