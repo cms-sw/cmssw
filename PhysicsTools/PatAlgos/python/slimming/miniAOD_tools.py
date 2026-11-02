@@ -9,6 +9,9 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from PhysicsTools.PatUtils.tools.pfforTrkMET_cff import *
 
 def miniAOD_customizeCommon(process):
+    # the ONNX Runtime based taggers and the muon MVA ID require the ONNXService
+    process.load("PhysicsTools.ONNXRuntime.ONNXService_cfi")
+
     process.patMuons.isoDeposits = cms.PSet()
     process.patElectrons.isoDeposits = cms.PSet()
     process.patTaus.isoDeposits = cms.PSet()
