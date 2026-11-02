@@ -31,28 +31,26 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
-  private:
+private:
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   std::string runDir;
   edm::InputTag inputMETLabelRECO_;
   edm::InputTag inputMETLabelMiniAOD_;
 
-  std::vector<std::string> met_dirs;
-
-  MonitorElement *mMET_MiniAOD_over_Reco;
-  MonitorElement *mMETPhi_MiniAOD_over_Reco;
-  MonitorElement *mSumET_MiniAOD_over_Reco;
-  MonitorElement *mPFPhotonEtFraction_MiniAOD_over_Reco;
-  MonitorElement *mPFNeutralHadronEtFraction_MiniAOD_over_Reco;
-  MonitorElement *mPFChargedHadronEtFraction_MiniAOD_over_Reco;
-  MonitorElement *mPFHFHadronEtFraction_MiniAOD_over_Reco;
-  MonitorElement *mPFHFEMEtFraction_MiniAOD_over_Reco;
-  MonitorElement *mMETDiff_GenMETTrue_MiniAOD_over_Reco;
-  MonitorElement *mMETDeltaPhi_GenMETTrue_MiniAOD_over_Reco;
-  MonitorElement *mMETDiff_GenMETTrue_MET20to40_MiniAOD_over_Reco;
-  MonitorElement *mMETDiff_GenMETTrue_MET100to150_MiniAOD_over_Reco;
-  MonitorElement *mMETDiff_GenMETTrue_MET300to400_MiniAOD_over_Reco;
+  // histograms compared between RECO and MiniAOD: (input name, output name)
+  const std::vector<std::pair<std::string, std::string>> mHistoNames = {
+      {"MET", "MET_MiniAOD_over_RECO"},
+      {"METPhi", "METPhi_MiniAOD_over_RECO"},
+      {"SumET", "SumET_MiniAOD_over_RECO"},
+      {"METDiff_GenMETTrue", "METDiff_GenMETTrue_MiniAOD_over_RECO"},
+      {"METDeltaPhi_GenMETTrue", "METDeltaPhi_GenMETTrue_MiniAOD_over_RECO"},
+      {"photonEtFraction", "photonEtFraction_MiniAOD_over_RECO"},
+      {"neutralHadronEtFraction", "neutralHadronEtFraction_MiniAOD_over_RECO"},
+      {"chargedHadronEtFraction", "chargedHadronEtFraction_MiniAOD_over_RECO"},
+      {"HFHadronEtFraction", "HFHadronEtFraction_MiniAOD_over_RECO"},
+      {"HFEMEtFraction", "HFEMEtEtFraction_MiniAOD_over_RECO"},
+  };
 };
 
 #endif

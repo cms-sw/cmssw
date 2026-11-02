@@ -860,8 +860,7 @@ if __name__ == '__main__':
             xlabel = hproj.GetXaxis().GetTitle().replace('#', '\\')
             plotter_single.labels(x=f'${xlabel}$', y=f"# Jets", legend_title='')
             plotter_single.save( os.path.join(args.odir, Var2D  + '_tails_fit' + str(ipt)) )
-        
-            
+
         pt_centers = pt_bins[:-1] + (pt_bins[1:] - pt_bins[:-1])/2
         for ins, ns in enumerate(nsigmas):
             plotter.ax.errorbar(pt_centers, tail_fracs[ns], xerr=None, yerr=[tail_low_errors[ns],tail_low_errors[ns]],

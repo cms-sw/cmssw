@@ -5,14 +5,13 @@ from HLTriggerOffline.JetMET.Validation.SingleJetValidation_cfi import *
 from Validation.RecoJets.hltJetValidation_cff import *
 from Validation.RecoMET.hltMETValidation_cff import *
 
-from RecoMET.Configuration.GenMHT_cff import genMHT
+from RecoMET.Configuration.GenMHT_cff import genMht, genMHTTask, genMHT
 
 def _sumModules(alist):
     return reduce(lambda x, y: x + y, alist)
 
-metmht_common_analyzers = [hltMetAnalyzerPF, hltMetAnalyzerPFCalo, hltMetTypeOneAnalyzerPF] 
-# metmht_run3_analyzers = metmht_common_analyzers + [hltMetAnalyzerPFNoMu, hltMhtAnalyzer, hltMhtAnalyzerPFTightID]
-metmht_run3_analyzers = metmht_common_analyzers + [hltMetAnalyzerPFNoMu]
+metmht_common_analyzers = [hltMetAnalyzerPF, hltMetAnalyzerPFCalo, hltMetTypeOneAnalyzerPF]
+metmht_run3_analyzers = metmht_common_analyzers + [hltMetAnalyzerPFNoMu, hltMhtAnalyzer, hltMhtAnalyzerPFTightID]
 metmht_ph2_analyzers =  metmht_common_analyzers + [hltMetAnalyzerPFPuppi, hltMhtAnalyzerPFPuppi]
 
 ##please do NOT include paths here!
