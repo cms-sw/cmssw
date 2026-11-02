@@ -556,8 +556,11 @@ namespace edm {
         auto guard = signalslot::make_sentry([this]() { actReg_->postPrincipalsCreationSignal_.emit(); });
         actReg_->prePrincipalsCreationSignal_.emit();
         principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
+        // the reusable event principals are created on the NUMA domain of their stream (with numaLocality); the thread
+        // is pinned once per domain
+        numa::StreamPlacement placement;
         for (auto index : std::views::iota(0U, preallocations_.numberOfStreams())) {
-          // Reusable event principal
+          placement.moveToStream(index);
           auto ep = std::make_shared<EventPrincipal>(preg(),
                                                      productResolversFactory::makePrimary,
                                                      branchIDListHelper(),
@@ -816,6 +819,9 @@ namespace edm {
           std::exception_ptr exceptionPtr;
           {
             ServiceRegistry::Operate operate(serviceToken_);
+            // allocations made by the modules in beginStream land on the NUMA domain of the stream
+            numa::StreamPlacement placement;
+            placement.moveToStream(i);
             CMS_SA_ALLOW try { schedule_->beginStream(i); } catch (...) {
               exceptionPtr = std::current_exception();
             }

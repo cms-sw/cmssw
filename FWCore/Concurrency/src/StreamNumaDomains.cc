@@ -19,6 +19,9 @@ namespace {
     }
   }
 
+  // the NUMA domain the calling thread is currently pinned to by a StreamPlacement, or -1
+  thread_local int currentDomain = -1;
+
   // the per-domain arena the calling thread is running in (-1 if none), and the last one it was in
   thread_local int currentArena = -1;
   thread_local int previousArena = -1;
@@ -186,6 +189,38 @@ namespace edm::numa {
         boundary += domains_[domain].count;
       }
       streamDomain_[stream] = domain;
+    }
+  }
+
+  void StreamPlacement::moveToStream(unsigned int stream) {
+    auto const& domains = StreamNumaDomains::instance();
+    if (not domains.enabled()) {
+      return;
+    }
+    int domain = domains.domainOfStream(stream);
+    if (domain == currentDomain) {
+      return;  // already pinned to the right domain, by this object or by an enclosing one
+    }
+    if (not active_) {
+      // first change: remember the affinity to restore at the end of the scope
+      if (sched_getaffinity(0, sizeof(previous_), &previous_) != 0) {
+        return;
+      }
+      previousDomain_ = currentDomain;
+    }
+    if (sched_setaffinity(0, sizeof(cpu_set_t), &domains.cpus(domain)) != 0) {
+      return;
+    }
+    flushThreadCache();
+    currentDomain = domain;
+    active_ = true;
+  }
+
+  StreamPlacement::~StreamPlacement() {
+    if (active_) {
+      sched_setaffinity(0, sizeof(previous_), &previous_);
+      flushThreadCache();
+      currentDomain = previousDomain_;
     }
   }
 

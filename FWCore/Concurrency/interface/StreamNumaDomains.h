@@ -126,6 +126,28 @@ namespace edm::numa {
     group.run(std::forward<F>(f));
   }
 
+  // Keep the calling thread pinned to the cpus of the NUMA domain of a stream (only with numaLocality), so that the
+  // memory it first touches lands on that domain. moveToStream() pins the thread to the domain of the given stream,
+  // and does nothing if the thread is already pinned to it, by this object or by an enclosing one; the affinity the
+  // thread had before the first change is restored when the object goes out of scope. One object around a serial
+  // loop over the streams pins the thread once per domain rather than once per stream, since the streams of a domain
+  // are contiguous; one object per task does the same when the per-stream work runs in parallel tasks.
+  class StreamPlacement {
+  public:
+    StreamPlacement() = default;
+    ~StreamPlacement();
+
+    StreamPlacement(StreamPlacement const&) = delete;
+    StreamPlacement& operator=(StreamPlacement const&) = delete;
+
+    void moveToStream(unsigned int stream);
+
+  private:
+    cpu_set_t previous_;
+    int previousDomain_ = -1;
+    bool active_ = false;
+  };
+
 }  // namespace edm::numa
 
 #endif
