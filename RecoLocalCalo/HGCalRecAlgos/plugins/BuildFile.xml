@@ -20,6 +20,9 @@
   <use name="DataFormats/Math"/>
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="PhysicsTools/PyTorchAlpaka"/>
+  <use name="pytorch-cuda" for="alpaka/cuda"/>
+  <use name="pytorch-rocm" for="alpaka/rocm"/>
   <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
 </library>
