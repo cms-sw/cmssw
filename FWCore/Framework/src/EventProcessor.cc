@@ -677,10 +677,16 @@ namespace edm {
 
     ServiceRegistry::Operate operate(serviceToken_);
 
+    std::vector<oneapi::tbb::task_arena*> numaArenas;
+    numaArenas.reserve(streamArenas_.size());
+    for (auto const& arena : streamArenas_) {
+      numaArenas.push_back(arena.get());
+    }
     service::SystemBounds bounds(preallocations_.numberOfStreams(),
                                  preallocations_.numberOfLuminosityBlocks(),
                                  preallocations_.numberOfRuns(),
-                                 preallocations_.numberOfThreads());
+                                 preallocations_.numberOfThreads(),
+                                 std::move(numaArenas));
     actReg_->preallocateSignal_.emit(bounds);
     schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
 
