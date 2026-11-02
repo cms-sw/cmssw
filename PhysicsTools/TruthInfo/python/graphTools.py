@@ -76,6 +76,11 @@ def eventIndexOf(eventId):
     return eventId & 0xFFFF
 
 
+def isInTimeEventId(eventId):
+    """The signal and the in-time pile-up: bunch crossing 0."""
+    return bunchCrossingOf(eventId) == 0
+
+
 def isSignalEventId(eventId):
     return bunchCrossingOf(eventId) == 0 and eventIndexOf(eventId) == 0
 
@@ -292,6 +297,9 @@ class TruthGraphView:
 
     def isFromPileup(self, particleId):
         return not self.isSignal(particleId)
+
+    def isInTime(self, particleId):
+        return isInTimeEventId(self._particles[particleId]["eventId"])
 
     def interactionIds(self):
         """The packed interaction ids present, signal first. interactions() carries the

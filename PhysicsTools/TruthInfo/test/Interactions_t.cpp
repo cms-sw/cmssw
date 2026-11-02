@@ -87,6 +87,7 @@ class TestInteractions : public CppUnit::TestFixture {
   CPPUNIT_TEST(testNoSignal);
   CPPUNIT_TEST(testPositionAndProducts);
   CPPUNIT_TEST(testInteractionVerticesAreTheFacts);
+  CPPUNIT_TEST(testInTime);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -96,6 +97,7 @@ public:
   void testNoSignal();
   void testPositionAndProducts();
   void testInteractionVerticesAreTheFacts();
+  void testInTime();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestInteractions);
@@ -227,4 +229,23 @@ void TestInteractions::testInteractionVerticesAreTheFacts() {
   auto plain = withoutPreset.finish();
   CPPUNIT_ASSERT(plain.interactionVertices().empty());
   CPPUNIT_ASSERT_EQUAL(std::size_t(1), truth::interactions(plain).size());
+}
+
+void TestInteractions::testInTime() {
+  // In time means bunch crossing 0, whatever the index inside the crossing.
+  GraphBuilder b;
+  b.addInteraction(packed(0, 0), truth::VertexRole::Interaction, true);
+  b.addInteraction(packed(0, 5), truth::VertexRole::Interaction, true);
+  b.addInteraction(packed(-1, 0), truth::VertexRole::Interaction, true);
+  b.addInteraction(packed(2, 3), truth::VertexRole::Interaction, true);
+  auto graph = b.finish();
+
+  const std::vector<bool> inTime{true, true, false, false};
+  const std::vector<bool> signal{true, false, false, false};
+  for (uint32_t i = 0; i < graph.nParticles(); ++i) {
+    CPPUNIT_ASSERT_EQUAL(inTime[i], graph.particle(i).isInTime());
+    CPPUNIT_ASSERT_EQUAL(inTime[i], graph.vertex(i).isInTime());
+    CPPUNIT_ASSERT_EQUAL(signal[i], graph.particle(i).isSignal());
+  }
+  CPPUNIT_ASSERT(!truth::Particle().isInTime());
 }
