@@ -131,6 +131,7 @@ namespace truth {
     [[nodiscard]] int eventIndex() const { return eventIndexOf(eventId); }
     [[nodiscard]] bool isSignal() const { return isSignalEventId(eventId); }
     [[nodiscard]] bool isFromPileup() const { return !isSignal(); }
+    [[nodiscard]] bool isInTime() const { return isInTimeEventId(eventId); }
   };
 
   // Map a Geant4 process subtype (G4VProcess::GetProcessSubType(), as stored in

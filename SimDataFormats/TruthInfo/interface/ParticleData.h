@@ -156,6 +156,7 @@ namespace truth {
     [[nodiscard]] int eventIndex() const { return eventIndexOf(eventId); }
     [[nodiscard]] bool isSignal() const { return isSignalEventId(eventId); }
     [[nodiscard]] bool isFromPileup() const { return !isSignal(); }
+    [[nodiscard]] bool isInTime() const { return isInTimeEventId(eventId); }
 
     // False when no momentum is known: a GEN particle of a pile-up interaction that no
     // decay product and no SimTrack gives one.
