@@ -21,6 +21,7 @@
 
 #include <atomic>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "oneapi/tbb/task_arena.h"
@@ -37,6 +38,8 @@ namespace edm::numa {
 
     struct Configuration {
       bool numaLocality = false;
+      std::vector<std::string> replicatedRecords;
+      std::vector<std::string> excludedRecords;
     };
 
     // true if the job's affinity mask is smaller than the set of cpus it could use, i.e. the effective cpuset of its
@@ -59,12 +62,17 @@ namespace edm::numa {
     // are all used
     bool enabled() const { return domains_.size() > 1; }
 
+    // true if the products of the EventSetup record should be replicated on each domain
+    bool esReplicateRecord(std::string_view record) const;
+
     unsigned int size() const { return domains_.size(); }
     int node(unsigned int domain) const { return domains_[domain].node; }
     unsigned int numberOfCpus(unsigned int domain) const { return domains_[domain].count; }
     cpu_set_t const& cpus(unsigned int domain) const { return domains_[domain].cpus; }
     cpu_set_t const& allCpus() const { return all_; }
     unsigned int domainOfStream(unsigned int stream) const { return streamDomain_[stream]; }
+    // the domain whose EventSetup copies are used by a stream (0 without EventSetup replication)
+    unsigned int esDomainOfStream(unsigned int stream) const { return enabled() ? streamDomain_[stream] : 0; }
 
     // the per-domain TBB arenas, registered by the EventProcessor; nullptr if there are none
     void setArena(unsigned int domain, oneapi::tbb::task_arena* arena);
@@ -87,6 +95,8 @@ namespace edm::numa {
     std::vector<Domain> domains_;
     std::vector<unsigned int> streamDomain_;
     cpu_set_t all_;
+    std::vector<std::string> esRecords_;
+    std::vector<std::string> esExcluded_;
     std::vector<oneapi::tbb::task_arena*> domainArenas_;
   };
 

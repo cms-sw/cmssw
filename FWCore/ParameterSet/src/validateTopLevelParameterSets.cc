@@ -51,6 +51,11 @@ namespace edm {
         "Parameter names should be record names and the values are the number of concurrent IOVS for each record."
         " Overrides all other methods of setting number of concurrent IOVs.");
     eventSetupDescription.addUntracked<edm::ParameterSetDescription>("forceNumberOfConcurrentIOVs", nestedDescription);
+    eventSetupDescription.addUntracked<std::vector<std::string>>("numaReplicatedRecords", std::vector<std::string>())
+        ->setComment(
+            "With numaLocality, if not empty, give each NUMA node its own copy only of the records with these names.");
+    eventSetupDescription.addUntracked<std::vector<std::string>>("numaExcludedRecords", std::vector<std::string>())
+        ->setComment("With numaLocality, do not give each NUMA node its own copy of the records with these names.");
     description.addUntracked<edm::ParameterSetDescription>("eventSetup", eventSetupDescription);
 
     description.addUntracked<bool>("numaLocality", false)

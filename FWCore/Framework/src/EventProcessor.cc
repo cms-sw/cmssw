@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Concurrency/interface/StreamNumaDomains.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/Framework/interface/ComponentInterfaceHolder.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/FileBlock.h"
@@ -108,6 +109,11 @@
 #endif
 
 namespace {
+  // the NUMA domain whose copies of the EventSetup data a stream uses (numaLocality), otherwise 0
+  unsigned int esDomainOfStream(unsigned int stream) {
+    return edm::numa::StreamNumaDomains::instance().esDomainOfStream(stream);
+  }
+
   class PauseQueueSentry {
   public:
     PauseQueueSentry(edm::SerialTaskQueue& queue) : queue_(queue) { queue_.pause(); }
@@ -1401,7 +1407,8 @@ namespace edm {
       chain::first([this, iStream](auto nextTask) {
         RunProcessingStatus& rs = *streamRunStatus_[iStream];
         if (rs.didGlobalBeginSucceed()) {
-          RunTransitionInfo transitionInfo(*rs.runPrincipal(), rs.eventSetupImpl());
+          RunTransitionInfo transitionInfo(*rs.runPrincipal(),
+                                           rs.eventSetupImpl().forDomain(esDomainOfStream(iStream)));
           using Traits = OccurrenceTraits<RunPrincipal, TransitionActionStreamBegin>;
           schedule_->processOneStreamAsync<Traits>(std::move(nextTask), iStream, transitionInfo, serviceToken_);
         }
@@ -1588,7 +1595,7 @@ namespace edm {
       auto runStatus = streamRunStatus_[iStreamIndex].get();
 
       if (runStatus->didGlobalBeginSucceed() && runStatus->endingEventSetupSucceeded()) {
-        EventSetupImpl const& es = runStatus->eventSetupImplEndRun();
+        EventSetupImpl const& es = runStatus->eventSetupImplEndRun().forDomain(esDomainOfStream(iStreamIndex));
         bool cleaningUpAfterException = runStatus->cleaningUpAfterException() || iTask.taskHasFailed();
 
         auto& runPrincipal = *runStatus->runPrincipal();
@@ -1754,7 +1761,7 @@ namespace edm {
                           streamLumiStatus_[i] = std::move(status);
                           ++streamLumiActive_;
                           event.setLuminosityBlockPrincipal(lp);
-                          LumiTransitionInfo transitionInfo(*lp, es);
+                          LumiTransitionInfo transitionInfo(*lp, es.forDomain(esDomainOfStream(i)));
                           using namespace edm::waiting_task::chain;
                           chain::first([this, i, &transitionInfo](auto nextTask) {
                             schedule_->processOneStreamAsync<Traits>(
@@ -1910,7 +1917,7 @@ namespace edm {
     auto lumiStatus = streamLumiStatus_[iStreamIndex].get();
     lumiStatus->setEndTime();
 
-    EventSetupImpl const& es = lumiStatus->eventSetupImpl();
+    EventSetupImpl const& es = lumiStatus->eventSetupImpl().forDomain(esDomainOfStream(iStreamIndex));
     bool cleaningUpAfterException = lumiStatus->cleaningUpAfterException() || iTask.taskHasFailed();
 
     auto& lumiPrincipal = *lumiStatus->lumiPrincipal();
@@ -2125,6 +2132,10 @@ namespace edm {
     // arenas, the placement of the per-stream objects and the replication of the EventSetup data
     numa::StreamNumaDomains::Configuration config;
     config.numaLocality = options.getUntrackedParameter<bool>("numaLocality");
+    auto const& eventSetupOptions = options.getUntrackedParameterSet("eventSetup");
+    config.replicatedRecords =
+        eventSetupOptions.getUntrackedParameter<std::vector<std::string>>("numaReplicatedRecords");
+    config.excludedRecords = eventSetupOptions.getUntrackedParameter<std::vector<std::string>>("numaExcludedRecords");
     auto& domains = numa::StreamNumaDomains::instance();
     domains.setup(nStreams, config);
     if (config.numaLocality and not numa::numaAvailable()) {
@@ -2227,7 +2238,9 @@ namespace edm {
       rng->postEventRead(ev);
     }
 
-    EventSetupImpl const& es = streamLumiStatus_[iStreamIndex]->eventSetupImpl();
+    // with EventSetup replication, the copies of the EventSetup data of the stream's NUMA domain
+    EventSetupImpl const& es =
+        streamLumiStatus_[iStreamIndex]->eventSetupImpl().forDomain(esDomainOfStream(iStreamIndex));
     using namespace edm::waiting_task::chain;
     chain::firstIf(rng.isAvailable() and rng->consumer() != nullptr, [this, pep](auto nextTask) {
       //handle RandomNumberGenerator prefetching and postEventRead

@@ -47,7 +47,11 @@ namespace edm {
     public:
       enum class IntervalStatus { Invalid, NewInterval, UpdateIntervalEnd, SameInterval };
 
-      explicit EventSetupRecordIOVCoordinator(unsigned int nConcurrentIOVs);
+      // nReplicas: number of copies of each IOV (one per NUMA domain with EventSetup replication, or 1);
+      // nDomains: number of NUMA domains with their own EventSetupImpl (1 without EventSetup replication)
+      explicit EventSetupRecordIOVCoordinator(unsigned int nConcurrentIOVs,
+                                              unsigned int nReplicas = 1,
+                                              unsigned int nDomains = 1);
       ~EventSetupRecordIOVCoordinator();
 
       void endIOVAsync(WaitingTaskHolder endTask);
@@ -74,6 +78,11 @@ namespace edm {
     private:
       void updateValidityIntervalAndStatus(const IOVSyncValue& iTime);
 
+      // the EventSetupRecordImpl instance used by a NUMA domain for an IOV slot
+      unsigned int instanceIndex(unsigned int iovIndex, unsigned int domain) const {
+        return iovIndex * nReplicas_ + domain % nReplicas_;
+      }
+
       // Used to limit the number of concurrent IOVs
       edm::LimitedTaskQueue iovQueue_;
       edm::WaitingTaskList endIOVTasks_;
@@ -95,6 +104,8 @@ namespace edm {
       IntervalStatus intervalStatus_ = IntervalStatus::Invalid;
 
       unsigned int lastUsedIovIndex_ = std::numeric_limits<unsigned int>::max();
+      unsigned int nReplicas_;
+      unsigned int nDomains_;
       bool endIOVCalled_ = false;
       bool newIOVNeeded_ = false;
     };

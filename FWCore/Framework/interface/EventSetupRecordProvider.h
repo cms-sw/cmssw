@@ -50,13 +50,15 @@ namespace edm {
 
       EventSetupRecordProvider(EventSetupRecordKey const& iKey,
                                ActivityRegistry const*,
-                               unsigned int nConcurrentIOVs = 1);
+                               unsigned int nConcurrentIOVs = 1,
+                               unsigned int nReplicas = 1);
 
       EventSetupRecordProvider(EventSetupRecordProvider const&) = delete;
       EventSetupRecordProvider const& operator=(EventSetupRecordProvider const&) = delete;
 
       // ---------- const member functions ---------------------
 
+      // number of EventSetupRecordImpl instances: concurrent IOVs times the number of replicas of each IOV
       unsigned int nConcurrentIOVs() const { return nConcurrentIOVs_; }
 
       EventSetupRecordKey const& key() const { return key_; }

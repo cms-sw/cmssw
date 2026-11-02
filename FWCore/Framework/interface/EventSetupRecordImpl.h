@@ -113,6 +113,11 @@ namespace edm {
 
       unsigned int iovIndex() const { return iovIndex_; }
 
+      // the NUMA domain this instance holds the copies of the EventSetup data for (numaLocality), or -1
+      // if the data are not replicated
+      int numaDomain() const { return numaDomain_; }
+      void setNumaDomain(int domain) { numaDomain_ = domain; }
+
       ///keys for all registered data keys
       std::vector<DataKey> const& registeredDataKeys() const;
       ///there is a 1-to-1 correspondence between elements returned and the elements returned from fillRegisteredDataKey.
@@ -185,6 +190,7 @@ namespace edm {
       ActivityRegistry const* activityRegistry_;
       unsigned long long cacheIdentifier_;
       unsigned int iovIndex_;
+      int numaDomain_ = -1;
       std::atomic<bool> isAvailable_;
       mutable std::atomic<bool> validityModificationUnderway_;
     };

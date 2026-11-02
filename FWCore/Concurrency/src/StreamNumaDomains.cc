@@ -3,9 +3,11 @@
 #include <dlfcn.h>
 #include <numa.h>
 
+#include <algorithm>
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <thread>
 
 namespace {
@@ -156,6 +158,8 @@ namespace edm::numa {
     domains_.clear();
     streamDomain_.clear();
     CPU_ZERO(&all_);
+    esRecords_.clear();
+    esExcluded_.clear();
     domainArenas_.clear();
     auto& stats = arenaStatistics();
     stats.entries = 0;
@@ -165,6 +169,8 @@ namespace edm::numa {
 
   void StreamNumaDomains::setup(unsigned int nStreams, Configuration const& config) {
     reset();
+    esRecords_ = config.replicatedRecords;
+    esExcluded_ = config.excludedRecords;
     if (not config.numaLocality) {
       return;
     }
@@ -190,6 +196,16 @@ namespace edm::numa {
       }
       streamDomain_[stream] = domain;
     }
+  }
+
+  bool StreamNumaDomains::esReplicateRecord(std::string_view record) const {
+    if (not enabled()) {
+      return false;
+    }
+    if (not esRecords_.empty() and std::find(esRecords_.begin(), esRecords_.end(), record) == esRecords_.end()) {
+      return false;
+    }
+    return std::find(esExcluded_.begin(), esExcluded_.end(), record) == esExcluded_.end();
   }
 
   void StreamPlacement::moveToStream(unsigned int stream) {

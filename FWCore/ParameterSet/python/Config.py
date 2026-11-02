@@ -235,7 +235,9 @@ class Process(object):
                                   numberOfConcurrentIOVs = untracked.uint32(0),
                                   forceNumberOfConcurrentIOVs = untracked.PSet(
                                       allowAnyLabel_ = required.untracked.uint32
-                                  )
+                                  ),
+                                  numaReplicatedRecords = untracked.vstring(),
+                                  numaExcludedRecords = untracked.vstring()
                               ),
                               accelerators = untracked.vstring('*'),
                               numaLocality = untracked.bool(False),
@@ -2226,6 +2228,8 @@ process.options = cms.untracked.PSet(
         forceNumberOfConcurrentIOVs = cms.untracked.PSet(
             allowAnyLabel_=cms.required.untracked.uint32
         ),
+        numaExcludedRecords = cms.untracked.vstring(),
+        numaReplicatedRecords = cms.untracked.vstring(),
         numberOfConcurrentIOVs = cms.untracked.uint32(0)
     ),
     fileMode = cms.untracked.string('FULLMERGE'),
@@ -3836,6 +3840,8 @@ process.options = cms.untracked.PSet(
         forceNumberOfConcurrentIOVs = cms.untracked.PSet(
             allowAnyLabel_=cms.required.untracked.uint32
         ),
+        numaExcludedRecords = cms.untracked.vstring(),
+        numaReplicatedRecords = cms.untracked.vstring(),
         numberOfConcurrentIOVs = cms.untracked.uint32(0)
     ),
     fileMode = cms.untracked.string('FULLMERGE'),

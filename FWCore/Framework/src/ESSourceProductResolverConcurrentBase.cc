@@ -14,6 +14,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ESSourceProductResolverConcurrentBase.h"
+#include "FWCore/Concurrency/interface/StreamNumaDomains.h"
 
 //
 // member functions
@@ -26,10 +27,14 @@ void edm::eventsetup::ESSourceProductResolverConcurrentBase::prefetchAsyncImpl(
     edm::EventSetupImpl const*,
     edm::ServiceToken const&,
     edm::ESParentContext const& iParent) noexcept {
-  prefetchAsyncImplTemplate([](auto& iGroup, auto iActivity) { iGroup.run(std::move(iActivity)); },
-                            []() { return true; },
-                            std::move(iTask),
-                            iRecord,
-                            iKey,
-                            iParent);
+  // with EventSetup replication, produce the copy of a NUMA domain in the arena of that domain
+  prefetchAsyncImplTemplate(
+      [domain = iRecord.numaDomain()](auto& iGroup, auto iActivity) {
+        edm::numa::runInDomain(iGroup, domain, std::move(iActivity));
+      },
+      []() { return true; },
+      std::move(iTask),
+      iRecord,
+      iKey,
+      iParent);
 }

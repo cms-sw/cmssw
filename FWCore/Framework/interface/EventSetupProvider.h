@@ -63,6 +63,9 @@ namespace edm {
 
       EventSetupImpl const& eventSetupImpl() const { return *eventSetupImpl_; }
 
+      // number of NUMA domains with their own EventSetupImpl (numaLocality), otherwise 1
+      unsigned int eventSetupImplDomains() const { return numberOfDomains_; }
+
       void add(std::shared_ptr<ESProductResolverProvider>);
 
       void finishConfiguration(std::set<EventSetupRecordKey> const& finderRecords, NumberOfConcurrentIOVs const&);
@@ -106,6 +109,9 @@ namespace edm {
       ActivityRegistry const* activityRegistry_;
 
       propagate_const<std::shared_ptr<EventSetupImpl>> eventSetupImpl_;
+
+      // number of NUMA domains with their own EventSetupImpl (numaLocality), otherwise 1
+      unsigned int numberOfDomains_ = 1;
 
       // The following are all used only during initialization and then cleared.
       std::unique_ptr<PreferredProviderInfo> preferredProviderInfo_;
