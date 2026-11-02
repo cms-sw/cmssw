@@ -351,6 +351,7 @@ void TestBranch::testInvalidViews() {
     CPPUNIT_ASSERT_EQUAL(int16_t(0), p.status());
     CPPUNIT_ASSERT(!p.hasGen());
     CPPUNIT_ASSERT(!p.hasSim());
+    CPPUNIT_ASSERT(!p.isInTime());
     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, p.momentum().energy(), 1e-9);
     CPPUNIT_ASSERT(!p.hasCheckpoints());
     CPPUNIT_ASSERT(p.checkpoints().empty());
@@ -364,6 +365,7 @@ void TestBranch::testInvalidViews() {
     CPPUNIT_ASSERT(!v.valid());
     CPPUNIT_ASSERT(!v.hasGen());
     CPPUNIT_ASSERT(!v.hasSim());
+    CPPUNIT_ASSERT(!v.isInTime());
     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, v.position().energy(), 1e-9);
     CPPUNIT_ASSERT(v.incomingParticles().empty());
     CPPUNIT_ASSERT(v.outgoingParticles().empty());
@@ -468,6 +470,12 @@ void TestBranch::testProvenanceComesFromTheRoot() {
   CPPUNIT_ASSERT(branch.isFromPileup());
   CPPUNIT_ASSERT(!branch.isInTime());
   CPPUNIT_ASSERT_EQUAL(top.isSignal(), branch.isSignal());
+
+  CPPUNIT_ASSERT_EQUAL(branch.root().isInTime(), branch.isInTime());
+
+  top.eventId = 5;  // in-time pile-up
+  CPPUNIT_ASSERT(truth::Branch(&graph, 0).isInTime());
+  CPPUNIT_ASSERT(!truth::Branch(&graph, 0).isSignal());
 
   top.eventId = 0;
   CPPUNIT_ASSERT(truth::Branch(&graph, 0).isSignal());

@@ -276,6 +276,8 @@ namespace truth {
 
   bool Branch::isSignal() const { return graph_->particles()[roots_.front()].isSignal(); }
 
+  bool Branch::isInTime() const { return root().isInTime(); }
+
   std::optional<Particle> Branch::commonAncestor(Branch const& other) const {
     if (graph_ != other.graph_)
       return std::nullopt;

@@ -105,7 +105,8 @@ namespace truth {
     [[nodiscard]] int32_t genEvent() const;
     [[nodiscard]] int bunchCrossing() const;
     [[nodiscard]] int event() const;
-    [[nodiscard]] bool isInTime() const { return bunchCrossing() == 0; }
+    // The root particle decides: Particle::isInTime().
+    [[nodiscard]] bool isInTime() const;
     // Anything that is not the signal interaction. NOT bunchCrossing() != 0: in-time
     // pileup carries bunch crossing 0 and a nonzero event number, and the default
     // production keeps in-time pileup only.

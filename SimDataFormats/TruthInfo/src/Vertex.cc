@@ -25,6 +25,8 @@ bool truth::Vertex::isSignal() const { return valid() && data().isSignal(); }
 
 bool truth::Vertex::isFromPileup() const { return valid() && !data().isSignal(); }
 
+bool truth::Vertex::isInTime() const { return valid() && data().isInTime(); }
+
 const math::XYZTLorentzVectorD& truth::Vertex::position() const { return data().position; }
 
 bool truth::Vertex::isSource() const { return valid() && graph_->incomingParticles(id_).empty(); }

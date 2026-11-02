@@ -1268,6 +1268,10 @@ namespace truth {
             "photons immediately, but the analysis reconstructs the pi0, so the pi0 is what gets labelled. "
             "Intermediate resonances the detector cannot see as objects (a1, rho) are absent on purpose, so the "
             "walk passes through them; add a pdg id here to label it instead");
+    desc.add<std::string>("presetName", "")
+        ->setComment(
+            "Name of the selection preset that set these fields, recorded in truth::GraphMetadata. The selection "
+            "does not read it.");
     desc.add<std::vector<int32_t>>("seedPdgIds", {})
         ->setComment(
             "If non-empty, particles with these exact PDG ids seed the selection: the most upstream particle of "
