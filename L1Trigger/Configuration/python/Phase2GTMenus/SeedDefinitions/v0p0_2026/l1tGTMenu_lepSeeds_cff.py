@@ -192,6 +192,7 @@ DoubleTkEleer1p2dRMax0p6 = l1tGTDoubleObjectCond.clone(
         maxEta = cms.double(1.2),
         regionsMinPt = get_object_thrs(14, "CL2Electrons", "NoIso"),
     ),
+    minDR = cms.double(0),
     maxDR = cms.double(0.6),
     maxDz = cms.double(1),
 )

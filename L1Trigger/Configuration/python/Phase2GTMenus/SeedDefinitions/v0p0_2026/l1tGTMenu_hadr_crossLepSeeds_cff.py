@@ -183,6 +183,9 @@ DoubleTkEleHTSum = l1tGTTripleObjectCond.clone(
     collection3 = l1tGTHtSum.clone(
         minScalarSumPt = get_object_thrs(402, "CL2HtSum", "HT"),
     ),
+    correl12 = cms.PSet(
+        minDR = cms.double(0),
+    ),
 )
 pDoubleTkEle_HTSum = cms.Path(DoubleTkEleHTSum)
 algorithms.append(cms.PSet(expression = cms.string("pDoubleTkEle_HTSum")))
