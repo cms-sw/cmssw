@@ -34,6 +34,7 @@ process.options = cms.untracked.PSet(
     makeTriggerResults = cms.obsolete.untracked.bool,
     modulesToCallForTryToContinue = cms.untracked.vstring(),
     modulesToIgnoreForDeleteEarly = cms.untracked.vstring(),
+    numaLocality = cms.untracked.bool(False),
     numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(0),
     numberOfConcurrentRuns = cms.untracked.uint32(1),
     numberOfStreams = cms.untracked.uint32(0),
