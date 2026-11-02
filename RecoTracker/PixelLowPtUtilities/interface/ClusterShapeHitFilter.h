@@ -158,7 +158,8 @@ public:
     const PixelGeomDetUnit* det;
     unsigned short part;
     unsigned short layer;
-    PixelLimits const* limits;  // table of limits for this module, chosen by the rules of SiPixelClusterShapeLimits
+    // table of limits for this module, chosen by the rules of SiPixelClusterShapeLimits
+    PixelLimits const* limits{nullptr};
     std::pair<float, float> drift;
     std::pair<float, float> cotangent;
   };
