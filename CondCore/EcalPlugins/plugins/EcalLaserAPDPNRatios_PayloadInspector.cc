@@ -625,25 +625,28 @@ namespace {
     return (it == values.end()) ? def : it->second;
   }
 
-  // "CMS <cmsLabel>" left aligned at xLeft and rightLabel right aligned at xRight, baseline at y (NDC of the current pad)
+  // "CMS <cmsLabel>" left aligned at xLeft and rightLabel right aligned at xRight, baseline at y (NDC of the current pad).
+  // No CMS label if cmsLabel is empty, "CMS" alone if cmsLabel is "CMS"
   inline void drawLaserCMSLabel(
       double xLeft, double xRight, double y, const std::string& cmsLabel, const std::string& rightLabel) {
-    TLatex cms;
-    cms.SetNDC();
-    cms.SetTextAlign(11);
-    cms.SetTextFont(63);
-    cms.SetTextSize(62);
-    cms.DrawLatex(xLeft, y, "CMS");
     if (!cmsLabel.empty()) {
-      TLatex width(0., 0., "CMS ");
-      width.SetTextFont(63);
-      width.SetTextSize(62);
-      TLatex extra;
-      extra.SetNDC();
-      extra.SetTextAlign(11);
-      extra.SetTextFont(53);
-      extra.SetTextSize(48);
-      extra.DrawLatex(xLeft + width.GetXsize(), y, cmsLabel.c_str());
+      TLatex cms;
+      cms.SetNDC();
+      cms.SetTextAlign(11);
+      cms.SetTextFont(63);
+      cms.SetTextSize(62);
+      cms.DrawLatex(xLeft, y, "CMS");
+      if (cmsLabel != "CMS") {
+        TLatex width(0., 0., "CMS ");
+        width.SetTextFont(63);
+        width.SetTextSize(62);
+        TLatex extra;
+        extra.SetNDC();
+        extra.SetTextAlign(11);
+        extra.SetTextFont(53);
+        extra.SetTextSize(48);
+        extra.DrawLatex(xLeft + width.GetXsize(), y, cmsLabel.c_str());
+      }
     }
     TLatex right;
     right.SetNDC();
@@ -666,8 +669,9 @@ namespace {
     }
   }
 
-  // default labels, they can be changed with the plot input parameters cmsLabel and rightLabel
-  constexpr const char* kLaserCMSLabel = "Preliminary";
+  // default labels, they can be changed with the plot input parameters cmsLabel and rightLabel:
+  // the CMS label is drawn only on request, e.g. cmsLabel=Preliminary for "CMS Preliminary"
+  constexpr const char* kLaserCMSLabel = "";
   constexpr const char* kLaserRightLabel = "13.6 TeV";
 
   /************************************************************************
@@ -681,7 +685,7 @@ namespace {
     EcalLaserAPDPNRatiosHistCompareBase()
         : cond::payloadInspector::PlotImage<EcalLaserAPDPNRatios, nIOVs, ntags>(
               "ECAL Laser APDPNRatios distributions comparison") {
-      // text after "CMS" and on the top right of the plot
+      // text after "CMS" (no CMS label if not set, "CMS" alone if set to CMS) and on the top right of the plot
       cond::payloadInspector::PlotBase::addInputParam("cmsLabel");
       cond::payloadInspector::PlotBase::addInputParam("rightLabel");
     }
@@ -930,7 +934,7 @@ namespace {
   public:
     explicit EcalLaserAPDPNRatiosHistoryBase(const std::string& title)
         : cond::payloadInspector::PlotImage<EcalLaserAPDPNRatios, cond::payloadInspector::MULTI_IOV, ntags>(title) {
-      // text after "CMS" and on the top right of the plot
+      // text after "CMS" (no CMS label if not set, "CMS" alone if set to CMS) and on the top right of the plot
       cond::payloadInspector::PlotBase::addInputParam("cmsLabel");
       cond::payloadInspector::PlotBase::addInputParam("rightLabel");
     }
