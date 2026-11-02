@@ -47,6 +47,9 @@ algorithms.append(cms.PSet(expression = cms.string("pDoublePFJet8_dEtaMax")))
 
 ####### DISPLACED MUON SEEDS ###########
 # GMT standalone displaced muons have no online-to-offline scalings: online thresholds.
+# Their pT is coarsely binned, so the thresholds sit one pT LSB below the value to select pT >= value.
+from L1Trigger.Phase2L1GT.l1tGTScales import scale_parameter
+_ptLSB = scale_parameter.pT_lsb.value()
 
 # Quality >= 15 in the endcap: the 4-bit quality word must have all bits set
 SingleDispMu = l1tGTSingleObjectCond.clone(
@@ -56,17 +59,17 @@ SingleDispMu = l1tGTSingleObjectCond.clone(
         regionsAbsEtaLowerBounds = cms.vdouble(0, 0.83, 1.24),
         regionsQualityFlags = cms.vuint32(0, 0, 0b1111),
     ),
-    minPt = cms.double(22),
+    minPt = cms.double(22 - _ptLSB),
 )
 pSingleDispMu = cms.Path(SingleDispMu)
 algorithms.append(cms.PSet(expression = cms.string("pSingleDispMu")))
 
 DoubleDispMu = l1tGTDoubleObjectCond.clone(
     collection1 = l1tGTsaDisplacedMuon.clone(
-        minPt = cms.double(15),
+        minPt = cms.double(15 - _ptLSB),
     ),
     collection2 = l1tGTsaDisplacedMuon.clone(
-        minPt = cms.double(7),
+        minPt = cms.double(7 - _ptLSB),
     ),
 )
 pDoubleDispMu = cms.Path(DoubleDispMu)
