@@ -740,11 +740,8 @@ namespace {
       for (int i = 0; i < kParams; i++) {
         for (int part = 0; part < kParts; part++) {
           for (int irun = 0; irun < 2; irun++) {
-            hist[irun][i][part] = std::make_unique<TH1F>(Form("%s_p%i_%i", partName[part], i + 1, irun),
-                                                         Form(";p%i;Crystals", i + 1),
-                                                         kBins,
-                                                         0.,
-                                                         1.01);
+            hist[irun][i][part] = std::make_unique<TH1F>(
+                Form("%s_p%i_%i", partName[part], i + 1, irun), Form(";p%i;Crystals", i + 1), kBins, 0., 1.01);
             hist[irun][i][part]->SetDirectory(nullptr);
             for (float v : values[irun][i][part])
               hist[irun][i][part]->Fill(v);
@@ -828,6 +825,7 @@ namespace {
                         laserInputParam(params, "cmsLabel", kLaserCMSLabel),
                         laserInputParam(params, "rightLabel", kLaserRightLabel));
       std::vector<std::string> lines;
+      lines.reserve(2);
       for (int irun = 0; irun < 2; irun++)
         lines.push_back(Form(
             "(%i) %s, IOV %s", irun + 1, l_tagname[irun].c_str(), laserIOVLabel(std::get<0>(theIOVs[irun])).c_str()));
@@ -1135,6 +1133,7 @@ namespace {
                         laserInputParam(params, "cmsLabel", kLaserCMSLabel),
                         laserInputParam(params, "rightLabel", kLaserRightLabel));
       std::vector<std::string> lines;
+      lines.reserve(ntags);
       for (int itag = 0; itag < ntags; itag++)
         lines.push_back((ntags == 1)
                             ? Form("%s, IOVs %s", m_tagName[itag].c_str(), m_iovRange[itag].c_str())
