@@ -121,11 +121,10 @@ namespace io_v1 {
       kSingleComponentHtMask = 0xffff,        // Ht component mask in miss_htx or miss_hty
       kDoubleComponentHtMask = 0x3fff,        // Ht component mask in miss_htx_and_hty
       kJetFinderComponentHtMask = 0x0fff,     // Ht component mask in jf_miss_htx_and_hty
-      kSingleComponentRawMask =
-          kSingleComponentOflowMask |
+      kSingleComponentRawMask = kSingleComponentOflowMask |
           kSingleComponentHtMask,  // To mask off all the non-data bits in raw data (e.g. BC0, etc)
-      kDoubleComponentRawMask =
-          (kDoubleComponentHtMask << kDoubleComponentHtyShift) | kDoubleComponentOflowMask | kDoubleComponentHtMask
+      kDoubleComponentRawMask = (kDoubleComponentHtMask << kDoubleComponentHtyShift) | kDoubleComponentOflowMask |
+          kDoubleComponentHtMask
     };
 
     /* Private ctors and methods */
