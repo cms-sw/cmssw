@@ -56,10 +56,10 @@ void PFTracksExtTableProducer::produce(edm::StreamID, edm::Event& iEvent, const 
   }
 
   auto table = std::make_unique<nanoaod::FlatTable>(ntrk, name_, false, true);
-  table->addColumn<float>("propEta", propEta, "eta of the track extrapolated to muon station 1 (-99 if failed)", 12);
-  table->addColumn<float>("propPhi", propPhi, "phi of the track extrapolated to muon station 1 (-99 if failed)", 12);
+  table->addColumn<float>("propEta", propEta, "eta of the track extrapolated to muon station 1 (-99 if failed)", 10);
+  table->addColumn<float>("propPhi", propPhi, "phi of the track extrapolated to muon station 1 (-99 if failed)", 10);
   table->addColumn<float>(
-      "propR", propR, "transverse radius (cm) of the track extrapolated to muon station 1 (-99 if failed)", 12);
+      "propR", propR, "transverse radius (cm) of the track extrapolated to muon station 1 (-99 if failed)", 10);
 
   iEvent.put(std::move(table));
 }
