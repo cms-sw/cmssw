@@ -4,6 +4,8 @@
 // The NUMA domains of the cpus available to the job, and a fixed assignment of the streams to them, in proportion to
 // the number of cpus of each domain (contiguous blocks of streams). Enabled by process.options.numaLocality, which
 // turns on together:
+//   - a local memory policy for the whole job (numa::setLocalMemoryPolicy, called by cmsRun before the TBB worker threads
+//     are created, so that they inherit it), also if the job's cpus are all on one NUMA domain;
 //   - one TBB arena per domain, whose threads are pinned to the cpus of the domain; each event runs in the arena of its
 //     stream's domain;
 //   - the placement of the per-stream objects: while a per-stream object is constructed (stream schedule and workers,
@@ -14,7 +16,8 @@
 //     process.options.eventSetup.numaReplicatedRecords and numaExcludedRecords restrict the replication to, or
 //     exclude from it, some records.
 //
-// Nothing changes if numaLocality is not enabled, or if the job's cpus are all in one NUMA domain.
+// Apart from the memory policy, nothing changes if the job's cpus are all in one NUMA domain. Nothing changes if
+// numaLocality is not enabled.
 //
 
 #include <sched.h>

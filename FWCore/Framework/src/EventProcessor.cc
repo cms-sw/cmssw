@@ -67,6 +67,7 @@
 #include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/chain_first.h"
+#include "FWCore/Concurrency/interface/numaLocality.h"
 
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -400,6 +401,13 @@ namespace edm {
     } else {
       if (nThreads > 1 or nStreams > 1) {
         edm::LogInfo("ThreadStreamSetup") << "setting # threads " << nThreads << "\nsetting # streams " << nStreams;
+      }
+    }
+
+    // numaLocality: the memory policy is set by cmsRun before the TBB worker threads are created
+    if (optionsPset.getUntrackedParameter<bool>("numaLocality")) {
+      if (numa::localMemoryPolicy()) {
+        edm::LogInfo("NumaLocality") << "numaLocality: local memory policy";
       }
     }
 
@@ -2195,6 +2203,7 @@ namespace edm {
         message << " node " << domains.node(i) << " (" << domains.numberOfCpus(i) << " cpus, " << domainThreads[i]
                 << " threads, " << streams << " streams)";
       }
+      message << "; local memory policy " << (numa::localMemoryPolicy() ? "on" : "off");
       edm::LogSystem("NumaDomains") << message.str();
     }
     // one arena per NUMA domain, with as many slots as the job's threads on that domain (in proportion to its cpus).

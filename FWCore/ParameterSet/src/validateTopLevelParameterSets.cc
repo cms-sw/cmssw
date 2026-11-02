@@ -61,10 +61,11 @@ namespace edm {
     description.addUntracked<bool>("numaLocality", false)
         ->setComment(
             "Keep the work and the data of each stream on one NUMA node, for jobs whose cpus span more than one NUMA "
-            "node: assign the streams to the nodes in proportion to their cpus and run each event in a TBB arena whose "
-            "threads are pinned to the cpus of its stream's node, construct the per-stream objects on that node, and "
-            "give each node its own copy of the EventSetup data. Nothing changes if the job's cpus are all on one NUMA "
-            "node.");
+            "node: allocate memory on the node of the cpu that first touches it (as numactl --localalloc), assign the "
+            "streams to the nodes in proportion to their cpus and run each event in a TBB arena whose threads are "
+            "pinned to the cpus of its stream's node, construct the per-stream objects on that node, and give each "
+            "node its own copy of the EventSetup data. If the job's cpus are all on one NUMA node, only the memory "
+            "policy applies, which stops the kernel's automatic NUMA balancing for the job.");
 
     description.addUntracked<std::vector<std::string>>("accelerators", {"*"})
         ->setComment(
