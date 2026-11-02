@@ -104,7 +104,6 @@ namespace cms::alpakatools {
         ALPAKA_ASSERT_ACC((0 == alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0]));
         auto h = view.assoc;
         if (cms::alpakatools::once_per_block(acc)) {
-          h->psws = 0;
           h->initStorage(view);
         }
         alpaka::syncBlockThreads(acc);
@@ -140,7 +139,6 @@ namespace cms::alpakatools {
         ALPAKA_ASSERT_ACC(h);
         h->initStorage(view);
         h->zero();
-        h->psws = 0;
       }
     }
 
@@ -155,7 +153,6 @@ namespace cms::alpakatools {
 
     FlexiStorage<Counter, ONES> off;
     FlexiStorage<value_type, SIZE> content;
-    int32_t psws;  // prefix-scan working space
   };
 
   template <
@@ -258,20 +255,7 @@ namespace cms::alpakatools {
           poff = view.offStorage;
         }
         ALPAKA_ASSERT_ACC(nOnes > 0);
-        int32_t *ppsws = (int32_t *)((char *)(h) + offsetof(OneToManyAssocRandomAccess, psws));
-        auto nthreads = 1024;
-        auto nblocks = (nOnes + nthreads - 1) / nthreads;
-        auto workDiv = cms::alpakatools::make_workdiv<TAcc>(nblocks, nthreads);
-        cms::alpakatools::checkSharedMemoryPrefixScan<TAcc>(nOnes, nblocks, alpaka::getDev(queue));
-        alpaka::exec<TAcc>(queue,
-                           workDiv,
-                           multiBlockPrefixScan<Counter>(),
-                           poff,
-                           poff,
-                           nOnes,
-                           nblocks,
-                           ppsws,
-                           alpaka::getPreferredWarpSize(alpaka::getDev(queue)));
+        cms::alpakatools::prefixScan<TAcc>(queue, poff, poff, static_cast<uint32_t>(nOnes));
       } else {
         h->finalize();
       }
