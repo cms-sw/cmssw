@@ -288,10 +288,12 @@ _hltDomains = [
          associator={"allTrackToTruthBranchAssociators": "hltTrackToTruthBranchAssociators",
                      "allVertexToTruthBranchAssociators": "hltVertexToTruthBranchAssociators",
                      "allSecondaryVertexToTruthBranchAssociators": "hltVertexToTruthBranchAssociators",
-                     "truthBranchTracksterAssociators": "hltTruthBranchTracksterAssociators"}[_d["associator"]],
+                     "truthBranchTracksterAssociators": "hltTruthBranchTracksterAssociators",
+                     "truthBranchPFClusterEcalAssociators": "hltTruthBranchPFClusterEcalAssociators",
+                     "truthBranchPFClusterHcalAssociators": "hltTruthBranchPFClusterHcalAssociators"}[_d["associator"]],
          dirName=_d["dirName"].replace("TruthInfo/Offline/", "TruthInfo/HLT/"))
     for _d in _domains
-    # No HLT PF-cluster association is produced: the HLT label lists leave those domains empty.
+    # The HLT label lists of the PF clusters are empty, so no HLT PF-cluster validator is booked.
     if recoLabels(_d["name"], "hlt")
 ]
 for _d in _domains:

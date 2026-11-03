@@ -169,6 +169,16 @@ hltTruthBranchTracksterAssociators = truthBranchTracksterAssociators.clone(
     ),
     pfRecHits=cms.VInputTag("hltParticleFlowRecHitECALUnseeded", "hltParticleFlowRecHitHBHE"),
 )
+# hltParticleFlowClusterECAL is not in the HLT output, so the ECAL map needs the job that runs
+# the HLT menu. The customises schedule it only there.
+hltTruthBranchPFClusterEcalAssociators = truthBranchPFClusterEcalAssociators.clone(
+    recoCollections=cms.VInputTag("hltParticleFlowClusterECAL"),
+    pfRecHits=cms.VInputTag("hltParticleFlowRecHitECALUnseeded"),
+)
+hltTruthBranchPFClusterHcalAssociators = truthBranchPFClusterHcalAssociators.clone(
+    recoCollections=cms.VInputTag("hltParticleFlowClusterHCAL"),
+    pfRecHits=cms.VInputTag("hltParticleFlowRecHitHBHE"),
+)
 
 # Sequences, not Tasks: a Task runs a module only when another module consumes its
 # product, so a job that keeps the maps without validating them would produce nothing.
@@ -188,5 +198,7 @@ truthGraphHltAssociatorsSequence = cms.Sequence(
     truthBranchTargets 
     + hltTrackToTruthBranchAssociators 
     + hltTruthBranchTracksterAssociators 
+    + hltTruthBranchPFClusterEcalAssociators
+    + hltTruthBranchPFClusterHcalAssociators
     + hltVertexToTruthBranchAssociators
 )

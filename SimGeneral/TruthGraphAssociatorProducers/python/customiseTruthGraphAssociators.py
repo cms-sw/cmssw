@@ -69,6 +69,14 @@ def _appendPath(process, name, sequence):
         process.schedule.append(getattr(process, name))
 
 
+def _hltAssociators(process):
+    """The HLT ECAL PF-cluster map reads hltParticleFlowClusterECAL, which the HLT output does
+    not keep, so only a job that runs the HLT menu schedules it."""
+    if hasattr(process, "hltParticleFlowClusterECAL"):
+        return process.truthGraphHltAssociatorsSequence
+    return process.truthGraphHltAssociatorsSequence.copyAndExclude([process.hltTruthBranchPFClusterEcalAssociators])
+
+
 def customiseTruthGraphAssociators(process):
     """Schedule the association producers, offline and HLT, and keep their products.
 
@@ -79,7 +87,7 @@ def customiseTruthGraphAssociators(process):
     """
     _loadAssociators(process)
     _appendPath(process, "truthGraphAssociatorsPath",
-                process.truthGraphAssociatorsSequence + process.truthGraphHltAssociatorsSequence)
+                process.truthGraphAssociatorsSequence + _hltAssociators(process))
 
     for out in process.outputModules_().values():
         out.outputCommands.extend(
@@ -94,6 +102,8 @@ def customiseTruthGraphAssociators(process):
                 "keep *_hltTrackToTruthBranchAssociators_*_*",
                 "keep *_hltVertexToTruthBranchAssociators_*_*",
                 "keep *_hltTruthBranchTracksterAssociators_*_*",
+                "keep *_hltTruthBranchPFClusterEcalAssociators_*_*",
+                "keep *_hltTruthBranchPFClusterHcalAssociators_*_*",
             ]
         )
     return process
@@ -177,5 +187,5 @@ def customiseTruthHltValidation(process):
     _loadAssociators(process)
     process.load(_validationCff)
     _appendPath(process, "truthBranchHltValidationPath",
-                process.truthGraphHltAssociatorsSequence + process.truthBranchHltValidationSequence)
+                _hltAssociators(process) + process.truthBranchHltValidationSequence)
     return process
