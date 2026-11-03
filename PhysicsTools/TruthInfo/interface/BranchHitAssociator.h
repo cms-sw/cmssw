@@ -3,6 +3,7 @@
 #ifndef PhysicsTools_TruthInfo_interface_BranchHitAssociator_h
 #define PhysicsTools_TruthInfo_interface_BranchHitAssociator_h
 
+#include <algorithm>
 #include <cstdint>
 #include <limits>
 #include <ranges>
@@ -118,6 +119,11 @@ namespace truth {
     // normalized to the branch energy there. kAllDetectors keeps the whole channel.
     static constexpr uint32_t kAllDetectors = 0xFFFFu;
     [[nodiscard]] static uint32_t detectorBit(uint32_t detId);
+    // True when at least one of the hits is in the detectors of the mask.
+    template <std::ranges::input_range Hits>
+    [[nodiscard]] static bool hasHitInDetectors(Hits const& hits, uint32_t mask) {
+      return std::ranges::any_of(hits, [mask](auto const& hit) { return (mask & detectorBit(hit.detId)) != 0u; });
+    }
     // The detector bits of a list of DetId::Detector names, such as "Ecal" or "HGCalEE".
     // An empty list gives kAllDetectors. An unknown name throws a Configuration exception.
     [[nodiscard]] static uint32_t detectorMask(std::span<const std::string> names);

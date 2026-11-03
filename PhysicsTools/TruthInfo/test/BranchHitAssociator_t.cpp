@@ -185,6 +185,7 @@ class TestBranchHitAssociator : public CppUnit::TestFixture {
   CPPUNIT_TEST(testTheCellIndexOrdersTheFullDetId);
   CPPUNIT_TEST(testTheCandidateRootsAreASet);
   CPPUNIT_TEST(testDetectorMaskOfNames);
+  CPPUNIT_TEST(testHasHitInDetectors);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -213,6 +214,7 @@ public:
   void testTheCellIndexOrdersTheFullDetId();
   void testTheCandidateRootsAreASet();
   void testDetectorMaskOfNames();
+  void testHasHitInDetectors();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranchHitAssociator);
@@ -760,4 +762,24 @@ void TestBranchHitAssociator::testDetectorMaskOfNames() {
       truth::BranchHitAssociator::detectorMask(both));
   const std::vector<std::string> unknown{"Ecal", "Hgcal"};
   CPPUNIT_ASSERT_THROW(std::ignore = truth::BranchHitAssociator::detectorMask(unknown), cms::Exception);
+}
+
+// REQUIRED: requireHits keeps a branch only with a hit in the detectors of the collection. A
+// branch with hits elsewhere and a branch with no hit do not pass, and the whole channel
+// passes any hit.
+void TestBranchHitAssociator::testHasHitInDetectors() {
+  truth::LogicalGraphHitIndexBuilder b(2);
+  b.setSimTrackForParticle(0, 0, 100);
+  b.addHit(truth::HitChannel::Calo, 0, 100, kEndcapCell, 1.0f, 0);
+  const auto index = b.finish();
+  const auto endcapHits = index.subgraphHits(truth::HitChannel::Calo, 0);
+  const auto noHits = index.subgraphHits(truth::HitChannel::Calo, 1);
+
+  const auto endcap = truth::BranchHitAssociator::detectorBit(kEndcapCell);
+  const auto barrel = truth::BranchHitAssociator::detectorBit(kBarrelCell);
+  CPPUNIT_ASSERT(truth::BranchHitAssociator::hasHitInDetectors(endcapHits, endcap));
+  CPPUNIT_ASSERT(truth::BranchHitAssociator::hasHitInDetectors(endcapHits, endcap | barrel));
+  CPPUNIT_ASSERT(truth::BranchHitAssociator::hasHitInDetectors(endcapHits, truth::BranchHitAssociator::kAllDetectors));
+  CPPUNIT_ASSERT(!truth::BranchHitAssociator::hasHitInDetectors(endcapHits, barrel));
+  CPPUNIT_ASSERT(!truth::BranchHitAssociator::hasHitInDetectors(noHits, truth::BranchHitAssociator::kAllDetectors));
 }
