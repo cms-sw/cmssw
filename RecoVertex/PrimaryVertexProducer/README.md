@@ -10,14 +10,14 @@ fitted by the standard `PrimaryVertexProducer`.
 
 | module | type | what it does |
 |---|---|---|
-| `trackFeatureProducer` | `vertexgnn::TrackFeatureProducer` (plugins/) | selects the tracks with the `TrackFilterForPVFinding` of the PV producer and fills the model inputs, one SoA row per track (`DataFormats/VertexGNNReco`, `TrackFeaturesLayout`) |
+| `trackFeatureProducer` | `vertexgnn::TrackFeatureProducer` (plugins/) | selects the tracks with the `TrackFilterForPVFinding` of the PV producer and fills the model inputs, one SoA row per track (`DataFormats/VertexSoA`, `TrackFeaturesLayout`) |
 | `gnnVertexProducer` | `vertexgnn::GNNVertexProducerAlpaka@alpaka` (plugins/alpaka/) | runs the TorchScript model on the feature SoA, output SoA `GNNOutputLayout`: `A[N,K]` assignment probabilities, `z_hat`, `t_hat`, `p` per slot (replicated per row), `pi[N,3]` PID weights |
 | `unsortedOfflinePrimaryVerticesGNN` | `PrimaryVertexProducer`, algorithm `GNN2D_alpaka` | per track the slot with the highest probability; slots with `p > existenceThreshold` and at least one track become vertex candidates at `z_hat`, tracks join their slot if the probability is at least `trackAssignmentThreshold` (`GNNClusterizerFromAlpaka`); candidates are fitted with the configured fitter (`useClusterWeights` keeps the GNN probabilities as track weights instead of the fitter's); per-track outputs stored as ValueMaps `gnnSlotAssignment`, `gnnMaxProb`, `gnnPiWeight0/1/2` |
 | `offlinePrimaryVerticesGNN`, `tofPIDGNN` | standard sorting and tofPID | as for the 4D vertices |
 | `GNNTrackInspector` | analyzer (test/ configs) | histograms of the per-track ValueMaps |
 
 The number of slots `K` is the compile-time constant `vertexgnn::kNumSlots`
-(`DataFormats/VertexGNNReco/interface/VertexGNNSoA.h`) and the model input features are the `kNumFeatures`
+(`DataFormats/VertexSoA/interface/VertexGNNSoA.h`) and the model input features are the `kNumFeatures`
 columns of `TrackFeaturesLayout` in the same header, in that order. **A model can only be used with a build whose
 `kNumSlots` and feature list match it.**
 

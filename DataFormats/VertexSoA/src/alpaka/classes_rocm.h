@@ -6,4 +6,6 @@
 #include "DataFormats/VertexSoA/interface/ZVertexSoA.h"
 #include "DataFormats/VertexSoA/interface//ZVertexDevice.h"
 #include "DataFormats/VertexSoA/interface/alpaka/ZVertexSoACollection.h"
+#include "DataFormats/VertexSoA/interface/VertexGNNSoA.h"
+#include "DataFormats/VertexSoA/interface/alpaka/VertexGNNDeviceCollection.h"
 #endif  // DataFormats_VertexSoA_src_alpaka_classes_rocm_h

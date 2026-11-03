@@ -9,7 +9,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/VertexGNNReco/interface/VertexGNNHostCollection.h"
+#include "DataFormats/VertexSoA/interface/VertexGNNHostCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFinding.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"

@@ -4,7 +4,7 @@
 <use name="RecoVertex/PrimaryVertexProducer"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/TrackReco"/>
-<use name="DataFormats/VertexGNNReco"/>
+<use name="DataFormats/VertexSoA"/>
 <use name="DataFormats/BeamSpot"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="TrackingTools/Records"/>

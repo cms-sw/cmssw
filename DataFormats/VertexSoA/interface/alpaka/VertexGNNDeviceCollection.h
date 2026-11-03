@@ -1,10 +1,10 @@
-#ifndef DataFormats_VertexGNNReco_interface_alpaka_VertexGNNDeviceCollection_h
-#define DataFormats_VertexGNNReco_interface_alpaka_VertexGNNDeviceCollection_h
+#ifndef DataFormats_VertexSoA_interface_alpaka_VertexGNNDeviceCollection_h
+#define DataFormats_VertexSoA_interface_alpaka_VertexGNNDeviceCollection_h
 
 #include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "DataFormats/VertexGNNReco/interface/VertexGNNSoA.h"
-#include "DataFormats/VertexGNNReco/interface/VertexGNNHostCollection.h"
+#include "DataFormats/VertexSoA/interface/VertexGNNSoA.h"
+#include "DataFormats/VertexSoA/interface/VertexGNNHostCollection.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexgnn {
 

@@ -1,5 +1,5 @@
-#ifndef DataFormats_VertexGNNReco_interface_VertexGNNSoA_h
-#define DataFormats_VertexGNNReco_interface_VertexGNNSoA_h
+#ifndef DataFormats_VertexSoA_interface_VertexGNNSoA_h
+#define DataFormats_VertexSoA_interface_VertexGNNSoA_h
 
 #include <Eigen/Core>
 #include <Eigen/Dense>

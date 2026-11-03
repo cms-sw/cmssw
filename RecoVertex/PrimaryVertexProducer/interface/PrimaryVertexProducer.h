@@ -40,7 +40,7 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/HITrackFilterForPVFinding.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/GapClusterizerInZ.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/GNNClusterizerFromAlpaka.h"
-#include "DataFormats/VertexGNNReco/interface/VertexGNNHostCollection.h"
+#include "DataFormats/VertexSoA/interface/VertexGNNHostCollection.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexFitterBase.h"
