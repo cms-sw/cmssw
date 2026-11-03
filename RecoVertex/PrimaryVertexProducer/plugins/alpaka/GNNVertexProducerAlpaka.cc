@@ -58,7 +58,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexgnn {
       auto inputRecords = deviceInput.const_view().records();
       auto outputRecords = deviceOutput.view().records();
 
-      cms::torch::alpakatools::TensorCollection<Queue> inputs(N);
+      cms::torch::alpakatools::TensorCollection<Queue> inputs;
       inputs.add<::vertexgnn::TrackFeaturesSoA>("features",
                                                 inputRecords.vz(),
                                                 inputRecords.dz(),
@@ -74,7 +74,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexgnn {
                                                 inputRecords.s_p(),
                                                 inputRecords.has_time());
 
-      cms::torch::alpakatools::TensorCollection<Queue> outputs(N);
+      cms::torch::alpakatools::TensorCollection<Queue> outputs;
       outputs.add<::vertexgnn::GNNOutputSoA>("A", outputRecords.A());
       outputs.add<::vertexgnn::GNNOutputSoA>("z_hat", outputRecords.z_hat());
       outputs.add<::vertexgnn::GNNOutputSoA>("t_hat", outputRecords.t_hat());
