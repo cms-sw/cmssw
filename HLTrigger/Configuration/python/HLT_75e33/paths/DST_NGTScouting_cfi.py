@@ -20,7 +20,6 @@ from ..modules.hltEgammaHcalPFClusterIsoUnseeded_cfi import *
 from ..sequences.HLTAK4PFJetsReconstruction_cfi import *
 from ..sequences.HLTAK4PFPuppiJetsReconstruction_cfi import *
 from ..sequences.HLTBeginSequence_cfi import *
-from ..sequences.HLTBtagDeepCSVSequencePFPuppi_cfi import *
 from ..sequences.HLTBtagDeepFlavourSequencePFPuppi_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
 from ..sequences.HLTHPSDeepTauPFTauSequence_cfi import *
@@ -70,7 +69,6 @@ DST_NGTScouting = cms.Path(
     + HLTJetFlavourTagParticleTransformerSequencePF
     + hltPFPuppiHT
     + hltPFPuppiMHT
-    + HLTBtagDeepCSVSequencePFPuppi
     + HLTBtagDeepFlavourSequencePFPuppi
     + HLTPFPuppiMETReconstruction
     + hltPFPuppiMETTypeOneCorrector
