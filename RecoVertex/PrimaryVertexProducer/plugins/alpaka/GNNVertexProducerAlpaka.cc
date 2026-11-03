@@ -10,7 +10,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/FixedQueueEDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/TensorCollection.h"
@@ -21,11 +21,10 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexgnn {
 
-  class GNNVertexProducerAlpaka : public stream::EDProducer<> {
+  class GNNVertexProducerAlpaka : public stream::FixedQueueEDProducer<> {
   public:
     explicit GNNVertexProducerAlpaka(const edm::ParameterSet& params)
-        : EDProducer<>(params),
-
+        : FixedQueueEDProducer<>(params),
           trackFeaturesToken_(
               consumes<::vertexgnn::TrackFeaturesHostCollection>(params.getParameter<edm::InputTag>("trackFeatures"))),
           gnnOutputToken_{produces()},
