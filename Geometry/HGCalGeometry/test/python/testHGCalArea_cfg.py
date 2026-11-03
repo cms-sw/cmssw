@@ -1,11 +1,12 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalNeighbour_cfg.py geometry=D120 detector=HGCalEESensitive
-#                                    fName=D120NE.txt
+#   cmsRun testHGCalArea_cfg.py geometry=D120 detector=HGCalEESensitive
+#                               fName=detIds.txt
 #
 #   Options for geometry D120, D122
-#           for detector HGCalEESensitive, HGCalHESiliconSensitive
-#           for fName D120NE.txt, D120NH.txt
+#           for detector HGCalHEScintillatorSensitive, HGCalEESensitive,
+#                        HGCalHESiliconSensitive
+#           for fName detIds.txt, D120NE0.txt, D120NH0.txt
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -21,15 +22,15 @@ options.register('geometry',
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: D120, D122")
 options.register('detector',
-                 "HGCalEESensitive",
+                 "HGCalHEScintillatorSensitive",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: HGCalEESensitive, HGCalHESiliconSensitive")
+                  "geometry of operations: HGCalHEScintillatorSensitive, HGCalEESensitive, HGCalHESiliconSensitive")
 options.register('fName',
-                 "D120NE.txt",
+                 "detIds.txt",
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "Use input file: D120NE.txt, D120NH.txt")
+                 "Use input file: detIds.txt, D120NE0.txt, D120NH0.txt")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -43,19 +44,20 @@ geomName = "Run4" + options.geometry
 geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 detector = options.detector
 fName   = options.fName
+
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
 print("Geometry file: ", geomFile)
 print("Detector:      ", detector)
 print("fName:         ", fName)
 
-process = cms.Process('HGCNeighbour',ERA)
+process = cms.Process('HGCalArea',ERA)
 
 process.load(geomFile)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Services_cff')
-process.load('Geometry.CaloTopology.hgcalNeighbourTester_cfi')
+process.load('Geometry.HGCalGeometry.hgcalAreaTester_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -63,7 +65,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.HGCGeom=dict()
+#   process.MessageLogger.HGCGeom=dict()
     process.MessageLogger.HGCalGeom=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
@@ -90,8 +92,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.hgcalNeighbourTester.nameDetector = detector
-process.hgcalNeighbourTester.fileName     = fName
-process.hgcalNeighbourTester.nSkip        = 1
+process.hgcalAreaTester.nameDetector = detector
+process.hgcalAreaTester.fileName     = fName
 
-process.p1 = cms.Path(process.generator*process.hgcalNeighbourTester)
+process.p1 = cms.Path(process.generator*process.hgcalAreaTester)

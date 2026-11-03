@@ -1,11 +1,10 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalNeighbourCheck_cfg.py geometry=D120 fileIn=D120E.txt
-#                                         detector=HGCalEESensitive
+#   cmsRun testHGCalCornerCheck_cfg.py geometry=D121 debugFlag=0
 #
-#   Options for geometry D120, D122
-#           for fileIn D120E.txt, D120H.txt D120E.txt,  ""
-#           for detector HGCalEESensitive, HGCalHESiliconSensitive
+#   Options for geometry D104, D110, D111, D112, D113, D114, D115, D120, D121
+#                        D122, D123, D124, D125, D126, D127, D128
+#   Options for debugFlg 0, 1
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,24 +15,19 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D120",
+                 "D126",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D120, D122")
-options.register('fileIn',
-                 "D120E.txt",
-                  VarParsing.VarParsing.multiplicity.singleton,
-                  VarParsing.VarParsing.varType.string,
-                  "Input File name: D120E.txt, D120H.txt, ''")
-options.register('detector',
-                 "HGCalEESensitive",
-                  VarParsing.VarParsing.multiplicity.singleton,
-                  VarParsing.VarParsing.varType.string,
-                  "detector name: HGCalEESensitive, HGCalHESiliconSensitive")
+                  "geometry of operations: D104, D110, D111, D112, D113, D114, D123, D124, D125, D126, D127, D128")
+options.register('debugFlag',
+                 1,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "geometry of operations: 0, 1")
+
 
 ### get and parse the command line arguments
 options.parseArguments()
-
 print(options)
 
 ####################################################################
@@ -41,21 +35,23 @@ print(options)
 
 geomName = "Run4" + options.geometry
 geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
-detector = options.detector
-fileName = options.fileIn
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
-print("Geometry file: ", geomFile)
-print("Input file:    ", fileName)
-print("Detector:      ", detector)
+debugFlag = options.debugFlag
 
-process = cms.Process('HGCNeighbourCheck',ERA)
+print("Geometry Name:   ", geomName)
+print("Geom file Name:  ", geomFile)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
+print("DebugFlag:       ", debugFlag)
+
+process = cms.Process("HGCalCornerCheck",ERA)
 
 process.load(geomFile)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Services_cff')
-process.load('Geometry.CaloTopology.hgcalNeighbourCheck_cfi')
+process.load('Geometry.HGCalGeometry.hgcalCornerCheck_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -64,6 +60,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '')
 
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HGCalGeomX=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -89,7 +86,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.hgcalNeighbourCheck.nameDetector = detector
-process.hgcalNeighbourCheck.fileName = fileName
+process.hgcalCornerCheck.LayerFirst = 8
+process.hgcalCornerCheck.LayerLast  = 21
+process.hgcalCornerCheck.Debug      = debugFlag
 
-process.p1 = cms.Path(process.generator*process.hgcalNeighbourCheck)
+process.p1 = cms.Path(process.generator*process.hgcalCornerCheck)
