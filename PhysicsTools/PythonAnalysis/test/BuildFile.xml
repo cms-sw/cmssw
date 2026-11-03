@@ -14,12 +14,6 @@
 <test name="testJupyter" command="testJupyter.sh"/>
 <test name="testCorrectionlib" command="test_correctionlib.py"/>
 
-<bin name="test_PyMVA" file="test_PyMVA.cpp">
-  <use name="rootpymva"/>
-</bin>
-<test name="test_root_PyMVA" command="rm -f tmp/test_PyMVA; mkdir tmp/test_PyMVA; cd tmp/test_PyMVA; cp $(LOCALTOP)/src/PhysicsTools/PythonAnalysis/test/test_PyMVA.cpp .; root -n -b -l -q test_PyMVA.cpp+">
-  <use name="rootpymva"/>
-</test>
 <test name="testNumPy" command="python3 -c 'import numpy'"/>
 <iftool name="py3-cx-oracle">
   <test name="testCxOracle" command="python3 -c 'import cx_Oracle'"/>

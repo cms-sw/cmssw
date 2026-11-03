@@ -50,6 +50,16 @@ truthGraphRecoLabelsPSet = cms.PSet(
     tracksters=cms.vstring(*sorted(ticlIterLabelsPSet.labels)),
 )
 
+# The detectors each hit-based domain covers, as DetId::Detector names. The associator
+# normalises its shared-energy fraction to them, and requireHits of the validator keeps only
+# the truth objects with a hit in them. An empty list means the whole hit channel.
+truthBranchDenominatorDetectors = dict(
+    tracks=[],
+    tracksters=["HGCalEE", "HGCalHSi", "HGCalHSc"],
+    pfClustersEcal=["Ecal"],
+    pfClustersHcal=["Hcal"],
+)
+
 # The same domains reconstructed by the HLT menu. Kept as a separate PSet rather than
 # extra entries in the offline one because the two are different reconstructions of the
 # same event and must be compared, not pooled: they get their own producers, their own

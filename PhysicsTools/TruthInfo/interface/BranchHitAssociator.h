@@ -7,6 +7,7 @@
 #include <limits>
 #include <ranges>
 #include <span>
+#include <string>
 #include <vector>
 
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
@@ -117,6 +118,9 @@ namespace truth {
     // normalized to the branch energy there. kAllDetectors keeps the whole channel.
     static constexpr uint32_t kAllDetectors = 0xFFFFu;
     [[nodiscard]] static uint32_t detectorBit(uint32_t detId);
+    // The detector bits of a list of DetId::Detector names, such as "Ecal" or "HGCalEE".
+    // An empty list gives kAllDetectors. An unknown name throws a Configuration exception.
+    [[nodiscard]] static uint32_t detectorMask(std::span<const std::string> names);
 
     // candidateRoots restricts the branch roots considered, in any order; a repeated id
     // counts once. By default an empty list means "every particle" (the common

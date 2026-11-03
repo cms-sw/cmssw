@@ -449,10 +449,6 @@ void TruthGraphAccumulator::addSubEvent(std::vector<truth::CompactGenParticle> c
       genBarcodeToNode.emplace(pbc, pn);
     }
 
-    std::unordered_map<int, unsigned int> vtxIncoming;
-    for (auto const& [pbc, vbc] : fullGen->partToVtx)
-      ++vtxIncoming[vbc];
-
     for (auto const& [vbc, pbc] : fullGen->vtxToPart) {
       auto itV = genVtxBarcodeToNode.find(vbc);
       auto itP = genBarcodeToNode.find(pbc);
@@ -466,68 +462,9 @@ void TruthGraphAccumulator::addSubEvent(std::vector<truth::CompactGenParticle> c
         pushEdge(itP->second, itV->second, TruthGraph::EdgeKind::Gen);
     }
 
-    // Attach the GenEvent node PER CONNECTED COMPONENT, which is what TruthGraphProducer
-    // does on an unmixed event and what GenGraphBuild.h requires of both: a component
-    // whose vertices all have an incoming particle has no source of its own, and a
-    // single sub-event-wide root count would let one component with a source suppress
-    // the fallback for another that has none, leaving the second unreachable.
-    // A collider record is entirely the fallback case: the beam particles give the first
-    // vertex an incoming particle, so no vertex is a source.
-    std::unordered_map<int, int> componentOfVtx;
-    {
-      // Two vertices are in the same component when a particle touches both.
-      std::unordered_map<int, std::vector<int>> partAdjacency;
-      std::unordered_map<int, std::vector<int>> vtxNeighbours;
-      for (auto const& [vbc, pbc] : fullGen->vtxToPart)
-        partAdjacency[pbc].push_back(vbc);
-      for (auto const& [pbc, vbc] : fullGen->partToVtx)
-        partAdjacency[pbc].push_back(vbc);
-      for (auto const& [pbc, vtxs] : partAdjacency) {
-        for (std::size_t i = 1; i < vtxs.size(); ++i) {
-          vtxNeighbours[vtxs[0]].push_back(vtxs[i]);
-          vtxNeighbours[vtxs[i]].push_back(vtxs[0]);
-        }
-      }
-
-      int nextComponent = 0;
-      std::vector<int> stack;
-      for (int vbc : fullGen->vtxBarcodes) {
-        if (componentOfVtx.count(vbc) != 0)
-          continue;
-        const int component = nextComponent++;
-        stack.push_back(vbc);
-        componentOfVtx.emplace(vbc, component);
-        while (!stack.empty()) {
-          const int current = stack.back();
-          stack.pop_back();
-          const auto it = vtxNeighbours.find(current);
-          if (it == vtxNeighbours.end())
-            continue;
-          for (const int next : it->second) {
-            if (componentOfVtx.emplace(next, component).second)
-              stack.push_back(next);
-          }
-        }
-      }
-    }
-
-    // Residual gap, shared with TruthGraphProducer so the two stay consistent: source
-    // counting is per undirected component, but reachability from the GenEvent node is
-    // DIRECTED. A component containing both a true source and a beam-fed branch would
-    // attach only the source and leave the branch unreachable. No current record mixes
-    // the two in one component: a collider record is wholly sourceless and a gun record
-    // wholly source-rooted.
-    std::unordered_map<int, unsigned int> rootsInComponent;
-    for (int vbc : fullGen->vtxBarcodes) {
-      if (vtxIncoming[vbc] == 0)
-        ++rootsInComponent[componentOfVtx.at(vbc)];
-    }
-    for (int vbc : fullGen->vtxBarcodes) {
-      const bool isSource = vtxIncoming[vbc] == 0;
-      const bool componentHasNoSource = rootsInComponent[componentOfVtx.at(vbc)] == 0;
-      if (isSource || componentHasNoSource)
-        pushEdge(genEventNode, genVtxBarcodeToNode.at(vbc), TruthGraph::EdgeKind::Gen);
-    }
+    // The GenEvent node takes the vertices genEventAttachedVertices lists.
+    for (int vbc : truth::genEventAttachedVertices(*fullGen))
+      pushEdge(genEventNode, genVtxBarcodeToNode.at(vbc), TruthGraph::EdgeKind::Gen);
   } else if (!compactGen.empty()) {
     // Collapsed GEN: one gen vertex for the interaction, and one decay vertex for each
     // kept particle that decays into another kept particle.

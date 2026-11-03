@@ -667,7 +667,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
       if (std::abs(pdgId) == 13) {
         cand.setPdgId(pdgId);
       } else {
-        cand.setPdgId((isHad(pdgId) ? 211 : 11) * charge);
+        cand.setPdgId(isHad(pdgId) ? 211 * charge : -11 * charge);
       }
       cand.setCharge(charge);
       math::XYZTLorentzVector p4(regressedEnergy * track->momentum().unit().x(),

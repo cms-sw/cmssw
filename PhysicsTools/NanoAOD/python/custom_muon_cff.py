@@ -352,6 +352,9 @@ def AddTriggerObjectBits(process):
                 mksel("filter('hltL3fL1sMuHP7L3Filtered0')","hltL3fL1sMuHP7L3Filtered0"), #16 - HLT_Mu0_Barrel_L1HP7_v
                 mksel("filter('hltL3fL1sMu0HP6IP6L3Filtered0')","hltL3fL1sMu0HP6IP6L3Filtered0"), #17 - HLT_Mu0_Barrel_L1HP6_IP6_v
                 mksel("filter('hltL3fL1sMu6HP7IP6L3Filtered0')","hltL3fL1sMu6HP7IP6L3Filtered0"), #18 - HLT_Mu6_Barrel_L1HP7_IP6_v
+                mksel("filter('hltL3fL1sMu7DQL1f0L2f5L3Filtered9')","hltL3fL1sMu7DQL1f0L2f5L3Filtered9"), # 19 - HLT_Mu9_v (2026 low-PU)
+                mksel("filter('hltL3fL1sDoubleMu0SQL1f0L2PreFilteres0L3Filtered0')","hltL3fL1sDoubleMu0SQL1f0L2PreFilteres0L3Filtered0"), # 20 - HLT_Mu0_L1DoubleMu_v
+                mksel("filter('hltDisplacedmumuFilterDoubleMu43LowMass')","hltDisplacedmumuFilterDoubleMu43LowMass"), # 21 - HLT_DoubleMu4_3_LowMass_v
             )
         )
 
