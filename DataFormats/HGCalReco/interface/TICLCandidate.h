@@ -62,9 +62,9 @@ namespace io_v1 {
         idProbabilities_ = trackster->id_probabilities();
         if (trackPtr.isNonnull()) {
           trackPtrs_.push_back(trackPtr);
-          auto pdgId = trackster->isHadronic() ? 211 : 11;
           auto const& tk = trackPtr.get();
-          setPdgId(pdgId * tk->charge());
+          // PDG sign convention: a pi+ is +211, an e- is +11.
+          setPdgId(trackster->isHadronic() ? 211 * tk->charge() : -11 * tk->charge());
           setCharge(tk->charge());
           rawEnergy_ = trackster->raw_energy();
           auto const& regrE = trackster->regressed_energy();

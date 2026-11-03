@@ -24,12 +24,9 @@ from RecoTICL.Configuration import hlt_presets
 # Inputs whose source/prefix is a menu detail rather than TICL inter-module
 # wiring, so a per-release difference is reported as drift, not a hard failure:
 #  - layer_clusters_barrel_tiles: set inconsistently in the frozen menu and
-#    unused without barrel;
-#  - the MTD-timing maps: external service products the menu moved from the
-#    offline tofPID/mtdTrackQualityMVA to hlt-prefixed sources (pre1 -> 20_1_X).
+#    unused without barrel.
 PLUMBING_ALLOWLIST = {
     "layer_clusters_barrel_tiles",
-    "trackTimeValueMap", "trackTimeErrorMap", "trackTimeQualityMap",
 }
 
 
