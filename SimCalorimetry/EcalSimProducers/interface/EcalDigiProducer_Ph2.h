@@ -124,6 +124,8 @@ protected:
 
 private:
   const bool m_PreMix1;
+  unsigned int const m_lowGainPreSamples;
+  unsigned int const m_lowGainPostSamples;
 
   const edm::EDGetTokenT<std::vector<PCaloHit>> m_HitsEBToken;
 

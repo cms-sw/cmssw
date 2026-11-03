@@ -34,13 +34,13 @@
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
-//*****************************************//
-//Ecal Digi Producer for PhaseII data format
-//Removed EE and ES
-//Moved to EBDigiCollectionPh2
-//Moved to 2 Gains instead of 3, and from 10 to 16 ecal digi samples
-//This producer calls the EcalLiteDTUCoder, the PhaseII noise matrices and the EcalLiteDTUPedestals
-//*****************************************//
+//*****************************************
+// Ecal Digi Producer for PhaseII data format
+// Only EB
+// EBDigiCollectionPh2 collection
+// 2 Gains and 16 ecal digi samples
+// This producer calls the EcalLiteDTUCoder, the PhaseII noise matrices and the EcalLiteDTUPedestals
+//*****************************************
 EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params,
                                            edm::ProducesCollector producesCollector,
                                            edm::ConsumesCollector& iC)
@@ -139,6 +139,8 @@ EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params, edm:
                                                        &m_ComponentShapes)),
 
       m_PreMix1(params.getParameter<bool>("EcalPreMixStage1")),
+      m_lowGainPreSamples(params.getParameter<unsigned int>("lowGainPreSamples")),
+      m_lowGainPostSamples(params.getParameter<unsigned int>("lowGainPostSamples")),
       m_HitsEBToken(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsEB"))),
 
       m_APDDigitizer(nullptr),
@@ -194,12 +196,14 @@ EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params, edm:
   }
   m_EBCorrNoise[0] = std::make_unique<CorrelatedNoisifier<EcalCorrMatrix_Ph2>>(ebMatrix[0]);
   m_EBCorrNoise[1] = std::make_unique<CorrelatedNoisifier<EcalCorrMatrix_Ph2>>(ebMatrix[1]);
-  m_Coder = std::make_unique<EcalLiteDTUCoder>(addNoise, m_PreMix1, m_EBCorrNoise[0].get(), m_EBCorrNoise[1].get());
+  m_Coder = std::make_unique<EcalLiteDTUCoder>(
+      addNoise, m_PreMix1, m_lowGainPreSamples, m_lowGainPostSamples, m_EBCorrNoise[0].get(), m_EBCorrNoise[1].get());
   m_ElectronicsSim =
       std::make_unique<EcalElectronicsSim_Ph2>(m_ParameterMap.get(), m_Coder.get(), applyConstantTerm, rmsConstantTerm);
 
   if (m_apdSeparateDigi) {
-    m_APDCoder = std::make_unique<EcalLiteDTUCoder>(false, m_PreMix1, m_EBCorrNoise[0].get(), m_EBCorrNoise[1].get());
+    m_APDCoder = std::make_unique<EcalLiteDTUCoder>(
+        false, m_PreMix1, m_lowGainPreSamples, m_lowGainPostSamples, m_EBCorrNoise[0].get(), m_EBCorrNoise[1].get());
 
     m_APDElectronicsSim = std::make_unique<EcalElectronicsSim_Ph2>(
         m_ParameterMap.get(), m_APDCoder.get(), applyConstantTerm, rmsConstantTerm);
@@ -207,8 +211,8 @@ EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params, edm:
     m_APDDigitizer = std::make_unique<EBDigitizer_Ph2>(m_APDResponse.get(), m_APDElectronicsSim.get(), false);
   }
   if (m_componentSeparateDigi) {
-    m_ComponentCoder =
-        std::make_unique<EcalLiteDTUCoder>(addNoise, m_PreMix1, m_EBCorrNoise[0].get(), m_EBCorrNoise[1].get());
+    m_ComponentCoder = std::make_unique<EcalLiteDTUCoder>(
+        addNoise, m_PreMix1, m_lowGainPreSamples, m_lowGainPostSamples, m_EBCorrNoise[0].get(), m_EBCorrNoise[1].get());
     m_ComponentElectronicsSim = std::make_unique<EcalElectronicsSim_Ph2>(
         m_ParameterMap.get(), m_ComponentCoder.get(), applyConstantTerm, rmsConstantTerm);
     m_ComponentDigitizer =

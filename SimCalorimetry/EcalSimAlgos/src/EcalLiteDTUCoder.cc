@@ -4,10 +4,13 @@
 #include "DataFormats/EcalDigi/interface/EcalLiteDTUSample.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame_Ph2.h"
 
-#include <iostream>
+#include <algorithm>
+#include <cmath>
 
 EcalLiteDTUCoder::EcalLiteDTUCoder(bool addNoise,
                                    bool PreMix1,
+                                   unsigned int lowGainPreSamples,
+                                   unsigned int lowGainPostSamples,
                                    EcalLiteDTUCoder::Noisifier* ebCorrNoise0,
                                    EcalLiteDTUCoder::Noisifier* ebCorrNoise1)
     : m_peds(nullptr),
@@ -16,21 +19,17 @@ EcalLiteDTUCoder::EcalLiteDTUCoder(bool addNoise,
       m_maxEneEB(ecalPh2::maxEneEB),  // Maximum for CATIA: LSB gain 10: 0.048 MeV
       m_addNoise(addNoise),
       m_PreMix1(PreMix1),
-      m_ebCorrNoise{ebCorrNoise0, ebCorrNoise1}
+      m_lowGainPreSamples(lowGainPreSamples),
+      m_lowGainPostSamples(lowGainPostSamples),
+      m_ebCorrNoise{ebCorrNoise0, ebCorrNoise1} {}
 
-{}
-
-EcalLiteDTUCoder::~EcalLiteDTUCoder() {}
-
-void EcalLiteDTUCoder::setFullScaleEnergy(double EBscale) { m_maxEneEB = ecalPh2::maxEneEB; }
+void EcalLiteDTUCoder::setFullScaleEnergy(double EBscale) { m_maxEneEB = EBscale; }
 
 void EcalLiteDTUCoder::setPedestals(const EcalLiteDTUPedestalsMap* pedestals) { m_peds = pedestals; }
 
 void EcalLiteDTUCoder::setGainRatios(float gainRatios) { m_gainRatios = gainRatios; }
 
 void EcalLiteDTUCoder::setIntercalibConstants(const EcalIntercalibConstantsMC* ical) { m_intercals = ical; }
-
-double EcalLiteDTUCoder::fullScaleEnergy(const DetId& detId) const { return m_maxEneEB; }
 
 void EcalLiteDTUCoder::analogToDigital(CLHEP::HepRandomEngine* engine,
                                        const EcalSamples& clf,
@@ -42,17 +41,14 @@ void EcalLiteDTUCoder::analogToDigital(CLHEP::HepRandomEngine* engine,
 void EcalLiteDTUCoder::encode(const EcalSamples& ecalSamples,
                               EcalDataFrame_Ph2& df,
                               CLHEP::HepRandomEngine* engine) const {
-  const int nSamples(ecalSamples.size());
+  auto const nSamples = static_cast<int>(ecalSamples.size());
 
-  DetId detId = ecalSamples.id();
-  double Emax = fullScaleEnergy(detId);
+  auto const detId = ecalSamples.id();
 
-  //N Gains set to 2 in the .h
-  double pedestals[ecalPh2::NGAINS];
-  double widths[ecalPh2::NGAINS];
-  double LSB[ecalPh2::NGAINS];
-  double trueRMS[ecalPh2::NGAINS];
-  int nSaturatedSamples = 0;
+  std::array<double, ecalPh2::NGAINS> pedestals;
+  std::array<double, ecalPh2::NGAINS> widths;
+  std::array<double, ecalPh2::NGAINS> LSB;
+  std::array<double, ecalPh2::NGAINS> trueRMS;
   double icalconst = 1.;
   findIntercalibConstant(detId, icalconst);
 
@@ -62,33 +58,23 @@ void EcalLiteDTUCoder::encode(const EcalSamples& ecalSamples,
     // insert an absolute value in the trueRMS
     trueRMS[igain] = std::sqrt(std::abs(widths[igain] * widths[igain] - 1. / 12.));
 
-    LSB[igain] = Emax / (ecalPh2::MAXADC * ecalPh2::gains[igain]);
+    LSB[igain] = m_maxEneEB / (ecalPh2::MAXADC * ecalPh2::gains[igain]);
   }
 
-  CaloSamples noiseframe[ecalPh2::NGAINS] = {
+  std::array<CaloSamples, ecalPh2::NGAINS> noiseframe = {
       CaloSamples(detId, nSamples),
       CaloSamples(detId, nSamples),
   };
 
-  const Noisifier* noisy[ecalPh2::NGAINS] = {m_ebCorrNoise[0], m_ebCorrNoise[1]};
-
   if (m_addNoise) {
     for (unsigned int ig = 0; ig < ecalPh2::NGAINS; ++ig) {
-      noisy[ig]->noisify(noiseframe[ig], engine);
+      m_ebCorrNoise[ig]->noisify(noiseframe[ig], engine);
     }
   }
 
-  std::vector<std::vector<int>> adctrace(nSamples);
-  int firstSaturatedSample[ecalPh2::NGAINS] = {0, 0};
-
-  for (int i(0); i != nSamples; ++i)
-    adctrace[i].resize(ecalPh2::NGAINS);
-
-  for (unsigned int igain = 0; igain < ecalPh2::NGAINS; ++igain) {
-    for (int i(0); i != nSamples; ++i) {
-      adctrace[i][igain] = -1;
-    }
-  }
+  std::vector<std::array<int, ecalPh2::NGAINS>> adctrace(nSamples, {-1, -1});
+  int firstSaturatedSampleG10 = -1;
+  int lastSaturatedSampleG10 = -1;
 
   // fill ADC trace in gain 0 (x10) and gain 1 (x1)
   for (unsigned int igain = 0; igain < ecalPh2::NGAINS; ++igain) {
@@ -96,54 +82,38 @@ void EcalLiteDTUCoder::encode(const EcalSamples& ecalSamples,
       double asignal = 0;
       if (!m_PreMix1) {
         asignal = pedestals[igain] + ecalSamples[i] / (LSB[igain] * icalconst) + trueRMS[igain] * noiseframe[igain][i];
-        //Analog signal value for each sample in ADC.
-        //It is corrected by the intercalibration constants
-
+        // Analog signal value for each sample in ADC.
+        // It is corrected by the intercalibration constants
       } else {
-        //  no noise nor pedestal when premixing
+        // no noise nor pedestal when premixing
         asignal = ecalSamples[i] / (LSB[igain] * icalconst);
       }
-      int isignal = asignal;
 
-      unsigned int adc = asignal - (double)isignal < 0.5 ? isignal : isignal + 1;
+      auto const adc = std::round(asignal);
       // gain 0 (x10) channel is saturated, readout will use gain 1 (x10), but I count the number of saturated samples
-      if (adc > ecalPh2::MAXADC) {
-        adc = ecalPh2::MAXADC;
-        if (nSaturatedSamples == 0)
-          firstSaturatedSample[igain] = i;
-        nSaturatedSamples++;
+      if (igain == 0 && adc > ecalPh2::MAXADC) {
+        if (firstSaturatedSampleG10 < 0)
+          firstSaturatedSampleG10 = i;
+        lastSaturatedSampleG10 = i;
       }
-      adctrace[i][igain] = adc;
+      // the Lite-DTU ADC works in binary mode and does not return negative values
+      adctrace[i][igain] = static_cast<int>(std::clamp(adc, 0., static_cast<double>(ecalPh2::MAXADC)));
     }
-    if (nSaturatedSamples == 0) {
-      break;  //  gain 0 (x10) is not saturated, so don't bother with gain 1
+    if (firstSaturatedSampleG10 < 0) {
+      break;  // gain 0 (x10) is not saturated, so don't bother with gain 1
     }
   }  // for igain
 
-  int igain = 0;
+  // Limits of gain 1:
+  // The Lite DTU sends a number of samples before the saturating one, and a number of sample after the last with gain 1.
+  // This is configurable and a typical setting is 2 pre samples and 5 post sample to have at least 8 low gain sample in case one sample is saturated.
+  // The assumption is that the saturated samples are consecutive.
+  auto const firstLowGainSample = firstSaturatedSampleG10 - static_cast<int>(m_lowGainPreSamples);
+  auto const lastLowGainSample = lastSaturatedSampleG10 + static_cast<int>(m_lowGainPostSamples);
 
-  //Limits of gain 1:
-  //The Lite DTU sends 5 samples before the saturating one, and 10 after with gain 1.
-  //we put the maximum in bin 5, but could happen that the system saturates before.
-
-  int previousSaturatedSamples = 5;
-  int nextSaturatedSamples = 10;
-  int startingLowerGainSample = 0;
-  int endingLowerGainSample = (firstSaturatedSample[0] + nextSaturatedSamples + (nSaturatedSamples));
-
-  if (nSaturatedSamples != 0 and (firstSaturatedSample[0] - previousSaturatedSamples) < 0) {
-    startingLowerGainSample = 0;
-  } else {
-    startingLowerGainSample = (firstSaturatedSample[0] - previousSaturatedSamples);
-  }
-
-  //Setting values to the samples:
+  // Setting values to the samples:
   for (int j = 0; j < nSamples; ++j) {
-    if (nSaturatedSamples != 0 and j >= startingLowerGainSample and j < endingLowerGainSample) {
-      igain = 1;
-    } else {
-      igain = 0;
-    }
+    int const igain = firstSaturatedSampleG10 > -1 and j >= firstLowGainSample and j <= lastLowGainSample ? 1 : 0;
     df.setSample(j, EcalLiteDTUSample(adctrace[j][igain], igain));
   }
 }
@@ -153,10 +123,10 @@ void EcalLiteDTUCoder::findPedestal(const DetId& detId, int gainId, double& ped,
   if (itped != m_peds->getMap().end()) {
     ped = (*itped).mean(gainId);
     width = (*itped).rms(gainId);
-    LogDebug("EcalLiteDTUCoder") << "Pedestals for " << detId.rawId() << " gain range " << gainId << " : \n"
+    LogDebug("EcalLiteDTUCoder") << "Pedestals for " << detId.rawId() << " gain range " << gainId << ": "
                                  << "Mean = " << ped << " rms = " << width;
   } else {
-    LogDebug("EcalLiteDTUCoder") << "Pedestals not found, put default values (ped: 12; width: 2.5) \n";
+    LogDebug("EcalLiteDTUCoder") << "Pedestals not found, put default values (ped: 12; width: 2.5)";
     ped = 12.;
     width = 2.5;
   }
@@ -170,7 +140,7 @@ void EcalLiteDTUCoder::findIntercalibConstant(const DetId& detId, double& icalco
   if (icalit != icalMap.end()) {
     thisconst = (*icalit);
   } else {
-    LogDebug("EcalLiteDTUCoder") << "Intercalib Constant not found, put default value \n";
+    LogDebug("EcalLiteDTUCoder") << "Intercalibration constant not found. Using default value (1.).";
     thisconst = 1.;
   }
 
