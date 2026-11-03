@@ -75,20 +75,20 @@ scalings = {
     "CL2JetsSC8": {
         "default": {
             "barrel": {
-                "offset": 39.66,
-                "slope": 1.24
+                "offset": 25.95,
+                "slope": 1.4
             },
             "endcap": {
-                "offset": 30.25,
-                "slope": 1.89
+                "offset": 27.75,
+                "slope": 1.44
             },
             "forwardHF": {
-                "offset": -9.34,
-                "slope": 1.82
+                "offset": -5.38,
+                "slope": 1.5
             },
             "forwardHGC": {
-                "offset": 61.95,
-                "slope": 1.32
+                "offset": 63.52,
+                "slope": 1.28
             }
         }
     },
