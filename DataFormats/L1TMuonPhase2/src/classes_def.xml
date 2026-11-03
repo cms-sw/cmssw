@@ -6,6 +6,7 @@
     <class name="std::vector<l1t::MuonStub>"/>
     <class name="edm::Wrapper<std::vector<l1t::MuonStub > >"/>
     <class name="edm::Ref<l1t::MuonStubCollection>" splitLevel="0"/>
+    <class name="std::vector<edm::Ref<std::vector<l1t::MuonStub>,l1t::MuonStub,edm::refhelper::FindUsingAdvance<std::vector<l1t::MuonStub>,l1t::MuonStub> > >"/>
 
      <class name="l1t::TrackerMuon" ClassVersion="5">
        <version ClassVersion="5" checksum="3871400620"/>
@@ -24,6 +25,7 @@
      <class name="std::vector<l1t::SAMuon>"/>
      <class name="edm::Wrapper<std::vector<l1t::SAMuon > >"/>
      <class name="edm::Ref<l1t::SAMuonCollection>" splitLevel="0"/>
+     <class name="std::vector<edm::Ref<std::vector<l1t::SAMuon>,l1t::SAMuon,edm::refhelper::FindUsingAdvance<std::vector<l1t::SAMuon>,l1t::SAMuon> > >"/>
 
    <class name="l1t::KMTFTrack" ClassVersion="3">
     <version ClassVersion="3" checksum="502486181"/>

@@ -13,6 +13,8 @@
     <version ClassVersion="3" checksum="3878166595"/>
   </class>
   <class name="std::vector<ticl::Trackster>" />
+  <class name="edm::Ptr<ticl::Trackster>"/>
+  <class name="std::vector<edm::Ptr<ticl::Trackster> >"/>
   <class name="edm::RefProd<std::vector<ticl::Trackster> >"/>
   <class name="std::pair<edm::RefProd<std::vector<ticl::Trackster> >, edm::RefProd<std::vector<ticl::Trackster> > >"/>
   <class name="edm::Wrapper<ticl::Trackster>" />
