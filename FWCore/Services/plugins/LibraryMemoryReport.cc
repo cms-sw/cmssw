@@ -41,8 +41,7 @@ namespace edm::service {
     std::uint64_t totalExecutableSizeKB = 0;
     std::ostringstream report;
     report << "LibraryMemoryReport postModuleConstruction moduleLabel=\"" << module.moduleLabel() << "\" moduleType=\"" << module.moduleName()
-           << "\"";
-
+           << "\":";
     for (auto const& library : smaps.libraries) {
       if (allModules_) {
         report << "\n library path=\"" << library.path << "\" sizeKB=" << library.sizeKB << " rssKB=" << library.rssKB
@@ -66,10 +65,12 @@ namespace edm::service {
     std::uint64_t totalPssKB = 0;
     std::uint64_t totalExecutableSizeKB = 0;
     std::ostringstream report;
-    report << "LibraryMemoryReport postEndJob summary";
+    report << "LibraryMemoryReport postEndJob:";
     for (auto const& library : smaps.libraries) {
-      report << "\n library path=\"" << library.path << "\" sizeKB=" << library.sizeKB << " rssKB=" << library.rssKB
-             << " pssKB=" << library.pssKB << " executableSizeKB=" << library.executableSizeKB;
+      if (allModules_) {
+        report << "\n library path=\"" << library.path << "\" sizeKB=" << library.sizeKB << " rssKB=" << library.rssKB
+               << " pssKB=" << library.pssKB << " executableSizeKB=" << library.executableSizeKB;
+      }
       totalSizeKB += library.sizeKB;
       totalRssKB += library.rssKB;
       totalPssKB += library.pssKB;
@@ -88,10 +89,12 @@ namespace edm::service {
     std::uint64_t totalPssKB = 0;
     std::uint64_t totalExecutableSizeKB = 0;
     std::ostringstream report;
-    report << "LibraryMemoryReport beginProcessing summary";
+    report << "LibraryMemoryReport beginProcessing :";
     for (auto const& library : smaps.libraries) {
-      report << "\n library path=\"" << library.path << "\" sizeKB=" << library.sizeKB << " rssKB=" << library.rssKB
-             << " pssKB=" << library.pssKB << " executableSizeKB=" << library.executableSizeKB;
+      if (allModules_) {
+        report << "\n library path=\"" << library.path << "\" sizeKB=" << library.sizeKB << " rssKB=" << library.rssKB
+               << " pssKB=" << library.pssKB << " executableSizeKB=" << library.executableSizeKB;
+      }
       totalSizeKB += library.sizeKB;
       totalRssKB += library.rssKB;
       totalPssKB += library.pssKB;
@@ -109,10 +112,12 @@ namespace edm::service {
     std::uint64_t totalPssKB = 0;
     std::uint64_t totalExecutableSizeKB = 0;
     std::ostringstream report;
-    report << "LibraryMemoryReport postServicesConstruction summary";
+    report << "LibraryMemoryReport postServicesConstruction:";
     for (auto const& library : smaps.libraries) {
-      report << "\n library path=\"" << library.path << "\" sizeKB=" << library.sizeKB << " rssKB=" << library.rssKB
-             << " pssKB=" << library.pssKB << " executableSizeKB=" << library.executableSizeKB;
+      if (allModules_) {
+        report << "\n library path=\"" << library.path << "\" sizeKB=" << library.sizeKB << " rssKB=" << library.rssKB
+               << " pssKB=" << library.pssKB << " executableSizeKB=" << library.executableSizeKB;
+      }
       totalSizeKB += library.sizeKB;
       totalRssKB += library.rssKB;
       totalPssKB += library.pssKB;
