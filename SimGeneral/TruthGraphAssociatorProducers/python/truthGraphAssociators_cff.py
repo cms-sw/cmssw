@@ -169,19 +169,9 @@ hltTruthBranchTracksterAssociators = truthBranchTracksterAssociators.clone(
     ),
     pfRecHits=cms.VInputTag("hltParticleFlowRecHitECALUnseeded", "hltParticleFlowRecHitHBHE"),
 )
-hltTruthBranchPFClusterEcalAssociators = truthBranchPFClusterEcalAssociators.clone(
-    recoCollections=cms.VInputTag("hltParticleFlowClusterECAL"),
-    pfRecHits=cms.VInputTag("hltParticleFlowRecHitECAL"),
-)
-hltTruthBranchPFClusterHcalAssociators = truthBranchPFClusterHcalAssociators.clone(
-    recoCollections=cms.VInputTag("hltParticleFlowClusterHCAL"),
-    pfRecHits=cms.VInputTag("hltParticleFlowRecHitHBHE"),
-)
 
 # Sequences, not Tasks: a Task runs a module only when another module consumes its
 # product, so a job that keeps the maps without validating them would produce nothing.
-# The order is the data flow, the targets first, then the hit-based domains, then the
-# composite domains, which consume the track maps.
 truthGraphAssociatorsSequence = cms.Sequence(
     truthBranchTargets
     + allTrackToTruthBranchAssociators
@@ -198,7 +188,5 @@ truthGraphHltAssociatorsSequence = cms.Sequence(
     truthBranchTargets 
     + hltTrackToTruthBranchAssociators 
     + hltTruthBranchTracksterAssociators 
-    + hltTruthBranchPFClusterEcalAssociators
-    + hltTruthBranchPFClusterHcalAssociators
     + hltVertexToTruthBranchAssociators
 )
