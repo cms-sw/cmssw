@@ -23,22 +23,30 @@ namespace edmtest {
   private:
     edm::EDGetTokenT<vertexgnn::TrackFeaturesHostCollection> featuresToken_;
     edm::EDGetTokenT<vertexgnn::GNNOutputHostCollection> outputToken_;
+    edm::EDGetTokenT<vertexgnn::GNNSlotHostCollection> slotToken_;
   };
 
   TestReadHostVertexGNNSoA::TestReadHostVertexGNNSoA(edm::ParameterSet const& iPSet)
       : featuresToken_(consumes(iPSet.getParameter<edm::InputTag>("input"))),
-        outputToken_(consumes(iPSet.getParameter<edm::InputTag>("input"))) {}
+        outputToken_(consumes(iPSet.getParameter<edm::InputTag>("input"))),
+        slotToken_(consumes(iPSet.getParameter<edm::InputTag>("input"))) {}
 
   void TestReadHostVertexGNNSoA::analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
     auto const& features = iEvent.get(featuresToken_);
     auto const& output = iEvent.get(outputToken_);
+    auto const& slots = iEvent.get(slotToken_);
     auto featuresView = features.const_view();
     auto outputView = output.const_view();
+    auto slotView = slots.const_view();
 
-    if (featuresView.metadata().size() != outputView.metadata().size()) {
+    if (featuresView.metadata().size() == 0 || featuresView.metadata().size() != outputView.metadata().size()) {
       throw cms::Exception("TestReadHostVertexGNNSoA Failure")
           << "TestReadHostVertexGNNSoA::analyze, size mismatch " << featuresView.metadata().size() << " "
           << outputView.metadata().size();
+    }
+    if (slotView.metadata().size() != vertexgnn::kNumSlots) {
+      throw cms::Exception("TestReadHostVertexGNNSoA Failure")
+          << "TestReadHostVertexGNNSoA::analyze, slot size " << slotView.metadata().size();
     }
     for (int i = 0; i < featuresView.metadata().size(); ++i) {
       if (featuresView[i].vz() != float(i) || featuresView[i].pt() != 0.5f * float(i) ||
@@ -47,8 +55,7 @@ namespace edmtest {
             << "TestReadHostVertexGNNSoA::analyze, features entry, i = " << i;
       }
       for (int k = 0; k < vertexgnn::kNumSlots; ++k) {
-        if (outputView[i].A()[k] != float(i + k) || outputView[i].z_hat()[k] != float(k) ||
-            outputView[i].t_hat()[k] != 0.1f * float(k) || outputView[i].p()[k] != 1.f / float(k + 1)) {
+        if (outputView[i].A()[k] != float(i + k)) {
           throw cms::Exception("TestReadHostVertexGNNSoA Failure")
               << "TestReadHostVertexGNNSoA::analyze, output entry, i = " << i << " k = " << k;
         }
@@ -58,6 +65,13 @@ namespace edmtest {
           throw cms::Exception("TestReadHostVertexGNNSoA Failure")
               << "TestReadHostVertexGNNSoA::analyze, pi entry, i = " << i << " m = " << m;
         }
+      }
+    }
+    for (int k = 0; k < vertexgnn::kNumSlots; ++k) {
+      if (slotView[k].z_hat() != float(k) || slotView[k].t_hat() != 0.1f * float(k) ||
+          slotView[k].p() != 1.f / float(k + 1)) {
+        throw cms::Exception("TestReadHostVertexGNNSoA Failure")
+            << "TestReadHostVertexGNNSoA::analyze, slot entry, k = " << k;
       }
     }
   }

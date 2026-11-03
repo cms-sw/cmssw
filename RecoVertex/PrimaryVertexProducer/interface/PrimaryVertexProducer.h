@@ -115,4 +115,5 @@ private:
   bool useAlpakaGNN_ = false;
   std::unique_ptr<vertexgnn::GNNClusterizerFromAlpaka> alpakaClusterizer_;
   edm::EDGetTokenT<vertexgnn::GNNOutputHostCollection> gnnOutputToken_;
+  edm::EDGetTokenT<vertexgnn::GNNSlotHostCollection> gnnSlotToken_;
 };

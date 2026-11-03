@@ -38,6 +38,7 @@ host side.
 `VertexGNNSoA.h` defines the two layouts of the vertex-slot GNN primary-vertex
 reconstruction of `RecoVertex/PrimaryVertexProducer`: `vertexgnn::TrackFeaturesLayout`,
 one row per selected track with the `kNumFeatures` input features of the model, and
-`vertexgnn::GNNOutputLayout`, one row per track with the Eigen columns `A`, `z_hat`, `t_hat`
-and `p` of size `kNumSlots` and `pi` of size 3. `VertexGNNHostCollection.h` and
-`alpaka/VertexGNNDeviceCollection.h` define the corresponding host and device collections.
+`vertexgnn::GNNOutputLayout`, one row per track with the Eigen columns `A` of size `kNumSlots`
+and `pi` of size 3, and `vertexgnn::GNNSlotLayout`, one row per vertex slot with the columns
+`z_hat`, `t_hat` and `p`. `VertexGNNHostCollection.h` and `alpaka/VertexGNNDeviceCollection.h`
+define the corresponding host and device collections.

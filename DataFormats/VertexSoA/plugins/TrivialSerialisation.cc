@@ -5,3 +5,4 @@
 DEFINE_TRIVIAL_SERIALISER_PLUGIN(reco::ZVertexHost);
 DEFINE_TRIVIAL_SERIALISER_PLUGIN(vertexgnn::TrackFeaturesHostCollection);
 DEFINE_TRIVIAL_SERIALISER_PLUGIN(vertexgnn::GNNOutputHostCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN(vertexgnn::GNNSlotHostCollection);

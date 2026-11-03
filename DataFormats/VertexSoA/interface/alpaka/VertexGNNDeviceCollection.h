@@ -12,6 +12,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexgnn {
 
   using GNNOutputDeviceCollection = PortableCollection<::vertexgnn::GNNOutputSoA>;
 
+  using GNNSlotDeviceCollection = PortableCollection<::vertexgnn::GNNSlotSoA>;
+
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexgnn
 
 #endif

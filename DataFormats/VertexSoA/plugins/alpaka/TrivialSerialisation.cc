@@ -8,3 +8,4 @@ DEFINE_TRIVIAL_SERIALISER_PORTABLE_PLUGIN(reco::ZVertexHost, reco::ZVertexSoACol
 DEFINE_TRIVIAL_SERIALISER_PORTABLE_PLUGIN(vertexgnn::TrackFeaturesHostCollection,
                                           vertexgnn::TrackFeaturesDeviceCollection);
 DEFINE_TRIVIAL_SERIALISER_PORTABLE_PLUGIN(vertexgnn::GNNOutputHostCollection, vertexgnn::GNNOutputDeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PORTABLE_PLUGIN(vertexgnn::GNNSlotHostCollection, vertexgnn::GNNSlotDeviceCollection);

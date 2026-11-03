@@ -28,6 +28,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexgnn {
           trackFeaturesToken_(
               consumes<::vertexgnn::TrackFeaturesHostCollection>(params.getParameter<edm::InputTag>("trackFeatures"))),
           gnnOutputToken_{produces()},
+          gnnSlotToken_{produces()},
           model_(params.getParameter<edm::FileInPath>("model").fullPath()),
           verbose_(params.getUntrackedParameter<bool>("verbose", false)) {
       checkModel();
@@ -54,9 +55,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexgnn {
       alpaka::memcpy(event.queue(), deviceInput.buffer(), hostInput.buffer());
 
       GNNOutputDeviceCollection deviceOutput(event.queue(), N);
+      GNNSlotDeviceCollection deviceSlots(event.queue(), ::vertexgnn::kNumSlots);
 
       auto inputRecords = deviceInput.const_view().records();
       auto outputRecords = deviceOutput.view().records();
+      auto slotRecords = deviceSlots.view().records();
 
       cms::torch::alpakatools::TensorCollection<Queue> inputs;
       inputs.add<::vertexgnn::TrackFeaturesSoA>("features",
@@ -76,9 +79,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexgnn {
 
       cms::torch::alpakatools::TensorCollection<Queue> outputs;
       outputs.add<::vertexgnn::GNNOutputSoA>("A", outputRecords.A());
-      outputs.add<::vertexgnn::GNNOutputSoA>("z_hat", outputRecords.z_hat());
-      outputs.add<::vertexgnn::GNNOutputSoA>("t_hat", outputRecords.t_hat());
-      outputs.add<::vertexgnn::GNNOutputSoA>("p", outputRecords.p());
+      outputs.add<::vertexgnn::GNNSlotSoA>("z_hat", slotRecords.z_hat());
+      outputs.add<::vertexgnn::GNNSlotSoA>("t_hat", slotRecords.t_hat());
+      outputs.add<::vertexgnn::GNNSlotSoA>("p", slotRecords.p());
       outputs.add<::vertexgnn::GNNOutputSoA>("pi", outputRecords.pi());
 
       if (verbose_) {
@@ -92,6 +95,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexgnn {
       }
 
       event.emplace(gnnOutputToken_, std::move(deviceOutput));
+      event.emplace(gnnSlotToken_, std::move(deviceSlots));
     }
 
   private:
@@ -117,10 +121,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexgnn {
             << "GNNVertexProducerAlpaka: the model has " << slots
             << " vertex slots, the build expects kNumSlots = " << ::vertexgnn::kNumSlots;
       }
+      for (int i = 1; i <= 3; ++i) {
+        const auto t = result.toTuple()->elements()[i].toTensor();
+        if (t.dim() != 2 || t.size(0) != ::vertexgnn::kNumSlots || t.size(1) != 1) {
+          throw cms::Exception("Configuration")
+              << "GNNVertexProducerAlpaka: output " << i << " of the model must have the shape ["
+              << ::vertexgnn::kNumSlots << ", 1], one value per vertex slot";
+        }
+      }
     }
 
     const edm::EDGetTokenT<::vertexgnn::TrackFeaturesHostCollection> trackFeaturesToken_;
     const device::EDPutToken<GNNOutputDeviceCollection> gnnOutputToken_;
+    const device::EDPutToken<GNNSlotDeviceCollection> gnnSlotToken_;
     torch::AlpakaModel model_;
     const bool verbose_;
   };

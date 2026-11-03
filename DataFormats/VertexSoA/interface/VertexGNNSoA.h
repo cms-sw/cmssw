@@ -32,14 +32,13 @@ namespace vertexgnn {
 
   using TrackFeaturesSoA = TrackFeaturesLayout<>;
 
-  GENERATE_SOA_LAYOUT(GNNOutputLayout,
-                      SOA_EIGEN_COLUMN(SlotVector, A),
-                      SOA_EIGEN_COLUMN(SlotVector, z_hat),
-                      SOA_EIGEN_COLUMN(SlotVector, t_hat),
-                      SOA_EIGEN_COLUMN(SlotVector, p),
-                      SOA_EIGEN_COLUMN(PIDVector, pi))
+  GENERATE_SOA_LAYOUT(GNNOutputLayout, SOA_EIGEN_COLUMN(SlotVector, A), SOA_EIGEN_COLUMN(PIDVector, pi))
 
   using GNNOutputSoA = GNNOutputLayout<>;
+
+  GENERATE_SOA_LAYOUT(GNNSlotLayout, SOA_COLUMN(float, z_hat), SOA_COLUMN(float, t_hat), SOA_COLUMN(float, p))
+
+  using GNNSlotSoA = GNNSlotLayout<>;
 
 }  // namespace vertexgnn
 

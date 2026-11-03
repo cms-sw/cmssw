@@ -8,6 +8,7 @@ namespace vertexgnn {
 
   using TrackFeaturesHostCollection = PortableHostCollection<TrackFeaturesSoA>;
   using GNNOutputHostCollection = PortableHostCollection<GNNOutputSoA>;
+  using GNNSlotHostCollection = PortableHostCollection<GNNSlotSoA>;
 
 }  // namespace vertexgnn
 

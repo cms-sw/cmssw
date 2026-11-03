@@ -11,4 +11,8 @@
   <class name="alpaka_rocm_async::vertexgnn::GNNOutputDeviceCollection" persistent="false"/>
   <class name="edm::DeviceProduct<alpaka_rocm_async::vertexgnn::GNNOutputDeviceCollection>" persistent="false"/>
   <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::vertexgnn::GNNOutputDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_rocm_async::vertexgnn::GNNSlotDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::vertexgnn::GNNSlotDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::vertexgnn::GNNSlotDeviceCollection>>" persistent="false"/>
 </lcgdict>

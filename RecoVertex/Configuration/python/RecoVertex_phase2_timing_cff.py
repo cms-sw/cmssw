@@ -84,6 +84,7 @@ unsortedOfflinePrimaryVerticesGNN = unsortedOfflinePrimaryVertices4D.clone(
             existenceThreshold = cms.double(0.01),
             trackAssignmentThreshold = cms.double(0.5),
             gnnOutput = cms.InputTag("gnnVertexProducer"),
+            gnnSlots = cms.InputTag("gnnVertexProducer"),
         )
     ),
     TrackTimesLabel = "tofPID4DnoPID:t0safe",

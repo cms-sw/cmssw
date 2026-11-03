@@ -57,6 +57,7 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
     useTransientTrackTime_ = true;
     theTrackClusterizer = nullptr;
     gnnOutputToken_ = consumes<vertexgnn::GNNOutputHostCollection>(clusParams.getParameter<edm::InputTag>("gnnOutput"));
+    gnnSlotToken_ = consumes<vertexgnn::GNNSlotHostCollection>(clusParams.getParameter<edm::InputTag>("gnnSlots"));
     alpakaClusterizer_ = std::make_unique<vertexgnn::GNNClusterizerFromAlpaka>(clusParams);
     produces<edm::ValueMap<float>>("gnnSlotAssignment");
     produces<edm::ValueMap<float>>("gnnMaxProb");
@@ -389,13 +390,16 @@ std::vector<TransientVertex> PrimaryVertexProducer::clustersFromGNN(
   }
   const int nRead = std::min(nGNN, N);
 
+  const auto& gnnSlots = iEvent.get(gnnSlotToken_);
+  auto slotView = gnnSlots.const_view();
+  if (slotView.metadata().size() != K) {
+    throw VertexException("PrimaryVertexProducer: GNN slot output has " + std::to_string(slotView.metadata().size()) +
+                          " slots, the build expects kNumSlots = " + std::to_string(K));
+  }
   std::vector<float> z_hat(K, 0.f), p(K, 0.f);
-  if (nRead > 0) {
-    auto elem = gnnView[0];
-    for (int k = 0; k < K; ++k) {
-      z_hat[k] = elem.z_hat()[k];
-      p[k] = elem.p()[k];
-    }
+  for (int k = 0; k < K; ++k) {
+    z_hat[k] = slotView[k].z_hat();
+    p[k] = slotView[k].p();
   }
 
   std::vector<int> trackSlot(N, -1);
@@ -535,6 +539,8 @@ void PrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& des
       vertexgnn::GNNClusterizerFromAlpaka::fillPSetDescription(psd4);
       psd4.add<edm::InputTag>("gnnOutput", edm::InputTag("gnnVertexProducer"))
           ->setComment("GNNOutputHostCollection produced by GNNVertexProducerAlpaka");
+      psd4.add<edm::InputTag>("gnnSlots", edm::InputTag("gnnVertexProducer"))
+          ->setComment("GNNSlotHostCollection produced by GNNVertexProducerAlpaka");
       psd0.ifValue(
           edm::ParameterDescription<std::string>("algorithm", "DA_vect", true),
           "DA_vect" >> edm::ParameterDescription<edm::ParameterSetDescription>("TkDAClusParameters", psd1, true) or

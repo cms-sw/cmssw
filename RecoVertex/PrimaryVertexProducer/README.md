@@ -11,7 +11,7 @@ fitted by the standard `PrimaryVertexProducer`.
 | module | type | what it does |
 |---|---|---|
 | `trackFeatureProducer` | `vertexgnn::TrackFeatureProducer` (plugins/) | selects the tracks with the `TrackFilterForPVFinding` of the PV producer and fills the model inputs, one SoA row per track (`DataFormats/VertexSoA`, `TrackFeaturesLayout`) |
-| `gnnVertexProducer` | `vertexgnn::GNNVertexProducerAlpaka@alpaka` (plugins/alpaka/) | runs the TorchScript model on the feature SoA, output SoA `GNNOutputLayout`: `A[N,K]` assignment probabilities, `z_hat`, `t_hat`, `p` per slot (replicated per row), `pi[N,3]` PID weights |
+| `gnnVertexProducer` | `vertexgnn::GNNVertexProducerAlpaka@alpaka` (plugins/alpaka/) | runs the TorchScript model on the feature SoA; outputs one SoA per track (`GNNOutputLayout`: `A[N,K]` assignment probabilities, `pi[N,3]` PID weights) and one SoA per slot (`GNNSlotLayout`: `z_hat`, `t_hat`, `p`) |
 | `unsortedOfflinePrimaryVerticesGNN` | `PrimaryVertexProducer`, algorithm `GNN2D_alpaka` | per track the slot with the highest probability; slots with `p > existenceThreshold` and at least one track become vertex candidates at `z_hat`, tracks join their slot if the probability is at least `trackAssignmentThreshold` (`GNNClusterizerFromAlpaka`); candidates are fitted with the configured fitter (`useClusterWeights` keeps the GNN probabilities as track weights instead of the fitter's); per-track outputs stored as ValueMaps `gnnSlotAssignment`, `gnnMaxProb`, `gnnPiWeight0/1/2` |
 | `offlinePrimaryVerticesGNN`, `tofPIDGNN` | standard sorting and tofPID | as for the 4D vertices |
 | `GNNTrackInspector` | analyzer (test/ configs) | histograms of the per-track ValueMaps |
@@ -24,8 +24,9 @@ columns of `TrackFeaturesLayout` in the same header, in that order. **A model ca
 ## Model file
 
 `RecoVertex/PrimaryVertexProducer/data/vertexSlotGNN.pt` (cms-data): TorchScript module that takes the
-`[N, kNumFeatures]` feature tensor and returns the five tensors `A[N,K]`, `z_hat[N,K]`, `t_hat[N,K]`,
-`p[N,K]`, `pi[N,3]`, every output with one row per track. `GNNVertexProducerAlpaka` runs the model once
+`[N, kNumFeatures]` feature tensor and returns the five tensors `A[N,K]`, `z_hat[K,1]`, `t_hat[K,1]`,
+`p[K,1]`, `pi[N,3]`: the first and the last with one row per track, the three per-slot outputs with one
+row per vertex slot. `GNNVertexProducerAlpaka` runs the model once
 at construction on random input and stops with a configuration error when the model does not accept
 `kNumFeatures` features or does not return `kNumSlots` slots.
 
