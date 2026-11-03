@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-#include "FWCore/Services/plugins/ProcSmaps.h"
+#include "ProcSmaps.h"
 
 #include <cstdint>
 #include <sstream>
@@ -72,8 +72,7 @@ namespace edm::service {
       totalExecutableSizeKB += library.executableSizeKB;
     }
     report << "\nLibraryMemoryReport summary libraries=" << smaps.libraries.size() << " sizeKB=" << totalSizeKB
-           << " rssKB=" << totalRssKB << " pssKB=" << totalPssKB
-           << " executableSizeKB=" << totalExecutableSizeKB;
+           << " rssKB=" << totalRssKB << " pssKB=" << totalPssKB << " executableSizeKB=" << totalExecutableSizeKB;
     edm::LogAbsolute("LibraryMemoryReport") << report.str();
   }
 

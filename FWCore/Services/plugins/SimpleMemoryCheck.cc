@@ -27,8 +27,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "FWCore/Services/plugins/ProcInfoFetcher.h"
-#include "FWCore/Services/plugins/ProcSmaps.h"
+#include "ProcInfoFetcher.h"
+#include "ProcSmaps.h"
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/Event.h"
