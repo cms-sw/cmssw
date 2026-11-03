@@ -1,4 +1,4 @@
-#include "FWCore/Services/plugins/ProcSmaps.h"
+#include "ProcSmaps.h"
 
 #include <algorithm>
 #include <charconv>
