@@ -67,7 +67,9 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
       m_StorePhysicsTables(p.getUntrackedParameter<bool>("StorePhysicsTables", false)),
       m_RestorePhysicsTables(p.getUntrackedParameter<bool>("RestorePhysicsTables", false)),
       m_check(p.getUntrackedParameter<bool>("CheckGeometry")),
-      m_quirkTracking(p.getParameter<bool>("QuirkTracking")),
+      m_quirkTracking(p.getParameter<bool>("QuirkTracking") &&
+                      p.getParameter<edm::ParameterSet>("StackingAction").getParameter<bool>("QuirkTracking") &&
+                      p.getParameter<edm::ParameterSet>("TrackingAction").getParameter<bool>("QuirkTracking")),
       m_addRegions(p.getUntrackedParameter<bool>("AddRegions")),
       m_geoFromDD4hep(p.getParameter<bool>("g4GeometryDD4hepSource")),
       m_score(p.getParameter<bool>("UseCommandBaseScorer")),
@@ -181,7 +183,8 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   double quirkMass = m_pPhysics.getParameter<double>("QuirkMass");
   if (quirkMass > 0.0) {
     if (!m_quirkTracking) {
-      throw cms::Exception("Configuration") << "RunManagerMT: QuirkMass > 0 needs g4SimHits.QuirkTracking = True";
+      throw cms::Exception("Configuration")
+          << "RunManagerMT: QuirkMass > 0 needs QuirkTracking = True in g4SimHits, StackingAction and TrackingAction";
     }
     phys->RegisterPhysics(new CMSQuirkPhysics(m_pPhysics));
   }

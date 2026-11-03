@@ -11,7 +11,7 @@ class G4VSolid;
 
 class Phase2StackingAction : public G4UserStackingAction {
 public:
-  Phase2StackingAction(const edm::ParameterSet& ps, const CMSSteppingVerbose*, bool quirkTracking = false);
+  Phase2StackingAction(const edm::ParameterSet& ps, const CMSSteppingVerbose*);
 
   ~Phase2StackingAction() override = default;
 

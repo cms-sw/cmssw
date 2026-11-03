@@ -9,8 +9,8 @@
 #include "G4TransportationManager.hh"
 #include "G4VSolid.hh"
 
-Phase2StackingAction::Phase2StackingAction(const edm::ParameterSet& p, const CMSSteppingVerbose* sv, bool qt)
-    : steppingVerbose(sv), quirkTracking(qt) {
+Phase2StackingAction::Phase2StackingAction(const edm::ParameterSet& p, const CMSSteppingVerbose* sv)
+    : steppingVerbose(sv), quirkTracking(p.getParameter<bool>("QuirkTracking")) {
   trackNeutrino = p.getParameter<bool>("TrackNeutrino");
   worldSolid = G4TransportationManager::GetTransportationManager()
                    ->GetNavigatorForTracking()

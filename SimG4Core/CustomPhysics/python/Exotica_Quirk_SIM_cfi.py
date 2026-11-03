@@ -22,6 +22,8 @@ def customiseQuirk(process, mass, lambdaEV, pdgId=17, charge=-1., debugStep=0., 
     # suspend/resume of the two quirks needs the Geant4 event manager
     g4.UseG4EventManager = True
     g4.QuirkTracking = True
+    g4.StackingAction.QuirkTracking = True
+    g4.TrackingAction.QuirkTracking = True
     # quirks take 1e5 to 1e7 steps and can be slow in the beam-pipe vacuum
     g4.SteppingAction.MaxNumberOfSteps = 2000000000
     g4.SteppingAction.CriticalEnergyForVacuum = 0.

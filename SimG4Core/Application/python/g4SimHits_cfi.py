@@ -322,6 +322,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     StackingAction = cms.PSet(
         common_heavy_suppression,
         common_maximum_time,
+        QuirkTracking = cms.bool(False),  # set together with g4SimHits.QuirkTracking
         KillDeltaRay  = cms.bool(False),
         TrackNeutrino = cms.bool(False),
         KillHeavy     = cms.bool(False),
@@ -360,6 +361,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ),
     TrackingAction = cms.PSet(
         common_MCtruth,
+        QuirkTracking = cms.bool(False),  # set together with g4SimHits.QuirkTracking
         DetailedTiming = cms.untracked.bool(False),
         CheckTrack = cms.untracked.bool(False),
         EndPrintTrackID = cms.int32(0),

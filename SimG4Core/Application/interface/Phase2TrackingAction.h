@@ -26,10 +26,7 @@ class TrackInformation;
 
 class Phase2TrackingAction : public G4UserTrackingAction {
 public:
-  explicit Phase2TrackingAction(SimTrackManager*,
-                                CMSSteppingVerbose*,
-                                const edm::ParameterSet& ps,
-                                bool quirkTracking = false);
+  explicit Phase2TrackingAction(SimTrackManager*, CMSSteppingVerbose*, const edm::ParameterSet& ps);
   ~Phase2TrackingAction() override = default;
 
   void PreUserTrackingAction(const G4Track* aTrack) override;

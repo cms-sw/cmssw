@@ -18,13 +18,10 @@
 
 //#define EDM_ML_DEBUG
 
-TrackingAction::TrackingAction(SimTrackManager* stm,
-                               CMSSteppingVerbose* sv,
-                               const edm::ParameterSet& p,
-                               bool quirkTracking)
+TrackingAction::TrackingAction(SimTrackManager* stm, CMSSteppingVerbose* sv, const edm::ParameterSet& p)
     : trackManager_(stm),
       steppingVerbose_(sv),
-      quirkTracking_(quirkTracking),
+      quirkTracking_(p.getParameter<bool>("QuirkTracking")),
       endPrintTrackID_(p.getParameter<int>("EndPrintTrackID")),
       checkTrack_(p.getUntrackedParameter<bool>("CheckTrack", false)),
       doFineCalo_(p.getParameter<bool>("DoFineCalo")),

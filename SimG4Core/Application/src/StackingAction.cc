@@ -20,8 +20,8 @@
 #include "G4GammaGeneralProcess.hh"
 #include "G4LossTableManager.hh"
 
-StackingAction::StackingAction(const edm::ParameterSet& p, const CMSSteppingVerbose* sv, bool qt)
-    : steppingVerbose(sv), quirkTracking(qt) {
+StackingAction::StackingAction(const edm::ParameterSet& p, const CMSSteppingVerbose* sv)
+    : steppingVerbose(sv), quirkTracking(p.getParameter<bool>("QuirkTracking")) {
   trackNeutrino = p.getParameter<bool>("TrackNeutrino");
   killHeavy = p.getParameter<bool>("KillHeavy");
   killGamma = p.getParameter<bool>("KillGamma");

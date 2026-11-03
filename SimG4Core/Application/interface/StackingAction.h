@@ -18,7 +18,7 @@ class CMSG4TrackInterface;
 
 class StackingAction : public G4UserStackingAction {
 public:
-  explicit StackingAction(const edm::ParameterSet& ps, const CMSSteppingVerbose*, bool quirkTracking = false);
+  explicit StackingAction(const edm::ParameterSet& ps, const CMSSteppingVerbose*);
 
   ~StackingAction() override = default;
 

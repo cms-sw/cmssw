@@ -19,10 +19,7 @@ class TrackInformation;
 
 class TrackingAction : public G4UserTrackingAction {
 public:
-  explicit TrackingAction(SimTrackManager*,
-                          CMSSteppingVerbose*,
-                          const edm::ParameterSet& ps,
-                          bool quirkTracking = false);
+  explicit TrackingAction(SimTrackManager*, CMSSteppingVerbose*, const edm::ParameterSet& ps);
   ~TrackingAction() override = default;
 
   void PreUserTrackingAction(const G4Track* aTrack) override;
