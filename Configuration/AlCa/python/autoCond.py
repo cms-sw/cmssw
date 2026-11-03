@@ -56,13 +56,13 @@ autoCond = {
     # GlobalTag for MC production with realistic run-dependent (RD) conditions for full Phase1 2018 detector
     'phase1_2018_realistic_rd'     :    '170X_mc2018_realistic_RD_v1',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector for Heavy Ion
-    'phase1_2018_realistic_hi'     :    '170X_upgrade2018_realistic_HI_v1',
+    'phase1_2018_realistic_hi'     :    '170X_mc2018_realistic_HI_v1',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector: HEM-15-16 fail
-    'phase1_2018_realistic_HEfail' :    '170X_upgrade2018_realistic_HEfail_v1',
+    'phase1_2018_realistic_HEfail' :    '170X_mc2018_realistic_HEfail_v1',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
-    'phase1_2018_cosmics'          :    '170X_upgrade2018cosmics_realistic_deco_v1',
+    'phase1_2018_cosmics'          :    '170X_mc2018cosmics_realistic_deco_v1',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in PEAK mode
-    'phase1_2018_cosmics_peak'     :    '170X_upgrade2018cosmics_realistic_peak_v1',
+    'phase1_2018_cosmics_peak'     :    '170X_mc2018cosmics_realistic_peak_v1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2022
     'phase1_2022_design'           :    '170X_mcRun3_2022_design_v1',
     # GlobalTag for MC production with realistic conditions for Phase1 2022
