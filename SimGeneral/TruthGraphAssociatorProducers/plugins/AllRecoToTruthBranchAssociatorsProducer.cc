@@ -3,17 +3,17 @@
 // One producer, every configured reco collection of one type, every branch-association
 // working point. Follows the All* pattern of
 // SimCalorimetry/HGCalAssociatorProducers: the module takes a VInputTag of reco
-// collections and emits one pair of association maps per (collection, working point),
-// with instance labels derived from the input tags.
+// collections and emits one RecoToTruth map per (collection, working point) and one
+// TruthToReco map per collection, with instance labels derived from the input tags.
 //
 // The reco type only has to be adaptable to (DetId, fraction) hits. Which adapter
 // applies is decided by a concept rather than by a per-type producer, so a new domain
 // is a truth::recoHits overload plus a label in truthGraphAssociationLabels_cff, not a
 // new plugin.
 //
-// Working points differ only in the arguments passed to bestAdaptiveBranch, not in the
-// associator itself, so the inverted DetId index is built ONCE per event and reused
-// across every working point.
+// Adaptive working points differ only in the arguments passed to bestAdaptiveBranch, and
+// the Fixed point keeps the full candidate row, so the inverted DetId index is built ONCE
+// per event and reused across every working point.
 
 #include <algorithm>
 #include <cmath>
@@ -409,11 +409,10 @@ AllRecoToTruthBranchAssociatorsProducer<RECO>::AllRecoToTruthBranchAssociatorsPr
     // graph level that best matches it, so there is one product per working point. Its
     // score is 1 - RECO purity, the reco object being the denominator.
     //
-    // TruthToReco is truth-driven: the truth target is fixed A PRIORI by the domain's
-    // resolution, so there is ONE product. The reco side of each pair still comes from
-    // a matching pass, which runs at the FIRST listed working point; the shipped config
-    // lists "Fixed" first. Its score is 1 - TRUTH purity, the truth object being the
-    // denominator.
+    // TruthToReco is truth-driven, so there is ONE product. A composite domain fills it
+    // from the constituent map of the FIRST listed working point, which has to be "Fixed";
+    // a hit-based domain fills it from the matches, with no working point. Its score is
+    // 1 - TRUTH purity, the truth object being the denominator.
     for (auto const& wp : workingPoints_) {
       produces<MapType>(key + "RecoToTruth" + wp.name);
     }
@@ -485,8 +484,8 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
     }
   }
 
-  // The denominator of the truth-side fraction: what each truth vertex itself produced,
-  // in the same pt^2 weighting the numerator uses.
+  // The denominator of the truth-side fraction: what each truth vertex produced through
+  // the counted particles, in the same pt^2 weighting the numerator uses.
   std::unordered_map<unsigned int, float> truthWeightPerVertex;
 
   unsigned int placeholderCount = 0;
@@ -539,8 +538,7 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
       std::vector<uint32_t> counted;
       for (uint32_t root : selectedRoots) {
         // In-time only, as the reference vertex validation counts only bunch-crossing-0
-        // simulated vertices in its denominator
-        // (Validation/RecoVertex/src/PrimaryVertexAnalyzer4PUSlimmed.cc:877-883).
+        // simulated vertices in its denominator (PrimaryVertexAnalyzer4PUSlimmed).
         if (graph.particles()[root].bunchCrossing() != 0) {
           continue;
         }
@@ -606,8 +604,7 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
         continue;
       }
       // Junk-vertex guard of the reference vertex validation: a simulated vertex
-      // beyond |z| of 1000 cm is not counted
-      // (Validation/RecoVertex/src/PrimaryVertexAnalyzer4PUSlimmed.cc:885-886).
+      // beyond |z| of 1000 cm is not counted (PrimaryVertexAnalyzer4PUSlimmed).
       if (std::abs(graph.vertices()[vertexId].position.z()) > 1000.) {
         continue;
       }
@@ -727,21 +724,23 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
             if (constituentIndex >= constituentMap.size()) {
               return;
             }
-            // maps are score-sorted, so [0] is the constituent's best match
-            for (auto const& match : constituentMap[constituentIndex]) {
-              // A constituent donates its whole weight to the vertex it points at, so a
-              // weak match must not point anywhere. 1 - score is the constituent's reco
-              // purity, the same quantity the tracker association thresholds.
-              if (match.score() > maxConstituentScore_) {
-                break;
+            auto const& constituentMatches = constituentMap[constituentIndex];
+            if (constituentMatches.empty()) {
+              return;
+            }
+            // Maps are score-sorted, so [0] is the constituent's best match. A constituent
+            // donates its whole weight to the vertex it points at, so a weak match must not
+            // point anywhere. 1 - score is the constituent's reco purity, the same quantity
+            // the tracker association thresholds.
+            auto const& match = constituentMatches[0];
+            if (match.score() > maxConstituentScore_) {
+              return;
+            }
+            const unsigned int particle = match.index();
+            if (particle < nBranches) {
+              if (const auto vertexId = countingVertex(graph, particle, vertexResolution_, interactionVertex)) {
+                weightPerVertex[*vertexId] += weight;
               }
-              const unsigned int particle = match.index();
-              if (particle < nBranches) {
-                if (const auto vertexId = countingVertex(graph, particle, vertexResolution_, interactionVertex)) {
-                  weightPerVertex[*vertexId] += weight;
-                }
-              }
-              break;
             }
           });
           // Denominator over ALL constituents, the CMSSW convention: a track with no
@@ -807,8 +806,8 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
         // A candidate root carries the hits of its whole subgraph, so a parton, a beam
         // particle or an invented node covers the reco object entirely and wins on score.
         // An adaptive point may not answer with one. A fixed point keeps the barred roots,
-        // which the truth-driven direction reads its pair scores from, but after every
-        // assignable root, so its row [0] is a detector particle whenever one matches.
+        // so its map stays complete, but after every assignable root, so its row [0] is a
+        // detector particle whenever one matches.
         assignableMatches.clear();
         for (auto const& match : matches) {
           if (match.rootParticleId < isAssignable.size() && isAssignable[match.rootParticleId] != 0) {
@@ -888,8 +887,7 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::fillDescriptions(edm::Config
   desc.add<edm::InputTag>("assignableTargetsSrc", edm::InputTag("truthBranchTargets", "assignableRoots"))
       ->setComment(
           "The roots an adaptive working point may answer with. The barred ones stay in targetsSrc and in the "
-          "first working point's map, because they are the members of the hard-process and parton-jet "
-          "denominators and the truth-driven direction reads its pair scores from that map");
+          "Fixed map, because they are the members of the hard-process and parton-jet denominators");
   desc.add<edm::InputTag>("targetsSrc", edm::InputTag("truthBranchTargets", "selectedRoots"))
       ->setComment(
           "The candidate roots from TruthBranchTargetsProducer, which also emits the level denominators and the "
@@ -929,9 +927,9 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::fillDescriptions(edm::Config
   desc.add<std::vector<std::string>>("workingPointNames", {"Fixed"})
       ->setComment(
           "One RecoToTruth product per name. The name \"Fixed\" selects the plain per-root match; any other name "
-          "makes the point adaptive, driven by its adaptiveReverseWeight and adaptiveMaxReverseScore entries. The "
-          "FIRST listed point is the reference: the single TruthToReco product is computed at it, so list Fixed "
-          "first");
+          "makes the point adaptive, driven by its adaptiveReverseWeight and adaptiveMaxReverseScore entries. A "
+          "composite domain computes the single TruthToReco product at the FIRST listed point, which must be "
+          "Fixed");
   desc.add<std::vector<float>>("adaptiveReverseWeight", {0.f});
   desc.add<std::vector<float>>("adaptiveMaxReverseScore", {0.f});
   if constexpr (LayerClusterBackedRecoHits<RECO>) {
@@ -959,8 +957,8 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::fillDescriptions(edm::Config
     desc.add<std::string>("constituentAssociator", "allTrackToTruthBranchAssociators")
         ->setComment(
             "Module that produced the constituents' association maps. Its map rows must be sorted ascending by "
-            "score, best first, as this package's producers emit them; the constituent scan reads row [0] as the "
-            "best match and stops at the first row above maxConstituentScore");
+            "score, best first, as this package's producers emit them; each constituent reads row [0] as its best "
+            "match and ignores it above maxConstituentScore");
     desc.add<std::string>("constituentCollection", "generalTracks")
         ->setComment("Constituent collection key, used to rebuild the instance labels");
     desc.add<std::string>("vertexResolution", "immediate")

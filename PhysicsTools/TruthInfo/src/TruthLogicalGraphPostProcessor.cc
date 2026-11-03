@@ -846,8 +846,8 @@ namespace {
 
   // The roots a selection names: the most upstream seed matches, narrowed to those whose
   // effective decay matches a configured group, or the direct decay-pattern search when
-  // the generator wrote no explicit resonance. ONE computation, so the Signal flag and
-  // the selection cannot disagree about what the signal of the event is.
+  // the generator wrote no explicit resonance. ONE computation for the selection and the
+  // Signal flag. The flag takes no fallback, which returns decay products, not a resonance.
   // signalInteractionOnly keeps only roots that are GEN particles of the signal
   // interaction, which is what the Signal flag means. The selection keeps every
   // interaction, and the bunch-crossing filter removes pile-up.
@@ -1031,7 +1031,7 @@ namespace {
     // production vertices were all dropped: stable spectators -> UnderlyingEvent,
     // beam-side input -> BeamSideInput,
     // selected roots / truncated ancestors at the upstream boundary -> InitialState.
-    // True sources of the input graph stay sources. When
+    // Other true sources of the input graph stay sources. When
     // attachSelectionSources is false these particles instead become true graph
     // roots (no production vertex), so each selected seed yields a self-contained
     // subgraph starting directly at the seed (e.g. ten taus -> ten components).

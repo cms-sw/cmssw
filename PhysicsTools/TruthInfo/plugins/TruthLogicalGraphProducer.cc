@@ -1,8 +1,5 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
 
-// Author: Felice Pantaleo - CERN
-// Date: 03/2026
-//
 // Build a logical truth::Graph from the raw heterogeneous TruthGraph.
 // The topology comes from the raw TruthGraph.
 // Standalone payload (momentum/position/checkpoints) is materialized from optional
@@ -311,11 +308,11 @@ public:
       for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("simHitCollections"))
         caloSimHitTokens_.push_back(consumes<std::vector<PCaloHit>>(tag));
       for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("trackerSimHitCollections"))
-        trackerSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
+        pSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
       for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("muonSimHitCollections"))
-        trackerSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
+        pSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
       for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("mtdSimHitCollections"))
-        trackerSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
+        pSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
     }
 
     produces<truth::Graph>();
@@ -970,7 +967,7 @@ public:
         }
       }
 
-      for (auto const& token : trackerSimHitTokens_) {
+      for (auto const& token : pSimHitTokens_) {
         edm::Handle<edm::PSimHitContainer> hHits;
         evt.getByToken(token, hHits);
         if (!hHits.isValid())
@@ -1065,7 +1062,7 @@ private:
   edm::EDGetTokenT<std::vector<math::XYZTLorentzVectorD>> rawGenPayloadToken_;
   edm::EDGetTokenT<std::vector<uint32_t>> rawGenPayloadNodesToken_;
   std::vector<edm::EDGetTokenT<std::vector<PCaloHit>>> caloSimHitTokens_;
-  std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> trackerSimHitTokens_;
+  std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> pSimHitTokens_;
 
   bool mergeGenSimVertices_;
   unsigned verbosity_ = 0;
