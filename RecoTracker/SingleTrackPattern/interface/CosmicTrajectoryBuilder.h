@@ -29,6 +29,7 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
@@ -79,13 +80,23 @@ public:
   CosmicTrajectoryBuilder(const edm::ParameterSet &conf, edm::ConsumesCollector iC);
   ~CosmicTrajectoryBuilder();
 
-  /// Runs the algorithm
-
+  /// @brief Runs the algorithm. Input collections are allowed to
+  /// be missing, in that case they will be skipped.
+  /// @param collseed: input seeds to process
+  /// @param collstereo: Stereo strip hit collection
+  /// @param collrphi: rphi hit collection
+  /// @param collmatched: matched hit collection
+  /// @param collpixel: Pixel hit collection
+  /// @param p2RecHits1D: Phase-2 OT hit collection
+  /// @param es: EventSetup to use
+  /// @param e: Event to use
+  /// @param [out] trajoutput: Will be populated with trajectory candidates.
   void run(const TrajectorySeedCollection &collseed,
-           const SiStripRecHit2DCollection &collstereo,
-           const SiStripRecHit2DCollection &collrphi,
-           const SiStripMatchedRecHit2DCollection &collmatched,
-           const SiPixelRecHitCollection &collpixel,
+           std::optional<std::reference_wrapper<const SiStripRecHit2DCollection> > collstereo,
+           std::optional<std::reference_wrapper<const SiStripRecHit2DCollection> > collrphi,
+           std::optional<std::reference_wrapper<const SiStripMatchedRecHit2DCollection> > collmatched,
+           std::optional<std::reference_wrapper<const SiPixelRecHitCollection> > collpixel,
+           std::optional<std::reference_wrapper<const Phase2TrackerRecHit1DCollectionNew> > p2RecHits1D,
            const edm::EventSetup &es,
            edm::Event &e,
            std::vector<Trajectory> &trajoutput);
@@ -98,11 +109,25 @@ public:
 private:
   std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed &seed) const;
 
-  std::vector<const TrackingRecHit *> SortHits(const SiStripRecHit2DCollection &collstereo,
-                                               const SiStripRecHit2DCollection &collrphi,
-                                               const SiStripMatchedRecHit2DCollection &collmatched,
-                                               const SiPixelRecHitCollection &collpixel,
-                                               const TrajectorySeed &seed);
+  /// @brief Collects all hits and sorts them in global y,
+  /// either descending or ascending depending on the seed.
+  /// Inputs are allowed to be missing, in this case
+  /// they will be skipped.
+  /// @param collseed: input seeds to process
+  /// @param collstereo: Stereo strip hit collection
+  /// @param collrphi: rphi hit collection
+  /// @param collmatched: matched hit collection
+  /// @param collpixel: Pixel hit collection
+  /// @param p2RecHits1D: Phase-2 OT hit collection
+  /// @param seed: The seed to work with - hits will be removed
+  /// @return a y-sorted vector with all hits in the input collections, except those already on the seed.
+  std::vector<const TrackingRecHit *> SortHits(
+      std::optional<std::reference_wrapper<const SiStripRecHit2DCollection> > collstereo,
+      std::optional<std::reference_wrapper<const SiStripRecHit2DCollection> > collrphi,
+      std::optional<std::reference_wrapper<const SiStripMatchedRecHit2DCollection> > collmatched,
+      std::optional<std::reference_wrapper<const SiPixelRecHitCollection> > collpixel,
+      std::optional<std::reference_wrapper<const Phase2TrackerRecHit1DCollectionNew> > p2RecHits1D,
+      const TrajectorySeed &seed);
 
   TSOS startingTSOS(const TrajectorySeed &seed) const;
   void updateTrajectory(Trajectory &traj, const TM &tm, const TransientTrackingRecHit &hit) const;
