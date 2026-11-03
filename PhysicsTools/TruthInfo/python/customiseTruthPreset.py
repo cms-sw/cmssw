@@ -143,6 +143,8 @@ def applyTruthPreset(process, preset=None, fragment=None, **overrides):
            selection["seedHadronFlavors"],
            selection["seedParentDepth"],
            len(seeded), ", ".join(sorted(seeded)) or "none"))
+    # Read by the truth validation customises, which refuse to load modules after a preset.
+    process.truthGraphPresetRecord = cms.PSet(name=cms.string(name))
     return process
 
 

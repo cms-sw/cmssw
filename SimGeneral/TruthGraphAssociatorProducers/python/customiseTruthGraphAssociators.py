@@ -13,8 +13,17 @@ _associatorsCff = "SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociator
 _validationCff = "Validation.TruthInfo.truthBranchValidation_cff"
 
 
+def _refuseEarlierPreset(process):
+    """A preset reaches only the modules that exist when it runs, so modules loaded after it
+    keep the default seeds while the graph has the preset's signal."""
+    if hasattr(process, "truthGraphPresetRecord"):
+        raise RuntimeError("A truth selection preset ran before this customise, so the analysers would not get its "
+                           "signal seeds. Apply the preset last, with --customise_commands.")
+
+
 def _loadAssociators(process):
     """Label the association producers on the process."""
+    _refuseEarlierPreset(process)
     # The associator cff builds its modules from the trackster label lists at import
     # time, so the lists can only be retargeted while it is not imported yet. A job that
     # imported it before this call keeps the labels of the registry.
@@ -111,10 +120,11 @@ def customiseTruthBranchValidation(process):
             customiseTruthBranchValidation"
 
     A selection preset has to be applied after this customise, so that it reaches the
-    analysers and they book their signal folders. --customise_commands always runs last,
-    which is the documented way to apply a preset.
+    analysers and they book their signal folders; the customise raises otherwise.
+    --customise_commands always runs last, which is the documented way to apply a preset.
     """
     if _isHarvesting(process):
+        _refuseEarlierPreset(process)
         process.load(_validationCff)
         _appendPath(process, "truthBranchHarvestingPath",
                     process.truthBranchHarvestingSequence)
@@ -158,6 +168,7 @@ def customiseTruthHltValidation(process):
             customiseTruthGraphAssociators.customiseTruthHltValidation
     """
     if _isHarvesting(process):
+        _refuseEarlierPreset(process)
         process.load(_validationCff)
         _appendPath(process, "truthBranchHltHarvestingPath",
                     process.truthBranchHltHarvestingSequence)
