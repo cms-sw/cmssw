@@ -2,7 +2,7 @@
 ### as derived by the Phase-2 L1 DPG Menu team
 ### using the Phase-2 MenuTools: https://github.com/cms-l1-dpg/Phase2-L1MenuTools
 
-### Corresponds to version v49 derived with the Annual Review 2025 config in the 15_1_x release
+### Corresponds to version V50 derived with the Annual Review 2026 config in the 17_0_x release (CMSSW_17_0_0_pre6)
 ### See the L1T Phase-2 Menu Twiki for more details: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PhaseIIL1TriggerMenuTools#Phase_2_L1_Trigger_objects_based
 
 ### NB Objects starting with L1 are not yet part of the Step1 Menu and thus no seeds implemented in the P2GT emulator
@@ -11,21 +11,21 @@ scalings = {
     "CL2Electrons": {
         "Iso": {
             "barrel": {
-                "offset": 3.58,
-                "slope": 1.17
+                "offset": 1.97,
+                "slope": 1.12
             },
             "endcap": {
-                "offset": 2.05,
+                "offset": 2.04,
                 "slope": 1.24
             }
         },
         "NoIso": {
             "barrel": {
-                "offset": 3.7,
-                "slope": 1.18
+                "offset": 2.02,
+                "slope": 1.13
             },
             "endcap": {
-                "offset": 2.6,
+                "offset": 2.59,
                 "slope": 1.25
             }
         }
@@ -33,41 +33,41 @@ scalings = {
     "CL2EtSum": {
         "default": {
             "inclusive": {
-                "offset": 37.03,
-                "slope": 1.68
+                "offset": 32.9,
+                "slope": 1.69
             }
         }
     },
     "CL2HtSum": {
         "HT": {
             "inclusive": {
-                "offset": 37.82,
-                "slope": 1.17
+                "offset": 42.92,
+                "slope": 1.06
             }
         },
         "MHT": {
             "inclusive": {
-                "offset": -13.7,
-                "slope": 1.2
+                "offset": -15.71,
+                "slope": 1.14
             }
         }
     },
     "CL2JetsSC4": {
         "default": {
             "barrel": {
-                "offset": 16.51,
-                "slope": 1.36
+                "offset": 21.2,
+                "slope": 1.18
             },
             "endcap": {
-                "offset": 10.1,
-                "slope": 1.59
+                "offset": 12.21,
+                "slope": 1.56
             },
             "forwardHF": {
-                "offset": -5.9,
-                "slope": 1.33
+                "offset": -6.35,
+                "slope": 1.34
             },
             "forwardHGC": {
-                "offset": 47.64,
+                "offset": 48.12,
                 "slope": 1.22
             }
         }
@@ -75,71 +75,63 @@ scalings = {
     "CL2JetsSC8": {
         "default": {
             "barrel": {
-                "offset": 25.77,
-                "slope": 1.4
+                "offset": 39.66,
+                "slope": 1.24
             },
             "endcap": {
-                "offset": 24.97,
-                "slope": 1.46
+                "offset": 30.25,
+                "slope": 1.89
             },
             "forwardHF": {
-                "offset": -5.49,
-                "slope": 1.5
+                "offset": -9.34,
+                "slope": 1.82
             },
             "forwardHGC": {
-                "offset": 63.12,
-                "slope": 1.28
-            }
-        },
-        "mass30": {
-            "barrel": {
-                "offset": 2.84,
-                "slope": 1.45
-            },
-            "endcap": {
-                "offset": 6.82,
-                "slope": 1.31
-            },
-            "forwardHF": {
-                "offset": 95.12,
-                "slope": 0.58
-            },
-            "forwardHGC": {
-                "offset": 51.74,
-                "slope": 1.15
+                "offset": 61.95,
+                "slope": 1.32
             }
         }
     },
     "CL2Photons": {
         "Iso": {
             "barrel": {
-                "offset": 3.43,
-                "slope": 1.13
+                "offset": 3.42,
+                "slope": 1.08
             },
             "endcap": {
-                "offset": 7.71,
-                "slope": 0.97
+                "offset": 7.26,
+                "slope": 1.01
             }
         },
         "NoIso": {
             "barrel": {
-                "offset": 4.44,
-                "slope": 1.12
+                "offset": 4.76,
+                "slope": 1.06
             },
             "endcap": {
-                "offset": 6.01,
-                "slope": 1.06
+                "offset": 6.15,
+                "slope": 1.07
             }
         }
     },
     "CL2Taus": {
         "default": {
             "barrel": {
-                "offset": -0.29,
-                "slope": 1.38
+                "offset": 2.21,
+                "slope": 1.27
             },
             "endcap": {
-                "offset": -4.96,
+                "offset": -6.85,
+                "slope": 1.92
+            }
+        },
+        "extended": {
+            "barrel": {
+                "offset": 2.21,
+                "slope": 1.27
+            },
+            "endcap": {
+                "offset": -7.41,
                 "slope": 1.89
             }
         }
@@ -147,32 +139,46 @@ scalings = {
     "GMTSaPromptMuons": {
         "default": {
             "barrel": {
-                "offset": 1.09,
+                "offset": 1.07,
                 "slope": 1.69
             },
             "endcap": {
-                "offset": -3.08,
+                "offset": -3.1,
                 "slope": 1.21
             },
             "overlap": {
-                "offset": -1.15,
-                "slope": 1.31
+                "offset": -0.69,
+                "slope": 1.48
             }
         }
     },
     "GMTTkMuons": {
+        "Dynamic": {
+            "barrel": {
+                "offset": 1.0,
+                "slope": 1.04
+            },
+            "endcap": {
+                "offset": 0.76,
+                "slope": 1.04
+            },
+            "overlap": {
+                "offset": 1.07,
+                "slope": 1.03
+            }
+        },
         "Loose": {
             "barrel": {
                 "offset": 1.0,
                 "slope": 1.04
             },
             "endcap": {
-                "offset": 0.82,
+                "offset": 0.78,
                 "slope": 1.04
             },
             "overlap": {
-                "offset": 1.09,
-                "slope": 1.03
+                "offset": 1.07,
+                "slope": 1.04
             }
         },
         "Medium": {
@@ -181,12 +187,12 @@ scalings = {
                 "slope": 1.04
             },
             "endcap": {
-                "offset": 0.82,
+                "offset": 0.78,
                 "slope": 1.04
             },
             "overlap": {
-                "offset": 1.09,
-                "slope": 1.03
+                "offset": 1.07,
+                "slope": 1.04
             }
         },
         "Tight": {
@@ -195,11 +201,11 @@ scalings = {
                 "slope": 1.04
             },
             "endcap": {
-                "offset": 0.81,
+                "offset": 0.77,
                 "slope": 1.04
             },
             "overlap": {
-                "offset": 1.07,
+                "offset": 1.06,
                 "slope": 1.04
             }
         },
@@ -209,11 +215,11 @@ scalings = {
                 "slope": 1.04
             },
             "endcap": {
-                "offset": 0.85,
+                "offset": 0.81,
                 "slope": 1.04
             },
             "overlap": {
-                "offset": 1.09,
+                "offset": 1.08,
                 "slope": 1.03
             }
         },
@@ -223,11 +229,11 @@ scalings = {
                 "slope": 1.04
             },
             "endcap": {
-                "offset": 0.8,
+                "offset": 0.76,
                 "slope": 1.04
             },
             "overlap": {
-                "offset": 1.09,
+                "offset": 1.07,
                 "slope": 1.03
             }
         }
@@ -235,61 +241,71 @@ scalings = {
     "L1EG": {
         "default": {
             "barrel": {
-                "offset": 4.91,
+                "offset": 4.88,
                 "slope": 1.15
             },
             "endcap": {
-                "offset": 2.37,
-                "slope": 1.24
+                "offset": 2.29,
+                "slope": 1.26
+            }
+        },
+        "extended": {
+            "barrel": {
+                "offset": 4.88,
+                "slope": 1.15
+            },
+            "endcap": {
+                "offset": 2.28,
+                "slope": 1.22
             }
         }
     },
     "L1TrackHT": {
         "HT": {
             "inclusive": {
-                "offset": -36.64,
-                "slope": 2.51
+                "offset": 19.11,
+                "slope": 2.61
             }
         },
         "MHT": {
             "inclusive": {
-                "offset": -10.92,
-                "slope": 2.17
+                "offset": -15.11,
+                "slope": 2.2
             }
         }
     },
     "L1TrackJet": {
         "default": {
             "barrel": {
-                "offset": 13.36,
-                "slope": 5.26
+                "offset": -30.75,
+                "slope": 6.18
             },
             "endcap": {
-                "offset": 17.39,
-                "slope": 7.67
+                "offset": -20.27,
+                "slope": 6.4
             }
         }
     },
     "L1TrackMET": {
         "default": {
             "inclusive": {
-                "offset": -77.79,
-                "slope": 8.69
+                "offset": -81.17,
+                "slope": 8.89
             }
         }
     },
     "L1caloJet": {
         "default": {
             "barrel": {
-                "offset": 2.77,
-                "slope": 1.47
+                "offset": -26.55,
+                "slope": 2.18
             },
             "endcap": {
-                "offset": 23.47,
+                "offset": 24.21,
                 "slope": 2.0
             },
             "forwardHF": {
-                "offset": -30.41,
+                "offset": -30.34,
                 "slope": 1.57
             },
             "forwardHGC": {
@@ -301,12 +317,22 @@ scalings = {
     "L1caloTau": {
         "default": {
             "barrel": {
-                "offset": -8.82,
-                "slope": 1.63
+                "offset": -9.82,
+                "slope": 1.71
             },
             "endcap": {
                 "offset": -49.41,
                 "slope": 2.67
+            }
+        },
+        "extended": {
+            "barrel": {
+                "offset": -9.82,
+                "slope": 1.71
+            },
+            "endcap": {
+                "offset": -54.9,
+                "slope": 2.77
             }
         }
     },
@@ -337,54 +363,40 @@ scalings = {
     "L1puppiExtJetSC4": {
         "default": {
             "barrel": {
-                "offset": 3.24,
-                "slope": 1.61
-            },
-            "endcap": {
-                "offset": 12.05,
+                "offset": 2.1,
                 "slope": 1.53
             },
+            "endcap": {
+                "offset": 14.32,
+                "slope": 1.51
+            },
             "forwardHF": {
-                "offset": -5.9,
-                "slope": 1.33
+                "offset": -6.35,
+                "slope": 1.34
             },
             "forwardHGC": {
-                "offset": 47.31,
-                "slope": 1.23
-            }
-        }
-    },
-    "L1puppiHistoJetSums": {
-        "HT": {
-            "inclusive": {
-                "offset": 45.97,
-                "slope": 1.18
-            }
-        },
-        "MHT": {
-            "inclusive": {
-                "offset": -17.45,
-                "slope": 1.23
+                "offset": 47.78,
+                "slope": 1.22
             }
         }
     },
     "L1puppiJetSC4NG": {
         "default": {
             "barrel": {
-                "offset": 12.02,
-                "slope": 1.64
+                "offset": 10.67,
+                "slope": 1.38
             },
             "endcap": {
-                "offset": 4.32,
-                "slope": 2.15
+                "offset": 23.12,
+                "slope": 1.49
             }
         }
     },
     "L1puppiMLMET": {
         "default": {
             "inclusive": {
-                "offset": 28.84,
-                "slope": 1.6
+                "offset": 25.45,
+                "slope": 1.62
             }
         }
     }

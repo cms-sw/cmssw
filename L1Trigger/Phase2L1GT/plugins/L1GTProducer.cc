@@ -394,7 +394,7 @@ namespace l1t {
     std::unique_ptr<P2GTCandidateCollection> outputCollection = std::make_unique<P2GTCandidateCollection>();
     const PFJetCollection &collection = event.get(cl2JetSC8Token_);
     for (size_t i = 0; i < collection.size() && i < 12; i++) {
-      l1gt::Jet gtJet = l1gt::Jet::unpack(collection[i].getHWJetGT());
+      l1gt::WideJet gtJet = l1gt::WideJet::unpack(collection[i].getHWJetGTWide());
       int hwZ0 = gtJet.z0.V.to_int() << 7;
       P2GTCandidate gtObj(0,
                           reco::ParticleState::PolarLorentzVector(scales_.to_pT(gtJet.v3.pt.V.to_int()),
