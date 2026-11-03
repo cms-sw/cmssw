@@ -367,17 +367,16 @@ void BTLElectronicsSim::runTrivialShaper(BTLDataFrame& dataFrame,
 }
 
 bool BTLElectronicsSim::checkValidHit(const BTLDataFrame& rawDataFrame) const {
-  bool putInEvent(false);
-  for (int it = 0; it < dfSIZE; ++it) {
-    if (it == 0)
-      putInEvent = rawDataFrame[it].threshold();
-  }
+  bool putInEvent = rawDataFrame[0].threshold();
   return putInEvent;
 }
 
 void BTLElectronicsSim::updateOutput(BTLDigiCollection& coll, const BTLDataFrame& rawDataFrame) const {
   BTLDataFrame dataFrame(rawDataFrame.id());
   dataFrame.resize(dfSIZE);
+  for (int it = 0; it < dfSIZE; ++it) {
+    dataFrame.setSample(it, rawDataFrame[it]);
+  }
   coll.push_back(dataFrame);
 }
 

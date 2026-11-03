@@ -215,16 +215,16 @@ bool ETLElectronicsSim::checkValidHit(const ETLDataFrame& rawDataFrame) const {
   if (rawDataFrame.size() <= itIdx + 2)
     return false;
 
-  bool putInEvent(false);
-  for (int it = 0; it < dfSIZE; ++it) {
-    if (it == 2)
-      putInEvent = rawDataFrame[itIdx - 2 + it].threshold();
-  }
+  bool putInEvent = rawDataFrame[itIdx].threshold();
   return putInEvent;
 }
 
 void ETLElectronicsSim::updateOutput(ETLDigiCollection& coll, const ETLDataFrame& rawDataFrame) const {
+  int itIdx(mtd_digitizer::kInTimeBX);
   ETLDataFrame dataFrame(rawDataFrame.id());
   dataFrame.resize(dfSIZE);
+  for (int it = 0; it < dfSIZE; ++it) {
+    dataFrame.setSample(it, rawDataFrame[itIdx - 2 + it]);
+  }
   coll.push_back(dataFrame);
 }
