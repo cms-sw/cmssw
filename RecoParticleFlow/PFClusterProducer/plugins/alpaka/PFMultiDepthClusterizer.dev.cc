@@ -83,10 +83,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
     // For the CPU backend, threadsPerBlock effectively represents the number
     // of elements per thread and must be set to 1, since some compute kernels
     // rely on thread-private local variables.
-    const unsigned int threadsPerBlock =
-        std::is_same_v<Device, alpaka::DevCpu>
-            ? 1
-            : (nClusters > 768 ? 256 : ::cms::alpakatools::round_up_by(nClusters, wExtend));
+    const unsigned int threadsPerBlock = ::cms::alpakatools::round_up_by(
+        (std::is_same_v<Device, alpaka::DevCpu> ? 1 : (nClusters > 768 ? 256 : nClusters)), wExtend);
 
     auto const getThreadsPerBlock = [devAcc, threadsPerBlock](auto const& kernel, auto&&... args) -> unsigned int {
       auto const attributes =
@@ -295,7 +293,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
                             pfRecHitFracs.view(),
                             pfRecHit.view());
 
-      } else if (threadsPerBlock_mbkernels <= 256) {
+      } else if (threadsPerBlock_mbkernels <= 512) {
         constexpr unsigned int max_w_items = 16;
         alpaka::exec<Acc1D>(queue,
                             ::cms::alpakatools::make_workdiv<Acc1D>(blocks_mbkernels, threadsPerBlock_mbkernels),
