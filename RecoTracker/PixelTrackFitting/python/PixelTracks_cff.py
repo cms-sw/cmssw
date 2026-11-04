@@ -153,7 +153,8 @@ phase2OTVectorHitsSoASerial = makeSerialClone(phase2OTVectorHitsSoA,
 
 phase2CAVectorHits.toReplaceWith(pixelTracksAlpaka, _pixelTracksAlpakaPhase2OTVectorHits.clone(
     pixelRecHitSrc = "siPixelRecHitsPreSplittingAlpaka",
-    vectorHitsSrc = "phase2OTVectorHitsSoA"
+    vectorHitsSrc = "phase2OTVectorHitsSoA",
+    otRecHitsSoASrc = "caOTRecHitsSoA"
 ))
 
 # pixel tracks SoA producer on the cpu, for validation
@@ -166,7 +167,8 @@ phase2CAExtension.toModify(pixelTracksAlpakaSerial,
                            )
 
 phase2CAVectorHits.toModify(pixelTracksAlpakaSerial,
-    vectorHitsSrc = "phase2OTVectorHitsSoASerial"
+    vectorHitsSrc = "phase2OTVectorHitsSoASerial",
+    otRecHitsSoASrc = "caOTRecHitsSoASerial"
 )
 
 # high-purity selection of the vector hit CA tracks, as in the HLT menu

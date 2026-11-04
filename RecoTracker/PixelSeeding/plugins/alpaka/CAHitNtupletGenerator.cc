@@ -800,11 +800,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   template <typename TrackerTraits>
-  reco::TracksSoACollection CAHitNtupletGenerator<TrackerTraits>::finishTuplesAsync(PendingTuples&& pending,
-                                                                                    HitsInput const& hitsInput,
-                                                                                    CAGeometryOnDevice const& geometry_d,
-                                                                                    BLFitConfig const& fitCfg,
-                                                                                    Queue& queue) const {
+  reco::TracksSoACollection CAHitNtupletGenerator<TrackerTraits>::finishTuplesAsync(
+      PendingTuples&& pending,
+      HitsInput const& hitsInput,
+      CAGeometryOnDevice const& geometry_d,
+      BLFitConfig const& fitCfg,
+      ::reco::OTRecHitsConstView const& partnerRecHits,
+      Queue& queue) const {
     using HelixFit = HelixFit<TrackerTraits>;
 
     if (!pending.built) {
@@ -832,6 +834,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     HelixFit fitter(bfield);
     fitter.setFitConfig(fitCfg);
+    fitter.setPartnerRecHits(partnerRecHits);
     fitter.allocate(kernels.tupleMultiplicity(), tracks, kernels.hitContainer());
     // the offsets copied in beginTuplesAsync
     fitter.setHostTupleMultiplicityOffsets(pending.offsetsHost->data());

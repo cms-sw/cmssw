@@ -72,7 +72,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // void endJob();
 
     // The producer builds the CA ntuplets, runs the broken-line fit and selects high-purity tracks.
-    // It does not consume the outer-tracker or stacked-sensor products.
+    // Besides the vector hits, it reads the outer-tracker rechits, for the BrokenLine fit with useFitCorrections.
     //
     // Acquire/produce split (stream::SynchronizingEDProducer): the producer calls beginTuplesAsync
     // in acquire() -- hit prep, doublets, CA kernels, and one async D2H of the tuple-multiplicity
@@ -106,10 +106,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                    uint32_t maxTuples,
                                    Queue& queue) const;
 
+    // partnerRecHits: the outer-tracker rechits of the vector hits' partner sensors, or an empty view.
     TkSoADevice finishTuplesAsync(PendingTuples&& pending,
                                   HitsInput const& hits,
                                   CAGeometryOnDevice const& params_d,
                                   BLFitConfig const& fitCfg,
+                                  ::reco::OTRecHitsConstView const& partnerRecHits,
                                   Queue& queue) const;
 
     // Always-on overflow surfacing, independent of doStats_: the capacity guards in the build

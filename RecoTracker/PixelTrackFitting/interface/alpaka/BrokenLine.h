@@ -19,33 +19,12 @@
 
 //#define BL_DEEPDEBUG
 
-// The BrokenLine fit of the CA tracks: the broken-line fit of Blobel [B06] with Karimaki's circle parameters (phi, d,
-// kappa) [K91]. A pre-fit circle through three hits (fastFit) is the reference; the circle in the transverse plane and
-// the line in the (s, z) plane are broken lines whose unknowns are the offsets u_i of the trajectory from the reference
-// at the hits (and a curvature correction Delta-kappa for the circle), with a kink of declared variance at each
-// interior hit. The normal matrices are pentadiagonal bands (bordered by one column for the circle), solved by the
-// root-free LDL^T band factorization (BandedSolve.h) and the Schur complement of the border ([B06] Eq. 8).
-//
-// The run-time switch fitCorrections (producer parameter useFitCorrections) selects the model; the producer passes the
-// material map and the field lattice with it on, null pointers with it off.
-// Off: flat material (0.06/16 radiation lengths per cm of each gap, charged at both its end nodes), Highland's width
-// with the factor 0.7, beta = 1 and pT capped at 20 GeV, straight kink rows, the line fitted first, and (phi, d) from
-// the chord through the fitted points of hits 0 and 1.
-// On, the corrections:
-//   - material: the tracker material map walked cell by cell along each gap (segmentWalk), Highland's increments at
-//     the cumulative depth from the beam line [PDG], each gap split between its end nodes (the endpoint partition
-//     [B07]) with the true covariance of the split, the beam-line segment as two thin scatterers [BKM11], [K12], and
-//     the pre-fit's momentum uncertainty in every variance (momentumUncertaintyFactor);
-//   - field: the B-field map in the effective field, the dip-angle row, the residual offset and the transport, with the
-//     integrals taken on curvilinear steps (latticeSteps, CurvilinearStep);
-//   - energy loss: the Landau law of the walked column [PDG], [Bi88], [SP71] as an offset of the circle's residuals;
-//   - the dip-kink coupling: the curvature steps of the line's fitted dip kinks at fixed |p| [K12], as an offset of the
-//     circle's residuals (THE DIP-KINK COUPLING, below lineOnPreFitArcs);
-//   - the curvilinear kink rows [BKM11], the perigee parameters from the state at node 0 [K91], [B06], and the line on
-//     the fitted circle with the 5x5 covariance of the two fits [FS21], [SF10];
-//   - the transport to the trajectory's own perigee;
-//   - a fit that cannot be done, or a stored 5x5 that is not positive definite to double precision [Hi02], published as
-//     failed: NaN parameters and covariance, chi2 = +infinity.
+// The BrokenLine fit of the CA tracks: Blobel's broken line [B06] with Karimaki's circle parameters (phi, d, kappa)
+// [K91]. The fit finds the offsets u_i of the trajectory from the pre-fit (fastFit) at the hits, with a kink of known
+// variance at each interior hit. A root-free LDL^T band factorization (BandedSolve.h) solves the pentadiagonal normal
+// matrices. The circle's matrix has a border column for the curvature ([B06] Eq. 8). The run-time switch
+// fitCorrections (producer parameter useFitCorrections) adds the material and field maps, the energy loss ([PDG],
+// [Bi88], [SP71]), curvilinear kink rows, the line fit on the fitted circle and the transport to the track's perigee.
 // [B06] V. Blobel, NIM A566 (2006) 14; [B07] V. Blobel, Broken-line fits: The Manual (2007), Sec. 2.1; [BKM11] V.
 // Blobel, C. Kleinwort, F. Meier, Comput. Phys. Commun. 182 (2011) 1760; [K12] C. Kleinwort, NIM A673 (2012) 107;
 // [K91] V. Karimaki, NIM A305 (1991) 187; [PDG] Review of Particle Physics 2026, Sec. 34 (Passage of particles through
@@ -1213,8 +1192,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
     double schur;
   };
 
-  // The hits of a fit without the coarse-coordinate rule (coarseCoordinateRule, at the end of this file): the circle
-  // and the line take every hit as measured.
+  // The hits of a fit without the outer-tracker rules: every hit as measured, one sensor per node.
   struct NoCoarseHits {
     static constexpr bool kActive = false;
   };
@@ -1333,6 +1311,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
       u = uh;
       up = uph;
       offsets(k + 1) += u;
+    }
+  }
+
+  // The two sensors of a vector hit at one node of the circle (fitCorrections). A node whose partner has a measurement
+  // (offset y_Q, weight 1/a_Q) takes the least-squares combination with the published offset y_P: the weight becomes
+  // 1/(c + a_P a_Q/(a_P + a_Q)) and offsets(i) decreases by a_P/(a_P + a_Q) (y_Q - y_P). a_P = sigma_m^2 (n.M)^2, with
+  // n the radial direction and M the precise axis, and c = max(1/w_P - a_P, 0) is the common coarse error.
+  template <int n, typename TCoarse, typename M2xN, typename VY, typename VW, typename VO>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void combinePartners(
+      const TCoarse& coarse, const M2xN& radii, const VY& zInSZplane, VW& weights, VO& offsets) {
+    for (int i = 0; i < n; i++) {
+      const auto partner = coarse.partnerMeasurement(i);
+      if (!(partner.weight > 0.)) {
+        continue;
+      }
+      const auto s = coarse.sensor(i);
+      const double rNorm = radii.block(0, i, 2, 1).norm();
+      const double nM = (radii(0, i) * s.mx + radii(1, i) * s.my) / rNorm;
+      const double aP = s.sig2m * nM * nM, aQ = 1. / partner.weight;
+      const double coarseShare = 1. / weights(i) - aP;
+      offsets(i) -= aP / (aP + aQ) * (partner.offset - zInSZplane(i));
+      weights(i) = 1. / ((coarseShare > 0. ? coarseShare : 0.) + aP * aQ / (aP + aQ));
     }
   }
 
@@ -1475,17 +1475,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
     -chi2 value of the cost function in the minimum.
     \param estimate (fitCorrections) filled with what lineFitOnFittedCircle propagates (CircleEstimate).
     \param fitWs the lane's workspace (FitWorkspaceMap).
-    \param ctx the model (FitContext). With fitCorrections on: the curvilinear kink rows, the residual offset of the
-           energy loss (fitWs.gapEloss), of the field profile (relative to the effective field bField) and of the
-           line's dip steps (fitWs.dipSteps, the dip-kink coupling), the state at node 0 and the perigee parameters of
-           the circle through it, and the covariance of the estimate under the
-           kink covariance of the endpoint model (circle_results.cov; the scattering before node 0 is added by
-           lineFitOnFittedCircle). Off: the straight rows and the chord through hits 0 and 1.
+    \param ctx the model (FitContext).
+    \param coarse the outer-tracker rules of the lane (NoCoarseHits without them). With fitCorrections, a vector hit
+           with a partner measurement combines its two sensors (combinePartners).
 
-    \details The least-squares fit of u and \Delta\kappa (the bordered normal system, solveBordered), then the
-    perigee parameters and their covariance: off, from the chord through the fitted points of hits 0 and 1, in the
-    frame whose origin is their midpoint, translated to the beam line with the innermost scattering added at hit 0; on,
-    from the state at node 0.
+    \details With fitCorrections, the fit uses curvilinear kink rows and the residual offsets of the energy loss, the
+    field and the dip steps. The perigee parameters come from the state at node 0. Off, they come from the chord
+    through the fitted points of hits 0 and 1, with the innermost scattering added at hit 0.
   */
   template <alpaka::concepts::Acc TAcc,
             typename M3xN,
@@ -1493,6 +1489,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
             typename V4,
             typename TData,
             typename TWs,
+            typename TCoarse = NoCoarseHits,
             int n = TData::kN>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void circleFit(const TAcc& acc,
                                                 const M3xN& hits,
@@ -1503,7 +1500,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
                                                 karimaki_circle_fit& circle_results,
                                                 CircleEstimate& estimate,
                                                 TWs& fitWs,
-                                                const FitContext& ctx) {
+                                                const FitContext& ctx,
+                                                const TCoarse& coarse = TCoarse{}) {
     const bool fitCorrections = ctx.fitCorrections;
     circle_results.qCharge = data.qCharge;
     auto& radii = data.radii;
@@ -1548,9 +1546,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
           1. / ((rotMat * vMat * rotMat.transpose())(1, 1));  // compute the orthogonal weight point by point
     }
 
-    // The dip-kink coupling (fitCorrections; THE DIP-KINK COUPLING, below lineOnPreFitArcs): the offsets of the line's
-    // dip steps (dipCouplingOffsets) added to the deterministic offset, which then exists for every track with
-    // fitCorrections (zero where neither the loss nor the field gives one).
+    // fitCorrections: add the offsets of the dip-kink coupling, then combine the two sensors of each vector hit.
     if (fitCorrections) {
       if (!offset) {
         for (int i = 0; i < n; i++) {
@@ -1558,6 +1554,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
         }
       }
       dipCouplingOffsets<n>(fast_fit, slope, gapCos, gapSin, fitWs.dipSteps(), fitWs.elossOffset());
+      if constexpr (TCoarse::kActive) {
+        combinePartners<n>(coarse, radii, zInSZplane, weightsVec, fitWs.elossOffset());
+      }
     }
 
     auto& r_uVec = fitWs.circleRu;
@@ -1927,11 +1926,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
     return arcNode0;
   }
 
-  // The circle's estimate propagated into the line: J = sum_i -c (slope + t) G_i dS_i/dc^T, G_i the line's gain for
-  // measurement i (t the fitted slope in the (s, z') plane, L = toPerigee), and X = sum_i (G_c R_i) D_i G_i^T, R_i the
-  // circle's response to measurement i and D_i the covariance of the hit's circle and line projections; the 5x5
-  // blocks of cov5 without the scattering before node 0. A hit the coarse-coordinate rule moved (TCoarse::kActive)
-  // takes its D_i from coarse.crossShare (coarseCoordinateRule, step 6).
+  // The circle's estimate propagated into the line (fitCorrections): the blocks of cov5 without the terms of node 0.
+  // J = sum_i -c (slope + t) G_i dS_i/d(phi, d, rho), with t the line's slope in (s, z') and G_i the line's gain for
+  // measurement i through L = toPerigee. X = sum_i (G_c R_i) D_i G_i^T, with G_c = estimate.jacobian, R_i the circle's
+  // response to measurement i and D_i the covariance of hit i's circle and line errors (coarse.crossShare).
   template <typename M6xN, typename TData, typename TWs, typename TCoarse = NoCoarseHits, int n = TData::kN>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void propagateCircleIntoLine(const M6xN& hits_ge,
                                                               const double q,
@@ -1973,9 +1971,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
       const double cxz = hits_ge.col(i)[3], cyz = hits_ge.col(i)[4];
       double shared = nx * (cxx * gx + cxy * gy + cxz * gz) + ny * (cxy * gx + cyy * gy + cyz * gz);  // D_i
       if constexpr (TCoarse::kActive) {
-        if (coarse.moved(i)) {
-          shared = coarse.crossShare(i, nx, ny, gx, gy, gz);
-        }
+        shared = coarse.crossShare(i, nx, ny, gx, gy, gz, shared);
       }
       crossOwn += (shared * gain) * (estimate.jacobian * response).transpose();
     }
@@ -2066,19 +2062,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
     cov5 += v * qa0.transpose() + qa0 * v.transpose() + o * dip0.transpose() + dip0 * o.transpose();
   }
 
-  // The line on the fitted circle and the 5x5 covariance (fitCorrections; after circleFit). The line
-  // z = z0 + cot(theta) S is fitted with S the arc along the fitted circle (abscissaeOnFittedCircle).
-  // cov5, the covariance of (phi, d, kappa, cot(theta), z0):
-  //     [[C_est,            C_est J^T + X],
-  //      [J C_est + X^T,    C_l + J C_est J^T + J X + X^T J^T]]
-  //     + E + v (q A_0)^T + (q A_0) v^T + o B_0^T + B_0 o^T,
-  // C_est the circle's estimate (circleFit), C_l the line's own covariance (lineFit), J = d(cot, z0)/d(phi, d, kappa)
-  // through the abscissae, X the covariance of the two fits through the hits they share, E the scattering before node 0
-  // on all five parameters (A_k, B_k the response to a transverse and to a dip turn), and the last four terms the
-  // covariances of the two estimates with the angle at hit 0. First order in the angles. Origin: the perigee
-  // parametrization ([FS21] Sec. 8.1.2.3), linear error propagation and the extrapolation through material
-  // ([SF10] Eq. 16). With the coarse-coordinate rule (TCoarse::kActive) hits and hits_ge are the hits as measured,
-  // while the circle took the moved ones (coarseCoordinateRule), and X takes the moved hits' share from coarse.
+  // The line z = z0 + cot(theta) S on the fitted circle's arcs S and the 5x5 covariance of (phi, d, kappa, cot(theta),
+  // z0) (fitCorrections): [[C, C J^T + X], [J C + X^T, C_l + J C J^T + J X + X^T J^T]] + E + the correlations with the
+  // angle at hit 0 ([FS21] Sec. 8.1.2.3, [SF10] Eq. 16). C and C_l are the covariances of the two estimates,
+  // J = d(cot, z0)/d(phi, d, kappa), X their covariance through shared hits, E the scattering before node 0. hits and
+  // hits_ge are the hits as measured.
   template <alpaka::concepts::Acc TAcc,
             typename M3xN,
             typename M6xN,
@@ -2292,15 +2280,78 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
     }
   }
 
-  // Steps 2-4, after lineOnPreFitArcs: every candidate hit (isCoarseCandidate) whose predicted coarse coordinate wins
-  // is moved for the circle stage. In: hits and hits_ge as the fast fit stored them, the prepared data, sensors (the
-  // hits' HitSensor, sensor(i)), the line of step 1 in the workspace. Out: the moved hits and their covariances in place
-  // in hits and hits_ge, and moved(0, i) = 1 for a moved hit (the caller sets 0 for every hit before). Uses circleRu
-  // for the columns M^-1 e_i, which circleFit writes afresh. Returns the number of moved hits.
+  // The partner sensor of a vector hit: its rechit's position, moved by projectPartner and coarseCoordinateRule, and
+  // the local variance sigma_m^2 of its precise coordinate. Its axes are the published sensor's. sig2m = 0: no partner.
+  struct PartnerSensor {
+    double x, y, z;
+    double sig2m;
+  };
+  // A partner's circle measurement at its node: its offset y_Q from the pre-fit circle and the weight 1/a_Q, with
+  // a_Q = sigma_m^2 (n_Q.M)^2. Weight 0: no partner.
+  struct PartnerMeasurement {
+    double offset, weight;
+  };
+
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool hasPartner(const PartnerSensor& q) { return q.sig2m > 0.; }
+
+  // The partner q of node i moved along the published sensor's coarse axis E to the crossing of its plane (normal
+  // N = M x E, through q) with the straight line through the published hit p along the track's direction D:
+  //     X = p + (N.(q - p)/(N.D)) D,   q' = q + (E.(X - q)) E.
+  // The precise coordinate of q stays and its coarse one becomes X's. D is the track direction at the node, from the
+  // pre-fit circle's tangent and the slope of the line of lineOnPreFitArcs on the gap at the partner's side.
+  // q does not move if N.D has no significant digit, |N.D| <= gamma_3 sum_k |N_k D_k| ([Hi02] Sec. 3.1).
+  template <alpaka::concepts::Acc TAcc, typename V4, typename TData, typename TWs, int n = TData::kN>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void projectPartner(const TAcc& acc,
+                                                     const V4& fast_fit,
+                                                     const TData& data,
+                                                     const TWs& fitWs,
+                                                     int i,
+                                                     double px,
+                                                     double py,
+                                                     double pz,
+                                                     const HitSensor& s,
+                                                     PartnerSensor& q) {
+    const double nx = s.my * s.ez - s.mz * s.ey, ny = s.mz * s.ex - s.mx * s.ez, nz = s.mx * s.ey - s.my * s.ex;
+    const double separation = nx * (q.x - px) + ny * (q.y - py) + nz * (q.z - pz);  // N.(q - p)
+    const double charge = double(data.qCharge);
+    const double slope = -charge / fast_fit(3);
+    const double rx = data.radii(0, i), ry = data.radii(1, i);
+    const double rNorm = alpaka::math::sqrt(acc, rx * rx + ry * ry);
+    const double nT = charge * (nx * ry - ny * rx);  // |r| N.T
+    const bool downstream = separation * (nT + nz * rNorm * slope) > 0.;
+    const int g = downstream ? (i + 1 < n ? i : n - 2) : (i > 0 ? i - 1 : 0);
+    const double ds = data.sTotal(g + 1) - data.sTotal(g), du = fitWs.circleU(g + 1) - fitWs.circleU(g);
+    const double alongT = ds - slope * du;
+    const double dx = alongT * charge * ry, dy = -alongT * charge * rx, dz = rNorm * (slope * ds + du);
+    const double nD = nx * dx + ny * dy + nz * dz;
+    constexpr double unitRoundoff = 0.5 * std::numeric_limits<double>::epsilon();
+    constexpr double gamma3 = 3. * unitRoundoff / (1. - 3. * unitRoundoff);
+    const double bound =
+        gamma3 * (alpaka::math::abs(acc, nx * dx) + alpaka::math::abs(acc, ny * dy) + alpaka::math::abs(acc, nz * dz));
+    if (!(alpaka::math::abs(acc, nD) > bound)) {
+      return;
+    }
+    const double lambda = separation / nD;
+    const double e =
+        s.ex * (px + lambda * dx - q.x) + s.ey * (py + lambda * dy - q.y) + s.ez * (pz + lambda * dz - q.z);
+    q.x += e * s.ex;
+    q.y += e * s.ey;
+    q.z += e * s.ez;
+  }
+
+  // The coarse-coordinate rule (fitCorrections, outer-tracker hits). For each candidate (isCoarseCandidate), it
+  // predicts the coarse coordinate a = g zeta of the track's crossing with the module from the line of
+  // lineOnPreFitArcs: zeta = k (u_i - z'_i), k = c (1 + cot slope), g = w_z/(E.w), w = n x T, T = (q (n_y, -n_x), cot).
+  // c and slope are the pre-fit's cos(lambda) and cot(theta), cot is the line's and n is the hit's radial direction.
+  // The prediction has the variance g^2 k^2 Sigma_ii + f^2 sigma_m^2, f = (M.w)/(E.w), with Sigma_ii the line's
+  // variance at node i. If it is smaller than sigma_s^2, the hit and its partner move by a along E, clamped to the
+  // half-strip, and the hit takes that variance. moved(0, i) = 1 for a moved hit, and the caller clears it. circleRu
+  // holds M^-1 e_i. Returns the number of moved hits.
   template <alpaka::concepts::Acc TAcc,
             typename M3xN,
             typename M6xN,
             typename TSensors,
+            typename TPartners,
             typename MMoved,
             typename V4,
             typename TData,
@@ -2310,6 +2361,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
                                                           M3xN& hits,
                                                           M6xN& hits_ge,
                                                           const TSensors& sensors,
+                                                          TPartners& partners,
                                                           MMoved& moved,
                                                           const V4& fast_fit,
                                                           TData& data,
@@ -2378,6 +2430,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
       hits_ge(5, i) = float(s.sig2m * s.mz * s.mz + varU * s.ez * s.ez);
       moved(0, i) = 1.f;
       ++nMoved;
+      // the partner moves with its hit; z stays, as the moved hit's
+      PartnerSensor partner = partners.partner(i);
+      if (hasPartner(partner)) {
+        partner.x += a * s.ex;
+        partner.y += a * s.ey;
+        partners.setPartner(i, partner);
+      }
     }
     return nMoved;
   }
@@ -2394,19 +2453,56 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
     }
   }
 
-  // The rule's view of one lane for the published 5x5 (propagateCircleIntoLine): the hits' sensors (TSensors, sensor(i))
-  // and the moved hits (MMoved, 1 x n) of coarseCoordinateRule.
-  template <typename TSensors, typename MMoved>
+  // The partners' circle measurements on the pre-fit circle fast_fit (centre c, radius R): the offset
+  // y_Q = |x_Q - c| - R and the weight 1/a_Q, a_Q = sigma_m^2 (n_Q.M)^2. Weight 0 without a partner or when a_Q = 0.
+  template <alpaka::concepts::Acc TAcc, typename V4, typename TSensors, typename TPartners, int n = TPartners::kN>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void partnerMeasurements(const TAcc& acc,
+                                                          const V4& fast_fit,
+                                                          const TSensors& sensors,
+                                                          TPartners& partners) {
+    for (int i = 0; i < n; i++) {
+      PartnerMeasurement m{0., 0.};
+      const PartnerSensor q = partners.partner(i);
+      if (hasPartner(q)) {
+        const HitSensor s = sensors.sensor(i);
+        const double rx = q.x - fast_fit(0), ry = q.y - fast_fit(1);
+        const double r = alpaka::math::sqrt(acc, rx * rx + ry * ry);
+        const double nx = rx / r, ny = ry / r;
+        const double mN = s.mx * nx + s.my * ny;
+        const double aQ = q.sig2m * mN * mN;
+        if (aQ > 0.) {
+          m = PartnerMeasurement{r - fast_fit(2), 1. / aQ};
+        }
+      }
+      partners.setMeasurement(i, m);
+    }
+  }
+
+  // The rules' view of one lane for circleFit and propagateCircleIntoLine: the hits' sensors, the moved hits of
+  // coarseCoordinateRule and the partners' circle measurements of partnerMeasurements.
+  template <typename TSensors, typename MMoved, typename TPartners>
   struct CoarseHitsLane {
     static constexpr bool kActive = true;
     const TSensors& sensors;
     const MMoved& movedHits;
+    const TPartners& partners;
     ALPAKA_FN_ACC bool moved(int i) const { return movedHits(0, i) != 0.f; }
-    // the covariance of moved hit i's circle measurement error with its line measurement (step 6): (n.M)(g_line.M)
-    // sigma_m^2, with n = (nx, ny) the hit's radial direction and g_line = (gx, gy, gz)
-    ALPAKA_FN_ACC double crossShare(int i, double nx, double ny, double gx, double gy, double gz) const {
+    ALPAKA_FN_ACC PartnerMeasurement partnerMeasurement(int i) const { return partners.measurement(i); }
+    ALPAKA_FN_ACC HitSensor sensor(int i) const { return sensors.sensor(i); }
+    // D_i, the covariance of hit i's circle and line measurement errors. A moved hit has its precise share
+    // (n.M)(g.M) sigma_m^2, another hit has shared. A node combined with its partner subtracts a_P/(a_P + a_Q) times
+    // the precise share.
+    ALPAKA_FN_ACC double crossShare(int i, double nx, double ny, double gx, double gy, double gz, double shared) const {
       const HitSensor s = sensors.sensor(i);
-      return (nx * s.mx + ny * s.my) * (gx * s.mx + gy * s.my + gz * s.mz) * s.sig2m;
+      const double nM = nx * s.mx + ny * s.my;
+      const double precise = nM * (gx * s.mx + gy * s.my + gz * s.mz) * s.sig2m;
+      const double own = moved(i) ? precise : shared;
+      const double wQ = partners.measurement(i).weight;
+      if (!(wQ > 0.)) {
+        return own;
+      }
+      const double aP = s.sig2m * nM * nM, aQ = 1. / wQ;
+      return own - aP / (aP + aQ) * precise;
     }
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline
