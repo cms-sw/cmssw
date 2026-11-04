@@ -6,6 +6,7 @@
 
 // #define BROKENLINE_DEBUG
 #include <bit>
+#include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <type_traits>
@@ -133,11 +134,87 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         : hits(phits + lane), hitsGe(phitsGe + lane), fastFit(pfastFit + lane) {}
   };
 
+  // The sensor records of one lane's hits for brokenline::coarseCoordinateRule. Column i is the HitSensor of hit i:
+  // rows 0 and 1 of the sensor frame's rotation, then sigma_m^2 and sigma_s^2.
+  inline constexpr int kHitSensorValues = 8;
+  template <int N>
+  struct HitSensorRecords {
+    Eigen::Map<Eigen::Matrix<float, kHitSensorValues, N>,
+               0,
+               Eigen::Stride<kHitSensorValues * riemannFit::stride, riemannFit::stride>>
+        values;
+    ALPAKA_FN_ACC HitSensorRecords(float* block, uint32_t lane) : values(block + lane) {}
+    // Write the frame and local variances of hit i. sig2s = 0 marks a hit that the rule does not take.
+    ALPAKA_FN_ACC void set(int i, SOAFrame<float> const& frame, float sig2m, float sig2s) {
+      auto const& r = frame.rotation();
+      values.col(i) << r.xx(), r.xy(), r.xz(), r.yx(), r.yy(), r.yz(), sig2m, sig2s;
+    }
+    ALPAKA_FN_ACC brokenline::HitSensor sensor(int i) const {
+      auto const& v = values.col(i);
+      return brokenline::HitSensor{v(0), v(1), v(2), v(3), v(4), v(5), v(6), v(7)};
+    }
+  };
+
+  // The lane buffers of the coarse-coordinate rule, for the vector-hits topology (kActive) with fitCorrections. They
+  // follow the fit scratch in the same allocation (BLLaneBuffers), element e of lane l at e * riemannFit::stride + l,
+  // so the fit lane reaches them through pscratch with no argument of its own:
+  //   sensors    kHitSensorValues floats per hit (HitSensorRecords), written by the fast-fit lane;
+  //   hits       3 doubles per hit, and hitsGe 6 floats per hit: the hits as measured, copied by the fit lane before
+  //              the rule moves the circle stage's in place, for the line stage;
+  //   moved      1 float per hit, 1 for a hit the rule moved (its term of the 5x5, brokenline::CoarseHitsLane).
+  template <typename TrackerTraits>
+  struct BLCoarseRuleBuffers {
+    static constexpr bool kActive = std::is_same_v<TrackerTraits, pixelTopology::Phase2OTVectorHits>;
+    static constexpr std::size_t kMaxN = TrackerTraits::maxHitsOnTrackForFullFit;
+    static constexpr std::size_t kLanes = riemannFit::stride;
+    static constexpr std::size_t kFitScratchBytes =
+        std::size_t(brokenline::kFitScratchDoubles<int(kMaxN)>) * kLanes * sizeof(double);
+    static constexpr std::size_t kSensorsBytes = kHitSensorValues * kMaxN * kLanes * sizeof(float);
+    static constexpr std::size_t kHitsBytes = 3 * kMaxN * kLanes * sizeof(double);
+    static constexpr std::size_t kHitsGeBytes = 6 * kMaxN * kLanes * sizeof(float);
+    static constexpr std::size_t kMovedBytes = kMaxN * kLanes * sizeof(float);
+    static constexpr std::size_t kBytes = kSensorsBytes + kHitsBytes + kHitsGeBytes + kMovedBytes;
+    static_assert(kSensorsBytes % sizeof(double) == 0 && kBytes % sizeof(double) == 0, "double-aligned buffers");
+    // the doubles the fit scratch grows by
+    static constexpr std::size_t kScratchDoubles = kBytes / sizeof(double);
+
+    // the buffers of the scratch whose fit part starts at pscratch
+    ALPAKA_FN_HOST_ACC static std::byte* base(double* pscratch) {
+      return reinterpret_cast<std::byte*>(pscratch) + kFitScratchBytes;
+    }
+    ALPAKA_FN_HOST_ACC static float* sensors(double* pscratch) { return reinterpret_cast<float*>(base(pscratch)); }
+    ALPAKA_FN_HOST_ACC static double* hits(double* pscratch) {
+      return reinterpret_cast<double*>(base(pscratch) + kSensorsBytes);
+    }
+    ALPAKA_FN_HOST_ACC static float* hitsGe(double* pscratch) {
+      return reinterpret_cast<float*>(base(pscratch) + kSensorsBytes + kHitsBytes);
+    }
+    ALPAKA_FN_HOST_ACC static float* moved(double* pscratch) {
+      return reinterpret_cast<float*>(base(pscratch) + kSensorsBytes + kHitsBytes + kHitsGeBytes);
+    }
+
+    // One lane's view of the buffers, N <= kMaxN hits.
+    template <int N>
+    struct Lane {
+      HitSensorRecords<N> sensors;
+      riemannFit::Map3xNd<N> hits;
+      riemannFit::Map6xNf<N> hitsGe;
+      Eigen::Map<Eigen::Matrix<float, 1, N>, 0, Eigen::InnerStride<riemannFit::stride>> moved;
+      ALPAKA_FN_ACC Lane(double* pscratch, uint32_t lane)
+          : sensors(BLCoarseRuleBuffers::sensors(pscratch), lane),
+            hits(BLCoarseRuleBuffers::hits(pscratch) + lane),
+            hitsGe(BLCoarseRuleBuffers::hitsGe(pscratch) + lane),
+            moved(BLCoarseRuleBuffers::moved(pscratch) + lane) {}
+    };
+  };
+
   template <int N>
   class Kernel_BLFastFit {
   public:
-    // The per-lane body of the fast fit. HitsView: HitsMultiView, or the CAHitsView facade of Phase2OTVectorHits.
-    template <typename HitsView>
+    // The per-lane body of the fast fit. HitsView: HitsMultiView, or the CAHitsView facade of Phase2OTVectorHits. With
+    // one sensor block (the coarse-coordinate rule, BLCoarseRuleBuffers::sensors; none for the other topologies), the
+    // lane also writes each hit's HitSensorRecords there, unless the block is null.
+    template <typename HitsView, typename... TSensorBlock>
     ALPAKA_FN_ACC BL_LANE_NOINLINE static void lane(Acc1D const& acc,
                                                     uint32_t local_idx,
                                                     uint32_t tuple_idx,
@@ -150,7 +227,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                     float* __restrict__ phits_ge,
                                                     double* __restrict__ pfast_fit,
                                                     uint32_t nHitsL,
-                                                    uint32_t nHitsH) {
+                                                    uint32_t nHitsH,
+                                                    TSensorBlock*... psensors) {
+      static_assert(sizeof...(TSensorBlock) <= 1 && (std::is_same_v<TSensorBlock, float> && ...),
+                    "one sensor block of floats at most");
       constexpr uint32_t hitsInFit = N;
       // get it from the ntuple container (one to one to helix)
       auto tkid = *(tupleMultiplicity->begin(nHitsL) + tuple_idx);
@@ -190,6 +270,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         hits.col(i) << hh[hit].xGlobal(), hh[hit].yGlobal(), hh[hit].zGlobal();
         hits_ge.col(i) << ge[0], ge[1], ge[2], ge[3], ge[4], ge[5];
+        // The sensor record: the same frame and local variances; sigma_s^2 = 0 for a pixel hit, which the rule does
+        // not take (the CKF treats a pixel hit as a two-dimensional Gaussian measurement).
+        if constexpr (sizeof...(TSensorBlock) == 1) {
+          float* const block = (psensors, ...);
+          if (block != nullptr) {
+            HitSensorRecords<N> sensors(block, local_idx);
+            sensors.set(int(i), frame, hh[hit].xerrLocal(), isOTEntry(hh, int32_t(hit)) ? yerrFit : 0.f);
+          }
+        }
       }
       brokenline::fastFit(acc, hits, fast_fit);
 
@@ -226,6 +315,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <int N, typename TrackerTraits>
   struct Kernel_BLFit {
   public:
+    using CoarseRule = BLCoarseRuleBuffers<TrackerTraits>;
+
     // The per-lane body of the fit: it fits lane local_idx and writes the one SoA row ptkids[local_idx] names.
     ALPAKA_FN_ACC BL_LANE_NOINLINE static void lane(Acc1D const& acc,
                                                     uint32_t local_idx,
@@ -268,10 +359,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       if (!fitCorrections) {
         brokenline::lineFit(acc, hits_ge, fast_fit, bFieldEff, data, line, fitWs, ctx);
       }
+      // The vector-hits topology with fitCorrections: the coarse coordinates of the outer-tracker hits predicted from
+      // the line on the pre-fit arcs (moveCoarseCoordinates); the circle stage takes the moved hits, the line stage the
+      // hits as measured.
+      if constexpr (CoarseRule::kActive) {
+        if (fitCorrections) {
+          moveCoarseCoordinates(acc, local_idx, pscratch, hits, hits_ge, fast_fit, data, fitWs);
+        }
+      }
       brokenline::circleFit(acc, hits, hits_ge, fast_fit, bFieldEff, data, circle, estimate, fitWs, ctx);
       if (fitCorrections) {
-        brokenline::lineFitOnFittedCircle(
-            acc, hits, hits_ge, fast_fit, bFieldEff, data, circle, estimate, line, fitWs, cov5, ctx);
+        if constexpr (CoarseRule::kActive) {
+          const typename CoarseRule::template Lane<N> rule(pscratch, local_idx);
+          const brokenline::CoarseHitsLane<HitSensorRecords<N>, decltype(rule.moved)> coarse{rule.sensors, rule.moved};
+          brokenline::lineFitOnFittedCircle(
+              acc, rule.hits, rule.hitsGe, fast_fit, bFieldEff, data, circle, estimate, line, fitWs, cov5, ctx, coarse);
+        } else {
+          brokenline::lineFitOnFittedCircle(
+              acc, hits, hits_ge, fast_fit, bFieldEff, data, circle, estimate, line, fitWs, cov5, ctx);
+        }
         brokenline::transportToFittedPca(acc, hits, data, bFieldEff, circle, line, ctx);
       }
       constexpr int8_t kNdof = 2 * N - 5;  // 2N measurements, 5 parameters
@@ -305,7 +411,44 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
   private:
-    // The failed publication: NaN parameters and covariance, chi2 = +infinity.
+    // The coarse-coordinate rule of one lane (BrokenLine.h, coarseCoordinateRule), after the preparation on the hits
+    // as measured: the hits copied for the line stage, the moved flags cleared, and for a track with a candidate hit
+    // the line on the pre-fit arcs and the rule; if it moved a hit, the circle stage's pre-fit (the three-point circle
+    // of the moved hits) and the geometry of the hits on it (preFitGeometry) are computed again, the dip-angle row is
+    // projected with that pre-fit (reprojectDipShift), and the effective field and the rest of the preparation are kept
+    // (BrokenLine.h, coarseCoordinateRule, step 7).
+    template <typename M3xN, typename M6xN, typename V4, typename TData, typename TWs>
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE static void moveCoarseCoordinates(Acc1D const& acc,
+                                                                     uint32_t local_idx,
+                                                                     double* pscratch,
+                                                                     M3xN& hits,
+                                                                     M6xN& hits_ge,
+                                                                     V4& fast_fit,
+                                                                     TData& data,
+                                                                     TWs& fitWs) {
+      typename CoarseRule::template Lane<N> rule(pscratch, local_idx);
+      rule.hits = hits;
+      rule.hitsGe = hits_ge;
+      int nCandidates = 0;
+      for (int i = 0; i < int(N); i++) {
+        rule.moved(0, i) = 0.f;
+        nCandidates += brokenline::isCoarseCandidate(rule.sensors.sensor(i)) ? 1 : 0;
+      }
+      if (nCandidates == 0 || data.failed) {
+        return;
+      }
+      brokenline::lineOnPreFitArcs(acc, hits_ge, fast_fit, data, fitWs);
+      if (brokenline::coarseCoordinateRule(acc, hits, hits_ge, rule.sensors, rule.moved, fast_fit, data, fitWs) == 0) {
+        return;
+      }
+      const double slopeMeasured = -data.qCharge / fast_fit(3);
+      brokenline::fastFit(acc, hits, fast_fit);
+      brokenline::preFitGeometry(acc, hits, fast_fit, data);
+      brokenline::reprojectDipShift(acc, slopeMeasured, -data.qCharge / fast_fit(3), fitWs);
+    }
+
+    // Publish q/pT = 0, which Kernel_classifyTracks rejects, the other parameters and the covariance NaN,
+    // and chi2 = +infinity. edm::isNotFinite does not work under -Ofast with clang and hipcc.
     ALPAKA_FN_ACC ALPAKA_FN_INLINE static void publishFailed(OutputSoAView& results_view,
                                                              caStructures::tindex_type tkid,
                                                              int8_t ndof) {
@@ -390,7 +533,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   double* __restrict__ phits,
                                   float* __restrict__ phits_ge,
                                   double* __restrict__ pfast_fit,
-                                  uint32_t round) const {
+                                  uint32_t round,
+                                  double* __restrict__ pscratch) const {
       // Entry assertions: the input buffers and containers are set.
       ALPAKA_ASSERT_ACC(foundNtuplets);
       ALPAKA_ASSERT_ACC(tupleMultiplicity);
@@ -412,19 +556,37 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           const uint32_t tuple_idx = range.tupleOf(local_idx);
           forFitBin<TrackerTraits>(task.bin, [&](auto bin) {
             constexpr uint32_t b = decltype(bin)::value;
-            Kernel_BLFastFit<b + kFitMinN>::lane(acc,
-                                                 local_idx,
-                                                 tuple_idx,
-                                                 foundNtuplets,
-                                                 tupleMultiplicity,
-                                                 hh,
-                                                 cm,
-                                                 ptkids,
-                                                 phits,
-                                                 phits_ge,
-                                                 pfast_fit,
-                                                 fitBinNHitsL(b),
-                                                 fitBinNHitsH<TrackerTraits>(b));
+            if constexpr (BLCoarseRuleBuffers<TrackerTraits>::kActive) {
+              Kernel_BLFastFit<b + kFitMinN>::lane(
+                  acc,
+                  local_idx,
+                  tuple_idx,
+                  foundNtuplets,
+                  tupleMultiplicity,
+                  hh,
+                  cm,
+                  ptkids,
+                  phits,
+                  phits_ge,
+                  pfast_fit,
+                  fitBinNHitsL(b),
+                  fitBinNHitsH<TrackerTraits>(b),
+                  (pscratch != nullptr) ? BLCoarseRuleBuffers<TrackerTraits>::sensors(pscratch) : nullptr);
+            } else {
+              Kernel_BLFastFit<b + kFitMinN>::lane(acc,
+                                                   local_idx,
+                                                   tuple_idx,
+                                                   foundNtuplets,
+                                                   tupleMultiplicity,
+                                                   hh,
+                                                   cm,
+                                                   ptkids,
+                                                   phits,
+                                                   phits_ge,
+                                                   pfast_fit,
+                                                   fitBinNHitsL(b),
+                                                   fitBinNHitsH<TrackerTraits>(b));
+            }
           });
         }
       }
@@ -484,23 +646,31 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   // The device buffers of the ladder's lanes beside the track ids, sized for the top bin's N =
   // maxHitsOnTrackForFullFit: the inputs of LaneInputs (hits, their covariances, the pre-fit) and the fit's solver
-  // scratch (BrokenLine.h, FitScratchLayout), all at the element stride riemannFit::stride.
+  // scratch (BrokenLine.h, FitScratchLayout), all at the element stride riemannFit::stride; with coarseRule the scratch
+  // is followed by the coarse-coordinate rule's buffers (BLCoarseRuleBuffers).
   template <typename TrackerTraits>
   struct BLLaneBuffers {
     static constexpr int kMaxN = int(TrackerTraits::maxHitsOnTrackForFullFit);
     using Inputs = LaneInputs<kMaxN>;
 
-    explicit BLLaneBuffers(Queue& queue)
+    BLLaneBuffers(Queue& queue, bool coarseRule)
         : hits(cms::alpakatools::make_device_buffer<double[]>(queue, Inputs::kHitValues * riemannFit::stride)),
           hitsGe(cms::alpakatools::make_device_buffer<float[]>(queue, Inputs::kGeValues * riemannFit::stride)),
           fastFit(cms::alpakatools::make_device_buffer<double[]>(queue, Inputs::kFastFitValues * riemannFit::stride)),
           scratch(cms::alpakatools::make_device_buffer<double[]>(
-              queue, brokenline::kFitScratchDoubles<kMaxN> * riemannFit::stride)) {}
+              queue,
+              brokenline::kFitScratchDoubles<kMaxN> * riemannFit::stride +
+                  (coarseRule ? BLCoarseRuleBuffers<TrackerTraits>::kScratchDoubles : 0))),
+          coarseRule_(coarseRule) {}
+
+    // the scratch for the fast-fit lanes: with the coarse-coordinate rule's buffers, null without
+    double* coarseRuleScratch() { return coarseRule_ ? scratch.data() : nullptr; }
 
     cms::alpakatools::device_buffer<Device, double[]> hits;
     cms::alpakatools::device_buffer<Device, float[]> hitsGe;
     cms::alpakatools::device_buffer<Device, double[]> fastFit;
     cms::alpakatools::device_buffer<Device, double[]> scratch;
+    bool coarseRule_;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
