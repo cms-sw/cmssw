@@ -50,6 +50,8 @@ private:
   const edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> adcToGeVToken_;
   const edm::ESGetToken<EcalCATIAGainRatios, EcalCATIAGainRatiosRcd> gainRatiosToken_;
 
+  std::string const taskName_;
+
   MonitorElement* meGunEnergy_;
   MonitorElement* meGunEta_;
   MonitorElement* meGunPhi_;
@@ -79,6 +81,7 @@ EcalDigisValidationPh2::EcalDigisValidationPh2(const edm::ParameterSet& ps)
           edm::InputTag("mix", ps.getParameter<std::string>("moduleLabelG4") + std::string("EcalHitsEB")))),
       adcToGeVToken_(esConsumes()),
       gainRatiosToken_(esConsumes()),
+      taskName_(ps.getParameter<std::string>("taskName")),
       meGunEnergy_(nullptr),
       meGunEta_(nullptr),
       meGunPhi_(nullptr),
@@ -105,11 +108,12 @@ void EcalDigisValidationPh2::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<edm::InputTag>("digiCollection", edm::InputTag("simEcalUnsuppressedDigis"));
   desc.add<std::string>("moduleLabelMC", std::string("generatorSmeared"));
   desc.add<std::string>("moduleLabelG4", std::string("g4SimHits"));
+  desc.add<std::string>("taskName", std::string("EcalDigiTask"));
   descriptions.add("ecalDigisValidationPh2", desc);
 }
 
 void EcalDigisValidationPh2::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
-  ibooker.setCurrentFolder("EcalDigisV/EcalDigiTask");
+  ibooker.setCurrentFolder("EcalDigisV/" + taskName_);
 
   std::string histo("EcalDigiTask Gun Momentum");
   meGunEnergy_ = ibooker.book1D(histo, histo, 100, 0., 1000.);
