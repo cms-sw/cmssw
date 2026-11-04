@@ -175,6 +175,18 @@ L1TriggerPhase2L1ScoutMINIAODSIM = cms.PSet(
             "keep *_l1tKMTFMuonsGmt_*_*",
             "keep *_l1tFwdMuonsGmt_*_*",
             "keep *_l1tSAMuonsGmt_*_*",
+            "keep *_l1tTkStubsGmt_*_*",
+            "keep *_l1tTkMuonsGmt_*_*",
+            # --- CL2 reconstruction
+            "keep *_l1tSC4PFL1PuppiCorrectedEmulator_*_*",
+            "keep *_l1tSC8PFL1PuppiCorrectedEmulator_*_*",
+            "keep *_l1tLayer2EG_*_*",
+            "keep *_l1tNNTauProducerPuppi_*_*",
+            "keep *_l1tMETPFProducer_*_*",
+            "keep *_l1tSC4PFL1PuppiCorrectedEmulatorMHT_*_*",
+
+
+
     )
 )
 
@@ -310,6 +322,15 @@ def _appendPhase2Digis(obj):
         'keep *_l1tTkMuonsGmt_*_*',
         'keep *_l1tSAMuonsGmt_*_*',
         'keep *_l1tTkMuonsGmtLowPtFix_*_*', # in the long run this should be removed, but these fix objects will be used for now.
+        'keep *_l1tSC8PFL1PuppiCorrectedEmulator_*_*',
+        'keep *_dtTriggerPhase2PrimitiveDigis_*_*',
+        'keep *_CalibratedDigis_*_*',
+        'keep *_simTwinMuxDigis_*_*',
+        'keep *_simKBmtfStubs_*_*',
+        'keep *_simGmtCaloSumDigis_*_*',
+        'keep *_simCscTriggerPrimitiveDigisRun3_*_*',
+        'keep *_simGtExtFakeStage2Digis_*_*',
+
         ]
     obj.outputCommands += l1Phase2Digis
 
