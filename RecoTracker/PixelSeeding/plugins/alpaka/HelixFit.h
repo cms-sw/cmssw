@@ -6,6 +6,7 @@
 #include <Eigen/Core>
 
 #include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
+#include "DataFormats/TrackingRecHitSoA/interface/OTRecHitsSoA.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "RecoTracker/PixelTrackFitting/interface/BLBFieldMap.h"
 #include "RecoTracker/PixelTrackFitting/interface/BLMaterialMap.h"
@@ -67,6 +68,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void setBField(double bField) { bField_ = bField; }
 
     void setFitConfig(const BLFitConfig &cfg) { fitCfg_ = cfg; }
+    // The outer-tracker rechits that lowerHitIdx and upperHitIdx of the vector hits point to. An empty view gives no
+    // partners.
+    void setPartnerRecHits(const ::reco::OTRecHitsConstView &otRecHits) { partnerRecHits_ = otRecHits; }
     // Host copy of the tuple-multiplicity offsets per hit-count bin (CAHitNtupletGeneratorKernels::
     // tupleMultiplicityOffsets), read back by the producer before the fit, not owned: both launchers bound their
     // rounds by them.
@@ -90,6 +94,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     OutputSoAView outputSoa_;
     float bField_;
     BLFitConfig fitCfg_;
+    ::reco::OTRecHitsConstView partnerRecHits_{};             // see setPartnerRecHits
     const uint32_t *hostTupleMultiplicityOffsets_ = nullptr;  // see setHostTupleMultiplicityOffsets
   };
 
