@@ -1,29 +1,37 @@
 #ifndef SimCalorimetry_EcalSimProducers_EcalDigiProducer_Ph2_h
 #define SimCalorimetry_EcalSimProducers_EcalDigiProducer_Ph2_h
 
-#include "SimCalorimetry/EcalSimAlgos/interface/APDShape.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/ComponentShapeCollection.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
-#include "DataFormats/Math/interface/Error.h"
-#include "FWCore/Framework/interface/ProducesCollector.h"
-#include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalCorrelatedNoiseMatrix.h"
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalTDigitizer.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
-#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EBHitResponse.h"
-#include "CondFormats/DataRecord/interface/EcalLiteDTUPedestalsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalLiteDTUPedestals.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
+
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CondFormats/DataRecord/interface/EcalCATIAGainRatiosRcd.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalLiteDTUPedestalsRcd.h"
+
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalLiteDTUPedestals.h"
+#include "CondFormats/EcalObjects/interface/EcalCATIAGainRatios.h"
+
+#include "DataFormats/Math/interface/Error.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/APDShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ComponentShapeCollection.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EBHitResponse.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalCorrelatedNoiseMatrix.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalTDigitizer.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
+#include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
+
+#include <array>
 #include <vector>
 
 class APDSimParameters;
@@ -61,7 +69,7 @@ public:
                        edm::ProducesCollector producesCollector,
                        edm::ConsumesCollector& iC);
   EcalDigiProducer_Ph2(const edm::ParameterSet& params, edm::ConsumesCollector& iC);
-  ~EcalDigiProducer_Ph2() override;
+  ~EcalDigiProducer_Ph2() override = default;
 
   void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
   void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
@@ -76,11 +84,12 @@ private:
 
   typedef edm::Handle<std::vector<PCaloHit>> HitsHandle;
 
-  edm::ESGetToken<EcalLiteDTUPedestalsMap, EcalLiteDTUPedestalsRcd> pedestalToken_;
-  edm::ESGetToken<EcalLaserDbService, EcalLaserDbRecord> laserToken_;
-  edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> agcToken_;
-  edm::ESGetToken<EcalIntercalibConstants, EcalIntercalibConstantsRcd> icalToken_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geom_token_;
+  edm::ESGetToken<EcalLiteDTUPedestalsMap, EcalLiteDTUPedestalsRcd> const pedestalToken_;
+  edm::ESGetToken<EcalLaserDbService, EcalLaserDbRecord> const laserToken_;
+  edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> const agcToken_;
+  edm::ESGetToken<EcalIntercalibConstants, EcalIntercalibConstantsRcd> const icalToken_;
+  edm::ESGetToken<EcalCATIAGainRatios, EcalCATIAGainRatiosRcd> const gainRatiosToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> const geom_token_;
   void accumulateCaloHits(HitsHandle const& ebHandle, int bunchCrossing);
 
   void checkGeometry(const edm::EventSetup& eventSetup);
@@ -129,11 +138,12 @@ private:
 
   const edm::EDGetTokenT<std::vector<PCaloHit>> m_HitsEBToken;
 
+  std::unique_ptr<EBDigitizer_Ph2> m_BarrelDigitizer;
   std::unique_ptr<EBDigitizer_Ph2> m_APDDigitizer;
   std::unique_ptr<EBDigitizer_Ph2> m_ComponentDigitizer;
-  std::unique_ptr<EBDigitizer_Ph2> m_BarrelDigitizer;
 
   std::unique_ptr<EcalElectronicsSim_Ph2> m_ElectronicsSim;
+
   std::unique_ptr<EcalLiteDTUCoder> m_Coder;
 
   typedef CaloTSamples<float, ecalPh2::sampleSize> EcalSamples_Ph2;

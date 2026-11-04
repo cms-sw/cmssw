@@ -1,8 +1,8 @@
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalLiteDTUCoder.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
-#include "DataFormats/EcalDigi/interface/EcalLiteDTUSample.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame_Ph2.h"
+#include "DataFormats/EcalDigi/interface/EcalLiteDTUSample.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalLiteDTUCoder.h"
+#include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
 
 #include <algorithm>
 #include <cmath>
@@ -14,7 +14,7 @@ EcalLiteDTUCoder::EcalLiteDTUCoder(bool addNoise,
                                    EcalLiteDTUCoder::Noisifier* ebCorrNoise0,
                                    EcalLiteDTUCoder::Noisifier* ebCorrNoise1)
     : m_peds(nullptr),
-      m_gainRatios(0),
+      m_gainRatios(nullptr),
       m_intercals(nullptr),
       m_maxEneEB(ecalPh2::maxEneEB),  // Maximum for CATIA: LSB gain 10: 0.048 MeV
       m_addNoise(addNoise),
@@ -27,7 +27,7 @@ void EcalLiteDTUCoder::setFullScaleEnergy(double EBscale) { m_maxEneEB = EBscale
 
 void EcalLiteDTUCoder::setPedestals(const EcalLiteDTUPedestalsMap* pedestals) { m_peds = pedestals; }
 
-void EcalLiteDTUCoder::setGainRatios(float gainRatios) { m_gainRatios = gainRatios; }
+void EcalLiteDTUCoder::setGainRatios(EcalCATIAGainRatios const* gainRatios) { m_gainRatios = gainRatios; }
 
 void EcalLiteDTUCoder::setIntercalibConstants(const EcalIntercalibConstantsMC* ical) { m_intercals = ical; }
 
@@ -45,21 +45,11 @@ void EcalLiteDTUCoder::encode(const EcalSamples& ecalSamples,
 
   auto const detId = ecalSamples.id();
 
-  std::array<double, ecalPh2::NGAINS> pedestals;
-  std::array<double, ecalPh2::NGAINS> widths;
-  std::array<double, ecalPh2::NGAINS> LSB;
-  std::array<double, ecalPh2::NGAINS> trueRMS;
+  std::array<double, ecalPh2::NGAINS> gains;
   double icalconst = 1.;
+
+  findGains(detId, gains);
   findIntercalibConstant(detId, icalconst);
-
-  for (unsigned int igain(0); igain < ecalPh2::NGAINS; ++igain) {
-    // fill in the pedestal and width
-    findPedestal(detId, igain, pedestals[igain], widths[igain]);
-    // insert an absolute value in the trueRMS
-    trueRMS[igain] = std::sqrt(std::abs(widths[igain] * widths[igain] - 1. / 12.));
-
-    LSB[igain] = m_maxEneEB / (ecalPh2::MAXADC * ecalPh2::gains[igain]);
-  }
 
   std::array<CaloSamples, ecalPh2::NGAINS> noiseframe = {
       CaloSamples(detId, nSamples),
@@ -75,18 +65,29 @@ void EcalLiteDTUCoder::encode(const EcalSamples& ecalSamples,
   std::vector<std::array<int, ecalPh2::NGAINS>> adctrace(nSamples, {-1, -1});
   int firstSaturatedSampleG10 = -1;
   int lastSaturatedSampleG10 = -1;
+  double pedestal;
+  double width;
 
   // fill ADC trace in gain 0 (x10) and gain 1 (x1)
   for (unsigned int igain = 0; igain < ecalPh2::NGAINS; ++igain) {
+    // fill in the pedestal and width
+    findPedestal(detId, igain, pedestal, width);
+
+    // absolute value for the trueRMS
+    // pedestal RMS with the quantization error RMS of 1/sqrt(12) removed
+    auto const trueRMS = std::sqrt(std::abs(width * width - 1. / 12.));
+
+    auto const lsb = m_maxEneEB / (ecalPh2::MAXADC * gains[igain]);
+
     for (int i(0); i != nSamples; ++i) {
       double asignal = 0;
       if (!m_PreMix1) {
-        asignal = pedestals[igain] + ecalSamples[i] / (LSB[igain] * icalconst) + trueRMS[igain] * noiseframe[igain][i];
+        asignal = pedestal + ecalSamples[i] / (lsb * icalconst) + trueRMS * noiseframe[igain][i];
         // Analog signal value for each sample in ADC.
         // It is corrected by the intercalibration constants
       } else {
         // no noise nor pedestal when premixing
-        asignal = ecalSamples[i] / (LSB[igain] * icalconst);
+        asignal = ecalSamples[i] / (lsb * icalconst);
       }
 
       auto const adc = std::round(asignal);
@@ -130,6 +131,11 @@ void EcalLiteDTUCoder::findPedestal(const DetId& detId, int gainId, double& ped,
     ped = 12.;
     width = 2.5;
   }
+}
+
+void EcalLiteDTUCoder::findGains(const DetId& detId, std::array<double, ecalPh2::NGAINS>& gains) const {
+  gains[0] = ecalPh2::gains[1] * (*m_gainRatios)[detId.rawId()];
+  gains[1] = ecalPh2::gains[1];
 }
 
 void EcalLiteDTUCoder::findIntercalibConstant(const DetId& detId, double& icalconst) const {

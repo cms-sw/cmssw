@@ -13,7 +13,6 @@ template <typename M>
 class CorrelatedNoisifier;
 class EcalLiteDTUSample;
 class EcalDataFrame_Ph2;
-class EcalLiteDTUPed;
 
 #include <array>
 #include <vector>
@@ -42,7 +41,7 @@ public:
   /// can be fetched every event from the EventSetup
   void setPedestals(const EcalLiteDTUPedestalsMap* pedestals);
 
-  void setGainRatios(float gainRatios);
+  void setGainRatios(EcalCATIAGainRatios const* gainRatios);
 
   void setFullScaleEnergy(double EBscale);
 
@@ -57,13 +56,13 @@ private:
 
   void findPedestal(const DetId& detId, int gainId, double& pedestal, double& width) const;
 
-  void findGains(const DetId& detId, float theGains[]) const;
+  void findGains(const DetId& detId, std::array<double, ecalPh2::NGAINS>& gains) const;
 
   void findIntercalibConstant(const DetId& detId, double& icalconst) const;
 
   const EcalLiteDTUPedestalsMap* m_peds;
 
-  float m_gainRatios;  // the electronics gains
+  EcalCATIAGainRatios const* m_gainRatios;  // the electronics gain ratios
 
   const EcalIntercalibConstantsMC* m_intercals;  //record specific for simulation of gain variation in MC
 
