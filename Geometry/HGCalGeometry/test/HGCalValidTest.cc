@@ -72,7 +72,7 @@ void HGCalValidTest::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
           if (std::find(done.begin(), done.end(), ring) != done.end())
             continue;
           done.emplace_back(ring);
-          edm::LogVerbatim("HGCalGeom") << "Corners for " << hid;
+          edm::LogVerbatim("HGCalGeom") << "Corners for " << hid.rawId() << " " << hid;
         } else {
           HGCSiliconDetId hid(id);
           if ((hid.zside() != zside) || (hid.layer() != layer))
@@ -80,7 +80,7 @@ void HGCalValidTest::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
           if (std::find(done.begin(), done.end(), hid.waferUV()) != done.end())
             continue;
           done.emplace_back(hid.waferUV());
-          edm::LogVerbatim("HGCalGeom") << "Corners for " << hid;
+          edm::LogVerbatim("HGCalGeom") << "Corners for " << hid.rawId() << " " << hid;
         }
 
         const auto cor = geom->getNewCorners(id);

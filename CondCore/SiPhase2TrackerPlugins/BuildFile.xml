@@ -2,5 +2,6 @@
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/SiPhase2TrackerObjects"/>
 <use name="CondFormats/SiStripObjects"/>
+<use name="CondFormats/SiPixelObjects"/>
 <use name="rootrflx"/>
 <flags EDM_PLUGIN="1"/>
