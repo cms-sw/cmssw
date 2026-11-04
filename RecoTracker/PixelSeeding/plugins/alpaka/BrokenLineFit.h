@@ -26,7 +26,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     //  Fit internals
     auto tkidDevice =
         cms::alpakatools::make_device_buffer<typename caStructures::tindex_type[]>(queue, maxNumberOfConcurrentFits_);
-    // The coarse-coordinate rule's buffers for the vector-hits topology with fitCorrections (BLCoarseRuleBuffers).
+    // The buffers of the coarse-coordinate rule and of the second sensor of a vector hit, for the vector-hits topology
+    // with fitCorrections (BLCoarseRuleBuffers).
     BLLaneBuffers<TrackerTraits> buffers(queue, BLCoarseRuleBuffers<TrackerTraits>::kActive && fitCfg_.fitCorrections);
 
     // The top bin [maxHitsOnTrackForFullFit, maxHitsOnTrack - 1] must not be empty.
@@ -50,7 +51,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           buffers.hitsGe.data(),
                           buffers.fastFit.data(),
                           round,
-                          buffers.coarseRuleScratch());
+                          buffers.coarseRuleScratch(),
+                          partnerRecHits_);
       alpaka::exec<Acc1D>(queue,
                           workDivFused,
                           Kernel_BLFitFused<TrackerTraits>{fitCfg_},

@@ -219,6 +219,7 @@ hltPhase2PixelTracksSoAWithVectorHits = cms.EDProducer('CAHitNtupletAlpakaPhase2
     # The CA reads the pixel rechits and the outer-tracker vector hits through the CAHitsView facade.
     pixelRecHitSrc = cms.InputTag('hltPhase2SiPixelRecHitsSoA'),
     vectorHitsSrc = cms.InputTag('hltPhase2OTVectorHitsSoA'),
+    otRecHitsSoASrc = cms.InputTag('hltCAOTRecHitsSoA'),
     trackerRecHitsSoA = cms.InputTag(''),   # no separate outer-tracker rechit collection: they come in as vector hits
 
     # In-kernel classifiers: ON; their working points are BAKED in the weight headers (CATripletDNNWeights_*.h,

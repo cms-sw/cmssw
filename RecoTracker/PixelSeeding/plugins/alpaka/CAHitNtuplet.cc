@@ -1,7 +1,9 @@
 #include <alpaka/alpaka.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <iomanip>
+#include <limits>
 #include <map>
 
 #include <TFormula.h>
@@ -113,7 +115,8 @@ namespace reco {
           floorDCACuts_(optionalVDouble(geo, "floorDCACuts")),
           maxVectorHitCurvSigma_(optionalVDouble(geo, "maxVectorHitCurvSigma")),
           maxVectorHitGeomCurvSigma_(optionalVDouble(geo, "maxVectorHitGeomCurvSigma")),
-          maxVectorHitInnerDoubletDCurv_(optionalVDouble(geo, "maxVectorHitInnerDoubletDCurv")) {
+          maxVectorHitInnerDoubletDCurv_(optionalVDouble(geo, "maxVectorHitInnerDoubletDCurv")),
+          checkParallelStackSensors_(iConfig.getParameter<bool>("useFitCorrections")) {
       // Size validation. Everything per layer pair must agree with the graph, everything per layer
       // must agree with the layer count, and every starting-pair id must address an existing pair.
       const size_t nPairs = layerPairs_.size() / 2;
@@ -254,6 +257,9 @@ namespace reco {
     const std::vector<double> maxVectorHitGeomCurvSigma_;
     const std::vector<double> maxVectorHitInnerDoubletDCurv_;
 
+    // Phase2OTVectorHits with useFitCorrections: check that the two sensors of each stack are parallel.
+    const bool checkParallelStackSensors_;
+
     bool startNoBPix1_;
 
     mutable edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tokenGeometry_;
@@ -278,6 +284,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using HitsConstView = ::reco::TrackingRecHitConstView;
     using HitsOnDevice = reco::TrackingRecHitsSoACollection;
     using VectorHitsOnDevice = reco::VectorHitsSoACollection;
+    using OTRecHitsOnDevice = reco::OTRecHitsSoACollection;
 
     using HitsOnDeviceRefProdVector = edm::RefProdVector<HitsOnDevice>;
 
@@ -545,6 +552,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 << "CAHitNtupletAlpaka: pixel and stacked modules start " << layerCount
                 << " CA layers, the configured geometry has " << n_layers;
           }
+          if (iCache->checkParallelStackSensors_) {
+            checkParallelStackSensors(stackedGeometry->const_view());
+          }
         }
 
         // The per-layer phi histogram of the hits has TrackerTraits::numberOfLayers bins, and the doublet
@@ -769,6 +779,48 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
   private:
+    // The BrokenLine fit with useFitCorrections gives the partner sensor the axes of the published sensor.
+    // Count the stacks whose local x or y axes differ by more than the float epsilon, up to sign.
+    // Write one warning for them. The job continues.
+    static void checkParallelStackSensors(::reco::StackedModuleGeometryConstView const& stacks) {
+      constexpr float kTolerance = std::numeric_limits<float>::epsilon();
+      int nOver = 0;
+      float largestDeviation = 0.f;
+      uint32_t largestStack = 0;
+      for (int i = 0; i < stacks.metadata().size(); ++i) {
+        const SOARotation<float> lower = stacks[i].lowerSensorFrame().rotation();
+        const SOARotation<float> upper = stacks[i].upperSensorFrame().rotation();
+        const float lowerAxes[2][3] = {{lower.xx(), lower.xy(), lower.xz()}, {lower.yx(), lower.yy(), lower.yz()}};
+        const float upperAxes[2][3] = {{upper.xx(), upper.xy(), upper.xz()}, {upper.yx(), upper.yy(), upper.yz()}};
+        float stackDeviation = 0.f;
+        for (int axis = 0; axis < 2; ++axis) {
+          float sameSign = 0.f, oppositeSign = 0.f;
+          for (int k = 0; k < 3; ++k) {
+            sameSign = std::max(sameSign, std::abs(lowerAxes[axis][k] - upperAxes[axis][k]));
+            oppositeSign = std::max(oppositeSign, std::abs(lowerAxes[axis][k] + upperAxes[axis][k]));
+          }
+          const float deviation = std::min(sameSign, oppositeSign);
+          if (!(deviation <= stackDeviation)) {
+            stackDeviation = deviation;
+          }
+        }
+        if (!(stackDeviation <= kTolerance)) {
+          ++nOver;
+          if (nOver == 1 || stackDeviation > largestDeviation) {
+            largestDeviation = stackDeviation;
+            largestStack = stacks[i].stackedDetId();
+          }
+        }
+      }
+      if (nOver > 0) {
+        edm::LogWarning("CAHitNtupletAlpaka")
+            << nOver << " of " << stacks.metadata().size()
+            << " stacks have two sensors whose local x or y axes differ by more than the float epsilon " << kTolerance
+            << " up to their signs; the largest difference is " << largestDeviation << ", in stack " << largestStack
+            << ". The BrokenLine fit with useFitCorrections takes the two sensors of a vector hit as parallel.";
+      }
+    }
+
     // Build this topology's view of the event's hits. Phase2OTVectorHits reads the pixel rechits and the
     // vector hits SoA through the CAHitsView facade (one global index space: pixel rows first, then
     // vector hits); every other topology uses the upstream MultiViews, built here because HitsInput
@@ -832,6 +884,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // Phase2OTVectorHits only: the outer-tracker vector hits SoA, read with the pixel rechits through the
     // CAHitsView facade.
     device::EDGetToken<VectorHitsOnDevice> vectorHitsToken_;
+    // Phase2OTVectorHits with useFitCorrections only: the outer-tracker rechits of the vector hits' partner sensors.
+    device::EDGetToken<OTRecHitsOnDevice> otRecHitsToken_;
     const device::EDPutToken<TkSoADevice> tokenTrack_;
 #ifdef CA_TRIPLET_DUMP
     // Per-built-triplet training-dataset product (one row per built triplet, valid rows = view().nValid()).
@@ -891,6 +945,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
     if constexpr (std::is_same_v<pixelTopology::Phase2OTVectorHits, TrackerTraits>) {
       iCache->tokenStackedGeometry_ = esConsumes<edm::Transition::BeginRun>();
+      if (deviceAlgo_.useFitCorrections()) {
+        otRecHitsToken_ = consumes(iConfig.getParameter<edm::InputTag>("otRecHitsSoASrc"));
+      }
     }
   }
 
@@ -905,6 +962,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             "Outer-tracker vector hits SoA (a reco::VectorHitsSoACollection). Consumed only by the Phase2OTVectorHits "
             "topology, whose CA reads the pixel rechits and the vector hits side by side through the CAHitsView "
             "facade; ignored by every other topology.");
+    desc.add<edm::InputTag>("otRecHitsSoASrc", edm::InputTag("caOTRecHitsSoA"))
+        ->setComment(
+            "Outer-tracker rechits SoA (a reco::OTRecHitsSoACollection) the vector hits point to. Consumed only by the "
+            "Phase2OTVectorHits topology with useFitCorrections, whose BrokenLine fit combines the two sensors of each "
+            "vector hit; ignored otherwise.");
 
     Algo::fillPSetDescription(desc);
     descriptions.addWithDefaultLabel(desc);
@@ -980,8 +1042,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                              .bMap = fitCorrections ? es.getData(tokenBLBFieldMap_).data() : nullptr,
                              .fitCorrections = fitCorrections};
 
+    // The rechits of the partner sensors, an empty view where they are not read.
+    ::reco::OTRecHitsConstView partnerRecHits{};
+    if constexpr (std::is_same_v<pixelTopology::Phase2OTVectorHits, TrackerTraits>) {
+      if (fitCorrections) {
+        partnerRecHits = iEvent.get(otRecHitsToken_).const_view().otRecHits();
+      }
+    }
     iEvent.emplace(tokenTrack_,
-                   deviceAlgo_.finishTuplesAsync(std::move(*pending_), hitsInput, geometry, fitCfg, iEvent.queue()));
+                   deviceAlgo_.finishTuplesAsync(
+                       std::move(*pending_), hitsInput, geometry, fitCfg, partnerRecHits, iEvent.queue()));
     pending_.reset();
 
 #ifdef CA_TRIPLET_DUMP
