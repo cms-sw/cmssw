@@ -11,10 +11,10 @@ def customise_hgcal_ageing_byalgo(process, **kwargs):
         
     process.hgCalAlgoBasedAgeingCondProducer = cms.ESProducer(
         'hgcal::HGCalAlgoBasedAgeingCondProducer@alpaka',
-        doseMapURL = cms.FileInPath(kwargs.get('doseMapURL', 'SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt')),
+        doseMapURL = cms.string(kwargs.get('doseMapURL', 'SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt')),
         doseMapAlgo = cms.uint32(kwargs.get('doseMapAlgo', 0)),
+        scaleByDoseFactor = cms.double(kwargs.get('scaleByDoseFactor', 1.0)),
         si = cms.PSet(
-            scaleByDoseFactor = cms.double(kwargs.get('scaleByDoseFactor', 1.0)),
             ileakParam = cms.vdouble(hgcSiSensorIleak(si_benchmark)),
             cceParams = cms.PSet(
                 cceParam120 = cms.vdouble(hgcSiSensorCCE(120,si_benchmark)),
@@ -24,7 +24,7 @@ def customise_hgcal_ageing_byalgo(process, **kwargs):
         ),
         sipm = cms.PSet(
             refIdark = cms.double(0.125),
-            refXtalk = 0.01
+            refXtalk = cms.double(0.01)
         )
     )
 
