@@ -33,7 +33,8 @@ using namespace lhef;
 LH5Source::LH5Source(const edm::ParameterSet& params, const edm::InputSourceDescription& desc)
     : ProducerSourceFromFiles(params, desc, false),
       //      reader_(new LH5Reader(params)),
-      reader_(new LH5Reader(fileNames(0), params.getUntrackedParameter<unsigned int>("skipEvents", 0))),
+      reader_(new LH5Reader(catalog().allPFNsFromFirstCatalog(),
+                            params.getUntrackedParameter<unsigned int>("skipEvents", 0))),
       lheProvenanceHelper_(edm::TypeID(typeid(LHEEventProduct)),
                            edm::TypeID(typeid(LHERunInfoProduct)),
                            productRegistryUpdate(),

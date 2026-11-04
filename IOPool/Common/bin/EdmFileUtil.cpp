@@ -123,7 +123,7 @@ int main(int argc, char* argv[]) {
     }
 
     edm::InputFileCatalog catalog(in, catalogIn, true);
-    std::vector<std::string> const& filesIn = catalog.fileNames(0);
+    std::vector<std::string> const filesIn = catalog.allPFNsFromFirstCatalog();
 
     if (json) {
       std::cout << '[' << std::endl;
