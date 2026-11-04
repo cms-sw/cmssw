@@ -148,7 +148,8 @@ class Plotter:
         up = values + errors
         do = values - errors
         diff_step = 0.05 * abs(up.max()-do.min())
-        self.limits(y=(do.min() - diff_step, up.max() + 2*diff_step), logY=logY)
+        if diff_step > 0.: # avoid UserWarning when the max/min limits are equal (dummy histograms)
+            self.limits(y=(do.min() - diff_step, up.max() + 2*diff_step), logY=logY)
 
     def save(self, name):
         for ext in self.extensions:
@@ -305,7 +306,7 @@ def varsToPlot(metColl):
         'METPhi'                  : HLTMETInputs(x=r'$\text{MET}\phi_\text{Reco}$', y=nEvts, rebin=2),
         'METDeltaPhi_GenMETTrue'  : HLTMETInputs(x=r'$\text{MET}\phi_\text{Reco} - \text{MET}\phi_\text{Gen}$', y=nEvts, rebin=2),
         'METDiff_GenMETTrue'      : HLTMETInputs(x=r'$\text{MET}_\text{Reco} - \text{MET}_\text{Gen}$ [GeV]', y=nEvts, rebin=10),
-        'METSignPseudo'           : HLTMETInputs(x=r'MET / $\sqrt{\sum E_T}$ "Significance" (event-by-event)', y=nEvts), # Et / std: (: (sqrt(sumEt)
+        'METSignPseudo'           : HLTMETInputs(x='MET / √(∑E_T) "Significance" (event-by-event)', y=nEvts), # \sqrt{} throws a warning
         'METSignReal'             : HLTMETInputs(x='MET Significance (Likelihood)', y=nEvts), # covariance matrix missing
         'MET_Nvtx'                : HLTMETInputs(x='Number of vertices (MET-weighted)', y=nEvts, rebin=10),
         'Nvertex'                 : HLTMETInputs(x='Number of vertices', y=nEvts, rebin=6),
