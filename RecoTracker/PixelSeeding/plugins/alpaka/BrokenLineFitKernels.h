@@ -359,6 +359,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       if (!fitCorrections) {
         brokenline::lineFit(acc, hits_ge, fast_fit, bFieldEff, data, line, fitWs, ctx);
       }
+      // The dip-angle steps of the line on the pre-fit arcs, which circleFit couples to the curvature.
+      if (fitCorrections) {
+        if (!data.failed) {
+          brokenline::lineOnPreFitArcs(acc, hits_ge, fast_fit, data, fitWs);
+        }
+        brokenline::lineDipSteps(data, fitWs);
+      }
       // The vector-hits topology with fitCorrections: the coarse coordinates of the outer-tracker hits predicted from
       // the line on the pre-fit arcs (moveCoarseCoordinates); the circle stage takes the moved hits, the line stage the
       // hits as measured.
@@ -411,12 +418,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
   private:
-    // The coarse-coordinate rule of one lane (BrokenLine.h, coarseCoordinateRule), after the preparation on the hits
-    // as measured: the hits copied for the line stage, the moved flags cleared, and for a track with a candidate hit
-    // the line on the pre-fit arcs and the rule; if it moved a hit, the circle stage's pre-fit (the three-point circle
-    // of the moved hits) and the geometry of the hits on it (preFitGeometry) are computed again, the dip-angle row is
-    // projected with that pre-fit (reprojectDipShift), and the effective field and the rest of the preparation are kept
-    // (BrokenLine.h, coarseCoordinateRule, step 7).
+    // The coarse-coordinate rule of one lane (BrokenLine.h, coarseCoordinateRule), after the preparation and the line
+    // on the pre-fit arcs (lineOnPreFitArcs) on the hits as measured: the hits copied for the line stage, the moved
+    // flags cleared, and for a track with a candidate hit the rule; if it moved a hit, the circle stage's pre-fit (the
+    // three-point circle of the moved hits) and the geometry of the hits on it (preFitGeometry) are computed again, the
+    // dip-angle row is projected with that pre-fit (reprojectDipShift), and the effective field and the rest of the
+    // preparation are kept (BrokenLine.h, coarseCoordinateRule, step 7).
     template <typename M3xN, typename M6xN, typename V4, typename TData, typename TWs>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE static void moveCoarseCoordinates(Acc1D const& acc,
                                                                      uint32_t local_idx,
@@ -437,7 +444,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       if (nCandidates == 0 || data.failed) {
         return;
       }
-      brokenline::lineOnPreFitArcs(acc, hits_ge, fast_fit, data, fitWs);
       if (brokenline::coarseCoordinateRule(acc, hits, hits_ge, rule.sensors, rule.moved, fast_fit, data, fitWs) == 0) {
         return;
       }
