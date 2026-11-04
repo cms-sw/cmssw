@@ -19,11 +19,9 @@
 
 namespace riemannFit {
 
-  // The lanes of one round of the fits.
+  // Number of tuples fitted per round (the fits' lanes).
   constexpr uint32_t maxNumberOfConcurrentFits = 8 * 1024;
-  // The element stride of every per-lane buffer (element e of lane l at e * stride + l): the lane count padded by 16,
-  // as a power-of-two stride puts a lane in one CPU cache set.
-  constexpr uint32_t stride = maxNumberOfConcurrentFits + 16;
+  constexpr uint32_t stride = maxNumberOfConcurrentFits;
 
   // hits
   template <int N>
@@ -71,9 +69,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // The outer-tracker rechits that lowerHitIdx and upperHitIdx of the vector hits point to. An empty view gives no
     // partners.
     void setPartnerRecHits(const ::reco::OTRecHitsConstView &otRecHits) { partnerRecHits_ = otRecHits; }
-    // Host copy of the tuple-multiplicity offsets per hit-count bin (CAHitNtupletGeneratorKernels::
-    // tupleMultiplicityOffsets), read back by the producer before the fit, not owned: both launchers bound their
-    // rounds by them.
+    // Host copy of the tuple-multiplicity offsets, not owned. They set the rounds and the lane-buffer sizes, so they
+    // must be the offsets of the container that the fit reads.
     void setHostTupleMultiplicityOffsets(const uint32_t *off) { hostTupleMultiplicityOffsets_ = off; }
 
     void launchRiemannKernels(const HitsMultiView &hv, const ::reco::CAModulesConstView &fr, Queue &queue);
