@@ -51,29 +51,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
   */
   using karimaki_circle_fit = riemannFit::CircleFit;
 
-  // The per-lane scratch: the fit's O(N) state (the prepared data, the band block shared by the two fits and the
-  // helper vectors) lives in the lane's slice of the fit scratch buffer; scalars and O(1) objects stay on the stack.
-  // Element e of a lane is at lane0[e*S] (LaneSlot), S the element stride of the buffers (riemannFit::stride), so a
-  // warp reads consecutive lanes at consecutive addresses. BLLaneBuffers (BrokenLineFitKernels.h) allocates
-  // kFitScratchDoubles<maxHitsOnTrackForFullFit> per lane. The blocks, in the order of FitScratchLayout:
-  //   prepared data (7n): radii 2n | sTransverse n | sTotal n | zInSZplane n | varBeta n | matXX0 n
-  //   band block (6n+1):  bandM 3n (lower-packed pentadiagonal) | bandBorder n (circle border column) | bandCorner 1 |
-  //                       bandW n (M^-1 border) | bandMs n (solve column)
-  //   helpers (10n+2):    pointsSZ 2n | zVec n | lineWeights n | lineRu n | lineU n | circleWeights n |
-  //                       circleRu n+1 | circleU n+1 | circleInvCol0 n
-  // The slots are reused, which holds only in the lane's call order: a stage overwrites only what no later stage reads.
-  // With fitCorrections off the order is prepareBrokenLineData, lineFit, circleFit: circleFit overwrites zInSZplane
-  // with the circle's residuals and projects varBeta in place, so lineFit, which reads both, comes first.
-  // With fitCorrections on the order is prepareBrokenLineData, lineOnPreFitArcs, lineDipSteps (with the coarse-
-  // coordinate rule then coarseCoordinateRule and, where it moves a hit, preFitGeometry and reprojectDipShift),
-  // circleFit, abscissaeOnFittedCircle, lineFit. The accessors of the views below name the later quantities of a slot.
-  // sTotal and zInSZplane keep their names: the pre-fit's, zInSZplane then the circle's residuals, both then the
-  // abscissae and offsets on the fitted circle. lineRu holds the line's dip-angle steps (dipSteps) from lineDipSteps to
-  // circleFit, which reads them before its right-hand side: in between coarseCoordinateRule writes circleRu,
-  // preFitGeometry the geometry of the prepared data (radii, sTransverse, sTotal, zInSZplane), reprojectDipShift lineU,
-  // and circleFit before its right-hand side zInSZplane, matXX0, pointsSZ row 0, zVec and circleWeights. Among the slots
-  // read up to the end of the fit are pointsSZ row 1 (the kink covariance c_g of each gap), circleWeights, bandW,
-  // circleInvCol0 and circleInvCol1.
+  // The per-lane scratch: element e of a lane is at lane0[e*S] (LaneSlot, S = kFitLaneStride). The stages reuse slots,
+  // so they must run in the order of Kernel_BLFit. The accessors below name the later contents of each reused slot.
   template <int n>
   struct FitScratchLayout {
     // the prepared data
