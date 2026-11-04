@@ -307,12 +307,31 @@ gmtTkMuTable = cms.EDProducer(
         vlooseId  = Var("test_bit(hwQual(),0)", bool, doc = "VLoose ID, bit 0 of hwQual"),
         looseId   = Var("test_bit(hwQual(),1)", bool, doc = "Loose ID, bit 1 of hwQual"),
         mediumId  = Var("test_bit(hwQual(),2)", bool, doc = "Medium ID, bit 2 of hwQual"),
-        tightId   = Var("test_bit(hwQual(),3)", bool, doc = "Tight ID, bit 3 of hwQual")
+        tightId   = Var("test_bit(hwQual(),3)", bool, doc = "Tight ID, bit 3 of hwQual"),
+
+        ## isolation
+        ## NOTE: this is a TRACK-BASED isolation only: the sum of the pT of the L1
+        ## tracker tracks inside a cone around the muon, computed in
+        ## L1Trigger/Phase2L1GMT/interface/Isolation.h. There is no calorimeter or
+        ## PF/Puppi contribution, so it is not comparable to the tkEle/tkPho iso.
+        ## WARNING: the L1Candidate hwIso() bit word inherited from staMuTable is NEVER
+        ## filled for Phase-2 TkMuons -- L1Trigger/Phase2L1GMT/interface/Isolation.h
+        ## disables the iso bits and ships the track-pT sum to the GT instead. The two
+        ## sums below are the real isolation payload; hwIso is redefined after the
+        ## PSet so it carries the word that is actually sent to the GT.
+        hwIsoSum = Var("hwIsoSum()",int,doc="HW isolation: sum of track pT in the isolation cone, full precision (LSB 0.03125 GeV, unsaturated)"),
+        iso = Var("phIso()",float,doc="absolute isolation [GeV], from the 6-bit sum sent to the GT (saturates at 15.75 GeV)"),
+        relIso = Var("phIso()/phPt()",float,doc="relative isolation, from the 6-bit sum sent to the GT (saturates at 15.75 GeV)"),
 
         # ## more info
         # nStubs = Var("stubs().size()",int,doc="number of stubs"),
     )
 )
+
+## hwIso() is always 0 for Phase-2 TkMuons (see above) -- point hwIso at the 6-bit
+## isolation sum that the GMT actually sends to the GT, so that L1gmtTkMuon.hwIso and
+## L1GTgmtTkMuon.hwIso hold the same quantity in the same units.
+gmtTkMuTable.variables.hwIso = Var("hwIsoSumAp()",int,doc="HW isolation sum as sent to the GT: 6 bits, LSB 0.25 GeV, saturates at 63")
 
 ### Standalone Muon from GMT, before ghost busting
 

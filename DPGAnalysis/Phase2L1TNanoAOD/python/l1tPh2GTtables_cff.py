@@ -103,6 +103,16 @@ gtTkMuTable = gtTkEleTable.clone(
         hwD0 = Var("hwD0_toInt()",int),
         hwZ0 = Var("hwZ0_toInt()",int),
         # hwBeta = Var("hwBeta_toInt()",int)
+        ## isolation: filled by L1GTProducer::produceGMTTkMuons from TrackerMuon::apIso(),
+        ## i.e. the 6-bit GMT isolation sum (LSB 0.25 GeV, saturates at 15.75 GeV).
+        ## Matches L1gmtTkMuon.hwIso / .iso from the GMT TkMuon table.
+        ## NOTE: TRACK-BASED isolation only -- the sum of L1 tracker track pT in a cone
+        ## around the muon (L1Trigger/Phase2L1GMT/interface/Isolation.h), with no
+        ## calorimeter or PF/Puppi contribution. Unlike the tkElectron/tkPhoton iso
+        ## above, which comes from the Correlator Layer-2 objects.
+        hwIso = Var("hwIsolationPT_toInt()",int,doc="HW isolation sum received from GMT: 6 bits, LSB 0.25 GeV"),
+        iso = Var("isolationPT()",float, doc = "absolute isolation [GeV]"),
+        relIso = Var("isolationPT()/pt",float, doc = "relative isolation"),
     )
 )
 
