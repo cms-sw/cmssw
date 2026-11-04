@@ -61,8 +61,4 @@ seqALCARECOTkAlCosmicsCosmicTF = cms.Sequence(ALCARECOTkAlCosmicsCosmicTF)
 seqALCARECOTkAlCosmicsRegional = cms.Sequence(ALCARECOTkAlCosmicsRegional)
 
 # Phase-2: Temporarily patch ALCARECOTkAlCosmicsRegional to load a working Phase-2 collection
-if phase2_tracker._isChosen():
-    print(
-        "INFO: Temporary patch - ALCARECOTkAlCosmicsRegional will point to ctfWithMaterialTracksP5 until regional tracking is restored for Phase-2."
-    )
 phase2_tracker.toModify(ALCARECOTkAlCosmicsRegional, src = "ctfWithMaterialTracksP5")

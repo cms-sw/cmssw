@@ -60,10 +60,5 @@ seqALCARECOTkAlCosmicsRegional0T = cms.Sequence(ALCARECOTkAlCosmicsRegional0T)
 seqALCARECOTkAlCosmicsDuringCollisions0T = cms.Sequence(ALCARECOTkAlCosmicsDuringCollisions0T)
 
 # Phase-2: Temporarily patch ALCARECOTkAlCosmicsRegional and ALCARECOTkAlCosmicsDuringCollisions0T to load a working Phase-2 collection
-
-if phase2_tracker._isChosen():
-    print(
-        "INFO: Temporary patch - ALCARECOTkAlCosmicsRegional0T/ALCARECOTkAlCosmicsDuringCollisions0T will both point to ctfWithMaterialTracksP5 until regional tracking is restored for Phase-2."
-    )
 phase2_tracker.toModify(ALCARECOTkAlCosmicsRegional0T, src = "ctfWithMaterialTracksP5")
 phase2_tracker.toModify(ALCARECOTkAlCosmicsDuringCollisions0T, src = "ctfWithMaterialTracksP5")
