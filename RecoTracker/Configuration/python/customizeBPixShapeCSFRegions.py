@@ -35,6 +35,7 @@ _run3_2026_PixelShapeFileL1 = 'RecoTracker/PixelLowPtUtilities/data/data/run3_20
 
 def customizeRun3_2026PixelShapePayloads(process):
     for prod in esproducers_by_type(process, 'ClusterShapeHitFilterESProducer'):
+        prod.usePixelShapeLimitsFromDB = False
         prod.PixelShapeFile = _run3_2026_PixelShapeFile
         prod.PixelShapeFileL1 = _run3_2026_PixelShapeFileL1
     return process

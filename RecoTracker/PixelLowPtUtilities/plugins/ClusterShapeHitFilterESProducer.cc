@@ -1,3 +1,7 @@
+#include <fstream>
+#include <memory>
+#include <sstream>
+
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -5,6 +9,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "RecoTracker/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
 
@@ -13,6 +18,8 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/ClusterChargeCut.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelClusterShapeLimitsRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelClusterShapeLimits.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -37,9 +44,12 @@ private:
   edm::ESGetToken<SiPixelLorentzAngle, SiPixelLorentzAngleRcd> pixelToken_;
   // Retrieve strip Lorentz
   edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleDepRcd> stripToken_;
+  // Retrieve pixel cluster shape limits
+  edm::ESGetToken<SiPixelClusterShapeLimits, SiPixelClusterShapeLimitsRcd> limitsToken_;
 
-  const std::string pixelShapeFile;
-  const std::string pixelShapeFileL1;
+  // if false, the pixel cluster shape limits are read from the ASCII files instead of SiPixelClusterShapeLimitsRcd
+  const bool usePixelShapeLimitsFromDB_;
+  const SiPixelClusterShapeLimits pixelShapeLimitsFromFiles_;
   const std::vector<ClusterShapeHitFilter::BPixShapeCutRegion> noBPixShapeCutRegions_;
   const float minGoodPixelCharge_, minGoodStripCharge_;
   const bool isPhase2_;
@@ -64,12 +74,49 @@ namespace {
 
     return regions;
   }
+
+  std::vector<SiPixelClusterShapeLimits::Entry> readPixelShapeFile(const std::string& file) {
+    std::ifstream inFile(edm::FileInPath(file).fullPath());
+    std::vector<SiPixelClusterShapeLimits::Entry> entries;
+    std::string line;
+    while (std::getline(inFile, line)) {
+      std::istringstream iss(line);
+      SiPixelClusterShapeLimits::Entry entry;
+      if (!(iss >> entry.part >> entry.dx >> entry.dy))
+        continue;  // empty line
+      entry.limits.resize(SiPixelClusterShapeLimits::kNLimits);
+      for (auto& limit : entry.limits)
+        iss >> limit;
+      if (!iss)
+        throw cms::Exception("Configuration")
+            << "ClusterShapeHitFilterESProducer: malformed line in " << file << ": " << line;
+      entries.push_back(entry);
+    }
+    return entries;
+  }
+
+  // the limits from PixelShapeFile (all pixel modules but BPix layer 1) and PixelShapeFileL1 (BPix layer 1),
+  // as they were used before they were moved to SiPixelClusterShapeLimitsRcd
+  SiPixelClusterShapeLimits getPixelShapeLimitsFromFiles(const edm::ParameterSet& iConfig) {
+    SiPixelClusterShapeLimits limits;
+    if (iConfig.getParameter<bool>("usePixelShapeLimitsFromDB"))
+      return limits;
+
+    const auto& file = iConfig.getParameter<std::string>("PixelShapeFile");
+    const auto& fileL1 = iConfig.getParameter<std::string>("PixelShapeFileL1");
+    const unsigned int table = limits.addTable(file, readPixelShapeFile(file));
+    const unsigned int tableL1 = limits.addTable(fileL1, readPixelShapeFile(fileL1));
+    limits.addRule({SiPixelClusterShapeLimits::kBPix, 1, tableL1});
+    limits.addRule({SiPixelClusterShapeLimits::kBPix, SiPixelClusterShapeLimits::kAny, table});
+    limits.addRule({SiPixelClusterShapeLimits::kFPix, SiPixelClusterShapeLimits::kAny, table});
+    return limits;
+  }
 }  // namespace
 
 /*****************************************************************************/
 ClusterShapeHitFilterESProducer::ClusterShapeHitFilterESProducer(const edm::ParameterSet& iConfig)
-    : pixelShapeFile(iConfig.getParameter<std::string>("PixelShapeFile")),
-      pixelShapeFileL1(iConfig.getParameter<std::string>("PixelShapeFileL1")),
+    : usePixelShapeLimitsFromDB_(iConfig.getParameter<bool>("usePixelShapeLimitsFromDB")),
+      pixelShapeLimitsFromFiles_(getPixelShapeLimitsFromFiles(iConfig)),
       noBPixShapeCutRegions_(getNoBPixShapeCutRegions(iConfig)),
       minGoodPixelCharge_(0),
       minGoodStripCharge_(clusterChargeCut(iConfig)),
@@ -87,6 +134,9 @@ ClusterShapeHitFilterESProducer::ClusterShapeHitFilterESProducer(const edm::Para
   geoToken_ = cc.consumes();
   topolToken_ = cc.consumes();
   pixelToken_ = cc.consumes();
+  if (usePixelShapeLimitsFromDB_) {
+    limitsToken_ = cc.consumes(edm::ESInputTag("", iConfig.getParameter<std::string>("pixelShapeLimitsLabel")));
+  }
   if (!isPhase2_) {
     stripToken_ = cc.consumes();
   }
@@ -103,14 +153,14 @@ ClusterShapeHitFilterESProducer::ReturnType ClusterShapeHitFilterESProducer::pro
   }
 
   // Produce the filter using the plugin factory
-  ClusterShapeHitFilterESProducer::ReturnType aFilter(new ClusterShapeHitFilter(&iRecord.get(geoToken_),
-                                                                                &iRecord.get(topolToken_),
-                                                                                &iRecord.get(fieldToken_),
-                                                                                &iRecord.get(pixelToken_),
-                                                                                theSiStripLorentzAngle,
-                                                                                pixelShapeFile,
-                                                                                pixelShapeFileL1,
-                                                                                noBPixShapeCutRegions_));
+  ClusterShapeHitFilterESProducer::ReturnType aFilter = std::make_unique<ClusterShapeHitFilter>(
+      &iRecord.get(geoToken_),
+      &iRecord.get(topolToken_),
+      &iRecord.get(fieldToken_),
+      &iRecord.get(pixelToken_),
+      theSiStripLorentzAngle,
+      usePixelShapeLimitsFromDB_ ? iRecord.get(limitsToken_) : pixelShapeLimitsFromFiles_,
+      noBPixShapeCutRegions_);
 
   aFilter->setShapeCuts(cutOnPixelShape_, cutOnStripShape_);
   aFilter->setChargeCuts(cutOnPixelCharge_, minGoodPixelCharge_, cutOnStripCharge_, minGoodStripCharge_);
@@ -120,8 +170,16 @@ ClusterShapeHitFilterESProducer::ReturnType ClusterShapeHitFilterESProducer::pro
 /*****************************************************************************/
 void ClusterShapeHitFilterESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("PixelShapeFile", "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase0.par");
-  desc.add<std::string>("PixelShapeFileL1", "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase0.par");
+  desc.add<std::string>("PixelShapeFile", "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase0.par")
+      ->setComment("used only if usePixelShapeLimitsFromDB = false");
+  desc.add<std::string>("PixelShapeFileL1", "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase0.par")
+      ->setComment("used only if usePixelShapeLimitsFromDB = false");
+  desc.add<bool>("usePixelShapeLimitsFromDB", true)
+      ->setComment(
+          "read the pixel cluster shape limits from SiPixelClusterShapeLimitsRcd; if false, from PixelShapeFile "
+          "(all pixel modules but BPix layer 1) and PixelShapeFileL1 (BPix layer 1)");
+  desc.add<std::string>("pixelShapeLimitsLabel", "")
+      ->setComment("label of the SiPixelClusterShapeLimits payload in SiPixelClusterShapeLimitsRcd");
   desc.add<std::string>("ComponentName", "");
   desc.add<bool>("isPhase2", false);
   desc.add<bool>("doPixelShapeCut", true);
