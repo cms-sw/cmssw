@@ -15,11 +15,17 @@ options.register('offsetfile','Geometry/HGCalMapping/data/CellMaps/calibration_t
                  info="Path to calibration-to-surrounding cell offset file. Absolute, or relative to CMSSW src directory")
 options.parseArguments()
 
-process.source = cms.Source('EmptySource')
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+#source
+process.maxEvents = cms.untracked.PSet( 
+    input = cms.untracked.int32(options.maxEvents) 
 )
+process.source = cms.Source(
+    "PoolSource",
+    fileNames=cms.untracked.vstring(options.inputFiles)
+)
+
+# Geometry
+process.load('Configuration.Geometry.GeometryExtendedRun4D122Reco_cff')
 
 # electronics mapping
 from Geometry.HGCalMapping.hgcalmapping_cff import customise_hgcalmapper
@@ -30,11 +36,42 @@ process = customise_hgcalmapper(process, **kwargs)
 from SimCalorimetry.HGCalSimAlgos.hgcal_ageing_byalgo_cfi import customise_hgcal_ageing_byalgo_startup
 process = customise_hgcal_ageing_byalgo_startup(process)
 
-# Geometry
-process.load('Configuration.Geometry.GeometryExtendedRun4D122Reco_cff')
+# Geant4 accumulator: edmPluginHelp -m HGCalSimHitAccumulator@alpaka
+from SimCalorimetry.HGCalSimProducers.hgCalSimHitAccumulator_cfi import hgCalSimHitAccumulator
+process.hgCalSimHitAccumulator = cms.EDProducer(
+    'alpaka_serial_sync::HGCalSimHitAccumulator',
+    g4HitsDets = cms.vint32([8,9,10]),
+    g4Hits = cms.VInputTag(
+        cms.InputTag("g4SimHits", "HGCHitsEE"),
+        cms.InputTag("g4SimHits", "HGCHitsHEfront"),
+        cms.InputTag("g4SimHits", "HGCHitsHEback"),
+    ),
+    g4TOFDelays = cms.vdouble([-9,-11,-14]),
+    indexingSource = cms.ESInputTag(),
+    cellMappingSource = cms.ESInputTag()
+)
 
-# tester
-process.load('SimCalorimetry.HGCalSimAlgos.hgCalAgeingConditionTester_cfi')
+# HGCal Alpaka digitizer (notice it's declaring the CPU version of it!)
+from SimCalorimetry.HGCalSimProducers.hgCalDigitizerProducer_cfi import hgCalDigitizerProducer
+process.hgCalDigitizerProducer = cms.EDProducer(
+    'alpaka_serial_sync::HGCalDigitizerProducer',
+    g4HitsAcc = cms.InputTag("hgCalSimHitAccumulator"),
+    ageingConds = cms.ESInputTag(),
+    n_blocks = cms.int32(4096),
+    n_threads = cms.int32(1024)
+)
+
+
+process.RandomNumberGeneratorService = cms.Service(
+    "RandomNumberGeneratorService",
+    hgCalDigitizerProducer = cms.PSet(
+        initialSeed = cms.untracked.uint32(1337),
+        engineName = cms.untracked.string("HepJamesRandom")
+    )
+)
 
 # test path
-process.p = cms.Path(process.hgCalAgeingConditionTester)
+process.p = cms.Path(
+    process.hgCalSimHitAccumulator
+    *process.hgCalDigitizerProducer
+)
