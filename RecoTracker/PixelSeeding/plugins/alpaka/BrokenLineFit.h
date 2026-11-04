@@ -23,13 +23,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::cout << "Starting HelixFit<TrackerTraits>::launchBrokenLineKernels" << std::endl;
 #endif
 
-    //  Fit internals
-    auto tkidDevice =
-        cms::alpakatools::make_device_buffer<typename caStructures::tindex_type[]>(queue, maxNumberOfConcurrentFits_);
-    // The buffers of the coarse-coordinate rule and of the second sensor of a vector hit, for the vector-hits topology
-    // with fitCorrections (BLCoarseRuleBuffers).
-    BLLaneBuffers<TrackerTraits> buffers(queue, BLCoarseRuleBuffers<TrackerTraits>::kActive && fitCfg_.fitCorrections);
-
     // The top bin [maxHitsOnTrackForFullFit, maxHitsOnTrack - 1] must not be empty.
     static_assert(TrackerTraits::maxHitsOnTrackForFullFit < TrackerTraits::maxHitsOnTrack);
     const WorkDiv1D workDivFused = cms::alpakatools::make_workdiv<Acc1D>(kFitFusedBlocks<TrackerTraits>, kFitBlock);
@@ -38,6 +31,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_ASSERT_ACC(hostTupleMultiplicityOffsets_);
     const uint32_t nRounds = cms::alpakatools::divide_up_by(
         fittedPopulation<TrackerTraits>(hostTupleMultiplicityOffsets_), maxNumberOfConcurrentFits_);
+    if (nRounds == 0) {
+      return;
+    }
+    //  Fit internals
+    auto tkidDevice =
+        cms::alpakatools::make_device_buffer<typename caStructures::tindex_type[]>(queue, maxNumberOfConcurrentFits_);
+    // The lane buffers, sized for the round that needs the most.
+    const bool coarseRule = BLCoarseRuleBuffers<TrackerTraits>::used(fitCfg_.fitCorrections);
+    const BLLaneValues sizes = blLaneSizes<TrackerTraits>(hostTupleMultiplicityOffsets_, nRounds, coarseRule);
+    BLLaneBuffers<TrackerTraits> buffers(queue, sizes, coarseRule);
+    const BLRulePointers ruleBuffers = buffers.rulePointers();
     for (uint32_t round = 0; round < nRounds; ++round) {
       alpaka::exec<Acc1D>(queue,
                           workDivFused,
@@ -51,8 +55,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           buffers.hitsGe.data(),
                           buffers.fastFit.data(),
                           round,
-                          buffers.coarseRuleScratch(),
-                          partnerRecHits_);
+                          ruleBuffers,
+                          coarseRule,
+                          partnerRecHits_,
+                          sizes);
       alpaka::exec<Acc1D>(queue,
                           workDivFused,
                           Kernel_BLFitFused<TrackerTraits>{fitCfg_},
@@ -64,7 +70,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           buffers.hitsGe.data(),
                           buffers.fastFit.data(),
                           buffers.scratch.data(),
-                          round);
+                          ruleBuffers,
+                          round,
+                          coarseRule,
+                          sizes);
     }
   }
 
