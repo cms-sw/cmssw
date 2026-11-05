@@ -28,13 +28,17 @@ namespace edm {
       return pythonProcessDesc.parameterSet();
     }
 
-    std::unique_ptr<ParameterSet> readConfig(std::string const& config, const std::vector<std::string>& args) {
-      PyBind11ProcessDesc pythonProcessDesc(config, true, args);
+    std::unique_ptr<ParameterSet> readConfig(std::string const& config,
+                                             const std::vector<std::string>& args,
+                                             std::vector<std::pair<std::string, std::string>> const& processOptions) {
+      PyBind11ProcessDesc pythonProcessDesc(config, true, args, processOptions);
       return pythonProcessDesc.parameterSet();
     }
 
-    void makeParameterSets(std::string const& configtext, std::unique_ptr<ParameterSet>& main) {
-      PyBind11ProcessDesc pythonProcessDesc(configtext, false);
+    void makeParameterSets(std::string const& configtext,
+                           std::unique_ptr<ParameterSet>& main,
+                           std::vector<std::pair<std::string, std::string>> const& processOptions) {
+      PyBind11ProcessDesc pythonProcessDesc(configtext, false, processOptions);
       main = pythonProcessDesc.parameterSet();
     }
 
