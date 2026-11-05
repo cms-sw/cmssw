@@ -118,9 +118,8 @@ void checkNestedSoABlocks(const ConstView& view) {
 TEST_CASE("NestedSoABlocks minimal test") {
   auto const& devices = cms::alpakatools::devices<Platform>();
   if (devices.empty()) {
-    std::cout << "No devices available for the " << EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE)
-              << " backend, skipping.\n";
-    return;
+    SKIP("No devices available for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) " backend, "
+         "the test will be skipped.");
   }
 
   for (auto const& device : devices) {
