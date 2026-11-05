@@ -40,7 +40,8 @@ namespace mkfit {
     bool b_field_at_mid = true;
     // Correct each propagation to a plane for the radial field component Br = -(r/2) dBz/dz, which the
     // constant-Bz helix neglects, antisymmetrically: half of the change in r*p_phi at each end of the step.
-    // With the parametrised field only.
+    // With the parametrised field and the final fit's own constants (PF_use_fit_b_field) only: track building's
+    // constants fold Br into an effective Bz already.
     bool radial_field_corr = true;
     // Sign of the energy loss from the fit pass, not from the sign of each step's path length: the forward
     // pass loses energy on every step, the backward pass gains it.  The particle crosses every module whatever

@@ -77,6 +77,8 @@ namespace mkfit::final_fit {
     //   f = a r^4/4 + r^2/2,  Zm = (Z0 + Z1)/2,  dZ = Z0 - Z1.
     // D2 and dZ flip sign under the swap and nothing else does.  Every difference is written in factored
     // form so that no two large, nearly equal numbers are subtracted in float.
+    // It uses the final fit's own constants (Config::mag_fit_*), fitted to Bz of the field map, and is applied only
+    // with PF_use_fit_b_field: track building's constants fold Br into an effective Bz already.
     MPlexQF brDeltaRPphiV(const MPlexLV& inPar, const MPlexLV& outPar, const MPlexQI& inChg) {
       namespace mpt = Matriplex;
       using MPF = MPlexQF;
@@ -167,13 +169,14 @@ namespace mkfit::final_fit {
 
     // ---- Steps of the final fit's propagation (see PlaneSteps.h for the shared ones)
 
-    // The field at the chord midpoint between the start state and at: B and kinv for the rest of the step.
-    void field_at_mid(const TrackRef& in, const MPlexLV& at, FieldAt& f) {
+    // The field at the chord midpoint between the start state and at: B and kinv for the rest of the step, from the
+    // same constants as field_at_start().
+    void field_at_mid(const TrackRef& in, const MPlexLV& at, const PropagationFlags& pflags, FieldAt& f) {
       const MPF z = 0.5f * (in.par(2, 0) + at(2, 0));
       const MPF x = 0.5f * (in.par(0, 0) + at(0, 0));
       const MPF y = 0.5f * (in.par(1, 0) + at(1, 0));
       for (int n = 0; n < NN; ++n)
-        f.b[n] = Config::bFieldFromZRFit(z[n], hipo(x[n], y[n]));
+        f.b[n] = Config::bFieldFromZR(z[n], hipo(x[n], y[n]), pflags.use_fit_b_field);
       f.kinv = Matriplex::negate_if_ltz(MPF(-Const::sol_over_100), in.chg) * f.b;
     }
 
@@ -203,7 +206,7 @@ namespace mkfit::final_fit {
         MPlexLV at{0.0f};
         drift(in, t, f, p.s, at);
         if (pflags.use_param_b_field && ffflags.b_field_at_mid)
-          field_at_mid(in, at, f);
+          field_at_mid(in, at, pflags, f);
         path_refine_from(in, t, pl, f, at, p);
       }
       path_close(in, p);
@@ -224,7 +227,7 @@ namespace mkfit::final_fit {
                        MPlexLV& outPar,
                        MPlexQF& s,
                        MPlexLL* J) {
-      if (pflags.use_param_b_field && ffflags.radial_field_corr) {
+      if (pflags.use_param_b_field && pflags.use_fit_b_field && ffflags.radial_field_corr) {
         MPlexLV par0{0.0f};
         MPlexQF s0{0.0f};
         helix_step(in, pl, pflags, ffflags, par0, s0, nullptr);
@@ -307,12 +310,12 @@ namespace mkfit::final_fit {
       drift(in, t, f, step, p1);
       // b_field_at_mid: the drift again, with B at the chord midpoint
       if (pflags.use_param_b_field && ffflags.b_field_at_mid) {
-        field_at_mid(in, p1, f);
+        field_at_mid(in, p1, pflags, f);
         drift(in, t, f, step, p1);
       }
       // radial_field_corr: half of the radial-field kick D before the drift and half after it, D between the
       // uncorrected endpoints; the kicked drift keeps the midpoint field, which the kick moves only at second order
-      if (pflags.use_param_b_field && ffflags.radial_field_corr) {
+      if (pflags.use_param_b_field && pflags.use_fit_b_field && ffflags.radial_field_corr) {
         const MPF dvec = brDeltaRPphiV(par, p1, chg);
         MPlexLV ph = par;
         applyDpPhiV(ph, 0.5f * dvec, N_proc);
@@ -505,7 +508,7 @@ namespace mkfit::final_fit {
     FieldAt fW;
     field_at_start(in, pflags, fW);
     if (pflags.use_param_b_field && ffflags.b_field_at_mid)
-      field_at_mid(in, outPar, fW);
+      field_at_mid(in, outPar, pflags, fW);
     StartTrig t;
     start_trig(in, t);
     MPlexLV parJ{0.0f};
