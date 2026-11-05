@@ -50,7 +50,6 @@ namespace egamma {
         : relP1(p1 - origin), relP2(p2 - origin) {}
 
     // Calculate differences
-    //constexpr auto dEta() const { return relative_eta(relP1, relP2); }
     constexpr inline T dZ() const { return (relP1[2] - relP2[2]); }
 
     template <typename TAcc>
