@@ -1,23 +1,36 @@
-#!/bin/bash
+#! /bin/bash
 
 function die { echo Failure $1: status $2 ; echo ""; cat log ; exit $2 ; }
 
-if [ -z  $SCRAM_TEST_PATH ]; then
-SCRAM_TEST_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [ -z $SCRAM_TEST_PATH ]; then
+  SCRAM_TEST_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 fi
-echo "LOCAL_TEST_DIR = $SCRAM_TEST_PATH"
+echo "LOCAL_TEST_DIR=$SCRAM_TEST_PATH"
 
-if [ -z  $TEST_COMPRESSION_ALGO ]; then
-TEST_COMPRESSION_ALGO="ZLIB"
+if [ -z $TEST_COMPRESSION_ALGO ]; then
+  TEST_COMPRESSION_ALGO="ZLIB"
 fi
-echo "TEST_COMPRESSION_ALGO = $TEST_COMPRESSION_ALGO"
 
-if [ -z  $TEST_COMPRESSION_LEVEL ]; then
-TEST_COMPRESSION_LEVEL=1
+case "$TEST_COMPRESSION_ALGO" in
+  UNCOMPRESSED|LZ4|ZLIB|ZSTD|LZMA)
+    echo "TEST_COMPRESSION_ALGO=$TEST_COMPRESSION_ALGO"
+    ;;
+  *)
+    echo "$(basename $0): invalid compression algorithm '$ALGO'"
+    exit 1
+    ;;
+esac
+
+if [ -z "$TEST_COMPRESSION_LEVEL" ]; then
+  TEST_COMPRESSION_LEVEL=1
 fi
-echo "TEST_COMPRESSION_LEVEL = $TEST_COMPRESSION_LEVEL"
 
-RC=0
+if (( TEST_COMPRESSION_LEVEL >= 0 )) || (( TEST_COMPRESSION_LEVEL <= 20 )); then
+  echo "TEST_COMPRESSION_LEVEL=$TEST_COMPRESSION_LEVEL"
+else
+  echo "$(basename $0): invalid compression level '$LEVEL'"
+  exit 1
+fi
 
 rm -rf {out,outPadded,log,*.txt,*.dat,*.root}
 
@@ -36,12 +49,7 @@ cmsRun ${SCRAM_TEST_PATH}/NewStreamInExtBuf_cfg.py > log  2>&1 || die "cmsRun Ne
 cmsRun ${SCRAM_TEST_PATH}/NewStreamInPadding_cfg.py > log  2>&1 || die "cmsRun NewStreamInPadding_cfg.py (1)" $?
 cmsRun ${SCRAM_TEST_PATH}/NewStreamInPadding_cfg.py inChecksum=outPadded  > log  2>&1 || die "cmsRun NewStreamInPadding_cfg.py (2)" $?
 
-# echo "CHECKSUM = 1" > out
-
 if [ ! -s out ]; then
-
-    echo "New Stream Test Failed (out was not created or is empty)"
-    RC=1
+  echo "New Stream Test Failed (out was not created or is empty)"
+  exit 1
 fi
-
-exit ${RC}
