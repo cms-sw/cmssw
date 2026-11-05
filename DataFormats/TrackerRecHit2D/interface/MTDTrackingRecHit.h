@@ -12,7 +12,7 @@ namespace io_v1 {
   public:
     MTDTrackingRecHit() : TrackerSingleRecHit() {}
 
-    MTDTrackingRecHit(const LocalPoint& p, const LocalError& e, const GeomDet& idet, const FTLClusterRef& objref)
+    MTDTrackingRecHit(const LocalPoint& p, const LocalError& e, const GeomDet& idet, const FTLMergedClusterRef& objref)
         : TrackerSingleRecHit(p, e, idet, trackerHitRTTI::mipTiming, objref) {}
 
     MTDTrackingRecHit* clone() const override { return new MTDTrackingRecHit(*this); }
