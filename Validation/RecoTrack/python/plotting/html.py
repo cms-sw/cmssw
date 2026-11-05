@@ -697,7 +697,8 @@ class TrackingPageSet(PageSet):
         ret.extend(algos)
         return ret
 
-
+def _dqmSubFolderTranslatedToSectionName(algoQuality):
+    return algoQuality[0]
 
 class IndexSection:
     def __init__(self, sample, title, fastVsFull, pileupComparison):
@@ -731,7 +732,7 @@ class IndexSection:
         self._miniaodPage = PageSet(*params)
         self._timingPage = PageSet(*params)
         self._pfPages = PageSet(*params)
-        self._hltPages = PageSet(*params, dqmSubFolderTranslatedToSectionName=lambda algoQuality: algoQuality[0])
+        self._hltPages = PageSet(*params, dqmSubFolderTranslatedToSectionName=_dqmSubFolderTranslatedToSectionName)
         self._pixelPages = TrackingPageSet(*params)
         self._otherPages = PageSet(*params)
 

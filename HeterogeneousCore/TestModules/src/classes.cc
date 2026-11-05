@@ -1,0 +1,11 @@
+#include "DataFormats/Portable/interface/PortableHostCollectionReadRules.h"
+#include "DataFormats/Portable/interface/PortableHostObjectReadRules.h"
+
+#include "HeterogeneousCore/TestModules/interface/SchemaEvolutionHostCollection.h"
+
+SET_PORTABLEHOSTCOLLECTION_READ_RULES(testmodules::HostCollectionEvolutionZero);
+SET_PORTABLEHOSTCOLLECTION_READ_RULES(testmodules::HostCollectionEvolutionOne);
+SET_PORTABLEHOSTCOLLECTION_READ_RULES(testmodules::HostCollectionEvolutionTwo);
+SET_PORTABLEHOSTCOLLECTION_READ_RULES(testmodules::HostCollectionEvolutionThree);
+SET_PORTABLEHOSTCOLLECTION_READ_RULES(testmodules::HostCollectionEvolutionFour);
+SET_PORTABLEHOSTCOLLECTION_READ_RULES(testmodules::HostCollectionEvolutionFive);

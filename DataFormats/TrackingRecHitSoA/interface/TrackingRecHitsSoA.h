@@ -1,8 +1,6 @@
 #ifndef DataFormats_TrackingRecHitSoA_interface_TrackingRecHitsSoA_h
 #define DataFormats_TrackingRecHitSoA_interface_TrackingRecHitsSoA_h
 
-#include <Eigen/Dense>
-
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "DataFormats/SoATemplate/interface/SoABlocks.h"
 #include "DataFormats/TrackingRecHitSoA/interface/SiPixelHitStatus.h"

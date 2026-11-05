@@ -20,3 +20,11 @@
 
 <test name="TestFastTimerService" command="cmsRun ${LOCALTOP}/src/HLTrigger/Timer/test/testFastTimerService_cfg.py"/>
 
+<library file="UnobservedThreadSignals.cc" name="HLTriggerTimerTestServices">
+  <flags EDM_PLUGIN="1"/>
+  <use name="DataFormats/Provenance"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ServiceRegistry"/>
+</library>
+
+<test name="TestFastTimerServiceUnobservedThreads" command="testFastTimerServiceUnobservedThreads.sh"/>

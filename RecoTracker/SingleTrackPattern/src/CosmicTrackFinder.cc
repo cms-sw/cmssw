@@ -22,6 +22,12 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
+namespace {
+  /// convenience typedef for shorter syntax below
+  template <typename collection>
+  using optionalInput = std::optional<std::reference_wrapper<const collection>>;
+}  // namespace
+
 namespace cms {
 
   CosmicTrackFinder::CosmicTrackFinder(edm::ParameterSet const& conf)
@@ -29,10 +35,12 @@ namespace cms {
     geometry = conf.getUntrackedParameter<std::string>("GeometricStructure", "STANDARD");
     useHitsSplitting_ = conf.getParameter<bool>("useHitsSplitting");
     matchedrecHitsToken_ =
-        consumes<SiStripMatchedRecHit2DCollection>(conf.getParameter<edm::InputTag>("matchedRecHits"));
-    rphirecHitsToken_ = consumes<SiStripRecHit2DCollection>(conf.getParameter<edm::InputTag>("rphirecHits"));
-    stereorecHitsToken_ = consumes<SiStripRecHit2DCollection>(conf.getParameter<edm::InputTag>("stereorecHits"));
-    pixelRecHitsToken_ = consumes<SiPixelRecHitCollection>(conf.getParameter<edm::InputTag>("pixelRecHits"));
+        mayConsume<SiStripMatchedRecHit2DCollection>(conf.getParameter<edm::InputTag>("matchedRecHits"));
+    rphirecHitsToken_ = mayConsume<SiStripRecHit2DCollection>(conf.getParameter<edm::InputTag>("rphirecHits"));
+    stereorecHitsToken_ = mayConsume<SiStripRecHit2DCollection>(conf.getParameter<edm::InputTag>("stereorecHits"));
+    pixelRecHitsToken_ = mayConsume<SiPixelRecHitCollection>(conf.getParameter<edm::InputTag>("pixelRecHits"));
+    otRecHitsToken_ = mayConsume<Phase2TrackerRecHit1DCollectionNew>(conf.getParameter<edm::InputTag>("OTRecHits"));
+
     seedToken_ = consumes<TrajectorySeedCollection>(conf.getParameter<edm::InputTag>("cosmicSeeds"));
 
     produces<TrackCandidateCollection>();
@@ -53,9 +61,11 @@ namespace cms {
     static const SiPixelRecHitCollection s_empty;
     const SiPixelRecHitCollection* pixelHitCollection = &s_empty;
     edm::Handle<SiPixelRecHitCollection> pixelHits;
+    bool have_pixel = false;
     if (geometry != "MTCC" && (geometry != "CRACK")) {
       if (e.getByToken(pixelRecHitsToken_, pixelHits)) {
         pixelHitCollection = pixelHits.product();
+        have_pixel = true;
       } else {
         Labels l;
         labelsForToken(pixelRecHitsToken_, l);
@@ -64,14 +74,29 @@ namespace cms {
       }
     }
 
-    //retrieve StripRecHits
+    // retrieve StripRecHits
     edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
-    e.getByToken(matchedrecHitsToken_, matchedrecHits);
+    bool have_matchedrecHits = e.getByToken(matchedrecHitsToken_, matchedrecHits);
     edm::Handle<SiStripRecHit2DCollection> rphirecHits;
-    e.getByToken(rphirecHitsToken_, rphirecHits);
+    bool have_rphirecHits = e.getByToken(rphirecHitsToken_, rphirecHits);
     edm::Handle<SiStripRecHit2DCollection> stereorecHits;
-    e.getByToken(stereorecHitsToken_, stereorecHits);
+    bool have_stereorecHits = e.getByToken(stereorecHitsToken_, stereorecHits);
+    edm::Handle<Phase2TrackerRecHit1DCollectionNew> otHitCollection;
+    bool have_otRecHits = e.getByToken(otRecHitsToken_, otHitCollection);
 
+    // check that the strip hits we find match the expectation
+    // for one of the CMS running scenarios
+    if (!(have_stereorecHits && have_matchedrecHits && have_rphirecHits) && !have_otRecHits) {
+      Labels l1, l2, l3, l4;
+      labelsForToken(matchedrecHitsToken_, l1);
+      labelsForToken(rphirecHitsToken_, l2);
+      labelsForToken(stereorecHitsToken_, l3);
+      labelsForToken(otRecHitsToken_, l4);
+      edm::LogWarning("CosmicTrackFinder")
+          << "No valid strip hit collection found, tried the input tags" << std::endl
+          << "   " << l1.module << ", " << l2.module << ", " << l3.module << " and " << l4.module << std::endl
+          << " - either the first three (Phase-1) or the last (Phase-2) should exist.";
+    }
     // Step B: create empty output collection
     auto output = std::make_unique<TrackCandidateCollection>();
 
@@ -82,10 +107,30 @@ namespace cms {
 
       const TransientTrackingRecHitBuilder* hitBuilder = nullptr;
       if (geometry != "CRACK") {
-        cosmicTrajectoryBuilder_.run(
-            *seed, *stereorecHits, *rphirecHits, *matchedrecHits, *pixelHitCollection, es, e, trajoutput);
+        // to support both the Phase-1 and the Phase-2 layout,
+        // check which collections are available and only
+        // pass along those.
+        optionalInput<SiStripRecHit2DCollection> stereo = std::nullopt;
+        optionalInput<SiStripRecHit2DCollection> rphi = std::nullopt;
+        optionalInput<SiStripMatchedRecHit2DCollection> matched = std::nullopt;
+        optionalInput<SiPixelRecHitCollection> pix = std::nullopt;
+        optionalInput<Phase2TrackerRecHit1DCollectionNew> ot = std::nullopt;
+
+        if (have_pixel)
+          pix = *pixelHitCollection;
+        if (have_rphirecHits)
+          rphi = *rphirecHits;
+        if (have_stereorecHits)
+          stereo = *stereorecHits;
+        if (have_matchedrecHits)
+          matched = *matchedrecHits;
+        if (have_otRecHits)
+          ot = *otHitCollection;
+
+        cosmicTrajectoryBuilder_.run(*seed, stereo, rphi, matched, pix, ot, es, e, trajoutput);
         hitBuilder = cosmicTrajectoryBuilder_.hitBuilder();
       } else {
+        /// CRack: So far, only support Phase-1 style hits
         crackTrajectoryBuilder_.run(
             *seed, *stereorecHits, *rphirecHits, *matchedrecHits, *pixelHitCollection, es, e, trajoutput);
         hitBuilder = crackTrajectoryBuilder_.hitBuilder();

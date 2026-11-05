@@ -28,7 +28,7 @@ private:
   bool scaleByDose_, thresholdFollowsMIP_;
   float keV2MIP_, noise_MIP_;
   float nPEperMIP_, nTotalPE_, xTalk_, sdPixels_;
-  std::string doseMapFile_, sipmMapFile_;
+  std::string doseMapFile_;
   HGCalSciNoiseMap scal_;
 
   void runEmptyDigitizer(std::unique_ptr<HGCalDigiCollection>& digiColl,
@@ -53,7 +53,6 @@ private:
 HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet& ps) : HGCDigitizerBase(ps) {
   edm::ParameterSet cfg = ps.getParameter<edm::ParameterSet>("digiCfg");
   algo_ = cfg.getParameter<uint32_t>("algo");
-  sipmMapFile_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<std::string>("sipmMap");
   scaleByDose_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<bool>("scaleByDose");
   unsigned int scaleByDoseAlgo = cfg.getParameter<edm::ParameterSet>("noise").getParameter<uint32_t>("scaleByDoseAlgo");
   scaleByDoseFactor_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<double>("scaleByDoseFactor");
@@ -72,7 +71,6 @@ HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet& ps) : HGCDigitiz
   scal_.setDoseMap(doseMapFile_, scaleByDoseAlgo);
   scal_.setReferenceDarkCurrent(refIdark);
   scal_.setFluenceScaleFactor(scaleByDoseFactor_);
-  scal_.setSipmMap(sipmMapFile_);
   scal_.setReferenceCrossTalk(xTalk_);
   //the ADC will be updated on the fly depending on the gain
   //but the TDC scale needs to be updated to use pe instead of MIP units
@@ -171,8 +169,7 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
     //we update vanilla values with the realistic ones
     if (id.det() == DetId::HGCalHSc && scaleByDose_) {
       HGCScintillatorDetId scId(id.rawId());
-      double radius = scal_.computeRadius(scId);
-      auto opChar = scal_.scaleByDose(scId, radius);
+      auto opChar = scal_.scaleByDose(scId);
       scaledPePerMip = opChar.s;
       tunedNoise = opChar.n;
       gainIdx = opChar.gain;

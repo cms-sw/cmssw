@@ -46,6 +46,8 @@
   <class name="reco::SecondaryVertexTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::SecondaryVertexTagInfoCollection>"/>
 
+  <class name="reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<vector<edm::Ptr<reco::io_v1::Candidate> >,reco::io_v1::JetTagInfo>,reco::io_v1::VertexCompositePtrCandidate>"/>
+
   <class name="reco::TemplatedSecondaryVertexTagInfo<reco::CandIPTagInfo,reco::io_v1::VertexCompositePtrCandidate>::VertexData"/>
   <class name="std::vector<reco::CandSecondaryVertexTagInfo::VertexData>"/>
   <class name="reco::CandSecondaryVertexTagInfo"/>
@@ -432,6 +434,14 @@
   <class name="reco::ParticleTransformerAK4TagInfoRefProd"/>
   <class name="reco::ParticleTransformerAK4TagInfoRefVector"/>
   <class name="edm::Wrapper<reco::ParticleTransformerAK4TagInfoCollection>"/>
+
+  <class name="reco::HLTParticleTransformerAK4TagInfo"/>
+  <class name="reco::HLTParticleTransformerAK4TagInfoCollection"/>
+  <class name="reco::HLTParticleTransformerAK4TagInfoRef"/>
+  <class name="reco::HLTParticleTransformerAK4TagInfoFwdRef"/>
+  <class name="reco::HLTParticleTransformerAK4TagInfoRefProd"/>
+  <class name="reco::HLTParticleTransformerAK4TagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::HLTParticleTransformerAK4TagInfoCollection>"/>
 
   <class name="reco::UnifiedParticleTransformerAK4TagInfo"/>
   <class name="reco::UnifiedParticleTransformerAK4TagInfoCollection"/>

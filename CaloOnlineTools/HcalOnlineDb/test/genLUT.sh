@@ -158,33 +158,26 @@ then
 
     echo "-------------------"
     echo "-------------------"
-    echo "Creating LUT Loader..."
+    echo "Creating per-crate XML payloads..."
     echo 
-    timestamp=$(date +%s)
-    flist=$(ls $Tag*_[0-9]*.xml.dat | xargs)
-    if ! hcalLUT create-lut-loader outputFile="$flist" tag="$Tag" storePrepend="$description"
-    then
-	echo "ERROR: LUT loader generation has failed. Exiting..."
-	exit 1
-    fi
-    echo
-    echo "LUT Loader created."
-    echo "-------------------"
-    echo "-------------------"
-    echo
 
-    zip -j $Tag.zip *$Tag*.{xml,dat}
+    flist=$(ls $Tag*_[0-9]*.xml.dat | xargs)
 
     mkdir -p $CondDir/$Tag
     mkdir -p $CondDir/$Tag/Deploy
-    mv $Tag.zip $Tag.py Gen_L1TriggerObjects_$Tag.txt $CondDir/$Tag/Deploy
+    mv $Tag.py Gen_L1TriggerObjects_$Tag.txt $CondDir/$Tag/Deploy
+
+    echo "-------------------"
+    echo "-------------------"
+    echo "Merging XML payloads into final file..."
+    echo 
 
     mkdir -p $CondDir/$Tag/Debug
-    hcalLUT merge storePrepend="$flist" outputFile=$CondDir/$Tag/${Tag}.xml
+    hcalLUT storePrepend="$flist" outputFile=$CondDir/$Tag/${Tag}.xml
     sed -i 's:UTF-8:ISO-8859-1:g' $CondDir/$Tag/${Tag}.xml
     sed -i 's:"no" :'\''no'\'':g' $CondDir/$Tag/${Tag}.xml
     sed -i '/^$/d' $CondDir/$Tag/${Tag}.xml
-    mv *$Tag*.{xml,dat} $CondDir/$Tag/Debug
+    mv *$Tag*.dat $CondDir/$Tag/Debug
 
     echo "-------------------"
     echo "-------------------"

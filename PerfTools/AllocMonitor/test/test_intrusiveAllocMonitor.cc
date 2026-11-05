@@ -77,7 +77,7 @@ process.add_(cms.Service('{}'))
                                          argv[1]);
   std::unique_ptr<edm::ParameterSet> params;
   edm::makeParameterSets(config, params);
-  auto token = edm::ServiceToken(edm::ServiceRegistry::createServicesFromConfig(std::move(params)));
+  auto token = edm::ServiceRegistry::createServicesFromConfig(std::move(params));
   edm::ServiceRegistry::Operate operate(token);
 
   edm::Service<edm::IntrusiveMonitorBase> imb;

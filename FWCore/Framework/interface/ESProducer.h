@@ -209,7 +209,7 @@ namespace edm {
     */
     template <typename T, typename TReturn, typename TRecord, typename TDecorator>
     auto setWhatProduced(T* iThis,
-                         TReturn (T ::*iMethod)(const TRecord&),
+                         TReturn (T::*iMethod)(const TRecord&),
                          const TDecorator& iDec,
                          const es::Label& iLabel = {}) {
       return setWhatProduced<TReturn, TRecord>(

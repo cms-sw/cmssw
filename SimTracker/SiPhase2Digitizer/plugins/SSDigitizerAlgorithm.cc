@@ -62,7 +62,7 @@ SSDigitizerAlgorithm::SSDigitizerAlgorithm(const edm::ParameterSet& conf, edm::C
                                     << "threshold in electron Endcap = " << theThresholdInE_Endcap_
                                     << "threshold in electron Barrel = " << theThresholdInE_Barrel_ << " "
                                     << theElectronPerADC_ << " " << theAdcFullScale_ << " The delta cut-off is set to "
-                                    << tMax_ << " pix-inefficiency " << addPixelInefficiency_;
+                                    << tMax_ << " channel inefficiency flag" << addChannelInefficiency_;
   storeSignalShape();
 }
 SSDigitizerAlgorithm::~SSDigitizerAlgorithm() { LogDebug("SSDigitizerAlgorithm") << "SSDigitizerAlgorithm deleted"; }
@@ -162,7 +162,7 @@ void SSDigitizerAlgorithm::storeSignalShape() {
   for (size_t i = 0; i < interpolationPoints; i++) {
     float val = i / interpolationStep;
 
-    pulseShapeVec_.push_back(signalShape(val));
+    pulseShapeVec_.emplace_back(signalShape(val));
   }
 }
 double SSDigitizerAlgorithm::getSignalScale(double xval) const {
@@ -194,11 +194,9 @@ bool SSDigitizerAlgorithm::isAboveThreshold(const digitizerUtility::SimHitInfo* 
 //
 // -- Read Bad Channels from the Condidion DB and kill channels/module accordingly
 //
-void SSDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomDetUnit* pixdet) {
-  uint32_t detId = pixdet->geographicalId().rawId();
-
-  signal_map_type& theSignal = _signal[detId];
-  signal_map_type signalNew;
+void SSDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomDetUnit* ph2det) {
+  auto detId = ph2det->geographicalId().rawId();
+  auto& theSignal = _signal[detId];  // Caller ensures detId exists
 
   SiStripBadStrip::Range range = badChannelPayload_->getRange(detId);
   for (std::vector<unsigned int>::const_iterator badChannel = range.first; badChannel != range.second; ++badChannel) {
@@ -206,10 +204,9 @@ void SSDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomDetUnit* pix
     const auto& channelRange = badChannelPayload_->decodePhase2(*badChannel).range;
 
     for (int index = 0; index < channelRange; index++) {
-      for (auto& s : theSignal) {
-        auto& channel = s.first;
+      for (auto& [channel, sig_data] : theSignal) {
         if (channel == firstStrip + index)
-          s.second.set(0.);
+          sig_data.set(0.);
       }
     }
   }

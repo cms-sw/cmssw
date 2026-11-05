@@ -23,7 +23,7 @@ public:
   TtHadSimpleBestJetComb();
   ~TtHadSimpleBestJetComb();
 
-  int operator()(std::vector<TtHadEvtSolution> &);
+  int operator()(std::vector<TtHadEvtSolution>&);
 
 private:
 };

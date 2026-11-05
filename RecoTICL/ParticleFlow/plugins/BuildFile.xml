@@ -1,0 +1,8 @@
+<use name="DataFormats/Common"/>
+<use name="DataFormats/HGCalReco"/>
+<use name="DataFormats/ParticleFlowCandidate"/>
+<use name="FWCore/Framework"/>
+<use name="RecoParticleFlow/PFProducer"/>
+<library file="*.cc" name="RecoTICLParticleFlowPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

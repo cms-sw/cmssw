@@ -24,10 +24,9 @@
 class HGCalSciNoiseMap : public HGCalRadiationMap {
 public:
   enum TileType_t { CAST, MOULDED, TILETYPE_N };
-  enum GainRange_t { GAIN_2, GAIN_4, AUTO, GAINRANGE_N };  //roc gain for 2mm2 and 4mm2
+  enum GainRange_t { GAIN_2, GAIN_4, AUTO, GAINRANGE_N };  //roc gain for 4mm2 and 9mm2
   enum NoiseMapAlgoBits_t {
     IGNORE_SIPMAREA,
-    OVERRIDE_SIPMAREA,
     IGNORE_TILEAREA,
     IGNORE_DOSESCALE,
     IGNORE_FLUENCESCALE,
@@ -37,8 +36,9 @@ public:
   };
 
   struct SiPMonTileCharacteristics {
-    SiPMonTileCharacteristics() : s(0.), lySF(0.), n(0.), xtalk(0), gain(0), thrADC(0), ntotalPE(0) {}
-    float s, lySF, n, xtalk;
+    SiPMonTileCharacteristics()
+        : s(0.), lySF(0.), n(0.), xtalk(0), lnfluence(0), lndose(0), gain(0), thrADC(0), ntotalPE(0) {}
+    float s, lySF, n, xtalk, lnfluence, lndose;
     unsigned short gain, thrADC, ntotalPE;
   };
 
@@ -49,14 +49,12 @@ public:
      @short returns the signal scaling and the noise
   */
   double scaleByTileArea(const HGCScintillatorDetId &, const double);
-  std::pair<double, GainRange_t> scaleBySipmArea(const HGCScintillatorDetId &, const double, const GainRange_t &);
+  std::pair<double, GainRange_t> scaleBySipmArea(const HGCScintillatorDetId &, const GainRange_t &);
   SiPMonTileCharacteristics scaleByDose(const HGCScintillatorDetId &,
-                                        const double,
                                         const int aimMIPtoADC = 15,
                                         const GainRange_t gainPreChoice = GainRange_t::AUTO);
 
   void setDoseMap(const std::string &, const unsigned int);
-  void setSipmMap(const std::string &);
   void setReferenceDarkCurrent(double idark);
   void setReferenceCrossTalk(double xtalk) { refXtalk_ = xtalk; }
   void setNpePerMIP(float npePerMIP);
@@ -81,9 +79,9 @@ private:
   //size of the reference scintillator tile
   const double refEdge_;
 
-  //flags used to disable/override specific SiPM-on-tile operation parameters
-  bool ignoreSiPMarea_, overrideSiPMarea_, ignoreTileArea_, ignoreDoseScale_, ignoreFluenceScale_, ignoreNoise_,
-      ignoreTileType_, ignoreAutoPedestalSub_;
+  //flags used to disable specific SiPM-on-tile operation parameters
+  bool ignoreSiPMarea_, ignoreTileArea_, ignoreDoseScale_, ignoreFluenceScale_, ignoreNoise_, ignoreTileType_,
+      ignoreAutoPedestalSub_;
 
   //reference dark current for the noise (mA)
   double refDarkCurrent_;
@@ -96,9 +94,6 @@ private:
 
   //reference number of pixels (2mm2 SiPM)
   float maxSiPMPE_;
-
-  //sipm size boundaries
-  std::unordered_map<int, float> sipmMap_;
 };
 
 #endif

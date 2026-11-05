@@ -18,15 +18,17 @@
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 /* Constructor */
-VertexAssociatorByTracks::VertexAssociatorByTracks(const edm::EDProductGetter *productGetter,
-                                                   double R2SMatchedSimRatio,
-                                                   double R2SMatchedRecoRatio,
-                                                   double S2RMatchedSimRatio,
-                                                   double S2RMatchedRecoRatio,
-                                                   const TrackingParticleSelector *selector,
-                                                   reco::TrackBase::TrackQuality trackQuality,
-                                                   const reco::RecoToSimCollection *trackRecoToSimAssociation,
-                                                   const reco::SimToRecoCollection *trackSimToRecoAssociation)
+template <typename VertexCollection>
+VertexAssociatorByTracks<VertexCollection>::VertexAssociatorByTracks(
+    const edm::EDProductGetter *productGetter,
+    double R2SMatchedSimRatio,
+    double R2SMatchedRecoRatio,
+    double S2RMatchedSimRatio,
+    double S2RMatchedRecoRatio,
+    const TrackingParticleSelector *selector,
+    reco::TrackBase::TrackQuality trackQuality,
+    const reco::RecoToSimCollection *trackRecoToSimAssociation,
+    const reco::SimToRecoCollection *trackSimToRecoAssociation)
     : productGetter_(productGetter),
       R2SMatchedSimRatio_(R2SMatchedSimRatio),
       R2SMatchedRecoRatio_(R2SMatchedRecoRatio),
@@ -37,13 +39,12 @@ VertexAssociatorByTracks::VertexAssociatorByTracks(const edm::EDProductGetter *p
       trackRecoToSimAssociation_(trackRecoToSimAssociation),
       trackSimToRecoAssociation_(trackSimToRecoAssociation) {}
 
-/* Destructor */
-VertexAssociatorByTracks::~VertexAssociatorByTracks() {}
-
-reco::VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
-    const edm::Handle<edm::View<reco::Vertex>> &recoVertexes,
+template <typename VertexCollection>
+typename VertexAssociatorByTracks<VertexCollection>::RecoToSimCollection
+VertexAssociatorByTracks<VertexCollection>::associateRecoToSim(
+    const edm::Handle<edm::View<VertexType>> &recoVertexes,
     const edm::Handle<TrackingVertexCollection> &trackingVertexes) const {
-  reco::VertexRecoToSimCollection outputCollection(productGetter_);
+  RecoToSimCollection outputCollection(productGetter_);
 
   std::map<TrackingVertexRef, std::pair<double, std::size_t>> matches;
 
@@ -138,10 +139,12 @@ reco::VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
   return outputCollection;
 }
 
-reco::VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
-    const edm::Handle<edm::View<reco::Vertex>> &recoVertexes,
+template <typename VertexCollection>
+typename VertexAssociatorByTracks<VertexCollection>::SimToRecoCollection
+VertexAssociatorByTracks<VertexCollection>::associateSimToReco(
+    const edm::Handle<edm::View<VertexType>> &recoVertexes,
     const edm::Handle<TrackingVertexCollection> &trackingVertexes) const {
-  reco::VertexSimToRecoCollection outputCollection(productGetter_);
+  SimToRecoCollection outputCollection(productGetter_);
 
   // Loop over TrackingVertexes
   std::map<std::size_t, std::pair<double, std::size_t>> matches;
@@ -243,3 +246,5 @@ reco::VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
 
   return outputCollection;
 }
+
+template class VertexAssociatorByTracks<std::vector<reco::Vertex>>;

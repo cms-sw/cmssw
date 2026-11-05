@@ -110,6 +110,14 @@ from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 for _m in [_barrel_MTDDigitizer, _endcap_MTDDigitizer]:
     premix_stage1.toModify(_m, premixStage1 = True)
 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(_barrel_MTDDigitizer,
+    inputSimHits = "fastSimProducer:FastTimerHitsBarrel"
+)
+fastSim.toModify(_endcap_MTDDigitizer,
+    inputSimHits = "fastSimProducer:FastTimerHitsEndcap"
+)
+
 # Fast Timing
 mtdDigitizer = cms.PSet( 
     accumulatorType   = cms.string("MTDDigiProducer"),
@@ -119,3 +127,4 @@ mtdDigitizer = cms.PSet(
     barrelDigitizer = _barrel_MTDDigitizer,
     endcapDigitizer = _endcap_MTDDigitizer
 )
+

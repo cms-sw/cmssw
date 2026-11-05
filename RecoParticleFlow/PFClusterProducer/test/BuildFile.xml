@@ -31,7 +31,6 @@
 
 <bin file="alpaka/ConstructLinksTest.dev.cc">
   <use name="alpaka"/>
-  <use name="eigen"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="FWCore/Utilities"/>
   <use name="DataFormats/SoATemplate"/>
@@ -42,7 +41,6 @@
 
 <bin name="PrologueTest"  file="alpaka/PrologueTest.dev.cc">
   <use name="alpaka"/>
-  <use name="eigen"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="FWCore/Utilities"/>
   <use name="DataFormats/SoATemplate"/>
@@ -53,7 +51,6 @@
 
 <bin name="PrologueTest_multiblock"  file="alpaka/PrologueTest.dev.cc">
   <use name="alpaka"/>
-  <use name="eigen"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="FWCore/Utilities"/>
   <use name="DataFormats/SoATemplate"/>
@@ -65,7 +62,6 @@
 
 <bin file="alpaka/ECLCCTest.dev.cc">
   <use name="alpaka"/>
-  <use name="eigen"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="FWCore/Utilities"/>
   <use name="DataFormats/SoATemplate"/>

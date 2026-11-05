@@ -4,7 +4,7 @@ hltESPTTRHBuilderWithTrackAngle = cms.ESProducer("TkTransientTrackingRecHitBuild
     ComponentName = cms.string('hltESPTTRHBuilderWithTrackAngle'),
     ComputeCoarseLocalPositionFromDisk = cms.bool(False),
     Matcher = cms.string('StandardMatcher'),
-    Phase2StripCPE = cms.string('Phase2StripCPE'),
-    PixelCPE = cms.string('PixelCPEGeneric'),
+    Phase2StripCPE = cms.string('Phase2StripCPEHLT'),
+    PixelCPE = cms.string('hltESPPixelCPEGeneric'),
     StripCPE = cms.string('FakeStripCPE')
 )

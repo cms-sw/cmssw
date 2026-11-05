@@ -399,6 +399,7 @@ namespace reco {
                      int muonSubdetId,
                      ArbitrationType type = SegmentAndTrackArbitration,
                      bool includeSegmentError = true) const;
+      float dDphiDz(int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration) const;
       /// get (best) segment information
       /// If no segment returns 999999
       float segmentX(int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration) const;

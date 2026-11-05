@@ -126,6 +126,10 @@ public:
 
   void doFit(std::array<float, 4>& correctedOutput, const int nbx) const;
 
+  // call this method in case the table of
+  // channel pulse shapes needs to be updated
+  void resetPulseShapesBuffer(unsigned bufferSize);
+
   template <class PulseShapeCollection>
   void setPulseShapeTemplate(const int pulseShapeId,
                              const PulseShapeCollection& ps,
@@ -174,11 +178,16 @@ private:
   void resetPulseShapeTemplate(const int pulseShapeId, const PulseShapeCollection& ps, unsigned /* nSamples */) {
     ++cntsetPulseShape_;
 
-    psfPtr_ = nullptr;
-    for (auto& elem : knownPulseShapes_) {
-      if (elem.first == pulseShapeId) {
-        psfPtr_ = &*elem.second;
-        break;
+    const bool usingChannelPulseShapes = !channelPulseShapes_.empty();
+    if (usingChannelPulseShapes)
+      psfPtr_ = channelPulseShapes_.at(pulseShapeId).get();
+    else {
+      psfPtr_ = nullptr;
+      for (auto& elem : knownPulseShapes_) {
+        if (elem.first == pulseShapeId) {
+          psfPtr_ = elem.second.get();
+          break;
+        }
       }
     }
 
@@ -187,8 +196,11 @@ private:
       // the uncertainty terms calculated inside PulseShapeFunctor are used for Method 2 only
       auto p = std::make_shared<FitterFuncs::PulseShapeFunctor>(
           ps.getShape(pulseShapeId), false, false, false, 1, 0, 0, hcal::constants::maxSamples);
-      knownPulseShapes_.emplace_back(pulseShapeId, p);
-      psfPtr_ = &*p;
+      if (usingChannelPulseShapes)
+        channelPulseShapes_.at(pulseShapeId) = p;
+      else
+        knownPulseShapes_.emplace_back(pulseShapeId, p);
+      psfPtr_ = p.get();
     }
 
     currentPulseShapeId_ = pulseShapeId;
@@ -252,6 +264,7 @@ private:
   int cntsetPulseShape_ = 0;
   FitterFuncs::PulseShapeFunctor* psfPtr_ = nullptr;
   std::vector<ShapeWithId> knownPulseShapes_;
+  std::vector<std::shared_ptr<FitterFuncs::PulseShapeFunctor> > channelPulseShapes_;
 };
 
 #endif

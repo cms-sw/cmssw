@@ -31,8 +31,6 @@ public:
   void doOutputEvent(edm::streamer::FRDEventMsgView const& msg);
   void doOutputEvent(void* startAddress, size_t size);
 
-  edm::streamer::uint32 adler32() const { return (adlerb_ << 16) | adlera_; }
-
   void start() {}
   void stop();
   void initialize(std::string const& destinationDir, std::string const& name, int run, unsigned int ls);
@@ -91,9 +89,6 @@ private:
   unsigned int dataType_;
   bool writeEoR_;
   bool writeToOpen_;
-
-  edm::streamer::uint32 adlera_;
-  edm::streamer::uint32 adlerb_;
 
   unsigned int lumiOpen_ = 0;
   unsigned int lumiClosed_ = 0;

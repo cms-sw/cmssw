@@ -141,8 +141,8 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset)
   label_tv = consumes<TrackingVertexCollection>(pset.getParameter<edm::InputTag>("label_tv"));
   if (doPlotsOnlyForTruePV_ || doPVAssociationPlots_) {
     recoVertexToken_ = consumes<edm::View<reco::Vertex>>(pset.getUntrackedParameter<edm::InputTag>("label_vertex"));
-    vertexAssociatorToken_ =
-        consumes<reco::VertexToTrackingVertexAssociator>(pset.getUntrackedParameter<edm::InputTag>("vertexAssociator"));
+    vertexAssociatorToken_ = consumes<reco::VertexToTrackingVertexAssociator<std::vector<reco::Vertex>>>(
+        pset.getUntrackedParameter<edm::InputTag>("vertexAssociator"));
   }
 
   if (doMVAPlots_) {
@@ -403,7 +403,7 @@ const reco::Vertex::Point* MultiTrackValidator::getRecoPVPosition(
   edm::Handle<edm::View<reco::Vertex>> hvertex;
   event.getByToken(recoVertexToken_, hvertex);
 
-  edm::Handle<reco::VertexToTrackingVertexAssociator> hvassociator;
+  edm::Handle<reco::VertexToTrackingVertexAssociator<std::vector<reco::Vertex>>> hvassociator;
   event.getByToken(vertexAssociatorToken_, hvassociator);
 
   auto v_r2s = hvassociator->associateRecoToSim(hvertex, htv);

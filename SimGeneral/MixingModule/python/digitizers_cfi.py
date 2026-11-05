@@ -117,6 +117,7 @@ theDigitizers.mergedtruth.select.signalOnlyTP = True
 
 (fastSim & phase2_hgcal).toModify(theDigitizersValid, calotruth = None)
 #No calo clustering for fastsim phase2
+(fastSim & phase2_timing_layer).toModify(theDigitizersValid, MC_fastTimingLayer = None)
 
 from Configuration.ProcessModifiers.run3_ecalclustering_cff import run3_ecalclustering
 run3_ecalclustering.toModify( theDigitizersValid, 
@@ -151,6 +152,7 @@ from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
 from PhysicsTools.TruthInfo.truthGraphMixedDigi_cff import truthGraphAccumulator as _truthGraphAccumulator
 for _theDigis in (theDigitizers, theDigitizersValid):
     (enableTruth & phase2_hgcal).toModify(_theDigis, truthGraph=_truthGraphAccumulator)
-    # Premixing has no raw pileup g4SimHits for the accumulator to read, so drop it
-    # under premix even if enableTruth is on (applied after, so it wins by code order).
-    premix_stage2.toModify(_theDigis, truthGraph=None)
+    # Premixing has no raw pileup g4SimHits for the accumulator to read at stage 2, and
+    # the premixed library keeps no truth product at stage 1, so drop it under both even
+    # if enableTruth is on (applied after, so it wins by code order).
+    (premix_stage1 | premix_stage2).toModify(_theDigis, truthGraph=None)

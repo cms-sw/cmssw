@@ -19,10 +19,14 @@ using namespace fastsim;
 
 GeometryConsumer::GeometryConsumer(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
     : useFixedMagneticFieldZ(cfg.exists("magneticFieldZ")),
-      useTrackerRecoGeometryRecord(cfg.getUntrackedParameter<bool>("useTrackerRecoGeometryRecord", true)) {
+      useTrackerRecoGeometryRecord(cfg.getUntrackedParameter<bool>("useTrackerRecoGeometryRecord", true)),
+      useMTDRecoGeometryRecord(cfg.getUntrackedParameter<bool>("useMTDRecoGeometryRecord", false)) {
   if (useTrackerRecoGeometryRecord) {
     geometricSearchTrackerESToken = iC.esConsumes<edm::Transition::BeginRun>(
         edm::ESInputTag("", cfg.getUntrackedParameter<std::string>("trackerAlignmentLabel", "")));
+  }
+  if (useMTDRecoGeometryRecord) {
+    mtdDetLayerGeometryESToken = iC.esConsumes<edm::Transition::BeginRun>();
   }
   if (!useFixedMagneticFieldZ) {
     magneticFieldESToken = iC.esConsumes<edm::Transition::BeginRun>();
@@ -36,6 +40,7 @@ Geometry::Geometry(const edm::ParameterSet& cfg,
                    const edm::EventSetup& iSetup,
                    const GeometryConsumer& consumer)
     : geometricSearchTracker_(nullptr),
+      mtdDetLayerGeometry_(nullptr),
       magneticField_(nullptr),
       fixedMagneticFieldZ_(cfg.getUntrackedParameter<double>("magneticFieldZ", 0.)),
       barrelLayerCfg_(cfg.getParameter<std::vector<edm::ParameterSet>>("BarrelLayers")),
@@ -62,6 +67,13 @@ Geometry::Geometry(const edm::ParameterSet& cfg,
   }
 
   //----------------
+  // find MTD reconstruction geometry
+  //----------------
+  if (consumer.useMTDRecoGeometryRecord) {
+    mtdDetLayerGeometry_ = &iSetup.getData(consumer.mtdDetLayerGeometryESToken);
+  }
+
+  //----------------
   // update magnetic field
   //----------------
   if (consumer.useFixedMagneticFieldZ)  // use constant magnetic field
@@ -77,7 +89,7 @@ Geometry::Geometry(const edm::ParameterSet& cfg,
   // layer factory
   //---------------
   SimplifiedGeometryFactory simplifiedGeometryFactory(
-      geometricSearchTracker_, *magneticField_, interactionModelNames, maxRadius_, maxZ_);
+      geometricSearchTracker_, mtdDetLayerGeometry_, *magneticField_, interactionModelNames, maxRadius_, maxZ_);
 
   //---------------
   // update barrel layers

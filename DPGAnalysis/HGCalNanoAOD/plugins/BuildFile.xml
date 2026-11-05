@@ -5,6 +5,9 @@
 <use name="DataFormats/NanoAOD"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/StdDictionaries"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/MuonReco"/>
+<use name="RecoParticleFlow/PFProducer"/>
 <use name="SimDataFormats/CaloAnalysis"/>
 <use name="FWCore/Common"/>
 <use name="FWCore/Framework"/>
@@ -15,6 +18,7 @@
 <use name="MagneticField/Records"/>
 <use name="PhysicsTools/NanoAOD"/>
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
+<use name="RecoTICL/Common"/>
 <use name="TrackingTools/GeomPropagators"/>
 <use name="TrackingTools/Records"/>
 <use name="TrackingTools/TrajectoryState"/>

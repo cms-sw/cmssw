@@ -6,7 +6,7 @@ def _addProcessKFSmootherForRefitInsideOut(process):
                                                             Propagator = cms.string('hltSmartPropagatorAnyRK'),
                                                             Updator = cms.string('hltESPKFUpdator'),
                                                             Estimator = cms.string('hltChi2EstimatorForRefit'),
-                                                            RecoGeometry = cms.string('GlobalDetLayerGeometry'),
+                                                            RecoGeometry = cms.string('hltESPGlobalDetLayerGeometry'),
                                                             errorRescaling = cms.double(100),
                                                             minHits = cms.int32(3),
                                                             appendToDataLabel = cms.string(''))

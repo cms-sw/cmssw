@@ -6,9 +6,15 @@
  * with compile-time size and alignment, and accessors to the "rows" and "columns".
  */
 
-#include "FWCore/Reflection/interface/reflex.h"
+#include <array>
+#include <cstddef>
+#include <ostream>
+#include <string>
+#include <tuple>
+#include <utility>
 
-#include "SoACommon.h"
+#include "DataFormats/SoATemplate/interface/SoACommon.h"
+#include "FWCore/Reflection/interface/reflex.h"
 
 namespace cms::soa {
 
@@ -81,7 +87,8 @@ namespace cms::soa {
         cms::soa::SoAParameters_ColumnType<cms::soa::SoAColumnType::scalar>::DataType<CPP_TYPE>;                       \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       BOOST_PP_CAT(ParametersTypeOf_, NAME) BOOST_PP_CAT(parametersOf_, NAME)() const {                                \
-        return  BOOST_PP_CAT(ParametersTypeOf_, NAME) (parent_.BOOST_PP_CAT(NAME, _));                                 \
+        return  BOOST_PP_CAT(ParametersTypeOf_, NAME)                                                                  \
+                (reinterpret_cast<cms::soa::detail::EnumTraits<CPP_TYPE>::type*>(parent_.BOOST_PP_CAT(NAME, _)));      \
       },                                                                                                               \
       /* Column */                                                                                                     \
       constexpr static cms::soa::SoAColumnType BOOST_PP_CAT(ColumnTypeOf_, NAME) = cms::soa::SoAColumnType::column;    \
@@ -89,7 +96,8 @@ namespace cms::soa {
         cms::soa::SoAParameters_ColumnType<cms::soa::SoAColumnType::column>::DataType<CPP_TYPE>;                       \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       BOOST_PP_CAT(ParametersTypeOf_, NAME) BOOST_PP_CAT(parametersOf_, NAME)() const {                                \
-        return  BOOST_PP_CAT(ParametersTypeOf_, NAME) (parent_.BOOST_PP_CAT(NAME, _));                                 \
+        return  BOOST_PP_CAT(ParametersTypeOf_, NAME)                                                                  \
+                (reinterpret_cast<cms::soa::detail::EnumTraits<CPP_TYPE>::type*>(parent_.BOOST_PP_CAT(NAME, _)));      \
       },                                                                                                               \
       /* Eigen column */                                                                                               \
       constexpr static cms::soa::SoAColumnType BOOST_PP_CAT(ColumnTypeOf_, NAME) = cms::soa::SoAColumnType::eigen;     \
@@ -244,6 +252,8 @@ namespace cms::soa {
       (BOOST_PP_CAT(NAME, ElementsWithPadding_){_soa_impl_other.BOOST_PP_CAT(NAME, ElementsWithPadding_)})             \
       (BOOST_PP_CAT(NAME, _){_soa_impl_other.BOOST_PP_CAT(NAME, _)})                                                   \
       (BOOST_PP_CAT(NAME, Stride_){_soa_impl_other.BOOST_PP_CAT(NAME, Stride_)})                                       \
+      (BOOST_PP_CAT(NAME, Rows_){_soa_impl_other.BOOST_PP_CAT(NAME, Rows_)})                                           \
+      (BOOST_PP_CAT(NAME, Cols_){_soa_impl_other.BOOST_PP_CAT(NAME, Cols_)})                                           \
   )
 // clang-format on
 
@@ -263,6 +273,8 @@ namespace cms::soa {
       BOOST_PP_CAT(NAME, ElementsWithPadding_) = _soa_impl_other.BOOST_PP_CAT(NAME, ElementsWithPadding_);             \
       BOOST_PP_CAT(NAME, _) = _soa_impl_other.BOOST_PP_CAT(NAME, _);                                                   \
       BOOST_PP_CAT(NAME, Stride_) = _soa_impl_other.BOOST_PP_CAT(NAME, Stride_);                                       \
+      BOOST_PP_CAT(NAME, Rows_) = _soa_impl_other.BOOST_PP_CAT(NAME, Rows_);                                           \
+      BOOST_PP_CAT(NAME, Cols_) = _soa_impl_other.BOOST_PP_CAT(NAME, Cols_);                                           \
   )
 // clang-format on
 
@@ -287,16 +299,8 @@ namespace cms::soa {
  * Declare the value_element data members
  */
 // clang-format off
-#define _DEFINE_VALUE_ELEMENT_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                           \
-  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
-      /* Scalar (empty) */                                                                                             \
-      ,                                                                                                                \
-      /* Column */                                                                                                     \
-      CPP_TYPE NAME;                                                                                                   \
-      ,                                                                                                                \
-      /* Eigen column */                                                                                               \
-      CPP_TYPE NAME;                                                                                                   \
-  )
+#define _DEFINE_VALUE_ELEMENT_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, CPP_TYPE NAME;)
 // clang-format on
 
 #define _DEFINE_VALUE_ELEMENT_MEMBERS(R, DATA, TYPE_NAME)                                   \
@@ -308,16 +312,8 @@ namespace cms::soa {
  * List of data members in the value_element constructor arguments
  */
 // clang-format off
-#define _VALUE_ELEMENT_CTOR_ARGS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                \
-  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
-      /* Scalar (empty) */                                                                                             \
-      ,                                                                                                                \
-      /* Column */                                                                                                     \
-      (CPP_TYPE NAME)                                                                                                  \
-      ,                                                                                                                \
-      /* Eigen column */                                                                                               \
-      (CPP_TYPE NAME)                                                                                                  \
-  )
+#define _VALUE_ELEMENT_CTOR_ARGS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (CPP_TYPE NAME))
 // clang-format on
 
 #define _VALUE_ELEMENT_CTOR_ARGS(R, DATA, TYPE_NAME)                                        \
@@ -329,16 +325,8 @@ namespace cms::soa {
  * List-initalise the value_element data members
  */
 // clang-format off
-#define _VALUE_ELEMENT_INITIALIZERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                             \
-  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
-      /* Scalar (empty) */                                                                                             \
-      ,                                                                                                                \
-      /* Column */                                                                                                     \
-      (NAME{NAME})                                                                                                     \
-      ,                                                                                                                \
-      /* Eigen column */                                                                                               \
-      (NAME{NAME})                                                                                                     \
-  )
+#define _VALUE_ELEMENT_INITIALIZERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (NAME{NAME}))
 // clang-format on
 
 #define _VALUE_ELEMENT_INITIALIZERS(R, DATA, TYPE_NAME)                                     \
@@ -365,11 +353,11 @@ namespace cms::soa {
 #define _ASSIGN_SOA_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                            \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
-      BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(_soa_impl_curMem);                                           \
+      BOOST_PP_CAT(NAME, _) = reinterpret_cast<cms::soa::detail::EnumTraits<CPP_TYPE>::value_type*>(_soa_impl_curMem); \
       _soa_impl_curMem += cms::soa::alignSize(sizeof(CPP_TYPE), alignment);                                            \
       ,                                                                                                                \
       /* Column */                                                                                                     \
-      BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(_soa_impl_curMem);                                           \
+      BOOST_PP_CAT(NAME, _) = reinterpret_cast<cms::soa::detail::EnumTraits<CPP_TYPE>::value_type*>(_soa_impl_curMem); \
       _soa_impl_curMem += cms::soa::alignSize(elements_ * sizeof(CPP_TYPE), alignment);                                \
       ,                                                                                                                \
       /* Eigen column */                                                                                               \
@@ -377,6 +365,8 @@ namespace cms::soa {
         / sizeof(CPP_TYPE::Scalar);                                                                                    \
       BOOST_PP_CAT(NAME, ElementsWithPadding_) = BOOST_PP_CAT(NAME, Stride_)                                           \
         *  CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime;                                                  \
+      BOOST_PP_CAT(NAME, Rows_) = CPP_TYPE::RowsAtCompileTime;                                                         \
+      BOOST_PP_CAT(NAME, Cols_) = CPP_TYPE::ColsAtCompileTime;                                                         \
       BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE::Scalar*>(_soa_impl_curMem);                                   \
       _soa_impl_curMem += cms::soa::alignSize(elements_ * sizeof(CPP_TYPE::Scalar), alignment)                         \
         * CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime;                                                   \
@@ -461,17 +451,46 @@ namespace cms::soa {
  */
 // clang-format off
 #define _STREAMER_READ_SOA_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                          \
-    _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                        \
-      /* Scalar */                                                                                                     \
-      memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _), sizeof(CPP_TYPE));                                   \
-      ,                                                                                                                \
-      /* Column */                                                                                                     \
-      memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _), sizeof(CPP_TYPE) * onfile.elements_);                \
-      ,                                                                                                                \
-      /* Eigen column */                                                                                               \
-      memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _),                                                      \
-        sizeof(CPP_TYPE::Scalar) * BOOST_PP_CAT(NAME, ElementsWithPadding_));                                          \
-    )
+    if (onfile.BOOST_PP_CAT(NAME, _) != nullptr) {                                                                     \
+      _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                      \
+        /* Scalar */                                                                                                   \
+        memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _), sizeof(CPP_TYPE));                                 \
+        ,                                                                                                              \
+        /* Column */                                                                                                   \
+        memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _), sizeof(CPP_TYPE) * onfile.elements_);              \
+        ,                                                                                                              \
+        /* Eigen column */                                                                                             \
+        const int rows = onfile.BOOST_PP_CAT(NAME, Rows_);                                                             \
+        const int cols = onfile.BOOST_PP_CAT(NAME, Cols_);                                                             \
+        if((rows * cols) > 0 && (rows != CPP_TYPE::RowsAtCompileTime || cols != CPP_TYPE::ColsAtCompileTime)){         \
+          cms::soa::detail::throwRuntimeError(("Incompatible eigen column dimensions. On file: "                       \
+                                               + std::to_string(rows) + "x" + std::to_string(cols) + ", expected: "    \
+                                               + std::to_string(CPP_TYPE::RowsAtCompileTime) + "x"                     \
+                                               + std::to_string(CPP_TYPE::ColsAtCompileTime)).c_str());                \
+        }                                                                                                              \
+        if(BOOST_PP_CAT(NAME, Stride_) == onfile.BOOST_PP_CAT(NAME, Stride_)) {                                        \
+          memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _),                                                  \
+                 sizeof(CPP_TYPE::Scalar) * BOOST_PP_CAT(NAME, ElementsWithPadding_));                                 \
+        } else {                                                                                                       \
+          for (int i = 0; i < CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime; ++i) {                        \
+            memcpy(BOOST_PP_CAT(NAME, _) + i * BOOST_PP_CAT(NAME, Stride_),                                            \
+                   onfile.BOOST_PP_CAT(NAME, _) + i * onfile.BOOST_PP_CAT(NAME, Stride_),                              \
+                   sizeof(CPP_TYPE::Scalar) * onfile.elements_);                                                       \
+          }                                                                                                            \
+        }                                                                                                              \
+      )                                                                                                                \
+    } else {                                                                                                           \
+      _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                      \
+        /* Scalar */                                                                                                   \
+        memset(BOOST_PP_CAT(NAME, _), 0x00, sizeof(CPP_TYPE));                                                         \
+        ,                                                                                                              \
+        /* Column */                                                                                                   \
+        memset(BOOST_PP_CAT(NAME, _), 0x00, sizeof(CPP_TYPE) * onfile.elements_);                                      \
+        ,                                                                                                              \
+        /* Eigen column */                                                                                             \
+        memset(BOOST_PP_CAT(NAME, _), 0x00, sizeof(CPP_TYPE::Scalar) * BOOST_PP_CAT(NAME, ElementsWithPadding_));      \
+      )                                                                                                                \
+    }
 // clang-format on
 
 #define _STREAMER_READ_SOA_DATA_MEMBER(R, DATA, TYPE_NAME)                                  \
@@ -483,15 +502,17 @@ namespace cms::soa {
 #define _DECLARE_SOA_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
 _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                            \
   /* Scalar */                                                                                                         \
-  CPP_TYPE* BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(scalar_) = nullptr;                                                  \
+  cms::soa::detail::EnumTraits<CPP_TYPE>::value_type* BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(scalar_) = nullptr;        \
   ,                                                                                                                    \
   /* Column */                                                                                                         \
-  CPP_TYPE * BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(elements_) = nullptr;                                               \
+  cms::soa::detail::EnumTraits<CPP_TYPE>::value_type* BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(elements_) = nullptr;      \
   ,                                                                                                                    \
   /* Eigen column */                                                                                                   \
   size_type BOOST_PP_CAT(NAME, ElementsWithPadding_) = 0; /* For ROOT serialization */                                 \
   CPP_TYPE::Scalar * BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(BOOST_PP_CAT(NAME, ElementsWithPadding_)) = nullptr;        \
   byte_size_type BOOST_PP_CAT(NAME, Stride_) = 0;                                                                      \
+  int BOOST_PP_CAT(NAME, Rows_) = 0;                                                                                   \
+  int BOOST_PP_CAT(NAME, Cols_) = 0;                                                                                   \
 )
 // clang-format on
 
@@ -709,7 +730,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
  * Generator of parameters for (const) element subclass (expanded comma separated).
  */
 #define _DECLARE_CONST_VIEW_ELEMENT_VALUE_ARG_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
-  (const typename BOOST_PP_CAT(Metadata::ParametersTypeOf_, NAME)::ConstType NAME)
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (const typename BOOST_PP_CAT(Metadata::ParametersTypeOf_, NAME)::ConstType NAME))
 
 #define _DECLARE_CONST_VIEW_ELEMENT_VALUE_ARG(R, DATA, TYPE_NAME)                           \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
@@ -720,7 +741,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
  * Generator of member initialization for constructor of element subclass
  */
 #define _DECLARE_VIEW_CONST_ELEM_MEMBER_INIT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS, DATA) \
-  (BOOST_PP_CAT(NAME, _)(DATA, NAME))
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (BOOST_PP_CAT(NAME, _)(DATA, NAME)))
 
 /* declare AoS-like element value args for contructor; these should expand,for columns only */
 #define _DECLARE_VIEW_CONST_ELEM_MEMBER_INIT(R, DATA, TYPE_NAME)                            \
@@ -733,13 +754,14 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
  */
 // clang-format off
 #define _DECLARE_VIEW_CONST_ELEMENT_ACCESSOR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                    \
-  SOA_HOST_DEVICE SOA_INLINE                                                                                           \
-      const typename cms::soa::SoAConstValue_ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template         \
-              DataType<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::template                                       \
-                  Alignment<conditionalAlignment>::template ConstValue<restrictQualify>::RefToConst                    \
-      NAME() const {                                                                                                   \
-    return BOOST_PP_CAT(NAME, _)();                                                                                    \
-  }
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE,                                                                                    \
+    SOA_HOST_DEVICE SOA_INLINE                                                                                         \
+        const typename cms::soa::SoAConstValue_ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template       \
+                DataType<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::template                                     \
+                    Alignment<conditionalAlignment>::template ConstValue<restrictQualify>::RefToConst                  \
+        NAME() const {                                                                                                 \
+      return BOOST_PP_CAT(NAME, _)();                                                                                  \
+    })
 // clang-format on
 
 #define _DECLARE_VIEW_CONST_ELEMENT_ACCESSOR(R, DATA, TYPE_NAME)                            \
@@ -751,12 +773,13 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
  * Declaration of the private members of the const element subclass
  */
 // clang-format off
-#define _DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                               \
-  const cms::soa::ConstValueTraitsFromC<typename cms::soa::SoAConstValue_ColumnType<                                  \
-      BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template                                                          \
-          DataType<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::template                                          \
-              Alignment<conditionalAlignment>::template ConstValue<restrictQualify>>                                  \
-      BOOST_PP_CAT(NAME, _);
+#define _DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                \
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE,                                                                                    \
+    const cms::soa::ConstValueTraitsFromC<typename cms::soa::SoAConstValue_ColumnType<                                 \
+        BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template                                                         \
+            DataType<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::template                                         \
+                Alignment<conditionalAlignment>::template ConstValue<restrictQualify>>                                 \
+        BOOST_PP_CAT(NAME, _);)
 // clang-format on
 
 #define _DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER(R, DATA, TYPE_NAME)                        \
@@ -767,7 +790,8 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 /**
  * Parameters passed to const element subclass constructor in operator[]
  */
-#define _DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) (BOOST_PP_CAT(NAME, Parameters_))
+#define _DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (BOOST_PP_CAT(NAME, Parameters_)))
 
 #define _DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL(R, DATA, TYPE_NAME)                         \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
@@ -1050,7 +1074,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
  * Generator of parameters for (non-const) element subclass (expanded comma separated).
  */
 #define _DECLARE_VIEW_ELEMENT_VALUE_ARG_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
-  (typename BOOST_PP_CAT(Metadata::ParametersTypeOf_, NAME) NAME)
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (typename BOOST_PP_CAT(Metadata::ParametersTypeOf_, NAME) NAME))
 
 #define _DECLARE_VIEW_ELEMENT_VALUE_ARG(R, DATA, TYPE_NAME)                                 \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
@@ -1060,7 +1084,8 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 /**
  * Generator of element members initializer.
  */
-#define _DECLARE_VIEW_ELEM_MEMBER_INIT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS, DATA) (NAME(DATA, NAME))
+#define _DECLARE_VIEW_ELEM_MEMBER_INIT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS, DATA) \
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (NAME(DATA, NAME)))
 
 #define _DECLARE_VIEW_ELEM_MEMBER_INIT(R, DATA, TYPE_NAME)                                  \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
@@ -1070,10 +1095,8 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 /**
  * Generator of the member-by-member copy operator of the element subclass.
  */
-#define _DECLARE_VIEW_ELEMENT_VALUE_COPY_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                   \
-  if constexpr (Metadata::BOOST_PP_CAT(ColumnTypeOf_, NAME) != cms::soa::SoAColumnType::scalar) { \
-    NAME() = _soa_impl_other.NAME();                                                              \
-  }
+#define _DECLARE_VIEW_ELEMENT_VALUE_COPY_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, NAME() = _soa_impl_other.NAME();)
 
 #define _DECLARE_VIEW_ELEMENT_VALUE_COPY(R, DATA, TYPE_NAME)                                \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
@@ -1084,16 +1107,8 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
  * Assign the value of the view from the values in the value_element.
  */
 // clang-format off
-#define _TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                    \
-  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                        \
-      /* Scalar (empty) */                                                                                           \
-      ,                                                                                                              \
-      /* Column */                                                                                                   \
-      NAME() = _soa_impl_value.NAME;                                                                                 \
-      ,                                                                                                              \
-      /* Eigen column */                                                                                             \
-      NAME() = _soa_impl_value.NAME;                                                                                 \
-)
+#define _TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, NAME() = _soa_impl_value.NAME;)
 // clang-format on
 
 #define _TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT(R, DATA, TYPE_NAME)                              \
@@ -1102,14 +1117,15 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
               BOOST_PP_EXPAND(_TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT_IMPL TYPE_NAME))
 
 /**
- * Declaration of the private members of the const element subclass
+ * Declaration of the private members of the element subclass
  */
 // clang-format off
 #define _DECLARE_VIEW_ELEMENT_VALUE_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                    \
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE,                                                                                  \
   typename cms::soa::SoAValue_ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template                      \
               DataType<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::template                                     \
                   Alignment<conditionalAlignment>::template Value<restrictQualify>                                   \
-      NAME;
+      NAME;)
 // clang-format on
 
 #define _DECLARE_VIEW_ELEMENT_VALUE_MEMBER(R, DATA, TYPE_NAME)                              \
@@ -1124,7 +1140,8 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
  * non-const arguments.
  */
 #define _DECLARE_VIEW_ELEMENT_CONSTR_CALL_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
-  (cms::soa::const_cast_SoAParametersImpl(base_type::BOOST_PP_CAT(NAME, Parameters_)))
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE,                                              \
+                        (cms::soa::const_cast_SoAParametersImpl(base_type::BOOST_PP_CAT(NAME, Parameters_))))
 
 #define _DECLARE_VIEW_ELEMENT_CONSTR_CALL(R, DATA, TYPE_NAME)                               \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
@@ -1471,9 +1488,10 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       /* AoS-like accessor (const) */                                                                                  \
       struct const_element {                                                                                           \
         SOA_HOST_DEVICE SOA_INLINE                                                                                     \
-        const_element(size_type _soa_impl_index, /* Declare parameters */                                              \
-                      _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_VIEW_ELEMENT_VALUE_ARG, ~, __VA_ARGS__))                    \
-                      : _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONST_ELEM_MEMBER_INIT, _soa_impl_index, __VA_ARGS__) {}   \
+        const_element(size_type                                                                                        \
+           _APPEND_TOKEN(_ITERATE_ON_ALL(_DECLARE_CONST_VIEW_ELEMENT_VALUE_ARG, ~, __VA_ARGS__), _soa_impl_index)      \
+           _APPEND_COMMA(_ITERATE_ON_ALL(_DECLARE_CONST_VIEW_ELEMENT_VALUE_ARG, ~, __VA_ARGS__)))                      \
+           _APPEND_LIST_INIT(_ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEM_MEMBER_INIT, _soa_impl_index, __VA_ARGS__)) {}   \
         _ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_ACCESSOR, ~, __VA_ARGS__)                                          \
                                                                                                                        \
         ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_METHODS, ~, __VA_ARGS__))                                         \
@@ -1489,13 +1507,14 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
               SOA_THROW_OUT_OF_RANGE("Out of range index in ConstViewTemplateFreeParams " #CLASS "::operator[]",       \
                 _soa_impl_index, elements_)                                                                            \
           }                                                                                                            \
-          return const_element{                                                                                        \
-            _soa_impl_index.value_, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__)     \
+          return const_element{_soa_impl_index.value_                                                                  \
+             _APPEND_COMMA(_ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__))                   \
           };                                                                                                           \
         }                                                                                                              \
                                                                                                                        \
         /* const accessors */                                                                                          \
         _ITERATE_ON_ALL(_DECLARE_VIEW_SOA_CONST_ACCESSOR, ~, __VA_ARGS__)                                              \
+        ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_VIEW_METHODS, ~, __VA_ARGS__))                                    \
                                                                                                                        \
         /* dump the SoA internal structure */                                                                          \
         template <typename T>                                                                                          \
@@ -1643,9 +1662,10 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       /* AoS-like accessor (mutable) */                                                                                \
       struct element {                                                                                                 \
         SOA_HOST_DEVICE SOA_INLINE                                                                                     \
-        element(size_type _soa_impl_index, /* Declare parameters */                                                    \
-                _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEMENT_VALUE_ARG, ~, __VA_ARGS__))                                \
-            : _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEM_MEMBER_INIT, _soa_impl_index, __VA_ARGS__) {}                   \
+        element(size_type                                                                                              \
+                _APPEND_TOKEN(_ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_VALUE_ARG, ~, __VA_ARGS__), _soa_impl_index)       \
+                _APPEND_COMMA(_ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_VALUE_ARG, ~, __VA_ARGS__)))                       \
+                _APPEND_LIST_INIT(_ITERATE_ON_ALL(_DECLARE_VIEW_ELEM_MEMBER_INIT, _soa_impl_index, __VA_ARGS__)) {}    \
         SOA_HOST_DEVICE SOA_INLINE                                                                                     \
         element& operator=(const element& _soa_impl_other) {                                                           \
           _ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_VALUE_COPY, ~, __VA_ARGS__)                                            \
@@ -1677,7 +1697,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
               _soa_impl_index, base_type::elements_)                                                                   \
         }                                                                                                              \
         return element{                                                                                                \
-          _soa_impl_index.value_, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__)             \
+          _soa_impl_index.value_ _APPEND_COMMA(_ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__))     \
         };                                                                                                             \
       }                                                                                                                \
                                                                                                                        \
@@ -1685,6 +1705,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
       /* non-const accessors */                                                                                        \
       _ITERATE_ON_ALL(_DECLARE_VIEW_SOA_ACCESSOR, ~, __VA_ARGS__)                                                      \
+      ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_VIEW_METHODS, ~, __VA_ARGS__))                                            \
                                                                                                                        \
       /* dump the SoA internal structure */                                                                            \
       template <typename T>                                                                                            \

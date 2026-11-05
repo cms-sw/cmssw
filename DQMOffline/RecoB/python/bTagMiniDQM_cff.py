@@ -2,9 +2,6 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-from DQMOffline.RecoB.bTagMiniDQMTaggers import DeepCSVDiscriminators
-from DQMOffline.RecoB.bTagMiniDQMTaggers import DeepFlavourDiscriminators
-from DQMOffline.RecoB.bTagMiniDQMTaggers import ParticleNetPuppiCentralDiscriminators
 from DQMOffline.RecoB.bTagMiniDQMTaggers import ParticleNetPuppiForwardDiscriminators
 from DQMOffline.RecoB.bTagMiniDQMTaggers import UParTDiscriminators
 
@@ -71,7 +68,7 @@ bTagMiniValidationHarvesting = cms.Sequence()
 
 #####################################################################################
 #
-# Setup DQM and Validation plots for DeepJet, ParticleNet and UParT taggers' outputs
+# Setup DQM and Validation plots for ParticleNet and UParT taggers' outputs
 #
 #####################################################################################
 def addSequences(Analyzer, Harvester, discriminators, regions, globalPSet, label='bTag'):
@@ -86,18 +83,6 @@ def addSequences(Analyzer, Harvester, discriminators, regions, globalPSet, label
             Harvester.insert(-1, globals()[name + 'Harvester'])
 
 taggersToAnalyze = {
-    'bTagDeepFlavour': {
-        'discriminators': DeepFlavourDiscriminators,
-        'regions':Etaregions
-    },
-    'bTagDeepCSV': {
-        'discriminators': DeepCSVDiscriminators,
-        'regions':Etaregions
-    },
-    'bTagParticleNetCentral': {
-        'discriminators': ParticleNetPuppiCentralDiscriminators,
-        'regions': Etaregions
-    },
     'bTagParticleNetForward': {
         'discriminators': ParticleNetPuppiForwardDiscriminators,
         'regions': {
@@ -133,15 +118,13 @@ for tagger in taggersToAnalyze:
 
 #####################################################################################
 #
-# Setup Validation plots for DeepJet, ParticleNet and UParT taggers' inputs
+# Setup Validation plots for ParticleNet and UParT taggers' inputs
 #
 #####################################################################################
 # Jets in the tracker-coverage region
 patJetsPuppiTagInfoAnalyzerDQM = DQMEDAnalyzer('MiniAODTagInfoAnalyzer', cms.PSet(
     jets = cms.InputTag('updatedPatJetsSlimmedPuppiWithDeepTags'),
     jetTagInfos = cms.vstring(
-        "pfDeepFlavourTagInfosSlimmedPuppiWithDeepTags",
-        "pfParticleNetFromMiniAODAK4PuppiCentralTagInfosSlimmedPuppiWithDeepTags",
         "pfUnifiedParticleTransformerAK4TagInfosSlimmedPuppiWithDeepTags",
     ),
     ptMin = cms.double(30.),
@@ -165,7 +148,7 @@ bTagMiniDQMSource += patJetsPuppiForwardTagInfoAnalyzerDQM
 
 #####################################################################################
 #
-# Setup Validation plots for DeepJet, ParticleNet and UParT taggers' inputs
+# Setup Validation plots for ParticleNet and UParT taggers' inputs
 #
 #####################################################################################
 # Jets in the tracker-coverage region (Inclusive flavour)

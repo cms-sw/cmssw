@@ -27,7 +27,6 @@ The order of the signals in this list is an approximate order in which they woul
 | `PostServicesConstruction` | - | Emitted after all services have been constructed. |
 | `{Pre,Post}EventSetupModulesConstruction` | Yes | Emitted before and after constructing EventSetup modules. |
 | `{Pre,Post}ESModuleConstruction` | Yes | Emitted before and after constructing an EventSetup module (ESProducer or ESSource). |
-| `PostESModuleRegistration` | - | Emitted after an ESModule provider has been registered with the EventSetupProvider. |
 | `{Pre,Post}ModulesAndSourceConstruction` | Yes | Emitted before and after concurrent construction of the Source and the EDModules. |
 | `{Pre,Post}SourceConstruction` | Yes | Emitted before and after construction of the Source. |
 | `{Pre,Post}OpenFile` | Yes | `PoolSource`, `EmbeddedRootSource`, `RNTupleTempSource`, and `EmbeddedRNTupleTempSource` emit these signals  before and after opening a new input file (either primary or secondary). Note that the first signal may be emitted during the Source construction, and the later signals after the `BeginProcessing`. |
@@ -80,31 +79,29 @@ The order of the signals in this list is an approximate order in which they woul
 | `{Pre,Post}ModuleGlobalBeginLumi` | Yes | Emitted before and after each EDModule's global `beginLuminosityBlock()` method is called on a specific stream. |
 | `{Pre,Post}StreamBeginLumi` | No | Emitted before and after running the stream `BeginLuminosityBlock` transition for all modules on a specific stream. |
 | `{Pre,Post}ModuleStreamBeginLumi` | Yes | Emitted before and after each EDModule's stream `beginLuminosityBlock()` method is called on a specific stream. |
-|||
+||||
 | `{Pre,Post}SourceEvent` | Yes | Emitted before and after the `InputSource` reads an `Event` (effectively the metadata). The `PoolSource` and `RNTupleTempSource` emit these signals also when they read an `Event` for the secondary input. |
 | `{Pre,Post}Event` | No | Emitted before and after running the `Event` transition for all modules on a specific stream. |
 | `{Pre,Post}EventReadFromSource` | Yes | `PoolSource`, `EmbeddedRootSource`,  `RNTupleTempSource`, and `EmbeddedRNTupleTempSource` emit these signals before and after reading event provenance and event data products via the delayed reading. In case of prompt reading, the signals are emitted when the data products are retrieved from the cache of the prompt reader. `RepeatingCachedRootSource` emits these signal when retrieving event data products from its cache. |
 | `{Pre,Post}PathEvent` | No | Emitted before and after processing a Path for an Event. |
 | `{Pre,Post}ModuleEventPrefetching` | No | Emitted before and after each module's prefetching of data products needed by the EDModule for an Event. |
 | `{Pre,Post}ModuleEventAcquire` | Yes | Emitted before and after each ExternalWork-using EDModule's `acquire()` method. |
-| `{Pre,Post}ModuleEventDelayedGet` | Yes | Emitted before and after an EDModule performs a delayed get operation to retrieve a data product. This can only | `{Pre,Post}ModuleEvent` | Yes | Emitted before and after running each EDModule's Event processing method (e.g., `produce()`, `filter()`, `analyze()`). |
+| `{Pre,Post}ModuleEventDelayedGet` | Yes | Emitted before and after an EDModule performs a delayed get operation to retrieve a data product. This can only occur when accessing data from `edm::Ref`-style objects. |
+| `{Pre,Post}ModuleEvent` | Yes | Emitted before and after running each EDModule's Event processing method (e.g., `produce()`, `filter()`, `analyze()`). |
 | `{Pre,Post}ModuleTransformPrefetching` | No | Emitted before and after each Transformer-using EDModule's prefetching of data products needed by the transformer. |
 | `{Pre,Post}ModuleTransformAcquiring` | Yes | Emitted before and after each Transformer-using EDModules' `transformAsync`'s "acquire" function. |
 | `{Pre,Post}ModuleTransform` | Yes | Emitted before and after each Transformer-using EDModules's `transform` function. |
-occur when accessing data from `edm::Ref`-style objects. |
 | `{Pre,Post}ClearEvent` | Yes | Emitted before and after deleting the Event data products after the Event has been processed. Note that data products deleted early are not signalled. |
-|||
+||||
 | `{Pre,Post}StreamEndLumi` | No | Emitted before and after running the stream `EndLuminosityBlock` transition for all modules on a specific stream. |
 | `{Pre,Post}ModuleStreamEndLumi` | Yes | Emitted before and after each EDModule's stream `endLuminosityBlock()` method is called on a specific stream. |
 | `{Pre,Post}GlobalEndLumi` | No | Emitted before and after running the global `EndLuminosityBlock` transition for all modules. |
 | `{Pre,Post}ModuleGlobalEndLumi` | Yes | Emitted before and after each EDModule's global `endLuminosityBlock()` method is called.  |
-| `{Pre,Post}GlobalWriteLumi` | No | Emitted before and after the OutputModules write the data of a LuminosityBock. |
 | `{Pre,Post}ModuleWriteLumi` | Yes | Emitted before and after each OutputModule's `doWriteLuminosityBlock()` method, that writes LuminosityBlock data to output. |
 | `{Pre,Post}StreamEndRun` | No | Emitted before and after running the stream `EndRun`  transition for all modules on a specific stream.  |
 | `{Pre,Post}ModuleStreamEndRun` | Yes | Emitted before and after each EDModule's stream `endRun()` method is called on a specific stream. |
 | `{Pre,Post}GlobalEndRun` | No | Emitted before and after runninge the global `EndRun` transition for all modules. |
 | `{Pre,Post}ModuleGlobalEndRun` | Yes | Emitted before and after each EDModule's global `endRun()` method is called. |
-| `{Pre,Post}GlobalWriteRun` | No | Emitted before and after the OutputModules write the data of a Run. |
 | `{Pre,Post}ModuleWriteRun` | Yes | Emitted before and after each OutputModule's `doWriteRun()` method, that writes Run data to output. |
 | `{Pre,Post}WriteProcessBlock` | No | Emitted before and after OutputModules write the data of a ProcessBlock. |
 | `{Pre,Post}ModuleWriteProcessBlock` | Yes | Emitted before and after each OutputModule's `doWriteProcessBlock()` method, that writes ProcessBlock data to output. |
@@ -130,4 +127,3 @@ occur when accessing data from `edm::Ref`-style objects. |
 | `PreStreamEarlyTermination` | - | Emitted when an exception is thrown from any stream transition. |
 | `PreGlobalEarlyTermination` | - | Emitted when an exception is thrown from any global transition. |
 | `PreSourceEarlyTermination` | - | Emitted when an external termination request is received. |
-| `JobFailure` | - | To be removed (only called from `FWCore/Services/test/servicesJobReport_t.cpp`) |

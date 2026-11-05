@@ -496,7 +496,7 @@ _InitialStepTask_fastSim = cms.Task(initialStepTrackingRegions
                            ,initialStepClassifier1,initialStepClassifier2,initialStepClassifier3
                            ,initialStep
                            )
-_InitialStepTask_fastSim_Phase2 = _InitialStepTask_fastSim.copy()
+_InitialStepTask_fastSim_Phase2 = _InitialStepTask_fastSim.copyAndExclude([initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])
 _InitialStepTask_fastSim_Phase2.replace(initialStep, initialStepSelector)
 fastSim.toReplaceWith(InitialStepTask, _InitialStepTask_fastSim)
 (fastSim & trackingPhase2PU140).toReplaceWith(InitialStepTask, _InitialStepTask_fastSim_Phase2)

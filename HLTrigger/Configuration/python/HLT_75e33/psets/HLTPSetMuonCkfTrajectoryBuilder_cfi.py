@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 HLTPSetMuonCkfTrajectoryBuilder = cms.PSet(
     ComponentType = cms.string('MuonCkfTrajectoryBuilder'),
-    TTRHBuilder = cms.string('WithTrackAngle'),
+    TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
     alwaysUseInvalidHits = cms.bool(True),
     deltaEta = cms.double(-1.0),
     deltaPhi = cms.double(-1.0),

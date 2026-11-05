@@ -1,5 +1,5 @@
-#ifndef Alignment_OfflineValidation_DiLeptonVertexHelpers_h
-#define Alignment_OfflineValidation_DiLeptonVertexHelpers_h
+#ifndef DQMOffline_Alignment_DiLeptonPlotHelpers_h
+#define DQMOffline_Alignment_DiLeptonPlotHelpers_h
 
 #include <vector>
 #include <string>
@@ -76,7 +76,7 @@ namespace DiLepPlotHelp {
             xmin = -2.4;
             xmax = 2.4;
             namePostfix = m_flav ? "EMinusEta" : "MuMinusEta";
-            titlePostfix = fmt::sprintf("%s^{-} #eta;%s^{+} #eta", sed, sed);
+            titlePostfix = fmt::sprintf("%s^{-} #eta;%s^{-} #eta", sed, sed);
             break;
           case xAxis::DELTA_ETA:
             xmin = -hpar.getParameter<double>("maxDeltaEta");
@@ -96,7 +96,7 @@ namespace DiLepPlotHelp {
         }
 
         const auto& h2name = fmt::sprintf("%sVs%s", hpar.getParameter<std::string>("name"), namePostfix);
-        const auto& h2title = fmt::sprintf("%s vs %s;%s% s",
+        const auto& h2title = fmt::sprintf("%s vs %s;%s %s",
                                            hpar.getParameter<std::string>("title"),
                                            titlePostfix,
                                            hpar.getParameter<std::string>("title"),
@@ -140,12 +140,12 @@ namespace DiLepPlotHelp {
       // clang-format off
       m_h2_map[xAxis::Z_ETA] = iBooker.book2D(fmt::sprintf("%sVsMuMuEta", m_name).c_str(),
 					      fmt::sprintf("%s vs %s pair #eta;%s #eta;%s", m_title, dilep, dilep, m_ytitle).c_str(),
-					      nxbins, -M_PI, M_PI,
+					      nxbins, -maxMuMuEta, maxMuMuEta,
 					      nybins, valmin, valmax);
       
       m_h2_map[xAxis::Z_PHI] = iBooker.book2D(fmt::sprintf("%sVsMuMuPhi", m_name).c_str(),
 					      fmt::sprintf("%s vs %s pair #phi;%s #phi [rad];%s", m_title, dilep, dilep, m_ytitle).c_str(),
-					      nxbins, -maxMuMuEta, maxMuMuEta,
+					      nxbins, -M_PI, M_PI,
 					      nybins, valmin, valmax);
       
       m_h2_map[xAxis::LP_ETA] = iBooker.book2D(fmt::sprintf("%sVsMuPlusEta", m_name).c_str(),
@@ -207,7 +207,12 @@ namespace DiLepPlotHelp {
       double mubarminus = 1. / sqrt(2.) * (momenta.second.E() - momenta.second.Z());
 
       const auto& mother = momenta.first + momenta.second;
-      double cosThetaCS = 2. / mother.Mag() / sqrt(pow(mother.Mag(), 2) + pow(mother.Pt(), 2)) *
+
+      // Collins-Soper convention: cos(theta) of the negative lepton, i.e. P1 = second (l-) and P2 = first (l+)
+      // in cosTheta = 2 / (m * sqrt(m^2 + pT^2)) * (P1+ P2- - P1- P2+), and the z axis is flipped if pz(ll) < 0.
+      // Here (muplus, muminus) refer to the first (l+) and (mubarplus, mubarminus) to the second (l-) lepton
+      const double csSign = (mother.Pz() < 0.) ? 1. : -1.;
+      double cosThetaCS = csSign * 2. / mother.Mag() / sqrt(pow(mother.Mag(), 2) + pow(mother.Pt(), 2)) *
                           (muplus * mubarminus - muminus * mubarplus);
 
       m_h2_map[xAxis::DELTA_ETA]->Fill(deltaEta, val);
@@ -235,4 +240,4 @@ namespace DiLepPlotHelp {
     std::map<xAxis, dqm::reco::MonitorElement*> m_h2_map;
   };
 }  // namespace DiLepPlotHelp
-#endif
+#endif  // DQMOffline_Alignment_DiLeptonPlotHelpers_h

@@ -369,19 +369,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     constexpr auto threadsPrefixScan = 256u;
     auto blocksPrefixScan = (maxNumberOfTracks + threadsPrefixScan - 1) / threadsPrefixScan;
     auto workDivPrefixScan = cms::alpakatools::make_workdiv<Acc1D>(blocksPrefixScan, threadsPrefixScan);
-    auto bCounter = cms::alpakatools::make_device_buffer<int32_t>(queue);
-    alpaka::memset(queue, bCounter, 0);
 
     // Launch prefix-scan over the preselection mask to compute offsets
-    alpaka::exec<Acc1D>(queue,
-                        workDivPrefixScan,
-                        cms::alpakatools::multiBlockPrefixScan<int>(),
-                        preselectionMask.data(),
-                        preselectionOffsets,
-                        maxNumberOfTracks,
-                        blocksPrefixScan,
-                        bCounter.data(),
-                        alpaka::getPreferredWarpSize(alpaka::getDev(queue)));
+    cms::alpakatools::prefixScan<Acc1D>(
+        queue, preselectionMask.data(), preselectionOffsets, static_cast<uint32_t>(maxNumberOfTracks));
 
     // Compact the preselectedTrackIndices array using the preselection offsets
     alpaka::exec<Acc1D>(queue,
@@ -459,19 +450,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     constexpr auto threadsPrefixScan = 256u;
     auto blocksPrefixScan = (maxPreselectedTracks + threadsPrefixScan - 1) / threadsPrefixScan;
     auto workDivPrefixScan = cms::alpakatools::make_workdiv<Acc1D>(blocksPrefixScan, threadsPrefixScan);
-    auto bCounter = cms::alpakatools::make_device_buffer<int32_t>(queue);
-    alpaka::memset(queue, bCounter, 0);
 
     // Launch prefix-scan over the selection mask to compute offsets
-    alpaka::exec<Acc1D>(queue,
-                        workDivPrefixScan,
-                        cms::alpakatools::multiBlockPrefixScan<int>(),
-                        selectionMask.data(),
-                        selectionOffsets.data(),
-                        maxPreselectedTracks,
-                        blocksPrefixScan,
-                        bCounter.data(),
-                        alpaka::getPreferredWarpSize(alpaka::getDev(queue)));
+    cms::alpakatools::prefixScan<Acc1D>(
+        queue, selectionMask.data(), selectionOffsets.data(), static_cast<uint32_t>(maxPreselectedTracks));
 
     // Compact the preselectedTrackIndices array using the selection offsets
     alpaka::exec<Acc1D>(queue,
@@ -494,16 +476,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         nSelectedTracks);
 
     // Finally, compute the prefix-scan to get hit offsets
-    alpaka::memset(queue, bCounter, 0);
-    alpaka::exec<Acc1D>(queue,
-                        workDivPrefixScan,
-                        cms::alpakatools::multiBlockPrefixScan<int>(),
-                        selectedTrackHitCounts.data(),
-                        selectedTrackHitOffsets,
-                        maxPreselectedTracks,
-                        blocksPrefixScan,
-                        bCounter.data(),
-                        alpaka::getPreferredWarpSize(alpaka::getDev(queue)));
+    cms::alpakatools::prefixScan<Acc1D>(
+        queue, selectedTrackHitCounts.data(), selectedTrackHitOffsets, static_cast<uint32_t>(maxPreselectedTracks));
   }
 
   // ------------------------------------------------------------------------------

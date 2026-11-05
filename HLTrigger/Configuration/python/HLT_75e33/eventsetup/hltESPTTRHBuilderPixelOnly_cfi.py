@@ -5,6 +5,6 @@ hltESPTTRHBuilderPixelOnly = cms.ESProducer("TkTransientTrackingRecHitBuilderESP
     ComputeCoarseLocalPositionFromDisk = cms.bool(False),
     Matcher = cms.string('StandardMatcher'),
     Phase2StripCPE = cms.string(''),
-    PixelCPE = cms.string('PixelCPEGeneric'),
+    PixelCPE = cms.string('hltESPPixelCPEGeneric'),
     StripCPE = cms.string('Fake')
 )

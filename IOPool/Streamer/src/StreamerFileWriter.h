@@ -36,8 +36,6 @@ namespace edm {
       void start() {}
       void stop() {}
 
-      uint32 get_adler32() const { return stream_writer_->adler32(); }
-
     private:
       edm::propagate_const<std::unique_ptr<StreamerOutputFile>> stream_writer_;
     };

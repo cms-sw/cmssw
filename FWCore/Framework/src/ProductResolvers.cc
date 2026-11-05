@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 #include "ProductResolvers.h"
-#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/maker/TransitionWorkerBase.h"
 #include "FWCore/Framework/interface/UnscheduledAuxiliary.h"
 #include "UnscheduledConfigurator.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/ProductProvenanceRetriever.h"
+#include "FWCore/Framework/interface/maker/TransitionWorker.h"
 #include "FWCore/ServiceRegistry/interface/CurrentModuleOnThread.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
@@ -19,7 +20,7 @@
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Concurrency/interface/FunctorTask.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/Utilities/interface/make_sentry.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 #include "FWCore/Utilities/interface/Transition.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
@@ -178,15 +179,13 @@ namespace edm {
       if (!context) {
         context = CurrentModuleOnThread::getCurrentModuleOnThread();
       }
-      if (context and branchType == InEvent and aux_) {
+      bool const emitSignals = (context and branchType == InEvent and aux_);
+      auto sentry = signalslot::make_sentry_if(emitSignals, [this, context]() {
+        aux_->postModuleDelayedGetSignal_.emit(*(context->getStreamContext()), *context);
+      });
+      if (emitSignals) {
         aux_->preModuleDelayedGetSignal_.emit(*(context->getStreamContext()), *context);
       }
-
-      auto sentry(make_sentry(context, [this, branchType](ModuleCallingContext const* iContext) {
-        if (branchType == InEvent and aux_) {
-          aux_->postModuleDelayedGetSignal_.emit(*(iContext->getStreamContext()), *iContext);
-        }
-      }));
 
       if (auto reader = principal.reader()) {
         std::unique_lock<std::recursive_mutex> guard;
@@ -207,6 +206,7 @@ namespace edm {
           }
         }
       }
+      sentry.succeeded();
     });
   }
 
@@ -233,6 +233,8 @@ namespace edm {
         if (status() == defaultStatus() || status() == ProductStatus::ProductSet ||
             (status() == ProductStatus::ResolveFailed && !productDescription().isMergeable())) {
           setOrMergeProduct(std::move(edp), mergeableRunProductMetadata);
+          m_prefetchRequested = true;
+          m_waitingTasks.doneWaiting(std::exception_ptr());
         } else {  // status() == ResolveFailed && productDescription().isMergeable()
           throw Exception(errors::MismatchedInputFiles)
               << "Merge of Run or Lumi product failed for branch " << productDescription().branchName() << "\n"
@@ -243,6 +245,8 @@ namespace edm {
         }
       } else if (status() == defaultStatus()) {
         setFailedStatus();
+        m_prefetchRequested = true;
+        m_waitingTasks.doneWaiting(std::exception_ptr());
       } else if (status() != ProductStatus::ResolveFailed && productDescription().isMergeable()) {
         throw Exception(errors::MismatchedInputFiles)
             << "Merge of Run or Lumi product failed for branch " << productDescription().branchName() << "\n"
@@ -281,10 +285,9 @@ namespace edm {
     m_waitingTasks.add(waitTask);
 
     if (prefetchRequested) {
-      ServiceWeakToken weakToken = token;
-      auto workToDo = [this, mcc, &principal, weakToken]() {
+      auto workToDo = [this, mcc, &principal, token]() {
         //need to make sure Service system is activated on the reading thread
-        ServiceRegistry::Operate operate(weakToken.lock());
+        ServiceRegistry::Operate operate(token);
         // Caught exception is propagated via WaitingTaskList
         CMS_SA_ALLOW try {
           resolveProductImpl<true>([this, &principal, mcc]() {
@@ -412,14 +415,24 @@ namespace edm {
 
   void PuttableProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
     auto worker = iConfigure.findWorker(productDescription().moduleLabel());
-    if (worker) {
-      waitingTasks_ = &worker->waitingTaskList();
+    if (not std::holds_alternative<std::monostate>(worker)) {
+      std::visit(
+          [this](auto&& typedWorker) {
+            if constexpr (not std::is_same_v<std::decay_t<decltype(typedWorker)>, std::monostate>) {
+              waitingTasks_ = &typedWorker->waitingTaskList();
+            }
+          },
+          worker);
     }
   }
 
   void UnscheduledProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
     aux_ = iConfigure.auxiliary();
-    worker_ = iConfigure.findWorker(productDescription().moduleLabel());
+    worker_ = nullptr;
+    auto worker = iConfigure.findWorker(productDescription().moduleLabel());
+    if (not std::holds_alternative<std::monostate>(worker)) {
+      worker_ = std::get<TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>*>(worker);
+    }
   }
 
   ProductResolverBase::Resolution UnscheduledProductResolver::resolveProduct_(Principal const&,
@@ -463,13 +476,12 @@ namespace edm {
 
       ParentContext parentContext(mcc);
       EventTransitionInfo const& info = aux_->eventTransitionInfo();
-      worker_->doWorkAsync<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin> >(
-          WaitingTaskHolder(*waitTask.group(), t),
-          info,
-          token,
-          info.principal().streamID(),
-          parentContext,
-          mcc->getStreamContext());
+      worker_->doWorkAsync<TransitionEdge::kBegin>(WaitingTaskHolder(*waitTask.group(), t),
+                                                   info,
+                                                   token,
+                                                   info.principal().streamID(),
+                                                   parentContext,
+                                                   mcc->getStreamContext());
     }
   }
 
@@ -483,10 +495,12 @@ namespace edm {
 
   void TransformingProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
     aux_ = iConfigure.auxiliary();
-    worker_ = iConfigure.findWorker(productDescription().moduleLabel());
+    auto worker = iConfigure.findWorker(productDescription().moduleLabel());
     // worker can be missing if the corresponding module is
     // unscheduled and none of its products are consumed
-    if (worker_) {
+    if (not std::holds_alternative<std::monostate>(worker)) {
+      worker_ = std::get<TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>*>(worker);
+      assert(worker_);
       index_ = worker_->transformIndex(productDescription());
     }
   }

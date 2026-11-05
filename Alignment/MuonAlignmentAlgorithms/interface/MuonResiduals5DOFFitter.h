@@ -3,7 +3,7 @@
 
 /** \class MuonResiduals5DOFFitter
  *  $Date: Fri Apr 17 15:29:54 CDT 2009
- *  $Revision: 1.5 $ 
+ *  $Revision: 1.5 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -47,6 +47,7 @@ public:
     kSector,
     kChambW,
     kChambl,
+    kWeightOccupancy,
     kNData
   };
 

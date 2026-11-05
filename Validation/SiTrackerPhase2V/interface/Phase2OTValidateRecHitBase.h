@@ -50,8 +50,8 @@ public:
   void fillOTRecHitHistos(const PSimHit* simhitClosest,
                           const Phase2TrackerRecHit1D* rechit,
                           const std::map<unsigned int, SimTrack>& selectedSimTrackMap,
-                          std::map<std::string, unsigned int>& nrechitLayerMapP_primary,
-                          std::map<std::string, unsigned int>& nrechitLayerMapS_primary);
+                          std::map<int, unsigned int>& nrechitLayerMapP_primary,
+                          std::map<int, unsigned int>& nrechitLayerMapS_primary);
 
   static void fillPSetDescription(edm::ParameterSetDescription& desc, bool tracking);
   void bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir);
@@ -128,5 +128,5 @@ protected:
     MonitorElement* numberRecHitsprimary_P;
     MonitorElement* numberRecHitsprimary_S;
   };
-  std::map<std::string, RecHitME> layerMEs_;
+  std::map<int, RecHitME> layerMEs_;
 };

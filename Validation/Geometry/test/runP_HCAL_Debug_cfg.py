@@ -50,6 +50,7 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.g4SimHits.UseMagneticField = False
+process.g4SimHits.LHCTransport = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.StackingAction.TrackNeutrino = True
 process.g4SimHits.Physics.DummyEMPhysics = True
@@ -60,6 +61,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         FillHisto    = cms.untracked.bool(False),
         PrintSummary = cms.untracked.bool(True),
         DoHCAL       = cms.untracked.bool(True),
+        TestVolumes  = cms.untracked.bool(True),
         NBinPhi      = cms.untracked.int32(180),
         NBinEta      = cms.untracked.int32(260),
         MaxEta       = cms.untracked.double(5.2),

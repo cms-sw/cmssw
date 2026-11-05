@@ -22,7 +22,10 @@
 #include <sstream>
 #include <sys/time.h>
 #include <unistd.h>
+#include <cerrno>
+#include <climits>
 #include <cstdio>
+#include <cstring>
 #include <regex>
 #include <boost/algorithm/string.hpp>
 #include <fmt/printf.h>
@@ -64,8 +67,9 @@ namespace evf {
     reg.watchPreGlobalEndLumi(this, &EvFDaqDirector::preGlobalEndLumi);
 
     //save hostname for later
-    char hostname[33];
-    gethostname(hostname, 32);
+    char hostname[HOST_NAME_MAX + 1];
+    if (gethostname(hostname, sizeof(hostname)) != 0)
+      throw cms::Exception("EvFDaqDirector") << "Internal error, cannot get host name: " << std::strerror(errno);
     hostname_ = hostname;
 
     //override file service parameter if specified by environment

@@ -12,6 +12,7 @@
 
 #include <vector>
 #include <atomic>
+#include <optional>
 
 class MagBLayer;
 class MagESector;
@@ -43,8 +44,10 @@ public:
   /// Return field vector at the specified global point
   GlobalVector fieldInTesla(const GlobalPoint& gp) const;
 
-  /// Find a volume
-  MagVolume const* findVolume(const GlobalPoint& gp, double tolerance = 0.) const;
+  /// Find a volume. isInBarrel: suggested region (nullopt=find out automatically)
+  MagVolume const* findVolume(const GlobalPoint& gp,
+                              double tolerance = 0.,
+                              std::optional<bool> isInBarrel = std::nullopt) const;
 
   // FIXME: only for temporary tests, should be removed.
   const std::vector<MagVolume6Faces const*>& barrelVolumes() const { return theBVolumes; }

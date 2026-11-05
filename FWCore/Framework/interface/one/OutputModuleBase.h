@@ -33,8 +33,8 @@ namespace edm {
     public:
       template <typename U>
       friend class edm::maker::ModuleHolderT;
-      template <typename T>
-      friend class ::edm::WorkerT;
+      template <typename T, typename TI, typename TP>
+      friend class ::edm::ModuleTransitionWorker;
       template <typename T>
       friend class ::edm::OutputModuleCommunicatorT;
       typedef OutputModuleBase ModuleType;
@@ -51,6 +51,7 @@ namespace edm {
       virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
       bool wantsStreamRuns() const noexcept { return false; }
       bool wantsStreamLuminosityBlocks() const noexcept { return false; };
+      constexpr static bool wantsWrites() noexcept { return true; }
 
       virtual SerialTaskQueue* globalRunsQueue() { return nullptr; }
       virtual SerialTaskQueue* globalLuminosityBlocksQueue() { return nullptr; }
@@ -60,7 +61,7 @@ namespace edm {
       void doPreallocate(PreallocationConfiguration const&);
 
       void doBeginJob();
-      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
 
       void configure(OutputModuleDescription const& desc);
 

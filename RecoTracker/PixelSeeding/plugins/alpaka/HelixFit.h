@@ -65,12 +65,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ~HelixFit() { deallocate(); }
 
     void setBField(double bField) { bField_ = bField; }
-    void launchRiemannKernels(const HitConstView &hv,
+    void launchRiemannKernels(const caStructures::HitsMultiView &hv,
                               const ::reco::CAModulesConstView &fr,
                               uint32_t nhits,
                               uint32_t maxNumberOfTuples,
                               Queue &queue);
-    void launchBrokenLineKernels(const HitConstView &hv,
+    void launchBrokenLineKernels(const caStructures::HitsMultiView &hv,
                                  const ::reco::CAModulesConstView &fr,
                                  uint32_t nhits,
                                  uint32_t maxNumberOfTuples,

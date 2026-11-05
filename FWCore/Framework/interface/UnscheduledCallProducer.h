@@ -16,7 +16,7 @@
  */
 
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
-#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/maker/TransitionWorker.h"
 #include "FWCore/Framework/interface/UnscheduledAuxiliary.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
@@ -34,14 +34,14 @@ namespace edm {
 
   class UnscheduledCallProducer {
   public:
-    using worker_container = std::vector<Worker*>;
+    using worker_container = std::vector<TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>*>;
     using const_iterator = worker_container::const_iterator;
 
     UnscheduledCallProducer(ActivityRegistry& iReg) : unscheduledWorkers_() {
       aux_.preModuleDelayedGetSignal_.connect(std::cref(iReg.preModuleEventDelayedGetSignal_));
       aux_.postModuleDelayedGetSignal_.connect(std::cref(iReg.postModuleEventDelayedGetSignal_));
     }
-    void addWorker(Worker* aWorker) {
+    void addWorker(TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>* aWorker) {
       assert(nullptr != aWorker);
       unscheduledWorkers_.push_back(aWorker);
       if (aWorker->hasAccumulator()) {
@@ -49,7 +49,7 @@ namespace edm {
       }
     }
 
-    void removeWorker(Worker const* worker) {
+    void removeWorker(TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal> const* worker) {
       unscheduledWorkers_.erase(std::remove(unscheduledWorkers_.begin(), unscheduledWorkers_.end(), worker),
                                 unscheduledWorkers_.end());
       accumulatorWorkers_.erase(std::remove(accumulatorWorkers_.begin(), accumulatorWorkers_.end(), worker),
@@ -64,15 +64,14 @@ namespace edm {
     const_iterator end() const { return unscheduledWorkers_.end(); }
     worker_container const& workers() const { return unscheduledWorkers_; }
 
-    template <typename T>
     void runAccumulatorsAsync(WaitingTaskHolder task,
-                              typename T::TransitionInfoType const& info,
+                              EventTransitionInfo const& info,
                               ServiceToken const& token,
                               StreamID streamID,
                               ParentContext const& parentContext,
-                              typename T::Context const* context) noexcept {
+                              StreamContext const* context) noexcept {
       for (auto worker : accumulatorWorkers_) {
-        worker->doWorkAsync<T>(task, info, token, streamID, parentContext, context);
+        worker->doWorkAsync<TransitionEdge::kBegin>(task, info, token, streamID, parentContext, context);
       }
     }
 

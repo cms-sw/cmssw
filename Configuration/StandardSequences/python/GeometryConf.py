@@ -48,6 +48,8 @@ GeometryConf={
     'DD4hepExtended2021FlatPlus05Percent' : 'DD4hepExtended2021FlatPlus05Percent,DD4hepExtended2021FlatPls05PercentReco',
     'Extended2021FlatPlus10Percent' : 'Extended2021FlatPlus10Percent,Extended2021FlatPlus10PercentReco',
     'DD4hepExtended2021FlatPlus10Percent' : 'DD4hepExtended2021FlatPlus10Percent,DD4hepExtended2021FlatPlus10PercentReco',
+    'Extended2022' : 'Extended2022,Extended2022Reco',
+    'DD4hepExtended2022'   : 'DD4hepExtended2022,DD4hepExtended2022Reco',
     'Extended2023'   : 'Extended2023,Extended2023Reco',
     'DD4hepExtended2023'   : 'DD4hepExtended2023,DD4hepExtended2023Reco',
     'Extended2023ZeroMaterial'   : 'Extended2023ZeroMaterial,Extended2023ZeroMaterialReco',
@@ -120,6 +122,8 @@ GeometryConf={
     'DD4hepExtendedRun4D126' : 'DD4hepExtendedRun4D126,DD4hepExtendedRun4D126Reco',
     'ExtendedRun4D127' : 'ExtendedRun4D127,ExtendedRun4D127Reco',
     'DD4hepExtendedRun4D127' : 'DD4hepExtendedRun4D127,DD4hepExtendedRun4D127Reco',
+    'ExtendedRun4D128' : 'ExtendedRun4D128,ExtendedRun4D128Reco',
+    'DD4hepExtendedRun4D128' : 'DD4hepExtendedRun4D128,DD4hepExtendedRun4D128Reco',
     'ExtendedRun4D500' : 'ExtendedRun4D500,ExtendedRun4D500Reco',
     'DD4hepExtendedRun4D500' : 'DD4hepExtendedRun4D500,DD4hepExtendedRun4D500Reco',
 }

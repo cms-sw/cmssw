@@ -23,10 +23,6 @@ namespace {
 
 }  // namespace
 
-#include "FWCore/Utilities/interface/HRRealTime.h"
-void st() {}
-void en() {}
-
 #include <iostream>
 
 int main() {

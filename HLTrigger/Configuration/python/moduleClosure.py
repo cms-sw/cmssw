@@ -259,6 +259,43 @@ def buildFrameworkGraph(filename, configArgs=(), directory=None):
     return log
 
 
+def buildFrameworkGraphFromProcess(process, directory=None):
+    """Run a short cmsRun job on process and return its Tracer log path.
+
+    The process is serialised with dumpPython and loaded back, so the Tracer
+    sees exactly the configuration the caller built, with no era or process
+    modifiers applied unless the caller applied them.  The job processes no
+    events: the Tracer reports at the end of the framework's lookup
+    initialisation, so the information is complete as soon as the job has
+    started.
+    """
+    if directory is None:
+        directory = tempfile.mkdtemp(prefix="hltDumpTaggedModules-")
+    log = os.path.join(directory, "tracer.log")
+    job = os.path.join(directory, "tracer_cfg.py")
+    dump = os.path.join(directory, "process.py")
+    process.source = cms.Source("EmptySource")
+    process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(0))
+    with open(dump, "w") as script:
+        script.write(process.dumpPython())
+    with open(job, "w") as script:
+        script.write(_GRAPH_JOB_TEMPLATE % {
+            "directory": directory,
+            "filename": dump,
+            "configArgs": [],
+        })
+    print("Running cmsRun to collect the framework's dependency information...",
+          file=sys.stderr)
+    with open(log, "w") as output:
+        result = subprocess.run(["cmsRun", job], stdout=output,
+                                stderr=subprocess.STDOUT, universal_newlines=True)
+    if result.returncode != 0:
+        with open(log, errors="replace") as output:
+            tail = output.read()[-4000:]
+        raise RuntimeError("the dependency job failed:\n%s" % tail)
+    print("Dependency information kept in %s" % log, file=sys.stderr)
+    return log
+
 class ModuleGraph(object):
     """The data flow graph of the EDProducers and EDFilters of a Process."""
 

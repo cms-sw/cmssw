@@ -63,8 +63,8 @@ private:
 DEFINE_FWK_MODULE(HiSuperClusterProducer);
 
 HiSuperClusterProducer::HiSuperClusterProducer(const edm::ParameterSet& ps)
-    : endcapSuperclusterPut_{produces<reco::SuperClusterCollection>(
-          ps.getParameter<std::string>("endcapSuperclusterCollection"))},
+    : endcapSuperclusterPut_{
+          produces<reco::SuperClusterCollection>(ps.getParameter<std::string>("endcapSuperclusterCollection"))},
       barrelSuperclusterPut_{
           produces<reco::SuperClusterCollection>(ps.getParameter<std::string>("barrelSuperclusterCollection"))},
       eeClustersToken_{consumes<reco::BasicClusterCollection>(

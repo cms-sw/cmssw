@@ -700,16 +700,16 @@ FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_StripDigiSimLink_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')
 
 # MC-truth graph: under enableTruth, persist the compact truth (logical graph +
-# unresolved hit index + raw merged graph). Kept in FEVTDEBUGHLT (the DIGI-RAW and
-# RECO tier for Phase-2) so it bridges DIGI->RECO, and in RECOSIM for downstream.
+# unresolved hit index + raw merged graph) and the offline reco products its
+# associators read. Kept in FEVTDEBUGHLT (the DIGI-RAW and RECO tier for Phase-2)
+# so it bridges DIGI->RECO, and in RECOSIM for downstream. FEVTDEBUGHLT also keeps
+# the HLT reco products the HLT associators read.
 from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
-_truthKeeps = [
-    'keep *_truthLogicalGraphProducer_*_*',
-    'keep *_truthLogicalGraphHitIndexProducer_*_*',
-    'keep TruthGraph_mix_*_*',
-]
+from PhysicsTools.TruthInfo.truthEventContent_cff import (truthContentCompact as _truthContentCompact,
+                                                          truthHltInputsKeep as _truthHltInputsKeep)
+_truthKeeps = list(_truthContentCompact)
 enableTruth.toModify(FEVTDEBUGHLTEventContent,
-                     outputCommands=FEVTDEBUGHLTEventContent.outputCommands + _truthKeeps)
+                     outputCommands=FEVTDEBUGHLTEventContent.outputCommands + _truthKeeps + _truthHltInputsKeep)
 enableTruth.toModify(RECOSIMEventContent,
                      outputCommands=RECOSIMEventContent.outputCommands + _truthKeeps)
 
@@ -728,45 +728,11 @@ rawSecond.toModify(FEVTDEBUGHLTEventContent,
                               outputCommands = [x for x in FEVTDEBUGHLTEventContent.outputCommands if '_hltSiStripClusters2ApproxClusters_' not in x] + [
                                   'keep *_hltSiStripClusters2ApproxClustersv1_*_*'
                               ])
-phase2_tracker.toModify(FEVTDEBUGHLTEventContent,
-                        outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
-                            'keep *_hltSiPixelClusters_*_*',
-                            'keep *_hltSiPhase2Clusters_*_*',
-                            'keep *_hltPhase2PixelTracks_*_*',
-                            'keep *_hltPhase2PixelVertices_*_*',
-                            'keep *_hltGeneralTracks_*_*',
-                            'keep *_hltInitialStepTrackSelectionHighPurity_*_*',
-                            'keep *_hltHighPtTripletStepTrackSelectionHighPurity_*_*',
-                            'keep *_hltInitialStepTracksT4T5TCLST_*_*',
-                            'keep *_hltOfflinePrimaryVertices_*_*',
-                        ])
-
-phase2_common.toModify(FEVTDEBUGHLTEventContent,
-                       outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
-                           'keep *_hltParticleFlowRecHit*_*_*',
-                           'keep *_hltEgammaGsfTracksL1Seeded_*_*',
-                           'keep *_hltEgammaGsfTracksUnseeded_*_*',
-                           'keep *_hltPFMET_*_*',
-                           'keep *_hltPFPuppiMET_*_*',
-                           'keep *_hltPFPuppiMETTypeOne_*_*',
-                           'keep *_hltHpsPFTauDeepTauProducer_*_*'
-                       ])
-
-phase2_muon.toModify(FEVTDEBUGHLTEventContent, 
-    outputCommands = FEVTDEBUGHLTEventContent.outputCommands + [
-        'keep recoMuons_muons1stStep_*_*',
-        'keep *_hltL2MuonSeedsFromL1TkMuon_*_*',
-        'keep *_hltL2MuonsFromL1TkMuon_*_*',
-        'keep *_hltIter2Phase2L3FromL1TkMuonMerged_*_*',
-        'keep *_hltPhase2L3OIMuonTrackSelectionHighPurity_*_*',
-        'keep *_hltPhase2L3MuonFilter_*_*',
-        'keep *_hltPhase2L3MuonMerged_*_*',
-        'keep *_hltPhase2L3GlbMuon_*_*',
-        'keep *_hltPhase2L3MuonsNoID_*_*',
-        'keep *_hltPhase2L3Muons_*_*'])
 
 phase2_hgcal.toModify(FEVTDEBUGHLTEventContent,
     outputCommands = FEVTDEBUGHLTEventContent.outputCommands + TICL_FEVTHLT.outputCommands)
+
+phase2_l1scout.toModify(FEVTDEBUGHLTEventContent, outputCommands = L1TriggerPhase2L1Scout.outputCommands)
 
 from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
 mtd_at_hlt.toModify(FEVTDEBUGHLTEventContent,
@@ -1029,7 +995,7 @@ MINIAODSIMEventContent= cms.PSet(
 MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
 MINIAODSIMEventContent.outputCommands.extend(HLTriggerMINIAODSIM.outputCommands)
 
-phase2_l1scout.toModify(MINIAODSIMEventContent, outputCommands = L1TriggerPhase2L1ScoutMINIAODSIM.outputCommands)
+phase2_l1scout.toModify(MINIAODSIMEventContent, outputCommands = L1TriggerPhase2L1Scout.outputCommands)
 
 MINIGENEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),

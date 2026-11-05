@@ -1,4 +1,3 @@
-#define EIGEN_NO_DEBUG  // kill throws in eigen code
 #include "RecoLocalCalo/HcalRecAlgos/interface/MahiFit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -45,6 +44,11 @@ void MahiFit::setParameters(bool iDynamicPed,
 
   bxOffsetConf_ = -(*std::min_element(activeBXs_.begin(), activeBXs_.end()));
   bxSizeConf_ = activeBXs_.size();
+}
+
+void MahiFit::resetPulseShapesBuffer(const unsigned bufferSize) {
+  channelPulseShapes_.clear();
+  channelPulseShapes_.resize(bufferSize);
 }
 
 void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,

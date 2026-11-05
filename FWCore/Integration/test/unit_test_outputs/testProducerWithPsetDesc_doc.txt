@@ -191,6 +191,18 @@ configurations. The label below is used when generating the cfi file.
                         type: untracked double 
                         default: 0.3
 
+    doublev4
+                        type: double 
+                        default: 1.7976931348623157e+308
+
+    doublev5
+                        type: double 
+                        default: float('inf')
+
+    doublev6
+                        type: double 
+                        default: float('nan')
+
     vdoublev1
                         type: vdouble 
                         default: empty
@@ -232,6 +244,18 @@ configurations. The label below is used when generating the cfi file.
     floatv3
                         type: untracked float 
                         default: 0.3
+
+    floatv4
+                        type: float 
+                        default: 3.40282347e+38
+
+    floatv5
+                        type: float 
+                        default: float('inf')
+
+    floatv6
+                        type: float 
+                        default: float('nan')
 
     vfloatv1
                         type: vfloat 

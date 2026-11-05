@@ -60,7 +60,6 @@ jetDQMAnalyzerAk4CaloUncleaned = DQMEDAnalyzer('JetAnalyzer',
     JetIDVersion               = cms.string("PURE09"),
     #
     #actually done only for PFJets at the moment
-    InputMVAPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorDQM","fullDiscriminant"),
     InputCutPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorDQM","cutbasedDiscriminant"),
     InputMVAPUIDValue = cms.InputTag("pileupJetIdEvaluatorDQM","fullId"),
     InputCutPUIDValue = cms.InputTag("pileupJetIdEvaluatorDQM","cutbasedId"),
@@ -151,7 +150,6 @@ jetDQMAnalyzerAk4PFCHSCleaned=jetDQMAnalyzerAk4PFCleaned.clone(
     JetCorrections = "dqmAk4PFCHSL1FastL2L3ResidualCorrector",
     jetsrc = "ak4PFJetsCHS",
     METCollectionLabel     = "pfMETT1",
-    InputMVAPUIDDiscriminant = "pileupJetIdEvaluatorCHSDQM:fullDiscriminant",
     InputCutPUIDDiscriminant = "pileupJetIdEvaluatorCHSDQM:cutbasedDiscriminant",
     InputMVAPUIDValue = "pileupJetIdEvaluatorCHSDQM:fullId",
     InputCutPUIDValue = "pileupJetIdEvaluatorCHSDQM:cutbasedId",
@@ -218,7 +216,6 @@ jetDQMAnalyzerAk4ScoutingUncleaned = jetDQMAnalyzerAk4CaloUncleaned.clone(
     JetIDVersion               = cms.string("RUN3Scouting"),
     #
     #Pileup JetID anf quark-gluon discrimination not exist for scouting PF jets. The following: actually done only for PFJets at the moment
-    ###InputMVAPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorDQM","fullDiscriminant"),
     ###InputCutPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorDQM","cutbasedDiscriminant"),
     ###InputMVAPUIDValue = cms.InputTag("pileupJetIdEvaluatorDQM","fullId"),
     ###InputCutPUIDValue = cms.InputTag("pileupJetIdEvaluatorDQM","cutbasedId"),

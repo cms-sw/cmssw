@@ -80,14 +80,12 @@ namespace edm {
     }
   }
 
-  void RefCoreStreamerGuard::unsetRefCoreStreamer() { EDProductGetter::switchProductGetter(nullptr); }
+  void RefCoreStreamerGuard::unsetRefCoreStreamer(EDProductGetter const* previous) {
+    EDProductGetter::switchProductGetter(previous);
+  }
 
   EDProductGetter const* RefCoreStreamerGuard::setRefCoreStreamer(EDProductGetter const* ep) {
-    EDProductGetter const* returnValue = nullptr;
-    if (ep != nullptr) {
-      returnValue = edm::EDProductGetter::switchProductGetter(ep);
-    }
-    return returnValue;
+    return EDProductGetter::switchProductGetter(ep);
   }
 
   void MultiThreadRefCoreStreamerGuard::setRefCoreStreamer(EDProductGetter const* ep) {

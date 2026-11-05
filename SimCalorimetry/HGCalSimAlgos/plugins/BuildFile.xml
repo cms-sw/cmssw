@@ -1,0 +1,19 @@
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/HGCalObjects"/>
+<use name="SimCalorimetry/HGCalSimAlgos"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/Records"/>
+<use name="FWCore/Utilities"/>
+<use name="FWCore/PluginManager"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="Geometry/HGCalGeometry"/>
+
+<!-- alpaka-based portable plugins -->
+<library file="alpaka/*.cc" name="SimCalorimetryHGCalSimAlgosPluginsPortable">
+  <use name="alpaka"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

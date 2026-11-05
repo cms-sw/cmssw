@@ -28,6 +28,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include "h5_DataSet.h"
@@ -85,21 +86,17 @@ void HDF5ProductResolver::prefetchAsyncImpl(edm::WaitingTaskHolder iTask,
                                                 reinterpret_cast<std::uintptr_t>(this),
                                                 edm::ESModuleCallingContext::State::kPrefetching,
                                                 iParent);
+            auto guard = edm::signalslot::make_sentry([&iRecord, &context]() {
+              iRecord.activityRegistry()->postESModuleSignal_.emit(iRecord.key(), context);
+            });
             iRecord.activityRegistry()->preESModuleSignal_.emit(iRecord.key(), context);
-            struct EndGuard {
-              EndGuard(edm::eventsetup::EventSetupRecordImpl const& iRecord,
-                       edm::ESModuleCallingContext const& iContext)
-                  : record_{iRecord}, context_{iContext} {}
-              ~EndGuard() { record_.activityRegistry()->postESModuleSignal_.emit(record_.key(), context_); }
-              edm::eventsetup::EventSetupRecordImpl const& record_;
-              edm::ESModuleCallingContext const& context_;
-            } guardAR(iRecord, context);
 
             auto index = indexForInterval(iov);
 
             readFromHDF5api(index);
             iGroup.run(std::move(act));
             exceptPtr_ = {};
+            guard.succeeded();
           } catch (...) {
             exceptPtr_ = std::current_exception();
           }

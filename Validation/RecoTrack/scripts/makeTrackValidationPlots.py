@@ -22,6 +22,10 @@ class LimitTrackAlgo:
 def limitRelVal(algo, quality):
     return quality in ["", "highPurity", "ByOriginalAlgo", "highPurityByOriginalAlgo"]
 
+
+def ignore(_a, _b):
+    return False
+
 def main(opts):
     sample = SimpleSample(opts.subdirprefix, opts.html_sample, [(f, f.replace(".root", "")) for f in opts.files])
 
@@ -54,7 +58,6 @@ def main(opts):
         }
     }
     if opts.limit_relval:
-        ignore = lambda a,q: False
         kwargs_tracking["limitSubFoldersOnlyTo"] = {
             "": limitRelVal,
             "allTPEffic": ignore,

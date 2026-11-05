@@ -80,6 +80,55 @@ namespace timestudy {
       std::vector<useconds_t> eventTimes_;
       bool const useCacheID_;
     };
+
+    struct Cruncher {
+      Cruncher(edm::ParameterSet const& p, edm::ConsumesCollector&& iCol)
+          : useCacheID_{p.getParameter<bool>("useCacheID")} {
+        auto const& cv = p.getParameter<std::vector<edm::InputTag>>("consumes");
+        tokens_.reserve(cv.size());
+        for (auto const& c : cv) {
+          tokens_.emplace_back(iCol.consumes<int>(c));
+        }
+
+        auto const& tv = p.getParameter<std::vector<double>>("eventTimes");
+        eventTimes_.reserve(tv.size());
+        for (auto t : tv) {
+          eventTimes_.push_back(static_cast<useconds_t>(t * 1E6));
+        }
+      }
+
+      void getAndCrunch(edm::Event const& e) const {
+        for (auto const& t : tokens_) {
+          (void)e.getHandle(t);
+        }
+        //Event number minimum value is 1
+        auto id = useCacheID_ ? e.cacheIdentifier() : e.id().event();
+
+        auto duration = std::chrono::microseconds(eventTimes_[(id - 1) % eventTimes_.size()]);
+        auto start = std::chrono::steady_clock::now();
+        while (std::chrono::steady_clock::now() - start < duration) {
+          // Line below prevents the compiler from optimizing away the loop
+          std::this_thread::yield();
+        }
+      }
+
+      static void fillDescription(edm::ParameterSetDescription& desc) {
+        desc.add<std::vector<edm::InputTag>>("consumes", {})->setComment("What event int data products to consume");
+        desc.add<std::vector<double>>("eventTimes")
+            ->setComment(
+                "The time, in seconds, for how long the module should spin-wait each event. The index to use is based "
+                "on a "
+                "modulo of size of the list applied to the Event ID or Event cache ID number depending on useCacheID "
+                "value.");
+        desc.add<bool>("useCacheID", false)->setComment("If False, use Event ID; if True, use Event cache ID");
+      }
+
+    private:
+      std::vector<edm::EDGetTokenT<int>> tokens_;
+      std::vector<useconds_t> eventTimes_;
+      bool const useCacheID_;
+    };
+
   }  // namespace
   //--------------------------------------------------------------------
   //
@@ -363,9 +412,40 @@ namespace timestudy {
     descriptions.addDefault(desc);
   }
 
+  class CrunchingProducer : public edm::global::EDProducer<> {
+  public:
+    explicit CrunchingProducer(edm::ParameterSet const& p)
+        : value_(p.getParameter<int>("ivalue")), cruncher_(p, consumesCollector()), token_{produces<int>()} {}
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  private:
+    const int value_;
+    Cruncher cruncher_;
+    const edm::EDPutTokenT<int> token_;
+  };
+
+  void CrunchingProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
+    // EventSetup is not used.
+    cruncher_.getAndCrunch(e);
+
+    e.emplace(token_, value_);
+  }
+
+  void CrunchingProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+
+    desc.add<int>("ivalue")->setComment("Value to put into Event");
+    Cruncher::fillDescription(desc);
+
+    descriptions.addDefault(desc);
+  }
+
 }  // namespace timestudy
 DEFINE_FWK_SERVICE(timestudy::SleepingServer);
 DEFINE_FWK_MODULE(timestudy::SleepingProducer);
 DEFINE_FWK_MODULE(timestudy::OneSleepingProducer);
 DEFINE_FWK_MODULE(timestudy::ExternalWorkSleepingProducer);
 DEFINE_FWK_MODULE(timestudy::OneSleepingAnalyzer);
+DEFINE_FWK_MODULE(timestudy::CrunchingProducer);

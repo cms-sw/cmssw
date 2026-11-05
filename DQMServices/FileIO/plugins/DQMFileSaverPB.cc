@@ -1,3 +1,6 @@
+#include <cerrno>
+#include <climits>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -140,11 +143,9 @@ boost::property_tree::ptree DQMFileSaverPB::fillJson(int run,
 
   bpt::ptree pt;
 
-  int hostnameReturn;
-  char host[32];
-  hostnameReturn = gethostname(host, sizeof(host));
-  if (hostnameReturn == -1)
-    throw cms::Exception("fillJson") << "Internal error, cannot get host name";
+  char host[HOST_NAME_MAX + 1];
+  if (gethostname(host, sizeof(host)) != 0)
+    throw cms::Exception("fillJson") << "Internal error, cannot get host name: " << std::strerror(errno);
 
   int pid = getpid();
   std::ostringstream oss_pid;
@@ -204,9 +205,8 @@ boost::property_tree::ptree DQMFileSaverPB::fillJson(int run,
     pt.put("definition", outJsonDefName.string());
   }
 
-  char sourceInfo[64];  //host and pid information
-  sprintf(sourceInfo, "%s_%d", host, pid);
-  pt.put("source", sourceInfo);
+  //host and pid information
+  pt.put("source", std::string(host) + "_" + oss_pid.str());
 
   return pt;
 }

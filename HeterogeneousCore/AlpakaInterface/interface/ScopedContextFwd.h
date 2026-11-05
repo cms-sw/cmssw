@@ -11,23 +11,23 @@
 namespace cms::alpakatools {
 
   namespace impl {
-    template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+    template <typename TQueue, typename = std::enable_if_t<alpaka::concepts::Queue<TQueue>>>
     class ScopedContextBase;
 
-    template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+    template <typename TQueue, typename = std::enable_if_t<alpaka::concepts::Queue<TQueue>>>
     class ScopedContextGetterBase;
   }  // namespace impl
 
-  template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+  template <typename TQueue, typename = std::enable_if_t<alpaka::concepts::Queue<TQueue>>>
   class ScopedContextAcquire;
 
-  template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+  template <typename TQueue, typename = std::enable_if_t<alpaka::concepts::Queue<TQueue>>>
   class ScopedContextProduce;
 
-  template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+  template <typename TQueue, typename = std::enable_if_t<alpaka::concepts::Queue<TQueue>>>
   class ScopedContextTask;
 
-  template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+  template <typename TQueue, typename = std::enable_if_t<alpaka::concepts::Queue<TQueue>>>
   class ScopedContextAnalyze;
 
 }  // namespace cms::alpakatools

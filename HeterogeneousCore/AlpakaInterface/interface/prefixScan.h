@@ -134,25 +134,10 @@ namespace cms::alpakatools {
     }
   }
 
-  // Throws an exception with a message containing the shared memory requirements and limit.
-  void throwSharedMemoryLimitExceeded(const size_t nElements,
-                                      const uint32_t nBlocks,
-                                      const size_t requiredSharedMem,
-                                      const size_t sharedMemLimit);
-
-  // Verify shared memory requirements
-  template <alpaka::concepts::Acc TAcc, typename TSize>
-  ALPAKA_FN_INLINE static void checkSharedMemoryPrefixScan(TSize nElements,
-                                                           uint32_t nBlocks,
-                                                           alpaka::Dev<TAcc> const& device) {
-    auto requiredSharedMem = (nBlocks + alpaka::getPreferredWarpSize(device)) * sizeof(TSize);
-    auto sharedMemLimit = alpaka::getAccDevProps<TAcc>(device).m_sharedMemSizeBytes;
-    if (requiredSharedMem > sharedMemLimit) {
-      throwSharedMemoryLimitExceeded(static_cast<size_t>(nElements), nBlocks, requiredSharedMem, sharedMemLimit);
-    }
-  }
-
-  // in principle not limited.... in practice limited by shared memory size and occupancy.
+  // in principle not limited.... in practice limited by the standard 48 KiB shared memory limit
+  // per block: it requires (nBlocks + warpSize) * sizeof(T) bytes; use cms::alpakatools::prefixScan
+  // for the automatic dispatch to multiBlockPrefixScan or iterativePrefixScan, which handles this
+  // limit transparently.
   template <typename T>
   struct multiBlockPrefixScan {
     template <alpaka::concepts::Acc TAcc>
@@ -332,8 +317,20 @@ namespace cms::alpakatools {
     return p;
   }
 
+  // Serial fallback for CPU single-thread-per-block backends: wait for anything still enqueued
+  // (non-blocking CPU queues, e.g. TBB async, would otherwise race the host-side scan), then
+  // perform the scan on the host. Input and output may alias.
+  template <typename TQueue, typename T>
+  ALPAKA_FN_INLINE static void serialPrefixScan(TQueue& queue, T const* input, T* output, uint32_t size) {
+    alpaka::wait(queue);
+    output[0] = input[0];
+    for (uint32_t i = 1; i < size; ++i) {
+      output[i] = input[i] + output[i - 1];
+    }
+  }
+
   template <alpaka::concepts::Acc TAcc, typename TQueue, typename T>
-  ALPAKA_FN_INLINE static void iterativePrefixScan(T* input, T* output, uint32_t size, TQueue& queue) {
+  ALPAKA_FN_INLINE static void iterativePrefixScan(TQueue& queue, T const* input, T* output, uint32_t size) {
     if (size == 0u) {
       return;
     }
@@ -382,9 +379,62 @@ namespace cms::alpakatools {
             queue, workDiv, addScannedBlockOffsets<T>{}, levelData, plan.levelSize[l], blockSumsBuffers[l].data());
       }
     } else {
-      output[0] = input[0];
-      for (uint32_t i = 1; i < size; ++i) {
-        output[i] = input[i] + output[i - 1];
+      serialPrefixScan(queue, input, output, size);
+    }
+  }
+
+  // multiBlockPrefixScan wins from 2 blocks up to the measured switch at ~256-384 blocks under
+  // production multi-stream load; at 1 block the single-kernel iterativePrefixScan is faster.
+  constexpr uint32_t multiBlockPrefixScanMaxBlocks = 256;
+
+  // Dispatch predicate of the unified prefixScan: exposed (also) for unit tests.
+  constexpr bool prefixScanUseMultiBlock(uint32_t nBlocks) {
+    return nBlocks >= 2u && nBlocks <= multiBlockPrefixScanMaxBlocks;
+  }
+
+  // Unified prefix scan: computes output[i] = sum_{j<=i} input[j] for i < size
+  // (inclusive prefix sum). Host-side orchestration; input and output may alias
+  // (in-place scan is supported). Dispatches automatically between:
+  //  - the single-kernel multiBlockPrefixScan (problems between 2 and
+  //    multiBlockPrefixScanMaxBlocks blocks), and
+  //  - the multi-kernel iterativePrefixScan (1 to 5 kernel launches depending
+  //    on the number of levels; used for 1-block problems and larger ones).
+  // Single-thread-per-block (CPU serial/TBB) backends run a serial scan
+  // (cms::alpakatools::serialPrefixScan); the multiBlockPrefixScan/iterativePrefixScan split
+  // applies to the multi-threaded-per-block backends (GPUs).
+  // The problem size must not exceed 1024^3 ~ 1.07e9 elements
+  // (iterativePrefixScanThreads^iterativePrefixScanMaxLevels).
+  template <alpaka::concepts::Acc TAcc, typename TQueue, typename T>
+  ALPAKA_FN_INLINE static void prefixScan(TQueue& queue, T const* input, T* output, uint32_t size) {
+    if (size == 0u) {
+      return;
+    }
+
+    if constexpr (requires_single_thread_per_block_v<TAcc>) {
+      // single-thread-per-block (CPU serial/TBB) backends: serial scan
+      serialPrefixScan(queue, input, output, size);
+    } else {
+      // multi-threaded-per-block (GPU) backends: dispatch between the single-kernel
+      // multiBlockPrefixScan and the multi-kernel iterativePrefixScan
+      const auto nBlocks = divide_up_by(size, iterativePrefixScanThreads);
+      if (prefixScanUseMultiBlock(nBlocks)) {
+        // single-kernel multiBlockPrefixScan
+        auto blockCounter = cms::alpakatools::make_device_buffer<int32_t>(queue);
+        alpaka::memset(queue, blockCounter, 0);
+        auto workDiv = cms::alpakatools::make_workdiv<TAcc>(nBlocks, iterativePrefixScanThreads);
+        auto const warpSize = alpaka::getPreferredWarpSize(alpaka::getDev(queue));
+        alpaka::exec<TAcc>(queue,
+                           workDiv,
+                           multiBlockPrefixScan<T>{},
+                           input,
+                           output,
+                           size,
+                           static_cast<int32_t>(nBlocks),
+                           blockCounter.data(),
+                           warpSize);
+      } else {
+        // multi-kernel iterativePrefixScan
+        iterativePrefixScan<TAcc>(queue, input, output, size);
       }
     }
   }

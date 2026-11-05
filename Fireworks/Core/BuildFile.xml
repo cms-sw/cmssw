@@ -30,12 +30,11 @@
 <use name="rootged"/>
 <use name="rootthread"/>
 <use name="rooteve"/>
-<use name="rootgeom"/>
+<use name="rootgeomchecker"/>
 <use name="rootgeompainter"/>
 <use name="rootguihtml"/>
 <use name="rootx11"/>
 <use name="rootrgl"/>
-<use name="rootglew"/>
 <use name="rootgui"/>
 <use name="hepmc"/>
 <export>

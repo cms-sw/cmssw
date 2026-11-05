@@ -441,8 +441,8 @@ namespace edm {
       }
       treeCache_->StartLearningPhase();
       treeCache_->SetEntryRange(treeStart, tree_->GetEntries());
-      // Make sure that 'branchListIndexes' branch exist in input file
-      if (filePtr_->Get(poolNames::branchListIndexesBranchName().c_str()) != nullptr) {
+      // Make sure that 'branchListIndexes' branch exist in input TTree
+      if (tree_->GetBranch(poolNames::branchListIndexesBranchName().c_str()) != nullptr) {
         treeCache_->AddBranch(poolNames::branchListIndexesBranchName().c_str(), kTRUE);
       }
       treeCache_->AddBranch(BranchTypeToAuxiliaryBranchName(branchType_).c_str(), kTRUE);

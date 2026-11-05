@@ -97,6 +97,8 @@ bool HGCGuardRing::excludePartial(G4ThreeVector& point, int zside, int frontBack
     int index = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
     int partial = HGCalWaferType::getPartial(index, hgcons_.getParameter()->waferInfoMap_);
     int type = HGCalWaferType::getType(index, hgcons_.getParameter()->waferInfoMap_);
+    if (type == 3)
+      type = 0;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "HGCGuardRing::excludePartial: Layer " << layer << " wafer " << waferU << ":"
                                << waferV << " index " << index << " partial " << partial << " type " << type;

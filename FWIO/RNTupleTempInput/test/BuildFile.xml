@@ -13,4 +13,6 @@
   <test name="TestFWIORNTupleTempInputReducedProcessHistoryHardwareResources" command="testReducedProcessHistoryHardwareResources.sh"/>
 
   <test name="TestFWIORntupleTempInputSecondary" command="TestSecondaryInput.sh"/>
+
+  <test name="TestFWIORNTupleTempEdmProvDump" command="run_TestEdmProvDump.sh"/>
 </environment>

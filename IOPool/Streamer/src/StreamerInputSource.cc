@@ -139,7 +139,7 @@ namespace edm::streamer {
     }
 
     // calculate the adler32 checksum
-    uint32_t adler32_chksum = cms::Adler32((char const*)initView.descData(), initView.descLength());
+    uint32_t adler32_chksum = cms::adler32((char const*)initView.descData(), initView.descLength());
     //std::cout << "Adler32 checksum of init message = " << adler32_chksum << std::endl;
     //std::cout << "Adler32 checksum of init messsage from header = " << initView.adler32_chksum() << " "
     //          << "host name = " << initView.hostName() << " len = " << initView.hostName_len() << std::endl;
@@ -209,7 +209,7 @@ namespace edm::streamer {
     unsigned long origsize = eventView.origDataSize();
     unsigned long dest_size;  //(should be >= eventView.origDataSize())
 
-    uint32_t adler32_chksum = cms::Adler32((char const*)eventView.eventData(), eventView.eventLength());
+    uint32_t adler32_chksum = cms::adler32((char const*)eventView.eventData(), eventView.eventLength());
     //std::cout << "Adler32 checksum of event = " << adler32_chksum << std::endl;
     //std::cout << "Adler32 checksum from header = " << eventView.adler32_chksum() << " "
     //          << "host name = " << eventView.hostName() << " len = " << eventView.hostName_len() << std::endl;

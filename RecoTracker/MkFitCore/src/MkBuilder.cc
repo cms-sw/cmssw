@@ -1266,7 +1266,7 @@ namespace mkfit {
   void MkBuilder::fit_cands_BH(MkFinder *mkfndr, int start_cand, int end_cand, int region) {
     const SteeringParams &st_par = m_job->steering_params(region);
     const PropagationConfig &prop_config = m_job->m_trk_info.prop_config();
-    mkfndr->setup_bkfit(prop_config, st_par, m_event);
+    mkfndr->setup_bkfit(prop_config, m_job->m_iter_config, st_par, m_event);
 #ifdef DEBUG_FINAL_FIT
     EventOfCombCandidates &eoccs = m_event_of_comb_cands;
     bool debug = true;
@@ -1340,6 +1340,13 @@ namespace mkfit {
 
   //------------------------------------------------------------------------------
 
+  void MkBuilder::beginBkwSearch() {
+    const IterationConfig &itconf = m_job->m_iter_config;
+    const BeamSpot &bs = m_job->m_beam_spot;
+    m_event_of_comb_cands.beginBkwSearch(
+        itconf.m_backward_search_min_pixel_layers, itconf.m_backward_search_prompt_max_d0, bs.x, bs.y);
+  }
+
   void MkBuilder::backwardFit() {
     EventOfCombCandidates &eoccs = m_event_of_comb_cands;
 
@@ -1363,7 +1370,7 @@ namespace mkfit {
     EventOfCombCandidates &eoccs = m_event_of_comb_cands;
     const SteeringParams &st_par = m_job->steering_params(region);
     const PropagationConfig &prop_config = m_job->m_trk_info.prop_config();
-    mkfndr->setup_bkfit(prop_config, st_par, m_event);
+    mkfndr->setup_bkfit(prop_config, m_job->m_iter_config, st_par, m_event);
 
     int step = NN;
     for (int icand = start_cand; icand < end_cand; icand += step) {

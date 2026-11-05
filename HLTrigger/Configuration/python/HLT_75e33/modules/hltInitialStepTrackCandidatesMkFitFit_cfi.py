@@ -7,11 +7,11 @@ hltInitialStepTrackCandidatesMkFitFit = cms.EDProducer("MkFitFitProducer",
     mightGet = cms.optional.untracked.vstring,
     mkFitPixelHits = cms.InputTag("hltMkFitSiPixelHits"),
     mkFitSilent = cms.untracked.bool(True),
-    pixelCPE = cms.string('PixelCPEGeneric'),
+    pixelCPE = cms.string('hltESPPixelCPEGeneric'),
     tracks = cms.InputTag("hltInitialStepTrackCandidatesMkFit"),
     candCutSel = cms.bool(True),
     candMinNHitsCut = cms.int32(4),
-    candMinPtCut = cms.double(0.9),
+    candMinPtCut = cms.double(0.85),
     candMinPtRelaxedCut = cms.double(0.8),
     candMinAbsEtaForRelaxedCut = cms.double(1.4)                                
 )

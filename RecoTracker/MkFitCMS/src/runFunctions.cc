@@ -85,6 +85,7 @@ namespace mkfit {
       if (itconf.m_backward_search) {
         builder.beginBkwSearch();
         builder.findTracksCloneEngine(SteeringParams::IT_BkwSearch);
+        builder.gateBkwSearch();
       }
     }
 
@@ -105,7 +106,7 @@ namespace mkfit {
     builder.export_best_comb_cands(out_tracks, true);
 
     if (do_remove_duplicates && itconf.m_duplicate_cleaner) {
-      itconf.m_duplicate_cleaner(out_tracks, itconf);
+      itconf.m_duplicate_cleaner(out_tracks, itconf, trackerInfo);
     }
 
     builder.export_tracks(out_tracks);

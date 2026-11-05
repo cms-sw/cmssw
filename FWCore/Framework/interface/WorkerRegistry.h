@@ -18,7 +18,8 @@
 
 namespace edm {
 
-  class Worker;
+  template <typename TI, typename TP>
+  class TransitionWorker;
   class ActivityRegistry;
   class ModuleRegistry;
   class ExceptionToActionTable;
@@ -30,6 +31,7 @@ namespace edm {
      are owned.
   */
 
+  template <typename TI, typename TP>
   class WorkerRegistry {
   public:
     WorkerRegistry(std::shared_ptr<ActivityRegistry> areg, std::shared_ptr<ModuleRegistry> iModReg);
@@ -41,12 +43,13 @@ namespace edm {
 
     /// Retrieve particular instance of the worker without creating it
     /// If one doesn't exist, returns nullptr
-    Worker const* get(std::string const& moduleLabel) const;
+    TransitionWorker<TI, TP> const* get(std::string const& moduleLabel) const;
 
     /** Creates worker if doesn't already exist
      * @note Workers are owned by this class, do not delete them
      */
-    Worker* getWorkerFromExistingModule(std::string const& moduleLabel, ExceptionToActionTable const* actions);
+    TransitionWorker<TI, TP>* getWorkerFromExistingModule(std::string const& moduleLabel,
+                                                          ExceptionToActionTable const* actions);
 
     /// Deletes the module of the Worker, but the Worker continues to exist.
     void deleteModule(std::string const& moduleLabel);
@@ -55,7 +58,7 @@ namespace edm {
 
   private:
     /// the container of workers
-    typedef std::map<std::string, edm::propagate_const<std::shared_ptr<Worker>>> WorkerMap;
+    typedef std::map<std::string, edm::propagate_const<std::shared_ptr<TransitionWorker<TI, TP>>>> WorkerMap;
 
     edm::propagate_const<std::shared_ptr<ModuleRegistry>> modRegistry_;
 

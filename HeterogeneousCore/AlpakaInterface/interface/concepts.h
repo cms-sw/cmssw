@@ -7,7 +7,7 @@
 
 namespace cms::alpakatools {
   template <typename T>
-  concept NonCPUQueue = alpaka::isQueue<T> and not std::is_same_v<alpaka::Dev<T>, alpaka::DevCpu>;
+  concept NonCPUQueue = alpaka::concepts::Queue<T> and not std::is_same_v<alpaka::Dev<T>, alpaka::DevCpu>;
 }  // namespace cms::alpakatools
 
 #endif

@@ -1,7 +1,11 @@
 #include "FWCore/Framework/interface/WorkerManager.h"
+#include "FWCore/Framework/interface/WorkerManager_stream.h"
+#include "FWCore/Framework/interface/WorkerManager_global.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionPhaseTypes.h"
+#include "FWCore/Framework/interface/maker/TransitionWorker.h"
 #include "UnscheduledConfigurator.h"
 
-#include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -12,26 +16,59 @@
 
 namespace edm {
   // -----------------------------
-  WorkerManager::WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
-                               std::shared_ptr<ActivityRegistry> areg,
-                               ExceptionToActionTable const& actions)
-      : workerReg_(areg, modReg),
-        actionTable_(&actions),
-        allWorkers_(),
-        unscheduled_(*areg),
-        lastSetupEventPrincipal_(nullptr) {}  // WorkerManager::WorkerManager
+  template <typename TI, typename TP>
+  WorkerManagerCore<TI, TP>::WorkerManagerCore(std::shared_ptr<ModuleRegistry> modReg,
+                                               std::shared_ptr<ActivityRegistry> areg,
+                                               ExceptionToActionTable const& actions)
+      : workerReg_(areg, modReg), actionTable_(&actions), allWorkers_() {}
 
-  void WorkerManager::deleteModuleIfExists(std::string const& moduleLabel) {
+  template <typename TI>
+  WorkerManager<TI, TransitionPhaseGlobal>::WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
+                                                          std::shared_ptr<ActivityRegistry> areg,
+                                                          ExceptionToActionTable const& actions)
+      : GlobalWorkerManagerCore<TI>(modReg, areg, actions) {}
+
+  template <typename TI>
+  WorkerManager<TI, TransitionPhaseStream>::WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
+                                                          std::shared_ptr<ActivityRegistry> areg,
+                                                          ExceptionToActionTable const& actions)
+      : WorkerManagerCore<TI, TransitionPhaseStream>(modReg, areg, actions) {}
+
+  WorkerManager<EventTransitionInfo, TransitionPhaseGlobal>::WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
+                                                                           std::shared_ptr<ActivityRegistry> areg,
+                                                                           ExceptionToActionTable const& actions)
+      : GlobalWorkerManagerCore<EventTransitionInfo>(modReg, areg, actions),
+        unscheduled_(*areg) {}  // WorkerManager::WorkerManager
+
+  template <typename TI, typename TP>
+  TransitionWorker<TI, TP> const* WorkerManagerCore<TI, TP>::deleteModuleIfExists(std::string const& moduleLabel) {
     auto worker = workerReg_.get(moduleLabel);
     if (worker != nullptr) {
       auto eraseBeg = std::remove(allWorkers_.begin(), allWorkers_.end(), worker);
       allWorkers_.erase(eraseBeg, allWorkers_.end());
-      unscheduled_.removeWorker(worker);
       workerReg_.deleteModule(moduleLabel);
+    }
+    return worker;
+  }
+
+  template <typename TI>
+  void WorkerManager<TI, TransitionPhaseStream>::deleteModuleIfExists(std::string const& moduleLabel) {
+    (void)WorkerManagerCore<TI, TransitionPhaseStream>::deleteModuleIfExists(moduleLabel);
+  }
+  template <typename TI>
+  void WorkerManager<TI, TransitionPhaseGlobal>::deleteModuleIfExists(std::string const& moduleLabel) {
+    (void)GlobalWorkerManagerCore<TI>::deleteModuleIfExists(moduleLabel);
+  }
+
+  void WorkerManager<EventTransitionInfo, TransitionPhaseGlobal>::deleteModuleIfExists(std::string const& moduleLabel) {
+    auto worker = GlobalWorkerManagerCore<EventTransitionInfo>::deleteModuleIfExists(moduleLabel);
+    if (worker != nullptr) {
+      unscheduled_.removeWorker(worker);
     }
   }
 
-  Worker* WorkerManager::getWorkerForExistingModule(std::string const& label) {
+  template <typename TI, typename TP>
+  TransitionWorker<TI, TP>* WorkerManagerCore<TI, TP>::getWorkerForExistingModule(std::string const& label) {
     auto worker = workerReg_.getWorkerFromExistingModule(label, actionTable_);
     if (nullptr != worker) {
       addToAllWorkers(worker);
@@ -39,34 +76,64 @@ namespace edm {
     return worker;
   }
 
-  void WorkerManager::addToUnscheduledWorkers(ModuleDescription const& iDescription) {
-    auto newWorker = workerReg_.getWorkerFromExistingModule(iDescription.moduleLabel(), actionTable_);
+  void WorkerManager<EventTransitionInfo, TransitionPhaseGlobal>::addToUnscheduledWorkers(
+      ModuleDescription const& iDescription) {
+    auto newWorker = this->getWorkerForExistingModuleUnattached(iDescription.moduleLabel());
     assert(nullptr != newWorker);
-    assert(newWorker->moduleType() == Worker::kProducer || newWorker->moduleType() == Worker::kFilter);
+    assert(newWorker->moduleType() == TransitionWorkerBase::Types::kProducer ||
+           newWorker->moduleType() == TransitionWorkerBase::Types::kFilter);
     unscheduled_.addWorker(newWorker);
     //add to list so it gets reset each new event
     addToAllWorkers(newWorker);
   }
 
-  void WorkerManager::resetAll() { for_all(allWorkers_, std::bind(&Worker::reset, std::placeholders::_1)); }
+  template <typename TI, typename TP>
+  void WorkerManagerCore<TI, TP>::resetAll() {
+    for_all(allWorkers_, [](auto* w) { w->reset(); });
+  }
 
-  void WorkerManager::addToAllWorkers(Worker* w) {
+  template <typename TI, typename TP>
+  void WorkerManagerCore<TI, TP>::addToAllWorkers(TransitionWorker<TI, TP>* w) {
     if (!search_all(allWorkers_, w)) {
       allWorkers_.push_back(w);
     }
   }
 
-  void WorkerManager::setupResolvers(Principal& ep) {
-    this->resetAll();
-    if (&ep != lastSetupEventPrincipal_) {
-      UnscheduledConfigurator config(allWorkers_.begin(), allWorkers_.end(), &(unscheduled_.auxiliary()));
+  template <typename TI>
+  void GlobalWorkerManagerCore<TI>::setupResolvers(typename TI::PrincipalType& ep, UnscheduledAuxiliary const* aux) {
+    if (&ep != lastSetupPrincipal_) {
+      UnscheduledConfigurator config(allWorkers().begin(), allWorkers().end(), aux);
       ep.setupUnscheduled(config);
-      lastSetupEventPrincipal_ = &ep;
+      lastSetupPrincipal_ = &ep;
     }
   }
 
-  void WorkerManager::setupOnDemandSystem(EventTransitionInfo const& info) {
+  template <typename TI>
+  void WorkerManager<TI, TransitionPhaseGlobal>::setupResolvers(typename TI::PrincipalType& ep) {
+    this->setupResolvers(ep, nullptr);
+  }
+
+  void WorkerManager<EventTransitionInfo, TransitionPhaseGlobal>::setupResolvers(
+      typename EventTransitionInfo::PrincipalType& ep) {
+    this->setupResolvers(ep, &(unscheduled_.auxiliary()));
+  }
+
+  void WorkerManager<EventTransitionInfo, TransitionPhaseGlobal>::setupOnDemandSystem(EventTransitionInfo const& info) {
     unscheduled_.setEventTransitionInfo(info);
   }
 
+  template class WorkerManagerCore<RunTransitionInfo, TransitionPhaseGlobal>;
+  template class WorkerManagerCore<LumiTransitionInfo, TransitionPhaseGlobal>;
+  template class WorkerManagerCore<RunTransitionInfo, TransitionPhaseStream>;
+  template class WorkerManagerCore<LumiTransitionInfo, TransitionPhaseStream>;
+  template class WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal>;
+  template class WorkerManagerCore<ProcessBlockTransitionInfo, TransitionPhaseGlobal>;
+  template class WorkerManagerCore<InputProcessBlockTransitionInfo, TransitionPhaseGlobal>;
+
+  template class WorkerManager<RunTransitionInfo, TransitionPhaseGlobal>;
+  template class WorkerManager<LumiTransitionInfo, TransitionPhaseGlobal>;
+  template class WorkerManager<RunTransitionInfo, TransitionPhaseStream>;
+  template class WorkerManager<LumiTransitionInfo, TransitionPhaseStream>;
+  template class WorkerManager<ProcessBlockTransitionInfo, TransitionPhaseGlobal>;
+  template class WorkerManager<InputProcessBlockTransitionInfo, TransitionPhaseGlobal>;
 }  // namespace edm

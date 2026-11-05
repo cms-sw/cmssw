@@ -24,6 +24,8 @@
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/Records/interface/HGCalGeometryRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include <algorithm>
+#include <cstdint>
 #include <vector>
 
 class HGCalGeometry final : public CaloSubdetectorGeometry {
@@ -77,6 +79,11 @@ public:
 
   /// Returns area of a cell
   double getArea(const DetId& detid) const;
+  double getAreaX(const DetId& detid) const;
+  double getAreaHex(const DetId& detid, bool reco) const {
+    HGCSiliconDetId id(detid);
+    return m_topology.dddConstants().cellArea(id, reco);
+  }
 
   /// Returns the corner points of this cell's volume.
   CornersVec getCorners(const DetId& id) const;
@@ -91,7 +98,31 @@ public:
   const std::vector<DetId>& getValidDetIds(DetId::Detector det = DetId::Detector(0), int subdet = 0) const override {
     return m_validIds;
   }
+  bool validDetId(const DetId& id) const {
+    return (std::find(m_validIds.begin(), m_validIds.end(), id) != m_validIds.end());
+  }
+  bool validIntId(const uint32_t& id) const {
+    const uint32_t mask = ((m_topology.waferHexagon6())   ? k_maskWafer6
+                           : (m_topology.tileTrapezoid()) ? k_maskScint
+                                                          : k_maskSilicon);
+    const uint32_t target = id & mask;
+    auto it = std::find_if(
+        m_validIds.begin(), m_validIds.end(), [mask, target](uint32_t idx) { return (idx & mask) == target; });
+    return (it != m_validIds.end());
+  }
+  uint32_t validFullId(const uint32_t& id) const {
+    const uint32_t mask = ((m_topology.waferHexagon6())   ? k_maskWafer6
+                           : (m_topology.tileTrapezoid()) ? k_maskScint
+                                                          : k_maskSilicon);
+    const uint32_t target = id & mask;
+    auto it = std::find_if(
+        m_validIds.begin(), m_validIds.end(), [mask, target](uint32_t idx) { return (idx & mask) == target; });
+    return ((it != m_validIds.end()) ? (*it).rawId() : 0);
+  }
   const std::vector<DetId>& getValidGeomDetIds(void) const { return m_validGeomIds; }
+  bool validGeomDetId(const DetId& id) const {
+    return (std::find(m_validGeomIds.begin(), m_validGeomIds.end(), id) != m_validGeomIds.end());
+  }
 
   // Get closest cell, etc...
   DetId getClosestCell(const GlobalPoint& r) const override;
@@ -138,6 +169,9 @@ private:
   static constexpr double k_fac1 = 0.5;
   static constexpr double k_fac2 = 1.0 / 3.0;
 
+  static constexpr uint32_t k_maskSilicon = 0x1FFFFFF;
+  static constexpr uint32_t k_maskScint = 0x11FFFFF;
+  static constexpr uint32_t k_maskWafer6 = 0xFFFBFFFF;
   const HGCalTopology& m_topology;
   CellVec m_cellVec;
   CellVec2 m_cellVec2;

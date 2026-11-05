@@ -268,7 +268,7 @@ float runPixelLineSegment(LSTEvent* event, bool no_pls_dupclean) {
   if (ana.verbose >= 2)
     std::cout << "Reco Pixel Line Segment start" << std::endl;
   my_timer.Start();
-  event->addPixelSegmentToEventFinalize();
+  event->addPixelSegmentToEvent();
   event->pixelLineSegmentCleaning(no_pls_dupclean);
   event->wait();  // device side event calls are asynchronous: wait to measure time or print
   float pls_elapsed = my_timer.RealTime();
@@ -321,8 +321,10 @@ float runTrackCandidate(LSTEvent* event, bool no_pls_dupclean, bool tc_pls_tripl
     std::cout << "# of T5 TrackCandidates produced: " << event->getNumberOfT5TrackCandidates() << std::endl;
   if (ana.verbose >= 2)
     std::cout << "# of T4 TrackCandidates produced: " << event->getNumberOfT4TrackCandidates() << std::endl;
-  if (ana.verbose >= 2)
+  if (ana.verbose >= 2) {
+    printf("[MEM] Peak live: %.1f MB\n", event->getMemoryPeakLiveMB());
     printf("[MEM] Total: %.1f MB\n", event->getMemoryAllocatedMB());
+  }
 
   return tc_elapsed;
 }
@@ -766,7 +768,6 @@ float addInputsToEventPreLoad(LSTEvent* event,
   event->addInputToEvent(lstInputDC);
   event->addHitToEvent();
 
-  event->addPixelSegmentToEventStart();
   event->wait();  // device side event calls are asynchronous: wait to measure time or print
   float hit_loading_elapsed = my_timer.RealTime();
 

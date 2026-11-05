@@ -50,7 +50,7 @@ namespace edm::test {
 
   class TestSourceProcessor {
   public:
-    TestSourceProcessor(std::string const& iConfig, ServiceToken iToken = ServiceToken());
+    TestSourceProcessor(std::string const& iConfig, OwningServiceToken const& iToken = OwningServiceToken());
     ~TestSourceProcessor();
 
     InputSource::ItemTypeInfo findNextTransition();
@@ -74,7 +74,7 @@ namespace edm::test {
     std::shared_ptr<ProductRegistry> preg_;
     std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
     std::shared_ptr<ProcessBlockHelper> processBlockHelper_;
-    ServiceToken serviceToken_;
+    OwningServiceToken serviceToken_;
 
     std::shared_ptr<ProcessConfiguration const> processConfiguration_;
     ProcessContext processContext_;

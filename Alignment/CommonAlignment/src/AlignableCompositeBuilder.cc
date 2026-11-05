@@ -14,23 +14,23 @@
 //=============================================================================
 
 //_____________________________________________________________________________
-AlignableCompositeBuilder ::AlignableCompositeBuilder(const TrackerTopology* trackerTopology,
-                                                      const TrackerGeometry* trackerGeometry,
-                                                      const AlignableIndexer& alignableIndexer)
+AlignableCompositeBuilder::AlignableCompositeBuilder(const TrackerTopology* trackerTopology,
+                                                     const TrackerGeometry* trackerGeometry,
+                                                     const AlignableIndexer& alignableIndexer)
     : trackerTopology_(trackerTopology),
       alignableObjectId_(trackerGeometry, nullptr, nullptr, nullptr),
       alignableIndexer_(alignableIndexer) {}
 
 //_____________________________________________________________________________
-void AlignableCompositeBuilder ::addAlignmentLevel(std::unique_ptr<AlignmentLevel> level) {
+void AlignableCompositeBuilder::addAlignmentLevel(std::unique_ptr<AlignmentLevel> level) {
   alignmentLevels_.push_back(std::move(level));
 }
 
 //_____________________________________________________________________________
-void AlignableCompositeBuilder ::clearAlignmentLevels() { alignmentLevels_.clear(); }
+void AlignableCompositeBuilder::clearAlignmentLevels() { alignmentLevels_.clear(); }
 
 //_____________________________________________________________________________
-unsigned int AlignableCompositeBuilder ::buildAll(AlignableMap& alignableMap, bool update) {
+unsigned int AlignableCompositeBuilder::buildAll(AlignableMap& alignableMap, bool update) {
   auto highestLevel = alignmentLevels_.back()->levelType;
 
   std::ostringstream ss;
@@ -53,10 +53,10 @@ unsigned int AlignableCompositeBuilder ::buildAll(AlignableMap& alignableMap, bo
 //=============================================================================
 
 //_____________________________________________________________________________
-unsigned int AlignableCompositeBuilder ::buildLevel(unsigned int parentLevel,
-                                                    AlignableMap& alignableMap,
-                                                    std::ostringstream& ss,
-                                                    bool update) {
+unsigned int AlignableCompositeBuilder::buildLevel(unsigned int parentLevel,
+                                                   AlignableMap& alignableMap,
+                                                   std::ostringstream& ss,
+                                                   bool update) {
   unsigned int childLevel = parentLevel - 1;
   unsigned int maxNumParents = maxNumComponents(parentLevel);
 
@@ -121,7 +121,7 @@ unsigned int AlignableCompositeBuilder ::buildLevel(unsigned int parentLevel,
 }
 
 //_____________________________________________________________________________
-unsigned int AlignableCompositeBuilder ::maxNumComponents(unsigned int startLevel) const {
+unsigned int AlignableCompositeBuilder::maxNumComponents(unsigned int startLevel) const {
   unsigned int components = 1;
 
   for (unsigned int level = startLevel; level < alignmentLevels_.size(); ++level) {
@@ -132,7 +132,7 @@ unsigned int AlignableCompositeBuilder ::maxNumComponents(unsigned int startLeve
 }
 
 //_____________________________________________________________________________
-unsigned int AlignableCompositeBuilder ::getIndexOfStructure(align::ID id, unsigned int level) const {
+unsigned int AlignableCompositeBuilder::getIndexOfStructure(align::ID id, unsigned int level) const {
   // indexer returns a function pointer for the structure-type
   auto indexOf = alignableIndexer_.get(alignmentLevels_[level]->levelType, alignableObjectId_);
 

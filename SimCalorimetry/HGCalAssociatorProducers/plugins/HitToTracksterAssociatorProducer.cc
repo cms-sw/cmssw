@@ -25,8 +25,8 @@ HitToTracksterAssociatorProducerT<HIT>::HitToTracksterAssociatorProducerT(const 
   for (const auto &tag : hitsTags) {
     hitsTokens_.push_back(consumes<std::vector<HIT>>(tag));
   }
-  produces<ticl::AssociationMap<ticl::mapWithFraction>>("hitToTracksterMap");
-  produces<ticl::AssociationMap<ticl::mapWithFraction>>("tracksterToHitMap");
+  produces<ticl::TICLAssociationMap<ticl::mapWithFraction>>("hitToTracksterMap");
+  produces<ticl::TICLAssociationMap<ticl::mapWithFraction>>("tracksterToHitMap");
 }
 
 template <typename HIT>
@@ -55,8 +55,8 @@ void HitToTracksterAssociatorProducerT<HIT>::produce(edm::StreamID,
   }
 
   // Create association map
-  auto hitToTracksterMap = std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(rechitSpan.size());
-  auto tracksterToHitMap = std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(tracksters->size());
+  auto hitToTracksterMap = std::make_unique<ticl::TICLAssociationMap<ticl::mapWithFraction>>(rechitSpan.size());
+  auto tracksterToHitMap = std::make_unique<ticl::TICLAssociationMap<ticl::mapWithFraction>>(tracksters->size());
 
   // Loop over tracksters
   for (unsigned int tracksterId = 0; tracksterId < tracksters->size(); ++tracksterId) {

@@ -13,8 +13,8 @@ namespace lst {
                       SOA_COLUMN(unsigned int, quintupletIndices),
                       SOA_COLUMN(Params_pT5::ArrayU16xLayers, lowerModuleIndices),  // lower module index (OT part)
                       SOA_COLUMN(Params_pT5::ArrayU8xLayers, logicalLayers),        // layer ID
-                      SOA_COLUMN(Params_pT5::ArrayUxHits, hitIndices),              // hit indices
-                      SOA_COLUMN(FPX, pixelRadius),                                 // pLS pt converted
+                      // (hit indices are recovered by getPixelQuintupletHitIndices: pLS pixel MDs + T5 hits)
+                      SOA_COLUMN(FPX, pixelRadius),  // pLS pt converted
 #ifdef CUT_VALUE_DEBUG
                       SOA_COLUMN(float, rPhiChiSquared),         // chi2 from pLS to T5
                       SOA_COLUMN(float, rPhiChiSquaredInwards),  // chi2 from T5 to pLS
@@ -27,7 +27,6 @@ namespace lst {
                       SOA_COLUMN(FPX, centerX),  // T3-based circle center x
                       SOA_COLUMN(FPX, centerY),  // T3-based circle center y
                       SOA_COLUMN(bool, isDup),
-                      SOA_COLUMN(unsigned int, nLayers),
                       SOA_SCALAR(unsigned int, nPixelQuintuplets),
                       SOA_SCALAR(unsigned int, totOccupancyPixelQuintuplets));
 

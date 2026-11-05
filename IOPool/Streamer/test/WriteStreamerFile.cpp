@@ -73,7 +73,7 @@ int main() try {
   Bytef* crcbuf = (Bytef*)outputModuleLabel.data();
   crc = crc32(crc, crcbuf, outputModuleLabel.length());
 
-  uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value[0], sizeof(test_value));
+  uint32 adler32_chksum = (uint32)cms::adler32((char*)&test_value[0], sizeof(test_value));
 
   InitMsgBuilder init(&buf[0],
                       buf.size(),
@@ -122,7 +122,7 @@ int main() try {
 
   //Lets Build 10 Events and then Write them into Streamer file.
 
-  adler32_chksum = (uint32)cms::Adler32((char*)&test_value_event[0], sizeof(test_value_event));
+  adler32_chksum = (uint32)cms::adler32((char*)&test_value_event[0], sizeof(test_value_event));
   std::string host_name = "mytestnode.cms";
 
   for (uint32 eventId = 2000; eventId != 2000 + NO_OF_EVENTS; ++eventId) {

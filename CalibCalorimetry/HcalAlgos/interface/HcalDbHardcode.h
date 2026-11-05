@@ -20,10 +20,7 @@
 #include "CondFormats/HcalObjects/interface/HcalCalibrationQIECoder.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CondFormats/HcalObjects/interface/HcalFrontEndMap.h"
-#include "DataFormats/HcalDetId/interface/HcalDcsDetId.h"
-#include "CondFormats/HcalObjects/interface/HcalDcsMap.h"
 #include "CondFormats/HcalObjects/interface/HcalRecoParam.h"
-#include "CondFormats/HcalObjects/interface/HcalTimingParam.h"
 #include "CondFormats/HcalObjects/interface/HcalMCParam.h"
 #include "CondFormats/HcalObjects/interface/HcalSiPMParameter.h"
 #include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristics.h"
@@ -111,9 +108,7 @@ public:
   HcalQIEType makeQIEType(HcalGenericDetId fId) const;
   HcalRecoParam makeRecoParam(HcalGenericDetId fId) const;
   HcalMCParam makeMCParam(HcalGenericDetId fId) const;
-  HcalTimingParam makeTimingParam(HcalGenericDetId fId) const;
   std::unique_ptr<HcalElectronicsMap> makeHardcodeMap(const std::vector<HcalGenericDetId>& cells) const;
-  std::unique_ptr<HcalDcsMap> makeHardcodeDcsMap() const;
   void makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::vector<HcalGenericDetId>& cells) const;
   std::unique_ptr<HcalFrontEndMap> makeHardcodeFrontEndMap(const std::vector<HcalGenericDetId>& cells) const;
   HcalSiPMParameter makeHardcodeSiPMParameter(HcalGenericDetId fId, const HcalTopology* topo, double intlumi);

@@ -1,0 +1,4 @@
+<bin name="testAssociationMap_t" file="AssociationMap.cpp">
+  <use name="catch2"/>
+  <use name="SimDataFormats/Associations"/>
+</bin>

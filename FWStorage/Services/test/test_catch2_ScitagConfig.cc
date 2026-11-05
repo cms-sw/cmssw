@@ -29,7 +29,7 @@ TEST_CASE("Test ScitagConfig", "[scitagconfig]") {
 
   SECTION("scitagconfig default parameters") {
     std::vector<edm::ParameterSet> psets = {defaultPSet};
-    edm::ServiceToken token = edm::ServiceRegistry::createSet(psets);
+    edm::OwningServiceToken token = edm::ServiceRegistry::createSet(psets);
     edm::ServiceRegistry::Operate operate(token);
 
     edm::Service<edm::StorageURLModifier> scitagConfig;
@@ -52,7 +52,7 @@ TEST_CASE("Test ScitagConfig", "[scitagconfig]") {
     pset.addUntrackedParameter<bool>("productionCase", true);
 
     std::vector<edm::ParameterSet> psets = {pset};
-    edm::ServiceToken token = edm::ServiceRegistry::createSet(psets);
+    edm::OwningServiceToken token = edm::ServiceRegistry::createSet(psets);
     edm::ServiceRegistry::Operate operate(token);
 
     edm::Service<edm::StorageURLModifier> scitagConfig;
@@ -86,7 +86,7 @@ TEST_CASE("Test ScitagConfig", "[scitagconfig]") {
     pset.addUntrackedParameter<edm::ParameterSet>("production", productionPSet);
 
     std::vector<edm::ParameterSet> psets = {pset};
-    edm::ServiceToken token = edm::ServiceRegistry::createSet(psets);
+    edm::OwningServiceToken token = edm::ServiceRegistry::createSet(psets);
     edm::ServiceRegistry::Operate operate(token);
 
     edm::Service<edm::StorageURLModifier> scitagConfig;
@@ -133,7 +133,7 @@ TEST_CASE("Test ScitagConfig", "[scitagconfig]") {
     pset.addUntrackedParameter<edm::ParameterSet>("production", productionPSet);
 
     std::vector<edm::ParameterSet> psets = {pset};
-    edm::ServiceToken token = edm::ServiceRegistry::createSet(psets);
+    edm::OwningServiceToken token = edm::ServiceRegistry::createSet(psets);
     edm::ServiceRegistry::Operate operate(token);
 
     edm::Service<edm::StorageURLModifier> scitagConfig;
@@ -172,7 +172,7 @@ TEST_CASE("Test ScitagConfig", "[scitagconfig]") {
     pset.addUntrackedParameter<bool>("enable", false);
 
     std::vector<edm::ParameterSet> psets = {pset};
-    edm::ServiceToken token = edm::ServiceRegistry::createSet(psets);
+    edm::OwningServiceToken token = edm::ServiceRegistry::createSet(psets);
     edm::ServiceRegistry::Operate operate(token);
 
     edm::Service<edm::StorageURLModifier> scitagConfig;

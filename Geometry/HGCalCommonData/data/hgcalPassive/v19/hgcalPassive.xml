@@ -26,6 +26,10 @@
       L01A, L01B</Vector>
     <Vector name="AbsorberN" type="numeric" nEntries="2">
        14,    8</Vector>
+    <Vector name="ShiftX" type="numeric" nEntries="2">
+       0.0 ,   0.0</Vector>
+    <Vector name="ShiftY" type="numeric" nEntries="2">
+       0.0 ,   0.0</Vector>
     <Vector name="AbsorberX" type="numeric" nEntries="22">
        1469.38*mm,  1483.56*mm,  1433.60*mm,  1433.60*mm,  1517.42*mm, 
        1517.42*mm,  1459.58*mm,  1459.58*mm,  1433.95*mm,  1433.95*mm, 
@@ -60,6 +64,12 @@
     <Vector name="AbsorberN" type="numeric" nEntries="16">
        14,    8,   10,   14,   10,   14,   12,   15,   12,   16,
        12,   13,    8,   12,    8,   12 </Vector>
+    <Vector name="ShiftX" type="numeric" nEntries="16">
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0</Vector>
+    <Vector name="ShiftY" type="numeric" nEntries="16">
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0</Vector>
     <Vector name="AbsorberX" type="numeric" nEntries="190">
        1469.38*mm,  1483.56*mm,  1433.60*mm,  1433.60*mm,  1517.42*mm, 
        1517.42*mm,  1459.58*mm,  1459.58*mm,  1433.95*mm,  1433.95*mm, 
@@ -169,7 +179,11 @@
     <Vector name="AbsorberName" type="string" nEntries="8">
       L10A, L10B, L11A, L11B, L12A, L12B, L13A, L13B</Vector>
     <Vector name="AbsorberN" type="numeric" nEntries="8">
-        8,   12,   11,   12,   11,   12,   14,   12 </Vector>
+      8,   12,   11,   12,   11,   12,   14,   12 </Vector>
+    <Vector name="ShiftX" type="numeric" nEntries="8">
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0</Vector>
+    <Vector name="ShiftY" type="numeric" nEntries="8">
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0</Vector>
     <Vector name="AbsorberX" type="numeric" nEntries="92">
        1523.97*mm,  1523.97*mm,  1535.11*mm,  1535.11*mm,  1523.97*mm, 
        1523.97*mm,   315.84*mm,   315.84*mm, 
@@ -239,6 +253,12 @@
       L01, L02, L03, L04, L05, L06, L07, L08, L09, L10, L11, L12, L13</Vector>
      <Vector name="AbsorberN" type="numeric" nEntries="13">
       43, 43, 43, 43, 43, 42, 45, 45, 45, 45, 45, 45, 45</Vector>
+    <Vector name="ShiftX" type="numeric" nEntries="13">
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0</Vector>
+    <Vector name="ShiftY" type="numeric" nEntries="13">
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0 </Vector>
     <Vector name="AbsorberX" type="numeric" nEntries="572">
         230.89*mm,   255.46*mm,   255.46*mm,   339.28*mm,   339.28*mm, 
         423.10*mm,   423.10*mm,   506.92*mm,   506.92*mm,   590.74*mm, 

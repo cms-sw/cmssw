@@ -69,6 +69,7 @@ private:
   const double hitMinEnergy_;
   const bool optionalPlots_;
   const bool uncalibRecHitsPlots_;
+  const bool fillTimeWalkPlots_;
   const double hitMinAmplitude_;
 
   edm::EDGetTokenT<FTLRecHitCollection> btlRecHitsToken_;
@@ -271,7 +272,7 @@ private:
   MonitorElement* meUncTimeLVsX_;
   MonitorElement* meUncTimeRVsX_;
 
-  static constexpr int nBinsQ_ = 30;
+  static constexpr int nBinsQ_ = 44;
   static constexpr float binWidthQ_ = 0.5;  // [MeV]
   static constexpr int nBinsQEta_ = 3;
   static constexpr float binsQEta_[nBinsQEta_ + 1] = {0., 0.65, 1.15, 1.55};
@@ -281,11 +282,17 @@ private:
 
   static constexpr int nBinsEta_ = 31;
   static constexpr float binWidthEta_ = 0.05;
-  static constexpr int nBinsEtaQ_ = 6;
-  static constexpr float binsEtaQ_[nBinsEtaQ_ + 1] = {0., 2., 4., 6., 8., 12., 15.};
+  static constexpr int nBinsEtaQ_ = 7;
+  static constexpr float binsEtaQ_[nBinsEtaQ_ + 1] = {0., 2., 4., 6., 8., 12., 15., 22.};
 
   MonitorElement* meTimeResEta_[nBinsEta_];
   MonitorElement* meTimeResEtavsQ_[nBinsEta_][nBinsEtaQ_];
+
+  // --- profiles for time-walk correction
+
+  MonitorElement* meDeltaTsimvsE_;
+  MonitorElement* meDeltaTsimvsER_;
+  MonitorElement* meDeltaTsimvsEL_;
 };
 
 bool BtlLocalRecoValidation::isSameCluster(const FTLCluster& clu1, const FTLCluster& clu2) {
@@ -299,6 +306,7 @@ BtlLocalRecoValidation::BtlLocalRecoValidation(const edm::ParameterSet& iConfig)
       hitMinEnergy_(iConfig.getParameter<double>("HitMinimumEnergy")),
       optionalPlots_(iConfig.getParameter<bool>("optionalPlots")),
       uncalibRecHitsPlots_(iConfig.getParameter<bool>("UncalibRecHitsPlots")),
+      fillTimeWalkPlots_(iConfig.getParameter<bool>("FillTimeWalkPlots")),
       hitMinAmplitude_(iConfig.getParameter<double>("HitMinimumAmplitude")),
       mtdgeoToken_(esConsumes<MTDGeometry, MTDDigiGeometryRecord>()),
       mtdtopoToken_(esConsumes<MTDTopology, MTDTopologyRcd>()),
@@ -887,13 +895,13 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       float hit_amplitude = 0.;
       float hit_time = 0.;
 
-      // left side:
+      // right side:
       if (uRecHit.amplitude().first > 0.) {
         hit_amplitude += uRecHit.amplitude().first;
         hit_time += uRecHit.time().first;
         nHits += 1.;
       }
-      // right side:
+      // left side:
       if (uRecHit.amplitude().second > 0.) {
         hit_amplitude += uRecHit.amplitude().second;
         hit_time += uRecHit.time().second;
@@ -935,7 +943,10 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
         float time_res = hit_time - m_btlSimHits[detId.rawId()].time;
 
-        // amplitude histograms
+        // amplitude histograms (hits above the last amplitude or |eta| bin are put in the last bin,
+        // so that the saturation peak is visible)
+
+        const float hit_abs_eta = fabs(global_point.eta());
 
         int qBin = (int)(hit_amplitude / binWidthQ_);
         if (qBin > nBinsQ_ - 1)
@@ -943,28 +954,77 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
         meTimeResQ_[qBin]->Fill(time_res);
 
-        int etaBin = 0;
-        for (int ibin = 1; ibin < nBinsQEta_; ++ibin)
-          if (fabs(global_point.eta()) >= binsQEta_[ibin] && fabs(global_point.eta()) < binsQEta_[ibin + 1])
+        int etaBin = nBinsQEta_ - 1;
+        for (int ibin = 0; ibin < nBinsQEta_ - 1; ++ibin) {
+          if (hit_abs_eta < binsQEta_[ibin + 1]) {
             etaBin = ibin;
+            break;
+          }
+        }
 
         meTimeResQvsEta_[qBin][etaBin]->Fill(time_res);
 
         // eta histograms
 
-        etaBin = (int)(fabs(global_point.eta()) / binWidthEta_);
+        etaBin = (int)(hit_abs_eta / binWidthEta_);
         if (etaBin > nBinsEta_ - 1)
           etaBin = nBinsEta_ - 1;
 
         meTimeResEta_[etaBin]->Fill(time_res);
 
-        qBin = 0;
-        for (int ibin = 1; ibin < nBinsEtaQ_; ++ibin)
-          if (hit_amplitude >= binsEtaQ_[ibin] && hit_amplitude < binsEtaQ_[ibin + 1])
+        qBin = nBinsEtaQ_ - 1;
+        for (int ibin = 0; ibin < nBinsEtaQ_ - 1; ++ibin) {
+          if (hit_amplitude < binsEtaQ_[ibin + 1]) {
             qBin = ibin;
+            break;
+          }
+        }
 
         meTimeResEtavsQ_[etaBin][qBin]->Fill(time_res);
       }
+    }  // uRecHit loop}
+  }
+
+  // --- Fill the profiles for the time-walk correction
+  if (fillTimeWalkPlots_) {
+    // loop over the uncalibrated rechits
+    auto btlUncalibRecHitsHandle = makeValid(iEvent.getHandle(btlUncalibRecHitsToken_));
+    for (const auto& uRecHit : *btlUncalibRecHitsHandle) {
+      // skip BTL cells that don't have both right and left hits
+      if (uRecHit.amplitude().first == 0. || uRecHit.amplitude().second == 0.)
+        continue;
+
+      // skip BTL cells that have an ADC or TDC saturated hit
+      // (bit 4=right ADC, bit 5=right TDC, bit 6=left ADC, bit 7=left TDC)
+      if (uRecHit.flags() & 0xf0)
+        continue;
+
+      BTLDetId detId = uRecHit.id();
+
+      // skip UncalibratedRecHits not matched to SimHits
+      auto simHitIt = m_btlSimHits.find(detId.rawId());
+      if (simHitIt == m_btlSimHits.end())
+        continue;
+      const MTDHit& simHit = simHitIt->second;
+
+      float hit_energy = uRecHit.amplitude().first;
+      float hit_time = uRecHit.time().first;
+      float deltaT = hit_time - simHit.time;
+
+      meDeltaTsimvsER_->Fill(hit_energy, deltaT);
+
+      hit_energy = uRecHit.amplitude().second;
+      hit_time = uRecHit.time().second;
+      deltaT = hit_time - simHit.time;
+
+      meDeltaTsimvsEL_->Fill(hit_energy, deltaT);
+
+      // combine the right and left information
+      hit_energy = 0.5 * (uRecHit.amplitude().first + uRecHit.amplitude().second);
+      hit_time = 0.5 * (uRecHit.time().first + uRecHit.time().second);
+      deltaT = hit_time - simHit.time;
+
+      meDeltaTsimvsE_->Fill(hit_energy, deltaT);
     }  // uRecHit loop}
   }
 }
@@ -984,7 +1044,7 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meHitEnergy_ = ibook.book1D("BtlHitEnergy", "BTL RECO hits energy;E_{RECO} [MeV]", 100, 0., 20.);
   for (unsigned int ihistoRU = 0; ihistoRU < nRU_; ++ihistoRU) {
     std::string name_Energy = "BtlHitEnergyRUSlice" + std::to_string(ihistoRU);
-    std::string title_Energy = "BTL RECO hits energy (RU " + std::to_string(ihistoRU) + ");E_{RECO} [MeV])";
+    std::string title_Energy = "BTL RECO hits energy (RU " + std::to_string(ihistoRU) + ");E_{RECO} [MeV]";
     meHitEnergyRUSlice_[ihistoRU] = ibook.book1D(name_Energy, title_Energy, 100, 0., 20.);
   }
   meHitLogEnergy_ = ibook.book1D("BtlHitLogEnergy", "BTL RECO hits energy;log_{10}(E_{RECO} [MeV])", 16, -0.1, 1.5);
@@ -996,7 +1056,7 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
     meLocalOccupancy_ = ibook.book2D("BtlLocalOccupancy",
                                      "BTL RECO hits local occupancy;X^{loc}_{RECO} [cm]; Y^{loc}_{RECO} [cm]",
                                      100,
-                                     10.,
+                                     -10.,
                                      10.,
                                      60,
                                      -3.,
@@ -1035,7 +1095,7 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meEnergyRes_ = ibook.book1D("BtlEnergyRes", "BTL RECO hits energy resolution;E_{RECO}-E_{SIM} [MeV]", 100, -0.5, 0.5);
   meEnergyRelResVsE_ =
       ibook.bookProfile("BtlEnergyRelResvsE",
-                        "BTL relative energy resolution vs hit energy;E_{RECO} [MeV];E_{RECO}-E_{SIM} [MeV]",
+                        "BTL relative energy resolution vs hit energy;E_{RECO} [MeV];(E_{RECO}-E_{SIM})/E_{RECO}",
                         50,
                         0.,
                         20.,
@@ -1084,7 +1144,7 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meCluEta_ = ibook.book1D("BtlCluEta", "BTL cluster #eta;#eta_{RECO}", 100, -1.55, 1.55);
   meCluHits_ = ibook.book1D("BtlCluHitNumber", "BTL hits per cluster; Cluster size", 10, 0, 10);
   meCluZvsPhi_ = ibook.book2D(
-      "BtlOccupancy", "BTL cluster Z vs #phi;Z_{RECO} [cm]; #phi_{RECO} [rad]", 144, -260., 260., 50, -3.2, 3.2);
+      "BtlCluZvsPhi", "BTL cluster Z vs #phi;Z_{RECO} [cm]; #phi_{RECO} [rad]", 144, -260., 260., 50, -3.2, 3.2);
 
   if (optionalPlots_) {
     meCluEnergyvsEta_ = ibook.bookProfile(
@@ -1134,7 +1194,7 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
         ibook.book1D("BtlCluPhiRes", "BTL cluster #phi resolution;#phi_{RECO}-#phi_{SIM} [rad]", 100, -0.03, 0.03);
     meCluZRes_ = ibook.book1D("BtlCluZRes", "BTL cluster Z resolution;Z_{RECO}-Z_{SIM} [cm]", 100, -0.2, 0.2);
     meCluLocalXRes_ = ibook.book1D(
-        "BtlCluLocalXRes", "BTL cluster local X resolution;X_^{loc}_{RECO}-X^{loc}_{SIM} [cm]", 100, -3.1, 3.1);
+        "BtlCluLocalXRes", "BTL cluster local X resolution;X^{loc}_{RECO}-X^{loc}_{SIM} [cm]", 100, -3.1, 3.1);
     meCluLocalYResZGlobPlus_ =
         ibook.book1D("BtlCluLocalYResZGlobPlus",
                      "BTL cluster local Y resolution (global Z > 0);Y^{loc}_{RECO}-Y^{loc}_{SIM} [cm]",
@@ -1754,6 +1814,27 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
       }  // ihistoEta loop
     }
   }
+
+  if (fillTimeWalkPlots_) {
+    meDeltaTsimvsE_ = ibook.bookProfile(
+        "DeltaTsimvsE", "Time difference vs energy; E_{RECO} [MeV];  T_{RECO} - T_{SIM}", 220, 0., 22, -20., 20., "S");
+    meDeltaTsimvsER_ = ibook.bookProfile("DeltaTsimvsE_R",
+                                         "Time difference vs energy (R); E_{RECO} [MeV];  T_{RECO} - T_{SIM}",
+                                         220,
+                                         0.,
+                                         22,
+                                         -20.,
+                                         20.,
+                                         "S");
+    meDeltaTsimvsEL_ = ibook.bookProfile("DeltaTsimvsE_L",
+                                         "Time difference vs energy (L); E_{RECO} [MeV];  T_{RECO} - T_{SIM}",
+                                         220,
+                                         0.,
+                                         22,
+                                         -20.,
+                                         20.,
+                                         "S");
+  }
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -1770,6 +1851,7 @@ void BtlLocalRecoValidation::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<double>("HitMinimumEnergy", 1.);  // [MeV]
   desc.add<bool>("optionalPlots", false);
   desc.add<bool>("UncalibRecHitsPlots", false);
+  desc.add<bool>("FillTimeWalkPlots", false);
   desc.add<double>("HitMinimumAmplitude", 1.);  // [MeV]
 
   descriptions.add("btlLocalRecoValid", desc);

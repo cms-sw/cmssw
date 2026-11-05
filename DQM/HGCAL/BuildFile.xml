@@ -1,0 +1,16 @@
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/HGCalObjects"/>
+<use name="DataFormats/HGCalDigi"/>
+<use name="DQMServices/Core"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="eigen"/>
+<use name="json"/>
+<use name="rootcore"/>
+<use name="rootgpad"/>
+<use name="rootrio"/>
+<export>
+  <lib name="1"/>
+</export>

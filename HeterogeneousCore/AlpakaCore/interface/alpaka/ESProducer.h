@@ -42,7 +42,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     template <typename T, typename TReturn, typename TRecord>
-    auto setWhatProduced(T* iThis, TReturn (T ::*iMethod)(TRecord const&), edm::es::Label const& label = {}) {
+    auto setWhatProduced(T* iThis, TReturn (T::*iMethod)(TRecord const&), edm::es::Label const& label = {}) {
       auto cc = Base::setWhatProduced(iThis, iMethod, label);
       using TProduct = typename edm::eventsetup::produce::smart_pointer_traits<TReturn>::type;
       if constexpr (not detail::useESProductDirectly) {
@@ -66,7 +66,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     template <typename T, typename TReturn, typename TRecord>
     auto setWhatProduced(T* iThis,
-                         TReturn (T ::*iMethod)(device::Record<TRecord> const&),
+                         TReturn (T::*iMethod)(device::Record<TRecord> const&),
                          edm::es::Label const& label = {}) {
       using TProduct = typename edm::eventsetup::produce::smart_pointer_traits<TReturn>::type;
       if constexpr (detail::useESProductDirectly) {

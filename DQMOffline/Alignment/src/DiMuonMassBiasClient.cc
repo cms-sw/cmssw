@@ -87,8 +87,8 @@ void DiMuonMassBiasClient::bookMEs(DQMStore::IBooker& iBooker)
     const auto& xmin = ME->getAxisMin(1);
     const auto& xmax = ME->getAxisMax(1);
 
-    MonitorElement* meanToBook =
-        iBooker.book1D(("Mean" + key), (title + ";#LT M_{#mu^{-}#mu^{+}} #GT [GeV];" + ytitle), nxbins, xmin, xmax);
+    MonitorElement* meanToBook = iBooker.book1D(
+        ("Mean" + key), (title + ";" + xtitle + ";#LT M_{#mu^{-}#mu^{+}} #GT [GeV]"), nxbins, xmin, xmax);
     meanHistos_.insert({key, meanToBook});
 
     MonitorElement* sigmaToBook =
@@ -173,9 +173,16 @@ void DiMuonMassBiasClient::fitAndFillProfile(std::pair<std::string, MonitorEleme
       continue;
     }
 
-    // fill the mean profiles
     const Measurement1D& bias = results.getBias();
+    const Measurement1D& width = results.getWidth();
 
+    // the errors are used as weights (1 / err^2) below
+    if (bias.error() <= 0. || width.error() <= 0.) {
+      edm::LogWarning("DiMuonMassBiasClient") << "the fit in the current bin returned a null uncertainty" << std::endl;
+      continue;
+    }
+
+    // fill the mean profiles
     // ============================================= DISCLAIMER ================================================
     // N.B. this is sort of a hack in order to fill arbitrarily both central values and error bars of a TProfile.
     // Choosing the option "g" in the constructor the bin error will be 1/sqrt(W(j)), where W(j) is the sum of weights.
@@ -191,10 +198,7 @@ void DiMuonMassBiasClient::fitAndFillProfile(std::pair<std::string, MonitorEleme
                                        << p_mean->GetBinContent(bin) << ") - error:  " << bias.error()
                                        << "  from profile ( " << p_mean->GetBinError(bin) << " )";
 
-    // fill the width profiles
-    const Measurement1D& width = results.getWidth();
-
-    // see discussion above
+    // fill the width profiles, see discussion above
     p_width->SetBinContent(bin, width.value() / (width.error() * width.error()));
     p_width->SetBinEntries(bin, 1. / (width.error() * width.error()));
   }
@@ -262,7 +266,7 @@ void DiMuonMassBiasClient::fitAndFillHisto(std::pair<std::string, MonitorElement
 void DiMuonMassBiasClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter)
 //-----------------------------------------------------------------------------------
 {
-  edm::LogInfo("DiMuonMassBiasClient") << "DiMuonMassBiasClient::endLuminosityBlock";
+  edm::LogInfo("DiMuonMassBiasClient") << "DiMuonMassBiasClient::dqmEndJob";
 
   getMEsToHarvest(igetter);
 
@@ -324,8 +328,8 @@ diMuonMassBias::fitOutputs DiMuonMassBiasClient::fitLineShape(TH1* hist, const b
 
   // parameters of the Crystal-ball
   RooRealVar peakCB("peakCB", "peakCB", meanConfig_[0], meanConfig_[1], meanConfig_[2]);
-  RooRealVar sigmaCB("#sigma", "sigma", sigmaConfig_[0], sigmaConfig_[1], sigmaConfig_[2]);
-  RooRealVar alphaCB("#alpha", "alpha", 1., 0., 10.);
+  RooRealVar sigmaCB("#sigma_{CB}", "sigma", sigmaConfig_[0], sigmaConfig_[1], sigmaConfig_[2]);
+  RooRealVar alphaCB("#alpha_{CB}", "alpha", 1., 0., 10.);
   RooRealVar nCB("n", "n", 1., 0., 100.);
   RooCBShape crystalball("crystalball", "crystalball", InvMass, peakCB, sigmaCB, alphaCB, nCB);
 
@@ -334,7 +338,7 @@ diMuonMassBias::fitOutputs DiMuonMassBiasClient::fitLineShape(TH1* hist, const b
   RooExponential expo("expo", "expo", InvMass, lambda);
 
   // for the more refined background fit
-  RooRealVar exp_alpha("#alpha", "alpha", 40.0, 20.0, 160.0);
+  RooRealVar exp_alpha("#alpha_{bkg}", "alpha", 40.0, 20.0, 160.0);
   RooRealVar exp_beta("#beta", "beta", 0.05, 0.0, 2.0);
   RooRealVar exp_gamma("#gamma", "gamma", 0.02, 0.0, 0.1);
   RooRealVar exp_peak("peak", "peak", meanConfig_[0]);

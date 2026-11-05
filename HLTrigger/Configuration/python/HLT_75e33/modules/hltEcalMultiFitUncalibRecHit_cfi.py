@@ -56,6 +56,7 @@ hltEcalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
         selectiveBadSampleCriteriaEE = cms.bool(False),
         simplifiedNoiseModelForGainSwitch = cms.bool(True),
         timealgo = cms.string('RatioMethod'),
-        useLumiInfoRunHeader = cms.bool(True)
+        useLumiInfoRunHeader = cms.bool(True),
+        bxSpacingProducer = cms.InputTag("hltBunchSpacingProducer")
     )
 )

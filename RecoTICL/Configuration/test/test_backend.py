@@ -41,7 +41,7 @@ def main():
         print("OK   : ProcessAcceleratorAlpaka added to the process")
 
     # GPU on a CPU-only module (a TICL trackster producer) is rejected
-    from RecoHGCal.TICL.trackstersProducer_cfi import trackstersProducer
+    from RecoTICL.PatternRecognition.trackstersProducer_cfi import trackstersProducer
     try:
         backend.set_module_backend(trackstersProducer.clone(), "gpu")
         print("FAIL: GPU on CPU-only module was not rejected"); ok = False

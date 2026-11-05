@@ -64,7 +64,7 @@ class FileProducer(object):
             h = f.Get(histo.folder_+'/'+histo.name_)
             h.SetDirectory(0)
             assert h
-            m = re.match('(.*)Entr.*_(\d+)$', h.GetName())
+            m = re.match(r'(.*)Entr.*_(\d+)$', h.GetName())
             assert m.groups()
             assert h.GetEntries() == word2num[m.group(1)] * self.numFiles_
             assert h.GetMean() == float(m.group(2))

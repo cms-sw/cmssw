@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.nano_cff import nanoMetadata
-from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsPSet
+from RecoTICL.Configuration.iterativeTICL_cff import ticlIterLabelsPSet
 
 hgcalUpgradeNanoTask = cms.Task(nanoMetadata)
 hgcalSimTrackstersLabels = [

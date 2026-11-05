@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
   file.seekg(0, std::ios::beg);
 
   auto ptr = std::make_unique<char[]>(1024 * 1024);
-  uint32_t a = 1, b = 0;
+  uint32_t adler = cms::adler32_init;
 
   std::ifstream::pos_type rsize = 0;
   while (rsize < size) {
@@ -34,13 +34,12 @@ int main(int argc, char* argv[]) {
     rsize += 1024 * 1024;
     //std::cout << file.tellg() << " " << rsize << " " << size << " - " << file.gcount() << std::endl;
     if (file.gcount()) {
-      cms::Adler32(ptr.get(), file.gcount(), a, b);
+      adler = cms::adler32(ptr.get(), file.gcount(), adler);
     } else {
       break;
     }
   }
 
-  uint32 adler = (b << 16) | a;
   std::cout << std::hex << adler << std::dec << " " << filename << std::endl;
 
   file.close();

@@ -195,18 +195,16 @@ namespace edmtest {
     REQUIRE(vuint64[1] == 0);
     REQUIRE(vuint64[2] == 11);
 
-    // This one does not work because the precision in the ParameterSet stringified
-    // format is 16 instead of 17.
-    // REQUIRE(ps.getParameter<double>("doublev1") == std::numeric_limits<double>::min());
+    REQUIRE(ps.getParameter<double>("doublev1") == std::numeric_limits<double>::min());
     REQUIRE(ps.getUntrackedParameter<double>("doublev2") == 0.0);
     REQUIRE(fabs(ps.getUntrackedParameter<double>("doublev3") - 0.3) < 0.0000001);
+    REQUIRE(ps.getParameter<double>("doublev4") == std::numeric_limits<double>::max());
+    REQUIRE(ps.getParameter<double>("doublev5") == std::numeric_limits<double>::infinity());
+    REQUIRE(std::isnan(ps.getParameter<double>("doublev6")));
 
     std::vector<double> vdouble;
     vdouble = ps.getParameter<std::vector<double>>("vdoublev1");
     REQUIRE(vdouble.empty());
-    // cmsRun will fail with a value this big
-    // vdouble.push_back(std::numeric_limits<double>::max());
-    // This works though
     vdouble = ps.getParameter<std::vector<double>>("vdoublev2");
     REQUIRE(vdouble[0] == 1e+300);
     vdouble = ps.getParameter<std::vector<double>>("vdoublev3");
@@ -225,6 +223,9 @@ namespace edmtest {
     REQUIRE(ps.getParameter<float>("floatv1") == std::numeric_limits<float>::min());
     REQUIRE(ps.getUntrackedParameter<float>("floatv2") == 0.0f);
     REQUIRE(fabs(ps.getUntrackedParameter<float>("floatv3") - 0.3f) < 0.0000001);
+    REQUIRE(ps.getParameter<float>("floatv4") == std::numeric_limits<float>::max());
+    REQUIRE(ps.getParameter<float>("floatv5") == std::numeric_limits<float>::infinity());
+    REQUIRE(std::isnan(ps.getParameter<float>("floatv6")));
 
     std::vector<float> vfloat;
     vfloat = ps.getParameter<std::vector<float>>("vfloatv1");
@@ -667,12 +668,12 @@ namespace edmtest {
       iDesc.add<double>("doublev1", std::numeric_limits<double>::min());
       iDesc.addUntracked<double>("doublev2", 0.0);
       iDesc.addUntracked<double>("doublev3", 0.3);
+      iDesc.add<double>("doublev4", std::numeric_limits<double>::max());
+      iDesc.add<double>("doublev5", std::numeric_limits<double>::infinity());
+      iDesc.add<double>("doublev6", std::numeric_limits<double>::quiet_NaN());
 
       std::vector<double> vdouble;
       iDesc.add<std::vector<double>>("vdoublev1", vdouble);
-      // cmsRun will fail with a value this big
-      // vdouble.push_back(std::numeric_limits<double>::max());
-      // This works though
       vdouble.push_back(1e+300);
       iDesc.add<std::vector<double>>("vdoublev2", vdouble);
       vdouble.push_back(0.0);
@@ -685,6 +686,9 @@ namespace edmtest {
       iDesc.add<float>("floatv1", std::numeric_limits<float>::min());
       iDesc.addUntracked<float>("floatv2", 0.0f);
       iDesc.addUntracked<float>("floatv3", 0.3f);
+      iDesc.add<float>("floatv4", std::numeric_limits<float>::max());
+      iDesc.add<float>("floatv5", std::numeric_limits<float>::infinity());
+      iDesc.add<float>("floatv6", std::numeric_limits<float>::quiet_NaN());
 
       std::vector<float> vfloat;
       iDesc.add<std::vector<float>>("vfloatv1", vfloat);

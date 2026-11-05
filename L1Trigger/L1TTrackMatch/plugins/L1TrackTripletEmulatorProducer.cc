@@ -18,6 +18,7 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h"
 #include "DataFormats/L1Trigger/interface/VertexWord.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "L1Trigger/L1TTrackMatch/interface/TkTripletEmuAlgo.h"
 
 // system include files
 #include "DataFormats/Common/interface/Handle.h"
@@ -31,6 +32,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //own headers
 #include "L1TrackUnpacker.h"
@@ -97,6 +99,11 @@ private:
   const bool use_float_track_precision_;
 
   struct L1track {
+    l1ttripletemu::pt_t f_Pt;
+    l1ttripletemu::eta_t f_Eta;
+    l1ttripletemu::global_phi_t globalPhi;
+    TTTrack_TrackWord::phi_t localPhi;
+    int phiSector;
     double Pt;
     double Eta;
     double Phi;
@@ -106,6 +113,7 @@ private:
     double Z0;
     unsigned int Index;
   };
+
   //    L1TTTrackType track;
   bool TrackSelector(L1track &, double, double, double, double, double, int);
   double FloatPtFromBits(const L1TTTrackType &);
@@ -115,6 +123,13 @@ private:
 
   const EDGetTokenT<L1TTTrackRefCollectionType> trackToken_;
   const EDGetTokenT<l1t::VertexWordCollection> PVtxToken_;
+
+  // Firmware-relevant members
+  std::vector<l1ttripletemu::cos_lut_fixed_t> cosLUT_;    // Cos LUT array
+  std::vector<l1ttripletemu::cosh_lut_fixed_t> coshLUT_;  // Cosh LUT array
+  std::vector<l1ttripletemu::sinh_lut_fixed_t> sinhLUT_;  // Sinh LUT array
+  std::vector<l1ttripletemu::global_phi_t> phiQuadrants_;
+  std::vector<l1ttripletemu::global_phi_t> phiShifts_;
 };
 
 //constructor
@@ -161,6 +176,14 @@ L1TrackTripletEmulatorProducer::L1TrackTripletEmulatorProducer(const ParameterSe
     produces<l1t::TkTripletCollection>("L1TrackTripletExtended");
     produces<l1t::TkTripletWordCollection>("L1TrackTripletWordExtended");
   } else {
+    phiQuadrants_ = l1ttripletemu::generatePhiSliceLUT(l1ttripletemu::kNQuadrants);
+    phiShifts_ = l1ttripletemu::generatePhiSliceLUT(l1ttripletemu::kNSector);
+
+    // Compute LUTs
+    cosLUT_ = l1ttripletemu::generateCosLUT();
+    coshLUT_ = l1ttripletemu::generateCoshLUT();
+    sinhLUT_ = l1ttripletemu::generateSinhLUT();
+
     produces<l1t::TkTripletCollection>("L1TrackTriplet");
     produces<l1t::TkTripletWordCollection>("L1TrackTripletWord");
   }
@@ -190,43 +213,244 @@ void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iS
     return;
   }
 
-  // Finding the 3 highest pT tracks
-  L1track trk1{-99, -99, -99, -99, -99, -99, -99, 0};
-  L1track trk2{-99, -99, -99, -99, -99, -99, -99, 0};
-  L1track trk3{-99, -99, -99, -99, -99, -99, -99, 0};
+  L1track trk1{0, -99, -99, -99, -99, -99, -99, -99, -99, -99, -99, -99, 0};
+  L1track trk2{0, -99, -99, -99, -99, -99, -99, -99, -99, -99, -99, -99, 0};
+  L1track trk3{0, -99, -99, -99, -99, -99, -99, -99, -99, -99, -99, -99, 0};
 
+  l1ttripletemu::tktriplet_mass_sq_t f_tktriplet_mass_sq = 0;
   int current_track_idx = -1;
+
+  // Loop over L1 tracks in event
   for (auto current_track : *TTTrackHandle) {
+    double current_track_pt = FloatPtFromBits(*current_track);
     current_track_idx += 1;
-    double current_track_pt = 0;
-    if (use_float_track_precision_)
-      current_track_pt = current_track->momentum().perp();
-    else
-      current_track_pt = FloatPtFromBits(*current_track);
-    if (current_track_pt < trk1.Pt)
-      continue;
-    trk3 = trk2;
-    trk2 = trk1;
-    if (use_float_track_precision_) {
-      trk1.Pt = current_track->momentum().perp();
-      trk1.Eta = current_track->eta();
-      trk1.Phi = current_track->phi();
-      trk1.Charge = (int)(current_track->rInv() / fabs(current_track->rInv()));
-      trk1.MVA = current_track->trkMVA1();
-      trk1.Nstubs = current_track->getStubRefs().size();
-      trk1.Z0 = current_track->z0();
-      trk1.Index = current_track_idx;
-    } else {
-      trk1.Pt = FloatPtFromBits(*current_track);
-      trk1.Eta = FloatEtaFromBits(*current_track);
-      trk1.Phi = FloatPhiFromBits(*current_track);
-      trk1.Charge = (int)(current_track->rInv() / fabs(current_track->rInv()));
-      trk1.MVA = current_track->trkMVA1();
-      trk1.Nstubs = current_track->getStubRefs().size();
-      trk1.Z0 = FloatZ0FromBits(*current_track);
-      trk1.Index = current_track_idx;
+
+    // Select three highest-pT tracks and store relevant quantities
+    if (current_track_pt > (double)trk1.Pt) {
+      trk3 = trk2;
+      trk2 = trk1;
+      trk1.f_Pt = (l1ttripletemu::pt_t)FloatPtFromBits(*current_track);
+      trk1.f_Eta = (l1ttripletemu::eta_t)FloatEtaFromBits(*current_track);
+      trk1.globalPhi =
+          l1ttripletemu::localToGlobalPhi(current_track->getPhiWord(), phiShifts_[current_track->phiSector()]);
+      trk1.phiSector = current_track->phiSector();
+      trk1.localPhi = (TTTrack_TrackWord::phi_t)current_track->getPhiWord();
+      if (use_float_track_precision_) {
+        trk1.Pt = current_track->momentum().perp();
+        trk1.Eta = current_track->eta();
+        trk1.Phi = current_track->phi();
+        trk1.Charge = (int)(current_track->rInv() / fabs(current_track->rInv()));
+        trk1.MVA = current_track->trkMVA1();
+        trk1.Nstubs = current_track->getStubRefs().size();
+        trk1.Z0 = current_track->z0();
+        trk1.Index = current_track_idx;
+      } else {
+        trk1.Pt = FloatPtFromBits(*current_track);
+        trk1.Eta = FloatEtaFromBits(*current_track);
+        trk1.Phi = FloatPhiFromBits(*current_track);
+        trk1.Charge = (int)(current_track->rInv() / fabs(current_track->rInv()));
+        trk1.MVA = current_track->trkMVA1();
+        trk1.Nstubs = current_track->getStubRefs().size();
+        trk1.Z0 = FloatZ0FromBits(*current_track);
+        trk1.Index = current_track_idx;
+      }
+    } else if (current_track_pt > (double)trk2.Pt) {
+      trk3 = trk2;
+      trk2.f_Pt = (l1ttripletemu::pt_t)FloatPtFromBits(*current_track);
+      trk2.f_Eta = (l1ttripletemu::eta_t)FloatEtaFromBits(*current_track);
+      trk2.globalPhi =
+          l1ttripletemu::localToGlobalPhi(current_track->getPhiWord(), phiShifts_[current_track->phiSector()]);
+      trk2.localPhi = (TTTrack_TrackWord::phi_t)current_track->getPhiWord();
+      trk2.phiSector = current_track->phiSector();
+      if (use_float_track_precision_) {
+        trk2.Pt = current_track->momentum().perp();
+        trk2.Eta = current_track->eta();
+        trk2.Phi = current_track->phi();
+        trk2.Charge = (int)(current_track->rInv() / fabs(current_track->rInv()));
+        trk2.MVA = current_track->trkMVA1();
+        trk2.Nstubs = current_track->getStubRefs().size();
+        trk2.Z0 = current_track->z0();
+        trk2.Index = current_track_idx;
+      } else {
+        trk2.Pt = FloatPtFromBits(*current_track);
+        trk2.Eta = FloatEtaFromBits(*current_track);
+        trk2.Phi = FloatPhiFromBits(*current_track);
+        trk2.Charge = (int)(current_track->rInv() / fabs(current_track->rInv()));
+        trk2.MVA = current_track->trkMVA1();
+        trk2.Nstubs = current_track->getStubRefs().size();
+        trk2.Z0 = FloatZ0FromBits(*current_track);
+        trk2.Index = current_track_idx;
+      }
+    } else if (current_track_pt > (double)trk3.Pt) {
+      trk3.f_Pt = (l1ttripletemu::pt_t)FloatPtFromBits(*current_track);
+      trk3.f_Eta = (l1ttripletemu::eta_t)FloatEtaFromBits(*current_track);
+      trk3.globalPhi =
+          l1ttripletemu::localToGlobalPhi(current_track->getPhiWord(), phiShifts_[current_track->phiSector()]);
+      trk3.localPhi = (TTTrack_TrackWord::phi_t)current_track->getPhiWord();
+      trk3.phiSector = current_track->phiSector();
+      if (use_float_track_precision_) {
+        trk3.Pt = current_track->momentum().perp();
+        trk3.Eta = current_track->eta();
+        trk3.Phi = current_track->phi();
+        trk3.Charge = (int)(current_track->rInv() / fabs(current_track->rInv()));
+        trk3.MVA = current_track->trkMVA1();
+        trk3.Nstubs = current_track->getStubRefs().size();
+        trk3.Z0 = current_track->z0();
+        trk3.Index = current_track_idx;
+      } else {
+        trk3.Pt = FloatPtFromBits(*current_track);
+        trk3.Eta = FloatEtaFromBits(*current_track);
+        trk3.Phi = FloatPhiFromBits(*current_track);
+        trk3.Charge = (int)(current_track->rInv() / fabs(current_track->rInv()));
+        trk3.MVA = current_track->trkMVA1();
+        trk3.Nstubs = current_track->getStubRefs().size();
+        trk3.Z0 = FloatZ0FromBits(*current_track);
+        trk3.Index = current_track_idx;
+      }
     }
   }
+
+  // Triplet invariant mass calculation (moved OUTSIDE the track loop)
+  // Check that all triplet tracks are valid
+  if (trk1.f_Pt == 0 || trk2.f_Pt == 0 || trk3.f_Pt == 0) {
+    iEvent.put(std::move(L1TrackTripletContainer), OutputDigisName);
+    iEvent.put(std::move(L1TrackTripletWordContainer), OutputWordName);
+    return;
+  }
+
+  // Define sinh LUT indices
+  const l1ttripletemu::sinh_lut_index_t sinhIndex1 =
+      (l1ttripletemu::sinh_lut_index_t)((std::abs((float)trk1.f_Eta)) /
+                                            (2.5 / (1 << l1ttripletemu::kSinhLUTTableSize)) +
+                                        1);
+  const l1ttripletemu::sinh_lut_index_t sinhIndex2 =
+      (l1ttripletemu::sinh_lut_index_t)((std::abs((float)trk2.f_Eta)) /
+                                            (2.5 / (1 << l1ttripletemu::kSinhLUTTableSize)) +
+                                        1);
+  const l1ttripletemu::sinh_lut_index_t sinhIndex3 =
+      (l1ttripletemu::sinh_lut_index_t)((std::abs((float)trk3.f_Eta)) /
+                                            (2.5 / (1 << l1ttripletemu::kSinhLUTTableSize)) +
+                                        1);
+
+  // Define cosh LUT indices
+  const l1ttripletemu::cosh_lut_index_t coshIndex1 =
+      (l1ttripletemu::cosh_lut_index_t)((std::abs((float)trk1.f_Eta)) /
+                                            (2.5 / (1 << l1ttripletemu::kCoshLUTTableSize)) +
+                                        1);
+  const l1ttripletemu::cosh_lut_index_t coshIndex2 =
+      (l1ttripletemu::cosh_lut_index_t)((std::abs((float)trk2.f_Eta)) /
+                                            (2.5 / (1 << l1ttripletemu::kCoshLUTTableSize)) +
+                                        1);
+  const l1ttripletemu::cosh_lut_index_t coshIndex3 =
+      (l1ttripletemu::cosh_lut_index_t)((std::abs((float)trk3.f_Eta)) /
+                                            (2.5 / (1 << l1ttripletemu::kCoshLUTTableSize)) +
+                                        1);
+
+  // Total track momenta
+  l1ttripletemu::pxyz_t p1 = (l1ttripletemu::pxyz_t)trk1.f_Pt * coshLUT_[coshIndex1];
+  l1ttripletemu::pxyz_t p2 = (l1ttripletemu::pxyz_t)trk2.f_Pt * coshLUT_[coshIndex2];
+  l1ttripletemu::pxyz_t p3 = (l1ttripletemu::pxyz_t)trk3.f_Pt * coshLUT_[coshIndex3];
+
+  // Z-component track momenta
+  l1ttripletemu::pxyz_t pz1 = (l1ttripletemu::pxyz_t)trk1.f_Pt * sinhLUT_[sinhIndex1];
+  l1ttripletemu::pxyz_t pz2 = (l1ttripletemu::pxyz_t)trk2.f_Pt * sinhLUT_[sinhIndex2];
+  l1ttripletemu::pxyz_t pz3 = (l1ttripletemu::pxyz_t)trk3.f_Pt * sinhLUT_[sinhIndex3];
+
+  // Correct pz sign if eta is negative
+  if (trk1.f_Eta < 0) {
+    pz1 = -1 * pz1;
+  }
+  if (trk2.f_Eta < 0) {
+    pz2 = -1 * pz2;
+  }
+  if (trk3.f_Eta < 0) {
+    pz3 = -1 * pz3;
+  }
+
+  // Momentum x,y component definitions
+  l1ttripletemu::pxyz_t px1 = 0, py1 = 0;
+  l1ttripletemu::pxyz_t px2 = 0, py2 = 0;
+  l1ttripletemu::pxyz_t px3 = 0, py3 = 0;
+  L1track tmp_trk{0, -99, -99, -99, -99, -99, -99, -99, -99, -99, -99, -99, 0};
+
+  // W mass calculation using LUTs (as in firmware)
+  for (int tk = 0; tk < 3; tk++) {
+    if (tk == 0) {
+      tmp_trk = trk1;
+    } else if (tk == 1) {
+      tmp_trk = trk2;
+    } else if (tk == 2) {
+      tmp_trk = trk3;
+    }
+
+    // Compute px, py for triplet tracks
+    if (tmp_trk.globalPhi >= phiQuadrants_[0] && tmp_trk.globalPhi < phiQuadrants_[1]) {
+      const l1ttripletemu::cos_lut_index_t cosIndex = (tmp_trk.globalPhi) >> l1ttripletemu::kCosLUTShift;
+      const l1ttripletemu::cos_lut_index_t sinIndex =
+          (phiQuadrants_[1] - 1 - tmp_trk.globalPhi) >> l1ttripletemu::kCosLUTShift;
+      if (tk == 0) {
+        px1 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex];
+        py1 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex];
+      } else if (tk == 1) {
+        px2 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex];
+        py2 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex];
+      } else if (tk == 2) {
+        px3 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex];
+        py3 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex];
+      }
+    } else if (tmp_trk.globalPhi >= phiQuadrants_[1] && tmp_trk.globalPhi < phiQuadrants_[2]) {
+      const l1ttripletemu::cos_lut_index_t cosIndex =
+          (phiQuadrants_[2] - 1 - tmp_trk.globalPhi) >> l1ttripletemu::kCosLUTShift;
+      const l1ttripletemu::cos_lut_index_t sinIndex =
+          (tmp_trk.globalPhi - phiQuadrants_[1]) >> l1ttripletemu::kCosLUTShift;
+      if (tk == 0) {
+        px1 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex]);
+        py1 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex];
+      } else if (tk == 1) {
+        px2 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex]);
+        py2 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex];
+      } else if (tk == 2) {
+        px3 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex]);
+        py3 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex];
+      }
+    } else if (tmp_trk.globalPhi >= phiQuadrants_[2] && tmp_trk.globalPhi < phiQuadrants_[3]) {
+      const l1ttripletemu::cos_lut_index_t cosIndex =
+          (tmp_trk.globalPhi - phiQuadrants_[2]) >> l1ttripletemu::kCosLUTShift;
+      const l1ttripletemu::cos_lut_index_t sinIndex =
+          (phiQuadrants_[3] - 1 - tmp_trk.globalPhi) >> l1ttripletemu::kCosLUTShift;
+      if (tk == 0) {
+        px1 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex]);
+        py1 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex]);
+      } else if (tk == 1) {
+        px2 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex]);
+        py2 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex]);
+      } else if (tk == 2) {
+        px3 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex]);
+        py3 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex]);
+      }
+    } else if (tmp_trk.globalPhi >= phiQuadrants_[3] && tmp_trk.globalPhi < phiQuadrants_[4]) {
+      const l1ttripletemu::cos_lut_index_t cosIndex =
+          (phiQuadrants_[4] - 1 - tmp_trk.globalPhi) >> l1ttripletemu::kCosLUTShift;
+      const l1ttripletemu::cos_lut_index_t sinIndex =
+          (tmp_trk.globalPhi - phiQuadrants_[3]) >> l1ttripletemu::kCosLUTShift;
+      if (tk == 0) {
+        px1 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex];
+        py1 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex]);
+      } else if (tk == 1) {
+        px2 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex];
+        py2 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex]);
+      } else if (tk == 2) {
+        px3 = (l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[cosIndex];
+        py3 = -((l1ttripletemu::pxyz_t)tmp_trk.f_Pt * cosLUT_[sinIndex]);
+      }
+    }
+  }
+
+  // W mass calculation
+  f_tktriplet_mass_sq =
+      (l1ttripletemu::tktriplet_mass_sq_t)((p1 + p2 + p3) * (p1 + p2 + p3) - (px1 + px2 + px3) * (px1 + px2 + px3) -
+                                           (py1 + py2 + py3) * (py1 + py2 + py3) -
+                                           (pz1 + pz2 + pz3) * (pz1 + pz2 + pz3));
 
   // track selection
   bool track1_pass = TrackSelector(trk1, PVz, trk1_pt_, trk1_eta_, trk1_mva_, trk1_dz_, trk1_nstub_);
@@ -243,13 +467,14 @@ void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iS
   math::PtEtaPhiMLorentzVectorD pion2(trk2.Pt, trk2.Eta, trk2.Phi, trk2_mass_);
   math::PtEtaPhiMLorentzVectorD pion3(trk3.Pt, trk3.Eta, trk3.Phi, trk3_mass_);
 
+  double triplet_eta = (pion1 + pion2 + pion3).Eta();
   bool event_pass = true;
 
   // create triplets
   double triplet_mass = (pion1 + pion2 + pion3).M();
   if (triplet_mass > triplet_massOver_)
     triplet_mass = triplet_massOver_;
-  double triplet_eta = (pion1 + pion2 + pion3).Eta();
+
   double triplet_pt = (pion1 + pion2 + pion3).Pt();
   int triplet_charge = trk1.Charge + trk2.Charge + trk3.Charge;
   std::vector<double> pair_masses{(pion1 + pion2).M(), (pion2 + pion3).M(), (pion1 + pion3).M()};
@@ -283,6 +508,7 @@ void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iS
   float tripletPx = (pion1 + pion2 + pion3).Pt() * cos((pion1 + pion2 + pion3).Phi());
   float tripletPy = (pion1 + pion2 + pion3).Pt() * sin((pion1 + pion2 + pion3).Phi());
   float tripletPz = (pion1 + pion2 + pion3).Pt() * sinh((pion1 + pion2 + pion3).Eta());
+
   float tripletE =
       sqrt(tripletPx * tripletPx + tripletPy * tripletPy + tripletPz * tripletPz + triplet_mass * triplet_mass);
   TkTriplet trkTriplet(math::XYZTLorentzVector(tripletPx, tripletPy, tripletPz, tripletE),
@@ -298,57 +524,31 @@ void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iS
 
   iEvent.put(std::move(L1TrackTripletContainer), OutputDigisName);
 
-  // bit assignment
-  l1t::TkTripletWord::valid_t val = 1;
-  l1t::TkTripletWord::pt_t bitPt = pt_intern((pion1 + pion2 + pion3).Pt());
-  l1t::TkTripletWord::glbeta_t bitEta =
-      DoubleToBit((pion1 + pion2 + pion3).Eta(),
-                  TkTripletWord::TkTripletBitWidths::kGlbEtaSize,
-                  TkTripletWord::MAX_ETA / (1 << TkTripletWord::TkTripletBitWidths::kGlbEtaSize));
-  l1t::TkTripletWord::glbphi_t bitPhi =
-      DoubleToBit((pion1 + pion2 + pion3).Phi(),
-                  TkTripletWord::TkTripletBitWidths::kGlbPhiSize,
-                  (2. * std::abs(M_PI)) / (1 << TkTripletWord::TkTripletBitWidths::kGlbPhiSize));
-  l1t::TkTripletWord::charge_t bitCharge =
-      DoubleToBit(double(triplet_charge),
-                  TkTripletWord::TkTripletBitWidths::kChargeSize,
-                  TkTripletWord::MAX_CHARGE / (1 << TkTripletWord::TkTripletBitWidths::kChargeSize));
-  l1t::TkTripletWord::mass_t bitMass =
-      DoubleToBit((pion1 + pion2 + pion3).M(),
-                  TkTripletWord::TkTripletBitWidths::kMassSize,
-                  TkTripletWord::MAX_MASS / (1 << TkTripletWord::TkTripletBitWidths::kMassSize));
-  l1t::TkTripletWord::ditrack_minmass_t bitDiTrackMinMass =
-      DoubleToBit(pair_masses[2],
-                  TkTripletWord::TkTripletBitWidths::kDiTrackMinMassSize,
-                  TkTripletWord::MAX_MASS / (1 << TkTripletWord::TkTripletBitWidths::kDiTrackMinMassSize));
-  l1t::TkTripletWord::ditrack_maxmass_t bitDiTrackMaxMass =
-      DoubleToBit(pair_masses[0],
-                  TkTripletWord::TkTripletBitWidths::kDiTrackMaxMassSize,
-                  TkTripletWord::MAX_MASS / (1 << TkTripletWord::TkTripletBitWidths::kDiTrackMaxMassSize));
+  // Test vector outputs
+  l1t::TkTripletWord::tktriplet_valid_t val = 1;
+  l1ttripletemu::TkTriplet tkTriplet;
+  tkTriplet.pt = 0;
+  tkTriplet.phi = 0;
+  tkTriplet.eta = 0;
+  tkTriplet.mass = (l1ttripletemu::tktriplet_mass_t)std::sqrt((float)f_tktriplet_mass_sq);
+  tkTriplet.trk1Pt = (l1ttripletemu::tktriplet_trk_pt_t)trk1.f_Pt;
+  tkTriplet.trk2Pt = (l1ttripletemu::tktriplet_trk_pt_t)trk2.f_Pt;
+  tkTriplet.trk3Pt = (l1ttripletemu::tktriplet_trk_pt_t)trk3.f_Pt;
+  tkTriplet.charge = 0;
+  l1t::TkTripletWord::tktriplet_unassigned_t unassigned = 0;
 
-  l1t::TkTripletWord::ditrack_minz0_t bitDiTrackMinZ0 =
-      DoubleToBit(pair_dzs[2],
-                  TkTripletWord::TkTripletBitWidths::kDiTrackMinZ0Size,
-                  TkTripletWord::MAX_Z0 / (1 << TkTripletWord::TkTripletBitWidths::kDiTrackMinZ0Size));
-  l1t::TkTripletWord::ditrack_maxz0_t bitDiTrackMaxZ0 =
-      DoubleToBit(pair_dzs[0],
-                  TkTripletWord::TkTripletBitWidths::kDiTrackMaxZ0Size,
-                  TkTripletWord::MAX_Z0 / (1 << TkTripletWord::TkTripletBitWidths::kDiTrackMaxZ0Size));
+  l1t::TkTripletWord L1Triplet(val,
+                               tkTriplet.pt,
+                               tkTriplet.phi,
+                               tkTriplet.eta,
+                               tkTriplet.mass,
+                               tkTriplet.trk1Pt,
+                               tkTriplet.trk2Pt,
+                               tkTriplet.trk3Pt,
+                               tkTriplet.charge,
+                               unassigned);
 
-  l1t::TkTripletWord::unassigned_t unassigned = 0;
-  l1t::TkTripletWord bitTriplet(val,
-                                bitPt,
-                                bitEta,
-                                bitPhi,
-                                bitMass,
-                                bitCharge,
-                                bitDiTrackMinZ0,
-                                bitDiTrackMaxMass,
-                                bitDiTrackMinZ0,
-                                bitDiTrackMaxZ0,
-                                unassigned);
-
-  L1TrackTripletWordContainer->push_back(bitTriplet);
+  L1TrackTripletWordContainer->push_back(L1Triplet);
 
   iEvent.put(std::move(L1TrackTripletWordContainer), OutputWordName);
 }
@@ -406,7 +606,7 @@ double L1TrackTripletEmulatorProducer::FloatZ0FromBits(const L1TTTrackType &trac
 }
 
 void L1TrackTripletEmulatorProducer::fillDescriptions(ConfigurationDescriptions &descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
+  //The following says we do not know what parameters are allowed
   // Please change this to state exactly what you do use, even if it is no parameters
   ParameterSetDescription desc;
   desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"));

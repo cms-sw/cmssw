@@ -52,8 +52,8 @@ void Phase2OTValidateRecHitBase::dqmBeginRun(const edm::Run& iRun, const edm::Ev
 void Phase2OTValidateRecHitBase::fillOTRecHitHistos(const PSimHit* simhitClosest,
                                                     const Phase2TrackerRecHit1D* rechit,
                                                     const std::map<unsigned int, SimTrack>& selectedSimTrackMap,
-                                                    std::map<std::string, unsigned int>& nrechitLayerMapP_primary,
-                                                    std::map<std::string, unsigned int>& nrechitLayerMapS_primary) {
+                                                    std::map<int, unsigned int>& nrechitLayerMapP_primary,
+                                                    std::map<int, unsigned int>& nrechitLayerMapS_primary) {
   auto detId = rechit->geographicalId();
   // Get the geomdet
   const GeomDetUnit* geomDetunit(tkGeom_->idToDetUnit(detId));
@@ -61,7 +61,7 @@ void Phase2OTValidateRecHitBase::fillOTRecHitHistos(const PSimHit* simhitClosest
     return;
   // determine the detector we are in
   TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(detId);
-  std::string key = phase2tkutil::getOTHistoId(detId.rawId(), tTopo_);
+  int key = phase2tkutil::getNumericHistoId(detId.rawId(), tTopo_, 0.0, 6);
 
   LocalPoint lp = rechit->localPosition();
   auto simTrackIt(selectedSimTrackMap.find(simhitClosest->trackId()));
@@ -199,7 +199,8 @@ void Phase2OTValidateRecHitBase::bookHistograms(DQMStore::IBooker& ibooker,
 // -- Book Layer Histograms
 //
 void Phase2OTValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir) {
-  std::string key = phase2tkutil::getOTHistoId(det_id, tTopo_);
+  std::string folder = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, 6, false);
+  int key = phase2tkutil::getNumericHistoId(det_id, tTopo_, 0.0, 6);
   if (layerMEs_.find(key) == layerMEs_.end()) {
     ibooker.cd();
     RecHitME local_histos;
@@ -213,8 +214,8 @@ void Phase2OTValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, uns
     local_histos.delta_phi_S_endcaps =
         phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi_Strip_Endcaps"), ibooker);
 
-    ibooker.setCurrentFolder(subdir + "/" + key);
-    edm::LogInfo("Phase2OTValidateRecHitBase") << " Booking Histograms in : " << key;
+    ibooker.setCurrentFolder(subdir + "/" + folder);
+    edm::LogInfo("Phase2OTValidateRecHitBase") << " Booking Histograms in : " << folder;
 
     if (tkGeom_->getDetectorType(det_id) == TrackerGeometry::ModuleType::Ph2PSP) {
       local_histos.deltaX_P =
@@ -265,7 +266,7 @@ void Phase2OTValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, uns
 
       */
 
-      ibooker.setCurrentFolder(subdir + "/" + key + "/PrimarySimHits");
+      ibooker.setCurrentFolder(subdir + "/" + folder + "/PrimarySimHits");
       //all histos for Primary particles
       local_histos.numberRecHitsprimary_P =
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("nRecHits_Pixel_primary"), ibooker);
@@ -281,7 +282,7 @@ void Phase2OTValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, uns
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Pull_Y_Pixel_Primary"), ibooker);
     }  //if block for P
 
-    ibooker.setCurrentFolder(subdir + "/" + key);
+    ibooker.setCurrentFolder(subdir + "/" + folder);
     local_histos.deltaX_S =
         phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_X_Strip"), ibooker);
     local_histos.deltaY_S =
@@ -330,7 +331,7 @@ void Phase2OTValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, uns
         phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("Pull_Y_vs_eta_Pixel"), ibooker);
 
     //primary
-    ibooker.setCurrentFolder(subdir + "/" + key + "/PrimarySimHits");
+    ibooker.setCurrentFolder(subdir + "/" + folder + "/PrimarySimHits");
     local_histos.numberRecHitsprimary_S =
         phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("nRecHits_Strip_primary"), ibooker);
 

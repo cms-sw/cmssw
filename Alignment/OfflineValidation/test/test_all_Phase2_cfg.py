@@ -29,7 +29,14 @@ process.options.numberOfThreads = 8
 ###################################################################
 process.source = cms.Source("PoolSource",
                             fileNames = filesDefaultMC_TTbarPhase2RECO,
-                            duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
+                            duplicateCheckMode = cms.untracked.string('checkAllFilesOpened'),
+                            # Workaround after renaming SimDataFormats' ticl::AssociationMap 
+                            # TODO: revert after new relvals
+                            inputCommands = cms.untracked.vstring([
+                                "keep *",
+                                "drop ticlFractionTypeticlAssociationElementsSimClustersCaloParticlesticlAssociationMap_*_*_*",
+                                "drop ticlSharedEnergyTypefloatstdpairticlAssociationElementssticlTrackstersticlTrackstersticlAssociationMap_*_*_*",
+                            ])
                             )
 
 runboundary = 1
