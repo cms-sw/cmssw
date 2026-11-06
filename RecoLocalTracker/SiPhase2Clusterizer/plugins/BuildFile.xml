@@ -4,6 +4,8 @@
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="DataFormats/Phase2TrackerCluster"/>
 <use name="DataFormats/Phase2TrackerDigi"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/SiStripObjects"/>
 <use name="root"/>
 <library file="*.cc" name="Phase2TrackerClusterizerPlugin">
   <flags EDM_PLUGIN="1"/>
