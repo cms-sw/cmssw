@@ -43,6 +43,7 @@
   <use name="CommonTools/Utils"/>
   <use name="CommonTools/UtilAlgos"/>
   <use name="CommonTools/CandAlgos"/>
+  <use name="MuonAnalysis/MuonAssociators"/>
   <use name="PhysicsTools/JetMCUtils"/>
   <use name="RecoBTag/FeatureTools"/>
   <use name="RecoJets/JetAlgorithms"/>
