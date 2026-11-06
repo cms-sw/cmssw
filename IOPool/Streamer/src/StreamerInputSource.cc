@@ -5,6 +5,8 @@
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/uncompress.h"
 
+#include "TBufferFile.h"
+
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "DataFormats/Provenance/interface/ProductDescription.h"
@@ -41,7 +43,6 @@ namespace edm::streamer {
       : RawInputSource(pset, desc),
         tc_(getTClass(typeid(SendEvent))),
         dest_(init_size),
-        xbuf_(TBuffer::kRead, init_size),
         sendEvent_(),
         eventPrincipalHolder_(),
         processName_(),
@@ -200,6 +201,22 @@ namespace edm::streamer {
   }
 
   void StreamerInputSource::deserializeEventCommon(EventMsgView const& eventView, bool isMetaData) {
+    DecodedEvent decoded;
+    decodeEvent(eventView, dest_, decoded);
+
+    if (isMetaData) {
+      eventMetaDataChecksum_ = decoded.adler32_chksum;
+      sendEvent_ = std::move(decoded.sendEvent);
+      eventPrincipalHolder_ = std::move(decoded.eventPrincipalHolder);
+      return;
+    }
+
+    finishEvent(std::move(decoded));
+  }
+
+  void StreamerInputSource::decodeEvent(EventMsgView const& eventView,
+                                        std::vector<unsigned char>& dest,
+                                        DecodedEvent& decoded) const {
     if (eventView.code() != Header::EVENT)
       throw cms::Exception("StreamTranslation", "Event deserialization error")
           << "received wrong message type: expected EVENT, got " << eventView.code() << "\n";
@@ -210,9 +227,6 @@ namespace edm::streamer {
     unsigned long dest_size;  //(should be >= eventView.origDataSize())
 
     uint32_t adler32_chksum = cms::adler32((char const*)eventView.eventData(), eventView.eventLength());
-    //std::cout << "Adler32 checksum of event = " << adler32_chksum << std::endl;
-    //std::cout << "Adler32 checksum from header = " << eventView.adler32_chksum() << " "
-    //          << "host name = " << eventView.hostName() << " len = " << eventView.hostName_len() << std::endl;
     if (static_cast<uint32>(adler32_chksum) != eventView.adler32_chksum()) {
       // skip event (based on option?) or throw exception?
       throw cms::Exception("StreamDeserialization", "Checksum error")
@@ -222,42 +236,39 @@ namespace edm::streamer {
     if (origsize != 78 && origsize != 0) {
       // compressed
       dest_size = edm::streamer::uncompress::uncompressBuffer(
-          (unsigned char const*)eventView.eventData(), eventView.eventLength(), dest_, origsize);
+          (unsigned char const*)eventView.eventData(), eventView.eventLength(), dest, origsize);
     } else {  // not compressed
       // we need to copy anyway the buffer as we are using dest in xbuf
       dest_size = eventView.eventLength();
-      dest_.resize(dest_size);
-      unsigned char* pos = (unsigned char*)&dest_[0];
+      dest.resize(dest_size);
+      unsigned char* pos = (unsigned char*)&dest[0];
       unsigned char const* from = (unsigned char const*)eventView.eventData();
       std::copy(from, from + dest_size, pos);
     }
-    //TBuffer xbuf(TBuffer::kRead, dest_size,
-    //             (char const*) &dest[0],kFALSE);
-    //TBuffer xbuf(TBuffer::kRead, eventView.eventLength(),
-    //             (char const*) eventView.eventData(),kFALSE);
-    xbuf_.Reset();
-    xbuf_.SetBuffer(&dest_[0], dest_size, kFALSE);
+    TBufferFile xbuf(TBuffer::kRead, dest_size, &dest[0], kFALSE);
 
     //We do not yet know which EventPrincipal we will use, therefore
     // we are using a new EventPrincipalHolder as a proxy. We need to
     // make a new one instead of reusing the same one becuase when running
     // multi-threaded there will be multiple EventPrincipals being used
     // simultaneously.
-    eventPrincipalHolder_ = std::make_unique<EventPrincipalHolder>();  // propagate_const<T> has no reset() function
+    decoded.eventPrincipalHolder = std::make_unique<EventPrincipalHolder>();
     {
-      RefCoreStreamerGuard guard(eventPrincipalHolder_.get());
-      sendEvent_ = std::unique_ptr<SendEvent>(reinterpret_cast<SendEvent*>(xbuf_.ReadObjectAny(tc_)));
+      RefCoreStreamerGuard guard(decoded.eventPrincipalHolder.get());
+      decoded.sendEvent = std::unique_ptr<SendEvent>(reinterpret_cast<SendEvent*>(xbuf.ReadObjectAny(tc_)));
     }
 
-    if (sendEvent_.get() == nullptr) {
+    if (decoded.sendEvent.get() == nullptr) {
       throw cms::Exception("StreamTranslation", "Event deserialization error")
           << "got a null event from input stream\n";
     }
+    decoded.adler32_chksum = adler32_chksum;
+    decoded.lumi = eventView.lumi();
+  }
 
-    if (isMetaData) {
-      eventMetaDataChecksum_ = adler32_chksum;
-      return;
-    }
+  void StreamerInputSource::finishEvent(DecodedEvent&& decoded) {
+    sendEvent_ = std::move(decoded.sendEvent);
+    eventPrincipalHolder_ = std::move(decoded.eventPrincipalHolder);
 
     if (sendEvent_->metaDataChecksum() != eventMetaDataChecksum_) {
       throw cms::Exception("StreamTranslation") << " meta data checksum from event " << sendEvent_->metaDataChecksum()
@@ -274,9 +285,9 @@ namespace edm::streamer {
       setRunAuxiliary(runAuxiliary);
       resetLuminosityBlockAuxiliary();
     }
-    if (!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != eventView.lumi()) {
+    if (!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != decoded.lumi) {
       LuminosityBlockAuxiliary* luminosityBlockAuxiliary = new LuminosityBlockAuxiliary(
-          runAuxiliary()->run(), eventView.lumi(), sendEvent_->aux().time(), Timestamp::invalidTimestamp());
+          runAuxiliary()->run(), decoded.lumi, sendEvent_->aux().time(), Timestamp::invalidTimestamp());
       luminosityBlockAuxiliary->setProcessHistoryID(sendEvent_->processHistory().id());
       setLuminosityBlockAuxiliary(luminosityBlockAuxiliary);
     }
