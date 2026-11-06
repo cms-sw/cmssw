@@ -1,4 +1,4 @@
-<library file="*.cc" name="SimCalorimetryHGCalSimAlgos">
+<library file="*.cc" name="SimCalorimetryHGCalSimAlgosTest">
     <use name="SimCalorimetry/HGCalSimAlgos"/>
     <use name="CommonTools/UtilAlgos"/>
     <use name="CondFormats/HGCalObjects"/>
@@ -15,4 +15,4 @@
   <flags ALPAKA_BACKENDS="1"/>
 </bin>
 
-<test name="testHGCROCChannelFramer" command="${LOCALTOP}/stest/${SCRAM_ARCH}/HGCROCChannelFramerSerialSync"/>
+<test name="testHGCROCChannelFramer" command="${LOCALTOP}/test/${SCRAM_ARCH}/HGCROCChannelFramerSerialSync"/>
