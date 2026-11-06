@@ -44,7 +44,10 @@ G4ClassificationOfNewTrack Phase2StackingAction::ClassifyNewTrack(const G4Track*
     auto track = const_cast<G4Track*>(aTrack);
     const G4VProcess* creatorProc = aTrack->GetCreatorProcess();
     if (creatorProc == nullptr || pID == 0) {
-      MCTruthUtil::primary(track);
+      // Do not replace the existing CMS information when a transported primary is restacked.
+      if (track->GetCurrentStepNumber() == 0) {
+        MCTruthUtil::primary(track);
+      }
     } else {
       MCTruthUtil::updateSecondary(track);
     }
