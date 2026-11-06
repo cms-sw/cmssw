@@ -447,7 +447,7 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
       m_fileMetadatas(std::vector<FileMetadata>()) {
   edm::sortAndRemoveOverlaps(m_lumisToProcess);
 
-  if (m_catalog.fileNames(0).empty()) {
+  if (m_catalog.empty()) {
     m_nextItemType = edm::InputSource::ItemType::IsStop;
   } else {
     m_treeReaders[kIntIndex] = std::make_shared<TreeSimpleReader<Long64_t>>(MonitorElementData::Kind::INT, m_rescope);
@@ -490,18 +490,17 @@ edm::InputSource::ItemTypeInfo DQMRootSource::getNextItemType() { return m_nextI
 
 // We will read the metadata of all files and fill m_fileMetadatas vector
 std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
-  const int numFiles = m_catalog.fileNames(0).size();
+  const int numFiles = m_catalog.configuredFileNames().size();
   m_openFiles.reserve(numFiles);
 
-  for (auto& fileitem : m_catalog.fileCatalogItems()) {
+  for (auto const& configuredFileName : m_catalog.configuredFileNames()) {
     TFile* file = nullptr;
     std::string pfn;
-    std::string lfn;
     std::list<std::string> exInfo;
     //loop over names of a file, each of them corresponds to a data catalog
     bool isGoodFile(true);
     //get all names of a file, each of them corresponds to a data catalog
-    const std::vector<std::string>& fNames = fileitem.fileNames();
+    std::vector<std::string> fNames = m_catalog.physicalFileNames(configuredFileName);
     for (std::vector<std::string>::const_iterator it = fNames.begin(); it != fNames.end(); ++it) {
       // Try to open a file
       try {
@@ -537,7 +536,6 @@ std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
       if (file && !file->IsZombie()) {
         logFileAction("Successfully opened file ", it->c_str());
         pfn = *it;
-        lfn = fileitem.logicalFileName();
         break;
       } else {
         if (std::next(it) == fNames.end()) {
@@ -568,6 +566,7 @@ std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
       std::transform(guid->begin(), guid->end(), guid->begin(), (int (*)(int))std::toupper);
     }
 
+    std::string const& lfn = m_catalog.logicalFileName(configuredFileName);
     edm::Service<edm::JobReport> jr;
     auto jrToken = jr->inputFileOpened(
         pfn, lfn, std::string(), std::string(), "DQMRootSource", "source", *guid, std::vector<std::string>());
