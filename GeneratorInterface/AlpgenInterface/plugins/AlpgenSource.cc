@@ -101,15 +101,15 @@ AlpgenSource::AlpgenSource(const edm::ParameterSet &params, const edm::InputSour
       writeAlpgenWgtFile(params.getUntrackedParameter<bool>("writeAlpgenWgtFile", true)),
       writeAlpgenParFile(params.getUntrackedParameter<bool>("writeAlpgenParFile", true)),
       writeExtraHeader(params.getUntrackedParameter<bool>("writeExtraHeader", false)) {
-  std::vector<std::string> allFileNames = fileNames(0);
+  std::vector<std::string> physicalFileNames = catalog().allPFNsFromFirstCatalog();
 
   // Only one filename
-  if (allFileNames.size() != 1)
+  if (physicalFileNames.size() != 1)
     throw cms::Exception("Generator|AlpgenInterface") << "AlpgenSource needs exactly one file specified "
                                                          "for now."
                                                       << std::endl;
 
-  fileName_ = allFileNames[0];
+  fileName_ = physicalFileNames[0];
 
   // Strip the "file:" prefix
   if (fileName_.find("file:") != 0)

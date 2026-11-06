@@ -41,7 +41,7 @@ namespace {
   }
 
   template <typename T>
-  static void overrideFromPSet(char const *iName, edm::ParameterSet const &iPSet, T &iHolder, T const *&iPointer) {
+  void overrideFromPSet(char const *iName, edm::ParameterSet const &iPSet, T &iHolder, T const *&iPointer) {
     if (iPSet.exists(iName)) {
       iHolder = iPSet.getUntrackedParameter<T>(iName);
       iPointer = &iHolder;
@@ -75,10 +75,8 @@ namespace edm {
 
     SiteLocalConfigService::SiteLocalConfigService(ParameterSet const &pset)
         : m_url(pset.getUntrackedParameter<std::string>("siteLocalConfigFileUrl", defaultURL())),
-          m_trivialDataCatalogs(),
           m_dataCatalogs(),
           m_frontierConnect(),
-          m_rfioType("castor"),
           m_connected(false),
           m_cacheTempDir(),
           m_cacheTempDirPtr(nullptr),
@@ -149,22 +147,6 @@ namespace edm {
         freeaddrinfo(m_statisticsAddrInfo);
         m_statisticsAddrInfo = nullptr;
       }
-    }
-
-    std::vector<std::string> const &SiteLocalConfigService::trivialDataCatalogs() const {
-      if (!m_connected) {
-        static std::vector<std::string> const tmp{"file:PoolFileCatalog.xml"};
-        return tmp;
-      }
-
-      if (m_trivialDataCatalogs.empty()) {
-        cms::Exception ex("SiteLocalConfigService");
-        ex << "Did not find catalogs in event-data section in " << m_url;
-        ex.addContext("edm::SiteLocalConfigService::trivialDataCatalogs()");
-        throw ex;
-      }
-
-      return m_trivialDataCatalogs;
     }
 
     std::vector<edm::CatalogAttributes> const &SiteLocalConfigService::dataCatalogs() const {
@@ -284,8 +266,6 @@ namespace edm {
       return input;
     }
 
-    std::string const SiteLocalConfigService::rfioType(void) const { return m_rfioType; }
-
     std::string const *SiteLocalConfigService::sourceCacheTempDir() const { return m_cacheTempDirPtr; }
 
     double const *SiteLocalConfigService::sourceCacheMinFree() const { return m_cacheMinFreePtr; }
@@ -349,12 +329,11 @@ namespace edm {
       // <site-local-config>
       // <site name="FNAL">
       //   <subsite name="FNAL_SUBSITE"/>
-      //   <event-data>
-      //     <catalog url="trivialcatalog_file:/x/y/z.xml"/>
-      //     <rfiotype value="castor"/>
-      //   </event-data>
+      //   <data-access>
+      //     <catalog volume="..." protocol="..."/>
+      //     <catalog site="..." volume="..." protocol="..."/>
+      //   </data-access>
       //   <calib-data>
-      //     <catalog url="trivialcatalog_file:/x/y/z.xml"/>
       //     <frontier-connect>
       //       ... frontier-interpreted server/proxy xml ...
       //     </frontier-connect>
@@ -394,24 +373,6 @@ namespace edm {
             throw ex;
           }
           m_subSiteName = safe(subSite->Attribute("name"));
-        }
-
-        // Parsing of the event data section
-        auto eventData = site->FirstChildElement("event-data");
-        if (eventData) {
-          auto catalog = eventData->FirstChildElement("catalog");
-          if (catalog) {
-            m_trivialDataCatalogs.push_back(safe(catalog->Attribute("url")));
-            catalog = catalog->NextSiblingElement("catalog");
-            while (catalog) {
-              m_trivialDataCatalogs.push_back(safe(catalog->Attribute("url")));
-              catalog = catalog->NextSiblingElement("catalog");
-            }
-          }
-          auto rfiotype = eventData->FirstChildElement("rfiotype");
-          if (rfiotype) {
-            m_rfioType = safe(rfiotype->Attribute("value"));
-          }
         }
 
         //data-access
