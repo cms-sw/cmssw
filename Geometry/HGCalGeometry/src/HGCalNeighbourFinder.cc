@@ -1,4 +1,5 @@
-#include "Geometry/CaloTopology/interface/HGCalNeighbourFinder.h"
+
+#include "Geometry/HGCalGeometry/interface/HGCalNeighbourFinder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
 
@@ -25,7 +26,8 @@ constexpr int dvCell[6] = {-1, -1, 0, +1, +1, 0};
 constexpr int duWaf[6] = {0, +1, +1, 0, -1, -1};
 constexpr int dvWaf[6] = {-1, 0, +1, +1, 0, -1};
 
-HGCalNeighbourFinder::HGCalNeighbourFinder(const HGCalDDDConstants& hgc) : hgc_(hgc) {
+HGCalNeighbourFinder::HGCalNeighbourFinder(const HGCalGeometry* hgc)
+    : geom_(hgc), hgc_(hgc->topology().dddConstants()) {
   /* ----------------------------------------
      Fill the edgeIndex -> iu,iv mappings
      ---------------------------------------- */
@@ -163,9 +165,9 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
   bool partialWafer = hgc_.waferPartial(layer, waferU, waferV);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom")
-      << "HGCalNeighbourFinder:nearestNeighbour:input Layer:waferU:waderV:cellU:cellV|HD|edge|partial|placement "
-      << layer << "|" << waferU << ":" << waferV << "|" << iu << "|" << iv << "|" << HD << "|" << edgeIndex << "|"
-      << partialWafer << "|" << hgc_.placementIndex(id);
+      << "HGCalNeighbourFinder:nearestNeighbour:input Layer|waferU:waderV|cellU:cellV|HD|edge|partial|placement   "
+      << layer << "|" << waferU << ":" << waferV << "|" << iu << ":" << iv << "|" << HD << "|" << edgeIndex << "|"
+      << partialWafer << "|" << hgc_.placementIndex(id) << ":" << hgc_.placementIndexMod(id);
 #endif
 
   if (edgeIndex < 0) {  // Cell is not on the edge of a wafer (~80% of cells)
@@ -174,7 +176,7 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
       // Special treatment for partial wafers: some cells present in whole wafers do not exist
       for (int i = 0; i < 6; i++) {
         detIdVec[nn] = (detId & ~(iuMask | ivMask)) | (iu + duCell[i]) | ((iv + dvCell[i]) << ivShift);
-        if (hgc_.isValidSilicon(detIdVec[nn]))
+        if (geom_->validIntId(detIdVec[nn]))
           nn++;
         else
           detIdVec[nn] = 0;
@@ -241,7 +243,7 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
       detIdVec[nn] =
           (detId & ~(iuMask | ivMask)) | (iu + duCell[j] + mod) % mod | ((iv + dvCell[j] + mod) % mod << ivShift);
       if (partialWafer) {
-        if (!(hgc_.isValidSilicon(detIdVec[nn]))) {
+        if (!(geom_->validIntId(detIdVec[nn]))) {
           detIdVec[nn] = 0;
           nn--;
         }
@@ -249,6 +251,17 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
       nn++;
     }
     icount = nn;
+#ifdef EDM_ML_DEBUG
+    std::ostringstream st1;
+    st1 << "HGCalNeighbourFinder: Found " << nn << " candidate neighbours in the same wafer:\n";
+    for (int k = 0; k < nn; ++k) {
+      if (detIdVec[k] != 0) {
+        HGCSiliconDetId id(detIdVec[k]);
+        st1 << " [" << k << "] (" << id.waferU() << ":" << id.waferV() << "|" << id.cellU() << ":" << id.cellV() << ")";
+      }
+    }
+    edm::LogVerbatim("HGCalGeom") << st1.str();
+#endif
     /* --------------------------------------------------------------------------------
        There is a special case in partial wafer LD 1 (Top Half) where edgeIndex = 37 is
        not an edge cell. The result is slightly ugly but not crazy.
@@ -263,14 +276,15 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
     if (partialWafer && !HD && (edgeIndex == weirdPartialCell)) {
 #ifdef EDM_ML_DEBUG
       std::ostringstream st1;
+      st1 << "HGCalNeighbourFinder: for LD and edegeIndex == " << weirdPartialCell << " :";
       for (int k = 0; k < 8; ++k) {
         if (detIdVec[k] != 0) {
           HGCSiliconDetId id(detIdVec[k]);
-          st1 << " [" << k << "] (" << id.waferU() << "," << id.waferV() << ";" << id.cellU() << "," << id.cellV()
+          st1 << " [" << k << "] (" << id.waferU() << "," << id.waferV() << "|" << id.cellU() << "," << id.cellV()
               << ")";
         }
       }
-      edm::LogVerbatim("HGCalGeom") << "HGCalNeighbourFinder:" << st1.str();
+      edm::LogVerbatim("HGCalGeom") << st1.str();
 #endif
       return detIdVec;
     }
@@ -279,14 +293,23 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
        Second step: Find the wafer adjacent to this wafer side
        ------------------------------------------------------------------------------- */
     bool mirror = false;
-    int irot = hgc_.placementIndex(id);  //[theDetInterface placementIndexForWafer:DetId];
+    int irot = hgc_.placementIndexMod(id);  //[theDetInterface placementIndexForWafer:DetId];
     int idir = (iside + irot) % 6;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "Original irot " << irot << " idir " << (iside + irot) << ":" << idir;
+#endif
     if (irot > 5) {
       mirror = true;
       irot = (12 - irot) % 6;
       idir = (irot - iside + 5) % 6;
     }
-
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "edgeIndex= " << edgeIndex << " partial wafer= " << partialWafer
+                                  << " Wafer (u:v)=(" << waferU << ":" << waferV << "); Cell (u:v)=(" << iu << ":" << iv
+                                  << ") iside = " << iside << "; irot = " << irot << "; idir = " << idir
+                                  << "; iplace = " << hgc_.placementIndex(id) << "|" << hgc_.placementIndexMod(id)
+                                  << "; mirror = " << mirror;
+#endif
     unsigned int waferId = (detId & waferMask) >> waferShift;
 
     int wiu = waferId & iuMask;
@@ -300,31 +323,38 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
 
     int wiuNxt = wiu + duWaf[idir];
     int wivNxt = wiv + dvWaf[idir];
-
+    /*
     int wuId = abs(wiuNxt);
     if (wiuNxt < 0)
       wuId = wuId | signMask;
     int wvId = abs(wivNxt);
     if (wivNxt < 0)
       wvId = wvId | signMask;
-
+   
     unsigned int detIdNxt = (detId & ~(waferMask)) | (wuId | (wvId << ivShift)) << waferShift;
+    */
+    unsigned int detIdNxt = HGCSiliconDetId::waferUVset(detId, wiuNxt, wivNxt);
     HGCSiliconDetId idNxt(detIdNxt);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "HGCalNeighbourFinder: mirror|irot|idir " << mirror << ":" << irot << ":" << idir
-                                  << " ID " << idNxt;
+                                  << " ID " << idNxt << " Wafer " << wiu << ":" << wiv << " to " << wiuNxt << ":"
+                                  << wivNxt;
 #endif
 
     // Next wafer adjacent to this edge may not exist
     // (We could be on the edge of the HGCAL acceptance)
     // if so, we are done...
-    if (!(hgc_.waferExist(idNxt.layer(), idNxt.waferU(), idNxt.waferV())))
+    if (!(hgc_.waferExist(idNxt.layer(), idNxt.waferU(), idNxt.waferV()))) {
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "The wafer (" << idNxt.layer() << "|" << idNxt.waferU() << ":" << idNxt.waferV()
+                                    << ") does ot exist";
+#endif
       return detIdVec;
-
+    }
     /* -------------------------------------------------------------------------------
        Third step: locate the neighbour cells in the wafer specified by DetIdNxt
        ------------------------------------------------------------------------------- */
-    int jrot = hgc_.placementIndex(idNxt);
+    int jrot = hgc_.placementIndexMod(idNxt);
     if (jrot > 5)
       jrot = (12 - jrot) % 6;
 
@@ -340,7 +370,7 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
 #endif
 
     int maxIndex = 2 * densityNumber - 1;
-    int sum, newIndex, istart, iend;
+    uint32_t sum, newIndex, istart, iend;
 
     if (drot % 2 == 0) {
       // --- Ideally matched neighbour wafer (extended edge cells with truncated edge cells)
@@ -453,12 +483,19 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
                                   << ":" << newIndex << ":" << partialWafer;
 #endif
     // ---- Loop now adds the 1,2 or 3 cells in the adjacent wafer
-    for (int i = istart; i < iend; i++) {
+    for (uint32_t i = istart; i < iend; i++) {
       int iuNxt = iuEdge[(newIndex + i) % edgeCount];
       int ivNxt = ivEdge[(newIndex + i) % edgeCount];
       detIdVec[icount] = (detIdNxt & ~(iuMask | ivMask)) | iuNxt | (ivNxt << ivShift);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "HGCalNeighbourFinder: Test validity [" << i << "] partial " << partialWafer
+                                    << " (u = " << iuNxt << ", v = " << ivNxt << " ID " << std::hex << detIdVec[icount]
+                                    << std::dec << " Valid " << geom_->validIntId(detIdVec[icount]);
+#endif
+      if (geom_->validIntId(detIdVec[icount]))
+        detIdVec[icount] = geom_->validFullId(detIdVec[icount]);
       if (partialWafer) {
-        if (hgc_.isValidSilicon(detIdVec[icount]))
+        if (geom_->validDetId(DetId(detIdVec[icount])))
           icount++;
         else
           detIdVec[icount] = 0;
@@ -466,7 +503,7 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
         icount++;
 
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "HGCalNeighbourFinder: i|icount|iuNxt|ivNxtlayer " << i << ":" << icount << ":"
+      edm::LogVerbatim("HGCalGeom") << "HGCalNeighbourFinder: i|icount|iuNxt|ivNxt|layer " << i << ":" << icount << ":"
                                     << iuNxt << ":" << ivNxt << ":" << idNxt.layer();
 #endif
     }
