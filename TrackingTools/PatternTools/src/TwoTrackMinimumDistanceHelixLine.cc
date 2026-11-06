@@ -2,6 +2,7 @@
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <algorithm>
 #include <iostream>
 #include <iomanip>
 
@@ -127,13 +128,89 @@ bool TwoTrackMinimumDistanceHelixLine::calculate(const GlobalTrajectoryParameter
       thePhiH += (dPhiH * 0.8);
     }
     if (fabs(dPhiH) < qual) {
-      finalPoints();
-      return false;
+      // accept only a minimum of the distance (fct is -|p|^2/(2h) times its derivative)
+      // within one turn of the starting point
+      if (derVal * theh < 0. && (x1 - thePhiH) * (thePhiH - x2) >= 0.0) {
+        finalPoints();
+        return false;
+      }
+      LogDebug("TwoTrackMinimumDistanceHelixLine") << "Converged to a maximum of the distance or beyond one turn.";
+      break;
     }
+  }
+
+  // Fall back to a safeguarded search of the closest approach within one turn.
+  if (bracketedRoot(qual)) {
+    finalPoints();
+    return false;
   }
   LogDebug("TwoTrackMinimumDistanceHelixLine") << "Number of steps exceeded. Has not converged.";
   finalPoints();
   return true;
+}
+
+double TwoTrackMinimumDistanceHelixLine::distance2(double phiH) const {
+  // squared distance between the helix point at phiH and the line
+  double wx = X - theh * (sin(phiH) - thesinPhiH0);
+  double wy = Y - theh * (-cos(phiH) + thecosPhiH0);
+  double wz = Z - theh * thetanlambdaH * (phiH - thePhiH0);
+  double wp = wx * px + wy * py + wz * pz;
+  return wx * wx + wy * wy + wz * wz - wp * wp / (Ln * Ln);
+}
+
+bool TwoTrackMinimumDistanceHelixLine::bracketedRoot(const float qual) {
+  // Sample fct over one turn centred on the starting point. The distance has a minimum wherever
+  // theh * fct changes from positive to negative: refine each such bracket with Newton steps kept
+  // inside it, and keep the closest one.
+  constexpr int nScan = 32;
+  const double step = 2 * M_PI / nScan;
+  bool found = false;
+  double bestPhi = thePhiH0, bestD2 = 0.;
+  double phiA = thePhiH0 - M_PI, fA, fB, der;
+  oneIteration(phiA, fA, der);
+  for (int i = 1; i <= nScan; ++i) {
+    double phiB = thePhiH0 - M_PI + i * step;
+    oneIteration(phiB, fB, der);
+    double phi;
+    if (theh * fA > 0. && theh * fB <= 0. && safeRoot(phiA, phiB, fA, qual, phi)) {
+      double d2 = distance2(phi);
+      if (!found || d2 < bestD2) {
+        found = true;
+        bestPhi = phi;
+        bestD2 = d2;
+      }
+    }
+    phiA = phiB;
+    fA = fB;
+  }
+  thePhiH = bestPhi;
+  return found;
+}
+
+bool TwoTrackMinimumDistanceHelixLine::safeRoot(double lo, double hi, double fLo, const float qual, double& phi) const {
+  // orient the bracket so that fct(lo) < 0 <= fct(hi)
+  if (fLo > 0.)
+    std::swap(lo, hi);
+  double fct, der, dPhiH;
+  phi = 0.5 * (lo + hi);
+  for (int j = 1; j <= 100; ++j) {
+    oneIteration(phi, fct, der);
+    if (fct < 0.)
+      lo = phi;
+    else
+      hi = phi;
+    double newton = phi - fct / der;
+    if ((newton - lo) * (newton - hi) < 0.) {
+      dPhiH = fct / der;
+      phi = newton;
+    } else {
+      dPhiH = 0.5 * (hi - lo);
+      phi = lo + dPhiH;
+    }
+    if (fabs(dPhiH) < qual)
+      return true;
+  }
+  return false;
 }
 
 double TwoTrackMinimumDistanceHelixLine::firstAngle() const {

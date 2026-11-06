@@ -54,6 +54,9 @@ private:
   bool updateCoeffs();
   void finalPoints();
   bool oneIteration(double &thePhiH, double &fct, double &derivative) const;
+  double distance2(double phiH) const;
+  bool bracketedRoot(const float qual);
+  bool safeRoot(double lo, double hi, double fLo, const float qual, double &phi) const;
   GlobalPoint helixPoint, linePoint;
   double tL, linePath, helixPath;
   bool pointsUpdated;
