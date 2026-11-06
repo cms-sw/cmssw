@@ -1,6 +1,8 @@
 #ifndef HeterogeneousCore_AlpakaCore_interface_alpaka_Event_h
 #define HeterogeneousCore_AlpakaCore_interface_alpaka_Event_h
 
+#include <memory>
+
 #include "DataFormats/AlpakaCommon/interface/alpaka/DeviceProductType.h"
 #include "DataFormats/AlpakaCommon/interface/alpaka/EDMetadata.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -103,10 +105,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
         return deviceProductHandle;
       } else {
         if (not deviceProductHandle) {
-          return edm::Handle<T>(deviceProductHandle.whyFailedFactory());
+          return edm::Handle<T>(
+              std::shared_ptr<edm::HandleExceptionFactory const>(deviceProductHandle.whyFailedFactory()));
         }
         // this will try to re-use the queue from the deviceProduct if the queue from the Event metadata has not been set
-        T const& product = deviceProductHandle->getSynchronized(*metadata_);
+        T const& product = deviceProductHandle->template getSynchronized<EDMetadata>(*metadata_);
         queueUsed_ = true;
         return edm::Handle<T>(&product, deviceProductHandle.provenance());
       }
