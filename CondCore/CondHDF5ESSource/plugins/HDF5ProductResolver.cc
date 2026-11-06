@@ -30,6 +30,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/SignalSentry.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "CondFormats/Serialization/interface/InputMemoryBuffer.h"
 
 #include "h5_DataSet.h"
 #include "h5_Attribute.h"
@@ -260,8 +261,7 @@ void HDF5ProductResolver::threadFriendlyPrefetch(uint64_t iFileOffset,
     buffer = std::move(compressedBuffer);
   }
 
-  std::stringbuf sBuffer;
-  sBuffer.pubsetbuf(buffer.data(), buffer.size());
+  cond::serialization::InputMemoryBuffer sBuffer(buffer.data(), buffer.size());
   data_ = helper_->deserialize(sBuffer, iTypeName);
   if (data_.get() == nullptr) {
     throw cms::Exception("H5CondFailedDeserialization")

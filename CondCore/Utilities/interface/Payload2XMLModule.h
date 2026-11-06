@@ -9,6 +9,7 @@
 namespace py = pybind11;
 
 #include "CondFormats/Serialization/interface/Archive.h"
+#include "CondFormats/Serialization/interface/InputMemoryBuffer.h"
 
 #define XML_CONVERTER_NAME(CLASS_NAME) (std::string(#CLASS_NAME) + "2xml").c_str()
 
@@ -40,8 +41,7 @@ namespace {  // Avoid cluttering the global namespace.
     std::string write(const std::string &payloadData) {
       // now to convert
       std::unique_ptr<PayloadType> payload;
-      std::stringbuf sdataBuf;
-      sdataBuf.pubsetbuf(const_cast<char *>(payloadData.c_str()), payloadData.size());
+      cond::serialization::InputMemoryBuffer sdataBuf(payloadData.data(), payloadData.size());
 
       std::istream inBuffer(&sdataBuf);
       cond::serialization::InputArchive ia(inBuffer);

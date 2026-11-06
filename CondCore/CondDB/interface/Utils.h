@@ -29,6 +29,8 @@ namespace cond {
       }
       // clean up the spaces... ( to be removed after getting rid of reflex - that does not have spaces...)
       ret.erase(std::remove(ret.begin(), ret.end(), ' '), ret.end());
+      for (std::string::size_type p; (p = ret.find("std::__1::")) != std::string::npos;)
+        ret.erase(p + 5, 5);
       return ret;
     }
 
