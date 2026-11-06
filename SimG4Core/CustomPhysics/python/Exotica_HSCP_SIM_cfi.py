@@ -87,7 +87,10 @@ def get_hscp_particle_names_from_pdt(flavor, pdt_file_path):
 
     if not os.path.isabs(pdt_file_path):
         scram_arch = os.environ.get('SCRAM_ARCH', '')
-        pdt_file_path = os.path.join(os.environ.get('CMSSW_RELEASE_BASE', ''), 'external', scram_arch, 'data', pdt_file_path)
+        search_dirs = [d for d in os.environ.get('CMSSW_SEARCH_PATH', '').split(':') if d]
+        search_dirs.append(os.path.join(os.environ.get('CMSSW_RELEASE_BASE', ''), 'external', scram_arch, 'data'))
+        candidates = [os.path.join(d, pdt_file_path) for d in search_dirs]
+        pdt_file_path = next((c for c in candidates if os.path.isfile(c)), candidates[-1])
 
     with open(pdt_file_path, 'r') as handle:
         for raw_line in handle:
