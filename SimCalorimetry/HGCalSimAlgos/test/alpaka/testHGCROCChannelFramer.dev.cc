@@ -47,24 +47,24 @@ TEST_CASE("SimCalorimetry/HGCalSimAlgos test", "[HGCROCChannelFramer]") {
 
         //check if the unpacking matches the original generated values
         if (charMode) {
-          REQUIRE(unpackADC(packed, charMode) == adc);
-          REQUIRE(unpackADCm1(packed, charMode) == 0);
-          REQUIRE(unpackTOA(packed, charMode) == toa);
-          REQUIRE(unpackTcTp(packed, charMode) == tctp);
-          REQUIRE(totOK(unpackTOT(packed, charMode), tot));
+          REQUIRE(unpackADC_charMode(packed) == adc);
+          REQUIRE(unpackADCm1_charMode(packed) == 0);
+          REQUIRE(unpackTOA(packed) == toa);
+          REQUIRE(unpackTcTp(packed) == tctp);
+          REQUIRE(totOK(unpackTOT_charMode(packed), tot));
         } else {
           if (tc) {
-            REQUIRE(unpackADC(packed, charMode) == 0);
-            REQUIRE(unpackADCm1(packed, charMode) == adcm1);
-            REQUIRE(unpackTOA(packed, charMode) == toa);
-            REQUIRE(unpackTcTp(packed, charMode) == tctp);
-            REQUIRE(totOK(unpackTOT(packed, charMode), tot));
+            REQUIRE(unpackADC(packed) == 0);
+            REQUIRE(unpackADCm1(packed) == adcm1);
+            REQUIRE(unpackTOA(packed) == toa);
+            REQUIRE(unpackTcTp(packed) == tctp);
+            REQUIRE(totOK(unpackTOT(packed), tot));
           } else {
-            REQUIRE(unpackADC(packed, charMode) == adc);
-            REQUIRE(unpackADCm1(packed, charMode) == adcm1);
-            REQUIRE(unpackTOA(packed, charMode) == toa);
-            REQUIRE(unpackTcTp(packed, charMode) == tctp);
-            REQUIRE(totOK(unpackTOT(packed, charMode), 0));
+            REQUIRE(unpackADC(packed) == adc);
+            REQUIRE(unpackADCm1(packed) == adcm1);
+            REQUIRE(unpackTOA(packed) == toa);
+            REQUIRE(unpackTcTp(packed) == tctp);
+            REQUIRE(totOK(unpackTOT(packed), 0));
           }
         }
 
