@@ -2645,7 +2645,7 @@ steps['TIER0EXPRUN3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForExp
                           '--conditions':'auto:run3_data_express'
                           },steps['TIER0']])
 steps['ReAlCaHLT']={'-s':'ALCA:TkAlHLTTracks+TkAlHLTTracksZMuMu',
-                    '--conditions':'140X_dataRun3_Express_v3',
+                    '--conditions':'auto:run3_data_express',
                     '--scenario': 'pp',
                     '--data': '',
                     '--era':'Run3_2024',
@@ -2939,7 +2939,7 @@ steps['ALCAHARVDSIPIXELALIHGCOMBINED']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCa
                      '--customise':'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.lowerHitsPerStructure'}
 
 steps['ALCAHARVDSIPIXELALIHLTHGCOMBINED']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixelAliHLTHGC']),
-                     '--conditions':'140X_dataRun3_Express_v3',
+                     '--conditions':'auto:run3_data_express',
                      '--scenario':'pp',
                      '--era':'Run3_2024',
                      '--data':'',
@@ -3908,7 +3908,7 @@ steps['ALCAEXPSIPIXELALIRUN3']={'-s':'ALCAOUTPUT:TkAlZMuMu+TkAlMinBias,ALCA:Prom
                                 '--triggerResultsProcess': 'RECO'}
 
 steps['ALCAReAlCaHLTHGComb'] = {'-s': 'ALCA:PromptCalibProdSiPixelAliHLTHGC',
-                                '--conditions': '140X_dataRun3_Express_v3',
+                                '--conditions': 'auto:run3_data_express',
                                 '--customise': 'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.doNotFilterLS',
                                 '--scenario': 'pp',
                                 '--data': '',
@@ -3929,7 +3929,7 @@ steps['ALCAReAlCaHLTHGComb'] = {'-s': 'ALCA:PromptCalibProdSiPixelAliHLTHGC',
                                 }
 
 steps['ALCAReAlCaHLTHGCombZMUMU'] = {'-s': 'ALCA:PromptCalibProdSiPixelAliHLTHGC',
-                                     '--conditions': '140X_dataRun3_Express_v3',
+                                     '--conditions': 'auto:run3_data_express',
                                      '--customise': 'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.doNotFilterLS',
                                      '--scenario': 'pp',
                                      '--data': '',
