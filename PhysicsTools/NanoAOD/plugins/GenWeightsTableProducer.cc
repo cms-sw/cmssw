@@ -219,7 +219,7 @@ namespace {
     std::pair<float, float> scales;
     ScaleVarWeight(const std::string& id, const std::string& text, const std::string& muR, const std::string& muF)
         : wid(id), label(text), scales(stof_fortrancomp(muR), stof_fortrancomp(muF)) {}
-    bool operator<(const ScaleVarWeight& other) {
+    bool operator<(const ScaleVarWeight& other) const {
       return (scales == other.scales ? wid < other.wid : scales < other.scales);
     }
   };
