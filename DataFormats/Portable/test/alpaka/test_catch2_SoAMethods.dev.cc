@@ -85,9 +85,7 @@ struct checkNormalise {
 TEST_CASE("SoACustomizedMethods Alpaka", "[SoACustomizedMethods][Alpaka]") {
   auto const& devices = cms::alpakatools::devices<Platform>();
   if (devices.empty()) {
-    std::cout << "No devices available for the " << EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE)
-              << " backend, skipping.\n";
-    return;
+    FAIL("No devices available for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) " backend.");
   }
 
   for (auto const& device : devices) {
