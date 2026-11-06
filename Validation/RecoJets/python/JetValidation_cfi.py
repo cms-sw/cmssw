@@ -10,7 +10,7 @@ JetAnalyzerAk4Calo = DQMEDAnalyzer('JetTester',
                                     srcGen         = cms.InputTag("ak4GenJetsNoNu"),
                                     JetCorrections = cms.InputTag("newAk4CaloL2L3Corrector"),
                                     primVertex     = cms.InputTag("offlinePrimaryVertices"),
-                                    recoJetPtThreshold = cms.double(40),
+                                    recoJetPtThreshold = cms.double(20),
                                     matchGenPtThreshold                 = cms.double(20.0),
                                     RThreshold                     = cms.double(0.3)
                                     )
@@ -24,7 +24,7 @@ JetAnalyzerAk4PF = DQMEDAnalyzer('JetTester',
                                   srcGen         = cms.InputTag("ak4GenJetsNoNu"),
                                   JetCorrections = cms.InputTag("newAk4PFL1FastL2L3Corrector"),
                                   primVertex     = cms.InputTag("offlinePrimaryVertices"),
-                                  recoJetPtThreshold = cms.double(40),
+                                  recoJetPtThreshold = cms.double(20),
                                   matchGenPtThreshold                 = cms.double(20.0),
                                   RThreshold                     = cms.double(0.3)
                                   )
@@ -38,7 +38,7 @@ JetAnalyzerAk4PFCHS = DQMEDAnalyzer('JetTester',
                                   srcGen         = cms.InputTag("ak4GenJetsNoNu"),
                                   JetCorrections = cms.InputTag("newAk4PFCHSL1FastL2L3Corrector"),
                                   primVertex     = cms.InputTag("offlinePrimaryVertices"),
-                                  recoJetPtThreshold = cms.double(40),
+                                  recoJetPtThreshold = cms.double(20),
                                   matchGenPtThreshold                 = cms.double(20.0),
                                   RThreshold                     = cms.double(0.3)
                                   )
@@ -51,7 +51,7 @@ JetAnalyzerAk4PFPUPPI = DQMEDAnalyzer('JetTester',
                                   srcGen         = cms.InputTag("ak4GenJetsNoNu"),
                                   JetCorrections = cms.InputTag("newAk4PFPUPPIL1FastL2L3Corrector"),
                                   primVertex     = cms.InputTag("offlinePrimaryVertices"),
-                                  recoJetPtThreshold = cms.double(40),
+                                  recoJetPtThreshold = cms.double(20),
                                   matchGenPtThreshold                 = cms.double(20.0),
                                   RThreshold                     = cms.double(0.3)
                                   )
@@ -62,7 +62,7 @@ JetAnalyzerAk4PFCHSMiniAOD = DQMEDAnalyzer('JetTester',
                                   srcGen         = cms.InputTag("slimmedGenJets"),
                                   JetCorrections = cms.InputTag(""),#not called for MiniAOD
                                   primVertex     = cms.InputTag("offlineSlimmedPrimaryVertices"),
-                                  recoJetPtThreshold = cms.double(40),
+                                  recoJetPtThreshold = cms.double(20),
                                   matchGenPtThreshold                 = cms.double(20.0),
                                   RThreshold                     = cms.double(0.3)
                                   )
@@ -73,7 +73,7 @@ JetAnalyzerAk4PFPUPPIMiniAOD = DQMEDAnalyzer('JetTester',
                                   srcGen         = cms.InputTag("slimmedGenJets"),
                                   JetCorrections = cms.InputTag(""),#not called for MiniAOD
                                   primVertex     = cms.InputTag("offlineSlimmedPrimaryVertices"),
-                                  recoJetPtThreshold = cms.double(40),
+                                  recoJetPtThreshold = cms.double(20),
                                   matchGenPtThreshold                 = cms.double(20.0),
                                   RThreshold                     = cms.double(0.3)
                                   )
@@ -84,7 +84,7 @@ JetAnalyzerAk8PFPUPPIMiniAOD = DQMEDAnalyzer('JetTester',
                                   srcGen         = cms.InputTag("slimmedGenJetsAK8"),
                                   JetCorrections = cms.InputTag(""),#not called for MiniAOD
                                   primVertex     = cms.InputTag("offlineSlimmedPrimaryVertices"),
-                                  recoJetPtThreshold = cms.double(40),
+                                  recoJetPtThreshold = cms.double(20),
                                   matchGenPtThreshold                 = cms.double(20.0),
                                   RThreshold                     = cms.double(0.3)
                                   )
