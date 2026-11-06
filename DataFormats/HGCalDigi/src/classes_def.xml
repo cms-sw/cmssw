@@ -4,22 +4,6 @@
   <version ClassVersion="3" checksum="2587023721"/>
   </class>
 
-  <class name="HGCROCChannelDataFrame<HGCalDetId>" ClassVersion="3">
-    <version ClassVersion="3" checksum="2026905296"/>
-  </class>
-  <class name="HGCROCChannelDataFrame<HGCalElectronicsId>" ClassVersion="3">
-    <version ClassVersion="3" checksum="2054618736"/>
-  </class>
-
-  <class name="std::vector<HGCROCChannelDataFrame<HGCalDetId> >"/>
-  <class name="std::vector<HGCROCChannelDataFrame<HGCalElectronicsId> >"/>
-
-  <class name="edm::SortedCollection<HGCROCChannelDataFrame<HGCalDetId>, edm::StrictWeakOrdering<HGCROCChannelDataFrame<HGCalDetId> > >"/>
-  <class name="edm::Wrapper<edm::SortedCollection<HGCROCChannelDataFrame<HGCalDetId>, edm::StrictWeakOrdering<HGCROCChannelDataFrame<HGCalDetId> > > >" />
-
-  <class name="edm::SortedCollection<HGCROCChannelDataFrame<HGCalElectronicsId>, edm::StrictWeakOrdering<HGCROCChannelDataFrame<HGCalElectronicsId> > >"/>
-  <class name="edm::Wrapper<edm::SortedCollection<HGCROCChannelDataFrame<HGCalElectronicsId>, edm::StrictWeakOrdering<HGCROCChannelDataFrame<HGCalElectronicsId> > > >" />
-
   <class name="io_v1::PHGCSimAccumulator" ClassVersion="3">
     <version ClassVersion="3" checksum="2710878453"/>
   </class>
@@ -47,12 +31,35 @@
   </class>
   <class name="edm::Wrapper<HGCalSlinkEmulatorInfo>"/>
 
+  <class name="hgcaldigi::HGCalSimHitAccumHost"  rntupleStreamerMode="true"/>
+  <!-- ::Layout alias must be listed before the aliased-to type -->
+  <class name="hgcaldigi::HGCalSimHitAccumHost::Layout"/>
+  <class name="hgcaldigi::HGCalSimHitAccumSoA"/>
+  <class name="hgcaldigi::HGCalSimHitAccumSoA::View"/>
+  <class name="hgcaldigi::HGCalSimHitAccumSoALayout<128,false>"/>
+  <class name="edm::Wrapper<PortableHostCollection<hgcaldigi::HGCalSimHitAccumSoALayout<128,false> > >" splitLevel="0"/>
+
+  <class name="hgcaldigi::HGCalRealisticSimHitHost"  rntupleStreamerMode="true"/>
+  <!-- ::Layout alias must be listed before the aliased-to type -->
+  <class name="hgcaldigi::HGCalRealisticSimHitHost::Layout"/>
+  <class name="hgcaldigi::HGCalRealisticSimHitSoA"/>
+  <class name="hgcaldigi::HGCalRealisticSimHitSoA::View"/>
+  <class name="hgcaldigi::HGCalRealisticSimHitSoALayout<128,false>"/>
+  <class name="edm::Wrapper<PortableHostCollection<hgcaldigi::HGCalRealisticSimHitSoALayout<128,false> > >" splitLevel="0"/>
+
+  <class name="hgcaldigi::HGCalROCDigisAccumHost"  rntupleStreamerMode="true"/>
+  <!-- ::Layout alias must be listed before the aliased-to type -->
+  <class name="hgcaldigi::HGCalROCDigisAccumHost::Layout"/>
+  <class name="hgcaldigi::HGCalROCDigisAccumSoA"/>
+  <class name="hgcaldigi::HGCalROCDigisAccumSoA::View"/>
+  <class name="hgcaldigi::HGCalROCDigisAccumSoALayout<128,false>"/>
+  <class name="edm::Wrapper<PortableHostCollection<hgcaldigi::HGCalROCDigisAccumSoALayout<128,false> > >" splitLevel="0"/>
+
   <class name="hgcaldigi::HGCalDigiHost"  rntupleStreamerMode="true"/>
   <!-- ::Layout alias must be listed before the aliased-to type -->
   <class name="hgcaldigi::HGCalDigiHost::Layout"/>
   <class name="hgcaldigi::HGCalDigiSoA"/>
   <class name="hgcaldigi::HGCalDigiSoA::View"/>
-
   <class name="hgcaldigi::HGCalDigiSoALayout<128,false>"/>
   <class name="edm::Wrapper<PortableHostCollection<hgcaldigi::HGCalDigiSoALayout<128,false> > >" splitLevel="0"/>
 

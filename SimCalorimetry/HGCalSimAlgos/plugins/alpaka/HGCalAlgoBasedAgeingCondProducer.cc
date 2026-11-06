@@ -42,14 +42,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         denseIndexTkn_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("denseIndexer"));
         cellMappingToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("cellMappingSource"));
 
-        //radiation map
-        auto doseMapPath = iConfig.getParameter<edm::FileInPath>("doseMapURL");
-        const auto& doseMapURL = doseMapPath.fullPath();
+        //radiation map common to all the detector
+        auto doseMapURL = iConfig.getParameter<std::string>("doseMapURL");
         auto doseMapAlgo = iConfig.getParameter<uint32_t>("doseMapAlgo");
+        auto scaleByDoseFactor = iConfig.getParameter<double>("scaleByDoseFactor");
 
         //Si
         edm::ParameterSet siPSet = iConfig.getParameter<edm::ParameterSet>("si");
-        auto scaleByDoseFactor = siPSet.getParameter<double>("scaleByDoseFactor");
         std::vector<double> ileakParam(siPSet.getParameter<std::vector<double>>("ileakParam"));
         std::vector<double> cceParam120(siPSet.getParameter<edm::ParameterSet>("cceParams")
                                             .template getParameter<std::vector<double>>("cceParam120"));
@@ -79,16 +78,29 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         edm::ParameterSetDescription desc;
         desc.add<edm::ESInputTag>("denseIndexer", edm::ESInputTag(""))->setComment("Dense indexer SoA source");
         desc.add<edm::ESInputTag>("cellMappingSource", edm::ESInputTag(""))->setComment("Cell mapping source");
-        desc.add<edm::FileInPath>("doseMapURL")->setComment("dose map file");
+
+        //radiation map parameters
+        desc.add<std::string>("doseMapURL")->setComment("dose map file");
         desc.add<uint32_t>("doseMapAlgo")->setComment("fluence algo to use");
         desc.add<double>("scaleByDoseFactor")->setComment("dose scaling factor");
-        desc.add<std::vector<double>>("ileakParam")->setComment("leakage current parameterization");
+
+        //si ageing parameters
+        edm::ParameterSetDescription siDesc;
+        siDesc.add<std::vector<double>>("ileakParam");
         edm::ParameterSetDescription cceDesc;
         cceDesc.add<std::vector<double>>("cceParam120");
         cceDesc.add<std::vector<double>>("cceParam200");
         cceDesc.add<std::vector<double>>("cceParam300");
-        desc.add<edm::ParameterSetDescription>("cceParams", cceDesc)
-            ->setComment("charge collection efficiency parameterizations");
+        siDesc.add<edm::ParameterSetDescription>("cceParams", cceDesc);
+        desc.add<edm::ParameterSetDescription>("si", siDesc)->setComment("Si sensor main ageing parameters");
+
+        //sipm-on-tile ageing parameters
+        edm::ParameterSetDescription sipmDesc;
+        sipmDesc.add<double>("refIdark");
+        sipmDesc.add<double>("refXtalk");
+        desc.add<edm::ParameterSetDescription>("sipm", sipmDesc)
+            ->setComment("SiPM-on-tile sensor main ageing parameters");
+
         descriptions.addWithDefaultLabel(desc);
       }
 
@@ -119,7 +131,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           bool isSiPM = cell_info_view[cell_info_idx].isSiPM();
 
           // unconnected channels
-          if (chType < 0) {
+          if (chType < 0 || did.det() == 0) {
             ac_view[i].signal() = 0;
             ac_view[i].signalScale() = 0;
             ac_view[i].enc() = 0;
