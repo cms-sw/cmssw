@@ -17,6 +17,7 @@
 #include <fstream>
 #include <memory>
 #include <queue>
+#include <unistd.h>
 
 namespace dqmservices {
   using namespace edm::streamer;

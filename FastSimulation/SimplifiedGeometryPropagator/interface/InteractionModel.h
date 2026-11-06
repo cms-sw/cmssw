@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/ProducesCollector.h"
 
+#include <ostream>
 #include <string>
 #include <vector>
 #include <memory>

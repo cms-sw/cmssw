@@ -16,6 +16,7 @@ BTLDetId BTLDetId::geographicalId(CrysLayout lay) const {
 }
 
 #include <iomanip>
+#include <sstream>
 
 namespace io_v1 {
   std::ostream& operator<<(std::ostream& os, const BTLDetId& id) {

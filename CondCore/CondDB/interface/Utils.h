@@ -13,6 +13,7 @@
 #include <pwd.h>
 #include <climits>
 #include <regex>
+#include <map>
 
 namespace cond {
 
