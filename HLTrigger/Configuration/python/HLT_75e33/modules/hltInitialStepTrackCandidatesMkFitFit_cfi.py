@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 hltInitialStepTrackCandidatesMkFitFit = cms.EDProducer("MkFitFitProducer",
     config = cms.ESInputTag("","hltInitialStepTrackCandidatesMkFitConfig"),
     eventOfHits = cms.InputTag("hltMkFitEventOfHits"),
-    limitConcurrency = cms.untracked.bool(False),
+    limitConcurrency = cms.untracked.bool(True),
     mightGet = cms.optional.untracked.vstring,
     mkFitPixelHits = cms.InputTag("hltMkFitSiPixelHits"),
     mkFitSilent = cms.untracked.bool(True),
