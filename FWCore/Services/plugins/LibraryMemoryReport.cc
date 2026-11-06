@@ -42,15 +42,15 @@ namespace edm::service {
     if (allModules_) {
       registry.watchPostModuleConstruction([this](edm::ModuleDescription const& module) {
         report("postModuleConstruction moduleLabel=\"" + module.moduleLabel() + "\" moduleType=\"" +
-                   module.moduleName() + "\"");
+               module.moduleName() + "\"");
       });
       registry.watchPostSourceConstruction([this](edm::ModuleDescription const& module) {
         report("postSourceConstruction moduleLabel=\"" + module.moduleLabel() + "\" moduleType=\"" +
-                   module.moduleName() + "\"");
+               module.moduleName() + "\"");
       });
       registry.watchPostESModuleConstruction([this](edm::eventsetup::ComponentDescription const& description) {
-        report("postESModuleConstruction moduleLabel=\"" + description.label_ + "\" moduleType=\"" +
-                   description.type_ + "\"");
+        report("postESModuleConstruction moduleLabel=\"" + description.label_ + "\" moduleType=\"" + description.type_ +
+               "\"");
       });
     }
   }

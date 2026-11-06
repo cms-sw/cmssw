@@ -93,7 +93,7 @@ namespace {
       }
       // The path is needed only for the per-library information (shared objects and PCMs)
       if (collectLibraryPaths and (mapping.section == edm::service::SmapsSection::kSharedObject or
-                                mapping.section == edm::service::SmapsSection::kPcm)) {
+                                   mapping.section == edm::service::SmapsSection::kPcm)) {
         mapping.path.assign(path);
       }
     } else if (path == "[stack]") {
@@ -116,10 +116,10 @@ namespace {
   }
 }  // namespace
 
-  // Parses the content of an smaps file read from the open file descriptor fd.
-  // The per-library information (SmapsInfo::libraries) is collected only if
-  // collectLibraryPaths is true, because it requires memory allocations.
-  // Returns an empty optional if reading the file failed.
+// Parses the content of an smaps file read from the open file descriptor fd.
+// The per-library information (SmapsInfo::libraries) is collected only if
+// collectLibraryPaths is true, because it requires memory allocations.
+// Returns an empty optional if reading the file failed.
 
 namespace edm::service {
   std::optional<SmapsInfo> parseProcSmaps(int fd, bool collectLibraryPaths) {
