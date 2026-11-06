@@ -51,6 +51,8 @@ void EcalLiteDTUCoder::encode(const EcalSamples& ecalSamples,
   findGains(detId, gains);
   findIntercalibConstant(detId, icalconst);
 
+  auto const gevToADCConst = ecalPh2::MAXADC / (m_maxEneEB * icalconst);
+
   std::array<CaloSamples, ecalPh2::NGAINS> noiseframe = {
       CaloSamples(detId, nSamples),
       CaloSamples(detId, nSamples),
@@ -74,20 +76,20 @@ void EcalLiteDTUCoder::encode(const EcalSamples& ecalSamples,
     findPedestal(detId, igain, pedestal, width);
 
     // absolute value for the trueRMS
-    // pedestal RMS with the quantization error RMS of 1/sqrt(12) removed
-    auto const trueRMS = std::sqrt(std::abs(width * width - 1. / 12.));
+    // pedestal RMS with the quantization error RMS removed
+    auto const trueRMS = std::sqrt(std::abs(width * width - m_quantRMS2));
 
-    auto const lsb = m_maxEneEB / (ecalPh2::MAXADC * gains[igain]);
+    auto const gevToADCConv = gains[igain] * gevToADCConst;
 
     for (int i(0); i != nSamples; ++i) {
       double asignal = 0;
       if (!m_PreMix1) {
-        asignal = pedestal + ecalSamples[i] / (lsb * icalconst) + trueRMS * noiseframe[igain][i];
+        asignal = pedestal + ecalSamples[i] * gevToADCConv + trueRMS * noiseframe[igain][i];
         // Analog signal value for each sample in ADC.
         // It is corrected by the intercalibration constants
       } else {
         // no noise nor pedestal when premixing
-        asignal = ecalSamples[i] / (lsb * icalconst);
+        asignal = ecalSamples[i] * gevToADCConv;
       }
 
       auto const adc = std::round(asignal);

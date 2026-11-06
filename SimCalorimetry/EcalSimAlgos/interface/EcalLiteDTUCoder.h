@@ -73,6 +73,8 @@ private:
   unsigned int const m_lowGainPreSamples;   // number of samples in low gain before the first gain switched sample
   unsigned int const m_lowGainPostSamples;  // number of samples in low gain after the last gain switched sample
 
+  static constexpr double m_quantRMS2 = 1. / 12.;  // square of quantization error RMS 1/sqrt(12)
+
   std::array<Noisifier*, ecalPh2::NGAINS> const m_ebCorrNoise;
 };
 
