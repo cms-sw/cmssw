@@ -21,12 +21,14 @@ private:
 
   int level_;
   std::string outputFileName_;
+  std::string geometryVersion_;
 };
 
 DumpMkFitGeometry::DumpMkFitGeometry(const edm::ParameterSet& config)
     : mkfGeoToken_{esConsumes()},
       level_(config.getUntrackedParameter<int>("level", 1)),
-      outputFileName_(config.getUntrackedParameter<std::string>("outputFileName", "cmsRecoGeo.root")) {}
+      outputFileName_(config.getUntrackedParameter<std::string>("outputFileName", "cmsRecoGeo.root")),
+      geometryVersion_(config.getUntrackedParameter<std::string>("geometryVersion", "")) {}
 
 void DumpMkFitGeometry::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& mkfg = iSetup.getData(mkfGeoToken_);
@@ -36,8 +38,9 @@ void DumpMkFitGeometry::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if (outputFileName_.empty()) {
     edm::LogInfo("DumpMkFitGeometry") << "no file-name specified, not dumping binary file";
   } else {
-    edm::LogInfo("DumpMkFitGeometry") << "binary file = '" << outputFileName_ << "'";
-    ti.write_bin_file(outputFileName_);
+    edm::LogInfo("DumpMkFitGeometry") << "binary file = '" << outputFileName_ << "', geometry version = '"
+                                      << geometryVersion_ << "'";
+    ti.write_bin_file(outputFileName_, geometryVersion_);
   }
 
   ti.print_tracker(level_);

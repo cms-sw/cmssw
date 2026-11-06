@@ -225,7 +225,8 @@ namespace mkfit {
                                  MPlexQF& outChi2,
                                  const int N_proc,
                                  const MPlexQI* doCPE = nullptr,
-                                 cpe_func cpe_corr_func = nullptr);
+                                 cpe_func cpe_corr_func = nullptr,
+                                 bool use_param_b_field = false);
 
 }  // end namespace mkfit
 #endif
