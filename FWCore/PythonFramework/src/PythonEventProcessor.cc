@@ -15,6 +15,7 @@
 #include "oneapi/tbb/task_arena.h"
 
 // user include files
+#include "FWCore/Concurrency/interface/numaLocality.h"
 #include "FWCore/PythonFramework/interface/PythonEventProcessor.h"
 #include "FWCore/PythonParameterSet/interface/PyBind11ProcessDesc.h"
 
@@ -52,6 +53,12 @@ namespace {
     // check the "options" ParameterSet
     std::shared_ptr<edm::ParameterSet> pset = iDesc->getProcessPSet();
     auto threadsInfo = threadOptions(*pset);
+
+    // with numaLocality, set a local memory policy before the TBB worker threads are created, so that they inherit it
+    if (pset->exists("options") and
+        pset->getUntrackedParameterSet("options").getUntrackedParameter<bool>("numaLocality", false)) {
+      edm::numa::setLocalMemoryPolicy();
+    }
 
     threadsInfo.nThreads_ = edm::setNThreads(threadsInfo.nThreads_, threadsInfo.stackSize_, tsiPtr);
     nThreads = threadsInfo.nThreads_;
