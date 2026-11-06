@@ -15,16 +15,18 @@ namespace hgcaldigi {
   using TimedROCDigiI = Eigen::Matrix<uint32_t, kTimeBins, 1>;
 
   GENERATE_SOA_LAYOUT(HGCalSimHitAccumSoALayout,
-                      SOA_COLUMN(TimedAccumulatorF, sumE),
-                      SOA_COLUMN(TimedAccumulatorF, sumExT))
+                      SOA_EIGEN_COLUMN(TimedAccumulatorF, sumE),
+                      SOA_EIGEN_COLUMN(TimedAccumulatorF, sumExT))
   using HGCalSimHitAccumSoA = HGCalSimHitAccumSoALayout<>;
 
   GENERATE_SOA_LAYOUT(HGCalRealisticSimHitSoALayout,
-                      SOA_COLUMN(TimedAccumulatorF, sumQ),
-                      SOA_COLUMN(TimedAccumulatorF, avgTOA))
+                      SOA_EIGEN_COLUMN(TimedAccumulatorF, sumQ),
+                      SOA_EIGEN_COLUMN(TimedAccumulatorF, avgTOA))
   using HGCalRealisticSimHitSoA = HGCalRealisticSimHitSoALayout<>;
 
-  GENERATE_SOA_LAYOUT(HGCalROCDigisAccumSoALayout, SOA_COLUMN(TimedROCDigiI, word), SOA_COLUMN(TimedROCDigiI, status))
+  GENERATE_SOA_LAYOUT(HGCalROCDigisAccumSoALayout,
+                      SOA_EIGEN_COLUMN(TimedROCDigiI, word),
+                      SOA_EIGEN_COLUMN(TimedROCDigiI, status))
   using HGCalROCDigisAccumSoA = HGCalROCDigisAccumSoALayout<>;
 
 }  // namespace hgcaldigi

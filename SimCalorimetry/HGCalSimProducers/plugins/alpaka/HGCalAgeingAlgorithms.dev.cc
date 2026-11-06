@@ -29,7 +29,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       constexpr float keV2MIP = 1. / 675.0;
 
       // helper for common operations
-      auto scaleResponse = [&](auto sumQ, auto avgTOA, float k_fact) {
+      auto scaleResponse = [&](auto& sumQ, auto& avgTOA, float& k_fact) {
         for (auto j = 0; j < hgcaldigi::kTimeBins; j++) {
           sumQ(j, 0) = k_fact * sumQ(j, 0);
           avgTOA(j, 0) = k_fact * avgTOA(j, 0);
