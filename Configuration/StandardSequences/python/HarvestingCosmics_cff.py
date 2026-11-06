@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Configuration.DQMOfflineCosmics_SecondStep_cff import *
 from DQMOffline.Configuration.DQMOfflineCosmics_Certification_cff import *
-from DQMOffline.Configuration.DQMOfflineCosmics_cff import *
 
 from Validation.Configuration.postValidation_cff import *
 from HLTriggerOffline.Common.HLTValidationHarvest_cff import *
