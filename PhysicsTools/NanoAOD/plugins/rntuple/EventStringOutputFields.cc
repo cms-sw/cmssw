@@ -3,7 +3,7 @@
 
 void EventStringOutputFields::registerToken(const edm::EDGetToken &token) { m_tokens.push_back(token); }
 
-void EventStringOutputFields::createFields(RNTupleModel &model) {
+void EventStringOutputFields::createFields(ROOT::RNTupleModel &model) {
   m_evstrings = RNTupleFieldPtr<std::vector<std::string>>("EventStrings", "", model);
 }
 
