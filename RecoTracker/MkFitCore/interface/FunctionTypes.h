@@ -27,7 +27,7 @@ namespace mkfit {
   using filter_candidates_cf = bool(const TrackCand &, const MkJob &);
   using filter_candidates_func = std::function<filter_candidates_cf>;
 
-  using clean_duplicates_cf = void(TrackVec &, const IterationConfig &, const TrackerInfo &);
+  using clean_duplicates_cf = void(TrackVec &, const IterationConfig &, const TrackerInfo &, const BeamSpot &);
   using clean_duplicates_func = std::function<clean_duplicates_cf>;
 
   using track_score_cf = float(const int nfoundhits,

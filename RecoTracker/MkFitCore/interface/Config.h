@@ -127,6 +127,9 @@ namespace mkfit {
     extern const float maxdcth;
     extern const float maxcth_ob;
     extern const float maxcth_fw;
+    extern const float mindeta_p2;
+    extern const float maxeta_ob_p2;
+    extern const float maxeta_fw_p2;
 
     // ================================================================
 
