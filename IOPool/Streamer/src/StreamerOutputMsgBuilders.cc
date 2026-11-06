@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <vector>
 #include <zlib.h>
+#include <lz4hc.h>
 
 namespace edm::streamer {
   StreamerOutputMsgBuilders::Parameters StreamerOutputMsgBuilders::parameters(ParameterSet const& ps) {
@@ -65,6 +66,9 @@ namespace edm::streamer {
       } else if (compressionAlgoStr_ == "ZSTD") {
         compressionAlgo_ = ZSTD;
         maxCompressionLevel = 20;
+      } else if (compressionAlgoStr_ == "LZ4") {
+        compressionAlgo_ = LZ4;
+        maxCompressionLevel = LZ4HC_CLEVEL_MAX;
       } else if (compressionAlgoStr_ == "UNCOMPRESSED") {
         compressionLevel_ = 0;
         useCompression_ = false;
@@ -301,8 +305,11 @@ namespace edm::streamer {
     desc.addUntracked<bool>("use_compression", true)
         ->setComment("If True, compression will be used to write streamer file.");
     desc.addUntracked<std::string>("compression_algorithm", "ZLIB")
-        ->setComment("Compression algorithm to use: UNCOMPRESSED, ZLIB, LZMA or ZSTD");
-    desc.addUntracked<int>("compression_level", 1)->setComment("Compression level to use on serialized ROOT events");
+        ->setComment("Compression algorithm to use: UNCOMPRESSED, ZLIB, LZMA, ZSTD or LZ4");
+    desc.addUntracked<int>("compression_level", 1)
+        ->setComment(
+            "Compression level to use on serialized ROOT events: 1-9 for ZLIB, 0-9 for LZMA, 1-20 for ZSTD, 1-12 for "
+            "LZ4 (1 fast, 2 mid, 3-12 LZ4 HC)");
     desc.addUntracked<int>("lumiSection_interval", 0)
         ->setComment(
             "If 0, use lumi section number from event.\n"
