@@ -1,5 +1,7 @@
 #include <vector>
 #include <array>
+// Must precede the first SoA header: HGCalSoARecHits/HGCalSoAClusters have Eigen columns
+#include <Eigen/Core>
 #include "DataFormats/HGCalReco/interface/MtdSoA.h"
 #include "DataFormats/HGCalReco/interface/MtdHostCollection.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
