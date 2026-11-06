@@ -1,6 +1,7 @@
 <use name="FWCore/Concurrency"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Framework"/>
+<use name="FWCore/Utilities"/>
 <use name="heppdt"/>
 <use name="clhep"/>
 <use name="hepmc"/>
