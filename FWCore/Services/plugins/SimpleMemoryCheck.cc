@@ -27,8 +27,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "ProcInfoFetcher.h"
-#include "ProcSmaps.h"
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -40,6 +38,9 @@
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include "ProcInfoFetcher.h"
+#include "ProcSmaps.h"
 
 #include <fstream>
 #include <iostream>
@@ -101,7 +102,6 @@ namespace edm {
 
     private:
       ProcInfo fetch();
-      SmapsInfo fetchSmaps();
       JemallocInfo fetchJemalloc() const;
       double pageSize() const { return pg_size_; }
       double averageGrowthRate(double current, double past, int count);
@@ -114,18 +114,14 @@ namespace edm {
       void andPrint(const std::string& type, const std::string& mdlabel, const std::string& mdname) const;
       void updateAndPrint(const std::string& type, const std::string& mdlabel, const std::string& mdname);
 
-      // Upon success returns an optional without value
-      // Upon failure returns the name of the file the function attempted to open
-      std::optional<std::string> openFilesNoThrow();
-      void openFiles();
-
       ProcInfo a_;
       ProcInfo b_;
       ProcInfo max_;
       edm::propagate_const<ProcInfo*> current_;
       edm::propagate_const<ProcInfo*> previous_;
 
-      SmapsInfo currentSmaps_;
+      // Empty if the smaps file has not been read or reading failed
+      std::optional<SmapsInfo> currentSmaps_;
 
       ProcInfoFetcher piFetcher_;
       double pg_size_;
@@ -144,8 +140,6 @@ namespace edm {
       std::atomic<edm::EventID> mostRecentlyStartedEvent_;
 
       mallctl_t je_mallctl = nullptr;
-
-      bool smapsFileAvailable_ = false;
 
       //Rates of growth
       double growthRateVsize_;
@@ -172,10 +166,10 @@ namespace edm {
           rss = t->current_->rss;
           deltaRss = deltaR;
           monitorPssAndPrivate = t->monitorPssAndPrivate_;
-          if (monitorPssAndPrivate) {
-            privateSize = t->currentSmaps_.private_;
-            pss = t->currentSmaps_.pss_;
-            anonHugePages = t->currentSmaps_.anonHugePages_;
+          if (monitorPssAndPrivate and t->currentSmaps_.has_value()) {
+            privateSize = t->currentSmaps_->private_;
+            pss = t->currentSmaps_->pss_;
+            anonHugePages = t->currentSmaps_->anonHugePages_;
           }
           if (t->showJemallocInfo_) {
             jemalloc = t->fetchJemalloc();
@@ -274,10 +268,6 @@ namespace edm {
   }  // namespace service
 }  // namespace edm
 
-#ifdef __linux__
-#define LINUX 1
-#endif
-
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -297,8 +287,6 @@ namespace edm {
     }
 
     ProcInfo SimpleMemoryCheck::fetch() { return piFetcher_.fetch(); }
-
-    SmapsInfo SimpleMemoryCheck::fetchSmaps() { return readProcSmaps(); }
 
     JemallocInfo SimpleMemoryCheck::fetchJemalloc() const {
       JemallocInfo info;
@@ -356,7 +344,6 @@ namespace edm {
           monitorPssAndPrivate_(iPS.getUntrackedParameter<bool>("monitorPssAndPrivate")),
           count_(),
           sampleEveryNSeconds_(iPS.getUntrackedParameter<unsigned int>("sampleEveryNSeconds")),
-          smapsFileAvailable_(false),
           growthRateVsize_(),
           growthRateRss_(),
           moduleSummaryRequested_(iPS.getUntrackedParameter<bool>("moduleMemorySummary")),
@@ -366,7 +353,11 @@ namespace edm {
       std::ostringstream ost;
 
       if (monitorPssAndPrivate_) {
-        openFiles();
+        // The PSS and private memory can be monitored only if smaps can be read
+        currentSmaps_ = readProcSmaps();
+        if (not currentSmaps_.has_value()) {
+          throw Exception(errors::Configuration) << "Failed to read smaps file /proc/self/smaps";
+        }
       }
 
       iReg.watchPostEndJob(this, &SimpleMemoryCheck::postEndJob);
@@ -456,24 +447,6 @@ namespace edm {
       descriptions.add("SimpleMemoryCheck", desc);
     }
 
-    std::optional<std::string> SimpleMemoryCheck::openFilesNoThrow() {
-#ifdef LINUX
-      std::ifstream smaps("/proc/self/smaps");
-      smapsFileAvailable_ = static_cast<bool>(smaps);
-      if (not smapsFileAvailable_) {
-        return "/proc/self/smaps";
-      }
-#endif
-      return {};
-    }
-
-    void SimpleMemoryCheck::openFiles() {
-      auto smapsFileNameIfFailed = openFilesNoThrow();
-      if (smapsFileNameIfFailed.has_value()) {
-        throw Exception(errors::Configuration) << "Failed to open smaps file " << *smapsFileNameIfFailed << std::endl;
-      }
-    }
-
     void SimpleMemoryCheck::postBeginJob() {
       growthRateVsize_ = current_->vsize;
       growthRateRss_ = current_->rss;
@@ -531,12 +504,7 @@ namespace edm {
       }
       std::shared_ptr<void> guard(
           nullptr, [this](void const*) { measurementUnderway_.store(false, std::memory_order_release); });
-      if (not smapsFileAvailable_) {
-        openFilesNoThrow();
-      }
-      if (smapsFileAvailable_) {
-        currentSmaps_ = fetchSmaps();
-      }
+      currentSmaps_ = readProcSmaps();
       update();
       andPrintAlways("earlyTermination", "", "", true);
       updateMax();
@@ -549,7 +517,7 @@ namespace edm {
           ++count_;
           update();
           if (monitorPssAndPrivate_) {
-            currentSmaps_ = fetchSmaps();
+            currentSmaps_ = readProcSmaps();
           }
           auto e = mostRecentlyStartedEvent_.load();
           andPrint("sampling", "", "");
@@ -570,28 +538,25 @@ namespace edm {
         update();
         log << "MemoryReport> EndJob: virtual size " << current_->vsize << " Mbytes, RSS " << current_->rss
             << " Mbytes";
-        // extract smaps information if file open succeeded
-        if (not smapsFileAvailable_) {
-          openFilesNoThrow();
-        }
-        if (smapsFileAvailable_) {
-          currentSmaps_ = fetchSmaps();
-          auto soRss = currentSmaps_.sectionRss_[static_cast<unsigned>(SmapsSection::kSharedObject)];
-          auto pcmRss = currentSmaps_.sectionRss_[static_cast<unsigned>(SmapsSection::kPcm)];
-          auto otherFileRss = currentSmaps_.sectionRss_[static_cast<unsigned>(SmapsSection::kOtherFile)];
-          auto mmapRss = currentSmaps_.sectionRss_[static_cast<unsigned>(SmapsSection::kMmap)];
-          auto soVSize = currentSmaps_.sectionVSize_[static_cast<unsigned>(SmapsSection::kSharedObject)];
-          auto pcmVSize = currentSmaps_.sectionVSize_[static_cast<unsigned>(SmapsSection::kPcm)];
-          auto otherFileVSize = currentSmaps_.sectionVSize_[static_cast<unsigned>(SmapsSection::kOtherFile)];
-          auto mmapVSize = currentSmaps_.sectionVSize_[static_cast<unsigned>(SmapsSection::kMmap)];
-          log << ", PSS " << currentSmaps_.pss_ << " MBytes, Private " << currentSmaps_.private_ << "\n AnonHugePages "
-              << currentSmaps_.anonHugePages_ << " Mbytes\n"
-              << " mmapped memory pages " << mmapVSize << " Mbytes (VSize), " << mmapRss << " MBytes (RSS)\n"
-              << " mmapped file pages " << (soVSize + pcmVSize + otherFileVSize) << " Mbytes (VSize), "
-              << (soRss + pcmRss + otherFileRss) << " MBytes (RSS)\n"
-              << "  of which .so's " << soVSize << " Mbytes (VSize), " << soRss << " MBytes (RSS)\n"
-              << "  of which PCM's " << pcmVSize << " Mbytes (VSize), " << pcmRss << " MBytes (RSS)\n"
-              << "  of which other " << otherFileVSize << " Mbytes (VSize), " << otherFileRss << " MBytes (RSS)";
+        // extract smaps information, if available
+        currentSmaps_ = readProcSmaps();
+        if (currentSmaps_.has_value()) {
+          auto soRss = currentSmaps_->sectionRss_[static_cast<unsigned>(SmapsSection::kSharedObject)];
+          auto pcmRss = currentSmaps_->sectionRss_[static_cast<unsigned>(SmapsSection::kPcm)];
+          auto otherFileRss = currentSmaps_->sectionRss_[static_cast<unsigned>(SmapsSection::kOtherFile)];
+          auto mmapRss = currentSmaps_->sectionRss_[static_cast<unsigned>(SmapsSection::kMmap)];
+          auto soVSize = currentSmaps_->sectionVSize_[static_cast<unsigned>(SmapsSection::kSharedObject)];
+          auto pcmVSize = currentSmaps_->sectionVSize_[static_cast<unsigned>(SmapsSection::kPcm)];
+          auto otherFileVSize = currentSmaps_->sectionVSize_[static_cast<unsigned>(SmapsSection::kOtherFile)];
+          auto mmapVSize = currentSmaps_->sectionVSize_[static_cast<unsigned>(SmapsSection::kMmap)];
+          log << ", PSS " << currentSmaps_->pss_ / 1024 << " MBytes, Private " << currentSmaps_->private_ / 1024 << " MBytes\n AnonHugePages "
+              << currentSmaps_->anonHugePages_ / 1024 << " Mbytes\n"
+              << " mmapped memory pages " << mmapVSize / 1024 << " Mbytes (VSize), " << mmapRss / 1024 << " MBytes (RSS)\n"
+              << " mmapped file pages " << (soVSize + pcmVSize + otherFileVSize) / 1024 << " Mbytes (VSize), "
+              << (soRss + pcmRss + otherFileRss) / 1024 << " MBytes (RSS)\n"
+              << "  of which .so's " << soVSize / 1024 << " Mbytes (VSize), " << soRss / 1024 << " MBytes (RSS)\n"
+              << "  of which PCM's " << pcmVSize / 1024 << " Mbytes (VSize), " << pcmRss / 1024 << " MBytes (RSS)\n"
+              << "  of which other " << otherFileVSize / 1024 << " Mbytes (VSize), " << otherFileRss / 1024 << " MBytes (RSS)";
         }
         if (showJemallocInfo_) {
           auto info = fetchJemalloc();
@@ -608,7 +573,7 @@ namespace edm {
           }
         };
 
-        log << "MemoryReport> Peak virtual size " << eventT1_.vsize << " Mbytes (RSS " << eventT1_.rss << ")";
+        log << "MemoryReport> Peak virtual size " << eventT1_.vsize / 1024 << " Mbytes (RSS " << eventT1_.rss / 1024 << ")";
         logJemalloc(eventT1_.jemalloc);
         log << "\n Key events increasing vsize: \n"
             << eventL2_ << "\n"
@@ -618,7 +583,7 @@ namespace edm {
             << eventR2_ << "\n"
             << eventT3_ << "\n"
             << eventT2_ << "\n"
-            << eventT1_ << "\nMemoryReport> Peak rss size " << eventRssT1_.rss << " Mbytes (VSIZE " << eventRssT1_.vsize
+            << eventT1_ << "\nMemoryReport> Peak rss size " << eventRssT1_.rss / 1024 << " Mbytes (VSIZE " << eventRssT1_.vsize / 1024 
             << ")";
         ;
         logJemalloc(eventRssT1_.jemalloc);
@@ -828,7 +793,7 @@ namespace edm {
             nullptr, [this](void const*) { measurementUnderway_.store(false, std::memory_order_release); });
         update();
         if (monitorPssAndPrivate_) {
-          currentSmaps_ = fetchSmaps();
+          currentSmaps_ = readProcSmaps();
         }
         updateEventStats(iContext.eventID());
         if (oncePerEventMode_) {
@@ -918,26 +883,26 @@ namespace edm {
         eventDeltaRssT1_.set(0, 0, e, this);
         return;
       }
-      double vsize = current_->vsize;
+      double vsize = current_->vsize / 1024;
       double deltaVsize = vsize - eventT1_.vsize;
 
       // Update significative events for Vsize
       if (vsize > eventT1_.vsize) {
-        double deltaRss = current_->rss - eventT1_.rss;
+        double deltaRss = (current_->rss - eventT1_.rss) / 1024;
         eventT3_ = eventT2_;
         eventT2_ = eventT1_;
         eventT1_.set(deltaVsize, deltaRss, e, this);
       } else if (vsize > eventT2_.vsize) {
-        double deltaRss = current_->rss - eventT1_.rss;
+        double deltaRss = (current_->rss - eventT1_.rss) / 1024;
         eventT3_ = eventT2_;
         eventT2_.set(deltaVsize, deltaRss, e, this);
       } else if (vsize > eventT3_.vsize) {
-        double deltaRss = current_->rss - eventT1_.rss;
+        double deltaRss = (current_->rss - eventT1_.rss) / 1024 ;
         eventT3_.set(deltaVsize, deltaRss, e, this);
       }
 
       if (deltaVsize > eventM_.deltaVsize) {
-        double deltaRss = current_->rss - eventM_.rss;
+        double deltaRss = (current_->rss - eventM_.rss) / 1024;
         if (eventL1_.deltaVsize >= eventR1_.deltaVsize) {
           eventL2_ = eventL1_;
         } else {
@@ -948,36 +913,36 @@ namespace edm {
         eventR1_ = SignificantEvent();
         eventR2_ = SignificantEvent();
       } else if (deltaVsize > eventR1_.deltaVsize) {
-        double deltaRss = current_->rss - eventM_.rss;
+        double deltaRss = (current_->rss - eventM_.rss) / 1024;
         eventR2_ = eventR1_;
         eventR1_.set(deltaVsize, deltaRss, e, this);
       } else if (deltaVsize > eventR2_.deltaVsize) {
-        double deltaRss = current_->rss - eventR1_.rss;
+        double deltaRss = (current_->rss - eventR1_.rss) / 1024;
         eventR2_.set(deltaVsize, deltaRss, e, this);
       }
 
       // Update significative events for Rss
-      double rss = current_->rss;
-      double deltaRss = rss - eventRssT1_.rss;
+      double rss = current_->rss / 1024;
+      double deltaRss = rss - (eventRssT1_.rss / 1024);
 
-      if (rss > eventRssT1_.rss) {
+      if (rss > (eventRssT1_.rss / 1024)) {
         eventRssT3_ = eventRssT2_;
         eventRssT2_ = eventRssT1_;
         eventRssT1_.set(deltaVsize, deltaRss, e, this);
-      } else if (rss > eventRssT2_.rss) {
+      } else if (rss > (eventRssT2_.rss / 1024)) {
         eventRssT3_ = eventRssT2_;
         eventRssT2_.set(deltaVsize, deltaRss, e, this);
-      } else if (rss > eventRssT3_.rss) {
+      } else if (rss > (eventRssT3_.rss / 1024)) {
         eventRssT3_.set(deltaVsize, deltaRss, e, this);
       }
-      if (deltaRss > eventDeltaRssT1_.deltaRss) {
+      if (deltaRss > (eventDeltaRssT1_.deltaRss / 1024)) {
         eventDeltaRssT3_ = eventDeltaRssT2_;
         eventDeltaRssT2_ = eventDeltaRssT1_;
         eventDeltaRssT1_.set(deltaVsize, deltaRss, e, this);
-      } else if (deltaRss > eventDeltaRssT2_.deltaRss) {
+      } else if (deltaRss > (eventDeltaRssT2_.deltaRss / 1024)) {
         eventDeltaRssT3_ = eventDeltaRssT2_;
         eventDeltaRssT2_.set(deltaVsize, deltaRss, e, this);
-      } else if (deltaRss > eventDeltaRssT3_.deltaRss) {
+      } else if (deltaRss > (eventDeltaRssT3_.deltaRss / 1024) ) {
         eventDeltaRssT3_.set(deltaVsize, deltaRss, e, this);
       }
     }  // updateEventStats
@@ -986,13 +951,13 @@ namespace edm {
                                            std::string const& mdlabel,
                                            std::string const& mdname,
                                            bool includeSmapsAndJe) const {
-      double deltaVSIZE = current_->vsize - max_.vsize;
-      double deltaRSS = current_->rss - max_.rss;
+      double deltaVSIZE = (current_->vsize - max_.vsize) / 1024;
+      double deltaRSS = (current_->rss - max_.rss) / 1024;
 
       LogWarning log("MemoryCheck");
       // default
-      log << "MemoryCheck: " << type << " " << mdname << ":" << mdlabel << " VSIZE " << current_->vsize << " "
-          << deltaVSIZE << " RSS " << current_->rss << " " << deltaRSS;
+      log << "MemoryCheck: " << type << " " << mdname << ":" << mdlabel << " VSIZE " << current_->vsize / 1024 << " "
+          << deltaVSIZE << " RSS " << current_->rss / 1024 << " " << deltaRSS;
       if (showMallocInfo_) {
 #ifdef __linux__
 #if (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 33)
@@ -1007,9 +972,9 @@ namespace edm {
 #endif
       }
       if (includeSmapsAndJe) {
-        if (smapsFileAvailable_) {
-          log << " PSS " << currentSmaps_.pss_ << " PRIVATE " << currentSmaps_.private_ << " ANONHUGEPAGES "
-              << currentSmaps_.anonHugePages_;
+        if (currentSmaps_.has_value()) {
+          log << " PSS " << currentSmaps_->pss_ << " PRIVATE " << currentSmaps_->private_ << " ANONHUGEPAGES "
+              << currentSmaps_->anonHugePages_;
         }
         if (je_mallctl) {
           auto info = fetchJemalloc();
