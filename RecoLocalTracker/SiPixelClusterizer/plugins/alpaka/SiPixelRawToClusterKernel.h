@@ -176,7 +176,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                    SiPixelDigisSoAView& digis_view,
                                    const uint32_t numDigis,
                                    const uint32_t offsetBPIX2,
-                                   SiPixelMorphingConfig digiMorphingConfig,
+                                   const SiPixelMorphingConfig& digiMorphingConfig,
                                    uint32_t* morphingModulesDevice,
                                    uint32_t const* morphingModuleSizesDevice);
 

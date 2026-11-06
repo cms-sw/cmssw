@@ -660,6 +660,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
                     printf("Too many pixels recovered by digi morphing in module %u: more than %u\n",
                            thisModuleId,
                            maxFakesInModule);
+                    break;
                   }
                 }
               }
