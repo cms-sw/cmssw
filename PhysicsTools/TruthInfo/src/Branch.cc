@@ -38,6 +38,10 @@ namespace truth {
       throw cms::Exception("TruthGraphBranch") << "Cannot initialize Branch: roots list is empty.";
     } else if (std::any_of(roots_.begin(), roots_.end(), [this](uint32_t id) { return id >= graph_->nParticles(); })) {
       throw cms::Exception("TruthGraphBranch") << "Cannot initialize Branch: root particle id does not exist in graph.";
+    } else if (spec_.kind == ClosureKind::Predicate && !spec_.stopAt) {
+      throw cms::Exception("TruthGraphBranch") << "Cannot initialize Branch: a Predicate closure has no predicate.";
+    } else if (spec_.kind == ClosureKind::UntilPdgId && spec_.stopPdgIds.empty()) {
+      throw cms::Exception("TruthGraphBranch") << "Cannot initialize Branch: an UntilPdgId closure has no pdgId.";
     }
   }
 
@@ -183,11 +187,15 @@ namespace truth {
       return out;
     // traverse() returns the members in ascending order.
     auto const isMember = [&members](uint32_t id) { return std::binary_search(members.begin(), members.end(), id); };
+    // A root that descends from another root is covered by it, so the walk starts from the
+    // earliest roots: a tracked root must not count together with its own secondaries.
     std::vector<uint32_t> stack;
     for (uint32_t root : roots_) {
       if (isMember(root))
         stack.push_back(root);
     }
+    if (stack.size() > 1)
+      dropCoveredMembers(*graph_, stack, /*keepDeepest=*/false);
     auto const isGenVertex = [this](uint32_t vertexId) {
       return vertexId < graph_->nVertices() && graph_->vertices()[vertexId].hasGen();
     };
@@ -289,7 +297,7 @@ namespace truth {
 
   Branch Branch::merged(Branch const& other) const {
     if (graph_ != other.graph_)
-      return *this;
+      throw cms::Exception("TruthGraphBranch") << "Cannot merge two Branches of different graphs.";
     std::vector<uint32_t> ids = roots_;
     ids.insert(ids.end(), other.roots_.begin(), other.roots_.end());
     std::sort(ids.begin(), ids.end());

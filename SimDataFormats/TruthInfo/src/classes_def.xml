@@ -17,9 +17,11 @@
   <class name="truth::Checkpoint" ClassVersion="3">
     <version ClassVersion="3" checksum="4215584109"/>
   </class>
-  <class name="truth::ParticleData" ClassVersion="4">
+  <class name="truth::ParticleData" ClassVersion="6">
     <version ClassVersion="3" checksum="3588168857"/>
     <version ClassVersion="4" checksum="101579443"/>
+    <version ClassVersion="5" checksum="4253760827"/>
+    <version ClassVersion="6" checksum="2847875953"/>
   </class>
   <class name="truth::VertexData" ClassVersion="3">
     <version ClassVersion="3" checksum="3205991304"/>

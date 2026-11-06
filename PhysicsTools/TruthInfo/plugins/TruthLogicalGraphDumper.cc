@@ -65,6 +65,8 @@ namespace {
         return "#f9e9c9";
       case truth::Level::TauVisibleLeptonic:
         return "#e9d8c9";
+      case truth::Level::PFReconstructable:
+        return "#d6c9ff";
     }
     return "#ffffff";
   }

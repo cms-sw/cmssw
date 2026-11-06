@@ -60,6 +60,17 @@ namespace truth {
     // last-copy rule. A tau with a tau child is a radiative copy and is in neither tau
     // level.
     TauVisibleLeptonic = 1u << 12,
+    // The first particle of each signal chain that actually leaves a real detector hit --
+    // ParticleData::hasTrackerSimHit (>=2 tracker PSimHits), hasCaloSimHit (>=1 calo
+    // PCaloHit), or hasMuonSimHit (hasTrackerSimHit AND >=1 muon-chamber PSimHit -- a
+    // muon-chamber hit confirms a track PF can match, it is not a substitute for a
+    // track, so a particle with muon-chamber hits but no real tracker trajectory, e.g.
+    // a punch-through secondary born past the calorimeter, does not count), all stamped
+    // by TruthLogicalGraphProducer and read directly, not through their own level/flag
+    // -- walking from the Signal roots through GEN and SIM continuations alike. Not
+    // keyed on CaloBoundary: this asks whether the particle left hits, not whether it
+    // merely crossed the geometric boundary.
+    PFReconstructable = 1u << 13,
   };
 
   // What a particle IS, mirroring VertexRole on the vertex side. Absence of a GEN and a
@@ -139,6 +150,17 @@ namespace truth {
     // for dictionary simplicity as VertexData::role is. Sits in the tail padding after
     // backscattered, so carrying it keeps sizeof(ParticleData) at 96.
     uint8_t role = static_cast<uint8_t>(ParticleRole::Normal);
+
+    // Whether this particle left a real detector hit, already thresholded by
+    // TruthLogicalGraphProducer (not raw hit counts; hasMuonSimHit's threshold also
+    // requires hasTrackerSimHit, see TruthLogicalGraphProducer's stamping loop) -- the
+    // sole backing data for LevelFlag::PFReconstructable's walk
+    // (truth::detail::reachesDetector), read directly rather than through a level/flag
+    // of their own. Three of the six spare tail-padding bytes after role, so
+    // sizeof(ParticleData) stays 96.
+    bool hasTrackerSimHit = false;
+    bool hasCaloSimHit = false;
+    bool hasMuonSimHit = false;
 
     [[nodiscard]] ParticleRole particleRole() const { return static_cast<ParticleRole>(role); }
 
