@@ -198,6 +198,17 @@ namespace cms::soa {
     const std::ptrdiff_t inner_;
   };
 
+  class DefaultStride {
+  public:
+    enum {
+      InnerStrideAtCompileTime = 0,  // 0 means that the outer stride is hard fixed to 0 and can not be changed
+      OuterStrideAtCompileTime = 0   // 0 means that the outer stride is hard fixed to 0 and can not be changed
+    };
+
+    SOA_HOST_DEVICE SOA_INLINE constexpr std::ptrdiff_t outer() const noexcept { return OuterStrideAtCompileTime; }
+    SOA_HOST_DEVICE SOA_INLINE constexpr std::ptrdiff_t inner() const noexcept { return InnerStrideAtCompileTime; }
+  };
+
   // Templated parameter sets for scalars, columns and Eigen columns
   template <SoAColumnType COLUMN_TYPE, typename T>
   struct SoAParametersImpl {
@@ -548,6 +559,12 @@ namespace cms::soa {
     };
   };
 
+  template <class C>
+  using EigenNonStridedConstMapType = const typename C::template StridedConstMapType<DefaultStride>::type;
+
+  template <class C>
+  using EigenNonStridedMapType = typename C::template StridedMapType<DefaultStride>::type;
+
   // Helper function to compute aligned size
   // this is an integer division -> it rounds size to the next multiple of alignment
   constexpr inline byte_size_type alignSize(byte_size_type size, byte_size_type alignment) {
@@ -807,6 +824,88 @@ namespace cms::soa {
     static constexpr byte_size_type defaultSize = NvidiaGPU;
   };
 
+  // Proxy structs for SoA-like accessors with AoS layout
+  template <class RecordType, auto Member, typename T, SoAColumnType COLUMN_TYPE>
+  struct ColumnProxy {
+    SOA_HOST_DEVICE SOA_INLINE ColumnProxy(RecordType* val, size_type len) : proxy_(val, len) {}
+
+    // Reference/proxy to the field of the i-th element
+    SOA_HOST_DEVICE SOA_INLINE auto operator[](size_type i) -> decltype(auto) { return (proxy_[i].*Member); }
+    SOA_HOST_DEVICE SOA_INLINE auto operator[](size_type i) const -> decltype(auto) { return (proxy_[i].*Member); }
+
+    SOA_HOST_DEVICE SOA_INLINE size_type size() const { return proxy_.size(); }
+
+  private:
+    std::span<RecordType> proxy_;
+  };
+
+  template <class RecordType, auto Member, typename T>
+  struct ColumnProxy<RecordType, Member, T, SoAColumnType::eigen> {
+    SOA_HOST_DEVICE SOA_INLINE ColumnProxy(RecordType* val, size_type len) : proxy_(val, len) {}
+
+    // Reference/proxy to the field of the i-th element
+    SOA_HOST_DEVICE SOA_INLINE auto operator[](size_type i) -> decltype(auto) {
+      return EigenNonStridedMapType<T>((proxy_[i].*Member).data());
+    }
+    SOA_HOST_DEVICE SOA_INLINE auto operator[](size_type i) const -> decltype(auto) {
+      return EigenNonStridedConstMapType<T>((proxy_[i].*Member).data());
+    }
+
+    SOA_HOST_DEVICE SOA_INLINE size_type size() const { return proxy_.size(); }
+
+  private:
+    std::span<RecordType> proxy_;
+  };
+
+  // Proxy structs for const SoA-like accessors with AoS layout
+  template <class RecordType, auto Member, typename T, SoAColumnType COLUMN_TYPE>
+  struct ConstColumnProxy {
+    SOA_HOST_DEVICE SOA_INLINE ConstColumnProxy(const RecordType* val, size_type len) : proxy_(val, len) {}
+
+    SOA_HOST_DEVICE SOA_INLINE auto operator[](size_type i) const -> decltype(auto) { return (proxy_[i].*Member); }
+    SOA_HOST_DEVICE SOA_INLINE size_type size() const { return proxy_.size(); }
+
+  private:
+    std::span<const RecordType> proxy_;
+  };
+
+  template <class RecordType, auto Member, typename T>
+  struct ConstColumnProxy<RecordType, Member, T, SoAColumnType::eigen> {
+    SOA_HOST_DEVICE SOA_INLINE ConstColumnProxy(const RecordType* val, size_type len) : proxy_(val, len) {}
+
+    SOA_HOST_DEVICE SOA_INLINE auto operator[](size_type i) const -> decltype(auto) {
+      return EigenNonStridedConstMapType<T>((proxy_[i].*Member).data());
+    }
+    SOA_HOST_DEVICE SOA_INLINE size_type size() const { return proxy_.size(); }
+
+  private:
+    std::span<const RecordType> proxy_;
+  };
+
+  template <class RecordType>
+  struct AoSColumn {
+    template <auto DataMember>
+    struct Member {
+      template <typename T>
+      struct Value {
+        template <SoAColumnType COLUMN_TYPE>
+        using Type = ColumnProxy<RecordType, DataMember, T, COLUMN_TYPE>;
+      };
+    };
+  };
+
+  template <class RecordType>
+  struct AoSConstColumn {
+    template <auto DataMember>
+    struct Member {
+      template <typename T>
+      struct Value {
+        template <SoAColumnType COLUMN_TYPE>
+        using Type = ConstColumnProxy<RecordType, DataMember, T, COLUMN_TYPE>;
+      };
+    };
+  };
+
 }  // namespace cms::soa
 
 // Small wrapper for stream insertion of SoA printing
@@ -990,6 +1089,9 @@ namespace cms::soa::detail {
 
   template <typename ColumnType>
   using ConstSpanType = GetConstSpanType<ColumnType>::type;
+
+  template <typename T>
+  using EigenRecordType = std::array<typename T::Scalar, T::RowsAtCompileTime * T::ColsAtCompileTime>;
 
   // Helper functions for constructing a span from a column
   template <typename T>

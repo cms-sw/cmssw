@@ -29,6 +29,7 @@ namespace reco {
 
     // Constructor which specifies only the SoA size, to be used when copying the results from host to device
     template <typename TQueue>
+      requires(alpaka::concepts::Queue<TQueue>)
     explicit TrackingRecHitDevice(TQueue queue, uint32_t nHits, uint32_t nModules)
         : HitPortableCollectionDevice<TDev>(queue, nHits, nModules + 1) {}
 
@@ -41,18 +42,11 @@ namespace reco {
 
     // Constructor from clusters
     template <typename TQueue>
+      requires(alpaka::concepts::Queue<TQueue>)
     explicit TrackingRecHitDevice(TQueue queue, SiPixelClustersDevice<TDev> const& clusters)
         : HitPortableCollectionDevice<TDev>(queue, clusters.nClusters(), clusters.view().metadata().size()),
           offsetBPIX2_{clusters.offsetBPIX2()} {
       auto hitsView = this->view().trackingHits();
-      auto modsView = this->view().hitModules();
-
-      auto nModules = clusters.view().metadata().size();
-
-      auto clusters_m = cms::alpakatools::make_device_view(queue, clusters.view().clusModuleStart(), nModules);
-      auto hits_m = cms::alpakatools::make_device_view(queue, modsView.moduleStart(), nModules);
-
-      alpaka::memcpy(queue, hits_m, clusters_m);
 
       auto off_h = cms::alpakatools::make_host_view(offsetBPIX2_);
       auto off_d = cms::alpakatools::make_device_view(queue, hitsView.offsetBPIX2());
@@ -66,6 +60,7 @@ namespace reco {
 
     // asynchronously update the information cached within the class itself from the information on the device
     template <typename TQueue>
+      requires(alpaka::concepts::Queue<TQueue>)
     void updateFromDevice(TQueue queue) {
       auto off_h = cms::alpakatools::make_host_view(offsetBPIX2_);
       auto off_d = cms::alpakatools::make_device_view(queue, this->view().trackingHits().offsetBPIX2());
