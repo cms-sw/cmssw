@@ -1,5 +1,6 @@
 #include "CondCore/Utilities/interface/PayloadInspectorModule.h"
 #include "CondCore/Utilities/interface/PayloadInspector.h"
+#include "CondCore/CondDB/interface/RunInfoProxy.h"
 #include "CondCore/CondDB/interface/Time.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -29,6 +30,7 @@
 #include <map>
 #include <memory>
 #include <numeric>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -672,7 +674,7 @@ namespace {
   // default labels, they can be changed with the plot input parameters cmsLabel and rightLabel:
   // the CMS label is drawn only on request, e.g. cmsLabel=Preliminary for "CMS Preliminary"
   constexpr const char* kLaserCMSLabel = "";
-  constexpr const char* kLaserRightLabel = "13.6 TeV";
+  constexpr const char* kLaserRightLabel = "";
 
   /************************************************************************
      1d distributions of ECAL Laser APDPNRatios p1, p2 and p3 in EE-, EB
@@ -925,6 +927,10 @@ namespace {
      on a common run number axis (the lumi sections are squeezed in the
      [run, run+1) slot), time based IOVs can only be compared with other
      time based IOVs.
+     With the input parameter xAxis=time the x axis is the IOV start time
+     for all the tags: run and lumi based IOVs are placed at the start time
+     of their run, from the RunInfo of the conditions DB, plus the lumi
+     sections; then time based tags can be compared with run or lumi based ones.
   *************************************************************************/
   template <int param, int ntags>
   class EcalLaserAPDPNRatiosHistoryBase
@@ -935,6 +941,8 @@ namespace {
       // text after "CMS" (no CMS label if not set, "CMS" alone if set to CMS) and on the top right of the plot
       cond::payloadInspector::PlotBase::addInputParam("cmsLabel");
       cond::payloadInspector::PlotBase::addInputParam("rightLabel");
+      // "run" (default) or "time"
+      cond::payloadInspector::PlotBase::addInputParam("xAxis");
     }
 
   protected:
@@ -967,6 +975,13 @@ namespace {
         return (itag == 0) ? cond::payloadInspector::PlotBase::getTag<0>()
                            : cond::payloadInspector::PlotBase::getTag<1>();
       };
+      const auto& params = cond::payloadInspector::PlotBase::inputParamValues();
+      const std::string xAxis = laserInputParam(params, "xAxis", "run");
+      if (xAxis != "run" && xAxis != "time")
+        cond::throwException("the input parameter xAxis must be run or time, not " + xAxis,
+                             "EcalLaserAPDPNRatiosHistoryBase::collect");
+      const bool timeRequested = (xAxis == "time");
+
       std::array<cond::TimeType, ntags> l_timeType;
       for (int itag = 0; itag < ntags; itag++) {
         auto tag = tagRef(itag);
@@ -974,19 +989,39 @@ namespace {
         l_timeType[itag] = this->getTagInfo(tag.name).timeType;
         if (tag.iovs.empty())
           return false;
+        const cond::Time_t first = std::max(tag.boundary.first, std::get<0>(tag.iovs.front()));
+        const cond::Time_t last = std::get<0>(tag.iovs.back());
+        m_iovRange[itag] = laserIOVLabel(first) + " - " + laserIOVLabel(last);
+
+        // position of an IOV since on the axis, none if a run or lumi based IOV starts after the last run in RunInfo
+        cond::persistency::RunInfoProxy runInfo;
+        const bool fromRunInfo = timeRequested && l_timeType[itag] != cond::timestamp;
+        if (fromRunInfo) {
+          const bool lumi = (l_timeType[itag] == cond::lumiid);
+          runInfo = this->dbSession().getRunInfo(lumi ? first >> 32 : first, lumi ? last >> 32 : last);
+        }
+        auto toAxis = [&](cond::Time_t since) -> std::optional<double> {
+          return fromRunInfo ? iovToTime(runInfo, since, l_timeType[itag]) : iovToAxis(since, l_timeType[itag]);
+        };
+
         // the first IOV can start well before the requested range (e.g. since = 1), clamp it
-        const double xstart = iovToAxis(tag.boundary.first, l_timeType[itag]);
+        const double xstart = toAxis(tag.boundary.first).value_or(std::numeric_limits<double>::lowest());
         for (const auto& iov : tag.iovs) {
-          m_x[itag].push_back(std::max(xstart, iovToAxis(std::get<0>(iov), l_timeType[itag])));
+          const auto x = toAxis(std::get<0>(iov));
+          if (!x)
+            continue;
+          m_x[itag].push_back(std::max(xstart, *x));
           m_hash[itag].push_back(std::get<1>(iov));
         }
-        m_iovRange[itag] = laserIOVLabel(std::max(tag.boundary.first, std::get<0>(tag.iovs.front()))) + " - " +
-                           laserIOVLabel(std::get<0>(tag.iovs.back()));
+        if (m_x[itag].empty())
+          cond::throwException("no run of the IOVs of " + tag.name + " found in RunInfo",
+                               "EcalLaserAPDPNRatiosHistoryBase::collect");
       }
-      m_timeAxis = (l_timeType[0] == cond::timestamp);
-      if ((l_timeType[ntags - 1] == cond::timestamp) != m_timeAxis) {
-        cond::throwException("cannot compare a time based tag with a run or lumi based tag",
-                             "EcalLaserAPDPNRatiosHistoryBase::collect");
+      m_timeAxis = timeRequested || (l_timeType[0] == cond::timestamp);
+      if (!timeRequested && (l_timeType[ntags - 1] == cond::timestamp) != m_timeAxis) {
+        cond::throwException(
+            "cannot compare a time based tag with a run or lumi based tag on a run number axis, use xAxis=time",
+            "EcalLaserAPDPNRatiosHistoryBase::collect");
       }
       return true;
     }
@@ -1152,6 +1187,25 @@ namespace {
   private:
     // the lumi sections of a run are squeezed in the [run, run+1) slot of the run number axis
     static constexpr double kLumisPerRunSlot = 10000.;
+    // duration of a lumi section, 2^18 LHC orbits
+    static constexpr double kSecondsPerLumi = 23.31;
+
+    // unix time of the start of a run or lumi based IOV: start time of the run from RunInfo, plus the lumi sections.
+    // An IOV starting on a run not in RunInfo starts with the following run, none if there is no following run
+    static std::optional<double> iovToTime(const cond::persistency::RunInfoProxy& runInfo,
+                                           cond::Time_t since,
+                                           cond::TimeType timeType) {
+      const bool lumi = (timeType == cond::lumiid);
+      const cond::Time_t run = lumi ? since >> 32 : since;
+      auto it = runInfo.find(run);
+      if (it == runInfo.end())
+        return std::nullopt;
+      const cond::RunInfo_t runInfoEntry = *it;
+      double time = double(cond::time::from_boost(runInfoEntry.start) >> 32);
+      if (lumi && runInfoEntry.run == run)
+        time += kSecondsPerLumi * std::max(double(since & 0xFFFFFFFF) - 1., 0.);
+      return time;
+    }
 
     // position of an IOV since on the common axis: run number for run and lumi based IOVs, unix time otherwise
     static double iovToAxis(cond::Time_t since, cond::TimeType timeType) {
