@@ -1,3 +1,4 @@
+
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/RPCGeometry/interface/RPCRollSpecs.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimAverageNoiseEffCls.h"
@@ -50,10 +51,10 @@ RPCSimAverageNoiseEffCls::RPCSimAverageNoiseEffCls(const edm::ParameterSet& conf
   rpcdigiprint = config.getParameter<bool>("printOutDigitizer");
   eledig = config.getParameter<bool>("digitizeElectrons");  //flag to turn on/off electron digitization
 
-  rate = config.getParameter<double>("Rate");
-  nbxing = config.getParameter<int>("Nbxing");
-  gate = config.getParameter<double>("Gate");
-  frate = config.getParameter<double>("Frate");
+  rate = config.getParameter<double>("rate");
+  nbxing = config.getParameter<int>("nBXing");
+  gate = config.getParameter<double>("gate");
+  frate = config.getParameter<double>("fRate");
 
   if (rpcdigiprint) {
     edm::LogInfo("RPC digitizer parameters") << "Average Efficiency        = " << aveEff << '\n'

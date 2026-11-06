@@ -1,7 +1,6 @@
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 #include "SimMuon/RPCDigitizer/src/RPCandIRPCDigiProducer.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
-#include "SimMuon/RPCDigitizer/src/IRPCDigitizer.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
@@ -14,6 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimMuon/RPCDigitizer/src/RPCSynchronizer.h"
+#include <memory>
 #include <sstream>
 #include <string>
 
@@ -39,7 +39,7 @@ RPCandIRPCDigiProducer::RPCandIRPCDigiProducer(const edm::ParameterSet& ps) {
 
   //Name of Collection used for create the XF
   mix_ = ps.getParameter<std::string>("mixLabel");
-  collection_for_XF = ps.getParameter<std::string>("InputCollection");
+  collection_for_XF = ps.getParameter<std::string>("inputCollection");
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if (!rng.isAvailable()) {
@@ -51,8 +51,8 @@ RPCandIRPCDigiProducer::RPCandIRPCDigiProducer(const edm::ParameterSet& ps) {
 
   theRPCSimSetUpRPC = new RPCSimSetUp(ps);
   theRPCSimSetUpIRPC = new RPCSimSetUp(ps);
-  theRPCDigitizer = new RPCDigitizer(ps);
-  theIRPCDigitizer = new IRPCDigitizer(ps);
+  theRPCDigitizer = new RPCDigitizer(ps, true);
+  theIRPCDigitizer = new RPCDigitizer(ps, false);
   crossingFrameToken = consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, collection_for_XF));
   geomToken = esConsumes<RPCGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
   noiseToken = esConsumes<RPCStripNoises, RPCStripNoisesRcd, edm::Transition::BeginRun>();
@@ -104,8 +104,8 @@ void RPCandIRPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& event
   std::unique_ptr<MixCollection<PSimHit>> hits(new MixCollection<PSimHit>(cf.product()));
 
   // Create empty output
-  std::unique_ptr<RPCDigiCollection> pDigis(new RPCDigiCollection());
-  std::unique_ptr<RPCDigitizerSimLinks> RPCDigitSimLink(new RPCDigitizerSimLinks());
+  std::unique_ptr<RPCDigiCollection> pDigis = std::make_unique<RPCDigiCollection>();
+  std::unique_ptr<RPCDigitizerSimLinks> RPCDigitSimLink = std::make_unique<RPCDigitizerSimLinks>();
 
   theRPCDigitizer->doAction(*hits, *pDigis, *RPCDigitSimLink, engine);   //make "bakelite RPC" digitizer do the action
   theIRPCDigitizer->doAction(*hits, *pDigis, *RPCDigitSimLink, engine);  //make "IRPC" digitizer do the action
