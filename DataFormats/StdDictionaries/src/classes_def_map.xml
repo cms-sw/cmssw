@@ -45,4 +45,5 @@
  <class name="std::map <std::string, unsigned long long>" />
 
  <class name="std::unordered_map<unsigned int, double>" />
+ <class name="std::unordered_map<std::string, unsigned long>" />
 </lcgdict>
