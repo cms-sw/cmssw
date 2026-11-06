@@ -19,6 +19,7 @@ public:
 
 private:
   const CMSSteppingVerbose* steppingVerbose;
+  bool quirkTracking;
   G4VSolid* worldSolid;
   bool trackNeutrino;
 };
