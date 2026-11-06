@@ -57,7 +57,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       @short unpacks the TOT from the 32b for a single ROC channel
     */
     ALPAKA_FN_HOST_ACC
-    inline uint16_t unpackTOT(uint32_t word, bool charMode = false) {
+    inline uint16_t unpackTOT(uint32_t word, bool ignoreTC = false) {
+      bool tc = ((word >> ROCChannelFrameShift::kFlag2Shift) & ROCChannelFrameMask::kFlagMask);
+      if ((!ignoreTC) && (!tc))
+        return 0;
+
       auto decompressToT = [&](uint16_t totraw) {
         //uncompresses 10b to 12b inverting the truncation operation but loosing the two LSBs
         uint16_t totout(totraw & 0x1ff);
@@ -70,43 +74,58 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       //extract the TOT word
       uint16_t totraw = decompressToT((word >> ROCChannelFrameShift::kPacket2Shift) & ROCChannelFrameMask::kPacketMask);
-      bool tc = (word >> ROCChannelFrameShift::kFlag2Shift) & ROCChannelFrameMask::kFlagMask;
-      return (charMode || tc) ? totraw : 0;
+      return totraw;
     };
+
+    /** 
+      @short characterization mode version of unpackTOT which always reads TOT indepedently of the TC bit
+    */
+    ALPAKA_FN_HOST_ACC
+    inline uint16_t unpackTOT_charMode(uint32_t word) { return unpackTOT(word, true); }
 
     /** 
       @short unpacks the ADC from the 32b for a single ROC channel
     */
     ALPAKA_FN_HOST_ACC
-    inline uint16_t unpackADC(uint32_t word, bool charMode = false) {
-      bool tc = (word >> ROCChannelFrameShift::kFlag2Shift) & ROCChannelFrameMask::kFlagMask;
-      uint32_t shift = ROCChannelFrameShift::kPacket3Shift;
+    inline uint16_t unpackADC(uint32_t word,
+                              uint32_t shift = ROCChannelFrameShift::kPacket2Shift,
+                              bool ignoreTC = false) {
+      bool tc = ((word >> ROCChannelFrameShift::kFlag2Shift) & ROCChannelFrameMask::kFlagMask);
+      if ((!ignoreTC) && tc)
+        return 0;
       uint32_t mask = ROCChannelFrameMask::kPacketMask;
-      if (!charMode) {
-        if (tc)
-          return 0;
-        shift = ROCChannelFrameShift::kPacket2Shift;
-      }
       uint16_t adc = (word >> shift) & mask;
       return adc;
+    };
+
+    /** 
+      @short characterization mode version of unpackADC which always reads ADC indepedently of the TC bit
+    */
+    ALPAKA_FN_HOST_ACC
+    inline uint16_t unpackADC_charMode(uint32_t word) {
+      return unpackADC(word, ROCChannelFrameShift::kPacket3Shift, true);
     };
 
     /** 
       @short unpacks the ADCm1 from the 32b for a single ROC channel
     */
     ALPAKA_FN_HOST_ACC
-    inline uint16_t unpackADCm1(uint32_t word, bool charMode = false) {
-      if (charMode)
-        return 0;
+    inline uint16_t unpackADCm1(uint32_t word) {
       uint16_t adcm1 = (word >> ROCChannelFrameShift::kPacket3Shift) & ROCChannelFrameMask::kPacketMask;
       return adcm1;
     };
 
     /** 
+      @short characterization mode version of unpackADCm1 : never reads ADCm1
+    */
+    ALPAKA_FN_HOST_ACC
+    inline uint16_t unpackADCm1_charMode(uint32_t word) { return 0; };
+
+    /** 
       @short unpacks the TOA from the 32b for a single ROC channel
     */
     ALPAKA_FN_HOST_ACC
-    inline uint16_t unpackTOA(uint32_t word, bool charMode = false) {
+    inline uint16_t unpackTOA(uint32_t word) {
       uint16_t toa = (word >> ROCChannelFrameShift::kPacket1Shift) & ROCChannelFrameMask::kPacketMask;
       return toa;
     };
@@ -115,7 +134,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       @short unpacks the TcTp from the 32b for a single ROC channel
     */
     ALPAKA_FN_HOST_ACC
-    inline uint16_t unpackTcTp(uint32_t word, bool charMode = false) {
+    inline uint16_t unpackTcTp(uint32_t word) {
       uint16_t tctp = (word >> ROCChannelFrameShift::kFlag1Shift) & ROCChannelFrameMask::kFlagsMask;
       return tctp;
     };

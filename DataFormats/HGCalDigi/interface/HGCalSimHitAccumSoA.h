@@ -2,6 +2,7 @@
 #define DataFormats_HGCalDigi_interface_HGCalSimHitAccumSoA_h
 
 #include <Eigen/Core>
+
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
