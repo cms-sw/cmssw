@@ -1,141 +1,106 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+
 #include "ProcSmaps.h"
 
-#include <cstdint>
-#include <sstream>
+#include <algorithm>
+#include <fstream>
+#include <string>
 
 namespace edm::service {
   class LibraryMemoryReport {
   public:
     LibraryMemoryReport(edm::ParameterSet const&, edm::ActivityRegistry&);
 
-    void postModuleConstruction(edm::ModuleDescription const&) const;
-    void postEndJob() const;
-    void postServicesConstruction() const;
-    void beginProcessing() const;
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
+    // Prints a summary of the memory used by the loaded shared libraries.
+    // If reportLibraryPaths is true the memory used by each individual library
+    // is written to a text file, named after signalName with the spaces replaced
+    // by underscores, in the current working directory.
+    void report(std::string const& signalName) const;
+
     bool allModules_;
+    bool collectLibraryPaths_;
   };
 
   LibraryMemoryReport::LibraryMemoryReport(edm::ParameterSet const& iPS, edm::ActivityRegistry& registry)
-      : allModules_(iPS.getUntrackedParameter<bool>("allModules")) {
-    registry.watchPostModuleConstruction(this, &LibraryMemoryReport::postModuleConstruction);
-    registry.watchPostEndJob(this, &LibraryMemoryReport::postEndJob);
-    registry.watchPostServicesConstruction(this, &LibraryMemoryReport::postServicesConstruction);
-    registry.watchBeginProcessing(this, &LibraryMemoryReport::beginProcessing);
+      : allModules_(iPS.getUntrackedParameter<bool>("allModules")),
+        collectLibraryPaths_(iPS.getUntrackedParameter<bool>("collectLibraryPaths")) {
+    registry.watchPostServicesConstruction([this]() { report("postServicesConstruction"); });
+    registry.watchBeginProcessing([this]() { report("beginProcessing"); });
+    registry.watchPostEndJob([this]() { report("postEndJob"); });
+
+    // These signals lead to a printout for each module, source, and ESModule
+    if (allModules_) {
+      registry.watchPostModuleConstruction([this](edm::ModuleDescription const& module) {
+        report("postModuleConstruction moduleLabel=\"" + module.moduleLabel() + "\" moduleType=\"" +
+                   module.moduleName() + "\"");
+      });
+      registry.watchPostSourceConstruction([this](edm::ModuleDescription const& module) {
+        report("postSourceConstruction moduleLabel=\"" + module.moduleLabel() + "\" moduleType=\"" +
+                   module.moduleName() + "\"");
+      });
+      registry.watchPostESModuleConstruction([this](edm::eventsetup::ComponentDescription const& description) {
+        report("postESModuleConstruction moduleLabel=\"" + description.label_ + "\" moduleType=\"" +
+                   description.type_ + "\"");
+      });
+    }
   }
 
-  void LibraryMemoryReport::postModuleConstruction(edm::ModuleDescription const& module) const {
-    auto const smaps = readProcSmaps();
-    std::uint64_t totalSizeKB = 0;
-    std::uint64_t totalRssKB = 0;
-    std::uint64_t totalPssKB = 0;
-    std::uint64_t totalExecutableSizeKB = 0;
-    std::ostringstream report;
-    report << "LibraryMemoryReport postModuleConstruction moduleLabel=\"" << module.moduleLabel() << "\" moduleType=\""
-           << module.moduleName() << "\":";
-    for (auto const& library : smaps.libraries) {
-      if (allModules_) {
-        report << "\n library path=\"" << library.path << "\" sizeKB=" << library.sizeKB << " rssKB=" << library.rssKB
-               << " pssKB=" << library.pssKB << " executableSizeKB=" << library.executableSizeKB;
-      }
-      totalSizeKB += library.sizeKB;
-      totalRssKB += library.rssKB;
-      totalPssKB += library.pssKB;
-      totalExecutableSizeKB += library.executableSizeKB;
+  void LibraryMemoryReport::report(std::string const& signalName) const {
+    auto const smapsOrNone = readProcSmaps(collectLibraryPaths_);
+    if (not smapsOrNone) {
+      edm::LogAbsolute("LibraryMemoryReport")
+          << "LibraryMemoryReport " << signalName << ": failed to read /proc/self/smaps";
+      return;
     }
-
-    report << "\n summary postModuleConstruction libraries=" << smaps.libraries.size() << " sizeKB=" << totalSizeKB
-           << " rssKB=" << totalRssKB << " pssKB=" << totalPssKB << " executableSizeKB=" << totalExecutableSizeKB;
-    edm::LogAbsolute("LibraryMemoryReport") << report.str();
-  }
-
-  void LibraryMemoryReport::postEndJob() const {
-    auto const smaps = readProcSmaps();
-    std::uint64_t totalSizeKB = 0;
-    std::uint64_t totalRssKB = 0;
-    std::uint64_t totalPssKB = 0;
-    std::uint64_t totalExecutableSizeKB = 0;
-    std::ostringstream report;
-    report << "LibraryMemoryReport postEndJob:";
-    for (auto const& library : smaps.libraries) {
-      if (allModules_) {
-        report << "\n library path=\"" << library.path << "\" sizeKB=" << library.sizeKB << " rssKB=" << library.rssKB
-               << " pssKB=" << library.pssKB << " executableSizeKB=" << library.executableSizeKB;
-      }
-      totalSizeKB += library.sizeKB;
-      totalRssKB += library.rssKB;
-      totalPssKB += library.pssKB;
-      totalExecutableSizeKB += library.executableSizeKB;
+    auto const& smaps = *smapsOrNone;
+    auto const soIndex = static_cast<unsigned int>(SmapsSection::kSharedObject);
+    edm::LogAbsolute report("LibraryMemoryReport");
+    report << "LibraryMemoryReport " << signalName << ":";
+    if (collectLibraryPaths_) {
+      report << " libraries=" << smaps.libraries.size();
     }
-    report << "\nLibraryMemoryReport postEndJob summary libraries=" << smaps.libraries.size()
-           << " sizeKB=" << totalSizeKB << " rssKB=" << totalRssKB << " pssKB=" << totalPssKB
-           << " executableSizeKB=" << totalExecutableSizeKB;
-    edm::LogAbsolute("LibraryMemoryReport") << report.str();
-  }
-
-  void LibraryMemoryReport::beginProcessing() const {
-    auto const smaps = readProcSmaps();
-    std::uint64_t totalSizeKB = 0;
-    std::uint64_t totalRssKB = 0;
-    std::uint64_t totalPssKB = 0;
-    std::uint64_t totalExecutableSizeKB = 0;
-    std::ostringstream report;
-    report << "LibraryMemoryReport beginProcessing :";
-    for (auto const& library : smaps.libraries) {
-      if (allModules_) {
-        report << "\n library path=\"" << library.path << "\" sizeKB=" << library.sizeKB << " rssKB=" << library.rssKB
-               << " pssKB=" << library.pssKB << " executableSizeKB=" << library.executableSizeKB;
+    report << " VSIZE " << smaps.sectionVSize_[soIndex] << " kB"
+           << " (executable " << smaps.sharedObjectExecutableSize_ << " kB RSS " << smaps.sectionRss_[soIndex]
+           << " kB PSS " << smaps.sharedObjectPss_ << " kB)";
+    if (collectLibraryPaths_) {
+      std::string fileName = signalName;
+      std::replace(fileName.begin(), fileName.end(), ' ', '_');
+      fileName.erase(std::remove(fileName.begin(), fileName.end(), '\"'), fileName.end());
+      fileName += ".txt";
+      std::ofstream file(fileName);
+      if (not file) {
+        edm::LogWarning("LibraryMemoryReport") << "Failed to open file " << fileName << " for writing";
+        return;
       }
-      totalSizeKB += library.sizeKB;
-      totalRssKB += library.rssKB;
-      totalPssKB += library.pssKB;
-      totalExecutableSizeKB += library.executableSizeKB;
-    }
-    report << "\nLibraryMemoryReport beginProcessing summary libraries=" << smaps.libraries.size()
-           << " sizeKB=" << totalSizeKB << " rssKB=" << totalRssKB << " pssKB=" << totalPssKB
-           << " executableSizeKB=" << totalExecutableSizeKB;
-    edm::LogAbsolute("LibraryMemoryReport") << report.str();
-  }
-
-  void LibraryMemoryReport::postServicesConstruction() const {
-    auto const smaps = readProcSmaps();
-    std::uint64_t totalSizeKB = 0;
-    std::uint64_t totalRssKB = 0;
-    std::uint64_t totalPssKB = 0;
-    std::uint64_t totalExecutableSizeKB = 0;
-    std::ostringstream report;
-    report << "LibraryMemoryReport postServicesConstruction:";
-    for (auto const& library : smaps.libraries) {
-      if (allModules_) {
-        report << "\n library path=\"" << library.path << "\" sizeKB=" << library.sizeKB << " rssKB=" << library.rssKB
-               << " pssKB=" << library.pssKB << " executableSizeKB=" << library.executableSizeKB;
+      file << "LibraryMemoryReport " << signalName << ": libraries=" << smaps.libraries.size() << "\n";
+      for (auto const& library : smaps.libraries) {
+        file << "library name=\"" << library.name << "\" VSIZE " << library.sizeKB << " kB"
+             << " RSS " << library.rssKB << " kB PSS " << library.pssKB << " kB"
+             << " executableSize " << library.executableSizeKB << " kB\n";
       }
-      totalSizeKB += library.sizeKB;
-      totalRssKB += library.rssKB;
-      totalPssKB += library.pssKB;
-      totalExecutableSizeKB += library.executableSizeKB;
     }
-    report << "\nLibraryMemoryReport postServicesConstruction summary libraries=" << smaps.libraries.size()
-           << " sizeKB=" << totalSizeKB << " rssKB=" << totalRssKB << " pssKB=" << totalPssKB
-           << " executableSizeKB=" << totalExecutableSizeKB;
-    edm::LogAbsolute("LibraryMemoryReport") << report.str();
   }
 
   void LibraryMemoryReport::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription description;
+    description.addUntracked<bool>("collectLibraryPaths", false)
+        ->setComment(
+            "If true the memory used by each individual library is written to a text file (in the current working "
+            "directory) at postServicesConstruction, beginProcessing and postEndJob.");
     description.addUntracked<bool>("allModules", false)
         ->setComment(
-            "If true the individual memory report will be printed for each module, otherwise only the summary will be "
-            "printed.");
+            "If true the memory report will be printed after the construction of each module, source, and ESModule "
+            "with only the sum of all libraries.");
     descriptions.add("LibraryMemoryReport", description);
   }
 
