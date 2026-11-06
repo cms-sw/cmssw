@@ -7,6 +7,7 @@
 #include <ostream>
 
 #include "BaseFlatGunProducer.h"
+#include "FlatRandomEGunProducer.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
@@ -25,20 +26,6 @@ using namespace std;
 
 namespace edm {
 
-  class FlatRandomEGunProducer : public BaseFlatGunProducer {
-  public:
-    FlatRandomEGunProducer(const ParameterSet& pset);
-    ~FlatRandomEGunProducer() override;
-
-    static void fillDescriptions(ConfigurationDescriptions& descriptions);
-    void produce(Event& e, const EventSetup& es) override;
-
-  private:
-    // data members
-
-    double fMinE;
-    double fMaxE;
-  };
 
   FlatRandomEGunProducer::FlatRandomEGunProducer(const ParameterSet& pset) : BaseFlatGunProducer(pset) {
     ParameterSet defpset;
