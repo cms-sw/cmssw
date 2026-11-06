@@ -549,14 +549,16 @@ namespace edm {
           auto pcmVSize = currentSmaps_->sectionVSize_[static_cast<unsigned>(SmapsSection::kPcm)];
           auto otherFileVSize = currentSmaps_->sectionVSize_[static_cast<unsigned>(SmapsSection::kOtherFile)];
           auto mmapVSize = currentSmaps_->sectionVSize_[static_cast<unsigned>(SmapsSection::kMmap)];
-          log << ", PSS " << currentSmaps_->pss_ / 1024 << " MBytes, Private " << currentSmaps_->private_ / 1024 << " MBytes\n AnonHugePages "
-              << currentSmaps_->anonHugePages_ / 1024 << " Mbytes\n"
-              << " mmapped memory pages " << mmapVSize / 1024 << " Mbytes (VSize), " << mmapRss / 1024 << " MBytes (RSS)\n"
+          log << ", PSS " << currentSmaps_->pss_ / 1024 << " MBytes, Private " << currentSmaps_->private_ / 1024
+              << " MBytes\n AnonHugePages " << currentSmaps_->anonHugePages_ / 1024 << " Mbytes\n"
+              << " mmapped memory pages " << mmapVSize / 1024 << " Mbytes (VSize), " << mmapRss / 1024
+              << " MBytes (RSS)\n"
               << " mmapped file pages " << (soVSize + pcmVSize + otherFileVSize) / 1024 << " Mbytes (VSize), "
               << (soRss + pcmRss + otherFileRss) / 1024 << " MBytes (RSS)\n"
               << "  of which .so's " << soVSize / 1024 << " Mbytes (VSize), " << soRss / 1024 << " MBytes (RSS)\n"
               << "  of which PCM's " << pcmVSize / 1024 << " Mbytes (VSize), " << pcmRss / 1024 << " MBytes (RSS)\n"
-              << "  of which other " << otherFileVSize / 1024 << " Mbytes (VSize), " << otherFileRss / 1024 << " MBytes (RSS)";
+              << "  of which other " << otherFileVSize / 1024 << " Mbytes (VSize), " << otherFileRss / 1024
+              << " MBytes (RSS)";
         }
         if (showJemallocInfo_) {
           auto info = fetchJemalloc();
@@ -573,7 +575,8 @@ namespace edm {
           }
         };
 
-        log << "MemoryReport> Peak virtual size " << eventT1_.vsize / 1024 << " Mbytes (RSS " << eventT1_.rss / 1024 << ")";
+        log << "MemoryReport> Peak virtual size " << eventT1_.vsize / 1024 << " Mbytes (RSS " << eventT1_.rss / 1024
+            << ")";
         logJemalloc(eventT1_.jemalloc);
         log << "\n Key events increasing vsize: \n"
             << eventL2_ << "\n"
@@ -583,8 +586,8 @@ namespace edm {
             << eventR2_ << "\n"
             << eventT3_ << "\n"
             << eventT2_ << "\n"
-            << eventT1_ << "\nMemoryReport> Peak rss size " << eventRssT1_.rss / 1024 << " Mbytes (VSIZE " << eventRssT1_.vsize / 1024 
-            << ")";
+            << eventT1_ << "\nMemoryReport> Peak rss size " << eventRssT1_.rss / 1024 << " Mbytes (VSIZE "
+            << eventRssT1_.vsize / 1024 << ")";
         ;
         logJemalloc(eventRssT1_.jemalloc);
         log << "\n Key events increasing rss:\n"
@@ -897,7 +900,7 @@ namespace edm {
         eventT3_ = eventT2_;
         eventT2_.set(deltaVsize, deltaRss, e, this);
       } else if (vsize > eventT3_.vsize) {
-        double deltaRss = (current_->rss - eventT1_.rss) / 1024 ;
+        double deltaRss = (current_->rss - eventT1_.rss) / 1024;
         eventT3_.set(deltaVsize, deltaRss, e, this);
       }
 
@@ -942,7 +945,7 @@ namespace edm {
       } else if (deltaRss > (eventDeltaRssT2_.deltaRss / 1024)) {
         eventDeltaRssT3_ = eventDeltaRssT2_;
         eventDeltaRssT2_.set(deltaVsize, deltaRss, e, this);
-      } else if (deltaRss > (eventDeltaRssT3_.deltaRss / 1024) ) {
+      } else if (deltaRss > (eventDeltaRssT3_.deltaRss / 1024)) {
         eventDeltaRssT3_.set(deltaVsize, deltaRss, e, this);
       }
     }  // updateEventStats
