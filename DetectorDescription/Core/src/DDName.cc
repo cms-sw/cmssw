@@ -3,7 +3,6 @@
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/Singleton.h"
 
-#include <ext/alloc_traits.h>
 #include <cstdlib>
 #include <sstream>
 #include <mutex>

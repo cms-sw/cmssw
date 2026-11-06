@@ -20,7 +20,6 @@
 
 #include <algorithm>
 #include <vector>
-#include <ext/algorithm>
 
 using namespace std;
 

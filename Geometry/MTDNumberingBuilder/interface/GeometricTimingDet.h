@@ -13,8 +13,6 @@
 #include <memory>
 #include "FWCore/ParameterSet/interface/types.h"
 
-#include <ext/pool_allocator.h>
-
 class DDFilteredView;
 
 namespace cms {

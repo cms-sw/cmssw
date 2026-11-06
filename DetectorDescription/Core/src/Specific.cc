@@ -1,7 +1,6 @@
 #include "DetectorDescription/Core/interface/Specific.h"
 
 #include <cassert>
-#include <ext/alloc_traits.h>
 #include <cstddef>
 #include <memory>
 
