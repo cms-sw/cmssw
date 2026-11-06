@@ -1,9 +1,9 @@
-#include <array>
-#include <cassert>
-#include <functional>
-#include <vector>
+#include <cstdint>
+#include <iostream>
 
 #include <alpaka/alpaka.hpp>
+
+#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
 #include "CAMaskKernels.h"
 

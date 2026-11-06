@@ -1,7 +1,7 @@
 #ifndef RecoTracker_FinalTrackSelectors_interface_TrackMergerCounterSoACollection_h
 #define RecoTracker_FinalTrackSelectors_interface_TrackMergerCounterSoACollection_h
 
-#include <cstdint>
+#include <type_traits>
 
 #include <alpaka/alpaka.hpp>
 

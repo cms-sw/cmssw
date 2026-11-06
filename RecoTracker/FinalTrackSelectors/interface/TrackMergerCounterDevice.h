@@ -1,7 +1,5 @@
-#ifndef RecoTracker_FinalTrackSelectors_interface_CAPairDevice_H
-#define RecoTracker_FinalTrackSelectors_interface_CAPairDevice_H
-
-#include <cstdint>
+#ifndef RecoTracker_FinalTrackSelectors_interface_TrackMergerCounterDevice_H
+#define RecoTracker_FinalTrackSelectors_interface_TrackMergerCounterDevice_H
 
 #include <alpaka/alpaka.hpp>
 

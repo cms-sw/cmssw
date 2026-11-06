@@ -1,8 +1,6 @@
 #ifndef RecoTracker_FinalTrackSelectors_interface_TrackMergerCounterHost_h
 #define RecoTracker_FinalTrackSelectors_interface_TrackMergerCounterHost_h
 
-#include <cstdint>
-
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/Portable/interface/PortableHostCollection.h"

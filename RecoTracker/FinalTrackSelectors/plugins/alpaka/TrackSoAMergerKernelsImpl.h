@@ -9,8 +9,6 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
-#include <limits>
-#include <type_traits>
 
 // Alpaka includes
 #include <alpaka/alpaka.hpp>
@@ -19,10 +17,8 @@
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
 #include "DataFormats/TrackSoA/interface/TracksSoA.h"
 #include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/AtomicPairCounter.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
-#include "FWCore/Utilities/interface/isFinite.h"
 #include "RecoTracker/FinalTrackSelectors/interface/TrackMergerCounterSoA.h"
 
 // local includes

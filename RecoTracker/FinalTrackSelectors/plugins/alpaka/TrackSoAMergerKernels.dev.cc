@@ -1,7 +1,5 @@
-// C++ headers
-#ifdef DUMP_GPU_TK_TUPLES
-#include <mutex>
-#endif
+#include <algorithm>
+#include <utility>
 
 // Alpaka headers
 #include <alpaka/alpaka.hpp>
@@ -9,6 +7,7 @@
 // CMSSW headers
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/prefixScan.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
 // local headers

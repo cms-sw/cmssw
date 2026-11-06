@@ -5,19 +5,15 @@
 // #define DUMP_GPU_TK_TUPLES
 
 #include <cstdint>
-#include <utility>
+#include <optional>
 
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
-#include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
 #include "DataFormats/SoATemplate/interface/SoAConstMultiView.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/AtomicPairCounter.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-#include "RecoTracker/FinalTrackSelectors/interface/TrackMergerCounterSoA.h"
 #include "RecoTracker/FinalTrackSelectors/interface/alpaka/TrackMergerCounterSoACollection.h"
 
 namespace mergerKernels {
@@ -27,13 +23,6 @@ namespace mergerKernels {
   using TrackHitsConstView = reco::TrackHitSoAConstView;
   using TracksMultiView = SoAConstMultiView<TracksConstView, maxTrackSoACollections>;
   using TrackHitsMultiView = SoAConstMultiView<TrackHitsConstView, maxTrackSoACollections>;
-
-  struct InputTracks {
-    reco::TrackSoAConstView views[maxTrackSoACollections];
-    reco::TrackHitSoAConstView hitViews[maxTrackSoACollections];
-    int nInputs;
-    int nTracks;
-  };
 
   struct Params {
     bool doSameHitsDuplicates;

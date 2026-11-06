@@ -1,9 +1,14 @@
 #include <alpaka/alpaka.hpp>
 
-#include <numeric>
+#include <cassert>
+#include <iostream>
+#include <optional>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -71,8 +76,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     for (const auto& it : trackTags_) {
       trackTokens_.push_back(consumes(it));
     }
-
-    assert(trackTags_.size() <= ::mergerKernels::maxTrackSoACollections);
 
     if (trackTags_.empty()) {
       throw cms::Exception("TracksSoAMerger - Inputs") << "No input TkSoA collections provided";

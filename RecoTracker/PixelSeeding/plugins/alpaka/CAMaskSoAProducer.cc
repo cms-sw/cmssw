@@ -1,11 +1,14 @@
+#include <string>
+#include <vector>
+#include <utility>
+
 #include <alpaka/alpaka.hpp>
 
-#include "DataFormats/TrackSoA/interface/TracksHost.h"
 #include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
-#include "DataFormats/TrackSoA/interface/TracksDevice.h"
 #include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitsSoACollection.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitsMaskingSoACollection.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -13,6 +16,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
 #include "CAMaskKernels.h"
 
