@@ -41,6 +41,8 @@ public:
   bool ProcessHits(G4Step *, G4TouchableHistory *) override;
   uint32_t setDetUnitId(const G4Step *) override;
   void EndOfEvent(G4HCofThisEvent *) override;
+  void swapParked(int trackID);
+  void flushHits();
 
   void fillHits(edm::PSimHitContainer &, const std::string &) override;
   void clearHits() override;
@@ -69,6 +71,7 @@ private:
   bool allowZeroEnergyLoss;
   bool printHits;
   bool neverAccumulate;
+  bool quirkTracking;
   double rTracker2;  // tracker volume R^2
   double rTracker;   // tracker volume R
   double zTracker;   // tracker volume Z
@@ -80,6 +83,10 @@ private:
   UpdatablePSimHit *mySimHit;
   uint32_t lastId;
   int lastTrack;
+  // open hit of a suspended track (quirk pairs alternate without BeginOfTrack)
+  UpdatablePSimHit *parkedHit{nullptr};
+  uint32_t parkedId{0};
+  int parkedTrack{0};
 
   // cache stuff for debugging and printout
   Local3DPoint globalEntryPoint;
