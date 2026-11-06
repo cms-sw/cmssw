@@ -7,8 +7,8 @@
 
 #include <array>
 #include <cstddef>
+#include <format>
 #include <ostream>
-#include <stdexcept>
 #include <tuple>
 
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
@@ -237,13 +237,37 @@
 /*
  * Check the equality of sizes for each block
  */
-#define _CHECK_VIEW_SIZES_IMPL(NAME, CLASS_NAME)                                                                      \
-  if (sizes_[index] < view.NAME().metadata().size()) {                                                                \
-    throw std::runtime_error("In " #CLASS_NAME "::deepCopy method: number of elements mismatch for block " #NAME ""); \
-  }                                                                                                                   \
+#define _CHECK_VIEW_SIZES_IMPL(NAME, CLASS_NAME)                                                    \
+  if (sizes_[index] != view.NAME().metadata().size()) {                                             \
+    cms::soa::detail::throwRuntimeError(std::format("In {}::deepCopy: block '{}' size is unequal. " \
+                                                    "Buffer Size: {}, Input size: {}.",             \
+                                                    #CLASS_NAME,                                    \
+                                                    #NAME,                                          \
+                                                    sizes_[index],                                  \
+                                                    view.NAME().metadata().size())                  \
+                                            .c_str());                                              \
+  }                                                                                                 \
   index++;
 
 #define _CHECK_VIEW_SIZES(R, DATA, SPEC) _EXEC_IF_BLOCK(SPEC, _CHECK_VIEW_SIZES_IMPL, (_BLOCK_GET_NAME(SPEC), DATA))
+
+/*
+ * Check the equality of sizes for each block
+ */
+#define _CHECK_VIEW_SIZES_TRUNCATED_IMPL(NAME, CLASS_NAME)                                                   \
+  if (sizes_[index] > view.NAME().metadata().size()) {                                                       \
+    cms::soa::detail::throwRuntimeError(std::format("In {}::deepCopy: block '{}' is larger than the input. " \
+                                                    "Buffer Size: {}, Input size: {}.",                      \
+                                                    #CLASS_NAME,                                             \
+                                                    #NAME,                                                   \
+                                                    sizes_[index],                                           \
+                                                    view.NAME().metadata().size())                           \
+                                            .c_str());                                                       \
+  }                                                                                                          \
+  index++;
+
+#define _CHECK_VIEW_SIZES_TRUNCATED(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _CHECK_VIEW_SIZES_TRUNCATED_IMPL, (_BLOCK_GET_NAME(SPEC), DATA))
 
 /*
  * Call the deepCopy method for each block
@@ -252,6 +276,11 @@
 
 #define _DEEP_COPY_VIEW_COLUMNS(R, DATA, SPEC) \
   _EXEC_IF_BLOCK(SPEC, _DEEP_COPY_VIEW_COLUMNS_IMPL, (_BLOCK_GET_NAME(SPEC)))
+
+#define _DEEP_COPY_TRUNCATED_VIEW_COLUMNS_IMPL(NAME) BOOST_PP_CAT(NAME, _).deepCopyTruncated(view.NAME());
+
+#define _DEEP_COPY_TRUNCATED_VIEW_COLUMNS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DEEP_COPY_TRUNCATED_VIEW_COLUMNS_IMPL, (_BLOCK_GET_NAME(SPEC)))
 
 /*
  * Call ROOTReadstreamer for each block.
@@ -588,6 +617,16 @@
       size_type index = 0;                                                                                             \
       _ITERATE_ON_ALL(_CHECK_VIEW_SIZES, CLASS, __VA_ARGS__)                                                           \
       _ITERATE_ON_ALL(_DEEP_COPY_VIEW_COLUMNS, ~, __VA_ARGS__)                                                         \
+    }                                                                                                                  \
+                                                                                                                       \
+    /*                                                                                                                 \
+     * Method for copying the data from a generic ConstView by blocks to a memory blob.                                \
+     * Host-only data can be handled by this method.                                                                   \
+     */                                                                                                                \
+    SOA_HOST_ONLY void deepCopyTruncated(ConstView const& view) {                                                      \
+      size_type index = 0;                                                                                             \
+      _ITERATE_ON_ALL(_CHECK_VIEW_SIZES_TRUNCATED, CLASS, __VA_ARGS__)                                                 \
+      _ITERATE_ON_ALL(_DEEP_COPY_TRUNCATED_VIEW_COLUMNS, ~, __VA_ARGS__)                                               \
     }                                                                                                                  \
                                                                                                                        \
     /* ROOT read streamer */                                                                                           \
