@@ -1,0 +1,12 @@
+<lcgdict>
+  <class name="btldigi::BTLDigiHostCollection::Layout"/>
+  <class name="btldigi::BTLDigiSoA"/>
+  <class name="btldigi::BTLDigiSoA::View"/>
+  <class name="btldigi::BTLDigiHostCollection" rntupleStreamerMode="true"/>
+  <class name="edm::Wrapper<btldigi::BTLDigiHostCollection>" splitLevel="0"/>
+  <class name="etldigi::ETLDigiHostCollection::Layout"/>
+  <class name="etldigi::ETLDigiSoA"/>
+  <class name="etldigi::ETLDigiSoA::View"/>
+  <class name="etldigi::ETLDigiHostCollection" rntupleStreamerMode="true"/>
+  <class name="edm::Wrapper<etldigi::ETLDigiHostCollection>" splitLevel="0"/>
+</lcgdict>

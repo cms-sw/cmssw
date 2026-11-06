@@ -3,6 +3,9 @@
 <use name="DataFormats/FTLDigi"/>
 <use name="SimFastTiming/FastTimingCommon"/>
 <use name="rootgraphics"/>
+<library file="MTDDigiContentDump.cc" name="MTDDigiContentDump">
+  <flags EDM_PLUGIN="1"/>
+</library>
 <library file="MTDDigiDump.cc" name="MTDDigiDump">
   <flags EDM_PLUGIN="1"/>
 </library>
