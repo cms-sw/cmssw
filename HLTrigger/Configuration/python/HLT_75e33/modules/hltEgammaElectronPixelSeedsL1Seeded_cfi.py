@@ -48,3 +48,15 @@ hltEgammaElectronPixelSeedsL1Seeded = cms.EDProducer("ElectronNHitSeedProducer",
     superClusters = cms.VInputTag("hltEgammaSuperClustersToPixelMatchL1Seeded"),
     vertices = cms.InputTag("")
 )
+
+from Configuration.ProcessModifiers.egammaPixelSeedingPortable_cff import egammaPixelSeedingPortable
+_hltEgammaElectronPixelSeedsL1SeededFromSoA = cms.EDProducer("ElectronSeedConverter",
+    beamSpot = cms.InputTag("hltOnlineBeamSpot"),
+    detLayerGeom = cms.ESInputTag("","GlobalDetLayerGeometry"),
+    eleSeedsSoA = cms.InputTag("hltEgammaElectronPixelSeedsPortable"),
+    initialSeeds = cms.InputTag("hltElePixelSeedsCombinedL1Seeded"),
+    measTkEvt = cms.InputTag("hltMeasurementTrackerEvent"),
+    navSchool = cms.ESInputTag("","SimpleNavigationSchool"),
+    superClusters = cms.InputTag("hltEgammaSuperClustersToPixelMatchL1Seeded")
+)
+egammaPixelSeedingPortable.toReplaceWith(hltEgammaElectronPixelSeedsL1Seeded, _hltEgammaElectronPixelSeedsL1SeededFromSoA)
