@@ -4,7 +4,7 @@
 #include <vector>
 
 namespace edm::streamer::uncompress {
-  enum class Algo { kZLIB, kZSTD, kLZMA };
+  enum class Algo { kZLIB, kZSTD, kLZMA, kLZ4 };
 
   Algo compressionAlgo(unsigned char const* inputBuffer, unsigned int inputSize);
 
