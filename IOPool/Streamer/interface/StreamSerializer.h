@@ -68,7 +68,7 @@ namespace edm::streamer {
 
   class EventMsgBuilder;
   class InitMsgBuilder;
-  enum StreamerCompressionAlgo { UNCOMPRESSED = 0, ZLIB = 1, LZMA = 2, ZSTD = 4 };
+  enum StreamerCompressionAlgo { UNCOMPRESSED = 0, ZLIB = 1, LZMA = 2, ZSTD = 4, LZ4 = 8 };
 
   class StreamSerializer {
   public:
@@ -117,6 +117,15 @@ namespace edm::streamer {
                                            int compressionLevel,
                                            unsigned int reserveSize,
                                            bool addHeader = true);
+
+    // level 1 uses the fast LZ4 compressor, level 2 uses the mid-level compression introduced in LZ4 1.10.0,
+    // while levels 3-12 use the LZ4 HC with that level (like the lz4 command line tool)
+    static unsigned int compressBufferLZ4(unsigned char *inputBuffer,
+                                          unsigned int inputSize,
+                                          std::vector<unsigned char> &outputBuffer,
+                                          int compressionLevel,
+                                          unsigned int reserveSize,
+                                          bool addHeader = true);
 
   private:
     int serializeEventCommon(SerializeDataBuffer &data_buffer,
