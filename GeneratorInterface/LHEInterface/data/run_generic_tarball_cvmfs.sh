@@ -10,6 +10,8 @@
 #exit on first error
 set -e
 
+unset LD_PRELOAD
+
 echo "   ______________________________________     "
 echo "         Running Generic Tarball/Gridpack     "
 echo "   ______________________________________     "
