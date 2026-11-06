@@ -1,14 +1,17 @@
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/EcalDetId"/>
+<use name="DataFormats/ForwardDetId"/>
 <use name="DataFormats/GeometryVector"/>
 <use name="DataFormats/Math"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
 <use name="FastSimulation/CalorimeterProperties"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/CaloTopology"/>
 <use name="Geometry/EcalAlgo"/>
 <use name="Geometry/HcalTowerAlgo"/>
+<use name="Geometry/HGCalCommonData"/>
 <use name="clhep"/>
 <use name="rootmath"/>
 <export>

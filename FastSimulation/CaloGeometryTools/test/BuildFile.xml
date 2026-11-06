@@ -3,10 +3,19 @@
 <use name="Geometry/EcalAlgo"/>
 <use name="DataFormats/EcalDetId"/>
 <use name="FWCore/Framework"/>
+<use name="FWCore/Utilities"/>
 <use name="FastSimulation/CaloGeometryTools"/>
 <use name="FastSimulation/CaloHitMakers"/>
 <use name="FastSimulation/Utilities"/>
 <use name="Geometry/Records"/>
+<use name="Geometry/HGCalGeometry"/>
+<use name="Geometry/HGCalCommonData"/>
+<use name="DataFormats/ForwardDetId"/>
+<library file="HGCalFastGeometryTester.cc" name="HGCalFastGeometryTester">
+  <flags EDM_PLUGIN="1"/>
+</library>
 <library file="testCaloGeometryTools.cc" name="testCaloGeometryTools">
   <flags EDM_PLUGIN="1"/>
 </library>
+<!-- Round trip getPosition(id) -> toDetId() on D122 for CE-E, CE-H silicon and CE-H scintillator -->
+<test name="TestHGCalFastGeometry" command="cmsRun ${LOCALTOP}/src/FastSimulation/CaloGeometryTools/test/hgcalFastGeometryTester_cfg.py --geom D122 --era Phase2C26I13M9 --maxCells 20000 --benchmark 0"/>
