@@ -137,7 +137,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // setup RNG for noise generation
     edm::Service<edm::RandomNumberGenerator> rng;
     CLHEP::HepRandomEngine& engine = rng->getEngine(iEvent.streamID());
-    const uint64_t seed = CLHEP::RandFlat::shootInt(&engine, std::numeric_limits<uint64_t>::max());
+    const uint64_t seed = static_cast<uint64_t>( CLHEP::RandFlat::shootInt(&engine, std::numeric_limits<int>::max()) );
 
     if (agedG4HitsAcc_device_.has_value()) {
       rocDigisAcc_device_ = digitizer_.digitize(
