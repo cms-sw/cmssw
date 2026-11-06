@@ -22,6 +22,7 @@ The `BuildFile.xml` must contain `<flags ALPAKA_BACKENDS="1"/>` to enable the be
     * Use `stream::EDProducer`
   * If you need to transfer some data back to host, use `stream::SynchronizingEDProducer`
   * If you need a fixed association of GPU queues and framework streams, use `stream::FixedQueueEDProducer`
+  * If you need both to transfer some data back to host and a fixed association of GPU queues and framework streams, use `stream::SynchronizingFixedQueueEDProducer`
 * All code using `ALPAKA_ACCELERATOR_NAMESPACE` should be placed in `Package/SubPackage/{interface,src,plugins,test}/alpaka` directory
   * `ALPAKA_ACCELERATOR_NAMESPACE` should be used for Alpaka-backend-specific code that is not separated from other backends by other means
     * Some examples when to enclose code in `ALPAKA_ACCELERATOR_NAMESPACE`
@@ -160,8 +161,11 @@ The Alpaka-based EDModules should use one of the following base classes (that ar
       * The base class uses the [`edm::ExternalWork`](https://twiki.cern.ch/twiki/bin/view/CMSPublic/FWMultithreadedFrameworkStreamModuleInterface#edm_ExternalWork) for the non-blocking synchronization
 * `stream::FixedQueueEDProducer<...>` (`#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/FixedQueueEDProducer.h"`)
    * A [stream EDProducer](https://twiki.cern.ch/twiki/bin/view/CMSPublic/FWMultithreadedFrameworkStreamModuleInterface) that launches (possibly) asynchronous work, with a fixed association of device queues to framework streams
+* `stream::SynchronizingFixedQueueEDProducer<...>` (`#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/SynchronizingFixedQueueEDProducer.h"`)
+   * A [stream EDProducer](https://twiki.cern.ch/twiki/bin/view/CMSPublic/FWMultithreadedFrameworkStreamModuleInterface) that may launch (possibly) asynchronous work, and synchronizes the asynchronous work on the device with the host, with a fixed association of device queues to framework streams
+      * The base class uses the [`edm::ExternalWork`](https://twiki.cern.ch/twiki/bin/view/CMSPublic/FWMultithreadedFrameworkStreamModuleInterface#edm_ExternalWork) for the non-blocking synchronization
 
-The `...` can in principle be any of the module abilities listed in the linked TWiki pages, except the `edm::ExternalWork`. The majority of the Alpaka EDProducers should be `global::EDProducer` or `stream::EDProducer`, with `stream::SynchronizingEDProducer` used only in cases where some data to be copied from the device to the host, that requires synchronization, for different reason than copying an Event data product from the device to the host.
+The `...` can in principle be any of the module abilities listed in the linked TWiki pages, except the `edm::ExternalWork`. The majority of the Alpaka EDProducers should be `global::EDProducer` or `stream::EDProducer`, with `stream::SynchronizingEDProducer` used only in cases where some data to be copied from the device to the host, that requires synchronization, for different reason than copying an Event data product from the device to the host. `stream::SynchronizingFixedQueueEDProducer` should be used only in the same cases, when the module also needs a fixed association of device queues to framework streams, for example because it uses external software that associates resources to the device queues, like the PyTorch device memory caching allocator.
 
 New base classes (or other functionality) can be added based on new use cases that come up.
 
