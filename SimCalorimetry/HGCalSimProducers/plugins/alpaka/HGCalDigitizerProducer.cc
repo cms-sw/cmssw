@@ -111,10 +111,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const auto& g4AccHits = iEvent.get(g4HitsAccTkn_);
     auto ncells = g4AccHits.view().metadata().size();
 
-    LogDebug("") << "Loaded accumulated Geant 4 hits for " << ncells << " cells"
-                 << ", " << ageingConds.view().metadata().size() << " ageing conditions"
-                 << ", " << denseIndexer.view().metadata().size() << " dense indices"
-                 << ", and " << cellInfo.view().metadata().size() << " cell info indices";
+    LogDebug("[HGCalDigitizerProducer]") << "Loaded accumulated Geant 4 hits for " << ncells << " cells"
+                                         << ", " << ageingConds.view().metadata().size() << " ageing conditions"
+                                         << ", " << denseIndexer.view().metadata().size() << " dense indices"
+                                         << ", and " << cellInfo.view().metadata().size() << " cell info indices";
 
 #ifdef EDM_ML_DEBUG
     alpaka::wait(queue);
@@ -150,13 +150,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::wait(queue);
     auto stop = std::chrono::steady_clock::now();
     std::chrono::duration<float> elapsed = stop - start;
-    LogDebug("HGCalDigitizerProducer") << "Time spent creating " << ncells << " digis: " << elapsed.count();
+    LogDebug("[HGCalDigitizerProducer]") << "Time spent creating " << ncells << " digis: " << elapsed.count();
 #endif
   }
 
   //
   void HGCalDigitizerProducer::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
-    LogDebug() << "Storing HGCAL DIGIs in the event";
+    LogDebug("[HGCalDigitizerProducer]") << "Storing HGCAL DIGIs in the event";
 
     if (rocDigis_device_.has_value()) {
       iEvent.emplace(rocDigisTkn_, std::move(rocDigis_device_.value()));
