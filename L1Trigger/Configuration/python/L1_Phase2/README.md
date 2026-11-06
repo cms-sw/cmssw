@@ -35,12 +35,25 @@ difference between `cmsDriver -s DIGI:pdigi_valid` and `cmsDriver -s DIGI:pdigi_
   themselves do not read truth with the default settings.
 * The required external inputs are listed in the header of `L1_Phase2_cff.py`.
 
+## Validity
+
+Generated for `Phase2C17I13M9` (Run4D110). The configuration is identical for `Phase2C22I13M9`
+(default Run4D121), but not for `Phase2C20I13M9` (HFNose TPG modules) or `Phase2C26I13M9`
+(HGCal VFE/concentrator parameters).
+
 ## Usage
 
-Loading the fragment replaces `process.schedule` with the L1 schedule, as for `HLT_75e33_cff`:
+With cmsDriver, the step `L1P2` replaces `L1TrackTrigger,L1,L1P2GT` (`L1P2:<name>` loads
+`L1Trigger/Configuration/L1_<name>_cff`, default `Phase2`):
 
-    schedule = process.schedule
+    cmsDriver.py step2 -s DIGI:pdigi_valid,L1P2,DIGI2RAW,HLT:@relvalRun4 ...
+
+The matrix workflows `29634.783` (Run4D110) and `34434.783` (Run4D121) use it.
+
+In a configuration, load the fragment and add its paths (listed in schedule order in `l1Paths`);
+loading the fragment does not change `process.schedule`:
+
+    from L1Trigger.Configuration.L1_Phase2_cff import l1Paths
     process.load("L1Trigger.Configuration.L1_Phase2_cff")
-    l1Paths = list(process.schedule)
-    process.schedule = schedule
-    # insert l1Paths after the digitisation step
+    for i, label in enumerate(l1Paths):
+        process.schedule.insert(index + i, getattr(process, label))  # e.g. after the digitisation step

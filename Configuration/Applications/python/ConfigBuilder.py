@@ -1098,6 +1098,7 @@ class ConfigBuilder(object):
         self.HLTDefaultSeq='GRun'
         self.L1DefaultSeq=None
         self.L1P2GTDefaultSeq=None
+        self.L1P2DefaultSeq='Phase2'
         self.L1REPACKDefaultSeq='GT'
         self.HARVESTINGDefaultSeq=None
         self.ALCAHARVESTDefaultSeq=None
@@ -1675,6 +1676,16 @@ class ConfigBuilder(object):
             self.loadPhase2GTMenu(menuFile = defaultMenuFile)
         else:
             self.loadPhase2GTMenu(menuFile = stepSpec)
+
+    def prepare_L1P2(self, stepSpec = None):
+        """ Enrich the schedule with the standalone Phase-2 L1 configuration L1_<stepSpec>_cff
+            (track trigger, L1 emulation and P2GT, i.e. the steps L1TrackTrigger,L1,L1P2GT) """
+        l1Fragment = self.loadAndRemember('L1Trigger/Configuration/L1_%s_cff' % stepSpec)
+        for label in l1Fragment.l1Paths:
+            path = getattr(self.process, label)
+            # defined by the fragment, so not dumped again
+            self.blacklist_paths.append(path)
+            self.schedule.append(path)
 
     def prepare_L1(self, stepSpec = None):
         """ Enrich the schedule with the L1 simulation step"""

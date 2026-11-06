@@ -46,6 +46,7 @@ L1_PATH_AFTER_WHICH_LEGACY = "L1simulation_step"
 
 FRAGMENT = "L1_Phase2"
 PACKAGE = "L1Trigger/Configuration"
+PATH_LIST = "l1Paths"
 
 MODULE_TYPES = (cms.EDProducer, cms.EDFilter, cms.EDAnalyzer)
 SEQUENCE_TYPES = (cms.Sequence, cms.Task)
@@ -140,25 +141,33 @@ def l1Content(base, full):
     return paths, modules, reached.sequences, es, legacy, externalInputs
 
 
+def removeDirectly(container, item):
+    """Removes 'item' only where 'container' holds it directly: remove() would replace nested
+    tasks/sequences holding it by unlabelled copies."""
+    if isinstance(container, cms.Task):
+        if item in container._collection:
+            container._collection.remove(item)
+            return True
+        return False
+    return container._replaceIfHeldDirectly(item, None)
+
+
 def splitLegacy(full, paths, sequences, legacy):
     """Removes the legacy modules from the L1 sequences/tasks and schedules them in their own path."""
-    containers = [getattr(full, s) for s in sequences]
+    containers = [getattr(full, s) for s in sorted(sequences)]
     for label in sorted(legacy):
         module = getattr(full, label)
         for container in containers:
-            while container.remove(module):
-                pass
+            removeDirectly(container, module)
     setattr(full, LEGACY_TASK, cms.Task(*[getattr(full, m) for m in sorted(legacy)]))
     setattr(full, LEGACY_PATH, cms.Path(getattr(full, LEGACY_TASK)))
     index = [p.label_() for p in paths].index(L1_PATH_AFTER_WHICH_LEGACY) + 1
     paths.insert(index, getattr(full, LEGACY_PATH))
     # drop the containers that became empty
-    remaining = reachable(paths).sequences
-    empty = {s for s in remaining if not reachable([getattr(full, s)]).modules}
-    for label in sorted(empty):
+    empty = sorted(s for s in reachable(paths).sequences if not reachable([getattr(full, s)]).modules)
+    for label in empty:
         for container in containers + paths:
-            while container.remove(getattr(full, label)):
-                pass
+            removeDirectly(container, getattr(full, label))
     return reachable(paths).sequences
 
 
@@ -220,9 +229,9 @@ def generate(args):
     lines += [f'fragment.load("{loadPrefix}/eventsetup/{label}_cfi")' for label in sorted(es)]
     lines += ["", "### Paths (modules and sequences are imported by the path files)"]
     lines += [f'fragment.load("{loadPrefix}/paths/{p.label_()}_cfi")' for p in paths]
-    lines += ["", "fragment.schedule = cms.Schedule(*["]
-    lines += [f"    fragment.{p.label_()}," for p in paths]
-    lines += ["])", ""]
+    lines += ["", "# Paths in schedule order. There is no fragment.schedule, so loading the fragment does not",
+              "# replace process.schedule: the cmsDriver step L1P2 (or the user) appends these paths."]
+    lines += [f"{PATH_LIST} = ["] + [f'    "{p.label_()}",' for p in paths] + ["]", ""]
     with open(os.path.join(args.outdir, FRAGMENT + "_cff.py"), "w") as out:
         out.write("\n".join(lines))
 
@@ -238,12 +247,16 @@ def validate(args):
         test = loadProcess(os.path.join(workdir, "base_cfg.py"))
     refPaths, refModules, _, refES, legacy, _ = l1Content(base, full)
 
+    baseSchedule = [p.label_() for p in test.schedule]
     test.load(f"{PACKAGE.replace('/', '.')}.{FRAGMENT}_cff")
-    testPaths = [getattr(test, p.label_()) for p in refPaths if hasattr(test, p.label_())]
-    if hasattr(test, LEGACY_PATH):
-        testPaths.append(getattr(test, LEGACY_PATH))
+    fragmentPaths = getattr(importlib.import_module(f"{PACKAGE.replace('/', '.')}.{FRAGMENT}_cff"), PATH_LIST)
+    testPaths = [getattr(test, p) for p in fragmentPaths if hasattr(test, p)]
     testModules = reachable(testPaths).modules
     errors = []
+    if [p.label_() for p in test.schedule] != baseSchedule:
+        errors.append("loading the fragment changes process.schedule")
+    if len(testPaths) != len(fragmentPaths):
+        errors.append(f"paths listed in {PATH_LIST} but not defined: {sorted(set(fragmentPaths) - set(test.paths_()))}")
 
     missing, extra = refModules - testModules, testModules - refModules
     if missing:
@@ -264,9 +277,9 @@ def validate(args):
             errors.append(f"parameters differ for ES object '{label}'")
 
     refOrder = [p.label_() for p in refPaths]
-    testOrder = [p for p in refOrder if hasattr(test, p)]
+    testOrder = [p for p in fragmentPaths if p != LEGACY_PATH]
     if testOrder != refOrder:
-        errors.append(f"paths missing from the fragment: {sorted(set(refOrder) - set(testOrder))}")
+        errors.append(f"{PATH_LIST} differs from the cmsDriver path order")
 
     for e in errors:
         print("ERROR:", e)
