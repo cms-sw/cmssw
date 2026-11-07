@@ -15,6 +15,7 @@
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "SimG4Core/CustomPhysics/interface/CMSExoticaPhysics.h"
+#include "SimG4Core/CustomPhysics/interface/CMSQuirkPhysics.h"
 
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
@@ -61,6 +62,7 @@
 #include <memory>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
       m_managerInitialized(false), 
@@ -69,6 +71,9 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
       m_PhysicsTablesDir(p.getParameter<std::string>("PhysicsTablesDirectory")),
       m_StorePhysicsTables(p.getParameter<bool>("StorePhysicsTables")),
       m_RestorePhysicsTables(p.getParameter<bool>("RestorePhysicsTables")),
+      m_quirkTracking(p.getParameter<bool>("QuirkTracking") &&
+                      p.getParameter<edm::ParameterSet>("StackingAction").getParameter<bool>("QuirkTracking") &&
+                      p.getParameter<edm::ParameterSet>("TrackingAction").getParameter<bool>("QuirkTracking")),
       m_pField(p.getParameter<edm::ParameterSet>("MagneticField")),
       m_pPhysics(p.getParameter<edm::ParameterSet>("Physics")),
       m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),
@@ -157,6 +162,14 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   }
   bool exotica = m_pPhysics.getUntrackedParameter<bool>("ExoticaTransport",false);
   if(exotica) { CMSExoticaPhysics exo(phys, m_pPhysics); }
+  double quirkMass = m_pPhysics.getParameter<double>("QuirkMass");
+  if (quirkMass > 0.0) {
+    if (!m_quirkTracking) {
+      throw cms::Exception("Configuration")
+          << "RunManagerMT: QuirkMass > 0 needs QuirkTracking = True in g4SimHits, StackingAction and TrackingAction";
+    }
+    phys->RegisterPhysics(new CMSQuirkPhysics(m_pPhysics));
+  }
 
   // adding GFlash, Russian Roulette for eletrons and gamma, 
   // step limiters on top of any Physics Lists
