@@ -3,6 +3,7 @@
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#include <cstdlib>
 #include <iostream>
 
 using namespace std;
@@ -16,7 +17,9 @@ JetTagPlotter::JetTagPlotter(const std::string& tagName,
                              DQMStore::IBooker& ibook,
                              bool doCTagPlots /*=false*/,
                              bool doDifferentialPlots /*=false*/,
-                             double discrCut /*=-999.*/)
+                             double discrCut /*=-999.*/,
+                             const std::string& kinematicsTag /*=""*/,
+                             bool bookKinematics /*=true*/)
     : BaseBTagPlotter(tagName, etaPtBin),
       discrStart_(pSet.getParameter<double>("discriminatorStart")),
       discrEnd_(pSet.getParameter<double>("discriminatorEnd")),
@@ -27,59 +30,66 @@ JetTagPlotter::JetTagPlotter(const std::string& tagName,
       willFinalize_(wf),
       doCTagPlots_(doCTagPlots),
       doDifferentialPlots_(doDifferentialPlots),
-      cutValue_(discrCut) {
+      cutValue_(discrCut),
+      kinematicsExtension_(kinematicsTag.empty() ? theExtensionString
+                                                 : "_" + kinematicsTag + etaPtBin.getDescriptionString()),
+      bookKinematics_(bookKinematics) {
   // to have a shorter name .....
   const std::string& es = theExtensionString;
   const std::string jetTagDir(es.substr(1));
+  const std::string& kes = kinematicsExtension_;
+  const std::string kinematicsDir(kes.substr(1));
 
   if (willFinalize_)
     return;
-
-  //added to count the number of jets by event : 0=DATA or NI, 1to5=quarks u,d,s,c,b , 6=gluon
-  int nFl = 1;
-  if (mcPlots_)
-    nFl = 8;
-  nJets_.resize(nFl, 0);
-
-  if (mcPlots_) {
-    // jet flavour
-    dJetFlav_ = std::make_unique<FlavourHistograms<int>>(
-        "jetFlavour" + es, "Jet Flavour", 22, -0.5, 21.5, false, false, false, "b", jetTagDir, mcPlots_, ibook);
-  }
-
-  // jet multiplicity
-  jetMultiplicity_ = std::make_unique<FlavourHistograms<int>>(
-      "jetMultiplicity" + es, "Jet Multiplicity", 11, -0.5, 10.5, false, true, true, "b", jetTagDir, mcPlots_, ibook);
 
   // Discriminator: again with reasonable binning
   dDiscriminator_ = std::make_unique<FlavourHistograms<double>>(
       "discr" + es, "Discriminator", 102, discrStart_, discrEnd_, false, true, true, "b", jetTagDir, mcPlots_, ibook);
   dDiscriminator_->settitle("Discriminant");
-  // reconstructed jet momentum
-  dJetRecMomentum_ = std::make_unique<FlavourHistograms<double>>(
-      "jetMomentum" + es, "jet momentum", 350, 0.0, 350.0, false, false, true, "b", jetTagDir, mcPlots_, ibook);
 
-  // reconstructed jet transverse momentum
-  dJetRecPt_ = std::make_unique<FlavourHistograms<double>>(
-      "jetPt" + es, "jet pt", 350, 0.0, 350.0, false, false, true, "b", jetTagDir, mcPlots_, ibook);
+  if (bookKinematics_) {
+    if (mcPlots_) {
+      // jet flavour: always with ALL (odd MClevel -> next even one). The DQM (MClevel 0) module
+      // never books jetFlavour, so its ALL cannot be filled twice
+      dJetFlav_ = std::make_unique<FlavourHistograms<int>>("jetFlavour" + kes,
+                                                           "Jet Flavour",
+                                                           22,
+                                                           -0.5,
+                                                           21.5,
+                                                           false,
+                                                           false,
+                                                           false,
+                                                           "b",
+                                                           kinematicsDir,
+                                                           mcPlots_ % 2 ? mcPlots_ + 1 : mcPlots_,
+                                                           ibook);
+    }
 
-  // reconstructed jet eta
-  dJetRecPseudoRapidity_ = std::make_unique<FlavourHistograms<double>>("jetEta" + es,
-                                                                       "jet eta",
-                                                                       20,
-                                                                       -etaPtBin.getEtaMax(),
-                                                                       etaPtBin.getEtaMax(),
-                                                                       false,
-                                                                       false,
-                                                                       true,
-                                                                       "b",
-                                                                       jetTagDir,
-                                                                       mcPlots_,
-                                                                       ibook);
+    // reconstructed jet transverse momentum: fine binning at low pT, and the full range up to 7 TeV
+    dJetRecPt_ = std::make_unique<FlavourHistograms<double>>(
+        "jetPt" + kes, "jet pt", 350, 0.0, 350.0, false, false, true, "b", kinematicsDir, mcPlots_, ibook);
+    dJetRecPtExtended_ = std::make_unique<FlavourHistograms<double>>(
+        "jetPt_extended" + kes, "jet pt", 700, 0.0, 7000.0, false, false, true, "b", kinematicsDir, mcPlots_, ibook);
 
-  // reconstructed jet phi
-  dJetRecPhi_ = std::make_unique<FlavourHistograms<double>>(
-      "jetPhi" + es, "jet phi", 20, -M_PI, M_PI, false, false, true, "b", jetTagDir, mcPlots_, ibook);
+    // reconstructed jet eta
+    dJetRecPseudoRapidity_ = std::make_unique<FlavourHistograms<double>>("jetEta" + kes,
+                                                                         "jet eta",
+                                                                         20,
+                                                                         -etaPtBin.getEtaMax(),
+                                                                         etaPtBin.getEtaMax(),
+                                                                         false,
+                                                                         false,
+                                                                         true,
+                                                                         "b",
+                                                                         kinematicsDir,
+                                                                         mcPlots_,
+                                                                         ibook);
+
+    // reconstructed jet phi
+    dJetRecPhi_ = std::make_unique<FlavourHistograms<double>>(
+        "jetPhi" + kes, "jet phi", 20, -M_PI, M_PI, false, false, true, "b", kinematicsDir, mcPlots_, ibook);
+  }
 
   if (doDifferentialPlots_) {
     // jet Phi larger than requested discrimnator cut
@@ -110,6 +120,20 @@ JetTagPlotter::JetTagPlotter(const std::string& tagName,
                                                     jetTagDir,
                                                     mcPlots_,
                                                     ibook);
+
+    // jet pT larger than requested discrimnator cut; 50 GeV bins, bin edges aligned with jetPt_extended (10 GeV)
+    dJetPtDiscrCut_ = std::make_unique<FlavourHistograms<double>>("jetPt_diffEff" + es,
+                                                                  "Efficiency vs. jet pt for discriminator above cut",
+                                                                  140,
+                                                                  0.0,
+                                                                  7000.0,
+                                                                  false,
+                                                                  false,
+                                                                  true,
+                                                                  "b",
+                                                                  jetTagDir,
+                                                                  mcPlots_,
+                                                                  ibook);
   }
 }
 
@@ -118,10 +142,9 @@ JetTagPlotter::~JetTagPlotter() {}
 void JetTagPlotter::epsPlot(const std::string& name) {
   if (!willFinalize_) {
     dJetFlav_->epsPlot(name);
-    jetMultiplicity_->epsPlot(name);
     dDiscriminator_->epsPlot(name);
-    dJetRecMomentum_->epsPlot(name);
     dJetRecPt_->epsPlot(name);
+    dJetRecPtExtended_->epsPlot(name);
     dJetRecPseudoRapidity_->epsPlot(name);
     dJetRecPhi_->epsPlot(name);
   } else {
@@ -143,8 +166,6 @@ void JetTagPlotter::psPlot(const std::string& name) {
     canvas.cd(2);
     canvas.cd(3);
     dDiscriminator_->plot();
-    canvas.cd(4);
-    dJetRecMomentum_->plot();
     canvas.cd(5);
     dJetRecPt_->plot();
     canvas.cd(6);
@@ -152,10 +173,6 @@ void JetTagPlotter::psPlot(const std::string& name) {
     canvas.Print((name + cName + ".ps").c_str());
     canvas.Clear();
     canvas.Divide(2, 3);
-
-    jetMultiplicity_->plot();
-    canvas.Print((name + cName + ".ps").c_str());
-    canvas.Clear();
 
     canvas.cd(1);
     dJetRecPhi_->plot();
@@ -177,105 +194,49 @@ void JetTagPlotter::psPlot(const std::string& name) {
   canvas.Print((name + cName + ".ps]").c_str());
 }
 
-void JetTagPlotter::analyzeTag()  //here jetFlavour not needed
-{
-  //to use on data
-  jetMultiplicity_->fill(-1, nJets_[0]);
-  nJets_[0] = 0;  //reset to 0 before the next event
-}
-
-void JetTagPlotter::analyzeTag(float w) {
-  if (mcPlots_) {
-    //to use with MC
-    int totNJets = 0;
-    int udsNJets = 0;
-    int udsgNJets = 0;
-    for (int i = 0; i < 8; i++) {
-      totNJets += nJets_[i];
-      if (i > 0 && i < 4)
-        udsNJets += nJets_[i];
-      if ((i > 0 && i < 4) || i == 6)
-        udsgNJets += nJets_[i];
-      if (i <= 5 && i >= 1)
-        jetMultiplicity_->fill(i, nJets_[i], w);
-      else if (i == 6)
-        jetMultiplicity_->fill(21, nJets_[i], w);
-      else if (i == 7)
-        jetMultiplicity_->fill(20, nJets_[i], w);
-      else
-        jetMultiplicity_->fill(0, nJets_[i], w);
-      nJets_[i] = 0;  //reset to 0 before the next event
-    }
-    jetMultiplicity_->fill(-1, totNJets, w);  //total number of jets in the event
-    jetMultiplicity_->fill(123, udsNJets, w);
-    jetMultiplicity_->fill(12321, udsgNJets, w);
-  } else {
-    int totNJets = 0;
-    for (int i = 0; i < 8; i++) {
-      totNJets += nJets_[i];
-      nJets_[i] = 0;
-    }
-    jetMultiplicity_->fill(-1, totNJets, w);
-  }
-}
-
 void JetTagPlotter::analyzeTag(const reco::Jet& jet, double jec, float discriminator, int jetFlavour, float w /*=1*/) {
-  if (mcPlots_) {
-    dJetFlav_->fill(jetFlavour, jetFlavour, w);
-    if (abs(jetFlavour) > 0 && abs(jetFlavour) < 6)
-      nJets_[abs(jetFlavour)] += 1;  //quarks 1 to 5
-    else if (abs(jetFlavour) == 21)
-      nJets_[6] += 1;  //gluons
-    else if (jetFlavour == 20)
-      nJets_[7] += 1;  //PU
-    else
-      nJets_[0] += 1;  //NI
-  } else {
-    nJets_[0] += 1;
-  }
   if (edm::isNotFinite(discriminator))
     dDiscriminator_->fill(jetFlavour, -999.0, w);
   else
     dDiscriminator_->fill(jetFlavour, discriminator, w);
-  dJetRecMomentum_->fill(jetFlavour, jet.p() * jec, w);
-  dJetRecPt_->fill(jetFlavour, jet.pt() * jec, w);
-  dJetRecPseudoRapidity_->fill(jetFlavour, jet.eta(), w);
-  dJetRecPhi_->fill(jetFlavour, jet.phi(), w);
+  // kinematics are filled only by the plotter that books them
+  if (bookKinematics_) {
+    if (mcPlots_)
+      dJetFlav_->fill(jetFlavour, std::abs(jetFlavour), w);
+    dJetRecPt_->fill(jetFlavour, jet.pt() * jec, w);
+    dJetRecPtExtended_->fill(jetFlavour, jet.pt() * jec, w);
+    dJetRecPseudoRapidity_->fill(jetFlavour, jet.eta(), w);
+    dJetRecPhi_->fill(jetFlavour, jet.phi(), w);
+  }
   if (doDifferentialPlots_) {
     if (edm::isFinite(discriminator) && discriminator > cutValue_) {
       dJetPhiDiscrCut_->fill(jetFlavour, jet.phi(), w);
       dJetPseudoRapidityDiscrCut_->fill(jetFlavour, jet.eta(), w);
+      dJetPtDiscrCut_->fill(jetFlavour, jet.pt() * jec, w);
     }
   }
 }
 
 void JetTagPlotter::analyzeTag(const reco::JetTag& jetTag, double jec, int jetFlavour, float w /*=1*/) {
-  if (mcPlots_) {
-    dJetFlav_->fill(jetFlavour, jetFlavour, w);
-    if (abs(jetFlavour) > 0 && abs(jetFlavour) < 6)
-      nJets_[abs(jetFlavour)] += 1;  //quarks 1 to 5
-    else if (abs(jetFlavour) == 21)
-      nJets_[6] += 1;  //gluons
-    else if (jetFlavour == 20)
-      nJets_[7] += 1;  //PU
-    else
-      nJets_[0] += 1;  //NI
-  } else {
-    nJets_[0] += 1;
-  }
   const auto& discriminator = jetTag.second;
   if (edm::isNotFinite(discriminator))
     dDiscriminator_->fill(jetFlavour, -999.0, w);
   else
     dDiscriminator_->fill(jetFlavour, discriminator, w);
-  dJetRecMomentum_->fill(jetFlavour, jetTag.first->p() * jec, w);
-  dJetRecPt_->fill(jetFlavour, jetTag.first->pt() * jec, w);
-  dJetRecPseudoRapidity_->fill(jetFlavour, jetTag.first->eta(), w);
-  dJetRecPhi_->fill(jetFlavour, jetTag.first->phi(), w);
+  // kinematics are filled only by the plotter that books them
+  if (bookKinematics_) {
+    if (mcPlots_)
+      dJetFlav_->fill(jetFlavour, std::abs(jetFlavour), w);
+    dJetRecPt_->fill(jetFlavour, jetTag.first->pt() * jec, w);
+    dJetRecPtExtended_->fill(jetFlavour, jetTag.first->pt() * jec, w);
+    dJetRecPseudoRapidity_->fill(jetFlavour, jetTag.first->eta(), w);
+    dJetRecPhi_->fill(jetFlavour, jetTag.first->phi(), w);
+  }
   if (doDifferentialPlots_) {
     if (edm::isFinite(discriminator) && discriminator > cutValue_) {
       dJetPhiDiscrCut_->fill(jetFlavour, jetTag.first->phi(), w);
       dJetPseudoRapidityDiscrCut_->fill(jetFlavour, jetTag.first->eta(), w);
+      dJetPtDiscrCut_->fill(jetFlavour, jetTag.first->pt() * jec, w);
     }
   }
 }
@@ -287,6 +248,8 @@ void JetTagPlotter::finalize(DQMStore::IBooker& ibook_, DQMStore::IGetter& igett
   //
   const std::string& es = theExtensionString;
   const std::string jetTagDir(es.substr(1));
+  const std::string& kes = kinematicsExtension_;
+  const std::string kinematicsDir(kes.substr(1));
   dDiscriminator_ = std::make_unique<FlavourHistograms<double>>(
       "discr" + es, "Discriminator", 102, discrStart_, discrEnd_, "b", jetTagDir, mcPlots_, igetter_);
 
@@ -298,7 +261,7 @@ void JetTagPlotter::finalize(DQMStore::IBooker& ibook_, DQMStore::IGetter& igett
   // Produce the differentiel efficiency vs. kinematical variables
   if (doDifferentialPlots_) {
     dJetRecPhi_ = std::make_unique<FlavourHistograms<double>>(
-        "jetPhi" + es, "jet phi", 20, -M_PI, M_PI, "b", jetTagDir, mcPlots_, igetter_);
+        "jetPhi" + kes, "jet phi", 20, -M_PI, M_PI, "b", kinematicsDir, mcPlots_, igetter_);
     dJetPhiDiscrCut_ = std::make_unique<FlavourHistograms<double>>("jetPhi_diffEff" + es,
                                                                    "Efficiency vs. jet Phi for discriminator above cut",
                                                                    20,
@@ -311,8 +274,15 @@ void JetTagPlotter::finalize(DQMStore::IBooker& ibook_, DQMStore::IGetter& igett
     dJetPhiDiscrCut_->divide(*dJetRecPhi_);
     dJetPhiDiscrCut_->setEfficiencyFlag();
 
-    dJetRecPseudoRapidity_ = std::make_unique<FlavourHistograms<double>>(
-        "jetEta" + es, "jet eta", 20, -etaPtBin_.getEtaMax(), etaPtBin_.getEtaMax(), "b", jetTagDir, mcPlots_, igetter_);
+    dJetRecPseudoRapidity_ = std::make_unique<FlavourHistograms<double>>("jetEta" + kes,
+                                                                         "jet eta",
+                                                                         20,
+                                                                         -etaPtBin_.getEtaMax(),
+                                                                         etaPtBin_.getEtaMax(),
+                                                                         "b",
+                                                                         kinematicsDir,
+                                                                         mcPlots_,
+                                                                         igetter_);
     dJetPseudoRapidityDiscrCut_ =
         std::make_unique<FlavourHistograms<double>>("jetEta_diffEff" + es,
                                                     "Efficiency vs. jet eta for discriminator above cut",
@@ -325,5 +295,19 @@ void JetTagPlotter::finalize(DQMStore::IBooker& ibook_, DQMStore::IGetter& igett
                                                     igetter_);
     dJetPseudoRapidityDiscrCut_->divide(*dJetRecPseudoRapidity_);
     dJetPseudoRapidityDiscrCut_->setEfficiencyFlag();
+
+    dJetRecPtExtended_ = std::make_unique<FlavourHistograms<double>>(
+        "jetPt_extended" + kes, "jet pt", 700, 0.0, 7000.0, "b", kinematicsDir, mcPlots_, igetter_);
+    dJetPtDiscrCut_ = std::make_unique<FlavourHistograms<double>>("jetPt_diffEff" + es,
+                                                                  "Efficiency vs. jet pt for discriminator above cut",
+                                                                  140,
+                                                                  0.0,
+                                                                  7000.0,
+                                                                  "b",
+                                                                  jetTagDir,
+                                                                  mcPlots_,
+                                                                  igetter_);
+    dJetPtDiscrCut_->divideRebinned(*dJetRecPtExtended_);
+    dJetPtDiscrCut_->setEfficiencyFlag();
   }
 }
