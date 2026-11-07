@@ -5,11 +5,11 @@
 //
 /**\class MET
 
- Description: This is the fundemental class for missing transverse
+ Description: This is the fundamental class for missing transverse
  momentum (a.k.a MET). The class inherits from RecoCandidate, and so
  is stored in the event as a candidate. The actual MET information is
- contained in the RecoCandidate LorentzVector while supplimentary
- information is stored as varibles in the MET class itself (such as
+ contained in the RecoCandidate LorentzVector while supplementary
+ information is stored as variables in the MET class itself (such as
  SumET). As there may have been more than one correction applied to
  the missing transverse momentum, a vector of corrections to the
  missing px and the missing py is maintained so that one can always

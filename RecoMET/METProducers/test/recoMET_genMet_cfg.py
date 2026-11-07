@@ -8,6 +8,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 ##____________________________________________________________________________||
 process.load("RecoMET.Configuration.RecoGenMET_cff")
+process.load("RecoMET.Configuration.GenMHT_cff")
 process.load("RecoMET.Configuration.GenMETParticles_cff")
 
 ##____________________________________________________________________________||
@@ -39,7 +40,8 @@ process.p = cms.Path(
     process.genJetParticles*
     process.genMETParticles *
     process.genMetCalo *
-    process.genMetTrue
+    process.genMetTrue *
+    process.genMht
     )
 
 process.e1 = cms.EndPath(

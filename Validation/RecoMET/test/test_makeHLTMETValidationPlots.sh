@@ -3,7 +3,7 @@ function die { echo $1: status $2; exit $2; }
 LOCAL_TEST_DIR="${LOCAL_TEST_DIR:-${PWD}}"
 REMOTE="/store/group/phys_jetmet/cmssw_unittests/"
 REDIRECTOR="root://eoscms.cern.ch/" # root://cms-xrd-global.cern.ch
-DQMFILE="DQM_RelValQCD_FlatPt_15_3000HS_14_CMSSW_16_0_0_pre4.root"
+DQMFILE="DQM_RelValQCD_FlatPt_15_3000HS_14_CMSSW_20_1_0_pre3.root"
 OUTDIR="."
 SCRIPT="makeHLTMETValidationPlots.py"
 

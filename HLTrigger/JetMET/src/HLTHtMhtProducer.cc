@@ -6,12 +6,15 @@
  *
  */
 
+#include <memory>
+
 #include "HLTrigger/JetMET/interface/HLTHtMhtProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
@@ -30,6 +33,9 @@ HLTHtMhtProducer::HLTHtMhtProducer(const edm::ParameterSet& iConfig)
       pfCandidatesLabel_(iConfig.getParameter<edm::InputTag>("pfCandidatesLabel")) {
   m_theJetToken = consumes<reco::CandidateView>(jetsLabel_);
   m_thePFCandidateToken = consumes<reco::PFCandidateCollection>(pfCandidatesLabel_);
+
+  if (excludePFMuons_ and pfCandidatesLabel_.label().empty())
+    throw cms::Exception("Configuration") << "HLTHtMhtProducer: excludePFMuons requires a non-empty pfCandidatesLabel.";
 
   // Register the products
   produces<reco::METCollection>();
@@ -58,10 +64,7 @@ void HLTHtMhtProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
 // Produce the products
 void HLTHtMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Create a pointer to the products
-  std::unique_ptr<reco::METCollection> result(new reco::METCollection());
-
-  if (pfCandidatesLabel_.label().empty())
-    excludePFMuons_ = false;
+  std::unique_ptr<reco::METCollection> result = std::make_unique<reco::METCollection>();
 
   edm::Handle<reco::CandidateView> jets;
   iEvent.getByToken(m_theJetToken, jets);

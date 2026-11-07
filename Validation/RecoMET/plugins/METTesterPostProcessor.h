@@ -1,12 +1,13 @@
 #ifndef METTESTERPOSTPROCESSOR_H
 #define METTESTERPOSTPROCESSOR_H
-// author: Matthias Weber, Feb 2015
 
 // user include files
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Validation/RecoMET/plugins/METTester.h"
+
+#include <optional>
 
 //
 // class declaration
@@ -20,50 +21,43 @@ public:
 
 private:
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
-  std::vector<std::string> met_dirs;
 
   using MElem = MonitorElement;
 
-  void mFillAggrHistograms(std::string, DQMStore::IGetter&);
-  bool mCheckHisto(MElem* h);
+  static constexpr int mNMETBins = 11;
+  const std::vector<float> mMETBins = {{0., 20., 40., 60., 80., 100., 150., 200., 300., 400., 500., 1000.}};
 
-  template <typename T>
-  using ArrayVariant = std::variant<std::array<T, METTester::mNMETBins + 1>, std::array<T, METTester::mNPhiBins + 1>>;
+  static constexpr int mNPhiBins = 6;
+  const std::vector<float> mPhiBins = {{-3.15, -2., -1., 0., 1., 2., 3.15}};
 
-  // reading
-  template <typename T>
-  T mArrayIdx(const ArrayVariant<T>& arr, unsigned idx) {
-    return std::visit([idx](const auto& x) { return x.at(idx); }, arr);
-  }
-  // assigning
-  template <typename T>
-  auto& mArrayIdx(ArrayVariant<T>& arr, unsigned idx) {
-    return std::visit([idx](auto& x) -> auto& { return x.at(idx); }, arr);
-  }
+  // 2D histograms filled by METTester and required by the post-processing
+  struct Inputs {
+    MElem* genMETPhi_vs_MET;
+    MElem* genMETTrue_vs_GenMETPhi;
+    MElem* metDiff_vs_GenMETTrue;
+    MElem* metDiff_vs_GenMETPhi;
+    MElem* metRatio_vs_GenMETTrue;
+    MElem* metRatio_vs_GenMETPhi;
+    MElem* metDeltaPhi_vs_GenMETTrue;
+    MElem* metDeltaPhi_vs_GenMETPhi;
+  };
 
-  std::unordered_map<std::string, unsigned> mNBins = {{"MET", METTester::mNMETBins}, {"Phi", METTester::mNPhiBins}};
-  std::unordered_map<std::string, ArrayVariant<float>> mEdges = {
-      {"MET", std::array<float, METTester::mNMETBins + 1>{METTester::mMETBins}},
-      {"Phi", std::array<float, METTester::mNPhiBins + 1>{METTester::mPhiBins}}};
-
-  using ElemMap = std::unordered_map<std::string, MElem*>;  // one entry per bin type, for instance "MET" and "Phi"
-  using ElemMapArr =
-      std::unordered_map<std::string, ArrayVariant<MElem*>>;  // one entry per bin type, for instance "MET" and "Phi"
-
-  ElemMapArr mMET;
-  ElemMapArr mMETDiff_GenMETTrue;
-  ElemMapArr mMETRatio_GenMETTrue;
-  ElemMapArr mMETDeltaPhi_GenMETTrue;
-
-  ElemMap mMETDiffAggr;
-  ElemMap mMETRespAggr;
-  ElemMap mMETResolAggr;
-  ElemMap mMETSignAggr;
+  // statistics of the 1D projection of a 2D histogram in a slice
+  struct ProjStats {
+    float mean, meanErr, rms, rmsErr;
+  };
 
   std::string runDir;
 
   float mEpsilonFloat = std::numeric_limits<float>::epsilon();
-  double mEpsilonDouble = std::numeric_limits<double>::epsilon();
+
+  // methods
+  std::optional<Inputs> mGetInputs(const std::string& metdir, DQMStore::IGetter&);
+  void mFillAggrHistograms(const std::string& metdir, const Inputs&, DQMStore::IBooker&);
+  float mComputeSignErr(float significance, float metRMS, float metMean, float metRMSError);
+  // `axis` is the axis along which the slices defined by `bins` are taken; the other axis is projected
+  std::vector<ProjStats> projectionMeanAndRMS(MElem* src, const std::vector<float>& bins, const std::string& axis);
+  void fillProjectionHisto(MElem* src, MElem* dest, const std::vector<float>& bins);
 };
 
-#endif
+#endif  // METTESTERPOSTPROCESSOR_H
