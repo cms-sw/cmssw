@@ -36,6 +36,8 @@ private:
   const bool doCTagPlots_;
   const bool dodifferentialPlots_;
   const double discrCut_;
+  const std::string kinematicsTag_;
+  const bool bookKinematics_;
 
   const bool etaActive_;
   const double etaMin_;
@@ -55,6 +57,8 @@ MiniAODTaggerAnalyzer::MiniAODTaggerAnalyzer(const edm::ParameterSet& pSet)
       doCTagPlots_(pSet.getParameter<bool>("CTagPlots")),
       dodifferentialPlots_(pSet.getParameter<bool>("differentialPlots")),
       discrCut_(pSet.getParameter<double>("discrCut")),
+      kinematicsTag_(pSet.getParameter<std::string>("kinematicsTag")),
+      bookKinematics_(pSet.getParameter<bool>("bookKinematics")),
       etaActive_(pSet.getParameter<bool>("etaActive")),
       etaMin_(pSet.getParameter<double>("etaMin")),
       etaMax_(pSet.getParameter<double>("etaMax")),
@@ -71,7 +75,9 @@ void MiniAODTaggerAnalyzer::bookHistograms(DQMStore::IBooker& ibook, edm::Run co
                                                    ibook,
                                                    doCTagPlots_,
                                                    dodifferentialPlots_,
-                                                   discrCut_);
+                                                   discrCut_,
+                                                   kinematicsTag_,
+                                                   bookKinematics_);
 }
 
 void MiniAODTaggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -110,13 +116,6 @@ void MiniAODTaggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
         }
       }
     }
-  }
-
-  // fill JetMultiplicity (once per event)
-  if (mclevel_ > 0) {
-    jetTagPlotter_->analyzeTag(1.);
-  } else {
-    jetTagPlotter_->analyzeTag();
   }
 }
 
