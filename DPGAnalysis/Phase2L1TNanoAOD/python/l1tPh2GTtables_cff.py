@@ -131,8 +131,13 @@ gtSaDispMuTable = gtTkMuTable.clone(
 ## PF/Puppi contribution, unlike the tkElectron/tkPhoton isolation above, which comes
 ## from the Correlator Layer-2 objects.
 gtTkMuTable.variables.hwIso = Var("hwIsolationPT_toInt()",int,doc="HW isolation sum received from GMT: 6 bits, LSB 0.25 GeV")
-gtTkMuTable.variables.iso = Var("isolationPT()",float, doc = "absolute isolation [GeV]")
-gtTkMuTable.variables.relIso = Var("isolationPT()/pt",float, doc = "relative isolation")
+## NOTE (CMSSW_17_0_X): P2GTCandidate::isolationPT() does not exist on this branch, so
+## the physical value is built from the hw word and the scale, which is exactly what the
+## gtTkEleTable/gtTkPhoTable entries above already do. Numerically identical: in the
+## master version isolationPT() returns L1GTScales::to_isolationPT(hwIsolationPT), i.e.
+## hwIsolationPT * isolationPT_lsb.
+gtTkMuTable.variables.iso = Var(f"hwIsolationPT_toInt()*{scale_parameter.isolationPT_lsb.value()}",float, doc = "absolute isolation [GeV]")
+gtTkMuTable.variables.relIso = Var(f"hwIsolationPT_toInt()*{scale_parameter.isolationPT_lsb.value()} / pt",float, doc = "relative isolation")
 
 # ## GT seededCone puppi Jets
 # gtSCJetsTable = cms.EDProducer(
