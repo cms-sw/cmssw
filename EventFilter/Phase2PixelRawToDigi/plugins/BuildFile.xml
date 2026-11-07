@@ -1,5 +1,8 @@
 <library file="*.cc" name="EventFilterPhase2PixelRawToDigiPlugins">
+  <use name="CommonTools/UtilAlgos"/>
   <use name="CondFormats/DataRecord"/>
+  <use name="root"/>
+  <use name="CondFormats/SiPhase2TrackerObjects"/>
   <use name="CondFormats/SiStripObjects"/>
   <use name="DataFormats/Common"/>
   <use name="DataFormats/DetId"/>
