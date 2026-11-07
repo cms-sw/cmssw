@@ -1818,8 +1818,11 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(
 
   if ((*TpSelectorForEfficiencyVsPt)(tp)) {
     histograms.h_simulpT[count]->Fill(pt);
-    if (isMatched)
+    histograms.h_simulpTvseta[count]->Fill(eta, pt);
+    if (isMatched) {
       histograms.h_assocpT[count]->Fill(pt);
+      histograms.h_assocpTvseta[count]->Fill(eta, pt);
+    }
   }
 
   if ((*TpSelectorForEfficiencyVsVTXR)(tp)) {
