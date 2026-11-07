@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from HeterogeneousCore.AlpakaCore.functions import makeSerialClone
 
-from ..modules.hltPhase2OtRecHitsSoA_cfi import hltPhase2OtRecHitsSoA
+from ..modules.hltPhase2OtCAHitsSoA_cfi import hltPhase2OtCAHitsSoA
 from ..modules.hltPhase2PixelFitterByHelixProjections_cfi import hltPhase2PixelFitterByHelixProjections
 from ..modules.hltPhase2PixelTrackFilterByKinematics_cfi import hltPhase2PixelTrackFilterByKinematics
 from ..modules.hltPhase2PixelTracks_cfi import hltPhase2PixelTracks
@@ -19,7 +19,7 @@ HLTPhase2PixelTracksAndVerticesSequence = cms.Sequence(
     HLTBeamSpotSequence
     +hltPhase2PixelFitterByHelixProjections # Currently needed by tracker muons
     +hltPhase2PixelTrackFilterByKinematics  # Currently needed by tracker muons
-    +hltPhase2OtRecHitsSoA
+    +hltPhase2OtCAHitsSoA
     +hltPhase2PixelTracksSoA
     +hltPhase2PixelTrackTorchHighPuritySelector
     +hltPhase2PixelTracks
@@ -29,14 +29,18 @@ HLTPhase2PixelTracksAndVerticesSequence = cms.Sequence(
 # Empty sequence as a placeholder to be filled when alpakaValidationHLT is active
 HLTPhase2PixelTracksAndVerticesSequenceSerialSync = cms.Sequence()
 
-hltPhase2PixelTracksSoASerialSync = makeSerialClone(hltPhase2PixelTracksSoA)
+hltPhase2OtCAHitsSoASerialSync = makeSerialClone(hltPhase2OtCAHitsSoA)
+hltPhase2PixelTracksSoASerialSync = makeSerialClone(hltPhase2PixelTracksSoA,
+    trackerRecHitsSoA = "hltPhase2OtCAHitsSoASerialSync"
+)
 hltPhase2PixelTrackTorchHighPuritySelectorSerialSync = makeSerialClone(
     hltPhase2PixelTrackTorchHighPuritySelector.clone(
         pixelTrackSrc = cms.InputTag("hltPhase2PixelTracksSoASerialSync")
     )
 )
 hltPhase2PixelTracksSerialSync = hltPhase2PixelTracks.clone(
-    trackSrc = cms.InputTag("hltPhase2PixelTrackTorchHighPuritySelectorSerialSync")
+    trackSrc = cms.InputTag("hltPhase2PixelTrackTorchHighPuritySelectorSerialSync"),
+    outerTrackerRecHitSoAConverterSrc = cms.InputTag("hltPhase2OtCAHitsSoASerialSync")
 )
 
 # Sequence for CPU vs. GPU validation, to be kept in sync with default sequence
@@ -47,7 +51,7 @@ alpakaValidationHLT.toReplaceWith(HLTPhase2PixelTracksAndVerticesSequenceSerialS
         +hltPhase2PixelTracksAndHighPtStepTrackingRegions # needed by highPtTripletStep iteration
         +hltPhase2PixelFitterByHelixProjections # needed by tracker muons
         +hltPhase2PixelTrackFilterByKinematics  # needed by tracker muons
-        +hltPhase2OtRecHitsSoA
+        +hltPhase2OtCAHitsSoASerialSync
         +hltPhase2PixelTracksSoASerialSync
         +hltPhase2PixelTrackTorchHighPuritySelectorSerialSync
         +hltPhase2PixelTracksSerialSync

@@ -44,12 +44,18 @@ from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtensi
 
 from RecoLocalTracker.Phase2TrackerRecHits.Phase2TrackerRecHits_cfi import siPhase2RecHits
 
-from RecoLocalTracker.Phase2TrackerRecHits.phase2OTRecHitsSoAConverter_cfi import phase2OTRecHitsSoAConverter as _phase2OTRecHitsSoAConverter
-phase2OTRecHitsSoAConverter = _phase2OTRecHitsSoAConverter.clone(
-    beamSpot = "offlineBeamSpot",
-    otRecHitSource = "siPhase2RecHits",
-    pixelRecHitSoASource = "siPixelRecHitsPreSplittingAlpaka"
-)
+# the CA's OT hits on the device, from the OT clusters, and on the cpu for validation
+from RecoLocalTracker.Phase2TrackerRecHits.phase2OTCAModuleParamsESProducerAlpaka_cfi import (
+    phase2OTCAModuleParamsESProducerAlpaka as _phase2OTCAModuleParamsESProducerAlpaka)
+phase2OTCAModuleParamsAlpaka = _phase2OTCAModuleParamsESProducerAlpaka.clone()
+
+from RecoLocalTracker.Phase2TrackerRecHits.phase2OTCAHitsAlpaka_cfi import phase2OTCAHitsAlpaka as _phase2OTCAHitsAlpaka
+phase2OtCAHitsSoA = _phase2OTCAHitsAlpaka.clone()
+phase2OtCAHitsSoASerial = makeSerialClone(phase2OtCAHitsSoA,
+                                          pixelRecHitSoASource = "siPixelRecHitsPreSplittingAlpakaSerial")
+
+# always inside a Task, so that the @alpaka ESProducer is constructed only when the Task is scheduled
+phase2OtCAHitsTask = cms.Task(phase2OTCAModuleParamsAlpaka, phase2OtCAHitsSoA, phase2OtCAHitsSoASerial)
 
 # Hit SoA producer on the cpu, for validation
 siPixelRecHitsPreSplittingAlpakaSerial = makeSerialClone(siPixelRecHitsPreSplittingAlpaka,
@@ -79,6 +85,6 @@ phase2CAExtension.toReplaceWith(siPixelRecHitsPreSplittingTask, cms.Task(
     siPhase2RecHits,
     siPixelRecHitsPreSplittingAlpaka,
     siPixelRecHitsPreSplittingAlpakaSerial,    
-    phase2OTRecHitsSoAConverter,
+    phase2OtCAHitsTask,
     siPixelRecHitsPreSplitting
 ))
