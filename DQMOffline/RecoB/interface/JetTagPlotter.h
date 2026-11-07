@@ -21,12 +21,12 @@ public:
                 DQMStore::IBooker& ibook,
                 bool doCTagPlots = false,
                 bool doDifferentialPlots = false,
-                double discrCut = -999.);
+                double discrCut = -999.,
+                const std::string& kinematicsTag = "",
+                bool bookKinematics = true);
 
   ~JetTagPlotter() override;
 
-  void analyzeTag();         //added to fill the jet multiplicity on data
-  void analyzeTag(float w);  //added to fill the jet multiplicity on mc
   //void analyzeTag (const reco::JetTag & jetTag, const double & jec, const int & jetFlavour);
   void analyzeTag(const reco::JetTag& jetTag, double jec, int jetFlavour, float w = 1);
   //void analyzeTag (const reco::Jet & jet, const double & jec, const float& discriminator, const int& jetFlavour);
@@ -63,10 +63,10 @@ protected:
   bool doDifferentialPlots_;
   double cutValue_;
 
-  std::vector<int> nJets_;
-
-  // jet multiplicity
-  std::unique_ptr<FlavourHistograms<int>> jetMultiplicity_;
+  // jet kinematics (jetPt/Eta/Phi/Flavour) are booked in the folder of kinematicsTag
+  // (own folder if empty) and only by the plotter with bookKinematics; the diffEff plots divide by them
+  std::string kinematicsExtension_;
+  bool bookKinematics_;
 
   // for the misid vs. eff plots
   std::unique_ptr<EffPurFromHistos> effPurFromHistos_;
@@ -76,11 +76,9 @@ protected:
   // Discriminator: again with reasonable binning
   std::unique_ptr<FlavourHistograms<double>> dDiscriminator_;
 
-  // reconstructed jet momentum
-  std::unique_ptr<FlavourHistograms<double>> dJetRecMomentum_;
-
-  // reconstructed jet transverse momentum
+  // reconstructed jet transverse momentum: low pT with fine binning (jetPt) and full range (jetPt_extended)
   std::unique_ptr<FlavourHistograms<double>> dJetRecPt_;
+  std::unique_ptr<FlavourHistograms<double>> dJetRecPtExtended_;
 
   // reconstructed jet eta
   std::unique_ptr<FlavourHistograms<double>> dJetRecPseudoRapidity_;
@@ -93,6 +91,9 @@ protected:
 
   // jet Eta larger than requested discrimnator cut
   std::unique_ptr<FlavourHistograms<double>> dJetPseudoRapidityDiscrCut_;
+
+  // jet pT larger than requested discrimnator cut (coarser than jetPt_extended, which it is divided by)
+  std::unique_ptr<FlavourHistograms<double>> dJetPtDiscrCut_;
 };
 
 #endif
