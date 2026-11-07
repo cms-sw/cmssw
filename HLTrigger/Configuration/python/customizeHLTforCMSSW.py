@@ -271,6 +271,64 @@ def customizeHLTfor52006(process):
     return process
 
 
+def customizeHLTforL1P2GTv0p0_2026(process):
+    """ This customizer
+        - re-wires the L1 P2GT seeds of the Phase-2 HLT menu (HLT:75e33), written for the
+          step1_2024 L1 menu, to the v0p0_2026 L1 menu (introduced in #52372), to run with
+          -s L1P2GT:v0p0_2026,HLT:75e33
+        - it is NOT part of customizeHLTforCMSSW: it has to be requested explicitly via --customise
+        Each seed is mapped to its closest v0p0_2026 seed (same objects and multiplicity, new thresholds).
+        Seeds without a v0p0_2026 counterpart:
+        - pIsoTkEleEGEle22_12: dropped from the OR of the isolated double-electron L1 filter
+        - pPuppiHT400_pQuadJet70_55_40_40: no quad-jet algo in v0p0_2026, the
+          HT + quad-jet + 3b paths fall back to pHTSum alone
+    """
+
+    seedMap = {
+        'pSingleEGEle51'                  : 'pSingleEGEle',
+        'pDoubleEGEle37_24'               : 'pDoubleEGEle',
+        'pSingleTkEle36'                  : 'pSingleTkEle',
+        'pSingleIsoTkEle28'               : 'pSingleTkEleIso',
+        'pDoublePuppiTau52_52'            : 'pDoubleIsoTau',
+        'pDoubleTkEle25_12'               : 'pDoubleTkEle',
+        'pDoubleIsoTkPho22_12'            : 'pDoubleTkPhoIso',
+        'pDoublePuppiJet112_112'          : 'pDoubleJet_dEta_Max1p6',
+        'pDoubleTkMuon15_7'               : 'pDoubleTkMu',
+        'pSingleIsoTkPho36'               : 'pSingleTkIsoPhoton',
+        'pSingleTkMuon22'                 : 'pSingleTkMu',
+        'pPuppiHT450'                     : 'pHTSum',
+        'pPuppiMET200'                    : 'pMETSum',
+        'pPuppiTauTkIsoEle45_22'          : 'pTkEleIso_IsoTau',
+        'pPuppiTauTkMuon42_18'            : 'pTkMu_IsoTau',
+        'pSinglePuppiJet230'              : 'pSingleJet',
+        'pTripleTkMuon5_3_3'              : 'pTripleTkMu',
+        'pPuppiHT400_pQuadJet70_55_40_40' : 'pHTSum',
+    }
+    droppedSeeds = ['pIsoTkEleEGEle22_12']
+
+    # drop the quad-jet leg of the HT + quad-jet seed, the HT leg is re-wired to pHTSum below
+    if hasattr(process, 'hltL1QuadJet70554040'):
+        quadJetFilter = process.hltL1QuadJet70554040
+        for seq in [*process.paths_().values(), *process.endpaths_().values(), *process.sequences_().values()]:
+            while seq.remove(quadJetFilter):
+                pass
+        del process.hltL1QuadJet70554040
+
+    for module in process.filters_().values():
+        if hasattr(module, 'l1GTAlgos'):
+            module.l1GTAlgos = cms.VPSet([pset for pset in module.l1GTAlgos if pset.name.value() not in droppedSeeds])
+            for pset in module.l1GTAlgos:
+                pset.name = seedMap.get(pset.name.value(), pset.name.value())
+        if hasattr(module, 'l1GTAlgoNames'):
+            module.l1GTAlgoNames = [seedMap.get(name, name) for name in module.l1GTAlgoNames]
+        for par in ['l1GTAlgoName1', 'l1GTAlgoName2']:
+            if hasattr(module, par):
+                name = getattr(module, par).value()
+                setattr(module, par, seedMap.get(name, name))
+
+    return process
+
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
