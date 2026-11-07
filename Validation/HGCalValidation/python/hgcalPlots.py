@@ -1681,15 +1681,15 @@ for val in simDict:
 
     for v in variables:
         kwargs = _common_metric_logx if v in ["energy","pt"] else _common_metric
-        _effplots.extend([Plot("effic_"+v+simDict[val], xtitle = variables[v][0]+variables[v][1], **kwargs)])
+        _effplots.extend([Plot("effic_"+v+simDict[val], xtitle = variables[v], **kwargs)])
         print("appending plot", "effic_"+v+simDict[val])
-        _purityplots.extend([Plot("purity_"+v+simDict[val], xtitle = variables[v][0]+variables[v][1], **kwargs)])
+        _purityplots.extend([Plot("purity_"+v+simDict[val], xtitle = variables[v], **kwargs)])
         print("appending plot", "purity_"+v+simDict[val])
-        _dupplots.extend([Plot("duplicate_"+v+simDict[val], xtitle = variables[v][0]+variables[v][1], **kwargs)])
+        _dupplots.extend([Plot("duplicate_"+v+simDict[val], xtitle = variables[v], **kwargs)])
         print("appending plot", "duplicate_"+v+simDict[val])
-        _fakeplots.extend([Plot("fake_"+v+simDict[val], xtitle = variables[v][0]+variables[v][1], **kwargs)])
+        _fakeplots.extend([Plot("fake_"+v+simDict[val], xtitle = variables[v], **kwargs)])
         print("appending plot", "fake_"+v+simDict[val])
-        _mergeplots.extend([Plot("merge_"+v+simDict[val], xtitle = variables[v][0]+variables[v][1], **kwargs)])
+        _mergeplots.extend([Plot("merge_"+v+simDict[val], xtitle = variables[v], **kwargs)])
         print("appending plot", "merge_"+v+simDict[val])
 
     _efficiencies.append(PlotGroup("Efficiencies"+simDict[val], _effplots, ncols=3))
