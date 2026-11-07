@@ -1939,57 +1939,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return (subdet == Barrel && layer < 3) || (subdet == Endcap && layer <= 1);
   }
 
-  // LS-on-T3 lists by MD: the segments that are the first segment of at least one triplet (the candidate outer LS1s of a
-  // T5), listed by their inner MD (in ascending segment index on the serial backend, so walking them and
-  // tripletsBySegment visits the triplets of an MD in creation order).
-  struct FillLSonT3ByMD {
-    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
-                                  ModulesConst modules,
-                                  MiniDoubletsOccupancyConst mdOccupancy,
-                                  SegmentsConst segments,
-                                  SegmentsOccupancyConst segmentsOccupancy,
-                                  TripletsOccupancyConst tripletsOcc,
-                                  TripletsRangesConst tripletsRangesBySegment,
-                                  ObjectRangesConst ranges,
-                                  unsigned int* __restrict__ nLSonT3ByMD,
-                                  unsigned int* __restrict__ offsetLSonT3ByMD,
-                                  unsigned int* __restrict__ indexLSonT3) const {
-      for (uint16_t lowerModule : cms::alpakatools::independent_groups(acc, modules.nLowerModules())) {
-        if (tripletsOcc.nTriplets()[lowerModule] == 0)
-          continue;
-        const unsigned int firstSegment = ranges.segmentRanges()[lowerModule][0];
-        const unsigned int nSegments = segmentsOccupancy.nSegments()[lowerModule];
-        for (unsigned int i : cms::alpakatools::independent_group_elements(acc, nSegments)) {
-          const unsigned int seg = firstSegment + i;
-          if (tripletsRangesBySegment.n()[seg] > 0)
-            alpaka::atomicAdd(acc, &nLSonT3ByMD[segments.mdIndices()[seg][0]], 1u, alpaka::hierarchy::Threads{});
-        }
-        alpaka::syncBlockThreads(acc);
-        if (cms::alpakatools::once_per_block(acc)) {
-          // A segment is listed at most once, at its inner MD, which is in the segment's own module: the lists of the
-          // module's MDs fit in the module's segment range, so the offsets start at its first segment.
-          unsigned int offset = firstSegment;
-          const unsigned int firstMD = ranges.mdRanges()[lowerModule][0];
-          const unsigned int nMDs = mdOccupancy.nMDs()[lowerModule];
-          for (unsigned int md = firstMD; md < firstMD + nMDs; ++md) {
-            offsetLSonT3ByMD[md] = offset;
-            offset += nLSonT3ByMD[md];
-            nLSonT3ByMD[md] = 0;
-          }
-        }
-        alpaka::syncBlockThreads(acc);
-        for (unsigned int i : cms::alpakatools::independent_group_elements(acc, nSegments)) {
-          const unsigned int seg = firstSegment + i;
-          if (tripletsRangesBySegment.n()[seg] > 0) {
-            const unsigned int md = segments.mdIndices()[seg][0];
-            indexLSonT3[offsetLSonT3ByMD[md] +
-                        alpaka::atomicAdd(acc, &nLSonT3ByMD[md], 1u, alpaka::hierarchy::Threads{})] = seg;
-          }
-        }
-      }
-    }
-  };
-
   // AddSelectedQuintuplets writes the pairs of dense modules first, so the T5 order within a module is that of the
   // serial dense-then-sparse creation (unchanged on the serial backend).
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool isDenseT5Pair(TripletsOccupancyConst tripletsOcc,

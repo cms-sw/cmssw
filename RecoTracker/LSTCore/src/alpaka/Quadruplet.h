@@ -1,6 +1,8 @@
 #ifndef RecoTracker_LSTCore_src_alpaka_Quadruplet_h
 #define RecoTracker_LSTCore_src_alpaka_Quadruplet_h
 
+#include <limits>
+
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/Utilities/interface/CMSUnrollLoop.h"
@@ -522,8 +524,159 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return true;
   };
 
+  // Outer-triplet filters shared by the T4 counting and creation kernels
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passT4OuterTripletFilters(TripletsConst triplets,
+                                                                unsigned int outerTripletIndex,
+                                                                short innerCharge) {
+    if (triplets.flags()[outerTripletIndex] & kT3LoosePointing)
+      return false;
+    if (triplets.partOfPT5()[outerTripletIndex] || triplets.partOfT5()[outerTripletIndex] ||
+        triplets.partOfPT3()[outerTripletIndex])
+      return false;
+    return triplets.charge()[outerTripletIndex] == innerCharge;
+  }
+
+  // Full T4 selection of one (inner, outer) triplet pair; a passing pair gets the next slot of lowerModule1's range.
+  template <alpaka::concepts::Acc TAcc>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void tryAddQuadruplet(TAcc const& acc,
+                                                       ModulesConst modules,
+                                                       MiniDoubletsConst mds,
+                                                       SegmentsConst segments,
+                                                       TripletsConst triplets,
+                                                       MiniDoubletsOccupancyConst mdOccupancy,
+                                                       TripletCountsConst tripletCountsByMD,
+                                                       Quadruplets quadruplets,
+                                                       QuadrupletsOccupancy quadrupletsOccupancy,
+                                                       ObjectRangesConst ranges,
+                                                       const float ptCut,
+                                                       unsigned int innerTripletIndex,
+                                                       unsigned int outerTripletIndex,
+                                                       uint16_t lowerModule1,
+                                                       uint16_t lowerModule2,
+                                                       uint16_t lowerModule3,
+                                                       float innerRadius,
+                                                       int layer) {
+    const auto& mdIndices = segments.mdIndices();
+    const auto& segIdx = triplets.segmentIndices();
+    const auto& lmIdx = triplets.lowerModuleIndices();
+    const uint16_t lowerModule4 = lmIdx[outerTripletIndex][2];
+
+    float outerRadius = triplets.radius()[outerTripletIndex];
+    float rzChiSquared, dBeta, nonAnchorChiSquared, regressionCenterX, regressionCenterY, regressionRadius,
+        nonAnchorRegressionRadius, chiSquared, promptScore, displacedScore, fakeScore;
+
+    float pt = (innerRadius + outerRadius) * k2Rinv1GeVf;
+
+    bool success = runQuadrupletDefaultAlgo(acc,
+                                            modules,
+                                            mds,
+                                            segments,
+                                            triplets,
+                                            mdOccupancy,
+                                            tripletCountsByMD,
+                                            lowerModule1,
+                                            lowerModule2,
+                                            lowerModule3,
+                                            lowerModule4,
+                                            innerTripletIndex,
+                                            outerTripletIndex,
+                                            regressionCenterX,
+                                            regressionCenterY,
+                                            regressionRadius,
+                                            nonAnchorRegressionRadius,
+                                            chiSquared,
+                                            ptCut,
+                                            rzChiSquared,
+                                            nonAnchorChiSquared,
+                                            dBeta,
+                                            promptScore,
+                                            displacedScore,
+                                            fakeScore);
+    if (success) {
+      int totOccupancyQuadruplets = alpaka::atomicAdd(
+          acc, &quadrupletsOccupancy.totOccupancyQuadruplets()[lowerModule1], 1u, alpaka::hierarchy::Blocks{});
+      if (totOccupancyQuadruplets >= ranges.quadrupletModuleOccupancy()[lowerModule1]) {
+#ifdef WARNINGS
+        printf("Quadruplet excess alert! Module index = %d, Occupancy = %d\n", lowerModule1, totOccupancyQuadruplets);
+#endif
+      } else {
+        int quadrupletModuleIndex =
+            alpaka::atomicAdd(acc, &quadrupletsOccupancy.nQuadruplets()[lowerModule1], 1u, alpaka::hierarchy::Blocks{});
+        unsigned int quadrupletIndex = ranges.quadrupletModuleIndices()[lowerModule1] + quadrupletModuleIndex;
+        // eta and phi of the first inner-triplet MD at layer 3 or beyond: for T4s starting in layer 1 or 2 (endcap only,
+        // isValidQuadRegion) the outer MD of the second or the first segment.
+        const short md_adjustment = (layer == 1) ? 1 : 0;
+        const short layer2_adjustment = (layer == 1 || layer == 2) ? 1 : 0;
+        const unsigned int layer3MDIndex = mdIndices[segIdx[innerTripletIndex][md_adjustment]][layer2_adjustment];
+        float phi = mds.anchorPhi()[layer3MDIndex];
+        float eta = mds.anchorEta()[layer3MDIndex];
+
+        addQuadrupletToMemory(modules,
+                              mds,
+                              segments,
+                              triplets,
+                              quadruplets,
+                              innerTripletIndex,
+                              outerTripletIndex,
+                              lowerModule1,
+                              lowerModule2,
+                              lowerModule3,
+                              lowerModule4,
+                              innerRadius,
+                              outerRadius,
+                              pt,
+                              eta,
+                              phi,
+                              layer,
+                              quadrupletIndex,
+                              rzChiSquared,
+                              dBeta,
+                              promptScore,
+                              displacedScore,
+                              fakeScore,
+                              regressionCenterX,
+                              regressionCenterY,
+                              regressionRadius,
+                              nonAnchorRegressionRadius);
+#ifdef CUT_VALUE_DEBUG
+        {
+          const uint16_t t4Lm[Params_T4::kLayers] = {lowerModule1, lowerModule2, lowerModule3, lowerModule4};
+          const unsigned int t4Md[Params_T4::kLayers] = {mdIndices[segIdx[innerTripletIndex][0]][0],
+                                                         mdIndices[segIdx[innerTripletIndex][1]][0],
+                                                         mdIndices[segIdx[innerTripletIndex][1]][1],
+                                                         mdIndices[segIdx[outerTripletIndex][1]][1]};
+          const auto t4Feat = computeDnnFeatures<Params_T4::kLayers, 0, 1, 3, 1>(
+              acc, modules, mds, mdOccupancy, tripletCountsByMD, t4Lm, t4Md);
+          quadruplets.mdDirMeanW()[quadrupletIndex] = t4Feat.mdDirMeanW;
+          quadruplets.mdDirMaxW()[quadrupletIndex] = t4Feat.mdDirMaxW;
+          quadruplets.nT3OutMid()[quadrupletIndex] = t4Feat.nT3OutMid;
+          quadruplets.nT3OutFirst()[quadrupletIndex] = t4Feat.nT3OutFirst;
+          quadruplets.nMDFirstMod()[quadrupletIndex] = t4Feat.nMDFirstMod;
+          quadruplets.dcaXY()[quadrupletIndex] = t4Feat.dcaXY;
+        }
+#endif
+      }
+    }
+  }
+
+  using T4PassMaskType = uint32_t;
+  // Max length of outer T3 pass bits CountTripletLSConnections stores per inner triplet
+  constexpr unsigned int kT4PassMaskBits = std::numeric_limits<T4PassMaskType>::digits;
+
+  // The counting kernel runs the full T4 selection on the pairs of an inner triplet when its module or the middle module
+  // holds at least kNTripletThreshold triplets; it only counts the other pairs, which are evaluated at creation.
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool isDenseT4Pair(TripletsOccupancyConst tripletsOccupancy,
+                                                    uint16_t lowerModule1,
+                                                    uint16_t lowerModule2) {
+    return tripletsOccupancy.nTriplets()[lowerModule1] >= kNTripletThreshold ||
+           tripletsOccupancy.nTriplets()[lowerModule2] >= kNTripletThreshold;
+  }
+
+  // T4s of all eligible modules, flat over the inner triplets, so a dense module is not left to one block.
+  // The outer triplets of dense pairs up to kT4PassMaskBits are preselected using t4PassMask; every kept pair gets the
+  // full T4 selection.
   struct CreateQuadruplets {
-    ALPAKA_FN_ACC void operator()(Acc3D const& acc,
+    ALPAKA_FN_ACC void operator()(Acc2D const& acc,
                                   ModulesConst modules,
                                   MiniDoubletsConst mds,
                                   SegmentsConst segments,
@@ -536,341 +689,54 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   Quadruplets quadruplets,
                                   QuadrupletsOccupancy quadrupletsOccupancy,
                                   ObjectRangesConst ranges,
-                                  uint16_t nEligibleT4Modules,
                                   const float ptCut,
-                                  unsigned int const* __restrict__ t3ConnectedLSMax) const {
-      ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1) &&
-                        (alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[2] == 1));
-
-      unsigned int& matchCount = alpaka::declareSharedVar<unsigned int, __COUNTER__>(acc);
-
-      const auto threadIdx = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc);
-      const auto blockDim = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc);
-
-      const int threadIdX = threadIdx.x();
-      const int threadIdY = threadIdx.y();
-      const int blockSizeX = blockDim.x();
-      const int blockSizeY = blockDim.y();
-      const int blockSize = blockSizeX * blockSizeY;
-      const int flatThreadIdxXY = threadIdY * blockSizeX + threadIdX;
-      const int flatThreadExtent = blockSize;  // total threads per block
-
-      const auto& mdIndices = segments.mdIndices();
+                                  unsigned int const* __restrict__ t3ConnectedLSMax,
+                                  T4PassMaskType const* __restrict__ t4PassMask,
+                                  const unsigned int nTriplets) const {
       const auto& segIdx = triplets.segmentIndices();
       const auto& lmIdx = triplets.lowerModuleIndices();
-      const auto& tripIdx = ranges.tripletModuleIndices();
 
-      for (auto iter : cms::alpakatools::uniform_groups_z(acc, nEligibleT4Modules)) {
-        const auto lowerModule1 = ranges.indicesOfEligibleT4Modules()[iter];
-
-        if (ranges.quadrupletModuleIndices()[lowerModule1] == -1) {
-#ifdef WARNINGS
-          printf("Quadruplets : no memory for module at module index = %d\n", lowerModule1);
-#endif
+      for (unsigned int innerTripletIndex : cms::alpakatools::uniform_elements_y(acc, nTriplets)) {
+        // A counted triplet lies in an eligible module (valid region, own T4 range) and passed the triplet filters.
+        if (t3ConnectedLSMax[innerTripletIndex] == 0)
           continue;
-        }
-        if (cms::alpakatools::once_per_block(acc)) {
-          matchCount = 0;
-        }
+        const uint16_t lowerModule1 = lmIdx[innerTripletIndex][0];
+        const uint16_t lowerModule2 = lmIdx[innerTripletIndex][1];
+        const bool densePair = isDenseT4Pair(tripletsOccupancy, lowerModule1, lowerModule2);
 
-        short layer2_adjustment, md_adjustment;
-        int layer = modules.layers()[lowerModule1];
-        if (layer == 1) {
-          if (modules.subdets()[lowerModule1] != Endcap)
-            continue;
-          layer2_adjustment = 1;
-          md_adjustment = 1;
-        }  // get upper segment to be in third layer
-        else if (layer == 2) {
-          if (modules.subdets()[lowerModule1] != Endcap)
-            continue;
-          layer2_adjustment = 1;
-          md_adjustment = 0;
-        }  // get lower segment to be in third layer
-        else {
-          layer2_adjustment = 0;
-          md_adjustment = 0;
-        }
-        const unsigned int nInnerTriplets = tripletsOccupancy.nTriplets()[lowerModule1];
-        if (nInnerTriplets == 0)
-          continue;
+        const int layer = modules.layers()[lowerModule1];
+        const auto innerT3LS2Index = segIdx[innerTripletIndex][1];
+        const short innerCharge = triplets.charge()[innerTripletIndex];
+        const uint16_t lowerModule3 = lmIdx[innerTripletIndex][2];
+        const float innerRadius = triplets.radius()[innerTripletIndex];
+        const unsigned int nOuterTripletsByLS = tripletsRangesBySegment.n()[innerT3LS2Index];
+        const auto outerOffset = tripletsRangesBySegment.offset()[innerT3LS2Index];
 
-        alpaka::syncBlockThreads(acc);
-
-        // Step 1: Make inner and outer triplet pairs
-        const auto innerTripletOffset = tripIdx[lowerModule1];
-        for (unsigned int innerTripletArrayIndex : cms::alpakatools::uniform_elements_y(acc, nInnerTriplets)) {
-          const unsigned int innerTripletIndex = innerTripletOffset + innerTripletArrayIndex;
-          if (t3ConnectedLSMax[innerTripletIndex] == 0)
+        for (unsigned int outerIndex : cms::alpakatools::uniform_elements_x(acc, nOuterTripletsByLS)) {
+          const unsigned int outerTripletIndex = tripletsBySegment.tripletIndex()[outerOffset + outerIndex];
+          if (!passT4OuterTripletFilters(triplets, outerTripletIndex, innerCharge))
             continue;
-          // partOf{PT5, T5, PT3} is implicit, see CountTripletLSConnectionsT
-          // Triplets admitted only by the widened pointing bound are used only in quintuplets.
-          if (triplets.flags()[innerTripletIndex] & kT3LoosePointing)
+          if (densePair && outerIndex < kT4PassMaskBits && !((t4PassMask[innerTripletIndex] >> outerIndex) & 1u))
             continue;
 
-          const auto innerT3LS2Index = segIdx[innerTripletIndex][1];
-
-          const uint16_t lowerModule2 = lmIdx[innerTripletIndex][1];
-          const unsigned int nOuterTriplets = tripletsOccupancy.nTriplets()[lowerModule2];
-          const unsigned int nOuterTripletsByLS = tripletsRangesBySegment.n()[innerT3LS2Index];
-          if (nOuterTripletsByLS == 0)
-            continue;
-
-          const float innerRadius = triplets.radius()[innerTripletIndex];
-          const uint16_t lowerModule3 = lmIdx[innerTripletIndex][2];
-
-          const auto outerOffset = tripletsRangesBySegment.offset()[innerT3LS2Index];
-          for (unsigned int outerIndex : cms::alpakatools::uniform_elements_x(acc, nOuterTripletsByLS)) {
-            unsigned int outerTripletIndex = tripletsBySegment.tripletIndex()[outerOffset + outerIndex];
-
-            if (triplets.partOfPT5()[outerTripletIndex])
-              continue;  //don't create T4s for T3s accounted in pT5s
-            if (triplets.partOfT5()[outerTripletIndex])
-              continue;  //don't create T4s for T3s accounted in T5s
-            if (triplets.partOfPT3()[outerTripletIndex])
-              continue;  //don't create T4s for T3s accounted in pT3s
-            // Triplets admitted only by the widened pointing bound are used only in quintuplets.
-            if (triplets.flags()[outerTripletIndex] & kT3LoosePointing)
-              continue;
-
-            // If densely connected, do not attempt parallel processing to avoid truncation
-            if (nInnerTriplets >= kNTripletThreshold || nOuterTriplets >= kNTripletThreshold) {
-              const uint16_t lowerModule4 = lmIdx[outerTripletIndex][2];
-
-              float outerRadius = triplets.radius()[outerTripletIndex];
-              float rzChiSquared, dBeta, nonAnchorChiSquared, regressionCenterX, regressionCenterY, regressionRadius,
-                  nonAnchorRegressionRadius, chiSquared, promptScore, displacedScore, fakeScore;
-
-              float pt = (innerRadius + outerRadius) * k2Rinv1GeVf;
-
-              bool success = runQuadrupletDefaultAlgo(acc,
-                                                      modules,
-                                                      mds,
-                                                      segments,
-                                                      triplets,
-                                                      mdOccupancy,
-                                                      tripletCountsByMD,
-                                                      lowerModule1,
-                                                      lowerModule2,
-                                                      lowerModule3,
-                                                      lowerModule4,
-                                                      innerTripletIndex,
-                                                      outerTripletIndex,
-                                                      regressionCenterX,
-                                                      regressionCenterY,
-                                                      regressionRadius,
-                                                      nonAnchorRegressionRadius,
-                                                      chiSquared,
-                                                      ptCut,
-                                                      rzChiSquared,
-                                                      nonAnchorChiSquared,
-                                                      dBeta,
-                                                      promptScore,
-                                                      displacedScore,
-                                                      fakeScore);
-              if (success) {
-                int totOccupancyQuadruplets =
-                    alpaka::atomicAdd(acc,
-                                      &quadrupletsOccupancy.totOccupancyQuadruplets()[lowerModule1],
-                                      1u,
-                                      alpaka::hierarchy::Threads{});
-                if (totOccupancyQuadruplets >= ranges.quadrupletModuleOccupancy()[lowerModule1]) {
-#ifdef WARNINGS
-                  printf("Quadruplet excess alert! Module index = %d, Occupancy = %d\n",
-                         lowerModule1,
-                         totOccupancyQuadruplets);
-#endif
-                } else {
-                  int quadrupletModuleIndex = alpaka::atomicAdd(
-                      acc, &quadrupletsOccupancy.nQuadruplets()[lowerModule1], 1u, alpaka::hierarchy::Threads{});
-                  unsigned int quadrupletIndex = ranges.quadrupletModuleIndices()[lowerModule1] + quadrupletModuleIndex;
-                  const unsigned int layer3MDIndex =
-                      mdIndices[segIdx[innerTripletIndex][md_adjustment]][layer2_adjustment];
-                  float phi = mds.anchorPhi()[layer3MDIndex];
-                  float eta = mds.anchorEta()[layer3MDIndex];
-
-                  addQuadrupletToMemory(modules,
-                                        mds,
-                                        segments,
-                                        triplets,
-                                        quadruplets,
-                                        innerTripletIndex,
-                                        outerTripletIndex,
-                                        lowerModule1,
-                                        lowerModule2,
-                                        lowerModule3,
-                                        lowerModule4,
-                                        innerRadius,
-                                        outerRadius,
-                                        pt,
-                                        eta,
-                                        phi,
-                                        layer,
-                                        quadrupletIndex,
-                                        rzChiSquared,
-                                        dBeta,
-                                        promptScore,
-                                        displacedScore,
-                                        fakeScore,
-                                        regressionCenterX,
-                                        regressionCenterY,
-                                        regressionRadius,
-                                        nonAnchorRegressionRadius);
-#ifdef CUT_VALUE_DEBUG
-                  {
-                    const uint16_t t4Lm[Params_T4::kLayers] = {lowerModule1, lowerModule2, lowerModule3, lowerModule4};
-                    const unsigned int t4Md[Params_T4::kLayers] = {mdIndices[segIdx[innerTripletIndex][0]][0],
-                                                                   mdIndices[segIdx[innerTripletIndex][1]][0],
-                                                                   mdIndices[segIdx[innerTripletIndex][1]][1],
-                                                                   mdIndices[segIdx[outerTripletIndex][1]][1]};
-                    const auto t4Feat = computeDnnFeatures<Params_T4::kLayers, 0, 1, 3, 1>(
-                        acc, modules, mds, mdOccupancy, tripletCountsByMD, t4Lm, t4Md);
-                    quadruplets.mdDirMeanW()[quadrupletIndex] = t4Feat.mdDirMeanW;
-                    quadruplets.mdDirMaxW()[quadrupletIndex] = t4Feat.mdDirMaxW;
-                    quadruplets.nT3OutMid()[quadrupletIndex] = t4Feat.nT3OutMid;
-                    quadruplets.nT3OutFirst()[quadrupletIndex] = t4Feat.nT3OutFirst;
-                    quadruplets.nMDFirstMod()[quadrupletIndex] = t4Feat.nMDFirstMod;
-                    quadruplets.dcaXY()[quadrupletIndex] = t4Feat.dcaXY;
-                  }
-#endif
-                }
-              }
-              continue;
-            }
-
-            int mIdx = alpaka::atomicAdd(acc, &matchCount, 1u, alpaka::hierarchy::Threads{});
-            const unsigned int quadrupletIndex = ranges.quadrupletModuleIndices()[lowerModule1] + mIdx;
-
-#ifdef WARNINGS
-            const unsigned int rightBound =
-                static_cast<unsigned int>(ranges.quadrupletModuleIndices()[lowerModule1 + 1]);
-            if (quadrupletIndex >= rightBound) {
-              printf(
-                  "Quadruplet module occupancy alert! module quadruplet starting index  = %d, Pair quadruplet index = "
-                  "%d, next module quadruplet starting index = %d\n",
-                  ranges.quadrupletModuleIndices()[lowerModule1],
-                  mIdx,
-                  ranges.quadrupletModuleIndices()[lowerModule1 + 1]);
-            }
-#endif
-
-            quadruplets.preAllocatedTripletIndices()[quadrupletIndex][0] = innerTripletIndex;
-            quadruplets.preAllocatedTripletIndices()[quadrupletIndex][1] = outerTripletIndex;
-          }
-        }
-
-        alpaka::syncBlockThreads(acc);
-        if (matchCount == 0) {
-          continue;
-        }
-
-        // Step 2: Parallel processing of triplet pairs
-        const auto quadrupletsOffset = ranges.quadrupletModuleIndices()[lowerModule1];
-        for (unsigned int i = flatThreadIdxXY; i < matchCount; i += flatThreadExtent) {
-          const unsigned int quadrupletIndex = quadrupletsOffset + i;
-          const int innerTripletIndex = quadruplets.preAllocatedTripletIndices()[quadrupletIndex][0];
-          const int outerTripletIndex = quadruplets.preAllocatedTripletIndices()[quadrupletIndex][1];
-
-          const uint16_t lowerModule2 = lmIdx[outerTripletIndex][0];
-          const uint16_t lowerModule3 = lmIdx[outerTripletIndex][1];
-          const uint16_t lowerModule4 = lmIdx[outerTripletIndex][2];
-
-          float innerRadius = triplets.radius()[innerTripletIndex];
-          float outerRadius = triplets.radius()[outerTripletIndex];
-          float rzChiSquared, dBeta, nonAnchorChiSquared, regressionCenterX, regressionCenterY, regressionRadius,
-              nonAnchorRegressionRadius, chiSquared, promptScore, displacedScore, fakeScore;
-
-          float pt = (innerRadius + outerRadius) * k2Rinv1GeVf;
-
-          bool success = runQuadrupletDefaultAlgo(acc,
-                                                  modules,
-                                                  mds,
-                                                  segments,
-                                                  triplets,
-                                                  mdOccupancy,
-                                                  tripletCountsByMD,
-                                                  lowerModule1,
-                                                  lowerModule2,
-                                                  lowerModule3,
-                                                  lowerModule4,
-                                                  innerTripletIndex,
-                                                  outerTripletIndex,
-                                                  regressionCenterX,
-                                                  regressionCenterY,
-                                                  regressionRadius,
-                                                  nonAnchorRegressionRadius,
-                                                  chiSquared,
-                                                  ptCut,
-                                                  rzChiSquared,
-                                                  nonAnchorChiSquared,
-                                                  dBeta,
-                                                  promptScore,
-                                                  displacedScore,
-                                                  fakeScore);
-          if (success) {
-            int totOccupancyQuadruplets = alpaka::atomicAdd(
-                acc, &quadrupletsOccupancy.totOccupancyQuadruplets()[lowerModule1], 1u, alpaka::hierarchy::Threads{});
-            if (totOccupancyQuadruplets >= ranges.quadrupletModuleOccupancy()[lowerModule1]) {
-#ifdef WARNINGS
-              printf("Quadruplet excess alert! Module index = %d, Occupancy = %d\n",
-                     lowerModule1,
-                     totOccupancyQuadruplets);
-#endif
-            } else {
-              int quadrupletModuleIndex = alpaka::atomicAdd(
-                  acc, &quadrupletsOccupancy.nQuadruplets()[lowerModule1], 1u, alpaka::hierarchy::Threads{});
-              const unsigned int quadrupletIndex =
-                  ranges.quadrupletModuleIndices()[lowerModule1] + quadrupletModuleIndex;
-              const unsigned int layer3MDIndex = mdIndices[segIdx[innerTripletIndex][md_adjustment]][layer2_adjustment];
-              float phi = mds.anchorPhi()[layer3MDIndex];
-              float eta = mds.anchorEta()[layer3MDIndex];
-
-              addQuadrupletToMemory(modules,
-                                    mds,
-                                    segments,
-                                    triplets,
-                                    quadruplets,
-                                    innerTripletIndex,
-                                    outerTripletIndex,
-                                    lowerModule1,
-                                    lowerModule2,
-                                    lowerModule3,
-                                    lowerModule4,
-                                    innerRadius,
-                                    outerRadius,
-                                    pt,
-                                    eta,
-                                    phi,
-                                    layer,
-                                    quadrupletIndex,
-                                    rzChiSquared,
-                                    dBeta,
-                                    promptScore,
-                                    displacedScore,
-                                    fakeScore,
-                                    regressionCenterX,
-                                    regressionCenterY,
-                                    regressionRadius,
-                                    nonAnchorRegressionRadius);
-#ifdef CUT_VALUE_DEBUG
-              {
-                const uint16_t t4Lm[Params_T4::kLayers] = {lowerModule1, lowerModule2, lowerModule3, lowerModule4};
-                const unsigned int t4Md[Params_T4::kLayers] = {mdIndices[segIdx[innerTripletIndex][0]][0],
-                                                               mdIndices[segIdx[innerTripletIndex][1]][0],
-                                                               mdIndices[segIdx[innerTripletIndex][1]][1],
-                                                               mdIndices[segIdx[outerTripletIndex][1]][1]};
-                const auto t4Feat = computeDnnFeatures<Params_T4::kLayers, 0, 1, 3, 1>(
-                    acc, modules, mds, mdOccupancy, tripletCountsByMD, t4Lm, t4Md);
-                quadruplets.mdDirMeanW()[quadrupletIndex] = t4Feat.mdDirMeanW;
-                quadruplets.mdDirMaxW()[quadrupletIndex] = t4Feat.mdDirMaxW;
-                quadruplets.nT3OutMid()[quadrupletIndex] = t4Feat.nT3OutMid;
-                quadruplets.nT3OutFirst()[quadrupletIndex] = t4Feat.nT3OutFirst;
-                quadruplets.nMDFirstMod()[quadrupletIndex] = t4Feat.nMDFirstMod;
-                quadruplets.dcaXY()[quadrupletIndex] = t4Feat.dcaXY;
-              }
-#endif
-            }
-          }
+          tryAddQuadruplet(acc,
+                           modules,
+                           mds,
+                           segments,
+                           triplets,
+                           mdOccupancy,
+                           tripletCountsByMD,
+                           quadruplets,
+                           quadrupletsOccupancy,
+                           ranges,
+                           ptCut,
+                           innerTripletIndex,
+                           outerTripletIndex,
+                           lowerModule1,
+                           lowerModule2,
+                           lowerModule3,
+                           innerRadius,
+                           layer);
         }
       }
     }
@@ -884,7 +750,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   struct CountTripletLSConnections {
-    ALPAKA_FN_ACC void operator()(Acc3D const& acc,
+    ALPAKA_FN_ACC void operator()(Acc2D const& acc,
                                   ModulesConst modules,
                                   MiniDoubletsConst mds,
                                   SegmentsConst segments,
@@ -894,101 +760,91 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   TripletsRangesConst tripletsRangesBySegment,
                                   MiniDoubletsOccupancyConst mdOccupancy,
                                   TripletCountsConst tripletCountsByMD,
-                                  ObjectRangesConst ranges,
                                   const float ptCut,
-                                  unsigned int* __restrict__ t3ConnectedLSMax) const {
-      // The atomicAdd below with hierarchy::Threads{} requires one block in x, y dimensions.
-      ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1) &&
-                        (alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[2] == 1));
+                                  unsigned int* __restrict__ t3ConnectedLSMax,
+                                  unsigned int* __restrict__ moduleT4Max,
+                                  T4PassMaskType* __restrict__ t4PassMask,
+                                  const unsigned int nTriplets) const {
+      // Flat over the (densely stored) inner triplets, each one handled by the threads of one block, so the
+      // atomicAdd below with hierarchy::Threads{} requires one block in x.
+      ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1));
       const auto& segIdx = triplets.segmentIndices();
       const auto& lmIdx = triplets.lowerModuleIndices();
       const auto& partOfPT5 = triplets.partOfPT5();
       const auto& partOfPT3 = triplets.partOfPT3();
       const auto& partOfT5 = triplets.partOfT5();
-      const auto& tripIdx = ranges.tripletModuleIndices();
 
-      for (uint16_t lowerModule1 : cms::alpakatools::uniform_groups_z(acc, modules.nLowerModules())) {
+      for (unsigned int innerTripletIndex : cms::alpakatools::uniform_elements_y(acc, nTriplets)) {
+        const uint16_t lowerModule1 = lmIdx[innerTripletIndex][0];
         if (!isValidQuadRegion(modules, lowerModule1))
           continue;
+        if (partOfPT5[innerTripletIndex])
+          continue;  //don't create T4s for T3s accounted in pT5s
+        if (partOfT5[innerTripletIndex])
+          continue;  //don't create T4s for T3s accounted in T5s
+        if (partOfPT3[innerTripletIndex])
+          continue;  //don't create T4s for T3s accounted in pT3s
+        // Triplets admitted only by the widened pointing bound are used only in quintuplets.
+        if (triplets.flags()[innerTripletIndex] & kT3LoosePointing)
+          continue;
+        const short innerCharge = triplets.charge()[innerTripletIndex];
 
-        const unsigned int nInnerTriplets = tripletsOcc.nTriplets()[lowerModule1];
-        if (nInnerTriplets == 0)
+        const uint16_t lowerModule2 = lmIdx[innerTripletIndex][1];
+        if (tripletsOcc.nTriplets()[lowerModule2] == 0)
+          continue;
+        const bool densePair = isDenseT4Pair(tripletsOcc, lowerModule1, lowerModule2);
+        const unsigned int secondSegIdx = segIdx[innerTripletIndex][1];
+        const unsigned int nOuterTripletsByLS = tripletsRangesBySegment.n()[secondSegIdx];
+        if (nOuterTripletsByLS == 0)
           continue;
 
-        const auto innerTripletOffset = tripIdx[lowerModule1];
-        for (unsigned int innerTripletArrayIndex : cms::alpakatools::uniform_elements_y(acc, nInnerTriplets)) {
-          const unsigned int innerTripletIndex = innerTripletOffset + innerTripletArrayIndex;
-          if (partOfPT5[innerTripletIndex])
-            continue;  //don't create T4s for T3s accounted in pT5s
-          if (partOfT5[innerTripletIndex])
-            continue;  //don't create T4s for T3s accounted in T5s
-          if (partOfPT3[innerTripletIndex])
-            continue;  //don't create T4s for T3s accounted in pT3s
-          // Triplets admitted only by the widened pointing bound are used only in quintuplets.
-          if (triplets.flags()[innerTripletIndex] & kT3LoosePointing)
+        const auto outerOffset = tripletsRangesBySegment.offset()[secondSegIdx];
+        for (unsigned int outerIndex : cms::alpakatools::uniform_elements_x(acc, nOuterTripletsByLS)) {
+          const unsigned int outerTripletIndex = tripletsBySegment.tripletIndex()[outerOffset + outerIndex];
+          if (!passT4OuterTripletFilters(triplets, outerTripletIndex, innerCharge))
             continue;
 
-          const uint16_t lowerModule2 = lmIdx[innerTripletIndex][1];
-          const unsigned int nOuterTriplets = tripletsOcc.nTriplets()[lowerModule2];
-          if (nOuterTriplets == 0)
-            continue;
-          const unsigned int secondSegIdx = segIdx[innerTripletIndex][1];
-          const unsigned int nOuterTripletsByLS = tripletsRangesBySegment.n()[secondSegIdx];
-          if (nOuterTripletsByLS == 0)
-            continue;
+          if (!densePair) {
+            alpaka::atomicAdd(acc, &t3ConnectedLSMax[innerTripletIndex], 1u, alpaka::hierarchy::Threads{});
+            alpaka::atomicAdd(acc, &moduleT4Max[lowerModule1], 1u, alpaka::hierarchy::Blocks{});
+          } else {
+            const uint16_t lowerModule3 = lmIdx[outerTripletIndex][1];
+            const uint16_t lowerModule4 = lmIdx[outerTripletIndex][2];
 
-          const auto outerOffset = tripletsRangesBySegment.offset()[secondSegIdx];
-          for (unsigned int outerIndex : cms::alpakatools::uniform_elements_x(acc, nOuterTripletsByLS)) {
-            const unsigned int outerTripletIndex = tripletsBySegment.tripletIndex()[outerOffset + outerIndex];
-            // Triplets admitted only by the widened pointing bound are used only in quintuplets.
-            if (triplets.flags()[outerTripletIndex] & kT3LoosePointing)
-              continue;
+            float rzChiSquared, dBeta, nonAnchorChiSquared, regressionCenterX, regressionCenterY, regressionRadius,
+                nonAnchorRegressionRadius, chiSquared, promptScore, displacedScore, fakeScore;
 
-            if (partOfPT5[outerTripletIndex])
-              continue;  //don't create T4s for T3s accounted in pT5s
-            if (partOfT5[outerTripletIndex])
-              continue;  //don't create T4s for T3s accounted in T5s
-            if (partOfPT3[outerTripletIndex])
-              continue;  //don't create T4s for T3s accounted in pT3s
-
-            // Will only perform runQuadrupletDefaultAlgorithm() checks if densely connected
-            if (nInnerTriplets < kNTripletThreshold && nOuterTriplets < kNTripletThreshold) {
+            const bool ok = runQuadrupletDefaultAlgo(acc,
+                                                     modules,
+                                                     mds,
+                                                     segments,
+                                                     triplets,
+                                                     mdOccupancy,
+                                                     tripletCountsByMD,
+                                                     lowerModule1,
+                                                     lowerModule2,
+                                                     lowerModule3,
+                                                     lowerModule4,
+                                                     innerTripletIndex,
+                                                     outerTripletIndex,
+                                                     regressionCenterX,
+                                                     regressionCenterY,
+                                                     regressionRadius,
+                                                     nonAnchorRegressionRadius,
+                                                     chiSquared,
+                                                     ptCut,
+                                                     rzChiSquared,
+                                                     nonAnchorChiSquared,
+                                                     dBeta,
+                                                     promptScore,
+                                                     displacedScore,
+                                                     fakeScore);
+            if (ok) {
               alpaka::atomicAdd(acc, &t3ConnectedLSMax[innerTripletIndex], 1u, alpaka::hierarchy::Threads{});
-            } else {
-              const uint16_t lowerModule3 = lmIdx[outerTripletIndex][1];
-              const uint16_t lowerModule4 = lmIdx[outerTripletIndex][2];
-
-              float rzChiSquared, dBeta, nonAnchorChiSquared, regressionCenterX, regressionCenterY, regressionRadius,
-                  nonAnchorRegressionRadius, chiSquared, promptScore, displacedScore, fakeScore;
-
-              const bool ok = runQuadrupletDefaultAlgo(acc,
-                                                       modules,
-                                                       mds,
-                                                       segments,
-                                                       triplets,
-                                                       mdOccupancy,
-                                                       tripletCountsByMD,
-                                                       lowerModule1,
-                                                       lowerModule2,
-                                                       lowerModule3,
-                                                       lowerModule4,
-                                                       innerTripletIndex,
-                                                       outerTripletIndex,
-                                                       regressionCenterX,
-                                                       regressionCenterY,
-                                                       regressionRadius,
-                                                       nonAnchorRegressionRadius,
-                                                       chiSquared,
-                                                       ptCut,
-                                                       rzChiSquared,
-                                                       nonAnchorChiSquared,
-                                                       dBeta,
-                                                       promptScore,
-                                                       displacedScore,
-                                                       fakeScore);
-              if (ok) {
-                alpaka::atomicAdd(acc, &t3ConnectedLSMax[innerTripletIndex], 1u, alpaka::hierarchy::Threads{});
-              }
+              alpaka::atomicAdd(acc, &moduleT4Max[lowerModule1], 1u, alpaka::hierarchy::Blocks{});
+              if (outerIndex < kT4PassMaskBits)
+                alpaka::atomicOr(
+                    acc, &t4PassMask[innerTripletIndex], T4PassMaskType(1) << outerIndex, alpaka::hierarchy::Threads{});
             }
           }
         }
@@ -1001,7 +857,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   ModulesConst modules,
                                   TripletsOccupancyConst tripletsOcc,
                                   ObjectRanges ranges,
-                                  unsigned int const* __restrict__ t3ConnectedLSMax) const {
+                                  unsigned int const* __restrict__ moduleT4Max) const {
       // Single-block kernel
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
 
@@ -1021,13 +877,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         if (nInnerTriplets == 0)
           continue;
 
-        // Sum the real connectivity for triplets in this module
-        int dynamic_count = 0;
-        const unsigned int firstTripletIdx = ranges.tripletModuleIndices()[lowerModule];
-        for (unsigned int t = 0; t < nInnerTriplets; ++t) {
-          unsigned int tripletIndex = firstTripletIdx + t;
-          dynamic_count += t3ConnectedLSMax[tripletIndex];
-        }
+        // Sum of the counts of the triplets in this module, accumulated by the counting kernel
+        const int dynamic_count = moduleT4Max[lowerModule];
 
         if (dynamic_count == 0)
           continue;
