@@ -13,8 +13,8 @@ template <typename M>
 class CorrelatedNoisifier;
 class EcalLiteDTUSample;
 class EcalDataFrame_Ph2;
-class EcalLiteDTUPed;
 
+#include <array>
 #include <vector>
 
 namespace CLHEP {
@@ -28,15 +28,20 @@ public:
   typedef CorrelatedNoisifier<EcalCorrMatrix_Ph2> Noisifier;
 
   /// ctor
-  EcalLiteDTUCoder(bool addNoise, bool PreMix1, Noisifier* ebCorrNoise0, Noisifier* ebCorrNoise1 = nullptr);
+  EcalLiteDTUCoder(bool addNoise,
+                   bool PreMix1,
+                   unsigned int lowGainPreSamples,
+                   unsigned int lowGainPostSamples,
+                   Noisifier* ebCorrNoise0,
+                   Noisifier* ebCorrNoise1 = nullptr);
 
   /// dtor
-  virtual ~EcalLiteDTUCoder();
+  virtual ~EcalLiteDTUCoder() = default;
 
   /// can be fetched every event from the EventSetup
   void setPedestals(const EcalLiteDTUPedestalsMap* pedestals);
 
-  void setGainRatios(float gainRatios);
+  void setGainRatios(EcalCATIAGainRatios const* gainRatios);
 
   void setFullScaleEnergy(double EBscale);
 
@@ -46,30 +51,31 @@ public:
   virtual void analogToDigital(CLHEP::HepRandomEngine*, const EcalSamples& clf, EcalDataFrame_Ph2& df) const;
 
 private:
-  /// limit on the energy scale due to the electronics range
-  double fullScaleEnergy(const DetId& did) const;
-
   /// produce the pulse-shape
   void encode(const EcalSamples& ecalSamples, EcalDataFrame_Ph2& df, CLHEP::HepRandomEngine*) const;
 
   void findPedestal(const DetId& detId, int gainId, double& pedestal, double& width) const;
 
-  void findGains(const DetId& detId, float theGains[]) const;
+  void findGains(const DetId& detId, std::array<double, ecalPh2::NGAINS>& gains) const;
 
   void findIntercalibConstant(const DetId& detId, double& icalconst) const;
 
   const EcalLiteDTUPedestalsMap* m_peds;
 
-  float m_gainRatios;  // the electronics gains
+  EcalCATIAGainRatios const* m_gainRatios;  // the electronics gain ratios
 
   const EcalIntercalibConstantsMC* m_intercals;  //record specific for simulation of gain variation in MC
 
   double m_maxEneEB;  // max attainable energy in the ecal barrel
 
-  bool m_addNoise;  // whether add noise to the pedestals and the gains
-  bool m_PreMix1;   // Follow necessary steps for PreMixing input
+  bool const m_addNoise;                    // whether add noise to the pedestals and the gains
+  bool const m_PreMix1;                     // Follow necessary steps for PreMixing input
+  unsigned int const m_lowGainPreSamples;   // number of samples in low gain before the first gain switched sample
+  unsigned int const m_lowGainPostSamples;  // number of samples in low gain after the last gain switched sample
 
-  const Noisifier* m_ebCorrNoise[ecalPh2::NGAINS];
+  static constexpr double m_quantRMS2 = 1. / 12.;  // square of quantization error RMS 1/sqrt(12)
+
+  std::array<Noisifier*, ecalPh2::NGAINS> const m_ebCorrNoise;
 };
 
 #endif
