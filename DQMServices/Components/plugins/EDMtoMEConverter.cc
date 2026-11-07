@@ -72,6 +72,8 @@ public:
 
   using TagList = std::vector<uint32_t>;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
 private:
   std::string name;
   int verbosity;
@@ -394,6 +396,29 @@ namespace {
 
 }  // namespace
 
+void EDMtoMEConverter::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription base;
+  base.add<edm::InputTag>("runInputTag");
+  base.add<edm::InputTag>("lumiInputTag");
+  base.addUntracked<std::string>("Name");
+  base.addUntracked<int>("Verbosity", 0)
+      ->setComment(" -1 provides no output, 0 provides minimum output, 1 provides full output");
+  base.addUntracked<int>("Frequency", 50)->setComment("unused");
+  base.addUntracked<bool>("convertOnEndLumi", true);
+  base.addUntracked<bool>("convertOnEndRun", true);
+  base.addUntracked<std::string>("reScope", "")->setComment("Allowed values '' (which maps to LUMI), LUMI, RUN, JOB");
+
+  descriptions.addDefault(base);
+
+  edm::DescriptionCloner cfi;
+  cfi.set<std::string>("Name", "EDMtoMEConverter");
+  cfi.set<std::string>("reScope", "JOB");
+  cfi.set<edm::InputTag>("runInputTag", edm::InputTag("MEtoEDMConverter", "MEtoEDMConverterRun"));
+  cfi.set<edm::InputTag>("lumiInputTag", edm::InputTag("MEtoEDMConverter", "MEtoEDMConverterLumi"));
+
+  descriptions.add("EDMtoMEConverter", cfi);
+}
+
 EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet &iPSet) : verbosity(0), frequency(0) {
   const edm::InputTag &runInputTag = iPSet.getParameter<edm::InputTag>("runInputTag");
   const edm::InputTag &lumiInputTag = iPSet.getParameter<edm::InputTag>("lumiInputTag");
@@ -408,14 +433,14 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet &iPSet) : verbosity(0
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
 
-  convertOnEndLumi = iPSet.getUntrackedParameter<bool>("convertOnEndLumi", true);
-  convertOnEndRun = iPSet.getUntrackedParameter<bool>("convertOnEndRun", true);
+  convertOnEndLumi = iPSet.getUntrackedParameter<bool>("convertOnEndLumi");
+  convertOnEndRun = iPSet.getUntrackedParameter<bool>("convertOnEndRun");
 
   auto scopeDecode = std::map<std::string, MonitorElementData::Scope>{{"", MonitorElementData::Scope::LUMI},
                                                                       {"LUMI", MonitorElementData::Scope::LUMI},
                                                                       {"RUN", MonitorElementData::Scope::RUN},
                                                                       {"JOB", MonitorElementData::Scope::JOB}};
-  reScope = scopeDecode[iPSet.getUntrackedParameter<std::string>("reScope", "")];
+  reScope = scopeDecode[iPSet.getUntrackedParameter<std::string>("reScope")];
 
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
