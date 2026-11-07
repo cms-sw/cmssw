@@ -71,6 +71,7 @@ private:
   G4VSolid* worldSolid;
   const TrackingAction* trackAction;
   const CMSSteppingVerbose* steppingVerbose;
+  bool quirkTracking;
   const G4VProcess* m_Compton{nullptr};
 
   // Russian roulette regions
