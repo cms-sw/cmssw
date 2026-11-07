@@ -3,6 +3,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <unistd.h>
+
 MaterialBudgetTree::MaterialBudgetTree(std::shared_ptr<MaterialBudgetData> data, const std::string &filename)
     : MaterialBudgetFormat(data) {
   fname = filename;

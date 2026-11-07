@@ -1,4 +1,3 @@
-#include <ext/alloc_traits.h>
 #include <iostream>
 #include <string>
 #include <vector>

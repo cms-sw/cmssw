@@ -16,7 +16,7 @@ public:
 
   const std::vector<bool>& get_bitstream() const { return bitstream_; }
 
-  const bool operator<(const Phase2ITChipBitStream& other) { return rocid_ < other.rocid_; }
+  const bool operator<(const Phase2ITChipBitStream& other) const { return rocid_ < other.rocid_; }
 
 private:
   int rocid_;                    // Chip index

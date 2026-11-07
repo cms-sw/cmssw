@@ -5,6 +5,7 @@
     <use name="xz"/>
     <use name="zlib"/>
     <use name="zstd"/>
+    <use name="CondFormats/Serialization"/>
     <use name="CondFormats/SerializationHelper"/>
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>

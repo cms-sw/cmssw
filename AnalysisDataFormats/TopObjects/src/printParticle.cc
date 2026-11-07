@@ -22,11 +22,11 @@ namespace ttevent {
       log << std::setw(15) << name << ": not available!\n";
       return;
     }
-    log << std::setprecision(3) << setiosflags(std::ios::fixed | std::ios::showpoint);
+    log << std::setprecision(3) << std::setiosflags(std::ios::fixed | std::ios::showpoint);
     log << std::setw(15) << name << ": " << std::setw(7) << cand->pt() << "; " << std::setw(7) << cand->eta() << "; "
-        << std::setw(7) << cand->phi() << "; " << resetiosflags(std::ios::fixed | std::ios::showpoint)
-        << setiosflags(std::ios::scientific) << std::setw(10) << cand->mass() << "\n";
-    log << resetiosflags(std::ios::scientific);
+        << std::setw(7) << cand->phi() << "; " << std::resetiosflags(std::ios::fixed | std::ios::showpoint)
+        << std::setiosflags(std::ios::scientific) << std::setw(10) << cand->mass() << "\n";
+    log << std::resetiosflags(std::ios::scientific);
   }
 
 }  // namespace ttevent

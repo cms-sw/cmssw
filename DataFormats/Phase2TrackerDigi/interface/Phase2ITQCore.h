@@ -35,7 +35,7 @@ public:
   std::vector<int> getADCs();
   std::vector<bool> encodeQCore(bool is_new_col);
 
-  const bool operator<(const Phase2ITQCore& other) {
+  const bool operator<(const Phase2ITQCore& other) const {
     if (ccol_ == other.ccol_) {
       return (ccol_ < other.ccol_);
     } else {

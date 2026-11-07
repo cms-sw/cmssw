@@ -30,6 +30,7 @@
 #include <cstddef>
 #include <iomanip>
 #include <vector>
+#include <array>
 
 using namespace geant_units::operators;
 

@@ -9,7 +9,7 @@
   \version  $Id: PATGenCandsFromSimTracksProducer.cc,v 1.8 2010/10/20 23:09:25 wmtan Exp $
 */
 
-#include <ext/algorithm>
+#include <algorithm>
 #include <memory>
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
@@ -257,7 +257,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event &event, const EventSetup &i
   std::unique_ptr<SimTrackContainer> simtracksTmp;
   const SimTrackContainer *simtracksSorted = &*simtracks;
   if (makeMotherLink_ || writeAncestors_) {
-    if (!__gnu_cxx::is_sorted(simtracks->begin(), simtracks->end(), LessById())) {
+    if (!std::is_sorted(simtracks->begin(), simtracks->end(), LessById())) {
       simtracksTmp = std::make_unique<SimTrackContainer>(*simtracks);
       std::sort(simtracksTmp->begin(), simtracksTmp->end(), LessById());
       simtracksSorted = &*simtracksTmp;
@@ -277,7 +277,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event &event, const EventSetup &i
     event.getByToken(genBarcodesToken_, genBarcodes);
     if (gens->size() != genBarcodes->size())
       throw cms::Exception("Corrupt data") << "Barcodes not of the same size as GenParticles!\n";
-    barcodesAreSorted = __gnu_cxx::is_sorted(genBarcodes->begin(), genBarcodes->end());
+    barcodesAreSorted = std::is_sorted(genBarcodes->begin(), genBarcodes->end());
   }
 
   // make the output collection

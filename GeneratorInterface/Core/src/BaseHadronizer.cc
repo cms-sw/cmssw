@@ -4,6 +4,7 @@
 
 #include <random>
 #include <sys/wait.h>
+#include <array>
 
 namespace gen {
 
