@@ -4,8 +4,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process( "Demo" )
 process.load( 'FWCore.MessageService.MessageLogger_cfi' )
 process.load( 'Configuration.EventContent.EventContent_cff' )
-process.load( 'Configuration.Geometry.GeometryExtended2026D110Reco_cff' ) 
-process.load( 'Configuration.Geometry.GeometryExtended2026D110_cff' )
+process.load( 'Configuration.Geometry.GeometryExtendedRun4D110Reco_cff' ) 
+process.load( 'Configuration.Geometry.GeometryExtendedRun4D110_cff' )
 process.load( 'Configuration.StandardSequences.MagneticField_cff' )
 process.load( 'Configuration.StandardSequences.FrontierConditions_GlobalTag_cff' )
 process.load( 'L1Trigger.TrackTrigger.TrackTrigger_cff' )
@@ -19,6 +19,7 @@ process.load( 'L1Trigger.TrackerDTC.DTC_cff' )
 process.load("L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff")
 # load code that fits hybrid tracks
 process.load( 'L1Trigger.TrackFindingTracklet.Producer_cff' )
+process.load( 'L1Trigger.TrackFindingTracklet.Analyzer_cff' )
 #--- Load code that compares s/w with f/w
 process.load( 'L1Trigger.TrackFindingTracklet.Demonstrator_cff' )
 from L1Trigger.TrackFindingTracklet.Customize_cff import *
@@ -26,21 +27,25 @@ from L1Trigger.TrackFindingTracklet.Customize_cff import *
 fwConfig( process )
 
 # build schedule
-process.tt = cms.Sequence (  process.ProducerDTC
-                           #+ process.ProducerIRin
-                           + process.L1THybridTracks
-                           + process.ProducerTM
-                           + process.ProducerDR
-                           #+ process.ProducerKF
-                          )
-process.demo = cms.Path( process.tt + process.TrackerTFPDemonstrator )
+process.emu = cms.Sequence (  process.ProducerDTC
+                            + process.L1THybridTracks
+                            + process.ProducerTM
+                            + process.ProducerDR
+                            + process.ProducerKF
+                            + process.ProducerTQ
+                            + process.ProducerTFP
+                           )
+process.demo = cms.Path( process.emu + process.TrackFindingTrackletDemonstrator )
 process.schedule = cms.Schedule( process.demo )
 
 # create options
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing( 'analysis' )
 # specify input MC
-Samples = [""]
+Samples = [
+  #"/store/relval/CMSSW_15_1_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_STD_Run4D110_PU-v1/2590000/00c675dc-1517-4af7-8dd4-841e0668fefe.root"
+  "file:/data/store/CMSSW_15_1_0_pre5_RelValTTbar_14TeV_TuneCP5_GEN-SIM-DIGI-RAW_PU_150X_mcRun4_realistic_v1_RV269_Run4D110_PU-v2_2590000.root"
+]
 
 options.register( 'inputMC', Samples, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed" )
 # specify number of events to process.
@@ -52,7 +57,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.Even
 process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring( options.inputMC ),
-  #skipEvents = cms.untracked.uint32( 301 ),
+  #skipEvents = cms.untracked.uint32( 2 ),
   secondaryFileNames = cms.untracked.vstring(),
   duplicateCheckMode = cms.untracked.string( 'noDuplicateCheck' )
 )

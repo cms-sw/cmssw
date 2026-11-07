@@ -1,11 +1,9 @@
 #ifndef L1Trigger_TrackerTFP_GeometricProcessor_h
 #define L1Trigger_TrackerTFP_GeometricProcessor_h
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 #include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 #include <vector>
 #include <deque>
@@ -15,7 +13,7 @@ namespace trackerTFP {
   // Class to route Stubs of one region to one stream per sector
   class GeometricProcessor {
   public:
-    GeometricProcessor(const tt::Setup* setup_,
+    GeometricProcessor(const Setup* setup_,
                        const DataFormats* dataFormats,
                        const LayerEncoding* layerEncoding,
                        std::vector<StubGP>& stubs);
@@ -31,7 +29,7 @@ namespace trackerTFP {
     template <class T>
     T* pop_front(std::deque<T*>& ts) const;
     // provides run-time constants
-    const tt::Setup* setup_;
+    const Setup* setup_;
     // provides dataformats
     const DataFormats* dataFormats_;
     // provides layer encoding

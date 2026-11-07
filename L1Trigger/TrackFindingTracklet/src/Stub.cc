@@ -25,25 +25,27 @@ Stub::Stub(L1TStub& stub, Settings const& settings, Globals& globals) : settings
 
   int nalphabits = 0;
 
+  r_offset_bits = 8;
+
+  int nndbits = settings_.nndbitsstub(layerdisk_);
   int nrbits = settings_.nrbitsstub(layerdisk_);
   int nzbits = settings_.nzbitsstub(layerdisk_);
   int nphibits = settings_.nphibitsstub(layerdisk_);
 
   if (layerdisk_ >= N_LAYER && !stub.isPSmodule()) {
     nalphabits = settings.nbitsalpha();
-    nrbits = 7;
+    nrbits = 6;
   }
 
-  assert(nbendbits + nalphabits + nrbits + nzbits + nphibits == 36);
+  assert(nndbits + nbendbits + nalphabits + nrbits + nzbits + nphibits == 36);
 
-  bitset<32> rbits(stubwordbin.substr(0, nrbits));
-  bitset<32> zbits(stubwordbin.substr(nrbits, nzbits));
-  bitset<32> phibits(stubwordbin.substr(nrbits + nzbits, nphibits));
-  bitset<32> alphabits(stubwordbin.substr(nphibits + nzbits + nrbits, nalphabits));
-  bitset<32> bendbits(stubwordbin.substr(nphibits + nzbits + nrbits + nalphabits, nbendbits));
+  bitset<32> rbits(stubwordbin.substr(nndbits, nrbits));
+  bitset<32> zbits(stubwordbin.substr(nrbits + nndbits, nzbits));
+  bitset<32> phibits(stubwordbin.substr(nrbits + nzbits + nndbits, nphibits));
+  bitset<32> alphabits(stubwordbin.substr(nphibits + nzbits + nrbits + nndbits, nalphabits));
+  bitset<32> bendbits(stubwordbin.substr(nphibits + nzbits + nrbits + nalphabits + nndbits, nbendbits));
 
   int newbend = bendbits.to_ulong();
-
   int newr = rbits.to_ulong();
   if (layerdisk_ < N_LAYER) {
     if (newr >= (1 << (nrbits - 1)))
@@ -160,7 +162,7 @@ double Stub::rapprox() const {
     else
       return settings_.rDSSouter(r_.value());
   }
-  return r_.value() * settings_.kr();
+  return (r_.value() + (1 << r_offset_bits)) * settings_.kr();  // Incorporating r offset for disk PS stubs
 }
 
 double Stub::zapprox() const {
@@ -194,4 +196,31 @@ unsigned int Stub::layerdisk() const {
   if (layer_.value() == -1)
     return N_LAYER - 1 + abs(disk_.value());
   return layer_.value();
+}
+
+void Stub::getCoord(double& phi, double& r, double& z) const {
+  phi = phi_.value() * settings_.kphi(layerdisk());
+
+  r = r_.value() * settings_.kr();
+
+  z = z_.value() * settings_.kz();
+
+  bool negdisk = disk_.value() < 0;
+
+  if (layerdisk() <= 5) {
+    r = r_.value() * settings_.krbarrel() + settings_.rmean(layerdisk());
+    if (layerdisk() >= 3) {
+      z *= 16;
+    }
+  } else {
+    z += (negdisk ? -1 : 1) * settings_.zmean(layerdisk() - 6);
+    r += 7.5;
+    if (!isPSmodule()) {
+      if (layerdisk() <= 7) {
+        r = settings_.rDSSinner(r_.value());
+      } else {
+        r = settings_.rDSSouter(r_.value());
+      }
+    }
+  }
 }

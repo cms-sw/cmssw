@@ -36,8 +36,6 @@ void TTStubAlgorithm_official<Ref_Phase2TrackerDigi_>::PatternHitCorrelation(
   const PixelGeomDetUnit* pix1 = dynamic_cast<const PixelGeomDetUnit*>(det1);
   const PixelTopology* top0 = dynamic_cast<const PixelTopology*>(&(pix0->specificTopology()));
   const PixelTopology* top1 = dynamic_cast<const PixelTopology*>(&(pix1->specificTopology()));
-  std::pair<float, float> pitch0 = top0->pitch();
-  std::pair<float, float> pitch1 = top1->pitch();
 
   /// Stop if the clusters are not in the same z-segment
   int cols0 = top0->ncolumns();
@@ -55,11 +53,20 @@ void TTStubAlgorithm_official<Ref_Phase2TrackerDigi_>::PatternHitCorrelation(
       return;
   }
 
+  // Maximum allowed offsets in hardware (half-strips):
+  constexpr int maxOffsetPS = 15;
+  constexpr int maxOffset2S = 6;
+
   /// Get the Stack radius and z and displacements
   double R0 = det0->position().perp();
   double R1 = det1->position().perp();
   double Z0 = det0->position().z();
   double Z1 = det1->position().z();
+
+  // note about CRACK full nonant/titled module implementation
+  // In case of cosmics, calcualtions should use Y instead of R.
+  // delta should be calculated with "collision point" at Z = Z0 to simulate straight tracks from above
+  // Otherwise "collision point" is at x = 0 y = 0 z = 0, not applicable to cosmics
 
   double DR = R1 - R0;
   double DZ = Z1 - Z0;
@@ -81,40 +88,62 @@ void TTStubAlgorithm_official<Ref_Phase2TrackerDigi_>::PatternHitCorrelation(
   ///
   /// IN    | | | |x|x| | | | | | | | | | |
   ///             THIS is 3.5 (COORD) and 4.0 (POS)
-  /// 1) disp is the difference between average row coordinates
-  ///    in inner and outer stack member, in terms of outer member pitch
+  /// 1) disp is the difference between average row coordinates in inner and
+  ///    outer stack member
   ///    (in case they are the same, this is just a plain coordinate difference)
-  double dispD = 2 * (mp1.x() - mp0.x()) * (pitch0.first / pitch1.first);  /// In HALF-STRIP units!
-  int dispI = ((dispD > 0) - (dispD < 0)) * floor(std::abs(dispD));        /// In HALF-STRIP units!
-  /// 2) offset is the projection with a straight line of the innermost
-  ///    hit towards the ourermost stack member, still in terms of outer member pitch
+  double dispD = 2 * (mp1.x() - mp0.x());                            /// In HALF-STRIP units!
+  int dispI = ((dispD > 0) - (dispD < 0)) * floor(std::abs(dispD));  /// In HALF-STRIP units!
+  /// 2) offset is the projection with a straight line of the innermost hit towards
+  ///    the outermost stack member
   ///    NOTE: in terms of coordinates, the center of the module is at NROWS/2-0.5 to
   ///    be consistent with the definition given above
 
   /// In HALF-STRIP units!
-  double offsetD = 2 * delta * (mp0.x() - (top0->nrows() / 2 - 0.5)) * (pitch0.first / pitch1.first);
+  double offsetD = 2 * delta * (mp0.x() - (top0->nrows() / 2 - 0.5));
   int offsetI = ((offsetD > 0) - (offsetD < 0)) * floor(std::abs(offsetD));  /// In HALF-STRIP units!
 
-  if (stDetId.subdetId() == StripSubdetector::TOB) {
+  // TODO: implement offset calculation for CRACK with tilted modules
+  // For now CRACK only has sensors perpendicular to vertical, so offset is always 0 for them.
+  // When tilted modules are used (nonant test), the offset should be different.
+  // roughly: t*sin(omega)/[cos(theta)*cos(omega)
+  // Where t is the separation of the two sensors. For modules at the top of the barrel omega = 0 & offset = 0.
+  // For omega = 90 degrees (module at the side of the barrel) the offset would be infinity
+  // (since these modules are in the vertical plane, i.e. endcap, they are no good for cosmics arriving vertically)
+  if (mCosmics)
+    offsetI = 0;
+
+  // Check offset is within maximum allowed in hardware & set to max offset if not
+  if (isPS && std::abs(offsetI) > maxOffsetPS) {
+    offsetI = ((offsetI > 0) - (offsetI < 0)) * maxOffsetPS;
+  } else if (!isPS && std::abs(offsetI) > maxOffset2S) {
+    offsetI = ((offsetI > 0) - (offsetI < 0)) * maxOffset2S;
+  }
+
+  if (stDetId.subdetId() == Phase2Tracker::Subdetector::Barrel) {
     int layer = theTrackerTopo_->layer(stDetId);
-    int ladder = theTrackerTopo_->tobRod(stDetId);
-    int type = 2 * theTrackerTopo_->tobSide(stDetId) - 3;  // -1 for tilted-, 1 for tilted+, 3 for flat
+    int ladder = theTrackerTopo_->barrelRodP2(stDetId);
+    Phase2Tracker::BarrelModuleTilt type = theTrackerTopo_->barrelTiltTypeP2(stDetId);
     double corr = 0;
 
-    if (type < 3)  // Only for tilted modules
+    if (type == Phase2Tracker::BarrelModuleTilt::tiltedZminus ||
+        type == Phase2Tracker::BarrelModuleTilt::tiltedZplus)  // Only for tilted modules
     {
       corr = (barrelNTilt.at(layer) + 1) / 2.;
       // Corrected ring number, bet 0 and barrelNTilt.at(layer), in ascending |z|
-      ladder = corr - (corr - ladder) * type;
+      int ladderSign = (type == Phase2Tracker::BarrelModuleTilt::tiltedZminus) ? -1 : +1;
+      ladder = corr - (corr - ladder) * ladderSign;
       window = 2 * (tiltedCut.at(layer)).at(ladder);
     } else  // Classis barrel window otherwise
     {
       window = 2 * barrelCut.at(layer);
     }
 
-  } else if (stDetId.subdetId() == StripSubdetector::TID) {
-    window = 2 * (ringCut.at(theTrackerTopo_->tidWheel(stDetId))).at(theTrackerTopo_->tidRing(stDetId));
+  } else if (stDetId.subdetId() == Phase2Tracker::Subdetector::Endcap) {
+    window = 2 * (ringCut.at(theTrackerTopo_->endcapWheelP2(stDetId))).at(theTrackerTopo_->endcapRingP2(stDetId));
   }
+  // For CRACK, window is maximum value
+  if (mCosmics)
+    window = isPS ? 10 : 14;
 
   /// Accept the stub if the post-offset correction displacement is smaller than the half-window
   if (std::abs(dispI - offsetI) <= window)  /// In HALF-STRIP units!

@@ -1,11 +1,3 @@
-/*! \brief   
- *  \details Here, in the source file, the methods which do depend
- *           on the specific type <T> that can fit the template.
- *
- *  \author Nicola Pozzobon
- *  \date   2013, Jul 19
- *  
- */
 
 #include "SimTracker/TrackTriggerAssociation/plugins/TTTrackAssociator.h"
 
@@ -33,7 +25,10 @@ void TTTrackAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, cons
     edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> TTTrackHandle;
     iEvent.getByToken(iTag, TTTrackHandle);
 
-    /// Prepare the necessary maps
+    /// Prepare the necessary association maps.
+    /// One map associates each L1 track to its principle truth particle, providing
+    /// all the track's stubs (allowing for one incorrect one) are associated to it.
+    /// The other map associates each TP to a vector of all L1 tracks it contributed to.
     std::map<TTTrackPtr, TrackingParticlePtr> trackToTrackingParticleMap;
     std::map<TrackingParticlePtr, std::vector<TTTrackPtr>> trackingParticleToTrackVectorMap;
 
@@ -82,15 +77,17 @@ void TTTrackAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, cons
 
       }  /// End of loop over the stubs
 
+      /// Now start work to fill map associating individual tracks to their principle tracking particle (if any).
+
       /// If there are >= 2 unknown stubs, go to the next track
       /// as this track may be COMBINATORIC or UNKNOWN
       /// (One unknown is allowed, if in 2S module).
       if (mayCombinUnknown >= 2)
         continue;
 
-      /// If we are here, all the stubs on track are either combinatoric or genuine
-      /// and there is no more than one fake stub in the track
-      /// Loop over all the TrackingParticle which have been found in the track
+      /// If we are here, all the stubs on track are either combinatoric or genuine,
+      /// except that there can be one fake stub in the track
+      /// Loop over all the TrackingParticles which contributed to the track
       /// (stored in auxMap), to check if any are present in all stubs on Track.
 
       std::vector<const TrackingParticle*> tpInAllStubs;
@@ -123,12 +120,9 @@ void TTTrackAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, cons
       }
 
       /// Count how many TrackingParticles were associated to all stubs on this track.
-      /// FIX: Could avoid this by using std::set for tpInAllStubs?
-      std::sort(tpInAllStubs.begin(), tpInAllStubs.end());
-      tpInAllStubs.erase(std::unique(tpInAllStubs.begin(), tpInAllStubs.end()), tpInAllStubs.end());
       unsigned int nTPs = tpInAllStubs.size();
 
-      /// If only one TP associated to all stubs (allowing one incorrect) on track: GENUINE or LOOSELY_GENUINE.
+      /// If only one TP associated to all stubs (allowing one incorrect stub) on track: GENUINE or LOOSELY_GENUINE.
       /// If 0 or >= 2 TP: COMBINATORIC
       /// WARNING: This means if one TP matches all stubs, and another matches all STUBS except
       /// one, then the trackToTrackingParticleMap will not be filled.
@@ -138,7 +132,6 @@ void TTTrackAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, cons
         continue;
 
       /// Here, the track may only be GENUINE/LOOSELY_GENUINE
-      /// CHECK: Surely if one incorrect PS stub, it can also be COMBINATORIC?
       /// Fill the map associating track to its principle TP.
       trackToTrackingParticleMap.emplace(tempTrackPtr, auxMap.find(tpInAllStubs.at(0))->second);
 
@@ -148,7 +141,6 @@ void TTTrackAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, cons
     /// (Map gets multiple entries per track if it has several stubs belonging to same TP).
     for (auto& p : trackingParticleToTrackVectorMap) {
       /// Get the vector of edm::Ptr< TTTrack >
-      /// (CHECK: Couldn't this be done by reference, to save CPU?)
       std::vector<TTTrackPtr>& tempVector = p.second;
 
       /// Sort and remove duplicates
@@ -163,7 +155,6 @@ void TTTrackAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, cons
     associationMapForOutput->setTTTrackToTrackingParticleMap(trackToTrackingParticleMap);
     associationMapForOutput->setTrackingParticleToTTTracksMap(trackingParticleToTrackVectorMap);
     associationMapForOutput->setTTStubAssociationMap(theStubAssoMap);
-    associationMapForOutput->setAllowOneFalse2SStub(TTTrackAllowOneFalse2SStub);
 
     /// Put output in the event
     iEvent.put(std::move(associationMapForOutput), ttTracksInputTags_.at(ncont1).instance());

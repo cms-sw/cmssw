@@ -28,6 +28,8 @@ namespace trklet {
     double phimin_;
     double phimax_;
     std::vector<Tracklet*> tracks_;
+
+    std::ofstream outCT_;
   };
 
 };  // namespace trklet

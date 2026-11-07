@@ -6,7 +6,6 @@
 #include "L1Trigger/TrackFindingTracklet/interface/HistBase.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Track.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletConfigBuilder.h"
-#include "L1Trigger/TrackFindingTracklet/interface/IMATH_TrackletCalculator.h"
 #include "L1Trigger/TrackFindingTracklet/interface/StubStreamData.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -28,28 +27,9 @@ TrackletEventProcessor::~TrackletEventProcessor() {
     sector_->clean();
 }
 
-void TrackletEventProcessor::init(Settings const& theSettings, const tt::Setup* setup) {
+void TrackletEventProcessor::init(Settings const& theSettings, const Setup* setup) {
   settings_ = &theSettings;
   globals_ = make_unique<Globals>(*settings_);
-
-  //Verify consistency
-  if (settings_->kphi0pars() != globals_->ITC_L1L2()->phi0_final.K()) {
-    throw cms::Exception("Inconsistency") << "phi0 conversion parameter inconsistency\n";
-  }
-
-  if (settings_->krinvpars() != globals_->ITC_L1L2()->rinv_final.K()) {
-    throw cms::Exception("Inconsistency") << "ring conversion parameter inconsistency\n";
-  }
-
-  if (settings_->ktpars() != globals_->ITC_L1L2()->t_final.K()) {
-    throw cms::Exception("Inconsistency") << "t conversion parameter inconsistency\n";
-  }
-
-  if (settings_->kphider() != globals_->ITC_L1L2()->der_phiL_final.K()) {
-    throw cms::Exception("Inconsistency")
-        << "t conversion parameter inconsistency:" << settings_->kphider() / globals_->ITC_L1L2()->der_phiL_final.K()
-        << "\n";
-  }
 
   if (settings_->debugTracklet()) {
     edm::LogVerbatim("Tracklet") << "========================================================= \n"
@@ -83,14 +63,14 @@ void TrackletEventProcessor::init(Settings const& theSettings, const tt::Setup* 
 
   sector_ = make_unique<Sector>(*settings_, globals_.get());
 
-  if (settings_->extended() || settings_->reduced()) {
-    ifstream inmem(settings_->memoryModulesFile().c_str());
+  if (settings_->reduced()) {
+    ifstream inmem(settings_->memoryModulesFullPath().c_str());
     assert(inmem.good());
 
-    ifstream inproc(settings_->processingModulesFile().c_str());
+    ifstream inproc(settings_->processingModulesFullPath().c_str());
     assert(inproc.good());
 
-    ifstream inwire(settings_->wiresFile().c_str());
+    ifstream inwire(settings_->wiresFullPath().c_str());
     assert(inwire.good());
 
     configure(inwire, inmem, inproc);
@@ -232,21 +212,23 @@ void TrackletEventProcessor::event(SLHCEvent& ev,
     // ----------------------------------------------------------------------------------------
     // Now start the tracklet processing
 
-    // VM router
+    const bool writeSect = (static_cast<int>(k) == settings_->writememsect() || settings_->writememsect() < 0);
+    const bool multiSectFiles = (settings_->writememsect() < 0 && !settings_->splitmembysect());
+
+    // Input router
     InputRouterTimer_.start();
     sector_->executeIR();
-    if (settings_->writeMem() && k == settings_->writememsect()) {
+    if (settings_->writeMem() && writeSect) {
       sector_->writeDTCStubs(first);
       sector_->writeIRStubs(first);
     }
     InputRouterTimer_.stop();
 
+    // VM router
     VMRouterTimer_.start();
     sector_->executeVMR();
-    if (settings_->writeMem() && k == settings_->writememsect()) {
+    if (settings_->writeMem() && writeSect) {
       sector_->writeVMSTE(first);
-      sector_->writeVMSME(first);
-      sector_->writeAS(first);
       sector_->writeAIS(first);
     }
     VMRouterTimer_.stop();
@@ -306,9 +288,22 @@ void TrackletEventProcessor::event(SLHCEvent& ev,
     sector_->executeTPD();
     TPDTimer_.stop();
 
-    if (settings_->writeMem() && k == settings_->writememsect()) {
-      sector_->writeTPAR(first);
+    // projection calculator
+    PCTimer_.start();
+    sector_->executePC();
+    PCTimer_.stop();
+    if (settings_->writeMem() && writeSect) {
       sector_->writeTPROJ(first);
+      sector_->writeTPAR(first);
+    }
+
+    // VMStub ME Router
+    VMSMERTimer_.start();
+    sector_->executeVMSMER();
+    VMSMERTimer_.stop();
+    if (settings_->writeMem() && writeSect) {
+      sector_->writeVMSME(first);
+      sector_->writeAS(first);
     }
 
     // match processor (alternative to ME+MC)
@@ -316,14 +311,14 @@ void TrackletEventProcessor::event(SLHCEvent& ev,
     sector_->executeMP();
     MPTimer_.stop();
 
-    if (settings_->writeMem() && k == settings_->writememsect()) {
+    if (settings_->writeMem() && writeSect) {
       sector_->writeMC(first);
     }
 
     // fit track
     FTTimer_.start();
     sector_->executeFT(streamsTrackRaw, streamsStubRaw);
-    if ((settings_->writeMem() || settings_->writeMonitorData("IFit")) && k == settings_->writememsect()) {
+    if ((settings_->writeMem() || settings_->writeMonitorData("IFit")) && writeSect) {
       sector_->writeTF(first);
     }
     FTTimer_.stop();
@@ -331,12 +326,18 @@ void TrackletEventProcessor::event(SLHCEvent& ev,
     // purge duplicate
     PDTimer_.start();
     sector_->executePD(tracks_);
-    if (((settings_->writeMem() || settings_->writeMonitorData("IFit")) && k == settings_->writememsect()) ||
+    if (((settings_->writeMem() || settings_->writeMonitorData("IFit")) && writeSect) ||
         settings_->writeMonitorData("CT")) {
       sector_->writeCT(first);
     }
     PDTimer_.stop();
+
+    if (multiSectFiles)
+      first = false;
   }
+
+  if (settings_->writeMem())
+    sector_->incrBXEvent();
 }
 
 void TrackletEventProcessor::printSummary() {
