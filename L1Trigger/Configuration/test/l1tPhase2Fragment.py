@@ -22,11 +22,11 @@ import tempfile
 
 import FWCore.ParameterSet.Config as cms
 
-# reference workflow: 29634.0 (TTbar_14TeV, Run4D110), step2
+# reference workflow: 38434.0 (TTbar_14TeV, Run4D128, the Run4 default), step2
 DRIVER_OPTIONS = [
     "--conditions", "auto:phase2_realistic_T35",
-    "--geometry", "ExtendedRun4D110",
-    "--era", "Phase2C17I13M9",
+    "--geometry", "ExtendedRun4D128",
+    "--era", "Phase2C26I13M9",
     "--datatier", "GEN-SIM-DIGI-RAW",
     "--eventcontent", "FEVTDEBUGHLT",
     "--filein", "file:step1.root",

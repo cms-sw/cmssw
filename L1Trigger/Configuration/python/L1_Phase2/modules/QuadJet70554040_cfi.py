@@ -5,28 +5,28 @@ QuadJet70554040 = cms.EDFilter("L1GTQuadObjectCond",
         maxEta = cms.double(2.4),
         minEta = cms.double(-2.4),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.5, 2.4, 3.0),
-        regionsMinPt = cms.vdouble(39.3, 37.7, 25, 57.1),
+        regionsMinPt = cms.vdouble(41.4, 37.0, 25, 57.0),
         tag = cms.InputTag("l1tGTProducer","CL2JetsSC4")
     ),
     collection2 = cms.PSet(
         maxEta = cms.double(2.4),
         minEta = cms.double(-2.4),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.5, 2.4, 3.0),
-        regionsMinPt = cms.vdouble(28.3, 28.2, 25, 45.8),
+        regionsMinPt = cms.vdouble(28.6, 27.4, 25, 45.8),
         tag = cms.InputTag("l1tGTProducer","CL2JetsSC4")
     ),
     collection3 = cms.PSet(
         maxEta = cms.double(2.4),
         minEta = cms.double(-2.4),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.5, 2.4, 3.0),
-        regionsMinPt = cms.vdouble(25, 25, 25, 34.5),
+        regionsMinPt = cms.vdouble(25, 25, 25, 34.6),
         tag = cms.InputTag("l1tGTProducer","CL2JetsSC4")
     ),
     collection4 = cms.PSet(
         maxEta = cms.double(2.4),
         minEta = cms.double(-2.4),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.5, 2.4, 3.0),
-        regionsMinPt = cms.vdouble(25, 25, 25, 34.5),
+        regionsMinPt = cms.vdouble(25, 25, 25, 34.6),
         tag = cms.InputTag("l1tGTProducer","CL2JetsSC4")
     ),
     cos_phi_lut = cms.PSet(

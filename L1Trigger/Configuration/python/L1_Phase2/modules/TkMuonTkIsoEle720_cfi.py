@@ -14,7 +14,7 @@ TkMuonTkIsoEle720 = cms.EDFilter("L1GTDoubleObjectCond",
         minEta = cms.double(-2.4),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.479),
         regionsMaxRelIsolationPt = cms.vdouble(0.13, 0.28),
-        regionsMinPt = cms.vdouble(14.0, 14.5),
+        regionsMinPt = cms.vdouble(16.1, 14.5),
         regionsQualityFlags = cms.vuint32(2, 2),
         tag = cms.InputTag("l1tGTProducer","CL2Electrons")
     ),

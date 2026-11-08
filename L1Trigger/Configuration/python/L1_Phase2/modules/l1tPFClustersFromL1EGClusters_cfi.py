@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 l1tPFClustersFromL1EGClusters = cms.EDProducer("PFClusterProducerFromL1EGClusters",
-    corrector = cms.string(''),
+    corrector = cms.string('L1Trigger/Phase2L1ParticleFlow/data/emcorr_barrel.root'),
     digi_src = cms.InputTag("l1tPhase2L1CaloEGammaEmulator","GCTDigitizedClusterToCorrelator"),
     etMin = cms.double(0.5),
     etaBounds = cms.vdouble(-1.5, 0.0, 1.5),

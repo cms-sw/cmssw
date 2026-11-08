@@ -12,7 +12,7 @@ l1tLayer1EGElliptic = cms.EDProducer("L1TEGMultiMerger",
         ),
         cms.PSet(
             instance = cms.string('L1TkEleEB'),
-            pfProducers = cms.VInputTag(cms.InputTag("l1tLayer1Barrel","L1TkEle"))
+            pfProducers = cms.VInputTag(cms.InputTag("l1tLayer1BarrelElliptic","L1TkEle"))
         )
     ),
     tkEms = cms.VPSet(
@@ -22,7 +22,7 @@ l1tLayer1EGElliptic = cms.EDProducer("L1TEGMultiMerger",
         ),
         cms.PSet(
             instance = cms.string('L1TkEmEB'),
-            pfProducers = cms.VInputTag(cms.InputTag("l1tLayer1Barrel","L1TkEm"))
+            pfProducers = cms.VInputTag(cms.InputTag("l1tLayer1BarrelElliptic","L1TkEm"))
         )
     )
 )

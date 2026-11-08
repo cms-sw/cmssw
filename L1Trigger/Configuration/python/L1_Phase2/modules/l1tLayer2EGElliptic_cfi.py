@@ -2,6 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 l1tLayer2EGElliptic = cms.EDProducer("L1TCtL2EgProducer",
     egStaInstanceLabel = cms.string('L1CtEgEE'),
+    eleRegression = cms.PSet(
+        eta_bins = cms.vdouble(1.5),
+        model_paths = cms.vstring('L1Trigger/Phase2L1ParticleFlow/data/egamma/TkElePtRegr_EB_sigVsBkg_v0_conifer.json'),
+        model_types = cms.vuint32(1)
+    ),
     encoder = cms.PSet(
         nTKELE_OUT = cms.uint32(12),
         nTKPHO_OUT = cms.uint32(12)
@@ -10,39 +15,18 @@ l1tLayer2EGElliptic = cms.EDProducer("L1TCtL2EgProducer",
         TMUX = cms.uint32(6),
         channels = cms.VPSet(
             cms.PSet(
-                TMUX = cms.uint32(6),
-                channels = cms.vuint32(0),
+                TMUX = cms.uint32(18),
+                channels = cms.vuint32(0, 2, 4),
                 id = cms.uint32(0),
                 interface = cms.string('eglayer1Barrel'),
-                nWords = cms.uint32(48)
+                nWords = cms.uint32(156)
             ),
             cms.PSet(
-                TMUX = cms.uint32(6),
-                channels = cms.vuint32(1),
+                TMUX = cms.uint32(18),
+                channels = cms.vuint32(1, 3, 5),
                 id = cms.uint32(1),
-                interface = cms.string('eglayer1Barrel'),
-                nWords = cms.uint32(48)
-            ),
-            cms.PSet(
-                TMUX = cms.uint32(6),
-                channels = cms.vuint32(2),
-                id = cms.uint32(2),
-                interface = cms.string('eglayer1Barrel'),
-                nWords = cms.uint32(48)
-            ),
-            cms.PSet(
-                TMUX = cms.uint32(6),
-                channels = cms.vuint32(3),
-                id = cms.uint32(3),
                 interface = cms.string('eglayer1Endcap'),
-                nWords = cms.uint32(48)
-            ),
-            cms.PSet(
-                TMUX = cms.uint32(6),
-                channels = cms.vuint32(4),
-                id = cms.uint32(4),
-                interface = cms.string('eglayer1Endcap'),
-                nWords = cms.uint32(48)
+                nWords = cms.uint32(129)
             )
         ),
         eventsPerFile = cms.uint32(12),
@@ -50,7 +34,7 @@ l1tLayer2EGElliptic = cms.EDProducer("L1TCtL2EgProducer",
         maxLinesPerFile = cms.uint32(1024),
         nFramesPerBX = cms.uint32(9),
         outputFileExtension = cms.string('txt.gz'),
-        outputFilename = cms.string('L1TCTL2EG_InPattern')
+        outputFilename = cms.string('L1TCTL2EG_TMUX18_InPattern')
     ),
     l1PFObjects = cms.InputTag("l1tLayer2Deregionizer","Puppi"),
     outPatternFile = cms.PSet(
@@ -67,7 +51,7 @@ l1tLayer2EGElliptic = cms.EDProducer("L1TCtL2EgProducer",
         maxLinesPerFile = cms.uint32(1024),
         nFramesPerBX = cms.uint32(9),
         outputFileExtension = cms.string('txt.gz'),
-        outputFilename = cms.string('L1TCTL2EG_OutPattern')
+        outputFilename = cms.string('L1TCTL2EG_TMUX18_OutPattern')
     ),
     puppiIsoParametersTkEle = cms.PSet(
         dRMax = cms.double(0.2),
@@ -108,7 +92,7 @@ l1tLayer2EGElliptic = cms.EDProducer("L1TCtL2EgProducer",
             regions = cms.vint32(3, 4)
         ),
         cms.PSet(
-            pfProducer = cms.InputTag("l1tLayer1Barrel","L1TkElePerBoard"),
+            pfProducer = cms.InputTag("l1tLayer1BarrelElliptic","L1TkElePerBoard"),
             regions = cms.vint32(0, 1, 2)
         )
     ),
@@ -123,7 +107,7 @@ l1tLayer2EGElliptic = cms.EDProducer("L1TCtL2EgProducer",
             regions = cms.vint32(-1)
         ),
         cms.PSet(
-            pfProducer = cms.InputTag("l1tLayer1Barrel","L1TkEmPerBoard"),
+            pfProducer = cms.InputTag("l1tLayer1BarrelElliptic","L1TkEmPerBoard"),
             regions = cms.vint32(0, 1, 2)
         )
     ),

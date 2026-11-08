@@ -25,11 +25,11 @@ DoubleTkMuPuppiJetPuppiMet = cms.EDFilter("L1GTQuadObjectCond",
         maxEta = cms.double(2.4),
         minEta = cms.double(-2.4),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.5, 2.4, 3.0),
-        regionsMinPt = cms.vdouble(32.0, 31.4, 25, 49.5),
+        regionsMinPt = cms.vdouble(32.9, 30.6, 25, 49.5),
         tag = cms.InputTag("l1tGTProducer","CL2JetsSC4")
     ),
     collection4 = cms.PSet(
-        minPt = cms.double(55.3),
+        minPt = cms.double(57.5),
         tag = cms.InputTag("l1tGTProducer","CL2EtSum")
     ),
     correl12 = cms.PSet(

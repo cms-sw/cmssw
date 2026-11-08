@@ -15,11 +15,11 @@ TkMuPuppiJetPuppiMet = cms.EDFilter("L1GTTripleObjectCond",
         maxEta = cms.double(2.4),
         minEta = cms.double(-2.4),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.5, 2.4, 3.0),
-        regionsMinPt = cms.vdouble(68.7, 62.8, 51.1, 87.1),
+        regionsMinPt = cms.vdouble(75.3, 62.7, 50.7, 86.8),
         tag = cms.InputTag("l1tGTProducer","CL2JetsSC4")
     ),
     collection3 = cms.PSet(
-        minPt = cms.double(49.4),
+        minPt = cms.double(51.5),
         tag = cms.InputTag("l1tGTProducer","CL2EtSum")
     ),
     cos_phi_lut = cms.PSet(

@@ -7,7 +7,7 @@ TkElePuppiJetMinDR = cms.EDFilter("L1GTDoubleObjectCond",
         minEta = cms.double(-2.1),
         primVertex = cms.uint32(0),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.479),
-        regionsMinPt = cms.vdouble(20.6, 20.3),
+        regionsMinPt = cms.vdouble(23.0, 20.3),
         regionsQualityFlags = cms.vuint32(2, 2),
         tag = cms.InputTag("l1tGTProducer","CL2Electrons")
     ),

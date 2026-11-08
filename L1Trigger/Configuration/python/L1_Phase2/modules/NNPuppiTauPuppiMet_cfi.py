@@ -6,11 +6,11 @@ NNPuppiTauPuppiMet = cms.EDFilter("L1GTDoubleObjectCond",
         minEta = cms.double(-2.172),
         minQualityScore = cms.uint32(225),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.5),
-        regionsMinPt = cms.vdouble(40.1, 31.7),
+        regionsMinPt = cms.vdouble(41.6, 32.2),
         tag = cms.InputTag("l1tGTProducer","CL2Taus")
     ),
     collection2 = cms.PSet(
-        minPt = cms.double(91.1),
+        minPt = cms.double(93.0),
         tag = cms.InputTag("l1tGTProducer","CL2EtSum")
     ),
     cos_phi_lut = cms.PSet(

@@ -22,7 +22,7 @@ DoubleTkMuPuppiHT = cms.EDFilter("L1GTTripleObjectCond",
         tag = cms.InputTag("l1tGTProducer","GMTTkMuons")
     ),
     collection3 = cms.PSet(
-        minScalarSumPt = cms.double(224.1),
+        minScalarSumPt = cms.double(242.5),
         tag = cms.InputTag("l1tGTProducer","CL2HtSum")
     ),
     correl12 = cms.PSet(

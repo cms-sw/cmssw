@@ -8,12 +8,12 @@ TkEleIsoPuppiHT = cms.EDFilter("L1GTDoubleObjectCond",
         primVertex = cms.uint32(0),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.479),
         regionsMaxRelIsolationPt = cms.vdouble(0.13, 0.28),
-        regionsMinPt = cms.vdouble(19.2, 19.3),
+        regionsMinPt = cms.vdouble(21.5, 19.3),
         regionsQualityFlags = cms.vuint32(2, 2),
         tag = cms.InputTag("l1tGTProducer","CL2Electrons")
     ),
     collection2 = cms.PSet(
-        minScalarSumPt = cms.double(130.1),
+        minScalarSumPt = cms.double(138.8),
         tag = cms.InputTag("l1tGTProducer","CL2HtSum")
     ),
     cos_phi_lut = cms.PSet(

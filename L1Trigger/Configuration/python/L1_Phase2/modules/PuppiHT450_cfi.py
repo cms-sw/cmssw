@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 PuppiHT450 = cms.EDFilter("L1GTSingleObjectCond",
-    minScalarSumPt = cms.double(352.3),
+    minScalarSumPt = cms.double(384.0),
     primVertTag = cms.InputTag("l1tGTProducer","GTTPrimaryVert"),
     scales = cms.PSet(
         beta_lsb = cms.double(0.0625),

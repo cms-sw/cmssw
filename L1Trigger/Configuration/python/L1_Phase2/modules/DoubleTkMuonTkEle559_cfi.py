@@ -21,7 +21,7 @@ DoubleTkMuonTkEle559 = cms.EDFilter("L1GTTripleObjectCond",
         maxEta = cms.double(2.4),
         minEta = cms.double(-2.4),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.479),
-        regionsMinPt = cms.vdouble(4.5, 5.1),
+        regionsMinPt = cms.vdouble(6.2, 5.1),
         regionsQualityFlags = cms.vuint32(2, 2),
         tag = cms.InputTag("l1tGTProducer","CL2Electrons")
     ),

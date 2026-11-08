@@ -6,7 +6,7 @@ DoublePuppiTau5252 = cms.EDFilter("L1GTDoubleObjectCond",
         minEta = cms.double(-2.172),
         minQualityScore = cms.uint32(225),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.5),
-        regionsMinPt = cms.vdouble(37.9, 30.1),
+        regionsMinPt = cms.vdouble(39.2, 30.7),
         tag = cms.InputTag("l1tGTProducer","CL2Taus")
     ),
     collection2 = cms.PSet(
@@ -14,7 +14,7 @@ DoublePuppiTau5252 = cms.EDFilter("L1GTDoubleObjectCond",
         minEta = cms.double(-2.172),
         minQualityScore = cms.uint32(225),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.5),
-        regionsMinPt = cms.vdouble(37.9, 30.1),
+        regionsMinPt = cms.vdouble(39.2, 30.7),
         tag = cms.InputTag("l1tGTProducer","CL2Taus")
     ),
     cos_phi_lut = cms.PSet(

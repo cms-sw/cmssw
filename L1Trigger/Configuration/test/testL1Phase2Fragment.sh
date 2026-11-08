@@ -4,7 +4,7 @@ python3 "${SCRAM_TEST_PATH}"/l1tPhase2Fragment.py validate || exit $?
 
 # the L1P2 cmsDriver step (together with HLT, which also loads a fragment) must give a valid configuration
 cmsDriver.py step2 -s DIGI:pdigi_valid,L1P2,DIGI2RAW,HLT:@relvalRun4 --conditions auto:phase2_realistic_T35 \
-  --geometry ExtendedRun4D110 --era Phase2C17I13M9 --datatier GEN-SIM-DIGI-RAW --eventcontent FEVTDEBUGHLT \
+  --geometry ExtendedRun4D128 --era Phase2C26I13M9 --datatier GEN-SIM-DIGI-RAW --eventcontent FEVTDEBUGHLT \
   --filein file:step1.root --fileout file:step2.root -n 10 --mc --no_exec --python_filename l1p2_cfg.py || exit $?
 python3 -c "
 exec(open('l1p2_cfg.py').read())

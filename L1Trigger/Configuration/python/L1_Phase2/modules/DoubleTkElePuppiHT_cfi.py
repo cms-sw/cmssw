@@ -7,7 +7,7 @@ DoubleTkElePuppiHT = cms.EDFilter("L1GTTripleObjectCond",
         minEta = cms.double(-2.4),
         primVertex = cms.uint32(0),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.479),
-        regionsMinPt = cms.vdouble(3.6, 4.3),
+        regionsMinPt = cms.vdouble(5.3, 4.3),
         regionsQualityFlags = cms.vuint32(2, 2),
         tag = cms.InputTag("l1tGTProducer","CL2Electrons")
     ),
@@ -17,13 +17,16 @@ DoubleTkElePuppiHT = cms.EDFilter("L1GTTripleObjectCond",
         minEta = cms.double(-2.4),
         primVertex = cms.uint32(0),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.479),
-        regionsMinPt = cms.vdouble(3.6, 4.3),
+        regionsMinPt = cms.vdouble(5.3, 4.3),
         regionsQualityFlags = cms.vuint32(2, 2),
         tag = cms.InputTag("l1tGTProducer","CL2Electrons")
     ),
     collection3 = cms.PSet(
-        minScalarSumPt = cms.double(301.0),
+        minScalarSumPt = cms.double(327.4),
         tag = cms.InputTag("l1tGTProducer","CL2HtSum")
+    ),
+    correl12 = cms.PSet(
+        minDR = cms.double(0)
     ),
     cos_phi_lut = cms.PSet(
         lut = cms.vint32( (

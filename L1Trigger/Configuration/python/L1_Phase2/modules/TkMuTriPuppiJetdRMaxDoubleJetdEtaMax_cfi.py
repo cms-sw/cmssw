@@ -8,7 +8,7 @@ TkMuTriPuppiJetdRMaxDoubleJetdEtaMax = cms.EDFilter("L1GTQuadObjectCond",
         primVertex = cms.uint32(0),
         qualityFlags = cms.uint32(1),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 0.83, 1.24),
-        regionsMinPt = cms.vdouble(10.6, 10.6, 10.7),
+        regionsMinPt = cms.vdouble(10.6, 10.6, 10.8),
         tag = cms.InputTag("l1tGTProducer","GMTTkMuons")
     ),
     collection2 = cms.PSet(

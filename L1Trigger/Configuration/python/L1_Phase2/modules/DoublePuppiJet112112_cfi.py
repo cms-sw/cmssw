@@ -5,14 +5,14 @@ DoublePuppiJet112112 = cms.EDFilter("L1GTDoubleObjectCond",
         maxEta = cms.double(2.4),
         minEta = cms.double(-2.4),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.5, 2.4, 3.0),
-        regionsMinPt = cms.vdouble(70.2, 64.1, 52.8, 88.6),
+        regionsMinPt = cms.vdouble(76.9, 64.0, 52.4, 88.3),
         tag = cms.InputTag("l1tGTProducer","CL2JetsSC4")
     ),
     collection2 = cms.PSet(
         maxEta = cms.double(2.4),
         minEta = cms.double(-2.4),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.5, 2.4, 3.0),
-        regionsMinPt = cms.vdouble(70.2, 64.1, 52.8, 88.6),
+        regionsMinPt = cms.vdouble(76.9, 64.0, 52.4, 88.3),
         tag = cms.InputTag("l1tGTProducer","CL2JetsSC4")
     ),
     cos_phi_lut = cms.PSet(

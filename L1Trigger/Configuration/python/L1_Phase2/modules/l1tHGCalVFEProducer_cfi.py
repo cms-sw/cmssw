@@ -19,9 +19,9 @@ l1tHGCalVFEProducer = cms.EDProducer("HGCalVFEProducer",
                 83.52000000000001, 83.61, 83.61, 83.61, 83.61,
                 83.61, 83.61, 83.61
             ),
-            fCperMIP = cms.vdouble(2.06, 3.43, 5.15),
+            fCperMIP = cms.vdouble(2.06, 3.43, 5.15, 3.43),
             lsb = cms.double(0.09765625),
-            thicknessCorrection = cms.vdouble(0.75, 0.76, 0.75)
+            thicknessCorrection = cms.vdouble(0.75, 0.76, 0.75, 0.76)
         ),
         calibrationCfg_hesc = cms.PSet(
             chargeCollectionEfficiency = cms.PSet(
@@ -59,9 +59,9 @@ l1tHGCalVFEProducer = cms.EDProducer("HGCalVFEProducer",
                 83.52000000000001, 83.61, 83.61, 83.61, 83.61,
                 83.61, 83.61, 83.61
             ),
-            fCperMIP = cms.vdouble(2.06, 3.43, 5.15),
+            fCperMIP = cms.vdouble(2.06, 3.43, 5.15, 3.43),
             lsb = cms.double(0.09765625),
-            thicknessCorrection = cms.vdouble(0.85, 0.85, 0.84)
+            thicknessCorrection = cms.vdouble(0.85, 0.85, 0.84, 0.85)
         ),
         calibrationCfg_nose = cms.PSet(
             chargeCollectionEfficiency = cms.PSet(
@@ -71,7 +71,7 @@ l1tHGCalVFEProducer = cms.EDProducer("HGCalVFEProducer",
                 0.0, 39.500245, 39.756638, 39.756638, 39.756638,
                 39.756638, 66.020266, 92.283895, 92.283895
             ),
-            fCperMIP = cms.vdouble(1.25, 2.57, 3.88),
+            fCperMIP = cms.vdouble(2.06, 3.43, 5.15, 3.43),
             lsb = cms.double(0.09765625),
             thicknessCorrection = cms.vdouble(1.132, 1.092, 1.084)
         ),

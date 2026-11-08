@@ -21,7 +21,7 @@ the live `_cfi`/`_cff` files, followed by a regeneration:
     l1tPhase2Fragment.py generate   # rewrite L1_Phase2_cff.py and L1_Phase2/
     l1tPhase2Fragment.py validate   # compare with cmsDriver (unit test testL1Phase2Fragment)
 
-The reference is workflow 29634.0 (TTbar, Run4D110, era `Phase2C17I13M9`): the content is the
+The reference is workflow 38434.0 (TTbar, Run4D128, era `Phase2C26I13M9`): the content is the
 difference between `cmsDriver -s DIGI:pdigi_valid` and `cmsDriver -s DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT`.
 
 * Only objects reachable from the L1 paths are kept; modules, PSets and VPSets that the cffs
@@ -37,9 +37,9 @@ difference between `cmsDriver -s DIGI:pdigi_valid` and `cmsDriver -s DIGI:pdigi_
 
 ## Validity
 
-Generated for `Phase2C17I13M9` (Run4D110). The configuration is identical for `Phase2C22I13M9`
-(default Run4D121), but not for `Phase2C20I13M9` (HFNose TPG modules) or `Phase2C26I13M9`
-(HGCal VFE/concentrator parameters).
+Generated for the default Run4D128 (`Phase2C26I13M9`) and identical for all geometries of that era
+(D120, D122, D123, D126, D127, D128). It does not match `Phase2C17I13M9`, `Phase2C22I13M9` or
+`Phase2C20I13M9` (HGCal TPG configuration, HFNose TPG modules for C20).
 
 ## Usage
 
@@ -48,7 +48,7 @@ With cmsDriver, the step `L1P2` replaces `L1TrackTrigger,L1,L1P2GT` (`L1P2:<name
 
     cmsDriver.py step2 -s DIGI:pdigi_valid,L1P2,DIGI2RAW,HLT:@relvalRun4 ...
 
-The matrix workflows `29634.783` (Run4D110) and `34434.783` (Run4D121) use it.
+The matrix workflows `<N>.783` of the `Phase2C26I13M9` geometries (e.g. `38434.783`, Run4D128) use it.
 
 In a configuration, load the fragment and add its paths (listed in schedule order in `l1Paths`);
 loading the fragment does not change `process.schedule`:

@@ -12,7 +12,7 @@ TkMuonPuppiHT6320 = cms.EDFilter("L1GTDoubleObjectCond",
         tag = cms.InputTag("l1tGTProducer","GMTTkMuons")
     ),
     collection2 = cms.PSet(
-        minScalarSumPt = cms.double(241.2),
+        minScalarSumPt = cms.double(261.4),
         tag = cms.InputTag("l1tGTProducer","CL2HtSum")
     ),
     cos_phi_lut = cms.PSet(

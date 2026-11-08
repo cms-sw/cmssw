@@ -8,7 +8,7 @@ PuppiTauTkIsoEle4522 = cms.EDFilter("L1GTDoubleObjectCond",
         primVertex = cms.uint32(0),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.479),
         regionsMaxRelIsolationPt = cms.vdouble(0.13, 0.28),
-        regionsMinPt = cms.vdouble(15.7, 16.1),
+        regionsMinPt = cms.vdouble(17.9, 16.1),
         regionsQualityFlags = cms.vuint32(2, 2),
         tag = cms.InputTag("l1tGTProducer","CL2Electrons")
     ),
@@ -17,7 +17,7 @@ PuppiTauTkIsoEle4522 = cms.EDFilter("L1GTDoubleObjectCond",
         minEta = cms.double(-2.172),
         minQualityScore = cms.uint32(225),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.5),
-        regionsMinPt = cms.vdouble(32.8, 26.4),
+        regionsMinPt = cms.vdouble(33.7, 27.0),
         tag = cms.InputTag("l1tGTProducer","CL2Taus")
     ),
     cos_phi_lut = cms.PSet(

@@ -4,39 +4,39 @@ l1tLayer1BarrelExtended = cms.EDProducer("L1TCorrelatorLayer1Producer",
     boards = cms.VPSet(
         cms.PSet(
             regions = cms.vuint32(
-                0, 1, 2, 9, 10,
-                11, 18, 19, 20, 27,
-                28, 29, 36, 37, 38,
-                45, 46, 47
+                5, 14, 23, 32, 41,
+                50, 6, 15, 24, 33,
+                42, 51, 7, 16, 25,
+                34, 43, 52
             )
         ),
         cms.PSet(
             regions = cms.vuint32(
-                3, 4, 5, 12, 13,
-                14, 21, 22, 23, 30,
-                31, 32, 39, 40, 41,
-                48, 49, 50
+                8, 17, 26, 35, 44,
+                53, 0, 9, 18, 27,
+                36, 45, 1, 10, 19,
+                28, 37, 46
             )
         ),
         cms.PSet(
             regions = cms.vuint32(
-                6, 7, 8, 15, 16,
-                17, 24, 25, 26, 33,
-                34, 35, 42, 43, 44,
-                51, 52, 53
+                2, 11, 20, 29, 38,
+                47, 3, 12, 21, 30,
+                39, 48, 4, 13, 22,
+                31, 40, 49
             )
         )
     ),
     caloSectors = cms.VPSet(cms.PSet(
         etaBoundaries = cms.vdouble(-1.5, 0, 1.5),
-        phiSlices = cms.uint32(3),
+        phiSlices = cms.uint32(6),
         phiZero = cms.double(0.17453292519943295)
     )),
-    emClusters = cms.InputTag("l1tPhase2GCTBarrelToCorrelatorLayer1Emulator","GCTEmDigiClusters"),
     emPtCut = cms.double(0.5),
+    gctClusters = cms.InputTag("l1tPhase2CaloToCorrelatorTM18","DigitizedCaloToCorrelatorTM18"),
     gctEmInputConversionAlgo = cms.string('Emulator'),
     gctEmInputConversionParameters = cms.PSet(
-        gctEmCorrector = cms.string(''),
+        gctEmCorrector = cms.string('L1Trigger/Phase2L1ParticleFlow/data/emcorr_barrel.root'),
         gctEmResol = cms.PSet(
             etaBins = cms.vdouble(0.7, 1.2, 1.6),
             kind = cms.string('calo'),
@@ -44,8 +44,16 @@ l1tLayer1BarrelExtended = cms.EDProducer("L1TCorrelatorLayer1Producer",
             scale = cms.vdouble(0.011, 0.015, 0.012)
         )
     ),
-    gctHadInputConversionAlgo = cms.string('Ideal'),
-    hadClusters = cms.InputTag("l1tPFClustersFromCombinedCaloHCal","calibrated"),
+    gctHadInputConversionAlgo = cms.string('Emulator'),
+    gctHadInputConversionParameters = cms.PSet(
+        gctHadCorrector = cms.string('L1Trigger/Phase2L1ParticleFlow/data/hadcorr_barrel.root'),
+        gctHadResol = cms.PSet(
+            etaBins = cms.vdouble(0.7, 1.2, 1.6),
+            kind = cms.string('calo'),
+            offset = cms.vdouble(3.675, 2.694, 1.64),
+            scale = cms.vdouble(0.121, 0.156, 0.292)
+        )
+    ),
     hadPtCut = cms.double(1.0),
     muonInputConversionAlgo = cms.string('Emulator'),
     muons = cms.InputTag("l1tSAMuonsGmt","prompt"),
@@ -74,7 +82,6 @@ l1tLayer1BarrelExtended = cms.EDProducer("L1TCorrelatorLayer1Producer",
     puAlgo = cms.string('LinearizedPuppi'),
     puAlgoParameters = cms.PSet(
         NNVtxAssociation = cms.PSet(
-            associationGraph = cms.string('L1Trigger/L1TTrackMatch/data/NNVtx_AssociationModelGraph.pb'),
             associationNetworkEtaBounds = cms.vdouble(
                 0.0, 0.01984126984126984, 0.03968253968253968, 0.05952380952380952, 0.07936507936507936,
                 0.0992063492063492, 0.11904761904761904, 0.1388888888888889, 0.15873015873015872, 0.17857142857142855,
@@ -103,6 +110,7 @@ l1tLayer1BarrelExtended = cms.EDProducer("L1TCorrelatorLayer1Producer",
                 2.380952380952381, 2.4007936507936507, 2.4206349206349205, 2.4404761904761902, 2.46031746031746,
                 2.4801587301587302, 2.5
             ),
+            associationNetworkPath = cms.string('L1TNNVtx_Assoc_Model_v0'),
             associationNetworkZ0ResBins = cms.vdouble(
                 127.0, 126.0, 126.0, 126.0, 125.0,
                 124.0, 123.0, 122.0, 120.0, 119.0,
@@ -132,7 +140,7 @@ l1tLayer1BarrelExtended = cms.EDProducer("L1TCorrelatorLayer1Producer",
                 9.0, 9.0, 0.0
             ),
             associationNetworkZ0binning = cms.vdouble(-20.46912512, 20.46912512, 0.15991504),
-            associationThreshold = cms.double(0.1)
+            associationThreshold = cms.double(-1.0)
         ),
         absEtaCuts = cms.vdouble(),
         alphaCrop = cms.vdouble(4),
@@ -157,6 +165,11 @@ l1tLayer1BarrelExtended = cms.EDProducer("L1TCorrelatorLayer1Producer",
         ptZerosPhoton = cms.vdouble(2.5),
         useMLAssociation = cms.bool(False)
     ),
+    rawGCTSectors = cms.VPSet(cms.PSet(
+        etaBoundaries = cms.vdouble(-1.5, 1.5),
+        phiSlices = cms.uint32(3),
+        phiZero = cms.double(0.6981317007977318)
+    )),
     regionizerAlgo = cms.string('Ideal'),
     regions = cms.VPSet(cms.PSet(
         etaBoundaries = cms.vdouble(
@@ -242,10 +255,16 @@ l1tLayer1BarrelExtended = cms.EDProducer("L1TCorrelatorLayer1Producer",
                     bins = cms.vdouble(0),
                     values = cms.vdouble(-1)
                 ),
-                model = cms.string('L1Trigger/Phase2L1ParticleFlow/data/egamma/compositeID_EB_v1.json'),
+                model = cms.string('L1Trigger/Phase2L1ParticleFlow/data/egamma/compositeID_EB_v1.1.json'),
                 tight_wp = cms.PSet(
-                    bins = cms.vdouble(0, 5, 10, 30),
-                    values = cms.vdouble(0.17, 0.018, -0.08, -0.11)
+                    bins = cms.vdouble(
+                        0, 5.75, 9.25, 11.25, 15,
+                        28.75, 33.25
+                    ),
+                    values = cms.vdouble(
+                        0.09375, -0.015625, -0.0742188, -0.109375, -0.144531,
+                        -0.201172, -0.242188
+                    )
                 )
             )
         ),
@@ -296,7 +315,7 @@ l1tLayer1BarrelExtended = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tkEgSorterAlgo = cms.string('Barrel'),
     tkEgSorterParameters = cms.PSet(
         nObjSorted = cms.uint32(16),
-        nObjToSort = cms.uint32(10)
+        nObjToSort = cms.uint32(16)
     ),
     trackInputConversionAlgo = cms.string('Emulator'),
     trackInputConversionParameters = cms.PSet(

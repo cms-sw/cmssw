@@ -27,7 +27,6 @@ l1tLayer1HGCalElliptic = cms.EDProducer("L1TCorrelatorLayer1Producer",
             phiZero = cms.double(1.5707963267948966)
         )
     ),
-    emClusters = cms.InputTag(""),
     emPtCut = cms.double(-1.0),
     hadClusters = cms.InputTag("l1tHGCalBackEndLayer2Producer","HGCalBackendLayer2Processor3DClustering"),
     hadPtCut = cms.double(-1.0),
@@ -92,7 +91,6 @@ l1tLayer1HGCalElliptic = cms.EDProducer("L1TCorrelatorLayer1Producer",
     puAlgo = cms.string('LinearizedPuppi'),
     puAlgoParameters = cms.PSet(
         NNVtxAssociation = cms.PSet(
-            associationGraph = cms.string('L1Trigger/L1TTrackMatch/data/NNVtx_AssociationModelGraph.pb'),
             associationNetworkEtaBounds = cms.vdouble(
                 0.0, 0.01984126984126984, 0.03968253968253968, 0.05952380952380952, 0.07936507936507936,
                 0.0992063492063492, 0.11904761904761904, 0.1388888888888889, 0.15873015873015872, 0.17857142857142855,
@@ -121,6 +119,7 @@ l1tLayer1HGCalElliptic = cms.EDProducer("L1TCorrelatorLayer1Producer",
                 2.380952380952381, 2.4007936507936507, 2.4206349206349205, 2.4404761904761902, 2.46031746031746,
                 2.4801587301587302, 2.5
             ),
+            associationNetworkPath = cms.string('L1TNNVtx_Assoc_Model_v0'),
             associationNetworkZ0ResBins = cms.vdouble(
                 127.0, 126.0, 126.0, 126.0, 125.0,
                 124.0, 123.0, 122.0, 120.0, 119.0,
@@ -150,7 +149,7 @@ l1tLayer1HGCalElliptic = cms.EDProducer("L1TCorrelatorLayer1Producer",
                 9.0, 9.0, 0.0
             ),
             associationNetworkZ0binning = cms.vdouble(-20.46912512, 20.46912512, 0.15991504),
-            associationThreshold = cms.double(0.1)
+            associationThreshold = cms.double(-1.0)
         ),
         absEtaCuts = cms.vdouble(2.0),
         alphaCrop = cms.vdouble(3, 3),
@@ -175,7 +174,7 @@ l1tLayer1HGCalElliptic = cms.EDProducer("L1TCorrelatorLayer1Producer",
         ptZerosPhoton = cms.vdouble(3.0, 4.0),
         useMLAssociation = cms.bool(False)
     ),
-    regionizerAlgo = cms.string('Multififo'),
+    regionizerAlgo = cms.string('BufferedFoldedMultififo'),
     regionizerAlgoParameters = cms.PSet(
         egInterceptMode = cms.PSet(
             afterFifo = cms.bool(True),
@@ -184,12 +183,9 @@ l1tLayer1HGCalElliptic = cms.EDProducer("L1TCorrelatorLayer1Producer",
             nHADCALO_IN = cms.uint32(20)
         ),
         nCalo = cms.uint32(20),
-        nCaloLinks = cms.uint32(3),
-        nClocks = cms.uint32(54),
+        nClocks = cms.uint32(162),
         nEmCalo = cms.uint32(10),
-        nEndcaps = cms.uint32(2),
         nMu = cms.uint32(4),
-        nTkLinks = cms.uint32(2),
         nTrack = cms.uint32(30),
         useAlsoVtxCoords = cms.bool(True)
     ),
@@ -280,10 +276,16 @@ l1tLayer1HGCalElliptic = cms.EDProducer("L1TCorrelatorLayer1Producer",
                     bins = cms.vdouble(0),
                     values = cms.vdouble(-1)
                 ),
-                model = cms.string('L1Trigger/Phase2L1ParticleFlow/data/egamma/compositeID_EB_v1.json'),
+                model = cms.string('L1Trigger/Phase2L1ParticleFlow/data/egamma/compositeID_EB_v1.1.json'),
                 tight_wp = cms.PSet(
-                    bins = cms.vdouble(0, 5, 10, 30),
-                    values = cms.vdouble(0.17, 0.018, -0.08, -0.11)
+                    bins = cms.vdouble(
+                        0, 5.75, 9.25, 11.25, 15,
+                        28.75, 33.25
+                    ),
+                    values = cms.vdouble(
+                        0.09375, -0.015625, -0.0742188, -0.109375, -0.144531,
+                        -0.201172, -0.242188
+                    )
                 )
             )
         ),

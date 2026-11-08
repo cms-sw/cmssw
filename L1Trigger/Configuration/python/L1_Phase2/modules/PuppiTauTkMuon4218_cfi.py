@@ -16,7 +16,7 @@ PuppiTauTkMuon4218 = cms.EDFilter("L1GTDoubleObjectCond",
         minEta = cms.double(-2.172),
         minQualityScore = cms.uint32(225),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.5),
-        regionsMinPt = cms.vdouble(30.6, 24.8),
+        regionsMinPt = cms.vdouble(31.3, 25.4),
         tag = cms.InputTag("l1tGTProducer","CL2Taus")
     ),
     cos_phi_lut = cms.PSet(

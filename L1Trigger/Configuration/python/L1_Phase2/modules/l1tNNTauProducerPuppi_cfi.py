@@ -10,5 +10,6 @@ l1tNNTauProducerPuppi = cms.EDProducer("L1NNTauProducer",
     maxtaus = cms.int32(5),
     nparticles = cms.int32(10),
     seedpt = cms.double(10),
+    tauModelPath = cms.string('NNPuppiTauModel_v1'),
     tausize = cms.double(0.1)
 )

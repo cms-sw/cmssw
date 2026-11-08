@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 l1tTOoLLiPProducerCorrectedEmulator = cms.EDProducer("TOoLLiPProducer",
     NNInput = cms.string('input:0'),
     NNOutput = cms.string('sequential/dense_2/Sigmoid'),
-    TOoLLiPVersion = cms.string('TOoLLiP_v1'),
+    TOoLLiPVersion = cms.string('TOoLLiP_v3'),
     jets = cms.InputTag("l1tSC4PFL1PuppiExtendedCorrectedEmulator"),
     maxEta = cms.double(2.4),
     maxJets = cms.int32(6),

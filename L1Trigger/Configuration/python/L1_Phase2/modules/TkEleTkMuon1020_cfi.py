@@ -5,7 +5,7 @@ TkEleTkMuon1020 = cms.EDFilter("L1GTDoubleObjectCond",
         maxEta = cms.double(2.4),
         minEta = cms.double(-2.4),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 1.479),
-        regionsMinPt = cms.vdouble(5.3, 5.9),
+        regionsMinPt = cms.vdouble(7.1, 5.9),
         regionsQualityFlags = cms.vuint32(2, 2),
         tag = cms.InputTag("l1tGTProducer","CL2Electrons")
     ),
@@ -14,7 +14,7 @@ TkEleTkMuon1020 = cms.EDFilter("L1GTDoubleObjectCond",
         minEta = cms.double(-2.4),
         qualityFlags = cms.uint32(1),
         regionsAbsEtaLowerBounds = cms.vdouble(0, 0.83, 1.24),
-        regionsMinPt = cms.vdouble(18.3, 18.4, 18.4),
+        regionsMinPt = cms.vdouble(18.3, 18.4, 18.5),
         tag = cms.InputTag("l1tGTProducer","GMTTkMuons")
     ),
     cos_phi_lut = cms.PSet(
