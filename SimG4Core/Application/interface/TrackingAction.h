@@ -37,6 +37,19 @@ private:
     TrackWithHistory * currentTrack_;
     CMSSteppingVerbose* steppingVerbose_;
     const G4Track * g4Track_;
+
+    // suspended tracks (fSuspend) keep their first history until they end
+    struct SuspendedTrack {
+      int id;
+      TrackWithHistory* history;
+      bool owned;
+    };
+    bool resumeSuspended(const G4Track* aTrack);
+    void endResumed(const G4Track* aTrack);
+    std::vector<SuspendedTrack> suspended_;
+    bool quirkTracking_;
+    bool resumed_ = false;
+    bool owned_ = false;
     bool checkTrack_;
 };
 

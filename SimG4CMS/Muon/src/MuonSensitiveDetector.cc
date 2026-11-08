@@ -48,6 +48,7 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
   ePersistentCutGeV = m_MuonSD.getParameter<double>("EnergyThresholdForPersistency") / CLHEP::GeV;  //Default 1. GeV
   allMuonsPersistent = m_MuonSD.getParameter<bool>("AllMuonsPersistent");
   printHits = m_MuonSD.getParameter<bool>("PrintHits");
+  quirkTracking_ = p.getParameter<bool>("QuirkTracking");
 
   //
   // Here simply create 1 MuonSlaveSD for the moment
@@ -115,6 +116,15 @@ bool MuonSensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory* ROhis
 
   if (aStep->GetTotalEnergyDeposit() > 0.) {
     newDetUnitId = setDetUnitId(aStep);
+    // another track without BeginOfTrack: a suspended track resumed
+    if (quirkTracking_ && theHit && aStep->GetTrack()->GetTrackID() != theTrackID) {
+      if (parkedHit && parkedTrackID != aStep->GetTrack()->GetTrackID()) {
+        swapParked();
+        saveHit();
+        swapParked();
+      }
+      swapParked();
+    }
 
     // do not count neutrals that are killed by User Limits MinEKine
     //---VI: this is incorrect, neutral particle, like neutron may have local
@@ -301,7 +311,29 @@ void MuonSensitiveDetector::saveHit() {
   }
 }
 
-void MuonSensitiveDetector::EndOfEvent(G4HCofThisEvent*) { saveHit(); }
+void MuonSensitiveDetector::EndOfEvent(G4HCofThisEvent*) { flushHits(); }
+
+void MuonSensitiveDetector::update(const BeginOfTrack*) {
+  // a new track: the previous one has ended
+  if (quirkTracking_)
+    flushHits();
+}
+
+void MuonSensitiveDetector::swapParked() {
+  std::swap(theHit, parkedHit);
+  std::swap(thePV, parkedPV);
+  std::swap(theDetUnitId, parkedDetUnitId);
+  std::swap(theTrackID, parkedTrackID);
+}
+
+void MuonSensitiveDetector::flushHits() {
+  saveHit();
+  if (parkedHit) {
+    swapParked();
+    saveHit();
+    swapParked();
+  }
+}
 
 void MuonSensitiveDetector::fillHits(edm::PSimHitContainer& cc, const std::string& hname) {
   if (slaveMuon->name() == hname) {
