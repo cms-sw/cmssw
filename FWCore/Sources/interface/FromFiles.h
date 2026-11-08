@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <string>
+#include <utility>
 
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 
@@ -18,7 +19,6 @@ namespace edm {
     FromFiles(ParameterSet const& pset);
     ~FromFiles();
 
-    std::vector<std::string> fileNames(unsigned iCatalog) const { return catalog_.fileNames(iCatalog); }
     InputFileCatalog& catalog() { return catalog_; }
 
     static void fillDescription(ParameterSetDescription& desc);

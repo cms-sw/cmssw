@@ -122,9 +122,10 @@ bool HcalTBSource::setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::Event
       m_file = nullptr;
       m_tree = nullptr;
     }
-    if (m_fileCounter >= int(fileNames(0).size()))
+    std::vector<std::string> physicalFileNames = catalog().allPFNsFromFirstCatalog();
+    if (m_fileCounter >= int(physicalFileNames.size()))
       return false;  // nothing good
-    openFile(fileNames(0)[m_fileCounter]);
+    openFile(physicalFileNames[m_fileCounter]);
     is_new = true;
   }
 
