@@ -13,6 +13,7 @@
 #include "G4UImanager.hh"
 #include "G4TrackingManager.hh"
 #include "G4SystemOfUnits.hh"
+#include <algorithm>
 
 //#define EDM_ML_DEBUG
 
@@ -21,6 +22,7 @@ TrackingAction::TrackingAction(EventAction* e, const edm::ParameterSet& p, CMSSt
       currentTrack_(nullptr),
       steppingVerbose_(sv),
       g4Track_(nullptr),
+      quirkTracking_(p.getParameter<bool>("QuirkTracking")),
       checkTrack_(p.getUntrackedParameter<bool>("CheckTrack", false)),
       doFineCalo_(p.getParameter<bool>("DoFineCalo")),
       saveCaloBoundaryInformation_(p.getParameter<bool>("SaveCaloBoundaryInformation")),
@@ -29,6 +31,11 @@ TrackingAction::TrackingAction(EventAction* e, const edm::ParameterSet& p, CMSSt
 TrackingAction::~TrackingAction() {}
 
 void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
+  // a resumed track continues with its history, no new BeginOfTrack
+  if (quirkTracking_ && aTrack->GetCurrentStepNumber() > 0 && resumeSuspended(aTrack)) {
+    return;
+  }
+  resumed_ = false;
   g4Track_ = aTrack;
   currentTrack_ = new TrackWithHistory(aTrack);
 
@@ -66,6 +73,12 @@ void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
 }
 
 void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
+  if (resumed_) {
+    endResumed(aTrack);
+    return;
+  }
+  // suspended: keep the history, the track ends later
+  const bool suspended = quirkTracking_ && aTrack->GetTrackStatus() == fSuspend;
   if (eventAction_->trackContainer() != nullptr) {
     uint32_t id = aTrack->GetTrackID();
     math::XYZVectorD pos(aTrack->GetStep()->GetPostStepPoint()->GetPosition().x(),
@@ -147,13 +160,65 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
           << "TrackingAction addTrack " << currentTrack_->trackID() << " added with " << false << " and " << false;
 #endif
 
-      delete currentTrack_;
+      if (!suspended) {
+        delete currentTrack_;
+      }
     }
+  }
+  if (suspended) {
+    suspended_.push_back({aTrack->GetTrackID(), currentTrack_, !extractor_(aTrack).isInHistory()});
+    return;
   }
   if (nullptr != steppingVerbose_) {
     steppingVerbose_->TrackEnded(aTrack);
   }
 
+  EndOfTrack et(aTrack);
+  m_endOfTrackSignal(&et);
+
+  currentTrack_ = nullptr;  // reset for next track
+}
+
+bool TrackingAction::resumeSuspended(const G4Track* aTrack) {
+  const int id = aTrack->GetTrackID();
+  auto itr = std::find_if(suspended_.begin(), suspended_.end(), [id](const SuspendedTrack& s) { return s.id == id; });
+  if (itr == suspended_.end()) {
+    return false;
+  }
+  g4Track_ = aTrack;
+  currentTrack_ = itr->history;
+  owned_ = itr->owned;
+  suspended_.erase(itr);
+  resumed_ = true;
+  return true;
+}
+
+void TrackingAction::endResumed(const G4Track* aTrack) {
+  // history already given to the event action at the first suspension
+  const int id = aTrack->GetTrackID();
+  TrackInformation* trkInfo = dynamic_cast<TrackInformation*>(aTrack->GetUserInformation());
+  if (nullptr != trkInfo) {
+    if (trkInfo->storeTrack()) {
+      currentTrack_->save();
+    }
+    if (trkInfo->crossedBoundary()) {
+      currentTrack_->setCrossedBoundaryPosMom(id, trkInfo->getPositionAtBoundary(), trkInfo->getMomentumAtBoundary());
+      if (saveCaloBoundaryInformation_ || doFineCalo_) {
+        currentTrack_->save();
+      }
+    }
+  }
+  if (quirkTracking_ && aTrack->GetTrackStatus() == fSuspend) {
+    suspended_.push_back({id, currentTrack_, owned_});
+    return;
+  }
+  resumed_ = false;
+  if (owned_) {
+    delete currentTrack_;
+  }
+  if (nullptr != steppingVerbose_) {
+    steppingVerbose_->TrackEnded(aTrack);
+  }
   EndOfTrack et(aTrack);
   m_endOfTrackSignal(&et);
 
