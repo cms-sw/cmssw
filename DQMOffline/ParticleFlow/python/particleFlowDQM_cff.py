@@ -142,7 +142,7 @@ pfAnalyzerDQM = pfAnalyzer.clone(
 )
 
 pfAnalyzerMiniAODDQM = pfAnalyzer.clone(
-    folder = "HLT/ParticleFlow_MiniAOD",
+    folder = "ParticleFlow/MiniAOD",
     pfCandidates = "packedPFCandidates",
     pfJetCollection = cms.InputTag("slimmedJets"),
     TriggerResultsLabel = cms.InputTag("TriggerResults::HLT"),
