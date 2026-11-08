@@ -104,6 +104,7 @@ private:
   bool m_StorePhysicsTables;
   bool m_RestorePhysicsTables;
   bool m_check;
+  bool m_quirkTracking;
   bool m_isPhase2{false};
   edm::ParameterSet m_pPhysics;
   edm::ParameterSet m_pRunAction;
