@@ -180,7 +180,7 @@ namespace edm {
     }
 
     // store outputs
-    std::unique_ptr<HepMCProduct> BProduct(new HepMCProduct());
+    std::unique_ptr<HepMCProduct> BProduct = std::make_unique<HepMCProduct>();
     BProduct->addHepMCData(genEvent);
     event.put(std::move(BProduct), "unsmeared");
     auto genEventInfo = std::make_unique<GenEventInfoProduct>(genEvent);

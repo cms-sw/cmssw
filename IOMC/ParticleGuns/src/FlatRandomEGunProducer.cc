@@ -4,6 +4,7 @@
  * Julia Yarba 10/2005 
  ***************************************/
 
+#include <memory>
 #include <ostream>
 
 #include "BaseFlatGunProducer.h"
@@ -128,11 +129,11 @@ namespace edm {
       fEvt->print();
     }
 
-    unique_ptr<HepMCProduct> BProduct(new HepMCProduct());
+    unique_ptr<HepMCProduct> BProduct = std::make_unique<HepMCProduct>();
     BProduct->addHepMCData(fEvt);
     e.put(std::move(BProduct), "unsmeared");
 
-    unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+    unique_ptr<GenEventInfoProduct> genEventInfo = std::make_unique<GenEventInfoProduct>(fEvt);
     e.put(std::move(genEventInfo));
 
     if (fVerbosity > 0) {
