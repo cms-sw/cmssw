@@ -73,6 +73,8 @@ private:
   G4VSolid* worldSolid;
   const TrackingAction* trackAction;
   const CMSSteppingVerbose* steppingVerbose;
+  bool quirkTracking;
+  bool firstSuspension{true};
   const G4VProcess* m_Compton{nullptr};
   NewTrackAction* newTA;
   TrackInformationExtractor extractor;
