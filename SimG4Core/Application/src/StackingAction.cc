@@ -18,7 +18,7 @@
 #include "G4LossTableManager.hh"
 
 StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterSet& p, const CMSSteppingVerbose* sv)
-    : trackAction(trka), steppingVerbose(sv) {
+    : trackAction(trka), steppingVerbose(sv), quirkTracking(p.getParameter<bool>("QuirkTracking")) {
   trackNeutrino = p.getParameter<bool>("TrackNeutrino");
   killHeavy = p.getParameter<bool>("KillHeavy");
   killGamma = p.getParameter<bool>("KillGamma");
@@ -159,6 +159,14 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
 StackingAction::~StackingAction() { delete newTA; }
 
 G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrack) {
+  // a resumed (suspended) track is not new; Geant4 10 has no default classification per
+  // track status: the first suspension of the event waits for the urgent stack, later ones
+  // alternate through the first additional waiting stack
+  if (quirkTracking && aTrack->GetTrackStatus() == fSuspend) {
+    G4ClassificationOfNewTrack c = firstSuspension ? fWaiting : fWaiting_1;
+    firstSuspension = false;
+    return c;
+  }
   // G4 interface part
   G4ClassificationOfNewTrack classification = fUrgent;
   const int pdg = aTrack->GetDefinition()->GetPDGEncoding();
@@ -376,7 +384,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
 
 void StackingAction::NewStage() {}
 
-void StackingAction::PrepareNewEvent() {}
+void StackingAction::PrepareNewEvent() { firstSuspension = true; }
 
 void StackingAction::initPointer() {
   // prepare region vector
