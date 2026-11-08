@@ -27,7 +27,6 @@ using namespace std;
 
 namespace edm {
 
-
   FlatRandomEGunProducer::FlatRandomEGunProducer(const ParameterSet& pset) : BaseFlatGunProducer(pset) {
     ParameterSet defpset;
     // ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters") ;

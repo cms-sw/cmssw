@@ -21,6 +21,6 @@ namespace edm {
     double fMinE;
     double fMaxE;
   };
-}
+}  // namespace edm
 
 #endif
