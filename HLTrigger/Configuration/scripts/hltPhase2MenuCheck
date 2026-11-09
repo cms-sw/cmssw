@@ -1,0 +1,423 @@
+#!/usr/bin/env python3
+"""
+hltPhase2MenuCheck -- static consistency checks for the Phase-2 HLT menu tree
+(HLTrigger/Configuration/python/HLT_75e33).
+
+The Run-3 menus are generated from ConfDB, so their python files are consistent
+by construction.  The Phase-2 tree is hand-maintained, one _cfi per object, so
+nothing prevents broken imports, stale imports or orphaned files.  This tool
+parses every file with the python AST (no cmsenv needed, nothing is executed)
+and reports:
+
+  errors   (exit code 1)
+    E001  syntax error in a file
+    E002  fragment.load(...) / import pointing to a file that does not exist
+    E003  symbol used in a file but neither defined nor (star-)imported there
+
+  warnings (exit code 1 only with --strict)
+    W101  file never reached from any entry point (orphan)
+    W102  file imported but none of its symbols used by the importer (stale import)
+    W103  X_cfi.py does not define a symbol called X
+    W104  same symbol defined in more than one file
+    W105  same file loaded more than once by an entry point
+
+Entry points are, by default, every python file of HLTrigger/Configuration/python
+(outside HLT_75e33 itself) that mentions "HLT_75e33", e.g. HLT_75e33_cff.py and
+HLT_NGTScouting_cff.py.  More can be added with --root.
+"""
+
+import argparse
+import ast
+import builtins
+import json
+import os
+import sys
+from collections import defaultdict
+
+MENU_DIR_NAME = "HLT_75e33"
+PKG_PREFIX = "HLTrigger.Configuration." + MENU_DIR_NAME
+LOAD_PREFIX = "HLTrigger/Configuration/" + MENU_DIR_NAME + "/"
+IGNORED_NAMES = set(dir(builtins)) | {"cms", "__file__", "__name__"}
+
+
+def find_package_python_dir(explicit):
+    """Locate HLTrigger/Configuration/python, preferring the local area."""
+    if explicit:
+        return os.path.abspath(explicit)
+    candidates = []
+    for var in ("CMSSW_BASE", "CMSSW_RELEASE_BASE"):
+        base = os.environ.get(var)
+        if base:
+            candidates.append(os.path.join(base, "src", "HLTrigger", "Configuration", "python"))
+    here = os.path.dirname(os.path.abspath(__file__))
+    candidates.append(os.path.join(here, "..", "python"))
+    for c in candidates:
+        if os.path.isdir(os.path.join(c, MENU_DIR_NAME)):
+            return os.path.abspath(c)
+    sys.exit("ERROR: cannot find HLTrigger/Configuration/python/%s; use --python-dir" % MENU_DIR_NAME)
+
+
+class Finding(object):
+    def __init__(self, code, path, line, message):
+        self.code, self.path, self.line, self.message = code, path, line, message
+
+    @property
+    def is_error(self):
+        return self.code.startswith("E")
+
+    def as_dict(self):
+        return {"code": self.code, "file": self.path, "line": self.line, "message": self.message}
+
+    def __str__(self):
+        loc = self.path + (":%d" % self.line if self.line else "")
+        return "%s %s: %s" % (self.code, loc, self.message)
+
+
+class FileInfo(object):
+    """What one python file defines, imports, loads and uses."""
+
+    def __init__(self, path, relpath, module):
+        self.path = path
+        self.relpath = relpath
+        self.module = module          # dotted name, e.g. HLTrigger.Configuration.HLT_75e33.paths.X_cfi
+        self.defined = {}             # symbol -> line
+        self.star_imports = []        # (target module, line)
+        self.named_imports = {}       # local name -> (target module, line)
+        self.loads = []               # (target module, line)
+        self.used = {}                # symbol -> first line
+        self.imported_names = set()   # names bound by import statements
+        self.local_bound = set()
+        self.syntax_error = None
+
+
+def module_to_path(python_dir, module):
+    """HLTrigger.Configuration.HLT_75e33.a.b -> <python_dir>/HLT_75e33/a/b.py (None if outside)."""
+    if not module.startswith(PKG_PREFIX):
+        return None
+    rest = module[len("HLTrigger.Configuration."):].split(".")
+    base = os.path.join(python_dir, *rest)
+    if os.path.isfile(base + ".py"):
+        return base + ".py"
+    if os.path.isfile(os.path.join(base, "__init__.py")):
+        return os.path.join(base, "__init__.py")
+    return base + ".py"  # non-existing, reported by the caller
+
+
+def path_to_module(python_dir, path):
+    rel = os.path.relpath(path, python_dir)[:-3].replace(os.sep, ".")
+    if rel.endswith(".__init__"):
+        rel = rel[: -len(".__init__")]
+    return "HLTrigger.Configuration." + rel
+
+
+def resolve_relative(current_module, is_package, level, name):
+    parts = current_module.split(".")
+    if not is_package:
+        parts = parts[:-1]
+    if level > 1:
+        parts = parts[: len(parts) - (level - 1)]
+    return ".".join(parts + ([name] if name else []))
+
+
+def parse_file(python_dir, path):
+    relpath = os.path.relpath(path, os.path.dirname(os.path.dirname(os.path.dirname(python_dir))))
+    info = FileInfo(path, relpath, path_to_module(python_dir, path))
+    try:
+        with open(path) as f:
+            tree = ast.parse(f.read(), filename=path)
+    except SyntaxError as e:
+        info.syntax_error = (e.lineno or 0, str(e.msg))
+        return info
+    is_package = path.endswith("__init__.py")
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom):
+            if node.level:
+                target = resolve_relative(info.module, is_package, node.level, node.module or "")
+            else:
+                target = node.module or ""
+            for alias in node.names:
+                if alias.name == "*":
+                    info.star_imports.append((target, node.lineno))
+                else:
+                    local = alias.asname or alias.name
+                    # "from ..modules import X_cfi" imports a submodule
+                    sub = target + "." + alias.name
+                    sub_path = module_to_path(python_dir, sub)
+                    if sub_path and os.path.exists(sub_path):
+                        target_mod = sub
+                    else:
+                        target_mod = target
+                    info.named_imports[local] = (target_mod, node.lineno)
+                    info.defined.setdefault(local, node.lineno)
+                    info.imported_names.add(local)
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                local = (alias.asname or alias.name).split(".")[0]
+                info.defined.setdefault(local, node.lineno)
+                info.imported_names.add(local)
+        elif isinstance(node, ast.Call):
+            func = node.func
+            if (isinstance(func, ast.Attribute) and func.attr == "load" and node.args
+                    and isinstance(node.args[0], ast.Constant) and isinstance(node.args[0].value, str)):
+                arg = node.args[0].value
+                if arg.startswith(LOAD_PREFIX):
+                    info.loads.append((arg.replace("/", ".").replace(".py", ""), node.lineno))
+
+    # top-level definitions (module scope only)
+    for node in tree.body:
+        targets = []
+        if isinstance(node, ast.Assign):
+            targets = node.targets
+        elif isinstance(node, (ast.AnnAssign, ast.AugAssign)):
+            targets = [node.target]
+        elif isinstance(node, (ast.FunctionDef, ast.ClassDef, ast.AsyncFunctionDef)):
+            info.defined.setdefault(node.name, node.lineno)
+        for t in targets:
+            for n in ast.walk(t):
+                if isinstance(n, ast.Name):
+                    info.defined.setdefault(n.id, node.lineno)
+
+    # names read anywhere, minus names bound locally inside functions/comprehensions
+    local_bound = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+            for a in ast.walk(node.args):
+                if isinstance(a, ast.arg):
+                    local_bound.add(a.arg)
+        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
+            local_bound.add(node.id)
+        if isinstance(node, ast.ExceptHandler) and node.name:
+            local_bound.add(node.name)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
+            info.used.setdefault(node.id, node.lineno)
+    info.local_bound = local_bound
+    return info
+
+
+class Checker(object):
+    def __init__(self, python_dir, extra_roots=()):
+        self.python_dir = python_dir
+        self.menu_dir = os.path.join(python_dir, MENU_DIR_NAME)
+        self.files = {}      # module -> FileInfo
+        self.findings = []
+        self.extra_roots = [os.path.abspath(r) for r in extra_roots]
+        self._export_cache = {}
+
+    def add(self, code, info_or_path, line, msg):
+        rel = info_or_path.relpath if isinstance(info_or_path, FileInfo) else info_or_path
+        self.findings.append(Finding(code, rel, line, msg))
+
+    def collect(self):
+        for dirpath, _dirs, filenames in os.walk(self.menu_dir):
+            for fn in sorted(filenames):
+                if fn.endswith(".py"):
+                    info = parse_file(self.python_dir, os.path.join(dirpath, fn))
+                    self.files[info.module] = info
+        self.roots = []
+        for fn in sorted(os.listdir(self.python_dir)):
+            p = os.path.join(self.python_dir, fn)
+            if fn.endswith(".py") and os.path.isfile(p):
+                with open(p) as f:
+                    if MENU_DIR_NAME in f.read():
+                        self.roots.append(parse_file(self.python_dir, p))
+        for r in self.extra_roots:
+            if r.startswith(self.python_dir + os.sep):
+                info = parse_file(self.python_dir, r)
+            else:
+                with open(r) as f:
+                    info = self._parse_foreign(r, f.read())
+            self.roots.append(info)
+
+    def _parse_foreign(self, path, src):
+        info = FileInfo(path, path, "__foreign__")
+        try:
+            tree = ast.parse(src, filename=path)
+        except SyntaxError as e:
+            info.syntax_error = (e.lineno or 0, str(e.msg))
+            return info
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+                for alias in node.names:
+                    if alias.name == "*":
+                        info.star_imports.append((node.module, node.lineno))
+                    else:
+                        info.named_imports[alias.asname or alias.name] = (node.module, node.lineno)
+            elif (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                  and node.func.attr == "load" and node.args and isinstance(node.args[0], ast.Constant)
+                  and isinstance(node.args[0].value, str) and node.args[0].value.startswith(LOAD_PREFIX)):
+                info.loads.append((node.args[0].value.replace("/", ".").replace(".py", ""), node.lineno))
+        info.used = {}
+        info.local_bound = set()
+        return info
+
+    def exports(self, module, stack=()):
+        """Symbols visible after 'from module import *' (definitions + re-exported star imports)."""
+        return self._exports(module, stack)[0]
+
+    def is_opaque(self, module):
+        """True if the star-import closure of module reaches outside the tree (symbols unknown)."""
+        return self._exports(module, ())[1]
+
+    def _exports(self, module, stack):
+        if module in self._export_cache:
+            return self._export_cache[module]
+        info = self.files.get(module)
+        if module in stack:
+            return {}, False
+        if info is None:
+            # outside HLT_75e33 (e.g. a RecoTracker cff): contents unknown statically
+            return {}, not module.startswith(PKG_PREFIX)
+        out, opaque = {}, False
+        for target, _ in info.star_imports:
+            sub, sub_opaque = self._exports(target, stack + (module,))
+            opaque = opaque or sub_opaque
+            for sym, origin in sub.items():
+                out.setdefault(sym, origin)
+        for sym in info.defined:
+            if not sym.startswith("_"):
+                out[sym] = module
+        self._export_cache[module] = (out, opaque)
+        return out, opaque
+
+    def internal_targets(self, info):
+        """All HLT_75e33 modules a file refers to, with line numbers and kind."""
+        refs = [(t, l, "import") for t, l in info.star_imports]
+        refs += [(t, l, "import") for t, l in info.named_imports.values()]
+        refs += [(t, l, "load") for t, l in info.loads]
+        return [(t, l, k) for t, l, k in refs if t.startswith(PKG_PREFIX)]
+
+    def check(self):
+        self.collect()
+        all_infos = list(self.files.values()) + self.roots
+
+        for info in all_infos:
+            if info.syntax_error:
+                self.add("E001", info, info.syntax_error[0], "syntax error: " + info.syntax_error[1])
+
+        # E002 + W105
+        for info in all_infos:
+            seen = {}
+            for target, line, kind in self.internal_targets(info):
+                p = module_to_path(self.python_dir, target)
+                if p is None or not os.path.exists(p):
+                    if target == PKG_PREFIX or os.path.isdir(os.path.join(self.python_dir, *target.split(".")[2:])):
+                        continue
+                    self.add("E002", info, line, "%s of missing file %s" % (kind, target))
+                if kind == "load":
+                    if target in seen:
+                        self.add("W105", info, line, "%s already loaded at line %d" % (target, seen[target]))
+                    seen.setdefault(target, line)
+
+        # E003 + W102 (only for files inside the tree)
+        for info in self.files.values():
+            if info.syntax_error:
+                continue
+            visible = set(info.defined) | IGNORED_NAMES | info.local_bound
+            star_syms = {}
+            for target, line in info.star_imports:
+                for sym in self.exports(target):
+                    star_syms.setdefault(sym, (target, line))
+            visible |= set(star_syms)
+            opaque = any(self._exports(t, (info.module,))[1] for t, _ in info.star_imports)
+            for sym, line in sorted(info.used.items(), key=lambda kv: kv[1]):
+                if sym not in visible and not opaque:
+                    self.add("E003", info, line, "'%s' is used but not defined or imported" % sym)
+            # stale star imports: none of the imported file's own symbols used here
+            for target, line in info.star_imports:
+                tinfo = self.files.get(target)
+                if tinfo is None:
+                    continue
+                provided = {sym for sym, origin in self.exports(target).items()
+                            if sym not in self.files[origin].imported_names}
+                if provided and not (provided & set(info.used)):
+                    self.add("W102", info, line, "nothing from %s is used" % target.split(".")[-1])
+
+        # W103 naming convention
+        for info in self.files.values():
+            base = os.path.basename(info.path)[:-3]
+            if base.endswith("_cfi") and not info.syntax_error:
+                expected = base[:-4]
+                if expected not in info.defined:
+                    self.add("W103", info, 0, "file does not define '%s'" % expected)
+
+        # W104 duplicates
+        owners = defaultdict(list)
+        for info in self.files.values():
+            for sym, line in info.defined.items():
+                if sym in info.imported_names or sym.startswith("_"):
+                    continue
+                owners[sym].append((info, line))
+        for sym, lst in sorted(owners.items()):
+            if len(lst) > 1:
+                where = ", ".join(i.relpath for i, _ in lst[1:])
+                self.add("W104", lst[0][0], lst[0][1], "'%s' also defined in %s" % (sym, where))
+
+        # W101 orphans: reachability from the entry points
+        reached = set()
+        todo = []
+        for r in self.roots:
+            todo += [t for t, _, _ in self.internal_targets(r)]
+        while todo:
+            m = todo.pop()
+            if m in reached:
+                continue
+            reached.add(m)
+            info = self.files.get(m)
+            if info:
+                todo += [t for t, _, _ in self.internal_targets(info)]
+        for m, info in sorted(self.files.items()):
+            if os.path.basename(info.path) == "__init__.py":
+                continue
+            if os.sep + "test" + os.sep in info.path:
+                continue
+            if m not in reached:
+                self.add("W101", info, 0, "not reached from any entry point (%s)"
+                         % ", ".join(os.path.basename(r.path) for r in self.roots))
+        return self.findings
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--python-dir", help="path to HLTrigger/Configuration/python (default: from $CMSSW_BASE)")
+    parser.add_argument("--root", action="append", default=[], help="additional entry-point file (repeatable)")
+    parser.add_argument("--strict", action="store_true", help="also fail on warnings")
+    parser.add_argument("--ignore", action="append", default=[], help="finding code to ignore, e.g. W102 (repeatable)")
+    parser.add_argument("--json", metavar="FILE", help="write findings as JSON to FILE ('-' for stdout)")
+    parser.add_argument("-q", "--quiet", action="store_true", help="print only the summary")
+    args = parser.parse_args(argv)
+
+    checker = Checker(find_package_python_dir(args.python_dir), args.root)
+    findings = [f for f in checker.check() if f.code not in args.ignore]
+    findings.sort(key=lambda f: (not f.is_error, f.code, f.path, f.line))
+
+    if args.json:
+        payload = json.dumps({"roots": [r.relpath for r in checker.roots],
+                              "files": len(checker.files),
+                              "findings": [f.as_dict() for f in findings]}, indent=2)
+        if args.json == "-":
+            print(payload)
+        else:
+            with open(args.json, "w") as f:
+                f.write(payload + "\n")
+    if not args.quiet and args.json != "-":
+        for f in findings:
+            print(f)
+
+    n_err = sum(f.is_error for f in findings)
+    n_warn = len(findings) - n_err
+    if args.json != "-":
+        counts = defaultdict(int)
+        for f in findings:
+            counts[f.code] += 1
+        detail = ", ".join("%s=%d" % kv for kv in sorted(counts.items()))
+        print("hltPhase2MenuCheck: %d files, %d entry points, %d errors, %d warnings%s"
+              % (len(checker.files), len(checker.roots), n_err, n_warn, (" (" + detail + ")") if detail else ""))
+    if n_err or (args.strict and n_warn):
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
