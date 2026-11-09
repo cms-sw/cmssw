@@ -1,5 +1,6 @@
 #include "CondCore/Utilities/interface/PayloadInspectorModule.h"
 #include "CondCore/Utilities/interface/PayloadInspector.h"
+#include "CondCore/CondDB/interface/RunInfoProxy.h"
 #include "CondCore/CondDB/interface/Time.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -29,6 +30,7 @@
 #include <map>
 #include <memory>
 #include <numeric>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -672,7 +674,7 @@ namespace {
   // default labels, they can be changed with the plot input parameters cmsLabel and rightLabel:
   // the CMS label is drawn only on request, e.g. cmsLabel=Preliminary for "CMS Preliminary"
   constexpr const char* kLaserCMSLabel = "";
-  constexpr const char* kLaserRightLabel = "13.6 TeV";
+  constexpr const char* kLaserRightLabel = "";
 
   /************************************************************************
      1d distributions of ECAL Laser APDPNRatios p1, p2 and p3 in EE-, EB
@@ -847,7 +849,7 @@ namespace {
   *************************************************************************/
   enum EcalLaserPartition { kEEMinus = 0, kEB = 1, kEEPlus = 2 };
   constexpr int kNLaserPartitions = 3;
-  enum EcalLaserStatistic { kMean = 0, kRMS = 1 };
+  enum EcalLaserStatistic { kMean = 0, kRMS = 1, kMedian = 2 };
 
   // order of the partitions in the pads of the history plots, from top to bottom
   constexpr std::array<int, kNLaserPartitions> kLaserPadOrder = {{kEB, kEEPlus, kEEMinus}};
@@ -857,7 +859,10 @@ namespace {
     return names[part];
   }
 
-  inline const char* laserStatisticName(int stat) { return (stat == kMean) ? "mean" : "RMS"; }
+  inline const char* laserStatisticName(int stat) {
+    constexpr std::array<const char*, 3> names = {{"mean", "RMS", "median"}};
+    return names[stat];
+  }
 
   template <int param>
   float laserParam(const EcalLaserAPDPNRatios::EcalLaserAPDPNpair& apdpn) {
@@ -884,11 +889,12 @@ namespace {
     }
   }
 
-  // mean and RMS (standard deviation) of a set of values
+  // mean, RMS (standard deviation) and median of a set of values, the median is set by laserPartitionStats
   struct EcalLaserPartitionStats {
     double sum = 0.;
     double sum2 = 0.;
     unsigned int n = 0;
+    double median = 0.;
 
     void add(double value) {
       sum += value;
@@ -897,16 +903,37 @@ namespace {
     }
     double mean() const { return (n > 0) ? sum / n : 0.; }
     double rms() const { return (n > 0) ? std::sqrt(std::max(sum2 / n - mean() * mean(), 0.)) : 0.; }
-    double get(int stat) const { return (stat == kMean) ? mean() : rms(); }
+    double get(int stat) const {
+      switch (stat) {
+        case kMean:
+          return mean();
+        case kRMS:
+          return rms();
+        default:
+          return median;
+      }
+    }
   };
   typedef std::array<EcalLaserPartitionStats, kNLaserPartitions> EcalLaserStats;
   typedef std::array<std::vector<float>, kNLaserPartitions> EcalLaserValues;
 
-  // mean and RMS over the crystals of each partition
+  // mean, RMS and median over the crystals of each partition
   template <int param>
   EcalLaserStats laserPartitionStats(const EcalLaserAPDPNRatios& payload) {
     EcalLaserStats stats;
-    forEachLaserCrystal<param>(payload, [&stats](int part, float value) { stats[part].add(value); });
+    EcalLaserValues values;
+    forEachLaserCrystal<param>(payload, [&stats, &values](int part, float value) {
+      stats[part].add(value);
+      values[part].push_back(value);
+    });
+    for (int part = 0; part < kNLaserPartitions; part++) {
+      auto& v = values[part];
+      if (v.empty())
+        continue;
+      auto nth = v.begin() + static_cast<long>(0.5 * (v.size() - 1) + 0.5);
+      std::nth_element(v.begin(), nth, v.end());
+      stats[part].median = *nth;
+    }
     return stats;
   }
 
@@ -925,6 +952,10 @@ namespace {
      on a common run number axis (the lumi sections are squeezed in the
      [run, run+1) slot), time based IOVs can only be compared with other
      time based IOVs.
+     With the input parameter xAxis=time the x axis is the IOV start time
+     for all the tags: run and lumi based IOVs are placed at the start time
+     of their run, from the RunInfo of the conditions DB, plus the lumi
+     sections; then time based tags can be compared with run or lumi based ones.
   *************************************************************************/
   template <int param, int ntags>
   class EcalLaserAPDPNRatiosHistoryBase
@@ -935,6 +966,8 @@ namespace {
       // text after "CMS" (no CMS label if not set, "CMS" alone if set to CMS) and on the top right of the plot
       cond::payloadInspector::PlotBase::addInputParam("cmsLabel");
       cond::payloadInspector::PlotBase::addInputParam("rightLabel");
+      // "run" (default) or "time"
+      cond::payloadInspector::PlotBase::addInputParam("xAxis");
     }
 
   protected:
@@ -967,6 +1000,13 @@ namespace {
         return (itag == 0) ? cond::payloadInspector::PlotBase::getTag<0>()
                            : cond::payloadInspector::PlotBase::getTag<1>();
       };
+      const auto& params = cond::payloadInspector::PlotBase::inputParamValues();
+      const std::string xAxis = laserInputParam(params, "xAxis", "run");
+      if (xAxis != "run" && xAxis != "time")
+        cond::throwException("the input parameter xAxis must be run or time, not " + xAxis,
+                             "EcalLaserAPDPNRatiosHistoryBase::collect");
+      const bool timeRequested = (xAxis == "time");
+
       std::array<cond::TimeType, ntags> l_timeType;
       for (int itag = 0; itag < ntags; itag++) {
         auto tag = tagRef(itag);
@@ -974,19 +1014,39 @@ namespace {
         l_timeType[itag] = this->getTagInfo(tag.name).timeType;
         if (tag.iovs.empty())
           return false;
+        const cond::Time_t first = std::max(tag.boundary.first, std::get<0>(tag.iovs.front()));
+        const cond::Time_t last = std::get<0>(tag.iovs.back());
+        m_iovRange[itag] = laserIOVLabel(first) + " - " + laserIOVLabel(last);
+
+        // position of an IOV since on the axis, none if a run or lumi based IOV starts after the last run in RunInfo
+        cond::persistency::RunInfoProxy runInfo;
+        const bool fromRunInfo = timeRequested && l_timeType[itag] != cond::timestamp;
+        if (fromRunInfo) {
+          const bool lumi = (l_timeType[itag] == cond::lumiid);
+          runInfo = this->dbSession().getRunInfo(lumi ? first >> 32 : first, lumi ? last >> 32 : last);
+        }
+        auto toAxis = [&](cond::Time_t since) -> std::optional<double> {
+          return fromRunInfo ? iovToTime(runInfo, since, l_timeType[itag]) : iovToAxis(since, l_timeType[itag]);
+        };
+
         // the first IOV can start well before the requested range (e.g. since = 1), clamp it
-        const double xstart = iovToAxis(tag.boundary.first, l_timeType[itag]);
+        const double xstart = toAxis(tag.boundary.first).value_or(std::numeric_limits<double>::lowest());
         for (const auto& iov : tag.iovs) {
-          m_x[itag].push_back(std::max(xstart, iovToAxis(std::get<0>(iov), l_timeType[itag])));
+          const auto x = toAxis(std::get<0>(iov));
+          if (!x)
+            continue;
+          m_x[itag].push_back(std::max(xstart, *x));
           m_hash[itag].push_back(std::get<1>(iov));
         }
-        m_iovRange[itag] = laserIOVLabel(std::max(tag.boundary.first, std::get<0>(tag.iovs.front()))) + " - " +
-                           laserIOVLabel(std::get<0>(tag.iovs.back()));
+        if (m_x[itag].empty())
+          cond::throwException("no run of the IOVs of " + tag.name + " found in RunInfo",
+                               "EcalLaserAPDPNRatiosHistoryBase::collect");
       }
-      m_timeAxis = (l_timeType[0] == cond::timestamp);
-      if ((l_timeType[ntags - 1] == cond::timestamp) != m_timeAxis) {
-        cond::throwException("cannot compare a time based tag with a run or lumi based tag",
-                             "EcalLaserAPDPNRatiosHistoryBase::collect");
+      m_timeAxis = timeRequested || (l_timeType[0] == cond::timestamp);
+      if (!timeRequested && (l_timeType[ntags - 1] == cond::timestamp) != m_timeAxis) {
+        cond::throwException(
+            "cannot compare a time based tag with a run or lumi based tag on a run number axis, use xAxis=time",
+            "EcalLaserAPDPNRatiosHistoryBase::collect");
       }
       return true;
     }
@@ -1152,6 +1212,25 @@ namespace {
   private:
     // the lumi sections of a run are squeezed in the [run, run+1) slot of the run number axis
     static constexpr double kLumisPerRunSlot = 10000.;
+    // duration of a lumi section, 2^18 LHC orbits
+    static constexpr double kSecondsPerLumi = 23.31;
+
+    // unix time of the start of a run or lumi based IOV: start time of the run from RunInfo, plus the lumi sections.
+    // An IOV starting on a run not in RunInfo starts with the following run, none if there is no following run
+    static std::optional<double> iovToTime(const cond::persistency::RunInfoProxy& runInfo,
+                                           cond::Time_t since,
+                                           cond::TimeType timeType) {
+      const bool lumi = (timeType == cond::lumiid);
+      const cond::Time_t run = lumi ? since >> 32 : since;
+      auto it = runInfo.find(run);
+      if (it == runInfo.end())
+        return std::nullopt;
+      const cond::RunInfo_t runInfoEntry = *it;
+      double time = double(cond::time::from_boost(runInfoEntry.start) >> 32);
+      if (lumi && runInfoEntry.run == run)
+        time += kSecondsPerLumi * std::max(double(since & 0xFFFFFFFF) - 1., 0.);
+      return time;
+    }
 
     // position of an IOV since on the common axis: run number for run and lumi based IOVs, unix time otherwise
     static double iovToAxis(cond::Time_t since, cond::TimeType timeType) {
@@ -1169,8 +1248,9 @@ namespace {
   };  // class EcalLaserAPDPNRatiosHistoryBase
 
   /************************************************************************
-     history of the crystal mean or RMS of p1, p2 or p3 in EB, EE+ and EE-
-     for one tag, or overlaid for two tags
+     history of the crystal mean, RMS or median of p1, p2 or p3 in EB, EE+
+     and EE- for one tag, or overlaid for two tags. The median is not affected
+     by the few crystals with broken or very small values, unlike the mean
   *************************************************************************/
   template <int param, int stat, int ntags>
   class EcalLaserAPDPNRatiosStatHistory : public EcalLaserAPDPNRatiosHistoryBase<param, ntags> {
@@ -1266,6 +1346,12 @@ namespace {
   using EcalLaserAPDPNRatiosP1RMSHistoryTwoTags = EcalLaserAPDPNRatiosStatHistory<1, kRMS, 2>;
   using EcalLaserAPDPNRatiosP2RMSHistoryTwoTags = EcalLaserAPDPNRatiosStatHistory<2, kRMS, 2>;
   using EcalLaserAPDPNRatiosP3RMSHistoryTwoTags = EcalLaserAPDPNRatiosStatHistory<3, kRMS, 2>;
+  using EcalLaserAPDPNRatiosP1MedianHistoryOneTag = EcalLaserAPDPNRatiosStatHistory<1, kMedian, 1>;
+  using EcalLaserAPDPNRatiosP2MedianHistoryOneTag = EcalLaserAPDPNRatiosStatHistory<2, kMedian, 1>;
+  using EcalLaserAPDPNRatiosP3MedianHistoryOneTag = EcalLaserAPDPNRatiosStatHistory<3, kMedian, 1>;
+  using EcalLaserAPDPNRatiosP1MedianHistoryTwoTags = EcalLaserAPDPNRatiosStatHistory<1, kMedian, 2>;
+  using EcalLaserAPDPNRatiosP2MedianHistoryTwoTags = EcalLaserAPDPNRatiosStatHistory<2, kMedian, 2>;
+  using EcalLaserAPDPNRatiosP3MedianHistoryTwoTags = EcalLaserAPDPNRatiosStatHistory<3, kMedian, 2>;
 
   // median and central 68% interval (16th - 84th percentile, +-1 sigma for a gaussian) of a set of values,
   // insensitive to the few crystals with broken or very small values
@@ -1481,6 +1567,12 @@ PAYLOAD_INSPECTOR_MODULE(EcalLaserAPDPNRatios) {
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP1RMSHistoryTwoTags);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP2RMSHistoryTwoTags);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP3RMSHistoryTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP1MedianHistoryOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP2MedianHistoryOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP3MedianHistoryOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP1MedianHistoryTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP2MedianHistoryTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP3MedianHistoryTwoTags);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP1DiffHistory);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP2DiffHistory);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosP3DiffHistory);
