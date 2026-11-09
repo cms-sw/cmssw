@@ -270,6 +270,10 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
 
     updateOutput(output, rawDataFrame);
 
+    if (btlReadoutMap.size() == 0) {
+      continue;
+    }
+
     uint32_t rawId = rawDataFrame.id().rawId();
     uint16_t BC0count = static_cast<uint16_t>(iBX);
     bool status = true;    // status is always true in this implementation
