@@ -1,9 +1,6 @@
 #ifndef RecoLocalCalo_HGCalRecAlgos_interface_HGCalCMCorrectionSoA_h
 #define RecoLocalCalo_HGCalRecAlgos_interface_HGCalCMCorrectionSoA_h
 
-#include <Eigen/Core>
-#include <Eigen/Dense>
-
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 

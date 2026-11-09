@@ -280,9 +280,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     cmAlgo_.fillDigiInputs(
         queue, ndigis, deviceIndex, deviceModuleFeatures, moduleParam, norm, deviceFeatures, deviceCorrections);
 
-    cms::torch::alpakatools::TensorCollection<Queue> inputs{int(ndigis)};
+    cms::torch::alpakatools::TensorCollection<Queue> inputs;
     inputs.template add<hgcalcmml::HGCalCMMLSoA>("features", deviceFeatures.const_view().records().features());
-    cms::torch::alpakatools::TensorCollection<Queue> outputs{int(ndigis)};
+    cms::torch::alpakatools::TensorCollection<Queue> outputs;
     outputs.template add<hgcalcmml::HGCalCMCorrectionSoA>("correction",
                                                           deviceCorrections.view().records().correction());
     model_->forward(queue, inputs, outputs);

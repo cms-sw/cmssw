@@ -112,8 +112,8 @@ Values are **absolute** alternative energies/times, not deltas.
 | `HGCalSoAClusters` | `time`, `SOA_EIGEN_COLUMN(VariationVector, energy_variations)`, `SOA_EIGEN_COLUMN(VariationVector, time_variations)` |
 | `HGCalSoAClustersExtra` (workspace) | `time_weight`, `time_weighted_sum` and their `_variations` |
 
-SoA headers with Eigen columns need `<Eigen/Core>` included before any SoA header; the HGCalReco
-SoA headers now include it themselves.
+`<Eigen/Core>` is included only where the Eigen types are defined (`HGCalRecoVariations.h`, `HGCalSoACMML.h`):
+since cms-sw/cmssw#52265 the SoA headers no longer need it included first.
 
 `RecoTICL/LayerClustering` (the layer-cluster kernels) and `RecoLocalCalo/HGCalRecProducers`
 (`HGCalSoAClustersExtra.h`) must be checked out with the RecHit SoA change, since the release builds
