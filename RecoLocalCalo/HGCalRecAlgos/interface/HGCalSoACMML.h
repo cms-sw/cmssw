@@ -47,7 +47,7 @@ namespace hgcalcmml {
                       SOA_COLUMN(uint32_t, chDataOffset),           // first digi of the module
                       SOA_COLUMN(uint32_t, enabledErx),             // eRx bitmask
                       SOA_COLUMN(int, onehotIdx),                   // -1: not in the module vocabulary
-                      SOA_COLUMN(bool, inScope),                    // NCH channels and a known shape
+                      SOA_COLUMN(uint8_t, inScope),                 // NCH channels and a known shape
                       SOA_EIGEN_COLUMN(CMChannelVector, cellFrac))  // cellareas.json SF, by within-module channel
 
   // z-score normalisation: Feature::Size rows; tgt* by within-module channel, filled for rows < NCH
