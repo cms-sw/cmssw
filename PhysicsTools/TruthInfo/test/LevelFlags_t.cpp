@@ -752,6 +752,13 @@ public:
     const auto stopped = truth::reconstructableFromSignal(g);
     CPPUNIT_ASSERT_EQUAL(std::size_t{1}, stopped.size());
     CPPUNIT_ASSERT_EQUAL(uint32_t{1}, stopped[0]);
+
+    // REQUIRED: either sign of a species in the list stops the walk at both charges.
+    const int32_t a1 = g.particles()[1].pdgId;
+    g.reconstructablePdgIds() = {111, -a1};
+    const auto conjugate = truth::reconstructableFromSignal(g);
+    CPPUNIT_ASSERT_EQUAL(std::size_t{1}, conjugate.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t{1}, conjugate[0]);
   }
 
   // REQUIRED: the jet roots are the hard-scatter partons and nothing else. The top is

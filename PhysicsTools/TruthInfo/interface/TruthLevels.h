@@ -572,8 +572,10 @@ namespace truth {
         // A K0S the generator decayed but Geant4 also interacted in material must yield
         // its GEN pions, never the nuclear secondaries of the SIM vertex.
         // The seen mask makes this terminate on a graph with a cycle.
-        const bool reconstructableSpecies =
-            std::find(terminating.begin(), terminating.end(), data.pdgId) != terminating.end();
+        // Charge conjugates are one species, so the list needs only one sign of each.
+        const bool reconstructableSpecies = std::any_of(terminating.begin(), terminating.end(), [&data](int32_t id) {
+          return std::abs(id) == std::abs(data.pdgId);
+        });
         const bool genStable = data.hasGen() && data.status == 1;
         bool hasGenDecay = false;
         for (const uint32_t vertexId : graph.decayVertices(p)) {
@@ -724,13 +726,13 @@ namespace truth {
   // antichain but the SUBGRAPHS may overlap: two colour-connected quarks fragment
   // through one string, and assigning each hadron to exactly one jet is what a
   // clustering algorithm is for.
+  [[nodiscard]] inline std::vector<uint32_t> partonJets(Graph const& graph, std::vector<uint32_t> hardProcess) {
+    std::erase_if(hardProcess, [&graph](uint32_t id) { return !isParton(graph.particles()[id].pdgId); });
+    return hardProcess;
+  }
+
   [[nodiscard]] inline std::vector<uint32_t> partonJets(Graph const& graph) {
-    std::vector<uint32_t> roots = levelAntichain(graph, Level::HardProcess);
-    roots.erase(
-        std::remove_if(
-            roots.begin(), roots.end(), [&graph](uint32_t id) { return !isParton(graph.particles()[id].pdgId); }),
-        roots.end());
-    return roots;
+    return partonJets(graph, levelAntichain(graph, Level::HardProcess));
   }
 
   // The level as an antichain. Candidates that have another candidate as an ancestor are
@@ -977,10 +979,7 @@ namespace truth {
       if (level == Level::HardProcess) {
         ids = hardProcess;
       } else if (level == Level::PartonJets) {
-        ids = hardProcess;
-        ids.erase(std::remove_if(
-                      ids.begin(), ids.end(), [&graph](uint32_t id) { return !isParton(graph.particles()[id].pdgId); }),
-                  ids.end());
+        ids = partonJets(graph, hardProcess);
       } else {
         ids = levelAntichain(graph, level);
       }

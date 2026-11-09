@@ -69,7 +69,8 @@ namespace truth {
     [[nodiscard]] std::vector<uint32_t> memberIds() const;
     [[nodiscard]] std::vector<Particle> members() const;
 
-    // Only the members that meet the closure condition, ascending particle id.
+    // Only the members at which the closure stopped, ascending particle id. A branch that
+    // ends before the closure fires, such as a DepthN deeper than its subtree, has none.
     [[nodiscard]] std::vector<Particle> closureLeaves() const;
 
     // Members with no child, ascending particle id. On a branch that continues into Geant4
