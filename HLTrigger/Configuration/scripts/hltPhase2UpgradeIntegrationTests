@@ -18,6 +18,11 @@ _PH2_GEOMETRY = f"Extended{_settings.DEFAULT_VERSION}"
 # Get the actual era name from the version key
 _PH2_ERA_NAME = _settings.properties['Run4'][_settings.DEFAULT_VERSION]['Era']
 
+# HLT customisations needed to run the HLT menu with a given L1 P2GT menu
+_L1_MENU_CUSTOMISATIONS = {
+    "v0p0_2026": "HLTrigger/Configuration/customizeHLTforCMSSW.customizeHLTforL1P2GTv0p0_2026",
+}
+
 # Function to run a shell command and handle errors
 def run_command(command, log_file=None, workdir=None):
     try:
@@ -57,6 +62,7 @@ from Configuration.HLT.autoHLT import autoHLT
 parser = argparse.ArgumentParser(description="Run HLT Test Configurations")
 parser.add_argument("--menu", default="75e33_timing",
                     choices=[v for k, v in autoHLT.items() if "Run4" in k], help="HLT menu to test")
+parser.add_argument("--l1Menu", default=None, help="L1 P2GT menu to run in the L1P2GT step (e.g. v0p0_2026); default: the L1P2GT default menu")
 parser.add_argument("--globaltag", default=_PH2_GLOBAL_TAG, help="GlobalTag for the CMS conditions")
 parser.add_argument("--geometry", default=_PH2_GEOMETRY, help="Geometry setting for the CMS process")  # Auto-generated geometry default
 parser.add_argument("--era", default=_PH2_ERA_NAME, help="Era setting for the CMS process")  # Convert _PH2_ERA to string
@@ -87,11 +93,20 @@ num_threads = args.threads
 num_parallel_jobs = args.parallelJobs
 restrict_paths_to = args.restrictPathsTo
 proc_modifiers = args.procModifiers  # Store the procModifiers option
+l1_menu = args.l1Menu
+
+# L1P2GT step with the requested L1 menu, plus the HLT customisation it needs (if any)
+l1p2gt_step = f"L1P2GT:{l1_menu}" if l1_menu else "L1P2GT"
+customisations = ["SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000"]
+if l1_menu in _L1_MENU_CUSTOMISATIONS:
+    customisations.append(_L1_MENU_CUSTOMISATIONS[l1_menu])
 
 # Print the values in a nice formatted manner
 print(f"{'Configuration Summary':^40}")
 print("=" * 40)
 print(f"HLT Menu:             {menu}")
+print(f"L1 Menu:              {l1_menu if l1_menu else 'default'}")
+print(f"Customisations:       {', '.join(customisations)}")
 print(f"Global Tag:           {global_tag}")
 print(f"Geometry:             {geometry}")
 print(f"Era:                  {era}")
@@ -112,6 +127,8 @@ print("=" * 40)
 
 # Directory where all test configurations will be stored
 output_dir = "hlt_test_configs_HLTMENU_" + menu
+if l1_menu:
+    output_dir += "_L1MENU_" + l1_menu
 # If the directory exists, remove it first
 if os.path.exists(output_dir):
     shutil.rmtree(output_dir)
@@ -123,22 +140,24 @@ os.makedirs(output_dir)
 # If cachedInput is provided, use it as the input for the base cmsDriver command
 if args.cachedInput:
     base_cmsdriver_command = (
-        f"cmsDriver.py Phase2 -s L1P2GT,HLT:{menu} "
+        f"cmsDriver.py Phase2 -s {l1p2gt_step},HLT:{menu} "
         f"--conditions {global_tag} -n {num_events} --eventcontent FEVTDEBUGHLT "
         f"--geometry {geometry} --era {era} --filein {args.cachedInput} --fileout {output_dir}/hlt.root --no_exec "
         f"--mc --nThreads {num_threads} "
         f"--processName=HLTX "
         f"--inputCommands='keep *, drop *_hlt*_*_HLT, drop triggerTriggerFilterObjectWithRefs_l1t*_*_HLT' "
-        f"--customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000 "
+        f"--customise {','.join(customisations)} "
+        f"--python_filename Phase2_L1P2GT_HLT.py "
         f'--customise_commands "process.options.wantSummary=True"'
     )
 else:
     base_cmsdriver_command = (
-        f"cmsDriver.py Phase2 -s L1P2GT,HLT:{menu} "
+        f"cmsDriver.py Phase2 -s {l1p2gt_step},HLT:{menu} "
         f"--conditions {global_tag} -n {num_events} --eventcontent FEVTDEBUGHLT "
         f"--geometry {geometry} --era {era} --filein file:{output_dir}/step1.root --fileout {output_dir}/hlt.root --no_exec "
         f"--nThreads {num_threads} "
-        f"--customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000 "
+        f"--customise {','.join(customisations)} "
+        f"--python_filename Phase2_L1P2GT_HLT.py "
         f'--customise_commands "process.options.wantSummary=True"'
     )
 

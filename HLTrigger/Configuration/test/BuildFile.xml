@@ -54,3 +54,9 @@
 <!-- check that DST_HeterogeneousReco lists the heterogeneous content of the menu -->
 <test name="test_heterogeneousMenu" command="python3
 					     ${CMSSW_BASE}/src/HLTrigger/Configuration/test/testHeterogeneousMenu.py"/>
+
+<!-- fast: checker self-test on a synthetic tree, then static checks of the real HLT_75e33 tree -->
+<test name="testHLTPhase2MenuCheckSelfTest" command="test_hltPhase2MenuCheck.py"/>
+<test name="testHLTPhase2MenuCheck" command="hltPhase2MenuCheck"/>
+<!-- slower: cmsDriver (no_exec) + menu dump for the default and alpaka menus -->
+<test name="testHLTPhase2MenuTools" command="test_hltPhase2MenuTools.sh"/>
