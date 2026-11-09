@@ -13,13 +13,17 @@ Tracking issue: https://github.com/artlbv/cmssw/issues/10
 | `paths/`     | Paths (track trigger, L1 emulation, Run-3 legacy, GT producers, one `p<X>` path per GT algorithm) |
 | `psets/`, `services/` | empty: no shared PSet or service is needed |
 
+The same content is also written to a single file, `../L1_Phase2_expanded_cff.py`, with every
+object defined inline (like the Run-3 HLT menu dumps, e.g. `HLT_GRun_cff.py`): convenient to read
+the whole menu or diff two versions. Load one or the other, never both (same labels).
+
 ## Generated, do not edit by hand
 
 All files are produced by `L1Trigger/Configuration/test/l1tPhase2Fragment.py`. Changes belong in
 the live `_cfi`/`_cff` files, followed by a regeneration:
 
-    l1tPhase2Fragment.py generate   # rewrite L1_Phase2_cff.py and L1_Phase2/
-    l1tPhase2Fragment.py validate   # compare with cmsDriver (unit test testL1Phase2Fragment)
+    l1tPhase2Fragment.py generate   # rewrite L1_Phase2_cff.py, L1_Phase2/ and L1_Phase2_expanded_cff.py
+    l1tPhase2Fragment.py validate   # compare both with cmsDriver (unit test testL1Phase2Fragment)
 
 The reference is workflow 38434.0 (TTbar, Run4D128, era `Phase2C26I13M9`): the content is the
 difference between `cmsDriver -s DIGI:pdigi_valid` and `cmsDriver -s DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT`.
@@ -47,6 +51,8 @@ With cmsDriver, the step `L1P2` replaces `L1TrackTrigger,L1,L1P2GT` (`L1P2:<name
 `L1Trigger/Configuration/L1_<name>_cff`, default `Phase2`):
 
     cmsDriver.py step2 -s DIGI:pdigi_valid,L1P2,DIGI2RAW,HLT:@relvalRun4 ...
+
+`L1P2:Phase2_expanded` loads the single-file version instead; the resulting configuration is identical.
 
 The matrix workflows `<N>.783` of the `Phase2C26I13M9` geometries (e.g. `38434.783`, Run4D128) use it.
 
