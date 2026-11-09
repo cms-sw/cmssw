@@ -98,10 +98,7 @@ bool HLTP2GTSingleObjectFilter::hltFilter(edm::Event& iEvent,
   for (const auto& cfg : m_algos) {
     auto it = algoMap.find(cfg.algoName);
     if (it == algoMap.end()) {
-      if (m_debugAccepts)
-        edm::LogPrint("HLTP2GTSingleObjectFilter")
-            << "[" << cfg.algoName << "] REJECT algo not found in P2GTAlgoBlockMap";
-      continue;
+      throw cms::Exception("Configuration") << "[" << cfg.algoName << "] Algorithm not found in P2GTAlgoBlockMap";
     }
     if (!it->second.decisionBeforeBxMaskAndPrescale()) {
       if (m_debugAccepts)
