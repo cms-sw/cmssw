@@ -41,6 +41,9 @@
 //                                                                    as in arXiv:1511.04916, Eq. (23))
 //                       2e2pi, 2mu2pi          P -> pi+ pi- l+ l-    magnetic angular term with the mass dependence
 //                                                                    of arXiv:2210.14925
+//                       eta2pi, eta2pi0        eta' -> eta pi+ pi-,  Dalitz-plot polynomial measured by BESIII
+//                                              eta' -> eta pi0 pi0   (arXiv:1709.04627); parent 331 only. The eta
+//                                                                    and pi0 are then decayed by Pythia.
 //                       2muA                   P -> mu+ mu- A        A = dark photon or ALP
 //                       2piA                   P -> pi+ pi- A
 //   EtaDecayer:A_id   = <PDG id of A>          2muA, 2piA only
@@ -48,7 +51,8 @@
 //   EtaDecayer:onePerEvent = off | on          force every parent (default) or one per event, see above
 //
 // Daughter order in the event record: l-, l+ (then gamma); mu-, mu+, e-, e+ (2mu2e); l-, l+, l-, l+ (4e, 4mu);
-// l-, l+, pi+, pi- (2e2pi, 2mu2pi); mu-, mu+, A (2muA); pi+, pi-, A (2piA).
+// l-, l+, pi+, pi- (2e2pi, 2mu2pi); eta, pi+, pi- (eta2pi); eta, pi0, pi0 (eta2pi0); mu-, mu+, A (2muA);
+// pi+, pi-, A (2piA).
 //
 // The boson A must be defined in the same processParameters as a Pythia particle, e.g. a 0.1 GeV dark photon
 // decaying to e+ e-: "9000001:all = A void 3 0 0 0.1 0. 0. 0. 0.", "9000001:addChannel = 1 1. 0 11 -11". A is
@@ -87,7 +91,7 @@ public:
   bool decayOnePerEvent();
 
 private:
-  enum class Mode { TwoMu, LLGamma, MuMuEE, FourL, LLPiPi, LLA, PiPiA };
+  enum class Mode { TwoMu, LLGamma, MuMuEE, FourL, LLPiPi, EtaPiPi, LLA, PiPiA };
 
   Pythia8::Pythia* pythia_;
   bool filter_;
@@ -101,9 +105,10 @@ private:
   std::vector<int> daughterIds_;
   std::vector<double> daughterMasses_;
   double threshold_ = 0;
-  double muMass_ = 0;                       // lepton mass of A -> mu+ mu- in the 2piA dark-photon weight
-  gen::etadecayer::pipi::Context pipiCtx_;  // pi pi gamma* amplitude inputs (2e2pi, 2mu2pi, 2piA)
-  double bound_ = 0;                        // accept-reject bound of the selected decay
+  double muMass_ = 0;                                 // lepton mass of A -> mu+ mu- in the 2piA dark-photon weight
+  gen::etadecayer::pipi::Context pipiCtx_;            // pi pi gamma* amplitude inputs (2e2pi, 2mu2pi, 2piA)
+  gen::etadecayer::etapipi::Params etaPiPiParams_{};  // Dalitz-plot parameters (eta2pi, eta2pi0)
+  double bound_ = 0;                                  // accept-reject bound of the selected decay
 };
 
 #endif

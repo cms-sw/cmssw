@@ -13,6 +13,7 @@
 //   P -> l+ l- l'+ l'- (l != l')  Petri Eq. (3.36)
 //   P -> l+ l- l+ l-              direct - exchange interference of the helicity amplitudes (below)
 //   P -> pi+ pi- l+ l-            magnetic term, Petri Sec. 3.5.2, Eq. (3.85)
+//   eta' -> eta pi pi             Dalitz-plot polynomial (BESIII), isotropic (spin 0)
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "GeneratorInterface/Pythia8Interface/interface/EtaDecayerModels.h"
@@ -429,6 +430,36 @@ namespace gen {
         return pipiAKinematics(parent, M, s, cp, p, mA, mPi, flat);
       }
       throw cms::Exception("EtaDecayer") << "P -> pi+ pi- A (ALP): rejection limit exhausted";
+    }
+
+    // eta' -> eta pi1 pi2: s1 = m^2(eta pi1) and s2 = m^2(eta pi2) proposed uniformly (flat three-body phase space),
+    // weight etapipi::weight / bound (EtaDecayerModels.h). Output: eta, pi1, pi2.
+    template <class Flat>
+    std::array<TLorentzVector, 3> etaPiPi(
+        const TLorentzVector& parent, double mEta, double mPi, const etapipi::Params& params, double bound, Flat flat) {
+      const double M = parent.M(), lo = std::pow(mEta + mPi, 2), hi = std::pow(M - mPi, 2), pi = std::acos(-1.);
+      etapipi::Kinematics k;
+      for (unsigned attempt = 0; attempt < kMaxAttempts; ++attempt) {
+        const double s1 = lo + (hi - lo) * flat(), s2 = lo + (hi - lo) * flat();
+        if (!etapipi::kinematics(M, mEta, mPi, s1, s2, k))
+          continue;
+        const double w = etapipi::weight(M, mEta, mPi, k, params) / bound;
+        checkWeight(w, "eta' -> eta pi pi");
+        if (flat() >= w)
+          continue;
+        // pi1 along z, pi2 in the xz plane, eta balancing; then a random rotation about z and orientAndBoost
+        const double c = std::clamp((k.pEta * k.pEta - k.p1 * k.p1 - k.p2 * k.p2) / (2 * k.p1 * k.p2), -1., 1.);
+        const double s = std::sqrt(1 - c * c);
+        TLorentzVector pi1(0, 0, k.p1, k.e1), pi2(k.p2 * s, 0, k.p2 * c, k.e2);
+        TLorentzVector eta(-(pi1 + pi2).Vect(), k.eEta);
+        std::array<TLorentzVector, 3> out = {{eta, pi1, pi2}};
+        const double az = 2 * pi * flat();
+        for (auto& p : out)
+          p.RotateZ(az);
+        orientAndBoost(out, parent, flat);
+        return out;
+      }
+      throw cms::Exception("EtaDecayer") << "eta' -> eta pi pi: rejection limit exhausted";
     }
 
   }  // namespace etadecayer

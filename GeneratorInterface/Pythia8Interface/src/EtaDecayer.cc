@@ -66,6 +66,13 @@ EtaDecayer::EtaDecayer(Pythia8::Pythia* pythiaPtr, Pythia8::Settings* settingsPt
   } else if (modeName_ == "2mu2pi") {
     mode_ = Mode::LLPiPi;
     daughterIds_ = {13, -13, 211, -211};
+  } else if (modeName_ == "eta2pi" || modeName_ == "eta2pi0") {
+    if (!isEtaPrime_)
+      throw cms::Exception("Configuration") << "EtaDecayer:mode = " << modeName_ << " needs EtaDecayer:parent = 331";
+    mode_ = Mode::EtaPiPi;
+    const bool charged = modeName_ == "eta2pi";
+    daughterIds_ = charged ? std::vector<int>{221, 211, -211} : std::vector<int>{221, 111, 111};
+    etaPiPiParams_ = charged ? gen::etadecayer::etapipi::kCharged : gen::etadecayer::etapipi::kNeutral;
   } else if (modeName_ == "2muA") {
     mode_ = Mode::LLA;
     daughterIds_ = {13, -13, aId};
@@ -150,6 +157,10 @@ EtaDecayer::EtaDecayer(Pythia8::Pythia* pythiaPtr, Pythia8::Settings* settingsPt
     case Mode::LLPiPi:
       ctx.mPi = daughterMasses_[2];
       bound_ = overMasses([&](double mP) { return llpipiBound(mP, ml, ctx); });
+      break;
+    case Mode::EtaPiPi:
+      bound_ = overMasses(
+          [&](double mP) { return etaPiPiBound(mP, daughterMasses_[0], daughterMasses_[1], etaPiPiParams_); });
       break;
     case Mode::LLA:
       bound_ = overMasses([&](double mP) {
@@ -268,6 +279,9 @@ bool EtaDecayer::decay(std::vector<int>& idProd,
           flat));
       break;
     }
+    case Mode::EtaPiPi:
+      result = toVector(etaPiPi(parent, daughterMasses_[0], daughterMasses_[1], etaPiPiParams_, bound, flat));
+      break;
     case Mode::LLA: {
       const double mA = daughterMasses_[2], M2 = parent.M() * parent.M(), r = mA * mA / M2;
       if (darkPhoton_)

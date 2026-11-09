@@ -3,6 +3,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "GeneratorInterface/Pythia8Interface/interface/EtaDecayer.h"
 #include "GeneratorInterface/Pythia8Interface/interface/EtaDecayerModels.h"
+#include "GeneratorInterface/Pythia8Interface/interface/EtaDecayerSamplers.h"
 
 #include "Pythia8/Pythia.h"
 
@@ -125,6 +126,13 @@ TEST_CASE("EtaDecayer decays", s_tag) {
         checkDecays(*pythia, parent, ids);
       }
     }
+    if (parent == 331)
+      SECTION("eta' -> eta pi pi") {
+        auto pCharged = makePythia(commands(parent, "eta2pi"));
+        checkDecays(*pCharged, parent, {221, 211, -211});
+        auto pNeutral = makePythia(commands(parent, "eta2pi0"));
+        checkDecays(*pNeutral, parent, {221, 111, 111});
+      }
     SECTION("BSM modes, parent " + std::to_string(parent)) {
       for (const std::string type : {"darkphoton", "alp"}) {
         auto pLLA = makePythia(withBoson(commands(parent, "2muA"), type, 0.1));
@@ -137,6 +145,61 @@ TEST_CASE("EtaDecayer decays", s_tag) {
         checkDecays(*pHeavy, parent, {211, -211, 9000001});
       }
     }
+  }
+}
+
+// The sampled Dalitz plot reproduces the model: <Y> and <X^2> of the accepted decays against their expectation from a
+// numerical integration of |M(X, Y)|^2 over the phase space (flat in s1, s2).
+TEST_CASE("EtaDecayer eta' -> eta pi pi Dalitz plot", s_tag) {
+  using namespace gen::etadecayer;
+  const double M = 0.95778, mEta = 0.547862;
+  for (const auto& [mPi, params] :
+       {std::pair{0.13957039, etapipi::kCharged}, std::pair{0.1349768, etapipi::kNeutral}}) {
+    const double Q = M - mEta - 2 * mPi;
+    const auto xy = [&](const etapipi::Kinematics& k) {
+      return std::pair{std::sqrt(3.) * (k.e1 - k.e2) / Q, (mEta + 2 * mPi) / mPi * (k.eEta - mEta) / Q - 1};
+    };
+    // expectation
+    const double lo = std::pow(mEta + mPi, 2), hi = std::pow(M - mPi, 2);
+    const unsigned grid = 1000;
+    double sw = 0, swY = 0, swX2 = 0, n0 = 0, sY0 = 0;
+    etapipi::Kinematics k;
+    for (unsigned i = 0; i < grid; ++i)
+      for (unsigned j = 0; j < grid; ++j)
+        if (etapipi::kinematics(
+                M, mEta, mPi, lo + (hi - lo) * (i + 0.5) / grid, lo + (hi - lo) * (j + 0.5) / grid, k)) {
+          const double w = etapipi::weight(M, mEta, mPi, k, params);
+          const auto [X, Y] = xy(k);
+          sw += w;
+          swY += w * Y;
+          swX2 += w * X * X;
+          n0 += 1;
+          sY0 += Y;
+        }
+    // sample
+    const double bound = etaPiPiBound(M, mEta, mPi, params);
+    Pythia8::Rndm rndm(4711);
+    auto flat = [&rndm]() { return rndm.flat(); };
+    const TLorentzVector parent(0.3, -0.2, 2.0, std::sqrt(M * M + 0.09 + 0.04 + 4.0));
+    const int n = 200000;
+    double sY = 0, sY2 = 0, sX2 = 0, sX4 = 0;
+    for (int i = 0; i < n; ++i) {
+      auto out = etaPiPi(parent, mEta, mPi, params, bound, flat);
+      for (auto& p : out)
+        p.Boost(-parent.BoostVector());
+      const double X = std::sqrt(3.) * (out[1].E() - out[2].E()) / Q;
+      const double Y = (mEta + 2 * mPi) / mPi * (out[0].E() - mEta) / Q - 1;
+      sY += Y;
+      sY2 += Y * Y;
+      sX2 += X * X;
+      sX4 += X * X * X * X;
+    }
+    const double meanY = sY / n, meanX2 = sX2 / n;
+    const double errY = std::sqrt((sY2 / n - meanY * meanY) / n), errX2 = std::sqrt((sX4 / n - meanX2 * meanX2) / n);
+    REQUIRE(std::abs(meanY - swY / sw) < 4 * errY);
+    REQUIRE(std::abs(meanX2 - swX2 / sw) < 4 * errX2);
+    // the model differs from phase space by much more than the test resolution
+    REQUIRE(std::abs(swY / sw - sY0 / n0) > 10 * errY);
   }
 }
 
@@ -208,6 +271,10 @@ TEST_CASE("EtaDecayer configuration errors", s_tag) {
   }
   SECTION("2muA without A") {
     auto pythia = makePythia(commands(221, "2muA"));
+    REQUIRE_THROWS_AS(EtaDecayer(pythia.get(), &pythia->settings), cms::Exception);
+  }
+  SECTION("eta' -> eta pi pi with the eta as parent") {
+    auto pythia = makePythia(commands(221, "eta2pi"));
     REQUIRE_THROWS_AS(EtaDecayer(pythia.get(), &pythia->settings), cms::Exception);
   }
   SECTION("A too heavy") {

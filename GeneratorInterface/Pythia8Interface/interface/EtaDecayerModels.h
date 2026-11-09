@@ -14,6 +14,7 @@
 //   P -> pi+ pi- gamma* vertex        : Zillinger, Kubis, Sanchez-Puertas, arXiv:2210.14925, Eqs. (3.3)-(3.5), with
 //                                       the P-wave Omnes function replaced by a rho Breit-Wigner with the
 //                                       Eq. (3.5) energy-dependent width
+//   eta' -> eta pi pi Dalitz plot     : BESIII general representation, arXiv:1709.04627, Table II
 //
 // All form factors are normalized to F(0) = 1; q2, s, sl are invariant masses squared in GeV^2.
 
@@ -302,6 +303,66 @@ namespace gen {
         }
       }
       return 1.2 * maxW;
+    }
+
+    // ---------------------------------------------------------------------------------------------------------------
+    // eta' -> eta pi pi Dalitz plot (BESIII, arXiv:1709.04627, Eqs. (1)-(3) and Table II), general representation
+    //   |M(X, Y)|^2 = N (1 + a Y + b Y^2 + d X^2),
+    //   X = sqrt(3) (T_pi1 - T_pi2) / Q,  Y = (m_eta + 2 m_pi) / m_pi * T_eta / Q - 1,  Q = M - m_eta - 2 m_pi,
+    // with T the kinetic energies in the eta' rest frame, pi1 = pi+ for the charged mode, and m_pi the mass of the
+    // pions of the mode (charged or neutral). Odd powers of X vanish (C invariance for pi+ pi-, Bose symmetry for
+    // pi0 pi0); the c X term is set to zero, as in the nominal BESIII fits. Not included: higher-order terms (fitted
+    // consistent with zero) and the pi+ pi- threshold cusp in eta pi0 pi0 (a few-percent effect near the threshold,
+    // arXiv:2207.01004).
+    // ---------------------------------------------------------------------------------------------------------------
+    namespace etapipi {
+      struct Params {
+        double a, b, d;
+      };
+      constexpr Params kCharged{-0.056, -0.049, -0.063};  // eta' -> eta pi+ pi-
+      constexpr Params kNeutral{-0.087, -0.073, -0.074};  // eta' -> eta pi0 pi0
+
+      // Rest-frame kinematics of M -> eta pi1 pi2 from s1 = m^2(eta pi1), s2 = m^2(eta pi2).
+      struct Kinematics {
+        double e1, e2, eEta;  // energies of pi1, pi2, eta
+        double p1, p2, pEta;  // momentum magnitudes
+      };
+
+      // False outside the Dalitz region.
+      inline bool kinematics(double M, double mEta, double mPi, double s1, double s2, Kinematics& k) {
+        k.e2 = (M * M + mPi * mPi - s1) / (2 * M);
+        k.e1 = (M * M + mPi * mPi - s2) / (2 * M);
+        k.eEta = M - k.e1 - k.e2;
+        if (!(k.e1 > mPi && k.e2 > mPi && k.eEta > mEta))
+          return false;
+        k.p1 = std::sqrt(k.e1 * k.e1 - mPi * mPi);
+        k.p2 = std::sqrt(k.e2 * k.e2 - mPi * mPi);
+        k.pEta = std::sqrt(k.eEta * k.eEta - mEta * mEta);
+        return k.pEta <= k.p1 + k.p2 && k.pEta >= std::abs(k.p1 - k.p2);
+      }
+
+      // |M(X, Y)|^2 / N
+      inline double weight(double M, double mEta, double mPi, const Kinematics& k, const Params& p) {
+        const double Q = M - mEta - 2 * mPi;
+        const double X = std::sqrt(3.) * (k.e1 - k.e2) / Q;
+        const double Y = (mEta + 2 * mPi) / mPi * (k.eEta - mEta) / Q - 1;
+        return 1 + p.a * Y + p.b * Y * Y + p.d * X * X;
+      }
+    }  // namespace etapipi
+
+    // Accept-reject bound for etapipi::weight over the Dalitz plot: the maximum on a uniform (s1, s2) grid times 1.05
+    // (the weight is a smooth quadratic in X, Y and varies by less than 30% over the plot).
+    inline double etaPiPiBound(double mParent, double mEta, double mPi, const etapipi::Params& p, unsigned grid = 400) {
+      const double lo = std::pow(mEta + mPi, 2), hi = std::pow(mParent - mPi, 2);
+      double maxW = 0.;
+      etapipi::Kinematics k;
+      for (unsigned i = 0; i <= grid; ++i)
+        for (unsigned j = 0; j <= grid; ++j) {
+          const double s1 = lo + (hi - lo) * i / grid, s2 = lo + (hi - lo) * j / grid;
+          if (etapipi::kinematics(mParent, mEta, mPi, s1, s2, k))
+            maxW = std::max(maxW, etapipi::weight(mParent, mEta, mPi, k, p));
+        }
+      return 1.05 * maxW;
     }
 
     // ---------------------------------------------------------------------------------------------------------------
