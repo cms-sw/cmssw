@@ -56,7 +56,7 @@ JetValidation = cms.Sequence(
 #    JetAnalyzerAk4JPT*
     newAk4PFCHSL1FastL2L3CorrectorChain*
     JetAnalyzerAk4PFCHS
-    JetAnalyzerAk4PFPUPI
+    JetAnalyzerAk4PFPUPPI
 #    JetAnalyzerAk8PF*
 #    JetAnalyzerAk8PFCHS*
 #    *JetAnalyzerCA8PFCHS
