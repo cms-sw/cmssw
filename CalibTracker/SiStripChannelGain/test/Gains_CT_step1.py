@@ -55,8 +55,7 @@ process.MEtoEDMConvertSiStripGains = cms.EDProducer("MEtoEDMConverter",
         # 1 provides basic output
         # 2 provide more detailed output
         Frequency = cms.untracked.int32(50),
-        MEPathToSave = cms.untracked.string('AlCaReco/SiStripGains'),
-        deleteAfterCopy = cms.untracked.bool(True)
+        MEPathToSave = cms.untracked.string('AlCaReco/SiStripGains')
         )
 process.seqALCARECOPromptCalibProdSiStripGains = cms.Sequence(
         process.SiStripCalib *
