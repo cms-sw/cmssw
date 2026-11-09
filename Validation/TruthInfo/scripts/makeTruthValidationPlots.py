@@ -653,12 +653,20 @@ def discover(tfile):
 def collect(files):
     """{category: {collection: {metric: {var: {wp: (edges, values, errors)}}}}}"""
     data = {}
+    sourceOfFolder = {}
     for fname in files:
         tfile = ROOT.TFile.Open(fname)
         if not tfile or tfile.IsZombie():
             print(f"cannot open {fname}", file=sys.stderr)
             continue
         for flavour, category, folder, folderDir in discover(tfile):
+            # A later copy of a folder would replace the earlier one, so the plots would show
+            # one input and be read as all of them.
+            folderKey = (flavour, category, folder)
+            if folderKey in sourceOfFolder:
+                sys.exit(f"{fname}: folder {'/'.join(folderKey)} is already read from {sourceOfFolder[folderKey]}. "
+                         "Give the script one harvested DQM file per sample.")
+            sourceOfFolder[folderKey] = fname
             # Folder is "<collection>_<workingPoint>"; split on the LAST underscore so a
             # collection label containing underscores survives.
             if "_" not in folder:
@@ -822,7 +830,8 @@ def plot_metric(category, collection, metric, var, per_wp, outdir, index, slices
         filled = filled & _fit_ok(wp, values, slices, is_sigma, errors if metric == "resolution" else None)
         if denom is not None and wp in denom and len(denom[wp]) == len(values):
             filled = filled & (denom[wp] >= MIN_DENOM_ENTRIES)
-        means[wp] = float(values[filled].mean()) if filled.any() else 0.0
+        if filled.any():
+            means[wp] = float(values[filled].mean())
         ax.errorbar(
             centers,
             broken(values, filled),
@@ -864,7 +873,7 @@ def plot_metric(category, collection, metric, var, per_wp, outdir, index, slices
         # the axis. Scale to the data, keeping zero visible so a bias is readable.
         def _shown(w):
             v = per_wp[w][1]
-            return v[(v != 0) & _fit_ok(w, v, slices, is_sigma)]
+            return v[np.isfinite(v) & (v != 0) & _fit_ok(w, v, slices, is_sigma)]
 
         shown = [s for s in (_shown(w) for w in wps) if s.size]
         allv = np.concatenate(shown or [np.zeros(1)])
@@ -878,10 +887,10 @@ def plot_metric(category, collection, metric, var, per_wp, outdir, index, slices
     # caption instead, where they can be qualified.
     title = f"{label} vs {var}" if metric != "resolution" else var.replace("_", " ")
     ref = means.get(reference)
-    others = [means[w] for w in wps if w != reference]
+    others = [means[w] for w in wps if w != reference and w in means]
     if ref and others:
         rest = sum(others) / len(others)
-        delta = (rest - ref) / ref * 100.0 if ref else 0.0
+        delta = (rest - ref) / abs(ref) * 100.0
         caption = (f"{title}, {region_label(category)}. Bin-averaged over filled bins: others {rest:.2f}, "
                    f"{reference} {ref:.2f} ({delta:+.0f}%).")
     else:
@@ -921,10 +930,11 @@ def plot_metric(category, collection, metric, var, per_wp, outdir, index, slices
         for i, wp in enumerate(wps):
             if wp == reference:
                 continue
-            _, values, _ = per_wp[wp]
+            _, values, errors = per_wp[wp]
             # The reference has to be non-zero to divide by it. The series itself may be
-            # zero: a ratio of zero is a result, not a missing point.
-            ok = np.isfinite(ref_values) & np.isfinite(values) & (ref_values != 0)
+            # zero: a ratio of zero is a result, not a missing point. A bin with no entries
+            # is not a zero, by the rule of the main pad.
+            ok = np.isfinite(ref_values) & np.isfinite(values) & (ref_values != 0) & ((values != 0) | (errors > 0))
             ok = ok & _fit_ok(reference, ref_values, slices, is_sigma) & _fit_ok(wp, values, slices, is_sigma)
             if denom is not None:
                 for w in (reference, wp):
@@ -951,7 +961,9 @@ def plot_metric(category, collection, metric, var, per_wp, outdir, index, slices
     # empty panel that reads as "no points" instead of "points off scale".
     rax.axhline(1.0, linestyle="--", color="gray", linewidth=1.2)
     rax.set_ylabel(f"ratio to {reference}", fontsize=RATIO_TITLE_SIZE)
-    rax.set_ylim(0.0, max(2.0, max(ratio_values) * 1.15 if ratio_values else 2.0))
+    # A fitted mean can have the opposite sign to the reference, so a ratio can be negative.
+    rax.set_ylim(min(0.0, min(ratio_values) * 1.15 if ratio_values else 0.0),
+                 max(2.0, max(ratio_values) * 1.15 if ratio_values else 2.0))
     rax.tick_params(labelsize=TICK_LABEL_SIZE)
     xvar = var.rsplit("_vs_", 1)[-1].split("_")[0] if "_vs_" in var else var
     # The two pads share the x axis, so the title is written once, under the ratio.
@@ -1080,8 +1092,8 @@ def plot_residual(category, collection, source, per_wp, outdir, index):
         if total <= 0:
             continue
         centers = 0.5 * (edges[:-1] + edges[1:])
-        # Fraction inside +-10%, a scale-free statement about how peaked it is that does
-        # not depend on a fit converging.
+        # Fraction with a residual below 0.1 in magnitude, a statement about how peaked it
+        # is that does not depend on a fit converging.
         cores[wp] = float(values[np.abs(centers) <= 0.1].sum() / total)
         hep.histplot(broken(values / total, values > 0), edges, ax=ax, label=wp, yerr=False,
                      color=colors[i % len(colors)], linestyle=styles[i % len(styles)], linewidth=1.6)
@@ -1095,7 +1107,7 @@ def plot_residual(category, collection, source, per_wp, outdir, index):
     hep.cms.label(ax=ax, llabel="Private Work", rlabel=f"Phase-2 Simulation, {region_label(category)}", fontsize=15)
 
     ref = cores.get(REFERENCE_WP)
-    caption = (f"{source} residual distribution, area normalised. Fraction within 10%: "
+    caption = (f"{source} residual distribution, area normalised. Fraction with |residual| < 0.1: "
                + ", ".join(f"{w} {cores[w]:.2f}" for w in wps if w in cores) + ".") if cores else source
     name = f"{index:02d}_{category.split('/')[-1]}_{collection}_{source}_distribution.png"
     fig.savefig(os.path.join(outdir, category.split("/", 1)[0], "resolution", name), dpi=150)
@@ -1141,7 +1153,7 @@ def main():
     ap.add_argument("--sample", default="ttbar, no pileup, D122")
     ap.add_argument("--title", default="MC-truth graph validation")
     ap.add_argument("--jobs", default=0, type=int,
-                    help="Processes for drawing plots. 0 (default) uses every core; 1 draws in the main "
+                    help="Processes for drawing plots. 0 (default) uses every core this job may run on; 1 draws in the main "
                          "process, which is what you want when reading a traceback.")
     ap.add_argument("--gallery", default="truth-validation",
                     help="orbit gallery name; also the .orbit target, so two samples can be published side by side")
@@ -1250,7 +1262,7 @@ def main():
     # granularity SimpleValidation uses for the standard validation, and the natural unit
     # here since each writes its own PNG and shares nothing.
     if metric_tasks:
-        nproc = args.jobs if args.jobs > 0 else os.cpu_count()
+        nproc = args.jobs if args.jobs > 0 else len(os.sched_getaffinity(0))
         nproc = max(1, min(nproc, len(metric_tasks)))
         if nproc == 1:
             results = [plot_metric(*t[0]) for t in metric_tasks]
@@ -1348,7 +1360,7 @@ def main():
                         defs.write(f"- **{_c}.** {MATCH_CRITERIA[_c][1]}\n")
                     defs.write("\n")
             defs.write("\n## Quality cuts\n\n"
-                       f"- A ratio bin is drawn only if its denominator has at least {MIN_DENOM_ENTRIES} entries.\n"
+                       f"- A bin is drawn only if its denominator has at least {MIN_DENOM_ENTRIES} entries.\n"
                        "- A bin that is empty or suppressed breaks the line; no segment is drawn across it.\n"
                        f"- A Gaussian slice fit is drawn only if its slice has at least {MIN_SLICE_ENTRIES} entries\n"
                        "  and the fitted width is inside the fit range and wider than one bin.\n"
@@ -1401,7 +1413,7 @@ def main():
             if level in LEVEL_MEANING:
                 idx.write(f"<li><span class='f'>{level}</span> {LEVEL_MEANING[level]}</li>")
         idx.write("</ul><h2>Quality cuts applied to every plot</h2><ul class='idx'>"
-                  f"<li>A ratio bin is drawn only if its denominator has at least {MIN_DENOM_ENTRIES} entries. "
+                  f"<li>A bin is drawn only if its denominator has at least {MIN_DENOM_ENTRIES} entries. "
                   "A ratio built from a handful of entries is noise with a large error bar, not a measurement.</li>"
                   "<li>An empty or suppressed bin breaks the line rather than being skipped over, so a series "
                   "never draws a segment across a region it did not measure.</li>"

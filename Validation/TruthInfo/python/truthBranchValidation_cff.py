@@ -290,16 +290,16 @@ _hltDomains = [
                      "allVertexToTruthBranchAssociators": "hltVertexToTruthBranchAssociators",
                      "allSecondaryVertexToTruthBranchAssociators": "hltVertexToTruthBranchAssociators",
                      "truthBranchTracksterAssociators": "hltTruthBranchTracksterAssociators",
-                     # No HLT PF-cluster association is produced; the HLT label lists are
-                     # empty, so these domains are dropped by the recoLabels filter below.
                      "truthBranchPFClusterEcalAssociators": "hltTruthBranchPFClusterEcalAssociators",
                      "truthBranchPFClusterHcalAssociators": "hltTruthBranchPFClusterHcalAssociators"}[_d["associator"]],
          dirName=_d["dirName"].replace("TruthInfo/Offline/", "TruthInfo/HLT/"))
     for _d in _domains
+    # The HLT label lists of the PF clusters are empty, so no HLT PF-cluster validator is booked.
+    if recoLabels(_d["name"], "hlt")
 ]
 for _d in _domains:
     _d["flavour"] = "offline"
-_domains = _domains + [_d for _d in _hltDomains if recoLabels(_d["name"], "hlt")]
+_domains = _domains + _hltDomains
 
 
 def _algoBlock(recoVariables, truthVariables=None, sharedRange=None, axisOverrides=None,
