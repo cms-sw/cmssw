@@ -158,6 +158,62 @@ int main(int argc, char** argv) {
   histoP3PercentDiffHistory.process(connectionString, PI::mk_input(tag, start, end, tagtwo, startLS, endLS));
   edm::LogPrint("testEcalLaserAPDPNRatiosPayloadInspector") << histoP3PercentDiffHistory.data() << std::endl;
 
+  edm::LogPrint("testEcalLaserAPDPNRatiosPayloadInspector") << "## Exercising history plots vs time " << std::endl;
+
+  // run based tag alone, the IOVs placed at the start time of their run from RunInfo
+  EcalLaserAPDPNRatiosP2MeanHistoryOneTag histoP2MeanOneTagVsTime;
+  inputs["xAxis"] = "time";
+  histoP2MeanOneTagVsTime.setInputParamValues(inputs);
+  histoP2MeanOneTagVsTime.process(connectionString, PI::mk_input(tag, start, end));
+  edm::LogPrint("testEcalLaserAPDPNRatiosPayloadInspector") << histoP2MeanOneTagVsTime.data() << std::endl;
+  inputs.clear();
+
+  // lumi based tag alone, the lumi sections added to the start time of their run
+  EcalLaserAPDPNRatiosP2MeanHistoryOneTag histoP2MeanOneTagLSVsTime;
+  inputs["xAxis"] = "time";
+  histoP2MeanOneTagLSVsTime.setInputParamValues(inputs);
+  histoP2MeanOneTagLSVsTime.process(connectionString, PI::mk_input(tagtwo, startLS, endLS));
+  edm::LogPrint("testEcalLaserAPDPNRatiosPayloadInspector") << histoP2MeanOneTagLSVsTime.data() << std::endl;
+  inputs.clear();
+
+  // run based vs lumi based tag on the common time axis
+  EcalLaserAPDPNRatiosP2MeanHistoryTwoTags histoP2MeanTwoTagsVsTime;
+  inputs["cmsLabel"] = "Preliminary";
+  inputs["xAxis"] = "time";
+  histoP2MeanTwoTagsVsTime.setInputParamValues(inputs);
+  histoP2MeanTwoTagsVsTime.process(connectionString, PI::mk_input(tag, start, end, tagtwo, startLS, endLS));
+  edm::LogPrint("testEcalLaserAPDPNRatiosPayloadInspector") << histoP2MeanTwoTagsVsTime.data() << std::endl;
+  inputs.clear();
+
+  EcalLaserAPDPNRatiosP2RMSHistoryTwoTags histoP2RMSTwoTagsVsTime;
+  inputs["xAxis"] = "time";
+  histoP2RMSTwoTagsVsTime.setInputParamValues(inputs);
+  histoP2RMSTwoTagsVsTime.process(connectionString, PI::mk_input(tag, start, end, tagtwo, startLS, endLS));
+  edm::LogPrint("testEcalLaserAPDPNRatiosPayloadInspector") << histoP2RMSTwoTagsVsTime.data() << std::endl;
+  inputs.clear();
+
+  EcalLaserAPDPNRatiosP2DiffHistory histoP2DiffHistoryVsTime;
+  inputs["xAxis"] = "time";
+  histoP2DiffHistoryVsTime.setInputParamValues(inputs);
+  histoP2DiffHistoryVsTime.process(connectionString, PI::mk_input(tag, start, end, tagtwo, startLS, endLS));
+  edm::LogPrint("testEcalLaserAPDPNRatiosPayloadInspector") << histoP2DiffHistoryVsTime.data() << std::endl;
+  inputs.clear();
+
+  EcalLaserAPDPNRatiosP2PercentDiffHistory histoP2PercentDiffHistoryVsTime;
+  inputs["cmsLabel"] = "Preliminary";
+  inputs["xAxis"] = "time";
+  histoP2PercentDiffHistoryVsTime.setInputParamValues(inputs);
+  histoP2PercentDiffHistoryVsTime.process(connectionString, PI::mk_input(tag, start, end, tagtwo, startLS, endLS));
+  edm::LogPrint("testEcalLaserAPDPNRatiosPayloadInspector") << histoP2PercentDiffHistoryVsTime.data() << std::endl;
+  inputs.clear();
+
+  // the default run number axis requested explicitly
+  EcalLaserAPDPNRatiosP2PercentDiffHistory histoP2PercentDiffHistoryVsRun;
+  inputs["xAxis"] = "run";
+  histoP2PercentDiffHistoryVsRun.setInputParamValues(inputs);
+  histoP2PercentDiffHistoryVsRun.process(connectionString, PI::mk_input(tag, start, end, tagtwo, startLS, endLS));
+  edm::LogPrint("testEcalLaserAPDPNRatiosPayloadInspector") << histoP2PercentDiffHistoryVsRun.data() << std::endl;
+
   inputs.clear();
 #if PY_MAJOR_VERSION >= 3
   // TODO I don't know why this Py_INCREF is necessary...
