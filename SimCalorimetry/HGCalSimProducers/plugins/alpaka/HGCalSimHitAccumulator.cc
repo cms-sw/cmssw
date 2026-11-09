@@ -6,6 +6,7 @@
 #include <mutex>
 #include <cmath>
 #include <algorithm>
+#include <cstdint>
 
 // framework imports
 #include "FWCore/Framework/interface/ESWatcher.h"
@@ -34,10 +35,25 @@
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-// FIXME: CALIBRATION CHANNELS!!!
-//Branch 27 of Events tree: PCaloHits_g4SimHits_CalibrationHGCHitsEE_SIM. Total size = 4222 Compressed size = 592
-//Branch 28 of Events tree: PCaloHits_g4SimHits_CalibrationHGCHitsHEback_SIM. Total size = 4318 Compressed size = 608
-//Branch 29 of Events tree: PCaloHits_g4SimHits_CalibrationHGCHitsHEfront_SIM. Total size = 4342 Compressed size = 612
+typedef std::vector<edm::ParameterSet> VPSet;
+
+/**
+  @short a helper structure to hold a PCaloHit source that needs to be processed and how it should be handled
+  it also contains the internal mapping of det id to global logical dense index
+ */
+struct PCaloHitConfig {
+  PCaloHitConfig(int32_t d, bool isc, double deltaT, edm::InputTag tag, edm::EDGetTokenT<edm::PCaloHitContainer> t)
+      : det(d), iscalib(isc), tof_delay(deltaT), tkn(t) {
+    edm::LogWarning("HGCalSimHitAccumulator")
+        << "will consume PCaloHits collection for det=" << det << " TOF delay=" << tof_delay << " iscalib=" << iscalib
+        << " collection is" << tag.label() << ":" << tag.instance() << ":" << tag.process();
+  }
+  int32_t det;
+  bool iscalib;
+  double tof_delay;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tkn;
+  mutable std::unordered_map<uint32_t, int32_t> det2dense;  //allowed to be updated
+};
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -59,19 +75,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     /**
+      @short looks up the appropriate PCaloHitConfig to use
+    */
+    std::vector<PCaloHitConfig>::const_iterator findHitConsumerConfig(int32_t det, bool iscalib) const;
+
+    /**
     @short reads the electronics dense indexing and builds an internal DetId -> DenseIndex mapping
     The mapping is only built once in a run. The `ncellsMapped_` variable is used to track if the map is available or not
     */
     int32_t buildGeoToDenseIndexMap(const hgcal::HGCalDenseIndexInfoDevice&,
                                     const hgcal::HGCalMappingCellParamHost&) const;
 
+    const bool produceExtra_;
     const device::ESGetToken<hgcal::HGCalDenseIndexInfoDevice, HGCalDenseIndexInfoRcd> indexingToken_;
     const edm::ESGetToken<hgcal::HGCalMappingCellParamHost, HGCalElectronicsMappingRcd> cellMappingToken_;
-    std::unordered_map<int32_t, edm::EDGetTokenT<edm::PCaloHitContainer>> g4HitsTokens_;
-    std::unordered_map<int32_t, float> g4TOFdelay_;
     const edm::EDPutTokenT<hgcaldigi::HGCalSimHitAccumHost> g4AccumulatorToken_;
+    edm::EDPutTokenT<hgcaldigi::HGCalSimHitAccumulatorMonitorCollection> accMonitorToken_;
+    std::vector<PCaloHitConfig> hitConsumerConfig_;
     mutable std::once_flag mapInitFlag_;
-    mutable std::unordered_map<int32_t, std::unordered_map<uint32_t, int32_t>> det2dense_;
     mutable int32_t nMaxReadoutCells_ = 0;
     static constexpr float nsPerBx_ = 25.0f;
   };
@@ -79,39 +100,67 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   //
   HGCalSimHitAccumulator::HGCalSimHitAccumulator(const edm::ParameterSet& iConfig)
       : EDProducer<>(iConfig),
+        produceExtra_(iConfig.getParameter<bool>("produceExtra")),
         indexingToken_{esConsumes<>(iConfig.getParameter<edm::ESInputTag>("indexingSource"))},
         cellMappingToken_{esConsumes<>(iConfig.getParameter<edm::ESInputTag>("cellMappingSource"))},
-        g4HitsTokens_{},
         g4AccumulatorToken_{produces()},
         nMaxReadoutCells_(0) {
+    //add monitor counters if required
+    if (produceExtra_)
+      accMonitorToken_ = produces("HGCalSimHitAccumulatorCounters");
+
     //configure Geant4 hit sources to handle
-    auto g4HitSubDet = iConfig.getParameter<std::vector<int32_t>>("g4HitsDets");
-    auto g4HitInputs = iConfig.getParameter<std::vector<edm::InputTag>>("g4Hits");
-    auto g4TOFDelays = iConfig.getParameter<std::vector<double>>("g4TOFDelays");
-    if (g4HitSubDet.size() != g4HitInputs.size() || g4TOFDelays.size() != g4HitInputs.size())
-      throw cms::Exception(
-          "HGCalSimHitAccumulator: Geant4 hit sub-detector codes, sources and time-of-flight delays are not fully "
-          "consistent in size!");
-    for (size_t i = 0; i < g4HitSubDet.size(); i++) {
-      auto det = g4HitSubDet[i];
-      g4HitsTokens_[det] = consumes<edm::PCaloHitContainer>(g4HitInputs[i]);
-      g4TOFdelay_[det] = static_cast<float>(g4TOFDelays[i]);
-      edm::LogWarning("") << "will consume " << g4HitInputs[i] << " PCaloHits collection for det=" << det
-                          << " TOF delay=" << g4TOFDelays[i];
+    auto g4HitCollections = iConfig.getParameter<VPSet>("g4HitsConfig");
+    hitConsumerConfig_.reserve(g4HitCollections.size());
+    for (const auto& cIt : g4HitCollections) {
+      auto d = cIt.getParameter<int>("det");
+      auto isc = cIt.getParameter<bool>("iscalib");
+
+      //check if it has already been added, just in case
+      auto cfgIt = findHitConsumerConfig(d, isc);
+      if (cfgIt != hitConsumerConfig_.end()) {
+        edm::LogWarning("HGCalSimHitAccumulator")
+            << " A configuration for det=" << d << " calib=" << isc << " already exists, skipping this one";
+        continue;
+      }
+
+      auto tof_delay = cIt.getParameter<double>("tof_delay");
+      auto tag = cIt.getParameter<edm::InputTag>("hits");
+      hitConsumerConfig_.push_back(PCaloHitConfig(d, isc, tof_delay, tag, consumes<edm::PCaloHitContainer>(tag)));
     }
+  }
+
+  //
+  std::vector<PCaloHitConfig>::const_iterator HGCalSimHitAccumulator::findHitConsumerConfig(int32_t det,
+                                                                                            bool iscalib) const {
+    return std::find_if(
+        hitConsumerConfig_.begin(), hitConsumerConfig_.end(), [det, iscalib](PCaloHitConfig const& config) {
+          return config.det == det && config.iscalib == iscalib;
+        });
   }
 
   //
   void HGCalSimHitAccumulator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<std::vector<int32_t>>("g4HitsDets")
-        ->setComment(
-            "DetId detector codes expected for the sources of PCaloHits (see "
-            "https://github.com/cms-sw/cmssw/blob/master/DataFormats/DetId/interface/DetId.h#L24)");
-    desc.add<std::vector<edm::InputTag>>("g4Hits")->setComment("Label for source of PCaloHits (Geant4)");
-    desc.add<std::vector<double>>("g4TOFDelays")->setComment("TOF delays to apply to PCaloHits (Geant4)");
+
+    desc.add<bool>("produceExtra", false)->setComment("Produce extra counters for monitoring");
     desc.add<edm::ESInputTag>("indexingSource")->setComment("Label for cell dense indexer");
     desc.add<edm::ESInputTag>("cellMappingSource")->setComment("Label for cell information type information");
+
+    edm::ParameterSet hitDefault;
+    edm::ParameterSetDescription hitDesc;
+    hitDefault.addParameter<int32_t>("det", 8);
+    hitDesc.add<int32_t>("det")->setComment(
+        "DetId detector codes expected for the sources of PCaloHits (see "
+        "https://github.com/cms-sw/cmssw/blob/master/DataFormats/DetId/interface/DetId.h#L24)");
+    hitDefault.addParameter<bool>("iscalib", false);
+    hitDesc.add<bool>("iscalib")->setComment("is calibration channel?");
+    hitDefault.addParameter<double>("tof_delay", -9);
+    hitDesc.add<double>("tof_delay")->setComment("TOF delay [ns] to apply to PCaloHit");
+    hitDefault.addParameter<edm::InputTag>("hits", edm::InputTag("g4SimHits", "HGCHitsEE"));
+    hitDesc.add<edm::InputTag>("hits")->setComment("Label for source of PCaloHits (Geant4)");
+    desc.addVPSet("g4HitsConfig", hitDesc, {hitDefault})->setComment("Configuration of PCaloHits to consume");
+
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -122,40 +171,27 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto const& cellInfo_view = cellInfo.const_view();
     auto const& denseIndexInfo_view = denseIndexInfo.const_view();
     int32_t ndenseIndices = denseIndexInfo_view.metadata().size();
-    float nunknown(0.);
+
     for (int32_t i = 0; i < ndenseIndices; i++) {
-      auto row = denseIndexInfo.view()[i];
+      auto row = denseIndexInfo_view[i];
 
       //cell type: if it's an unconnected channel just skip it
       auto cell_info_idx = row.cellInfoIdx();
       auto chType = cellInfo_view[cell_info_idx].t();
       if (chType < 0)
         continue;
+      bool iscalib = (chType == 0);
 
       //check if det id is known before mapping it
       const auto k = row.detid();
       const auto det = DetId(k).det();
-      if (g4HitsTokens_.find(det) == g4HitsTokens_.end()) {
-        nunknown += 1;
+
+      //try adding to the dense map
+      auto cfgIt = findHitConsumerConfig(det, iscalib);
+      if (cfgIt == hitConsumerConfig_.end())
         continue;
-      }
 
-      //accept to map this detid
-      det2dense_[det][k] = i;
-    }
-
-    //sum up final mapped cells (and print some debug if needed)
-    int nmapped(0);
-    for (const auto& it : det2dense_) {
-      int32_t ncells = static_cast<int32_t>(it.second.size());
-      edm::LogWarning("") << "Detector " << it.first << " has " << ncells << " cells mapped";
-      nmapped += ncells;
-    }
-
-    if (ndenseIndices > 0) {
-      edm::LogWarning("") << "Fraction of cells mapped:" << 100 * ((float)(nmapped) / ndenseIndices) << "%";
-      if (nunknown > 0)
-        edm::LogWarning("") << "Fraction of unknown cells " << 100 * ((float)(nunknown) / ndenseIndices) << "%";
+      cfgIt->det2dense[k] = i;
     }
 
     return ndenseIndices;
@@ -165,7 +201,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void HGCalSimHitAccumulator::produce(edm::StreamID sid,
                                        device::Event& iEvent,
                                        device::EventSetup const& iSetup) const {
-    //this is executed only once even if there are concurrent threads
+    //this is executed only once
     std::call_once(mapInitFlag_, [&] {
       auto const& denseIndexInfo = iSetup.getData(indexingToken_);
       auto const& cellInfo = iSetup.getData(cellMappingToken_);
@@ -182,55 +218,65 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     //wrap accumulation procedure
-    int totalHits(0), totalUnknown(0), totalOOT(0);
-    const auto accumulateHit = [&totalUnknown, &totalOOT, &accumView, this](const auto& hit) {
+    const auto accumulateHit = [&accumView, this](auto const& hit, const auto& cfg, auto& m) {
       const uint32_t did = static_cast<uint32_t>(hit.id());
-      const auto det = DetId(did).det();
 
       //check detector is of interest
-      const auto detIt = this->det2dense_.find(det);
-      if (detIt == this->det2dense_.end()) {
-        totalUnknown++;
-        return;
-      }
-
-      //check if it is known
-      const auto idx = detIt->second.find(did);
-      if (idx == detIt->second.end()) {
-        totalUnknown++;
+      const auto idxIt = cfg.det2dense.find(did);
+      if (idxIt == cfg.det2dense.end()) {
+        ++m.nHitsUnknown;
         return;
       }
 
       //add to accumulator if within time window
       const float energy = hit.energy();
-      const float tof = hit.time() + g4TOFdelay_.at(det);
+      const float tof = hit.time() + cfg.tof_delay;
       const int32_t bx = static_cast<int32_t>(std::roundl(tof / nsPerBx_));
       const int32_t tidx = bx + hgcaldigi::kInTimeBin;
       if (tidx < 0 || tidx >= hgcaldigi::kTimeBins) {
-        totalOOT++;
+        ++m.nHitsRejected;
         return;
       }
 
-      auto row = accumView[idx->second];
+      auto row = accumView[idxIt->second];
       row.sumE()(tidx, 0) += energy;
       row.sumExT()(tidx, 0) += energy * tof;
+      if (tidx == hgcaldigi::kInTimeBin)
+        ++m.nHitsIT;
+      else
+        ++m.nHitsOOT;
     };  //end accumulation wrapper for a single hit
 
-    //loop over geant4 hit collections and accumulate
-    for (auto const& g4It : g4HitsTokens_) {
-      const auto k = g4It.first;
-      const auto token = g4It.second;
-      const auto& hit_collection = iEvent.get(token);
-      totalHits += hit_collection.size();
-      edm::LogWarning("") << "Det=" << k << " has " << hit_collection.size() << " hits";
-      std::for_each(hit_collection.begin(), hit_collection.end(), accumulateHit);
-    }  //end g4 inputs loop
+    //loop over geant4 hit collections and accumulate (monitor counts and put also in the event if needed)
+    hgcaldigi::HGCalSimHitAccumulatorMonitorCollection accMonitor;
+    accMonitor.reserve(hitConsumerConfig_.size());
+    for (auto const& cfg : hitConsumerConfig_) {
+      const auto det = cfg.det;
+      const auto isc = cfg.iscalib;
+      const auto token = cfg.tkn;
 
-    if (totalHits > 0 && totalUnknown + totalOOT > 0)
-      edm::LogWarning("") << "Hit rejection fractions: " << 100 * ((float)(totalUnknown) / totalHits) << "% unmapped | "
-                          << 100 * ((float)(totalOOT) / totalHits) << "% out-of-time window";
+      hgcaldigi::HGCalSimHitAccumulatorMonitor m(det, isc);
+
+      try {
+        const auto& hit_collection = iEvent.get(token);
+
+        m.ncellsMapped = cfg.det2dense.size();
+        m.nHits = hit_collection.size();
+
+        std::for_each(hit_collection.begin(), hit_collection.end(), [&](auto const& h) { accumulateHit(h, cfg, m); });
+
+      } catch (cms::Exception& e) {
+        edm::LogWarning("HGCalSimHitAccumulator") << e.what();
+      }
+
+      accMonitor.push_back(m);
+
+    }  //end geantl4 inputs loop
 
     iEvent.emplace(g4AccumulatorToken_, std::move(g4Accumulators));
+    if (produceExtra_) {
+      iEvent.emplace(accMonitorToken_, accMonitor);
+    }
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

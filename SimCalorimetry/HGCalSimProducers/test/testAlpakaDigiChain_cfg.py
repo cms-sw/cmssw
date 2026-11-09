@@ -40,15 +40,41 @@ process = customise_hgcal_ageing_byalgo_startup(process)
 from SimCalorimetry.HGCalSimProducers.hgCalSimHitAccumulator_cfi import hgCalSimHitAccumulator
 process.hgCalSimHitAccumulator = cms.EDProducer(
     'alpaka_serial_sync::HGCalSimHitAccumulator',
-    g4HitsDets = cms.vint32([8,9,10]),
-    g4Hits = cms.VInputTag(
-        cms.InputTag("g4SimHits", "HGCHitsEE"),
-        cms.InputTag("g4SimHits", "HGCHitsHEfront"),
-        cms.InputTag("g4SimHits", "HGCHitsHEback"),
-    ),
-    g4TOFDelays = cms.vdouble([-9,-11,-14]),
+    g4HitsConfig = cms.VPSet([
+        cms.PSet(
+            det = cms.int32(8),
+            iscalib = cms.bool(False),
+            hits = cms.InputTag("g4SimHits", "HGCHitsEE"),
+            tof_delay = cms.double(-9)
+        ),
+        cms.PSet(
+            det = cms.int32(8),
+            iscalib = cms.bool(True),
+            hits = cms.InputTag("g4SimHits", "CalibrationHGCHitsEE", "SIM"),
+            tof_delay = cms.double(-9)
+        ),        
+        cms.PSet(
+            det = cms.int32(9),
+            iscalib = cms.bool(False),
+            hits = cms.InputTag("g4SimHits", "HGCHitsHEfront"),
+            tof_delay = cms.double(-11)
+        ),
+        cms.PSet(
+            det = cms.int32(9),
+            iscalib = cms.bool(True),
+            hits = cms.InputTag("g4SimHits", "CalibrationHGCHitsHEfront"),
+            tof_delay = cms.double(-11)
+        ),
+        cms.PSet(
+            det = cms.int32(10),
+            iscalib = cms.bool(False),
+            hits = cms.InputTag("g4SimHits", "HGCHitsHEback"),
+            tof_delay = cms.double(-14)
+        )
+    ]),
     indexingSource = cms.ESInputTag(),
-    cellMappingSource = cms.ESInputTag()
+    cellMappingSource = cms.ESInputTag(),
+    produceExtra = cms.bool(True)
 )
 
 # HGCal Alpaka digitizer (notice it's declaring the CPU version of it!)
@@ -75,3 +101,18 @@ process.p = cms.Path(
     process.hgCalSimHitAccumulator
     *process.hgCalDigitizerProducer
 )
+
+# output file
+process.out = cms.OutputModule("PoolOutputModule",
+    outputCommands = cms.untracked.vstring(
+        'drop *',
+        'keep *_hgCalSimHitAccumulator_*_*',
+        'keep *_hgCalDigitizerProducer_*_*'
+    ),
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('p')
+    ),
+    fileName = cms.untracked.string('alpaka_digis.root')
+)
+
+process.outpath = cms.EndPath(process.out)

@@ -9,7 +9,7 @@
 namespace hgcaldigi {
 
   constexpr int kTimeBins = 11;
-  constexpr int kInTimeBin = (kTimeBins + 1) / 2;
+  constexpr int kInTimeBin = 7;
 
   using TimedAccumulatorF = Eigen::Matrix<float, kTimeBins, 1>;
   using TimedROCDigiI = Eigen::Matrix<uint32_t, kTimeBins, 1>;
@@ -28,6 +28,30 @@ namespace hgcaldigi {
                       SOA_EIGEN_COLUMN(TimedROCDigiI, word),
                       SOA_EIGEN_COLUMN(TimedROCDigiI, status))
   using HGCalROCDigisAccumSoA = HGCalROCDigisAccumSoALayout<>;
+
+  /**
+  @short this is a helper class for validation purposes, it has no use for the digitization step itself
+  it contains generic counters to check how many hits are rejected by time cuts or absense in mapping
+  */
+  struct HGCalSimHitAccumulatorMonitor {
+    HGCalSimHitAccumulatorMonitor()
+        : det(0),
+          iscalib(false),
+          ncellsMapped(0),
+          nHits(0),
+          nHitsOOT(0),
+          nHitsIT(0),
+          nHitsRejected(0),
+          nHitsUnknown(0) {}
+    HGCalSimHitAccumulatorMonitor(int16_t d, bool isc)
+        : det(d), iscalib(isc), ncellsMapped(0), nHits(0), nHitsOOT(0), nHitsIT(0), nHitsRejected(0), nHitsUnknown(0) {}
+    HGCalSimHitAccumulatorMonitor(HGCalSimHitAccumulatorMonitor const&) = default;
+    int16_t det;
+    bool iscalib;
+    int ncellsMapped;
+    int nHits, nHitsOOT, nHitsIT, nHitsRejected, nHitsUnknown;
+  };
+  typedef std::vector<HGCalSimHitAccumulatorMonitor> HGCalSimHitAccumulatorMonitorCollection;
 
 }  // namespace hgcaldigi
 
