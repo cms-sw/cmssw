@@ -4,7 +4,11 @@
 <use name="DQMServices/Core"/>
 <use name="DQMOffline/Trigger"/>
 <use name="FWCore/ServiceRegistry"/>
+<use name="DataFormats/Common"/>
 <use name="DataFormats/HLTReco"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/JetReco"/>
+<use name="DataFormats/Math"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="Validation/HLTrigger"/>
 <flags EDM_PLUGIN="1"/>
