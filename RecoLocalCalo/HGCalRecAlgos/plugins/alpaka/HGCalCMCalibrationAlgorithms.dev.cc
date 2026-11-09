@@ -14,34 +14,30 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   static constexpr uint32_t kChPerErx = 37u;
   static constexpr float kCMScale = 2.0f;  // training convention: cm - 2*CM_ped
 
-  // features 0..250, one thread per module; module m occupies digis [chDataOffsets[m], +nErx*37)
+  // features 0..250, one thread per module; module m occupies digis [chDataOffset, +nErx*37)
   struct HGCalCMCalibKernel_fillModuleInputs {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   HGCalSoACMMLDeviceCollection::View module_features,
                                   hgcaldigi::HGCalDigiDevice::ConstView digi_view,
-                                  uint32_t const* __restrict__ d_chDataOffsets,
-                                  uint32_t const* __restrict__ d_enabledErx,
-                                  int const* __restrict__ d_onehotIdx,
-                                  unsigned char const* __restrict__ d_inScope,
+                                  HGCalCMMLModuleParamDevice::ConstView module_param,
                                   hgcalrechit::HGCalCalibParamDevice::ConstView calib,
-                                  bool normalize,
-                                  float const* d_inMean,
-                                  float const* d_inInvStd,
+                                  HGCalCMMLNormParamDevice::ConstView norm,
                                   uint32_t nmodules,
                                   uint32_t ndigis) const {
       for (auto m : uniform_elements(acc, nmodules)) {
         auto f = module_features[m].features();
-        if (!d_inScope[m]) {
+        auto const mp = module_param[m];
+        uint32_t const base = mp.chDataOffset();
+        if (!mp.inScope() || base + F::NCH > ndigis) {
           for (uint32_t k = 0; k < F::NMODULE; ++k)
             f(k) = 0.f;  // sets all the module feautures = 0
           continue;
         }
-        uint32_t const base = d_chDataOffsets[m];
 
         // disabled or uncalibrated eRx are 0, very simple just fills in the CM.
         for (uint32_t e = 0; e < F::NCM; ++e) {
           uint32_t const src = base + e * kChPerErx;
-          bool const on = ((d_enabledErx[m] >> e) & 1u) && src < ndigis && calib[src].valid();
+          bool const on = ((mp.enabledErx() >> e) & 1u) && src < ndigis && calib[src].valid();
           f(F::CM0 + e) = on ? kCMScale * (0.5f * float(digi_view[src].cm()) - calib[src].CM_ped()) : 0.f;
         }
         // Fills in TOA information and informaton relating to how many channels are above a given threshold.
@@ -68,13 +64,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         for (uint32_t t = 0; t < F::NNCHADCGT; ++t)
           f(F::NCHADCGT0 + t) = nadcgt[t];
         for (uint32_t j = 0; j < F::NONEHOT; ++j)
-          f(F::ONEHOT0 + j) = (d_onehotIdx[m] == int(j)) ? 1.f : 0.f;
+          f(F::ONEHOT0 + j) = (mp.onehotIdx() == int(j)) ? 1.f : 0.f;
 
-        // For z score model we mean subtract and mutltiply by the inverse of the std.
-        if (normalize) {
-          for (uint32_t k = 0; k < F::NMODULE; ++k)
-            f(k) = (f(k) - d_inMean[k]) * d_inInvStd[k];
-        }
+        // z-score: mean subtract and multiply by the inverse of the std.
+        for (uint32_t k = 0; k < F::NMODULE; ++k)
+          f(k) = (f(k) - norm[k].inMean()) * norm[k].inInvStd();
       }
     }
   };
@@ -86,12 +80,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   HGCalCMCorrectionDeviceCollection::View corrections,
                                   HGCalSoACMMLDeviceCollection::ConstView module_features,
                                   hgcal::HGCalDenseIndexInfoDevice::ConstView index_view,
-                                  uint32_t const* __restrict__ d_enabledErx,
-                                  unsigned char const* __restrict__ d_inScope,
-                                  float const* __restrict__ d_sf,
-                                  bool normalize,
-                                  float const* d_inMean,
-                                  float const* d_inInvStd,
+                                  HGCalCMMLModuleParamDevice::ConstView module_param,
+                                  HGCalCMMLNormParamDevice::ConstView norm,
                                   uint32_t nmodules,
                                   uint32_t ndigis) const {
       for (auto idx : uniform_elements(acc, ndigis)) {
@@ -100,7 +90,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         uint32_t const m = idxinfo.modInfoIdx();
         uint32_t const chIdx = idxinfo.chNumber();
         auto f = digi_features[idx].features();
-        if (m >= nmodules || !d_inScope[m] || chIdx >= F::NCH) {
+        if (m >= nmodules || !module_param[m].inScope() || module_param[m].chDataOffset() + F::NCH > ndigis ||
+            chIdx >= F::NCH) {
           for (uint32_t k = 0; k < F::Size; ++k)
             f(k) = 0.f;
           corrections[idx].valid() = 0;
@@ -111,58 +102,50 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         for (uint32_t k = 0; k < F::NMODULE; ++k)
           f(k) = mf(k);
         uint32_t const own = F::ADC0 + chIdx;
-        // sets its own digi adc to zero if usual DNN or the mean if z score DNN.
-        f(own) = normalize ? -d_inMean[own] * d_inInvStd[own] : 0.f;
+        // sets its own digi adc to zero before the z-score, i.e. to the normalised mean.
+        f(own) = -norm[own].inMean() * norm[own].inInvStd();
 
-        // Channel and erx idx and always mean subtracted independent of the model.
-        // They are then mean sub and std dev divided again if the z score model (a bit weird I know!)
-        uint32_t const nErx = uint32_t(__builtin_popcount(d_enabledErx[m]));
+        // Channel and erx idx and always mean subtracted.
+        // They are then mean sub and std dev divided again by the z-score (a bit weird I know!)
+        uint32_t const nErx = uint32_t(__builtin_popcount(module_param[m].enabledErx()));
         f(F::CHIDX) = float(chIdx) - (float(nErx) * float(kChPerErx) - 1.0f) / 2.0f;
         f(F::ERXIDX) = float(chIdx / kChPerErx) - (float(nErx) - 1.0f) / 2.0f;
         // We can clean this up with a new method added by p.silva but will probably merge this first.
-        float const cellfrac = d_sf[m * F::NCH + chIdx];
+        float const cellfrac = module_param[m].cellFrac()(chIdx);
         f(F::CELLFRAC) = cellfrac;
-        // Z score model nornmalise.
-        if (normalize) {
-          for (uint32_t k = F::CHIDX; k < F::Size; ++k)
-            f(k) = (f(k) - d_inMean[k]) * d_inInvStd[k];
-        }
+        // z-score normalise.
+        for (uint32_t k = F::CHIDX; k < F::Size; ++k)
+          f(k) = (f(k) - norm[k].inMean()) * norm[k].inInvStd();
         // unconnected channels invalid.
         corrections[idx].valid() = (cellfrac != 0.f) ? 1 : 0;  // SF 0 = unconnected cell
       }
     }
   };
 
-  // For the Z score DNN you need to un-normalise the output.
+  // The z-score DNN predicts a normalised output, un-normalise it per channel.
   struct HGCalCMCalibKernel_denormalizeOutputs {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   HGCalCMCorrectionDeviceCollection::View corrections,
                                   hgcal::HGCalDenseIndexInfoDevice::ConstView index_view,
-                                  float const* __restrict__ d_tgtMean,
-                                  float const* __restrict__ d_tgtStd,
+                                  HGCalCMMLNormParamDevice::ConstView norm,
                                   uint32_t ndigis) const {
       for (auto idx : uniform_elements(acc, ndigis)) {
         if (!corrections[idx].valid())
           continue;
         uint32_t const chIdx = index_view[idx].chNumber();
-        corrections[idx].correction() = corrections[idx].correction() * d_tgtStd[chIdx] + d_tgtMean[chIdx];
+        corrections[idx].correction() = corrections[idx].correction() * norm[chIdx].tgtStd() + norm[chIdx].tgtMean();
       }
     }
   };
 
   void HGCalCMCalibrationAlgorithms::fillModuleInputs(Queue& queue,
-                                                      uint32_t nmodules,
                                                       uint32_t ndigis,
                                                       hgcaldigi::HGCalDigiDevice const& device_digis,
-                                                      uint32_t const* d_chDataOffsets,
-                                                      uint32_t const* d_enabledErx,
-                                                      int const* d_onehotIdx,
-                                                      unsigned char const* d_inScope,
+                                                      HGCalCMMLModuleParamDevice const& module_param,
                                                       hgcalrechit::HGCalCalibParamDevice const& device_calib,
-                                                      bool normalize,
-                                                      float const* d_inMean,
-                                                      float const* d_inInvStd,
+                                                      HGCalCMMLNormParamDevice const& norm,
                                                       HGCalSoACMMLDeviceCollection& device_module_features) const {
+    uint32_t const nmodules = module_param.const_view().metadata().size();
     if (nmodules == 0)
       return;
     alpaka::exec<Acc1D>(queue,
@@ -170,29 +153,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         HGCalCMCalibKernel_fillModuleInputs{},
                         device_module_features.view(),
                         device_digis.const_view(),
-                        d_chDataOffsets,
-                        d_enabledErx,
-                        d_onehotIdx,
-                        d_inScope,
+                        module_param.const_view(),
                         device_calib.const_view(),
-                        normalize,
-                        d_inMean,
-                        d_inInvStd,
+                        norm.const_view(),
                         nmodules,
                         ndigis);
   }
 
   void HGCalCMCalibrationAlgorithms::fillDigiInputs(Queue& queue,
-                                                    uint32_t nmodules,
                                                     uint32_t ndigis,
                                                     hgcal::HGCalDenseIndexInfoDevice const& device_index,
                                                     HGCalSoACMMLDeviceCollection const& device_module_features,
-                                                    uint32_t const* d_enabledErx,
-                                                    unsigned char const* d_inScope,
-                                                    float const* d_sf,
-                                                    bool normalize,
-                                                    float const* d_inMean,
-                                                    float const* d_inInvStd,
+                                                    HGCalCMMLModuleParamDevice const& module_param,
+                                                    HGCalCMMLNormParamDevice const& norm,
                                                     HGCalSoACMMLDeviceCollection& device_digi_features,
                                                     HGCalCMCorrectionDeviceCollection& device_corrections) const {
     if (ndigis == 0)
@@ -204,21 +177,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         device_corrections.view(),
                         device_module_features.const_view(),
                         device_index.const_view(),
-                        d_enabledErx,
-                        d_inScope,
-                        d_sf,
-                        normalize,
-                        d_inMean,
-                        d_inInvStd,
-                        nmodules,
+                        module_param.const_view(),
+                        norm.const_view(),
+                        uint32_t(module_param.const_view().metadata().size()),
                         ndigis);
   }
 
   void HGCalCMCalibrationAlgorithms::denormalizeOutputs(Queue& queue,
                                                         uint32_t ndigis,
                                                         hgcal::HGCalDenseIndexInfoDevice const& device_index,
-                                                        float const* d_tgtMean,
-                                                        float const* d_tgtStd,
+                                                        HGCalCMMLNormParamDevice const& norm,
                                                         HGCalCMCorrectionDeviceCollection& device_corrections) const {
     if (ndigis == 0)
       return;
@@ -227,8 +195,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         HGCalCMCalibKernel_denormalizeOutputs{},
                         device_corrections.view(),
                         device_index.const_view(),
-                        d_tgtMean,
-                        d_tgtStd,
+                        norm.const_view(),
                         ndigis);
   }
 

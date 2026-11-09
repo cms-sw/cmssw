@@ -23,11 +23,11 @@ cmsRun HGCalCMValidation/DQM/test/step_CMValidation.py \
   era=TB2025/v6 run=112049 files=file:<RAW2DIGI file> maxEvents=-1 skipMeta=True \
   calibfile=HGCalCommissioning/Calibrations/TB2025/calib/level0_calib_params_v5.json \
   elossfile=HGCalCommissioning/Calibrations/TB2025/calib/hgcal_energyloss_setup2_v1.json \
-  cmModel=zscore skipLC=False \
+  skipLC=False \
   output=NANO.root
 ```
 
-- `cmModel`: `zscore` (default) or `plain`; `useCMML=False` turns the DNN off (`CM_ALT = energy`).
+- `useCMML=False` turns the DNN off (`CM_ALT = energy`).
 - `skipLC=False`: run layer clustering and write the `HGCLayerClusters` table with its variations.
 
 Validation plots come from the separate `HGCalCMValidation` repository (see [Validation](#validation)).
@@ -49,13 +49,16 @@ lc_dnn = t["HGCLayerClusters_energy_CM_ALT"].array()
 ## Per-event workflow
 
 ```
+HGCalCMMLParamESProducer (hgcalCMMLParamESProducer, once per IOV, copied to the device by the framework)
+   |    HGCalCMMLModuleParam: per module first digi, eRx bitmask, one-hot index, scope, cell area fractions
+   |    HGCalCMMLNormParam:   z-score input mean and 1/std, per-channel target mean and std
 hgcalDigis (HGCalDigiHost)
    |  HGCalRecHitsProducer::acquire  (hgcalRecHits)
    |    copy digis + calibration to device
-   |    [useCMML] fillModuleInputs   one thread per module: features 0..250
+   |    [useCMML] fillModuleInputs   one thread per module: features 0..250, z-scored
    |    [useCMML] fillDigiInputs     one thread per digi: copy module row, mask own ADC, features 251..253
    |    [useCMML] DNN inference      TorchScript via AlpakaModel, [ndigis, 254] -> [ndigis, 1]
-   |    [useCMML, zscore model] denormalizeOutputs   per-channel output de-normalisation
+   |    [useCMML] denormalizeOutputs per-channel output de-normalisation
    |    calibrate: flag, adcToEnergy (energy + energy_variations), toaToTime, calib cells, metadata
    |  HGCalRecHitsProducer::produce
    |    zero-suppression selection
@@ -163,12 +166,10 @@ column so `TensorCollection` wraps it into `[ndigis, 254]` without copying.
 
 The dense index also carries a cell `area()` (`HGCalDenseIndexInfo`), but it does not yet reproduce
 `cellareas.json` for partial cells (edge cells), so the DNN keeps the json SF it was trained on.
-`hgcalRecHits.compareCellAreas=True` prints, once per job, one `CELL AREA` line per channel of every
-full Si wafer (json fraction, json area in mm2, `area()` in cm2, `DIFFERS` flag) and a summary line.
 
 Features 0–250 are identical for every digi of a module, so they are built once per module and
-copied. The producer throws at construction if the manifest feature names or order differ from
-what the kernels fill.
+copied. `HGCalCMMLParamESProducer` throws at construction if the manifest feature names or order differ
+from what the kernels fill.
 
 Pedestals: all inputs use `ADC_ped`/`CM_ped` from the calibration JSON loaded for the job, the
 same as the nominal energy (the model was trained with Run112044 pedestals; not checked against v5).
@@ -177,12 +178,13 @@ same as the nominal energy (the model was trained with Run112044 pedestals; not 
 `CM_ped` are 0). Their CM and ADC features are 0 rather than the raw value. Without this, module
 `ML-F3WC-IH0199`'s dead eRx 5 once put `cm5 ≈ +529` into every channel of that module.
 
-## Models
+## Model
 
-| `cmModel` | Files in `RecoLocalCalo/HGCalRecProducers/data/CMCalibrations/` | Source (Arne Reimers, `dnn_best.pth`) |
-|---|---|---|
-| `zscore` (default) | `cm_dnn_multimodule_zscore.pth`, `_manifest.json`, `_preprocessing.json` | `allchannels_multimodule_inputzscore_perchannel_F254__256-256-256-32__dr0`, md5 `b5116811…` |
-| `plain` | `cm_dnn_multimodule.pth`, `_manifest.json` | `allchannels_multimodule_perchannel_F254__256-256-256-32__dr0`, md5 `823ecb38…` |
+One model, with z-score normalised inputs and outputs (an un-normalised `plain` variant was dropped).
+
+| Files in `RecoLocalCalo/HGCalRecProducers/data/CMCalibrations/` | Source (Arne Reimers, `dnn_best.pth`) |
+|---|---|
+| `cm_dnn_multimodule_zscore.pth`, `_manifest.json`, `_preprocessing.json` | `allchannels_multimodule_inputzscore_perchannel_F254__256-256-256-32__dr0`, md5 `b5116811…` |
 
 Source directory: `/eos/user/a/areimers/hgcal/Sep2025TB/corrections/MULTI_ML_F3WC_IH0180_…_IH0199/pedestals_from_Run112044/corrections_from_ModuleMULTI_…/corrections_from_Run112044_112050_112060_112073_adcmax10/corrections_tag_selection_trigtime/dnn_models/`.
 
@@ -192,11 +194,11 @@ Source directory: `/eos/user/a/areimers/hgcal/Sep2025TB/corrections/MULTI_ML_F3W
 - Normalisation is applied in CMSSW, not baked into the model file.
 - The model files and `cellareas.json` are shipped in the cms-data package
   [`RecoLocalCalo-HGCalRecProducers`](https://github.com/cms-data/RecoLocalCalo-HGCalRecProducers)
-  under `CMCalibrations/`. The `hgcalRecHits` defaults point to the `zscore` model there. To test
+  under `CMCalibrations/`. The `hgcalRecHits` and `HGCalCMMLParamESProducer` defaults point there. To test
   a new version before it is in a release, clone the package into
   `$CMSSW_BASE/external/$SCRAM_ARCH/data/RecoLocalCalo/HGCalRecProducers/data`.
 
-**z-score model.** From `input_preprocessing.json`:
+**z-score normalisation.** From `input_preprocessing.json`:
 
 ```
 x'  = (x - mean[i]) / std[i]                        all 254 inputs, one-hots included
@@ -204,18 +206,17 @@ own adc_allch slot: raw 0, then normalised          (-mean/std)
 NN  = pred * target_std[chIdx] + target_mean[chIdx] per-channel output de-normalisation
 ```
 
-Both conventions confirmed 2026-09-16 and hardcoded. The producer requires a
-preprocessing file when the manifest says `preprocess_inputs: true` and rejects one otherwise.
+Both conventions confirmed 2026-09-16 and hardcoded.
 
 ## Configuration
 
 `HGCalCommissioning/Configuration/python/configure_sysval_reco_cff.py` builds `hgcalRecHits`
-(cuda and serial) on `hgcalDigis`. Options (`setArgParserForRECO`):
+(cuda and serial) on `hgcalDigis`, and with `useCMML` the `hgcalCMMLParamESProducer`. Options
+(`setArgParserForRECO`):
 
 | Option | Default | Meaning |
 |---|---|---|
 | `useCMML` | `True` | run the DNN and fill `CM_ALT`; `False`: `CM_ALT = energy`, no model loaded |
-| `cmModel` | `zscore` | `zscore` or `plain` (table above) |
 
 `step_CMValidation.py` (`HGCalCMValidation` repository) adds:
 
@@ -227,9 +228,9 @@ preprocessing file when the manifest says `preprocess_inputs: true` and rejects 
 
 Reconstruction itself applies no trig-time selection.
 
-`hgcalRecHits` parameters: `useCMML`, `cmAltAsNominal`, `model`, `modelManifest`, `inputPreprocessing`,
-`cellAreas`, `cm_n_threads`,
-`moduleIndexerSource`, `compareCellAreas`. Paths are CMSSW-relative (resolved with `FileInPath`).
+`hgcalRecHits` parameters: `useCMML`, `cmAltAsNominal`, `model`, `cmParamSource`, `cm_n_threads`.
+`HGCalCMMLParamESProducer` parameters: `modelManifest`, `inputPreprocessing`, `cellAreas`,
+`moduleIndexerSource`. Paths are CMSSW-relative (resolved with `FileInPath`).
 
 ## NanoAOD
 
@@ -271,13 +272,13 @@ and connected cells only (`*Conn`): `adcPedSubRaw/Analytic/MLFloat`, the same th
 are double-precision (a full run exceeds the 2^24 exact range of float bins). Only existing
 rechits are seen, so run with `knoise=-100`.
 
-`HGCalCMValidation/DQM/test/run_cm_comparison.sh` runs one job per model into `<outdir>/<model>/`:
+`HGCalCMValidation/DQM/test/run_cm_comparison.sh` runs the job into `<outdir>/`:
 
 ```bash
 bash src/HGCalCMValidation/DQM/test/run_cm_comparison.sh \
   --era TB2025/v6 --run 112049 --files <file list> \
   --maxevents -1 --skipmeta --trigtimemin 107 --trigtimemax 113 --nobuild \
-  --models plain,zscore --modules ML-F3WC-IH0182 --outdir <outdir>
+  --modules ML-F3WC-IH0182 --outdir <outdir>
 ```
 
 Fit the spectra with `plot_adc_shape_from_dqm.py` (local), which writes one PNG per
@@ -286,14 +287,14 @@ correction (`adcshape_no_cm_correction.png`, `adcshape_lin_reg_correction.png`,
 
 ```bash
 python3 plot_adc_shape_from_dqm.py --connected --module ML-F3WC-IH0182 \
-  --dqm <outdir>/<model>/DQM_V0001_HGCAL_R000112049.root --outdir <outdir>/<model>/adcshape_IH0182_conn
+  --dqm <outdir>/DQM_V0001_HGCAL_R000112049.root --outdir <outdir>/adcshape_IH0182_conn
 ```
 
 Omit `--module` for all modules pooled.
 
-**Cross-check script:** `verify_smoke.py <job dir> <plain|zscore>` (local) takes a job's DNN input dump (see the `HGCalCMValidation` README) and NANO and checks the input definitions, re-runs the model in PyTorch
+**Cross-check script:** `verify_smoke.py <job dir> zscore` (local) takes a job's DNN input dump (see the `HGCalCMValidation` README) and NANO and checks the input definitions, re-runs the model in PyTorch
 on the same rows, and checks `energy_SCALE_ALT == energy`, TOT hits, and
-`(adc - ADC_ped) - CM_ALT counts == DNN correction`. Passed for both models on 20 events of run
+`(adc - ADC_ped) - CM_ALT counts == DNN correction`. Passed on 20 events of run
 112049 (2026-09-16; max |diff| ~1e-4 ADC).
 
 Nominal `energy` agrees with the pre-change code on the same events to float32 rounding (typical
@@ -306,10 +307,10 @@ events (worst relative difference 5e-4, float32 sums in parallel).
 **Full run 112049** (2026-09-16, 107 < trig_time < 113, `knoise=-100`, v5 calib, fit over
 [-10, 10] ADC, connected cells):
 
-| Population | no CM μ / σ | linear μ / σ | DNN `plain` μ / σ | DNN `zscore` μ / σ |
-|---|---|---|---|---|
-| ML-F3WC-IH0182 | −0.465 / 1.932 | 0.832 / 2.323 | −0.181 / 1.416 | −0.259 / 1.265 |
-| all modules | −0.420 / 1.723 | 0.533 / 1.745 | −0.121 / 1.310 | −0.204 / 1.185 |
+| Population | no CM μ / σ | linear μ / σ | DNN μ / σ |
+|---|---|---|---|
+| ML-F3WC-IH0182 | −0.465 / 1.932 | 0.832 / 2.323 | −0.259 / 1.265 |
+| all modules | −0.420 / 1.723 | 0.533 / 1.745 | −0.204 / 1.185 |
 
 The earlier digi-based reference for IH0182 (no CM 1.879, linear 2.249) was over a different
 population: it also contained calibration cells and their partners, which the rechit-based
@@ -340,16 +341,20 @@ Paths relative to `src/`.
 - `HGCalCMValidation/DQM/plugins/HGCalCMVariationValidation.cc`, `HGCalCMVariationValidationHarvester.cc`,
   `HGCalTrigTimeFilter.cc`, `DQM/test/step_CMValidation.py`, `DQM/test/run_cm_comparison.sh` (separate repository)
 - `HGCalCommissioning/Calibrations/NNBased/convert_multimodule_dnn.py`
-- cms-data `RecoLocalCalo/HGCalRecProducers/data/CMCalibrations/`: `cm_dnn_multimodule[_zscore].pth`,
-  `…_manifest.json`, `cm_dnn_multimodule_zscore_preprocessing.json`, `cellareas.json`
+- `RecoLocalCalo/HGCalRecAlgos/plugins/alpaka/HGCalCMMLParamESProducer.cc` — per-module parameters and z-score
+  constants as ES products (`interface/HGCalCMMLParamHost.h`, `interface/alpaka/HGCalCMMLParamDevice.h`,
+  registered in `src/ES_HGCalCMMLParam.cc`, `src/alpaka/ES_HGCalCMMLParam.cc`)
+- cms-data `RecoLocalCalo/HGCalRecProducers/data/CMCalibrations/`: `cm_dnn_multimodule_zscore.pth`,
+  `…_manifest.json`, `…_preprocessing.json`, `cellareas.json`
 
 **Modified**
 - `DataFormats/HGCalReco/interface/HGCalSoARecHits.h`, `HGCalSoAClusters.h` — variation/time columns
-- `RecoLocalCalo/HGCalRecAlgos/interface/HGCalSoACMML.h` — 254-float Eigen column + `Feature` offsets
+- `RecoLocalCalo/HGCalRecAlgos/interface/HGCalSoACMML.h` — 254-float Eigen column + `Feature` offsets,
+  per-module and normalisation parameter SoAs
 - `RecoLocalCalo/HGCalRecAlgos/interface/HGCalCMCorrectionSoA.h` — adds `valid`
 - `RecoLocalCalo/HGCalRecAlgos/{interface,plugins}/alpaka/HGCalCMCalibrationAlgorithms.*` — module/digi input kernels, output de-normalisation
 - `RecoLocalCalo/HGCalRecAlgos/{interface,plugins}/alpaka/HGCalRecHitCalibrationAlgorithms.*` — pedestal/linear/DNN split, variations, calib-cell merge
-- `RecoLocalCalo/HGCalRecAlgos/plugins/alpaka/HGCalRecHitProducers.cc` — DNN inputs, inference, manifest/normalisation
+- `RecoLocalCalo/HGCalRecAlgos/plugins/alpaka/HGCalRecHitProducers.cc` — DNN inputs, inference
 - `RecoLocalCalo/HGCalRecProducers/interface/HGCalSoAClustersExtra.h`,
   `RecoTICL/LayerClustering/plugins/alpaka/HGCalLayerClustersSoAAlgoWrapper.dev.cc`, `HGCalSoARecHitsProducer.cc`,
   `HGCalSoARecHitsLayerClustersProducer.cc` — LC variations and time

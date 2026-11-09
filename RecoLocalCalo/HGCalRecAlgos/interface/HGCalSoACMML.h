@@ -38,6 +38,28 @@ namespace hgcalcmml {
 
   using HGCalCMMLSoA = HGCalCMMLSoALayout<>;
 
+  // Conditions of the CM DNN, built once per IOV by HGCalCMMLParamESProducer
+
+  using CMChannelVector = Eigen::Matrix<float, Feature::NCH, 1>;
+
+  // one row per module (HGCalMappingModuleIndexer dense module index)
+  GENERATE_SOA_LAYOUT(HGCalCMMLModuleParamSoALayout,
+                      SOA_COLUMN(uint32_t, chDataOffset),           // first digi of the module
+                      SOA_COLUMN(uint32_t, enabledErx),             // eRx bitmask
+                      SOA_COLUMN(int, onehotIdx),                   // -1: not in the module vocabulary
+                      SOA_COLUMN(bool, inScope),                    // NCH channels and a known shape
+                      SOA_EIGEN_COLUMN(CMChannelVector, cellFrac))  // cellareas.json SF, by within-module channel
+
+  // z-score normalisation: Feature::Size rows; tgt* by within-module channel, filled for rows < NCH
+  GENERATE_SOA_LAYOUT(HGCalCMMLNormParamSoALayout,
+                      SOA_COLUMN(float, inMean),
+                      SOA_COLUMN(float, inInvStd),
+                      SOA_COLUMN(float, tgtMean),
+                      SOA_COLUMN(float, tgtStd))
+
+  using HGCalCMMLModuleParamSoA = HGCalCMMLModuleParamSoALayout<>;
+  using HGCalCMMLNormParamSoA = HGCalCMMLNormParamSoALayout<>;
+
 }  // namespace hgcalcmml
 
 #endif

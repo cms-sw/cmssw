@@ -9,54 +9,42 @@
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalCalibrationParameterDevice.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDevice.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalSoACMML.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/alpaka/HGCalCMMLParamDevice.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/alpaka/HGCalSoACMMLDeviceCollection.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/alpaka/HGCalCMCorrectionDeviceCollection.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  // Inputs of the multi-module CM DNN (layout in HGCalSoACMML.h). Normalisation arrays (z-score model only):
-  // d_inMean/d_inInvStd have Feature::Size entries, d_tgtMean/d_tgtStd Feature::NCH; nullptr otherwise.
+  // Inputs of the multi-module z-score CM DNN (layout in HGCalSoACMML.h). The per-module parameters and the
+  // normalisation constants come from HGCalCMMLParamESProducer.
   class HGCalCMCalibrationAlgorithms {
   public:
     explicit HGCalCMCalibrationAlgorithms(int n_threads) : n_threads_(n_threads) {}
 
-    // features 0..250, one row per module; ADC_ped/CM_ped/valid from the calibration, per dense channel index
-    void fillModuleInputs(
-        Queue& queue,
-        uint32_t nmodules,
-        uint32_t ndigis,
-        hgcaldigi::HGCalDigiDevice const& device_digis,
-        uint32_t const* d_chDataOffsets,
-        uint32_t const* d_enabledErx,
-        int const* d_onehotIdx,
-        unsigned char const* d_inScope,
-        hgcalrechit::HGCalCalibParamDevice const& device_calib,  // if channel is invalid ped sub adc set to 0
-        bool normalize,  // if true we normalise features, this is required for z score model, these come from two variables below!
-        float const* d_inMean,
-        float const* d_inInvStd,
-        HGCalSoACMMLDeviceCollection& device_module_features) const;
+    // features 0..250, one row per module, z-scored; ADC_ped/CM_ped/valid from the calibration, per dense channel index
+    void fillModuleInputs(Queue& queue,
+                          uint32_t ndigis,
+                          hgcaldigi::HGCalDigiDevice const& device_digis,
+                          HGCalCMMLModuleParamDevice const& module_param,
+                          hgcalrechit::HGCalCalibParamDevice const& device_calib,  // invalid channel: pedsub ADC = 0
+                          HGCalCMMLNormParamDevice const& norm,
+                          HGCalSoACMMLDeviceCollection& device_module_features) const;
 
-    // per digi: module row with the own ADC masked, per-channel features, device_corrections.valid
+    // per digi: module row with the own ADC masked, z-scored per-channel features, device_corrections.valid
     void fillDigiInputs(Queue& queue,
-                        uint32_t nmodules,
                         uint32_t ndigis,
                         hgcal::HGCalDenseIndexInfoDevice const& device_index,
                         HGCalSoACMMLDeviceCollection const& device_module_features,
-                        uint32_t const* d_enabledErx,
-                        unsigned char const* d_inScope,
-                        float const* d_sf,
-                        bool normalize,
-                        float const* d_inMean,
-                        float const* d_inInvStd,
+                        HGCalCMMLModuleParamDevice const& module_param,
+                        HGCalCMMLNormParamDevice const& norm,
                         HGCalSoACMMLDeviceCollection& device_digi_features,
                         HGCalCMCorrectionDeviceCollection& device_corrections) const;
 
-    // z-score model: correction = prediction * d_tgtStd[chIdx] + d_tgtMean[chIdx]
+    // correction = prediction * tgtStd[chIdx] + tgtMean[chIdx]
     void denormalizeOutputs(Queue& queue,
                             uint32_t ndigis,
                             hgcal::HGCalDenseIndexInfoDevice const& device_index,
-                            float const* d_tgtMean,
-                            float const* d_tgtStd,
+                            HGCalCMMLNormParamDevice const& norm,
                             HGCalCMCorrectionDeviceCollection& device_corrections) const;
 
   private:
