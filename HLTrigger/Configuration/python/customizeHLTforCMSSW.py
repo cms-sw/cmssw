@@ -271,6 +271,100 @@ def customizeHLTfor52006(process):
     return process
 
 
+def customizeHLTforL1P2GTv0p0_2026(process):
+    """ This customizer
+        - re-wires the L1 P2GT seeds of the Phase-2 HLT menu (HLT:75e33), written for the
+          step1_2024 L1 menu, to the v0p0_2026 L1 menu (introduced in #52372), to run with
+          -s L1P2GT:v0p0_2026,HLT:75e33
+        - it is NOT part of customizeHLTforCMSSW: it has to be requested explicitly via --customise
+        All the step1_2024 seeds are mapped, including those not (yet) used by the HLT menu,
+        to their v0p0_2026 counterpart (pDoubleDispMu, pDoublePFJet8_dEtaMax and pSinglePfJet8
+        keep their name):
+        - same / retuned: same objects and multiplicity, new thresholds
+        - closest: nearest analogue with a different topology, the objects a filter
+          expects from the seed may need to be adapted when it starts using it
+        Seeds without a v0p0_2026 counterpart are dropped from the L1 filters that use them:
+        - pIsoTkEleEGEle22_12: dropped from the OR of the isolated double-electron L1 filter
+        - pPuppiHT400_pQuadJet70_55_40_40: no quad-jet algo in v0p0_2026, the
+          HT + quad-jet + 3b paths fall back to pHTSum alone
+    """
+
+    seedMap = {
+        # same
+        'pSingleEGEle51'                                 : 'pSingleEGEle',
+        # retuned
+        'pDoubleEGEle37_24'                              : 'pDoubleEGEle',
+        'pDoubleIsoTkPho22_12'                           : 'pDoubleTkPhoIso',
+        'pDoublePuppiJet112_112'                         : 'pDoubleJet_dEta_Max1p6',
+        'pDoublePuppiTau52_52'                           : 'pDoubleIsoTau',
+        'pDoubleTkEle25_12'                              : 'pDoubleTkEle',
+        'pDoubleTkElePuppiHT_8_8_390'                    : 'pDoubleTkEle_HTSum',
+        'pDoubleTkMuPuppiHT_3_3_300'                     : 'pDoubleTkMu_HTSum',
+        'pDoubleTkMuon15_7'                              : 'pDoubleTkMu',
+        'pDoubleTkMuonTkEle5_5_9'                        : 'pDoubleTkMu_TkEle',
+        'pDoubleTkMuon_OS_Er1p5_Dr1p4'                   : 'pDoubleTkMu0er1p4_SQ_OS_dR_Max1p4',
+        'pPuppiHT400'                                    : 'pHTSum',
+        'pPuppiHT450'                                    : 'pHTSum',
+        'pPuppiMET200'                                   : 'pMETSum',
+        'pPuppiTauTkIsoEle45_22'                         : 'pTkEleIso_IsoTau',
+        'pPuppiTauTkMuon42_18'                           : 'pTkMu_IsoTau',
+        'pSingleIsoTkEle28'                              : 'pSingleTkEleIso',
+        'pSingleIsoTkPho36'                              : 'pSingleTkIsoPhoton',
+        'pSinglePuppiJet230'                             : 'pSingleJet',
+        'pSingleTkEle36'                                 : 'pSingleTkEle',
+        'pSingleTkMuon22'                                : 'pSingleTkMu',
+        'pTkEleIsoPuppiHT_26_190'                        : 'pTkEleIso_HTSum',
+        'pTkEleTkMuon10_20'                              : 'pTkMu20_TkEle10',
+        'pTkMuPuppiJetPuppiMet_3_110_120'                : 'pTkMu_Jet_METSum',
+        'pTkMuonDoubleTkEle6_17_17'                      : 'pTkMu_DoubleTkEle',
+        'pTkMuonPuppiHT6_320'                            : 'pTkMu6_HTSum240',
+        'pTkMuonTkEle7_23'                               : 'pTkMu7_TkEle20',
+        'pTripleTkMuon5_3_3'                             : 'pTripleTkMu',
+        # closest
+        'pDoublePuppiJet160_35_mass620'                  : 'pDoubleJet_Mass_Min1000',
+        'pDoubleTkMuPuppiJetPuppiMet_3_3_60_130'         : 'pDoubleTkMu_METSum_HTSum',
+        'pDoubleTkMuon_4_4_OS_Dr1p2'                     : 'pDoubleTkMu4er2p0_SQ_OS_dR_Max1p6',
+        'pDoubleTkMuon_4p5_4p5_OS_Er2_Mass7to18'         : 'pDoubleTkMu4er2p0_SQ_OS_dR_Max1p6',
+        'pSingleDispMu'                                  : 'pSingleDispMu_BMTF',
+        'pTkMuonTkIsoEle7_20'                            : 'pTkMu7_TkEle20',
+        'pTripleTkMuon_5_3_0_DoubleTkMuon_5_3_OS_MassTo9': 'pTripleTkMu_4_2p5_0_OS_Mass_Max12',
+        'pTripleTkMuon_5_3p5_2p5_OS_Mass5to17'           : 'pTripleTkMu_4_2p5_0_OS_Mass_Max12',
+        # no counterpart, HT leg only (see above)
+        'pPuppiHT400_pQuadJet70_55_40_40'                : 'pHTSum',
+    }
+    # no counterpart
+    droppedSeeds = [
+        'pIsoTkEleEGEle22_12',
+        'pNNPuppiTauPuppiMet_55_190',
+        'pPuppiMHT140',
+        'pQuadJet70_55_40_40',
+        'pTkElePuppiJet_28_40_MinDR',
+        'pTkMuTriPuppiJet_12_40_dRMax_DoubleJet_dEtaMax',
+    ]
+
+    # drop the quad-jet leg of the HT + quad-jet seed, the HT leg is re-wired to pHTSum below
+    if hasattr(process, 'hltL1QuadJet70554040'):
+        quadJetFilter = process.hltL1QuadJet70554040
+        for seq in [*process.paths_().values(), *process.endpaths_().values(), *process.sequences_().values()]:
+            while seq.remove(quadJetFilter):
+                pass
+        del process.hltL1QuadJet70554040
+
+    for module in process.filters_().values():
+        if hasattr(module, 'l1GTAlgos'):
+            module.l1GTAlgos = cms.VPSet([pset for pset in module.l1GTAlgos if pset.name.value() not in droppedSeeds])
+            for pset in module.l1GTAlgos:
+                pset.name = seedMap.get(pset.name.value(), pset.name.value())
+        if hasattr(module, 'l1GTAlgoNames'):
+            module.l1GTAlgoNames = [seedMap.get(name, name) for name in module.l1GTAlgoNames if name not in droppedSeeds]
+        for par in ['l1GTAlgoName1', 'l1GTAlgoName2']:
+            if hasattr(module, par):
+                name = getattr(module, par).value()
+                setattr(module, par, seedMap.get(name, name))
+
+    return process
+
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
