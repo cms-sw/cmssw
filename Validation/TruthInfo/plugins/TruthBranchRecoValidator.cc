@@ -307,6 +307,12 @@ TruthBranchRecoValidator<RECO>::TruthBranchRecoValidator(edm::ParameterSet const
   if (workingPoints.empty()) {
     throw cms::Exception("Configuration") << "TruthBranchRecoValidator: workingPoints is empty";
   }
+  // The dominance measure and the truth-side loose score read the first point's map as
+  // the complete one, and only the plain per-root match keeps every candidate.
+  if (workingPoints.front() != "Fixed") {
+    throw cms::Exception("Configuration") << "TruthBranchRecoValidator: workingPoints starts with '"
+                                          << workingPoints.front() << "', it must start with 'Fixed'";
+  }
   nWorkingPoints_ = workingPoints.size();
 
   // The truth-driven folder suffixes and the denominator instance each consumes. A
