@@ -85,6 +85,19 @@ _phase2_hltassociation += tauPreValidSeq
 # Apply the modification
 phase2_common.toReplaceWith(hltassociation, _phase2_hltassociation)
 
+from Configuration.ProcessModifiers.phase2CAVectorHits_cff import phase2CAVectorHits
+from Validation.SiTrackerPhase2V.phase2OTValidateVectorHitsSoA_cfi import phase2OTValidateVectorHitsSoA as _phase2OTValidateVectorHitsSoA
+hltVectorHitsSoAValidator = _phase2OTValidateVectorHitsSoA.clone(
+    vectorHitsSrc = "hltPhase2OTVectorHitsSoA",
+    otRecHitsSrc = "hltCAOTRecHitsSoA",
+    recHitSrc = "hltSiPhase2RecHits",
+    clusterTPAssociationSrc = "hltTPClusterProducer",
+    beamSpot = "hltOnlineBeamSpot"
+)
+_phase2_hltassociation_vector_hits = _phase2_hltassociation.copy()
+_phase2_hltassociation_vector_hits += hltVectorHitsSoAValidator
+(phase2_common & phase2CAVectorHits).toReplaceWith(hltassociation, _phase2_hltassociation_vector_hits)
+
 # hcal
 from DQMOffline.Trigger.HCALMonitoring_cff import *
 
