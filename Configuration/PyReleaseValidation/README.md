@@ -33,9 +33,10 @@ The offsets currently in use are:
 * 0.402: Alpaka, pixel only quadruplets, portable
 * 0.403: Alpaka, pixel only quadruplets, portable vs. CPU validation
 * 0.404: Alpaka, pixel only quadruplets, portable profiling
-* 0.406: Alpaka, pixel only triplets, portable
-* 0.407: Alpaka, pixel only triplets, portable vs. CPU validation
-* 0.407: Alpaka, pixel only triplets, portable profiling
+* 0.4021: Alpaka, pixel only quadruplets with CA extension to the outer tracker (`phase2CAExtension`), portable
+* 0.406: Alpaka, pixel only, CA extended to outer-tracker vector hits (`phase2CAVectorHits`), portable (Run4 only)
+* 0.407: Alpaka, pixel only, CA extended to outer-tracker vector hits (`phase2CAVectorHits`), portable vs. CPU validation (Run4 only)
+* 0.408: Alpaka, pixel only, CA extended to outer-tracker vector hits (`phase2CAVectorHits`), portable profiling (Run4 only)
 * 0.412: Alpaka, ECAL only, portable
 * 0.413: Alpaka, ECAL only, portable vs. CPU validation
 * 0.422: Alpaka, HCAL only, portable
@@ -61,6 +62,7 @@ The offsets currently in use are:
 * 0.7502: HLT phase-2 menu, with tracking ntuple
 * 0.7503: HLT phase-2 menu, CPU vs. GPU validation
 * 0.751: HLT phase-2 timing menu Alpaka variant
+* 0.7512: HLT phase-2 timing menu, vector-hit-based pixel CA (`phase2CAVectorHits`)
 * 0.7521: HLT phase-2 timing menu ticlv5TrackLinkingGNN variant
 * 0.7522: HLT phase-2 timing menu mtd_at_hlt variant
 * 0.753: HLT phase-2 timing menu legacy tracking

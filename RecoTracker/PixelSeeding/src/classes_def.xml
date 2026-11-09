@@ -1,4 +1,15 @@
 <lcgdict>
   <class name="IntermediateHitTriplets" persistent="false"/>
   <class name="edm::Wrapper<IntermediateHitTriplets>" persistent="false"/>
+
+  <!-- Per-built-triplet training-dataset host SoA (the CA_TRIPLET_DUMP Triplet product), following the
+       alias-based host-collection dictionary pattern of DataFormats/TrackSoA reco::TracksHost.
+       Unconditional type-info only: harmless when the dump is off. -->
+  <class name="caStructures::TripletDumpHost" rntupleStreamerMode="true"/>
+  <!-- caStructures::TripletDumpHost::Layout must be listed before the aliased-to type, see #48824 -->
+  <class name="caStructures::TripletDumpHost::Layout"/>
+  <class name="caStructures::TripletDumpLayout<128, false>"/>
+  <class name="caStructures::TripletDumpLayout<128, false>::View"/>
+  <class name="edm::Wrapper<caStructures::TripletDumpHost>" splitLevel="0"/>
+
 </lcgdict>

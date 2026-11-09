@@ -1,6 +1,8 @@
 #ifndef RecoTracker_PixelTrackFitting_plugins_storeTracks_h
 #define RecoTracker_PixelTrackFitting_plugins_storeTracks_h
 
+#include <numeric>
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -25,7 +27,11 @@ void storeTracks(Ev& ev, const TWH& tracksWithHits, const TrackerTopology& ttopo
 
   trackExtras->resize(nTracks);
   tracks->reserve(nTracks);
-  recHits->reserve(4 * nTracks);
+  const size_t nHitsTot = std::accumulate(
+      tracksWithHits.begin(), tracksWithHits.end(), size_t{0}, [](size_t sum, const auto& trackWithHits) {
+        return sum + trackWithHits.second.size();
+      });
+  recHits->reserve(nHitsTot);
 
   for (int i = 0; i < nTracks; i++) {
     reco::Track* track = tracksWithHits[i].first;
