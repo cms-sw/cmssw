@@ -218,7 +218,7 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
         }
       }
 
-      recHits.sort([](const auto& a, const auto& b) {
+      recHits.sort([&tTopo](const auto& a, const auto& b) {
         const auto asub = a.det()->subDetector();
         const auto bsub = b.det()->subDetector();
         if (GeomDetEnumerators::isInnerTracker(asub) && GeomDetEnumerators::isOuterTracker(bsub)) {
@@ -227,14 +227,13 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
           return false;
         } else if (asub != bsub) {
           return asub < bsub;
+        } else if (tTopo.layer(a.geographicalId()) != tTopo.layer(b.geographicalId())) {
+          return tTopo.layer(a.geographicalId()) < tTopo.layer(b.geographicalId());
         } else {
-          const auto& apos = a.surface();
-          const auto& bpos = b.surface();
-          if (GeomDetEnumerators::isBarrel(asub)) {
-            return apos->rSpan().first < bpos->rSpan().first;
-          } else {
-            return std::abs(apos->zSpan().first) < std::abs(bpos->zSpan().first);
-          }
+          // Within a layer the sensor plane nearer the origin is crossed first. localZ is along the plane normal: the
+          // plane's radius in the flat barrel, its |z| in the endcap, and the matching distance for a tilted module.
+          const GlobalPoint origin(0, 0, 0);
+          return std::abs(a.det()->surface().localZ(origin)) < std::abs(b.det()->surface().localZ(origin));
         }
       });
 
