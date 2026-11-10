@@ -111,6 +111,28 @@ def inputTags(pset):
                 yield from inputTags(p)
 
 
+def psetRefs(pset):
+    """Labels of the top-level PSets referenced (refToPSet_) from 'pset'."""
+    for name in pset.parameterNames_():
+        par = getattr(pset, name)
+        for p in (par if isinstance(par, cms.VPSet) else [par] if isinstance(par, cms.PSet) else []):
+            if p.isRef_():
+                yield p.refToPSet_.value()
+            else:
+                yield from psetRefs(p)
+
+
+def referencedPSets(process, objects):
+    """Top-level PSets referenced from 'objects', following references between top-level PSets."""
+    stack, seen = [r for obj in objects for r in psetRefs(obj)], {}
+    while stack:
+        label = stack.pop()
+        if label not in seen:
+            seen[label] = process.psets_()[label]
+            stack.extend(psetRefs(seen[label]))
+    return seen
+
+
 def ancestors(roots, deps):
     seen, stack = set(), list(roots)
     while stack:
@@ -122,7 +144,7 @@ def ancestors(roots, deps):
 
 
 def l1Content(base, full):
-    """Returns the L1 paths, modules, sequences, ES objects, legacy modules and external inputs."""
+    """Returns the L1 paths, modules, sequences, ES objects, top-level PSets, legacy modules and external inputs."""
     basePaths = {p.label_() for p in base.schedule}
     paths = [p for p in full.schedule if p.label_() not in basePaths]
     reached = reachable(paths)
@@ -140,7 +162,11 @@ def l1Content(base, full):
                 es[label] = objs[label]
             elif objs[label].dumpPython() != baseObjs[label].dumpPython():
                 raise RuntimeError(f"ES object '{label}' is modified by the L1 steps")
-    return paths, modules, reached.sequences, es, legacy, externalInputs
+    psets = referencedPSets(full, [getattr(full, m) for m in modules] + list(es.values()))
+    for label, pset in psets.items():
+        if label in base.psets_() and base.psets_()[label].dumpPython() != pset.dumpPython():
+            raise RuntimeError(f"top-level PSet '{label}' is modified by the L1 steps")
+    return paths, modules, reached.sequences, es, psets, legacy, externalInputs
 
 
 def removeDirectly(container, item):
@@ -225,7 +251,7 @@ def pathList(paths):
             + [f"{PATH_LIST} = ["] + [f'    "{p.label_()}",' for p in paths] + ["]", ""])
 
 
-def writeExpanded(outdir, full, paths, modules, sequences, es, externalInputs):
+def writeExpanded(outdir, full, paths, modules, sequences, es, psets, externalInputs):
     """Same content as L1_Phase2_cff + L1_Phase2/, with every object defined in one file."""
     def define(label, obj):
         return f"fragment.{label} = " + re.sub(r"process\.", "fragment.", obj.dumpPython()).rstrip("\n")
@@ -233,6 +259,9 @@ def writeExpanded(outdir, full, paths, modules, sequences, es, externalInputs):
     lines = fragmentHeader(externalInputs, f"Single-file version of {FRAGMENT}_cff.py + {FRAGMENT}/ (same content).")
     lines += ["### Event-setup (ES sources, ES producers, ES prefers)", ""]
     lines += [define(label, es[label]) + "\n" for label in sorted(es)]
+    if psets:
+        lines += ["### Top-level PSets (referenced by modules with refToPSet_)", ""]
+        lines += [define(label, psets[label]) + "\n" for label in sorted(psets)]
     lines += ["### Modules", ""]
     lines += [define(label, getattr(full, label)) + "\n" for label in sorted(modules)]
     lines += ["### Sequences and tasks", ""]
@@ -247,7 +276,7 @@ def writeExpanded(outdir, full, paths, modules, sequences, es, externalInputs):
 def generate(args):
     with tempfile.TemporaryDirectory() as workdir:
         base, full = driverProcesses(workdir)
-    paths, modules, sequences, es, legacy, externalInputs = l1Content(base, full)
+    paths, modules, sequences, es, psets, legacy, externalInputs = l1Content(base, full)
     sequences = splitLegacy(full, paths, sequences, legacy)
 
     top = os.path.join(args.outdir, FRAGMENT)
@@ -263,6 +292,9 @@ def generate(args):
         writeFile(os.path.join(top, "modules"), label, "", getattr(full, label).dumpPython())
     for label in sorted(es):
         writeFile(os.path.join(top, "eventsetup"), label, "", es[label].dumpPython())
+    os.makedirs(os.path.join(top, "psets"), exist_ok=True)
+    for label in sorted(psets):
+        writeFile(os.path.join(top, "psets"), label, "", psets[label].dumpPython())
     for label in sorted(sequences):
         writeFile(os.path.join(top, "sequences"), label, *dumpContainer(getattr(full, label), kinds))
     for path in paths:
@@ -272,14 +304,17 @@ def generate(args):
     lines = fragmentHeader(externalInputs, f"One file per object in {FRAGMENT}/; the same content in a single file: {EXPANDED}_cff.py.")
     lines += ["### Event-setup (ES sources, ES producers, ES prefers)"]
     lines += [f'fragment.load("{loadPrefix}/eventsetup/{label}_cfi")' for label in sorted(es)]
+    if psets:
+        lines += ["", "### Top-level PSets (referenced by modules with refToPSet_)"]
+        lines += [f'fragment.load("{loadPrefix}/psets/{label}_cfi")' for label in sorted(psets)]
     lines += ["", "### Paths (modules and sequences are imported by the path files)"]
     lines += [f'fragment.load("{loadPrefix}/paths/{p.label_()}_cfi")' for p in paths]
     lines += [""] + pathList(paths)
     with open(os.path.join(args.outdir, FRAGMENT + "_cff.py"), "w") as out:
         out.write("\n".join(lines))
-    writeExpanded(args.outdir, full, paths, modules, sequences, es, externalInputs)
+    writeExpanded(args.outdir, full, paths, modules, sequences, es, psets, externalInputs)
 
-    print(f"wrote {len(modules)} modules ({len(legacy)} Run-3 legacy), {len(es)} ES objects, "
+    print(f"wrote {len(modules)} modules ({len(legacy)} Run-3 legacy), {len(es)} ES objects, {len(psets)} PSets, "
           f"{len(sequences)} sequences/tasks, {len(paths)} paths to {top} and {EXPANDED}_cff.py")
     print("required inputs:", ", ".join(externalInputs))
 
@@ -290,11 +325,11 @@ def validate(args):
     with tempfile.TemporaryDirectory() as workdir:
         base, full = driverProcesses(workdir)
         tests = {name: loadProcess(os.path.join(workdir, "base_cfg.py")) for name in (FRAGMENT, EXPANDED)}
-    refPaths, refModules, _, refES, legacy, _ = l1Content(base, full)
-    return max(validateFragment(name, test, full, refPaths, refModules, refES) for name, test in tests.items())
+    refPaths, refModules, _, refES, refPSets, legacy, _ = l1Content(base, full)
+    return max(validateFragment(name, test, full, refPaths, refModules, refES, refPSets) for name, test in tests.items())
 
 
-def validateFragment(name, test, full, refPaths, refModules, refES):
+def validateFragment(name, test, full, refPaths, refModules, refES, refPSets):
     baseSchedule = [p.label_() for p in test.schedule]
     test.load(f"{PACKAGE.replace('/', '.')}.{name}_cff")
     fragmentPaths = getattr(importlib.import_module(f"{PACKAGE.replace('/', '.')}.{name}_cff"), PATH_LIST)
@@ -324,6 +359,12 @@ def validateFragment(name, test, full, refPaths, refModules, refES):
         elif obj.dumpPython() != testES[label].dumpPython():
             errors.append(f"parameters differ for ES object '{label}'")
 
+    for label, pset in refPSets.items():
+        if label not in test.psets_():
+            errors.append(f"top-level PSet missing from the fragment: '{label}'")
+        elif pset.dumpPython() != test.psets_()[label].dumpPython():
+            errors.append(f"parameters differ for top-level PSet '{label}'")
+
     refOrder = [p.label_() for p in refPaths]
     testOrder = [p for p in fragmentPaths if p != LEGACY_PATH]
     if testOrder != refOrder:
@@ -331,7 +372,8 @@ def validateFragment(name, test, full, refPaths, refModules, refES):
 
     for e in errors:
         print("ERROR:", e)
-    print(f"{name}_cff: checked {len(refModules)} modules, {len(refES)} ES objects, {len(refOrder)} paths: "
+    print(f"{name}_cff: checked {len(refModules)} modules, {len(refES)} ES objects, {len(refPSets)} PSets, "
+          f"{len(refOrder)} paths: "
           + ("FAILED" if errors else "OK"))
     return 1 if errors else 0
 

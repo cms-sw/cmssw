@@ -11,7 +11,8 @@ Tracking issue: https://github.com/artlbv/cmssw/issues/10
 | `eventsetup/`| ES sources, ES producers and ES prefers |
 | `sequences/` | Sequences and Tasks |
 | `paths/`     | Paths (track trigger, L1 emulation, Run-3 legacy, GT producers, one `p<X>` path per GT algorithm) |
-| `psets/`, `services/` | empty: no shared PSet or service is needed |
+| `psets/`     | Top-level PSets referenced by modules with `refToPSet_` (P2GT cos/cosh LUTs, HGCal noise and charge collection efficiencies) |
+| `services/`  | empty: no service is needed |
 
 The same content is also written to a single file, `../L1_Phase2_expanded_cff.py`, with every
 object defined inline (like the Run-3 HLT menu dumps, e.g. `HLT_GRun_cff.py`): convenient to read
