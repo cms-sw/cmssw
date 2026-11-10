@@ -543,34 +543,34 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
               (*itp.first).second;  // the range of itp.first, itp.second should be always 1
           for (unsigned int i = 0; i < simClustersRefs.size(); i++) {
             const auto& simClusterRef = simClustersRefs[i];
-
-            float simClusEnergy = convertUnitsTo(0.001_MeV, (*simClusterRef).simEnergy());  // GeV --> MeV
+            float clusterEnergy = 0.001f * cluster.energy();  // in GeV
+            float simClusEnergy = (*simClusterRef).simEnergy();
             float simClusTime = (*simClusterRef).simTime();
             float time_res = cluster.time() - simClusTime;
-            float energy_res = cluster.energy() - simClusEnergy;
+            float energy_res = clusterEnergy - simClusEnergy;
 
-            meMatchedCluEnergyRatio_->Fill(simClusEnergy / cluster.energy());
-            meMatchedCluEnergyRes_->Fill(cluster.energy() - simClusEnergy);
+            meMatchedCluEnergyRatio_->Fill(simClusEnergy / clusterEnergy);
+            meMatchedCluEnergyRes_->Fill(clusterEnergy - simClusEnergy);
             meMatchedCluTimeRes_->Fill(cluster.time() - (*simClustersRefs[i]).simTime());
             meMatchedCluTimePull_->Fill((cluster.time() - (*simClustersRefs[i]).simTime()) / cluster.timeError());
 
             if (simClustersRefs.size() == 1) {
-              meMatchedCluEnergyRatio_oneMatch_->Fill(simClusEnergy / cluster.energy());
+              meMatchedCluEnergyRatio_oneMatch_->Fill(simClusEnergy / clusterEnergy);
               meMatchedCluEnergyRes_oneMatch_->Fill(energy_res);
               meMatchedCluTimeRes_oneMatch_->Fill(time_res);
               meMatchedCluTimePull_oneMatch_->Fill(time_res / cluster.timeError());
             } else if (simClustersRefs.size() == 2) {
-              meMatchedCluEnergyRatio_twoMatches_->Fill(simClusEnergy / cluster.energy());
+              meMatchedCluEnergyRatio_twoMatches_->Fill(simClusEnergy / clusterEnergy);
               meMatchedCluEnergyRes_twoMatches_->Fill(energy_res);
               meMatchedCluTimeRes_twoMatches_->Fill(time_res);
               meMatchedCluTimePull_twoMatches_->Fill(time_res / cluster.timeError());
             } else if (simClustersRefs.size() > 2) {
-              meMatchedCluEnergyRatio_gtTwoMatches_->Fill(simClusEnergy / cluster.energy());
+              meMatchedCluEnergyRatio_gtTwoMatches_->Fill(simClusEnergy / clusterEnergy);
               meMatchedCluEnergyRes_gtTwoMatches_->Fill(energy_res);
               meMatchedCluTimeRes_gtTwoMatches_->Fill(time_res);
               meMatchedCluTimePull_gtTwoMatches_->Fill(time_res / cluster.timeError());
             }
-            if ((simClusEnergy / cluster.energy() < 0.2) || abs(time_res) / cluster.timeError() > 10.) {
+            if ((simClusEnergy / clusterEnergy < 0.2) || abs(time_res) / cluster.timeError() > 10.) {
               continue;
             }
             LocalPoint simClusLocalPos = (*simClusterRef).simPos();
@@ -644,10 +644,10 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
               }
               meCluTResvsEta_simLC_->Fill(std::abs(simClusGlobalPos.eta()), time_res);
               meCluTResvsE_simLC_->Fill(simClusEnergy, time_res);
-              meCluTResvsE_reco_simLC_->Fill(cluster.energy(), time_res);
+              meCluTResvsE_reco_simLC_->Fill(clusterEnergy, time_res);
               meCluTPullvsEta_simLC_->Fill(std::abs(simClusGlobalPos.eta()), time_res / cluster.timeError());
               meCluTPullvsE_simLC_->Fill(simClusEnergy, time_res / cluster.timeError());
-              meCluTPullvsE_reco_simLC_->Fill(cluster.energy(), time_res / cluster.timeError());
+              meCluTPullvsE_reco_simLC_->Fill(clusterEnergy, time_res / cluster.timeError());
 
             }  // if idOffset == 0
             else {
@@ -701,12 +701,12 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
               meCluTResvsEta_simLC_fromIndirectHits_->Fill(std::abs(simClusGlobalPos.eta()), time_res);
               meCluTResvsE_simLC_fromIndirectHits_->Fill(simClusEnergy, time_res);
-              meCluTResvsE_reco_simLC_fromIndirectHits_->Fill(cluster.energy(), time_res);
+              meCluTResvsE_reco_simLC_fromIndirectHits_->Fill(clusterEnergy, time_res);
 
               meCluTPullvsEta_simLC_fromIndirectHits_->Fill(std::abs(simClusGlobalPos.eta()),
                                                             time_res / cluster.timeError());
               meCluTPullvsE_simLC_fromIndirectHits_->Fill(simClusEnergy, time_res / cluster.timeError());
-              meCluTPullvsE_reco_simLC_fromIndirectHits_->Fill(cluster.energy(), time_res / cluster.timeError());
+              meCluTPullvsE_reco_simLC_fromIndirectHits_->Fill(clusterEnergy, time_res / cluster.timeError());
             }
 
           }  // simLayerClusterRefs loop
@@ -1004,7 +1004,7 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meMatchedCluEnergyRatio_ =
       ibook.book1D("BtlMatchedCluEnergyRatio", "BTL matched cluster energy ratio;E_{SIM}/E_{RECO}", 100, 0, 2);
   meMatchedCluEnergyRes_ = ibook.book1D(
-      "BtlMatchedCluEnergyRes", "BTL matched cluster energy resolution;E_{RECO}-E_{SIM} [MeV]", 100, -1.5, 1.5);
+      "BtlMatchedCluEnergyRes", "BTL matched cluster energy resolution;E_{RECO}-E_{SIM} [GeV]", 100, -0.0015, 0.0015);
   meMatchedCluTimeRes_ =
       ibook.book1D("BtlMatchedCluTimeRes", "BTL matched cluster time resolution;T_{RECO}-T_{SIM} [ns]", 100, -0.5, 0.5);
   meMatchedCluTimePull_ = ibook.book1D(
@@ -1018,10 +1018,10 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                    2);
   meMatchedCluEnergyRes_oneMatch_ =
       ibook.book1D("BtlMatchedCluEnergyRes_oneMatch",
-                   "BTL matched cluster energy resolution (1 reco->sim match);E_{RECO}-E_{SIM} [MeV]",
+                   "BTL matched cluster energy resolution (1 reco->sim match);E_{RECO}-E_{SIM} [GeV]",
                    100,
-                   -1.5,
-                   1.5);
+                   -0.0015,
+                   0.0015);
   meMatchedCluTimeRes_oneMatch_ =
       ibook.book1D("BtlMatchedCluTimeRes_oneMatch",
                    "BTL matched cluster time resolution (1 reco->sim match);T_{RECO}-T_{SIM} [ns]",
@@ -1043,10 +1043,10 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                    2);
   meMatchedCluEnergyRes_twoMatches_ =
       ibook.book1D("BtlMatchedCluEnergyRes_twoMatches",
-                   "BTL matched cluster energy resolution (2 reco->sim matches);E_{RECO}-E_{SIM} [MeV]",
+                   "BTL matched cluster energy resolution (2 reco->sim matches);E_{RECO}-E_{SIM} [GeV]",
                    100,
-                   -1.5,
-                   1.5);
+                   -0.0015,
+                   0.0015);
   meMatchedCluTimeRes_twoMatches_ =
       ibook.book1D("BtlMatchedCluTimeRes_twoMatches",
                    "BTL matched cluster time resolution (2 reco->sim matches);T_{RECO}-T_{SIM} [ns]",
@@ -1068,10 +1068,10 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                    2);
   meMatchedCluEnergyRes_gtTwoMatches_ =
       ibook.book1D("BtlMatchedCluEnergyRes_gtTwoMatches",
-                   "BTL matched cluster energy resolution (>2 reco->sim matches);E_{RECO}-E_{SIM} [MeV]",
+                   "BTL matched cluster energy resolution (>2 reco->sim matches);E_{RECO}-E_{SIM} [GeV]",
                    100,
-                   -1.5,
-                   1.5);
+                   -0.0015,
+                   0.0015);
   meMatchedCluTimeRes_gtTwoMatches_ =
       ibook.book1D("BtlMatchedCluTimeRes_gtTwoMatches",
                    "BTL matched cluster time resolution (>2 reco->sim matches);T_{RECO}-T_{SIM} [ns]",
@@ -1109,10 +1109,10 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
       "S");
   meCluTResvsE_reco_simLC_ = ibook.bookProfile(
       "BtlCluTResvsE_reco_simLC",
-      "BTL cluster time resolution (w.r.t. SimMergedClusters) vs E;E_{RECO} [MeV];T_{RECO}-T_{SIM} [ns]",
+      "BTL cluster time resolution (w.r.t. SimMergedClusters) vs E ;E_{RECO} [GeV];T_{RECO}-T_{SIM} [ns]",
       20,
       0.,
-      20.,
+      0.020,
       -0.5,
       0.5,
       "S");
@@ -1131,7 +1131,7 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
       "BTL cluster time pull (w.r.t. SimMergedClusters) vs E;E_{SIM} [GeV];(T_{RECO}-T_{SIM})/#sigma_{T_{RECO}}",
       20,
       0.,
-      20.,
+      0.020,
       -5.,
       5.,
       "S");
@@ -1282,7 +1282,7 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meCluTResvsE_simLC_fromIndirectHits_ =
       ibook.bookProfile("BtlCluTResvsE_simLC_fromIndirectHits",
                         "BTL cluster time resolution (w.r.t. SimMergedClusters, non-direct hits) vs E;E_{SIM} "
-                        "[MeV];T_{RECO}-T_{SIM} [ns]",
+                        "[GeV];T_{RECO}-T_{SIM} [ns]",
                         20,
                         0.,
                         0.020,
@@ -1292,10 +1292,10 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meCluTResvsE_reco_simLC_fromIndirectHits_ =
       ibook.bookProfile("BtlCluTResvsE_reco_simLC_fromIndirectHits",
                         "BTL cluster time resolution (w.r.t. SimMergedClusters, non-direct hits) vs E;E_{RECO} "
-                        "[MeV];T_{RECO}-T_{SIM} [ns]",
+                        "[GeV];T_{RECO}-T_{SIM} [ns]",
                         20,
                         0.,
-                        20.,
+                        0.020,
                         -0.5,
                         0.5,
                         "S");
@@ -1326,7 +1326,7 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                         "[GeV];(T_{RECO}-T_{SIM})/#sigma_{T_{RECO}}",
                         20,
                         0.,
-                        20.,
+                        0.020,
                         -5.,
                         5.,
                         "S");
