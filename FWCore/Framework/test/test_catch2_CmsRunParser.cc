@@ -13,8 +13,8 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
     const char* args[kSize] = {"cmsRun"};
     const auto& output = parser.parse(kSize, args);
 
-    REQUIRE(edm::CmsRunParser::hasVM(output));
-    auto vm = edm::CmsRunParser::getVM(output);
+    REQUIRE(output.has_value());
+    auto vm = output.value();
 
     REQUIRE(not vm.count(edm::CmsRunParser::kHelpOpt));
     REQUIRE(not vm.count(edm::CmsRunParser::kParameterSetOpt));
@@ -33,8 +33,8 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
     const char* args[kSize] = {"cmsRun", "-h"};
     const auto& output = parser.parse(kSize, args);
 
-    REQUIRE(not edm::CmsRunParser::hasVM(output));
-    REQUIRE(edm::CmsRunParser::getExit(output) == 0);
+    REQUIRE(not output.has_value());
+    REQUIRE(output.error() == 0);
   }
 
   SECTION("wrong (short)") {
@@ -42,8 +42,8 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
     const char* args[kSize] = {"cmsRun", "-w"};
     const auto& output = parser.parse(kSize, args);
 
-    REQUIRE(not edm::CmsRunParser::hasVM(output));
-    REQUIRE(edm::CmsRunParser::getExit(output) == edm::errors::CommandLineProcessing);
+    REQUIRE(not output.has_value());
+    REQUIRE(output.error() == edm::errors::CommandLineProcessing);
   }
 
   SECTION("wrong (long)") {
@@ -51,8 +51,8 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
     const char* args[kSize] = {"cmsRun", "--wrong"};
     const auto& output = parser.parse(kSize, args);
 
-    REQUIRE(not edm::CmsRunParser::hasVM(output));
-    REQUIRE(edm::CmsRunParser::getExit(output) == edm::errors::CommandLineProcessing);
+    REQUIRE(not output.has_value());
+    REQUIRE(output.error() == edm::errors::CommandLineProcessing);
   }
 
   SECTION("Config file") {
@@ -63,8 +63,8 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
       const char* args[kSize] = {"cmsRun", arg.c_str()};
       const auto& output = parser.parse(kSize, args);
 
-      REQUIRE(edm::CmsRunParser::hasVM(output));
-      auto vm = edm::CmsRunParser::getVM(output);
+      REQUIRE(output.has_value());
+      auto vm = output.value();
 
       REQUIRE(vm.count(edm::CmsRunParser::kParameterSetOpt));
       REQUIRE(vm[edm::CmsRunParser::kParameterSetOpt].as<std::string>() == arg);
@@ -84,8 +84,8 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
       const char* args[kSize] = {"cmsRun", "--", arg.c_str()};
       const auto& output = parser.parse(kSize, args);
 
-      REQUIRE(edm::CmsRunParser::hasVM(output));
-      auto vm = edm::CmsRunParser::getVM(output);
+      REQUIRE(output.has_value());
+      auto vm = output.value();
 
       REQUIRE(vm.count(edm::CmsRunParser::kParameterSetOpt));
       REQUIRE(vm[edm::CmsRunParser::kParameterSetOpt].as<std::string>() == arg);
@@ -106,8 +106,8 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
       const char* args[kSize] = {"cmsRun", "-j", jobreport.c_str(), arg.c_str()};
       const auto& output = parser.parse(kSize, args);
 
-      REQUIRE(edm::CmsRunParser::hasVM(output));
-      auto vm = edm::CmsRunParser::getVM(output);
+      REQUIRE(output.has_value());
+      auto vm = output.value();
 
       REQUIRE(vm.count(edm::CmsRunParser::kParameterSetOpt));
       REQUIRE(vm[edm::CmsRunParser::kParameterSetOpt].as<std::string>() == arg);
@@ -128,8 +128,8 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
       const char* args[kSize] = {"cmsRun", "-w", arg.c_str()};
       const auto& output = parser.parse(kSize, args);
 
-      REQUIRE(not edm::CmsRunParser::hasVM(output));
-      REQUIRE(edm::CmsRunParser::getExit(output) == edm::errors::CommandLineProcessing);
+      REQUIRE(not output.has_value());
+      REQUIRE(output.error() == edm::errors::CommandLineProcessing);
     }
 
     SECTION("Wrong cmsRun argument (long)") {
@@ -137,8 +137,8 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
       const char* args[kSize] = {"cmsRun", "--wrong", arg.c_str()};
       const auto& output = parser.parse(kSize, args);
 
-      REQUIRE(not edm::CmsRunParser::hasVM(output));
-      REQUIRE(edm::CmsRunParser::getExit(output) == edm::errors::CommandLineProcessing);
+      REQUIRE(not output.has_value());
+      REQUIRE(output.error() == edm::errors::CommandLineProcessing);
     }
 
     SECTION("python argument") {
@@ -147,8 +147,8 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
       const char* args[kSize] = {"cmsRun", arg.c_str(), parg.c_str()};
       const auto& output = parser.parse(kSize, args);
 
-      REQUIRE(edm::CmsRunParser::hasVM(output));
-      auto vm = edm::CmsRunParser::getVM(output);
+      REQUIRE(output.has_value());
+      auto vm = output.value();
 
       REQUIRE(vm.count(edm::CmsRunParser::kParameterSetOpt));
       REQUIRE(vm[edm::CmsRunParser::kParameterSetOpt].as<std::string>() == arg);
@@ -173,8 +173,8 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
       const char* args[kSize] = {"cmsRun", "-j", jobreport.c_str(), arg.c_str(), parg.c_str()};
       const auto& output = parser.parse(kSize, args);
 
-      REQUIRE(edm::CmsRunParser::hasVM(output));
-      auto vm = edm::CmsRunParser::getVM(output);
+      REQUIRE(output.has_value());
+      auto vm = output.value();
 
       REQUIRE(vm.count(edm::CmsRunParser::kParameterSetOpt));
       REQUIRE(vm[edm::CmsRunParser::kParameterSetOpt].as<std::string>() == arg);
@@ -198,8 +198,8 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
       const char* args[kSize] = {"cmsRun", parg.c_str(), arg.c_str(), parg.c_str()};
       const auto& output = parser.parse(kSize, args);
 
-      REQUIRE(edm::CmsRunParser::hasVM(output));
-      auto vm = edm::CmsRunParser::getVM(output);
+      REQUIRE(output.has_value());
+      auto vm = output.value();
 
       REQUIRE(vm.count(edm::CmsRunParser::kParameterSetOpt));
       REQUIRE(vm[edm::CmsRunParser::kParameterSetOpt].as<std::string>() == arg);
@@ -225,8 +225,8 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
       const char* args[kSize] = {"cmsRun", "--", arg.c_str()};
       const auto& output = parser.parse(kSize, args);
 
-      REQUIRE(edm::CmsRunParser::hasVM(output));
-      auto vm = edm::CmsRunParser::getVM(output);
+      REQUIRE(output.has_value());
+      auto vm = output.value();
 
       REQUIRE(vm.count(edm::CmsRunParser::kParameterSetOpt));
       REQUIRE(vm[edm::CmsRunParser::kParameterSetOpt].as<std::string>() == arg);
@@ -247,8 +247,8 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
       const char* args[kSize] = {"cmsRun", "-j", jobreport.c_str(), "--", arg.c_str()};
       const auto& output = parser.parse(kSize, args);
 
-      REQUIRE(edm::CmsRunParser::hasVM(output));
-      auto vm = edm::CmsRunParser::getVM(output);
+      REQUIRE(output.has_value());
+      auto vm = output.value();
 
       REQUIRE(vm.count(edm::CmsRunParser::kParameterSetOpt));
       REQUIRE(vm[edm::CmsRunParser::kParameterSetOpt].as<std::string>() == arg);
@@ -269,8 +269,8 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
       const char* args[kSize] = {"cmsRun", "-w", "--", arg.c_str()};
       const auto& output = parser.parse(kSize, args);
 
-      REQUIRE(not edm::CmsRunParser::hasVM(output));
-      REQUIRE(edm::CmsRunParser::getExit(output) == edm::errors::CommandLineProcessing);
+      REQUIRE(not output.has_value());
+      REQUIRE(output.error() == edm::errors::CommandLineProcessing);
     }
 
     SECTION("Wrong cmsRun argument (long)") {
@@ -278,8 +278,8 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
       const char* args[kSize] = {"cmsRun", "--wrong", "--", arg.c_str()};
       const auto& output = parser.parse(kSize, args);
 
-      REQUIRE(not edm::CmsRunParser::hasVM(output));
-      REQUIRE(edm::CmsRunParser::getExit(output) == edm::errors::CommandLineProcessing);
+      REQUIRE(not output.has_value());
+      REQUIRE(output.error() == edm::errors::CommandLineProcessing);
     }
 
     SECTION("python argument") {
@@ -288,8 +288,8 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
       const char* args[kSize] = {"cmsRun", "--", arg.c_str(), parg.c_str()};
       const auto& output = parser.parse(kSize, args);
 
-      REQUIRE(edm::CmsRunParser::hasVM(output));
-      auto vm = edm::CmsRunParser::getVM(output);
+      REQUIRE(output.has_value());
+      auto vm = output.value();
 
       REQUIRE(vm.count(edm::CmsRunParser::kParameterSetOpt));
       REQUIRE(vm[edm::CmsRunParser::kParameterSetOpt].as<std::string>() == arg);
@@ -314,8 +314,8 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
       const char* args[kSize] = {"cmsRun", "-j", jobreport.c_str(), "--", arg.c_str(), parg.c_str()};
       const auto& output = parser.parse(kSize, args);
 
-      REQUIRE(edm::CmsRunParser::hasVM(output));
-      auto vm = edm::CmsRunParser::getVM(output);
+      REQUIRE(output.has_value());
+      auto vm = output.value();
 
       REQUIRE(vm.count(edm::CmsRunParser::kParameterSetOpt));
       REQUIRE(vm[edm::CmsRunParser::kParameterSetOpt].as<std::string>() == arg);
@@ -339,8 +339,8 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
       const char* args[kSize] = {"cmsRun", parg.c_str(), "--", arg.c_str(), parg.c_str()};
       const auto& output = parser.parse(kSize, args);
 
-      REQUIRE(edm::CmsRunParser::hasVM(output));
-      auto vm = edm::CmsRunParser::getVM(output);
+      REQUIRE(output.has_value());
+      auto vm = output.value();
 
       REQUIRE(vm.count(edm::CmsRunParser::kParameterSetOpt));
       REQUIRE(vm[edm::CmsRunParser::kParameterSetOpt].as<std::string>() == arg);
@@ -366,8 +366,8 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
     const char* args[kSize] = {"cmsRun", "-c", arg.c_str()};
     const auto& output = parser.parse(kSize, args);
 
-    REQUIRE(edm::CmsRunParser::hasVM(output));
-    auto vm = edm::CmsRunParser::getVM(output);
+    REQUIRE(output.has_value());
+    auto vm = output.value();
 
     REQUIRE(not vm.count(edm::CmsRunParser::kParameterSetOpt));
     REQUIRE(not vm.count(edm::CmsRunParser::kHelpOpt));

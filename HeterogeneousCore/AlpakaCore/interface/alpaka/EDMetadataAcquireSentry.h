@@ -20,7 +20,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // Constructor overload to be called from acquire()
       EDMetadataAcquireSentry(edm::StreamID stream, edm::WaitingTaskWithArenaHolder holder, bool synchronize);
 
-      // Constructor overload to be called from registerTransformAsync()
+      // Constructor overload to be called from registerTransformAsync() and
+      // stream::SynchronizingFixedQueueEDProducer::acquire()
       EDMetadataAcquireSentry(std::shared_ptr<Queue> queue,
                               edm::WaitingTaskWithArenaHolder holder,
                               bool synchronize = false);

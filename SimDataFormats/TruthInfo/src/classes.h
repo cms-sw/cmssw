@@ -5,6 +5,7 @@
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/GraphMetadata.h"
 #include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
 

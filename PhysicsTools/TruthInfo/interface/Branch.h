@@ -69,7 +69,8 @@ namespace truth {
     [[nodiscard]] std::vector<uint32_t> memberIds() const;
     [[nodiscard]] std::vector<Particle> members() const;
 
-    // Only the members that meet the closure condition, ascending particle id.
+    // Only the members at which the closure stopped, ascending particle id. A branch that
+    // ends before the closure fires, such as a DepthN deeper than its subtree, has none.
     [[nodiscard]] std::vector<Particle> closureLeaves() const;
 
     // Members with no child, ascending particle id. On a branch that continues into Geant4
@@ -91,7 +92,7 @@ namespace truth {
     // Kinematics, summed over finalState(), so a particle is never counted together with
     // its own ancestor or with the secondaries Geant4 made from it.
     [[nodiscard]] math::XYZTLorentzVectorD p4() const;
-    [[nodiscard]] math::XYZTLorentzVectorD visibleP4() const;  // excludes neutrinos
+    [[nodiscard]] math::XYZTLorentzVectorD visibleP4() const;  // excludes the invisible species
     [[nodiscard]] double energy() const { return p4().energy(); }
     [[nodiscard]] double visibleEnergy() const { return visibleP4().energy(); }
     [[nodiscard]] double invisibleEnergy() const;
@@ -105,7 +106,8 @@ namespace truth {
     [[nodiscard]] int32_t genEvent() const;
     [[nodiscard]] int bunchCrossing() const;
     [[nodiscard]] int event() const;
-    [[nodiscard]] bool isInTime() const { return bunchCrossing() == 0; }
+    // The root particle decides: Particle::isInTime().
+    [[nodiscard]] bool isInTime() const;
     // Anything that is not the signal interaction. NOT bunchCrossing() != 0: in-time
     // pileup carries bunch crossing 0 and a nonzero event number, and the default
     // production keeps in-time pileup only.

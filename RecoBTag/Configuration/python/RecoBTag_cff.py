@@ -17,6 +17,8 @@ from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import *
 from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4_cff import *
 from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4V1_cff import *
 from RecoBTag.ONNXRuntime.pfGlobalParticleTransformerAK8_cff import *
+# the ONNX Runtime based taggers require the ONNXService
+from PhysicsTools.ONNXRuntime.ONNXService_cfi import ONNXService
 from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import *
 from RecoBTag.PixelCluster.pixelClusterTagInfos_cfi import *
 

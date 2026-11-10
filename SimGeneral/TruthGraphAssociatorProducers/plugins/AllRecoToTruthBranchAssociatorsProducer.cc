@@ -76,29 +76,6 @@ namespace {
   using truth::byAscendingScore;
   using truthassociation::VertexResolution;
 
-  // DetId::Detector by name, so the shared-energy denominator is a readable configuration
-  // list instead of an integer mask. An unknown name is a configuration error.
-  DetId::Detector detectorFromName(std::string const& name) {
-    static constexpr std::pair<std::string_view, DetId::Detector> kDetectors[] = {
-        {"Tracker", DetId::Tracker},
-        {"Muon", DetId::Muon},
-        {"Ecal", DetId::Ecal},
-        {"Hcal", DetId::Hcal},
-        {"Calo", DetId::Calo},
-        {"Forward", DetId::Forward},
-        {"VeryForward", DetId::VeryForward},
-        {"HGCalEE", DetId::HGCalEE},
-        {"HGCalHSi", DetId::HGCalHSi},
-        {"HGCalHSc", DetId::HGCalHSc},
-        {"HGCalTrigger", DetId::HGCalTrigger}};
-    for (auto const& [known, detector] : kDetectors) {
-      if (known == name) {
-        return detector;
-      }
-    }
-    throw cms::Exception("Configuration") << "denominatorDetectors: unknown DetId::Detector name '" << name << "'";
-  }
-
   // A reco type that yields its own hits needs nothing but itself.
   template <typename RECO>
   concept SelfContainedRecoHits = requires(RECO const& r) {
@@ -262,6 +239,18 @@ namespace {
   template <typename RECO>
   concept ConstituentBasedDomain = TruthAssociationTraits<RECO>::strategy == AssociationStrategy::ConstituentBased;
 
+  // The association map a constituent-based domain reads for its constituents. A
+  // hit-based domain reads none; its own map type stands in and is never consumed.
+  template <typename RECO>
+  struct ConstituentMapOf {
+    using type = typename TruthAssociationTraits<RECO>::MapType;
+  };
+
+  template <ConstituentBasedDomain RECO>
+  struct ConstituentMapOf<RECO> {
+    using type = typename TruthAssociationTraits<typename TruthAssociationTraits<RECO>::ConstituentType>::MapType;
+  };
+
   // A domain matched on shared calorimeter energy, whose cells are weighted by their
   // rechit energy as the TICL associators weight them.
   template <typename RECO>
@@ -325,9 +314,7 @@ private:
   // Composite domains read their constituents' association maps instead of hits. The
   // upstream module is named by a cms.string and the instance labels are rebuilt here,
   // the same way the HGCal All* producers reach allHitToTracksterAssociations.
-  // Constituents are tracks for every composite domain shipped here; a future
-  // non-track constituent belongs in the domain's own trait, not in a conditional.
-  using ConstituentMapType = TruthAssociationTraits<reco::Track>::MapType;
+  using ConstituentMapType = typename ConstituentMapOf<RECO>::type;
   std::vector<std::vector<edm::EDGetTokenT<ConstituentMapType>>> constituentMapTokens_;
   VertexResolution vertexResolution_ = VertexResolution::Immediate;
 };
@@ -357,12 +344,8 @@ AllRecoToTruthBranchAssociatorsProducer<RECO>::AllRecoToTruthBranchAssociatorsPr
     maxConstituentScore_ = cfg.getParameter<double>("maxConstituentScore");
   }
 
-  if (auto const detectors = cfg.getParameter<std::vector<std::string>>("denominatorDetectors"); !detectors.empty()) {
-    denominatorDetectors_ = 0u;
-    for (auto const& name : detectors) {
-      denominatorDetectors_ |= 1u << static_cast<uint32_t>(detectorFromName(name));
-    }
-  }
+  denominatorDetectors_ =
+      truth::BranchHitAssociator::detectorMask(cfg.getParameter<std::vector<std::string>>("denominatorDetectors"));
 
   const auto names = cfg.getParameter<std::vector<std::string>>("workingPointNames");
   const auto weights = cfg.getParameter<std::vector<float>>("adaptiveReverseWeight");

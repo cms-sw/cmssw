@@ -413,4 +413,46 @@ namespace truth {
     return out;
   }
 
+  std::vector<int> genEventAttachedVertices(GenBuild const& gb) {
+    const std::unordered_set<int> vertices(gb.vtxBarcodes.begin(), gb.vtxBarcodes.end());
+    const std::unordered_set<int> particles(gb.partBarcodes.begin(), gb.partBarcodes.end());
+
+    std::unordered_map<int, unsigned int> incoming;
+    std::unordered_map<int, std::vector<int>> particleEnds;
+    for (auto const& [pbc, vbc] : gb.partToVtx) {
+      ++incoming[vbc];
+      if (particles.count(pbc) != 0 && vertices.count(vbc) != 0)
+        particleEnds[pbc].push_back(vbc);
+    }
+    std::unordered_map<int, std::vector<int>> vertexProducts;
+    for (auto const& [vbc, pbc] : gb.vtxToPart) {
+      if (vertices.count(vbc) != 0 && particles.count(pbc) != 0)
+        vertexProducts[vbc].push_back(pbc);
+    }
+
+    std::unordered_set<int> reached;
+    std::vector<int> stack;
+    for (int vbc : gb.vtxBarcodes) {
+      if (incoming[vbc] == 0 && reached.insert(vbc).second)
+        stack.push_back(vbc);
+    }
+    while (!stack.empty()) {
+      const int vbc = stack.back();
+      stack.pop_back();
+      for (const int pbc : vertexProducts[vbc]) {
+        for (const int end : particleEnds[pbc]) {
+          if (reached.insert(end).second)
+            stack.push_back(end);
+        }
+      }
+    }
+
+    std::vector<int> attached;
+    for (int vbc : gb.vtxBarcodes) {
+      if (incoming[vbc] == 0 || reached.count(vbc) == 0)
+        attached.push_back(vbc);
+    }
+    return attached;
+  }
+
 }  // namespace truth

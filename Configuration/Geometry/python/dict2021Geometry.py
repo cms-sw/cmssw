@@ -2894,6 +2894,7 @@ detectorVersionDict = {
     ("O5","T6","C1","M9","F1","P7") : "2021FlatMinus10Percent",
     ("O5","T7","C1","M9","F1","P7") : "2021FlatPlus05Percent",
     ("O5","T8","C1","M9","F1","P7") : "2021FlatPlus10Percent",
+    ("O7","T3","C2","M13","F3","P7") : "2022",
     ("O7","T3","C2","M14","F3","P7") : "2023",
     ("O4","T4","C1","M10","F2","P7") : "2023ZeroMaterial",
     ("O5","T5","C1","M10","F2","P7") : "2023FlatMinus05Percent",

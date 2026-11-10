@@ -185,7 +185,20 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
         }
       }
 
-      covM *= 1.f / (1.f - weights2_sum);
+      // The PCA needs at least 2 layer clusters in its set with a spread to normalise: 1 - weights2_sum is 0 when
+      // one layer cluster carries all the energy of the set. Otherwise the PCA is all zeros.
+      const size_t nPCA = clean ? filtered_idx.size() : N;
+      const float normalisation = 1.f - weights2_sum;
+      if (nPCA < 2 or normalisation <= 0.f) {
+        trackster.fillPCAVariables(Eigen::Vector3f::Zero(),
+                                   Eigen::Matrix3f::Zero(),
+                                   Eigen::Vector3f::Zero(),
+                                   Eigen::Vector3f::Zero(),
+                                   3,
+                                   ticl::Trackster::PCAOrdering::ascending);
+        continue;
+      }
+      covM *= 1.f / normalisation;
 
       // Perform the actual decomposition
       Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f>::RealVectorType eigenvalues_fromEigen;
@@ -221,8 +234,8 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
         }
       }
 
-      sigmas /= (1.f - weights2_sum);
-      sigmasEigen /= (1.f - weights2_sum);
+      sigmas /= normalisation;
+      sigmasEigen /= normalisation;
 
       trackster.fillPCAVariables(eigenvalues_fromEigen,
                                  eigenvectors_fromEigen,

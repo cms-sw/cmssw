@@ -1705,59 +1705,66 @@ upgradeWFs['PatatrackPixelOnlyAlpakaProfiling'] = PatatrackWorkflow(
 )
 
 
-# Pixel-only triplets workflow running on GPU (optional)
+# The CA extended to outer-tracker vector hits (phase2CAVectorHits) is Phase-2 only: its workflows exist for Run4 alone
+class PatatrackWorkflowRun4(PatatrackWorkflow):
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return ('Run4' in key) and super().condition(fragment, stepList, key, hasHarvest)
+
+# Pixel-only workflow running the Phase-2 pixel CA extended to outer-tracker vector hits on GPU (optional)
 #  - Pixel-only reconstruction with Alpaka, with standard and CPUvsGPU DQM and validation
 #  - harvesting for CPUvsGPU validation
 
-upgradeWFs['PatatrackPixelOnlyTripletsAlpaka'] = PatatrackWorkflow(
+upgradeWFs['PatatrackPixelOnlyCAVectorHitsAlpaka'] = PatatrackWorkflowRun4(
     digi = {
-        '--procModifiers': 'alpaka',
+        '--procModifiers': 'alpaka,phase2CAVectorHits',
         '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
     },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM+@hltGPUvsCPU',
-        '--procModifiers': 'alpaka',
-        '--customise' : 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets,HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling'
+        '--procModifiers': 'alpaka,phase2CAVectorHits',
+        '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling'
     },
     harvest = {
-        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@hltGPUvsCPU'
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@hltGPUvsCPU',
+        '--procModifiers': 'phase2CAVectorHits',
     },
-    suffix = 'Patatrack_PixelOnlyTripletsAlpaka',
+    suffix = 'Patatrack_PixelOnlyCAVectorHitsAlpaka',
     offset = 0.406,
 )
 
-# Pixel-only triplets workflow running on GPU (optional)
+# Pixel-only CA-with-vector-hits workflow running on GPU (optional), alpakaValidation variant
 #  - Pixel-only reconstruction with Alpaka, with standard and CPUvsGPU DQM and validation
 #  - harvesting for CPUvsGPU validation
 
-upgradeWFs['PatatrackPixelOnlyTripletsAlpakaValidation'] = PatatrackWorkflow(
+upgradeWFs['PatatrackPixelOnlyCAVectorHitsAlpakaValidation'] = PatatrackWorkflowRun4(
     digi = { 
-        '--procModifiers': 'alpaka',
+        '--procModifiers': 'alpaka,phase2CAVectorHits',
         '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
     },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM+@hltGPUvsCPU',
-        '--procModifiers': 'alpakaValidation',
-        '--customise' : 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets,HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling'
+        '--procModifiers': 'alpakaValidation,phase2CAVectorHits',
+        '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling'
     },
     harvest = {
-        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@hltGPUvsCPU'
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@hltGPUvsCPU',
+        '--procModifiers': 'alpakaValidation,phase2CAVectorHits',
     },
-    suffix = 'Patatrack_PixelOnlyTripletsAlpaka_Validation',
+    suffix = 'Patatrack_PixelOnlyCAVectorHitsAlpaka_Validation',
     offset = 0.407,
 )
 
-upgradeWFs['PatatrackPixelOnlyTripletsAlpakaProfiling'] = PatatrackWorkflow(
+upgradeWFs['PatatrackPixelOnlyCAVectorHitsAlpakaProfiling'] = PatatrackWorkflowRun4(
     digi = { 
-        '--procModifiers': 'alpaka',
+        '--procModifiers': 'alpaka,phase2CAVectorHits',
     },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly',
-        '--procModifiers': 'alpaka',
-        '--customise' : 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets,RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'
+        '--procModifiers': 'alpaka,phase2CAVectorHits',
+        '--customise' : 'RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'
     },
     harvest = None,
-    suffix = 'Patatrack_PixelOnlyTripletsAlpaka_Profiling',
+    suffix = 'Patatrack_PixelOnlyCAVectorHitsAlpaka_Profiling',
     offset = 0.408,
 )
 
@@ -2145,6 +2152,13 @@ upgradeWFs['HLTTiming75e33TiclBarrel'].suffix = '_HLT75e33TimingTiclBarrel'
 upgradeWFs['HLTTiming75e33TiclBarrel'].offset = 0.758
 upgradeWFs['HLTTiming75e33TiclBarrel'].step2['--procModifiers'] = 'ticl_barrel'
 
+# Vector-hit-based CA tracking workflow
+upgradeWFs['HLTTiming75e33CAVectorHits'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33CAVectorHits'].suffix = '_HLT75e33TimingCAVectorHits'
+upgradeWFs['HLTTiming75e33CAVectorHits'].offset = 0.7512
+upgradeWFs['HLTTiming75e33CAVectorHits'].step2['--procModifiers'] = 'phase2CAVectorHits'
+upgradeWFs['HLTTiming75e33CAVectorHits'].step3['--procModifiers'] = 'phase2CAVectorHits'
+
 class UpgradeWorkflow_HLTPhase2_WithNano(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         # skip RECO, ALCA and HLT
@@ -2422,10 +2436,24 @@ upgradeWFs['L1Complete'] = UpgradeWorkflow_L1Complete(
     offset = 0.78
 )
 
+class UpgradeWorkflow_L1CompleteNano(UpgradeWorkflow_HLT75e33Timing):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        # step2 of these workflows runs no VALIDATION/DQM sequence and writes only
+        # FEVTDEBUGHLT and/or NANOAODSIM, so step2_inDQM.root is never produced. The
+        # HARVESTING step inherited from the HLTTiming75e33 template can therefore only
+        # fail with a FileOpenError; drop it rather than schedule it.
+        if 'HARVEST' in step:
+            stepDict[stepName][k] = None
+        else:
+            super().setup_(step, stepName, stepDict, k, properties)
+
 # use HLTTiming75e33 template as it skips the steps after DIGI
-upgradeWFs['L1CompleteWithNano'] = deepcopy(upgradeWFs['HLTTiming75e33'])
-upgradeWFs['L1CompleteWithNano'].suffix = '_L1CompleteWithNano'
-upgradeWFs['L1CompleteWithNano'].offset = 0.781
+upgradeWFs['L1CompleteWithNano'] = UpgradeWorkflow_L1CompleteNano(
+    steps = deepcopy(upgradeWFs['HLTTiming75e33'].steps),
+    PU = deepcopy(upgradeWFs['HLTTiming75e33'].PU),
+    suffix = '_L1CompleteWithNano',
+    offset = 0.781,
+)
 upgradeWFs['L1CompleteWithNano'].step2 = {
     '-s': 'DIGI:pdigi_valid,L1,L1TrackTrigger,L1P2GT,DIGI2RAW,HLT:@relvalRun4,NANO:@Phase2L1DPG',
     '--datatier':'GEN-SIM-DIGI-RAW,NANOAODSIM',

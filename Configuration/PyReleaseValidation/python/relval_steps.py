@@ -1190,6 +1190,7 @@ steps['BeamHalo_UP21']=merge([{'cfg':'BeamHalo_13TeV_cfi.py','-n':'500','--condi
 # Phase2 HGCAL test beam
 hgcalTB=upgradeProperties['Run4']['Run4D104'] # so if the default changes, change wf only here
 steps['HGCal_TestBeam']={'--conditions':hgcalTB['GT'],'--era':hgcalTB['Era'],'--customise':'RecoLocalCalo/Configuration/hgcalTestBeamLocalReco_cff.runRecoForSep2024TB','-s':'NONE','--datatier':'RECO','--eventcontent':'FEVTDEBUG','--data':'','--process':'RECO','-n':'10','--filein':'/store/group/dpg_hgcal/comm_hgcal/relval/RAW2DIGI.root'}
+steps['HARVEST_HGCal_TestBeam']={'--conditions':hgcalTB['GT'],'--era':hgcalTB['Era'],'--customise':'RecoLocalCalo/Configuration/hgcalTestBeamLocalReco_cff.setupConditionsForSep2024TB','-s':'HARVESTING:DQM/HGCAL/hgcalDQM_cff.hgcalDQMHarvesting','--data':'','--filetype':'DQM','--scenario':'pp','--geometry':hgcalTB['Geom']}
 
 steps['QCD_Pt_50_80']=genS('QCD_Pt_50_80_8TeV_TuneCUETP8M1_cfi',Kby(25,100))
 steps['QCD_Pt_15_20']=genS('QCD_Pt_15_20_8TeV_TuneCUETP8M1_cfi',Kby(25,100))
@@ -2451,7 +2452,7 @@ steps['TIER0EXPRUN3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForExp
                           '--conditions':'auto:run3_data_express'
                           },steps['TIER0']])
 steps['ReAlCaHLT']={'-s':'ALCA:TkAlHLTTracks+TkAlHLTTracksZMuMu',
-                    '--conditions':'140X_dataRun3_Express_v3',
+                    '--conditions':'auto:run3_data_express',
                     '--scenario': 'pp',
                     '--data': '',
                     '--era':'Run3_2024',
@@ -2745,7 +2746,7 @@ steps['ALCAHARVDSIPIXELALIHGCOMBINED']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCa
                      '--customise':'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.lowerHitsPerStructure'}
 
 steps['ALCAHARVDSIPIXELALIHLTHGCOMBINED']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixelAliHLTHGC']),
-                     '--conditions':'140X_dataRun3_Express_v3',
+                     '--conditions':'auto:run3_data_express',
                      '--scenario':'pp',
                      '--era':'Run3_2024',
                      '--data':'',
@@ -2828,12 +2829,12 @@ steps['RECODR3_2023_UPC']=merge([{'--conditions':'auto:run3_data', '--era':'Run3
 steps['RECODR3_2024_HIN']=merge([{'--conditions':'auto:run3_data_prompt', '-s':'RAW2DIGI,L1Reco,RECO,PAT,DQM:@commonFakeHLT+@standardDQMFakeHLT', '--repacked':'', '-n':1000},steps['RECODR3_2024']])
 steps['RECODR3_2024_UPC']=merge([{'--era':'Run3_2024_UPC'},steps['RECODR3_2024_HIN']])
 steps['RECODR3_2025_HIN']=merge([{'--conditions':'auto:run3_data_prompt', '-s':'RAW2DIGI,L1Reco,RECO,PAT,DQM:@commonFakeHLT+@standardDQMFakeHLT', '--repacked':'', '-n':1000},steps['RECODR3_2025']])
-steps['RECODR3_2025_UPC']=merge([{'--era':'Run3_2025_UPC', '--conditions':'151X_dataRun3_Prompt_v1'},steps['RECODR3_2025_HIN']])
+steps['RECODR3_2025_UPC']=merge([{'--era':'Run3_2025_UPC', '--conditions':'auto:run3_data_prompt'},steps['RECODR3_2025_HIN']])
 steps['RECODR3_2025_OXY']=merge([{'--era':'Run3_2025_OXY'},steps['RECODR3_2025_HIN']])
 steps['RECODR3_2025_UPC_OXY']=merge([{'--era':'Run3_2025_UPC_OXY'},steps['RECODR3_2025_UPC']])
 steps['RECODR3_2025_OXY_SKIMIONPHYSICS0']=merge([{'--era':'Run3_2025_OXY', '-s':'RAW2DIGI,L1Reco,RECO,SKIM:%s,PAT,DQM:@commonFakeHLT+@standardDQMFakeHLT'%(autoSkim['IonPhysics0'])},steps['RECODR3_2025_HIN']])
 steps['RECODR3_2026_HIN']=merge([{'--conditions':'auto:run3_data_prompt', '-s':'RAW2DIGI,L1Reco,RECO,PAT,DQM:@commonFakeHLT+@standardDQMFakeHLT','--repacked':'', '-n':1000},steps['RECODR3_2026']])
-steps['RECODR3_2026_UPC']=merge([{'--era':'Run3_2026_UPC', '--conditions':'151X_dataRun3_Prompt_v1'},steps['RECODR3_2026_HIN']])
+steps['RECODR3_2026_UPC']=merge([{'--era':'Run3_2026_UPC', '--conditions':'auto:run3_data_prompt'},steps['RECODR3_2026_HIN']])
 steps['RECONANODR3_2026_UPC']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@commonFakeHLT+@standardDQMFakeHLT', '--datatier':'RECO,MINIAOD,NANOAOD,DQMIO','--eventcontent':'RECO,MINIAOD,NANOAOD,DQM'},steps['RECODR3_2026_UPC']])
 
 steps['RECODR3Splash']=merge([{'-n': 2,
@@ -3708,7 +3709,7 @@ steps['ALCAEXPSIPIXELALIRUN3']={'-s':'ALCAOUTPUT:TkAlZMuMu+TkAlMinBias,ALCA:Prom
                                 '--triggerResultsProcess': 'RECO'}
 
 steps['ALCAReAlCaHLTHGComb'] = {'-s': 'ALCA:PromptCalibProdSiPixelAliHLTHGC',
-                                '--conditions': '140X_dataRun3_Express_v3',
+                                '--conditions': 'auto:run3_data_express',
                                 '--customise': 'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.doNotFilterLS',
                                 '--scenario': 'pp',
                                 '--data': '',
@@ -3729,7 +3730,7 @@ steps['ALCAReAlCaHLTHGComb'] = {'-s': 'ALCA:PromptCalibProdSiPixelAliHLTHGC',
                                 }
 
 steps['ALCAReAlCaHLTHGCombZMUMU'] = {'-s': 'ALCA:PromptCalibProdSiPixelAliHLTHGC',
-                                     '--conditions': '140X_dataRun3_Express_v3',
+                                     '--conditions': 'auto:run3_data_express',
                                      '--customise': 'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.doNotFilterLS',
                                      '--scenario': 'pp',
                                      '--data': '',

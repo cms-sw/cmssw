@@ -106,6 +106,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPMkFit_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFFittingSmootherForL2Muon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFTrajectoryFitterForL2Muon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFTrajectorySmootherForL2Muon_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPStackedModuleGeometry_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPPixelCPEFastParams_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltLSTGeometry_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPModulesDevLST_cfi")
@@ -302,6 +303,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/services/FastTimerService_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/services/MessageLogger_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/services/ThroughputService_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/services/PyTorchService_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/services/ONNXService_cfi")
 
 fragment.schedule = cms.Schedule(*[
 

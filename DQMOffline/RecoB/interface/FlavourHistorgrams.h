@@ -17,7 +17,11 @@
 #include "DQMOffline/RecoB/interface/Tools.h"
 #include "DQMOffline/RecoB/interface/HistoProviderDQM.h"
 #include <iostream>
+#include <memory>
 #include <string>
+#include <vector>
+
+#include "FWCore/Utilities/interface/Exception.h"
 
 //
 // class to describe Histo
@@ -68,6 +72,8 @@ public:
   void epsPlot(const std::string& name);
 
   void divide(const FlavourHistograms<T>& bHD);
+  // as divide, for a denominator with finer binning whose bin edges line up with ours (it is rebinned first)
+  void divideRebinned(const FlavourHistograms<T>& bHD);
   void setEfficiencyFlag();
 
   inline void SetMaximum(const double& max) { theMax = max; }
@@ -607,6 +613,27 @@ void FlavourHistograms<T>::divide(const FlavourHistograms<T>& bHD) {
       ComputeEfficiency(theHisto_dusg->getTH1F(), bHD.histo_dusg(), bin);
       ComputeEfficiency(theHisto_pu->getTH1F(), bHD.histo_pu(), bin);
     }
+  }
+}
+
+template <class T>
+void FlavourHistograms<T>::divideRebinned(const FlavourHistograms<T>& bHD) {
+  const std::vector<TH1F*> nums = getHistoVector();
+  const std::vector<TH1F*> dens = bHD.getHistoVector();
+  if (nums.size() != dens.size())
+    throw cms::Exception("Configuration")
+        << "FlavourHistograms::divideRebinned: different flavour sets for " << theBaseNameTitle;
+  for (std::size_t i = 0; i < nums.size(); ++i) {
+    const int nNum = nums[i]->GetNbinsX();
+    const int nDen = dens[i]->GetNbinsX();
+    if (nDen % nNum != 0 || nums[i]->GetXaxis()->GetXmin() != dens[i]->GetXaxis()->GetXmin() ||
+        nums[i]->GetXaxis()->GetXmax() != dens[i]->GetXaxis()->GetXmax())
+      throw cms::Exception("Configuration") << "FlavourHistograms::divideRebinned: bin edges of " << nums[i]->GetName()
+                                            << " and " << dens[i]->GetName() << " do not line up";
+    std::unique_ptr<TH1F> den(static_cast<TH1F*>(dens[i]->Rebin(nDen / nNum, "divideRebinned_tmp")));
+    den->SetDirectory(nullptr);
+    for (int bin = 0; bin < nNum + 2; bin++)
+      ComputeEfficiency(nums[i], den.get(), bin);
   }
 }
 

@@ -14,7 +14,7 @@ def customiseTruthReduced(process):
     acc = process.mix.digitizers.truthGraph
     acc.trackerHits = cms.VInputTag()
     idx = process.truthLogicalGraphHitIndexProducer
-    idx.subdetectors = cms.vstring("Calo", "Muon")
+    idx.subdetectors = cms.vstring("Calo", "MTD", "Muon")
     # The pruning's detector scope stays equal to the index's, otherwise it prunes on
     # tracker hits that are no longer accumulated.
     process.truthLogicalGraphProducer.trackerSimHitCollections = cms.VInputTag()

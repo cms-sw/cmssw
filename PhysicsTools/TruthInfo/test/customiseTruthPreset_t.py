@@ -42,6 +42,15 @@ class TestCustomiseTruthPreset(unittest.TestCase):
         self.assertEqual(list(selection.seedPdgIds), [6, -6])
         self.assertTrue(selection.keepProductionSiblings.value())
         self.assertEqual(list(process.truthBranchTargets.signalSeedPdgIds), [6, -6])
+        self.assertEqual(selection.presetName.value(), "top")
+
+    def testEveryGraphProducerIsSet(self):
+        process = _process()
+        process.anotherGraphProducer = truthLogicalGraphProducer.clone()
+        applyTruthPreset(process, preset="top")
+        for producer in (process.truthLogicalGraphProducer, process.anotherGraphProducer):
+            self.assertEqual(list(producer.postProcessing.seedPdgIds), [6, -6])
+            self.assertEqual(producer.postProcessing.presetName.value(), "top")
 
     def testEverySeededModuleIsSet(self):
         # A validator books its signal folders from its own seeds, so the preset has to
@@ -89,6 +98,7 @@ class TestCustomiseTruthPreset(unittest.TestCase):
         selection = process.truthLogicalGraphProducer.postProcessing
         self.assertEqual(selection.seedParentDepth.value(), 3)
         self.assertEqual(list(selection.reconstructablePdgIds), [111, 130])
+        self.assertEqual(selection.presetName.value(), "resonance with reconstructablePdgIds,seedParentDepth")
 
     def testDecayGroups(self):
         process = applyTruthPreset(_process(), fragment="ZMM_14TeV")
@@ -100,6 +110,17 @@ class TestCustomiseTruthPreset(unittest.TestCase):
         self.assertRaises(ValueError, resolvePreset)
         self.assertRaises(ValueError, resolvePreset, preset="top", fragment="TTbar_14TeV")
         self.assertRaises(KeyError, applyTruthPreset, _process(), "top", None, nosuchfield=1)
+
+    def testValidationCustomiseRefusesAnEarlierPreset(self):
+        # REQUIRED: modules loaded after a preset would keep the default seeds with no error.
+        from SimGeneral.TruthGraphAssociatorProducers.customiseTruthGraphAssociators import (
+            customiseTruthBranchValidation,
+        )
+
+        process = applyTruthPreset(cms.Process("TEST"), preset="top")
+        process.generalTracks = cms.EDProducer("Dummy")
+        with self.assertRaises(RuntimeError):
+            customiseTruthBranchValidation(process)
 
     def testEnvironmentCustomise(self):
         import os

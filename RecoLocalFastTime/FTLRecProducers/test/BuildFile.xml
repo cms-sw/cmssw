@@ -1,6 +1,15 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/ForwardDetId"/>
 <use name="DataFormats/FTLRecHit"/>
+<use name="DataFormats/FTLRecHitSoA"/>
 <library file="MTDRecoDump.cc" name="MTDRecoDump">
+  <flags EDM_PLUGIN="1"/>
+</library>
+<library file="BTLRecoSoADump.cc" name="BTLRecoSoADump">
+  <flags EDM_PLUGIN="1"/>
+</library>
+<library file="ETLRecoSoADump.cc" name="ETLRecoSoADump">
   <flags EDM_PLUGIN="1"/>
 </library>

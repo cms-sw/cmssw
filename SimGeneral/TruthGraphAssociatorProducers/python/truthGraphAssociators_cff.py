@@ -10,6 +10,7 @@ import FWCore.ParameterSet.Config as cms
 
 from SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociationLabels_cff import (
     truthBranchWorkingPointsPSet,
+    truthBranchDenominatorDetectors,
     recoLabels,
     _truthLevels,
     _signalSeedPdgIds,
@@ -124,7 +125,7 @@ truthBranchTracksterAssociators = cms.EDProducer(
     layerClusters=cms.InputTag("hgcalMergeLayerClusters"),
     # A trackster is an endcap object, so its shared-energy denominator covers the HGCAL
     # only, not the whole Calo hit channel. See the producer's fillDescriptions.
-    denominatorDetectors=cms.vstring("HGCalEE", "HGCalHSi", "HGCalHSc"),
+    denominatorDetectors=cms.vstring(*truthBranchDenominatorDetectors["tracksters"]),
     **_truthSources,
     **_workingPointArgs,
 )
@@ -173,13 +174,13 @@ truthBranchPFClusterEcalAssociators = cms.EDProducer(
     recoCollections=_tags("pfClustersEcal"),
     targetsSrc=cms.InputTag("truthBranchTargets", "selectedRoots"),
     assignableTargetsSrc=cms.InputTag("truthBranchTargets", "assignableRoots"),
-    denominatorDetectors=cms.vstring("Ecal"),
+    denominatorDetectors=cms.vstring(*truthBranchDenominatorDetectors["pfClustersEcal"]),
     **_truthSources,
     **_workingPointArgs,
 )
 truthBranchPFClusterHcalAssociators = truthBranchPFClusterEcalAssociators.clone(
     recoCollections=_tags("pfClustersHcal"),
-    denominatorDetectors=["Hcal"],
+    denominatorDetectors=cms.vstring(*truthBranchDenominatorDetectors["pfClustersHcal"]),
 )
 
 # The HLT menu's own reconstruction of the same event. Same producers, same working
@@ -202,11 +203,19 @@ hltTruthBranchTracksterAssociators = truthBranchTracksterAssociators.clone(
     ),
     pfRecHits=cms.VInputTag("hltParticleFlowRecHitECALUnseeded", "hltParticleFlowRecHitHBHE"),
 )
+# hltParticleFlowClusterECAL is not in the HLT output, so the ECAL map needs the job that runs
+# the HLT menu. The customises schedule it only there.
+hltTruthBranchPFClusterEcalAssociators = truthBranchPFClusterEcalAssociators.clone(
+    recoCollections=cms.VInputTag("hltParticleFlowClusterECAL"),
+    pfRecHits=cms.VInputTag("hltParticleFlowRecHitECALUnseeded"),
+)
+hltTruthBranchPFClusterHcalAssociators = truthBranchPFClusterHcalAssociators.clone(
+    recoCollections=cms.VInputTag("hltParticleFlowClusterHCAL"),
+    pfRecHits=cms.VInputTag("hltParticleFlowRecHitHBHE"),
+)
 
 # Sequences, not Tasks: a Task runs a module only when another module consumes its
 # product, so a job that keeps the maps without validating them would produce nothing.
-# The order is the data flow, the targets first, then the hit-based domains, then the
-# composite domains, which consume the track maps.
 truthGraphAssociatorsSequence = cms.Sequence(
     truthBranchTargets
     + allTrackToTruthBranchAssociators
@@ -222,5 +231,10 @@ truthGraphAssociatorsSequence = cms.Sequence(
 # The HLT twins read HLT collections, which an offline reconstruction does not produce,
 # so they are kept apart from the offline sequence.
 truthGraphHltAssociatorsSequence = cms.Sequence(
-    hltTrackToTruthBranchAssociators + hltTruthBranchTracksterAssociators + hltVertexToTruthBranchAssociators
+    truthBranchTargets 
+    + hltTrackToTruthBranchAssociators 
+    + hltTruthBranchTracksterAssociators 
+    + hltTruthBranchPFClusterEcalAssociators
+    + hltTruthBranchPFClusterHcalAssociators
+    + hltVertexToTruthBranchAssociators
 )

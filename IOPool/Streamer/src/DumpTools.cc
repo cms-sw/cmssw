@@ -145,6 +145,9 @@ namespace edm::streamer {
         case Algo::kLZMA:
           algo = "LZMA";
           break;
+        case Algo::kLZ4:
+          algo = "LZ4";
+          break;
       }
     }
 

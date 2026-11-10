@@ -45,7 +45,9 @@ HGCalCellUV::HGCalCellUV(double waferSize, double separation, int32_t nFine, int
 
 std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(
     double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) const {
-  if (type != 0)
+  if ((type == 0) || (type == 3))
+    type = 0;
+  else
     type = 1;
   //--- Reverse transform to placement=0, if placement index ≠ 6
   double xloc1 = (placement >= HGCalCell::cellPlacementExtra) ? xloc : -xloc;
@@ -90,7 +92,9 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY2(
     double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) const {
   //--- Using multiple inequalities to find (u, v)
   //--- Reverse transform to placement=0, if placement index ≠ 7
-  if (type != 0)
+  if ((type == 0) || (type == 3))
+    type = 0;
+  else
     type = 1;
   double cellY = (extend) ? cellYTotal_[type] : cellY_[type];
   double xloc1 = (placement >= HGCalCell::cellPlacementExtra) ? xloc : -1 * xloc;
@@ -160,7 +164,9 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY3(
     double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) const {
   //--- Using Cube coordinates to find the (u, v)
   //--- Reverse transform to placement=0, if placement index ≠ 6
-  if (type != 0)
+  if ((type == 0) || (type == 3))
+    type = 0;
+  else
     type = 1;
   double cellX = (extend) ? cellXTotal_[type] : cellX_[type];
   double cellY = (extend) ? cellYTotal_[type] : cellY_[type];
@@ -230,7 +236,7 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY3(
 
 std::pair<int, int> HGCalCellUV::cellUVFromXY4(
     double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) {
-  if (type != 0)
+  if ((type = 1) || (type == 2))
     return cellUVFromXY4(
         xloc, yloc, ncell_[1], cellX_[1], cellY_[1], cellXTotal_[1], cellY_[1], cellPosCoarse_[placement], extend, debug);
   else
@@ -286,7 +292,9 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(  // for v17
     int32_t partial,
     bool extend,
     bool debug) const {
-  if (type != 0)
+  if ((type == 0) || (type == 3))
+    type = 0;
+  else
     type = 1;
   double cellX = (extend) ? cellXTotal_[type] : cellX_[type];
   double cellY = (extend) ? cellYTotal_[type] : cellY_[type];
@@ -346,7 +354,9 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY2(  // for v18
     int32_t partial,
     bool extend,
     bool debug) const {
-  if (type != 0)
+  if ((type == 0) || (type == 3))
+    type = 0;
+  else
     type = 1;
   std::pair<int, int> uv = HGCalCellUV::cellUVFromXY1(xloc, yloc, placement, type, extend, debug);
   int u = uv.first;

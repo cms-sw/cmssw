@@ -215,8 +215,7 @@ _SPECS = [
         consumes=(
             Consumed("ticlCandidateSrc", T_CANDIDATES),
         ),
-        external_inputs=("trackTimeValueMap", "trackTimeErrorMap",
-                         "trackTimeQualityMap", "muonSrc"),
+        external_inputs=("muonSrc",),
     ),
 ]
 
