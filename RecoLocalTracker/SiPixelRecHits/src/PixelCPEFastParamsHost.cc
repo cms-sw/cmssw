@@ -24,13 +24,11 @@ PixelCPEFastParamsHost<TrackerTraits>::PixelCPEFastParamsHost(edm::ParameterSet 
                                                               const SiPixelLorentzAngle* lorentzAngleWidth)
     : PixelCPEGenericBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, lorentzAngleWidth),
       buffer_(cms::alpakatools::make_host_buffer<pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits>>()) {
-  // Use errors from templates or from GenError
-  if (useErrorsFromTemplates_) {
-    if (!SiPixelGenError::pushfile(*genErrorDBObject_, this->thePixelGenError_))
-      throw cms::Exception("InvalidCalibrationLoaded")
-          << "ERROR: GenErrors not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
-          << (*genErrorDBObject_).version();
-  }
+  // The errors and charge bins are always taken from the GenError
+  if (!SiPixelGenError::pushfile(*genErrorDBObject_, this->thePixelGenError_))
+    throw cms::Exception("InvalidCalibrationLoaded")
+        << "ERROR: GenErrors not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
+        << (*genErrorDBObject_).version();
 
   fillParamsForDevice();
 }
@@ -378,17 +376,13 @@ LocalPoint PixelCPEFastParamsHost<TrackerTraits>::localPosition(DetParam const& 
                                                                 ClusterParam& theClusterParamBase) const {
   ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
-  if (useErrorsFromTemplates_) {
-    errorFromTemplates(theDetParam, theClusterParam, theClusterParam.theCluster->charge());
-  } else {
-    theClusterParam.qBin_ = 0;
-  }
+  errorFromTemplates(theDetParam, theClusterParam, theClusterParam.theCluster->charge());
 
   int q_f_X;  //!< Q of the first  pixel  in X
   int q_l_X;  //!< Q of the last   pixel  in X
   int q_f_Y;  //!< Q of the first  pixel  in Y
   int q_l_Y;  //!< Q of the last   pixel  in Y
-  collect_edge_charges(theClusterParam, q_f_X, q_l_X, q_f_Y, q_l_Y, useErrorsFromTemplates_ && truncatePixelCharge_);
+  collect_edge_charges(theClusterParam, q_f_X, q_l_X, q_f_Y, q_l_Y, truncatePixelCharge_);
 
   // do GPU like ...
   pixelCPEforDevice::ClusParams cp;
