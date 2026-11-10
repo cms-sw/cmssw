@@ -21,6 +21,8 @@
  */
 struct HGCalFEDReadoutSequence {
   uint32_t id;
+  /// BE crate of this FED/Slink. Locator files have no crate column yet, so this is temporarily 1.
+  uint16_t crate;
   //overall counters for total number of ECONs and Capture Blocks (useful to steer the unpacker behavior)
   size_t totalECONs_, totalCBs_;
   /// look-up table (capture block, econd idx) -> internal dense index
@@ -47,8 +49,10 @@ public:
    * if the fed id is not yet existing in the mapping it's added
    * a dense indexer is used to create the necessary indices for the new module
    * unused indices will be set with -1
+   * the BE crate is a property of the FED/Slink and is stored on the readout sequence
    */
   void processNewModule(uint32_t fedid,
+                        uint16_t crate,
                         uint16_t captureblockIdx,
                         uint16_t econdIdx,
                         uint32_t typecodeIdx,
@@ -120,6 +124,13 @@ public:
       return fedrs.readoutTypes_.size() != 0;
     });
   }  ///< return total number of FEDs that actually exist
+
+  /**
+   * @short BE crates that host at least one FED/Slink
+   * the same crate is returned once; call after finalize()
+   */
+  std::vector<uint16_t> uniqueCrates() const;
+
   uint32_t maxFEDSize() const {
     return fedReadoutSequences_.size();
   }  ///< maximum FED index (fedReadoutSequences_ includes non existing FED IDs)
