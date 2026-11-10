@@ -13,7 +13,6 @@ namespace hgcaldigi {
                       SOA_COLUMN(uint16_t, adc),
                       SOA_COLUMN(uint16_t, tot),
                       SOA_COLUMN(uint16_t, toa),
-                      SOA_COLUMN(uint16_t, cm),
                       SOA_COLUMN(uint16_t, flags))
   using HGCalDigiSoA = HGCalDigiSoALayout<>;
 

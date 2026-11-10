@@ -94,8 +94,8 @@ void HGCalDigiDQM::bookModuleHistograms(DQMStore::IBooker& ibook, const Monitore
 
   moduleHistos_["avgadc"][key] =
       ibook.bookProfile("avgadc", typecode + ";Channel; <ADC>", nch, -0.5, nch - 0.5, 100, 0, 1024, "s");
-  moduleHistos_["avgcm2"][key] =
-      ibook.bookProfile("avgcm2", typecode + ";Channel; <CM_{2}>", nch, -0.5, nch - 0.5, 100, 0, 1024, "s");
+  // moduleHistos_["avgcm2"][key] =
+  //     ibook.bookProfile("avgcm2", typecode + ";Channel; <CM_{2}>", nch, -0.5, nch - 0.5, 100, 0, 1024, "s");
   moduleHistos_["adc"][key] = ibook.book1D("adc", typecode + ";ADC; Counts (all channels)", 100, 0, 1024);
   moduleHistos_["avgtot"][key] =
       ibook.bookProfile("avgtot", typecode + ";Channel; <TOT>", nch, -0.5, nch - 0.5, 100, 0, 1024, "s");
@@ -140,7 +140,7 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   // at() throws if a histogram type was never booked, instead of inserting an empty map.
   auto& mh_avgadc = moduleHistos_.at("avgadc");
-  auto& mh_avgcm2 = moduleHistos_.at("avgcm2");
+  //  auto& mh_avgcm2 = moduleHistos_.at("avgcm2");
   auto& mh_adc = moduleHistos_.at("adc");
   auto& mh_avgadcm1 = moduleHistos_.at("avgadcm1");
   auto& mh_adcm1 = moduleHistos_.at("adcm1");
@@ -158,7 +158,7 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   MonitoredElementKey_t cur_key(std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max());
   bool cur_key_ok = false;
   auto it_avgadc = mh_avgadc.end();
-  auto it_avgcm2 = mh_avgcm2.end();
+  // auto it_avgcm2 = mh_avgcm2.end();
   auto it_adc = mh_adc.end();
   auto it_avgadcm1 = mh_avgadcm1.end();
   auto it_adcm1 = mh_adcm1.end();
@@ -181,7 +181,7 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       if (followedModules_.find(key) == followedModules_.end())
         continue;
       it_avgadc = mh_avgadc.find(key);
-      it_avgcm2 = mh_avgcm2.find(key);
+      // it_avgcm2 = mh_avgcm2.find(key);
       it_adc = mh_adc.find(key);
       it_avgadcm1 = mh_avgadcm1.find(key);
       it_adcm1 = mh_adcm1.find(key);
@@ -192,7 +192,7 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       it_avgtoa = mh_avgtoa.find(key);
       it_toa = mh_toa.find(key);
       it_seed = moduleSeeds_.find(key);
-      cur_key_ok = it_avgadc != mh_avgadc.end() && it_avgcm2 != mh_avgcm2.end() && it_adc != mh_adc.end() &&
+      cur_key_ok = it_avgadc != mh_avgadc.end() && it_adc != mh_adc.end() &&
                    it_avgadcm1 != mh_avgadcm1.end() && it_adcm1 != mh_adcm1.end() &&
                    it_avgdeltaadc != mh_avgdeltaadc.end() && it_deltaadc != mh_deltaadc.end() &&
                    it_avgtot != mh_avgtot.end() && it_tot != mh_tot.end() && it_avgtoa != mh_avgtoa.end() &&
@@ -212,7 +212,7 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     double tot = digi.tot();
     double toa = digi.toa();
     double adcm = digi.adcm1();
-    double cmsum = digi.cm();
+    // double cmsum = digi.cm();
     uint16_t flags = digi.flags();
     double deltaadc = adc - adcm;
 
@@ -224,7 +224,7 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     // ADC mode
     if (tctp == 0) {
       it_avgadc->second->Fill(chIdx, adc);
-      it_avgcm2->second->Fill(chIdx, 0.5 * cmsum);
+      // it_avgcm2->second->Fill(chIdx, 0.5 * cmsum);
       it_adc->second->Fill(adc);
       it_avgadcm1->second->Fill(chIdx, adcm);
       it_adcm1->second->Fill(adcm);

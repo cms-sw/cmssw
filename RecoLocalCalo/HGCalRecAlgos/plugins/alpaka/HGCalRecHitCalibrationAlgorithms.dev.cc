@@ -40,7 +40,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   HGCalSoARecHitsDeviceCollection::View recHits,
                                   HGCalDigiDevice::ConstView digis,
-                                  HGCalCalibParamDevice::ConstView calibs) const {
+                                  HGCalCalibParamDevice::ConstView calibs,
+                                  HGCalDenseIndexInfoDevice::ConstView index,
+                                  HGCalECONDPacketInfoDevice::ConstView econd) const {
       auto adc_denoise =
           [&](uint32_t adc, uint32_t cm, uint32_t adcm1, float adc_ped, float cm_slope, float cm_ped, float bxm1_slope) {
             float cmf = cm_slope * (0.5 * float(cm) - cm_ped);
@@ -55,6 +57,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           };
 
       for (auto idx : uniform_elements(acc, digis.metadata().size())) {
+        auto info = index[idx];
+        // ich = erxIdx*37 + channelIdx -> ich / 37 = erx 
+        uint32_t erx = info.chNumber() / 37;
+        auto econdenseidx = info.modInfoIdx();
+        auto cmm = econd[econdenseidx].cm();
+        uint32_t cm = cmm(erx, 0) + cmm(erx, 1);  // digi cm from econd
         auto calib = calibs[idx];
         bool calibvalid = calib.valid();
         auto digi = digis[idx];
@@ -64,7 +72,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         bool useTOT((digi.tctp() == 3) && isAvailable);
         bool useADC(!useTOT && isAvailable);
         auto lin_counts = useADC * adc_denoise(digi.adc(),
-                                               digi.cm(),
+                                               cm,
                                                digi.adcm1(),
                                                calib.ADC_ped(),
                                                calib.CM_slope(),
@@ -283,6 +291,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       HGCalMappingModuleParamDevice const& device_mapmod,
       HGCalMappingCellParamDevice const& device_cell_mapping,
       HGCalDenseIndexInfoDevice const& device_index,
+      HGCalECONDPacketInfoDevice const& device_econd,
       double k_noise) const {
     LogDebug("HGCalRecHitCalibrationAlgorithms") << "\n\nINFO -- Start of calibrate\n\n" << std::endl;
 
@@ -316,7 +325,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         HGCalRecHitCalibrationKernel_adcToEnergy{},
                         device_recHits.view(),
                         device_digis.const_view(),
-                        device_calib.const_view());
+                        device_calib.const_view(),
+                        device_index.const_view(),
+                        device_econd.const_view());
     alpaka::exec<Acc1D>(queue,
                         grid,
                         HGCalRecHitCalibrationKernel_toaToTime{},
@@ -389,8 +400,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     int max_ = max > 0 ? max : digis.view().metadata().size();
     for (int i = 0; i < max_; i++) {
       LogDebug("HGCalRecHitCalibrationAlgorithms")
-          << i << digis.view()[i].tot() << "\t" << digis.view()[i].toa() << "\t" << digis.view()[i].cm() << "\t"
-          << digis.view()[i].flags() << std::endl;
+          << i << digis.view()[i].tot() << "\t" << digis.view()[i].toa() << "\t" << digis.view()[i].flags() << std::endl;
     }
   }
 
@@ -398,8 +408,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     int max_ = max > 0 ? max : digis.view().metadata().size();
     for (int i = 0; i < max_; i++) {
       LogDebug("HGCalRecHitCalibrationAlgorithms")
-          << i << digis.view()[i].tot() << "\t" << digis.view()[i].toa() << "\t" << digis.view()[i].cm() << "\t"
-          << digis.view()[i].flags() << std::endl;
+          << i << digis.view()[i].tot() << "\t" << digis.view()[i].toa() << "\t" << digis.view()[i].flags() << std::endl;
     }
   }
 
