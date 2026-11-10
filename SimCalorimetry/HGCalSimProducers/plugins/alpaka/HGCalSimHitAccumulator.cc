@@ -34,6 +34,8 @@
 #include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHost.h"
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+
 
 typedef std::vector<edm::ParameterSet> VPSet;
 
@@ -223,6 +225,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       //check detector is of interest
       const auto idxIt = cfg.det2dense.find(did);
+      HGCSiliconDetId siid(did);
       if (idxIt == cfg.det2dense.end()) {
         ++m.nHitsUnknown;
         return;
@@ -241,6 +244,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto row = accumView[idxIt->second];
       row.sumE()(tidx, 0) += energy;
       row.sumExT()(tidx, 0) += energy * tof;
+
       if (tidx == hgcaldigi::kInTimeBin)
         ++m.nHitsIT;
       else

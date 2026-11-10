@@ -88,11 +88,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         denseIndex.const_view(),
                         cellInfo.const_view());
 
-    //FIXME - uncomment ifdef for final version
-    //#ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
     int n_hits_to_print = 10;
     alpaka::exec<Acc1D>(queue, grid, HGCalAgeingKernel_printHits{}, device_g4Hits.view(), n_hits_to_print);
-    //#endif
+#endif
 
     return device_g4Hits;
   }

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("TEST")
 
+#argument parsing
 from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing('python')
 options.register('verbosity',0,mytype=VarParsing.varType.int,
@@ -15,6 +15,14 @@ options.register('offsetfile','Geometry/HGCalMapping/data/CellMaps/calibration_t
                  info="Path to calibration-to-surrounding cell offset file. Absolute, or relative to CMSSW src directory")
 options.parseArguments()
 
+#era
+from Configuration.Eras.Era_Phase2C26I13M9_cff import Phase2C26I13M9
+process = cms.Process("TEST")
+
+# geometry
+process.load('Configuration.Geometry.GeometryExtendedRun4D128Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D128_cff')
+
 #source
 process.maxEvents = cms.untracked.PSet( 
     input = cms.untracked.int32(options.maxEvents) 
@@ -24,8 +32,19 @@ process.source = cms.Source(
     fileNames=cms.untracked.vstring(options.inputFiles)
 )
 
-# Geometry
-process.load('Configuration.Geometry.GeometryExtendedRun4D122Reco_cff')
+# electronics configuration
+process.hgcalConfigESProducer = cms.ESSource( # ESProducer to load configurations for unpacker
+    'HGCalConfigurationESProducer',
+    fedjson=cms.FileInPath("HGCalCommissioning/Calibrations/P5/config/config_feds_v1.json"), # JSON with FED configuration parameters
+    modjson=cms.FileInPath("HGCalCommissioning/Calibrations/P5/config/config_econds_v1.json"), # JSON with ECON-D configuration parameters
+    bePassthroughMode=cms.int32(-1),
+    cbHeaderMarker=cms.int32(-1),
+    slinkHeaderMarker=cms.int32(-1),
+    econdHeaderMarker=cms.int32(-1),
+    charMode=cms.int32(-1),
+    indexSource=cms.ESInputTag('hgCalMappingESProducer','')
+)
+
 
 # electronics mapping
 from Geometry.HGCalMapping.hgcalmapping_cff import customise_hgcalmapper
@@ -35,6 +54,16 @@ process = customise_hgcalmapper(process, **kwargs)
 # ageing conditions
 from SimCalorimetry.HGCalSimAlgos.hgcal_ageing_byalgo_cfi import customise_hgcal_ageing_byalgo_startup
 process = customise_hgcal_ageing_byalgo_startup(process)
+
+# random number generator service
+process.RandomNumberGeneratorService = cms.Service(
+    "RandomNumberGeneratorService",
+    hgCalDigitizerProducer = cms.PSet(
+        initialSeed = cms.untracked.uint32(1337),
+        engineName = cms.untracked.string("HepJamesRandom")
+    )
+)
+
 
 # Geant4 accumulator: edmPluginHelp -m HGCalSimHitAccumulator@alpaka
 from SimCalorimetry.HGCalSimProducers.hgCalSimHitAccumulator_cfi import hgCalSimHitAccumulator
@@ -88,18 +117,24 @@ process.hgCalDigitizerProducer = cms.EDProducer(
 )
 
 
-process.RandomNumberGeneratorService = cms.Service(
-    "RandomNumberGeneratorService",
-    hgCalDigitizerProducer = cms.PSet(
-        initialSeed = cms.untracked.uint32(1337),
-        engineName = cms.untracked.string("HepJamesRandom")
-    )
-)
-
 # test path
 process.p = cms.Path(
     process.hgCalSimHitAccumulator
     *process.hgCalDigitizerProducer
+)
+
+#DQM
+process.DQMStore = cms.Service("DQMStore")
+process.load("DQM.HGCAL.hgcalDQM_cff")
+process.hgcaldigidqm.Digis = cms.InputTag('HGCROCDigis')
+process.load("DQMServices.FileIO.DQMFileSaverOnline_cfi")
+process.dqmSaver.tag = 'HGCAL'
+process.dqmSaver.runNumber = 1
+
+process.dqmPath = cms.Path(
+    process.hgcalDQMSources  
+    #+process.hgCalDQMHarvester 
+    +process.dqmSaver
 )
 
 # output file

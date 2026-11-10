@@ -126,7 +126,8 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     return;
 
   const auto& digis = iEvent.getHandle(digisTkn_);
-  if (!digis.isValid())
+  std::cout << "DIGIs are valid? "<< digis.isValid() << std::endl;
+  if (!digis.isValid()) 
     return;
 
   const auto& digis_view = digis->const_view();
@@ -208,17 +209,18 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     auto digi = digis_view[i];
     uint8_t tctp = digi.tctp();
-    double adc = digi.adc();
-    double tot = digi.tot();
-    double toa = digi.toa();
-    double adcm = digi.adcm1();
-    double cmsum = digi.cm();
+    double adc = static_cast<double>(digi.adc());
+    double tot = static_cast<double>(digi.tot());
+    double toa = static_cast<double>(digi.toa());
+    double adcm = static_cast<double>(digi.adcm1());
+    double cmsum = static_cast<double>(digi.cm());
     uint16_t flags = digi.flags();
     double deltaadc = adc - adcm;
-
+    if(adc>0)
+      std::cout << adc << " " << tot << " " << flags << " " << (flags == hgcal::DIGI_FLAG::NotAvailable) << std::endl;
     if (flags == hgcal::DIGI_FLAG::NotAvailable)
       continue;
-    if (adc < 0 && tot < 0)
+    if (adc < 0 && tot < 0) //this is impossible to happen
       continue;
 
     // ADC mode
