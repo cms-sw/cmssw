@@ -45,7 +45,7 @@
 #include "TFile.h"
 #include "TClass.h"
 #include "Rtypes.h"
-#include "RVersion.h"
+#include "ROOT/RVersion.hxx"
 
 #include "ROOT/RNTuple.hxx"
 #include "ROOT/RNTupleWriter.hxx"
