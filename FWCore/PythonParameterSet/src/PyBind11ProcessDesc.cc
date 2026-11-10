@@ -27,14 +27,17 @@ PyBind11InterpreterSentry::~PyBind11InterpreterSentry() {
 
 PyBind11ProcessDesc::PyBind11ProcessDesc() : theProcessPSet(), theInterpreter(false) {}
 
-PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, bool isFile)
+PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, bool isFile, ProcessOptions const& options)
     : theProcessPSet(), theInterpreter(true) {
   edm::python::initializePyBind11Module();
   prepareToRead();
-  read(config, isFile);
+  read(config, isFile, options);
 }
 
-PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, bool isFile, const std::vector<std::string>& args)
+PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config,
+                                         bool isFile,
+                                         const std::vector<std::string>& args,
+                                         ProcessOptions const& options)
     : theProcessPSet(), theInterpreter(true) {
   edm::python::initializePyBind11Module();
   prepareToRead();
@@ -67,7 +70,7 @@ PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, bool isFile,
   } catch (const pybind11::error_already_set& e) {
     throw cms::Exception("PyBind11Error") << "Python error initializing PyBind11ProcessDesc: " << e.what();
   }
-  read(config, isFile);
+  read(config, isFile, options);
 }
 
 PyBind11ProcessDesc::~PyBind11ProcessDesc() = default;
@@ -79,27 +82,67 @@ void PyBind11ProcessDesc::prepareToRead() {
   theInterpreter.mainModule.attr("processPSet") = &theProcessPSet;
 }
 
-void PyBind11ProcessDesc::read(std::string const& config, bool isFile) {
+void PyBind11ProcessDesc::read(std::string const& config, bool isFile, ProcessOptions const& options) {
   try {
     if (isFile)
-      readFile(config);
+      pybind11::eval_file(config);
     else
-      readString(config);
+      pybind11::exec(config);
+    setProcessOptions(options);
+    pybind11::exec("process.fillProcessDesc(processPSet)");
   } catch (pybind11::error_already_set const& e) {
     edm::pythonToCppException("Configuration", e.what());
   }
 }
 
-void PyBind11ProcessDesc::readFile(std::string const& fileName) {
-  pybind11::eval_file(fileName);
-  std::string command("process.fillProcessDesc(processPSet)");
-  pybind11::exec(command);
-}
+void PyBind11ProcessDesc::setProcessOptions(ProcessOptions const& options) {
+  if (options.empty())
+    return;
 
-void PyBind11ProcessDesc::readString(std::string const& pyConfig) {
-  std::string command = pyConfig;
-  command += "\nprocess.fillProcessDesc(processPSet)";
-  pybind11::exec(command.c_str());
+  pybind11::dict globals = pybind11::globals();
+  if (not globals.contains("process")) {
+    throw cms::Exception("Configuration")
+        << "Cannot set the process options, the configuration does not define a 'process' object.";
+  }
+  pybind11::object processOptions = globals["process"].attr("options");
+  pybind11::object validNames = processOptions.attr("parameterNames_")();
+
+  for (auto const& [name, value] : options) {
+    // split nested options like "eventSetup.numberOfConcurrentIOVs" into their components
+    std::vector<std::string> path;
+    std::string::size_type begin = 0;
+    std::string::size_type end;
+    do {
+      end = name.find('.', begin);
+      path.emplace_back(name.substr(begin, end - begin));
+      begin = end + 1;
+    } while (end != std::string::npos);
+
+    if (not validNames.contains(path.front())) {
+      throw cms::Exception("Configuration") << "Invalid process option \"" << name << " = " << value << "\":\n\""
+                                            << path.front() << "\" is not a valid process option.";
+    }
+
+    try {
+      pybind11::object target = processOptions;
+      for (std::size_t i = 0; i + 1 < path.size(); ++i) {
+        target = target.attr(path[i].c_str());
+      }
+      pybind11::object pyValue = pybind11::eval(value, globals);
+      // for convenience, a single value can be assigned to a vector option, e.g. accelerators = "gpu-*"
+      char const* attr = path.back().c_str();
+      if (pybind11::hasattr(target, attr) and pybind11::isinstance<pybind11::list>(target.attr(attr)) and
+          not pybind11::isinstance<pybind11::list>(pyValue) and not pybind11::isinstance<pybind11::tuple>(pyValue)) {
+        pybind11::list values;
+        values.append(pyValue);
+        pyValue = values;
+      }
+      pybind11::setattr(target, attr, pyValue);
+    } catch (pybind11::error_already_set const& e) {
+      throw cms::Exception("Configuration") << "Invalid process option \"" << name << " = " << value << "\":\n"
+                                            << e.what();
+    }
+  }
 }
 
 std::unique_ptr<edm::ParameterSet> PyBind11ProcessDesc::parameterSet() const {

@@ -4,6 +4,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <string>
+#include <vector>
 
 TEST_CASE("test cmsRun command line parsing", "[commandline]") {
   edm::CmsRunParser parser("cmsRun");
@@ -120,6 +121,32 @@ TEST_CASE("test cmsRun command line parsing", "[commandline]") {
       REQUIRE(not vm.count(edm::CmsRunParser::kSizeOfStackForThreadOpt));
       REQUIRE(not vm.count(edm::CmsRunParser::kJobModeOpt));
       REQUIRE(not vm.count(edm::CmsRunParser::kPythonOpt));
+      REQUIRE(not vm.count(edm::CmsRunParser::kCmdOpt));
+    }
+
+    SECTION("process options") {
+      constexpr int kSize = 7;
+      const std::string parg = "-o";
+      const char* args[kSize] = {
+          "cmsRun", "-o", "numberOfThreads=4", "--option", "accelerators = ['cpu']", arg.c_str(), parg.c_str()};
+      const auto& output = parser.parse(kSize, args);
+
+      REQUIRE(edm::CmsRunParser::hasVM(output));
+      auto vm = edm::CmsRunParser::getVM(output);
+
+      REQUIRE(vm.count(edm::CmsRunParser::kParameterSetOpt));
+      REQUIRE(vm[edm::CmsRunParser::kParameterSetOpt].as<std::string>() == arg);
+      REQUIRE(vm.count(edm::CmsRunParser::kOptionOpt));
+      auto options = vm[edm::CmsRunParser::kOptionOpt].as<std::vector<std::string>>();
+      REQUIRE(options.size() == 2);
+      REQUIRE(options[0] == "numberOfThreads=4");
+      REQUIRE(options[1] == "accelerators = ['cpu']");
+      // options after the configuration file are passed to python
+      REQUIRE(vm.count(edm::CmsRunParser::kPythonOpt));
+      auto pythonOptValues = vm[edm::CmsRunParser::kPythonOpt].as<std::vector<std::string>>();
+      REQUIRE(pythonOptValues.size() == 1);
+      REQUIRE(pythonOptValues[0] == parg);
+      REQUIRE(not vm.count(edm::CmsRunParser::kNumberOfThreadsOpt));
       REQUIRE(not vm.count(edm::CmsRunParser::kCmdOpt));
     }
 
