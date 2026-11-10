@@ -244,26 +244,16 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
           (!isT5orT4 && produceSeeds_ && includeNonpLSTSs_)) {
         hitsForSeed.clear();
         hitsForSeed.reserve(recHits.size());
-        int n = 0;
-        unsigned int firstLayer;
         for (auto const& hit : recHits) {
-          if (iType == lst::LSTObjType::T5) {
-            auto hType = tracker.getDetectorType(hit.geographicalId());
-            if (hType != TrackerGeometry::ModuleType::Ph2PSP && n < 2)
-              continue;  // the first two should be P
-          }
-          if (iType == lst::LSTObjType::T4) {
-            unsigned int hitLayer = tTopo.layer(hit.geographicalId());
-            auto hType = tracker.getDetectorType(hit.geographicalId());
-            if (n == 0)
-              firstLayer = hitLayer;
-            else {
-              if (hType == TrackerGeometry::ModuleType::Ph2PSS && hitLayer == firstLayer)
-                continue;
-            }
+          if (isT5orT4 && hitsForSeed.size() < 2) {
+            // The helix starts from two hits on different modules and not on a PS strip sensor: two hits of one
+            // module give no curvature, and a strip hit is not measured along the strip.
+            const DetId detId = hit.geographicalId();
+            if (tracker.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSS ||
+                (!hitsForSeed.empty() && tTopo.stack(detId) == tTopo.stack(hitsForSeed.front()->geographicalId())))
+              continue;
           }
           hitsForSeed.emplace_back(dynamic_cast<Hit>(&hit));
-          n++;
         }
         GlobalTrackingRegion region;
         seedCreator_->init(region, iSetup, nullptr);
