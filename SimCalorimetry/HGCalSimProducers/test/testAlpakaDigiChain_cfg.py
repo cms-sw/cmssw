@@ -126,14 +126,14 @@ process.p = cms.Path(
 #DQM
 process.DQMStore = cms.Service("DQMStore")
 process.load("DQM.HGCAL.hgcalDQM_cff")
-process.hgcaldigidqm.Digis = cms.InputTag('HGCROCDigis')
+process.hgcaldigidqm.Digis = cms.InputTag('hgCalDigitizerProducer','HGCROCDigis')
 process.load("DQMServices.FileIO.DQMFileSaverOnline_cfi")
 process.dqmSaver.tag = 'HGCAL'
 process.dqmSaver.runNumber = 1
 
 process.dqmPath = cms.Path(
     process.hgcalDQMSources  
-    #+process.hgCalDQMHarvester 
+    +process.hgCalDQMHarvester 
     +process.dqmSaver
 )
 

@@ -126,7 +126,6 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     return;
 
   const auto& digis = iEvent.getHandle(digisTkn_);
-  std::cout << "DIGIs are valid? "<< digis.isValid() << std::endl;
   if (!digis.isValid()) 
     return;
 
@@ -216,11 +215,8 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     double cmsum = static_cast<double>(digi.cm());
     uint16_t flags = digi.flags();
     double deltaadc = adc - adcm;
-    if(adc>0)
-      std::cout << adc << " " << tot << " " << flags << " " << (flags == hgcal::DIGI_FLAG::NotAvailable) << std::endl;
+
     if (flags == hgcal::DIGI_FLAG::NotAvailable)
-      continue;
-    if (adc < 0 && tot < 0) //this is impossible to happen
       continue;
 
     // ADC mode

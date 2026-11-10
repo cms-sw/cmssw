@@ -23,7 +23,6 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
 
 // includes for data formats
 #include "DataFormats/HGCalDigi/interface/HGCalSimHitAccumHost.h"
@@ -66,7 +65,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::optional<hgcaldigi::HGCalROCDigisAccumDevice> rocDigisAcc_device_;
     device::EDPutToken<hgcaldigi::HGCalROCDigisAccumDevice> rocDigisAccTkn_;
     std::optional<hgcaldigi::HGCalDigiDevice> rocDigis_device_;
-    device::EDPutToken<hgcaldigi::HGCalDigiDevice> rocDigisTkn_;
+    edm::EDPutTokenT<::hgcaldigi::HGCalDigiHost> rocDigisTkn_;
   };
 
   //
@@ -80,8 +79,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         n_threads_{iConfig.getParameter<int>("n_threads")},
         ripener_{n_blocks_, n_threads_},
         digitizer_{n_blocks_, n_threads_},
-        produceExtra_(iConfig.getParameter<bool>("produceExtra")),
-        rocDigisTkn_{produces("HGCROCDigis")} {
+        produceExtra_(iConfig.getParameter<bool>("produceExtra")) {
+
+    rocDigisTkn_ = produces("HGCROCDigis");
+
     //add the extra products
     if (produceExtra_) {
       agedG4HitsAccTkn_ = produces("agedG4HitsAccumulator");
@@ -158,9 +159,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void HGCalDigitizerProducer::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
     LogDebug("[HGCalDigitizerProducer]") << "Storing HGCAL DIGIs in the event";
 
+    //copy to host
     if (rocDigis_device_.has_value()) {
-      iEvent.emplace(rocDigisTkn_, std::move(rocDigis_device_.value()));
+      auto& queue = iEvent.queue();
+      auto const& digisDevice = rocDigis_device_.value();
+      ::hgcaldigi::HGCalDigiHost digisHost(digisDevice.view().metadata().size());
+      alpaka::memcpy(queue, digisHost.buffer(), digisDevice.const_buffer());
+      alpaka::wait(queue);
+      iEvent.emplace(rocDigisTkn_, std::move(digisHost));
+    } else{
+      ::hgcaldigi::HGCalDigiHost digisHost(0);
+      iEvent.emplace(rocDigisTkn_, std::move(digisHost));
     }
+      
 
     if (produceExtra_) {
       if (agedG4HitsAcc_device_.has_value())
