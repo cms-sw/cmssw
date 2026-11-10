@@ -35,8 +35,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::etlrechit {
         float time = measWindowEnd - entry.ToAdata() * toaLSB_ns_ + tdcWindowStart_;
         float time_over_threshold = entry.ToTdata() * toaLSB_ns_;
 
-        // detId from rawId
-        DetId detId(entry.rawId());
+        // rawDetId
+        uint32_t rawDetId = entry.rawId();
 
         uint8_t row = entry.rowID();
         uint8_t col = entry.colID();
@@ -49,7 +49,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::etlrechit {
 
         // fill the base rechit
         output[i] = {
-            detId,
+            rawDetId,
             row,
             col,
             time,  // in ns

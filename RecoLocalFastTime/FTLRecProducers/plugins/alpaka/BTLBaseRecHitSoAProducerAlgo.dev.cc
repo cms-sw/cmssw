@@ -151,8 +151,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::btlrechit {
         if (ampPlus == adcBitSaturation_)
           flagsPlus |= (0x1 << 1);
 
-        // detId from rawId
-        DetId detId(entry.rawId());
+        // rawDetId
+        uint32_t rawDetId = entry.rawId();
 
         // convert from clock units to ps
         time1Plus *= tclock_;
@@ -170,7 +170,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::btlrechit {
 
         // fill the base rechit
         output[i] = {
-            detId,
+            rawDetId,
             row,
             time1Plus,  // in ns
             time2Plus,
