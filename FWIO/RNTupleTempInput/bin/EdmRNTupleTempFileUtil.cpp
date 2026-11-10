@@ -282,7 +282,12 @@ int main(int argc, char* argv[]) {
         }
         auto* printRNTuple = tfile->Get<ROOT::RNTuple>(selectedTree.c_str());
         if (printRNTuple) {
-          auto reader = ROOT::RNTupleReader::Open(*printRNTuple);
+          ROOT::RNTupleReadOptions options;
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 41, 0)
+          //Needed for the GetActiveClusterIterable to work
+          options.SetMetadataMode(ROOT::RNTupleReadOptions::EMetadataMode::kEager);
+#endif
+          auto reader = ROOT::RNTupleReader::Open(*printRNTuple, options);
           if (print) {
             edm::rntuple_temp::printFieldNames(*reader);
           }
