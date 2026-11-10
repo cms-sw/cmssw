@@ -177,9 +177,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
             float z2 = (cb.inner_z(hh) - zo);
             float n2 = x2 * x2 + y2 * y2 + z2 * z2;
 
+#ifdef GPU_DEBUG
             auto cos12 = x1 * x2 + y1 * y2 + z1 * z2;
-
-            if (cos12 * cos12 >= threshold * (n1 * n2)) {
+#endif
+            // aligned if cos^2 >= threshold, tested as |d1 x d2|^2 <= (1 - threshold) n1 n2 to keep precision at small angles
+            const float crossX = y1 * z2 - z1 * y2;
+            const float crossY = z1 * x2 - x1 * z2;
+            const float crossZ = x1 * y2 - y1 * x2;
+            if (crossX * crossX + crossY * crossY + crossZ * crossZ <= (1.f - threshold) * (n1 * n2)) {
               // alligned:  kill farthest (prefer consecutive layers)
               // if same layer prefer farthest (longer level arm) and make space for intermediate hit
               if (n1 > n2) {
@@ -239,7 +244,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
                   // break;  // removed to improve reproducibility, keep it for reference and tests
                 }
               }
-            }  // cos
+            }  // aligned
           }  // cj
         }  // ci
       }  // hits
