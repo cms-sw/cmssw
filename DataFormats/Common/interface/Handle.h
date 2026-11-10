@@ -39,7 +39,7 @@ namespace edm {
 
     Handle(T const* prod, Provenance const* prov);
 
-    Handle(std::shared_ptr<HandleExceptionFactory const>&&);
+    Handle(std::shared_ptr<HandleExceptionFactory const>);
 
     T const* product() const;
     T const* operator->() const;  // alias for product()
@@ -53,7 +53,7 @@ namespace edm {
   Handle<T>::Handle(T const* prod, Provenance const* prov) : HandleBase(prod, prov) {}
 
   template <class T>
-  Handle<T>::Handle(std::shared_ptr<edm::HandleExceptionFactory const>&& iWhyFailed)
+  Handle<T>::Handle(std::shared_ptr<edm::HandleExceptionFactory const> iWhyFailed)
       : HandleBase(std::move(iWhyFailed)) {}
 
   template <class T>
