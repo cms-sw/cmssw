@@ -97,7 +97,11 @@ class TestFlatten(unittest.TestCase):
         p = cms.Process("TEST")
         p.load("L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.step1_2024.l1tGTMenu_cff")
         flattenGTMenu(p)  # raises if anything is left unresolved
-        self.assertEqual(list(p.SingleTkMuon22.regionsMinPt), [20.2, 20.3, 20.3])
+        # Regression value, not an invariant: it is the offline 22 GeV threshold put
+        # through the per-region tkMuon offline-to-online scaling, so it moves whenever
+        # SeedDefinitions/step1_2024/l1tGTObject_scalings.py is updated. The third entry
+        # went 20.3 -> 20.4 in b1c1e194a90 ("Update the scalings to AR26 values").
+        self.assertEqual(list(p.SingleTkMuon22.regionsMinPt), [20.2, 20.3, 20.4])
 
 
 if __name__ == "__main__":
