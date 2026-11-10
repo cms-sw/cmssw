@@ -16,7 +16,7 @@
 #include <string>
 
 // Alpaka imports
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/SynchronizingEDProducer.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/SynchronizingFixedQueueEDProducer.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
@@ -58,7 +58,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   // acquire: copy digis and calibration to the device, [useCMML] CM DNN inputs + inference, calibration
   // produce: zero-suppression selection
-  class HGCalRecHitsProducer : public stream::SynchronizingEDProducer<> {
+  // Fixed queue per stream for the PyTorch device caching allocator
+  class HGCalRecHitsProducer : public stream::SynchronizingFixedQueueEDProducer<> {
   public:
     explicit HGCalRecHitsProducer(const edm::ParameterSet&);
     static void fillDescriptions(edm::ConfigurationDescriptions&);
@@ -100,7 +101,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };
 
   HGCalRecHitsProducer::HGCalRecHitsProducer(const edm::ParameterSet& iConfig)
-      : SynchronizingEDProducer(iConfig),
+      : SynchronizingFixedQueueEDProducer(iConfig),
         digisToken_{consumes<hgcaldigi::HGCalDigiHost>(iConfig.getParameter<edm::InputTag>("digis"))},
         calibToken_{esConsumes(iConfig.getParameter<edm::ESInputTag>("calibSource"))},
         mappingToken_{esConsumes(iConfig.getParameter<edm::ESInputTag>("mappingSource"))},
