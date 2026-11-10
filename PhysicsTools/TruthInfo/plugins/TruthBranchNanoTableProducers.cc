@@ -221,8 +221,17 @@ void TruthParticleFlatTableProducer::produce(edm::StreamID, edm::Event& event, e
         boundaryEta.push_back(hasDirection ? mom.eta() : 0.f);
         boundaryPhi.push_back(hasDirection ? mom.phi() : 0.f);
       } else {
-        for (auto* v : {&boundaryX, &boundaryY, &boundaryZ, &boundaryT, &boundaryPx, &boundaryPy, &boundaryPz,
-                        &boundaryE, &boundaryPt, &boundaryEta, &boundaryPhi}) {
+        for (auto* v : {&boundaryX,
+                        &boundaryY,
+                        &boundaryZ,
+                        &boundaryT,
+                        &boundaryPx,
+                        &boundaryPy,
+                        &boundaryPz,
+                        &boundaryE,
+                        &boundaryPt,
+                        &boundaryEta,
+                        &boundaryPhi}) {
           v->push_back(0.f);
         }
       }
@@ -237,7 +246,8 @@ void TruthParticleFlatTableProducer::produce(edm::StreamID, edm::Event& event, e
   table->addColumn<bool>("isSignal", isSignal, "True for the signal interaction, false for pile-up");
   table->addColumn<int32_t>("bunchCrossing", bunchCrossing, "Bunch crossing of the interaction (0 = in time)");
   table->addColumn<int32_t>("eventIndex", eventIndex, "Interaction index inside the bunch crossing (0 = signal)");
-  table->addColumn<float>("pt", pt, "pT of the GEN momentum, or of the SimTrack for a SIM-only particle [GeV]", precision_);
+  table->addColumn<float>(
+      "pt", pt, "pT of the GEN momentum, or of the SimTrack for a SIM-only particle [GeV]", precision_);
   table->addColumn<float>("eta", eta, "eta of the GEN/SimTrack momentum", precision_);
   table->addColumn<float>("phi", phi, "phi of the GEN/SimTrack momentum", precision_);
   table->addColumn<float>("energy", energy, "Energy of the GEN/SimTrack momentum [GeV]", precision_);
@@ -253,8 +263,10 @@ void TruthParticleFlatTableProducer::produce(edm::StreamID, edm::Event& event, e
   table->addColumn<float>("boundaryPt", boundaryPt, "pT at the calo boundary [GeV]", precision_);
   table->addColumn<float>("boundaryEta", boundaryEta, "eta of the momentum at the calo boundary", precision_);
   table->addColumn<float>("boundaryPhi", boundaryPhi, "phi of the momentum at the calo boundary", precision_);
-  table->addColumn<float>(
-      "simEnergyHGCAL", simEnergyHGCAL, "Sim-hit energy of the particle and its descendants in HGCAL [GeV]", precision_);
+  table->addColumn<float>("simEnergyHGCAL",
+                          simEnergyHGCAL,
+                          "Sim-hit energy of the particle and its descendants in HGCAL [GeV]",
+                          precision_);
   table->addColumn<uint32_t>("levelFlags", levelFlags, "Truth levels the particle belongs to (truth::LevelFlag bits)");
   table->addColumn<int32_t>("parentGraphId", parentGraphId, "Graph id of the first parent, -1 for a root");
   table->addColumn<int32_t>(
@@ -268,7 +280,8 @@ void TruthParticleFlatTableProducer::fillDescriptions(edm::ConfigurationDescript
   desc.add<edm::InputTag>("src", edm::InputTag("truthLogicalGraphProducer"));
   desc.add<edm::InputTag>("hitIndex", edm::InputTag("truthLogicalGraphHitIndexProducer"));
   desc.add<edm::InputTag>("targets", edm::InputTag("truthBranchTargets", "truthToRecoTargetsCaloBoundary"))
-      ->setComment("The particle ids to write, one row each, in ascending order; a level list of TruthBranchTargetsProducer");
+      ->setComment(
+          "The particle ids to write, one row each, in ascending order; a level list of TruthBranchTargetsProducer");
   desc.add<std::string>("name", "TruthCB");
   desc.add<std::string>("doc", "MC-truth graph particles at the calo boundary");
   desc.add<bool>("skipNonExistingSrc", true)->setComment("Write an empty table when an input is missing");
@@ -317,15 +330,13 @@ private:
   const int precision_;
 };
 
-void TruthBranchAssociationFlatTableProducer::produce(edm::StreamID,
-                                                      edm::Event& event,
-                                                      edm::EventSetup const&) const {
+void TruthBranchAssociationFlatTableProducer::produce(edm::StreamID, edm::Event& event, edm::EventSetup const&) const {
   auto const mapHandle = event.getHandle(mapToken_);
   auto const targetsHandle = event.getHandle(targetsToken_);
   const bool present = mapHandle.isValid() && targetsHandle.isValid();
   if (!present && !skipNonExistingSrc_) {
-    throw cms::Exception("ProductNotFound")
-        << "TruthBranchAssociationFlatTableProducer '" << name_ << "': the association map or the target list is missing";
+    throw cms::Exception("ProductNotFound") << "TruthBranchAssociationFlatTableProducer '" << name_
+                                            << "': the association map or the target list is missing";
   }
 
   std::vector<int32_t> counts, offsets;
@@ -403,7 +414,8 @@ void TruthBranchAssociationFlatTableProducer::produce(edm::StreamID,
     links->addColumn<uint32_t>("graphId", graphId, "Truth graph particle id of the linked row");
     links->addColumn<float>(
         "sharedEnergy", value, "Energy the reco object shares with the truth branch [GeV]", precision_);
-    links->addColumn<float>("score", score, "1 - reco purity: the reco energy the branch fails to cover (lower is better)", precision_);
+    links->addColumn<float>(
+        "score", score, "1 - reco purity: the reco energy the branch fails to cover (lower is better)", precision_);
   } else {
     links->addColumn<uint32_t>("index", index, "Row in the reco collection");
     links->addColumn<uint32_t>("graphId", graphId, "Truth graph particle id of this row");
@@ -411,15 +423,18 @@ void TruthBranchAssociationFlatTableProducer::produce(edm::StreamID,
                             value,
                             "Shared energy over the branch's own energy in the denominator detectors",
                             precision_);
-    links->addColumn<float>(
-        "score", score, "1 - truth purity: the branch energy the reco object fails to cover (lower is better)", precision_);
+    links->addColumn<float>("score",
+                            score,
+                            "1 - truth purity: the branch energy the reco object fails to cover (lower is better)",
+                            precision_);
   }
   event.put(std::move(links), linkName_ + "Table");
 }
 
 void TruthBranchAssociationFlatTableProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("src", edm::InputTag("truthBranchTracksterAssociators", "ticlTrackstersCLUE3DHighRecoToTruthFixed"))
+  desc.add<edm::InputTag>("src",
+                          edm::InputTag("truthBranchTracksterAssociators", "ticlTrackstersCLUE3DHighRecoToTruthFixed"))
       ->setComment("A ticl::TICLAssociationMap<ticl::mapWithSharedEnergyAndScore> of the branch associators");
   desc.add<edm::InputTag>("targets", edm::InputTag("ticlTruthCBTable", "selected"))
       ->setComment(
