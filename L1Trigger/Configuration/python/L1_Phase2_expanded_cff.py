@@ -13609,11 +13609,13 @@ fragment.L1TPFJetsPhase1Task_9x9trimmed = cms.Task(fragment.l1tPhase1JetCalibrat
 
 fragment.L1TPFJetsTask = cms.Task(fragment.l1tLayer2Deregionizer, fragment.l1tSC4PFL1PF, fragment.l1tSC4PFL1Puppi, fragment.l1tSC4PFL1PuppiCorrected, fragment.l1tSC4PFL1PuppiCorrectedEmulator, fragment.l1tSC4PFL1PuppiCorrectedEmulatorMHT, fragment.l1tSC4PFL1PuppiEmulator, fragment.l1tSC82ProngJetProducer, fragment.l1tSC8PFL1Puppi, fragment.l1tSC8PFL1PuppiCorrected, fragment.l1tSC8PFL1PuppiCorrectedEmulator, fragment.l1tSC8PFL1PuppiEmulator)
 
+fragment.L1TPromptExtendedHybridTracksWithAssociators = cms.Sequence(fragment.offlineBeamSpot+fragment.l1tTTTracksFromTrackletEmulation+fragment.l1tTTTracksFromExtendedTrackletEmulation)
+
+fragment.L1TrackTriggerMCTruthTask = cms.Task(fragment.DisplacedVertexProducer, fragment.TTClusterAssociatorFromPixelDigis, fragment.TTStubAssociatorFromPixelDigis, fragment.TTTrackAssociatorFromPixelDigis, fragment.TTTrackAssociatorFromPixelDigisExtended)
+
 fragment.SimL1TMuonCommonTask = cms.Task(fragment.simCscTriggerPrimitiveDigis, fragment.simDtTriggerPrimitiveDigis)
 
-fragment.TrackTriggerAssociatorClustersStubs = cms.Sequence(fragment.TTClusterAssociatorFromPixelDigis+fragment.TTStubAssociatorFromPixelDigis)
-
-fragment.TrackTriggerAssociatorTracks = cms.Sequence(fragment.TTTrackAssociatorFromPixelDigis)
+fragment.TrackTriggerAssociatorClustersStubs = cms.Sequence()
 
 fragment.TrackTriggerClustersStubs = cms.Sequence(fragment.TTClustersFromPhase2TrackerDigis+fragment.TTStubsFromPhase2TrackerDigis)
 
@@ -13631,21 +13633,19 @@ fragment.L1TBJetsTask = cms.Task(fragment.L1TPFJetsExtendedTask, fragment.l1tBJe
 
 fragment.L1THGCalTriggerPrimitivesTask = cms.Task(fragment.L1THGCalBackEndLayer1, fragment.L1THGCalBackEndLayer2, fragment.L1THGCalConcentrator, fragment.L1THGCalTower, fragment.L1THGCalTowerMap, fragment.L1THGCalVFE)
 
-fragment.L1TPromptExtendedHybridTracksWithAssociators = cms.Sequence(fragment.offlineBeamSpot+fragment.l1tTTTracksFromTrackletEmulation+fragment.TrackTriggerAssociatorTracks+fragment.l1tTTTracksFromExtendedTrackletEmulation+fragment.TTTrackAssociatorFromPixelDigisExtended)
-
 fragment.L1TTOoLLiPTask = cms.Task(fragment.L1TPFJetsExtendedTask, fragment.l1tTOoLLiPProducer, fragment.l1tTOoLLiPProducerCorrectedEmulator)
+
+fragment.L1TrackTrigger = cms.Sequence((fragment.TrackTriggerClustersStubs+fragment.TrackTriggerAssociatorClustersStubs+fragment.ProducerDTC)+fragment.L1TPromptExtendedHybridTracksWithAssociators)
 
 fragment.l1tCaloJetsTausTask = cms.Task(fragment.l1tHGCalEnergySplitTowersTask, fragment.l1tPhase2CaloJetEmulator)
 
 fragment.me0TriggerAllDigiTask = cms.Task(fragment.ge0TriggerPseudoDigiTask)
 
-fragment.L1TrackTrigger = cms.Sequence((fragment.TrackTriggerClustersStubs+fragment.TrackTriggerAssociatorClustersStubs+fragment.ProducerDTC)+fragment.L1TPromptExtendedHybridTracksWithAssociators)
-
 fragment.SimL1TMuonTask = cms.Task(fragment.SimL1TMuonCommonTask, fragment.me0TriggerAllDigiTask, fragment.simBmtfDigis, fragment.simCscTriggerPrimitiveDigisPhase2, fragment.simCscTriggerPrimitiveDigisRun3, fragment.simEmtfDigis, fragment.simEmtfShowers, fragment.simGmtCaloSumDigis, fragment.simGmtShowerDigis, fragment.simGmtStage2Digis, fragment.simKBmtfDigis, fragment.simKBmtfStubs, fragment.simMuonGEMPadTask, fragment.simOmtfDigis, fragment.simTwinMuxDigis)
 
 fragment.SimL1EmulatorCoreTask = cms.Task(fragment.SimL1TMuonTask)
 
-fragment.SimL1EmulatorTask = cms.Task(fragment.CalibratedDigis, fragment.DisplacedVertexProducer, fragment.L1TBJetsTask, fragment.L1THGCalTriggerPrimitivesTask, fragment.L1TLayer1Task, fragment.L1TLayer1TaskInputsTask, fragment.L1TLayer2EGTask, fragment.L1TPFJetsEmulationTask, fragment.L1TPFJetsPhase1Task_9x9, fragment.L1TPFJetsPhase1Task_9x9trimmed, fragment.L1TPFJetsTask, fragment.L1TTOoLLiPTask, fragment.SimL1EmulatorCoreTask, fragment.dtTriggerPhase2PrimitiveDigis, fragment.dtTriggerPhase2PrimitivePairDigis, fragment.dtTriggerPhase2Shower, fragment.l1tCaloJet, fragment.l1tCaloJetHTT, fragment.l1tCaloJetsTausTask, fragment.l1tEGammaClusterEmuProducer, fragment.l1tFwdMuonsGmt, fragment.l1tGTTInputProducer, fragment.l1tGTTInputProducerExtended, fragment.l1tHPSPFTauProducer, fragment.l1tKMTFMuonsGmt, fragment.l1tMETMLProducer, fragment.l1tMETPFProducer, fragment.l1tNNCaloTauEmulator, fragment.l1tNNCaloTauProducer, fragment.l1tNNTauProducerPuppi, fragment.l1tPhase2CaloPFClusterEmulator, fragment.l1tPhase2CaloToCorrelatorTM18, fragment.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator, fragment.l1tPhase2L1CaloEGammaEmulator, fragment.l1tSAMuonsGmt, fragment.l1tSC4NGJetProducer, fragment.l1tStubsGmt, fragment.l1tTkMuonsGmt, fragment.l1tTowerCalibration, fragment.l1tTrackFastJets, fragment.l1tTrackJets, fragment.l1tTrackJetsEmulation, fragment.l1tTrackJetsExtended, fragment.l1tTrackJetsExtendedEmulation, fragment.l1tTrackSelectionProducer, fragment.l1tTrackSelectionProducerExtended, fragment.l1tTrackSelectionProducerExtendedForEtMiss, fragment.l1tTrackSelectionProducerExtendedForJets, fragment.l1tTrackSelectionProducerForEtMiss, fragment.l1tTrackSelectionProducerForJets, fragment.l1tTrackTripletEmulation, fragment.l1tTrackVertexAssociationProducerExtendedForEtMiss, fragment.l1tTrackVertexAssociationProducerExtendedForJets, fragment.l1tTrackVertexAssociationProducerForEtMiss, fragment.l1tTrackVertexAssociationProducerForJets, fragment.l1tTrackerEmuEtMiss, fragment.l1tTrackerEmuHTMiss, fragment.l1tTrackerEmuHTMissExtended, fragment.l1tTrackerEtMiss, fragment.l1tTrackerHTMiss, fragment.l1tVertexFinder, fragment.l1tVertexFinderEmulator, fragment.l1tVertexProducer, fragment.rpcRecHitsForEMTF, fragment.simCscTriggerPrimitiveDigisForEMTF, fragment.simEmtfDigisPhase2, fragment.simOmtfPhase2Digis)
+fragment.SimL1EmulatorTask = cms.Task(fragment.CalibratedDigis, fragment.L1TBJetsTask, fragment.L1THGCalTriggerPrimitivesTask, fragment.L1TLayer1Task, fragment.L1TLayer1TaskInputsTask, fragment.L1TLayer2EGTask, fragment.L1TPFJetsEmulationTask, fragment.L1TPFJetsPhase1Task_9x9, fragment.L1TPFJetsPhase1Task_9x9trimmed, fragment.L1TPFJetsTask, fragment.L1TTOoLLiPTask, fragment.SimL1EmulatorCoreTask, fragment.dtTriggerPhase2PrimitiveDigis, fragment.dtTriggerPhase2PrimitivePairDigis, fragment.dtTriggerPhase2Shower, fragment.l1tCaloJet, fragment.l1tCaloJetHTT, fragment.l1tCaloJetsTausTask, fragment.l1tEGammaClusterEmuProducer, fragment.l1tFwdMuonsGmt, fragment.l1tGTTInputProducer, fragment.l1tGTTInputProducerExtended, fragment.l1tHPSPFTauProducer, fragment.l1tKMTFMuonsGmt, fragment.l1tMETMLProducer, fragment.l1tMETPFProducer, fragment.l1tNNCaloTauEmulator, fragment.l1tNNCaloTauProducer, fragment.l1tNNTauProducerPuppi, fragment.l1tPhase2CaloPFClusterEmulator, fragment.l1tPhase2CaloToCorrelatorTM18, fragment.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator, fragment.l1tPhase2L1CaloEGammaEmulator, fragment.l1tSAMuonsGmt, fragment.l1tSC4NGJetProducer, fragment.l1tStubsGmt, fragment.l1tTkMuonsGmt, fragment.l1tTowerCalibration, fragment.l1tTrackFastJets, fragment.l1tTrackJets, fragment.l1tTrackJetsEmulation, fragment.l1tTrackJetsExtended, fragment.l1tTrackJetsExtendedEmulation, fragment.l1tTrackSelectionProducer, fragment.l1tTrackSelectionProducerExtended, fragment.l1tTrackSelectionProducerExtendedForEtMiss, fragment.l1tTrackSelectionProducerExtendedForJets, fragment.l1tTrackSelectionProducerForEtMiss, fragment.l1tTrackSelectionProducerForJets, fragment.l1tTrackTripletEmulation, fragment.l1tTrackVertexAssociationProducerExtendedForEtMiss, fragment.l1tTrackVertexAssociationProducerExtendedForJets, fragment.l1tTrackVertexAssociationProducerForEtMiss, fragment.l1tTrackVertexAssociationProducerForJets, fragment.l1tTrackerEmuEtMiss, fragment.l1tTrackerEmuHTMiss, fragment.l1tTrackerEmuHTMissExtended, fragment.l1tTrackerEtMiss, fragment.l1tTrackerHTMiss, fragment.l1tVertexFinder, fragment.l1tVertexFinderEmulator, fragment.l1tVertexProducer, fragment.rpcRecHitsForEMTF, fragment.simCscTriggerPrimitiveDigisForEMTF, fragment.simEmtfDigisPhase2, fragment.simOmtfPhase2Digis)
 
 fragment.SimL1Emulator = cms.Sequence(fragment.SimL1EmulatorTask)
 
@@ -13654,6 +13654,7 @@ fragment.SimL1Emulator = cms.Sequence(fragment.SimL1EmulatorTask)
 fragment.L1TrackTrigger_step = cms.Path(fragment.L1TrackTrigger)
 fragment.L1simulation_step = cms.Path(fragment.SimL1Emulator)
 fragment.L1simulationLegacy_step = cms.Path(fragment.L1TLegacyRun3Task)
+fragment.L1TrackTriggerMCTruth_step = cms.Path(fragment.L1TrackTriggerMCTruthTask)
 fragment.Phase2L1GTProducer = cms.Path(fragment.l1tGTProducerSequence)
 fragment.Phase2L1GTAlgoBlockProducer = cms.Path(fragment.l1tGTAlgoBlockProducerSequence)
 fragment.pDoubleEGEle37_24 = cms.Path(fragment.DoubleEGEle3724)
@@ -13704,6 +13705,7 @@ l1Paths = [
     "L1TrackTrigger_step",
     "L1simulation_step",
     "L1simulationLegacy_step",
+    "L1TrackTriggerMCTruth_step",
     "Phase2L1GTProducer",
     "Phase2L1GTAlgoBlockProducer",
     "pDoubleEGEle37_24",

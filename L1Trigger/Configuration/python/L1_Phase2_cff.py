@@ -53,6 +53,7 @@ fragment.load("L1Trigger/Configuration/L1_Phase2/psets/l1tGTCoshEtaLUT2_cfi")
 fragment.load("L1Trigger/Configuration/L1_Phase2/paths/L1TrackTrigger_step_cfi")
 fragment.load("L1Trigger/Configuration/L1_Phase2/paths/L1simulation_step_cfi")
 fragment.load("L1Trigger/Configuration/L1_Phase2/paths/L1simulationLegacy_step_cfi")
+fragment.load("L1Trigger/Configuration/L1_Phase2/paths/L1TrackTriggerMCTruth_step_cfi")
 fragment.load("L1Trigger/Configuration/L1_Phase2/paths/Phase2L1GTProducer_cfi")
 fragment.load("L1Trigger/Configuration/L1_Phase2/paths/Phase2L1GTAlgoBlockProducer_cfi")
 fragment.load("L1Trigger/Configuration/L1_Phase2/paths/pDoubleEGEle37_24_cfi")
@@ -103,6 +104,7 @@ l1Paths = [
     "L1TrackTrigger_step",
     "L1simulation_step",
     "L1simulationLegacy_step",
+    "L1TrackTriggerMCTruth_step",
     "Phase2L1GTProducer",
     "Phase2L1GTAlgoBlockProducer",
     "pDoubleEGEle37_24",

@@ -18,13 +18,23 @@ The same content is also written to a single file, `../L1_Phase2_expanded_cff.py
 object defined inline (like the Run-3 HLT menu dumps, e.g. `HLT_GRun_cff.py`): convenient to read
 the whole menu or diff two versions. Load one or the other, never both (same labels).
 
+`L1Trigger/Configuration/test/OnLine_L1_Phase2.py` is a complete process (source, GlobalTag, geometry,
+output) running only the L1 emulation, i.e. the cmsDriver step `L1P2` with the customisation
+`customisePhase2TTNoMC.customiseL1P2NoMCTruth` (see below), on the GEN-SIM-DIGI-RAW output of the
+reference workflow, like `HLTrigger/Configuration/test/OnLine_HLT_GRun.py` for the HLT:
+
+    cmsRun OnLine_L1_Phase2.py   # reads file:step2.root, writes file:OnLine_L1_Phase2.root
+
 ## Generated, do not edit by hand
 
 All files are produced by `L1Trigger/Configuration/test/l1tPhase2Fragment.py`. Changes belong in
 the live `_cfi`/`_cff` files, followed by a regeneration:
 
-    l1tPhase2Fragment.py generate   # rewrite L1_Phase2_cff.py, L1_Phase2/ and L1_Phase2_expanded_cff.py
-    l1tPhase2Fragment.py validate   # compare both with cmsDriver (unit test testL1Phase2Fragment)
+    l1tPhase2Fragment.py generate   # rewrite L1_Phase2_cff.py, L1_Phase2/, L1_Phase2_expanded_cff.py, test/OnLine_L1_Phase2.py
+    l1tPhase2Fragment.py validate   # compare all three with cmsDriver (unit test testL1Phase2Fragment)
+
+For `OnLine_L1_Phase2.py` only the L1 content (without the MC-truth path) is compared, not the GlobalTag
+or the I/O, so an update of the autoCond GlobalTag alone does not fail the check.
 
 The reference is workflow 38434.0 (TTbar, Run4D128, era `Phase2C26I13M9`): the content is the
 difference between `cmsDriver -s DIGI:pdigi_valid` and `cmsDriver -s DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT`.
@@ -36,8 +46,10 @@ difference between `cmsDriver -s DIGI:pdigi_valid` and `cmsDriver -s DIGI:pdigi_
 * The Run-3 legacy chain (everything that only feeds `simGtStage2Digis`, `simBmtfDigis` or
   `simCscTriggerPrimitiveDigisRun3`) runs in its own `L1TLegacyRun3Task` / `L1simulationLegacy_step`.
 * Module labels are identical to the cmsDriver ones (DQM, ntuplizers, HLT inputs).
-* MC-truth modules (`TT*Associator*`) are still part of `L1TrackTrigger_step`; the emulators
-  themselves do not read truth with the default settings.
+* The MC-truth chain (the `TT*Associator*` modules and everything reading their products, currently
+  also `DisplacedVertexProducer`) runs in its own `L1TrackTriggerMCTruthTask` / `L1TrackTriggerMCTruth_step`.
+  Nothing else may depend on it; the generator fails otherwise. Inputs that a module reads only when a
+  flag is set (`L1FPGATrackProducer` with `readMoreMcTruth`) are not counted as dependencies.
 * The required external inputs are listed in the header of `L1_Phase2_cff.py`.
 
 ## Validity
@@ -54,6 +66,14 @@ With cmsDriver, the step `L1P2` replaces `L1TrackTrigger,L1,L1P2GT` (`L1P2:<name
     cmsDriver.py step2 -s DIGI:pdigi_valid,L1P2,DIGI2RAW,HLT:@relvalRun4 ...
 
 `L1P2:Phase2_expanded` loads the single-file version instead; the resulting configuration is identical.
+
+To run the L1 emulation alone on stored events (e.g. GEN-SIM-DIGI-RAW), add
+`--customise L1Trigger/Configuration/customisePhase2TTNoMC.customiseL1P2NoMCTruth`: it drops the MC-truth
+path (the tracker sim links read by the associators are not stored) and loads the HCAL trigger primitive
+configuration, whose ES producers the L1 emulation needs and the DIGI step otherwise provides.
+
+    cmsDriver.py l1 -s L1P2 --customise L1Trigger/Configuration/customisePhase2TTNoMC.customiseL1P2NoMCTruth \
+      --filein file:step2.root --processName L1P2 ...
 
 The matrix workflows `<N>.783` of the `Phase2C26I13M9` geometries (e.g. `38434.783`, Run4D128) use it.
 
