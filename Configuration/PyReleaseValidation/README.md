@@ -56,6 +56,8 @@ The offsets currently in use are:
 * 0.713: LST+mkFit tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available), CPU vs. GPU
 * 0.714: LST+mkFit tracking (Phase-2 only), all iterations, full reco, on CPU
 * 0.715: LST+mkFit tracking (Phase-2 only), all iterations, full reco, on GPU (if available)
+* 0.716: LST+mkFit tracking (Phase-2 only), all iterations including JetCore, full reco, on CPU
+* 0.717: LST+mkFit tracking (Phase-2 only), all iterations including JetCore, full reco, on GPU (if available)
 * 0.75: HLT phase-2 timing menu
 * 0.7501: HLT phase-2 tracking-only menu
 * 0.7502: HLT phase-2 menu, with tracking ntuple

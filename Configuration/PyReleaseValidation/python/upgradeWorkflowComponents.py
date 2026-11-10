@@ -650,6 +650,23 @@ upgradeWFs['lstmkFitOnGPUAllIters'].step3 = {
     '--procModifiers': 'trackingLST,seedingLST,trackingMkFitHighPtTripletStep'
 }
 
+# LST and mkFit on CPU, all tracking iterations including the JetCore iteration (with pixel cluster splitting), full reco
+upgradeWFs['lstmkFitOnCPUAllItersJetCore'] = deepcopy(upgradeWFs['lstmkFitOnCPUAllIters'])
+upgradeWFs['lstmkFitOnCPUAllItersJetCore'].suffix = '_lstmkFitOnCPUAllItersJetCore'
+upgradeWFs['lstmkFitOnCPUAllItersJetCore'].offset = 0.716
+upgradeWFs['lstmkFitOnCPUAllItersJetCore'].step3 = {
+    '--procModifiers': 'trackingLST,seedingLST,trackingMkFitHighPtTripletStep,jetCoreInPhase2,splitClustersInPhase2Pixel,trackingMkFitInitialStepPreSplitting',
+    '--accelerators' : 'cpu'
+}
+
+# LST and mkFit on GPU (if available), all tracking iterations including the JetCore iteration (with pixel cluster splitting), full reco
+upgradeWFs['lstmkFitOnGPUAllItersJetCore'] = deepcopy(upgradeWFs['lstmkFitOnCPUAllIters'])
+upgradeWFs['lstmkFitOnGPUAllItersJetCore'].suffix = '_lstmkFitOnGPUAllItersJetCore'
+upgradeWFs['lstmkFitOnGPUAllItersJetCore'].offset = 0.717
+upgradeWFs['lstmkFitOnGPUAllItersJetCore'].step3 = {
+    '--procModifiers': 'trackingLST,seedingLST,trackingMkFitHighPtTripletStep,jetCoreInPhase2,splitClustersInPhase2Pixel,trackingMkFitInitialStepPreSplitting'
+}
+
 #DeepCore seeding for JetCore iteration workflow
 class UpgradeWorkflow_seedingDeepCore(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
