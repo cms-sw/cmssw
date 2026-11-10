@@ -313,10 +313,86 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // a cell with more tracks than this (a heavy cell) is processed by a whole block
     inline constexpr int kDupHeavyMinTracks = 64;
 
-    // remove shorter tracks if sharing a cell
-    // It does not seem to affect efficiency in any way!
-    // Work division: Acc2D with Y indexing cells and X indexing warp lanes
-    // (warpSize threads per cell). All lanes of a warp cooperate on a single cell
+    template <typename TrackerTraits>
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool earlyDupCompatibleCurvatures(float curvi, float curvj) {
+      constexpr float kEarlyDupRelCurv = 0.05f;       // relative window, vector hit topology
+      constexpr float kEarlyDupAbsCurv2 = 0.000001f;  // absolute |dcurv|^2 window
+      // the value of CACell<TrackerTraits>::kUninitializeCurvature for every topology
+      constexpr float kUninitCurv = std::numeric_limits<float>::max();
+      const float dcurv = curvi - curvj;
+      if constexpr (std::is_same_v<pixelTopology::Phase2OTVectorHits, TrackerTraits>) {
+        // an uninitialised curvature is compatible with nothing
+        if (curvi == kUninitCurv || curvj == kUninitCurv) {
+          return false;
+        }
+        const float thr = kEarlyDupRelCurv * (std::abs(curvi) + std::abs(curvj));
+        return dcurv * dcurv <= thr * thr;
+      } else {
+        return dcurv * dcurv <= kEarlyDupAbsCurv2;
+      }
+    }
+
+    // Demotes the tracks i = iFirst, iFirst + iStep, ... that have a strictly longer, compatible track in the cell.
+    // Every loop around a warp collective runs the same number of times on every lane.
+    template <typename TrackerTraits, typename TAcc>
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE void earlyDupRemoverCell(TAcc const &acc,
+                                                            uint32_t const *__restrict__ tracksOfCell,
+                                                            int32_t ntr,
+                                                            int32_t laneId,
+                                                            int32_t warpSize,
+                                                            int32_t iFirst,
+                                                            int32_t iStep,
+                                                            TkSoAView tracks_view) {
+      constexpr auto reject = Quality::edup;  // cannot be loose
+
+      // largest nLayers in the cell
+      int32_t localMax = 0;
+      for (int32_t base = 0; base < ntr; base += warpSize) {
+        const int32_t k = base + laneId;
+        if (k < ntr) {
+          const int32_t nl = tracks_view[tracksOfCell[k]].nLayers();
+          if (nl > localMax) {
+            localMax = nl;
+          }
+        }
+      }
+      for (int32_t off = 1; off < warpSize; off <<= 1) {
+        const int32_t y = alpaka::warp::shfl_xor(acc, localMax, off);
+        if (y > localMax) {
+          localMax = y;
+        }
+      }
+      const int32_t maxNl = localMax;
+
+      for (int32_t i = iFirst; i < ntr; i += iStep) {
+        const auto it = tracksOfCell[i];
+        const int32_t nli = tracks_view[it].nLayers();
+        if (nli >= maxNl) {
+          continue;
+        }
+        const float curvi = tracks_view[it].pt();  // pre-fit curvature (CACell::find_ntuplets), not a pT
+        bool found = false;
+        for (int32_t base = 0; base < ntr; base += warpSize) {
+          const int32_t j = base + laneId;
+          bool compatible = false;
+          if (j < ntr) {
+            const auto jt = tracksOfCell[j];
+            // a strictly longer companion
+            compatible = tracks_view[jt].nLayers() > nli &&
+                         earlyDupCompatibleCurvatures<TrackerTraits>(curvi, tracks_view[jt].pt());
+          }
+          if (alpaka::warp::any(acc, static_cast<int32_t>(compatible))) {
+            found = true;
+            break;
+          }
+        }
+        if (found && laneId == 0) {
+          tracks_view[it].quality() = reject;
+        }
+      }
+    }
+
+    // One warp per cell (Y: cell, X: lane); heavy cells are left to the heavy-cell kernel.
     template <typename TrackerTraits>
     class Kernel_earlyDuplicateRemover {
     public:
@@ -325,108 +401,55 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     uint32_t const *__restrict__ nCells,
                                     CellToTrack const *__restrict__ cellTracksHisto,
                                     TkSoAView tracks_view,
-                                    bool dupPassThrough) const {
-        // quality to mark rejected
-        constexpr auto reject = Quality::edup;  /// cannot be loose
+                                    uint32_t *__restrict__ heavyCells,
+                                    uint32_t heavyCellsCapacity) const {
         ALPAKA_ASSERT_ACC(nCells);
 
         const int32_t warpSize = alpaka::warp::getSize(acc);
         const int32_t laneId = static_cast<int32_t>(alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[1u]);
 
         for (uint32_t idx : cms::alpakatools::uniform_elements_y(acc, *nCells)) {
-#ifdef CA_SIZES
-          if (laneId == 0)
-            printf("cellTracksSizes;%d;%d;%d\n", idx, cT.size(), cT.capacity());
-#endif
-          const int ntr = static_cast<int>(cellTracksHisto->size(idx));
-          if (ntr < 2)
+          const int32_t ntr = static_cast<int32_t>(cellTracksHisto->size(idx));
+          if (ntr < 2) {
             continue;
-
-          auto const *__restrict__ tracksOfCell = cellTracksHisto->begin(idx);
-
-          // Warp-reduce maxNl over the cell's tracks.
-          // Lanes scan a strided subset of the cell's tracks and hold a local maxNl in register
-          int32_t localMax = 0;
-          for (int k = laneId; k < ntr; k += warpSize) {
-            const int32_t nl = tracks_view[tracksOfCell[k]].nLayers();
-            if (nl > localMax)
-              localMax = nl;
           }
-          // Warp-reduce to find the maxNl across all lanes. The result is uniform across the warp.
-          // Idle lanes start with 0 and do not influence the result.
-          // All lanes must be active for the shuffle to work: no branching or return early here.
-          for (int32_t off = 1; off < warpSize; off <<= 1) {
-            const int32_t y = alpaka::warp::shfl_xor(acc, localMax, off);
-            if (y > localMax)
-              localMax = y;
+          if (ntr > kDupHeavyMinTracks) {
+            if (laneId == 0) {
+              const uint32_t slot = alpaka::atomicAdd(acc, heavyCells, 1u, alpaka::hierarchy::Blocks{});
+              ALPAKA_ASSERT_ACC(slot < heavyCellsCapacity);
+              heavyCells[1 + slot] = idx;
+            }
+            continue;
           }
-          const int32_t maxNl = localMax;
+          earlyDupRemoverCell<TrackerTraits>(
+              acc, cellTracksHisto->begin(idx), ntr, laneId, warpSize, 0, 1, tracks_view);
+        }
+      }
+    };
 
-          // Process tracks sequentially using warps
-          for (int i = 0; i < ntr; ++i) {
-            const auto it = tracksOfCell[i];
-            const int32_t nli = tracks_view[it].nLayers();
-            // Same nli and maxNl across lanes, so uniform check and no early return here to keep all lanes active.
-            if (nli >= maxNl) {
-              continue;
-            }
-
-            // Look for compatible tracks in the same cell with fewer layers and similar curvature
-            // Mark as duplicate if both conditions are met.
-            //
-            // tracks_view[].pt() holds the PRE-FIT CURVATURE here, not a pT: CACell::find_ntuplets writes
-            // `pt[it] = preCurvature` as the early reference this kernel compares. The demotion is terminal
-            // (Kernel_fillMultiplicity skips Quality::edup: the loser is never fitted, classified or
-            // converted), so the compatibility window is gated on the topology:
-            //
-            //  - Phase2OTVectorHits uses a window RELATIVE to the curvatures being compared. An absolute |dcurv|
-            //    window is a growing fraction of the curvature as pT rises and above a few tens of GeV
-            //    accepts EVERY pair whatever their momenta or charge, degenerating into "delete the shorter
-            //    track on every shared cell" -- exactly what a high-pT jet core produces when a pixel
-            //    cluster merged between two collimated tracks leaves one of them one layer short. The vector hit
-            //    chain, whose long lever arm makes those cells common, is tuned with this form.
-            //  - every other topology keeps the upstream absolute window, so the plain Phase-2 (and Phase-1
-            //    fallback) pixel-track collections are unchanged with respect to the release.
-            constexpr bool kHasVectorHits = std::is_same_v<pixelTopology::Phase2OTVectorHits, TrackerTraits>;
-            constexpr float kEarlyDupRelCurv = 0.05f;       // relative window, vector hit topology
-            constexpr float kEarlyDupAbsCurv2 = 0.000001f;  // absolute |dcurv|^2 window, upstream
-            // Same value as CACell<TrackerTraits>::kUninitializeCurvature for every topology.
-            constexpr float kUninitCurv = std::numeric_limits<float>::max();
-            const float curvi = tracks_view[it].pt();
-            bool foundCompatible = false;
-            // Parallelize inner loop across lanes
-            for (int j = laneId; j < ntr; j += warpSize) {
-              const auto jt = tracksOfCell[j];
-              if (tracks_view[jt].nLayers() <= nli)
-                continue;  // need a strictly longer companion
-              const float curvj = tracks_view[jt].pt();
-              const float dcurv = curvi - curvj;
-              if constexpr (kHasVectorHits) {
-                // An uninitialised pre-fit curvature (FLT_MAX) must never be compatible with anything;
-                // skip it rather than let it through the relative window.
-                if (curvi == kUninitCurv || curvj == kUninitCurv) {
-                  continue;
-                }
-                const float thr = kEarlyDupRelCurv * (std::abs(curvi) + std::abs(curvj));
-                if (dcurv * dcurv <= thr * thr) {
-                  foundCompatible = true;
-                  break;
-                }
-              } else {
-                if (dcurv * dcurv <= kEarlyDupAbsCurv2) {
-                  foundCompatible = true;
-                  break;
-                }
-              }
-            }
-            // All lanes converge here to check if any foundCompatible is true, and if so, mark track as duplicate.
-            if (alpaka::warp::any(acc, static_cast<int32_t>(foundCompatible))) {
-              // One thread assigns warp-wide decision
-              if (laneId == 0) {
-                tracks_view[it].quality() = reject;
-              }
-            }
-          }
+    // One block per cell of heavyCells; the block size must be a multiple of the warp size.
+    template <typename TrackerTraits>
+    class Kernel_earlyDuplicateRemoverHeavyCells {
+    public:
+      ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+                                    CellToTrack const *__restrict__ cellTracksHisto,
+                                    uint32_t const *__restrict__ heavyCells,
+                                    TkSoAView tracks_view) const {
+        const int32_t warpSize = alpaka::warp::getSize(acc);
+        const int32_t thread = static_cast<int32_t>(alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]);
+        const int32_t nWarps =
+            static_cast<int32_t>(alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u]) / warpSize;
+        ALPAKA_ASSERT_ACC(nWarps >= 1);
+        for (uint32_t h : cms::alpakatools::independent_groups(acc, heavyCells[0])) {
+          const uint32_t idx = heavyCells[1 + h];
+          earlyDupRemoverCell<TrackerTraits>(acc,
+                                             cellTracksHisto->begin(idx),
+                                             static_cast<int32_t>(cellTracksHisto->size(idx)),
+                                             thread % warpSize,
+                                             warpSize,
+                                             thread / warpSize,
+                                             nWarps,
+                                             tracks_view);
         }
       }
     };
@@ -3163,6 +3186,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         const auto earlyDupRemoverWorkDiv =
             cms::alpakatools::make_workdiv<Acc2D>(earlyDupRemoverBlocks, earlyDupRemoverThreads);
 
+        // at most tracksCellsN_ / (kDupHeavyMinTracks + 1) heavy cells, and their count in word 0
+        const uint32_t heavyCapacity = this->tracksCellsN_ / (kDupHeavyMinTracks + 1) + 1;
+        this->device_dupHeavyCells_ = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, heavyCapacity + 1);
+        alpaka::memset(queue, *this->device_dupHeavyCells_, 0, Vec1D{1u});
         alpaka::exec<Acc2D>(queue,
                             earlyDupRemoverWorkDiv,
                             Kernel_earlyDuplicateRemover<TrackerTraits>{},
@@ -3170,7 +3197,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             this->device_nCells_->data(),
                             this->device_cellToTracks_->data(),
                             tracks_view,
-                            this->m_params.algoParams_.dupPassThrough_);
+                            this->device_dupHeavyCells_->data(),
+                            heavyCapacity);
+        // one block per heavy cell
+        alpaka::exec<Acc1D>(queue,
+                            cms::alpakatools::make_workdiv<Acc1D>(1024u, 8u * stride),
+                            Kernel_earlyDuplicateRemoverHeavyCells<TrackerTraits>{},
+                            this->device_cellToTracks_->data(),
+                            this->device_dupHeavyCells_->data(),
+                            tracks_view);
       }
 
 #ifdef GPU_DEBUG
