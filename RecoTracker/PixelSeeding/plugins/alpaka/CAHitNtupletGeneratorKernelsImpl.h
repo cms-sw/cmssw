@@ -509,8 +509,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     //     it reads quality(), accumulates demotions into the scratch via atomicMin, and Kernel_applyQuality
     //     copies the scratch back into quality()
     //   - The hit-based removers (rejectDuplicate, sharedHitCleaner, triplet/simpleTripletCleaner) are
-    //     track-parallel single-writers: Kernel_snapshotQuality freezes quality() into the scratch, then
-    //     each thread reads that snapshot and writes only its own track's quality() (no atomics, no copy-back)
+    //     single-writers: Kernel_snapshotQuality freezes quality() into the scratch, then each track's quality()
+    //     is written by one thread only (no copy-back)
     class Kernel_snapshotQuality {
     public:
       ALPAKA_FN_ACC void operator()(Acc1D const &acc,
@@ -1804,9 +1804,91 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return a < b;
     }
 
-    // Track-parallel single-writer shared-hit removers: each thread owns one track, inspects the hit
-    // buckets it belongs to (hitToTuple), reads every quality from the frozen scratch snapshot, and writes
-    // only its own track's quality()
+    // a track with more entries than this in its hits' track lists (a heavy track) is processed by a whole block
+    inline constexpr uint32_t kRejectDupHeavyMinPairs = 256;
+
+    // Whether a compatible track sharing a hit with `it` is better: more layers, [Phase2OTVectorHits: more hits], higher
+    // quality, lower chi2, then hitsBefore on Phase-2 or the lower tuple index elsewhere. The calling thread tests the
+    // entries k = first, first + step, ... of each hit's track list.
+    template <typename TrackerTraits>
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool rejectDupDominated(TkSoAView tracks_view,
+                                                           HitContainer const *__restrict__ foundNtuplets,
+                                                           int32_t const *__restrict__ qualityScratch,
+                                                           HitToTuple const &hitToTuple,
+                                                           float fastDupNSigma2,
+                                                           Quality reject,
+                                                           uint32_t it,
+                                                           uint32_t first,
+                                                           uint32_t step) {
+      auto qual = [&](uint32_t t) { return static_cast<Quality>(qualityScratch[t]); };
+      auto score = [&](uint32_t t) { return tracks_view[t].chi2(); };
+      auto const qi = qual(it);
+      auto const nli = tracks_view[it].nLayers();
+      // Phase2OTVectorHits only: the number of hits ranks between nLayers and quality, so that a pixel-rich
+      // prompt track cannot beat its OT-rich displaced twin on quality or chi2 and lose the twin's TID hits
+      constexpr bool kUseHitCountTieBreak = std::is_same_v<pixelTopology::Phase2OTVectorHits, TrackerTraits>;
+      const uint32_t nhi = kUseHitCountTieBreak ? ::reco::nHits(tracks_view, it) : 0u;
+      constexpr bool kTieBreakByHits = std::is_base_of_v<pixelTopology::Phase2, TrackerTraits>;
+
+      // get track parameters and covariances
+      float iParams[nTrackParameters];
+      float iCovs[nTrackParameters];
+      for (int p{0}; p < nTrackParameters; ++p) {
+        iParams[p] = tracks_view[it].state()(p);
+        iCovs[p] = tracks_view[it].covariance()(iParam2iCov[p]);
+      }
+      auto incompatibleTrackParams = [&](uint32_t jt) -> bool {
+        for (int p{0}; p < nTrackParameters; ++p) {
+          const auto dpij = iParams[p] - tracks_view[jt].state()(p);
+          const auto e2dpij = fastDupNSigma2 * (iCovs[p] + tracks_view[jt].covariance()(iParam2iCov[p]));
+          if (dpij * dpij > e2dpij) {
+            return true;
+          }
+        }
+        return false;
+      };
+
+      for (auto hp = foundNtuplets->begin(it); hp != foundNtuplets->end(it); ++hp) {
+        auto const h = *hp;
+        if (h >= hitToTuple.nOnes()) {
+          continue;  // key-range guard (hitContainer content overflow)
+        }
+        auto const *__restrict__ tracksOfHit = hitToTuple.begin(h);
+        const uint32_t n = hitToTuple.size(h);
+        for (uint32_t k = first; k < n; k += step) {
+          auto const jt = tracksOfHit[k];
+          if (jt == it) {
+            continue;
+          }
+          auto const qj = qual(jt);
+          if (qj <= reject) {
+            continue;
+          }
+          if (incompatibleTrackParams(jt)) {
+            continue;
+          }
+          auto const nlj = tracks_view[jt].nLayers();
+          // jt beats it by the order above (a strict order for finite chi2)
+          bool jBetterTail =
+              (qj > qi || (qj == qi && (score(jt) < score(it) ||
+                                        (!(score(it) < score(jt)) &&
+                                         (kTieBreakByHits ? hitsBefore(foundNtuplets, jt, it) : jt < it)))));
+          bool jBetter;
+          if constexpr (kUseHitCountTieBreak) {
+            const uint32_t nhj = ::reco::nHits(tracks_view, jt);
+            jBetter = (nlj > nli) || (nlj == nli && (nhj > nhi || (nhj == nhi && jBetterTail)));
+          } else {
+            jBetter = (nlj > nli) || (nlj == nli && jBetterTail);
+          }
+          if (jBetter) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    // One thread per track, writing only its own quality(); heavy tracks are left to the heavy-track kernel.
     template <typename TrackerTraits>
     class Kernel_rejectDuplicate {
     public:
@@ -1816,82 +1898,59 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     HitContainer const *__restrict__ foundNtuplets,
                                     int32_t const *__restrict__ qualityScratch,
                                     HitToTuple const *__restrict__ phitToTuple,
-                                    float fastDupNSigma2) const {
+                                    float fastDupNSigma2,
+                                    uint32_t *__restrict__ heavyTracks) const {
         // quality to mark rejected
         auto const reject = dupPassThrough ? Quality::loose : Quality::dup;
+        auto const &hitToTuple = *phitToTuple;
 
-        auto &hitToTuple = *phitToTuple;
-        auto qual = [&](uint32_t t) { return static_cast<Quality>(qualityScratch[t]); };
-        auto score = [&](uint32_t it) { return tracks_view[it].chi2(); };
-
-        // Reject a track if a compatible track sharing one of its hits is better: more layers, [Phase2OTVectorHits:
-        // more hits], higher quality, lower chi2, then hitsBefore on Phase-2 or the lower tuple index elsewhere
         for (auto it : cms::alpakatools::uniform_elements(acc, foundNtuplets->nOnes())) {
           if (foundNtuplets->size(it) == 0)
             break;  // guard
-          auto const qi = qual(it);
-          if (qi <= reject)
+          if (static_cast<Quality>(qualityScratch[it]) <= reject) {
             continue;
-          auto const nli = tracks_view[it].nLayers();
-          // Phase2OTVectorHits only: the number of hits ranks between nLayers and quality, so that a pixel-rich
-          // prompt track cannot beat its OT-rich displaced twin on quality or chi2 and lose the twin's TID hits
-          constexpr bool kUseHitCountTieBreak = std::is_same_v<pixelTopology::Phase2OTVectorHits, TrackerTraits>;
-          const uint32_t nhi = kUseHitCountTieBreak ? ::reco::nHits(tracks_view, it) : 0u;
-          constexpr bool kTieBreakByHits = std::is_base_of_v<pixelTopology::Phase2, TrackerTraits>;
-
-          // get track parameters and covariances
-          float iParams[nTrackParameters];
-          float iCovs[nTrackParameters];
-          for (int p{0}; p < nTrackParameters; ++p) {
-            iParams[p] = tracks_view[it].state()(p);
-            iCovs[p] = tracks_view[it].covariance()(iParam2iCov[p]);
           }
-          auto incompatibleTrackParams = [&](uint32_t jt) -> bool {
-            for (int p{0}; p < nTrackParameters; ++p) {
-              const auto dpij = iParams[p] - tracks_view[jt].state()(p);
-              const auto e2dpij = fastDupNSigma2 * (iCovs[p] + tracks_view[jt].covariance()(iParam2iCov[p]));
-              if (dpij * dpij > e2dpij)
-                return true;
-            }
-            return false;
-          };
-
-          bool dominated = false;
-          for (auto hp = foundNtuplets->begin(it); hp != foundNtuplets->end(it) && !dominated; ++hp) {
-            auto const h = *hp;
-            if (h >= hitToTuple.nOnes()) {
-              continue;  // key-range guard (hitContainer content overflow)
-            }
-            for (auto jp = hitToTuple.begin(h); jp != hitToTuple.end(h); ++jp) {
-              auto const jt = *jp;
-              if (jt == it)
-                continue;
-              auto const qj = qual(jt);
-              if (qj <= reject)
-                continue;
-              if (incompatibleTrackParams(jt))
-                continue;
-              auto const nlj = tracks_view[jt].nLayers();
-              // jt beats it by the order above (a strict order for finite chi2)
-              bool jBetterTail =
-                  (qj > qi || (qj == qi && (score(jt) < score(it) ||
-                                            (!(score(it) < score(jt)) &&
-                                             (kTieBreakByHits ? hitsBefore(foundNtuplets, jt, it) : jt < it)))));
-              bool jBetter;
-              if constexpr (kUseHitCountTieBreak) {
-                const uint32_t nhj = ::reco::nHits(tracks_view, jt);
-                jBetter = (nlj > nli) || (nlj == nli && (nhj > nhi || (nhj == nhi && jBetterTail)));
-              } else {
-                jBetter = (nlj > nli) || (nlj == nli && jBetterTail);
-              }
-              if (jBetter) {
-                dominated = true;
-                break;
-              }
+          uint32_t nPairs = 0;
+          for (auto hp = foundNtuplets->begin(it); hp != foundNtuplets->end(it) && nPairs <= kRejectDupHeavyMinPairs;
+               ++hp) {
+            if (*hp < hitToTuple.nOnes()) {
+              nPairs += hitToTuple.size(*hp);
             }
           }
-          if (dominated)
+          if (nPairs > kRejectDupHeavyMinPairs) {
+            heavyTracks[1 + alpaka::atomicAdd(acc, heavyTracks, 1u, alpaka::hierarchy::Blocks{})] = it;
+          } else if (rejectDupDominated<TrackerTraits>(
+                         tracks_view, foundNtuplets, qualityScratch, hitToTuple, fastDupNSigma2, reject, it, 0, 1)) {
             tracks_view[it].quality() = reject;
+          }
+        }
+      }
+    };
+
+    // One block per track of heavyTracks, its threads sharing the entries of each hit's track list.
+    template <typename TrackerTraits>
+    class Kernel_rejectDuplicateHeavyTracks {
+    public:
+      ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+                                    TkSoAView tracks_view,
+                                    bool dupPassThrough,
+                                    HitContainer const *__restrict__ foundNtuplets,
+                                    int32_t const *__restrict__ qualityScratch,
+                                    HitToTuple const *__restrict__ phitToTuple,
+                                    float fastDupNSigma2,
+                                    uint32_t const *__restrict__ heavyTracks) const {
+        auto const reject = dupPassThrough ? Quality::loose : Quality::dup;
+        const uint32_t thread = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u];
+        const uint32_t blockSize = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
+
+        for (uint32_t h : cms::alpakatools::independent_groups(acc, heavyTracks[0])) {
+          const uint32_t it = heavyTracks[1 + h];
+          const bool dominated = rejectDupDominated<TrackerTraits>(
+              tracks_view, foundNtuplets, qualityScratch, *phitToTuple, fastDupNSigma2, reject, it, thread, blockSize);
+          if (alpaka::syncBlockThreadsPredicate<alpaka::BlockOr>(acc, dominated) &&
+              cms::alpakatools::once_per_block(acc)) {
+            tracks_view[it].quality() = reject;
+          }
         }
       }
     };
@@ -3592,19 +3651,44 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // mark duplicates (tracks that share at least one hit)
       numberOfBlocks = cms::alpakatools::divide_up_by(maxTuples, blockSize);
       workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
-      // The shared-hit removers are track-parallel and single-writer: snapshotQuality() freezes the
-      // quality into the scratch, the kernel reads the scratch and writes only each track's own
-      // quality directly (no atomics, no copy-back)
+      // each track's quality() is written by one thread only, reading the scratch filled by snapshotQuality()
       snapshotQuality();
-      alpaka::exec<Acc1D>(queue,
-                          workDiv1D,
-                          Kernel_rejectDuplicate<TrackerTraits>{},
-                          tracks_view,
-                          this->m_params.algoParams_.dupPassThrough_,
-                          this->device_hitContainer_->data(),
-                          qScratch,
-                          this->device_hitToTuple_->data(),
-                          this->m_params.algoParams_.fastDupNSigma2_);
+      if constexpr (std::is_same_v<pixelTopology::Phase1, TrackerTraits>) {
+        alpaka::exec<Acc1D>(queue,
+                            workDiv1D,
+                            Kernel_rejectDuplicate<TrackerTraits>{},
+                            tracks_view,
+                            this->m_params.algoParams_.dupPassThrough_,
+                            this->device_hitContainer_->data(),
+                            qScratch,
+                            this->device_hitToTuple_->data(),
+                            this->m_params.algoParams_.fastDupNSigma2_);
+      } else {
+        // word 0 counts the heavy tracks
+        auto heavyTracks = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, maxTuples + 1);
+        alpaka::memset(queue, heavyTracks, 0, Vec1D{1u});
+        alpaka::exec<Acc1D>(queue,
+                            workDiv1D,
+                            Kernel_rejectDuplicate<TrackerTraits>{},
+                            tracks_view,
+                            this->m_params.algoParams_.dupPassThrough_,
+                            this->device_hitContainer_->data(),
+                            qScratch,
+                            this->device_hitToTuple_->data(),
+                            this->m_params.algoParams_.fastDupNSigma2_,
+                            heavyTracks.data());
+        // one block per heavy track
+        alpaka::exec<Acc1D>(queue,
+                            cms::alpakatools::make_workdiv<Acc1D>(1024u, 256u),
+                            Kernel_rejectDuplicateHeavyTracks<TrackerTraits>{},
+                            tracks_view,
+                            this->m_params.algoParams_.dupPassThrough_,
+                            this->device_hitContainer_->data(),
+                            qScratch,
+                            this->device_hitToTuple_->data(),
+                            this->m_params.algoParams_.fastDupNSigma2_,
+                            heavyTracks.data());
+      }
 #ifdef GPU_DEBUG
       alpaka::wait(queue);
       std::cout << "Kernel_rejectDuplicate   -> done!" << std::endl;
