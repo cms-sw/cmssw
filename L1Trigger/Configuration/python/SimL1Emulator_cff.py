@@ -128,7 +128,7 @@ l1tCaloJet = l1tCaloJetProducer.clone (
 # ----    Produce the simulated CaloJet HTT Sums
 from L1Trigger.L1CaloTrigger.l1tCaloJetHTTProducer_cfi import *
 l1tCaloJetHTT = l1tCaloJetHTTProducer.clone(
-    BXVCaloJetsInputTag = ("L1CaloJet", "CaloJets") 
+    BXVCaloJetsInputTag = ("l1tCaloJet", "L1CaloJetCollectionBXV")
 )
 # ----    Produce the NNCaloTau
 from L1Trigger.L1CaloTrigger.l1tNNCaloTauProducer_cfi import *
