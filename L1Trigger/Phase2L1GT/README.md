@@ -11,9 +11,8 @@ from L1Trigger.Phase2L1GT.l1tGTSingleObjectCond_cfi import l1tGTSingleObjectCond
 from L1Trigger.Phase2L1GT.l1tGTDoubleObjectCond_cfi import l1tGTDoubleObjectCond
 from L1Trigger.Phase2L1GT.l1tGTTripleObjectCond_cfi import l1tGTTripleObjectCond
 from L1Trigger.Phase2L1GT.l1tGTQuadObjectCond_cfi import l1tGTQuadObjectCond
-from L1Trigger.Phase2L1GT.l1tGTLUTs_cfi import *
 ```
-The $\cos$ and $\cosh$ LUTs are defined once, as top-level PSets in [l1tGTLUTs_cfi.py](python/l1tGTLUTs_cfi.py), and the double, triple and quad object conditions refer to them (`refToPSet_`). A configuration using these conditions must therefore also load `l1tGTLUTs_cfi`; otherwise it fails when the process is built.
+The $\cos$ and $\cosh$ LUTs are defined once, as top-level PSets in [l1tGTLUTs_cfi.py](python/l1tGTLUTs_cfi.py), and the double, triple and quad object conditions refer to them (`refToPSet_`). They are loaded with the GT emulator (`L1Trigger/Configuration/python/SimPhase2L1GlobalTrigger_cff.py`, used by the cmsDriver step `L1P2GT`); a configuration that uses these conditions without it must load `L1Trigger.Phase2L1GT.l1tGTLUTs_cfi` itself, otherwise it fails when the process is built.
 One can utilize the standard definitions by invoking the `clone` function and specifying a cut configuration as well as the collection(s) the condition should act on. This is done by setting the corresponding input tag(s) to use, `tag = cms.InputTag("l1tGTProducer", "XXX")`, with `XXX` as the collection name. Available collections are:
 
 | GCT | GMT |  GTT | Correlator Layer 2 |

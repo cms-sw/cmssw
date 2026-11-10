@@ -5,6 +5,9 @@
 
 import FWCore.ParameterSet.Config as cms
 
+# cos/cosh LUTs referenced (refToPSet_) by the double, triple and quad object conditions of the menus
+from L1Trigger.Phase2L1GT.l1tGTLUTs_cfi import *
+
 # Get the GT Producer/first of the "book end"s, responsible for GT inputs
 from L1Trigger.Phase2L1GT.l1tGTProducer_cff import l1tGTProducer
 

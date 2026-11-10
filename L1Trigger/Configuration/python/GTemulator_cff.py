@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 # Global Trigger
 from L1Trigger.Phase2L1GT.l1tGTProducer_cff import *
 from L1Trigger.Phase2L1GT.l1tGTAlgoBlockProducer_cff import *
+# cos/cosh LUTs referenced (refToPSet_) by the double, triple and quad object conditions of the menus
+from L1Trigger.Phase2L1GT.l1tGTLUTs_cfi import *
 
 # define a core which can be extented in customizations:
 GTemulatorTask = cms.Task(
