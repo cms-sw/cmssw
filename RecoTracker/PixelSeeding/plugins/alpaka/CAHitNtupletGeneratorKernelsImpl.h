@@ -1763,6 +1763,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     };
 
+    // Order of two tracks for exact ties: the lower first differing hit id, then the shorter hit list, then the tuple
+    // index. Hit ids, unlike tuple indices, do not depend on the thread order.
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool hitsBefore(HitContainer const *__restrict__ foundNtuplets,
+                                                   uint32_t a,
+                                                   uint32_t b) {
+      auto ha = foundNtuplets->begin(a), hb = foundNtuplets->begin(b);
+      auto const endA = foundNtuplets->end(a), endB = foundNtuplets->end(b);
+      for (; ha != endA && hb != endB; ++ha, ++hb) {
+        if (*ha != *hb) {
+          return *ha < *hb;
+        }
+      }
+      if (ha != endA || hb != endB) {
+        return ha == endA;
+      }
+      return a < b;
+    }
+
     // Track-parallel single-writer shared-hit removers: each thread owns one track, inspects the hit
     // buckets it belongs to (hitToTuple), reads every quality from the frozen scratch snapshot, and writes
     // only its own track's quality()
@@ -1783,8 +1801,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto qual = [&](uint32_t t) { return static_cast<Quality>(qualityScratch[t]); };
         auto score = [&](uint32_t it) { return tracks_view[it].chi2(); };
 
-        // A track is rejected iff some compatible track sharing one of its hits is strictly better by
-        // the total order (more layers, then higher quality, then lower chi2, then lower track index)
+        // Reject a track if a compatible track sharing one of its hits is better: more layers, [Phase2OTVectorHits:
+        // more hits], higher quality, lower chi2, then hitsBefore on Phase-2 or the lower tuple index elsewhere
         for (auto it : cms::alpakatools::uniform_elements(acc, foundNtuplets->nOnes())) {
           if (foundNtuplets->size(it) == 0)
             break;  // guard
@@ -1792,16 +1810,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           if (qi <= reject)
             continue;
           auto const nli = tracks_view[it].nLayers();
-          // Phase2OTVectorHits only: the duplicate winner ordering inserts the TOTAL HIT COUNT as a tie-break
-          // BETWEEN nLayers and quality, giving
-          //   winner = max nLayers -> max total hits -> max quality -> min chi2 -> min index.
-          // reco::nHits() is the track's full CSR hit extent, so it favours the hit-richer member
-          // without special-casing subdetectors and separates tracks that nLayers alone ties (forward
-          // duplicates tying on nLayers would otherwise fall straight to the chi2 tie-break, letting a
-          // pixel-rich prompt track beat its OT-rich displaced twin and losing its TID hits). Off on
-          // every other topology, where the ordering is the upstream one.
+          // Phase2OTVectorHits only: the number of hits ranks between nLayers and quality, so that a pixel-rich
+          // prompt track cannot beat its OT-rich displaced twin on quality or chi2 and lose the twin's TID hits
           constexpr bool kUseHitCountTieBreak = std::is_same_v<pixelTopology::Phase2OTVectorHits, TrackerTraits>;
           const uint32_t nhi = kUseHitCountTieBreak ? ::reco::nHits(tracks_view, it) : 0u;
+          constexpr bool kTieBreakByHits = std::is_base_of_v<pixelTopology::Phase2, TrackerTraits>;
 
           // get track parameters and covariances
           float iParams[nTrackParameters];
@@ -1836,11 +1849,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               if (incompatibleTrackParams(jt))
                 continue;
               auto const nlj = tracks_view[jt].nLayers();
-              // jt dominates it by the total order (nLayers, [total hits], quality, score, then track
-              // index). The score test stays a strict order even for a non-finite score (NaN), so
-              // exactly one of a duplicate pair is always demoted
+              // jt beats it by the order above (a strict order for finite chi2)
               bool jBetterTail =
-                  (qj > qi || (qj == qi && (score(jt) < score(it) || (!(score(it) < score(jt)) && jt < it))));
+                  (qj > qi || (qj == qi && (score(jt) < score(it) ||
+                                            (!(score(it) < score(jt)) &&
+                                             (kTieBreakByHits ? hitsBefore(foundNtuplets, jt, it) : jt < it)))));
               bool jBetter;
               if constexpr (kUseHitCountTieBreak) {
                 const uint32_t nhj = ::reco::nHits(tracks_view, jt);
