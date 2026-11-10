@@ -26,8 +26,6 @@ private:
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_HFNose_token_;
   edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   ticlgeom::Tools rhtools_;
   std::string detector_;
   bool doNose_;
@@ -37,10 +35,6 @@ private:
 TICLLayerTileProducer::TICLLayerTileProducer(const edm::ParameterSet &ps)
     : detector_(ps.getParameter<std::string>("detector")) {
   ticlGeomToken_ = esConsumes<TICLGeomHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""));
-  ticlGeomLookupToken_ =
-      esConsumes<TICLGeomLookupHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""));
-  ticlGeomLayersToken_ =
-      esConsumes<TICLGeomLayersHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""));
 
   doNose_ = (detector_ == "HFNose");
   doBarrel_ = (detector_ == "Barrel");
@@ -59,7 +53,7 @@ TICLLayerTileProducer::TICLLayerTileProducer(const edm::ParameterSet &ps)
 }
 
 void TICLLayerTileProducer::beginRun(edm::Run const &, edm::EventSetup const &es) {
-  rhtools_.setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
+  rhtools_.setGeometry(es.getData(ticlGeomToken_));
 }
 
 void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {

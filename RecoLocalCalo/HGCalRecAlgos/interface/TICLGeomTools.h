@@ -1,16 +1,17 @@
 #ifndef RecoLocalCalo_HGCalRecAlgos_TICLGeomTools_h
 #define RecoLocalCalo_HGCalRecAlgos_TICLGeomTools_h
 
+#include <cassert>
 #include <cmath>
 #include <cstdint>
 #include <limits>
 #include <utility>
 
 #include "CondFormats/HGCalObjects/interface/TICLGeomHost.h"
-#include "CondFormats/HGCalObjects/interface/TICLGeomLayersHost.h"
-#include "CondFormats/HGCalObjects/interface/TICLGeomLookupHost.h"
+#include "CondFormats/HGCalObjects/interface/TICLGeomSoA.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
@@ -20,6 +21,14 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 namespace ticlgeom {
+
+  // The device-side detid constants must match the DetId definitions.
+  static_assert(detail::kDetOffset == static_cast<uint32_t>(DetId::kDetOffset));
+  static_assert(detail::kHGCalEE == DetId::HGCalEE && detail::kHGCalHSi == DetId::HGCalHSi &&
+                detail::kHGCalHSc == DetId::HGCalHSc);
+  static_assert(kUnknownSensorGroup == hgcal::UNKNOWN);
+  static_assert(detail::kSiCellBits == HGCSiliconDetId::kHGCalWaferUOffset);
+  static_assert(detail::kScCellBits == static_cast<uint32_t>(HGCScintillatorDetId::kHGCalRadiusOffset));
 
   // Replacement for RecHitTools::getSubdetectorGeometry for the few host
   // consumers that need the actual CaloSubdetectorGeometry (cell corners
@@ -33,57 +42,37 @@ namespace ticlgeom {
   }
 
   // Host-side drop-in replacement for hgcal::RecHitTools, backed by the
-  // TICLGeom SoA products. Methods keep the RecHitTools names and
+  // TICLGeom SoA product. Methods keep the RecHitTools names and
   // semantics. Detector classification and detid unpacking are computed
   // from the detid bits exactly as RecHitTools does, so they work for any
   // detid; geometry-derived quantities are read from the SoA and require
   // the cell to be part of the configured collection (a miss returns the
-  // sentinel of the corresponding column). Device code reads the same
-  // columns directly.
+  // default value of the ticlgeom::Cell getter). Device code uses TICLGeomSoAConstView.
   class Tools {
   public:
     Tools() = default;
 
-    void setGeometry(TICLGeomHost const& geom, TICLGeomLookupHost const& lookup, TICLGeomLayersHost const& layers) {
-      auto const& view = geom.const_view();
-      common_ = view.common();
-      silicon_ = view.silicon();
-      scint_ = view.scint();
-      lookup_ = lookup.const_view();
-      layers_ = layers.const_view();
+    void setGeometry(TICLGeomHost const& geom) {
+      geom_ = geom.const_view();
       // The facade reproduces geometry-type-1 (v9+) layer semantics only;
       // the v8 DetId::Forward and HcalEndcap branches of RecHitTools are
       // deliberately not modelled. Fail loudly if fed a v8 geometry.
-      assert(common_.geometryType() == 1 && "TICLGeom facade supports only geometry type 1 (v9+)");
+      assert(geom_.geometryType() == 1 && "TICLGeom facade supports only geometry type 1 (v9+)");
     }
 
-    int32_t denseId(const DetId& id) const { return denseIdOf(lookup_, common_, id.rawId()); }
-
-    // block-local indices; the cells are ordered [barrel|silicon|scint]
-    int32_t siliconLocal(int32_t i) const { return i - common_.nBarrel(); }
-    int32_t scintLocal(int32_t i) const { return i - common_.nBarrel() - common_.nSilicon(); }
+    int32_t denseId(const DetId& id) const { return cell(id).index(); }
 
     GlobalPoint getPosition(const DetId& id) const {
-      const int32_t i = denseId(id);
-      if (i < 0) {
-        return GlobalPoint();
-      }
-      return GlobalPoint(common_[i].x(), common_[i].y(), common_[i].z());
+      const Position p = cell(id).position();
+      return GlobalPoint(p.x, p.y, p.z);
     }
 
     GlobalPoint getPositionLayer(int layer, bool nose = false, bool barrel = false) const {
-      const int32_t lay = std::abs(layer);
       if (barrel) {
-        if (lay < layers_.metadata().size()) {
-          return GlobalPoint(layers_[lay].barrelX(), layers_[lay].barrelY(), 0.f);
-        }
-        return GlobalPoint();
+        const Position p = geom_.barrelLayerPosition(layer);
+        return GlobalPoint(p.x, p.y, 0.f);
       }
-      if (lay >= layers_.metadata().size()) {
-        return GlobalPoint();
-      }
-      const float z = nose ? layers_[lay].noseZ() : layers_[lay].z();
-      return GlobalPoint(0.f, 0.f, (layer > 0) ? z : -z);
+      return GlobalPoint(0.f, 0.f, nose ? geom_.noseLayerZ(layer) : geom_.layerZ(layer));
     }
 
     int zside(const DetId& id) const {
@@ -103,11 +92,7 @@ namespace ticlgeom {
       if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
         return HGCSiliconDetId(id).depletion();
       }
-      if (!isSilicon(id)) {
-        return 0.f;
-      }
-      const int32_t i = denseId(id);
-      return (i >= 0) ? silicon_[siliconLocal(i)].siThickness() : 0.f;
+      return isSilicon(id) ? cell(id).thickness() : 0.f;
     }
 
     int getSiThickIndex(const DetId& id) const {
@@ -120,21 +105,15 @@ namespace ticlgeom {
     }
 
     float getRadiusToSide(const DetId& id) const {
-      if (!isSilicon(id)) {
-        return std::numeric_limits<float>::max();
-      }
-      const int32_t i = denseId(id);
-      return (i >= 0) ? silicon_[siliconLocal(i)].radiusToSide() : std::numeric_limits<float>::max();
+      return isSilicon(id) ? cell(id).radiusToSide() : std::numeric_limits<float>::max();
     }
 
     std::pair<float, float> getScintDEtaDPhi(const DetId& id) const {
       if (!isScintillator(id)) {
         return {0.f, 0.f};
       }
-      const int32_t i = denseId(id);
-      const int32_t j = (i >= 0) ? scintLocal(i) : -1;
-      return (j >= 0) ? std::pair<float, float>{scint_[j].scintDEta(), scint_[j].scintDPhi()}
-                      : std::pair<float, float>{0.f, 0.f};
+      const ScintDEtaDPhi d = cell(id).dEtaDPhi();
+      return {d.dEta, d.dPhi};
     }
 
     unsigned int getLayer(const DetId& id) const {
@@ -161,9 +140,9 @@ namespace ticlgeom {
     unsigned int getLayer(ForwardSubdetector type) const {
       switch (type) {
         case ForwardSubdetector::HFNose:
-          return common_.noseLastLayer();
+          return geom_.noseLastLayer();
         case ForwardSubdetector::ForwardEmpty:
-          return common_.numberOfLayers();
+          return geom_.numberOfLayers();
         default:
           return 0;
       }
@@ -172,13 +151,13 @@ namespace ticlgeom {
     unsigned int getLayer(DetId::Detector type, bool nose = false) const {
       switch (type) {
         case DetId::HGCalEE:
-          return common_.lastLayerEE();
+          return geom_.lastLayerEE();
         case DetId::HGCalHSi:
-          return common_.lastLayerFH() - common_.lastLayerEE();
+          return geom_.lastLayerFH() - geom_.lastLayerEE();
         case DetId::HGCalHSc:
-          return common_.lastLayerBH() - common_.firstLayerBH() + 1;
+          return geom_.lastLayerBH() - geom_.firstLayerBH() + 1;
         case DetId::Forward:
-          return nose ? common_.noseLastLayer() : common_.lastLayerFH();
+          return nose ? geom_.noseLastLayer() : geom_.lastLayerFH();
         default:
           return 0;
       }
@@ -193,15 +172,9 @@ namespace ticlgeom {
       return layer;
     }
 
-    int getCellType(const DetId& id) const {
-      const int32_t i = denseId(id);
-      return (i >= 0) ? common_[i].cellType() : -1;
-    }
+    int getCellType(const DetId& id) const { return cell(id).type(); }
 
-    int getSensorGroup(const DetId& id) const {
-      const int32_t i = denseId(id);
-      return (i >= 0) ? common_[i].sensorGroup() : static_cast<int>(hgcal::UNKNOWN);
-    }
+    int getSensorGroup(const DetId& id) const { return cell(id).sensorGroup(); }
 
     std::pair<int, int> getWafer(const DetId& id) const {
       if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
@@ -225,13 +198,7 @@ namespace ticlgeom {
       return {kInvalidCoord, kInvalidCoord};
     }
 
-    bool isHalfCell(const DetId& id) const {
-      if (!isSilicon(id)) {
-        return false;
-      }
-      const int32_t i = denseId(id);
-      return (i >= 0) ? silicon_[siliconLocal(i)].isHalfCell() : false;
-    }
+    bool isHalfCell(const DetId& id) const { return isSilicon(id) && cell(id).isHalfCell(); }
 
     bool isSilicon(const DetId& id) const {
       return (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi ||
@@ -240,13 +207,7 @@ namespace ticlgeom {
 
     bool isScintillator(const DetId& id) const { return id.det() == DetId::HGCalHSc; }
 
-    bool isScintillatorFine(const DetId& id) const {
-      if (!isScintillator(id)) {
-        return false;
-      }
-      const int32_t i = denseId(id);
-      return (i >= 0) ? scint_[scintLocal(i)].isScintillatorFine() : false;
-    }
+    bool isScintillatorFine(const DetId& id) const { return isScintillator(id) && cell(id).isFine(); }
 
     bool isBarrel(const DetId& id) const {
       return (id.det() == DetId::Ecal && id.subdetId() == EcalBarrel) ||
@@ -263,12 +224,9 @@ namespace ticlgeom {
 
     float getPhi(const GlobalPoint& position) const { return std::atan2(position.y(), position.x()); }
 
-    float getPhi(const DetId& id) const {
-      const int32_t i = denseId(id);
-      // atan2 gives the RecHitTools convention: +pi at the boundary where
-      // GlobalPoint::phi wraps to -pi
-      return (i >= 0) ? std::atan2(common_[i].y(), common_[i].x()) : 0.f;
-    }
+    // atan2 gives the RecHitTools convention: +pi at the boundary where
+    // GlobalPoint::phi wraps to -pi
+    float getPhi(const DetId& id) const { return cell(id).phi(); }
 
     float getPt(const GlobalPoint& position, const float& hitEnergy, const float& vertex_z = 0.) const {
       return hitEnergy / std::cosh(getEta(position, vertex_z));
@@ -278,31 +236,23 @@ namespace ticlgeom {
       return getPt(getPosition(id), hitEnergy, vertex_z);
     }
 
-    int getScintMaxIphi(const DetId& id) const {
-      if (!isScintillator(id)) {
-        return 0;
-      }
-      const int32_t i = denseId(id);
-      return (i >= 0) ? scint_[scintLocal(i)].scintMaxIphi() : 0;
-    }
+    int getScintMaxIphi(const DetId& id) const { return isScintillator(id) ? cell(id).maxIphi() : 0; }
 
     unsigned int lastLayerEE(bool nose = false) const {
-      return nose ? HFNoseDetId::HFNoseLayerEEmax : common_.lastLayerEE();
+      return nose ? HFNoseDetId::HFNoseLayerEEmax : geom_.lastLayerEE();
     }
-    unsigned int lastLayerFH() const { return common_.lastLayerFH(); }
-    unsigned int firstLayerBH() const { return common_.firstLayerBH(); }
-    unsigned int lastLayerBH() const { return common_.lastLayerBH(); }
-    unsigned int lastLayer(bool nose = false) const {
-      return nose ? common_.noseLastLayer() : common_.numberOfLayers();
-    }
-    unsigned int getNumberOfLayers() const { return common_.numberOfLayers(); }
-    unsigned int lastLayerECAL() const { return common_.lastLayerECAL(); }
-    unsigned int lastLayerBarrel() const { return common_.lastLayerBarrel(); }
+    unsigned int lastLayerFH() const { return geom_.lastLayerFH(); }
+    unsigned int firstLayerBH() const { return geom_.firstLayerBH(); }
+    unsigned int lastLayerBH() const { return geom_.lastLayerBH(); }
+    unsigned int lastLayer(bool nose = false) const { return nose ? geom_.noseLastLayer() : geom_.numberOfLayers(); }
+    unsigned int getNumberOfLayers() const { return geom_.numberOfLayers(); }
+    unsigned int lastLayerECAL() const { return geom_.lastLayerECAL(); }
+    unsigned int lastLayerBarrel() const { return geom_.lastLayerBarrel(); }
     unsigned int maxNumberOfWafersPerLayer(bool nose = false) const {
-      return nose ? common_.maxNumberOfWafersNose() : common_.maxNumberOfWafersPerLayer();
+      return nose ? geom_.noseMaxWafersPerLayer() : geom_.maxWafersPerLayer();
     }
-    int getScintMaxIphi() const { return common_.bhMaxIphi(); }
-    int getGeometryType() const { return common_.geometryType(); }
+    int getScintMaxIphi() const { return geom_.scintMaxIphi(); }
+    int getGeometryType() const { return geom_.geometryType(); }
 
     std::pair<uint32_t, uint32_t> firstAndLastLayer(DetId::Detector det, int subdet) const {
       if ((det == DetId::HGCalEE) || ((det == DetId::Forward) && (subdet == ForwardSubdetector::HGCEE))) {
@@ -310,7 +260,7 @@ namespace ticlgeom {
       } else if ((det == DetId::HGCalHSi) || ((det == DetId::Forward) && (subdet == ForwardSubdetector::HGCHEF))) {
         return {lastLayerEE() + 1, lastLayerFH()};
       } else if ((det == DetId::Forward) && (subdet == ForwardSubdetector::HFNose)) {
-        return {1, common_.noseLastLayer()};
+        return {1, geom_.noseLastLayer()};
       } else {
         return {firstLayerBH(), lastLayerBH()};
       }
@@ -318,42 +268,25 @@ namespace ticlgeom {
 
     // corners must be the RecHitTools default of 3; the column is
     // precomputed at that value
-    bool maskCell(const DetId& id, int corners = 3) const {
-      const int32_t i = denseId(id);
-      return (i >= 0) ? common_[i].masked() : false;
-    }
+    bool maskCell(const DetId& id, int corners = 3) const { return cell(id).masked(); }
 
     hgcal::RecHitTools::siliconWaferInfo getWaferInfo(const DetId& id) const {
-      const int32_t i = denseId(id);
-      if (i < 0 || !isSilicon(id)) {
-        return {};
-      }
-      auto const si = silicon_[siliconLocal(i)];
-      return {
-          si.waferType(), si.waferPartialType(), si.waferOrientation(), si.waferPlacementIndex(), common_[i].cassette()};
+      const WaferInfo w = cell(id).waferInfo();
+      return {w.type, w.partialType, w.orientation, w.placementIndex, w.cassette};
     }
 
     hgcal::RecHitTools::scintillatorTileInfo getTileInfo(const DetId& id) const {
-      const int32_t i = denseId(id);
-      if (i < 0 || !isScintillator(id)) {
-        return {};
-      }
-      auto const sc = scint_[scintLocal(i)];
-      return {sc.tileType(), sc.tileSipm(), common_[i].cassette()};
+      const TileInfo t = cell(id).tileInfo();
+      return {t.type, t.sipm, t.cassette};
     }
 
-    TICLGeomCommonSoAConstView const& commonView() const { return common_; }
-    TICLGeomSiliconSoAConstView const& siliconView() const { return silicon_; }
-    TICLGeomScintSoAConstView const& scintView() const { return scint_; }
-    TICLGeomLookupSoAConstView const& lookupView() const { return lookup_; }
-    TICLGeomLayersSoAConstView const& layersView() const { return layers_; }
+    // The same geometry for device code.
+    TICLGeomSoAConstView const& geom() const { return geom_; }
 
   private:
-    TICLGeomCommonSoAConstView common_;
-    TICLGeomSiliconSoAConstView silicon_;
-    TICLGeomScintSoAConstView scint_;
-    TICLGeomLookupSoAConstView lookup_;
-    TICLGeomLayersSoAConstView layers_;
+    Cell cell(const DetId& id) const { return geom_.cell(id.rawId()); }
+
+    TICLGeomSoAConstView geom_;
   };
 
 }  // namespace ticlgeom

@@ -2,6 +2,8 @@
 #define __RecoParticleFlow_PFClusterProducer_BarrelLayerClusterProducer_H__
 
 // user include files
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -54,8 +56,6 @@ private:
   unsigned int nHitsTime_;
   edm::EDGetTokenT<reco::PFRecHitCollection> hits_token_;
   edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
 
   std::unique_ptr<HGCalClusteringAlgoBase> algo_;
   ticlgeom::Tools rhtools_;
@@ -72,11 +72,7 @@ BarrelLayerClusterProducer::BarrelLayerClusterProducer(const edm::ParameterSet& 
       nHitsTime_(ps.getParameter<unsigned int>("nHitsTime")),
       hits_token_{consumes<reco::PFRecHitCollection>(ps.getParameter<edm::InputTag>("recHits"))},
       ticlGeomToken_{
-          consumesCollector().esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", "withBarrel"))},
-      ticlGeomLookupToken_{
-          consumesCollector().esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", "withBarrel"))},
-      ticlGeomLayersToken_{
-          consumesCollector().esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""))} {
+          consumesCollector().esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", "withBarrel"))} {
   auto pluginPSet = ps.getParameter<edm::ParameterSet>("plugin");
   std::string type = pluginPSet.getParameter<std::string>("type");
   algo_ = HGCalLayerClusterAlgoFactory::get()->create(type, pluginPSet);
@@ -119,7 +115,7 @@ void BarrelLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions
 
 void BarrelLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   edm::Handle<reco::PFRecHitCollection> hits;
-  rhtools_.setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
+  rhtools_.setGeometry(es.getData(ticlGeomToken_));
 
   //auto density = std::make_unique<Density>();
   algo_->getEventSetup(es, rhtools_);
@@ -136,7 +132,7 @@ void BarrelLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup&
   }
   algo_->makeClusters();
 
-  std::unique_ptr<std::vector<reco::CaloCluster>> clusters(new std::vector<reco::CaloCluster>);
+  std::unique_ptr<std::vector<reco::CaloCluster>> clusters = std::make_unique<std::vector<reco::CaloCluster>>();
   *clusters = algo_->getClusters(false);
   auto clusterHandle = evt.put(std::move(clusters));
 
@@ -175,7 +171,7 @@ void BarrelLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup&
     times.push_back(timeCl);
   }
 
-  std::unique_ptr<std::vector<float>> layerClustersMask(new std::vector<float>);
+  std::unique_ptr<std::vector<float>> layerClustersMask = std::make_unique<std::vector<float>>();
   layerClustersMask->resize(clusterHandle->size(), 1.0);
   evt.put(std::move(layerClustersMask), "InitialLayerClustersMask");
 

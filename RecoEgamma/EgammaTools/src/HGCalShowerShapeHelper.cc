@@ -303,8 +303,7 @@ HGCalShowerShapeHelper::HGCalShowerShapeHelper(edm::ConsumesCollector &&sumes)
 }
 
 void HGCalShowerShapeHelper::initPerSetup(const edm::EventSetup &iSetup) {
-  recHitTools_->setGeometry(
-      iSetup.getData(ticlGeomToken_), iSetup.getData(ticlGeomLookupToken_), iSetup.getData(ticlGeomLayersToken_));
+  recHitTools_->setGeometry(iSetup.getData(ticlGeomToken_));
 }
 
 void HGCalShowerShapeHelper::initPerEvent(const std::vector<reco::PFRecHit> &pfRecHits) {

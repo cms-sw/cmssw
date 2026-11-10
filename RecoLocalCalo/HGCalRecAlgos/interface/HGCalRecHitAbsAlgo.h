@@ -22,9 +22,7 @@ public:
   /// Destructor
   virtual ~HGCalRecHitAbsAlgo() {}
 
-  inline void set(TICLGeomHost const& geom, TICLGeomLookupHost const& lookup, TICLGeomLayersHost const& layers) {
-    rhtools_.setGeometry(geom, lookup, layers);
-  }
+  inline void set(TICLGeomHost const& geom) { rhtools_.setGeometry(geom); }
 
   /// make rechits from dataframes
   virtual void setLayerWeights(const std::vector<float>& weights) {}

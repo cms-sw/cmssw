@@ -76,8 +76,6 @@ public:
 
 protected:
   edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   edm::InputTag label_lcl;
   std::vector<edm::InputTag> label_tst;
   std::vector<edm::InputTag> allTracksterTracksterAssociatorsLabels_;

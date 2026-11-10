@@ -1,9 +1,9 @@
 #include <cmath>
 #include <limits>
 #include <string>
+#include <utility>
 
 #include "CondFormats/HGCalObjects/interface/TICLGeomHost.h"
-#include "CondFormats/HGCalObjects/interface/TICLGeomLookupHost.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -19,6 +19,17 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
+namespace {
+  // A cell points to its view, so only a view that is not a temporary gives one.
+  template <typename V>
+  concept GivesCell = requires(V&& v) {
+    std::forward<V>(v).cell(0u);
+    std::forward<V>(v).cellAt(0);
+  };
+  static_assert(GivesCell<TICLGeomSoAConstView const&>);
+  static_assert(!GivesCell<TICLGeomSoAConstView>);
+}  // namespace
+
 // Closure test for the TICLGeom SoA: checks the rawDetId ordering, both
 // lookups (binary search and dense id hash table), and every column and
 // scalar against the RecHitTools method it replaces.
@@ -27,8 +38,6 @@ public:
   explicit TICLGeomAnalyzer(const edm::ParameterSet& iConfig)
       : label_(iConfig.getParameter<std::string>("label")),
         ticlGeomToken_(esConsumes(edm::ESInputTag("", label_))),
-        ticlGeomLookupToken_(esConsumes(edm::ESInputTag("", label_))),
-        ticlGeomLayersToken_(esConsumes(edm::ESInputTag("", ""))),
         caloGeomToken_(esConsumes()) {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -44,13 +53,14 @@ public:
     auto const common = blocks.common();
     auto const silicon = blocks.silicon();
     auto const scint = blocks.scint();
-    auto const& lookup = iSetup.getData(ticlGeomLookupToken_).const_view();
+    auto const lookup = blocks.lookup();
 
     hgcal::RecHitTools tools;
     tools.setGeometry(caloGeom);
 
     ticlgeom::Tools facade;
-    facade.setGeometry(ticlGeom, iSetup.getData(ticlGeomLookupToken_), iSetup.getData(ticlGeomLayersToken_));
+    facade.setGeometry(ticlGeom);
+    auto const& geom = facade.geom();
 
     const int32_t n = common.metadata().size();
     constexpr float tol = 1.e-4f;
@@ -73,6 +83,7 @@ public:
       }
       require(ticlgeom::indexOf(common, rawId) == i, "indexOf");
       require(ticlgeom::denseIdOf(lookup, common, rawId) == i, "denseIdOf");
+      require(geom.cell(rawId).index() == i, "cell");
 
       const auto pos = tools.getPosition(id);
       require(std::abs(common[i].x() - pos.x()) < tol, "x");
@@ -80,10 +91,10 @@ public:
       require(std::abs(common[i].z() - pos.z()) < tol, "z");
       // the facade and SoA helpers derive eta and phi from x,y,z; check
       // they match RecHitTools
-      require(std::abs(ticlgeom::etaFromVertex(common, i, 0.f) - tools.getEta(id)) < tol, "etaFromVertex");
+      require(std::abs(geom.cellAt(i).eta() - tools.getEta(id)) < tol, "Cell eta");
       require(std::abs(facade.getPhi(id) - tools.getPhi(id)) < tol, "facade getPhi");
       require(std::abs(facade.getEta(id) - tools.getEta(id)) < tol, "facade getEta");
-      require(std::abs(ticlgeom::pt(common, i, 1.f, 0.f) - tools.getPt(id, 1.f, 0.f)) < tol, "pt");
+      require(std::abs(geom.cellAt(i).pt(1.f) - tools.getPt(id, 1.f, 0.f)) < tol, "Cell pt");
 
       require(common[i].zside() == tools.zside(id), "zside");
       require(common[i].layer() == static_cast<int16_t>(tools.getLayer(id)), "layer");
@@ -231,8 +242,6 @@ public:
 private:
   const std::string label_;
   const edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  const edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  const edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
 };
 
