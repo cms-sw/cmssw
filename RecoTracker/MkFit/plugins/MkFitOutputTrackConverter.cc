@@ -604,9 +604,7 @@ void MkFitOutputTrackConverter::convertCandidates(const MkFitOutputWrapper& mkFi
     auto detH0 = recHits[0].det();
 
     if (detH0 == nullptr) {
-      edm::LogInfo("MkFitOutputTrackConverter")
-          << "Got nullptr from the first hit det() " << candIndex << " failed, ignoring the candidate";
-      continue;
+      throw cms::Exception("LogicError") << "Got nullptr from the first hit det() of candidate " << candIndex;
     }
 
     auto tsosState = TrajectoryStateOnSurface(fts, detH0->surface());
