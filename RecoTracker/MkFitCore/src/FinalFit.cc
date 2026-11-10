@@ -263,8 +263,9 @@ namespace mkfit::final_fit {
           material_given(modMat->radl, modMat->bbxi, noMatEffPtr, in.n_proc, m);
         else
           material_grid(*pass.pflags.tracker_info, outPar, noMatEffPtr, in.n_proc, m);
+        // eloss_sign_from_pass: the direction of the pass (+1 outward, -1 inward) in place of each step's path length
         if (pass.ffflags.eloss_sign_from_pass)
-          eloss_sign_of_pass(pass.outward, noMatEffPtr, in.n_proc, m);
+          eloss_sign_from_path(MPlexQF(pass.outward ? 1.f : -1.f), noMatEffPtr, in.n_proc, m);
         else
           eloss_sign_from_path(s, noMatEffPtr, in.n_proc, m);
         apply_material(m, plNrm, outErr, outPar, in.n_proc, pass.ms_ref_p);

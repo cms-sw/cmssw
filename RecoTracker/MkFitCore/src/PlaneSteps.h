@@ -137,9 +137,9 @@ namespace mkfit {
     void material_given(
         const MPlexQF& radl, const MPlexQF& xi, const MPlexQI* noMatEffPtr, const int N_proc, MaterialAt& m);
 
-    // Sign of the energy loss: from the sign of the path length, or from the pass (outward loses).
+    // Sign of the energy loss from the sign of s: the path length of each step, or the direction of the pass
+    // (+1 outward, -1 inward) given in its place.
     void eloss_sign_from_path(const MPlexQF& s, const MPlexQI* noMatEffPtr, const int N_proc, MaterialAt& m);
-    void eloss_sign_of_pass(const bool outward, const MPlexQI* noMatEffPtr, const int N_proc, MaterialAt& m);
 
     // Multiple scattering and energy loss of the material m on the plane with normal plNrm.
     // ms_ref_p: per-lane |p| at which the scattering noise is evaluated; nullptr = the state's own momentum.

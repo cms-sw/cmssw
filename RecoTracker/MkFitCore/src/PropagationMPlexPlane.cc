@@ -613,14 +613,6 @@ namespace mkfit::plane {
     }
   }
 
-  void eloss_sign_of_pass(const bool outward, const MPlexQI* noMatEffPtr, const int N_proc, MaterialAt& m) {
-#pragma omp simd
-    for (int n = 0; n < NN; ++n) {
-      const bool none = n >= N_proc || (noMatEffPtr && noMatEffPtr->constAt(n, 0, 0));
-      m.sign(n, 0, 0) = none ? -1.f : (outward ? 1.f : -1.f);
-    }
-  }
-
   void apply_material(
       const MaterialAt& m, const MPlexHV& plNrm, MPlexLS& err, MPlexLV& par, const int N_proc, const float* ms_ref_p) {
     applyMaterialEffects(m.radl, m.xi, m.sign, plNrm, err, par, N_proc, ms_ref_p);
