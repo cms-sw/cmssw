@@ -380,7 +380,7 @@ def generate(args):
     sequences = splitOff(full, paths, sequences, truth, TRUTH_TASK, TRUTH_PATH, LEGACY_PATH)
 
     top = os.path.join(args.outdir, FRAGMENT)
-    for kind in ("modules", "eventsetup", "sequences", "paths"):
+    for kind in ("modules", "eventsetup", "psets", "sequences", "paths"):
         directory = os.path.join(top, kind)
         shutil.rmtree(directory, ignore_errors=True)
         os.makedirs(directory)
@@ -392,7 +392,6 @@ def generate(args):
         writeFile(os.path.join(top, "modules"), label, "", getattr(full, label).dumpPython())
     for label in sorted(es):
         writeFile(os.path.join(top, "eventsetup"), label, "", es[label].dumpPython())
-    os.makedirs(os.path.join(top, "psets"), exist_ok=True)
     for label in sorted(psets):
         writeFile(os.path.join(top, "psets"), label, "", psets[label].dumpPython())
     for label in sorted(sequences):
