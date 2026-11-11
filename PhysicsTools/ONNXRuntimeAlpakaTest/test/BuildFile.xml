@@ -1,0 +1,35 @@
+<test name="testONNXRuntimeAlpakaSimpleNetSerialSync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b serial_sync --only SimpleNet -ts 35 0 1 31 32 33 100 -ne 14 -ns 2 -nt 2"/>
+<test name="testONNXRuntimeAlpakaMultiHeadNetSerialSync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b serial_sync --only MultiHeadNet -ts 35 0 1 31 32 33 100 -ne 14 -ns 2 -nt 2"/>
+<test name="testONNXRuntimeAlpakaMaskedNetSerialSync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b serial_sync --only MaskedNet -ts 35 0 1 31 32 33 100 -ne 14 -ns 2 -nt 2"/>
+<test name="testONNXRuntimeAlpakaTinyResNetSerialSync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b serial_sync --only TinyResNet -ts 35 0 1 31 32 33 100 -ne 14 -ns 2 -nt 2"/>
+<test name="testONNXRuntimeAlpakaScaledNetSerialSync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b serial_sync --only ScaledNet -ts 35 0 1 31 32 33 100 -ne 14 -ns 2 -nt 2"/>
+<test name="testONNXRuntimeAlpakaSimpleNetCudaAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b cuda_async --only SimpleNet -ts 35 0 1 31 32 33 100 -ne 14 -ns 2 -nt 2">
+  <use name="cuda"/>
+</test>
+<test name="testONNXRuntimeAlpakaMultiHeadNetCudaAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b cuda_async --only MultiHeadNet -ts 35 0 1 31 32 33 100 -ne 14 -ns 2 -nt 2">
+  <use name="cuda"/>
+</test>
+<test name="testONNXRuntimeAlpakaMaskedNetCudaAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b cuda_async --only MaskedNet -ts 35 0 1 31 32 33 100 -ne 14 -ns 2 -nt 2">
+  <use name="cuda"/>
+</test>
+<test name="testONNXRuntimeAlpakaTinyResNetCudaAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b cuda_async --only TinyResNet -ts 35 0 1 31 32 33 100 -ne 14 -ns 2 -nt 2">
+  <use name="cuda"/>
+</test>
+<test name="testONNXRuntimeAlpakaScaledNetCudaAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b cuda_async --only ScaledNet -ts 35 0 1 31 32 33 100 -ne 14 -ns 2 -nt 2">
+  <use name="cuda"/>
+</test>
+<test name="testONNXRuntimeAlpakaSimpleNetROCmAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b rocm_async --only SimpleNet -ts 35 0 1 31 32 33 100 -ne 14 -ns 2 -nt 2">
+  <use name="rocm"/>
+</test>
+<test name="testONNXRuntimeAlpakaMultiHeadNetROCmAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b rocm_async --only MultiHeadNet -ts 35 0 1 31 32 33 100 -ne 14 -ns 2 -nt 2">
+  <use name="rocm"/>
+</test>
+<test name="testONNXRuntimeAlpakaMaskedNetROCmAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b rocm_async --only MaskedNet -ts 35 0 1 31 32 33 100 -ne 14 -ns 2 -nt 2">
+  <use name="rocm"/>
+</test>
+<test name="testONNXRuntimeAlpakaTinyResNetROCmAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b rocm_async --only TinyResNet -ts 35 0 1 31 32 33 100 -ne 14 -ns 2 -nt 2">
+  <use name="rocm"/>
+</test>
+<test name="testONNXRuntimeAlpakaScaledNetROCmAsync" command="cmsRun ${LOCALTOP}/src/PhysicsTools/ONNXRuntimeAlpakaTest/test/runONNXRuntimeAlpakaTest.py -b rocm_async --only ScaledNet -ts 35 0 1 31 32 33 100 -ne 14 -ns 2 -nt 2">
+  <use name="rocm"/>
+</test>
