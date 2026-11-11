@@ -306,5 +306,26 @@ TEST_CASE("SoABlocks") {
       REQUIRE_THAT(nestedBlocksConstView.simple()[i].z(), WithinRel(2.3f));
       REQUIRE_THAT(nestedBlocksConstView.simple()[i].t(), WithinRel(2.4f));
     }
+
+    REQUIRE(NestedBlocks::ConstDescriptor::names[0] == "blocks");
+    REQUIRE(NestedBlocks::ConstDescriptor::names[1] == "simple");
+
+    REQUIRE(NestedBlocks::Descriptor::names[0] == "blocks");
+    REQUIRE(NestedBlocks::Descriptor::names[1] == "simple");
+
+    REQUIRE(NestedBlocks::ConstDescriptor::names[0] == "blocks");
+    REQUIRE(NestedBlocks::ConstDescriptor::names[1] == "simple");
+
+    using SoAPCA = SoAPCATemplate<>;
+
+    REQUIRE(SoAPCA::ConstDescriptor::names[0] == "vector_1");
+    REQUIRE(SoAPCA::ConstDescriptor::names[1] == "vector_2");
+    REQUIRE(SoAPCA::ConstDescriptor::names[2] == "vector_3");
+    REQUIRE(SoAPCA::ConstDescriptor::names[3] == "candidateDirection");
+
+    REQUIRE(SoAPCA::Descriptor::names[0] == "vector_1");
+    REQUIRE(SoAPCA::Descriptor::names[1] == "vector_2");
+    REQUIRE(SoAPCA::Descriptor::names[2] == "vector_3");
+    REQUIRE(SoAPCA::Descriptor::names[3] == "candidateDirection");
   }
 }
