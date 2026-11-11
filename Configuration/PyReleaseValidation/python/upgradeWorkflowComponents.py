@@ -3763,30 +3763,6 @@ upgradeWFs['Phase2_HeavyIon'] = UpgradeWorkflow_Phase2_HeavyIon(
     offset = 0.85,
 )
 
-class UpgradeWorkflow_DYTauLTauH(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties):
-        if stepDict[step][k] is not None:
-            if 'GenSimHLBeamSpot14' in step:
-                # use GenSimHLBeamSpotLHE14 content (LHE,GEN,SIM) for LHE-based fragments
-                stepDict[stepName][k] = merge([{}, stepDict['GenSimHLBeamSpotLHE14'][k]])
-            else:
-                stepDict[stepName][k] = merge([{}, stepDict[step][k]])
-    def condition(self, fragment, stepList, key, hasHarvest):
-        return ('DYto2TautoETauh' in fragment or 'DYto2TautoMuTauh' in fragment) and 'Run4' in key
-
-upgradeWFs['DYTauLTauH'] = UpgradeWorkflow_DYTauLTauH(
-    steps = [
-        'GenSimHLBeamSpot14',
-        'DigiTrigger',
-        'RecoGlobal',
-        'HARVESTGlobal',
-        'ALCAPhase2',
-    ],
-    PU = [],
-    suffix = '_DYTauLTauH',
-    offset = 0.87,
-)
-
 # check for duplicates in offsets or suffixes
 offsets  = [specialWF.offset for specialType,specialWF in upgradeWFs.items()]
 suffixes = [specialWF.suffix for specialType,specialWF in upgradeWFs.items()]
