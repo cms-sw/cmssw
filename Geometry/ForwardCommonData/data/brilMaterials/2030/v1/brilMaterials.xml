@@ -1,0 +1,202 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<MaterialSection label="brilMaterials.xml">
+  <CompositeMaterial name="BRIL_GLUE" density="1.05*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.0719">
+      <rMaterial name="materials:Hydrogen" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.5999">
+      <rMaterial name="materials:Carbon" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0999">
+      <rMaterial name="materials:Nitrogen" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.2283">
+      <rMaterial name="materials:Oxygen" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="BRIL_SiO2" density="2.32*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.5325606476180331">
+      <rMaterial name="materials:Oxygen" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.4674393523819669">
+      <rMaterial name="materials:Silicon" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="BRIL_FR4" density="1.85*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.82726">
+      <rMaterial name="brilMaterials:BRIL_SiO2" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.17274">
+      <rMaterial name="brilMaterials:BRIL_GLUE" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="BRIL_DIAM_DET" density="1.7102*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.133999">
+      <rMaterial name="materials:Carbon" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.865389">
+      <rMaterial name="brilMaterials:BRIL_FR4" />
+    </MaterialFraction>
+    <MaterialFraction fraction="3.5e-05">
+      <rMaterial name="materials:Titanium" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.000441">
+      <rMaterial name="materials:Tungsten" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.000113">
+      <rMaterial name="materials:Gold" />
+    </MaterialFraction>
+    <MaterialFraction fraction="2.3e-05">
+      <rMaterial name="materials:Air" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="BRIL_ALUMINUM" density="2.6989*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="1">
+      <rMaterial name="materials:Aluminium" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="BRIL_STSTEEL" density="8.0*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.6178">
+      <rMaterial name="materials:Iron" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.185">
+      <rMaterial name="materials:Chromium" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.14">
+      <rMaterial name="materials:Nickel" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.025">
+      <rMaterial name="materials:Molybdenum" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.01">
+      <rMaterial name="materials:Silicon" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0003">
+      <rMaterial name="materials:Phosphorus" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0003">
+      <rMaterial name="materials:Carbon" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0001">
+      <rMaterial name="materials:Sulfur" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0005">
+      <rMaterial name="materials:Nitrogen" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.001">
+      <rMaterial name="materials:Cobalt" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.02">
+      <rMaterial name="materials:Manganese" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="BRIL_AIREX" density="0.0494*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.0485">
+      <rMaterial name="materials:Hydrogen" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.6559">
+      <rMaterial name="materials:Carbon" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.09">
+      <rMaterial name="materials:Nitrogen" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.2056">
+      <rMaterial name="materials:Oxygen" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="BRIL_SS304L" density="8.02*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.670825">
+      <rMaterial name="materials:Iron" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.185">
+      <rMaterial name="materials:Chromium" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.1125">
+      <rMaterial name="materials:Nickel" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.001">
+      <rMaterial name="materials:Cobalt" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.01">
+      <rMaterial name="materials:Silicon" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.000225">
+      <rMaterial name="materials:Phosphorus" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0003">
+      <rMaterial name="materials:Carbon" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.00015">
+      <rMaterial name="materials:Sulfur" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.02">
+      <rMaterial name="materials:Manganese" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="BRIL_PLT" density="0.539*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.7108">
+      <rMaterial name="materials:Carbon fibre str." />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.02252">
+      <rMaterial name="brilMaterials:BRIL_ALUMINUM" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.06823">
+      <rMaterial name="brilMaterials:BRIL_AIREX" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.10401">
+      <rMaterial name="brilMaterials:BRIL_SS304L" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.09444">
+      <rMaterial name="brilMaterials:BRIL_GLUE" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="BRIL_ALN" density="3.26*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.34173">
+      <rMaterial name="materials:Nitrogen" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.65827">
+      <rMaterial name="materials:Aluminium" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="BRIL_ABS" density="1.04*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.08109">
+      <rMaterial name="materials:Hydrogen" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.85262">
+      <rMaterial name="materials:Carbon" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.06629">
+      <rMaterial name="materials:Nitrogen" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="BRIL_FEE" density="0.05*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.148716">
+      <rMaterial name="materials:Silicon" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.267757">
+      <rMaterial name="brilMaterials:BRIL_ALUMINUM" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.402748">
+      <rMaterial name="brilMaterials:BRIL_FR4" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.180779">
+      <rMaterial name="brilMaterials:BRIL_ABS" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="BRIL_SILICON" density="2.33*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="1">
+      <rMaterial name="materials:Silicon" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="BRIL_SCSN81" density="1.05*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.077423">
+      <rMaterial name="materials:Hydrogen" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.922577">
+      <rMaterial name="materials:Carbon" />
+    </MaterialFraction>
+  </CompositeMaterial>
+</MaterialSection>
+</DDDefinition>
