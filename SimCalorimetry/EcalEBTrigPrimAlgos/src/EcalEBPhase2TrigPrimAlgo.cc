@@ -183,8 +183,9 @@ void EcalEBPhase2TrigPrimAlgo::run(EBDigiCollectionPh2 const *digi, EcalEBPhase2
         }
 
         // call spike finder right after the linearizer
-        this->getSpikeTagger()->setParameters(dataFrames[iXstal].id(), ecaltpgBadX_);
-        auto const isASpike = this->getSpikeTagger()->process(lin_out_);
+        std::vector<bool> spiketags(nrSamples_, false);
+        spike_tagger_->setParameters(dataFrames[iXstal].id(), ecaltpgBadX_);
+        spike_tagger_->process(lin_out_, spiketags);
 
         // Call the amplitude reconstructor
         this->getAmplitudeFinder()->setParameters(myid.rawId(), ecaltpgAmplWeightMap_, ecaltpgWeightGroup_);
@@ -269,7 +270,7 @@ void EcalEBPhase2TrigPrimAlgo::run(EBDigiCollectionPh2 const *digi, EcalEBPhase2
             LogDebug("") << "TrigPrimAlgo etInADCt " << outEt_[iSample] << " outTime " << time << std::endl;
           }
 
-          tp.setSample(nSam, EcalEBPhase2TriggerPrimitiveSample(etInADC, isASpike, time));
+          tp.setSample(nSam, EcalEBPhase2TriggerPrimitiveSample(etInADC, spiketags[iSample], time));
           nSam++;
         }
 
