@@ -47,7 +47,8 @@ elif args.metoedminput:
     convertOnEndLumi = cms.untracked.bool(True),
     convertOnEndRun = cms.untracked.bool(True),
     runInputTag = cms.InputTag('MEtoEDMConverter', 'MEtoEDMConverterRun'),
-    lumiInputTag = cms.InputTag('MEtoEDMConverter', 'MEtoEDMConverterLumi')
+    lumiInputTag = cms.InputTag('MEtoEDMConverter', 'MEtoEDMConverterLumi'),
+    reScope = cms.untracked.string("LUMI")
   )
   process.convert = cms.Path(process.EDMtoMEConverter)
   process.source = cms.Source("PoolSource",
