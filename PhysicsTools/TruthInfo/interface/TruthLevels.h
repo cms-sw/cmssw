@@ -61,7 +61,7 @@ namespace truth {
     char const* name;
   };
 
-  // PFReconstructable is flag that reads ParticleData::hasTrackerSimHit/hasCaloSimHit/hasMuonSimHit directly
+  // PFReconstructable is flag that reads ParticleData::hasTrackerSimHit/hasCaloSimHit directly
   inline constexpr std::array<LevelRow, 13> kLevelTable = {
       {{Level::StableLegsFromInitialState, LevelFlag::StableLegsFromInitialState, "stableLegsFromInitialState"},
        {Level::HardProcess, LevelFlag::HardProcess, "hardProcess"},
@@ -592,104 +592,6 @@ namespace truth {
         graph, [&graph](uint32_t p) { return graph.particles()[p].isAtLevel(LevelFlag::Signal); });
   }
 
-  // Find the first particle in each signal chain that actually produces a hit.
-  // Follow the chain from every Signal root, passing through both GEN and SIM
-  // vertices. The particle species does not stop the search, except for photons
-  // converting in the calorimeter, which are still treated as photons
-  // (see photonConvertsInCalo). Each chain contributes only its first particle.
-  namespace detail {
-    [[nodiscard]] inline bool reachesDetector(ParticleData const& data) {
-      // Use the raw hit flags directly rather than isAtLevel(). These flags are
-      // already thresholded by TruthLogicalGraphProducer, and we need to check
-      // whether this specific particle left hits, not whether one of its ancestors
-      // qualified. No additional reduction is needed here.
-      return data.hasTrackerSimHit || data.hasCaloSimHit || data.hasMuonSimHit;
-    }
-
-    // True if photonId's conversion subgraph has no tracker hit but does have a calo hit.
-    [[nodiscard]] inline bool photonConvertsInCalo(Graph const& graph, uint32_t photonId) {
-      const uint32_t nParticles = graph.nParticles();
-      std::vector<bool> seen(nParticles, false);
-      std::vector<uint32_t> stack{photonId};
-      seen[photonId] = true;
-      bool anyCalo = false;
-      while (!stack.empty()) {
-        const uint32_t id = stack.back();
-        stack.pop_back();
-        auto const& d = graph.particles()[id];
-        if (d.hasTrackerSimHit)
-          return false;
-        anyCalo = anyCalo || d.hasCaloSimHit;
-        for (const uint32_t vertexId : graph.decayVertices(id)) {
-          if (vertexId >= graph.nVertices())
-            continue;
-          for (const uint32_t child : graph.outgoingParticles(vertexId)) {
-            if (child < nParticles && !seen[child]) {
-              seen[child] = true;
-              stack.push_back(child);
-            }
-          }
-        }
-      }
-      return anyCalo;
-    }
-  }  // namespace detail
-
-  [[nodiscard]] inline std::vector<uint32_t> pfReconstructable(Graph const& graph) {
-    const uint32_t nParticles = graph.nParticles();
-    std::vector<uint32_t> legs;
-    std::vector<bool> seen(nParticles, false);
-    std::vector<uint32_t> stack;
-
-    for (uint32_t p = 0; p < nParticles; ++p) {
-      if (graph.particles()[p].isAtLevel(LevelFlag::Signal)) {
-        seen[p] = true;
-        stack.push_back(p);
-      }
-    }
-
-    while (!stack.empty()) {
-      const uint32_t p = stack.back();
-      stack.pop_back();
-      auto const& data = graph.particles()[p];
-
-      if (detail::reachesDetector(data)) {
-        // Synthetic particles have no trajectory and cannot reach the detector,
-        // so they should never be treated as detector legs. This is already
-        // handled by reachesDetector(), but we keep this check as a safeguard.
-        if (!isInvisible(data.pdgId) && !data.isSynthetic()) {
-          legs.push_back(p);
-        }
-        continue;
-      }
-
-      // A late calo conversion reads as one photon, not the e+/e- pair.
-      if (data.pdgId == 22 && !data.isSynthetic() && detail::photonConvertsInCalo(graph, p)) {
-        legs.push_back(p);
-        continue;
-      }
-
-      // If not yet detected, keep following the decay chain through both GEN and SIM
-      // vertices. Unlike reconstructableLegsFrom, we don't restrict the search to GEN.
-      for (const uint32_t vertexId : graph.decayVertices(p)) {
-        if (vertexId >= graph.nVertices()) {
-          continue;
-        }
-        for (const uint32_t child : graph.outgoingParticles(vertexId)) {
-          if (child < nParticles && !seen[child]) {
-            seen[child] = true;
-            stack.push_back(child);
-          }
-        }
-      }
-      // No more decay vertices and no detector hits: the particle's chain ends here,
-      // so there is no leg to add.
-    }
-
-    std::sort(legs.begin(), legs.end());
-    return legs;
-  }
-
   // A particle with a GEN record and no GEN parent: a beam particle, a gun particle, or a
   // stable particle of a collapsed pile-up GEN record.
   [[nodiscard]] inline bool isGenRoot(Graph const& graph, uint32_t p) {
@@ -707,6 +609,156 @@ namespace truth {
       }
     }
     return true;
+  }
+
+  // Find the first particle in each chain that actually produces a hit, and that the
+  // generator does not decay any further. Follow the chain from every GEN root
+  // (isGenRoot, above), not only from the Signal roots: the level must exist on every
+  // sample, including one with no resonance to seed a Signal on (QCD, MinBias), and for
+  // underlying-event/ISR/FSR particles even in a resonant sample -- the same reasoning
+  // reconstructableFinalState uses below. Passes through both GEN and SIM vertices. The
+  // particle species does not stop the search, except for photons converting in the
+  // calorimeter, which are still treated as photons (see photonConvertsInCalo). A
+  // particle with hits of its own but a GEN decay vertex (a tau, B or D that travels far
+  // enough to leave hits before decaying) is not a leg: the walk ignores its hits and
+  // continues into the GEN decay, since that is what PF would actually reconstruct. Each
+  // chain contributes only its first such particle.
+  namespace detail {
+    [[nodiscard]] inline bool reachesDetector(ParticleData const& data) {
+      // Use the raw hit flags directly rather than isAtLevel(). These flags are
+      // already thresholded by TruthLogicalGraphProducer, and we need to check
+      // whether this specific particle left hits, not whether one of its ancestors
+      // qualified. No additional reduction is needed here.
+      return data.hasTrackerSimHit || data.hasCaloSimHit;
+    }
+
+    // True if photonId's conversion subgraph has no tracker hit but does have a calo hit:
+    // a late (calo) conversion reads as one photon leg, an early (tracker) one as two
+    // electron legs, because an antichain cannot hold the photon together with its own
+    // e+/e- -- some split is required, and the detector's own split (did it see one
+    // object or two) is the one PF would actually see. For a primary photon (any
+    // GEN-final-state photon, e.g. a pi0's), the calo hit this checks can never belong to
+    // the photon itself: CMS's Geant4 hit bookkeeping (CaloTrkProcessing/StackingAction's
+    // isItPrimaryDecayProductOrConversion) gives every primary's first secondaries their
+    // own track id rather than inheriting the primary's, so a primary photon's e+/e-
+    // always carry their own PCaloHits, confirmed by reading that code (not a sample).
+    // A SECONDARY photon (e.g. bremsstrahlung) is not reset this way, so its own
+    // conversion products can inherit a more distant ancestor's track id -- a general
+    // feature of upstream shower-collapsing hit attribution, not something this function
+    // (or this package) can see or fix.
+    // `seen` is owned and sized by the caller (one buffer shared across every call in a
+    // single pfReconstructable walk, rather than an nParticles-size allocation per
+    // hitless photon): only the entries this call actually touches are set, and those
+    // same entries are cleared again before returning, on every exit path, so the next
+    // call sees it all false.
+    [[nodiscard]] inline bool photonConvertsInCalo(Graph const& graph, uint32_t photonId, std::vector<bool>& seen) {
+      const uint32_t nParticles = graph.nParticles();
+      std::vector<uint32_t> stack{photonId};
+      std::vector<uint32_t> touched{photonId};
+      seen[photonId] = true;
+      bool anyCalo = false;
+      bool hasTracker = false;
+      while (!stack.empty()) {
+        const uint32_t id = stack.back();
+        stack.pop_back();
+        auto const& d = graph.particles()[id];
+        if (d.hasTrackerSimHit) {
+          hasTracker = true;
+          break;
+        }
+        anyCalo = anyCalo || d.hasCaloSimHit;
+        for (const uint32_t vertexId : graph.decayVertices(id)) {
+          if (vertexId >= graph.nVertices())
+            continue;
+          for (const uint32_t child : graph.outgoingParticles(vertexId)) {
+            if (child < nParticles && !seen[child]) {
+              seen[child] = true;
+              touched.push_back(child);
+              stack.push_back(child);
+            }
+          }
+        }
+      }
+      for (const uint32_t id : touched) {
+        seen[id] = false;
+      }
+      return !hasTracker && anyCalo;
+    }
+
+    // Whether the GENERATOR itself records p decaying further. A SIM-only continuation
+    // (Geant4 transport or a material interaction) does not count: that is the detector
+    // acting on a particle the generator already calls final, not a further decay.
+    [[nodiscard]] inline bool hasGenDecay(Graph const& graph, uint32_t p) {
+      for (const uint32_t vertexId : graph.decayVertices(p)) {
+        if (vertexId < graph.nVertices() && graph.vertices()[vertexId].hasGen()) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }  // namespace detail
+
+  [[nodiscard]] inline std::vector<uint32_t> pfReconstructable(Graph const& graph) {
+    const uint32_t nParticles = graph.nParticles();
+    std::vector<uint32_t> legs;
+    std::vector<bool> seen(nParticles, false);
+    std::vector<uint32_t> stack;
+    // One scratch buffer for every detail::photonConvertsInCalo call below, instead of
+    // an nParticles-size allocation per hitless photon.
+    std::vector<bool> photonSeen(nParticles, false);
+
+    for (uint32_t p = 0; p < nParticles; ++p) {
+      if (isGenRoot(graph, p)) {
+        seen[p] = true;
+        stack.push_back(p);
+      }
+    }
+
+    while (!stack.empty()) {
+      const uint32_t p = stack.back();
+      stack.pop_back();
+      auto const& data = graph.particles()[p];
+
+      // A particle the generator still decays further (a tau, B or D with a GEN decay
+      // vertex) is not the object PF would see even when its own flight leaves hits: the
+      // real legs are whatever its GEN decay eventually produces. Only stop here once the
+      // generator's own record calls this particle final.
+      if (detail::reachesDetector(data) && !detail::hasGenDecay(graph, p)) {
+        // Synthetic particles have no trajectory and cannot reach the detector,
+        // so they should never be treated as detector legs. This is already
+        // handled by reachesDetector(), but we keep this check as a safeguard.
+        if (!isInvisible(data.pdgId) && !data.isSynthetic()) {
+          legs.push_back(p);
+        }
+        continue;
+      }
+
+      // A late calo conversion reads as one photon, not the e+/e- pair.
+      if (data.pdgId == 22 && !data.isSynthetic() && detail::photonConvertsInCalo(graph, p, photonSeen)) {
+        legs.push_back(p);
+        continue;
+      }
+
+      // Not yet detected, or detected but the generator still decays it further: keep
+      // following the decay chain through both GEN and SIM vertices. Unlike
+      // reconstructableLegsFrom, we don't restrict the search to GEN.
+      for (const uint32_t vertexId : graph.decayVertices(p)) {
+        if (vertexId >= graph.nVertices()) {
+          continue;
+        }
+        for (const uint32_t child : graph.outgoingParticles(vertexId)) {
+          if (child < nParticles && !seen[child]) {
+            seen[child] = true;
+            stack.push_back(child);
+          }
+        }
+      }
+      // No more decay vertices to follow and no detector hits of its own: the particle's
+      // chain ends here, so there is no leg to add.
+    }
+
+    std::sort(legs.begin(), legs.end());
+    return legs;
   }
 
   // The same walk seeded from every GEN root, so the level exists on every sample: a pi0

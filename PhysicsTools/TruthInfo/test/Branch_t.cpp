@@ -596,9 +596,6 @@ void TestBranch::testGenerations() {
   CPPUNIT_ASSERT(truth::particleGenerations(GraphBuilder(0, 0).finish()).empty());
 }
 
-// REQUIRED: the kinematics of a branch are summed where the generator hands particles to
-// Geant4. A tracked particle counts with its own momentum and its Geant4 secondaries do
-// not; a particle Geant4 never tracked counts through its members below it.
 // REQUIRED: a particle is never counted together with its own secondary, also when both are
 // roots of the branch.
 void TestBranch::testARootWithItsOwnSecondaryCountsOnce() {
@@ -635,6 +632,9 @@ void TestBranch::testAnIncompleteClosureOrMergeThrows() {
   CPPUNIT_ASSERT_THROW(static_cast<void>(mine.merged(theirs)), cms::Exception);
 }
 
+// REQUIRED: the kinematics of a branch are summed where the generator hands particles to
+// Geant4. A tracked particle counts with its own momentum and its Geant4 secondaries do
+// not; a particle Geant4 never tracked counts through its members below it.
 void TestBranch::testFinalStateStopsAtGeant4() {
   // tau -> pi+ pi0 nu, pi0 -> gamma gamma, and the pi+ makes a delta-ray electron in Geant4.
   GraphBuilder b(7, 3);

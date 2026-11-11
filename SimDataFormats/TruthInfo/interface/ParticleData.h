@@ -60,16 +60,16 @@ namespace truth {
     // last-copy rule. A tau with a tau child is a radiative copy and is in neither tau
     // level.
     TauVisibleLeptonic = 1u << 12,
-    // The first particle of each signal chain that actually leaves a real detector hit --
-    // ParticleData::hasTrackerSimHit (>=2 tracker PSimHits), hasCaloSimHit (>=1 calo
-    // PCaloHit), or hasMuonSimHit (hasTrackerSimHit AND >=1 muon-chamber PSimHit -- a
-    // muon-chamber hit confirms a track PF can match, it is not a substitute for a
-    // track, so a particle with muon-chamber hits but no real tracker trajectory, e.g.
-    // a punch-through secondary born past the calorimeter, does not count), all stamped
-    // by TruthLogicalGraphProducer and read directly, not through their own level/flag
-    // -- walking from the Signal roots through GEN and SIM continuations alike. Not
-    // keyed on CaloBoundary: this asks whether the particle left hits, not whether it
-    // merely crossed the geometric boundary.
+    // The first particle of each chain that actually leaves a real detector hit --
+    // ParticleData::hasTrackerSimHit (tracker PSimHits, possibly combined with MTD) or
+    // hasCaloSimHit (>=1 calo PCaloHit), both stamped by TruthLogicalGraphProducer and
+    // read directly, not through their own level/flag -- walking from every GEN root
+    // (not just the Signal roots, see isGenRoot in TruthLevels.h) through GEN and SIM
+    // continuations alike. hasMuonSimHit is NOT part of this: it is only ever true when
+    // hasTrackerSimHit is too, so it answers a different question (muon-system
+    // confirmation), not "was this particle detected" -- see the comment on it below.
+    // Not keyed on CaloBoundary: this asks whether the particle left hits, not whether
+    // it merely crossed the geometric boundary.
     PFReconstructable = 1u << 13,
   };
 
@@ -152,12 +152,13 @@ namespace truth {
     uint8_t role = static_cast<uint8_t>(ParticleRole::Normal);
 
     // Whether this particle left a real detector hit, already thresholded by
-    // TruthLogicalGraphProducer (not raw hit counts; hasMuonSimHit's threshold also
-    // requires hasTrackerSimHit, see TruthLogicalGraphProducer's stamping loop) -- the
-    // sole backing data for LevelFlag::PFReconstructable's walk
+    // TruthLogicalGraphProducer (not raw hit counts). hasTrackerSimHit and hasCaloSimHit
+    // are the backing data for LevelFlag::PFReconstructable's walk
     // (truth::detail::reachesDetector), read directly rather than through a level/flag
-    // of their own. Three of the six spare tail-padding bytes after role, so
-    // sizeof(ParticleData) stays 96.
+    // of their own. hasMuonSimHit additionally requires hasTrackerSimHit (see
+    // TruthLogicalGraphProducer's stamping loop) and is not read by reachesDetector.
+    // Three of the six spare tail-padding bytes after role, so sizeof(ParticleData)
+    // stays 96.
     bool hasTrackerSimHit = false;
     bool hasCaloSimHit = false;
     bool hasMuonSimHit = false;
