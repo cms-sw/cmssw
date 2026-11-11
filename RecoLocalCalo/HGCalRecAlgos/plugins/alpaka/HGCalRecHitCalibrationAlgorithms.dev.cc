@@ -58,7 +58,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       for (auto idx : uniform_elements(acc, digis.metadata().size())) {
         auto info = index[idx];
-        // ich = erxIdx*37 + channelIdx -> ich / 37 = erx 
+        // ich = erxIdx*37 + channelIdx -> ich / 37 = erx
         uint32_t erx = info.chNumber() / 37;
         auto econdenseidx = info.modInfoIdx();
         auto cmm = econd[econdenseidx].cm();
@@ -402,16 +402,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void HGCalRecHitCalibrationAlgorithms::print(HGCalDigiHost const& digis, int max) const {
     int max_ = max > 0 ? max : digis.view().metadata().size();
     for (int i = 0; i < max_; i++) {
-      LogDebug("HGCalRecHitCalibrationAlgorithms")
-          << i << digis.view()[i].tot() << "\t" << digis.view()[i].toa() << "\t" << digis.view()[i].flags() << std::endl;
+      LogDebug("HGCalRecHitCalibrationAlgorithms") << i << digis.view()[i].tot() << "\t" << digis.view()[i].toa()
+                                                   << "\t" << digis.view()[i].flags() << std::endl;
     }
   }
 
   void HGCalRecHitCalibrationAlgorithms::print_digi_device(HGCalDigiDevice const& digis, int max) const {
     int max_ = max > 0 ? max : digis.view().metadata().size();
     for (int i = 0; i < max_; i++) {
-      LogDebug("HGCalRecHitCalibrationAlgorithms")
-          << i << digis.view()[i].tot() << "\t" << digis.view()[i].toa() << "\t" << digis.view()[i].flags() << std::endl;
+      LogDebug("HGCalRecHitCalibrationAlgorithms") << i << digis.view()[i].tot() << "\t" << digis.view()[i].toa()
+                                                   << "\t" << digis.view()[i].flags() << std::endl;
     }
   }
 

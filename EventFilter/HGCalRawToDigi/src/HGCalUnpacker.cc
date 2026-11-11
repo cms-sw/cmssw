@@ -309,9 +309,9 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
           LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
                                       << ", econdIdx = " << econdIdx << ", erxIdx = " << erxIdx;
 
-          // Remapping of ECOND due to multiplexing. For LD modules erxIdx == mux 
+          // Remapping of ECOND due to multiplexing. For LD modules erxIdx == mux
           // for HD the order is not [0, 1, 2, ...] but [1, 0, 3, 2, ...]
-          // erxIdx_correct stores the correct order with which we can map denseIdx 
+          // erxIdx_correct stores the correct order with which we can map denseIdx
           const int32_t mux = fedConfig.econds[globalECONDIdx].rocs[erxIdx].muxMode;
           const uint32_t erxIdx_correct = (mux == -1) ? erxIdx : static_cast<uint32_t>(mux);
 
@@ -381,8 +381,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
           }
           LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
                                       << ", econdIdx = " << econdIdx << ", erxIdx=" << erxIdx;
-          
-          
+
           const int32_t mux = fedConfig.econds[globalECONDIdx].rocs[erxIdx].muxMode;
           const uint32_t erxIdx_correct = (mux == -1) ? erxIdx : static_cast<uint32_t>(mux);
 

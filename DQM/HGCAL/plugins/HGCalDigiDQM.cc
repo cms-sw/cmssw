@@ -198,11 +198,10 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       it_avgtoa = mh_avgtoa.find(key);
       it_toa = mh_toa.find(key);
       it_seed = moduleSeeds_.find(key);
-      cur_key_ok = it_avgadc != mh_avgadc.end() && it_adc != mh_adc.end() &&
-                   it_avgadcm1 != mh_avgadcm1.end() && it_adcm1 != mh_adcm1.end() &&
-                   it_avgdeltaadc != mh_avgdeltaadc.end() && it_deltaadc != mh_deltaadc.end() &&
-                   it_avgtot != mh_avgtot.end() && it_tot != mh_tot.end() && it_avgtoa != mh_avgtoa.end() &&
-                   it_toa != mh_toa.end();
+      cur_key_ok = it_avgadc != mh_avgadc.end() && it_adc != mh_adc.end() && it_avgadcm1 != mh_avgadcm1.end() &&
+                   it_adcm1 != mh_adcm1.end() && it_avgdeltaadc != mh_avgdeltaadc.end() &&
+                   it_deltaadc != mh_deltaadc.end() && it_avgtot != mh_avgtot.end() && it_tot != mh_tot.end() &&
+                   it_avgtoa != mh_avgtoa.end() && it_toa != mh_toa.end();
     }
     if (!cur_key_ok)
       continue;
