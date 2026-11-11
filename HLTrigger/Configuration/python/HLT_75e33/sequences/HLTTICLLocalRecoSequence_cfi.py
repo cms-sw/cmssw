@@ -10,10 +10,8 @@ from ..modules.hltHGCalUncalibRecHit_cfi import *
 from ..modules.hltHgcalSoARecHitsProducer_cfi import *
 from ..modules.hltHgcalSoARecHitsLayerClustersProducer_cfi import *
 from ..modules.hltHgcalSoALayerClustersProducer_cfi import *
-from ..modules.hltHgcalLayerClustersFromSoAProducer_cfi import *
+from ..modules.hltHgCalLayerClustersFromSoAProducer_cfi import *
 # Barrel layer clusters
-from ..modules.hltParticleFlowRecHitECALUnseeded_cfi import *
-from ..modules.hltParticleFlowRecHitHBHE_cfi import *
 from ..modules.hltBarrelLayerClustersEB_cfi import *
 from ..modules.hltBarrelLayerClustersHB_cfi import *
 from ..sequences.HLTPfRecHitUnseededSequence_cfi import *

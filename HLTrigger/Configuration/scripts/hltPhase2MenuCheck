@@ -17,7 +17,7 @@ and reports:
   warnings (exit code 1 only with --strict)
     W101  file never reached from any entry point (orphan)
     W102  file imported but none of its symbols used by the importer (stale import)
-    W103  X_cfi.py does not define a symbol called X
+    W103  X_cfi.py does not define a symbol called X (nor sets process.X)
     W104  same symbol defined in more than one file
     W105  same file loaded more than once by an entry point
 
@@ -87,6 +87,7 @@ class FileInfo(object):
         self.used = {}                # symbol -> first line
         self.imported_names = set()   # names bound by import statements
         self.local_bound = set()
+        self.attr_defined = set()     # attributes assigned anywhere, e.g. process.X = ... in a process modifier
         self.syntax_error = None
 
 
@@ -192,6 +193,8 @@ def parse_file(python_dir, path):
     for node in ast.walk(tree):
         if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
             info.used.setdefault(node.id, node.lineno)
+        elif isinstance(node, ast.Attribute) and isinstance(node.ctx, ast.Store):
+            info.attr_defined.add(node.attr)
     info.local_bound = local_bound
     return info
 
@@ -339,7 +342,7 @@ class Checker(object):
             base = os.path.basename(info.path)[:-3]
             if base.endswith("_cfi") and not info.syntax_error:
                 expected = base[:-4]
-                if expected not in info.defined:
+                if expected not in info.defined and expected not in info.attr_defined:
                     self.add("W103", info, 0, "file does not define '%s'" % expected)
 
         # W104 duplicates
