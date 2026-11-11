@@ -223,21 +223,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const auto accumulateHit = [&accumView, this](auto const& hit, const auto& cfg, auto& m) {
       const uint32_t did = static_cast<uint32_t>(hit.id());
 
+      const float energy = hit.energy();
+      m.en += energy;
+
       //check detector is of interest
       const auto idxIt = cfg.det2dense.find(did);
       HGCSiliconDetId siid(did);
       if (idxIt == cfg.det2dense.end()) {
         ++m.nHitsUnknown;
+        m.enUnknown += energy;
         return;
       }
 
       //add to accumulator if within time window
-      const float energy = hit.energy();
       const float tof = hit.time() + cfg.tof_delay;
       const int32_t bx = static_cast<int32_t>(std::roundl(tof / nsPerBx_));
       const int32_t tidx = bx + hgcaldigi::kInTimeBin;
       if (tidx < 0 || tidx >= hgcaldigi::kTimeBins) {
         ++m.nHitsRejected;
+        m.enRejected += energy;
         return;
       }
 
@@ -245,10 +249,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       row.sumE()(tidx, 0) += energy;
       row.sumExT()(tidx, 0) += energy * tof;
 
-      if (tidx == hgcaldigi::kInTimeBin)
-        ++m.nHitsIT;
-      else
+      if (tidx == hgcaldigi::kInTimeBin) {
+         ++m.nHitsIT;
+         m.enIT += energy;
+      }
+      else {
         ++m.nHitsOOT;
+        m.enOOT += energy;
+      }
     };  //end accumulation wrapper for a single hit
 
     //loop over geant4 hit collections and accumulate (monitor counts and put also in the event if needed)

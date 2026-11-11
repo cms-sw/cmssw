@@ -35,21 +35,16 @@ namespace hgcaldigi {
   */
   struct HGCalSimHitAccumulatorMonitor {
     HGCalSimHitAccumulatorMonitor()
-        : det(0),
-          iscalib(false),
-          ncellsMapped(0),
-          nHits(0),
-          nHitsOOT(0),
-          nHitsIT(0),
-          nHitsRejected(0),
-          nHitsUnknown(0) {}
+        : HGCalSimHitAccumulatorMonitor(0,false) { }
     HGCalSimHitAccumulatorMonitor(int16_t d, bool isc)
-        : det(d), iscalib(isc), ncellsMapped(0), nHits(0), nHitsOOT(0), nHitsIT(0), nHitsRejected(0), nHitsUnknown(0) {}
+        : det(d), iscalib(isc), ncellsMapped(0), nHits(0), nHitsOOT(0), nHitsIT(0), nHitsRejected(0), nHitsUnknown(0),
+        en(0.), enOOT(0.), enIT(0.), enRejected(0.), enUnknown(0.) { }
     HGCalSimHitAccumulatorMonitor(HGCalSimHitAccumulatorMonitor const&) = default;
     int16_t det;
     bool iscalib;
     int ncellsMapped;
     int nHits, nHitsOOT, nHitsIT, nHitsRejected, nHitsUnknown;
+    float en, enOOT, enIT, enRejected, enUnknown;
   };
   typedef std::vector<HGCalSimHitAccumulatorMonitor> HGCalSimHitAccumulatorMonitorCollection;
 

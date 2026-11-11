@@ -133,7 +133,7 @@ process.dqmSaver.runNumber = 1
 
 process.dqmPath = cms.Path(
     process.hgcalDQMSources  
-    +process.hgCalDQMHarvester 
+    #+process.hgCalDQMHarvester 
     +process.dqmSaver
 )
 
