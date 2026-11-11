@@ -261,15 +261,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   reco::PFMultiDepthClusteringCCLabelsDeviceCollection::View mdpfClusteringCCLabels,
                                   const reco::PFMultiDepthClusteringVarsDeviceCollection::ConstView mdpfClusteringVars,
-                                  const PFMultiDepthClusterParams* nSigma) const {
+                                  const double nSigmaEta,
+                                  const double nSigmaPhi) const {
       constexpr unsigned int w_extent = get_warp_size<Acc1D>();
 
       const unsigned int nClusters = mdpfClusteringVars.size();
 
       const unsigned int gridDim = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0u];
-
-      const double nSigmaEta = nSigma->nSigmaEta;
-      const double nSigmaPhi = nSigma->nSigmaPhi;
 
       if (::cms::alpakatools::once_per_grid(acc)) {
         mdpfClusteringCCLabels.size() = nClusters;
