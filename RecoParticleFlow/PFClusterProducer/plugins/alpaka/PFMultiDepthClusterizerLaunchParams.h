@@ -12,11 +12,11 @@ enum class KernelLabels : std::size_t {
 };
 
 class PFMultiDepthClusterizerLaunchParams {
-  public:	
+public:
   using DeviceId = std::int32_t;
   using ThreadsPerBlock = std::uint32_t;
 
-  PFMultiDepthClusterizerLaunchParams(const std::uint32_t nDevices) :  nDevices(nDevices) {}
+  PFMultiDepthClusterizerLaunchParams(const std::uint32_t nDevices) : nDevices(nDevices) {}
 
   void Store(DeviceId dev, KernelLabels kernelLabel, ThreadsPerBlock max_threads) {
     maxThreadsPerBlockCache[dev][kernelLabel] = max_threads;
@@ -25,15 +25,14 @@ class PFMultiDepthClusterizerLaunchParams {
   [[nodiscard]]
   ThreadsPerBlock Load(DeviceId dev, KernelLabels kernelLabel) const {
     return maxThreadsPerBlockCache.at(dev).at(kernelLabel);
-  }  
+  }
 
   [[nodiscard]]
   ThreadsPerBlock Load(DeviceId dev, KernelLabels kernelLabel, ThreadsPerBlock threads) const {
     return std::min(threads, maxThreadsPerBlockCache.at(dev).at(kernelLabel));
   }
 
-  private:
-
+private:
   const std::uint32_t nDevices;
   std::map<DeviceId, std::map<KernelLabels, ThreadsPerBlock>> maxThreadsPerBlockCache;
 };
