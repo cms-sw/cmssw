@@ -2,6 +2,9 @@
 # drift test: L1_Phase2_cff must match the cmsDriver L1TrackTrigger,L1,L1P2GT configuration
 python3 "${SCRAM_TEST_PATH}"/l1tPhase2Fragment.py validate || exit $?
 
+# the ConfDB version (a cms.Process) must define the same objects as L1_Phase2_expanded_cff
+python3 "${SCRAM_TEST_PATH}"/l1tPhase2Fragment.py confdb -o L1_Phase2_ConfDB.py || exit $?
+
 # the L1P2 cmsDriver step (together with HLT, which also loads a fragment) must give a valid configuration
 cmsDriver.py step2 -s DIGI:pdigi_valid,L1P2,DIGI2RAW,HLT:@relvalRun4 --conditions auto:phase2_realistic_T35 \
   --geometry ExtendedRun4D128 --era Phase2C26I13M9 --datatier GEN-SIM-DIGI-RAW --eventcontent FEVTDEBUGHLT \

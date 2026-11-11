@@ -36,6 +36,11 @@ the live `_cfi`/`_cff` files, followed by a regeneration:
 For `OnLine_L1_Phase2.py` only the L1 content (without the MC-truth path) is compared, not the GlobalTag
 or the I/O, so an update of the autoCond GlobalTag alone does not fail the check.
 
+The ConfDB python import needs a `cms.Process` named `process`, not a `ProcessFragment`. The same
+content as `L1_Phase2_expanded_cff.py` in that form (not committed) is written with
+
+    l1tPhase2Fragment.py confdb -o L1_Phase2_ConfDB.py   # checked object by object against the fragment
+
 The reference is workflow 38434.0 (TTbar, Run4D128, era `Phase2C26I13M9`): the content is the
 difference between `cmsDriver -s DIGI:pdigi_valid` and `cmsDriver -s DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT`.
 

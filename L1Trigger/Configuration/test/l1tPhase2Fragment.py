@@ -10,6 +10,7 @@ only simGtStage2Digis) is moved to its own task and path.
 
   l1tPhase2Fragment.py generate [--outdir L1Trigger/Configuration/python]
   l1tPhase2Fragment.py validate
+  l1tPhase2Fragment.py confdb [-o L1_Phase2_ConfDB.py]   # L1_Phase2_expanded_cff as a process, for ConfDB
 
 See L1Trigger/Configuration/python/L1_Phase2/README.md and https://github.com/artlbv/cmssw/issues/10
 """
@@ -516,6 +517,45 @@ def compareContent(test, pathLabels, full, ref, exclude=()):
     return errors
 
 
+def processContent(process):
+    """Dump of every labelled object of 'process', by label."""
+    content = {}
+    for kind in ("producers_", "filters_", "analyzers_", "es_sources_", "es_producers_", "es_prefers_", "psets_",
+                 "vpsets_", "sequences_", "tasks_", "paths_", "endpaths_"):
+        content.update({label: obj.dumpPython() for label, obj in getattr(process, kind)().items()})
+    return content
+
+
+def confdb(args):
+    """Writes L1_Phase2_expanded_cff as a cms.Process named 'process', the form the ConfDB python import
+    expects (it reads the attribute 'process' of the file), and checks that it defines the same objects as
+    the fragment."""
+    module = importlib.import_module(f"{PACKAGE.replace('/', '.')}.{EXPANDED}_cff")
+    declaration = 'fragment = cms.ProcessFragment("L1")'
+    text = open(module.__file__).read()
+    if text.count(declaration) != 1:
+        raise RuntimeError(f"'{declaration}' not found once in {module.__file__}")
+    text = text.replace(declaration, 'process = cms.Process("L1")')
+    text = text.replace(f"# Single-file version of {FRAGMENT}_cff.py + {FRAGMENT}/ (same content).",
+                        f"# {EXPANDED}_cff.py as a cms.Process, for the ConfDB python import (same content).")
+    text = re.sub(r"\bfragment\.", "process.", text)
+    with open(args.output, "w") as out:
+        out.write(text)
+
+    ref = cms.Process("L1")
+    ref.load(f"{PACKAGE.replace('/', '.')}.{EXPANDED}_cff")
+    test = loadProcess(os.path.abspath(args.output))
+    refContent, testContent = processContent(ref), processContent(test)
+    errors = [f"objects missing: {sorted(set(refContent) - set(testContent))}"] if set(refContent) - set(testContent) else []
+    errors += [f"objects not in the fragment: {sorted(set(testContent) - set(refContent))}"] if set(testContent) - set(refContent) else []
+    errors += [f"'{label}' differs" for label in sorted(set(refContent) & set(testContent))
+               if refContent[label] != testContent[label]]
+    for e in errors:
+        print("ERROR:", e)
+    print(f"wrote {args.output}: {len(testContent)} objects, " + ("FAILED" if errors else "identical to the fragment"))
+    return 1 if errors else 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -523,8 +563,10 @@ def main():
     gen.add_argument("--outdir", default=os.path.join(os.environ.get("CMSSW_BASE", "."), "src", PACKAGE, "python"))
     gen.add_argument("--online", default=ONLINE_FILE, help="complete L1 process file (default: %(default)s)")
     sub.add_parser("validate", help="compare both fragments and the complete L1 process with the cmsDriver configuration")
+    db = sub.add_parser("confdb", help=f"write {EXPANDED}_cff as a process, for the ConfDB python import")
+    db.add_argument("-o", "--output", default=FRAGMENT + "_ConfDB.py", help="output file (default: %(default)s)")
     args = parser.parse_args()
-    return generate(args) if args.command == "generate" else validate(args)
+    return {"generate": generate, "validate": validate, "confdb": confdb}[args.command](args)
 
 
 if __name__ == "__main__":
