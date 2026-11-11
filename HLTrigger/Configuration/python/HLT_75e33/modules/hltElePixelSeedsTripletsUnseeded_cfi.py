@@ -1,15 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-hltElePixelSeedsTripletsUnseeded = cms.EDProducer("SeedCreatorFromRegionConsecutiveHitsEDProducer",
-    MinOneOverPtError = cms.double(1.0),
-    OriginTransverseErrorMultiplier = cms.double(1.0),
+hltElePixelSeedsTripletsUnseeded = cms.EDProducer("FakeStateSeedCreatorFromRegionConsecutiveHitsEDProducer",
     SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('none')
     ),
-    SeedMomentumForBOFF = cms.double(5.0),
-    TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
-    forceKinematicWithRegionDirection = cms.bool(False),
-    magneticField = cms.string('ParabolicMf'),
-    propagator = cms.string('PropagatorWithMaterialParabolicMf'),
     seedingHitSets = cms.InputTag("hltElePixelHitTripletsUnseeded")
 )
