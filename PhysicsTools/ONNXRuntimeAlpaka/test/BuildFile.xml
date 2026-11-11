@@ -1,0 +1,12 @@
+<bin file="alpaka/testTensorCollection.cc testRunner.cc" name="testONNXRuntimeAlpakaTensorCollection">
+  <use name="alpaka"/>
+  <use name="cppunit"/>
+  <use name="eigen"/>
+  <use name="onnxruntime"/>
+  <use name="DataFormats/Portable"/>
+  <use name="DataFormats/SoATemplate"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="PhysicsTools/ONNXRuntimeAlpaka"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
