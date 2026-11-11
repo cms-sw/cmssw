@@ -2556,13 +2556,13 @@ class UpgradeWorkflow_ecalDevel(UpgradeWorkflow):
         # temporarily remove trigger & downstream steps
         if 'Digi' in step:
             mods['-s'] = 'DIGI:pdigi_valid,DIGI2RAW'
-            mods['--custom_conditions'] = 'EcalSimPulseShapePhaseII,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+            mods['--custom_conditions'] = 'EcalSimPulseShapePhaseII,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS+EcalADCToGeVConstant_upgrade_tdr_mc,EcalADCToGeVConstantRcd,frontier://FrontierProd/CMS_CONDITIONS'
             mods |= self.__digi
         elif 'Reco' in step:
             mods['-s'] = 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly'
             mods['--datatier'] = 'GEN-SIM-RECO,DQMIO'
             mods['--eventcontent'] = 'FEVTDEBUGHLT,DQM'
-            mods['--custom_conditions'] = 'EcalSimPulseShapePhaseII,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+            mods['--custom_conditions'] = 'EcalSimPulseShapePhaseII,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS+EcalADCToGeVConstant_upgrade_tdr_mc,EcalADCToGeVConstantRcd,frontier://FrontierProd/CMS_CONDITIONS'
             mods |= self.__reco
         elif 'HARVEST' in step:
             mods['-s'] = 'HARVESTING:@ecalOnlyValidation+@ecal'
@@ -2604,12 +2604,12 @@ upgradeWFs['ecalDevelAlpaka'] = UpgradeWorkflow_ecalDevel(
 upgradeWFs['ecalDevelSpikesAlpaka'] = UpgradeWorkflow_ecalDevel(
     digi = {
         '--procModifiers': 'ecal_addspikes',
-        '--custom_conditions': 'EcalSimPulseShapes_TB2025_v1,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+        '--custom_conditions': 'EcalSimPulseShapes_TB2025_v1,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS+EcalADCToGeVConstant_upgrade_tdr_mc,EcalADCToGeVConstantRcd,frontier://FrontierProd/CMS_CONDITIONS'
     },
     reco = {
         '--procModifiers': 'alpaka',
         '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
-        '--custom_conditions': 'EcalSimPulseShapes_TB2025_v1,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+        '--custom_conditions': 'EcalSimPulseShapes_TB2025_v1,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS+EcalADCToGeVConstant_upgrade_tdr_mc,EcalADCToGeVConstantRcd,frontier://FrontierProd/CMS_CONDITIONS'
     },
     suffix = '_ecalDevelSpikesAlpaka',
     offset = 0.622,
@@ -2649,7 +2649,7 @@ class UpgradeWorkflowPremix_ecalDevel(UpgradeWorkflow):
                     '--datatier': 'PREMIX',
                     '--eventcontent': 'PREMIX',
                     '--procModifiers': 'premix_stage1',
-                    '--custom_conditions': 'EcalSimPulseShapePhaseII,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+                    '--custom_conditions': 'EcalSimPulseShapePhaseII,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS+EcalADCToGeVConstant_upgrade_tdr_mc,EcalADCToGeVConstantRcd,frontier://FrontierProd/CMS_CONDITIONS'
                 },
                 stepDict[stepName][k]
             ])
@@ -2661,7 +2661,7 @@ class UpgradeWorkflowPremix_ecalDevel(UpgradeWorkflow):
             if 'Digi' in step:
                 mods['-s'] = 'DIGI:pdigi_valid,DATAMIX,DIGI2RAW'
                 mods['--datamix'] = 'PreMix'
-                mods['--custom_conditions'] = 'EcalSimPulseShapePhaseII,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+                mods['--custom_conditions'] = 'EcalSimPulseShapePhaseII,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS+EcalADCToGeVConstant_upgrade_tdr_mc,EcalADCToGeVConstantRcd,frontier://FrontierProd/CMS_CONDITIONS'
                 mods['--filein'] = 'file:step1.root'
                 mods['--pileup_input'] = 'file:step2.root'
                 mods |= self.__digi
@@ -2670,7 +2670,7 @@ class UpgradeWorkflowPremix_ecalDevel(UpgradeWorkflow):
                 mods['-s'] = 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly'
                 mods['--datatier'] = 'GEN-SIM-RECO,DQMIO'
                 mods['--eventcontent'] = 'FEVTDEBUGHLT,DQM'
-                mods['--custom_conditions'] = 'EcalSimPulseShapePhaseII,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+                mods['--custom_conditions'] = 'EcalSimPulseShapePhaseII,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS+EcalADCToGeVConstant_upgrade_tdr_mc,EcalADCToGeVConstantRcd,frontier://FrontierProd/CMS_CONDITIONS'
                 mods |= self.__reco
                 mods['--procModifiers'] = mods['--procModifiers']+',premix_stage2' if '--procModifiers' in mods else 'premix_stage2'
             stepDict[stepName][k] = merge([mods, stepDict[step][k]])
