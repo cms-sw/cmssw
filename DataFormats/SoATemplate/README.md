@@ -59,6 +59,11 @@ Specifically, it exposes:
 - the columns as an `std::tuple<std::span<T>...>` accessible via `descriptor.buff`
 - the corresponding column types as an `std::tuple<cms::soa::SoAColumnType>` through `descriptor.columnTypes`.
 
+For an SoABlocks, the descriptor exposes the descriptors of its direct blocks in `descriptor.buff`. 
+Note that `Descriptor::blocksNumber` counts all direct blocks,
+while the layout's `Descriptor::blocksNumberFlat` counts all the nested blocks. The same variables are also 
+exposed through the layout directly.
+
 ## Metadata subclass
 
 To avoid cluttering the namespace of the generated layout class, a subclass called `Metadata` is generated. It is
