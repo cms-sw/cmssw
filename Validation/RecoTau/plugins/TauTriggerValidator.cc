@@ -104,8 +104,8 @@ private:
     // gates eta-only histograms. Histograms that draw both (pt_eta) get neither.
     double plateauEtaCut;
     double plateauPtCut;
-    std::string filterName;  // HLT filter whose trigger objects this leg is matched to
-    double dR2limit;         // squared, as in HLTGenValSource
+    std::string filterName;                   // HLT filter whose trigger objects this leg is matched to
+    double dR2limit;                          // squared, as in HLTGenValSource
     int pdgId;                                // only used for "ele"/"mu"
     bool requireDirectPromptTauDecayProduct;  // only used for "ele"/"mu"
     int tauTokenIdx = -1;                     // index into genTauTokens_
@@ -419,8 +419,8 @@ void TauTriggerValidator::dqmBeginRun(const edm::Run& iRun, const edm::EventSetu
   std::string listed;
   for (auto const& mod : saveTagsMods)
     listed += (listed.empty() ? "" : ", ") + stripFlags(mod);
-  edm::LogPrint("TauTriggerValidator") << label_ << ": saveTags filters of "
-                                       << hltConfig_.triggerName(pathIndex_) << ": " << listed;
+  edm::LogPrint("TauTriggerValidator") << label_ << ": saveTags filters of " << hltConfig_.triggerName(pathIndex_)
+                                       << ": " << listed;
 
   for (auto const& leg : legs_) {
     const std::string filterName = stripFlags(leg.filterName);
@@ -435,8 +435,8 @@ void TauTriggerValidator::dqmBeginRun(const edm::Run& iRun, const edm::EventSetu
   }
 }
 
-void TauTriggerValidator::bookStage(DQMStore::IBooker& ibooker, StageHists& h, const std::string& sfx,
-                                    const std::string& stage, bool full) {
+void TauTriggerValidator::bookStage(
+    DQMStore::IBooker& ibooker, StageHists& h, const std::string& sfx, const std::string& stage, bool full) {
   constexpr int nPt = 60, nEta = 60, nPhi = 32;
   constexpr double etaMax = 3., phiMax = 3.2;
 
