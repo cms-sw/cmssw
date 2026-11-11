@@ -4,6 +4,8 @@
 
 import FWCore.ParameterSet.Config as cms
 
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+
 # DCS partitions
 # "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO","RPC"
 # "DT0","DTp","DTm","CSCp","CSCm","CASTOR","TIBTID","TOB","TECp","TECm"
@@ -15,6 +17,7 @@ ALCARECOTkAlCosmicsDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.cl
     AndOr        = cms.bool(True),
     DebugOn      = cms.untracked.bool(False)
 )
+
 
 #________________________________Track selection____________________________________
 # AlCaReco for track based alignment using Cosmic muons reconstructed by Combinatorial Track Finder
@@ -56,3 +59,6 @@ ALCARECOTkAlCosmicsRegional = ALCARECOTkAlCosmicsCTF.clone(
 seqALCARECOTkAlCosmicsCTF = cms.Sequence(ALCARECOTkAlCosmicsCTF)
 seqALCARECOTkAlCosmicsCosmicTF = cms.Sequence(ALCARECOTkAlCosmicsCosmicTF)
 seqALCARECOTkAlCosmicsRegional = cms.Sequence(ALCARECOTkAlCosmicsRegional)
+
+# Phase-2: Temporarily patch ALCARECOTkAlCosmicsRegional to load a working Phase-2 collection
+phase2_tracker.toModify(ALCARECOTkAlCosmicsRegional, src = "ctfWithMaterialTracksP5")

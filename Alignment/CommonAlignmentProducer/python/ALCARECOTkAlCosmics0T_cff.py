@@ -2,6 +2,7 @@
 # Date       :   July 19th, 2007
 # last update: $Date: 2010/03/17 18:17:34 $ by $Author: mussgill $
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 
 # DCS partitions
 # "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO","RPC"
@@ -57,3 +58,7 @@ seqALCARECOTkAlCosmicsCTF0T = cms.Sequence(ALCARECOTkAlCosmicsCTF0T)
 seqALCARECOTkAlCosmicsCosmicTF0T = cms.Sequence(ALCARECOTkAlCosmicsCosmicTF0T)
 seqALCARECOTkAlCosmicsRegional0T = cms.Sequence(ALCARECOTkAlCosmicsRegional0T)
 seqALCARECOTkAlCosmicsDuringCollisions0T = cms.Sequence(ALCARECOTkAlCosmicsDuringCollisions0T)
+
+# Phase-2: Temporarily patch ALCARECOTkAlCosmicsRegional and ALCARECOTkAlCosmicsDuringCollisions0T to load a working Phase-2 collection
+phase2_tracker.toModify(ALCARECOTkAlCosmicsRegional0T, src = "ctfWithMaterialTracksP5")
+phase2_tracker.toModify(ALCARECOTkAlCosmicsDuringCollisions0T, src = "ctfWithMaterialTracksP5")
