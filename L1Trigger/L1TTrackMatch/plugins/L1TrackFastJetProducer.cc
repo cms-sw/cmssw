@@ -88,7 +88,7 @@ L1TrackFastJetProducer::~L1TrackFastJetProducer() {}
 
 // producer
 void L1TrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::unique_ptr<TkJetCollection> L1TrackFastJets(new TkJetCollection);
+  std::unique_ptr<TkJetCollection> L1TrackFastJets = std::make_unique<TkJetCollection>();
 
   // L1 tracks
   edm::Handle<L1TTTrackRefCollectionType> TTTrackHandle;
