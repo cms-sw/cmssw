@@ -16,8 +16,13 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthClusteringEdgeVarsDeviceCollection.h"
 
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterParams.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterizerLaunchParams.h"
 
-/**
+namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
+
+  PFMultiDepthClusterizerLaunchParams initLaunchParamsCache();
+
+  /**
  * @brief Perform multi-depth PF clusterization on the device.
  *
  * @param queue           Alpaka execution queue.
@@ -30,15 +35,14 @@
  * @param nClusters       Number of clusters to process.
  */
 
-namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
-
   void clusterize(Queue& queue,
                   reco::PFClusterDeviceCollection& outPFCluster,
                   reco::PFRecHitFractionDeviceCollection& outPFRecHitFracs,
                   const reco::PFClusterDeviceCollection& pfCluster,
                   const reco::PFRecHitFractionDeviceCollection& pfRecHitFracs,
                   const reco::PFRecHitDeviceCollection& pfRecHit,
-                  const PFMultiDepthClusterParams* params,
+                  const PFMultiDepthClusterParams& params,
+                  const PFMultiDepthClusterizerLaunchParams& launch_params,
                   const unsigned int nClusters);
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc
