@@ -3,10 +3,10 @@
 
 <ConstantsSection label="fbcm" eval="true">
   <!-- dimensions of the FBCM Module -->
-  <Constant name="FBCM_ModuleZ"            value="1838*mm"/> <!-- 1814*mm Should be between [cmsFbcm:FBCM_Z1]=1.722m and [cmsFbcm:FBCM_Z2]=1.8m -->
+  <Constant name="FBCM_ModuleZ"            value="1838*mm"/> <!-- 1814*mm Should be between [bril:FBCM_Z1]=1.722m and [bril:FBCM_Z2]=1.8m -->
   <Constant name="FBCM_ModuleThickness"    value="5*mm"/>
-  <Constant name="FbcmModule_InnerRadius"  value="[cmsFbcm:FBCM_InnerRadius]"/>
-  <Constant name="FbcmModule_OuterRadius"  value="[cmsFbcm:FBCM_OuterRadius]"/>
+  <Constant name="FbcmModule_InnerRadius"  value="[bril:FBCM_InnerRadius]"/>
+  <Constant name="FbcmModule_OuterRadius"  value="[bril:FBCM_OuterRadius]"/>
 	
   <Constant name="NumOfStations"           value="6"/>
   <Constant name="SensorPad_LZ"            value="[SiliconDie_LZ]"/>
@@ -105,7 +105,7 @@
 <!-- Position --> 
 <PosPartSection label="fbcm"><!--FBCM as a child of Tracker:Pixel:Service-->
   <PosPart copyNumber="1">
-    <rParent name="cmsFbcm:FbcmVolume"/>
+    <rParent name="bril:BrilVolume"/>
     <rChild name="FBCM"></rChild>
     <rRotation name="rotations:000D"></rRotation>
   </PosPart>
