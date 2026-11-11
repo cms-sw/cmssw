@@ -19,6 +19,7 @@
 <use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/ProtonReco"/>
 <use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
