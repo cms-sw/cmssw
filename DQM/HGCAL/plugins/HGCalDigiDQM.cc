@@ -19,6 +19,7 @@
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHost.h"
+#include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
 #include "DQM/HGCAL/interface/HGCalDQMCommon.h"
 
 /**
@@ -50,8 +51,8 @@ private:
 
   // ------------ member data ------------
   edm::EDGetTokenT<hgcaldigi::HGCalDigiHost> digisTkn_;
+  edm::EDGetTokenT<hgcaldigi::HGCalECONDPacketInfoHost> econdTkn_;
   edm::ESGetToken<hgcal::HGCalDenseIndexInfoHost, HGCalDenseIndexInfoRcd> denseIndexInfoTkn_;
-
   edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIdxTkn_;
   edm::ESGetToken<hgcal::HGCalMappingModuleParamHost, HGCalElectronicsMappingRcd> moduleInfoTkn_;
   const unsigned int minEvents_;
@@ -64,6 +65,7 @@ private:
 
 HGCalDigiDQM::HGCalDigiDQM(const edm::ParameterSet& iConfig)
     : digisTkn_(consumes<hgcaldigi::HGCalDigiHost>(iConfig.getParameter<edm::InputTag>("Digis"))),
+      econdTkn_(consumes<hgcaldigi::HGCalECONDPacketInfoHost>(iConfig.getParameter<edm::InputTag>("Econd"))),
       denseIndexInfoTkn_(esConsumes()),
       moduleIdxTkn_(esConsumes<edm::Transition::BeginRun>()),
       moduleInfoTkn_(esConsumes<edm::Transition::BeginRun>()),
@@ -94,8 +96,8 @@ void HGCalDigiDQM::bookModuleHistograms(DQMStore::IBooker& ibook, const Monitore
 
   moduleHistos_["avgadc"][key] =
       ibook.bookProfile("avgadc", typecode + ";Channel; <ADC>", nch, -0.5, nch - 0.5, 100, 0, 1024, "s");
-  // moduleHistos_["avgcm2"][key] =
-  //     ibook.bookProfile("avgcm2", typecode + ";Channel; <CM_{2}>", nch, -0.5, nch - 0.5, 100, 0, 1024, "s");
+  moduleHistos_["avgcm2"][key] =
+      ibook.bookProfile("avgcm2", typecode + ";Channel; <CM_{2}>", nch, -0.5, nch - 0.5, 100, 0, 1024, "s");
   moduleHistos_["adc"][key] = ibook.book1D("adc", typecode + ";ADC; Counts (all channels)", 100, 0, 1024);
   moduleHistos_["avgtot"][key] =
       ibook.bookProfile("avgtot", typecode + ";Channel; <TOT>", nch, -0.5, nch - 0.5, 100, 0, 1024, "s");
@@ -126,11 +128,15 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     return;
 
   const auto& digis = iEvent.getHandle(digisTkn_);
+  
   if (!digis.isValid())
     return;
 
+  const auto& econd = iEvent.getHandle(econdTkn_);
   const auto& digis_view = digis->const_view();
   int32_t ndigis = digis_view.metadata().size();
+
+  const auto& econd_view = econd->const_view();
 
   const auto& denseIndexInfo = iSetup.getData(denseIndexInfoTkn_);
   const auto& denseIndexInfo_view = denseIndexInfo.const_view();
@@ -140,7 +146,7 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   // at() throws if a histogram type was never booked, instead of inserting an empty map.
   auto& mh_avgadc = moduleHistos_.at("avgadc");
-  //  auto& mh_avgcm2 = moduleHistos_.at("avgcm2");
+  auto& mh_avgcm2 = moduleHistos_.at("avgcm2");
   auto& mh_adc = moduleHistos_.at("adc");
   auto& mh_avgadcm1 = moduleHistos_.at("avgadcm1");
   auto& mh_adcm1 = moduleHistos_.at("adcm1");
@@ -158,7 +164,7 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   MonitoredElementKey_t cur_key(std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max());
   bool cur_key_ok = false;
   auto it_avgadc = mh_avgadc.end();
-  // auto it_avgcm2 = mh_avgcm2.end();
+  auto it_avgcm2 = mh_avgcm2.end();
   auto it_adc = mh_adc.end();
   auto it_avgadcm1 = mh_avgadcm1.end();
   auto it_adcm1 = mh_adcm1.end();
@@ -181,7 +187,7 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       if (followedModules_.find(key) == followedModules_.end())
         continue;
       it_avgadc = mh_avgadc.find(key);
-      // it_avgcm2 = mh_avgcm2.find(key);
+      it_avgcm2 = mh_avgcm2.find(key);
       it_adc = mh_adc.find(key);
       it_avgadcm1 = mh_avgadcm1.find(key);
       it_adcm1 = mh_adcm1.find(key);
@@ -206,13 +212,19 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     if (it_seed != moduleSeeds_.end() && it_seed->second == chIdx)
       seedDigiIdx[key] = i;
 
+    // compute cm from econd
+    uint32_t erx = chIdx / 37;
+    auto econdenseidx = indexinfo.modInfoIdx();
+    auto cmm = econd_view[econdenseidx].cm();
+
+
     auto digi = digis_view[i];
     uint8_t tctp = digi.tctp();
     double adc = digi.adc();
     double tot = digi.tot();
     double toa = digi.toa();
     double adcm = digi.adcm1();
-    // double cmsum = digi.cm();
+    double cmsum = cmm(erx, 0) + cmm(erx, 1);
     uint16_t flags = digi.flags();
     double deltaadc = adc - adcm;
 
@@ -224,7 +236,7 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     // ADC mode
     if (tctp == 0) {
       it_avgadc->second->Fill(chIdx, adc);
-      // it_avgcm2->second->Fill(chIdx, 0.5 * cmsum);
+      it_avgcm2->second->Fill(chIdx, 0.5 * cmsum);
       it_adc->second->Fill(adc);
       it_avgadcm1->second->Fill(chIdx, adcm);
       it_adcm1->second->Fill(adcm);
@@ -335,6 +347,7 @@ void HGCalDigiDQM::bookHistograms(DQMStore::IBooker& ibook, edm::Run const& run,
 void HGCalDigiDQM::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("Digis", edm::InputTag("hgcalDigis", ""));
+  desc.add<edm::InputTag>("Econd", edm::InputTag("hgcalDigis", ""));
   desc.add<unsigned int>("MinimumEvents", 5000);
   desc.add<unsigned int>("PrescaleFactor", 5000);
   descriptions.add("hgcaldigidqm", desc);
