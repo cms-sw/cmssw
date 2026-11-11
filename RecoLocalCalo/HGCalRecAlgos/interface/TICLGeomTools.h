@@ -286,7 +286,7 @@ namespace ticlgeom {
   private:
     Cell cell(const DetId& id) const { return geom_.cell(id.rawId()); }
 
-    TICLGeomSoAConstView geom_;
+    TICLGeomSoAConstView geom_{};
   };
 
 }  // namespace ticlgeom
