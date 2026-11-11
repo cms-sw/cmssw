@@ -43,13 +43,15 @@ L1MuGMTHWFileReader::L1MuGMTHWFileReader(edm::ParameterSet const& ps, edm::Input
 
   produces<L1CaloRegionCollection>();
 
-  if (fileNames(0).empty()) {
+  std::vector<std::string> physicalFileNames = catalog().allPFNsFromFirstCatalog();
+  if (physicalFileNames.empty()) {
     throw std::runtime_error("L1MuGMTHWFileReader: no input file");
   }
-  edm::LogInfo("GMT_HWFileReader_info") << "opening file " << fileNames(0)[0];
-  m_in.open((fileNames(0)[0].substr(fileNames(0)[0].find(':') + 1)).c_str());
+  std::string const& physicalFileName = physicalFileNames[0];
+  edm::LogInfo("GMT_HWFileReader_info") << "opening file " << physicalFileName;
+  m_in.open((physicalFileName.substr(physicalFileName.find(':') + 1)).c_str());
   if (!m_in) {
-    throw std::runtime_error("L1MuGMTHWFileReader: file " + fileNames(0)[0] + " could not be openned");
+    throw std::runtime_error("L1MuGMTHWFileReader: file " + physicalFileName + " could not be openned");
   }
 }
 
