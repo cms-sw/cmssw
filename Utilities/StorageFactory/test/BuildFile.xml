@@ -29,16 +29,6 @@
   <flags NO_TESTRUN="1"/>
 </bin>
 
-<bin file="rfio2.cpp" name="test_StorageFactory_Rfio2">
-</bin>
-
-<bin file="rfio3.cpp" name="test_StorageFactory_Rfio3">
-</bin>
-
-<bin file="write.cpp" name="test_StorageFactory_Write">
-  <flags NO_TESTRUN="1"/>
-</bin>
-
 <bin file="mkstemp.cpp" name="test_StorageFactory_Mkstemp">
 </bin>
 

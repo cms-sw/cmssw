@@ -3,10 +3,8 @@
 
 ///////////////////////////////////////////////////////////////////////
 //
-// dataCatalogs(unsigned catType) returns multiple data catalogs in site-local-config.xml.
-//    catType=TrivialCatalog: returns trivial catalogs defined in <event-data> blocks
-//    catType=RucioCatalog: returns catalogs defined in <data-access> blocks
-//    (the "enum" is defined in FWCore/Catalog/interface/SiteLocalConfig.h)
+// dataCatalogs() returns multiple data catalogs in site-local-config.xml
+//    and defined in <data-access> blocks.
 ///////////////////////////////////////////////////////////////////////
 //<<<<<< INCLUDES                                                       >>>>>>
 #include <string>
@@ -35,11 +33,9 @@ namespace edm {
     public:
       explicit SiteLocalConfigService(ParameterSet const& pset);
 
-      std::vector<std::string> const& trivialDataCatalogs() const override;
       std::vector<edm::CatalogAttributes> const& dataCatalogs() const override;
       std::filesystem::path const storageDescriptionPath(edm::CatalogAttributes const& aDataCatalog) const override;
       std::string const lookupCalibConnect(std::string const& input) const override;
-      std::string const rfioType(void) const override;
 
       std::string const* sourceCacheTempDir() const override;
       double const* sourceCacheMinFree() const override;
@@ -71,10 +67,8 @@ namespace edm {
       void computeStatisticsDestination();
       std::string const frontierConnect(std::string const& servlet) const;
       std::string m_url;
-      std::vector<std::string> m_trivialDataCatalogs;
       std::vector<edm::CatalogAttributes> m_dataCatalogs;
       std::string m_frontierConnect;
-      std::string m_rfioType;
       bool m_connected;
       std::string m_cacheTempDir;
       std::string const* m_cacheTempDirPtr;

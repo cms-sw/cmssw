@@ -20,7 +20,6 @@ namespace edm {
     ~ProducerSourceFromFiles() override;
 
     using FromFiles::catalog;
-    using FromFiles::fileNames;
 
     static void fillDescription(ParameterSetDescription& desc);
 
