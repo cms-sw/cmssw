@@ -128,11 +128,11 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     return;
 
   const auto& digis = iEvent.getHandle(digisTkn_);
-  
-  if (!digis.isValid())
+  const auto& econd = iEvent.getHandle(econdTkn_);
+
+  if (!digis.isValid() || !econd.isValid())
     return;
 
-  const auto& econd = iEvent.getHandle(econdTkn_);
   const auto& digis_view = digis->const_view();
   int32_t ndigis = digis_view.metadata().size();
 
@@ -216,7 +216,6 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     uint32_t erx = chIdx / 37;
     auto econdenseidx = indexinfo.modInfoIdx();
     auto cmm = econd_view[econdenseidx].cm();
-
 
     auto digi = digis_view[i];
     uint8_t tctp = digi.tctp();
