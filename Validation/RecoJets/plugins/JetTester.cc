@@ -235,11 +235,11 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
   minJetPt = 20.;
 
   int n_EtaBins = 60;
-  std::vector<double> EtaRange = {-6.0, 6.0};
+  std::vector<double> EtaRange = {-5.0, 5.0};
   int n_PhiBins = 70;
   std::vector<double> PhiRange = {-3.5, 3.5};
-  int n_PtBins = 50;
-  std::vector<double> PtRange = {0, 1000};
+  int n_PtBins = 700;
+  std::vector<double> PtRange = {0, 7000};
   int n_RespBins = 70;
   std::vector<double> RespRange = {0, 3.5};
 
@@ -279,7 +279,7 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
                              PtRange[0],
                              PtRange[1]);
   mJetEnergy = ibooker.book1D("JetEnergy", "Reco Jets;Energy [GeV];# jets", n_PtBins, PtRange[0], PtRange[1]);
-  mJetMass = ibooker.book1D("JetMass", "Reco Jets;Mass [GeV];# jets", 100, 0, 200);
+  mJetMass = ibooker.book1D("JetMass", "Reco Jets;Mass [GeV];# jets", 3500, 0, 7000);
   mJetConstituents = ibooker.book1D("JetConstituents", "Reco Jets;# constituents;# jets", 100, 0, 100);
   mJetArea = ibooker.book1D("JetArea", "Reco Jets;Area;# jets", 100, 0, 4);
 
@@ -908,7 +908,7 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
   mGenPtFirst = ibooker.book1D("FirstGenJetPt", "First Gen Jets;p_{T};# first jets", n_PtBins, PtRange[0], PtRange[1]);
 
   // Some jet algebra
-  mMjj = ibooker.book1D("Mjj", "Mjj", 100, 0, 2000);
+  mMjj = ibooker.book1D("Mjj", "Mjj", 350, 0, 7000);
   mNJets = ibooker.book1D(
       "NJets", std::format("Number of jets p_{{T}}>{} GeV;# jets;# events", mRecoJetPtThreshold), 15, 0, 15);
   mNJetsPt1 = ibooker.bookProfile(
@@ -918,17 +918,17 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
 
   //------------------------------------------------------------------------
   if (isCaloJet) {
-    maxEInEmTowers = ibooker.book1D("maxEInEmTowers", "maxEInEmTowers", 50, 0, 500);
-    maxEInHadTowers = ibooker.book1D("maxEInHadTowers", "maxEInHadTowers", 50, 0, 500);
+    maxEInEmTowers = ibooker.book1D("maxEInEmTowers", "maxEInEmTowers", 700, 0, 7000);
+    maxEInHadTowers = ibooker.book1D("maxEInHadTowers", "maxEInHadTowers", 700, 0, 7000);
     energyFractionHadronic = ibooker.book1D("energyFractionHadronic", "energyFractionHadronic", 50, 0, 1);
     emEnergyFraction = ibooker.book1D("emEnergyFraction", "emEnergyFraction", 50, 0, 1);
-    hadEnergyInHB = ibooker.book1D("hadEnergyInHB", "hadEnergyInHB", 50, 0, 500);
-    hadEnergyInHO = ibooker.book1D("hadEnergyInHO", "hadEnergyInHO", 50, 0, 500);
-    hadEnergyInHE = ibooker.book1D("hadEnergyInHE", "hadEnergyInHE", 50, 0, 500);
-    hadEnergyInHF = ibooker.book1D("hadEnergyInHF", "hadEnergyInHF", 50, 0, 500);
-    emEnergyInEB = ibooker.book1D("emEnergyInEB", "emEnergyInEB", 50, 0, 500);
-    emEnergyInEE = ibooker.book1D("emEnergyInEE", "emEnergyInEE", 50, 0, 500);
-    emEnergyInHF = ibooker.book1D("emEnergyInHF", "emEnergyInHF", 50, 0, 500);
+    hadEnergyInHB = ibooker.book1D("hadEnergyInHB", "hadEnergyInHB", 700, 0, 7000);
+    hadEnergyInHO = ibooker.book1D("hadEnergyInHO", "hadEnergyInHO", 700, 0, 7000);
+    hadEnergyInHE = ibooker.book1D("hadEnergyInHE", "hadEnergyInHE", 700, 0, 7000);
+    hadEnergyInHF = ibooker.book1D("hadEnergyInHF", "hadEnergyInHF", 700, 0, 7000);
+    emEnergyInEB = ibooker.book1D("emEnergyInEB", "emEnergyInEB", 700, 0, 7000);
+    emEnergyInEE = ibooker.book1D("emEnergyInEE", "emEnergyInEE", 700, 0, 7000);
+    emEnergyInHF = ibooker.book1D("emEnergyInHF", "emEnergyInHF", 700, 0, 7000);
     towersArea = ibooker.book1D("towersArea", "towersArea", 50, 0, 1);
     n90 = ibooker.book1D("n90", "n90", 30, 0, 30);
     n60 = ibooker.book1D("n60", "n60", 30, 0, 30);
@@ -937,25 +937,25 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
   if (isPFJet || isMiniAODJet) {
     muonMultiplicity = ibooker.book1D("muonMultiplicity", "muonMultiplicity", 10, 0, 10);
     chargedMultiplicity = ibooker.book1D("chargedMultiplicity", "chargedMultiplicity", 100, 0, 100);
-    chargedEmEnergy = ibooker.book1D("chargedEmEnergy", "chargedEmEnergy", 100, 0, 500);
-    neutralEmEnergy = ibooker.book1D("neutralEmEnergy", "neutralEmEnergy", 100, 0, 500);
-    chargedHadronEnergy = ibooker.book1D("chargedHadronEnergy", "chargedHadronEnergy", 100, 0, 500);
-    neutralHadronEnergy = ibooker.book1D("neutralHadronEnergy", "neutralHadronEnergy", 100, 0, 500);
+    chargedEmEnergy = ibooker.book1D("chargedEmEnergy", "chargedEmEnergy", 1400, 0, 7000);
+    neutralEmEnergy = ibooker.book1D("neutralEmEnergy", "neutralEmEnergy", 1400, 0, 7000);
+    chargedHadronEnergy = ibooker.book1D("chargedHadronEnergy", "chargedHadronEnergy", 1400, 0, 7000);
+    neutralHadronEnergy = ibooker.book1D("neutralHadronEnergy", "neutralHadronEnergy", 1400, 0, 7000);
     chargedHadronEnergyFraction =
         ibooker.book1D("chargedHadronEnergyFraction", "chargedHadronEnergyFraction", 50, 0, 1);
     neutralHadronEnergyFraction =
         ibooker.book1D("neutralHadronEnergyFraction", "neutralHadronEnergyFraction", 50, 0, 1);
     chargedEmEnergyFraction = ibooker.book1D("chargedEmEnergyFraction", "chargedEmEnergyFraction", 50, 0, 1);
     neutralEmEnergyFraction = ibooker.book1D("neutralEmEnergyFraction", "neutralEmEnergyFraction", 50, 0, 1);
-    photonEnergy = ibooker.book1D("photonEnergy", "photonEnergy", 50, 0, 500);
+    photonEnergy = ibooker.book1D("photonEnergy", "photonEnergy", 700, 0, 7000);
     photonEnergyFraction = ibooker.book1D("photonEnergyFraction", "photonEnergyFraction", 50, 0, 1);
-    electronEnergy = ibooker.book1D("electronEnergy", "electronEnergy", 50, 0, 500);
+    electronEnergy = ibooker.book1D("electronEnergy", "electronEnergy", 700, 0, 7000);
     electronEnergyFraction = ibooker.book1D("electronEnergyFraction", "electronEnergyFraction", 50, 0, 1);
-    muonEnergy = ibooker.book1D("muonEnergy", "muonEnergy", 50, 0, 500);
+    muonEnergy = ibooker.book1D("muonEnergy", "muonEnergy", 700, 0, 7000);
     muonEnergyFraction = ibooker.book1D("muonEnergyFraction", "muonEnergyFraction", 50, 0, 1);
-    HFHadronEnergy = ibooker.book1D("HFHadronEnergy", "HFHadronEnergy", 50, 0, 500);
+    HFHadronEnergy = ibooker.book1D("HFHadronEnergy", "HFHadronEnergy", 700, 0, 7000);
     HFHadronEnergyFraction = ibooker.book1D("HFHadronEnergyFraction", "HFHadronEnergyFraction", 50, 0, 1);
-    HFEMEnergy = ibooker.book1D("HFEmEnergy", "HFEmEnergy", 50, 0, 500);
+    HFEMEnergy = ibooker.book1D("HFEmEnergy", "HFEmEnergy", 700, 0, 7000);
     HFEMEnergyFraction = ibooker.book1D("HFEmEnergyFraction", "HFEmEnergyFraction", 50, 0, 1);
     chargedHadronMultiplicity = ibooker.book1D("chargedHadronMultiplicity", "chargedHadronMultiplicity", 50, 0, 50);
     neutralHadronMultiplicity = ibooker.book1D("neutralHadronMultiplicity", "neutralHadronMultiplicity", 50, 0, 50);
@@ -963,10 +963,10 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
     electronMultiplicity = ibooker.book1D("electronMultiplicity", "electronMultiplicity", 15, 0, 15);
     HFHadronMultiplicity = ibooker.book1D("HFHadronMultiplicity", "HFHadronMultiplicity", 50, 0, 50);
     HFEMMultiplicity = ibooker.book1D("HFEMMultiplicity", "HFEMMultiplicity", 50, 0, 50);
-    chargedMuEnergy = ibooker.book1D("chargedMuEnergy", "chargedMuEnergy", 50, 0, 500);
+    chargedMuEnergy = ibooker.book1D("chargedMuEnergy", "chargedMuEnergy", 700, 0, 7000);
     chargedMuEnergyFraction = ibooker.book1D("chargedMuEnergyFraction", "chargedMuEnergyFraction", 50, 0, 1);
     neutralMultiplicity = ibooker.book1D("neutralMultiplicity", "neutralMultiplicity", 50, 0, 50);
-    HOEnergy = ibooker.book1D("HOEnergy", "HOEnergy", 50, 0, 500);
+    HOEnergy = ibooker.book1D("HOEnergy", "HOEnergy", 700, 0, 7000);
     HOEnergyFraction = ibooker.book1D("HOEnergyFraction", "HOEnergyFraction", 50, 0, 1);
 
     for (size_t j = 0; j < etaInfo.size(); ++j) {
@@ -1481,7 +1481,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       // PT CUT
       if (genJets[gjet].pt() < mMatchGenPtThreshold)
         continue;
-      if (std::abs(genJets[gjet].eta()) > 6.)
+      if (std::abs(genJets[gjet].eta()) > 5.)
         continue;
 
       mGenEta->Fill(genJets[gjet].eta());
@@ -1646,7 +1646,7 @@ void JetTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<edm::InputTag>("srcGen", edm::InputTag("ak4GenJetsNoNu"));
   desc.add<edm::InputTag>("JetCorrections", edm::InputTag("newAk4PFL1FastL2L3Corrector"));
   desc.add<edm::InputTag>("primVertex", edm::InputTag("offlinePrimaryVertices"));
-  desc.add<double>("recoJetPtThreshold", 40.0);
+  desc.add<double>("recoJetPtThreshold", 20.0);
   desc.add<double>("matchGenPtThreshold", 20.0);
   desc.add<double>("RThreshold", 0.3);
   descriptions.addWithDefaultLabel(desc);

@@ -86,7 +86,7 @@ private:
   static constexpr std::array<std::tuple<std::string_view, std::string_view, double, double>, 3> etaInfo = {{
       std::make_tuple("B", "0<|#eta|<1.5", 0.0, 1.5),     // barrel
       std::make_tuple("E", "1.5#leq|#eta|<3", 1.5, 3.0),  // endcap
-      std::make_tuple("F", "3#leq|#eta|<6", 3.0, 6.0),    // forward
+      std::make_tuple("F", "3#leq|#eta|<5", 3.0, 5.0),    // forward
   }};
   static constexpr size_t etaSize = etaInfo.size();
 
