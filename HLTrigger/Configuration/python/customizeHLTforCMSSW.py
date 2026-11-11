@@ -266,7 +266,10 @@ def customizeHLTfor52006(process):
     ]
 
     if not hasattr(process, 'ONNXService') and next(producers_by_type(process, *onnx_modules), None) is not None:
-        process.ONNXService = cms.Service('ONNXService')
+        process.ONNXService = cms.Service('ONNXService',
+          allowTF32 = cms.bool(False),
+          verbose = cms.untracked.bool(False)
+        )
 
     return process
 
