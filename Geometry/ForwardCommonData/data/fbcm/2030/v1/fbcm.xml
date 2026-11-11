@@ -1,0 +1,229 @@
+<?xml version='1.0'?>
+<DDDefinition>
+
+  <!--FBCM extracted from v6630.inp, z in [278.15,280.00] cm. All dimensions are cm.-->
+  <!--Positive-x subassembly includes entire y span. Negative-x side reuses it via Rz180, not reflection.-->
+  <!--Daughters replace mother material. Optional negative-z assembly uses Ry180 in placement template only.-->
+
+<SolidSection label="FBCM_Solids">
+  <Box name="FBCM_PosZBox" dx="25.55*cm" dy="28.05*cm" dz="0.925*cm" />
+  <Tubs name="FBCM_BeamVoid" rMin="0*cm" rMax="11.95*cm" dz="1*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <SubtractionSolid name="FBCM">
+    <rSolid name="FBCM_PosZBox" />
+    <rSolid name="FBCM_BeamVoid" />
+    <Translation x="0*cm" y="0*cm" z="0*cm" />
+  </SubtractionSolid>
+  <Box name="FBCM_PosXBox" dx="12.7*cm" dy="28.05*cm" dz="0.925*cm" />
+  <SubtractionSolid name="FBCM_PosXSolid">
+    <rSolid name="FBCM_PosXBox" />
+    <rSolid name="FBCM_BeamVoid" />
+    <Translation x="-12.85*cm" y="0*cm" z="0*cm" />
+  </SubtractionSolid>
+  <Box name="FBCM_Clip015Box" dx="12.7*cm" dy="28.05*cm" dz="1*cm" />
+  <Box name="FBCM_Clip021Box" dx="12.64*cm" dy="28.05*cm" dz="1*cm" />
+  <Tubs name="FBCM_CoverSolid_Tube" rMin="11.95*cm" rMax="25.55*cm" dz="0.695*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <IntersectionSolid name="FBCM_CoverSolid">
+    <rSolid name="FBCM_CoverSolid_Tube" />
+    <rSolid name="FBCM_Clip015Box" />
+    <Translation x="12.85*cm" y="0*cm" z="0*cm" />
+  </IntersectionSolid>
+  <Tubs name="FBCM_InnerAirSolid_Tube" rMin="12.01*cm" rMax="25.49*cm" dz="0.665*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <IntersectionSolid name="FBCM_InnerAirSolid">
+    <rSolid name="FBCM_InnerAirSolid_Tube" />
+    <rSolid name="FBCM_Clip021Box" />
+    <Translation x="12.85*cm" y="0*cm" z="0*cm" />
+  </IntersectionSolid>
+  <Tubs name="FBCM_CabSolid_Tube" rMin="16.1*cm" rMax="18*cm" dz="0.665*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <IntersectionSolid name="FBCM_CabSolid">
+    <rSolid name="FBCM_CabSolid_Tube" />
+    <rSolid name="FBCM_Clip021Box" />
+    <Translation x="12.85*cm" y="0*cm" z="0*cm" />
+  </IntersectionSolid>
+  <Tubs name="FBCM_FeeSolid_Tube" rMin="18*cm" rMax="24*cm" dz="0.665*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <IntersectionSolid name="FBCM_FeeSolid">
+    <rSolid name="FBCM_FeeSolid_Tube" />
+    <rSolid name="FBCM_Clip021Box" />
+    <Translation x="12.85*cm" y="0*cm" z="0*cm" />
+  </IntersectionSolid>
+  <Tubs name="FBCM_PCBOuterSolid_Tube" rMin="18*cm" rMax="24*cm" dz="0.05*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <IntersectionSolid name="FBCM_PCBOuterSolid">
+    <rSolid name="FBCM_PCBOuterSolid_Tube" />
+    <rSolid name="FBCM_Clip021Box" />
+    <Translation x="12.85*cm" y="0*cm" z="0*cm" />
+  </IntersectionSolid>
+  <Tubs name="FBCM_PlaSolid_Tube" rMin="13.65*cm" rMax="13.85*cm" dz="0.25*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <IntersectionSolid name="FBCM_PlaSolid">
+    <rSolid name="FBCM_PlaSolid_Tube" />
+    <rSolid name="FBCM_Clip021Box" />
+    <Translation x="12.85*cm" y="0*cm" z="0*cm" />
+  </IntersectionSolid>
+  <Tubs name="FBCM_PCBInnerSolid_Tube" rMin="13.85*cm" rMax="16.1*cm" dz="0.05*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <IntersectionSolid name="FBCM_PCBInnerSolid">
+    <rSolid name="FBCM_PCBInnerSolid_Tube" />
+    <rSolid name="FBCM_Clip021Box" />
+    <Translation x="12.85*cm" y="0*cm" z="0*cm" />
+  </IntersectionSolid>
+  <Tubs name="FBCM_SensorGapSolid_Tube" rMin="14.29*cm" rMax="14.91*cm" dz="0.03*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <IntersectionSolid name="FBCM_SensorGapSolid">
+    <rSolid name="FBCM_SensorGapSolid_Tube" />
+    <rSolid name="FBCM_Clip021Box" />
+    <Translation x="12.85*cm" y="0*cm" z="0*cm" />
+  </IntersectionSolid>
+  <Tubs name="FBCM_SiSolid_Tube" rMin="14.5*cm" rMax="14.7*cm" dz="0.0145*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <IntersectionSolid name="FBCM_SiSolid">
+    <rSolid name="FBCM_SiSolid_Tube" />
+    <rSolid name="FBCM_Clip021Box" />
+    <Translation x="12.85*cm" y="0*cm" z="0*cm" />
+  </IntersectionSolid>
+  <Tubs name="FBCM_CerSolid_Tube" rMin="13.85*cm" rMax="16.1*cm" dz="0.02*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <IntersectionSolid name="FBCM_CerSolid">
+    <rSolid name="FBCM_CerSolid_Tube" />
+    <rSolid name="FBCM_Clip021Box" />
+    <Translation x="12.85*cm" y="0*cm" z="0*cm" />
+  </IntersectionSolid>
+  <Box name="FBCM_PlateWingBox" dx="3.45*cm" dy="28.05*cm" dz="0.23*cm" />
+  <Tubs name="FBCM_PlateInnerHole" rMin="0*cm" rMax="11.95*cm" dz="0.3*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <SubtractionSolid name="FBCM_PlateWingCut">
+    <rSolid name="FBCM_PlateWingBox" />
+    <rSolid name="FBCM_PlateInnerHole" />
+    <Translation x="-3.6*cm" y="0*cm" z="0*cm" />
+  </SubtractionSolid>
+  <Box name="FBCM_PlateOuterClip" dx="9.25*cm" dy="28.05*cm" dz="0.3*cm" />
+  <Tubs name="FBCM_PlateRing" rMin="11.95*cm" rMax="25.55*cm" dz="0.23*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <IntersectionSolid name="FBCM_PlateOutsideWing">
+    <rSolid name="FBCM_PlateRing" />
+    <rSolid name="FBCM_PlateOuterClip" />
+    <Translation x="16.3*cm" y="0*cm" z="0*cm" />
+  </IntersectionSolid>
+  <UnionSolid name="FBCM_PlateSolid">
+    <rSolid name="FBCM_PlateWingCut" />
+    <rSolid name="FBCM_PlateOutsideWing" />
+    <Translation x="-3.6*cm" y="0*cm" z="0*cm" />
+  </UnionSolid>
+</SolidSection>
+
+<LogicalPartSection label="FBCMLogicalParts">
+  <LogicalPart name="FBCM" category="unspecified">
+    <rSolid name="FBCM" />
+    <rMaterial name="materials:Air" />
+  </LogicalPart>
+  <LogicalPart name="FBCM_PosXAssembly" category="unspecified">
+    <rSolid name="FBCM_PosXSolid" />
+    <rMaterial name="materials:Air" />
+  </LogicalPart>
+  <LogicalPart name="FBCM_PlatePart" category="unspecified">
+    <rSolid name="FBCM_PlateSolid" />
+    <rMaterial name="brilMaterials:BRIL_PLT" />
+  </LogicalPart>
+  <LogicalPart name="FBCM_CoverPart" category="unspecified">
+    <rSolid name="FBCM_CoverSolid" />
+    <rMaterial name="materials:Carbon fibre str." />
+  </LogicalPart>
+  <LogicalPart name="FBCM_InnerAirPart" category="unspecified">
+    <rSolid name="FBCM_InnerAirSolid" />
+    <rMaterial name="materials:Air" />
+  </LogicalPart>
+  <LogicalPart name="FBCM_CablePart" category="unspecified">
+    <rSolid name="FBCM_CabSolid" />
+    <rMaterial name="materials:Air" />
+  </LogicalPart>
+  <LogicalPart name="FBCM_FEEPart" category="unspecified">
+    <rSolid name="FBCM_FeeSolid" />
+    <rMaterial name="brilMaterials:BRIL_FEE" />
+  </LogicalPart>
+  <LogicalPart name="FBCM_PCBOuterPart" category="unspecified">
+    <rSolid name="FBCM_PCBOuterSolid" />
+    <rMaterial name="brilMaterials:BRIL_FR4" />
+  </LogicalPart>
+  <LogicalPart name="FBCM_PlasticPart" category="unspecified">
+    <rSolid name="FBCM_PlaSolid" />
+    <rMaterial name=""brilMaterials:BRIL_SCSN81" />
+  </LogicalPart>
+  <LogicalPart name="FBCM_PCBInnerPart" category="unspecified">
+    <rSolid name="FBCM_PCBInnerSolid" />
+    <rMaterial name="brilMaterials:BRIL_FR4" />
+  </LogicalPart>
+  <LogicalPart name="FBCM_GapPart" category="unspecified">
+    <rSolid name="FBCM_SensorGapSolid" />
+    <rMaterial name="materials:Air" />
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconPart" category="unspecified">
+    <rSolid name="FBCM_SiSolid" />
+    <rMaterial name="brilMaterials:BRIL_SILICON" />
+  </LogicalPart>
+  <LogicalPart name="FBCM_CeramicPart" category="unspecified">
+    <rSolid name="FBCM_CerSolid" />
+    <rMaterial name="brilMaterials:BRIL_ALN" />
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="FBCMPosPart">
+  <PosPart copyNumber="1">
+    <rParent name="fbcm:FBCM" />
+    <rChild name="fbcm:FBCM_PosXAssembly" />
+    <Translation x="12.85*cm" y="0*cm" z="0*cm" />
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="fbcm:FBCM" />
+    <rChild name="fbcm:FBCM_PosXAssembly" />
+    <Translation x="-12.85*cm" y="0*cm" z="0*cm" />
+    <rRotation name="rotations:R180" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="fbcm:FBCM_PosXAssembly" />
+    <rChild name="fbcm:FBCM_CoverPart" />
+    <Translation x="-12.85*cm" y="0*cm" z="-0.23*cm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="fbcm:FBCM_PosXAssembly" />
+    <rChild name="fbcm:FBCM_PlatePart" />
+    <Translation x="-9.25*cm" y="0*cm" z="0.695*cm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="fbcm:FBCM_CoverPart" />
+    <rChild name="fbcm:FBCM_InnerAirPart" />
+    <Translation x="0*cm" y="0*cm" z="0.03*cm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="fbcm:FBCM_InnerAirPart" />
+    <rChild name="fbcm:FBCM_CablePart" />
+    <Translation x="0*cm" y="0*cm" z="0*cm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="fbcm:FBCM_InnerAirPart" />
+    <rChild name="fbcm:FBCM_FEEPart" />
+    <Translation x="0*cm" y="0*cm" z="0*cm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="fbcm:FBCM_InnerAirPart" />
+    <rChild name="fbcm:FBCM_PlasticPart" />
+    <Translation x="0*cm" y="0*cm" z="0.415*cm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="fbcm:FBCM_InnerAirPart" />
+    <rChild name="fbcm:FBCM_PCBInnerPart" />
+    <Translation x="0*cm" y="0*cm" z="0.415*cm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="fbcm:FBCM_InnerAirPart" />
+    <rChild name="fbcm:FBCM_CeramicPart" />
+    <Translation x="0*cm" y="0*cm" z="0.485*cm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="fbcm:FBCM_FEEPart" />
+    <rChild name="fbcm:FBCM_PCBOuterPart" />
+    <Translation x="0*cm" y="0*cm" z="0.615*cm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="fbcm:FBCM_PCBInnerPart" />
+    <rChild name="fbcm:FBCM_GapPart" />
+    <Translation x="0*cm" y="0*cm" z="-0.02*cm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="fbcm:FBCM_GapPart" />
+    <rChild name="fbcm:FBCM_SiliconPart" />
+    <Translation x="0*cm" y="0*cm" z="0.0155*cm" />
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>
