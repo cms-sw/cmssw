@@ -14,7 +14,11 @@ ecal_digi_parameters = cms.PSet(
     1.0000, 0.6986, 0.3782, 0.2452, 0.2900, 0.3532, 0.3911, 0.3896,
     0.3892, 0.3842, 0.3796, 0.3711, 0.3763, 0.3791, 0.3867, 0.3820),
 
-    EcalPreMixStage1 = cms.bool(False)
+    EcalPreMixStage1 = cms.bool(False),
+
+    # define the low gain (gain 1) Lite-DTU readout window around saturated gain 10 samples
+    lowGainPreSamples = cms.uint32(2),
+    lowGainPostSamples = cms.uint32(5)
 )
 
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
