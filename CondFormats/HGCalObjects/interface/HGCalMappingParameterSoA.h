@@ -22,8 +22,6 @@ namespace hgcal {
                       SOA_COLUMN(uint16_t, typeidx),
                       SOA_COLUMN(uint16_t, fedid),
                       SOA_COLUMN(uint16_t, slinkidx),
-                      // BE crate hosting this Slink; 1 until the locator file has a crate column
-                      SOA_COLUMN(uint16_t, crate),
                       SOA_COLUMN(uint16_t, captureblock),
                       SOA_COLUMN(uint16_t, econdidx),
                       SOA_COLUMN(uint16_t, captureblockidx),

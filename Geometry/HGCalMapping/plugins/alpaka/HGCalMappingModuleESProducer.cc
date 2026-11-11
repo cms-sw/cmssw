@@ -58,8 +58,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         const auto& entities = pmap.getEntries();
         for (const auto& row : entities) {
           int cassette = pmap.hasColumn("cassette") ? pmap.getIntAttr("cassette", row) : 1;
-          // BE crate of this Slink; the locator column does not exist yet, so missing entries stay 1
-          int crate = pmap.hasColumn("crate") ? pmap.getIntAttr("crate", row) : 1;
           int fedid = pmap.getIntAttr("fedid", row);
           int captureblockidx = pmap.getIntAttr("captureblockidx", row);
           int econdidx = pmap.getIntAttr("econdidx", row);
@@ -96,7 +94,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           module.typeidx() = typeidx;
           module.fedid() = fedid;
           module.slinkidx() = pmap.getIntAttr("slinkidx", row);
-          module.crate() = crate;
           module.captureblock() = pmap.getIntAttr("captureblock", row);
           module.econdidx() = econdidx;
           module.captureblockidx() = captureblockidx;

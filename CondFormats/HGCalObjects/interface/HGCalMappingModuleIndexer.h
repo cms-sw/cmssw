@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <vector>
 #include <map>
+#include <set>
 #include <algorithm>  // for std::min
 #include <utility>    // for std::pair, std::make_pair
 #include <iterator>   // for std::next and std::advance
@@ -21,7 +22,7 @@
  */
 struct HGCalFEDReadoutSequence {
   uint32_t id;
-  /// BE crate of this FED/Slink. Locator files have no crate column yet, so this is temporarily 1.
+  /// BE crate of this FED/Slink.
   uint16_t crate;
   //overall counters for total number of ECONs and Capture Blocks (useful to steer the unpacker behavior)
   size_t totalECONs_, totalCBs_;
@@ -129,7 +130,7 @@ public:
    * @short BE crates that host at least one FED/Slink
    * the same crate is returned once; call after finalize()
    */
-  std::vector<uint16_t> uniqueCrates() const;
+  std::set<uint16_t> uniqueCrates() const;
 
   uint32_t maxFEDSize() const {
     return fedReadoutSequences_.size();

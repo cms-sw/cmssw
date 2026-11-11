@@ -8,7 +8,7 @@
  * if the fed id is not yet existing in the mapping it's added
  * a dense indexer is used to create the necessary indices for the new module
  * unused indices will be set with -1
- * the BE crate belongs to the FED/Slink, so every module of that FED stores the same value
+ * the BE crate belongs to the FED/Slink and is stored on the readout sequence
  */
 void HGCalMappingModuleIndexer::processNewModule(uint32_t fedid,
                                                  uint16_t crate,
@@ -59,14 +59,12 @@ void HGCalMappingModuleIndexer::processNewModule(uint32_t fedid,
   }
 }
 
-std::vector<uint16_t> HGCalMappingModuleIndexer::uniqueCrates() const {
-  // skip FED ids that exist only as gaps in the vector
-  std::vector<uint16_t> crates;
+std::set<uint16_t> HGCalMappingModuleIndexer::uniqueCrates() const {
+  std::set<uint16_t> crates;
   for (const auto& frs : fedReadoutSequences_) {
     if (frs.readoutTypes_.empty())
       continue;
-    if (std::find(crates.begin(), crates.end(), frs.crate) == crates.end())
-      crates.push_back(frs.crate);
+    crates.insert(frs.crate);
   }
   return crates;
 }
