@@ -32,6 +32,5 @@ gemSegments = cms.EDProducer("GEMSegmentProducer",
         minNumberOfHits = cms.uint32(4),
         requireCentralBX = cms.bool(True)
     ),
-    gemRecHitLabel = cms.InputTag("gemRecHits"),
-    mightGet = cms.optional.untracked.vstring
+    gemRecHitLabel = cms.InputTag("gemRecHits")
 )

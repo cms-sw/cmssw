@@ -41,6 +41,9 @@ difference between `cmsDriver -s DIGI:pdigi_valid` and `cmsDriver -s DIGI:pdigi_
 
 * Only objects reachable from the L1 paths are kept; modules, PSets and VPSets that the cffs
   load but nothing schedules or references are dropped.
+* The placeholders of the `fillDescriptions`-generated cfis (unset `cms.optional.X` parameters such as
+  `mightGet`, `cms.PSetTemplate` VPSet templates) are dropped: they set nothing, and the configuration
+  database does not store them.
 * Geometry, magnetic field and GlobalTag are not included; they come from the driver.
 * L1-specific ES sources (including `l1ugmtdb`) are included in `eventsetup/`.
 * The Run-3 legacy chain (everything that only feeds `simGtStage2Digis`, `simBmtfDigis` or

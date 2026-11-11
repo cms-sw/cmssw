@@ -45,10 +45,6 @@ l1tNNCaloTauProducer = cms.EDProducer("L1NNCaloTauProducer",
             cms.PSet(
                 name = cms.string('triggerCells90percent'),
                 value = cms.string('triggerCells90percent()')
-            ), 
-            template = cms.PSetTemplate(
-                name = cms.required.string,
-                value = cms.required.string
             )
         ),
         weightsFile = cms.string('L1Trigger/Phase2L1ParticleFlow/data/hgcal_egID/Photon_Pion_vs_Neutrino_BDTweights_1116.xml.gz'),
@@ -56,6 +52,5 @@ l1tNNCaloTauProducer = cms.EDProducer("L1NNCaloTauProducer",
     ),
     hgcalTowers = cms.InputTag("l1tHGCalTowerProducer","HGCalTowerProcessor"),
     l1CaloTowers = cms.InputTag("l1tEGammaClusterEmuProducer","L1CaloTowerCollection"),
-    mightGet = cms.optional.untracked.vstring,
     preEmId = cms.string('hOverE < 0.3 && hOverE >= 0')
 )

@@ -4248,11 +4248,8 @@ fragment.ge0TriggerConvertedPseudoDigis = cms.EDProducer("GE0TriggerPseudoProduc
 
 fragment.gemRecHits = cms.EDProducer("GEMRecHitProducer",
     applyMasking = cms.bool(False),
-    deadFile = cms.optional.FileInPath,
     ge21Container = cms.bool(False),
     gemDigiLabel = cms.InputTag("simMuonGEMDigis"),
-    maskFile = cms.optional.FileInPath,
-    mightGet = cms.optional.untracked.vstring,
     recAlgo = cms.string('GEMRecHitStandardAlgo'),
     recAlgoConfig = cms.PSet(
 
@@ -4291,8 +4288,7 @@ fragment.gemSegments = cms.EDProducer("GEMSegmentProducer",
         minNumberOfHits = cms.uint32(4),
         requireCentralBX = cms.bool(True)
     ),
-    gemRecHitLabel = cms.InputTag("gemRecHits"),
-    mightGet = cms.optional.untracked.vstring
+    gemRecHitLabel = cms.InputTag("gemRecHits")
 )
 
 fragment.l1tBJetProducerPuppi = cms.EDProducer("L1BJetProducer",
@@ -4302,7 +4298,6 @@ fragment.l1tBJetProducerPuppi = cms.EDProducer("L1BJetProducer",
     jets = cms.InputTag("l1tSC4PFL1PuppiExtended"),
     maxEta = cms.double(2.4),
     maxJets = cms.int32(6),
-    mightGet = cms.optional.untracked.vstring,
     minPt = cms.double(10),
     nParticles = cms.int32(10),
     useRawPt = cms.bool(True),
@@ -4316,7 +4311,6 @@ fragment.l1tBJetProducerPuppiCorrectedEmulator = cms.EDProducer("L1BJetProducer"
     jets = cms.InputTag("l1tSC4PFL1PuppiExtendedCorrectedEmulator"),
     maxEta = cms.double(2.4),
     maxJets = cms.int32(6),
-    mightGet = cms.optional.untracked.vstring,
     minPt = cms.double(10),
     nParticles = cms.int32(10),
     useRawPt = cms.bool(True),
@@ -5724,7 +5718,6 @@ fragment.l1tHGCalVFEProducer = cms.EDProducer("HGCalVFEProducer",
 fragment.l1tHPSPFTauProducer = cms.EDProducer("L1HPSPFTauProducer",
     HW = cms.bool(True),
     debug = cms.bool(False),
-    mightGet = cms.optional.untracked.vstring,
     nTaus = cms.int32(16),
     srcL1PFCands = cms.InputTag("l1tLayer1","Puppi"),
     srcL1PFJets = cms.InputTag("l1tPhase1JetCalibrator9x9trimmed","Phase1L1TJetFromPfCandidates"),
@@ -9056,10 +9049,6 @@ fragment.l1tNNCaloTauEmulator = cms.EDProducer("L1NNCaloTauEmulator",
             cms.PSet(
                 name = cms.string('triggerCells90percent'),
                 value = cms.string('triggerCells90percent()')
-            ), 
-            template = cms.PSetTemplate(
-                name = cms.required.string,
-                value = cms.required.string
             )
         ),
         weightsFile = cms.string('L1Trigger/Phase2L1ParticleFlow/data/hgcal_egID/Photon_Pion_vs_Neutrino_BDTweights_1116.xml.gz'),
@@ -9067,7 +9056,6 @@ fragment.l1tNNCaloTauEmulator = cms.EDProducer("L1NNCaloTauEmulator",
     ),
     hgcalTowers = cms.InputTag("l1tHGCalTowerProducer","HGCalTowerProcessor"),
     l1CaloTowers = cms.InputTag("l1tEGammaClusterEmuProducer","L1CaloTowerCollection"),
-    mightGet = cms.optional.untracked.vstring,
     preEmId = cms.string('hOverE < 0.3 && hOverE >= 0')
 )
 
@@ -9116,10 +9104,6 @@ fragment.l1tNNCaloTauProducer = cms.EDProducer("L1NNCaloTauProducer",
             cms.PSet(
                 name = cms.string('triggerCells90percent'),
                 value = cms.string('triggerCells90percent()')
-            ), 
-            template = cms.PSetTemplate(
-                name = cms.required.string,
-                value = cms.required.string
             )
         ),
         weightsFile = cms.string('L1Trigger/Phase2L1ParticleFlow/data/hgcal_egID/Photon_Pion_vs_Neutrino_BDTweights_1116.xml.gz'),
@@ -9127,7 +9111,6 @@ fragment.l1tNNCaloTauProducer = cms.EDProducer("L1NNCaloTauProducer",
     ),
     hgcalTowers = cms.InputTag("l1tHGCalTowerProducer","HGCalTowerProcessor"),
     l1CaloTowers = cms.InputTag("l1tEGammaClusterEmuProducer","L1CaloTowerCollection"),
-    mightGet = cms.optional.untracked.vstring,
     preEmId = cms.string('hOverE < 0.3 && hOverE >= 0')
 )
 
@@ -10296,8 +10279,7 @@ fragment.l1tPhase2L1CaloEGammaEmulator = cms.EDProducer("Phase2L1CaloEGammaEmula
         )
     ),
     ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis"),
-    hcalTP = cms.InputTag("simHcalTriggerPrimitiveDigis"),
-    mightGet = cms.optional.untracked.vstring
+    hcalTP = cms.InputTag("simHcalTriggerPrimitiveDigis")
 )
 
 fragment.l1tSAMuonsGmt = cms.EDProducer("Phase2L1TGMTSAMuonGhostCleaner",
@@ -10325,7 +10307,6 @@ fragment.l1tSC4NGJetProducer = cms.EDProducer("L1TSC4NGJetProducer",
     l1tSC4NGJetModelPath = cms.string('L1TSC4NGJetModel_v2_0_0'),
     maxEta = cms.double(2.4),
     maxJets = cms.int32(16),
-    mightGet = cms.optional.untracked.vstring,
     minPt = cms.double(10),
     nParticles = cms.int32(16),
     returnRawPt = cms.bool(False)
@@ -10340,7 +10321,6 @@ fragment.l1tSC4PFL1PF = cms.EDProducer("L1SeedConePFJetProducer",
     debug = cms.bool(False),
     doCorrections = cms.bool(False),
     doMass = cms.bool(False),
-    mightGet = cms.optional.untracked.vstring,
     nJets = cms.uint32(16),
     sortJets = cms.bool(False),
     wideConeJet = cms.bool(False)
@@ -10355,7 +10335,6 @@ fragment.l1tSC4PFL1Puppi = cms.EDProducer("L1SeedConePFJetProducer",
     debug = cms.bool(False),
     doCorrections = cms.bool(False),
     doMass = cms.bool(False),
-    mightGet = cms.optional.untracked.vstring,
     nJets = cms.uint32(16),
     sortJets = cms.bool(False),
     wideConeJet = cms.bool(False)
@@ -10370,7 +10349,6 @@ fragment.l1tSC4PFL1PuppiCorrected = cms.EDProducer("L1SeedConePFJetProducer",
     debug = cms.bool(False),
     doCorrections = cms.bool(True),
     doMass = cms.bool(False),
-    mightGet = cms.optional.untracked.vstring,
     nJets = cms.uint32(16),
     sortJets = cms.bool(False),
     wideConeJet = cms.bool(False)
@@ -10385,7 +10363,6 @@ fragment.l1tSC4PFL1PuppiCorrectedEmulator = cms.EDProducer("L1SeedConePFJetProdu
     debug = cms.bool(False),
     doCorrections = cms.bool(True),
     doMass = cms.bool(False),
-    mightGet = cms.optional.untracked.vstring,
     nJets = cms.uint32(16),
     sortJets = cms.bool(False),
     wideConeJet = cms.bool(False)
@@ -10406,7 +10383,6 @@ fragment.l1tSC4PFL1PuppiEmulator = cms.EDProducer("L1SeedConePFJetProducer",
     debug = cms.bool(False),
     doCorrections = cms.bool(False),
     doMass = cms.bool(False),
-    mightGet = cms.optional.untracked.vstring,
     nJets = cms.uint32(16),
     sortJets = cms.bool(False),
     wideConeJet = cms.bool(False)
@@ -10421,7 +10397,6 @@ fragment.l1tSC4PFL1PuppiExtended = cms.EDProducer("L1SeedConePFJetProducer",
     debug = cms.bool(False),
     doCorrections = cms.bool(False),
     doMass = cms.bool(False),
-    mightGet = cms.optional.untracked.vstring,
     nJets = cms.uint32(16),
     sortJets = cms.bool(False),
     wideConeJet = cms.bool(False)
@@ -10436,7 +10411,6 @@ fragment.l1tSC4PFL1PuppiExtendedCorrectedEmulator = cms.EDProducer("L1SeedConePF
     debug = cms.bool(False),
     doCorrections = cms.bool(True),
     doMass = cms.bool(False),
-    mightGet = cms.optional.untracked.vstring,
     nJets = cms.uint32(16),
     sortJets = cms.bool(False),
     wideConeJet = cms.bool(False)
@@ -10451,7 +10425,6 @@ fragment.l1tSC4PFL1PuppiExtendedEmulator = cms.EDProducer("L1SeedConePFJetProduc
     debug = cms.bool(False),
     doCorrections = cms.bool(False),
     doMass = cms.bool(False),
-    mightGet = cms.optional.untracked.vstring,
     nJets = cms.uint32(16),
     sortJets = cms.bool(False),
     wideConeJet = cms.bool(False)
@@ -10462,7 +10435,6 @@ fragment.l1tSC82ProngJetProducer = cms.EDProducer("L1TSC82ProngJetProducer",
     l1tSC82ProngJetModelPath = cms.string('L1TSC82ProngJetModel_v0'),
     maxEta = cms.double(5),
     maxJets = cms.int32(16),
-    mightGet = cms.optional.untracked.vstring,
     minPt = cms.double(0),
     nParticles = cms.int32(8)
 )
@@ -10476,7 +10448,6 @@ fragment.l1tSC8PFL1Puppi = cms.EDProducer("L1SeedConePFJetProducer",
     debug = cms.bool(False),
     doCorrections = cms.bool(False),
     doMass = cms.bool(False),
-    mightGet = cms.optional.untracked.vstring,
     nJets = cms.uint32(16),
     sortJets = cms.bool(False),
     wideConeJet = cms.bool(False)
@@ -10491,7 +10462,6 @@ fragment.l1tSC8PFL1PuppiCorrected = cms.EDProducer("L1SeedConePFJetProducer",
     debug = cms.bool(False),
     doCorrections = cms.bool(True),
     doMass = cms.bool(False),
-    mightGet = cms.optional.untracked.vstring,
     nJets = cms.uint32(16),
     sortJets = cms.bool(False),
     wideConeJet = cms.bool(True)
@@ -10506,7 +10476,6 @@ fragment.l1tSC8PFL1PuppiCorrectedEmulator = cms.EDProducer("L1SeedConePFJetProdu
     debug = cms.bool(False),
     doCorrections = cms.bool(True),
     doMass = cms.bool(False),
-    mightGet = cms.optional.untracked.vstring,
     nJets = cms.uint32(16),
     sortJets = cms.bool(False),
     wideConeJet = cms.bool(True)
@@ -10521,7 +10490,6 @@ fragment.l1tSC8PFL1PuppiEmulator = cms.EDProducer("L1SeedConePFJetProducer",
     debug = cms.bool(False),
     doCorrections = cms.bool(False),
     doMass = cms.bool(False),
-    mightGet = cms.optional.untracked.vstring,
     nJets = cms.uint32(16),
     sortJets = cms.bool(False),
     wideConeJet = cms.bool(True)
@@ -10599,7 +10567,6 @@ fragment.l1tTOoLLiPProducer = cms.EDProducer("TOoLLiPProducer",
     jets = cms.InputTag("l1tSC4PFL1PuppiExtended"),
     maxEta = cms.double(2.4),
     maxJets = cms.int32(6),
-    mightGet = cms.optional.untracked.vstring,
     minPt = cms.double(10),
     nParticles = cms.int32(10),
     useRawPt = cms.bool(True),
@@ -10613,7 +10580,6 @@ fragment.l1tTOoLLiPProducerCorrectedEmulator = cms.EDProducer("TOoLLiPProducer",
     jets = cms.InputTag("l1tSC4PFL1PuppiExtendedCorrectedEmulator"),
     maxEta = cms.double(2.4),
     maxJets = cms.int32(6),
-    mightGet = cms.optional.untracked.vstring,
     minPt = cms.double(10),
     nParticles = cms.int32(10),
     useRawPt = cms.bool(True),
@@ -11439,8 +11405,7 @@ fragment.l1tVertexProducer = cms.EDProducer("VertexProducer",
 fragment.l1tZDCEtSums = cms.EDProducer("L1TZDCEtSumsProducer",
     bxFirst = cms.int32(-2),
     bxLast = cms.int32(3),
-    hcalTPDigis = cms.InputTag("simHcalTriggerPrimitiveDigis"),
-    mightGet = cms.optional.untracked.vstring
+    hcalTPDigis = cms.InputTag("simHcalTriggerPrimitiveDigis")
 )
 
 fragment.offlineBeamSpot = cms.EDProducer("BeamSpotProducer")
@@ -13321,8 +13286,7 @@ fragment.simEmtfShowers = cms.EDProducer("L1TMuonEndCapShowerProducer",
     enableOneLooseShower = cms.bool(True),
     enableOneNominalShower = cms.bool(True),
     enableOneTightShower = cms.bool(True),
-    enableTwoLooseShowers = cms.bool(False),
-    mightGet = cms.optional.untracked.vstring
+    enableTwoLooseShowers = cms.bool(False)
 )
 
 fragment.simGmtCaloSumDigis = cms.EDProducer("L1TMuonCaloSumProducer",
@@ -13332,7 +13296,6 @@ fragment.simGmtCaloSumDigis = cms.EDProducer("L1TMuonCaloSumProducer",
 fragment.simGmtShowerDigis = cms.EDProducer("L1TMuonShowerProducer",
     bxMax = cms.int32(0),
     bxMin = cms.int32(0),
-    mightGet = cms.optional.untracked.vstring,
     showerInput = cms.InputTag("simEmtfShowers","EMTF")
 )
 
@@ -13496,7 +13459,6 @@ fragment.simMuonGEMPadDigiClusters = cms.EDProducer("GEMPadDigiClusterProducer",
     maxClustersOHGE21 = cms.uint32(8),
     maxClustersPartitionGE11 = cms.uint32(4),
     maxClustersPartitionGE21 = cms.uint32(4),
-    mightGet = cms.optional.untracked.vstring,
     nOHGE11 = cms.uint32(1),
     nOHGE21 = cms.uint32(4),
     nPartitionsGE11 = cms.uint32(4),
@@ -13505,8 +13467,7 @@ fragment.simMuonGEMPadDigiClusters = cms.EDProducer("GEMPadDigiClusterProducer",
 )
 
 fragment.simMuonGEMPadDigis = cms.EDProducer("GEMPadDigiProducer",
-    InputCollection = cms.InputTag("simMuonGEMDigis"),
-    mightGet = cms.optional.untracked.vstring
+    InputCollection = cms.InputTag("simMuonGEMDigis")
 )
 
 fragment.simOmtfDigis = cms.EDProducer("L1TMuonOverlapPhase1TrackProducer",

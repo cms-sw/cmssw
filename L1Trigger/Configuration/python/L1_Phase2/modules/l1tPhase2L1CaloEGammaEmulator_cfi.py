@@ -40,6 +40,5 @@ l1tPhase2L1CaloEGammaEmulator = cms.EDProducer("Phase2L1CaloEGammaEmulator",
         )
     ),
     ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis"),
-    hcalTP = cms.InputTag("simHcalTriggerPrimitiveDigis"),
-    mightGet = cms.optional.untracked.vstring
+    hcalTP = cms.InputTag("simHcalTriggerPrimitiveDigis")
 )

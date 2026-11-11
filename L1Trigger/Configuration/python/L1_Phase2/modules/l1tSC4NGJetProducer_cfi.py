@@ -18,7 +18,6 @@ l1tSC4NGJetProducer = cms.EDProducer("L1TSC4NGJetProducer",
     l1tSC4NGJetModelPath = cms.string('L1TSC4NGJetModel_v2_0_0'),
     maxEta = cms.double(2.4),
     maxJets = cms.int32(16),
-    mightGet = cms.optional.untracked.vstring,
     minPt = cms.double(10),
     nParticles = cms.int32(16),
     returnRawPt = cms.bool(False)

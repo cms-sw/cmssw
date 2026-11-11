@@ -9,7 +9,6 @@ l1tSC4PFL1PuppiExtendedCorrectedEmulator = cms.EDProducer("L1SeedConePFJetProduc
     debug = cms.bool(False),
     doCorrections = cms.bool(True),
     doMass = cms.bool(False),
-    mightGet = cms.optional.untracked.vstring,
     nJets = cms.uint32(16),
     sortJets = cms.bool(False),
     wideConeJet = cms.bool(False)

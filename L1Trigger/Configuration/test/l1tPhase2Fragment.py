@@ -24,6 +24,7 @@ import sys
 import tempfile
 
 import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.Types import _OptionalParameter
 
 # reference workflow: 38434.0 (TTbar_14TeV, Run4D128, the Run4 default), step2
 DRIVER_OPTIONS = [
@@ -94,7 +95,29 @@ def driverProcesses(workdir):
     base, full = os.path.join(workdir, "base_cfg.py"), os.path.join(workdir, "full_cfg.py")
     runDriver(BASE_STEPS, base)
     runDriver(BASE_STEPS + "," + L1_STEPS, full)
-    return loadProcess(base), loadProcess(full)
+    processes = loadProcess(base), loadProcess(full)
+    for process in processes:
+        for objects in (process.producers_(), process.filters_(), process.analyzers_(), process.es_sources_(),
+                        process.es_producers_(), process.psets_()):
+            for obj in objects.values():
+                dropPlaceholders(obj)
+    return processes
+
+
+def dropPlaceholders(pset):
+    """Removes the placeholders of the fillDescriptions-generated cfis, which set nothing: unset optional
+    parameters (cms.optional.X) and VPSet templates (cms.PSetTemplate). The configuration database does not
+    store them."""
+    for name in pset.parameterNames_():
+        value = getattr(pset, name)
+        if isinstance(value, _OptionalParameter) and value.value() is None:
+            delattr(pset, name)
+        elif isinstance(value, cms.PSet):
+            dropPlaceholders(value)
+        elif isinstance(value, cms.VPSet):
+            value._template = None
+            for item in value:
+                dropPlaceholders(item)
 
 
 class Collector:

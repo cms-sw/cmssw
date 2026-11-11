@@ -5,6 +5,5 @@ simEmtfShowers = cms.EDProducer("L1TMuonEndCapShowerProducer",
     enableOneLooseShower = cms.bool(True),
     enableOneNominalShower = cms.bool(True),
     enableOneTightShower = cms.bool(True),
-    enableTwoLooseShowers = cms.bool(False),
-    mightGet = cms.optional.untracked.vstring
+    enableTwoLooseShowers = cms.bool(False)
 )
