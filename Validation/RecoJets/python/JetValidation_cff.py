@@ -46,20 +46,13 @@ jetPreValidSeqTask = cms.Task(ak4CaloL2RelativeCorrector,
 jetPreValidSeq=cms.Sequence(jetPreValidSeqTask)
 
 JetValidation = cms.Sequence(
-#    JetAnalyzerKt6PF*
-#    JetAnalyzerKt6Calo*
     newAk4CaloL2L3CorrectorChain*
     JetAnalyzerAk4Calo*
-#    JetAnalyzerAk7Calo*
     newAk4PFL1FastL2L3CorrectorChain*
     JetAnalyzerAk4PF*
-#    JetAnalyzerAk4JPT*
     newAk4PFCHSL1FastL2L3CorrectorChain*
-    JetAnalyzerAk4PFCHS
+    JetAnalyzerAk4PFCHS*
     JetAnalyzerAk4PFPUPPI
-#    JetAnalyzerAk8PF*
-#    JetAnalyzerAk8PFCHS*
-#    *JetAnalyzerCA8PFCHS
     )
 
 
