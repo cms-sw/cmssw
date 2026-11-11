@@ -1,5 +1,6 @@
 <use name="ofast-flag"/>
 <use name="alpaka"/>
+<use name="HeterogeneousCore/AlpakaMath"/>
 <use name="TrackingTools/MaterialEffects"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>

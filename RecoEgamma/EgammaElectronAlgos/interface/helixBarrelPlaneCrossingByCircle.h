@@ -97,6 +97,11 @@ namespace propagators {
     if (abs_rho < straightLineCutoff && abs_rho * startingDir_rho < straightLineCutoff) {
       // calculate path length
       const auto pz = plane.distanceFromPlaneVector(acc, startingDir);
+      if (pz == 0) {  // direction parallel to the plane: no crossing
+        s = 0;
+        theSolExists = false;
+        return;
+      }
 
       s = plane.localZclamped(acc, startingPos) / pz;
 

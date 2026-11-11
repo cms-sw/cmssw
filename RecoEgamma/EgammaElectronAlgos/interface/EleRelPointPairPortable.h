@@ -2,7 +2,7 @@
 #define RecoEgamma_EgammaElectronAlgos_interface_EleRelPointPairPortable_h
 
 #include <cmath>
-#include <numbers>
+#include "HeterogeneousCore/AlpakaMath/interface/deltaPhi.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/Phys3DVector.h"
 
 //==========================================================================
@@ -24,20 +24,11 @@ namespace egamma {
   }
 
   template <typename TAcc, typename T>
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE auto reduceRange(TAcc const& acc, const T x) -> T {
-    constexpr T o2pi = static_cast<T>(0.5) * std::numbers::inv_pi;
-    if (alpaka::math::abs(acc, x) <= std::numbers::pi)
-      return x;
-    return x - alpaka::math::floor(acc, x * o2pi + (x < 0 ? -static_cast<T>(0.5) : static_cast<T>(0.5))) *
-                   static_cast<T>(2) * std::numbers::pi;
-  }
-
-  template <typename TAcc, typename T>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE auto relative_phi(TAcc const& acc,
                                                         const math::Phys3DVector<T>& p1,
                                                         const math::Phys3DVector<T>& p2) -> T {
     const T phi = alpaka::math::atan2(acc, p1[1], p1[0]) - alpaka::math::atan2(acc, p2[1], p2[0]);
-    return reduceRange(acc, phi);
+    return cms::alpakatools::reducePhiRange(acc, phi);
   }
 
   template <typename T = double>

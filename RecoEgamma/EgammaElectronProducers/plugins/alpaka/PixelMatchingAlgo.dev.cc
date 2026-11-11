@@ -33,6 +33,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto calRDiff2 = [sq](const auto& p1, const auto& p2) { return sq(p2[0] - p1[0]) + sq(p2[1] - p1[1]); };
     const T r1Diff = alpaka::math::sqrt(acc, calRDiff2(primeVtxPos, hitPos));
     const T r2Diff = alpaka::math::sqrt(acc, calRDiff2(hitPos, candPos));
+    ALPAKA_ASSERT_ACC(r2Diff > T(0));
 
     T zvtx = hitPos[2] - r1Diff * (candPos[2] - hitPos[2]) / r2Diff;
     return zvtx;
@@ -70,7 +71,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         float x = sc.scR() * alpaka::math::sin(acc, sc.scSeedTheta()) * alpaka::math::cos(acc, sc.scPhi());
         float y = sc.scR() * alpaka::math::sin(acc, sc.scSeedTheta()) * alpaka::math::sin(acc, sc.scPhi());
         float z = sc.scR() * alpaka::math::cos(acc, sc.scSeedTheta());
-        printf("x: %lf,  y: %lf,  z %lf ", x, z, y);
+        printf("x: %lf,  y: %lf,  z %lf ", x, y, z);
         Vec3d position{x, y, z};
         printf("  Value of perp2 %lf \n", x * x + y * y);
         printf("Calculate the magnetic field with the parabolic approximation at the SC position : %f\n",
