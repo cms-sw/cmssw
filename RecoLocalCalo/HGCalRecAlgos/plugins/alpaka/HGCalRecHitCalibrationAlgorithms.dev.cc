@@ -42,7 +42,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   HGCalDigiDevice::ConstView digis,
                                   HGCalCalibParamDevice::ConstView calibs,
                                   HGCalDenseIndexInfoDevice::ConstView index,
-                                  HGCalECONDPacketInfoDevice::ConstView econd) const {
+                                  HGCalECONDPacketInfoHost::ConstView econd) const {
       auto adc_denoise =
           [&](uint32_t adc, uint32_t cm, uint32_t adcm1, float adc_ped, float cm_slope, float cm_ped, float bxm1_slope) {
             float cmf = cm_slope * (0.5 * float(cm) - cm_ped);
@@ -291,14 +291,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       HGCalMappingModuleParamDevice const& device_mapmod,
       HGCalMappingCellParamDevice const& device_cell_mapping,
       HGCalDenseIndexInfoDevice const& device_index,
-      HGCalECONDPacketInfoDevice const& device_econd,
+      HGCalECONDPacketInfoHost const& host_econd,
       double k_noise) const {
     LogDebug("HGCalRecHitCalibrationAlgorithms") << "\n\nINFO -- Start of calibrate\n\n" << std::endl;
 
     LogDebug("HGCalRecHitCalibrationAlgorithms") << "\n\nINFO -- Copying the digis to the device\n\n" << std::endl;
     auto const ndigis = host_digis.view().metadata().size();
+    auto const neconds = host_econd.view().metadata().size();
     HGCalDigiDevice device_digis(queue, ndigis);
+    HGCalECONDPacketInfoDevice device_econd(queue, neconds);
     alpaka::memcpy(queue, device_digis.buffer(), host_digis.const_buffer());
+    alpaka::memcpy(queue, device_econd.buffer(), host_econd.const_buffer());
 
     LogDebug("HGCalRecHitCalibrationAlgorithms")
         << "\n\nINFO -- Allocating rechits buffer and initiating values" << std::endl;
