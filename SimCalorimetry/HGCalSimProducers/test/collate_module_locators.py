@@ -9,7 +9,28 @@ input_files = [
 ]
 
 data = [ pd.read_csv(f'HGCalCommissioning/Calibrations/{f}', header='infer', sep=r'\s+') for f in input_files ]
+data.append( data[-1].copy(deep=True) )
+data[-1]['cassette']=6
 data = pd.concat(data,ignore_index=True)
+
+def _fixCopies(row):
+    cassette = row['cassette']
+    layer = row['plane']
+    typecode = row['typecode']
+    fedid = row['fedid']
+    trig_fedid = row['trig_fedid']
+
+    if cassette==5 and layer==26:
+        typecode = typecode + '0'
+    if cassette==6:
+        typecode = typecode + '1'
+        fedid=fedid+10
+        trig_fedid=trig_fedid+10
+    return typecode, fedid, trig_fedid
+
+data['typecode'], data['fedid'], data['trig_fedid'] = zip(
+    *data.apply( _fixCopies, axis=1)
+)
 
 def _reassignUV(row):
     cassette = row['cassette']
@@ -22,11 +43,11 @@ def _reassignUV(row):
         v = newv
     return u,v
 data['u'], data['v'] = zip( *data.apply( _reassignUV, axis=1) )
-data['becrate'] = data['cassette']
+data['crate'] = data['cassette']
 data['zside'] = 1
 
 data.to_csv(
-    'HGCalCommissioning/Calibrations/P5/maps/modulelocator_C01toC05.txt',
+    'HGCalCommissioning/Calibrations/P5/maps/modulelocator_C01toC06.txt',
     sep=' ',
     index=False
 )

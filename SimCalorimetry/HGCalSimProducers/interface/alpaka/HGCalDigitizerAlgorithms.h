@@ -10,6 +10,8 @@
 #include "DataFormats/HGCalDigi/interface/alpaka/HGCalSimHitAccumDevice.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
 #include "DataFormats/HGCalDigi/interface/alpaka/HGCalDigiDevice.h"
+#include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
+#include "DataFormats/HGCalDigi/interface/alpaka/HGCalECONDPacketInfoDevice.h"
 #include "CondFormats/HGCalObjects/interface/HGCalAgeingCondsHost.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalAgeingCondsDevice.h"
 #include "CondFormats/DataRecord/interface/HGCalDenseIndexInfoRcd.h"
@@ -87,6 +89,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     */
     HGCalROCDigisAccumDevice digitize(Queue&,
                                       HGCalRealisticSimHitDevice&,
+                                      HGCalECONDPacketInfoDevice const&,
                                       HGCalAgeingCondsDevice const&,
                                       HGCalDenseIndexInfoDevice const&,
                                       HGCalMappingCellParamDevice const&,
@@ -96,6 +99,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       @short steer the harvesting of ROC digis for the in-time bunch
     */
     HGCalDigiDevice harvest(Queue&, HGCalROCDigisAccumDevice::ConstView) const;
+
+  private:
+    int n_blocks_, n_threads_;
+  };
+
+  class HGCalECONDAlgorithms {
+  public:
+    HGCalECONDAlgorithms(int n_blocks, int n_threads) : n_blocks_(n_blocks), n_threads_(n_threads) {}
+
+    /**
+      @short steer the filling of the ECONDPacketInfo
+    */
+    HGCalECONDPacketInfoDevice init(Queue&,
+                                    HGCalAgeingCondsDevice const&,
+                                    HGCalMappingModuleParamDevice const&,
+                                    const uint64_t) const;
 
   private:
     int n_blocks_, n_threads_;

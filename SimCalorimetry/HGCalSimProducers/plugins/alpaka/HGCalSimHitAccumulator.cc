@@ -36,7 +36,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 
-
 typedef std::vector<edm::ParameterSet> VPSet;
 
 /**
@@ -250,10 +249,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       row.sumExT()(tidx, 0) += energy * tof;
 
       if (tidx == hgcaldigi::kInTimeBin) {
-         ++m.nHitsIT;
-         m.enIT += energy;
-      }
-      else {
+        ++m.nHitsIT;
+        m.enIT += energy;
+      } else {
         ++m.nHitsOOT;
         m.enOOT += energy;
       }

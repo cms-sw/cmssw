@@ -22,6 +22,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   struct HGCalROCDigitizerKernel_addNoise {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   HGCalRealisticSimHitDevice::View realisticHits,
+                                  HGCalECONDPacketInfoDevice::ConstView econds,
                                   HGCalAgeingCondsDevice::ConstView conds,
                                   HGCalDenseIndexInfoDevice::ConstView denseIndex,
                                   HGCalMappingCellParamDevice::ConstView cellInfo,
@@ -135,11 +136,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // @short apply the sequence of digitization kernels
   HGCalROCDigisAccumDevice HGCalROCDigitizerAlgorithms::digitize(Queue& queue,
                                                                  HGCalRealisticSimHitDevice& device_realisticHits,
+                                                                 HGCalECONDPacketInfoDevice const& device_econds,
                                                                  HGCalAgeingCondsDevice const& ageConds,
                                                                  HGCalDenseIndexInfoDevice const& denseIndex,
                                                                  HGCalMappingCellParamDevice const& cellInfo,
                                                                  const uint64_t seed) const {
-    edm::LogWarning("HGCalROCDigitizerAlgorithms") << "Start of digitization" << std::endl;
+    LogDebug("HGCalROCDigitizerAlgorithms") << "Start of digitization" << std::endl;
     auto const ncells = device_realisticHits.view().metadata().size();
     HGCalROCDigisAccumDevice device_rocDigis(queue, ncells);
 
@@ -151,13 +153,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     //   - threads with a single element per thread on a GPU backend
     //   - elements within a single thread on a CPU backend
     auto grid = make_workdiv<Acc1D>(groups, items);
-    edm::LogWarning("HGCalROCDigitizerAlgorithms") << "N groups: " << groups << "\tN items: " << items << std::endl;
+    LogDebug("HGCalROCDigitizerAlgorithms") << "N groups: " << groups << "\tN items: " << items << std::endl;
 
     //execute digitization kernels
     alpaka::exec<Acc1D>(queue,
                         grid,
                         HGCalROCDigitizerKernel_addNoise{},
                         device_realisticHits.view(),
+                        device_econds.const_view(),
                         ageConds.const_view(),
                         denseIndex.const_view(),
                         cellInfo.const_view(),
@@ -183,7 +186,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // @short apply all calibration kernels
   HGCalDigiDevice HGCalROCDigitizerAlgorithms::harvest(Queue& queue,
                                                        HGCalROCDigisAccumDevice::ConstView device_acc_rocDigis) const {
-    edm::LogWarning("HGCalROCDigitizerAlgorithms") << "Start of harvest" << std::endl;
+    LogDebug("HGCalROCDigitizerAlgorithms") << "Start of harvest" << std::endl;
     auto const ncells = device_acc_rocDigis.metadata().size();
     HGCalDigiDevice device_rocDigis(queue, ncells);
 
@@ -195,7 +198,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     //   - threads with a single element per thread on a GPU backend
     //   - elements within a single thread on a CPU backend
     auto grid = make_workdiv<Acc1D>(groups, items);
-    edm::LogWarning("HGCalROCDigitizerAlgorithms") << "N groups: " << groups << "\tN items: " << items << std::endl;
+    LogDebug("HGCalROCDigitizerAlgorithms") << "N groups: " << groups << "\tN items: " << items << std::endl;
 
     //execute digitization kernels
     alpaka::exec<Acc1D>(queue,

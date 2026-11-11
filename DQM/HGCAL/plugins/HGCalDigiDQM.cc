@@ -126,7 +126,7 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     return;
 
   const auto& digis = iEvent.getHandle(digisTkn_);
-  if (!digis.isValid()) 
+  if (!digis.isValid())
     return;
 
   const auto& digis_view = digis->const_view();

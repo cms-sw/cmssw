@@ -64,6 +64,16 @@ process.RandomNumberGeneratorService = cms.Service(
     )
 )
 
+# NANO output (adds hgCalSimHitAccumTable + NanoAODOutputModule, preserves the paths above)
+try:
+    from UserCode.HGCalDigi.configure_digi_nano_cfi import configureNANOStep
+    process = configureNANOStep(process, options)
+except Exception as e:
+    print(e)
+    print('NANO will not be produced')
+
+
+# DIGI STEP
 
 # Geant4 accumulator: edmPluginHelp -m HGCalSimHitAccumulator@alpaka
 from SimCalorimetry.HGCalSimProducers.hgCalSimHitAccumulator_cfi import hgCalSimHitAccumulator
@@ -116,38 +126,40 @@ process.hgCalDigitizerProducer = cms.EDProducer(
     n_threads = cms.int32(1024)
 )
 
-
-# test path
-process.p = cms.Path(
+process.digi_step = cms.Path(
     process.hgCalSimHitAccumulator
     *process.hgCalDigitizerProducer
 )
 
-#DQM
-process.DQMStore = cms.Service("DQMStore")
-process.load("DQM.HGCAL.hgcalDQM_cff")
-process.hgcaldigidqm.Digis = cms.InputTag('hgCalDigitizerProducer','HGCROCDigis')
-process.load("DQMServices.FileIO.DQMFileSaverOnline_cfi")
-process.dqmSaver.tag = 'HGCAL'
-process.dqmSaver.runNumber = 1
+process.schedule.insert(0, process.digi_step)
 
-process.dqmPath = cms.Path(
-    process.hgcalDQMSources  
-    #+process.hgCalDQMHarvester 
-    +process.dqmSaver
-)
-
-# output file
-process.out = cms.OutputModule("PoolOutputModule",
+# output file (standard EDM)
+process.edmoutput = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
         'drop *',
         'keep *_hgCalSimHitAccumulator_*_*',
         'keep *_hgCalDigitizerProducer_*_*'
     ),
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('p')
+        SelectEvents = cms.vstring('digi_step')
     ),
-    fileName = cms.untracked.string('alpaka_digis.root')
+    fileName = cms.untracked.string('DIGIs.root')
 )
+process.edmoutpath = cms.EndPath(process.edmoutput)
+process.schedule.append( process.edmoutpath )
 
-process.outpath = cms.EndPath(process.out)
+
+#DQM
+if False:
+    process.DQMStore = cms.Service("DQMStore")
+    process.load("DQM.HGCAL.hgcalDQM_cff")
+    process.hgcaldigidqm.Digis = cms.InputTag('hgCalDigitizerProducer','HGCROCDigis')
+    process.load("DQMServices.FileIO.DQMFileSaverOnline_cfi")
+    process.dqmSaver.tag = 'HGCAL'
+    process.dqmSaver.runNumber = 1
+    
+    process.dqmPath = cms.Path(
+        process.hgcalDQMSources  
+        +process.hgCalDQMHarvester 
+        +process.dqmSaver
+    )

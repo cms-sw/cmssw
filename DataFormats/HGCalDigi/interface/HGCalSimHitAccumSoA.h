@@ -34,11 +34,21 @@ namespace hgcaldigi {
   it contains generic counters to check how many hits are rejected by time cuts or absense in mapping
   */
   struct HGCalSimHitAccumulatorMonitor {
-    HGCalSimHitAccumulatorMonitor()
-        : HGCalSimHitAccumulatorMonitor(0,false) { }
+    HGCalSimHitAccumulatorMonitor() : HGCalSimHitAccumulatorMonitor(0, false) {}
     HGCalSimHitAccumulatorMonitor(int16_t d, bool isc)
-        : det(d), iscalib(isc), ncellsMapped(0), nHits(0), nHitsOOT(0), nHitsIT(0), nHitsRejected(0), nHitsUnknown(0),
-        en(0.), enOOT(0.), enIT(0.), enRejected(0.), enUnknown(0.) { }
+        : det(d),
+          iscalib(isc),
+          ncellsMapped(0),
+          nHits(0),
+          nHitsOOT(0),
+          nHitsIT(0),
+          nHitsRejected(0),
+          nHitsUnknown(0),
+          en(0.),
+          enOOT(0.),
+          enIT(0.),
+          enRejected(0.),
+          enUnknown(0.) {}
     HGCalSimHitAccumulatorMonitor(HGCalSimHitAccumulatorMonitor const&) = default;
     int16_t det;
     bool iscalib;
