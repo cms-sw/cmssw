@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <fstream>
 #include <string>
+#include <format>
 
 namespace edm::service {
   class LibraryMemoryReport {
@@ -41,16 +42,16 @@ namespace edm::service {
     // These signals lead to a printout for each module, source, and ESModule
     if (allModules_) {
       registry.watchPostModuleConstruction([this](edm::ModuleDescription const& module) {
-        report("postModuleConstruction moduleLabel=\"" + module.moduleLabel() + "\" moduleType=\"" +
-               module.moduleName() + "\"");
+        std::string msg = std::format("postModuleConstruction moduleLabel=\"{}\" moduleType=\"{}\"", module.moduleLabel(), module.moduleName());
+        report(msg);
       });
       registry.watchPostSourceConstruction([this](edm::ModuleDescription const& module) {
-        report("postSourceConstruction moduleLabel=\"" + module.moduleLabel() + "\" moduleType=\"" +
-               module.moduleName() + "\"");
+        std::string msg = std::format("postSourceConstruction moduleLabel=\"{}\" moduleType=\"{}\"", module.moduleLabel(), module.moduleName());
+        report(msg);
       });
       registry.watchPostESModuleConstruction([this](edm::eventsetup::ComponentDescription const& description) {
-        report("postESModuleConstruction moduleLabel=\"" + description.label_ + "\" moduleType=\"" + description.type_ +
-               "\"");
+        std::string msg = std::format("postESModuleConstruction moduleLabel=\"{}\" moduleType=\"{}\"", description.label_, description.type_);
+        report(msg);
       });
     }
   }
@@ -69,9 +70,12 @@ namespace edm::service {
     if (collectLibraryPaths_) {
       report << " libraries=" << smaps.libraries.size();
     }
-    report << " VSIZE " << smaps.sectionVSize_[soIndex] << " kB"
-           << " (executable " << smaps.sectionExecutableSize_[soIndex] << " kB) RSS " << smaps.sectionRss_[soIndex]
-           << " kB PSS " << smaps.sectionPss_[soIndex] << " kB)";
+    std::string msg = std::format("VSIZE {} kB (executable {} kB) RSS {} kB PSS {} kB",
+                                  smaps.sectionVSize_[soIndex],
+                                  smaps.sectionExecutableSize_[soIndex],
+                                  smaps.sectionRss_[soIndex],
+                                  smaps.sectionPss_[soIndex]);
+    report << " " << msg;
     if (collectLibraryPaths_) {
       std::string fileName = signalName;
       std::replace(fileName.begin(), fileName.end(), ' ', '_');
@@ -82,11 +86,16 @@ namespace edm::service {
         edm::LogWarning("LibraryMemoryReport") << "Failed to open file " << fileName << " for writing";
         return;
       }
-      file << "LibraryMemoryReport " << signalName << ": libraries=" << smaps.libraries.size() << "\n";
+      std::string msg = std::format("LibraryMemoryReport {} libraries={}", signalName, smaps.libraries.size());
+      file << msg << "\n";
       for (auto const& library : smaps.libraries) {
-        file << "library name " << library.name << " VSIZE " << library.vsizeKB_ << " kB"
-             << " RSS " << library.rssKB_ << " kB PSS " << library.pssKB_ << " kB"
-             << " executableSize " << library.executableSizeKB_ << " kB\n";
+        std::string msg = std::format("library name {} VSIZE {} kB RSS {} kB PSS {} kB executableSize {} kB",
+                                      library.name,
+                                      library.vsizeKB_,
+                                      library.rssKB_,
+                                      library.pssKB_,
+                                      library.executableSizeKB_);
+        file << msg << "\n";
       }
     }
   }
