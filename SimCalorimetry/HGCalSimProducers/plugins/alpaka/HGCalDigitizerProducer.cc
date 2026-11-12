@@ -185,15 +185,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void HGCalDigitizerProducer::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
     LogDebug("[HGCalDigitizerProducer]") << "Storing HGCAL DIGIs in the event";
 
-    //copy to host
+    //copy to host (as the unpacker does for the time being)
     auto& queue = iEvent.queue();
     auto const& digisDevice = rocDigis_device_.value();
     ::hgcaldigi::HGCalDigiHost digisHost(digisDevice.view().metadata().size());
     alpaka::memcpy(queue, digisHost.buffer(), digisDevice.const_buffer());
+    iEvent.emplace(rocDigisTkn_, std::move(digisHost));
+
     auto const& econdDevice = econInfo_device_.value();
     ::hgcaldigi::HGCalECONDPacketInfoHost econdInfoHost(econdDevice.view().metadata().size());
     alpaka::memcpy(queue, econdInfoHost.buffer(), econdDevice.const_buffer());
     alpaka::wait(queue);
+    iEvent.emplace(econInfoTkn_, std::move(econdInfoHost));
 
     //helpers
     if (produceExtra_) {

@@ -2,7 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 #argument parsing
 from FWCore.ParameterSet.VarParsing import VarParsing
-options = VarParsing('python')
+options = VarParsing('standard')
+try:
+    from HGCalCommissioning.NanoTools.configure_sysval_nano_cff import setArgParserForNANO
+    setArgParserForNANO(options)
+except Exception as e:
+    print(e)
+    print('Was not able to configure NANO')
 options.register('verbosity',0,mytype=VarParsing.varType.int,
                  info='Tester verbosity: 0 = Base+FED prints / 1 = +Module prints / 2 = +Cell prints')
 options.register('modules','Geometry/HGCalMapping/data/ModuleMaps/modulelocator_test.txt',mytype=VarParsing.varType.string,
@@ -23,13 +29,16 @@ process = cms.Process("TEST")
 process.load('Configuration.Geometry.GeometryExtendedRun4D128Reco_cff')
 process.load('Configuration.Geometry.GeometryExtendedRun4D128_cff')
 
+#event content
+process.load("Configuration.EventContent.EventContent_cff")
+
 #source
 process.maxEvents = cms.untracked.PSet( 
     input = cms.untracked.int32(options.maxEvents) 
 )
 process.source = cms.Source(
     "PoolSource",
-    fileNames=cms.untracked.vstring(options.inputFiles)
+    fileNames=cms.untracked.vstring(options.files)
 )
 
 # electronics configuration
@@ -66,7 +75,9 @@ process.RandomNumberGeneratorService = cms.Service(
 
 # NANO output (adds hgCalSimHitAccumTable + NanoAODOutputModule, preserves the paths above)
 try:
-    from UserCode.HGCalDigi.configure_digi_nano_cfi import configureNANOStep
+    from HGCalCommissioning.NanoTools.configure_sysval_nano_cff import configureNANOStep
+    options.skipMeta = True
+    options.isSimulation = True
     process = configureNANOStep(process, options)
 except Exception as e:
     print(e)
@@ -130,8 +141,8 @@ process.digi_step = cms.Path(
     process.hgCalSimHitAccumulator
     *process.hgCalDigitizerProducer
 )
-
 process.schedule.insert(0, process.digi_step)
+
 
 # output file (standard EDM)
 process.edmoutput = cms.OutputModule("PoolOutputModule",
@@ -150,7 +161,7 @@ process.schedule.append( process.edmoutpath )
 
 
 #DQM
-if False:
+if True:
     process.DQMStore = cms.Service("DQMStore")
     process.load("DQM.HGCAL.hgcalDQM_cff")
     process.hgcaldigidqm.Digis = cms.InputTag('hgCalDigitizerProducer','HGCROCDigis')
@@ -160,6 +171,8 @@ if False:
     
     process.dqmPath = cms.Path(
         process.hgcalDQMSources  
-        +process.hgCalDQMHarvester 
+        #+process.hgCalDQMHarvester 
         +process.dqmSaver
     )
+    process.schedule.append( process.dqmPath )
+    process.options.numberOfConcurrentLuminosityBlocks = 1
