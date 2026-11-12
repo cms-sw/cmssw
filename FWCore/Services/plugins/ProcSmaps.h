@@ -11,25 +11,25 @@ namespace edm::service {
   enum class SmapsSection : unsigned int { kSharedObject = 0, kPcm, kOtherFile, kStack, kMmap, kOther, kSize };
 
   struct SmapsLibraryInfo {
-    // The file name of the library, or the full path if there are several libraries with the same file name
+    // The full path name
     std::string name;
-    std::uint64_t sizeKB = 0;
-    std::uint64_t rssKB = 0;
-    std::uint64_t pssKB = 0;
-    std::uint64_t executableSizeKB = 0;
+    std::uint64_t vsizeKB_ = 0;
+    std::uint64_t rssKB_ = 0;
+    std::uint64_t pssKB_ = 0;
+    std::uint64_t executableSizeKB_ = 0;
   };
 
   struct SmapsInfo {
     static constexpr auto sectionsSize_ = static_cast<unsigned int>(SmapsSection::kSize);
 
-    std::uint64_t private_ = 0;
-    std::uint64_t pss_ = 0;
-    std::uint64_t anonHugePages_ = 0;
+    std::uint64_t privateKB_ = 0;
+    std::uint64_t pssKB_ = 0;
+    std::uint64_t anonHugePagesKB_ = 0;
     std::array<std::uint64_t, sectionsSize_> sectionRss_{};
     std::array<std::uint64_t, sectionsSize_> sectionVSize_{};
-    // Totals over all shared object mappings (the size and RSS are in sectionVSize_ and sectionRss_)
-    std::uint64_t sharedObjectPss_ = 0;
-    std::uint64_t sharedObjectExecutableSize_ = 0;
+    // Totals over all shared object mappings (the vsize and RSS are in sectionVSize_ and sectionRss_)
+    std::array<std::uint64_t, sectionsSize_> sectionPss_{};
+    std::array<std::uint64_t, sectionsSize_> sectionExecutableSize_{};
     // Filled only if the per-library information was requested
     std::vector<SmapsLibraryInfo> libraries;
   };

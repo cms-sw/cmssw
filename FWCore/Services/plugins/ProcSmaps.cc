@@ -17,9 +17,9 @@ namespace {
     edm::service::SmapsSection section = edm::service::SmapsSection::kOther;
     std::string path;
     bool executable = false;
-    std::uint64_t sizeKB = 0;
-    std::uint64_t rssKB = 0;
-    std::uint64_t pssKB = 0;
+    std::uint64_t vsizeKB_ = 0;
+    std::uint64_t rssKB_ = 0;
+    std::uint64_t pssKB_ = 0;
   };
 
   bool isSharedLibrary(std::string_view path) {
@@ -64,9 +64,9 @@ namespace {
   void parseHeader(std::string_view line, Mapping& mapping, bool collectLibraryPaths) {
     mapping.section = edm::service::SmapsSection::kOther;
     mapping.executable = false;
-    mapping.sizeKB = 0;
-    mapping.rssKB = 0;
-    mapping.pssKB = 0;
+    mapping.vsizeKB_ = 0;
+    mapping.rssKB_ = 0;
+    mapping.pssKB_ = 0;
     mapping.path.clear();
 
     nextToken(line);  // addresses
@@ -133,12 +133,12 @@ namespace edm::service {
         return;
       }
       auto const index = static_cast<unsigned int>(mapping.section);
-      result.sectionVSize_[index] += mapping.sizeKB;
-      result.sectionRss_[index] += mapping.rssKB;
+      result.sectionVSize_[index] += mapping.vsizeKB_;
+      result.sectionRss_[index] += mapping.rssKB_;
       if (mapping.section == SmapsSection::kSharedObject) {
-        result.sharedObjectPss_ += mapping.pssKB;
+        result.sectionPss_[index] += mapping.pssKB_;
         if (mapping.executable) {
-          result.sharedObjectExecutableSize_ += mapping.sizeKB;
+          result.sectionExecutableSize_[index] += mapping.vsizeKB_;
         }
       }
       if (collectLibraryPaths and mapping.section == SmapsSection::kSharedObject) {
@@ -147,11 +147,11 @@ namespace edm::service {
           it = libraries.emplace(mapping.path, SmapsLibraryInfo{}).first;
         }
         auto& library = it->second;
-        library.sizeKB += mapping.sizeKB;
-        library.rssKB += mapping.rssKB;
-        library.pssKB += mapping.pssKB;
+        library.vsizeKB_ += mapping.vsizeKB_;
+        library.rssKB_ += mapping.rssKB_;
+        library.pssKB_ += mapping.pssKB_;
         if (mapping.executable) {
-          library.executableSizeKB += mapping.sizeKB;
+          library.executableSizeKB_ += mapping.vsizeKB_;
         }
       }
     };
@@ -162,17 +162,17 @@ namespace edm::service {
         parseHeader(line, mapping, collectLibraryPaths);
         haveMapping = true;
       } else if (line.starts_with("Private_Clean:") or line.starts_with("Private_Dirty:")) {
-        result.private_ += valueKB(line);
+        result.privateKB_ += valueKB(line);
       } else if (line.starts_with("Pss:")) {
         auto const value = valueKB(line);
-        result.pss_ += value;
-        mapping.pssKB += value;
+        result.pssKB_ += value;
+        mapping.pssKB_ += value;
       } else if (line.starts_with("AnonHugePages:")) {
-        result.anonHugePages_ += valueKB(line);
+        result.anonHugePagesKB_ += valueKB(line);
       } else if (line.starts_with("Rss:")) {
-        mapping.rssKB += valueKB(line);
+        mapping.rssKB_ += valueKB(line);
       } else if (line.starts_with("Size:")) {
-        mapping.sizeKB += valueKB(line);
+        mapping.vsizeKB_ += valueKB(line);
       }
     };
 
@@ -224,18 +224,10 @@ namespace edm::service {
     if (collectLibraryPaths) {
       // Report only the file name of a library, unless there are several
       // libraries with the same file name, in which case the full path is kept.
-      auto fileName = [](std::string_view path) {
-        auto const slash = path.rfind('/');
-        return slash == std::string_view::npos ? path : path.substr(slash + 1);
-      };
-      std::map<std::string_view, unsigned int> nameCounts;
-      for (auto const& entry : libraries) {
-        ++nameCounts[fileName(entry.first)];
-      }
+
       result.libraries.reserve(libraries.size());
       for (auto& [path, library] : libraries) {
-        auto const name = fileName(path);
-        library.name = nameCounts[name] > 1 ? path : std::string(name);
+        library.name = path;
         result.libraries.emplace_back(std::move(library));
       }
     }
