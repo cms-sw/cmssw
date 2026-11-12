@@ -575,8 +575,7 @@ namespace edm {
           }
         };
 
-        log << "MemoryReport> Peak virtual size " << eventT1_.vsize << " Mbytes (RSS " << eventT1_.rss
-            << ")";
+        log << "MemoryReport> Peak virtual size " << eventT1_.vsize << " Mbytes (RSS " << eventT1_.rss << ")";
         logJemalloc(eventT1_.jemalloc);
         log << "\n Key events increasing vsize: \n"
             << eventL2_ << "\n"
@@ -586,8 +585,8 @@ namespace edm {
             << eventR2_ << "\n"
             << eventT3_ << "\n"
             << eventT2_ << "\n"
-            << eventT1_ << "\nMemoryReport> Peak rss size " << eventRssT1_.rss << " Mbytes (VSIZE "
-            << eventRssT1_.vsize << ")";
+            << eventT1_ << "\nMemoryReport> Peak rss size " << eventRssT1_.rss << " Mbytes (VSIZE " << eventRssT1_.vsize
+            << ")";
         ;
         logJemalloc(eventRssT1_.jemalloc);
         log << "\n Key events increasing rss:\n"
