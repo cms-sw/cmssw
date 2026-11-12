@@ -103,7 +103,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   };
 
-  // @short apply INL and timewalk corrections, and convert TOA to time (ps)
+  // @short apply INL and timewalk corrections, and convert TOA to time (ps), shifted by 12.5 ns when there is a timewalk
+  // calibration
   struct HGCalRecHitCalibrationKernel_toaToTime {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   HGCalSoARecHitsDeviceCollection::View recHits,
@@ -120,8 +121,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       };
 
       auto toa_tw_corr = [&](uint32_t toa, float energy, hgcalrechit::Vector3f p) {
-        return toa - ((energy > p[2]) ? (p[0] + p[1] * std::log(energy - p[2])) : 0.f);
+        return toa - ((energy > p[2]) ? (p[0] + p[1] / (energy - p[2])) : 0.f);
       };
+
+      // the time walk subtracts c, the TOA at infinite ADC, so the times sit around 0; shift them by half a bunch
+      // crossing so that they lie within the 25 ns TOA window again. Not applied without a timewalk calibration (c = 0)
+      constexpr float kTimeOffset = 12.5e3f;  // ps
 
       for (auto idx : uniform_elements(acc, digis.metadata().size())) {
         auto calib = calibs[idx];
@@ -131,14 +136,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         bool isAvailable((digiflags != ::hgcal::DIGI_FLAG::Invalid) &&
                          (digiflags != ::hgcal::DIGI_FLAG::NotAvailable) && calibvalid);
         bool isToAavailable((digiflags != ::hgcal::DIGI_FLAG::ZS_ToA) &&
-                            (digiflags != ::hgcal::DIGI_FLAG::ZS_ToA_ADCm1));
+                            (digiflags != ::hgcal::DIGI_FLAG::ZS_ToA_ADCm1) && (digi.toa() != 0));
         bool isGood(isAvailable && isToAavailable);
         // INL correction
-        auto toa = isGood * toa_inl_corr(digi.toa(), calib.TOA_CTDC(), calib.TOA_FTDC());
+        float toa = isGood * toa_inl_corr(digi.toa(), calib.TOA_CTDC(), calib.TOA_FTDC());
         // timewalk correction
-        toa = isGood * toa_tw_corr(toa, recHits[idx].energy(), calib.TOA_TW());
-        // toa to ps
-        recHits[idx].time() = toa * hgcalrechit::TOAtops;
+        toa = isGood * toa_tw_corr(toa, recHits[idx].mipEnergy() / calib.MIPS_scale(), calib.TOA_TW());
+        // toa to ps, offset
+        float const offset = (isGood && calib.TOA_TW()[0] != 0.f) ? kTimeOffset : 0.f;
+        recHits[idx].time() = toa * hgcalrechit::TOAtops + offset;
         recHits[idx].timeError() = 0.;
       }
     }
