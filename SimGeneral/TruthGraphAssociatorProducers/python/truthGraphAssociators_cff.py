@@ -84,6 +84,14 @@ allTrackToTruthBranchAssociators = cms.EDProducer(
     **_truthSources,
     **_workingPointArgs,
 )
+truthBranchGsfTrackAssociators = cms.EDProducer(
+    "TruthBranchGsfTrackAssociatorsProducer",
+    recoCollections=_tags("gsfTracks"),
+    targetsSrc=cms.InputTag("truthBranchTargets", "selectedRoots"),
+    assignableTargetsSrc=cms.InputTag("truthBranchTargets", "assignableRoots"),
+    **_truthSources,
+    **_workingPointArgs,
+)
 
 # Constituent-based: a vertex has no hits of its own, its truth is aggregated from the
 # tracks it is built from, which the track associator has already matched.
@@ -186,6 +194,7 @@ hltTruthBranchPFClusterHcalAssociators = truthBranchPFClusterHcalAssociators.clo
 truthGraphAssociatorsSequence = cms.Sequence(
     truthBranchTargets
     + allTrackToTruthBranchAssociators
+    + truthBranchGsfTrackAssociators
     + truthBranchTracksterAssociators
     + truthBranchPFClusterEcalAssociators
     + truthBranchPFClusterHcalAssociators

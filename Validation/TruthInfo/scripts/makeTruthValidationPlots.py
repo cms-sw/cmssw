@@ -371,6 +371,7 @@ MATCH_CRITERIA = {
         "other side counting as a good association.",
     ),
 }
+MATCH_CRITERIA["GsfTracking"] = MATCH_CRITERIA["Tracking"]
 # Per-domain caveats. A number that is correct but not discriminating reads as a result
 # unless the page says otherwise, so the page says otherwise.
 CATEGORY_NOTE = {
@@ -394,6 +395,12 @@ CATEGORY_NOTE = {
         "validation scores against: each cell is weighted by its rechit energy. The truth denominator spans the whole "
         "selector acceptance, so the efficiency correctly falls to zero outside the HGCAL coverage rather than being "
         "renormalised to it."
+    ),
+    "GsfTracking": (
+        "The electron GSF tracks, matched on shared hits like the general tracks. The truth denominators are the "
+        "same as for every other domain, all species, so the efficiency pages are NOT an electron efficiency: "
+        "a GSF track is built only from an electron seed, and most truth branches never have one. The reco-driven "
+        "pages, fake rate and purity, are the ones to read."
     ),
 }
 STYLE = (

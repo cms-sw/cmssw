@@ -41,6 +41,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -117,6 +118,14 @@ namespace {
     static constexpr truth::HitChannel channel = truth::HitChannel::Tracker;
     static constexpr auto metric = truth::BranchHitAssociator::Metric::SharedHits;
     static constexpr const char* cfiName = "allTrackToTruthBranchAssociators";
+  };
+
+  // A GSF track is a reco::Track fitted with a Gaussian-sum filter. Its hits are tracker
+  // hits like those of any track, so it is matched exactly as one: the reco::Track
+  // adapter of RecoHitAdapters.h applies through the base class.
+  template <>
+  struct TruthAssociationTraits<reco::GsfTrack> : TruthAssociationTraits<reco::Track> {
+    static constexpr const char* cfiName = "truthBranchGsfTrackAssociators";
   };
 
   // A vertex carries no hits of its own: its truth is whatever its tracks point to.
@@ -959,6 +968,8 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::fillDescriptions(edm::Config
 #include "FWCore/Framework/interface/MakerMacros.h"
 using AllTrackToTruthBranchAssociatorsProducer = AllRecoToTruthBranchAssociatorsProducer<reco::Track>;
 DEFINE_FWK_MODULE(AllTrackToTruthBranchAssociatorsProducer);
+using TruthBranchGsfTrackAssociatorsProducer = AllRecoToTruthBranchAssociatorsProducer<reco::GsfTrack>;
+DEFINE_FWK_MODULE(TruthBranchGsfTrackAssociatorsProducer);
 using AllVertexToTruthBranchAssociatorsProducer = AllRecoToTruthBranchAssociatorsProducer<reco::Vertex>;
 DEFINE_FWK_MODULE(AllVertexToTruthBranchAssociatorsProducer);
 // NOT named AllTracksterToTruthBranchAssociatorsProducer: a standalone producer of that

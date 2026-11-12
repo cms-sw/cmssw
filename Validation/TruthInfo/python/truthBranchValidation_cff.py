@@ -196,6 +196,19 @@ _domains = [
         recoVariables=["pt", "eta", "phi", "nhits", "vertpos", "zpos", "dxy", "dz"],
         thresholds=_trackThresholds,
     ),
+    # Judged as tracks, with the track thresholds. The truth denominators are the shared
+    # ones of every species, so the efficiency pages are not an electron efficiency, which
+    # MultiTrackValidator measures over electron TrackingParticles
+    # (trackValidatorGsfTracks in Validation/RecoTrack/python/TrackValidation_cff.py).
+    dict(
+        name="gsfTracks",
+        module="TruthBranchGsfTrackValidator",
+        label="truthBranchGsfTrackValidator",
+        associator="truthBranchGsfTrackAssociators",
+        dirName="TruthInfo/Offline/GsfTracking/",
+        recoVariables=["pt", "eta", "phi", "nhits", "vertpos", "zpos", "dxy", "dz"],
+        thresholds=_trackThresholds,
+    ),
     dict(
         name="vertices",
         module="TruthBranchVertexValidator",

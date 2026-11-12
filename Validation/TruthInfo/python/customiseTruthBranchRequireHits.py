@@ -8,6 +8,7 @@ import FWCore.ParameterSet.Config as cms
 # The validators whose truth objects are particle branches with hits.
 hitBasedValidatorTypes = (
     "TruthBranchTrackValidator",
+    "TruthBranchGsfTrackValidator",
     "TruthBranchTracksterValidator",
     "TruthBranchPFClusterValidator",
 )
