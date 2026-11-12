@@ -113,7 +113,9 @@ void HGCalMappingESProducer::prepareModuleMapperIndexer() {
     int fedid = modulesMap_.getIntAttr("fedid", row);
     int captureblockidx = modulesMap_.getIntAttr("captureblockidx", row);
     int econdidx = modulesMap_.getIntAttr("econdidx", row);
-    modIndexer_.processNewModule(fedid, captureblockidx, econdidx, typecodeidx, nerx, nwords, typecode);
+    // BE crate of this Slink; a missing column stays 1
+    int crate = modulesMap_.hasColumn("crate") ? modulesMap_.getIntAttr("crate", row) : 1;
+    modIndexer_.processNewModule(fedid, crate, captureblockidx, econdidx, typecodeidx, nerx, nwords, typecode);
   }
 
   modIndexer_.finalize();

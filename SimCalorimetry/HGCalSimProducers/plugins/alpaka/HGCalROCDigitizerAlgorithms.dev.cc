@@ -1,4 +1,5 @@
 #include <cstddef>
+#include <cstdio>
 #include <sstream>
 #include <cmath>
 
@@ -49,6 +50,37 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto enc = conds[idx].enc() * noiseVal;
         addNoise(hit.sumQ(), enc);
       }  //end grid loop
+    }
+  };
+
+  // @short add the job-wide time jump of this cell's BE crate onto avgTOA (ns)
+  struct HGCalROCDigitizerKernel_addCrateTimeJump {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  HGCalRealisticSimHitDevice::View realisticHits,
+                                  HGCalDenseIndexInfoDevice::ConstView denseIndex,
+                                  float const* jumps,
+                                  uint16_t const* crateOfFed,
+                                  uint32_t nFed,
+                                  uint32_t nCrate) const {
+      for (auto idx : uniform_elements(acc, realisticHits.metadata().size())) {
+        const uint32_t fed = denseIndex[idx].fedId();
+        if (fed >= nFed)
+          continue;
+        const uint16_t crate = crateOfFed[fed];
+        if (crate >= nCrate)
+          continue;
+        const float jump = jumps[crate];
+        auto toa = realisticHits[idx].avgTOA();
+        for (auto j = 0; j < hgcaldigi::kTimeBins; j++) {
+          const float t = toa(j, 0);
+          if (t != 0.f) {
+            toa(j, 0) = t + jump;
+            // temporary debug: print time before/after the crate jump (few cells have non-zero time)
+            printf("cell %u fed %u crate %u bin %d: avgTOA before %f ns, after %f ns (jump %f ns)\n",
+                   static_cast<unsigned>(idx), fed, static_cast<unsigned>(crate), j, t, t + jump, jump);
+          }
+        }
+      }
     }
   };
 
@@ -140,7 +172,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                  HGCalAgeingCondsDevice const& ageConds,
                                                                  HGCalDenseIndexInfoDevice const& denseIndex,
                                                                  HGCalMappingCellParamDevice const& cellInfo,
-                                                                 const uint64_t seed) const {
+                                                                 const uint64_t seed,
+                                                                 float const* crateJumps,
+                                                                 uint16_t const* crateOfFed,
+                                                                 uint32_t nFed,
+                                                                 uint32_t nCrate) const {
     LogDebug("HGCalROCDigitizerAlgorithms") << "Start of digitization" << std::endl;
     auto const ncells = device_realisticHits.view().metadata().size();
     HGCalROCDigisAccumDevice device_rocDigis(queue, ncells);
@@ -165,6 +201,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         denseIndex.const_view(),
                         cellInfo.const_view(),
                         seed);
+
+    if (crateJumps != nullptr && crateOfFed != nullptr && nFed > 0 && nCrate > 0) {
+      alpaka::exec<Acc1D>(queue,
+                          grid,
+                          HGCalROCDigitizerKernel_addCrateTimeJump{},
+                          device_realisticHits.view(),
+                          denseIndex.const_view(),
+                          crateJumps,
+                          crateOfFed,
+                          nFed,
+                          nCrate);
+    }
 
     alpaka::exec<Acc1D>(queue,
                         grid,

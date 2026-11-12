@@ -12,10 +12,17 @@
 #include <iomanip>  // for std::setw
 #include <future>
 #include <chrono>
+#include <algorithm>
+#include <cstdint>
+#include <limits>
+#include <mutex>
+#include <sstream>
+#include <vector>
 
 // CLHEP includes
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGauss.h"
 
 // Alpaka imports
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/SynchronizingEDProducer.h"
@@ -23,6 +30,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
 // includes for data formats
 #include "DataFormats/HGCalDigi/interface/HGCalSimHitAccumHost.h"
@@ -36,6 +44,8 @@
 #include "CondFormats/DataRecord/interface/HGCalDenseIndexInfoRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHost.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDevice.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
+#include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 
 //kernels handlers
 #include "SimCalorimetry/HGCalSimProducers/interface/alpaka/HGCalDigitizerAlgorithms.h"
@@ -43,6 +53,16 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace cms::alpakatools;
+
+  // One Gaussian per BE crate, width 15 ps. avgTOA is stored in ns.
+  constexpr double kCrateTimeJumpSigmaNs = 0.015;
+
+  // One table for the whole job. 
+  namespace {
+    std::once_flag crateJumpOnce_;
+    std::vector<float> crateJumps_;
+    std::vector<uint16_t> crateOfFed_;
+  }  // namespace
 
   class HGCalDigitizerProducer : public stream::SynchronizingEDProducer<> {
   public:
@@ -70,6 +90,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device::EDPutToken<hgcaldigi::HGCalROCDigisAccumDevice> rocDigisAccTkn_;
     std::optional<hgcaldigi::HGCalDigiDevice> rocDigis_device_;
     edm::EDPutTokenT<::hgcaldigi::HGCalDigiHost> rocDigisTkn_;
+    // Device memory belongs to this stream's queue, so the copy stays per instance.
+    std::once_flag crateJumpCopy_;
+    std::optional<device_buffer<Device, float[]>> crateJumpsDevice_;
+    std::optional<device_buffer<Device, uint16_t[]>> crateOfFedDevice_;
     std::optional<hgcaldigi::HGCalECONDPacketInfoDevice> econInfo_device_;
     edm::EDPutTokenT<::hgcaldigi::HGCalECONDPacketInfoHost> econInfoTkn_;
   };
@@ -135,6 +159,56 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto start = std::chrono::steady_clock::now();
 #endif
 
+    // RNG is needed both for the once-per-job crate jumps and for the per-event noise seed
+    edm::Service<edm::RandomNumberGenerator> rng;
+    CLHEP::HepRandomEngine& engine = rng->getEngine(iEvent.streamID());
+    // Draw once for the job, into the shared tables above. 
+    std::call_once(crateJumpOnce_, [&] {
+      const auto& indexer = iSetup.getData(moduleIndexerTkn_);
+      const auto crates = indexer.uniqueCrates();
+      uint16_t maxCrate = 0;
+      for (uint16_t crate : crates)
+        maxCrate = std::max(maxCrate, crate);
+      // one gaussian each
+      crateJumps_.assign(static_cast<size_t>(maxCrate) + 1, 0.f);
+      for (uint16_t crate : crates)
+        crateJumps_[crate] = static_cast<float>(CLHEP::RandGauss::shoot(&engine, 0., kCrateTimeJumpSigmaNs));
+      // fed to crate
+      const auto& sequences = indexer.fedReadoutSequences();
+      crateOfFed_.assign(sequences.size(), 0);
+      for (const auto& frs : sequences) {
+        if (frs.readoutTypes_.empty() || frs.id >= crateOfFed_.size())
+          continue;
+        crateOfFed_[frs.id] = frs.crate;
+      }
+      if (crateJumps_.empty())
+        crateJumps_.assign(1, 0.f);
+      if (crateOfFed_.empty())
+        crateOfFed_.assign(1, 0);
+
+      // log the crate time jumps
+      std::ostringstream msg;
+      msg << "Crate time jumps drawn once (sigma " << kCrateTimeJumpSigmaNs << " ns):";
+      for (uint16_t crate : crates)
+        msg << " [" << crate << "]=" << crateJumps_[crate] << " ns";
+      edm::LogWarning("HGCalDigitizerProducer") << msg.str();
+    });
+    // This stream's queue cannot see another stream's device memory, so copy once per stream.
+    std::call_once(crateJumpCopy_, [&] {
+      auto jumpsHost = make_host_buffer<float[]>(crateJumps_.size());
+      std::copy(crateJumps_.begin(), crateJumps_.end(), jumpsHost.data());
+      crateJumpsDevice_.emplace(make_device_buffer<float[]>(queue, crateJumps_.size()));
+      alpaka::memcpy(queue, *crateJumpsDevice_, jumpsHost);
+
+      auto crateHost = make_host_buffer<uint16_t[]>(crateOfFed_.size());
+      std::copy(crateOfFed_.begin(), crateOfFed_.end(), crateHost.data());
+      crateOfFedDevice_.emplace(make_device_buffer<uint16_t[]>(queue, crateOfFed_.size()));
+      alpaka::memcpy(queue, *crateOfFedDevice_, crateHost);
+      alpaka::wait(queue);
+    });
+    // per event noise seed
+    const uint64_t seed = static_cast<uint64_t>(CLHEP::RandFlat::shootInt(&engine, std::numeric_limits<int>::max()));
+
     //copy conditions and dense indexer to device
     hgcal::HGCalAgeingCondsDevice ageingConds_device(queue, nchannels);
     alpaka::memcpy(queue, ageingConds_device.buffer(), ageingConds.const_buffer());
@@ -149,13 +223,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     agedG4HitsAcc_device_ = ripener_.age(queue, g4AccHits, ageingConds_device, denseIndex_device, cellInfo_device);
 
     //run digitization
-
-    // setup RNG for noise generation
-    edm::Service<edm::RandomNumberGenerator> rng;
-    CLHEP::HepRandomEngine& engine = rng->getEngine(iEvent.streamID());
-    const uint64_t seed = static_cast<uint64_t>(CLHEP::RandFlat::shootInt(&engine, std::numeric_limits<int>::max()));
-
     if (agedG4HitsAcc_device_.has_value()) {
+
       //populate ECON-D info and common mode
       econInfo_device_ = concentrator_.init(queue, ageingConds_device, moduleInfo_device, seed);
 
@@ -166,7 +235,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                 ageingConds_device,
                                                 denseIndex_device,
                                                 cellInfo_device,
-                                                seed);
+                                                seed,
+                                                crateJumpsDevice_->data(),
+                                                crateOfFedDevice_->data(),
+                                                static_cast<uint32_t>(crateOfFed_.size()),
+                                                static_cast<uint32_t>(crateJumps_.size()));
 
       //havest the digis
       rocDigis_device_ = digitizer_.harvest(queue, rocDigisAcc_device_.value().const_view());
