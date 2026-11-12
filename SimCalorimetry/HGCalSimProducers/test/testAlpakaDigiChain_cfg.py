@@ -141,8 +141,11 @@ process.digi_step = cms.Path(
     process.hgCalSimHitAccumulator
     *process.hgCalDigitizerProducer
 )
-process.schedule.insert(0, process.digi_step)
-
+try:
+    process.schedule.insert(0, process.digi_step)
+except:
+    #NANO is not being used, start again
+    process.schedule = cms.Schedule(process.digi_step)
 
 # output file (standard EDM)
 process.edmoutput = cms.OutputModule("PoolOutputModule",
