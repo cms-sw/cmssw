@@ -369,6 +369,7 @@ def customizeHLTforL1P2GTv0p0_2026(process):
     vbfSeedOverrides = {
         # path name                                                   : (seed suffix, v0p0_2026 seeds (OR))
         'HLT_VBF_DiPFPuppiJet118_83_Mjj600_PFPuppiMETTypeOne176'       : ('MET', ['pDoubleJet_METSum']),
+        'HLT_VBF_DiPFPuppiJet133_83_Mjj700_Mu5_TrkIsoVVL'              : ('Mu',  ['pDoubleJet_TkMu']),
     }
     if hasattr(process, vbfSeedLabel):
         vbfSeed = getattr(process, vbfSeedLabel)
@@ -399,6 +400,9 @@ def customizeHLTforL1P2GTv0p0_2026(process):
                     elif module.matchJetsByDeltaR.value():
                         raise RuntimeError('customizeHLTforL1P2GTv0p0_2026: %s is shared by several paths and '
                                            'matches to L1 jets; give each VBF path its own copy' % module.label_())
+                # muon legs written without L1 matching (jet-only seed): match to the seed's tracker muons
+                if module.type_() == 'HLTMuonTrkL1TkMuFilter' and len(module.l1GTAlgoNames) == 0:
+                    module.l1GTAlgoNames = seeds
 
     return process
 
