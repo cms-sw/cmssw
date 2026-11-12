@@ -77,6 +77,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::ESWatcher<HGCalAgeingCondsRcd> ageingCondsWatcher_;
     const edm::ESGetToken<hgcal::HGCalAgeingCondsHost, HGCalAgeingCondsRcd> ageingCondsTkn_;
     const edm::ESGetToken<hgcal::HGCalDenseIndexInfoHost, HGCalDenseIndexInfoRcd> denseIndexTkn_;
+    edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> readoutMapTkn_;
     const edm::ESGetToken<hgcal::HGCalMappingModuleParamHost, HGCalElectronicsMappingRcd> moduleInfoTkn_;
     const edm::ESGetToken<hgcal::HGCalMappingCellParamHost, HGCalElectronicsMappingRcd> cellInfoToken_;
     int n_blocks_, n_threads_;
@@ -104,6 +105,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         g4HitsAccTkn_{consumes<hgcaldigi::HGCalSimHitAccumHost>(iConfig.getParameter<edm::InputTag>("g4HitsAcc"))},
         ageingCondsTkn_{esConsumes(iConfig.getParameter<edm::ESInputTag>("ageingConds"))},
         denseIndexTkn_{esConsumes(iConfig.getParameter<edm::ESInputTag>("denseIndexer"))},
+        readoutMapTkn_{esConsumes(iConfig.getParameter<edm::ESInputTag>("readoutMap"))},
         moduleInfoTkn_{esConsumes(iConfig.getParameter<edm::ESInputTag>("moduleInfo"))},
         cellInfoToken_{esConsumes(iConfig.getParameter<edm::ESInputTag>("cellInfo"))},
         n_blocks_{iConfig.getParameter<int>("n_blocks")},
@@ -127,6 +129,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("g4HitsAcc", edm::InputTag("hgcalDigis", "DIGI", "TEST"));
     desc.add("ageingConds", edm::ESInputTag{})->setComment("Label for ageing parameters");
+    desc.add("readoutMap", edm::ESInputTag{})->setComment("Readout map of HGCAL (module indexer)");
     desc.add("denseIndexer", edm::ESInputTag{})->setComment("Dense indexer SoA source");
     desc.add("moduleInfo", edm::ESInputTag{})->setComment("module info SoA source");
     desc.add("cellInfo", edm::ESInputTag{})->setComment("cell info SoA source");
@@ -141,6 +144,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto& queue = iEvent.queue();
     const auto& ageingConds = iSetup.getData(ageingCondsTkn_);
     const auto& denseIndexer = iSetup.getData(denseIndexTkn_);
+    const auto& readoutMap = iSetup.getData(readoutMapTkn_);
     const auto& moduleInfo = iSetup.getData(moduleInfoTkn_);
     int nmodules = moduleInfo.view().metadata().size();
     const auto& cellInfo = iSetup.getData(cellInfoToken_);
@@ -164,8 +168,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     CLHEP::HepRandomEngine& engine = rng->getEngine(iEvent.streamID());
     // Draw once for the job, into the shared tables above. 
     std::call_once(crateJumpOnce_, [&] {
-      const auto& indexer = iSetup.getData(moduleIndexerTkn_);
-      const auto crates = indexer.uniqueCrates();
+      const auto crates = readoutMap.uniqueCrates();
       uint16_t maxCrate = 0;
       for (uint16_t crate : crates)
         maxCrate = std::max(maxCrate, crate);
@@ -174,7 +177,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       for (uint16_t crate : crates)
         crateJumps_[crate] = static_cast<float>(CLHEP::RandGauss::shoot(&engine, 0., kCrateTimeJumpSigmaNs));
       // fed to crate
-      const auto& sequences = indexer.fedReadoutSequences();
+      const auto& sequences = readoutMap.fedReadoutSequences();
       crateOfFed_.assign(sequences.size(), 0);
       for (const auto& frs : sequences) {
         if (frs.readoutTypes_.empty() || frs.id >= crateOfFed_.size())

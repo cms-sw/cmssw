@@ -133,6 +133,7 @@ process.hgCalDigitizerProducer = cms.EDProducer(
     'alpaka_serial_sync::HGCalDigitizerProducer',
     g4HitsAcc = cms.InputTag("hgCalSimHitAccumulator"),
     ageingConds = cms.ESInputTag(),
+    readoutMap = cms.ESInputTag(),
     n_blocks = cms.int32(4096),
     n_threads = cms.int32(1024)
 )
