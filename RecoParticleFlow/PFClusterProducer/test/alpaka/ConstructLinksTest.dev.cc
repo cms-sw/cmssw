@@ -38,8 +38,8 @@
 
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterParams.h"
 
-constexpr double nSigmaEta = 0.01234;
-constexpr double nSigmaPhi = 0.2678;
+constexpr double nSigmaEtaSq = 0.01234;
+constexpr double nSigmaPhiSq = 0.2678;
 // 21
 static constexpr unsigned int nStreams = 1;  //T4:40 RTX:72 L40S:142 4090:128 5080:84
 
@@ -76,13 +76,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto wall_start = std::chrono::high_resolution_clock::now();
 
       for (unsigned int s = 0; s < nStreams; s++) {
-        alpaka::exec<Acc1D>(queues[0],
+        alpaka::exec<Acc1D>(queues[s],
                             workDiv,
                             ConstructLinksKernel{},
                             mdpfCCLabels[s].view(),
                             mdpfClusteringVars[s].view(),
-                            nSigma.nSigmaEta,
-                            nSigma.nSigmaPhi);
+                            nSigma.nSigmaEtaSq,
+                            nSigma.nSigmaPhiSq);
       }
 
       for (unsigned int s = 0; s < nStreams; s++)
@@ -106,8 +106,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     auto params_h = cms::alpakatools::make_host_buffer<PFMultiDepthClusterParams, Platform>();
 
-    params_h->nSigmaEta = nSigmaEta;
-    params_h->nSigmaPhi = nSigmaPhi;
+    params_h->nSigmaEtaSq = nSigmaEtaSq;
+    params_h->nSigmaPhiSq = nSigmaPhiSq;
 
     auto params_d = cms::alpakatools::make_device_buffer<PFMultiDepthClusterParams>(queues[0]);
 
@@ -140,8 +140,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     alpaka::memcpy(queues[0], hostClusteringCCLabels[0].buffer(), devClusteringCCLabels[0].buffer());
 
-    for (unsigned int s = 0; s < nStreams; s++)
-      alpaka::wait(queues[s]);
+    alpaka::wait(queues[0]);
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
@@ -260,7 +259,7 @@ std::vector<ClusterLink> link(const ::reco::PFClusterCollection& clusters,
       deta = deta * deta / (etaRMS2[i] + etaRMS2[j]);
       auto dphi = deltaPhi(crep1.phi(), crep2.phi());
       dphi = dphi * dphi / (phiRMS2[i] + phiRMS2[j]);
-      if ((deta < nSigmaEta) & (dphi < nSigmaPhi)) {
+      if ((deta < nSigmaEtaSq) & (dphi < nSigmaPhiSq)) {
         links.push_back(ClusterLink(i, j, deta + dphi, std::abs(dz), cluster1.energy() + cluster2.energy()));
       }
     }

@@ -116,8 +116,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         outputPFRHFractionsSoA_Token_{produces()},
         pfrhfrac_size_{cms::alpakatools::make_host_buffer<int, Platform>()},
         pfcl_size_{cms::alpakatools::make_host_buffer<int, Platform>()} {
-    nSigma_.nSigmaEta = std::pow(config.getParameter<double>("nSigmaEta"), 2.0);
-    nSigma_.nSigmaPhi = std::pow(config.getParameter<double>("nSigmaPhi"), 2.0);
+    nSigma_.nSigmaEtaSq = std::pow(config.getParameter<double>("nSigmaEta"), 2.0);
+    nSigma_.nSigmaPhiSq = std::pow(config.getParameter<double>("nSigmaPhi"), 2.0);
   }
 
   void PFMultiDepthClusterSoAProducer::acquire(device::Event const& event, device::EventSetup const&) {

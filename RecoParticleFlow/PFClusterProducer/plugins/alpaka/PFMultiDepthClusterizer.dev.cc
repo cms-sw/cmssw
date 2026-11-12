@@ -225,8 +225,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
 
     const unsigned int wExtend = alpaka::getPreferredWarpSize(devAcc);
 
-    const double nSigmaEta = params.nSigmaEta;
-    const double nSigmaPhi = params.nSigmaPhi;
+    const double nSigmaEtaSq = params.nSigmaEtaSq;
+    const double nSigmaPhiSq = params.nSigmaPhiSq;
 
     // For ROCm/CUDA backends, this should be a multiple of warp extent,
     // which can be either 32 or 64.
@@ -261,8 +261,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
         ConstructLinksKernel{},
         mdpfCCLabels.view(),
         mdpfClusteringVars.view(),
-        nSigmaEta,
-        nSigmaPhi);
+        nSigmaEtaSq,
+        nSigmaPhiSq);
 
     const bool do_opt_prologue = enable_multiblock_prologue && (nClusters > 512);
 
