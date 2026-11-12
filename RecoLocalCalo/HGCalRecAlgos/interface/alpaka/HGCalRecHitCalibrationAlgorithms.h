@@ -21,6 +21,9 @@
 #include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
 #include "DataFormats/HGCalDigi/interface/alpaka/HGCalECONDPacketInfoDevice.h"
 
+// maxChPerErx_
+#include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
+
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace hgcaldigi;

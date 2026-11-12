@@ -42,7 +42,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   HGCalDigiDevice::ConstView digis,
                                   HGCalCalibParamDevice::ConstView calibs,
                                   HGCalDenseIndexInfoDevice::ConstView index,
-                                  HGCalECONDPacketInfoHost::ConstView econd) const {
+                                  HGCalECONDPacketInfoDevice::ConstView econd) const {
       auto adc_denoise =
           [&](uint32_t adc, uint32_t cm, uint32_t adcm1, float adc_ped, float cm_slope, float cm_ped, float bxm1_slope) {
             float cmf = cm_slope * (0.5 * float(cm) - cm_ped);
@@ -59,7 +59,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       for (auto idx : uniform_elements(acc, digis.metadata().size())) {
         auto info = index[idx];
         // ich = erxIdx*37 + channelIdx -> ich / 37 = erx
-        uint32_t erx = info.chNumber() / 37;
+        uint32_t erx = info.chNumber() / HGCalMappingCellIndexer::maxChPerErx_;
         auto econdenseidx = info.modInfoIdx();
         auto cmm = econd[econdenseidx].cm();
         uint32_t cm = cmm(erx, 0) + cmm(erx, 1);  // digi cm from econd

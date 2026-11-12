@@ -21,6 +21,7 @@
 #include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
 #include "DQM/HGCAL/interface/HGCalDQMCommon.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 
 /**
  * \class HGCalDigiDQM
@@ -90,7 +91,7 @@ void HGCalDigiDQM::bookModuleHistograms(DQMStore::IBooker& ibook, const Monitore
   ibook.setCurrentFolder(folder);
 
   //Per module histograms
-  size_t nch = ele.nErx * 37;
+  size_t nch = ele.nErx * HGCalMappingCellIndexer::maxChPerErx_;
 
   std::string typecode = ele.typecode;
 
@@ -198,10 +199,11 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       it_avgtoa = mh_avgtoa.find(key);
       it_toa = mh_toa.find(key);
       it_seed = moduleSeeds_.find(key);
-      cur_key_ok = it_avgadc != mh_avgadc.end() && it_adc != mh_adc.end() && it_avgadcm1 != mh_avgadcm1.end() &&
-                   it_adcm1 != mh_adcm1.end() && it_avgdeltaadc != mh_avgdeltaadc.end() &&
-                   it_deltaadc != mh_deltaadc.end() && it_avgtot != mh_avgtot.end() && it_tot != mh_tot.end() &&
-                   it_avgtoa != mh_avgtoa.end() && it_toa != mh_toa.end();
+      cur_key_ok = it_avgadc != mh_avgadc.end() && it_avgcm2 != mh_avgcm2.end() && it_adc != mh_adc.end() &&
+                   it_avgadcm1 != mh_avgadcm1.end() && it_adcm1 != mh_adcm1.end() &&
+                   it_avgdeltaadc != mh_avgdeltaadc.end() && it_deltaadc != mh_deltaadc.end() &&
+                   it_avgtot != mh_avgtot.end() && it_tot != mh_tot.end() && it_avgtoa != mh_avgtoa.end() &&
+                   it_toa != mh_toa.end();
     }
     if (!cur_key_ok)
       continue;
@@ -212,7 +214,7 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       seedDigiIdx[key] = i;
 
     // compute cm from econd
-    uint32_t erx = chIdx / 37;
+    uint32_t erx = chIdx / HGCalMappingCellIndexer::maxChPerErx_;
     auto econdenseidx = indexinfo.modInfoIdx();
     auto cmm = econd_view[econdenseidx].cm();
 
