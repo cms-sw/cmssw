@@ -26,6 +26,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -84,7 +85,9 @@ HGCalFastGeometryTester::HGCalFastGeometryTester(const edm::ParameterSet& ps)
 
 void HGCalFastGeometryTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("nameSense", "HGCalEESensitive");
+  desc.ifValue(
+      edm::ParameterDescription<std::string>("nameSense", "HGCalEESensitive", true),
+      edm::allowedValues<std::string>("HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillatorSensitive"));
   desc.add<bool>("benchmark", true);
   desc.add<int>("maxCells", -1);  // -1 = all, otherwise sampled uniformly over the valid DetIds
   descriptions.add("hgcalFastGeometryTester", desc);

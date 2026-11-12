@@ -11,7 +11,6 @@
 import argparse
 import functools
 import importlib
-import sys
 
 import FWCore.ParameterSet.Config as cms
 
@@ -20,12 +19,12 @@ allSenses = ["HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillator
 parser = argparse.ArgumentParser()
 parser.add_argument("--geom", default="D110", help="GeometryExtendedRun4<geom>Reco_cff")
 parser.add_argument("--era", default="Phase2C17I13M9", help="era matching the geometry")
-parser.add_argument("--sense", default="all",
-                    help="all, or a comma-separated list of " + ", ".join(allSenses))
+parser.add_argument("--sense", nargs="+", default=["all"], choices=["all"] + allSenses,
+                    help="subdetectors to test")
 parser.add_argument("--maxCells", type=int, default=200000,
                     help="cells per subdetector, sampled over the whole detector; -1 = all")
 parser.add_argument("--benchmark", type=int, default=1, help="1 = also time toDetId() against getClosestCell()")
-args = parser.parse_args(sys.argv[2:] if sys.argv[0].endswith("cmsRun") else sys.argv[1:])
+args = parser.parse_args()
 
 era = getattr(importlib.import_module(f"Configuration.Eras.Era_{args.era}_cff"), args.era)
 process = cms.Process("GEOTEST", era)
@@ -38,7 +37,7 @@ process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(1))
 
 testers = []
-for sense in (allSenses if args.sense == "all" else args.sense.split(",")):
+for sense in (allSenses if "all" in args.sense else args.sense):
     tester = cms.EDAnalyzer("HGCalFastGeometryTester",
                             nameSense=cms.string(sense),
                             benchmark=cms.bool(bool(args.benchmark)),
