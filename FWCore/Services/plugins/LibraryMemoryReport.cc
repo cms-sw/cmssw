@@ -42,15 +42,18 @@ namespace edm::service {
     // These signals lead to a printout for each module, source, and ESModule
     if (allModules_) {
       registry.watchPostModuleConstruction([this](edm::ModuleDescription const& module) {
-        std::string msg = std::format("postModuleConstruction moduleLabel=\"{}\" moduleType=\"{}\"", module.moduleLabel(), module.moduleName());
+        std::string msg = std::format(
+            "postModuleConstruction moduleLabel=\"{}\" moduleType=\"{}\"", module.moduleLabel(), module.moduleName());
         report(msg);
       });
       registry.watchPostSourceConstruction([this](edm::ModuleDescription const& module) {
-        std::string msg = std::format("postSourceConstruction moduleLabel=\"{}\" moduleType=\"{}\"", module.moduleLabel(), module.moduleName());
+        std::string msg = std::format(
+            "postSourceConstruction moduleLabel=\"{}\" moduleType=\"{}\"", module.moduleLabel(), module.moduleName());
         report(msg);
       });
       registry.watchPostESModuleConstruction([this](edm::eventsetup::ComponentDescription const& description) {
-        std::string msg = std::format("postESModuleConstruction moduleLabel=\"{}\" moduleType=\"{}\"", description.label_, description.type_);
+        std::string msg = std::format(
+            "postESModuleConstruction moduleLabel=\"{}\" moduleType=\"{}\"", description.label_, description.type_);
         report(msg);
       });
     }
