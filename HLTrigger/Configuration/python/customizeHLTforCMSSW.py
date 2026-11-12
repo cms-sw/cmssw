@@ -362,6 +362,44 @@ def customizeHLTforL1P2GTv0p0_2026(process):
                 name = getattr(module, par).value()
                 setattr(module, par, seedMap.get(name, name))
 
+    # VBF paths: step1_2024 has a single VBF seed, so in that menu all the VBF paths share the
+    # same inclusive seed (pDoublePuppiJet160_35_mass620, mapped above to pDoubleJet_Mass_Min1000).
+    # v0p0_2026 has dedicated seeds for some of them, and these need to be added below.
+    vbfSeedLabel = 'hltL1SeedsForVBFDiPFPuppiJetFilter'
+    vbfSeedOverrides = {
+        # path name                                                   : (seed suffix, v0p0_2026 seeds (OR))
+        'HLT_VBF_DiPFPuppiJet118_83_Mjj600_PFPuppiMETTypeOne176'       : ('MET', ['pDoubleJet_METSum']),
+    }
+    if hasattr(process, vbfSeedLabel):
+        vbfSeed = getattr(process, vbfSeedLabel)
+        for pathName, (suffix, seeds) in vbfSeedOverrides.items():
+            if not hasattr(process, pathName):
+                continue
+            path = getattr(process, pathName)
+            seedLabel = vbfSeedLabel.replace('Filter', suffix + 'Filter')
+            setattr(process, seedLabel, vbfSeed.clone(
+                l1GTAlgos = cms.VPSet([
+                    cms.PSet(
+                        name = cms.string(seed),
+                        collection = vbfSeed.l1GTAlgos[0].collection.clone()
+                    ) for seed in seeds
+                ])
+            ))
+            path.replace(vbfSeed, getattr(process, seedLabel))
+            for module in process.filters_().values():
+                if not path.contains(module):
+                    continue
+                # VBF jet categories filters: keep l1tJetRefs pointing to the path's seed. A filter
+                # shared by several paths is left unchanged: l1tJetRefs is only read when
+                # matchJetsByDeltaR is True, and then each path needs its own clone.
+                if module.type_() == 'HLTL1TMatchedPFJetsVBFFilter' and module.l1tJetRefs.value() == vbfSeedLabel:
+                    users = [p for p in process.paths_().values() if p.contains(module)]
+                    if len(users) == 1:
+                        module.l1tJetRefs = seedLabel
+                    elif module.matchJetsByDeltaR.value():
+                        raise RuntimeError('customizeHLTforL1P2GTv0p0_2026: %s is shared by several paths and '
+                                           'matches to L1 jets; give each VBF path its own copy' % module.label_())
+
     return process
 
 
