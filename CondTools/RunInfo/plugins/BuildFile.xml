@@ -1,3 +1,4 @@
+<use name="CLHEP"/>
 <use name="CondTools/RunInfo"/>
 <use name="CondCore/PopCon"/>
 <use name="FWCore/Framework"/>
@@ -96,5 +97,9 @@
 </library>
 
 <library file="LHCInfoPerFillOnlinePopConAnalyzer.cc" name="CondToolsLHCInfoPerFillOnlinePopConAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="LHCPhaseShiftProducer.cc" name="LHCPhaseShiftProducer">
   <flags EDM_PLUGIN="1"/>
 </library>

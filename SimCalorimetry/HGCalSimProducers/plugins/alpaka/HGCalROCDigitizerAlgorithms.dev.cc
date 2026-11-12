@@ -53,6 +53,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   };
 
+  // @short this kernel adds the LHC phase shift
+  struct HGCalROCDigitizerKernel_addLHCPhaseShift {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  HGCalRealisticSimHitDevice::View realisticHits,
+                                  float lhc_phaseshift) const {
+      for (auto idx : uniform_elements(acc, realisticHits.metadata().size())) {
+        auto toa = realisticHits[idx].avgTOA();
+        for (auto j = 0; j < hgcaldigi::kTimeBins; j++) {
+          const float t = toa(j, 0);
+          if (t != 0.f)
+            toa(j, 0) = t + lhc_phaseshift;
+        }
+      }
+    }
+  };
+
   // @short add the job-wide time jump of this cell's BE crate onto avgTOA (ns)
   struct HGCalROCDigitizerKernel_addCrateTimeJump {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
@@ -73,12 +89,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto toa = realisticHits[idx].avgTOA();
         for (auto j = 0; j < hgcaldigi::kTimeBins; j++) {
           const float t = toa(j, 0);
-          if (t != 0.f) {
+          if (t != 0.f)
             toa(j, 0) = t + jump;
-            // temporary debug: print time before/after the crate jump (few cells have non-zero time)
-            printf("cell %u fed %u crate %u bin %d: avgTOA before %f ns, after %f ns (jump %f ns)\n",
-                   static_cast<unsigned>(idx), fed, static_cast<unsigned>(crate), j, t, t + jump, jump);
-          }
         }
       }
     }
@@ -173,6 +185,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                  HGCalDenseIndexInfoDevice const& denseIndex,
                                                                  HGCalMappingCellParamDevice const& cellInfo,
                                                                  const uint64_t seed,
+                                                                 const double lhc_phaseshift,
                                                                  float const* crateJumps,
                                                                  uint16_t const* crateOfFed,
                                                                  uint32_t nFed,
@@ -201,6 +214,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         denseIndex.const_view(),
                         cellInfo.const_view(),
                         seed);
+
+    alpaka::exec<Acc1D>(
+        queue, grid, HGCalROCDigitizerKernel_addLHCPhaseShift{}, device_realisticHits.view(), lhc_phaseshift);
 
     if (crateJumps != nullptr && crateOfFed != nullptr && nFed > 0 && nCrate > 0) {
       alpaka::exec<Acc1D>(queue,

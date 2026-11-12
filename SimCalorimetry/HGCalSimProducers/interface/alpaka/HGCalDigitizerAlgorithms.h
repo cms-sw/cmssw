@@ -94,6 +94,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                       HGCalDenseIndexInfoDevice const&,
                                       HGCalMappingCellParamDevice const&,
                                       const uint64_t,
+                                      double,
                                       float const* crateJumps,
                                       uint16_t const* crateOfFed,
                                       uint32_t nFed,
