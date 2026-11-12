@@ -17,7 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2ITAuroraBitStream.h"
 #include "CondFormats/DataRecord/interface/TrackerDetToDTCELinkCablingMapRcd.h"
@@ -35,7 +35,7 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-  const edm::EDGetTokenT<edm::DetSetVector<Phase2ITAuroraBitStream>> auroraToken_;
+  const edm::EDGetTokenT<edmNew::DetSetVector<Phase2ITAuroraBitStream>> auroraToken_;
   const edm::ESGetToken<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd> cablingMapToken_;
 
   TTree* tree_ = nullptr;
@@ -51,8 +51,8 @@ private:
 };
 
 Phase2ITElinkAnalyzer::Phase2ITElinkAnalyzer(const edm::ParameterSet& iConfig)
-    : auroraToken_(
-          consumes<edm::DetSetVector<Phase2ITAuroraBitStream>>(iConfig.getParameter<edm::InputTag>("auroraBitStream"))),
+    : auroraToken_(consumes<edmNew::DetSetVector<Phase2ITAuroraBitStream>>(
+          iConfig.getParameter<edm::InputTag>("auroraBitStream"))),
       cablingMapToken_(esConsumes<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd>()) {
   usesResource("TFileService");
   edm::Service<TFileService> fs;
@@ -75,7 +75,7 @@ void Phase2ITElinkAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& des
 }
 
 void Phase2ITElinkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<edm::DetSetVector<Phase2ITAuroraBitStream>> handle;
+  edm::Handle<edmNew::DetSetVector<Phase2ITAuroraBitStream>> handle;
   iEvent.getByToken(auroraToken_, handle);
   if (!handle.isValid() || handle->empty())
     return;
@@ -83,8 +83,8 @@ void Phase2ITElinkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
   const auto& cablingMap = iSetup.getData(cablingMapToken_);
 
   for (const auto& detset : *handle) {
-    b_detid_ = detset.id;
-    const auto& info = cablingMap.getModuleInfo(detset.id);
+    b_detid_ = detset.id();
+    const auto& info = cablingMap.getModuleInfo(detset.id());
     b_section_ = static_cast<int>(info.section);
     b_layer_ = static_cast<int>(info.layer);
     b_ring_ = static_cast<int>(info.ring);

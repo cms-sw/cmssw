@@ -43,9 +43,6 @@ private:
   const edm::EDGetTokenT<RawDataBuffer> rawDataToken_;
   const edm::ESGetToken<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd> cablingMapToken_;
 
-  const double scaleTBPX_;
-  const double scaleTFPX_;
-  const double scaleTEPX_;
   const double trigger_rate_;
   const double slink_bandwidth_;
   const double dataSizeMax_;  // upper edge of the per-DTC data size axis [kb]
@@ -80,9 +77,6 @@ Phase2ITValidateSLink::Phase2ITValidateSLink(const edm::ParameterSet& iConfig)
     : rawDataToken_(consumes<RawDataBuffer>(iConfig.getParameter<edm::InputTag>("src"))),
       cablingMapToken_(
           esConsumes<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd, edm::Transition::BeginRun>()),
-      scaleTBPX_(iConfig.getUntrackedParameter<double>("scaleTBPX", 1)),
-      scaleTFPX_(iConfig.getUntrackedParameter<double>("scaleTFPX", 1)),
-      scaleTEPX_(iConfig.getUntrackedParameter<double>("scaleTEPX", 1)),
       trigger_rate_(iConfig.getUntrackedParameter<double>("trigger_rate", 750.0e3)),
       slink_bandwidth_(iConfig.getUntrackedParameter<double>("slink_bandwidth", 25.0e9)),
       dataSizeMax_(iConfig.getUntrackedParameter<double>("dataSizeMax", 800.)),
@@ -224,9 +218,6 @@ void Phase2ITValidateSLink::analyze(const edm::Event& iEvent, const edm::EventSe
 void Phase2ITValidateSLink::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("BitStreamToRawProducer"));
-  desc.addUntracked<double>("scaleTBPX", 1);
-  desc.addUntracked<double>("scaleTFPX", 1);
-  desc.addUntracked<double>("scaleTEPX", 1);
   desc.addUntracked<double>("trigger_rate", 750.0e3);
   desc.addUntracked<double>("slink_bandwidth", 25.0e9);
   desc.addUntracked<double>("dataSizeMax", 800.);

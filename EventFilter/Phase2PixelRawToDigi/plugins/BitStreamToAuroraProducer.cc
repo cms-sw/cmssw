@@ -22,7 +22,6 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2ITChipBitStream.h"
@@ -71,7 +70,7 @@ BitStreamToAuroraProducer::BitStreamToAuroraProducer(const edm::ParameterSet& iC
     throw cms::Exception("BitStreamToAuroraProducer")
         << "serviceBlockInterval=" << serviceBlockInterval_ << " out of range [" << AURORA_SERVICE_BLOCK_INTERVAL_MIN
         << ", " << AURORA_SERVICE_BLOCK_INTERVAL_MAX << "]";
-  produces<edm::DetSetVector<Phase2ITAuroraBitStream>>();
+  produces<edmNew::DetSetVector<Phase2ITAuroraBitStream>>();
   produces<bool>("isComplete");
 }
 
@@ -113,7 +112,7 @@ void BitStreamToAuroraProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
     constexpr int EVENT_ID_PLACEHOLDER = 1;  // TODO: drive from iEvent.id().event() / NE-group base
 
-    std::vector<edm::DetSet<Phase2ITAuroraBitStream>> detsets;
+    auto output = std::make_unique<edmNew::DetSetVector<Phase2ITAuroraBitStream>>();
     for (auto& [detId, chips] : buffer_) {
       const auto& info = cablingMap.getModuleInfo(detId);
       const unsigned int nChipsSeen = chips.size();
@@ -163,16 +162,14 @@ void BitStreamToAuroraProducer::produce(edm::Event& iEvent, const edm::EventSetu
       }
 
       // One Phase2ITAuroraBitStream per elink.
-      edm::DetSet<Phase2ITAuroraBitStream> detset(detId);
+      edmNew::DetSetVector<Phase2ITAuroraBitStream>::FastFiller filler(*output, detId, true);
       for (int e = 0; e < nElinks; ++e) {
         Phase2ITAuroraBitStream aurora(e, eventsPerStream_);
         aurora.addAuroraStream(elinkBits[e]);
-        detset.push_back(aurora);
+        filler.push_back(std::move(aurora));
       }
-      detsets.push_back(std::move(detset));
     }
 
-    auto output = std::make_unique<edm::DetSetVector<Phase2ITAuroraBitStream>>(detsets);
     iEvent.put(std::move(output));
     buffer_.clear();
   }

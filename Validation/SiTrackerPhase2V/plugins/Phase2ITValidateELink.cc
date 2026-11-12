@@ -15,7 +15,7 @@
 
 #include "CondFormats/DataRecord/interface/TrackerDetToDTCELinkCablingMapRcd.h"
 #include "CondFormats/SiPhase2TrackerObjects/interface/TrackerDetToDTCELinkCablingMap.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2ITAuroraBitStream.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -47,7 +47,7 @@ private:
   void bookSubTypeHistos(DQMStore::IBooker& ibooker);
   static int sectionIndexOf(int section, int layer, int ring);
 
-  const edm::EDGetTokenT<edm::DetSetVector<Phase2ITAuroraBitStream>> auroraToken_;
+  const edm::EDGetTokenT<edmNew::DetSetVector<Phase2ITAuroraBitStream>> auroraToken_;
   const edm::ESGetToken<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd> cablingMapToken_;
 
   const double scaleTBPX_;
@@ -103,8 +103,8 @@ private:
 };
 
 Phase2ITValidateELink::Phase2ITValidateELink(const edm::ParameterSet& iConfig)
-    : auroraToken_(
-          consumes<edm::DetSetVector<Phase2ITAuroraBitStream>>(iConfig.getParameter<edm::InputTag>("auroraBitStream"))),
+    : auroraToken_(consumes<edmNew::DetSetVector<Phase2ITAuroraBitStream>>(
+          iConfig.getParameter<edm::InputTag>("auroraBitStream"))),
       cablingMapToken_(
           esConsumes<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd, edm::Transition::BeginRun>()),
       scaleTBPX_(iConfig.getUntrackedParameter<double>("scaleTBPX", 1)),
@@ -366,7 +366,7 @@ void Phase2ITValidateELink::bookSubTypeHistos(DQMStore::IBooker& ibooker) {
 }
 
 void Phase2ITValidateELink::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
-  edm::Handle<edm::DetSetVector<Phase2ITAuroraBitStream>> handle;
+  edm::Handle<edmNew::DetSetVector<Phase2ITAuroraBitStream>> handle;
   iEvent.getByToken(auroraToken_, handle);
   if (!handle.isValid() || handle->empty())
     return;
@@ -376,7 +376,7 @@ void Phase2ITValidateELink::analyze(const edm::Event& iEvent, const edm::EventSe
   using Section = TrackerDetToDTCELinkCablingMap::Section;
 
   for (const auto& detset : *handle) {
-    const auto& info = cablingMap_->getModuleInfo(detset.id);
+    const auto& info = cablingMap_->getModuleInfo(detset.id());
     const int section = static_cast<int>(info.section);
     const double sectionScale = (section == static_cast<int>(Section::TBPX))   ? scaleTBPX_
                                 : (section == static_cast<int>(Section::TFPX)) ? scaleTFPX_
@@ -391,7 +391,7 @@ void Phase2ITValidateELink::analyze(const edm::Event& iEvent, const edm::EventSe
         (section == static_cast<int>(Section::TBPX)) ? std::make_pair(section, layer) : std::make_pair(section, ring);
     auto secIt = sectionToIndex_.find(key);
     auto subIt = subTypeToIndex_.find(subtype);
-    auto modIt = moduleToIndex_.find(detset.id);
+    auto modIt = moduleToIndex_.find(detset.id());
 
     for (const auto& aurora : detset) {  // aurora = one ELink
       const int elinkIdx = aurora.get_elinkId();
@@ -409,10 +409,10 @@ void Phase2ITValidateELink::analyze(const edm::Event& iEvent, const edm::EventSe
 
       if (modIt != moduleToIndex_.end())
         me_elinkOccupancyMap_->Fill(modIt->second, elinkIdx, occupancy);
-      if (auto qIt = moduleQuad_.find(detset.id); qIt != moduleQuad_.end())
+      if (auto qIt = moduleQuad_.find(detset.id()); qIt != moduleQuad_.end())
         mes_elinkOccupancyMapQuad_[qIt->second.first]->Fill(qIt->second.second, elinkIdx, occupancy);
 
-      auto slotIt = moduleSlot_.find(detset.id);
+      auto slotIt = moduleSlot_.find(detset.id());
       if (slotIt != moduleSlot_.end() && elinkIdx >= 0 && elinkIdx < slotIt->second.width &&
           mes_elinkOccupancyMapPerSection_[slotIt->second.sec] != nullptr) {
         const QuadSlot& slot = slotIt->second;

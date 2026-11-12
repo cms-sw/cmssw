@@ -25,6 +25,7 @@
 #include "TColor.h"
 #include "TFile.h"
 #include "TH1F.h"
+#include "TH2.h"
 #include "TProfile2D.h"
 
 namespace {
@@ -170,10 +171,20 @@ void ElinkOccupancyHarvester::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IG
     int nFiles = TrackerPhase2PlotUtil::saveFolderPlots(igetter, topFolder_, plotCfg);
 
     // The module x ELink map, one quadrant per row
-    std::vector<std::pair<std::string, const TH1*>> quadPanels;
-    for (int q = 1; q <= 4; ++q)
-      if (MonitorElement* me = igetter.get(topFolder_ + "/eLinkOccupancyMap_Q" + std::to_string(q)))
-        quadPanels.emplace_back("Q" + std::to_string(q), me->getTH1());
+    std::vector<std::pair<std::string, const TH2*>> quadPanels;
+    for (int q = 1; q <= 4; ++q) {
+      const std::string mePath = topFolder_ + "/eLinkOccupancyMap_Q" + std::to_string(q);
+      MonitorElement* me = igetter.get(mePath);
+      if (me == nullptr)
+        continue;
+      const auto* h2 = dynamic_cast<const TH2*>(me->getTH1());
+      if (h2 == nullptr) {
+        edm::LogWarning("ElinkOccupancyHarvester")
+            << mePath << " is not a 2D histogram, skipped in the quadrant panels";
+        continue;
+      }
+      quadPanels.emplace_back("Q" + std::to_string(q), h2);
+    }
     nFiles += TrackerPhase2PlotUtil::savePanelPlots(quadPanels, "eLinkOccupancyMapByQuadrant", plotCfg);
 
     // Event-averaged occupancy split by detector section, one entry per ELink

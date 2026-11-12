@@ -188,7 +188,7 @@ int TrackerPhase2PlotUtil::saveFolderPlots(dqm::harvesting::DQMStore::IGetter& i
   return nWritten;
 }
 
-int TrackerPhase2PlotUtil::savePanelPlots(const std::vector<std::pair<std::string, const TH1*>>& panels,
+int TrackerPhase2PlotUtil::savePanelPlots(const std::vector<std::pair<std::string, const TH2*>>& panels,
                                           const std::string& name,
                                           const PlotConfig& cfg) {
   if (panels.empty())
@@ -210,14 +210,14 @@ int TrackerPhase2PlotUtil::savePanelPlots(const std::vector<std::pair<std::strin
   TCanvas canvas(("c_" + name).c_str(), name.c_str(), width, n * kWideHeightPx);
   canvas.Divide(1, n, 0., 0.);
 
-  std::vector<std::unique_ptr<TH1>> clones;
+  std::vector<std::unique_ptr<TH2>> clones;
   for (int i = 0; i < n; ++i) {
     canvas.cd(i + 1);
     gPad->SetLeftMargin(0.075);
     gPad->SetRightMargin(0.115);
     gPad->SetTopMargin(0.13);
     gPad->SetBottomMargin(0.16);
-    std::unique_ptr<TH1> h(static_cast<TH1*>(panels[i].second->Clone()));
+    std::unique_ptr<TH2> h(static_cast<TH2*>(panels[i].second->Clone()));
     h->SetDirectory(nullptr);
     if (!panels[i].first.empty())
       h->SetTitle(
@@ -225,7 +225,7 @@ int TrackerPhase2PlotUtil::savePanelPlots(const std::vector<std::pair<std::strin
               .c_str());
     h->SetMinimum(0.);
     h->SetMaximum(cfg.zMax);
-    cropEmptyRows(static_cast<TH2*>(h.get()));
+    cropEmptyRows(h.get());
     h->Draw("COLZ");
     clones.push_back(std::move(h));
   }

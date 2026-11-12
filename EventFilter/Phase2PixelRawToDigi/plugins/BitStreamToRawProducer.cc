@@ -17,7 +17,6 @@
 #include <cstring>
 
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2ITChipBitStream.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/FEDRawData/interface/RawDataBuffer.h"
 #include "DataFormats/FEDRawData/interface/SLinkRocketHeaders.h"

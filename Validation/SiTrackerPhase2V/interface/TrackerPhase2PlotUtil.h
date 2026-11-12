@@ -18,6 +18,7 @@
 
 class TFile;
 class TH1;
+class TH2;
 
 namespace TrackerPhase2PlotUtil {
 
@@ -39,7 +40,7 @@ namespace TrackerPhase2PlotUtil {
                        const PlotConfig& cfg);
 
   // Renders the 2D maps as one figure '<name>', one pad per panel stacked vertically
-  int savePanelPlots(const std::vector<std::pair<std::string, const TH1*>>& panels,
+  int savePanelPlots(const std::vector<std::pair<std::string, const TH2*>>& panels,
                      const std::string& name,
                      const PlotConfig& cfg);
 
