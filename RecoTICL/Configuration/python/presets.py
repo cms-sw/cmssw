@@ -215,16 +215,23 @@ def links_defaults():
     )
 
 
-def supercluster_dnn_defaults():
-    """Standard ``ticlTracksterLinksSuperclusteringDNN`` overrides."""
-    return dict(
-        linkingPSet=cms.PSet(
-            type=cms.string("SuperClusteringDNN"),
-            algo_verbosity=cms.int32(0),
-            onnxModelPath=cms.string("RecoHGCal/TICL/data/superclustering/supercls_v3.onnx"),
-            nnWorkingPoint=cms.float(0.57247),
-        ),
+def supercluster_dnn_defaults(pid_threshold=None, emission_pid_threshold=None, pid_categories=None):
+    """Standard ``ticlTracksterLinksSuperclusteringDNN`` overrides. ``pid_threshold``: min EM probability of a seed.
+    ``emission_pid_threshold``: min EM probability of a single-trackster supercluster. ``pid_categories``: the
+    ``Trackster::ParticleType`` slots of the EM probability. None keeps the plugin default. The defaults give v5."""
+    pset = cms.PSet(
+        type=cms.string("SuperClusteringDNN"),
+        algo_verbosity=cms.int32(0),
+        onnxModelPath=cms.string("RecoHGCal/TICL/data/superclustering/supercls_v3.onnx"),
+        nnWorkingPoint=cms.float(0.57247),
     )
+    if pid_threshold is not None:
+        pset.PIDThreshold = cms.float(pid_threshold)
+    if emission_pid_threshold is not None:
+        pset.emissionPIDThreshold = cms.float(emission_pid_threshold)
+    if pid_categories is not None:
+        pset.tracksterPIDCategoriesToFilter = cms.vint32(*pid_categories)
+    return dict(linkingPSet=pset)
 
 
 def candidate_defaults():
