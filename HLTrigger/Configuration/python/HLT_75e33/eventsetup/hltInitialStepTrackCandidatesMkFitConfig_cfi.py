@@ -1,9 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-hltMkFitGeometryESProducer = cms.ESProducer("MkFitGeometryESProducer",
-    appendToDataLabel = cms.string('')
-)
-
 hltInitialStepTrackCandidatesMkFitConfig = cms.ESProducer("MkFitIterationConfigESProducer",
     ComponentName = cms.string('hltInitialStepTrackCandidatesMkFitConfig'),
     appendToDataLabel = cms.string(''),
