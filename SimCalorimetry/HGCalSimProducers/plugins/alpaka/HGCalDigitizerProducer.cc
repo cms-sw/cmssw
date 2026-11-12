@@ -66,7 +66,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   private:
     void acquire(device::Event const&, device::EventSetup const&) override;
     void produce(device::Event&, device::EventSetup const&) override;
-    void generatePhaseShifts(Queue &, const HGCalMappingModuleIndexer &, HGCalDenseIndexInfoHost::ConstView, CLHEP::HepJamesRandom& );
+    void generatePhaseShifts(Queue&,
+                             const HGCalMappingModuleIndexer&,
+                             HGCalDenseIndexInfoHost::ConstView,
+                             CLHEP::HepJamesRandom&);
 
     const edm::EDGetTokenT<std::vector<float>> lhcPhaseShiftToken_;
     const edm::EDGetTokenT<hgcaldigi::HGCalSimHitAccumHost> g4HitsAccTkn_;
@@ -94,7 +97,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const float crateTimeJumpsSigma_ns_;
     std::optional<hgcaldigi::HGCalPhaseShiftsHost> phaseShiftsHost_;
     std::optional<hgcaldigi::HGCalPhaseShiftsDevice> phaseShiftsDevice_;
-    
+
     std::optional<hgcaldigi::HGCalECONDPacketInfoDevice> econInfo_device_;
     edm::EDPutTokenT<::hgcaldigi::HGCalECONDPacketInfoHost> econInfoTkn_;
   };
@@ -137,39 +140,43 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add("moduleInfo", edm::ESInputTag{})->setComment("module info SoA source");
     desc.add("cellInfo", edm::ESInputTag{})->setComment("cell info SoA source");
     desc.add<bool>("produceExtra", true)->setComment("produce extra digitizer collections");
-    desc.add<double>("crateTimeJumpsSigma_ns", 0.015)->setComment("typical width of a time jump associated to a BE crate [ns]");
+    desc.add<double>("crateTimeJumpsSigma_ns", 0.015)
+        ->setComment("typical width of a time jump associated to a BE crate [ns]");
     desc.add<int>("n_blocks", -1);
     desc.add<int>("n_threads", -1);
     descriptions.addWithDefaultLabel(desc);
   }
 
   //
-  void HGCalDigitizerProducer::generatePhaseShifts(Queue &queue, const HGCalMappingModuleIndexer &readoutMap, HGCalDenseIndexInfoHost::ConstView denseIndexView, CLHEP::HepJamesRandom& engine) {
-
+  void HGCalDigitizerProducer::generatePhaseShifts(Queue& queue,
+                                                   const HGCalMappingModuleIndexer& readoutMap,
+                                                   HGCalDenseIndexInfoHost::ConstView denseIndexView,
+                                                   CLHEP::HepJamesRandom& engine) {
     //temporary map to keep track of the generated jumps
-    std::map<uint16_t, float> crateJumps;  
-    const auto &frs = readoutMap.fedReadoutSequences();
+    std::map<uint16_t, float> crateJumps;
+    const auto& frs = readoutMap.fedReadoutSequences();
 
     //book jumps for all the cells
     int32_t ncells = denseIndexView.metadata().size();
     phaseShiftsHost_ = hgcaldigi::HGCalPhaseShiftsHost(queue, ncells);
-  
+
     //assign a time jump for every single readout cell
-    for(auto i=0; i<ncells; i++) {
-      uint16_t fed = static_cast<uint16_t>( denseIndexView[i].fedId() );
+    for (auto i = 0; i < ncells; i++) {
+      uint16_t fed = static_cast<uint16_t>(denseIndexView[i].fedId());
       uint16_t crate = frs[fed].crate;
 
       //check if time jump for this crate is already available, otherwise generate it
       std::map<uint16_t, float>::iterator it = crateJumps.find(crate);
-      if( it == crateJumps.end() ) {
-        it = crateJumps.emplace(crate, static_cast<float>(CLHEP::RandGauss::shoot(&engine, 0., crateTimeJumpsSigma_ns_))).first;      
+      if (it == crateJumps.end()) {
+        it =
+            crateJumps.emplace(crate, static_cast<float>(CLHEP::RandGauss::shoot(&engine, 0., crateTimeJumpsSigma_ns_)))
+                .first;
       }
       auto row = phaseShiftsHost_->view()[i];
       row.deltaT() = it->second;
     }
-
   }
-  
+
   //
   void HGCalDigitizerProducer::acquire(device::Event const& iEvent, device::EventSetup const& iSetup) {
     auto& queue = iEvent.queue();
@@ -216,11 +223,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     // special procedure to generate and copy the vector of time jumps to the device (avoid doing it twice)
     // note 1: move to an ESProducer following the pattern above....
-    // note 2: we may want to declare an 
+    // note 2: we may want to declare an
     std::call_once(crateJumpGeneration_, [&] {
       CLHEP::HepJamesRandom phaseEngine(42);
       generatePhaseShifts(queue, readoutMap, denseIndexer.const_view(), phaseEngine);
-    });    
+    });
     std::call_once(crateJumpCopy_, [&] {
       phaseShiftsDevice_.emplace(queue, nchannels);
       alpaka::memcpy(queue, phaseShiftsDevice_->buffer(), phaseShiftsHost_->buffer());
@@ -228,7 +235,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     //synch queue for copy of data procedure
     alpaka::wait(queue);
-    
+
     //run ageing
     agedG4HitsAcc_device_ = ripener_.age(queue, g4AccHits, ageingConds_device, denseIndex_device, cellInfo_device);
 

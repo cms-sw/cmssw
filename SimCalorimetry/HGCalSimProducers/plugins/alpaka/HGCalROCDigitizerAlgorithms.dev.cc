@@ -44,7 +44,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         for (auto j = 0; j < hgcaldigi::kTimeBins; j++) {
           const float r = normal(engine);
           sumQ(j, 0) += r * enc;
-        }//end time slices loop
+        }  //end time slices loop
 
       }  //end grid loop
     }
@@ -58,7 +58,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   HGCalPhaseShiftsDevice::ConstView phaseShifts,
                                   float lhc_phaseshift) const {
       for (auto idx : uniform_elements(acc, realisticHits.metadata().size())) {
-
         const float deltaTOA = phaseShifts[idx].deltaT();
         auto toa = realisticHits[idx].avgTOA();
         auto fed = denseIndex[idx].fedId();
@@ -90,7 +89,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         int code = static_cast<int>(std::round(value / lsb));
         if (!(code > 0.f))
           return 0u;
-        return static_cast<uint32_t>( code > maxCode ? maxCode : code );
+        return static_cast<uint32_t>(code > maxCode ? maxCode : code);
       };
 
       // build the energy part of the word
@@ -112,7 +111,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           uint16_t adcm1 = static_cast<uint16_t>(j > 0 ? quantize(qm1, adc_lsb, 1023) : 0);
           bool tc = (q > tot_thr);
           bool tp = tc;
-          uint16_t toa = static_cast<uint16_t>( q > toa_thr ? quantize(t, toa_lsb, 1023) : 0);
+          uint16_t toa = static_cast<uint16_t>(q > toa_thr ? quantize(t, toa_lsb, 1023) : 0);
 
           //compress all to 32b
           word(j, 0) = hgcaldigi::rocFrame(tc, tp, adcm1, adc, tot, toa, false);
@@ -199,7 +198,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         denseIndex.const_view(),
                         phaseShifts.const_view(),
                         lhc_phaseshift);
-                        
+
     alpaka::exec<Acc1D>(queue,
                         grid,
                         HGCalROCDigitizerKernel_digitize{},

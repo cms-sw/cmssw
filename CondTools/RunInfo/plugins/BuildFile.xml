@@ -101,5 +101,6 @@
 </library>
 
 <library file="LHCPhaseShiftProducer.cc" name="LHCPhaseShiftProducer">
+  <use name="json"/>
   <flags EDM_PLUGIN="1"/>
 </library>

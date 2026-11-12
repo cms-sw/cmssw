@@ -93,8 +93,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                       HGCalAgeingCondsDevice const&,
                                       HGCalDenseIndexInfoDevice const&,
                                       HGCalMappingCellParamDevice const&,
-                                      HGCalPhaseShiftsDevice const &,
-                                      double ,
+                                      HGCalPhaseShiftsDevice const&,
+                                      double,
                                       const uint64_t) const;
 
     /**
