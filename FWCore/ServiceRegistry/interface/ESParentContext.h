@@ -13,6 +13,8 @@
 // Original Author: C. Jones
 //         Created: 2/07/2021
 
+#include <variant>
+
 namespace edm {
 
   class ModuleCallingContext;
@@ -26,18 +28,13 @@ namespace edm {
     explicit ESParentContext(ModuleCallingContext const*) noexcept;
     explicit ESParentContext(ESModuleCallingContext const*) noexcept;
 
-    Type type() const noexcept { return type_; }
+    Type type() const noexcept { return static_cast<Type>(parent_.index()); }
 
     ModuleCallingContext const* moduleCallingContext() const;
     ESModuleCallingContext const* esmoduleCallingContext() const;
 
   private:
-    Type type_;
-
-    union Parent {
-      ModuleCallingContext const* module;
-      ESModuleCallingContext const* esmodule;
-    } parent_;
+    std::variant<ModuleCallingContext const*, ESModuleCallingContext const*, std::monostate> parent_;
   };
 }  // namespace edm
 #endif

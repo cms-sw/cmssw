@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 # Per-layer columns feed the start radius cut (startR), the quadruplet curvature cut (DCurv/DCurv0) and fishbone
 # cleaning (fishCut).
 
-layers = [
+_layers = [
     #     0,        1,     2,         3,        4,        5
     # index, isBarrel, startR,    DCurv,   DCurv0,  fishCut
     # Pixel barrel layers
@@ -77,7 +77,7 @@ layers = [
 # read at the OUTER cell's pair. Threshold = caDCA * |curvature| + max(floor, 0).
 # vectorHitSigma (col 14) -> geometry.maxVectorHitCurvSigma (vector-hit-pair significance; -1 = disabled).
 # z0Cuts (col 13) -> geometry.cellZ0CutPerPair (per-pair form of the scalar cellZ0Cut).
-layerPairs = [
+_layerPairs = [
     #  0,   1,      2,      3,       4,       5,       6,        7,        8,      9,      10,      11,      12,      13,         14,         15,      16,       17,      18,       19
     #  i,   o,  start,   skip,  phiCut,   minIn,   maxIn,   minOut,   maxOut,  maxDR,   minDZ,   maxDZ,  ptCuts,  z0Cuts,  vectorHitSigma,  geomKappa,  phiMid,  caTheta,   caDCA,    floor
     # Pixel-only connections (same as Phase2OT)
@@ -288,32 +288,32 @@ hltPhase2PixelTracksSoAWithVectorHits = cms.EDProducer('CAHitNtupletAlpakaPhase2
         # them on every pair.
         caDCACuts   = cms.vdouble([0.15] + [0.25, 0.20, 0.20] + [0.25] * 24 + [0.10] * 26),
         caThetaCuts = cms.vdouble([0.002] * 4 + [0.003] * 50),
-        startMaxInnerR = cms.vdouble([l[2] for l in layers]),
-        maxDCurv    = cms.vdouble([l[3] for l in layers]),
-        floorDCurv  = cms.vdouble([l[4] for l in layers]),
-        fishboneCuts = cms.vdouble([l[5] for l in layers]),
+        startMaxInnerR = cms.vdouble([l[2] for l in _layers]),
+        maxDCurv    = cms.vdouble([l[3] for l in _layers]),
+        floorDCurv  = cms.vdouble([l[4] for l in _layers]),
+        fishboneCuts = cms.vdouble([l[5] for l in _layers]),
 
-        pairGraph     = cms.vuint32(sum([[lp[0], lp[1]] for lp in layerPairs], [])),
-        startingPairs = cms.vuint32([i for i, lp in enumerate(layerPairs) if lp[2]]),
-        skipsLayers   = cms.vuint32([int(lp[3]) for lp in layerPairs]),
-        phiCuts  = cms.vint32( [lp[ 4] for lp in layerPairs]),
-        minInner = cms.vdouble([lp[ 5] for lp in layerPairs]),
-        maxInner = cms.vdouble([lp[ 6] for lp in layerPairs]),
-        minOuter = cms.vdouble([lp[ 7] for lp in layerPairs]),
-        maxOuter = cms.vdouble([lp[ 8] for lp in layerPairs]),
-        maxDR    = cms.vdouble([lp[ 9] for lp in layerPairs]),
-        minDZ    = cms.vdouble([lp[10] for lp in layerPairs]),
-        maxDZ    = cms.vdouble([lp[11] for lp in layerPairs]),
-        ptCuts   = cms.vdouble([lp[12] for lp in layerPairs]),
+        pairGraph     = cms.vuint32(sum([[lp[0], lp[1]] for lp in _layerPairs], [])),
+        startingPairs = cms.vuint32([i for i, lp in enumerate(_layerPairs) if lp[2]]),
+        skipsLayers   = cms.vuint32([int(lp[3]) for lp in _layerPairs]),
+        phiCuts  = cms.vint32( [lp[ 4] for lp in _layerPairs]),
+        minInner = cms.vdouble([lp[ 5] for lp in _layerPairs]),
+        maxInner = cms.vdouble([lp[ 6] for lp in _layerPairs]),
+        minOuter = cms.vdouble([lp[ 7] for lp in _layerPairs]),
+        maxOuter = cms.vdouble([lp[ 8] for lp in _layerPairs]),
+        maxDR    = cms.vdouble([lp[ 9] for lp in _layerPairs]),
+        minDZ    = cms.vdouble([lp[10] for lp in _layerPairs]),
+        maxDZ    = cms.vdouble([lp[11] for lp in _layerPairs]),
+        ptCuts   = cms.vdouble([lp[12] for lp in _layerPairs]),
 
         # OT-vector-hit extension: per-layer-pair overrides and vector-hit-only cuts
-        cellZ0CutPerPair         = cms.vdouble([lp[13] for lp in layerPairs]),
-        maxVectorHitCurvSigma         = cms.vdouble([lp[14] for lp in layerPairs]),
-        maxVectorHitGeomCurvSigma     = cms.vdouble([lp[15] for lp in layerPairs]),
-        maxVectorHitInnerDoubletDCurv = cms.vdouble([lp[16] for lp in layerPairs]),
-        caThetaCutsPerPair       = cms.vdouble([lp[17] for lp in layerPairs]),
-        caDCACutsPerPair         = cms.vdouble([lp[18] for lp in layerPairs]),
-        floorDCACuts             = cms.vdouble([lp[19] for lp in layerPairs]),
+        cellZ0CutPerPair         = cms.vdouble([lp[13] for lp in _layerPairs]),
+        maxVectorHitCurvSigma         = cms.vdouble([lp[14] for lp in _layerPairs]),
+        maxVectorHitGeomCurvSigma     = cms.vdouble([lp[15] for lp in _layerPairs]),
+        maxVectorHitInnerDoubletDCurv = cms.vdouble([lp[16] for lp in _layerPairs]),
+        caThetaCutsPerPair       = cms.vdouble([lp[17] for lp in _layerPairs]),
+        caDCACutsPerPair         = cms.vdouble([lp[18] for lp in _layerPairs]),
+        floorDCACuts             = cms.vdouble([lp[19] for lp in _layerPairs]),
     ),
 
     # autoselect the alpaka backend
