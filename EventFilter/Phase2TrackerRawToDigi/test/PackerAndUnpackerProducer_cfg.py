@@ -57,18 +57,25 @@ else:
     process.load('Configuration.Geometry.GeometryExtendedRun4D121Reco_cff')
     process.load('Configuration.Geometry.GeometryExtendedRun4D121_cff')
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
-    process.CondDB.connect = 'sqlite_file:/afs/cern.ch/user/f/fiorendi/public/l1tt/unpacker/crack/OTCablingMap_newClass.db'
+    # OT cabling map (current class layout) is not in the GT yet: take it from CondDB (drop once the GT carries it)
+    process.GlobalTag.toGet.append(cms.PSet(
+        record = cms.string('TrackerDetToDTCELinkCablingMapRcd'),
+        tag = cms.string('TrackerDetToDTCELinkCablingMap__OT800_OTOnly'),
+        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+    ))
     inputFileList = ["/store/relval/CMSSW_20_0_0_pre1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_STD_D121_RegeneratedGS_PU_16Aug26-v3/2590000/0438e4bc-b740-48a4-9d02-ff7896522eac.root"]
 
-process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-   process.CondDB,
-   DumpStat = cms.untracked.bool(True),
-   toGet = cms.VPSet(cms.PSet(
-       record = cms.string('TrackerDetToDTCELinkCablingMapRcd'),
-       tag = cms.string("DTCCablingMapProducerUserRun"),
-   )),
-)
-process.es_prefer_local_cabling = cms.ESPrefer("PoolDBESSource", "")
+if UNPACK_CRACK:
+    # the C-rack cabling map is a private DB, it is not in CondDB
+    process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+       process.CondDB,
+       DumpStat = cms.untracked.bool(True),
+       toGet = cms.VPSet(cms.PSet(
+           record = cms.string('TrackerDetToDTCELinkCablingMapRcd'),
+           tag = cms.string("DTCCablingMapProducerUserRun"),
+       )),
+    )
+    process.es_prefer_local_cabling = cms.ESPrefer("PoolDBESSource", "")
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(50))
 process.source = cms.Source("PoolSource",
