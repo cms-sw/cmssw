@@ -93,7 +93,9 @@ void PFTICLProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       case 13:
         part_type = reco::PFCandidate::mu;
         break;
+      // A pi0 is an EM object; PFCandidate has no pi0 type.
       case 22:
+      case 111:
         part_type = reco::PFCandidate::gamma;
         break;
       case 130:
@@ -102,7 +104,6 @@ void PFTICLProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       case 211:
         part_type = reco::PFCandidate::h;
         break;
-      // default also handles neutral pions (111) for the time being (not yet foreseen in PFCandidate)
       default:
         part_type = reco::PFCandidate::X;
     }
