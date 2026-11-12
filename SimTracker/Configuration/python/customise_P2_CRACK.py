@@ -20,17 +20,18 @@ def step1(process):
   # Modify generator so no material above CRACK
   process.generator.ElossScaleFactor = 0.0
   # Specify target volume. Cylinder of this radius & half-length must
-  # contain CRACK (which has r < 60cm, 0 < z < 120cm).
+  # contain CRACK (which has r < 45cm, -60 < z < 60cm).
   # This requires cosmics to cross CMS Tracker volume (r < 120cm, |z| < 280cm)
   # and generates them on Tracker surface, so their TOF is OK.
   process.generator.TrackerOnly = True
   # Max angle to vertical of cosmics (given by CRACK trigger acceptance)
   process.generator.MaxTheta = 45.0
+  process.generator.MaxPhi = 14.0
 
   # Use cosmic filter to reduce empty events.
-  process.cosmicInPixelLoose.radius = 600.0
-  process.cosmicInPixelLoose.minZ = -10.0
-  process.cosmicInPixelLoose.maxZ = 130.0
+  process.cosmicInPixelLoose.radius = 45.0
+  process.cosmicInPixelLoose.minZ = -70.0
+  process.cosmicInPixelLoose.maxZ = 70.0
 
   # Use ideal alignment, since GlobalTag knows nothing about alignment of CRACK
   process.trackerGeometry.applyAlignment = False
