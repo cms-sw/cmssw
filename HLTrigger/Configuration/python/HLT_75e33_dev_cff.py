@@ -147,6 +147,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_PFHT200PT30_QuadPFPup
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepFlavour_2p4_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_PFPuppiHT1070_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_PFPuppiMETTypeOne140_PFPuppiMHT140_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_VBF_DiPFPuppiJet145_70_Mjj1000_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Photon108EB_TightID_TightIso_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Photon187_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_TriMu_10_5_5_DZ_FromL1TkMuon_cfi")
@@ -286,6 +287,7 @@ fragment.schedule = cms.Schedule(*[
     fragment.HLT_AK4PFPuppiJet520,
     fragment.HLT_PFPuppiHT1070,
     fragment.HLT_PFPuppiMETTypeOne140_PFPuppiMHT140,
+    fragment.HLT_VBF_DiPFPuppiJet145_70_Mjj1000,
 
     fragment.HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepFlavour_2p4,
     fragment.HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepFlavour_2p4,
