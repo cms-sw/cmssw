@@ -488,7 +488,7 @@ HGCalGeometry::CornersVec HGCalGeometry::getNewCorners(const DetId& detid, bool 
       xy = m_topology.dddConstants().locateCell(
           id.zSide, id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, false, true, false, debug);
       float zz = m_topology.dddConstants().waferZ(id.iLay, true);
-      for (unsigned int i = 0; i < ncorner; ++i) {
+      for (unsigned int i = 0; i < ncorner - 1; ++i) {
         double xloc = xy.first + signx[i] * dx;
         double yloc = xy.second + signy[i] * dy;
 #ifdef EDM_ML_DEBUG
