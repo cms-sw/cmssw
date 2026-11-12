@@ -1,3 +1,15 @@
+#include <iomanip>
+#include <future>
+#include <chrono>
+#include <algorithm>
+#include <cstdint>
+#include <limits>
+#include <mutex>
+#include <sstream>
+#include <vector>
+#include <map>
+#include <optional>
+
 // CMSSW imports
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
@@ -9,18 +21,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include <iomanip>  // for std::setw
-#include <future>
-#include <chrono>
-#include <algorithm>
-#include <cstdint>
-#include <limits>
-#include <mutex>
-#include <sstream>
-#include <vector>
 
 // CLHEP includes
 #include "CLHEP/Random/RandomEngine.h"
+#include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
@@ -54,16 +58,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace cms::alpakatools;
 
-  // One Gaussian per BE crate, width 15 ps. avgTOA is stored in ns.
-  constexpr double kCrateTimeJumpSigmaNs = 0.015;
-
-  // One table for the whole job.
-  namespace {
-    std::once_flag crateJumpOnce_;
-    std::vector<float> crateJumps_;
-    std::vector<uint16_t> crateOfFed_;
-  }  // namespace
-
   class HGCalDigitizerProducer : public stream::SynchronizingEDProducer<> {
   public:
     explicit HGCalDigitizerProducer(const edm::ParameterSet&);
@@ -72,6 +66,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   private:
     void acquire(device::Event const&, device::EventSetup const&) override;
     void produce(device::Event&, device::EventSetup const&) override;
+    void generatePhaseShifts(Queue &, const HGCalMappingModuleIndexer &, HGCalDenseIndexInfoHost::ConstView, CLHEP::HepJamesRandom& );
 
     const edm::EDGetTokenT<std::vector<float>> lhcPhaseShiftToken_;
     const edm::EDGetTokenT<hgcaldigi::HGCalSimHitAccumHost> g4HitsAccTkn_;
@@ -81,10 +76,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> readoutMapTkn_;
     const edm::ESGetToken<hgcal::HGCalMappingModuleParamHost, HGCalElectronicsMappingRcd> moduleInfoTkn_;
     const edm::ESGetToken<hgcal::HGCalMappingCellParamHost, HGCalElectronicsMappingRcd> cellInfoToken_;
-    int n_blocks_, n_threads_;
+    const int n_blocks_, n_threads_;
     const HGCalAgeingAlgorithms ripener_;
     const HGCalECONDAlgorithms concentrator_;
     const HGCalROCDigitizerAlgorithms digitizer_;
+
     bool produceExtra_;
     std::optional<hgcaldigi::HGCalRealisticSimHitDevice> agedG4HitsAcc_device_;
     device::EDPutToken<hgcaldigi::HGCalRealisticSimHitDevice> agedG4HitsAccTkn_;
@@ -92,10 +88,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device::EDPutToken<hgcaldigi::HGCalROCDigisAccumDevice> rocDigisAccTkn_;
     std::optional<hgcaldigi::HGCalDigiDevice> rocDigis_device_;
     edm::EDPutTokenT<::hgcaldigi::HGCalDigiHost> rocDigisTkn_;
-    // Device memory belongs to this stream's queue, so the copy stays per instance.
+
+    std::once_flag crateJumpGeneration_;
     std::once_flag crateJumpCopy_;
-    std::optional<device_buffer<Device, float[]>> crateJumpsDevice_;
-    std::optional<device_buffer<Device, uint16_t[]>> crateOfFedDevice_;
+    const float crateTimeJumpsSigma_ns_;
+    std::optional<hgcaldigi::HGCalPhaseShiftsHost> phaseShiftsHost_;
+    std::optional<hgcaldigi::HGCalPhaseShiftsDevice> phaseShiftsDevice_;
+    
     std::optional<hgcaldigi::HGCalECONDPacketInfoDevice> econInfo_device_;
     edm::EDPutTokenT<::hgcaldigi::HGCalECONDPacketInfoHost> econInfoTkn_;
   };
@@ -115,7 +114,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         ripener_{n_blocks_, n_threads_},
         concentrator_{n_blocks_, n_threads_},
         digitizer_{n_blocks_, n_threads_},
-        produceExtra_(iConfig.getParameter<bool>("produceExtra")) {
+        produceExtra_(iConfig.getParameter<bool>("produceExtra")),
+        crateTimeJumpsSigma_ns_(static_cast<float>(iConfig.getParameter<double>("crateTimeJumpsSigma_ns"))) {
     rocDigisTkn_ = produces("HGCROCDigis");
     econInfoTkn_ = produces("HGCECONInfo");
 
@@ -137,11 +137,39 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add("moduleInfo", edm::ESInputTag{})->setComment("module info SoA source");
     desc.add("cellInfo", edm::ESInputTag{})->setComment("cell info SoA source");
     desc.add<bool>("produceExtra", true)->setComment("produce extra digitizer collections");
+    desc.add<double>("crateTimeJumpsSigma_ns", 0.015)->setComment("typical width of a time jump associated to a BE crate [ns]");
     desc.add<int>("n_blocks", -1);
     desc.add<int>("n_threads", -1);
     descriptions.addWithDefaultLabel(desc);
   }
 
+  //
+  void HGCalDigitizerProducer::generatePhaseShifts(Queue &queue, const HGCalMappingModuleIndexer &readoutMap, HGCalDenseIndexInfoHost::ConstView denseIndexView, CLHEP::HepJamesRandom& engine) {
+
+    //temporary map to keep track of the generated jumps
+    std::map<uint16_t, float> crateJumps;  
+    const auto &frs = readoutMap.fedReadoutSequences();
+
+    //book jumps for all the cells
+    int32_t ncells = denseIndexView.metadata().size();
+    phaseShiftsHost_ = hgcaldigi::HGCalPhaseShiftsHost(queue, ncells);
+  
+    //assign a time jump for every single readout cell
+    for(auto i=0; i<ncells; i++) {
+      uint16_t fed = static_cast<uint16_t>( denseIndexView[i].fedId() );
+      uint16_t crate = frs[fed].crate;
+
+      //check if time jump for this crate is already available, otherwise generate it
+      std::map<uint16_t, float>::iterator it = crateJumps.find(crate);
+      if( it == crateJumps.end() ) {
+        it = crateJumps.emplace(crate, static_cast<float>(CLHEP::RandGauss::shoot(&engine, 0., crateTimeJumpsSigma_ns_))).first;      
+      }
+      auto row = phaseShiftsHost_->view()[i];
+      row.deltaT() = it->second;
+    }
+
+  }
+  
   //
   void HGCalDigitizerProducer::acquire(device::Event const& iEvent, device::EventSetup const& iSetup) {
     auto& queue = iEvent.queue();
@@ -172,49 +200,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // RNG is needed both for the once-per-job crate jumps and for the per-event noise seed
     edm::Service<edm::RandomNumberGenerator> rng;
     CLHEP::HepRandomEngine& engine = rng->getEngine(iEvent.streamID());
-    // Draw once for the job, into the shared tables above.
-    std::call_once(crateJumpOnce_, [&] {
-      const auto crates = readoutMap.uniqueCrates();
-      uint16_t maxCrate = 0;
-      for (uint16_t crate : crates)
-        maxCrate = std::max(maxCrate, crate);
-      // one gaussian each
-      crateJumps_.assign(static_cast<size_t>(maxCrate) + 1, 0.f);
-      for (uint16_t crate : crates)
-        crateJumps_[crate] = static_cast<float>(CLHEP::RandGauss::shoot(&engine, 0., kCrateTimeJumpSigmaNs));
-      // fed to crate
-      const auto& sequences = readoutMap.fedReadoutSequences();
-      crateOfFed_.assign(sequences.size(), 0);
-      for (const auto& frs : sequences) {
-        if (frs.readoutTypes_.empty() || frs.id >= crateOfFed_.size())
-          continue;
-        crateOfFed_[frs.id] = frs.crate;
-      }
-      if (crateJumps_.empty())
-        crateJumps_.assign(1, 0.f);
-      if (crateOfFed_.empty())
-        crateOfFed_.assign(1, 0);
 
-      // log the crate time jumps
-      std::ostringstream msg;
-      msg << "Crate time jumps drawn once (sigma " << kCrateTimeJumpSigmaNs << " ns):";
-      for (uint16_t crate : crates)
-        msg << " [" << crate << "]=" << crateJumps_[crate] << " ns";
-      edm::LogWarning("HGCalDigitizerProducer") << msg.str();
-    });
-    // This stream's queue cannot see another stream's device memory, so copy once per stream.
-    std::call_once(crateJumpCopy_, [&] {
-      auto jumpsHost = make_host_buffer<float[]>(crateJumps_.size());
-      std::copy(crateJumps_.begin(), crateJumps_.end(), jumpsHost.data());
-      crateJumpsDevice_.emplace(make_device_buffer<float[]>(queue, crateJumps_.size()));
-      alpaka::memcpy(queue, *crateJumpsDevice_, jumpsHost);
-
-      auto crateHost = make_host_buffer<uint16_t[]>(crateOfFed_.size());
-      std::copy(crateOfFed_.begin(), crateOfFed_.end(), crateHost.data());
-      crateOfFedDevice_.emplace(make_device_buffer<uint16_t[]>(queue, crateOfFed_.size()));
-      alpaka::memcpy(queue, *crateOfFedDevice_, crateHost);
-      alpaka::wait(queue);
-    });
     // per event noise seed
     const uint64_t seed = static_cast<uint64_t>(CLHEP::RandFlat::shootInt(&engine, std::numeric_limits<int>::max()));
 
@@ -228,6 +214,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     hgcal::HGCalMappingCellParamDevice cellInfo_device(queue, ncellinfo);
     alpaka::memcpy(queue, cellInfo_device.buffer(), cellInfo.const_buffer());
 
+    // special procedure to generate and copy the vector of time jumps to the device (avoid doing it twice)
+    // note 1: move to an ESProducer following the pattern above....
+    // note 2: we may want to declare an 
+    std::call_once(crateJumpGeneration_, [&] {
+      CLHEP::HepJamesRandom phaseEngine(42);
+      generatePhaseShifts(queue, readoutMap, denseIndexer.const_view(), phaseEngine);
+    });    
+    std::call_once(crateJumpCopy_, [&] {
+      phaseShiftsDevice_.emplace(queue, nchannels);
+      alpaka::memcpy(queue, phaseShiftsDevice_->buffer(), phaseShiftsHost_->buffer());
+    });
+
+    //synch queue for copy of data procedure
+    alpaka::wait(queue);
+    
     //run ageing
     agedG4HitsAcc_device_ = ripener_.age(queue, g4AccHits, ageingConds_device, denseIndex_device, cellInfo_device);
 
@@ -243,12 +244,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                 ageingConds_device,
                                                 denseIndex_device,
                                                 cellInfo_device,
-                                                seed,
+                                                phaseShiftsDevice_.value(),
                                                 lhc_phaseshift,
-                                                crateJumpsDevice_->data(),
-                                                crateOfFedDevice_->data(),
-                                                static_cast<uint32_t>(crateOfFed_.size()),
-                                                static_cast<uint32_t>(crateJumps_.size()));
+                                                seed);
 
       //havest the digis
       rocDigis_device_ = digitizer_.harvest(queue, rocDigisAcc_device_.value().const_view());

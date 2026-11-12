@@ -33,64 +33,44 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto engine = alpaka::rand::engine::createDefault(acc, seed + globalThreadIdx, 0);
       auto normal = alpaka::rand::distribution::createNormalReal<float>(acc);
 
-      // helper to add noise for each time slice
-      auto addNoise = [&](auto sumQ, float noise) {
-        for (auto j = 0; j < hgcaldigi::kTimeBins; j++) {
-          //@Christian noise here is fixed
-          sumQ(j, 0) = noise + sumQ(j, 0);
-        }
-      };  //end noise loop
-
       // dispatch operation
       for (auto idx : uniform_elements(acc, realisticHits.metadata().size())) {
-        auto hit = realisticHits[idx];
+        auto sumQ = realisticHits[idx].sumQ();
+        auto enc = conds[idx].enc();
         //auto cellIdx = denseIndex[idx].cellInfoIdx();
         //bool isSiPM = cellInfo[cellIdx].isSiPM();
-        const float noiseVal = normal(engine);
-        auto enc = conds[idx].enc() * noiseVal;
-        addNoise(hit.sumQ(), enc);
+
+        //loop over time slices
+        for (auto j = 0; j < hgcaldigi::kTimeBins; j++) {
+          const float r = normal(engine);
+          sumQ(j, 0) += r * enc;
+        }//end time slices loop
+
       }  //end grid loop
     }
   };
 
-  // @short this kernel adds the LHC phase shift
-  struct HGCalROCDigitizerKernel_addLHCPhaseShift {
-    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
-                                  HGCalRealisticSimHitDevice::View realisticHits,
-                                  float lhc_phaseshift) const {
-      for (auto idx : uniform_elements(acc, realisticHits.metadata().size())) {
-        auto toa = realisticHits[idx].avgTOA();
-        for (auto j = 0; j < hgcaldigi::kTimeBins; j++) {
-          const float t = toa(j, 0);
-          if (t != 0.f)
-            toa(j, 0) = t + lhc_phaseshift;
-        }
-      }
-    }
-  };
-
-  // @short add the job-wide time jump of this cell's BE crate onto avgTOA (ns)
-  struct HGCalROCDigitizerKernel_addCrateTimeJump {
+  // @short add the phase shift of this cell due to "BE crate jumps" + LHC shift
+  struct HGCalROCDigitizerKernel_emulatePhaseShits {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   HGCalRealisticSimHitDevice::View realisticHits,
                                   HGCalDenseIndexInfoDevice::ConstView denseIndex,
-                                  float const* jumps,
-                                  uint16_t const* crateOfFed,
-                                  uint32_t nFed,
-                                  uint32_t nCrate) const {
+                                  HGCalPhaseShiftsDevice::ConstView phaseShifts,
+                                  float lhc_phaseshift) const {
       for (auto idx : uniform_elements(acc, realisticHits.metadata().size())) {
-        const uint32_t fed = denseIndex[idx].fedId();
-        if (fed >= nFed)
-          continue;
-        const uint16_t crate = crateOfFed[fed];
-        if (crate >= nCrate)
-          continue;
-        const float jump = jumps[crate];
+
+        const float deltaTOA = phaseShifts[idx].deltaT();
         auto toa = realisticHits[idx].avgTOA();
+        auto fed = denseIndex[idx].fedId();
+
         for (auto j = 0; j < hgcaldigi::kTimeBins; j++) {
           const float t = toa(j, 0);
-          if (t != 0.f)
-            toa(j, 0) = t + jump;
+          if (t != 0.f) {
+            toa(j, 0) = t + deltaTOA + lhc_phaseshift;
+#ifdef EDM_ML_DEBUG
+            printf("cell %u fed %u avgTOA = %f -> %f [ns]\n", static_cast<unsigned>(idx), fed, t, toa(j, 0));
+#endif
+          }
         }
       }
     }
@@ -110,7 +90,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         int code = static_cast<int>(std::round(value / lsb));
         if (!(code > 0.f))
           return 0u;
-        return static_cast<uint32_t>(code < 0 ? 0 : (code > maxCode ? maxCode : code));
+        return static_cast<uint32_t>( code > maxCode ? maxCode : code );
       };
 
       // build the energy part of the word
@@ -132,7 +112,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           uint16_t adcm1 = static_cast<uint16_t>(j > 0 ? quantize(qm1, adc_lsb, 1023) : 0);
           bool tc = (q > tot_thr);
           bool tp = tc;
-          uint16_t toa = static_cast<uint16_t>((q > toa_thr) * quantize(t, toa_lsb, 1023));
+          uint16_t toa = static_cast<uint16_t>( q > toa_thr ? quantize(t, toa_lsb, 1023) : 0);
 
           //compress all to 32b
           word(j, 0) = hgcaldigi::rocFrame(tc, tp, adcm1, adc, tot, toa, false);
@@ -184,12 +164,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                  HGCalAgeingCondsDevice const& ageConds,
                                                                  HGCalDenseIndexInfoDevice const& denseIndex,
                                                                  HGCalMappingCellParamDevice const& cellInfo,
-                                                                 const uint64_t seed,
-                                                                 const double lhc_phaseshift,
-                                                                 float const* crateJumps,
-                                                                 uint16_t const* crateOfFed,
-                                                                 uint32_t nFed,
-                                                                 uint32_t nCrate) const {
+                                                                 HGCalPhaseShiftsDevice const& phaseShifts,
+                                                                 double lhc_phaseshift,
+                                                                 const uint64_t seed) const {
     LogDebug("HGCalROCDigitizerAlgorithms") << "Start of digitization" << std::endl;
     auto const ncells = device_realisticHits.view().metadata().size();
     HGCalROCDigisAccumDevice device_rocDigis(queue, ncells);
@@ -215,21 +192,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         cellInfo.const_view(),
                         seed);
 
-    alpaka::exec<Acc1D>(
-        queue, grid, HGCalROCDigitizerKernel_addLHCPhaseShift{}, device_realisticHits.view(), lhc_phaseshift);
-
-    if (crateJumps != nullptr && crateOfFed != nullptr && nFed > 0 && nCrate > 0) {
-      alpaka::exec<Acc1D>(queue,
-                          grid,
-                          HGCalROCDigitizerKernel_addCrateTimeJump{},
-                          device_realisticHits.view(),
-                          denseIndex.const_view(),
-                          crateJumps,
-                          crateOfFed,
-                          nFed,
-                          nCrate);
-    }
-
+    alpaka::exec<Acc1D>(queue,
+                        grid,
+                        HGCalROCDigitizerKernel_emulatePhaseShits{},
+                        device_realisticHits.view(),
+                        denseIndex.const_view(),
+                        phaseShifts.const_view(),
+                        lhc_phaseshift);
+                        
     alpaka::exec<Acc1D>(queue,
                         grid,
                         HGCalROCDigitizerKernel_digitize{},

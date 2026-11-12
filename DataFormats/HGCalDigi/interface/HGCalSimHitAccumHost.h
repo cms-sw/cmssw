@@ -12,6 +12,9 @@ namespace hgcaldigi {
   // SoA with realistic Geant4 hits in HGCAL
   using HGCalRealisticSimHitHost = PortableHostCollection<HGCalRealisticSimHitSoA>;
 
+  // SoA with time jumps in HGCAL
+  using HGCalPhaseShiftsHost = PortableHostCollection<HGCalPhaseShiftsSoA>;
+
   // SoA with ROC 32b words in host memory
   using HGCalROCDigisAccumHost = PortableHostCollection<HGCalROCDigisAccumSoA>;
 

@@ -24,6 +24,10 @@ namespace hgcaldigi {
                       SOA_EIGEN_COLUMN(TimedAccumulatorF, avgTOA))
   using HGCalRealisticSimHitSoA = HGCalRealisticSimHitSoALayout<>;
 
+  GENERATE_SOA_LAYOUT(HGCalPhaseShiftsSoALayout,
+                      SOA_COLUMN(float, deltaT))
+  using HGCalPhaseShiftsSoA = HGCalPhaseShiftsSoALayout<>;
+
   GENERATE_SOA_LAYOUT(HGCalROCDigisAccumSoALayout,
                       SOA_EIGEN_COLUMN(TimedROCDigiI, word),
                       SOA_EIGEN_COLUMN(TimedROCDigiI, status))
