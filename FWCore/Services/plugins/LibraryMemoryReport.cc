@@ -70,7 +70,7 @@ namespace edm::service {
       report << " libraries=" << smaps.libraries.size();
     }
     report << " VSIZE " << smaps.sectionVSize_[soIndex] << " kB"
-           << " (executable " << smaps.sharedObjectExecutableSize_ << " kB RSS " << smaps.sectionRss_[soIndex]
+           << " (executable " << smaps.sharedObjectExecutableSize_ << " kB) RSS " << smaps.sectionRss_[soIndex]
            << " kB PSS " << smaps.sharedObjectPss_ << " kB)";
     if (collectLibraryPaths_) {
       std::string fileName = signalName;
@@ -84,7 +84,7 @@ namespace edm::service {
       }
       file << "LibraryMemoryReport " << signalName << ": libraries=" << smaps.libraries.size() << "\n";
       for (auto const& library : smaps.libraries) {
-        file << "library name=\"" << library.name << "\" VSIZE " << library.sizeKB << " kB"
+        file << "library name " << library.name << " VSIZE " << library.sizeKB << " kB"
              << " RSS " << library.rssKB << " kB PSS " << library.pssKB << " kB"
              << " executableSize " << library.executableSizeKB << " kB\n";
       }
