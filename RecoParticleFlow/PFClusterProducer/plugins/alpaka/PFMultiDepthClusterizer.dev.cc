@@ -55,117 +55,113 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
       exit(EXIT_FAILURE);
     }
 
-    auto const getMaxThreadsPerBlock = [](auto const& devAcc, auto const& kernel, auto&&... args) -> unsigned int {
+    auto const getMaxThreadsPerBlock = [](auto const& devAcc, auto const& kernel, auto&&... args) -> int {
       auto const attributes =
           alpaka::getFunctionAttributes<Acc1D>(devAcc, kernel, std::forward<decltype(args)>(args)...);
 
-      return static_cast<unsigned int>(attributes.maxThreadsPerBlock);
+      return attributes.maxThreadsPerBlock;
     };
 
-    auto cache = PFMultiDepthClusterizerLaunchParams{static_cast<std::uint32_t>(devices.size())};
+    auto cache = PFMultiDepthClusterizerLaunchParams{devices.size()};
 
     // run the test on each device
     for (auto const& device : devices) {
-      auto queue = Queue(device);
-
       std::int32_t const dev_id = alpaka::getNativeHandle(device);
 
-      auto outPFClusters = std::make_unique<reco::PFClusterDeviceCollection>(queue, 0);
-      outPFClusters->zeroInitialise(queue);
+      const int showerShapeKernelMaxThreadsPerBlock =
+          getMaxThreadsPerBlock(device,
+                                ShowerShapeKernel{},
+                                reco::PFMultiDepthClusteringVarsDeviceCollection::View{},
+                                reco::PFClusterDeviceCollection::View{},
+                                reco::PFRecHitFractionDeviceCollection::View{},
+                                reco::PFRecHitDeviceCollection::View{});
 
-      auto outPFRHFractions = std::make_unique<reco::PFRecHitFractionDeviceCollection>(queue, 0);
-      outPFRHFractions->zeroInitialise(queue);
+      cache.store(dev_id, ::eclcc::KernelLabels::ShowerShape, showerShapeKernelMaxThreadsPerBlock);
 
-      auto inPFClusters = std::make_unique<reco::PFClusterDeviceCollection>(queue, 0);
-      outPFClusters->zeroInitialise(queue);
+      const int constructLinksKernelMaxThreadsPerBlock =
+          getMaxThreadsPerBlock(device,
+                                ConstructLinksKernel{},
+                                reco::PFMultiDepthClusteringCCLabelsDeviceCollection::View{},
+                                reco::PFMultiDepthClusteringVarsDeviceCollection::View{},
+                                0.0,
+                                0.0);
 
-      auto inPFRHFractions = std::make_unique<reco::PFRecHitFractionDeviceCollection>(queue, 0);
-      outPFRHFractions->zeroInitialise(queue);
+      cache.store(dev_id, ::eclcc::KernelLabels::ConstructLinks, constructLinksKernelMaxThreadsPerBlock);
 
-      auto inPFRecHit = std::make_unique<reco::PFRecHitDeviceCollection>(queue, 0);
-      inPFRecHit->zeroInitialise(queue);
+      int prologueThreadsPerBlock = getMaxThreadsPerBlock(device,
+                                                          ECLCCPrologueKernel<32>{},
+                                                          reco::PFMultiDepthClusteringEdgeVarsDeviceCollection::View{},
+                                                          reco::PFMultiDepthClusteringCCLabelsDeviceCollection::View{});
 
-      reco::PFMultiDepthClusteringVarsDeviceCollection clusteringVars{queue, 1};
-      reco::PFMultiDepthClusteringCCLabelsDeviceCollection ccLabels{queue, 2};
-      reco::PFMultiDepthClusteringEdgeVarsDeviceCollection clusteringEdgeVars{queue, 1};
+      cache.store(dev_id, ::eclcc::KernelLabels::SBlockPrologue, prologueThreadsPerBlock);
 
-      reco::PFMultiDepthECLCCPrologueArgsDeviceCollection prologueArgs{queue, 1};
-      reco::PFMultiDepthECLCCEpilogueArgsDeviceCollection epilogueArgs{queue, 1};
-
-      const unsigned int showerShapeKernelMaxThreadsPerBlock = getMaxThreadsPerBlock(device,
-                                                                                     ShowerShapeKernel{},
-                                                                                     clusteringVars.view(),
-                                                                                     inPFClusters->view(),
-                                                                                     inPFRHFractions->view(),
-                                                                                     inPFRecHit->view());
-
-      cache.Store(dev_id, KernelLabels::ShowerShape, showerShapeKernelMaxThreadsPerBlock);
-
-      const unsigned int constructLinksKernelMaxThreadsPerBlock =
-          getMaxThreadsPerBlock(device, ConstructLinksKernel{}, ccLabels.view(), clusteringVars.view(), 0.0, 0.0);
-
-      cache.Store(dev_id, KernelLabels::ConstructLinks, constructLinksKernelMaxThreadsPerBlock);
-
-      unsigned int prologueThreadsPerBlock =
-          getMaxThreadsPerBlock(device, ECLCCPrologueKernel<32>{}, clusteringEdgeVars.view(), ccLabels.view());
-
-      cache.Store(dev_id, KernelLabels::SBlockPrologue, prologueThreadsPerBlock);
+      prologueThreadsPerBlock = getMaxThreadsPerBlock(device,
+                                                      ECLCCPrologueComputeOffsetsKernel<32>{},
+                                                      reco::PFMultiDepthECLCCPrologueArgsDeviceCollection::View{},
+                                                      reco::PFMultiDepthClusteringCCLabelsDeviceCollection::View{});
 
       prologueThreadsPerBlock =
-          getMaxThreadsPerBlock(device, ECLCCPrologueComputeOffsetsKernel<32>{}, prologueArgs.view(), ccLabels.view());
+          std::min(prologueThreadsPerBlock,
+                   getMaxThreadsPerBlock(device,
+                                         ECLCCFinalizePrologueKernel<32>{},
+                                         reco::PFMultiDepthClusteringEdgeVarsDeviceCollection::View{},
+                                         reco::PFMultiDepthECLCCPrologueArgsDeviceCollection::View{},
+                                         reco::PFMultiDepthClusteringCCLabelsDeviceCollection::View{}));
 
-      prologueThreadsPerBlock = std::min(prologueThreadsPerBlock,
-                                         getMaxThreadsPerBlock(device,
-                                                               ECLCCFinalizePrologueKernel<32>{},
-                                                               clusteringEdgeVars.view(),
-                                                               prologueArgs.view(),
-                                                               ccLabels.view()));
+      cache.store(dev_id, ::eclcc::KernelLabels::MBlockPrologue, prologueThreadsPerBlock);
 
-      cache.Store(dev_id, KernelLabels::MBlockPrologue, prologueThreadsPerBlock);
+      int eclccThreadsPerBlock = getMaxThreadsPerBlock(device,
+                                                       ECLCCLowDegreeComputeKernel{},
+                                                       reco::PFMultiDepthClusteringCCLabelsDeviceCollection::View{},
+                                                       reco::PFMultiDepthClusteringEdgeVarsDeviceCollection::View{});
 
-      unsigned int eclccThreadsPerBlock =
-          getMaxThreadsPerBlock(device, ECLCCLowDegreeComputeKernel{}, ccLabels.view(), clusteringEdgeVars.view());
+      eclccThreadsPerBlock =
+          std::min(eclccThreadsPerBlock,
+                   getMaxThreadsPerBlock(device,
+                                         ECLCCMidDegreeComputeKernel{},
+                                         reco::PFMultiDepthClusteringCCLabelsDeviceCollection::View{},
+                                         reco::PFMultiDepthClusteringEdgeVarsDeviceCollection::View{}));
 
-      eclccThreadsPerBlock = std::min(
-          eclccThreadsPerBlock,
-          getMaxThreadsPerBlock(device, ECLCCMidDegreeComputeKernel{}, ccLabels.view(), clusteringEdgeVars.view()));
+      eclccThreadsPerBlock =
+          std::min(eclccThreadsPerBlock,
+                   getMaxThreadsPerBlock(device,
+                                         ECLCCHighDegreeComputeKernel{},
+                                         reco::PFMultiDepthClusteringCCLabelsDeviceCollection::View{},
+                                         reco::PFMultiDepthClusteringEdgeVarsDeviceCollection::View{}));
 
-      eclccThreadsPerBlock = std::min(
-          eclccThreadsPerBlock,
-          getMaxThreadsPerBlock(device, ECLCCHighDegreeComputeKernel{}, ccLabels.view(), clusteringEdgeVars.view()));
+      cache.store(dev_id, ::eclcc::KernelLabels::ECLCC, eclccThreadsPerBlock);
 
-      cache.Store(dev_id, KernelLabels::ECLCC, eclccThreadsPerBlock);
+      int epilogueThreadsPerBlock = getMaxThreadsPerBlock(device,
+                                                          ECLCCEpilogueKernel<32, is_cooperative>{},
+                                                          reco::PFClusterDeviceCollection::View{},
+                                                          reco::PFRecHitFractionDeviceCollection::View{},
+                                                          reco::PFMultiDepthClusteringCCLabelsDeviceCollection::View{},
+                                                          reco::PFClusterDeviceCollection::View{},
+                                                          reco::PFRecHitFractionDeviceCollection::View{},
+                                                          reco::PFRecHitDeviceCollection::View{});
 
-      unsigned int epilogueThreadsPerBlock = getMaxThreadsPerBlock(device,
-                                                                   ECLCCEpilogueKernel<32, is_cooperative>{},
-                                                                   outPFClusters->view(),
-                                                                   outPFRHFractions->view(),
-                                                                   ccLabels.view(),
-                                                                   inPFClusters->view(),
-                                                                   inPFRHFractions->view(),
-                                                                   inPFRecHit->view());
-
-      cache.Store(dev_id, KernelLabels::SBlockEpilogue, epilogueThreadsPerBlock);
+      cache.store(dev_id, ::eclcc::KernelLabels::SBlockEpilogue, epilogueThreadsPerBlock);
 
       epilogueThreadsPerBlock = getMaxThreadsPerBlock(device,
                                                       ECLCCEpilogueCCOffsetsKernel<32>{},
-                                                      outPFClusters->view(),
-                                                      epilogueArgs.view(),
-                                                      ccLabels.view(),
-                                                      inPFClusters->view());
+                                                      reco::PFClusterDeviceCollection::View{},
+                                                      reco::PFMultiDepthECLCCEpilogueArgsDeviceCollection::View{},
+                                                      reco::PFMultiDepthClusteringCCLabelsDeviceCollection::View{},
+                                                      reco::PFClusterDeviceCollection::View{});
 
-      epilogueThreadsPerBlock = std::min(epilogueThreadsPerBlock,
-                                         getMaxThreadsPerBlock(device,
-                                                               ECLCCFinalizeEpilogueKernel<32, is_cooperative>{},
-                                                               outPFClusters->view(),
-                                                               outPFRHFractions->view(),
-                                                               epilogueArgs.view(),
-                                                               ccLabels.view(),
-                                                               inPFClusters->view(),
-                                                               inPFRHFractions->view(),
-                                                               inPFRecHit->view()));
+      epilogueThreadsPerBlock =
+          std::min(epilogueThreadsPerBlock,
+                   getMaxThreadsPerBlock(device,
+                                         ECLCCFinalizeEpilogueKernel<32, is_cooperative>{},
+                                         reco::PFClusterDeviceCollection::View{},
+                                         reco::PFRecHitFractionDeviceCollection::View{},
+                                         reco::PFMultiDepthECLCCEpilogueArgsDeviceCollection::View{},
+                                         reco::PFMultiDepthClusteringCCLabelsDeviceCollection::View{},
+                                         reco::PFClusterDeviceCollection::View{},
+                                         reco::PFRecHitFractionDeviceCollection::View{},
+                                         reco::PFRecHitDeviceCollection::View{}));
 
-      cache.Store(dev_id, KernelLabels::MBlockEpilogue, prologueThreadsPerBlock);
+      cache.store(dev_id, ::eclcc::KernelLabels::MBlockEpilogue, prologueThreadsPerBlock);
     }
 
     return cache;
@@ -237,7 +233,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
         (std::is_same_v<Device, alpaka::DevCpu> ? 1 : (nClusters > 768 ? 256 : nClusters)), wExtend);
 
     const unsigned int showerShapeKernelThreadsPerBlock =
-        launch_params.Load(devId, KernelLabels::ShowerShape, defaultThreadsPerBlock);
+        launch_params.load(devId, ::eclcc::KernelLabels::ShowerShape, defaultThreadsPerBlock);
     const unsigned int showerShapeKernelBlocks =
         ::cms::alpakatools::divide_up_by(nClusters, showerShapeKernelThreadsPerBlock);
 
@@ -251,7 +247,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
         pfRecHit.view());
 
     const unsigned int constructLinksKernelThreadsPerBlock =
-        launch_params.Load(devId, KernelLabels::ConstructLinks, defaultThreadsPerBlock);
+        launch_params.load(devId, ::eclcc::KernelLabels::ConstructLinks, defaultThreadsPerBlock);
     const unsigned int constructLinksKernelBlocks =
         ::cms::alpakatools::divide_up_by(nClusters, constructLinksKernelThreadsPerBlock);
 
@@ -273,7 +269,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
       prologueArgs.zeroInitialise(queue);
 
       const unsigned int prologueKernelThreadsPerBlock =
-          launch_params.Load(devId, KernelLabels::MBlockPrologue, defaultThreadsPerBlock);
+          launch_params.load(devId, ::eclcc::KernelLabels::MBlockPrologue, defaultThreadsPerBlock);
       const unsigned int prologueKernelBlocks =
           ::cms::alpakatools::divide_up_by(nClusters, prologueKernelThreadsPerBlock);
 
@@ -313,7 +309,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
                             mdpfCCLabels.view());
       } else {
         const unsigned int prologueKernelThreadsPerBlock =
-            launch_params.Load(devId, KernelLabels::SBlockPrologue, defaultThreadsPerBlock);
+            launch_params.load(devId, ::eclcc::KernelLabels::SBlockPrologue, defaultThreadsPerBlock);
         const unsigned int prologueKernelBlocks =
             ::cms::alpakatools::divide_up_by(nClusters, prologueKernelThreadsPerBlock);
         // ECL-CC prologue:
@@ -329,7 +325,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
     }
 
     const unsigned int eclccKernelThreadsPerBlock =
-        launch_params.Load(devId, KernelLabels::ECLCC, defaultThreadsPerBlock);
+        launch_params.load(devId, ::eclcc::KernelLabels::ECLCC, defaultThreadsPerBlock);
     const unsigned int eclccKernelBlocks = ::cms::alpakatools::divide_up_by(nClusters, eclccKernelThreadsPerBlock);
 
     const auto& eclccKernelWorkDiv =
@@ -360,7 +356,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
       epilogueArgs.zeroInitialise(queue);
 
       const unsigned int epilogueKernelThreadsPerBlock =
-          launch_params.Load(devId, KernelLabels::MBlockEpilogue, defaultThreadsPerBlock);
+          launch_params.load(devId, ::eclcc::KernelLabels::MBlockEpilogue, defaultThreadsPerBlock);
       const unsigned int epilogueKernelBlocks =
           ::cms::alpakatools::divide_up_by(nClusters, epilogueKernelThreadsPerBlock);
 
@@ -414,7 +410,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
       } else {
         // ECL-CC epilogue:
         const unsigned int epilogueKernelThreadsPerBlock =
-            launch_params.Load(devId, KernelLabels::SBlockEpilogue, defaultThreadsPerBlock);
+            launch_params.load(devId, ::eclcc::KernelLabels::SBlockEpilogue, defaultThreadsPerBlock);
         const unsigned int epilogueKernelBlocks =
             ::cms::alpakatools::divide_up_by(nClusters, epilogueKernelThreadsPerBlock);
 
