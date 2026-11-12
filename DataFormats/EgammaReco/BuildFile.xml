@@ -13,6 +13,8 @@
 <use name="HeterogeneousCore/AlpakaInterface"/>
 <use name="DataFormats/SoATemplate"/>
 <use name="DataFormats/Portable"/>
+<flags LCG_DICT_HEADER="classes_soa.h classes_others.h"/>
+<flags LCG_DICT_XML="classes_def_soa.xml classes_def_others.xml"/>
 <flags ALPAKA_BACKENDS="!serial"/>
 <export>
   <lib name="1"/>
