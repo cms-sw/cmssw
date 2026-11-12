@@ -8,7 +8,7 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<bin name="testServiceRegistry" file="serviceregistry_t.catch2.cpp,servicesmanager_t.catch2.cc,connect_but_block_self_t.catch2.cc">
+<bin name="testServiceRegistry" file="serviceregistry_t.catch2.cpp,servicesmanager_t.catch2.cc,connect_but_block_self_t.catch2.cc,context_t.catch2.cpp">
   <use name="catch2"/>
   <lib name="FWCoreServiceRegistryTestDummyService"/>
   <use name="FWCore/ParameterSet"/>
