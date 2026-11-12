@@ -8,8 +8,8 @@
 #include <cstring>
 #include <optional>
 #include <fcntl.h>
-#include <map>
 #include <string_view>
+#include <unordered_map>
 #include <unistd.h>
 
 namespace {
@@ -124,7 +124,7 @@ namespace {
 namespace edm::service {
   std::optional<SmapsInfo> parseProcSmaps(int fd, bool collectLibraryPaths) {
     SmapsInfo result;
-    std::map<std::string, SmapsLibraryInfo, std::less<>> libraries;
+    std::unordered_map<std::string, SmapsLibraryInfo> libraries;
     Mapping mapping;
     bool haveMapping = false;
 
@@ -142,7 +142,7 @@ namespace edm::service {
         }
       }
       if (collectLibraryPaths and mapping.section == SmapsSection::kSharedObject) {
-        auto it = libraries.find(std::string_view(mapping.path));
+        auto it = libraries.find(mapping.path);
         if (it == libraries.end()) {
           it = libraries.emplace(mapping.path, SmapsLibraryInfo{}).first;
         }

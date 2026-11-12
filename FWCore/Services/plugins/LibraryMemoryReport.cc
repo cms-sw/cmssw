@@ -91,7 +91,11 @@ namespace edm::service {
       }
       std::string msg = std::format("LibraryMemoryReport {} libraries={}", signalName, smaps.libraries.size());
       file << msg << "\n";
-      for (auto const& library : smaps.libraries) {
+
+      auto libraries = smaps.libraries;
+      std::sort(
+          libraries.begin(), libraries.end(), [](auto const& lhs, auto const& rhs) { return lhs.rssKB_ > rhs.rssKB_; });
+      for (auto const& library : libraries) {
         std::string msg = std::format("library name {} VSIZE {} kB RSS {} kB PSS {} kB executableSize {} kB",
                                       library.name,
                                       library.vsizeKB_,
