@@ -18,7 +18,7 @@ from ..sequences.HLTTrackingSequence_cfi import *
 from ..sequences.HLTMuonsSequence_cfi import *
 from ..sequences.HLTParticleFlowSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
-from ..modules.hltPuppiTauTkIsoEle45_22L1TkFilter_cfi import *
+from ..modules.hltPuppiTauTkIsoEle45and22L1TkFilter_cfi import *
 from ..modules.hltEgammaCandidatesL1Seeded_cfi import *
 from ..modules.hltEgammaCandidatesWrapperL1Seeded_cfi import *
 from ..modules.hltEgammaClusterShapeL1Seeded_cfi import *

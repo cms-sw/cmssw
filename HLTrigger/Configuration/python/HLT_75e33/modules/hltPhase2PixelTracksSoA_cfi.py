@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 # list of layers to exclude from the CA (empty list doesn't exclude; [28, 29, 30] excludes the OT)
-layersToExclude = []
+_layersToExclude = []
 
 # layers
-layers = [
+_layers = [
     #     0,        1,     2,       3,      4,        5,        6,       7
     # index, isBarrel, caDCA, caTheta, startR, maxDCurv,floorDCurv, fishCut
     [     0,     True,  0.15,   0.002,   99.0,     99.0,      99.0, 0.99999],
@@ -41,7 +41,7 @@ layers = [
 ]
 
 # layerPairs for doublet building including pair-specific cut values
-layerPairs = [
+_layerPairs = [
     #  0,  1,     2,     3,      4,      5,      6,       7,       8,     9,     10,     11,     12
     #  i,  o, start,  skip, phiCut,  minIn,  maxIn,  minOut,  maxOut, maxDR,  minDZ,  maxDZ, ptCuts
     [  0,  1,  True, False,    350,  -17.0,   17.0,  -10000,   10000,   5.0,  -16.0,   16.0,  0.7],
@@ -141,19 +141,19 @@ layerPairs = [
 ]
 
 # find the layerPairs that contain a layer that is excluded
-excludeLayerPair = [any([(lp[0] == l) or (lp[1] == l) for l in layersToExclude]) for lp in layerPairs]
+_excludeLayerPair = [any([(lp[0] == l) or (lp[1] == l) for l in _layersToExclude]) for lp in _layerPairs]
 
 # exclude those layerPairs
-layerPairsFinal = []
-for i, lp in enumerate(layerPairs):
-    if not excludeLayerPair[i]:
-        layerPairsFinal.append(lp)
+_layerPairsFinal = []
+for i, lp in enumerate(_layerPairs):
+    if not _excludeLayerPair[i]:
+        _layerPairsFinal.append(lp)
 
 # get startingPairs for Ntuplet building
-startingPairs = []
-for i, lp in enumerate(layerPairsFinal):
+_startingPairs = []
+for i, lp in enumerate(_layerPairsFinal):
     if lp[2]:
-        startingPairs.append(i)
+        _startingPairs.append(i)
 
 hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
     pixelRecHitSrc = cms.InputTag('hltPhase2SiPixelRecHitsSoA'),
@@ -203,29 +203,29 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
         # circle passing through the 3 points of the triplet under
         # investigation. Therefore the cut represent the compatibility of the
         # circle in the transverse plane and the units are meant to be cm.
-        caDCACuts   = cms.vdouble([l[2] for l in layers]),
+        caDCACuts   = cms.vdouble([l[2] for l in _layers]),
         # caThetaCut is used in the areAlignedRZ function to check if two
         # sibling cell are compatible in the R-Z plane. In that same function,
         # we also use ptmin variable. The caThetaCut is assigned to the SoA of
         # the layers, and is percolated into this compatibility function via
         # the SoA itself.
-        caThetaCuts = cms.vdouble([l[3] for l in layers]),
-        startingPairs = cms.vuint32(startingPairs),
-        startMaxInnerR = cms.vdouble([l[4] for l in layers]),
-        maxDCurv    = cms.vdouble([l[5] for l in layers]),
-        floorDCurv       = cms.vdouble([l[6] for l in layers]),
-        fishboneCuts   = cms.vdouble([l[7] for l in layers]),
-        pairGraph = cms.vuint32(sum([[lp[0], lp[1]] for lp in layerPairsFinal], [])),
-        skipsLayers = cms.vuint32( [int(lp[ 3]) for lp in layerPairsFinal]),
-        phiCuts     = cms.vint32( [lp[ 4] for lp in layerPairsFinal]),
-        minInner    = cms.vdouble([lp[ 5] for lp in layerPairsFinal]),
-        maxInner    = cms.vdouble([lp[ 6] for lp in layerPairsFinal]),
-        minOuter    = cms.vdouble([lp[ 7] for lp in layerPairsFinal]),
-        maxOuter    = cms.vdouble([lp[ 8] for lp in layerPairsFinal]),
-        maxDR       = cms.vdouble([lp[ 9] for lp in layerPairsFinal]),
-        minDZ       = cms.vdouble([lp[10] for lp in layerPairsFinal]),
-        maxDZ       = cms.vdouble([lp[11] for lp in layerPairsFinal]),
-        ptCuts      = cms.vdouble([lp[12] for lp in layerPairsFinal]),
+        caThetaCuts = cms.vdouble([l[3] for l in _layers]),
+        startingPairs = cms.vuint32(_startingPairs),
+        startMaxInnerR = cms.vdouble([l[4] for l in _layers]),
+        maxDCurv    = cms.vdouble([l[5] for l in _layers]),
+        floorDCurv       = cms.vdouble([l[6] for l in _layers]),
+        fishboneCuts   = cms.vdouble([l[7] for l in _layers]),
+        pairGraph = cms.vuint32(sum([[lp[0], lp[1]] for lp in _layerPairsFinal], [])),
+        skipsLayers = cms.vuint32( [int(lp[ 3]) for lp in _layerPairsFinal]),
+        phiCuts     = cms.vint32( [lp[ 4] for lp in _layerPairsFinal]),
+        minInner    = cms.vdouble([lp[ 5] for lp in _layerPairsFinal]),
+        maxInner    = cms.vdouble([lp[ 6] for lp in _layerPairsFinal]),
+        minOuter    = cms.vdouble([lp[ 7] for lp in _layerPairsFinal]),
+        maxOuter    = cms.vdouble([lp[ 8] for lp in _layerPairsFinal]),
+        maxDR       = cms.vdouble([lp[ 9] for lp in _layerPairsFinal]),
+        minDZ       = cms.vdouble([lp[10] for lp in _layerPairsFinal]),
+        maxDZ       = cms.vdouble([lp[11] for lp in _layerPairsFinal]),
+        ptCuts      = cms.vdouble([lp[12] for lp in _layerPairsFinal]),
     ),
     # autoselect the alpaka backend
     alpaka = cms.untracked.PSet(backend = cms.untracked.string(''))

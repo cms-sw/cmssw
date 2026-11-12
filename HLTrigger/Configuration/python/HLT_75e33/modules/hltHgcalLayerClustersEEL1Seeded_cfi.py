@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from ..psets.hgcal_reco_constants_cfi import HGCAL_reco_constants as HGCAL_reco_constants
+from ..psets.HGCAL_reco_constants_cfi import HGCAL_reco_constants as HGCAL_reco_constants
 
 hltHgcalLayerClustersEEL1Seeded = cms.EDProducer("HGCalLayerClusterProducer",
     detector = cms.string('EE'),
