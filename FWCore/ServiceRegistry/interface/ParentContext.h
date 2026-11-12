@@ -15,6 +15,7 @@ of ModuleCallingContext.
 //         Created: 7/11/2013
 
 #include <iosfwd>
+#include <variant>
 
 namespace edm {
 
@@ -35,7 +36,7 @@ namespace edm {
     ParentContext(PlaceInPathContext const*) noexcept;
     ParentContext(StreamContext const*) noexcept;
 
-    [[nodiscard]] Type type() const noexcept { return type_; }
+    [[nodiscard]] Type type() const noexcept { return static_cast<Type>(parent_.index()); }
 
     bool isAtEndTransition() const noexcept;
 
@@ -46,15 +47,13 @@ namespace edm {
     StreamContext const* streamContext() const noexcept(false);
 
   private:
-    Type type_;
-
-    union Parent {
-      GlobalContext const* global;
-      InternalContext const* internal;
-      ModuleCallingContext const* module;
-      PlaceInPathContext const* placeInPath;
-      StreamContext const* stream;
-    } parent_;
+    std::variant<GlobalContext const*,
+                 InternalContext const*,
+                 ModuleCallingContext const*,
+                 PlaceInPathContext const*,
+                 StreamContext const*,
+                 std::monostate>
+        parent_;
   };
 
   std::ostream& operator<<(std::ostream&, ParentContext const&);
