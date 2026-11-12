@@ -482,13 +482,19 @@ namespace cms::soa {
     } else {                                                                                                           \
       _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                      \
         /* Scalar */                                                                                                   \
-        memset(BOOST_PP_CAT(NAME, _), 0x00, sizeof(CPP_TYPE));                                                         \
+        cms::soa::detail::ZeroInitialise<BOOST_PP_CAT(typename Metadata::ParametersTypeOf_, NAME)>{}(                  \
+                                                                                    BOOST_PP_CAT(NAME, _));            \
         ,                                                                                                              \
         /* Column */                                                                                                   \
-        memset(BOOST_PP_CAT(NAME, _), 0x00, sizeof(CPP_TYPE) * onfile.elements_);                                      \
+        cms::soa::detail::ZeroInitialise<BOOST_PP_CAT(typename Metadata::ParametersTypeOf_, NAME)>{}(                  \
+                                                                                    BOOST_PP_CAT(NAME, _),             \
+                                                                                    onfile.elements_);                 \
         ,                                                                                                              \
         /* Eigen column */                                                                                             \
-        memset(BOOST_PP_CAT(NAME, _), 0x00, sizeof(CPP_TYPE::Scalar) * BOOST_PP_CAT(NAME, ElementsWithPadding_));      \
+        cms::soa::detail::ZeroInitialise<BOOST_PP_CAT(typename Metadata::ParametersTypeOf_, NAME)>{}(                  \
+                                                                                    BOOST_PP_CAT(NAME, _),             \
+                                                                                    onfile.elements_,                  \
+                                                                                    BOOST_PP_CAT(NAME, Stride_));      \
       )                                                                                                                \
     }
 // clang-format on

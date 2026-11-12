@@ -5,6 +5,7 @@
  * Definitions of SoA common parameters for SoA class generators
  */
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -945,6 +946,51 @@ namespace cms::soa::detail {
   struct EnumTraits<T> {
     using type = T;
     using value_type = std::underlying_type_t<T>;
+  };
+
+  template <typename T>
+  SOA_HOST_ONLY SOA_INLINE void zeroInitialiseColumn(T* ptr, const cms::soa::size_type elements) {
+    if (elements > 0) {
+      if constexpr (std::is_trivial_v<T> && !std::is_pointer_v<T>) {
+        memset(ptr, 0x00, sizeof(T) * elements);
+      } else {
+        std::fill_n(ptr, elements, T{});
+      }
+    }
+  }
+
+  template <typename ColumnType>
+  struct ZeroInitialise;
+
+  template <typename T>
+  struct ZeroInitialise<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::scalar, T>> {
+    SOA_HOST_ONLY SOA_INLINE void operator()(EnumTraits<T>::value_type* ptr) const {
+      zeroInitialiseColumn<typename EnumTraits<T>::value_type>(ptr, 1);
+    }
+  };
+
+  template <typename T>
+  struct ZeroInitialise<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::column, T>> {
+    SOA_HOST_ONLY SOA_INLINE void operator()(EnumTraits<T>::value_type* ptr, const cms::soa::size_type elements) const {
+      zeroInitialiseColumn<typename EnumTraits<T>::value_type>(ptr, elements);
+    }
+  };
+
+  template <typename T>
+  struct ZeroInitialise<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::eigen, T>> {
+    SOA_HOST_ONLY SOA_INLINE void operator()(typename T::Scalar* ptr,
+                                             const cms::soa::size_type elements,
+                                             const cms::soa::byte_size_type stride) const {
+      if (elements > 0) {
+        if constexpr (std::is_trivial_v<typename T::Scalar> && !std::is_pointer_v<typename T::Scalar>) {
+          memset(ptr, 0x00, sizeof(typename T::Scalar) * stride * T::RowsAtCompileTime * T::ColsAtCompileTime);
+        } else {
+          for (int i = 0; i < T::RowsAtCompileTime * T::ColsAtCompileTime; ++i) {
+            std::fill_n(ptr + i * stride, elements, T{});
+          }
+        }
+      }
+    }
   };
 
   // Helper type trait for obtaining a span type for a column
