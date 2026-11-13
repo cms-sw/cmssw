@@ -60,7 +60,7 @@ different threads. Slices are therefore placed on a lane per (stream, thread):
 ```
 process "cmsRun"
   ├─ edm::stream <sid>     "Event" slices + run/lumi/event counters
-  │    └─ thread <n>       source / module / acquire / EventSetup / cleanup slices,
+  │    └─ thread <n>       source / module / acquire / transform / EventSetup / cleanup slices,
   │                        with the alloc/free instants and CMS_PERFETTO_FUNC slices nested
   ├─ GPU<d> stream <s>     CUDA kernels at their device-side times
   └─ counters              Throughput (events/s), memory (B), power (W)

@@ -31,6 +31,7 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 // Records an in-process Perfetto trace (.pftrace) of a cmsRun job.
@@ -68,7 +69,14 @@ public:
     ::perfetto::protos::gen::TrackEventConfig te;
     te.add_disabled_categories("*");
     for (const char* category :
-         {"cmssw.event", "cmssw.source", "cmssw.module", "cmssw.acquire", "cmssw.es", "cmssw.cleanup"})
+         {"cmssw.event",
+          "cmssw.source",
+          "cmssw.module",
+          "cmssw.acquire",
+          "cmssw.transform.launch",
+          "cmssw.transform.produce",
+          "cmssw.es",
+          "cmssw.cleanup"})
       te.add_enabled_categories(category);
     if (pset.getUntrackedParameter<bool>("traceFunctions"))
       te.add_enabled_categories("cmssw.func");
@@ -98,6 +106,7 @@ public:
     cms::perfetto::TrackEvent::SetTrackDescriptor(process, desc);
 
     ar.watchPreallocate(this, &PerfettoTraceService::preallocate);
+    ar.watchPostModuleConstruction(this, &PerfettoTraceService::postModuleConstruction);
     ar.watchPreSourceEvent(this, &PerfettoTraceService::preSourceEvent);
     ar.watchPostSourceEvent(this, &PerfettoTraceService::postSourceEvent);
     ar.watchPreEvent(this, &PerfettoTraceService::preEvent);
@@ -107,6 +116,10 @@ public:
     ar.watchPostModuleEvent(this, &PerfettoTraceService::postModuleEvent);
     ar.watchPreModuleEventAcquire(this, &PerfettoTraceService::preModuleEventAcquire);
     ar.watchPostModuleEventAcquire(this, &PerfettoTraceService::postModuleEventAcquire);
+    ar.watchPreModuleTransformAcquiring(this, &PerfettoTraceService::preModuleTransformAcquiring);
+    ar.watchPostModuleTransformAcquiring(this, &PerfettoTraceService::postModuleTransformAcquiring);
+    ar.watchPreModuleTransform(this, &PerfettoTraceService::preModuleTransform);
+    ar.watchPostModuleTransform(this, &PerfettoTraceService::postModuleTransform);
     ar.watchPreESModule(this, &PerfettoTraceService::preESModule);
     ar.watchPostESModule(this, &PerfettoTraceService::postESModule);
     ar.watchPostEndJob(this, &PerfettoTraceService::postEndJob);
@@ -312,6 +325,60 @@ private:
       TRACE_EVENT_END("cmssw.acquire", cms::perfetto::laneTrack(sc.streamID().value()));
   }
 
+  // Transforms (registerTransform / registerTransformAsync) run as separate tasks after the module's produce(),
+  // when a consumer asks for the transformed product: e.g. the device-to-host copies that the alpaka modules register
+  // for their device products. registerTransformAsync has two steps, traced on the same lane and with the same module
+  // context as produce():
+  //  - cmssw.transform.launch : starts the asynchronous work 
+  //  - cmssw.transform.produce: builds the transformed product and puts it into the event
+  void postModuleConstruction(edm::ModuleDescription const& md) {
+    auto const& label = md.moduleLabel();
+    transformNames_[md.id()] = {label + " [transform launch]", label + " [transform]"};
+  }
+
+  // the names are filled at construction time, before any event: read-only afterwards
+  char const* transformName(edm::ModuleDescription const& md, unsigned step) const {
+    auto it = transformNames_.find(md.id());
+    return it == transformNames_.end() ? md.moduleLabel().c_str() : it->second[step].c_str();
+  }
+
+  void beginTransform(edm::StreamContext const& sc, edm::ModuleDescription const& md, unsigned step) {
+    if (!enterModule(sc, md))
+      return;
+    auto const name = ::perfetto::StaticString(transformName(md, step));
+    auto const track = cms::perfetto::laneTrack(sc.streamID().value());
+    auto const fields = [&](::perfetto::EventContext ctx) {
+      ctx.AddDebugAnnotation("event", sc.eventID().event());
+      ctx.AddDebugAnnotation("module_id", md.id());
+      ctx.AddDebugAnnotation("module", md.moduleLabel().c_str());
+      ctx.AddDebugAnnotation("cpp_type", ::perfetto::DynamicString(md.moduleName()));
+    };
+    if (step == 0)
+      TRACE_EVENT_BEGIN("cmssw.transform.launch", name, track, fields);
+    else
+      TRACE_EVENT_BEGIN("cmssw.transform.produce", name, track, fields);
+  }
+
+  void preModuleTransformAcquiring(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
+    if (inEvent(sc.streamID()))
+      beginTransform(sc, *mcc.moduleDescription(), 0);
+  }
+
+  void postModuleTransformAcquiring(edm::StreamContext const& sc, edm::ModuleCallingContext const&) {
+    if (inEvent(sc.streamID()) && exitModule())
+      TRACE_EVENT_END("cmssw.transform.launch", cms::perfetto::laneTrack(sc.streamID().value()));
+  }
+
+  void preModuleTransform(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
+    if (inEvent(sc.streamID()))
+      beginTransform(sc, *mcc.moduleDescription(), 1);
+  }
+
+  void postModuleTransform(edm::StreamContext const& sc, edm::ModuleCallingContext const&) {
+    if (inEvent(sc.streamID()) && exitModule())
+      TRACE_EVENT_END("cmssw.transform.produce", cms::perfetto::laneTrack(sc.streamID().value()));
+  }
+
   void preESModule(edm::eventsetup::EventSetupRecordKey const&, edm::ESModuleCallingContext const& cc) {
     auto const* sc = streamOf(cc);
     if (!sc || !inEvent(sc->streamID()))
@@ -356,6 +423,8 @@ private:
   unsigned const maxEvents_;
   bool const traceAllocations_;
   std::vector<std::string> traceModules_;  // sorted
+  // module id -> slice names of the two transform steps (node-based: the c_str() stay valid)
+  std::unordered_map<unsigned, std::array<std::string, 2>> transformNames_;
 
   std::unique_ptr<::perfetto::TracingSession> session_;
   std::vector<StreamState> states_;
