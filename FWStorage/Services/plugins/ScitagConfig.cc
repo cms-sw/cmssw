@@ -55,12 +55,12 @@ Other organizations handle the network monitoring.
 #include <string>
 #include <vector>
 
-#include "FWCore/Catalog/interface/StorageURLModifier.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWStorage/Catalog/interface/StorageURLModifier.h"
 
 namespace {
   constexpr char const* const kXRootPrefix = "root:";

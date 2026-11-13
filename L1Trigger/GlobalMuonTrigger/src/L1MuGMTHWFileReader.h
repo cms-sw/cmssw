@@ -23,7 +23,8 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-#include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
+#include "FWCore/Sources/interface/ProducerSourceBase.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -36,7 +37,7 @@
 //-- Class Interface --
 //---------------------
 
-class L1MuGMTHWFileReader : public edm::ProducerSourceFromFiles {
+class L1MuGMTHWFileReader : public edm::ProducerSourceBase {
 public:
   explicit L1MuGMTHWFileReader(edm::ParameterSet const&, edm::InputSourceDescription const&);
 
@@ -54,6 +55,7 @@ private:
 
   std::ifstream m_in;
   L1MuGMTInputEvent m_evt;
+  edm::InputFileCatalog m_inputFileCatalog;
 };
 
 #endif  // L1TriggerGlobalMuonTrigger_L1MuGMTHWFileReader_h

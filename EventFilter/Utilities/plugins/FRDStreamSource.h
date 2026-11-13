@@ -7,7 +7,8 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 
-#include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
+#include "FWCore/Sources/interface/ProducerSourceBase.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -17,7 +18,7 @@
 #include <vector>
 #include <fstream>
 
-class FRDStreamSource : public edm::ProducerSourceFromFiles {
+class FRDStreamSource : public edm::ProducerSourceBase {
 public:
   // construction/destruction
   FRDStreamSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc);
@@ -34,10 +35,11 @@ private:
 
 private:
   // member data
-  std::vector<std::string> fileNames_;
+  std::vector<std::string> physicalFileNames_;
   std::vector<std::string>::const_iterator itFileName_;
   std::vector<std::string>::const_iterator endFileName_;
   std::ifstream fin_;
+  edm::InputFileCatalog inputFileCatalog_;
   std::unique_ptr<FEDRawDataCollection> rawData_;
   std::vector<char> buffer_;
   const bool verifyAdler32_;

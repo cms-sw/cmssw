@@ -10,12 +10,11 @@
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
 #include "FWStorage/StorageFactory/interface/StorageFactory.h"
 
 namespace edm {
@@ -38,7 +37,7 @@ namespace edm {
     // thousands of files and prestaging all those files can cause a site to fail.
     // So, we stage in the first secondary file only.
     setAtFirstFile();
-    storage::StorageFactory::get()->stagein(fileNames()[0]);
+    storage::StorageFactory::get()->stagein(physicalFileNames()[0]);
 
     // Open the first file.
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
@@ -70,10 +69,10 @@ namespace edm {
   }
 
   RootSecondaryFileSequence::RootFileSharedPtr RootSecondaryFileSequence::makeRootFile(
-      std::shared_ptr<InputFile> filePtr) {
+      std::shared_ptr<InputFile> filePtr, std::string const& physicalFileNameFirstCatalog) {
     size_t currentIndexIntoFile = sequenceNumberOfFile();
     return std::make_shared<RootFile>(
-        RootFile::FileOptions{.fileName = fileNames()[0],
+        RootFile::FileOptions{.fileName = physicalFileNameFirstCatalog,
                               .logicalFileName = logicalFileName(),
                               .filePtr = filePtr,
                               .bypassVersionCheck = input_.bypassVersionCheck(),

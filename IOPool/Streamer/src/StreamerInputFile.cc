@@ -5,20 +5,20 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
-
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 #include "FWStorage/StorageFactory/interface/IOFlags.h"
 #include "FWStorage/StorageFactory/interface/StorageFactory.h"
 
 #include <iomanip>
 #include <iostream>
+#include <utility>
 
 namespace edm::streamer {
 
   StreamerInputFile::~StreamerInputFile() { closeStreamerFile(); }
 
-  StreamerInputFile::StreamerInputFile(std::string const& name,
-                                       std::string const& LFN,
+  StreamerInputFile::StreamerInputFile(std::string pfn,
+                                       std::string const& lfn,
                                        std::shared_ptr<EventSkipperByID> eventSkipperByID,
                                        unsigned int prefetchMBytes)
       : startMsg_(),
@@ -27,9 +27,8 @@ namespace edm::streamer {
         eventBuf_(1000 * 1000 * 7),
         tempBuf_(1024 * 1024 * prefetchMBytes),
         currentFile_(0),
-        streamerNames_(),
+        inputFileCatalog_(nullptr),
         multiStreams_(false),
-        currentFileName_(),
         currentFileOpen_(false),
         eventSkipperByID_(eventSkipperByID),
         currRun_(0),
@@ -37,7 +36,7 @@ namespace edm::streamer {
         newHeader_(false),
         storage_(),
         endOfFile_(false) {
-    openStreamerFile(name, LFN);
+    openStreamerFile(std::move(pfn), lfn);
     readStartMessage();
   }
 
@@ -46,7 +45,7 @@ namespace edm::streamer {
                                        unsigned int prefetchMBytes)
       : StreamerInputFile(name, name, eventSkipperByID, prefetchMBytes) {}
 
-  StreamerInputFile::StreamerInputFile(std::vector<FileCatalogItem> const& names,
+  StreamerInputFile::StreamerInputFile(InputFileCatalog const& inputFileCatalog,
                                        std::shared_ptr<EventSkipperByID> eventSkipperByID,
                                        unsigned int prefetchMBytes)
       : startMsg_(),
@@ -55,32 +54,35 @@ namespace edm::streamer {
         eventBuf_(1000 * 1000 * 7),
         tempBuf_(1024 * 1024 * prefetchMBytes),
         currentFile_(0),
-        streamerNames_(names),
+        inputFileCatalog_(&inputFileCatalog),
         multiStreams_(true),
-        currentFileName_(),
         currentFileOpen_(false),
         eventSkipperByID_(eventSkipperByID),
         currRun_(0),
         currProto_(0),
         newHeader_(false),
         endOfFile_(false) {
-    openStreamerFile(names.at(0).fileName(0), names.at(0).logicalFileName());
+    auto const& configuredFileNames = inputFileCatalog_->configuredFileNames();
+    if (configuredFileNames.empty()) {
+      throw Exception(errors::FileReadError, "StreamerInputFile::StreamerInputFile") << "No fileNames were specified\n";
+    }
+    openStreamerFile(inputFileCatalog_->firstPFNFromFirstCatalog(), inputFileCatalog_->logicalFileName(0));
     ++currentFile_;
     readStartMessage();
     currRun_ = startMsg_->run();
     currProto_ = startMsg_->protocolVersion();
   }
 
-  void StreamerInputFile::openStreamerFile(std::string const& name, std::string const& LFN) {
+  void StreamerInputFile::openStreamerFile(std::string pfn, std::string const& lfn) {
     closeStreamerFile();
 
-    currentFileName_ = name;
+    currentFileName_ = std::move(pfn);
 
     // Check if the logical file name was found.
     if (currentFileName_.empty()) {
-      // LFN not found in catalog.
+      // lfn not found in catalog.
       throw cms::Exception("LogicalFileNameNotFound", "StreamerInputFile::openStreamerFile()\n")
-          << "Logical file name '" << LFN << "' was not found in the file catalog.\n"
+          << "Logical file name '" << lfn << "' was not found in the file catalog.\n"
           << "If you wanted a local file, you forgot the 'file:' prefix\n"
           << "before the file name in your configuration file.\n";
       return;
@@ -90,19 +92,19 @@ namespace edm::streamer {
 
     using namespace edm::storage;
     IOOffset size = -1;
-    if (StorageFactory::get()->check(name, &size)) {
+    if (StorageFactory::get()->check(currentFileName_, &size)) {
       try {
-        storage_ = StorageFactory::get()->open(name, IOFlags::OpenRead);
+        storage_ = StorageFactory::get()->open(currentFileName_, IOFlags::OpenRead);
       } catch (cms::Exception& e) {
         Exception ex(errors::FileOpenError, "", e);
         ex.addContext("Calling StreamerInputFile::openStreamerFile()");
         ex.clearMessage();
-        ex << "Error Opening Streamer Input File: " << name << "\n";
+        ex << "Error Opening Streamer Input File: " << currentFileName_ << "\n";
         throw ex;
       }
     } else {
       throw Exception(errors::FileOpenError, "StreamerInputFile::openStreamerFile")
-          << "Error Opening Streamer Input File, file does not exist: " << name << "\n";
+          << "Error Opening Streamer Input File, file does not exist: " << currentFileName_ << "\n";
     }
     currentFileOpen_ = true;
     logFileAction("  Successfully opened file ");
@@ -221,7 +223,7 @@ namespace edm::streamer {
     }
     if (multiStreams_) {
       //Try opening next file
-      if (currentFile_ <= streamerNames_.size() - 1) {
+      if (currentFile_ <= inputFileCatalog_->configuredFileNames().size() - 1) {
         newHeader_ = true;
         return Next::kFile;
       }
@@ -230,9 +232,11 @@ namespace edm::streamer {
   }
 
   bool StreamerInputFile::openNextFile() {
-    if (currentFile_ <= streamerNames_.size() - 1) {
-      openStreamerFile(streamerNames_.at(currentFile_).fileNames()[0],
-                       streamerNames_.at(currentFile_).logicalFileName());
+    auto const& configuredFileNames = inputFileCatalog_->configuredFileNames();
+    if (currentFile_ < configuredFileNames.size()) {
+      auto const& configuredFileName = configuredFileNames[currentFile_];
+      openStreamerFile(inputFileCatalog_->physicalFileNames(configuredFileName)[0],
+                       inputFileCatalog_->logicalFileName(configuredFileName));
 
       // If start message was already there, then compare the
       // previous and new headers
@@ -253,7 +257,7 @@ namespace edm::streamer {
     //Values from new Header should match up
     if (currRun_ != startMsg_->run() || currProto_ != startMsg_->protocolVersion()) {
       throw Exception(errors::MismatchedInputFiles, "StreamerInputFile::compareHeader")
-          << "File " << streamerNames_.at(currentFile_).fileNames()[0]
+          << "File " << inputFileCatalog_->physicalFileNames(currentFile_)[0]
           << "\nhas different run number or protocol version than previous\n";
       return false;
     }

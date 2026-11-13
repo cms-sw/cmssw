@@ -1,6 +1,14 @@
-<use name="GeneratorInterface/ExhumeInterface"/>
+<use name="FWCore/Concurrency"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="GeneratorInterface/Pythia6Interface"/>
+<use name="boost"/>
+<use name="clhep"/>
+<use name="f77compiler"/>
+<use name="hepmc"/>
+<use name="heppdt"/>
 <use name="pydata"/>
-<library file="ExhumeGeneratorFilter.cc" name="GeneratorInterfaceExhumeFilter">
+<library file="*.cc *.cpp *.f" name="GeneratorInterfaceExhumeFilter">
   <use name="GeneratorInterface/Core"/>
   <use name="GeneratorInterface/ExternalDecays"/>
   <flags EDM_PLUGIN="1"/>
