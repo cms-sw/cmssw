@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltDt1DRecHits = cms.EDProducer("DTRecHitProducer",
     debug = cms.untracked.bool(False),
-    dtDigiLabel = cms.InputTag("simMuonDTDigis"),
+    dtDigiLabel = cms.InputTag("hltMuonDTDigis"),
     recAlgo = cms.string('DTLinearDriftFromDBAlgo'),
     recAlgoConfig = cms.PSet(
         debug = cms.untracked.bool(False),
