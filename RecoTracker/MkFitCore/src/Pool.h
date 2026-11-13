@@ -27,8 +27,8 @@ namespace mkfit {
 
     auto makeOrGet() {
       bool exists;
-      auto& m = m_pool.local(exists);
-      TT* x;
+      auto &m = m_pool.local(exists);
+      TT *x;
       if (exists) {
         x = m.release();
         assert(x);
