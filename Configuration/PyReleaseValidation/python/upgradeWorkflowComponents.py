@@ -240,6 +240,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'GenSimDisplaced',
         'GenSimHLBeamSpot',
         'GenSimHLBeamSpot14',
+        'GenSimHLBeamSpotLHE14',
         'GenSimHLBeamSpotCloseBy',
         'Digi',
         'DigiNoHLT',
@@ -4421,4 +4422,6 @@ upgradeFragments = OrderedDict([
     ('CloseByPGun_Barrel_Front_cfi', UpgradeFragment(Kby(9,100),'CloseByPGun_Barrel_Front')),
     ('DisplacedParticleGun_cfi', UpgradeFragment(Kby(9,100),'DisplacedPGun')),
     ('TenTau_Pt10to500_Eta4p1_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_Pt10to500_Eta4p1')),
+    ('Configuration/Generator/python/DYto2TautoETauh_BinMLL50_TuneCP5_14TeV_madgraphMLM_pythia8_cfi.py', UpgradeFragment(Kby(9,100),'DYto2TautoETauh_M_50_14TeV')),
+    ('Configuration/Generator/python/DYto2TautoMuTauh_BinMLL50_TuneCP5_14TeV_madgraphMLM_pythia8_cfi.py', UpgradeFragment(Kby(9,100),'DYto2TautoMuTauh_M_50_14TeV')),
 ])
