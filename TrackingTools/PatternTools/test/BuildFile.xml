@@ -9,3 +9,6 @@
 
 <bin file="bqueue_t.cpp">
 </bin>
+
+<bin file="TwoTrackMinimumDistanceHelixLine_t.cpp">
+</bin>
