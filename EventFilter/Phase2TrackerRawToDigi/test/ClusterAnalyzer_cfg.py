@@ -69,39 +69,27 @@ process.TFileService = cms.Service('TFileService',
 
 # Load the standard sequences for conditions and global tags
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load("CondCore.CondDB.CondDB_cfi")
 from Configuration.AlCa.GlobalTag import GlobalTag
 
 if not ANALYZE_CRACK:
     process.load('Configuration.Geometry.GeometryExtendedRun4D121Reco_cff')
     # Set the GlobalTag (adjust as necessary for your geometry)
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
-    # OT cabling map (current class layout) is not in the GT yet: take it from CondDB (drop once the GT carries it)
-    process.GlobalTag.toGet.append(cms.PSet(
-        record = cms.string('TrackerDetToDTCELinkCablingMapRcd'),
-        tag = cms.string('TrackerDetToDTCELinkCablingMap__OT800_OTOnly'),
-        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-    ))
 
 
 else:
     ## customise for C-rack geometry
     process.load('Configuration.Geometry.GeometryExtendedRun4D500Reco_cff')
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_0T', '')
-    process.CondDB.connect = 'sqlite_file:/home/hep/am2023/sara_crack_july_2026/CMSSW_16_0_8/src/crack_cabling_gIDbtFrom0.db'
     process.trackerGeometry.applyAlignment = False
 
 
-if ANALYZE_CRACK:
-    ## the C-rack cabling map is a private DB, it is not in CondDB
-    process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-        process.CondDB,
-        toGet = cms.VPSet(cms.PSet(
-            record = cms.string('TrackerDetToDTCELinkCablingMapRcd'),
-            tag = cms.string("DTCCablingMapProducerUserRun"))
-        )
-    )
-    process.es_prefer_local_TrackerDetToDTCELinkCablingMapRcd = cms.ESPrefer("PoolDBESSource","")
+# OT cabling map (current class layout) is not in the GT yet: take it from CondDB (drop once the GT carries it)
+process.GlobalTag.toGet.append(cms.PSet(
+    record = cms.string('TrackerDetToDTCELinkCablingMapRcd'),
+    tag = cms.string('TrackerDetToDTCELinkCablingMap__OT800_OTOnly'),
+    connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+))
 
 
 # Define the path to run the EDAnalyzer

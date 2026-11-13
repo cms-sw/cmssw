@@ -35,7 +35,6 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load("CondCore.CondDB.CondDB_cfi")
 from Configuration.AlCa.GlobalTag import GlobalTag
 
 inputRawDataTag = 'Packer'
@@ -47,7 +46,7 @@ if UNPACK_CRACK:
     process.load('Configuration.Geometry.GeometryExtendedRun4D500Reco_cff')
     process.trackerGeometry.applyAlignment = False
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_0T', '')
-    process.CondDB.connect = 'sqlite_file:/afs/cern.ch/user/f/fiorendi/public/l1tt/unpacker/crack/CRackDTCCablingMap_newClass.db'
+    # FIXME: crackMapping below (DTC 1, GBT 24-71) does not match the wiring of the rack modules in the CondDB cabling map for now?
  
     from EventFilter.Phase2TrackerRawToDigi.CRACKMapping_cfi import crackMapping    
     inputRawDataTag = 'rawDataCollector'
@@ -57,25 +56,14 @@ else:
     process.load('Configuration.Geometry.GeometryExtendedRun4D121Reco_cff')
     process.load('Configuration.Geometry.GeometryExtendedRun4D121_cff')
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
-    # OT cabling map (current class layout) is not in the GT yet: take it from CondDB (drop once the GT carries it)
-    process.GlobalTag.toGet.append(cms.PSet(
-        record = cms.string('TrackerDetToDTCELinkCablingMapRcd'),
-        tag = cms.string('TrackerDetToDTCELinkCablingMap__OT800_OTOnly'),
-        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-    ))
     inputFileList = ["/store/relval/CMSSW_20_0_0_pre1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_STD_D121_RegeneratedGS_PU_16Aug26-v3/2590000/0438e4bc-b740-48a4-9d02-ff7896522eac.root"]
 
-if UNPACK_CRACK:
-    # the C-rack cabling map is a private DB, it is not in CondDB
-    process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-       process.CondDB,
-       DumpStat = cms.untracked.bool(True),
-       toGet = cms.VPSet(cms.PSet(
-           record = cms.string('TrackerDetToDTCELinkCablingMapRcd'),
-           tag = cms.string("DTCCablingMapProducerUserRun"),
-       )),
-    )
-    process.es_prefer_local_cabling = cms.ESPrefer("PoolDBESSource", "")
+# OT cabling map (current class layout) is not in the GT yet: take it from CondDB (drop once the GT carries it)
+process.GlobalTag.toGet.append(cms.PSet(
+    record = cms.string('TrackerDetToDTCELinkCablingMapRcd'),
+    tag = cms.string('TrackerDetToDTCELinkCablingMap__OT800_OTOnly'),
+    connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+))
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(50))
 process.source = cms.Source("PoolSource",
