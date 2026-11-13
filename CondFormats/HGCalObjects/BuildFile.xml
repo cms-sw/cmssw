@@ -8,6 +8,7 @@
 <use name="FWCore/Utilities"/>
 <use name="Geometry/HGCalCommonData"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>
+<use name="xtd"/>
 <flags ALPAKA_BACKENDS="1"/>
 <export>
   <lib name="1"/>

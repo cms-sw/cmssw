@@ -127,7 +127,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     class ScalarsKernel {
     public:
       ALPAKA_FN_ACC void operator()(Acc1D const& acc, TICLGeomSoAConstView geom, ScalarResult* out) const {
-        for ([[maybe_unused]] auto unused : cms::alpakatools::uniform_elements(acc, 1)) {
+        if (cms::alpakatools::once_per_grid(acc)) {
           auto& r = *out;
           r.size = geom.size();
           r.numberOfLayers = geom.numberOfLayers();

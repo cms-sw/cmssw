@@ -1,7 +1,6 @@
 #ifndef CondFormats_HGCalObjects_interface_TICLGeomSoA_h
 #define CondFormats_HGCalObjects_interface_TICLGeomSoA_h
 
-#include <cmath>
 #include <cstdint>
 #include <limits>
 #include <type_traits>
@@ -9,6 +8,11 @@
 #include "DataFormats/SoATemplate/interface/SoABlocks.h"
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
+
+#include <xtd/math/asinh.h>
+#include <xtd/math/atan2.h>
+#include <xtd/math/cosh.h>
+#include <xtd/math/sqrt.h>
 
 // Per-cell replacement of the hgcal::RecHitTools detid-keyed methods,
 // usable on host and device. Cell-type specific columns are in separate
@@ -277,17 +281,17 @@ namespace ticlgeom {
         return 0.f;
       }
       const Position p = position();
-      return std::asinh((p.z - vertexZ) / std::sqrt(p.x * p.x + p.y * p.y));
+      return xtd::asinh((p.z - vertexZ) / xtd::sqrt(p.x * p.x + p.y * p.y));
     }
     SOA_HOST_DEVICE SOA_INLINE float phi() const {
       if (!valid()) {
         return 0.f;
       }
       const Position p = position();
-      return std::atan2(p.y, p.x);
+      return xtd::atan2(p.y, p.x);
     }
     SOA_HOST_DEVICE SOA_INLINE float pt(float energy, float vertexZ = 0.f) const {
-      return valid() ? energy / std::cosh(eta(vertexZ)) : 0.f;
+      return valid() ? energy / xtd::cosh(eta(vertexZ)) : 0.f;
     }
     SOA_HOST_DEVICE SOA_INLINE int32_t zside() const { return valid() ? common().zside() : 0; }
     SOA_HOST_DEVICE SOA_INLINE int32_t layer() const { return valid() ? common().layer() : -1; }
