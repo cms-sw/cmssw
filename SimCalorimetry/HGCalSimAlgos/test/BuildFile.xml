@@ -1,4 +1,4 @@
-<library file="*.cc" name="SimCalorimeteryHGCalSimAlgos">
+<library file="*.cc" name="SimCalorimetryHGCalSimAlgosTest">
     <use name="SimCalorimetry/HGCalSimAlgos"/>
     <use name="CommonTools/UtilAlgos"/>
     <use name="CondFormats/HGCalObjects"/>
@@ -6,3 +6,13 @@
     <use name="Geometry/Records"/>
     <flags EDM_PLUGIN="1"/>
 </library>
+
+<bin file="alpaka/testHGCROCChannelFramer.dev.cc" name="HGCROCChannelFramer">
+  <use name="alpaka"/>
+  <use name="catch2"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="SimCalorimetry/HGCalSimAlgos"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+
+<test name="testHGCROCChannelFramer" command="${LOCALTOP}/test/${SCRAM_ARCH}/HGCROCChannelFramerSerialSync"/>
