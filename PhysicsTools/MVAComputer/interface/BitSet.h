@@ -11,6 +11,7 @@
 // Created:     Sat Apr 24 15:18 CEST 2007
 //
 
+#include <cassert>
 #include <cstring>
 #include <cstddef>
 #include <cstring>
@@ -53,6 +54,7 @@ namespace PhysicsTools {
 
       /// bit assignment operator
       inline bool operator=(bool bit) {
+        assert(word);
         *word = (*word & ~mask) | (bit ? mask : 0);
         return bit;
       }
