@@ -66,25 +66,30 @@ numWFIB.extend([prefixDet+234.0])     #standard PU
 numWFIB.extend([prefixDet+34.7501]) # HLTTrackingOnly75e33
 numWFIB.extend([prefixDet+34.7502]) # HLTTrackingNtuple75e33
 numWFIB.extend([prefixDet+34.7503]) # HLTHeterogeneousValid
+numWFIB.extend([prefixDet+34.7504]) # HLTDev75e33
+# timing menu, heterogeneous backend
 numWFIB.extend([prefixDet+34.751])  # HLTTiming75e33, alpaka
-numWFIB.extend([prefixDet+34.7512]) # HLTTiming75e33, phase2CAVectorHits
-numWFIB.extend([prefixDet+34.7521]) # HLTTiming75e33, ticlv5TrackLinkingGNN
-numWFIB.extend([prefixDet+34.7522]) # HLTTiming75e33, mtd_at_hlt
+# timing menu, tracking variants
 numWFIB.extend([prefixDet+34.753])  # HLTTiming75e33, legacy tracking
-numWFIB.extend([prefixDet+34.754])  # HLTTDev75e33
-numWFIB.extend([prefixDet+34.755])  # HLTTiming75e33, trackingLST
-numWFIB.extend([prefixDet+34.757])  # HLTTiming75e33, MkFitFit
-numWFIB.extend([prefixDet+34.758])  # HLTTiming75e33, ticl_barrel
+numWFIB.extend([prefixDet+34.7531]) # HLTTiming75e33, trackingLST
+numWFIB.extend([prefixDet+34.7532]) # HLTTiming75e33, MkFitFit
+numWFIB.extend([prefixDet+34.7533]) # HLTTiming75e33, phase2CAVectorHits
+# timing menu, calorimetry and timing-detector variants
+numWFIB.extend([prefixDet+34.756])  # HLTTiming75e33, ticl_barrel
+numWFIB.extend([prefixDet+34.7561]) # HLTTiming75e33, ticlv5TrackLinkingGNN
+numWFIB.extend([prefixDet+34.7562]) # HLTTiming75e33, mtd_at_hlt
+# NANO
 numWFIB.extend([prefixDet+34.759])  # HLT75e33 + NANO
 numWFIB.extend([prefixDet+34.7591]) # HLT75e33 + NANO (including validation)
 numWFIB.extend([prefixDet+34.7592]) # HLT75e33 + NANO (with separate DQM step)
+# NGT scouting
 numWFIB.extend([prefixDet+34.77])   # NGTScouting
 numWFIB.extend([prefixDet+34.771])  # NGTScouting + alpaka + TICL-Barrel
+numWFIB.extend([prefixDet+34.7711]) # NGTScouting + Phase2CAExtension&LSTT5 as GeneralTracks
 numWFIB.extend([prefixDet+34.772])  # NGTScouting + NANO
 numWFIB.extend([prefixDet+34.7721]) # NGTScouting + NANO (with separate DQM step)
-numWFIB.extend([prefixDet+34.773])  # NGTScouting + NANO (including validation)
-numWFIB.extend([prefixDet+34.774])  # NGTScouting + NANO containing both L1 and HLT objects (including validation)
-numWFIB.extend([prefixDet+34.775])  # NGTScouting + Phase2CAExtension&LSTT5 as GeneralTracks
+numWFIB.extend([prefixDet+34.7722]) # NGTScouting + NANO (including validation)
+numWFIB.extend([prefixDet+34.7723]) # NGTScouting + NANO containing both L1 and HLT objects (including validation)
 
 for numWF in numWFIB:
     workflows[numWF] = _upgrade_workflows[numWF]
