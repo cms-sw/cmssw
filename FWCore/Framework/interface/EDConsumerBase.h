@@ -104,8 +104,8 @@ namespace edm {
     void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
 
     //used for prefetching
-    std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType iType) const {
-      return itemsToGetFromBranch_[iType];
+    std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(Transition iTransition) const {
+      return itemsToGetFromBranch_[convertToBranchType(iTransition)];
     }
 
     ///\return true if the product corresponding to the index was registered via consumes or mayConsume call

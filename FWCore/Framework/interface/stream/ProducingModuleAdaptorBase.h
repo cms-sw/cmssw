@@ -105,7 +105,7 @@ namespace edm {
 
       void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
       void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
-      std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType) const;
+      std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(Transition) const;
 
       std::vector<ESResolverIndex> const& esGetTokenIndicesVector(edm::Transition iTrans) const;
       std::vector<ESRecordIndex> const& esGetTokenRecordIndicesVector(edm::Transition iTrans) const;

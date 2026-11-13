@@ -156,7 +156,7 @@ namespace edm {
     virtual void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
     virtual void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
 
-    virtual std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType) const = 0;
+    virtual std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(Transition) const = 0;
 
     virtual std::vector<ESResolverIndex> const& esItemsToGetFrom(Transition) const = 0;
     virtual std::vector<ESRecordIndex> const& esRecordsToGetFrom(Transition) const = 0;
