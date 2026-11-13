@@ -308,10 +308,15 @@ namespace edm {
       registerFactory(std::make_unique<FactoryType>(std::move(iCallback)), iLabel.labels_[IIndex]);
     }
 
+    // Each entry in the vector corresponds to a produce method.  Each entry contains a vector of
+    //  ESConsumesInfoEntry which contains the information for each product consumed by the produce method
     std::vector<std::unique_ptr<ESConsumesInfo>> consumesInfos_;
+    // The first index is the produce method index (matching consumesInfos_).
+    // The second index is the value given to the ESGetToken associated with the product being consumed.
+    // The value is the index of the ESResolver in the record that will provide the product.
     std::vector<std::vector<ESResolverIndex>> itemsToGetFromRecords_;
-    //need another structure to say which record to get the data from in
-    // order to make prefetching work
+    // Used in conjunction with itemsToGetFromRecords_ (the two share the same indices) to know
+    // which record holds the product being consumed.
     std::vector<std::vector<ESRecordIndex>> recordsUsedDuringGet_;
 
     SharedResourcesAcquirer acquirer_;
