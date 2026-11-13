@@ -1,0 +1,8 @@
+<library file="ExternalDecayInjector.cc" name="ExternalDecayInjector">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/Utilities"/>
+  <use name="FWCore/Concurrency"/>
+  <use name="SimDataFormats/GeneratorProducts"/>
+  <use name="hepmc"/>
+  <use name="root"/>
+</library>
