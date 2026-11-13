@@ -369,8 +369,23 @@ def customizeHLTforL1P2GTv0p0_2026(process):
     vbfSeedOverrides = {
         # path name                                                   : (seed suffix, v0p0_2026 seeds (OR))
         'HLT_VBF_DiPFPuppiJet118_83_Mjj600_PFPuppiMETTypeOne176'       : ('MET', ['pDoubleJet_METSum']),
+        'HLT_VBF_DiPFPuppiJet93_Mjj550_Ele24_eta2p1_WPTight_L1Seeded'  : ('Ele', ['pDoubleJet_TkEleIso']),
         'HLT_VBF_DiPFPuppiJet133_83_Mjj700_Mu5_TrkIsoVVL'              : ('Mu',  ['pDoubleJet_TkMu']),
     }
+    # Cross seeds (two jets + one other L1 object): as for the other cross triggers, the gate is an
+    # HLTP2GTTripleObjectFilter that saves the seed's jets and its third object.
+    vbfSeedThirdObject = {
+        # path name                                                   : third object type
+        'HLT_VBF_DiPFPuppiJet93_Mjj550_Ele24_eta2p1_WPTight_L1Seeded'  : 'CL2Electrons',
+    }
+    noPairCuts = cms.PSet(
+        minDR = cms.double(0.),
+        maxDR = cms.double(1e9),
+        minDEta = cms.double(-1.),
+        minDPhi = cms.double(-1.),
+        minInvMass = cms.double(0.),
+        maxInvMass = cms.double(1e9),
+    )
     if hasattr(process, vbfSeedLabel):
         vbfSeed = getattr(process, vbfSeedLabel)
         for pathName, (suffix, seeds) in vbfSeedOverrides.items():
@@ -378,14 +393,32 @@ def customizeHLTforL1P2GTv0p0_2026(process):
                 continue
             path = getattr(process, pathName)
             seedLabel = vbfSeedLabel.replace('Filter', suffix + 'Filter')
-            setattr(process, seedLabel, vbfSeed.clone(
-                l1GTAlgos = cms.VPSet([
-                    cms.PSet(
-                        name = cms.string(seed),
-                        collection = vbfSeed.l1GTAlgos[0].collection.clone()
-                    ) for seed in seeds
-                ])
-            ))
+            jets = vbfSeed.l1GTAlgos[0].collection
+            if pathName in vbfSeedThirdObject:
+                setattr(process, seedLabel, cms.EDFilter('HLTP2GTTripleObjectFilter',
+                    saveTags = vbfSeed.saveTags,
+                    l1GTAlgoBlockTag = vbfSeed.l1GTAlgoBlockTag,
+                    l1GTAlgos = cms.VPSet([
+                        cms.PSet(
+                            name = cms.string(seed),
+                            collection1 = jets.clone(),
+                            collection2 = jets.clone(),
+                            collection3 = jets.clone(objectType = vbfSeedThirdObject[pathName]),
+                            cuts12 = noPairCuts.clone(),
+                            cuts13 = noPairCuts.clone(),
+                            cuts23 = noPairCuts.clone()
+                        ) for seed in seeds
+                    ])
+                ))
+            else:
+                setattr(process, seedLabel, vbfSeed.clone(
+                    l1GTAlgos = cms.VPSet([
+                        cms.PSet(
+                            name = cms.string(seed),
+                            collection = jets.clone()
+                        ) for seed in seeds
+                    ])
+                ))
             path.replace(vbfSeed, getattr(process, seedLabel))
             for module in process.filters_().values():
                 if not path.contains(module):
