@@ -16,7 +16,8 @@ for _eraName, _postfix, _era in _cfg.nonDefaultEras():
 
 from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
 # with LST, this is the first iteration with proper cluster masking
-trackingLST.toModify(lowPtQuadStepClusters, oldClusterRemovalInfo = "")
+# with LST, also mask the LST-track hits with a large chi2 increment, which otherwise let lowPtQuadStep re-find the LST tracks
+trackingLST.toModify(lowPtQuadStepClusters, oldClusterRemovalInfo = "", maxChi2 = 1e3)
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerQuadruplets_cfi

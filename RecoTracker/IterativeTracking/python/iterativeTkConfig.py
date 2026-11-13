@@ -69,8 +69,6 @@ _iterations_trackingPhase2PU140_VS = cms.PSet(names = cms.vstring(
 ))
 from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
 vectorHits.toModify(_iterations_trackingPhase2PU140_VS.names, func=lambda x: x.append('PixelLessStep'))
-from Configuration.ProcessModifiers.jetCoreInPhase2_cff import jetCoreInPhase2
-jetCoreInPhase2.toModify(_iterations_trackingPhase2PU140_VS.names, func=lambda x: x.append('JetCoreRegionalStep'))
 trackingIters01.toModify(_iterations_trackingPhase2PU140_VS, names = ["InitialStep", "HighPtTripletStep"])
 
 # apply all procModifiers before this
