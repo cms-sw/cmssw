@@ -2050,9 +2050,14 @@ upgradeWFs['HLTTrackingOnly75e33'].step2['-s'] = upgradeWFs['HLTTrackingOnly75e3
 upgradeWFs['HLTDev75e33'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTDev75e33'].suffix = '_HLT75e33Dev'
 upgradeWFs['HLTDev75e33'].offset = 0.7504
+# the development menu runs on the v0p0_2026 L1 menu, as some of its paths
+# (e.g. HLT_Mu9_Barrel_IP6_FromL1TkMuon) are seeded by v0p0_2026-only algorithms
 upgradeWFs['HLTDev75e33'].step2['-s'] = upgradeWFs['HLTDev75e33'].step2['-s'].replace(
     'HLT:@relvalRun4_timing', 'HLT:@relvalRun4_dev'
+).replace(
+    'L1P2GT,', 'L1P2GT:v0p0_2026,'
 )
+upgradeWFs['HLTDev75e33'].step2['--customise'] = 'HLTrigger/Configuration/customizeHLTforCMSSW.customizeHLTforL1P2GTv0p0_2026'
 
 class UpgradeWorkflow_HLT75e33TrackingNtuple(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):

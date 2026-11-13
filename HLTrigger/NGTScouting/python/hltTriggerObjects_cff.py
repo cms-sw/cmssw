@@ -38,6 +38,8 @@ hltTriggerObjP4Table = cms.EDProducer(
         "HLT_DoubleMu4_3_LowMass_FromL1TkMuon",
         "HLT_DoubleMu4_3_Bs_FromL1TkMuon",
         "HLT_DoubleMu4_3_Jpsi_FromL1TkMuon",
+        "HLT_Dimuon0_Upsilon_FromL1TkMuon",
+        "HLT_Mu9_Barrel_IP6_FromL1TkMuon",
         "HLT_Ele32_WPTight_Unseeded",
         "HLT_Ele26_WP70_Unseeded",
         "HLT_Photon108EB_TightID_TightIso_Unseeded",

@@ -153,6 +153,8 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_TriMu_10_5_5_DZ_FromL
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleMu4_3_LowMass_FromL1TkMuon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleMu4_3_Bs_FromL1TkMuon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleMu4_3_Jpsi_FromL1TkMuon_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Dimuon0_Upsilon_FromL1TkMuon_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Mu9_Barrel_IP6_FromL1TkMuon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLTAnalyzerEndpath_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLTriggerFinalPath_cfi")
 
@@ -297,6 +299,8 @@ fragment.schedule = cms.Schedule(*[
     fragment.HLT_DoubleMu4_3_LowMass_FromL1TkMuon,
     fragment.HLT_DoubleMu4_3_Bs_FromL1TkMuon,
     fragment.HLT_DoubleMu4_3_Jpsi_FromL1TkMuon,
+    fragment.HLT_Dimuon0_Upsilon_FromL1TkMuon,
+    fragment.HLT_Mu9_Barrel_IP6_FromL1TkMuon,
     
     fragment.HLT_Ele32_WPTight_L1Seeded,
     fragment.HLT_Ele30_WPTight_L1Seeded_LooseDeepTauPFTauHPS30_eta2p1_CrossL1,
