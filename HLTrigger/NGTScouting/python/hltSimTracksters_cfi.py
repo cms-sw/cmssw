@@ -41,9 +41,9 @@ hltSimTracksterTable = cms.EDProducer(
         eVector0_x=Var(
             "eigenvectors()[0].x", "float", doc="Trackster PCA principal axis, x component"),
         eVector0_y=Var(
-            "eigenvectors()[0].z", "float", doc="Trackster PCA principal axis, y component"),
+            "eigenvectors()[0].y", "float", doc="Trackster PCA principal axis, y component"),
         eVector0_z=Var(
-            "eigenvectors()[0].y", "float", doc="Trackster PCA principal axis, z component"),
+            "eigenvectors()[0].z", "float", doc="Trackster PCA principal axis, z component"),
         time=Var("time", "float", doc="Trackster HGCAL time"),
         timeError=Var("timeError", "float",
                       doc="Trackster HGCAL time error")
@@ -103,9 +103,9 @@ hltSimTracksterFromCPsTable = cms.EDProducer(
         eVector0_x=Var(
             "eigenvectors()[0].x", "float", doc="Trackster PCA principal axis, x component"),
         eVector0_y=Var(
-            "eigenvectors()[0].z", "float", doc="Trackster PCA principal axis, y component"),
+            "eigenvectors()[0].y", "float", doc="Trackster PCA principal axis, y component"),
         eVector0_z=Var(
-            "eigenvectors()[0].y", "float", doc="Trackster PCA principal axis, z component"),
+            "eigenvectors()[0].z", "float", doc="Trackster PCA principal axis, z component"),
         time=Var("time", "float", doc="Trackster HGCAL time"),
         timeError=Var("timeError", "float",
                       doc="Trackster HGCAL time error")
