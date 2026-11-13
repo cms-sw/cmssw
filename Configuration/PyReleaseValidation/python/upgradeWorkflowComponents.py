@@ -2047,6 +2047,13 @@ upgradeWFs['HLTTrackingOnly75e33'].step2['-s'] = upgradeWFs['HLTTrackingOnly75e3
     'VALIDATION:@hltValidation', 'VALIDATION::hltMultiTrackValidation+hltMultiPVValidation'
 )
 
+upgradeWFs['HLTDev75e33'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTDev75e33'].suffix = '_HLT75e33Dev'
+upgradeWFs['HLTDev75e33'].offset = 0.754
+upgradeWFs['HLTDev75e33'].step2['-s'] = upgradeWFs['HLTDev75e33'].step2['-s'].replace(
+    'HLT:@relvalRun4_timing', 'HLT:@relvalRun4_dev'
+)
+
 class UpgradeWorkflow_HLT75e33TrackingNtuple(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         # skip RECO, ALCA and HLT

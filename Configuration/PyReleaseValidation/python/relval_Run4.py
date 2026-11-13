@@ -71,6 +71,7 @@ numWFIB.extend([prefixDet+34.7512]) # HLTTiming75e33, phase2CAVectorHits
 numWFIB.extend([prefixDet+34.7521]) # HLTTiming75e33, ticlv5TrackLinkingGNN
 numWFIB.extend([prefixDet+34.7522]) # HLTTiming75e33, mtd_at_hlt
 numWFIB.extend([prefixDet+34.753])  # HLTTiming75e33, legacy tracking
+numWFIB.extend([prefixDet+34.754])  # HLTTDev75e33
 numWFIB.extend([prefixDet+34.755])  # HLTTiming75e33, trackingLST
 numWFIB.extend([prefixDet+34.757])  # HLTTiming75e33, MkFitFit
 numWFIB.extend([prefixDet+34.758])  # HLTTiming75e33, ticl_barrel

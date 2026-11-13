@@ -129,9 +129,6 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Diphoton30_23_IsoCalo
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleEle23_12_Iso_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleEle25_CaloIdL_PMS2_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleEle25_CaloIdL_PMS2_Unseeded_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleMu4_3_LowMass_FromL1TkMuon_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleMu4_3_Bs_FromL1TkMuon_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleMu4_3_Jpsi_FromL1TkMuon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleMediumChargedIsoPFTauHPS40_eta2p1_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleMediumDeepTauPFTauHPS35_eta2p1_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepCSV_2p4_cfi")
@@ -326,9 +323,6 @@ fragment.schedule = cms.Schedule(*[
     fragment.HLT_Mu37_Mu27_FromL1TkMuon,
     fragment.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_FromL1TkMuon,
     fragment.HLT_TriMu_10_5_5_DZ_FromL1TkMuon,
-    fragment.HLT_DoubleMu4_3_LowMass_FromL1TkMuon,
-    fragment.HLT_DoubleMu4_3_Bs_FromL1TkMuon,
-    fragment.HLT_DoubleMu4_3_Jpsi_FromL1TkMuon,
 
     fragment.HLT_Ele32_WPTight_Unseeded,
     fragment.HLT_Ele26_WP70_Unseeded,
