@@ -315,6 +315,14 @@ def nanoAOD_customizeCommon(process):
     process = nanoAOD_refineFastSim_puppiJet(process)
     process = nanoAOD_refineFastSim_bTagDeepFlav(process, nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addDeepFlavourTag_switch)
 
+    # the photon transformer ID (photons_cff) runs a PyTorch model: disable the PyTorch-internal threads
+    (~run2_egamma).toModify(process, nanoAOD_addPyTorchService)
+
+    return process
+
+def nanoAOD_addPyTorchService(process):
+    if not hasattr(process, "PyTorchService"):
+        process.add_(cms.Service("PyTorchService"))
     return process
 
 ###increasing the precision of selected GenParticles.
