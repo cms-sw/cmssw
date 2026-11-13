@@ -94,8 +94,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto queue = iEvent.queue();
     auto const& moduleIndexer = iSetup.getData(indexerToken_);
     auto const& config = iSetup.getData(configToken_);  // HGCalConfiguration
-    auto const& calibParamDevice = iSetup.getData(calibParamToken_);
-    //printf("HGCalRecHitESProducersTest::produce: time to load calibParamDevice from calib ESProducers: %f seconds\n", duration(start,now()));
+    auto const& calibParam = iSetup.getData(calibParamToken_);
+    std::cout << "calibParam=" << calibParam.view().metadata().size() << std::endl;
+    //printf("HGCalRecHitESProducersTest::produce: time to load calibParam from calib ESProducers: %f seconds\n", duration(start,now()));
 
     // Check if there are new conditions and read them
     std::string line = "HGCalRecHitESProducersTest::produce " + std::string(90, '-');
@@ -112,6 +113,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       for (std::size_t fedid = 0; fedid < nfeds; ++fedid) {
         auto fed = config.feds[fedid];   // HGCalFedConfig
         auto nmods = fed.econds.size();  // number of ECON-Ds for this FED
+        if(nmods==0) continue;
         std::cout << "  fedid=" << fedid << ", nmods=" << nmods << ", passthroughMode=" << fed.mismatchPassthroughMode
                   << ", cbHeaderMarker=0x" << std::hex << fed.cbHeaderMarker << ", slinkHeaderMarker=0x"
                   << fed.slinkHeaderMarker << std::dec << std::endl;
@@ -126,14 +128,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       // Alpaka ESProducer for SoA with calibration parameters with pedestals, etc. per channel
       std::cout << line << std::endl;
-      int size = calibParamDevice.view().metadata().size();
-      std::cout << "HGCalRecHitESProducersTest::produce: device size=" << size << std::endl;
+      int size = calibParam.view().metadata().size();
+      std::cout << "HGCalRecHitESProducersTest::produce: host size=" << size << std::endl;
       std::cout << "HGCalRecHitESProducersTest::produce: calibration constants per channel:" << std::endl;
       std::cout << "   idx    hex     ADC_ped   CM_slope   CM_ped   EM_scale" << std::endl;
       for (int idx = 0; idx < size; idx++) {
         if (idx >= maxchans_)
           break;
-        printCalPars(calibParamDevice.view(), idx);
+        printCalPars(calibParam.view(), idx);
       }
 
       // per module
@@ -149,7 +151,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         for (uint32_t idx = minoffset; idx <= offset + 1; idx++) {
           const std::string typecode_ = (idx == offset ? typecode : "");
           std::cout << std::setw(6) << imod << std::setw(18) << typecode_;
-          printCalPars(calibParamDevice.view(), idx);
+          printCalPars(calibParam.view(), idx);
         }
         imod += 1;
       }
@@ -175,8 +177,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                              /*ignore_comments*/ true);
     } else {
       edm::FileInPath fedfip(fedjson_);  // e.g. HGCalCommissioning/LocalCalibration/data/config_feds.json
-      std::ifstream fedfile(fedjson_);
-      fed_data = json::parse(fedfile, nullptr, true, /*ignore_comments*/ true);
+      fed_data = json::parse(fedfip.fullPath(), nullptr, true, /*ignore_comments*/ true);
     }
     std::vector<std::string> fedkeys;
     for (int fedid = 0; fedid <= maxfeds_; fedid++) {

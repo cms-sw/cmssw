@@ -17,8 +17,8 @@
 // includes for HGCal, calibration, and configuration parameters
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalCalibrationParameterHost.h"
-#include "CondFormats/HGCalObjects/interface/HGCalAgeingCondsHost.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHost.h"
+#include "CondFormats/HGCalObjects/interface/HGCalAgeingCondsHost.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalCalibrationParameterDevice.h"
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/DataRecord/interface/HGCalAgeingCondsRcd.h"
@@ -42,13 +42,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           : ESProducer(iConfig),
             filename_(iConfig.getParameter<edm::FileInPath>("filename")),
             filenameEnergy_(iConfig.getParameter<edm::FileInPath>("filenameEnergyLoss")),
-            // when true, the calibration constants are overridden with the ageing conditions (simulation only)
             applyAgeing_(iConfig.getParameter<bool>("applyAgeing")) {
         auto cc = setWhatProduced(this);
         indexToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("indexSource"));
         mapToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("mapSource"));
-        if (applyAgeing_)
+        if (applyAgeing_) {
           ageingToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("ageingSource"));
+          edm::LogWarning("HGCalCalibrationESProducer") << " calibration producer will use algorithmic conditions";
+        }
       }
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -103,7 +104,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::optional<hgcalrechit::HGCalCalibParamHost> produce(const HGCalModuleConfigurationRcd& iRecord) {
         auto const& moduleIndexer = iRecord.get(indexToken_);
         auto const& moduleMapper = iRecord.get(mapToken_);
-        const HGCalAgeingCondsHost* ageing = applyAgeing_ ? &iRecord.get(ageingToken_) : nullptr;
         edm::LogInfo("HGCalCalibrationESProducer") << "produce: filename=" << filename_.fullPath().c_str();
 
         // load dense indexing
@@ -130,7 +130,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           const auto [fedid, modid] = ids;
 
           // retrieve matching key (glob patterns allowed)
-          // change this to read from aging conditions
           const auto modkey = search_modkey(module, calib_data, filename_.fullPath());
           auto calib_data_ = calib_data[modkey];
 
@@ -166,26 +165,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           fill_SoA_column<float>(product.view().TOT_P1(), calib_data_["TOT_P1"], offset, nrows);
           fill_SoA_column<float>(product.view().TOT_P2(), calib_data_["TOT_P2"], offset, nrows);
           fill_SoA_column<float>(product.view().MIPS_scale(), calib_data_["MIPS_scale"], offset, nrows);
-          fill_SoA_column<unsigned char>(product.view().valid(), calib_data_["Valid"], offset, nrows); //set this to true in simulation
-          
-          // loop over channels and apply ageing
-          for (uint32_t i = 0; applyAgeing_ && i < nchans; ++i) {
-            auto a = ageing->view()[offset + i];
-            auto c = product.view()[offset + i];
-            c.MIPS_scale() = a.signal();  // apply ageing scale to MIP scale signal scale is CCE
-            c.Noise() = a.enc()/a.adc_lsb(); //check how to get ageing-corrected noise, this already taken care of, don't need to apply ageing scale factor
-            c.TOTtoADC() = a.tot_lsb()/a.adc_lsb();//check how to get ageing-corrected TOTtoADC tot_lsb/adc_lsb, this is related to the active volume. (which is the Vdep-related ageing part)
-            c.ADC_ped() = 0;
-            c.CM_slope() = 0;
-            c.CM_ped() = 0;
-            c.BXm1_slope() = 0;
-            c.TOT_ped() = 0;
-            c.TOT_lin() = 0;
-            c.TOT_P0() = 0;
-            c.TOT_P1() = 0;
-            c.TOT_P2() = 0;
-            c.valid() = 1; //set this to true in simulation
-          }
+          fill_SoA_column<unsigned char>(product.view().valid(), calib_data_["Valid"], offset, nrows);
 
           // default parameters for fine-grain TDC, coarse-grain TDC and time-walk corrections that allow passthrough
           // (for backwards compatibility of older calibration JSONs)
@@ -240,7 +220,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       edm::ESGetToken<HGCalAgeingCondsHost, HGCalAgeingCondsRcd> ageingToken_;
       const edm::FileInPath filename_;
       const edm::FileInPath filenameEnergy_;
-      const bool applyAgeing_;
+      bool applyAgeing_;
     };
 
   }  // namespace hgcalrechit

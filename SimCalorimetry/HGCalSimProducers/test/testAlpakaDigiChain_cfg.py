@@ -43,6 +43,8 @@ process.source = cms.Source(
     fileNames=cms.untracked.vstring(options.files)
 )
 
+process.load('Configuration.StandardSequences.Accelerators_cff')
+
 # electronics configuration
 process.hgcalConfigESProducer = cms.ESSource( # ESProducer to load configurations for unpacker
     'HGCalConfigurationESProducer',
@@ -142,9 +144,33 @@ process.hgCalDigitizerProducer = cms.EDProducer(
     n_threads = cms.int32(1024)
 )
 
+
+ # CALIBRATIONS Alpaka ESProducers (for DIGI -> RECO step)
+process.hgcalCalibParamESProducer = cms.ESProducer( # ESProducer to load calibration parameters from JSON file, like pedestals
+    'hgcalrechit::HGCalCalibrationESProducer@alpaka',
+    filename=cms.FileInPath('HGCalCommissioning/Calibrations/P5/calib/level0_calib_params_test.json'),
+    filenameEnergyLoss=cms.FileInPath('HGCalCommissioning/Calibrations/P5/calib/hgcal_energyloss_trivial.json'),
+    indexSource=cms.ESInputTag('hgCalMappingESProducer',''),
+    mapSource=cms.ESInputTag('hgCalMappingModuleESProducer',''),
+    applyAgeing=cms.bool(options.applyAgeing),
+    ageingSource=cms.ESInputTag()
+)
+
+process.hgcalRecHits = cms.EDProducer(
+    'alpaka_serial_sync::HGCalRecHitsProducer',
+    digis=cms.InputTag('hgCalDigitizerProducer','HGCROCDigis'),
+    calibSource=cms.ESInputTag('hgcalCalibParamESProducer', ''),
+    k_noise=cms.double(-1000),
+    n_hits_scale=cms.int32(1),
+    n_blocks=cms.int32(1024),
+    n_threads=cms.int32(4096)
+)
+
+# step
 process.digi_step = cms.Path(
     process.hgCalSimHitAccumulator
     *process.hgCalDigitizerProducer
+    *process.hgcalRecHits
 )
 try:
     process.schedule.insert(0, process.digi_step)
@@ -157,7 +183,8 @@ process.edmoutput = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
         'drop *',
         'keep *_hgCalSimHitAccumulator_*_*',
-        'keep *_hgCalDigitizerProducer_*_*'
+        'keep *_hgCalDigitizerProducer_*_*',
+        'keep *_hgcalRecHits_*_*'
     ),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('digi_step')

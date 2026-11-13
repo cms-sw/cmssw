@@ -45,7 +45,7 @@ typedef std::vector<edm::ParameterSet> VPSet;
 struct PCaloHitConfig {
   PCaloHitConfig(int32_t d, bool isc, double deltaT, edm::InputTag tag, edm::EDGetTokenT<edm::PCaloHitContainer> t)
       : det(d), iscalib(isc), tof_delay(deltaT), tkn(t) {
-    edm::LogWarning("HGCalSimHitAccumulator")
+    LogDebug("HGCalSimHitAccumulator")
         << "will consume PCaloHits collection for det=" << det << " TOF delay=" << tof_delay << " iscalib=" << iscalib
         << " collection is" << tag.label() << ":" << tag.instance() << ":" << tag.process();
   }
@@ -120,7 +120,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       //check if it has already been added, just in case
       auto cfgIt = findHitConsumerConfig(d, isc);
       if (cfgIt != hitConsumerConfig_.end()) {
-        edm::LogWarning("HGCalSimHitAccumulator")
+        LogDebug("HGCalSimHitAccumulator")
             << " A configuration for det=" << d << " calib=" << isc << " already exists, skipping this one";
         continue;
       }
@@ -276,7 +276,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         std::for_each(hit_collection.begin(), hit_collection.end(), [&](auto const& h) { accumulateHit(h, cfg, m); });
 
       } catch (cms::Exception& e) {
-        edm::LogWarning("HGCalSimHitAccumulator") << e.what();
+        LogDebug("HGCalSimHitAccumulator") << e.what();
       }
 
       accMonitor.push_back(m);
