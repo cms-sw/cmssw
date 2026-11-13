@@ -41,6 +41,7 @@ LEVEL_BITS = {
     "reconstructableFinalState": 1 << 10,
     "tauVisibleHadronic": 1 << 11,
     "tauVisibleLeptonic": 1 << 12,
+    "pfReconstructable": 1 << 13,
     # Last, as truth::levelNamesOf reports it: not a level row, the selection's own flag.
     "signal": 1 << 4,
 }
