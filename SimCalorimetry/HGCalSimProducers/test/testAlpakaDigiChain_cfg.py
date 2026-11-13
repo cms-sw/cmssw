@@ -56,14 +56,13 @@ process.hgcalConfigESProducer = cms.ESSource( # ESProducer to load configuration
 
 
 # electronics mapping
-from Geometry.HGCalMapping.hgcalmapping_cff import *
+from Geometry.HGCalMapping.hgcalmapping_cff import customise_hgcalmapper
 kwargs = { k: getattr(options,k) for k in ['modules','sicells','sipmcells','offsetfile'] if getattr(options,k)!='' }
-#process = customise_hgcal_ageing_byalgo_eol_startup(process, **kwargs)
-process = customise_hgcal_ageing_byalgo_eol(process, **kwargs)
+process = customise_hgcalmapper(process, **kwargs)
 
 # ageing conditions
-from SimCalorimetry.HGCalSimAlgos.hgcal_ageing_byalgo_cfi import customise_hgcal_ageing_byalgo_startup
-process = customise_hgcal_ageing_byalgo_startup(process)
+from SimCalorimetry.HGCalSimAlgos.hgcal_ageing_byalgo_cfi import customise_hgcal_ageing_byalgo_eol
+process = customise_hgcal_ageing_byalgo_eol(process)
 
 # random number generator service
 process.RandomNumberGeneratorService = cms.Service(
