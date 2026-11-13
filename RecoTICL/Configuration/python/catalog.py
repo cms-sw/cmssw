@@ -242,7 +242,7 @@ CATALOG = {spec.key: spec for spec in _SPECS}
 # not needed for the TICL plumbing graph.
 GPU_CAPABLE = frozenset([
     "HGCalSoARecHitsProducer",
-    "HGCalSoARecHitsLayerClustersProducer",
+    "HGCalCLUEsteringLayerClustersProducer",
     "HGCalSoALayerClustersProducer",
 ])
 
