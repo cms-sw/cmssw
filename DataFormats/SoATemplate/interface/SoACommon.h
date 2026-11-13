@@ -1015,28 +1015,29 @@ namespace cms::soa::detail {
                          T::ColsAtCompileTime / sizeof(typename T::Scalar));
   }
 
-  // Helper function for extracting the number of blocks of a layout. Falls back to 1 if the layout does not define a static member blocksNumber.
+  // Helper function for extracting the number of blocks of a layout.
+  // Falls back to 1 if the layout does not define a static member blocksNumber.
   template <typename T>
   constexpr size_type nBlocks() {
-    if constexpr (requires { T::blocksNumber; })
-      return T::blocksNumber;
+    if constexpr (requires { T::blocksNumberFlat; })
+      return T::blocksNumberFlat;
     else
       return static_cast<size_type>(1);
   }
 
   // Case 1: type has blocksNumber → returns a sub-array
   template <typename T, size_type N>
-    requires requires { T::blocksNumber; }
-  [[nodiscard]] constexpr std::array<size_type, T::blocksNumber> extractSegment(const std::array<size_type, N>& sizes,
-                                                                                size_type offset) {
+    requires requires { T::blocksNumberFlat; }
+  [[nodiscard]] constexpr std::array<size_type, T::blocksNumberFlat> extractSegment(
+      const std::array<size_type, N>& sizes, size_type offset) {
     return [&]<std::size_t... I>(std::index_sequence<I...>) {
-      return std::array<size_type, T::blocksNumber>{sizes[offset + I]...};
-    }(std::make_index_sequence<T::blocksNumber>{});
+      return std::array<size_type, T::blocksNumberFlat>{sizes[offset + I]...};
+    }(std::make_index_sequence<T::blocksNumberFlat>{});
   }
 
   // Case 2: fallback (single block) → returns a scalar
   template <typename T, size_type N>
-    requires(!requires { T::blocksNumber; })
+    requires(!requires { T::blocksNumberFlat; })
   [[nodiscard]] constexpr size_type extractSegment(const std::array<size_type, N>& sizes, size_type offset) {
     return sizes[offset];
   }

@@ -37,7 +37,7 @@ public:
 
   template <std::integral Int>
   PortableDeviceCollection(TDev const& device, const Int size)
-    requires(!requires { Layout::blocksNumber; })
+    requires(!requires { Layout::blocksNumberFlat; })
       : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(
             device, Layout::computeDataSize(portablecollection::size_cast(size)))},
         layout_{buffer_->data(), portablecollection::size_cast(size)},
@@ -47,7 +47,7 @@ public:
   }
 
   template <typename TQueue, std::integral Int>
-    requires(alpaka::concepts::Queue<TQueue> && (!requires { Layout::blocksNumber; }))
+    requires(alpaka::concepts::Queue<TQueue> && (!requires { Layout::blocksNumberFlat; }))
   PortableDeviceCollection(TQueue const& queue, const Int size)
       : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(
             queue, Layout::computeDataSize(portablecollection::size_cast(size)))},
@@ -60,20 +60,22 @@ public:
   // constructor for a SoABlocks-layout, taking per-block sizes as variadic integral arguments
   template <std::integral... Ints>
   explicit PortableDeviceCollection(TDev const& device, const Ints... sizes)
-    requires requires { Layout::blocksNumber; } && (sizeof...(Ints) == static_cast<std::size_t>(Layout::blocksNumber))
+    requires requires { Layout::blocksNumberFlat; } &&
+             (sizeof...(Ints) == static_cast<std::size_t>(Layout::blocksNumberFlat))
       : PortableDeviceCollection(device, std::to_array({portablecollection::size_cast(sizes)...})) {}
 
   // constructor for a SoABlocks-layout, taking per-block sizes as variadic integral arguments
   template <typename TQueue, std::integral... Ints>
     requires(alpaka::concepts::Queue<TQueue>)
   explicit PortableDeviceCollection(TQueue const& queue, const Ints... sizes)
-    requires requires { Layout::blocksNumber; } && (sizeof...(Ints) == static_cast<std::size_t>(Layout::blocksNumber))
+    requires requires { Layout::blocksNumberFlat; } &&
+             (sizeof...(Ints) == static_cast<std::size_t>(Layout::blocksNumberFlat))
       : PortableDeviceCollection(queue, std::to_array({portablecollection::size_cast(sizes)...})) {}
 
   // constructor for a SoABlocks-layout, taking per-block sizes as a fixed-size array
   template <std::size_t N>
   explicit PortableDeviceCollection(TDev const& device, std::array<int32_t, N> const& sizes)
-    requires requires { Layout::blocksNumber; } && (N == static_cast<std::size_t>(Layout::blocksNumber))
+    requires requires { Layout::blocksNumberFlat; } && (N == static_cast<std::size_t>(Layout::blocksNumberFlat))
       : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(device, Layout::computeDataSize(sizes))},
         layout_{buffer_->data(), sizes},
         view_{layout_} {
@@ -85,7 +87,7 @@ public:
   template <typename TQueue, std::size_t N>
     requires(alpaka::concepts::Queue<TQueue>)
   explicit PortableDeviceCollection(TQueue const& queue, std::array<int32_t, N> const& sizes)
-    requires requires { Layout::blocksNumber; } && (N == static_cast<std::size_t>(Layout::blocksNumber))
+    requires requires { Layout::blocksNumberFlat; } && (N == static_cast<std::size_t>(Layout::blocksNumberFlat))
       : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(queue, Layout::computeDataSize(sizes))},
         layout_{buffer_->data(), sizes},
         view_{layout_} {
