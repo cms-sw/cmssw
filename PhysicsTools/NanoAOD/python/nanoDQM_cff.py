@@ -122,6 +122,7 @@ def _match(name):
     if 'Fall17V2' in name: return True
     if '_quadratic' in name: return True
     if 'hoe_PUcorr' in name: return True
+    if 'transformerID' in name: return True
     return False
 for plot in nanoDQM.vplots.Photon.plots:
     if not _match(plot.name.value()):

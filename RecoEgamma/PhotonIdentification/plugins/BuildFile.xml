@@ -19,3 +19,16 @@
   <use name="RecoEgamma/EgammaTools"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library name="RecoEgammaPhotonIdentificationPlugins_transformer" file="transformer/*.cc">
+  <use name="DataFormats/EcalDetId"/>
+  <use name="DataFormats/EcalRecHit"/>
+  <use name="DataFormats/VertexReco"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="Geometry/Records"/>
+  <use name="PhysicsTools/PyTorch"/>
+  <use name="json"/>
+  <use name="pytorch"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
