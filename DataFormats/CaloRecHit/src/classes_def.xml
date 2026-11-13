@@ -30,7 +30,7 @@
   <class name="edm::Wrapper<edm::ValueMap<reco::CaloClusterPtr> >" />
   <class name="edm::Wrapper<edm::ValueMap<reco::CaloClusterPtrVector> >" />
 
-  <class name="reco::CaloClusterHostCollection"/>
+  <class name="reco::CaloClusterHostCollection" rntupleStreamerMode="true"/>
   <class name="reco::CaloClusterHostCollection::Layout"/>
   <class name="reco::CaloClusterSoA"/>
   <class name="reco::CaloClusterSoA::View"/>

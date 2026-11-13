@@ -6,7 +6,6 @@
 #include "DataFormats/SoATemplate/interface/SoABlocks.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/CaloRecHit/interface/CaloID.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include <xtd/xtd.h>
 
@@ -25,7 +24,6 @@ namespace reco {
                       SOA_COLUMN(float, correctedEnergyUncertainty))
 
   GENERATE_SOA_LAYOUT(CaloClusterSoAIndexes,
-                      SOA_COLUMN(CaloID, caloID),
                       SOA_COLUMN(CaloCluster::AlgoID, algoID),
                       SOA_COLUMN(DetId, seedID),
                       SOA_COLUMN(uint32_t, flags))
