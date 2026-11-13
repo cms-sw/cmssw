@@ -40,7 +40,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source(
     "PoolSource",
-    fileNames=cms.untracked.vstring(options.inputFiles)
+    fileNames=cms.untracked.vstring(options.files)
 )
 
 # electronics configuration
