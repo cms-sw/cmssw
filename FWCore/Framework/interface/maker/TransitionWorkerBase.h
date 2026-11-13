@@ -186,7 +186,7 @@ namespace edm {
     }
 
     void esPrefetchAsync(WaitingTaskHolder, EventSetupImpl const&, Transition, ServiceToken const&) noexcept;
-    void edPrefetchAsync(WaitingTaskHolder, ServiceToken const&, Principal const&) const noexcept;
+    void edPrefetchAsync(WaitingTaskHolder, Principal const&, Transition, ServiceToken const&) const noexcept;
 
     bool needsESPrefetching(Transition iTrans) const noexcept {
       return iTrans < edm::Transition::NumberOfEventSetupTransitions ? not esItemsToGetFrom(iTrans).empty() : false;
