@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <ostream>
 #include <stdexcept>
+#include <string_view>
 #include <tuple>
 
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
@@ -188,6 +189,13 @@
 
 #define _DECLARE_CONST_DESCRIPTOR_BLOCKS(R, DATA, SPEC) \
   _EXEC_IF_BLOCK(SPEC, _DECLARE_CONST_DESCRIPTOR_BLOCKS_IMPL, (_BLOCK_GET_LAYOUT(SPEC)))
+
+/*
+ * Names of the blocks, in the same order as the descriptors of each block
+ */
+#define _DECLARE_BLOCK_NAME_IMPL(NAME) (BOOST_PP_STRINGIZE(NAME))
+
+#define _DECLARE_BLOCK_NAME(R, DATA, SPEC) _EXEC_IF_BLOCK(SPEC, _DECLARE_BLOCK_NAME_IMPL, (_BLOCK_GET_NAME(SPEC)))
 
 /*
  * Computation of the block location in the memory layout (at SoA by blocks construction time)
@@ -529,23 +537,27 @@
     struct Descriptor {                                                                                                \
       Descriptor() = default;                                                                                          \
                                                                                                                        \
-      explicit Descriptor(View view)                                                                                  \
+      explicit Descriptor(View view)                                                                                   \
           : buff(std::make_tuple(_ITERATE_ON_ALL_COMMA(_ASSIGN_SPANS_TO_BLOCKS, ~, __VA_ARGS__))) {}                   \
                                                                                                                        \
       static constexpr size_type blocksNumber = std::tuple_size<std::tuple<                                            \
                                          _ITERATE_ON_ALL_COMMA(_DECLARE_DESCRIPTOR_BLOCKS, ~, __VA_ARGS__)>>::value;   \
       std::tuple< _ITERATE_ON_ALL_COMMA(_DECLARE_DESCRIPTOR_BLOCKS, ~, __VA_ARGS__)> buff;                             \
+      static constexpr std::array<std::string_view, blocksNumber> names = {{                                           \
+        _ITERATE_ON_ALL_COMMA(_DECLARE_BLOCK_NAME, ~, __VA_ARGS__)}};                                                  \
     };                                                                                                                 \
                                                                                                                        \
     struct ConstDescriptor {                                                                                           \
       ConstDescriptor() = default;                                                                                     \
                                                                                                                        \
-      explicit ConstDescriptor(ConstView const view)                                                                  \
+      explicit ConstDescriptor(ConstView const view)                                                                   \
           : buff(std::make_tuple(_ITERATE_ON_ALL_COMMA(_ASSIGN_CONST_SPANS_TO_BLOCKS, ~, __VA_ARGS__))) {}             \
                                                                                                                        \
       static constexpr size_type blocksNumber = std::tuple_size<std::tuple<                                            \
                                    _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_DESCRIPTOR_BLOCKS, ~, __VA_ARGS__)>>::value;   \
       std::tuple< _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_DESCRIPTOR_BLOCKS, ~, __VA_ARGS__)> buff;                       \
+      static constexpr std::array<std::string_view, blocksNumber> names = {{                                           \
+        _ITERATE_ON_ALL_COMMA(_DECLARE_BLOCK_NAME, ~, __VA_ARGS__)}};                                                  \
     };                                                                                                                 \
                                                                                                                        \
     /* Trivial constuctor */                                                                                           \
