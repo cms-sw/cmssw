@@ -42,6 +42,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/HGCalReco/interface/TICLCandidate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
@@ -173,6 +174,22 @@ namespace {
     static constexpr const char* cfiName = "truthBranchPFClusterAssociators";
   };
 
+  // An HGCAL layer cluster is one reco::CaloCluster: it owns its cells directly through
+  // hitsAndFractions, so the reco::CaloCluster adapter of RecoHitAdapters.h applies and it
+  // is matched on shared energy like a trackster, without a layer-cluster collection to
+  // resolve. A layer cluster and the tracksters built from it are matched against the
+  // same candidate roots, so a training that starts from either input gets the same truth
+  // target. The HGCAL rechit collections weight the cells; python sets them, because the
+  // default of a self-contained domain is empty.
+  template <>
+  struct TruthAssociationTraits<reco::CaloCluster> {
+    static constexpr auto strategy = AssociationStrategy::HitBased;
+    using MapType = ticl::TICLAssociationMap<ticl::mapWithSharedEnergyAndScore>;
+    static constexpr truth::HitChannel channel = truth::HitChannel::Calo;
+    static constexpr auto metric = truth::BranchHitAssociator::Metric::SharedEnergy;
+    static constexpr const char* cfiName = "truthBranchLayerClusterAssociators";
+  };
+
   // A trackster owns calorimeter energy through its layer clusters, so it is matched
   // directly like a track, but on SHARED ENERGY in the calorimeter channel rather than
   // on a hit count in the tracker. This is the same metric the TICL trackster
@@ -184,6 +201,18 @@ namespace {
     static constexpr truth::HitChannel channel = truth::HitChannel::Calo;
     static constexpr auto metric = truth::BranchHitAssociator::Metric::SharedEnergy;
     static constexpr const char* cfiName = "truthBranchTracksterAssociators";
+  };
+
+  // A TICL candidate owns calorimeter energy through the layer clusters of all its tracksters, so it is matched
+  // like one trackster made of them. Its track is matched by the track associator, whose map the candidate
+  // validator reads.
+  template <>
+  struct TruthAssociationTraits<TICLCandidate> {
+    static constexpr auto strategy = AssociationStrategy::HitBased;
+    using MapType = ticl::TICLAssociationMap<ticl::mapWithSharedEnergyAndScore>;
+    static constexpr truth::HitChannel channel = truth::HitChannel::Calo;
+    static constexpr auto metric = truth::BranchHitAssociator::Metric::SharedEnergy;
+    static constexpr const char* cfiName = "truthBranchCandidateAssociators";
   };
 
   [[nodiscard]] inline std::optional<uint32_t> countingVertex(
@@ -969,3 +998,8 @@ using TruthBranchTracksterAssociatorsProducer = AllRecoToTruthBranchAssociatorsP
 DEFINE_FWK_MODULE(TruthBranchTracksterAssociatorsProducer);
 using TruthBranchPFClusterAssociatorsProducer = AllRecoToTruthBranchAssociatorsProducer<reco::PFCluster>;
 DEFINE_FWK_MODULE(TruthBranchPFClusterAssociatorsProducer);
+using TruthBranchCandidateAssociatorsProducer = AllRecoToTruthBranchAssociatorsProducer<TICLCandidate>;
+DEFINE_FWK_MODULE(TruthBranchCandidateAssociatorsProducer);
+// HGCAL layer clusters (hgcalMergeLayerClusters), the constituents of the tracksters.
+using TruthBranchLayerClusterAssociatorsProducer = AllRecoToTruthBranchAssociatorsProducer<reco::CaloCluster>;
+DEFINE_FWK_MODULE(TruthBranchLayerClusterAssociatorsProducer);
