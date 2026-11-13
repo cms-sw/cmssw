@@ -6,17 +6,20 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 
 _src = os.path.join(os.environ['CMSSW_BASE'], 'src')
-_db = os.path.join(_src, 'EventFilter/Phase2PixelRawToDigi/test/OTandITDTCCablingMap.db')
 
 options = VarParsing.VarParsing('analysis')
 options.register('outputDQM', 'elink_all.root',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  'DQMIO output file')
-options.register('cablingDB', 'sqlite_file:' + _db,
+options.register('cablingDB', 'frontier://FrontierProd/CMS_CONDITIONS',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 'Sqlite cabling-map DB connect string')
+                 'Connect string of the cabling-map DB (CondDB by default; sqlite_file:<path> for a private DB)')
+options.register('cablingTag', 'TrackerDetToDTCELinkCablingMap__IT742__ITOnly',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 'Tag of the IT cabling map')
 options.register('eventsPerStream', 16,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
@@ -52,15 +55,12 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(options.maxEvents))
 process.source = cms.Source('PoolSource', fileNames=cms.untracked.vstring(files))
 
-process.load('CondCore.CondDB.CondDB_cfi')
-process.CondDB.connect = options.cablingDB
-process.PoolDBESSource = cms.ESSource('PoolDBESSource', process.CondDB,
-    toGet=cms.VPSet(cms.PSet(
-        record=cms.string('TrackerDetToDTCELinkCablingMapRcd'),
-        tag=cms.string('DTCCablingMapProducerUserRun'),
-    )),
-)
-process.es_prefer_local_cabling = cms.ESPrefer('PoolDBESSource', '')
+# The Phase-2 GT does not carry an IT cabling map in the current class layout yet: take it from CondDB
+process.GlobalTag.toGet.append(cms.PSet(
+    record=cms.string('TrackerDetToDTCELinkCablingMapRcd'),
+    tag=cms.string(options.cablingTag),
+    connect=cms.string(options.cablingDB),
+))
 
 process.PixelToBitStreamProducer = cms.EDProducer('PixelToBitStreamProducer',
     src=cms.InputTag('generalTracks'),
