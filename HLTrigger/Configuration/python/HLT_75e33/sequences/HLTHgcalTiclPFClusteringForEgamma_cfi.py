@@ -2,10 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from ..modules.hltFilteredLayerClustersCLUE3DHigh_cfi import *
 from ..modules.hltHgcalDigis_cfi import *
-from ..modules.hltHgcalLayerClustersEE_cfi import *
-from ..modules.hltHgcalLayerClustersHSci_cfi import *
-from ..modules.hltHgcalLayerClustersHSi_cfi import *
 from ..modules.hltMergeLayerClusters_cfi import *
+from ..sequences.HLTHgcalLayerClustersSequence_cfi import *
 from ..modules.hltHGCalRecHit_cfi import *
 from ..modules.hltHGCalUncalibRecHit_cfi import *
 from ..modules.hltParticleFlowClusterHGCal_cfi import *
@@ -20,16 +18,14 @@ from ..modules.hltBarrelLayerClustersHB_cfi import *
 from ..modules.hltTiclLayerTileBarrelProducer_cfi import *
 from ..modules.hltTiclTrackstersCLUE3DBarrel_cfi import *
 
-HLTHgcalTiclPFClusteringForEgamma = cms.Sequence((hltHgcalDigis+hltHGCalUncalibRecHit+hltHGCalRecHit+hltParticleFlowRecHitHGC+hltHgcalLayerClustersEE+hltHgcalLayerClustersHSci+hltHgcalLayerClustersHSi+hltMergeLayerClusters+hltFilteredLayerClustersCLUE3DHigh+hltTiclSeedingGlobal+hltTiclLayerTileProducer+hltTiclTrackstersCLUE3DHigh+hltParticleFlowClusterHGCal+hltParticleFlowSuperClusterHGCal))
+HLTHgcalTiclPFClusteringForEgamma = cms.Sequence((hltHgcalDigis+hltHGCalUncalibRecHit+hltHGCalRecHit+hltParticleFlowRecHitHGC+HLTHgcalLayerClustersSequence+hltMergeLayerClusters+hltFilteredLayerClustersCLUE3DHigh+hltTiclSeedingGlobal+hltTiclLayerTileProducer+hltTiclTrackstersCLUE3DHigh+hltParticleFlowClusterHGCal+hltParticleFlowSuperClusterHGCal))
 
 HLTHgcalTiclPFClusteringForEgamma_barrel = cms.Sequence((
   hltHgcalDigis+
   hltHGCalUncalibRecHit+
   hltHGCalRecHit+
   hltParticleFlowRecHitHGC+
-  hltHgcalLayerClustersEE+
-  hltHgcalLayerClustersHSci+
-  hltHgcalLayerClustersHSi+
+  HLTHgcalLayerClustersSequence+
   hltBarrelLayerClustersEB+
   hltBarrelLayerClustersHB+
   hltMergeLayerClusters+

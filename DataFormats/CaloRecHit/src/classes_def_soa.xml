@@ -1,0 +1,12 @@
+<lcgdict>
+  <class name="reco::CaloClusterHostCollection" rntupleStreamerMode="true"/>
+  <class name="reco::CaloClusterHostCollection::Layout"/>
+  <class name="reco::CaloClusterSoA"/>
+  <class name="reco::CaloClusterSoA::View"/>
+  <class name="reco::CaloClusterSoAPosition<128, false>"/>
+  <class name="reco::CaloClusterSoAEnergy<128, false>"/>
+  <class name="reco::CaloClusterSoAIndexes<128, false>"/>
+  <class name="reco::CaloClusterSoATiming<128, false>"/>
+
+  <class name="edm::Wrapper<reco::CaloClusterHostCollection>" splitLevel="0"/>
+</lcgdict>

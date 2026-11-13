@@ -102,30 +102,12 @@ def runRecoForSep2024TB(process):
                                              k_noise=cms.double(5.)
                                              )
 
-    from RecoTICL.LayerClustering.hgCalSoARecHitsLayerClustersProducer_cfi import hgCalSoARecHitsLayerClustersProducer
-    process.hgcalSoARecHitsLayerClusters = hgCalSoARecHitsLayerClustersProducer.clone(
-        hgcalRecHitsSoA="hgcalSoARecHits"
-    )
-
-    from RecoTICL.LayerClustering.hgCalSoALayerClustersProducer_cfi import hgCalSoALayerClustersProducer
-    process.hgcalSoALayerClusters = hgCalSoALayerClustersProducer.clone(
-        hgcalRecHitsLayerClustersSoA="hgcalSoARecHitsLayerClusters",
-        hgcalRecHitsSoA="hgcalSoARecHits"
-    )
-
-    from RecoTICL.LayerClustering.hgCalLayerClustersFromSoAProducer_cfi import hgCalLayerClustersFromSoAProducer
-    process.hgcalMergeLayerClusters = hgCalLayerClustersFromSoAProducer.clone(
-        hgcalRecHitsLayerClustersSoA="hgcalSoARecHitsLayerClusters",
-        hgcalRecHitsSoA="hgcalSoARecHits",
-        src="hgcalSoALayerClusters"
-    )
-
+    # Layer clustering is not run on test-beam data for now: the CLUEstering layer clusters producer needs the rechits
+    # sorted by layer, together with their per-layer sizes ("layerSizes"), which the test-beam rechit producer does
+    # not provide
     process.reco_task = cms.Task(
         process.hgcalDigis,
-        process.hgcalSoARecHits,
-        process.hgcalSoARecHitsLayerClusters,
-        process.hgcalSoALayerClusters,
-        process.hgcalMergeLayerClusters
+        process.hgcalSoARecHits
     )
     process.hgcalTestBeamLocalRecoSequence = cms.Path(process.reco_task)
     process.schedule.insert(0, process.hgcalTestBeamLocalRecoSequence)
@@ -134,8 +116,7 @@ def runRecoForSep2024TB(process):
     process.load('DQMServices.Core.DQMStore_cfi')
     process.load('DQM.HGCAL.hgcalDQM_cff')
     process.hgcalrechitdqm.RecHits = 'hgcalSoARecHits'
-    process.hgcallayerclusterdqm.RecHits = 'hgcalSoARecHits'
-    process.hgcalTestBeamDQMPath = cms.Path(process.hgcalDQMSources + process.hgcalRecoDQMSources)
+    process.hgcalTestBeamDQMPath = cms.Path(process.hgcalDQMSources + process.hgcalrechitdqm)
     process.schedule.insert(1, process.hgcalTestBeamDQMPath)
     process.DQMoutput = cms.OutputModule('DQMRootOutputModule',
                                          fileName=cms.untracked.string('step1_inDQM.root'))
