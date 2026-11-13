@@ -209,6 +209,13 @@
   <use name="catch2"/>
 </bin>
 
+<bin name="TestFWCoreFrameworkFileBlock" file="test_catch2_main.cc,fileblock_t.catch2.cc">
+  <use name="DataFormats/Provenance"/>
+  <use name="FWCore/Framework"/>
+  <use name="catch2"/>
+  <use name="rootcore"/>
+</bin>
+
 <bin name="TestFWCoreFrameworkCatch2" file="test_catch2_main.cc,*_producer_catch2.cc,*_filter_catch2.cc,*_outputmodule_catch2.cc">
   <use name="DataFormats/Common"/>
   <use name="DataFormats/Provenance"/>
