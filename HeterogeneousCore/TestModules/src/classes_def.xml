@@ -7,6 +7,7 @@
     <version ClassVersion="2" checksum="3045916688"/>
   </class>
   <class name="testmodules::SoAEvolutionZeroLayout<128,false>"/>
+  <class name="testmodules::HostCollectionEvolutionZero::View"/>
   <class name="testmodules::HostCollectionEvolutionZero"/>
   <class name="edm::Wrapper<testmodules::HostCollectionEvolutionZero>" splitLevel="0"/>
 
@@ -30,6 +31,7 @@
              }]]>
   </ioread>
   <class name="testmodules::SoAEvolutionOneLayout<128,false>"/>
+  <class name="testmodules::HostCollectionEvolutionOne::View"/>
   <class name="testmodules::HostCollectionEvolutionOne"/>
   <class name="edm::Wrapper<testmodules::HostCollectionEvolutionOne>" splitLevel="0"/>
 
@@ -39,6 +41,7 @@
     <version ClassVersion="3" checksum="303658585"/>
   </class>
   <class name="testmodules::SoAEvolutionTwoLayout<128,false>"/>
+  <class name="testmodules::HostCollectionEvolutionTwo::View"/>
   <class name="testmodules::HostCollectionEvolutionTwo"/>
   <class name="edm::Wrapper<testmodules::HostCollectionEvolutionTwo>" splitLevel="0"/>
 
@@ -48,6 +51,7 @@
     <version ClassVersion="3" checksum="228226274"/>
   </class>
   <class name="testmodules::SoAEvolutionThreeLayout<128,false>"/>
+  <class name="testmodules::HostCollectionEvolutionThree::View"/>
   <class name="testmodules::HostCollectionEvolutionThree"/>
   <class name="edm::Wrapper<testmodules::HostCollectionEvolutionThree>" splitLevel="0"/>
 
@@ -56,7 +60,7 @@
     <version ClassVersion="2" checksum="3789185658"/>
     <version ClassVersion="3" checksum="330366848"/>
   </class>
-  <class name="testmodules::SoAEvolutionFourLayout<128,false>"/>
+  <class name="testmodules::HostCollectionEvolutionFour::View"/>
   <class name="testmodules::HostCollectionEvolutionFour"/>
   <class name="edm::Wrapper<testmodules::HostCollectionEvolutionFour>" splitLevel="0"/>
 
@@ -75,6 +79,80 @@
              }]]>
   </ioread>
   <class name="testmodules::SoAEvolutionFiveLayout<128,false>"/>
+  <class name="testmodules::HostCollectionEvolutionFive::View"/>
   <class name="testmodules::HostCollectionEvolutionFive"/>
   <class name="edm::Wrapper<testmodules::HostCollectionEvolutionFive>" splitLevel="0"/>
+
+    <!-- AoS part -->
+    <!-- The dictonary definition for the AoS is similar, but the RecordType needs to be defined as well -->
+    <!-- The RecordType is the struct which forms the AoS, internally the member is RecordType* aos_ -->
+  <class name="testmodules::AoSHostCollectionEvolutionZero::Layout" ClassVersion="2">
+    <version ClassVersion="2" checksum="4082127793"/>
+  </class>
+  <class name="testmodules::AoSHostCollectionEvolutionZero::Layout::RecordType"/>
+  <class name="testmodules::AoSHostCollectionEvolutionZero::View"/>
+  <class name="testmodules::AoSHostCollectionEvolutionZero"/>
+  <class name="edm::Wrapper<testmodules::AoSHostCollectionEvolutionZero>" splitLevel="0"/>
+
+  <!-- We can define the same iorule as for the SoA but we need to define it for the RecordType -->
+  <class name="testmodules::AoSHostCollectionEvolutionOne::Layout" ClassVersion="3">
+    <version ClassVersion="2" checksum="2186152859"/>
+    <version ClassVersion="3" checksum="2583947271"/>
+  </class>
+  <class name="testmodules::AoSHostCollectionEvolutionOne::Layout::RecordType"/>
+    <ioread sourceClass="testmodules::AoSHostCollectionEvolutionOne::Layout::RecordType" targetClass="testmodules::AoSHostCollectionEvolutionOne::Layout::RecordType" version="[-2]" source="double cDouble_" target="cDouble_">
+    <![CDATA[const double onFileValue = onfile.cDouble_;
+             if (onFileValue >= INT8_MIN && onFileValue <= INT8_MAX) {
+               cDouble_ = static_cast<signed char>(onFileValue);
+             } else {
+               // Warning could be inserted like this:
+               // printf("Warning: Value %f at index %i is out of int8_t range. Setting to 0.\n", onFileValue, i);
+               cDouble_ = static_cast<signed char>(0);
+             }]]>
+  </ioread>
+  <class name="testmodules::AoSHostCollectionEvolutionOne::View"/>
+  <class name="testmodules::AoSHostCollectionEvolutionOne"/>
+  <class name="edm::Wrapper<testmodules::AoSHostCollectionEvolutionOne>" splitLevel="0"/>
+
+  <class name="testmodules::AoSHostCollectionEvolutionTwo::Layout" ClassVersion="3">
+    <version ClassVersion="2" checksum="2743027571"/>
+    <version ClassVersion="3" checksum="2962400850"/>
+  </class>
+  <class name="testmodules::AoSHostCollectionEvolutionTwo::Layout::RecordType"/>
+  <class name="testmodules::AoSHostCollectionEvolutionTwo::View"/>
+  <class name="testmodules::AoSHostCollectionEvolutionTwo"/>
+  <class name="edm::Wrapper<testmodules::AoSHostCollectionEvolutionTwo>" splitLevel="0"/>
+
+  <class name="testmodules::AoSHostCollectionEvolutionThree::Layout" ClassVersion="3">
+    <version ClassVersion="2" checksum="2462087971"/>
+    <version ClassVersion="3" checksum="2138930087"/>
+  </class>
+  <class name="testmodules::AoSHostCollectionEvolutionThree::Layout::RecordType"/>
+  <class name="testmodules::AoSHostCollectionEvolutionThree::View"/>
+  <class name="testmodules::AoSHostCollectionEvolutionThree"/>
+  <class name="edm::Wrapper<testmodules::AoSHostCollectionEvolutionThree>" splitLevel="0"/>
+
+  <class name="testmodules::AoSHostCollectionEvolutionFour::Layout" ClassVersion="3">
+    <version ClassVersion="2" checksum="3937370557"/>
+    <version ClassVersion="3" checksum="3205711101"/>
+  </class>
+  <class name="testmodules::AoSHostCollectionEvolutionFour::Layout::RecordType"/>
+  <class name="testmodules::AoSHostCollectionEvolutionFour::View"/>
+  <class name="testmodules::AoSHostCollectionEvolutionFour"/>
+  <class name="edm::Wrapper<testmodules::AoSHostCollectionEvolutionFour>" splitLevel="0"/>
+
+  <!-- Root does not know how to convert and StdArray<int, 6> to StdArray<double, 4>. This needs to be defined for the RecordType here -->
+  <class name="testmodules::AoSHostCollectionEvolutionFive::Layout" ClassVersion="2">
+    <version ClassVersion="2" checksum="3680878141"/>
+  </class>
+  <class name="testmodules::AoSHostCollectionEvolutionFive::Layout::RecordType"/>
+  <ioread sourceClass="testmodules::AoSHostCollectionEvolutionFive::Layout::RecordType" targetClass="testmodules::AoSHostCollectionEvolutionFive::Layout::RecordType" version="[-3]" source="edm::StdArray<int, 6> cArray_" target="cArray_">
+    <![CDATA[for (unsigned int i = 0; i < 4; ++i)
+               cArray_[i] = onfile.cArray_[i];
+            ]]>
+  </ioread>
+  <class name="testmodules::AoSHostCollectionEvolutionFive::View"/>
+  <class name="testmodules::AoSHostCollectionEvolutionFive"/>
+  <class name="edm::Wrapper<testmodules::AoSHostCollectionEvolutionFive>" splitLevel="0"/>
+
 </lcgdict>

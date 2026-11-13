@@ -37,40 +37,19 @@ int main() {
       uint32_t nHits = 2000;
       int32_t offset = 100;
       uint32_t nModules = 200;
+      constexpr float constYG = -14.0458;
+      constexpr float constYL = -27.0855;
 
       SiPixelClustersSoACollection clusters(queue, nModules);
       clusters.setNClusters(nHits, offset);
 
-      auto moduleStartH = cms::alpakatools::make_host_buffer<uint32_t[]>(queue, nModules + 1);
-
-      for (size_t i = 0; i < nModules + 1; ++i) {
-        moduleStartH[i] = i * 2;
-      }
-
-      auto hitsX = cms::alpakatools::make_host_buffer<float[]>(queue, nHits);
-      for (size_t i = 0; i < nHits; ++i) {
-        hitsX[i] = float(i) * 2;
-      }
-
-      auto moduleStartD =
-          cms::alpakatools::make_device_view<uint32_t>(queue, clusters.view().clusModuleStart().data(), nHits);
-      alpaka::memcpy(queue, moduleStartD, moduleStartH);
+      testTrackingRecHitSoA::initializeClusters(queue, clusters.view());
 
       TrackingRecHitsSoACollection tkhit(queue, clusters);
+      testTrackingRecHitSoA::initializeModules(queue, tkhit.view().hitModules(), clusters.view());
+      testTrackingRecHitSoA::initializeTracks(queue, tkhit.view().trackingHits());
 
-      // exercise the copy of a full column (on device)
-      auto hitXD = cms::alpakatools::make_device_view<float>(queue, tkhit.view().trackingHits().xLocal().data(), nHits);
-      alpaka::memcpy(queue, hitXD, hitsX);
-
-      // exercise the memset of a colum (on device)
-      auto hitYD =
-          cms::alpakatools::make_device_view<float>(queue, tkhit.view().trackingHits().yGlobal().data(), nHits);
-      constexpr float constYG = -14.0458;
-      std::vector<float> constYV(nHits, constYG);
-      auto constYGV_v = cms::alpakatools::make_host_view<float>(constYV.data(), nHits);
-      alpaka::memcpy(queue, hitYD, constYGV_v);
-
-      testTrackingRecHitSoA::runKernels(tkhit.view(), queue);
+      testTrackingRecHitSoA::runKernels(queue, tkhit.view());
       tkhit.updateFromDevice(queue);
 
 #if defined ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED or defined ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED
@@ -87,20 +66,22 @@ int main() {
 
       ::reco::TrackingRecHitHost host_collection_2(cms::alpakatools::host(), nHits, nModules);
 
-      // exercise the memset of a colum (on host)
-      auto hitLYH =
-          cms::alpakatools::make_host_view<float>(host_collection_2.view().trackingHits().yLocal().data(), nHits);
-      constexpr float constYL = -27.0855;
-      std::vector<float> constYLV(nHits, constYL);
-      auto constYL_v = cms::alpakatools::make_host_view<float>(constYLV.data(), nHits);
-      alpaka::memcpy(queue_host, hitLYH, constYL_v);
+      for (uint32_t i = 0; i < nHits; ++i) {
+        host_collection_2.view().trackingHits()[i].yLocal() = constYL;
+      }
+      assert(host_collection_2.view().trackingHits().yLocal()[nHits - 1] == constYL);
 
       // wait for the copy above to complete
       alpaka::wait(queue_host);
 
       assert(host_collection.view().trackingHits().xLocal()[12] == 24.);
       assert(host_collection.view().trackingHits().yGlobal()[int(nHits / 2)] == constYG);
-      assert(host_collection_2.view().trackingHits().yLocal()[nHits - 1] == constYL);
+      assert(static_cast<uint32_t>(host_collection.view().hitModules().metadata().size()) == nModules + 1);
+      assert(host_collection.nModules() == nModules);
+
+      for (uint32_t i = 0; i < static_cast<uint32_t>(host_collection.view().hitModules().metadata().size()); ++i) {
+        assert(host_collection.view().hitModules()[i].moduleStart() == 2 * i);
+      }
 
       assert(tkhit.nHits() == nHits);
       assert(tkhit.offsetBPIX2() == 22);  // set in the kernel

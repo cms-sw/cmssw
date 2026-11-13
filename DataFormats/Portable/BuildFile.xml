@@ -1,5 +1,8 @@
 <use name="alpaka"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/TrivialSerialisation"/>
-<use name="FWCore/Utilities" source_only="1"/>
+<use name="FWCore/Utilities"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>
+<export>
+  <lib name="1"/>
+</export>

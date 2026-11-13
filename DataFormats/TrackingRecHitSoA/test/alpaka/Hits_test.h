@@ -1,12 +1,16 @@
 #ifndef DataFormats_TrackingRecHitSoA_test_alpaka_Hits_test_h
 #define DataFormats_TrackingRecHitSoA_test_alpaka_Hits_test_h
 
+#include "DataFormats/SiPixelClusterSoA/interface/SiPixelClustersSoA.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::testTrackingRecHitSoA {
 
-  void runKernels(::reco::TrackingBlocksSoAView& trackingBlocks, Queue& queue);
+  void initializeClusters(Queue& queue, SiPixelClustersSoAView clustersView);
+  void initializeTracks(Queue& queue, ::reco::TrackingRecHitView trackView);
+  void initializeModules(Queue& queue, ::reco::HitModuleSoAView modsView, SiPixelClustersSoAConstView clustersView);
+  void runKernels(Queue& queue, ::reco::TrackingBlocksSoAView& trackingBlocks);
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::testTrackingRecHitSoA
 
