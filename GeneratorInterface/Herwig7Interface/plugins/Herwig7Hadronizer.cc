@@ -25,6 +25,7 @@
 #include "GeneratorInterface/LHEInterface/interface/LHEProxy.h"
 
 #include "GeneratorInterface/Herwig7Interface/interface/Herwig7Interface.h"
+#include "GeneratorInterface/Herwig7Interface/interface/Herwig7Weights.h"
 
 #include <Herwig/API/HerwigAPI.h>
 #include "CLHEP/Random/RandomEngine.h"
@@ -70,6 +71,9 @@ private:
   edm::ParameterSet paramSettings;
   const std::string runFileName;
 
+  // Names of the shower variation weights, which follow the nominal weight in the GenEventInfoProduct
+  std::vector<std::string> variationNames_;
+
   bool repositoryInitialized_ = false;
 };
 
@@ -90,6 +94,7 @@ bool Herwig7Hadronizer::initializeForInternalPartons() {
     if (!initGenerator()) {
       throw cms::Exception("Herwig7Hadronizer").format("No run step for Herwig chosen. Program will be aborted.");
     }
+    variationNames_ = herwig7::showerVariationNames(eg_);
     repositoryInitialized_ = true;
   }
   return true;
@@ -101,6 +106,7 @@ bool Herwig7Hadronizer::initializeForExternalPartons() {
     if (!initGenerator()) {
       throw cms::Exception("Herwig7Hadronizer").format("No run step for Herwig chosen. Program will be aborted.");
     }
+    variationNames_ = herwig7::showerVariationNames(eg_);
     repositoryInitialized_ = true;
   }
   return true;
@@ -181,6 +187,7 @@ bool Herwig7Hadronizer::hadronize() {
 
 void Herwig7Hadronizer::finalizeEvent() {
   eventInfo() = std::make_unique<GenEventInfoProduct>(event().get());
+  eventInfo()->setWeights(herwig7::eventWeights(*thepegEvent, variationNames_));
   eventInfo()->setBinningValues(std::vector<double>(1, pthat(thepegEvent)));
 
   if (eventsToPrint) {
@@ -201,17 +208,11 @@ bool Herwig7Hadronizer::residualDecay() { return true; }
 std::unique_ptr<GenLumiInfoHeader> Herwig7Hadronizer::getGenLumiInfoHeader() const {
   auto genLumiInfoHeader = BaseHadronizer::getGenLumiInfoHeader();
 
-  if (thepegEvent) {
-    int weights_number = thepegEvent->optionalWeights().size();
-
-    if (weights_number > 1) {
-      genLumiInfoHeader->weightNames().reserve(weights_number + 1);
-      genLumiInfoHeader->weightNames().push_back("nominal");
-      std::map<std::string, double> weights_map = thepegEvent->optionalWeights();
-      for (std::map<std::string, double>::iterator it = weights_map.begin(); it != weights_map.end(); it++) {
-        genLumiInfoHeader->weightNames().push_back(it->first);
-      }
-    }
+  if (!variationNames_.empty()) {
+    genLumiInfoHeader->weightNames().reserve(variationNames_.size() + 1);
+    genLumiInfoHeader->weightNames().push_back("nominal");
+    for (const auto& name : variationNames_)
+      genLumiInfoHeader->weightNames().push_back(name);
   }
 
   return genLumiInfoHeader;
