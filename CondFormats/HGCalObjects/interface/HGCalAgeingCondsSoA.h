@@ -9,7 +9,7 @@ namespace hgcal {
   // Generate structure of module-level (ECON-D) arrays (SoA) layout with module mapping information
   GENERATE_SOA_LAYOUT(HGCalAgeingCondsSoALayout,
                       SOA_COLUMN(float, signal),         // signal (reference)
-                      SOA_COLUMN(float, signalScale),    // signal ageing scale factor
+                      SOA_COLUMN(float, signalScale),    // signal ageing scale factor, basically the CCE
                       SOA_COLUMN(float, enc),            // total noise
                       SOA_COLUMN(float, enc_s),          // series noise
                       SOA_COLUMN(float, enc_p),          // parallel noise

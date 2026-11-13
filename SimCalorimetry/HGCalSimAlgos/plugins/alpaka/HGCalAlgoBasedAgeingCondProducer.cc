@@ -104,7 +104,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         descriptions.addWithDefaultLabel(desc);
       }
 
-      //
+      //return the ageing conditions for the given record
       std::optional<HGCalAgeingCondsHost> produce(const HGCalAgeingCondsRcd& iRecord) {
         //get the geometry record
         const auto& geom = iRecord.get(geoTkn_);

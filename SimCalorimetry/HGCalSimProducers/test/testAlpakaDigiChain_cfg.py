@@ -19,6 +19,8 @@ options.register('sipmcells','Geometry/HGCalMapping/data/CellMaps/channels_sipmo
                  info="Path to SiPM-on-tile cell mapper. Absolute, or relative to CMSSW src directory")
 options.register('offsetfile','Geometry/HGCalMapping/data/CellMaps/calibration_to_surrounding_offsetMap.txt',mytype=VarParsing.varType.string,
                  info="Path to calibration-to-surrounding cell offset file. Absolute, or relative to CMSSW src directory")
+options.register('applyAgeing',False,mytype=VarParsing.varType.bool,
+                 info="Override calibration constants with ageing conditions (simulation only)")
 options.parseArguments()
 
 #era
@@ -38,7 +40,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source(
     "PoolSource",
-    fileNames=cms.untracked.vstring(options.files)
+    fileNames=cms.untracked.vstring(options.inputFiles)
 )
 
 # electronics configuration
@@ -54,15 +56,17 @@ process.hgcalConfigESProducer = cms.ESSource( # ESProducer to load configuration
     indexSource=cms.ESInputTag('hgCalMappingESProducer','')
 )
 
-
 # electronics mapping
 from Geometry.HGCalMapping.hgcalmapping_cff import customise_hgcalmapper
 kwargs = { k: getattr(options,k) for k in ['modules','sicells','sipmcells','offsetfile'] if getattr(options,k)!='' }
 process = customise_hgcalmapper(process, **kwargs)
 
 # ageing conditions
-from SimCalorimetry.HGCalSimAlgos.hgcal_ageing_byalgo_cfi import customise_hgcal_ageing_byalgo_eol
-process = customise_hgcal_ageing_byalgo_eol(process)
+from SimCalorimetry.HGCalSimAlgos.hgcal_ageing_byalgo_cfi import customise_hgcal_ageing_byalgo_startup, customise_hgcal_ageing_byalgo_eol
+if options.applyAgeing:
+  process = customise_hgcal_ageing_byalgo_eol(process)
+else:
+    process = customise_hgcal_ageing_byalgo_startup(process)
 
 # random number generator service
 process.RandomNumberGeneratorService = cms.Service(

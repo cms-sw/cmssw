@@ -53,6 +53,8 @@ options.register('sicells', "", mytype=VarParsing.varType.string,
                  info="Path to Si cell mapper. Absolute, or relative to CMSSW src directory")
 options.register('sipmcells', "", mytype=VarParsing.varType.string,
                  info="Path to SiPM-on-tile cell mapper. Absolute, or relative to CMSSW src directory")
+options.register('applyAgeing', False, mytype=VarParsing.varType.bool,
+                 info="override calibration constants with algo-based ageing conditions (startup)")
 options.parseArguments()
 relpath = os.path.join(os.environ.get('CMSSW_BASE',''),"src")
 if options.params.startswith('/eos/'):
@@ -140,8 +142,14 @@ process.hgcalCalibParamESProducer = cms.ESProducer( # ESProducer to load calibra
   filename=cms.FileInPath(options.params),
   filenameEnergyLoss=cms.FileInPath(options.energyloss),
   indexSource=cms.ESInputTag('hgCalMappingESProducer',''),
-  mapSource=cms.ESInputTag('hgCalMappingModuleESProducer','')
+  mapSource=cms.ESInputTag('hgCalMappingModuleESProducer',''),
+  applyAgeing=cms.bool(options.applyAgeing),
 )
+
+#aging conditions
+from SimCalorimetry.HGCalSimAlgos.hgcal_ageing_byalgo_cfi import customise_hgcal_ageing_byalgo_startup, customise_hgcal_ageing_byalgo_eol
+if options.applyAgeing:
+  process = customise_hgcal_ageing_byalgo_eol(process)
 
 # MAIN PROCESS
 process.testHGCalRecHitESProducers = cms.EDProducer(
