@@ -936,10 +936,10 @@ std::pair<float, float> HGCalDDDConstants::localToGlobal8(
       st1 << "Cassette " << (ktr->second).cassette << " Shift " << cshift.first << ":" << cshift.second << " Original "
           << x << ":" << y;
     if (!reco) {
-      x -= ((HGCalParameters::k_ScaleToDDD)*zside * cshift.first);
+      x -= ((HGCalParameters::k_ScaleToDDD)*cshift.first);
       y += ((HGCalParameters::k_ScaleToDDD)*cshift.second);
     } else {
-      x -= (zside * cshift.first);
+      x -= cshift.first;
       y += cshift.second;
     }
     if (debug) {
