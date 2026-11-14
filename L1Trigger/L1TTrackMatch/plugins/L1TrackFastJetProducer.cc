@@ -88,7 +88,7 @@ L1TrackFastJetProducer::~L1TrackFastJetProducer() {}
 
 // producer
 void L1TrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::unique_ptr<TkJetCollection> L1TrackFastJets(new TkJetCollection);
+  std::unique_ptr<TkJetCollection> L1TrackFastJets = std::make_unique<TkJetCollection>();
 
   // L1 tracks
   edm::Handle<L1TTTrackRefCollectionType> TTTrackHandle;
@@ -140,13 +140,12 @@ void L1TrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 }
 
 void L1TrackFastJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>(
-      "L1PVertexInputTag",
-      edm::InputTag("l1tTrackVertexAssociationProducerForJets", "Level1TTTracksSelectedAssociated"));
-  desc.add<double>("coneSize", 0.5);
+      "L1TrackInputTag", edm::InputTag("l1tTrackVertexAssociationProducerForJets", "Level1TTTracksSelectedAssociated"));
+  desc.add<double>("coneSize", 0.4);
   desc.add<bool>("displaced", false);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in
