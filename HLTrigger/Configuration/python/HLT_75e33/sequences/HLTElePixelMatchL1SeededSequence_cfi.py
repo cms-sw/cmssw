@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from ..modules.hltEgammaHoverEL1Seeded_cfi import *
 from ..modules.hltEgammaElectronPixelSeedsL1Seeded_cfi import *
 from ..modules.hltEgammaUnfittedElectronPixelSeedsL1Seeded_cfi import *
+from ..modules.hltEgammaElectronPixelSeedsPortable_cfi import *
 from ..modules.hltEgammaPixelMatchVarsL1Seeded_cfi import *
 from ..modules.hltEgammaSuperClustersToPixelMatchL1Seeded_cfi import *
 from ..modules.hltElePixelHitDoubletsForTripletsL1Seeded_cfi import *
@@ -37,3 +38,10 @@ HLTElePixelMatchL1SeededSequence = cms.Sequence(HLTDoLocalPixelSequence
     +hltEgammaUnfittedElectronPixelSeedsL1Seeded
     +hltEgammaElectronPixelSeedsL1Seeded
     +hltEgammaPixelMatchVarsL1Seeded))
+
+from Configuration.ProcessModifiers.egammaPixelSeedingPortable_cff import egammaPixelSeedingPortable
+_HLTElePixelMatchL1SeededSequencePortable = HLTElePixelMatchL1SeededSequence.copy()
+_HLTElePixelMatchL1SeededSequencePortable.replace(
+    hltEgammaUnfittedElectronPixelSeedsL1Seeded,
+    hltEgammaElectronPixelSeedsPortable+hltEgammaUnfittedElectronPixelSeedsL1Seeded)
+egammaPixelSeedingPortable.toReplaceWith(HLTElePixelMatchL1SeededSequence, _HLTElePixelMatchL1SeededSequencePortable)
