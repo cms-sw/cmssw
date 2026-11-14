@@ -1,10 +1,9 @@
-<library file="plugins/*.cc" name="testEventFilterPhase2TrackerRawToDigiPlugins">
-  <use name="DataFormats/Common"/>
-  <use name="FWCore/Framework"/>
-  <use name="FWCore/MessageLogger"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/PluginManager"/>
-  <use name="rootcore"/>
+<library   file="*.cc" name="Phase2TrackerRawToDigiTest">
+  <flags   EDM_PLUGIN="1"/>
   <use name="EventFilter/Phase2TrackerRawToDigi"/>
-  <flags EDM_PLUGIN="1"/>
+  <use name="Geometry/Records"/>
+  <use name="CondFormats/DataRecord"/>
+
+  <use name="root"/>
+  <use name="CommonTools/UtilAlgos"/>
 </library>

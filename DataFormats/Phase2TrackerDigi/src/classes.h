@@ -1,6 +1,7 @@
 #ifndef PHASE2TRACKERDIGI_CLASSES_H
 #define PHASE2TRACKERDIGI_CLASSES_H
 
+#include "DataFormats/Phase2TrackerDigi/interface/Phase2ITAuroraBitStream.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2ITChipBitStream.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2ITQCore.h"
