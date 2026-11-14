@@ -2047,6 +2047,18 @@ upgradeWFs['HLTTrackingOnly75e33'].step2['-s'] = upgradeWFs['HLTTrackingOnly75e3
     'VALIDATION:@hltValidation', 'VALIDATION::hltMultiTrackValidation+hltMultiPVValidation'
 )
 
+upgradeWFs['HLTDev75e33'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTDev75e33'].suffix = '_HLT75e33Dev'
+upgradeWFs['HLTDev75e33'].offset = 0.7504
+# the development menu runs on the v0p0_2026 L1 menu, as some of its paths
+# (e.g. HLT_Mu9_Barrel_IP6_FromL1TkMuon) are seeded by v0p0_2026-only algorithms
+upgradeWFs['HLTDev75e33'].step2['-s'] = upgradeWFs['HLTDev75e33'].step2['-s'].replace(
+    'HLT:@relvalRun4_timing', 'HLT:@relvalRun4_dev'
+).replace(
+    'L1P2GT,', 'L1P2GT:v0p0_2026,'
+)
+upgradeWFs['HLTDev75e33'].step2['--customise'] = 'HLTrigger/Configuration/customizeHLTforCMSSW.customizeHLTforL1P2GTv0p0_2026'
+
 class UpgradeWorkflow_HLT75e33TrackingNtuple(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         # skip RECO, ALCA and HLT
@@ -2116,21 +2128,15 @@ upgradeWFs['HLTHeterogeneousValid'].step3['-s'] = upgradeWFs['HLTHeterogeneousVa
 )
 upgradeWFs['HLTHeterogeneousValid'].step3['--procModifiers'] = 'alpakaValidationHLT'
 
+# Phase-2 HLT timing menu variants, grouped by topic:
+#   0.751x : heterogeneous (Alpaka) backend
+#   0.753x : tracking reconstruction variants
+#   0.756x : calorimetry (TICL) and timing (MTD) reconstruction variants
+
 upgradeWFs['HLTTiming75e33Alpaka'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33Alpaka'].suffix = '_HLT75e33TimingAlpaka'
 upgradeWFs['HLTTiming75e33Alpaka'].offset = 0.751
 upgradeWFs['HLTTiming75e33Alpaka'].step2['--procModifiers'] = 'alpaka'
-
-upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'] = deepcopy(upgradeWFs['HLTTiming75e33'])
-upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'].suffix = '_HLT75e33TimingTiclV5TrackLinkGNN'
-upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'].offset = 0.7521
-upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'].step2['--procModifiers'] = 'ticlv5_TrackLinkingGNN'
-
-upgradeWFs['HLTTiming75e33MTDatHLT'] = deepcopy(upgradeWFs['HLTTiming75e33'])
-upgradeWFs['HLTTiming75e33MTDatHLT'].suffix = '_HLT75e33TimingMTDatHLT'
-upgradeWFs['HLTTiming75e33MTDatHLT'].offset = 0.7522
-upgradeWFs['HLTTiming75e33MTDatHLT'].step2['--procModifiers'] = 'mtd_at_hlt'
-upgradeWFs['HLTTiming75e33MTDatHLT'].step3['--procModifiers'] = 'mtd_at_hlt'
 
 upgradeWFs['HLTTiming75e33LegacyTracking'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33LegacyTracking'].suffix = '_HLT75e33TimingLegacyTracking'
@@ -2139,25 +2145,36 @@ upgradeWFs['HLTTiming75e33LegacyTracking'].step2['--procModifiers'] = 'hltPhase2
 
 upgradeWFs['HLTTiming75e33LST'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33LST'].suffix = '_HLT75e33TimingLST'
-upgradeWFs['HLTTiming75e33LST'].offset = 0.755
+upgradeWFs['HLTTiming75e33LST'].offset = 0.7531
 upgradeWFs['HLTTiming75e33LST'].step2['--procModifiers'] = 'trackingLST'
 
 upgradeWFs['HLTTiming75e33MkFitFit'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33MkFitFit'].suffix = '_HLT75e33TimingMkFitFit'
-upgradeWFs['HLTTiming75e33MkFitFit'].offset = 0.757
+upgradeWFs['HLTTiming75e33MkFitFit'].offset = 0.7532
 upgradeWFs['HLTTiming75e33MkFitFit'].step2['--procModifiers'] = 'trackingMkFitFit'
-
-upgradeWFs['HLTTiming75e33TiclBarrel'] = deepcopy(upgradeWFs['HLTTiming75e33'])
-upgradeWFs['HLTTiming75e33TiclBarrel'].suffix = '_HLT75e33TimingTiclBarrel'
-upgradeWFs['HLTTiming75e33TiclBarrel'].offset = 0.758
-upgradeWFs['HLTTiming75e33TiclBarrel'].step2['--procModifiers'] = 'ticl_barrel'
 
 # Vector-hit-based CA tracking workflow
 upgradeWFs['HLTTiming75e33CAVectorHits'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33CAVectorHits'].suffix = '_HLT75e33TimingCAVectorHits'
-upgradeWFs['HLTTiming75e33CAVectorHits'].offset = 0.7512
+upgradeWFs['HLTTiming75e33CAVectorHits'].offset = 0.7533
 upgradeWFs['HLTTiming75e33CAVectorHits'].step2['--procModifiers'] = 'phase2CAVectorHits'
 upgradeWFs['HLTTiming75e33CAVectorHits'].step3['--procModifiers'] = 'phase2CAVectorHits'
+
+upgradeWFs['HLTTiming75e33TiclBarrel'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33TiclBarrel'].suffix = '_HLT75e33TimingTiclBarrel'
+upgradeWFs['HLTTiming75e33TiclBarrel'].offset = 0.756
+upgradeWFs['HLTTiming75e33TiclBarrel'].step2['--procModifiers'] = 'ticl_barrel'
+
+upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'].suffix = '_HLT75e33TimingTiclV5TrackLinkGNN'
+upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'].offset = 0.7561
+upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'].step2['--procModifiers'] = 'ticlv5_TrackLinkingGNN'
+
+upgradeWFs['HLTTiming75e33MTDatHLT'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33MTDatHLT'].suffix = '_HLT75e33TimingMTDatHLT'
+upgradeWFs['HLTTiming75e33MTDatHLT'].offset = 0.7562
+upgradeWFs['HLTTiming75e33MTDatHLT'].step2['--procModifiers'] = 'mtd_at_hlt'
+upgradeWFs['HLTTiming75e33MTDatHLT'].step3['--procModifiers'] = 'mtd_at_hlt'
 
 class UpgradeWorkflow_HLTPhase2_WithNano(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
@@ -2230,7 +2247,7 @@ upgradeWFs['NGTScoutingWithNano'].step2['--procModifiers'] = 'alpaka,ngtScouting
 
 upgradeWFs['NGTScoutingWithNanoValid'] = deepcopy(upgradeWFs['HLTPhase2WithNano'])
 upgradeWFs['NGTScoutingWithNanoValid'].suffix = '_NGTScoutingWithNanoValid'
-upgradeWFs['NGTScoutingWithNanoValid'].offset = 0.773
+upgradeWFs['NGTScoutingWithNanoValid'].offset = 0.7722
 upgradeWFs['NGTScoutingWithNanoValid'].step2['-s'] = upgradeWFs['NGTScoutingWithNanoValid'].step2['-s'].replace(
     'HLT:@relvalRun4', 'HLT:@relvalRun4_scouting'
 ).replace(
@@ -2240,7 +2257,7 @@ upgradeWFs['NGTScoutingWithNanoValid'].step2['--procModifiers'] = 'alpaka,ngtSco
 
 upgradeWFs['L1NGTScoutingWithNanoValid'] = deepcopy(upgradeWFs['NGTScoutingWithNanoValid'])
 upgradeWFs['L1NGTScoutingWithNanoValid'].suffix = '_L1NGTScoutingWithNanoValid'
-upgradeWFs['L1NGTScoutingWithNanoValid'].offset = 0.774
+upgradeWFs['L1NGTScoutingWithNanoValid'].offset = 0.7723
 upgradeWFs['L1NGTScoutingWithNanoValid'].step2['-s'] = upgradeWFs['L1NGTScoutingWithNanoValid'].step2['-s'].replace(
     'NANO:@NGTScoutingVal', 'NANO:@NGTScoutingVal+@Phase2L1DPGwithGen'
 )
@@ -2411,7 +2428,7 @@ upgradeWFs['NGTScoutingAll'].step3['--procModifiers'] += ',alpaka,ticl_barrel'
 
 upgradeWFs['NGTScoutingCAExtensionMergeT5'] = deepcopy(upgradeWFs['NGTScouting'])
 upgradeWFs['NGTScoutingCAExtensionMergeT5'].suffix = '_NGTScoutingCAExtensionMergeT5'
-upgradeWFs['NGTScoutingCAExtensionMergeT5'].offset = 0.775
+upgradeWFs['NGTScoutingCAExtensionMergeT5'].offset = 0.7711
 upgradeWFs['NGTScoutingCAExtensionMergeT5'].step2['-s'] = upgradeWFs['NGTScoutingCAExtensionMergeT5'].step2['-s'].replace(
     'HLT:@relvalRun4_scouting', 'HLT:@relvalRun4_timing'
 )

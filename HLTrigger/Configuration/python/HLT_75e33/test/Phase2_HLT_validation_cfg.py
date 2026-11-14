@@ -129,7 +129,12 @@ process.HLTGenValSourceMU = cms.EDProducer('HLTGenValSource',
         "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_FromL1TkMuon",
         "HLT_Mu37_Mu27_FromL1TkMuon",
         "HLT_Mu50_FromL1TkMuon",
-        "HLT_TriMu_10_5_5_DZ_FromL1TkMuon"
+        "HLT_TriMu_10_5_5_DZ_FromL1TkMuon",
+        "HLT_DoubleMu4_3_LowMass_FromL1TkMuon",
+        "HLT_DoubleMu4_3_Bs_FromL1TkMuon",
+        "HLT_DoubleMu4_3_Jpsi_FromL1TkMuon",
+        "HLT_Dimuon0_Upsilon_FromL1TkMuon",
+        "HLT_Mu9_Barrel_IP6_FromL1TkMuon"
     ),
     doOnlyLastFilter = doOnlyLastFilter,
     histConfigs = cms.VPSet(
