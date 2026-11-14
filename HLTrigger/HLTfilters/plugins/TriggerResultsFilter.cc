@@ -14,6 +14,7 @@
 #include <sstream>
 
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -49,14 +50,15 @@ bool TriggerResultsFilter::PatternData::matches(std::string const& name) {
 // constructors and destructor
 //
 TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet& config)
-    : m_expression(nullptr), m_eventCache(config, consumesCollector()) {
-  std::vector<std::string> const& expressions = config.getParameter<std::vector<std::string>>("triggerConditions");
-  parse(expressions);
-  if (m_expression and m_eventCache.usePathStatus()) {
+    : m_expressionString(combine(config.getParameter<std::vector<std::string>>("triggerConditions"))),
+      m_eventCache(config, consumesCollector()) {
+  m_parsedExpression = parse();
+  m_valid = static_cast<bool>(m_parsedExpression);
+  if (m_valid and m_eventCache.usePathStatus()) {
     // if the expression was successfully parsed, store the list of patterns,
     // each as a std::string and, unless it is a plain name, as a std::regex,
     // and with a flag for having valid matches
-    hltPathStatusPatterns_ = edm::vector_transform(m_expression->patterns(),
+    hltPathStatusPatterns_ = edm::vector_transform(m_parsedExpression->patterns(),
                                                    [](std::string const& pattern) { return PatternData(pattern); });
 
     if (hltPathStatusPatterns_.empty()) {
@@ -79,11 +81,17 @@ TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet& config)
   }
 }
 
-void TriggerResultsFilter::beginStream(edm::StreamID) {
+void TriggerResultsFilter::preallocate(edm::PreallocationConfiguration const& config) {
+  // the expressions are shared by all streams, and need one prescale counter per stream
+  m_eventCache.setNumberOfStreams(config.numberOfStreams());
+}
+
+void TriggerResultsFilter::beginJob() {
   // if throw=True, check if any of the input patterns had zero matches (and if so, throw an exception)
   if (not hltPathStatusPatterns_.empty() and m_eventCache.shouldThrow()) {
-    auto unmatchedPatternsExist = std::any_of(
-        hltPathStatusPatterns_.cbegin(), hltPathStatusPatterns_.cend(), [](auto foo) { return (not foo.matched()); });
+    auto unmatchedPatternsExist = std::any_of(hltPathStatusPatterns_.cbegin(),
+                                              hltPathStatusPatterns_.cend(),
+                                              [](auto const& foo) { return (not foo.matched()); });
     if (unmatchedPatternsExist) {
       cms::Exception excpt("UnmatchedPatterns");
       excpt << "the parameter \"triggerConditions\" contains patterns with zero matches"
@@ -94,6 +102,14 @@ void TriggerResultsFilter::beginStream(edm::StreamID) {
       throw excpt;
     }
   }
+  // the patterns are no longer needed
+  hltPathStatusPatterns_.clear();
+  hltPathStatusPatterns_.shrink_to_fit();
+}
+
+std::unique_ptr<triggerResultsFilter::StreamCache> TriggerResultsFilter::beginStream(edm::StreamID) const {
+  // copy the configuration and the tokens; the event data is filled by setEvent()
+  return std::make_unique<triggerResultsFilter::StreamCache>(m_eventCache);
 }
 
 void TriggerResultsFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -125,54 +141,80 @@ void TriggerResultsFilter::fillDescriptions(edm::ConfigurationDescriptions& desc
   descriptions.add("triggerResultsFilter", desc);
 }
 
-void TriggerResultsFilter::parse(const std::vector<std::string>& expressions) {
-  // parse the logical expressions into functionals
+std::string TriggerResultsFilter::combine(const std::vector<std::string>& expressions) {
+  // combine the logical expressions with OR
   if (expressions.empty()) {
     edm::LogWarning("Configuration") << "Empty trigger results expression";
-  } else if (expressions.size() == 1) {
-    parse(expressions[0]);
-  } else {
-    std::stringstream expression;
-    expression << "(" << expressions[0] << ")";
-    for (unsigned int i = 1; i < expressions.size(); ++i)
-      expression << " OR (" << expressions[i] << ")";
-    parse(expression.str());
+    return {};
   }
+  if (expressions.size() == 1) {
+    return expressions[0];
+  }
+  std::stringstream expression;
+  expression << "(" << expressions[0] << ")";
+  for (unsigned int i = 1; i < expressions.size(); ++i)
+    expression << " OR (" << expressions[i] << ")";
+  return expression.str();
 }
 
-void TriggerResultsFilter::parse(const std::string& expression) {
+std::unique_ptr<triggerExpression::Evaluator> TriggerResultsFilter::parse() const {
+  if (m_expressionString.empty()) {
+    return {};
+  }
   // parse the logical expressions into functionals
-  m_expression.reset(triggerExpression::parse(expression));
-
+  std::unique_ptr<triggerExpression::Evaluator> expression(triggerExpression::parse(m_expressionString));
   // check if the expressions were parsed correctly
-  if (not m_expression) {
+  if (not expression) {
     if (m_eventCache.shouldThrow()) {
-      throw cms::Exception("Configuration") << "Couldn't parse trigger-results expression \"" << expression << "\"";
+      throw cms::Exception("Configuration")
+          << "Couldn't parse trigger-results expression \"" << m_expressionString << "\"";
     } else {
-      edm::LogWarning("Configuration") << "Couldn't parse trigger-results expression \"" << expression << "\"";
+      edm::LogWarning("Configuration") << "Couldn't parse trigger-results expression \"" << m_expressionString << "\"";
     }
   }
+  return expression;
 }
 
-bool TriggerResultsFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
-  if (not m_expression)
+std::shared_ptr<triggerExpression::Evaluator const> TriggerResultsFilter::expressionFor(
+    triggerExpression::Data const& data) const {
+  ConfigurationKey key(data);
+  std::lock_guard<std::mutex> guard(m_mutex);
+  for (auto const& [k, expression] : m_expressions) {
+    if (k == key) {
+      return expression;
+    }
+  }
+  // initialise an expression for this configuration: the one parsed in the constructor the first time, a newly
+  // parsed one afterwards; the expressions already used by other streams are not modified, as they may still be
+  // in use for events with a previous configuration
+  std::unique_ptr<triggerExpression::Evaluator> expression =
+      m_parsedExpression ? std::move(m_parsedExpression) : parse();
+  expression->init(data);
+  // log the expanded configuration
+  edm::LogInfo("Configuration") << "TriggerResultsFilter configuration updated: " << *expression;
+  std::shared_ptr<triggerExpression::Evaluator const> shared = std::move(expression);
+  m_expressions.emplace_back(std::move(key), shared);
+  return shared;
+}
+
+bool TriggerResultsFilter::filter(edm::StreamID sid, edm::Event& event, const edm::EventSetup& setup) const {
+  if (not m_valid)
     // no valid expression has been parsed
     return false;
 
-  if (not m_eventCache.setEvent(event, setup))
+  auto& cache = *streamCache(sid);
+  if (not cache.data.setEvent(event, setup))
     // couldn't properly access all information from the Event
     return false;
 
-  // if the L1 or HLT configurations have changed, (re)initialize the filters (including during the first event)
-  if (m_eventCache.configurationUpdated()) {
-    m_expression->init(m_eventCache);
-
-    // log the expanded configuration
-    edm::LogInfo("Configuration") << "TriggerResultsFilter configuration updated: " << *m_expression;
+  // if the L1 or HLT configurations have changed (including during the first event),
+  // use the expression initialised for the new configuration
+  if (cache.data.configurationUpdated() or not cache.expression) {
+    cache.expression = expressionFor(cache.data);
   }
 
   // run the trigger results filter
-  return (*m_expression)(m_eventCache);
+  return (*cache.expression)(cache.data);
 }
 
 // register as framework plugin
