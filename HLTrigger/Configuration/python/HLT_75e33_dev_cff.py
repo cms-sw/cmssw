@@ -149,6 +149,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_PFPuppiHT1070_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_PFPuppiMETTypeOne140_PFPuppiMHT140_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_VBF_DiPFPuppiJet145_70_Mjj1000_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_VBF_DiPFPuppiJet118_83_Mjj600_PFPuppiMETTypeOne176_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_VBF_DiPFPuppiJet93_Mjj600_MediumPFPuppiParTTauh61_eta2p1_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_VBF_DiPFPuppiJet93_Mjj550_Ele24_eta2p1_WPTight_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_VBF_DiPFPuppiJet133_83_Mjj700_Mu5_TrkIsoVVL_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_VBF_DiPFPuppiJet145_70_Mjj1000_Photon22_L1Seeded_cfi")
@@ -293,6 +294,7 @@ fragment.schedule = cms.Schedule(*[
     fragment.HLT_PFPuppiMETTypeOne140_PFPuppiMHT140,
     fragment.HLT_VBF_DiPFPuppiJet145_70_Mjj1000,
     fragment.HLT_VBF_DiPFPuppiJet118_83_Mjj600_PFPuppiMETTypeOne176,
+    fragment.HLT_VBF_DiPFPuppiJet93_Mjj600_MediumPFPuppiParTTauh61_eta2p1,
     fragment.HLT_VBF_DiPFPuppiJet93_Mjj550_Ele24_eta2p1_WPTight_L1Seeded,
     fragment.HLT_VBF_DiPFPuppiJet133_83_Mjj700_Mu5_TrkIsoVVL,
     fragment.HLT_VBF_DiPFPuppiJet145_70_Mjj1000_Photon22_L1Seeded,

@@ -369,6 +369,7 @@ def customizeHLTforL1P2GTv0p0_2026(process):
     vbfSeedOverrides = {
         # path name                                                   : (seed suffix, v0p0_2026 seeds (OR))
         'HLT_VBF_DiPFPuppiJet118_83_Mjj600_PFPuppiMETTypeOne176'       : ('MET', ['pDoubleJet_METSum']),
+        'HLT_VBF_DiPFPuppiJet93_Mjj600_MediumPFPuppiParTTauh61_eta2p1'  : ('Tau', ['pDoubleJet_IsoTau', 'pDoubleJet_IsoTau_Ext']),
         'HLT_VBF_DiPFPuppiJet93_Mjj550_Ele24_eta2p1_WPTight_L1Seeded'  : ('Ele', ['pDoubleJet_TkEleIso']),
         'HLT_VBF_DiPFPuppiJet133_83_Mjj700_Mu5_TrkIsoVVL'              : ('Mu',  ['pDoubleJet_TkMu']),
     }
@@ -376,6 +377,7 @@ def customizeHLTforL1P2GTv0p0_2026(process):
     # HLTP2GTTripleObjectFilter that saves the seed's jets and its third object.
     vbfSeedThirdObject = {
         # path name                                                   : third object type
+        'HLT_VBF_DiPFPuppiJet93_Mjj600_MediumPFPuppiParTTauh61_eta2p1' : 'CL2Taus',
         'HLT_VBF_DiPFPuppiJet93_Mjj550_Ele24_eta2p1_WPTight_L1Seeded'  : 'CL2Electrons',
     }
     noPairCuts = cms.PSet(
