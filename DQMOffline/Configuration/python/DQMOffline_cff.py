@@ -36,8 +36,6 @@ from Configuration.Eras.Modifier_run3_common_cff import run3_common
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 ## Remove Scouting DQM in run1/2 eras and phase2
 (~run3_common | phase2_common | pp_on_AA).toReplaceWith(DQMOfflineScouting, cms.Sequence( ))
-DQMOfflineScoutingForRelVals = DQMOfflineScouting.copy()
-DQMOfflineScoutingForRelVals.replace(hltScoutingDqmOffline, hltScoutingDqmOfflineForRelVals)
 
 # HLT Heterogeneous monitoring sequence
 DQMOfflineHLTGPUvsCPU =  cms.Sequence( HLTHeterogeneousMonitoringSequence )
@@ -170,7 +168,7 @@ DQMOfflinePrePOG = cms.Sequence( DQMOfflineTracking *
                                  DQMOfflinePFAnalyzer *
                                  DQMOfflineEGamma *
                                  DQMOfflineTrigger *
-                                 DQMOfflineScoutingForRelVals *
+                                 DQMOfflineScouting *
                                  DQMOfflineBTag *
                                  DQMOfflineBeam *
                                  DQMOfflinePhysics )
@@ -214,7 +212,7 @@ DQMOfflineExtraHLT = cms.Sequence( offlineValidationHLTSource )
 DQMOfflineFakeHLT = cms.Sequence( DQMOffline )
 DQMOfflineFakeHLT.remove( HLTMonitoring )
 DQMOfflineFakeHLT.remove( DQMOfflineTrigger )
-DQMOfflineFakeHLT.remove( DQMOfflineScoutingForRelVals )
+DQMOfflineFakeHLT.remove( DQMOfflineScouting )
 #MC
 DQMOfflinePrePOGMC = cms.Sequence( DQMOfflineVertex *
                                    DQMOfflineBTag *
@@ -253,17 +251,17 @@ DQMOfflineCommon = cms.Sequence( DQMOfflineDCS *
 				 DQMOfflineTrackerPixel *
                                  DQMOfflineTracking *
                                  DQMOfflineTrigger *
-                                 DQMOfflineScoutingForRelVals *
+                                 DQMOfflineScouting *
                                  DQMOfflineBeam *
                                  DQMOfflineCASTOR *
                                  DQMOfflinePhysics *
-				                 DQMOfflineTAU *
+				 DQMOfflineTAU *
                                  DQMOfflinePFAnalyzer
                                 )
 
 DQMOfflineCommonFakeHLT = cms.Sequence( DQMOfflineCommon )
 DQMOfflineCommonFakeHLT.remove( DQMOfflineTrigger )
-DQMOfflineCommonFakeHLT.remove( DQMOfflineScoutingForRelVals )
+DQMOfflineCommonFakeHLT.remove( DQMOfflineScouting )
 
 #MinBias/ZeroBias
 DQMOfflineTrackerStripMinBias = cms.Sequence( SiStripDQMTier0MinBias )

@@ -51,9 +51,6 @@ hltScoutingMuonDqmOffline = cms.Sequence(scoutingMonitoringTagProbeMuonNoVtx *
 
 hltScoutingJetDqmOffline = cms.Sequence(jetMETDQMOfflineSourceScouting +
                                         jetmetScoutingMonitorHLT)
-## remove corrector to not schedule the run of the corrector modules which crash if scouting objects are missing
-hltScoutingJetDqmOfflineForRelVals = cms.Sequence(jetMETDQMOfflineSourceScoutingNoCorrection +
-                                                  jetmetScoutingNoJECsMonitorHLT)
 
 hltScoutingCollectionMonitor = cms.Sequence(scoutingCollectionMonitor)
 hltScoutingDileptonMonitor = cms.Sequence(ScoutingDileptonMonitor)
@@ -61,13 +58,17 @@ hltScoutingPi0Monitor = cms.Sequence(ScoutingPi0Monitor)
 hltScoutingDiMuonVertexMonitor = cms.Sequence(ScoutingDiMuonVertexMonitor)
 
 hltDqmOnlyScouting = cms.Sequence(recoTrackFromScoutingMonitorSequence +
-                                    hltScoutingTrackMonitor +
-                                    run3ScoutingElectronBestTrack +
-                                    hltScoutingDileptonMonitor +
-                                    ScoutingMuonPropertiesMonitor +
-                                    hltScoutingDiMuonVertexMonitor +
-                                    hltScoutingPi0Monitor +
-                                    hltScoutingCollectionMonitor)
+                                  hltScoutingTrackMonitor +
+                                  run3ScoutingElectronBestTrack +
+                                  hltScoutingDileptonMonitor +
+                                  ScoutingMuonPropertiesMonitor +
+                                  hltScoutingDiMuonVertexMonitor +
+                                  hltScoutingPi0Monitor +
+                                  jetPreDQMSeqScouting +
+                                  dqmAk4PFScoutingL1FastL2L3ResidualCorrector +
+                                  jetDQMAnalyzerAk4ScoutingUncleaned +
+                                  jetDQMAnalyzerAk4ScoutingCleaned +
+                                  hltScoutingCollectionMonitor)
 
 hltDqmScoutingAndReco = cms.Sequence(hltScoutingMuonDqmOffline +
                                      hltScoutingEGammaDqmOffline +
@@ -83,6 +84,3 @@ _hltScoutingDqmOffline += hltScoutingMonitoringRecHits
 # Append the RecHits monitoring only in the 2025 scouting era
 from Configuration.Eras.Modifier_run3_scouting_2025_cff import run3_scouting_2025
 run3_scouting_2025.toReplaceWith(hltScoutingDqmOffline, _hltScoutingDqmOffline)
-
-hltScoutingDqmOfflineForRelVals = hltScoutingDqmOffline.copy()
-hltScoutingDqmOfflineForRelVals.replace(hltScoutingJetDqmOffline, hltScoutingJetDqmOfflineForRelVals)
