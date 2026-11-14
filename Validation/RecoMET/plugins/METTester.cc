@@ -1,134 +1,91 @@
 #include "METTester.h"
-#include <format>
-
-using namespace reco;
-using namespace std;
-using namespace edm;
+#include "FWCore/Utilities/interface/Exception.h"
 
 METTester::METTester(const edm::ParameterSet &iConfig) {
-  inputMETLabel_ = iConfig.getParameter<edm::InputTag>("inputMETLabel");
-  runDir = iConfig.getUntrackedParameter<std::string>("runDir");
-
   METType_ = iConfig.getUntrackedParameter<std::string>("METType");
-  isCaloMET = std::string("calo") == METType_;
-  isPFMET = std::string("pf") == METType_;
-  isGenMET = std::string("gen") == METType_;
-  isMiniAODMET = std::string("miniaod") == METType_;
-
-  if (isCaloMET)
-    caloMETsToken_ = consumes<reco::CaloMETCollection>(inputMETLabel_);
-  else if (isPFMET)
-    pfMETsToken_ = consumes<reco::PFMETCollection>(inputMETLabel_);
-  else if (isMiniAODMET)
-    patMETToken_ = consumes<pat::METCollection>(inputMETLabel_);
-  else if (isGenMET)
-    genMETsToken_ = consumes<reco::GenMETCollection>(inputMETLabel_);
-
-  if (!isMiniAODMET) {
-    genMETsTrueToken_ = consumes<reco::GenMETCollection>(edm::InputTag("genMetTrue"));
-    genMETsCaloToken_ = consumes<reco::GenMETCollection>(edm::InputTag("genMetCalo"));
+  isCaloMET = METType_ == "calo";
+  isPFMET = METType_ == "pf";
+  isMHT = METType_ == "mht";
+  isGenMET = METType_ == "gen";
+  isMiniAODMET = METType_ == "miniaod";
+  if (!(isCaloMET or isPFMET or isMHT or isGenMET or isMiniAODMET)) {
+    throw cms::Exception("Configuration")
+        << "METTester: unknown METType '" << METType_ << "'. Use one of: calo, pf, mht, gen, miniaod.";
   }
+
+  inputMETLabel_ = iConfig.getParameter<std::string>("inputMETLabel");
+  inputMHTLabel_ = iConfig.getParameter<std::string>("inputMHTLabel");
+  runDir = iConfig.getUntrackedParameter<std::string>("runDir");
+  outFolder_ = iConfig.getUntrackedParameter<std::string>("outFolder");
+
+  mGenMetTrueLabel = iConfig.getParameter<std::string>("genMetTrueLabel");
+  mGenMetCaloLabel = iConfig.getParameter<std::string>("genMetCaloLabel");
+  mGenMhtLabel = iConfig.getParameter<std::string>("genMhtLabel");
+
+  primaryLabel_ = isMHT ? inputMHTLabel_ : inputMETLabel_;
+  companionLabel_ = isMHT ? inputMETLabel_ : inputMHTLabel_;
+  hasCompanion_ = !companionLabel_.empty();
+  if (primaryLabel_.empty()) {
+    throw cms::Exception("Configuration") << "METTester: METType '" << METType_ << "' requires a non-empty "
+                                          << (isMHT ? "inputMHTLabel" : "inputMETLabel") << ".";
+  }
+
+  primaryToken_ = consumes<METView>(primaryLabel_);
+  if (hasCompanion_)
+    companionToken_ = consumes<METView>(companionLabel_);
+
+  // gen MET true: reference for MET, and needed for the gen MET vs gen MHT comparison
+  if (!isMiniAODMET or hasCompanion_)
+    genMetTrueToken_ = consumes<METView>(mGenMetTrueLabel);
+  if (!isMiniAODMET and !isMHT)
+    genMetCaloToken_ = consumes<METView>(mGenMetCaloLabel);
+  // gen MHT: reference for MHT, and needed for the gen MET vs gen MHT comparison
+  if (isMHT or hasCompanion_)
+    genMhtToken_ = consumes<METView>(mGenMhtLabel);
 
   pvTokenTag_ = iConfig.getParameter<edm::InputTag>("primaryVertices");
   pvToken_ = consumes<std::vector<reco::Vertex>>(pvTokenTag_);
-
-  // Events variables
-  mNvertex = nullptr;
-
-  // Common variables
-  mMEx = nullptr;
-  mMEy = nullptr;
-  mMETSignPseudo = nullptr;
-  mMETSignReal = nullptr;
-  mMET = nullptr;
-  mMETFine = nullptr;
-  mMET_Nvtx = nullptr;
-  mMETEta = nullptr;
-  mMETPhi = nullptr;
-  mSumET = nullptr;
-
-  mMETDiff_GenMETTrue = nullptr;
-  mMETRatio_GenMETTrue = nullptr;
-  mMETDeltaPhi_GenMETTrue = nullptr;
-
-  mMETDiff_GenMETCalo = nullptr;
-  mMETRatio_GenMETCalo = nullptr;
-  mMETDeltaPhi_GenMETCalo = nullptr;
-
-  // MET Uncertainities: Only for MiniAOD
-  mMETUnc_JetResUp = nullptr;
-  mMETUnc_JetResDown = nullptr;
-  mMETUnc_JetEnUp = nullptr;
-  mMETUnc_JetEnDown = nullptr;
-  mMETUnc_MuonEnUp = nullptr;
-  mMETUnc_MuonEnDown = nullptr;
-  mMETUnc_ElectronEnUp = nullptr;
-  mMETUnc_ElectronEnDown = nullptr;
-  mMETUnc_TauEnUp = nullptr;
-  mMETUnc_TauEnDown = nullptr;
-  mMETUnc_UnclusteredEnUp = nullptr;
-  mMETUnc_UnclusteredEnDown = nullptr;
-  mMETUnc_PhotonEnUp = nullptr;
-  mMETUnc_PhotonEnDown = nullptr;
-
-  // CaloMET variables
-  mCaloMaxEtInEmTowers = nullptr;
-  mCaloMaxEtInHadTowers = nullptr;
-  mCaloEtFractionHadronic = nullptr;
-  mCaloEmEtFraction = nullptr;
-  mCaloHadEtInHB = nullptr;
-  mCaloHadEtInHO = nullptr;
-  mCaloHadEtInHE = nullptr;
-  mCaloHadEtInHF = nullptr;
-  mCaloEmEtInHF = nullptr;
-  mCaloEmEtInEE = nullptr;
-  mCaloEmEtInEB = nullptr;
-
-  // GenMET variables
-  mNeutralEMEtFraction = nullptr;
-  mNeutralHadEtFraction = nullptr;
-  mChargedEMEtFraction = nullptr;
-  mChargedHadEtFraction = nullptr;
-  mMuonEtFraction = nullptr;
-  mInvisibleEtFraction = nullptr;
-}
-
-std::string METTester::binStr(float left, float right, bool roundInt) {
-  std::string out;
-  if (roundInt) {
-    out = std::to_string((int)left) + "to" + std::to_string((int)right);
-  } else {
-    out = std::format("{:.2f}", left) + "to" + std::format("{:.2f}", right);
-    std::replace(out.begin(), out.end(), '.', 'p');
-  }
-  return out;
 }
 
 void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun, edm::EventSetup const & /* iSetup */) {
-  ibooker.setCurrentFolder(runDir + inputMETLabel_.label());
+  // output folder: `outFolder` if set, otherwise the module label
+  ibooker.setCurrentFolder(runDir + (outFolder_.empty() ? moduleDescription().moduleLabel() : outFolder_));
 
   mNvertex = ibooker.book1D("Nvertex", "Nvertex", 450, 0, 450);
-  mMEx = ibooker.book1D("MEx", "MEx", 160, -800, 800);
-  mMEy = ibooker.book1D("MEy", "MEy", 160, -800, 800);
+  mMEx = ibooker.book1D("MEx", "MEx", 160, -metDiffEdge, metDiffEdge);
+  mMEy = ibooker.book1D("MEy", "MEy", 160, -metDiffEdge, metDiffEdge);
   mMETSignPseudo = ibooker.book1D("METSignPseudo", "METSignPseudo", 25, 0, 24.5);
   mMETSignReal = ibooker.book1D("METSignReal", "METSignReal", 25, 0, 24.5);
-  mMET = ibooker.book1D("MET", "MET (20 GeV binning)", 100, 0, 2000);
-  mMETFine = ibooker.book1D("METFine", "MET (2 GeV binning)", 1000, 0, 2000);
-  mMET_Nvtx = ibooker.bookProfile("MET_Nvtx", "MET vs. nvtx", 450, 0., 450., 0., 2000., "");
-  mMETEta = ibooker.book1D("METEta", "METEta", 80, -6, 6);
-  mMETPhi = ibooker.book1D("METPhi", "METPhi", 80, -4, 4);
-  mSumET = ibooker.book1D("SumET", "SumET", 200, 0, 5000);  // 10GeV
-  mMETDiff_GenMETTrue = ibooker.book1D("METDiff_GenMETTrue", "METDiff_GenMETTrue", 800, -800, 800);
-  mMETRatio_GenMETTrue = ibooker.book1D("METRatio_GenMETTrue", "METRatio_GenMETTrue", 800, -800, 800);
-  mMETDeltaPhi_GenMETTrue = ibooker.book1D("METDeltaPhi_GenMETTrue", "METDeltaPhi_GenMETTrue", 80, 0, 4);
+  mGenMETTrue = ibooker.book1D("GenMETTrue", "MET Gen True (20 GeV binning)", metCoarseNbins, 0, metEdge);
+  mMET = ibooker.book1D("MET", "MET (20 GeV binning)", metCoarseNbins, 0, metEdge);
+  mMET_Nvtx = ibooker.bookProfile("MET_Nvtx", "MET vs. nvtx", 450, 0., 450., 0., metEdge, "");
+  mMETPhi = ibooker.book1D("METPhi", "METPhi", phiNbins, -phiEdge, phiEdge);
+  mSumET = ibooker.book1D("SumET", "SumET", 200, 0, 5000);
+  mMETDiff_GenMETTrue =
+      ibooker.book1D("METDiff_GenMETTrue", "METDiff_GenMETTrue", metDiffNbins, -metDiffEdge, metDiffEdge);
+  mMETRatio_GenMETTrue = ibooker.book1D("METRatio_GenMETTrue", "METRatio_GenMETTrue", metRatioNbins, 0., metRatioEdge);
+  mMETDeltaPhi_GenMETTrue =
+      ibooker.book1D("METDeltaPhi_GenMETTrue", "METDeltaPhi_GenMETTrue", phiNbins, -phiEdge, phiEdge);
 
-  for (unsigned metIdx = 0; metIdx < mNMETBins; ++metIdx) {
-    std::string title = "MET_MET" + binStr(mMETBins[metIdx], mMETBins[metIdx + 1], true);
-    mMET_METBins[metIdx] = ibooker.book1D(title.c_str(), title.c_str(), 50, mMETBins[metIdx], mMETBins[metIdx + 1]);
-  }
-  for (unsigned metIdx = 0; metIdx < mNPhiBins; ++metIdx) {
-    std::string title = "MET_Phi" + binStr(mPhiBins[metIdx], mPhiBins[metIdx + 1], false);
-    mMET_PhiBins[metIdx] = ibooker.book1D(title.c_str(), title.c_str(), 600, -600, 600);
+  mGenMETTrue_vs_MET = ibooker.book2D(
+      "GenMETTruevsMET", "Gen MET True vs MET", metCoarseNbins, 0., metEdge, metCoarseNbins, 0., metEdge);
+  mGenMETPhi_vs_MET =
+      ibooker.book2D("GenMETPhivsMET", "Gen MET Phi vs MET", phiNbins, -phiEdge, phiEdge, metNbins, 0., metEdge);
+  mGenMETTrue_vs_mGenMETPhi = ibooker.book2D(
+      "GenMETTruevsGenMETPhi", "Gen MET True vs Gen MET Phi", metNbins, 0., metEdge, phiNbins, -phiEdge, phiEdge);
+
+  if (!isMiniAODMET and !isMHT) {
+    mGenMETCalo = ibooker.book1D("GenMETCalo", "MET Gen Calo (20 GeV binning)", metCoarseNbins, 0, metEdge);
+    mGenMETCalo_vs_MET = ibooker.book2D(
+        "GenMETCalovsMET", "Gen MET Calo vs MET", metCoarseNbins, 0., metEdge, metCoarseNbins, 0., metEdge);
+    mGenMETCalo_vs_mGenMETPhi = ibooker.book2D(
+        "GenMETCalovsGenMETPhi", "Gen MET Calo vs Gen MET Phi", metNbins, 0., metEdge, phiNbins, -phiEdge, phiEdge);
+    mMETDiff_GenMETCalo =
+        ibooker.book1D("METDiff_GenMETCalo", "METDiff_GenMETCalo", metDiffNbins, -metDiffEdge, metDiffEdge);
+    mMETRatio_GenMETCalo =
+        ibooker.book1D("METRatio_GenMETCalo", "METRatio_GenMETCalo", metRatioNbins, 0., metRatioEdge);
+    mMETDeltaPhi_GenMETCalo =
+        ibooker.book1D("METDeltaPhi_GenMETCalo", "METDeltaPhi_GenMETCalo", phiNbins, -phiEdge, phiEdge);
   }
 
   if (isMiniAODMET) {
@@ -144,46 +101,55 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
     mMETUnc_TauEnDown = ibooker.book1D("METUnc_TauEnDown", "METUnc_TauEnDown", 200, -10, 10);
     mMETUnc_UnclusteredEnUp = ibooker.book1D("METUnc_UnclusteredEnUp", "METUnc_UnclusteredEnUp", 200, -10, 10);
     mMETUnc_UnclusteredEnDown = ibooker.book1D("METUnc_UnclusteredEnDown", "METUnc_UnclusteredEnDown", 200, -10, 10);
-    mMETUnc_PhotonEnUp = ibooker.book1D("METUnc_UnclusteredEnDown", "METUnc_UnclusteredEnDown", 200, -10, 10);
+    mMETUnc_PhotonEnUp = ibooker.book1D("METUnc_PhotonEnUp", "METUnc_PhotonEnUp", 200, -10, 10);
     mMETUnc_PhotonEnDown = ibooker.book1D("METUnc_PhotonEnDown", "METUnc_PhotonEnDown", 200, -10, 10);
   }
-  if (!isMiniAODMET) {
-    mMETDiff_GenMETCalo = ibooker.book1D("METDiff_GenMETCalo", "METDiff_GenMETCalo", 600, -600, 600);
-    mMETRatio_GenMETCalo = ibooker.book1D("METRatio_GenMETCalo", "METRatio_GenMETCalo", 600, -600, 600);
-    mMETDeltaPhi_GenMETCalo = ibooker.book1D("METDeltaPhi_GenMETCalo", "METDeltaPhi_GenMETCalo", 80, 0, 4);
-  }
+
   if (!isGenMET) {
-    for (unsigned metIdx = 0; metIdx < mNMETBins; ++metIdx) {
-      const std::string title = "_GenMETTrue_MET" + binStr(mMETBins[metIdx], mMETBins[metIdx + 1], true);
-      mMETDiff_GenMETTrue_METBins[metIdx] =
-          ibooker.book1D(("METDiff" + title).c_str(), ("METDiff" + title).c_str(), 600, -600, 600);
-      mMETRatio_GenMETTrue_METBins[metIdx] =
-          ibooker.book1D(("METRatio" + title).c_str(), ("METRatio" + title).c_str(), 600, -600, 600);
-      mMETDeltaPhi_GenMETTrue_METBins[metIdx] =
-          ibooker.book1D(("METDeltaPhi" + title).c_str(), ("METDeltaPhi" + title).c_str(), 80, 0, 4);
-    }
-    for (unsigned metIdx = 0; metIdx < mNPhiBins; ++metIdx) {
-      const std::string title = "_GenMETTrue_Phi" + binStr(mPhiBins[metIdx], mPhiBins[metIdx + 1], false);
-      mMETDiff_GenMETTrue_PhiBins[metIdx] =
-          ibooker.book1D(("METDiff" + title).c_str(), ("METDiff" + title).c_str(), 600, -600, 600);
-      mMETRatio_GenMETTrue_PhiBins[metIdx] =
-          ibooker.book1D(("METRatio" + title).c_str(), ("METRatio" + title).c_str(), 600, -600, 600);
-      mMETDeltaPhi_GenMETTrue_PhiBins[metIdx] =
-          ibooker.book1D(("METDeltaPhi" + title).c_str(), ("METDeltaPhi" + title).c_str(), 80, 0, 4);
-    }
+    mMETDiff_vs_GenMETTrue = ibooker.book2D("METDiffvsGenMETTrue",
+                                            "MET Diff vs Gen MET True",
+                                            metDiffNbins,
+                                            -metDiffEdge,
+                                            metDiffEdge,
+                                            metNbins,
+                                            0.,
+                                            metEdge);
+    mMETDiff_vs_GenMETPhi = ibooker.book2D("METDiffvsGenMETPhi",
+                                           "MET Diff vs Gen MET Phi",
+                                           metDiffNbins,
+                                           -metDiffEdge,
+                                           metDiffEdge,
+                                           phiNbins,
+                                           -phiEdge,
+                                           phiEdge);
+    mMETRatio_vs_GenMETTrue = ibooker.book2D(
+        "METRatiovsGenMETTrue", "MET Ratio vs Gen MET True", metRatioNbins, 0., metRatioEdge, metNbins, 0., metEdge);
+    mMETRatio_vs_GenMETPhi = ibooker.book2D(
+        "METRatiovsGenMETPhi", "MET Ratio vs Gen MET Phi", metRatioNbins, 0., metRatioEdge, phiNbins, -phiEdge, phiEdge);
+    mMETDeltaPhi_vs_GenMETTrue = ibooker.book2D(
+        "METDeltaPhivsGenMETTrue", "MET DeltaPhi vs Gen MET True", phiNbins, -phiEdge, phiEdge, metNbins, 0., metEdge);
+    mMETDeltaPhi_vs_GenMETPhi = ibooker.book2D("METDeltaPhivsGenMETPhi",
+                                               "MET DeltaPhi vs Gen MET Phi",
+                                               phiNbins,
+                                               -phiEdge,
+                                               phiEdge,
+                                               phiNbins,
+                                               -phiEdge,
+                                               phiEdge);
   }
+
   if (isCaloMET) {
-    mCaloMaxEtInEmTowers = ibooker.book1D("CaloMaxEtInEmTowers", "CaloMaxEtInEmTowers", 300, 0, 1500);     // 5GeV
-    mCaloMaxEtInHadTowers = ibooker.book1D("CaloMaxEtInHadTowers", "CaloMaxEtInHadTowers", 300, 0, 1500);  // 5GeV
+    mCaloMaxEtInEmTowers = ibooker.book1D("CaloMaxEtInEmTowers", "CaloMaxEtInEmTowers", 300, 0, 1500);
+    mCaloMaxEtInHadTowers = ibooker.book1D("CaloMaxEtInHadTowers", "CaloMaxEtInHadTowers", 300, 0, 1500);
     mCaloEtFractionHadronic = ibooker.book1D("CaloEtFractionHadronic", "CaloEtFractionHadronic", 100, 0, 1);
     mCaloEmEtFraction = ibooker.book1D("CaloEmEtFraction", "CaloEmEtFraction", 100, 0, 1);
-    mCaloHadEtInHB = ibooker.book1D("CaloHadEtInHB", "CaloHadEtInHB", 200, 0, 2000);  // 5GeV
-    mCaloHadEtInHE = ibooker.book1D("CaloHadEtInHE", "CaloHadEtInHE", 100, 0, 500);   // 5GeV
-    mCaloHadEtInHO = ibooker.book1D("CaloHadEtInHO", "CaloHadEtInHO", 100, 0, 200);   // 5GeV
-    mCaloHadEtInHF = ibooker.book1D("CaloHadEtInHF", "CaloHadEtInHF", 100, 0, 200);   // 5GeV
-    mCaloEmEtInEE = ibooker.book1D("CaloEmEtInEE", "CaloEmEtInEE", 100, 0, 500);      // 5GeV
-    mCaloEmEtInEB = ibooker.book1D("CaloEmEtInEB", "CaloEmEtInEB", 100, 0, 500);      // 5GeV
-    mCaloEmEtInHF = ibooker.book1D("CaloEmEtInHF", "CaloEmEtInHF", 100, 0, 500);      // 5GeV
+    mCaloHadEtInHB = ibooker.book1D("CaloHadEtInHB", "CaloHadEtInHB", 200, 0, 2000);
+    mCaloHadEtInHE = ibooker.book1D("CaloHadEtInHE", "CaloHadEtInHE", 100, 0, 500);
+    mCaloHadEtInHO = ibooker.book1D("CaloHadEtInHO", "CaloHadEtInHO", 100, 0, 200);
+    mCaloHadEtInHF = ibooker.book1D("CaloHadEtInHF", "CaloHadEtInHF", 100, 0, 200);
+    mCaloEmEtInEE = ibooker.book1D("CaloEmEtInEE", "CaloEmEtInEE", 100, 0, 500);
+    mCaloEmEtInEB = ibooker.book1D("CaloEmEtInEB", "CaloEmEtInEB", 100, 0, 500);
+    mCaloEmEtInHF = ibooker.book1D("CaloEmEtInHF", "CaloEmEtInHF", 100, 0, 500);
   }
 
   if (isGenMET) {
@@ -214,238 +180,231 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
       mPFHFEMEt = ibooker.book1D("HFEMEt", "HFEMEt", 50, 0, 150);
     }
   }
+
+  // MET vs MHT comparisons live in a dedicated folder, shared by MET and MHT
+  if (hasCompanion_) {
+    ibooker.setCurrentFolder(runDir + "METvsMHT/" + inputMETLabel_ + "_" + inputMHTLabel_);
+    mMET_vs_MHT = ibooker.book2D("METvsMHT", "MET vs MHT", metCoarseNbins, 0., metEdge, metCoarseNbins, 0., metEdge);
+    mGenMETTrue_vs_GenMHT = ibooker.book2D(
+        "GenMETTruevsGenMHT", "Gen MET True vs Gen MHT", metCoarseNbins, 0., metEdge, metCoarseNbins, 0., metEdge);
+  }
+}
+
+void METTester::warnOnce(const std::string &label, const std::string &msg) {
+  if (warned_.insert(label).second) {
+    edm::LogWarning("METTester") << "[" << primaryLabel_ << "] " << msg << " (reported only once)";
+  }
+}
+
+const reco::MET *METTester::firstOrNull(const edm::Event &iEvent,
+                                        const edm::EDGetTokenT<METView> &token,
+                                        const std::string &label) {
+  const auto &handle = iEvent.getHandle(token);
+  if (!handle.isValid()) {
+    warnOnce(label, "Collection '" + label + "' not found; dependent histograms are not filled.");
+    return nullptr;
+  }
+  if (handle->empty()) {
+    warnOnce(label + "_empty", "Collection '" + label + "' is empty; dependent histograms are not filled.");
+    return nullptr;
+  }
+  return &handle->front();
 }
 
 void METTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  edm::Handle<reco::VertexCollection> pvHandle;
-  iEvent.getByToken(pvToken_, pvHandle);
-  if (!pvHandle.isValid()) {
-    edm::LogWarning("MissingInput") << __FUNCTION__ << ":" << __LINE__ << ": pvHandle handle with tag " << pvTokenTag_
-                                    << " not found!";
+  int nvtx = -1;
+  const auto &pvHandle = iEvent.getHandle(pvToken_);
+  if (pvHandle.isValid()) {
+    nvtx = pvHandle->size();
+    mNvertex->Fill(nvtx);
+  } else {
+    warnOnce(pvTokenTag_.encode(), "Vertex collection '" + pvTokenTag_.encode() + "' not found.");
+  }
+
+  const reco::MET *primary = firstOrNull(iEvent, primaryToken_, primaryLabel_);
+  if (!primary)
     return;
-  }
-  const int nvtx = pvHandle->size();
-  mNvertex->Fill(nvtx);
 
-  edm::Handle<CaloMETCollection> caloMETs;
-  edm::Handle<PFMETCollection> pfMETs;
-  edm::Handle<GenMETCollection> genMETs;
-  edm::Handle<pat::METCollection> patMET;
+  const double theMET = primary->pt();
+  const double METPhi = primary->phi();
 
-  if (isCaloMET) {
-    iEvent.getByToken(caloMETsToken_, caloMETs);
-    if (!caloMETs.isValid())
-      return;
-  } else if (isPFMET) {
-    iEvent.getByToken(pfMETsToken_, pfMETs);
-    if (!pfMETs.isValid())
-      return;
-  } else if (isGenMET) {
-    iEvent.getByToken(genMETsToken_, genMETs);
-    if (!genMETs.isValid())
-      return;
-  } else if (isMiniAODMET) {
-    iEvent.getByToken(patMETToken_, patMET);
-    if (!patMET.isValid())
-      return;
-  }
-
-  reco::MET met;
-  if (isCaloMET)
-    met = caloMETs->front();
-  else if (isPFMET)
-    met = pfMETs->front();
-  else if (isGenMET)
-    met = genMETs->front();
-  else if (isMiniAODMET)
-    met = patMET->front();
-
-  const double SumET = met.sumEt();
-  const double METSignPseudo = met.mEtSig();
-  const double METSignReal = met.significance();  // covariance matrix to be fixed by JetMET
-
-  const double MET = met.pt();
-  const double MEx = met.px();
-  const double MEy = met.py();
-  const double METEta = met.eta();
-  const double METPhi = met.phi();
-
-  mSumET->Fill(SumET);
-  mMETSignPseudo->Fill(METSignPseudo);
-  mMETSignReal->Fill(METSignReal);
-  mMET->Fill(MET);
-  mMETFine->Fill(MET);
-  mMET_Nvtx->Fill((double)nvtx, MET);
-  mMEx->Fill(MEx);
-  mMEy->Fill(MEy);
-  mMETEta->Fill(METEta);
+  mSumET->Fill(primary->sumEt());
+  mMETSignPseudo->Fill(primary->mEtSig());
+  mMETSignReal->Fill(primary->significance());  // covariance matrix to be fixed by JetMET
+  mMET->Fill(theMET);
+  if (nvtx >= 0)
+    mMET_Nvtx->Fill(nvtx, theMET);
+  mMEx->Fill(primary->px());
+  mMEy->Fill(primary->py());
   mMETPhi->Fill(METPhi);
 
-  for (unsigned metIdx = 0; metIdx < mNMETBins; ++metIdx) {
-    if (MET >= mMETBins[metIdx] && MET < mMETBins[metIdx + 1])
-      mMET_METBins[metIdx]->Fill(MET);
-  }
-  for (unsigned metIdx = 0; metIdx < mNPhiBins; ++metIdx) {
-    if (METPhi >= mPhiBins[metIdx] && METPhi < mPhiBins[metIdx + 1])
-      mMET_PhiBins[metIdx]->Fill(MET);
-  }
-
-  // Get Generated MET for Resolution plots
-  const reco::GenMET *genMetTrue = nullptr;
-  bool isvalidgenmet = false;
-
-  if (!isMiniAODMET) {
-    edm::Handle<GenMETCollection> genTrue;
-    iEvent.getByToken(genMETsTrueToken_, genTrue);
-    if (genTrue.isValid()) {
-      isvalidgenmet = true;
-      const GenMETCollection *genmetcol = genTrue.product();
-      genMetTrue = &(genmetcol->front());
-    }
+  // Generator-level reference: gen MHT for MHT, gen MET true otherwise
+  const reco::MET *genRef = nullptr;
+  if (isMHT) {
+    genRef = firstOrNull(iEvent, genMhtToken_, mGenMhtLabel);
+  } else if (isMiniAODMET) {
+    const auto *patmet = dynamic_cast<const pat::MET *>(primary);
+    genRef = patmet ? patmet->genMET() : nullptr;
+    if (patmet and !genRef)
+      warnOnce("patGenMET", "pat::MET '" + primaryLabel_ + "' has no associated gen MET.");
   } else {
-    genMetTrue = patMET->front().genMET();
-    isvalidgenmet = true;
+    genRef = firstOrNull(iEvent, genMetTrueToken_, mGenMetTrueLabel);
+  }
+  if (genRef)
+    fillGenComparison(*primary, *genRef);
+
+  if (!isMiniAODMET and !isMHT) {
+    if (const reco::MET *genCalo = firstOrNull(iEvent, genMetCaloToken_, mGenMetCaloLabel))
+      fillGenCaloComparison(*primary, *genCalo);
   }
 
-  if (isvalidgenmet) {
-    double genMET = genMetTrue->pt();
-    double genMETPhi = genMetTrue->phi();
-    double metDiff = MET - genMET;
-    double metRatio = MET / genMET;
-    double metDeltaPhi = TVector2::Phi_mpi_pi(METPhi - genMETPhi);
-
-    mMETDiff_GenMETTrue->Fill(metDiff);
-    mMETRatio_GenMETTrue->Fill(metRatio);
-    mMETDeltaPhi_GenMETTrue->Fill(metDeltaPhi);
-
-    if (!isGenMET) {
-      // MET difference in MET bins
-      for (unsigned metIdx = 0; metIdx < mNMETBins; ++metIdx) {
-        if (MET >= mMETBins[metIdx] && MET < mMETBins[metIdx + 1]) {
-          mMETDiff_GenMETTrue_METBins[metIdx]->Fill(metDiff);
-          mMETRatio_GenMETTrue_METBins[metIdx]->Fill(metRatio);
-          mMETDeltaPhi_GenMETTrue_METBins[metIdx]->Fill(metDeltaPhi);
-        }
-      }
-      // MET difference in Phi bins
-      for (unsigned metIdx = 0; metIdx < mNPhiBins; ++metIdx) {
-        if (METPhi >= mPhiBins[metIdx] && METPhi < mPhiBins[metIdx + 1]) {
-          mMETDiff_GenMETTrue_PhiBins[metIdx]->Fill(metDiff);
-          mMETRatio_GenMETTrue_PhiBins[metIdx]->Fill(metRatio);
-          mMETDeltaPhi_GenMETTrue_PhiBins[metIdx]->Fill(metDeltaPhi);
-        }
-      }
-    } else {
-      edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetTrue";
+  if (hasCompanion_) {
+    if (const reco::MET *companion = firstOrNull(iEvent, companionToken_, companionLabel_)) {
+      const reco::MET &met = isMHT ? *companion : *primary;
+      const reco::MET &mht = isMHT ? *primary : *companion;
+      mMET_vs_MHT->Fill(met.pt(), mht.pt());
     }
+    const reco::MET *genMet = firstOrNull(iEvent, genMetTrueToken_, mGenMetTrueLabel);
+    const reco::MET *genMht = firstOrNull(iEvent, genMhtToken_, mGenMhtLabel);
+    if (genMet and genMht)
+      mGenMETTrue_vs_GenMHT->Fill(genMet->pt(), genMht->pt());
   }
-  if (!isMiniAODMET) {
-    edm::Handle<GenMETCollection> genCalo;
-    iEvent.getByToken(genMETsCaloToken_, genCalo);
-    if (genCalo.isValid()) {
-      const GenMETCollection *genmetcol = genCalo.product();
-      const GenMET *genMetCalo = &(genmetcol->front());
-      const double genMET = genMetCalo->pt();
-      const double genMETPhi = genMetCalo->phi();
 
-      mMETDiff_GenMETCalo->Fill(MET - genMET);
-      mMETRatio_GenMETCalo->Fill(MET / genMET);
-      mMETDeltaPhi_GenMETCalo->Fill(TVector2::Phi_mpi_pi(METPhi - genMETPhi));
-    } else {
-      edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task: genMetCalo";
-    }
-  }
+  // Type-specific variables
   if (isCaloMET) {
-    const reco::CaloMET *calomet = &(caloMETs->front());
-    // ==========================================================
-    // Reconstructed MET Information
-    const double caloMaxEtInEMTowers = calomet->maxEtInEmTowers();
-    const double caloMaxEtInHadTowers = calomet->maxEtInHadTowers();
-    const double caloEtFractionHadronic = calomet->etFractionHadronic();
-    const double caloEmEtFraction = calomet->emEtFraction();
-    const double caloHadEtInHB = calomet->hadEtInHB();
-    const double caloHadEtInHO = calomet->hadEtInHO();
-    const double caloHadEtInHE = calomet->hadEtInHE();
-    const double caloHadEtInHF = calomet->hadEtInHF();
-    const double caloEmEtInEB = calomet->emEtInEB();
-    const double caloEmEtInEE = calomet->emEtInEE();
-    const double caloEmEtInHF = calomet->emEtInHF();
-
-    mCaloMaxEtInEmTowers->Fill(caloMaxEtInEMTowers);
-    mCaloMaxEtInHadTowers->Fill(caloMaxEtInHadTowers);
-    mCaloEtFractionHadronic->Fill(caloEtFractionHadronic);
-    mCaloEmEtFraction->Fill(caloEmEtFraction);
-    mCaloHadEtInHB->Fill(caloHadEtInHB);
-    mCaloHadEtInHO->Fill(caloHadEtInHO);
-    mCaloHadEtInHE->Fill(caloHadEtInHE);
-    mCaloHadEtInHF->Fill(caloHadEtInHF);
-    mCaloEmEtInEB->Fill(caloEmEtInEB);
-    mCaloEmEtInEE->Fill(caloEmEtInEE);
-    mCaloEmEtInHF->Fill(caloEmEtInHF);
+    const auto *calomet = dynamic_cast<const reco::CaloMET *>(primary);
+    if (!calomet)
+      throw cms::Exception("Configuration") << "METTester: '" << primaryLabel_ << "' is not a reco::CaloMET.";
+    fillCaloMET(*calomet);
+  } else if (isPFMET) {
+    const auto *pfmet = dynamic_cast<const reco::PFMET *>(primary);
+    if (!pfmet)
+      throw cms::Exception("Configuration") << "METTester: '" << primaryLabel_ << "' is not a reco::PFMET.";
+    fillPFMET(*pfmet);
+  } else if (isGenMET) {
+    const auto *genmet = dynamic_cast<const reco::GenMET *>(primary);
+    if (!genmet)
+      throw cms::Exception("Configuration") << "METTester: '" << primaryLabel_ << "' is not a reco::GenMET.";
+    fillGenMET(*genmet);
+  } else if (isMiniAODMET) {
+    const auto *patmet = dynamic_cast<const pat::MET *>(primary);
+    if (!patmet)
+      throw cms::Exception("Configuration") << "METTester: '" << primaryLabel_ << "' is not a pat::MET.";
+    fillPatMET(*patmet, theMET);
   }
-  if (isGenMET) {
-    const GenMET *genmet;
-    // Get Generated MET
-    genmet = &(genMETs->front());
+}
 
-    const double NeutralEMEtFraction = genmet->NeutralEMEtFraction();
-    const double NeutralHadEtFraction = genmet->NeutralHadEtFraction();
-    const double ChargedEMEtFraction = genmet->ChargedEMEtFraction();
-    const double ChargedHadEtFraction = genmet->ChargedHadEtFraction();
-    const double MuonEtFraction = genmet->MuonEtFraction();
-    const double InvisibleEtFraction = genmet->InvisibleEtFraction();
+void METTester::fillGenComparison(const reco::MET &reco, const reco::MET &gen) {
+  const double theMET = reco.pt();
+  const double genMET = gen.pt();
+  const double genMETPhi = gen.phi();
+  const double metDiff = theMET - genMET;
+  const double metDeltaPhi = TVector2::Phi_mpi_pi(reco.phi() - genMETPhi);
+  const bool validRatio = genMET > mEpsilon;
+  const double metRatio = validRatio ? theMET / genMET : 0.;
 
-    mNeutralEMEtFraction->Fill(NeutralEMEtFraction);
-    mNeutralHadEtFraction->Fill(NeutralHadEtFraction);
-    mChargedEMEtFraction->Fill(ChargedEMEtFraction);
-    mChargedHadEtFraction->Fill(ChargedHadEtFraction);
-    mMuonEtFraction->Fill(MuonEtFraction);
-    mInvisibleEtFraction->Fill(InvisibleEtFraction);
-  }
-  if (isPFMET) {
-    const reco::PFMET *pfmet = &(pfMETs->front());
-    mPFphotonEtFraction->Fill(pfmet->photonEtFraction());
-    mPFphotonEt->Fill(pfmet->photonEt());
-    mPFneutralHadronEtFraction->Fill(pfmet->neutralHadronEtFraction());
-    mPFneutralHadronEt->Fill(pfmet->neutralHadronEt());
-    mPFelectronEtFraction->Fill(pfmet->electronEtFraction());
-    mPFelectronEt->Fill(pfmet->electronEt());
-    mPFchargedHadronEtFraction->Fill(pfmet->chargedHadronEtFraction());
-    mPFchargedHadronEt->Fill(pfmet->chargedHadronEt());
-    mPFmuonEtFraction->Fill(pfmet->muonEtFraction());
-    mPFmuonEt->Fill(pfmet->muonEt());
-    mPFHFHadronEtFraction->Fill(pfmet->HFHadronEtFraction());
-    mPFHFHadronEt->Fill(pfmet->HFHadronEt());
-    mPFHFEMEtFraction->Fill(pfmet->HFEMEtFraction());
-    mPFHFEMEt->Fill(pfmet->HFEMEt());
-    // Reconstructed MET Information
-  }
-  if (isMiniAODMET) {
-    const pat::MET *patmet = &(patMET->front());
-    mMETUnc_JetResUp->Fill(MET - patmet->shiftedPt(pat::MET::JetResUp));
-    mMETUnc_JetResDown->Fill(MET - patmet->shiftedPt(pat::MET::JetResDown));
-    mMETUnc_JetEnUp->Fill(MET - patmet->shiftedPt(pat::MET::JetEnUp));
-    mMETUnc_JetEnDown->Fill(MET - patmet->shiftedPt(pat::MET::JetEnDown));
-    mMETUnc_MuonEnUp->Fill(MET - patmet->shiftedPt(pat::MET::MuonEnUp));
-    mMETUnc_MuonEnDown->Fill(MET - patmet->shiftedPt(pat::MET::MuonEnDown));
-    mMETUnc_ElectronEnUp->Fill(MET - patmet->shiftedPt(pat::MET::ElectronEnUp));
-    mMETUnc_ElectronEnDown->Fill(MET - patmet->shiftedPt(pat::MET::ElectronEnDown));
-    mMETUnc_TauEnUp->Fill(MET - patmet->shiftedPt(pat::MET::TauEnUp));
-    mMETUnc_TauEnDown->Fill(MET - patmet->shiftedPt(pat::MET::TauEnDown));
-    mMETUnc_UnclusteredEnUp->Fill(MET - patmet->shiftedPt(pat::MET::UnclusteredEnUp));
-    mMETUnc_UnclusteredEnDown->Fill(MET - patmet->shiftedPt(pat::MET::UnclusteredEnDown));
-    mMETUnc_PhotonEnUp->Fill(MET - patmet->shiftedPt(pat::MET::PhotonEnUp));
-    mMETUnc_PhotonEnDown->Fill(MET - patmet->shiftedPt(pat::MET::PhotonEnDown));
+  mGenMETTrue->Fill(genMET);
+  mMETDiff_GenMETTrue->Fill(metDiff);
+  if (validRatio)
+    mMETRatio_GenMETTrue->Fill(metRatio);
+  mMETDeltaPhi_GenMETTrue->Fill(metDeltaPhi);
 
-    if (patmet->isPFMET()) {
-      mPFphotonEtFraction->Fill(patmet->NeutralEMFraction());
-      mPFneutralHadronEtFraction->Fill(patmet->NeutralHadEtFraction());
-      mPFelectronEtFraction->Fill(patmet->ChargedEMEtFraction());
-      mPFchargedHadronEtFraction->Fill(patmet->ChargedHadEtFraction());
-      mPFmuonEtFraction->Fill(patmet->MuonEtFraction());
-      mPFHFHadronEtFraction->Fill(patmet->Type6EtFraction());  // HFHadrons
-      mPFHFEMEtFraction->Fill(patmet->Type7EtFraction());      // HFEMEt
+  mGenMETTrue_vs_MET->Fill(genMET, theMET);
+  mGenMETPhi_vs_MET->Fill(genMETPhi, theMET);
+  mGenMETTrue_vs_mGenMETPhi->Fill(genMET, genMETPhi);
+
+  // MET differences (Reco - Gen)
+  if (!isGenMET) {
+    mMETDiff_vs_GenMETTrue->Fill(metDiff, genMET);
+    mMETDiff_vs_GenMETPhi->Fill(metDiff, genMETPhi);
+    if (validRatio) {
+      mMETRatio_vs_GenMETTrue->Fill(metRatio, genMET);
+      mMETRatio_vs_GenMETPhi->Fill(metRatio, genMETPhi);
     }
+    mMETDeltaPhi_vs_GenMETTrue->Fill(metDeltaPhi, genMET);
+    mMETDeltaPhi_vs_GenMETPhi->Fill(metDeltaPhi, genMETPhi);
+  }
+}
+
+void METTester::fillGenCaloComparison(const reco::MET &reco, const reco::MET &genCalo) {
+  const double theMET = reco.pt();
+  const double genMET = genCalo.pt();
+  const double genMETPhi = genCalo.phi();
+
+  mGenMETCalo->Fill(genMET);
+  mMETDiff_GenMETCalo->Fill(theMET - genMET);
+  if (genMET > mEpsilon)
+    mMETRatio_GenMETCalo->Fill(theMET / genMET);
+  mMETDeltaPhi_GenMETCalo->Fill(TVector2::Phi_mpi_pi(reco.phi() - genMETPhi));
+
+  mGenMETCalo_vs_MET->Fill(genMET, theMET);
+  mGenMETCalo_vs_mGenMETPhi->Fill(genMET, genMETPhi);
+}
+
+void METTester::fillCaloMET(const reco::CaloMET &calomet) {
+  mCaloMaxEtInEmTowers->Fill(calomet.maxEtInEmTowers());
+  mCaloMaxEtInHadTowers->Fill(calomet.maxEtInHadTowers());
+  mCaloEtFractionHadronic->Fill(calomet.etFractionHadronic());
+  mCaloEmEtFraction->Fill(calomet.emEtFraction());
+  mCaloHadEtInHB->Fill(calomet.hadEtInHB());
+  mCaloHadEtInHO->Fill(calomet.hadEtInHO());
+  mCaloHadEtInHE->Fill(calomet.hadEtInHE());
+  mCaloHadEtInHF->Fill(calomet.hadEtInHF());
+  mCaloEmEtInEB->Fill(calomet.emEtInEB());
+  mCaloEmEtInEE->Fill(calomet.emEtInEE());
+  mCaloEmEtInHF->Fill(calomet.emEtInHF());
+}
+
+void METTester::fillGenMET(const reco::GenMET &genmet) {
+  mNeutralEMEtFraction->Fill(genmet.NeutralEMEtFraction());
+  mNeutralHadEtFraction->Fill(genmet.NeutralHadEtFraction());
+  mChargedEMEtFraction->Fill(genmet.ChargedEMEtFraction());
+  mChargedHadEtFraction->Fill(genmet.ChargedHadEtFraction());
+  mMuonEtFraction->Fill(genmet.MuonEtFraction());
+  mInvisibleEtFraction->Fill(genmet.InvisibleEtFraction());
+}
+
+void METTester::fillPFMET(const reco::PFMET &pfmet) {
+  mPFphotonEtFraction->Fill(pfmet.photonEtFraction());
+  mPFphotonEt->Fill(pfmet.photonEt());
+  mPFneutralHadronEtFraction->Fill(pfmet.neutralHadronEtFraction());
+  mPFneutralHadronEt->Fill(pfmet.neutralHadronEt());
+  mPFelectronEtFraction->Fill(pfmet.electronEtFraction());
+  mPFelectronEt->Fill(pfmet.electronEt());
+  mPFchargedHadronEtFraction->Fill(pfmet.chargedHadronEtFraction());
+  mPFchargedHadronEt->Fill(pfmet.chargedHadronEt());
+  mPFmuonEtFraction->Fill(pfmet.muonEtFraction());
+  mPFmuonEt->Fill(pfmet.muonEt());
+  mPFHFHadronEtFraction->Fill(pfmet.HFHadronEtFraction());  // HF Hadronic energy fraction
+  mPFHFHadronEt->Fill(pfmet.HFHadronEt());                  // HF Hadronic energy
+  mPFHFEMEtFraction->Fill(pfmet.HFEMEtFraction());          // HF EM energy fraction
+  mPFHFEMEt->Fill(pfmet.HFEMEt());                          // HF EM energy
+}
+
+void METTester::fillPatMET(const pat::MET &patmet, double met) {
+  mMETUnc_JetResUp->Fill(met - patmet.shiftedPt(pat::MET::JetResUp));
+  mMETUnc_JetResDown->Fill(met - patmet.shiftedPt(pat::MET::JetResDown));
+  mMETUnc_JetEnUp->Fill(met - patmet.shiftedPt(pat::MET::JetEnUp));
+  mMETUnc_JetEnDown->Fill(met - patmet.shiftedPt(pat::MET::JetEnDown));
+  mMETUnc_MuonEnUp->Fill(met - patmet.shiftedPt(pat::MET::MuonEnUp));
+  mMETUnc_MuonEnDown->Fill(met - patmet.shiftedPt(pat::MET::MuonEnDown));
+  mMETUnc_ElectronEnUp->Fill(met - patmet.shiftedPt(pat::MET::ElectronEnUp));
+  mMETUnc_ElectronEnDown->Fill(met - patmet.shiftedPt(pat::MET::ElectronEnDown));
+  mMETUnc_TauEnUp->Fill(met - patmet.shiftedPt(pat::MET::TauEnUp));
+  mMETUnc_TauEnDown->Fill(met - patmet.shiftedPt(pat::MET::TauEnDown));
+  mMETUnc_UnclusteredEnUp->Fill(met - patmet.shiftedPt(pat::MET::UnclusteredEnUp));
+  mMETUnc_UnclusteredEnDown->Fill(met - patmet.shiftedPt(pat::MET::UnclusteredEnDown));
+  mMETUnc_PhotonEnUp->Fill(met - patmet.shiftedPt(pat::MET::PhotonEnUp));
+  mMETUnc_PhotonEnDown->Fill(met - patmet.shiftedPt(pat::MET::PhotonEnDown));
+
+  if (patmet.isPFMET()) {
+    mPFphotonEtFraction->Fill(patmet.NeutralEMFraction());
+    mPFneutralHadronEtFraction->Fill(patmet.NeutralHadEtFraction());
+    mPFelectronEtFraction->Fill(patmet.ChargedEMEtFraction());
+    mPFchargedHadronEtFraction->Fill(patmet.ChargedHadEtFraction());
+    mPFmuonEtFraction->Fill(patmet.MuonEtFraction());
+    mPFHFHadronEtFraction->Fill(patmet.Type6EtFraction());  // HF Hadronic energy fraction
+    mPFHFEMEtFraction->Fill(patmet.Type7EtFraction());      // HF EM energy fraction
   }
 }
 
@@ -456,10 +415,18 @@ void METTester::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   // Default MET validation offline
   desc.addUntracked<std::string>("runDir", "JetMET/METValidation/");
+  desc.addUntracked<std::string>("outFolder", "")
+      ->setComment("Output folder, relative to runDir. If empty, the module label is used.");
   desc.add<edm::InputTag>("primaryVertices", edm::InputTag("PixelVertices"));
-  desc.add<edm::InputTag>("inputMETLabel", edm::InputTag("pfMet"));
-  desc.addUntracked<std::string>("METType", "pf");
-  desc.add<edm::InputTag>("genMetTrue", edm::InputTag("genMetTrue"));
-  desc.add<edm::InputTag>("genMetCalo", edm::InputTag("genMetCalo"));
+  desc.add<std::string>("inputMETLabel", "pfMet")
+      ->setComment("MET to validate; for METType 'mht', optional MET companion for the MET vs MHT plots.");
+  desc.add<std::string>("inputMHTLabel", "")
+      ->setComment(
+          "MHT to validate for METType 'mht'; for other types, optional MHT companion for the MET vs MHT plots. "
+          "Configure a given MET-MHT pair in one module only.");
+  desc.addUntracked<std::string>("METType", "pf")->setComment("One of: calo, pf, mht, gen, miniaod.");
+  desc.add<std::string>("genMetTrueLabel", "genMetTrue");
+  desc.add<std::string>("genMetCaloLabel", "genMetCalo");
+  desc.add<std::string>("genMhtLabel", "genMht");
   descriptions.addWithDefaultLabel(desc);
 }
