@@ -84,10 +84,10 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
     default:
       throw cms::Exception("KMTFCore") << "Something really bad happend\n";
   }
-  l1t::KMTFTrack nullTrack(seed, seed->coord1(), correctedPhiB(seed), seed->eta1(), satKSlope(seed->eta2()));
+  l1t::KMTFTrack nullTrack(seed, seed->coord1(), correctedPhiB(seed), seed->z(), satKSlope(seed->kSlope()));
   seedQual = seed->quality();
   for (const auto& mask : combinatorics) {
-    l1t::KMTFTrack track(seed, seed->coord1(), correctedPhiB(seed), seed->eta1(), satKSlope(seed->eta2()));
+    l1t::KMTFTrack track(seed, seed->coord1(), correctedPhiB(seed), seed->z(), satKSlope(seed->kSlope()));
     int phiB = correctedPhiB(seed);
     int charge;
     if (phiB == 0)
@@ -109,14 +109,14 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
     if (initialK <= -pow(2, BITSCURV - 1))
       initialK = -pow(2, BITSCURV - 1) + 1;
 
-    track.setCoordinates(seed->depthRegion(), initialK, seed->coord1(), phiB, seed->eta1(), satKSlope(seed->eta2()));
+    track.setCoordinates(seed->depthRegion(), initialK, seed->coord1(), phiB, seed->z(), satKSlope(seed->kSlope()));
 
     if (seed->quality() < 6) {
-      track.setCoordinates(seed->depthRegion(), initialK, seed->coord1(), 0, seed->eta1(), satKSlope(seed->eta2()));
+      track.setCoordinates(seed->depthRegion(), initialK, seed->coord1(), 0, seed->z(), satKSlope(seed->kSlope()));
     }
     if (verbose_) {
       edm::LogInfo("KMTFCore") << "Initial state: phiB=" << phiB << " addr=" << address << " K=" << initialK
-                               << " z=" << seed->eta1() << " kSlope=" << satKSlope(seed->eta2());
+                               << " z=" << seed->z() << " kSlope=" << satKSlope(seed->kSlope());
     }
     track.setHitPattern(hitPattern(track));
     track.setThetaDigiPattern(thetaDigiPattern(track));
@@ -182,8 +182,8 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
         edm::LogInfo("KMTFCore") << "station=" << stub->depthRegion() << " phi=" << stub->coord1()
                                  << " phiB=" << correctedPhiB(stub) << " qual=" << stub->quality()
                                  << " tag=" << stub->id() << " sector=" << stub->phiRegion()
-                                 << " wheel=" << stub->etaRegion() << " z= " << stub->eta1()
-                                 << " kSlope = " << satKSlope(stub->eta2());
+                                 << " wheel=" << stub->etaRegion() << " z= " << stub->z()
+                                 << " kSlope = " << satKSlope(stub->kSlope());
       edm::LogInfo("KMTFCore") << "------------------------------------------------------";
       edm::LogInfo("KMTFCore") << "------------------------------------------------------";
     }
@@ -730,8 +730,8 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
 
   int phi = stub->coord1();
   int phiB = correctedPhiB(stub);
-  int z = stub->eta1();
-  int kSlope = satKSlope(stub->eta2());
+  int z = stub->z();
+  int kSlope = satKSlope(stub->kSlope());
   int priorThetaPattern = track.thetaDigiPattern();
   int priorPhiPattern = track.hitPattern();
   int seedStation = track.stubs().empty() ? 0 : track.stubs()[0]->depthRegion();
@@ -881,8 +881,8 @@ bool KMTFCore::updateOffline1D(l1t::KMTFTrack& track, const l1t::MuonStubRef& st
   int trackz = track.zPosition();
   int trackSlope = track.kSlope();
   int phi = stub->coord1();
-  int z = stub->eta1();
-  int kSlope = satKSlope(stub->eta2());
+  int z = stub->z();
+  int kSlope = satKSlope(stub->kSlope());
   int priorThetaPattern = track.thetaDigiPattern();
   int priorPhiPattern = track.hitPattern();
   int seedStation = track.stubs().empty() ? 0 : track.stubs()[0]->depthRegion();
@@ -991,8 +991,8 @@ bool KMTFCore::updateLUT(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub, in
 
   int phi = stub->coord1();
   int phiB = correctedPhiB(stub);
-  int z = stub->eta1();
-  int kSlope = satKSlope(stub->eta2());
+  int z = stub->z();
+  int kSlope = satKSlope(stub->kSlope());
 
   Vector4 residual;
   ap_fixed<BITSPHI, BITSPHI> residualPhi = phi - trackPhi;

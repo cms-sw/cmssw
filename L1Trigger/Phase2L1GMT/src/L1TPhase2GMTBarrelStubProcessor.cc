@@ -108,9 +108,9 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubNoEta(const L1Phase2MuDT
   //Now full eta
 
   eta = eta * sign;
-  l1t::MuonStub stub(wheel, sector, station, tfLayer, phi, phiS.phiBend(), tag, bx, quality, eta, 0, 0, 1);
+  l1t::MuonStub stub(wheel, sector, station, tfLayer, phi, phiS.phiBend(), tag, bx, quality, eta, eta, 0, 1);
 
-  stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), eta * etaLSB_, 0.0);
+  stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), eta * etaLSB_, eta * etaLSB_);
   return stub;
 }
 
@@ -122,30 +122,13 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubwithZandkSlope(const L1P
   static constexpr float RadiusStationPhys[] = {445., 526., 635., 730.};
   int wheel = phiS.whNum();
   int abswheel = fabs(phiS.whNum());
-  int sector = phiS.scNum();
   int station = phiS.stNum();
 
-  ap_uint<18> normalization0 = sector * ap_uint<15>(21845);
-  ap_int<18> normalization1 = ap_int<18>(ap_int<17>(phiS.phi()) * ap_ufixed<8, 0>(0.3183));
-  ap_int<18> kmtf_phi = ap_int<18>(normalization0 + normalization1);
-  int phi = int(kmtf_phi);
-  float globalPhi = phi * M_PI / (1 << 17);
+  l1t::MuonStub stub = buildStubNoEta(phiS);
 
-  //  double globalPhi = (sector * 30) + phiS.phi() * 30. / 65535.;
-  int tag = phiS.index();
-
-  int bx = phiS.bxNum() - 20;
-  int quality = phiS.quality();
-  uint tfLayer = phiS.stNum() - 1;
-
-  // instantiate stub with eta1=0, eta2=0, etaQuality=0 values which eventually get written over with stub.setEta below.
-  l1t::MuonStub stub(wheel, sector, station, tfLayer, phi, phiS.phiBend(), tag, bx, quality, 0, 0, 0, 1);
-
-  //defining z, k, zPhys, kPhys for case where theta digi exists
+  //defining z, k for case where theta digi exists
   ap_int<16> z = pairs.thetaDigi().z();
   ap_int<16> k = pairs.thetaDigi().k();
-  float zPhys = z * (1500. / (1 << 16));
-  float kPhys = k * (2. / (1 << 16));
 
   //slight asymmetry in wheels w.r.t. the origin calls for different z_center values for case where no theta digi was matched
   //defining z_center adn k_center for when theta digi does NOT exist!!
@@ -175,11 +158,10 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubwithZandkSlope(const L1P
   // if theta digi has no real data, use z_center and slope which points to origin with etaQuality=0..
   // stub set to etaQuality==3 if theta digi exists, 0 if not.
   if (pairs.thetaDigi().quality() >= 0) {
-    stub.setEta(z, k, 3);
-    stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), zPhys, kPhys);
+    stub.setEta(stub.eta1(), stub.eta2(), 3);
+    stub.setZandkSlope(z, k);
   } else {
-    stub.setEta(z_centerDigi, k_centerDigi, 0);
-    stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), z_centerPhys, k_centerPhys);
+    stub.setZandkSlope(z_centerDigi, k_centerDigi);
   }
   return stub;
 }
@@ -227,8 +209,9 @@ l1t::MuonStubCollection L1TPhase2GMTBarrelStubProcessor::makeStubs(
                                  << " depthRegion=" << stub.depthRegion() << "  coord1=" << stub.offline_coord1() << ","
                                  << stub.coord1() << " coord2=" << stub.offline_coord2() << "," << stub.coord2()
                                  << " eta1=" << stub.offline_eta1() << "," << stub.eta1()
-                                 << " eta2=" << stub.offline_eta2() << "," << stub.eta2()
-                                 << " quality=" << stub.quality() << " etaQuality=" << stub.etaQuality();
+                                 << " eta2=" << stub.offline_eta2() << "," << stub.eta2() << " z=" << stub.z()
+                                 << " kSlope=" << stub.kSlope() << " quality=" << stub.quality()
+                                 << " etaQuality=" << stub.etaQuality();
   }
 
   return out;
