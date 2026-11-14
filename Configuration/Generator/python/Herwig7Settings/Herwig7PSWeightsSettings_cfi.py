@@ -26,3 +26,10 @@ herwig7PSWeightsSettingsBlock = cms.PSet(
         'cd /',
     )
 )
+
+# Merged LHE samples (herwig7MGMergingSettingsBlock) are showered by /Herwig/Shower/FxFxHandler, which ignores
+# the variations of /Herwig/Shower/ShowerHandler. Use these settings instead of hw_PSWeights_settings for them
+herwig7PSWeightsSettingsBlock.hw_PSWeights_mg_merging_settings = cms.vstring(
+    *[setting.replace('ShowerHandler:AddVariation', 'FxFxHandler:AddVariation')
+      for setting in herwig7PSWeightsSettingsBlock.hw_PSWeights_settings]
+)
