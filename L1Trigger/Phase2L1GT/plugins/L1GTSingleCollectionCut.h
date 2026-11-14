@@ -9,6 +9,7 @@
 #include "L1Trigger/Phase2L1GT/interface/L1GTScales.h"
 
 #include "L1GTOptionalParam.h"
+#include "L1GTObjectConfig.h"
 
 #include <functional>
 #include <optional>
@@ -20,6 +21,9 @@ namespace l1t {
   inline std::vector<T> getParamVector(const std::string& name,
                                        const edm::ParameterSet& config,
                                        std::function<T(K)> conv) {
+    if (!config.exists(name)) {
+      return std::vector<T>();
+    }
     const std::vector<K>& values = config.getParameter<std::vector<K>>(name);
     std::vector<T> convertedValues(values.size());
     for (std::size_t i = 0; i < values.size(); i++) {
@@ -29,12 +33,22 @@ namespace l1t {
   }
 
   class L1GTSingleCollectionCut {
+    struct Resolved {};
+
   public:
+    // 'config' may be flat or structured (object reference + offline thresholds), see L1GTObjectConfig.h
     L1GTSingleCollectionCut(const edm::ParameterSet& config,
                             const edm::ParameterSet& lutConfig,
                             const L1GTScales& scales)
+        : L1GTSingleCollectionCut(resolveCollectionConfig(config), lutConfig, scales, Resolved()) {}
+
+  private:
+    L1GTSingleCollectionCut(const edm::ParameterSet& config,
+                            const edm::ParameterSet& lutConfig,
+                            const L1GTScales& scales,
+                            Resolved)
         : scales_(scales),
-          tag_(config.getParameter<edm::InputTag>("tag")),
+          tag_(collectionTag(config)),
           minPt_(getOptionalParam<int, double>(
               "minPt", config, [&scales](double value) { return scales.to_hw_pT_floor(value); })),
           maxPt_(getOptionalParam<int, double>(
@@ -82,13 +96,16 @@ namespace l1t {
               "regionsMaxRelIsolationPt",
               config,
               [&scales](double value) { return scales.to_hw_relative_isolationPT_ceil(value); })),
-          regionsQualityFlags_(config.getParameter<std::vector<unsigned int>>("regionsQualityFlags")),
+          regionsQualityFlags_(config.exists("regionsQualityFlags")
+                                   ? config.getParameter<std::vector<unsigned int>>("regionsQualityFlags")
+                                   : std::vector<unsigned int>()),
           minPrimVertDz_(getOptionalParam<int, double>(
               "minPrimVertDz", config, [&scales](double value) { return scales.to_hw_z0_floor(value); })),
           maxPrimVertDz_(getOptionalParam<int, double>(
               "maxPrimVertDz", config, [&scales](double value) { return scales.to_hw_z0_ceil(value); })),
           primVertex_(getOptionalParam<unsigned int>("primVertex", config)),
-          minPtMultiplicityN_(config.getParameter<unsigned int>("minPtMultiplicityN")),
+          minPtMultiplicityN_(
+              config.exists("minPtMultiplicityN") ? config.getParameter<unsigned int>("minPtMultiplicityN") : 0),
           minPtMultiplicityCut_(getOptionalParam<int, double>(
               "minPtMultiplicityCut", config, [&scales](double value) { return scales.to_hw_pT_floor(value); })) {
       if (!std::is_sorted(regionsAbsEtaLowerBounds_.begin(), regionsAbsEtaLowerBounds_.end())) {
@@ -111,6 +128,7 @@ namespace l1t {
       }
     }
 
+  public:
     bool checkObject(const P2GTCandidate& obj) const {
       bool result = true;
 
@@ -186,8 +204,10 @@ namespace l1t {
       }
     }
 
-    static void fillPSetDescription(edm::ParameterSetDescription& desc) {
-      desc.add<edm::InputTag>("tag");
+    // Cut parameters without defaults: in a structured configuration a default at the
+    // collection level would otherwise override the value of the referenced object.
+    static void fillCutDescription(edm::ParameterSetDescription& desc) {
+      desc.addOptional<edm::InputTag>("tag");
       desc.addOptional<double>("minPt");
       desc.addOptional<double>("maxPt");
       desc.addOptional<double>("minEta");
@@ -201,22 +221,34 @@ namespace l1t {
       desc.addOptional<unsigned int>("minQualityScore");
       desc.addOptional<unsigned int>("maxQualityScore");
       desc.addOptional<unsigned int>("qualityFlags");
-      desc.add<std::vector<unsigned int>>("regions", {});
+      desc.addOptional<std::vector<unsigned int>>("regions");
       desc.addOptional<double>("minAbsEta");
       desc.addOptional<double>("maxAbsEta");
       desc.addOptional<double>("minIsolationPt");
       desc.addOptional<double>("maxIsolationPt");
       desc.addOptional<double>("minRelIsolationPt");
       desc.addOptional<double>("maxRelIsolationPt");
-      desc.add<std::vector<double>>("regionsAbsEtaLowerBounds", {});
-      desc.add<std::vector<double>>("regionsMinPt", {});
-      desc.add<std::vector<double>>("regionsMaxRelIsolationPt", {});
-      desc.add<std::vector<unsigned int>>("regionsQualityFlags", {});
+      desc.addOptional<std::vector<double>>("regionsAbsEtaLowerBounds");
+      desc.addOptional<std::vector<double>>("regionsMinPt");
+      desc.addOptional<std::vector<double>>("regionsMaxRelIsolationPt");
+      desc.addOptional<std::vector<unsigned int>>("regionsQualityFlags");
       desc.addOptional<double>("minPrimVertDz");
       desc.addOptional<double>("maxPrimVertDz");
       desc.addOptional<unsigned int>("primVertex");
-      desc.add<unsigned int>("minPtMultiplicityN", 0);
+      desc.addOptional<unsigned int>("minPtMultiplicityN");
       desc.addOptional<double>("minPtMultiplicityCut");
+      fillPtScalingDescription(desc);
+    }
+
+    static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+      fillCutDescription(desc);
+
+      // Structured configuration: shared object definition and offline thresholds
+      edm::ParameterSetDescription objectDesc;
+      fillCutDescription(objectDesc);
+      desc.addOptional<edm::ParameterSetDescription>("object", objectDesc);
+      desc.addOptional<double>("offlineMinPt");
+      desc.addOptional<double>("offlineMinScalarSumPt");
     }
 
     const edm::InputTag& tag() const { return tag_; }

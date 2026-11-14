@@ -20,6 +20,12 @@ The 2026 menus follow the Phase-2 L1 MenuTools menus of the same names (`configs
 
 These menus can be specified via the cmsDriver configuration as `-s L1P2GT:step1_2024`.
 
+The `step1_2024` menu defines objects and pT scalings once, as top-level PSets that the seeds reference (`refToPSet_`) together with offline thresholds, see "Structured menus" in [`L1Trigger/Phase2L1GT/README.md`](../../../Phase2L1GT/README.md). A dump of the menu therefore keeps this structure, so objects/scalings/thresholds can be edited in one place in ConfDB and the result translated back:
+```
+dumpL1TGTMenu.py                # structured form, for ConfDB
+dumpL1TGTMenu.py --flat         # flat form, as seen by the emulator
+```
+
 Note that the full menu expanded configuration can be inspected using `edmConfigDump` on a `cmsRun` config that executes the `L1P2GT` step:
 1. Produce the config via 
 ```

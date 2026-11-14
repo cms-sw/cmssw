@@ -21,18 +21,20 @@ from L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.step1_2024.l1tGTMenuO
 ####### JET, MET, HT ###########
 
 SinglePuppiJet230 = l1tGTSingleObjectCond.clone(
-    l1tGTsc4Jet.clone(),
-    regionsMinPt = get_object_thrs(230, "CL2JetsSC4", "default"),
+    object = gt_ref("l1tGTsc4Jet"),
+    offlineMinPt = cms.double(230),
 )
 pSinglePuppiJet230 = cms.Path(SinglePuppiJet230)
 algorithms.append(cms.PSet(expression = cms.string("pSinglePuppiJet230")))
 
 DoublePuppiJet112112 = l1tGTDoubleObjectCond.clone(
-    collection1 = l1tGTsc4Jet.clone(
-        regionsMinPt = get_object_thrs(112, "CL2JetsSC4", "default"),
+    collection1 = cms.PSet(
+        object = gt_ref("l1tGTsc4Jet"),
+        offlineMinPt = cms.double(112),
     ),
-    collection2 = l1tGTsc4Jet.clone(
-        regionsMinPt = get_object_thrs(112, "CL2JetsSC4", "default"),
+    collection2 = cms.PSet(
+        object = gt_ref("l1tGTsc4Jet"),
+        offlineMinPt = cms.double(112),
     ),
     maxDEta = cms.double(1.6),
 )
@@ -40,11 +42,13 @@ pDoublePuppiJet112_112 = cms.Path(DoublePuppiJet112112)
 algorithms.append(cms.PSet(expression = cms.string("pDoublePuppiJet112_112")))
 
 DoublePuppiJet16035Mass620 = l1tGTDoubleObjectCond.clone(
-    collection1 = l1tGTsc4Jet_er5.clone(
-        regionsMinPt = get_object_thrs(160, "CL2JetsSC4", "default"),
+    collection1 = cms.PSet(
+        object = gt_ref("l1tGTsc4Jet_er5"),
+        offlineMinPt = cms.double(160),
     ),
-    collection2 = l1tGTsc4Jet_er5.clone(
-        regionsMinPt = get_object_thrs(35, "CL2JetsSC4", "default"),
+    collection2 = cms.PSet(
+        object = gt_ref("l1tGTsc4Jet_er5"),
+        offlineMinPt = cms.double(35),
     ),
     minInvMass = cms.double(620),
 )
@@ -53,46 +57,51 @@ algorithms.append(cms.PSet(expression = cms.string("pDoublePuppiJet160_35_mass62
 
 
 PuppiHT450 = l1tGTSingleObjectCond.clone(
-    l1tGTHtSum.clone(),
-    minScalarSumPt = get_object_thrs(450, "CL2HtSum", "HT"),
+    object = gt_ref("l1tGTHtSum"),
+    offlineMinScalarSumPt = cms.double(450),
 )
 pPuppiHT450 = cms.Path(PuppiHT450)
 algorithms.append(cms.PSet(expression = cms.string("pPuppiHT450")))
 
 PuppiMHT140 = l1tGTSingleObjectCond.clone(
-    l1tGTHtSum.clone(),
-    minPt = get_object_thrs(140, "CL2HtSum", "MHT"),
+    object = gt_ref("l1tGTHtSum"),
+    offlineMinPt = cms.double(140),
+    ptScaling = gt_ref("l1tGTScaling_CL2HtSum_MHT"),
 )
 pPuppiMHT140 = cms.Path(PuppiMHT140)
 algorithms.append(cms.PSet(expression = cms.string("pPuppiMHT140")))
 
 PuppiMET200 = l1tGTSingleObjectCond.clone(
-    l1tGTEtSum.clone(),
-    minPt = get_object_thrs(200, "CL2EtSum", "default"),
+    object = gt_ref("l1tGTEtSum"),
+    offlineMinPt = cms.double(200),
 )
 pPuppiMET200 = cms.Path(PuppiMET200)
 algorithms.append(cms.PSet(expression = cms.string("pPuppiMET200")))
 
 QuadJet70554040 = l1tGTQuadObjectCond.clone(
-    collection1 = l1tGTsc4Jet.clone(
-        regionsMinPt = get_object_thrs(70, "CL2JetsSC4", "default"),
+    collection1 = cms.PSet(
+        object = gt_ref("l1tGTsc4Jet"),
+        offlineMinPt = cms.double(70),
     ),
-    collection2 = l1tGTsc4Jet.clone(
-        regionsMinPt = get_object_thrs(55, "CL2JetsSC4", "default"),
+    collection2 = cms.PSet(
+        object = gt_ref("l1tGTsc4Jet"),
+        offlineMinPt = cms.double(55),
     ),
-    collection3 = l1tGTsc4Jet.clone(
-        regionsMinPt = get_object_thrs(40, "CL2JetsSC4", "default"),
+    collection3 = cms.PSet(
+        object = gt_ref("l1tGTsc4Jet"),
+        offlineMinPt = cms.double(40),
     ),
-    collection4 = l1tGTsc4Jet.clone(
-        regionsMinPt = get_object_thrs(40, "CL2JetsSC4", "default"),
+    collection4 = cms.PSet(
+        object = gt_ref("l1tGTsc4Jet"),
+        offlineMinPt = cms.double(40),
     ),
 
 )
 pQuadJet70_55_40_40 = cms.Path(QuadJet70554040)
 
 PuppiHT400 = l1tGTSingleObjectCond.clone(
-    l1tGTHtSum.clone(),
-    minScalarSumPt = get_object_thrs(400, "CL2HtSum", "HT"),
+    object = gt_ref("l1tGTHtSum"),
+    offlineMinScalarSumPt = cms.double(400),
 )
 pPuppiHT400 = cms.Path(PuppiHT400)
 

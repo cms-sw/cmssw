@@ -72,3 +72,33 @@ def get_object_isos(obj, id = "default", obj_dict=objectIDs):
         return cms.vdouble(tuple(values[region] for region in regions))
     else:
         return cms.double(values)
+
+############################################################
+# Structured (ConfDB-friendly) object/scaling definitions
+############################################################
+
+def gt_ref(name):
+    """Reference to a top-level PSet (object definition or pT scaling), resolved by the framework.
+
+    Used as `object = gt_ref("l1tGTtkMuonVLoose")` or `ptScaling = gt_ref("l1tGTScaling_GMTTkMuons_VLoose")`
+    in a condition/collection, so that shared definitions stay single, editable PSets (e.g. in ConfDB).
+    """
+    return cms.PSet(refToPSet_ = cms.string(name))
+
+def get_scaling_name(obj, id = "default"):
+    return "l1tGTScaling_%s_%s" % (obj, id)
+
+def get_object_scaling(obj, id = "default", scalings=scalings):
+    """Offline pT scaling of an object ID as a PSet, ordered like regionsAbsEtaLowerBounds.
+
+    The online threshold is computed by the emulator as
+    max(minOnlinePt, round((offline - offset) / slope, 1)), see off2onl_thresholds.
+    """
+    regions = obj_regions_abseta_lowbounds[obj].keys()
+    pset = cms.PSet(
+        regionsOffset = cms.vdouble(tuple(scalings[obj][id][region]["offset"] for region in regions)),
+        regionsSlope = cms.vdouble(tuple(scalings[obj][id][region]["slope"] for region in regions)),
+    )
+    if "Jet" in obj:
+        pset.minOnlinePt = cms.double(25) # safety cut, as in off2onl_thresholds
+    return pset
