@@ -7,7 +7,7 @@
 # Danilo Piparo CERN - danilo.piparo@cern.ch
 #
 ################################################################################
-
+import multiprocessing
 
 def getInfoFromFilename(filename):
   prefix,sample,cmssw_release,tier = filename[:-5].split("__")[:5]
@@ -348,4 +348,5 @@ def main():
     print("Neither comparison nor report to be executed. A typo?")
 
 if __name__ == "__main__":
+  multiprocessing.set_start_method("fork")
   main()
