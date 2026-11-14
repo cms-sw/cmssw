@@ -35,6 +35,9 @@ public:
   // final computation, plotting, printing .......
   void finalize(DQMStore::IBooker& ibook_, DQMStore::IGetter& igetter_) override;
 
+  // flavour on the x axis of the FlavEffVs<X>Eff curves; empty = b, or c with doCTagPlots
+  void setSignalFlavour(const std::string& flavour) { signalFlavour_ = flavour; }
+
   // get "2d" histograms for misid. vs. b-eff
   EffPurFromHistos& getEffPurFromHistos() { return *effPurFromHistos_; }
 
@@ -58,6 +61,7 @@ protected:
   bool willFinalize_;
 
   bool doCTagPlots_;
+  std::string signalFlavour_;
 
   // Differential plots: efficiency vs. variable for cut on discrimator > cutValue_
   bool doDifferentialPlots_;
