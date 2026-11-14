@@ -7,7 +7,7 @@ hltPhase2PixelTracks = cms.EDProducer("PixelTrackProducerFromSoAAlpaka",
     pixelRecHitLegacySrc = cms.InputTag("hltSiPixelRecHits"),
     trackSrc = cms.InputTag("hltPhase2PixelTrackTorchHighPuritySelector"),
     outerTrackerRecHitSrc = cms.InputTag("hltSiPhase2RecHits"),
-    outerTrackerRecHitSoAConverterSrc = cms.InputTag("hltPhase2OtRecHitsSoA"),
+    outerTrackerRecHitSoAConverterSrc = cms.InputTag("hltPhase2OtCAHitsSoA"),
     useOTExtension = cms.bool(True),
     requireQuadsFromConsecutiveLayers = cms.bool(False)
 )
