@@ -14,8 +14,6 @@ from SimMuon.DTDigitizer.muondtdigi_cfi import *
 
 # RPC digitizer
 #
-# If your branch still uses the legacy filename muonrpcdigi_cfi.py,
-# change only this import line back to that filename.
 from SimMuon.RPCDigitizer.muonRPCDigis_cfi import *
 
 muonDigiTask = cms.Task(simMuonCSCDigis, simMuonDTDigis, simMuonRPCDigis)

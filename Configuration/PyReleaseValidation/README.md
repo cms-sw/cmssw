@@ -99,6 +99,7 @@ The offsets currently in use are:
 * 0.612: ECAL `phase2_ecal_devel` era, with automatic offload to GPU if available
 * 0.6199: ECAL `phase2_ecal_devel` era, on CPU and with premixing stage1+stage2
 * 0.61299: ECAL `phase2_ecal_devel` era, with automatic offload to GPU if available and premixing stage1+stage2
+* 0.62: RPC `phase2_rpc_devel` era, with new iRPC and RPC Phase-2 digi formats
 * 0.631: ECAL component-method based digis
 * 0.632: ECAL component-method based finely-sampled waveforms
 * 0.633: ECAL phase2 Trigger Primitive
