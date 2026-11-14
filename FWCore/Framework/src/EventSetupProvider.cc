@@ -18,12 +18,14 @@
 #include <algorithm>
 #include <cassert>
 #include <iterator>
+#include <sstream>
 #include <unordered_set>
 
 // user include files
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/EventSetupImpl.h"
+#include "FWCore/Concurrency/interface/StreamNumaDomains.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/ESProductResolverProvider.h"
@@ -231,7 +233,9 @@ namespace edm {
           unsigned int nConcurrentIOVs = numberOfConcurrentIOVs.numberOfConcurrentIOVs(key, printInfoMsg);
 
           //create a provider for this record
-          insert(key, std::make_unique<EventSetupRecordProvider>(key, activityRegistry_, nConcurrentIOVs));
+          insert(key,
+                 std::make_unique<EventSetupRecordProvider>(
+                     key, activityRegistry_, nConcurrentIOVs, numberOfConcurrentIOVs.numberOfReplicas(key)));
           recProvider = tryToGetRecordProvider(key);
         }
       }
@@ -242,14 +246,18 @@ namespace edm {
         const std::set<EventSetupRecordKey> recordsUsing = productResolverProvider->usingRecords();
         for (auto const& key : recordsUsing) {
           unsigned int nConcurrentIOVs = numberOfConcurrentIOVs.numberOfConcurrentIOVs(key);
-          productResolverProvider->createKeyedResolvers(key, nConcurrentIOVs);
+          // one set of resolvers for each copy of each concurrent IOV (EventSetup replication on the NUMA domains)
+          productResolverProvider->createKeyedResolvers(key,
+                                                        nConcurrentIOVs * numberOfConcurrentIOVs.numberOfReplicas(key));
 
           EventSetupRecordProvider* recProvider = tryToGetRecordProvider(key);
           if (recProvider == nullptr) {
             bool printInfoMsg = true;
             nConcurrentIOVs = numberOfConcurrentIOVs.numberOfConcurrentIOVs(key, printInfoMsg);
             //create a provider for this record
-            insert(key, std::make_unique<EventSetupRecordProvider>(key, activityRegistry_, nConcurrentIOVs));
+            insert(key,
+                   std::make_unique<EventSetupRecordProvider>(
+                       key, activityRegistry_, nConcurrentIOVs, numberOfConcurrentIOVs.numberOfReplicas(key)));
             recProvider = tryToGetRecordProvider(key);
           }
           recProvider->add(productResolverProvider);
@@ -272,6 +280,23 @@ namespace edm {
       }
 
       dataProviders_.reset();
+
+      // EventSetup replication on the NUMA domains: one EventSetupImpl per domain
+      auto const& domains = numa::StreamNumaDomains::instance();
+      if (domains.enabled()) {
+        numberOfDomains_ = domains.size();
+        std::vector<std::string> replicated, notReplicated;
+        for (auto const& key : recordKeys_) {
+          (numberOfConcurrentIOVs.numberOfReplicas(key) > 1 ? replicated : notReplicated).push_back(key.name());
+        }
+        std::ostringstream message;
+        message << "NUMA EventSetup replication: " << numberOfDomains_ << " NUMA domains, " << replicated.size()
+                << " records replicated, " << notReplicated.size() << " not replicated:";
+        for (auto const& name : notReplicated) {
+          message << " " << name;
+        }
+        edm::LogSystem("NumaESReplication") << message.str();
+      }
     }
 
     using Itr = RecordProviders::iterator;
@@ -332,10 +357,16 @@ namespace edm {
     }
 
     std::shared_ptr<EventSetupImpl> EventSetupProvider::cachedEventSetup(bool newEventSetupImpl) {
-      if (newEventSetupImpl or !eventSetupImpl_) {
+      if (newEventSetupImpl or !eventSetupImpl_ or eventSetupImpl_->numberOfDomains() != numberOfDomains_) {
         //cannot use make_shared because constructor is private
         eventSetupImpl_ = std::shared_ptr<EventSetupImpl>(new EventSetupImpl());
         eventSetupImpl_->setKeyIters(recordKeys_.begin(), recordKeys_.end());
+        // with EventSetup replication, the EventSetupImpl of NUMA domain 0 also holds those of the other domains
+        for (unsigned int domain = 1; domain < numberOfDomains_; ++domain) {
+          auto replica = std::shared_ptr<EventSetupImpl>(new EventSetupImpl());
+          replica->setKeyIters(recordKeys_.begin(), recordKeys_.end());
+          eventSetupImpl_->replicas_.push_back(std::move(replica));
+        }
       }
       return get_underlying_safe(eventSetupImpl_);
     }

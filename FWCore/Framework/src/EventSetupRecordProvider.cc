@@ -34,11 +34,16 @@ namespace edm {
 
     EventSetupRecordProvider::EventSetupRecordProvider(const EventSetupRecordKey& iKey,
                                                        ActivityRegistry const* activityRegistry,
-                                                       unsigned int nConcurrentIOVs)
-        : key_(iKey), providers_(), nConcurrentIOVs_(nConcurrentIOVs) {
-      recordImpls_.reserve(nConcurrentIOVs);
+                                                       unsigned int nConcurrentIOVs,
+                                                       unsigned int nReplicas)
+        : key_(iKey), providers_(), nConcurrentIOVs_(nConcurrentIOVs * nReplicas) {
+      // with EventSetup replication (nReplicas > 1, one per NUMA domain), IOV slot i uses the instances i * nReplicas + d
+      recordImpls_.reserve(nConcurrentIOVs_);
       for (unsigned int i = 0; i < nConcurrentIOVs_; ++i) {
         recordImpls_.emplace_back(iKey, activityRegistry, i);
+        if (nReplicas > 1) {
+          recordImpls_.back().setNumaDomain(i % nReplicas);
+        }
       }
     }
 

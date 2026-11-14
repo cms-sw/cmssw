@@ -1,5 +1,6 @@
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/src/ScheduleBuilder.h"
+#include "FWCore/Concurrency/interface/StreamNumaDomains.h"
 
 #include "DataFormats/Common/interface/setIsMergeable.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -275,7 +276,11 @@ namespace edm {
 
     assert(0 < prealloc.numberOfStreams());
     streamSchedules_.reserve(prealloc.numberOfStreams());
+    // the stream schedules, their paths and workers are created on the NUMA domain of their stream (numaLocality); the
+    // thread is pinned once per domain
+    numa::StreamPlacement placement;
     for (unsigned int i = 0; i < prealloc.numberOfStreams(); ++i) {
+      placement.moveToStream(i);
       streamSchedules_.emplace_back(make_shared_noexcept_false<StreamSchedule>(paths,
                                                                                endpaths,
                                                                                builder.unscheduledModules_,

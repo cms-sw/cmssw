@@ -26,7 +26,9 @@ void edm::eventsetup::ESSourceProductResolverNonConcurrentBase::prefetchAsyncImp
     edm::EventSetupImpl const*,
     edm::ServiceToken const&,
     edm::ESParentContext const& iParent) noexcept {
-  prefetchAsyncImplTemplate([this](auto& iGroup, auto iActivity) { m_queue->push(iGroup, std::move(iActivity)); },
+  // with EventSetup replication, produce the copy of a NUMA domain in the arena of that domain
+  prefetchAsyncImplTemplate([this, domain = iRecord.numaDomain()](
+                                auto& iGroup, auto iActivity) { m_queue->push(iGroup, domain, std::move(iActivity)); },
                             [mutex = m_mutex]() { return std::lock_guard<std::mutex>(*mutex); },
                             std::move(iTask),
                             iRecord,

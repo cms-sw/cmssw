@@ -9,7 +9,9 @@
 #include "FWCore/Framework/src/CommonParams.h"
 #include "FWCore/Framework/interface/EDLooperBase.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Concurrency/interface/StreamNumaDomains.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/Framework/interface/ComponentInterfaceHolder.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/FileBlock.h"
@@ -84,11 +86,13 @@
 
 #include "boost/range/adaptor/reversed.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <exception>
 #include <iomanip>
 #include <iostream>
 #include <utility>
+#include <functional>
 #include <sstream>
 #include <ranges>
 
@@ -96,6 +100,7 @@
 #include <sys/msg.h>
 
 #include "oneapi/tbb/task.h"
+#include "oneapi/tbb/info.h"
 #include "oneapi/tbb/task_arena.h"
 
 //Used for CPU affinity
@@ -104,6 +109,11 @@
 #endif
 
 namespace {
+  // the NUMA domain whose copies of the EventSetup data a stream uses (numaLocality), otherwise 0
+  unsigned int esDomainOfStream(unsigned int stream) {
+    return edm::numa::StreamNumaDomains::instance().esDomainOfStream(stream);
+  }
+
   class PauseQueueSentry {
   public:
     PauseQueueSentry(edm::SerialTaskQueue& queue) : queue_(queue) { queue_.pause(); }
@@ -473,6 +483,7 @@ namespace edm {
       runQueue_ = std::make_unique<LimitedTaskQueue>(nConcurrentRuns);
       lumiQueue_ = std::make_unique<LimitedTaskQueue>(nConcurrentLumis);
       streamQueues_.resize(nStreams);
+      setupNumaDomains(nStreams, optionsPset);
       streamRunStatus_.resize(nStreams);
       streamLumiStatus_.resize(nStreams);
 
@@ -551,8 +562,11 @@ namespace edm {
         auto guard = signalslot::make_sentry([this]() { actReg_->postPrincipalsCreationSignal_.emit(); });
         actReg_->prePrincipalsCreationSignal_.emit();
         principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
+        // the reusable event principals are created on the NUMA domain of their stream (with numaLocality); the thread
+        // is pinned once per domain
+        numa::StreamPlacement placement;
         for (auto index : std::views::iota(0U, preallocations_.numberOfStreams())) {
-          // Reusable event principal
+          placement.moveToStream(index);
           auto ep = std::make_shared<EventPrincipal>(preg(),
                                                      productResolversFactory::makePrimary,
                                                      branchIDListHelper(),
@@ -614,6 +628,10 @@ namespace edm {
   }
 
   EventProcessor::~EventProcessor() {
+    // the per-domain arenas are going away: stop dispatching work to them, and forget the NUMA setup of this job, so
+    // that a later EventProcessor in the same process does not inherit it
+    numa::StreamNumaDomains::instance().reset();
+
     // Make the services available while everything is being deleted.
     ServiceToken token = getToken();
     ServiceRegistry::Operate op(token);
@@ -659,10 +677,16 @@ namespace edm {
 
     ServiceRegistry::Operate operate(serviceToken_);
 
+    std::vector<oneapi::tbb::task_arena*> numaArenas;
+    numaArenas.reserve(streamArenas_.size());
+    for (auto const& arena : streamArenas_) {
+      numaArenas.push_back(arena.get());
+    }
     service::SystemBounds bounds(preallocations_.numberOfStreams(),
                                  preallocations_.numberOfLuminosityBlocks(),
                                  preallocations_.numberOfRuns(),
-                                 preallocations_.numberOfThreads());
+                                 preallocations_.numberOfThreads(),
+                                 std::move(numaArenas));
     actReg_->preallocateSignal_.emit(bounds);
     schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
 
@@ -807,6 +831,9 @@ namespace edm {
           std::exception_ptr exceptionPtr;
           {
             ServiceRegistry::Operate operate(serviceToken_);
+            // allocations made by the modules in beginStream land on the NUMA domain of the stream
+            numa::StreamPlacement placement;
+            placement.moveToStream(i);
             CMS_SA_ALLOW try { schedule_->beginStream(i); } catch (...) {
               exceptionPtr = std::current_exception();
             }
@@ -863,6 +890,9 @@ namespace edm {
         c.rethrow();
       }
     }
+    if (not streamArenas_.empty()) {
+      edm::LogInfo("NumaDomains") << numa::reportArenaStatistics();
+    }
   }
 
   ServiceToken EventProcessor::getToken() { return serviceToken_; }
@@ -897,31 +927,43 @@ namespace edm {
     try {
       FilesProcessor fp(fileModeNoMerge_);
       convertException::wrap([&]() {
-        bool firstTime = true;
-        do {
-          if (not firstTime) {
-            prepareForNextLoop();
-            rewindInput();
-          } else {
-            firstTime = false;
-          }
-          startingNewLoop();
+        auto loop = [&]() {
+          bool firstTime = true;
+          do {
+            if (not firstTime) {
+              prepareForNextLoop();
+              rewindInput();
+            } else {
+              firstTime = false;
+            }
+            startingNewLoop();
 
-          auto trans = fp.processFiles(*this);
+            auto trans = fp.processFiles(*this);
 
-          fp.normalEnd();
+            fp.normalEnd();
 
-          if (deferredExceptionPtrIsSet_.load()) {
-            std::rethrow_exception(deferredExceptionPtr_);
-          }
-          if (trans.nextTransitionType() != InputSource::ItemType::IsStop) {
-            //problem with the source
-            doErrorStuff(trans.nextTransitionType().itemType());
+            if (deferredExceptionPtrIsSet_.load()) {
+              std::rethrow_exception(deferredExceptionPtr_);
+            }
+            if (trans.nextTransitionType() != InputSource::ItemType::IsStop) {
+              //problem with the source
+              doErrorStuff(trans.nextTransitionType().itemType());
 
-            throw cms::Exception("BadTransition")
-                << "Unexpected transition change " << static_cast<int>(trans.nextTransitionType().itemType());
-          }
-        } while (not endOfLoop());
+              throw cms::Exception("BadTransition")
+                  << "Unexpected transition change " << static_cast<int>(trans.nextTransitionType().itemType());
+            }
+          } while (not endOfLoop());
+        };
+        if (streamArenas_.empty()) {
+          loop();
+        } else {
+          // the main thread is one of the job's threads: run the event loop in the arena of the first NUMA domain, in
+          // the slot reserved for it, so that while it waits for the transitions it runs that domain's tasks.
+          // As a consequence the work done by the main thread or in its tasks, i.e. reading the source, the global
+          // transitions and the production of the EventSetup products that are not replicated per domain, runs on the
+          // first domain, which therefore carries a little more work than its share of streams.
+          streamArenas_[0]->execute(loop);
+        }
       });  // convertException::wrap
 
     }  // Try block
@@ -1371,7 +1413,8 @@ namespace edm {
       chain::first([this, iStream](auto nextTask) {
         RunProcessingStatus& rs = *streamRunStatus_[iStream];
         if (rs.didGlobalBeginSucceed()) {
-          RunTransitionInfo transitionInfo(*rs.runPrincipal(), rs.eventSetupImpl());
+          RunTransitionInfo transitionInfo(*rs.runPrincipal(),
+                                           rs.eventSetupImpl().forDomain(esDomainOfStream(iStream)));
           using Traits = OccurrenceTraits<RunPrincipal, TransitionActionStreamBegin>;
           schedule_->processOneStreamAsync<Traits>(std::move(nextTask), iStream, transitionInfo, serviceToken_);
         }
@@ -1558,7 +1601,7 @@ namespace edm {
       auto runStatus = streamRunStatus_[iStreamIndex].get();
 
       if (runStatus->didGlobalBeginSucceed() && runStatus->endingEventSetupSucceeded()) {
-        EventSetupImpl const& es = runStatus->eventSetupImplEndRun();
+        EventSetupImpl const& es = runStatus->eventSetupImplEndRun().forDomain(esDomainOfStream(iStreamIndex));
         bool cleaningUpAfterException = runStatus->cleaningUpAfterException() || iTask.taskHasFailed();
 
         auto& runPrincipal = *runStatus->runPrincipal();
@@ -1724,7 +1767,7 @@ namespace edm {
                           streamLumiStatus_[i] = std::move(status);
                           ++streamLumiActive_;
                           event.setLuminosityBlockPrincipal(lp);
-                          LumiTransitionInfo transitionInfo(*lp, es);
+                          LumiTransitionInfo transitionInfo(*lp, es.forDomain(esDomainOfStream(i)));
                           using namespace edm::waiting_task::chain;
                           chain::first([this, i, &transitionInfo](auto nextTask) {
                             schedule_->processOneStreamAsync<Traits>(
@@ -1880,7 +1923,7 @@ namespace edm {
     auto lumiStatus = streamLumiStatus_[iStreamIndex].get();
     lumiStatus->setEndTime();
 
-    EventSetupImpl const& es = lumiStatus->eventSetupImpl();
+    EventSetupImpl const& es = lumiStatus->eventSetupImpl().forDomain(esDomainOfStream(iStreamIndex));
     bool cleaningUpAfterException = lumiStatus->cleaningUpAfterException() || iTask.taskHasFailed();
 
     auto& lumiPrincipal = *lumiStatus->lumiPrincipal();
@@ -2071,8 +2114,123 @@ namespace edm {
         chain::runLast(iTask);
   }
 
+  namespace {
+    // keep track of the per-domain arena the threads run in (see numa::enterArena); the threads are pinned to the cpus
+    // of the domain by TBB itself (task_arena::constraints::numa_id)
+    class ArenaObserver : public oneapi::tbb::task_scheduler_observer {
+    public:
+      ArenaObserver(oneapi::tbb::task_arena& arena, unsigned int domain)
+          : oneapi::tbb::task_scheduler_observer(arena), domain_(domain) {
+        observe(true);
+      }
+      ~ArenaObserver() override { observe(false); }
+
+      void on_scheduler_entry(bool) override { numa::enterArena(domain_); }
+      void on_scheduler_exit(bool) override { numa::leaveArena(); }
+
+    private:
+      unsigned int domain_;
+    };
+  }  // namespace
+
+  void EventProcessor::setupNumaDomains(unsigned int nStreams, ParameterSet const& options) {
+    // NUMA domains of the job's cpus and the proportional assignment of the streams to them, shared by the per-domain
+    // arenas, the placement of the per-stream objects and the replication of the EventSetup data
+    numa::StreamNumaDomains::Configuration config;
+    config.numaLocality = options.getUntrackedParameter<bool>("numaLocality");
+    auto const& eventSetupOptions = options.getUntrackedParameterSet("eventSetup");
+    config.replicatedRecords =
+        eventSetupOptions.getUntrackedParameter<std::vector<std::string>>("numaReplicatedRecords");
+    config.excludedRecords = eventSetupOptions.getUntrackedParameter<std::vector<std::string>>("numaExcludedRecords");
+    auto& domains = numa::StreamNumaDomains::instance();
+    domains.setup(nStreams, config);
+    if (config.numaLocality and not numa::numaAvailable()) {
+      edm::LogWarning("NumaDomains") << "numaLocality is enabled, but the NUMA functions are not available to the job "
+                                        "(e.g. not permitted inside this container): it has no effect.";
+    }
+    if (not domains.enabled()) {
+      return;
+    }
+    unsigned int nThreads = preallocations_.numberOfThreads();
+    // split the job's threads among the domains in proportion to their cpus (largest remainder, at least one thread per
+    // domain): the arena of each domain gets as many slots as its threads, so that every thread finds a slot and none
+    // has to move between arenas, also when the job has fewer or more threads than cpus
+    std::vector<unsigned int> domainThreads(domains.size(), 0);
+    {
+      unsigned int nCpus = domains.numberOfJobCpus();
+      unsigned int assigned = 0;
+      std::vector<std::pair<unsigned int, unsigned int>> remainders;  // (remainder, domain)
+      for (unsigned int i = 0; i < domains.size(); ++i) {
+        domainThreads[i] = nThreads * domains.numberOfCpus(i) / nCpus;
+        assigned += domainThreads[i];
+        remainders.emplace_back(nThreads * domains.numberOfCpus(i) % nCpus, i);
+      }
+      std::sort(remainders.begin(), remainders.end(), std::greater<>());
+      for (unsigned int k = 0; assigned < nThreads; ++k, ++assigned) {
+        ++domainThreads[remainders[k].second];
+      }
+      for (auto& threads : domainThreads) {
+        threads = std::max(threads, 1u);
+      }
+    }
+    // a job with fewer threads than cpus, spread over more than one NUMA node, would be better run on as many cpus as
+    // threads, on as few NUMA nodes as possible; a job already pinned to a subset of the cpus available to it is
+    // assumed to be so deliberately, and is not warned
+    if (nThreads < domains.numberOfJobCpus() and not numa::StreamNumaDomains::affinityRestricted()) {
+      edm::LogWarning("NumaDomains") << "numaLocality: the job runs with " << nThreads << " threads on "
+                                     << domains.numberOfJobCpus() << " cpus spread over " << domains.size()
+                                     << " NUMA nodes: its streams are split across these nodes, and each node keeps "
+                                        "its own copy of the EventSetup data. A job with fewer threads than cpus is "
+                                        "better run on as many cpus as threads, on as few NUMA nodes as possible "
+                                        "(e.g. with taskset or numactl --cpunodebind).";
+    }
+    {
+      std::ostringstream message;
+      message << "NUMA: " << nStreams << " streams on " << domains.size() << " NUMA domains:";
+      for (unsigned int i = 0; i < domains.size(); ++i) {
+        unsigned int streams = 0;
+        for (unsigned int stream = 0; stream < nStreams; ++stream) {
+          streams += domains.domainOfStream(stream) == i;
+        }
+        message << " node " << domains.node(i) << " (" << domains.numberOfCpus(i) << " cpus, " << domainThreads[i]
+                << " threads, " << streams << " streams)";
+      }
+      edm::LogSystem("NumaDomains") << message.str();
+    }
+    // one arena per NUMA domain, with as many slots as the job's threads on that domain (in proportion to its cpus).
+    // All arenas draw their workers from TBB's single pool of worker threads, whose size is limited by the
+    // global_control set by cmsRun (number of threads) and includes the main thread: the first arena reserves one of
+    // its slots for the main thread, which runs the event loop inside it (see runToCompletion), so that the job keeps
+    // one thread per cpu.
+    // TBB pins the threads of each arena to the cpus of its NUMA node (tbbbind, with hwloc). TBB numbers the nodes with
+    // hwloc's logical indices: use the kernel's node number only if TBB knows a node with that index and the same cpus.
+    auto const tbbNodes = oneapi::tbb::info::numa_nodes();
+    for (unsigned int i = 0; i < domains.size(); ++i) {
+      oneapi::tbb::task_arena::constraints constraints(oneapi::tbb::task_arena::automatic,
+                                                       static_cast<int>(domainThreads[i]));
+      int node = domains.node(i);
+      if (std::ranges::find(tbbNodes, node) != tbbNodes.end() and
+          oneapi::tbb::info::default_concurrency(node) == static_cast<int>(domains.numberOfCpus(i))) {
+        constraints.set_numa_id(node);
+      } else {
+        edm::LogWarning("NumaDomains") << "numaLocality: TBB does not know NUMA node " << node
+                                       << " (tbbbind not available?), so its threads are not pinned to it";
+      }
+      streamArenas_.push_back(std::make_unique<oneapi::tbb::task_arena>(constraints, i == 0 ? 1 : 0));
+      streamArenas_.back()->initialize();
+      streamArenaObservers_.push_back(std::make_unique<ArenaObserver>(*streamArenas_.back(), i));
+      // used by numa::runInDomain to run work (e.g. the EventSetup copies) in the arena of a given domain
+      domains.setArena(i, streamArenas_.back().get());
+    }
+  }
+
   void EventProcessor::processEventAsync(WaitingTaskHolder iHolder, unsigned int iStreamIndex) {
-    iHolder.group()->run([this, iHolder, iStreamIndex]() { processEventAsyncImpl(iHolder, iStreamIndex); });
+    // run the event in the arena of the stream's NUMA domain (numaLocality); all the tasks it spawns stay in that arena.
+    // If the thread that read the event from the source already runs in that arena, the event goes on its local queue.
+    int domain =
+        streamArenas_.empty() ? -1 : static_cast<int>(numa::StreamNumaDomains::instance().domainOfStream(iStreamIndex));
+    numa::runInDomain(
+        *iHolder.group(), domain, [this, iHolder, iStreamIndex]() { processEventAsyncImpl(iHolder, iStreamIndex); });
   }
 
   void EventProcessor::processEventAsyncImpl(WaitingTaskHolder iHolder, unsigned int iStreamIndex) {
@@ -2086,7 +2244,9 @@ namespace edm {
       rng->postEventRead(ev);
     }
 
-    EventSetupImpl const& es = streamLumiStatus_[iStreamIndex]->eventSetupImpl();
+    // with EventSetup replication, the copies of the EventSetup data of the stream's NUMA domain
+    EventSetupImpl const& es =
+        streamLumiStatus_[iStreamIndex]->eventSetupImpl().forDomain(esDomainOfStream(iStreamIndex));
     using namespace edm::waiting_task::chain;
     chain::firstIf(rng.isAvailable() and rng->consumer() != nullptr, [this, pep](auto nextTask) {
       //handle RandomNumberGenerator prefetching and postEventRead
