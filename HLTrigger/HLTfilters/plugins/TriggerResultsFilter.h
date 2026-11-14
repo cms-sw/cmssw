@@ -15,9 +15,10 @@
  */
 
 #include <memory>
+#include <optional>
+#include <regex>
 #include <string>
 #include <vector>
-#include <regex>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -57,12 +58,19 @@ private:
   /// cache some data from the Event for faster access by the m_expression
   triggerExpression::Data m_eventCache;
 
-  struct PatternData {
-    PatternData(std::string const &aStr, std::regex const &aRegex, bool const hasMatch = false)
-        : str(aStr), regex(aRegex), matched(hasMatch) {}
-    std::string str;
-    std::regex regex;
-    bool matched;
+  class PatternData {
+  public:
+    explicit PatternData(std::string const &pattern);
+    // check if the pattern matches the given name, and record a positive match
+    bool matches(std::string const &name);
+
+    std::string const &str() const { return str_; }
+    bool matched() const { return matched_; }
+
+  private:
+    std::string str_;
+    std::optional<std::regex> regex_;
+    bool matched_ = false;
   };
 
   std::vector<PatternData> hltPathStatusPatterns_;

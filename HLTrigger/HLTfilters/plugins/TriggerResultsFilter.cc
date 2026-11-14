@@ -7,10 +7,11 @@
  *
  */
 
+#include <algorithm>
+#include <cctype>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <algorithm>
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -25,6 +26,26 @@
 #include "TriggerResultsFilter.h"
 
 //
+// path name patterns
+//
+TriggerResultsFilter::PatternData::PatternData(std::string const& pattern) : str_(pattern) {
+  // a pattern made only of letters, digits and underscores matches only itself, so it is compared as a string;
+  // a std::regex is built only for the other patterns
+  bool plain = std::all_of(pattern.begin(), pattern.end(), [](unsigned char c) { return std::isalnum(c) or c == '_'; });
+  if (not plain) {
+    regex_.emplace(edm::glob2reg(pattern), std::regex::extended);
+  }
+}
+
+bool TriggerResultsFilter::PatternData::matches(std::string const& name) {
+  bool match = regex_ ? std::regex_match(name, *regex_) : name == str_;
+  if (match) {
+    matched_ = true;
+  }
+  return match;
+}
+
+//
 // constructors and destructor
 //
 TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet& config)
@@ -33,11 +54,10 @@ TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet& config)
   parse(expressions);
   if (m_expression and m_eventCache.usePathStatus()) {
     // if the expression was successfully parsed, store the list of patterns,
-    // each in both std::string and std::regex format
+    // each as a std::string and, unless it is a plain name, as a std::regex,
     // and with a flag for having valid matches
-    hltPathStatusPatterns_ = edm::vector_transform(m_expression->patterns(), [](std::string const& pattern) {
-      return PatternData(pattern, std::regex(edm::glob2reg(pattern), std::regex::extended));
-    });
+    hltPathStatusPatterns_ = edm::vector_transform(m_expression->patterns(),
+                                                   [](std::string const& pattern) { return PatternData(pattern); });
 
     if (hltPathStatusPatterns_.empty()) {
       return;
@@ -46,16 +66,14 @@ TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet& config)
     // consume all matching paths
     callWhenNewProductsRegistered([this](edm::ProductDescription const& branch) {
       if (branch.branchType() == edm::InEvent and branch.className() == "edm::HLTPathStatus") {
-        bool consumeBranch = true;
+        bool consumeBranch = false;
         for (auto& pattern : hltPathStatusPatterns_) {
-          if (std::regex_match(branch.moduleLabel(), pattern.regex)) {
-            pattern.matched = true;
-            if (consumeBranch) {
-              consumeBranch = false;
-              m_eventCache.setPathStatusToken(branch, consumesCollector());
-            }
-          }
+          // test every pattern, to record all the patterns that match this path
+          if (pattern.matches(branch.moduleLabel()))
+            consumeBranch = true;
         }
+        if (consumeBranch)
+          m_eventCache.setPathStatusToken(branch, consumesCollector());
       }
     });
   }
@@ -65,14 +83,14 @@ void TriggerResultsFilter::beginStream(edm::StreamID) {
   // if throw=True, check if any of the input patterns had zero matches (and if so, throw an exception)
   if (not hltPathStatusPatterns_.empty() and m_eventCache.shouldThrow()) {
     auto unmatchedPatternsExist = std::any_of(
-        hltPathStatusPatterns_.cbegin(), hltPathStatusPatterns_.cend(), [](auto foo) { return (not foo.matched); });
+        hltPathStatusPatterns_.cbegin(), hltPathStatusPatterns_.cend(), [](auto foo) { return (not foo.matched()); });
     if (unmatchedPatternsExist) {
       cms::Exception excpt("UnmatchedPatterns");
       excpt << "the parameter \"triggerConditions\" contains patterns with zero matches"
             << " for the available edm::HLTPathStatus collections - invalid patterns are:";
       for (auto const& pattern : hltPathStatusPatterns_)
-        if (not pattern.matched)
-          excpt << "\n\t" << pattern.str;
+        if (not pattern.matched())
+          excpt << "\n\t" << pattern.str();
       throw excpt;
     }
   }
