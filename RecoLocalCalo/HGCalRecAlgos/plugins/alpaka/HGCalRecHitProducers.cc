@@ -2,22 +2,27 @@
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include <iomanip>  // for std::setw
 #include <future>
 #include <chrono>
+#include <optional>
+#include <string>
 
 // Alpaka imports
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/SynchronizingEDProducer.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/SynchronizingFixedQueueEDProducer.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
 // includes for data formats
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
@@ -37,6 +42,13 @@
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDevice.h"
 #include "CondFormats/DataRecord/interface/HGCalDenseIndexInfoRcd.h"
 
+// includes for the common-mode DNN
+#include "PhysicsTools/PyTorchAlpaka/interface/TensorCollection.h"
+#include "PhysicsTools/PyTorchAlpaka/interface/alpaka/AlpakaModel.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalSoACMML.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/alpaka/HGCalCMCalibrationAlgorithms.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/alpaka/HGCalCMMLParamDevice.h"
+
 // flag to assist the computational performance test
 // #define HGCAL_PERF_TEST
 
@@ -44,7 +56,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace cms::alpakatools;
 
-  class HGCalRecHitsProducer : public stream::SynchronizingEDProducer<> {
+  // acquire: copy digis and calibration to the device, [useCMML] CM DNN inputs + inference, calibration
+  // produce: zero-suppression selection
+  // Fixed queue per stream for the PyTorch device caching allocator
+  class HGCalRecHitsProducer : public stream::SynchronizingFixedQueueEDProducer<> {
   public:
     explicit HGCalRecHitsProducer(const edm::ParameterSet&);
     static void fillDescriptions(edm::ConfigurationDescriptions&);
@@ -52,6 +67,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   private:
     void acquire(device::Event const&, device::EventSetup const&) override;
     void produce(device::Event&, device::EventSetup const&) override;
+
+    // Fills deviceCorrections with the DNN CM correction in pedestal-subtracted ADC
+    void runCMModel(device::Event const& iEvent,
+                    device::EventSetup const& iSetup,
+                    hgcaldigi::HGCalDigiDevice const& deviceDigis,
+                    HGCalCalibParamDevice const& deviceCalib,
+                    HGCalCMCorrectionDeviceCollection& deviceCorrections);
+
     edm::ESWatcher<HGCalElectronicsMappingRcd> calibWatcher_;
     const edm::EDGetTokenT<hgcaldigi::HGCalDigiHost> digisToken_;
     const edm::ESGetToken<hgcalrechit::HGCalCalibParamHost, HGCalModuleConfigurationRcd> calibToken_;
@@ -63,13 +86,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const double k_noise_;
     const int n_hits_scale_;
     int ndigis_;
-    cms::alpakatools::host_buffer<int32_t> nsel_;
-    std::optional<cms::alpakatools::device_buffer<Device, int32_t[]>> sidx_;
+    host_buffer<int32_t> nsel_;
+    std::optional<device_buffer<Device, int32_t[]>> sidx_;
     std::optional<HGCalSoARecHitsDeviceCollection> recHits_;
+
+    // CM DNN
+    const bool useCMML_;
+    const bool cmAltAsNominal_;
+    const HGCalCMCalibrationAlgorithms cmAlgo_;
+    std::optional<torch::AlpakaModel> model_;
+    // per-module parameters and z-score constants, built once per IOV by HGCalCMMLParamESProducer
+    device::ESGetToken<HGCalCMMLModuleParamDevice, HGCalDenseIndexInfoRcd> cmModuleParamToken_;
+    device::ESGetToken<HGCalCMMLNormParamDevice, HGCalDenseIndexInfoRcd> cmNormParamToken_;
   };
 
   HGCalRecHitsProducer::HGCalRecHitsProducer(const edm::ParameterSet& iConfig)
-      : SynchronizingEDProducer(iConfig),
+      : SynchronizingFixedQueueEDProducer(iConfig),
         digisToken_{consumes<hgcaldigi::HGCalDigiHost>(iConfig.getParameter<edm::InputTag>("digis"))},
         calibToken_{esConsumes(iConfig.getParameter<edm::ESInputTag>("calibSource"))},
         mappingToken_{esConsumes(iConfig.getParameter<edm::ESInputTag>("mappingSource"))},
@@ -79,12 +111,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         calibrator_{iConfig.getParameter<int>("n_blocks"), iConfig.getParameter<int>("n_threads")},
         k_noise_{iConfig.getParameter<double>("k_noise")},
         n_hits_scale_{iConfig.getParameter<int>("n_hits_scale")},
-        nsel_{cms::alpakatools::make_host_buffer<int32_t, Platform>()} {
+        nsel_{make_host_buffer<int32_t, Platform>()},
+        useCMML_{iConfig.getParameter<bool>("useCMML")},
+        cmAltAsNominal_{iConfig.getParameter<bool>("cmAltAsNominal")},
+        cmAlgo_{iConfig.getParameter<int>("cm_n_threads")} {
 #ifndef HGCAL_PERF_TEST
     if (n_hits_scale_ > 1) {
       throw cms::Exception("RuntimeError") << "Build with `HGCAL_PERF_TEST` flag to activate `n_hits_scale`.";
     }
 #endif
+    if (cmAltAsNominal_ && !useCMML_)
+      throw cms::Exception("Configuration") << "cmAltAsNominal=True requires useCMML=True";
+    if (!useCMML_)
+      return;
+
+    model_.emplace(edm::FileInPath(iConfig.getParameter<std::string>("model")).fullPath());
+    auto const cmParamSource = iConfig.getParameter<edm::ESInputTag>("cmParamSource");
+    cmModuleParamToken_ = esConsumes(cmParamSource);
+    cmNormParamToken_ = esConsumes(cmParamSource);
   }
 
   void HGCalRecHitsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -97,6 +141,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<int>("n_blocks", -1);
     desc.add<int>("n_threads", -1);
     desc.add<int>("n_hits_scale", -1);
+    desc.add<bool>("useCMML", false)->setComment("Run the CM DNN for energy_variations(CM_ALT), else CM_ALT = energy");
+    desc.add<bool>("cmAltAsNominal", false)
+        ->setComment("use the DNN CM for energy (ZS, clustering), the linear CM for energy_variations(CM_ALT)");
+    desc.add<std::string>("model", "RecoLocalCalo/HGCalRecProducers/data/CMCalibrations/cm_dnn_multimodule_zscore.pth")
+        ->setComment("TorchScript z-score CM DNN");
+    desc.add("cmParamSource", edm::ESInputTag{})->setComment("Label for HGCalCMMLParamESProducer");
+    desc.add<int>("cm_n_threads", 256);
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -160,33 +211,42 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     LogDebug("HGCalRecHitsProducer") << "Loaded host digis: " << hostDigis.view().metadata().size();  //<< std::endl;
 
-    LogDebug("HGCalRecHitsProducer") << "\n\nINFO -- calling calibrate method";  //<< std::endl;
-
 #ifdef EDM_ML_DEBUG
     alpaka::wait(queue);
     auto start = std::chrono::steady_clock::now();
 #endif
 
-    LogDebug("HGCalRecHitsProducer") << "\n\nINFO -- Copying the calib to the device\n\n" << std::endl;
+    LogDebug("HGCalRecHitsProducer") << "\n\nINFO -- Copying the digis and calib to the device\n\n" << std::endl;
+    ndigis_ = hostDigis.view().metadata().size();
+    hgcaldigi::HGCalDigiDevice deviceDigis(queue, ndigis_);
+    alpaka::memcpy(queue, deviceDigis.buffer(), hostDigis.const_buffer());
     HGCalCalibParamDevice deviceCalibParam(queue, hostCalibParam.view().metadata().size());
     alpaka::memcpy(queue, deviceCalibParam.buffer(), hostCalibParam.const_buffer());
+
+    HGCalCMCorrectionDeviceCollection deviceCorrections(queue, ndigis_);
+    if (useCMML_ && ndigis_ > 0)
+      runCMModel(iEvent, iSetup, deviceDigis, deviceCalibParam, deviceCorrections);
+    else
+      deviceCorrections.zeroInitialise(queue);  // valid = 0: CM_ALT = nominal
 
 #ifdef HGCAL_PERF_TEST
     auto tmpRecHits = calibrator_.calibrate(queue, hostDigis, deviceCalibParam);
     recHits_ = HGCalSoARecHitsDeviceCollection(oldSize, queue);
     alpaka::memcpy(queue, recHits.buffer(), tmpRecHits.const_buffer(), oldSize);
 #else
+    LogDebug("HGCalRecHitsProducer") << "\n\nINFO -- calling calibrate method";  //<< std::endl;
     *nsel_ = 0;
-    ndigis_ = hostDigis.view().metadata().size();
-    sidx_ = cms::alpakatools::make_device_buffer<int32_t[]>(queue, ndigis_);
+    sidx_ = make_device_buffer<int32_t[]>(queue, ndigis_);
     recHits_ = calibrator_.calibrate(queue,
                                      nsel_.data(),
                                      sidx_->data(),
-                                     hostDigis,
+                                     deviceDigis,
                                      deviceCalibParam,
                                      deviceModuleInfoProvider,
                                      deviceMappingCellParamProvider,
                                      deviceIndexingParamProvider,
+                                     deviceCorrections,
+                                     cmAltAsNominal_,
                                      k_noise_);
 #endif
 
@@ -197,6 +257,37 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     LogDebug("HGCalRecHitsProducer") << "Time spent calibrating " << hostDigis.view().metadata().size()
                                      << " digis: " << elapsed.count();  //<< std::endl;
 #endif
+  }
+
+  void HGCalRecHitsProducer::runCMModel(device::Event const& iEvent,
+                                        device::EventSetup const& iSetup,
+                                        hgcaldigi::HGCalDigiDevice const& deviceDigis,
+                                        HGCalCalibParamDevice const& deviceCalib,
+                                        HGCalCMCorrectionDeviceCollection& deviceCorrections) {
+    auto& queue = iEvent.queue();
+    auto const& deviceIndex = iSetup.getData(indexingToken_);
+    auto const& moduleParam = iSetup.getData(cmModuleParamToken_);
+    auto const& norm = iSetup.getData(cmNormParamToken_);
+    const uint32_t ndigis = uint32_t(ndigis_);
+    const uint32_t nmodules = moduleParam.const_view().metadata().size();
+
+    const uint32_t ncalib = uint32_t(deviceCalib.view().metadata().size());
+    if (ncalib < ndigis)
+      throw cms::Exception("LogicError") << ncalib << " calibration channels for " << ndigis << " digis";
+
+    HGCalSoACMMLDeviceCollection deviceModuleFeatures(queue, nmodules);
+    HGCalSoACMMLDeviceCollection deviceFeatures(queue, ndigis);
+    cmAlgo_.fillModuleInputs(queue, ndigis, deviceDigis, moduleParam, deviceCalib, norm, deviceModuleFeatures);
+    cmAlgo_.fillDigiInputs(
+        queue, ndigis, deviceIndex, deviceModuleFeatures, moduleParam, norm, deviceFeatures, deviceCorrections);
+
+    cms::torch::alpakatools::TensorCollection<Queue> inputs;
+    inputs.template add<hgcalcmml::HGCalCMMLSoA>("features", deviceFeatures.const_view().records().features());
+    cms::torch::alpakatools::TensorCollection<Queue> outputs;
+    outputs.template add<hgcalcmml::HGCalCMCorrectionSoA>("correction",
+                                                          deviceCorrections.view().records().correction());
+    model_->forward(queue, inputs, outputs);
+    cmAlgo_.denormalizeOutputs(queue, ndigis, deviceIndex, norm, deviceCorrections);
   }
 
   void HGCalRecHitsProducer::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
