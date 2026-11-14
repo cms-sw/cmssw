@@ -462,10 +462,10 @@ inline unsigned short THIS_CLASS::MB_DT_Check_boundaries(
 
 inline void THIS_CLASS::MB_DT_Get_grid_values(
     double Var, unsigned short *pi, unsigned short *pj, short Initial, unsigned short N, const double *Values) const {
-  unsigned short i, iValue, jValue;
+  short i, iValue, jValue;
 
-  iValue = N - 1;
-  jValue = N - 2;
+  iValue = static_cast<short>(N) - 1;
+  jValue = static_cast<short>(N) - 2;
 
   for (i = Initial; i < N; i++) {
     if (Var <= Values[i]) {

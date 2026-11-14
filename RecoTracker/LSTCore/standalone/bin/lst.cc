@@ -72,10 +72,8 @@ int main(int argc, char **argv) {
       "I,job_index",
       "job_index of split jobs (--nsplit_jobs must be set. index starts from 0. i.e. 0, 1, 2, 3, etc...)",
       cxxopts::value<int>())("3,tc_pls_triplets", "Allow triplet pLSs in TC collection")(
-      "2,no_pls_dupclean", "Disable pLS duplicate cleaning (both steps)")(
-      "reduce_mem_by_full_precompute",
-      "Run extra counting kernels to exactly size MD/LS/T3/T5/T4 buffers (lower mem, small runtime cost)")(
-      "h,help", "Print help")("md", "Write MD branches in output ntuple.")("ls", "Write LS branches in output ntuple.")(
+      "2,no_pls_dupclean", "Disable pLS duplicate cleaning (both steps)")("h,help", "Print help")(
+      "md", "Write MD branches in output ntuple.")("ls", "Write LS branches in output ntuple.")(
       "t3", "Write T3 branches in output ntuple.")("t5", "Write T5 branches in output ntuple.")(
       "pls", "Write pLS branches in output ntuple.")("pt3", "Write pT3 branches in output ntuple.")(
       "pt5", "Write pT5 branches in output ntuple.")("occ", "Write occupancy branches in output ntuple.")(
@@ -258,10 +256,6 @@ int main(int argc, char **argv) {
   ana.no_pls_dupclean = result["no_pls_dupclean"].as<bool>();
 
   //_______________________________________________________________________________
-  // --reduce_mem_by_full_precompute
-  ana.reduce_mem_by_full_precompute = result["reduce_mem_by_full_precompute"].as<bool>();
-
-  //_______________________________________________________________________________
   // --md
   ana.md_branches = result["md"].as<bool>() || result["allobj"].as<bool>();
 
@@ -337,7 +331,6 @@ int main(int argc, char **argv) {
   std::cout << " ana.nmatch_threshold: " << ana.nmatch_threshold << std::endl;
   std::cout << " ana.tc_pls_triplets: " << ana.tc_pls_triplets << std::endl;
   std::cout << " ana.no_pls_dupclean: " << ana.no_pls_dupclean << std::endl;
-  std::cout << " ana.reduce_mem_by_full_precompute: " << ana.reduce_mem_by_full_precompute << std::endl;
   std::cout << "=========================================================" << std::endl;
 
   // Create the TChain that holds the TTree's of the baby ntuples
@@ -446,8 +439,8 @@ void run_lst() {
   std::vector<LSTEvent *> events;
   std::vector<ALPAKA_ACCELERATOR_NAMESPACE::Queue *> event_queues;
   for (int s = 0; s < ana.streams; s++) {
-    LSTEvent *event = new LSTEvent(
-        ana.verbose >= 2, ana.ptCut, ana.clustSizeCut, queues[s], &deviceESData, ana.reduce_mem_by_full_precompute);
+    LSTEvent *event = new LSTEvent(ana.verbose >= 2, ana.ptCut, ana.clustSizeCut, queues[s], &deviceESData);
+    event->setKeepHostCopies(ana.do_write_ntuple);  // the ntuple writer reads collections released during the event
     events.push_back(event);
     event_queues.push_back(&queues[s]);
   }
@@ -583,7 +576,26 @@ namespace edm {
 namespace cms::soa::detail {
   [[noreturn]] void throwRuntimeError(const char *message) { throw std::runtime_error(message); }
 
-  [[noreturn]] void throwOutOfRangeError(const char *message, cms::soa::size_type index, cms::soa::size_type range) {
-    throw std::out_of_range(std::format("{}: index {} out of range {}", message, index, range));
+  template <>
+  [[noreturn]] void throwOutOfRangeError<RangeChecking::extended>(
+      const char *message, const IndexWithSourceLocation<RangeChecking::extended> &index, cms::soa::size_type range) {
+    throw std::out_of_range(std::format("{}: index {} out of range {} at file {} at line {}\n",
+                                        message,
+                                        index.value_,
+                                        range,
+                                        index.location_.file_name(),
+                                        index.location_.line()));
+  }
+
+  template <>
+  [[noreturn]] void throwOutOfRangeError<RangeChecking::enabled>(
+      const char *message, const IndexWithSourceLocation<RangeChecking::enabled> &index, cms::soa::size_type range) {
+    throw std::out_of_range(std::format("{}: index {} out of range {}\n", message, index.value_, range));
+  }
+
+  template <>
+  [[noreturn]] void throwOutOfRangeError<RangeChecking::disabled>(
+      const char *message, const IndexWithSourceLocation<RangeChecking::disabled> &index, cms::soa::size_type range) {
+    throw std::out_of_range(std::format("{}: index {} out of range {}\n", message, index.value_, range));
   }
 }  // namespace cms::soa::detail

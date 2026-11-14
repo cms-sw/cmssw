@@ -163,11 +163,7 @@ namespace {
         return Phase::globalBeginLumi;
       case GlobalContext::Transition::kEndLuminosityBlock:
         return Phase::globalEndLumi;
-      case GlobalContext::Transition::kWriteLuminosityBlock:
-        return Phase::globalEndLumi;
       case GlobalContext::Transition::kEndRun:
-        return Phase::globalEndRun;
-      case GlobalContext::Transition::kWriteRun:
         return Phase::globalEndRun;
       default:
         break;
@@ -293,7 +289,7 @@ StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
     iRegistry.watchPreModuleWriteLumi(this, &StallMonitor::preModuleGlobalTransition);
     iRegistry.watchPostModuleWriteLumi(this, &StallMonitor::postModuleGlobalTransition);
 
-    iRegistry.postESModuleRegistrationSignal_.connect([this](auto const& iDescription) {
+    iRegistry.postESModuleConstructionSignal_.connect([this](auto const& iDescription) {
       if (esModuleLabels_.size() <= iDescription.id_) {
         esModuleLabels_.resize(iDescription.id_ + 1);
       }

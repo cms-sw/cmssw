@@ -25,6 +25,9 @@ namespace lst {
                       SOA_COLUMN(uint16_t, nConnectedModules),
                       SOA_COLUMN(float, drdzs),
                       SOA_COLUMN(float, dxdys),
+                      // 2S endcap: strip half-vector (2.5 cm), hit edges = hit xy +- it; 0 elsewhere
+                      SOA_COLUMN(float, edgeDx),
+                      SOA_COLUMN(float, edgeDy),
                       SOA_COLUMN(uint16_t, partnerModuleIndices),
                       SOA_COLUMN(short, layers),
                       SOA_COLUMN(short, rings),
@@ -46,7 +49,7 @@ namespace lst {
                       SOA_SCALAR(uint16_t, nModules),
                       SOA_SCALAR(uint16_t, nLowerModules))
 
-  GENERATE_SOA_LAYOUT(ModulesPixelSoALayout, SOA_COLUMN(unsigned int, connectedPixels))
+  GENERATE_SOA_LAYOUT(ModulesPixelSoALayout, SOA_COLUMN(uint16_t, connectedPixels))
 
   GENERATE_SOA_BLOCKS(ModulesSoABlocksLayout,
                       SOA_BLOCK(modules, ModulesSoALayout),

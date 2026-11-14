@@ -52,7 +52,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
   memset(&buffer_->averageGeometry(), 0, sizeof(pixelTopology::AverageGeometryT<TrackerTraits>));
 #endif
 
-  assert(m_DetParams.size() <= TrackerTraits::numberOfModules);
+  assert(m_DetParams.size() <= TrackerTraits::numberOfPixelModules);
 
   for (auto i = 0U; i < m_DetParams.size(); ++i) {
     auto& p = m_DetParams[i];
@@ -105,8 +105,9 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
 
     auto toMicron = [&](float x) { return std::min(511, int(x * 1.e4f + 0.5f)); };
 
-    // average angle
-    auto gvx = p.theOrigin.x() + 40.f * p.thePitchX;
+    // average angle: seen from the origin, half a ROC away from the module centre in x (40 rows for the 80-row
+    // Phase-1 ROC), so that it also holds for ROCs of a different size (Phase-2)
+    auto gvx = p.theOrigin.x() + 0.5f * float(g.nRowsRoc) * p.thePitchX;
     auto gvy = p.theOrigin.y();
     auto gvz = 1.f / p.theOrigin.z();
     //--- Note that the normalization is not required as only the ratio used
@@ -194,7 +195,8 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
         //qBin=4 (second lowest charge) sometimes may get skipped
         //In that case, set its threshold at halfway to threshold of qBin=3 and fill with sigmax/y values of qBin=5
         //In reality, it does not really matter because we will not encounter this qBin for any cluster (otherwise we would not have skipped it)
-        qbin += 1;
+        //The skipped bin is qbin - 1: step to it, so that the next sample (at the charge just reached) records the bin found there
+        qbin -= 1;
         qclus -= qClusIncrement;
         errorFromTemplates(p, cp, qclus);
         g.xfact[k] = cp.sigmax;

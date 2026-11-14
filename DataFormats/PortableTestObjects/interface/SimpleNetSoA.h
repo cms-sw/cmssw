@@ -1,9 +1,6 @@
 #ifndef DataFormats_PortableTestObjects_interface_SimpleNetSoA_h
 #define DataFormats_PortableTestObjects_interface_SimpleNetSoA_h
 
-#include <Eigen/Core>
-#include <Eigen/Dense>
-
 #include "DataFormats/Common/interface/StdArray.h"
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"

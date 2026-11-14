@@ -48,10 +48,10 @@ void EcalBarrelSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run
   meEBLongitudinalShower_ = ib.bookProfile(histo, histo, 26, 0., 26., 100, 0., 20000.);
 
   histo = "EB hits energy spectrum";
-  meEBhitEnergy_ = ib.book1D(histo, histo, 4000, 0., 400.);
+  meEBhitEnergy_ = ib.book1DD(histo, histo, 4000, 0., 400.);
 
   histo = "EB hits log10energy spectrum";
-  meEBhitLog10Energy_ = ib.book1D(histo, histo, 140, -10., 4.);
+  meEBhitLog10Energy_ = ib.book1DD(histo, histo, 140, -10., 4.);
 
   histo = "EB hits log10energy spectrum vs normalized energy";
   meEBhitLog10EnergyNorm_ = ib.bookProfile(histo, histo, 140, -10., 4., 100, 0., 1.);
@@ -60,10 +60,10 @@ void EcalBarrelSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run
   meEBhitLog10Energy25Norm_ = ib.bookProfile(histo, histo, 140, -10., 4., 100, 0., 1.);
 
   histo = "EB hits energy spectrum 2";
-  meEBhitEnergy2_ = ib.book1D(histo, histo, 1000, 0., 0.001);
+  meEBhitEnergy2_ = ib.book1DD(histo, histo, 1000, 0., 0.001);
 
   histo = "EB crystal energy spectrum";
-  meEBcrystalEnergy_ = ib.book1D(histo, histo, 5000, 0., 50.);
+  meEBcrystalEnergy_ = ib.book1DD(histo, histo, 5000, 0., 50.);
 
   histo = "EB crystal energy spectrum 2";
   meEBcrystalEnergy2_ = ib.book1D(histo, histo, 1000, 0., 0.001);

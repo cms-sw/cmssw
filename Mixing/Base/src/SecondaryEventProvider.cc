@@ -10,19 +10,21 @@
 #include "FWCore/Framework/interface/ModuleRegistryUtilities.h"
 #include "FWCore/Framework/interface/maker/MakeModuleParams.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
+#include "FWCore/ServiceRegistry/interface/GlobalContext.h"
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/make_sentry.h"
-#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "oneapi/tbb/task_arena.h"
 
 #include <mutex>
 
 namespace {
-  template <typename T, typename U>
-  void processOneOccurrence(edm::WorkerManager& manager,
-                            typename T::TransitionInfoType& info,
+  template <edm::TransitionEdge E, typename TI, typename TC, typename M, typename U>
+  void processOneOccurrence(M& manager,
+                            TI& info,
                             edm::StreamID streamID,
-                            typename T::Context const* topContext,
+                            TC topContext,
                             U const* context,
                             bool cleaningUpAfterException = false) {
     manager.resetAll();
@@ -36,7 +38,8 @@ namespace {
     tbb::task_arena localArena{tbb::this_task_arena::max_concurrency()};
     std::exception_ptr exceptPtr = localArena.execute([&]() {
       return edm::syncWait([&](edm::WaitingTaskHolder&& iHolder) {
-        manager.processOneOccurrenceAsync<T, U>(std::move(iHolder), info, token, streamID, topContext, context);
+        manager.template processOneOccurrenceAsync<E, U>(
+            std::move(iHolder), info, token, streamID, topContext, context);
       });
     });
 
@@ -63,7 +66,11 @@ namespace edm {
         moduleRegistry_(std::make_shared<ModuleRegistry>(nullptr)),
         activityRegistry_(std::make_shared<ActivityRegistry>()),
         // no type resolver for modules in SecondaryEventProvider for now
-        workerManager_(moduleRegistry_, activityRegistry_, *exceptionToActionTable_) {
+        runWorkerManager_(moduleRegistry_, activityRegistry_, *exceptionToActionTable_),
+        runStreamWorkerManager_(moduleRegistry_, activityRegistry_, *exceptionToActionTable_),
+        lumiWorkerManager_(moduleRegistry_, activityRegistry_, *exceptionToActionTable_),
+        lumiStreamWorkerManager_(moduleRegistry_, activityRegistry_, *exceptionToActionTable_),
+        eventWorkerManager_(moduleRegistry_, activityRegistry_, *exceptionToActionTable_) {
     std::vector<std::string> shouldBeUsedLabels;
     std::set<std::string> unscheduledLabels;
     const PreallocationConfiguration preallocConfig;
@@ -79,7 +86,8 @@ namespace edm {
         throw edm::Exception(edm::errors::Configuration)
             << "The module with label " << label << " is not an EDProducer or EDFilter so can not be run unscheduled";
       }
-      workerManager_.addToUnscheduledWorkers(module->moduleDescription());
+      eventWorkerManager_.addToUnscheduledWorkers(module->moduleDescription());
+
       unscheduledLabels.insert(label);
     }
     if (!unscheduledLabels.empty()) {
@@ -106,10 +114,8 @@ namespace edm {
                                         ModuleCallingContext const* mcc,
                                         StreamContext& sContext) {
     RunTransitionInfo info(run, setup);
-    processOneOccurrence<OccurrenceTraits<RunPrincipal, TransitionActionGlobalBegin>>(
-        workerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
-    processOneOccurrence<OccurrenceTraits<RunPrincipal, TransitionActionStreamBegin>>(
-        workerManager_, info, sContext.streamID(), &sContext, mcc);
+    processOneOccurrence<TransitionEdge::kBegin>(runWorkerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
+    processOneOccurrence<TransitionEdge::kBegin>(runStreamWorkerManager_, info, sContext.streamID(), &sContext, mcc);
   }
 
   void SecondaryEventProvider::beginLuminosityBlock(LuminosityBlockPrincipal& lumi,
@@ -117,10 +123,8 @@ namespace edm {
                                                     ModuleCallingContext const* mcc,
                                                     StreamContext& sContext) {
     LumiTransitionInfo info(lumi, setup);
-    processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalBegin>>(
-        workerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
-    processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamBegin>>(
-        workerManager_, info, sContext.streamID(), &sContext, mcc);
+    processOneOccurrence<TransitionEdge::kBegin>(lumiWorkerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
+    processOneOccurrence<TransitionEdge::kBegin>(lumiStreamWorkerManager_, info, sContext.streamID(), &sContext, mcc);
   }
 
   void SecondaryEventProvider::endRun(RunPrincipal& run,
@@ -128,10 +132,8 @@ namespace edm {
                                       ModuleCallingContext const* mcc,
                                       StreamContext& sContext) {
     RunTransitionInfo info(run, setup);
-    processOneOccurrence<OccurrenceTraits<RunPrincipal, TransitionActionStreamEnd>>(
-        workerManager_, info, sContext.streamID(), &sContext, mcc);
-    processOneOccurrence<OccurrenceTraits<RunPrincipal, TransitionActionGlobalEnd>>(
-        workerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
+    processOneOccurrence<TransitionEdge::kEnd>(runStreamWorkerManager_, info, sContext.streamID(), &sContext, mcc);
+    processOneOccurrence<TransitionEdge::kEnd>(runWorkerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
   }
 
   void SecondaryEventProvider::endLuminosityBlock(LuminosityBlockPrincipal& lumi,
@@ -139,20 +141,18 @@ namespace edm {
                                                   ModuleCallingContext const* mcc,
                                                   StreamContext& sContext) {
     LumiTransitionInfo info(lumi, setup);
-    processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamEnd>>(
-        workerManager_, info, sContext.streamID(), &sContext, mcc);
-    processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalEnd>>(
-        workerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
+    processOneOccurrence<TransitionEdge::kEnd>(lumiStreamWorkerManager_, info, sContext.streamID(), &sContext, mcc);
+    processOneOccurrence<TransitionEdge::kEnd>(lumiWorkerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
   }
 
   void SecondaryEventProvider::setupPileUpEvent(EventPrincipal& ep,
                                                 const EventSetupImpl& setup,
                                                 StreamContext& sContext) {
-    workerManager_.setupResolvers(ep);
+    eventWorkerManager_.setupResolvers(ep);
     EventTransitionInfo info(ep, setup);
-    workerManager_.setupOnDemandSystem(info);
+    eventWorkerManager_.setupOnDemandSystem(info);
 
-    if (workerManager_.unscheduledWorkers().empty()) {
+    if (eventWorkerManager_.unscheduledWorkers().empty()) {
       return;
     }
     auto token = edm::ServiceRegistry::instance().presentToken();
@@ -161,9 +161,8 @@ namespace edm {
     ParentContext pc(&sContext);
     std::exception_ptr exceptPtr = tbb::this_task_arena::isolate([&]() {
       return edm::syncWait([&](edm::WaitingTaskHolder&& iHolder) {
-        for (auto& worker : workerManager_.unscheduledWorkers()) {
-          worker->doWorkAsync<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
-              iHolder, info, token, sContext.streamID(), pc, &sContext);
+        for (auto& worker : eventWorkerManager_.unscheduledWorkers()) {
+          worker->doWorkAsync<TransitionEdge::kBegin>(iHolder, info, token, sContext.streamID(), pc, &sContext);
         }
       });
     });

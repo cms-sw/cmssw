@@ -2,7 +2,7 @@
 #
 # Build a DOT/SVG gallery of logical truth graphs for the enableTruth relval
 # samples, one folder per physics process. For each sample it dumps:
-#   <label>_full_eventN.dot      - the full logical graph (seedPdgIds=0, --showAll)
+#   <label>_full_eventN.dot      - the full logical graph (seedPdgIds=0)
 #   <label>_signal_eventN.dot    - the natural-seed signal view (+ rendered .svg):
 #                                  seedParentDepth=0, so the truncated upstream of
 #                                  each seed is summarized into one per-interaction
@@ -14,7 +14,7 @@
 # Requires cmsenv. Usage:
 #   cmsenv
 #   makeTruthGallery.sh [LIBRARY_DIR] [OUTPUT_DIR]
-#     LIBRARY_DIR  dir containing <wf>.88_*/step3.root   (default ./library)
+#     LIBRARY_DIR  dir containing <wf>.0_*/step3.root    (default ./library)
 #     OUTPUT_DIR   gallery output dir                    (default ./dot_gallery)
 # Env knobs: NEVT (selected events/sample, default 3), JOBS (parallel, default 16).
 #
@@ -32,6 +32,9 @@ SELECT="$CMSSW_BASE/src/PhysicsTools/TruthInfo/python/truthGraphSelections.py"
 LAYOUT="${LAYOUT:-dot}"
 ENGINE="${ENGINE:-$LAYOUT}"
 NEVT="${NEVT:-3}"
+# The dumper reads hit and vertex positions through the geometry, so it must be the one
+# the sample was produced with.
+GEOMETRY="${GEOMETRY:-ExtendedRun4D127}"
 JOBS="${JOBS:-16}"
 
 # label : workflow-number. The per-process signal-view selection (seed, parent
@@ -41,21 +44,28 @@ JOBS="${JOBS:-16}"
 # the dilepton channel, guns get their species, etc., and a new sample needs no
 # edit here. Override per sample by appending flags after $flags below if needed.
 SAMPLES=(
-  "SingleElectron:34002"
-  "TTbar:34034"
-  "DYToLL:34044"
-  "DYToTauTau:34045"
-  "ZMM:34050"
-  "H125_diphoton:34052"
-  "VBFHZZ4Nu:34131"
-  "TenTau:34087"
-  # No single-top sample exists in the relval matrix; 34999.88 is a custom
-  # ST t-channel (PhysicsTools/TruthInfo/ST_tch_top_14TeV_TuneCP5_cfi) produced
-  # locally to exercise the 'top' preset keeping the t + spectator-quark co-products.
+  "SingleElectron:37602"
+  "SingleGamma:37605"
+  "SingleMu:37607"
+  "SinglePi:37688"
+  "TTbar:37634"
+  "DYToLL:37644"
+  "DYToTauTau:37645"
+  "ZEE:37646"
+  "ZMM:37650"
+  "H125_diphoton:37652"
+  "VBFHZZ4Nu:37731"
+  "TenTau:37687"
+  "MinBias:37640"
+  "QCDForPF:37643"
+  # No single-top sample exists in the relval matrix; 34999 is a custom ST t-channel
+  # (PhysicsTools/TruthInfo/ST_tch_top_14TeV_TuneCP5_cfi) produced locally to exercise
+  # the 'singletop' preset. The three custom numbers below are local, not matrix
+  # workflows, so the gallery skips them unless the library holds them.
   "SingleTop:34999"
   # 34998.88 is a custom ttbar-POWHEG (TTto2L2Nu, 13.6 TeV gridpack -> 14 TeV Phase-2,
   # see the WARNING in PhysicsTools/TruthInfo/TTto2L2Nu_Powheg_Pythia8_cfi): an NLO
-  # ttbar example alongside the LO Pythia8 ttbar (34034).
+  # ttbar example alongside the LO Pythia8 ttbar (37634).
   "TTbarPowheg:34998"
   # 34997.88 is a custom diboson WW->2l2nu (PhysicsTools/TruthInfo/WWTo2L2Nu_14TeV_TuneCP5_cfi):
   # exercises the 'diboson' preset (seed the vector bosons {23,24,-24} + production system).
@@ -69,16 +79,16 @@ rm -rf "$OUT"; mkdir -p "$OUT"
 cmds=()
 for s in "${SAMPLES[@]}"; do
   IFS=: read -r lab num <<< "$s"
-  step3=$(ls "$LIB"/${num}.88_*/step3.root 2>/dev/null | head -1)
+  step3=$(ls "$LIB"/${num}.[08]*_*/step3.root 2>/dev/null | head -1)
   if [[ -z "$step3" ]]; then echo "SKIP $lab ($num): no step3.root under $LIB"; continue; fi
-  # Generator fragment from the workflow dir name (strip the "<wf>.88_" prefix and
+  # Generator fragment from the workflow dir name (strip the "<wf>.<variant>_" prefix and
   # the "+Run4..." suffix) -> per-process selection preset.
   frag=$(basename "$(dirname "$step3")"); frag=${frag#*_}; frag=${frag%%+*}
   flags=$(python3 "$SELECT" "$frag")
   echo "  $lab: fragment '$frag' -> $(python3 "$SELECT" "$frag" --name) [$flags]"
   mkdir -p "$OUT/$lab"
-  cmds+=("cmsRun $CFG file:$step3 -n $NEVT -o $OUT/$lab $flags --layout $LAYOUT -t _sig > $OUT/$lab/sig.log 2>&1")
-  cmds+=("cmsRun $CFG file:$step3 -n 1 --showAll -s 0 --layout $LAYOUT -t _full -o $OUT/$lab > $OUT/$lab/full.log 2>&1")
+  cmds+=("cmsRun $CFG file:$step3 -n $NEVT -o $OUT/$lab $flags --geometry $GEOMETRY --layout $LAYOUT -t _sig > $OUT/$lab/sig.log 2>&1")
+  cmds+=("cmsRun $CFG file:$step3 -n 1 -s 0 -d 0 --geometry $GEOMETRY --layout $LAYOUT -t _full -o $OUT/$lab > $OUT/$lab/full.log 2>&1")
 done
 
 [[ ${#cmds[@]} -eq 0 ]] && { echo "No samples found under $LIB"; exit 1; }

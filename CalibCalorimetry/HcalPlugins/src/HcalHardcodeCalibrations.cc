@@ -326,12 +326,6 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations(const edm::ParameterSet& iCon
       zdcTopoTokens_[kLUTCorrs] = c.consumes();
       findingRecord<HcalLUTCorrsRcd>();
     }
-    if ((objectName == "PFCorrs") || (objectName == "PFCorrection") || all) {
-      auto c = setWhatProduced(this, &HcalHardcodeCalibrations::producePFCorrs);
-      topoTokens_[kPFCorrs] = c.consumes();
-      zdcTopoTokens_[kPFCorrs] = c.consumes();
-      findingRecord<HcalPFCorrsRcd>();
-    }
     if ((objectName == "TimeCorrs") || (objectName == "TimeCorrection") || all) {
       auto c = setWhatProduced(this, &HcalHardcodeCalibrations::produceTimeCorrs);
       topoTokens_[kTimeCorrs] = c.consumes();
@@ -344,25 +338,11 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations(const edm::ParameterSet& iCon
       zdcTopoTokens_[kL1TriggerObjects] = c.consumes();
       findingRecord<HcalL1TriggerObjectsRcd>();
     }
-    if ((objectName == "ValidationCorrs") || (objectName == "ValidationCorrection") || all) {
-      auto c = setWhatProduced(this, &HcalHardcodeCalibrations::produceValidationCorrs);
-      topoTokens_[kValidationCorrs] = c.consumes();
-      zdcTopoTokens_[kValidationCorrs] = c.consumes();
-      findingRecord<HcalValidationCorrsRcd>();
-    }
     if ((objectName == "LutMetadata") || (objectName == "lutMetadata") || all) {
       auto c = setWhatProduced(this, &HcalHardcodeCalibrations::produceLutMetadata);
       topoTokens_[kLutMetadata] = c.consumes();
       zdcTopoTokens_[kLutMetadata] = c.consumes();
       findingRecord<HcalLutMetadataRcd>();
-    }
-    if ((objectName == "DcsValues") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceDcsValues);
-      findingRecord<HcalDcsRcd>();
-    }
-    if ((objectName == "DcsMap") || (objectName == "dcsMap") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceDcsMap);
-      findingRecord<HcalDcsMapRcd>();
     }
     if ((objectName == "RecoParams") || all) {
       auto c = setWhatProduced(this, &HcalHardcodeCalibrations::produceRecoParams);
@@ -387,12 +367,6 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations(const edm::ParameterSet& iCon
       topoTokens_[kMCParams] = c.consumes();
       zdcTopoTokens_[kMCParams] = c.consumes();
       findingRecord<HcalMCParamsRcd>();
-    }
-    if ((objectName == "FlagHFDigiTimeParams") || all) {
-      auto c = setWhatProduced(this, &HcalHardcodeCalibrations::produceFlagHFDigiTimeParams);
-      topoTokens_[kFlagHFDigiTimeParams] = c.consumes();
-      zdcTopoTokens_[kFlagHFDigiTimeParams] = c.consumes();
-      findingRecord<HcalFlagHFDigiTimeParamsRcd>();
     }
     if ((objectName == "FrontEndMap") || (objectName == "frontEndMap") || all) {
       auto c = setWhatProduced(this, &HcalHardcodeCalibrations::produceFrontEndMap);
@@ -729,22 +703,6 @@ std::unique_ptr<HcalLUTCorrs> HcalHardcodeCalibrations::produceLUTCorrs(const Hc
   return result;
 }
 
-std::unique_ptr<HcalPFCorrs> HcalHardcodeCalibrations::producePFCorrs(const HcalPFCorrsRcd& rcd) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::producePFCorrs-> ...";
-#endif
-  auto const& topo = rcd.get(topoTokens_[kPFCorrs]);
-  auto const& zdcTopo = rcd.get(zdcTopoTokens_[kPFCorrs]);
-
-  auto result = std::make_unique<HcalPFCorrs>(&topo);
-  const std::vector<HcalGenericDetId>& cells = allCells(topo, zdcTopo, dbHardcode.killHE());
-  for (auto cell : cells) {
-    HcalPFCorr item(cell.rawId(), 1.0);
-    result->addValues(item);
-  }
-  return result;
-}
-
 std::unique_ptr<HcalTimeCorrs> HcalHardcodeCalibrations::produceTimeCorrs(const HcalTimeCorrsRcd& rcd) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceTimeCorrs-> ...";
@@ -808,23 +766,6 @@ std::unique_ptr<HcalElectronicsMap> HcalHardcodeCalibrations::produceElectronics
   return dbHardcode.makeHardcodeMap(cells);
 }
 
-std::unique_ptr<HcalValidationCorrs> HcalHardcodeCalibrations::produceValidationCorrs(
-    const HcalValidationCorrsRcd& rcd) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceValidationCorrs-> ...";
-#endif
-  auto const& topo = rcd.get(topoTokens_[kValidationCorrs]);
-  auto const& zdcTopo = rcd.get(zdcTopoTokens_[kValidationCorrs]);
-
-  auto result = std::make_unique<HcalValidationCorrs>(&topo);
-  const std::vector<HcalGenericDetId>& cells = allCells(topo, zdcTopo, dbHardcode.killHE());
-  for (auto cell : cells) {
-    HcalValidationCorr item(cell.rawId(), 1.0);
-    result->addValues(item);
-  }
-  return result;
-}
-
 std::unique_ptr<HcalLutMetadata> HcalHardcodeCalibrations::produceLutMetadata(const HcalLutMetadataRcd& rcd) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceLutMetadata-> ...";
@@ -854,21 +795,6 @@ std::unique_ptr<HcalLutMetadata> HcalHardcodeCalibrations::produceLutMetadata(co
   return result;
 }
 
-std::unique_ptr<HcalDcsValues> HcalHardcodeCalibrations::produceDcsValues(const HcalDcsRcd& rcd) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceDcsValues-> ...";
-#endif
-  auto result = std::make_unique<HcalDcsValues>();
-  return result;
-}
-
-std::unique_ptr<HcalDcsMap> HcalHardcodeCalibrations::produceDcsMap(const HcalDcsMapRcd& rcd) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceDcsMap-> ...";
-#endif
-  return dbHardcode.makeHardcodeDcsMap();
-}
-
 std::unique_ptr<HcalRecoParams> HcalHardcodeCalibrations::produceRecoParams(const HcalRecoParamsRcd& rec) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceRecoParams-> ...";
@@ -880,22 +806,6 @@ std::unique_ptr<HcalRecoParams> HcalHardcodeCalibrations::produceRecoParams(cons
   const std::vector<HcalGenericDetId>& cells = allCells(topo, zdcTopo, dbHardcode.killHE());
   for (auto cell : cells) {
     HcalRecoParam item = dbHardcode.makeRecoParam(cell);
-    result->addValues(item);
-  }
-  return result;
-}
-
-std::unique_ptr<HcalTimingParams> HcalHardcodeCalibrations::produceTimingParams(const HcalTimingParamsRcd& rec) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceTimingParams-> ...";
-#endif
-  auto const& topo = rec.get(topoTokens_[kTimingParams]);
-  auto const& zdcTopo = rec.get(zdcTopoTokens_[kTimingParams]);
-
-  auto result = std::make_unique<HcalTimingParams>(&topo);
-  const std::vector<HcalGenericDetId>& cells = allCells(topo, zdcTopo, dbHardcode.killHE());
-  for (auto cell : cells) {
-    HcalTimingParam item = dbHardcode.makeTimingParam(cell);
     result->addValues(item);
   }
   return result;
@@ -954,35 +864,6 @@ std::unique_ptr<HcalMCParams> HcalHardcodeCalibrations::produceMCParams(const Hc
   const std::vector<HcalGenericDetId>& cells = allCells(topo, zdcTopo, dbHardcode.killHE());
   for (auto cell : cells) {
     HcalMCParam item = dbHardcode.makeMCParam(cell);
-    result->addValues(item);
-  }
-  return result;
-}
-
-std::unique_ptr<HcalFlagHFDigiTimeParams> HcalHardcodeCalibrations::produceFlagHFDigiTimeParams(
-    const HcalFlagHFDigiTimeParamsRcd& rec) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::produceFlagHFDigiTimeParams-> ...";
-#endif
-  auto const& topo = rec.get(topoTokens_[kFlagHFDigiTimeParams]);
-  auto const& zdcTopo = rec.get(zdcTopoTokens_[kFlagHFDigiTimeParams]);
-
-  auto result = std::make_unique<HcalFlagHFDigiTimeParams>(&topo);
-  const std::vector<HcalGenericDetId>& cells = allCells(topo, zdcTopo, dbHardcode.killHE());
-
-  std::vector<double> coef;
-  coef.push_back(0.93);
-  coef.push_back(-0.38275);
-  coef.push_back(-0.012667);
-
-  for (auto cell : cells) {
-    HcalFlagHFDigiTimeParam item(cell.rawId(),
-                                 1,    //firstsample
-                                 3,    // samplestoadd
-                                 2,    //expectedpeak
-                                 40.,  // min energy threshold
-                                 coef  // coefficients
-    );
     result->addValues(item);
   }
   return result;

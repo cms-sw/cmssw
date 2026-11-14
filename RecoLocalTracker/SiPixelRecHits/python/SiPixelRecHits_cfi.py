@@ -51,18 +51,9 @@ phase2OTRecHitsSoAConverter = _phase2OTRecHitsSoAConverter.clone(
     pixelRecHitSoASource = "siPixelRecHitsPreSplittingAlpaka"
 )
 
-from RecoLocalTracker.SiPixelRecHits.siPixelRecHitExtendedAlpaka_cfi import siPixelRecHitExtendedAlpaka as _siPixelRecHitExtendedAlpaka
-siPixelRecHitsExtendedPreSplittingAlpaka = _siPixelRecHitExtendedAlpaka.clone(
-    pixelRecHitsSoA = "siPixelRecHitsPreSplittingAlpaka",
-    trackerRecHitsSoA = "phase2OTRecHitsSoAConverter"
-)
-
 # Hit SoA producer on the cpu, for validation
 siPixelRecHitsPreSplittingAlpakaSerial = makeSerialClone(siPixelRecHitsPreSplittingAlpaka,
                                                          src = "siPixelClustersPreSplittingAlpakaSerial")
-
-siPixelRecHitsExtendedPreSplittingAlpakaSerial = makeSerialClone(siPixelRecHitsExtendedPreSplittingAlpaka,
-                                                                pixelRecHitsSoA = "siPixelClustersPreSplittingAlpakaSerial")
 
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromSoAAlpaka_cfi import siPixelRecHitFromSoAAlpaka as _siPixelRecHitFromSoAAlpaka
 
@@ -89,7 +80,15 @@ phase2CAExtension.toReplaceWith(siPixelRecHitsPreSplittingTask, cms.Task(
     siPixelRecHitsPreSplittingAlpaka,
     siPixelRecHitsPreSplittingAlpakaSerial,    
     phase2OTRecHitsSoAConverter,
-    siPixelRecHitsExtendedPreSplittingAlpaka,
-    siPixelRecHitsExtendedPreSplittingAlpakaSerial,
+    siPixelRecHitsPreSplitting
+))
+
+# Phase-2 CA extended to outer-tracker vector hits: the outer-tracker rechits feed the vector hit formation in
+# RecoTracker/PixelTrackFitting/python/PixelTracks_cff.py
+from Configuration.ProcessModifiers.phase2CAVectorHits_cff import phase2CAVectorHits
+phase2CAVectorHits.toReplaceWith(siPixelRecHitsPreSplittingTask, cms.Task(
+    siPhase2RecHits,
+    siPixelRecHitsPreSplittingAlpaka,
+    siPixelRecHitsPreSplittingAlpakaSerial,
     siPixelRecHitsPreSplitting
 ))

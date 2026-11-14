@@ -39,6 +39,7 @@
 #include "RecoTracker/PixelLowPtUtilities/interface/ClusterShape.h"
 #include "RecoTracker/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 using namespace reco;
 using namespace std;
@@ -67,6 +68,9 @@ private:
   const bool useStrip_;
   const float theMeVperADCPixel_;
   const float theMeVperADCStrip_;
+
+  const int maxNTracks_;
+  const StringCutObjectSelector<reco::Track> nTrackSel_;
 
   const unsigned int minTrackHits_;
   const float minTrackPt_;
@@ -110,6 +114,8 @@ DeDxHitInfoProducer::DeDxHitInfoProducer(const edm::ParameterSet& iConfig)
       useStrip_(iConfig.getParameter<bool>("useStrip")),
       theMeVperADCPixel_(iConfig.getParameter<double>("MeVperADCPixel")),
       theMeVperADCStrip_(iConfig.getParameter<double>("MeVperADCStrip")),
+      maxNTracks_(iConfig.getParameter<int>("maxNTracks")),
+      nTrackSel_(iConfig.getParameter<std::string>("nTrackSel")),
       minTrackHits_(iConfig.getParameter<unsigned>("minTrackHits")),
       minTrackPt_(iConfig.getParameter<double>("minTrackPt")),
       minTrackPtPrescale_(iConfig.getParameter<double>("minTrackPtPrescale")),
@@ -163,6 +169,10 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   // creates the output collection
   auto resultdedxHitColl = std::make_unique<reco::DeDxHitInfoCollection>();
 
+  int nTracks(0);
+  if (maxNTracks_ > 0)
+    for (const auto& t : trackCollection)
+      nTracks += nTrackSel_(t);
   std::vector<int> indices;
   std::vector<int> prescales;
   std::vector<std::vector<float>> hitMomenta;
@@ -171,6 +181,10 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     const reco::Track& track = trackCollection[j];
 
     //track selection
+    if (maxNTracks_ > 0 && nTracks > maxNTracks_) {
+      indices.push_back(-1);
+      continue;
+    }
     bool passPt = (track.pt() >= minTrackPt_), passLowDeDx = false, passHighDeDx = false, pass = passPt;
     if (!pass && (track.pt() >= minTrackPtPrescale_)) {
       if (lowPtTracksPrescalePass_ > 0) {

@@ -10,8 +10,7 @@ namespace edm::streamer {
   OutputFile::OutputFile(const std::string& name, uint32 padding)
       : current_offset_(1),
         do_adler_(false),
-        adlera_(1),
-        adlerb_(0),
+        adler32_(cms::adler32_init),
         padding_(padding),
         ost_(new std::ofstream(name.c_str(), std::ios_base::binary | std::ios_base::out)),
         filename_(name) {
@@ -32,7 +31,7 @@ namespace edm::streamer {
     if (!ost_->fail()) {
       current_offset_ += (uint64)(n);
       if (do_adler_)
-        cms::Adler32(ptr, n, adlera_, adlerb_);
+        adler32_ = cms::adler32(ptr, n, adler32_);
       if (doPadding && padding_) {
         return writePadding();
       }

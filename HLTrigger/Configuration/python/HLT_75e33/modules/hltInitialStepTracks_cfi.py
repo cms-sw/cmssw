@@ -2,14 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 hltInitialStepTracks = cms.EDProducer("TrackProducer",
     AlgorithmName = cms.string('initialStep'),
-    Fitter = cms.string('FlexibleKFFittingSmoother'),
+    Fitter = cms.string('hltESPFlexibleKFFittingSmootherForLSTStep'),
     GeometricInnerState = cms.bool(False),
-    MeasurementTracker = cms.string(''),
+    MeasurementTracker = cms.string('hltESPMeasurementTracker'),
     MeasurementTrackerEvent = cms.InputTag("hltMeasurementTrackerEvent"),
     NavigationSchool = cms.string('SimpleNavigationSchool'),
-    Propagator = cms.string('RungeKuttaTrackerPropagator'),
+    Propagator = cms.string('hltESPRungeKuttaTrackerPropagator'),
     SimpleMagneticField = cms.string(''),
-    TTRHBuilder = cms.string('WithTrackAngle'),
+    TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
     TrajectoryInEvent = cms.bool(False),
     beamSpot = cms.InputTag("hltOnlineBeamSpot"),
     clusterRemovalInfo = cms.InputTag(""),
@@ -21,6 +21,11 @@ hltInitialStepTracks = cms.EDProducer("TrackProducer",
 from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
 mtd_at_hlt.toModify(hltInitialStepTracks, TrajectoryInEvent = True)
 
+# The outlier-tolerant fit is for the LST + mkFit step; the other initial-step configurations keep the default fit.
+from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
+from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
+(trackingLST | hltPhase2LegacyTracking).toModify(hltInitialStepTracks, Fitter = 'hltESPFlexibleKFFittingSmoother')
+
 _hltInitialStepTracksMkFitFit = cms.EDProducer("MkFitOutputTrackConverter",
     mkFitEventOfHits = cms.InputTag("hltMkFitEventOfHits"),
     mkFitPixelHits = cms.InputTag("hltMkFitSiPixelHits"),
@@ -28,7 +33,7 @@ _hltInitialStepTracksMkFitFit = cms.EDProducer("MkFitOutputTrackConverter",
     mkFitSeeds = cms.InputTag("hltInitialStepMkFitSeeds"),
     src = cms.InputTag("hltInitialStepTrackCandidatesMkFitFit"),
     seeds = cms.InputTag("hltInitialStepTrajectorySeedsLST"),
-    ttrhBuilder = cms.ESInputTag('', 'WithTrackAngle'),
+    ttrhBuilder = cms.ESInputTag('', 'hltESPTTRHBuilderWithTrackAngle'),
     propagatorAlong = cms.ESInputTag('', 'PropagatorWithMaterial'),
     propagatorOpposite = cms.ESInputTag('', 'PropagatorWithMaterialOpposite'),
     qualityMaxInvPt = cms.double(100),

@@ -30,6 +30,8 @@ public:
   void fillPerStep(const G4Step *);
   void fillEndTrack();
 
+  static constexpr int maxSet_ = 25, maxSet2_ = 9;
+
 private:
   void book();
   void fillHisto(int ii);
@@ -43,10 +45,9 @@ private:
   bool isItEC(const std::string &);
 
 private:
-  static const int maxSet_ = 25, maxSet2_ = 9;
   std::vector<std::string> sensitives_, hfNames_, sensitiveEC_;
   std::vector<int> hfLevels_;
-  bool fillHistos_, printSum_, fromdd4hep_;
+  bool fillHistos_, printSum_, fromdd4hep_, testVolumes_;
   int binEta_, binPhi_;
   double maxEta_, etaLow_, etaHigh_, etaLowMin_, etaLowMax_, etaMidMin_;
   double etaMidMax_, etaHighMin_, etaHighMax_, etaMinP_, etaMaxP_;

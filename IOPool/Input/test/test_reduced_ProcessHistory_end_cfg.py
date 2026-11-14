@@ -20,7 +20,7 @@ process.maxEvents.input = -1
 from IOPool.Output.modules import PoolOutputModule
 process.output = PoolOutputModule(fileName = 'reduced_test.root')
 
-from FWCore.Framework.modules import TestMergeResults
+from FWCore.Integration.modules import TestMergeResults
 process.testmerge = TestMergeResults(
     #   Check to see that the value we read matches what we know
     #   was written. Expected values listed below come in sets of three

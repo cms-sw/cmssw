@@ -9,6 +9,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/test/stubs/DummyService.h"
+#include "FWCore/ServiceRegistry/test/stubs/TokenHolderService.h"
 
 #include "catch2/catch_all.hpp"
 
@@ -17,6 +18,7 @@
 #include <thread>
 
 #include <atomic>
+#include <type_traits>
 
 namespace {
   struct DummyService {
@@ -55,6 +57,15 @@ namespace {
   };
 }  // namespace
 
+// a ServiceToken is a non-owning handle, as cheap to copy as a pointer
+static_assert(std::is_trivially_copyable_v<edm::ServiceToken>);
+static_assert(sizeof(edm::ServiceToken) == sizeof(void*));
+// it can be obtained from an OwningServiceToken, but not from a temporary one, as it would dangle
+static_assert(std::is_convertible_v<edm::OwningServiceToken const&, edm::ServiceToken>);
+static_assert(not std::is_convertible_v<edm::OwningServiceToken&&, edm::ServiceToken>);
+// and it cannot be turned back into an owning token implicitly
+static_assert(not std::is_convertible_v<edm::ServiceToken, edm::OwningServiceToken>);
+
 TEST_CASE("ServiceRegistry", "[ServiceRegistry]") {
   SECTION("loadTest") {
     edm::AssertHandler ah;
@@ -68,7 +79,7 @@ TEST_CASE("ServiceRegistry", "[ServiceRegistry]") {
     ps.addParameter("value", value);
     pss.push_back(ps);
 
-    edm::ServiceToken token(edm::ServiceRegistry::createSet(pss));
+    edm::OwningServiceToken token(edm::ServiceRegistry::createSet(pss));
 
     edm::ServiceRegistry::Operate operate(token);
     edm::Service<testserviceregistry::DummyService> dummy;
@@ -83,7 +94,7 @@ TEST_CASE("ServiceRegistry", "[ServiceRegistry]") {
     {
       auto dummyPtr = std::make_unique<DummyService>();
       dummyPtr->value_ = 2;
-      edm::ServiceToken token(edm::ServiceRegistry::createContaining(std::move(dummyPtr)));
+      edm::OwningServiceToken token(edm::ServiceRegistry::createContaining(std::move(dummyPtr)));
 
       {
         edm::ServiceRegistry::Operate operate(token);
@@ -105,8 +116,8 @@ TEST_CASE("ServiceRegistry", "[ServiceRegistry]") {
         ps.addParameter("value", value);
         pss.push_back(ps);
 
-        edm::ServiceToken tokenFromConfig(edm::ServiceRegistry::createSet(pss));
-        edm::ServiceToken anotherToken(edm::ServiceRegistry::createContaining(
+        edm::OwningServiceToken tokenFromConfig(edm::ServiceRegistry::createSet(pss));
+        edm::OwningServiceToken anotherToken(edm::ServiceRegistry::createContaining(
             std::move(anotherDummyPtr), tokenFromConfig, edm::serviceregistry::kOverlapIsError));
 
         edm::ServiceRegistry::Operate operate(anotherToken);
@@ -131,7 +142,7 @@ TEST_CASE("ServiceRegistry", "[ServiceRegistry]") {
       wrapper->get().value_ = 2;
 
       {
-        edm::ServiceToken token(edm::ServiceRegistry::createContaining(wrapper));
+        edm::OwningServiceToken token(edm::ServiceRegistry::createContaining(wrapper));
         edm::ServiceRegistry::Operate operate(token);
         edm::Service<DummyService> dummy;
         REQUIRE(dummy);
@@ -155,7 +166,7 @@ TEST_CASE("ServiceRegistry", "[ServiceRegistry]") {
       ps.addParameter("@service_type", typeName);
       pss.push_back(ps);
     }
-    edm::ServiceToken token(edm::ServiceRegistry::createSet(pss));
+    edm::OwningServiceToken token(edm::ServiceRegistry::createSet(pss));
     REQUIRE(pss[0].exists("@save_config"));
 
     pss.clear();
@@ -168,7 +179,7 @@ TEST_CASE("ServiceRegistry", "[ServiceRegistry]") {
     }
 
     //create the services
-    edm::ServiceToken token2(edm::ServiceRegistry::createSet(pss, token, edm::serviceregistry::kTokenOverrides));
+    edm::OwningServiceToken token2(edm::ServiceRegistry::createSet(pss, token, edm::serviceregistry::kTokenOverrides));
 
     REQUIRE(pss[0].exists("@save_config"));
   }
@@ -185,7 +196,7 @@ TEST_CASE("ServiceRegistry", "[ServiceRegistry]") {
       ps.addParameter("value", value);
       pss.push_back(ps);
     }
-    edm::ServiceToken token1(edm::ServiceRegistry::createSet(pss));
+    edm::OwningServiceToken token1(edm::ServiceRegistry::createSet(pss));
 
     pss.clear();
     {
@@ -196,7 +207,7 @@ TEST_CASE("ServiceRegistry", "[ServiceRegistry]") {
       ps.addParameter("value", value);
       pss.push_back(ps);
     }
-    edm::ServiceToken token2(edm::ServiceRegistry::createSet(pss));
+    edm::OwningServiceToken token2(edm::ServiceRegistry::createSet(pss));
 
     edm::ServiceRegistry::Operate operate1(token1);
     {
@@ -233,7 +244,7 @@ TEST_CASE("ServiceRegistry", "[ServiceRegistry]") {
       ps.addParameter("value", value);
       pss.push_back(ps);
     }
-    edm::ServiceToken token(edm::ServiceRegistry::createSet(pss));
+    edm::OwningServiceToken token(edm::ServiceRegistry::createSet(pss));
 
     bool succeededToPassServices = false;
     bool exceptionWasThrown = false;
@@ -243,5 +254,71 @@ TEST_CASE("ServiceRegistry", "[ServiceRegistry]") {
     testPassing.join();
     REQUIRE(!exceptionWasThrown);
     REQUIRE(succeededToPassServices);
+  }
+
+  SECTION("tokenTest") {
+    edm::AssertHandler ah;
+
+    REQUIRE(not edm::ServiceToken());
+    REQUIRE(not edm::OwningServiceToken());
+    REQUIRE(not edm::ServiceRegistry::instance().presentToken());
+
+    auto dummyPtr = std::make_unique<DummyService>();
+    dummyPtr->value_ = 3;
+    auto owner = std::make_unique<edm::OwningServiceToken>(edm::ServiceRegistry::createContaining(std::move(dummyPtr)));
+    edm::ServiceToken token = *owner;
+    REQUIRE(token);
+    REQUIRE(token == owner->token());
+
+    edm::WeakServiceToken weak(token);
+    edm::OwningServiceToken shared;
+    {
+      edm::ServiceRegistry::Operate operate(token);
+      REQUIRE(edm::ServiceRegistry::instance().presentToken() == token);
+      // share the ownership of the services in use
+      shared = edm::OwningServiceToken(edm::ServiceRegistry::instance().presentToken());
+    }
+    REQUIRE(not edm::ServiceRegistry::instance().presentToken());
+
+    // the services are kept alive by the other owner
+    owner.reset();
+    {
+      auto locked = weak.lock();
+      REQUIRE(locked);
+      edm::ServiceRegistry::Operate operate(locked);
+      edm::Service<DummyService> dummy;
+      REQUIRE(dummy->value_ == 3);
+    }
+
+    // until the last owner is gone
+    shared = edm::OwningServiceToken();
+    REQUIRE(not weak.lock());
+  }
+
+  SECTION("tokenInServiceConstructorTest") {
+    edm::AssertHandler ah;
+
+    std::vector<edm::ParameterSet> pss;
+    edm::ParameterSet ps;
+    ps.addParameter("@service_type", std::string("TokenHolderService"));
+    pss.push_back(ps);
+
+    // the services are created once the ServicesManager is owned, so a service can take an owning or a weak
+    // token to its own service set in its constructor
+    edm::OwningServiceToken owner(edm::ServiceRegistry::createSet(pss));
+    edm::WeakServiceToken weak;
+    {
+      edm::ServiceRegistry::Operate operate(owner);
+      edm::Service<testserviceregistry::TokenHolderService> holder;
+      REQUIRE(holder.isAvailable());
+      REQUIRE(holder->ownedAtConstruction());
+      weak = holder->weakToken();
+      auto locked = weak.lock();
+      REQUIRE(locked.token() == owner.token());
+    }
+
+    // the weak token expires with the owner
+    owner = edm::OwningServiceToken();
+    REQUIRE(not weak.lock());
   }
 }

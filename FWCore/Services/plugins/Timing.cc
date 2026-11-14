@@ -131,6 +131,8 @@ namespace edm {
       unsigned int nStreams_;
       unsigned int nThreads_;
 
+      std::atomic<time_point> lastEventSetupSyncTime_;
+      std::atomic<double> accumulatedEventSetupSyncTimings_ = 0.;  //seconds
       std::vector<std::unique_ptr<std::atomic<time_point>>> eventSetupModuleStartTimes_;
       std::vector<std::pair<uintptr_t, eventsetup::EventSetupRecordKey>> eventSetupModuleCallInfo_;
       std::atomic<double> accumulatedEventSetupModuleTimings_ = 0.;  //seconds
@@ -396,8 +398,19 @@ namespace edm {
       iRegistry.watchPostModuleGlobalEndLumi([this](auto, auto) { removeTask(); });
 
       //account for any time ESSources spend looking up new IOVs
-      iRegistry.watchPreESSyncIOV([this](auto const&) { addTask(); });
-      iRegistry.watchPostESSyncIOV([this](auto const&) { removeTask(); });
+      iRegistry.watchPreESSyncIOV([this](auto const&) {
+        lastEventSetupSyncTime_ = getTime();
+        addTask();
+      });
+      iRegistry.watchPostESSyncIOV([this](auto const&) {
+        double_seconds timeDiff = double_seconds(getTime() - lastEventSetupSyncTime_.load());
+        auto expect = accumulatedEventSetupSyncTimings_.load();
+        auto accumulatedTime = expect + timeDiff.count();
+        while (not accumulatedEventSetupSyncTimings_.compare_exchange_strong(expect, accumulatedTime)) {
+          accumulatedTime = expect + timeDiff.count();
+        }
+        removeTask();
+      });
     }
 
     Timing::~Timing() {}
@@ -495,7 +508,10 @@ namespace edm {
                                  << " - Total loop:  " << total_loop_time << "\n"
                                  << " - Total init:  " << total_initialization_time << "\n"
                                  << " - Total job:   " << total_job_time << "\n"
-                                 << " - Total EventSetup: " << accumulatedEventSetupModuleTimings_.load() << "\n"
+                                 << " - Total EventSetup: "
+                                 << accumulatedEventSetupModuleTimings_.load() +
+                                        accumulatedEventSetupSyncTimings_.load()
+                                 << "\n"
                                  << " - Total non-module: " << total_time_without_tasks_ << "\n"
                                  << " Event Throughput: " << event_throughput << " ev/s\n"
                                  << " CPU Summary: \n"

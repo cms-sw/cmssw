@@ -54,7 +54,7 @@ namespace edm {
   class ProductResolverIndexAndSkipBit;
   class ActivityRegistry;
   class WaitingTaskHolder;
-  class ServiceWeakToken;
+  class ServiceToken;
   class SignallingProductRegistryFiller;
   struct ModuleConsumesMinimalESInfo;
 
@@ -72,8 +72,10 @@ namespace edm {
     template <typename T>
     class ProducingModuleAdaptorBase {
     public:
-      template <typename U>
-      friend class edm::WorkerT;
+      template <typename U, typename TI, typename TP>
+      friend class edm::ModuleTransitionWorker;
+      template <typename U, typename TI, typename TP>
+      friend class edm::ModuleTransitionWorkerBase;
       template <typename U>
       friend class edm::maker::ModuleHolderT;
 
@@ -93,6 +95,7 @@ namespace edm {
       virtual bool wantsInputProcessBlocks() const noexcept = 0;
       virtual bool wantsGlobalRuns() const noexcept = 0;
       virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
+      constexpr static bool wantsWrites() noexcept { return false; }
       virtual bool hasAcquire() const noexcept = 0;
       virtual bool hasAccumulator() const noexcept = 0;
       virtual bool wantsStreamRuns() const noexcept = 0;
@@ -133,7 +136,7 @@ namespace edm {
                             EventPrincipal const& iEvent,
                             ActivityRegistry*,
                             ModuleCallingContext,
-                            ServiceWeakToken const&) noexcept;
+                            ServiceToken const&) noexcept;
 
     protected:
       template <typename F>

@@ -62,6 +62,9 @@
     doublev1                 double                         2.2250738585072014e-308
     doublev2                 untracked double               0
     doublev3                 untracked double               0.3
+    doublev4                 double                         1.7976931348623157e+308
+    doublev5                 double                         float('inf')
+    doublev6                 double                         float('nan')
     vdoublev1                vdouble                        empty
     vdoublev2                vdouble                        (vector size = 1)
       [0]: 1e+300
@@ -80,6 +83,9 @@
     floatv1                  float                          1.17549435e-38
     floatv2                  untracked float                0
     floatv3                  untracked float                0.3
+    floatv4                  float                          3.40282347e+38
+    floatv5                  float                          float('inf')
+    floatv6                  float                          float('nan')
     vfloatv1                 vfloat                         empty
     vfloatv2                 vfloat                         (vector size = 1)
       [0]: 1e+30

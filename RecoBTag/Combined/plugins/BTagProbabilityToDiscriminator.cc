@@ -13,6 +13,8 @@
  * containing the output name, input probabilities and normalization (empty
  * vInputTag if none) the output is computed as
  *         sum(INPUTS)/sum(normalizations)
+ *    Optionally (produceValueMap = True) an edm::ValueMap<float> keyed to the
+ * "jets" collection is produced alongside each JetTagCollection.
  */
 //
 // Original Author:  Mauro Verzetti (CERN)
@@ -28,12 +30,16 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
 
 // from lwtnn
@@ -76,13 +82,23 @@ private:
   // ----------member data ---------------------------
   std::vector<Discriminator> discrims_;
   std::unordered_map<std::string, edm::EDGetTokenT<JetTagCollection>> jet_tags_;  // caches jet tags to avoid repetitions
+  edm::EDGetTokenT<edm::View<reco::Jet>> jet_;
+  bool produceValueMap_;
 };
 
-BTagProbabilityToDiscriminator::BTagProbabilityToDiscriminator(const edm::ParameterSet &iConfig) {
+BTagProbabilityToDiscriminator::BTagProbabilityToDiscriminator(const edm::ParameterSet &iConfig)
+    : produceValueMap_(iConfig.getUntrackedParameter<bool>("produceValueMap", false)) {
+  if (produceValueMap_) {
+    jet_ = consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("jets"));
+  }
+
   for (const auto &discriminator : iConfig.getParameter<vPSet>("discriminators")) {
     Discriminator current;
     current.name = discriminator.getParameter<std::string>("name");
     produces<JetTagCollection>(current.name);
+    if (produceValueMap_) {
+      produces<edm::ValueMap<float>>(current.name);
+    }
 
     for (const auto &intag : discriminator.getParameter<vInputTag>("numerator")) {
       if (jet_tags_.find(intag.encode()) == jet_tags_.end()) {  // new
@@ -131,6 +147,20 @@ void BTagProbabilityToDiscriminator::produce(edm::Event &iEvent, const edm::Even
     first = false;
   }
 
+  edm::Handle<edm::View<reco::Jet>> jets;
+  if (produceValueMap_) {
+    iEvent.getByToken(jet_, jets);
+    if (!jets.isValid()) {
+      edm::LogWarning("BTagProbabilityToDiscriminator") << "Invalid handle in jet input collection";
+      return;
+    }
+    if (jets->size() != size) {
+      throw cms::Exception("RuntimeError") << "The length of the jet collection (" << jets->size()
+                                           << ") does not match the length of the input jet tag collections (" << size
+                                           << "), cannot build a ValueMap!" << std::endl;
+    }
+  }
+
   // create the output collection
   // which is a "map" RefToBase<Jet> --> float
   vector<std::unique_ptr<JetTagCollection>> output_tags;
@@ -140,6 +170,12 @@ void BTagProbabilityToDiscriminator::produce(edm::Event &iEvent, const edm::Even
         std::make_unique<JetTagCollection>(*(tags.begin()->second))  // clone from the first element, will change
                                                                      // the content later on
     );
+  }
+
+  // scores per discriminator, indexed by jet position, only filled when producing ValueMaps
+  std::vector<std::vector<float>> output_scores;
+  if (produceValueMap_) {
+    output_scores.assign(discrims_.size(), std::vector<float>(size, -10.));
   }
 
   // loop over jets
@@ -156,11 +192,21 @@ void BTagProbabilityToDiscriminator::produce(edm::Event &iEvent, const edm::Even
       //protect against 0 denominator and undefined jet values (numerator probability < 0)
       float new_value = (denominator != 0 && numerator >= 0) ? numerator / denominator : -10.;
       (*output_tags[disc_idx])[key] = new_value;
+      if (produceValueMap_) {
+        output_scores[disc_idx][idx] = new_value;
+      }
     }
   }
 
   // put the output in the event
   for (size_t i = 0; i < output_tags.size(); ++i) {
+    if (produceValueMap_) {
+      auto valueMap = std::make_unique<edm::ValueMap<float>>();
+      edm::ValueMap<float>::Filler filler(*valueMap);
+      filler.insert(jets, output_scores[i].begin(), output_scores[i].end());
+      filler.fill();
+      iEvent.put(std::move(valueMap), discrims_[i].name);
+    }
     iEvent.put(std::move(output_tags[i]), discrims_[i].name);
   }
 }
@@ -227,6 +273,10 @@ void BTagProbabilityToDiscriminator::fillDescriptions(edm::ConfigurationDescript
             "Each entry is a ParameterSet where 'name' is the new name of the variable, and 'numerator' and "
             "'denominator' are vector of InputTags of the pure neural network scores to be used in the calculation.");
   }
+  desc.add<edm::InputTag>("jets", edm::InputTag("hltAK4PFPuppiJets"))
+      ->setComment("Jet collection the ValueMaps are keyed to; only used when produceValueMap is true.");
+  desc.addOptionalUntracked<bool>("produceValueMap", false)
+      ->setComment("Also produce an edm::ValueMap<float> per discriminator, keyed to 'jets'.");
   descriptions.addWithDefaultLabel(desc);
 }
 

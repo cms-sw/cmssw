@@ -40,6 +40,7 @@ process.TFileService = cms.Service("TFileService",
 
 process.DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("SimG4Core/PrintGeomInfo/data/dd4hep/cmsExtendedGeometry2021.xml")
 process.g4SimHits.UseMagneticField = False
+process.g4SimHits.LHCTransport = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.StackingAction.TrackNeutrino = True
 process.g4SimHits.Physics.DummyEMPhysics = True

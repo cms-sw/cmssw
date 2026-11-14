@@ -7,11 +7,12 @@
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/interface/WorkerManager.h"
-#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionPhaseTypes.h"
+#include "FWCore/Framework/interface/WorkerManager_global.h"
+#include "FWCore/Framework/interface/maker/TransitionWorker.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
@@ -33,6 +34,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <span>
 #include "boost/range/adaptor/reversed.hpp"
 
 namespace edm {
@@ -40,9 +42,6 @@ namespace edm {
   class ExceptionCollector;
   class PreallocationConfiguration;
   class ModuleRegistry;
-  class TriggerResultInserter;
-  class PathStatusInserter;
-  class EndPathStatusInserter;
 
   namespace maker {
     class ModuleHolder;
@@ -51,14 +50,10 @@ namespace edm {
   class GlobalSchedule {
   public:
     using vstring = std::vector<std::string>;
-    using AllWorkers = std::vector<Worker*>;
-    using WorkerPtr = std::shared_ptr<Worker>;
-    using Wokers = std::vector<Worker*>;
+    template <typename TI>
+    using GlobalWorkerManager = WorkerManager<TI, TransitionPhaseGlobal>;
 
-    GlobalSchedule(std::shared_ptr<TriggerResultInserter> inserter,
-                   std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
-                   std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
-                   std::shared_ptr<ModuleRegistry> modReg,
+    GlobalSchedule(std::shared_ptr<ModuleRegistry> modReg,
                    std::vector<edm::ModuleDescription const*> const& modulesToUse,
                    PreallocationConfiguration const& prealloc,
                    ExceptionToActionTable const& actions,
@@ -75,14 +70,6 @@ namespace edm {
     void beginJob(ModuleRegistry&);
     void endJob(ExceptionCollector& collector, ModuleRegistry&);
 
-    /// Return a vector allowing const access to all the
-    /// ModuleDescriptions for this GlobalSchedule.
-
-    /// *** N.B. *** Ownership of the ModuleDescriptions is *not*
-    /// *** passed to the caller. Do not call delete on these
-    /// *** pointers!
-    std::vector<ModuleDescription const*> getAllModuleDescriptions() const;
-
     /// Return whether each output module has reached its maximum count.
     bool terminate() const;
 
@@ -92,36 +79,66 @@ namespace edm {
     /// Delete the module with label iLabel
     void deleteModule(std::string const& iLabel);
 
-    /// returns the collection of pointers to workers
-    AllWorkers const& allWorkers() const { return workerManagers_[0].allWorkers(); }
+    std::vector<TransitionWorker<LumiTransitionInfo, TransitionPhaseGlobal>*> const& lumiWorkers() const {
+      return lumiManagers()[0].allWorkers();
+    }
+    std::vector<TransitionWorker<RunTransitionInfo, TransitionPhaseGlobal>*> const& runWorkers() const {
+      return runManagers()[0].allWorkers();
+    }
 
   private:
+    std::span<GlobalWorkerManager<LumiTransitionInfo>> lumiManagers() {
+      return std::span<GlobalWorkerManager<LumiTransitionInfo>>(lumiWorkerManagers_);
+    }
+    std::span<GlobalWorkerManager<LumiTransitionInfo> const> lumiManagers() const {
+      return std::span<GlobalWorkerManager<LumiTransitionInfo> const>(lumiWorkerManagers_);
+    }
+    std::span<GlobalWorkerManager<RunTransitionInfo>> runManagers() {
+      return std::span<GlobalWorkerManager<RunTransitionInfo>>(runWorkerManagers_);
+    }
+    std::span<GlobalWorkerManager<RunTransitionInfo> const> runManagers() const {
+      return std::span<GlobalWorkerManager<RunTransitionInfo> const>(runWorkerManagers_);
+    }
+    std::span<GlobalWorkerManager<ProcessBlockTransitionInfo>> processBlockManagers() {
+      return std::span<GlobalWorkerManager<ProcessBlockTransitionInfo>>(&processBlockWorkerManager_, 1);
+    }
+    std::span<GlobalWorkerManager<InputProcessBlockTransitionInfo>> inputProcessBlockManagers() {
+      return std::span<GlobalWorkerManager<InputProcessBlockTransitionInfo>>(&inputProcessBlockWorkerManager_, 1);
+    }
     /// returns the action table
-    ExceptionToActionTable const& actionTable() const { return workerManagers_[0].actionTable(); }
+    ExceptionToActionTable const& actionTable() const { return lumiWorkerManagers_[0].actionTable(); }
+
+    template <typename TI>
+    std::span<GlobalWorkerManager<TI>> workerManagers() {
+      if constexpr (std::is_same_v<TI, LumiTransitionInfo>) {
+        return lumiManagers();
+      } else if constexpr (std::is_same_v<TI, RunTransitionInfo>) {
+        return runManagers();
+      } else if constexpr (std::is_same_v<TI, InputProcessBlockTransitionInfo>) {
+        return inputProcessBlockManagers();
+      } else if constexpr (std::is_same_v<TI, ProcessBlockTransitionInfo>) {
+        return processBlockManagers();
+      } else {
+        static_assert(false, "Unsupported transition info type");
+      }
+      return {};
+    }
 
     template <typename T>
     void preScheduleSignal(GlobalContext const*, ServiceToken const&);
 
     template <typename T>
-    void postScheduleSignal(GlobalContext const*, ServiceWeakToken const&, std::exception_ptr&);
+    void postScheduleSignal(GlobalContext const*, ServiceToken const&, std::exception_ptr&);
 
-    void handleException(GlobalContext const*,
-                         ServiceWeakToken const&,
-                         bool cleaningUpAfterException,
-                         std::exception_ptr&);
+    void handleException(GlobalContext const*, ServiceToken const&, bool cleaningUpAfterException, std::exception_ptr&);
 
-    std::vector<WorkerManager> workerManagers_;
+    std::vector<GlobalWorkerManager<LumiTransitionInfo>> lumiWorkerManagers_;
+    std::vector<GlobalWorkerManager<RunTransitionInfo>> runWorkerManagers_;
+    GlobalWorkerManager<ProcessBlockTransitionInfo> processBlockWorkerManager_;
+    GlobalWorkerManager<InputProcessBlockTransitionInfo> inputProcessBlockWorkerManager_;
     std::vector<unsigned int> beginJobFailedForModule_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
-    std::vector<edm::propagate_const<WorkerPtr>> extraWorkers_;
     ProcessContext const* processContext_;
-
-    // The next 3 variables use the same naming convention, even though we have no intention
-    // to ever have concurrent ProcessBlocks. They are all related to the number of
-    // WorkerManagers needed for global transitions.
-    unsigned int numberOfConcurrentLumis_;
-    unsigned int numberOfConcurrentRuns_;
-    static constexpr unsigned int numberOfConcurrentProcessBlocks_ = 1;
   };
 
   template <typename T>
@@ -136,16 +153,15 @@ namespace edm {
       //need the doneTask to own the memory
       auto globalContext = std::make_shared<GlobalContext>(T::makeGlobalContext(principal, processContext_));
 
-      ServiceWeakToken weakToken = token;
       auto doneTask = make_waiting_task(
-          [this, iHolder, cleaningUpAfterException, globalContext, weakToken](std::exception_ptr const* iPtr) mutable {
+          [this, iHolder, cleaningUpAfterException, globalContext, token](std::exception_ptr const* iPtr) mutable {
             std::exception_ptr excpt;
             if (iPtr) {
               excpt = *iPtr;
               // add context information to the exception and print message
-              handleException(globalContext.get(), weakToken, cleaningUpAfterException, excpt);
+              handleException(globalContext.get(), token, cleaningUpAfterException, excpt);
             }
-            postScheduleSignal<T>(globalContext.get(), weakToken, excpt);
+            postScheduleSignal<T>(globalContext.get(), token, excpt);
             iHolder.doneWaiting(excpt);
           });
 
@@ -156,22 +172,19 @@ namespace edm {
         preScheduleSignal<T>(globalContext.get(), token);
 
         unsigned int managerIndex = principal.index();
-        if constexpr (T::branchType_ == InRun) {
-          managerIndex += numberOfConcurrentLumis_;
-        } else if constexpr (T::branchType_ == InProcess) {
-          managerIndex += (numberOfConcurrentLumis_ + numberOfConcurrentRuns_);
-        }
-        WorkerManager& workerManager = workerManagers_[managerIndex];
+        auto managers = workerManagers<typename T::TransitionInfoType>();
+        auto& workerManager = managers[managerIndex];
         workerManager.resetAll();
 
         ParentContext parentContext(globalContext.get());
         // make sure the ProductResolvers know about their
         // workers to allow proper data dependency handling
+        workerManager.resetAll();
         workerManager.setupResolvers(transitionInfo.principal());
 
         auto& aw = workerManager.allWorkers();
-        for (Worker* worker : boost::adaptors::reverse(aw)) {
-          worker->doWorkAsync<T>(
+        for (auto* worker : boost::adaptors::reverse(aw)) {
+          worker->template doWorkAsync<T::transitionEdge_>(
               holdForLoop, transitionInfo, token, StreamID::invalidStreamID(), parentContext, globalContext.get());
         }
       } catch (...) {
@@ -197,12 +210,12 @@ namespace edm {
 
   template <typename T>
   void GlobalSchedule::postScheduleSignal(GlobalContext const* globalContext,
-                                          ServiceWeakToken const& weakToken,
+                                          ServiceToken const& token,
                                           std::exception_ptr& excpt) {
     if (actReg_) {
       try {
-        convertException::wrap([this, &weakToken, globalContext]() {
-          ServiceRegistry::Operate op(weakToken.lock());
+        convertException::wrap([this, &token, globalContext]() {
+          ServiceRegistry::Operate op(token);
           T::postScheduleSignal(actReg_.get(), globalContext);
         });
       } catch (cms::Exception& ex) {

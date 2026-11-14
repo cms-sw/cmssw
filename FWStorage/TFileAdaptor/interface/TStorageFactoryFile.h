@@ -59,7 +59,7 @@ private:
   TStorageFactoryFile(void);
 
   edm::propagate_const<std::unique_ptr<edm::storage::Storage>> storage_;  //< Real underlying storage
-  edm::ServiceWeakToken token_;
+  edm::WeakServiceToken token_;
 };
 
 #endif  // TFILE_ADAPTOR_TSTORAGE_FACTORY_FILE_H

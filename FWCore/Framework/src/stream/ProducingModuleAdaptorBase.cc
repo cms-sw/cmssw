@@ -199,7 +199,7 @@ namespace edm {
                                                          EventPrincipal const& iEvent,
                                                          ActivityRegistry*,
                                                          ModuleCallingContext iMCC,
-                                                         ServiceWeakToken const&) noexcept {}
+                                                         ServiceToken const&) noexcept {}
 
     template <typename T>
     void ProducingModuleAdaptorBase<T>::doBeginStream(StreamID id) {

@@ -9,8 +9,8 @@ _barrelAlgo = cms.PSet(
     npePerMeV = mtdDigitizer.barrelDigitizer.DeviceSimulation.LightOutput, # [Npe/MeV]
     npeSaturationCorrection = mtdDigitizer.barrelDigitizer.ElectronicsSimulation.SiPMSaturationParam, # effective Npe to true Npe conversion (SiPM saturation)
     tdcLSB_ns = cms.double(0.020), # [ns]
-    timeResolutionInNs = cms.string("0.0593858*pow(x,-1.02826)+0.0156719"), # [ns]
-    timeWalkCorrection = cms.string("1.16946*pow(x,-0.671018)+0.0443454") # [ns]
+    timeResolutionInNs = cms.string("sqrt(pow(0.0660735/x,2)+pow(0.036071,2)/x+pow(0.0176838,2))"), # [ns]
+    timeWalkCorrection = cms.string("1.64964*pow(x+0.566953,-0.965789)+0.123377") # [ns]
 )
 
 _endcapAlgo = cms.PSet(
@@ -33,6 +33,24 @@ mtdUncalibratedRecHits = cms.EDProducer(
     endcapDigis = cms.InputTag('mix:FTLEndcap'),
     BarrelHitsName = cms.string('FTLBarrel'),
     EndcapHitsName = cms.string('FTLEndcap')
+)
+
+btlBaseRecHitsSoA = cms.EDProducer(
+    'btlrechit::BTLBaseRecHitSoAProducer@alpaka',
+    digi = cms.InputTag("btlDigiSoAProducer", "MTDBarrelSoA"),
+    adcBitSaturation = cms.uint32(1023),
+    tclock = cms.double(6.25),
+    tdcCalParams = cms.vdouble(57.244545, 511.27832, -7.8838577, -0.048343264),
+    qdcCalParams = cms.vdouble(49.542229, -0.323424, 0.062578, -0.002484, 0., 0., 0., 0., 0., 0.),
+)
+
+etlBaseRecHitsSoA = cms.EDProducer(
+    'etlrechit::ETLBaseRecHitSoAProducer@alpaka',
+    digi = cms.InputTag("etlDigiSoAProducer", "MTDEndcapSoA"),
+    adcNbits      = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.adcNbits,
+    adcSaturation = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.adcSaturation_MIP,
+    toaLSB_ns     = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.toaLSB_ns,
+    tdcWindowStart     = cms.double(9.375), # now set to 3 x ETROC_clock, phase can be adjusted to set the start at any value
 )
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2

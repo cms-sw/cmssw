@@ -11,6 +11,7 @@
   <class name="reco::IsolatedPixelTrackCandidateRefProd"/>
   <class name="edm::Wrapper<reco::IsolatedPixelTrackCandidateCollection>"/>
   <class name="edm::reftobase::Holder<reco::io_v1::Candidate, edm::Ref<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate> > >" />
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate>"/>					  
   <class name="edm::Ref<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate> >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate> > >"/>
 

@@ -113,25 +113,25 @@ def parse_args():
 
         for JetFolderDir in JetFolderDirs:
             plots += [(JetFolderDir, "efficiency_pt", ["efficiency_eta05", "efficiency_eta13",
-                                                  "efficiency_eta21","efficiency_eta25","efficiency_eta30","efficiency_eta50"])]
+                                                  "efficiency_eta17","efficiency_eta25","efficiency_eta30","efficiency_eta50"])]
             plots += [(JetFolderDir, "purity_pt", ["purity_eta05", "purity_eta13",
-                                                  "purity_eta21","purity_eta25","purity_eta30","purity_eta50"])]
+                                                  "purity_eta17","purity_eta25","purity_eta30","purity_eta50"])]
             plots += [(JetFolderDir, "ratePUJet_pt", ["ratePUJet_eta05", "ratePUJet_eta13",
-                                                  "ratePUJet_eta21","ratePUJet_eta25","ratePUJet_eta30","ratePUJet_eta50"])]
+                                                  "ratePUJet_eta17","ratePUJet_eta25","ratePUJet_eta30","ratePUJet_eta50"])]
             plots += [(JetFolderDir, "reso_pt", ["preso_eta05", "preso_eta13",
-                                                  "preso_eta21","preso_eta25","preso_eta30","preso_eta50"])]
+                                                  "preso_eta17","preso_eta25","preso_eta30","preso_eta50"])]
             plots += [(JetFolderDir, "reso_pt_rms", ["preso_eta05_rms",
-                                                      "preso_eta13_rms","preso_eta21_rms","preso_eta25_rms","preso_eta30_rms",
+                                                      "preso_eta13_rms","preso_eta17_rms","preso_eta25_rms","preso_eta30_rms",
                                                       "preso_eta50_rms"])]
             plots += [(JetFolderDir, "response_pt", ["presponse_eta05",
-                                                      "presponse_eta13", "presponse_eta21", "presponse_eta25", "presponse_eta30",
+                                                      "presponse_eta13", "presponse_eta17", "presponse_eta25", "presponse_eta30",
                                                       "presponse_eta50"])]
             plots += [(JetFolderDir, "response_pt_mean", ["presponse_eta05_mean",
-                                                          "presponse_eta13_mean", "presponse_eta21_mean",
+                                                          "presponse_eta13_mean", "presponse_eta17_mean",
                                                           "presponse_eta25_mean", "presponse_eta30_mean",
                                                           "presponse_eta50_mean"])]
             plots += [(JetFolderDir, "response_pt_median", ["presponse_eta05_median",
-                                                            "presponse_eta13_median", "presponse_eta21_median", "presponse_eta25_median",
+                                                            "presponse_eta13_median", "presponse_eta17_median", "presponse_eta25_median",
                                                             "presponse_eta30_median", "presponse_eta50_median"])]
             for iptbin in range(len(ptbins)-1):
                 pthistograms = []

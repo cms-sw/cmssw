@@ -129,7 +129,7 @@ def customiseTrackingNtupleHLT(process):
     from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
     from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
     hltPhase2LegacyTracking.toModify(_seedProducers, names = ["hltInitialStepSeeds", "hltHighPtTripletStepSeeds"])
-    trackingLST.toModify(_seedProducers, names = ["hltInputLST", "hltInitialStepTrackCandidates"])
+    trackingLST.toModify(_seedProducers, names = ["hltInitialStepSeeds", "hltInitialStepTrackCandidates"])
 
     (_seedSelectors, _tmpTask) = _TrackValidation_cff._addSeedToTrackProducers(_seedProducers.names, globals())
     _seedSelectorsTask = cms.Task()

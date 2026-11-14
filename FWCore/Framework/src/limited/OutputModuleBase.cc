@@ -33,11 +33,9 @@ namespace edm {
 
     void OutputModuleBase::doBeginJob() { core::OutputModuleCore::doBeginJob_(); }
 
-    bool OutputModuleBase::doEvent(EventTransitionInfo const& info,
-                                   ActivityRegistry* act,
-                                   ModuleCallingContext const* mcc) {
+    bool OutputModuleBase::doEvent(EventTransitionInfo const& info, ModuleCallingContext const* mcc) {
       {
-        core::OutputModuleCore::doEvent_(info, act, mcc);
+        core::OutputModuleCore::doEvent_(info, mcc);
       }
 
       auto remainingEvents = remainingEvents_.load();

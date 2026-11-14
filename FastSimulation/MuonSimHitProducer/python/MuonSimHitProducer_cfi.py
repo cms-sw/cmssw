@@ -22,7 +22,10 @@ MuonSimHits = cms.EDProducer("MuonSimHitProducer",
         # Set to true if the full pattern recognition was used
         # to reconstruct tracks in the tracker
         FullPatternRecognition = cms.untracked.bool(False)
-    )
+    ),
+    enableGEM = cms.bool(False),
 )
 
-
+from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+(run2_GEM_2017 | run3_GEM).toModify(MuonSimHits, enableGEM = True)

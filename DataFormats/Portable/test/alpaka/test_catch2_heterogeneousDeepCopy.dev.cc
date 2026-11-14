@@ -71,8 +71,7 @@ struct FillSoA {
 TEST_CASE("Deep copy from SoA Generic View") {
   auto const& devices = cms::alpakatools::devices<Platform>();
   if (devices.empty()) {
-    FAIL("No devices available for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) " backend, "
-        "the test will be skipped.");
+    FAIL("No devices available for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) " backend.");
   }
 
   auto devHost = alpaka::getDevByIdx(alpaka::PlatformCpu{}, 0u);

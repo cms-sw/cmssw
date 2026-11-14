@@ -1,7 +1,6 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-// Part of the MC-truth-graph prototype - under heavy development, not yet open
-// to external contributions (see PhysicsTools/TruthInfo/README.md).
 
+#include "PhysicsTools/TruthInfo/interface/CSRBuilder.h"
 #include "PhysicsTools/TruthInfo/interface/TruthLogicalGraphPostProcessor.h"
 
 #include <algorithm>
@@ -16,7 +15,9 @@
 #include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "PhysicsTools/TruthInfo/interface/TruthLevels.h"
+#include "SimDataFormats/TruthInfo/interface/InteractionId.h"
 
 namespace {
 
@@ -62,17 +63,7 @@ namespace {
     return std::find(particleIds.begin(), particleIds.end(), particleId) != particleIds.end();
   }
 
-  // True if pdgId is an ordinary hadron whose quark content includes the given
-  // flavor (5 = b, 4 = c, ...), using the PDG hadron-numbering digits.
-  bool hadronHasQuark(int32_t pdgId, int32_t flavor) {
-    const int32_t id = std::abs(pdgId);
-    if (id < 100 || id >= 1000000000)  // leptons/bosons/diquark-free codes and nuclei are not hadrons here
-      return false;
-    const int32_t nq1 = (id / 1000) % 10;
-    const int32_t nq2 = (id / 100) % 10;
-    const int32_t nq3 = (id / 10) % 10;
-    return nq1 == flavor || nq2 == flavor || nq3 == flavor;
-  }
+  using truth::hadronHasQuark;
 
   bool matchesSeed(truth::Graph const& graph,
                    uint32_t particleId,
@@ -115,41 +106,12 @@ namespace {
     return particle.hasGen() && particle.status == 1;
   }
 
-  void buildCSR(uint32_t nSources,
-                std::vector<std::pair<uint32_t, uint32_t>>& pairs,
-                std::vector<uint32_t>& offsets,
-                std::vector<uint32_t>& flat) {
-    std::sort(pairs.begin(), pairs.end());
-    pairs.erase(std::unique(pairs.begin(), pairs.end()), pairs.end());
-
-    pairs.erase(
-        std::remove_if(pairs.begin(), pairs.end(), [nSources](auto const& edge) { return edge.first >= nSources; }),
-        pairs.end());
-
-    offsets.assign(nSources + 1, 0);
-
-    for (auto const& edge : pairs) {
-      ++offsets[edge.first + 1];
-    }
-
-    for (uint32_t i = 1; i <= nSources; ++i) {
-      offsets[i] += offsets[i - 1];
-    }
-
-    flat.assign(pairs.size(), 0);
-
-    auto cursor = offsets;
-    for (auto const& edge : pairs) {
-      flat[cursor[edge.first]++] = edge.second;
-    }
-  }
-
   // Rebuild the four CSR adjacency arrays of `output` from the edges of
   // `input`, remapping particle and vertex ids and dropping edges with an
   // unmapped endpoint. `extraProductionEdges` are additional
   // (newVertex, newParticle) production-side edges and `extraDecayEdges` are
   // additional (newParticle, newVertex) decay-side edges - e.g. those wiring the
-  // artificial Interaction/Upstream/UnderlyingEvent vertices and their connector
+  // artificial Interaction/InitialState/UnderlyingEvent vertices and their connector
   // particles. buildCSR sorts and deduplicates, so the collection order here does
   // not affect the result.
   void rebuildAdjacency(truth::Graph const& input,
@@ -208,25 +170,25 @@ namespace {
       vertexToIncomingParticlePairs.emplace_back(newVertex, newParticle);
     }
 
-    buildCSR(output.nParticles(),
-             particleToDecayVertexPairs,
-             output.particleToDecayVertexOffsets(),
-             output.particleToDecayVertices());
+    truth::buildCSR(output.nParticles(),
+                    particleToDecayVertexPairs,
+                    output.particleToDecayVertexOffsets(),
+                    output.particleToDecayVertices());
 
-    buildCSR(output.nParticles(),
-             particleToProductionVertexPairs,
-             output.particleToProductionVertexOffsets(),
-             output.particleToProductionVertices());
+    truth::buildCSR(output.nParticles(),
+                    particleToProductionVertexPairs,
+                    output.particleToProductionVertexOffsets(),
+                    output.particleToProductionVertices());
 
-    buildCSR(output.nVertices(),
-             vertexToOutgoingParticlePairs,
-             output.vertexToOutgoingParticleOffsets(),
-             output.vertexToOutgoingParticles());
+    truth::buildCSR(output.nVertices(),
+                    vertexToOutgoingParticlePairs,
+                    output.vertexToOutgoingParticleOffsets(),
+                    output.vertexToOutgoingParticles());
 
-    buildCSR(output.nVertices(),
-             vertexToIncomingParticlePairs,
-             output.vertexToIncomingParticleOffsets(),
-             output.vertexToIncomingParticles());
+    truth::buildCSR(output.nVertices(),
+                    vertexToIncomingParticlePairs,
+                    output.vertexToIncomingParticleOffsets(),
+                    output.vertexToIncomingParticles());
   }
 
   bool directCollapsibleGenParticleChain(truth::Graph const& graph,
@@ -291,7 +253,7 @@ namespace {
     return true;
   }
 
-  truth::Graph collapseIntermediateGenParticleChains(truth::Graph const& input) {
+  truth::Graph collapseIntermediateGenParticleChains(truth::Graph input) {
     if (input.empty())
       return input;
 
@@ -350,24 +312,31 @@ namespace {
 
     truth::Graph output;
 
-    std::unordered_map<uint32_t, uint32_t> representativeToNewParticle;
-    representativeToNewParticle.reserve(nParticles);
-
+    std::vector<int32_t> representativeToNewParticle(nParticles, -1);
     std::vector<int32_t> oldParticleToNew(nParticles, -1);
 
     for (uint32_t oldParticle = 0; oldParticle < nParticles; ++oldParticle) {
       const uint32_t representative = particleRepresentative[oldParticle];
 
-      auto inserted =
-          representativeToNewParticle.emplace(representative, static_cast<uint32_t>(output.particles().size()));
-
-      const uint32_t newParticle = inserted.first->second;
-
-      if (inserted.second) {
+      int32_t& newParticle = representativeToNewParticle[representative];
+      if (newParticle < 0) {
+        newParticle = static_cast<int32_t>(output.particles().size());
         output.particles().push_back(input.particles()[representative]);
       }
 
-      oldParticleToNew[oldParticle] = static_cast<int32_t>(newParticle);
+      oldParticleToNew[oldParticle] = newParticle;
+    }
+
+    // A status flag describes the particle, not the copy, so the flags of the collapsed
+    // copies travel to the survivor. isHardProcess sits on the first copy of a
+    // hard-scatter leg and the chain collapses to the last one: without this, a leg that
+    // radiates leaves the hardProcess level, and partonJets with it.
+    for (uint32_t oldParticle = 0; oldParticle < nParticles; ++oldParticle) {
+      const int32_t newParticle = oldParticleToNew[oldParticle];
+      if (newParticle < 0)
+        continue;
+
+      output.particles()[newParticle].statusFlags |= input.particles()[oldParticle].statusFlags;
     }
 
     std::vector<uint8_t> keepVertex(nVertices, 0);
@@ -444,6 +413,37 @@ namespace {
         }
       }
     }
+  }
+
+  // True if a particle or vertex below particleId is kept. visitStamp holds one entry per
+  // particle and stamp is unique per call, so repeated calls need no clearing.
+  bool hasKeptDescendant(truth::Graph const& graph,
+                         uint32_t particleId,
+                         std::vector<uint8_t> const& keepParticle,
+                         std::vector<uint8_t> const& keepVertex,
+                         std::vector<uint32_t>& visitStamp,
+                         uint32_t stamp) {
+    std::vector<uint32_t> stack{particleId};
+    visitStamp[particleId] = stamp;
+    while (!stack.empty()) {
+      const uint32_t currentParticle = stack.back();
+      stack.pop_back();
+      for (const uint32_t vertexId : graph.decayVertices(currentParticle)) {
+        if (vertexId >= graph.nVertices())
+          continue;
+        if (keepVertex[vertexId])
+          return true;
+        for (const uint32_t childId : graph.outgoingParticles(vertexId)) {
+          if (childId >= graph.nParticles() || visitStamp[childId] == stamp)
+            continue;
+          if (keepParticle[childId])
+            return true;
+          visitStamp[childId] = stamp;
+          stack.push_back(childId);
+        }
+      }
+    }
+    return false;
   }
 
   // Keep up to parentDepth generations of ancestors above each root as context
@@ -527,46 +527,6 @@ namespace {
     }
   }
 
-  // Decode a particle's packed EncodedEventId (mirror of TruthGraphProducer::
-  // packEventId, which memcpys the EncodedEventId bytes into the low word).
-  EncodedEventId decodeEventId(uint64_t packedEventId) {
-    uint32_t raw = 0;
-    std::memcpy(&raw, &packedEventId, sizeof(raw));
-    return EncodedEventId(raw);
-  }
-
-  // Pile-up filter (orthogonal to the seed selection): drop already-kept particles
-  // by the provenance of their pp collision. signalOnly keeps only (bx 0, event 0);
-  // a non-empty keepBunchCrossings keeps only the listed bunch crossings; the two
-  // AND. A no-op when both are unset (every particle is signal in a no-PU sample).
-  void applyBunchCrossingFilter(truth::Graph const& graph,
-                                bool signalOnly,
-                                std::vector<int32_t> const& keepBunchCrossings,
-                                std::vector<uint8_t>& keepParticle,
-                                std::vector<uint8_t>& stableSpectator) {
-    if (!signalOnly && keepBunchCrossings.empty())
-      return;
-
-    for (uint32_t particleId = 0; particleId < graph.nParticles(); ++particleId) {
-      if (!keepParticle[particleId])
-        continue;
-
-      const EncodedEventId eid = decodeEventId(graph.particles()[particleId].eventId);
-
-      bool keep = true;
-      if (signalOnly)
-        keep = eid.bunchCrossing() == 0 && eid.event() == 0;
-      if (keep && !keepBunchCrossings.empty())
-        keep = std::find(keepBunchCrossings.begin(), keepBunchCrossings.end(), eid.bunchCrossing()) !=
-               keepBunchCrossings.end();
-
-      if (!keep) {
-        keepParticle[particleId] = 0;
-        stableSpectator[particleId] = 0;
-      }
-    }
-  }
-
   // Restrict matches to the most upstream ones: a match that is a strict
   // descendant of another match is covered by that match's subgraph and is not
   // an independent root. Single multi-source downstream BFS, O(V + E).
@@ -617,46 +577,10 @@ namespace {
     return roots;
   }
 
-  // Follow the radiating-copy chain of a particle: while the current copy has
-  // exactly one decay vertex with exactly one same-PDG daughter, advance to it.
-  // Pure 1 -> 1 copy chains are already gone if collapseIntermediateGenParticles
-  // ran before; this handles surviving chains like Z -> Z gamma. Any ambiguity
-  // (several decay vertices, several same-PDG daughters) stops the walk.
-  uint32_t lastCopyOf(truth::Graph const& graph, uint32_t rootId) {
-    const int32_t pdgId = graph.particles()[rootId].pdgId;
-    uint32_t current = rootId;
-
-    for (uint32_t guard = 0; guard < graph.nParticles(); ++guard) {
-      if (graph.particles()[current].status == 1)
-        break;
-
-      const auto decayVertices = graph.decayVertices(current);
-      if (decayVertices.size() != 1)
-        break;
-
-      uint32_t sameIdChild = 0;
-      uint32_t nSameId = 0;
-
-      for (const uint32_t childId : graph.outgoingParticles(decayVertices.front())) {
-        if (childId < graph.nParticles() && childId != current && graph.particles()[childId].pdgId == pdgId) {
-          sameIdChild = childId;
-          ++nSameId;
-        }
-      }
-
-      if (nSameId != 1)
-        break;
-
-      current = sameIdChild;
-    }
-
-    return current;
-  }
-
   // Sorted PDG ids of the effective decay products of a root: the outgoing
   // particles of the decay vertices of its last radiating copy.
   std::vector<int32_t> effectiveDecayProductPdgIds(truth::Graph const& graph, uint32_t rootId) {
-    const uint32_t lastCopy = lastCopyOf(graph, rootId);
+    const uint32_t lastCopy = truth::lastCopyOf(graph, rootId);
 
     std::vector<int32_t> pdgIds;
 
@@ -756,9 +680,9 @@ namespace {
   }
 
   // attachRole[i] is 0 for particles that are not attached to an artificial
-  // source, or the uint8_t value of the Upstream/UnderlyingEvent VertexRole
-  // otherwise. Per interaction (keyed by genEvent) a single Interaction source
-  // vertex is created and fans out, through connector particles, to the Upstream
+  // source, or the uint8_t value of the InitialState/UnderlyingEvent/BeamSideInput
+  // VertexRole otherwise. Per interaction (keyed by genEvent) a single Interaction source
+  // vertex is created and fans out, through connector particles, to the InitialState
   // and UnderlyingEvent sub-vertices the attached particles hang off; all three
   // carry the genEvent/eventId of the activity they summarize so overlaid
   // pile-up interactions stay distinguishable.
@@ -775,7 +699,7 @@ namespace {
     std::vector<int32_t> oldVertexToNew(nVertices, -1);
 
     output.particles().reserve(nParticles);
-    output.vertices().reserve(nVertices + 3);
+    output.vertices().reserve(nVertices + 4);
 
     for (uint32_t oldParticle = 0; oldParticle < nParticles; ++oldParticle) {
       if (!keepParticle[oldParticle])
@@ -798,8 +722,10 @@ namespace {
     // each pile-up interaction its own):
     //
     //   (Interaction vertex, source)
-    //      --connector particle--> (Upstream vertex)        --> ISR/upstream roots
-    //      --connector particle--> (UnderlyingEvent vertex) --> spectators
+    //      --connector particle--> (InitialState vertex)    --> initial-state roots
+    //      --connector particle--> (UnderlyingEvent vertex)  --> spectators
+    //      --connector particle--> (BeamSideInput vertex)    --> the dropped GEN parents
+    //                                                            of a kept vertex
     //
     // so the whole interaction descends from a single Interaction vertex: the
     // signal is everything reachable from the signal Interaction vertex, and each
@@ -809,8 +735,9 @@ namespace {
     // (genNode = simNode = -1) and carry the interaction provenance.
     struct InteractionNodes {
       int32_t interactionVertex = -1;
-      int32_t upstreamVertex = -1;
+      int32_t initialStateVertex = -1;
       int32_t underlyingEventVertex = -1;
+      int32_t beamSideVertex = -1;
     };
 
     std::map<uint64_t, InteractionNodes> interactions;                // key = eventId (EncodedEventId)
@@ -832,8 +759,23 @@ namespace {
           return id;
         };
 
+    auto makeConnector = [&](int32_t genEvent, uint64_t eventId) {
+      truth::ParticleData connector;
+      connector.genNode = -1;
+      connector.simNode = -1;
+      connector.pdgId = 0;
+      connector.status = 0;
+      connector.role = static_cast<uint8_t>(truth::ParticleRole::Connector);
+      connector.genEvent = genEvent;
+      connector.eventId = eventId;
+
+      const uint32_t id = static_cast<uint32_t>(output.particles().size());
+      output.particles().push_back(connector);
+      return id;
+    };
+
     // The real production vertex of an attached particle is the primary
-    // interaction point of its pp collision: the Upstream (ISR) roots and the
+    // interaction point of its pp collision: the InitialState roots and the
     // UnderlyingEvent spectators are all produced there. That vertex was dropped
     // from the output (which is why the particle needs an artificial source), but
     // it still carries its 4-position in `input`, so the artificial source nodes
@@ -863,26 +805,20 @@ namespace {
         nodes.interactionVertex = static_cast<int32_t>(makeArtificialVertex(
             static_cast<uint8_t>(truth::VertexRole::Interaction), genEvent, eventId, interactionPoint));
 
-      int32_t& subVertex = (role == static_cast<uint8_t>(truth::VertexRole::UnderlyingEvent))
-                               ? nodes.underlyingEventVertex
-                               : nodes.upstreamVertex;
+      int32_t* subVertexOf = &nodes.initialStateVertex;
+      if (role == static_cast<uint8_t>(truth::VertexRole::UnderlyingEvent))
+        subVertexOf = &nodes.underlyingEventVertex;
+      else if (role == static_cast<uint8_t>(truth::VertexRole::BeamSideInput))
+        subVertexOf = &nodes.beamSideVertex;
+      int32_t& subVertex = *subVertexOf;
 
       if (subVertex < 0) {
         subVertex = static_cast<int32_t>(makeArtificialVertex(role, genEvent, eventId, interactionPoint));
 
         // Connector particle: produced at the Interaction vertex, decays at this
-        // Upstream/UnderlyingEvent sub-vertex, so the sub-vertex (and everything
-        // below it) descends from the single Interaction vertex.
-        truth::ParticleData connector;
-        connector.genNode = -1;
-        connector.simNode = -1;
-        connector.pdgId = 0;
-        connector.status = 0;
-        connector.genEvent = genEvent;
-        connector.eventId = eventId;
-
-        const uint32_t connectorId = static_cast<uint32_t>(output.particles().size());
-        output.particles().push_back(connector);
+        // sub-vertex, so the sub-vertex (and everything below it) descends from the
+        // single Interaction vertex.
+        const uint32_t connectorId = makeConnector(genEvent, eventId);
 
         extraProductionEdges.emplace_back(static_cast<uint32_t>(nodes.interactionVertex), connectorId);
         extraDecayEdges.emplace_back(connectorId, static_cast<uint32_t>(subVertex));
@@ -896,43 +832,47 @@ namespace {
     return output;
   }
 
-  truth::Graph filterGraphBySelection(truth::Graph const& input,
-                                      truth::LogicalGraphPostProcessingConfig const& config) {
-    if (input.empty())
-      return input;
-
-    // Skip empty groups: they would match every vertex.
+  // Decay groups with the empty ones dropped: an empty group would match every vertex.
+  std::vector<std::vector<int32_t>> sortedDecayGroups(truth::LogicalGraphPostProcessingConfig const& config) {
     std::vector<std::vector<int32_t>> sortedGroups;
     sortedGroups.reserve(config.decayPdgIdGroups.size());
-
     for (auto const& group : config.decayPdgIdGroups) {
       if (!group.empty()) {
         sortedGroups.push_back(group);
         std::sort(sortedGroups.back().begin(), sortedGroups.back().end());
       }
     }
+    return sortedGroups;
+  }
 
+  // The roots a selection names: the most upstream seed matches, narrowed to those whose
+  // effective decay matches a configured group, or the direct decay-pattern search when
+  // the generator wrote no explicit resonance. ONE computation, so the Signal flag and
+  // the selection cannot disagree about what the signal of the event is.
+  // signalInteractionOnly keeps only roots that are GEN particles of the signal
+  // interaction, which is what the Signal flag means. The selection keeps every
+  // interaction, and the bunch-crossing filter removes pile-up.
+  // usePatternFallback allows the decay-pattern search. That search returns the particles
+  // of a matching decay, not the resonance above them. The selection wants those as
+  // roots. The Signal flag does not, because the flag marks the resonance.
+  std::vector<uint32_t> selectionRoots(truth::Graph const& input,
+                                       truth::LogicalGraphPostProcessingConfig const& config,
+                                       std::vector<std::vector<int32_t>> const& sortedGroups,
+                                       std::vector<uint32_t>& patternVertices,
+                                       bool signalInteractionOnly,
+                                       bool usePatternFallback) {
     const bool haveSeeds = !config.seedPdgIds.empty() || !config.seedHadronFlavors.empty();
     const bool haveGroups = !sortedGroups.empty();
-
-    if (!haveSeeds && !haveGroups)
-      return input;
-
-    // Debug escape hatch: no real particle has PDG id 0, so seedPdgIds = {0}
-    // explicitly requests the full, unfiltered graph.
-    if (containsPdgId(config.seedPdgIds, 0))
-      return input;
-
-    const uint32_t nParticles = input.nParticles();
-    const uint32_t nVertices = input.nVertices();
-
     std::vector<uint32_t> roots;
-    std::vector<uint32_t> patternVertices;
 
     if (haveSeeds) {
       std::vector<uint32_t> matches;
-
-      for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
+      for (uint32_t particleId = 0; particleId < input.nParticles(); ++particleId) {
+        if (signalInteractionOnly) {
+          auto const& particle = input.particles()[particleId];
+          if (!particle.hasGen() || particle.isFromPileup())
+            continue;
+        }
         if (matchesSeed(input, particleId, config))
           matches.push_back(particleId);
       }
@@ -950,14 +890,49 @@ namespace {
             });
           });
         }
-      } else if (haveGroups) {
+      } else if (haveGroups && usePatternFallback) {
         // The generator did not write the requested resonance explicitly:
         // fall back to the direct decay-pattern search.
         findDecayPatternMatches(input, sortedGroups, roots, patternVertices);
       }
-    } else {
+    } else if (haveGroups && usePatternFallback) {
       findDecayPatternMatches(input, sortedGroups, roots, patternVertices);
     }
+
+    if (signalInteractionOnly) {
+      // The decay-pattern fallback scans every vertex of the event, so it can return a
+      // pile-up or SIM-only root. The seed path filters its matches before the upstream
+      // reduction; this filters whatever any path produced.
+      std::erase_if(roots, [&input](uint32_t root) {
+        auto const& particle = input.particles()[root];
+        return !particle.hasGen() || particle.isFromPileup();
+      });
+    }
+    return roots;
+  }
+
+  truth::Graph filterGraphBySelection(truth::Graph input, truth::LogicalGraphPostProcessingConfig const& config) {
+    if (input.empty())
+      return input;
+
+    const std::vector<std::vector<int32_t>> sortedGroups = sortedDecayGroups(config);
+
+    const bool haveSeeds = !config.seedPdgIds.empty() || !config.seedHadronFlavors.empty();
+    const bool haveGroups = !sortedGroups.empty();
+
+    if (!haveSeeds && !haveGroups)
+      return input;
+
+    // Debug escape hatch: no real particle has PDG id 0, so seedPdgIds = {0}
+    // explicitly requests the full, unfiltered graph.
+    if (containsPdgId(config.seedPdgIds, 0))
+      return input;
+
+    const uint32_t nParticles = input.nParticles();
+    const uint32_t nVertices = input.nVertices();
+
+    std::vector<uint32_t> patternVertices;
+    std::vector<uint32_t> roots = selectionRoots(input, config, sortedGroups, patternVertices, false, true);
 
     if (roots.empty()) {
       edm::LogWarning("TruthLogicalGraphPostProcessor")
@@ -990,27 +965,74 @@ namespace {
     std::vector<uint8_t> stableSpectator(nParticles, 0);
 
     if (config.keepStableSpectators) {
-      for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
-        if (!isStableGenParticle(input, particleId))
-          continue;
+      // A spectator never sits above the selection, so the signal and the underlying
+      // event do not share a particle (a Dalitz pi0 above selected electrons).
+      const std::vector<uint8_t> selectedParticle = keepParticle;
+      const std::vector<uint8_t> selectedVertex = keepVertex;
+      std::vector<uint32_t> visitStamp(nParticles, 0);
+      uint32_t stamp = 0;
 
-        if (isIgnoredParticle(input, particleId, config.ignoredPdgIds, config.ignoredParticleIds))
-          continue;
+      auto keepSpectator = [&](uint32_t particleId) {
+        if (keepParticle[particleId] ||
+            isIgnoredParticle(input, particleId, config.ignoredPdgIds, config.ignoredParticleIds) ||
+            hasKeptDescendant(input, particleId, selectedParticle, selectedVertex, visitStamp, ++stamp))
+          return;
 
-        if (keepParticle[particleId])
-          continue;
-
-        keepParticle[particleId] = 1;
+        // The subgraph as well, which for a GEN-stable particle is its SIM
+        // continuation: the shower, the conversion, the annihilation. That is where the
+        // spectator's hits are, so a spectator without it matches no reco object.
+        markDownstreamFromParticle(input, particleId, keepParticle, keepVertex);
         stableSpectator[particleId] = 1;
+      };
+
+      // A GEN particle of a reconstructable species is a spectator with its decay
+      // products below it, so the reconstructable levels stop at it as they do without
+      // a selection. Its decay products are then kept, so they are not spectators.
+      for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
+        auto const& particle = input.particles()[particleId];
+        if (particle.hasGen() && containsPdgId(config.reconstructablePdgIds, particle.pdgId))
+          keepSpectator(particleId);
+      }
+
+      for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
+        if (isStableGenParticle(input, particleId))
+          keepSpectator(particleId);
       }
     }
 
     dropVerticesWithoutVisibleParticles(input, keepParticle, keepVertex);
 
+    // The input a kept vertex received from outside the selection: its dropped GEN
+    // parents. They are kept, each on its own, without the subgraph below them, because
+    // this is where a colour string spans the hard scatter and the beam remnant and the
+    // link would otherwise vanish with the parent. They hang off the artificial
+    // BeamSideInput vertex, so they are kept only when the artificial sources are built:
+    // without one they would be extra rootless particles above the seed, and the point of
+    // attachSelectionSources = false is one self-contained component per seed.
+    std::vector<uint8_t> beamSideInput(nParticles, 0);
+
+    if (config.attachSelectionSources) {
+      for (uint32_t vertexId = 0; vertexId < nVertices; ++vertexId) {
+        if (!keepVertex[vertexId])
+          continue;
+
+        for (const uint32_t incoming : input.incomingParticles(vertexId)) {
+          if (incoming < nParticles && !keepParticle[incoming] && input.particles()[incoming].hasGen())
+            beamSideInput[incoming] = 1;
+        }
+      }
+
+      for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
+        if (beamSideInput[particleId])
+          keepParticle[particleId] = 1;
+      }
+    }
+
     // Assign an artificial-source role to every kept particle whose real
     // production vertices were all dropped: stable spectators -> UnderlyingEvent,
-    // selected roots / truncated ancestors at the upstream boundary -> Upstream
-    // (ISR). True sources of the input graph stay sources. When
+    // beam-side input -> BeamSideInput,
+    // selected roots / truncated ancestors at the upstream boundary -> InitialState.
+    // True sources of the input graph stay sources. When
     // attachSelectionSources is false these particles instead become true graph
     // roots (no production vertex), so each selected seed yields a self-contained
     // subgraph starting directly at the seed (e.g. ten taus -> ten components).
@@ -1023,7 +1045,7 @@ namespace {
 
         const auto productionVertices = input.productionVertices(particleId);
 
-        if (productionVertices.empty() && !stableSpectator[particleId])
+        if (productionVertices.empty() && !stableSpectator[particleId] && !beamSideInput[particleId])
           continue;
 
         const bool hasKeptProduction =
@@ -1032,8 +1054,12 @@ namespace {
             });
 
         if (!hasKeptProduction) {
-          attachRole[particleId] = static_cast<uint8_t>(stableSpectator[particleId] ? truth::VertexRole::UnderlyingEvent
-                                                                                    : truth::VertexRole::Upstream);
+          truth::VertexRole role = truth::VertexRole::InitialState;
+          if (beamSideInput[particleId])
+            role = truth::VertexRole::BeamSideInput;
+          else if (stableSpectator[particleId])
+            role = truth::VertexRole::UnderlyingEvent;
+          attachRole[particleId] = static_cast<uint8_t>(role);
         }
       }
     }
@@ -1047,27 +1073,35 @@ namespace {
   // keepBunchCrossings, no seeds) actually removes the out-of-time / pile-up
   // particles. Keeps every in-time particle and the topology connecting them;
   // no-op unless a pile-up filter is configured.
-  truth::Graph filterGraphByBunchCrossing(truth::Graph const& input,
-                                          truth::LogicalGraphPostProcessingConfig const& config) {
+  truth::Graph filterGraphByBunchCrossing(truth::Graph input, truth::LogicalGraphPostProcessingConfig const& config) {
     if (input.empty() || (!config.signalOnly && config.keepBunchCrossings.empty()))
       return input;
 
     const uint32_t nParticles = input.nParticles();
     const uint32_t nVertices = input.nVertices();
 
+    // signalOnly keeps only (bx 0, event 0); a non-empty keepBunchCrossings keeps only
+    // the listed bunch crossings; the two AND.
     std::vector<uint8_t> keepParticle(nParticles, 1);
-    std::vector<uint8_t> stableSpectator(nParticles, 0);  // unused outside applyBunchCrossingFilter
-    applyBunchCrossingFilter(input, config.signalOnly, config.keepBunchCrossings, keepParticle, stableSpectator);
+    for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
+      auto const& data = input.particles()[particleId];
+      if (config.signalOnly && !data.isSignal()) {
+        keepParticle[particleId] = 0;
+      } else if (!config.keepBunchCrossings.empty()) {
+        const int bx = truth::decodeEventId(data.eventId).bunchCrossing();
+        keepParticle[particleId] = std::ranges::find(config.keepBunchCrossings, bx) != config.keepBunchCrossings.end();
+      }
+    }
 
     std::vector<uint8_t> keepVertex(nVertices, 1);
     dropVerticesWithoutVisibleParticles(input, keepParticle, keepVertex);
 
     // No artificial sources: this is pile-up removal, not a focused selection.
-    std::vector<uint8_t> attachRole(nParticles, 0);
+    const std::vector<uint8_t> attachRole(nParticles, 0);
     return rebuildFilteredGraph(input, keepParticle, keepVertex, attachRole);
   }
 
-  truth::Graph collapseIgnoredParticles(truth::Graph const& input,
+  truth::Graph collapseIgnoredParticles(truth::Graph input,
                                         std::vector<int32_t> const& ignoredPdgIds,
                                         std::vector<uint32_t> const& ignoredParticleIds) {
     if (input.empty())
@@ -1162,16 +1196,23 @@ namespace {
   }
 
   // Remove every SIM particle whose calo+tracker sim-hit subgraph is empty,
-  // together with its whole downstream subtree. particleDirectHit[i] flags the
-  // particles that carry a sim-hit on their own SimTrack (supplied by the
-  // producer, aligned to input ids). subgraphHasHit[p] = "p or some logical
+  // together with its whole downstream subtree, except the decay products of a GEN
+  // particle of a reconstructablePdgIds species with a hit below it. A status-2 GEN
+  // particle left with only invisible decay products is removed with them.
+  // particleDirectHit[i] flags the particles that carry a sim-hit on their own
+  // SimTrack (supplied by the producer, aligned to input ids). subgraphHasHit[p] = "p or some logical
   // descendant of p carries a hit"; it is computed by propagating the direct-hit
   // flag UP the production edges (an ancestor inherits a hit from any descendant).
-  truth::Graph dropHitlessSimSubgraphs(truth::Graph const& input, std::vector<uint8_t> const& particleDirectHit) {
+  truth::Graph dropHitlessSimSubgraphs(truth::Graph input,
+                                       std::vector<uint8_t> const& particleDirectHit,
+                                       std::vector<int32_t> const& reconstructablePdgIds) {
     const uint32_t nParticles = input.nParticles();
     const uint32_t nVertices = input.nVertices();
 
-    if (nParticles == 0 || particleDirectHit.size() != nParticles)
+    if (particleDirectHit.size() != nParticles)
+      throw cms::Exception("LogicError") << "dropHitlessSimSubgraphs: particleDirectHit holds "
+                                         << particleDirectHit.size() << " entries for " << nParticles << " particles";
+    if (nParticles == 0)
       return input;
 
     // Upward closure of the direct-hit set: a particle has a non-empty subgraph
@@ -1207,22 +1248,81 @@ namespace {
     std::vector<uint8_t> removeParticle(nParticles, 0);
     std::vector<uint32_t> removalQueue;
 
+    // The decay products of a reconstructable particle with a hit below it stay, with or
+    // without hits of their own, so the association sees all of them and decides whether
+    // reco merges them.
+    std::vector<uint8_t> reconstructableProduct(nParticles, 0);
     for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
-      if (input.particles()[particleId].hasSim() && !subgraphHasHit[particleId]) {
+      auto const& particle = input.particles()[particleId];
+      if (!particle.hasGen() || !subgraphHasHit[particleId] || !containsPdgId(reconstructablePdgIds, particle.pdgId))
+        continue;
+      for (const uint32_t vertexId : input.decayVertices(particleId)) {
+        if (vertexId >= nVertices)
+          continue;
+        for (const uint32_t childId : input.outgoingParticles(vertexId)) {
+          if (childId < nParticles)
+            reconstructableProduct[childId] = 1;
+        }
+      }
+    }
+
+    for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
+      if (input.particles()[particleId].hasSim() && !subgraphHasHit[particleId] &&
+          !reconstructableProduct[particleId]) {
         removeParticle[particleId] = 1;
         removalQueue.push_back(particleId);
       }
     }
 
-    for (std::size_t head = 0; head < removalQueue.size(); ++head) {
-      const uint32_t particleId = removalQueue[head];
+    // Removes the downstream closure of the removalQueue entries from index head on.
+    auto sweepDownstream = [&](std::size_t head) {
+      for (; head < removalQueue.size(); ++head) {
+        const uint32_t particleId = removalQueue[head];
+        for (const uint32_t vertexId : input.decayVertices(particleId)) {
+          if (vertexId >= nVertices)
+            continue;
+          for (const uint32_t childId : input.outgoingParticles(vertexId)) {
+            if (childId < nParticles && !removeParticle[childId]) {
+              removeParticle[childId] = 1;
+              removalQueue.push_back(childId);
+            }
+          }
+        }
+      }
+    };
+    sweepDownstream(0);
+
+    // A decayed GEN particle with no hit of its own, whose remaining decay products are all
+    // invisible and without hits below them, goes too, with those products, and so on
+    // upward. Status 2 is the HepMC code for a hadron or tau that the generator decayed
+    // (Pythia8, Herwig7, Sherpa).
+    auto leftWithoutVisibleProducts = [&](uint32_t particleId) {
       for (const uint32_t vertexId : input.decayVertices(particleId)) {
         if (vertexId >= nVertices)
           continue;
         for (const uint32_t childId : input.outgoingParticles(vertexId)) {
-          if (childId < nParticles && !removeParticle[childId]) {
-            removeParticle[childId] = 1;
-            removalQueue.push_back(childId);
+          if (childId < nParticles && !removeParticle[childId] &&
+              (!truth::isInvisible(input.particles()[childId].pdgId) || subgraphHasHit[childId]))
+            return false;
+        }
+      }
+      return true;
+    };
+    for (std::size_t head = 0; head < removalQueue.size(); ++head) {
+      const uint32_t particleId = removalQueue[head];
+      for (const uint32_t vertexId : input.productionVertices(particleId)) {
+        if (vertexId >= nVertices)
+          continue;
+        for (const uint32_t parentId : input.incomingParticles(vertexId)) {
+          if (parentId >= nParticles || removeParticle[parentId])
+            continue;
+          auto const& parent = input.particles()[parentId];
+          if (parent.hasGen() && parent.status == 2 && !subgraphHasHit[parentId] &&
+              leftWithoutVisibleProducts(parentId)) {
+            const std::size_t first = removalQueue.size();
+            removeParticle[parentId] = 1;
+            removalQueue.push_back(parentId);
+            sweepDownstream(first);
           }
         }
       }
@@ -1273,9 +1373,24 @@ namespace truth {
         ->setComment(
             "If true, remove every SIM logical particle whose calorimeter + tracker sim-hit subgraph is empty, "
             "together with its whole downstream subtree (GEN-only descendants such as neutrinos go with it; the "
-            "GEN skeleton outside removed SIM subtrees is preserved). Requires the producer to supply the "
+            "GEN skeleton outside removed SIM subtrees is preserved). The decay products of a GEN particle of a "
+            "reconstructablePdgIds species with a hit in its subgraph are kept, with or without hits of their own; "
+            "the removal of a hitless SIM ancestor still removes them, and their hitless SIM continuation is still "
+            "removed. A status-2 GEN particle left with only invisible decay products is removed with them. "
+            "Requires the producer to supply the "
             "per-particle sim-hit presence (it consumes the calo/tracker sim-hit collections); a no-op otherwise.");
 
+    desc.add<std::vector<int32_t>>("reconstructablePdgIds", {111})
+        ->setComment(
+            "Species the detector reconstructs as an object even though they decay, which therefore terminate the "
+            "walk from the signal down to its reconstructable products. Defaults to the pi0: it decays to two "
+            "photons immediately, but the analysis reconstructs the pi0, so the pi0 is what gets labelled. "
+            "Intermediate resonances the detector cannot see as objects (a1, rho) are absent on purpose, so the "
+            "walk passes through them; add a pdg id here to label it instead");
+    desc.add<std::string>("presetName", "")
+        ->setComment(
+            "Name of the selection preset that set these fields, recorded in truth::GraphMetadata. The selection "
+            "does not read it.");
     desc.add<std::vector<int32_t>>("seedPdgIds", {})
         ->setComment(
             "If non-empty, particles with these exact PDG ids seed the selection: the most upstream particle of "
@@ -1287,7 +1402,7 @@ namespace truth {
         ->setComment(
             "Number of ancestor generations kept above each selected root as context only: the ancestors and "
             "connecting vertices are kept, but not their other descendants. Kept particles whose production "
-            "vertices all fall outside the selection are attached to an artificial Upstream (ISR) source vertex.");
+            "vertices all fall outside the selection are attached to an artificial InitialState source vertex.");
 
     desc.add<std::vector<int32_t>>("seedHadronFlavors", {})
         ->setComment(
@@ -1296,15 +1411,17 @@ namespace truth {
 
     desc.add<bool>("keepStableSpectators", true)
         ->setComment(
-            "If true, stable final-state GEN particles outside the selected subgraph are kept and attached to an "
-            "artificial UnderlyingEvent source vertex (tagged with their genEvent/eventId for pile-up provenance). "
-            "If false, they are dropped, giving a focused subgraph with only the selection and its Upstream (ISR) "
-            "context. Only meaningful when a selection (seedPdgIds/decayPdgIdGroups) is active.");
+            "If true, stable final-state GEN particles and GEN particles of the reconstructablePdgIds species "
+            "outside the selected subgraph and with no selected particle below them are kept, with their subgraph, "
+            "and attached to an artificial UnderlyingEvent source vertex (tagged with their "
+            "genEvent/eventId for pile-up provenance). "
+            "If false, they are dropped, leaving the selection, its InitialState context and the BeamSideInput of "
+            "its vertices. Only meaningful when a selection (seedPdgIds/decayPdgIdGroups) is active.");
 
     desc.add<bool>("attachSelectionSources", true)
         ->setComment(
             "If true, kept particles whose production vertices all fall outside the selection are attached to an "
-            "artificial Upstream/UnderlyingEvent source vertex. If false, they become true graph roots, so each "
+            "artificial InitialState/UnderlyingEvent source vertex. If false, they become true graph roots, so each "
             "selected seed yields a self-contained subgraph starting directly at the seed (e.g. ten taus -> ten "
             "disjoint components). Only meaningful when a selection is active.");
 
@@ -1359,6 +1476,7 @@ namespace truth {
     config.collapseIntermediateGenParticles = pset.getParameter<bool>("collapseIntermediateGenParticles");
     config.dropHitlessSimSubgraphs = pset.getParameter<bool>("dropHitlessSimSubgraphs");
     config.seedPdgIds = pset.getParameter<std::vector<int32_t>>("seedPdgIds");
+    config.reconstructablePdgIds = pset.getParameter<std::vector<int32_t>>("reconstructablePdgIds");
     config.seedHadronFlavors = pset.getParameter<std::vector<int32_t>>("seedHadronFlavors");
     config.seedParentDepth = pset.getParameter<uint32_t>("seedParentDepth");
     config.keepStableSpectators = pset.getParameter<bool>("keepStableSpectators");
@@ -1376,26 +1494,116 @@ namespace truth {
     return config;
   }
 
+  void fillMomentumFromDecayProducts(Graph& graph) {
+    const uint32_t nParticles = graph.nParticles();
+    auto& particles = graph.particles();
+
+    auto needsSum = [&particles](uint32_t id) {
+      auto const& data = particles[id];
+      return data.hasGen() && !data.hasSim() && data.momentum.E() <= 0.;
+    };
+    auto forEachProduct = [&graph, nParticles](uint32_t id, auto&& visit) {
+      for (const uint32_t vertexId : graph.decayVertices(id)) {
+        if (vertexId >= graph.nVertices() || !graph.vertices()[vertexId].hasGen())
+          continue;
+        const auto incoming = graph.incomingParticles(vertexId);
+        if (incoming.size() != 1 || incoming.front() != id)
+          continue;
+        for (const uint32_t product : graph.outgoingParticles(vertexId)) {
+          if (product < nParticles)
+            visit(product);
+        }
+      }
+    };
+
+    // Depth-first, so every product has its sum before its parent adds it. A particle on
+    // the current path is an ancestor, so reaching it again closes a cycle.
+    constexpr uint8_t kNew = 0, kOnPath = 1, kDone = 2;
+    std::vector<uint8_t> state(nParticles, kNew);
+    std::vector<std::pair<uint32_t, bool>> stack;
+    for (uint32_t root = 0; root < nParticles; ++root) {
+      if (state[root] != kNew || !needsSum(root))
+        continue;
+      stack.emplace_back(root, false);
+      while (!stack.empty()) {
+        const auto [id, expanded] = stack.back();
+        if (!expanded) {
+          if (state[id] != kNew) {
+            stack.pop_back();
+            continue;
+          }
+          state[id] = kOnPath;
+          stack.back().second = true;
+          forEachProduct(id, [&](uint32_t product) {
+            if (state[product] == kNew && needsSum(product))
+              stack.emplace_back(product, false);
+          });
+          continue;
+        }
+        stack.pop_back();
+        math::XYZTLorentzVectorD sum;
+        bool hasProduct = false;
+        forEachProduct(id, [&](uint32_t product) {
+          if (state[product] == kOnPath || particles[product].momentum.E() <= 0.)
+            return;
+          sum += particles[product].momentum;
+          hasProduct = true;
+        });
+        if (hasProduct)
+          particles[id].momentum = sum;
+        state[id] = kDone;
+      }
+    }
+  }
+
   Graph TruthLogicalGraphPostProcessor::process(Graph input, std::vector<uint8_t> const& particleDirectHit) const {
     // Run before any collapsing/selection so particleDirectHit stays aligned to
     // the input particle ids the producer computed it for.
     if (config_.dropHitlessSimSubgraphs && !particleDirectHit.empty()) {
-      input = dropHitlessSimSubgraphs(input, particleDirectHit);
+      input = dropHitlessSimSubgraphs(std::move(input), particleDirectHit, config_.reconstructablePdgIds);
     }
 
     if (config_.collapseIntermediateGenParticles) {
-      input = collapseIntermediateGenParticleChains(input);
+      input = collapseIntermediateGenParticleChains(std::move(input));
     }
 
     // Pile-up removal runs before the seed selection so it composes with any
     // preset (including the full-graph / no-seed case) and operates on the
     // post-collapse indexing.
-    input = filterGraphByBunchCrossing(input, config_);
+    input = filterGraphByBunchCrossing(std::move(input), config_);
 
-    input = filterGraphBySelection(input, config_);
+    // Mark the resonance BEFORE the selection rewrite. The members are the most upstream
+    // particles matching the preset's seed species, so the two tops rather than their
+    // decay products. The flag sits on the ParticleData, not on an index list, because
+    // the rewrite renumbers every particle and a flag on the struct survives that. This
+    // runs after the collapse and the pile-up steps, so it sees the indexing the
+    // selection sees.
+    // The same root computation the selection uses, so the flag and the selection agree
+    // on what the signal is. It applies the decay groups: a Z to mu+ mu- preset does not
+    // stamp a Z that decayed to e+ e-. It keeps only the signal interaction. It does not
+    // take the decay-pattern fallback, which returns decay products, not the resonance.
+    if (seedsNameAResonance(config_.seedPdgIds, config_.seedHadronFlavors)) {
+      const auto sortedGroups = sortedDecayGroups(config_);
+      std::vector<uint32_t> patternVertices;
+      for (const uint32_t root : selectionRoots(input, config_, sortedGroups, patternVertices, true, false)) {
+        if (root < input.particles().size()) {
+          input.particles()[root].setLevel(truth::LevelFlag::Signal);
+        }
+      }
+    }
+
+    input = filterGraphBySelection(std::move(input), config_);
 
     if (!config_.ignoredPdgIds.empty() || !config_.ignoredParticleIds.empty()) {
-      input = collapseIgnoredParticles(input, config_.ignoredPdgIds, config_.ignoredParticleIds);
+      input = collapseIgnoredParticles(std::move(input), config_.ignoredPdgIds, config_.ignoredParticleIds);
+    }
+
+    // With no seed species, the shot particles of a particle gun are the signal. They are
+    // found on the finished graph, which is the graph a reader re-derives them from.
+    if (!seedsNameAResonance(config_.seedPdgIds, config_.seedHadronFlavors)) {
+      for (const uint32_t root : gunSignalRoots(input)) {
+        input.particles()[root].setLevel(truth::LevelFlag::Signal);
+      }
     }
 
     return input;

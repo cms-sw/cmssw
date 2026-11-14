@@ -6,8 +6,13 @@
 
 class TrackingParticleSelector;
 
-class VertexAssociatorByTracks : public reco::VertexToTrackingVertexAssociatorBaseImpl {
+template <typename VertexCollection>
+class VertexAssociatorByTracks : public reco::VertexToTrackingVertexAssociatorBaseImpl<VertexCollection> {
 public:
+  using VertexType = typename VertexCollection::value_type;
+  using SimToRecoCollection = reco::VertexToTrackingVertexAssociatorBaseImpl<VertexCollection>::SimToRecoCollection;
+  using RecoToSimCollection = reco::VertexToTrackingVertexAssociatorBaseImpl<VertexCollection>::RecoToSimCollection;
+
   VertexAssociatorByTracks(const edm::EDProductGetter *productGetter,
                            double R2SMatchedSimRatio,
                            double R2SMatchedRecoRatio,
@@ -18,14 +23,14 @@ public:
                            const reco::RecoToSimCollection *trackRecoToSimAssociation,
                            const reco::SimToRecoCollection *trackSimToRecoAssociation);
 
-  ~VertexAssociatorByTracks() override;
+  ~VertexAssociatorByTracks() override = default;
 
   /* Associate TrackingVertex to RecoVertex By Hits */
-  reco::VertexRecoToSimCollection associateRecoToSim(const edm::Handle<edm::View<reco::Vertex>> &vCH,
-                                                     const edm::Handle<TrackingVertexCollection> &tVCH) const override;
+  RecoToSimCollection associateRecoToSim(const edm::Handle<edm::View<VertexType>> &vCH,
+                                         const edm::Handle<TrackingVertexCollection> &tVCH) const override;
 
-  reco::VertexSimToRecoCollection associateSimToReco(const edm::Handle<edm::View<reco::Vertex>> &vCH,
-                                                     const edm::Handle<TrackingVertexCollection> &tVCH) const override;
+  SimToRecoCollection associateSimToReco(const edm::Handle<edm::View<VertexType>> &vCH,
+                                         const edm::Handle<TrackingVertexCollection> &tVCH) const override;
 
 private:
   // ----- member data

@@ -14,6 +14,7 @@
 //         Created:  26 June 2020
 
 #include <memory>
+#include <typeindex>
 
 namespace edm {
   class EventPrincipal;
@@ -22,8 +23,36 @@ namespace edm {
   class ProcessBlockPrincipal;
   class RunPrincipal;
 
+  class EventTransitionInfo;
+  class RunTransitionInfo;
+  class LumiTransitionInfo;
+  class ProcessBlockTransitionInfo;
+  class InputProcessBlockTransitionInfo;
+  class TransitionInfoKey {
+  public:
+    friend class EventTransitionInfo;
+    friend class RunTransitionInfo;
+    friend class LumiTransitionInfo;
+    friend class ProcessBlockTransitionInfo;
+    friend class InputProcessBlockTransitionInfo;
+
+    std::type_index index() const noexcept { return index_; }
+
+    TransitionInfoKey(const TransitionInfoKey&) = default;
+    TransitionInfoKey& operator=(const TransitionInfoKey&) = default;
+    TransitionInfoKey(TransitionInfoKey&&) = default;
+    TransitionInfoKey& operator=(TransitionInfoKey&&) = default;
+
+    bool operator==(const TransitionInfoKey& rhs) const noexcept { return index_ == rhs.index_; }
+    std::strong_ordering operator<=>(const TransitionInfoKey& rhs) const noexcept { return index_ <=> rhs.index_; }
+
+  private:
+    TransitionInfoKey(std::type_index iIndex) : index_(iIndex) {}
+    std::type_index index_;
+  };
   class EventTransitionInfo {
   public:
+    using PrincipalType = EventPrincipal;
     EventTransitionInfo() {}
 
     EventTransitionInfo(EventPrincipal& iPrincipal, EventSetupImpl const& iEventSetupImpl)
@@ -33,6 +62,8 @@ namespace edm {
     EventPrincipal const& principal() const { return *eventPrincipal_; }
     EventSetupImpl const& eventSetupImpl() const { return *eventSetupImpl_; }
 
+    static TransitionInfoKey key() noexcept { return TransitionInfoKey(typeid(EventTransitionInfo)); }
+
   private:
     EventPrincipal* eventPrincipal_ = nullptr;
     EventSetupImpl const* eventSetupImpl_ = nullptr;
@@ -40,6 +71,7 @@ namespace edm {
 
   class LumiTransitionInfo {
   public:
+    using PrincipalType = LuminosityBlockPrincipal;
     LumiTransitionInfo() {}
 
     LumiTransitionInfo(LuminosityBlockPrincipal& iPrincipal, EventSetupImpl const& iEventSetupImpl)
@@ -49,6 +81,8 @@ namespace edm {
     LuminosityBlockPrincipal const& principal() const { return *luminosityBlockPrincipal_; }
     EventSetupImpl const& eventSetupImpl() const { return *eventSetupImpl_; }
 
+    static TransitionInfoKey key() noexcept { return TransitionInfoKey(typeid(LumiTransitionInfo)); }
+
   private:
     LuminosityBlockPrincipal* luminosityBlockPrincipal_ = nullptr;
     EventSetupImpl const* eventSetupImpl_ = nullptr;
@@ -56,6 +90,7 @@ namespace edm {
 
   class RunTransitionInfo {
   public:
+    using PrincipalType = RunPrincipal;
     RunTransitionInfo() {}
 
     RunTransitionInfo(RunPrincipal& iPrincipal, EventSetupImpl const& iEventSetupImpl)
@@ -65,6 +100,8 @@ namespace edm {
     RunPrincipal const& principal() const { return *runPrincipal_; }
     EventSetupImpl const& eventSetupImpl() const { return *eventSetupImpl_; }
 
+    static TransitionInfoKey key() noexcept { return TransitionInfoKey(typeid(RunTransitionInfo)); }
+
   private:
     RunPrincipal* runPrincipal_ = nullptr;
     EventSetupImpl const* eventSetupImpl_ = nullptr;
@@ -72,12 +109,31 @@ namespace edm {
 
   class ProcessBlockTransitionInfo {
   public:
+    using PrincipalType = ProcessBlockPrincipal;
     ProcessBlockTransitionInfo() {}
 
     ProcessBlockTransitionInfo(ProcessBlockPrincipal& iPrincipal) : processBlockPrincipal_(&iPrincipal) {}
 
     ProcessBlockPrincipal& principal() { return *processBlockPrincipal_; }
     ProcessBlockPrincipal const& principal() const { return *processBlockPrincipal_; }
+
+    static TransitionInfoKey key() noexcept { return TransitionInfoKey(typeid(ProcessBlockTransitionInfo)); }
+
+  private:
+    ProcessBlockPrincipal* processBlockPrincipal_ = nullptr;
+  };
+
+  class InputProcessBlockTransitionInfo {
+  public:
+    using PrincipalType = ProcessBlockPrincipal;
+    InputProcessBlockTransitionInfo() {}
+
+    InputProcessBlockTransitionInfo(ProcessBlockPrincipal& iPrincipal) : processBlockPrincipal_(&iPrincipal) {}
+
+    ProcessBlockPrincipal& principal() { return *processBlockPrincipal_; }
+    ProcessBlockPrincipal const& principal() const { return *processBlockPrincipal_; }
+
+    static TransitionInfoKey key() noexcept { return TransitionInfoKey(typeid(InputProcessBlockTransitionInfo)); }
 
   private:
     ProcessBlockPrincipal* processBlockPrincipal_ = nullptr;

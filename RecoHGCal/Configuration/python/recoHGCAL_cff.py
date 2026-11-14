@@ -1,3 +1,3 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoHGCal.TICL.iterativeTICL_cff import *
+from RecoTICL.Configuration.iterativeTICL_cff import *

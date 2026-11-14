@@ -11,6 +11,7 @@ from HLTriggerOffline.Exotica.hltExoticaPostProcessors_cff import *
 from HLTriggerOffline.SMP.HLTSMPPostVal_cff import *
 from Validation.RecoTrack.HLTpostProcessorTracker_cfi import *
 from Validation.RecoVertex.HLTpostProcessorVertex_cfi import *
+from Validation.RecoVertex.HLTSecondaryVertexPostProcessor_cff import *
 #from HLTriggerOffline.Common.PostProcessorExample_cfi import *
 from HLTriggerOffline.Common.HLTValidationQT_cff import *
 from HLTriggerOffline.Btag.HltBtagPostValidation_cff import *
@@ -24,6 +25,7 @@ hltpostvalidation = cms.Sequence(
     postProcessorHLTtrackingSequence
     +postProcessorHLTvertexing
     +postProcessorHLTvertexingReconstructableSim
+    +HLTSecondaryVertexPostProcessorSequence
     +HLTMuonPostVal
     +HLTTauPostVal
     +EgammaPostVal
@@ -73,10 +75,23 @@ mtd_at_hlt.toModify(
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toReplaceWith(hltpostvalidation, _phase2_hltpostvalidation)
 
+# Add  vector hit harvesting when phase2CAVectorHits modifier is active
+from Configuration.ProcessModifiers.phase2CAVectorHits_cff import phase2CAVectorHits
+from Validation.SiTrackerPhase2V.Phase2OTHarvestVectorHitsSoA_cfi import *
+_phase2_hltpostvalidation_vector_hits = _phase2_hltpostvalidation.copy()
+_phase2_hltpostvalidation_vector_hits += postProcessorHLTVectorHitsSoASequence
+(phase2_common & phase2CAVectorHits).toReplaceWith(hltpostvalidation, _phase2_hltpostvalidation_vector_hits)
+
 _phase2_hltpostvalidation_WithBarrel = _phase2_hltpostvalidation.copy()
 _phase2_hltpostvalidation_WithBarrel += barrelValidatorPostProcessor
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 ticl_barrel.toReplaceWith(hltpostvalidation, _phase2_hltpostvalidation_WithBarrel)
+
+# ticl_barrel replaces the sequence built above, so the two-modifier case needs its own arm
+_phase2_hltpostvalidation_vectorHits_WithBarrel = _phase2_hltpostvalidation_vector_hits.copy()
+_phase2_hltpostvalidation_vectorHits_WithBarrel += barrelValidatorPostProcessor
+(phase2_common & phase2CAVectorHits & ticl_barrel).toReplaceWith(hltpostvalidation,
+                                                            _phase2_hltpostvalidation_vectorHits_WithBarrel)
 
 # fastsim customs
 from Configuration.Eras.Modifier_fastSim_cff import fastSim

@@ -16,6 +16,7 @@
 </bin>
 
 <bin file="Bounds_t.cpp">
+  <use name="google-benchmark"/>
 </bin>
 
 <iftool name="cuda-gcc-support">

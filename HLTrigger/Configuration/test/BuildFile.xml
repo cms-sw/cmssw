@@ -21,6 +21,9 @@
 <!-- test script check_phase2_hlt_duplicates.sh -->
 <test name="test_check_phase2_hlt_duplicates" command="check_phase2_hlt_duplicates.sh"/>
 
+<!-- check that DST_NGTScouting accepts exactly the events accepted by hltL1GTAcceptFilter -->
+<test name="test_NGTScoutingL1GTAccept" command="test_NGTScoutingL1GTAccept.sh"/>
+
 <!-- test script to check the consistency of event content of HLTScoutingExtra and HLTScoutingAll -->
 <test name="testHLTScoutingEventContent"  command="python3 ${CMSSW_BASE}/src/HLTrigger/Configuration/test/testHLTScoutingEventContent.py"/>
 
@@ -51,3 +54,9 @@
 <!-- check that DST_HeterogeneousReco lists the heterogeneous content of the menu -->
 <test name="test_heterogeneousMenu" command="python3
 					     ${CMSSW_BASE}/src/HLTrigger/Configuration/test/testHeterogeneousMenu.py"/>
+
+<!-- fast: checker self-test on a synthetic tree, then static checks of the real HLT_75e33 tree -->
+<test name="testHLTPhase2MenuCheckSelfTest" command="test_hltPhase2MenuCheck.py"/>
+<test name="testHLTPhase2MenuCheck" command="hltPhase2MenuCheck --strict"/>
+<!-- slower: cmsDriver (no_exec) + menu dump for the default and alpaka menus -->
+<test name="testHLTPhase2MenuTools" command="test_hltPhase2MenuTools.sh"/>

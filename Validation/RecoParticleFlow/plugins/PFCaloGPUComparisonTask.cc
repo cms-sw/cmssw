@@ -66,8 +66,8 @@ private:
 };
 
 PFCaloGPUComparisonTask::PFCaloGPUComparisonTask(const edm::ParameterSet& conf)
-    : pfClusterTok_ref_{consumes<reco::PFClusterCollection>(
-          conf.getUntrackedParameter<edm::InputTag>("pfClusterToken_ref"))},
+    : pfClusterTok_ref_{
+          consumes<reco::PFClusterCollection>(conf.getUntrackedParameter<edm::InputTag>("pfClusterToken_ref"))},
       pfClusterTok_target_{
           consumes<reco::PFClusterCollection>(conf.getUntrackedParameter<edm::InputTag>("pfClusterToken_target"))},
       pfCaloGPUCompDir_{conf.getUntrackedParameter<std::string>("pfCaloGPUCompDir")} {}

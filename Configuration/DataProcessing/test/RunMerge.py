@@ -23,6 +23,7 @@ class RunMerge:
         self.inputFiles = []
         self.newDQMIO = False
         self.mergeNANO = False
+        self.rntuple = False
         self.bypassVersionCheck = False
         self.isL1Scouting = False
 
@@ -40,6 +41,7 @@ class RunMerge:
                 output_lfn = self.outputLFN,
                 newDQMIO = self.newDQMIO,
                 mergeNANO = self.mergeNANO,
+                rntuple = self.rntuple,
                 bypassVersionCheck = self.bypassVersionCheck,
                 isL1Scouting = self.isL1Scouting)
         except Exception as ex:
@@ -57,7 +59,7 @@ class RunMerge:
 
 
 if __name__ == '__main__':
-    valid = ["input-files=", "output-file=", "output-lfn=", "dqmroot", "mergeNANO", "bypassVersionCheck", "isL1Scouting"]
+    valid = ["input-files=", "output-file=", "output-lfn=", "dqmroot", "mergeNANO", "rntuple", "bypassVersionCheck", "isL1Scouting"]
 
     usage = """RunMerge.py <options>"""
     try:
@@ -83,6 +85,8 @@ if __name__ == '__main__':
             merger.newDQMIO = True
         if opt == "--mergeNANO" :
             merger.mergeNANO = True
+        if opt == "--rntuple" :
+            merger.rntuple = True
         if opt == "--bypassVersionCheck" :
             merger.bypassVersionCheck = True
         if opt == "--isL1Scouting" :

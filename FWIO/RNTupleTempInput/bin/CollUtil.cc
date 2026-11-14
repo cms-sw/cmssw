@@ -55,7 +55,12 @@ namespace edm::rntuple_temp {
   Long64_t numEntries(TFile *hdl, std::string const &trname) {
     auto tuple = hdl->Get<ROOT::RNTuple>(trname.c_str());
     if (tuple) {
-      auto reader = ROOT::RNTupleReader::Open(*tuple);
+      ROOT::RNTupleReadOptions options;
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 41, 0)
+      //Needed for the GetActiveClusterIterable to work
+      options.SetMetadataMode(ROOT::RNTupleReadOptions::EMetadataMode::kEager);
+#endif
+      auto reader = ROOT::RNTupleReader::Open(*tuple, options);
       return reader->GetNEntries();
     } else {
       // Try as a TTree
@@ -116,7 +121,11 @@ namespace edm::rntuple_temp {
         }
         auto id = col.GetPhysicalId();
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 41, 0)
+        for (auto &cluster : iDesc.GetActiveClusterIterable()) {
+#else
         for (auto &cluster : iDesc.GetClusterIterable()) {
+#endif
           auto columnRange = cluster.GetColumnRange(id);
           if (columnRange.IsSuppressed()) {
             continue;

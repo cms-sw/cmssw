@@ -81,7 +81,6 @@ void PFRecoTauTagInfoProducer::produce(edm::StreamID, edm::Event& iEvent, const 
   edm::Handle<VertexCollection> thePVs;
   iEvent.getByToken(PV_token, thePVs);
   const VertexCollection vertCollection = *(thePVs.product());
-  math::XYZPoint V(0, 0, -1000.);
 
   Vertex thePV;
   if (!vertCollection.empty())

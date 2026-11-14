@@ -80,7 +80,6 @@ def split_remote(local_process, args, cpp_names_of_the_products):
         capture_name = f"activityCaptureBefore{local_dependency.title()}"
         insert_path_state_capture_before(local_process, first_modules_in_a_group=markers, capture_name=capture_name)
         sender = create_sender(
-                module_name=local_dependency,
                 products=cpp_names_of_the_products[local_dependency],
                 instance=instance,
                 sender_upstream=controller_name,
@@ -115,7 +114,6 @@ def split_remote(local_process, args, cpp_names_of_the_products):
                 capture_name=f"activityCaptureBefore{args.remote_process_name.title()}Group{group_idx}"
                 insert_path_state_capture_before(local_process, first_modules_in_a_group=[first_dependency_in_a_group[group_idx]], capture_name=capture_name)
                 sender = create_sender(
-                        module_name=local_dependency,
                         products=[],
                         instance=instance,
                         sender_upstream=controller_name,

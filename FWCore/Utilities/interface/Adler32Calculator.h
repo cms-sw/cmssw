@@ -1,17 +1,20 @@
 #ifndef FWCore_Utilities_Adler32Calculator_h
 #define FWCore_Utilities_Adler32Calculator_h
 
-#include <sys/types.h>
+#include <cstddef>
 #include <cstdint>
 
 /*
-Code to calculate a Adler32 checksum on a file.  This code is based
-on code copied from the web in the public domain.
+Adler-32 checksum (http://en.wikipedia.org/wiki/Adler-32), computed with zlib.
 */
 
 namespace cms {
 
-  void Adler32(char const* data, size_t len, uint32_t& a, uint32_t& b);
-  uint32_t Adler32(char const* data, size_t len);
+  // Adler-32 checksum of a new block of data
+  inline constexpr uint32_t adler32_init = 1;
+
+  // Checksum of len bytes of data; to checksum data in several pieces, pass the checksum of the
+  // previous ones as adler.
+  uint32_t adler32(char const* data, size_t len, uint32_t adler = adler32_init);
 }  // namespace cms
 #endif

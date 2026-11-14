@@ -53,10 +53,11 @@ assert_exit() {
     fi
 }
 
-# grep -E for alternation support
+# grep -E for alternation support. The text goes to grep as a here-string: under pipefail, a pipe into grep -q fails
+# when grep exits at the match before the writer has written all lines (SIGPIPE).
 assert_contains() {
     local pattern=$1 text=$2 label=$3
-    if echo "$text" | grep -qE -- "$pattern"; then
+    if grep -qE -- "$pattern" <<< "$text"; then
         ok "$label"
     else
         fail "$label: pattern '$pattern' not found in output"
@@ -68,7 +69,7 @@ assert_contains() {
 
 assert_not_contains() {
     local pattern=$1 text=$2 label=$3
-    if echo "$text" | grep -qE -- "$pattern"; then
+    if grep -qE -- "$pattern" <<< "$text"; then
         fail "$label: pattern '$pattern' should NOT appear in output"
         echo "--- output ---"
         echo "$text"

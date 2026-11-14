@@ -47,6 +47,7 @@
 #include "FWCore/Utilities/interface/FriendlyName.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/ReleaseVersion.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 #include "FWCore/Utilities/interface/stemFromPath.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
@@ -227,7 +228,7 @@ namespace edm {
 
     // Read the metadata tree.
     // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
-    std::unique_ptr<TTree> metaDataTree(dynamic_cast<TTree*>(filePtr_->Get(poolNames::metaDataTreeName().c_str())));
+    std::unique_ptr<TTree> metaDataTree(filePtr_->Get<TTree>(poolNames::metaDataTreeName().c_str()));
     if (nullptr == metaDataTree.get()) {
       throw Exception(errors::FileReadError)
           << "Could not find tree " << poolNames::metaDataTreeName() << " in the input file.\n";
@@ -287,7 +288,7 @@ namespace edm {
     } else {
       assert(fileFormatVersion().parameterSetsTree());
       // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
-      std::unique_ptr<TTree> psetTree(dynamic_cast<TTree*>(filePtr_->Get(poolNames::parameterSetsTreeName().c_str())));
+      std::unique_ptr<TTree> psetTree(filePtr_->Get<TTree>(poolNames::parameterSetsTreeName().c_str()));
       if (nullptr == psetTree.get()) {
         throw Exception(errors::FileReadError)
             << "Could not find tree " << poolNames::parameterSetsTreeName() << " in the input file.\n";
@@ -609,8 +610,7 @@ namespace edm {
   void RootFile::readEntryDescriptionTree(EntryDescriptionMap& entryDescriptionMap, InputType inputType) {
     // Called only for old format files.
     // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
-    std::unique_ptr<TTree> entryDescriptionTree(
-        dynamic_cast<TTree*>(filePtr_->Get(poolNames::entryDescriptionTreeName().c_str())));
+    std::unique_ptr<TTree> entryDescriptionTree(filePtr_->Get<TTree>(poolNames::entryDescriptionTreeName().c_str()));
     if (nullptr == entryDescriptionTree.get()) {
       throw Exception(errors::FileReadError)
           << "Could not find tree " << poolNames::entryDescriptionTreeName() << " in the input file.\n";
@@ -655,7 +655,7 @@ namespace edm {
   void RootFile::readParentageTree(InputType inputType) {
     // New format file
     // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
-    std::unique_ptr<TTree> parentageTree(dynamic_cast<TTree*>(filePtr_->Get(poolNames::parentageTreeName().c_str())));
+    std::unique_ptr<TTree> parentageTree(filePtr_->Get<TTree>(poolNames::parentageTreeName().c_str()));
     if (nullptr == parentageTree.get()) {
       throw Exception(errors::FileReadError)
           << "Could not find tree " << poolNames::parentageTreeName() << " in the input file.\n";
@@ -1844,7 +1844,7 @@ namespace edm {
     // Read in the event history tree, if we have one...
     if (fileFormatVersion().eventHistoryTree()) {
       history_ = std::make_unique<History>();  // propagate_const<T> has no reset() function
-      eventHistoryTree_ = dynamic_cast<TTree*>(filePtr_->Get(poolNames::eventHistoryTreeName().c_str()));
+      eventHistoryTree_ = filePtr_->Get<TTree>(poolNames::eventHistoryTreeName().c_str());
       if (!eventHistoryTree_) {
         throw Exception(errors::EventCorruption) << "Failed to find the event history tree.\n";
       }
@@ -2189,19 +2189,14 @@ namespace edm {
                 ServiceRegistry::Operate operate(serviceToken);
                 std::unique_ptr<const std::set<ProductProvenance>> prov;
                 try {
+                  auto guard = signalslot::make_sentry_if(
+                      post, [post, iContext]() { post->emit(*(iContext->getStreamContext()), *iContext); });
                   if (pre) {
                     pre->emit(*(iContext->getStreamContext()), *iContext);
                   }
                   prov = std::make_unique<const std::set<ProductProvenance>>(iThis->readProvenance(transitionIndex));
-                  if (post) {
-                    post->emit(*(iContext->getStreamContext()), *iContext);
-                  }
-
+                  guard.succeeded();
                 } catch (...) {
-                  if (post) {
-                    post->emit(*(iContext->getStreamContext()), *iContext);
-                  }
-
                   holder.doneWaiting(std::current_exception());
                   return;
                 }

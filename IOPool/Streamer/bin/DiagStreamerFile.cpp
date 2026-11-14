@@ -288,7 +288,7 @@ namespace {
 
   //==========================================================================
   bool test_chksum(EventMsgView const* eview) {
-    uint32_t adler32_chksum = cms::Adler32((char const*)eview->eventData(), eview->eventLength());
+    uint32_t adler32_chksum = cms::adler32((char const*)eview->eventData(), eview->eventLength());
     //std::cout << "Adler32 checksum of event = " << adler32_chksum << std::endl;
     //std::cout << "Adler32 checksum from header = " << eview->adler32_chksum() << std::endl;
     //std::cout << "event from host name = " << eview->hostName() << std::endl;

@@ -2,9 +2,6 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-from DQMOffline.RecoB.bTagMiniDQMTaggers import DeepCSVDiscriminators
-from DQMOffline.RecoB.bTagMiniDQMTaggers import DeepFlavourDiscriminators
-from DQMOffline.RecoB.bTagMiniDQMTaggers import ParticleNetPuppiCentralDiscriminators
 from DQMOffline.RecoB.bTagMiniDQMTaggers import ParticleNetPuppiForwardDiscriminators
 from DQMOffline.RecoB.bTagMiniDQMTaggers import UParTDiscriminators
 
@@ -38,7 +35,7 @@ bTagMiniValidationGlobal = bTagMiniDQMGlobal.clone(
     MClevel = 1 # produce flavour plots for b, c ,light (dusg)
 )
 bTagMiniValidationGlobalUParT = bTagMiniDQMGlobal.clone(
-    MClevel = 4 # produce flavour plots for b, c ,light (dusg)
+    MClevel = 3 # produce flavour plots for b, c, light split into d, u, s, g (odd: ALL is already booked by DQM)
 )
 
 # Eta regions
@@ -71,10 +68,13 @@ bTagMiniValidationHarvesting = cms.Sequence()
 
 #####################################################################################
 #
-# Setup DQM and Validation plots for DeepJet, ParticleNet and UParT taggers' outputs
+# Setup DQM and Validation plots for ParticleNet and UParT taggers' outputs
 #
 #####################################################################################
 def addSequences(Analyzer, Harvester, discriminators, regions, globalPSet, label='bTag'):
+    # the jet kinematics, which the diffEff plots of every discriminator divide by, are booked by exactly one
+    if sum(d.bookKinematics.value() for d in discriminators.values()) != 1:
+        raise RuntimeError(label + ': exactly one discriminator must have bookKinematics = True')
     for discr in discriminators.keys():
         for region in regions.keys():
             name = label + discr + region
@@ -86,18 +86,6 @@ def addSequences(Analyzer, Harvester, discriminators, regions, globalPSet, label
             Harvester.insert(-1, globals()[name + 'Harvester'])
 
 taggersToAnalyze = {
-    'bTagDeepFlavour': {
-        'discriminators': DeepFlavourDiscriminators,
-        'regions':Etaregions
-    },
-    'bTagDeepCSV': {
-        'discriminators': DeepCSVDiscriminators,
-        'regions':Etaregions
-    },
-    'bTagParticleNetCentral': {
-        'discriminators': ParticleNetPuppiCentralDiscriminators,
-        'regions': Etaregions
-    },
     'bTagParticleNetForward': {
         'discriminators': ParticleNetPuppiForwardDiscriminators,
         'regions': {
@@ -133,15 +121,13 @@ for tagger in taggersToAnalyze:
 
 #####################################################################################
 #
-# Setup Validation plots for DeepJet, ParticleNet and UParT taggers' inputs
+# Setup Validation plots for ParticleNet and UParT taggers' inputs
 #
 #####################################################################################
 # Jets in the tracker-coverage region
 patJetsPuppiTagInfoAnalyzerDQM = DQMEDAnalyzer('MiniAODTagInfoAnalyzer', cms.PSet(
     jets = cms.InputTag('updatedPatJetsSlimmedPuppiWithDeepTags'),
     jetTagInfos = cms.vstring(
-        "pfDeepFlavourTagInfosSlimmedPuppiWithDeepTags",
-        "pfParticleNetFromMiniAODAK4PuppiCentralTagInfosSlimmedPuppiWithDeepTags",
         "pfUnifiedParticleTransformerAK4TagInfosSlimmedPuppiWithDeepTags",
     ),
     ptMin = cms.double(30.),
@@ -165,7 +151,7 @@ bTagMiniDQMSource += patJetsPuppiForwardTagInfoAnalyzerDQM
 
 #####################################################################################
 #
-# Setup Validation plots for DeepJet, ParticleNet and UParT taggers' inputs
+# Setup Validation plots for ParticleNet and UParT taggers' inputs
 #
 #####################################################################################
 # Jets in the tracker-coverage region (Inclusive flavour)

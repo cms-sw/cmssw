@@ -34,12 +34,16 @@ namespace edm {
     ScheduleItems(ScheduleItems const&) = delete;             // Disallow copying and moving
     ScheduleItems& operator=(ScheduleItems const&) = delete;  // Disallow copying and moving
 
-    ServiceToken initServices(std::vector<ParameterSet>& servicePSets,
-                              ParameterSet& processPSet,
-                              ServiceToken const& iToken,
-                              serviceregistry::ServiceLegacy iLegacy);
+    /// Creates the services described by servicePSets in a new service set on top of the one owned by iToken, and
+    /// returns the token that owns the new set; iToken and its services are not modified.
+    OwningServiceToken initServices(std::vector<ParameterSet>& servicePSets,
+                                    ParameterSet& processPSet,
+                                    OwningServiceToken const& iToken,
+                                    serviceregistry::ServiceLegacy iLegacy);
 
-    ServiceToken addTNS(ParameterSet const& parameterSet, ServiceToken const& token);
+    /// Creates a new service set with the TriggerNamesService on top of the one owned by iToken, and returns the token
+    /// that owns the new set; iToken and its services are not modified.
+    OwningServiceToken addTNS(ParameterSet const& parameterSet, OwningServiceToken const& iToken);
 
     std::shared_ptr<CommonParams> initMisc(ParameterSet& parameterSet);
 

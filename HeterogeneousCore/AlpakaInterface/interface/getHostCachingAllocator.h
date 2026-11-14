@@ -11,7 +11,7 @@
 
 namespace cms::alpakatools {
 
-  template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+  template <typename TQueue, typename = std::enable_if_t<alpaka::concepts::Queue<TQueue>>>
   inline CachingAllocator<alpaka_common::DevHost, TQueue>& getHostCachingAllocator(
       AllocatorConfig const& config = AllocatorConfig{}, bool debug = false) {
     // thread safe initialisation of the host allocator

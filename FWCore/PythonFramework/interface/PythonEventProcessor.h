@@ -55,6 +55,7 @@ public:
 private:
   // ---------- member data --------------------------------
   int forcePluginSetupFirst_;
+  edm::OwningServiceToken jobReportToken_;
   edm::EventProcessor processor_;
 };
 

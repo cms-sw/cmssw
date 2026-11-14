@@ -17,7 +17,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::stream {
   class FixedQueueEDProducer : public ProducerBase<edm::stream::EDProducer, Args...> {
     static_assert(not edm::CheckAbility<edm::module::Abilities::kExternalWork, Args...>::kHasIt,
                   "ALPAKA_ACCELERATOR_NAMESPACE::stream::FixedQueueEDProducer may not be used with ExternalWork "
-                  "ability. Please request this functionality to the Heterogeneous or Core Software developers.");
+                  "ability. Please use ALPAKA_ACCELERATOR_NAMESPACE::stream::SynchronizingFixedQueueEDProducer "
+                  "instead.");
     using Base = ProducerBase<edm::stream::EDProducer, Args...>;
 
   protected:

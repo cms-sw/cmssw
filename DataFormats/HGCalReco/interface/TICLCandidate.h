@@ -43,7 +43,15 @@ namespace io_v1 {
           rawEnergy_(0.f) {}
 
     TICLCandidate(const edm::Ptr<reco::Track> trackPtr, const edm::Ptr<ticl::Trackster>& tracksterPtr)
-        : LeafCandidate(), tracksters_{}, trackPtrs_{}, time_(0.f), timeError_(-1.f) {
+        : LeafCandidate(),
+          tracksters_{},
+          trackPtrs_{},
+          idProbabilities_{},
+          time_(0.f),
+          timeError_(-1.f),
+          MTDtime_{0.f},
+          MTDtimeError_{-1.f},
+          rawEnergy_(0.f) {
       if (trackPtr.isNull() and tracksterPtr.isNull())
         throw cms::Exception("NullPointerError")
             << "TICLCandidate constructor: at least one between track and trackster must be valid";
@@ -54,9 +62,9 @@ namespace io_v1 {
         idProbabilities_ = trackster->id_probabilities();
         if (trackPtr.isNonnull()) {
           trackPtrs_.push_back(trackPtr);
-          auto pdgId = trackster->isHadronic() ? 211 : 11;
           auto const& tk = trackPtr.get();
-          setPdgId(pdgId * tk->charge());
+          // PDG sign convention: a pi+ is +211, an e- is +11.
+          setPdgId(trackster->isHadronic() ? 211 * tk->charge() : -11 * tk->charge());
           setCharge(tk->charge());
           rawEnergy_ = trackster->raw_energy();
           auto const& regrE = trackster->regressed_energy();

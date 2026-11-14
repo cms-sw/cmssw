@@ -160,12 +160,6 @@ namespace ticlgeom {
     // semantics; the v8 DetId::Forward geometries are not reproduced)
     unsigned int getLayer(ForwardSubdetector type) const {
       switch (type) {
-        case ForwardSubdetector::HGCEE:
-          return common_.lastLayerEE();
-        case ForwardSubdetector::HGCHEF:
-          return common_.lastLayerFH() - common_.lastLayerEE();
-        case ForwardSubdetector::HGCHEB:
-          return common_.lastLayerBH() - common_.firstLayerBH() + 1;
         case ForwardSubdetector::HFNose:
           return common_.noseLastLayer();
         case ForwardSubdetector::ForwardEmpty:

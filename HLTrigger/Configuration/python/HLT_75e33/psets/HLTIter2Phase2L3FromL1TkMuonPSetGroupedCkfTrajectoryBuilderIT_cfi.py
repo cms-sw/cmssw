@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 HLTIter2Phase2L3FromL1TkMuonPSetGroupedCkfTrajectoryBuilderIT = cms.PSet(
     ComponentType = cms.string('GroupedCkfTrajectoryBuilder'),
-    TTRHBuilder = cms.string('WithTrackAngle'),
+    TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
     alwaysUseInvalidHits = cms.bool(False),
     bestHitOnly = cms.bool(True),
     estimator = cms.string('hltESPChi2ChargeMeasurementEstimator30'),
@@ -17,7 +17,7 @@ HLTIter2Phase2L3FromL1TkMuonPSetGroupedCkfTrajectoryBuilderIT = cms.PSet(
     maxCand = cms.int32(2),
     minNrOfHitsForRebuild = cms.int32(5),
     propagatorAlong = cms.string('PropagatorWithMaterialParabolicMf'),
-    propagatorOpposite = cms.string('PropagatorWithMaterialParabolicMfOpposite'),
+    propagatorOpposite = cms.string('hltOppositeMaterialPropagatorParabolicMF'),
     requireSeedHitsInRebuild = cms.bool(False),
     seedAs5DHit = cms.bool(False),
     trajectoryFilter = cms.PSet(

@@ -33,7 +33,6 @@
 #include <iomanip>
 #include <iostream>
 #include <cstdio>
-#include "L1Trigger/L1CaloTrigger/interface/Phase2L1CaloBarrelToCorrelator.h"
 #include "L1Trigger/L1CaloTrigger/interface/Phase2L1CaloEGammaUtils.h"
 
 //
@@ -149,7 +148,7 @@ void Phase2GCTBarrelToCorrelatorLayer1::produce(edm::Event& iEvent, const edm::E
   l1tp2::GCTHadDigiClusterLink buffer_had_GCT3_SLR3_negEta[4];
 
   //***************************************************//
-  // Loop over the regions: in order: GCT1 SLR1, GCT1 SLR3, GCT2 SLR1, GCT2 SLR3, GCT3 SLR1, GCT3SLR3
+  // Loop over the regions: in order: GCT1 SLR3, GCT1 SLR1, GCT2 SLR3, GCT2 SLR1, GCT3 SLR3, GCT3 SLR1
   //***************************************************//
 
   const int nRegions = 6;
@@ -163,34 +162,23 @@ void Phase2GCTBarrelToCorrelatorLayer1::produce(edm::Event& iEvent, const edm::E
       // Check if this cluster falls into each SLR region, i.e. if the cluster is within 120/2 = 60 degrees of the center of the SLR in phi
       float clusterRealPhiAsDegree = clusterIn.realPhi() * 180 / M_PI;
       float phiDifference = p2eg::deltaPhiInDegrees(clusterRealPhiAsDegree, regionCentersInDegrees[iRegion]);
-      if (std::abs(phiDifference) < (p2eg::PHI_RANGE_PER_SLR_DEGREES / 2)) {
-        // Go from real phi to an index in the SLR
-        // The crystal directly above the region center in phi, is iPhi 0. The crystal directly below the region center in phi, is iPhi -1.
-        int iPhiCrystalDifference = std::floor(phiDifference);
+      if (std::abs(phiDifference) < (p2eg::PHI_RANGE_PER_SLR_DEGREES / 4)) {  // only unique region
+        // Use realEta() to determine which link
+        float eta_LSB = p2eg::ECAL_eta_range / (p2eg::N_GCTTOWERS_FIBER * p2eg::CRYSTALS_IN_TOWER_ETA);
+        int temp_iEta_signed = std::floor(clusterIn.realEta() / eta_LSB);
 
-        // For eta, the eta is already digitized, just needs to be converted from [0, +2*17*5) to [-17*5, +17*5)
-        int temp_iEta_signed = clusterIn.eta() - (p2eg::CRYSTALS_IN_TOWER_ETA * p2eg::n_towers_per_link);
-
-        // Default value: for clusters in positive eta, values go from 0, 1, 2, 3, 4
-        int iEta = temp_iEta_signed;
-        // If cluster is in negative eta, instead of from -5, -4, -3, -2, -1, we want 4, 3, 2, 1, 0
-        if (temp_iEta_signed < 0) {
-          // If in negative eta, convert to an absolute value, with 0 being the crystal nearest real eta = 0
-          iEta = std::abs(temp_iEta_signed + 1);
-        }
-
-        // Initialize the new cluster and set the edm::Ref pointing to the underlying float
+        // Need to adapt DigitizedClusterCorrelator to DigitizedClusterCorrelatorTM18
         l1tp2::GCTEmDigiCluster clusterOut = l1tp2::GCTEmDigiCluster(clusterIn.pt(),
-                                                                     iEta,
-                                                                     iPhiCrystalDifference,
+                                                                     clusterIn.eta(),
+                                                                     clusterIn.phi(),
                                                                      clusterIn.hoe(),
-                                                                     clusterIn.hoeFlag(),
                                                                      clusterIn.iso(),
-                                                                     clusterIn.isoFlags(),
-                                                                     clusterIn.fb(),
+                                                                     clusterIn.shape(),
+                                                                     clusterIn.wp(),
                                                                      clusterIn.timing(),
-                                                                     clusterIn.shapeFlags(),
-                                                                     clusterIn.brems());
+                                                                     clusterIn.brems(),
+                                                                     clusterIn.spare());
+
         // there is a 1-to-1 mapping between the original float clusters and the first step of digitization, so we can build a ref to the same cluster
         edm::Ref<l1tp2::CaloCrystalClusterCollection> thisRef(inputGCTClusters, iCluster);
         clusterOut.setRef(thisRef);
@@ -200,11 +188,11 @@ void Phase2GCTBarrelToCorrelatorLayer1::produce(edm::Event& iEvent, const edm::E
         // Check which RCT card this falls into, ordered 0, 1, 2, 3 counting from the most negative phi (real phi or iPhi) to the most positive
         // so RCT card 0 is -60 to -30 degrees in phi from the center, RCT card 1 is -30 to 0 degrees in phi from the center, RCT card 2 is 0 to +30 degrees in phi from the center, RCT card 3 is +30 to +60 degrees in phi from the center
         int whichRCTcard = 0;
-        if (phiDifference < -30) {
+        if (phiDifference < -(p2eg::PHI_RANGE_PER_SLR_DEGREES / 4)) {
           whichRCTcard = 0;
         } else if (phiDifference < 0) {
           whichRCTcard = 1;
-        } else if (phiDifference < 30) {
+        } else if (phiDifference < (p2eg::PHI_RANGE_PER_SLR_DEGREES / 4)) {
           whichRCTcard = 2;
         } else {
           whichRCTcard = 3;
@@ -212,39 +200,39 @@ void Phase2GCTBarrelToCorrelatorLayer1::produce(edm::Event& iEvent, const edm::E
 
         if (iRegion == 0) {
           if (temp_iEta_signed < 0) {
-            buffer_eg_GCT1_SLR1_negEta[whichRCTcard].push_back(clusterOut);
-          } else {
-            buffer_eg_GCT1_SLR1_posEta[whichRCTcard].push_back(clusterOut);
-          }
-        } else if (iRegion == 1) {
-          if (temp_iEta_signed < 0) {
             buffer_eg_GCT1_SLR3_negEta[whichRCTcard].push_back(clusterOut);
           } else {
             buffer_eg_GCT1_SLR3_posEta[whichRCTcard].push_back(clusterOut);
           }
-        } else if (iRegion == 2) {
+        } else if (iRegion == 1) {
           if (temp_iEta_signed < 0) {
-            buffer_eg_GCT2_SLR1_negEta[whichRCTcard].push_back(clusterOut);
+            buffer_eg_GCT1_SLR1_negEta[whichRCTcard].push_back(clusterOut);
           } else {
-            buffer_eg_GCT2_SLR1_posEta[whichRCTcard].push_back(clusterOut);
+            buffer_eg_GCT1_SLR1_posEta[whichRCTcard].push_back(clusterOut);
           }
-        } else if (iRegion == 3) {
+        } else if (iRegion == 2) {
           if (temp_iEta_signed < 0) {
             buffer_eg_GCT2_SLR3_negEta[whichRCTcard].push_back(clusterOut);
           } else {
             buffer_eg_GCT2_SLR3_posEta[whichRCTcard].push_back(clusterOut);
           }
-        } else if (iRegion == 4) {
+        } else if (iRegion == 3) {
           if (temp_iEta_signed < 0) {
-            buffer_eg_GCT3_SLR1_negEta[whichRCTcard].push_back(clusterOut);
+            buffer_eg_GCT2_SLR1_negEta[whichRCTcard].push_back(clusterOut);
           } else {
-            buffer_eg_GCT3_SLR1_posEta[whichRCTcard].push_back(clusterOut);
+            buffer_eg_GCT2_SLR1_posEta[whichRCTcard].push_back(clusterOut);
           }
-        } else if (iRegion == 5) {
+        } else if (iRegion == 4) {
           if (temp_iEta_signed < 0) {
             buffer_eg_GCT3_SLR3_negEta[whichRCTcard].push_back(clusterOut);
           } else {
             buffer_eg_GCT3_SLR3_posEta[whichRCTcard].push_back(clusterOut);
+          }
+        } else if (iRegion == 5) {
+          if (temp_iEta_signed < 0) {
+            buffer_eg_GCT3_SLR1_negEta[whichRCTcard].push_back(clusterOut);
+          } else {
+            buffer_eg_GCT3_SLR1_posEta[whichRCTcard].push_back(clusterOut);
           }
         }
       }
@@ -252,7 +240,7 @@ void Phase2GCTBarrelToCorrelatorLayer1::produce(edm::Event& iEvent, const edm::E
 
     // Repeat for PF Clusters
     for (size_t iCluster = 0; iCluster < inputPFClusters->size(); ++iCluster) {
-      l1tp2::CaloPFCluster pfIn = inputPFClusters->at(iCluster);
+      const l1tp2::CaloPFCluster& pfIn = inputPFClusters->at(iCluster);
 
       // Skip zero-energy clusters
       if (pfIn.clusterEt() == 0)
@@ -260,15 +248,10 @@ void Phase2GCTBarrelToCorrelatorLayer1::produce(edm::Event& iEvent, const edm::E
 
       // Check if this cluster falls into each GCT card
       float clusterRealPhiAsDegree = pfIn.clusterPhi() * 180 / M_PI;
-      float differenceInPhi = p2eg::deltaPhiInDegrees(clusterRealPhiAsDegree, regionCentersInDegrees[iRegion]);
-      if (std::abs(differenceInPhi) < (p2eg::PHI_RANGE_PER_SLR_DEGREES / 2)) {
-        // Go from real phi to an index in the SLR
-        // Calculate the distance in phi from the center of the region
-        float phiDifference = clusterRealPhiAsDegree - regionCentersInDegrees[iRegion];
-        int iPhiCrystalDifference = std::floor(phiDifference);
-
+      float phiDifference = p2eg::deltaPhiInDegrees(clusterRealPhiAsDegree, regionCentersInDegrees[iRegion]);
+      if (std::abs(phiDifference) < (p2eg::PHI_RANGE_PER_SLR_DEGREES / 4)) {  // only unique region
         // For PFClusters, the method clusterEta returns a float, so we need to digitize this
-        float eta_LSB = p2eg::ECAL_eta_range / (p2eg::N_GCTTOWERS_FIBER * p2eg::CRYSTALS_IN_TOWER_ETA);
+        static const float eta_LSB = p2eg::ECAL_eta_range / (p2eg::N_GCTTOWERS_FIBER * p2eg::CRYSTALS_IN_TOWER_ETA);
         int temp_iEta_signed = std::floor(pfIn.clusterEta() / eta_LSB);
         // Default value (for positive eta)
         int iEta = temp_iEta_signed;
@@ -283,24 +266,41 @@ void Phase2GCTBarrelToCorrelatorLayer1::produce(edm::Event& iEvent, const edm::E
         if (iEta > maxEta) {
           continue;
         }
+        ap_uint<7> pf_eta = (ap_uint<7>)((std::abs(pfIn.clusterEta()) / eta_LSB));
+        // std::cout << "[GCT] PF Cluster: eta in =" << pfIn.clusterEta()
+        //           << " abs: " << std::abs(pfIn.clusterEta())
+        //           << " ratio: " << std::abs(pfIn.clusterEta())/ eta_LSB
+        //           << " floor: " << std::floor(std::abs(pfIn.clusterEta())/ eta_LSB)
+        //           << " rounded: " << std::floor(( std::abs(pfIn.clusterEta())/ eta_LSB) + 0.5)
+        //           << ", eta out=" << pf_eta.to_int()
+        //           << " float: " << pf_eta * eta_LSB
+        //           << " ieta: " << iEta
+        //           << " (f) " << iEta * eta_LSB
+        //           << " LSB: " << eta_LSB
+        //           << " diff: " << std::abs(std::abs(pfIn.clusterEta()) - (pf_eta * eta_LSB))/ eta_LSB
+        //           << std::endl;
+
+        ap_int<7> pf_phi = 0x7F & int(std::floor(phiDifference));  // greatest integer <= x
 
         // Initialize the new cluster
-        l1tp2::GCTHadDigiCluster pfOut =
-            l1tp2::GCTHadDigiCluster(pfIn.clusterEt() / p2eg::ECAL_LSB,  // convert to integer
-                                     iEta,
-                                     iPhiCrystalDifference,
-                                     0  // no HoE value in PF Cluster
-            );
+        ap_uint<20> spare = 0;
+        if (temp_iEta_signed < 0)
+          spare = 4;  // 3rd bit encode PosEta
+        ap_uint<12> pf_et = (ap_uint<12>)(pfIn.clusterEt() / p2eg::ECAL_LSB);
+        ap_uint<12> pf_ecal = (ap_uint<12>)(pfIn.ecalEt() / p2eg::ECAL_LSB);
+        l1tp2::GCTHadDigiCluster pfOut = l1tp2::GCTHadDigiCluster(pf_et, pf_eta, pf_phi, pf_ecal, 0x0, spare);
+
         pfOut.setRef(edm::Ref<l1tp2::CaloPFClusterCollection>(inputPFClusters, iCluster));
 
         // Check which RCT card this falls into, ordered 0, 1, 2, 3 counting from the most negative phi (real phi or iPhi) to the most positive
         // so RCT card 0 is -60 to -30 degrees in phi from the center, RCT card 1 is -30 to 0 degrees in phi from the center, RCT card 2 is 0 to +30 degrees in phi from the center, RCT card 3 is +30 to +60 degrees in phi from the center
+
         int whichRCTcard = 0;
-        if (phiDifference < -30) {
+        if (phiDifference < -(p2eg::PHI_RANGE_PER_SLR_DEGREES / 4)) {
           whichRCTcard = 0;
         } else if (phiDifference < 0) {
           whichRCTcard = 1;
-        } else if (phiDifference < 30) {
+        } else if (phiDifference < (p2eg::PHI_RANGE_PER_SLR_DEGREES / 4)) {
           whichRCTcard = 2;
         } else {
           whichRCTcard = 3;
@@ -308,39 +308,39 @@ void Phase2GCTBarrelToCorrelatorLayer1::produce(edm::Event& iEvent, const edm::E
 
         if (iRegion == 0) {
           if (temp_iEta_signed < 0) {
-            buffer_had_GCT1_SLR1_negEta[whichRCTcard].push_back(pfOut);
-          } else {
-            buffer_had_GCT1_SLR1_posEta[whichRCTcard].push_back(pfOut);
-          }
-        } else if (iRegion == 1) {
-          if (temp_iEta_signed < 0) {
             buffer_had_GCT1_SLR3_negEta[whichRCTcard].push_back(pfOut);
           } else {
             buffer_had_GCT1_SLR3_posEta[whichRCTcard].push_back(pfOut);
           }
-        } else if (iRegion == 2) {
+        } else if (iRegion == 1) {
           if (temp_iEta_signed < 0) {
-            buffer_had_GCT2_SLR1_negEta[whichRCTcard].push_back(pfOut);
+            buffer_had_GCT1_SLR1_negEta[whichRCTcard].push_back(pfOut);
           } else {
-            buffer_had_GCT2_SLR1_posEta[whichRCTcard].push_back(pfOut);
+            buffer_had_GCT1_SLR1_posEta[whichRCTcard].push_back(pfOut);
           }
-        } else if (iRegion == 3) {
+        } else if (iRegion == 2) {
           if (temp_iEta_signed < 0) {
             buffer_had_GCT2_SLR3_negEta[whichRCTcard].push_back(pfOut);
           } else {
             buffer_had_GCT2_SLR3_posEta[whichRCTcard].push_back(pfOut);
           }
-        } else if (iRegion == 4) {
+        } else if (iRegion == 3) {
           if (temp_iEta_signed < 0) {
-            buffer_had_GCT3_SLR1_negEta[whichRCTcard].push_back(pfOut);
+            buffer_had_GCT2_SLR1_negEta[whichRCTcard].push_back(pfOut);
           } else {
-            buffer_had_GCT3_SLR1_posEta[whichRCTcard].push_back(pfOut);
+            buffer_had_GCT2_SLR1_posEta[whichRCTcard].push_back(pfOut);
           }
-        } else if (iRegion == 5) {
+        } else if (iRegion == 4) {
           if (temp_iEta_signed < 0) {
             buffer_had_GCT3_SLR3_negEta[whichRCTcard].push_back(pfOut);
           } else {
             buffer_had_GCT3_SLR3_posEta[whichRCTcard].push_back(pfOut);
+          }
+        } else if (iRegion == 5) {
+          if (temp_iEta_signed < 0) {
+            buffer_had_GCT3_SLR1_negEta[whichRCTcard].push_back(pfOut);
+          } else {
+            buffer_had_GCT3_SLR1_posEta[whichRCTcard].push_back(pfOut);
           }
         }
       }
@@ -418,31 +418,31 @@ void Phase2GCTBarrelToCorrelatorLayer1::produce(edm::Event& iEvent, const edm::E
   }
 
   // Finally, push back the SLR containers
-  outputEmClusters->push_back(out_eg_GCT1_SLR1_posEta);
-  outputEmClusters->push_back(out_eg_GCT1_SLR1_negEta);
   outputEmClusters->push_back(out_eg_GCT1_SLR3_posEta);
   outputEmClusters->push_back(out_eg_GCT1_SLR3_negEta);
-  outputEmClusters->push_back(out_eg_GCT2_SLR1_posEta);
-  outputEmClusters->push_back(out_eg_GCT2_SLR1_negEta);
+  outputEmClusters->push_back(out_eg_GCT1_SLR1_posEta);
+  outputEmClusters->push_back(out_eg_GCT1_SLR1_negEta);
   outputEmClusters->push_back(out_eg_GCT2_SLR3_posEta);
   outputEmClusters->push_back(out_eg_GCT2_SLR3_negEta);
-  outputEmClusters->push_back(out_eg_GCT3_SLR1_posEta);
-  outputEmClusters->push_back(out_eg_GCT3_SLR1_negEta);
+  outputEmClusters->push_back(out_eg_GCT2_SLR1_posEta);
+  outputEmClusters->push_back(out_eg_GCT2_SLR1_negEta);
   outputEmClusters->push_back(out_eg_GCT3_SLR3_posEta);
   outputEmClusters->push_back(out_eg_GCT3_SLR3_negEta);
+  outputEmClusters->push_back(out_eg_GCT3_SLR1_posEta);
+  outputEmClusters->push_back(out_eg_GCT3_SLR1_negEta);
 
-  outputHadClusters->push_back(out_had_GCT1_SLR1_posEta);
-  outputHadClusters->push_back(out_had_GCT1_SLR1_negEta);
   outputHadClusters->push_back(out_had_GCT1_SLR3_posEta);
   outputHadClusters->push_back(out_had_GCT1_SLR3_negEta);
-  outputHadClusters->push_back(out_had_GCT2_SLR1_posEta);
-  outputHadClusters->push_back(out_had_GCT2_SLR1_negEta);
+  outputHadClusters->push_back(out_had_GCT1_SLR1_posEta);
+  outputHadClusters->push_back(out_had_GCT1_SLR1_negEta);
   outputHadClusters->push_back(out_had_GCT2_SLR3_posEta);
   outputHadClusters->push_back(out_had_GCT2_SLR3_negEta);
-  outputHadClusters->push_back(out_had_GCT3_SLR1_posEta);
-  outputHadClusters->push_back(out_had_GCT3_SLR1_negEta);
+  outputHadClusters->push_back(out_had_GCT2_SLR1_posEta);
+  outputHadClusters->push_back(out_had_GCT2_SLR1_negEta);
   outputHadClusters->push_back(out_had_GCT3_SLR3_posEta);
   outputHadClusters->push_back(out_had_GCT3_SLR3_negEta);
+  outputHadClusters->push_back(out_had_GCT3_SLR1_posEta);
+  outputHadClusters->push_back(out_had_GCT3_SLR1_negEta);
 
   iEvent.put(std::move(outputEmClusters), "GCTEmDigiClusters");
   iEvent.put(std::move(outputHadClusters), "GCTHadDigiClusters");

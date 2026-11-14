@@ -1,42 +1,80 @@
 #include <cmath>
+#include <memory>
+
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
-#include "FWCore/AbstractServices/interface/ResourceInformation.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXInterface.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
+#include "PhysicsTools/ONNXRuntime/interface/SessionCache.h"
 #include "RecoParticleFlow/PFProducer/interface/MLPFModel.h"
+#include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 using namespace cms::Ort;
+using namespace reco::mlpf;
 
 //use this to switch on detailed print statements in MLPF
 //#define MLPF_DEBUG
 
-class MLPFProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
+class MLPFProducer : public edm::stream::EDProducer<edm::GlobalCache<SessionCache>> {
 public:
-  explicit MLPFProducer(const edm::ParameterSet&, const ONNXRuntime*);
+  explicit MLPFProducer(const edm::ParameterSet&, const SessionCache*);
+
+  // Create the ONNX Runtime session used by this framework stream before the first event: on the CPU all the streams
+  // share the same session, on a GPU each stream has its own, running in its own compute stream.
+  void beginStream(edm::StreamID id) override;
 
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   // static methods for handling the global cache
-  static std::unique_ptr<ONNXRuntime> initializeGlobalCache(const edm::ParameterSet&);
-  static void globalEndJob(const ONNXRuntime*);
+  static std::unique_ptr<SessionCache> initializeGlobalCache(const edm::ParameterSet&);
+  static void globalEndJob(const SessionCache*);
+
+  bool passAdditionalTrackFilterNoHCAL(const reco::PFBlockElement* elem, const TrackToCaloLinks& links);
 
 private:
   const edm::EDPutTokenT<reco::PFCandidateCollection> pfCandidatesPutToken_;
   const edm::EDGetTokenT<edm::View<reco::GsfElectron>> gsfElectrons_;
   const edm::EDGetTokenT<reco::PFBlockCollection> inputTagBlocks_;
+
+  const bool noRegressionEndcap_;
+  const StringCutObjectSelector<reco::Track> endcapTk_;
+
+  const bool additionalTrackFilterNoHCAL_;
+  struct AdditionalTrackFilterParams {
+    std::unique_ptr<StringCutObjectSelector<reco::Track>> additionalFilterTk;
+    double ptError;
+  };
+  const AdditionalTrackFilterParams additionalTrackFilterParams_;
+
+  using ElementMap = std::multimap<double, unsigned>;
 };
 
-MLPFProducer::MLPFProducer(const edm::ParameterSet& cfg, const ONNXRuntime* cache)
+MLPFProducer::MLPFProducer(const edm::ParameterSet& cfg, const SessionCache* cache)
     : pfCandidatesPutToken_{produces<reco::PFCandidateCollection>()},
       gsfElectrons_{consumes<edm::View<reco::GsfElectron>>(edm::InputTag("gedGsfElectronsTmp"))},
-      inputTagBlocks_{consumes<reco::PFBlockCollection>(cfg.getParameter<edm::InputTag>("src"))} {}
+      inputTagBlocks_{consumes<reco::PFBlockCollection>(cfg.getParameter<edm::InputTag>("src"))},
+      noRegressionEndcap_(cfg.getParameter<bool>("noRegressionEndcap")),
+      endcapTk_(cfg.getParameter<std::string>("endcapTk")),
+      additionalTrackFilterNoHCAL_(cfg.getParameter<bool>("additionalTrackFilterNoHCAL")),
+      additionalTrackFilterParams_{
+          std::make_unique<StringCutObjectSelector<reco::Track>>(
+              cfg.getParameter<edm::ParameterSet>("AdditionalTrackFilterNoHCALParams")
+                  .getParameter<std::string>("additionalFilterTk")),
+          cfg.getParameter<edm::ParameterSet>("AdditionalTrackFilterNoHCALParams").getParameter<double>("pt_Error")} {}
+
+void MLPFProducer::beginStream(edm::StreamID id) { globalCache()->get(id); }
 
 void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   using namespace reco::mlpf;
@@ -94,10 +132,12 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
 #endif
 
   //run the GNN inference, given the inputs and the output.
-  const auto& outputs = globalCache()->run(
-      {"Xfeat_normed", "mask"},
-      inputs,
-      {{1, static_cast<long int>(tensor_size), NUM_ELEMENT_FEATURES}, {1, static_cast<long int>(tensor_size)}});
+  const auto& outputs = globalCache()
+                            ->get(event.streamID())
+                            .run({"Xfeat_normed", "mask"},
+                                 inputs,
+                                 {{1, static_cast<long int>(tensor_size), NUM_ELEMENT_FEATURES},
+                                  {1, static_cast<long int>(tensor_size)}});
   const auto& output_binary = outputs[0];
   const auto& output_pid = outputs[1];
   const auto& output_p4 = outputs[2];
@@ -167,6 +207,12 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
         pred_pid = 130;
       }
 
+      //consider electron candidates only from GSF track or general track. If not, label them as photons.
+      if ((pred_pid == 11) && elem->type() != reco::PFBlockElement::GSF &&
+          elem->type() != reco::PFBlockElement::TRACK) {
+        pred_pid = 22;
+      }
+
       float pred_charge = 0.0;
       if (elem->type() == reco::PFBlockElement::TRACK) {
         const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(elem);
@@ -209,12 +255,34 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
 
       if (elem->type() == reco::PFBlockElement::TRACK) {
         const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(elem);
-        if (eltTrack->trackRef().isNonnull()) {
-          pred_eta = eltTrack->trackRef()->eta();
-          pred_sin_phi = sin(eltTrack->trackRef()->phi());
-          pred_cos_phi = cos(eltTrack->trackRef()->phi());
-        }
-      }
+        const auto trackRef = eltTrack->trackRef();
+        if (trackRef.isNonnull()) {
+          pred_eta = trackRef->eta();
+          pred_sin_phi = sin(trackRef->phi());
+          pred_cos_phi = cos(trackRef->phi());
+
+          // Prepare for extra checks for a track
+          const reco::PFBlock* correspondingBlock = findBlock(blocks, elem);
+          const auto trackLinks = getTrackToCaloLinks(correspondingBlock, elem);
+
+          // Mimic tight track selection in PFAlgo::recoTracksNotHCAL
+          if (additionalTrackFilterNoHCAL_ && !passAdditionalTrackFilterNoHCAL(elem, trackLinks))
+            continue;
+
+#ifdef MLPF_DEBUG
+          std::cout << ielem << " " << trackLinks.ecal << " " << trackLinks.hcal << " " << trackLinks.hfEm << " "
+                    << trackLinks.hfHad << " " << trackRef->pt() << " " << trackRef->ptError() << " " << trackRef->eta()
+                    << " " << std::endl;
+#endif
+
+          if (noRegressionEndcap_ && endcapTk_(*trackRef) && trackLinks.noCaloLink()) {
+            // take track kinematics if a track is in the HGCAL eta coverage and no link to ECAL, HCAL, and HF clusters.
+            pred_pt = trackRef->pt();
+            pred_e = std::sqrt(trackRef->p() * trackRef->p() + PI_MASS * PI_MASS);
+          }
+
+        }  // trackRef present
+      }  // track element
 
       auto cand = makeCandidate(pred_pid, pred_charge, pred_pt, pred_eta, pred_sin_phi, pred_cos_phi, pred_e);
       setCandidateRefs(cand, selected_elements, ielem);
@@ -230,23 +298,29 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   event.emplace(pfCandidatesPutToken_, pOutputCandidateCollection);
 }
 
-std::unique_ptr<ONNXRuntime> MLPFProducer::initializeGlobalCache(const edm::ParameterSet& params) {
-  edm::Service<edm::ResourceInformation> ri;
+bool MLPFProducer::passAdditionalTrackFilterNoHCAL(const reco::PFBlockElement* elem, const TrackToCaloLinks& links) {
+  // Mimic tight track selection in PFAlgo::recoTracksNotHCAL
+  const auto& trackRef = elem->trackRef();
 
-  Backend backend = Backend::cpu;
+  if (trackRef.isNull())
+    throw cms::Exception("MLPFProducer") << "trackRef not found in passAdditionalTrackFilterNoHCAL.";
 
-  if (ri.isAvailable() && ri->hasGpuNvidia()) {
-    backend = Backend::cuda;
-    edm::LogInfo("MLPFProducer") << "NVIDIA GPU detected. Running ONNX model on CUDA.";
-  } else {
-    edm::LogInfo("MLPFProducer") << "No NVIDIA GPU detected. Running ONNX model on CPU.";
-  }
+  if ((*additionalTrackFilterParams_.additionalFilterTk)(*trackRef) && links.noHadLink()) {
+    if (!PFMuonAlgo::isMuon(*elem) && trackRef->ptError() > additionalTrackFilterParams_.ptError)
+      return false;
+  }  // additionalFilterTk && Not linked to Hcal
 
-  auto session_options = ONNXRuntime::defaultSessionOptions(backend);
-  return std::make_unique<ONNXRuntime>(params.getParameter<edm::FileInPath>("model_path").fullPath(), &session_options);
+  return true;
 }
 
-void MLPFProducer::globalEndJob(const ONNXRuntime* cache) {}
+std::unique_ptr<SessionCache> MLPFProducer::initializeGlobalCache(const edm::ParameterSet& params) {
+  edm::Service<ONNXInterface> onnx;
+  Backend backend = onnx->chooseBackend(Backend::cuda, Backend::cpu);
+  edm::LogInfo("MLPFProducer") << "Running the MLPF model on the " << backendName(backend) << " backend.";
+  return std::make_unique<SessionCache>(params.getParameter<edm::FileInPath>("model_path").fullPath(), backend);
+}
+
+void MLPFProducer::globalEndJob(const SessionCache* cache) {}
 
 void MLPFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -255,6 +329,18 @@ void MLPFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions
       "model_path",
       edm::FileInPath("RecoParticleFlow/PFProducer/data/mlpf/"
                       "mlpf_5M_attn2x3x256_bm12_relu_checkpoint10_8xmi250_fp32_fused_20250722.onnx"));
+  //
+  desc.add<bool>("additionalTrackFilterNoHCAL", false)
+      ->setComment("Apply tight requirments for tracks not linked to HCAL clusters.");
+  {
+    edm::ParameterSetDescription psd;
+    psd.add<std::string>("additionalFilterTk", "1.48 < abs(eta) < 3.0");
+    psd.add<double>("pt_Error", 1.0)->setComment("Absolute pt error to detect fake tracks.");
+    desc.add<edm::ParameterSetDescription>("AdditionalTrackFilterNoHCALParams", psd);
+  }
+  //
+  desc.add<bool>("noRegressionEndcap", false)->setComment("Turn on/off regression for tracks in the endcap.");
+  desc.add<std::string>("endcapTk", "1.48 < abs(eta) < 3.0");
   descriptions.addWithDefaultLabel(desc);
 }
 

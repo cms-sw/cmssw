@@ -79,7 +79,7 @@ void EDProducerBase::transformAsync_(WaitingTaskHolder iTask,
                                      std::size_t iIndex,
                                      edm::EventForTransformer& iEvent,
                                      edm::ActivityRegistry* iAct,
-                                     ServiceWeakToken const& iToken) const noexcept {}
+                                     ServiceToken const& iToken) const noexcept {}
 
 void EDProducerBase::prevalidate(ConfigurationDescriptions& iConfig) { edmodule_mightGet_config(iConfig); }
 

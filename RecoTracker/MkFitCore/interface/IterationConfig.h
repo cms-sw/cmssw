@@ -131,7 +131,14 @@ namespace mkfit {
     bool m_backward_search = false;
     bool m_backward_drop_seed_hits = false;
 
-    int m_backward_fit_min_hits = -1;  // Min number of hits to keep when m_backward_drop_seed_hits is true
+    int m_backward_fit_min_hits = -1;           // Min number of hits to keep when m_backward_drop_seed_hits is true
+    float m_backward_fit_outlier_chi2 = 0.f;    // If > 0, hits above this chi2 are dropped in the backward fit ...
+    int m_backward_fit_max_outliers = 0;        // ... up to this many per track
+    float m_backward_fit_outlier_min_pt = 0.f;  // ... only on tracks with pT above this
+    // If > 0, a backward-search extension is kept only if its new hits lie on this many pixel layers (one layer if
+    // |d0| to the beam spot is below m_backward_search_prompt_max_d0); otherwise the pre-search candidate is restored.
+    int m_backward_search_min_pixel_layers = 0;
+    float m_backward_search_prompt_max_d0 = 0.f;
 
     // seed cleaning params with good defaults (all configurable)
     float sc_ptthr_hpt = 2.0;
@@ -149,6 +156,23 @@ namespace mkfit {
     float dc_drth_central = 0.001;
     float dc_drth_obarrel = 0.001;
     float dc_drth_forward = 0.001;
+    // pT-adaptive pixel-priority cleaner (phase2:clean_duplicates_sharedhits_pixelpriority_ptadaptive), parameters set
+    // by MkFitIterationConfigESProducer. A pair whose harder track has pT below dc_lowPtRampStart uses
+    // dc_fracSharedHitsLowPt (if >= 0) instead of dc_fracSharedHits, interpolated linearly in 1/pT up to
+    // dc_lowPtRampEnd, provided the two tracks are consistent with one particle: relative 1/pT difference at most
+    // dc_lowPtMaxRelDiffInvPt, same charge (if dc_lowPtRequireSameCharge), both tracks with |d0| to the beam spot below
+    // dc_lowPtMaxD0, and dR(eta, phi) below dc_lowPtMaxDRTimesPt / pT of the harder track (each check off if <= 0).
+    // A track with pT >= dc_minPtUniqueHitsToKeep that would be removed is kept if it has at least
+    // dc_minUniqueHitsToKeep (if > 0) found hits not shared with the other track.
+    float dc_fracSharedHitsLowPt = 0.10;
+    float dc_lowPtRampStart = 5.0;
+    float dc_lowPtRampEnd = 10.0;
+    float dc_lowPtMaxRelDiffInvPt = 0.10;
+    bool dc_lowPtRequireSameCharge = true;
+    float dc_lowPtMaxD0 = 2.0;
+    float dc_lowPtMaxDRTimesPt = 0.10;
+    int dc_minUniqueHitsToKeep = 9;
+    float dc_minPtUniqueHitsToKeep = 10.0;
 
     // Iteration parameters (could be a ptr)
     IterationParams m_params;

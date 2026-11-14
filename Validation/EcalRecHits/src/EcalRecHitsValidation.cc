@@ -146,7 +146,7 @@ void EcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run 
   meEBRecHitSimHitRatioGt35_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
   histo = "EcalRecHitsTask Barrel Unc RecSimHit Ratio";
-  meEBUnRecHitSimHitRatio_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+  meEBUnRecHitSimHitRatio_ = ibooker.book1DD(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
   histo = "EcalRecHitsTask Barrel RecSimHit Ratio Channel Status=10 11";
   meEBRecHitSimHitRatio1011_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
@@ -170,7 +170,7 @@ void EcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run 
   meEBe5x5OverGun_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
   meEBRecHitLog10Energy_ =
-      ibooker.book1D("EcalRecHitsTask Barrel Log10 Energy", "EcalRecHitsTask Barrel Log10 Energy", 90, -5., 4.);
+      ibooker.book1DD("EcalRecHitsTask Barrel Log10 Energy", "EcalRecHitsTask Barrel Log10 Energy", 90, -5., 4.);
   meEBRecHitLog10EnergyContr_ = ibooker.bookProfile("EcalRecHits Barrel Log10En vs Hit Contribution",
                                                     "EcalRecHits Barrel Log10En vs Hit Contribution",
                                                     90,
@@ -194,7 +194,7 @@ void EcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run 
   meEBRecHitsOccupancyFlag8_9_ = ibooker.book2D(histo, histo, 170, -85., 85., 360, 0., 360.);
 
   histo = "EcalRecHitsTask Barrel Reco Flags";
-  meEBRecHitFlags_ = ibooker.book1D(histo.c_str(), histo.c_str(), 10, 0., 10.);
+  meEBRecHitFlags_ = ibooker.book1DD(histo.c_str(), histo.c_str(), 10, 0., 10.);
   histo = "EcalRecHitsTask Barrel RecSimHit Ratio vs SimHit Flag=5 6";
   meEBRecHitSimHitvsSimHitFlag5_6_ = ibooker.book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400.);
   histo = "EcalRecHitsTask Barrel RecSimHit Ratio Flag=6";
@@ -215,7 +215,7 @@ void EcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run 
     meEERecHitSimHitRatioGt35_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
     histo = "EcalRecHitsTask Endcap Unc RecSimHit Ratio";
-    meEEUnRecHitSimHitRatio_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+    meEEUnRecHitSimHitRatio_ = ibooker.book1DD(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
     histo = "EcalRecHitsTask Endcap RecSimHit Ratio Channel Status=10 11";
     meEERecHitSimHitRatio1011_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
@@ -239,7 +239,7 @@ void EcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run 
     meEEe5x5OverGun_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
     meEERecHitLog10Energy_ =
-        ibooker.book1D("EcalRecHitsTask Endcap Log10 Energy", "EcalRecHitsTask Endcap Log10 Energy", 90, -5., 4.);
+        ibooker.book1DD("EcalRecHitsTask Endcap Log10 Energy", "EcalRecHitsTask Endcap Log10 Energy", 90, -5., 4.);
     meESRecHitLog10Energy_ =
         ibooker.book1D("EcalRecHitsTask Preshower Log10 Energy", "EcalRecHitsTask Preshower Log10 Energy", 90, -5., 4.);
 
@@ -279,7 +279,7 @@ void EcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run 
     meEERecHitsOccupancyMinusFlag8_9_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
     histo = "EcalRecHitsTask Endcap Reco Flags";
-    meEERecHitFlags_ = ibooker.book1D(histo.c_str(), histo.c_str(), 10, 0., 10.);
+    meEERecHitFlags_ = ibooker.book1DD(histo.c_str(), histo.c_str(), 10, 0., 10.);
 
     histo = "EcalRecHitsTask Endcap RecSimHit Ratio vs SimHit Flag=5 6";
     meEERecHitSimHitvsSimHitFlag5_6_ = ibooker.book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400.);

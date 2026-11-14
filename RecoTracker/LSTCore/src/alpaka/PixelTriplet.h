@@ -12,6 +12,7 @@
 #include "RecoTracker/LSTCore/interface/TripletsSoA.h"
 
 #include "Quintuplet.h"
+#include "TripletAccessors.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
@@ -89,7 +90,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int segmentMD1Index,
                                                                 const float ptCut);
 
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addPixelTripletToMemory(MiniDoubletsConst mds,
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addPixelTripletToMemory(ModulesConst modules,
+                                                              MiniDoubletsConst mds,
                                                               SegmentsConst segments,
                                                               TripletsConst triplets,
                                                               PixelTriplets pixelTriplets,
@@ -129,11 +131,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     pixelTriplets.centerY()[pixelTripletIndex] = __F2H(centerY);
     pixelTriplets.logicalLayers()[pixelTripletIndex][0] = 0;
     pixelTriplets.logicalLayers()[pixelTripletIndex][1] = 0;
-    pixelTriplets.logicalLayers()[pixelTripletIndex][2] = triplets.logicalLayers()[tripletIndex][0];
-    pixelTriplets.logicalLayers()[pixelTripletIndex][3] = triplets.logicalLayers()[tripletIndex][1];
-    pixelTriplets.logicalLayers()[pixelTripletIndex][4] = triplets.logicalLayers()[tripletIndex][2];
+    pixelTriplets.logicalLayers()[pixelTripletIndex][2] =
+        getLogicalLayer(modules, triplets.lowerModuleIndices()[tripletIndex][0]);
+    pixelTriplets.logicalLayers()[pixelTripletIndex][3] =
+        getLogicalLayer(modules, triplets.lowerModuleIndices()[tripletIndex][1]);
+    pixelTriplets.logicalLayers()[pixelTripletIndex][4] =
+        getLogicalLayer(modules, triplets.lowerModuleIndices()[tripletIndex][2]);
 
-    pixelTriplets.lowerModuleIndices()[pixelTripletIndex][0] = segments.innerLowerModuleIndices()[pixelSegmentIndex];
+    // A pixel segment's two module indices are both the pixel module index, so
+    // one column serves for both ends.
+    pixelTriplets.lowerModuleIndices()[pixelTripletIndex][0] = segments.outerLowerModuleIndices()[pixelSegmentIndex];
     pixelTriplets.lowerModuleIndices()[pixelTripletIndex][1] = segments.outerLowerModuleIndices()[pixelSegmentIndex];
     pixelTriplets.lowerModuleIndices()[pixelTripletIndex][2] = triplets.lowerModuleIndices()[tripletIndex][0];
     pixelTriplets.lowerModuleIndices()[pixelTripletIndex][3] = triplets.lowerModuleIndices()[tripletIndex][1];
@@ -147,12 +154,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     pixelTriplets.hitIndices()[pixelTripletIndex][2] = mds.anchorHitIndices()[pixelOuterMD];
     pixelTriplets.hitIndices()[pixelTripletIndex][3] = mds.outerHitIndices()[pixelOuterMD];
 
-    pixelTriplets.hitIndices()[pixelTripletIndex][4] = triplets.hitIndices()[tripletIndex][0];
-    pixelTriplets.hitIndices()[pixelTripletIndex][5] = triplets.hitIndices()[tripletIndex][1];
-    pixelTriplets.hitIndices()[pixelTripletIndex][6] = triplets.hitIndices()[tripletIndex][2];
-    pixelTriplets.hitIndices()[pixelTripletIndex][7] = triplets.hitIndices()[tripletIndex][3];
-    pixelTriplets.hitIndices()[pixelTripletIndex][8] = triplets.hitIndices()[tripletIndex][4];
-    pixelTriplets.hitIndices()[pixelTripletIndex][9] = triplets.hitIndices()[tripletIndex][5];
+    unsigned int t3Hits[Params_T3::kHits];
+    getTripletHitIndices(mds, segments, triplets, tripletIndex, t3Hits);
+
+    pixelTriplets.hitIndices()[pixelTripletIndex][4] = t3Hits[0];
+    pixelTriplets.hitIndices()[pixelTripletIndex][5] = t3Hits[1];
+    pixelTriplets.hitIndices()[pixelTripletIndex][6] = t3Hits[2];
+    pixelTriplets.hitIndices()[pixelTripletIndex][7] = t3Hits[3];
+    pixelTriplets.hitIndices()[pixelTripletIndex][8] = t3Hits[4];
+    pixelTriplets.hitIndices()[pixelTripletIndex][9] = t3Hits[5];
 #ifdef CUT_VALUE_DEBUG
     pixelTriplets.rPhiChiSquared()[pixelTripletIndex] = rPhiChiSquared;
     pixelTriplets.rPhiChiSquaredInwards()[pixelTripletIndex] = rPhiChiSquaredInwards;
@@ -770,6 +780,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             if (triplets.partOfPT5()[outerTripletIndex])
               continue;  //don't create pT3s for T3s accounted in pT5s
 
+            // Triplets admitted only by the widened pointing bound are used only in quintuplets.
+            if (triplets.flags()[outerTripletIndex] & kT3LoosePointing)
+              continue;
+
             float pixelRadius, tripletRadius, rPhiChiSquared, rzChiSquared, rPhiChiSquaredInwards, centerX, centerY,
                 pixelRadiusError;
             bool success = runPixelTripletDefaultAlgo(acc,
@@ -798,15 +812,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                       .mdIndices()[triplets.segmentIndices()[outerTripletIndex][0]][layer2_adjustment]];
               float score = rPhiChiSquared + rPhiChiSquaredInwards;
               unsigned int totOccupancyPixelTriplets =
-                  alpaka::atomicAdd(acc, &pixelTriplets.totOccupancyPixelTriplets(), 1u, alpaka::hierarchy::Threads{});
+                  alpaka::atomicAdd(acc, &pixelTriplets.totOccupancyPixelTriplets(), 1u, alpaka::hierarchy::Blocks{});
               if (totOccupancyPixelTriplets >= n_max_pixel_triplets) {
 #ifdef WARNINGS
                 printf("Pixel Triplet excess alert!\n");
 #endif
               } else {
                 unsigned int pixelTripletIndex =
-                    alpaka::atomicAdd(acc, &pixelTriplets.nPixelTriplets(), 1u, alpaka::hierarchy::Threads{});
-                addPixelTripletToMemory(mds,
+                    alpaka::atomicAdd(acc, &pixelTriplets.nPixelTriplets(), 1u, alpaka::hierarchy::Blocks{});
+                addPixelTripletToMemory(modules,
+                                        mds,
                                         segments,
                                         triplets,
                                         pixelTriplets,
@@ -990,33 +1005,29 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float betaOutRHmin = betaOut;
     float betaOutRHmax = betaOut;
 
+    // outer MD strip edges (2S endcap only): anchor xy +- the module's strip half-vector
+    float highEdgeX_OutUp = 0.f, highEdgeY_OutUp = 0.f, lowEdgeX_OutUp = 0.f, lowEdgeY_OutUp = 0.f;
     if (isEC_lastLayer) {
-      alpha_OutUp_highEdge = cms::alpakatools::deltaPhi(acc,
-                                                        mds.anchorHighEdgeX()[segmentMD1Index],
-                                                        mds.anchorHighEdgeY()[segmentMD1Index],
-                                                        mds.anchorHighEdgeX()[segmentMD1Index] - x_OutLo,
-                                                        mds.anchorHighEdgeY()[segmentMD1Index] - y_OutLo);
-      alpha_OutUp_lowEdge = cms::alpakatools::deltaPhi(acc,
-                                                       mds.anchorLowEdgeX()[segmentMD1Index],
-                                                       mds.anchorLowEdgeY()[segmentMD1Index],
-                                                       mds.anchorLowEdgeX()[segmentMD1Index] - x_OutLo,
-                                                       mds.anchorLowEdgeY()[segmentMD1Index] - y_OutLo);
+      highEdgeX_OutUp = x_OutUp + modules.edgeDx()[segmentOuterModuleIndex];
+      highEdgeY_OutUp = y_OutUp + modules.edgeDy()[segmentOuterModuleIndex];
+      lowEdgeX_OutUp = x_OutUp - modules.edgeDx()[segmentOuterModuleIndex];
+      lowEdgeY_OutUp = y_OutUp - modules.edgeDy()[segmentOuterModuleIndex];
+      alpha_OutUp_highEdge = cms::alpakatools::deltaPhi(
+          acc, highEdgeX_OutUp, highEdgeY_OutUp, highEdgeX_OutUp - x_OutLo, highEdgeY_OutUp - y_OutLo);
+      alpha_OutUp_lowEdge = cms::alpakatools::deltaPhi(
+          acc, lowEdgeX_OutUp, lowEdgeY_OutUp, lowEdgeX_OutUp - x_OutLo, lowEdgeY_OutUp - y_OutLo);
 
-      tl_axis_highEdge_x = mds.anchorHighEdgeX()[segmentMD1Index] - x_InUp;
-      tl_axis_highEdge_y = mds.anchorHighEdgeY()[segmentMD1Index] - y_InUp;
-      tl_axis_lowEdge_x = mds.anchorLowEdgeX()[segmentMD1Index] - x_InUp;
-      tl_axis_lowEdge_y = mds.anchorLowEdgeY()[segmentMD1Index] - y_InUp;
+      tl_axis_highEdge_x = highEdgeX_OutUp - x_InUp;
+      tl_axis_highEdge_y = highEdgeY_OutUp - y_InUp;
+      tl_axis_lowEdge_x = lowEdgeX_OutUp - x_InUp;
+      tl_axis_lowEdge_y = lowEdgeY_OutUp - y_InUp;
 
-      betaOutRHmin = -alpha_OutUp_highEdge + cms::alpakatools::deltaPhi(acc,
-                                                                        mds.anchorHighEdgeX()[segmentMD1Index],
-                                                                        mds.anchorHighEdgeY()[segmentMD1Index],
-                                                                        tl_axis_highEdge_x,
-                                                                        tl_axis_highEdge_y);
-      betaOutRHmax = -alpha_OutUp_lowEdge + cms::alpakatools::deltaPhi(acc,
-                                                                       mds.anchorLowEdgeX()[segmentMD1Index],
-                                                                       mds.anchorLowEdgeY()[segmentMD1Index],
-                                                                       tl_axis_lowEdge_x,
-                                                                       tl_axis_lowEdge_y);
+      betaOutRHmin =
+          -alpha_OutUp_highEdge +
+          cms::alpakatools::deltaPhi(acc, highEdgeX_OutUp, highEdgeY_OutUp, tl_axis_highEdge_x, tl_axis_highEdge_y);
+      betaOutRHmax =
+          -alpha_OutUp_lowEdge +
+          cms::alpakatools::deltaPhi(acc, lowEdgeX_OutUp, lowEdgeY_OutUp, tl_axis_lowEdge_x, tl_axis_lowEdge_y);
     }
 
     //beta computation
@@ -1069,14 +1080,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     float dBetaROut = 0;
     if (isEC_lastLayer) {
-      dBetaROut =
-          (alpaka::math::sqrt(acc,
-                              mds.anchorHighEdgeX()[segmentMD1Index] * mds.anchorHighEdgeX()[segmentMD1Index] +
-                                  mds.anchorHighEdgeY()[segmentMD1Index] * mds.anchorHighEdgeY()[segmentMD1Index]) -
-           alpaka::math::sqrt(acc,
-                              mds.anchorLowEdgeX()[segmentMD1Index] * mds.anchorLowEdgeX()[segmentMD1Index] +
-                                  mds.anchorLowEdgeY()[segmentMD1Index] * mds.anchorLowEdgeY()[segmentMD1Index])) *
-          sinDPhi / drt_tl_axis;
+      dBetaROut = (alpaka::math::sqrt(acc, highEdgeX_OutUp * highEdgeX_OutUp + highEdgeY_OutUp * highEdgeY_OutUp) -
+                   alpaka::math::sqrt(acc, lowEdgeX_OutUp * lowEdgeX_OutUp + lowEdgeY_OutUp * lowEdgeY_OutUp)) *
+                  sinDPhi / drt_tl_axis;
     }
 
     const float dBetaROut2 = dBetaROut * dBetaROut;
@@ -1246,33 +1252,29 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float betaOutRHmin = betaOut;
     float betaOutRHmax = betaOut;
 
+    // outer MD strip edges (2S endcap only): anchor xy +- the module's strip half-vector
+    float highEdgeX_OutUp = 0.f, highEdgeY_OutUp = 0.f, lowEdgeX_OutUp = 0.f, lowEdgeY_OutUp = 0.f;
     if (isEC_lastLayer) {
-      alpha_OutUp_highEdge = cms::alpakatools::deltaPhi(acc,
-                                                        mds.anchorHighEdgeX()[segmentMD1Index],
-                                                        mds.anchorHighEdgeY()[segmentMD1Index],
-                                                        mds.anchorHighEdgeX()[segmentMD1Index] - x_OutLo,
-                                                        mds.anchorHighEdgeY()[segmentMD1Index] - y_OutLo);
-      alpha_OutUp_lowEdge = cms::alpakatools::deltaPhi(acc,
-                                                       mds.anchorLowEdgeX()[segmentMD1Index],
-                                                       mds.anchorLowEdgeY()[segmentMD1Index],
-                                                       mds.anchorLowEdgeX()[segmentMD1Index] - x_OutLo,
-                                                       mds.anchorLowEdgeY()[segmentMD1Index] - y_OutLo);
+      highEdgeX_OutUp = x_OutUp + modules.edgeDx()[segmentOuterModuleIndex];
+      highEdgeY_OutUp = y_OutUp + modules.edgeDy()[segmentOuterModuleIndex];
+      lowEdgeX_OutUp = x_OutUp - modules.edgeDx()[segmentOuterModuleIndex];
+      lowEdgeY_OutUp = y_OutUp - modules.edgeDy()[segmentOuterModuleIndex];
+      alpha_OutUp_highEdge = cms::alpakatools::deltaPhi(
+          acc, highEdgeX_OutUp, highEdgeY_OutUp, highEdgeX_OutUp - x_OutLo, highEdgeY_OutUp - y_OutLo);
+      alpha_OutUp_lowEdge = cms::alpakatools::deltaPhi(
+          acc, lowEdgeX_OutUp, lowEdgeY_OutUp, lowEdgeX_OutUp - x_OutLo, lowEdgeY_OutUp - y_OutLo);
 
-      tl_axis_highEdge_x = mds.anchorHighEdgeX()[segmentMD1Index] - x_InUp;
-      tl_axis_highEdge_y = mds.anchorHighEdgeY()[segmentMD1Index] - y_InUp;
-      tl_axis_lowEdge_x = mds.anchorLowEdgeX()[segmentMD1Index] - x_InUp;
-      tl_axis_lowEdge_y = mds.anchorLowEdgeY()[segmentMD1Index] - y_InUp;
+      tl_axis_highEdge_x = highEdgeX_OutUp - x_InUp;
+      tl_axis_highEdge_y = highEdgeY_OutUp - y_InUp;
+      tl_axis_lowEdge_x = lowEdgeX_OutUp - x_InUp;
+      tl_axis_lowEdge_y = lowEdgeY_OutUp - y_InUp;
 
-      betaOutRHmin = -alpha_OutUp_highEdge + cms::alpakatools::deltaPhi(acc,
-                                                                        mds.anchorHighEdgeX()[segmentMD1Index],
-                                                                        mds.anchorHighEdgeY()[segmentMD1Index],
-                                                                        tl_axis_highEdge_x,
-                                                                        tl_axis_highEdge_y);
-      betaOutRHmax = -alpha_OutUp_lowEdge + cms::alpakatools::deltaPhi(acc,
-                                                                       mds.anchorLowEdgeX()[segmentMD1Index],
-                                                                       mds.anchorLowEdgeY()[segmentMD1Index],
-                                                                       tl_axis_lowEdge_x,
-                                                                       tl_axis_lowEdge_y);
+      betaOutRHmin =
+          -alpha_OutUp_highEdge +
+          cms::alpakatools::deltaPhi(acc, highEdgeX_OutUp, highEdgeY_OutUp, tl_axis_highEdge_x, tl_axis_highEdge_y);
+      betaOutRHmax =
+          -alpha_OutUp_lowEdge +
+          cms::alpakatools::deltaPhi(acc, lowEdgeX_OutUp, lowEdgeY_OutUp, tl_axis_lowEdge_x, tl_axis_lowEdge_y);
     }
 
     //beta computation
@@ -1325,14 +1327,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     float dBetaROut = 0;
     if (isEC_lastLayer) {
-      dBetaROut =
-          (alpaka::math::sqrt(acc,
-                              mds.anchorHighEdgeX()[segmentMD1Index] * mds.anchorHighEdgeX()[segmentMD1Index] +
-                                  mds.anchorHighEdgeY()[segmentMD1Index] * mds.anchorHighEdgeY()[segmentMD1Index]) -
-           alpaka::math::sqrt(acc,
-                              mds.anchorLowEdgeX()[segmentMD1Index] * mds.anchorLowEdgeX()[segmentMD1Index] +
-                                  mds.anchorLowEdgeY()[segmentMD1Index] * mds.anchorLowEdgeY()[segmentMD1Index])) *
-          sinDPhi / drt_tl_axis;
+      dBetaROut = (alpaka::math::sqrt(acc, highEdgeX_OutUp * highEdgeX_OutUp + highEdgeY_OutUp * highEdgeY_OutUp) -
+                   alpaka::math::sqrt(acc, lowEdgeX_OutUp * lowEdgeX_OutUp + lowEdgeY_OutUp * lowEdgeY_OutUp)) *
+                  sinDPhi / drt_tl_axis;
     }
 
     const float dBetaROut2 = dBetaROut * dBetaROut;

@@ -8,7 +8,6 @@ from ..modules.hltHgcalLayerClustersHSi_cfi import *
 from ..modules.hltMergeLayerClusters_cfi import *
 from ..modules.hltHGCalRecHit_cfi import *
 from ..modules.hltHGCalUncalibRecHit_cfi import *
-from ..modules.hltParticleFlowClusterHGCalFromTICLUnseeded_cfi import *
 from ..modules.hltParticleFlowRecHitHGC_cfi import *
 from ..modules.hltTiclLayerTileProducer_cfi import *
 from ..modules.hltTiclSeedingGlobal_cfi import *
@@ -16,8 +15,7 @@ from ..modules.hltTiclTrackstersCLUE3DHigh_cfi import *
 from ..modules.hltHgcalSoARecHitsProducer_cfi import *
 from ..modules.hltHgcalSoARecHitsLayerClustersProducer_cfi import *
 from ..modules.hltHgcalSoALayerClustersProducer_cfi import *
-from ..modules.hltHgcalLayerClustersFromSoAProducer_cfi import *
-from ..modules.hltTiclTracksterLinks_cfi import *
+from ..modules.hltHgCalLayerClustersFromSoAProducer_cfi import *
 # Barrel layer clusters
 from ..modules.hltBarrelLayerClustersEB_cfi import *
 from ..modules.hltBarrelLayerClustersHB_cfi import *

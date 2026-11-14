@@ -20,8 +20,8 @@
 // #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
 //_________________________________________________________________________________________________
-ParametersToParametersDerivatives ::ParametersToParametersDerivatives(const Alignable &component,
-                                                                      const Alignable &mother)
+ParametersToParametersDerivatives::ParametersToParametersDerivatives(const Alignable &component,
+                                                                     const Alignable &mother)
     : isOK_(component.alignmentParameters() && mother.alignmentParameters()) {
   if (isOK_) {
     isOK_ =

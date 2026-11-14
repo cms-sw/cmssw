@@ -13,6 +13,8 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="L1Trigger/VertexFinder"/>
 <library file="*.cc" name="L1TriggerVertexFinderPlugins">
+  <use name="hls"/>
+  <use name="hls4mlEmulatorExtras"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 

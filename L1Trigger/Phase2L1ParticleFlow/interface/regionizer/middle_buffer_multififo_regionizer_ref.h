@@ -22,8 +22,7 @@ namespace l1ct {
                                             bool streaming,
                                             unsigned int outii,
                                             unsigned int pauseii,
-                                            bool useAlsoVtxCoords,
-                                            bool tmux6GCTinput = false);
+                                            bool useAlsoVtxCoords);
     // note: this one will work only in CMSSW
     MiddleBufferMultififoRegionizerEmulator(const edm::ParameterSet& iConfig);
 
@@ -97,7 +96,7 @@ namespace l1ct {
       to.src = from.src;
     }
 
-    void convert_GCTinput_tmux(const RegionizerDecodedInputs& in_tm6, RegionizerDecodedInputs& in_tm18) const;
+    // void convert_GCTinput_tmux(const RegionizerDecodedInputs& in_tm6, RegionizerDecodedInputs& in_tm18) const;
     void init_GCT_tmux18sectors(std::vector<l1ct::DetectorSector<l1ct::HadCaloObjEmu>>& gct_tmux18_hadcalo,
                                 std::vector<l1ct::DetectorSector<l1ct::EmCaloObjEmu>>& gct_tmux18_emcalo) const;
 
@@ -109,7 +108,6 @@ namespace l1ct {
     bool streaming_;
     bool init_;
     unsigned int iclock_;
-    bool tmux6GCTinput_;
     std::vector<l1ct::PFRegionEmu> mergedRegions_, outputRegions_;
     multififo_regionizer::Regionizer<l1ct::TkObjEmu> tkRegionizerPre_, tkRegionizerPost_;
     multififo_regionizer::Regionizer<l1ct::CommonCaloObjEmu> commonCaloRegionizerPre_;
@@ -121,7 +119,6 @@ namespace l1ct {
     std::vector<l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::HadCaloObjEmu>> hadCaloBuffers_;
     std::vector<l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::EmCaloObjEmu>> emCaloBuffers_;
     std::vector<l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::MuObjEmu>> muBuffers_;
-    std::vector<PFRegionEmu> gct_slr_regions_;
     std::vector<l1ct::DetectorSector<l1ct::HadCaloObjEmu>> gct_tmux18_hadcalo_;
     std::vector<l1ct::DetectorSector<l1ct::EmCaloObjEmu>> gct_tmux18_emcalo_;
 
@@ -138,31 +135,6 @@ namespace l1ct {
                              std::vector<bool>& valid);
 
     void run_worker(const RegionizerDecodedInputs& in, std::vector<PFInputRegion>& out);
-    void init_GCT_slrs(std::vector<l1ct::PFRegionEmu>& gct_slr_regions) const;
-
-    template <typename T>
-    void convert_GCTsector_tmux(const std::vector<l1ct::DetectorSector<T>>& tm6_sectors,
-                                std::vector<l1ct::DetectorSector<T>>& tm18_sectors) const {
-      static constexpr std::array<unsigned int, 12> gct_slr_tmux18sector_mapping = {0, 0, 1, 1, 2, 2, 0, 0, 1, 1, 2, 2};
-      for (const auto& sec : tm6_sectors) {
-        // std::cout << "Processing TMUX6 hadcalo sector: " << isec << " #cl: " << sec.obj.size() << std::endl;
-        for (auto cl : sec.obj) {
-          if (cl.hwPt == 0)
-            continue;  // skip empty objects
-          glbeta_t gl_hweta = sec.region.hwGlbEta(cl.hwEta);
-          glbphi_t gl_hwphi = sec.region.hwGlbPhi(cl.hwPhi);
-          for (unsigned int islr = 0; islr < gct_slr_regions_.size(); ++islr) {
-            if (gct_slr_regions_[islr].containsHw(gl_hweta, gl_hwphi)) {
-              auto itmux18 = gct_slr_tmux18sector_mapping[islr];
-              cl.hwEta = l1ct::Scales::makeEta(tm18_sectors[itmux18].region.localEta(sec.region.floatGlbEtaOf(cl)));
-              cl.hwPhi = l1ct::Scales::makePhi(tm18_sectors[itmux18].region.localPhi(sec.region.floatGlbPhiOf(cl)));
-              tm18_sectors[itmux18].obj.push_back(cl);
-              break;
-            }
-          }
-        }
-      }
-    }
   };
 }  // namespace l1ct
 

@@ -12,7 +12,6 @@
 #include "EventFilter/Utilities/interface/JSONSerializer.h"
 #include "EventFilter/Utilities/plugins/RawEventFileWriterForBU.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
 #include "IOPool/Streamer/interface/FRDFileHeader.h"
@@ -113,8 +112,6 @@ void RawEventFileWriterForBU::doOutputEvent(void* startAddress, size_t size) {
   usleep(microSleep_);
   perFileEventCount_.value()++;
   perFileSize_.value() += size;
-
-  //  cms::Adler32((const char*) msg.startAddress(), msg.size(), adlera_, adlerb_);
 }
 
 void RawEventFileWriterForBU::doOutputEvent(FRDEventMsgView const& msg) {
@@ -130,8 +127,6 @@ void RawEventFileWriterForBU::doOutputEvent(FRDEventMsgView const& msg) {
   usleep(microSleep_);
   perFileEventCount_.value()++;
   perFileSize_.value() += msg.size();
-
-  //  cms::Adler32((const char*) msg.startAddress(), msg.size(), adlera_, adlerb_);
 }
 
 void RawEventFileWriterForBU::initialize(std::string const& destinationDir,
@@ -168,9 +163,6 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir,
 
   perFileEventCount_.value() = 0;
   perFileSize_.value() = 0;
-
-  adlera_ = 1;
-  adlerb_ = 0;
 
   if (frdFileVersion_ == 1) {
     //reserve space for file header

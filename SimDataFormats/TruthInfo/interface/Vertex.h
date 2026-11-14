@@ -1,6 +1,4 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-// Part of the MC-truth-graph prototype - under heavy development, not yet open
-// to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 #ifndef SimDataFormats_TruthInfo_interface_Vertex_h
 #define SimDataFormats_TruthInfo_interface_Vertex_h
@@ -19,7 +17,7 @@ namespace truth {
 
   // A lightweight, copyable view of one logical vertex. It stores only a graph
   // pointer and an id; all accessors read through to the owning Graph (the heavy
-  // method bodies live in Graph.cc).
+  // method bodies live in Vertex.cc).
   class Vertex {
   public:
     Vertex() = default;
@@ -34,6 +32,12 @@ namespace truth {
     [[nodiscard]] bool hasSim() const;
     [[nodiscard]] uint64_t eventId() const;
     [[nodiscard]] int32_t genEvent() const;
+    // The signal is the in-time interaction with index 0. Anything else is pile-up. An
+    // invalid view is neither.
+    [[nodiscard]] bool isSignal() const;
+    [[nodiscard]] bool isFromPileup() const;
+    // True for the signal and the in-time pile-up (bunch crossing 0). An invalid view is not.
+    [[nodiscard]] bool isInTime() const;
     [[nodiscard]] const math::XYZTLorentzVectorD& position() const;
 
     [[nodiscard]] bool isSource() const;

@@ -10,18 +10,20 @@ OccurrenceTraits:
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/TransitionActionType.h"
+#include "FWCore/Framework/interface/TransitionEdge.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
-#include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionPhaseTypes.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/Transition.h"
 
@@ -35,13 +37,15 @@ namespace edm {
   class OccurrenceTraits;
 
   template <>
-  class OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin> {
+  class OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin> {
   public:
     using MyPrincipal = EventPrincipal;
     using TransitionInfoType = EventTransitionInfo;
     using Context = StreamContext;
+    using TransitionPhaseType = TransitionPhaseGlobal;
+    static TransitionActionType constexpr transitionAction_ = TransitionActionGlobalBegin;
     static BranchType constexpr branchType_ = InEvent;
-    static bool constexpr begin_ = true;
+    static TransitionEdge constexpr transitionEdge_ = TransitionEdge::kBegin;
     static bool constexpr isEvent_ = true;
     static Transition constexpr transition_ = Transition::Event;
 
@@ -72,9 +76,11 @@ namespace edm {
   public:
     using MyPrincipal = RunPrincipal;
     using TransitionInfoType = RunTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseGlobal;
+    static TransitionActionType constexpr transitionAction_ = TransitionActionGlobalBegin;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InRun;
-    static bool constexpr begin_ = true;
+    static TransitionEdge constexpr transitionEdge_ = TransitionEdge::kBegin;
     static bool constexpr isEvent_ = false;
     static Transition constexpr transition_ = Transition::BeginRun;
 
@@ -95,16 +101,6 @@ namespace edm {
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
-    static void preModuleSignal(ActivityRegistry* a,
-                                GlobalContext const* globalContext,
-                                ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleGlobalBeginRunSignal_.emit(*globalContext, *moduleCallingContext);
-    }
-    static void postModuleSignal(ActivityRegistry* a,
-                                 GlobalContext const* globalContext,
-                                 ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleGlobalBeginRunSignal_.emit(*globalContext, *moduleCallingContext);
-    }
     static const char* transitionName() { return "global begin Run"; }
   };
 
@@ -113,9 +109,11 @@ namespace edm {
   public:
     using MyPrincipal = RunPrincipal;
     using TransitionInfoType = RunTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseStream;
+    static TransitionActionType constexpr transitionAction_ = TransitionActionStreamBegin;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InRun;
-    static bool constexpr begin_ = true;
+    static TransitionEdge constexpr transitionEdge_ = TransitionEdge::kBegin;
     static bool constexpr isEvent_ = false;
     static Transition constexpr transition_ = Transition::BeginRun;
 
@@ -135,16 +133,6 @@ namespace edm {
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
-    static void preModuleSignal(ActivityRegistry* a,
-                                StreamContext const* streamContext,
-                                ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleStreamBeginRunSignal_.emit(*streamContext, *moduleCallingContext);
-    }
-    static void postModuleSignal(ActivityRegistry* a,
-                                 StreamContext const* streamContext,
-                                 ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleStreamBeginRunSignal_.emit(*streamContext, *moduleCallingContext);
-    }
     static const char* transitionName() { return "stream begin Run"; }
   };
 
@@ -153,9 +141,11 @@ namespace edm {
   public:
     using MyPrincipal = RunPrincipal;
     using TransitionInfoType = RunTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseStream;
+    static TransitionActionType constexpr transitionAction_ = TransitionActionStreamEnd;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InRun;
-    static bool constexpr begin_ = false;
+    static TransitionEdge constexpr transitionEdge_ = TransitionEdge::kEnd;
     static bool constexpr isEvent_ = false;
     static Transition constexpr transition_ = Transition::EndRun;
 
@@ -175,16 +165,6 @@ namespace edm {
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
-    static void preModuleSignal(ActivityRegistry* a,
-                                StreamContext const* streamContext,
-                                ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleStreamEndRunSignal_.emit(*streamContext, *moduleCallingContext);
-    }
-    static void postModuleSignal(ActivityRegistry* a,
-                                 StreamContext const* streamContext,
-                                 ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleStreamEndRunSignal_.emit(*streamContext, *moduleCallingContext);
-    }
     static const char* transitionName() { return "stream end Run"; }
   };
 
@@ -193,9 +173,11 @@ namespace edm {
   public:
     using MyPrincipal = RunPrincipal;
     using TransitionInfoType = RunTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseGlobal;
+    static constexpr TransitionActionType transitionAction_ = TransitionActionGlobalEnd;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InRun;
-    static bool constexpr begin_ = false;
+    static TransitionEdge constexpr transitionEdge_ = TransitionEdge::kEnd;
     static bool constexpr isEvent_ = false;
     static Transition constexpr transition_ = Transition::EndRun;
 
@@ -216,16 +198,6 @@ namespace edm {
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
-    static void preModuleSignal(ActivityRegistry* a,
-                                GlobalContext const* globalContext,
-                                ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleGlobalEndRunSignal_.emit(*globalContext, *moduleCallingContext);
-    }
-    static void postModuleSignal(ActivityRegistry* a,
-                                 GlobalContext const* globalContext,
-                                 ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleGlobalEndRunSignal_.emit(*globalContext, *moduleCallingContext);
-    }
     static const char* transitionName() { return "global end Run"; }
   };
 
@@ -234,9 +206,11 @@ namespace edm {
   public:
     using MyPrincipal = LuminosityBlockPrincipal;
     using TransitionInfoType = LumiTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseGlobal;
+    static constexpr TransitionActionType transitionAction_ = TransitionActionGlobalBegin;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InLumi;
-    static bool constexpr begin_ = true;
+    static TransitionEdge constexpr transitionEdge_ = TransitionEdge::kBegin;
     static bool constexpr isEvent_ = false;
     static Transition constexpr transition_ = Transition::BeginLuminosityBlock;
 
@@ -257,16 +231,6 @@ namespace edm {
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
-    static void preModuleSignal(ActivityRegistry* a,
-                                GlobalContext const* globalContext,
-                                ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleGlobalBeginLumiSignal_.emit(*globalContext, *moduleCallingContext);
-    }
-    static void postModuleSignal(ActivityRegistry* a,
-                                 GlobalContext const* globalContext,
-                                 ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleGlobalBeginLumiSignal_.emit(*globalContext, *moduleCallingContext);
-    }
     static const char* transitionName() { return "global begin LuminosityBlock"; }
   };
 
@@ -275,9 +239,11 @@ namespace edm {
   public:
     using MyPrincipal = LuminosityBlockPrincipal;
     using TransitionInfoType = LumiTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseStream;
+    static constexpr TransitionActionType transitionAction_ = TransitionActionStreamBegin;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InLumi;
-    static bool constexpr begin_ = true;
+    static TransitionEdge constexpr transitionEdge_ = TransitionEdge::kBegin;
     static bool constexpr isEvent_ = false;
     static Transition constexpr transition_ = Transition::BeginLuminosityBlock;
 
@@ -297,16 +263,6 @@ namespace edm {
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
-    static void preModuleSignal(ActivityRegistry* a,
-                                StreamContext const* streamContext,
-                                ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleStreamBeginLumiSignal_.emit(*streamContext, *moduleCallingContext);
-    }
-    static void postModuleSignal(ActivityRegistry* a,
-                                 StreamContext const* streamContext,
-                                 ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleStreamBeginLumiSignal_.emit(*streamContext, *moduleCallingContext);
-    }
     static const char* transitionName() { return "stream begin LuminosityBlock"; }
   };
 
@@ -315,9 +271,11 @@ namespace edm {
   public:
     using MyPrincipal = LuminosityBlockPrincipal;
     using TransitionInfoType = LumiTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseStream;
+    static constexpr TransitionActionType transitionAction_ = TransitionActionStreamEnd;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InLumi;
-    static bool constexpr begin_ = false;
+    static TransitionEdge constexpr transitionEdge_ = TransitionEdge::kEnd;
     static bool constexpr isEvent_ = false;
     static Transition constexpr transition_ = Transition::EndLuminosityBlock;
 
@@ -339,16 +297,6 @@ namespace edm {
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
-    static void preModuleSignal(ActivityRegistry* a,
-                                StreamContext const* streamContext,
-                                ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleStreamEndLumiSignal_.emit(*streamContext, *moduleCallingContext);
-    }
-    static void postModuleSignal(ActivityRegistry* a,
-                                 StreamContext const* streamContext,
-                                 ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleStreamEndLumiSignal_.emit(*streamContext, *moduleCallingContext);
-    }
     static const char* transitionName() { return "end stream LuminosityBlock"; }
   };
 
@@ -357,9 +305,11 @@ namespace edm {
   public:
     using MyPrincipal = LuminosityBlockPrincipal;
     using TransitionInfoType = LumiTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseGlobal;
+    static constexpr TransitionActionType transitionAction_ = TransitionActionGlobalEnd;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InLumi;
-    static bool constexpr begin_ = false;
+    static TransitionEdge constexpr transitionEdge_ = TransitionEdge::kEnd;
     static bool constexpr isEvent_ = false;
     static Transition constexpr transition_ = Transition::EndLuminosityBlock;
 
@@ -380,16 +330,6 @@ namespace edm {
     }
     static void prePathSignal(ActivityRegistry*, PathContext const*) {}
     static void postPathSignal(ActivityRegistry*, HLTPathStatus const&, PathContext const*) {}
-    static void preModuleSignal(ActivityRegistry* a,
-                                GlobalContext const* globalContext,
-                                ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleGlobalEndLumiSignal_.emit(*globalContext, *moduleCallingContext);
-    }
-    static void postModuleSignal(ActivityRegistry* a,
-                                 GlobalContext const* globalContext,
-                                 ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleGlobalEndLumiSignal_.emit(*globalContext, *moduleCallingContext);
-    }
     static const char* transitionName() { return "end global LuminosityBlock"; }
   };
 
@@ -398,8 +338,11 @@ namespace edm {
   public:
     using MyPrincipal = ProcessBlockPrincipal;
     using TransitionInfoType = ProcessBlockTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseGlobal;
+    static constexpr TransitionActionType transitionAction_ = TransitionActionGlobalBegin;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InProcess;
+    static TransitionEdge constexpr transitionEdge_ = TransitionEdge::kBegin;
     static bool constexpr isEvent_ = false;
     static Transition constexpr transition_ = Transition::BeginProcessBlock;
 
@@ -418,16 +361,6 @@ namespace edm {
     static void postScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
       a->postBeginProcessBlockSignal_.emit(*globalContext);
     }
-    static void preModuleSignal(ActivityRegistry* a,
-                                GlobalContext const* globalContext,
-                                ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleBeginProcessBlockSignal_.emit(*globalContext, *moduleCallingContext);
-    }
-    static void postModuleSignal(ActivityRegistry* a,
-                                 GlobalContext const* globalContext,
-                                 ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleBeginProcessBlockSignal_.emit(*globalContext, *moduleCallingContext);
-    }
     static const char* transitionName() { return "begin ProcessBlock"; }
   };
 
@@ -435,9 +368,12 @@ namespace edm {
   class OccurrenceTraits<ProcessBlockPrincipal, TransitionActionProcessBlockInput> {
   public:
     using MyPrincipal = ProcessBlockPrincipal;
-    using TransitionInfoType = ProcessBlockTransitionInfo;
+    using TransitionInfoType = InputProcessBlockTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseGlobal;
+    static constexpr TransitionActionType transitionAction_ = TransitionActionProcessBlockInput;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InProcess;
+    static TransitionEdge constexpr transitionEdge_ = TransitionEdge::kBegin;
     static bool constexpr isEvent_ = false;
     static Transition constexpr transition_ = Transition::AccessInputProcessBlock;
 
@@ -456,16 +392,6 @@ namespace edm {
     static void postScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
       a->postAccessInputProcessBlockSignal_.emit(*globalContext);
     }
-    static void preModuleSignal(ActivityRegistry* a,
-                                GlobalContext const* globalContext,
-                                ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleAccessInputProcessBlockSignal_.emit(*globalContext, *moduleCallingContext);
-    }
-    static void postModuleSignal(ActivityRegistry* a,
-                                 GlobalContext const* globalContext,
-                                 ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleAccessInputProcessBlockSignal_.emit(*globalContext, *moduleCallingContext);
-    }
     static const char* transitionName() { return "access input ProcessBlock"; }
   };
 
@@ -474,8 +400,11 @@ namespace edm {
   public:
     using MyPrincipal = ProcessBlockPrincipal;
     using TransitionInfoType = ProcessBlockTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseGlobal;
+    static constexpr TransitionActionType transitionAction_ = TransitionActionGlobalEnd;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InProcess;
+    static TransitionEdge constexpr transitionEdge_ = TransitionEdge::kEnd;
     static bool constexpr isEvent_ = false;
     static Transition constexpr transition_ = Transition::EndProcessBlock;
 
@@ -493,16 +422,6 @@ namespace edm {
     }
     static void postScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
       a->postEndProcessBlockSignal_.emit(*globalContext);
-    }
-    static void preModuleSignal(ActivityRegistry* a,
-                                GlobalContext const* globalContext,
-                                ModuleCallingContext const* moduleCallingContext) {
-      a->preModuleEndProcessBlockSignal_.emit(*globalContext, *moduleCallingContext);
-    }
-    static void postModuleSignal(ActivityRegistry* a,
-                                 GlobalContext const* globalContext,
-                                 ModuleCallingContext const* moduleCallingContext) {
-      a->postModuleEndProcessBlockSignal_.emit(*globalContext, *moduleCallingContext);
     }
     static const char* transitionName() { return "end ProcessBlock"; }
   };

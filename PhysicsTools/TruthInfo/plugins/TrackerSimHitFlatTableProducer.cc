@@ -1,6 +1,4 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-// Part of the MC-truth-graph prototype - under heavy development, not yet open
-// to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 // Author: Felice Pantaleo - CERN
 // Flat-table dump of tracker PSimHit collections (g4SimHits TrackerHits*).
@@ -104,15 +102,7 @@ public:
                                          {edm::InputTag("g4SimHits", "TrackerHitsPixelBarrelLowTof"),
                                           edm::InputTag("g4SimHits", "TrackerHitsPixelBarrelHighTof"),
                                           edm::InputTag("g4SimHits", "TrackerHitsPixelEndcapLowTof"),
-                                          edm::InputTag("g4SimHits", "TrackerHitsPixelEndcapHighTof"),
-                                          edm::InputTag("g4SimHits", "TrackerHitsTIBLowTof"),
-                                          edm::InputTag("g4SimHits", "TrackerHitsTIBHighTof"),
-                                          edm::InputTag("g4SimHits", "TrackerHitsTIDLowTof"),
-                                          edm::InputTag("g4SimHits", "TrackerHitsTIDHighTof"),
-                                          edm::InputTag("g4SimHits", "TrackerHitsTOBLowTof"),
-                                          edm::InputTag("g4SimHits", "TrackerHitsTOBHighTof"),
-                                          edm::InputTag("g4SimHits", "TrackerHitsTECLowTof"),
-                                          edm::InputTag("g4SimHits", "TrackerHitsTECHighTof")})
+                                          edm::InputTag("g4SimHits", "TrackerHitsPixelEndcapHighTof")})
         ->setComment("Tracker PSimHit collections to dump");
     descriptions.add("trackerSimHitTable", desc);
   }

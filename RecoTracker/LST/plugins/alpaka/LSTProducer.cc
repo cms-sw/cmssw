@@ -32,7 +32,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           clustSizeCut_(static_cast<uint16_t>(config.getParameter<uint32_t>("clustSizeCut"))),
           nopLSDupClean_(config.getParameter<bool>("nopLSDupClean")),
           tcpLSTriplets_(config.getParameter<bool>("tcpLSTriplets")),
-          reduceMemByFullPrecompute_(config.getParameter<bool>("reduceMemByFullPrecompute")),
           lstInputToken_{consumes(config.getParameter<edm::InputTag>("lstInput"))},
           lstESToken_{esConsumes(edm::ESInputTag("", ptCutStr_))},
           lstOutputToken_{produces()} {}
@@ -50,8 +49,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               &lstESDeviceData,
               &lstInputDC,
               nopLSDupClean_,
-              tcpLSTriplets_,
-              reduceMemByFullPrecompute_);
+              tcpLSTriplets_);
 
       // Output
       auto lstTrackCandidates = lst.getTrackCandidates();
@@ -66,11 +64,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       desc.add<uint32_t>("clustSizeCut", 16);
       desc.add<bool>("nopLSDupClean", false);
       desc.add<bool>("tcpLSTriplets", false);
-      desc.add<bool>("reduceMemByFullPrecompute", false)
-          ->setComment(
-              "If true, run extra counting kernels that exactly size the MD/LS/T3/T5/T4 "
-              "buffers, reducing average per-event memory at a small CPU/GPU runtime cost. "
-              "If false (default), buffers use cheaper, looser occupancy estimates.");
       descriptions.addWithDefaultLabel(desc);
     }
 
@@ -81,7 +74,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const uint16_t clustSizeCut_;
     const bool nopLSDupClean_;
     const bool tcpLSTriplets_;
-    const bool reduceMemByFullPrecompute_;
     const device::EDGetToken<lst::LSTInputDeviceCollection> lstInputToken_;
     const device::ESGetToken<lst::LSTESData<Device>, TrackerRecoGeometryRecord> lstESToken_;
     const device::EDPutToken<lst::TrackCandidatesBaseDeviceCollection> lstOutputToken_;

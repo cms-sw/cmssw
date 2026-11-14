@@ -1,11 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-def customisePhase2TTNoMC(process):
-    process.L1TrackTrigger.replace(process.L1PromptExtendedHybridTracksWithAssociators, process.L1PromptExtendedHybridTracks)
-    process.L1TrackTrigger.remove(process.TrackTriggerAssociatorClustersStubs)
-    process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
-
-    return process
+# maintained in customisePhase2TTNoMC.py; the copy that was here still used the module labels from
+# before the l1t renaming and failed
+from L1Trigger.Configuration.customisePhase2TTNoMC import customisePhase2TTNoMC
 
 def addHcalTriggerPrimitives(process):
     process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')

@@ -8,35 +8,48 @@
  *      Author: hqu
  *  Improved on: Mar 30, 2026
  *      Author: Felice Pantaleo
+ *  Extended on: Sep 28, 2026
+ *      Author: Andrea Bocci, CERN
  */
 
 #ifndef PHYSICSTOOLS_ONNXRUNTIME_INTERFACE_ONNXRUNTIME_H_
 #define PHYSICSTOOLS_ONNXRUNTIME_INTERFACE_ONNXRUNTIME_H_
 
-#include <vector>
 #include <map>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 
-#include "onnxruntime/onnxruntime_cxx_api.h"
+#include <onnxruntime/onnxruntime_cxx_api.h>
+
+#include "FWCore/Utilities/interface/StreamID.h"
+#include "PhysicsTools/ONNXRuntime/interface/Backend.h"
 
 namespace cms::Ort {
 
   typedef std::vector<std::vector<float>> FloatArrays;
 
-  enum class Backend {
-    cpu,
-    cuda,
-  };
-
   class ONNXRuntime {
   public:
-    ONNXRuntime(const std::string& model_path, const ::Ort::SessionOptions* session_options = nullptr);
+    // Create a session with the default options for the CPU backend, or with the given session options.
+    ONNXRuntime(const std::string& model_path);
+    ONNXRuntime(const std::string& model_path, const ::Ort::SessionOptions& session_options);
+
+    // Create a session for the given backend on the device chosen by the ONNXService for the given framework stream.
+    // On a GPU backend the session creates and owns its own compute stream, so a module that creates one ONNXRuntime
+    // per framework stream runs each framework stream in a different compute stream.
+    // On the CPU backend the session runs in the caller thread, so it can be shared among all framework streams.
+    ONNXRuntime(const std::string& model_path, Backend backend, edm::StreamID id);
+
     ONNXRuntime(const ONNXRuntime&) = delete;
     ONNXRuntime& operator=(const ONNXRuntime&) = delete;
-    ~ONNXRuntime();
+    ~ONNXRuntime() = default;
 
-    static ::Ort::SessionOptions defaultSessionOptions(Backend backend = Backend::cpu);
+    // Create the default session options for the given backend and device, using the ONNXService.
+    // `device` is the CUDA or HIP runtime index of the GPU to use, as seen by the job (i.e. after applying
+    // CUDA_VISIBLE_DEVICES or ROCR_VISIBLE_DEVICES); it is ignored by Backend::cpu.
+    // Prefer the constructor taking an edm::StreamID, which spreads the framework streams over the available devices.
+    static ::Ort::SessionOptions defaultSessionOptions(Backend backend = Backend::cpu, int device = 0);
 
     // Run inference and get outputs
     // input_names: list of the names of the input nodes.
@@ -76,7 +89,8 @@ namespace cms::Ort {
     const std::vector<int64_t>& getOutputShape(const std::string& output_name) const;
 
   private:
-    static const ::Ort::Env env_;
+    void initialize(const std::string& model_path, const ::Ort::SessionOptions& session_options);
+
     std::unique_ptr<::Ort::Session> session_;
 
     std::vector<std::string> input_node_strings_;

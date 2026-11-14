@@ -270,6 +270,22 @@ reconstruction_hcalOnlyLegacyTask = cms.Task(
 reconstruction_hcalOnly = cms.Sequence(reconstruction_hcalOnlyTask)
 reconstruction_hcalOnlyLegacy = cms.Sequence(reconstruction_hcalOnlyLegacyTask)
 
+# define a sequence to run the HGCal local reco without the tracking step, for HGCalOnly workflows
+particleFlowClusterHGCalNoTracks = particleFlowClusterHGCal.clone(
+    initialClusteringStep=dict(tracksterSrc='ticlTrackstersCLUE3DHigh')
+)
+hgcalLocalRecoTask_hgcalOnly = hgcalLocalRecoTask.copyAndExclude([particleFlowClusterHGCal])
+hgcalLocalRecoTask_hgcalOnly.add(particleFlowClusterHGCalNoTracks)
+
+reconstruction_hgcalOnlyTask = cms.Task(
+    bunchSpacingProducer,
+    offlineBeamSpot,
+    hgcalLocalRecoTask_hgcalOnly,
+    mergeTICLTask,
+    pfClusteringHGCalTask
+)
+reconstruction_hgcalOnly = cms.Sequence(reconstruction_hgcalOnlyTask)
+
 #need a fully expanded sequence copy
 modulesToRemove = list() # copy does not work well
 noTrackingAndDependent = list()

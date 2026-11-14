@@ -13,24 +13,25 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 // Trigger
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 // DQM services
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 // for gen matching
 #include "DataFormats/JetMatching/interface/JetFlavourMatching.h"
-#include <Math/GenVector/VectorUtil.h>
-
 #include "FWCore/Utilities/interface/transform.h"
+#include <Math/GenVector/VectorUtil.h>
 
 /** \class HLTBTagPerformanceAnalyzer
  *
@@ -43,7 +44,8 @@
 class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 public:
   explicit HLTBTagPerformanceAnalyzer(const edm::ParameterSet &);
-  ~HLTBTagPerformanceAnalyzer() override;
+  ~HLTBTagPerformanceAnalyzer() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
   void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
 
 private:
@@ -74,6 +76,11 @@ private:
   //                shallowTagInfosCalo;
   edm::Handle<std::vector<reco::ShallowTagInfo>> shallowTagInfosPf;
 
+  // phase2-only configuration
+  bool isPhase2_;
+  std::vector<std::vector<std::string>> l1Seeds_;
+  std::vector<std::vector<std::string>> pathFilters_;
+
   /// other class variable
   std::vector<bool> _isfoundHLTs;
   std::vector<int> hltPathIndexs_;
@@ -100,6 +107,9 @@ private:
   std::vector<std::map<std::string, MonitorElement *>> H2EtaPhi_;
   std::vector<std::map<std::string, MonitorElement *>> H2EtaPhi_threshold_;
   std::vector<std::map<std::string, MonitorElement *>> H2Phi_;
+
+  // phase2-only histograms
+  std::vector<std::map<std::string, MonitorElement *>> H1Iso_;
 
   // Other variables
   edm::EDConsumerBase::Labels label;

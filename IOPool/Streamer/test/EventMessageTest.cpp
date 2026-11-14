@@ -66,7 +66,7 @@ int main() try {
   Bytef* crcbuf = (Bytef*)outputModuleLabel.data();
   crc = crc32(crc, crcbuf, outputModuleLabel.length());
 
-  uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value[0], sizeof(test_value));
+  uint32 adler32_chksum = (uint32)cms::adler32((char*)&test_value[0], sizeof(test_value));
 
   InitMsgBuilder init(&buf[0],
                       buf.size(),
@@ -140,7 +140,7 @@ int main() try {
   l1bit[11] = true;
   l1bit[15] = true;
 
-  adler32_chksum = (uint32)cms::Adler32((char*)&test_value[0], sizeof(test_value));
+  adler32_chksum = (uint32)cms::adler32((char*)&test_value[0], sizeof(test_value));
   std::string host_name = "mytestnode.cms";
 
   EventMsgBuilder emb(

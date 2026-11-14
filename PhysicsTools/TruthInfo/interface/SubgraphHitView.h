@@ -1,6 +1,4 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-// Part of the MC-truth-graph prototype - under heavy development, not yet open
-// to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 #ifndef PhysicsTools_TruthInfo_SubgraphHitView_h
 #define PhysicsTools_TruthInfo_SubgraphHitView_h
@@ -41,6 +39,7 @@ namespace truth {
       return hitIndex_->directHits(channel, particleId);
     }
     [[nodiscard]] bool hasChannel(HitChannel channel) const { return hitIndex_->hasChannel(channel); }
+    [[nodiscard]] bool isCellKeyed(HitChannel channel) const { return hitIndex_->isCellKeyed(channel); }
     [[nodiscard]] uint32_t nParticles() const { return hitIndex_->nParticles(); }
     [[nodiscard]] LogicalGraphHitIndex const& index() const { return *hitIndex_; }
 

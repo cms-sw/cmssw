@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<DDDefinition>
+ <SpecParSection label="FbcmSens.xml" eval="true">
+  <SpecPar name="fbcm">
+   <PartSelector path="//FBCM_SensorPad.*"/>
+   <Parameter name="SensitiveDetector" value="FBCMSensitiveDetector" eval="false"></Parameter>
+   <Parameter name="ReadOutName" value="FBCMHits" eval="false"/>
+  </SpecPar>
+</SpecParSection>
+</DDDefinition>

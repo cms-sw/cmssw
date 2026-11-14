@@ -1,5 +1,7 @@
 #include "DQM/GEM/interface/GEMDAQStatusSource.h"
 
+#include <algorithm>
+
 using namespace std;
 using namespace edm;
 
@@ -311,6 +313,9 @@ int GEMDAQStatusSource::ProcessWithMEMap5WithChamber(BookingHelper &bh, ME5IdsKe
 }
 
 void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const &eventSetup) {
+  // Width of the VFATMask field in the OH trailer (see GEMOptoHybrid.h)
+  constexpr int kNumVFATMaskBits = 24;
+
   edm::Handle<GEMVFATStatusCollection> gemVFAT;
   edm::Handle<GEMOHStatusCollection> gemOH;
   edm::Handle<GEMAMCStatusCollection> gemAMC;
@@ -492,8 +497,8 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
       map_missingVFATs[key5Mod] = OHStatus->missingVFATs();
       map_vfatMask[key5Mod] = vfatMask;
 
-      for (Int_t i = 0; i < nNumVFATPerModule; i++) {
-        if ((vfatMask & (1 << i)) == 0) {
+      for (Int_t i = 0; i < std::min(nNumVFATPerModule, kNumVFATMaskBits); i++) {
+        if ((vfatMask & (uint32_t{1} << i)) == 0) {
           mapStatusErrVFATPerLayer_.Fill(key4, nCh, i, -16);
           mapStatusMaskedVFATPerLayer_.Fill(key4, nCh, i, 1.0);
         }
@@ -565,8 +570,12 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
       Int_t nIdxVFAT = vfatStat->vfatPosition();
       Int_t nIdxVFATMod = nIdxVFAT;
 
-      auto missingVFATs = map_missingVFATs[key5Mod] & (1 << nIdxVFAT);
-      auto vfatMask = map_vfatMask[key5Mod] & (1 << nIdxVFAT);
+      if (nIdxVFAT >= kNumVFATMaskBits) {
+        continue;
+      }
+
+      auto missingVFATs = map_missingVFATs[key5Mod] & (uint32_t{1} << nIdxVFAT);
+      auto vfatMask = map_vfatMask[key5Mod] & (uint32_t{1} << nIdxVFAT);
 
       if (vfatMask == 0) {
         continue;

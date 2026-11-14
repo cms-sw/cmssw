@@ -192,7 +192,7 @@ _alpaka_pfClusteringHBHEHFOnlyTask.add(pfMultiDepthClusterSoAProducerHCALOnly)
 alpaka.toReplaceWith(pfClusteringHBHEHFTask, _alpaka_pfClusteringHBHEHFTask)
 alpaka.toReplaceWith(pfClusteringHBHEHFOnlyTask, _alpaka_pfClusteringHBHEHFOnlyTask)
 
-from RecoParticleFlow.PFClusterProducer.barrelLayerClusters_cff import barrelLayerClustersEB, barrelLayerClustersHB
+from RecoTICL.LayerClustering.barrelLayerClusters_cff import barrelLayerClustersEB, barrelLayerClustersHB
 _pfClusteringECALTask = pfClusteringECALTask.copy()
 _pfClusteringECALTask.add(barrelLayerClustersEB)
 

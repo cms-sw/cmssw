@@ -11,7 +11,7 @@ hltIter2Phase2L3FromL1TkMuonCkfTrackCandidates = cms.EDProducer("CkfTrackCandida
     TransientInitialStateEstimatorParameters = cms.PSet(
         numberMeasurementsForFit = cms.int32(4),
         propagatorAlongTISE = cms.string('PropagatorWithMaterialParabolicMf'),
-        propagatorOppositeTISE = cms.string('PropagatorWithMaterialParabolicMfOpposite')
+        propagatorOppositeTISE = cms.string('hltOppositeMaterialPropagatorParabolicMF')
     ),
     cleanTrajectoryAfterInOut = cms.bool(False),
     doSeedingRegionRebuilding = cms.bool(False),

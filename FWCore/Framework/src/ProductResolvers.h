@@ -8,7 +8,6 @@ a set of related EDProducts. This is the storage unit of such information.
 
 ----------------------------------------------------------------------*/
 #include "FWCore/Framework/interface/ProductResolverBase.h"
-#include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/Framework/src/ProductPutOrMergerBase.h"
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/ProductData.h"
@@ -35,7 +34,11 @@ namespace edm {
   class DelayedReader;
   class SharedResourcesAcquirer;
   class UnscheduledAuxiliary;
-  class Worker;
+  class TransitionWorkerBase;
+  template <typename TI, typename TP>
+  class TransitionWorker;
+  class EventTransitionInfo;
+  struct TransitionPhaseGlobal;
   class ServiceToken;
 
   class DataManagingOrAliasProductResolver : public ProductResolverBase {
@@ -152,9 +155,7 @@ namespace edm {
     UnscheduledAuxiliary const* aux_;  //provides access to the delayedGet signals
   };
 
-  class PutOnReadInputProductResolver : public MergeableInputProductResolver,
-                                        public ProductPutterBase,
-                                        public ProductPutOrMergerBase {
+  class PutOnReadInputProductResolver : public MergeableInputProductResolver, public ProductPutOrMergerBase {
   public:
     PutOnReadInputProductResolver(std::shared_ptr<ProductDescription const> bd)
         : MergeableInputProductResolver(bd, ProductStatus::ResolveNotRun) {
@@ -180,7 +181,7 @@ namespace edm {
     bool isFromCurrentProcess() const final;
   };
 
-  class ProducedProductResolver : public DataManagingProductResolver, public ProductPutterBase {
+  class ProducedProductResolver : public DataManagingProductResolver {
   public:
     ProducedProductResolver(std::shared_ptr<ProductDescription const> bd, ProductStatus iDefaultStatus)
         : DataManagingProductResolver(bd, iDefaultStatus) {
@@ -242,7 +243,7 @@ namespace edm {
 
     CMS_THREAD_SAFE mutable WaitingTaskList waitingTasks_;
     UnscheduledAuxiliary const* aux_ = nullptr;
-    Worker* worker_ = nullptr;
+    TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>* worker_ = nullptr;
     mutable std::atomic<bool> prefetchRequested_ = false;
   };
 
@@ -269,7 +270,7 @@ namespace edm {
 
     CMS_THREAD_SAFE mutable WaitingTaskList waitingTasks_;
     UnscheduledAuxiliary const* aux_ = nullptr;
-    Worker* worker_ = nullptr;
+    TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>* worker_ = nullptr;
     CMS_THREAD_GUARD(prefetchRequested_) mutable ModuleCallingContext mcc_;
     size_t index_;
     mutable std::atomic<bool> prefetchRequested_ = false;

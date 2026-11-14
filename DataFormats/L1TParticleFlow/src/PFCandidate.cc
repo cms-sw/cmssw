@@ -7,6 +7,7 @@ l1t::PFCandidate::PFCandidate(
       puppiWeight_(puppiWeight),
       caloEta_(0),
       caloPhi_(0),
+      hwAssociationScore_(0),
       hwZ0_(0),
       hwDxy_(0),
       hwTkQuality_(0),

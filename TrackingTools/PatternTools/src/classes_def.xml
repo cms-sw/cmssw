@@ -10,6 +10,7 @@
   <class name="edm::Wrapper<std::vector<MomentumConstraint> >" persistent="false"/>
   <class name="edm::RefProd<std::vector<MomentumConstraint> >"/>
 
+  <class name="edm::OneToOne<std::vector<Trajectory>,std::vector<reco::io_v1::Track>,unsigned short >" />
   <class name="edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,std::vector<reco::Track>,unsigned short > >" >
     <field name="transientMap_" transient="true"/>
   </class>

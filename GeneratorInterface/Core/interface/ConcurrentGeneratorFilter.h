@@ -80,6 +80,10 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMC3Product.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct3.h"
+
+#include "HepMC3/GenEvent.h"
 
 namespace edm {
   namespace gen {
@@ -157,6 +161,9 @@ namespace edm {
   private:
     void initLumi(gen::GenStreamCache<HAD, DEC>* cache, LuminosityBlock const& index, EventSetup const& es) const;
     ParameterSet config_;
+    // 2 for HepMC, 3 for HepMC3; fixed by the hadronizer type, so it can be
+    // read from a throw-away instance before any stream cache exists
+    unsigned int ivhepmc_ = 2;
 
     // The following six variables depend on the fact that the Framework does
     // not execute global begin lumi transitions and global begin run transitions
@@ -185,8 +192,24 @@ namespace edm {
     // But I can not find the LHEGeneratorInfo class; it might need to
     // be invented.
 
-    this->template produces<HepMCProduct>("unsmeared");
-    this->template produces<GenEventInfoProduct>();
+    {
+      HAD probe(ps);
+      ivhepmc_ = probe.getVHepMC();
+    }
+
+    if (ivhepmc_ == 3) {
+      if (ps.exists("ExternalDecays")) {
+        throw edm::Exception(errors::Configuration)
+            << "ConcurrentGeneratorFilter: external decays are not available for a HepMC3 hadronizer, "
+            << "because ConcurrentExternalDecayDriver has no HepMC3 interface. Use the non-concurrent "
+            << "GeneratorFilter instead.\n";
+      }
+      this->template produces<edm::HepMC3Product>("unsmeared");
+      this->template produces<GenEventInfoProduct3>();
+    } else {
+      this->template produces<HepMCProduct>("unsmeared");
+      this->template produces<GenEventInfoProduct>();
+    }
     this->template produces<GenLumiInfoHeader, edm::Transition::BeginLuminosityBlock>();
     this->template produces<GenLumiInfoProduct, edm::Transition::EndLuminosityBlock>();
     this->template produces<GenRunInfoProduct, edm::Transition::EndRun>();
@@ -280,9 +303,11 @@ namespace edm {
 
     bool passEvtGenSelector = false;
     std::unique_ptr<HepMC::GenEvent> event(nullptr);
+    std::unique_ptr<HepMC3::GenEvent> event3(nullptr);
 
     while (!passEvtGenSelector) {
       event.reset();
+      event3.reset();
       cache->hadronizer_.setEDMEvent(ev);
 
       if (!cache->hadronizer_.generatePartonsAndHadronize())
@@ -298,19 +323,26 @@ namespace edm {
         return false;
 
       event = cache->hadronizer_.getGenEvent();
-      if (!event.get())
+      event3 = cache->hadronizer_.getGenEvent3();
+      if (ivhepmc_ == 2 && !event.get())
+        return false;
+      if (ivhepmc_ == 3 && !event3.get())
         return false;
 
       //
       // The external decay driver is being added to the system, it should be called here
       //
-      if (cache->decayer_) {
+      // ConcurrentExternalDecayDriver has no HepMC3 overload, so this
+      // combination is rejected in the constructor
+      if (cache->decayer_ && ivhepmc_ == 2) {
         auto t = cache->decayer_->decay(event.get());
         if (t != event.get()) {
           event.reset(t);
         }
       }
-      if (!event.get())
+      if (ivhepmc_ == 2 && !event.get())
+        return false;
+      if (ivhepmc_ == 3 && !event3.get())
         return false;
 
       passEvtGenSelector = cache->hadronizer_.select(event.get());
@@ -321,7 +353,10 @@ namespace edm {
     //
     // fisrt of all, put back modified event tree (after external decay)
     //
-    cache->hadronizer_.resetEvent(std::move(event));
+    if (ivhepmc_ == 2)
+      cache->hadronizer_.resetEvent(std::move(event));
+    else if (ivhepmc_ == 3)
+      cache->hadronizer_.resetEvent3(std::move(event3));
 
     //
     // now run residual decays
@@ -332,25 +367,45 @@ namespace edm {
     cache->hadronizer_.finalizeEvent();
 
     event = cache->hadronizer_.getGenEvent();
-    if (!event.get())
-      return false;
-
-    event->set_event_number(ev.id().event());
+    event3 = cache->hadronizer_.getGenEvent3();
+    if (ivhepmc_ == 2) {
+      if (!event.get())
+        return false;
+      event->set_event_number(ev.id().event());
+    } else if (ivhepmc_ == 3) {
+      if (!event3.get())
+        return false;
+      event3->set_event_number(ev.id().event());
+    }
 
     //
     // finally, form up EDM products !
     //
-    std::unique_ptr<GenEventInfoProduct> genEventInfo(cache->hadronizer_.getGenEventInfo());
-    if (!genEventInfo.get()) {
-      // create GenEventInfoProduct from HepMC event in case hadronizer didn't provide one
-      genEventInfo = std::make_unique<GenEventInfoProduct>(event.get());
+    if (ivhepmc_ == 2) {
+      std::unique_ptr<GenEventInfoProduct> genEventInfo(cache->hadronizer_.getGenEventInfo());
+      if (!genEventInfo.get()) {
+        // create GenEventInfoProduct from HepMC event in case hadronizer didn't provide one
+        genEventInfo = std::make_unique<GenEventInfoProduct>(event.get());
+      }
+
+      ev.put(std::move(genEventInfo));
+
+      std::unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
+      bare_product->addHepMCData(event.release());
+      ev.put(std::move(bare_product), "unsmeared");
+    } else if (ivhepmc_ == 3) {
+      std::unique_ptr<GenEventInfoProduct3> genEventInfo3(cache->hadronizer_.getGenEventInfo3());
+      if (!genEventInfo3.get()) {
+        // create GenEventInfoProduct3 from HepMC3 event in case hadronizer didn't provide one
+        genEventInfo3 = std::make_unique<GenEventInfoProduct3>(event3.get());
+      }
+
+      ev.put(std::move(genEventInfo3));
+
+      std::unique_ptr<HepMC3Product> bare_product(new HepMC3Product());
+      bare_product->addHepMCData(*event3);
+      ev.put(std::move(bare_product), "unsmeared");
     }
-
-    ev.put(std::move(genEventInfo));
-
-    std::unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
-    bare_product->addHepMCData(event.release());
-    ev.put(std::move(bare_product), "unsmeared");
     cache->nEventsInLumiBlock_++;
     return true;
   }

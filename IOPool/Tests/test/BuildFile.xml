@@ -119,3 +119,5 @@
 <test name="TestIOPoolUnscheduledFailOnOutput" command="run_unscheduledFailOnOutput.sh"/>
 
 <test name="TestIOPoolDifferentProductRegistries" command="runDifferentProductRegistries.sh"/>
+
+<test name="TestIOPoolSimpleMerge" command="simpleMergeTest.sh"/>

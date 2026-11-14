@@ -7,7 +7,7 @@ hltHighPtTripletStepSeeds = cms.EDProducer("SeedCreatorFromRegionConsecutiveHits
         ComponentName = cms.string('none')
     ),
     SeedMomentumForBOFF = cms.double(5),
-    TTRHBuilder = cms.string('WithTrackAngle'),
+    TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
     forceKinematicWithRegionDirection = cms.bool(False),
     magneticField = cms.string(''),
     mightGet = cms.optional.untracked.vstring,

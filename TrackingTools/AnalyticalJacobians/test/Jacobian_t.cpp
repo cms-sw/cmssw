@@ -22,21 +22,28 @@ namespace {
 
 }  // namespace
 
-#include "FWCore/Utilities/interface/HRRealTime.h"
-void st(void* ptr) {
-  asm("" /* no instructions */
-      :  /* no inputs */
-      : /* output */ "rax"(ptr)
-      : /* pretend to clobber */ "memory");
-}
-void en(void const* ptr) {
-  asm("" /* no instructions */
-      :  /* no inputs */
-      : /* output */ "rax"(ptr)
-      : /* pretend to clobber */ "memory");
-}
+#include <benchmark/benchmark.h>
+#include <iostream>
 
-int main() {
+namespace {
+  template <typename J, typename... Args>
+  void benchJacobian(const char* name, Args const&... args) {
+    {
+      J jac(args...);
+      std::cout << name << "\n" << jac.jacobian() << std::endl;
+    }
+    benchmark::RegisterBenchmark(name, [&args...](benchmark::State& state) {
+      for (auto _ : state) {
+        J __attribute__((aligned(16))) j(args...);
+        benchmark::DoNotOptimize(j);
+      }
+    });
+  }
+}  // namespace
+
+int main(int argc, char* argv[]) {
+  benchmark::Initialize(&argc, argv);
+
   // GlobalVector xx(0.5,1.,1.);
   // GlobalVector yy(-1.,0.5,1.);
 
@@ -102,95 +109,15 @@ int main() {
   // verify cart to curv and back....
   // AlgebraicMatrixID();
 
-  int N = 1000000;
+  benchJacobian<JacobianLocalToCartesian>("L =>Cart", plane, tp);
+  benchJacobian<JacobianLocalToCurvilinear>("L =>Curv from loc", plane, tp, m);
+  benchJacobian<JacobianLocalToCurvilinear>("L =>Curv from loc+glob", plane, tp, gp, m);
+  benchJacobian<JacobianCartesianToLocal>("Cart => Loc", plane, tp);
+  benchJacobian<JacobianCurvilinearToLocal>("Curv => Loc from loc", plane, tp, m);
+  benchJacobian<JacobianCurvilinearToLocal>("Curv => Loc from loc + glob", plane, tp, gp, m);
 
-  // L =>Cart
-  {
-    std::cout << "L =>Cart ";
-    edm::HRTimeType s = edm::hrRealTime();
-    for (int i = 0; i < N; ++i) {
-      st(&tp);
-      JacobianLocalToCartesian __attribute__((aligned(16))) jl2c(plane, tp);
-      en(&jl2c.jacobian());
-    }
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << double(e - s) / N << std::endl;
-    JacobianLocalToCartesian __attribute__((aligned(16))) jl2c(plane, tp);
-    std::cout << jl2c.jacobian() << std::endl;
-  }
-
-  // L => Curv
-  {
-    std::cout << "L =>Curv from loc ";
-    edm::HRTimeType s = edm::hrRealTime();
-    for (int i = 0; i < N; ++i) {
-      st(&tp);
-      JacobianLocalToCurvilinear __attribute__((aligned(16))) jl2c(plane, tp, m);
-      en(&jl2c.jacobian());
-    }
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << double(e - s) / N << std::endl;
-    JacobianLocalToCurvilinear __attribute__((aligned(16))) jl2c(plane, tp, m);
-    std::cout << jl2c.jacobian() << std::endl;
-  }
-
-  {
-    std::cout << "L =>Curv from loc+glob ";
-    edm::HRTimeType s = edm::hrRealTime();
-    for (int i = 0; i < N; ++i) {
-      st(&tp);
-      JacobianLocalToCurvilinear __attribute__((aligned(16))) jl2c(plane, tp, gp, m);
-      en(&jl2c.jacobian());
-    }
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << double(e - s) / N << std::endl;
-    JacobianLocalToCurvilinear __attribute__((aligned(16))) jl2c(plane, tp, gp, m);
-    std::cout << jl2c.jacobian() << std::endl;
-  }
-
-  // Cart => Loc
-  {
-    std::cout << "Cart => Loc ";
-    edm::HRTimeType s = edm::hrRealTime();
-    for (int i = 0; i < N; ++i) {
-      st(&tp);
-      JacobianCartesianToLocal __attribute__((aligned(16))) jl2c(plane, tp);
-      en(&jl2c.jacobian());
-    }
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << double(e - s) / N << std::endl;
-    JacobianCartesianToLocal __attribute__((aligned(16))) jl2c(plane, tp);
-    std::cout << jl2c.jacobian() << std::endl;
-  }
-
-  // Curv => Loc
-  {
-    std::cout << "Curv => Loc from loc ";
-    edm::HRTimeType s = edm::hrRealTime();
-    for (int i = 0; i < N; ++i) {
-      st(&tp);
-      JacobianCurvilinearToLocal __attribute__((aligned(16))) jl2c(plane, tp, m);
-      en(&jl2c.jacobian());
-    }
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << double(e - s) / N << std::endl;
-    JacobianCurvilinearToLocal __attribute__((aligned(16))) jl2c(plane, tp, m);
-    std::cout << jl2c.jacobian() << std::endl;
-  }
-
-  {
-    std::cout << "Curv => Loc from loc + glob ";
-    edm::HRTimeType s = edm::hrRealTime();
-    for (int i = 0; i < N; ++i) {
-      st(&tp);
-      JacobianCurvilinearToLocal __attribute__((aligned(16))) jl2c(plane, tp, gp, m);
-      en(&jl2c.jacobian());
-    }
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << double(e - s) / N << std::endl;
-    JacobianCurvilinearToLocal __attribute__((aligned(16))) jl2c(plane, tp, gp, m);
-    std::cout << jl2c.jacobian() << std::endl;
-  }
+  benchmark::RunSpecifiedBenchmarks();
+  benchmark::Shutdown();
 
   return 0;
 }

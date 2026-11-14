@@ -2,7 +2,7 @@ import sys
 from copy import deepcopy
 from functools import partial
 
-from .MatrixUtil import Steps, merge, remove, Kby, Mby, genvalid, InputInfo, selectedLS, stCond
+from .MatrixUtil import Steps, DeferredFragmentStep, merge, remove, Kby, Mby, genvalid, InputInfo, selectedLS, stCond
 
 from Configuration.HLT.autoHLT import autoHLT
 from Configuration.AlCa.autoPCL import autoPCL
@@ -1167,9 +1167,9 @@ steps['Cosmics_UP21_0T']=merge([{'--magField':'0T','--conditions':'auto:phase1_2
 steps['CosmicsSPLoose_UP17']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','-n':'2000','--conditions':'auto:phase1_2017_cosmics','--scenario':'cosmics','--era':'Run2_2017'},Kby(5000,500000),step1Up2015Defaults])
 steps['CosmicsSPLoose_UP18']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','-n':'2000','--conditions':'auto:phase1_2018_cosmics','--scenario':'cosmics','--era':'Run2_2018'},Kby(5000,500000),step1Up2015Defaults])
 
-# Phase2 cosmics with geometry D127
+# Phase2 cosmics with geometry D128
 from Configuration.PyReleaseValidation.upgradeWorkflowComponents import upgradeProperties
-phase2CosInfo=upgradeProperties['Run4']['Run4D127'] # so if the default changes, change wf only here
+phase2CosInfo=upgradeProperties['Run4']['Run4D128'] # so if the default changes, change wf only here
 
 steps['Cosmics_Phase2']=merge([{'cfg':'UndergroundCosmicMu_cfi.py',
                                 '-n':'500',
@@ -1188,9 +1188,9 @@ steps['BeamHalo_UP21']=merge([{'cfg':'BeamHalo_13TeV_cfi.py','-n':'500','--condi
 # steps['CosmicsINPUT']={'INPUT':InputInfo(dataSet='/RelValCosmics/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 
 # Phase2 HGCAL test beam
-from Configuration.PyReleaseValidation.upgradeWorkflowComponents import upgradeProperties
 hgcalTB=upgradeProperties['Run4']['Run4D104'] # so if the default changes, change wf only here
 steps['HGCal_TestBeam']={'--conditions':hgcalTB['GT'],'--era':hgcalTB['Era'],'--customise':'RecoLocalCalo/Configuration/hgcalTestBeamLocalReco_cff.runRecoForSep2024TB','-s':'NONE','--datatier':'RECO','--eventcontent':'FEVTDEBUG','--data':'','--process':'RECO','-n':'10','--filein':'/store/group/dpg_hgcal/comm_hgcal/relval/RAW2DIGI.root'}
+steps['HARVEST_HGCal_TestBeam']={'--conditions':hgcalTB['GT'],'--era':hgcalTB['Era'],'--customise':'RecoLocalCalo/Configuration/hgcalTestBeamLocalReco_cff.setupConditionsForSep2024TB','-s':'HARVESTING:DQM/HGCAL/hgcalDQM_cff.hgcalDQMHarvesting','--data':'','--filetype':'DQM','--scenario':'pp','--geometry':hgcalTB['Geom']}
 
 steps['QCD_Pt_50_80']=genS('QCD_Pt_50_80_8TeV_TuneCUETP8M1_cfi',Kby(25,100))
 steps['QCD_Pt_15_20']=genS('QCD_Pt_15_20_8TeV_TuneCUETP8M1_cfi',Kby(25,100))
@@ -1331,7 +1331,7 @@ step1FastUpg2017Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,D
                            '--fast':'',
                            '--conditions'  :'auto:phase1_2017_realistic',
                            '--beamspot'    : 'Realistic25ns13TeVEarly2017Collision',
-                           '--era'         :'Run2_2017_FastSim',
+                           '--era'         :'Run2_2017',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
                            '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
                            '--relval':'27000,3000'},
@@ -1347,7 +1347,7 @@ step1FastUpg2018Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,D
                            '--fast':'',
                            '--conditions'  :'auto:phase1_2018_realistic',
                            '--beamspot'    :'Realistic25ns13TeVEarly2018Collision',
-                           '--era'         :'Run2_2018_FastSim',
+                           '--era'         :'Run2_2018',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
                            '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
                            '--relval':'27000,3000'},
@@ -1497,7 +1497,7 @@ steps["FS_PREMIXUP17_PU50"] = merge([
          "--eventcontent":"PREMIX",
          "--datatier":"PREMIX",
          "--procModifiers":"premix_stage1",
-         "--era":"Run2_2017_FastSim",
+         "--era":"Run2_2017",
          },
         PUFSAVE50,Kby(100,500)])
 
@@ -1547,7 +1547,7 @@ steps["FS_PREMIXUP18_PU50"] = merge([
          "--eventcontent":"PREMIX",
          "--datatier":"PREMIX",
          "--procModifiers":"premix_stage1",
-         "--era":"Run2_2018_FastSim",
+         "--era":"Run2_2018",
          },
         PUFSAVE50UP18,Kby(100,500)])
 
@@ -2452,7 +2452,7 @@ steps['TIER0EXPRUN3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForExp
                           '--conditions':'auto:run3_data_express'
                           },steps['TIER0']])
 steps['ReAlCaHLT']={'-s':'ALCA:TkAlHLTTracks+TkAlHLTTracksZMuMu',
-                    '--conditions':'140X_dataRun3_Express_v3',
+                    '--conditions':'auto:run3_data_express',
                     '--scenario': 'pp',
                     '--data': '',
                     '--era':'Run3_2024',
@@ -2746,7 +2746,7 @@ steps['ALCAHARVDSIPIXELALIHGCOMBINED']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCa
                      '--customise':'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.lowerHitsPerStructure'}
 
 steps['ALCAHARVDSIPIXELALIHLTHGCOMBINED']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixelAliHLTHGC']),
-                     '--conditions':'140X_dataRun3_Express_v3',
+                     '--conditions':'auto:run3_data_express',
                      '--scenario':'pp',
                      '--era':'Run3_2024',
                      '--data':'',
@@ -2829,12 +2829,12 @@ steps['RECODR3_2023_UPC']=merge([{'--conditions':'auto:run3_data', '--era':'Run3
 steps['RECODR3_2024_HIN']=merge([{'--conditions':'auto:run3_data_prompt', '-s':'RAW2DIGI,L1Reco,RECO,PAT,DQM:@commonFakeHLT+@standardDQMFakeHLT', '--repacked':'', '-n':1000},steps['RECODR3_2024']])
 steps['RECODR3_2024_UPC']=merge([{'--era':'Run3_2024_UPC'},steps['RECODR3_2024_HIN']])
 steps['RECODR3_2025_HIN']=merge([{'--conditions':'auto:run3_data_prompt', '-s':'RAW2DIGI,L1Reco,RECO,PAT,DQM:@commonFakeHLT+@standardDQMFakeHLT', '--repacked':'', '-n':1000},steps['RECODR3_2025']])
-steps['RECODR3_2025_UPC']=merge([{'--era':'Run3_2025_UPC', '--conditions':'151X_dataRun3_Prompt_v1'},steps['RECODR3_2025_HIN']])
+steps['RECODR3_2025_UPC']=merge([{'--era':'Run3_2025_UPC', '--conditions':'auto:run3_data_prompt'},steps['RECODR3_2025_HIN']])
 steps['RECODR3_2025_OXY']=merge([{'--era':'Run3_2025_OXY'},steps['RECODR3_2025_HIN']])
 steps['RECODR3_2025_UPC_OXY']=merge([{'--era':'Run3_2025_UPC_OXY'},steps['RECODR3_2025_UPC']])
 steps['RECODR3_2025_OXY_SKIMIONPHYSICS0']=merge([{'--era':'Run3_2025_OXY', '-s':'RAW2DIGI,L1Reco,RECO,SKIM:%s,PAT,DQM:@commonFakeHLT+@standardDQMFakeHLT'%(autoSkim['IonPhysics0'])},steps['RECODR3_2025_HIN']])
 steps['RECODR3_2026_HIN']=merge([{'--conditions':'auto:run3_data_prompt', '-s':'RAW2DIGI,L1Reco,RECO,PAT,DQM:@commonFakeHLT+@standardDQMFakeHLT','--repacked':'', '-n':1000},steps['RECODR3_2026']])
-steps['RECODR3_2026_UPC']=merge([{'--era':'Run3_2026_UPC', '--conditions':'151X_dataRun3_Prompt_v1'},steps['RECODR3_2026_HIN']])
+steps['RECODR3_2026_UPC']=merge([{'--era':'Run3_2026_UPC', '--conditions':'auto:run3_data_prompt'},steps['RECODR3_2026_HIN']])
 steps['RECONANODR3_2026_UPC']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@commonFakeHLT+@standardDQMFakeHLT', '--datatier':'RECO,MINIAOD,NANOAOD,DQMIO','--eventcontent':'RECO,MINIAOD,NANOAOD,DQM'},steps['RECODR3_2026_UPC']])
 
 steps['RECODR3Splash']=merge([{'-n': 2,
@@ -3709,7 +3709,7 @@ steps['ALCAEXPSIPIXELALIRUN3']={'-s':'ALCAOUTPUT:TkAlZMuMu+TkAlMinBias,ALCA:Prom
                                 '--triggerResultsProcess': 'RECO'}
 
 steps['ALCAReAlCaHLTHGComb'] = {'-s': 'ALCA:PromptCalibProdSiPixelAliHLTHGC',
-                                '--conditions': '140X_dataRun3_Express_v3',
+                                '--conditions': 'auto:run3_data_express',
                                 '--customise': 'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.doNotFilterLS',
                                 '--scenario': 'pp',
                                 '--data': '',
@@ -3730,7 +3730,7 @@ steps['ALCAReAlCaHLTHGComb'] = {'-s': 'ALCA:PromptCalibProdSiPixelAliHLTHGC',
                                 }
 
 steps['ALCAReAlCaHLTHGCombZMUMU'] = {'-s': 'ALCA:PromptCalibProdSiPixelAliHLTHGC',
-                                     '--conditions': '140X_dataRun3_Express_v3',
+                                     '--conditions': 'auto:run3_data_express',
                                      '--customise': 'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.doNotFilterLS',
                                      '--scenario': 'pp',
                                      '--data': '',
@@ -4449,9 +4449,9 @@ steps['HARVESTUP15FS']={'-s':'HARVESTING:validationHarvesting',
                         '--filetype':'DQM',
                         '--scenario':'pp'}
 steps['HARVESTUP15FS_trackingOnly']=merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, steps['HARVESTUP15FS']])
-steps['HARVESTUP17FS']=merge([{'--conditions':'auto:phase1_2017_realistic','--era' : 'Run2_2017_FastSim'},steps['HARVESTUP15FS']])
+steps['HARVESTUP17FS']=merge([{'--conditions':'auto:phase1_2017_realistic','--era' : 'Run2_2017'},steps['HARVESTUP15FS']])
 steps['HARVESTUP17FS_trackingOnly']=merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, steps['HARVESTUP17FS']])
-steps['HARVESTUP18FS']=merge([{'--conditions':'auto:phase1_2018_realistic','--era' : 'Run2_2018_FastSim'},steps['HARVESTUP15FS']])
+steps['HARVESTUP18FS']=merge([{'--conditions':'auto:phase1_2018_realistic','--era' : 'Run2_2018'},steps['HARVESTUP15FS']])
 steps['HARVESTUP18FS_trackingOnly']=merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, steps['HARVESTUP18FS']])
 
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
@@ -4618,12 +4618,12 @@ steps['DBLMINIAODMCUP15NODQM'] = merge([{'--conditions':'auto:run2_mc',
                                          '--eventcontent':'MINIAOD',},stepMiniAODMC])
 
 #MiniAOD 2017
-steps['MINIAODMCUP17FS']   =merge([{'--filein':'file:step1.root','--fast':'','--conditions':'auto:phase1_2017_realistic','--era':'Run2_2017_FastSim'},stepMiniAODMC])
+steps['MINIAODMCUP17FS']   =merge([{'--filein':'file:step1.root','--fast':'','--conditions':'auto:phase1_2017_realistic','--era':'Run2_2017'},stepMiniAODMC])
 
 #MiniAOD 2018
 steps['MINIAODMCUP18']   =merge([{'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018'},stepMiniAODMC])
 steps['MINIAODMCUP18bParking']   =merge([{'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018,bParking'},stepMiniAODMC])
-steps['MINIAODMCUP18FS']   =merge([{'--filein':'file:step1.root','--fast':'','--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018_FastSim'},stepMiniAODMC])
+steps['MINIAODMCUP18FS']   =merge([{'--filein':'file:step1.root','--fast':'','--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018'},stepMiniAODMC])
 
 stepNanoAODDefaults = { '-s': 'NANO,DQM:@nanoAODDQM', '-n': 1000 }
 stepNanoAODData = merge([{ '--data':'', '--eventcontent' : 'NANOAOD,DQM' ,'--datatier': 'NANOAOD,DQMIO'    }, stepNanoAODDefaults ])
@@ -4644,8 +4644,8 @@ steps['NANOUP18Had']=merge([{'--filein':'file:step4_inMINIAODSIM.root'},steps['N
 steps['NANOPRODUP18']=merge([{'--filein':'file:step4.root'},steps['NANOUP18']])
 
 steps['NANOUP15FS'] = merge([{'--filein':'file:step3.root','--fast':''}, steps['NANOUP15']])
-steps['NANOUP17FS'] = merge([{'--filein':'file:step3.root','--fast':'','--era':'Run2_2017_FastSim'}, steps['NANOUP17']])
-steps['NANOUP18FS'] = merge([{'--filein':'file:step3.root','--fast':'','--era':'Run2_2018_FastSim'}, steps['NANOUP18']])
+steps['NANOUP17FS'] = merge([{'--filein':'file:step3.root','--fast':'','--era':'Run2_2017'}, steps['NANOUP17']])
+steps['NANOUP18FS'] = merge([{'--filein':'file:step3.root','--fast':'','--era':'Run2_2018'}, steps['NANOUP18']])
 
 
 steps['HEfail'] = {'--conditions':'auto:phase1_2018_realistic_HEfail',
@@ -4684,33 +4684,13 @@ steps['NanoFullHEfail']={'-s':'NANO',
 from Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 # imported from above, only non-empty values should be provided here
-defaultDataSets['2017']='CMSSW_12_0_0_pre4-113X_mc2017_realistic_v5-v'
-defaultDataSets['2017Design']='CMSSW_12_0_0_pre4-113X_mc2017_design_v5-v'
-defaultDataSets['2018']='CMSSW_12_0_0_pre4-113X_upgrade2018_realistic_v5-v'
-defaultDataSets['2018Design']='CMSSW_12_0_0_pre4-113X_upgrade2018_design_v5-v'
-defaultDataSets['2022']='CMSSW_14_0_18-140X_mcRun3_2022_realistic_v12_STD_noPU_2022_reMC-v'
-defaultDataSets['2022Design']='CMSSW_12_5_0_pre4-124X_mcRun3_2022_design_v7_design_BS2022-v'
-defaultDataSets['2022FS']='CMSSW_14_0_18-140X_mcRun3_2022_realistic_v12_2022_FastSim_Run3_FastSim-v'
-defaultDataSets['2023']='CMSSW_13_0_10-130X_mcRun3_2023_realistic_withEarly2023BS_v1_2023-v'
-defaultDataSets['2023FS']='CMSSW_13_0_11-130X_mcRun3_2023_realistic_withEarly2023BS_v1_FastSim-v'
-defaultDataSets['2024']='CMSSW_14_2_0_pre4-140X_mcRun3_2024_realistic_v26_STD_RegeneratedGS_2024_noPU-v'
-defaultDataSets['2025']='CMSSW_15_1_0_pre5-151X_mcRun3_2025_realistic_v4_STD_RegeneratedGS_2025_noPU-v'
-defaultDataSets['2026']='CMSSW_15_1_0_pre5-151X_mcRun3_2025_realistic_v4_STD_RegeneratedGS_2025_noPU-v'
-defaultDataSets['2024HLTOnDigi'] = defaultDataSets["2024SimOnGen"] = defaultDataSets['2024']
-defaultDataSets["2025HLTOnDigi"] = defaultDataSets["2025SimOnGen"] = defaultDataSets['2025']
-defaultDataSets["2026HLTOnDigi"] = defaultDataSets["2026SimOnGen"] = defaultDataSets['2026']
-defaultDataSets['2024FS']='CMSSW_13_0_11-130X_mcRun3_2023_realistic_withEarly2023BS_v1_FastSim-v' #To replace with new dataset
-defaultDataSets['2025FS']='CMSSW_13_0_11-130X_mcRun3_2023_realistic_withEarly2023BS_v1_FastSim-v' #To replace with new dataset
+# all pre-CMSSW20 defaults now removed, incompatible data formats
 
 # Run4
-defaultRun4Geometry = 'D127'
-defaultDataSets['Run4D110']='CMSSW_15_1_0_pre5-150X_mcRun4_realistic_v1_STD_RegeneratedGS_Run4D110_noPU-v'
+defaultRun4Geometry = 'D128'
 defaultDataSets['Run4D121']='CMSSW_20_0_0_pre1-150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v'
-defaultDataSets['Run4D127']=''
-
-## HIN
-defaultDataSets['2023HIN']='CCMSSW_14_1_0-PU_140X_mcRun3_2023_realistic_HI_v4_STD_2023HIN_PU-v'
-defaultDataSets['2024HIN']='CMSSW_15_1_0_pre5-141X_mcRun3_2024_realistic_HI_v14_STD_RegeneratedGS_2024HIN_noPU-v'
+defaultDataSets['Run4D127']='CMSSW_20_0_0-150X_mcRun4_realistic_v1_D127_GSOnly-v'
+defaultDataSets['Run4D128']='CMSSW_20_1_0_pre3-150X_mcRun4_realistic_v1_STD_D128_GSOnly_GSInputs-v'
 
 puDataSets = {}
 for key, value in defaultDataSets.items(): puDataSets[key+'PU'] = value
@@ -4728,28 +4708,29 @@ for gen in upgradeFragments:
             version = versionOverrides[key]
         baseDataSetReleaseBetter[key]=defaultDataSets[ds]+version
 
+from Configuration.PyReleaseValidation.upgradeWorkflowComponents import localPUname
 PUDataSets={}
 for ds in defaultDataSets:
     if "GenOnly" in ds:
         continue
     key='MinBias_14TeV_pythia8_TuneCP5'+'_'+ds
     name=baseDataSetReleaseBetter[key]
+    puProperties = {'pu': 'AVE_35_BX_25ns', 'frag': 'RelValMinBias_14TeV', 'tier': 'GEN-SIM'}
     if '2017' in ds:
-        PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
+        puProperties.update({'pu': 'AVE_35_BX_25ns', 'frag': 'RelValMinBias_13'})
     elif '2018' in ds or 'postLS2' in ds:
-        PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
+        puProperties.update({'pu': 'AVE_50_BX_25ns', 'frag': 'RelValMinBias_13'})
     elif any(year in ds for year in run3_years):
-        if 'FS' not in ds:
-            PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
-        else:
-            PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM-RECO'%(name,)}
+        puProperties['pu'] = 'Run3_Flat55To75_PoissonOOTPU'
+        if 'FS' in ds:
+            puProperties['tier'] = 'GEN-SIM-RECO'
     elif 'Run4' in ds:
-        PUDataSets[ds]={'-n':10,'--pileup':'AVE_200_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
-    else:
-        PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
+        puProperties['pu'] = 'AVE_200_BX_25ns'
 
-    #PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
-    #PUDataSets[ds]={'-n':10,'--pileup':'AVE_70_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
+    puInput = f'das:/{puProperties["frag"]}/{name}/{puProperties["tier"]}'
+    if undefInput in name:
+        puInput = f'file:{localPUname}'
+    PUDataSets[ds] = {'-n': 10, '--pileup': puProperties['pu'], '--pileup_input': puInput}
 
 upgradeStepDict={}
 for specialType,specialWF in upgradeWFs.items():
@@ -4788,9 +4769,19 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--eventcontent': 'FEVTDEBUG',
                                     '--geometry' : geom
                                     }
-    
     if beamspot is not None: upgradeStepDict['GenSim'][k]['--beamspot']=beamspot
-    
+
+    upgradeStepDict['MinBias13'][k] = merge([
+        {'--evt_type': 'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi', '--fileout': localPUname},
+        Kby(90,100),
+        upgradeStepDict['GenSim'][k]
+    ])
+    upgradeStepDict['MinBias'][k] = merge([
+        {'--evt_type': 'MinBias_14TeV_pythia8_TuneCP5_cfi', '--fileout': localPUname},
+        Kby(90,100),
+        upgradeStepDict['GenSim'][k]
+    ])
+
     upgradeStepDict['GenSimCloseBy'][k] = deepcopy(upgradeStepDict['GenSim'][k])
     upgradeStepDict['GenSimCloseBy'][k]['--beamspot'] = 'CloseBy'
 
@@ -4805,9 +4796,19 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                               '--eventcontent': 'FEVTDEBUG',
                                               '--geometry' : geom
                                               }
+    upgradeStepDict['MinBiasHLBeamSpot'][k] = merge([
+        {'--evt_type': 'MinBias_14TeV_pythia8_TuneCP5_cfi', '--fileout': localPUname},
+        Kby(90,100),
+        upgradeStepDict['GenSimHLBeamSpot'][k]
+    ])
 
     upgradeStepDict['GenSimHLBeamSpot14'][k] = deepcopy(upgradeStepDict['GenSimHLBeamSpot'][k])
     upgradeStepDict['GenSimHLBeamSpot14'][k]['--conditions'] = gt
+    upgradeStepDict['MinBiasHLBeamSpot14'][k] = merge([
+        {'--evt_type': 'MinBias_14TeV_pythia8_TuneCP5_cfi', '--fileout': localPUname},
+        Kby(90,100),
+        upgradeStepDict['GenSimHLBeamSpot14'][k]
+    ])
 
     upgradeStepDict['GenSimHLBeamSpotCloseBy'][k] = deepcopy(upgradeStepDict['GenSimCloseBy'][k])
     
@@ -4970,13 +4971,19 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
     upgradeStepDict['FastSimRun3'][k]={'-s':'SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,PAT,NANO,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQMFS+@miniAODDQM+@nanoAODDQM',
                                        '--fast':'',
-                                       '--era':'Run3_FastSim',
+                                       '--era':'Run3',
                                        '--beamspot':beamspot,
                                        '--conditions':gt,
                                        '--geometry':geom,
                                        '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,NANOEDMAODSIM,DQM',
                                        '--datatier':'GEN-SIM-DIGI-RECO,MINIAODSIM,NANOAODSIM,DQMIO',
                                        }
+    upgradeStepDict['MinBiasFSRun3'][k] = merge([
+        {'--evt_type': 'MinBias_14TeV_pythia8_TuneCP5_cfi', '--fileout': localPUname,
+        '-s': 'GEN,SIM,RECOBEFMIX', '--eventcontent': 'FASTPU', '--datatier': 'GEN-SIM-RECO'},
+        Kby(90,100),
+        upgradeStepDict['FastSimRun3'][k]
+    ])
 
     upgradeStepDict['HARVESTFastRun3'][k]={'-s':'HARVESTING:validationHarvesting+@miniAODValidation+@miniAODDQM+@nanoAODDQM',
                                            '--conditions':gt,
@@ -5020,6 +5027,12 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--eventcontent':'RECOSIM,DQM',
                                        '--datatier':'GEN-SIM-RECO,DQMIO',
                                        }
+    upgradeStepDict['MinBiasFSRun4'][k] = merge([
+        {'--evt_type': 'MinBias_14TeV_pythia8_TuneCP5_cfi', '--fileout': localPUname,
+        '-s': 'GEN,SIM,RECOBEFMIX', '--eventcontent': 'FASTPU', '--datatier': 'GEN-SIM-RECO'},
+        Kby(90,100),
+        upgradeStepDict['FastSimRun4'][k]
+    ])
 
     upgradeStepDict['HARVESTFastRun4'][k]={'-s':'HARVESTING:@trackingOnlyValidation',
                                            '--conditions':gt,
@@ -5045,57 +5058,69 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                 else:
                     upgradeStepDict[stepNamePU][k]=merge([PUDataSets[k2],upgradeStepDict[stepName][k]])
 
+            # knock out the manual MinBias creation step only if relval is claimed to be available
+            for step in specialWF.steps:
+                stepName = specialWF.getStepName(step)
+                stepNamePU = specialWF.getStepNamePU(step)
+                # always needed for hybrid PU
+                if 'MinBias' in stepName and not localPUname in PUDataSets[k2]['--pileup_input'] and not 'Hybrid' in specialType:
+                    upgradeStepDict[stepName][k] = None
+
             # in case special WF has PU-specific changes: apply *after* basic PU step is created
             specialWF.setupPU(upgradeStepDict, k, upgradeProperties[year][k])
-    
-for step in upgradeStepDict.keys():
+
+allUpgradeKeys = [key for year in upgradeKeys for key in upgradeKeys[year]]
+# whether a key can recycle a GEN-SIM input depends on the key alone
+recyclingKeys = [key for key in allUpgradeKeys if "Run4"+defaultRun4Geometry in key and 'FS' not in key and defaultDataSets[key] != '']
+
+# all the steps one fragment contributes to one step name; every name it defines ends in
+# '_'+step, which is what lets Steps build a step name's family on demand
+def makeFragmentSteps(step,stepDict,isPremix,istepDict,frag,info):
+    fragName=frag[:-4]
+    howMuch=info.howMuch
+    for key in allUpgradeKeys:
+        k=fragName+'_'+key+'_'+step
+        if key in stepDict:
+            if stepDict[key] is None:
+                steps[k]=None
+            elif isPremix:
+                # Include premixing stage1 only for SingleNu, use special step name
+                if not 'SingleNu' in frag:
+                    continue
+                stepKey = 'PREMIX_'+key+'_'+step
+                howMuch = Kby(100,100)
+                steps[stepKey]=merge([ {'--evt_type':frag},howMuch,stepDict[key]])
+            else:
+                steps[k]=DeferredFragmentStep((frag,howMuch,stepDict[key]))
+                #get inputs in case of -i...but no need to specify in great detail
+                #however, there can be a conflict of beam spots but this is lost in the dataset name
+                #so please be careful
+                #  pre-Run4 input recycling is DISABLED
+                if key in recyclingKeys and 'FastSim' not in k:
+                    s=fragName+'_'+key
+                    if s+'INPUT' not in steps and s in baseDataSetReleaseBetter and \
+                      (istepDict is None or key not in istepDict or istepDict[key] is not None):
+                        steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
+                # begin COMMENT: reads old format file 
+                #    else: #For FastSim to recycle GEN
+                #        steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN'%(baseDataSetReleaseBetter[s],),location='STD')}
+                # end COMMENT: reads old format file 
+
+steps.familyBuilder = makeFragmentSteps
+
+for step,stepDict in upgradeStepDict.items():
     # we need to do this for each fragment
     if ('Sim' in step and ('Fast' not in step and step != 'Sim')) or ('Premix' in step) or ('Sim' not in step and 'Gen' in step):
-        for frag,info in upgradeFragments.items():
-            howMuch=info.howMuch
-            for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
-                k=frag[:-4]+'_'+key+'_'+step
-                if step in upgradeStepDict and key in upgradeStepDict[step]:
-                    if upgradeStepDict[step][key] is None:
-                        steps[k]=None
-                    elif 'Premix' in step:
-                        # Include premixing stage1 only for SingleNu, use special step name
-                        if not 'SingleNu' in frag:
-                            continue
-                        stepKey = 'PREMIX_'+key+'_'+step
-                        howMuch = Kby(100,100)
-                        steps[stepKey]=merge([ {'--evt_type':frag},howMuch,upgradeStepDict[step][key]])
-                    else:
-                        steps[k]=merge([ {'cfg':frag},howMuch,upgradeStepDict[step][key]])
-                        #get inputs in case of -i...but no need to specify in great detail
-                        #however, there can be a conflict of beam spots but this is lost in the dataset name
-                        #so please be careful
-                        s=frag[:-4]+'_'+key
-                        # exclude upgradeKeys without input dataset, and special WFs that disable reuse
-                        istep = step+preventReuseKeyword
-
-                        if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '' and \
-                          (istep not in upgradeStepDict or key not in upgradeStepDict[istep] or upgradeStepDict[istep][key] is not None) and "Run4"+defaultRun4Geometry in key:
-                          #  pre-Run4 input recycling is DISABLED
-                           if 'FS' not in key: #For FullSim
-                               steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
-                        # begin COMMENT: reads old format file 
-                        #    else: #For FastSim to recycle GEN
-                        #        steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN'%(baseDataSetReleaseBetter[s],),location='STD')}
-                        # end COMMENT: reads old format file 
-                        # this condition is checked here to avoid skipping the creation of default steps for other fragments
-                        if 'HybridPU' in step:
-                            # minbias fastsim for PU mixing
-                            if not 'MinBias_14TeV' in frag:
-                                continue
-                            stepKey = 'HYBRID_'+key+'_'+step
-                            howMuch = Kby(100,100)
-                            steps[stepKey]=merge([ {'--evt_type':frag},howMuch,upgradeStepDict[step][key]])
+        # exclude special WFs that disable reuse
+        istepDict = upgradeStepDict.get(step+preventReuseKeyword)
+        isPremix = 'Premix' in step
+        steps.deferFamily(step,[(step,stepDict,isPremix,istepDict,frag,info)
+                                for frag,info in upgradeFragments.items()])
     else:
-        for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
-            k=step+'_'+key
-            if step in upgradeStepDict and key in upgradeStepDict[step]:
-                if upgradeStepDict[step][key] is None:
+        for key in allUpgradeKeys:
+            if key in stepDict:
+                k=step+'_'+key
+                if stepDict[key] is None:
                     steps[k]=None
                 else:
-                    steps[k]=merge([upgradeStepDict[step][key]])
+                    steps[k]=merge([stepDict[key]])

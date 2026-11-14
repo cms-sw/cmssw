@@ -13,8 +13,8 @@
 #include "catch2/catch_all.hpp"
 
 TEST_CASE("InputFileCatalog with Rucio data catalog", "[FWStorage/Catalog]") {
-  edm::ServiceToken tempToken = edmtest::catalog::makeTestSiteLocalConfigToken();
-  edm::ServiceToken testToken = edmtest::catalog::makeTestScitagConfigToken(tempToken);
+  edm::OwningServiceToken tempToken = edmtest::catalog::makeTestSiteLocalConfigToken();
+  edm::OwningServiceToken testToken = edmtest::catalog::makeTestScitagConfigToken(tempToken);
 
   SECTION("Empty") {
     edm::ServiceRegistry::Operate operate(tempToken);

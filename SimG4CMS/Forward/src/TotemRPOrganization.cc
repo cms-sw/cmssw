@@ -23,15 +23,15 @@
 //
 // constructors and destructor
 //
-TotemRPOrganization ::TotemRPOrganization() { edm::LogVerbatim("ForwardSim") << "Creating TotemRPOrganization"; }
+TotemRPOrganization::TotemRPOrganization() { edm::LogVerbatim("ForwardSim") << "Creating TotemRPOrganization"; }
 
-TotemRPOrganization ::~TotemRPOrganization() {}
+TotemRPOrganization::~TotemRPOrganization() {}
 
 //
 // member functions
 //
 
-uint32_t TotemRPOrganization ::getUnitID(const G4Step* aStep) const {
+uint32_t TotemRPOrganization::getUnitID(const G4Step* aStep) const {
   G4VPhysicalVolume* physVol;
   int32_t UNITA = 0;
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();

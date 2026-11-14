@@ -68,6 +68,9 @@ TICL_RECO = cms.PSet(
 )
 TICL_RECO.outputCommands.extend(TICL_AOD.outputCommands)
 
+from Configuration.ProcessModifiers.ticl_superclustering_mustache_ticl_cff import ticl_superclustering_mustache_ticl
+ticl_superclustering_mustache_ticl.toModify(TICL_RECO, outputCommands = TICL_RECO.outputCommands + ['keep *_ticlTracksterLinksSuperclusteringMustache_*_*'])
+
 # FEVT content - full debug info
 TICL_FEVT = cms.PSet(
     outputCommands = cms.untracked.vstring(_simFEVT)

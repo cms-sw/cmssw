@@ -26,9 +26,9 @@ BowedSurfaceAlignmentParameters::BowedSurfaceAlignmentParameters(Alignable *ali)
     : AlignmentParameters(ali, AlgebraicVector(N_PARAM), AlgebraicSymMatrix(N_PARAM, 0)) {}
 
 //_________________________________________________________________________________________________
-BowedSurfaceAlignmentParameters ::BowedSurfaceAlignmentParameters(Alignable *alignable,
-                                                                  const AlgebraicVector &parameters,
-                                                                  const AlgebraicSymMatrix &covMatrix)
+BowedSurfaceAlignmentParameters::BowedSurfaceAlignmentParameters(Alignable *alignable,
+                                                                 const AlgebraicVector &parameters,
+                                                                 const AlgebraicSymMatrix &covMatrix)
     : AlignmentParameters(alignable, parameters, covMatrix) {
   if (parameters.num_row() != N_PARAM) {
     throw cms::Exception("BadParameters") << "in BowedSurfaceAlignmentParameters(): " << parameters.num_row()
@@ -37,10 +37,10 @@ BowedSurfaceAlignmentParameters ::BowedSurfaceAlignmentParameters(Alignable *ali
 }
 
 //_________________________________________________________________________________________________
-BowedSurfaceAlignmentParameters ::BowedSurfaceAlignmentParameters(Alignable *alignable,
-                                                                  const AlgebraicVector &parameters,
-                                                                  const AlgebraicSymMatrix &covMatrix,
-                                                                  const std::vector<bool> &selection)
+BowedSurfaceAlignmentParameters::BowedSurfaceAlignmentParameters(Alignable *alignable,
+                                                                 const AlgebraicVector &parameters,
+                                                                 const AlgebraicSymMatrix &covMatrix,
+                                                                 const std::vector<bool> &selection)
     : AlignmentParameters(alignable, parameters, covMatrix, selection) {
   if (parameters.num_row() != N_PARAM) {
     throw cms::Exception("BadParameters") << "in BowedSurfaceAlignmentParameters(): " << parameters.num_row()

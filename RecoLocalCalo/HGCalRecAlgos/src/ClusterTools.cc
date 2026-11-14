@@ -51,16 +51,14 @@ float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) cons
     const auto& id = hit.first;
     const float fraction = hit.second;
     auto hitIter = hitMap_->find(id.rawId());
-    if (hitIter == hitMap_->end()) {
-      continue;
-    }
-    unsigned int rechitIndex = hitIter->second;
-    float hitEnergy = rhspan[rechitIndex].energy() * fraction;
-    energy += hitEnergy;
-    if (id.det() == DetId::HGCalHSi || id.det() == DetId::HGCalHSc ||
-        (id.det() == DetId::Forward && id.subdetId() == HGCHEF) ||
-        (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap)) {
-      energyHad += hitEnergy;
+    if (hitIter != hitMap_->end()) {
+      unsigned int rechitIndex = hitIter->second;
+      float hitEnergy = rhspan[rechitIndex].energy() * fraction;
+      energy += hitEnergy;
+      if (id.det() == DetId::HGCalHSi || id.det() == DetId::HGCalHSc ||
+          (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap)) {
+        energyHad += hitEnergy;
+      }
     }
   }
   float hadronicFraction = -1.f;

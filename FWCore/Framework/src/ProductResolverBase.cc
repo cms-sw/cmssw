@@ -42,4 +42,5 @@ namespace edm {
 
   void ProductResolverBase::setupUnscheduled(UnscheduledConfigurator const&) {}
 
+  void ProductResolverBase::putProduct(std::unique_ptr<WrapperBase> edp) const { assert(false); }
 }  // namespace edm

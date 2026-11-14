@@ -14,7 +14,7 @@ hltPhase2PixelTracks = cms.EDProducer("PixelTrackProducerFromSoAAlpaka",
 
 from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
 _hltPhase2PixelTracksLegacy = cms.EDProducer("PixelTrackProducer",
-    Cleaner = cms.string('pixelTrackCleanerBySharedHits'),
+    Cleaner = cms.string('hltPixelTracksCleanerBySharedHits'),
     Filter = cms.InputTag("hltPhase2PixelTrackFilterByKinematics"),
     Fitter = cms.InputTag("hltPhase2PixelFitterByHelixProjections"),
     SeedingHitSets = cms.InputTag("hltPhase2PixelTracksHitSeeds"),
@@ -23,15 +23,7 @@ _hltPhase2PixelTracksLegacy = cms.EDProducer("PixelTrackProducer",
 )
 hltPhase2LegacyTracking.toReplaceWith(hltPhase2PixelTracks, _hltPhase2PixelTracksLegacy)
 
-from Configuration.ProcessModifiers.hltPhase2LegacyTrackingPatatrackQuadsChain_cff import hltPhase2LegacyTrackingPatatrackQuads
-_hltPhase2PixelTracksLegacyPatatrack = cms.EDProducer("PixelTrackProducerFromSoAAlpaka",
-    beamSpot = cms.InputTag("hltOnlineBeamSpot"),
-    minNumberOfHits = cms.int32(0),
-    minQuality = cms.string('tight'),
-    pixelRecHitLegacySrc = cms.InputTag("hltSiPixelRecHits"),
-    trackSrc = cms.InputTag("hltPhase2PixelTracksSoA"),
-    outerTrackerRecHitSrc = cms.InputTag(""),
-    useOTExtension = cms.bool(False),
-    requireQuadsFromConsecutiveLayers = cms.bool(True)
-)
-(hltPhase2LegacyTracking & hltPhase2LegacyTrackingPatatrackQuads).toReplaceWith(hltPhase2PixelTracks, _hltPhase2PixelTracksLegacyPatatrack)
+from Configuration.ProcessModifiers.phase2CAVectorHits_cff import phase2CAVectorHits
+from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
+from .hltPhase2PixelTracksWithVectorHits_cfi import hltPhase2PixelTracksWithVectorHits as _hltPhase2PixelTracksWithVectorHits
+(phase2CAVectorHits | ngtScouting).toReplaceWith(hltPhase2PixelTracks, _hltPhase2PixelTracksWithVectorHits)

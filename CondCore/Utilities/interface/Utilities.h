@@ -7,7 +7,7 @@
 #include <set>
 
 namespace edm {
-  class ServiceToken;
+  class OwningServiceToken;
 }
 
 namespace cond {
@@ -65,7 +65,7 @@ namespace cond {
     void sendError(const std::string& message);
 
   protected:
-    edm::ServiceToken* m_currentToken = nullptr;
+    edm::OwningServiceToken* m_currentToken = nullptr;
 
   private:
     std::string m_name;

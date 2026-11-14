@@ -12,7 +12,7 @@ workflows = Matrix()
 from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgrade_workflows
 
 #just define all of them
-prefixDet = 37600 #update this line when change the default version
+prefixDet = 38400 #update this line when change the default version
 
 #Run4 WFs to run in IB (TTbar)
 numWFIB = []
@@ -31,6 +31,7 @@ numWFIB.extend([35634.0]) #Run4D124
 numWFIB.extend([36034.0]) #Run4D125
 numWFIB.extend([37234.0]) #Run4D126
 numWFIB.extend([37634.0]) #Run4D127
+numWFIB.extend([38434.0]) #Run4D128
 
 #Run4 FS (TTbar)
 numWFIB.extend([36434.0]) #Run4D110
@@ -43,7 +44,8 @@ numWFIB.extend([prefixDet+34.702]) #mkFit tracking (initialStep)
 numWFIB.extend([prefixDet+34.5])   #pixelTrackingOnly
 numWFIB.extend([prefixDet+34.9])   #vector hits
 numWFIB.extend([prefixDet+34.402]) #Alpaka local reconstruction offloaded on device (GPU if available)
-numWFIB.extend([prefixDet+34.711]) #LST tracking on CPU (initialStep+HighPtTripletStep only)
+numWFIB.extend([prefixDet+34.711]) #LST+mkFit tracking on CPU (initialStep+HighPtTripletStep only)
+numWFIB.extend([prefixDet+34.714]) #LST+mkFit tracking on CPU (all iterations, full reco)
 numWFIB.extend([prefixDet+34.21])  #prodlike
 numWFIB.extend([prefixDet+96.0])   #CloseByPGun CE_E_Front_120um
 numWFIB.extend([prefixDet+100.0])  #CloseByPGun CE_H_Coarse_Scint
@@ -65,19 +67,20 @@ numWFIB.extend([prefixDet+34.7501]) # HLTTrackingOnly75e33
 numWFIB.extend([prefixDet+34.7502]) # HLTTrackingNtuple75e33
 numWFIB.extend([prefixDet+34.7503]) # HLTHeterogeneousValid
 numWFIB.extend([prefixDet+34.751])  # HLTTiming75e33, alpaka
+numWFIB.extend([prefixDet+34.7512]) # HLTTiming75e33, phase2CAVectorHits
 numWFIB.extend([prefixDet+34.7521]) # HLTTiming75e33, ticlv5TrackLinkingGNN
 numWFIB.extend([prefixDet+34.7522]) # HLTTiming75e33, mtd_at_hlt
 numWFIB.extend([prefixDet+34.753])  # HLTTiming75e33, legacy tracking
-numWFIB.extend([prefixDet+34.754])  # HLTTiming75e33, legacy tracking with Patatrack quads
 numWFIB.extend([prefixDet+34.755])  # HLTTiming75e33, trackingLST
-numWFIB.extend([prefixDet+34.756])  # HLTTiming75e33, phase2_hlt_vertexTrimming
 numWFIB.extend([prefixDet+34.757])  # HLTTiming75e33, MkFitFit
 numWFIB.extend([prefixDet+34.758])  # HLTTiming75e33, ticl_barrel
 numWFIB.extend([prefixDet+34.759])  # HLT75e33 + NANO
 numWFIB.extend([prefixDet+34.7591]) # HLT75e33 + NANO (including validation)
+numWFIB.extend([prefixDet+34.7592]) # HLT75e33 + NANO (with separate DQM step)
 numWFIB.extend([prefixDet+34.77])   # NGTScouting
 numWFIB.extend([prefixDet+34.771])  # NGTScouting + alpaka + TICL-Barrel
 numWFIB.extend([prefixDet+34.772])  # NGTScouting + NANO
+numWFIB.extend([prefixDet+34.7721]) # NGTScouting + NANO (with separate DQM step)
 numWFIB.extend([prefixDet+34.773])  # NGTScouting + NANO (including validation)
 numWFIB.extend([prefixDet+34.774])  # NGTScouting + NANO containing both L1 and HLT objects (including validation)
 numWFIB.extend([prefixDet+34.775])  # NGTScouting + Phase2CAExtension&LSTT5 as GeneralTracks

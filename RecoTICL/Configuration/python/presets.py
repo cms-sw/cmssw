@@ -2,7 +2,7 @@
 """Standard TICL v5 iteration & singleton presets.
 
 The algorithm parameter sets here are transcribed verbatim from the baseline
-``RecoHGCal/TICL/python`` cff files (``CLUE3DHighStep_cff``, ``PRbyRecovery_cff``,
+``RecoTICL`` cff files (``CLUE3DHighStep_cff``, ``PRbyRecovery_cff``,
 ``superclustering_cff``, ``iterativeTICL_cff``).  pyTICL clones the same ``_cfi``
 defaults and re-applies these overrides, so the generated config reproduces the
 baseline byte-for-byte.  The *plumbing* (filtered_mask, seeding_regions,
@@ -26,7 +26,7 @@ _CLUE3DHIGH_CNN = cms.PSet(
     onnxModelPath=cms.string("RecoHGCal/TICL/data/ticlv5/onnx_models/CNN/patternrecognition/id_v0.onnx"),
     inputNames=cms.vstring("input"),
     outputNames=cms.vstring("pid_output"),
-    eid_min_cluster_energy=cms.double(1.0),
+    eid_min_cluster_energy=cms.float(1.0),
     eid_n_layers=cms.int32(50),
     eid_n_clusters=cms.int32(10),
     doPID=cms.int32(1),
@@ -40,7 +40,7 @@ _PR_DNN = cms.PSet(
     inputNames=cms.vstring("input"),
     output_en=cms.vstring("enreg_output"),
     output_id=cms.vstring("pid_output"),
-    eid_min_cluster_energy=cms.double(1),
+    eid_min_cluster_energy=cms.float(1),
     eid_n_layers=cms.int32(50),
     eid_n_clusters=cms.int32(10),
     doPID=cms.int32(1),
@@ -55,7 +55,7 @@ _PR_PFN = cms.PSet(
     inputNames=cms.vstring("input", "input_tr_features"),
     output_en=cms.vstring("enreg_output"),
     output_id=cms.vstring("pid_output"),
-    eid_min_cluster_energy=cms.double(1),
+    eid_min_cluster_energy=cms.float(1),
     eid_n_layers=cms.int32(50),
     eid_n_clusters=cms.int32(10),
     doPID=cms.int32(1),
@@ -70,7 +70,7 @@ _RECOVERY_PFN = cms.PSet(
     inputNames=cms.vstring("input", "input_tr_features"),
     output_en=cms.vstring("enreg_output"),
     output_id=cms.vstring("pid_output"),
-    eid_min_cluster_energy=cms.double(1),
+    eid_min_cluster_energy=cms.float(1),
     eid_n_layers=cms.int32(50),
     eid_n_clusters=cms.int32(10),
     doPID=cms.int32(0),
@@ -162,23 +162,23 @@ def links_defaults():
     """Standard ``ticlTracksterLinks`` overrides (Skeletons linking)."""
     return dict(
         linkingPSet=cms.PSet(
-            cylinder_radius_sqr_split=cms.double(9),
-            proj_distance_split=cms.double(5),
-            track_time_quality_threshold=cms.double(0.5),
+            cylinder_radius_sqr_split=cms.float(9),
+            proj_distance_split=cms.float(5),
+            track_time_quality_threshold=cms.float(0.5),
             min_num_lcs=cms.uint32(15),
-            min_trackster_energy=cms.double(20),
-            pca_quality_th=cms.double(0.85),
-            dot_prod_th=cms.double(0.97),
-            lower_boundary=cms.vdouble(20, 10),
-            upper_boundary=cms.vdouble(150, 100),
-            upper_distance_projective_sqr=cms.vdouble(4, 60),
-            lower_distance_projective_sqr=cms.vdouble(4, 60),
-            min_distance_z=cms.vdouble(35, 35),
-            upper_distance_projective_sqr_closest_points=cms.vdouble(5, 30),
-            lower_distance_projective_sqr_closest_points=cms.vdouble(10, 50),
-            max_z_distance_closest_points=cms.vdouble(35, 35),
-            cylinder_radius_sqr=cms.vdouble(9, 15),
-            deltaRxy=cms.double(4.0),
+            min_trackster_energy=cms.float(20),
+            pca_quality_th=cms.float(0.85),
+            dot_prod_th=cms.float(0.97),
+            lower_boundary=cms.vfloat(20, 10),
+            upper_boundary=cms.vfloat(150, 100),
+            upper_distance_projective_sqr=cms.vfloat(4, 60),
+            lower_distance_projective_sqr=cms.vfloat(4, 60),
+            min_distance_z=cms.vfloat(35, 35),
+            upper_distance_projective_sqr_closest_points=cms.vfloat(5, 30),
+            lower_distance_projective_sqr_closest_points=cms.vfloat(10, 50),
+            max_z_distance_closest_points=cms.vfloat(35, 35),
+            cylinder_radius_sqr=cms.vfloat(9, 15),
+            deltaRxy=cms.float(4.0),
             algo_verbosity=cms.int32(0),
             type=cms.string("Skeletons"),
         ),
@@ -191,7 +191,7 @@ def links_defaults():
             inputNames=cms.vstring("input"),
             output_en=cms.vstring("enreg_output"),
             output_id=cms.vstring("pid_output"),
-            eid_min_cluster_energy=cms.double(1),
+            eid_min_cluster_energy=cms.float(1),
             eid_n_clusters=cms.int32(10),
             eid_n_layers=cms.int32(50),
             onnxEnergyModelPath=cms.string("RecoHGCal/TICL/data/ticlv5/onnx_models/DNN/linking/energy_v0.onnx"),
@@ -205,7 +205,7 @@ def links_defaults():
             inputNames=cms.vstring("input", "input_tr_features"),
             output_en=cms.vstring("enreg_output"),
             output_id=cms.vstring("pid_output"),
-            eid_min_cluster_energy=cms.double(2.5),
+            eid_min_cluster_energy=cms.float(2.5),
             eid_n_clusters=cms.int32(10),
             eid_n_layers=cms.int32(50),
             onnxEnergyModelPath=cms.string("RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/energy_v1.onnx"),
@@ -215,16 +215,23 @@ def links_defaults():
     )
 
 
-def supercluster_dnn_defaults():
-    """Standard ``ticlTracksterLinksSuperclusteringDNN`` overrides."""
-    return dict(
-        linkingPSet=cms.PSet(
-            type=cms.string("SuperClusteringDNN"),
-            algo_verbosity=cms.int32(0),
-            onnxModelPath=cms.string("RecoHGCal/TICL/data/superclustering/supercls_v3.onnx"),
-            nnWorkingPoint=cms.double(0.57247),
-        ),
+def supercluster_dnn_defaults(pid_threshold=None, emission_pid_threshold=None, pid_categories=None):
+    """Standard ``ticlTracksterLinksSuperclusteringDNN`` overrides. ``pid_threshold``: min EM probability of a seed.
+    ``emission_pid_threshold``: min EM probability of a single-trackster supercluster. ``pid_categories``: the
+    ``Trackster::ParticleType`` slots of the EM probability. None keeps the plugin default. The defaults give v5."""
+    pset = cms.PSet(
+        type=cms.string("SuperClusteringDNN"),
+        algo_verbosity=cms.int32(0),
+        onnxModelPath=cms.string("RecoHGCal/TICL/data/superclustering/supercls_v3.onnx"),
+        nnWorkingPoint=cms.float(0.57247),
     )
+    if pid_threshold is not None:
+        pset.PIDThreshold = cms.float(pid_threshold)
+    if emission_pid_threshold is not None:
+        pset.emissionPIDThreshold = cms.float(emission_pid_threshold)
+    if pid_categories is not None:
+        pset.tracksterPIDCategoriesToFilter = cms.vint32(*pid_categories)
+    return dict(linkingPSet=pset)
 
 
 def candidate_defaults():
@@ -239,7 +246,7 @@ def candidate_defaults():
             inputNames=cms.vstring("input", "input_tr_features"),
             output_en=cms.vstring("enreg_output"),
             output_id=cms.vstring("pid_output"),
-            eid_min_cluster_energy=cms.double(2.5),
+            eid_min_cluster_energy=cms.float(2.5),
             eid_n_layers=cms.int32(50),
             eid_n_clusters=cms.int32(10),
             doPID=cms.int32(1),
@@ -250,8 +257,8 @@ def candidate_defaults():
 
 
 def pf_defaults():
-    """Standard ``pfTICL`` overrides."""
-    return dict(useTimingAverage=cms.bool(True))
+    """Standard ``pfTICL`` overrides: none, the module defaults."""
+    return dict()
 
 
 # --------------------------------------------------------------------------- #

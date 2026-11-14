@@ -77,32 +77,32 @@ void EcalTPsValidationPh2::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
   meTPDigiOccupancy_ = ibooker.book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
   histo = "EcalTPDigiTask TP digi size";
-  meTPDigiSize_ = ibooker.book1D(histo, histo, kMaxSamples_, 0, kMaxSamples_);
+  meTPDigiSize_ = ibooker.book1DD(histo, histo, kMaxSamples_, 0, kMaxSamples_);
 
   histo = "EcalTPDigiTask TP digi encoded ET";
-  meTPDigiEt_ = ibooker.book1D(histo, histo, 1025, -1, 1024);
+  meTPDigiEt_ = ibooker.book1DD(histo, histo, 1025, -1, 1024);
 
   histo = "EcalTPDigiTask TP digi spike flag";
-  meTPDigiSpike_ = ibooker.book1D(histo, histo, 2, 0, 2);
+  meTPDigiSpike_ = ibooker.book1DD(histo, histo, 2, 0, 2);
 
   histo = "EcalTPDigiTask TP digi time";
-  meTPDigiTime_ = ibooker.book1D(histo, histo, 33, -1, 32);
+  meTPDigiTime_ = ibooker.book1DD(histo, histo, 33, -1, 32);
 
   histo = "EcalTPDigiTask TP digi debug flag";
-  meTPDigiDebugFlag_ = ibooker.book1D(histo, histo, 2, 0, 2);
+  meTPDigiDebugFlag_ = ibooker.book1DD(histo, histo, 2, 0, 2);
 
   histo = "EcalTPDigiTask TP digi sample of interest";
-  meTPDigiSOI_ = ibooker.book1D(histo, histo, kMaxSamples_ + 1, -1, kMaxSamples_);
+  meTPDigiSOI_ = ibooker.book1DD(histo, histo, kMaxSamples_ + 1, -1, kMaxSamples_);
 
   for (unsigned int i = 0; i < kMaxSamples_; ++i) {
     histo = std::format("EcalTPDigiTask TP sample {:02d} encoded ET", i);
-    meTPSampleEt_[i] = ibooker.book1D(histo, histo, 1024, 0, 1024);
+    meTPSampleEt_[i] = ibooker.book1DD(histo, histo, 1024, 0, 1024);
 
     histo = std::format("EcalTPDigiTask TP sample {:02d} spike flag", i);
-    meTPSampleSpike_[i] = ibooker.book1D(histo, histo, 2, 0, 2);
+    meTPSampleSpike_[i] = ibooker.book1DD(histo, histo, 2, 0, 2);
 
     histo = std::format("EcalTPDigiTask TP sample {:02d} time", i);
-    meTPSampleTime_[i] = ibooker.book1D(histo, histo, 32, 0, 32);
+    meTPSampleTime_[i] = ibooker.book1DD(histo, histo, 32, 0, 32);
   }
 }
 

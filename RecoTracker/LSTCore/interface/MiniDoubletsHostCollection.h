@@ -6,5 +6,6 @@
 
 namespace lst {
   using MiniDoubletsHostCollection = PortableHostCollection<MiniDoubletsSoABlocks>;
+  using MiniDoubletsBuildHostCollection = PortableHostCollection<MiniDoubletsBuildSoA>;
 }  // namespace lst
 #endif

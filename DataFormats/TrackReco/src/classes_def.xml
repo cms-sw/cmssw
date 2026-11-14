@@ -43,6 +43,7 @@
   <class name="std::vector<edm::RefVector<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> > >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> > >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::io_v1::Track>,reco::io_v1::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Track>,reco::io_v1::Track> > >"/>
+  <class name="edm::View<reco::io_v1::Track>"/>
   <class name="edm::Ptr<reco::io_v1::Track>" />
   <class name="std::vector<edm::Ptr<reco::io_v1::Track> >" />
   <class name="edm::Association<reco::TrackCollection>"/>

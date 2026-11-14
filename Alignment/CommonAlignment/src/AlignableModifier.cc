@@ -196,7 +196,6 @@ bool AlignableModifier::modify(Alignable* alignable, const edm::ParameterSet& pS
   this->setDistribution(distribution_);
 
   //if (scale_) { NO! Different random sequence if only parts scale to zero!
-
   // Apply displacements
   if (std::abs(dX_) + std::abs(dY_) + std::abs(dZ_) > 0 && setTranslations_)
     this->moveAlignable(alignable, random_, gaussian_, scale_ * dX_, scale_ * dY_, scale_ * dZ_);
@@ -352,11 +351,11 @@ void AlignableModifier::moveAlignableLocal(
 }
 
 //__________________________________________________________________________________________________
-void AlignableModifier ::addDeformation(Alignable* alignable,
-                                        const AlignableModifier::DeformationMemberType& deformation,
-                                        bool random,
-                                        bool gaussian,
-                                        double scale) {
+void AlignableModifier::addDeformation(Alignable* alignable,
+                                       const AlignableModifier::DeformationMemberType& deformation,
+                                       bool random,
+                                       bool gaussian,
+                                       double scale) {
   const SurfaceDeformationFactory::Type deformType =
       SurfaceDeformationFactory::surfaceDeformationType(deformation.first);
 

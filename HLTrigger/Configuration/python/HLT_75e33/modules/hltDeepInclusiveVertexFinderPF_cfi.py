@@ -36,3 +36,6 @@ hltDeepInclusiveVertexFinderPF = cms.EDProducer("InclusiveCandidateVertexFinder"
         smoothing = cms.bool(True)
     )
 )
+
+from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
+ngtScouting.toModify(hltDeepInclusiveVertexFinderPF, minHits = 5)

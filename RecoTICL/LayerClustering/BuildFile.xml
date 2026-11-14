@@ -1,0 +1,19 @@
+<use name="CommonTools/RecoAlgos"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/EgammaReco"/>
+<use name="DataFormats/HGCRecHit"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/ParticleFlowReco"/>
+<use name="DataFormats/Provenance"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="Geometry/CaloTopology"/>
+<use name="Geometry/HGCalGeometry"/>
+<use name="Geometry/Records"/>
+<use name="RecoLocalCalo/HGCalRecAlgos"/>
+<use name="RecoLocalCalo/HGCalRecProducers"/>
+<use name="fmt"/>
+<export>
+  <lib name="1"/>
+</export>

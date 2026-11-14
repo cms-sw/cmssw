@@ -11,6 +11,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 
 namespace edm {
-  ServiceRegistry::Operate setupSiteLocalConfig();
+  /// Makes the SiteLocalConfig service available, and keeps it alive, as long as the returned object exists.
+  ServiceRegistry::LockedOperate setupSiteLocalConfig();
 }  // namespace edm
 #endif

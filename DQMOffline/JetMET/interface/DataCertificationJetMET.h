@@ -45,7 +45,6 @@ private:
   std::string jetAlgo;
 
   edm::InputTag inputMETLabelRECO_;
-  edm::InputTag inputMETLabelRECOUncleaned_;
   edm::InputTag inputMETLabelMiniAOD_;
   edm::InputTag inputJetLabelRECO_;
   edm::InputTag inputJetLabelMiniAOD_;
@@ -82,16 +81,6 @@ private:
 
   bool isHI;
 
-  //MET: filter efficiencies, started from uncleaned directories
-  MonitorElement* mMET_EffHBHENoiseFilter;
-  MonitorElement* mMET_EffCSCTightHaloFilter;
-  MonitorElement* mMET_EffeeBadScFilter;
-  MonitorElement* mMET_EffEcalDeadCellTriggerFilter;
-  MonitorElement* mMET_EffEcalDeadCellBoundaryFilter;
-  MonitorElement* mMET_EffHBHEIsoNoiseFilter;
-  MonitorElement* mMET_EffCSCTightHalo2015Filter;
-  MonitorElement* mMET_EffHcalStripHaloFilter;
-
   //MET: RECO vs MiniAOD histos
   MonitorElement* mMET_MiniAOD_over_Reco;
   MonitorElement* mMEy_MiniAOD_over_Reco;
@@ -121,20 +110,9 @@ private:
   MonitorElement* mJetEnergyCorr_MiniAOD_over_Reco;
   MonitorElement* mJetEnergyCorrVSeta_MiniAOD_over_Reco;
   MonitorElement* mDPhi_MiniAOD_over_Reco;
-  MonitorElement* mLooseJIDPassFractionVSeta_MiniAOD_over_Reco;
   MonitorElement* mPt_Barrel_MiniAOD_over_Reco;
   MonitorElement* mPt_EndCap_MiniAOD_over_Reco;
   MonitorElement* mPt_Forward_MiniAOD_over_Reco;
-  MonitorElement* mMVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD_over_Reco;
-  MonitorElement* mMVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD_over_Reco;
-  MonitorElement* mMVAPUJIDDiscriminant_lowPt_Forward_MiniAOD_over_Reco;
-  MonitorElement* mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD_over_Reco;
-  MonitorElement* mMVAPUJIDDiscriminant_highPt_Barrel_MiniAOD_over_Reco;
-  MonitorElement* mCHFracVSpT_Barrel_MiniAOD_over_Reco;
-  MonitorElement* mNHFracVSpT_EndCap_MiniAOD_over_Reco;
-  MonitorElement* mPhFracVSpT_Barrel_MiniAOD_over_Reco;
-  MonitorElement* mHFHFracVSpT_Forward_MiniAOD_over_Reco;
-  MonitorElement* mHFEFracVSpT_Forward_MiniAOD_over_Reco;
   MonitorElement* mCHFrac_MiniAOD_over_Reco;
   MonitorElement* mNHFrac_MiniAOD_over_Reco;
   MonitorElement* mPhFrac_MiniAOD_over_Reco;

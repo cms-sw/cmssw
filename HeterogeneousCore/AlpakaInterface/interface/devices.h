@@ -10,7 +10,7 @@
 namespace cms::alpakatools {
 
   // returns the alpaka accelerator platform
-  template <typename TPlatform, typename = std::enable_if_t<alpaka::isPlatform<TPlatform>>>
+  template <typename TPlatform, typename = std::enable_if_t<alpaka::concepts::Platform<TPlatform>>>
   inline TPlatform const& platform() {
     // initialise the platform the first time that this function is called
     static const auto platform = TPlatform{};
@@ -18,7 +18,7 @@ namespace cms::alpakatools {
   }
 
   // return the alpaka accelerator devices for the given platform
-  template <typename TPlatform, typename = std::enable_if_t<alpaka::isPlatform<TPlatform>>>
+  template <typename TPlatform, typename = std::enable_if_t<alpaka::concepts::Platform<TPlatform>>>
   inline std::vector<alpaka::Dev<TPlatform>> const& devices() {
     // enumerate all devices the first time that this function is called
     static const auto devices = alpaka::getDevs(platform<TPlatform>());

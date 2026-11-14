@@ -4,7 +4,8 @@
 #
 #   Options for geometry 2016, 2017, 2021, Run4D104, Run4D110, Run4D111,
 #                        Run4D112, Run4D113, Run4D114, Run4D115, Run4D120,
-#                        Run4D121, Run4D122, Run4D123, Run4D124, Run4D125
+#                        Run4D121, Run4D122, Run4D123, Run4D124, Run4D125,
+#                        Run4D126, Run4D127, Run4D128
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -18,7 +19,7 @@ options.register('geometry',
                  "2021",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: 2016, 2017, 2021, Run4D104, Run4D110, Run4D111, Run4D112, Run4D113, Run4D114, Run4D115, Run4D120, Run4D121, Run4D122, Run4D123, Run4D124, Run4D125")
+                  "geometry of operations: 2016, 2017, 2021, Run4D104, Run4D110, Run4D111, Run4D112, Run4D113, Run4D114, Run4D115, Run4D120, Run4D121, Run4D122, Run4D123, Run4D124, Run4D125, Run4D126, Run4D127, Run4D128")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,

@@ -1,0 +1,9 @@
+<bin file="testHcalPayloadInspector.cpp" name="testHcalPayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/HcalObjects"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="roothistpainter"/>
+</bin>

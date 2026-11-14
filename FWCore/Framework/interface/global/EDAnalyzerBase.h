@@ -45,8 +45,10 @@ namespace edm {
 
     class EDAnalyzerBase : public EDConsumerBase {
     public:
-      template <typename T>
-      friend class edm::WorkerT;
+      template <typename T, typename TI, typename TP>
+      friend class edm::ModuleTransitionWorker;
+      template <typename T, typename TI, typename TP>
+      friend class edm::ModuleTransitionWorkerBase;
       template <typename T>
       friend class edm::maker::ModuleHolderT;
       typedef EDAnalyzerBase ModuleType;
@@ -67,13 +69,14 @@ namespace edm {
       virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
       virtual bool wantsStreamRuns() const noexcept = 0;
       virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
+      constexpr static bool wantsWrites() noexcept { return false; }
 
       void callWhenNewProductsRegistered(std::function<void(ProductDescription const&)> const& func) {
         callWhenNewProductsRegistered_ = func;
       }
 
     private:
-      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder,
                                                     ModuleCallingContext const&,

@@ -1,5 +1,5 @@
-#ifndef FastTimerService_h
-#define FastTimerService_h
+#ifndef HLTrigger_Timer_plugins_FastTimerService_h
+#define HLTrigger_Timer_plugins_FastTimerService_h
 
 // system headers
 #include <unistd.h>
@@ -17,9 +17,9 @@
 // boost headers
 #include <boost/chrono.hpp>
 
-// tbb headers
+// TBB headers
 #include <oneapi/tbb/concurrent_unordered_set.h>
-#include <oneapi/tbb/enumerable_thread_specific.h>
+#include <oneapi/tbb/concurrent_vector.h>
 #include <oneapi/tbb/task_scheduler_observer.h>
 
 // JSON headers
@@ -295,7 +295,7 @@ private:
   public:
     Resources active;  // resources used by all modules on this path
     Resources total;   // resources used by all modules on this path, and their dependencies
-    unsigned last;     // one-past-the last module that ran on this path
+    unsigned index;    // one-past-the last module that ran on this path, as an index into modules_on_path_
     bool status;       // whether the path accepted or rejected the event
   };
 
@@ -429,6 +429,8 @@ private:
     // resources spent in each path and endpath
     std::vector<PlotsPerPath> paths_;
     std::vector<PlotsPerPath> endpaths_;
+    // whether the paths and endpaths plots have been booked
+    bool bypath_ = false;
   };
 
   class PlotsPerJob {
@@ -482,12 +484,35 @@ private:
   std::vector<AtomicResources> run_transition_;   // resources spent in the modules' global and stream run transitions
 
   // summary data
-  ResourcesPerJob job_summary_;               // whole event time accounting per-job
-  std::vector<ResourcesPerJob> run_summary_;  // whole event time accounting per-run
-  std::mutex summary_mutex_;                  // synchronise access to the summary objects across different threads
+  ResourcesPerJob job_summary_;                // whole event time accounting per-job
+  std::vector<ResourcesPerJob> run_summary_;   // whole event time accounting per-run
+  std::vector<ResourcesPerJob> lumi_summary_;  // whole event time accounting per-lumi, only if print_lumi_summary_
+  std::mutex summary_mutex_;                   // synchronise access to the summary objects across different threads
 
-  //
-  struct ThreadGuard {
+  // per-thread measurements, kept in thread-specific storage; each accessor looks them up once, and registers the
+  // calling thread the first time it is seen
+  class ThreadGuard {
+  public:
+    ThreadGuard();
+    ~ThreadGuard() = default;
+
+    struct Entry {
+      Measurement& measurement;
+      bool registered;  // true if the thread has just been registered, and its measurement point is not set yet
+    };
+    // the measurement of a thread entering an observed TBB arena; a new thread is registered, and the resources it
+    // uses after its last measurement are accounted to r when it leaves the TBB pool
+    Entry enter(AtomicResources& r);
+    // the measurement of the calling thread. A thread seen here for the first time has not entered an observed TBB
+    // arena (e.g. it runs in another arena, or outside of TBB): it is registered as by enter(), and counted in
+    // unobserved()
+    Measurement& thread(AtomicResources& r);
+    // the number of threads registered by thread()
+    unsigned int unobserved() const { return unobserved_; }
+    // account the resources of the threads that have not left the TBB pool
+    void finalize();
+
+  private:
     struct specific_t {
       specific_t(AtomicResources& r) : resource_(r), live_(true) {}
       ~specific_t() = default;
@@ -497,16 +522,11 @@ private:
       std::atomic<bool> live_;
     };
 
-    ThreadGuard();
-    ~ThreadGuard() = default;
-
     static void retire_thread(void* t);
     static std::shared_ptr<specific_t>* ptr(void* p);
+    Measurement& register_thread(AtomicResources& r);
 
-    bool register_thread(FastTimerService::AtomicResources& r);
-    Measurement& thread();
-    void finalize();
-
+    std::atomic<unsigned int> unobserved_ = 0;
     tbb::concurrent_vector<std::shared_ptr<specific_t>> thread_resources_;
     pthread_key_t key_;
   };
@@ -525,6 +545,7 @@ private:
 
   // logging configuration
   const bool print_event_summary_;  // print the time spent in each process, path and module after every event
+  const bool print_lumi_summary_;   // print the time spent in each process, path and module for each lumisection
   const bool print_run_summary_;    // print the time spent in each process, path and module for each run
   const bool print_job_summary_;    // print the time spent in each process, path and module for the whole job
 
@@ -558,6 +579,14 @@ private:
   // print the resource usage summary for en event, a run, or the while job
   template <typename T>
   void printHeader(T& out, std::string const& label) const;
+
+  // sum the resources of the modules that ran on each path and endpath, once per event
+  void accumulatePaths(ResourcesPerJob& stream) const;
+
+  // one-past-the last module that ran on a path, including dependencies, as an index into modules_and_dependencies_
+  static unsigned int lastDependency(ProcessCallGraph::PathType const& path, unsigned int index) {
+    return index == 0 ? 0 : path.last_dependency_of_module_[index - 1];
+  }
 
   template <typename T>
   void printEventHeader(T& out, std::string const& label) const;
@@ -608,4 +637,4 @@ private:
   void writeSummaryJSON(ResourcesPerJob const& data, std::string const& filename) const;
 };
 
-#endif  // ! FastTimerService_h
+#endif  // HLTrigger_Timer_plugins_FastTimerService_h

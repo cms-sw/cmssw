@@ -42,31 +42,25 @@ vertexrecoTask = cms.Task(unsortedOfflinePrimaryVertices,
 vertexreco = cms.Sequence(vertexrecoTask)
 
 #modifications for timing
-from RecoVertex.Configuration.RecoVertex_phase2_timing_cff import (tpClusterProducer ,
-                                                                  quickTrackAssociatorByHits ,
-                                                                  trackTimeValueMapProducer ,
-                                                                  unsortedOfflinePrimaryVertices4DwithPID ,
-                                                                  offlinePrimaryVertices4DwithPID ,
-                                                                  offlinePrimaryVertices4DwithPIDWithBS,
-                                                                  tofPID,
-                                                                  tofPID3D,
-                                                                  tofPID4DnoPID,
-                                                                  unsortedOfflinePrimaryVertices4D,
-                                                                  trackWithVertexRefSelectorBeforeSorting4D,
-                                                                  trackRefsForJetsBeforeSorting4D,
-                                                                  offlinePrimaryVertices4D,
-                                                                  offlinePrimaryVertices4DWithBS)
+from RecoVertex.Configuration.RecoVertex_phase2_timing_cff import (unsortedOfflinePrimaryVertices4DwithPID ,
+                                                                   offlinePrimaryVertices4DwithPID ,
+                                                                   offlinePrimaryVertices4DwithPIDWithBS,
+                                                                   tofPID,
+                                                                   tofPID3D,
+                                                                   tofPID4DnoPID,
+                                                                   unsortedOfflinePrimaryVertices4D,
+                                                                   trackWithVertexRefSelectorBeforeSorting4D,
+                                                                   trackRefsForJetsBeforeSorting4D,
+                                                                   offlinePrimaryVertices4D,
+                                                                   offlinePrimaryVertices4DWithBS)
 
 _phase2_tktiming_vertexrecoTask = cms.Task( vertexrecoTask.copy() ,
-                                            tpClusterProducer ,
-                                            quickTrackAssociatorByHits ,
-                                            trackTimeValueMapProducer ,
                                             unsortedOfflinePrimaryVertices4D,
                                             trackWithVertexRefSelectorBeforeSorting4D ,
                                             trackRefsForJetsBeforeSorting4D,
                                             offlinePrimaryVertices4D,
                                             offlinePrimaryVertices4DWithBS,
-                                            )
+                                           )
 
 _phase2_tktiming_layer_vertexrecoTask = cms.Task( _phase2_tktiming_vertexrecoTask.copy() ,
                                             tofPID3D,

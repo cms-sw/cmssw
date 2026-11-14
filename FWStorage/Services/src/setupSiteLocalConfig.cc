@@ -12,11 +12,10 @@
 #include <memory>
 
 namespace edm {
-  ServiceRegistry::Operate setupSiteLocalConfig() {
+  ServiceRegistry::LockedOperate setupSiteLocalConfig() {
     std::unique_ptr<edm::SiteLocalConfig> slcptr =
         std::make_unique<edm::service::SiteLocalConfigService>(edm::ParameterSet());
     auto slc = std::make_shared<edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig> >(std::move(slcptr));
-    edm::ServiceToken slcToken = edm::ServiceRegistry::createContaining(slc);
-    return edm::ServiceRegistry::Operate(slcToken);
+    return ServiceRegistry::LockedOperate(edm::ServiceRegistry::createContaining(slc));
   }
 }  // namespace edm

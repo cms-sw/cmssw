@@ -8,5 +8,6 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   using QuintupletsDeviceCollection = PortableCollection<QuintupletsSoABlocks>;
+  using QuintupletsByMDDeviceCollection = PortableCollection<QuintupletsByMDSoABlocks>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::lst
 #endif

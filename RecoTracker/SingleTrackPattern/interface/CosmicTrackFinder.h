@@ -14,6 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 
 namespace cms {
   class CompareTrajLay {
@@ -88,6 +89,7 @@ namespace cms {
     edm::EDGetTokenT<SiStripRecHit2DCollection> stereorecHitsToken_;
     edm::EDGetTokenT<SiPixelRecHitCollection> pixelRecHitsToken_;
     edm::EDGetTokenT<TrajectorySeedCollection> seedToken_;
+    edm::EDGetTokenT<Phase2TrackerRecHit1DCollectionNew> otRecHitsToken_;  // strip hits in the outer tracker
   };
 }  // namespace cms
 

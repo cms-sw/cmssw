@@ -1,6 +1,4 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-// Part of the MC-truth-graph prototype - under heavy development, not yet open
-// to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 // Author: Felice Pantaleo - CERN
 // Date: 03/2026
@@ -17,6 +15,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -102,12 +101,16 @@ namespace {
 class TruthGraphProducer : public edm::stream::EDProducer<> {
 public:
   explicit TruthGraphProducer(const edm::ParameterSet& cfg)
-      : hepmc3Token_(mayConsume<edm::HepMC3Product>(cfg.getParameter<edm::InputTag>("genEventHepMC3"))),
-        hepmc2Token_(mayConsume<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
-        simTrackToken_(consumes<edm::SimTrackContainer>(cfg.getParameter<edm::InputTag>("simTracks"))),
-        simVertexToken_(consumes<edm::SimVertexContainer>(cfg.getParameter<edm::InputTag>("simVertices"))),
+      : hepmc3Tag_(cfg.getParameter<edm::InputTag>("genEventHepMC3")),
+        hepmc2Tag_(cfg.getParameter<edm::InputTag>("genEventHepMC")),
+        hepmc3Token_(mayConsume<edm::HepMC3Product>(hepmc3Tag_)),
+        hepmc2Token_(mayConsume<edm::HepMCProduct>(hepmc2Tag_)),
         addGenToSimEdges_(cfg.getParameter<bool>("addGenToSimEdges")),
         collapseGenShower_(cfg.getParameter<bool>("collapseGenShower")) {
+    if (auto const& tag = cfg.getParameter<edm::InputTag>("simTracks"); !tag.label().empty())
+      simTrackToken_ = consumes<edm::SimTrackContainer>(tag);
+    if (auto const& tag = cfg.getParameter<edm::InputTag>("simVertices"); !tag.label().empty())
+      simVertexToken_ = consumes<edm::SimVertexContainer>(tag);
     produces<TruthGraph>();
   }
 
@@ -120,21 +123,24 @@ public:
         ->setComment("edm::HepMCProduct label, legacy fallback");
 
     desc.add<edm::InputTag>("simTracks", edm::InputTag("g4SimHits"))
-        ->setComment("SimTrackContainer label, typically g4SimHits");
+        ->setComment("SimTrackContainer label, typically g4SimHits. Empty for a GEN-only graph.");
     desc.add<edm::InputTag>("simVertices", edm::InputTag("g4SimHits"))
-        ->setComment("SimVertexContainer label, typically g4SimHits");
+        ->setComment("SimVertexContainer label, typically g4SimHits. Empty for a GEN-only graph.");
 
     desc.add<bool>("addGenToSimEdges", true)
         ->setComment(
             "If true, add GenParticle -> SimTrack cross edges. The association is built only for primary "
             "SimTracks, interpreting SimTrack::genpartIndex() as a HepMC barcode.");
 
-    desc.add<bool>("collapseGenShower", true)
+    desc.add<bool>("collapseGenShower", false)
         ->setComment(
             "If true, contract the GEN parton shower and the intermediate copies of a resonance, keeping ancestry. "
             "A GEN particle survives if a SimTrack continues it, or it is stable, or it is flagged isHardProcess, "
             "or it is the last copy of something that is not a parton, diquark, string, cluster or beam "
-            "pseudoparticle.");
+            "pseudoparticle. This module reads the main event, whose shower is kept: it carries the partons that "
+            "feed the hard-scatter strings from the beam side, which is what the BeamSideInput vertex points at. "
+            "Measured on one ttbar event, keeping it costs 170 of 2597 particles. The pile-up interactions are "
+            "collapsed instead, in TruthGraphAccumulator.");
 
     descriptions.addWithDefaultLabel(desc);
   }
@@ -142,8 +148,10 @@ public:
   void produce(edm::Event& evt, const edm::EventSetup&) override {
     auto out = std::make_unique<TruthGraph>();
 
-    const auto& simTracks = evt.get(simTrackToken_);
-    const auto& simVertices = evt.get(simVertexToken_);
+    static const edm::SimTrackContainer kNoSimTracks;
+    static const edm::SimVertexContainer kNoSimVertices;
+    const auto& simTracks = simTrackToken_.isUninitialized() ? kNoSimTracks : evt.get(simTrackToken_);
+    const auto& simVertices = simVertexToken_.isUninitialized() ? kNoSimVertices : evt.get(simVertexToken_);
 
     GenBuild gb;
     bool haveGen = false;
@@ -172,6 +180,10 @@ public:
         haveGen = true;
       }
     }
+
+    if (!haveGen && simTrackToken_.isUninitialized())
+      throw cms::Exception("TruthGraphProducer") << "GEN-only graph and no GEN record under '" << hepmc3Tag_.encode()
+                                                 << "' or '" << hepmc2Tag_.encode() << "'";
 
     if (haveGen && collapseGenShower_)
       if (!truth::collapseGenShower(gb, truth::simContinuedGenBarcodes(simTracks)) && !degradedCollapseWarned_) {
@@ -396,7 +408,7 @@ public:
                     if (slot < 0) {
                       slot = gvNode;
                     } else if (slot != gvNode) {
-                      edm::LogPrint("TruthGraphProducer")
+                      edm::LogWarning("TruthGraphProducer")
                           << "SimVertex node " << simVtxNode << " associated to multiple GenVertex nodes (" << slot
                           << " and " << gvNode << "); keeping the first";
                     }
@@ -404,13 +416,13 @@ public:
                 }
               }
             } else {
-              edm::LogPrint("TruthGraphProducer")
+              edm::LogWarning("TruthGraphProducer")
                   << "Rejecting primary SimTrack->GenParticle association with mismatched PDG id: "
                   << "simTrack index=" << i << " trackId=" << simTrack.trackId() << " genBarcode=" << barcode
                   << " simPdgId=" << simPdgId << " genNode=" << it->second << " genPdgId=" << genPdgId;
             }
           } else {
-            edm::LogPrint("TruthGraphProducer")
+            edm::LogWarning("TruthGraphProducer")
                 << "Rejecting primary SimTrack->GenParticle association with missing GEN barcode: "
                 << "simTrack index=" << i << " trackId=" << simTrack.trackId() << " genBarcode=" << barcode;
           }
@@ -430,48 +442,17 @@ public:
     };
 
     if (haveGen) {
-      std::unordered_map<int, int> vtxIncoming;
-      vtxIncoming.reserve(nGenVtx * 2);
-
-      for (int vbc : gb.vtxBarcodes)
-        vtxIncoming.emplace(vbc, 0);
-
-      for (auto const& e : gb.partToVtx) {
-        auto it = vtxIncoming.find(e.second);
-        if (it != vtxIncoming.end())
-          ++it->second;
-      }
-
-      // Residual gap, shared with TruthGraphAccumulator so the two stay consistent: source
-      // counting is per undirected component, but reachability from the GenEvent node is
-      // DIRECTED. A component containing both a true source and a beam-fed branch would
-      // attach only the source and leave the branch unreachable. No current record mixes
-      // the two in one component: a collider record is wholly sourceless and a gun record
-      // wholly source-rooted.
-      std::vector<std::vector<int>> rootsByComp(nGenEvents);
-      std::vector<std::vector<int>> allVtxByComp(nGenEvents);
-
-      for (int vbc : gb.vtxBarcodes) {
-        const int tidx = tempIndex.at(genKeyVertex(vbc));
-        const int cid = compOfTemp[tidx];
-
-        if (cid < 0 || cid >= nGenEvents)
-          continue;
-
-        allVtxByComp[cid].push_back(vbc);
-
-        if (vtxIncoming[vbc] == 0)
-          rootsByComp[cid].push_back(vbc);
+      // Each component's GenEvent node takes the vertices genEventAttachedVertices lists.
+      std::vector<std::vector<int>> attachedByComp(nGenEvents);
+      for (int vbc : truth::genEventAttachedVertices(gb)) {
+        const int cid = compOfTemp[tempIndex.at(genKeyVertex(vbc))];
+        if (cid >= 0 && cid < nGenEvents)
+          attachedByComp[cid].push_back(vbc);
       }
 
       for (int cid = 0; cid < nGenEvents; ++cid) {
         const uint32_t genEventNode = baseGenEvent + static_cast<uint32_t>(cid);
-
-        auto roots = rootsByComp[cid];
-        if (roots.empty())
-          roots = allVtxByComp[cid];
-
-        for (int vbc : roots) {
+        for (int vbc : attachedByComp[cid]) {
           auto itV = genVtxBarcodeToNode.find(vbc);
           if (itV != genVtxBarcodeToNode.end()) {
             push_edge(genEventNode, itV->second, TruthGraph::EdgeKind::Gen);
@@ -616,18 +597,20 @@ public:
       }
     }
 
-    edm::LogPrint("TruthGraphProducer") << "TruthGraph nodes: "
-                                        << "GenEvent=" << nGenEventOut << " GenVertex=" << nGenVertexOut
-                                        << " GenParticle=" << nGenParticleOut << " SimVertex=" << nSimVertexOut
-                                        << " SimTrack=" << nSimTrackOut << " total=" << out->nNodes()
-                                        << " edges=" << out->nEdges()
-                                        << " primaryGenToSimParticleLinks=" << nGenToSimParticleLinks
-                                        << " simVtxToGenVertexLinks=" << nSimVtxToGenLinks;
+    LogDebug("TruthGraphProducer") << "TruthGraph nodes: "
+                                   << "GenEvent=" << nGenEventOut << " GenVertex=" << nGenVertexOut
+                                   << " GenParticle=" << nGenParticleOut << " SimVertex=" << nSimVertexOut
+                                   << " SimTrack=" << nSimTrackOut << " total=" << out->nNodes()
+                                   << " edges=" << out->nEdges()
+                                   << " primaryGenToSimParticleLinks=" << nGenToSimParticleLinks
+                                   << " simVtxToGenVertexLinks=" << nSimVtxToGenLinks;
 
     evt.put(std::move(out));
   }
 
 private:
+  edm::InputTag hepmc3Tag_;
+  edm::InputTag hepmc2Tag_;
   edm::EDGetTokenT<edm::HepMC3Product> hepmc3Token_;
   edm::EDGetTokenT<edm::HepMCProduct> hepmc2Token_;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken_;
