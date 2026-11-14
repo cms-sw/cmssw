@@ -29,6 +29,8 @@
   <test name="NewStreamerLZ4" command="RunLZ4.sh"/>
 
   <test name="TestIOPoolStreamerRefProductIDMetadataConsistency" command="run_TestRefProductIDMetadataConsistencyStreamer.sh"/>
+
+  <test name="TestIOPoolStreamerPipelined" command="run_TestPipelinedStreamer.sh"/>
   
   <test name="TestIOPoolStreamerRefMerge" command="run_RefMerge.sh"/>
 

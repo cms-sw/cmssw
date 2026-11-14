@@ -11,6 +11,7 @@
 <use name="FWStorage/Catalog"/>
 <use name="FWStorage/StorageFactory"/>
 <use name="rootcore"/>
+<use name="tbb"/>
 <use name="zlib"/>
 <use name="xz"/>
 <use name="zstd"/>
