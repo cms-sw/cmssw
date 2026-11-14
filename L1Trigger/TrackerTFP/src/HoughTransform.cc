@@ -9,7 +9,7 @@
 
 namespace trackerTFP {
 
-  HoughTransform::HoughTransform(const tt::Setup* setup,
+  HoughTransform::HoughTransform(const Setup* setup,
                                  const DataFormats* dataFormats,
                                  const LayerEncoding* layerEncoding,
                                  std::vector<StubHT>& stubs)
@@ -48,16 +48,16 @@ namespace trackerTFP {
         // associate stubs with inv2R and phiT bins
         fillIn(inv2R, channelIn, input, stubs);
         // apply truncation
-        if (setup_->enableTruncation() && static_cast<int>(stubs.size()) > setup_->numFramesHigh())
-          stubs.resize(setup_->numFramesHigh());
+        if (setup_->enableTruncation() && static_cast<int>(stubs.size()) > setup_->numFrames())
+          stubs.resize(setup_->numFrames());
         // ht collects all stubs before readout starts -> remove all gaps
         stubs.erase(std::remove(stubs.begin(), stubs.end(), nullptr), stubs.end());
         // identify tracks
         readOut(stubs, output);
       }
       // apply truncation
-      if (setup_->enableTruncation() && static_cast<int>(output.size()) > setup_->numFramesHigh())
-        output.resize(setup_->numFramesHigh());
+      if (setup_->enableTruncation() && static_cast<int>(output.size()) > setup_->numFrames())
+        output.resize(setup_->numFrames());
       // remove trailing gaps
       for (auto it = output.end(); it != output.begin();)
         it = (*--it) ? output.begin() : output.erase(it);
@@ -146,7 +146,7 @@ namespace trackerTFP {
     // used to recognise in which order tracks are found
     TTBV trkFoundPhiTs(0, setup_->htNumBinsPhiT());
     // hitPattern for all possible tracks, used to find tracks
-    std::vector<TTBV> patternHits(setup_->htNumBinsPhiT(), TTBV(0, setup_->numLayers()));
+    std::vector<TTBV> patternHits(setup_->htNumBinsPhiT(), TTBV(0, setup_->sysNumLayer()));
     // found phiTs, ordered in time
     std::vector<int> phiTs;
     phiTs.reserve(setup_->htNumBinsPhiT());
@@ -182,7 +182,7 @@ namespace trackerTFP {
     int nHits(0);
     int nGaps(0);
     bool doubleGap = false;
-    for (int layer = 0; layer < setup_->numLayers(); layer++) {
+    for (int layer = 0; layer < setup_->sysNumLayer(); layer++) {
       if (pattern.test(layer)) {
         doubleGap = false;
         if (++nHits == minLayers)
