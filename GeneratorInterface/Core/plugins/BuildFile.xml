@@ -1,11 +1,12 @@
 <environment>
-  <library name="GeneratorInterfaceCore_plugins" file="*Gen*.cc">
+  <library name="GeneratorInterfaceCore_plugins" file="*Gen*.cc LHEWeightProductProducer.cc">
     <use name="FWCore/AbstractServices"/>
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/MessageLogger"/>
     <use name="FWCore/Utilities"/>
     <use name="SimDataFormats/GeneratorProducts"/>
+    <use name="GeneratorInterface/Core"/>
     <use name="FWCore/SharedMemory"/>
     <use name="clhep"/>
     <flags EDM_PLUGIN="1"/>

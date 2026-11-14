@@ -17,12 +17,18 @@ public:
       throw cms::Exception("Configuration", "NanoAODOutputModule can only write out nanoaod::FlatTable objects");
   }
 
+  // WMass: one element of a std::vector<nanoaod::FlatTable> product; the owner
+  // fetches the product and hands each table to fill(const FlatTable&, ...)
+  TableOutputBranches() : m_extension(DontKnowYetIfMainOrExtension), m_branchesBooked(false) {}
+
   void defineBranchesFromFirstEvent(const nanoaod::FlatTable &tab);
   void branch(TTree &tree);
 
   /// Fill the current table, if extensions == table.extension().
   /// This parameter is used so that the fill is called first for non-extensions and then for extensions
   void fill(const edm::OccurrenceForOutput &iWhatever, TTree &tree, bool extensions);
+  /// Same, for a table not owned by a token of this object (element of a vector product)
+  void fill(const nanoaod::FlatTable &tab, TTree &tree, bool extensions);
 
 private:
   edm::EDGetToken m_token;
