@@ -246,26 +246,26 @@ def get_summary_section(directory,matrix_page=True):
       test_threshold=comparison.test_thr
       break
   if len(test_name)==0:
-    for subdir in directory.subdirs:  
+    for subdir in directory.subdirs:
       for comparison in subdir.comparisons:
         test_name=comparison.test_name
         test_threshold=comparison.test_thr
         break
-      if len(test_name)!=0:break      
-      if len(test_name)==0:  
-        for subsubdir in subdir.subdirs:          
-          for comparison in subsubdir.comparisons:
+      if len(test_name)!=0:break
+      for subsubdir in subdir.subdirs:
+        for comparison in subsubdir.comparisons:
+          test_name=comparison.test_name
+          test_threshold=comparison.test_thr
+          break
+        if len(test_name)!=0:break
+        for subsubsubdir in subsubdir.subdirs:
+          for comparison in subsubsubdir.comparisons:
             test_name=comparison.test_name
             test_threshold=comparison.test_thr
             break
           if len(test_name)!=0:break
-        if len(test_name)==0:      
-          for subsubsubdir in subsubdir.subdirs:
-            for comparison in subsubsubdir.comparisons:
-              test_name=comparison.test_name
-              test_threshold=comparison.test_thr
-              break
-            if len(test_name)!=0:break
+        if len(test_name)!=0:break
+      if len(test_name)!=0:break
 
 
   meta=directory.meta
