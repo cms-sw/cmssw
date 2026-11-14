@@ -61,6 +61,7 @@ public:
   virtual unsigned getStage2FpgaFromStage1Link(const unsigned) const = 0;
   virtual geom_set getStage1LinksFromStage1Fpga(const unsigned) const = 0;
   virtual std::vector<unsigned> getLpgbtsFromStage1Fpga(const unsigned stage1_id) const = 0;
+  virtual geom_set getModulesFromStage1Fpga(const unsigned stage1_id) const = 0;
   virtual unsigned getStage1FpgaFromLpgbt(const unsigned lpgbt_id) const = 0;
   virtual geom_set getModulesFromLpgbt(const unsigned lpgbt_id) const = 0;
   virtual geom_set getLpgbtsFromModule(const unsigned module_id) const = 0;
@@ -82,6 +83,7 @@ public:
   virtual bool disconnectedModule(const unsigned module_id) const = 0;
   virtual unsigned lastTriggerLayer() const = 0;
   virtual unsigned triggerLayer(const unsigned id) const = 0;
+  virtual const std::vector<unsigned>& triggerLayers() const = 0;
 
 protected:
   void setEEGeometry(const HGCalGeometry* geom) { hgc_ee_geometry_ = geom; }

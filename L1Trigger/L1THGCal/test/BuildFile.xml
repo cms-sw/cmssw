@@ -6,3 +6,11 @@
   <use name="L1Trigger/L1THGCal"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library name="testL1TriggerL1THGCal_geometry" file="geometry/*.cc">
+  <use name="Geometry/HGCalGeometry"/>
+  <use name="L1Trigger/L1THGCal"/>
+  <use name="Geometry/Records"/>
+  <use name="CommonTools/UtilAlgos"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
