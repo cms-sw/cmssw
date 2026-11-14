@@ -4,6 +4,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "HLTrigger/HLTcore/interface/getL1TCandidates.h"
 
 //
 // class declaration
@@ -27,8 +28,8 @@ void PFTauL1TJetsMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const
   edm::Handle<trigger::TriggerFilterObjectWithRefs> L1Jets;
   iEvent.getByToken(L1JetSrc_, L1Jets);
 
-  l1t::JetVectorRef jetCandRefVec;
-  L1Jets->getObjects(trigger::TriggerL1Jet, jetCandRefVec);
+  // L1T jets of the seed (Run-3 l1t::Jet or Phase-2 l1t::P2GTCandidate)
+  auto const l1Jets = hlt::getL1TJets(*L1Jets);
 
   /* Loop over taus that must pass a certain minTauPt_ cut */
   /* then loop over L1T jets that must pass minL1TPt_ */
@@ -38,9 +39,9 @@ void PFTauL1TJetsMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const
   for (unsigned int iTau = 0; iTau < taus->size(); iTau++) {
     bool isMatched = false;
     if ((*taus)[iTau].pt() > minTauPt_) {
-      for (unsigned int iJet = 0; iJet < jetCandRefVec.size(); iJet++) {
-        if (jetCandRefVec[iJet]->pt() > minL1TPt_) {
-          if (reco::deltaR2((*taus)[iTau].p4(), jetCandRefVec[iJet]->p4()) < matchingR2_) {
+      for (auto const* l1Jet : l1Jets) {
+        if (l1Jet->pt() > minL1TPt_) {
+          if (reco::deltaR2((*taus)[iTau].p4(), l1Jet->p4()) < matchingR2_) {
             isMatched = true;
             break;
           }
