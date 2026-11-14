@@ -9,6 +9,7 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
+#include "HLTrigger/HLTcore/interface/getL1TCandidates.h"
 
 //
 // class declaration
@@ -39,16 +40,16 @@ void L1THLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const ed
   edm::Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
   iEvent.getByToken(tauTrigger, l1TriggeredTaus);
 
-  l1t::TauVectorRef tauCandRefVec;
-  l1TriggeredTaus->getObjects(trigger::TriggerL1Tau, tauCandRefVec);
+  // L1T taus of the seed (Run-3 l1t::Tau or Phase-2 l1t::P2GTCandidate)
+  auto const l1Taus = ::hlt::getL1TTaus(*l1TriggeredTaus);
 
   math::XYZPoint a(0., 0., 0.);
 
-  for (unsigned int iL1Tau = 0; iL1Tau < tauCandRefVec.size(); iL1Tau++) {
+  for (auto const* l1Tau : l1Taus) {
     for (unsigned int iJet = 0; iJet < tauJets->size(); iJet++) {
       // Find the relative L2TauJets, to see if it has been reconstructed
       const PFTau& myJet = (*tauJets)[iJet];
-      double deltaR2 = ROOT::Math::VectorUtil::DeltaR2(myJet.p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
+      double deltaR2 = ROOT::Math::VectorUtil::DeltaR2(myJet.p4().Vect(), (l1Tau->p4()).Vect());
       if (deltaR2 < matchingR2) {
         if (myJet.leadChargedHadrCand().isNonnull()) {
           a = myJet.leadChargedHadrCand()->vertex();
@@ -75,7 +76,7 @@ void L1THLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const ed
 void L1THLTTauMatching::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("L1TauTrigger", edm::InputTag("hltL1sDoubleIsoTau40er"))
-      ->setComment("Name of trigger filter");
+      ->setComment("Name of trigger filter providing the L1 taus");
   desc.add<edm::InputTag>("JetSrc", edm::InputTag("hltSelectedPFTausTrackPt1MediumIsolationReg"))
       ->setComment("Input collection of PFTaus");
   desc.add<double>("EtMin", 0.0)->setComment("Minimal pT of PFTau to match");
