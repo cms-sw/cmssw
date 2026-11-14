@@ -51,6 +51,12 @@ public:
     const FTLCluster* theCluster;
   };
 
+  struct MergedClusterParam {
+    MergedClusterParam(const FTLMergedCluster& cl) : theMergedCluster(&cl) {}
+    virtual ~MergedClusterParam() = default;
+    const FTLMergedCluster* theMergedCluster;
+  };
+
 public:
   MTDCPEBase(edm::ParameterSet const& conf, const MTDGeometry& geom);
 
@@ -71,6 +77,21 @@ public:
     return getParameters(cl, det);
   }
 
+  inline ReturnType getParameters(const FTLMergedCluster& cl, const GeomDetUnit& det) const override {
+    DetParam const& dp = detParam(det);
+    MergedClusterParam mcp(cl);
+
+    auto tuple =
+        std::make_tuple(localPosition(dp, mcp), localError(dp, mcp), clusterTime(dp, mcp), clusterTimeError(dp, mcp));
+    return tuple;
+  }
+
+  inline ReturnType getParameters(const FTLMergedCluster& cl,
+                                  const GeomDetUnit& det,
+                                  const LocalTrajectoryParameters& ltp) const override {
+    return getParameters(cl, det);
+  }
+
 private:
   //--------------------------------------------------------------------------
   // This is where the action happens.
@@ -79,6 +100,12 @@ private:
   virtual LocalError localError(DetParam const& dp, ClusterParam& cp) const;
   virtual TimeValue clusterTime(DetParam const& dp, ClusterParam& cp) const;
   virtual TimeValueError clusterTimeError(DetParam const& dp, ClusterParam& cp) const;
+
+  // MergedCluster versions
+  virtual LocalPoint localPosition(DetParam const& dp, MergedClusterParam& mcp) const;
+  virtual LocalError localError(DetParam const& dp, MergedClusterParam& mcp) const;
+  virtual TimeValue clusterTime(DetParam const& dp, MergedClusterParam& mcp) const;
+  virtual TimeValueError clusterTimeError(DetParam const& dp, MergedClusterParam& mcp) const;
 
   static constexpr float sigma_flat = 0.2886751f;  // 1.f / std::sqrt(12.f);
 

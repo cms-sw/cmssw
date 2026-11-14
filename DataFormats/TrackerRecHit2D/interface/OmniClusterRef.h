@@ -7,7 +7,7 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/FTLRecHit/interface/FTLClusterCollections.h"
+#include "DataFormats/FTLRecHit/interface/FTLMergedClusterCollections.h"
 
 namespace io_v1 {
 
@@ -27,7 +27,7 @@ namespace io_v1 {
     typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> ClusterPixelRef;
     typedef edm::Ref<edmNew::DetSetVector<SiStripCluster>, SiStripCluster> ClusterStripRef;
     typedef edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>, Phase2TrackerCluster1D> Phase2Cluster1DRef;
-    typedef edm::Ref<FTLClusterCollection, FTLCluster> ClusterMTDRef;
+    typedef edm::Ref<FTLMergedClusterCollection, FTLMergedCluster> ClusterMTDRef;
 
     OmniClusterRef() : me(edm::RefCore(), kInvalid) {}
     OmniClusterRef(edm::ProductID const& id, SiStripCluster const* clu, unsigned int key)
@@ -58,7 +58,7 @@ namespace io_v1 {
     SiPixelCluster const& pixelCluster() const { return *ClusterPixelRef(me.toRefCore(), index()); }
     SiStripCluster const& stripCluster() const { return *ClusterStripRef(me.toRefCore(), index()); }
     Phase2TrackerCluster1D const& phase2OTCluster() const { return *Phase2Cluster1DRef(me.toRefCore(), index()); }
-    FTLCluster const& mtdCluster() const { return *ClusterMTDRef(me.toRefCore(), index()); }
+    FTLMergedCluster const& mtdCluster() const { return *ClusterMTDRef(me.toRefCore(), index()); }
 
     bool operator==(OmniClusterRef const& lh) const {
       return rawIndex() == lh.rawIndex();  // in principle this is enough!

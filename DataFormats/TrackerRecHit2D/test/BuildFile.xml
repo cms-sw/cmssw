@@ -1,3 +1,13 @@
 <use name="DataFormats/TrackerRecHit2D"/>
 <bin file="mayown_t.cpp"/>
 <bin file="testOmniClusterRef.cpp"/>
+
+<library name="testMTDClusterReferences" file="TestWriteFTLClusters.cc,TestReadMTDTrackingRecHits.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="DataFormats/FTLRecHit"/>
+  <use name="Geometry/MTDGeometryBuilder"/>
+  <use name="Geometry/Records"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+</library>
