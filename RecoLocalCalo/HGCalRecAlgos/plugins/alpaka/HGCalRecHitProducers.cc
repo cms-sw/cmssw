@@ -36,6 +36,7 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/alpaka/HGCalRecHitCalibrationAlgorithms.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDevice.h"
 #include "CondFormats/DataRecord/interface/HGCalDenseIndexInfoRcd.h"
+#include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
 
 // flag to assist the computational performance test
 // #define HGCAL_PERF_TEST
@@ -57,6 +58,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const edm::ESGetToken<hgcalrechit::HGCalCalibParamHost, HGCalModuleConfigurationRcd> calibToken_;
     const device::ESGetToken<hgcal::HGCalMappingCellParamDevice, HGCalElectronicsMappingRcd> mappingToken_;
     const device::ESGetToken<hgcal::HGCalDenseIndexInfoDevice, HGCalDenseIndexInfoRcd> indexingToken_;
+    const edm::EDGetTokenT<hgcaldigi::HGCalECONDPacketInfoHost> econdToken_;
     const device::ESGetToken<hgcal::HGCalMappingModuleParamDevice, HGCalElectronicsMappingRcd> moduleToken_;
     const device::EDPutToken<HGCalSoARecHitsDeviceCollection> recHitsToken_;
     const HGCalRecHitCalibrationAlgorithms calibrator_;
@@ -74,6 +76,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         calibToken_{esConsumes(iConfig.getParameter<edm::ESInputTag>("calibSource"))},
         mappingToken_{esConsumes(iConfig.getParameter<edm::ESInputTag>("mappingSource"))},
         indexingToken_{esConsumes(iConfig.getParameter<edm::ESInputTag>("indexingSource"))},
+        econdToken_{consumes<hgcaldigi::HGCalECONDPacketInfoHost>(iConfig.getParameter<edm::InputTag>("econd"))},
         moduleToken_{esConsumes()},
         recHitsToken_{produces()},
         calibrator_{iConfig.getParameter<int>("n_blocks"), iConfig.getParameter<int>("n_threads")},
@@ -89,10 +92,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   void HGCalRecHitsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("digis", edm::InputTag("hgcalDigis", "DIGI", "TEST"));
+    desc.add<edm::InputTag>("digis", edm::InputTag("hgcalDigis", ""));
     desc.add("calibSource", edm::ESInputTag{})->setComment("Label for calibration parameters");
     desc.add("mappingSource", edm::ESInputTag{})->setComment("Label for cell mapping parameters");
     desc.add("indexingSource", edm::ESInputTag{})->setComment("Label for cell dense indexer");
+    desc.add<edm::InputTag>("econd", edm::InputTag("hgcalDigis", ""));
     desc.add<double>("k_noise", -100.)->setComment("ZS threshold for rechits (multiples of noise)");
     desc.add<int>("n_blocks", -1);
     desc.add<int>("n_threads", -1);
@@ -109,6 +113,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto const& deviceIndexingParamProvider = iSetup.getData(indexingToken_);
     auto const& deviceModuleInfoProvider = iSetup.getData(moduleToken_);
     auto const& hostDigisIn = iEvent.get(digisToken_);
+    auto const& hostEcondInfoProvider = iEvent.get(econdToken_);
 
     //printout new conditions if available
     LogDebug("HGCalCalibrationParameter").log([&](auto& log) {
@@ -135,7 +140,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       hostDigis.view()[i].adc() = hostDigisIn.view()[i % oldSize].adc();
       hostDigis.view()[i].tot() = hostDigisIn.view()[i % oldSize].tot();
       hostDigis.view()[i].toa() = hostDigisIn.view()[i % oldSize].toa();
-      hostDigis.view()[i].cm() = hostDigisIn.view()[i % oldSize].cm();
       hostDigis.view()[i].flags() = hostDigisIn.view()[i % oldSize].flags();
 
       hostCalibParam.view()[i].ADC_ped() = hostCalibParamProvider.view()[i % oldSize].ADC_ped();
@@ -187,6 +191,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                      deviceModuleInfoProvider,
                                      deviceMappingCellParamProvider,
                                      deviceIndexingParamProvider,
+                                     hostEcondInfoProvider,
                                      k_noise_);
 #endif
 

@@ -19,7 +19,9 @@
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHost.h"
+#include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
 #include "DQM/HGCAL/interface/HGCalDQMCommon.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 
 /**
  * \class HGCalDigiDQM
@@ -50,8 +52,8 @@ private:
 
   // ------------ member data ------------
   edm::EDGetTokenT<hgcaldigi::HGCalDigiHost> digisTkn_;
+  edm::EDGetTokenT<hgcaldigi::HGCalECONDPacketInfoHost> econdTkn_;
   edm::ESGetToken<hgcal::HGCalDenseIndexInfoHost, HGCalDenseIndexInfoRcd> denseIndexInfoTkn_;
-
   edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIdxTkn_;
   edm::ESGetToken<hgcal::HGCalMappingModuleParamHost, HGCalElectronicsMappingRcd> moduleInfoTkn_;
   const unsigned int minEvents_;
@@ -64,6 +66,7 @@ private:
 
 HGCalDigiDQM::HGCalDigiDQM(const edm::ParameterSet& iConfig)
     : digisTkn_(consumes<hgcaldigi::HGCalDigiHost>(iConfig.getParameter<edm::InputTag>("Digis"))),
+      econdTkn_(consumes<hgcaldigi::HGCalECONDPacketInfoHost>(iConfig.getParameter<edm::InputTag>("Econd"))),
       denseIndexInfoTkn_(esConsumes()),
       moduleIdxTkn_(esConsumes<edm::Transition::BeginRun>()),
       moduleInfoTkn_(esConsumes<edm::Transition::BeginRun>()),
@@ -88,7 +91,7 @@ void HGCalDigiDQM::bookModuleHistograms(DQMStore::IBooker& ibook, const Monitore
   ibook.setCurrentFolder(folder);
 
   //Per module histograms
-  size_t nch = ele.nErx * 37;
+  size_t nch = ele.nErx * HGCalMappingCellIndexer::maxChPerErx_;
 
   std::string typecode = ele.typecode;
 
@@ -126,11 +129,15 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     return;
 
   const auto& digis = iEvent.getHandle(digisTkn_);
-  if (!digis.isValid())
+  const auto& econd = iEvent.getHandle(econdTkn_);
+
+  if (!digis.isValid() || !econd.isValid())
     return;
 
   const auto& digis_view = digis->const_view();
   int32_t ndigis = digis_view.metadata().size();
+
+  const auto& econd_view = econd->const_view();
 
   const auto& denseIndexInfo = iSetup.getData(denseIndexInfoTkn_);
   const auto& denseIndexInfo_view = denseIndexInfo.const_view();
@@ -206,13 +213,18 @@ void HGCalDigiDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     if (it_seed != moduleSeeds_.end() && it_seed->second == chIdx)
       seedDigiIdx[key] = i;
 
+    // compute cm from econd
+    uint32_t erx = chIdx / HGCalMappingCellIndexer::maxChPerErx_;
+    auto econdenseidx = indexinfo.modInfoIdx();
+    auto cmm = econd_view[econdenseidx].cm();
+
     auto digi = digis_view[i];
     uint8_t tctp = digi.tctp();
     double adc = digi.adc();
     double tot = digi.tot();
     double toa = digi.toa();
     double adcm = digi.adcm1();
-    double cmsum = digi.cm();
+    double cmsum = cmm(erx, 0) + cmm(erx, 1);
     uint16_t flags = digi.flags();
     double deltaadc = adc - adcm;
 
@@ -335,6 +347,7 @@ void HGCalDigiDQM::bookHistograms(DQMStore::IBooker& ibook, edm::Run const& run,
 void HGCalDigiDQM::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("Digis", edm::InputTag("hgcalDigis", ""));
+  desc.add<edm::InputTag>("Econd", edm::InputTag("hgcalDigis", ""));
   desc.add<unsigned int>("MinimumEvents", 5000);
   desc.add<unsigned int>("PrescaleFactor", 5000);
   descriptions.add("hgcaldigidqm", desc);
