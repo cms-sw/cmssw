@@ -2,55 +2,60 @@
 #define RecoTracker_MkFitCore_src_Pool_h
 
 #include "Matriplex/Memory.h"
-#include "oneapi/tbb/concurrent_queue.h"
+#include "oneapi/tbb/enumerable_thread_specific.h"
+#include <memory>
+#include <cassert>
 
 namespace mkfit {
 
   /**
-   * Pool for helper objects. All functions are thread safe.
+   * Pool for helper objects.  Helper objects are allocated per-thread, and are
+   * assumed that use does not cross thread boundaries and that helper objects
+   * are not used recursively.  There are assertions to enforce these assummptions.
    */
   template <typename TT>
   class Pool {
   public:
-    Pool() = default;
+    Pool() : m_pool(&finit) {}
+    ~Pool() = default;
 
-    ~Pool() { clear(); }
+    void clear() { m_pool.clear(); }
+    size_t size() const { return m_pool.size(); }
 
-    void clear() {
-      TT *x = nullptr;
-      while (m_stack.try_pop(x)) {
-        destroy(x);
-      }
-    }
-
-    size_t size() const { return m_stack.unsafe_size(); }
-
-    void populate(int threads = Config::numThreadsFinder) {
-      for (int i = 0; i < threads; ++i) {
-        m_stack.push(create());
-      }
-    }
+    // for thread-specific pooling best to allocate in-thread
+    void populate(int threads = Config::numThreadsFinder) {}
 
     auto makeOrGet() {
-      TT *x = nullptr;
-      if (not m_stack.try_pop(x)) {
+      bool exists;
+      auto &m = m_pool.local(exists);
+      TT *x;
+      if (exists) {
+        x = m.release();
+        assert(x);
+      } else {
         x = create();
       }
-      auto deleter = [this](TT *ptr) { this->addBack(ptr); };
-      return std::unique_ptr<TT, decltype(deleter)>(x, std::move(deleter));
+      auto recycler = [this](TT *ptr) { this->recycle(ptr); };
+      return std::unique_ptr<TT, decltype(recycler)>(x, recycler);
     }
 
   private:
     TT *create() { return new (Matriplex::aligned_alloc64(sizeof(TT))) TT; };
 
-    void destroy(TT *x) {
+    static void destroy(TT *x) {
       x->~TT();
       std::free(x);
     };
+    using poolptr = std::unique_ptr<TT, decltype(&destroy)>;
 
-    void addBack(TT *x) { m_stack.push(x); }
+    static auto finit() { return poolptr(nullptr, &destroy); }
 
-    tbb::concurrent_queue<TT *> m_stack;
+    void recycle(TT *x) {
+      assert(m_pool.local().get() == nullptr);
+      m_pool.local().reset(x);
+    }
+
+    tbb::enumerable_thread_specific<poolptr> m_pool;
   };
 
 }  // end namespace mkfit
