@@ -32,6 +32,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -97,6 +98,13 @@ namespace {
     // A domain matched on shared ENERGY in the calorimeter channel, which is judged by
     // the HGCal validation criteria; everything else is judged on shared components.
     static constexpr bool calorimetric = false;
+  };
+
+  template <>
+  struct RecoValidationTraits<reco::GsfTrack> : RecoValidationTraits<reco::Track> {
+    static constexpr const char* cfiName = "truthBranchGsfTrackValidator";
+    static constexpr const char* defaultAssociator = "truthBranchGsfTrackAssociators";
+    static constexpr const char* defaultDir = "TruthInfo/GsfTracking/";
   };
 
   // A vertex has no momentum, so only its position and its track multiplicity are
@@ -1079,6 +1087,8 @@ void TruthBranchRecoValidator<RECO>::fillDescriptions(edm::ConfigurationDescript
 #include "FWCore/Framework/interface/MakerMacros.h"
 using TruthBranchTrackValidator = TruthBranchRecoValidator<reco::Track>;
 DEFINE_FWK_MODULE(TruthBranchTrackValidator);
+using TruthBranchGsfTrackValidator = TruthBranchRecoValidator<reco::GsfTrack>;
+DEFINE_FWK_MODULE(TruthBranchGsfTrackValidator);
 using TruthBranchVertexValidator = TruthBranchRecoValidator<reco::Vertex>;
 DEFINE_FWK_MODULE(TruthBranchVertexValidator);
 using TruthBranchTracksterValidator = TruthBranchRecoValidator<ticl::Trackster>;

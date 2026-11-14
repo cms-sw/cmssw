@@ -3,8 +3,8 @@
 DQM validation of the MC-truth graph and of its association maps
 (`SimGeneral/TruthGraphAssociatorProducers`).
 
-`TruthBranchRecoValidator` is one templated analyzer over tracks, vertices, secondary
-vertices and tracksters. The reco-driven metrics are booked per working point, the
+`TruthBranchRecoValidator` is one templated analyzer over tracks, GSF tracks, vertices,
+secondary vertices and tracksters. The reco-driven metrics are booked per working point, the
 truth-driven ones per truth level, and `DQMGenericClient` harvests all of it.
 `TruthBranchHistoProducerAlgo` books and fills the histograms.
 
