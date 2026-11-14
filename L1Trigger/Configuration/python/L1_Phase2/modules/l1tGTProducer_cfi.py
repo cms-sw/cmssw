@@ -1,0 +1,35 @@
+import FWCore.ParameterSet.Config as cms
+
+l1tGTProducer = cms.EDProducer("L1GTProducer",
+    CL2Electrons = cms.InputTag("l1tLayer2EG","L1CtTkElectron"),
+    CL2EtSum = cms.InputTag("l1tMETPFProducer"),
+    CL2HtSum = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulatorMHT"),
+    CL2JetsSC4 = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulator"),
+    CL2JetsSC8 = cms.InputTag("l1tSC8PFL1PuppiCorrectedEmulator"),
+    CL2Photons = cms.InputTag("l1tLayer2EG","L1CtTkEm"),
+    CL2Taus = cms.InputTag("l1tNNTauProducerPuppi","L1PFTausNN"),
+    GMTSaDisplacedMuons = cms.InputTag("l1tSAMuonsGmt","displaced"),
+    GMTSaPromptMuons = cms.InputTag("l1tSAMuonsGmt","prompt"),
+    GMTTkMuons = cms.InputTag("l1tTkMuonsGmt"),
+    GTTDisplacedHtSum = cms.InputTag("l1tTrackerEmuHTMissExtended","L1TrackerEmuHTMissExtended"),
+    GTTDisplacedJets = cms.InputTag("l1tTrackJetsExtendedEmulation","L1TrackJetsExtended"),
+    GTTEtSum = cms.InputTag("l1tTrackerEmuEtMiss","L1TrackerEmuEtMiss"),
+    GTTPrimaryVert = cms.InputTag("l1tVertexFinderEmulator","L1VerticesEmulation"),
+    GTTPromptHtSum = cms.InputTag("l1tTrackerEmuHTMiss","L1TrackerEmuHTMiss"),
+    GTTPromptJets = cms.InputTag("l1tTrackJetsEmulation","L1TrackJets"),
+    scales = cms.PSet(
+        beta_lsb = cms.double(0.0625),
+        eta_lsb = cms.double(0.0007669903939428206),
+        isolationPT_lsb = cms.double(0.25),
+        mass_lsb = cms.double(0.25),
+        neg_chg = cms.int32(1),
+        pT_lsb = cms.double(0.03125),
+        phi_lsb = cms.double(0.0007669903939428206),
+        pos_chg = cms.int32(0),
+        scalarSumPT_lsb = cms.double(0.03125),
+        seed_pT_lsb = cms.double(0.25),
+        seed_z0_lsb = cms.double(0.05859375),
+        sum_pT_pv_lsb = cms.double(0.25),
+        z0_lsb = cms.double(0.000390625)
+    )
+)

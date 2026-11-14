@@ -2466,6 +2466,31 @@ upgradeWFs['L1CompleteOnlyNano'].offset = 0.782
 upgradeWFs['L1CompleteOnlyNano'].step2['--datatier'] = 'NANOAODSIM'
 upgradeWFs['L1CompleteOnlyNano'].step2['--eventcontent'] = 'NANOAODSIM'
 
+# run the standalone Phase-2 L1 configuration (L1Trigger/Configuration/python/L1_Phase2_cff.py)
+# in place of the L1TrackTrigger,L1,L1P2GT steps
+class UpgradeWorkflow_L1P2Fragment(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Digi' in step and 'NoHLT' not in step:
+            l1Steps = 'L1TrackTrigger,L1,L1P2GT'
+            if l1Steps not in stepDict[step][k]['-s']:
+                raise ValueError(f"{l1Steps} not found in {stepName}: {stepDict[step][k]['-s']}")
+            stepDict[stepName][k] = merge([{'-s': stepDict[step][k]['-s'].replace(l1Steps, 'L1P2')}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        # the configuration is generated for the default Run4D128 and only matches its era
+        # (the L1 HGCal TPG configuration differs for Phase2C17I13M9, Phase2C20I13M9 and Phase2C22I13M9)
+        return upgradeProperties['Run4'].get(key, {}).get('Era') == 'Phase2C26I13M9'
+
+upgradeWFs['L1P2Fragment'] = UpgradeWorkflow_L1P2Fragment(
+    steps = [
+        'DigiTrigger',
+    ],
+    PU = [
+        'DigiTrigger',
+    ],
+    suffix = '_L1P2Fragment',
+    offset = 0.783
+)
+
 class UpgradeWorkflow_Neutron(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'GenSim' in step:
