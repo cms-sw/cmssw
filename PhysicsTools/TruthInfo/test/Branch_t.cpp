@@ -596,6 +596,42 @@ void TestBranch::testGenerations() {
   CPPUNIT_ASSERT(truth::particleGenerations(GraphBuilder(0, 0).finish()).empty());
 }
 
+// REQUIRED: a particle is never counted together with its own secondary, also when both are
+// roots of the branch.
+void TestBranch::testARootWithItsOwnSecondaryCountsOnce() {
+  GraphBuilder b(2, 1);
+  b.setParticle(0, 211, 1, 50.);  // pi+, tracked
+  b.setParticle(1, 11, 0, 0.5);   // delta ray, Geant4 only
+  b.addDecay(0, 0);
+  b.addProduction(0, 1);
+  truth::Graph graph = b.finish();
+  graph.particles()[0].simNode = 200;
+  graph.particles()[1].simNode = 201;
+  graph.particles()[1].genNode = -1;
+
+  const truth::Branch both(&graph, std::vector<uint32_t>{0, 1});
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), both.finalState().size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(50., both.energy(), 1e-9);
+}
+
+// REQUIRED: a closure with nothing to stop at, or a merge across two graphs, is an error,
+// never a full subtree or a silently dropped operand.
+void TestBranch::testAnIncompleteClosureOrMergeThrows() {
+  GraphBuilder b(1, 0);
+  b.setParticle(0, 211, 1, 50.);
+  truth::Graph graph = b.finish();
+  truth::Graph other = graph;
+
+  truth::ClosureSpec predicate;
+  predicate.kind = truth::ClosureKind::Predicate;
+  CPPUNIT_ASSERT_THROW(truth::Branch(&graph, 0, predicate), cms::Exception);
+  CPPUNIT_ASSERT_THROW(truth::Branch(&graph, 0, truth::ClosureSpec::untilPdgId({})), cms::Exception);
+
+  const truth::Branch mine(&graph, 0);
+  const truth::Branch theirs(&other, 0);
+  CPPUNIT_ASSERT_THROW(static_cast<void>(mine.merged(theirs)), cms::Exception);
+}
+
 // REQUIRED: the kinematics of a branch are summed where the generator hands particles to
 // Geant4. A tracked particle counts with its own momentum and its Geant4 secondaries do
 // not; a particle Geant4 never tracked counts through its members below it.

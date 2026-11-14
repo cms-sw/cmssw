@@ -229,6 +229,15 @@ class LevelFlags_t : public CppUnit::TestFixture {
   CPPUNIT_TEST(testPi0IsLabelledNotItsPhotons);
   CPPUNIT_TEST(testGunSeedThatIsItselfReconstructableIsItsOwnLeg);
   CPPUNIT_TEST(testSimContinuationIsNotADecay);
+  CPPUNIT_TEST(testPFReconstructableWalksThroughPi0ToPhotons);
+  CPPUNIT_TEST(testPFReconstructablePhotonConversionSplitsByLocation);
+  CPPUNIT_TEST(testPFReconstructablePhotonConversionBufferDoesNotLeakBetweenCalls);
+  CPPUNIT_TEST(testPFReconstructableStopsAtFirstDetectedParticle);
+  CPPUNIT_TEST(testPFReconstructableFollowsSimInteractionWhenUndetected);
+  CPPUNIT_TEST(testPFReconstructableFollowsGenDecayOfTrackedParticle);
+  CPPUNIT_TEST(testPFReconstructableGunSeedIsItsOwnLeg);
+  CPPUNIT_TEST(testPFReconstructableDropsATrueDeadEnd);
+  CPPUNIT_TEST(testPFReconstructableNeedsNoSignal);
   CPPUNIT_TEST(testReconvergentHistoryStaysAnAntichain);
   CPPUNIT_TEST(testStableLegsFromInitialStateAndUnderlyingEvent);
   CPPUNIT_TEST(testDiquarksAreNotHeavyFlavourHadrons);
@@ -265,14 +274,15 @@ public:
   // the hole and needs to be justified, not absorbed silently.
   void testFitsInThePaddingHole() {
     CPPUNIT_ASSERT_EQUAL(std::size_t{96}, sizeof(truth::ParticleData));
-    // sizeof alone does not pin the members down: six bytes of tail padding follow
-    // role, so widening role or dropping a member keeps sizeof at 96. Pin the two
-    // offsets that carry the claim: levelFlags fills the hole after genEvent, and role
-    // sits in the tail after backscattered.
+    // Pin the offsets: levelFlags fills the hole after genEvent, role sits in the tail
+    // after backscattered, and hasTrackerSimHit/hasCaloSimHit/hasMuonSimHit follow role.
     truth::ParticleData d;
     auto const* base = reinterpret_cast<char const*>(&d);
     CPPUNIT_ASSERT_EQUAL(std::ptrdiff_t{28}, reinterpret_cast<char const*>(&d.levelFlags) - base);
     CPPUNIT_ASSERT_EQUAL(std::ptrdiff_t{89}, reinterpret_cast<char const*>(&d.role) - base);
+    CPPUNIT_ASSERT_EQUAL(std::ptrdiff_t{90}, reinterpret_cast<char const*>(&d.hasTrackerSimHit) - base);
+    CPPUNIT_ASSERT_EQUAL(std::ptrdiff_t{91}, reinterpret_cast<char const*>(&d.hasCaloSimHit) - base);
+    CPPUNIT_ASSERT_EQUAL(std::ptrdiff_t{92}, reinterpret_cast<char const*>(&d.hasMuonSimHit) - base);
   }
 
   // REQUIRED: a stored flag says exactly what levelAntichain() would say. This is the
@@ -709,6 +719,349 @@ public:
     CPPUNIT_ASSERT_EQUAL(std::size_t{2}, legs.size());
     CPPUNIT_ASSERT_EQUAL(uint32_t{2}, legs[0]);
     CPPUNIT_ASSERT_EQUAL(uint32_t{3}, legs[1]);
+  }
+
+  // REQUIRED: unlike reconstructableFromSignal, species never stops this walk. The pi0
+  // itself has no hit of its own, so the walk descends through it to its two photons,
+  // which do.
+  //   p0 tau (signal) -> v0 -> p1 pi0 -> v1 -> p2 gamma (CaloSimHit), p3 gamma (CaloSimHit)
+  void testPFReconstructableWalksThroughPi0ToPhotons() {
+    GraphBuilder b(4, 2);
+    auto set = [&](uint32_t i, int32_t pdg, int16_t st) {
+      auto& d = b.graph.particles()[i];
+      d.genNode = 100 + i;
+      d.pdgId = pdg;
+      d.status = st;
+      d.momentum = math::XYZTLorentzVectorD(10., 0., 0., 10.);
+    };
+    set(0, 15, 2);   // tau, decays
+    set(1, 111, 2);  // pi0, decays; itself never reaches the detector
+    set(2, 22, 1);   // gamma, showers in the calo
+    set(3, 22, 1);   // gamma, showers in the calo
+    b.graph.particles()[2].hasCaloSimHit = true;
+    b.graph.particles()[3].hasCaloSimHit = true;
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addDecay(1, 1);
+    b.addProduction(1, 2);
+    b.addProduction(1, 3);
+    truth::Graph g = b.finish();
+    g.particles()[0].setLevel(truth::LevelFlag::Signal);
+    truth::fillLevelFlags(g);
+
+    const auto legs = truth::pfReconstructable(g);
+    CPPUNIT_ASSERT_EQUAL(std::size_t{2}, legs.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t{2}, legs[0]);
+    CPPUNIT_ASSERT_EQUAL(uint32_t{3}, legs[1]);
+    CPPUNIT_ASSERT(!g.particles()[1].isAtLevel(truth::LevelFlag::PFReconstructable));  // not the pi0
+    CPPUNIT_ASSERT(g.particles()[2].isAtLevel(truth::LevelFlag::PFReconstructable));
+    CPPUNIT_ASSERT(g.particles()[3].isAtLevel(truth::LevelFlag::PFReconstructable));
+  }
+
+  // REQUIRED: early (tracker-hit) conversion gives two electron legs; late (calo-only)
+  // conversion reads as one photon leg.
+  //   p1 gamma -> p3 e-, p4 e+ (TrackerSimHit)  -> legs 3, 4
+  //   p2 gamma -> p5 e-, p6 e+ (CaloSimHit only) -> leg 2
+  void testPFReconstructablePhotonConversionSplitsByLocation() {
+    GraphBuilder b(7, 3);
+    auto set = [&](uint32_t i, int32_t pdg, bool tracker, bool calo) {
+      auto& d = b.graph.particles()[i];
+      d.genNode = (i <= 2) ? static_cast<int32_t>(100 + i) : -1;
+      d.simNode = static_cast<int32_t>(200 + i);
+      d.pdgId = pdg;
+      d.status = (i <= 2) ? 1 : 0;
+      d.momentum = math::XYZTLorentzVectorD(5., 0., 0., 5.);
+      d.hasTrackerSimHit = tracker;
+      d.hasCaloSimHit = calo;
+    };
+    set(0, 15, false, false);
+    set(1, 22, false, false);
+    set(2, 22, false, false);
+    set(3, 11, true, false);
+    set(4, -11, true, false);
+    set(5, 11, false, true);
+    set(6, -11, false, true);
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addProduction(0, 2);
+    b.addDecay(1, 1);
+    b.addProduction(1, 3);
+    b.addProduction(1, 4);
+    b.addDecay(2, 2);
+    b.addProduction(2, 5);
+    b.addProduction(2, 6);
+    truth::Graph g = b.finish();
+    g.vertices()[1].genNode = -1;  // conversions are Geant4's, not the generator's
+    g.vertices()[2].genNode = -1;
+    g.particles()[0].setLevel(truth::LevelFlag::Signal);
+    truth::fillLevelFlags(g);
+
+    const std::vector<uint32_t> expected{2, 3, 4};
+    CPPUNIT_ASSERT(truth::pfReconstructable(g) == expected);
+    for (uint32_t id = 0; id < g.nParticles(); ++id) {
+      const bool member = std::find(expected.begin(), expected.end(), id) != expected.end();
+      CPPUNIT_ASSERT_EQUAL(member, g.particles()[id].isAtLevel(truth::LevelFlag::PFReconstructable));
+    }
+  }
+
+  // REQUIRED: detail::photonConvertsInCalo shares one scratch buffer across every call in
+  // a single pfReconstructable walk (see the comment on it in TruthLevels.h). Two
+  // independent, back-to-back calo-only conversions must both resolve correctly: a bug
+  // that failed to clear the buffer after the first call would leave it looking as if
+  // the second photon's own subtree were already visited.
+  //   p1 gamma -> p3 e-, p4 e+ (CaloSimHit only) -> leg 1
+  //   p2 gamma -> p5 e-, p6 e+ (CaloSimHit only) -> leg 2
+  void testPFReconstructablePhotonConversionBufferDoesNotLeakBetweenCalls() {
+    GraphBuilder b(7, 3);
+    auto set = [&](uint32_t i, int32_t pdg, bool calo) {
+      auto& d = b.graph.particles()[i];
+      d.genNode = (i <= 2) ? static_cast<int32_t>(100 + i) : -1;
+      d.simNode = static_cast<int32_t>(200 + i);
+      d.pdgId = pdg;
+      d.status = (i <= 2) ? 1 : 0;
+      d.momentum = math::XYZTLorentzVectorD(5., 0., 0., 5.);
+      d.hasCaloSimHit = calo;
+    };
+    set(0, 15, false);
+    set(1, 22, false);
+    set(2, 22, false);
+    set(3, 11, true);
+    set(4, -11, true);
+    set(5, 11, true);
+    set(6, -11, true);
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addProduction(0, 2);
+    b.addDecay(1, 1);
+    b.addProduction(1, 3);
+    b.addProduction(1, 4);
+    b.addDecay(2, 2);
+    b.addProduction(2, 5);
+    b.addProduction(2, 6);
+    truth::Graph g = b.finish();
+    g.vertices()[1].genNode = -1;  // conversions are Geant4's, not the generator's
+    g.vertices()[2].genNode = -1;
+    g.particles()[0].setLevel(truth::LevelFlag::Signal);
+    truth::fillLevelFlags(g);
+
+    const std::vector<uint32_t> expected{1, 2};
+    CPPUNIT_ASSERT(truth::pfReconstructable(g) == expected);
+  }
+
+  // REQUIRED: the walk stops the instant a particle is detected, never visiting its own
+  // children afterward. The electron's own bremsstrahlung photon, flagged CaloSimHit on
+  // its own merits, must never become a leg since the walk never reaches it.
+  //   p0 tau (signal) -> v0(GEN) -> p1 e- (TrackerSimHit) -> v1(SIM) -> p2 gamma (CaloSimHit)
+  void testPFReconstructableStopsAtFirstDetectedParticle() {
+    GraphBuilder b(3, 2);
+    auto& tau = b.graph.particles()[0];
+    tau.genNode = 100;
+    tau.pdgId = 15;
+    tau.status = 2;
+    tau.momentum = math::XYZTLorentzVectorD(10., 0., 0., 10.);
+
+    auto& electron = b.graph.particles()[1];
+    electron.genNode = 101;
+    electron.simNode = 201;
+    electron.pdgId = 11;
+    electron.status = 1;
+    electron.momentum = math::XYZTLorentzVectorD(8., 0., 0., 8.);
+    electron.hasTrackerSimHit = true;
+
+    auto& photon = b.graph.particles()[2];
+    photon.simNode = 202;  // a bremsstrahlung photon has no GEN record
+    photon.pdgId = 22;
+    photon.status = 0;
+    photon.momentum = math::XYZTLorentzVectorD(2., 0., 0., 2.);
+    photon.hasCaloSimHit = true;  // would reach the detector on its own
+
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addDecay(1, 1);  // the electron's own radiation vertex
+    b.addProduction(1, 2);
+    truth::Graph g = b.finish();
+    g.vertices()[1].genNode = -1;  // SIM-only: a radiation vertex, not a GEN decay
+    g.vertices()[1].simNode = 900;
+    g.particles()[0].setLevel(truth::LevelFlag::Signal);
+    truth::fillLevelFlags(g);
+
+    const auto legs = truth::pfReconstructable(g);
+    CPPUNIT_ASSERT_EQUAL(std::size_t{1}, legs.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t{1}, legs[0]);  // the electron, never its brem photon
+    CPPUNIT_ASSERT(g.particles()[1].isAtLevel(truth::LevelFlag::PFReconstructable));
+    CPPUNIT_ASSERT(!g.particles()[2].isAtLevel(truth::LevelFlag::PFReconstructable));
+  }
+
+  // REQUIRED: unlike reconstructableFromSignal's walk, this one descends into a SIM-only
+  // vertex when the particle upstream was never detected: a K0L interacting in the
+  // tracker. Its secondaries that leave tracker hits are the legs, not the K0L itself.
+  //   p0 tau (signal) -> v0(GEN) -> p1 K0L (undetected) -> v1(SIM) -> p2 pi+, p3 pi- (TrackerSimHit)
+  void testPFReconstructableFollowsSimInteractionWhenUndetected() {
+    GraphBuilder b(4, 2);
+    auto& tau = b.graph.particles()[0];
+    tau.genNode = 100;
+    tau.pdgId = 15;
+    tau.status = 2;
+    tau.momentum = math::XYZTLorentzVectorD(10., 0., 0., 10.);
+
+    auto& k0l = b.graph.particles()[1];
+    k0l.genNode = 101;
+    k0l.simNode = 201;
+    k0l.pdgId = 130;
+    k0l.status = 1;  // generator-stable, but Geant4 interacts it before it is ever detected
+    k0l.momentum = math::XYZTLorentzVectorD(9., 0., 0., 9.);
+
+    auto& pip = b.graph.particles()[2];
+    pip.simNode = 202;
+    pip.pdgId = 211;
+    pip.status = 0;
+    pip.momentum = math::XYZTLorentzVectorD(4., 0., 0., 4.);
+    pip.hasTrackerSimHit = true;
+
+    auto& pim = b.graph.particles()[3];
+    pim.simNode = 203;
+    pim.pdgId = -211;
+    pim.status = 0;
+    pim.momentum = math::XYZTLorentzVectorD(4., 0., 0., 4.);
+    pim.hasTrackerSimHit = true;
+
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addDecay(1, 1);  // the K0L's nuclear-interaction vertex
+    b.addProduction(1, 2);
+    b.addProduction(1, 3);
+    truth::Graph g = b.finish();
+    g.vertices()[1].genNode = -1;  // SIM-only: an interaction, not a GEN decay
+    g.vertices()[1].simNode = 900;
+    g.particles()[0].setLevel(truth::LevelFlag::Signal);
+    truth::fillLevelFlags(g);
+
+    const auto legs = truth::pfReconstructable(g);
+    CPPUNIT_ASSERT_EQUAL(std::size_t{2}, legs.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t{2}, legs[0]);
+    CPPUNIT_ASSERT_EQUAL(uint32_t{3}, legs[1]);
+    CPPUNIT_ASSERT(!g.particles()[1].isAtLevel(truth::LevelFlag::PFReconstructable));  // not the K0L
+  }
+
+  // REQUIRED: a particle with hits of its own but a GEN decay vertex (a B or D that
+  // travels far enough to leave tracker hits before it decays weakly) is not the leg; the
+  // generator's decay still takes precedence over its own hits, and the walk continues
+  // into it. The true legs are whatever that decay actually produces.
+  //   p0 B0 (signal, TrackerSimHit from its own flight, GEN decay) -> v0(GEN) -> p1 pi+, p2 pi- (TrackerSimHit)
+  void testPFReconstructableFollowsGenDecayOfTrackedParticle() {
+    GraphBuilder b(3, 1);
+    auto& b0 = b.graph.particles()[0];
+    b0.genNode = 100;
+    b0.simNode = 200;
+    b0.pdgId = 511;
+    b0.status = 2;  // the generator still decays it
+    b0.momentum = math::XYZTLorentzVectorD(20., 0., 0., 20.);
+    b0.hasTrackerSimHit = true;  // its own flight left >=2 pixel hits before it decayed
+
+    auto& pip = b.graph.particles()[1];
+    pip.genNode = 101;
+    pip.simNode = 201;
+    pip.pdgId = 211;
+    pip.status = 1;
+    pip.momentum = math::XYZTLorentzVectorD(10., 0., 0., 10.);
+    pip.hasTrackerSimHit = true;
+
+    auto& pim = b.graph.particles()[2];
+    pim.genNode = 102;
+    pim.simNode = 202;
+    pim.pdgId = -211;
+    pim.status = 1;
+    pim.momentum = math::XYZTLorentzVectorD(10., 0., 0., 10.);
+    pim.hasTrackerSimHit = true;
+
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addProduction(0, 2);
+    truth::Graph g = b.finish();
+    g.particles()[0].setLevel(truth::LevelFlag::Signal);
+    truth::fillLevelFlags(g);
+
+    const auto legs = truth::pfReconstructable(g);
+    CPPUNIT_ASSERT_EQUAL(std::size_t{2}, legs.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t{1}, legs[0]);
+    CPPUNIT_ASSERT_EQUAL(uint32_t{2}, legs[1]);
+    CPPUNIT_ASSERT(!g.particles()[0].isAtLevel(truth::LevelFlag::PFReconstructable));  // not the B0
+    CPPUNIT_ASSERT(g.particles()[1].isAtLevel(truth::LevelFlag::PFReconstructable));
+    CPPUNIT_ASSERT(g.particles()[2].isAtLevel(truth::LevelFlag::PFReconstructable));
+  }
+
+  // The gun shape: the Signal root already reaches the detector itself (an electron gun,
+  // ionizing on production), so the walk terminates on the root, the same rule
+  // testGunSeedThatIsItselfReconstructableIsItsOwnLeg exercises for ReconstructableFromSignal.
+  void testPFReconstructableGunSeedIsItsOwnLeg() {
+    GraphBuilder b(1, 0);
+    auto& electron = b.graph.particles()[0];
+    electron.genNode = 100;
+    electron.simNode = 200;
+    electron.pdgId = 11;
+    electron.status = 1;
+    electron.momentum = math::XYZTLorentzVectorD(10., 0., 0., 10.);
+    electron.hasTrackerSimHit = true;
+    truth::Graph g = b.finish();
+    g.particles()[0].setLevel(truth::LevelFlag::Signal);
+    truth::fillLevelFlags(g);
+
+    const auto legs = truth::pfReconstructable(g);
+    CPPUNIT_ASSERT_EQUAL(std::size_t{1}, legs.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t{0}, legs[0]);
+  }
+
+  // REQUIRED: a genuinely undetectable branch (a stable neutrino) yields no leg at all,
+  // rather than erroring.
+  void testPFReconstructableDropsATrueDeadEnd() {
+    GraphBuilder b(2, 1);
+    auto& tau = b.graph.particles()[0];
+    tau.genNode = 100;
+    tau.pdgId = 15;
+    tau.status = 2;
+    tau.momentum = math::XYZTLorentzVectorD(10., 0., 0., 10.);
+
+    auto& nu = b.graph.particles()[1];
+    nu.genNode = 101;
+    nu.pdgId = 16;
+    nu.status = 1;  // stable, invisible, no further decay
+    nu.momentum = math::XYZTLorentzVectorD(5., 0., 0., 5.);
+
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    truth::Graph g = b.finish();
+    g.particles()[0].setLevel(truth::LevelFlag::Signal);
+    truth::fillLevelFlags(g);
+
+    CPPUNIT_ASSERT(truth::pfReconstructable(g).empty());
+  }
+
+  // REQUIRED: the level exists on every sample, WITHOUT a Signal flag anywhere -- a QCD
+  // or MinBias event has no resonance to seed a Signal on, but still has particles PF
+  // can reconstruct. Two independent GEN roots, neither Signal-flagged, both legs.
+  void testPFReconstructableNeedsNoSignal() {
+    GraphBuilder b(2, 0);
+    auto& pip = b.graph.particles()[0];
+    pip.genNode = 100;
+    pip.pdgId = 211;
+    pip.status = 1;
+    pip.momentum = math::XYZTLorentzVectorD(5., 0., 0., 5.);
+    pip.hasTrackerSimHit = true;
+
+    auto& pim = b.graph.particles()[1];
+    pim.genNode = 101;
+    pim.pdgId = -211;
+    pim.status = 1;
+    pim.momentum = math::XYZTLorentzVectorD(5., 0., 0., 5.);
+    pim.hasTrackerSimHit = true;
+
+    truth::Graph g = b.finish();
+    truth::fillLevelFlags(g);  // no Signal flag set on either particle
+
+    const auto legs = truth::pfReconstructable(g);
+    CPPUNIT_ASSERT_EQUAL(std::size_t{2}, legs.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t{0}, legs[0]);
+    CPPUNIT_ASSERT_EQUAL(uint32_t{1}, legs[1]);
   }
 
   // REQUIRED: a three-prong tau decay labels the three charged pions, and the
