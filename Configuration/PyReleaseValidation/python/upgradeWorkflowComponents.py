@@ -3816,6 +3816,55 @@ upgradeWFs['Phase2_HeavyIon'] = UpgradeWorkflow_Phase2_HeavyIon(
     offset = 0.85,
 )
 
+# RPC development WF
+class UpgradeWorkflow_rpcDevel(UpgradeWorkflow):
+    def __init__(self, digi = {}, reco = {}, harvest = {}, **kwargs):
+        super(UpgradeWorkflow_rpcDevel, self).__init__(
+            steps = [
+                'DigiTrigger',
+                'RecoGlobal',
+                'RecoGlobalFakeHLT',
+                'HARVESTGlobal',
+                'HARVESTGlobalFakeHLT',
+                'ALCAPhase2',
+            ],
+            PU = [
+                'DigiTrigger',
+                'RecoGlobal',
+                'RecoGlobalFakeHLT',
+                'HARVESTGlobal',
+                'HARVESTGlobalFakeHLT',
+                'ALCAPhase2',
+            ],
+            **kwargs
+        )
+        self.__digi = digi
+        self.__reco = reco
+        self.__harvest = harvest
+
+    def setup_(self, step, stepName, stepDict, k, properties):
+        # run the RPC Phase2 devel modules
+        mods = {'--era': stepDict[step][k]['--era'] + ',phase2_rpc_devel'}
+        # temporarily skip RECO, HARVEST and ALCA
+        if 'Digi' in step:
+            mods |= self.__digi
+            stepDict[stepName][k] = merge([mods, stepDict[step][k]])
+        elif 'Reco' in step:
+            stepDict[stepName][k] = None
+        elif 'HARVEST' in step:
+            stepDict[stepName][k] = None
+        elif 'ALCA' in step or 'Nano'==step:
+            stepDict[stepName][k] = None
+
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment == "TTbar_14TeV" and 'Run4' in key
+
+
+upgradeWFs['rpcDevel'] = UpgradeWorkflow_rpcDevel(
+    suffix = '_rpcDevel',
+    offset = 0.62,
+)
+
 # check for duplicates in offsets or suffixes
 offsets  = [specialWF.offset for specialType,specialWF in upgradeWFs.items()]
 suffixes = [specialWF.suffix for specialType,specialWF in upgradeWFs.items()]

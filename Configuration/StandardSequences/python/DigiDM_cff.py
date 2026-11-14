@@ -35,7 +35,7 @@ from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 #DTs are strange - no noise flag - only use true hits?
 #simMuonDTDigis.IdealModel = True
 (~premix_stage2).toModify(simMuonDTDigis, onlyMuHits = True)
-(~premix_stage2).toModify(simMuonRPCDigis, Noise = False)
+(~premix_stage2).toModify(simMuonRPCDigis, noise = False)
 
 # remove unnecessary modules from 'pdigi' sequence - run after DataMixing
 # standard mixing module now makes unsuppressed digis for calorimeter
