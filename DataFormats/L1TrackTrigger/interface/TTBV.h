@@ -377,7 +377,7 @@ private:
   constexpr std::array<double, S_ + 1> powersOfTwo() const {
     std::array<double, S_ + 1> lut = {};
     for (int i = 0; i <= S_; i++)
-      lut[i] = std::pow(2, i);
+      lut[i] = i == 0 ? 1. : 2. * lut[i - 1];
     return lut;
   }
 

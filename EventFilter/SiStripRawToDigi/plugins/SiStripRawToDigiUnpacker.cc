@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <ext/algorithm>
+#include <algorithm>
 
 #include <format>
 
@@ -433,7 +433,7 @@ namespace sistrip {
       }
 
       // check sorting
-      if (!__gnu_cxx::is_sorted(sorted_and_merged.begin(), sorted_and_merged.end())) {
+      if (!std::is_sorted(sorted_and_merged.begin(), sorted_and_merged.end())) {
         // this is an error in the code: i DID sort it already!
         throw cms::Exception("Bug Found")
             << "Container must be already sorted!\nat " << __FILE__ << ", line " << __LINE__ << "\n";
@@ -442,7 +442,7 @@ namespace sistrip {
       std::vector<edm::DetSet<SiStripDigi> >::iterator iii = sorted_and_merged.begin();
       std::vector<edm::DetSet<SiStripDigi> >::iterator jjj = sorted_and_merged.end();
       for (; iii != jjj; ++iii) {
-        if (!__gnu_cxx::is_sorted(iii->begin(), iii->end())) {
+        if (!std::is_sorted(iii->begin(), iii->end())) {
           // this might be an error in the data, if the raws from one FED are not sorted
           iii->clear();
           errorInData = true;
@@ -515,7 +515,7 @@ namespace sistrip {
             << "Some modules contained corrupted virgin raw data, and have been skipped in unpacking\n";
 
       // check sorting
-      if (!__gnu_cxx::is_sorted(sorted_and_merged.begin(), sorted_and_merged.end())) {
+      if (!std::is_sorted(sorted_and_merged.begin(), sorted_and_merged.end())) {
         // this is an error in the code: i DID sort it already!
         throw cms::Exception("Bug Found")
             << "Container must be already sorted!\nat " << __FILE__ << ", line " << __LINE__ << "\n";
@@ -584,7 +584,7 @@ namespace sistrip {
             << "Some modules contained corrupted proc raw data, and have been skipped in unpacking\n";
 
       // check sorting
-      if (!__gnu_cxx::is_sorted(sorted_and_merged.begin(), sorted_and_merged.end())) {
+      if (!std::is_sorted(sorted_and_merged.begin(), sorted_and_merged.end())) {
         // this is an error in the code: i DID sort it already!
         throw cms::Exception("Bug Found")
             << "Container must be already sorted!\nat " << __FILE__ << ", line " << __LINE__ << "\n";
@@ -624,7 +624,7 @@ namespace sistrip {
             << "Some fed keys contained corrupted scope mode data, and have been skipped in unpacking\n";
 
       // check sorting
-      if (!__gnu_cxx::is_sorted(sorted_and_merged.begin(), sorted_and_merged.end())) {
+      if (!std::is_sorted(sorted_and_merged.begin(), sorted_and_merged.end())) {
         // this is an error in the code: i DID sort it already!
         throw cms::Exception("Bug Found")
             << "Container must be already sorted!\nat " << __FILE__ << ", line " << __LINE__ << "\n";
@@ -693,7 +693,7 @@ namespace sistrip {
               << "Some modules contained corrupted common mode data, and have been skipped in unpacking\n";
 
         // check sorting
-        if (!__gnu_cxx::is_sorted(sorted_and_merged.begin(), sorted_and_merged.end())) {
+        if (!std::is_sorted(sorted_and_merged.begin(), sorted_and_merged.end())) {
           // this is an error in the code: i DID sort it already!
           throw cms::Exception("Bug Found")
               << "Container must be already sorted!\nat " << __FILE__ << ", line " << __LINE__ << "\n";

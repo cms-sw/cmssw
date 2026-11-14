@@ -35,7 +35,7 @@ process.genParticlePlusGEANT = cms.EDProducer("GenPlusSimParticleProducer",
 #include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
-#include <ext/algorithm>
+#include <algorithm>
 #include <memory>
 
 namespace pat {
@@ -208,7 +208,7 @@ void GenPlusSimParticleProducer::produce(Event &event, const EventSetup &iSetup)
   // Need to check that SimTrackContainer is sorted; otherwise, copy and sort :-(
   std::unique_ptr<SimTrackContainer> simtracksTmp;
   const SimTrackContainer *simtracksSorted = &*simtracks;
-  if (!__gnu_cxx::is_sorted(simtracks->begin(), simtracks->end(), LessById())) {
+  if (!std::is_sorted(simtracks->begin(), simtracks->end(), LessById())) {
     simtracksTmp = std::make_unique<SimTrackContainer>(*simtracks);
     std::sort(simtracksTmp->begin(), simtracksTmp->end(), LessById());
     simtracksSorted = &*simtracksTmp;
@@ -244,7 +244,7 @@ void GenPlusSimParticleProducer::produce(Event &event, const EventSetup &iSetup)
   for (unsigned int i = 0; i < genBarcodes->size(); ++i) {
     newGenBarcodes->push_back((*genBarcodes)[i]);
   }
-  barcodesAreSorted = __gnu_cxx::is_sorted(newGenBarcodes->begin(), newGenBarcodes->end());
+  barcodesAreSorted = std::is_sorted(newGenBarcodes->begin(), newGenBarcodes->end());
 
   for (size_t i = 0; i < cands.size(); ++i) {
     reco::GenParticle &cand = cands[i];
