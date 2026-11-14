@@ -26,7 +26,7 @@ process.es_prefer_newTrackerAlignment = cms.ESPrefer("PoolDBESSource","newTracke
 process.CondDB.connect = 'frontier://FrontierPrep/CMS_CONDITIONS'
 process.refTrackerAlignment = cms.ESSource("PoolDBESSource",process.CondDB,
                                            toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
-                                                                      tag = cms.string("TrackerAlignmentForUnitTestChecks_v0"))))
+                                                                      tag = cms.string("TrackerAlignmentForUnitTestChecks_v1"))))
 process.es_prefer_refTrackerAlignment = cms.ESPrefer("PoolDBESSource","refTrackerAlignment")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
