@@ -56,6 +56,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
             decay_table = cms.string('GeneratorInterface/EvtGenInterface/data/DECAY_NOLONGLIFE.DEC'),
             list_forced_decays = cms.vstring('MyLambda_b0','Myanti-Lambda_b0'),
             particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt.pdl'),
+            fsr_model = cms.string('sherpa'),
 	    operates_on_particles = cms.vint32(5122),  #only care about signal particle
             user_decay_embedded = cms.vstring(
 """
