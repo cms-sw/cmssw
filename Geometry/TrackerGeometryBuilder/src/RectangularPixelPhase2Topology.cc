@@ -52,7 +52,7 @@ std::pair<float, float> RectangularPixelPhase2Topology::pixel(const LocalPoint& 
 
   float mpY = ConvertPixelToPitch(py, m_COLS_PER_ROC, m_ROCS_Y, m_yoffset, m_pitchy, m_BIG_PIX_PER_ROC_Y, m_BIG_PIX_PITCH_Y, m_BIG_PIX_TWOEDGES_Y);
 
-  /*
+/*
 #ifdef EDM_ML_DEBUG
   if (iybin0 > m_COLS_PER_ROC) {
     LogDebug("RectangularPixelPhase2Topology") << " very bad, newbiny " << iybin0 << "\n"
@@ -66,7 +66,7 @@ std::pair<float, float> RectangularPixelPhase2Topology::pixel(const LocalPoint& 
       LogDebug("RectangularPixelPhase2Topology" << " bad pix y " << mpY << " " << py << " " << m_yoffset << " " << m_pitchy;
 #endif  // EDM_ML_DEBUG
 
-  /*
+/*
 #ifdef EDM_ML_DEBUG
 
   if (ixbin0 > m_ROWS_PER_ROC || ixbin0 < 0)  //  ixbin < 0 outside range
@@ -91,50 +91,50 @@ std::pair<float, float> RectangularPixelPhase2Topology::pixel(const LocalPoint& 
   //---
   float RectangularPixelPhase2Topology::ConvertPixelToPitch(const float local_pos, const int n_rocrowsorcols, const int nroc, const float sensoractive_half_size, const float pitch, const int big_pix_per_roc, const float big_pix_pitch, const bool big_pix_twoedges) const {
  
-    int ibin;
-    float fraction;
+  int ibin;
+  float fraction;
 
-    float roc_size = (n_rocrowsorcols-big_pix_per_roc)*pitch + big_pix_per_roc*big_pix_pitch;
-    float local_pos_new = local_pos - sensoractive_half_size; // distance from sensor edge
-    int index_roc = (int)(local_pos_new/roc_size); // roc number (strating from 0)
-    float local_pos_roc = local_pos_new - index_roc*roc_size; // distance from (first) roc edge 
-    
-    int big_pix_1 = 0;
+  float roc_size = (n_rocrowsorcols-big_pix_per_roc)*pitch + big_pix_per_roc*big_pix_pitch;
+  float local_pos_new = local_pos - sensoractive_half_size; // distance from sensor edge
+  int index_roc = (int)(local_pos_new/roc_size); // roc number (strating from 0)
+  float local_pos_roc = local_pos_new - index_roc*roc_size; // distance from (first) roc edge 
+  
+  int big_pix_1 = 0;
 
-    if ( !big_pix_twoedges ){
-        // Big Pixels on one edge of the ROC only 
-        if ( index_roc%2 == 1 ) big_pix_1 = big_pix_per_roc;
-    } else {
-        big_pix_1 = big_pix_per_roc/2;
-    }
+  if ( !big_pix_twoedges ){
+    // Big Pixels on one edge of the ROC only 
+    if ( index_roc%2 == 1 ) big_pix_1 = big_pix_per_roc;
+  } else {
+    big_pix_1 = big_pix_per_roc/2;
+  }
 
-    float odd_corr = ((n_rocrowsorcols-big_pix_per_roc)%2 == 1) ? 0.5*pitch : 0 ; // correction in case the number of standard pixel is odd
+  float odd_corr = ((n_rocrowsorcols-big_pix_per_roc)%2 == 1) ? 0.5*pitch : 0 ; // correction in case the number of standard pixel is odd
 
-    float w = big_pix_1*big_pix_pitch + pitch*0.5*(n_rocrowsorcols-big_pix_per_roc);
+  float w = big_pix_1*big_pix_pitch + pitch*0.5*(n_rocrowsorcols-big_pix_per_roc);
 
-    float fbin_tmp = (fabs(local_pos_roc - w) + odd_corr)/pitch; // distance from the center of the standard pixel array (in pitch units)
-    int ibin_tmp;
+  float fbin_tmp = (fabs(local_pos_roc - w) + odd_corr)/pitch; // distance from the center of the standard pixel array (in pitch units)
+  int ibin_tmp;
 
-    if ( fbin_tmp < 0.5*(n_rocrowsorcols-big_pix_per_roc) + odd_corr/pitch) {
-        // standard pixel
-        ibin_tmp = (int)fbin_tmp;
-        fraction = fbin_tmp - ibin_tmp;
-    } else {
-        // big pixel
-        float fbin_big_tmp = (fabs(local_pos_roc - w) - pitch*0.5*(n_rocrowsorcols-big_pix_per_roc)) / big_pix_pitch;
-        int ibin_big_tmp = (int)fbin_big_tmp;
-        fraction = fbin_big_tmp - ibin_big_tmp;
-        ibin_tmp = ibin_big_tmp + (n_rocrowsorcols-big_pix_per_roc)/2; 
-        if ( (n_rocrowsorcols-big_pix_per_roc)%2 == 1 ) ibin_tmp += 1;
-    }
-    if ( local_pos_roc < w ) {
-        ibin = index_roc*n_rocrowsorcols + big_pix_1 + (n_rocrowsorcols-big_pix_per_roc)/2 - ibin_tmp; 
-        if ( (n_rocrowsorcols-big_pix_per_roc)%2 == 0 ) ibin -= 1; // correction in case the number of standard pixel is even ...2, 1, 0, 0, 1, 2, ...
-        fraction = 1.-fraction;
-    } else {
-        ibin = index_roc*n_rocrowsorcols + big_pix_1 + (n_rocrowsorcols-big_pix_per_roc)/2 + ibin_tmp;  
-    }
-    return ibin+fraction;
+  if ( fbin_tmp < 0.5*(n_rocrowsorcols-big_pix_per_roc) + odd_corr/pitch) {
+    // standard pixel
+    ibin_tmp = (int)fbin_tmp;
+    fraction = fbin_tmp - ibin_tmp;
+  } else {
+    // big pixel
+    float fbin_big_tmp = (fabs(local_pos_roc - w) - pitch*0.5*(n_rocrowsorcols-big_pix_per_roc)) / big_pix_pitch;
+    int ibin_big_tmp = (int)fbin_big_tmp;
+    fraction = fbin_big_tmp - ibin_big_tmp;
+    ibin_tmp = ibin_big_tmp + (n_rocrowsorcols-big_pix_per_roc)/2; 
+    if ( (n_rocrowsorcols-big_pix_per_roc)%2 == 1 ) ibin_tmp += 1;
+  }
+  if ( local_pos_roc < w ) {
+    ibin = index_roc*n_rocrowsorcols + big_pix_1 + (n_rocrowsorcols-big_pix_per_roc)/2 - ibin_tmp; 
+    if ( (n_rocrowsorcols-big_pix_per_roc)%2 == 0 ) ibin -= 1; // correction in case the number of standard pixel is even ...2, 1, 0, 0, 1, 2, ...
+    fraction = 1.-fraction;
+  } else {
+    ibin = index_roc*n_rocrowsorcols + big_pix_1 + (n_rocrowsorcols-big_pix_per_roc)/2 + ibin_tmp;  
+  }
+  return ibin+fraction;
 
 }
 

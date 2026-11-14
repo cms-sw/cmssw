@@ -26,8 +26,8 @@ public:
                                  int BIG_PIX_PER_ROC_Y,  // in y direction, cols
                                  float BIG_PIX_PITCH_X,
                                  float BIG_PIX_PITCH_Y,
-				 bool BIG_PIX_TWOEDGES_X,
-				 bool BIG_PIX_TWOEDGES_Y,
+                                 bool BIG_PIX_TWOEDGES_X,
+                                 bool BIG_PIX_TWOEDGES_Y,
                                  int ROCS_X,
                                  int ROCS_Y)
       : m_pitchx(pitchx),
@@ -225,9 +225,9 @@ private:
 		
   bool containsBigPixel(int iMin, int iMax, std::vector<int> m_BIG_PIX_LIST) const {
 
-    // The interval contains no big pixel when either of the following is met:
+    // The interval contains no big pixel when either of the following is true:
     // - there are no big pixels
-    // - no BigPixel is encompssed between iMin and iMax
+    // - no BigPixel is encompassed between iMin and iMax
     bool noBigPixel = true;
     for (auto & bpe: m_BIG_PIX_LIST) {
       if ( iMin <= bpe && bpe <= iMax ) noBigPixel = false;
@@ -244,21 +244,21 @@ private:
     // BigPixels at both edges
     if ( m_TWOEDGES ) {
       for (int iroc = 0; iroc < m_ROCS; iroc++){
-	for (int ibp=0; ibp<m_BIG_PIX_PER_ROC/2; ibp++){
-	  m_BIG_PIX_LIST.push_back(     iroc*m_NN_PER_ROC + ibp);
-	  m_BIG_PIX_LIST.push_back( (iroc+1)*m_NN_PER_ROC - 1 - ibp);
-	}
+        for (int ibp=0; ibp<m_BIG_PIX_PER_ROC/2; ibp++){
+          m_BIG_PIX_LIST.push_back(     iroc*m_NN_PER_ROC + ibp);
+          m_BIG_PIX_LIST.push_back( (iroc+1)*m_NN_PER_ROC - 1 - ibp);
+        }
       }
     } else {
     //  BigPixels central - allowed only when exactly 2 ROCs along this coordinate
       if ( m_ROCS != 2 ) {
-	edm::LogError("RectangularPixelPhase2Topology") << "ERROR BigPixels only at the center but number of ROCS is: " << m_ROCS;
-	std::cout << "MSG-%E%: " << m_ROCS << std::endl;
+        edm::LogError("RectangularPixelPhase2Topology") << "ERROR BigPixels only at the center but number of ROCS is: " << m_ROCS;
+        std::cout << "MSG-%E%: " << m_ROCS << std::endl;
       } else {
-	for (int ibp=0; ibp<m_BIG_PIX_PER_ROC; ibp++){
-	  m_BIG_PIX_LIST.push_back(m_NN_PER_ROC - 1 - ibp);
-	  m_BIG_PIX_LIST.push_back(m_NN_PER_ROC + ibp);
-	}
+        for (int ibp=0; ibp<m_BIG_PIX_PER_ROC; ibp++){
+          m_BIG_PIX_LIST.push_back(m_NN_PER_ROC - 1 - ibp);
+          m_BIG_PIX_LIST.push_back(m_NN_PER_ROC + ibp);
+        }
       }
     }
 
