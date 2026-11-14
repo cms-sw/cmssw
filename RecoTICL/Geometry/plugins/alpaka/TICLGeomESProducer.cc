@@ -14,6 +14,7 @@
 #include "CondFormats/HGCalObjects/interface/alpaka/TICLGeomDevice.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -32,9 +33,10 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   // Flattens every RecHitTools per-cell quantity of the selected
-  // calorimeters into the TICLGeom SoABlocks (common | silicon | scint),
-  // ordered by increasing rawDetId so cells group as [barrel|silicon|scint]
-  // and each cell-type-specific column is allocated only for its cells.
+  // calorimeters into the common, silicon and scint blocks, ordered by
+  // increasing rawDetId so cells group as [barrel|silicon|scint] and each
+  // cell-type-specific column is allocated only for its cells. Fills the
+  // detid lookup block and the per-layer positions in the same product.
   // Columns are filled by calling RecHitTools, so the replacement is exact
   // by construction; methods that would crash or log errors outside their
   // detector family are guarded and their cells carry the documented
@@ -115,12 +117,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const int32_t nCells = static_cast<int32_t>(validIds.size());
       const int32_t nBarrel = nCells - nSilicon - nScint;
 
-      auto product =
-          std::make_unique<TICLGeomHost>(cms::alpakatools::host(), std::array<int32_t, 3>{nCells, nSilicon, nScint});
+      // the lookup block covers HGCal detids only, so it is empty without them
+      const bool hasHGCal = std::any_of(validIds.begin(), validIds.end(), [](DetId id) {
+        return id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi || id.det() == DetId::HGCalHSc;
+      });
+      const int32_t nSlots = hasHGCal ? ticlgeom::detail::kLookupSlots : 0;
+      const int32_t nLastLayer = tools.lastLayer();
+      const int32_t nNoseLayer = tools.lastLayer(true);
+      const int32_t nBarrelLayer = tools.lastLayerBarrel();
+      const int32_t nLayerRows = std::max({nLastLayer, nNoseLayer, nBarrelLayer}) + 1;
+
+      auto product = std::make_unique<TICLGeomHost>(
+          cms::alpakatools::host(), std::array<int32_t, 5>{nCells, nSilicon, nScint, nSlots, nLayerRows});
       auto view = product->view();
       auto common = view.common();
       auto silicon = view.silicon();
       auto scint = view.scint();
+      auto lookup = view.lookup();
+      auto layers = view.layers();
 
       // Fill the per-cell columns in parallel. Each i writes disjoint rows:
       // common[i], and for a silicon/scint cell the block-local row whose index
@@ -213,10 +227,47 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       common.nBarrel() = nBarrel;
       common.nSilicon() = nSilicon;
 
+      fillLookup(lookup, common);
+
+      for (int32_t lay = 0; lay < nLayerRows; ++lay) {
+        layers[lay].z() = (lay >= 1 && lay <= nLastLayer) ? tools.getPositionLayer(lay).z() : 0.f;
+        layers[lay].noseZ() = (lay >= 1 && lay <= nNoseLayer) ? tools.getPositionLayer(lay, true).z() : 0.f;
+        const auto pos = (lay <= nBarrelLayer) ? tools.getPositionLayer(lay, false, true) : GlobalPoint();
+        layers[lay].barrelX() = pos.x();
+        layers[lay].barrelY() = pos.y();
+      }
+
       return product;
     }
 
   private:
+    // Records, per coarse slot, the start row and the length of the run of
+    // cells in that slot. The cells are rawDetId-ordered, so each run is
+    // contiguous.
+    static void fillLookup(TICLGeomLookupSoAView lookup, TICLGeomCommonSoAConstView common) {
+      using namespace ticlgeom::detail;
+      if (lookup.metadata().size() == 0) {
+        return;
+      }
+      lookup.eeBase() = 0;
+      lookup.hsiBase() = kSiSlots;
+      lookup.hscBase() = 2 * kSiSlots;
+      for (int32_t s = 0; s < lookup.metadata().size(); ++s) {
+        lookup[s].blockStart() = -1;
+        lookup[s].blockCount() = 0;
+      }
+      for (int32_t i = 0; i < common.metadata().size(); ++i) {
+        const int32_t slot = ticlgeom::coarseSlot(lookup, common[i].rawDetId());
+        if (slot < 0) {
+          continue;
+        }
+        if (lookup[slot].blockCount() == 0) {
+          lookup[slot].blockStart() = i;
+        }
+        lookup[slot].blockCount() = lookup[slot].blockCount() + 1;
+      }
+    }
+
     edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
     std::vector<std::string> detectors_;
   };

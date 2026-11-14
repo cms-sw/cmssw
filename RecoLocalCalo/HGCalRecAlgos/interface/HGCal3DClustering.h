@@ -25,9 +25,7 @@ public:
         minClusters(min_clusters),
         es(0),
         clusterTools(std::make_unique<hgcal::ClusterTools>(conf, sumes)),
-        ticlGeomToken_(sumes.esConsumes(edm::ESInputTag("", ""))),
-        ticlGeomLookupToken_(sumes.esConsumes(edm::ESInputTag("", ""))),
-        ticlGeomLayersToken_(sumes.esConsumes(edm::ESInputTag("", ""))) {}
+        ticlGeomToken_(sumes.esConsumes(edm::ESInputTag("", ""))) {}
 
   HGCal3DClustering(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
       : HGCal3DClustering(conf,
@@ -38,8 +36,7 @@ public:
   void getEvent(const edm::Event& ev) { clusterTools->getEvent(ev); }
   void getEventSetup(const edm::EventSetup& es) {
     clusterTools->getEventSetup(es);
-    rhtools_.setGeometry(
-        es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
+    rhtools_.setGeometry(es.getData(ticlGeomToken_));
     maxlayer = rhtools_.lastLayerBH();
     points.clear();
     minpos.clear();
@@ -94,8 +91,6 @@ private:
   std::unique_ptr<hgcal::ClusterTools> clusterTools; /*!< instance of tools to simplify cluster access. */
   ticlgeom::Tools rhtools_;                          /*!< instance of tools to access RecHit information. */
   edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
 };
 
 #endif

@@ -127,10 +127,6 @@ public:
   template <edm::Transition tr = edm::Transition::Event>
   void setTokens(edm::ConsumesCollector consumesCollector) {
     ticlGeomToken_ = consumesCollector.esConsumes<TICLGeomHost, CaloGeometryRecord, tr>(edm::ESInputTag("", ""));
-    ticlGeomLookupToken_ =
-        consumesCollector.esConsumes<TICLGeomLookupHost, CaloGeometryRecord, tr>(edm::ESInputTag("", ""));
-    ticlGeomLayersToken_ =
-        consumesCollector.esConsumes<TICLGeomLayersHost, CaloGeometryRecord, tr>(edm::ESInputTag("", ""));
   }
 
   void initPerSetup(const edm::EventSetup &iSetup);
@@ -157,8 +153,6 @@ private:
   void setPFRecHitPtrMap(const std::vector<reco::PFRecHit> &recHits);
 
   edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   std::shared_ptr<ticlgeom::Tools> recHitTools_;
   std::shared_ptr<std::unordered_map<uint32_t, const reco::PFRecHit *> > pfRecHitPtrMap_;
 };

@@ -72,12 +72,10 @@ class DetectorTools {
 public:
   DetectorTools(const HGCalDDDConstants& hgcons,
                 const TICLGeomHost& ticlGeom,
-                const TICLGeomLookupHost& ticlGeomLookup,
-                const TICLGeomLayersHost& ticlGeomLayers,
                 const MagneticField& bfieldH,
                 const Propagator& propH)
       : hgcons(hgcons), rhtools(), bfield(bfieldH), propagator(propH) {
-    rhtools.setGeometry(ticlGeom, ticlGeomLookup, ticlGeomLayers);
+    rhtools.setGeometry(ticlGeom);
 
     // build disks at HGCal front & EM-Had interface for track propagation
     auto firstDisks = ticl::utils::buildHGCalFirstDisks(hgcons);
@@ -624,8 +622,6 @@ private:
   edm::EDGetTokenT<reco::CaloClusterCollection> recoSuperClusters_caloClusters_token;
   edm::EDGetTokenT<std::vector<ticl::Trackster>> recoSuperClusters_sourceTracksters_token;
   edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   const edm::EDGetTokenT<std::vector<ticl::Trackster>> simTracksters_SC_token_;  // needed for simticlcandidate
   const edm::EDGetTokenT<std::vector<TICLCandidate>> simTICLCandidate_token_;
 
@@ -953,10 +949,6 @@ TICLDumper::TICLDumper(const edm::ParameterSet& ps)
       recoSuperClusters_sourceTracksters_token(consumes<std::vector<ticl::Trackster>>(
           ps.getParameter<edm::InputTag>("recoSuperClusters_sourceTracksterCollection"))),
       ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
-      ticlGeomLookupToken_(
-          esConsumes<TICLGeomLookupHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
-      ticlGeomLayersToken_(
-          esConsumes<TICLGeomLayersHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
       simTracksters_SC_token_(
           consumes<std::vector<ticl::Trackster>>(ps.getParameter<edm::InputTag>("simtrackstersSC"))),
       simTICLCandidate_token_(
@@ -1020,12 +1012,8 @@ TICLDumper::TICLDumper(const edm::ParameterSet& ps)
 TICLDumper::~TICLDumper() { clearVariables(); };
 
 void TICLDumper::beginRun(edm::Run const&, edm::EventSetup const& es) {
-  detectorTools_ = std::make_unique<DetectorTools>(es.getData(hdc_token_),
-                                                   es.getData(ticlGeomToken_),
-                                                   es.getData(ticlGeomLookupToken_),
-                                                   es.getData(ticlGeomLayersToken_),
-                                                   es.getData(bfield_token_),
-                                                   es.getData(propagator_token_));
+  detectorTools_ = std::make_unique<DetectorTools>(
+      es.getData(hdc_token_), es.getData(ticlGeomToken_), es.getData(bfield_token_), es.getData(propagator_token_));
 }
 
 // Define tree and branches

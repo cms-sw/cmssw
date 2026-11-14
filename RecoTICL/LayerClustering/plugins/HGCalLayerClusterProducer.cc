@@ -5,6 +5,8 @@
 #define DEBUG_CLUSTERS_ALPAKA 0
 
 // user include files
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -81,8 +83,6 @@ private:
   float positionDeltaRho2_;
   ticlgeom::Tools rhtools_;
   edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   const bool calculatePositionInAlgo_;
 #if DEBUG_CLUSTERS_ALPAKA
   std::string moduleLabel_;
@@ -121,10 +121,6 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
       timeClname_(ps.getParameter<std::string>("timeClname")),
       hitsTime_(ps.getParameter<unsigned int>("nHitsTime")),
       ticlGeomToken_(consumesCollector().esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-      ticlGeomLookupToken_(
-          consumesCollector().esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-      ticlGeomLayersToken_(
-          consumesCollector().esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
       calculatePositionInAlgo_(ps.getParameter<bool>("calculatePositionInAlgo")) {
 #if DEBUG_CLUSTERS_ALPAKA
   moduleLabel_ = ps.getParameter<std::string>("@module_label");
@@ -247,9 +243,9 @@ std::pair<float, float> HGCalLayerClusterProducer::calculateTime(
 void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   edm::Handle<HGCRecHitCollection> hits;
 
-  std::unique_ptr<std::vector<reco::BasicCluster>> clusters(new std::vector<reco::BasicCluster>);
+  std::unique_ptr<std::vector<reco::BasicCluster>> clusters = std::make_unique<std::vector<reco::BasicCluster>>();
 
-  rhtools_.setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
+  rhtools_.setGeometry(es.getData(ticlGeomToken_));
   algo_->getEventSetup(es, rhtools_);
 
   //make a map detid-rechit
@@ -293,7 +289,7 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
   auto clusterHandle = evt.put(std::move(clusters));
 
   if (detector_ == "HFNose") {
-    std::unique_ptr<std::vector<float>> layerClustersMask(new std::vector<float>);
+    std::unique_ptr<std::vector<float>> layerClustersMask = std::make_unique<std::vector<float>>();
     layerClustersMask->resize(clusterHandle->size(), 1.0);
     evt.put(std::move(layerClustersMask), "InitialLayerClustersMask");
   }

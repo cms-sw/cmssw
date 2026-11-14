@@ -64,8 +64,6 @@ namespace {
 
 HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
     : ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-      ticlGeomLookupToken_(esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-      ticlGeomLayersToken_(esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
       label_lcl(pset.getParameter<edm::InputTag>("label_lcl")),
       label_tst(pset.getParameter<std::vector<edm::InputTag>>("label_tst")),
       allTracksterTracksterAssociatorsLabels_(
@@ -396,8 +394,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   event.getByToken(simTrackstersMap_, simTrackstersMapHandle);
   const std::map<uint, std::vector<uint>>& cpToSc_SimTrackstersMap = *simTrackstersMapHandle;
 
-  tools_->setGeometry(
-      setup.getData(ticlGeomToken_), setup.getData(ticlGeomLookupToken_), setup.getData(ticlGeomLayersToken_));
+  tools_->setGeometry(setup.getData(ticlGeomToken_));
   histoProducerAlgo_->setRecHitTools(tools_);
 
   edm::Handle<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>> simtorecoCollectionH;

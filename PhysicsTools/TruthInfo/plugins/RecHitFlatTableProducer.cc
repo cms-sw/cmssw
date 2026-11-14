@@ -24,9 +24,7 @@ public:
         rechits_tokens_{
             edm::vector_transform(params.getParameter<std::vector<edm::InputTag>>("label_rechits"),
                                   [this](const edm::InputTag& lab) { return consumes<HGCRecHitCollection>(lab); })},
-        ticlGeom_token_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
-        ticlGeomLookup_token_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
-        ticlGeomLayers_token_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", ""))) {
+        ticlGeom_token_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", ""))) {
     produces<nanoaod::FlatTable>();
   }
 
@@ -71,8 +69,7 @@ public:
   }
 
   void beginRun(edm::Run const&, edm::EventSetup const& es) override {
-    rhtools_.setGeometry(
-        es.getData(ticlGeom_token_), es.getData(ticlGeomLookup_token_), es.getData(ticlGeomLayers_token_));
+    rhtools_.setGeometry(es.getData(ticlGeom_token_));
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -91,8 +88,6 @@ protected:
   const std::vector<edm::EDGetTokenT<HGCRecHitCollection>> rechits_tokens_;
 
   edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeom_token_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookup_token_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayers_token_;
   ticlgeom::Tools rhtools_;
 };
 

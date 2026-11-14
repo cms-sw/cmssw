@@ -45,8 +45,6 @@ private:
   std::array<std::array<edm::EDGetTokenT<HGChefRecHitCollection>, ncomputingdevices>, nsubdetectors> tokens_;
   std::array<edm::ESGetToken<HGCalGeometry, IdealGeometryRecord>, nsubdetectors> estokens_;
   edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
 
   std::array<std::string, nsubdetectors> handles_str_ = {
       {"HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillatorSensitive"}};

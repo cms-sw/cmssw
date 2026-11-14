@@ -13,13 +13,18 @@
 
 <library file="alpaka/*.cc" name="testRecoTICLGeometryPortable">
   <use name="CondFormats/HGCalObjects"/>
+  <use name="DataFormats/GeometryVector"/>
+  <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>
   <use name="Geometry/Records"/>
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="RecoLocalCalo/HGCalRecAlgos"/>
   <use name="alpaka"/>
   <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<test name="testTICLGeomClosure" command="cmsRun ${LOCALTOP}/src/RecoTICL/Geometry/test/TICLGeomAnalyzer_cfg.py"/>

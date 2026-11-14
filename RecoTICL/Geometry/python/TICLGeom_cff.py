@@ -3,23 +3,12 @@ import FWCore.ParameterSet.Config as cms
 # TICL geometry SoAs are built per subdetector. HGCal is the default
 # (data label "") since TICL consumers only use HGCal; the barrel
 # calorimeters are available under their own labels and, like every
-# EventSetup product, are only built when actually consumed. Each geometry
-# comes with its rawDetId to dense id lookup table, usable in kernels via
-# ticlgeom::denseIdOf.
+# EventSetup product, are only built when actually consumed. Each product
+# holds the cells, the detid lookup table and the per-layer positions;
+# kernels read it through its ConstView.
 
 ticlGeomESProducer = cms.ESProducer('TICLGeomESProducer@alpaka',
     detectors = cms.vstring('HGCal'),
-    appendToDataLabel = cms.string(''),
-)
-
-ticlGeomLookupESProducer = cms.ESProducer('TICLGeomLookupESProducer@alpaka',
-    src = cms.ESInputTag('', ''),
-    appendToDataLabel = cms.string(''),
-)
-
-# per-layer positions (getPositionLayer replacement); geometry wide, one
-# instance is enough for every detector selection
-ticlGeomLayersESProducer = cms.ESProducer('TICLGeomLayersESProducer@alpaka',
     appendToDataLabel = cms.string(''),
 )
 
@@ -28,29 +17,14 @@ ticlGeomECALESProducer = ticlGeomESProducer.clone(
     appendToDataLabel = 'ECAL',
 )
 
-ticlGeomECALLookupESProducer = ticlGeomLookupESProducer.clone(
-    src = cms.ESInputTag('', 'ECAL'),
-    appendToDataLabel = 'ECAL',
-)
-
 ticlGeomHCALESProducer = ticlGeomESProducer.clone(
     detectors = ['HCAL'],
-    appendToDataLabel = 'HCAL',
-)
-
-ticlGeomHCALLookupESProducer = ticlGeomLookupESProducer.clone(
-    src = cms.ESInputTag('', 'HCAL'),
     appendToDataLabel = 'HCAL',
 )
 
 # inclusive instance for modules whose detids can also be barrel cells
 ticlGeomWithBarrelESProducer = ticlGeomESProducer.clone(
     detectors = ['ECAL', 'HCAL', 'HGCal'],
-    appendToDataLabel = 'withBarrel',
-)
-
-ticlGeomWithBarrelLookupESProducer = ticlGeomLookupESProducer.clone(
-    src = cms.ESInputTag('', 'withBarrel'),
     appendToDataLabel = 'withBarrel',
 )
 
