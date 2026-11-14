@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "HLTrigger/HLTcore/interface/getL1TCandidates.h"
 #include "RecoTauTag/HLTProducers/interface/CaloTowerFromL1TSeededCreatorForTauHLT.h"
 // Math
 #include "Math/GenVector/VectorUtil.h"
@@ -43,10 +44,10 @@ void CaloTowerFromL1TSeededCreatorForTauHLT::produce(StreamID sid, Event& evt, c
   auto cands = std::make_unique<CaloTowerCollection>();
   cands->reserve(caloTowers->size());
 
-  l1t::TauVectorRef tauCandRefVec;
-  l1TriggeredTaus->getObjects(trigger::TriggerL1Tau, tauCandRefVec);
+  // L1T taus of the seed (Run-3 l1t::Tau or Phase-2 l1t::P2GTCandidate)
+  auto const l1Taus = ::hlt::getL1TTaus(*l1TriggeredTaus);
 
-  for (auto const& tauCandRef : tauCandRefVec) {
+  for (auto const* l1Tau : l1Taus) {
     for (auto const& cal : *caloTowers) {
       bool isAccepted = false;
       if (m_verbose == 2) {
@@ -56,7 +57,7 @@ void CaloTowerFromL1TSeededCreatorForTauHLT::produce(StreamID sid, Event& evt, c
       }
       if (cal.et() >= m_EtThreshold && cal.energy() >= m_EThreshold) {
         math::PtEtaPhiELorentzVector p(cal.et(), cal.eta(), cal.phi(), cal.energy());
-        double delta2 = deltaR2((tauCandRef->p4()).Vect(), p);
+        double delta2 = deltaR2((l1Tau->p4()).Vect(), p);
         if (delta2 < m_cone2) {
           isAccepted = true;
           cands->push_back(cal);
