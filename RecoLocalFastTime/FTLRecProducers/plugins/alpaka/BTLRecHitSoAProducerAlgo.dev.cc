@@ -123,7 +123,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::btlrechit {
         }
 
 #ifdef EDM_ML_DEBUG
-        printf("RecHit SoA with raw id %i \n", entry.detId().rawId());
+        printf("RecHit SoA with raw id %i \n", entry.rawDetId());
         printf("Calibrations: timeCal = %f \n", timeCalibration_);
         printf("              energyCal = %f \n", calibration_);
         printf("Time 1  -,+ (%f, %f). Time 1 = %f +/- %f \n", time1Minus, time1Plus, time1, time_error);
@@ -134,7 +134,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::btlrechit {
 #endif
 
         // fill the rechit
-        output[i] = {entry.detId(),
+        output[i] = {entry.rawDetId(),
                      entry.row(),  //dummy
                      time1,
                      time2,
