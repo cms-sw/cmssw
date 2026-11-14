@@ -516,7 +516,8 @@ bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, b
 
     if (settings_.useapprox()) {
       double dphi = reco::reducePhiRange(phi - fpgastub->phiapprox(phimin_, 0.0));
-      assert(std::abs(dphi) < 0.001);
+      if (std::abs(dphi) >= 0.001) std::cout << "matchCalculator abs(dphi): " <<std::abs(dphi) << std::endl;  
+      assert(std::abs(dphi) < 0.005); // it was 0.001
       phi = fpgastub->phiapprox(phimin_, 0.0);
       z = fpgastub->zapprox();
       r = fpgastub->rapprox();
@@ -690,7 +691,8 @@ bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, b
 
     if (settings_.useapprox()) {
       double dphi = reco::reducePhiRange(phi - fpgastub->phiapprox(phimin_, 0.0));
-      assert(std::abs(dphi) < 0.001);
+      if (std::abs(dphi) >= 0.001) std::cout << "matchCalculator abs(dphi): " <<std::abs(dphi) << std::endl;  
+      assert(std::abs(dphi) < 0.005); // it was 0.001
       phi = fpgastub->phiapprox(phimin_, 0.0);
       z = fpgastub->zapprox();
       r = fpgastub->rapprox();

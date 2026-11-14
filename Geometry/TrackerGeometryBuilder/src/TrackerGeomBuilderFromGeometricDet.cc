@@ -209,6 +209,8 @@ void TrackerGeomBuilderFromGeometricDet::buildPixelPhase2(std::vector<const Geom
       std::unique_ptr<const Bounds> bounds(i->bounds());
       int BIG_PIX_PER_ROC_X = i->bigPixelsx();       // in x direction, rows
       int BIG_PIX_PER_ROC_Y = i->bigPixelsy();       // in y direction, cols
+      bool BIG_PIX_TWOEDGES_X = i->bigPixelsTwoEdgesx();  // in x direction, rows
+      bool BIG_PIX_TWOEDGES_Y = i->bigPixelsTwoEdgesy();  // in y direction, cols
       float BIG_PIX_PITCH_X = i->bigPixelsPitchx();  // in x direction, rows
       float BIG_PIX_PITCH_Y = i->bigPixelsPitchy();  // in y direction, cols
       PixelTopology* t = PixelPhase2TopologyBuilder().build(bounds.get(),
@@ -218,6 +220,8 @@ void TrackerGeomBuilderFromGeometricDet::buildPixelPhase2(std::vector<const Geom
                                                             BIG_PIX_PER_ROC_Y,
                                                             BIG_PIX_PITCH_X,
                                                             BIG_PIX_PITCH_Y,
+                                                            BIG_PIX_TWOEDGES_X,
+                                                            BIG_PIX_TWOEDGES_Y,
                                                             (int)i->pixROCx(),
                                                             (int)i->pixROCy());
 

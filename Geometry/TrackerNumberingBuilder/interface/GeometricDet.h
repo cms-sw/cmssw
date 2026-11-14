@@ -139,6 +139,8 @@ public:
   int bigPixelsy() const { return bigPixelsy_; }
   float bigPixelsPitchx() const { return bigPixelsPitchx_; }
   float bigPixelsPitchy() const { return bigPixelsPitchy_; }
+  bool bigPixelsTwoEdgesx() const { return bigPixelsTwoEdgesx_; }
+  bool bigPixelsTwoEdgesy() const { return bigPixelsTwoEdgesy_; }
   bool isFirstSensor() const { return isFirstSensor_; }
   bool isSecondSensor() const { return isSecondSensor_; }
   // Only return meaningful results for Outer Trackers.
@@ -203,6 +205,8 @@ private:
   int bigPixelsy_ = 0;
   float bigPixelsPitchx_ = 0.;
   float bigPixelsPitchy_ = 0.;
+  bool bigPixelsTwoEdgesx_ = false;
+  bool bigPixelsTwoEdgesy_ = false;
   bool isFirstSensor_ = false;
   bool isSecondSensor_ = false;
   bool stereo_ = false;

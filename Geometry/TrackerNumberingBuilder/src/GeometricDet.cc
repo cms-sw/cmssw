@@ -97,6 +97,8 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
     bigPixelsy_ = getDouble("BigPixels_Y", *fv);
     bigPixelsPitchx_ = getDouble("BigPixels_Pitch_X", *fv);
     bigPixelsPitchy_ = getDouble("BigPixels_Pitch_Y", *fv);
+    bigPixelsTwoEdgesx_ = (getString("BigPixels_TwoEdges_X", *fv) == strue);
+    bigPixelsTwoEdgesy_ = (getString("BigPixels_TwoEdges_Y", *fv) == strue); 
     isFirstSensor_ = (getString("TrackerFirstDetectors", *fv) == strue);
     isSecondSensor_ = (getString("TrackerSecondDetectors", *fv) == strue);
     stereo_ = (getString("TrackerStereoDetectors", *fv) == strue);
@@ -137,6 +139,8 @@ GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
     bigPixelsy_ = fv->get<double>("BigPixels_Y");
     bigPixelsPitchx_ = fv->get<double>("BigPixels_Pitch_X");
     bigPixelsPitchy_ = fv->get<double>("BigPixels_Pitch_Y");
+    bigPixelsTwoEdgesx_ = (fv->get<std::string_view>("BigPixels_TwoEdges_X") == strue);
+    bigPixelsTwoEdgesy_ = (fv->get<std::string_view>("BigPixels_TwoEdges_Y") == strue);
 
     // Phase 2 IT 3D sensors only
     isFirstSensor_ = (fv->get<std::string_view>("TrackerFirstDetectors") == strue);

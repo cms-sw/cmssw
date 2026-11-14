@@ -16,30 +16,36 @@ public:
   ~PTrackerAdditionalParametersPerDet() {}
 
   enum IntParamIndex { GEOGRAPHICAL_ID = 0, BIGPIXELS_X = 1, BIGPIXELS_Y = 2, ISIZE = 3 };
-  enum BoolParamIndex { BSIZE = 0 };
   enum FloatParamIndex { BIGPIXELS_PITCH_X = 0, BIGPIXELS_PITCH_Y = 1, FSIZE = 2 };
+  enum BoolParamIndex { BIGPIXELS_TWOEDGES_X = 0, BIGPIXELS_TWOEDGES_Y = 1, BSIZE = 2 };
 
   int getGeographicalId(int theIndex) const;
   int bigPixelsX(int theIndex) const;
   int bigPixelsY(int theIndex) const;
   float bigPixelsPitchX(int theIndex) const;
   float bigPixelsPitchY(int theIndex) const;
+  bool bigPixelsTwoEdgesX(int theIndex) const;
+  bool bigPixelsTwoEdgesY(int theIndex) const;
 
   std::vector<int> getAllGeographicalIds() const;
   std::vector<int> allBigPixelsXs() const;
   std::vector<int> allBigPixelsYs() const;
   std::vector<float> allBigPixelsPitchXs() const;
   std::vector<float> allBigPixelsPitchYs() const;
+  std::vector<bool> allBigPixelsTwoEdgesXs() const;
+  std::vector<bool> allBigPixelsTwoEdgesYs() const;
 
   void setGeographicalId(int geographicalId);
   void setBigPixelsX(int bigPixelsX);
   void setBigPixelsY(int bigPixelsY);
   void setBigPixelsPitchX(float bigPixelsPitchX);
   void setBigPixelsPitchY(float bigPixelsPitchY);
+  void setBigPixelsTwoEdgesX(bool bigPixelsTwoEdgesX);
+  void setBigPixelsTwoEdgesY(bool bigPixelsTwoEdgesY);
 
   std::vector<std::vector<int>> intParams_;
-  std::vector<std::vector<bool>> boolParams_;
   std::vector<std::vector<float>> floatParams_;
+  std::vector<std::vector<bool>> boolParams_;
 
   COND_SERIALIZABLE;
 };
