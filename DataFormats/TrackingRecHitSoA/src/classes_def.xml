@@ -30,4 +30,8 @@
   <class name="reco::OTRecHitBlocksLayout<128,false>::View" />
   <class name="reco::OTRecHitsHost"  rntupleStreamerMode="true"/>
   <class name="edm::Wrapper<reco::OTRecHitsHost>" splitLevel="0"/>
+  
+  <class name="reco::TrackingRecHitsMaskingLayout<128,false>"/>
+  <class name="PortableHostCollection<reco::TrackingRecHitsMaskingLayout<128,false> >"/>
+  <class name="edm::Wrapper<PortableHostCollection<reco::TrackingRecHitsMaskingLayout<128,false> > >"/>
 </lcgdict>

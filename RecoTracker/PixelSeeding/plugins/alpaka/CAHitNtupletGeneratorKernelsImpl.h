@@ -2166,6 +2166,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     };
 
+    class Kernel_assignIteration {
+    public:
+      ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+                                    TkSoAView tracks_view,
+                                    HitContainer const *__restrict__ foundNtuplets,
+                                    ::pixelTrack::Iteration iteration) const {
+        for (auto it : cms::alpakatools::uniform_elements(acc, foundNtuplets->nOnes())) {
+          tracks_view[it].iteration() = iteration;
+        }
+      }
+    };
+
     template <typename TrackerTraits>
     class Kernel_print_found_ntuplets {
     public:
@@ -3302,6 +3314,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const ::reco::CALayersSoAConstView &ll,
       const ::reco::CADoubletCutsSoAConstView &doubletCuts,
       uint32_t offsetBPIX2,
+      const MapToHitConstView &mask,
       Queue &queue) {
     using namespace caPixelDoublets;
     using namespace caHitNtupletGeneratorKernels;
@@ -3351,7 +3364,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           doubletCuts,
                           this->device_layerStarts_->data(),
                           this->device_hitPhiHist_->data(),
-                          this->device_hitToCell_->data());
+                          this->device_hitToCell_->data(),
+                          mask);
 
       const uint32_t nCellsFound = this->readbackNCells(queue);
       nCellsCounted = nCellsFound;
@@ -3385,7 +3399,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         doubletCuts,
                         this->device_layerStarts_->data(),
                         this->device_hitPhiHist_->data(),
-                        this->device_hitToCell_->data());
+                        this->device_hitToCell_->data(),
+                        mask);
 
     HitToCell::template launchFinalize<Acc1D>(this->device_hitToCellView_, queue);
 
@@ -3462,6 +3477,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #ifdef GPU_DEBUG
     alpaka::wait(queue);
     std::cout << "Kernel_classifyTracks -> done!" << std::endl;
+#endif
+
+    alpaka::exec<Acc1D>(queue,
+                        workDiv1D,
+                        Kernel_assignIteration{},
+                        tracks_view,
+                        this->device_hitContainer_->data(),
+                        this->m_params.algoParams_.iterationName_);
+#ifdef GPU_DEBUG
+    alpaka::wait(queue);
+    std::cout << "Kernel_assignIteration -> done!" << std::endl;
 #endif
 
     if (this->m_params.algoParams_.lateFishbone_) {
@@ -3675,209 +3701,216 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
 #ifdef CA_STATS
-    alpaka::wait(queue);
-    workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(1, 1);
-    alpaka::exec<Acc1D>(queue,
-                        workDiv1D,
-                        Kernel_printSizes<HitsMultiView>{},
-                        hh,
-                        tracks_view,
-                        this->device_nCells_->data(),
-                        this->device_nTriplets_->data(),
-                        this->device_nCellTracks_->data());
+    if (this->m_params.algoParams_.doStats_) {
+      // ^ this is useful if we have multiple iterations and want to probe only one
+      alpaka::wait(queue);
+      workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(1, 1);
+      alpaka::exec<Acc1D>(queue,
+                          workDiv1D,
+                          Kernel_printSizes<HitsMultiView>{},
+                          hh,
+                          tracks_view,
+                          this->device_nCells_->data(),
+                          this->device_nTriplets_->data(),
+                          this->device_nCellTracks_->data());
 
-    alpaka::wait(queue);
-
-    // Report the per-event statistics and recommendations for sizing the avg parameters.
-    // Each parameter sizes a storage buffer as cap = max_keys * avg.
-    // The buffer is safe iff actual_fill <= cap, i.e.
-    //     avg >= actual_fill / max_keys.
-    //
-    // After kernel execution the relevant fills are:
-    //
-    //   avgHitsPerTrack  -> fill = Sum_t nHits(t)  (= APC.n)
-    //                       max_keys = maxTuples
-    //   avgCellsPerHit   -> fill = nCells          (each cell has exactly 1 outer hit)
-    //                       max_keys = outerHits
-    //   avgCellsPerCell  -> fill = nTriplets       (one neighbor-link per triplet)
-    //                       max_keys = maxDoublets
-    //   avgTracksPerCell -> fill = nCellTrackPairs
-    //                       max_keys = maxDoublets
-    //
-    // All four counters live in device_extraStorage_:
-    //   [0,1] = AtomicPairCounter (m = nTracksFound, n = nHitsInTracks)
-    //   [2]   = nCells
-    //   [3] = nTriplets
-    //   [4] = nCellTrackPairs
-    std::cout << "========== CA Tracking Summary ==========" << std::endl;
-    {
-      using DW = cms::alpakatools::AtomicPairCounter::DoubleWord;
-      auto h_extra = cms::alpakatools::make_host_buffer<DW[]>(queue, 5u);
-      alpaka::memcpy(queue, h_extra, *this->device_extraStorage_);
       alpaka::wait(queue);
 
-      DW const *const extra = alpaka::getPtrNative(h_extra);
-
-      // Decode the AtomicPairCounter that lives in extra[0]. The struct
-      // packs (m, n) into a single 64-bit word. Extract apc_lo and apc_hi
-      // as the two 32-bit halves and then use the smaller as the number of tracks
-      // and the larger as the number of hits in tracks, since every track has at least one hit.
-      const uint64_t apc_raw = static_cast<uint64_t>(extra[0]);
-      const uint32_t apc_lo = static_cast<uint32_t>(apc_raw & 0xFFFFFFFFull);
-      const uint32_t apc_hi = static_cast<uint32_t>(apc_raw >> 32);
-      const uint32_t nTracksFnd = std::min(apc_lo, apc_hi);
-      const uint32_t nHitsInTrk = std::max(apc_lo, apc_hi);
-      const uint32_t nCellsF = static_cast<uint32_t>(extra[2]);
-      const uint32_t nTripletsF = static_cast<uint32_t>(extra[3]);
-      const uint32_t nCTPairsF = static_cast<uint32_t>(extra[4]);
-
-      // outerHits is not a parameter of classifyTuples and is not stored
-      // on the class. Recover it from device_hitToCellOffsets_
-      const uint32_t outerHitsR = static_cast<uint32_t>(alpaka::getExtents(*this->device_hitToCellOffsets_)[0u]) - 1u;
-      auto const &a = this->m_params.algoParams_;
-
-      // Required (this event would not have overflowed if avg >= this). Each ratio MUST be
-      // referenced to the SAME basis the buffer is actually allocated against. For the two
-      // cell-keyed buffers that basis DEPENDS ON THE ALLOCATION MODE:
-      //   - countDoubletsFirst / delayAllocations -> allocateAfterDoublets(nCells)  basis = nCells
-      //   - neither (allocate up front)           -> allocateAfterDoublets(maxDoublets) basis = maxDoublets
-      // Rather than re-derive which lane ran, scale the CURRENT avg by the buffer's actual
-      // occupancy: capacity tripletsN_ = basis * avg_cur, so to fit nTriplets we need
-      //   avg_req = avg_cur * nTriplets / tripletsN_   (mode-independent, correct in both lanes).
-      const float req_HpT = (maxTuples > 0) ? float(nHitsInTrk) / float(maxTuples) : 0.f;
-      const float req_CpH = (outerHitsR > 0) ? float(nCellsF) / float(outerHitsR) : 0.f;
-      const float req_CpC = (tripletsN_ > 0u) ? a.avgCellsPerCell_ * float(nTripletsF) / float(tripletsN_) : 0.f;
-      const float req_TpC = (tracksCellsN_ > 0u) ? a.avgTracksPerCell_ * float(nCTPairsF) / float(tracksCellsN_) : 0.f;
-
-      // Physical mean per *actual* key (informative, NOT the sizing bound):
-      const float phy_HpT = (nTracksFnd > 0) ? float(nHitsInTrk) / float(nTracksFnd) : 0.f;
-      const float phy_CpH = req_CpH;  // each cell has exactly one outer hit
-      const float phy_CpC = (nCellsF > 0) ? float(nTripletsF) / float(nCellsF) : 0.f;
-      const float phy_TpC = (nCellsF > 0) ? float(nCTPairsF) / float(nCellsF) : 0.f;
-
-      // Safety factor to provide some headroom
-      constexpr float kSafety = 1.25f;
-
-      // Pack into arrays so per-event and aggregate code can share a loop.
-      const char *paramNames[4] = {"avgHitsPerTrack", "avgCellsPerHit", "avgCellsPerCell", "avgTracksPerCell"};
-      const float currents[4] = {a.avgHitsPerTrack_, a.avgCellsPerHit_, a.avgCellsPerCell_, a.avgTracksPerCell_};
-      const float req[4] = {req_HpT, req_CpH, req_CpC, req_TpC};
-      const float phy[4] = {phy_HpT, phy_CpH, phy_CpC, phy_TpC};
-
-      // Parameters that scale with nHits
-      //   ratio[0] = nCells  / nHits  -> maxNumberOfDoublets
-      //   ratio[1] = nTuples / nHits  -> maxNumberOfTuples
-      const char *scaleNames[2] = {"maxNumberOfDoublets", "maxNumberOfTuples"};
-      const uint32_t scaleCurrent[2] = {this->maxNumberOfDoublets_, maxTuples};
-      const uint32_t scaleCount[2] = {nCellsF, nTracksFnd};
-      const double ratio[2] = {(nhits > 0) ? double(nCellsF) / double(nhits) : 0.,
-                               (nhits > 0) ? double(nTracksFnd) / double(nhits) : 0.};
-
-      // Update the cross-event accumulator and take a snapshot under the
-      // lock; print outside the lock to keep the critical section small.
-      uint64_t snapN = 0;
-      double snapMaxReq[4] = {0., 0., 0., 0.};
-      double snapMeanReq[4] = {0., 0., 0., 0.};
-      double snapMaxPhy[4] = {0., 0., 0., 0.};
-      double snapMaxRatio[2] = {0., 0.};
-      double snapMeanRatio[2] = {0., 0.};
-      uint32_t snapMaxNHits = 0u;
+      // Report the per-event statistics and recommendations for sizing the avg parameters.
+      // Each parameter sizes a storage buffer as cap = max_keys * avg.
+      // The buffer is safe iff actual_fill <= cap, i.e.
+      //     avg >= actual_fill / max_keys.
+      //
+      // After kernel execution the relevant fills are:
+      //
+      //   avgHitsPerTrack  -> fill = Sum_t nHits(t)  (= APC.n)
+      //                       max_keys = maxTuples
+      //   avgCellsPerHit   -> fill = nCells          (each cell has exactly 1 outer hit)
+      //                       max_keys = outerHits
+      //   avgCellsPerCell  -> fill = nTriplets       (one neighbor-link per triplet)
+      //                       max_keys = maxDoublets
+      //   avgTracksPerCell -> fill = nCellTrackPairs
+      //                       max_keys = maxDoublets
+      //
+      // All four counters live in device_extraStorage_:
+      //   [0,1] = AtomicPairCounter (m = nTracksFound, n = nHitsInTracks)
+      //   [2]   = nCells
+      //   [3] = nTriplets
+      //   [4] = nCellTrackPairs
+      std::cout << "========== CA Tracking Summary ==========" << std::endl;
       {
-        auto &agg = sizingAccumulator();
-        std::lock_guard<std::mutex> lock(agg.mtx);
-        ++agg.n;
+        using DW = cms::alpakatools::AtomicPairCounter::DoubleWord;
+        auto h_extra = cms::alpakatools::make_host_buffer<DW[]>(queue, 5u);
+        alpaka::memcpy(queue, h_extra, *this->device_extraStorage_);
+        alpaka::wait(queue);
+
+        DW const *const extra = alpaka::getPtrNative(h_extra);
+
+        // Decode the AtomicPairCounter that lives in extra[0]. The struct
+        // packs (m, n) into a single 64-bit word. Extract apc_lo and apc_hi
+        // as the two 32-bit halves and then use the smaller as the number of tracks
+        // and the larger as the number of hits in tracks, since every track has at least one hit.
+        const uint64_t apc_raw = static_cast<uint64_t>(extra[0]);
+        const uint32_t apc_lo = static_cast<uint32_t>(apc_raw & 0xFFFFFFFFull);
+        const uint32_t apc_hi = static_cast<uint32_t>(apc_raw >> 32);
+        const uint32_t nTracksFnd = std::min(apc_lo, apc_hi);
+        const uint32_t nHitsInTrk = std::max(apc_lo, apc_hi);
+        const uint32_t nCellsF = static_cast<uint32_t>(extra[2]);
+        const uint32_t nTripletsF = static_cast<uint32_t>(extra[3]);
+        const uint32_t nCTPairsF = static_cast<uint32_t>(extra[4]);
+
+        // outerHits is not a parameter of classifyTuples and is not stored
+        // on the class. Recover it from device_hitToCellOffsets_
+        const uint32_t outerHitsR = static_cast<uint32_t>(alpaka::getExtents(*this->device_hitToCellOffsets_)[0u]) - 1u;
+        auto const &a = this->m_params.algoParams_;
+
+        // Required (this event would not have overflowed if avg >= this). Each ratio MUST be
+        // referenced to the SAME basis the buffer is actually allocated against. For the two
+        // cell-keyed buffers that basis DEPENDS ON THE ALLOCATION MODE:
+        //   - countDoubletsFirst / delayAllocations -> allocateAfterDoublets(nCells)  basis = nCells
+        //   - neither (allocate up front)           -> allocateAfterDoublets(maxDoublets) basis = maxDoublets
+        // Rather than re-derive which lane ran, scale the CURRENT avg by the buffer's actual
+        // occupancy: capacity tripletsN_ = basis * avg_cur, so to fit nTriplets we need
+        //   avg_req = avg_cur * nTriplets / tripletsN_   (mode-independent, correct in both lanes).
+        const float req_HpT = (maxTuples > 0) ? float(nHitsInTrk) / float(maxTuples) : 0.f;
+        const float req_CpH = (outerHitsR > 0) ? float(nCellsF) / float(outerHitsR) : 0.f;
+        const float req_CpC = (tripletsN_ > 0u) ? a.avgCellsPerCell_ * float(nTripletsF) / float(tripletsN_) : 0.f;
+        const float req_TpC =
+            (tracksCellsN_ > 0u) ? a.avgTracksPerCell_ * float(nCTPairsF) / float(tracksCellsN_) : 0.f;
+
+        // Physical mean per *actual* key (informative, NOT the sizing bound):
+        const float phy_HpT = (nTracksFnd > 0) ? float(nHitsInTrk) / float(nTracksFnd) : 0.f;
+        const float phy_CpH = req_CpH;  // each cell has exactly one outer hit
+        const float phy_CpC = (nCellsF > 0) ? float(nTripletsF) / float(nCellsF) : 0.f;
+        const float phy_TpC = (nCellsF > 0) ? float(nCTPairsF) / float(nCellsF) : 0.f;
+
+        // Safety factor to provide some headroom
+        constexpr float kSafety = 1.25f;
+
+        // Pack into arrays so per-event and aggregate code can share a loop.
+        const char *paramNames[4] = {"avgHitsPerTrack", "avgCellsPerHit", "avgCellsPerCell", "avgTracksPerCell"};
+        const float currents[4] = {a.avgHitsPerTrack_, a.avgCellsPerHit_, a.avgCellsPerCell_, a.avgTracksPerCell_};
+        const float req[4] = {req_HpT, req_CpH, req_CpC, req_TpC};
+        const float phy[4] = {phy_HpT, phy_CpH, phy_CpC, phy_TpC};
+
+        // Parameters that scale with nHits
+        //   ratio[0] = nCells  / nHits  -> maxNumberOfDoublets
+        //   ratio[1] = nTuples / nHits  -> maxNumberOfTuples
+        const char *scaleNames[2] = {"maxNumberOfDoublets", "maxNumberOfTuples"};
+        const uint32_t scaleCurrent[2] = {this->maxNumberOfDoublets_, maxTuples};
+        const uint32_t scaleCount[2] = {nCellsF, nTracksFnd};
+        const double ratio[2] = {(nhits > 0) ? double(nCellsF) / double(nhits) : 0.,
+                                 (nhits > 0) ? double(nTracksFnd) / double(nhits) : 0.};
+
+        // Update the cross-event accumulator and take a snapshot under the
+        // lock; print outside the lock to keep the critical section small.
+        uint64_t snapN = 0;
+        double snapMaxReq[4] = {0., 0., 0., 0.};
+        double snapMeanReq[4] = {0., 0., 0., 0.};
+        double snapMaxPhy[4] = {0., 0., 0., 0.};
+        double snapMaxRatio[2] = {0., 0.};
+        double snapMeanRatio[2] = {0., 0.};
+        uint32_t snapMaxNHits = 0u;
+        {
+          auto &agg = sizingAccumulator();
+          std::lock_guard<std::mutex> lock(agg.mtx);
+          ++agg.n;
+          for (int i = 0; i < 4; ++i) {
+            if (req[i] > agg.maxReq[i]) {
+              agg.maxReq[i] = req[i];
+            }
+            if (phy[i] > agg.maxPhy[i]) {
+              agg.maxPhy[i] = phy[i];
+            }
+            agg.sumReq[i] += req[i];
+            agg.sumPhy[i] += phy[i];
+          }
+          for (int i = 0; i < 2; ++i) {
+            if (ratio[i] > agg.maxRatio[i]) {
+              agg.maxRatio[i] = ratio[i];
+            }
+            agg.sumRatio[i] += ratio[i];
+          }
+          if (nhits > agg.maxNHits) {
+            agg.maxNHits = nhits;
+          }
+
+          snapN = agg.n;
+          const double invN = 1.0 / double(snapN);
+          for (int i = 0; i < 4; ++i) {
+            snapMaxReq[i] = agg.maxReq[i];
+            snapMeanReq[i] = agg.sumReq[i] * invN;
+            snapMaxPhy[i] = agg.maxPhy[i];
+          }
+          for (int i = 0; i < 2; ++i) {
+            snapMaxRatio[i] = agg.maxRatio[i];
+            snapMeanRatio[i] = agg.sumRatio[i] * invN;
+          }
+          snapMaxNHits = agg.maxNHits;
+        }
+
+        const auto coutFlags = std::cout.flags();
+        const auto coutPrec = std::cout.precision();
+
+        std::cout << "============= Sizing-parameter recommendation =============" << std::endl;
+        std::cout << "  Fills :  nHits=" << nhits << "  outerHits=" << outerHitsR << "  nTracksFound=" << nTracksFnd
+                  << "  nHitsInTracks=" << nHitsInTrk << std::endl;
+        std::cout << "           nCells=" << nCellsF << "  nTriplets=" << nTripletsF
+                  << "  nCellTrackPairs=" << nCTPairsF << std::endl;
+        std::cout << "  Caps  :  maxDoublets=" << maxDoublets << "  maxTuples=" << maxTuples << std::endl;
+
+        // Per-event rows.
+        std::cout << "  -- this event --" << std::endl;
         for (int i = 0; i < 4; ++i) {
-          if (req[i] > agg.maxReq[i]) {
-            agg.maxReq[i] = req[i];
-          }
-          if (phy[i] > agg.maxPhy[i]) {
-            agg.maxPhy[i] = phy[i];
-          }
-          agg.sumReq[i] += req[i];
-          agg.sumPhy[i] += phy[i];
-        }
-        for (int i = 0; i < 2; ++i) {
-          if (ratio[i] > agg.maxRatio[i]) {
-            agg.maxRatio[i] = ratio[i];
-          }
-          agg.sumRatio[i] += ratio[i];
-        }
-        if (nhits > agg.maxNHits) {
-          agg.maxNHits = nhits;
+          std::cout << "    " << std::left << std::setw(18) << paramNames[i] << " current=" << std::fixed
+                    << std::setprecision(3) << std::setw(8) << currents[i] << "  phys(fill/key)=" << std::setw(8)
+                    << phy[i] << "  min(fill/cap)=" << std::setw(8) << req[i] << "  recommend>= " << std::setw(8)
+                    << (req[i] * kSafety) << "  headroom=" << std::setw(6)
+                    << ((req[i] > 0.f) ? (currents[i] / req[i]) : 0.f) << "x" << std::endl;
         }
 
-        snapN = agg.n;
-        const double invN = 1.0 / double(snapN);
+        // Aggregated-across-events rows
+        std::cout << "  -- aggregated over " << snapN << " event" << (snapN == 1u ? "" : "s") << std::endl;
         for (int i = 0; i < 4; ++i) {
-          snapMaxReq[i] = agg.maxReq[i];
-          snapMeanReq[i] = agg.sumReq[i] * invN;
-          snapMaxPhy[i] = agg.maxPhy[i];
+          std::cout << "    " << std::left << std::setw(18) << paramNames[i] << " current=" << std::fixed
+                    << std::setprecision(3) << std::setw(8) << currents[i] << "  max(req)=" << std::setw(8)
+                    << snapMaxReq[i] << "  mean(req)=" << std::setw(8) << snapMeanReq[i]
+                    << "  max(phys)=" << std::setw(8) << snapMaxPhy[i] << "  recommend>= " << std::setw(8)
+                    << (snapMaxReq[i] * kSafety) << std::endl;
         }
-        for (int i = 0; i < 2; ++i) {
-          snapMaxRatio[i] = agg.maxRatio[i];
-          snapMeanRatio[i] = agg.sumRatio[i] * invN;
-        }
-        snapMaxNHits = agg.maxNHits;
-      }
 
-      const auto coutFlags = std::cout.flags();
-      const auto coutPrec = std::cout.precision();
-
-      std::cout << "============= Sizing-parameter recommendation =============" << std::endl;
-      std::cout << "  Fills :  nHits=" << nhits << "  outerHits=" << outerHitsR << "  nTracksFound=" << nTracksFnd
-                << "  nHitsInTracks=" << nHitsInTrk << std::endl;
-      std::cout << "           nCells=" << nCellsF << "  nTriplets=" << nTripletsF << "  nCellTrackPairs=" << nCTPairsF
-                << std::endl;
-      std::cout << "  Caps  :  maxDoublets=" << maxDoublets << "  maxTuples=" << maxTuples << std::endl;
-
-      // Per-event rows.
-      std::cout << "  -- this event --" << std::endl;
-      for (int i = 0; i < 4; ++i) {
-        std::cout << "    " << std::left << std::setw(18) << paramNames[i] << " current=" << std::fixed
-                  << std::setprecision(3) << std::setw(8) << currents[i] << "  phys(fill/key)=" << std::setw(8)
-                  << phy[i] << "  min(fill/cap)=" << std::setw(8) << req[i] << "  recommend>= " << std::setw(8)
-                  << (req[i] * kSafety) << "  headroom=" << std::setw(6)
-                  << ((req[i] > 0.f) ? (currents[i] / req[i]) : 0.f) << "x" << std::endl;
-      }
-
-      // Aggregated-across-events rows
-      std::cout << "  -- aggregated over " << snapN << " event" << (snapN == 1u ? "" : "s") << std::endl;
-      for (int i = 0; i < 4; ++i) {
-        std::cout << "    " << std::left << std::setw(18) << paramNames[i] << " current=" << std::fixed
-                  << std::setprecision(3) << std::setw(8) << currents[i] << "  max(req)=" << std::setw(8)
-                  << snapMaxReq[i] << "  mean(req)=" << std::setw(8) << snapMeanReq[i] << "  max(phys)=" << std::setw(8)
-                  << snapMaxPhy[i] << "  recommend>= " << std::setw(8) << (snapMaxReq[i] * kSafety) << std::endl;
-      }
-
-      // Parameters that scale with nHits (doublets and tuples).
-      // Safe sizing is f(nHits) = slope * nHits, where slope = max(count/nHits) across events.
-      // This guarantees the observed worst-case event would have fit while
-      // safety covers unobserved variation. Evaluate f at this event's nHits
-      // and at the observed max nHits
-      std::cout << "  -- scaling parameters f(nHits) over " << snapN << " event" << (snapN == 1u ? "" : "s") << " --"
-                << std::endl;
-      for (int i = 0; i < 2; ++i) {
-        const double recSlope = snapMaxRatio[i] * kSafety;
-        const uint64_t recAtThis = static_cast<uint64_t>(std::ceil(recSlope * double(nhits)));
-        const uint64_t recAtMax = static_cast<uint64_t>(std::ceil(recSlope * double(snapMaxNHits)));
-        std::cout << "    " << std::left << std::setw(20) << scaleNames[i] << " current=" << std::right << std::setw(10)
-                  << scaleCurrent[i] << "  this: " << std::setw(8) << scaleCount[i] << "/" << nhits << "=" << std::fixed
-                  << std::setprecision(4) << std::setw(7) << ratio[i] << "  agg max=" << std::setw(7) << snapMaxRatio[i]
-                  << "  mean=" << std::setw(7) << snapMeanRatio[i] << std::endl
-                  << "    " << std::setw(20) << "" << " recommend>= " << std::setprecision(4) << recSlope << " * nHits"
-                  << "  (= " << recAtThis << " here,  " << recAtMax << " at observed max nHits=" << snapMaxNHits << ")"
+        // Parameters that scale with nHits (doublets and tuples).
+        // Safe sizing is f(nHits) = slope * nHits, where slope = max(count/nHits) across events.
+        // This guarantees the observed worst-case event would have fit while
+        // safety covers unobserved variation. Evaluate f at this event's nHits
+        // and at the observed max nHits
+        std::cout << "  -- scaling parameters f(nHits) over " << snapN << " event" << (snapN == 1u ? "" : "s") << " --"
                   << std::endl;
+        for (int i = 0; i < 2; ++i) {
+          const double recSlope = snapMaxRatio[i] * kSafety;
+          const uint64_t recAtThis = static_cast<uint64_t>(std::ceil(recSlope * double(nhits)));
+          const uint64_t recAtMax = static_cast<uint64_t>(std::ceil(recSlope * double(snapMaxNHits)));
+          std::cout << "    " << std::left << std::setw(20) << scaleNames[i] << " current=" << std::right
+                    << std::setw(10) << scaleCurrent[i] << "  this: " << std::setw(8) << scaleCount[i] << "/" << nhits
+                    << "=" << std::fixed << std::setprecision(4) << std::setw(7) << ratio[i]
+                    << "  agg max=" << std::setw(7) << snapMaxRatio[i] << "  mean=" << std::setw(7) << snapMeanRatio[i]
+                    << std::endl
+                    << "    " << std::setw(20) << "" << " recommend>= " << std::setprecision(4) << recSlope
+                    << " * nHits"
+                    << "  (= " << recAtThis << " here,  " << recAtMax << " at observed max nHits=" << snapMaxNHits
+                    << ")" << std::endl;
+        }
+
+        std::cout << "  Note: 'min'/'req' = the avg value below which the buffer would overflow." << std::endl;
+        std::cout << "        Per-event 'recommend' = req * " << kSafety << " (per-event safety margin)." << std::endl;
+        std::cout << "        Aggregate 'recommend' = max(req across events) * " << kSafety << std::endl;
+        std::cout << "        Run a representative event sample, then read the aggregate row" << std::endl;
+        std::cout << "        from the last event's report." << std::endl;
+        std::cout << "===========================================================" << std::endl;
+
+        std::cout.flags(coutFlags);
+        std::cout.precision(coutPrec);
       }
-
-      std::cout << "  Note: 'min'/'req' = the avg value below which the buffer would overflow." << std::endl;
-      std::cout << "        Per-event 'recommend' = req * " << kSafety << " (per-event safety margin)." << std::endl;
-      std::cout << "        Aggregate 'recommend' = max(req across events) * " << kSafety << std::endl;
-      std::cout << "        Run a representative event sample, then read the aggregate row" << std::endl;
-      std::cout << "        from the last event's report." << std::endl;
-      std::cout << "===========================================================" << std::endl;
-
-      std::cout.flags(coutFlags);
-      std::cout.precision(coutPrec);
     }
 #endif
     if (this->m_params.algoParams_.doStats_) {
