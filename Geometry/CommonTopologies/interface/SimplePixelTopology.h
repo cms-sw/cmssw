@@ -111,8 +111,7 @@ namespace pixelTopology {
 #ifdef __CUDA_ARCH__
   __device__
 #endif
-      constexpr inline uint32_t
-      layerStart(uint32_t i) {
+      constexpr inline uint32_t layerStart(uint32_t i) {
     return TrackerTraits::layerStart[i];
   }
 
@@ -518,7 +517,9 @@ namespace pixelTopology {
 
     static constexpr uint32_t maxCellNeighbors = 64;
     static constexpr uint32_t maxCellTracks = 302;
-    static constexpr uint32_t maxHitsOnTrack = 20;
+    static constexpr uint32_t maxLayersPerTrack = 13;
+    static constexpr uint32_t maxFishboneHitsPerTrack = 8;
+    static constexpr uint32_t maxHitsOnTrack = maxLayersPerTrack + maxFishboneHitsPerTrack;
     static constexpr uint32_t maxHitsOnTrackForFullFit = 6;
     static constexpr uint32_t avgHitsPerTrack = 7;
     static constexpr uint32_t maxCellsPerHit = 256;
@@ -529,7 +530,6 @@ namespace pixelTopology {
     static constexpr uint32_t maxNumberOfDoublets = 6 * 512 * 1024;
     static constexpr uint32_t maxNumOfActiveDoublets = maxNumberOfDoublets / 8;
     static constexpr uint32_t maxNumberOfQuadruplets = maxNumberOfTuples;
-    static constexpr uint32_t maxDepth = 12;
     static constexpr uint32_t numberOfLayers = phase2PixelTopology::nLayersPix;
     static constexpr float avgCellsPerHit = 12.;
     static constexpr float avgCellsPerCell = 0.151;
@@ -573,6 +573,8 @@ namespace pixelTopology {
     static constexpr int nStartingPairs = phase2PixelTopology::nStartingPairs;
 
     static constexpr uint16_t numberOfModules = phase2PixelTopology::nModulesPix;
+    // Pixel-module count; sizes pixel-only conditions such as the CPE parameters.
+    static constexpr uint16_t numberOfPixelModules = phase2PixelTopology::nModulesPix;
 
     // 1000 bins < 1024 bins (10 bits) must be:
     // - < 32*32 (warpSize*warpSize for block prefix scan for CUDA)
@@ -590,7 +592,9 @@ namespace pixelTopology {
     static constexpr uint16_t firstEndcapPos = 4;
     static constexpr uint16_t firstEndcapNeg = 16;
 
-    static constexpr int16_t xOffset = -1e4;  // not used actually, to suppress static analyzer warnings
+    // No single value: Phase-2 modules differ in width. The fast CPE takes the half width from each module's
+    // row count instead; kept only for the legacy pixelCPEforGPU code.
+    static constexpr int16_t xOffset = -1e4;
 
     static constexpr char const *nameModifier = "Phase2";
 
@@ -663,7 +667,9 @@ namespace pixelTopology {
 
     static constexpr uint32_t maxCellNeighbors = 36;
     static constexpr uint32_t maxCellTracks = 48;
-    static constexpr uint32_t maxHitsOnTrack = 10;
+    static constexpr uint32_t maxLayersPerTrack = 7;
+    static constexpr uint32_t maxFishboneHitsPerTrack = 2;
+    static constexpr uint32_t maxHitsOnTrack = maxLayersPerTrack + maxFishboneHitsPerTrack;
     static constexpr uint32_t maxHitsOnTrackForFullFit = 6;
     static constexpr uint32_t avgHitsPerTrack = 5;
     static constexpr uint32_t maxCellsPerHit = 256;
@@ -673,7 +679,6 @@ namespace pixelTopology {
     static constexpr uint32_t maxNumberOfDoublets = 512 * 1024;
     static constexpr uint32_t maxNumOfActiveDoublets = maxNumberOfDoublets / 8;
     static constexpr uint32_t maxNumberOfQuadruplets = maxNumberOfTuples;
-    static constexpr uint32_t maxDepth = 6;
     static constexpr uint32_t numberOfLayers = 10;
     static constexpr float avgCellsPerHit = 25.;
     static constexpr float avgCellsPerCell = 2.;
@@ -716,6 +721,8 @@ namespace pixelTopology {
     static constexpr int nStartingPairs = phase1PixelTopology::nStartingPairs;
 
     static constexpr uint16_t numberOfModules = phase1PixelTopology::numberOfModules;
+    // Pixel-module count; equals numberOfModules for pixel-only topologies.
+    static constexpr uint16_t numberOfPixelModules = phase1PixelTopology::numberOfModules;
 
     static constexpr uint16_t numRowsInRoc = 80;
     static constexpr uint16_t numColsInRoc = 52;

@@ -76,6 +76,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               std::vector<unsigned int>(TrackerTraits::startingPairs,
                                         TrackerTraits::startingPairs + TrackerTraits::nStartingPairs))
           ->setComment("The list of the ids of pairs from which the CA ntuplets building may start.");
+      geometryParams
+          .add<std::vector<double>>("startMaxInnerR", std::vector<double>(TrackerTraits::numberOfLayers, 99.0))
+          ->setComment(
+              "The maximum allowed r coordinate of the inner hit of a doublet to use it as a starting point for "
+              "ntuplet building.");
+      /*
+      Cut on quadruplets (two triplets sharing a doublet) using the curvatures Ci, Co of the triplets:
+      |Co - Ci| < (|Co| + |Ci|)/2 * maxDCurv + floorDCurv
+      */
+      geometryParams.add<std::vector<double>>("maxDCurv", std::vector<double>(TrackerTraits::numberOfLayers, 99.))
+          ->setComment("Cut on curvature difference between two consecutive triplets.");
+      geometryParams.add<std::vector<double>>("floorDCurv", std::vector<double>(TrackerTraits::numberOfLayers, 99.))
+          ->setComment("Offset for the cut on curvature difference between two consecutive triplets.");
+      geometryParams
+          .add<std::vector<double>>("fishboneCuts", std::vector<double>(TrackerTraits::numberOfLayers, 0.99999f))
+          ->setComment(
+              "Threshold for merging aligned doublets in fishbone cleaning. Depends on the layer of the outer RecHit. "
+              "Warning: this will be a float in the final algorithm, therefore 0.9999999 will become 1 == no merging!");
       // cells params
       geometryParams
           .add<std::vector<unsigned int>>(
@@ -83,6 +101,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               std::vector<unsigned int>(TrackerTraits::layerPairs,
                                         TrackerTraits::layerPairs + (TrackerTraits::nPairsForQuadruplets * 2)))
           ->setComment("CA graph (layer pairs used for building doublets/cells)");
+      geometryParams
+          .add<std::vector<unsigned int>>("skipsLayers",
+                                          std::vector<unsigned int>(TrackerTraits::nPairsForQuadruplets, 0U))
+          ->setComment(
+              "List of bools idicating whether layer pairs are skipping layers or not (0 means non-skipping, 1 means "
+              "skipping). This is relevant for the N-tuplet building as non-skipping ones are prioritized.");
       geometryParams
           .add<std::vector<int>>(
               "phiCuts",
@@ -171,6 +195,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       desc.add<bool>("earlyFishbone", true);
       desc.add<bool>("lateFishbone", false);
+      desc.add<bool>("onlySameLayersFishbone", false);
       desc.add<bool>("fillStatistics", false);
       desc.add<unsigned int>("minHitsPerNtuplet", 4);
       desc.add<unsigned int>("minHitsForSharingCut", 10)
@@ -182,6 +207,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       desc.add<bool>("doSharedHitCut", true)->setComment("Sharing hit nTuples cleaning");
       desc.add<bool>("dupPassThrough", false)->setComment("Do not reject duplicate");
       desc.add<bool>("useSimpleTripletCleaner", true)->setComment("use alternate implementation");
+      desc.add<bool>("doTripletCleaner", true)
+          ->setComment(
+              "Disable the triplet cleaner entirely.");  // FIXME this should be implemented as an automatic check (simple if) that disables if minHitsPerNtuplet > 3
+      desc.add<bool>("doFastDuplicateRemover", true)->setComment("Disable the fastDuplicateRemover");
+      desc.add<bool>("doEarlyDuplicateRemover", true)->setComment("Disable the earlyDuplicateRemover");
     }
 
     AlgoParams makeCommonParams(edm::ParameterSet const& cfg) {
@@ -213,10 +243,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           cfg.getParameter<bool>("fitNas4"),
           cfg.getParameter<bool>("earlyFishbone"),
           cfg.getParameter<bool>("lateFishbone"),
+          cfg.getParameter<bool>("onlySameLayersFishbone"),
           cfg.getParameter<bool>("fillStatistics"),
           cfg.getParameter<bool>("doSharedHitCut"),
           cfg.getParameter<bool>("dupPassThrough"),
-          cfg.getParameter<bool>("useSimpleTripletCleaner")});
+          cfg.getParameter<bool>("useSimpleTripletCleaner"),
+          cfg.getParameter<bool>("doTripletCleaner"),
+          cfg.getParameter<bool>("doFastDuplicateRemover"),
+          cfg.getParameter<bool>("doEarlyDuplicateRemover")});
     }
 
     //This is needed to have the partial specialization for isPhase1Topology/isPhase2Topology

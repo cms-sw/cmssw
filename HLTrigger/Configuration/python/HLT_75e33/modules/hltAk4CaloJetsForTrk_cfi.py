@@ -31,3 +31,7 @@ hltAk4CaloJetsForTrk = cms.EDProducer("FastjetJetProducer",
     useDeterministicSeed = cms.bool(True),
     voronoiRfact = cms.double(-0.9)
 )
+
+from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
+ngtScouting.toModify(hltAk4CaloJetsForTrk,
+                     srcPVs = "hltPhase2PixelVertices")
