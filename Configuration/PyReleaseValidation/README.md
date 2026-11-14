@@ -112,6 +112,7 @@ The offsets currently in use are:
 * 0.9921: Production-like premixing stage1+stage2
 * 0.911: DD4hep reading geometry from XML
 * 0.912: DD4hep reading geometry from the DB
+* 0.913: Run-3 FastSim HLT GRun validation
 * 0.914: DDD DB
 * 0.101: Phase-2 aging, 1000fb-1
 * 0.103: Phase-2 aging, 3000fb-1
