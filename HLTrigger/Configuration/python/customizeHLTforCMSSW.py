@@ -365,6 +365,24 @@ def customizeHLTforL1P2GTv0p0_2026(process):
     return process
 
 
+def customizeHLTforBLFitCorrections(process):
+    """ This customizer
+        - removes the fitNas4 parameter, which the CAHitNtupletAlpaka producers of every topology do not accept.
+    """
+
+    ca_producers = []
+    for topology in ['Phase1', 'HIonPhase1', 'Phase2', 'Phase2OT', 'Phase2OTVectorHits']:
+        ca_producers += ['CAHitNtupletAlpaka' + topology + '@alpaka',
+                         'alpaka_serial_sync::CAHitNtupletAlpaka' + topology]
+
+    for ca_producer in ca_producers:
+        for prod in producers_by_type(process, ca_producer):
+            if hasattr(prod, 'fitNas4'):
+                delattr(prod, 'fitNas4')
+
+    return process
+
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -375,5 +393,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customizeHLTfor49436(process)
     process = customizeHLTfor51085(process)
     process = customizeHLTfor52006(process)
+    process = customizeHLTforBLFitCorrections(process)
 
     return process

@@ -193,6 +193,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ~CAHitNtupletGeneratorKernels() = default;
 
     TupleMultiplicity const* tupleMultiplicity() const { return device_tupleMultiplicity_->data(); }
+    // The offsets of the tuple multiplicity: off[b] tuples have fewer than b hits. maxHitsOnTrack + 2 entries.
+    GenericContainerOffsets const* tupleMultiplicityOffsets() const { return device_tupleMultiplicityOffsets_->data(); }
     HitContainer const* hitContainer() const { return device_hitContainer_->data(); }
     HitToCell const* hitToCell() const { return device_hitToCell_->data(); }
 
@@ -318,6 +320,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // quality snapshot while each thread writes its own track's quality directly. See the helper kernels
     // Kernel_snapshotQuality / Kernel_applyQuality in CAHitNtupletGeneratorKernelsImpl.h
     std::optional<cms::alpakatools::device_buffer<Device, int32_t[]>> device_qualityScratch_;
+    // heavy cells of the duplicate removers (word 0: their number)
+    std::optional<cms::alpakatools::device_buffer<Device, uint32_t[]>> device_dupHeavyCells_;
+    // the fast duplicate remover's copy of the tracks above `reject` of each heavy cell
+    std::optional<cms::alpakatools::device_buffer<Device, uint32_t[]>> device_dupAliveTracks_;
 
     // Cells-> Neighbor Cells
     DeviceGenericContainerBuffer device_cellToNeighbors_;

@@ -153,7 +153,8 @@ phase2OTVectorHitsSoASerial = makeSerialClone(phase2OTVectorHitsSoA,
 
 phase2CAVectorHits.toReplaceWith(pixelTracksAlpaka, _pixelTracksAlpakaPhase2OTVectorHits.clone(
     pixelRecHitSrc = "siPixelRecHitsPreSplittingAlpaka",
-    vectorHitsSrc = "phase2OTVectorHitsSoA"
+    vectorHitsSrc = "phase2OTVectorHitsSoA",
+    otRecHitsSoASrc = "caOTRecHitsSoA"
 ))
 
 # pixel tracks SoA producer on the cpu, for validation
@@ -166,7 +167,8 @@ phase2CAExtension.toModify(pixelTracksAlpakaSerial,
                            )
 
 phase2CAVectorHits.toModify(pixelTracksAlpakaSerial,
-    vectorHitsSrc = "phase2OTVectorHitsSoASerial"
+    vectorHitsSrc = "phase2OTVectorHitsSoASerial",
+    otRecHitsSoASrc = "caOTRecHitsSoASerial"
 )
 
 # high-purity selection of the vector hit CA tracks, as in the HLT menu
@@ -229,8 +231,10 @@ phase2CAVectorHits.toReplaceWith(pixelTracksTask, cms.Task(
     pixelTracks)
 )
 
-# event setup of the vector hit CA: stacked-module geometry
+# event setup of the vector hit CA: stacked-module geometry, material and field maps of the BrokenLine fit
 def _addProcessESPhase2CAVectorHits(process):
     process.load("RecoTracker.PixelSeeding.stackedModuleGeometryESProducer_cfi")
+    process.load("RecoTracker.PixelTrackFitting.blMaterialMapESProducerAlpaka_cfi")
+    process.load("RecoTracker.PixelTrackFitting.blbFieldMapESProducerAlpaka_cfi")
 
 modifyConfigurationForPhase2CAVectorHits_ = (alpaka & phase2CAVectorHits).makeProcessModifier(_addProcessESPhase2CAVectorHits)

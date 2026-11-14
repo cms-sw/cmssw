@@ -5,6 +5,7 @@
 <use name="CommonTools/Utils"/>
 <use name="DataFormats/GeometrySurface"/>
 <use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/Portable"/>
 <use name="DataFormats/SiPixelDetId"/>
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="DataFormats/TrackingRecHit"/>
@@ -14,8 +15,11 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>
+<use name="HeterogeneousCore/AlpakaCore"/>
+<use name="HeterogeneousCore/AlpakaMath"/>
 <use name="Geometry/CommonTopologies" source_only="1"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
+<use name="Geometry/TrackerNumberingBuilder"/>
 <use name="MagneticField/Engine"/>
 <use name="RecoTracker/TkHitPairs"/>
 <use name="RecoTracker/TkMSParametrization"/>
@@ -29,10 +33,12 @@
 <use name="TrackingTools/TransientTrackingRecHit"/>
 <use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/DetId"/>
 <use name="DataFormats/GeometryCommonDetAlgo"/>
 <use name="DataFormats/TrackerCommon"/>
 <use name="RecoTracker/TkSeedingLayers"/>
 <use name="TrackingTools/TrajectoryFiltering"/>
+<flags ALPAKA_BACKENDS="1"/>
 <export>
   <lib name="1"/>
 </export>

@@ -4,6 +4,7 @@
 <use name="FWCore/Utilities"/>
 <use name="FWCore/Framework"/>
 <use name="Geometry/Records"/>
+<use name="MagneticField/Records"/>
 <use name="TrackingTools/Records"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CalibTracker/Records"/>

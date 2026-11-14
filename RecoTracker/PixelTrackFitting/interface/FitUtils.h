@@ -211,8 +211,9 @@ namespace riemannFit {
   // the plane of the latter is the perigee plane...
   // from   //!<(phi,Tip,q/pt,cotan(theta)),Zip)
   // to q/p,dx/dz,dy/dz,x,z
+  // bField: z component of the field at the plane's origin in GeV/cm, from MagneticField::inInverseGeV
   template <typename VI5, typename MI5, typename VO5, typename MO5>
-  inline void transformToPerigeePlane(VI5 const& ip, MI5 const& icov, VO5& op, MO5& ocov) {
+  inline void transformToPerigeePlane(VI5 const& ip, MI5 const& icov, const double bField, VO5& op, MO5& ocov) {
     auto sinTheta2 = 1. / (1. + ip(3) * ip(3));
     auto sinTheta = std::sqrt(sinTheta2);
     auto cosTheta = ip(3) * sinTheta;
@@ -227,9 +228,12 @@ namespace riemannFit {
 
     jMat(0, 2) = sinTheta;
     jMat(0, 3) = -sinTheta2 * cosTheta * ip(2);
-    jMat(1, 0) = 1.;
+    // The phi derivatives include the move of the closest-approach point by Tip*dphi along the plane's normal,
+    // and the turn of the track over that path.
+    jMat(1, 0) = -(1. + bField * ip(2) * ip(1));
     jMat(2, 3) = -1.;
     jMat(3, 1) = 1.;
+    jMat(4, 0) = ip(1) * ip(3);
     jMat(4, 4) = -1;
 
     ocov = jMat * icov * jMat.transpose();

@@ -38,7 +38,7 @@ namespace caStructures {
 
     // Flags
     bool useRiemannFit_;
-    bool fitNas4_;
+    bool useFitCorrections_;
     bool earlyFishbone_;
     bool lateFishbone_;
     bool onlySameLayersFishbone_;
@@ -68,12 +68,18 @@ namespace caStructures {
     bool delayAllocations_;    // Defer cell-derived + hit->track buffers until their real size is known
     bool countDoubletsFirst_;  // Run a count-only doublet pass to size simpleCells/hitToCellStorage exactly
 
-    // CA fast-duplicate / shared-hit parameter-cov gate width. Two tracks are declared duplicates when
+    // CA fast-duplicate / shared-hit parameter-cov gate width. Two tracks are compatible when
     // every fitted param p satisfies dp^2 <= fastDupNSigma2_*(cov_i+cov_j) (Kernel_fastDuplicateRemover
     // and Kernel_rejectDuplicate, five-parameter compatibility check). A width in units of the fitted
     // covariance: lowering it tightens the gate (fewer merges), raising it merges more aggressively.
     // The Phase-1 specializations of those kernels keep their own hard-wired nSigma2Phase1 constant.
     float fastDupNSigma2_;
+
+    // Phase2OTVectorHits only, see fastDupRemoverCell. A longer track wins a cell on length only with chi2/ndof
+    // below fastDupMaxChi2ForLengthFirst_. A worse track that shares only the cell's two hits with the kept track
+    // stays only with at least fastDupMinHitsToKeepApart_ hits.
+    float fastDupMaxChi2ForLengthFirst_;
+    int fastDupMinHitsToKeepApart_;
   };
 
   // Hits data formats

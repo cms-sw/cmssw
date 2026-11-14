@@ -219,6 +219,7 @@ hltPhase2PixelTracksSoAWithVectorHits = cms.EDProducer('CAHitNtupletAlpakaPhase2
     # The CA reads the pixel rechits and the outer-tracker vector hits through the CAHitsView facade.
     pixelRecHitSrc = cms.InputTag('hltPhase2SiPixelRecHitsSoA'),
     vectorHitsSrc = cms.InputTag('hltPhase2OTVectorHitsSoA'),
+    otRecHitsSoASrc = cms.InputTag('hltCAOTRecHitsSoA'),
     trackerRecHitsSoA = cms.InputTag(''),   # no separate outer-tracker rechit collection: they come in as vector hits
 
     # In-kernel classifiers: ON; their working points are BAKED in the weight headers (CATripletDNNWeights_*.h,
@@ -249,14 +250,16 @@ hltPhase2PixelTracksSoAWithVectorHits = cms.EDProducer('CAHitNtupletAlpakaPhase2
     maxPhiResid = cms.double(0.006),
     maxVectorHitTip  = cms.double(0.1),   # transverse displacement this iteration admits [cm]
     minHitsForSharingCut = cms.uint32(1),
-    fitNas4 = cms.bool(False),
     useRiemannFit = cms.bool(False),
+    useFitCorrections = cms.bool(True),
     doSharedHitCut = cms.bool(True),
     dupPassThrough = cms.bool(False),
     useSimpleTripletCleaner = cms.bool(True),
     doTripletCleaner = cms.bool(True),
     doFastDuplicateRemover = cms.bool(True),
     fastDupNSigma2 = cms.double(2.5),
+    fastDupMaxChi2ForLengthFirst = cms.double(3.0),
+    fastDupMinHitsToKeepApart = cms.int32(7),
     doEarlyDuplicateRemover = cms.bool(True),
     trackQualityCuts = cms.PSet(
         maxChi2TripletsOrQuadruplets = cms.double(7.0),

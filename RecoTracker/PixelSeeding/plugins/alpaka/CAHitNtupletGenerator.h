@@ -60,6 +60,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
+    // the producer consumes the fit's two maps only when this is true
+    bool useFitCorrections() const { return m_params.algoParams_.useFitCorrections_; }
+
     // NOTE: beginJob and endJob were meant to be used
     // to fill the statistics. This is still not implemented in Alpaka
     // since we are missing the begin/endJob functionality for the Alpaka
@@ -69,7 +72,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // void endJob();
 
     // The producer builds the CA ntuplets, runs the broken-line fit and selects high-purity tracks.
-    // It does not consume the outer-tracker or stacked-sensor products.
+    // Besides the vector hits, it reads the outer-tracker rechits, for the BrokenLine fit with useFitCorrections.
     //
     // Acquire/produce split (stream::SynchronizingEDProducer): the producer calls beginTuplesAsync
     // in acquire() -- hit prep, doublets, CA kernels, and one async D2H of the tuple-multiplicity
@@ -83,6 +86,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // const members), and PendingTuples must move across the acquire->produce seam.
       std::unique_ptr<CAHitNtupletGeneratorKernels<TrackerTraits>> kernels;
       std::optional<TkSoADevice> tracks;
+      // Host copy of the tuple-multiplicity offsets per hit-count bin (beginTuplesAsync).
+      std::optional<cms::alpakatools::host_buffer<uint32_t[]>> offsetsHost;
       // Pinned host mirror of the 5-word extraStorage counter block, enqueued async in
       // beginTuplesAsync when delayAllocations is on and landed by the same seam guarantee.
       // Word [0] is the tuple AtomicPairCounter; finishTuplesAsync decodes it to size the
@@ -101,9 +106,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                    uint32_t maxTuples,
                                    Queue& queue) const;
 
+    // partnerRecHits: the outer-tracker rechits of the vector hits' partner sensors, or an empty view.
     TkSoADevice finishTuplesAsync(PendingTuples&& pending,
                                   HitsInput const& hits,
                                   CAGeometryOnDevice const& params_d,
+                                  BLFitConfig const& fitCfg,
+                                  ::reco::OTRecHitsConstView const& partnerRecHits,
                                   Queue& queue) const;
 
     // Always-on overflow surfacing, independent of doStats_: the capacity guards in the build

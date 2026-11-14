@@ -55,3 +55,33 @@
   <use name="TrackingTools/TrajectoryParametrization"/>
   <flags CXXFLAGS="-g"/>
 </bin>
+
+<!-- Material-map builder (blMaterialMap/README.md). It needs step trees as arguments, so runtests skip it. -->
+<bin file="blMaterialMap/blMaterialMapBuild.cc" name="blMaterialMapBuild">
+  <use name="root"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
+  <flags NO_TESTRUN="1"/>
+</bin>
+
+<!-- Writes the geometry fingerprint and the sensor positions in a rays job (blMaterialMap/README.md). -->
+<library file="blMaterialMap/BLMaterialMapFingerprintDump.cc" name="RecoTrackerPixelTrackFittingBLMaterialMapFingerprintDump">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/TrackerNumberingBuilder"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<!-- Writes the Geant4 material table of a rays job, for blMaterialMapBuild. -->
+<library file="blMaterialMap/BLMaterialTableDump.cc" name="RecoTrackerPixelTrackFittingBLMaterialTableDump">
+  <use name="geant4core"/>
+  <use name="clhep"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="SimG4Core/Notification"/>
+  <use name="SimG4Core/Watcher"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
