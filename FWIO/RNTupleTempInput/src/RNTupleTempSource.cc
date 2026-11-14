@@ -9,7 +9,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/FileBlock.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"

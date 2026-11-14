@@ -29,7 +29,6 @@ ________________________________________________________________**/
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
