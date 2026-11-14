@@ -47,3 +47,6 @@ HLTHeterogeneousMonitoringHarvesting =  cms.Sequence(
 _HLTHeterogeneousMonitoringHarvesting = HLTHeterogeneousMonitoringHarvesting.copy()
 _HLTHeterogeneousMonitoringHarvesting += hltTrackToTrackEfficiencies
 alpakaValidationHLT.toReplaceWith(HLTHeterogeneousMonitoringHarvesting, _HLTHeterogeneousMonitoringHarvesting)
+
+# Offline DQM monitoring harvesting (empty for the moment)
+HeterogeneousMonitoringHarvesting = cms.Sequence()

@@ -319,9 +319,8 @@ def main():
     report.write()
 
     #add tdr-style stack plots to offset html file
-    if doOffsetPlots :
-        offsetDir = "OffsetStacks"
-        fullOffsetDir = os.path.join( outputDir, offsetDir )
+    if doOffsetPlots:
+        fullOffsetDir = os.path.join( outputDir, "OffsetStacks" )
         os.makedirs( fullOffsetDir )
 
         for s in samples :

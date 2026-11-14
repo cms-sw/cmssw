@@ -7,7 +7,10 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include <SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h>
 
 #include <vector>
@@ -90,15 +93,20 @@ private:
 
   edm::EDGetTokenT<edm::View<reco::Vertex>> pvToken;
   edm::EDGetTokenT<edm::View<PileupSummaryInfo>> muToken;
-  edm::EDGetTokenT<edm::View<pat::PackedCandidate>> pfToken;
+  // Read through the base class so that one token serves both inputs:
+  // miniAOD pat::PackedCandidate and AOD/HLT reco::PFCandidate both derive
+  // from reco::Candidate. Only the PV-attachment test below is type specific.
+  edm::EDGetTokenT<edm::View<reco::Candidate>> pfToken;
+  std::string dqmDir_;
 };
 
-OffsetAnalyzerDQM::OffsetAnalyzerDQM(const edm::ParameterSet& iConfig) {
+OffsetAnalyzerDQM::OffsetAnalyzerDQM(const edm::ParameterSet& iConfig)
+    : dqmDir_(iConfig.getParameter<std::string>("dqmDir")) {
   offsetPlotBaseName = iConfig.getParameter<std::string>("offsetPlotBaseName");
 
   pvToken = consumes<edm::View<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("pvTag"));
   muToken = consumes<edm::View<PileupSummaryInfo>>(iConfig.getParameter<edm::InputTag>("muTag"));
-  pfToken = consumes<edm::View<pat::PackedCandidate>>(iConfig.getParameter<edm::InputTag>("pfTag"));
+  pfToken = consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("pfTag"));
 
   etabins = iConfig.getParameter<std::vector<double>>("etabins");
   pftypes = iConfig.getParameter<std::vector<std::string>>("pftypes");
@@ -111,7 +119,7 @@ OffsetAnalyzerDQM::OffsetAnalyzerDQM(const edm::ParameterSet& iConfig) {
   for (auto& pset : offset_psets) {
     std::string name = pset.getParameter<std::string>("name");
     std::string title = pset.getParameter<std::string>("title");
-    std::string dir = pset.getParameter<std::string>("dir");
+    std::string dir = dqmDir_ + pset.getParameter<std::string>("dir");
     std::vector<double> vx = pset.getParameter<std::vector<double>>("vx");
     int ny = pset.getParameter<uint32_t>("ny");
     double y0 = pset.getParameter<double>("y0");
@@ -125,7 +133,7 @@ OffsetAnalyzerDQM::OffsetAnalyzerDQM(const edm::ParameterSet& iConfig) {
   for (auto& pset : th1d_psets) {
     std::string name = pset.getParameter<std::string>("name");
     std::string title = pset.getParameter<std::string>("title");
-    std::string dir = pset.getParameter<std::string>("dir");
+    std::string dir = dqmDir_ + pset.getParameter<std::string>("dir");
     int nx = pset.getParameter<uint32_t>("nx");
     double x0 = pset.getParameter<double>("x0");
     double x1 = pset.getParameter<double>("x1");
@@ -141,7 +149,6 @@ OffsetAnalyzerDQM::OffsetAnalyzerDQM(const edm::ParameterSet& iConfig) {
 }
 
 void OffsetAnalyzerDQM::bookHistograms(DQMStore::IBooker& booker, edm::Run const&, edm::EventSetup const&) {
-  //std::cout << "OffsetAnalyzerDQM booking offset histograms" << std::endl;
   for (auto& pair : offsetPlots) {
     pair.second.book(booker);
   }
@@ -151,9 +158,17 @@ void OffsetAnalyzerDQM::bookHistograms(DQMStore::IBooker& booker, edm::Run const
 }
 
 void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
-  //npv//
+  // Number of primary vertices
   edm::Handle<edm::View<reco::Vertex>> vertexHandle;
   iEvent.getByToken(pvToken, vertexHandle);
+  // Offline the vertex collection always exists. At HLT it does not: products
+  // are made inside filtered paths, so in an event where no relevant path ran
+  // the collection is simply absent. Dereferencing then throws ProductNotFound
+  // and kills the job, so skip the event instead.
+  if (!vertexHandle.isValid()) {
+    edm::LogInfo("OffsetAnalyzerDQM") << "no vertex collection in this event; skipping";
+    return;
+  }
 
   unsigned int nPVall = vertexHandle->size();
   bool isGoodPV[nPVall];
@@ -177,7 +192,7 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
   else if (npv_in_range >= npvHigh)
     npv_in_range = npvHigh - 1;  // make sure int_mu won't lead to non-existing ME
 
-  //mu//
+  // Pileup
   int int_mu = -1;
   edm::Handle<edm::View<PileupSummaryInfo>> muHandle;
   if (iEvent.getByToken(muToken, muHandle)) {
@@ -196,58 +211,63 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
     int_mu = muHigh - 1;  // make sure int_mu won't lead to non-existing ME
 
   //create map of pftypes vs total energy / eta
-  std::map<std::string, std::vector<double>> m_pftype_etaE;
+  std::map<std::string, std::vector<double>> m_pftype_pfEt;
   int nEta = etabins.size() - 1;
   for (const auto& pftype : pftypes)
-    m_pftype_etaE[pftype].assign(nEta, 0.0);
+    m_pftype_pfEt[pftype].assign(nEta, 0.0);
 
-  //pf particles//
-  edm::Handle<edm::View<pat::PackedCandidate>> pfHandle;
-  iEvent.getByToken(pfToken, pfHandle);
-
-  for (unsigned int i = 0, n = pfHandle->size(); i < n; i++) {
-    const auto& cand = pfHandle->at(i);
-
-    int etaIndex = getEtaIndex(cand.eta());
-    std::string pftype = pdgMap[abs(cand.pdgId())];
+  //Fill profile histograms with PF transverse energy versus pseudo-rapidity
+  auto fillCandidate = [&](double eta, int pdg, double et, auto isAttachedToPV) {
+    int etaIndex = getEtaIndex(eta);
+    std::string pftype = pdgMap[abs(pdg)];
     if (etaIndex == -1 || pftype.empty())
-      continue;
+      return;
+    if (pftype == "chm" && !isAttachedToPV())
+      pftype = "chu";  //unmatched charged hadron
+    m_pftype_pfEt[pftype][etaIndex] += et;
+  };
 
-    if (pftype == "chm") {  //check charged hadrons ONLY
-      bool attached = false;
-
-      for (unsigned int ipv = 0; ipv < nPVall && !attached; ipv++) {
-        if (isGoodPV[ipv] && cand.fromPV(ipv) == 3)
-          attached = true;  //pv used in fit
-      }
-      if (!attached)
-        pftype = "chu";  //unmatched charged hadron
-    }
-    ////AOD////
-    /*
-        reco::TrackRef candTrkRef( cand.trackRef() );
-        if ( pftype == "chm" && !candTrkRef.isNull() ) { //check charged hadrons ONLY
-            bool attached = false;
-
-            for (auto ipv=vertexHandle->begin(), endpv=vertexHandle->end(); ipv != endpv && !attached; ++ipv) {
-                if ( !ipv->isFake() && ipv->ndof() >= 4 && fabs(ipv->z()) < 24 ) { //must be attached to a good pv
-
-                    for(auto ivtrk=ipv->tracks_begin(), endvtrk=ipv->tracks_end(); ivtrk != endvtrk && !attached; ++ivtrk) {
-                        reco::TrackRef pvTrkRef(ivtrk->castTo<reco::TrackRef>());
-                        if (pvTrkRef == candTrkRef) attached = true;
-                    }
-                }
-            }
-            if (!attached) pftype = "chu"; //unmatched charged hadron
-        }
-*/
-    ///////////
-    m_pftype_etaE[pftype][etaIndex] += cand.et();
+  edm::Handle<edm::View<reco::Candidate>> pfHandle;
+  iEvent.getByToken(pfToken, pfHandle);
+  if (!pfHandle.isValid()) {
+    edm::LogInfo("OffsetAnalyzerDQM") << "no PF candidate collection in this event; skipping";
+    return;
   }
 
-  for (const auto& pair : m_pftype_etaE) {
+  for (unsigned int i = 0, n = pfHandle->size(); i < n; i++) {
+    const reco::Candidate& cand = pfHandle->at(i);
+    fillCandidate(cand.eta(), cand.pdgId(), cand.et(), [&]() {
+      // MiniAOD: PV attachment is precomputed in fromPV(), 3 == used in the fit.
+      if (const pat::PackedCandidate* packed = dynamic_cast<const pat::PackedCandidate*>(&cand)) {
+        for (unsigned int ipv = 0; ipv < nPVall; ipv++) {
+          if (isGoodPV[ipv] && packed->fromPV(ipv) == 3)
+            return true;
+        }
+        return false;
+      }
+      // AOD/HLT: reco::PFCandidate has no such flag, so attachment is decided
+      // by matching the candidate track against the tracks fitted to a good PV.
+      if (const reco::PFCandidate* pf = dynamic_cast<const reco::PFCandidate*>(&cand)) {
+        reco::TrackRef candTrkRef(pf->trackRef());
+        if (candTrkRef.isNull())
+          return false;
+        for (unsigned int ipv = 0; ipv < nPVall; ++ipv) {
+          if (!isGoodPV[ipv])
+            continue;
+          const auto& pv = vertexHandle->at(ipv);
+          for (auto ivtrk = pv.tracks_begin(), endvtrk = pv.tracks_end(); ivtrk != endvtrk; ++ivtrk) {
+            if (ivtrk->castTo<reco::TrackRef>() == candTrkRef)
+              return true;
+          }
+        }
+      }
+      return false;
+    });
+  }
+
+  for (const auto& pair : m_pftype_pfEt) {
     std::string pftype = pair.first;
-    std::vector<double> etaE = pair.second;
+    std::vector<double> pfEt = pair.second;
 
     std::string offset_name_npv = offsetPlotBaseName + "_npv" + std::to_string(npv_in_range) + "_" + pftype;
     if (offsetPlots.find(offset_name_npv) == offsetPlots.end())
@@ -255,7 +275,7 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
     for (int i = 0; i < nEta; i++) {
       double eta = 0.5 * (etabins[i] + etabins[i + 1]);
-      offsetPlots[offset_name_npv].fill2D(eta, etaE[i]);
+      offsetPlots[offset_name_npv].fill2D(eta, pfEt[i]);
     }
 
     if (int_mu != -1) {
@@ -265,7 +285,7 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
       for (int i = 0; i < nEta; i++) {
         double eta = 0.5 * (etabins[i] + etabins[i + 1]);
-        offsetPlots[offset_name_mu].fill2D(eta, etaE[i]);
+        offsetPlots[offset_name_mu].fill2D(eta, pfEt[i]);
       }
     }
   }
