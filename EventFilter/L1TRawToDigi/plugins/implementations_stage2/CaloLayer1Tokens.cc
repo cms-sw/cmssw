@@ -10,10 +10,12 @@ namespace l1t {
       auto ecalTag = cfg.getParameter<edm::InputTag>("ecalDigis");
       auto hcalTag = cfg.getParameter<edm::InputTag>("hcalDigis");
       auto regionTag = cfg.getParameter<edm::InputTag>("caloRegions");
+      auto cicadaTag = cfg.getParameter<edm::InputTag>("CICADAScore");
 
       ecalDigiToken_ = cc.consumes<EcalTrigPrimDigiCollection>(ecalTag);
       hcalDigiToken_ = cc.consumes<HcalTrigPrimDigiCollection>(hcalTag);
       caloRegionToken_ = cc.consumes<L1CaloRegionCollection>(regionTag);
+      cicadaToken_ = cc.consumes<CICADABxCollection>(cicadaTag);
     }
   }  // namespace stage2
 }  // namespace l1t
