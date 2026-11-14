@@ -307,10 +307,10 @@ void TruthLogicalGraphHitIndexProducer::fillTrackToParticleMap(truth::Graph cons
       continue;
 
     auto const& ref = rawGraph.nodeRef(simNodeU32);
-    if (ref.kind != TruthGraph::NodeKind::SimTrack)
+    if (ref.kind() != TruthGraph::NodeKind::SimTrack)
       continue;
 
-    const uint32_t trackId = checkedTrackId(ref.key);
+    const uint32_t trackId = checkedTrackId(ref.key());
     if (trackId == 0)
       continue;
 
