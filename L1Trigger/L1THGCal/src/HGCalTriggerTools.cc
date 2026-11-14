@@ -2,6 +2,7 @@
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseTriggerDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
@@ -63,15 +64,6 @@ GlobalPoint HGCalTriggerTools::getTCPosition(const DetId& id) const {
 unsigned HGCalTriggerTools::layers(ForwardSubdetector type) const {
   unsigned layers = 0;
   switch (type) {
-    case ForwardSubdetector::HGCEE:
-      layers = eeLayers_;
-      break;
-    case ForwardSubdetector::HGCHEF:
-      layers = fhLayers_;
-      break;
-    case ForwardSubdetector::HGCHEB:
-      layers = bhLayers_;
-      break;
     case ForwardSubdetector::HFNose:
       layers = noseLayers_;
       break;
@@ -79,6 +71,7 @@ unsigned HGCalTriggerTools::layers(ForwardSubdetector type) const {
       layers = totalLayers_;
       break;
     default:
+      layers = totalLayers_;
       break;
   };
   return layers;
@@ -322,13 +315,13 @@ float HGCalTriggerTools::getTCPt(const DetId& id, const float& hitEnergy, const 
 }
 
 float HGCalTriggerTools::getLayerZ(const unsigned& layerWithOffset) const {
-  int subdet = ForwardSubdetector::HGCEE;
+  int subdet = DetId::HGCalEE;
   unsigned offset = 0;
   if (layerWithOffset > lastLayerEE() && layerWithOffset <= lastLayerFH()) {
-    subdet = ForwardSubdetector::HGCHEF;
+    subdet = DetId::HGCalHSi;
     offset = lastLayerEE();
   } else if (layerWithOffset > lastLayerFH()) {
-    subdet = HcalSubdetector::HcalEndcap;
+    subdet = DetId::HGCalHSc;
     offset = lastLayerFH();
   }
   // note for HFnose offset is always zero since we have less layers than HGCEE
@@ -337,13 +330,13 @@ float HGCalTriggerTools::getLayerZ(const unsigned& layerWithOffset) const {
 
 float HGCalTriggerTools::getLayerZ(const int& subdet, const unsigned& layer) const {
   float layerGlobalZ = 0.;
-  if ((subdet == ForwardSubdetector::HGCEE) || (subdet == DetId::HGCalEE)) {
+  if (subdet == DetId::HGCalEE) {
     layerGlobalZ = geom_->eeTopology().dddConstants().waferZ(layer, true);
-  } else if ((subdet == ForwardSubdetector::HGCHEF) || (subdet == DetId::HGCalHSi)) {
+  } else if (subdet == DetId::HGCalHSi) {
     layerGlobalZ = geom_->fhTopology().dddConstants().waferZ(layer, true);
   } else if (subdet == ForwardSubdetector::HFNose) {
     layerGlobalZ = geom_->noseTopology().dddConstants().waferZ(layer, true);
-  } else if ((subdet == ForwardSubdetector::HGCHEB) || (subdet == DetId::HGCalHSc)) {
+  } else if (subdet == DetId::HGCalHSc) {
     layerGlobalZ = geom_->hscTopology().dddConstants().waferZ(layer, true);
   }
   return layerGlobalZ;
