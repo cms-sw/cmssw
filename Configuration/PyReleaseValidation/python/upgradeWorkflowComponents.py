@@ -3606,16 +3606,18 @@ class UpgradeWorkflow_rpcDevel(UpgradeWorkflow):
         self.__harvest = harvest
 
     def setup_(self, step, stepName, stepDict, k, properties):
+        # run the RPC Phase2 devel modules
         mods = {'--era': stepDict[step][k]['--era'] + ',phase2_rpc_devel'}
-
+        # temporarily skip RECO, HARVEST and ALCA
         if 'Digi' in step:
             mods |= self.__digi
+            stepDict[stepName][k] = merge([mods, stepDict[step][k]])
         elif 'Reco' in step:
-            mods |= self.__reco
+            stepDict[stepName][k] = None
         elif 'HARVEST' in step:
-            mods |= self.__harvest
-
-        stepDict[stepName][k] = merge([mods, stepDict[step][k]])
+            stepDict[stepName][k] = None
+        elif 'ALCA' in step or 'Nano'==step:
+            stepDict[stepName][k] = None
 
     def condition(self, fragment, stepList, key, hasHarvest):
         return fragment == "TTbar_14TeV" and 'Run4' in key
