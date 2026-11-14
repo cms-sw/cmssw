@@ -8,16 +8,21 @@ std::unique_ptr<edm::ParameterSet> edm::getPSetFromConfig(const std::string& con
 
 //its really the stuff in MakePythonParameterSets that should be in the different namespace
 //I'll do that if this setup is ok
-std::unique_ptr<edm::ParameterSet> edm::readConfig(std::string const& config, const std::vector<std::string>& args) {
-  return edm::cmspybind11::readConfig(config, args);
+std::unique_ptr<edm::ParameterSet> edm::readConfig(
+    std::string const& config,
+    const std::vector<std::string>& args,
+    std::vector<std::pair<std::string, std::string>> const& processOptions) {
+  return edm::cmspybind11::readConfig(config, args, processOptions);
 }
 
 std::unique_ptr<edm::ParameterSet> edm::readConfig(std::string const& config) {
   return edm::cmspybind11::readConfig(config);
 }
 
-void edm::makeParameterSets(std::string const& configtext, std::unique_ptr<ParameterSet>& main) {
-  edm::cmspybind11::makeParameterSets(configtext, main);
+void edm::makeParameterSets(std::string const& configtext,
+                            std::unique_ptr<ParameterSet>& main,
+                            std::vector<std::pair<std::string, std::string>> const& processOptions) {
+  edm::cmspybind11::makeParameterSets(configtext, main, processOptions);
 }
 
 std::unique_ptr<edm::ParameterSet> edm::readPSetsFrom(std::string const& fileOrString) {
