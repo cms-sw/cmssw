@@ -153,7 +153,7 @@ namespace {
     pconf.finding_inter_layer_pflags = PropagationFlags(PF_none);
     pconf.finding_intra_layer_pflags = PropagationFlags(PF_none);
     pconf.backward_fit_pflags = PropagationFlags(PF_use_param_b_field);
-    pconf.forward_fit_pflags = PropagationFlags(PF_use_param_b_field);
+    pconf.final_fit_pflags = PropagationFlags(PF_use_param_b_field);
     pconf.seed_fit_pflags = PropagationFlags(PF_none);
     pconf.pca_prop_pflags = PropagationFlags(PF_use_param_b_field);
     pconf.apply_tracker_info(&ti);

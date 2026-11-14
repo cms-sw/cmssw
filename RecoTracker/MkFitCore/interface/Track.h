@@ -444,8 +444,9 @@ namespace mkfit {
     void addHitIdx(const HitOnTrack& hot, float chi2) { addHitIdx(hot.index, hot.layer, chi2); }
 
     void removeHit(int posHitIdx) {
-      // negative index and keep hit
-      hitsOnTrk_[posHitIdx].index = -1;
+      // negative index and keep hit: its layer stays, and the index tells it from a miss of the building and still
+      // gives the hit
+      hitsOnTrk_[posHitIdx].index = Hit::fitOutlierIdx(hitsOnTrk_[posHitIdx].index);
 
       //should remove it from the vector, but didn't work so far
       //hitsOnTrk_.erase(hitsOnTrk_.begin() + posHitIdx);

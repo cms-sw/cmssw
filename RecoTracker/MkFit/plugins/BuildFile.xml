@@ -21,6 +21,7 @@
   <use name="Geometry/CommonTopologies"/>
   <use name="Geometry/Records"/>
   <use name="Geometry/TrackerGeometryBuilder"/>
+  <use name="MagneticField/Portable"/>
   <use name="PhysicsTools/TensorFlow"/>
   <use name="RecoTracker/MkFit"/>
   <use name="RecoTracker/TkDetLayers"/>

@@ -486,6 +486,29 @@ _InitialStepTask_trackingPhase2_LST = InitialStepTask.copyAndExclude([initialSte
 (trackingMkFitInitialStep & trackingPhase2PU140).toModify(initialStepTrackCandidates, mkFitStripHits=cms.InputTag('mkFitSiPhase2Hits'))
 (trackingMkFitInitialStep & trackingPhase2PU140).toModify(initialStepTrackCandidatesMkFitConfig, config='RecoTracker/MkFit/data/mkfit-phase2-initialStep.json')
 
+# mkFit final fit in place of the CKF fit (Phase 2); the per-hit smoothed states give the TrackExtras and Trajectories
+from Configuration.ProcessModifiers.trackingMkFitFit_cff import trackingMkFitFit
+from RecoTracker.MkFit.MkFitFitProducerDefault_cfi import MkFitFitProducerDefault as _mkFitFitProducer
+from RecoTracker.MkFit.mkFitOutputTrackConverter_cfi import mkFitOutputTrackConverter as _mkFitOutputTrackConverter
+initialStepTrackCandidatesMkFitFit = _mkFitFitProducer.clone(
+    config = ('', 'initialStepTrackCandidatesMkFitConfig'),
+    tracks = 'initialStepTrackCandidatesMkFit',
+    pixelCPE = 'PixelCPEGeneric',
+    storeHitStates = True,
+)
+_initialStepTracksMkFitFit = _mkFitOutputTrackConverter.clone(
+    mkFitStripHits = 'mkFitSiPhase2Hits',
+    mkFitSeeds = 'initialStepTrackCandidatesMkFitSeeds',
+    src = 'initialStepTrackCandidatesMkFitFit',
+    seeds = 'initialStepSeeds',
+)
+_trackingMkFitFitPhase2 = trackingMkFitFit & trackingMkFitInitialStep & trackingPhase2PU140
+_trackingMkFitFitPhase2.toReplaceWith(initialStepTracks, _initialStepTracksMkFitFit)
+(_trackingMkFitFitPhase2 & phase2_timing_layer).toModify(initialStepTracks, trajectoryInEvent = True)
+_InitialStepTask_trackingMkFitFit = InitialStepTask.copy()
+_InitialStepTask_trackingMkFitFit.add(initialStepTrackCandidatesMkFitFit)
+_trackingMkFitFitPhase2.toReplaceWith(InitialStepTask, _InitialStepTask_trackingMkFitFit)
+
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 _InitialStepTask_fastSim = cms.Task(initialStepTrackingRegions

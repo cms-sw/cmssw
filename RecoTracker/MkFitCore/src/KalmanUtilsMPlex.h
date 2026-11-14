@@ -152,25 +152,6 @@ namespace mkfit {
                                      const PropagationFlags& propFlags,
                                      const bool propToHit);
 
-  void kalmanPropagateAndUpdateAndChi2Plane(const MPlexLS& psErr,
-                                            const MPlexLV& psPar,
-                                            MPlexQI& Chg,
-                                            const MPlexHS& msErr,
-                                            const MPlexHV& msPar,
-                                            const MPlexHV& plNrm,
-                                            const MPlexHV& plDir,
-                                            const MPlexHV& plPnt,
-                                            MPlexLS& outErr,
-                                            MPlexLV& outPar,
-                                            MPlexQI& outFailFlag,
-                                            MPlexQF& outChi2,
-                                            const int N_proc,
-                                            const PropagationFlags& propFlags,
-                                            const bool propToHit,
-                                            const MPlexQI* noMatEffPtr = nullptr,
-                                            const MPlexQI* doCPE = nullptr,
-                                            cpe_func cpe_corr_func = nullptr);
-
   void kalmanComputeChi2Plane(const MPlexLS& psErr,
                               const MPlexLV& psPar,
                               const MPlexQI& inChg,
@@ -225,7 +206,8 @@ namespace mkfit {
                                  MPlexQF& outChi2,
                                  const int N_proc,
                                  const MPlexQI* doCPE = nullptr,
-                                 cpe_func cpe_corr_func = nullptr);
+                                 cpe_func cpe_corr_func = nullptr,
+                                 bool use_param_b_field = false);
 
 }  // end namespace mkfit
 #endif
