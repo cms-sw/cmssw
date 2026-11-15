@@ -21,7 +21,7 @@ namespace mkfit {
     CandCloner() { t_cands_for_next_lay.resize(s_max_seed_range); }
 
     void setup(const IterationParams &ip);
-    void release();
+    void reset();
 
     void begin_eta_bin(EventOfCombCandidates *e_o_ccs,
                        std::vector<UpdateIndices> *update_list,
