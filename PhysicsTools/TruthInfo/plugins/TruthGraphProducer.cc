@@ -1,8 +1,5 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
 
-// Author: Felice Pantaleo - CERN
-// Date: 03/2026
-
 #include <cstdint>
 #include <cstring>
 #include <memory>
