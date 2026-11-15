@@ -1,18 +1,23 @@
 #ifndef DataFormats_Phase2TrackerDigi_Phase2ITQCore_H
 #define DataFormats_Phase2TrackerDigi_Phase2ITQCore_H
+#include <array>
+#include "DataFormats/Phase2TrackerDigi/interface/Phase2ITBitBuffer.h"
+#include "DataFormats/Phase2TrackerDigi/interface/Phase2ITBitReader.h"
 #include <vector>
+#include <cstddef>
+#include <cstdint>
 
 class Phase2ITQCore {
   // Collects hits and creates a quarter core (16 pixel positions)
 
 public:
   Phase2ITQCore(int rocid,
-                int ccol_in,
-                int qcrow_in,
-                bool isneighbour_in,
-                bool islast_in,
-                const std::vector<int>& adcs_in,
-                const std::vector<int>& hits_in);
+                int ccolIn,
+                int qcrowIn,
+                bool isneighbourIn,
+                bool islastIn,
+                const std::vector<int>& adcsIn,
+                const std::vector<int>& hitsIn);
 
   Phase2ITQCore() {
     rocid_ = -1;
@@ -26,22 +31,31 @@ public:
   bool islast() const { return islast_; }
 
   void setIsNeighbour(bool isneighbour) { isneighbour_ = isneighbour; }
+  bool isneighbour() const { return isneighbour_; }
 
   int rocid() const { return rocid_; }
-  int get_col() const { return ccol_; }
-  int get_row() const { return qcrow_; }
+  int getCol() const { return ccol_; }
+  int getRow() const { return qcrow_; }
 
   std::vector<bool> getHitmap();
   std::vector<int> getADCs();
-  std::vector<bool> encodeQCore(bool is_new_col);
+  // dropTot=true skips the per-hit 4-bit ToT field entirely (binary readout mode).
+  // Appends this qcore's RD53 encoding to out.
+  void encodeQCore(Phase2ITBitBuffer& out, bool isNewCol, bool dropTot = false);
 
-  const bool operator<(const Phase2ITQCore& other) {
-    if (ccol_ == other.ccol_) {
-      return (ccol_ < other.ccol_);
-    } else {
-      return (qcrow_ < other.qcrow_);
-    }
+  bool operator<(const Phase2ITQCore& other) const {
+    if (ccol_ != other.ccol_)
+      return ccol_ < other.ccol_;
+    return qcrow_ < other.qcrow_;
   }
+
+  static std::vector<bool> toSensorCoordinates(const std::vector<bool>& rocHitmap);
+  template <typename T>
+  static std::vector<T> toRocCoordinates(const std::vector<T>& inputMap);
+
+  // Hitmaps and ADCs are always 16 entries
+  static std::array<bool, 16> decodeHitmap(Phase2ITBitReader& reader);
+  static std::array<int, 16> decodeADCs(Phase2ITBitReader& reader, int numHits);
 
 private:
   std::vector<int> adcs_;  // Full array of adc values in a quarter core
@@ -52,10 +66,8 @@ private:
   int ccol_;               // QCore position column
   int qcrow_;              // QCore position row
 
-  std::vector<bool> toRocCoordinates(std::vector<bool>& hitmap);
   std::vector<bool> intToBinary(int num, int length);
-  bool containsHit(std::vector<bool>& hitmap);
-  std::vector<bool> getHitmapCode(std::vector<bool> hitmap);
+  static bool containsHit(std::vector<bool>& hitmap);
 };
 
 #endif  // DataFormats_Phase2TrackerDigi_Phase2ITQCore_H

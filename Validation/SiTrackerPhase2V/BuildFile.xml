@@ -1,5 +1,8 @@
 <use name="DQM/SiTrackerPhase2"/>
 <use name="DQMServices/Core"/>
+<use name="FWCore/MessageLogger"/>
+<use name="rootgpad"/>
+<use name="rootgraphics"/>
 <use name="DataFormats/TrackerCommon"/>
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="Geometry/Records"/>
