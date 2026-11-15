@@ -6,7 +6,6 @@
 #include "IOPool/Streamer/interface/uncompress.h"
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/FileBlock.h"
 #include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"

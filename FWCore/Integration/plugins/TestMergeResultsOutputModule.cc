@@ -19,7 +19,6 @@
 #include "DataFormats/TestObjects/interface/ThingWithMerge.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
-#include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
