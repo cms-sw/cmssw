@@ -826,9 +826,7 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
         // The branch's own detector footprint, which is the truth analogue of a track's
         // hit count.
         const auto subgraph = hitIndex.subgraphHits(Traits::hitChannel, b);
-        if (entry.requireHits && std::ranges::none_of(subgraph, [this](auto const& hit) {
-              return (requireHitsDetectors_ & truth::BranchHitAssociator::detectorBit(hit.detId)) != 0u;
-            })) {
+        if (entry.requireHits && !truth::BranchHitAssociator::hasHitInDetectors(subgraph, requireHitsDetectors_)) {
           continue;
         }
         kin.nhits = subgraph.size();
