@@ -81,7 +81,7 @@ private:
   const edm::EDGetTokenT<truth::LogicalGraphHitIndex> hitIndexToken_;
   const edm::EDGetTokenT<edm::View<reco::Track>> trackToken_;
   const edm::EDGetTokenT<ClusterTPAssociation> clusterTPToken_;
-  // One warning per job for an input whose tracker truth carries no cells.
+  // One warning per stream for an input whose tracker truth carries no cells.
   std::once_flag moduleKeyedWarned_;
 
   const std::string folder_;
