@@ -16,7 +16,10 @@
  and transform them in PFGsfRecTracks.
 */
 
+#include <map>
 #include <memory>
+
+#include "TMath.h"
 
 #include "CommonTools/Utils/interface/KinematicTables.h"
 #include "CommonTools/Utils/interface/LazyConstructed.h"

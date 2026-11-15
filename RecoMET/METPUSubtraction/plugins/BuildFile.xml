@@ -17,5 +17,4 @@
   <use name="PhysicsTools/TensorFlow"/>
   <use name="HeterogeneousCore/SonicTriton"/>
   <use name="root"/>
-  <use name="roottmva"/>
 </library>
