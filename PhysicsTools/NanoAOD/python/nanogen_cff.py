@@ -5,7 +5,7 @@ from PhysicsTools.NanoAOD.globals_cff import genTable,genFilterTable
 from PhysicsTools.NanoAOD.met_cff import metMCTable
 from PhysicsTools.NanoAOD.genparticles_cff import *
 from PhysicsTools.NanoAOD.particlelevel_cff import *
-from PhysicsTools.NanoAOD.genWeightsTable_cfi import *
+from PhysicsTools.NanoAOD.genWeights_cff import *
 from PhysicsTools.NanoAOD.genVertex_cff import *
 from PhysicsTools.NanoAOD.common_cff import Var,CandVars
 from PhysicsTools.NanoAOD.simpleSingletonCandidateFlatTableProducer_cfi import simpleSingletonCandidateFlatTableProducer
@@ -35,7 +35,7 @@ nanogenSequence = cms.Sequence(
     rivetProducerHTXS+
     cms.Sequence(particleLevelTablesTask)+
     metMCTable+
-    genWeightsTable
+    cms.Sequence(genWeightsTableTask)
 )
 
 def nanoGenCommonCustomize(process):

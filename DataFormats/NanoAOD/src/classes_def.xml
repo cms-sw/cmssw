@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <lcgdict>
     <class name="nanoaod::FlatTable::Column" ClassVersion="3">
         <version ClassVersion="3" checksum="3066258528"/>
@@ -8,6 +9,9 @@
     </class>
     <class name="nanoaod::FlatTable::RowView" transient="true" />
     <class name="edm::Wrapper<nanoaod::FlatTable>" />
+
+    <class name="std::vector<nanoaod::FlatTable>" />
+    <class name="edm::Wrapper<std::vector<nanoaod::FlatTable>>" />
 
     <class name="nanoaod::MergeableCounterTable::FloatColumn" ClassVersion="3">
         <version ClassVersion="3" checksum="828208870"/>
