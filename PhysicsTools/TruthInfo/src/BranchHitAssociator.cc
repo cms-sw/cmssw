@@ -53,7 +53,7 @@ namespace truth {
     for (auto const& name : names) {
       auto const it = std::ranges::find(kDetectors, std::string_view(name), [](auto const& d) { return d.first; });
       if (it == std::ranges::end(kDetectors))
-        throw cms::Exception("Configuration") << "unknown DetId::Detector name '" << name << "'";
+        throw cms::Exception("Configuration") << "denominatorDetectors: unknown DetId::Detector name '" << name << "'";
       mask |= 1u << static_cast<uint32_t>(it->second);
     }
     return mask;
