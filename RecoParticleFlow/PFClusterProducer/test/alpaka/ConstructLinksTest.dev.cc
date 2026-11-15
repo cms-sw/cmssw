@@ -51,14 +51,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     void apply(std::vector<Queue>& queues,
                std::vector<reco::PFMultiDepthClusteringCCLabelsDeviceCollection>& mdpfCCLabels,
-               const std::vector<reco::PFMultiDepthClusteringVarsDeviceCollection>& mdpfClusteringVars,
-               const PFMultiDepthClusterParams& nSigma) const;
+               const std::vector<reco::PFMultiDepthClusteringVarsDeviceCollection>& mdpfClusteringVars) const;
   };
 
-  void ConstructLinksTest::apply(std::vector<Queue>& queues,
-                                 std::vector<reco::PFMultiDepthClusteringCCLabelsDeviceCollection>& mdpfCCLabels,
-                                 const std::vector<reco::PFMultiDepthClusteringVarsDeviceCollection>& mdpfClusteringVars,
-                                 const PFMultiDepthClusterParams& nSigma) const {
+  void ConstructLinksTest::apply(
+      std::vector<Queue>& queues,
+      std::vector<reco::PFMultiDepthClusteringCCLabelsDeviceCollection>& mdpfCCLabels,
+      const std::vector<reco::PFMultiDepthClusteringVarsDeviceCollection>& mdpfClusteringVars) const {
     uint32_t items = std::is_same_v<Device, alpaka::DevCpu> ? 1 : 128;
 
     auto n = static_cast<uint32_t>(mdpfClusteringVars[0]->metadata().size());
@@ -81,8 +80,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             ConstructLinksKernel{},
                             mdpfCCLabels[s].view(),
                             mdpfClusteringVars[s].view(),
-                            nSigma.nSigmaEtaSq,
-                            nSigma.nSigmaPhiSq);
+                            nSigmaEtaSq,
+                            nSigmaPhiSq);
       }
 
       for (unsigned int s = 0; s < nStreams; s++)
@@ -103,15 +102,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::vector<::reco::PFMultiDepthClusteringCCLabelsHostCollection>& hostClusteringCCLabels,
       const std::vector<::reco::PFMultiDepthClusteringVarsHostCollection>& hostClusteringVars) {
     ConstructLinksTest construct_links_test{};
-
-    auto params_h = cms::alpakatools::make_host_buffer<PFMultiDepthClusterParams, Platform>();
-
-    params_h->nSigmaEtaSq = nSigmaEtaSq;
-    params_h->nSigmaPhiSq = nSigmaPhiSq;
-
-    auto params_d = cms::alpakatools::make_device_buffer<PFMultiDepthClusterParams>(queues[0]);
-
-    alpaka::memcpy(queues[0], params_d, params_h);
 
     auto hClusteringVars = hostClusteringVars[0].view();
 
@@ -136,7 +126,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       alpaka::wait(queues[s]);
     }
 
-    construct_links_test.apply(queues, devClusteringCCLabels, devClusteringVars, *params_d.data());
+    construct_links_test.apply(queues, devClusteringCCLabels, devClusteringVars);
 
     alpaka::memcpy(queues[0], hostClusteringCCLabels[0].buffer(), devClusteringCCLabels[0].buffer());
 

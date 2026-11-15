@@ -49,11 +49,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
 #endif
     // get the list of devices on the current platform
     auto const& devices = cms::alpakatools::devices<Platform>();
-    if (devices.empty()) {
-      std::cerr << "No devices available for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) " backend, "
-      "exiting...\n";
-      exit(EXIT_FAILURE);
-    }
 
     auto const getMaxThreadsPerBlock = [](auto const& devAcc, auto const& kernel, auto&&... args) -> int {
       auto const attributes =

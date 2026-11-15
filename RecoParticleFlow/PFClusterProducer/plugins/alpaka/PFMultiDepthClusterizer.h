@@ -20,6 +20,12 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
 
+  /**
+ * @brief Initialize max threads per block for each detected device.
+ *
+ * @param PFMultiDepthClusterizerLaunchParams  Structure containing threads per block cached values for each device 
+ */
+
   PFMultiDepthClusterizerLaunchParams initLaunchParamsCache();
 
   /**
