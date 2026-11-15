@@ -161,7 +161,8 @@ namespace truth {
     // second fake rate.
     //
     // h_recopurity fills matched objects weighted by the purity of the match, so its
-    // ratio to h_reco is the mean purity. It must stay separate from the counts:
+    // ratio to h_reco is the mean purity over all reco objects, an unmatched one counting
+    // as 0. It must stay separate from the counts:
     // filling one histogram with the purity as a weight and reading it as a count turns
     // the fake rate into one minus the mean purity, which on no-PU ttbar reads 0.83
     // where the fake rate is 0.003.
