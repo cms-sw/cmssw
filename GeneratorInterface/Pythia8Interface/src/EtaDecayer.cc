@@ -103,8 +103,7 @@ EtaDecayer::EtaDecayer(Pythia8::Pythia* pythiaPtr, Pythia8::Settings* settingsPt
     throw cms::Exception("Configuration") << "EtaDecayer: parent mass " << m0 << " GeV is below the threshold "
                                           << threshold_ << " GeV of EtaDecayer:mode = " << modeName_;
 
-  // Parent masses over which the bounds are maximized: m0, and for a parent with a Breit-Wigner (non-zero width) 9
-  // points spanning [mMin, mMax]. Pythia treats mMax <= mMin as "no upper limit", for which no bound is possible.
+  // Bounds are maximized over m0 and, for a parent with a width, 9 masses across [mMin, mMax].
   std::vector<double> boundMasses = {m0};
   if (pd.mWidth(parentId_) > 0) {
     const double lo = pd.mMin(parentId_), hi = pd.mMax(parentId_);
@@ -285,8 +284,7 @@ bool EtaDecayer::decay(std::vector<int>& idProd,
     case Mode::LLA: {
       const double mA = daughterMasses_[2], M2 = parent.M() * parent.M(), r = mA * mA / M2;
       if (darkPhoton_)
-        // (1/x) beta lambda^{3/2}(1, x, r) (1 + c^2 + (1 - beta^2)(1 - c^2)) |F(x M^2)|^2, times x from the
-        // log-uniform proposal.
+        // beta lambda^{3/2} (angular factor) |F|^2; the 1/x pole cancels against the log-uniform proposal.
         result = toVector(llA(
             parent,
             ml,

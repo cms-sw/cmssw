@@ -1,7 +1,5 @@
 #!/bin/bash
-# Runs etaDecayer_cfg.py, forcing every eta and then one eta per event, and checks in both cases that
-# eta -> mu- mu+ e- e+ decays were made by EtaDecayer (with Pythia's own eta decay table this final state,
-# BR ~ 1e-6, would essentially never appear in 10 minimum-bias events).
+# Runs etaDecayer_cfg.py forcing every eta, then one per event, and checks that eta -> mu mu e e decays appear.
 set -o pipefail
 function die { echo "$1: status $2"; exit $2; }
 for onePerEvent in False True; do

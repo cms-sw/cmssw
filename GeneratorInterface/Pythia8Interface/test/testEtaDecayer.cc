@@ -75,7 +75,7 @@ namespace {
       REQUIRE(std::abs(sum.px() - p.px()) < 1e-7 * p.e());
       REQUIRE(std::abs(sum.py() - p.py()) < 1e-7 * p.e());
       REQUIRE(std::abs(sum.pz() - p.pz()) < 1e-7 * p.e());
-      // Opposite-sign pairs (first two daughters) are above threshold and below the kinematic limit.
+      // The first two daughters are above their threshold and below the parent mass.
       const double m12 = invMass(pProd[1], pProd[2]);
       REQUIRE(m12 >= pythia.particleData.m0(expectedIds[0]) + pythia.particleData.m0(expectedIds[1]) - 1e-9);
       REQUIRE(m12 <= M + 1e-9);

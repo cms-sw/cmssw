@@ -1,22 +1,14 @@
 #ifndef GeneratorInterface_Pythia8Interface_EtaDecayerModels_h
 #define GeneratorInterface_Pythia8Interface_EtaDecayerModels_h
 
-// Physics inputs of EtaDecayer (EtaDecayer.h): transition form factors (TFF), the pi+ pi- gamma* amplitude, the
-// dark-photon vertex factor, and the accept-reject bounds built from them. Only one model per vertex is
-// implemented, chosen from a comparison of several published models with the published spectra:
-//
-//   P -> gamma(*) gamma* vertex, eta  : data-fitted Pade approximant P^7_1, Escribano, Masjuan, Sanchez-Puertas,
-//                                       arXiv:1504.07742, Appendix A, Table 5
-//   P -> gamma(*) gamma* vertex, eta' : Pade approximant P^6_1 below sqrt(q^2) = 0.70 GeV and rho+omega+phi vector
-//                                       meson dominance (VMD) above, Escribano, Gonzalez-Solis, arXiv:1511.04916,
-//                                       Sec. 2 (Pade coefficients from arXiv:1307.2061, Table IV)
-//   double-virtual TFF                : factorized, F(q1^2, q2^2) = F(q1^2) F(q2^2) (arXiv:1511.04916, Sec. 2.4)
-//   P -> pi+ pi- gamma* vertex        : Zillinger, Kubis, Sanchez-Puertas, arXiv:2210.14925, Eqs. (3.3)-(3.5), with
-//                                       the P-wave Omnes function replaced by a rho Breit-Wigner with the
-//                                       Eq. (3.5) energy-dependent width
-//   eta' -> eta pi pi Dalitz plot     : BESIII general representation, arXiv:1709.04627, Table II
-//
-// All form factors are normalized to F(0) = 1; q2, s, sl are invariant masses squared in GeV^2.
+// Physics inputs of EtaDecayer (EtaDecayer.h), one model per vertex:
+//   eta TFF             : Pade P^7_1 fitted to data, arXiv:1504.07742 (Table 5)
+//   eta' TFF            : Pade P^6_1 (arXiv:1307.2061, Table IV) below 0.70 GeV, rho+omega+phi VMD above,
+//                         arXiv:1511.04916
+//   double-virtual TFF  : factorized, F(q1^2, q2^2) = F(q1^2) F(q2^2)
+//   P -> pi+ pi- gamma* : arXiv:2210.14925, Eqs. (3.3)-(3.5), with a rho Breit-Wigner for the Omnes function
+//   eta' -> eta pi pi   : BESIII Dalitz-plot parameters, arXiv:1709.04627 (Table II)
+// Form factors are normalized to F(0) = 1; q2, s, sl are invariant masses squared in GeV^2.
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -43,11 +35,7 @@ namespace gen {
       return std::sqrt(a * b) / (2 * M);
     }
 
-    // ---------------------------------------------------------------------------------------------------------------
-    // eta TFF: Pade approximant P^7_1 fitted to space-like data (arXiv:1504.07742, Table 5),
-    //   Q^2 F(Q^2) = Q^2 (t1 + t2 Q^2 + ... + t7 Q^12) / (1 + r1 Q^2),  Q^2 = -q^2.
-    // The pole sits at the time-like q^2 = 1/r1 = 0.511 GeV^2, above the eta range q^2 <= M_eta^2 = 0.300 GeV^2.
-    // ---------------------------------------------------------------------------------------------------------------
+    // eta TFF: Q^2 F(Q^2) = Q^2 (t1 + t2 Q^2 + ... + t7 Q^12) / (1 + r1 Q^2), Q^2 = -q^2; pole at q^2 = 0.511 GeV^2.
     namespace eta_tff {
       constexpr double t1 = 0.27349, t2 = 1.1771e-2, t3 = -1.1048e-3, t4 = 2.8861e-5, t5 = 2.2974e-6, t6 = -1.5096e-7,
                        t7 = 2.3655e-9, r1 = 1.9584;
@@ -67,8 +55,7 @@ namespace gen {
     // F(q^2)/F(0) for the eta.
     inline double etaFormFactorNorm(double q2) { return eta_tff::formFactor(q2) / eta_tff::formFactor(0.); }
 
-    // Accept-reject bound for |F(q^2)|^2 over 4 m_l^2 <= q^2 <= M^2 (P -> gamma l+ l-, eta): the maximum on a
-    // uniform grid times a safety margin of 1.2 (|F|^2 is monotonic in this range).
+    // Accept-reject bounds: maximum of the weight on a grid times a safety margin.
     inline double etaSingleBound(double mParent, double mLep, unsigned grid = 400) {
       const double low = 4 * mLep * mLep, high = mParent * mParent;
       double maxW = 0.;
@@ -79,8 +66,6 @@ namespace gen {
       return 1.2 * maxW;
     }
 
-    // Accept-reject bound for |F(s1)|^2 |F(s2)|^2 over sqrt(s1) + sqrt(s2) < M (eta double Dalitz decays):
-    // the maximum on a uniform 2D grid times 1.2.
     inline double etaDoubleBound(double mParent, double mLep1, double mLep2, unsigned grid = 300) {
       const double low1 = 4 * mLep1 * mLep1, high1 = std::pow(mParent - 2 * mLep2, 2);
       const double low2 = 4 * mLep2 * mLep2, high2 = std::pow(mParent - 2 * mLep1, 2);
@@ -97,24 +82,9 @@ namespace gen {
       return 1.2 * maxW;
     }
 
-    // ---------------------------------------------------------------------------------------------------------------
-    // eta' TFF over 0 <= q^2 <= M_eta'^2 (arXiv:1511.04916, Sec. 2). A single Pade approximant cannot be used: its
-    // pole (q^2 = 1/r1 = 0.69 GeV^2) lies inside the eta' range. Two regimes, as in the paper:
-    //   sqrt(q^2) <= 0.70 GeV: Pade P^6_1 of arXiv:1307.2061, Table IV (eta' column);
-    //   sqrt(q^2) >  0.70 GeV: coherent rho + omega + phi VMD,
-    //       F(q^2) = [sum_V w_V]^-1 sum_V w_V M_V^2 / (M_V^2 - q^2 - i M_V Gamma_V(q^2)),
-    //     with the energy-dependent rho width of the paper's footnote and constant omega/phi widths, rescaled by one
-    //     real constant so that |F| is continuous at 0.70 GeV (the paper's matching prescription).
-    // VMD weights: arXiv:1511.04916 takes the couplings w_V = g_{V eta' gamma}/(2 g_{V gamma}) from the PDG without
-    // quoting numbers. Here they are derived instead from the quark-flavour mixing scheme (mixing angle 39.6 deg,
-    // arXiv:1307.2061 Sec. III) with ideal vector-meson flavour content and quark-charge photon couplings:
-    // w_rho : w_omega : w_phi = sin(phi)/(2 sqrt2) : sin(phi)/(18 sqrt2) : cos(phi)/9. This choice sets the height
-    // of the omega peak and the m_ll > 0.8 GeV tail: compared with the arXiv:1511.04916 eta' -> mu+ mu- gamma
-    // spectrum the omega peak differs by 8% (at the resolution of the digitized curve), the tail above 0.8 GeV
-    // (< 0.1% of the decays) is lower by up to a factor ~2, and below 0.74 GeV the agreement is within 1%.
-    // Masses and widths are PDG 2016, the paper's source.
-    // Only |F|^2 is defined: the real Pade piece and the complex VMD piece are matched in modulus only.
-    // ---------------------------------------------------------------------------------------------------------------
+    // eta' TFF: the Pade pole (q^2 = 0.69 GeV^2) is inside the eta' range, so VMD is used above 0.70 GeV, scaled to
+    // match |F| there. VMD weights from quark-flavour mixing (39.6 deg), masses and widths PDG 2016. Only |F|^2 is
+    // defined.
     namespace etaprime_tff {
       constexpr double kPi = 3.14159265358979323846;
       constexpr double t1 = 0.343, t2 = 0.007, t3 = 0.986e-3, t4 = 0.744e-4, t5 = 0.252e-5, t6 = 0.290e-7, r1 = 1.442;
@@ -182,8 +152,7 @@ namespace gen {
       return r * r * std::norm(vmdNorm(q2));
     }
 
-    // Accept-reject bound for |F(q^2)|^2 over 4 m_l^2 <= q^2 <= M^2 (P -> gamma l+ l-, eta'): a dense grid that
-    // resolves the narrow omega peak, a golden-section polish around the best grid point, and a margin of 1.05.
+    // The grid resolves the narrow omega peak; golden-section polish around its maximum.
     inline double etaPrimeSingleBound(double mParent, double mLep, unsigned grid = 20000) {
       const double lo = 4 * mLep * mLep, hi = mParent * mParent;
       double best = 0., bestQ2 = lo;
@@ -207,8 +176,7 @@ namespace gen {
       return 1.05 * std::max(best, etaPrimeFormFactorNormSq(0.5 * (a + b)));
     }
 
-    // Accept-reject bound for |F(s1)|^2 |F(s2)|^2 over sqrt(s1) + sqrt(s2) < M (eta' double Dalitz decays): for each
-    // s1 on the grid the best partner is the running maximum of |F(s2)|^2 over the allowed s2; margin 1.05.
+    // For each s1, the best s2 partner is the running maximum of |F(s2)|^2.
     inline double etaPrimeDoubleBound(double mParent, double mLep1, double mLep2, unsigned grid = 20000) {
       const double low1 = 4 * mLep1 * mLep1, high1 = std::pow(mParent - 2 * mLep2, 2);
       const double low2 = 4 * mLep2 * mLep2, high2 = std::pow(mParent - 2 * mLep1, 2);
@@ -236,14 +204,8 @@ namespace gen {
       return isEtaPrime ? etaPrimeFormFactorNormSq(q2) : std::pow(etaFormFactorNorm(q2), 2);
     }
 
-    // ---------------------------------------------------------------------------------------------------------------
-    // P -> pi+ pi- gamma* (arXiv:2210.14925, Sec. 3): f(s, sl) = P(s) Omega(s) Fbar(sl), s = m_pipi^2, sl = m_ll^2.
-    //   P(s)    : polynomial fitted to eta(') -> pi+ pi- gamma data, Eq. (3.4) (for the eta' with the omega term)
-    //   Omega(s): the P-wave Omnes function, here approximated by a rho Breit-Wigner normalized to 1 at s = 0
-    //   Fbar(sl): coherent rho + rho(1450) dilepton form factor, Eq. (3.5)
-    // Widths: Gamma_V(s) = Gamma_V sqrt(s)/M_V beta_pi^3(s)/beta_pi^3(M_V^2) theta(s - 4 m_pi^2), Eq. (3.5).
-    // The rho and rho(1450) masses and widths are taken from the Pythia particle data (PDG ids 113 and 100113).
-    // ---------------------------------------------------------------------------------------------------------------
+    // P -> pi+ pi- gamma*: f(s, sl) = P(s) Omega(s) Fbar(sl), s = m_pipi^2, sl = m_ll^2 (arXiv:2210.14925, Sec. 3);
+    // rho and rho(1450) parameters from the Pythia particle data.
     namespace pipi {
       struct Context {
         double mPi = 0.13957;
@@ -286,8 +248,6 @@ namespace gen {
       }
     }  // namespace pipi
 
-    // Accept-reject bound for pipi::massWeight over the physical (s, sl) region of P -> pi+ pi- l+ l-:
-    // the maximum on a uniform 2D grid times 1.2.
     inline double llpipiBound(double mParent, double mLep, const pipi::Context& c, unsigned grid = 300) {
       const double mpi = c.mPi;
       const double lowS = 4 * mpi * mpi, highS = std::pow(mParent - 2 * mLep, 2);
@@ -305,16 +265,9 @@ namespace gen {
       return 1.2 * maxW;
     }
 
-    // ---------------------------------------------------------------------------------------------------------------
-    // eta' -> eta pi pi Dalitz plot (BESIII, arXiv:1709.04627, Eqs. (1)-(3) and Table II), general representation
-    //   |M(X, Y)|^2 = N (1 + a Y + b Y^2 + d X^2),
-    //   X = sqrt(3) (T_pi1 - T_pi2) / Q,  Y = (m_eta + 2 m_pi) / m_pi * T_eta / Q - 1,  Q = M - m_eta - 2 m_pi,
-    // with T the kinetic energies in the eta' rest frame, pi1 = pi+ for the charged mode, and m_pi the mass of the
-    // pions of the mode (charged or neutral). Odd powers of X vanish (C invariance for pi+ pi-, Bose symmetry for
-    // pi0 pi0); the c X term is set to zero, as in the nominal BESIII fits. Not included: higher-order terms (fitted
-    // consistent with zero) and the pi+ pi- threshold cusp in eta pi0 pi0 (a few-percent effect near the threshold,
-    // arXiv:2207.01004).
-    // ---------------------------------------------------------------------------------------------------------------
+    // eta' -> eta pi pi: |M|^2 = N (1 + a Y + b Y^2 + d X^2), X = sqrt(3) (T_pi1 - T_pi2) / Q,
+    // Y = (m_eta + 2 m_pi) / m_pi T_eta / Q - 1, Q = M - m_eta - 2 m_pi, eta' rest frame, pi1 = pi+ (arXiv:1709.04627).
+    // Not included: the pi+ pi- threshold cusp in eta pi0 pi0 (arXiv:2207.01004).
     namespace etapipi {
       struct Params {
         double a, b, d;
@@ -350,8 +303,6 @@ namespace gen {
       }
     }  // namespace etapipi
 
-    // Accept-reject bound for etapipi::weight over the Dalitz plot: the maximum on a uniform (s1, s2) grid times 1.05
-    // (the weight is a smooth quadratic in X, Y and varies by less than 30% over the plot).
     inline double etaPiPiBound(double mParent, double mEta, double mPi, const etapipi::Params& p, unsigned grid = 400) {
       const double lo = std::pow(mEta + mPi, 2), hi = std::pow(mParent - mPi, 2);
       double maxW = 0.;
@@ -365,20 +316,14 @@ namespace gen {
       return 1.05 * maxW;
     }
 
-    // ---------------------------------------------------------------------------------------------------------------
-    // Dark photon A (kinetic mixing: A couples like a massive photon).
-    // ---------------------------------------------------------------------------------------------------------------
-    // P -> gamma* A vertex factor (2p/M)^3 = lambda^{3/2}(1, x, r), x = q^2/M^2, r = m_A^2/M^2: the spin-summed square
-    // of the epsilon-tensor vertex times the P -> A + gamma* two-body phase space. Exact for any m_A; it reduces to the
-    // real-photon factor (1-x)^3 for m_A -> 0. Factorized form for numerical stability near the endpoint.
+    // Dark photon A: P -> gamma* A vertex factor lambda^{3/2}(1, x, r) = (2p/M)^3, x = q^2/M^2, r = m_A^2/M^2.
     inline double darkPhotonVertexFactor(double x, double r) {
       const double sx = std::sqrt(x), sr = std::sqrt(r);
       const double l = (1 - (sx + sr) * (sx + sr)) * (1 - (sx - sr) * (sx - sr));
       return l > 0 ? l * std::sqrt(l) : 0.;
     }
 
-    // Accept-reject bound for |F(q^2)|^2 in P -> l+ l- A (dark photon): maximum on a 2000-point logarithmic x grid
-    // times 1.2. The vertex and angular factors are each <= 1.
+    // The other factors of the P -> l+ l- A weight are <= 1.
     inline double darkPhotonLLABound(double mParent, double mLep, double mA, bool isEtaPrime, unsigned grid = 2000) {
       const double M2 = mParent * mParent;
       const double xlo = 4 * mLep * mLep / M2, xhi = (mParent - mA) * (mParent - mA) / M2;
@@ -390,11 +335,8 @@ namespace gen {
       return 1.2 * maxW;
     }
 
-    // Weight of P -> pi+ pi- A (dark photon): the P -> pi+ pi- l+ l- density (phase space, magnetic angular term and
-    // pipi::massWeight) with the dilepton mass fixed to m_A. s = m_pipi^2, cp = cos(theta_pi); cl and phi are the
-    // dilepton angles of the four-body formula, sampled and then discarded: their factor does not depend on s, so it
-    // only changes the efficiency. mLepA is the lepton mass entering that factor (the muon, A -> mu+ mu-), which
-    // requires m_A > 2 mLepA.
+    // P -> pi+ pi- A (dark photon): the P -> pi+ pi- l+ l- density at m_ll = m_A, for A -> mu+ mu- (mLepA). The
+    // dilepton angles cl, phi are sampled and discarded: their factor does not depend on s.
     inline double darkPhotonPiPiAWeight(
         double s, double cp, double cl, double phi, double M2, double mA2, double mLepA, const pipi::Context& c) {
       const double bp = 1 - 4 * c.mPi * c.mPi / s;
@@ -407,7 +349,6 @@ namespace gen {
              pipi::massWeight(s, mA2, c);
     }
 
-    // Accept-reject bound for darkPhotonPiPiAWeight: maximum over a uniform s grid at the angular maximum, times 1.2.
     inline double darkPhotonPiPiABound(
         double mParent, double mA, double mLepA, const pipi::Context& c, unsigned grid = 4000) {
       const double M2 = mParent * mParent, mA2 = mA * mA, smin = 4 * c.mPi * c.mPi, smax = std::pow(mParent - mA, 2);
@@ -419,12 +360,7 @@ namespace gen {
       return 1.2 * maxW;
     }
 
-    // ---------------------------------------------------------------------------------------------------------------
-    // Axion-like particle A (pseudoscalar): no production amplitude is implemented; P -> l+ l- A and P -> pi+ pi- A
-    // follow three-body phase space. The bounds are the phase-space densities' maxima on a uniform grid times 1.2.
-    // ---------------------------------------------------------------------------------------------------------------
-    // P -> l+ l- A: dGamma/dx ~ beta(x) p(x) for x = q^2/M^2; the sampler proposes x log-uniformly (density 1/x), so
-    // the weight is beta p x.
+    // ALP A: three-body phase space. P -> l+ l- A: dGamma/dx ~ beta p, times x for the log-uniform proposal.
     inline double alpLLABound(double mParent, double mLep, double mA, unsigned grid = 4000) {
       const double M2 = mParent * mParent;
       const double xlo = 4 * mLep * mLep / M2, xhi = (mParent - mA) * (mParent - mA) / M2;

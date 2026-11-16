@@ -1,19 +1,9 @@
 #ifndef GeneratorInterface_Pythia8Interface_EtaDecayerSamplers_h
 #define GeneratorInterface_Pythia8Interface_EtaDecayerSamplers_h
 
-// Unweighted samplers of EtaDecayer (EtaDecayer.h). Each one draws the decay variables from a proposal density, accepts
-// with probability weight/bound (accept-reject), builds the daughters in the parent rest frame, orients the decay
-// isotropically and boosts to the parent momentum. The dynamics (form factors, amplitudes) enter through functors
-// that return the model factor already divided by its bound, i.e. in [0, 1] (see EtaDecayerModels.h). A weight
-// outside [0, 1] means a bound is too small; it throws instead of silently biasing the sample.
-// flat() returns a uniform random number in (0, 1) from Pythia's generator, which CMSSW seeds.
-//
-// Decay densities (angular structure as in Petri, arXiv:1010.2378):
-//   P -> gamma l+ l-              Kroll-Wada
-//   P -> l+ l- l'+ l'- (l != l')  Petri Eq. (3.36)
-//   P -> l+ l- l+ l-              direct - exchange interference of the helicity amplitudes (below)
-//   P -> pi+ pi- l+ l-            magnetic term, Petri Sec. 3.5.2, Eq. (3.85)
-//   eta' -> eta pi pi             Dalitz-plot polynomial (BESIII), isotropic (spin 0)
+// Accept-reject samplers of EtaDecayer: the decay variables are drawn from a proposal density and accepted with
+// probability weight/bound (a weight outside [0, 1] throws); the decay is built in the parent rest frame, oriented
+// isotropically and boosted. Angular densities as in Petri, arXiv:1010.2378.
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "GeneratorInterface/Pythia8Interface/interface/EtaDecayerModels.h"
@@ -233,13 +223,9 @@ namespace gen {
       };
     }  // namespace fourlepton
 
-    // P -> l+ l- l+ l- (identical leptons), with the form factor applied to each diagram at its own pair masses
-    // before the two diagrams interfere. Proposal: the pointlike non-identical density of doubleDalitz, with the two
-    // l+ swapped with probability 1/2 (an equal mixture of the direct and exchange pairings). With F_D, F_X the double
-    // form factors of the two pairings and B >= max |F|^2, the weight
-    //   |D F_D - X F_X|^2 / (2 B (|D|^2 + |X|^2)),
-    // summed over the spins, is <= 1 because |a - b|^2 <= 2 (|a|^2 + |b|^2).
-    // pairAmp(s1, s2) = F(s1, s2)/F(0, 0) (not divided by the bound). Output: l-, l+, l-, l+.
+    // P -> l+ l- l+ l- (identical leptons): proposal = pointlike doubleDalitz with the two l+ swapped with probability
+    // 1/2; weight |D F_D - X F_X|^2 / (2 B (|D|^2 + |X|^2)) <= 1, B = bound. pairAmp = F(s1, s2)/F(0, 0).
+    // Output: l-, l+, l-, l+.
     template <class PairAmp, class Flat>
     std::array<TLorentzVector, 4> identicalDoubleDalitz(
         const TLorentzVector& parent, double m, PairAmp pairAmp, double bound, Flat flat) {

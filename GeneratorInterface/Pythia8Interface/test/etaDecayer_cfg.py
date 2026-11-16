@@ -1,12 +1,6 @@
-# Example and test of the exclusive eta/eta' decayer (interface/EtaDecayer.h): minimum-bias events in which every
-# eta decays to mu+ mu- e+ e-, run as in production through ExternalGeneratorFilter. The decayer is enabled by the
-# EtaDecayer:* Pythia8 settings, see EtaDecayer.h. The PythiaDauVFilter keeps events with an eta -> mu- mu+ e- e+,
-# so that test_EtaDecayer.sh can check that the decayer is active.
-# For P -> mu+ mu- A or pi+ pi- A, also define the boson A as a Pythia particle, e.g. a 0.1 GeV dark photon
-# decaying to e+ e-:
-#   '9000001:all = A void 3 0 0 0.1 0. 0. 0. 0.', '9000001:addChannel = 1 1. 0 11 -11',
-#   'EtaDecayer:mode = 2muA', 'EtaDecayer:A_id = 9000001', 'EtaDecayer:A_type = darkphoton'
-# Run with onePerEvent=1 to force one eta per event (EtaDecayer:onePerEvent = on) instead of every eta.
+# Minimum bias in which EtaDecayer (interface/EtaDecayer.h) decays every eta, or one per event (onePerEvent=1), to
+# mu+ mu- e+ e-; the PythiaDauVFilter keeps events with that decay (test_EtaDecayer.sh). For 2muA and 2piA, also
+# define A, e.g. '9000001:all = A void 3 0 0 0.1 0. 0. 0. 0.', '9000001:addChannel = 1 1. 0 11 -11'.
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 from GeneratorInterface.Core.ExternalGeneratorFilter import ExternalGeneratorFilter
