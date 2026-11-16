@@ -81,8 +81,8 @@ int main(int argc, char **argv) {
       "t4", "Write T4 branches in output ntuple.")("t4dnn", "Write T4 DNN branches in output ntuple.")(
       "allobj", "Write all object branches in output ntuple.")(
       "J,jet", "Accounts for specific jet branches in input root file for testing")(
-      "sim", "Write extra sim branches in output ntuple")(
-      "allsim", "Keep all sim tracks, including pileup and out-of-time");
+      "sim", "Write extra sim branches in output ntuple")("allsim",
+                                                          "Keep all sim tracks, including pileup and out-of-time");
 
   auto result = options.parse(argc, argv);
 

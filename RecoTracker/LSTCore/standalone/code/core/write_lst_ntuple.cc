@@ -224,13 +224,13 @@ void createSimTrackContainerBranches() {
   //  The container will hold per entry a simulated track in the event. Only the current bunch crossing, and
   //  primary vertex (hard-scattered) tracks will be saved to reduce the size of the output.
   //
-  ana.tx->createBranch<std::vector<float>>("sim_pt");       // pt
-  ana.tx->createBranch<std::vector<float>>("sim_eta");      // eta
-  ana.tx->createBranch<std::vector<float>>("sim_phi");      // phi
-  ana.tx->createBranch<std::vector<float>>("sim_pca_dxy");  // dxy of point of closest approach
-  ana.tx->createBranch<std::vector<float>>("sim_pca_dz");   // dz of point of clossest approach
-  ana.tx->createBranch<std::vector<int>>("sim_q");          // charge +1, -1, 0
-  ana.tx->createBranch<std::vector<int>>("sim_pdgId");      // pdgId
+  ana.tx->createBranch<std::vector<float>>("sim_pt");           // pt
+  ana.tx->createBranch<std::vector<float>>("sim_eta");          // eta
+  ana.tx->createBranch<std::vector<float>>("sim_phi");          // phi
+  ana.tx->createBranch<std::vector<float>>("sim_pca_dxy");      // dxy of point of closest approach
+  ana.tx->createBranch<std::vector<float>>("sim_pca_dz");       // dz of point of clossest approach
+  ana.tx->createBranch<std::vector<int>>("sim_q");              // charge +1, -1, 0
+  ana.tx->createBranch<std::vector<int>>("sim_pdgId");          // pdgId
   ana.tx->createBranch<std::vector<int>>("sim_event");          // 0 = hard scatter, >0 = pileup
   ana.tx->createBranch<std::vector<int>>("sim_bunchCrossing");  // 0 = in-time
   // production vertex x position (values are derived from simvtx_* and sim_parentVtxIdx branches in the tracking ntuple)
@@ -745,7 +745,6 @@ unsigned int setSimTrackContainerBranches(LSTEvent* event) {
 
   // Looping over the simulated tracks in the tracking ntuple
   for (unsigned int isimtrk = 0; isimtrk < trk_sim_pt.size(); ++isimtrk) {
-
     if (not ana.all_sim_tracks) {
       // Skip out-of-time pileup
       if (trk_sim_bunchCrossing[isimtrk] != 0)
