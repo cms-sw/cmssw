@@ -23,6 +23,13 @@ _L1_MENU_CUSTOMISATIONS = {
     "v0p0_2026": "HLTrigger/Configuration/customizeHLTforCMSSW.customizeHLTforL1P2GTv0p0_2026",
 }
 
+# L1 P2GT menu used by default for a given HLT menu, when --l1Menu is not given:
+# the development menu has paths seeded by v0p0_2026-only algorithms (e.g. pSingleTkMu_Barrel),
+# as in its relval workflow (HLTDev75e33)
+_MENU_DEFAULT_L1_MENU = {
+    "75e33_dev": "v0p0_2026",
+}
+
 # Function to run a shell command and handle errors
 def run_command(command, log_file=None, workdir=None):
     try:
@@ -62,7 +69,7 @@ from Configuration.HLT.autoHLT import autoHLT
 parser = argparse.ArgumentParser(description="Run HLT Test Configurations")
 parser.add_argument("--menu", default="75e33_timing",
                     choices=[v for k, v in autoHLT.items() if "Run4" in k], help="HLT menu to test")
-parser.add_argument("--l1Menu", default=None, help="L1 P2GT menu to run in the L1P2GT step (e.g. v0p0_2026); default: the L1P2GT default menu")
+parser.add_argument("--l1Menu", default=None, help="L1 P2GT menu to run in the L1P2GT step (e.g. v0p0_2026); default: the one required by the HLT menu, if any (see _MENU_DEFAULT_L1_MENU), otherwise the L1P2GT default menu")
 parser.add_argument("--globaltag", default=_PH2_GLOBAL_TAG, help="GlobalTag for the CMS conditions")
 parser.add_argument("--geometry", default=_PH2_GEOMETRY, help="Geometry setting for the CMS process")  # Auto-generated geometry default
 parser.add_argument("--era", default=_PH2_ERA_NAME, help="Era setting for the CMS process")  # Convert _PH2_ERA to string
@@ -93,7 +100,7 @@ num_threads = args.threads
 num_parallel_jobs = args.parallelJobs
 restrict_paths_to = args.restrictPathsTo
 proc_modifiers = args.procModifiers  # Store the procModifiers option
-l1_menu = args.l1Menu
+l1_menu = args.l1Menu if args.l1Menu else _MENU_DEFAULT_L1_MENU.get(menu)
 
 # L1P2GT step with the requested L1 menu, plus the HLT customisation it needs (if any)
 l1p2gt_step = f"L1P2GT:{l1_menu}" if l1_menu else "L1P2GT"
@@ -127,8 +134,8 @@ print("=" * 40)
 
 # Directory where all test configurations will be stored
 output_dir = "hlt_test_configs_HLTMENU_" + menu
-if l1_menu:
-    output_dir += "_L1MENU_" + l1_menu
+if args.l1Menu:
+    output_dir += "_L1MENU_" + args.l1Menu
 # If the directory exists, remove it first
 if os.path.exists(output_dir):
     shutil.rmtree(output_dir)
