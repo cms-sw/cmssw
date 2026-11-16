@@ -76,6 +76,18 @@ typedef SimpleFlatTableProducer<reco::GsfTrack> SimpleGsfTrackFlatTableProducer;
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 typedef SimpleFlatTableProducer<pat::CompositeCandidate> SimpleCompositeCandidateFlatTableProducer;
 
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+typedef SimpleFlatTableProducer<reco::PFCluster> SimplePFClusterFlatTableProducer;
+
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+typedef SimpleFlatTableProducer<reco::GsfElectron> SimpleGsfElectronFlatTableProducer;
+
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+typedef SimpleFlatTableProducer<reco::Photon> SimplePhotonFlatTableProducer;
+
+#include "DataFormats/MuonReco/interface/Muon.h"
+typedef SimpleFlatTableProducer<reco::Muon> SimpleMuonFlatTableProducer;
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SimpleCandidateFlatTableProducer);
 DEFINE_FWK_MODULE(SimplePFCandidateFlatTableProducer);
@@ -103,3 +115,7 @@ DEFINE_FWK_MODULE(SimpleL2MuonTrajectorySeedFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTriggerTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleGsfTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleCompositeCandidateFlatTableProducer);
+DEFINE_FWK_MODULE(SimplePFClusterFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleGsfElectronFlatTableProducer);
+DEFINE_FWK_MODULE(SimplePhotonFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleMuonFlatTableProducer);
