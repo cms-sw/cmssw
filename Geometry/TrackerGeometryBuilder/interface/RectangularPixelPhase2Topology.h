@@ -113,47 +113,27 @@ public:
   // Return the BIG pixel information for a given pixel 
   //
   bool isItBigPixelInX(const int ixbin) const override {
-    bool no_big_pixel = (m_BIG_PIX_PER_ROC_X == 0);
-    if (!no_big_pixel)
-      no_big_pixel = std::count(m_BIG_PIX_LIST_X.begin(), m_BIG_PIX_LIST_X.end(), ixbin) == 0;
-
-    return !no_big_pixel;
+    if (!bigpixelsX()) return false;
+    return std::count(m_BIG_PIX_LIST_X.begin(), m_BIG_PIX_LIST_X.end(), ixbin) > 0;
   }
 
   bool isItBigPixelInY(const int iybin) const override {
-    bool no_big_pixel = (m_BIG_PIX_PER_ROC_Y == 0);
-    if (!no_big_pixel)
-      no_big_pixel = std::count(m_BIG_PIX_LIST_Y.begin(), m_BIG_PIX_LIST_Y.end(), iybin) == 0;
-
-    return !no_big_pixel;
+    if (!bigpixelsY()) return false;
+    return std::count(m_BIG_PIX_LIST_Y.begin(), m_BIG_PIX_LIST_Y.end(), iybin) > 0;
   }
 
   float pixelFractionInX(const int ixbin) const override {
-    bool no_big_pixel = (m_BIG_PIX_PER_ROC_X == 0);
-
-    if (no_big_pixel) {
-      return 1.0f;
-    } else {
-      if ( isItBigPixelInX(ixbin) ) {
-        return float(m_BIG_PIX_PITCH_X / m_pitchx);
-      } else {
-        return 1.0f;
-      }
-    }
+    if (!bigpixelsX()) return 1.0f;
+    if ( isItBigPixelInX(ixbin) )
+      return float(m_BIG_PIX_PITCH_X / m_pitchx);
+    else return 1.0f;
   }
 
   float pixelFractionInY(const int iybin) const override {
-    bool no_big_pixel = (m_BIG_PIX_PER_ROC_Y == 0);
-    
-    if (no_big_pixel) {
-      return 1.0f;
-    } else {
-      if ( isItBigPixelInY(iybin) ) {
-        return float(m_BIG_PIX_PITCH_Y / m_pitchy);
-      } else {
-        return 1.0f;
-      }
-    }
+    if (!bigpixelsY()) return 1.0f;
+    if ( isItBigPixelInY(iybin) )
+      return float(m_BIG_PIX_PITCH_Y / m_pitchy);
+    else return 1.0f;
   }
 
   //-------------------------------------------------------------
@@ -167,8 +147,8 @@ public:
     return containsBigPixel(iymin, iymax, m_BIG_PIX_LIST_Y);
   }
 
-  bool bigpixelsX() const override { return false; }
-  bool bigpixelsY() const override { return false; }
+  bool bigpixelsX() const override { return m_BIG_PIX_PER_ROC_X > 0; }
+  bool bigpixelsY() const override { return m_BIG_PIX_PER_ROC_Y > 0; }
 
   //-------------------------------------------------------------
   // Check whether the pixel is at the edge of the module
@@ -225,9 +205,9 @@ private:
 		
   bool containsBigPixel(int iMin, int iMax, std::vector<int> m_BIG_PIX_LIST) const {
 
-    // The interval contains no big pixel when either of the following is true:
+    // The interval contains no big pixel when either of the following is met:
     // - there are no big pixels
-    // - no BigPixel is encompassed between iMin and iMax
+    // - no BigPixel is encompssed between iMin and iMax
     bool noBigPixel = true;
     for (auto & bpe: m_BIG_PIX_LIST) {
       if ( iMin <= bpe && bpe <= iMax ) noBigPixel = false;
