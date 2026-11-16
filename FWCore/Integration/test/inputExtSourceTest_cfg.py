@@ -8,9 +8,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
-process.source = cms.Source("ThingExtSource",
-    fileNames = cms.untracked.vstring('file:dummy')
-)
+process.source = cms.Source("ThingExtSource")
 
 process.OtherThing = cms.EDProducer("OtherThingProducer",
     thingTag = cms.InputTag('source')

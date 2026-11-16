@@ -13,9 +13,9 @@
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
 
 #include <string>
 

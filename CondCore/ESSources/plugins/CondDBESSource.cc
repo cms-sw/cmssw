@@ -23,10 +23,10 @@
 
 #include "CondCore/CondDB/interface/PayloadProxy.h"
 #include "FWCore/Framework/interface/ESModuleProducesInfo.h"
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
 #include <exception>
 
 #include <iomanip>

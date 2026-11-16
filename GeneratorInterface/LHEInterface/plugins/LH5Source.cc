@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cstddef>
 #include <functional>
 #include <iostream>
 #include <string>
@@ -9,12 +10,16 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/Sources/interface/ProducerSourceBase.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
@@ -22,18 +27,54 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
-#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
+#include "GeneratorInterface/LHEInterface/plugins/LHEProvenanceHelper.h"
 #include "GeneratorInterface/LHEInterface/interface/LH5Reader.h"
-
-#include "LH5Source.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 
 using namespace lhef;
 
+class LH5Source : public edm::ProducerSourceBase {
+public:
+  explicit LH5Source(const edm::ParameterSet& params, const edm::InputSourceDescription& desc);
+  ~LH5Source() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void endJob() override;
+  bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) override;
+  void readRun_(edm::RunPrincipal& runPrincipal) override;
+  void readLuminosityBlock_(edm::LuminosityBlockPrincipal& lumiPrincipal) override;
+  void readEvent_(edm::EventPrincipal& eventPrincipal) override;
+  void produce(edm::Event&) override {}
+  std::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() override;
+  std::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
+  size_t fileIndex() const override;
+
+  void nextEvent();
+
+  void putRunInfoProduct(edm::RunPrincipal&);
+  void fillRunInfoProduct(lhef::LHERunInfo const&, LHERunInfoProduct&);
+
+  edm::InputFileCatalog inputFileCatalog_;
+  size_t fileIndex_ = 0;
+  std::unique_ptr<lhef::LH5Reader> reader_;
+
+  std::shared_ptr<lhef::LHERunInfo> runInfoLast_;
+  std::shared_ptr<lhef::LHEEvent> partonLevel_;
+
+  std::unique_ptr<LHERunInfoProduct> runInfoProductLast_;
+  edm::LHEProvenanceHelper lheProvenanceHelper_;
+  edm::ProcessHistoryID phid_;
+};
+
 LH5Source::LH5Source(const edm::ParameterSet& params, const edm::InputSourceDescription& desc)
-    : ProducerSourceFromFiles(params, desc, false),
+    : ProducerSourceBase(params, desc, false),
+      inputFileCatalog_(params),
       //      reader_(new LH5Reader(params)),
-      reader_(new LH5Reader(fileNames(0), params.getUntrackedParameter<unsigned int>("skipEvents", 0))),
+      reader_(new LH5Reader(inputFileCatalog_.allPFNsFromFirstCatalog(),
+                            params.getUntrackedParameter<unsigned int>("skipEvents", 0))),
       lheProvenanceHelper_(edm::TypeID(typeid(LHEEventProduct)),
                            edm::TypeID(typeid(LHERunInfoProduct)),
                            productRegistryUpdate(),
@@ -63,7 +104,7 @@ void LH5Source::nextEvent() {
     newFileOpened = false;
     partonLevel_ = reader_->next(&newFileOpened);
     if (newFileOpened) {
-      incrementFileIndex();
+      ++fileIndex_;
     }
   } while (newFileOpened && !partonLevel_);
 
@@ -188,10 +229,14 @@ std::shared_ptr<edm::LuminosityBlockAuxiliary> LH5Source::readLuminosityBlockAux
   return aux;
 }
 
+size_t LH5Source::fileIndex() const { return fileIndex_; }
+
 void LH5Source::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setComment("A source which reads LHE files.");
-  edm::ProducerSourceFromFiles::fillDescription(desc);
+  edm::ProducerSourceBase::fillDescription(desc);
+  edm::InputFileCatalog::fillDescription(desc);
+
   desc.addUntracked<unsigned int>("skipEvents", 0U)->setComment("Skip the first 'skipEvents' events.");
   //  desc.addUntracked<int>("limitEvents", -1)->setComment("Limit the number of read events.");
   descriptions.add("source", desc);

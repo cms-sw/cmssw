@@ -192,20 +192,22 @@ int PixelSLinkDataInputSource::getEventNumberFromFillWords(const std::vector<uin
 // constructor
 PixelSLinkDataInputSource::PixelSLinkDataInputSource(const edm::ParameterSet &pset,
                                                      const edm::InputSourceDescription &desc)
-    : ProducerSourceFromFiles(pset, desc, true),
+    : ProducerSourceBase(pset, desc, true),
       m_fedid(pset.getUntrackedParameter<int>("fedid")),
       m_fileindex(0),
       m_runnumber(pset.getUntrackedParameter<int>("runNumber", -1)),
       m_currenteventnumber(0),
       m_currenttriggernumber(0),
-      m_eventnumber_shift(0) {
+      m_eventnumber_shift(0),
+      m_inputFileCatalog(pset) {
   produces<FEDRawDataCollection>();
 
-  if (m_fileindex >= fileNames(0).size()) {
+  std::vector<std::string> physicalFileNames = m_inputFileCatalog.allPFNsFromFirstCatalog();
+  if (m_fileindex >= physicalFileNames.size()) {
     edm::LogInfo("") << "no more file to read " << std::endl;
     return;  // ???
   }
-  std::string currentfilename = fileNames(0)[m_fileindex];
+  const std::string &currentfilename = physicalFileNames[m_fileindex];
   edm::LogInfo("") << "now examining file " << currentfilename;
   m_fileindex++;
   // reading both castor and other ('normal'/dcap) files.

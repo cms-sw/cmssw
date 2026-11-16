@@ -6,9 +6,9 @@
 
   <bin file="ReadStreamerFile.cpp">
     <use name="IOPool/Streamer"/>
-    <use name="FWCore/Catalog"/>
     <use name="FWCore/PluginManager"/>
     <use name="FWCore/ServiceRegistry"/>
+    <use name="FWStorage/Catalog"/>
     <use name="FWStorage/Services"/>
     <flags TEST_RUNNER_ARGS="all"/>
     <flags PRE_TEST="WriteStreamerFile"/>

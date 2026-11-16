@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -15,24 +14,23 @@ namespace edm::streamer {
 
   StreamerFileReader::StreamerFileReader(ParameterSet const& pset, InputSourceDescription const& desc)
       : StreamerInputSource(pset, desc),
+        inputFileCatalog_(pset),
         streamReader_(),
         eventSkipperByID_(EventSkipperByID::create(pset).release()),
         initialNumberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents")),
         prefetchMBytes_(pset.getUntrackedParameter<unsigned int>("prefetchMBytes")) {
-    InputFileCatalog catalog(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"),
-                             pset.getUntrackedParameter<std::string>("overrideCatalog"));
-    streamerNames_ = catalog.fileCatalogItems();
     reset_();
   }
 
   StreamerFileReader::~StreamerFileReader() {}
 
   void StreamerFileReader::reset_() {
-    if (streamerNames_.size() > 1) {
-      streamReader_ = std::make_unique<StreamerInputFile>(streamerNames_, eventSkipperByID(), prefetchMBytes_);
-    } else if (streamerNames_.size() == 1) {
-      streamReader_ = std::make_unique<StreamerInputFile>(streamerNames_.at(0).fileNames()[0],
-                                                          streamerNames_.at(0).logicalFileName(),
+    auto const& configuredFileNames = inputFileCatalog_.configuredFileNames();
+    if (configuredFileNames.size() > 1u) {
+      streamReader_ = std::make_unique<StreamerInputFile>(inputFileCatalog_, eventSkipperByID(), prefetchMBytes_);
+    } else if (configuredFileNames.size() == 1u) {
+      streamReader_ = std::make_unique<StreamerInputFile>(inputFileCatalog_.firstPFNFromFirstCatalog(),
+                                                          inputFileCatalog_.logicalFileName(0),
                                                           eventSkipperByID(),
                                                           prefetchMBytes_);
     } else {
@@ -152,10 +150,9 @@ namespace edm::streamer {
   void StreamerFileReader::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
     desc.setComment("Reads events from streamer files.");
-    desc.addUntracked<std::vector<std::string> >("fileNames")->setComment("Names of files to be processed.");
+    InputFileCatalog::fillDescription(desc);
     desc.addUntracked<unsigned int>("skipEvents", 0U)
         ->setComment("Skip the first 'skipEvents' events that otherwise would have been processed.");
-    desc.addUntracked<std::string>("overrideCatalog", std::string());
     //This next parameter is read in the base class, but its default value depends on the derived class, so it is set here.
     desc.addUntracked<bool>("inputFileTransitionsEachEvent", false);
     desc.addUntracked<unsigned int>("prefetchMBytes", 0);

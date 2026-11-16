@@ -1,6 +1,5 @@
 #include "TFileAdaptor.h"
 
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -9,6 +8,7 @@
 #include "FWCore/Reflection/interface/SetClassParsing.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
 #include "FWStorage/StorageFactory/interface/StorageAccount.h"
 #include "FWStorage/StorageFactory/interface/StorageFactory.h"
 #include "FWStorage/StorageFactory/interface/StorageProxyMaker.h"

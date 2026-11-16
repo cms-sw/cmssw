@@ -1,11 +1,1 @@
-<use name="FWCore/Concurrency"/>
-<use name="GeneratorInterface/Core"/>
-<use name="GeneratorInterface/Pythia6Interface"/>
-<use name="boost"/>
-<use name="clhep"/>
-<use name="f77compiler"/>
-<use name="heppdt"/>
-<use name="hepmc"/>
-<export>
-  <lib name="1"/>
-</export>
+

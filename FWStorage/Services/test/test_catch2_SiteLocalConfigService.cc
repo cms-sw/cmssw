@@ -1,7 +1,7 @@
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
-#include "FWStorage/Services/src/SiteLocalConfigService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
+#include "FWStorage/Services/src/SiteLocalConfigService.h"
 
 #define CATCH_CONFIG_MAIN
 #include "catch2/catch_all.hpp"

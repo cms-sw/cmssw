@@ -12,16 +12,16 @@
 #include <boost/program_options.hpp>
 #include "IOPool/Common/bin/CollUtil.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
-#include "FWCore/Catalog/interface/StorageURLModifier.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "FWStorage/Services/interface/setupSiteLocalConfig.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
+#include "FWStorage/Catalog/interface/StorageURLModifier.h"
+#include "FWStorage/Services/interface/setupSiteLocalConfig.h"
 
 #include "TFile.h"
 #include "TError.h"
@@ -133,7 +133,7 @@ int main(int argc, char* argv[]) {
     }
 
     edm::InputFileCatalog catalog(in, catalogIn, true, edm::SciTagCategory::Undefined);
-    std::vector<std::string> const& filesIn = catalog.fileNames(0);
+    std::vector<std::string> filesIn = catalog.allPFNsFromFirstCatalog();
 
     if (json) {
       std::cout << '[' << std::endl;

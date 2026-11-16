@@ -10,11 +10,11 @@
 //         Created:  Tue Feb 22 16:54:06 CST 2011
 //
 
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWStorage/Services/interface/setupSiteLocalConfig.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
+#include "FWStorage/Services/interface/setupSiteLocalConfig.h"
 #include <iostream>
 #include <cstring>
 #include <memory>

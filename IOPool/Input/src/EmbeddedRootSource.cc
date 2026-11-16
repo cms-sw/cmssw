@@ -3,12 +3,12 @@
 #include "EmbeddedRootSource.h"
 #include "InputFile.h"
 #include "RootEmbeddedFileSequence.h"
-#include "FWCore/Catalog/interface/StorageURLModifier.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Sources/interface/VectorInputSourceDescription.h"
 #include "FWCore/Sources/interface/InputSourceRunHelper.h"
 #include "FWCore/Sources/interface/SciTagCategoryForEmbeddedSources.h"
+#include "FWStorage/Catalog/interface/StorageURLModifier.h"
 
 namespace edm {
 
@@ -32,8 +32,7 @@ namespace edm {
         treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
         productSelectorRules_(pset, "inputCommands", "InputSource"),
         runHelper_(new DefaultInputSourceRunHelper()),
-        catalog_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"),
-                 pset.getUntrackedParameter<std::string>("overrideCatalog", std::string()),
+        catalog_(pset,
                  false,
                  desc.cat_ == SciTagCategoryForEmbeddedSources::PreMixedPileup ? SciTagCategory::PreMixedPileup
                                                                                : SciTagCategory::Embedded),
@@ -83,8 +82,7 @@ namespace edm {
 
     std::vector<std::string> defaultStrings;
     desc.setComment("Reads EDM/Root files for mixing.");
-    desc.addUntracked<std::vector<std::string> >("fileNames")->setComment("Names of files to be processed.");
-    desc.addUntracked<std::string>("overrideCatalog", std::string());
+    InputFileCatalog::fillDescription(desc);
     desc.addUntracked<bool>("skipBadFiles", false)
         ->setComment(
             "True:  Ignore any missing or unopenable input file.\n"
