@@ -616,8 +616,6 @@ namespace mkfit {
 
           ++rng;
         }  // end of loop over candidates in a tbb chunk
-
-        mkfndr->release();
       });  // end parallel_for over candidates in a region
     });    // end of parallel_for_each over regions
   }
@@ -937,7 +935,6 @@ namespace mkfit {
           }
           mkfndr->end_layer();
         }  // end of layer loop
-        mkfndr->release();
 
         // final sorting
         for (int iseed = start_seed; iseed < end_seed; ++iseed) {
@@ -979,9 +976,6 @@ namespace mkfit {
 
         // loop over layers
         find_tracks_in_layers(*cloner, mkfndr.get(), iteration_dir, seeds.begin(), seeds.end(), region);
-
-        mkfndr->release();
-        cloner->release();
       });
     });
 
@@ -1429,7 +1423,6 @@ namespace mkfit {
       }
 #endif
     }
-    mkfndr->release();
   }
 
   //==============================================================================
@@ -1666,6 +1659,5 @@ namespace mkfit {
       if (size % NN)
         fit_tracks(mkfitter.get(), m.first, m.second, NN * ntimes, size);
     }
-    mkfitter.release();
   }
 }  // end namespace mkfit
