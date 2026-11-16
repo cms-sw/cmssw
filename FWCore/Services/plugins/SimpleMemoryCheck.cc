@@ -168,7 +168,7 @@ namespace edm {
           monitorPssAndPrivate = t->monitorPssAndPrivate_;
           if (monitorPssAndPrivate and t->currentSmaps_.has_value()) {
             privateSize = t->currentSmaps_->privateKB_;
-            pss = t->currentSmaps_->pssKB_;
+            pss = t->currentSmaps_->sectionPss_[static_cast<unsigned int>(SmapsSection::kSharedObject)];
             anonHugePages = t->currentSmaps_->anonHugePagesKB_;
           }
           if (t->showJemallocInfo_) {
@@ -541,6 +541,10 @@ namespace edm {
         // extract smaps information, if available
         currentSmaps_ = readProcSmaps();
         if (currentSmaps_.has_value()) {
+          auto soPss = currentSmaps_->sectionPss_[static_cast<unsigned>(SmapsSection::kSharedObject)];
+          auto pcmPss = currentSmaps_->sectionPss_[static_cast<unsigned>(SmapsSection::kPcm)];
+          auto otherFilePss = currentSmaps_->sectionPss_[static_cast<unsigned>(SmapsSection::kOtherFile)];
+          auto mmapPss = currentSmaps_->sectionPss_[static_cast<unsigned>(SmapsSection::kMmap)];
           auto soRss = currentSmaps_->sectionRss_[static_cast<unsigned>(SmapsSection::kSharedObject)];
           auto pcmRss = currentSmaps_->sectionRss_[static_cast<unsigned>(SmapsSection::kPcm)];
           auto otherFileRss = currentSmaps_->sectionRss_[static_cast<unsigned>(SmapsSection::kOtherFile)];
@@ -549,7 +553,7 @@ namespace edm {
           auto pcmVSize = currentSmaps_->sectionVSize_[static_cast<unsigned>(SmapsSection::kPcm)];
           auto otherFileVSize = currentSmaps_->sectionVSize_[static_cast<unsigned>(SmapsSection::kOtherFile)];
           auto mmapVSize = currentSmaps_->sectionVSize_[static_cast<unsigned>(SmapsSection::kMmap)];
-          log << ", PSS " << currentSmaps_->pssKB_ / 1024 << " MBytes, Private " << currentSmaps_->privateKB_ / 1024
+          log << ", PSS " << (soPss + pcmPss + otherFilePss + mmapPss) / 1024 << " MBytes, Private " << currentSmaps_->privateKB_ / 1024
               << " MBytes\n AnonHugePages " << currentSmaps_->anonHugePagesKB_ / 1024 << " Mbytes\n"
               << " mmapped memory pages " << mmapVSize / 1024 << " Mbytes (VSize), " << mmapRss / 1024
               << " MBytes (RSS)\n"
@@ -975,7 +979,11 @@ namespace edm {
       }
       if (includeSmapsAndJe) {
         if (currentSmaps_.has_value()) {
-          log << " PSS " << currentSmaps_->pssKB_ << " PRIVATE " << currentSmaps_->privateKB_ << " ANONHUGEPAGES "
+          auto soPss = currentSmaps_->sectionPss_[static_cast<unsigned int>(SmapsSection::kSharedObject)];
+          auto pcmPss = currentSmaps_->sectionPss_[static_cast<unsigned int>(SmapsSection::kPcm)];
+          auto otherFilePss = currentSmaps_->sectionPss_[static_cast<unsigned int>(SmapsSection::kOtherFile)];
+          auto mmapPss = currentSmaps_->sectionPss_[static_cast<unsigned int>(SmapsSection::kMmap)];
+          log << " PSS " << (soPss + pcmPss + otherFilePss + mmapPss) << " PRIVATE " << currentSmaps_->privateKB_ << " ANONHUGEPAGES "
               << currentSmaps_->anonHugePagesKB_;
         }
         if (je_mallctl) {

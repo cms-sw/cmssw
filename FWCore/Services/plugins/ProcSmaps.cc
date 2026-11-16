@@ -165,7 +165,6 @@ namespace edm::service {
         result.privateKB_ += valueKB(line);
       } else if (line.starts_with("Pss:")) {
         auto const value = valueKB(line);
-        result.pssKB_ += value;
         mapping.pssKB_ += value;
       } else if (line.starts_with("AnonHugePages:")) {
         result.anonHugePagesKB_ += valueKB(line);

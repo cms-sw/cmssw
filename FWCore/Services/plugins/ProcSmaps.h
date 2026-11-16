@@ -23,7 +23,6 @@ namespace edm::service {
     static constexpr auto sectionsSize_ = static_cast<unsigned int>(SmapsSection::kSize);
 
     std::uint64_t privateKB_ = 0;
-    std::uint64_t pssKB_ = 0;
     std::uint64_t anonHugePagesKB_ = 0;
     std::array<std::uint64_t, sectionsSize_> sectionRss_{};
     std::array<std::uint64_t, sectionsSize_> sectionVSize_{};
