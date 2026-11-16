@@ -68,15 +68,14 @@ public:
     bool const tracePower = pset.getUntrackedParameter<bool>("tracePower");
     ::perfetto::protos::gen::TrackEventConfig te;
     te.add_disabled_categories("*");
-    for (const char* category :
-         {"cmssw.event",
-          "cmssw.source",
-          "cmssw.module",
-          "cmssw.acquire",
-          "cmssw.transform.launch",
-          "cmssw.transform.produce",
-          "cmssw.es",
-          "cmssw.cleanup"})
+    for (const char* category : {"cmssw.event",
+                                 "cmssw.source",
+                                 "cmssw.module",
+                                 "cmssw.acquire",
+                                 "cmssw.transform.launch",
+                                 "cmssw.transform.produce",
+                                 "cmssw.es",
+                                 "cmssw.cleanup"})
       te.add_enabled_categories(category);
     if (pset.getUntrackedParameter<bool>("traceFunctions"))
       te.add_enabled_categories("cmssw.func");
@@ -329,7 +328,7 @@ private:
   // when a consumer asks for the transformed product: e.g. the device-to-host copies that the alpaka modules register
   // for their device products. registerTransformAsync has two steps, traced on the same lane and with the same module
   // context as produce():
-  //  - cmssw.transform.launch : starts the asynchronous work 
+  //  - cmssw.transform.launch : starts the asynchronous work
   //  - cmssw.transform.produce: builds the transformed product and puts it into the event
   void postModuleConstruction(edm::ModuleDescription const& md) {
     auto const& label = md.moduleLabel();
