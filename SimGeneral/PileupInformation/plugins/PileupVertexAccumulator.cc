@@ -135,7 +135,7 @@ namespace cms {
 
   // ------------ method called to produce write the data  ------------
   void PileupVertexAccumulator::finalizeEvent(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    std::unique_ptr<PileupVertexContent> PUVtxC(new PileupVertexContent(pT_Hats_, z_posns_, t_posns_));
+    std::unique_ptr<PileupVertexContent> PUVtxC = std::make_unique<PileupVertexContent>(pT_Hats_, z_posns_, t_posns_);
 
     // write output to event
     iEvent.put(std::move(PUVtxC));

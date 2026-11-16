@@ -6,6 +6,8 @@
 // One for each bunch crossing.
 //
 //--------------------------------------------
+#include <memory>
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -52,21 +54,21 @@ PileupInformation::PileupInformation(const edm::ParameterSet& config) {
     edm::LogInfo(MessageCategory_) << "Upper pT Threshold set to " << pTcut_2_ << " GeV";
   } else {
     pileupSummaryToken_ =
-        consumes<std::vector<PileupSummaryInfo> >(config.getParameter<edm::InputTag>("PileupSummaryInfoInputTag"));
+        consumes<std::vector<PileupSummaryInfo>>(config.getParameter<edm::InputTag>("PileupSummaryInfoInputTag"));
     bunchSpacingToken_ = consumes<int>(config.getParameter<edm::InputTag>("BunchSpacingInputTag"));
   }
 
-  produces<std::vector<PileupSummaryInfo> >();
+  produces<std::vector<PileupSummaryInfo>>();
   produces<int>("bunchSpacing");
 
   //produces<PileupSummaryInfo>();
 }
 
 void PileupInformation::produce(edm::Event& event, const edm::EventSetup& setup) {
-  std::unique_ptr<std::vector<PileupSummaryInfo> > PSIVector(new std::vector<PileupSummaryInfo>);
+  std::unique_ptr<std::vector<PileupSummaryInfo>> PSIVector = std::make_unique<std::vector<PileupSummaryInfo>>();
 
   if (isPreMixed_) {
-    edm::Handle<std::vector<PileupSummaryInfo> > psiInput;
+    edm::Handle<std::vector<PileupSummaryInfo>> psiInput;
     event.getByToken(pileupSummaryToken_, psiInput);
 
     std::vector<PileupSummaryInfo>::const_iterator PSiter;
@@ -82,7 +84,7 @@ void PileupInformation::produce(edm::Event& event, const edm::EventSetup& setup)
     event.put(std::move(PSIVector));
 
     //add bunch spacing to the event as a seperate integer for use by downstream modules
-    std::unique_ptr<int> bunchSpacingP(new int(bunchSpacing));
+    std::unique_ptr<int> bunchSpacingP = std::make_unique<int>(bunchSpacing);
     event.put(std::move(bunchSpacingP), "bunchSpacing");
 
     return;
@@ -94,7 +96,7 @@ void PileupInformation::produce(edm::Event& event, const edm::EventSetup& setup)
   std::vector<int> BunchCrossings;
   std::vector<int> Interactions_Xing;
   std::vector<float> TrueInteractions_Xing;
-  std::vector<std::vector<edm::EventID> > eventInfoList_Xing;
+  std::vector<std::vector<edm::EventID>> eventInfoList_Xing;
 
   int bunchSpacing;
 
@@ -124,9 +126,9 @@ void PileupInformation::produce(edm::Event& event, const edm::EventSetup& setup)
   }
 
   // store information from pileup vertices, if it's in the event. Have to loop on interactions again.
-  std::vector<std::vector<float> > ptHatList_Xing;
-  std::vector<std::vector<float> > zPosList_Xing;
-  std::vector<std::vector<float> > tPosList_Xing;
+  std::vector<std::vector<float>> ptHatList_Xing;
+  std::vector<std::vector<float>> zPosList_Xing;
+  std::vector<std::vector<float>> tPosList_Xing;
 
   bool Have_pThats = false;
 
@@ -207,11 +209,11 @@ void PileupInformation::produce(edm::Event& event, const edm::EventSetup& setup)
   std::vector<int>::iterator BXIter;
   std::vector<int>::iterator InteractionsIter = Interactions_Xing.begin();
   std::vector<float>::iterator TInteractionsIter = TrueInteractions_Xing.begin();
-  std::vector<std::vector<edm::EventID> >::iterator TEventInfoIter = eventInfoList_Xing.begin();
+  std::vector<std::vector<edm::EventID>>::iterator TEventInfoIter = eventInfoList_Xing.begin();
 
-  std::vector<std::vector<float> >::iterator zPosIter;
-  std::vector<std::vector<float> >::iterator tPosIter;
-  std::vector<std::vector<float> >::iterator pThatIter;
+  std::vector<std::vector<float>>::iterator zPosIter;
+  std::vector<std::vector<float>>::iterator tPosIter;
+  std::vector<std::vector<float>>::iterator pThatIter;
 
   if (Have_pThats) {
     zPosIter = zPosList_Xing.begin();
@@ -381,7 +383,7 @@ void PileupInformation::produce(edm::Event& event, const edm::EventSetup& setup)
   event.put(std::move(PSIVector));
 
   //add bunch spacing to the event as a seperate integer for use by downstream modules
-  std::unique_ptr<int> bunchSpacingP(new int(bunchSpacing));
+  std::unique_ptr<int> bunchSpacingP = std::make_unique<int>(bunchSpacing);
   event.put(std::move(bunchSpacingP), "bunchSpacing");
 }
 

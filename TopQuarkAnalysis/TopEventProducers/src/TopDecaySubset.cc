@@ -150,7 +150,7 @@ TopDecaySubset::TopDecaySubset(const edm::ParameterSet& cfg)
 /// write output into the event
 void TopDecaySubset::produce(edm::Event& event, const edm::EventSetup& setup) {
   // create target vector
-  std::unique_ptr<reco::GenParticleCollection> target(new reco::GenParticleCollection);
+  std::unique_ptr<reco::GenParticleCollection> target = std::make_unique<reco::GenParticleCollection>();
 
   // get source collection
   edm::Handle<reco::GenParticleCollection> src;
@@ -501,8 +501,8 @@ void TopDecaySubset::fillListing(const std::vector<const reco::GenParticle*>& to
       if (addRadiation_ && buffer->status() == TopDecayID::stable &&
           (buffer->pdgId() == TopDecayID::glueID || std::abs(buffer->pdgId()) < TopDecayID::bID)) {
         // collect additional radiation from the top
-        std::unique_ptr<reco::GenParticle> radPtr(new reco::GenParticle(
-            buffer->threeCharge(), buffer->p4(), buffer->vertex(), buffer->pdgId(), statusFlag, false));
+        std::unique_ptr<reco::GenParticle> radPtr = std::make_unique<reco::GenParticle>(
+            buffer->threeCharge(), buffer->p4(), buffer->vertex(), buffer->pdgId(), statusFlag, false);
         target.push_back(*radPtr);
         // increment & push index of the top daughter
         topDaughters.push_back(++motherPartIdx_);
@@ -551,8 +551,8 @@ void TopDecaySubset::fillListing(const std::vector<const reco::GenParticle*>& pr
   for (std::vector<const reco::GenParticle*>::const_iterator it = top_start; it != top_end; ++it) {
     const reco::GenParticle* t = *it;
     // summation might happen here
-    std::unique_ptr<reco::GenParticle> topPtr(
-        new reco::GenParticle(t->threeCharge(), t->p4(), t->vertex(), t->pdgId(), t->status(), false));
+    std::unique_ptr<reco::GenParticle> topPtr =
+        std::make_unique<reco::GenParticle>(t->threeCharge(), t->p4(), t->vertex(), t->pdgId(), t->status(), false);
     target.push_back(*topPtr);
     ++motherPartIdx_;
 
@@ -569,8 +569,8 @@ void TopDecaySubset::fillListing(const std::vector<const reco::GenParticle*>& pr
     for (reco::GenParticle::const_iterator td = final_top->begin(); td != final_top->end(); ++td) {
       if (std::abs(td->pdgId()) <= TopDecayID::bID) {
         // if particle is beauty or other quark
-        std::unique_ptr<reco::GenParticle> qPtr(
-            new reco::GenParticle(td->threeCharge(), td->p4(), td->vertex(), td->pdgId(), td->status(), false));
+        std::unique_ptr<reco::GenParticle> qPtr = std::make_unique<reco::GenParticle>(
+            td->threeCharge(), td->p4(), td->vertex(), td->pdgId(), td->status(), false);
         target.push_back(*qPtr);
         // increment & push index of the top daughter
         topDaughters.push_back(++motherPartIdx_);
@@ -582,8 +582,8 @@ void TopDecaySubset::fillListing(const std::vector<const reco::GenParticle*>& pr
         }
       } else if (std::abs(td->pdgId()) == TopDecayID::WID) {
         // ladies and gentleman, we have a W boson
-        std::unique_ptr<reco::GenParticle> WPtr(
-            new reco::GenParticle(td->threeCharge(), td->p4(), td->vertex(), td->pdgId(), td->status(), false));
+        std::unique_ptr<reco::GenParticle> WPtr = std::make_unique<reco::GenParticle>(
+            td->threeCharge(), td->p4(), td->vertex(), td->pdgId(), td->status(), false);
         target.push_back(*WPtr);
         // increment & push index of the top daughter
         topDaughters.push_back(++motherPartIdx_);
@@ -595,8 +595,8 @@ void TopDecaySubset::fillListing(const std::vector<const reco::GenParticle*>& pr
         const reco::GenParticle* decaying_W = findLastParticleInChain(static_cast<const reco::GenParticle*>(&*td));
         for (reco::GenParticle::const_iterator wd = decaying_W->begin(); wd != decaying_W->end(); ++wd) {
           if (!(std::abs(wd->pdgId()) == TopDecayID::WID)) {
-            std::unique_ptr<reco::GenParticle> qPtr(
-                new reco::GenParticle(wd->threeCharge(), wd->p4(), wd->vertex(), wd->pdgId(), wd->status(), false));
+            std::unique_ptr<reco::GenParticle> qPtr = std::make_unique<reco::GenParticle>(
+                wd->threeCharge(), wd->p4(), wd->vertex(), wd->pdgId(), wd->status(), false);
             target.push_back(*qPtr);
             // increment & push index of the top daughter
             wDaughters.push_back(++motherPartIdx_);
@@ -614,8 +614,8 @@ void TopDecaySubset::fillListing(const std::vector<const reco::GenParticle*>& pr
       } else {
         if (addRadiation_ && (td->pdgId() == TopDecayID::glueID || std::abs(td->pdgId()) < TopDecayID::bID)) {
           // collect additional radiation from the top
-          std::unique_ptr<reco::GenParticle> radPtr(
-              new reco::GenParticle(td->threeCharge(), td->p4(), td->vertex(), td->pdgId(), td->status(), false));
+          std::unique_ptr<reco::GenParticle> radPtr = std::make_unique<reco::GenParticle>(
+              td->threeCharge(), td->p4(), td->vertex(), td->pdgId(), td->status(), false);
           target.push_back(*radPtr);
         }
         //other top daughters like Zq for FCNC
@@ -710,8 +710,8 @@ void TopDecaySubset::addRadiation(int& idx,
       // skip comment lines and make sure that
       // the particle is not double counted as
       // daughter of itself
-      std::unique_ptr<reco::GenParticle> ptr(new reco::GenParticle(
-          daughter->threeCharge(), daughter->p4(), daughter->vertex(), daughter->pdgId(), daughter->status(), false));
+      std::unique_ptr<reco::GenParticle> ptr = std::make_unique<reco::GenParticle>(
+          daughter->threeCharge(), daughter->p4(), daughter->vertex(), daughter->pdgId(), daughter->status(), false);
       target.push_back(*ptr);
       daughters.push_back(++idx);  //push index of daughter
     }
@@ -728,8 +728,8 @@ void TopDecaySubset::addRadiation(int& idx, const reco::GenParticle* part, reco:
     // either pick daughters as long as they are different
     // to the initial particle
     if (daughter->pdgId() != part->pdgId()) {
-      std::unique_ptr<reco::GenParticle> ptr(new reco::GenParticle(
-          daughter->threeCharge(), daughter->p4(), daughter->vertex(), daughter->pdgId(), daughter->status(), false));
+      std::unique_ptr<reco::GenParticle> ptr = std::make_unique<reco::GenParticle>(
+          daughter->threeCharge(), daughter->p4(), daughter->vertex(), daughter->pdgId(), daughter->status(), false);
       target.push_back(*ptr);
       daughters.push_back(++idx);  //push index of daughter
     }
@@ -747,8 +747,8 @@ void TopDecaySubset::addDaughters(int& idx,
   std::vector<int> daughters;
   int idxBuffer = idx;
   for (reco::GenParticle::const_iterator daughter = part->begin(); daughter != part->end(); ++daughter) {
-    std::unique_ptr<reco::GenParticle> ptr(new reco::GenParticle(
-        daughter->threeCharge(), daughter->p4(), daughter->vertex(), daughter->pdgId(), daughter->status(), false));
+    std::unique_ptr<reco::GenParticle> ptr = std::make_unique<reco::GenParticle>(
+        daughter->threeCharge(), daughter->p4(), daughter->vertex(), daughter->pdgId(), daughter->status(), false);
     target.push_back(*ptr);
     // increment & push index of daughter
     daughters.push_back(++idx);

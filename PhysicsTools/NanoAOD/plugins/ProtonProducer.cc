@@ -163,12 +163,12 @@ public:
     }
 
     // update proton tables
-    std::unique_ptr<edm::ValueMap<int>> multiRP_armV(new edm::ValueMap<int>());
+    std::unique_ptr<edm::ValueMap<int>> multiRP_armV = std::make_unique<edm::ValueMap<int>>();
     edm::ValueMap<int>::Filler fillermultiArm(*multiRP_armV);
     fillermultiArm.insert(hRecoProtonsMultiRP, multiRP_arm.begin(), multiRP_arm.end());
     fillermultiArm.fill();
 
-    std::unique_ptr<edm::ValueMap<int>> protonRPIdV(new edm::ValueMap<int>());
+    std::unique_ptr<edm::ValueMap<int>> protonRPIdV = std::make_unique<edm::ValueMap<int>>();
     edm::ValueMap<int>::Filler fillerID(*protonRPIdV);
     if (storeSingleRPProtons_) {
       fillerID.insert(hRecoProtonsSingleRP, singleRP_protonRPId.begin(), singleRP_protonRPId.end());

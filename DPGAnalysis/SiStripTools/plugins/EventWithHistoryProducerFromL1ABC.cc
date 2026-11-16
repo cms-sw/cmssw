@@ -103,7 +103,7 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
   using namespace edm;
 
   if (iEvent.run() < 110878) {
-    std::unique_ptr<EventWithHistory> pOut(new EventWithHistory(iEvent));
+    std::unique_ptr<EventWithHistory> pOut = std::make_unique<EventWithHistory>(iEvent);
     iEvent.put(std::move(pOut));
 
   } else {

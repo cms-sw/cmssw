@@ -39,6 +39,7 @@ ________________________________________________________________________
 #include "TMatrixD.h"
 
 #include <iostream>
+#include <memory>
 
 using namespace edm;
 using namespace std;
@@ -275,7 +276,7 @@ void MixBoostEvtVtxGenerator::produce(Event& evt, const EventSetup&) {
 
   // Copy the HepMC::GenEvent
   HepMC::GenEvent* genevt = new HepMC::GenEvent(*HepUnsmearedMCEvt->GetEvent());
-  std::unique_ptr<edm::HepMCProduct> HepMCEvt(new edm::HepMCProduct(genevt));
+  std::unique_ptr<edm::HepMCProduct> HepMCEvt = std::make_unique<edm::HepMCProduct>(genevt);
   // generate new vertex & apply the shift
   //
 
