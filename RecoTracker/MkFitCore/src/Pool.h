@@ -52,6 +52,7 @@ namespace mkfit {
 
     void recycle(TT *x) {
       assert(m_pool.local().get() == nullptr);
+      x->reset();
       m_pool.local().reset(x);
     }
 
