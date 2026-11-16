@@ -45,6 +45,18 @@ void TTStubAlgorithm_official<Ref_Phase2TrackerDigi_>::PatternHitCorrelation(
   int ratio = cols0 / cols1;  /// This assumes the ratio is integer!
   int segment0 = floor(mp0.y() / ratio);
 
+  // Correct local X in the PS-p sensor by a shift coming from big pixels (uniform pitch is assumed later in the code)
+  // FIXME: This is just a quick fix
+  // + final implementation should account for edge cases, e.g. when a big pixel is part of the cluster itself (shift by weighted average)
+  // + loop over ROCs instead of individual pixels for better CPU efficiency (possibly move to the <PixelTopology> class)
+  if (isPS && top0->bigpixelsX()) {
+    float shift = 0.0;
+    for (int ipix = 0; ipix <= int(mp0.x()); ipix++) {
+      if (top0->isItBigPixelInX(ipix)) shift += top0->pixelFractionInX(ipix) - 1;
+    }
+    mp0 = MeasurementPoint(mp0.x()+shift, mp0.y());
+  }
+
   //  if ( ratio == 1 ) /// 2S Modules
   if (!isPS) {
     if (mPerformZMatching2S && (segment0 != floor(mp1.y())))
