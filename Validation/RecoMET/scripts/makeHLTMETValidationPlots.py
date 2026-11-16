@@ -6,6 +6,7 @@ import numpy as np
 import hist
 import matplotlib.pyplot as plt
 from matplotlib.transforms import blended_transform_factory
+from matplotlib.colors import LogNorm
 plt.style.use('tableau-colorblind10')
 import array
 import ROOT
@@ -26,12 +27,13 @@ class dotdict(dict):
 class HLTMETInputs:
     x: str
     y: str
-    rebin: int = None
+    rebinx: int = None   # x-axis rebinning (1D and 2D)
+    rebiny: int = None   # y-axis rebinning (2D only)
     out: str = ''
     logy: bool = False
     logz: bool = False
     drawdiag: bool = False
-
+    
 def createDir(adir):
     if not os.path.exists(adir):
         os.makedirs(adir)
@@ -41,7 +43,7 @@ def checkRootDir(afile, adir):
     if not afile.Get(adir):
         raise RuntimeError(f"Directory '{adir}' not found in {afile}")
 
-def checkRootFile(afile, hname, rebin=None):
+def checkRootFile(afile, hname, rebinx=None, rebiny=None):
     hist_orig = afile.Get(hname)
     if not hist_orig:
         raise RuntimeError(f"WARNING: Histogram {hname} not found.")
@@ -49,14 +51,22 @@ def checkRootFile(afile, hname, rebin=None):
     hist = hist_orig.Clone(hname + "_clone")
     hist.SetDirectory(0) # detach from file
 
-    if rebin is not None:
-        if isinstance(rebin, (int, float)):
-            hist = hist.Rebin(int(rebin), hname + "_rebin")
-        elif hasattr(rebin, '__iter__'):
-            bin_edges_c = array.array('d', rebin)
+    if hist.GetDimension() == 2:
+        if rebinx is not None or rebiny is not None:
+            for r in (rebinx, rebiny):
+                if r is not None and not isinstance(r, int):
+                    raise ValueError(f"2D rebinning only supports integer grouping, got {type(r)}")
+            nx = rebinx if rebinx is not None else 1
+            ny = rebiny if rebiny is not None else 1
+            hist = hist.Rebin2D(nx, ny, hname + "_rebin")
+    elif rebinx is not None:
+        if isinstance(rebinx, (int, float)):
+            hist = hist.Rebin(int(rebinx), hname + "_rebin")
+        elif hasattr(rebinx, '__iter__'):
+            bin_edges_c = array.array('d', rebinx)
             hist = hist.Rebin(len(bin_edges_c) - 1, hname + "_rebin", bin_edges_c)
         else:
-            raise ValueError(f"Unknown type for rebin: {type(rebin)}")
+            raise ValueError(f"Unknown type for rebin: {type(rebinx)}")
 
     return hist
 
@@ -216,7 +226,7 @@ def plotVars(afile, adir, avars, mode, outdir, metType):
             createDir(os.path.join(outdir, props.out))
 
         plotter = Plotter(args.sample_label, period=args.period, fontsize=fontsize, en_com=args.energy)
-        root_hist = checkRootFile(afile, f"{adir}/{var}", rebin=props.rebin)
+        root_hist = checkRootFile(afile, f"{adir}/{var}", rebinx=props.rebinx, rebiny=props.rebiny)
 
         if mode == '1D':
             plotter = plot1D(plotter, root_hist, metType, props)
@@ -241,7 +251,7 @@ def plot1DCollectionComparison(afile, adir, avars, outdir, metTypes):
 
         amax, amin = float('-inf'), float('+inf')
         for metType in metTypes:
-            root_hist = checkRootFile(afile, f"{adir}/{metType}/{var}", rebin=props.rebin)
+            root_hist = checkRootFile(afile, f"{adir}/{metType}/{var}", rebinx=props.rebinx)
             nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
             values, errors = histo_values_errors(root_hist)
             errors /= 2 # symmetrize
@@ -274,7 +284,7 @@ def plot1DFilesComparison(adir, avars, outdir, files, files_labels, metType):
         amax, amin = float('-inf'), float('+inf')
         for afile, alabel in zip(files, files_labels):
             afile = ROOT.TFile.Open(afile)
-            root_hist = checkRootFile(afile, f"{adir}/{metType}/{var}", rebin=props.rebin)
+            root_hist = checkRootFile(afile, f"{adir}/{metType}/{var}", rebinx=props.rebinx)
             nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
             values, errors = histo_values_errors(root_hist)
             errors /= 2 # symmetrize
@@ -299,18 +309,18 @@ def varsToPlot(metColl):
     """
     vars1D = {
         # MET and MHT common variables
-        'MET'                     : HLTMETInputs(x=r'$MET_\text{Reco}$ [GeV]', y=nEvts, rebin=2, logy=False),
-        'GenMETTrue'              : HLTMETInputs(x=r'$MET_\text{Gen}$ [GeV]', y=nEvts, rebin=2),
-        'MEx'                     : HLTMETInputs(x=r'$MET_x$ [GeV]', y=nEvts, rebin=4),
-        'MEy'                     : HLTMETInputs(x=r'$MET_y$ [GeV]', y=nEvts, rebin=4),
-        'METPhi'                  : HLTMETInputs(x=r'$\text{MET}\phi_\text{Reco}$', y=nEvts, rebin=2),
-        'METDeltaPhi_GenMETTrue'  : HLTMETInputs(x=r'$\text{MET}\phi_\text{Reco} - \text{MET}\phi_\text{Gen}$', y=nEvts, rebin=2),
-        'METDiff_GenMETTrue'      : HLTMETInputs(x=r'$\text{MET}_\text{Reco} - \text{MET}_\text{Gen}$ [GeV]', y=nEvts, rebin=10),
+        'MET'                     : HLTMETInputs(x=r'$MET_\text{Reco}$ [GeV]', y=nEvts, rebinx=2, logy=False),
+        'GenMETTrue'              : HLTMETInputs(x=r'$MET_\text{Gen}$ [GeV]', y=nEvts, rebinx=2),
+        'MEx'                     : HLTMETInputs(x=r'$MET_x$ [GeV]', y=nEvts, rebinx=4),
+        'MEy'                     : HLTMETInputs(x=r'$MET_y$ [GeV]', y=nEvts, rebinx=4),
+        'METPhi'                  : HLTMETInputs(x=r'$\text{MET}\phi_\text{Reco}$', y=nEvts, rebinx=2),
+        'METDeltaPhi_GenMETTrue'  : HLTMETInputs(x=r'$\text{MET}\phi_\text{Reco} - \text{MET}\phi_\text{Gen}$', y=nEvts, rebinx=2),
+        'METDiff_GenMETTrue'      : HLTMETInputs(x=r'$\text{MET}_\text{Reco} - \text{MET}_\text{Gen}$ [GeV]', y=nEvts, rebinx=10),
         'METSignPseudo'           : HLTMETInputs(x='MET / √(∑E_T) "Significance" (event-by-event)', y=nEvts), # \sqrt{} throws a warning
         'METSignReal'             : HLTMETInputs(x='MET Significance (Likelihood)', y=nEvts), # covariance matrix missing
-        'MET_Nvtx'                : HLTMETInputs(x='Number of vertices (MET-weighted)', y=nEvts, rebin=10),
-        'Nvertex'                 : HLTMETInputs(x='Number of vertices', y=nEvts, rebin=6),
-        'SumET'                   : HLTMETInputs(x=r'$\sum E_T$ [GeV]', y=nEvts, rebin=4),
+        'MET_Nvtx'                : HLTMETInputs(x='Number of vertices (MET-weighted)', y=nEvts, rebinx=10),
+        'Nvertex'                 : HLTMETInputs(x='Number of vertices', y=nEvts, rebinx=6),
+        'SumET'                   : HLTMETInputs(x=r'$\sum E_T$ [GeV]', y=nEvts, rebinx=4),
         # MET post-processing
         'METDiffAggr_MET'      : HLTMETInputs(x=r'$\text{MET}_{\text{Gen}}$ [GeV]', y=r'$\langle\text{MET}_\text{Reco} - \text{MET}_\text{Gen}\rangle$ [GeV]'),
         'METDiffAggr_Phi'      : HLTMETInputs(x=r'$\text{MET}\phi_{\text{Gen}}$', y=r'$\langle\text{MET}_\text{Reco} - \text{MET}_\text{Gen}\rangle$ [GeV]'),
@@ -332,9 +342,9 @@ def varsToPlot(metColl):
     if not isMHT:
         vars1D.update({
             # MET-specific
-            'GenMETCalo'              : HLTMETInputs(x=r'$MET^\text{Calo}_\text{Gen}$ [GeV]', y=nEvts, rebin=2),
-            'METDeltaPhi_GenMETCalo'  : HLTMETInputs(x=r'$\text{MET}\phi_\text{Reco} - \text{MET}\phi^{Calo}_\text{Gen}$', y=nEvts, rebin=2),
-            'METDiff_GenMETCalo'      : HLTMETInputs(x=r'$\text{MET}_\text{Reco} - \text{MET}^\text{Calo}_\text{Gen}$ [GeV]', y=nEvts, rebin=10),
+            'GenMETCalo'              : HLTMETInputs(x=r'$MET^\text{Calo}_\text{Gen}$ [GeV]', y=nEvts, rebinx=2),
+            'METDeltaPhi_GenMETCalo'  : HLTMETInputs(x=r'$\text{MET}\phi_\text{Reco} - \text{MET}\phi^{Calo}_\text{Gen}$', y=nEvts, rebinx=2),
+            'METDiff_GenMETCalo'      : HLTMETInputs(x=r'$\text{MET}_\text{Reco} - \text{MET}^\text{Calo}_\text{Gen}$ [GeV]', y=nEvts, rebinx=10),
         })
     if isCalo:
         vars1D.update({
@@ -356,14 +366,14 @@ def varsToPlot(metColl):
             # PFMET-specific
             'HFEMEt'                  : HLTMETInputs(x=r'HF EM $E_T$  [GeV]', y=nEvts),
             'HFEMEtFraction'          : HLTMETInputs(x=r'HF EM $E_T$ fraction', y=nEvts),
-            'HFHadronEt'              : HLTMETInputs(x=r'HF Hadronic $E_T$ [GeV]', y=nEvts, rebin=2),
-            'HFHadronEtFraction'      : HLTMETInputs(x='HF Hadronic $E_T$ fraction', y=nEvts, rebin=2),
-            'chargedHadronEt'         : HLTMETInputs(x=r'Charged Hadron $E_T$ [GeV]', y=nEvts, rebin=2),
-            'chargedHadronEtFraction' : HLTMETInputs(x=r'Charged Hadron $E_T$ fraction', y=nEvts, rebin=2),
-            'neutralHadronEt'         : HLTMETInputs(x=r'Neutral Hadron $E_T$ [GeV]', y=nEvts, rebin=2),
-            'neutralHadronEtFraction' : HLTMETInputs(x=r'Neutral Hadron $E_T$ fraction', y=nEvts, rebin=2),
-            'photonEt'                : HLTMETInputs(x=r'Photon $E_T$ [GeV]', y=nEvts, rebin=2),
-            'photonEtFraction'        : HLTMETInputs(x=r'Photon $E_T$ fraction', y=nEvts, rebin=2),
+            'HFHadronEt'              : HLTMETInputs(x=r'HF Hadronic $E_T$ [GeV]', y=nEvts, rebinx=2),
+            'HFHadronEtFraction'      : HLTMETInputs(x='HF Hadronic $E_T$ fraction', y=nEvts, rebinx=2),
+            'chargedHadronEt'         : HLTMETInputs(x=r'Charged Hadron $E_T$ [GeV]', y=nEvts, rebinx=2),
+            'chargedHadronEtFraction' : HLTMETInputs(x=r'Charged Hadron $E_T$ fraction', y=nEvts, rebinx=2),
+            'neutralHadronEt'         : HLTMETInputs(x=r'Neutral Hadron $E_T$ [GeV]', y=nEvts, rebinx=2),
+            'neutralHadronEtFraction' : HLTMETInputs(x=r'Neutral Hadron $E_T$ fraction', y=nEvts, rebinx=2),
+            'photonEt'                : HLTMETInputs(x=r'Photon $E_T$ [GeV]', y=nEvts, rebinx=2),
+            'photonEtFraction'        : HLTMETInputs(x=r'Photon $E_T$ fraction', y=nEvts, rebinx=2),
             'muonEt'                  : HLTMETInputs(x=r'Muon $E_T$ [GeV]', y=nEvts),
             'muonEtFraction'          : HLTMETInputs(x=r'Muon $E_T$ fraction', y=nEvts),
             'electronEt'              : HLTMETInputs(x=r'Electron $E_T$ [GeV]', y=nEvts),
@@ -378,12 +388,18 @@ def varsToPlot(metColl):
         'GenMETTruevsMET': HLTMETInputs(x=r'$MET_\text{Gen}$ [GeV]', y=r'$MET_\text{Reco}$ [GeV]', drawdiag=True),
         'GenMETPhivsMET': HLTMETInputs(x=r'$\text{MET}\phi_\text{Gen}$', y=r'$MET_\text{Reco}$ [GeV]'),
         'GenMETTruevsGenMETPhi': HLTMETInputs(x=r'$MET_\text{Gen}$ [GeV]', y=r'$\text{MET}\phi_\text{Gen}$'),
-        'METDiffvsGenMETTrue': HLTMETInputs(x=r'$\text{MET}_\text{Reco} - \text{MET}_\text{Gen}$ [GeV]', y=r'$\text{MET}_\text{Gen}$ [GeV]'),
-        'METDiffvsGenMETPhi': HLTMETInputs(x=r'$\text{MET}_\text{Reco} - \text{MET}_\text{Gen}$ [GeV]', y=r'$\text{MET}\phi_\text{Gen}$'),
-        'METRatiovsGenMETTrue': HLTMETInputs(x=r'$\text{MET}_\text{Reco} / \text{MET}_\text{Gen}$', y=r'$\text{MET}_\text{Gen}$ [GeV]'),
-        'METRatiovsGenMETPhi': HLTMETInputs(x=r'$\text{MET}_\text{Reco} / \text{MET}_\text{Gen}$', y=r'$\text{MET}\phi_\text{Gen}$'),
-        'METDeltaPhivsGenMETTrue': HLTMETInputs(x=r'$\text{MET}\phi_\text{Reco} - \text{MET}\phi_\text{Gen}$', y=r'$\text{MET}_\text{Gen}$ [GeV]'),
-        'METDeltaPhivsGenMETPhi': HLTMETInputs(x=r'$\text{MET}\phi_\text{Reco} - \text{MET}\phi_\text{Gen}$', y=r'$\text{MET}\phi_\text{Gen}$'),
+        'METDiffvsGenMETTrue': HLTMETInputs(x=r'$\text{MET}_\text{Reco} - \text{MET}_\text{Gen}$ [GeV]',
+                                            y=r'$\text{MET}_\text{Gen}$ [GeV]', rebinx=5, rebiny=5),
+        'METDiffvsGenMETPhi': HLTMETInputs(x=r'$\text{MET}_\text{Reco} - \text{MET}_\text{Gen}$ [GeV]',
+                                           y=r'$\text{MET}\phi_\text{Gen}$', rebinx=5, rebiny=2),
+        'METRatiovsGenMETTrue': HLTMETInputs(x=r'$\text{MET}_\text{Reco} / \text{MET}_\text{Gen}$',
+                                             y=r'$\text{MET}_\text{Gen}$ [GeV]', rebinx=5, rebiny=5),
+        'METRatiovsGenMETPhi': HLTMETInputs(x=r'$\text{MET}_\text{Reco} / \text{MET}_\text{Gen}$',
+                                            y=r'$\text{MET}\phi_\text{Gen}$', rebinx=5, rebiny=2),
+        'METDeltaPhivsGenMETTrue': HLTMETInputs(x=r'$\text{MET}\phi_\text{Reco} - \text{MET}\phi_\text{Gen}$',
+                                                y=r'$\text{MET}_\text{Gen}$ [GeV]', rebinx=1, rebiny=2),
+        'METDeltaPhivsGenMETPhi': HLTMETInputs(x=r'$\text{MET}\phi_\text{Reco} - \text{MET}\phi_\text{Gen}$',
+                                               y=r'$\text{MET}\phi_\text{Gen}$'),
     }
 
     return vars1D, vars2D
@@ -492,7 +508,7 @@ if __name__ == '__main__':
         afile = ROOT.TFile.Open(args.file)
         dqm_dir = f"DQMData/Run 1/HLT/Run summary/JetMET/METValidation"
 
-        # Plot 1D MET variables
+        # Plot MET variables
         for metType in args.met:
             dqm_dir_met = os.path.join(dqm_dir, metType)
             checkRootDir(afile, dqm_dir_met)
