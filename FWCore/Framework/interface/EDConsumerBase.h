@@ -209,19 +209,10 @@ namespace edm {
       TypeToGet tid = TypeToGet::make<ProductType>();
       return EDGetTokenT<ProductType>{recordConsumes(B, tid, checkIfEmpty(tag), false)};
     }
-    template <typename ProductType, BranchType B, Transition Tr>
-    EDGetTokenT<ProductType> mayConsume(edm::InputTag const& tag) {
-      TypeToGet tid = TypeToGet::make<ProductType>();
-      return EDGetTokenT<ProductType>{recordConsumes(B, tid, checkIfEmpty(tag), false)};
-    }
 
     EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) { return mayConsume<InEvent>(id, tag); }
 
     template <BranchType B>
-    EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) {
-      return EDGetToken{recordConsumes(B, id, checkIfEmpty(tag), false)};
-    }
-    template <BranchType B, Transition Tr>
     EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) {
       return EDGetToken{recordConsumes(B, id, checkIfEmpty(tag), false)};
     }
