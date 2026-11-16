@@ -61,8 +61,8 @@ private:
 
 LumiCalculator::LumiCalculator(edm::ParameterSet const& pset) : log_(new edm::LogInfo("LumiReport")), currentlumi_(0) {
   showTrgInfo_ = pset.getUntrackedParameter<bool>("showTriggerInfo", false);
-  consumes<LumiSummary, edm::InLumi>(edm::InputTag("lumiProducer", ""));
-  consumes<LumiSummaryRunHeader, edm::InRun>(edm::InputTag("lumiProducer", ""));
+  consumes<LumiSummary, edm::InLumi, edm::Transition::EndLuminosityBlock>(edm::InputTag("lumiProducer", ""));
+  consumes<LumiSummaryRunHeader, edm::InRun, edm::Transition::EndLuminosityBlock>(edm::InputTag("lumiProducer", ""));
 }
 
 // -----------------------------------------------------------------

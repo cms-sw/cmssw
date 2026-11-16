@@ -49,7 +49,7 @@ AlpgenExtractor::AlpgenExtractor(const edm::ParameterSet& iConfig)
     : unwParFile_(iConfig.getUntrackedParameter<std::string>("unwParFile")),
       wgtFile_(iConfig.getUntrackedParameter<std::string>("wgtFile")),
       parFile_(iConfig.getUntrackedParameter<std::string>("parFile")),
-      tokenLHERun_(consumes<LHERunInfoProduct, edm::InRun>(edm::InputTag("source"))) {
+      tokenLHERun_(consumes<LHERunInfoProduct, edm::InRun, edm::Transition::BeginRun>(edm::InputTag("source"))) {
   //now do what ever initialization is needed
 }
 

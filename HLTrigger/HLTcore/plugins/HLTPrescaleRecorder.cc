@@ -14,6 +14,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include <sys/time.h>
+#include <memory>
 #include <string>
 #include <ostream>
 
@@ -41,10 +42,11 @@ HLTPrescaleRecorder::HLTPrescaleRecorder(const edm::ParameterSet& ps)
       hlt_() {
   if (src_ == 1) {
     // Run
-    hltInputToken_ = consumes<trigger::HLTPrescaleTable, edm::InRun>(hltInputTag_);
+    hltInputToken_ = consumes<trigger::HLTPrescaleTable, edm::InRun, edm::Transition::BeginRun>(hltInputTag_);
   } else if (src_ == 2) {
     // Lumi
-    hltInputToken_ = consumes<trigger::HLTPrescaleTable, edm::InLumi>(hltInputTag_);
+    hltInputToken_ =
+        consumes<trigger::HLTPrescaleTable, edm::InLumi, edm::Transition::BeginLuminosityBlock>(hltInputTag_);
   } else if (src_ == 3) {
     // Event
     hltInputToken_ = consumes<trigger::HLTPrescaleTable>(hltInputTag_);
@@ -189,7 +191,7 @@ void HLTPrescaleRecorder::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   if (event_) {
     /// Writing to Event
-    unique_ptr<HLTPrescaleTable> product(new HLTPrescaleTable(hlt_));
+    unique_ptr<HLTPrescaleTable> product = std::make_unique<HLTPrescaleTable>(hlt_);
     iEvent.put(std::move(product), "Event");
   }
 
@@ -200,7 +202,7 @@ void HLTPrescaleRecorder::endLuminosityBlock(edm::LuminosityBlock const& iLumi, 
 void HLTPrescaleRecorder::endLuminosityBlockProduce(edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) {
   if (lumi_) {
     /// Writing to Lumi Block
-    unique_ptr<HLTPrescaleTable> product(new HLTPrescaleTable(hlt_));
+    unique_ptr<HLTPrescaleTable> product = std::make_unique<HLTPrescaleTable>(hlt_);
     iLumi.put(std::move(product), "Lumi");
   }
   return;
@@ -247,7 +249,7 @@ void HLTPrescaleRecorder::endRun(edm::Run const& iRun, const edm::EventSetup& iS
 void HLTPrescaleRecorder::endRunProduce(edm::Run& iRun, const edm::EventSetup& iSetup) {
   if (run_) {
     /// Writing to Run Block
-    unique_ptr<HLTPrescaleTable> product(new HLTPrescaleTable(hlt_));
+    unique_ptr<HLTPrescaleTable> product = std::make_unique<HLTPrescaleTable>(hlt_);
     iRun.put(std::move(product), "Run");
   }
 }

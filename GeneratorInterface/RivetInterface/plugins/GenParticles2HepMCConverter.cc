@@ -66,7 +66,8 @@ GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet
       outputFile_(pset.getUntrackedParameter<std::string>("outputFile", "events.hepmc")) {
   genParticlesToken_ = consumes<reco::CandidateView>(pset.getParameter<edm::InputTag>("genParticles"));
   genEventInfoToken_ = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("genEventInfo"));
-  genRunInfoToken_ = consumes<GenRunInfoProduct, edm::InRun>(pset.getParameter<edm::InputTag>("genEventInfo"));
+  genRunInfoToken_ = consumes<GenRunInfoProduct, edm::InRun, edm::Transition::BeginRun>(
+      pset.getParameter<edm::InputTag>("genEventInfo"));
   pTable_ = esConsumes<HepPDT::ParticleDataTable, PDTRecord>();
 
   produces<edm::HepMC3Product>("unsmeared");

@@ -79,7 +79,7 @@ LHE2HepMCConverter::LHE2HepMCConverter(const edm::ParameterSet& iConfig)
       _lheEventSrcTag(iConfig.getParameter<edm::InputTag>("LHEEventProduct")),
       _lheRunSrcTag(iConfig.getParameter<edm::InputTag>("LHERunInfoProduct")),
       eventProductToken_(consumes<LHEEventProduct>(_lheEventSrcTag)),
-      runInfoProductToken_(consumes<LHERunInfoProduct, edm::InRun>(_lheRunSrcTag)) {
+      runInfoProductToken_(consumes<LHERunInfoProduct, edm::InRun, edm::Transition::BeginRun>(_lheRunSrcTag)) {
   //register your products
   produces<edm::HepMCProduct>("unsmeared");
 }
@@ -123,7 +123,7 @@ void LHE2HepMCConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     v->add_particle_out(gp);
   }
 
-  std::unique_ptr<HepMCProduct> pOut(new HepMCProduct(evt));
+  std::unique_ptr<HepMCProduct> pOut = std::make_unique<HepMCProduct>(evt);
   iEvent.put(std::move(pOut), "unsmeared");
 }
 

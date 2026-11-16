@@ -116,7 +116,7 @@ namespace edm {
         this->eventProductToken_ = consumes<LHEEventProduct>(
             InputTag((iBD.moduleLabel() == "externalLHEProducer") ? "externalLHEProducer" : "source"));
         this->runInfoProductTag_ = InputTag(iBD.moduleLabel(), iBD.productInstanceName(), iBD.processName());
-        this->runInfoProductToken_ = consumes<LHERunInfoProduct, InRun>(
+        this->runInfoProductToken_ = consumes<LHERunInfoProduct, InRun, Transition::BeginRun>(
             InputTag(iBD.moduleLabel(), iBD.productInstanceName(), iBD.processName()));
       }
     });

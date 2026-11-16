@@ -32,8 +32,8 @@ namespace edmtest {
   // -----------------------------------------------------------------
 
   TestLumiProducer::TestLumiProducer(edm::ParameterSet const& ps) {
-    consumes<LumiSummary, edm::InLumi>(edm::InputTag("lumiProducer", ""));
-    consumes<LumiDetails, edm::InLumi>(edm::InputTag("lumiProducer", ""));
+    consumes<LumiSummary, edm::InLumi, edm::Transition::EndLuminosityBlock>(edm::InputTag("lumiProducer", ""));
+    consumes<LumiDetails, edm::InLumi, edm::Transition::EndLuminosityBlock>(edm::InputTag("lumiProducer", ""));
   }
 
   // -----------------------------------------------------------------
