@@ -20,7 +20,7 @@ namespace mkfit {
     }
   }
 
-  void CandCloner::release() { mp_iteration_params = nullptr; }
+  void CandCloner::reset() { mp_iteration_params = nullptr; }
 
   void CandCloner::begin_eta_bin(EventOfCombCandidates *e_o_ccs,
                                  std::vector<UpdateIndices> *update_list,

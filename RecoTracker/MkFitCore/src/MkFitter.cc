@@ -547,7 +547,7 @@ namespace mkfit {
 
   //------------------------------------------------------------------------------
 
-  void MkFitter::release() {
+  void MkFitter::reset() {
     m_event = nullptr;
     //refit_flags
     refit_flags = nullptr;
