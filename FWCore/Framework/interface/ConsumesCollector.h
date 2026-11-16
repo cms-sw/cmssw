@@ -83,18 +83,6 @@ namespace edm {
       return m_consumer->consumes<B, Tr>(id, tag);
     }
 
-    template <typename ProductType, BranchType B = InEvent>
-    EDGetTokenT<ProductType> mayConsume(edm::InputTag const& tag) {
-      return m_consumer->consumes<ProductType, B>(tag);
-    }
-
-    EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) { return m_consumer->mayConsume(id, tag); }
-
-    template <BranchType B>
-    EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) {
-      return m_consumer->consumes<B>(id, tag);
-    }
-
     // For consuming event-setup products
     template <typename ESProduct, typename ESRecord, Transition Tr = Transition::Event>
     auto esConsumes() {

@@ -108,7 +108,7 @@ namespace edm {
       return itemsToGetFromBranch_[convertToBranchType(iTransition)];
     }
 
-    ///\return true if the product corresponding to the index was registered via consumes or mayConsume call
+    ///\return true if the product corresponding to the index was registered via consumes call
     bool registeredToConsume(ProductResolverIndex, bool, BranchType) const;
 
     // ---------- static member functions --------------------
@@ -202,19 +202,6 @@ namespace edm {
     template <BranchType B, Transition Tr>
     EDGetToken consumes(TypeToGet const& id, edm::InputTag const& tag) {
       return EDGetToken{recordConsumes(B, id, checkIfEmpty(tag), true)};
-    }
-
-    template <typename ProductType, BranchType B = InEvent>
-    EDGetTokenT<ProductType> mayConsume(edm::InputTag const& tag) {
-      TypeToGet tid = TypeToGet::make<ProductType>();
-      return EDGetTokenT<ProductType>{recordConsumes(B, tid, checkIfEmpty(tag), false)};
-    }
-
-    EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) { return consumes<InEvent>(id, tag); }
-
-    template <BranchType B>
-    EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) {
-      return EDGetToken{recordConsumes(B, id, checkIfEmpty(tag), false)};
     }
 
     // For consuming event-setup products
