@@ -3,7 +3,8 @@
 # Way to use this:
 #   cmsRun dumpHGCalDDD_cfg.py type=V17
 #
-#   Options for type V17, V17n, V17ng, V17Shift, V18, V18n, V18ng, V19, V19n
+#   Options for type V17, V17n, V17ng, V17Shift, V18, V18n, V18ng, V19, V19n,
+#                    V19ng, V20
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
