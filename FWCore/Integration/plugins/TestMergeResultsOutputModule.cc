@@ -226,8 +226,8 @@ namespace edmtest {
       eventDroppedMergeToken_ =
           consumes<edmtest::ThingWithMerge>(edm::InputTag{"makeThingToBeDropped", "event", "PROD"});
 
-      runBeginDroppedIsEqualToken_ =
-          consumes<edmtest::ThingWithIsEqual, edm::InRun>(edm::InputTag{"makeThingToBeDropped", "beginRun", "PROD"});
+      runBeginDroppedIsEqualToken_ = consumes<edmtest::ThingWithIsEqual, edm::InRun, edm::Transition::EndRun>(
+          edm::InputTag{"makeThingToBeDropped", "beginRun", "PROD"});
     }
     for (auto const& parent : expectedParents_) {
       parentTokenMap_.try_emplace(parent, consumes<edmtest::Thing>(edm::InputTag{parent, "event", "PROD"}));
@@ -246,86 +246,97 @@ namespace edmtest {
 
     {
       edm::InputTag tag("thingWithMergeProducer", "beginRun", "PROD");
-      runBeginProdThingToken_ = consumes<edmtest::Thing, edm::InRun>(tag);
-      runBeginProdMergeToken_ = consumes<edmtest::ThingWithMerge, edm::InRun>(tag);
-      runBeginProdIsEqualToken_ = consumes<edmtest::ThingWithIsEqual, edm::InRun>(tag);
+      runBeginProdThingToken_ = consumes<edmtest::Thing, edm::InRun, edm::Transition::EndRun>(tag);
+      runBeginProdMergeToken_ = consumes<edmtest::ThingWithMerge, edm::InRun, edm::Transition::EndRun>(tag);
+      runBeginProdIsEqualToken_ = consumes<edmtest::ThingWithIsEqual, edm::InRun, edm::Transition::EndRun>(tag);
     }
 
     {
       edm::InputTag tag("thingWithMergeProducer", "beginRun");
-      runBeginNewThingToken_ = consumes<edmtest::Thing, edm::InRun>(tag);
-      runBeginNewMergeToken_ = consumes<edmtest::ThingWithMerge, edm::InRun>(tag);
-      runBeginNewIsEqualToken_ = consumes<edmtest::ThingWithIsEqual, edm::InRun>(tag);
+      runBeginNewThingToken_ = consumes<edmtest::Thing, edm::InRun, edm::Transition::EndRun>(tag);
+      runBeginNewMergeToken_ = consumes<edmtest::ThingWithMerge, edm::InRun, edm::Transition::EndRun>(tag);
+      runBeginNewIsEqualToken_ = consumes<edmtest::ThingWithIsEqual, edm::InRun, edm::Transition::EndRun>(tag);
     }
 
     {
       edm::InputTag tag("thingWithMergeProducer", "endRun", "PROD");
-      runEndProdThingToken_ = consumes<edmtest::Thing, edm::InRun>(tag);
-      runEndProdMergeToken_ = consumes<edmtest::ThingWithMerge, edm::InRun>(tag);
-      runEndProdIsEqualToken_ = consumes<edmtest::ThingWithIsEqual, edm::InRun>(tag);
+      runEndProdThingToken_ = consumes<edmtest::Thing, edm::InRun, edm::Transition::EndRun>(tag);
+      runEndProdMergeToken_ = consumes<edmtest::ThingWithMerge, edm::InRun, edm::Transition::EndRun>(tag);
+      runEndProdIsEqualToken_ = consumes<edmtest::ThingWithIsEqual, edm::InRun, edm::Transition::EndRun>(tag);
     }
 
     {
       edm::InputTag tag("thingWithMergeProducer", "endRun");
-      runEndNewThingToken_ = consumes<edmtest::Thing, edm::InRun>(tag);
-      runEndNewMergeToken_ = consumes<edmtest::ThingWithMerge, edm::InRun>(tag);
-      runEndNewIsEqualToken_ = consumes<edmtest::ThingWithIsEqual, edm::InRun>(tag);
+      runEndNewThingToken_ = consumes<edmtest::Thing, edm::InRun, edm::Transition::EndRun>(tag);
+      runEndNewMergeToken_ = consumes<edmtest::ThingWithMerge, edm::InRun, edm::Transition::EndRun>(tag);
+      runEndNewIsEqualToken_ = consumes<edmtest::ThingWithIsEqual, edm::InRun, edm::Transition::EndRun>(tag);
     }
 
     if (expectedDroppedEvent_.size() > 2) {
       edm::InputTag tag("makeThingToBeDropped", "endRun", "PROD");
-      runDroppedMergeToken_ = consumes<edmtest::ThingWithMerge, edm::InRun>(tag);
-      runDroppedIsEqualToken_ = consumes<edmtest::ThingWithIsEqual, edm::InRun>(tag);
+      runDroppedMergeToken_ = consumes<edmtest::ThingWithMerge, edm::InRun, edm::Transition::EndRun>(tag);
+      runDroppedIsEqualToken_ = consumes<edmtest::ThingWithIsEqual, edm::InRun, edm::Transition::EndRun>(tag);
     }
 
     if (testAlias_) {
-      runAliasToken_ = consumes<edmtest::Thing, edm::InRun>(edm::InputTag{"aliasForThingToBeDropped2", "endRun2"});
+      runAliasToken_ = consumes<edmtest::Thing, edm::InRun, edm::Transition::EndRun>(
+          edm::InputTag{"aliasForThingToBeDropped2", "endRun2"});
       edm::InputTag tag("aliasForThingToBeDropped2", "endRun2", "PROD");
-      runAliasPRODToken_ = consumes<edmtest::Thing, edm::InRun>(tag);
+      runAliasPRODToken_ = consumes<edmtest::Thing, edm::InRun, edm::Transition::EndRun>(tag);
     }
 
     if (expectedDroppedEvent_.size() > 3) {
       edm::InputTag tag("makeThingToBeDropped", "beginLumi", "PROD");
-      lumiDroppedBeginIsEqualToken_ = consumes<edmtest::ThingWithIsEqual, edm::InLumi>(tag);
+      lumiDroppedBeginIsEqualToken_ =
+          consumes<edmtest::ThingWithIsEqual, edm::InLumi, edm::Transition::EndLuminosityBlock>(tag);
     }
     {
       edm::InputTag tag("thingWithMergeProducer", "endLumi", "PROD");
-      lumiEndProdThingToken_ = consumes<edmtest::Thing, edm::InLumi>(tag);
-      lumiEndProdMergeToken_ = consumes<edmtest::ThingWithMerge, edm::InLumi>(tag);
-      lumiEndProdIsEqualToken_ = consumes<edmtest::ThingWithIsEqual, edm::InLumi>(tag);
+      lumiEndProdThingToken_ = consumes<edmtest::Thing, edm::InLumi, edm::Transition::EndLuminosityBlock>(tag);
+      lumiEndProdMergeToken_ = consumes<edmtest::ThingWithMerge, edm::InLumi, edm::Transition::EndLuminosityBlock>(tag);
+      lumiEndProdIsEqualToken_ =
+          consumes<edmtest::ThingWithIsEqual, edm::InLumi, edm::Transition::EndLuminosityBlock>(tag);
     }
 
     {
       edm::InputTag tag("thingWithMergeProducer", "endLumi");
-      lumiEndNewThingToken_ = consumes<edmtest::Thing, edm::InLumi>(tag);
-      lumiEndNewMergeToken_ = consumes<edmtest::ThingWithMerge, edm::InLumi>(tag);
-      lumiEndNewIsEqualToken_ = consumes<edmtest::ThingWithIsEqual, edm::InLumi>(tag);
+      lumiEndNewThingToken_ = consumes<edmtest::Thing, edm::InLumi, edm::Transition::EndLuminosityBlock>(tag);
+      lumiEndNewMergeToken_ = consumes<edmtest::ThingWithMerge, edm::InLumi, edm::Transition::EndLuminosityBlock>(tag);
+      lumiEndNewIsEqualToken_ =
+          consumes<edmtest::ThingWithIsEqual, edm::InLumi, edm::Transition::EndLuminosityBlock>(tag);
     }
 
     {
       edm::InputTag tag("thingWithMergeProducer", "beginLumi", "PROD");
-      lumiBeginProdThingToken_ = consumes<edmtest::Thing, edm::InLumi>(tag);
-      lumiBeginProdMergeToken_ = consumes<edmtest::ThingWithMerge, edm::InLumi>(tag);
-      lumiBeginProdIsEqualToken_ = consumes<edmtest::ThingWithIsEqual, edm::InLumi>(tag);
+      lumiBeginProdThingToken_ = consumes<edmtest::Thing, edm::InLumi, edm::Transition::BeginLuminosityBlock>(tag);
+      lumiBeginProdMergeToken_ =
+          consumes<edmtest::ThingWithMerge, edm::InLumi, edm::Transition::BeginLuminosityBlock>(tag);
+      lumiBeginProdIsEqualToken_ =
+          consumes<edmtest::ThingWithIsEqual, edm::InLumi, edm::Transition::BeginLuminosityBlock>(tag);
     }
 
     {
       edm::InputTag tag("thingWithMergeProducer", "beginLumi");
-      lumiBeginNewThingToken_ = consumes<edmtest::Thing, edm::InLumi>(tag);
-      lumiBeginNewMergeToken_ = consumes<edmtest::ThingWithMerge, edm::InLumi>(tag);
-      lumiBeginNewIsEqualToken_ = consumes<edmtest::ThingWithIsEqual, edm::InLumi>(tag);
+      lumiBeginNewThingToken_ = consumes<edmtest::Thing, edm::InLumi, edm::Transition::BeginLuminosityBlock>(tag);
+      lumiBeginNewMergeToken_ =
+          consumes<edmtest::ThingWithMerge, edm::InLumi, edm::Transition::BeginLuminosityBlock>(tag);
+      lumiBeginNewIsEqualToken_ =
+          consumes<edmtest::ThingWithIsEqual, edm::InLumi, edm::Transition::BeginLuminosityBlock>(tag);
     }
 
     if (expectedDroppedEvent_.size() > 4) {
       edm::InputTag tag("makeThingToBeDropped", "endLumi", "PROD");
-      lumiDroppedEndIsEqualToken_ = consumes<edmtest::ThingWithIsEqual, edm::InLumi>(tag);
-      lumiDroppedEndMergeToken_ = consumes<edmtest::ThingWithMerge, edm::InLumi>(tag);
+      lumiDroppedEndIsEqualToken_ =
+          consumes<edmtest::ThingWithIsEqual, edm::InLumi, edm::Transition::EndLuminosityBlock>(tag);
+      lumiDroppedEndMergeToken_ =
+          consumes<edmtest::ThingWithMerge, edm::InLumi, edm::Transition::EndLuminosityBlock>(tag);
     }
 
     if (testAlias_) {
-      lumiAliasToken_ = consumes<edmtest::Thing, edm::InLumi>(edm::InputTag{"aliasForThingToBeDropped2", "endLumi2"});
+      lumiAliasToken_ = consumes<edmtest::Thing, edm::InLumi, edm::Transition::EndLuminosityBlock>(
+          edm::InputTag{"aliasForThingToBeDropped2", "endLumi2"});
       edm::InputTag tag("aliasForThingToBeDropped2", "endLumi2", "PROD");
-      lumiAliasPRODToken_ = consumes<edmtest::Thing, edm::InLumi>(tag);
+      lumiAliasPRODToken_ = consumes<edmtest::Thing, edm::InLumi, edm::Transition::EndLuminosityBlock>(tag);
     }
   }
 
