@@ -1137,19 +1137,19 @@ void TKinFitter::print() {
     Int_t nParP = particle->getNPar();
     const TMatrixD* par = particle->getParCurr();
     const TMatrixD* covP = particle->getCovMatrix();
-    log << std::setw(3) << setiosflags(std::ios::right) << iP;
-    log << std::setw(15) << setiosflags(std::ios::right) << particle->GetName();
+    log << std::setw(3) << std::setiosflags(std::ios::right) << iP;
+    log << std::setw(15) << std::setiosflags(std::ios::right) << particle->GetName();
     log << std::setw(3) << " ";
     for (int iPar = 0; iPar < nParP; iPar++) {
       if (iPar > 0) {
-        log << setiosflags(std::ios::right) << std::setw(21) << " ";
+        log << std::setiosflags(std::ios::right) << std::setw(21) << " ";
       }
       TString colstr = "";
       colstr += parIndex;
       colstr += ":";
       log << std::setw(4) << colstr;
       log << std::setw(2) << " ";
-      log << setiosflags(std::ios::left) << setiosflags(std::ios::scientific) << std::setprecision(3);
+      log << std::setiosflags(std::ios::left) << std::setiosflags(std::ios::scientific) << std::setprecision(3);
       log << std::setw(15) << (*par)(iPar, 0);
       if (_nbIter > 0 && _status < 10) {
         log << std::setw(15) << TMath::Sqrt(_yaVFit(iPar, iPar));
@@ -1169,19 +1169,19 @@ void TKinFitter::print() {
     TAbsFitParticle* particle = _unmeasParticles[iP];
     Int_t nParP = particle->getNPar();
     const TMatrixD* par = particle->getParCurr();
-    log << std::setw(3) << setiosflags(std::ios::right) << iP;
+    log << std::setw(3) << std::setiosflags(std::ios::right) << iP;
     log << std::setw(15) << particle->GetName();
     log << std::setw(3) << " ";
     for (int iPar = 0; iPar < nParP; iPar++) {
       if (iPar > 0) {
-        log << setiosflags(std::ios::right) << std::setw(21) << " ";
+        log << std::setiosflags(std::ios::right) << std::setw(21) << " ";
       }
       TString colstr = "";
       colstr += parIndex;
       colstr += ":";
       log << std::setw(4) << colstr;
       log << std::setw(2) << " ";
-      log << setiosflags(std::ios::left) << setiosflags(std::ios::scientific) << std::setprecision(3);
+      log << std::setiosflags(std::ios::left) << std::setiosflags(std::ios::scientific) << std::setprecision(3);
       log << std::setw(15) << (*par)(iPar, 0);
       if (_nbIter > 0 && _status < 10) {
         log << std::setw(15) << TMath::Sqrt(_yaVFit(iPar + _nParB, iPar + _nParB));

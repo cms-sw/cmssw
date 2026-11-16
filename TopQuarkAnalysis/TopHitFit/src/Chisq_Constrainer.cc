@@ -521,8 +521,9 @@ namespace hitfit {
 
         // Log what we've done.
         if (_args.printfit()) {
-          cout << constraint_sum << " cut " << ncut << " size " << setiosflags(ios_base::scientific) << this_cutsize
-               << " tot size " << this_step_cutsize << resetiosflags(ios_base::scientific) << " " << chisq << "\n";
+          cout << constraint_sum << " cut " << ncut << " size " << std::setiosflags(ios_base::scientific)
+               << this_cutsize << " tot size " << this_step_cutsize << std::resetiosflags(ios_base::scientific) << " "
+               << chisq << "\n";
         }
 
         // Find the new step destination.

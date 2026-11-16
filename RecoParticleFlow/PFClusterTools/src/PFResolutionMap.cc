@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <array>
 #include <functional>
 #include <stdexcept>
 #include <TFile.h>
