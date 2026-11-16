@@ -145,7 +145,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet &tkmapPset,
 
         int idmod = mod->idex;
         int nchan = 0;
-        std::multimap<const int, TmApvPair *>::iterator pos;
+        std::multimap<int, TmApvPair *>::iterator pos;
         for (pos = apvModuleMap.lower_bound(idmod); pos != apvModuleMap.upper_bound(idmod); ++pos) {
           TmApvPair *apvpair = pos->second;
           if (apvpair != nullptr) {
@@ -3238,7 +3238,7 @@ void TrackerMap::fillc_fed_channel(int fedId, int fedCh, int red, int green, int
 }
 
 void TrackerMap::fill_fed_channel(int idmod, float qty) {
-  std::multimap<const int, TmApvPair *>::iterator pos;
+  std::multimap<int, TmApvPair *>::iterator pos;
   for (pos = apvModuleMap.lower_bound(idmod); pos != apvModuleMap.upper_bound(idmod); ++pos) {
     TmApvPair *apvpair = pos->second;
     if (apvpair != nullptr) {
@@ -3407,14 +3407,14 @@ void TrackerMap::fillc(int layer, int ring, int nmod, int red, int green, int bl
 }
 
 void TrackerMap::fillc_all_blank() {
-  std::map<const int, TmModule *>::iterator imod;
+  std::map<int, TmModule *>::iterator imod;
   for (imod = imoduleMap.begin(); imod != imoduleMap.end(); imod++) {
     fillc(imod->first, 255, 255, 255);
   }
 }
 
 void TrackerMap::fill_all_blank() {
-  std::map<const int, TmModule *>::iterator imod;
+  std::map<int, TmModule *>::iterator imod;
   for (imod = imoduleMap.begin(); imod != imoduleMap.end(); imod++) {
     fill_current_val(imod->first, 0);
   }
@@ -3700,7 +3700,7 @@ void TrackerMap::printonline() {
         if (mod != nullptr && !mod->notInUse()) {
           int idmod = mod->idex;
           *txtfile << "<a name=" << idmod << "><pre>" << std::endl;
-          std::multimap<const int, TmApvPair *>::iterator pos;
+          std::multimap<int, TmApvPair *>::iterator pos;
           for (pos = apvModuleMap.lower_bound(idmod); pos != apvModuleMap.upper_bound(idmod); ++pos) {
             TmApvPair *apvpair = pos->second;
             if (apvpair != nullptr) {
@@ -4072,7 +4072,7 @@ void TrackerMap::printall(bool print_total, float minval1, float maxval1, std::s
           if (mod != nullptr && !mod->notInUse()) {
             int idmod = mod->idex;
             *txtfile << "<a name=" << idmod << "><pre>" << std::endl;
-            std::multimap<const int, TmApvPair *>::iterator pos;
+            std::multimap<int, TmApvPair *>::iterator pos;
             for (pos = apvModuleMap.lower_bound(idmod); pos != apvModuleMap.upper_bound(idmod); ++pos) {
               TmApvPair *apvpair = pos->second;
               if (apvpair != nullptr) {

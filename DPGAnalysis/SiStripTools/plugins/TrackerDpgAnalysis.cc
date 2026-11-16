@@ -113,20 +113,20 @@ public:
 protected:
   std::vector<double> onTrackAngles(edm::Handle<edmNew::DetSetVector<SiStripCluster> >&,
                                     const std::vector<Trajectory>&);
-  void insertMeasurement(std::multimap<const uint32_t, std::pair<LocalPoint, double> >&,
+  void insertMeasurement(std::multimap<uint32_t, std::pair<LocalPoint, double> >&,
                          const TransientTrackingRecHit*,
                          double);
   std::vector<int> onTrack(edm::Handle<edmNew::DetSetVector<SiStripCluster> >&, const reco::TrackCollection&, uint32_t);
-  void insertMeasurement(std::multimap<const uint32_t, std::pair<int, int> >&, const TrackingRecHit*, int);
+  void insertMeasurement(std::multimap<uint32_t, std::pair<int, int> >&, const TrackingRecHit*, int);
   std::map<size_t, int> inVertex(const reco::TrackCollection&, const reco::VertexCollection&, uint32_t);
   std::vector<std::pair<double, double> > onTrackAngles(edm::Handle<edmNew::DetSetVector<SiPixelCluster> >&,
                                                         const std::vector<Trajectory>&);
-  void insertMeasurement(std::multimap<const uint32_t, std::pair<LocalPoint, std::pair<double, double> > >&,
+  void insertMeasurement(std::multimap<uint32_t, std::pair<LocalPoint, std::pair<double, double> > >&,
                          const TransientTrackingRecHit*,
                          double,
                          double);
   std::vector<int> onTrack(edm::Handle<edmNew::DetSetVector<SiPixelCluster> >&, const reco::TrackCollection&, uint32_t);
-  void insertMeasurement(std::multimap<const uint32_t, std::pair<std::pair<float, float>, int> >&,
+  void insertMeasurement(std::multimap<uint32_t, std::pair<std::pair<float, float>, int> >&,
                          const TrackingRecHit*,
                          int);
   std::string toStringName(uint32_t, const TrackerTopology&);
@@ -165,7 +165,7 @@ private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
   edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
   const TrackerGeometry* tracker_;
-  std::multimap<const uint32_t, const FedChannelConnection*> connections_;
+  std::multimap<uint32_t, const FedChannelConnection*> connections_;
   bool functionality_offtrackClusters_, functionality_ontrackClusters_, functionality_pixclusters_,
       functionality_pixvertices_, functionality_missingHits_, functionality_tracks_, functionality_vertices_,
       functionality_events_;
@@ -1139,7 +1139,7 @@ std::vector<double> TrackerDpgAnalysis::onTrackAngles(edm::Handle<edmNew::DetSet
                                                       const std::vector<Trajectory>& trajVec) {
   std::vector<double> result;
   // first, build a list of positions and angles on trajectories
-  std::multimap<const uint32_t, std::pair<LocalPoint, double> > onTrackPositions;
+  std::multimap<uint32_t, std::pair<LocalPoint, double> > onTrackPositions;
   for (std::vector<Trajectory>::const_iterator traj = trajVec.begin(); traj < trajVec.end(); ++traj) {
     Trajectory::DataContainer measurements = traj->measurements();
     for (Trajectory::DataContainer::iterator meas = measurements.begin(); meas != measurements.end(); ++meas) {
@@ -1171,7 +1171,7 @@ std::vector<double> TrackerDpgAnalysis::onTrackAngles(edm::Handle<edmNew::DetSet
   return result;
 }
 
-void TrackerDpgAnalysis::insertMeasurement(std::multimap<const uint32_t, std::pair<LocalPoint, double> >& collection,
+void TrackerDpgAnalysis::insertMeasurement(std::multimap<uint32_t, std::pair<LocalPoint, double> >& collection,
                                            const TransientTrackingRecHit* hit,
                                            double tla) {
   if (!hit)
@@ -1197,7 +1197,7 @@ std::vector<int> TrackerDpgAnalysis::onTrack(edm::Handle<edmNew::DetSetVector<Si
                                              uint32_t firstTrack) {
   std::vector<int> result;
   // first, build a list of positions and trackid on tracks
-  std::multimap<const uint32_t, std::pair<int, int> > onTrackPositions;
+  std::multimap<uint32_t, std::pair<int, int> > onTrackPositions;
   uint32_t trackid = firstTrack;
   for (reco::TrackCollection::const_iterator itTrack = trackVec.begin(); itTrack != trackVec.end();
        ++itTrack, ++trackid) {
@@ -1228,7 +1228,7 @@ std::vector<int> TrackerDpgAnalysis::onTrack(edm::Handle<edmNew::DetSetVector<Si
   return result;
 }
 
-void TrackerDpgAnalysis::insertMeasurement(std::multimap<const uint32_t, std::pair<int, int> >& collection,
+void TrackerDpgAnalysis::insertMeasurement(std::multimap<uint32_t, std::pair<int, int> >& collection,
                                            const TrackingRecHit* hit,
                                            int trackid) {
   if (!hit)
@@ -1270,7 +1270,7 @@ std::vector<std::pair<double, double> > TrackerDpgAnalysis::onTrackAngles(
     edm::Handle<edmNew::DetSetVector<SiPixelCluster> >& clusters, const std::vector<Trajectory>& trajVec) {
   std::vector<std::pair<double, double> > result;
   // first, build a list of positions and angles on trajectories
-  std::multimap<const uint32_t, std::pair<LocalPoint, std::pair<double, double> > > onTrackPositions;
+  std::multimap<uint32_t, std::pair<LocalPoint, std::pair<double, double> > > onTrackPositions;
   for (std::vector<Trajectory>::const_iterator traj = trajVec.begin(); traj < trajVec.end(); ++traj) {
     Trajectory::DataContainer measurements = traj->measurements();
     for (Trajectory::DataContainer::iterator meas = measurements.begin(); meas != measurements.end(); ++meas) {
@@ -1310,7 +1310,7 @@ std::vector<std::pair<double, double> > TrackerDpgAnalysis::onTrackAngles(
 }
 
 void TrackerDpgAnalysis::insertMeasurement(
-    std::multimap<const uint32_t, std::pair<LocalPoint, std::pair<double, double> > >& collection,
+    std::multimap<uint32_t, std::pair<LocalPoint, std::pair<double, double> > >& collection,
     const TransientTrackingRecHit* hit,
     double alpha,
     double beta) {
@@ -1328,7 +1328,7 @@ std::vector<int> TrackerDpgAnalysis::onTrack(edm::Handle<edmNew::DetSetVector<Si
                                              uint32_t firstTrack) {
   std::vector<int> result;
   // first, build a list of positions and trackid on tracks
-  std::multimap<const uint32_t, std::pair<std::pair<float, float>, int> > onTrackPositions;
+  std::multimap<uint32_t, std::pair<std::pair<float, float>, int> > onTrackPositions;
   uint32_t trackid = firstTrack;
   for (reco::TrackCollection::const_iterator itTrack = trackVec.begin(); itTrack != trackVec.end();
        ++itTrack, ++trackid) {
@@ -1361,10 +1361,9 @@ std::vector<int> TrackerDpgAnalysis::onTrack(edm::Handle<edmNew::DetSetVector<Si
   return result;
 }
 
-void TrackerDpgAnalysis::insertMeasurement(
-    std::multimap<const uint32_t, std::pair<std::pair<float, float>, int> >& collection,
-    const TrackingRecHit* hit,
-    int trackid) {
+void TrackerDpgAnalysis::insertMeasurement(std::multimap<uint32_t, std::pair<std::pair<float, float>, int> >& collection,
+                                           const TrackingRecHit* hit,
+                                           int trackid) {
   if (!hit)
     return;
   const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>(hit);

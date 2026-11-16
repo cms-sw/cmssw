@@ -35,7 +35,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <ctime>
-#include <ext/alloc_traits.h>
 #include <fmt/printf.h>
 #include <iomanip>
 #include <iostream>
