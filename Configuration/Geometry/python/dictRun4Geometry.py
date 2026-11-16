@@ -273,6 +273,79 @@ trackerDict = {
         ],
         "era" : "phase2_tracker, phase2_3DPixels, trackingPhase2PU140",
     },
+    "T40" : {
+        1 : [
+            'Geometry/TrackerCommonData/data/PhaseII/TFPXTEPXReordered/trackerParameters.xml',
+            'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_OT808_IT750/pixfwd.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_OT808_IT750/pixbar.xml',
+            'Geometry/TrackerCommonData/data/trackermaterial.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_OT808_IT750/tracker.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_OT808_IT750/otst.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_OT808_IT750/pixel.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerbar.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerfwd.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_OT808_IT750/trackerStructureTopology.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_OT808_IT750/pixelStructureTopology.xml',
+            'Geometry/TrackerSimData/data/PhaseII/Tracker_DD4hep_OT808_IT750/trackersens.xml',
+            'Geometry/TrackerSimData/data/PhaseII/Tracker_DD4hep_OT808_IT750/pixelsens.xml',
+            'Geometry/TrackerRecoData/data/PhaseII/Tracker_DD4hep_OT808_IT750/trackerRecoMaterial.xml',
+            'Geometry/TrackerSimData/data/PhaseII/Tracker_DD4hep_OT808_IT750/trackerProdCuts.xml',
+            'Geometry/TrackerSimData/data/PhaseII/Tracker_DD4hep_OT808_IT750/pixelProdCuts.xml',
+            'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
+            
+        ],
+        "sim" : [
+            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *',
+            'from SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff import *',
+        ],
+        "reco" : [
+            'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
+            'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
+            'from Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi import *',
+            'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
+            'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
+            'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
+            'trackerGeometry.applyAlignment = True',
+        ],
+        "era" : "phase2_tracker, phase2_3DPixels, trackingPhase2PU140",
+    },
+    "T41" : {
+        1 : [
+            'Geometry/TrackerCommonData/data/PhaseII/TFPXTEPXReordered/trackerParameters.xml',
+            'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_compatible_OT807_IT849_test_2026_10/pixfwd.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_compatible_OT807_IT849_test_2026_10/pixbar.xml',
+            'Geometry/TrackerCommonData/data/trackermaterial.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_compatible_OT807_IT849_test_2026_10/tracker.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_compatible_OT807_IT849_test_2026_10/otst.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_compatible_OT807_IT849_test_2026_10_mod/pixel.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerbar.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerfwd.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_compatible_OT807_IT849_test_2026_10/trackerStructureTopology.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_compatible_OT807_IT849_test_2026_10/pixelStructureTopology.xml',
+            'Geometry/TrackerSimData/data/PhaseII/Tracker_DD4hep_compatible_OT807_IT849_test_2026_10/trackersens.xml',
+            'Geometry/TrackerSimData/data/PhaseII/Tracker_DD4hep_compatible_OT807_IT849_test_2026_10/pixelsens.xml',
+            'Geometry/TrackerRecoData/data/PhaseII/Tracker_DD4hep_compatible_OT807_IT849_test_2026_10/trackerRecoMaterial.xml',
+            'Geometry/TrackerSimData/data/PhaseII/Tracker_DD4hep_compatible_OT807_IT849_test_2026_10/trackerProdCuts.xml',
+            'Geometry/TrackerSimData/data/PhaseII/Tracker_DD4hep_compatible_OT807_IT849_test_2026_10/pixelProdCuts.xml',
+            'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
+        ],
+        "sim" : [
+            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *',
+            'from SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff import *',
+        ],
+        "reco" : [
+            'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
+            'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
+            'from Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi import *',
+            'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
+            'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
+            'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
+            'trackerGeometry.applyAlignment = True',
+        ],
+        "era" : "phase2_tracker, phase2_3DPixels, trackingPhase2PU140",
+    }
 }
 
 
@@ -1322,6 +1395,8 @@ detectorVersionDict = {
     ("O11","T37","C27","M17","F10","I21") : "D126",
     ("O11","T35","C27","M17","F10","I21") : "D127",
     ("O11","T35","C27","M16","F10","I21") : "D128",
+    ("O11","T40","C27","M17","F10","I21") : "D129",
+    ("O11","T41","C27","M17","F10","I21") : "D130",
 }
 
 deprecatedDets = set(["D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31", "D32", "D33", "D34", "D36", "D37", "D38", "D39", "D40", "D42", "D35", "D41", "D43", "D44", "D45", "D46", "D48", "D47", "D50", "D51", "D52", "D53", "D54", "D55", "D56", "D57", "D58", "D59", "D61", "D62", "D63", "D64", "D65", "D66", "D67", "D69", "D71", "D72", "D73", "D74", "D75", "D78", "D79", "D87", "D89", "D90", "D49", "D60", "D68", "D70", "D76", "D77", "D80", "D81", "D82", "D83", "D84", "D85","D86", "D88", "D91", "D92", "D93", "D94", "D95", "D96", "D97", "D98", "D99", "D100", "D101", "D102", "D103", "D105", "D106", "D107", "D108", "D109", "D116", "D117", "D118", "D119"])
