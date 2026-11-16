@@ -119,10 +119,6 @@ run2_egamma_2018.toModify(
     correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2018_29Sep2020_RunFineEtaR9Gain")
 )
 
-# transformer photon ID (ECAL crystals, preshower strips and PF candidates), see PhotonTransformerIDProducer
-from RecoEgamma.PhotonIdentification.photonTransformerIDProducer_cfi import photonTransformerIDProducer as _photonTransformerIDProducer
-photonTransformerID = _photonTransformerIDProducer.clone(src = "slimmedPhotons")
-
 slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
     src = cms.InputTag("slimmedPhotons"),
     parentSrcs = cms.VInputTag("reducedEgamma:reducedGedPhotons"),
@@ -134,11 +130,6 @@ slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
         mvaID_Fall17V2 = cms.InputTag("photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v2Values"),
         PFIsoChgFall17V2 = cms.InputTag("isoForPhoFall17V2:PFIsoChg"),
         PFIsoAllFall17V2 = cms.InputTag("isoForPhoFall17V2:PFIsoAll"),
-        transformerID = cms.InputTag("photonTransformerID:score"),
-        transformerIDFeat0 = cms.InputTag("photonTransformerID:feature0"),
-        transformerIDFeat1 = cms.InputTag("photonTransformerID:feature1"),
-        transformerIDFeat2 = cms.InputTag("photonTransformerID:feature2"),
-        transformerIDFeat3 = cms.InputTag("photonTransformerID:feature3"),
     ),
     userIntFromBools = cms.PSet(
         cutBasedID_loose  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-RunIIIWinter22-122X-V1-loose"),
@@ -165,12 +156,7 @@ run2_egamma.toModify(slimmedPhotonsWithUserData.userFloats,
                      mvaID = None,
                      PFIsoChgQuadratic = None,
                      PFIsoAllQuadratic = None,
-                     HoverEQuadratic = None,
-                     transformerID = None,
-                     transformerIDFeat0 = None,
-                     transformerIDFeat1 = None,
-                     transformerIDFeat2 = None,
-                     transformerIDFeat3 = None).\
+                     HoverEQuadratic = None).\
                 toModify(slimmedPhotonsWithUserData.userIntFromBools,
                           cutBasedID_loose = None,
                           cutBasedID_medium = None,
@@ -219,11 +205,6 @@ photonTable = simplePATPhotonFlatTableProducer.clone(
         mvaID = Var("userFloat('mvaID')",float,doc="MVA ID score, Winter22V1",precision=10),
         mvaID_WP90 = Var("userInt('mvaID_WP90')",bool,doc="MVA ID WP90, Winter22V1"),
         mvaID_WP80 = Var("userInt('mvaID_WP80')",bool,doc="MVA ID WP80, Winter22V1"),
-        transformerID = Var("userFloat('transformerID')",float,doc="transformer photon ID score (ECAL crystals, preshower strips and PF candidates; 2024 training), signal = 1",precision=10),
-        transformerIDFeat0 = Var("userFloat('transformerIDFeat0')",float,doc="transformer photon ID: learned feature 0 (input of the score)",precision=10),
-        transformerIDFeat1 = Var("userFloat('transformerIDFeat1')",float,doc="transformer photon ID: learned feature 1 (input of the score)",precision=10),
-        transformerIDFeat2 = Var("userFloat('transformerIDFeat2')",float,doc="transformer photon ID: learned feature 2 (input of the score)",precision=10),
-        transformerIDFeat3 = Var("userFloat('transformerIDFeat3')",float,doc="transformer photon ID: learned feature 3 (input of the score)",precision=10),
         trkSumPtHollowConeDR03 = Var("trkSumPtHollowConeDR03()",float,doc="Sum of track pT in a hollow cone of outer radius, inner radius", precision=10),
         trkSumPtSolidConeDR04 = Var("trkSumPtSolidConeDR04()",float,doc="Sum of track pT in a cone of dR=0.4", precision=10),
         ecalPFClusterIso = Var("ecalPFClusterIso()",float,doc="sum pt of ecal clusters, vetoing clusters part of photon", precision=10),
@@ -306,12 +287,7 @@ run2_egamma.toModify(
     pfRelIso03_all = Var("userFloat('PFIsoAllFall17V2')/pt",float,doc="PF relative isolation dR=0.3, total (with Fall17V2 rho*EA PU corrections)"),
     pfRelIso03_chg_quadratic=None,
     pfRelIso03_all_quadratic=None,
-    hoe_PUcorr=None,
-    transformerID=None,
-    transformerIDFeat0=None,
-    transformerIDFeat1=None,
-    transformerIDFeat2=None,
-    transformerIDFeat3=None
+    hoe_PUcorr=None
 )
 
 photonsMCMatchForTable = cms.EDProducer("MCMatcher",  # cut on deltaR, deltaPt/Pt; pick best by deltaR
@@ -336,7 +312,7 @@ photonMCTable = cms.EDProducer("CandMCMatchTableProducer",
 )
 
 
-photonTask = cms.Task(bitmapVIDForPho, bitmapVIDForPhoRun2, isoForPho, hOverEForPho, isoForPhoFall17V2, seedGainPho, photonTransformerID, slimmedPhotonsWithUserData, finalPhotons)
+photonTask = cms.Task(bitmapVIDForPho, bitmapVIDForPhoRun2, isoForPho, hOverEForPho, isoForPhoFall17V2, seedGainPho, slimmedPhotonsWithUserData, finalPhotons)
 
 photonTablesTask = cms.Task(photonTable)
 photonMCTask = cms.Task(photonsMCMatchForTable, photonMCTable)
@@ -345,5 +321,28 @@ _photonTask_Run2 = photonTask.copy()
 _photonTask_Run2.remove(bitmapVIDForPho)
 _photonTask_Run2.remove(isoForPho)
 _photonTask_Run2.remove(hOverEForPho)
-_photonTask_Run2.remove(photonTransformerID)
 run2_egamma.toReplaceWith(photonTask, _photonTask_Run2)
+
+# transformer photon ID (ECAL crystals, preshower strips and PF candidates), see PhotonTransformerIDProducer:
+# Run 3 only (not Run 2, not Phase-2)
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+from RecoEgamma.PhotonIdentification.photonTransformerIDProducer_cfi import photonTransformerIDProducer as _photonTransformerIDProducer
+run3_photonTransformerID = run3_common & ~phase2_common
+photonTransformerID = _photonTransformerIDProducer.clone(src = "slimmedPhotons")
+run3_photonTransformerID.toModify(slimmedPhotonsWithUserData.userFloats,
+    transformerID = cms.InputTag("photonTransformerID:score"),
+    transformerIDFeat0 = cms.InputTag("photonTransformerID:feature0"),
+    transformerIDFeat1 = cms.InputTag("photonTransformerID:feature1"),
+    transformerIDFeat2 = cms.InputTag("photonTransformerID:feature2"),
+    transformerIDFeat3 = cms.InputTag("photonTransformerID:feature3"),
+)
+run3_photonTransformerID.toModify(photonTable.variables,
+    transformerID = Var("userFloat('transformerID')",float,doc="transformer photon ID score (ECAL crystals, preshower strips and PF candidates; 2024 training), signal = 1",precision=10),
+    transformerIDFeat0 = Var("userFloat('transformerIDFeat0')",float,doc="transformer photon ID: learned feature 0 (input of the score)",precision=10),
+    transformerIDFeat1 = Var("userFloat('transformerIDFeat1')",float,doc="transformer photon ID: learned feature 1 (input of the score)",precision=10),
+    transformerIDFeat2 = Var("userFloat('transformerIDFeat2')",float,doc="transformer photon ID: learned feature 2 (input of the score)",precision=10),
+    transformerIDFeat3 = Var("userFloat('transformerIDFeat3')",float,doc="transformer photon ID: learned feature 3 (input of the score)",precision=10),
+)
+_photonTask_Run3 = photonTask.copy()
+_photonTask_Run3.add(photonTransformerID)
+run3_photonTransformerID.toReplaceWith(photonTask, _photonTask_Run3)
