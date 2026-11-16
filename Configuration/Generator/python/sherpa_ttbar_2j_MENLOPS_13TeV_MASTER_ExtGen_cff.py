@@ -15,6 +15,12 @@ _generator = cms.EDFilter("SherpaGeneratorFilter",
   SherpaPathPiece = cms.string('./'),
   SherpaResultDir = cms.string('Result'),
   SherpaDefaultWeight = cms.double(1.0),
+  SherpaWeightsBlock = cms.PSet(
+    # Name the weights so the gen weight producers can identify them. Sherpa's internal
+    # weights come first, the nominal one first of all. The run card has no variations
+    SherpaWeights = cms.vstring('Weight', 'MEWeight', 'WeightNormalisation', 'NTrials'),
+    SherpaVariationWeights = cms.vstring()
+  ),
   SherpaParameters = cms.PSet(parameterSets = cms.vstring(
                              "MPI_Cross_Sections",
                              "Run"),
@@ -45,6 +51,7 @@ _generator = cms.EDFilter("SherpaGeneratorFilter",
 				" STABLE[6] 0; WIDTH[6] 0; STABLE[24] 0;",
 				" EXCLUSIVE_CLUSTER_MODE 1;",
 				" HEPMC_TREE_LIKE=1;",
+				" HEPMC_USE_NAMED_WEIGHTS=1;",
 				" PRETTY_PRINT=Off;",
 				"}(run)",
 				" (processes){",
