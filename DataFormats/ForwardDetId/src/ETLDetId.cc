@@ -1,5 +1,6 @@
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include <iomanip>
+#include <sstream>
 
 namespace io_v1 {
   std::ostream& operator<<(std::ostream& os, const ETLDetId& id) {

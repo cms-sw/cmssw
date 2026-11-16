@@ -203,22 +203,22 @@ namespace lhef {
       } else if (name == "scales") {
         for (XMLSize_t iscale = 0; iscale < attributes.getLength(); ++iscale) {
           int ipart = 0;
-          const char *scalename = XMLSimpleStr(attributes.getQName(iscale));
-          int nmatch = sscanf(scalename, "pt_clust_%d", &ipart);
+          XMLSimpleStr scalename(attributes.getQName(iscale));
+          int nmatch = sscanf(static_cast<const char *>(scalename), "pt_clust_%d", &ipart);
 
           if (nmatch != 1) {
             edm::LogError("Generator|LHEInterface") << "invalid attribute in <scales> tag" << std::endl;
           }
 
           float scaleval;
-          const char *scalevalstr = XMLSimpleStr(attributes.getValue(iscale));
-          sscanf(scalevalstr, "%e", &scaleval);
+          XMLSimpleStr scalevalstr(attributes.getValue(iscale));
+          sscanf(static_cast<const char *>(scalevalstr), "%e", &scaleval);
 
           scales.push_back(scaleval);
         }
       } else if (name == "event_num") {
-        const char *evtnumstr = XMLSimpleStr(attributes.getValue(XMLString::transcode("num")));
-        sscanf(evtnumstr, "%d", &evtnum);
+        XMLSimpleStr evtnumstr(attributes.getValue(XMLString::transcode("num")));
+        sscanf(static_cast<const char *>(evtnumstr), "%d", &evtnum);
       }
       xmlEventNodes.push_back(elem);
       return;
@@ -255,13 +255,13 @@ namespace lhef {
         npNLO = -99;
         const XMLCh *npLOval = attributes.getValue(XMLString::transcode("npLO"));
         if (npLOval) {
-          const char *npLOs = XMLSimpleStr(npLOval);
-          sscanf(npLOs, "%d", &npLO);
+          XMLSimpleStr npLOs(npLOval);
+          sscanf(static_cast<const char *>(npLOs), "%d", &npLO);
         }
         const XMLCh *npNLOval = attributes.getValue(XMLString::transcode("npNLO"));
         if (npNLOval) {
-          const char *npNLOs = XMLSimpleStr(npNLOval);
-          sscanf(npNLOs, "%d", &npNLO);
+          XMLSimpleStr npNLOs(npNLOval);
+          sscanf(static_cast<const char *>(npNLOs), "%d", &npNLO);
         }
 
         xmlEventNodes.resize(1);
@@ -301,7 +301,10 @@ namespace lhef {
           switch (node->getNodeType()) {
             case DOMNode::ELEMENT_NODE:
               elem = static_cast<DOMElement *>(node);
-              type = (const char *)XMLSimpleStr(elem->getTagName());
+              {
+                XMLSimpleStr typeStr(elem->getTagName());
+                type = static_cast<const char *>(typeStr);
+              }
               p = std::strchr((const char *)buffer, '>') + 1;
               q = std::strrchr(p, '<');
               break;
