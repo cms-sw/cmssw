@@ -23,6 +23,7 @@
 // temporarely
 
 #include "CondFormats/Serialization/interface/Archive.h"
+#include "CondFormats/Serialization/interface/InputMemoryBuffer.h"
 
 namespace cond {
 
@@ -87,12 +88,9 @@ namespace cond {
                                          const Binary& payloadData,
                                          const Binary& streamerInfoData) {
     std::unique_ptr<T> payload;
-    std::stringbuf sstreamerInfoBuf;
-    sstreamerInfoBuf.pubsetbuf(static_cast<char*>(const_cast<void*>(streamerInfoData.data())), streamerInfoData.size());
-    std::string streamerInfo = sstreamerInfoBuf.str();
+    std::string streamerInfo(static_cast<const char*>(streamerInfoData.data()), streamerInfoData.size());
     try {
-      std::stringbuf sdataBuf;
-      sdataBuf.pubsetbuf(static_cast<char*>(const_cast<void*>(payloadData.data())), payloadData.size());
+      serialization::InputMemoryBuffer sdataBuf(payloadData.data(), payloadData.size());
       std::istream dataBuffer(&sdataBuf);
       CondInputArchive ia(dataBuffer);
       payload.reset(createPayload<T>(payloadType));
