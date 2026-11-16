@@ -53,7 +53,7 @@ namespace {
         m_tokens.emplace_back(consumes(tag));
       }
       for (auto const& tag : iMayTags) {
-        m_mayTokens.push_back(mayConsume<std::vector<int>>(tag));
+        m_mayTokens.push_back(consumes<std::vector<int>>(tag));
       }
     }
 

@@ -47,11 +47,11 @@ PFCand_NoPU_WithAM::PFCand_NoPU_WithAM(const edm::ParameterSet& iConfig) {
   input_AssociationType_ = iConfig.getParameter<InputTag>("AssociationType");
 
   token_PFCandToVertexAssMap_ =
-      mayConsume<PFCandToVertexAssMap>(iConfig.getParameter<InputTag>("VertexPFCandAssociationMap"));
+      consumes<PFCandToVertexAssMap>(iConfig.getParameter<InputTag>("VertexPFCandAssociationMap"));
   token_VertexToPFCandAssMap_ =
-      mayConsume<VertexToPFCandAssMap>(iConfig.getParameter<InputTag>("VertexPFCandAssociationMap"));
+      consumes<VertexToPFCandAssMap>(iConfig.getParameter<InputTag>("VertexPFCandAssociationMap"));
 
-  token_VertexCollection_ = mayConsume<VertexCollection>(iConfig.getParameter<InputTag>("VertexCollection"));
+  token_VertexCollection_ = consumes<VertexCollection>(iConfig.getParameter<InputTag>("VertexCollection"));
 
   input_MinQuality_ = iConfig.getParameter<int>("MinQuality");
 

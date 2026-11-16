@@ -210,7 +210,7 @@ namespace edm {
       return EDGetTokenT<ProductType>{recordConsumes(B, tid, checkIfEmpty(tag), false)};
     }
 
-    EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) { return mayConsume<InEvent>(id, tag); }
+    EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) { return consumes<InEvent>(id, tag); }
 
     template <BranchType B>
     EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) {

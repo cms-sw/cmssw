@@ -119,7 +119,7 @@ private:
 /// default constructor
 TopDecaySubset::TopDecaySubset(const edm::ParameterSet& cfg)
     : srcToken_(consumes<reco::GenParticleCollection>(cfg.getParameter<edm::InputTag>("src"))),
-      genEventInfo_srcToken_(mayConsume<GenEventInfoProduct>(edm::InputTag("generator"))),
+      genEventInfo_srcToken_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
       addRadiation_(cfg.getParameter<bool>("addRadiation")),
       showerModel_(kStart),
       runMode_(kRun1) {

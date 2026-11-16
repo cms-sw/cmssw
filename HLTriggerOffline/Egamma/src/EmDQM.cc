@@ -50,11 +50,11 @@ EmDQM::EmDQM(const edm::ParameterSet &pset) {
   triggerObject_token = consumes<trigger::TriggerEventWithRefs>(triggerObject_);
   hltResults_token = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults", "", triggerObject_.process()));
   if (autoConfMode_) {
-    gencutColl_fidWenu_token = mayConsume<edm::View<reco::Candidate>>(edm::InputTag("fiducialWenu"));
-    gencutColl_fidZee_token = mayConsume<edm::View<reco::Candidate>>(edm::InputTag("fiducialZee"));
-    gencutColl_fidTripleEle_token = mayConsume<edm::View<reco::Candidate>>(edm::InputTag("fiducialTripleEle"));
-    gencutColl_fidGammaJet_token = mayConsume<edm::View<reco::Candidate>>(edm::InputTag("fiducialGammaJet"));
-    gencutColl_fidDiGamma_token = mayConsume<edm::View<reco::Candidate>>(edm::InputTag("fiducialDiGamma"));
+    gencutColl_fidWenu_token = consumes<edm::View<reco::Candidate>>(edm::InputTag("fiducialWenu"));
+    gencutColl_fidZee_token = consumes<edm::View<reco::Candidate>>(edm::InputTag("fiducialZee"));
+    gencutColl_fidTripleEle_token = consumes<edm::View<reco::Candidate>>(edm::InputTag("fiducialTripleEle"));
+    gencutColl_fidGammaJet_token = consumes<edm::View<reco::Candidate>>(edm::InputTag("fiducialGammaJet"));
+    gencutColl_fidDiGamma_token = consumes<edm::View<reco::Candidate>>(edm::InputTag("fiducialDiGamma"));
   } else {
     gencutColl_manualConf_token =
         consumes<edm::View<reco::Candidate>>(pset.getParameter<edm::InputTag>("cutcollection"));

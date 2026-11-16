@@ -45,10 +45,10 @@ class ProtonProducer : public edm::global::EDProducer<> {
 public:
   ProtonProducer(edm::ParameterSet const &ps)
       : tokenRecoProtonsMultiRP_(
-            mayConsume<reco::ForwardProtonCollection>(ps.getParameter<edm::InputTag>("tagRecoProtonsMulti"))),
+            consumes<reco::ForwardProtonCollection>(ps.getParameter<edm::InputTag>("tagRecoProtonsMulti"))),
         tokenRecoProtonsSingleRP_(
-            mayConsume<reco::ForwardProtonCollection>(ps.getParameter<edm::InputTag>("tagRecoProtonsSingle"))),
-        tokenTracksLite_(mayConsume<std::vector<CTPPSLocalTrackLite>>(ps.getParameter<edm::InputTag>("tagTrackLite"))),
+            consumes<reco::ForwardProtonCollection>(ps.getParameter<edm::InputTag>("tagRecoProtonsSingle"))),
+        tokenTracksLite_(consumes<std::vector<CTPPSLocalTrackLite>>(ps.getParameter<edm::InputTag>("tagTrackLite"))),
         storeSingleRPProtons_(ps.getParameter<bool>("storeSingleRPProtons")) {
     produces<edm::ValueMap<int>>("arm");
     produces<nanoaod::FlatTable>("ppsTrackTable");

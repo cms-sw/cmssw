@@ -29,7 +29,7 @@ TriggerMatchMonitor::TriggerMatchMonitor(const edm::ParameterSet& pSet) {
   thePATMuonCollectionLabel_ =
       consumes<edm::View<pat::Muon>>(parameters.getParameter<edm::InputTag>("patMuonCollection"));
   theVertexLabel_ = consumes<reco::VertexCollection>(parameters.getParameter<edm::InputTag>("VertexLabel"));
-  theBeamSpotLabel_ = mayConsume<reco::BeamSpot>(parameters.getParameter<edm::InputTag>("BeamSpotLabel"));
+  theBeamSpotLabel_ = consumes<reco::BeamSpot>(parameters.getParameter<edm::InputTag>("BeamSpotLabel"));
   triggerResultsToken_ =
       consumes<edm::TriggerResults>(parameters.getUntrackedParameter<edm::InputTag>("triggerResults"));
   triggerObjects_ =

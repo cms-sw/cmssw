@@ -43,8 +43,8 @@ private:
 
 GenProtonTableProducer::GenProtonTableProducer(const edm::ParameterSet& iConfig)
     : prunedCandsToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("srcPruned"))),
-      puCandsToken_(mayConsume<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("srcPUProtons"))),
-      puAltCandsToken_(mayConsume<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("srcAltPUProtons"))),
+      puCandsToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("srcPUProtons"))),
+      puAltCandsToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("srcAltPUProtons"))),
       protonsCut_(iConfig.getParameter<std::string>("cut")),
       table_name_(iConfig.getParameter<std::string>("name")),
       tolerance_(iConfig.getParameter<double>("tolerance")) {

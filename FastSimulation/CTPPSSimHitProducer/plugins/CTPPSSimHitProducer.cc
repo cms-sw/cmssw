@@ -84,8 +84,7 @@ private:
 CTPPSSimHitProducer::CTPPSSimHitProducer(const edm::ParameterSet& iConfig) {
   produces<edm::PSimHitContainer>("CTPPSHits");
   // consumes
-  mcEventToken =
-      mayConsume<edm::HepMCProduct>(iConfig.getUntrackedParameter<edm::InputTag>("MCEvent", std::string("")));
+  mcEventToken = consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter<edm::InputTag>("MCEvent", std::string("")));
 
   // Read the position of the trackers and timing detectors
   fz_tracker1 = iConfig.getParameter<double>("Z_Tracker1");

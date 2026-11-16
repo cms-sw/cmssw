@@ -254,11 +254,11 @@ public:
       : genTag_(consumes<GenEventInfoProduct>(params.getParameter<edm::InputTag>("genEvent"))),
         lheLabel_(params.getParameter<std::vector<edm::InputTag>>("lheInfo")),
         lheTag_(edm::vector_transform(lheLabel_,
-                                      [this](const edm::InputTag& tag) { return mayConsume<LHEEventProduct>(tag); })),
+                                      [this](const edm::InputTag& tag) { return consumes<LHEEventProduct>(tag); })),
         lheRunTag_(edm::vector_transform(
-            lheLabel_, [this](const edm::InputTag& tag) { return mayConsume<LHERunInfoProduct, edm::InRun>(tag); })),
+            lheLabel_, [this](const edm::InputTag& tag) { return consumes<LHERunInfoProduct, edm::InRun>(tag); })),
         genLumiInfoHeadTag_(
-            mayConsume<GenLumiInfoHeader, edm::InLumi>(params.getParameter<edm::InputTag>("genLumiInfoHeader"))),
+            consumes<GenLumiInfoHeader, edm::InLumi>(params.getParameter<edm::InputTag>("genLumiInfoHeader"))),
         namedWeightIDs_(params.getParameter<std::vector<std::string>>("namedWeightIDs")),
         namedWeightLabels_(params.getParameter<std::vector<std::string>>("namedWeightLabels")),
         lheWeightPrecision_(params.getParameter<int32_t>("lheWeightPrecision")),

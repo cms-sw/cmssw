@@ -93,7 +93,7 @@ TtSemiLepKinFitProducer<LeptonCollection>::TtSemiLepKinFitProducer(const edm::Pa
     : jetsToken_(consumes<std::vector<pat::Jet>>(cfg.getParameter<edm::InputTag>("jets"))),
       lepsToken_(consumes<LeptonCollection>(cfg.getParameter<edm::InputTag>("leps"))),
       metsToken_(consumes<std::vector<pat::MET>>(cfg.getParameter<edm::InputTag>("mets"))),
-      matchToken_(mayConsume<std::vector<std::vector<int>>>(cfg.getParameter<edm::InputTag>("match"))),
+      matchToken_(consumes<std::vector<std::vector<int>>>(cfg.getParameter<edm::InputTag>("match"))),
       useOnlyMatch_(cfg.getParameter<bool>("useOnlyMatch")),
       bTagAlgo_(cfg.getParameter<std::string>("bTagAlgo")),
       minBTagValueBJet_(cfg.getParameter<double>("minBDiscBJets")),

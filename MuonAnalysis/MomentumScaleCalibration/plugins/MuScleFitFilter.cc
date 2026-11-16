@@ -77,9 +77,9 @@ MuScleFitFilter::MuScleFitFilter(const edm::ParameterSet& iConfig) {
   //ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
   //theService = new MuonServiceProxy(serviceParameters);
   theMuonLabel = iConfig.getParameter<edm::InputTag>("MuonLabel");
-  theGlbMuonsToken = mayConsume<reco::MuonCollection>(theMuonLabel);
-  theSaMuonsToken = mayConsume<reco::TrackCollection>(theMuonLabel);
-  theTracksToken = mayConsume<reco::TrackCollection>(theMuonLabel);
+  theGlbMuonsToken = consumes<reco::MuonCollection>(theMuonLabel);
+  theSaMuonsToken = consumes<reco::TrackCollection>(theMuonLabel);
+  theTracksToken = consumes<reco::TrackCollection>(theMuonLabel);
   theMuonType = iConfig.getParameter<int>("muonType");
 
   Mmin = iConfig.getUntrackedParameter<std::vector<double> >("Mmin");

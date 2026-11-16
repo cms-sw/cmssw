@@ -207,7 +207,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset)
 
   useGsf = pset.getParameter<bool>("useGsf");
 
-  _simHitTpMapTag = mayConsume<SimHitTPAssociationProducer::SimHitTPAssociationList>(
+  _simHitTpMapTag = consumes<SimHitTPAssociationProducer::SimHitTPAssociationList>(
       pset.getParameter<edm::InputTag>("simHitTpMapTag"));
 
   if (calculateDrSingleCollection_) {

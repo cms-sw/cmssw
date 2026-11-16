@@ -73,7 +73,7 @@ namespace cms {
     producesCollector.produces<PileupVertexContent>().setBranchAlias(alias);
 
     iC.consumes<edm::HepMCProduct>(Mtag_);
-    iC.mayConsume<edm::HepMCProduct>(fallbackMtag_);
+    iC.consumes<edm::HepMCProduct>(fallbackMtag_);
   }
 
   PileupVertexAccumulator::~PileupVertexAccumulator() {}

@@ -39,7 +39,7 @@ PFMatchedCandidateRefExtractor::PFMatchedCandidateRefExtractor(const edm::Parame
   produces<edm::PtrVector<reco::Candidate>>("col1");
   produces<edm::PtrVector<reco::Candidate>>("col2");
   if (extractPFCands_) {
-    pfCandToken_ = mayConsume<edm::View<reco::PFCandidate>>(iConfig.getParameter<edm::InputTag>("pfCandCollection"));
+    pfCandToken_ = consumes<edm::View<reco::PFCandidate>>(iConfig.getParameter<edm::InputTag>("pfCandCollection"));
     produces<edm::PtrVector<reco::PFCandidate>>("pfCandCol1");
     produces<edm::PtrVector<reco::PFCandidate>>("pfCandCol2");
   }

@@ -85,14 +85,14 @@ namespace edm {
 
     template <typename ProductType, BranchType B = InEvent>
     EDGetTokenT<ProductType> mayConsume(edm::InputTag const& tag) {
-      return m_consumer->mayConsume<ProductType, B>(tag);
+      return m_consumer->consumes<ProductType, B>(tag);
     }
 
     EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) { return m_consumer->mayConsume(id, tag); }
 
     template <BranchType B>
     EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) {
-      return m_consumer->mayConsume<B>(id, tag);
+      return m_consumer->consumes<B>(id, tag);
     }
 
     // For consuming event-setup products

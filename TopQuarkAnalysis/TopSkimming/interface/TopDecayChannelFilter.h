@@ -23,8 +23,8 @@ private:
 template <typename S>
 TopDecayChannelFilter<S>::TopDecayChannelFilter(const edm::ParameterSet& cfg)
     : src_(cfg.template getParameter<edm::InputTag>("src")),
-      genEvt_(mayConsume<TtGenEvent>(src_)),
-      parts_(mayConsume<reco::GenParticleCollection>(src_)),
+      genEvt_(consumes<TtGenEvent>(src_)),
+      parts_(consumes<reco::GenParticleCollection>(src_)),
       sel_(cfg),
       checkedSrcType_(false),
       useTtGenEvent_(false) {}

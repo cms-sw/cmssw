@@ -15,7 +15,7 @@ class LHETablesProducer : public edm::global::EDProducer<> {
 public:
   LHETablesProducer(edm::ParameterSet const& params)
       : lheTag_(edm::vector_transform(params.getParameter<std::vector<edm::InputTag>>("lheInfo"),
-                                      [this](const edm::InputTag& tag) { return mayConsume<LHEEventProduct>(tag); })),
+                                      [this](const edm::InputTag& tag) { return consumes<LHEEventProduct>(tag); })),
         precision_(params.getParameter<int>("precision")),
         storeLHEParticles_(params.getParameter<bool>("storeLHEParticles")) {
     produces<nanoaod::FlatTable>("LHE");

@@ -316,14 +316,14 @@ TruthGraphAccumulator::TruthGraphAccumulator(edm::ParameterSet const& cfg,
   producesCollector.produces<std::vector<math::XYZTLorentzVectorD>>("genPayload");
   iC.consumes<edm::SimTrackContainer>(simTrackTag_);
   iC.consumes<edm::SimVertexContainer>(simVertexTag_);
-  iC.mayConsume<edm::HepMC3Product>(hepmc3Tag_);
-  iC.mayConsume<edm::HepMCProduct>(hepmc2Tag_);
+  iC.consumes<edm::HepMC3Product>(hepmc3Tag_);
+  iC.consumes<edm::HepMCProduct>(hepmc2Tag_);
   for (auto const* tags : {&caloHitTags_, &ecalHitTags_, &hcalHitTags_})
     for (auto const& tag : *tags)
-      iC.mayConsume<std::vector<PCaloHit>>(tag);
+      iC.consumes<std::vector<PCaloHit>>(tag);
   for (auto const* tags : {&trackerHitTags_, &muonHitTags_, &mtdHitTags_})
     for (auto const& tag : *tags)
-      iC.mayConsume<std::vector<PSimHit>>(tag);
+      iC.consumes<std::vector<PSimHit>>(tag);
 }
 
 void TruthGraphAccumulator::initializeEvent(edm::Event const&, edm::EventSetup const&) {

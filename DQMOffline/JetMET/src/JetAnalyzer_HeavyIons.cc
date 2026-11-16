@@ -48,25 +48,25 @@ JetAnalyzer_HeavyIons::JetAnalyzer_HeavyIons(const edm::ParameterSet &iConfig)
   }
 
   pfCandToken_ = consumes<reco::PFCandidateCollection>(mInputPFCandCollection);
-  csCandToken_ = mayConsume<reco::PFCandidateCollection>(mInputCsCandCollection);
+  csCandToken_ = consumes<reco::PFCandidateCollection>(mInputCsCandCollection);
   pfCandViewToken_ = consumes<reco::CandidateView>(mInputPFCandCollection);
   caloCandViewToken_ = consumes<reco::CandidateView>(edm::InputTag("towerMaker"));
 
   centralityTag_ = iConfig.getParameter<InputTag>("centralitycollection");
   centralityToken = consumes<reco::Centrality>(centralityTag_);
 
-  centralityBinToken = mayConsume<int>(iConfig.exists("centralitybincollection")
-                                           ? iConfig.getParameter<edm::InputTag>("centralitybincollection")
-                                           : edm::InputTag());
+  centralityBinToken = consumes<int>(iConfig.exists("centralitybincollection")
+                                         ? iConfig.getParameter<edm::InputTag>("centralitybincollection")
+                                         : edm::InputTag());
 
   hiVertexToken_ = consumes<std::vector<reco::Vertex>>(mInputVtxCollection);
 
-  etaToken_ = mayConsume<std::vector<double>>(iConfig.exists("etaMap") ? iConfig.getParameter<edm::InputTag>("etaMap")
-                                                                       : edm::InputTag());
-  rhoToken_ = mayConsume<std::vector<double>>(iConfig.exists("rho") ? iConfig.getParameter<edm::InputTag>("rho")
+  etaToken_ = consumes<std::vector<double>>(iConfig.exists("etaMap") ? iConfig.getParameter<edm::InputTag>("etaMap")
+                                                                     : edm::InputTag());
+  rhoToken_ = consumes<std::vector<double>>(iConfig.exists("rho") ? iConfig.getParameter<edm::InputTag>("rho")
+                                                                  : edm::InputTag());
+  rhomToken_ = consumes<std::vector<double>>(iConfig.exists("rhom") ? iConfig.getParameter<edm::InputTag>("rhom")
                                                                     : edm::InputTag());
-  rhomToken_ = mayConsume<std::vector<double>>(iConfig.exists("rhom") ? iConfig.getParameter<edm::InputTag>("rhom")
-                                                                      : edm::InputTag());
 
   // need to initialize the PF cand histograms : which are also event variables
   if (isPFJet) {

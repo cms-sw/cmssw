@@ -111,7 +111,7 @@ MixBoostEvtVtxGenerator::MixBoostEvtVtxGenerator(const edm::ParameterSet& pset)
     : fVertex(nullptr),
       boost_(nullptr),
       fTimeOffset(0),
-      vtxLabel(mayConsume<reco::VertexCollection>(pset.getParameter<edm::InputTag>("vtxLabel"))),
+      vtxLabel(consumes<reco::VertexCollection>(pset.getParameter<edm::InputTag>("vtxLabel"))),
       signalLabel(consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("signalLabel"))),
       mixLabel(consumes<CrossingFrame<HepMCProduct> >(pset.getParameter<edm::InputTag>("mixLabel"))),
       useRecVertex(pset.exists("useRecVertex") ? pset.getParameter<bool>("useRecVertex") : false) {

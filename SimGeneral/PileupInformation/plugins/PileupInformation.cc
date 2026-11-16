@@ -37,9 +37,8 @@ PileupInformation::PileupInformation(const edm::ParameterSet& config) {
     LookAtTrackingTruth_ = config.getUntrackedParameter<bool>("doTrackTruth");
 
     trackingTruthT_ =
-        mayConsume<TrackingParticleCollection>(config.getParameter<edm::InputTag>("TrackingParticlesLabel"));
-    trackingTruthV_ =
-        mayConsume<TrackingVertexCollection>(config.getParameter<edm::InputTag>("TrackingParticlesLabel"));
+        consumes<TrackingParticleCollection>(config.getParameter<edm::InputTag>("TrackingParticlesLabel"));
+    trackingTruthV_ = consumes<TrackingVertexCollection>(config.getParameter<edm::InputTag>("TrackingParticlesLabel"));
 
     saveVtxTimes_ = config.getParameter<bool>("saveVtxTimes");
 

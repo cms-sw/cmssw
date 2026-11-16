@@ -84,7 +84,7 @@ private:
 
 PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
   tokenPFCandidates_ = consumes<PFCollection>(iConfig.getParameter<InputTag>("PFCandidates"));
-  tokenPFCandidatesView_ = mayConsume<PFView>(iConfig.getParameter<InputTag>("PFCandidates"));
+  tokenPFCandidatesView_ = consumes<PFView>(iConfig.getParameter<InputTag>("PFCandidates"));
 
   tokenVertices_ = consumes<VertexCollection>(iConfig.getParameter<InputTag>("Vertices"));
 
