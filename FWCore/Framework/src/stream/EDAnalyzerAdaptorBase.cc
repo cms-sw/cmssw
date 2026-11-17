@@ -99,9 +99,10 @@ void EDAnalyzerAdaptorBase::itemsMayGet(BranchType iType, std::vector<ProductRes
   m_streamModules[0]->itemsMayGet(iType, iIndices);
 }
 
-std::vector<edm::ProductResolverIndexAndSkipBit> const& EDAnalyzerAdaptorBase::itemsToGetFrom(BranchType iType) const {
+std::vector<edm::ProductResolverIndexAndSkipBit> const& EDAnalyzerAdaptorBase::itemsToGetFrom(
+    Transition iTransition) const {
   assert(not m_streamModules.empty());
-  return m_streamModules[0]->itemsToGetFrom(iType);
+  return m_streamModules[0]->itemsToGetFrom(iTransition);
 }
 
 std::vector<edm::ESResolverIndex> const& EDAnalyzerAdaptorBase::esGetTokenIndicesVector(edm::Transition iTrans) const {

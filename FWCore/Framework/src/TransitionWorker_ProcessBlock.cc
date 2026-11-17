@@ -164,7 +164,7 @@ namespace edm {
 
     actReg_->preModuleGlobalPrefetchingSignal_.emit(*moduleCallingContext_.getGlobalContext(), moduleCallingContext_);
 
-    edPrefetchAsync(iTask, token, principal);
+    edPrefetchAsync(iTask, principal, iTransition, token);
   }
 
   template <TransitionEdge E>

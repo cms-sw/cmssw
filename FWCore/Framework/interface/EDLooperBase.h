@@ -159,8 +159,9 @@ namespace edm {
     virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&);
 
     void edPrefetchAsync(WaitingTaskHolder iTask,
-                         ServiceToken const& token,
-                         Principal const& iPrincipal) const noexcept;
+                         Principal const& iPrincipal,
+                         Transition iTrans,
+                         ServiceToken const& token) const noexcept;
 
     unsigned int iCounter_;
     ExceptionToActionTable const* act_table_;

@@ -47,11 +47,14 @@ namespace edmtest {
   };
 
   ThingAnalyzer::ThingAnalyzer(edm::ParameterSet const& iPSet)
-      : beginRun_(consumes<edm::InRun>(iPSet.getUntrackedParameter<edm::InputTag>("beginRun"))),
-        beginLumi_(consumes<edm::InLumi>(iPSet.getUntrackedParameter<edm::InputTag>("beginLumi"))),
+      : beginRun_(
+            consumes<edm::InRun, edm::Transition::BeginRun>(iPSet.getUntrackedParameter<edm::InputTag>("beginRun"))),
+        beginLumi_(consumes<edm::InLumi, edm::Transition::BeginLuminosityBlock>(
+            iPSet.getUntrackedParameter<edm::InputTag>("beginLumi"))),
         event_(consumes(iPSet.getUntrackedParameter<edm::InputTag>("event"))),
-        endLumi_(consumes<edm::InLumi>(iPSet.getUntrackedParameter<edm::InputTag>("endLumi"))),
-        endRun_(consumes<edm::InRun>(iPSet.getUntrackedParameter<edm::InputTag>("endRun"))) {}
+        endLumi_(consumes<edm::InLumi, edm::Transition::EndLuminosityBlock>(
+            iPSet.getUntrackedParameter<edm::InputTag>("endLumi"))),
+        endRun_(consumes<edm::InRun, edm::Transition::EndRun>(iPSet.getUntrackedParameter<edm::InputTag>("endRun"))) {}
 
   void ThingAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
