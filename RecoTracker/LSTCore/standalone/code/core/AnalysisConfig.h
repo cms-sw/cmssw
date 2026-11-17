@@ -173,6 +173,9 @@ public:
 
   // Boolean to enable extra sim branches
   bool extra_sim_branches;
+
+  // Boolean to keep all sim tracks, including pileup and out-of-time
+  bool all_sim_tracks;
 };
 
 extern AnalysisConfig ana;

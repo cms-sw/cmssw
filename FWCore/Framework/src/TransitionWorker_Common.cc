@@ -305,7 +305,7 @@ namespace edm {
 
     esPrefetchAsync(iTask, transitionInfo.eventSetupImpl(), iTransition, token);
 
-    edPrefetchAsync(iTask, token, principal);
+    edPrefetchAsync(iTask, principal, iTransition, token);
   }
 
   template <typename TI, typename TP>

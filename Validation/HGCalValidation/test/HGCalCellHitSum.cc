@@ -116,8 +116,6 @@ private:
   const edm::FileInPath geometryFileName_;
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
   const edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  const edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  const edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   const std::string layers_;
 
   TH1D *hCharge;
@@ -364,8 +362,6 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
       geometryFileName_(iConfig.getParameter<edm::FileInPath>("geometryFileName")),
       geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name_})),
       ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-      ticlGeomLookupToken_(esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-      ticlGeomLayersToken_(esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
       layers_(iConfig.getParameter<std::string>("layerList")),
       evt(0) {
   //now do what ever initialization is needed
@@ -1127,8 +1123,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
   // Two ways to access the geometry object
   //================================================================================================================
   // Method 1
-  rhtools_.setGeometry(
-      iSetup.getData(ticlGeomToken_), iSetup.getData(ticlGeomLookupToken_), iSetup.getData(ticlGeomLayersToken_));
+  rhtools_.setGeometry(iSetup.getData(ticlGeomToken_));
 
   // Method 2
   const HGCalGeometry *geom = &iSetup.getData(geomToken_);

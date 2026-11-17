@@ -64,8 +64,6 @@ namespace hgcal {
     const edm::EDGetTokenT<HGCRecHitCollection> eetok, fhtok, bhtok;
     const edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMapToken_;
     const edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-    const edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-    const edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
 
     const HGCRecHitCollection *eerh_, *fhrh_, *bhrh_;
     const std::unordered_map<DetId, const unsigned int> *hitMap_;

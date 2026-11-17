@@ -100,10 +100,11 @@ namespace edm {
   }
 
   void TransitionWorkerBase::edPrefetchAsync(WaitingTaskHolder iTask,
-                                             ServiceToken const& token,
-                                             Principal const& iPrincipal) const noexcept {
+                                             Principal const& iPrincipal,
+                                             Transition iTransition,
+                                             ServiceToken const& token) const noexcept {
     // Prefetch products the module declares it consumes
-    std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFrom(iPrincipal.branchType());
+    std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFrom(iTransition);
 
     for (auto const& item : items) {
       ProductResolverIndex productResolverIndex = item.productResolverIndex();

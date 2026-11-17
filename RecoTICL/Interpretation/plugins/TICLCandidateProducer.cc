@@ -103,8 +103,6 @@ private:
   const bool useTimingAverage_;
   const float timingQualityThreshold_;
   const edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  const edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  const edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
 
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bfield_token_;
   const std::string detector_;
@@ -136,10 +134,6 @@ TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps, const 
       useTimingAverage_(ps.getParameter<bool>("useTimingAverage")),
       timingQualityThreshold_(ps.getParameter<float>("timingQualityThreshold")),
       ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
-      ticlGeomLookupToken_(
-          esConsumes<TICLGeomLookupHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
-      ticlGeomLayersToken_(
-          esConsumes<TICLGeomLayersHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
       bfield_token_(esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()),
       detector_(ps.getParameter<std::string>("detector")),
       propName_(ps.getParameter<std::string>("propagator")),
@@ -238,7 +232,7 @@ void TICLCandidateProducer::beginRun(edm::Run const &iEvent, edm::EventSetup con
   edm::ESHandle<HGCalDDDConstants> hdc = es.getHandle(hdc_token_);
   hgcons_ = hdc.product();
 
-  rhtools_.setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
+  rhtools_.setGeometry(es.getData(ticlGeomToken_));
 
   bfield_ = es.getHandle(bfield_token_);
   propagator_ = es.getHandle(propagator_token_);
