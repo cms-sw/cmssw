@@ -183,11 +183,11 @@ private:
   static constexpr float metDiffEdge = 600.;
   static constexpr float metRatioEdge = 5.;
 
-  static constexpr int phiNbins = 32;        // 0.2 rad
-  static constexpr int metNbins = 220;       // 5 GeV: post-processor MET slices (multiples of 20 GeV) fall on bin edges
-  static constexpr int metCoarseNbins = 55;  // 20 GeV
-  static constexpr int metDiffNbins = 300;   // 4 GeV
-  static constexpr int metRatioNbins = 200;  // 0.025
+  static constexpr int phiNbins = 32;
+  static constexpr int metNbins = 110;
+  static constexpr int metCoarseNbins = 55;
+  static constexpr int metDiffNbins = 150;
+  static constexpr int metRatioNbins = 100;
 };
 
 #endif  // METTESTER_H
