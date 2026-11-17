@@ -184,7 +184,7 @@ namespace io_v1 {
 
     inline void setValid(bool valid) { valid_ = valid; }
 
-    bool operator<(const CTPPSPixelLocalTrack& r);
+    bool operator<(const CTPPSPixelLocalTrack& r) const;
 
     inline CTPPSpixelLocalTrackReconstructionInfo recoInfo() const { return recoInfo_; }
     inline void setRecoInfo(CTPPSpixelLocalTrackReconstructionInfo recoInfo) { recoInfo_ = recoInfo; }

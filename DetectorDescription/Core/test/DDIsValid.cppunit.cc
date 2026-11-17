@@ -1,5 +1,4 @@
 #include <cppunit/extensions/HelperMacros.h>
-#include <ext/alloc_traits.h>
 #include <regex.h>
 #include <algorithm>
 #include <iostream>

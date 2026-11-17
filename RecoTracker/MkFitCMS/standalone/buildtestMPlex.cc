@@ -508,7 +508,7 @@ namespace mkfit {
       {
         builder.export_tracks(tmp_tvec);
         if (itconf.m_duplicate_cleaner)
-          itconf.m_duplicate_cleaner(builder.ref_tracks_nc(), itconf, Config::TrkInfo);
+          itconf.m_duplicate_cleaner(builder.ref_tracks_nc(), itconf, Config::TrkInfo, eoh.refBeamSpot());
         ev.candidateTracks_.reserve(ev.candidateTracks_.size() + tmp_tvec.size());
         for (auto &&t : tmp_tvec)
           ev.candidateTracks_.emplace_back(std::move(t));
@@ -559,7 +559,7 @@ namespace mkfit {
         builder.select_best_comb_cands(true);  // true -> clear m_tracks as they were already filled once above
 
         if (itconf.m_duplicate_cleaner)
-          itconf.m_duplicate_cleaner(builder.ref_tracks_nc(), itconf, Config::TrkInfo);
+          itconf.m_duplicate_cleaner(builder.ref_tracks_nc(), itconf, Config::TrkInfo, eoh.refBeamSpot());
 
         builder.export_tracks(ev.fitTracks_);
       }

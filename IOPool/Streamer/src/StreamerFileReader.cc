@@ -1,7 +1,6 @@
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/StreamerInputFile.h"
 #include "IOPool/Streamer/src/StreamerFileReader.h"
-#include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

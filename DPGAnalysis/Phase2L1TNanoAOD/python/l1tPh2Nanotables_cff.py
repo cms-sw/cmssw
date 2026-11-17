@@ -279,7 +279,11 @@ staMuTable = cms.EDProducer(
         hwEta = Var("hwEta()",int,doc="hardware eta"),
         hwPhi = Var("hwPhi()",int,doc="hardware phi"),
         hwQual = Var("hwQual()",int,doc="hardware qual"),
-        hwIso = Var("hwIso()",int,doc="hardware iso"),
+        ## no hwIso here: l1t::SAMuon has no isolation of its own, and the inherited
+        ## L1Candidate hwIso() word is never filled by the Phase-2 GMT
+        ## (L1Trigger/Phase2L1GMT/interface/Isolation.h leaves setHwIso commented out),
+        ## so writing it out only produces a constant-zero branch. The TkMuons do have
+        ## an isolation sum; gmtTkMuTable below defines hwIso from it.
         hwBeta = Var("hwBeta()",int,doc="hardware beta"),
 
         # ## more info
@@ -307,12 +311,31 @@ gmtTkMuTable = cms.EDProducer(
         vlooseId  = Var("test_bit(hwQual(),0)", bool, doc = "VLoose ID, bit 0 of hwQual"),
         looseId   = Var("test_bit(hwQual(),1)", bool, doc = "Loose ID, bit 1 of hwQual"),
         mediumId  = Var("test_bit(hwQual(),2)", bool, doc = "Medium ID, bit 2 of hwQual"),
-        tightId   = Var("test_bit(hwQual(),3)", bool, doc = "Tight ID, bit 3 of hwQual")
+        tightId   = Var("test_bit(hwQual(),3)", bool, doc = "Tight ID, bit 3 of hwQual"),
+
+        ## isolation
+        ## NOTE: this is a TRACK-BASED isolation only: the sum of the pT of the L1
+        ## tracker tracks inside a cone around the muon, computed in
+        ## L1Trigger/Phase2L1GMT/interface/Isolation.h. There is no calorimeter or
+        ## PF/Puppi contribution, so it is not comparable to the tkEle/tkPho iso.
+        ## The L1Candidate hwIso() bit word is NOT the isolation for Phase-2 TkMuons:
+        ## L1Trigger/Phase2L1GMT/interface/Isolation.h disables the iso bits and ships
+        ## the track-pT sum to the GT instead. The sums below are the real payload;
+        ## hwIso is defined after the PSet from the word sent to the GT.
+        hwIsoSum = Var("hwIsoSum()",int,doc="HW isolation: sum of track pT in the isolation cone, full precision (LSB 0.03125 GeV, unsaturated)"),
+        iso = Var("phIso()",float,doc="absolute isolation [GeV], from the 6-bit sum sent to the GT (saturates at 15.75 GeV)"),
+        relIso = Var("phIso()/phPt()",float,doc="relative isolation, from the 6-bit sum sent to the GT (saturates at 15.75 GeV)"),
 
         # ## more info
         # nStubs = Var("stubs().size()",int,doc="number of stubs"),
     )
 )
+
+## staMuTable deliberately defines no hwIso (see above). For TkMuons the quantity does
+## exist, so define hwIso here from the 6-bit isolation sum that the GMT sends to the
+## GT, so that L1gmtTkMuon.hwIso and L1GTgmtTkMuon.hwIso hold the same quantity in the
+## same units.
+gmtTkMuTable.variables.hwIso = Var("hwIsoSumAp()",int,doc="HW isolation sum as sent to the GT: 6 bits, LSB 0.25 GeV, saturates at 63")
 
 ### Standalone Muon from GMT, before ghost busting
 

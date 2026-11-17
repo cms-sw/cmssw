@@ -307,6 +307,12 @@ TruthBranchRecoValidator<RECO>::TruthBranchRecoValidator(edm::ParameterSet const
   if (workingPoints.empty()) {
     throw cms::Exception("Configuration") << "TruthBranchRecoValidator: workingPoints is empty";
   }
+  // The dominance measure and the truth-side loose score read the first point's map as
+  // the complete one, and only the plain per-root match keeps every candidate.
+  if (workingPoints.front() != "Fixed") {
+    throw cms::Exception("Configuration") << "TruthBranchRecoValidator: workingPoints starts with '"
+                                          << workingPoints.front() << "', it must start with 'Fixed'";
+  }
   nWorkingPoints_ = workingPoints.size();
 
   // The truth-driven folder suffixes and the denominator instance each consumes. A
@@ -334,7 +340,8 @@ TruthBranchRecoValidator<RECO>::TruthBranchRecoValidator(edm::ParameterSet const
       truthTargets.emplace_back("signal", "signalSeeds");
       // The same seed objects with NO selector cut, so the efficiency is quoted against
       // every seed in the event rather than against the ones the kinematic selection
-      // kept. The gap to the signal folder is what the selection removed.
+      // kept. The gap to the signal folder is what the selection removed, the invisible
+      // seeds included.
       truthTargets.emplace_back("signalNoSelection", "signalSeedsNoSelection");
     }
     // Every denominator above is an ANTICHAIN. A set of all selected roots is not one,
@@ -819,9 +826,7 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
         // The branch's own detector footprint, which is the truth analogue of a track's
         // hit count.
         const auto subgraph = hitIndex.subgraphHits(Traits::hitChannel, b);
-        if (entry.requireHits && std::ranges::none_of(subgraph, [this](auto const& hit) {
-              return (requireHitsDetectors_ & truth::BranchHitAssociator::detectorBit(hit.detId)) != 0u;
-            })) {
+        if (entry.requireHits && !truth::BranchHitAssociator::hasHitInDetectors(subgraph, requireHitsDetectors_)) {
           continue;
         }
         kin.nhits = subgraph.size();
@@ -960,7 +965,8 @@ void TruthBranchRecoValidator<RECO>::fillDescriptions(edm::ConfigurationDescript
     desc.add<double>("minLeadingTruthShare", 0.5)
         ->setComment(
             "Fake criterion: one branch of dominanceLevel must own at least this share of the shared quantity all "
-            "candidates at that level contribute. An object below it, or with no candidate there, is a fake");
+            "candidates at that level contribute. An object below it is a fake; for an object with no candidate "
+            "there the question is undefined, and it is not a fake");
     desc.add<std::string>("dominanceLevel", "caloBoundary")
         ->setComment(
             "The level whose targets the leading-truth-contributor measure is computed over. It must be an "
@@ -992,7 +998,8 @@ void TruthBranchRecoValidator<RECO>::fillDescriptions(edm::ConfigurationDescript
             "applied src/HGVHistoProducerAlgo.cc:2897). This is an ENERGY FRACTION, not a score");
     desc.add<double>("maxSimToRecoScoreForDuplicate", 0.2)
         ->setComment(
-            "More than one reco object below this simToReco score makes the truth object a duplicate. "
+            "More than one reco object below this simToReco score makes an individually found truth object a "
+            "duplicate. "
             "HGCalValidator's maxSimToRecoScoreForPurity/Duplicate (HGVHistoProducerAlgoBlock_cfi.py:72-73, "
             "applied HGVHistoProducerAlgo.cc:2898-2899)");
     desc.add<double>("maxRecoToSimScore", 0.6)

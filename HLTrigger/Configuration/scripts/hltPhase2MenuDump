@@ -1,0 +1,879 @@
+#!/usr/bin/env python3
+"""
+hltPhase2MenuDump -- inspect a configuration that contains the Phase-2 HLT menu.
+
+Loads a cmsRun configuration (typically produced with
+  cmsDriver.py Phase2 -s L1P2GT,HLT:75e33 ... --no_exec
+), builds a model of the menu and writes it out as
+
+  --list paths|modules|seeds|datasets|eventcontent   text listings (cf. hltListPaths,
+                                                       getDatasets.py, getEventContent.py)
+  --json FILE                                          machine-readable model
+  -o DIR                                               browsable static HTML site
+  --compare OTHER.json                                 add a diff against another dump
+                                                       (e.g. default vs alpaka vs ticl_v5)
+
+The HTML site has one page per path (ordered module chain, L1 seed, filter
+parameters, products consumed but not scheduled), one page per module (type,
+plugin source, cfi file, inputs, consumers, full python dump), plus pages for
+EventSetup, services, outputs/datasets and menu-level checks.  It needs no
+network access and no external assets.
+
+Examples:
+  hltPhase2MenuDump Phase2_L1P2GT_HLT.py --list paths
+  hltPhase2MenuDump Phase2_L1P2GT_HLT.py -o html_default --json default.json
+  hltPhase2MenuDump Phase2_Alpaka_L1P2GT_HLT.py -o html_alpaka --compare default.json
+"""
+
+import argparse
+import hashlib
+import html
+import json
+import os
+import re
+import runpy
+import sys
+from urllib.parse import quote_plus
+from collections import OrderedDict, defaultdict
+
+SCHEMA_VERSION = 1
+MENU_SUBDIR = "HLTrigger/Configuration/python/HLT_75e33"
+SEED_PARAMETERS = ("logicalExpression", "L1SeedsLogicalExpression")
+PRESCALER_TYPES = ("HLTPrescaler",)
+DATASET_FILTER_TYPES = ("TriggerResultsFilter",)
+
+# ---------------------------------------------------------------------------
+# loading
+# ---------------------------------------------------------------------------
+
+
+def load_process(cfg, cfg_args):
+    """Execute a cmsRun configuration file and return its 'process' object."""
+    cfg = os.path.abspath(cfg)
+    saved_argv, saved_path = sys.argv, list(sys.path)
+    sys.argv = [cfg] + list(cfg_args)
+    sys.path.insert(0, os.path.dirname(cfg))
+    try:
+        namespace = runpy.run_path(cfg, run_name="__cfg__")
+    finally:
+        sys.argv, sys.path[:] = saved_argv, saved_path
+    if "process" not in namespace:
+        sys.exit("ERROR: %s does not define a 'process'" % cfg)
+    return namespace["process"]
+
+
+def _call(obj, name, default):
+    fn = getattr(obj, name, None)
+    if fn is None:
+        return default
+    try:
+        return fn()
+    except Exception:
+        return default
+
+
+def _type_name(x):
+    return type(x).__name__
+
+
+def collect_input_labels(pset_like, out):
+    """Recursively collect module labels referenced through InputTag/VInputTag parameters."""
+    params = _call(pset_like, "parameters_", None)
+    if params is None:
+        return
+    for _name, value in params.items():
+        _collect_value(value, out)
+
+
+def _collect_value(value, out):
+    t = _type_name(value)
+    if t in ("InputTag", "untracked_InputTag") or hasattr(value, "getModuleLabel"):
+        label = value.getModuleLabel()
+        if label:
+            out.add(label)
+    elif t in ("VInputTag",):
+        for item in value:
+            if isinstance(item, str):
+                label = item.split(":")[0]
+                if label:
+                    out.add(label)
+            else:
+                _collect_value(item, out)
+    elif t in ("PSet", "untracked_PSet") or (hasattr(value, "parameters_") and not hasattr(value, "type_")):
+        collect_input_labels(value, out)
+    elif t in ("VPSet",):
+        for item in value:
+            collect_input_labels(item, out)
+
+
+def scalar_parameters(module):
+    """Top-level parameters with a short printable value (used to summarise filters)."""
+    out = OrderedDict()
+    params = _call(module, "parameters_", {}) or {}
+    for name, value in params.items():
+        t = _type_name(value)
+        if t in ("PSet", "VPSet", "untracked_PSet"):
+            continue
+        try:
+            text = value.dumpPython() if hasattr(value, "dumpPython") else repr(value)
+        except Exception:
+            text = repr(value)
+        text = re.sub(r"\s+", " ", text).strip()
+        if len(text) <= 160:
+            out[name] = text
+    return out
+
+
+def string_parameter(module, names):
+    params = _call(module, "parameters_", {}) or {}
+    for n in names:
+        if n in params:
+            v = params[n]
+            val = getattr(v, "value", lambda: v)()
+            if isinstance(val, (list, tuple)):
+                val = " or ".join(str(x) for x in val)
+            return str(val)
+    return None
+
+
+class PathVisitor(object):
+    """Visitor collecting module labels in a Path, in order, with Task/negation/ignore flags."""
+
+    def __init__(self):
+        self.entries = []
+        self._stack = []
+
+    def enter(self, visitee):
+        cls = _type_name(visitee)
+        label = _call(visitee, "label_", None) if hasattr(visitee, "type_") or "Switch" in cls else None
+        if label and not cls.endswith("Task") and not cls.startswith("_Sequence") and cls not in ("Sequence",):
+            flags = set(self._stack)
+            self.entries.append({
+                "label": label,
+                "task": "task" in flags,
+                "negated": "not" in flags,
+                "ignored": "ignore" in flags,
+            })
+        if cls in ("Task", "ConditionalTask"):
+            self._stack.append("task")
+        elif "Negation" in cls:
+            self._stack.append("not")
+        elif "Ignore" in cls:
+            self._stack.append("ignore")
+        else:
+            self._stack.append(None)
+
+    def leave(self, visitee):
+        if self._stack:
+            self._stack.pop()
+
+
+def path_entries(path):
+    v = PathVisitor()
+    path.visit(v)
+    seen, out = set(), []
+    for e in v.entries:          # a module can appear via several Tasks; keep the first occurrence
+        if e["label"] not in seen:
+            seen.add(e["label"])
+            out.append(e)
+    # Modules reachable only through Tasks may not be visited by Path.visit in every
+    # release; moduleNames() includes them, so append whatever is still missing as task members.
+    for label in sorted(_call(path, "moduleNames", set()) or set()):
+        if label not in seen:
+            seen.add(label)
+            out.append({"label": label, "task": True, "negated": False, "ignored": False})
+    return out
+
+
+# ---------------------------------------------------------------------------
+# model
+# ---------------------------------------------------------------------------
+
+
+def find_menu_dir():
+    for var in ("CMSSW_BASE", "CMSSW_RELEASE_BASE"):
+        base = os.environ.get(var)
+        if base and os.path.isdir(os.path.join(base, "src", MENU_SUBDIR)):
+            return os.path.join(base, "src", MENU_SUBDIR)
+    return None
+
+
+def build_model(process, cfg_name):
+    menu_dir = find_menu_dir()
+    kinds = OrderedDict([
+        ("producer", _call(process, "producers_", {})),
+        ("filter", _call(process, "filters_", {})),
+        ("analyzer", _call(process, "analyzers_", {})),
+        ("output", _call(process, "outputModules_", {})),
+        ("switch", _call(process, "switchProducers_", {})),
+    ])
+    modules = OrderedDict()
+    for kind, d in kinds.items():
+        for label, mod in d.items():
+            if kind == "switch":
+                cases = sorted(_call(mod, "parameterNames_", []) or [])
+                mtype = "SwitchProducer[%s]" % ",".join(cases)
+            else:
+                mtype = _call(mod, "type_", "?")
+            try:
+                py = mod.dumpPython()
+            except Exception as e:  # pragma: no cover - defensive
+                py = "# dumpPython failed: %s" % e
+            inputs = set()
+            collect_input_labels(mod, inputs)
+            if kind == "switch":
+                for case in _call(mod, "parameterNames_", []) or []:
+                    collect_input_labels(getattr(mod, case), inputs)
+            inputs.discard(label)
+            cfi = None
+            for sub in ("modules",):
+                if menu_dir and os.path.isfile(os.path.join(menu_dir, sub, label + "_cfi.py")):
+                    cfi = "%s/%s/%s_cfi.py" % (MENU_SUBDIR, sub, label)
+            modules[label] = {
+                "label": label,
+                "kind": kind,
+                "type": mtype,
+                "inputs": sorted(inputs),
+                "python": py,
+                "hash": hashlib.sha1(py.encode()).hexdigest()[:12],
+                "params": scalar_parameters(mod) if kind == "filter" else {},
+                "seed": string_parameter(mod, SEED_PARAMETERS),
+                "triggerConditions": (string_parameter(mod, ("triggerConditions",))
+                                      if mtype in DATASET_FILTER_TYPES else None),
+                "cfi": cfi,
+            }
+
+    # schedule order
+    paths = _call(process, "paths_", {})
+    endpaths = _call(process, "endpaths_", {})
+    finalpaths = _call(process, "finalpaths_", {})
+    schedule = _call(process, "schedule_", None)
+    order = []
+    if schedule is not None:
+        try:
+            order = [p.label_() for p in schedule]
+        except Exception:
+            order = []
+    if not order:
+        order = list(paths) + list(endpaths) + list(finalpaths)
+    all_paths = OrderedDict()
+    all_paths.update(paths)
+    all_paths.update(endpaths)
+    all_paths.update(finalpaths)
+
+    path_model = OrderedDict()
+    used_in = defaultdict(list)
+    for name in order:
+        if name not in all_paths:
+            continue
+        p = all_paths[name]
+        kind = "path" if name in paths else ("endpath" if name in endpaths else "finalpath")
+        entries = [e for e in path_entries(p) if e["label"] in modules]
+        for e in entries:
+            used_in[e["label"]].append(name)
+        labels = {e["label"] for e in entries}
+        seeds = [modules[e["label"]]["seed"] for e in entries if modules[e["label"]]["seed"]]
+        filters = [e["label"] for e in entries if modules[e["label"]]["kind"] == "filter"
+                   and modules[e["label"]]["type"] not in PRESCALER_TYPES and not e["task"]]
+        unscheduled = sorted({i for e in entries for i in modules[e["label"]]["inputs"]
+                              if i in modules and i not in labels})
+        path_model[name] = {
+            "name": name,
+            "kind": kind,
+            "modules": entries,
+            "seed": " AND ".join(seeds) if seeds else None,
+            "filters": filters,
+            "last_filter": filters[-1] if filters else None,
+            "consumed_not_in_path": unscheduled,
+        }
+
+    consumers = defaultdict(list)
+    for label, m in modules.items():
+        for i in m["inputs"]:
+            if i in modules:
+                consumers[i].append(label)
+    for label, m in modules.items():
+        m["used_in"] = used_in.get(label, [])
+        m["consumers"] = sorted(consumers.get(label, []))
+        m["external_inputs"] = [i for i in m["inputs"] if i not in modules]
+
+    # datasets and event content
+    datasets = OrderedDict()
+    for name, p in path_model.items():
+        for e in p["modules"]:
+            m = modules[e["label"]]
+            if m["triggerConditions"]:
+                datasets[name] = {"filter": m["label"], "triggers": m["triggerConditions"]}
+    outputs = OrderedDict()
+    for label, m in modules.items():
+        if m["kind"] != "output":
+            continue
+        mod = kinds["output"][label]
+        commands, select = [], []
+        try:
+            commands = list(mod.outputCommands)
+        except Exception:
+            pass
+        try:
+            select = list(mod.SelectEvents.SelectEvents)
+        except Exception:
+            pass
+        outputs[label] = {"type": m["type"], "outputCommands": [str(c) for c in commands],
+                          "SelectEvents": [str(s) for s in select]}
+
+    def es_dict(d):
+        out = OrderedDict()
+        for label, obj in d.items():
+            out[label] = {"type": _call(obj, "type_", "?")}
+        return out
+
+    services = OrderedDict()
+    for label, obj in (_call(process, "services_", {}) or {}).items():
+        services[label] = {"type": _call(obj, "type_", label)}
+
+    in_any_path = set(used_in)
+    unused = [l for l, m in modules.items() if l not in in_any_path]
+    return {
+        "schema": SCHEMA_VERSION,
+        "config": cfg_name,
+        "process": _call(process, "name_", "?"),
+        "release": os.environ.get("CMSSW_VERSION", "unknown"),
+        "paths": path_model,
+        "modules": modules,
+        "datasets": datasets,
+        "outputs": outputs,
+        "es_producers": es_dict(_call(process, "es_producers_", {}) or {}),
+        "es_sources": es_dict(_call(process, "es_sources_", {}) or {}),
+        "services": services,
+        "unused_modules": unused,
+        "unscheduled_paths": [n for n in all_paths if n not in order],
+    }
+
+
+# ---------------------------------------------------------------------------
+# comparison
+# ---------------------------------------------------------------------------
+
+
+def compare_models(new, old):
+    np_, op_ = new["paths"], old["paths"]
+    nm, om = new["modules"], old["modules"]
+    diff = {
+        "against": old.get("config", "?"),
+        "paths_added": [p for p in np_ if p not in op_],
+        "paths_removed": [p for p in op_ if p not in np_],
+        "paths_changed": OrderedDict(),
+        "modules_added": [m for m in nm if m not in om],
+        "modules_removed": [m for m in om if m not in nm],
+        "modules_changed": [],
+    }
+    for name in np_:
+        if name not in op_:
+            continue
+        a = [e["label"] for e in np_[name]["modules"]]
+        b = [e["label"] for e in op_[name]["modules"]]
+        changed_cfg = [l for l in a if l in om and l in nm and om[l]["hash"] != nm[l]["hash"]]
+        if a != b or changed_cfg or np_[name]["seed"] != op_[name]["seed"]:
+            diff["paths_changed"][name] = {
+                "added": [l for l in a if l not in b],
+                "removed": [l for l in b if l not in a],
+                "reordered": a != b and set(a) == set(b),
+                "reconfigured": changed_cfg,
+                "seed_old": op_[name]["seed"], "seed_new": np_[name]["seed"],
+            }
+    for l, m in nm.items():
+        if l in om and om[l]["hash"] != m["hash"]:
+            diff["modules_changed"].append({"label": l, "type_old": om[l]["type"], "type_new": m["type"]})
+    return diff
+
+
+# ---------------------------------------------------------------------------
+# text listings
+# ---------------------------------------------------------------------------
+
+
+def print_list(model, what):
+    if what == "paths":
+        for name, p in model["paths"].items():
+            print(name)
+    elif what == "seeds":
+        width = max([len(n) for n in model["paths"]] + [10])
+        for name, p in model["paths"].items():
+            if p["kind"] == "path":
+                print("%-*s  %s" % (width, name, p["seed"] or "-"))
+    elif what == "modules":
+        for label, m in model["modules"].items():
+            print("%-10s %-50s %s" % (m["kind"], m["type"], label))
+    elif what == "datasets":
+        if not model["datasets"]:
+            print("# no TriggerResultsFilter-based datasets in this menu")
+        for name, d in model["datasets"].items():
+            print("%s: %s" % (name, d["triggers"]))
+    elif what == "eventcontent":
+        if not model["outputs"]:
+            print("# no output modules in this configuration")
+        for label, o in model["outputs"].items():
+            print("# %s (%s)  SelectEvents=%s" % (label, o["type"], o["SelectEvents"] or "all"))
+            for c in o["outputCommands"]:
+                print("    " + c)
+
+
+# ---------------------------------------------------------------------------
+# HTML
+# ---------------------------------------------------------------------------
+
+CSS = r"""
+:root{
+  --paper:#f6f7f9; --sheet:#ffffff; --ink:#1c2230; --muted:#5d6678; --rule:#dde1e8;
+  --link:#24539a; --producer:#2f6db5; --filter:#b26a00; --analyzer:#21806f; --output:#7a4bb0;
+  --switch:#8a6d1f; --warn:#a3361f; --added:#1f7a3a; --removed:#a3361f; --code:#eef1f5;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#151a22; --sheet:#1c222c; --ink:#e3e7ee; --muted:#9aa4b5; --rule:#2e3644;
+    --link:#8db4ef; --producer:#6fa3e6; --filter:#e3a345; --analyzer:#5cc2ad; --output:#b694e6;
+    --switch:#d2b45c; --warn:#ef8a74; --added:#6cc58a; --removed:#ef8a74; --code:#232a36;
+    color-scheme: dark;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);
+  font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+a{color:var(--link);text-decoration:none} a:hover{text-decoration:underline}
+a:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--link);outline-offset:2px}
+header{background:var(--sheet);border-bottom:1px solid var(--rule);padding:14px 24px 0}
+header .menu{font-size:20px;font-weight:650;letter-spacing:-.01em;margin:0}
+header .sub{color:var(--muted);font-size:13px;margin:2px 0 10px}
+nav{display:flex;flex-wrap:wrap;gap:2px}
+nav a{padding:8px 12px;border-bottom:3px solid transparent;color:var(--muted);font-weight:550}
+nav a.here{color:var(--ink);border-bottom-color:var(--ink)}
+main{max-width:1280px;padding:20px 24px 60px}
+h1{font-size:24px;line-height:1.2;margin:4px 0 6px;word-break:break-all;font-weight:650}
+h2{font-size:17px;margin:28px 0 8px;font-weight:650}
+p.lead{color:var(--muted);margin:0 0 16px;max-width:75ch}
+.facts{display:grid;grid-template-columns:max-content 1fr;gap:4px 16px;margin:12px 0 4px}
+.facts dt{color:var(--muted)} .facts dd{margin:0;word-break:break-all}
+.search{width:min(420px,100%);padding:8px 10px;font:inherit;border:1px solid var(--rule);
+  border-radius:6px;background:var(--sheet);color:var(--ink);margin:4px 0 12px}
+.scroll{overflow-x:auto;background:var(--sheet);border:1px solid var(--rule);border-radius:6px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--muted);position:sticky;top:0;background:var(--sheet);cursor:pointer;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+code{word-break:break-all}
+pre{background:var(--code);padding:12px 14px;border-radius:6px;overflow-x:auto;line-height:1.45}
+.kind{display:inline-block;min-width:66px;font-size:12px;font-weight:600}
+.k-producer{color:var(--producer)} .k-filter{color:var(--filter)} .k-analyzer{color:var(--analyzer)}
+.k-output{color:var(--output)} .k-switch{color:var(--switch)}
+.muted{color:var(--muted)} .warn{color:var(--warn)}
+.add{color:var(--added)} .rem{color:var(--removed)}
+/* path chain: the module sequence drawn as a rail; filters are gates on it */
+ol.chain{list-style:none;margin:8px 0;padding:0;counter-reset:step;max-width:980px}
+ol.chain li{position:relative;padding:6px 0 6px 64px;counter-increment:step}
+ol.chain li::before{content:counter(step);position:absolute;left:0;width:34px;text-align:right;
+  color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums;top:9px}
+ol.chain li::after{content:"";position:absolute;left:46px;top:0;bottom:0;border-left:2px solid var(--rule)}
+ol.chain li .dot{position:absolute;left:41px;top:12px;width:12px;height:12px;border-radius:50%;
+  background:var(--sheet);border:2px solid var(--producer);z-index:1}
+ol.chain li.f .dot{border-radius:2px;transform:rotate(45deg);border-color:var(--filter);background:var(--filter)}
+ol.chain li.t .dot{border-style:dashed;border-color:var(--muted)}
+ol.chain li.o .dot{border-color:var(--output)} ol.chain li.a .dot{border-color:var(--analyzer)}
+ol.chain li.f > .name{font-weight:650}
+ol.chain .type{color:var(--muted);font-size:13px;margin-left:8px}
+ol.chain details{margin:4px 0 2px}
+ol.chain summary{cursor:pointer;color:var(--muted);font-size:13px}
+ol.chain table{font-size:13px;margin-top:4px;background:var(--sheet);border:1px solid var(--rule)}
+.legend{color:var(--muted);font-size:13px;margin:0 0 6px}
+.seed{background:var(--sheet);border:1px solid var(--rule);border-left:4px solid var(--filter);
+  padding:10px 14px;border-radius:4px;margin:10px 0;max-width:980px}
+ul.plain{margin:4px 0;padding-left:18px} ul.plain li{margin:2px 0}
+ul.cols{columns:3 280px;margin:4px 0;padding-left:18px}
+footer{color:var(--muted);font-size:12px;margin-top:40px}
+@media (max-width:640px){main,header{padding-left:12px;padding-right:12px} ul.cols{columns:1}}
+"""
+
+JS = r"""
+document.querySelectorAll('input[data-filter]').forEach(function(inp){
+  var tbl=document.getElementById(inp.dataset.filter);
+  var rows=tbl?tbl.tBodies[0].rows:[];
+  var count=document.getElementById(inp.dataset.filter+'-count');
+  inp.addEventListener('input',function(){
+    var q=inp.value.trim().toLowerCase().split(/\s+/).filter(Boolean), n=0;
+    for(var i=0;i<rows.length;i++){
+      var t=rows[i].textContent.toLowerCase();
+      var ok=q.every(function(w){return t.indexOf(w)>=0});
+      rows[i].hidden=!ok; if(ok)n++;
+    }
+    if(count)count.textContent=n+' shown';
+  });
+});
+document.querySelectorAll('table.sortable th').forEach(function(th){
+  th.addEventListener('click',function(){
+    var tbl=th.closest('table'), idx=[].indexOf.call(th.parentNode.children,th);
+    var body=tbl.tBodies[0], rows=[].slice.call(body.rows);
+    var dir=th.dataset.dir==='asc'?-1:1; th.dataset.dir=dir===1?'asc':'desc';
+    rows.sort(function(a,b){
+      var x=a.cells[idx].dataset.v||a.cells[idx].textContent, y=b.cells[idx].dataset.v||b.cells[idx].textContent;
+      var nx=parseFloat(x), ny=parseFloat(y);
+      if(!isNaN(nx)&&!isNaN(ny))return (nx-ny)*dir;
+      return x.localeCompare(y)*dir;
+    });
+    rows.forEach(function(r){body.appendChild(r)});
+  });
+});
+"""
+
+KIND_CLASS = {"producer": "", "filter": "f", "analyzer": "a", "output": "o", "switch": ""}
+
+
+def esc(s):
+    return html.escape("" if s is None else str(s), quote=True)
+
+
+def safe(name):
+    return re.sub(r"[^A-Za-z0-9_.-]", "_", name)
+
+
+class Site(object):
+    NAV = [("index.html", "Paths"), ("modules.html", "Modules"), ("eventsetup.html", "EventSetup"),
+           ("services.html", "Services"), ("outputs.html", "Outputs and datasets"), ("checks.html", "Checks")]
+
+    def __init__(self, model, outdir, diff=None):
+        self.m, self.out, self.diff = model, outdir, diff
+        self.release = model["release"]
+        self.nav = list(self.NAV) + ([("diff.html", "Differences")] if diff else [])
+
+    # helpers -------------------------------------------------------------
+    def rel(self, depth, target):
+        return "../" * depth + target
+
+    def mlink(self, label, depth):
+        if label in self.m["modules"]:
+            return '<a href="%s">%s</a>' % (self.rel(depth, "modules/%s.html" % safe(label)), esc(label))
+        return '<span class="muted">%s</span>' % esc(label)
+
+    def plink(self, name, depth):
+        if name in self.m["paths"]:
+            return '<a href="%s">%s</a>' % (self.rel(depth, "paths/%s.html" % safe(name)), esc(name))
+        return esc(name)
+
+    def kind(self, k):
+        return '<span class="kind k-%s">%s</span>' % (esc(k), esc(k))
+
+    def github_blob(self, relpath):
+        ref = self.release if self.release.startswith("CMSSW_") else "master"
+        return "https://github.com/cms-sw/cmssw/blob/%s/%s" % (ref, relpath)
+
+    def plugin_search(self, mtype):
+        base = re.sub(r"^SwitchProducer\[.*\]$", "SwitchProducer", mtype.split("@")[0])
+        return "https://github.com/search?type=code&q=" + quote_plus("repo:cms-sw/cmssw " + base)
+
+    def page(self, relpath, title, body, here=None):
+        depth = relpath.count("/")
+        nav = "".join('<a href="%s"%s>%s</a>' % (self.rel(depth, href), ' class="here"' if href == here else "",
+                                                   esc(text)) for href, text in self.nav)
+        sub = "%s, process %s, %d paths, %d modules" % (
+            self.release, self.m["process"],
+            sum(1 for p in self.m["paths"].values() if p["kind"] == "path"), len(self.m["modules"]))
+        doc = """<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>%s</title><link rel="stylesheet" href="%s"></head>
+<body><header><p class="menu">Phase-2 HLT menu</p><p class="sub">%s, from <code>%s</code></p>
+<nav>%s</nav></header><main>%s
+<footer>Generated by hltPhase2MenuDump.</footer></main>
+<script src="%s"></script></body></html>
+""" % (esc(title), self.rel(depth, "style.css"), esc(sub), esc(self.m["config"]), nav, body,
+            self.rel(depth, "menu.js"))
+        path = os.path.join(self.out, relpath)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w") as f:
+            f.write(doc)
+
+    def table(self, tid, headers, rows, search_hint=None):
+        h = ""
+        if search_hint:
+            h += ('<input class="search" type="search" data-filter="%s" placeholder="%s" aria-label="%s"> '
+                  '<span class="muted" id="%s-count">%d shown</span>' % (tid, esc(search_hint), esc(search_hint),
+                                                                       tid, len(rows)))
+        h += '<div class="scroll"><table class="sortable" id="%s"><thead><tr>%s</tr></thead><tbody>' % (
+            tid, "".join("<th>%s</th>" % esc(x) for x in headers))
+        for r in rows:
+            h += "<tr>%s</tr>" % "".join(c if c.startswith("<td") else "<td>%s</td>" % c for c in r)
+        return h + "</tbody></table></div>"
+
+    # pages ---------------------------------------------------------------
+    def write(self):
+        os.makedirs(self.out, exist_ok=True)
+        with open(os.path.join(self.out, "style.css"), "w") as f:
+            f.write(CSS)
+        with open(os.path.join(self.out, "menu.js"), "w") as f:
+            f.write(JS)
+        self.index()
+        self.modules_index()
+        for name in self.m["paths"]:
+            self.path_page(name)
+        for label in self.m["modules"]:
+            self.module_page(label)
+        self.eventsetup()
+        self.services()
+        self.outputs()
+        self.checks()
+        if self.diff:
+            self.diff_page()
+
+    def index(self):
+        changed = self.diff["paths_changed"] if self.diff else {}
+        added = set(self.diff["paths_added"]) if self.diff else set()
+        rows = []
+        for i, (name, p) in enumerate(self.m["paths"].items(), 1):
+            mark = ""
+            if name in added:
+                mark = ' <span class="add">new</span>'
+            elif name in changed:
+                mark = ' <a class="warn" href="diff.html#%s">changed</a>' % safe(name)
+            rows.append([
+                '<td class="num">%d</td>' % i,
+                self.plink(name, 0) + mark,
+                esc(p["kind"]),
+                "<code>%s</code>" % esc(p["seed"]) if p["seed"] else '<span class="muted">none</span>',
+                '<td class="num">%d</td>' % len(p["modules"]),
+                '<td class="num">%d</td>' % len(p["filters"]),
+                self.mlink(p["last_filter"], 0) if p["last_filter"] else "",
+            ])
+        body = ("<h1>Paths</h1><p class=\"lead\">All paths and end paths in schedule order. "
+                "Click a column header to sort; type to filter by path, seed or filter name.</p>")
+        body += self.table("paths", ["#", "Path", "Kind", "L1 seed", "Modules", "Filters", "Last filter"],
+                           rows, "Filter paths")
+        self.page("index.html", "Phase-2 HLT paths", body, "index.html")
+
+    def modules_index(self):
+        rows = []
+        for label, m in self.m["modules"].items():
+            rows.append([self.mlink(label, 0), self.kind(m["kind"]), "<code>%s</code>" % esc(m["type"]),
+                         '<td class="num">%d</td>' % len(m["used_in"]),
+                         '<td class="num">%d</td>' % len(m["consumers"])])
+        body = "<h1>Modules</h1><p class=\"lead\">Every EDProducer, EDFilter, EDAnalyzer and output module in the configuration.</p>"
+        body += self.table("modules", ["Label", "Kind", "Plugin type", "Paths", "Consumers"], rows, "Filter modules")
+        self.page("modules.html", "Modules", body, "modules.html")
+
+    def path_page(self, name):
+        p = self.m["paths"][name]
+        mods = self.m["modules"]
+        body = "<h1>%s</h1>" % esc(name)
+        body += '<dl class="facts"><dt>Kind</dt><dd>%s</dd><dt>Modules</dt><dd>%d (%d in tasks)</dd>' \
+                '<dt>Filters</dt><dd>%d</dd></dl>' % (esc(p["kind"]), len(p["modules"]),
+                                                      sum(e["task"] for e in p["modules"]), len(p["filters"]))
+        if p["seed"]:
+            body += '<div class="seed"><strong>L1 seed</strong><br><code>%s</code></div>' % esc(p["seed"])
+        body += ("<h2>Module sequence</h2><p class=\"legend\">Diamonds are filters that can reject the event; "
+                 "dashed circles run on demand from a Task; open circles are producers.</p><ol class=\"chain\">")
+        for e in p["modules"]:
+            m = mods[e["label"]]
+            cls = "t" if e["task"] else KIND_CLASS.get(m["kind"], "")
+            flags = []
+            if e["negated"]:
+                flags.append("negated")
+            if e["ignored"]:
+                flags.append("ignored")
+            if e["task"]:
+                flags.append("task")
+            body += '<li class="%s"><span class="dot"></span><span class="name">%s</span>' \
+                    '<span class="type">%s%s</span>' % (cls, self.mlink(e["label"], 1), esc(m["type"]),
+                                                         (" (" + ", ".join(flags) + ")") if flags else "")
+            if m["kind"] == "filter" and m["params"] and not e["task"]:
+                body += "<details><summary>Selection parameters</summary><table>"
+                for k, v in m["params"].items():
+                    body += "<tr><td>%s</td><td><code>%s</code></td></tr>" % (esc(k), esc(v))
+                body += "</table></details>"
+            body += "</li>"
+        body += "</ol>"
+        if p["consumed_not_in_path"]:
+            body += ("<h2>Consumed but not in this path</h2><p class=\"lead\">Products read by modules of this path "
+                     "whose producers are neither in the path nor in one of its Tasks. They run only if scheduled "
+                     "elsewhere (another path or a schedule Task); otherwise the product is missing.</p><ul class=\"cols\">")
+            body += "".join("<li>%s</li>" % self.mlink(l, 1) for l in p["consumed_not_in_path"]) + "</ul>"
+        self.page("paths/%s.html" % safe(name), name, body)
+
+    def module_page(self, label):
+        m = self.m["modules"][label]
+        body = "<h1>%s</h1>" % esc(label)
+        body += '<dl class="facts"><dt>Kind</dt><dd>%s</dd><dt>Plugin type</dt><dd><code>%s</code> ' \
+                '(<a href="%s">find plugin source</a>)</dd>' % (self.kind(m["kind"]), esc(m["type"]),
+                                                               self.plugin_search(m["type"]))
+        if m["cfi"]:
+            body += '<dt>Configuration</dt><dd><a href="%s"><code>%s</code></a></dd>' % (
+                self.github_blob(m["cfi"]), esc(m["cfi"]))
+        if m["seed"]:
+            body += "<dt>L1 seed</dt><dd><code>%s</code></dd>" % esc(m["seed"])
+        body += "</dl>"
+        body += "<h2>Used in %d paths</h2>" % len(m["used_in"])
+        body += ('<ul class="cols">%s</ul>' % "".join("<li>%s</li>" % self.plink(p, 1) for p in m["used_in"])
+                 if m["used_in"] else '<p class="muted">Not in any path. It runs only if a schedule Task or another '
+                                      'module pulls it in.</p>')
+        body += "<h2>Inputs</h2>"
+        if m["inputs"]:
+            body += '<ul class="cols">%s</ul>' % "".join(
+                "<li>%s%s</li>" % (self.mlink(i, 1), "" if i in self.m["modules"] else
+                                   ' <span class="muted">(input file or earlier process)</span>')
+                for i in m["inputs"])
+        else:
+            body += '<p class="muted">No InputTag parameters.</p>'
+        body += "<h2>Consumed by</h2>"
+        body += ('<ul class="cols">%s</ul>' % "".join("<li>%s</li>" % self.mlink(c, 1) for c in m["consumers"])
+                 if m["consumers"] else '<p class="muted">No module in this configuration reads it.</p>')
+        body += "<h2>Configuration dump</h2><pre>%s = %s</pre>" % (esc(label), esc(m["python"]))
+        self.page("modules/%s.html" % safe(label), label, body)
+
+    def eventsetup(self):
+        rows = [[esc(l), "ESProducer", "<code>%s</code>" % esc(d["type"])] for l, d in self.m["es_producers"].items()]
+        rows += [[esc(l), "ESSource", "<code>%s</code>" % esc(d["type"])] for l, d in self.m["es_sources"].items()]
+        body = "<h1>EventSetup</h1>" + self.table("es", ["Label", "Kind", "Type"], rows, "Filter EventSetup modules")
+        self.page("eventsetup.html", "EventSetup", body, "eventsetup.html")
+
+    def services(self):
+        rows = [[esc(l), "<code>%s</code>" % esc(d["type"])] for l, d in self.m["services"].items()]
+        body = "<h1>Services</h1>" + self.table("svc", ["Label", "Type"], rows)
+        self.page("services.html", "Services", body, "services.html")
+
+    def outputs(self):
+        body = "<h1>Outputs and datasets</h1>"
+        body += "<h2>Datasets</h2>"
+        if self.m["datasets"]:
+            rows = [[self.plink(n, 0), self.mlink(d["filter"], 0), "<code>%s</code>" % esc(d["triggers"])]
+                    for n, d in self.m["datasets"].items()]
+            body += self.table("ds", ["Dataset path", "Filter", "Trigger conditions"], rows)
+        else:
+            body += '<p class="muted">No dataset paths (TriggerResultsFilter) in this configuration.</p>'
+        body += "<h2>Output modules</h2>"
+        if not self.m["outputs"]:
+            body += '<p class="muted">No output modules. Re-run cmsDriver with --eventcontent to add one.</p>'
+        for label, o in self.m["outputs"].items():
+            body += "<h2>%s</h2><p>%s, selects %s</p><pre>%s</pre>" % (
+                esc(label), esc(o["type"]), esc(", ".join(o["SelectEvents"]) or "all events"),
+                esc("\n".join(o["outputCommands"])))
+        self.page("outputs.html", "Outputs and datasets", body, "outputs.html")
+
+    def checks(self):
+        body = "<h1>Checks</h1><p class=\"lead\">Menu-level findings from the loaded configuration. " \
+               "Static file checks are done by hltPhase2MenuCheck.</p>"
+        body += "<h2>Modules in no path (%d)</h2>" % len(self.m["unused_modules"])
+        body += ('<p class="lead">Includes modules that only run from schedule Tasks, and leftovers from other steps '
+                 'of the configuration (L1, validation).</p><ul class="cols">%s</ul>'
+                 % "".join("<li>%s</li>" % self.mlink(l, 0) for l in self.m["unused_modules"])
+                 if self.m["unused_modules"] else '<p class="muted">None.</p>')
+        missing = [(n, p["consumed_not_in_path"]) for n, p in self.m["paths"].items() if p["consumed_not_in_path"]]
+        body += "<h2>Paths consuming products they do not schedule (%d)</h2>" % len(missing)
+        if missing:
+            rows = [[self.plink(n, 0), '<td class="num">%d</td>' % len(l),
+                     ", ".join(self.mlink(x, 0) for x in l[:8]) + (" ..." if len(l) > 8 else "")] for n, l in missing]
+            body += self.table("cons", ["Path", "Count", "Producers"], rows, "Filter")
+        else:
+            body += '<p class="muted">None.</p>'
+        unsched = self.m.get("unscheduled_paths", [])
+        body += "<h2>Paths defined but not in the schedule (%d)</h2>" % len(unsched)
+        body += ('<p class="lead">cmsRun will not run these.</p><ul class="cols">%s</ul>'
+                 % "".join("<li>%s</li>" % esc(n) for n in unsched) if unsched else '<p class="muted">None.</p>')
+        seedless = [n for n, p in self.m["paths"].items() if p["kind"] == "path" and not p["seed"]]
+        body += "<h2>Paths without an L1 seed module (%d)</h2>" % len(seedless)
+        body += ('<ul class="cols">%s</ul>' % "".join("<li>%s</li>" % self.plink(n, 0) for n in seedless)
+                 if seedless else '<p class="muted">None.</p>')
+        self.page("checks.html", "Checks", body, "checks.html")
+
+    def diff_page(self):
+        d = self.diff
+        body = "<h1>Differences</h1><p class=\"lead\">This menu compared with <code>%s</code>.</p>" % esc(d["against"])
+
+        def lst(title, items, cls, linker):
+            out = "<h2>%s (%d)</h2>" % (esc(title), len(items))
+            if items:
+                out += '<ul class="cols">%s</ul>' % "".join('<li class="%s">%s</li>' % (cls, linker(i)) for i in items)
+            return out
+        body += lst("Paths added", d["paths_added"], "add", lambda n: self.plink(n, 0))
+        body += lst("Paths removed", d["paths_removed"], "rem", esc)
+        body += "<h2>Paths changed (%d)</h2>" % len(d["paths_changed"])
+        for name, c in d["paths_changed"].items():
+            body += '<h2 id="%s">%s</h2><ul class="plain">' % (safe(name), self.plink(name, 0))
+            if c["seed_old"] != c["seed_new"]:
+                body += "<li>L1 seed: <code>%s</code> became <code>%s</code></li>" % (esc(c["seed_old"]), esc(c["seed_new"]))
+            for l in c["added"]:
+                body += '<li class="add">added %s</li>' % self.mlink(l, 0)
+            for l in c["removed"]:
+                body += '<li class="rem">removed %s</li>' % esc(l)
+            if c["reordered"]:
+                body += "<li>same modules, different order</li>"
+            for l in c["reconfigured"]:
+                body += "<li>reconfigured %s</li>" % self.mlink(l, 0)
+            body += "</ul>"
+        body += lst("Modules added", d["modules_added"], "add", lambda n: self.mlink(n, 0))
+        body += lst("Modules removed", d["modules_removed"], "rem", esc)
+        rows = [[self.mlink(c["label"], 0), "<code>%s</code>" % esc(c["type_old"]),
+                 "<code>%s</code>" % esc(c["type_new"])] for c in d["modules_changed"]]
+        body += "<h2>Modules reconfigured (%d)</h2>" % len(rows)
+        if rows:
+            body += self.table("mc", ["Module", "Type before", "Type now"], rows, "Filter")
+        self.page("diff.html", "Differences", body, "diff.html")
+
+
+# ---------------------------------------------------------------------------
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("config", help="cmsRun configuration (python) containing the HLT menu, "
+                                       "or a JSON file written by a previous --json")
+    parser.add_argument("-o", "--output-dir", help="write a static HTML site to this directory")
+    parser.add_argument("--json", metavar="FILE", help="write the menu model as JSON")
+    parser.add_argument("--list", choices=["paths", "modules", "seeds", "datasets", "eventcontent"],
+                        help="print a text listing to stdout")
+    parser.add_argument("--compare", metavar="JSON", help="JSON dump of another menu to diff against")
+    parser.add_argument("--hlt-only", action="store_true",
+                        help="keep only paths whose name starts with HLT_, DST_, MC_ or Dataset_ (drops L1 paths)")
+    parser.epilog = "Arguments after a lone '--' are passed to the configuration as sys.argv."
+    argv = list(sys.argv[1:] if argv is None else argv)
+    cfg_args = []
+    if "--" in argv:
+        cut = argv.index("--")
+        argv, cfg_args = argv[:cut], argv[cut + 1:]
+    args = parser.parse_args(argv)
+
+    if args.config.endswith(".json"):
+        with open(args.config) as f:
+            model = json.load(f)
+    else:
+        model = build_model(load_process(args.config, cfg_args), os.path.basename(args.config))
+
+    if args.hlt_only:
+        keep = ("HLT_", "DST_", "MC_", "Dataset_", "HLTriggerFinal", "HLTAnalyzerEndpath")
+        model["paths"] = OrderedDict((n, p) for n, p in model["paths"].items()
+                                     if n.startswith(keep) or p["kind"] != "path")
+        in_paths = {e["label"] for p in model["paths"].values() for e in p["modules"]}
+        for label, m in model["modules"].items():
+            m["used_in"] = [p for p in m["used_in"] if p in model["paths"]]
+        model["unused_modules"] = [l for l in model["modules"] if l not in in_paths]
+
+    diff = None
+    if args.compare:
+        with open(args.compare) as f:
+            diff = compare_models(model, json.load(f))
+
+    if args.json:
+        with open(args.json, "w") as f:
+            json.dump(model, f, indent=1)
+    if args.list:
+        print_list(model, args.list)
+    if args.output_dir:
+        Site(model, args.output_dir, diff).write()
+        print("hltPhase2MenuDump: wrote %s/index.html (%d paths, %d modules)"
+              % (args.output_dir, len(model["paths"]), len(model["modules"])), file=sys.stderr)
+    if not (args.json or args.list or args.output_dir):
+        print_list(model, "paths")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

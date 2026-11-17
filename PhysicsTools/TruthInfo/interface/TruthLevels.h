@@ -146,7 +146,7 @@ namespace truth {
     return (a >= 1 && a <= 6) || a == 9 || a == 21;
   }
 
-  // Charged leptons. A neutrino is not one of these; ask isInvisible for that.
+  // Charged leptons. A neutrino is not one of these; ask isNeutrino for that.
   [[nodiscard]] inline bool isLepton(int32_t pdgId) {
     const int32_t a = std::abs(pdgId);
     return a == 11 || a == 13 || a == 15;
@@ -488,11 +488,55 @@ namespace truth {
     return stableLegsFromRole(graph, VertexRole::UnderlyingEvent);
   }
 
-  // Species a detector cannot reconstruct at all, so they are not part of the visible
-  // final state. Only the neutrinos today; anything else invisible would belong here.
-  [[nodiscard]] inline bool isInvisible(int32_t pdgId) {
+  [[nodiscard]] inline bool isNeutrino(int32_t pdgId) {
     const int32_t a = std::abs(pdgId);
     return a == 12 || a == 14 || a == 16;
+  }
+
+  // Species that leave the detector without a hit, so they are not part of the visible
+  // final state: the neutrinos, the graviton (39), the PDG dark matter states (51, 52,
+  // 53), the sneutrinos (1000012, 1000014, 1000016), the lightest neutralino (1000022),
+  // the gravitino (1000039) and the Kaluza-Klein graviton (5100039).
+  [[nodiscard]] inline bool isInvisible(int32_t pdgId) {
+    const int32_t a = std::abs(pdgId);
+    return isNeutrino(pdgId) || a == 39 || a == 51 || a == 52 || a == 53 || a == 1000012 || a == 1000014 ||
+           a == 1000016 || a == 1000022 || a == 1000039 || a == 5100039;
+  }
+
+  // A particle of an invisible species whose every descendant leaf is of an invisible
+  // species. A neutrino copy chain is invisible; a neutralino that decays to visible
+  // particles is not.
+  [[nodiscard]] inline bool isInvisibleParticle(Graph const& graph, uint32_t id) {
+    if (!isInvisible(graph.particles()[id].pdgId)) {
+      return false;
+    }
+    std::vector<bool> seen(graph.nParticles(), false);
+    std::vector<uint32_t> stack{id};
+    seen[id] = true;
+    while (!stack.empty()) {
+      const uint32_t p = stack.back();
+      stack.pop_back();
+      bool isLeaf = true;
+      for (const uint32_t vertexId : graph.decayVertices(p)) {
+        if (vertexId >= graph.nVertices()) {
+          continue;
+        }
+        for (const uint32_t child : graph.outgoingParticles(vertexId)) {
+          if (child == p) {
+            continue;
+          }
+          isLeaf = false;
+          if (!seen[child]) {
+            seen[child] = true;
+            stack.push_back(child);
+          }
+        }
+      }
+      if (isLeaf && !isInvisible(graph.particles()[p].pdgId)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   namespace detail {
@@ -528,8 +572,10 @@ namespace truth {
         // A K0S the generator decayed but Geant4 also interacted in material must yield
         // its GEN pions, never the nuclear secondaries of the SIM vertex.
         // The seen mask makes this terminate on a graph with a cycle.
-        const bool reconstructableSpecies =
-            std::find(terminating.begin(), terminating.end(), data.pdgId) != terminating.end();
+        // Charge conjugates are one species, so the list needs only one sign of each.
+        const bool reconstructableSpecies = std::any_of(terminating.begin(), terminating.end(), [&data](int32_t id) {
+          return std::abs(id) == std::abs(data.pdgId);
+        });
         const bool genStable = data.hasGen() && data.status == 1;
         bool hasGenDecay = false;
         for (const uint32_t vertexId : graph.decayVertices(p)) {
@@ -541,8 +587,9 @@ namespace truth {
         if (reconstructableSpecies || genStable || !hasGenDecay) {
           // A synthetic particle is an accounting object with no hits, so it can never be
           // reconstructed and must not become a leg: the signal stand-in is Signal-flagged
-          // and vertex-less, and both terminals above are true for it.
-          if (!isInvisible(data.pdgId) && !data.isSynthetic()) {
+          // and vertex-less, and both terminals above are true for it. The level drops the
+          // neutrinos only; the efficiency denominators drop every invisible species.
+          if (!isNeutrino(data.pdgId) && !data.isSynthetic()) {
             legs.push_back(p);
           }
           continue;
@@ -679,13 +726,13 @@ namespace truth {
   // antichain but the SUBGRAPHS may overlap: two colour-connected quarks fragment
   // through one string, and assigning each hadron to exactly one jet is what a
   // clustering algorithm is for.
+  [[nodiscard]] inline std::vector<uint32_t> partonJets(Graph const& graph, std::vector<uint32_t> hardProcess) {
+    std::erase_if(hardProcess, [&graph](uint32_t id) { return !isParton(graph.particles()[id].pdgId); });
+    return hardProcess;
+  }
+
   [[nodiscard]] inline std::vector<uint32_t> partonJets(Graph const& graph) {
-    std::vector<uint32_t> roots = levelAntichain(graph, Level::HardProcess);
-    roots.erase(
-        std::remove_if(
-            roots.begin(), roots.end(), [&graph](uint32_t id) { return !isParton(graph.particles()[id].pdgId); }),
-        roots.end());
-    return roots;
+    return partonJets(graph, levelAntichain(graph, Level::HardProcess));
   }
 
   // The level as an antichain. Candidates that have another candidate as an ancestor are
@@ -932,10 +979,7 @@ namespace truth {
       if (level == Level::HardProcess) {
         ids = hardProcess;
       } else if (level == Level::PartonJets) {
-        ids = hardProcess;
-        ids.erase(std::remove_if(
-                      ids.begin(), ids.end(), [&graph](uint32_t id) { return !isParton(graph.particles()[id].pdgId); }),
-                  ids.end());
+        ids = partonJets(graph, hardProcess);
       } else {
         ids = levelAntichain(graph, level);
       }

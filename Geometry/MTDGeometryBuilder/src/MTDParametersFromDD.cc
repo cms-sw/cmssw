@@ -9,6 +9,8 @@
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 
+#include <array>
+
 using namespace MTDTopologyMode;
 
 namespace {

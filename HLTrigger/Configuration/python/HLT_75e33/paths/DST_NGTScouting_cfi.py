@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..modules.hltAK4PFJetsForTaus_cfi import *
 from ..modules.hltL1GTAcceptFilter_cfi import *
 from ..modules.hltFixedGridRhoFastjetAllCaloForEGamma_cfi import *
 from ..modules.hltPFPuppiHT_cfi import *
@@ -23,13 +22,11 @@ from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTBtagDeepCSVSequencePFPuppi_cfi import *
 from ..sequences.HLTBtagDeepFlavourSequencePFPuppi_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
-from ..sequences.HLTHPSDeepTauPFTauSequence_cfi import *
 from ..sequences.HLTTICLLocalRecoSequence_cfi import *
 from ..sequences.HLTHgcalTiclPFClusteringForEgammaUnseededSequence_cfi import *
 from ..sequences.HLTLocalrecoSequence_cfi import *
 from ..sequences.HLTMuonsSequence_cfi import *
 from ..sequences.HLTPFPuppiMETReconstruction_cfi import *
-from ..sequences.HLTPFTauHPS_cfi import *
 from ..sequences.HLTParticleFlowSequence_cfi import *
 from ..sequences.HLTElePixelMatchUnseededSequence_cfi import *
 from ..sequences.HLTGsfElectronUnseededSequence_cfi import *

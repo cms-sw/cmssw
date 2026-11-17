@@ -31,14 +31,26 @@ namespace mkfit {
 
     void remove_duplicates(TrackVec &tracks);
 
-    void clean_duplicates(TrackVec &tracks, const IterationConfig &itconf, const TrackerInfo &trk_inf);
-    void clean_duplicates_sharedhits(TrackVec &tracks, const IterationConfig &itconf, const TrackerInfo &trk_inf);
+    void clean_duplicates(TrackVec &tracks,
+                          const IterationConfig &itconf,
+                          const TrackerInfo &trk_inf,
+                          const BeamSpot &bspot);
+    void clean_duplicates_sharedhits(TrackVec &tracks,
+                                     const IterationConfig &itconf,
+                                     const TrackerInfo &trk_inf,
+                                     const BeamSpot &bspot);
     void clean_duplicates_sharedhits_pixelseed(TrackVec &tracks,
                                                const IterationConfig &itconf,
-                                               const TrackerInfo &trk_inf);
+                                               const TrackerInfo &trk_inf,
+                                               const BeamSpot &bspot);
     void clean_duplicates_sharedhits_pixelpriority(TrackVec &tracks,
                                                    const IterationConfig &itconf,
-                                                   const TrackerInfo &trk_inf);
+                                                   const TrackerInfo &trk_inf,
+                                                   const BeamSpot &bspot);
+    void clean_duplicates_sharedhits_pixelpriority_ptadaptive(TrackVec &tracks,
+                                                              const IterationConfig &itconf,
+                                                              const TrackerInfo &trk_inf,
+                                                              const BeamSpot &bspot);
 
     // Quality filters used directly (not through IterationConfig)
 

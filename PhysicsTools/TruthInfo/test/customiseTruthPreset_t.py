@@ -111,6 +111,17 @@ class TestCustomiseTruthPreset(unittest.TestCase):
         self.assertRaises(ValueError, resolvePreset, preset="top", fragment="TTbar_14TeV")
         self.assertRaises(KeyError, applyTruthPreset, _process(), "top", None, nosuchfield=1)
 
+    def testValidationCustomiseRefusesAnEarlierPreset(self):
+        # REQUIRED: modules loaded after a preset would keep the default seeds with no error.
+        from SimGeneral.TruthGraphAssociatorProducers.customiseTruthGraphAssociators import (
+            customiseTruthBranchValidation,
+        )
+
+        process = applyTruthPreset(cms.Process("TEST"), preset="top")
+        process.generalTracks = cms.EDProducer("Dummy")
+        with self.assertRaises(RuntimeError):
+            customiseTruthBranchValidation(process)
+
     def testEnvironmentCustomise(self):
         import os
 

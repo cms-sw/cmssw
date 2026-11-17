@@ -1,6 +1,10 @@
 #ifndef RecoTracker_TkSeedGenerator_SeedGeneratorFromProtoTracksEDProducer_H
 #define RecoTracker_TkSeedGenerator_SeedGeneratorFromProtoTracksEDProducer_H
 #include "FWCore/Utilities/interface/Visibility.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
+class TrackerGeometry;
+class TrackerDigiGeometryRecord;
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -29,5 +33,6 @@ private:
   const edm::EDGetTokenT<reco::VertexCollection> theInputVertexCollectionTag;
   SeedFromConsecutiveHitsCreator seedCreator_;
   const SeedFromProtoTrack::Config config_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geometryToken_;
 };
 #endif

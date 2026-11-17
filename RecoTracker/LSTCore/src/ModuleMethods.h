@@ -16,6 +16,7 @@
 
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+#include <fstream>
 
 namespace lst {
   // TODO: At some point it might be good to move some of these things to LSTGeometry

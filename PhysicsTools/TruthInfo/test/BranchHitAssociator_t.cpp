@@ -162,6 +162,7 @@ class TestBranchHitAssociator : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(TestBranchHitAssociator);
   CPPUNIT_TEST(testSharedEnergyBestBranch);
   CPPUNIT_TEST(testSharedHitsMetric);
+  CPPUNIT_TEST(testASmallObjectMatchesALargeBranch);
   CPPUNIT_TEST(testGenericRecoObjectInterface);
   CPPUNIT_TEST(testTrackerChannel);
   CPPUNIT_TEST(testEmptyRootsMatchNothingWhenRestricted);
@@ -185,11 +186,13 @@ class TestBranchHitAssociator : public CppUnit::TestFixture {
   CPPUNIT_TEST(testTheCellIndexOrdersTheFullDetId);
   CPPUNIT_TEST(testTheCandidateRootsAreASet);
   CPPUNIT_TEST(testDetectorMaskOfNames);
+  CPPUNIT_TEST(testHasHitInDetectors);
   CPPUNIT_TEST_SUITE_END();
 
 public:
   void testSharedEnergyBestBranch();
   void testSharedHitsMetric();
+  void testASmallObjectMatchesALargeBranch();
   void testGenericRecoObjectInterface();
   void testTrackerChannel();
   void testEmptyRootsMatchNothingWhenRestricted();
@@ -213,6 +216,7 @@ public:
   void testTheCellIndexOrdersTheFullDetId();
   void testTheCandidateRootsAreASet();
   void testDetectorMaskOfNames();
+  void testHasHitInDetectors();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranchHitAssociator);
@@ -238,6 +242,24 @@ void TestBranchHitAssociator::testSharedEnergyBestBranch() {
       CPPUNIT_ASSERT(m.score > matches.front().score);
     }
   CPPUNIT_ASSERT(foundRoot1);
+}
+
+// REQUIRED: a branch with many more cells than the object gives the same match as any
+// other branch, on the first, a middle and a repeated cell, and on a cell it does not hold.
+void TestBranchHitAssociator::testASmallObjectMatchesALargeBranch() {
+  truth::LogicalGraphHitIndexBuilder b(1);
+  b.setSimTrackForParticle(0, 0, 100);
+  for (uint32_t cell = 10; cell < 110; ++cell)
+    b.addHit(truth::HitChannel::Calo, 0, 100, cell, 1.0f, 0);
+  auto index = b.finish();
+  truth::BranchHitAssociator assoc(index, {}, truth::BranchHitAssociator::Metric::SharedHits);
+
+  std::vector<truth::RecoHit> reco{{10, 1.0f}, {60, 0.5f}, {60, 0.5f}, {500, 1.0f}};
+  auto matches = assoc.bestBranches(reco, /*maxResults=*/1);
+
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), matches.size());
+  CPPUNIT_ASSERT_EQUAL(uint32_t(0), matches.front().rootParticleId);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, matches.front().sharedEnergy, 1e-6);
 }
 
 void TestBranchHitAssociator::testSharedHitsMetric() {
@@ -760,4 +782,24 @@ void TestBranchHitAssociator::testDetectorMaskOfNames() {
       truth::BranchHitAssociator::detectorMask(both));
   const std::vector<std::string> unknown{"Ecal", "Hgcal"};
   CPPUNIT_ASSERT_THROW(std::ignore = truth::BranchHitAssociator::detectorMask(unknown), cms::Exception);
+}
+
+// REQUIRED: requireHits keeps a branch only with a hit in the detectors of the collection. A
+// branch with hits elsewhere and a branch with no hit do not pass, and the whole channel
+// passes any hit.
+void TestBranchHitAssociator::testHasHitInDetectors() {
+  truth::LogicalGraphHitIndexBuilder b(2);
+  b.setSimTrackForParticle(0, 0, 100);
+  b.addHit(truth::HitChannel::Calo, 0, 100, kEndcapCell, 1.0f, 0);
+  const auto index = b.finish();
+  const auto endcapHits = index.subgraphHits(truth::HitChannel::Calo, 0);
+  const auto noHits = index.subgraphHits(truth::HitChannel::Calo, 1);
+
+  const auto endcap = truth::BranchHitAssociator::detectorBit(kEndcapCell);
+  const auto barrel = truth::BranchHitAssociator::detectorBit(kBarrelCell);
+  CPPUNIT_ASSERT(truth::BranchHitAssociator::hasHitInDetectors(endcapHits, endcap));
+  CPPUNIT_ASSERT(truth::BranchHitAssociator::hasHitInDetectors(endcapHits, endcap | barrel));
+  CPPUNIT_ASSERT(truth::BranchHitAssociator::hasHitInDetectors(endcapHits, truth::BranchHitAssociator::kAllDetectors));
+  CPPUNIT_ASSERT(!truth::BranchHitAssociator::hasHitInDetectors(endcapHits, barrel));
+  CPPUNIT_ASSERT(!truth::BranchHitAssociator::hasHitInDetectors(noHits, truth::BranchHitAssociator::kAllDetectors));
 }

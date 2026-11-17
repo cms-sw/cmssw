@@ -143,12 +143,12 @@ _RULES = (
     # whose name starts with "tt" followed by a top partner/decay token has tops.
     # Checked before the Higgs(VH/HH) and diboson rules so e.g. ttHH / ttZ seed tops.
     (r"(?i)ttbar|(^|[_-])tt[0-9]*(to|bar|h|w|z|b|c|d|g|j|t|s)|tprimeto", "top", {}),
-    # Associated single Higgs: WH / ZH / VH / WWH / ZZH (and HW/HZ orderings).
-    (r"(?i)(^|[_-])(w|z|v|ww|wz|zz)h([0-9]|to|j|_|-|$)|(^|[_-])h[wz]j?([0-9]|to|_|-)|ggzh", "vh", {}),
+    # Associated single Higgs: WH / WplusH / WminusH / ZH / VH / WWH / ZZH (and HW/HZ orderings).
+    (r"(?i)(^|[_-])(w|wplus|wminus|z|v|ww|wz|zz)h([0-9]|to|j|_|-|$)|(^|[_-])h[wz]j?([0-9]|to|_|-)|ggzh", "vh", {}),
     # Di-Higgs (gg->HH and HH->...): seed every Higgs via the ggf preset.
     (r"(?i)(^|[_-])hh|hhto|gluglutohh|to2hh|dihiggs", "ggf", {}),
-    # Diboson incl. VBS / same-sign WW. After VH/HH so WWH/ZZH/HHto...WWZZ are not stolen.
-    (r"(?i)(^|[_-])(ww|wz|zz|vv)([0-9]|to|jj|_|-|$)|(^|[_-])vbs|ssww|osww|wpwp|diboson", "diboson", {}),
+    # Diboson and triboson incl. VBS / same-sign WW. After VH/HH so WWH/ZZH/HHto...WWZZ are not stolen.
+    (r"(?i)(^|[_-])(www|wwz|wzz|zzz|ww|wz|zz|vv)([0-9]|to|jj|_|-|$)|(^|[_-])vbs|ssww|osww|wpwp|diboson", "diboson", {}),
     # W single-boson and W+jets (WToLNu/WtoTauNu, WJetsToLNu, W4JToLNu, Wj_enuj, ...).
     (r"(?i)wprime", "resonance", dict(seedPdgIds=[34, -34])),
     (r"(?i)wto[lme]nu|wtotaunu|wtolnu|(^|[_-])wto|(^|[_-])w[0-9]*j(et|ets|_|to)", "resonance",

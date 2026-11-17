@@ -31,6 +31,7 @@
 // helper files
 #include <iostream>
 #include <cstdlib>
+#include <memory>
 #include <string>
 #include <memory>
 #include <vector>
@@ -86,6 +87,8 @@ public:
 
   using TagList = std::vector<uint32_t>;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   std::string fName;
   int verbosity;
@@ -101,13 +104,29 @@ private:
 
 using namespace lat;
 
+void MEtoEDMConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription base;
+
+  base.addUntracked<std::string>("Name", "MEtoEDMConverter")->setComment("prefix to use for product instance labels");
+  base.addUntracked<int>("Verbosity", 0)->setComment("-1 no output, 0 minimum output, 1 full output");
+  base.addUntracked<int>("Frequency", 50)->setComment("unused");
+  base.addUntracked<std::string>("MEPathToSave")
+      ->setComment("specifies the path to use to find the MEs to save. An empty string stores all MEs");
+
+  descriptions.addDefault(base);
+
+  edm::DescriptionCloner cfi;
+  cfi.set<std::string>("MEPathToSave", "");
+  descriptions.add("MEtoEDMConverter", cfi);
+}
+
 MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet& iPSet) : fName(""), verbosity(0), frequency(0) {
   std::string MsgLoggerCat = "MEtoEDMConverter_MEtoEDMConverter";
 
   // get information from parameter set
-  fName = iPSet.getUntrackedParameter<std::string>("Name", "MEtoEDMConverter");
-  verbosity = iPSet.getUntrackedParameter<int>("Verbosity", 0);
-  frequency = iPSet.getUntrackedParameter<int>("Frequency", 50);
+  fName = iPSet.getUntrackedParameter<std::string>("Name");
+  verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
+  frequency = iPSet.getUntrackedParameter<int>("Frequency");
   path = iPSet.getUntrackedParameter<std::string>("MEPathToSave");
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
@@ -307,21 +326,21 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
     }
   }
 
-  std::unique_ptr<MEtoEDM<long long> > pOutInt(new MEtoEDM<long long>(nInt64));
-  std::unique_ptr<MEtoEDM<double> > pOutDouble(new MEtoEDM<double>(nDouble));
-  std::unique_ptr<MEtoEDM<TString> > pOutString(new MEtoEDM<TString>(nString));
-  std::unique_ptr<MEtoEDM<TH1F> > pOut1(new MEtoEDM<TH1F>(n1F));
-  std::unique_ptr<MEtoEDM<TH1S> > pOut1s(new MEtoEDM<TH1S>(n1S));
-  std::unique_ptr<MEtoEDM<TH1D> > pOut1d(new MEtoEDM<TH1D>(n1D));
-  std::unique_ptr<MEtoEDM<TH1I> > pOut1i(new MEtoEDM<TH1I>(n1I));
-  std::unique_ptr<MEtoEDM<TH2F> > pOut2(new MEtoEDM<TH2F>(n2F));
-  std::unique_ptr<MEtoEDM<TH2S> > pOut2s(new MEtoEDM<TH2S>(n2S));
-  std::unique_ptr<MEtoEDM<TH2D> > pOut2d(new MEtoEDM<TH2D>(n2D));
-  std::unique_ptr<MEtoEDM<TH2I> > pOut2i(new MEtoEDM<TH2I>(n2I));
-  std::unique_ptr<MEtoEDM<TH2Poly> > pOut2p(new MEtoEDM<TH2Poly>(n2P));
-  std::unique_ptr<MEtoEDM<TH3F> > pOut3(new MEtoEDM<TH3F>(n3F));
-  std::unique_ptr<MEtoEDM<TProfile> > pOutProf(new MEtoEDM<TProfile>(nProf));
-  std::unique_ptr<MEtoEDM<TProfile2D> > pOutProf2(new MEtoEDM<TProfile2D>(nProf2));
+  std::unique_ptr<MEtoEDM<long long>> pOutInt = std::make_unique<MEtoEDM<long long>>(nInt64);
+  std::unique_ptr<MEtoEDM<double>> pOutDouble = std::make_unique<MEtoEDM<double>>(nDouble);
+  std::unique_ptr<MEtoEDM<TString>> pOutString = std::make_unique<MEtoEDM<TString>>(nString);
+  std::unique_ptr<MEtoEDM<TH1F>> pOut1 = std::make_unique<MEtoEDM<TH1F>>(n1F);
+  std::unique_ptr<MEtoEDM<TH1S>> pOut1s = std::make_unique<MEtoEDM<TH1S>>(n1S);
+  std::unique_ptr<MEtoEDM<TH1D>> pOut1d = std::make_unique<MEtoEDM<TH1D>>(n1D);
+  std::unique_ptr<MEtoEDM<TH1I>> pOut1i = std::make_unique<MEtoEDM<TH1I>>(n1I);
+  std::unique_ptr<MEtoEDM<TH2F>> pOut2 = std::make_unique<MEtoEDM<TH2F>>(n2F);
+  std::unique_ptr<MEtoEDM<TH2S>> pOut2s = std::make_unique<MEtoEDM<TH2S>>(n2S);
+  std::unique_ptr<MEtoEDM<TH2D>> pOut2d = std::make_unique<MEtoEDM<TH2D>>(n2D);
+  std::unique_ptr<MEtoEDM<TH2I>> pOut2i = std::make_unique<MEtoEDM<TH2I>>(n2I);
+  std::unique_ptr<MEtoEDM<TH2Poly>> pOut2p = std::make_unique<MEtoEDM<TH2Poly>>(n2P);
+  std::unique_ptr<MEtoEDM<TH3F>> pOut3 = std::make_unique<MEtoEDM<TH3F>>(n3F);
+  std::unique_ptr<MEtoEDM<TProfile>> pOutProf = std::make_unique<MEtoEDM<TProfile>>(nProf);
+  std::unique_ptr<MEtoEDM<TProfile2D>> pOutProf2 = std::make_unique<MEtoEDM<TProfile2D>>(nProf2);
 
   for (mmi = items.begin(), mme = items.end(); mmi != mme; ++mmi) {
     MonitorElement* me = *mmi;

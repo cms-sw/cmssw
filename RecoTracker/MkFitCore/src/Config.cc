@@ -30,6 +30,12 @@ namespace mkfit {
     const float maxcth_ob = 1.99;  //eta 1.44
     const float maxcth_fw = 6.05;  //eta 2.5
 
+    // Phase-2 pT-adaptive cleaner: the cot(theta) window converted to eta, maxdcth / cosh(eta), but at least mindeta_p2
+    // (looser in the forward region), and the tracker eta region boundaries
+    const float mindeta_p2 = 0.1;
+    const float maxeta_ob_p2 = 1.0;
+    const float maxeta_fw_p2 = 2.4;
+
 #ifdef CONFIG_PhiQArrays
     bool usePhiQArrays = true;
 #endif

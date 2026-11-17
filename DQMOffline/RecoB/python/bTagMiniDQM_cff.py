@@ -32,10 +32,7 @@ bTagMiniDQMGlobal = cms.PSet(
     ptMax = cms.double(40000.),
 )
 bTagMiniValidationGlobal = bTagMiniDQMGlobal.clone(
-    MClevel = 1 # produce flavour plots for b, c ,light (dusg)
-)
-bTagMiniValidationGlobalUParT = bTagMiniDQMGlobal.clone(
-    MClevel = 4 # produce flavour plots for b, c ,light (dusg)
+    MClevel = 3 # produce flavour plots for b, c, light split into d, u, s, g (odd: ALL is already booked by DQM)
 )
 
 # Eta regions
@@ -72,6 +69,9 @@ bTagMiniValidationHarvesting = cms.Sequence()
 #
 #####################################################################################
 def addSequences(Analyzer, Harvester, discriminators, regions, globalPSet, label='bTag'):
+    # the jet kinematics, which the diffEff plots of every discriminator divide by, are booked by exactly one
+    if sum(d.bookKinematics.value() for d in discriminators.values()) != 1:
+        raise RuntimeError(label + ': exactly one discriminator must have bookKinematics = True')
     for discr in discriminators.keys():
         for region in regions.keys():
             name = label + discr + region
@@ -113,7 +113,7 @@ for tagger in taggersToAnalyze:
                  bTagMiniValidationHarvesting,
                  discriminators=taggersToAnalyze[tagger]['discriminators'],
                  regions=taggersToAnalyze[tagger]['regions'],
-                 globalPSet=bTagMiniValidationGlobalUParT if "UParT" in tagger else bTagMiniValidationGlobal,
+                 globalPSet=bTagMiniValidationGlobal,
                  label=tagger+'Validation')
 
 #####################################################################################

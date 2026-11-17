@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+  <!--Source FLUKA v6630.inp, seven source regions. Local +z assembly reference: global x=0, y=-30.75, z=1437.35 cm.-->
+  <!--Positive x case (FR4) is reused by Rz180: the case is y-symmetric but strongly asymmetric in z.-->
+  <!--Two asymmetric-in-y mounting legs instead reuse one steel Box rotated by Ry180, at the same z.-->
+  <!--FR4 case mother -> Aluminum plate and AIR cavity daughters -> FR4 PCB and AIR sensor placeholders.-->
+  <!--SN1 and SN2 are AIR in source FLUKA, retained as explicit named daughters for requested region traceability.-->
+  <!--The positive-z top carrier is AIR and has a central cylindrical clearance. External overlaps MUST be checked in CMSSW.-->
+
+<SolidSection label="BCML2">
+  <Box name="BCML2_PosZCarrierBase" dx="15.25*cm" dy="79.25*cm" dz="3.35*cm" />
+  <Tubs name="BCML2_BeamClearance" rMin="0*cm" rMax="4.87*cm" dz="3.5*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <SubtractionSolid name="BCML2">
+    <rSolid name="BCML2_PosZCarrierBase" />
+    <rSolid name="BCML2_BeamClearance" />
+    <Translation x="0*cm" y="30.75*cm" z="0*cm" />
+  </SubtractionSolid>
+  <Box name="BCML2_PosXCaseBase" dx="7.365*cm" dy="14*cm" dz="2.35*cm" />
+  <Tubs name="BCML2_InnerHole487" rMin="0*cm" rMax="4.87*cm" dz="2.5*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <SubtractionSolid name="BCML2_PosXCaseSolid">
+    <rSolid name="BCML2_PosXCaseBase" />
+    <rSolid name="BCML2_InnerHole487" />
+    <Translation x="-7.535*cm" y="0*cm" z="0*cm" />
+  </SubtractionSolid>
+  <Box name="BCML2_AlPlateSolid" dx="0.15*cm" dy="14*cm" dz="2.2*cm" />
+  <Box name="BCML2_AirCavityBase" dx="7.2*cm" dy="13.15*cm" dz="1.9*cm" />
+  <Tubs name="BCML2_InnerHole490" rMin="0*cm" rMax="4.9*cm" dz="2.1*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <SubtractionSolid name="BCML2_AirCavitySolid">
+    <rSolid name="BCML2_AirCavityBase" />
+    <rSolid name="BCML2_InnerHole490" />
+    <Translation x="-7.4*cm" y="0*cm" z="0*cm" />
+  </SubtractionSolid>
+  <Box name="BCML2_PCBBase" dx="7.2*cm" dy="13.15*cm" dz="0.12*cm" />
+  <Tubs name="BCML2_PCBHole490" rMin="0*cm" rMax="4.9*cm" dz="0.2*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <SubtractionSolid name="BCML2_PCBSolid">
+    <rSolid name="BCML2_PCBBase" />
+    <rSolid name="BCML2_PCBHole490" />
+    <Translation x="-7.4*cm" y="0*cm" z="0*cm" />
+  </SubtractionSolid>
+  <Tubs name="BCML2_SN1Ring" rMin="5*cm" rMax="13*cm" dz="0.225*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <Tubs name="BCML2_SN2Ring" rMin="9*cm" rMax="13*cm" dz="0.9*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <Box name="BCML2_PosXClip" dx="6.4*cm" dy="13.15*cm" dz="1*cm" />
+  <IntersectionSolid name="BCML2_SN1Solid">
+    <rSolid name="BCML2_SN1Ring" />
+    <rSolid name="BCML2_PosXClip" />
+    <Translation x="6.6*cm" y="0*cm" z="0*cm" />
+  </IntersectionSolid>
+  <IntersectionSolid name="BCML2_SN2Solid">
+    <rSolid name="BCML2_SN2Ring" />
+    <rSolid name="BCML2_PosXClip" />
+    <Translation x="6.6*cm" y="0*cm" z="0*cm" />
+  </IntersectionSolid>
+  <Box name="BCML2_LegSolid" dx="3.5*cm" dy="79.25*cm" dz="1*cm" />
+</SolidSection>
+
+<LogicalPartSection label="BCML2">
+  <LogicalPart name="BCML2" category="unspecified">
+    <rSolid name="BCML2" />
+    <rMaterial name="materials:Air" />
+  </LogicalPart>
+  <LogicalPart name="BCML2_PosXCaseAssembly" category="unspecified">
+    <rSolid name="BCML2_PosXCaseSolid" />
+    <rMaterial name="brilMaterials:BRIL_FR4" />
+  </LogicalPart>
+  <LogicalPart name="BCML2_AlPlatePart" category="unspecified">
+    <rSolid name="BCML2_AlPlateSolid" />
+    <rMaterial name="materials:Aluminium" />
+  </LogicalPart>
+  <LogicalPart name="BCML2_AirCavityPart" category="unspecified">
+    <rSolid name="BCML2_AirCavitySolid" />
+    <rMaterial name="materials:Air" />
+  </LogicalPart>
+  <LogicalPart name="BCML2_PCBPart" category="unspecified">
+    <rSolid name="BCML2_PCBSolid" />
+    <rMaterial name="brilMaterials:BRIL_FR4" />
+  </LogicalPart>
+  <LogicalPart name="BCML2_SN1Part" category="unspecified">
+    <rSolid name="BCML2_SN1Solid" />
+    <rMaterial name="materials:Air" />
+  </LogicalPart>
+  <LogicalPart name="BCML2_SN2Part" category="unspecified">
+    <rSolid name="BCML2_SN2Solid" />
+    <rMaterial name="materials:Air" />
+  </LogicalPart>
+  <LogicalPart name="BCML2_LegPart" category="unspecified">
+    <rSolid name="BCML2_LegSolid" />
+    <rMaterial name="brilMaterial:BRIL_STSTEEL" />
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="BCML2">
+  <PosPart copyNumber="1">
+    <rParent name="bcml2:BCML2" />
+    <rChild name="bcml2:BCML2_PosXCaseAssembly" />
+    <Translation x="7.535*cm" y="30.75*cm" z="1*cm" />
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="bcml2:BCML2" />
+    <rChild name="bcml2:BCML2_PosXCaseAssembly" />
+    <Translation x="-7.535*cm" y="30.75*cm" z="1*cm" />
+    <rRotation name="rotations:R180" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="bcml2:BCML2_PosXCaseAssembly" />
+    <rChild name="bcml2:BCML2_AlPlatePart" />
+    <Translation x="7.215*cm" y="0*cm" z="0.15*cm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="bcml2:BCML2_PosXCaseAssembly" />
+    <rChild name="bcml2:BCML2_AirCavityPart" />
+    <Translation x="-0.135*cm" y="0*cm" z="0.15*cm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="bcml2:BCML2_AirCavityPart" />
+    <rChild name="bcml2:BCML2_PCBPart" />
+    <Translation x="0*cm" y="0*cm" z="-1.48*cm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="bcml2:BCML2_AirCavityPart" />
+    <rChild name="bcml2:BCML2_SN1Part" />
+    <Translation x="-7.4*cm" y="0*cm" z="-1.135*cm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="bcml2:BCML2_AirCavityPart" />
+    <rChild name="bcml2:BCML2_SN2Part" />
+    <Translation x="-7.4*cm" y="0*cm" z="-0.01*cm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="bcml2:BCML2" />
+    <rChild name="bcml2:BCML2_LegPart" />
+    <Translation x="11.75*cm" y="0*cm" z="-2.35*cm" />
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="bcml2:BCML2" />
+    <rChild name="bcml2:BCML2_LegPart" />
+    <Translation x="-11.75*cm" y="0*cm" z="-2.35*cm" />
+    <rRotation name="rotationns:180D" />
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>

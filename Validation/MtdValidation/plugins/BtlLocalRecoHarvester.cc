@@ -79,19 +79,19 @@ void BtlLocalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGette
   ibook.cd(folder_);
   meHitOccupancyLog_ =
       ibook.book1D("BtlHitOccupancyLog",
-                   "BTL cell occupancy vs RECO hit energy;log_{10}(E_{RECO} [MeV]); Occupancy per event",
+                   "BTL cell occupancy vs RECO hit energy;log_{10}(E_{RECO} [GeV]); Occupancy per event",
                    meBtlHitLogEnergy->getNbinsX(),
                    meBtlHitLogEnergy->getTH1()->GetXaxis()->GetXmin(),
                    meBtlHitLogEnergy->getTH1()->GetXaxis()->GetXmax());
   meHitOccupancy_ = ibook.book1D("BtlHitOccupancy",
-                                 "BTL cell occupancy vs RECO hit energy;E_{RECO} [MeV]; Occupancy per event",
+                                 "BTL cell occupancy vs RECO hit energy;E_{RECO} [GeV]; Occupancy per event",
                                  meBtlHitEnergy->getNbinsX(),
                                  meBtlHitEnergy->getTH1()->GetXaxis()->GetXmin(),
                                  meBtlHitEnergy->getTH1()->GetXaxis()->GetXmax());
   for (unsigned int ihistoRU = 0; ihistoRU < nRU_; ++ihistoRU) {
     std::string name_Energy = "BtlHitOccupancyRUSlice" + std::to_string(ihistoRU);
     std::string title_Energy = "BTL cell occupancy vs RECO hit energy (RU " + std::to_string(ihistoRU) +
-                               ");E_{RECO} [MeV]; Occupancy per event";
+                               ");E_{RECO} [GeV]; Occupancy per event";
     meHitOccupancyRUSlice_[ihistoRU] = ibook.book1D(name_Energy,
                                                     title_Energy,
                                                     meBtlHitEnergyRUSlice[ihistoRU]->getNbinsX(),

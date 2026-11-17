@@ -1369,7 +1369,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
               cms::soa::RangeChecking::Mode RANGE_CHECKING>                                                            \
     struct ConstViewTemplateFreeParams {                                                                               \
       /* these could be moved to an external type trait to free up the symbol names */                                 \
-      using self_type = ConstViewTemplateFreeParams;                                                                   \
       using BOOST_PP_CAT(CLASS, _parametrized) = CLASS<VIEW_ALIGNMENT, VIEW_ALIGNMENT_ENFORCEMENT>;                    \
       using size_type = cms::soa::size_type;                                                                           \
       using byte_size_type = cms::soa::byte_size_type;                                                                 \
@@ -1415,8 +1414,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         : parent_(_soa_impl_parent) {}                                                                                 \
         const ConstViewTemplateFreeParams& parent_;                                                                    \
       };                                                                                                               \
-                                                                                                                       \
-      friend Metadata;                                                                                                 \
                                                                                                                        \
       /**                                                                                                              \
       * Helper/friend class allowing access to size from columns.                                                      \
@@ -1476,7 +1473,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           cms::soa::RangeChecking::Mode OTHER_RANGE_CHECKING>                                                          \
       ConstViewTemplateFreeParams& operator=(ConstViewTemplateFreeParams<OTHER_VIEW_ALIGNMENT,                         \
           OTHER_VIEW_ALIGNMENT_ENFORCEMENT, OTHER_RESTRICT_QUALIFY, OTHER_RANGE_CHECKING> const& other)                \
-          { *this = other; }                                                                                           \
+          { return *this = ConstViewTemplateFreeParams(other); }                                                       \
                                                                                                                        \
       /* Movable */                                                                                                    \
       ConstViewTemplateFreeParams(ConstViewTemplateFreeParams &&) = default;                                           \
@@ -1487,6 +1484,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
       /* AoS-like accessor (const) */                                                                                  \
       struct const_element {                                                                                           \
+        using const_view_type = ConstViewTemplateFreeParams;                                                           \
         SOA_HOST_DEVICE SOA_INLINE                                                                                     \
         const_element(size_type                                                                                        \
            _APPEND_TOKEN(_ITERATE_ON_ALL(_DECLARE_CONST_VIEW_ELEMENT_VALUE_ARG, ~, __VA_ARGS__), _soa_impl_index)      \
@@ -1500,29 +1498,29 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         _ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER, ~, __VA_ARGS__)                                      \
       };                                                                                                               \
                                                                                                                        \
-        SOA_HOST_DEVICE SOA_INLINE                                                                                     \
-        const_element operator[](cms::soa::detail::IndexWithSourceLocation<rangeChecking> _soa_impl_index) const {     \
-          if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                          \
-            if (_soa_impl_index.value_ >= elements_ or _soa_impl_index.value_ < 0)                                     \
-              SOA_THROW_OUT_OF_RANGE("Out of range index in ConstViewTemplateFreeParams " #CLASS "::operator[]",       \
-                _soa_impl_index, elements_)                                                                            \
-          }                                                                                                            \
-          return const_element{_soa_impl_index.value_                                                                  \
-             _APPEND_COMMA(_ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__))                   \
-          };                                                                                                           \
+      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
+      const const_element operator[](cms::soa::detail::IndexWithSourceLocation<rangeChecking> _soa_impl_index) const { \
+        if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                            \
+          if (_soa_impl_index.value_ >= elements_ or _soa_impl_index.value_ < 0)                                       \
+            SOA_THROW_OUT_OF_RANGE("Out of range index in ConstViewTemplateFreeParams " #CLASS "::operator[]",         \
+              _soa_impl_index, elements_)                                                                              \
         }                                                                                                              \
+        return const_element{_soa_impl_index.value_                                                                    \
+            _APPEND_COMMA(_ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__))                    \
+        };                                                                                                             \
+      }                                                                                                                \
                                                                                                                        \
-        /* const accessors */                                                                                          \
-        _ITERATE_ON_ALL(_DECLARE_VIEW_SOA_CONST_ACCESSOR, ~, __VA_ARGS__)                                              \
-        ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_VIEW_METHODS, ~, __VA_ARGS__))                                    \
+      /* const accessors */                                                                                            \
+      _ITERATE_ON_ALL(_DECLARE_VIEW_SOA_CONST_ACCESSOR, ~, __VA_ARGS__)                                                \
+      ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_VIEW_METHODS, ~, __VA_ARGS__))                                      \
                                                                                                                        \
-        /* dump the SoA internal structure */                                                                          \
-        template <typename T>                                                                                          \
-        SOA_HOST_ONLY friend void dump();                                                                              \
+      /* dump the SoA internal structure */                                                                            \
+      template <typename T>                                                                                            \
+      SOA_HOST_ONLY friend void dump();                                                                                \
                                                                                                                        \
-        private:                                                                                                       \
-          size_type elements_ = 0;                                                                                     \
-          _ITERATE_ON_ALL(_DECLARE_CONST_VIEW_SOA_MEMBER, ~, __VA_ARGS__)                                              \
+      private:                                                                                                         \
+        size_type elements_ = 0;                                                                                       \
+        _ITERATE_ON_ALL(_DECLARE_CONST_VIEW_SOA_MEMBER, ~, __VA_ARGS__)                                                \
       };                                                                                                               \
                                                                                                                        \
     template <bool RESTRICT_QUALIFY, cms::soa::RangeChecking::Mode RANGE_CHECKING>                                     \
@@ -1539,7 +1537,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       : public ConstViewTemplateFreeParams<VIEW_ALIGNMENT, VIEW_ALIGNMENT_ENFORCEMENT,                                 \
                                            RESTRICT_QUALIFY, RANGE_CHECKING> {                                         \
       /* these could be moved to an external type trait to free up the symbol names */                                 \
-      using self_type = ViewTemplateFreeParams;                                                                        \
       using base_type = ConstViewTemplateFreeParams<VIEW_ALIGNMENT, VIEW_ALIGNMENT_ENFORCEMENT,                        \
                                                     RESTRICT_QUALIFY, RANGE_CHECKING>;                                 \
       using BOOST_PP_CAT(CLASS, _parametrized) = CLASS<VIEW_ALIGNMENT, VIEW_ALIGNMENT_ENFORCEMENT>;                    \
@@ -1558,9 +1555,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           alignmentEnforcement == AlignmentEnforcement::enforced ? alignment : 0;                                      \
       constexpr static bool restrictQualify = RESTRICT_QUALIFY;                                                        \
       constexpr static cms::soa::RangeChecking::Mode rangeChecking = RANGE_CHECKING;                                   \
-                                                                                                                       \
-      template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, cms::soa::RangeChecking::Mode>                                     \
-      friend struct ViewTemplateFreeParams;                                                                            \
                                                                                                                        \
       /**                                                                                                              \
        * Helper/friend class allowing SoA introspection.                                                               \
@@ -1585,8 +1579,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         : parent_(_soa_impl_parent) {}                                                                                 \
         const ViewTemplateFreeParams& parent_;                                                                         \
       };                                                                                                               \
-                                                                                                                       \
-      friend Metadata;                                                                                                 \
                                                                                                                        \
       /**                                                                                                              \
        * Helper/friend class allowing access to size from columns.                                                     \
@@ -1644,8 +1636,10 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                 bool OTHER_RESTRICT_QUALIFY,                                                                           \
                 cms::soa::RangeChecking::Mode OTHER_RANGE_CHECKING>                                                    \
       ViewTemplateFreeParams& operator=(ViewTemplateFreeParams<OTHER_VIEW_ALIGNMENT,                                   \
-        OTHER_VIEW_ALIGNMENT_ENFORCEMENT, OTHER_RESTRICT_QUALIFY, OTHER_RANGE_CHECKING> const& other)                  \
-          { static_cast<base_type>(*this) = static_cast<base_type>(other); }                                           \
+        OTHER_VIEW_ALIGNMENT_ENFORCEMENT, OTHER_RESTRICT_QUALIFY, OTHER_RANGE_CHECKING> const& other) {                \
+        static_cast<base_type&>(*this) = static_cast<base_type const&>(other);                                         \
+        return *this;                                                                                                  \
+        }                                                                                                              \
                                                                                                                        \
       /* Movable */                                                                                                    \
       ViewTemplateFreeParams(ViewTemplateFreeParams &&) = default;                                                     \
@@ -1656,11 +1650,13 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
       /* AoS-like accessor (const) */                                                                                  \
       using const_element = typename base_type::const_element;                                                         \
-                                                                                                                       \
+      /* inherit const accessors from ConstView */                                                                     \
       using base_type::operator[];                                                                                     \
                                                                                                                        \
       /* AoS-like accessor (mutable) */                                                                                \
       struct element {                                                                                                 \
+        using const_view_type = typename ViewTemplateFreeParams::base_type;                                            \
+        using value_element = typename BOOST_PP_CAT(CLASS, _parametrized)::Metadata::value_element;                    \
         SOA_HOST_DEVICE SOA_INLINE                                                                                     \
         element(size_type                                                                                              \
                 _APPEND_TOKEN(_ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_VALUE_ARG, ~, __VA_ARGS__), _soa_impl_index)       \
@@ -1676,9 +1672,17 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           _ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_VALUE_COPY, ~, __VA_ARGS__)                                            \
           return *this;                                                                                                \
         }                                                                                                              \
+        /* Assignment operator element and const_element coming from a view with different templates */                \
+        template <typename OTHER_ELEMENT>                                                                              \
+          requires std::is_convertible_v<typename OTHER_ELEMENT::const_view_type, const_view_type>                     \
+        SOA_HOST_DEVICE SOA_INLINE                                                                                     \
+        element& operator=(const OTHER_ELEMENT& _soa_impl_other) {                                                     \
+          _ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_VALUE_COPY, ~, __VA_ARGS__)                                            \
+          return *this;                                                                                                \
+        }                                                                                                              \
         /* Extra operator=() for mutable element to emulate the aggregate initialisation syntax */                     \
-        SOA_HOST_DEVICE SOA_INLINE constexpr element & operator=(const typename                                        \
-            BOOST_PP_CAT(CLASS, _parametrized)::Metadata::value_element _soa_impl_value) {                             \
+        SOA_HOST_DEVICE SOA_INLINE                                                                                     \
+        element& operator=(const value_element& _soa_impl_value) {                                                     \
           _ITERATE_ON_ALL(_TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT, ~, __VA_ARGS__)                                          \
           return *this;                                                                                                \
         }                                                                                                              \
@@ -1700,8 +1704,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           _soa_impl_index.value_ _APPEND_COMMA(_ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__))     \
         };                                                                                                             \
       }                                                                                                                \
-                                                                                                                       \
-      /* inherit const accessors from ConstView */                                                                     \
                                                                                                                        \
       /* non-const accessors */                                                                                        \
       _ITERATE_ON_ALL(_DECLARE_VIEW_SOA_ACCESSOR, ~, __VA_ARGS__)                                                      \

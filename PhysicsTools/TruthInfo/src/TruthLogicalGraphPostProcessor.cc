@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "PhysicsTools/TruthInfo/interface/TruthLevels.h"
 #include "SimDataFormats/TruthInfo/interface/InteractionId.h"
 
@@ -846,8 +847,8 @@ namespace {
 
   // The roots a selection names: the most upstream seed matches, narrowed to those whose
   // effective decay matches a configured group, or the direct decay-pattern search when
-  // the generator wrote no explicit resonance. ONE computation, so the Signal flag and
-  // the selection cannot disagree about what the signal of the event is.
+  // the generator wrote no explicit resonance. ONE computation for the selection and the
+  // Signal flag. The flag takes no fallback, which returns decay products, not a resonance.
   // signalInteractionOnly keeps only roots that are GEN particles of the signal
   // interaction, which is what the Signal flag means. The selection keeps every
   // interaction, and the bunch-crossing filter removes pile-up.
@@ -1031,7 +1032,7 @@ namespace {
     // production vertices were all dropped: stable spectators -> UnderlyingEvent,
     // beam-side input -> BeamSideInput,
     // selected roots / truncated ancestors at the upstream boundary -> InitialState.
-    // True sources of the input graph stay sources. When
+    // Other true sources of the input graph stay sources. When
     // attachSelectionSources is false these particles instead become true graph
     // roots (no production vertex), so each selected seed yields a self-contained
     // subgraph starting directly at the seed (e.g. ten taus -> ten components).
@@ -1208,7 +1209,10 @@ namespace {
     const uint32_t nParticles = input.nParticles();
     const uint32_t nVertices = input.nVertices();
 
-    if (nParticles == 0 || particleDirectHit.size() != nParticles)
+    if (particleDirectHit.size() != nParticles)
+      throw cms::Exception("LogicError") << "dropHitlessSimSubgraphs: particleDirectHit holds "
+                                         << particleDirectHit.size() << " entries for " << nParticles << " particles";
+    if (nParticles == 0)
       return input;
 
     // Upward closure of the direct-hit set: a particle has a non-empty subgraph
@@ -1288,9 +1292,10 @@ namespace {
     };
     sweepDownstream(0);
 
-    // A decayed GEN particle whose remaining decay products are all invisible and without
-    // hits below them goes too, with those products, and so on upward. Status 2 is the HepMC code for a hadron or
-    // tau that the generator decayed (Pythia8, Herwig7, Sherpa).
+    // A decayed GEN particle with no hit of its own, whose remaining decay products are all
+    // invisible and without hits below them, goes too, with those products, and so on
+    // upward. Status 2 is the HepMC code for a hadron or tau that the generator decayed
+    // (Pythia8, Herwig7, Sherpa).
     auto leftWithoutVisibleProducts = [&](uint32_t particleId) {
       for (const uint32_t vertexId : input.decayVertices(particleId)) {
         if (vertexId >= nVertices)
@@ -1312,7 +1317,8 @@ namespace {
           if (parentId >= nParticles || removeParticle[parentId])
             continue;
           auto const& parent = input.particles()[parentId];
-          if (parent.hasGen() && parent.status == 2 && leftWithoutVisibleProducts(parentId)) {
+          if (parent.hasGen() && parent.status == 2 && !subgraphHasHit[parentId] &&
+              leftWithoutVisibleProducts(parentId)) {
             const std::size_t first = removalQueue.size();
             removeParticle[parentId] = 1;
             removalQueue.push_back(parentId);

@@ -378,6 +378,8 @@ class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(testReconstructableWithoutHitsIsDropped);
   CPPUNIT_TEST(testDecayedGenParticleWithoutProductsIsDropped);
   CPPUNIT_TEST(testInvisibleProductWithHitsKeepsItsParent);
+  CPPUNIT_TEST(testDecayedParentWithOwnHitIsKept);
+  CPPUNIT_TEST(testMisalignedHitVectorThrows);
   CPPUNIT_TEST(testAttachSelectionSourcesFalseRootsSeedsDirectly);
   CPPUNIT_TEST(testEventIdKeyingSplitsInteractions);
   CPPUNIT_TEST(testSignalOnlyAndBunchCrossingFilterDropPileup);
@@ -422,6 +424,8 @@ public:
   void testReconstructableWithoutHitsIsDropped();
   void testDecayedGenParticleWithoutProductsIsDropped();
   void testInvisibleProductWithHitsKeepsItsParent();
+  void testDecayedParentWithOwnHitIsKept();
+  void testMisalignedHitVectorThrows();
   void testAttachSelectionSourcesFalseRootsSeedsDirectly();
   void testEventIdKeyingSplitsInteractions();
   void testSignalOnlyAndBunchCrossingFilterDropPileup();
@@ -2144,6 +2148,59 @@ void TestTruthLogicalGraphPostProcessor::testDecayedGenParticleWithoutProductsIs
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);
   }
+}
+
+// REQUIRED: the upward removal never deletes a decayed particle that carries a hit itself,
+// because the hit index keeps its hits.
+void TestTruthLogicalGraphPostProcessor::testDecayedParentWithOwnHitIsKept() {
+  try {
+    //   p -> v0 -> Xi-(hit), pi+(hit) ; Xi- -> v1 -> nu_e(no hit)
+    GraphBuilder builder(4, 2);
+
+    builder.setGenParticle(0, 2212, 4, 100);
+    builder.setGenSimParticle(1, 3312, 2, 101, 1001);
+    builder.setGenSimParticle(2, 211, 1, 102, 1002);
+    builder.setGenSimParticle(3, 12, 1, 103, 1003);
+
+    builder.setGenVertex(0, 200);
+    builder.setGenVertex(1, 201);
+
+    builder.addDecay(0, 0);
+    builder.addProduction(0, 1);
+    builder.addProduction(0, 2);
+    builder.addDecay(1, 1);
+    builder.addProduction(1, 3);
+
+    auto config = defaultConfig();
+    config.dropHitlessSimSubgraphs = true;
+
+    const std::vector<uint8_t> particleDirectHit = {0, 1, 1, 0};
+    auto output = runPostProcessing(builder.finish(), config, particleDirectHit);
+
+    CPPUNIT_ASSERT(output.isConsistent());
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 3312));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 12));
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+// REQUIRED: a hit vector that does not align with the graph is an error, never a graph
+// that is silently left unpruned.
+void TestTruthLogicalGraphPostProcessor::testMisalignedHitVectorThrows() {
+  GraphBuilder builder(2, 1);
+  builder.setGenParticle(0, 2212, 4, 100);
+  builder.setGenSimParticle(1, 211, 1, 101, 1001);
+  builder.setGenVertex(0, 200);
+  builder.addDecay(0, 0);
+  builder.addProduction(0, 1);
+
+  auto config = defaultConfig();
+  config.dropHitlessSimSubgraphs = true;
+
+  const std::vector<uint8_t> tooShort = {1};
+  CPPUNIT_ASSERT_THROW(runPostProcessing(builder.finish(), config, tooShort), cms::Exception);
 }
 
 void TestTruthLogicalGraphPostProcessor::testInvisibleProductWithHitsKeepsItsParent() {

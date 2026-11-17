@@ -59,7 +59,7 @@ namespace mkfit {
     m_event = ev;
   }
 
-  void MkFinder::release() {
+  void MkFinder::reset() {
     m_prop_config = nullptr;
     m_iteration_config = nullptr;
     m_iteration_params = nullptr;

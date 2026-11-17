@@ -273,9 +273,6 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
           binJetTagPlotters[iJetLabel][iPlotter]->analyzeTag(*tagI, jec, -1);
       }
     }
-    for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
-      binJetTagPlotters[iJetLabel][iPlotter]->analyzeTag();
-    }
   }
 
   // Now look at Tag Correlations

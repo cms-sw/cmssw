@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from ..modules.hltEgammaCandidatesUnseeded_cfi import *
 from ..modules.hltEgammaElectronPixelSeedsUnseeded_cfi import *
+from ..modules.hltEgammaUnfittedElectronPixelSeedsUnseeded_cfi import *
 from ..modules.hltEgammaHoverEUnseeded_cfi import *
 from ..modules.hltEgammaPixelMatchVarsUnseeded_cfi import *
 from ..modules.hltEgammaSuperClustersToPixelMatchUnseeded_cfi import *
@@ -19,4 +20,22 @@ from ..modules.hltMeasurementTrackerEvent_cfi import *
 from ..sequences.HLTDoLocalPixelSequence_cfi import *
 from ..sequences.HLTDoLocalStripSequence_cfi import *
 
-HLTElePixelMatchUnseededSequence = cms.Sequence(HLTDoLocalPixelSequence+HLTDoLocalStripSequence+(hltEgammaCandidatesUnseeded+hltEgammaHoverEUnseeded+hltMeasurementTrackerEvent+hltPixelLayerTriplets+hltEgammaSuperClustersToPixelMatchUnseeded+hltEleSeedsTrackingRegionsUnseeded+hltElePixelHitDoubletsForTripletsUnseeded+hltElePixelHitTripletsUnseeded+hltElePixelSeedsTripletsUnseeded+hltElePixelHitTripletsClusterRemoverUnseeded+hltPixelLayerPairsUnseeded+hltElePixelHitDoubletsUnseeded+hltElePixelSeedsDoubletsUnseeded+hltElePixelSeedsCombinedUnseeded+hltEgammaElectronPixelSeedsUnseeded+hltEgammaPixelMatchVarsUnseeded))
+HLTElePixelMatchUnseededSequence = cms.Sequence(HLTDoLocalPixelSequence
+    +HLTDoLocalStripSequence
+    +(hltEgammaCandidatesUnseeded
+    +hltEgammaHoverEUnseeded
+    +hltMeasurementTrackerEvent
+    +hltPixelLayerTriplets
+    +hltEgammaSuperClustersToPixelMatchUnseeded
+    +hltEleSeedsTrackingRegionsUnseeded
+    +hltElePixelHitDoubletsForTripletsUnseeded
+    +hltElePixelHitTripletsUnseeded
+    +hltElePixelSeedsTripletsUnseeded
+    +hltElePixelHitTripletsClusterRemoverUnseeded
+    +hltPixelLayerPairsUnseeded
+    +hltElePixelHitDoubletsUnseeded
+    +hltElePixelSeedsDoubletsUnseeded
+    +hltElePixelSeedsCombinedUnseeded
+    +hltEgammaUnfittedElectronPixelSeedsUnseeded
+    +hltEgammaElectronPixelSeedsUnseeded
+    +hltEgammaPixelMatchVarsUnseeded))

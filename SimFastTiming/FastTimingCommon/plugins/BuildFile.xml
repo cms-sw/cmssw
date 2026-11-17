@@ -4,5 +4,7 @@
 <use name="SimGeneral/MixingModule"/>
 <use name="SimGeneral/PreMixingModule"/>
 <use name="SimFastTiming/FastTimingCommon"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/MTDObjects"/>
 <use name="root"/>
 <flags EDM_PLUGIN="1"/>

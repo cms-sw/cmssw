@@ -19,9 +19,9 @@ void SiStripClusterInfo::setCluster(const SiStripCluster& cluster, int detId) {
 }
 
 std::pair<uint16_t, uint16_t> SiStripClusterInfo::chargeLR() const {
-  std::vector<uint8_t>::const_iterator begin(stripCharges().begin()), end(stripCharges().end()), max;
-  max = max_element(begin, end);
-  return std::make_pair(accumulate(begin, max, uint16_t(0)), accumulate(max + 1, end, uint16_t(0)));
+  auto begin = stripCharges().begin(), end = stripCharges().end();
+  auto max = std::max_element(begin, end);
+  return std::make_pair(std::accumulate(begin, max, uint16_t(0)), std::accumulate(max + 1, end, uint16_t(0)));
 }
 
 float SiStripClusterInfo::variance() const {

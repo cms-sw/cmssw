@@ -91,8 +91,9 @@ TruthBranchTargetsProducer::TruthBranchTargetsProducer(edm::ParameterSet const& 
   // members of the hard-process and parton-jet denominators and a truth object that is
   // not a candidate can never be matched.
   produces<std::vector<unsigned int>>("assignableRoots");
+  // The preset seeds that pass every selector cut and are not invisible.
   produces<std::vector<unsigned int>>("signalSeeds");
-  // The same seed species without any selector cut, so an efficiency can be quoted
+  // The same seed species without any cut, so an efficiency can be quoted
   // against EVERY seed in the event and not only against those the kinematic selection
   // kept. The two denominators together separate "not reconstructed" from "never
   // offered": on 200 no-PU ttbar events the selector keeps 390 of the 400 tops.
@@ -192,8 +193,10 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
     // particles).
     // denominatorRoots holds only the selector-passing roots here; the level targets
     // join it below.
+    // An invisible seed, for example the neutrino of a neutrino gun, is not part of the
+    // signal efficiency denominator. NoSelection keeps it: that denominator has no cut.
     for (uint32_t id : *denominatorRoots) {
-      if (isSignalSeed(id)) {
+      if (isSignalSeed(id) && !truth::isInvisibleParticle(graph, id)) {
         signalSeeds->push_back(id);
       }
     }
@@ -239,6 +242,11 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
       if (!isDenominatorRoot[id]) {
         isDenominatorRoot[id] = true;
         denominatorRoots->push_back(id);
+      }
+      // An invisible member stays in the level but no reco object can find it, so it is
+      // not part of the efficiency denominator.
+      if (truth::isInvisibleParticle(graph, id)) {
+        continue;
       }
       targets->push_back(id);
       eligibility->push_back(failed);
