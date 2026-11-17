@@ -6,7 +6,13 @@ clusterMonitorOT = Phase2OTMonitorCluster.clone(
         PositionOfClusters_2S = Phase2OTMonitorCluster.PositionOfClusters_2S.clone(
             switch = cms.bool(False)
         ),
+        xCorrelationModule_2S = Phase2OTMonitorCluster.xCorrelationModule_2S.clone(
+            switch = cms.bool(False)
+        ),
         CrackOverview = Phase2OTMonitorCluster.CrackOverview.clone(
+            switch = cms.bool(False)
+        ),
+        CrackClusterSizeMap = Phase2OTMonitorCluster.CrackClusterSizeMap.clone(
             switch = cms.bool(False)
         )
 )
@@ -23,14 +29,23 @@ clusterMonitorCRACK = Phase2OTMonitorCluster.clone(
         ymax = cms.double(2.5),
         switch = cms.bool(True)
     ),
+    xCorrelationModule_2S = Phase2OTMonitorCluster.xCorrelationModule_2S.clone(
+            switch = cms.bool(True)
+    ),
     CrackOverview = Phase2OTMonitorCluster.CrackOverview.clone(
         name = cms.string('Crack_Overview_clusters'),
         title = cms.string('Crack_Overview_clusters;Module;Layer'),
-        xmin = cms.double(0.0),
-        xmax = cms.double(13.0),
-        ymin = cms.double(0.0),
-        ymax = cms.double(7.5),
         switch = cms.bool(True)
+    ),
+    CrackClusterSizeMap = Phase2OTMonitorCluster.CrackClusterSizeMap.clone(
+        switch = cms.bool(True)
+    ),
+    # No P modules in CRACK (yet)
+    GlobalPositionXY_P = Phase2OTMonitorCluster.GlobalPositionXY_P.clone(
+        switch = cms.bool(False)
+    ),
+    GlobalPositionRZ_P = Phase2OTMonitorCluster.GlobalPositionRZ_P.clone(
+        switch = cms.bool(False)
     ),
     # Changes to x/y ranges for CRACK readability
     PositionOfClusters_2SLadder = Phase2OTMonitorCluster.PositionOfClusters_2SLadder.clone(
@@ -53,8 +68,10 @@ clusterMonitorCRACK = Phase2OTMonitorCluster.clone(
     GlobalPositionRZ_S = Phase2OTMonitorCluster.GlobalPositionRZ_S.clone(
         xmin = cms.double(-70.0),
         xmax = cms.double(70.0),
+        NxBins = cms.int32(70),
         ymin = cms.double(0.0),
-        ymax = cms.double(60.0)
+        ymax = cms.double(60.0),
+        NyBins = cms.int32(40)
     ),
     NClustersLayer_S = Phase2OTMonitorCluster.NClustersLayer_S.clone(
         xmax = cms.double(50.0),

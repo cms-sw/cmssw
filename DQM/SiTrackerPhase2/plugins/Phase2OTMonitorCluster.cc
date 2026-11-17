@@ -68,6 +68,7 @@ private:
   MonitorElement* globalRZ_S_;
   MonitorElement* numberClusters_Barrel_;
   MonitorElement* crackOverview_;
+  MonitorElement* clusterSize_map_CRACK;
 
   void fillOTHistos(const edm::Event& iEvent);
 
@@ -166,7 +167,10 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
         globalRZ_S_->Fill(gz, gr);
       }
       if (detId.subdetId() == SiStripSubdetector::TOB) {
-        numberClusters_Barrel_->Fill(layer);
+        if (clusterSize_map_CRACK)
+          clusterSize_map_CRACK->Fill(module, layer, clusterItr.size());
+        if (numberClusters_Barrel_)
+          numberClusters_Barrel_->Fill(layer);
         if (mType == TrackerGeometry::ModuleType::Ph2SS) {
           //If column is on the bottom of the sensor, *-1 to distinguish it from top
           topOrBottomColumn = (isLowerSensor ? (clusterItr.column() + 1) * -1 : (clusterItr.column() + 1));
@@ -255,14 +259,14 @@ void Phase2OTMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
   ibooker.setCurrentFolder(top_folder);
   edm::LogInfo("Phase2OTMonitorCluster") << " Booking Histograms in: " << top_folder;
 
-  edm::ParameterSet Parameters = config_.getParameter<edm::ParameterSet>("CrackOverview");
-  if (Parameters.getParameter<bool>("switch")) {
-    crackOverview_ = ibooker.book2DPoly(Parameters.getParameter<std::string>("name"),
-                                        Parameters.getParameter<std::string>("title"),
-                                        Parameters.getParameter<double>("xmin"),
-                                        Parameters.getParameter<double>("xmax"),
-                                        Parameters.getParameter<double>("ymin"),
-                                        Parameters.getParameter<double>("ymax"));
+  edm::ParameterSet crack_overview_par = config_.getParameter<edm::ParameterSet>("CrackOverview");
+  if (crack_overview_par.getParameter<bool>("switch")) {
+    crackOverview_ = ibooker.book2DPoly(crack_overview_par.getParameter<std::string>("name"),
+                                        crack_overview_par.getParameter<std::string>("title"),
+                                        crack_overview_par.getParameter<double>("xmin"),
+                                        crack_overview_par.getParameter<double>("xmax"),
+                                        crack_overview_par.getParameter<double>("ymin"),
+                                        crack_overview_par.getParameter<double>("ymax"));
     if (crackOverview_->getTH2Poly()->GetNumberOfBins() == 0) {
       double yOffset = 0;
       for (int layer = 1; layer < 7; layer++) {
@@ -280,6 +284,24 @@ void Phase2OTMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
 
   } else
     crackOverview_ = nullptr;
+
+  edm::ParameterSet crack_cluster_size_map = config_.getParameter<edm::ParameterSet>("CrackClusterSizeMap");
+  if (crack_cluster_size_map.getParameter<bool>("switch")) {
+    clusterSize_map_CRACK = ibooker.bookProfile2D(crack_cluster_size_map.getParameter<std::string>("name"),
+                                                  crack_cluster_size_map.getParameter<std::string>("title"),
+                                                  crack_cluster_size_map.getParameter<int32_t>("NxBins"),
+                                                  crack_cluster_size_map.getParameter<double>("xmin"),
+                                                  crack_cluster_size_map.getParameter<double>("xmax"),
+                                                  crack_cluster_size_map.getParameter<int32_t>("NyBins"),
+                                                  crack_cluster_size_map.getParameter<double>("ymin"),
+                                                  crack_cluster_size_map.getParameter<double>("ymax"),
+                                                  0,  // zmin (ignored)
+                                                  0   // zmax (ignored)
+    );
+    clusterSize_map_CRACK->getTProfile2D()->SetStats(false);
+    clusterSize_map_CRACK->setOption("colz");
+  } else
+    clusterSize_map_CRACK = nullptr;
 
   ibooker.setCurrentFolder(top_folder + "/Positions/");
   globalXY_P_ = phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_P"), ibooker);
@@ -423,19 +445,22 @@ void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
 void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  // CRACK
+  phase2tkutil::getTemplatePSets(desc);
+  // CRACK specific geometry
   phase2tkutil::add2DDesc(desc,
-                          "CrackOverview",
-                          "Crack_Overview_OT_Cluster",
-                          "Crack_Overview_OT_Clusters",
+                          "CrackClusterSizeMap",
+                          "Crack_ClusterSize",
+                          "CRACK cluster size map",
                           "Module",
                           "Layer",
-                          0,
-                          0.0,
-                          13.0,
-                          0,
-                          0.0,
-                          7.5);
+                          12,
+                          0.5,
+                          12.5,
+                          6,
+                          0.5,
+                          6.5);
+  // Works with many geometries,
+  // but should be off by default.
   phase2tkutil::add2DDesc(desc,
                           "PositionOfClusters_2S",
                           "Position_Clusters_2S_module",
