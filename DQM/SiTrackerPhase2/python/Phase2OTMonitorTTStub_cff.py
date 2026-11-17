@@ -11,10 +11,6 @@ TTStubMonitorCRACK = Phase2OTMonitorTTStub.clone(
     CrackOverview = Phase2OTMonitorTTStub.CrackOverview.clone(
         name = cms.string('Crack_Overview_stubs'),
         title = cms.string('Crack_Overview_stubs;Module;Layer'),
-        xmin = cms.double(0.0),
-        xmax = cms.double(13.0),
-        ymin = cms.double(0.0),
-        ymax = cms.double(7.5),
         switch = cms.bool(True)
     ),
     # Changes to x/y ranges for CRACK readability

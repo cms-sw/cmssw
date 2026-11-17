@@ -351,18 +351,7 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
   edm::ParameterSetDescription desc;
 
   // CRACK
-  phase2tkutil::add2DDesc(desc,
-                          "CrackOverview",
-                          "Crack_Overview_L1Stubs",
-                          "Crack_Overview_stubs",
-                          "Module",
-                          "Layer",
-                          13.0,
-                          0.0,
-                          13,
-                          0.0,
-                          7.5,
-                          13);
+  phase2tkutil::getTemplatePSets(desc);
 
   // Position
   phase2tkutil::add2DDesc(desc,

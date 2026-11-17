@@ -116,10 +116,6 @@ CRACKDigiMon = digiMon.clone(
     StandAloneClusteriserFlag = False,
     TopFolderName = "OuterTracker",
     CrackOverview = digiMon.CrackOverview.clone(
-        xmin = 0,
-        xmax = 13.5,
-        ymin = 0,
-        ymax = 7.5,
         switch = True
     ),
     XYPositionMapH = digiMon.XYPositionMapH.clone(
