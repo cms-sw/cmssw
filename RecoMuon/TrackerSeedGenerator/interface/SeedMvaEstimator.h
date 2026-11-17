@@ -52,8 +52,12 @@ public:
                     const l1t::MuonBxCollection&,
                     const reco::RecoChargedCandidateCollection&) const;
 
+  // number of input variables declared in the weights file
+  unsigned int nVariables() const { return nVariables_; }
+
 private:
   std::unique_ptr<const GBRForest> gbrForest_;
+  unsigned int nVariables_;
   const std::vector<float> scale_mean_;
   std::vector<float> scale_istd_;
   const bool isFromL1_;

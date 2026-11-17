@@ -33,8 +33,6 @@ protected:
 
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
   edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> ee_geometry_token_;
   edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> hef_geometry_token_;
   edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> hfnose_geometry_token_;

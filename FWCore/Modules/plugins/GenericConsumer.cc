@@ -93,7 +93,7 @@ namespace edm {
         case InLumi:
           for (auto const& label : lumiProducts_)
             if (label.match(branch)) {
-              this->consumes<edm::InLumi>(
+              this->consumes<edm::InLumi, edm::Transition::BeginLuminosityBlock>(
                   edm::TypeToGet{branch.unwrappedTypeID(), PRODUCT_TYPE},
                   edm::InputTag{branch.moduleLabel(), branch.productInstanceName(), branch.processName()});
               if (verbose_) {
@@ -109,7 +109,7 @@ namespace edm {
         case InRun:
           for (auto const& label : runProducts_)
             if (label.match(branch)) {
-              this->consumes<edm::InRun>(
+              this->consumes<edm::InRun, edm::Transition::BeginRun>(
                   edm::TypeToGet{branch.unwrappedTypeID(), PRODUCT_TYPE},
                   edm::InputTag{branch.moduleLabel(), branch.productInstanceName(), branch.processName()});
               if (verbose_) {

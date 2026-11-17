@@ -10,8 +10,6 @@ HeterogeneousHGCalRecHitsValidator::HeterogeneousHGCalRecHitsValidator(const edm
       treenames_({{"CEE", "CHSi", "CHSci"}}) {
   usesResource(TFileService::kSharedResource);
   ticlGeomToken_ = esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""));
-  ticlGeomLookupToken_ = esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", ""));
-  ticlGeomLayersToken_ = esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""));
   edm::Service<TFileService> fs;
   for (unsigned i(0); i < nsubdetectors; ++i) {
     estokens_[i] = esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", handles_str_[i]});
@@ -31,8 +29,7 @@ void HeterogeneousHGCalRecHitsValidator::set_geometry_(const edm::EventSetup &se
 }
 
 void HeterogeneousHGCalRecHitsValidator::analyze(const edm::Event &event, const edm::EventSetup &setup) {
-  recHitTools_.setGeometry(
-      setup.getData(ticlGeomToken_), setup.getData(ticlGeomLookupToken_), setup.getData(ticlGeomLayersToken_));
+  recHitTools_.setGeometry(setup.getData(ticlGeomToken_));
 
   //future subdetector loop
   for (size_t idet = 0; idet < nsubdetectors; ++idet) {
