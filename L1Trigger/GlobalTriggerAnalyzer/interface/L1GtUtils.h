@@ -240,6 +240,8 @@ public:
     std::vector<std::pair<std::string, int> > m_errorCodes;
   };
 
+  void retrieveL1GtTriggerMenuLite(const edm::Run&, bool iFromBeginRun);
+
 public:
   /// public methods
 
@@ -250,9 +252,6 @@ public:
   void retrieveL1EventSetup(const edm::EventSetup&, bool isRun = true);
 
   /// retrieve L1GtTriggerMenuLite (per run product) and cache it to improve the speed
-
-  ///    for use in beginRun(const edm::Run&, const edm::EventSetup&);
-  void retrieveL1GtTriggerMenuLite(const edm::Run&);
 
   /// get all the run-constant quantities for L1 trigger and cache them
 
