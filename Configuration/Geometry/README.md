@@ -162,5 +162,5 @@ Several detector combinations have been generated:
 * D126 = T37+C27+M17+I21+O11+F10 (Most up-to-date scenario)
 * D127 = T35+C27+M17+I21+O11+F10
 * D128 = T35+C27+M16+I21+O11+F10 (Phase-2 baseline from CMSSW_20_1_0_pre4, for trigger studies)
-* D130 = T40+C27+M16+I21+O11+F10
-* D131 = T41+C27+M16+I21+O11+F10
+* D129 = T40+C27+M16+I21+O11+F10
+* D130 = T41+C27+M16+I21+O11+F10
