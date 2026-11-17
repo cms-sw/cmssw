@@ -52,9 +52,10 @@ void TTStubAlgorithm_official<Ref_Phase2TrackerDigi_>::PatternHitCorrelation(
   if (isPS && top0->bigpixelsX()) {
     float shift = 0.0;
     for (int ipix = 0; ipix <= int(mp0.x()); ipix++) {
-      if (top0->isItBigPixelInX(ipix)) shift += top0->pixelFractionInX(ipix) - 1;
+      if (top0->isItBigPixelInX(ipix))
+        shift += top0->pixelFractionInX(ipix) - 1;
     }
-    mp0 = MeasurementPoint(mp0.x()+shift, mp0.y());
+    mp0 = MeasurementPoint(mp0.x() + shift, mp0.y());
   }
 
   //  if ( ratio == 1 ) /// 2S Modules

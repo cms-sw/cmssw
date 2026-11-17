@@ -49,16 +49,16 @@ public:
     // that is simply the half-size.
     // Take into account large pixels
     // Inner Tracker: quad planar is 670*0.025 + 2*0.0875; dual planar is 336* 0.025; 3D is 336*0.025; old geom is 672*faxe pitch_x
-   
-    m_xoffset = m_ROCS_X*( (m_ROWS_PER_ROC-BIG_PIX_PER_ROC_X)*m_pitchx + BIG_PIX_PER_ROC_X*BIG_PIX_PITCH_X );
-    m_xoffset *= -0.5;  
 
-    m_yoffset = m_ROCS_Y*( (m_COLS_PER_ROC-BIG_PIX_PER_ROC_Y)*m_pitchy + BIG_PIX_PER_ROC_Y*BIG_PIX_PITCH_Y );
-    m_yoffset *= -0.5;  
+    m_xoffset = m_ROCS_X * ((m_ROWS_PER_ROC - BIG_PIX_PER_ROC_X) * m_pitchx + BIG_PIX_PER_ROC_X * BIG_PIX_PITCH_X);
+    m_xoffset *= -0.5;
 
-    if ( m_BIG_PIX_PER_ROC_X != 0 )
+    m_yoffset = m_ROCS_Y * ((m_COLS_PER_ROC - BIG_PIX_PER_ROC_Y) * m_pitchy + BIG_PIX_PER_ROC_Y * BIG_PIX_PITCH_Y);
+    m_yoffset *= -0.5;
+
+    if (m_BIG_PIX_PER_ROC_X != 0)
       m_BIG_PIX_LIST_X = MakeBigPixelList(m_BIG_PIX_PER_ROC_X, m_ROWS_PER_ROC, m_ROCS_X, m_BIG_PIX_TWOEDGES_X);
-    if ( m_BIG_PIX_PER_ROC_Y != 0 )
+    if (m_BIG_PIX_PER_ROC_Y != 0)
       m_BIG_PIX_LIST_Y = MakeBigPixelList(m_BIG_PIX_PER_ROC_Y, m_COLS_PER_ROC, m_ROCS_Y, m_BIG_PIX_TWOEDGES_Y);
 
     LogDebug("RectangularPixelPhase2Topology")
@@ -68,7 +68,6 @@ public:
         << ", BIG_PIX_PITCH_Y " << BIG_PIX_PITCH_Y << ", ROWS_PER_ROC " << ROWS_PER_ROC << ", COLS_PER_ROC "
         << COLS_PER_ROC << ", ROCS_X " << ROCS_X << ", ROCS_Y " << ROCS_Y << "\nNROWS " << m_ROWS_PER_ROC * m_ROCS_X
         << ", NCOL " << m_COLS_PER_ROC * m_ROCS_Y;
-
   }
 
   // Topology interface, go from Masurement to Local corrdinates
@@ -85,7 +84,14 @@ public:
   // Transform LocalPoint in cm to measurement in pitch units.
   std::pair<float, float> pixel(const LocalPoint& p) const override;
   //
-  float ConvertPixelToPitch(const float local_pos, const int n_rocrowsorcols, const int nroc, const float sensoractive_half_size, const float pitch, const int big_pix_per_roc, const float big_pix_pitch, const bool big_pix_twoedges) const; 
+  float ConvertPixelToPitch(const float local_pos,
+                            const int n_rocrowsorcols,
+                            const int nroc,
+                            const float sensoractive_half_size,
+                            const float pitch,
+                            const int big_pix_per_roc,
+                            const float big_pix_pitch,
+                            const bool big_pix_twoedges) const;
 
   // Errors
   // Error in local (cm) from the masurement errors
@@ -107,33 +113,46 @@ public:
   float localX(const float mpX) const override;
   float localY(const float mpY) const override;
   //
-  float localCoordinate(const float mp_pos, const int n_rocrowsorcols, const int nroc, const float m_offset, const float pitch, const int big_pix_per_roc, const float big_pix_pitch, const bool big_pix_twoedges) const;
+  float localCoordinate(const float mp_pos,
+                        const int n_rocrowsorcols,
+                        const int nroc,
+                        const float m_offset,
+                        const float pitch,
+                        const int big_pix_per_roc,
+                        const float big_pix_pitch,
+                        const bool big_pix_twoedges) const;
 
   //-------------------------------------------------------------
-  // Return the BIG pixel information for a given pixel 
+  // Return the BIG pixel information for a given pixel
   //
   bool isItBigPixelInX(const int ixbin) const override {
-    if (!bigpixelsX()) return false;
+    if (!bigpixelsX())
+      return false;
     return std::count(m_BIG_PIX_LIST_X.begin(), m_BIG_PIX_LIST_X.end(), ixbin) > 0;
   }
 
   bool isItBigPixelInY(const int iybin) const override {
-    if (!bigpixelsY()) return false;
+    if (!bigpixelsY())
+      return false;
     return std::count(m_BIG_PIX_LIST_Y.begin(), m_BIG_PIX_LIST_Y.end(), iybin) > 0;
   }
 
   float pixelFractionInX(const int ixbin) const override {
-    if (!bigpixelsX()) return 1.0f;
-    if ( isItBigPixelInX(ixbin) )
+    if (!bigpixelsX())
+      return 1.0f;
+    if (isItBigPixelInX(ixbin))
       return float(m_BIG_PIX_PITCH_X / m_pitchx);
-    else return 1.0f;
+    else
+      return 1.0f;
   }
 
   float pixelFractionInY(const int iybin) const override {
-    if (!bigpixelsY()) return 1.0f;
-    if ( isItBigPixelInY(iybin) )
+    if (!bigpixelsY())
+      return 1.0f;
+    if (isItBigPixelInY(iybin))
       return float(m_BIG_PIX_PITCH_Y / m_pitchy);
-    else return 1.0f;
+    else
+      return 1.0f;
   }
 
   //-------------------------------------------------------------
@@ -202,51 +221,53 @@ private:
   int m_ROCS_Y;
   std::vector<int> m_BIG_PIX_LIST_X;
   std::vector<int> m_BIG_PIX_LIST_Y;
-		
-  bool containsBigPixel(int iMin, int iMax, std::vector<int> m_BIG_PIX_LIST) const {
 
+  bool containsBigPixel(int iMin, int iMax, std::vector<int> m_BIG_PIX_LIST) const {
     // The interval contains no big pixel when either of the following is met:
     // - there are no big pixels
     // - no BigPixel is encompssed between iMin and iMax
     bool noBigPixel = true;
-    for (auto & bpe: m_BIG_PIX_LIST) {
-      if ( iMin <= bpe && bpe <= iMax ) noBigPixel = false;
+    for (auto& bpe : m_BIG_PIX_LIST) {
+      if (iMin <= bpe && bpe <= iMax)
+        noBigPixel = false;
     }
 
     return !noBigPixel;
   }
 
-  // 
-  std::vector<int> MakeBigPixelList(const int m_BIG_PIX_PER_ROC, const int m_NN_PER_ROC, const int m_ROCS, const bool m_TWOEDGES){
-    
+  //
+  std::vector<int> MakeBigPixelList(const int m_BIG_PIX_PER_ROC,
+                                    const int m_NN_PER_ROC,
+                                    const int m_ROCS,
+                                    const bool m_TWOEDGES) {
     std::vector<int> m_BIG_PIX_LIST;
 
     // BigPixels at both edges
-    if ( m_TWOEDGES ) {
-      for (int iroc = 0; iroc < m_ROCS; iroc++){
-        for (int ibp=0; ibp<m_BIG_PIX_PER_ROC/2; ibp++){
-          m_BIG_PIX_LIST.push_back(     iroc*m_NN_PER_ROC + ibp);
-          m_BIG_PIX_LIST.push_back( (iroc+1)*m_NN_PER_ROC - 1 - ibp);
+    if (m_TWOEDGES) {
+      for (int iroc = 0; iroc < m_ROCS; iroc++) {
+        for (int ibp = 0; ibp < m_BIG_PIX_PER_ROC / 2; ibp++) {
+          m_BIG_PIX_LIST.push_back(iroc * m_NN_PER_ROC + ibp);
+          m_BIG_PIX_LIST.push_back((iroc + 1) * m_NN_PER_ROC - 1 - ibp);
         }
       }
     } else {
-    //  BigPixels central - allowed only when exactly 2 ROCs along this coordinate
-      if ( m_ROCS != 2 ) {
-        edm::LogError("RectangularPixelPhase2Topology") << "ERROR BigPixels only at the center but number of ROCS is: " << m_ROCS;
+      //  BigPixels central - allowed only when exactly 2 ROCs along this coordinate
+      if (m_ROCS != 2) {
+        edm::LogError("RectangularPixelPhase2Topology")
+            << "ERROR BigPixels only at the center but number of ROCS is: " << m_ROCS;
         std::cout << "MSG-%E%: " << m_ROCS << std::endl;
       } else {
-        for (int ibp=0; ibp<m_BIG_PIX_PER_ROC; ibp++){
+        for (int ibp = 0; ibp < m_BIG_PIX_PER_ROC; ibp++) {
           m_BIG_PIX_LIST.push_back(m_NN_PER_ROC - 1 - ibp);
           m_BIG_PIX_LIST.push_back(m_NN_PER_ROC + ibp);
         }
       }
     }
 
-    std::sort(m_BIG_PIX_LIST.begin(), m_BIG_PIX_LIST.end());        
+    std::sort(m_BIG_PIX_LIST.begin(), m_BIG_PIX_LIST.end());
 
     return m_BIG_PIX_LIST;
   }
-
 };
 
 #endif

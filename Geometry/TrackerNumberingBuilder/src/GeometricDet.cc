@@ -98,7 +98,7 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
     bigPixelsPitchx_ = getDouble("BigPixels_Pitch_X", *fv);
     bigPixelsPitchy_ = getDouble("BigPixels_Pitch_Y", *fv);
     bigPixelsTwoEdgesx_ = (getString("BigPixels_TwoEdges_X", *fv) == strue);
-    bigPixelsTwoEdgesy_ = (getString("BigPixels_TwoEdges_Y", *fv) == strue); 
+    bigPixelsTwoEdgesy_ = (getString("BigPixels_TwoEdges_Y", *fv) == strue);
     isFirstSensor_ = (getString("TrackerFirstDetectors", *fv) == strue);
     isSecondSensor_ = (getString("TrackerSecondDetectors", *fv) == strue);
     stereo_ = (getString("TrackerStereoDetectors", *fv) == strue);
