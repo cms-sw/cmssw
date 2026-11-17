@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
-process = cms.Process('DIGI',Phase2C9)
+from Configuration.Eras.Era_Phase2C26I13M9_cff import Phase2C26I13M9
+process = cms.Process('DIGI',Phase2C26I13M9)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -9,8 +9,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtendedRun4D49Reco_cff')
-process.load('Configuration.Geometry.GeometryExtendedRun4D49_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D122Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D122_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
@@ -29,10 +29,9 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-       fileNames = cms.untracked.vstring('/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/DoublePhoton_FlatPt-1To100/FEVT/PU200_111X_mcRun4_realistic_T15_v1_ext1-v2/1210000/F2E5E947-0CB4-D245-A943-17F2F05709D3.root'),
+                            fileNames = cms.untracked.vstring('/store/relval/CMSSW_20_0_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_STD_D127_RegeneratedGS_PU_16Aug26-v2/2590000/00f3dc39-4e7d-4438-863b-565ffb3094f0.root'),
        inputCommands=cms.untracked.vstring(
            'keep *',
-           'drop l1tTkPrimaryVertexs_L1TkPrimaryVertex__RECO',
            )
         )
 process.options = cms.untracked.PSet(
@@ -54,7 +53,7 @@ process.TFileService = cms.Service(
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T15', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T35', '')
 
 # load HGCAL TPG simulation
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
