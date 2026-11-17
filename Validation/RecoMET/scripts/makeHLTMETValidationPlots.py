@@ -401,6 +401,11 @@ def varsToPlot(metColl):
         'METDeltaPhivsGenMETPhi': HLTMETInputs(x=r'$\text{MET}\phi_\text{Reco} - \text{MET}\phi_\text{Gen}$',
                                                y=r'$\text{MET}\phi_\text{Gen}$'),
     }
+    if isMHT:
+        for k in vars2D:
+            vars2D[k].x = vars2D[k].x.replace('MET', 'MHT')
+            vars2D[k].y = vars2D[k].y.replace('MET', 'MHT')
+
 
     return vars1D, vars2D
 
