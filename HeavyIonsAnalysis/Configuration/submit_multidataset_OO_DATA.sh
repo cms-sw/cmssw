@@ -48,9 +48,9 @@ fi
 cd -- "${script_directory}" || exit 1
 
 CRAB_CONFIG="crab_OO_DATA.py"
-WORK_AREA="crab_projects/OO2025_DATA"
+WORK_AREA="crab_projects/OO2025_DATA_Nebraska_slim"
 REQUEST_PREFIX="HiForest_OO2025_DATA"
-REQUEST_VERSION="v1"
+REQUEST_VERSION="Nebraska_slim_v1"
 
 if [[ ! -f "${CRAB_CONFIG}" ]]; then
     echo "ERROR: CRAB configuration not found: ${CRAB_CONFIG}" >&2
@@ -108,6 +108,8 @@ while IFS= read -r dataset || [[ -n "${dataset}" ]]; do
         "General.requestName=${request_name}"
         "Data.inputDataset=${dataset}"
         "Data.outputDatasetTag=${request_name}"
+        "Data.outLFNDirBase=/store/user/jvelazqu/HiForest/OO2025/DATA"
+        "Site.storageSite=T2_US_Nebraska"
     )
 
     if "${dry_run}"; then

@@ -127,9 +127,6 @@ process.load('HeavyIonsAnalysis.ZDCAnalysis.ZDCAnalyzersPbPb_cff')
 
 ########################
 
-process.load("RecoHI.HiJetAlgos.hiFJRhoFlowModulationProducer_cfi")
-process.load("HeavyIonsAnalysis.JetAnalysis.RhoAnalysis_cff")
-process.load("HeavyIonsAnalysis.JetAnalysis.RandomConeAnalysis_cff")
 
 ###############################################################################
 # main forest sequence
@@ -159,7 +156,7 @@ jetAbsEtaMax = 2.5
 # Choose which additional information is added to jet trees
 doHIJetID = True             # Fill jet ID and composition information branches
 doWTARecluster = True        # Add jet phi and eta for WTA axis
-doBtagging  =  True         # Note that setting to True increases computing time a lot
+doBtagging = False           # EEC does not consume b-tag discriminator branches
 
 # 0 means use original mini-AOD jets, otherwise use R value, e.g., 3,4,8
 # Generator level jets in original miniAOD jets contain neutrinos
@@ -200,7 +197,6 @@ for jetLabel in allJetLabels:
         getattr(process,"akCs"+jetLabel+"PFJetAnalyzer").pfUnifiedParticleTransformerAK4JetTags = cms.untracked.string("pfUnifiedParticleTransformerAK4JetTagsAK"+jetLabel+"PFBtag")
     process.forest += getattr(process,"akCs"+jetLabel+"PFJetAnalyzer")
 
-process.forest += process.hiFJRhoFlowModulationProducer * process.rhoAnalysis * process.randomConeAnalysisR4 * process.randomConeAnalysisR8
 
 #########################
 # Event Selection -> add the needed filters here
@@ -232,3 +228,7 @@ process.pileupVertexFilter = cms.Path(process.PAcollisionEventSelection)
 process.pAna = cms.EndPath(process.skimanalysis)
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 300
+
+# Save the EEC input contract directly during forest production.
+from HeavyIonsAnalysis.Configuration.eecSlimContent_cff import configureEECSlimForest
+configureEECSlimForest(process, isMC=True, isOO=True)

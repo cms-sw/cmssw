@@ -1,3 +1,7 @@
+#include <algorithm>
+#include <utility>
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "HeavyIonsAnalysis/TrackAnalysis/interface/TrackAnalyzer.h"
 
 TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig) :
@@ -5,6 +9,7 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig) :
   trackPtMin_(iConfig.getUntrackedParameter<double>("trackPtMin", 0.01)),
   trackEtaMax_(iConfig.getUntrackedParameter<double>("trackEtaMax", 4.0)),
   applyTrackSelections_(iConfig.getUntrackedParameter<bool>("applyTrackSelections", false)),
+  branchesToKeep_(iConfig.getUntrackedParameter<std::vector<std::string>>("branchesToKeep", std::vector<std::string>{})),
   vertexSrc_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexSrc"))),
   trackSrc_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackSrc"))),
   track2pcSrc_(consumes<std::vector<edm::Ptr<pat::PackedCandidate> > >(iConfig.getParameter<edm::InputTag>("trackSrc"))),
@@ -166,56 +171,67 @@ void TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& 
 void TrackAnalyzer::beginJob() {
   trackTree_ = fs->make<TTree>("trackTree", "v1");
 
+  // Filter branch booking, not branch reading: omitted payloads are never written.
+  const auto bookBranch = [this](const char* name, auto&&... args) {
+    if (branchesToKeep_.empty() ||
+        std::find(branchesToKeep_.begin(), branchesToKeep_.end(), name) != branchesToKeep_.end())
+      trackTree_->Branch(name, std::forward<decltype(args)>(args)...);
+  };
+
   // event
-  trackTree_->Branch("nRun", &nRun, "nRun/I");
-  trackTree_->Branch("nEv", &nEv, "nEv/I");
-  trackTree_->Branch("nLumi", &nLumi, "nLumi/I");
+  bookBranch("nRun", &nRun, "nRun/I");
+  bookBranch("nEv", &nEv, "nEv/I");
+  bookBranch("nLumi", &nLumi, "nLumi/I");
 
   // vertex
-  trackTree_->Branch("nVtx", &nVtx);
-  trackTree_->Branch("xVtx", &xVtx);
-  trackTree_->Branch("yVtx", &yVtx);
-  trackTree_->Branch("zVtx", &zVtx);
-  trackTree_->Branch("xErrVtx", &xErrVtx);
-  trackTree_->Branch("yErrVtx", &yErrVtx);
-  trackTree_->Branch("zErrVtx", &zErrVtx);
-  trackTree_->Branch("chi2Vtx", &chi2Vtx);
-  trackTree_->Branch("ndofVtx", &ndofVtx);
-  trackTree_->Branch("isFakeVtx", &isFakeVtx);
-  trackTree_->Branch("nTracksVtx", &nTracksVtx);
-  trackTree_->Branch("ptSumVtx", &ptSumVtx);
+  bookBranch("nVtx", &nVtx);
+  bookBranch("xVtx", &xVtx);
+  bookBranch("yVtx", &yVtx);
+  bookBranch("zVtx", &zVtx);
+  bookBranch("xErrVtx", &xErrVtx);
+  bookBranch("yErrVtx", &yErrVtx);
+  bookBranch("zErrVtx", &zErrVtx);
+  bookBranch("chi2Vtx", &chi2Vtx);
+  bookBranch("ndofVtx", &ndofVtx);
+  bookBranch("isFakeVtx", &isFakeVtx);
+  bookBranch("nTracksVtx", &nTracksVtx);
+  bookBranch("ptSumVtx", &ptSumVtx);
 
   // Tracks
-  trackTree_->Branch("nTrk", &nTrk);
-  trackTree_->Branch("trkPt", &trkPt);
-  trackTree_->Branch("trkPtError", &trkPtError);
-  trackTree_->Branch("trkEta", &trkEta);
-  trackTree_->Branch("trkPhi", &trkPhi);
-  trackTree_->Branch("trkCharge", &trkCharge);
-  trackTree_->Branch("trkPDGId", &trkPDGId);
-  trackTree_->Branch("trkNHits", &trkNHits);
-  trackTree_->Branch("trkNPixHits", &trkNPixHits);
-  trackTree_->Branch("trkNLayers", &trkNLayers);
-  trackTree_->Branch("trkNormChi2", &trkNormChi2);
-  trackTree_->Branch("highPurity", &highPurity);
+  bookBranch("nTrk", &nTrk);
+  bookBranch("trkPt", &trkPt);
+  bookBranch("trkPtError", &trkPtError);
+  bookBranch("trkEta", &trkEta);
+  bookBranch("trkPhi", &trkPhi);
+  bookBranch("trkCharge", &trkCharge);
+  bookBranch("trkPDGId", &trkPDGId);
+  bookBranch("trkNHits", &trkNHits);
+  bookBranch("trkNPixHits", &trkNPixHits);
+  bookBranch("trkNLayers", &trkNLayers);
+  bookBranch("trkNormChi2", &trkNormChi2);
+  bookBranch("highPurity", &highPurity);
 
-  trackTree_->Branch("pfEnergy", &pfEnergy);
-  trackTree_->Branch("pfEcal", &pfEcal);
-  trackTree_->Branch("pfHcal", &pfHcal);
+  bookBranch("pfEnergy", &pfEnergy);
+  bookBranch("pfEcal", &pfEcal);
+  bookBranch("pfHcal", &pfHcal);
 
-  trackTree_->Branch("trkAssociatedVtxIndx", &trkAssociatedVtxIndx);
-  trackTree_->Branch("trkAssociatedVtxQuality", &trkAssociatedVtxQuality);
-  trackTree_->Branch("trkDzAssociatedVtx", &trkDzAssociatedVtx);
-  trackTree_->Branch("trkDzErrAssociatedVtx", &trkDzErrAssociatedVtx);
-  trackTree_->Branch("trkDxyAssociatedVtx", &trkDxyAssociatedVtx);
-  trackTree_->Branch("trkDxyErrAssociatedVtx", &trkDxyErrAssociatedVtx);
-  trackTree_->Branch("trkFirstVtxQuality", &trkFirstVtxQuality);
-  trackTree_->Branch("trkDzFirstVtx", &trkDzFirstVtx);
-  trackTree_->Branch("trkDzErrFirstVtx", &trkDzErrFirstVtx);
-  trackTree_->Branch("trkDxyFirstVtx", &trkDxyFirstVtx);
-  trackTree_->Branch("trkDxyErrFirstVtx", &trkDxyErrFirstVtx);
+  bookBranch("trkAssociatedVtxIndx", &trkAssociatedVtxIndx);
+  bookBranch("trkAssociatedVtxQuality", &trkAssociatedVtxQuality);
+  bookBranch("trkDzAssociatedVtx", &trkDzAssociatedVtx);
+  bookBranch("trkDzErrAssociatedVtx", &trkDzErrAssociatedVtx);
+  bookBranch("trkDxyAssociatedVtx", &trkDxyAssociatedVtx);
+  bookBranch("trkDxyErrAssociatedVtx", &trkDxyErrAssociatedVtx);
+  bookBranch("trkFirstVtxQuality", &trkFirstVtxQuality);
+  bookBranch("trkDzFirstVtx", &trkDzFirstVtx);
+  bookBranch("trkDzErrFirstVtx", &trkDzErrFirstVtx);
+  bookBranch("trkDxyFirstVtx", &trkDxyFirstVtx);
+  bookBranch("trkDxyErrFirstVtx", &trkDxyErrFirstVtx);
   for (const auto& d : dedxEstimatorsSrc_)
-    trackTree_->Branch(d.first.c_str(), &(trkDeDx[d.first]));
+    bookBranch(d.first.c_str(), &(trkDeDx[d.first]));
+
+  for (const auto& name : branchesToKeep_)
+    if (!trackTree_->GetBranch(name.c_str()))
+      throw cms::Exception("Configuration") << "branchesToKeep requested an unavailable branch: " << name;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

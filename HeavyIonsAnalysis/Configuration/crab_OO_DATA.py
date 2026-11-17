@@ -8,8 +8,8 @@ from CRABClient.UserUtilities import config
 
 config = config()
 
-config.General.requestName = "HiForest_OO2025_DATA_IonPhysics0_v1"
-config.General.workArea = "crab_projects/OO2025_DATA"
+config.General.requestName = "HiForest_OO2025_DATA_IonPhysics0_Nebraska_slim_v1"
+config.General.workArea = "crab_projects/OO2025_DATA_Nebraska_slim"
 config.General.transferOutputs = True
 config.General.transferLogs = False
 
@@ -31,5 +31,5 @@ config.Data.lumiMask = "Cert_Collisions2025OO_394153_394217_golden.json"
 config.Data.outLFNDirBase = "/store/user/jvelazqu/HiForest/OO2025/DATA"
 config.Data.outputDatasetTag = config.General.requestName
 
-config.Site.storageSite = "T2_US_Vanderbilt"
+config.Site.storageSite = "T2_US_Nebraska"
 config.Site.blacklist = ["T3_UK_ScotGrid_GLA", "T2_DE_DESY"]

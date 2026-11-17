@@ -31,5 +31,5 @@ config.Data.lumiMask = "Cert_Collisions2024_ppref_387474_387721_golden.json"
 config.Data.outLFNDirBase = "/store/user/jvelazqu/HiForest/ppref2024/DATA"
 config.Data.outputDatasetTag = config.General.requestName
 
-config.Site.storageSite = "T2_US_Vanderbilt"
+config.Site.storageSite = "T2_US_Nebraska"
 config.Site.blacklist = ["T3_UK_ScotGrid_GLA", "T2_DE_DESY"]

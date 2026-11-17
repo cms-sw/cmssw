@@ -4,6 +4,7 @@
 // system include files
 #include <memory>
 #include <string>
+#include <vector>
 #include <iostream>
 
 // ROOT headers
@@ -46,6 +47,8 @@ public:
   void beginJob() override;
 
 private:
+  std::vector<std::string> branchesToKeep_;  // Empty preserves the complete legacy tree.
+
   // for reWTA reclustering-----------------------
   bool doWTARecluster_ = false;
   fastjet::JetDefinition WTAjtDef =
@@ -163,6 +166,9 @@ private:
     int jtPfCEM[MAXJETS] = {0};
     int jtPfNEM[MAXJETS] = {0};
     int jtPfMUM[MAXJETS] = {0};
+    // Aggregate PF multiplicities include the HF categories omitted above.
+    int jtPfCM[MAXJETS] = {0};
+    int jtPfNM[MAXJETS] = {0};
 
     float jttau1[MAXJETS] = {0};
     float jttau2[MAXJETS] = {0};

@@ -1,3 +1,6 @@
+#include <algorithm>
+#include <utility>
+#include "FWCore/Utilities/interface/Exception.h"
 
 // system include files
 #include <memory>
@@ -53,6 +56,7 @@ private:
   int HltEvtCnt;
 
   TTree* HltTree;
+  std::vector<std::string> branchesToKeep_;
   int* trigflag;
 };
 
@@ -76,6 +80,7 @@ FilterAnalyzer::FilterAnalyzer(const edm::ParameterSet& conf) {
   HltEvtCnt = 0;
   edm::Service<TFileService> fs;
   HltTree = fs->make<TTree>("HltTree", "");
+  branchesToKeep_ = conf.getUntrackedParameter<std::vector<std::string>>("branchesToKeep", {});
 
   const int kMaxTrigFlag = 10000;
   trigflag = new int[kMaxTrigFlag];
@@ -92,6 +97,12 @@ FilterAnalyzer::~FilterAnalyzer() {
 
 // ------------ method called for each event  ------------
 void FilterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  const auto bookBranch = [this](const char* name, auto&&... args) {
+    if (branchesToKeep_.empty() ||
+        std::find(branchesToKeep_.begin(), branchesToKeep_.end(), name) != branchesToKeep_.end())
+      HltTree->Branch(name, std::forward<decltype(args)>(args)...);
+  };
+
   using namespace edm;
   edm::Handle<edm::TriggerResults> hltresults;
 
@@ -102,8 +113,12 @@ void FilterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if (HltEvtCnt == 0) {
     for (int itrig = 0; itrig != ntrigs; ++itrig) {
       TString trigName = triggerNames.triggerName(itrig);
-      HltTree->Branch(trigName, trigflag + itrig, trigName + "/I");
+      bookBranch(trigName, trigflag + itrig, trigName + "/I");
     }
+
+      for (const auto& name : branchesToKeep_)
+        if (!HltTree->GetBranch(name.c_str()))
+          throw cms::Exception("Configuration") << "branchesToKeep requested an unavailable branch: " << name;
     HltEvtCnt++;
   }
   bool saveEvent = true;

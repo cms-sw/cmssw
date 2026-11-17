@@ -135,12 +135,6 @@ process.load("RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi")
 process.load('HeavyIonsAnalysis.ZDCAnalysis.ZDCAnalyzersPbPb_cff')
 process.load('HeavyIonsAnalysis.ZDCAnalysis.FSCAnalyzers_cff')
 
-#########################
-# rho and random cones
-
-process.load("RecoHI.HiJetAlgos.hiFJRhoFlowModulationProducer_cfi")
-process.load("HeavyIonsAnalysis.JetAnalysis.RhoAnalysis_cff")
-process.load("HeavyIonsAnalysis.JetAnalysis.RandomConeAnalysis_cff")
 
 from HeavyIonsAnalysis.TrackAnalysis.unpackedTracksAndVertices_cfi import *
 process.unpackedTracksAndVertices = unpackedTracksAndVertices
@@ -176,7 +170,7 @@ jetAbsEtaMax = 2.5
 # Choose which additional information is added to jet trees
 doHIJetID = True             # Fill jet ID and composition information branches
 doWTARecluster = True        # Add jet phi and eta for WTA axis
-doBtagging  =  True         # Note that setting to True increases computing time a lot
+doBtagging = False           # EEC does not consume b-tag discriminator branches
 
 # 0 means use original mini-AOD jets, otherwise use R value, e.g., 3,4,8
 # Add all the values you want to process to the list
@@ -213,7 +207,6 @@ for jetLabel in allJetLabels:
         getattr(process,"akCs"+jetLabel+"PFJetAnalyzer").pfUnifiedParticleTransformerAK4JetTags = cms.untracked.string("pfUnifiedParticleTransformerAK4JetTagsAK"+jetLabel+"PFBtag")
     process.forest += getattr(process,"akCs"+jetLabel+"PFJetAnalyzer")
 
-process.forest += process.hiFJRhoFlowModulationProducer * process.rhoAnalysis * process.randomConeAnalysisR4 * process.randomConeAnalysisR2 * process.randomConeAnalysisR6 * process.randomConeAnalysisR8
 
 #########################
 # Event Selection -> add the needed filters here
@@ -267,7 +260,7 @@ process.hltfilter = hltHighLevel.clone(
        #"HLT_HIZeroBias_v4",
        # "HLT_MinimumBiasHF_OR_BptxAND_v*"
        "HLT_MinimumBiasHF_OR_BptxAND_v*",
-       "HLT_OxyL1SingleJet*"
+       # "HLT_OxyL1SingleJet*"
        # "HLT_HIMinimumBias_v*",
    ]
 )
@@ -282,3 +275,7 @@ for path in process.paths:
    getattr(process, path)._seq = process.filterSequence * getattr(process,path)._seq
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 300
+
+# Save the EEC input contract directly during forest production.
+from HeavyIonsAnalysis.Configuration.eecSlimContent_cff import configureEECSlimForest
+configureEECSlimForest(process, isMC=False, isOO=True)

@@ -3,6 +3,7 @@
 
 // system include files
 #include <iostream>
+#include <string>
 #include <vector>
 
 // CMSSW user include files
@@ -39,6 +40,8 @@ private:
   const double trackPtMin_;
   const double trackEtaMax_;
   const bool applyTrackSelections_;
+  std::vector<std::string> branchesToKeep_;  // Empty preserves the complete legacy tree.
+
 
   const edm::EDGetTokenT<reco::VertexCollection> vertexSrc_;
   const edm::EDGetTokenT<reco::TrackCollection> trackSrc_;

@@ -6,8 +6,8 @@ from CRABClient.UserUtilities import config
 
 config = config()
 
-config.General.requestName = "HiForest_ppref2024_MC_Pythia8_v1"
-config.General.workArea = "crab_projects/ppref2024_MC"
+config.General.requestName = "HiForest_ppref2024_MC_Pythia8_Nebraska_v3"
+config.General.workArea = "crab_projects/ppref2024_MC_Nebraska"
 config.General.transferOutputs = True
 config.General.transferLogs = False
 
@@ -28,4 +28,4 @@ config.Data.totalUnits = -1
 config.Data.outLFNDirBase = "/store/user/jvelazqu/HiForest/ppref2024/MC"
 config.Data.outputDatasetTag = config.General.requestName
 
-config.Site.storageSite = "T2_US_Vanderbilt"
+config.Site.storageSite = "T2_US_Nebraska"

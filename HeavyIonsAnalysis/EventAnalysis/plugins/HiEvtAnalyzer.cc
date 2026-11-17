@@ -1,3 +1,6 @@
+#include <string>
+#include <utility>
+#include "FWCore/Utilities/interface/Exception.h"
 
 // system include files
 #include <memory>
@@ -111,6 +114,7 @@ private:
   bool doEvtPlane_;
   bool doEvtPlaneFlat_;
   bool doCentrality_;
+  bool doPFHF_;
 
   bool doMC_;
   bool doHiMC_;
@@ -123,6 +127,7 @@ private:
   edm::Service<TFileService> fs_;
 
   TTree* thi_;
+  std::vector<std::string> branchesToKeep_;
 
   float* hiEvtPlane;
   int nEvtPlanes;
@@ -222,7 +227,10 @@ HiEvtAnalyzer::HiEvtAnalyzer(const edm::ParameterSet& iConfig)
       doHFfilters_(iConfig.getParameter<bool>("doHFfilters")),
       useHepMC_(iConfig.getParameter<bool>("useHepMC")),
       doVertex_(iConfig.getParameter<bool>("doVertex")),
-      evtPlaneLevel_(iConfig.getParameter<int>("evtPlaneLevel")) {}
+      evtPlaneLevel_(iConfig.getParameter<int>("evtPlaneLevel")) {
+  branchesToKeep_ = iConfig.getUntrackedParameter<std::vector<std::string>>("branchesToKeep", {});
+  doPFHF_ = iConfig.getUntrackedParameter<bool>("doPFHF", doCentrality_);
+}
 
 HiEvtAnalyzer::~HiEvtAnalyzer() {
   // do anything here that needs to be done at desctruction time
@@ -361,6 +369,9 @@ void HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     hiEB = centrality->EtEBSum();
     hiET = centrality->EtMidRapiditySum();
     
+  }
+
+  if (doCentrality_ || doPFHF_) {
     edm::Handle<pat::PackedCandidateCollection> pfCandidates;
     iEvent.getByToken(pfCandidateTag_, pfCandidates);
 
@@ -407,6 +418,9 @@ void HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       } // if(eta_minus) {
     } // for (const auto& pfcand : *pfCandidates) {
 
+  }
+
+  if (doCentrality_) {
     // --- NEW PLACEMENT FOR HIBIN CALCULATIONS ---
     // Now that hiHF_pf is fully accumulated for the event, calculate the bins.
     
@@ -482,6 +496,12 @@ void HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 // ------------ method called once each job just before starting event loop  ------------
 void HiEvtAnalyzer::beginJob() {
   thi_ = fs_->make<TTree>("HiTree", "");
+  const auto bookBranch = [this](const char* name, auto&&... args) {
+    if (branchesToKeep_.empty() ||
+        std::find(branchesToKeep_.begin(), branchesToKeep_.end(), name) != branchesToKeep_.end())
+      thi_->Branch(name, std::forward<decltype(args)>(args)...);
+  };
+
 
   HltEvtCnt = 0;
   const int kMaxEvtPlanes = 1000;
@@ -525,123 +545,127 @@ void HiEvtAnalyzer::beginJob() {
   numMinHFTower5 = -1;
 
   // Run info
-  thi_->Branch("run", &run, "run/i");
-  thi_->Branch("evt", &event, "evt/l");
-  thi_->Branch("lumi", &lumi, "lumi/i");
+  bookBranch("run", &run, "run/i");
+  bookBranch("evt", &event, "evt/l");
+  bookBranch("lumi", &lumi, "lumi/i");
 
   // Vertex
-  thi_->Branch("vx", &vx, "vx/F");
-  thi_->Branch("vy", &vy, "vy/F");
-  thi_->Branch("vz", &vz, "vz/F");
+  bookBranch("vx", &vx, "vx/F");
+  bookBranch("vy", &vy, "vy/F");
+  bookBranch("vz", &vz, "vz/F");
 
   //Event observables
   if (doHiMC_) {
-    thi_->Branch("Npart", &fNpart, "Npart/F");
-    thi_->Branch("Ncoll", &fNcoll, "Ncoll/F");
-    thi_->Branch("Nhard", &fNhard, "Nhard/F");
-    thi_->Branch("phi0", &fPhi0, "NPhi0/F");
-    thi_->Branch("b", &fb, "b/F");
-    thi_->Branch("Ncharged", &fNcharged, "Ncharged/I");
-    thi_->Branch("NchargedMR", &fNchargedMR, "NchargedMR/I");
-    thi_->Branch("MeanPt", &fMeanPt, "MeanPt/F");
-    thi_->Branch("MeanPtMR", &fMeanPtMR, "MeanPtMR/F");
-    thi_->Branch("EtMR", &fEtMR, "EtMR/F");
-    thi_->Branch("NchargedPtCut", &fNchargedPtCut, "NchargedPtCut/I");
-    thi_->Branch("NchargedPtCutMR", &fNchargedPtCutMR, "NchargedPtCutMR/I");
+    bookBranch("Npart", &fNpart, "Npart/F");
+    bookBranch("Ncoll", &fNcoll, "Ncoll/F");
+    bookBranch("Nhard", &fNhard, "Nhard/F");
+    bookBranch("phi0", &fPhi0, "NPhi0/F");
+    bookBranch("b", &fb, "b/F");
+    bookBranch("Ncharged", &fNcharged, "Ncharged/I");
+    bookBranch("NchargedMR", &fNchargedMR, "NchargedMR/I");
+    bookBranch("MeanPt", &fMeanPt, "MeanPt/F");
+    bookBranch("MeanPtMR", &fMeanPtMR, "MeanPtMR/F");
+    bookBranch("EtMR", &fEtMR, "EtMR/F");
+    bookBranch("NchargedPtCut", &fNchargedPtCut, "NchargedPtCut/I");
+    bookBranch("NchargedPtCutMR", &fNchargedPtCutMR, "NchargedPtCutMR/I");
   }
   if (doMC_) {
-    thi_->Branch("ProcessID", &proc_id, "ProcessID/I");
-    thi_->Branch("pthat", &pthat, "pthat/F");
-    thi_->Branch("weight", &weight, "weight/F");
-    thi_->Branch("alphaQCD", &alphaQCD, "alphaQCD/F");
-    thi_->Branch("alphaQED", &alphaQED, "alphaQED/F");
-    thi_->Branch("qScale", &qScale, "qScale/F");
-    thi_->Branch("nMEPartons", &nMEPartons, "nMEPartons/I");
-    thi_->Branch("nMEPartonsFiltered", &nMEPartonsFiltered, "nMEPartonsFiltered/I");
-    thi_->Branch("pdfID", &pdfID);
-    thi_->Branch("pdfX", &pdfX);
-    thi_->Branch("pdfXpdf", &pdfXpdf);
-    thi_->Branch("ttbar_w", &ttbar_w);
-    thi_->Branch("npus", &npus);
-    thi_->Branch("tnpus", &tnpus);
+    bookBranch("ProcessID", &proc_id, "ProcessID/I");
+    bookBranch("pthat", &pthat, "pthat/F");
+    bookBranch("weight", &weight, "weight/F");
+    bookBranch("alphaQCD", &alphaQCD, "alphaQCD/F");
+    bookBranch("alphaQED", &alphaQED, "alphaQED/F");
+    bookBranch("qScale", &qScale, "qScale/F");
+    bookBranch("nMEPartons", &nMEPartons, "nMEPartons/I");
+    bookBranch("nMEPartonsFiltered", &nMEPartonsFiltered, "nMEPartonsFiltered/I");
+    bookBranch("pdfID", &pdfID);
+    bookBranch("pdfX", &pdfX);
+    bookBranch("pdfXpdf", &pdfXpdf);
+    bookBranch("ttbar_w", &ttbar_w);
+    bookBranch("npus", &npus);
+    bookBranch("tnpus", &tnpus);
   }
 
-  thi_->Branch("hiBin", &hiBin, "hiBin/I");
-  thi_->Branch("hiBin_up", &hiBin_up, "hiBin_up/I");
-  thi_->Branch("hiBin_down", &hiBin_down, "hiBin_down/I");
+  bookBranch("hiBin", &hiBin, "hiBin/I");
+  bookBranch("hiBin_up", &hiBin_up, "hiBin_up/I");
+  bookBranch("hiBin_down", &hiBin_down, "hiBin_down/I");
   /*
-  thi_->Branch("hiHF", &hiHF, "hiHF/F");
-  thi_->Branch("hiHFplus", &hiHFplus, "hiHFplus/F");
-  thi_->Branch("hiHFminus", &hiHFminus, "hiHFminus/F");
-  thi_->Branch("hiHFECut", &hiHFECut, "hiHFECut/F");
-  thi_->Branch("hiHFECutPlus", &hiHFECutPlus, "hiHFECutPlus/F");
-  thi_->Branch("hiHFECutMinus", &hiHFECutMinus, "hiHFECutMinus/F");
-  thi_->Branch("hiHFplusEta4", &hiHFplusEta4, "hiHFplusEta4/F");
-  thi_->Branch("hiHFminusEta4", &hiHFminusEta4, "hiHFminusEta4/F");
+  bookBranch("hiHF", &hiHF, "hiHF/F");
+  bookBranch("hiHFplus", &hiHFplus, "hiHFplus/F");
+  bookBranch("hiHFminus", &hiHFminus, "hiHFminus/F");
+  bookBranch("hiHFECut", &hiHFECut, "hiHFECut/F");
+  bookBranch("hiHFECutPlus", &hiHFECutPlus, "hiHFECutPlus/F");
+  bookBranch("hiHFECutMinus", &hiHFECutMinus, "hiHFECutMinus/F");
+  bookBranch("hiHFplusEta4", &hiHFplusEta4, "hiHFplusEta4/F");
+  bookBranch("hiHFminusEta4", &hiHFminusEta4, "hiHFminusEta4/F");
 
-  thi_->Branch("hiZDC", &hiZDC, "hiZDC/F");
-  thi_->Branch("hiZDCplus", &hiZDCplus, "hiZDCplus/F");
-  thi_->Branch("hiZDCminus", &hiZDCminus, "hiZDCminus/F");
+  bookBranch("hiZDC", &hiZDC, "hiZDC/F");
+  bookBranch("hiZDCplus", &hiZDCplus, "hiZDCplus/F");
+  bookBranch("hiZDCminus", &hiZDCminus, "hiZDCminus/F");
 
-  thi_->Branch("hiHFhit", &hiHFhit, "hiHFhit/F");
-  thi_->Branch("hiHFhitPlus", &hiHFhitPlus, "hiHFhitPlus/F");
-  thi_->Branch("hiHFhitMinus", &hiHFhitMinus, "hiHFhitMinus/F");
+  bookBranch("hiHFhit", &hiHFhit, "hiHFhit/F");
+  bookBranch("hiHFhitPlus", &hiHFhitPlus, "hiHFhitPlus/F");
+  bookBranch("hiHFhitMinus", &hiHFhitMinus, "hiHFhitMinus/F");
 
-  thi_->Branch("hiET", &hiET, "hiET/F");
-  thi_->Branch("hiEE", &hiEE, "hiEE/F");
-  thi_->Branch("hiEB", &hiEB, "hiEB/F");
-  thi_->Branch("hiEEplus", &hiEEplus, "hiEEplus/F");
-  thi_->Branch("hiEEminus", &hiEEminus, "hiEEminus/F");
-  thi_->Branch("hiNpix", &hiNpix, "hiNpix/I");
-  thi_->Branch("hiNpixPlus", &hiNpixPlus, "hiNpixPlus/I");
-  thi_->Branch("hiNpixMinus", &hiNpixMinus, "hiNpixMinus/I");
-  thi_->Branch("hiNpixelTracks", &hiNpixelTracks, "hiNpixelTracks/I");
-  thi_->Branch("hiNpixelTracksPlus", &hiNpixelTracksPlus, "hiNpixelTracksPlus/I");
-  thi_->Branch("hiNpixelTracksMinus", &hiNpixelTracksMinus, "hiNpixelTracksMinus/I");
-  thi_->Branch("hiNtracks", &hiNtracks, "hiNtracks/I");
-  thi_->Branch("hiNtracksPtCut", &hiNtracksPtCut, "hiNtracksPtCut/I");
-  thi_->Branch("hiNtracksEtaCut", &hiNtracksEtaCut, "hiNtracksEtaCut/I");
-  thi_->Branch("hiNtracksEtaPtCut", &hiNtracksEtaPtCut, "hiNtracksEtaPtCut/I");
+  bookBranch("hiET", &hiET, "hiET/F");
+  bookBranch("hiEE", &hiEE, "hiEE/F");
+  bookBranch("hiEB", &hiEB, "hiEB/F");
+  bookBranch("hiEEplus", &hiEEplus, "hiEEplus/F");
+  bookBranch("hiEEminus", &hiEEminus, "hiEEminus/F");
+  bookBranch("hiNpix", &hiNpix, "hiNpix/I");
+  bookBranch("hiNpixPlus", &hiNpixPlus, "hiNpixPlus/I");
+  bookBranch("hiNpixMinus", &hiNpixMinus, "hiNpixMinus/I");
+  bookBranch("hiNpixelTracks", &hiNpixelTracks, "hiNpixelTracks/I");
+  bookBranch("hiNpixelTracksPlus", &hiNpixelTracksPlus, "hiNpixelTracksPlus/I");
+  bookBranch("hiNpixelTracksMinus", &hiNpixelTracksMinus, "hiNpixelTracksMinus/I");
+  bookBranch("hiNtracks", &hiNtracks, "hiNtracks/I");
+  bookBranch("hiNtracksPtCut", &hiNtracksPtCut, "hiNtracksPtCut/I");
+  bookBranch("hiNtracksEtaCut", &hiNtracksEtaCut, "hiNtracksEtaCut/I");
+  bookBranch("hiNtracksEtaPtCut", &hiNtracksEtaPtCut, "hiNtracksEtaPtCut/I");
   */
-  thi_->Branch("hiHF_pf", &hiHF_pf, "hiHF_pf/F");
+  bookBranch("hiHF_pf", &hiHF_pf, "hiHF_pf/F");
   /*
-  thi_->Branch("hiHFE_pf", &hiHFE_pf, "hiHFE_pf/F");
+  bookBranch("hiHFE_pf", &hiHFE_pf, "hiHFE_pf/F");
 
-  thi_->Branch("hiHF_pfha", &hiHF_pfha, "hiHF_pfha/F");
-  thi_->Branch("hiHF_pfem", &hiHF_pfem, "hiHF_pfem/F");
+  bookBranch("hiHF_pfha", &hiHF_pfha, "hiHF_pfha/F");
+  bookBranch("hiHF_pfem", &hiHF_pfem, "hiHF_pfem/F");
   */
-  thi_->Branch("hiHFPlus_pf", &hiHFPlus_pf, "hiHFPlus_pf/F");
+  bookBranch("hiHFPlus_pf", &hiHFPlus_pf, "hiHFPlus_pf/F");
   /*
-  thi_->Branch("hiHFEPlus_pf", &hiHFEPlus_pf, "hiHFEPlus_pf/F");
-  thi_->Branch("hiHFPlus_pfha", &hiHFPlus_pfha, "hiHFPlus_pfha/F");
-  thi_->Branch("hiHFPlus_pfem", &hiHFPlus_pfem, "hiHFPlus_pfem/F");
+  bookBranch("hiHFEPlus_pf", &hiHFEPlus_pf, "hiHFEPlus_pf/F");
+  bookBranch("hiHFPlus_pfha", &hiHFPlus_pfha, "hiHFPlus_pfha/F");
+  bookBranch("hiHFPlus_pfem", &hiHFPlus_pfem, "hiHFPlus_pfem/F");
   */
-  thi_->Branch("hiHFMinus_pf", &hiHFMinus_pf, "hiHFMinus_pf/F");
+  bookBranch("hiHFMinus_pf", &hiHFMinus_pf, "hiHFMinus_pf/F");
   /*
-  thi_->Branch("hiHFEMinus_pf", &hiHFEMinus_pf, "hiHFEMinus_pf/F");
-  thi_->Branch("hiHFMinus_pfha", &hiHFMinus_pfha, "hiHFMinus_pfha/F");
-  thi_->Branch("hiHFMinus_pfem", &hiHFMinus_pfem, "hiHFMinus_pfem/F");
+  bookBranch("hiHFEMinus_pf", &hiHFEMinus_pf, "hiHFEMinus_pf/F");
+  bookBranch("hiHFMinus_pfha", &hiHFMinus_pfha, "hiHFMinus_pfha/F");
+  bookBranch("hiHFMinus_pfem", &hiHFMinus_pfem, "hiHFMinus_pfem/F");
 
   for (int i=0; i<NHFLEAD; i++) {
-    thi_->Branch(Form("hiHF_pfle%d", i+1), &(hiHF_pfle[i]), Form("hiHF_pfle%d/F", i+1));
-    thi_->Branch(Form("hiHFPlus_pfle%d", i+1), &(hiHFPlus_pfle[i]), Form("hiHFPlus_pfle%d/F", i+1));
-    thi_->Branch(Form("hiHFMinus_pfle%d", i+1), &(hiHFMinus_pfle[i]), Form("hiHFMinus_pfle%d/F", i+1));
+    bookBranch(Form("hiHF_pfle%d", i+1), &(hiHF_pfle[i]), Form("hiHF_pfle%d/F", i+1));
+    bookBranch(Form("hiHFPlus_pfle%d", i+1), &(hiHFPlus_pfle[i]), Form("hiHFPlus_pfle%d/F", i+1));
+    bookBranch(Form("hiHFMinus_pfle%d", i+1), &(hiHFMinus_pfle[i]), Form("hiHFMinus_pfle%d/F", i+1));
   }
-  thi_->Branch("nCountsHF_pf", &nCountsHF_pf, "nCountsHF_pf/I");
-  thi_->Branch("nCountsHFPlus_pf", &nCountsHFPlus_pf, "nCountsHFPlus_pf/I");
-  thi_->Branch("nCountsHFMinus_pf", &nCountsHFMinus_pf, "nCountsHFMinus_pf/I");
+  bookBranch("nCountsHF_pf", &nCountsHF_pf, "nCountsHF_pf/I");
+  bookBranch("nCountsHFPlus_pf", &nCountsHFPlus_pf, "nCountsHFPlus_pf/I");
+  bookBranch("nCountsHFMinus_pf", &nCountsHFMinus_pf, "nCountsHFMinus_pf/I");
 
   // Event plane
   if (doEvtPlane_) {
-    thi_->Branch("hiNevtPlane", &nEvtPlanes, "hiNevtPlane/I");
-    thi_->Branch("hiEvtPlanes", hiEvtPlane, "hiEvtPlanes[hiNevtPlane]/F");
+    bookBranch("hiNevtPlane", &nEvtPlanes, "hiNevtPlane/I");
+    bookBranch("hiEvtPlanes", hiEvtPlane, "hiEvtPlanes[hiNevtPlane]/F");
   }
 
-  thi_->Branch("numMinHFTower2", &numMinHFTower2, "numMinHFTower2/I");
-  thi_->Branch("numMinHFTower3", &numMinHFTower3, "numMinHFTower3/I");
-  thi_->Branch("numMinHFTower4", &numMinHFTower4, "numMinHFTower4/I");
-  thi_->Branch("numMinHFTower5", &numMinHFTower5, "numMinHFTower5/I");
+  bookBranch("numMinHFTower2", &numMinHFTower2, "numMinHFTower2/I");
+  bookBranch("numMinHFTower3", &numMinHFTower3, "numMinHFTower3/I");
+  bookBranch("numMinHFTower4", &numMinHFTower4, "numMinHFTower4/I");
+  bookBranch("numMinHFTower5", &numMinHFTower5, "numMinHFTower5/I");
   */
+  for (const auto& name : branchesToKeep_)
+    if (!thi_->GetBranch(name.c_str()))
+      throw cms::Exception("Configuration") << "branchesToKeep requested an unavailable branch: " << name;
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

@@ -1,3 +1,7 @@
+#include <algorithm>
+#include <utility>
+#include "FWCore/Utilities/interface/Exception.h"
+
 // -*- C++ -*-
 //
 // Package:    HiGenAnalyzer
@@ -102,6 +106,7 @@ private:
 
   TTree* hydjetTree_;
   HydjetEvent hev_;
+  std::vector<std::string> branchesToKeep_;
 
   Bool_t doVertex_;
   Bool_t useHepMCProduct_;
@@ -134,6 +139,7 @@ private:
 // constructors and destructor
 //
 HiGenAnalyzer::HiGenAnalyzer(const edm::ParameterSet& iConfig) {
+  branchesToKeep_ = iConfig.getUntrackedParameter<std::vector<std::string>>("branchesToKeep", std::vector<std::string>{});
   //now do what ever initialization is needed
   useHepMCProduct_ = iConfig.getUntrackedParameter<Bool_t>("useHepMCProduct", false);
   doHI_ = iConfig.getUntrackedParameter<Bool_t>("doHI", true);
@@ -448,39 +454,51 @@ void HiGenAnalyzer::endRun(const edm::Run& run, const edm::EventSetup& iSetup) {
 
 void HiGenAnalyzer::beginJob() {
   hydjetTree_ = f->make<TTree>("hi", "Tree of Hi gen Event");
-  hydjetTree_->Branch("event", &hev_.event, "event/I");
-  hydjetTree_->Branch("b", &hev_.b, "b/F");
-  hydjetTree_->Branch("npart", &hev_.npart, "npart/F");
-  hydjetTree_->Branch("ncoll", &hev_.ncoll, "ncoll/F");
-  hydjetTree_->Branch("nhard", &hev_.nhard, "nhard/F");
-  hydjetTree_->Branch("phi0", &hev_.phi0, "phi0/F");
-  hydjetTree_->Branch("scale", &hev_.scale, "scale/F");
 
-  hydjetTree_->Branch("n", hev_.n, "n[3]/I");
-  hydjetTree_->Branch("ptav", hev_.ptav, "ptav[3]/F");
+  // Filter branch booking, not branch reading: omitted payloads are never written.
+  const auto bookBranch = [this](const char* name, auto&&... args) {
+    if (branchesToKeep_.empty() ||
+        std::find(branchesToKeep_.begin(), branchesToKeep_.end(), name) != branchesToKeep_.end())
+      hydjetTree_->Branch(name, std::forward<decltype(args)>(args)...);
+  };
+
+  bookBranch("event", &hev_.event, "event/I");
+  bookBranch("b", &hev_.b, "b/F");
+  bookBranch("npart", &hev_.npart, "npart/F");
+  bookBranch("ncoll", &hev_.ncoll, "ncoll/F");
+  bookBranch("nhard", &hev_.nhard, "nhard/F");
+  bookBranch("phi0", &hev_.phi0, "phi0/F");
+  bookBranch("scale", &hev_.scale, "scale/F");
+
+  bookBranch("n", hev_.n, "n[3]/I");
+  bookBranch("ptav", hev_.ptav, "ptav[3]/F");
 
   if (doParticles_) {
-    hydjetTree_->Branch("mult", &hev_.mult, "mult/I");
-    hydjetTree_->Branch("pt", &hev_.pt);
-    hydjetTree_->Branch("eta", &hev_.eta);
-    hydjetTree_->Branch("phi", &hev_.phi);
-    hydjetTree_->Branch("pdg", &hev_.pdg);
-    hydjetTree_->Branch("chg", &hev_.chg);
-    hydjetTree_->Branch("matchingID", &hev_.matchingID);
-    hydjetTree_->Branch("nMothers", &hev_.nMothers);
-    hydjetTree_->Branch("motherIdx", &hev_.motherIndex);
-    hydjetTree_->Branch("nDaughters", &hev_.nDaughters);
-    hydjetTree_->Branch("daughterIdx", &hev_.daughterIndex);
+    bookBranch("mult", &hev_.mult, "mult/I");
+    bookBranch("pt", &hev_.pt);
+    bookBranch("eta", &hev_.eta);
+    bookBranch("phi", &hev_.phi);
+    bookBranch("pdg", &hev_.pdg);
+    bookBranch("chg", &hev_.chg);
+    bookBranch("matchingID", &hev_.matchingID);
+    bookBranch("nMothers", &hev_.nMothers);
+    bookBranch("motherIdx", &hev_.motherIndex);
+    bookBranch("nDaughters", &hev_.nDaughters);
+    bookBranch("daughterIdx", &hev_.daughterIndex);
     if (!stableOnly_) {
-      hydjetTree_->Branch("sta", &hev_.sta);
+      bookBranch("sta", &hev_.sta);
     }
-    hydjetTree_->Branch("sube", &hev_.sube);
+    bookBranch("sube", &hev_.sube);
 
-    hydjetTree_->Branch("vx", &hev_.vx, "vx/F");
-    hydjetTree_->Branch("vy", &hev_.vy, "vy/F");
-    hydjetTree_->Branch("vz", &hev_.vz, "vz/F");
-    hydjetTree_->Branch("vr", &hev_.vr, "vr/F");
+    bookBranch("vx", &hev_.vx, "vx/F");
+    bookBranch("vy", &hev_.vy, "vy/F");
+    bookBranch("vz", &hev_.vz, "vz/F");
+    bookBranch("vr", &hev_.vr, "vr/F");
   }
+
+  for (const auto& name : branchesToKeep_)
+    if (!hydjetTree_->GetBranch(name.c_str()))
+      throw cms::Exception("Configuration") << "branchesToKeep requested an unavailable branch: " << name;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

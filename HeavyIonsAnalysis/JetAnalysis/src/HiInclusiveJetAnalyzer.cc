@@ -1,3 +1,7 @@
+#include <algorithm>
+#include <utility>
+#include "FWCore/Utilities/interface/Exception.h"
+
 /*
   Based on the jet response analyzer
   Modified by Matt Nguyen, November 2010
@@ -25,6 +29,7 @@ using namespace edm;
 using namespace reco;
 
 HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig) {
+  branchesToKeep_ = iConfig.getUntrackedParameter<std::vector<std::string>>("branchesToKeep", std::vector<std::string>{});
   doMatch_ = iConfig.getUntrackedParameter<bool>("matchJets", false);
   jetTag_ = consumes<pat::JetCollection>(iConfig.getParameter<InputTag>("jetTag"));
   caloJetTag_ = consumes<reco::CaloJetCollection>(iConfig.getParameter<InputTag>("caloJetTag"));
@@ -141,156 +146,165 @@ void HiInclusiveJetAnalyzer::beginJob() {
   string jetTagTitle = jetTagLabel_.label() + " Jet Analysis Tree";
   t = fs1->make<TTree>("t", jetTagTitle.c_str());
 
-  t->Branch("run", &jets_.run, "run/I");
-  t->Branch("evt", &jets_.evt, "evt/I");
-  t->Branch("lumi", &jets_.lumi, "lumi/I");
-  t->Branch("nref", &jets_.nref, "nref/I");
-  t->Branch("ncalo", &jets_.ncalo, "ncalo/I");
-  t->Branch("rawpt", jets_.rawpt, "rawpt[nref]/F");
-  t->Branch("jtpt", jets_.jtpt, "jtpt[nref]/F");
-  t->Branch("jteta", jets_.jteta, "jteta[nref]/F");
-  t->Branch("jty", jets_.jty, "jty[nref]/F");
-  t->Branch("jtphi", jets_.jtphi, "jtphi[nref]/F");
-  t->Branch("jtpu", jets_.jtpu, "jtpu[nref]/F");
-  t->Branch("jtm", jets_.jtm, "jtm[nref]/F");
-  t->Branch("jtarea", jets_.jtarea, "jtarea[nref]/F");
+  // Filter branch booking, not branch reading: omitted payloads are never written.
+  const auto bookBranch = [this](const char* name, auto&&... args) {
+    if (branchesToKeep_.empty() ||
+        std::find(branchesToKeep_.begin(), branchesToKeep_.end(), name) != branchesToKeep_.end())
+      t->Branch(name, std::forward<decltype(args)>(args)...);
+  };
+
+  bookBranch("run", &jets_.run, "run/I");
+  bookBranch("evt", &jets_.evt, "evt/I");
+  bookBranch("lumi", &jets_.lumi, "lumi/I");
+  bookBranch("nref", &jets_.nref, "nref/I");
+  bookBranch("ncalo", &jets_.ncalo, "ncalo/I");
+  bookBranch("rawpt", jets_.rawpt, "rawpt[nref]/F");
+  bookBranch("jtpt", jets_.jtpt, "jtpt[nref]/F");
+  bookBranch("jteta", jets_.jteta, "jteta[nref]/F");
+  bookBranch("jty", jets_.jty, "jty[nref]/F");
+  bookBranch("jtphi", jets_.jtphi, "jtphi[nref]/F");
+  bookBranch("jtpu", jets_.jtpu, "jtpu[nref]/F");
+  bookBranch("jtm", jets_.jtm, "jtm[nref]/F");
+  bookBranch("jtarea", jets_.jtarea, "jtarea[nref]/F");
 
   if (doCaloJets_) {
-    t->Branch("ncalo", &jets_.ncalo, "ncalo/I");
-    t->Branch("calopt", jets_.calopt, "calopt[ncalo]/F");
-    t->Branch("caloeta", jets_.caloeta, "caloeta[ncalo]/F");
-    t->Branch("calophi", jets_.calophi, "calophi[ncalo]/F");
+    bookBranch("ncalo", &jets_.ncalo, "ncalo/I");
+    bookBranch("calopt", jets_.calopt, "calopt[ncalo]/F");
+    bookBranch("caloeta", jets_.caloeta, "caloeta[ncalo]/F");
+    bookBranch("calophi", jets_.calophi, "calophi[ncalo]/F");
   }
 
   //for reWTA reclustering
   if (doWTARecluster_) {
-    t->Branch("WTAeta", jets_.WTAeta, "WTAeta[nref]/F");
-    t->Branch("WTAphi", jets_.WTAphi, "WTAphi[nref]/F");
+    bookBranch("WTAeta", jets_.WTAeta, "WTAeta[nref]/F");
+    bookBranch("WTAphi", jets_.WTAphi, "WTAphi[nref]/F");
   }
 
-  t->Branch("jtPfCHF", jets_.jtPfCHF, "jtPfCHF[nref]/F");
-  t->Branch("jtPfNHF", jets_.jtPfNHF, "jtPfNHF[nref]/F");
-  t->Branch("jtPfCEF", jets_.jtPfCEF, "jtPfCEF[nref]/F");
-  t->Branch("jtPfNEF", jets_.jtPfNEF, "jtPfNEF[nref]/F");
-  t->Branch("jtPfMUF", jets_.jtPfMUF, "jtPfMUF[nref]/F");
+  bookBranch("jtPfCHF", jets_.jtPfCHF, "jtPfCHF[nref]/F");
+  bookBranch("jtPfNHF", jets_.jtPfNHF, "jtPfNHF[nref]/F");
+  bookBranch("jtPfCEF", jets_.jtPfCEF, "jtPfCEF[nref]/F");
+  bookBranch("jtPfNEF", jets_.jtPfNEF, "jtPfNEF[nref]/F");
+  bookBranch("jtPfMUF", jets_.jtPfMUF, "jtPfMUF[nref]/F");
 
-  t->Branch("jtPfCHM", jets_.jtPfCHM, "jtPfCHM[nref]/I");
-  t->Branch("jtPfNHM", jets_.jtPfNHM, "jtPfNHM[nref]/I");
-  t->Branch("jtPfCEM", jets_.jtPfCEM, "jtPfCEM[nref]/I");
-  t->Branch("jtPfNEM", jets_.jtPfNEM, "jtPfNEM[nref]/I");
-  t->Branch("jtPfMUM", jets_.jtPfMUM, "jtPfMUM[nref]/I");
+  bookBranch("jtPfCHM", jets_.jtPfCHM, "jtPfCHM[nref]/I");
+  bookBranch("jtPfNHM", jets_.jtPfNHM, "jtPfNHM[nref]/I");
+  bookBranch("jtPfCEM", jets_.jtPfCEM, "jtPfCEM[nref]/I");
+  bookBranch("jtPfNEM", jets_.jtPfNEM, "jtPfNEM[nref]/I");
+  bookBranch("jtPfMUM", jets_.jtPfMUM, "jtPfMUM[nref]/I");
+  bookBranch("jtPfCM", jets_.jtPfCM, "jtPfCM[nref]/I");
+  bookBranch("jtPfNM", jets_.jtPfNM, "jtPfNM[nref]/I");
 
-  t->Branch("jttau1", jets_.jttau1, "jttau1[nref]/F");
-  t->Branch("jttau2", jets_.jttau2, "jttau2[nref]/F");
-  t->Branch("jttau3", jets_.jttau3, "jttau3[nref]/F");
+  bookBranch("jttau1", jets_.jttau1, "jttau1[nref]/F");
+  bookBranch("jttau2", jets_.jttau2, "jttau2[nref]/F");
+  bookBranch("jttau3", jets_.jttau3, "jttau3[nref]/F");
 
   if (doSubJets_) {
-    t->Branch("jtSubJetPt", &jets_.jtSubJetPt);
-    t->Branch("jtSubJetEta", &jets_.jtSubJetEta);
-    t->Branch("jtSubJetPhi", &jets_.jtSubJetPhi);
-    t->Branch("jtSubJetM", &jets_.jtSubJetM);
-    t->Branch("jtsym", jets_.jtsym, "jtsym[nref]/F");
-    t->Branch("jtdroppedBranches", jets_.jtdroppedBranches, "jtdroppedBranches[nref]/I");
+    bookBranch("jtSubJetPt", &jets_.jtSubJetPt);
+    bookBranch("jtSubJetEta", &jets_.jtSubJetEta);
+    bookBranch("jtSubJetPhi", &jets_.jtSubJetPhi);
+    bookBranch("jtSubJetM", &jets_.jtSubJetM);
+    bookBranch("jtsym", jets_.jtsym, "jtsym[nref]/F");
+    bookBranch("jtdroppedBranches", jets_.jtdroppedBranches, "jtdroppedBranches[nref]/I");
   }
 
   if (doJetConstituents_) {
-    t->Branch("jtConstituentsId", &jets_.jtConstituentsId);
-    t->Branch("jtConstituentsE", &jets_.jtConstituentsE);
-    t->Branch("jtConstituentsPt", &jets_.jtConstituentsPt);
-    t->Branch("jtConstituentsEta", &jets_.jtConstituentsEta);
-    t->Branch("jtConstituentsPhi", &jets_.jtConstituentsPhi);
-    t->Branch("jtConstituentsM", &jets_.jtConstituentsM);
-    t->Branch("jtSDConstituentsId", &jets_.jtSDConstituentsId);
-    t->Branch("jtSDConstituentsE", &jets_.jtSDConstituentsE);
-    t->Branch("jtSDConstituentsPt", &jets_.jtSDConstituentsPt);
-    t->Branch("jtSDConstituentsEta", &jets_.jtSDConstituentsEta);
-    t->Branch("jtSDConstituentsPhi", &jets_.jtSDConstituentsPhi);
-    t->Branch("jtSDConstituentsM", &jets_.jtSDConstituentsM);
+    bookBranch("jtConstituentsId", &jets_.jtConstituentsId);
+    bookBranch("jtConstituentsE", &jets_.jtConstituentsE);
+    bookBranch("jtConstituentsPt", &jets_.jtConstituentsPt);
+    bookBranch("jtConstituentsEta", &jets_.jtConstituentsEta);
+    bookBranch("jtConstituentsPhi", &jets_.jtConstituentsPhi);
+    bookBranch("jtConstituentsM", &jets_.jtConstituentsM);
+    bookBranch("jtSDConstituentsId", &jets_.jtSDConstituentsId);
+    bookBranch("jtSDConstituentsE", &jets_.jtSDConstituentsE);
+    bookBranch("jtSDConstituentsPt", &jets_.jtSDConstituentsPt);
+    bookBranch("jtSDConstituentsEta", &jets_.jtSDConstituentsEta);
+    bookBranch("jtSDConstituentsPhi", &jets_.jtSDConstituentsPhi);
+    bookBranch("jtSDConstituentsM", &jets_.jtSDConstituentsM);
   }
   // jet ID information, jet composition
   if (doHiJetID_) {
-    t->Branch("trackMax", jets_.trackMax, "trackMax[nref]/F");
-    t->Branch("trackSum", jets_.trackSum, "trackSum[nref]/F");
-    t->Branch("trackN", jets_.trackN, "trackN[nref]/I");
-    t->Branch("trackHardSum", jets_.trackHardSum, "trackHardSum[nref]/F");
-    t->Branch("trackHardN", jets_.trackHardN, "trackHardN[nref]/I");
+    bookBranch("trackMax", jets_.trackMax, "trackMax[nref]/F");
+    bookBranch("trackSum", jets_.trackSum, "trackSum[nref]/F");
+    bookBranch("trackN", jets_.trackN, "trackN[nref]/I");
+    bookBranch("trackHardSum", jets_.trackHardSum, "trackHardSum[nref]/F");
+    bookBranch("trackHardN", jets_.trackHardN, "trackHardN[nref]/I");
 
-    t->Branch("chargedMax", jets_.chargedMax, "chargedMax[nref]/F");
-    t->Branch("chargedSum", jets_.chargedSum, "chargedSum[nref]/F");
-    t->Branch("chargedN", jets_.chargedN, "chargedN[nref]/I");
-    t->Branch("chargedHardSum", jets_.chargedHardSum, "chargedHardSum[nref]/F");
-    t->Branch("chargedHardN", jets_.chargedHardN, "chargedHardN[nref]/I");
+    bookBranch("chargedMax", jets_.chargedMax, "chargedMax[nref]/F");
+    bookBranch("chargedSum", jets_.chargedSum, "chargedSum[nref]/F");
+    bookBranch("chargedN", jets_.chargedN, "chargedN[nref]/I");
+    bookBranch("chargedHardSum", jets_.chargedHardSum, "chargedHardSum[nref]/F");
+    bookBranch("chargedHardN", jets_.chargedHardN, "chargedHardN[nref]/I");
 
-    t->Branch("photonMax", jets_.photonMax, "photonMax[nref]/F");
-    t->Branch("photonSum", jets_.photonSum, "photonSum[nref]/F");
-    t->Branch("photonN", jets_.photonN, "photonN[nref]/I");
-    t->Branch("photonHardSum", jets_.photonHardSum, "photonHardSum[nref]/F");
-    t->Branch("photonHardN", jets_.photonHardN, "photonHardN[nref]/I");
+    bookBranch("photonMax", jets_.photonMax, "photonMax[nref]/F");
+    bookBranch("photonSum", jets_.photonSum, "photonSum[nref]/F");
+    bookBranch("photonN", jets_.photonN, "photonN[nref]/I");
+    bookBranch("photonHardSum", jets_.photonHardSum, "photonHardSum[nref]/F");
+    bookBranch("photonHardN", jets_.photonHardN, "photonHardN[nref]/I");
 
-    t->Branch("neutralMax", jets_.neutralMax, "neutralMax[nref]/F");
-    t->Branch("neutralSum", jets_.neutralSum, "neutralSum[nref]/F");
-    t->Branch("neutralN", jets_.neutralN, "neutralN[nref]/I");
+    bookBranch("neutralMax", jets_.neutralMax, "neutralMax[nref]/F");
+    bookBranch("neutralSum", jets_.neutralSum, "neutralSum[nref]/F");
+    bookBranch("neutralN", jets_.neutralN, "neutralN[nref]/I");
 
-    t->Branch("eMax", jets_.eMax, "eMax[nref]/F");
-    t->Branch("eSum", jets_.eSum, "eSum[nref]/F");
-    t->Branch("eN", jets_.eN, "eN[nref]/I");
+    bookBranch("eMax", jets_.eMax, "eMax[nref]/F");
+    bookBranch("eSum", jets_.eSum, "eSum[nref]/F");
+    bookBranch("eN", jets_.eN, "eN[nref]/I");
 
-    t->Branch("muMax", jets_.muMax, "muMax[nref]/F");
-    t->Branch("muSum", jets_.muSum, "muSum[nref]/F");
-    t->Branch("muN", jets_.muN, "muN[nref]/I");
+    bookBranch("muMax", jets_.muMax, "muMax[nref]/F");
+    bookBranch("muSum", jets_.muSum, "muSum[nref]/F");
+    bookBranch("muN", jets_.muN, "muN[nref]/I");
   }
 
   if (doStandardJetID_) {
-    t->Branch("fHPD", jets_.fHPD, "fHPD[nref]/F");
-    t->Branch("fRBX", jets_.fRBX, "fRBX[nref]/F");
-    t->Branch("n90", jets_.n90, "n90[nref]/I");
-    t->Branch("fSubDet1", jets_.fSubDet1, "fSubDet1[nref]/F");
-    t->Branch("fSubDet2", jets_.fSubDet2, "fSubDet2[nref]/F");
-    t->Branch("fSubDet3", jets_.fSubDet3, "fSubDet3[nref]/F");
-    t->Branch("fSubDet4", jets_.fSubDet4, "fSubDet4[nref]/F");
-    t->Branch("restrictedEMF", jets_.restrictedEMF, "restrictedEMF[nref]/F");
-    t->Branch("nHCAL", jets_.nHCAL, "nHCAL[nref]/I");
-    t->Branch("nECAL", jets_.nECAL, "nECAL[nref]/I");
-    t->Branch("apprHPD", jets_.apprHPD, "apprHPD[nref]/F");
-    t->Branch("apprRBX", jets_.apprRBX, "apprRBX[nref]/F");
-    t->Branch("n2RPC", jets_.n2RPC, "n2RPC[nref]/I");
-    t->Branch("n3RPC", jets_.n3RPC, "n3RPC[nref]/I");
-    t->Branch("nRPC", jets_.nRPC, "nRPC[nref]/I");
+    bookBranch("fHPD", jets_.fHPD, "fHPD[nref]/F");
+    bookBranch("fRBX", jets_.fRBX, "fRBX[nref]/F");
+    bookBranch("n90", jets_.n90, "n90[nref]/I");
+    bookBranch("fSubDet1", jets_.fSubDet1, "fSubDet1[nref]/F");
+    bookBranch("fSubDet2", jets_.fSubDet2, "fSubDet2[nref]/F");
+    bookBranch("fSubDet3", jets_.fSubDet3, "fSubDet3[nref]/F");
+    bookBranch("fSubDet4", jets_.fSubDet4, "fSubDet4[nref]/F");
+    bookBranch("restrictedEMF", jets_.restrictedEMF, "restrictedEMF[nref]/F");
+    bookBranch("nHCAL", jets_.nHCAL, "nHCAL[nref]/I");
+    bookBranch("nECAL", jets_.nECAL, "nECAL[nref]/I");
+    bookBranch("apprHPD", jets_.apprHPD, "apprHPD[nref]/F");
+    bookBranch("apprRBX", jets_.apprRBX, "apprRBX[nref]/F");
+    bookBranch("n2RPC", jets_.n2RPC, "n2RPC[nref]/I");
+    bookBranch("n3RPC", jets_.n3RPC, "n3RPC[nref]/I");
+    bookBranch("nRPC", jets_.nRPC, "nRPC[nref]/I");
 
-    t->Branch("fEB", jets_.fEB, "fEB[nref]/F");
-    t->Branch("fEE", jets_.fEE, "fEE[nref]/F");
-    t->Branch("fHB", jets_.fHB, "fHB[nref]/F");
-    t->Branch("fHE", jets_.fHE, "fHE[nref]/F");
-    t->Branch("fHO", jets_.fHO, "fHO[nref]/F");
-    t->Branch("fLong", jets_.fLong, "fLong[nref]/F");
-    t->Branch("fShort", jets_.fShort, "fShort[nref]/F");
-    t->Branch("fLS", jets_.fLS, "fLS[nref]/F");
-    t->Branch("fHFOOT", jets_.fHFOOT, "fHFOOT[nref]/F");
+    bookBranch("fEB", jets_.fEB, "fEB[nref]/F");
+    bookBranch("fEE", jets_.fEE, "fEE[nref]/F");
+    bookBranch("fHB", jets_.fHB, "fHB[nref]/F");
+    bookBranch("fHE", jets_.fHE, "fHE[nref]/F");
+    bookBranch("fHO", jets_.fHO, "fHO[nref]/F");
+    bookBranch("fLong", jets_.fLong, "fLong[nref]/F");
+    bookBranch("fShort", jets_.fShort, "fShort[nref]/F");
+    bookBranch("fLS", jets_.fLS, "fLS[nref]/F");
+    bookBranch("fHFOOT", jets_.fHFOOT, "fHFOOT[nref]/F");
   }
 
   // Jet ID
   if (doMatch_) {
-    t->Branch("matchedPt", jets_.matchedPt, "matchedPt[nref]/F");
-    t->Branch("matchedRawPt", jets_.matchedRawPt, "matchedRawPt[nref]/F");
-    t->Branch("matchedPu", jets_.matchedPu, "matchedPu[nref]/F");
-    t->Branch("matchedR", jets_.matchedR, "matchedR[nref]/F");
+    bookBranch("matchedPt", jets_.matchedPt, "matchedPt[nref]/F");
+    bookBranch("matchedRawPt", jets_.matchedRawPt, "matchedRawPt[nref]/F");
+    bookBranch("matchedPu", jets_.matchedPu, "matchedPu[nref]/F");
+    bookBranch("matchedR", jets_.matchedR, "matchedR[nref]/F");
     if (isMC_) {
-      t->Branch("matchedHadronFlavor", jets_.matchedHadronFlavor, "matchedHadronFlavor[nref]/I");
-      t->Branch("matchedPartonFlavor", jets_.matchedPartonFlavor, "matchedPartonFlavor[nref]/I");
+      bookBranch("matchedHadronFlavor", jets_.matchedHadronFlavor, "matchedHadronFlavor[nref]/I");
+      bookBranch("matchedPartonFlavor", jets_.matchedPartonFlavor, "matchedPartonFlavor[nref]/I");
     }
   }
 
   if (doBtagging_) {
     for (const auto& tg : jetTaggers_) {
       auto& discr = jets_discr_[tg.first];
-      t->Branch(("discr_" + tg.first).c_str(), discr["b"].data(), ("discr_" + tg.first + "[nref]/F").c_str());
+      bookBranch(("discr_" + tg.first).c_str(), discr["b"].data(), ("discr_" + tg.first + "[nref]/F").c_str());
       if (tg.first == "unifiedParticleTransformer") {
-        t->Branch(("discr_" + tg.first + "_probtau").c_str(),
+        bookBranch(("discr_" + tg.first + "_probtau").c_str(),
                   discr["probtau"].data(),
                   ("discr_" + tg.first + "_probtau[nref]/F").c_str());
         for (const auto& c : tg.second)
           if (c.first.rfind("probtau", 0) != 0)
-            t->Branch(("discr_" + tg.first + "_" + c.first).c_str(),
+            bookBranch(("discr_" + tg.first + "_" + c.first).c_str(),
                       discr[c.first].data(),
                       ("discr_" + tg.first + "_" + c.first + "[nref]/F").c_str());
       }
@@ -298,122 +312,122 @@ void HiInclusiveJetAnalyzer::beginJob() {
   }
   if (isMC_) {
     if (useHepMC_) {
-      t->Branch("beamId1", &jets_.beamId1, "beamId1/I");
-      t->Branch("beamId2", &jets_.beamId2, "beamId2/I");
+      bookBranch("beamId1", &jets_.beamId1, "beamId1/I");
+      bookBranch("beamId2", &jets_.beamId2, "beamId2/I");
     }
 
-    t->Branch("pthat", &jets_.pthat, "pthat/F");
+    bookBranch("pthat", &jets_.pthat, "pthat/F");
 
     // Only matched gen jets
-    t->Branch("refpt", jets_.refpt, "refpt[nref]/F");
-    t->Branch("refeta", jets_.refeta, "refeta[nref]/F");
-    t->Branch("refy", jets_.refy, "refy[nref]/F");
-    t->Branch("refphi", jets_.refphi, "refphi[nref]/F");
-    t->Branch("refm", jets_.refm, "refm[nref]/F");
-    t->Branch("refarea", jets_.refarea, "refarea[nref]/F");
+    bookBranch("refpt", jets_.refpt, "refpt[nref]/F");
+    bookBranch("refeta", jets_.refeta, "refeta[nref]/F");
+    bookBranch("refy", jets_.refy, "refy[nref]/F");
+    bookBranch("refphi", jets_.refphi, "refphi[nref]/F");
+    bookBranch("refm", jets_.refm, "refm[nref]/F");
+    bookBranch("refarea", jets_.refarea, "refarea[nref]/F");
 
     if (doGenTaus_) {
-      t->Branch("reftau1", jets_.reftau1, "reftau1[nref]/F");
-      t->Branch("reftau2", jets_.reftau2, "reftau2[nref]/F");
-      t->Branch("reftau3", jets_.reftau3, "reftau3[nref]/F");
+      bookBranch("reftau1", jets_.reftau1, "reftau1[nref]/F");
+      bookBranch("reftau2", jets_.reftau2, "reftau2[nref]/F");
+      bookBranch("reftau3", jets_.reftau3, "reftau3[nref]/F");
     }
-    t->Branch("refdphijt", jets_.refdphijt, "refdphijt[nref]/F");
-    t->Branch("refdrjt", jets_.refdrjt, "refdrjt[nref]/F");
+    bookBranch("refdphijt", jets_.refdphijt, "refdphijt[nref]/F");
+    bookBranch("refdrjt", jets_.refdrjt, "refdrjt[nref]/F");
     // matched parton
-    t->Branch("refparton_pt", jets_.refparton_pt, "refparton_pt[nref]/F");
-    t->Branch("refparton_flavor", jets_.refparton_flavor, "refparton_flavor[nref]/I");
-    t->Branch("refparton_flavorForB", jets_.refparton_flavorForB, "refparton_flavorForB[nref]/I");
+    bookBranch("refparton_pt", jets_.refparton_pt, "refparton_pt[nref]/F");
+    bookBranch("refparton_flavor", jets_.refparton_flavor, "refparton_flavor[nref]/I");
+    bookBranch("refparton_flavorForB", jets_.refparton_flavorForB, "refparton_flavorForB[nref]/I");
 
     if (doGenSubJets_) {
-      t->Branch("refptG", jets_.refptG, "refptG[nref]/F");
-      t->Branch("refetaG", jets_.refetaG, "refetaG[nref]/F");
-      t->Branch("refphiG", jets_.refphiG, "refphiG[nref]/F");
-      t->Branch("refmG", jets_.refmG, "refmG[nref]/F");
-      t->Branch("refSubJetPt", &jets_.refSubJetPt);
-      t->Branch("refSubJetEta", &jets_.refSubJetEta);
-      t->Branch("refSubJetPhi", &jets_.refSubJetPhi);
-      t->Branch("refSubJetM", &jets_.refSubJetM);
-      t->Branch("refsym", jets_.refsym, "refsym[nref]/F");
-      t->Branch("refdroppedBranches", jets_.refdroppedBranches, "refdroppedBranches[nref]/I");
+      bookBranch("refptG", jets_.refptG, "refptG[nref]/F");
+      bookBranch("refetaG", jets_.refetaG, "refetaG[nref]/F");
+      bookBranch("refphiG", jets_.refphiG, "refphiG[nref]/F");
+      bookBranch("refmG", jets_.refmG, "refmG[nref]/F");
+      bookBranch("refSubJetPt", &jets_.refSubJetPt);
+      bookBranch("refSubJetEta", &jets_.refSubJetEta);
+      bookBranch("refSubJetPhi", &jets_.refSubJetPhi);
+      bookBranch("refSubJetM", &jets_.refSubJetM);
+      bookBranch("refsym", jets_.refsym, "refsym[nref]/F");
+      bookBranch("refdroppedBranches", jets_.refdroppedBranches, "refdroppedBranches[nref]/I");
     }
 
     if (doJetConstituents_) {
-      t->Branch("refConstituentsId", &jets_.refConstituentsId);
-      t->Branch("refConstituentsE", &jets_.refConstituentsE);
-      t->Branch("refConstituentsPt", &jets_.refConstituentsPt);
-      t->Branch("refConstituentsEta", &jets_.refConstituentsEta);
-      t->Branch("refConstituentsPhi", &jets_.refConstituentsPhi);
-      t->Branch("refConstituentsM", &jets_.refConstituentsM);
-      t->Branch("refSDConstituentsId", &jets_.refSDConstituentsId);
-      t->Branch("refSDConstituentsE", &jets_.refSDConstituentsE);
-      t->Branch("refSDConstituentsPt", &jets_.refSDConstituentsPt);
-      t->Branch("refSDConstituentsEta", &jets_.refSDConstituentsEta);
-      t->Branch("refSDConstituentsPhi", &jets_.refSDConstituentsPhi);
-      t->Branch("refSDConstituentsM", &jets_.refSDConstituentsM);
+      bookBranch("refConstituentsId", &jets_.refConstituentsId);
+      bookBranch("refConstituentsE", &jets_.refConstituentsE);
+      bookBranch("refConstituentsPt", &jets_.refConstituentsPt);
+      bookBranch("refConstituentsEta", &jets_.refConstituentsEta);
+      bookBranch("refConstituentsPhi", &jets_.refConstituentsPhi);
+      bookBranch("refConstituentsM", &jets_.refConstituentsM);
+      bookBranch("refSDConstituentsId", &jets_.refSDConstituentsId);
+      bookBranch("refSDConstituentsE", &jets_.refSDConstituentsE);
+      bookBranch("refSDConstituentsPt", &jets_.refSDConstituentsPt);
+      bookBranch("refSDConstituentsEta", &jets_.refSDConstituentsEta);
+      bookBranch("refSDConstituentsPhi", &jets_.refSDConstituentsPhi);
+      bookBranch("refSDConstituentsM", &jets_.refSDConstituentsM);
     }
 
-    t->Branch("genChargedSum", jets_.genChargedSum, "genChargedSum[nref]/F");
-    t->Branch("genHardSum", jets_.genHardSum, "genHardSum[nref]/F");
-    t->Branch("signalChargedSum", jets_.signalChargedSum, "signalChargedSum[nref]/F");
-    t->Branch("signalHardSum", jets_.signalHardSum, "signalHardSum[nref]/F");
+    bookBranch("genChargedSum", jets_.genChargedSum, "genChargedSum[nref]/F");
+    bookBranch("genHardSum", jets_.genHardSum, "genHardSum[nref]/F");
+    bookBranch("signalChargedSum", jets_.signalChargedSum, "signalChargedSum[nref]/F");
+    bookBranch("signalHardSum", jets_.signalHardSum, "signalHardSum[nref]/F");
 
     if (doSubEvent_) {
-      t->Branch("subid", jets_.subid, "subid[nref]/I");
+      bookBranch("subid", jets_.subid, "subid[nref]/I");
     }
 
     if (fillGenJets_) {
       // For all gen jets, matched or unmatched
-      t->Branch("ngen", &jets_.ngen, "ngen/I");
-      t->Branch("genmatchindex", jets_.genmatchindex, "genmatchindex[ngen]/I");
-      t->Branch("genpt", jets_.genpt, "genpt[ngen]/F");
-      t->Branch("geneta", jets_.geneta, "geneta[ngen]/F");
-      t->Branch("geny", jets_.geny, "geny[ngen]/F");
+      bookBranch("ngen", &jets_.ngen, "ngen/I");
+      bookBranch("genmatchindex", jets_.genmatchindex, "genmatchindex[ngen]/I");
+      bookBranch("genpt", jets_.genpt, "genpt[ngen]/F");
+      bookBranch("geneta", jets_.geneta, "geneta[ngen]/F");
+      bookBranch("geny", jets_.geny, "geny[ngen]/F");
       if (doGenTaus_) {
-        t->Branch("gentau1", jets_.gentau1, "gentau1[ngen]/F");
-        t->Branch("gentau2", jets_.gentau2, "gentau2[ngen]/F");
-        t->Branch("gentau3", jets_.gentau3, "gentau3[ngen]/F");
+        bookBranch("gentau1", jets_.gentau1, "gentau1[ngen]/F");
+        bookBranch("gentau2", jets_.gentau2, "gentau2[ngen]/F");
+        bookBranch("gentau3", jets_.gentau3, "gentau3[ngen]/F");
       }
-      t->Branch("genphi", jets_.genphi, "genphi[ngen]/F");
-      t->Branch("genm", jets_.genm, "genm[ngen]/F");
-      t->Branch("gendphijt", jets_.gendphijt, "gendphijt[ngen]/F");
-      t->Branch("gendrjt", jets_.gendrjt, "gendrjt[ngen]/F");
+      bookBranch("genphi", jets_.genphi, "genphi[ngen]/F");
+      bookBranch("genm", jets_.genm, "genm[ngen]/F");
+      bookBranch("gendphijt", jets_.gendphijt, "gendphijt[ngen]/F");
+      bookBranch("gendrjt", jets_.gendrjt, "gendrjt[ngen]/F");
 
       //for reWTA reclustering
       if (doWTARecluster_) {
-        t->Branch("WTAgeneta", jets_.WTAgeneta, "WTAgeneta[ngen]/F");
-        t->Branch("WTAgenphi", jets_.WTAgenphi, "WTAgenphi[ngen]/F");
+        bookBranch("WTAgeneta", jets_.WTAgeneta, "WTAgeneta[ngen]/F");
+        bookBranch("WTAgenphi", jets_.WTAgenphi, "WTAgenphi[ngen]/F");
       }
 
       if (doGenSubJets_) {
-        t->Branch("genptG", jets_.genptG, "genptG[ngen]/F");
-        t->Branch("genetaG", jets_.genetaG, "genetaG[ngen]/F");
-        t->Branch("genphiG", jets_.genphiG, "genphiG[ngen]/F");
-        t->Branch("genmG", jets_.genmG, "genmG[ngen]/F");
-        t->Branch("genSubJetPt", &jets_.genSubJetPt);
-        t->Branch("genSubJetEta", &jets_.genSubJetEta);
-        t->Branch("genSubJetPhi", &jets_.genSubJetPhi);
-        t->Branch("genSubJetM", &jets_.genSubJetM);
-        t->Branch("gensym", jets_.gensym, "gensym[ngen]/F");
-        t->Branch("gendroppedBranches", jets_.gendroppedBranches, "gendroppedBranches[ngen]/I");
+        bookBranch("genptG", jets_.genptG, "genptG[ngen]/F");
+        bookBranch("genetaG", jets_.genetaG, "genetaG[ngen]/F");
+        bookBranch("genphiG", jets_.genphiG, "genphiG[ngen]/F");
+        bookBranch("genmG", jets_.genmG, "genmG[ngen]/F");
+        bookBranch("genSubJetPt", &jets_.genSubJetPt);
+        bookBranch("genSubJetEta", &jets_.genSubJetEta);
+        bookBranch("genSubJetPhi", &jets_.genSubJetPhi);
+        bookBranch("genSubJetM", &jets_.genSubJetM);
+        bookBranch("gensym", jets_.gensym, "gensym[ngen]/F");
+        bookBranch("gendroppedBranches", jets_.gendroppedBranches, "gendroppedBranches[ngen]/I");
       }
 
       if (doJetConstituents_) {
-        t->Branch("genConstituentsId", &jets_.genConstituentsId);
-        t->Branch("genConstituentsE", &jets_.genConstituentsE);
-        t->Branch("genConstituentsPt", &jets_.genConstituentsPt);
-        t->Branch("genConstituentsEta", &jets_.genConstituentsEta);
-        t->Branch("genConstituentsPhi", &jets_.genConstituentsPhi);
-        t->Branch("genConstituentsM", &jets_.genConstituentsM);
-        t->Branch("genSDConstituentsId", &jets_.genSDConstituentsId);
-        t->Branch("genSDConstituentsE", &jets_.genSDConstituentsE);
-        t->Branch("genSDConstituentsPt", &jets_.genSDConstituentsPt);
-        t->Branch("genSDConstituentsEta", &jets_.genSDConstituentsEta);
-        t->Branch("genSDConstituentsPhi", &jets_.genSDConstituentsPhi);
-        t->Branch("genSDConstituentsM", &jets_.genSDConstituentsM);
+        bookBranch("genConstituentsId", &jets_.genConstituentsId);
+        bookBranch("genConstituentsE", &jets_.genConstituentsE);
+        bookBranch("genConstituentsPt", &jets_.genConstituentsPt);
+        bookBranch("genConstituentsEta", &jets_.genConstituentsEta);
+        bookBranch("genConstituentsPhi", &jets_.genConstituentsPhi);
+        bookBranch("genConstituentsM", &jets_.genConstituentsM);
+        bookBranch("genSDConstituentsId", &jets_.genSDConstituentsId);
+        bookBranch("genSDConstituentsE", &jets_.genSDConstituentsE);
+        bookBranch("genSDConstituentsPt", &jets_.genSDConstituentsPt);
+        bookBranch("genSDConstituentsEta", &jets_.genSDConstituentsEta);
+        bookBranch("genSDConstituentsPhi", &jets_.genSDConstituentsPhi);
+        bookBranch("genSDConstituentsM", &jets_.genSDConstituentsM);
       }
 
       if (doSubEvent_) {
-        t->Branch("gensubid", jets_.gensubid, "gensubid[ngen]/I");
+        bookBranch("gensubid", jets_.gensubid, "gensubid[ngen]/I");
       }
     }
   }
@@ -423,6 +437,10 @@ void HiInclusiveJetAnalyzer::beginJob() {
       for (auto& c : t.second)
         memset(c.second.data(), 0, MAXJETS * sizeof(float));
   }
+
+  for (const auto& name : branchesToKeep_)
+    if (!t->GetBranch(name.c_str()))
+      throw cms::Exception("Configuration") << "branchesToKeep requested an unavailable branch: " << name;
 }
 
 void HiInclusiveJetAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup) {
@@ -796,6 +814,8 @@ void HiInclusiveJetAnalyzer::analyze(const Event& iEvent, const EventSetup& iSet
       jets_.jtPfCEM[jets_.nref] = jet.electronMultiplicity();
       jets_.jtPfNEM[jets_.nref] = jet.photonMultiplicity();
       jets_.jtPfMUM[jets_.nref] = jet.muonMultiplicity();
+      jets_.jtPfCM[jets_.nref] = jet.chargedMultiplicity();
+      jets_.jtPfNM[jets_.nref] = jet.neutralMultiplicity();
     } else {
       jets_.jtPfCHF[jets_.nref] = 0;
       jets_.jtPfNHF[jets_.nref] = 0;
@@ -808,6 +828,8 @@ void HiInclusiveJetAnalyzer::analyze(const Event& iEvent, const EventSetup& iSet
       jets_.jtPfCEM[jets_.nref] = 0;
       jets_.jtPfNEM[jets_.nref] = 0;
       jets_.jtPfMUM[jets_.nref] = 0;
+      jets_.jtPfCM[jets_.nref] = 0;
+      jets_.jtPfNM[jets_.nref] = 0;
     }
 
     //    if(isMC_){

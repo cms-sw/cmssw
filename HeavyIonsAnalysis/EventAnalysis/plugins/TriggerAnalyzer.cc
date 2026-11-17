@@ -1,3 +1,6 @@
+#include <algorithm>
+#include <utility>
+#include "FWCore/Utilities/interface/Exception.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmAlgorithm.h"
@@ -34,6 +37,7 @@ public:
 
 private:
   TTree* t_;
+  std::vector<std::string> branchesToKeep_;
 
   unsigned long long fEvent;
   int fLumiBlock;
@@ -90,12 +94,19 @@ TriggerAnalyzer::TriggerAnalyzer(edm::ParameterSet const& conf)
   // open the tree file and initialize the tree
   edm::Service<TFileService> fs;
   t_ = fs->make<TTree>("HltTree", "");
+  const auto bookBranch = [this](const char* name, auto&&... args) {
+    if (branchesToKeep_.empty() ||
+        std::find(branchesToKeep_.begin(), branchesToKeep_.end(), name) != branchesToKeep_.end())
+      t_->Branch(name, std::forward<decltype(args)>(args)...);
+  };
 
-  t_->Branch("Event", &fEvent, "Event/l");
-  t_->Branch("LumiBlock", &fLumiBlock, "LumiBlock/I");
-  t_->Branch("Run", &fRun, "Run/I");
-  t_->Branch("Bx", &fBx, "Bx/I");
-  t_->Branch("Orbit", &fOrbit, "Orbit/I");
+  branchesToKeep_ = conf.getUntrackedParameter<std::vector<std::string>>("branchesToKeep", {});
+
+  bookBranch("Event", &fEvent, "Event/l");
+  bookBranch("LumiBlock", &fLumiBlock, "LumiBlock/I");
+  bookBranch("Run", &fRun, "Run/I");
+  bookBranch("Bx", &fBx, "Bx/I");
+  bookBranch("Orbit", &fOrbit, "Orbit/I");
 }
 
 TriggerAnalyzer::~TriggerAnalyzer() {
@@ -107,6 +118,12 @@ TriggerAnalyzer::~TriggerAnalyzer() {
 }
 
 void TriggerAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+  const auto bookBranch = [this](const char* name, auto&&... args) {
+    if (branchesToKeep_.empty() ||
+        std::find(branchesToKeep_.begin(), branchesToKeep_.end(), name) != branchesToKeep_.end())
+      t_->Branch(name, std::forward<decltype(args)>(args)...);
+  };
+
   edm::Handle<edm::TriggerResults> hltresults;
   edm::Handle<GlobalAlgBlkBxCollection> l1results;
 
@@ -139,9 +156,9 @@ void TriggerAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& i
       int itdum = 0;
       for (auto const& dummy : hltdummies) {
         TString dummyname(dummy.data());
-        t_->Branch(dummyname, hltflag + itdum, dummyname + "/I");
-        t_->Branch(dummyname + "_PrescaleNumerator", hltPrescaleNumerator + itdum, dummyname + "_PrescaleNumerator/I");
-        t_->Branch(dummyname + "_PrescaleDenominator", hltPrescaleDenominator + itdum, dummyname + "_PrescaleDenominator/I");
+        bookBranch(dummyname, hltflag + itdum, dummyname + "/I");
+        bookBranch(dummyname + "_PrescaleNumerator", hltPrescaleNumerator + itdum, dummyname + "_PrescaleNumerator/I");
+        bookBranch(dummyname + "_PrescaleDenominator", hltPrescaleDenominator + itdum, dummyname + "_PrescaleDenominator/I");
         pathtoindex[dummy] = itdum;
         ++itdum;
       }
@@ -150,13 +167,17 @@ void TriggerAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& i
         const std::string& trigname = triggerNames.triggerName(itrig);
         if (pathtoindex.find(trigname) == pathtoindex.end()) {
           TString hltname = trigname;
-          t_->Branch(hltname, hltflag + itdum + itrig, hltname + "/I");
-          t_->Branch(hltname + "_PrescaleNumerator", hltPrescaleNumerator + itdum + itrig, hltname + "_PrescaleNumerator/I");
-          t_->Branch(hltname + "_PrescaleDenominator", hltPrescaleDenominator + itdum + itrig, hltname + "_PrescaleDenominator/I");
+          bookBranch(hltname, hltflag + itdum + itrig, hltname + "/I");
+          bookBranch(hltname + "_PrescaleNumerator", hltPrescaleNumerator + itdum + itrig, hltname + "_PrescaleNumerator/I");
+          bookBranch(hltname + "_PrescaleDenominator", hltPrescaleDenominator + itdum + itrig, hltname + "_PrescaleDenominator/I");
           pathtoindex[trigname] = itdum + itrig;
         }
       }
 
+
+      for (const auto& name : branchesToKeep_)
+        if (!t_->GetBranch(name.c_str()))
+          throw cms::Exception("Configuration") << "branchesToKeep requested an unavailable branch: " << name;
       HltEvtCnt++;
     }
     // ...Fill the corresponding accepts in branch-variables
@@ -198,8 +219,8 @@ void TriggerAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& i
       int itdum = 0;
       for (auto const& dummy : l1dummies) {
         TString dummyname(dummy.data());
-        t_->Branch(dummyname, l1flag + itdum, dummyname + "/I");
-        t_->Branch(dummyname + "_Prescl", l1Prescl + itdum, dummyname + "_Prescl/I");
+        bookBranch(dummyname, l1flag + itdum, dummyname + "/I");
+        bookBranch(dummyname + "_Prescl", l1Prescl + itdum, dummyname + "_Prescl/I");
         pathtoindex[dummy] = itdum;
         ++itdum;
       }
@@ -211,8 +232,8 @@ void TriggerAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& i
 
         if (pathtoindex.find(trigname) == pathtoindex.end()) {
           TString l1name = trigname;
-          t_->Branch(l1name, l1flag + itdum + il1, l1name + "/I");
-          t_->Branch(l1name + "_Prescl", l1Prescl + itdum + il1, l1name + "_Prescl/I");
+          bookBranch(l1name, l1flag + itdum + il1, l1name + "/I");
+          bookBranch(l1name + "_Prescl", l1Prescl + itdum + il1, l1name + "_Prescl/I");
           pathtoindex[trigname] = itdum + il1;
           ++il1;
         }
