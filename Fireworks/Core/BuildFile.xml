@@ -36,6 +36,7 @@
 <use name="rootx11"/>
 <use name="rootrgl"/>
 <use name="rootgui"/>
+<use name="rootasimageutils"/>
 <use name="hepmc"/>
 <export>
   <lib name="1"/>

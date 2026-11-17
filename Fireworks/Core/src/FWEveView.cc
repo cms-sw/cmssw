@@ -10,7 +10,7 @@
 //         Created:  Thu Mar 16 14:11:32 CET 2010
 //
 
-#include <RVersion.h>
+#include <ROOT/RVersion.hxx>
 #include <functional>
 #include <stdexcept>
 #include <string>
