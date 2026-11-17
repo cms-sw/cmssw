@@ -20,6 +20,7 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/PatCandidates/interface/GenJet.h"
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -115,8 +116,17 @@ namespace pat {
 
       /// return the matched generated parton
       const reco::GenParticle* genParton() const { return genParticle(); }
-      /// return the matched generated jet
+      /// return the matched generated jet: embedded copy, else genJetRef, else the pat::GenJet link (if set), else
+      /// genJetFwdRef. A pat::GenJet is a reco::GenJet, so the pat::GenJet link gives the same object type.
       const reco::GenJet* genJet() const;
+      /// link to the matched pat::GenJet (null unless set, e.g. by PATJetSlimmer with its patGenJets option)
+      pat::GenJetRef const& patGenJetRef() const { return patGenJetRef_; }
+      /// the matched pat::GenJet, or nullptr if the link is not set
+      const pat::GenJet* patGenJet() const { return patGenJetRef_.isNonnull() ? patGenJetRef_.get() : nullptr; }
+      /// the matched gen jet as a Ptr: the pat::GenJet link if set, else the "back" link of genJetFwdRef (the gen
+      /// jet the matching used), else null. Its key is the same for both links (the pat::GenJet twin sits at the
+      /// index of the old gen jet), so string expressions (NanoAOD indices) can use it for either kind of input.
+      edm::Ptr<reco::GenJet> matchedGenJetPtr() const;
       /// return the parton-based flavour of the jet
       int partonFlavour() const;
       /// return the hadron-based flavour of the jet
@@ -266,6 +276,8 @@ namespace pat {
       void setGenParton(const reco::GenParticleRef& gp, bool embed = false) { setGenParticleRef(gp, embed); }
       /// method to set the matched generated jet reference, embedding if requested
       void setGenJetRef(const edm::FwdRef<reco::GenJetCollection>& gj);
+      /// method to set the link to the matched pat::GenJet
+      void setPatGenJetRef(const pat::GenJetRef& gj) { patGenJetRef_ = gj; }
       /// method to set the parton-based flavour of the jet
       void setPartonFlavour(int partonFl);
       /// method to set the hadron-based flavour of the jet
@@ -623,6 +635,7 @@ namespace pat {
       std::vector<reco::GenJet> genJet_;
       reco::GenJetRefVector genJetRef_;
       edm::FwdRef<reco::GenJetCollection> genJetFwdRef_;
+      pat::GenJetRef patGenJetRef_;  // link to the matched pat::GenJet (class version 4)
       reco::JetFlavourInfo jetFlavourInfo_;
 
       // ---- energy scale correction factors ----
