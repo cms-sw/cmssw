@@ -1,11 +1,14 @@
 #include "DQMOffline/RecoB/interface/EffPurFromHistos.h"
 #include "DQMOffline/RecoB/interface/Tools.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TStyle.h"
 #include "TCanvas.h"
 
+#include <algorithm>
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -31,7 +34,7 @@ EffPurFromHistos::EffPurFromHistos(const std::string& ext,
                                    double endO)
     : fromDiscriminatorDistr(false),
       mcPlots_(mc),
-      doCTagPlots_(false),
+      signalFlavour_("B"),
       label_(label),
       histoExtension(ext),
       effVersusDiscr_d(h_d),
@@ -60,7 +63,7 @@ EffPurFromHistos::EffPurFromHistos(const FlavourHistograms<double>& dDiscriminat
                                    double endO)
     : fromDiscriminatorDistr(true),
       mcPlots_(mc),
-      doCTagPlots_(false),
+      signalFlavour_("B"),
       label_(label),
       nBinOutput(nBin),
       startOutput(startO),
@@ -209,15 +212,9 @@ void EffPurFromHistos::epsPlot(const std::string& name) {
 void EffPurFromHistos::psPlot(const std::string& name) { plot(name, ".ps"); }
 
 void EffPurFromHistos::plot(const std::string& name, const std::string& ext) {
-  std::string hX = "";
-  std::string Title = "";
-  if (!doCTagPlots_) {
-    hX = "FlavEffVsBEff";
-    Title = "b";
-  } else {
-    hX = "FlavEffVsCEff";
-    Title = "c";
-  }
+  const std::string hX = "FlavEffVs" + signalFlavour_ + "Eff";
+  std::string Title = signalFlavour_;
+  std::transform(Title.begin(), Title.end(), Title.begin(), ::tolower);
   TCanvas tc((hX + histoExtension).c_str(),
              ("Flavour misidentification vs. " + Title + "-tagging efficiency " + histoExtension).c_str());
   plot(&tc);
@@ -274,12 +271,8 @@ void EffPurFromHistos::plot(TPad* plotCanvas /* = 0 */) {
     mStyle_ni = 27;
   }
 
-  TString Title = "";
-  if (!doCTagPlots_) {
-    Title = "b";
-  } else {
-    Title = "c";
-  }
+  TString Title = signalFlavour_;
+  Title.ToLower();
 
   // for the moment: plot c,dus,g
   if (mcPlots_ > 2) {
@@ -446,6 +439,62 @@ void EffPurFromHistos::check() {
   }
 }
 
+TH1F* EffPurFromHistos::effVersusDiscr(const std::string& flavour) const {
+  if (flavour == "B")
+    return effVersusDiscr_b;
+  if (flavour == "C")
+    return effVersusDiscr_c;
+  if (flavour == "DUSG")
+    return effVersusDiscr_dusg;
+  if (flavour == "NI")
+    return effVersusDiscr_ni;
+  if (flavour == "PU")
+    return effVersusDiscr_pu;
+  if (mcPlots_ > 2) {
+    if (flavour == "D")
+      return effVersusDiscr_d;
+    if (flavour == "U")
+      return effVersusDiscr_u;
+    if (flavour == "S")
+      return effVersusDiscr_s;
+    if (flavour == "G")
+      return effVersusDiscr_g;
+    if (flavour == "DUS")
+      return effVersusDiscr_dus;
+  }
+  return nullptr;
+}
+
+double EffPurFromHistos::nJets(const std::string& flavour) const {
+  // only known when built from the discriminator distributions (totalEntries = number of jets in every bin);
+  // the d/u/s/g/dus histograms exist only for mcPlots > 2, so they are not touched otherwise
+  if (!fromDiscriminatorDistr || !discrNoCutEffic || effVersusDiscr(flavour) == nullptr)
+    return -1.;
+  const FlavourHistograms<double>& total = *discrNoCutEffic;
+  TH1F* h = nullptr;
+  if (flavour == "B")
+    h = total.histo_b();
+  else if (flavour == "C")
+    h = total.histo_c();
+  else if (flavour == "DUSG")
+    h = total.histo_dusg();
+  else if (flavour == "NI")
+    h = total.histo_ni();
+  else if (flavour == "PU")
+    h = total.histo_pu();
+  else if (flavour == "D")
+    h = total.histo_d();
+  else if (flavour == "U")
+    h = total.histo_u();
+  else if (flavour == "S")
+    h = total.histo_s();
+  else if (flavour == "G")
+    h = total.histo_g();
+  else if (flavour == "DUS")
+    h = total.histo_dus();
+  return h == nullptr ? -1. : h->GetBinContent(1);
+}
+
 void EffPurFromHistos::compute(DQMStore::IBooker& ibook) {
   if (!mcPlots_) {
     EffFlavVsXEff_d = nullptr;
@@ -463,15 +512,15 @@ void EffPurFromHistos::compute(DQMStore::IBooker& ibook) {
 
   // to have shorter names ......
   const std::string& hE = histoExtension;
-  std::string hX = "";
-  TString Title = "";
-  if (!doCTagPlots_) {
-    hX = "FlavEffVsBEff_";
-    Title = "b";
-  } else {
-    hX = "FlavEffVsCEff_";
-    Title = "c";
+  // the signal flavour defines the x axis; fall back to b if it is not available at this MC level
+  if (effVersusDiscr(signalFlavour_) == nullptr) {
+    edm::LogWarning("EffPurFromHistos") << "Signal flavour '" << signalFlavour_ << "' not available for "
+                                        << histoExtension << " (MC level " << mcPlots_ << "), using B instead";
+    signalFlavour_ = "B";
   }
+  const std::string hX = "FlavEffVs" + signalFlavour_ + "Eff_";
+  TString Title = signalFlavour_;
+  Title.ToLower();
 
   // create histograms from base name and extension as given from user
   // BINNING MUST BE IDENTICAL FOR ALL OF THEM!!
@@ -548,58 +597,47 @@ void EffPurFromHistos::compute(DQMStore::IBooker& ibook) {
   EffFlavVsXEff_pu->getTH1F()->GetXaxis()->SetTitleOffset(0.75);
   EffFlavVsXEff_pu->getTH1F()->GetYaxis()->SetTitleOffset(0.75);
 
-  // loop over eff. vs. discriminator cut b-histo and look in which bin the closest entry is;
-  // use fact that eff decreases monotonously
+  // Loop over the x bins (signal efficiency) and take, for each, the discriminator cut whose signal efficiency is
+  // closest to the bin centre within the bin; bins without such a cut stay empty (the efficiency decreases
+  // monotonically with the cut). A flavour without jets gets no curve (its efficiency would be 0/0).
+  const TH1F* effSignal = effVersusDiscr(signalFlavour_);
+  if (nJets(signalFlavour_) == 0.)
+    return;
 
-  // any of the histos to be created can be taken here:
-  MonitorElement* EffFlavVsXEff = EffFlavVsXEff_b;
+  struct Curve {
+    MonitorElement* out;
+    const TH1F* eff;
+  };
+  std::vector<Curve> curves;
+  auto addCurve = [&](MonitorElement* out, const std::string& flavour) {
+    if (out != nullptr && nJets(flavour) != 0.)
+      curves.push_back({out, effVersusDiscr(flavour)});
+  };
+  if (mcPlots_ > 2) {
+    addCurve(EffFlavVsXEff_d, "D");
+    addCurve(EffFlavVsXEff_u, "U");
+    addCurve(EffFlavVsXEff_s, "S");
+    addCurve(EffFlavVsXEff_g, "G");
+    addCurve(EffFlavVsXEff_dus, "DUS");
+  }
+  addCurve(EffFlavVsXEff_c, "C");
+  addCurve(EffFlavVsXEff_b, "B");
+  addCurve(EffFlavVsXEff_ni, "NI");
+  addCurve(EffFlavVsXEff_dusg, "DUSG");
+  addCurve(EffFlavVsXEff_pu, "PU");
 
-  const int& nBinX = EffFlavVsXEff->getTH1F()->GetNbinsX();
-
-  for (int iBinX = 1; iBinX <= nBinX; iBinX++) {  // loop over the bins on the x-axis of the histograms to be filled
-
-    const float& effXBinWidth = EffFlavVsXEff->getTH1F()->GetBinWidth(iBinX);
-    const float& effXMid = EffFlavVsXEff->getTH1F()->GetBinCenter(iBinX);  // middle of b-efficiency bin
-    const float& effXLeft = effXMid - 0.5 * effXBinWidth;                  // left edge of bin
-    const float& effXRight = effXMid + 0.5 * effXBinWidth;                 // right edge of bin
-    // find the corresponding bin in the efficiency versus discriminator cut histo: closest one in efficiency
-
-    int binClosest = -1;
-    if (!doCTagPlots_) {
-      binClosest = findBinClosestYValue(effVersusDiscr_b, effXMid, effXLeft, effXRight);
-    } else {
-      binClosest = findBinClosestYValue(effVersusDiscr_c, effXMid, effXLeft, effXRight);
-    }
-
-    const bool& binFound = (binClosest > 0);
-    //
-    if (binFound) {
-      // fill the histos
-      if (mcPlots_ > 2) {
-        EffFlavVsXEff_d->Fill(effXMid, effVersusDiscr_d->GetBinContent(binClosest));
-        EffFlavVsXEff_u->Fill(effXMid, effVersusDiscr_u->GetBinContent(binClosest));
-        EffFlavVsXEff_s->Fill(effXMid, effVersusDiscr_s->GetBinContent(binClosest));
-        EffFlavVsXEff_g->Fill(effXMid, effVersusDiscr_g->GetBinContent(binClosest));
-        EffFlavVsXEff_dus->Fill(effXMid, effVersusDiscr_dus->GetBinContent(binClosest));
-      }
-      EffFlavVsXEff_c->Fill(effXMid, effVersusDiscr_c->GetBinContent(binClosest));
-      EffFlavVsXEff_b->Fill(effXMid, effVersusDiscr_b->GetBinContent(binClosest));
-      EffFlavVsXEff_ni->Fill(effXMid, effVersusDiscr_ni->GetBinContent(binClosest));
-      EffFlavVsXEff_dusg->Fill(effXMid, effVersusDiscr_dusg->GetBinContent(binClosest));
-      EffFlavVsXEff_pu->Fill(effXMid, effVersusDiscr_pu->GetBinContent(binClosest));
-
-      if (mcPlots_ > 2) {
-        EffFlavVsXEff_d->getTH1F()->SetBinError(iBinX, effVersusDiscr_d->GetBinError(binClosest));
-        EffFlavVsXEff_u->getTH1F()->SetBinError(iBinX, effVersusDiscr_u->GetBinError(binClosest));
-        EffFlavVsXEff_s->getTH1F()->SetBinError(iBinX, effVersusDiscr_s->GetBinError(binClosest));
-        EffFlavVsXEff_g->getTH1F()->SetBinError(iBinX, effVersusDiscr_g->GetBinError(binClosest));
-        EffFlavVsXEff_dus->getTH1F()->SetBinError(iBinX, effVersusDiscr_dus->GetBinError(binClosest));
-      }
-      EffFlavVsXEff_c->getTH1F()->SetBinError(iBinX, effVersusDiscr_c->GetBinError(binClosest));
-      EffFlavVsXEff_b->getTH1F()->SetBinError(iBinX, effVersusDiscr_b->GetBinError(binClosest));
-      EffFlavVsXEff_ni->getTH1F()->SetBinError(iBinX, effVersusDiscr_ni->GetBinError(binClosest));
-      EffFlavVsXEff_dusg->getTH1F()->SetBinError(iBinX, effVersusDiscr_dusg->GetBinError(binClosest));
-      EffFlavVsXEff_pu->getTH1F()->SetBinError(iBinX, effVersusDiscr_pu->GetBinError(binClosest));
+  const int nBinX = EffFlavVsXEff_b->getTH1F()->GetNbinsX();
+  for (int iBinX = 1; iBinX <= nBinX; iBinX++) {
+    const float effXBinWidth = EffFlavVsXEff_b->getTH1F()->GetBinWidth(iBinX);
+    const float effXMid = EffFlavVsXEff_b->getTH1F()->GetBinCenter(iBinX);
+    const float effXLeft = effXMid - 0.5 * effXBinWidth;
+    const float effXRight = effXMid + 0.5 * effXBinWidth;
+    const int binClosest = findBinClosestYValue(effSignal, effXMid, effXLeft, effXRight);
+    if (binClosest <= 0)
+      continue;
+    for (const auto& curve : curves) {
+      curve.out->Fill(effXMid, curve.eff->GetBinContent(binClosest));
+      curve.out->getTH1F()->SetBinError(iBinX, curve.eff->GetBinError(binClosest));
     }
   }
 }

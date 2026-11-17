@@ -31,6 +31,7 @@ for meta_tagger in pfParticleNetFromMiniAODAK4PuppiForwardJetTagsMetaDiscr:
         ParticleNetPuppiForwardDiscriminators[discr] = cms.PSet(
             commonTaggerConfig,
             qgTagGenericAnalysisBlock,
+            signalFlavour = cms.string('DUS'), # ROC x axis: light-quark efficiency
         )
 
 ############################################################
@@ -72,12 +73,14 @@ for meta_tagger in pfUnifiedParticleTransformerAK4JetTagsMetaDiscrs:
     elif "QvsG" in discr:
         UParTDiscriminators[discr] = cms.PSet(
             commonTaggerConfig,
-            cTagGenericAnalysisBlock
+            cTagGenericAnalysisBlock,
+            signalFlavour = cms.string('DUS'), # ROC x axis: light-quark efficiency
         )
     elif "Svs" in discr:
         UParTDiscriminators[discr] = cms.PSet(
             commonTaggerConfig,
-            cTagGenericAnalysisBlock
+            cTagGenericAnalysisBlock,
+            signalFlavour = cms.string('S'), # ROC x axis: s-jet efficiency
         )
     elif "TauVs" in discr:
         UParTDiscriminators[discr] = cms.PSet(
