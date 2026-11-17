@@ -32,9 +32,6 @@ bTagMiniDQMGlobal = cms.PSet(
     ptMax = cms.double(40000.),
 )
 bTagMiniValidationGlobal = bTagMiniDQMGlobal.clone(
-    MClevel = 1 # produce flavour plots for b, c ,light (dusg)
-)
-bTagMiniValidationGlobalUParT = bTagMiniDQMGlobal.clone(
     MClevel = 3 # produce flavour plots for b, c, light split into d, u, s, g (odd: ALL is already booked by DQM)
 )
 
@@ -116,7 +113,7 @@ for tagger in taggersToAnalyze:
                  bTagMiniValidationHarvesting,
                  discriminators=taggersToAnalyze[tagger]['discriminators'],
                  regions=taggersToAnalyze[tagger]['regions'],
-                 globalPSet=bTagMiniValidationGlobalUParT if "UParT" in tagger else bTagMiniValidationGlobal,
+                 globalPSet=bTagMiniValidationGlobal,
                  label=tagger+'Validation')
 
 #####################################################################################

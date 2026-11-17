@@ -582,7 +582,8 @@ double FlavourHistograms<T>::ClopperPearsonUnc(double num, double den) {
 
 template <class T>
 void FlavourHistograms<T>::ComputeEfficiency(TH1F* num, TH1F* den, int bin) {
-  double effVal = 1.;
+  // bins without jets in the denominator stay at 0 (no fake 100 % efficiency for empty bins or flavours)
+  double effVal = 0.;
   double errVal = 0.;
   double numVal = num->GetBinContent(bin);
   double denVal = den->GetBinContent(bin);
