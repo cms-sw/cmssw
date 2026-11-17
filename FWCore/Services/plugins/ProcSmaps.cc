@@ -61,7 +61,7 @@ namespace {
   }
 
   // Parses a mapping header line, reusing the storage of mapping.path
-  void parseHeader(std::string_view line, Mapping& mapping, bool collectLibraryPaths) {
+  void parseHeader(std::string_view line, Mapping& mapping, bool collectPaths_) {
     mapping.section = edm::service::SmapsSection::kOther;
     mapping.executable = false;
     mapping.vsizeKB_ = 0;
@@ -91,9 +91,10 @@ namespace {
       } else {
         mapping.section = edm::service::SmapsSection::kOtherFile;
       }
-      // The path is needed only for the per-library information (shared objects and PCMs)
-      if (collectLibraryPaths and (mapping.section == edm::service::SmapsSection::kSharedObject or
-                                   mapping.section == edm::service::SmapsSection::kPcm)) {
+      // The path is needed only for the per-memory-mapped-file information (shared objects, PCMs, and other files)
+      if (collectPaths_ and (mapping.section == edm::service::SmapsSection::kSharedObject or
+                             mapping.section == edm::service::SmapsSection::kPcm or
+                             mapping.section == edm::service::SmapsSection::kOtherFile)) {
         mapping.path.assign(path);
       }
     } else if (path == "[stack]") {
@@ -117,14 +118,14 @@ namespace {
 }  // namespace
 
 // Parses the content of an smaps file read from the open file descriptor fd.
-// The per-library information (SmapsInfo::libraries) is collected only if
-// collectLibraryPaths is true, because it requires memory allocations.
+// The per-memory-mapped-file information (SmapsInfo::paths) is collected only if
+// collectPaths is true, because it requires memory allocations.
 // Returns an empty optional if reading the file failed.
 
 namespace edm::service {
-  std::optional<SmapsInfo> parseProcSmaps(int fd, bool collectLibraryPaths) {
+  std::optional<SmapsInfo> parseProcSmaps(int fd, bool collectPaths_) {
     SmapsInfo result;
-    std::unordered_map<std::string, SmapsLibraryInfo> libraries;
+    std::unordered_map<std::string, SmapsPathInfo> paths;
     Mapping mapping;
     bool haveMapping = false;
 
@@ -141,17 +142,18 @@ namespace edm::service {
           result.sectionExecutableSize_[index] += mapping.vsizeKB_;
         }
       }
-      if (collectLibraryPaths and mapping.section == SmapsSection::kSharedObject) {
-        auto it = libraries.find(mapping.path);
-        if (it == libraries.end()) {
-          it = libraries.emplace(mapping.path, SmapsLibraryInfo{}).first;
+      if (collectPaths_ and (mapping.section == SmapsSection::kSharedObject or mapping.section == SmapsSection::kPcm or
+                             mapping.section == SmapsSection::kOtherFile)) {
+        auto it = paths.find(mapping.path);
+        if (it == paths.end()) {
+          it = paths.emplace(mapping.path, SmapsPathInfo{}).first;
         }
-        auto& library = it->second;
-        library.vsizeKB_ += mapping.vsizeKB_;
-        library.rssKB_ += mapping.rssKB_;
-        library.pssKB_ += mapping.pssKB_;
+        auto& pathInfo = it->second;
+        pathInfo.vsizeKB_ += mapping.vsizeKB_;
+        pathInfo.rssKB_ += mapping.rssKB_;
+        pathInfo.pssKB_ += mapping.pssKB_;
         if (mapping.executable) {
-          library.executableSizeKB_ += mapping.vsizeKB_;
+          pathInfo.executableSizeKB_ += mapping.vsizeKB_;
         }
       }
     };
@@ -159,7 +161,7 @@ namespace edm::service {
     auto processLine = [&](std::string_view line) {
       if (isMappingHeader(line)) {
         finishMapping();
-        parseHeader(line, mapping, collectLibraryPaths);
+        parseHeader(line, mapping, collectPaths_);
         haveMapping = true;
       } else if (line.starts_with("Private_Clean:") or line.starts_with("Private_Dirty:")) {
         result.privateKB_ += valueKB(line);
@@ -220,20 +222,19 @@ namespace edm::service {
     }
     finishMapping();
 
-    if (collectLibraryPaths) {
-      // Report only the file name of a library, unless there are several
-      // libraries with the same file name, in which case the full path is kept.
+    if (collectPaths_) {
+      // Report the full paths of the mapped files.
 
-      result.libraries.reserve(libraries.size());
-      for (auto& [path, library] : libraries) {
-        library.name = path;
-        result.libraries.emplace_back(std::move(library));
+      result.paths.reserve(paths.size());
+      for (auto& [path, pathInfo] : paths) {
+        pathInfo.path = path;
+        result.paths.emplace_back(std::move(pathInfo));
       }
     }
     return result;
   }
 
-  std::optional<SmapsInfo> readProcSmaps(bool collectLibraryPaths) {
+  std::optional<SmapsInfo> readProcSmaps(bool collectPaths) {
     std::string const& path = "/proc/self/smaps";
     int const fd = ::open(path.c_str(), O_RDONLY | O_CLOEXEC);
     if (fd < 0) {
@@ -243,6 +244,6 @@ namespace edm::service {
       int fd;
       ~FdCloser() { ::close(fd); }
     } closer{fd};
-    return parseProcSmaps(fd, collectLibraryPaths);
+    return parseProcSmaps(fd, collectPaths);
   }
 }  // namespace edm::service

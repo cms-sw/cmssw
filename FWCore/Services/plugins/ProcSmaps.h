@@ -10,9 +10,9 @@
 namespace edm::service {
   enum class SmapsSection : unsigned int { kSharedObject = 0, kPcm, kOtherFile, kStack, kMmap, kOther, kSize };
 
-  struct SmapsLibraryInfo {
+  struct SmapsPathInfo {
     // The full path name
-    std::string name;
+    std::string path;
     std::uint64_t vsizeKB_ = 0;
     std::uint64_t rssKB_ = 0;
     std::uint64_t pssKB_ = 0;
@@ -29,17 +29,17 @@ namespace edm::service {
     // Totals over all shared object mappings (the vsize and RSS are in sectionVSize_ and sectionRss_)
     std::array<std::uint64_t, sectionsSize_> sectionPss_{};
     std::array<std::uint64_t, sectionsSize_> sectionExecutableSize_{};
-    // Filled only if the per-library information was requested
-    std::vector<SmapsLibraryInfo> libraries;
+    // Filled only if the per-memory-mapped-file path information was requested
+    std::vector<SmapsPathInfo> paths;
   };
 
   // Opens and parses the smaps file.
   // Returns an empty optional if the file could not be opened or read, it is
   // up to the caller to decide whether that is an error.
-  // The per-library information (SmapsInfo::libraries) is collected only if
-  // collectLibraryPaths is true, because it requires memory allocations.
+  // The per-memory-mapped-file path information (SmapsInfo::paths) is collected only if
+  // collectPaths is true, because it requires memory allocations.
 
-  std::optional<SmapsInfo> readProcSmaps(bool collectLibraryPaths = false);
+  std::optional<SmapsInfo> readProcSmaps(bool collectPaths = false);
 }  // namespace edm::service
 
 #endif
