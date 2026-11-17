@@ -43,6 +43,7 @@ public:
   unsigned getStage2FpgaFromStage1Link(const unsigned) const final;
   geom_set getStage1LinksFromStage1Fpga(const unsigned) const final;
   std::vector<unsigned> getLpgbtsFromStage1Fpga(const unsigned) const final;
+  geom_set getModulesFromStage1Fpga(const unsigned) const final;
   unsigned getStage1FpgaFromLpgbt(const unsigned) const final;
   geom_set getModulesFromLpgbt(const unsigned) const final;
   geom_set getLpgbtsFromModule(const unsigned) const final;
@@ -59,6 +60,7 @@ public:
   bool disconnectedModule(const unsigned) const final;
   unsigned lastTriggerLayer() const final { return last_trigger_layer_; }
   unsigned triggerLayer(const unsigned) const final;
+  const std::vector<unsigned>& triggerLayers() const final { return trigger_layers_; }
 
 private:
   // HSc trigger cell grouping
@@ -866,6 +868,11 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp2::getStage1LinksFro
 std::vector<unsigned> HGCalTriggerGeometryV9Imp2::getLpgbtsFromStage1Fpga(const unsigned) const {
   std::vector<unsigned> lpgbt_ids;
   return lpgbt_ids;
+}
+
+HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp2::getModulesFromStage1Fpga(const unsigned) const {
+  geom_set modules;
+  return modules;
 }
 
 unsigned HGCalTriggerGeometryV9Imp2::getStage1FpgaFromLpgbt(const unsigned) const {
