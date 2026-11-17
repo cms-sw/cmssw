@@ -18,6 +18,7 @@
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "PhysicsTools/PatAlgos/interface/PATGenJetLinker.h"
 
 #include <vector>
 
@@ -32,7 +33,8 @@ namespace pat {
           filter_(params.exists("filter") ? params.getParameter<bool>("filter") : false),
           nLoose_(params.getParameter<unsigned>("nLoose")),
           selector_(cut_),
-          selectorLoose_(cutLoose_) {
+          selectorLoose_(cutLoose_),
+          patGenJetLinker_(params, consumesCollector(), "PATJetSelector") {
       produces<std::vector<pat::Jet>>();
       produces<reco::GenJetCollection>("genJets");
       produces<std::vector<CaloTower>>("caloTowers");
@@ -47,6 +49,8 @@ namespace pat {
 
     bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
       auto patJets = std::make_unique<std::vector<Jet>>();
+      if (patGenJetLinker_.enabled())
+        patGenJetLinker_.newEvent(iEvent);
 
       auto genJetsOut = std::make_unique<reco::GenJetCollection>();
       auto caloTowersOut = std::make_unique<std::vector<CaloTower>>();
@@ -139,6 +143,8 @@ namespace pat {
         if (selector_(*ijet) || selectedLoose) {
           // Add the jets that pass to the output collection
           patJets->push_back(*ijet);
+          if (patGenJetLinker_.enabled())
+            patGenJetLinker_.link(patJets->back());
 
           // Copy over the calo towers
           for (CaloTowerFwdPtrVector::const_iterator itowerBegin = ijet->caloTowersFwdPtr().begin(),
@@ -213,6 +219,7 @@ namespace pat {
       iDesc.add<std::string>("cutLoose", "")->setComment("Loose jet selection. Will keep nLoose loose jets.");
       iDesc.add<bool>("filter", false)->setComment("Filter selection?");
       iDesc.add<unsigned>("nLoose", 0)->setComment("Keep nLoose loose jets that satisfy cutLoose");
+      pat::PATGenJetLinker::fillDescription(iDesc);
       descriptions.add("PATJetSelector", iDesc);
     }
 
@@ -224,6 +231,7 @@ namespace pat {
     const unsigned nLoose_;  // If desired, keep nLoose loose jets.
     const StringCutObjectSelector<Jet> selector_;
     const StringCutObjectSelector<Jet> selectorLoose_;  // Selector for loose jets.
+    pat::PATGenJetLinker patGenJetLinker_;              // optional link to pat::GenJet (parameter patGenJets)
   };
 
 }  // namespace pat
