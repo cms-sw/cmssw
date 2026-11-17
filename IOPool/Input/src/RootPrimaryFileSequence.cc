@@ -15,7 +15,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 #include "FWStorage/Catalog/interface/SiteLocalConfig.h"
 #include "FWStorage/StorageFactory/interface/StorageFactory.h"
 
@@ -61,7 +60,7 @@ namespace edm {
 
     // Prestage the files
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
-      storage::StorageFactory::get()->stagein(fileNames()[0]);
+      storage::StorageFactory::get()->stagein(physicalFileNames()[0]);
     }
     // Open the first file.
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
@@ -130,7 +129,7 @@ namespace edm {
   void RootPrimaryFileSequence::closeFile_() {
     // close the currently open file, if any, and delete the RootFile object.
     if (rootFile()) {
-      auto sentry = std::make_unique<InputSource::FileCloseSentry>(input_, lfn());
+      auto sentry = std::make_unique<InputSource::FileCloseSentry>(input_, cfn());
       rootFile()->close();
       if (duplicateChecker_)
         duplicateChecker_->inputFileClosed();
@@ -147,10 +146,11 @@ namespace edm {
     initTheFile(skipBadFiles, deleteIndexIntoFile, &input_, "primaryFiles", InputType::Primary);
   }
 
-  RootPrimaryFileSequence::RootFileSharedPtr RootPrimaryFileSequence::makeRootFile(std::shared_ptr<InputFile> filePtr) {
+  RootPrimaryFileSequence::RootFileSharedPtr RootPrimaryFileSequence::makeRootFile(
+      std::shared_ptr<InputFile> filePtr, std::string const& physicalFileNameFirstCatalog) {
     size_t currentIndexIntoFile = sequenceNumberOfFile();
     return std::make_shared<RootFile>(
-        RootFile::FileOptions{.fileName = fileNames()[0],
+        RootFile::FileOptions{.fileName = physicalFileNameFirstCatalog,
                               .logicalFileName = logicalFileName(),
                               .filePtr = filePtr,
                               .bypassVersionCheck = input_.bypassVersionCheck(),
@@ -201,7 +201,7 @@ namespace edm {
 
     // make sure the new product registry is compatible with the main one
     std::string mergeInfo =
-        input_.productRegistryUpdate().merge(*rootFile()->productRegistry(), fileNames()[0], branchesMustMatch_);
+        input_.productRegistryUpdate().merge(*rootFile()->productRegistry(), rootFile()->file(), branchesMustMatch_);
     if (!mergeInfo.empty()) {
       throw Exception(errors::MismatchedInputFiles, "RootPrimaryFileSequence::nextFile()") << mergeInfo;
     }
@@ -219,7 +219,7 @@ namespace edm {
     if (rootFile()) {
       // make sure the new product registry is compatible to the main one
       std::string mergeInfo =
-          input_.productRegistryUpdate().merge(*rootFile()->productRegistry(), fileNames()[0], branchesMustMatch_);
+          input_.productRegistryUpdate().merge(*rootFile()->productRegistry(), rootFile()->file(), branchesMustMatch_);
       if (!mergeInfo.empty()) {
         throw Exception(errors::MismatchedInputFiles, "RootPrimaryFileSequence::previousEvent()") << mergeInfo;
       }

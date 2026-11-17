@@ -185,7 +185,7 @@ RepeatingCachedRootSource::RepeatingCachedRootSource(ParameterSet const& pset, I
   }
   auto logicalFileName = pset.getUntrackedParameter<std::string>("fileName");
   InputFileCatalog catalog(std::vector<std::string>(1U, logicalFileName), "");
-  auto const& physicalFileName = catalog.fileCatalogItems().front().fileNames().front();
+  auto physicalFileName = catalog.firstPFNFromFirstCatalog();
   auto const nEventsToSkip = pset.getUntrackedParameter<unsigned int>("skipEvents");
   std::shared_ptr<EventSkipperByID> skipper(EventSkipperByID::create(pset).release());
   auto const enablePrefetching = pset.getUntrackedParameter<bool>("enablePrefetching");

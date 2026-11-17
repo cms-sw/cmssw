@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
-#include "FWStorage/Catalog/interface/FromFiles.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 
 class TFile;
 class TTree;
@@ -40,7 +40,7 @@ private:
   std::map<std::string, int> m_sourceIdRemap;
   CDFEventInfo* m_eventInfo;
   int m_eventNumberOffset, m_skip;
-  edm::FromFiles m_fromFiles;
+  edm::InputFileCatalog m_inputFileCatalog;
 };
 
 #endif  // HcalTBSource_h_included

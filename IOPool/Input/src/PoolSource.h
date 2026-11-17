@@ -24,7 +24,6 @@ PoolSource: This is an InputSource
 namespace edm {
 
   class ConfigurationDescriptions;
-  class FileCatalogItem;
   class RootPrimaryFileSequence;
   class RootSecondaryFileSequence;
   class InputSourceRunHelperBase;
