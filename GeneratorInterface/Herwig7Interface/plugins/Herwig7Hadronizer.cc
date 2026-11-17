@@ -88,7 +88,7 @@ bool Herwig7Hadronizer::initializeForInternalPartons() {
   if (!repositoryInitialized_) {
     initRepository(paramSettings);
     if (!initGenerator()) {
-      cms::Exception("Herwig7Hadronizer").format("No run step for Herwig chosen. Program will be aborted.");
+      throw cms::Exception("Herwig7Hadronizer").format("No run step for Herwig chosen. Program will be aborted.");
     }
     repositoryInitialized_ = true;
   }
@@ -99,7 +99,7 @@ bool Herwig7Hadronizer::initializeForExternalPartons() {
   if (!repositoryInitialized_) {
     initRepository(paramSettings);
     if (!initGenerator()) {
-      cms::Exception("Herwig7Hadronizer").format("No run step for Herwig chosen. Program will be aborted.");
+      throw cms::Exception("Herwig7Hadronizer").format("No run step for Herwig chosen. Program will be aborted.");
     }
     repositoryInitialized_ = true;
   }
