@@ -345,7 +345,7 @@ namespace edm {
     actReg_->preModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(), moduleCallingContext_);
 
     esPrefetchAsync(iTask, transitionInfo.eventSetupImpl(), iTransition, token);
-    edPrefetchAsync(iTask, token, principal);
+    edPrefetchAsync(iTask, principal, iTransition, token);
 
     preActionBeforeRunEventAsync(iTask, moduleCallingContext_, principal);
   }
