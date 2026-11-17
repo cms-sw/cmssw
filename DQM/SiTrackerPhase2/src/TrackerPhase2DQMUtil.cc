@@ -327,3 +327,17 @@ void phase2tkutil::add2DDesc(edm::ParameterSetDescription& desc,
   ps.add<double>("ymax", ymax);
   desc.add<edm::ParameterSetDescription>(psetKey, ps);
 }
+
+//Template ParameterSets
+void phase2tkutil::getTemplatePSets(edm::ParameterSetDescription& desc) {
+  // CRACK overview
+  edm::ParameterSetDescription CrackOverview_PSet;
+  CrackOverview_PSet.add<bool>("switch", false);
+  CrackOverview_PSet.add<std::string>("name", "Crack_Overview");
+  CrackOverview_PSet.add<std::string>("title", "Crack Overview;Module;Layer");
+  CrackOverview_PSet.add<double>("xmin", 0.0);
+  CrackOverview_PSet.add<double>("xmax", 13.0);
+  CrackOverview_PSet.add<double>("ymin", 0.0);
+  CrackOverview_PSet.add<double>("ymax", 7.0);
+  desc.add<edm::ParameterSetDescription>("CrackOverview", CrackOverview_PSet);
+}
