@@ -1,7 +1,12 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Phase2C26I13M9_cff import Phase2C26I13M9
 
-process = cms.Process("MTDRERECO", Phase2C26I13M9)
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+import Geometry.MTDCommonData.defaultMTDConditionsEra_cff as _mtdgeo
+_mtdgeo.check_mtdgeo()
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_mtdgeo.MTD_DEFAULT_VERSION)
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+
+process = cms.Process("MTDRERECO", _PH2_ERA,dd4hep)
 
 process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(-1))
 process.source = cms.Source(
@@ -16,14 +21,14 @@ process.source = cms.Source(
 # Geometry and conditions must match the input sample.
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load("Configuration.Geometry.GeometryExtendedRun4D127Reco_cff")
+process.load("Geometry.MTDCommonData.GeometryDD4hepExtendedRun4MTDDefaultReco_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.EndOfProcess_cff")
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase2_realistic_T35", "")
+process.GlobalTag = GlobalTag(process.GlobalTag, _PH2_GLOBAL_TAG, "")
 
 process.load("RecoLocalFastTime.FTLClusterizer.MTDCPEESProducers_cff")
 process.load("RecoLocalFastTime.FTLClusterizer.mtdMergedClusters_cfi")
