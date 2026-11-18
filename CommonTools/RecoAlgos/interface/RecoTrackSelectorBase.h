@@ -18,7 +18,8 @@ class RecoTrackSelectorBase {
 public:
   RecoTrackSelectorBase() {}
   RecoTrackSelectorBase(const edm::ParameterSet& cfg)
-      : ptMin_(cfg.getParameter<double>("ptMin")),
+      : passThrough_(cfg.getParameter<bool>("passThrough")),
+        ptMin_(cfg.getParameter<double>("ptMin")),
         minRapidity_(cfg.getParameter<double>("minRapidity")),
         maxRapidity_(cfg.getParameter<double>("maxRapidity")),
         meanPhi_((cfg.getParameter<double>("minPhi") + cfg.getParameter<double>("maxPhi")) / 2.),
@@ -69,6 +70,8 @@ public:
   }
 
   void init(const edm::Event& event, const edm::EventSetup& es) {
+    if (passThrough_)
+      return;
     edm::Handle<reco::BeamSpot> beamSpot;
     event.getByToken(bsSrcToken_, beamSpot);
     vertex_ = beamSpot->position();
@@ -82,6 +85,7 @@ public:
   }
 
   static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+    desc.add<bool>("passThrough", false);
     desc.add<bool>("invertRapidityCut", false);
     desc.add<bool>("usePV", false);
     desc.add<double>("lip", 300.0);
@@ -110,6 +114,9 @@ public:
   bool operator()(const reco::Track& t) const { return (*this)(t, vertex_); }
 
   bool operator()(const reco::Track& t, const reco::Track::Point& vertex) const {
+    if (passThrough_)
+      return true;
+
     bool quality_ok = true;
     if (!quality_.empty()) {
       quality_ok = false;
@@ -160,6 +167,7 @@ public:
   }
 
 private:
+  bool passThrough_;
   double ptMin_;
   double minRapidity_;
   double maxRapidity_;

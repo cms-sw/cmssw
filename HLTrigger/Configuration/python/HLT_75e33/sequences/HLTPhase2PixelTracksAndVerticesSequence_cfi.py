@@ -7,12 +7,11 @@ from ..modules.hltPhase2PixelRecHitsExtendedSoA_cfi import hltPhase2PixelRecHits
 from ..modules.hltPhase2PixelTrackFilterByKinematics_cfi import hltPhase2PixelTrackFilterByKinematics
 from ..modules.hltPhase2PixelTracks_cfi import hltPhase2PixelTracks
 from ..modules.hltPhase2PixelTracksAndHighPtStepTrackingRegions_cfi import hltPhase2PixelTracksAndHighPtStepTrackingRegions
-from ..modules.hltPhase2PixelTracksCAExtension_cfi import hltPhase2PixelTracksCAExtension
-from ..modules.hltPhase2PixelTracksCutClassifier_cfi import hltPhase2PixelTracksCutClassifier
 from ..modules.hltPhase2PixelTracksHitDoublets_cfi import hltPhase2PixelTracksHitDoublets
 from ..modules.hltPhase2PixelTracksHitSeeds_cfi import hltPhase2PixelTracksHitSeeds
 from ..modules.hltPhase2PixelTracksSeedLayers_cfi import hltPhase2PixelTracksSeedLayers
 from ..modules.hltPhase2PixelTracksSoA_cfi import hltPhase2PixelTracksSoA
+from ..modules.hltPhase2PixelTrackTorchHighPuritySelector_cfi import hltPhase2PixelTrackTorchHighPuritySelector
 from ..modules.hltPhase2PixelVertices_cfi import *
 from ..sequences.HLTPhase2PixelVertexingSequence_cfi import *
 from ..sequences.HLTBeamSpotSequence_cfi import HLTBeamSpotSequence
@@ -24,29 +23,24 @@ HLTPhase2PixelTracksAndVerticesSequence = cms.Sequence(
     +hltPhase2OtRecHitsSoA
     +hltPhase2PixelRecHitsExtendedSoA
     +hltPhase2PixelTracksSoA
-    +hltPhase2PixelTracksCAExtension
-    +HLTPhase2PixelVertexingSequence
-    +hltPhase2PixelTracksCutClassifier
+    +hltPhase2PixelTrackTorchHighPuritySelector
     +hltPhase2PixelTracks
+    +HLTPhase2PixelVertexingSequence
 )
-
 
 # Empty sequence as a placeholder to be filled when alpakaValidationHLT is active
 HLTPhase2PixelTracksAndVerticesSequenceSerialSync = cms.Sequence()
 
 hltPhase2PixelTracksSoASerialSync = makeSerialClone(hltPhase2PixelTracksSoA)
-hltPhase2PixelTracksCAExtensionSerialSync = hltPhase2PixelTracksCAExtension.clone(
-    trackSrc = "hltPhase2PixelTracksSoASerialSync"
-)
-hltPhase2PixelTracksCutClassifierSerialSync = hltPhase2PixelTracksCutClassifier.clone(
-    src = "hltPhase2PixelTracksCAExtensionSerialSync",
-    vertices = "hltPhase2PixelVerticesSerialSync"
+hltPhase2PixelTrackTorchHighPuritySelectorSerialSync = makeSerialClone(
+    hltPhase2PixelTrackTorchHighPuritySelector.clone(
+        pixelTrackSrc = cms.InputTag("hltPhase2PixelTracksSoASerialSync")
+    )
 )
 hltPhase2PixelTracksSerialSync = hltPhase2PixelTracks.clone(
-    originalMVAVals = cms.InputTag("hltPhase2PixelTracksCutClassifierSerialSync","MVAValues"),
-    originalQualVals = cms.InputTag("hltPhase2PixelTracksCutClassifierSerialSync","QualityMasks"),
-    originalSource = cms.InputTag("hltPhase2PixelTracksCAExtensionSerialSync")
+    trackSrc = cms.InputTag("hltPhase2PixelTrackTorchHighPuritySelectorSerialSync")
 )
+
 # Sequence for CPU vs. GPU validation, to be kept in sync with default sequence
 from Configuration.ProcessModifiers.alpakaValidationHLT_cff import alpakaValidationHLT
 alpakaValidationHLT.toReplaceWith(HLTPhase2PixelTracksAndVerticesSequenceSerialSync,
@@ -58,10 +52,9 @@ alpakaValidationHLT.toReplaceWith(HLTPhase2PixelTracksAndVerticesSequenceSerialS
         +hltPhase2OtRecHitsSoA
         +hltPhase2PixelRecHitsExtendedSoA
         +hltPhase2PixelTracksSoASerialSync
-        +hltPhase2PixelTracksCAExtensionSerialSync
-        +HLTPhase2PixelVertexingSequenceSerialSync
-        +hltPhase2PixelTracksCutClassifierSerialSync
+        +hltPhase2PixelTrackTorchHighPuritySelectorSerialSync
         +hltPhase2PixelTracksSerialSync
+        +HLTPhase2PixelVertexingSequenceSerialSync
     )
 )
 
@@ -74,10 +67,9 @@ _HLTPhase2PixelTracksAndVerticesSequenceTrimming = cms.Sequence(
     +hltPhase2OtRecHitsSoA
     +hltPhase2PixelRecHitsExtendedSoA
     +hltPhase2PixelTracksSoA
-    +hltPhase2PixelTracksCAExtension
-    +HLTPhase2PixelVertexingSequence
-    +hltPhase2PixelTracksCutClassifier
+    +hltPhase2PixelTrackTorchHighPuritySelector
     +hltPhase2PixelTracks
+    +HLTPhase2PixelVertexingSequence
     +hltPhase2TrimmedPixelVertices
 )
 
