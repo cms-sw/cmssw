@@ -268,15 +268,10 @@ void Phase2OTMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
                                         crack_overview_par.getParameter<double>("ymin"),
                                         crack_overview_par.getParameter<double>("ymax"));
     if (crackOverview_->getTH2Poly()->GetNumberOfBins() == 0) {
-      double yOffset = 0;
-      for (int layer = 1; layer < 7; layer++) {
-        for (int module = 1; module < 13; module++) {
-          if (module % 2 == 1)
-            yOffset = -0.1;
-          else
-            yOffset = 0;
-          crackOverview_->addBin(module - 0.7, layer + yOffset, module + 0.7, layer + yOffset + 0.1);
-        }
+      std::vector<double> crack_overview_bins = config_.getParameter<std::vector<double>>("CrackOverview_Bins");
+      for (int i = 0; i < int(crack_overview_bins.size()); i = i + 4) {
+        crackOverview_->addBin(
+            crack_overview_bins[i], crack_overview_bins[i + 1], crack_overview_bins[i + 2], crack_overview_bins[i + 3]);
       }
     }
     crackOverview_->getTH2Poly()->SetStats(false);
