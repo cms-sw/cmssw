@@ -322,3 +322,27 @@ _photonTask_Run2.remove(bitmapVIDForPho)
 _photonTask_Run2.remove(isoForPho)
 _photonTask_Run2.remove(hOverEForPho)
 run2_egamma.toReplaceWith(photonTask, _photonTask_Run2)
+
+# transformer photon ID (ECAL crystals, preshower strips and PF candidates), see PhotonTransformerIDProducer:
+# Run 3 only (not Run 2, not Phase-2)
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+from RecoEgamma.PhotonIdentification.photonTransformerIDProducer_cfi import photonTransformerIDProducer as _photonTransformerIDProducer
+run3_photonTransformerID = run3_common & ~phase2_common
+photonTransformerID = _photonTransformerIDProducer.clone(src = "slimmedPhotons")
+run3_photonTransformerID.toModify(slimmedPhotonsWithUserData.userFloats,
+    transformerID = cms.InputTag("photonTransformerID:score"),
+    transformerIDFeat0 = cms.InputTag("photonTransformerID:feature0"),
+    transformerIDFeat1 = cms.InputTag("photonTransformerID:feature1"),
+    transformerIDFeat2 = cms.InputTag("photonTransformerID:feature2"),
+    transformerIDFeat3 = cms.InputTag("photonTransformerID:feature3"),
+)
+run3_photonTransformerID.toModify(photonTable.variables,
+    transformerID = Var("userFloat('transformerID')",float,doc="transformer photon ID score (ECAL crystals, preshower strips and PF candidates; 2024 training), signal = 1",precision=10),
+    transformerIDFeat0 = Var("userFloat('transformerIDFeat0')",float,doc="transformer photon ID: learned feature 0 (input of the score)",precision=10),
+    transformerIDFeat1 = Var("userFloat('transformerIDFeat1')",float,doc="transformer photon ID: learned feature 1 (input of the score)",precision=10),
+    transformerIDFeat2 = Var("userFloat('transformerIDFeat2')",float,doc="transformer photon ID: learned feature 2 (input of the score)",precision=10),
+    transformerIDFeat3 = Var("userFloat('transformerIDFeat3')",float,doc="transformer photon ID: learned feature 3 (input of the score)",precision=10),
+)
+_photonTask_Run3 = photonTask.copy()
+_photonTask_Run3.add(photonTransformerID)
+run3_photonTransformerID.toReplaceWith(photonTask, _photonTask_Run3)
