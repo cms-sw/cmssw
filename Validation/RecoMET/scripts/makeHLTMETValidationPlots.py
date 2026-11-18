@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import re
 import argparse
 import numpy as np
 import hist
@@ -303,6 +304,84 @@ def plot1DFilesComparison(adir, avars, outdir, files, files_labels, metType):
         plotter.ax.legend(prop={'size': 15})
         plotter.save( os.path.join(outdir, var) )
 
+def overlayLabel(folder):
+    """Legend label of a scan folder: `minPt<pt>_maxEta<eta>` or `pdgid<N>`."""
+    m = re.fullmatch(r'minPt([\dp]+)_maxEta([\dp]+)', folder)
+    if m:
+        pt, eta = (v.replace('p', '.') for v in m.groups())
+        return rf'$p_T^\text{{jet}} > {pt}$ GeV, $|\eta^\text{{jet}}| < {eta}$'
+    m = re.fullmatch(r'pdgid(\d+)', folder)
+    if m:
+        lep = {'11': r'e', '13': r'\mu', '15': r'\tau'}.get(m.group(1))
+        return rf"$W' \to {lep}\nu$" if lep else f'|pdgId| = {m.group(1)}'
+    return folder
+
+def subfolders(afile, adir, pattern):
+    """Names of the (sorted) sub-directories of `adir` matching the regex `pattern`."""
+    d = afile.Get(adir)
+    if not d:
+        return []
+    names = [k.GetName() for k in d.GetListOfKeys()
+             if k.IsFolder() and re.fullmatch(pattern, k.GetName())]
+    key = lambda n: [float(x.replace('p', '.')) for x in re.findall(r'\d+(?:p\d+)?', n)]
+    return sorted(names, key=key)
+
+def plot1DOverlay(afile, adir, folders, avars, outdir, metType, legend_title=None):
+    """
+    Overlays, for each variable, the normalised distributions stored in the sub-folders `folders` of `adir`.
+    Sub-folders without the variable or without entries are skipped.
+    """
+    createDir(outdir)
+    for var, props in avars.items():
+        plotter = Plotter(args.sample_label, period=args.period, en_com=args.energy)
+
+        amax, amin, drawn = float('-inf'), float('+inf'), 0
+        for folder in folders:
+            root_hist = checkRootFile(afile, f"{adir}/{folder}/{var}", rebinx=props.rebinx)
+            nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
+            values, errors = histo_values_errors(root_hist)
+            integral = values.sum()
+            if integral <= 0.:
+                print(f" ### WARNING: {adir}/{folder}/{var} is empty, skipping.")
+                continue
+            values, errors = values / integral, errors / integral / 2 # normalise and symmetrize
+
+            patch = plotter.ax.stairs(values, bin_edges, linewidth=2, baseline=None)
+            plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
+                                fmt='s', label=overlayLabel(folder), color=patch.get_edgecolor(),
+                                **errorbar_kwargs)
+            amax = max(amax, (values + errors).max())
+            amin = min(amin, (values - errors).min())
+            drawn += 1
+
+        if drawn == 0:
+            plt.close(plotter.fig)
+            continue
+        diff_step = 0.05 * abs(amax-amin)
+        plotter.limits(y=(min(0., amin - diff_step), amax + 2*diff_step), logY=False)
+        plotter.labels(x=props.x, y='Fraction of events')
+        plotter.ax.legend(title=legend_title, prop={'size': 14}, title_fontsize=15, loc='upper right')
+        plotter.save( os.path.join(outdir, var) )
+
+def plotScan(afile, adir, metType, outdir):
+    """
+    Overlays MEx, MEy and METPhi of the cut scan produced by `addMHTScan` in `<adir>`:
+    all cuts in `Overlay_cuts`, and, for each cut, the pdgId split in `Overlay_pdgid/<cut>`.
+    """
+    avars = {k: v for k, v in varsToPlot(metType)[0].items() if k in ('MEx', 'MEy', 'METPhi')}
+    cuts = subfolders(afile, adir, r'minPt[\dp]+_maxEta[\dp]+')
+    if not cuts:
+        print(f" ### WARNING: no cut-scan folders found in {adir}.")
+        return
+    title = METType.get(metType, metType)
+    plot1DOverlay(afile, adir, cuts, avars, os.path.join(outdir, 'Overlay_cuts'), metType, legend_title=title)
+    for cut in cuts:
+        pdgs = subfolders(afile, f"{adir}/{cut}", r'pdgid\d+')
+        if pdgs:
+            plot1DOverlay(afile, f"{adir}/{cut}", pdgs, avars,
+                          os.path.join(outdir, 'Overlay_pdgid', cut), metType,
+                          legend_title=f"{title}, {overlayLabel(cut)}")
+
 def varsToPlot(metColl):
     """
     Define which variables to plot and the corresponding plot properties.
@@ -443,6 +522,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Make HLT MET validation plots. \nRun all MET paths with\n' + full_command)
     parser.add_argument('-o', '--odir', default="HLTMETValidationPlots", required=False, help='Path to the output directory.')
     parser.add_argument('-l', '--sample_label', default="QCD (200 PU)", required=False, help='Sample label for plotting.')
+    parser.add_argument('--overlay_scan', action='store_true',
+                        help='Also overlay the normalised MEx, MEy and METPhi of the cut scan (and its pdgId split) '
+                             'found in the sub-folders of each --met collection (see addMHTScan).')
     parser.add_argument('-p', '--period', default="Phase-2", required=False, choices=('Phase-2', 'Run 3'), help='Data-taking period; also sets the center-of-mass energy in the plot label.')
 
     mutual_excl1 = parser.add_mutually_exclusive_group(required=True)
@@ -521,6 +603,8 @@ if __name__ == '__main__':
                      mode='1D', metType=METType[metType])
             plotVars(afile, dqm_dir_met, varsToPlot(metType)[1], outdir=os.path.join(args.odir, metType),
                      mode='2D', metType=METType[metType])
+            if args.overlay_scan:
+                plotScan(afile, dqm_dir_met, metType, outdir=os.path.join(args.odir, metType))
 
         # Plot MET vs MHT comparisons, one folder per MET-MHT pair
         metvsmht_dir = afile.Get(os.path.join(dqm_dir, 'METvsMHT'))

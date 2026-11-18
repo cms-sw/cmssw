@@ -1,6 +1,9 @@
 #include "METTester.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <algorithm>
+#include <cstdlib>
+
 METTester::METTester(const edm::ParameterSet &iConfig) {
   METType_ = iConfig.getUntrackedParameter<std::string>("METType");
   isCaloMET = METType_ == "calo";
@@ -13,6 +16,11 @@ METTester::METTester(const edm::ParameterSet &iConfig) {
         << "METTester: unknown METType '" << METType_ << "'. Use one of: calo, pf, mht, gen, miniaod.";
   }
 
+  lightMode_ = iConfig.getParameter<bool>("lightMode");
+  genWDecayPdgIds_ = iConfig.getParameter<std::vector<int>>("genWDecayPdgIds");
+  for (auto &id : genWDecayPdgIds_)
+    id = std::abs(id);
+
   inputMETLabel_ = iConfig.getParameter<std::string>("inputMETLabel");
   inputMHTLabel_ = iConfig.getParameter<std::string>("inputMHTLabel");
   runDir = iConfig.getUntrackedParameter<std::string>("runDir");
@@ -24,13 +32,17 @@ METTester::METTester(const edm::ParameterSet &iConfig) {
 
   primaryLabel_ = isMHT ? inputMHTLabel_ : inputMETLabel_;
   companionLabel_ = isMHT ? inputMETLabel_ : inputMHTLabel_;
-  hasCompanion_ = !companionLabel_.empty();
+  hasCompanion_ = !lightMode_ && !companionLabel_.empty();
   if (primaryLabel_.empty()) {
     throw cms::Exception("Configuration") << "METTester: METType '" << METType_ << "' requires a non-empty "
                                           << (isMHT ? "inputMHTLabel" : "inputMETLabel") << ".";
   }
 
   primaryToken_ = consumes<METView>(primaryLabel_);
+  if (!genWDecayPdgIds_.empty())
+    genParticlesToken_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"));
+  if (lightMode_)
+    return;  // no vertices, gen references or companion needed
   if (hasCompanion_)
     companionToken_ = consumes<METView>(companionLabel_);
 
@@ -50,6 +62,13 @@ METTester::METTester(const edm::ParameterSet &iConfig) {
 void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun, edm::EventSetup const & /* iSetup */) {
   // output folder: `outFolder` if set, otherwise the module label
   ibooker.setCurrentFolder(runDir + (outFolder_.empty() ? moduleDescription().moduleLabel() : outFolder_));
+
+  if (lightMode_) {
+    mMEx = ibooker.book1D("MEx", "MEx", 160, -metDiffEdge, metDiffEdge);
+    mMEy = ibooker.book1D("MEy", "MEy", 160, -metDiffEdge, metDiffEdge);
+    mMETPhi = ibooker.book1D("METPhi", "METPhi", phiNbins, -phiEdge, phiEdge);
+    return;
+  }
 
   mNvertex = ibooker.book1D("Nvertex", "Nvertex", 450, 0, 450);
   mMEx = ibooker.book1D("MEx", "MEx", 160, -metDiffEdge, metDiffEdge);
@@ -211,7 +230,37 @@ const reco::MET *METTester::firstOrNull(const edm::Event &iEvent,
   return &handle->front();
 }
 
+bool METTester::passesGenSelection(const edm::Event &iEvent) {
+  if (genWDecayPdgIds_.empty())
+    return true;
+  const auto &genHandle = iEvent.getHandle(genParticlesToken_);
+  if (!genHandle.isValid()) {
+    warnOnce("genParticles", "GenParticle collection not found; the pdgId selection rejects all events.");
+    return false;
+  }
+  for (const auto &gen : *genHandle) {
+    if (!gen.isHardProcess())
+      continue;
+    const int id = std::abs(gen.pdgId());
+    if (std::find(genWDecayPdgIds_.begin(), genWDecayPdgIds_.end(), id) != genWDecayPdgIds_.end())
+      return true;
+  }
+  return false;
+}
+
 void METTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  if (!passesGenSelection(iEvent))
+    return;
+
+  if (lightMode_) {
+    if (const reco::MET *primary = firstOrNull(iEvent, primaryToken_, primaryLabel_)) {
+      mMEx->Fill(primary->px());
+      mMEy->Fill(primary->py());
+      mMETPhi->Fill(primary->phi());
+    }
+    return;
+  }
+
   int nvtx = -1;
   const auto &pvHandle = iEvent.getHandle(pvToken_);
   if (pvHandle.isValid()) {
@@ -424,6 +473,12 @@ void METTester::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
       ->setComment(
           "MHT to validate for METType 'mht'; for other types, optional MHT companion for the MET vs MHT plots. "
           "Configure a given MET-MHT pair in one module only.");
+  desc.add<bool>("lightMode", false)
+      ->setComment("If true, only MEx, MEy and METPhi of the primary collection are booked and filled.");
+  desc.add<std::vector<int>>("genWDecayPdgIds", {})
+      ->setComment("If not empty, only events with a hard-process gen particle of these |pdgId| are used.");
+  desc.add<edm::InputTag>("genParticles", edm::InputTag("genParticles"))
+      ->setComment("Gen particles used by genWDecayPdgIds.");
   desc.addUntracked<std::string>("METType", "pf")->setComment("One of: calo, pf, mht, gen, miniaod.");
   desc.add<std::string>("genMetTrueLabel", "genMetTrue");
   desc.add<std::string>("genMetCaloLabel", "genMetCalo");

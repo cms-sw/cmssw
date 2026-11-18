@@ -8,6 +8,7 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -22,12 +23,17 @@
 
 #include <set>
 #include <string>
+#include <vector>
 
 // Validation of a single MET-like object (MET or MHT), compared to its generator-level reference.
 // The object being validated is the "primary" collection: `inputMETLabel` for MET types, `inputMHTLabel` for "mht".
 // Histograms are booked in `<runDir>/<outFolder>`, or `<runDir>/<module label>` if `outFolder` is empty.
 // The other label, if not empty, defines a "companion" collection used to fill MET vs MHT plots
 // in a dedicated `<runDir>/METvsMHT/<MET label>_<MHT label>` folder.
+// In "light" mode only MEx, MEy and METPhi of the primary collection are booked and filled (no gen reference,
+// vertices or companion), which keeps the memory footprint small when many instances are used.
+// If `genWDecayPdgIds` is not empty, events are only used if the hard process contains a gen particle
+// whose |pdgId| is in the list (e.g. 11, 13, 15 for the charged-lepton flavour of a W' -> l nu decay).
 class METTester : public DQMEDAnalyzer {
 public:
   explicit METTester(const edm::ParameterSet &);
@@ -42,6 +48,8 @@ private:
   // returns the first element of the collection, or nullptr (and warns once) if it is missing or empty
   const reco::MET *firstOrNull(const edm::Event &, const edm::EDGetTokenT<METView> &, const std::string &label);
   void warnOnce(const std::string &label, const std::string &msg);
+  // true if the event passes the (optional) gen-level selection on the hard-process pdgIds
+  bool passesGenSelection(const edm::Event &);
 
   void fillGenComparison(const reco::MET &reco, const reco::MET &gen);
   void fillGenCaloComparison(const reco::MET &reco, const reco::MET &genCalo);
@@ -66,6 +74,8 @@ private:
   bool isMHT;
   bool isGenMET;
   bool isMiniAODMET;
+  bool lightMode_;
+  std::vector<int> genWDecayPdgIds_;
 
   // primary: the object being validated; companion: optional MHT (MET) partner of a MET (MHT)
   std::string primaryLabel_;
@@ -79,6 +89,7 @@ private:
   edm::EDGetTokenT<METView> genMetTrueToken_;
   edm::EDGetTokenT<METView> genMetCaloToken_;
   edm::EDGetTokenT<METView> genMhtToken_;
+  edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
 
   // labels of missing inputs already reported, to avoid flooding the logs
   std::set<std::string> warned_;

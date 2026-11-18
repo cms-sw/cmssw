@@ -85,3 +85,53 @@ hltMhtAnalyzerPFPuppi = _hltMetTester.clone(
     METType = 'mht',
 )
 phase2_common.toModify(hltMhtAnalyzerPFPuppi, inputMHTLabel = 'hltPFPuppiMHT', inputMETLabel = 'hltPFPuppiMET', outFolder = 'hltPFPuppiMHT')
+
+####### MHT scan #######
+def _cutTag(minPt, maxEta):
+    fmt = lambda v: ('%g' % v).replace('.', 'p')
+    return f"minPt{fmt(minPt)}_maxEta{fmt(maxEta)}"
+
+def addMHTScan(process, minPtJetMht=(20., 30., 40., 50.), maxEtaJetMht=None, genWDecayPdgIds=(), lightMode=True):
+    """
+    Validates `hltPFPuppiMHT` (phase-2) for several jet kinematic cuts.
+    `minPtJetMht` and `maxEtaJetMht` are lists with the same length: the i-th MHT producer uses
+    the i-th value of each list. If `maxEtaJetMht` is not given, it is fixed at 5 for all `minPtJetMht` values.
+    The distributions are stored in `<runDir>/hltPFPuppiMHT/<cut tag>`.
+    If `genWDecayPdgIds` is not empty (e.g. (11, 13, 15) for W' -> l nu), the same distributions are
+    additionally stored per |pdgId| in `<runDir>/hltPFPuppiMHT/<cut tag>/pdgid<N>`; they require `genParticles`.
+    With `lightMode`, only MEx, MEy and METPhi are filled (see METTester); otherwise full METTester
+    instances (as hltMhtAnalyzerPFPuppi) are used.
+    """
+    minPtJetMht = list(minPtJetMht)
+    maxEtaJetMht = [5.]*len(minPtJetMht) if maxEtaJetMht is None else list(maxEtaJetMht)
+    if len(minPtJetMht) != len(maxEtaJetMht):
+        raise ValueError(f"addMHTScan: lists must have the same length (minPtJetMht={len(minPtJetMht)}, "
+                         f"maxEtaJetMht={len(maxEtaJetMht)})")
+    if not hasattr(process, 'hltPFPuppiMHT'):
+        raise RuntimeError("addMHTScan: process has no hltPFPuppiMHT (phase-2 HLT menu required).")
+
+    modules = []
+    for minPt, maxEta in zip(minPtJetMht, maxEtaJetMht):
+        tag = _cutTag(minPt, maxEta)
+        label = 'hltPFPuppiMHT_' + tag
+        setattr(process, label, process.hltPFPuppiMHT.clone(minPtJetMht=minPt, maxEtaJetMht=maxEta))
+        modules.append(getattr(process, label))
+
+        selections = [(None, 'hltPFPuppiMHT/' + tag)]
+        selections += [(pdg, f'hltPFPuppiMHT/{tag}/pdgid{pdg}') for pdg in genWDecayPdgIds]
+        for pdg, folder in selections:
+            analyzer = _hltMetTester.clone(
+                inputMHTLabel = label,
+                inputMETLabel = '' if lightMode else 'hltPFPuppiMET',
+                outFolder = folder,
+                METType = 'mht',
+                lightMode = lightMode,
+                genWDecayPdgIds = cms.vint32(pdg) if pdg is not None else cms.vint32(),
+            )
+            aname = 'hltMhtAnalyzer_' + tag + ('' if pdg is None else f'_pdgid{pdg}')
+            setattr(process, aname, analyzer)
+            modules.append(analyzer)
+
+    scan = cms.Sequence(sum(modules[1:], modules[0]))
+    process.hltMhtScanSeq = scan
+    process.HLTJetMETValSeq += scan

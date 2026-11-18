@@ -6,6 +6,7 @@
 <use name="DataFormats/METReco"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/EgammaCandidates"/>
+<use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/PatCandidates"/>
 <library file="*.cc" name="ValidationRecoMETPlugin">
   <flags EDM_PLUGIN="1"/>
