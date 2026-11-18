@@ -811,27 +811,26 @@ void CaloSD::update(const ::EndOfEvent*) {
 #endif
     int hc_entries = theHC[k]->entries();
     for (int i = 0; i < hc_entries; ++i) {
+      bool ok = saveHit((*theHC[k])[i], k);
+      if (!ok) {
 #ifdef EDM_ML_DEBUG
-      if (!saveHit((*theHC[k])[i], k)) {
-        ++wrong;
+	++wrong;
+#endif
+      } else {
+	++count;
+	double x = (*theHC[k])[i]->getEM();
+	eEM += x;
+	eEM2 += x * x;
+	x = (*theHC[k])[i]->getHadr();
+	eHAD += x;
+	eHAD2 += x * x;
+#ifdef EDM_ML_DEBUG
+	tt += (*theHC[k])[i]->getTimeSlice();
+	ee += (*theHC[k])[i]->getIncidentEnergy();
+	zglob += std::abs((*theHC[k])[i]->getEntry().z());
+	zloc += std::abs((*theHC[k])[i]->getEntryLocal().z());
+#endif
       }
-#else
-      saveHit((*theHC[k])[i], k);
-#endif
-
-      ++count;
-      double x = (*theHC[k])[i]->getEM();
-      eEM += x;
-      eEM2 += x * x;
-      x = (*theHC[k])[i]->getHadr();
-      eHAD += x;
-      eHAD2 += x * x;
-#ifdef EDM_ML_DEBUG
-      tt += (*theHC[k])[i]->getTimeSlice();
-      ee += (*theHC[k])[i]->getIncidentEnergy();
-      zglob += std::abs((*theHC[k])[i]->getEntry().z());
-      zloc += std::abs((*theHC[k])[i]->getEntryLocal().z());
-#endif
     }
 
     double norm = (count > 0) ? 1.0 / count : 0.0;
