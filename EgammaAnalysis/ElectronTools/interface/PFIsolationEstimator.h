@@ -27,9 +27,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #endif
 #include <TROOT.h>
-#include "TMVA/Factory.h"
-#include "TMVA/Tools.h"
-#include "TMVA/Reader.h"
 #include "TH1.h"
 #include "TH2.h"
 

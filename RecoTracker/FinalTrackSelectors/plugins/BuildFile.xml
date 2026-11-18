@@ -33,7 +33,6 @@
 <use name="TrackingTools/Records"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="clhep"/>
-<use name="roottmva"/>
 <use name="lwtnn"/>
 <library file="*.cc" name="RecoTrackerFinalTrackSelectorsPlugins">
   <flags EDM_PLUGIN="1"/>
