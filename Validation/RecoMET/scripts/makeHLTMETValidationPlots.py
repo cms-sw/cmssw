@@ -41,12 +41,30 @@ class HLTMETInputs:
 #   {sample: {plot name: {'x': (low, high), 'y': (low, high)}}}
 # The plot name is the output name (e.g. 'MET_logy'), or else the histogram name (e.g. 'MET'); each axis is optional.
 # Plots not listed keep the full range, i.e. behave as with --no-axis_limits.
+# All plots with the number of vertices share the same range, whatever the sample.
+NVTX_LIMITS = {
+    'Nvertex'                : {'x': (0, 350)},
+    'MET_Nvtx'               : {'x': (0, 350)},
+    'METRespAggr_Nvtx'       : {'x': (0, 350)},
+    'METDiffAggr_Nvtx'       : {'x': (0, 350)},
+    'METDiffResolAggr_Nvtx'  : {'x': (0, 350)},
+    'METxDiffAggr_Nvtx'      : {'x': (0, 350)},
+    'METxDiffResolAggr_Nvtx' : {'x': (0, 350)},
+    'METyDiffAggr_Nvtx'      : {'x': (0, 350)},
+    'METyDiffResolAggr_Nvtx' : {'x': (0, 350)},
+    'METRatiovsNvtx'         : {'y': (0, 350)},
+    'METDiffvsNvtx'          : {'y': (0, 350)},
+    'METxDiffvsNvtx'         : {'y': (0, 350)},
+    'METyDiffvsNvtx'         : {'y': (0, 350)},
+}
 AXIS_LIMITS = {
     'QCD': {
         'MET'     : {'x': (0, 800)},
         'MET_logy': {'x': (0, 800)},
+        **NVTX_LIMITS,
     },
     'Wprime': {
+        **NVTX_LIMITS,
     },
 }
 DEFAULT_SAMPLE = 'QCD'
@@ -82,8 +100,11 @@ def printOptions(args, sample_why):
         limits = 'off (full range)'
     else:
         sample_limits = AXIS_LIMITS.get(args.sample, {})
-        limits = 'on, ' + ('; '.join(f"{k}: " + ', '.join(f"{ax}={v}" for ax, v in lim.items())
-                           for k, lim in sample_limits.items()) or 'no restricted plot for this sample')
+        groups = {}  # plots sharing the same limits are listed together
+        for k, lim in sample_limits.items():
+            groups.setdefault(', '.join(f"{ax}={v}" for ax, v in lim.items()), []).append(k)
+        limits = 'on, ' + ('; '.join(f"{lims}: {', '.join(names)}" for lims, names in groups.items())
+                           or 'no restricted plot for this sample')
     rows = (
         ('Mode',                  mode),
         ('Collections',           what),
@@ -556,7 +577,7 @@ def varsToPlot(metColl):
         'METSignPseudo'           : HLTMETInputs(x='MET / √(∑E_T) "Significance" (event-by-event)', y=nEvts), # \sqrt{} throws a warning
         'METSignReal'             : HLTMETInputs(x='MET Significance (Likelihood)', y=nEvts), # covariance matrix missing
         'MET_Nvtx'                : HLTMETInputs(x='Number of vertices (MET-weighted)', y=nEvts, rebinx=10),
-        'Nvertex'                 : HLTMETInputs(x='Number of vertices', y=nEvts, rebinx=6),
+        'Nvertex'                 : HLTMETInputs(x='Number of vertices', y=nEvts, rebinx=10),
         'SumET'                   : HLTMETInputs(x=r'$\sum E_T$ [GeV]', y=nEvts, rebinx=4),
         # log-scale versions: for MHT collections, MET/GenMETTrue are the MHT/genMHT (labels swapped below)
         'MET_logy'                : HLTMETInputs(x=r'$MET_\text{Reco}$ [GeV]', y=nEvts, hist='MET', rebinx=2, logy=True),

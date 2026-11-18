@@ -208,9 +208,9 @@ private:
   static constexpr int metCoarseNbins = 55;
   static constexpr int metDiffNbins = 150;
   static constexpr int metRatioNbins = 100;
-  // number of vertices in [0, 300] in steps of 5; the post-processor slices must fall on these bin edges
-  static constexpr float nvtxEdge = 300.;
-  static constexpr int nvtxNbins = 60;
+  // number of vertices in [0, 350] in steps of 10; the post-processor slices must fall on these bin edges
+  static constexpr float nvtxEdge = 350.;
+  static constexpr int nvtxNbins = 35;
 };
 
 #endif  // METTESTER_H

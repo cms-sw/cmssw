@@ -126,9 +126,7 @@ void METTesterPostProcessor::fillResolutionHisto(MElem *src, MElem *dest, const 
 // pileup dependence: response, difference and resolution (reco - gen) in slices of the number of vertices
 void METTesterPostProcessor::fillNvtxHistograms(const std::string &metdir, const Inputs &in, DQMStore::IBooker &ibook) {
   ibook.setCurrentFolder(metdir);
-  auto book = [&](const std::string &name) {
-    return ibook.book1D(name, name, mNNvtxBins, mNvtxBins.data());
-  };
+  auto book = [&](const std::string &name) { return ibook.book1D(name, name, mNNvtxBins, mNvtxBins.data()); };
 
   if (in.metRatio_vs_Nvtx)
     fillProjectionHisto(in.metRatio_vs_Nvtx, book("METRespAggr_Nvtx"), mNvtxBins);

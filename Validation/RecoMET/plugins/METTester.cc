@@ -160,14 +160,8 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
                                                -phiEdge,
                                                phiEdge);
 
-    mMETRatio_vs_Nvtx = ibooker.book2D("METRatiovsNvtx",
-                                       "MET Ratio vs Nvtx",
-                                       metRatioNbins,
-                                       0.,
-                                       metRatioEdge,
-                                       nvtxNbins,
-                                       0.,
-                                       nvtxEdge);
+    mMETRatio_vs_Nvtx =
+        ibooker.book2D("METRatiovsNvtx", "MET Ratio vs Nvtx", metRatioNbins, 0., metRatioEdge, nvtxNbins, 0., nvtxEdge);
     mMETDiff_vs_Nvtx = ibooker.book2D(
         "METDiffvsNvtx", "MET Diff vs Nvtx", metDiffNbins, -metDiffEdge, metDiffEdge, nvtxNbins, 0., nvtxEdge);
     mMETxDiff_vs_Nvtx = ibooker.book2D(

@@ -30,12 +30,12 @@ private:
   static constexpr int mNPhiBins = 6;
   const std::vector<float> mPhiBins = {{-3.15, -2., -1., 0., 1., 2., 3.15}};
 
-  // slices in the number of vertices: [0, 300] in steps of 5 (must match the METTester binning)
-  static constexpr int mNNvtxBins = 60;
+  // slices in the number of vertices: [0, 350] in steps of 10 (must match the METTester binning)
+  static constexpr int mNNvtxBins = 35;
   const std::vector<float> mNvtxBins = [] {
     std::vector<float> bins;
     for (int i = 0; i <= mNNvtxBins; ++i)
-      bins.push_back(5.f * i);
+      bins.push_back(10.f * i);
     return bins;
   }();
 
