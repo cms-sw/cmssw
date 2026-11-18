@@ -551,6 +551,8 @@ def varsToPlot(metColl):
         'METPhi'                  : HLTMETInputs(x=r'$\text{MET}\phi_\text{Reco}$', y=nEvts, rebinx=2),
         'METDeltaPhi_GenMETTrue'  : HLTMETInputs(x=r'$\text{MET}\phi_\text{Reco} - \text{MET}\phi_\text{Gen}$', y=nEvts, rebinx=2),
         'METDiff_GenMETTrue'      : HLTMETInputs(x=r'$\text{MET}_\text{Reco} - \text{MET}_\text{Gen}$ [GeV]', y=nEvts, rebinx=10),
+        'METxDiff_GenMETTrue'     : HLTMETInputs(x=r'$\text{MET}_{x,\text{Reco}} - \text{MET}_{x,\text{Gen}}$ [GeV]', y=nEvts, rebinx=10),
+        'METyDiff_GenMETTrue'     : HLTMETInputs(x=r'$\text{MET}_{y,\text{Reco}} - \text{MET}_{y,\text{Gen}}$ [GeV]', y=nEvts, rebinx=10),
         'METSignPseudo'           : HLTMETInputs(x='MET / √(∑E_T) "Significance" (event-by-event)', y=nEvts), # \sqrt{} throws a warning
         'METSignReal'             : HLTMETInputs(x='MET Significance (Likelihood)', y=nEvts), # covariance matrix missing
         'MET_Nvtx'                : HLTMETInputs(x='Number of vertices (MET-weighted)', y=nEvts, rebinx=10),
@@ -572,6 +574,14 @@ def varsToPlot(metColl):
         'METResolDiffAggr_Phi' : HLTMETInputs(x=r'$\text{MET}\phi_{\text{Gen}}$', y=r'$\sigma(\text{MET}_\text{Reco}) - \sigma(\text{MET}_\text{Gen})$ [GeV]'),
         'METSignAggr_Phi'      : HLTMETInputs(x=r'$\text{MET}\phi_{\text{Gen}}$', y=r'$\langle\text{MET}_\text{Reco}\rangle / \sigma(\text{MET}_\text{Reco})$'),
         'METGenSignAggr_Phi'   : HLTMETInputs(x=r'$\text{MET}\phi_{\text{Gen}}$', y=r'$\langle\text{MET}_\text{Gen}\rangle / \sigma(\text{MET}_\text{Gen})$'),
+        # pileup dependence (no rebinning: the content is a mean or an RMS)
+        'METRespAggr_Nvtx'        : HLTMETInputs(x=nvtxLabel, y=r'$\langle\text{MET}_\text{Reco} / \text{MET}_\text{Gen}\rangle$'),
+        'METDiffAggr_Nvtx'        : HLTMETInputs(x=nvtxLabel, y=r'$\langle\text{MET}_\text{Reco} - \text{MET}_\text{Gen}\rangle$ [GeV]'),
+        'METDiffResolAggr_Nvtx'   : HLTMETInputs(x=nvtxLabel, y=r'$\sigma(\text{MET}_\text{Reco} - \text{MET}_\text{Gen})$ [GeV]'),
+        'METxDiffAggr_Nvtx'       : HLTMETInputs(x=nvtxLabel, y=r'$\langle\text{MET}_{x,\text{Reco}} - \text{MET}_{x,\text{Gen}}\rangle$ [GeV]'),
+        'METxDiffResolAggr_Nvtx'  : HLTMETInputs(x=nvtxLabel, y=r'$\sigma(\text{MET}_{x,\text{Reco}} - \text{MET}_{x,\text{Gen}})$ [GeV]'),
+        'METyDiffAggr_Nvtx'       : HLTMETInputs(x=nvtxLabel, y=r'$\langle\text{MET}_{y,\text{Reco}} - \text{MET}_{y,\text{Gen}}\rangle$ [GeV]'),
+        'METyDiffResolAggr_Nvtx'  : HLTMETInputs(x=nvtxLabel, y=r'$\sigma(\text{MET}_{y,\text{Reco}} - \text{MET}_{y,\text{Gen}})$ [GeV]'),
         'METSignDiffAggr_Phi'  : HLTMETInputs(x=r'$\text{MET}\phi_{\text{Gen}}$',
                                               y=r'$\langle\text{MET}_\text{Reco}\rangle / \sigma(\text{MET}_\text{Reco}) - \langle\text{MET}_\text{Gen}\rangle / \sigma(\text{MET}_\text{Gen})$'),
     }
@@ -641,6 +651,10 @@ def varsToPlot(metColl):
                                                 y=r'$\text{MET}_\text{Gen}$ [GeV]', rebinx=1, rebiny=2),
         'METDeltaPhivsGenMETPhi': HLTMETInputs(x=r'$\text{MET}\phi_\text{Reco} - \text{MET}\phi_\text{Gen}$',
                                                y=r'$\text{MET}\phi_\text{Gen}$'),
+        'METRatiovsNvtx': HLTMETInputs(x=r'$\text{MET}_\text{Reco} / \text{MET}_\text{Gen}$', y=nvtxLabel, rebinx=5),
+        'METDiffvsNvtx': HLTMETInputs(x=r'$\text{MET}_\text{Reco} - \text{MET}_\text{Gen}$ [GeV]', y=nvtxLabel, rebinx=5),
+        'METxDiffvsNvtx': HLTMETInputs(x=r'$\text{MET}_{x,\text{Reco}} - \text{MET}_{x,\text{Gen}}$ [GeV]', y=nvtxLabel, rebinx=5),
+        'METyDiffvsNvtx': HLTMETInputs(x=r'$\text{MET}_{y,\text{Reco}} - \text{MET}_{y,\text{Gen}}$ [GeV]', y=nvtxLabel, rebinx=5),
     }
     if isMHT:
         for k in vars2D:
@@ -752,6 +766,7 @@ if __name__ == '__main__':
     errorbar_kwargs = dict(capsize=3, elinewidth=0.8, capthick=2, linewidth=2, linestyle='')
 
     nEvts = '# Events'
+    nvtxLabel = 'Number of vertices'
 
     if args.compare_collections is not None:
         afile = ROOT.TFile.Open(args.file)
