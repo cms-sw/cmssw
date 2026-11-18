@@ -11,6 +11,9 @@ point does the work:
 Run it with `--help` for the full list of options. Every step prints each command before running
 it, and `--dry-run` prints them without running anything.
 
+The same entry point also retrains the final high-purity selector of the **baseline** pixel chain
+(no process modifier), a Torch network; see "The baseline chain's network" below.
+
 ## How to run a retrain
 
 The three models are trained one after the other, and each one is compiled in (or loaded) before
@@ -40,7 +43,7 @@ scram b code-format && scram b -j
 # 3. final high-purity selector (its dataset is produced under the new track DNN) ------------
 ./retrain_prompt.sh dump --for hp --work $W --sample "$S" --input "$IN" --events 1000
 ./retrain_prompt.sh hp   --work $W --sample "$S" --deploy    # stages and copies prompt_tree31_wp_<date>.bin
-#    then name the new file in hltPhase2PixelTrackTorchHighPuritySelector_cfi.py, choose
+#    then name the new file in hltPhase2PixelTrackForestHighPuritySelector_cfi.py, choose
 #    scoreThreshold by running the track validation (see "Working points"), and add the file
 #    to the cms-data repository RecoTracker-FinalTrackSelectors (see "Deploying")
 ```
@@ -79,7 +82,8 @@ tree except the two baked headers, and with `--deploy` the selector file.
 |---|---|---|---|---|
 | `triplet` | per-triplet gate | inside the track-building kernel | `plugins/alpaka/CATripletDNNWeights_prompt.h` | rebuild |
 | `gate` | track DNN (the loose -> tight promotion) | inside the track classification kernel | `plugins/alpaka/CATrackDNNWeights_prompt.h` | rebuild |
-| `hp` | final high-purity selector | a separate module after the reconstruction | `RecoTracker/FinalTrackSelectors/data/PixelTrackTorchHighPuritySelector/prompt_tree31_<tag>_<date>.bin` | copy the file |
+| `hp` | final high-purity selector | a separate module after the reconstruction | `RecoTracker/FinalTrackSelectors/data/itaca_selectors/prompt_tree31_<tag>_<date>.bin` | copy the file |
+| `hp --chain baseline` | final high-purity selector of the baseline chain (Torch network) | a separate module after the reconstruction | `RecoTracker/FinalTrackSelectors/data/PixelTrackTorchHighPuritySelector/pixel_track_classifier_FP16_<date>.pt` | copy the file |
 
 The first two models are compiled into the kernels, so deploying them means rebuilding. The
 selector is read at run time, so deploying it means copying a file and naming it in the module's
@@ -125,6 +129,7 @@ and the feature list of the trainer.
 | triplet gate | `CATripletFeatures::asArray()` (`CATripletDNN.h`) | `TrkPromptTriplet_*` (18 raw quantities) | `BASE_FEATURES + DERIVED` in `train_triplet_dnn.py`, which recomputes the 11 derived ones with the formulas of `CATripletCuts.h` |
 | track DNN | `caTrackFeatures::Features::asArray()` (`CATrackFeatures.h`) | `TrkPromptCA_*`, written through the same `fill()` | `FEATS` in `train_disp_nano.py` |
 | final selector | the two blocks of `PixelTrackFeaturesSoA.h`, fit block first | `TrkPromptFull_*` (fit block) and `TrkPromptCA_*` (hit block) | `FEATS31` in `nano_loader.py` |
+| baseline network | the fit block of `PixelTrackFeaturesSoA.h` | `TrkPromptFull_*` | `FEATS17` in `nano_loader.py` |
 
 A change of any of these lists needs the other two changed with it and a retrain.
 
@@ -252,7 +257,7 @@ value the configuration currently carries and where it lives.
 |---|---|---|---|
 | triplet gate | the largest threshold at which every populated (\|tip\|, pT) group's per-track survival matches or beats the outgoing bank's, measured on the same held-out events | at this point | `tripletDNNThreshold` on the CA producer; when it is negative there (as configured), the value baked into the header applies |
 | track DNN | the largest threshold at which the new bank keeps at least the outgoing bank's fraction of matched tracks in every pT, \|eta\| and \|dxy\| bin (`track_dnn_working_point.py`) | at this point | `trackDNNThreshold` on the CA producer; same fallback |
-| final selector | the per-bin recall of the model the configuration loads (the `profile` rule below): a starting point | after the scan | `scoreThreshold` on the selector |
+| final selector, and the baseline network | one threshold at 99.5 % recall of the non-duplicate efficiency tracks ("Working point" below), set on the validation split | after a check with the track validation | `scoreThreshold` on the selector |
 
 The triplet gate is the one to be careful with. A track leaves about ten real triplets behind,
 so a rule stated as "keep 99 % of real triplets" keeps only about 0.99^10 ~ 90 % of the tracks,
@@ -260,10 +265,10 @@ which is why the rule works on per-track survival. The global-recall rule is ava
 comparison with `THRESHOLD_RULE=global`; selecting it also prints what the default rule would
 have chosen.
 
-**Choosing the selector threshold.** Run the reconstruction with the track validation at a few
-values of `scoreThreshold` around the trainer's starting point, and take the tightest one whose
-efficiency still matches the configuration the run started from, in every region that matters
-(not only the integrated number).
+**Checking the selector threshold.** Run the reconstruction with the track validation on
+events that the training did not use, with the new model at the trainer's threshold next to
+the configuration the run started from, and compare efficiency and fake rate against pT, eta
+and pileup. `RECALL` moves the working point if the efficiency has to be traded differently.
 
 ### What is deployed today
 
@@ -271,14 +276,21 @@ efficiency still matches the configuration the run started from, in every region
 |---|---|---|
 | triplet gate | `CATripletDNNWeights_prompt.h` | 7.218852e-03, baked |
 | track DNN | `CATrackDNNWeights_prompt.h` | 3.414618e-02, baked |
-| final selector | `prompt_tree31_wp_20260914.bin` | `scoreThreshold` 0.232 |
+| final selector | `prompt_tree31_wp_20261117.bin` (150 trees) | `scoreThreshold` 0.520 |
+| baseline network | `pixel_track_classifier_FP16_20261117.pt` | `scoreThreshold` 0.700 |
+
+A selector model is tied to the fit of the tracks it was trained on. Use each model only with
+the fit it was trained on, and retrain both models after any change of the fit or of the CA.
 
 ## The final selector in detail
 
 The selector is a gradient-boosted forest run by `PixelTrackForestHighPuritySelector@alpaka`,
-reading a compact `.bin`. Under `phase2CAVectorHits` it replaces the Torch model on the module
-`hltPhase2PixelTrackTorchHighPuritySelector`, whose configuration file is
-`HLTrigger/Configuration/python/HLT_75e33/modules/hltPhase2PixelTrackTorchHighPuritySelector_cfi.py`.
+reading a compact `.bin` from `RecoTracker/FinalTrackSelectors/data/itaca_selectors/`. Its
+configuration file is
+`HLTrigger/Configuration/python/HLT_75e33/modules/hltPhase2PixelTrackForestHighPuritySelector_cfi.py`.
+Under `phase2CAVectorHits` and `ngtScouting` the pixel tracking sequence
+(`HLTPhase2PixelTracksAndVerticesSequence_cfi.py`) puts it in place of the Torch model, with the
+module label `hltPhase2PixelTrackTorchHighPuritySelector`.
 It reads the first 31 columns of the `PixelTrackFeaturesSoA` layout: 17 fit and covariance
 columns, 10 hit and vector hit columns, then `rzChi2`, `meanVectorHitKappa`, `leverArm`, `rMax`.
 
@@ -288,13 +300,11 @@ directory):
 ```bash
 python3 $M/nano_loader.py cache-arm $W/prompt31_cache.npz $W/trackNano_<sample>_tight.root ... \
     --prefix TrkPrompt --label mtv
-python3 $M/make_profile.py --cache $W/prompt31_cache.npz --model <the deployed .bin> \
-    --threshold <its scoreThreshold> --arm prompt --split test --name deployed_<its name> \
-    --out $W/prompt_reference_profile.json
 python3 $M/train_merged_forest.py --cache $W/prompt31_cache.npz --out $W/prompt_forest \
-    --feats 31 --label mtv --recall 0.995 --arm prompt --tag wp --date <date> --threads 16 \
-    --eff-weight 4.0 --no-fp16 --ntrees 1000 --es-rounds 0 --prune-tol 0.002 \
-    --wp-rule profile --wp-profile $W/prompt_reference_profile.json --wp-margin 0
+    --feats 31 --label mtv --arm prompt --tag wp --date <date> --threads 16 \
+    --recall 0.995 --pos-scale 4 --region-pt-weight 4 --eff-weight 8 \
+    --recall-axis A_nodup --wp-rule global --tailw 0 --no-fp16 \
+    --ntrees 150 --es-rounds 0 --prune-tol 0 --dup-as-fake 1
 # staged: $W/prompt_forest/prompt_tree31_wp_<date>.bin
 ```
 
@@ -313,39 +323,114 @@ order and two labels per track, `y_mtv` (`matchedAny`, the training target) and 
 matched to nothing; the true tracks that fail an efficiency cut are positives in training and on
 neither axis.
 
-### Working-point rules
+### Working point
 
-`train_merged_forest.py --wp-rule` chooses how the trained scores are turned into a threshold.
-The rule shapes the model, not only its cut, because the size of the forest is chosen at that
-threshold. `WP_RULE=profile|uniform|global` sets it in the entry script.
-
-* `profile` (**the default**): match or exceed a reference model bin by bin. `make_profile.py`
-  measures the model the configuration loads today, at the threshold that configuration carries,
-  on this run's own cache; the working point is then the threshold at which the new forest
-  reaches that recall in every bin. It is the default because that is the question a retrain has
-  to answer: is the new model at least as good as the one it replaces, everywhere, on the sample
-  of this run. It needs the deployed file, so a cold start needs one of the other two.
-* `uniform`: the largest threshold at which the true-track recall is at least `--recall` (0.995)
-  in every pT, |eta| and |dxyBS| bin of the trainer's standard edges (pT 0.9/1.5/3/10/30, |eta|
-  1.5/2.5, |dxyBS| 0.1/0.5/1/2/5, each axis open at the top). Bins with fewer than 100 true
-  tracks do not constrain it; with no usable bin the global rule applies.
-* `global`: the threshold at which the overall true-track recall is `--recall`.
+One `scoreThreshold` per model: the threshold at which the recall of the non-duplicate
+efficiency tracks is `RECALL` (0.995), set on the validation split. One threshold removes almost
+as many fakes as the best possible set of per-pT thresholds at the same overall recall (0.3 to
+0.7 points of rejection less), and it needs no change of the selector. A recall floor in every
+pT, |eta| and |dxyBS| bin is set by the hardest bins (|dxyBS| 0.1-0.5 cm, pT above 10 GeV), where
+separation is weakest: at 99.5 % it keeps 4 to 8 times more fakes above 10 GeV. Matching the
+replaced model bin by bin keeps that model's operating point in every bin and gave the smallest
+gains. `train_merged_forest.py --wp-rule` still has those two rules for studies; the entry script
+always uses `global`, and `train_torch_hp_dnn.py` has only that one.
 
 ### Forest size
 
-The step fits with a large budget and no early stopping (`--ntrees 1000 --es-rounds 0`) and then
-lets the data choose the size: `--prune-tol 0.002` keeps the smallest prefix of the forest whose
-fake rejection at the working point, on the validation split, is within 0.002 of the best
-prefix. The whole curve is in `result.json` as `size_curve`, so the choice can be read back.
-`NTREES`, `ES_ROUNDS` and `PRUNE_TOL` override the three; `PRUNE_TOL=0` keeps every tree. A
-different tolerance does not need a refit: `--from-full <out>/model_full.json` starts from the
-saved full booster.
+The step fits `EXPORT_TREES` trees (150, the deployed size) directly. Size against cost and gain
+(measured 2026-11-17 on TTbar PU200): the selector costs about 14 ms per event on the serial
+backend plus 0.09 ms per tree, and 0.08 / 0.16 / 0.42 ms per event of GPU kernels for 150 / 300 /
+700 trees; each doubling of the size removed about 12 % of the remaining fakes.
 
-### What a retrain reproduces
+A saved full forest is cut without a refit with `train_merged_forest.py --from-full
+<out>/model_full.json --export-trees <n>`: the first n trees of a boosted forest are the forest a
+fit of n rounds gives.
 
-With no options: 31 features, true high-pT tracks up-weighted (`--eff-weight 4`), full-precision
-values in the exported file, the large tree budget with the size chosen by the data, and the
-starting threshold taken from the per-bin profile of the model the configuration loads.
+### The training recipe (both model families)
+
+The forest and the baseline network are trained the same way:
+
+| step | what it does | option (environment variable) |
+|---|---|---|
+| target | a track matched to a TrackingParticle is true (`matchedAny`) | always |
+| duplicates | a duplicate (a second track of a particle another track found) is a negative of the loss | `--dup-as-fake 1` (`DUP_AS_FAKE`, 0 = off) |
+| class balance | true tracks weighted by fake fraction / (1 - fake fraction) | always |
+| true-track scale | every true track x 4 | `--pos-scale 4` (`POS_SCALE`) |
+| pT region weight | every track, true and fake, x (1 + 4 log10(max(pT, 0.9 GeV) / 0.9 GeV)) | `--region-pt-weight 4` (`REGION_PT_WEIGHT`) |
+| efficiency-track pT weight | the non-duplicate efficiency tracks x (1 + A log10(...)), A set per chain (below) | `--eff-weight A` (`EFF_WEIGHT`) |
+| forest second pass | off | `--tailw 0` (always) |
+| forest size | 150 trees, the deployed size | `--ntrees 150` (`EXPORT_TREES`) |
+| working point | one threshold at 99.5 % recall of the **non-duplicate** efficiency tracks | `--wp-rule global --recall 0.995 --recall-axis A_nodup` (`RECALL`; the network trainer always uses this rule and axis) |
+
+**The recall axis.** The track validation counts a particle as found once, so a duplicate track
+adds no efficiency. Duplicates score low; counting them in the recall pulls the threshold down
+and keeps fakes for nothing (19 % more fakes for the vector hit forest in the study that set
+this rule). The recall is therefore measured on the non-duplicate efficiency tracks.
+
+**Duplicates as fakes.** Training duplicates as negatives raises the duplicate rejection at the
+working point from about 14 % to 17-20 % and costs no fake rejection and no recall. Most
+duplicates are good tracks of a particle that already has one, so the selector cannot remove
+many: the duplicate rate is set by the CA's cleaning.
+
+**The efficiency-track pT weight `EFF_WEIGHT`, per chain.** The region weight alone lowers the
+high-pT recall of the vector hit forest (about 1 point below the model it replaced, above
+10 GeV). A pT weight on the true tracks only restores it, at the cost of some high-pT fakes. The
+rule: the smallest A at which the recall at 10-30 GeV and above 30 GeV, at the working point,
+reaches the deployed model's within statistics, or stops rising if it never does, measured with
+the deployed size (the per-pT tables of `result.json`). Values (2026-11-17, `RT_EFF_WEIGHT_VH`
+and `RT_EFF_WEIGHT_BASELINE` in `retrain_common.sh`): vector hit forest 8 (the plateau, 0.2-0.4
+points below the old forest), baseline network 1. Re-measure them after a change of the fit or
+of the CA, which change how the model scores high-pT tracks.
+
+How the rest was chosen: the six combinations of pT weight (none, efficiency tracks only, every
+track) and true-track scale (x1, x4) were trained for both model families and ranked by fake
+rejection at 99.5 % recall on the validation split. The x4 scale gives the forest about 0.5
+points of rejection; the forest's former two-pass tail re-weight had a band that covered every
+true track, so it was only a uniform x4, and the x4 scale reproduces that forest exactly.
+Training weights flat in pT, or in pT x |eta|, within each class (the reweighting of the CMS
+flavour taggers) were worse for both families: 0.8 to 1.4 points less fake rejection for the
+forest, 0.4 to 1.2 for the network, and no better separation at high pT. More high-pT QCD in the
+training sample helped at high pT.
+
+With no options a retrain reproduces: 31 features (17 for the network) and this recipe,
+full-precision values in the exported forest, and the threshold at 99.5 % recall of the
+non-duplicate efficiency tracks.
+
+## The baseline chain's network
+
+Without a process modifier the chain runs `PixelTrackTorchHighPuritySelector@alpaka` on the
+module `hltPhase2PixelTrackTorchHighPuritySelector`, with a TorchScript file. The baseline chain
+has no vector hits and no in-kernel models, so its retrain is one round:
+
+```bash
+W=/somewhere/with/space/work_baseline     # its own directory: the datasets differ from the
+                                          # vector hit chain's
+./retrain_prompt.sh dump --chain baseline --for hp --work $W --sample "$S" --input "$IN" --events 1000
+./retrain_prompt.sh hp   --chain baseline --work $W --sample "$S" --deploy
+#    then name the new file and its scoreThreshold on hltPhase2PixelTrackTorchHighPuritySelector
+#    (hltPhase2PixelTrackTorchHighPuritySelector_cfi.py)
+```
+
+* **Dataset.** `--chain baseline` generates its own base configuration,
+  `base_reco_baseline_cfg.py` (`make_base_config.sh --modifiers none`). On a chain without vector
+  hits `trackNano_config.py` leaves out the `TrkPromptCA` tables and converts the tracks with a
+  copy of the chain's own `hltPhase2PixelTracks`. The trackingOnly menu without modifiers runs the
+  full iterative tracking behind the pixel tracks, so a baseline dump is slower than a vector hit
+  one.
+* **Model.** `train_torch_hp_dnn.py` holds the network as the deployed file has it: the 17 fit
+  features; log10(|x| + 1e-8) on ten of them, a clamp on eight, then standardisation; four hidden
+  layers of 64 with LayerNorm, ReLU and dropout 0.05; a sigmoid output of shape [N, 1]; FP16
+  parameters. The step first runs `train_torch_hp_dnn.py check`, which loads the deployed weights
+  into these classes and requires the TorchScript code of every submodule and the scores to be
+  identical to the deployed file. A retrain recomputes the numbers only: the clamp limits (the
+  0.1 % and 99.9 % quantiles of each clamped feature), the mean and spread, and the weights.
+* **Training.** Target `matchedAny`, the recipe of "The training recipe" above (the trainer's
+  own defaults), Adam with early stopping on the validation fake rejection at `RECALL`; the cache
+  is `nano_loader.py cache-arm --feats 17`.
+* **Working point.** One threshold at `RECALL` of the non-duplicate efficiency tracks, on the test
+  split, with the exported FP16 file scored in half precision as the producer does. It is in
+  `baseline_dnn/result.json` with its per-bin tables, next to the deployed file at its own
+  threshold and at the same recall.
 
 ## Deploying
 
@@ -358,7 +443,8 @@ Each step ends by printing what it produced, where it goes and what to update. I
   in `--work` (`CATrackDNNWeights_prompt.h.replaced`) by the `gate` step.
 * **Selector model** (`prompt_tree31_<tag>_<date>.bin`): staged in `--work` with today's date
   (`MODEL_NAME` overrides it, `TAG` the tag), then copied into
-  `RecoTracker/FinalTrackSelectors/data/PixelTrackTorchHighPuritySelector/` and named in the
+  `RecoTracker/FinalTrackSelectors/data/itaca_selectors/` (a network of the baseline chain:
+  `RecoTracker/FinalTrackSelectors/data/PixelTrackTorchHighPuritySelector/`) and named in the
   module's configuration. `--deploy` does the copy; editing the configuration is always manual.
   No rebuild. Keeping the date in the name is what makes a model swap visible in the
   configuration diff. A release takes that data directory from the cms-data repository
@@ -367,7 +453,9 @@ Each step ends by printing what it produced, where it goes and what to update. I
 
 The configurations to edit are in `HLTrigger/Configuration/python/HLT_75e33/modules/`:
 `hltPhase2PixelTracksSoAWithVectorHits_cfi.py` (the two in-kernel thresholds, if they are to be
-set explicitly) and `hltPhase2PixelTrackTorchHighPuritySelector_cfi.py` (the selector).
+set explicitly), `hltPhase2PixelTrackForestHighPuritySelector_cfi.py` (the forest of the vector
+hit chain) and `hltPhase2PixelTrackTorchHighPuritySelector_cfi.py` (the network of the baseline
+chain).
 
 ### Checking a deployed model
 
@@ -414,7 +502,8 @@ checks only, and deploying it is a change of model, to be validated as one.
 | `track_dnn_working_point.py` | the track DNN's working point: the largest threshold holding the outgoing bank's recall in every bin |
 | `nano_loader.py` | build feature caches from the track-level datasets: `cache-arm` (31 features); `cache`, `cache-ext`, `cache-prompt`, `cache-prompt27` serve the comparison and studies |
 | `train_merged_forest.py` | the final-selector trainer: recipe, working-point rules, compact export and read-back |
-| `make_profile.py` | measure a deployed selector on a cache, bin by bin, for the `profile` working-point rule |
+| `train_torch_hp_dnn.py` | the baseline chain's network: `check` against the deployed file, `train` and FP16/FP32 export, working point |
+| `make_profile.py` | measure a deployed selector on a cache, bin by bin (the `profile` rule of `train_merged_forest.py`, for studies) |
 | `read_compact_tree.py` | read a compact `.bin` and score rows with it, the way the selector kernel does |
 | `export_compact_tree.py` | write a booster as the compact binary the selector loads (used by the trainer) |
 | `prompt_hp_bakeoff.py`, `build_tree_model.py`, `train_prompt_hp_nano.py`, `nano_train_utils.py` | the model-family comparison: the four candidates, their forest and neural-network trainers, shared helpers |
@@ -449,6 +538,7 @@ command-line options of `retrain_prompt.sh --help` cover the rest.
 |---|---|---|
 | `WORKDIR` | none | working directory, as `--work` |
 | `SAMPLES` | `ttbarPU displacedPU qcdPU bsPU zpPU` | sample names, as `--sample` |
+| `CHAIN` | `vh` | pixel chain, as `--chain`: `vh` or `baseline` |
 | `THREADS` | 8 | reconstruction threads of the dumps, as `--threads` |
 | `DEVICE` | `cuda:0` | torch device of the trainers, as `--device` |
 | `THRESHOLD` | none (the step's rule) | threshold baked by `triplet` and `gate`, as `--threshold` |
@@ -457,12 +547,13 @@ command-line options of `retrain_prompt.sh --help` cover the rest.
 | `RT_LABEL` | `mtv` | truth label of the track-DNN trainer, as `--label` |
 | `RT_DISP_CAPS_FACTOR` | 4 | enlargement of the displaced CA's buffers in a displaced-arm track dump (`dispCapsFactor`), for a process with a displaced iteration |
 | `MODEL_CLASS` | `forest31` | model family of the `hp` step, as `--class` |
-| `WP_RULE` | `profile` | working-point rule of the `hp` step: `profile`, `uniform` or `global` |
-| `NTREES` | 1000 (800 in the comparison) | tree budget of the forest |
-| `ES_ROUNDS` | 0 | early-stopping rounds of the forest (0 = none) |
-| `PRUNE_TOL` | 0.002 | fake-rejection tolerance that chooses the forest size (0 = keep every tree) |
-| `RECALL` | 0.995 | true-track recall of the `uniform` and `global` rules |
-| `EFF_WEIGHT` | 4.0 | weight of the true high-pT tracks in the forest training |
+| `NTREES` | 800 | tree budget of the comparison forests |
+| `RECALL` | 0.995 | recall of the non-duplicate efficiency tracks at the `hp` working point |
+| `POS_SCALE` | 4 | every true track x this, after the class balance (forest and network) |
+| `REGION_PT_WEIGHT` | 4 | pT weight of every track, true and fake (forest and network) |
+| `EFF_WEIGHT` | per chain (vh 8, baseline 1) | pT weight of the non-duplicate efficiency tracks only (forest and network) |
+| `DUP_AS_FAKE` | 1 | loss weight of duplicates trained as negatives (0 = duplicates are true tracks) |
+| `EXPORT_TREES` | 150 | number of trees of the forest |
 | `LABEL` | `mtv` | truth label of the forest training |
 | `TAG` | `wp` | tag in the staged file name `prompt_tree31_<tag>_<date>.bin` |
 | `MODEL_NAME` | today's date | date in the staged file name |

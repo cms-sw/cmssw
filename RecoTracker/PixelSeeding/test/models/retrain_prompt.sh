@@ -16,10 +16,17 @@
 #   gate      track DNN, loose->tight      CATrackDNNWeights_prompt.h      rebuild
 #   hp        final high-purity selector   data/.../prompt_tree31_<tag>_<date>.bin   file swap
 #
-# The selector file is read at run time from
-# RecoTracker/FinalTrackSelectors/data/PixelTrackTorchHighPuritySelector/, which a release
-# takes from the cms-data repository RecoTracker-FinalTrackSelectors: a new file goes there,
-# and is named, with its scoreThreshold, in hltPhase2PixelTrackTorchHighPuritySelector_cfi.py.
+# With --chain baseline the hp step retrains the selector of the baseline chain (no
+# process modifier) instead: the Torch network PixelTrackTorchHighPuritySelector,
+# deployed as data/.../pixel_track_classifier_FP16_<date>.pt, with its architecture,
+# preprocessing and 17 inputs unchanged (train_torch_hp_dnn.py). The baseline chain has
+# no in-kernel models to retrain, so dump --for hp and hp are its only steps.
+#
+# The selector file is read at run time from RecoTracker/FinalTrackSelectors/data/, which a
+# release takes from the cms-data repository RecoTracker-FinalTrackSelectors: a forest goes in
+# itaca_selectors/ and is named, with its scoreThreshold, in
+# hltPhase2PixelTrackForestHighPuritySelector_cfi.py; a network goes in
+# PixelTrackTorchHighPuritySelector/ and is named in hltPhase2PixelTrackTorchHighPuritySelector_cfi.py.
 #
 # USAGE
 #   ./retrain_prompt.sh <step> [options]
@@ -59,10 +66,14 @@
 #                       checks only
 #     --threads N       reconstruction threads for the dumps                    (default 8)
 #     --device DEV      torch device for training                         (default cuda:0)
+#     --chain C         vh = the vector hit chain (default); baseline = the baseline chain,
+#                       whose datasets and chassis (base_reco_baseline_cfg.py) carry no
+#                       process modifier and whose hp step trains the Torch network
 #     --chassis MODULE  base reconstruction config to dump on top of; by default one is
 #                       generated from --input with make_base_config.sh
 #     --deploy          (hp) copy the staged model into the data directory
-#                       (RecoTracker/FinalTrackSelectors/data/PixelTrackTorchHighPuritySelector/)
+#                       (RecoTracker/FinalTrackSelectors/data/itaca_selectors/ for a forest,
+#                       .../data/PixelTrackTorchHighPuritySelector/ for a network)
 #     --dry-run         print the commands without running them
 #
 # EXAMPLES
@@ -71,16 +82,19 @@
 #   ./retrain_prompt.sh hp       --work /w --input /data/ttbar
 #   ./retrain_prompt.sh hp       --work /w --input /data/ttbar --class both   # the comparison
 #   ./retrain_prompt.sh dump     --work /w --input /data/ttbar --for hp
+#   # the baseline chain's network (its own --work, as its datasets differ):
+#   ./retrain_prompt.sh dump     --chain baseline --work /wb --input /data/ttbar --for hp
+#   ./retrain_prompt.sh hp       --chain baseline --work /wb
 #   # three samples from three inputs, one dump per stage (see README.md, "Samples and inputs"):
 #   ./retrain_prompt.sh dump --for gate --work /w --sample "ttbarPU displacedPU qcdPU" \
 #       --input ttbarPU=/data/ttbar,displacedPU=/data/susy,qcdPU=/data/qcd --events 300
 #
 # ENVIRONMENT (tuning; the defaults are the ones in use)
-#   hp step: WP_RULE (profile | uniform | global, see train_merged_forest.py --wp-rule),
-#            NTREES (1000), ES_ROUNDS (0), PRUNE_TOL (0.002) -- the tree budget and the
-#            size the data chooses inside it,
-#            RECALL (0.995), EFF_WEIGHT (4.0), LABEL (mtv), TAG (wp, the tag in the file
-#            name), XGB_THREADS (16), MODEL_NAME (the date in the file name, today),
+#   hp step: RECALL (0.995): one scoreThreshold at this recall of the non-duplicate
+#            efficiency tracks; the recipe of both model families: POS_SCALE (4),
+#            REGION_PT_WEIGHT (4), EFF_WEIGHT (per chain: vh 8, baseline 1), DUP_AS_FAKE (1);
+#            forest only: EXPORT_TREES (150, the number of trees), LABEL (mtv), TAG (wp, the
+#            tag in the file name), XGB_THREADS (16); MODEL_NAME (the date in the file name, today),
 #            TRAIN_EXTRA (further train_merged_forest.py options, e.g. "--ntrees 200" for a
 #            quick check).
 #            Comparison only (--class both|forest|mlp): ARMS (explicit candidate list;
@@ -117,9 +131,21 @@ SAMPLES=${RT_SAMPLE:-${SAMPLES:-"ttbarPU displacedPU qcdPU bsPU zpPU"}}
 CLASS=${RT_CLASS:-${MODEL_CLASS:-forest31}}
 CA_CFI=$(rt_ca_cfi $BANK)
 HP_CFI=$(rt_hp_cfi $BANK)
+TORCH_CFI=$(rt_torch_cfi)
 MODEL_TAG=${MODEL_NAME:-$(date +%Y%m%d)}
 
 rt_require_work
+case "$RT_CHAIN" in
+  vh) ;;
+  baseline)
+    case "$STEP" in
+      hp) ;;
+      dump) [ "${RT_FOR:-hp}" = hp ] ||
+              rt_die "--chain baseline has no in-kernel models: only dump --for hp and hp apply" ;;
+      *) rt_die "--chain baseline has no in-kernel models: only dump --for hp and hp apply" ;;
+    esac ;;
+  *) rt_die "--chain must be vh or baseline (got '$RT_CHAIN')" ;;
+esac
 
 # ---- dataset locations ------------------------------------------------------
 track_nano() { local q=$1 s; for s in $SAMPLES; do echo "$RT_WORK/trackNano_${s}_${q}.root"; done; }
@@ -186,7 +212,8 @@ step_dump() {
       i=0; for s in $SAMPLES; do rt_dump_track_nano $BANK tight "$s" "$RT_WORK/trackNano_${s}_tight.root" "$i"; i=$((i + 1)); done
       rt_report "High-purity dataset ready (quality 'tight', full deployed chain)"
       rt_r_produced "$(track_nano tight | tr '\n' ' ')"
-      rt_r_next "./retrain_prompt.sh hp --work $RT_WORK$sopt"
+      local copt=""; [ "$RT_CHAIN" = baseline ] && copt=" --chain baseline"
+      rt_r_next "./retrain_prompt.sh hp$copt --work $RT_WORK$sopt"
       ;;
   esac
 }
@@ -226,8 +253,59 @@ step_hp() {
   resolve_datasets track tight; local -a nanos=("${DATASETS[@]}")
   local guard; guard=$(rt_start_guard "$RT_WORK/retrain_prompt_ram.log" "prompt hp")
   trap "kill $guard 2>/dev/null || true" EXIT
-  if [ -n "${ARMS:-}" ] || [ "$CLASS" != forest31 ]; then hp_bakeoff "${nanos[@]}"
+  if [ "$RT_CHAIN" = baseline ]; then hp_baseline "${nanos[@]}"
+  elif [ -n "${ARMS:-}" ] || [ "$CLASS" != forest31 ]; then hp_bakeoff "${nanos[@]}"
   else hp_deploy "${nanos[@]}"; fi
+}
+
+# The baseline chain: the Torch network, retrained with the architecture, the
+# preprocessing and the 17 inputs of the deployed file (train_torch_hp_dnn.py checks
+# its classes against that file), staged as pixel_track_classifier_FP16_<date>.pt.
+hp_baseline() {  # $@ = tight datasets of the baseline chain
+  local cache="$RT_WORK/baseline17_cache.npz" outdir="$RT_WORK/baseline_dnn"
+  local deployed torchmod thr
+  deployed=$(rt_deployed_torch_model "$TORCH_CFI")
+  torchmod=$(rt_torch_module "$TORCH_CFI")
+  thr=$(rt_cfi_double "$TORCH_CFI" scoreThreshold "$torchmod")
+  [ -n "$deployed" ] && [ -f "$RT_DATA_TORCH/$deployed" ] ||
+    rt_die "the deployed Torch file '${deployed:-none}' is not in $RT_DATA_TORCH"
+  [ -n "$thr" ] || rt_die "no scoreThreshold found for $torchmod in $TORCH_CFI"
+
+  echo ">>> [1/3] check the network classes against the deployed $deployed"
+  rt_run python3 "$RT_MODELS/train_torch_hp_dnn.py" check --reference "$RT_DATA_TORCH/$deployed"
+
+  echo ">>> [2/3] build the 17-feature cache -> $cache"
+  rt_run python3 "$RT_MODELS/nano_loader.py" cache-arm "$cache" "$@" --prefix TrkPrompt --label mtv \
+    --feats 17
+
+  echo ">>> [3/3] train the network -> $outdir"
+  # The recipe both selector families share (rt_recipe_args); early stopping at the
+  # working point's recall.
+  rt_recipe_args
+  rt_run python3 "$RT_MODELS/train_torch_hp_dnn.py" train --cache "$cache" --out "$outdir" \
+    --reference "$RT_DATA_TORCH/$deployed" --reference-threshold "$thr" "${RT_RECIPE_ARGS[@]}" \
+    --dup-as-fake "${DUP_AS_FAKE:-1}" --date "$MODEL_TAG" --device "$RT_DEVICE"
+  local out="$outdir/pixel_track_classifier_FP16_${MODEL_TAG}.pt"
+  [ "$RT_DEPLOY" -eq 1 ] && rt_run cp "$out" "$RT_DATA_TORCH/"
+
+  local wp="<the working point in $outdir/result.json>"
+  if [ "$RT_DRYRUN" -eq 0 ] && [ -f "$outdir/result.json" ]; then
+    wp=$(python3 -c "import json,sys;w=json.load(open(sys.argv[1]))['working_point'];print('%.6f offline (rule %s, recall %.4f, fake rejection %.4f)'%(w['threshold'],w['name'],w['recall'],w['rejection']))" "$outdir/result.json")
+  fi
+  rt_report "Baseline high-purity network retrained"
+  rt_r_produced "$out" "32-bit sibling: $outdir/pixel_track_classifier_FP32_${MODEL_TAG}.pt" \
+                "training summary: $outdir/result.json   threshold map: $outdir/thrmap.txt" \
+                "cache: $cache"
+  rt_r_deploy "cp $out $RT_DATA_TORCH/" "no rebuild needed -- the selector reads the file at run time" \
+              "(the file the configuration loads today is $deployed)"
+  rt_r_update \
+    "$TORCH_CFI" \
+    "  on $torchmod:" \
+    "  model          = cms.FileInPath('RecoTracker/FinalTrackSelectors/data/" \
+    "                     PixelTrackTorchHighPuritySelector/$(basename "$out")')" \
+    "  scoreThreshold = cms.double(<re-scan in situ>)   currently $thr" \
+    "                   the trainer's starting point: $wp"
+  echo " Check the threshold with the track validation before pinning it."
 }
 
 # The deploy path: the per-arm cache in the selector's column order, the trainer
@@ -238,8 +316,7 @@ hp_deploy() {  # $@ = tight datasets
   local label="${LABEL:-mtv}" tag="${TAG:-wp}"
   local deployed hpmod thr
   deployed=$(rt_deployed_model "$HP_CFI")
-  # Read the working point off the producer the vector hit chain actually runs, not the
-  # first one declared in the file (the Torch baseline sits above it).
+  # Read the working point off the producer the vector hit chain runs.
   hpmod=$(rt_hp_module "$HP_CFI")
   thr=$(rt_cfi_double "$HP_CFI" scoreThreshold "$hpmod")
 
@@ -249,22 +326,23 @@ hp_deploy() {  # $@ = tight datasets
   rt_run python3 "$RT_MODELS/nano_loader.py" cache-arm "$cache" "$@" --prefix TrkPrompt --label "$label"
 
   echo ">>> [2/3] train the forest -> $outdir"
-  rt_wp_args prompt "$cache" "$RT_DATA/${deployed:-none}" "$thr" "$RT_WORK/prompt_reference_profile.json" \
-    --label "$label"
-  # The prompt recipe: the trainer's defaults (depth 12, two-pass tail re-weight), the
-  # large tree budget with the size chosen by the data, true high-pT tracks up-weighted
-  # (--eff-weight 4), full-precision values in the exported file (--no-fp16).
+  # The recipe both selector families share (rt_recipe_args in retrain_common.sh), one
+  # threshold at the recall of the non-duplicate efficiency tracks, the trainer's tree
+  # defaults (depth 12) with the second pass off, EXPORT_TREES trees (150, the deployed
+  # size), full-precision values in the exported file (--no-fp16).
+  rt_recipe_args
   local -a train=(--cache "$cache" --out "$outdir" --feats 31 --label "$label"
-                  --recall "${RECALL:-0.995}" --arm prompt --tag "$tag" --date "$MODEL_TAG"
-                  --threads "${XGB_THREADS:-16}" --eff-weight "${EFF_WEIGHT:-4.0}" --no-fp16
-                  "${RT_FOREST_SIZE_ARGS[@]}" "${RT_WP_ARGS[@]}")
+                  --arm prompt --tag "$tag" --date "$MODEL_TAG" --threads "${XGB_THREADS:-16}"
+                  "${RT_RECIPE_ARGS[@]}" --recall-axis A_nodup --wp-rule global --tailw 0
+                  --no-fp16 "${RT_FOREST_SIZE_ARGS[@]}")
+  if [ "${DUP_AS_FAKE:-1}" != 0 ]; then train+=(--dup-as-fake "${DUP_AS_FAKE:-1}"); fi
   # shellcheck disable=SC2206
   [ -n "${TRAIN_EXTRA:-}" ] && train+=(${TRAIN_EXTRA})
   rt_run python3 "$RT_TRAINER" "${train[@]}"
 
   echo ">>> [3/3] stage the compact model"
   local out; out=$(rt_forest_bin "$outdir" prompt 31 "$tag" "$MODEL_TAG")
-  [ "$RT_DEPLOY" -eq 1 ] && rt_run cp "$out" "$RT_DATA/"
+  [ "$RT_DEPLOY" -eq 1 ] && rt_run cp "$out" "$RT_DATA_FOREST/"
 
   rt_report "Prompt high-purity selector retrained"
   rt_r_produced "$out" \
@@ -274,7 +352,7 @@ hp_deploy() {  # $@ = tight datasets
   rt_r_update \
     "$HP_CFI" \
     "  model          = cms.FileInPath('RecoTracker/FinalTrackSelectors/data/" \
-    "                     PixelTrackTorchHighPuritySelector/$(basename "$out")')" \
+    "                     itaca_selectors/$(basename "$out")')" \
     "  useHitFeatures = cms.bool(True)   (unchanged: a 31-feature model reads the hit features)" \
     "  scoreThreshold = cms.double(<re-scan in situ>)   currently ${thr:-?}${hpmod:+  (module $hpmod)}" \
     "                   the trainer's starting point: $(rt_forest_wp "$outdir")" \
@@ -321,8 +399,7 @@ hp_bakeoff() {  # $@ = tight datasets
   wfeat=$(python3 -c "import json;print(json.load(open('$RT_WORK/WINNER.json'))['n_feats'])")
 
   echo ">>> [3/3] stage the best candidate: $warm ($wclass, $wfeat features)"
-  # Read the working point off the producer the vector hit chain actually runs, not the
-  # first one declared in the file (the Torch baseline sits above it).
+  # Read the working point off the producer the vector hit chain runs.
   local hpmod out; hpmod=$(rt_hp_module "$HP_CFI")
   if [ "$wclass" = forest ]; then
     # Named by its own width, not after the deployed file: a 17- or 27-feature forest
@@ -331,16 +408,16 @@ hp_bakeoff() {  # $@ = tight datasets
     out="$RT_WORK/prompt_tree${wfeat}_bakeoff_${MODEL_TAG}.bin"
     rt_run python3 "$RT_MODELS/export_compact_tree.py" --booster "$RT_WORK/$wart" \
       --out-bin "$out" --no-fp16
-    [ "$RT_DEPLOY" -eq 1 ] && rt_run cp "$out" "$RT_DATA/"
+    [ "$RT_DEPLOY" -eq 1 ] && rt_run cp "$out" "$RT_DATA_FOREST/"
     rt_report "Prompt high-purity comparison done: best candidate $warm (forest, $wfeat features)"
     rt_r_produced "$out" "comparison table: $RT_WORK/HP_BAKEOFF.txt" "winner: $RT_WORK/WINNER.json"
-    rt_r_deploy "cp $out $RT_DATA/" "no rebuild needed -- the selector reads the file at run time" \
+    rt_r_deploy "cp $out $RT_DATA_FOREST/" "no rebuild needed -- the selector reads the file at run time" \
                 "(a $wfeat-feature model is not the 31-feature family the chain runs: deploying" \
                 " it is a change of model, to be validated as one, not a retrain)"
     rt_r_update \
       "$HP_CFI" \
       "  model          = cms.FileInPath('RecoTracker/FinalTrackSelectors/data/" \
-      "                     PixelTrackTorchHighPuritySelector/$(basename "$out")')" \
+      "                     itaca_selectors/$(basename "$out")')" \
       "  useHitFeatures = cms.bool(<True for a 27-feature model; a 17-feature one does not need it>)" \
       "  scoreThreshold = cms.double(<re-scan in situ>)   currently $(rt_cfi_double "$HP_CFI" scoreThreshold "$hpmod")${hpmod:+  (module $hpmod)}" \
       "  (the prompt arm keeps scoreThresholdLowDxy = -1.0: no displacement ramp)"
@@ -351,11 +428,11 @@ hp_bakeoff() {  # $@ = tight datasets
     rt_run python3 "$RT_MODELS/train_prompt_hp_nano.py" finalize --cache "$cache" \
       --prefix TrkPrompt --name "$warm" --ts-name "$(basename "$out")" \
       --thr-recall "${THR_RECALL:-0.99}"
-    [ "$RT_DEPLOY" -eq 1 ] && rt_run cp "$out" "$RT_DATA/"
+    [ "$RT_DEPLOY" -eq 1 ] && rt_run cp "$out" "$RT_DATA_TORCH/"
     rt_report "Prompt high-purity comparison done: best candidate $warm (neural network, $wfeat features)"
     rt_r_produced "$out" "16-bit default, plus a 32-bit sibling (_fp32.pt)" \
                   "comparison table: $RT_WORK/HP_BAKEOFF.txt" "winner: $RT_WORK/WINNER.json"
-    rt_r_deploy "cp $out $RT_DATA/" "no rebuild needed" \
+    rt_r_deploy "cp $out $RT_DATA_TORCH/" "no rebuild needed" \
                 "(a neural network is not the forest family the chain runs: deploying it is a" \
                 " change of model, to be validated as one, not a retrain)"
     rt_r_update "$HP_CFI" \
