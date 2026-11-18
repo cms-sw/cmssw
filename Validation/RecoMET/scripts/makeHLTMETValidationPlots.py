@@ -168,8 +168,10 @@ class Plotter:
             plt.savefig(name + '.' + ext)
         plt.close()
 
-def plot1D(plotter, h, text, props):
-    """Plot 1D distributions."""
+FLOW_VARS = ('HFEMEt', 'HFHadronEt', 'chargedHadronEt', 'neutralHadronEt', 'photonEt', 'muonEt')
+
+def plot1D(plotter, h, text, props, var=None):
+    """Plot 1D distributions. For the `FLOW_VARS`, the number of underflow and overflow entries is printed (see --show_flow)."""
     nbins, bin_edges, bin_centers, bin_widths = define_bins(h)
     values, errors = histo_values_errors(h)
     errors /= 2
@@ -179,6 +181,11 @@ def plot1D(plotter, h, text, props):
     plotter.ax.stairs(values, bin_edges, color='black', linewidth=2, baseline=None)
     plotter.ax.text(0.03, 0.97, text, transform=plotter.ax.transAxes, fontsize=16,
                     verticalalignment='top', horizontalalignment='left')
+    if args.show_flow and var in FLOW_VARS:
+        underflow, overflow = h.GetBinContent(0), h.GetBinContent(h.GetNbinsX() + 1)
+        plotter.ax.text(0.03, 0.92, f"Underflow: {round(underflow):d}\nOverflow: {round(overflow):d}",
+                        transform=plotter.ax.transAxes, fontsize=14,
+                        verticalalignment='top', horizontalalignment='left')
 
     plotter.limits_with_margin(values, errors, logY=props.logy)
     plotter.labels(x=props.x, y=props.y)
@@ -230,7 +237,7 @@ def plotVars(afile, adir, avars, mode, outdir, metType):
         root_hist = checkRootFile(afile, f"{adir}/{var}", rebinx=props.rebinx, rebiny=props.rebiny)
 
         if mode == '1D':
-            plotter = plot1D(plotter, root_hist, metType, props)
+            plotter = plot1D(plotter, root_hist, metType, props, var=var)
         elif mode == '2D':
             plotter = plot2D(plotter, root_hist, metType, props)
         else:
@@ -522,6 +529,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Make HLT MET validation plots. \nRun all MET paths with\n' + full_command)
     parser.add_argument('-o', '--odir', default="HLTMETValidationPlots", required=False, help='Path to the output directory.')
     parser.add_argument('-l', '--sample_label', default="QCD (200 PU)", required=False, help='Sample label for plotting.')
+    parser.add_argument('--show_flow', action=argparse.BooleanOptionalAction, default=True,
+                        help='Print the number of underflow and overflow entries in the HFEMEt, HFHadronEt, '
+                             'chargedHadronEt, neutralHadronEt, photonEt and muonEt plots (default: True; '
+                             'disable with --no-show_flow).')
     parser.add_argument('--overlay_scan', action='store_true',
                         help='Also overlay the normalised MEx, MEy and METPhi of the cut scan (and its pdgId split) '
                              'found in the sub-folders of each --met collection (see addMHTScan).')
