@@ -106,11 +106,9 @@ fastSim.toModify(HltVertexValidationVertices, SimVertexCollection = "fastSimProd
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 
 HLTPathNames_phase2 = [
-    'HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepCSV_2p4',
     'HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepFlavour_2p4',
     'HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepFlavour_2p4',
     'HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepFlavour_2p4',
-    'DST_PFScouting',
     'DST_PFScouting'
 ]
 
@@ -128,27 +126,18 @@ phase2_common.toModify(
     hltbTagValidation,
     isPhase2 = True,
     L1Seeds = [
-        cms.PSet(seeds = cms.vstring("pDoublePuppiJet112_112")),
         cms.PSet(seeds = cms.vstring("pPuppiHT400", "pQuadJet70_55_40_40")),
         cms.PSet(seeds = cms.vstring("pPuppiHT400", "pQuadJet70_55_40_40")),
         cms.PSet(seeds = cms.vstring("pDoublePuppiJet112_112")),
-        cms.PSet(seeds = cms.vstring()),
         cms.PSet(seeds = cms.vstring())
     ],
     JetTag = [
-        "hltDeepCombinedSecondaryVertexBJetTagsPFPuppiModEta2p4:probb",
         "hltPfDeepFlavourJetTagsModEta2p4:probb",
         "hltPfDeepFlavourJetTagsModEta2p4:probb",
         "hltPfDeepFlavourJetTagsModEta2p4:probb",
-        "hltDeepCombinedSecondaryVertexBJetTagsPFPuppi:probb",
         "hltPfDeepFlavourJetTags:probb"
     ],
     PathFilters = [
-        cms.PSet(filters = cms.vstring(
-            "hltDoublePFPuppiJets128MaxEta2p4",
-            "hltDoublePFPuppiJets128Eta2p4MaxDeta1p6",
-            "hltBTagPFPuppiDeepCSV0p865DoubleEta2p4"
-        )),
         cms.PSet(filters = cms.vstring(
             "hltPFPuppiCentralJetQuad30MaxEta2p4",
             "hlt1PFPuppiCentralJet75MaxEta2p4",
@@ -170,7 +159,6 @@ phase2_common.toModify(
             "hltDoublePFPuppiJets128Eta2p4MaxDeta1p6",
             "hltBTagPFPuppiDeepFlavour0p935DoubleEta2p4"
         )),
-        cms.PSet(filters = cms.vstring()),
         cms.PSet(filters = cms.vstring())
     ]
 )

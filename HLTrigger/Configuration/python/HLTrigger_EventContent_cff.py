@@ -326,8 +326,6 @@ HLTDebugFEVT = cms.PSet(
         'keep *_hltCtfWithMaterialTracksP5_*_*',
         'keep *_hltDeepBLifetimeTagInfosPF_*_*',
         'keep *_hltDeepCombinedSecondaryVertexBJetTagsCalo_*_*',
-        'keep *_hltDeepCombinedSecondaryVertexBJetTagsPFPuppiModEta2p4_*_*',
-        'keep *_hltDeepCombinedSecondaryVertexBJetTagsPFPuppi_*_*',
         'keep *_hltDeepCombinedSecondaryVertexBJetTagsPF_*_*',
         'keep *_hltDeepSecondaryVertexTagInfosPF_*_*',
         'keep *_hltDisplacedhltIter4PFlowTrackSelectionHighPurity_*_*',
