@@ -69,79 +69,9 @@ namespace edm::maker {
     }
   }
 
-  namespace {
-    template <typename T>
-    bool mustPrefetchMayGet();
-
-    template <>
-    bool mustPrefetchMayGet<edm::one::EDProducerBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::one::EDFilterBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::one::EDAnalyzerBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::one::OutputModuleBase>() {
-      return true;
-    }
-
-    template <>
-    bool mustPrefetchMayGet<edm::global::EDProducerBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::global::EDFilterBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::global::EDAnalyzerBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::global::OutputModuleBase>() {
-      return true;
-    }
-
-    template <>
-    bool mustPrefetchMayGet<edm::limited::EDProducerBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::limited::EDFilterBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::limited::EDAnalyzerBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::limited::OutputModuleBase>() {
-      return true;
-    }
-
-    template <>
-    bool mustPrefetchMayGet<edm::stream::EDProducerAdaptorBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::stream::EDFilterAdaptorBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::stream::EDAnalyzerAdaptorBase>() {
-      return true;
-    }
-
-  }  // namespace
-
   template <typename T>
   void ModuleHolderT<T>::updateLookup(BranchType iBranchType, ProductResolverIndexHelper const& iHelper) {
-    m_mod->updateLookup(iBranchType, iHelper, mustPrefetchMayGet<T>());
+    m_mod->updateLookup(iBranchType, iHelper);
   }
 
   template <typename T>

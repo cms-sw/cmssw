@@ -452,7 +452,7 @@ void testEvent::getByTokenFromEmpty() {
   InputTag inputTag("moduleLabel", "instanceName");
 
   IntConsumer consumer(std::vector<InputTag>{1, inputTag});
-  consumer.updateLookup(InEvent, principal_->productLookup(), false);
+  consumer.updateLookup(InEvent, principal_->productLookup());
   assert(1 == consumer.m_tokens.size());
   currentEvent_->setConsumer(&consumer);
   Handle<int> nonesuch;
@@ -477,7 +477,7 @@ void testEvent::getHandleFromEmpty() {
   InputTag inputTag("moduleLabel", "instanceName");
 
   IntConsumer consumer(std::vector<InputTag>{1, inputTag});
-  consumer.updateLookup(InEvent, principal_->productLookup(), false);
+  consumer.updateLookup(InEvent, principal_->productLookup());
   assert(1 == consumer.m_tokens.size());
   currentEvent_->setConsumer(&consumer);
   Handle<int> nonesuch;
@@ -491,7 +491,7 @@ void testEvent::getFromEmpty() {
   InputTag inputTag("moduleLabel", "instanceName");
 
   IntConsumer consumer(std::vector<InputTag>{1, inputTag});
-  consumer.updateLookup(InEvent, principal_->productLookup(), false);
+  consumer.updateLookup(InEvent, principal_->productLookup());
   assert(1 == consumer.m_tokens.size());
   currentEvent_->setConsumer(&consumer);
   REQUIRE_THROWS_AS((void)currentEvent_->get(consumer.m_tokens[0]), cms::Exception);
@@ -734,7 +734,7 @@ void testEvent::getByToken() {
                                                     InputTag("modMulti", "int1", "CURRENT"),
                                                     InputTag("modMulti", "int2", "EARLY"),
                                                     InputTag("modOne")});
-  consumer.updateLookup(InEvent, principal_->productLookup(), false);
+  consumer.updateLookup(InEvent, principal_->productLookup());
 
   currentEvent_->setConsumer(&consumer);
   edm::EventBase const* eb = currentEvent_.get();
@@ -822,7 +822,7 @@ void testEvent::getHandle() {
                                                     InputTag("modMulti", "int1", "CURRENT"),
                                                     InputTag("modMulti", "int2", "EARLY"),
                                                     InputTag("modOne")});
-  consumer.updateLookup(InEvent, principal_->productLookup(), false);
+  consumer.updateLookup(InEvent, principal_->productLookup());
 
   currentEvent_->setConsumer(&consumer);
 
@@ -898,7 +898,7 @@ void testEvent::get_product() {
                                                     InputTag("modMulti", "int1", "CURRENT"),
                                                     InputTag("modMulti", "int2", "EARLY"),
                                                     InputTag("modOne")});
-  consumer.updateLookup(InEvent, principal_->productLookup(), false);
+  consumer.updateLookup(InEvent, principal_->productLookup());
 
   currentEvent_->setConsumer(&consumer);
 

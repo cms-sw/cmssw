@@ -94,10 +94,6 @@ void EDAnalyzerAdaptorBase::itemsToGet(BranchType iType, std::vector<ProductReso
   assert(not m_streamModules.empty());
   m_streamModules[0]->itemsToGet(iType, iIndices);
 }
-void EDAnalyzerAdaptorBase::itemsMayGet(BranchType iType, std::vector<ProductResolverIndexAndSkipBit>& iIndices) const {
-  assert(not m_streamModules.empty());
-  m_streamModules[0]->itemsMayGet(iType, iIndices);
-}
 
 std::vector<edm::ProductResolverIndexAndSkipBit> const& EDAnalyzerAdaptorBase::itemsToGetFrom(
     Transition iTransition) const {
@@ -116,11 +112,9 @@ std::vector<edm::ESRecordIndex> const& EDAnalyzerAdaptorBase::esGetTokenRecordIn
   return m_streamModules[0]->esGetTokenRecordIndicesVector(iTrans);
 }
 
-void EDAnalyzerAdaptorBase::updateLookup(BranchType iType,
-                                         ProductResolverIndexHelper const& iHelper,
-                                         bool iPrefetchMayGet) {
+void EDAnalyzerAdaptorBase::updateLookup(BranchType iType, ProductResolverIndexHelper const& iHelper) {
   for (auto mod : m_streamModules) {
-    mod->updateLookup(iType, iHelper, iPrefetchMayGet);
+    mod->updateLookup(iType, iHelper);
   }
 }
 

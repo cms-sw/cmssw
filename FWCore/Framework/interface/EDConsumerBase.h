@@ -101,7 +101,6 @@ namespace edm {
                                   bool skipCurrentProcess) const;
 
     void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
-    void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
 
     //used for prefetching
     std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(Transition iTransition) const {
@@ -114,7 +113,7 @@ namespace edm {
     // ---------- static member functions --------------------
 
     // ---------- member functions ---------------------------
-    void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&, bool iPrefetchMayGet);
+    void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&);
     void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&);
     void releaseMemoryPostLookupSignal();
     void selectInputProcessBlocks(ProductRegistry const& productRegistry,
@@ -171,7 +170,7 @@ namespace edm {
     template <typename ProductType, BranchType B = InEvent>
     EDGetTokenT<ProductType> consumes(edm::InputTag const& tag) {
       TypeToGet tid = TypeToGet::make<ProductType>();
-      return EDGetTokenT<ProductType>{recordConsumes(B, tid, checkIfEmpty(tag), true)};
+      return EDGetTokenT<ProductType>{recordConsumes(B, tid, checkIfEmpty(tag))};
     }
 
     template <BranchType B = InEvent>
@@ -182,7 +181,7 @@ namespace edm {
     template <typename ProductType, BranchType B, Transition Tr>
     EDGetTokenT<ProductType> consumes(edm::InputTag const& tag) {
       TypeToGet tid = TypeToGet::make<ProductType>();
-      return EDGetTokenT<ProductType>{recordConsumes(B, tid, checkIfEmpty(tag), true)};
+      return EDGetTokenT<ProductType>{recordConsumes(B, tid, checkIfEmpty(tag))};
     }
 
     template <BranchType B, Transition Tr>
@@ -191,17 +190,17 @@ namespace edm {
     }
 
     EDGetToken consumes(const TypeToGet& id, edm::InputTag const& tag) {
-      return EDGetToken{recordConsumes(InEvent, id, checkIfEmpty(tag), true)};
+      return EDGetToken{recordConsumes(InEvent, id, checkIfEmpty(tag))};
     }
 
     template <BranchType B>
     EDGetToken consumes(TypeToGet const& id, edm::InputTag const& tag) {
-      return EDGetToken{recordConsumes(B, id, checkIfEmpty(tag), true)};
+      return EDGetToken{recordConsumes(B, id, checkIfEmpty(tag))};
     }
 
     template <BranchType B, Transition Tr>
     EDGetToken consumes(TypeToGet const& id, edm::InputTag const& tag) {
-      return EDGetToken{recordConsumes(B, id, checkIfEmpty(tag), true)};
+      return EDGetToken{recordConsumes(B, id, checkIfEmpty(tag))};
     }
 
     // For consuming event-setup products
@@ -257,7 +256,7 @@ namespace edm {
   private:
     virtual void extendUpdateLookup(BranchType iBranchType, ProductResolverIndexHelper const&);
     virtual void registerLateConsumes(eventsetup::ESRecordsToProductResolverIndices const&) {}
-    unsigned int recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::InputTag const& iTag, bool iAlwaysGets);
+    unsigned int recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::InputTag const& iTag);
     std::tuple<ESTokenIndex, char const*> recordESConsumes(Transition,
                                                            eventsetup::EventSetupRecordKey const&,
                                                            eventsetup::heterocontainer::HCTypeTag const&,
@@ -324,8 +323,8 @@ namespace edm {
     };
 
     //define the purpose of each 'column' in m_tokenInfo
-    enum { kLookupInfo, kAlwaysGets, kLabels, kKind };
-    edm::SoATuple<TokenLookupInfo, bool, LabelPlacement, edm::KindOfType> m_tokenInfo;
+    enum { kLookupInfo, kLabels, kKind };
+    edm::SoATuple<TokenLookupInfo, LabelPlacement, edm::KindOfType> m_tokenInfo;
 
     //m_tokenStartOfLabels holds the entries into this container
     // for each of the 3 labels needed to id the data
@@ -352,9 +351,8 @@ namespace edm {
   void EDConsumerBase::consumedProducts(F&& iFunc) const {
     auto itKind = m_tokenInfo.begin<kKind>();
     auto itLabels = m_tokenInfo.begin<kLabels>();
-    auto itAlways = m_tokenInfo.begin<kAlwaysGets>();
     for (auto itInfo = m_tokenInfo.begin<kLookupInfo>(), itEnd = m_tokenInfo.end<kLookupInfo>(); itInfo != itEnd;
-         ++itInfo, ++itKind, ++itLabels, ++itAlways) {
+         ++itInfo, ++itKind, ++itLabels) {
       auto labels = *itLabels;
       unsigned int start = labels.m_startOfModuleLabel;
       auto module = &(m_tokenLabels[start]);
@@ -367,7 +365,6 @@ namespace edm {
                                process,
                                itInfo->m_branchType,
                                *itKind,
-                               *itAlways,
                                itInfo->m_index.skipCurrentProcess()));
     }
   }

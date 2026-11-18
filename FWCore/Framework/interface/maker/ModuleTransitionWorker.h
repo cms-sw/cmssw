@@ -63,10 +63,6 @@ namespace edm {
       module_->itemsToGet(branchType, indexes);
     }
 
-    void itemsMayGet(BranchType branchType, std::vector<ProductResolverIndexAndSkipBit>& indexes) const override {
-      module_->itemsMayGet(branchType, indexes);
-    }
-
     std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(Transition iTransition) const final {
       return module_->itemsToGetFrom(iTransition);
     }

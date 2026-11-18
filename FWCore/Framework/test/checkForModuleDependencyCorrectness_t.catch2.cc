@@ -178,7 +178,7 @@ namespace {
       auto& consumes = m_moduleConsumesInfo[moduleID];
       consumes.reserve(md.second.size());
       for (auto const& dep : md.second) {
-        consumes.emplace_back(dummy, dep.c_str(), "", "TEST", edm::InEvent, edm::PRODUCT_TYPE, true, false);
+        consumes.emplace_back(dummy, dep.c_str(), "", "TEST", edm::InEvent, edm::PRODUCT_TYPE, false);
         m_modulesWhoseProductsAreConsumedBy[moduleID].push_back(m_modules[modsToIndex[dep]]);
         //m_modulesWhoseProductsAreConsumedBy[modsToIndex[dep]].push_back(m_modules[moduleID]);
       }

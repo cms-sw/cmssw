@@ -154,7 +154,6 @@ namespace edm {
     ActivityRegistry* activityRegistry() { return actReg_.get(); }
 
     virtual void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
-    virtual void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
 
     virtual std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(Transition) const = 0;
 

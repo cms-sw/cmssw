@@ -102,13 +102,6 @@ namespace edm {
     }
 
     template <typename T>
-    void ProducingModuleAdaptorBase<T>::itemsMayGet(BranchType iType,
-                                                    std::vector<ProductResolverIndexAndSkipBit>& iIndices) const {
-      assert(not m_streamModules.empty());
-      m_streamModules[0]->itemsMayGet(iType, iIndices);
-    }
-
-    template <typename T>
     std::vector<edm::ProductResolverIndexAndSkipBit> const& ProducingModuleAdaptorBase<T>::itemsToGetFrom(
         Transition iTransition) const {
       assert(not m_streamModules.empty());
@@ -149,11 +142,9 @@ namespace edm {
     }
 
     template <typename T>
-    void ProducingModuleAdaptorBase<T>::updateLookup(BranchType iType,
-                                                     ProductResolverIndexHelper const& iHelper,
-                                                     bool iPrefetchMayGet) {
+    void ProducingModuleAdaptorBase<T>::updateLookup(BranchType iType, ProductResolverIndexHelper const& iHelper) {
       for (auto mod : m_streamModules) {
-        mod->updateLookup(iType, iHelper, iPrefetchMayGet);
+        mod->updateLookup(iType, iHelper);
       }
     }
     template <typename T>
