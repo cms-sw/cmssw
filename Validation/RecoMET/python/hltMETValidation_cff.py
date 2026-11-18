@@ -114,7 +114,8 @@ def addMHTScan(process, minPtJetMht=(20., 30., 40., 50.), maxEtaJetMht=None, gen
     for minPt, maxEta in zip(minPtJetMht, maxEtaJetMht):
         tag = _cutTag(minPt, maxEta)
         ltag = tag.replace('_m', 'M').replace('minPt', 'MinPt')  # module labels cannot contain underscores
-        label = 'hltPFPuppiMHT' + ltag
+        # producer labels must not match hltTriggerSummaryAOD's 'hlt*' pattern, which would create a scheduling cycle
+        label = 'scanPFPuppiMHT' + ltag
         setattr(process, label, process.hltPFPuppiMHT.clone(minPtJetMht=minPt, maxEtaJetMht=maxEta))
         modules.append(getattr(process, label))
 
