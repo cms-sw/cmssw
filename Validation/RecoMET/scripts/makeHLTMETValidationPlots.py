@@ -47,8 +47,6 @@ AXIS_LIMITS = {
         'MET_logy': {'x': (0, 800)},
     },
     'Wprime': {
-        'MET'     : {'x': (0, 800)},
-        'MET_logy': {'x': (0, 800)},
     },
 }
 DEFAULT_SAMPLE = 'QCD'
@@ -69,6 +67,39 @@ def resolveSample(sample, label):
     if named:
         return named[0], f"inferred from the label '{label}'"
     return DEFAULT_SAMPLE, f"default, no sample found in the label '{label}'"
+
+def printOptions(args, sample_why):
+    """Prints all the options in use, one per line."""
+    onoff = lambda flag: 'on' if flag else 'off'
+    if args.compare_collections:
+        mode, what = 'compare collections (same file)', ' '.join(args.compare_collections)
+    elif args.compare_files:
+        mode, what = 'compare files (same collection)', f"{args.met[0]} in " + ' | '.join(
+            f"{f} [{l}]" for f, l in zip(args.compare_files, args.compare_files_labels))
+    else:
+        mode, what = 'single collections', ' '.join(args.met)
+    if not args.axis_limits:
+        limits = 'off (full range)'
+    else:
+        sample_limits = AXIS_LIMITS.get(args.sample, {})
+        limits = 'on, ' + ('; '.join(f"{k}: " + ', '.join(f"{ax}={v}" for ax, v in lim.items())
+                           for k, lim in sample_limits.items()) or 'no restricted plot for this sample')
+    rows = (
+        ('Mode',                  mode),
+        ('Collections',           what),
+        ('Input file',            args.file if args.file else '-'),
+        ('Output directory',      args.odir),
+        ('Sample label',          args.sample_label),
+        ('Sample type',           f"{args.sample} ({sample_why})"),
+        ('Period',                f"{args.period} ({args.energy} TeV)"),
+        ('Axis limits',           limits),
+        ('Under/overflow counts', onoff(args.show_flow)),
+        ('Overlay of cut scan',   onoff(args.overlay_scan)),
+    )
+    width = max(len(k) for k, _ in rows)
+    print(" ### INFO: Options")
+    for k, v in rows:
+        print(f"   {k:<{width}} : {v}")
 
 def axis_limits(name, hist=None):
     """Axis limits of the plot `name` (or of its histogram `hist`) for the sample chosen with --sample."""
@@ -667,7 +698,7 @@ if __name__ == '__main__':
         args.sample, why = resolveSample(args.sample, args.sample_label)
     except ValueError as e:
         parser.error(str(e))
-    print(f" ### INFO: Sample type: {args.sample} ({why}); axis limits {'on' if args.axis_limits else 'off'}.")
+    printOptions(args, why)
 
     createDir(args.odir)
     if args.met:
