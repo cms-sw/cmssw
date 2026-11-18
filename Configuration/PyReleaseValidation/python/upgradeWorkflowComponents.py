@@ -1169,6 +1169,22 @@ upgradeWFs['phase2L3MuonsOIFirst'].step2 = {'-s':'DIGI:pdigi_valid,L1TrackTrigge
 upgradeWFs['phase2L3MuonsOIFirst'].step3 = {'--procModifiers':'phase2L3MuonsOIFirst'}
 upgradeWFs['phase2L3MuonsOIFirst'].step4 = {'--procModifiers':'phase2L3MuonsOIFirst'}
 
+# L3 Tracker Muon single-iteration Inside-Out reconstruction seeded by Pixel Tracks selected with L1Tk Muons
+upgradeWFs['phase2MuonPixelTracksSelector'] = deepcopy(upgradeWFs['phase2L3MuonsOIFirst'])
+upgradeWFs['phase2MuonPixelTracksSelector'].suffix = '_phase2MuonPixelTracksSelector'
+upgradeWFs['phase2MuonPixelTracksSelector'].offset = 0.7781
+upgradeWFs['phase2MuonPixelTracksSelector'].step2['--procModifiers'] = 'phase2MuonPixelTracksSelector'
+upgradeWFs['phase2MuonPixelTracksSelector'].step3 = {'--procModifiers':'phase2MuonPixelTracksSelector'}
+upgradeWFs['phase2MuonPixelTracksSelector'].step4 = {'--procModifiers':'phase2MuonPixelTracksSelector'}
+
+# L3 Tracker Muon single-iteration Inside-Out reconstruction seeded by LST seeds selected with L1Tk Muons
+upgradeWFs['phase2MuonSeedsSelector'] = deepcopy(upgradeWFs['phase2L3MuonsOIFirst'])
+upgradeWFs['phase2MuonSeedsSelector'].suffix = '_phase2MuonSeedsSelector'
+upgradeWFs['phase2MuonSeedsSelector'].offset = 0.7782
+upgradeWFs['phase2MuonSeedsSelector'].step2['--procModifiers'] = 'phase2MuonSeedsSelector'
+upgradeWFs['phase2MuonSeedsSelector'].step3 = {'--procModifiers':'phase2MuonSeedsSelector'}
+upgradeWFs['phase2MuonSeedsSelector'].step4 = {'--procModifiers':'phase2MuonSeedsSelector'}
+
 # Track DNN workflows
 class UpgradeWorkflow_trackdnn(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
