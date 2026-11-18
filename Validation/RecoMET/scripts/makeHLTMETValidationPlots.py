@@ -28,6 +28,8 @@ class dotdict(dict):
 class HLTMETInputs:
     x: str
     y: str
+    hist: str = None     # name of the ROOT histogram; defaults to the key under which the inputs are stored
+                         # (which also names the output plot), so that one histogram can be plotted several times
     rebinx: int = None   # x-axis rebinning (1D and 2D)
     rebiny: int = None   # y-axis rebinning (2D only)
     out: str = ''
@@ -152,10 +154,21 @@ class Plotter:
         if logY:
             self._ax.set_yscale('log')
 
+    def limits_log(self, pmin, amax):
+        """y limits for a log scale: from half the smallest positive content to a factor above the maximum."""
+        if np.isfinite(pmin) and amax > 0.:
+            self.limits(y=(0.5*pmin, 5.*amax), logY=True)
+
     def limits_with_margin(self, values, errors, logY=False):
         values[np.isinf(values) | np.isnan(values)] = 0.
         errors[np.isinf(errors) | np.isnan(errors)] = 0.
-        
+
+        if logY:
+            positive = values[values > 0.]
+            if positive.size:
+                self.limits_log(positive.min(), (values + errors).max())
+            return
+
         up = values + errors
         do = values - errors
         diff_step = 0.05 * abs(up.max()-do.min())
@@ -234,10 +247,10 @@ def plotVars(afile, adir, avars, mode, outdir, metType):
             createDir(os.path.join(outdir, props.out))
 
         plotter = Plotter(args.sample_label, period=args.period, fontsize=fontsize, en_com=args.energy)
-        root_hist = checkRootFile(afile, f"{adir}/{var}", rebinx=props.rebinx, rebiny=props.rebiny)
+        root_hist = checkRootFile(afile, f"{adir}/{props.hist or var}", rebinx=props.rebinx, rebiny=props.rebiny)
 
         if mode == '1D':
-            plotter = plot1D(plotter, root_hist, metType, props, var=var)
+            plotter = plot1D(plotter, root_hist, metType, props, var=props.hist or var)
         elif mode == '2D':
             plotter = plot2D(plotter, root_hist, metType, props)
         else:
@@ -254,10 +267,11 @@ def plot1DCollectionComparison(afile, adir, avars, outdir, metTypes):
     outdir = os.path.join(outdir, 'ComparisonCollections_' + '_'.join(metTypes))
     createDir(outdir)
 
-    for var, props in avars.items():
+    for outname, props in avars.items():
+        var = props.hist or outname
         plotter = Plotter(args.sample_label, period=args.period, en_com=args.energy)
 
-        amax, amin = float('-inf'), float('+inf')
+        amax, amin, pmin = float('-inf'), float('+inf'), float('+inf')
         for metType in metTypes:
             root_hist = checkRootFile(afile, f"{adir}/{metType}/{var}", rebinx=props.rebinx)
             nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
@@ -271,12 +285,17 @@ def plot1DCollectionComparison(afile, adir, avars, outdir, metTypes):
             
             amax = max(amax, (values + errors).max())
             amin = min(amin, (values - errors).min())
+            if (values > 0.).any():
+                pmin = min(pmin, values[values > 0.].min())
 
-        diff_step = 0.05 * abs(amax-amin)
-        plotter.limits(y=(amin - diff_step, amax + 2*diff_step), logY=False)
+        if props.logy:
+            plotter.limits_log(pmin, amax)
+        else:
+            diff_step = 0.05 * abs(amax-amin)
+            plotter.limits(y=(amin - diff_step, amax + 2*diff_step), logY=False)
         plotter.labels(x=props.x, y=props.y)
         plotter.ax.legend(prop={'size': 15})
-        plotter.save( os.path.join(outdir, var) )
+        plotter.save( os.path.join(outdir, outname) )
 
 def plot1DFilesComparison(adir, avars, outdir, files, files_labels, metType):
     """
@@ -286,10 +305,11 @@ def plot1DFilesComparison(adir, avars, outdir, files, files_labels, metType):
     outdir = os.path.join(outdir, 'ComparisonFiles_' + '_'.join(files_labels), metType)
     createDir(outdir)
 
-    for var, props in avars.items():
+    for outname, props in avars.items():
+        var = props.hist or outname
         plotter = Plotter(args.sample_label, period=args.period, en_com=args.energy)
 
-        amax, amin = float('-inf'), float('+inf')
+        amax, amin, pmin = float('-inf'), float('+inf'), float('+inf')
         for afile, alabel in zip(files, files_labels):
             afile = ROOT.TFile.Open(afile)
             root_hist = checkRootFile(afile, f"{adir}/{metType}/{var}", rebinx=props.rebinx)
@@ -304,12 +324,17 @@ def plot1DFilesComparison(adir, avars, outdir, files, files_labels, metType):
             
             amax = max(amax, (values + errors).max())
             amin = min(amin, (values - errors).min())
+            if (values > 0.).any():
+                pmin = min(pmin, values[values > 0.].min())
 
-        diff_step = 0.05 * abs(amax-amin)
-        plotter.limits(y=(amin - diff_step, amax + 2*diff_step), logY=False)
+        if props.logy:
+            plotter.limits_log(pmin, amax)
+        else:
+            diff_step = 0.05 * abs(amax-amin)
+            plotter.limits(y=(amin - diff_step, amax + 2*diff_step), logY=False)
         plotter.labels(x=props.x, y=props.y)
         plotter.ax.legend(prop={'size': 15})
-        plotter.save( os.path.join(outdir, var) )
+        plotter.save( os.path.join(outdir, outname) )
 
 def overlayLabel(folder):
     """Legend label of a scan folder: `minPt<pt>_maxEta<eta>` or `pdgid<N>`."""
@@ -407,6 +432,10 @@ def varsToPlot(metColl):
         'MET_Nvtx'                : HLTMETInputs(x='Number of vertices (MET-weighted)', y=nEvts, rebinx=10),
         'Nvertex'                 : HLTMETInputs(x='Number of vertices', y=nEvts, rebinx=6),
         'SumET'                   : HLTMETInputs(x=r'$\sum E_T$ [GeV]', y=nEvts, rebinx=4),
+        # log-scale versions: for MHT collections, MET/GenMETTrue are the MHT/genMHT (labels swapped below)
+        'MET_logy'                : HLTMETInputs(x=r'$MET_\text{Reco}$ [GeV]', y=nEvts, hist='MET', rebinx=2, logy=True),
+        'GenMETTrue_logy'         : HLTMETInputs(x=r'$MET_\text{Gen}$ [GeV]', y=nEvts, hist='GenMETTrue', rebinx=2, logy=True),
+        'METDiff_GenMETTrue_logy' : HLTMETInputs(x=r'$\text{MET}_\text{Reco} - \text{MET}_\text{Gen}$ [GeV]', y=nEvts, hist='METDiff_GenMETTrue', rebinx=10, logy=True),
         # MET post-processing
         'METDiffAggr_MET'      : HLTMETInputs(x=r'$\text{MET}_{\text{Gen}}$ [GeV]', y=r'$\langle\text{MET}_\text{Reco} - \text{MET}_\text{Gen}\rangle$ [GeV]'),
         'METDiffAggr_Phi'      : HLTMETInputs(x=r'$\text{MET}\phi_{\text{Gen}}$', y=r'$\langle\text{MET}_\text{Reco} - \text{MET}_\text{Gen}\rangle$ [GeV]'),
@@ -431,6 +460,7 @@ def varsToPlot(metColl):
             'GenMETCalo'              : HLTMETInputs(x=r'$MET^\text{Calo}_\text{Gen}$ [GeV]', y=nEvts, rebinx=2),
             'METDeltaPhi_GenMETCalo'  : HLTMETInputs(x=r'$\text{MET}\phi_\text{Reco} - \text{MET}\phi^{Calo}_\text{Gen}$', y=nEvts, rebinx=2),
             'METDiff_GenMETCalo'      : HLTMETInputs(x=r'$\text{MET}_\text{Reco} - \text{MET}^\text{Calo}_\text{Gen}$ [GeV]', y=nEvts, rebinx=10),
+            'METDeltaPhi_GenMETCalo_logy' : HLTMETInputs(x=r'$\text{MET}\phi_\text{Reco} - \text{MET}\phi^{Calo}_\text{Gen}$', y=nEvts, hist='METDeltaPhi_GenMETCalo', rebinx=2, logy=True),
         })
     if isCalo:
         vars1D.update({
