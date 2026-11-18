@@ -814,21 +814,21 @@ void CaloSD::update(const ::EndOfEvent*) {
       bool ok = saveHit((*theHC[k])[i], k);
       if (!ok) {
 #ifdef EDM_ML_DEBUG
-	++wrong;
+        ++wrong;
 #endif
       } else {
-	++count;
-	double x = (*theHC[k])[i]->getEM();
-	eEM += x;
-	eEM2 += x * x;
-	x = (*theHC[k])[i]->getHadr();
-	eHAD += x;
-	eHAD2 += x * x;
+        ++count;
+        double x = (*theHC[k])[i]->getEM();
+        eEM += x;
+        eEM2 += x * x;
+        x = (*theHC[k])[i]->getHadr();
+        eHAD += x;
+        eHAD2 += x * x;
 #ifdef EDM_ML_DEBUG
-	tt += (*theHC[k])[i]->getTimeSlice();
-	ee += (*theHC[k])[i]->getIncidentEnergy();
-	zglob += std::abs((*theHC[k])[i]->getEntry().z());
-	zloc += std::abs((*theHC[k])[i]->getEntryLocal().z());
+        tt += (*theHC[k])[i]->getTimeSlice();
+        ee += (*theHC[k])[i]->getIncidentEnergy();
+        zglob += std::abs((*theHC[k])[i]->getEntry().z());
+        zloc += std::abs((*theHC[k])[i]->getEntryLocal().z());
 #endif
       }
     }
