@@ -51,7 +51,9 @@
 #include "FWCore/Utilities/interface/stemFromPath.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
+
 #include "IOPool/Common/interface/getWrapperBasePtr.h"
+#include "IOPool/Common/interface/TTreeFileBlock.h"
 
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
@@ -741,24 +743,29 @@ namespace edm {
       processBlockTrees.push_back(processBlockTree->tree());
       processesWithProcessBlockTrees.push_back(processBlockTree->processName());
     }
-    return std::make_shared<FileBlock>(fileFormatVersion(),
-                                       eventTree_.tree(),
-                                       eventTree_.metaTree(),
-                                       lumiTree_.tree(),
-                                       lumiTree_.metaTree(),
-                                       runTree_.tree(),
-                                       runTree_.metaTree(),
-                                       std::move(processBlockTrees),
-                                       std::move(processesWithProcessBlockTrees),
-                                       whyNotFastClonable(),
-                                       hasNewlyDroppedBranch(),
-                                       file_,
-                                       branchListIndexesUnchanged(),
-                                       modifiedIDs(),
-                                       productDependencies());
+    return std::make_shared<TTreeFileBlock>(fileFormatVersion(),
+                                            eventTree_.tree(),
+                                            eventTree_.metaTree(),
+                                            lumiTree_.tree(),
+                                            lumiTree_.metaTree(),
+                                            runTree_.tree(),
+                                            runTree_.metaTree(),
+                                            std::move(processBlockTrees),
+                                            std::move(processesWithProcessBlockTrees),
+                                            whyNotFastClonable(),
+                                            hasNewlyDroppedBranch(),
+                                            file_,
+                                            branchListIndexesUnchanged(),
+                                            modifiedIDs(),
+                                            productDependencies());
   }
 
   void RootFile::updateFileBlock(FileBlock& fileBlock) {
+    auto* treeFileBlock = dynamic_cast<TTreeFileBlock*>(&fileBlock);
+    if (!treeFileBlock) {
+      throw edm::Exception(errors::LogicError)
+          << "Pool RootFile expected a TTreeFileBlock when restoring an input file.";
+    }
     std::vector<TTree*> processBlockTrees;
     std::vector<std::string> processesWithProcessBlockTrees;
     processBlockTrees.reserve(processBlockTrees_.size());
@@ -767,14 +774,14 @@ namespace edm {
       processBlockTrees.push_back(processBlockTree->tree());
       processesWithProcessBlockTrees.push_back(processBlockTree->processName());
     }
-    fileBlock.updateTTreePointers(eventTree_.tree(),
-                                  eventTree_.metaTree(),
-                                  lumiTree_.tree(),
-                                  lumiTree_.metaTree(),
-                                  runTree_.tree(),
-                                  runTree_.metaTree(),
-                                  std::move(processBlockTrees),
-                                  std::move(processesWithProcessBlockTrees));
+    treeFileBlock->updateTTreePointers(eventTree_.tree(),
+                                       eventTree_.metaTree(),
+                                       lumiTree_.tree(),
+                                       lumiTree_.metaTree(),
+                                       runTree_.tree(),
+                                       runTree_.metaTree(),
+                                       std::move(processBlockTrees),
+                                       std::move(processesWithProcessBlockTrees));
   }
 
   std::string const& RootFile::newBranchToOldBranch(std::string const& newBranch) const {

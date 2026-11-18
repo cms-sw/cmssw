@@ -5,3 +5,10 @@
   <use name="FWCore/TestProcessor"/>
   <use name="catch2"/>
 </bin>
+<bin file="test_catch2_main.cc,fileblock_t.catch2.cc" name="TestIOPoolCommonFileBlock">
+  <use name="DataFormats/Provenance"/>
+  <use name="FWCore/Framework"/>
+  <use name="IOPool/Common"/>
+  <use name="catch2"/>
+  <use name="rootcore"/>
+</bin>

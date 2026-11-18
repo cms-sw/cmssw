@@ -29,10 +29,20 @@ if options.stage != "read":
     from IOPool.Output.modules import PoolOutputModule
     process.output = PoolOutputModule(fileName=options.output)
     process.end = cms.EndPath(process.output)
+    if options.stage == "write":
+        from IOPool.Output.modules import edmtest_pool_FileBlockNotificationTest
+        process.observer = edmtest_pool_FileBlockNotificationTest(
+            nullTrees=True,
+            expectedFileBlockKind="plain",
+            expectedProcesses=[],
+            expectedFiles=1,
+        )
+        process.end += process.observer
 else:
     from IOPool.Output.modules import edmtest_pool_FileBlockNotificationTest
     process.observer = edmtest_pool_FileBlockNotificationTest(
         nullTrees=False,
+        expectedFileBlockKind="ttree",
         expectedProcesses=["PROD1", "MERGE"],
         expectedFiles=1,
     )

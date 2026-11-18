@@ -6,6 +6,7 @@
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>
+  <use name="IOPool/Common"/>
   <use name="rootcore"/>
 </library>
 <library file="PoolFileBlockTransitionTest.cc" name="IOPoolOutputFileBlockTransitionTestPlugins">
@@ -16,5 +17,6 @@
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>
+  <use name="IOPool/Common"/>
 </library>
 <test name="TestIOPoolOutputFileBlockTransition" command="testPoolFileBlockTransition.sh"/>

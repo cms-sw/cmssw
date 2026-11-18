@@ -10,6 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "IOPool/Common/interface/TTreeFileBlock.h"
 
 namespace {
   void require(bool condition, char const* message) {
@@ -60,7 +61,9 @@ namespace edmtest::pool {
 
   private:
     void respondToOpenInputFile(edm::FileBlock const& fb) override {
-      require(fb.tree() && !fb.productDependencies().childLookup().empty(), "readback dependencies are empty");
+      auto const* treeBlock = dynamic_cast<edm::TTreeFileBlock const*>(&fb);
+      require(treeBlock && treeBlock->tree() && !fb.productDependencies().childLookup().empty(),
+              "readback dependencies are empty");
       dependencies_ = fb.productDependencies();
       ++files_;
     }

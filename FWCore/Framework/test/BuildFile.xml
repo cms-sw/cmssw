@@ -213,7 +213,6 @@
   <use name="DataFormats/Provenance"/>
   <use name="FWCore/Framework"/>
   <use name="catch2"/>
-  <use name="rootcore"/>
 </bin>
 
 <bin name="TestFWCoreFrameworkCatch2" file="test_catch2_main.cc,*_producer_catch2.cc,*_filter_catch2.cc,*_outputmodule_catch2.cc">

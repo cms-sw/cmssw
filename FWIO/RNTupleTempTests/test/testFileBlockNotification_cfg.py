@@ -33,6 +33,7 @@ else:
     from IOPool.Output.modules import edmtest_pool_FileBlockNotificationTest
     process.observer = edmtest_pool_FileBlockNotificationTest(
         nullTrees=True,
+        expectedFileBlockKind="plain",
         expectedProcesses=[],
         expectedFiles=1,
     )
