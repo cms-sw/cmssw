@@ -37,6 +37,44 @@ class HLTMETInputs:
     logz: bool = False
     drawdiag: bool = False
     
+# Axis ranges per sample, to restrict the plotted range if needed (see --sample and --axis_limits):
+#   {sample: {plot name: {'x': (low, high), 'y': (low, high)}}}
+# The plot name is the output name (e.g. 'MET_logy'), or else the histogram name (e.g. 'MET'); each axis is optional.
+# NOTE: starting values, to be tuned once the samples are validated. Plots not listed keep the full range.
+AXIS_LIMITS = {
+    'QCD': {
+        'MET'                    : {'x': (0, 600)},
+        'MET_logy'               : {'x': (0, 1000)},
+        'GenMETTrue'             : {'x': (0, 600)},
+        'GenMETTrue_logy'        : {'x': (0, 1000)},
+        'MEx'                    : {'x': (-300, 300)},
+        'MEy'                    : {'x': (-300, 300)},
+        'METDiff_GenMETTrue'     : {'x': (-300, 300)},
+        'METDiff_GenMETTrue_logy': {'x': (-600, 600)},
+    },
+    'Wprime': {
+        'MET'                    : {'x': (0, 1100)},
+        'GenMETTrue'             : {'x': (0, 1100)},
+        'MEx'                    : {'x': (-600, 600)},
+        'MEy'                    : {'x': (-600, 600)},
+    },
+}
+DEFAULT_SAMPLE = 'QCD'
+
+def axis_limits(name, hist=None):
+    """Axis limits of the plot `name` (or of its histogram `hist`) for the sample chosen with --sample."""
+    if not args.axis_limits:
+        return {}
+    sample = AXIS_LIMITS.get(args.sample, {})
+    return sample.get(name, sample.get(hist, {}))
+
+def visible(bin_centers, lims):
+    """Mask of the bins inside the x limits, used to autoscale y only on what is shown."""
+    if 'x' not in lims:
+        return np.ones(len(bin_centers), dtype=bool)
+    mask = (bin_centers >= lims['x'][0]) & (bin_centers <= lims['x'][1])
+    return mask if mask.any() else np.ones(len(bin_centers), dtype=bool)
+
 def createDir(adir):
     if not os.path.exists(adir):
         os.makedirs(adir)
@@ -154,6 +192,13 @@ class Plotter:
         if logY:
             self._ax.set_yscale('log')
 
+    def apply_limits(self, lims):
+        """Apply the user-defined axis limits (see AXIS_LIMITS); they take precedence over the autoscaling."""
+        if 'x' in lims:
+            self._ax.set_xlim(lims['x'])
+        if 'y' in lims:
+            self._ax.set_ylim(lims['y'])
+
     def limits_log(self, pmin, amax):
         """y limits for a log scale: from half the smallest positive content to a factor above the maximum."""
         if np.isfinite(pmin) and amax > 0.:
@@ -183,7 +228,7 @@ class Plotter:
 
 FLOW_VARS = ('HFEMEt', 'HFHadronEt', 'chargedHadronEt', 'neutralHadronEt', 'photonEt', 'muonEt')
 
-def plot1D(plotter, h, text, props, var=None):
+def plot1D(plotter, h, text, props, var=None, name=None):
     """Plot 1D distributions. For the `FLOW_VARS`, the number of underflow and overflow entries is printed (see --show_flow)."""
     nbins, bin_edges, bin_centers, bin_widths = define_bins(h)
     values, errors = histo_values_errors(h)
@@ -200,11 +245,14 @@ def plot1D(plotter, h, text, props, var=None):
                         transform=plotter.ax.transAxes, fontsize=14,
                         verticalalignment='top', horizontalalignment='left')
 
-    plotter.limits_with_margin(values, errors, logY=props.logy)
+    lims = axis_limits(name or var, props.hist)
+    vis = visible(bin_centers, lims)
+    plotter.limits_with_margin(values[vis], errors[vis], logY=props.logy)
+    plotter.apply_limits(lims)
     plotter.labels(x=props.x, y=props.y)
     return plotter
 
-def plot2D(plotter, h, text, props):
+def plot2D(plotter, h, text, props, name=None):
     """Plot 2D distributions."""
     nbins_x, nbins_y, x_edges, y_edges = define_bins_2D(h)
     values = histo_values_2D(h)
@@ -224,6 +272,8 @@ def plot2D(plotter, h, text, props):
             cmap='viridis',
             shading='auto'
         )
+
+    plotter.apply_limits(axis_limits(name, props.hist))
 
     if props.drawdiag:
         diag = np.linspace(*plotter.ax.get_xlim(), 1000)
@@ -250,9 +300,9 @@ def plotVars(afile, adir, avars, mode, outdir, metType):
         root_hist = checkRootFile(afile, f"{adir}/{props.hist or var}", rebinx=props.rebinx, rebiny=props.rebiny)
 
         if mode == '1D':
-            plotter = plot1D(plotter, root_hist, metType, props, var=props.hist or var)
+            plotter = plot1D(plotter, root_hist, metType, props, var=props.hist or var, name=var)
         elif mode == '2D':
-            plotter = plot2D(plotter, root_hist, metType, props)
+            plotter = plot2D(plotter, root_hist, metType, props, name=var)
         else:
             raise RuntimeError(f'Mode {mode} not supported.')
 
@@ -269,6 +319,7 @@ def plot1DCollectionComparison(afile, adir, avars, outdir, metTypes):
 
     for outname, props in avars.items():
         var = props.hist or outname
+        lims = axis_limits(outname, props.hist)
         plotter = Plotter(args.sample_label, period=args.period, en_com=args.energy)
 
         amax, amin, pmin = float('-inf'), float('+inf'), float('+inf')
@@ -283,16 +334,18 @@ def plot1DCollectionComparison(afile, adir, avars, outdir, metTypes):
                                 fmt='s', label=metType, color=patch.get_edgecolor(),
                                 **errorbar_kwargs)
             
-            amax = max(amax, (values + errors).max())
-            amin = min(amin, (values - errors).min())
-            if (values > 0.).any():
-                pmin = min(pmin, values[values > 0.].min())
+            vis = visible(bin_centers, lims)
+            amax = max(amax, (values + errors)[vis].max())
+            amin = min(amin, (values - errors)[vis].min())
+            if (values[vis] > 0.).any():
+                pmin = min(pmin, values[vis][values[vis] > 0.].min())
 
         if props.logy:
             plotter.limits_log(pmin, amax)
         else:
             diff_step = 0.05 * abs(amax-amin)
             plotter.limits(y=(amin - diff_step, amax + 2*diff_step), logY=False)
+        plotter.apply_limits(lims)
         plotter.labels(x=props.x, y=props.y)
         plotter.ax.legend(prop={'size': 15})
         plotter.save( os.path.join(outdir, outname) )
@@ -307,6 +360,7 @@ def plot1DFilesComparison(adir, avars, outdir, files, files_labels, metType):
 
     for outname, props in avars.items():
         var = props.hist or outname
+        lims = axis_limits(outname, props.hist)
         plotter = Plotter(args.sample_label, period=args.period, en_com=args.energy)
 
         amax, amin, pmin = float('-inf'), float('+inf'), float('+inf')
@@ -322,16 +376,18 @@ def plot1DFilesComparison(adir, avars, outdir, files, files_labels, metType):
                                 fmt='s', label=alabel, color=patch.get_edgecolor(),
                                 **errorbar_kwargs)
             
-            amax = max(amax, (values + errors).max())
-            amin = min(amin, (values - errors).min())
-            if (values > 0.).any():
-                pmin = min(pmin, values[values > 0.].min())
+            vis = visible(bin_centers, lims)
+            amax = max(amax, (values + errors)[vis].max())
+            amin = min(amin, (values - errors)[vis].min())
+            if (values[vis] > 0.).any():
+                pmin = min(pmin, values[vis][values[vis] > 0.].min())
 
         if props.logy:
             plotter.limits_log(pmin, amax)
         else:
             diff_step = 0.05 * abs(amax-amin)
             plotter.limits(y=(amin - diff_step, amax + 2*diff_step), logY=False)
+        plotter.apply_limits(lims)
         plotter.labels(x=props.x, y=props.y)
         plotter.ax.legend(prop={'size': 15})
         plotter.save( os.path.join(outdir, outname) )
@@ -365,6 +421,7 @@ def plot1DOverlay(afile, adir, folders, avars, outdir, metType, legend_title=Non
     """
     createDir(outdir)
     for var, props in avars.items():
+        lims = axis_limits(var, props.hist)
         plotter = Plotter(args.sample_label, period=args.period, en_com=args.energy)
 
         amax, amin, drawn = float('-inf'), float('+inf'), 0
@@ -382,8 +439,9 @@ def plot1DOverlay(afile, adir, folders, avars, outdir, metType, legend_title=Non
             plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
                                 fmt='s', label=overlayLabel(folder), color=patch.get_edgecolor(),
                                 **errorbar_kwargs)
-            amax = max(amax, (values + errors).max())
-            amin = min(amin, (values - errors).min())
+            vis = visible(bin_centers, lims)
+            amax = max(amax, (values + errors)[vis].max())
+            amin = min(amin, (values - errors)[vis].min())
             drawn += 1
 
         if drawn == 0:
@@ -391,6 +449,7 @@ def plot1DOverlay(afile, adir, folders, avars, outdir, metType, legend_title=Non
             continue
         diff_step = 0.05 * abs(amax-amin)
         plotter.limits(y=(min(0., amin - diff_step), amax + 2*diff_step), logY=False)
+        plotter.apply_limits(lims)
         plotter.labels(x=props.x, y='Fraction of events')
         plotter.ax.legend(title=legend_title, prop={'size': 14}, title_fontsize=15, loc='upper right')
         plotter.save( os.path.join(outdir, var) )
@@ -559,6 +618,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Make HLT MET validation plots. \nRun all MET paths with\n' + full_command)
     parser.add_argument('-o', '--odir', default="HLTMETValidationPlots", required=False, help='Path to the output directory.')
     parser.add_argument('-l', '--sample_label', default="QCD (200 PU)", required=False, help='Sample label for plotting.')
+    parser.add_argument('--sample', default=DEFAULT_SAMPLE, choices=sorted(AXIS_LIMITS),
+                        help='Sample whose axis limits (AXIS_LIMITS) are applied; independent of --sample_label (default: %(default)s).')
+    parser.add_argument('--axis_limits', action=argparse.BooleanOptionalAction, default=True,
+                        help='Restrict the plotted range according to AXIS_LIMITS (default: True; '
+                             'disable with --no-axis_limits to see the full range).')
     parser.add_argument('--show_flow', action=argparse.BooleanOptionalAction, default=True,
                         help='Print the number of underflow and overflow entries in the HFEMEt, HFHadronEt, '
                              'chargedHadronEt, neutralHadronEt, photonEt and muonEt plots (default: True; '
