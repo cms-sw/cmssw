@@ -11,7 +11,6 @@
 <use name="CondFormats/GBRForest"/>
 <use name="TrackingTools/PatternTools"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>
-<use name="roottmva"/>
 <use name="lwtnn"/>
 <!-- src/alpaka models the behavior of data formats -->
 <flags ALPAKA_BACKENDS="!serial"/>
