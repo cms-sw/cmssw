@@ -175,7 +175,8 @@ pixelTracksAlpakaHighPurity = _pixelTrackForestHighPuritySelector.clone(
     pixelRecHitSrc = "siPixelRecHitsPreSplittingAlpaka",
     vectorHitsSrc = "phase2OTVectorHitsSoA",
     otRecHitsSoASrc = "caOTRecHitsSoA",
-    model = "RecoTracker/FinalTrackSelectors/data/PixelTrackTorchHighPuritySelector/prompt_tree31_wp_20260914.bin"
+    model = "RecoTracker/FinalTrackSelectors/data/itaca_selectors/prompt_tree31_wp_20261117.bin",
+    scoreThreshold = 0.520
 )
 
 # legacy pixel tracks from SoA
