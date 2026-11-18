@@ -53,9 +53,9 @@ size_t FTLMergedCluster::nClusters() const {
 void FTLMergedCluster::addHit(
     const DetId& id, const int row, const int col, const float time, const float timeError, const float energy) {
   hitsDetId_.push_back(id);
-  uint8_t row8 = static_cast<uint8_t>(std::clamp(row, 0, 15));
-  uint8_t col8 = static_cast<uint8_t>(std::clamp(col, 0, 15));
-  uint8_t rowcol = static_cast<uint8_t>((row8 << krcOffset) | col8);
+  const uint8_t row8 = static_cast<uint8_t>(row);
+  const uint8_t col8 = static_cast<uint8_t>(col);
+  const uint8_t rowcol = static_cast<uint8_t>((row8 << krcOffset) | col8);
   hitsRowCol_.push_back(rowcol);
   hitsTime_.push_back(time);
   hitsTimeError_.push_back(timeError);

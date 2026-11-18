@@ -138,46 +138,6 @@ private:
   MonitorElement* meCluEta_;
   MonitorElement* meCluHits_;
   MonitorElement* meCluZvsPhi_;
-  MonitorElement* meCluEnergyvsEta_;
-  MonitorElement* meCluHitsvsEta_;
-
-  MonitorElement* meCluTimeRes_;
-  MonitorElement* meCluEnergyRes_;
-  MonitorElement* meCluTResvsE_;
-  MonitorElement* meCluTResvsEta_;
-  MonitorElement* meCluTPullvsE_;
-  MonitorElement* meCluTPullvsEta_;
-  MonitorElement* meCluRhoRes_;
-  MonitorElement* meCluPhiRes_;
-  MonitorElement* meCluLocalXRes_;
-
-  MonitorElement* meCluZRes_;
-  MonitorElement* meCluLocalXPull_;
-
-  MonitorElement* meCluLocalYPullZGlobPlus_;
-  MonitorElement* meCluLocalYPullZGlobMinus_;
-
-  MonitorElement* meCluSingCrystalLocalYRes_;
-  MonitorElement* meCluSingCrystalLocalYResZGlobPlus_;
-  MonitorElement* meCluSingCrystalLocalYResZGlobMinus_;
-
-  MonitorElement* meCluMultiCrystalLocalYRes_;
-  MonitorElement* meCluMultiCrystalLocalYResZGlobPlus_;
-  MonitorElement* meCluMultiCrystalLocalYResZGlobMinus_;
-
-  MonitorElement* meCluCentralLocalYRes_;
-  MonitorElement* meCluCentralLocalYResZGlobPlus_;
-  MonitorElement* meCluCentralLocalYResZGlobMinus_;
-
-  MonitorElement* meCluForwardLocalYRes_;
-  MonitorElement* meCluForwardPlusLocalYRes_;
-  MonitorElement* meCluForwardMinusLocalYRes_;
-
-  MonitorElement* meCluZPull_;
-  MonitorElement* meCluYXLocal_;
-  MonitorElement* meCluYXLocalSim_;
-  MonitorElement* meCluXLocalErr_;
-  MonitorElement* meCluYLocalErr_;
 
   // resolution w.r.t. to SimMergedClusters
   MonitorElement* meCluTrackIdOffset_;
@@ -265,8 +225,6 @@ private:
 
   MonitorElement* meCluZPull_simLC_fromIndirectHits_;
   MonitorElement* meCluYXLocalSim_simLC_fromIndirectHits_;
-
-  MonitorElement* meUnmatchedCluEnergy_;
 
   // --- UncalibratedRecHits histograms
 
