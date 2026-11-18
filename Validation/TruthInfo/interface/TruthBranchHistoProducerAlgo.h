@@ -31,6 +31,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "PhysicsTools/TruthInfo/interface/BranchSelector.h"
+#include "SimDataFormats/TruthInfo/interface/Graph.h"
 
 namespace truth {
 
@@ -104,6 +105,10 @@ namespace truth {
   // range, so such a branch lands in the underflow of BOTH numerator and denominator
   // and the calorimeter-entrance axis shows only what a calorimeter could have seen.
   inline constexpr double kNoCaloEntry = -999.;
+
+  // The eta at which the branch of each particle enters the calorimeter: the boundary crossing of the most energetic
+  // particle of its subgraph that enters the calorimeter, kNoCaloEntry when none does.
+  [[nodiscard]] std::vector<double> caloEntryEtas(Graph const& graph);
 
   struct TruthBranchHistograms {
     using METype = dqm::reco::MonitorElement*;

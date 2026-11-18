@@ -524,3 +524,126 @@ for _d in _domains:
         truthBranchHltHarvestingSequence += _truthHarvester
     else:
         truthBranchHarvestingSequence += _truthHarvester
+
+
+# TICL candidates: one analyzer for the candidate collections, with its own folder layout. A candidate has two
+# identities, the adaptive calorimeter match of its tracksters and the particle of its track. The efficiency
+# denominators are the members of two levels.
+_candidateWps = [wp for wp in _wps if wp != "Fixed"]
+_candidateLevels = ["reconstructableFromSignal", "caloBoundary"]
+_candidateClasses = ["photon", "electron", "muon", "chargedHadron", "neutralHadron", "other"]
+_candidateVariables = ["pt", "eta", "phi", "energy"]
+_candidateRegions = ["eta15to30"]
+
+truthBranchCandidateValidator = cms.EDProducer(
+    "TruthBranchCandidateValidator",
+    src=cms.InputTag("truthLogicalGraphProducer"),
+    hitIndex=cms.InputTag("truthLogicalGraphHitIndexProducer"),
+    dirName=cms.string("TruthInfo/Offline/Candidates/"),
+    recoCollections=cms.VInputTag(*[cms.InputTag(*l.split(":")) for l in recoLabels("candidates")]),
+    associator=cms.string("truthBranchCandidateAssociators"),
+    tracks=cms.InputTag("generalTracks"),
+    trackAssociator=cms.string("allTrackToTruthBranchAssociators"),
+    targetsProducer=cms.string("truthBranchTargets"),
+    workingPoints=cms.vstring(*_candidateWps),
+    referenceWorkingPoint=cms.string("Fixed"),
+    truthLevels=cms.vstring(*_candidateLevels),
+    requireHits=cms.bool(False),
+    denominatorDetectors=cms.vstring(*truthBranchDenominatorDetectors["candidates"]),
+    dominanceLevel=cms.string("caloBoundary"),
+    minLeadingTruthShare=cms.double(0.5),
+    minTrackPurity=cms.double(0.75),
+    energyResponseMin=cms.double(0.7),
+    energyResponseMax=cms.double(1.3),
+    histoBlock=cms.PSet(
+        nint_pt=cms.int32(50), min_pt=cms.double(0.0), max_pt=cms.double(1000.0), linthresh_pt=cms.double(0.1),
+        nint_eta=cms.int32(50), min_eta=cms.double(-4.5), max_eta=cms.double(4.5), linthresh_eta=cms.double(0.0),
+        nint_phi=cms.int32(36), min_phi=cms.double(-3.2), max_phi=cms.double(3.2), linthresh_phi=cms.double(0.0),
+        nint_energy=cms.int32(50), min_energy=cms.double(0.0), max_energy=cms.double(2000.0),
+        linthresh_energy=cms.double(1.0),
+        nint_res=cms.int32(100), min_res=cms.double(-1.0), max_res=cms.double(1.0),
+        nint_res_energy=cms.int32(25), min_res_energy=cms.double(0.0), max_res_energy=cms.double(500.0),
+        nint_res_eta=cms.int32(20), min_res_eta=cms.double(-4.0), max_res_eta=cms.double(4.0),
+        nint_res_pt=cms.int32(15), min_res_pt=cms.double(0.0), max_res_pt=cms.double(150.0),
+        etaRegions=cms.vstring(*_candidateRegions),
+    ),
+)
+
+
+def _candidateFolders(truthDriven):
+    keys = [instanceKey(l) for l in recoLabels("candidates")]
+    infixes = [""] + ["_" + c for c in _candidateClasses]
+    if truthDriven:
+        folders = [f"{k}_{wp}{c}_{level}" for k in keys for wp in _candidateWps for c in infixes
+                   for level in _candidateLevels]
+    else:
+        folders = [f"{k}{c}_{wp}" for k in keys for c in infixes for wp in _candidateWps]
+    return ["TruthInfo/Offline/Candidates/" + f for f in _withRegions(folders, _candidateRegions)]
+
+
+def _candidateTruthStrings():
+    out = []
+    ladder = [
+        ("efficiency", "num_assoc(simToReco)", "Candidate efficiency"),
+        ("efficiency_track", "num_assoc_track", "Efficiency with the right track"),
+        ("efficiency_pid", "num_assoc_pid", "Efficiency with the right track and class"),
+        ("efficiency_energy", "num_assoc_energy", "Efficiency with the right track, class and energy"),
+        ("multiplerate", "num_multiple", "Rate of two or more candidates"),
+        ("mergerate", "num_merged", "Merge rate"),
+    ]
+    for var in _candidateVariables:
+        for name, num, title in ladder:
+            out.append(f"{name}_vs_{var} '{title} vs {var}' {num}_{var} num_simul_{var}")
+    return out
+
+
+def _candidateRecoStrings():
+    out = []
+    rates = [
+        ("fakerate", "num_dominated", "num_reco", "Fake rate", " fake"),
+        ("nocandidate", "num_assoc(recoToSim)", "num_reco", "No-candidate rate", " fake"),
+        ("nolevelcandidate", "num_levelcandidate", "num_reco", "No dominance-level candidate", " fake"),
+        ("pileuprate", "num_pileup", "num_reco", "Pileup rate", ""),
+        ("recopurity", "num_recopurity", "num_reco", "Reco purity", ""),
+        ("trackfakerate", "num_trackmatched", "num_charged", "Rate of tracks without a particle", " fake"),
+        ("trackmismatch", "num_trackconsistent", "num_trackcalo", "Track and calorimeter mismatch", " fake"),
+        ("pidpurity", "num_pidcorrect", "num_levelassoc", "Class purity", ""),
+        ("mergedrate", "num_mergedcandidate", "num_assoc(recoToSim)", "Merged candidate rate", ""),
+    ]
+    for var in _candidateVariables:
+        for name, num, den, title, fake in rates:
+            out.append(f"{name}_vs_{var} '{title} vs {var}' {num}_{var} {den}_{var}{fake}")
+    return out
+
+
+_candidateResolutions = [
+    "eres_vs_energy 'Relative energy residual vs E' eres_vs_energy",
+    "eres_vs_eta 'Relative energy residual vs #eta' eres_vs_eta",
+    "rawres_vs_energy 'Relative raw energy residual vs E' rawres_vs_energy",
+    "esumres_vs_energy 'Relative residual of the summed energy vs E' esumres_vs_energy",
+    "ptres_vs_pt 'Relative p_{T} residual vs p_{T}' ptres_vs_pt",
+    "etares_vs_eta '#eta residual vs #eta' etares_vs_eta",
+    "phires_vs_eta '#phi residual vs #eta' phires_vs_eta",
+]
+
+truthBranchCandidatePostProcessor = DQMEDHarvester(
+    "DQMGenericClient",
+    subDirs=cms.untracked.vstring(*_candidateFolders(truthDriven=False)),
+    efficiency=cms.vstring(*_candidateRecoStrings()),
+    resolution=cms.vstring(),
+    verbose=cms.untracked.uint32(0),
+    outputFileName=cms.untracked.string(""),
+)
+truthBranchCandidateTruthPostProcessor = DQMEDHarvester(
+    "DQMGenericClient",
+    subDirs=cms.untracked.vstring(*_candidateFolders(truthDriven=True)),
+    efficiency=cms.vstring(*_candidateTruthStrings()),
+    resolution=cms.vstring(*_candidateResolutions),
+    resolutionLimitedFit=cms.untracked.bool(True),
+    verbose=cms.untracked.uint32(0),
+    outputFileName=cms.untracked.string(""),
+)
+if recoLabels("candidates"):
+    truthBranchValidationSequence += truthBranchCandidateValidator
+    truthBranchHarvestingSequence += truthBranchCandidatePostProcessor
+    truthBranchHarvestingSequence += truthBranchCandidateTruthPostProcessor
