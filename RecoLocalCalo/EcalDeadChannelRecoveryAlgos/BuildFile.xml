@@ -4,7 +4,7 @@
 <use name="root"/>
 <use name="rootmath"/>
 <use name="rootcore"/>
-<use name="rootmlp"/>
+<use name="roottmva"/>
 <export>
   <lib name="1"/>
 </export>

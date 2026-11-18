@@ -32,6 +32,6 @@
 <use name="TrackingTools/TrajectoryParametrization"/>
 
 <lib name="boost_timer"/>
-<use name="roofit"/>
+<use name="rootgraphics"/>
 <use name="root"/>
 <use name="xerces-c"/>
