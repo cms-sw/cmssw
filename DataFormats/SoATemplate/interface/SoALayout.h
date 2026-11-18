@@ -70,9 +70,9 @@ namespace cms::soa {
   (_soa_impl_os, BOOST_PP_STRINGIZE(NAME), _soa_impl_offset, elements_, alignment);
 // clang-format on
 
-#define _DECLARE_SOA_STREAM_INFO(R, DATA, TYPE_NAME)                                        \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_SOA_STREAM_INFO(R, DATA, TYPE_NAME)             \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_SOA_STREAM_INFO_IMPL TYPE_NAME))
 
 /**
@@ -123,9 +123,9 @@ namespace cms::soa {
   }
 // clang-format on
 
-#define _DEFINE_METADATA_MEMBERS(R, DATA, TYPE_NAME)                                        \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DEFINE_METADATA_MEMBERS(R, DATA, TYPE_NAME)             \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DEFINE_METADATA_MEMBERS_IMPL TYPE_NAME))
 
 /**
@@ -136,9 +136,9 @@ namespace cms::soa {
   (cms::soa::detail::ConstSpanType<typename Metadata::BOOST_PP_CAT(ParametersTypeOf_, NAME)>)
 // clang-format on
 
-#define _DECLARE_CONST_DESCRIPTOR_SPANS(R, DATA, TYPE_NAME)                                 \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_CONST_DESCRIPTOR_SPANS(R, DATA, TYPE_NAME)      \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_CONST_DESCRIPTOR_SPANS_IMPL TYPE_NAME))
 
 /**
@@ -165,14 +165,14 @@ namespace cms::soa {
   )
 // clang-format on
 
-#define _DECLARE_CONST_DESCRIPTOR_PARAMETER_TYPES(R, DATA, TYPE_NAME)                       \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_CONST_DESCRIPTOR_PARAMETER_TYPES(R, DATA, TYPE_NAME) \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)),      \
+              BOOST_PP_EMPTY(),                                       \
               BOOST_PP_EXPAND(_DECLARE_CONST_DESCRIPTOR_PARAMETER_TYPES_IMPL TYPE_NAME))
 
-#define _DECLARE_DESCRIPTOR_PARAMETER_TYPES(R, DATA, TYPE_NAME)                             \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_DESCRIPTOR_PARAMETER_TYPES(R, DATA, TYPE_NAME)  \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_DESCRIPTOR_PARAMETER_TYPES_IMPL TYPE_NAME))
 
 // clang-format off
@@ -180,9 +180,9 @@ namespace cms::soa {
   (view.metadata().BOOST_PP_CAT(parametersOf_, NAME)())
 // clang-format on
 
-#define _ASSIGN_PARAMETER_TO_COLUMNS(R, DATA, TYPE_NAME)                                    \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _ASSIGN_PARAMETER_TO_COLUMNS(R, DATA, TYPE_NAME)         \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_ASSIGN_PARAMETER_TO_COLUMNS_IMPL TYPE_NAME))
 /**
  * Declare the spans of the descriptor data member 
@@ -192,9 +192,9 @@ namespace cms::soa {
   (cms::soa::detail::SpanType<typename Metadata::BOOST_PP_CAT(ParametersTypeOf_, NAME)>)
 // clang-format on
 
-#define _DECLARE_DESCRIPTOR_SPANS(R, DATA, TYPE_NAME)                                       \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_DESCRIPTOR_SPANS(R, DATA, TYPE_NAME)            \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_DESCRIPTOR_SPANS_IMPL TYPE_NAME))
 
 /**
@@ -207,18 +207,15 @@ namespace cms::soa {
                                                                     alignment))
 // clang-format on
 
-#define _ASSIGN_SPAN_TO_COLUMNS(R, DATA, TYPE_NAME)                                         \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _ASSIGN_SPAN_TO_COLUMNS(R, DATA, TYPE_NAME)              \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_ASSIGN_SPAN_TO_COLUMNS_IMPL TYPE_NAME))
 
-#define _DECLARE_COLUMN_TYPE_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)  \
-  BOOST_PP_IF(BOOST_PP_GREATER(VALUE_TYPE, _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                      \
-              (cms::soa::SoAColumnType::BOOST_PP_IF(                 \
-                  BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_SCALAR),    \
-                  scalar,                                            \
-                  BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_COLUMN), column, eigen))))
+#define _DECLARE_COLUMN_TYPE_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  BOOST_PP_IF(_IS_NOT_COLUMN(VALUE_TYPE),                           \
+              BOOST_PP_EMPTY(),                                     \
+              (cms::soa::SoAColumnType::_SWITCH_ON_TYPE(VALUE_TYPE, scalar, column, eigen)))
 
 #define _DECLARE_COLUMN_TYPE(R, DATA, TYPE_NAME) BOOST_PP_EXPAND(_DECLARE_COLUMN_TYPE_IMPL TYPE_NAME)
 
@@ -236,9 +233,9 @@ namespace cms::soa {
 )
 // clang-format on
 
-#define _DECLARE_MEMBER_TRIVIAL_CONSTRUCTION(R, DATA, TYPE_NAME)                            \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_MEMBER_TRIVIAL_CONSTRUCTION(R, DATA, TYPE_NAME) \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_IMPL TYPE_NAME))
 
 // clang-format off
@@ -257,9 +254,9 @@ namespace cms::soa {
   )
 // clang-format on
 
-#define _DECLARE_MEMBER_COPY_CONSTRUCTION(R, DATA, TYPE_NAME)                               \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_MEMBER_COPY_CONSTRUCTION(R, DATA, TYPE_NAME)    \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_MEMBER_COPY_CONSTRUCTION_IMPL TYPE_NAME))
 
 // clang-format off
@@ -278,9 +275,9 @@ namespace cms::soa {
   )
 // clang-format on
 
-#define _DECLARE_MEMBER_ASSIGNMENT(R, DATA, TYPE_NAME)                                      \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_MEMBER_ASSIGNMENT(R, DATA, TYPE_NAME)           \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_MEMBER_ASSIGNMENT_IMPL TYPE_NAME))
 
 /**
@@ -290,9 +287,9 @@ namespace cms::soa {
 #define _DECLARE_CONST_CAST_COLUMNS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
   (cms::soa::const_cast_SoAParametersImpl(view.metadata().BOOST_PP_CAT(parametersOf_, NAME)()))
 
-#define _DECLARE_CONST_CAST_COLUMNS(R, DATA, TYPE_NAME)                                     \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_CONST_CAST_COLUMNS(R, DATA, TYPE_NAME)          \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_CONST_CAST_COLUMNS_IMPL TYPE_NAME))
 
 /**
@@ -303,9 +300,9 @@ namespace cms::soa {
   _APPLY_FOR_NON_SCALAR(VALUE_TYPE, CPP_TYPE NAME;)
 // clang-format on
 
-#define _DEFINE_VALUE_ELEMENT_MEMBERS(R, DATA, TYPE_NAME)                                   \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DEFINE_VALUE_ELEMENT_MEMBERS(R, DATA, TYPE_NAME)        \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DEFINE_VALUE_ELEMENT_MEMBERS_IMPL TYPE_NAME))
 
 /**
@@ -316,9 +313,9 @@ namespace cms::soa {
   _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (CPP_TYPE NAME))
 // clang-format on
 
-#define _VALUE_ELEMENT_CTOR_ARGS(R, DATA, TYPE_NAME)                                        \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _VALUE_ELEMENT_CTOR_ARGS(R, DATA, TYPE_NAME)             \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_VALUE_ELEMENT_CTOR_ARGS_IMPL TYPE_NAME))
 
 /**
@@ -329,9 +326,9 @@ namespace cms::soa {
   _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (NAME{NAME}))
 // clang-format on
 
-#define _VALUE_ELEMENT_INITIALIZERS(R, DATA, TYPE_NAME)                                     \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _VALUE_ELEMENT_INITIALIZERS(R, DATA, TYPE_NAME)          \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_VALUE_ELEMENT_INITIALIZERS_IMPL TYPE_NAME))
 
 /**
@@ -341,9 +338,9 @@ namespace cms::soa {
   delete[] BOOST_PP_CAT(NAME, _);                                              \
   BOOST_PP_CAT(NAME, _) = nullptr;
 
-#define _ROOT_FREE_SOA_COLUMN_OR_SCALAR(R, DATA, TYPE_NAME)                                 \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _ROOT_FREE_SOA_COLUMN_OR_SCALAR(R, DATA, TYPE_NAME)      \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_ROOT_FREE_SOA_COLUMN_OR_SCALAR_IMPL TYPE_NAME))
 
 /**
@@ -376,9 +373,9 @@ namespace cms::soa {
                                      "In layout constructor: misaligned column: " #NAME); \
   // clang-format on
 
-#define _ASSIGN_SOA_COLUMN_OR_SCALAR(R, DATA, TYPE_NAME)                                    \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _ASSIGN_SOA_COLUMN_OR_SCALAR(R, DATA, TYPE_NAME)         \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_ASSIGN_SOA_COLUMN_OR_SCALAR_IMPL TYPE_NAME))
 
 /**
@@ -389,9 +386,9 @@ namespace cms::soa {
   _soa_impl_ret += cms::soa::detail::ComputePitch<BOOST_PP_CAT(typename Metadata::ParametersTypeOf_, NAME)>{}(elements, alignment);
 // clang-format on
 
-#define _ACCUMULATE_SOA_ELEMENT(R, DATA, TYPE_NAME)                                         \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _ACCUMULATE_SOA_ELEMENT(R, DATA, TYPE_NAME)              \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_ACCUMULATE_SOA_ELEMENT_IMPL TYPE_NAME))
 
 /**
@@ -415,9 +412,9 @@ namespace cms::soa {
   )
 // clang-format on
 
-#define _DECLARE_SOA_ACCESSOR(R, DATA, TYPE_NAME)                                           \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_SOA_ACCESSOR(R, DATA, TYPE_NAME)                \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_SOA_ACCESSOR_IMPL TYPE_NAME))
 
 /**
@@ -441,9 +438,9 @@ namespace cms::soa {
   )
 // clang-format on
 
-#define _DECLARE_SOA_CONST_ACCESSOR(R, DATA, TYPE_NAME)                                     \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_SOA_CONST_ACCESSOR(R, DATA, TYPE_NAME)          \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_SOA_CONST_ACCESSOR_IMPL TYPE_NAME))
 
 /**
@@ -493,9 +490,9 @@ namespace cms::soa {
     }
 // clang-format on
 
-#define _STREAMER_READ_SOA_DATA_MEMBER(R, DATA, TYPE_NAME)                                  \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _STREAMER_READ_SOA_DATA_MEMBER(R, DATA, TYPE_NAME)       \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_STREAMER_READ_SOA_DATA_MEMBER_IMPL TYPE_NAME))
 
 // clang-format off
@@ -516,9 +513,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 )
 // clang-format on
 
-#define _DECLARE_SOA_DATA_MEMBER(R, DATA, TYPE_NAME)                                        \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_SOA_DATA_MEMBER(R, DATA, TYPE_NAME)             \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_SOA_DATA_MEMBER_IMPL TYPE_NAME))
 
 // clang-format off
@@ -537,9 +534,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                          BOOST_PP_CAT(NAME, ElementsWithPadding_) * sizeof(CPP_TYPE::Scalar));)
 // clang-format on
 
-#define _COPY_VIEW_COLUMNS(R, DATA, TYPE_NAME)                                              \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _COPY_VIEW_COLUMNS(R, DATA, TYPE_NAME)                   \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_COPY_VIEW_COLUMNS_IMPL TYPE_NAME))
 
 // -------- MACROS FOR GENERATING SOA VIEWS --------
@@ -567,9 +564,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 // or
 //   ParametersTypeOf_ ## LOCAL_NAME :: ConstType   (for a ConstView)
 // or empty, if no conversion is necessary.
-#define _DECLARE_VIEW_MEMBER_TYPE_ALIAS(R, DATA, TYPE_NAME)                                 \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_VIEW_MEMBER_TYPE_ALIAS(R, DATA, TYPE_NAME)      \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_VIEW_MEMBER_TYPE_ALIAS_IMPL BOOST_PP_TUPLE_PUSH_BACK(TYPE_NAME, DATA)))
 
 /**
@@ -580,9 +577,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     return parent_.BOOST_PP_CAT(NAME, Parameters_).addr_;                          \
   };
 
-#define _DECLARE_VIEW_MEMBER_CONST_POINTERS(R, DATA, TYPE_NAME)                             \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_VIEW_MEMBER_CONST_POINTERS(R, DATA, TYPE_NAME)  \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_VIEW_MEMBER_CONST_POINTERS_IMPL TYPE_NAME))
 
 /**
@@ -591,9 +588,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 #define _STRUCT_ELEMENT_INITIALIZERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
   (BOOST_PP_CAT(NAME, _){parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)()})
 
-#define _STRUCT_ELEMENT_INITIALIZERS(R, DATA, TYPE_NAME)                                    \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _STRUCT_ELEMENT_INITIALIZERS(R, DATA, TYPE_NAME)         \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_STRUCT_ELEMENT_INITIALIZERS_IMPL TYPE_NAME))
 
 /**
@@ -604,9 +601,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     return std::make_tuple(BOOST_PP_CAT(NAME, _), parent_.elements_);                                 \
   }
 
-#define _CONST_ACCESSORS_STRUCT_MEMBERS(R, DATA, TYPE_NAME)                                 \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _CONST_ACCESSORS_STRUCT_MEMBERS(R, DATA, TYPE_NAME)      \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_CONST_ACCESSORS_STRUCT_MEMBERS_IMPL TYPE_NAME))
 
 /**
@@ -615,9 +612,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 #define _DECLARE_STRUCT_CONST_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
   typename Metadata::BOOST_PP_CAT(ParametersTypeOf_, NAME)::ConstType BOOST_PP_CAT(NAME, _);
 
-#define _DECLARE_STRUCT_CONST_DATA_MEMBER(R, srcDATA, TYPE_NAME)                            \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_STRUCT_CONST_DATA_MEMBER(R, srcDATA, TYPE_NAME) \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_STRUCT_CONST_DATA_MEMBER_IMPL TYPE_NAME))
 
 /**
@@ -635,9 +632,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
   }()))
 // clang-format on
 
-#define _DECLARE_VIEW_MEMBER_INITIALIZERS(R, DATA, TYPE_NAME)                               \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_VIEW_MEMBER_INITIALIZERS(R, DATA, TYPE_NAME)    \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_VIEW_MEMBER_INITIALIZERS_IMPL TYPE_NAME))
 
 /**
@@ -646,9 +643,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 #define _DECLARE_CONST_VIEW_CONSTRUCTOR_COLUMNS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
   (cms::soa::ConstTuple<typename Metadata::BOOST_PP_CAT(ParametersTypeOf_, NAME)>::Type NAME)
 
-#define _DECLARE_CONST_VIEW_CONSTRUCTOR_COLUMNS(R, DATA, TYPE_NAME)                         \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_CONST_VIEW_CONSTRUCTOR_COLUMNS(R, DATA, TYPE_NAME) \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)),    \
+              BOOST_PP_EMPTY(),                                     \
               BOOST_PP_EXPAND(_DECLARE_CONST_VIEW_CONSTRUCTOR_COLUMNS_IMPL TYPE_NAME))
 
 // clang-format off
@@ -710,9 +707,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
   )
 // clang-format on
 
-#define _INITIALIZE_CONST_VIEW_PARAMETERS_AND_SIZE(R, DATA, TYPE_NAME)                      \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _INITIALIZE_CONST_VIEW_PARAMETERS_AND_SIZE(R, DATA, TYPE_NAME) \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)),       \
+              BOOST_PP_EMPTY(),                                        \
               BOOST_PP_EXPAND(_INITIALIZE_CONST_VIEW_PARAMETERS_AND_SIZE_IMPL TYPE_NAME))
 
 /**
@@ -721,9 +718,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 #define _DECLARE_VIEW_OTHER_MEMBER_LIST_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
   (cms::soa::const_cast_SoAParametersImpl(other.BOOST_PP_CAT(NAME, Parameters_)))
 
-#define _DECLARE_VIEW_OTHER_MEMBER_LIST(R, DATA, TYPE_NAME)                                 \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_VIEW_OTHER_MEMBER_LIST(R, DATA, TYPE_NAME)      \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_VIEW_OTHER_MEMBER_LIST_IMPL TYPE_NAME))
 
 /**
@@ -732,9 +729,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 #define _DECLARE_CONST_VIEW_ELEMENT_VALUE_ARG_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
   _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (const typename BOOST_PP_CAT(Metadata::ParametersTypeOf_, NAME)::ConstType NAME))
 
-#define _DECLARE_CONST_VIEW_ELEMENT_VALUE_ARG(R, DATA, TYPE_NAME)                           \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_CONST_VIEW_ELEMENT_VALUE_ARG(R, DATA, TYPE_NAME) \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)),  \
+              BOOST_PP_EMPTY(),                                   \
               BOOST_PP_EXPAND(_DECLARE_CONST_VIEW_ELEMENT_VALUE_ARG_IMPL TYPE_NAME))
 
 /**
@@ -744,9 +741,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
   _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (BOOST_PP_CAT(NAME, _)(DATA, NAME)))
 
 /* declare AoS-like element value args for contructor; these should expand,for columns only */
-#define _DECLARE_VIEW_CONST_ELEM_MEMBER_INIT(R, DATA, TYPE_NAME)                            \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_VIEW_CONST_ELEM_MEMBER_INIT(R, DATA, TYPE_NAME) \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_VIEW_CONST_ELEM_MEMBER_INIT_IMPL BOOST_PP_TUPLE_PUSH_BACK(TYPE_NAME, DATA)))
 
 /**
@@ -764,9 +761,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     })
 // clang-format on
 
-#define _DECLARE_VIEW_CONST_ELEMENT_ACCESSOR(R, DATA, TYPE_NAME)                            \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_VIEW_CONST_ELEMENT_ACCESSOR(R, DATA, TYPE_NAME) \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               _DECLARE_VIEW_CONST_ELEMENT_ACCESSOR_IMPL TYPE_NAME)
 
 /**
@@ -782,9 +779,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         BOOST_PP_CAT(NAME, _);)
 // clang-format on
 
-#define _DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER(R, DATA, TYPE_NAME)                        \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER(R, DATA, TYPE_NAME) \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)),     \
+              BOOST_PP_EMPTY(),                                      \
               BOOST_PP_EXPAND(_DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER_IMPL TYPE_NAME))
 
 /**
@@ -793,9 +790,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 #define _DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
   _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (BOOST_PP_CAT(NAME, Parameters_)))
 
-#define _DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL(R, DATA, TYPE_NAME)                         \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL(R, DATA, TYPE_NAME) \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)),    \
+              BOOST_PP_EMPTY(),                                     \
               BOOST_PP_EXPAND(_DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL_IMPL TYPE_NAME))
 
 /**
@@ -900,9 +897,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 )
 // clang-format on
 
-#define _DECLARE_VIEW_SOA_CONST_ACCESSOR(R, DATA, TYPE_NAME)                                \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_VIEW_SOA_CONST_ACCESSOR(R, DATA, TYPE_NAME)     \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_VIEW_SOA_CONST_ACCESSOR_IMPL TYPE_NAME))
 
 /**
@@ -911,9 +908,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 #define _DECLARE_CONST_VIEW_SOA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
   typename BOOST_PP_CAT(Metadata::ParametersTypeOf_, NAME)::ConstType BOOST_PP_CAT(NAME, Parameters_);
 
-#define _DECLARE_CONST_VIEW_SOA_MEMBER(R, DATA, TYPE_NAME)                                  \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_CONST_VIEW_SOA_MEMBER(R, DATA, TYPE_NAME)       \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_CONST_VIEW_SOA_MEMBER_IMPL TYPE_NAME))
 
 /**
@@ -926,9 +923,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
   };
 // clang-format on
 
-#define _DECLARE_VIEW_MEMBER_POINTERS(R, DATA, TYPE_NAME)                                   \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_VIEW_MEMBER_POINTERS(R, DATA, TYPE_NAME)        \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_VIEW_MEMBER_POINTERS_IMPL TYPE_NAME))
 
 /**
@@ -939,9 +936,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     return std::make_tuple(BOOST_PP_CAT(NAME, _), parent_.elements_);                            \
   }
 
-#define _ACCESSORS_STRUCT_MEMBERS(R, DATA, TYPE_NAME)                                       \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _ACCESSORS_STRUCT_MEMBERS(R, DATA, TYPE_NAME)            \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_ACCESSORS_STRUCT_MEMBERS_IMPL TYPE_NAME))
 
 /**
@@ -950,9 +947,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 #define _DECLARE_STRUCT_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
   typename Metadata::BOOST_PP_CAT(ParametersTypeOf_, NAME) BOOST_PP_CAT(NAME, _);
 
-#define _DECLARE_STRUCT_DATA_MEMBER(R, DATA, TYPE_NAME)                                     \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_STRUCT_DATA_MEMBER(R, DATA, TYPE_NAME)          \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_STRUCT_DATA_MEMBER_IMPL TYPE_NAME))
 
 /**
@@ -960,9 +957,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
  */
 #define _DECLARE_VIEW_MEMBER_LIST_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) (NAME)
 
-#define _DECLARE_VIEW_MEMBER_LIST(R, DATA, TYPE_NAME)                                       \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_VIEW_MEMBER_LIST(R, DATA, TYPE_NAME)            \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_VIEW_MEMBER_LIST_IMPL TYPE_NAME))
 
 /**
@@ -971,9 +968,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 #define _DECLARE_VIEW_CONSTRUCTOR_COLUMNS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
   (cms::soa::Tuple<typename Metadata::BOOST_PP_CAT(ParametersTypeOf_, NAME)>::Type NAME)
 
-#define _DECLARE_VIEW_CONSTRUCTOR_COLUMNS(R, DATA, TYPE_NAME)                               \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_VIEW_CONSTRUCTOR_COLUMNS(R, DATA, TYPE_NAME)    \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_VIEW_CONSTRUCTOR_COLUMNS_IMPL TYPE_NAME))
 
 // clang-format off
@@ -1035,39 +1032,39 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
   )
 // clang-format on
 
-#define _INITIALIZE_VIEW_PARAMETERS_AND_SIZE(R, DATA, TYPE_NAME)                            \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _INITIALIZE_VIEW_PARAMETERS_AND_SIZE(R, DATA, TYPE_NAME) \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_INITIALIZE_VIEW_PARAMETERS_AND_SIZE_IMPL TYPE_NAME))
 
 #define _DECLARE_CONSTRUCTOR_CONST_COLUMNS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
   (Metadata::BOOST_PP_CAT(ParametersTypeOf_, NAME)::ConstType NAME)
 
-#define _DECLARE_CONSTRUCTOR_CONST_COLUMNS(R, DATA, TYPE_NAME)                              \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_CONSTRUCTOR_CONST_COLUMNS(R, DATA, TYPE_NAME)   \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_CONSTRUCTOR_CONST_COLUMNS_IMPL TYPE_NAME))
 
 #define _DECLARE_CONSTRUCTOR_COLUMNS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
   (Metadata::BOOST_PP_CAT(ParametersTypeOf_, NAME) NAME)
 
-#define _DECLARE_CONSTRUCTOR_COLUMNS(R, DATA, TYPE_NAME)                                    \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_CONSTRUCTOR_COLUMNS(R, DATA, TYPE_NAME)         \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_CONSTRUCTOR_COLUMNS_IMPL TYPE_NAME))
 
 #define _INITIALIZE_COLUMNS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) (NAME)
 
-#define _INITIALIZE_COLUMNS(R, DATA, TYPE_NAME)                                             \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _INITIALIZE_COLUMNS(R, DATA, TYPE_NAME)                  \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_INITIALIZE_COLUMNS_IMPL TYPE_NAME))
 
 #define _INITIALIZE_CONST_COLUMNS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) (BOOST_PP_CAT(NAME, Parameters_){NAME})
 
-#define _INITIALIZE_CONST_COLUMNS(R, DATA, TYPE_NAME)                                       \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _INITIALIZE_CONST_COLUMNS(R, DATA, TYPE_NAME)            \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_INITIALIZE_CONST_COLUMNS_IMPL TYPE_NAME))
 
 /**
@@ -1076,9 +1073,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 #define _DECLARE_VIEW_ELEMENT_VALUE_ARG_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
   _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (typename BOOST_PP_CAT(Metadata::ParametersTypeOf_, NAME) NAME))
 
-#define _DECLARE_VIEW_ELEMENT_VALUE_ARG(R, DATA, TYPE_NAME)                                 \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_VIEW_ELEMENT_VALUE_ARG(R, DATA, TYPE_NAME)      \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_VIEW_ELEMENT_VALUE_ARG_IMPL TYPE_NAME))
 
 /**
@@ -1087,9 +1084,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 #define _DECLARE_VIEW_ELEM_MEMBER_INIT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS, DATA) \
   _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (NAME(DATA, NAME)))
 
-#define _DECLARE_VIEW_ELEM_MEMBER_INIT(R, DATA, TYPE_NAME)                                  \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_VIEW_ELEM_MEMBER_INIT(R, DATA, TYPE_NAME)       \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_VIEW_ELEM_MEMBER_INIT_IMPL BOOST_PP_TUPLE_PUSH_BACK(TYPE_NAME, DATA)))
 
 /**
@@ -1098,9 +1095,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 #define _DECLARE_VIEW_ELEMENT_VALUE_COPY_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
   _APPLY_FOR_NON_SCALAR(VALUE_TYPE, NAME() = _soa_impl_other.NAME();)
 
-#define _DECLARE_VIEW_ELEMENT_VALUE_COPY(R, DATA, TYPE_NAME)                                \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_VIEW_ELEMENT_VALUE_COPY(R, DATA, TYPE_NAME)     \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_VIEW_ELEMENT_VALUE_COPY_IMPL TYPE_NAME))
 
 /**
@@ -1111,9 +1108,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
   _APPLY_FOR_NON_SCALAR(VALUE_TYPE, NAME() = _soa_impl_value.NAME;)
 // clang-format on
 
-#define _TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT(R, DATA, TYPE_NAME)                              \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT(R, DATA, TYPE_NAME)   \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT_IMPL TYPE_NAME))
 
 /**
@@ -1128,9 +1125,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       NAME;)
 // clang-format on
 
-#define _DECLARE_VIEW_ELEMENT_VALUE_MEMBER(R, DATA, TYPE_NAME)                              \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_VIEW_ELEMENT_VALUE_MEMBER(R, DATA, TYPE_NAME)   \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_VIEW_ELEMENT_VALUE_MEMBER_IMPL TYPE_NAME))
 
 /**
@@ -1143,9 +1140,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
   _APPLY_FOR_NON_SCALAR(VALUE_TYPE,                                              \
                         (cms::soa::const_cast_SoAParametersImpl(base_type::BOOST_PP_CAT(NAME, Parameters_))))
 
-#define _DECLARE_VIEW_ELEMENT_CONSTR_CALL(R, DATA, TYPE_NAME)                               \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_VIEW_ELEMENT_CONSTR_CALL(R, DATA, TYPE_NAME)    \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_VIEW_ELEMENT_CONSTR_CALL_IMPL TYPE_NAME))
 /**
  * Direct access to column pointer and indexed access
@@ -1254,9 +1251,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 )
 // clang-format on
 
-#define _DECLARE_VIEW_SOA_ACCESSOR(R, DATA, TYPE_NAME)                                      \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
+#define _DECLARE_VIEW_SOA_ACCESSOR(R, DATA, TYPE_NAME)           \
+  BOOST_PP_IF(_IS_NOT_COLUMN(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME)), \
+              BOOST_PP_EMPTY(),                                  \
               BOOST_PP_EXPAND(_DECLARE_VIEW_SOA_ACCESSOR_IMPL TYPE_NAME))
 
 /*
