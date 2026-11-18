@@ -8,7 +8,6 @@
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -60,8 +59,8 @@ public:
     desc.add<std::vector<int>>("seedTypes",
                                {trigger::TriggerL1Tau, trigger::TriggerL1Jet, trigger::TriggerTau, trigger::TriggerJet})
         ->setComment(
-            "list of seed object types; supported: TriggerL1Tau, TriggerL1Jet, TriggerL1TauJet (L1T objects of "
-            "Run-3 or Phase-2 seeds, i.e. also l1t::P2GTCandidate refs from HLTP2GT*Filter), TriggerTau, TriggerJet");
+            "list of seed object types; supported: TriggerL1Tau, TriggerL1Jet (L1T objects of Run-3 or Phase-2 "
+            "seeds), TriggerL1TauJet (Phase-2 GCT and GTT taus), TriggerTau, TriggerJet");
     desc.add<std::string>("selection", "0")->setComment("selection formula");
     desc.add<double>("minPt", 20)->setComment("minimal tau pt");
     desc.add<double>("maxEta", 2.5)->setComment("maximal tau abs(eta)");
@@ -133,8 +132,8 @@ private:
         } else if (seedType == trigger::TriggerL1Jet) {
           extractL1TMomenta<l1t::JetVectorRef>(seeds, seedType, seed_p4s);
         } else if (seedType == trigger::TriggerL1TauJet) {
-          // Phase-2 GCT and GTT taus (and legacy L1 tau jets)
-          extractL1TMomenta<l1extra::L1JetParticleVectorRef>(seeds, seedType, seed_p4s);
+          // Phase-2 GCT and GTT taus (l1t::P2GTCandidate refs only)
+          extractL1TMomenta<>(seeds, seedType, seed_p4s);
         } else if (seedType == trigger::TriggerTau) {
           extractMomenta<std::vector<reco::PFTauRef>>(seeds, seedType, seed_p4s);
         } else if (seedType == trigger::TriggerJet) {
@@ -160,12 +159,12 @@ private:
   }
 
   // L1T seeds: also reads l1t::P2GTCandidate refs (Phase-2 seeds), see hlt::getL1TCandidates
-  template <typename L1TVectorRef>
+  template <typename... L1TVectorRefs>
   static void extractL1TMomenta(const trigger::TriggerRefsCollections* triggerObjects,
                                 int objType,
                                 std::vector<LorentzVectorM>& p4s) {
     if (triggerObjects) {
-      for (const auto* obj : hlt::getL1TCandidates<L1TVectorRef>(*triggerObjects, objType))
+      for (const auto* obj : hlt::getL1TCandidates<L1TVectorRefs...>(*triggerObjects, objType))
         p4s.push_back(obj->polarP4());
     }
   }
