@@ -418,9 +418,11 @@ void CaloSD::EndOfEvent(G4HCofThisEvent*) {
 #ifdef EDM_ML_DEBUG
   for (int k = 0; k < nHC_; ++k) {
     if (theHC[k] == nullptr)
-      edm::LogVerbatim("CaloSim") << "CaloSD: EndofEvent entered for container " << k << ":" << collName_[k] << " with no entries";
+      edm::LogVerbatim("CaloSim") << "CaloSD: EndofEvent entered for container " << k << ":" << collName_[k]
+                                  << " with no entries";
     else
-      edm::LogVerbatim("CaloSim") << "CaloSD: EndofEvent entered for container " << k << ":" << collName_[k] << " with " << theHC[k]->entries() << " entries";
+      edm::LogVerbatim("CaloSim") << "CaloSD: EndofEvent entered for container " << k << ":" << collName_[k] << " with "
+                                  << theHC[k]->entries() << " entries";
   }
 #endif
 }
@@ -844,7 +846,11 @@ void CaloSD::update(const ::EndOfEvent*) {
     ee *= norm;
     zglob *= norm;
     zloc *= norm;
-    edm::LogVerbatim("CaloSim") << "CaloSD: " << GetName() << " store " << count << " hits in " << collName_[k] << "; " << wrong << " track IDs not given properly and " << totalHits - count << " hits not passing cuts\n EmeanEM= " << eEM << " ErmsEM= " << eEM2 << "\n EmeanHAD= " << eHAD << " ErmsHAD= " << eHAD2 << " TimeMean= " << tt << " E0mean= " << ee << " Zglob= " << zglob << " Zloc= " << zloc << " ";
+    edm::LogVerbatim("CaloSim") << "CaloSD: " << GetName() << " store " << count << " hits in " << collName_[k] << "; "
+                                << wrong << " track IDs not given properly and " << totalHits - count
+                                << " hits not passing cuts\n EmeanEM= " << eEM << " ErmsEM= " << eEM2
+                                << "\n EmeanHAD= " << eHAD << " ErmsHAD= " << eHAD2 << " TimeMean= " << tt
+                                << " E0mean= " << ee << " Zglob= " << zglob << " Zloc= " << zloc << " ";
 #endif
     std::vector<std::unique_ptr<CaloG4Hit>>().swap(reusehit[k]);
     if (useMap)
@@ -999,7 +1005,8 @@ bool CaloSD::saveHit(CaloG4Hit* aHit, int k) {
       ok = false;
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("DoFineCalo") << "CaloSD: Saving hit " << shortreprID(aHit) << " with trackID=" << tkID << " in collection " << k;
+    edm::LogVerbatim("DoFineCalo") << "CaloSD: Saving hit " << shortreprID(aHit) << " with trackID=" << tkID
+                                   << " in collection " << k;
 #endif
 
     slave[k].get()->processHits(

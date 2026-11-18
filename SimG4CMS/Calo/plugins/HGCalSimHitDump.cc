@@ -51,7 +51,12 @@ HGCalSimHitDump::HGCalSimHitDump(const edm::ParameterSet& ps)
 
 void HGCalSimHitDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  std::vector<std::string> coll = {"HGCHitsEE", "CalibrationHGCHitsEE", "HGCHitsHEfront", "CalibrationHGCHitsHEfront", "HGCHitsHEback", "CalibrationHGCHitsHEback"};
+  std::vector<std::string> coll = {"HGCHitsEE",
+                                   "CalibrationHGCHitsEE",
+                                   "HGCHitsHEfront",
+                                   "CalibrationHGCHitsHEfront",
+                                   "HGCHitsHEback",
+                                   "CalibrationHGCHitsHEback"};
   std::vector<int> type = {0, 0, 0, 0, 1, 1};
   desc.add<std::string>("ModuleLabel", "g4SimHits");
   desc.add<std::vector<std::string>>("HitCollections", coll);
@@ -68,18 +73,20 @@ void HGCalSimHitDump::analyze(const edm::Event& e, const edm::EventSetup&) {
     for (unsigned int k = 0; k < toksCalo_.size(); ++k) {
       const edm::Handle<edm::PCaloHitContainer>& hitsCalo = e.getHandle(toksCalo_[k]);
       if (hitsCalo.isValid()) {
-        edm::LogVerbatim("HitStudy") << "HGCalSimHitDump: Input " << hitsCalo->size() << " hits of type " << hitLab_[k] << ":" << types_[k];
-	unsigned int i(0);
-	for (auto const& hit : *hitsCalo) {
-	  double edep = hit.energy();
-	  double time = hit.time();
-	  unsigned int id = hit.id();
-	  if (types_[k] == 0)
-	    edm::LogVerbatim("HitStudy") << "[" << i << "] " << HGCSiliconDetId(id) << " E" << edep << " T " << time;
-	  else 
-	    edm::LogVerbatim("HitStudy") << "[" << i << "] " << HGCScintillatorDetId(id) << " E" << edep << " T " << time;
-	  ++i;
-	}
+        edm::LogVerbatim("HitStudy") << "HGCalSimHitDump: Input " << hitsCalo->size() << " hits of type " << hitLab_[k]
+                                     << ":" << types_[k];
+        unsigned int i(0);
+        for (auto const& hit : *hitsCalo) {
+          double edep = hit.energy();
+          double time = hit.time();
+          unsigned int id = hit.id();
+          if (types_[k] == 0)
+            edm::LogVerbatim("HitStudy") << "[" << i << "] " << HGCSiliconDetId(id) << " E" << edep << " T " << time;
+          else
+            edm::LogVerbatim("HitStudy") << "[" << i << "] " << HGCScintillatorDetId(id) << " E" << edep << " T "
+                                         << time;
+          ++i;
+        }
       } else {
         edm::LogVerbatim("HitStudy") << "HGCalSimHitDump: No Hits found for type " << hitLab_[k] << ":" << types_[k];
       }

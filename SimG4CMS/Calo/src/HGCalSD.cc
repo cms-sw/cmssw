@@ -348,7 +348,7 @@ void HGCalSD::update(const BeginOfJob* job) {
     newCollection(collName_[1], ps_);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "HGCalSD::Start a new collection " << collName_[1];
-#endif    
+#endif
   }
   cellOffset_ = std::make_unique<HGCalCellOffset>(
       waferSize_, hgcons_->getUVMax(0), hgcons_->getUVMax(1), guardRingOffset_, mouseBiteCut_, sensorSizeOffset_);
