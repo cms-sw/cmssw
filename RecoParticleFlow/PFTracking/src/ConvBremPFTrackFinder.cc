@@ -12,8 +12,9 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "TMath.h"
 #include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
-#include "TMVA/MethodBDT.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+
+#include <limits>
 
 using namespace edm;
 using namespace std;

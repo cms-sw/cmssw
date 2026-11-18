@@ -12,7 +12,6 @@
 
 <use name="xerces-c"/>
 <use name="root"/>
-<use name="roofit"/>
 
 <!-- <use lib=boost_timer />  -->
 <lib name="boost_timer" />

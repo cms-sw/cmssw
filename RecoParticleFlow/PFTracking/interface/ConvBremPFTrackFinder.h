@@ -22,8 +22,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
 #include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFV0.h"
-#include "TMVA/Reader.h"
-
 #include "CondFormats/GBRForest/interface/GBRForest.h"
 #include <memory>
 
