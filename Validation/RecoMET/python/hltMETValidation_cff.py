@@ -113,7 +113,8 @@ def addMHTScan(process, minPtJetMht=(20., 30., 40., 50.), maxEtaJetMht=None, gen
     modules = []
     for minPt, maxEta in zip(minPtJetMht, maxEtaJetMht):
         tag = _cutTag(minPt, maxEta)
-        label = 'hltPFPuppiMHT_' + tag
+        ltag = tag.replace('_m', 'M').replace('minPt', 'MinPt')  # module labels cannot contain underscores
+        label = 'hltPFPuppiMHT' + ltag
         setattr(process, label, process.hltPFPuppiMHT.clone(minPtJetMht=minPt, maxEtaJetMht=maxEta))
         modules.append(getattr(process, label))
 
@@ -128,7 +129,7 @@ def addMHTScan(process, minPtJetMht=(20., 30., 40., 50.), maxEtaJetMht=None, gen
                 lightMode = lightMode,
                 genWDecayPdgIds = cms.vint32(pdg) if pdg is not None else cms.vint32(),
             )
-            aname = 'hltMhtAnalyzer_' + tag + ('' if pdg is None else f'_pdgid{pdg}')
+            aname = 'hltMhtAnalyzer' + ltag + ('' if pdg is None else f'Pdgid{pdg}')
             setattr(process, aname, analyzer)
             modules.append(analyzer)
 
