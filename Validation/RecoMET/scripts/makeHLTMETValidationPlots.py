@@ -239,6 +239,28 @@ class Plotter:
         if 'y' in lims:
             self._ax.set_ylim(lims['y'])
 
+    def make_room_above(self, text, data_max, logY=False, margin=0.05):
+        """
+        Raises the top y limit, if needed, so that `text` lies entirely above the data:
+        the highest data point plus a `margin` (fraction of the axis height) must stay below the text.
+        """
+        if not np.isfinite(data_max) or data_max <= 0.:
+            return
+        self._fig.tight_layout() # final layout, so that the text extent is measured in the right axes
+        self._fig.canvas.draw()
+        bottom = self._ax.transAxes.inverted().transform(text.get_window_extent())[:, 1].min() # axes fraction
+        lo, hi = self._ax.get_ylim()
+        if not 0. < bottom < 1.:
+            return
+        if logY:
+            top = data_max * (hi / lo) ** margin
+            needed = lo * (top / lo) ** (1. / bottom)
+        else:
+            top = data_max + margin * (hi - lo)
+            needed = lo + (top - lo) / bottom
+        if needed > hi:
+            self._ax.set_ylim(lo, needed)
+
     def limits_log(self, pmin, amax):
         """y limits for a log scale: from half the smallest positive content to a factor above the maximum."""
         if np.isfinite(pmin) and amax > 0.:
@@ -279,9 +301,10 @@ def plot1D(plotter, h, text, props, var=None, name=None):
     plotter.ax.stairs(values, bin_edges, color='black', linewidth=2, baseline=None)
     plotter.ax.text(0.03, 0.97, text, transform=plotter.ax.transAxes, fontsize=16,
                     verticalalignment='top', horizontalalignment='left')
+    flow_text = None
     if args.show_flow and var in FLOW_VARS:
         underflow, overflow = h.GetBinContent(0), h.GetBinContent(h.GetNbinsX() + 1)
-        plotter.ax.text(0.03, 0.92, f"Underflow: {round(underflow):d}\nOverflow: {round(overflow):d}",
+        flow_text = plotter.ax.text(0.03, 0.92, f"Underflow: {round(underflow):d}\nOverflow: {round(overflow):d}",
                         transform=plotter.ax.transAxes, fontsize=14,
                         verticalalignment='top', horizontalalignment='left')
 
@@ -290,6 +313,8 @@ def plot1D(plotter, h, text, props, var=None, name=None):
     plotter.limits_with_margin(values[vis], errors[vis], logY=props.logy)
     plotter.apply_limits(lims)
     plotter.labels(x=props.x, y=props.y)
+    if flow_text is not None and 'y' not in lims: # user-defined y limits are respected
+        plotter.make_room_above(flow_text, (values + errors)[vis].max(), logY=props.logy)
     return plotter
 
 def plot2D(plotter, h, text, props, name=None):
