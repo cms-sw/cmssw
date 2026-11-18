@@ -24,7 +24,8 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
             particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt.pdl'),
             convertPythiaCodes = cms.untracked.bool(False), # this is needed since 1.6
             list_forced_decays = cms.vstring(),
-            operates_on_particles = cms.vint32(0) #will decay all particles coded in interface, it test the whole system
+            operates_on_particles = cms.vint32(0), #will decay all particles coded in interface, it test the whole system,
+            fsr_model = cms.string('sherpa')
         ),
         parameterSets = cms.vstring('EvtGen1')
     ),
