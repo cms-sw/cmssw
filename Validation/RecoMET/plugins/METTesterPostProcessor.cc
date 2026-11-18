@@ -45,6 +45,16 @@ std::optional<METTesterPostProcessor::Inputs> METTesterPostProcessor::mGetInputs
   in.metDeltaPhi_vs_GenMETTrue = get2D("METDeltaPhivsGenMETTrue");
   in.metDeltaPhi_vs_GenMETPhi = get2D("METDeltaPhivsGenMETPhi");
 
+  // optional inputs
+  auto getOpt2D = [&](const std::string &name) -> MElem * {
+    MElem *me = iget.get(metdir + "/" + name);
+    return (me and me->kind() == MonitorElement::Kind::TH2F) ? me : nullptr;
+  };
+  in.metRatio_vs_Nvtx = getOpt2D("METRatiovsNvtx");
+  in.metDiff_vs_Nvtx = getOpt2D("METDiffvsNvtx");
+  in.metxDiff_vs_Nvtx = getOpt2D("METxDiffvsNvtx");
+  in.metyDiff_vs_Nvtx = getOpt2D("METyDiffvsNvtx");
+
   if (!missing.empty()) {
     std::string names;
     for (const auto &m : missing)
@@ -104,6 +114,38 @@ void METTesterPostProcessor::fillProjectionHisto(MElem *src, MElem *dest, const 
   }
 }
 
+// resolution: RMS of the X quantity in slices of the Y quantity
+void METTesterPostProcessor::fillResolutionHisto(MElem *src, MElem *dest, const std::vector<float> &bins) {
+  const auto stats = projectionMeanAndRMS(src, bins, "Y");
+  for (unsigned binId = 0; binId < stats.size(); binId++) {
+    dest->setBinContent(binId + 1, stats[binId].rms);
+    dest->setBinError(binId + 1, stats[binId].rmsErr);
+  }
+}
+
+// pileup dependence: response, difference and resolution (reco - gen) in slices of the number of vertices
+void METTesterPostProcessor::fillNvtxHistograms(const std::string &metdir, const Inputs &in, DQMStore::IBooker &ibook) {
+  ibook.setCurrentFolder(metdir);
+  auto book = [&](const std::string &name) {
+    return ibook.book1D(name, name, mNNvtxBins, mNvtxBins.data());
+  };
+
+  if (in.metRatio_vs_Nvtx)
+    fillProjectionHisto(in.metRatio_vs_Nvtx, book("METRespAggr_Nvtx"), mNvtxBins);
+  if (in.metDiff_vs_Nvtx) {
+    fillProjectionHisto(in.metDiff_vs_Nvtx, book("METDiffAggr_Nvtx"), mNvtxBins);
+    fillResolutionHisto(in.metDiff_vs_Nvtx, book("METDiffResolAggr_Nvtx"), mNvtxBins);
+  }
+  if (in.metxDiff_vs_Nvtx) {
+    fillProjectionHisto(in.metxDiff_vs_Nvtx, book("METxDiffAggr_Nvtx"), mNvtxBins);
+    fillResolutionHisto(in.metxDiff_vs_Nvtx, book("METxDiffResolAggr_Nvtx"), mNvtxBins);
+  }
+  if (in.metyDiff_vs_Nvtx) {
+    fillProjectionHisto(in.metyDiff_vs_Nvtx, book("METyDiffAggr_Nvtx"), mNvtxBins);
+    fillResolutionHisto(in.metyDiff_vs_Nvtx, book("METyDiffResolAggr_Nvtx"), mNvtxBins);
+  }
+}
+
 void METTesterPostProcessor::mFillAggrHistograms(const std::string &metdir,
                                                  const Inputs &in,
                                                  DQMStore::IBooker &ibook) {
@@ -136,6 +178,9 @@ void METTesterPostProcessor::mFillAggrHistograms(const std::string &metdir,
 
   fillProjectionHisto(in.metRatio_vs_GenMETTrue, metRespAggrMET, mMETBins);
   fillProjectionHisto(in.metRatio_vs_GenMETPhi, metRespAggrPhi, mPhiBins);
+
+  fillNvtxHistograms(metdir, in, ibook);
+  ibook.setCurrentFolder(metdir);
 
   // reconstructed MET (Y axis) in slices of generated phi (X axis)
   const auto metRecoStats = projectionMeanAndRMS(in.genMETPhi_vs_MET, mPhiBins, "X");

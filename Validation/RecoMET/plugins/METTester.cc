@@ -85,6 +85,10 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
   mMETRatio_GenMETTrue = ibooker.book1D("METRatio_GenMETTrue", "METRatio_GenMETTrue", metRatioNbins, 0., metRatioEdge);
   mMETDeltaPhi_GenMETTrue =
       ibooker.book1D("METDeltaPhi_GenMETTrue", "METDeltaPhi_GenMETTrue", phiNbins, -phiEdge, phiEdge);
+  mMETxDiff_GenMETTrue =
+      ibooker.book1D("METxDiff_GenMETTrue", "METxDiff_GenMETTrue", metDiffNbins, -metDiffEdge, metDiffEdge);
+  mMETyDiff_GenMETTrue =
+      ibooker.book1D("METyDiff_GenMETTrue", "METyDiff_GenMETTrue", metDiffNbins, -metDiffEdge, metDiffEdge);
 
   mGenMETTrue_vs_MET = ibooker.book2D(
       "GenMETTruevsMET", "Gen MET True vs MET", metCoarseNbins, 0., metEdge, metCoarseNbins, 0., metEdge);
@@ -155,6 +159,21 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
                                                phiNbins,
                                                -phiEdge,
                                                phiEdge);
+
+    mMETRatio_vs_Nvtx = ibooker.book2D("METRatiovsNvtx",
+                                       "MET Ratio vs Nvtx",
+                                       metRatioNbins,
+                                       0.,
+                                       metRatioEdge,
+                                       nvtxNbins,
+                                       0.,
+                                       nvtxEdge);
+    mMETDiff_vs_Nvtx = ibooker.book2D(
+        "METDiffvsNvtx", "MET Diff vs Nvtx", metDiffNbins, -metDiffEdge, metDiffEdge, nvtxNbins, 0., nvtxEdge);
+    mMETxDiff_vs_Nvtx = ibooker.book2D(
+        "METxDiffvsNvtx", "METx Diff vs Nvtx", metDiffNbins, -metDiffEdge, metDiffEdge, nvtxNbins, 0., nvtxEdge);
+    mMETyDiff_vs_Nvtx = ibooker.book2D(
+        "METyDiffvsNvtx", "METy Diff vs Nvtx", metDiffNbins, -metDiffEdge, metDiffEdge, nvtxNbins, 0., nvtxEdge);
   }
 
   if (isCaloMET) {
@@ -190,13 +209,13 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
     mPFHFEMEtFraction = ibooker.book1D("HFEMEtFraction", "HFEMEtFraction", 100, 0, 1);
 
     if (!isMiniAODMET) {
-      mPFphotonEt = ibooker.book1D("photonEt", "photonEt", 200, 0, 2000);
-      mPFneutralHadronEt = ibooker.book1D("neutralHadronEt", "neutralHadronEt", 200, 0, 2000);
-      mPFelectronEt = ibooker.book1D("electronEt", "electronEt", 200, 0, 2000);
-      mPFchargedHadronEt = ibooker.book1D("chargedHadronEt", "chargedHadronEt", 200, 0, 2000);
-      mPFmuonEt = ibooker.book1D("muonEt", "muonEt", 200, 0, 1000);
-      mPFHFHadronEt = ibooker.book1D("HFHadronEt", "HFHadronEt", 200, 0, 2000);
-      mPFHFEMEt = ibooker.book1D("HFEMEt", "HFEMEt", 200, 0, 2000);
+      mPFphotonEt = ibooker.book1D("photonEt", "photonEt", 150, 0, 3000);
+      mPFneutralHadronEt = ibooker.book1D("neutralHadronEt", "neutralHadronEt", 150, 0, 3000);
+      mPFelectronEt = ibooker.book1D("electronEt", "electronEt", 150, 0, 3000);
+      mPFchargedHadronEt = ibooker.book1D("chargedHadronEt", "chargedHadronEt", 150, 0, 3000);
+      mPFmuonEt = ibooker.book1D("muonEt", "muonEt", 150, 0, 3000);
+      mPFHFHadronEt = ibooker.book1D("HFHadronEt", "HFHadronEt", 150, 0, 3000);
+      mPFHFEMEt = ibooker.book1D("HFEMEt", "HFEMEt", 150, 0, 3000);
     }
   }
 
@@ -300,7 +319,7 @@ void METTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     genRef = firstOrNull(iEvent, genMetTrueToken_, mGenMetTrueLabel);
   }
   if (genRef)
-    fillGenComparison(*primary, *genRef);
+    fillGenComparison(*primary, *genRef, nvtx);
 
   if (!isMiniAODMET and !isMHT) {
     if (const reco::MET *genCalo = firstOrNull(iEvent, genMetCaloToken_, mGenMetCaloLabel))
@@ -343,7 +362,7 @@ void METTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
   }
 }
 
-void METTester::fillGenComparison(const reco::MET &reco, const reco::MET &gen) {
+void METTester::fillGenComparison(const reco::MET &reco, const reco::MET &gen, int nvtx) {
   const double theMET = reco.pt();
   const double genMET = gen.pt();
   const double genMETPhi = gen.phi();
@@ -357,6 +376,8 @@ void METTester::fillGenComparison(const reco::MET &reco, const reco::MET &gen) {
   if (validRatio)
     mMETRatio_GenMETTrue->Fill(metRatio);
   mMETDeltaPhi_GenMETTrue->Fill(metDeltaPhi);
+  mMETxDiff_GenMETTrue->Fill(reco.px() - gen.px());
+  mMETyDiff_GenMETTrue->Fill(reco.py() - gen.py());
 
   mGenMETTrue_vs_MET->Fill(genMET, theMET);
   mGenMETPhi_vs_MET->Fill(genMETPhi, theMET);
@@ -372,6 +393,14 @@ void METTester::fillGenComparison(const reco::MET &reco, const reco::MET &gen) {
     }
     mMETDeltaPhi_vs_GenMETTrue->Fill(metDeltaPhi, genMET);
     mMETDeltaPhi_vs_GenMETPhi->Fill(metDeltaPhi, genMETPhi);
+
+    if (nvtx >= 0) {
+      mMETDiff_vs_Nvtx->Fill(metDiff, nvtx);
+      mMETxDiff_vs_Nvtx->Fill(reco.px() - gen.px(), nvtx);
+      mMETyDiff_vs_Nvtx->Fill(reco.py() - gen.py(), nvtx);
+      if (validRatio)
+        mMETRatio_vs_Nvtx->Fill(metRatio, nvtx);
+    }
   }
 }
 

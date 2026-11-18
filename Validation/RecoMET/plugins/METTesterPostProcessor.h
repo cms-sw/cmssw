@@ -30,6 +30,15 @@ private:
   static constexpr int mNPhiBins = 6;
   const std::vector<float> mPhiBins = {{-3.15, -2., -1., 0., 1., 2., 3.15}};
 
+  // slices in the number of vertices: [0, 300] in steps of 5 (must match the METTester binning)
+  static constexpr int mNNvtxBins = 60;
+  const std::vector<float> mNvtxBins = [] {
+    std::vector<float> bins;
+    for (int i = 0; i <= mNNvtxBins; ++i)
+      bins.push_back(5.f * i);
+    return bins;
+  }();
+
   // 2D histograms filled by METTester and required by the post-processing
   struct Inputs {
     MElem* genMETPhi_vs_MET;
@@ -40,6 +49,11 @@ private:
     MElem* metRatio_vs_GenMETPhi;
     MElem* metDeltaPhi_vs_GenMETTrue;
     MElem* metDeltaPhi_vs_GenMETPhi;
+    // optional (nullptr if missing, e.g. in older files): dependence on the number of vertices
+    MElem* metRatio_vs_Nvtx = nullptr;
+    MElem* metDiff_vs_Nvtx = nullptr;
+    MElem* metxDiff_vs_Nvtx = nullptr;
+    MElem* metyDiff_vs_Nvtx = nullptr;
   };
 
   // statistics of the 1D projection of a 2D histogram in a slice
@@ -58,6 +72,9 @@ private:
   // `axis` is the axis along which the slices defined by `bins` are taken; the other axis is projected
   std::vector<ProjStats> projectionMeanAndRMS(MElem* src, const std::vector<float>& bins, const std::string& axis);
   void fillProjectionHisto(MElem* src, MElem* dest, const std::vector<float>& bins);
+  // same, but the content is the RMS (resolution) and the error is the error of the RMS
+  void fillResolutionHisto(MElem* src, MElem* dest, const std::vector<float>& bins);
+  void fillNvtxHistograms(const std::string& metdir, const Inputs&, DQMStore::IBooker&);
 };
 
 #endif  // METTESTERPOSTPROCESSOR_H

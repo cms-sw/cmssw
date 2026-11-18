@@ -51,7 +51,8 @@ private:
   // true if the event passes the (optional) gen-level selection on the hard-process pdgIds
   bool passesGenSelection(const edm::Event &);
 
-  void fillGenComparison(const reco::MET &reco, const reco::MET &gen);
+  // `nvtx` < 0 means the number of vertices is not available
+  void fillGenComparison(const reco::MET &reco, const reco::MET &gen, int nvtx);
   void fillGenCaloComparison(const reco::MET &reco, const reco::MET &genCalo);
   void fillCaloMET(const reco::CaloMET &);
   void fillPFMET(const reco::PFMET &);
@@ -111,6 +112,8 @@ private:
   MonitorElement *mMETDiff_GenMETTrue = nullptr;
   MonitorElement *mMETRatio_GenMETTrue = nullptr;
   MonitorElement *mMETDeltaPhi_GenMETTrue = nullptr;
+  MonitorElement *mMETxDiff_GenMETTrue = nullptr;
+  MonitorElement *mMETyDiff_GenMETTrue = nullptr;
   MonitorElement *mMETDiff_GenMETCalo = nullptr;
   MonitorElement *mMETRatio_GenMETCalo = nullptr;
   MonitorElement *mMETDeltaPhi_GenMETCalo = nullptr;
@@ -128,6 +131,12 @@ private:
   MonitorElement *mMETRatio_vs_GenMETPhi = nullptr;
   MonitorElement *mMETDeltaPhi_vs_GenMETTrue = nullptr;
   MonitorElement *mMETDeltaPhi_vs_GenMETPhi = nullptr;
+
+  // pileup dependence (heavy mode only): response and differences vs the number of vertices
+  MonitorElement *mMETRatio_vs_Nvtx = nullptr;
+  MonitorElement *mMETDiff_vs_Nvtx = nullptr;
+  MonitorElement *mMETxDiff_vs_Nvtx = nullptr;
+  MonitorElement *mMETyDiff_vs_Nvtx = nullptr;
 
   // MET Uncertainity Variables
   MonitorElement *mMETUnc_JetResUp = nullptr;
@@ -199,6 +208,9 @@ private:
   static constexpr int metCoarseNbins = 55;
   static constexpr int metDiffNbins = 150;
   static constexpr int metRatioNbins = 100;
+  // number of vertices in [0, 300] in steps of 5; the post-processor slices must fall on these bin edges
+  static constexpr float nvtxEdge = 300.;
+  static constexpr int nvtxNbins = 60;
 };
 
 #endif  // METTESTER_H
