@@ -40,26 +40,35 @@ class HLTMETInputs:
 # Axis ranges per sample, to restrict the plotted range if needed (see --sample and --axis_limits):
 #   {sample: {plot name: {'x': (low, high), 'y': (low, high)}}}
 # The plot name is the output name (e.g. 'MET_logy'), or else the histogram name (e.g. 'MET'); each axis is optional.
-# NOTE: starting values, to be tuned once the samples are validated. Plots not listed keep the full range.
+# Plots not listed keep the full range, i.e. behave as with --no-axis_limits.
 AXIS_LIMITS = {
     'QCD': {
-        'MET'                    : {'x': (0, 600)},
-        'MET_logy'               : {'x': (0, 1000)},
-        'GenMETTrue'             : {'x': (0, 600)},
-        'GenMETTrue_logy'        : {'x': (0, 1000)},
-        'MEx'                    : {'x': (-300, 300)},
-        'MEy'                    : {'x': (-300, 300)},
-        'METDiff_GenMETTrue'     : {'x': (-300, 300)},
-        'METDiff_GenMETTrue_logy': {'x': (-600, 600)},
+        'MET'     : {'x': (0, 800)},
+        'MET_logy': {'x': (0, 800)},
     },
     'Wprime': {
-        'MET'                    : {'x': (0, 1100)},
-        'GenMETTrue'             : {'x': (0, 1100)},
-        'MEx'                    : {'x': (-600, 600)},
-        'MEy'                    : {'x': (-600, 600)},
+        'MET'     : {'x': (0, 800)},
+        'MET_logy': {'x': (0, 800)},
     },
 }
 DEFAULT_SAMPLE = 'QCD'
+
+def resolveSample(sample, label):
+    """
+    Sample whose axis limits are used: the one given with --sample, otherwise the one named in the sample label
+    (case-insensitive), otherwise DEFAULT_SAMPLE. Raises if both are given and refer to different samples.
+    Returns the sample and a short explanation of the choice.
+    """
+    named = [k for k in AXIS_LIMITS if k.lower() in label.lower()]
+    if len(named) > 1:
+        raise ValueError(f"sample label '{label}' matches several samples: {', '.join(named)}")
+    if sample is not None:
+        if named and named[0] != sample:
+            raise ValueError(f"--sample {sample} is incompatible with the sample label '{label}' (looks like {named[0]})")
+        return sample, 'from --sample'
+    if named:
+        return named[0], f"inferred from the label '{label}'"
+    return DEFAULT_SAMPLE, f"default, no sample found in the label '{label}'"
 
 def axis_limits(name, hist=None):
     """Axis limits of the plot `name` (or of its histogram `hist`) for the sample chosen with --sample."""
@@ -517,6 +526,7 @@ def varsToPlot(metColl):
         vars1D.update({
             # MET-specific
             'GenMETCalo'              : HLTMETInputs(x=r'$MET^\text{Calo}_\text{Gen}$ [GeV]', y=nEvts, rebinx=2),
+            'GenMETCalo_logy'         : HLTMETInputs(x=r'$MET^\text{Calo}_\text{Gen}$ [GeV]', y=nEvts, hist='GenMETCalo', rebinx=2, logy=True),
             'METDeltaPhi_GenMETCalo'  : HLTMETInputs(x=r'$\text{MET}\phi_\text{Reco} - \text{MET}\phi^{Calo}_\text{Gen}$', y=nEvts, rebinx=2),
             'METDiff_GenMETCalo'      : HLTMETInputs(x=r'$\text{MET}_\text{Reco} - \text{MET}^\text{Calo}_\text{Gen}$ [GeV]', y=nEvts, rebinx=10),
             'METDeltaPhi_GenMETCalo_logy' : HLTMETInputs(x=r'$\text{MET}\phi_\text{Reco} - \text{MET}\phi^{Calo}_\text{Gen}$', y=nEvts, hist='METDeltaPhi_GenMETCalo', rebinx=2, logy=True),
@@ -618,8 +628,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Make HLT MET validation plots. \nRun all MET paths with\n' + full_command)
     parser.add_argument('-o', '--odir', default="HLTMETValidationPlots", required=False, help='Path to the output directory.')
     parser.add_argument('-l', '--sample_label', default="QCD (200 PU)", required=False, help='Sample label for plotting.')
-    parser.add_argument('--sample', default=DEFAULT_SAMPLE, choices=sorted(AXIS_LIMITS),
-                        help='Sample whose axis limits (AXIS_LIMITS) are applied; independent of --sample_label (default: %(default)s).')
+    parser.add_argument('--sample', default=None, choices=sorted(AXIS_LIMITS),
+                        help='Sample whose axis limits (AXIS_LIMITS) are applied. If not given, it is inferred from --sample_label '
+                             f'(default: {DEFAULT_SAMPLE} if the label names no known sample); an error is raised if both disagree.')
     parser.add_argument('--axis_limits', action=argparse.BooleanOptionalAction, default=True,
                         help='Restrict the plotted range according to AXIS_LIMITS (default: True; '
                              'disable with --no-axis_limits to see the full range).')
@@ -651,6 +662,12 @@ if __name__ == '__main__':
 
     # Center-of-mass energy is fixed by the period, not a user option
     args.energy = '13.6' if args.period == 'Run 3' else '14'
+
+    try:
+        args.sample, why = resolveSample(args.sample, args.sample_label)
+    except ValueError as e:
+        parser.error(str(e))
+    print(f" ### INFO: Sample type: {args.sample} ({why}); axis limits {'on' if args.axis_limits else 'off'}.")
 
     createDir(args.odir)
     if args.met:
