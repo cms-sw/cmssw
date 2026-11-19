@@ -449,7 +449,8 @@ void CaloSD::PrintAll() {
 void CaloSD::fillHits(edm::PCaloHitContainer& cc, const std::string& hname) {
   for (int k = 0; k < nHC_; ++k) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("CaloSim") << "CaloSD: " << k << ":" << theHC[k]->GetName() << " Slave  pointer: " << slave[k].get();
+    edm::LogVerbatim("CaloSim") << "CaloSD: " << k << ":" << theHC[k]->GetName()
+                                << " Slave  pointer: " << slave[k].get();
 #endif
     if (nullptr == slave[k].get()) {
       continue;
@@ -502,7 +503,7 @@ bool CaloSD::hitExists(const G4Step* aStep, int k) {
 bool CaloSD::checkHit(int k) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloSD: checkHit for " << k << " for map " << useMap << ":" << &hitMap[k] << " Nhits "
-                              << nCheckedHits[k] << " HC " << theHC[k] << ":" << collName_[k]<< " ID " << currentID[k];
+                              << nCheckedHits[k] << " HC " << theHC[k] << ":" << collName_[k] << " ID " << currentID[k];
 #endif
   //look in the HitContainer whether a hit with the same ID already exists:
   bool found = false;
@@ -788,7 +789,7 @@ void CaloSD::update(const EndOfTrack* trk) {
         tkMap[id] = trkH;
 #ifdef EDM_ML_DEBUG
         edzm::LogVerbatim("CaloSim") << "CaloSD: get track " << id << " from Container of size "
-                                    << trksForThisEvent->size() << " with ID " << trkH->trackID();
+                                     << trksForThisEvent->size() << " with ID " << trkH->trackID();
 #endif
       }
     }
@@ -1076,7 +1077,8 @@ void CaloSD::cleanHitCollection() {
     std::vector<CaloG4Hit*>* theCollection = theHC[k]->GetVector();
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("CaloSim") << "CaloSD: collection " << k << ":" << slave[k]->name() << " before merging, size = " << theHC[k]->entries();
+    edm::LogVerbatim("CaloSim") << "CaloSD: collection " << k << ":" << slave[k]->name()
+                                << " before merging, size = " << theHC[k]->entries();
 #endif
     if (reusehit[k].empty())
       reusehit[k].reserve(theHC[k]->entries() - cleanIndex[k]);
