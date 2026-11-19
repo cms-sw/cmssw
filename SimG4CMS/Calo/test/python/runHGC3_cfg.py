@@ -1,7 +1,8 @@
 ###############################################################################
 # Way to use this:
 #   cmsRun runHGC3_cfg.py geomName=Run4D120
-#   Options for geomName Run4D120, Run4D121. Run4D122, Run4D123
+#   Options for geomName Run4D120, Run4D121. Run4D122, Run4D123, Run4D126,
+#                        Run4D127, Run4D128
 # 
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -15,7 +16,7 @@ options.register('geomName',
                  "Run4D120",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geomName of operations: Run4D120, Run4D121, Run4D122, Run4D123")
+                  "geomName of operations: Run4D120, Run4D121, Run4D122, Run4D123, Run4D126, Run4D127, Run4D128")
 
 ### get and parse the command line arguments
  
@@ -51,6 +52,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '')
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom=dict()
     process.MessageLogger.HGCSim=dict()
+    process.MessageLogger.CaloSim=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
