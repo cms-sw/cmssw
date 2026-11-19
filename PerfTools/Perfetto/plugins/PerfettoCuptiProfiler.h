@@ -6,6 +6,7 @@
 // elsewhere a no-op stub keeps the service building (traceGpuKernels does nothing).
 #ifdef PERFETTO_HAS_CUPTI
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PerfTools/Perfetto/interface/CMSSWPerfettoCategories.h"
 #include "PerfTools/Perfetto/interface/CMSSWPerfettoModuleContext.h"
 
@@ -18,10 +19,10 @@
 #include <atomic>
 #include <cstdint>
 #include <cstdlib>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <string_view>
-#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
@@ -33,9 +34,9 @@ namespace cms::perfetto {
   // grid/block, an occupancy estimate and the CUPTI correlation id.
   // Optionally also the memory copies and memsets, on the same tracks, with their
   // direction, size, source/destination memory kind and bandwidth.
-  // Kernels and copies carry the label of the module that issued them: a CUPTI
-  // callback on the launch / copy / memset driver calls records, on the issuing
-  // thread, the current module context under the call's correlation id.
+  // Optionally the records carry the label of the module that issued them: a CUPTI
+  // callback on the launch / copy / memset / allocation driver calls records, on the
+  // issuing thread, the current module context under the correlation id of the call.
   // Optionally also every CUDA allocation and free (cudaMalloc, cudaHostAlloc,
   // cudaMallocAsync, ... also those of the alpaka caching allocator, which uses them
   // underneath), as instants. There is no running-total counter: CUPTI delivers its
@@ -45,8 +46,18 @@ namespace cms::perfetto {
   // not serialized.
   class PerfettoCuptiProfiler {
   public:
-    // True if a CUDA device is present and CUPTI accepted the configuration.
-    bool start(bool kernels = true, bool copies = false, bool memory = false) {
+    PerfettoCuptiProfiler() = default;
+    // Stop CUPTI and drop the records that are still buffered.
+    ~PerfettoCuptiProfiler() {
+      s_instance.store(nullptr);
+      halt();
+    }
+    PerfettoCuptiProfiler(PerfettoCuptiProfiler const&) = delete;
+    PerfettoCuptiProfiler& operator=(PerfettoCuptiProfiler const&) = delete;
+
+    // True if a CUDA device is present and CUPTI records at least one of the requested
+    // kinds of activity. With modules, the records also carry the issuing module.
+    bool start(bool kernels = true, bool copies = false, bool memory = false, bool modules = true) {
       int count = 0;
       if (cudaGetDeviceCount(&count) != cudaSuccess || count == 0)
         return false;
@@ -60,90 +71,147 @@ namespace cms::perfetto {
       offsetNs_ = int64_t(TrackEvent::GetTraceTimeNs()) - int64_t(cuptiNow);
       clockId_ = static_cast<uint32_t>(TrackEvent::GetTraceClockId());
 
+      if (cuptiActivityRegisterCallbacks(bufferRequested, bufferCompleted) != CUPTI_SUCCESS)
+        return false;
+      if (modules)
+        subscribe(kernels, copies, memory);
       s_instance.store(this);
-      kernels_ = kernels;
-      copies_ = copies;
-      memory_ = memory;
-      active_ = cuptiActivityRegisterCallbacks(bufferRequested, bufferCompleted) == CUPTI_SUCCESS &&
-                (!kernels_ || cuptiActivityEnable(CUPTI_ACTIVITY_KIND_CONCURRENT_KERNEL) == CUPTI_SUCCESS) &&
-                (!copies_ || (cuptiActivityEnable(CUPTI_ACTIVITY_KIND_MEMCPY) == CUPTI_SUCCESS &&
-                              cuptiActivityEnable(CUPTI_ACTIVITY_KIND_MEMCPY2) == CUPTI_SUCCESS &&
-                              cuptiActivityEnable(CUPTI_ACTIVITY_KIND_MEMSET) == CUPTI_SUCCESS)) &&
-                (!memory_ || cuptiActivityEnable(CUPTI_ACTIVITY_KIND_MEMORY2) == CUPTI_SUCCESS);
+      if (kernels)
+        enable(CUPTI_ACTIVITY_KIND_CONCURRENT_KERNEL, "kernels");
+      if (copies) {
+        enable(CUPTI_ACTIVITY_KIND_MEMCPY, "memory copies");
+        enable(CUPTI_ACTIVITY_KIND_MEMCPY2, "memory copies between devices");
+        enable(CUPTI_ACTIVITY_KIND_MEMSET, "memsets");
+      }
+      if (memory)
+        enable(CUPTI_ACTIVITY_KIND_MEMORY2, "allocations and frees");
+      active_ = !enabled_.empty();
       if (!active_)
-        s_instance.store(nullptr);
-      else
-        subscribe();
+        halt();
       return active_;
     }
 
     // Stop recording and drain the buffered records into the (still open) session.
     void stop() {
+      halt();
+      if (auto const lost = lost_.exchange(0); lost > 0)
+        edm::LogWarning("PerfettoTraceService")
+            << "traceGpuModules: " << lost << " GPU records have no module, because more than " << kOwnerSlots
+            << " CUDA calls were issued before CUPTI delivered them";
+    }
+
+  private:
+    // Disable the activity kinds and the subscriber, then flush the buffered records.
+    void halt() {
+      for (auto kind : enabled_)
+        cuptiActivityDisable(kind);
+      enabled_.clear();
+      if (subscribed_) {
+        cuptiUnsubscribe(subscriber_);
+        subscribed_ = false;
+      }
       if (active_) {
-        if (kernels_)
-          cuptiActivityDisable(CUPTI_ACTIVITY_KIND_CONCURRENT_KERNEL);
-        if (copies_) {
-          cuptiActivityDisable(CUPTI_ACTIVITY_KIND_MEMCPY);
-          cuptiActivityDisable(CUPTI_ACTIVITY_KIND_MEMCPY2);
-          cuptiActivityDisable(CUPTI_ACTIVITY_KIND_MEMSET);
-        }
-        if (memory_)
-          cuptiActivityDisable(CUPTI_ACTIVITY_KIND_MEMORY2);
-        if (subscribed_) {
-          cuptiUnsubscribe(subscriber_);
-          subscribed_ = false;
-        }
         cuptiActivityFlushAll(CUPTI_ACTIVITY_FLAG_FLUSH_FORCED);
         active_ = false;
       }
       s_instance.store(nullptr);
     }
 
-  private:
     static constexpr uint64_t kGpuTrackBase = 0x4750550000000000ull;  // "GPU"
     static constexpr std::size_t kBufferSize = 8 * 1024 * 1024;
+    // One slot per correlation id modulo kOwnerSlots: the module of a call stays
+    // available until kOwnerSlots later calls are issued.
+    static constexpr std::size_t kOwnerSlots = std::size_t{1} << 22;
+    static constexpr unsigned kMaxModules = 1u << 16;
 
-    // Callbacks on the driver calls that issue device work. Only one CUPTI
-    // subscriber can exist per process (e.g. not under nsys): without it the
-    // module annotation is just missing.
-    void subscribe() {
-      if (cuptiSubscribe(&subscriber_, reinterpret_cast<CUpti_CallbackFunc>(apiCallback), this) != CUPTI_SUCCESS)
+    static const char* resultString(CUptiResult status) {
+      const char* text = nullptr;
+      cuptiGetResultString(status, &text);
+      return text ? text : "unknown error";
+    }
+
+    // A kind that CUPTI refuses is reported and does not stop the other kinds.
+    void enable(CUpti_ActivityKind kind, const char* what) {
+      if (auto const status = cuptiActivityEnable(kind); status == CUPTI_SUCCESS)
+        enabled_.push_back(kind);
+      else
+        edm::LogWarning("PerfettoTraceService")
+            << "CUPTI does not record the CUDA " << what << ": " << resultString(status);
+    }
+
+    // Callbacks on the driver calls that issue the recorded device work. Only one
+    // CUPTI subscriber can exist per process (e.g. not under nsys): without it the
+    // records have no module.
+    void subscribe(bool kernels, bool copies, bool memory) {
+      owners_ = std::make_unique<std::atomic<uint64_t>[]>(kOwnerSlots);
+      labels_ = std::make_unique<std::atomic<const char*>[]>(kMaxModules);
+      if (auto const status = cuptiSubscribe(&subscriber_, apiCallback, this); status != CUPTI_SUCCESS) {
+        edm::LogWarning("PerfettoTraceService") << "traceGpuModules: CUPTI does not accept a subscriber ("
+                                                << resultString(status) << "), the GPU activity has no module";
+        owners_.reset();
+        labels_.reset();
         return;
+      }
       subscribed_ = true;
       for (int cbid = 1; cbid < CUPTI_DRIVER_TRACE_CBID_SIZE; ++cbid) {
         const char* name = nullptr;
         if (cuptiGetCallbackName(CUPTI_CB_DOMAIN_DRIVER_API, cbid, &name) != CUPTI_SUCCESS || !name)
           continue;
         std::string_view const n(name);
-        if ((kernels_ && (n.starts_with("cuLaunch") || n.starts_with("cuGraphLaunch"))) ||
-            (copies_ && (n.starts_with("cuMemcpy") || n.starts_with("cuMemset"))) ||
-            (memory_ && (n.starts_with("cuMemAlloc") || n.starts_with("cuMemHostAlloc") || n.starts_with("cuMemFree") ||
-                         n.starts_with("cuMemPool"))))
+        // cuLaunchHostFunc gives no kernel record
+        if ((kernels &&
+             ((n.starts_with("cuLaunch") && !n.starts_with("cuLaunchHostFunc")) || n.starts_with("cuGraphLaunch"))) ||
+            (copies && (n.starts_with("cuMemcpy") || n.starts_with("cuMemset"))) ||
+            (memory && (n.starts_with("cuMemAlloc") || n.starts_with("cuMemHostAlloc") || n.starts_with("cuMemFree"))))
           cuptiEnableCallback(1, subscriber_, CUPTI_CB_DOMAIN_DRIVER_API, cbid);
       }
     }
 
-    // on the thread issuing the call; the correlation id is the one of its activity record
-    static void apiCallback(void* userdata, CUpti_CallbackDomain, CUpti_CallbackId, CUpti_CallbackData const* info) {
-      if (info->callbackSite != CUPTI_API_ENTER)
-        return;
-      if (const char* label = currentModuleContext().label) {
-        auto* self = static_cast<PerfettoCuptiProfiler*>(userdata);
-        std::scoped_lock lock(self->ownerMutex_);
-        self->owners_[info->correlationId] = label;
-      }
+    // Index of the module of this context in labels_, plus one; 0 for no module.
+    // A slot of labels_ is written once, so an index always gives the same label.
+    uint32_t moduleIndex(ModuleContext const& ctx) {
+      if (!ctx.label || ctx.moduleId >= kMaxModules)
+        return 0;
+      auto& slot = labels_[ctx.moduleId];
+      const char* seen = slot.load(std::memory_order_acquire);
+      if (!seen && slot.compare_exchange_strong(seen, ctx.label))
+        return ctx.moduleId + 1;
+      return seen == ctx.label ? ctx.moduleId + 1 : 0;
     }
 
-    // the module that issued the work with this correlation id, or "" (also: framework, untraced module)
-    const char* owner(uint32_t correlationId) {
-      std::scoped_lock lock(ownerMutex_);
-      auto const it = owners_.find(correlationId);
-      if (it == owners_.end())
-        return "";
-      const char* label = it->second;
-      owners_.erase(it);
-      return label;
+    // Runs on the thread that issues the driver call, inside the call: it takes no
+    // lock and allocates nothing. One atomic word holds the correlation id and the
+    // module, so a reader cannot pair an id with the module of another call.
+    static void apiCallback(void* userdata, CUpti_CallbackDomain domain, CUpti_CallbackId, const void* cbdata) {
+      if (domain != CUPTI_CB_DOMAIN_DRIVER_API)
+        return;
+      auto const* info = static_cast<CUpti_CallbackData const*>(cbdata);
+      if (info->callbackSite != CUPTI_API_ENTER)
+        return;
+      auto* self = static_cast<PerfettoCuptiProfiler*>(userdata);
+      uint64_t const entry = uint64_t{info->correlationId} << 32 | self->moduleIndex(currentModuleContext());
+      self->owners_[info->correlationId % kOwnerSlots].store(entry, std::memory_order_release);
     }
+
+    // The module that issued the work with this correlation id. "" for the framework,
+    // for an untraced module, and when a later call has taken the slot. The entry
+    // stays: all the records of one cuGraphLaunch share its correlation id.
+    const char* owner(uint32_t correlationId) {
+      if (!owners_)
+        return "";
+      uint64_t const entry = owners_[correlationId % kOwnerSlots].load(std::memory_order_acquire);
+      auto const id = static_cast<uint32_t>(entry >> 32);
+      auto const module = static_cast<uint32_t>(entry);
+      if (id != correlationId) {
+        if (static_cast<int32_t>(id - correlationId) > 0)
+          lost_.fetch_add(1, std::memory_order_relaxed);
+        return "";
+      }
+      return module == 0 ? "" : labels_[module - 1].load(std::memory_order_acquire);
+    }
+
+    // CUPTI gives 0 for both timestamps of a record when it did not collect them.
+    static bool hasTimestamps(uint64_t start, uint64_t end) { return start != 0 || end != 0; }
 
     static void bufferRequested(uint8_t** buffer, size_t* size, size_t* maxNumRecords) {
       *buffer = static_cast<uint8_t*>(std::aligned_alloc(8, kBufferSize));
@@ -217,6 +285,8 @@ namespace cms::perfetto {
     }
 
     void handleKernel(CUpti_ActivityKernel9 const* k) {
+      if (!hasTimestamps(k->start, k->end))
+        return;
       const char* mangled = k->name ? k->name : "";
       char* demangled = abi::__cxa_demangle(mangled, nullptr, nullptr, nullptr);
       std::string const full = demangled ? demangled : mangled;
@@ -264,17 +334,22 @@ namespace cms::perfetto {
       TRACE_EVENT_END("cmssw.gpu", track, end);
     }
 
-    static bool isHost(uint8_t memoryKind) {
+    static bool isHost(uint32_t memoryKind) {
       return memoryKind == CUPTI_ACTIVITY_MEMORY_KIND_PAGEABLE || memoryKind == CUPTI_ACTIVITY_MEMORY_KIND_PINNED;
     }
 
+    static bool isDevice(uint32_t memoryKind) {
+      return memoryKind == CUPTI_ACTIVITY_MEMORY_KIND_DEVICE || memoryKind == CUPTI_ACTIVITY_MEMORY_KIND_ARRAY ||
+             memoryKind == CUPTI_ACTIVITY_MEMORY_KIND_DEVICE_STATIC;
+    }
+
     // A MEMCPY2 record has copyKind PTOP also for a host <-> device copy: take the
-    // direction from the memory kinds then.
+    // direction from the memory kinds when both are host or device memory.
     static const char* copyName(uint8_t kind, uint8_t src, uint8_t dst) {
       if (kind == CUPTI_ACTIVITY_MEMCPY_KIND_PTOP) {
-        if (isHost(src) && !isHost(dst))
+        if (isHost(src) && isDevice(dst))
           kind = CUPTI_ACTIVITY_MEMCPY_KIND_HTOD;
-        else if (!isHost(src) && isHost(dst))
+        else if (isDevice(src) && isHost(dst))
           kind = CUPTI_ACTIVITY_MEMCPY_KIND_DTOH;
         else if (isHost(src) && isHost(dst))
           kind = CUPTI_ACTIVITY_MEMCPY_KIND_HTOH;
@@ -304,8 +379,16 @@ namespace cms::perfetto {
           return "pinned";
         case CUPTI_ACTIVITY_MEMORY_KIND_DEVICE:
           return "device";
+        case CUPTI_ACTIVITY_MEMORY_KIND_ARRAY:
+          return "array";
         case CUPTI_ACTIVITY_MEMORY_KIND_MANAGED:
           return "managed";
+        case CUPTI_ACTIVITY_MEMORY_KIND_DEVICE_STATIC:
+          return "device static";
+        case CUPTI_ACTIVITY_MEMORY_KIND_MANAGED_STATIC:
+          return "managed static";
+        case CUPTI_ACTIVITY_MEMORY_KIND_UNKNOWN:
+          return "unknown";
         default:
           return "other";
       }
@@ -320,6 +403,8 @@ namespace cms::perfetto {
     // while another device was current) is reported as MEMCPY2
     template <typename Record>
     void handleMemcpy(Record const* c) {
+      if (!hasTimestamps(c->start, c->end))
+        return;
       auto const track = gpuTrack(c->deviceId, c->streamId);
       TRACE_EVENT_BEGIN("cmssw.gpu.copy",
                         ::perfetto::StaticString(copyName(c->copyKind, c->srcKind, c->dstKind)),
@@ -342,6 +427,8 @@ namespace cms::perfetto {
     }
 
     void handleMemset(CUpti_ActivityMemset5 const* m) {
+      if (!hasTimestamps(m->start, m->end))
+        return;
       auto const track = gpuTrack(m->deviceId, m->streamId);
       TRACE_EVENT_BEGIN("cmssw.gpu.copy",
                         "memset",
@@ -361,13 +448,13 @@ namespace cms::perfetto {
           "cmssw.gpu.copy", track, ::perfetto::TraceTimestamp{clockId_, uint64_t(int64_t(m->end) + offsetNs_)});
     }
 
-    // allocation / free instants on a "CUDA memory <space>" track ("dev<d>", "host" for
-    // pinned / mapped host memory)
+    // allocation / free instants on a "CUDA memory <space>" track: "host" for pageable
+    // and pinned host memory, "dev<d>" for every other kind
     void handleMemory(CUpti_ActivityMemory4 const* m) {
       bool const alloc = m->memoryOperationType == CUPTI_ACTIVITY_MEMORY_OPERATION_TYPE_ALLOCATION;
       if (!alloc && m->memoryOperationType != CUPTI_ACTIVITY_MEMORY_OPERATION_TYPE_RELEASE)
         return;
-      bool const device = m->memoryKind == CUPTI_ACTIVITY_MEMORY_KIND_DEVICE;
+      bool const device = !isHost(m->memoryKind);
       ::perfetto::Track const track(kMemoryTrackBase | (device ? m->deviceId : 0xffffu),
                                     ::perfetto::ProcessTrack::Current());
       {
@@ -401,14 +488,14 @@ namespace cms::perfetto {
     static constexpr uint64_t kMemoryTrackBase = 0x4d454d0000000000ull;  // "MEM"
 
     bool active_ = false;
-    bool memory_ = false;
-    bool kernels_ = false;
-    bool copies_ = false;
     bool subscribed_ = false;
+    std::vector<CUpti_ActivityKind> enabled_;
     CUpti_SubscriberHandle subscriber_ = nullptr;
-    std::mutex ownerMutex_;
-    std::unordered_map<uint32_t, const char*> owners_;  // correlation id -> module label
-    int64_t offsetNs_ = 0;                              // CUPTI clock -> trace clock
+    // (correlation id << 32 | index in labels_ + 1) of the last call issued with this id modulo kOwnerSlots
+    std::unique_ptr<std::atomic<uint64_t>[]> owners_;
+    std::unique_ptr<std::atomic<const char*>[]> labels_;  // module id -> module label
+    std::atomic<uint64_t> lost_{0};                       // records whose slot holds a later call
+    int64_t offsetNs_ = 0;                                // CUPTI clock -> trace clock
     uint32_t clockId_ = 0;
     std::vector<cudaDeviceProp> props_;
     std::mutex mutex_;  // CUPTI may deliver buffers from several threads
@@ -426,7 +513,7 @@ namespace cms::perfetto {
 
   class PerfettoCuptiProfiler {
   public:
-    bool start(bool = true, bool = false, bool = false) { return false; }
+    bool start(bool = true, bool = false, bool = false, bool = true) { return false; }
     void stop() {}
   };
 

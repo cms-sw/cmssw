@@ -15,10 +15,13 @@ namespace cms::perfetto {
   // can have another module's task stolen onto its thread, nested inside it.
   struct ModuleContext {
     static constexpr unsigned kNoStream = ~0u;
+    static constexpr unsigned kNoModule = ~0u;
 
     // Module label (owned by its ModuleDescription); nullptr if not traced.
     const char* label = nullptr;
     unsigned streamId = kNoStream;
+    // edm::ModuleDescription::id() of the module; kNoModule if not traced.
+    unsigned moduleId = kNoModule;
   };
 
   // Returns false if the stack is full; the entry is then not recorded, but

@@ -49,6 +49,7 @@ customisePerfetto(process, fileName="reco.pftrace", traceGpuKernels=True)
 | `traceGpuKernels`  | `False`          | record the CUDA kernels via CUPTI |
 | `traceGpuCopies`   | `False`          | record the CUDA memory copies and memsets via CUPTI |
 | `traceGpuMemory`   | `False`          | record the CUDA allocations and frees via CUPTI |
+| `traceGpuModules`  | `True`           | annotate the CUDA kernels, copies and allocations with the module that issued them; used only with `traceGpuKernels`, `traceGpuCopies` or `traceGpuMemory` |
 | `tracePower`       | `False`          | sample CPU (RAPL) and GPU (NVML) power |
 | `powerPeriodMs`    | `1000`           | power sampling period |
 | `traceModules`     | `[]`             | if not empty, trace only these module labels |
@@ -117,18 +118,36 @@ Without CUDA the plugin builds a no-op.
 
 With `traceGpuCopies=True` the memory copies and memsets are slices on the same
 tracks (category `cmssw.gpu.copy`), named `memcpy HtoD`, `memcpy DtoH`,
-`memcpy DtoD`, `memcpy PtoP` (between devices) or `memset`, annotated with `bytes`, the `src` / `dst` memory
-kind (`pinned`, `pageable`, `device`, ...), `bandwidth_GBps` and the CUPTI
-`correlation_id`. Kernels and copies also carry the `module` that issued them
-(empty when issued outside a module): a CUPTI callback on the launch / copy /
-memset driver calls records the current module of the calling thread. A copy from or to `pageable` host memory is synchronous with
-respect to the host thread that issued it.
+`memcpy DtoD`, `memcpy HtoH`, `memcpy PtoP` (between devices), `memcpy other`
+(a copy from or to a CUDA array) or `memset`, annotated with `bytes`, the
+`src` / `dst` memory kind (`pinned`, `pageable`, `device`, ...),
+`bandwidth_GBps` and the CUPTI `correlation_id`. A copy from or to `pageable`
+host memory is synchronous with respect to the host thread that issued it.
+
+With `traceGpuModules=True` (the default) the kernels, copies, memsets,
+allocations and frees carry the `module` that issued them. The `module` is empty
+for work issued outside a traced module. A CUPTI callback on the launch, copy,
+memset and allocation driver calls stores the current module of the calling
+thread in a table indexed by the CUPTI correlation id. The callback takes no
+lock and allocates no memory. The table holds the last 4194304 calls (32 MB).
+CUPTI delivers a record when its buffer is full, so a record can arrive after a
+later call has replaced its entry. Such a record has an empty `module`, and the
+service logs the number of these records at the end of the job. Measured with
+`HeterogeneousCore/AlpakaTest/test/testAlpakaModules_cfg.py` on 2 GPUs, with
+kernels, copies and memory traced: with 32 streams a record arrives at most
+2.2 million calls after its call, and no record loses its `module`; with 96
+streams 14% of the records lose it. CUPTI accepts one subscriber per process. If
+another tool holds it (for example Nsight Systems), the service logs a warning
+and the `module` is empty. With `traceGpuModules=False` the service installs no
+callback on the driver calls.
 
 With `traceGpuMemory=True` every CUDA allocation and free (`cudaMalloc`,
 `cudaHostAlloc`, `cudaMallocAsync`, ...) is a `cuda alloc` / `cuda free` instant on
 a `CUDA memory <space>` track (category `cmssw.gpu.memory`), annotated with
 `bytes`, the memory `kind`, `async` (stream-ordered pool allocation), the pool
-size `pool_B`, the `device` and the issuing `module`. CUPTI delivers its records
+size `pool_B`, the `device` and the issuing `module`. `<space>` is `host` for
+pageable and pinned host memory, and `dev<d>` for every other kind (`device`,
+`managed`, ...). CUPTI delivers its records
 out of time order, so there is no running-total counter: summing the instants in
 time order gives the memory allocated through CUDA. The alpaka caching allocator
 allocates through these calls too, so that total minus the allocator's `cached`
