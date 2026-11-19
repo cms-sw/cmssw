@@ -7,6 +7,17 @@ namespace mkfit {
     bool usePropToPlane = false;
     bool usePtMultScat = false;
 
+    // track building: the constants of CMSSW's ParabolicMf (portableParabolicMagneticField::Parameters)
+    float mag_c1 = 3.8114;
+    float mag_b0 = -3.94991e-06;
+    float mag_b1 = 7.53701e-06;
+    float mag_a = 2.43878e-11;
+    // final fit: fitted to the CMS field map over the tracker volume
+    float mag_fit_c1 = 3.81036;
+    float mag_fit_b0 = -2.03767e-06;
+    float mag_fit_b1 = 7.34495e-06;
+    float mag_fit_a = 3.01291e-07;
+
     // Multi threading configuration
 #if defined(MKFIT_STANDALONE)
     int numThreadsFinder = 1;

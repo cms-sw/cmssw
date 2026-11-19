@@ -119,7 +119,10 @@ namespace mkfit {
                             const MPlexHV& plNrm,
                             MPlexLS& outErr,
                             MPlexLV& outPar,
-                            const int N_proc);
+                            const int N_proc,
+                            // per-lane |p| [GeV] at which the multiple-scattering noise is evaluated, in place
+                            // of the running estimate; nullptr = the running estimate
+                            const float* msRefP = nullptr);
 
   void MultHelixPropFull(const MPlexLL& A, const MPlexLS& B, MPlexLL& C);
   void MultHelixPropTranspFull(const MPlexLL& A, const MPlexLL& B, MPlexLS& C);
