@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltTrigReport = cms.EDAnalyzer("HLTrigReport",
-    HLTriggerResults = cms.InputTag("TriggerResults","","HLTX"),
+    HLTriggerResults = cms.InputTag("TriggerResults","","@currentProcess"),
     ReferencePath = cms.untracked.string('HLTriggerFinalPath'),
     ReferenceRate = cms.untracked.double(100.0),
     reportBy = cms.untracked.string('job'),
