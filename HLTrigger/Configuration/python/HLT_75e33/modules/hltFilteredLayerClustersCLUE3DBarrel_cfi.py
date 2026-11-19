@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltFilteredLayerClustersCLUE3DBarrel = cms.EDProducer("FilteredLayerClustersProducer",
+    ticlGeom = cms.ESInputTag('', 'hlt'),
     LayerClusters = cms.InputTag("hltMergeLayerClusters"),
     LayerClustersInputMask = cms.InputTag("hltMergeLayerClusters", "InitialLayerClustersMask"),
     clusterFilter = cms.string('ClusterFilterByAlgo'),

@@ -120,7 +120,8 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
       detector_(ps.getParameter<std::string>("detector")),  // one of EE, FH, BH, HFNose
       timeClname_(ps.getParameter<std::string>("timeClname")),
       hitsTime_(ps.getParameter<unsigned int>("nHitsTime")),
-      ticlGeomToken_(consumesCollector().esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+      ticlGeomToken_(consumesCollector().esConsumes<TICLGeomHost, CaloGeometryRecord>(
+          ps.getParameter<edm::ESInputTag>("ticlGeom"))),
       calculatePositionInAlgo_(ps.getParameter<bool>("calculatePositionInAlgo")) {
 #if DEBUG_CLUSTERS_ALPAKA
   moduleLabel_ = ps.getParameter<std::string>("@module_label");
@@ -148,6 +149,7 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
 void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // hgcalLayerClusters
   edm::ParameterSetDescription desc;
+  desc.add<edm::ESInputTag>("ticlGeom", edm::ESInputTag("", ""));
   edm::ParameterSetDescription pluginDesc;
   pluginDesc.addNode(edm::PluginDescription<HGCalLayerClusterAlgoFactory>("type", "SiCLUE", true));
 

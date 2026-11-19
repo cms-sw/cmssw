@@ -3,6 +3,7 @@ from ..psets.HGCAL_reco_constants_cfi import HGCAL_reco_constants as HGCAL_reco_
 from HeterogeneousCore.AlpakaCore.functions import makeSerialClone
 
 hltHgcalSoARecHitsProducer = cms.EDProducer("HGCalSoARecHitsProducer@alpaka",
+    ticlGeom = cms.ESInputTag('', 'hlt'),
     alpaka = cms.untracked.PSet(
         backend = cms.untracked.string('')
     ),

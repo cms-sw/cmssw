@@ -2,12 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 from SimCalorimetry.HGCalAssociatorProducers.barrelLCToCPAssociatorByEnergyScoreProducer_cfi import barrelLCToCPAssociatorByEnergyScoreProducer as _barrelLCToCPAssociatorByEnergyScoreProducer
 hltBarrelLCToCPAssociatorByEnergyScoreProducer = _barrelLCToCPAssociatorByEnergyScoreProducer.clone(
+    ticlGeom = cms.ESInputTag('', 'hlt'),
     hitMapTag = 'hltRecHitMapProducer:barrelRecHitMap',
     hits = 'hltRecHitMapProducer:RefProdVectorPFRecHitCollection'
 )
 
 from SimCalorimetry.HGCalSimProducers.hgcHitAssociation_cfi import lcAssocByEnergyScoreProducer as _lcAssocByEnergyScoreProducer
 hltHGCalLCToCPAssociatorByEnergyScoreProducer = _lcAssocByEnergyScoreProducer.clone(
+    ticlGeom = cms.ESInputTag('', 'hlt'),
     hitMapTag = 'hltRecHitMapProducer:hgcalRecHitMap',
     hits = 'hltRecHitMapProducer:RefProdVectorHGCRecHitCollection'
 )

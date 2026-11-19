@@ -11,6 +11,7 @@ for labelts in _hltTiclIterLabelsPSet.labels:
 
 # Default is TICLv5
 hltHgcalValidator = _hgcalValidator.clone(
+    ticlGeom = cms.ESInputTag('', 'hlt'),
     LayerClustersInputMask = cms.VInputTag("hltTiclTrackstersCLUE3DHigh", "hltTiclSimTracksters:fromCPs", "hltTiclSimTracksters"),
     label_tst = cms.VInputTag(*[cms.InputTag(label) for label in _hltTiclIterLabelsPSet.labels] + [cms.InputTag("hltTiclSimTracksters", "fromCPs"), cms.InputTag("hltTiclSimTracksters")]),
     allTracksterTracksterAssociatorsLabels = cms.VInputTag( *[cms.InputTag('hltAllTrackstersToSimTrackstersAssociationsByLCs:'+associator) for associator in hltAssociatorInstances] ),

@@ -99,7 +99,7 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, ticl::TICLON
       seeding_regions_token_(
           consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seeding_regions"))),
       ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord, edm::Transition::BeginRun>(
-          edm::ESInputTag("", doBarrel_ ? "withBarrel" : ""))),
+          ps.getParameter<edm::ESInputTag>(doBarrel_ ? "ticlGeomWithBarrel" : "ticlGeom"))),
       itername_(ps.getParameter<std::string>("itername")) {
   const auto plugin = ps.getParameter<std::string>("patternRecognitionBy");
   const auto pluginPSet = ps.getParameter<edm::ParameterSet>("pluginPatternRecognitionBy" + plugin);
@@ -230,6 +230,8 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
 void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<edm::ESInputTag>("ticlGeom", edm::ESInputTag("", ""));
+  desc.add<edm::ESInputTag>("ticlGeomWithBarrel", edm::ESInputTag("", "withBarrel"));
   desc.add<std::string>("detector", "HGCAL");
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<edm::InputTag>("filtered_mask", edm::InputTag("filteredLayerClusters", "iterationLabelGoesHere"));

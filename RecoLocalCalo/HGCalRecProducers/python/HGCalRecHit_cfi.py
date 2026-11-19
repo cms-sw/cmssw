@@ -209,6 +209,7 @@ dEdX_v19 = cms.PSet(
 # HGCAL rechit producer
 HGCalRecHit = cms.EDProducer(
     "HGCalRecHitProducer",
+    ticlGeom = cms.ESInputTag('', ''),
     HGCEErechitCollection = cms.string('HGCEERecHits'),
     HGCEEuncalibRecHitCollection = cms.InputTag('HGCalUncalibRecHit:HGCEEUncalibRecHits'),
     HGCHEFrechitCollection = cms.string('HGCHEFRecHits'),

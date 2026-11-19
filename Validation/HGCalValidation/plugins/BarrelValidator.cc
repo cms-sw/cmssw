@@ -63,7 +63,7 @@ bool assignTracksterMaps(const edm::Handle<std::vector<ticl::Trackster>>& tracks
 }
 
 BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
-    : ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+    : ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord>(pset.getParameter<edm::ESInputTag>("ticlGeom"))),
       lclTag_(pset.getParameter<edm::InputTag>("lclTag")),
       sclTag_(pset.getParameter<edm::InputTag>("sclTag")),
       rechitmapTag_(pset.getParameter<edm::InputTag>("rechitmapTag")),
@@ -629,6 +629,7 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
 void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // hgcalValidator
   edm::ParameterSetDescription desc;
+  desc.add<edm::ESInputTag>("ticlGeom", edm::ESInputTag("", ""));
   desc.add<double>("ptMinCP", 0.5);
   desc.add<double>("ptMaxCP", 300.0);
   desc.add<double>("minRapidityCP", -3.1);
