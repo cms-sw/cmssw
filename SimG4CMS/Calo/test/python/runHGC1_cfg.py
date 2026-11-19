@@ -1,3 +1,5 @@
+
+
 ###############################################################################
 # Way to use this:
 #   cmsRun runHGC1_cfg.py geometry=V18
@@ -55,7 +57,7 @@ if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom = dict()
     process.MessageLogger.HGCalGeomT = dict()
     process.MessageLogger.HGCSim = dict()
-#   process.MessageLogger.CaloSim = dict()
+    process.MessageLogger.CaloSim = dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
