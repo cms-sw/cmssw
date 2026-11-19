@@ -92,7 +92,7 @@ namespace ngt {
     static Properties properties(value_type const& object) { return {object.nHits(), object.nModules()}; }
 
     template <typename TQueue>
-      requires(alpaka::isQueue<TQueue>)
+      requires(alpaka::concepts::Queue<TQueue>)
     static void initialize(TQueue& queue, value_type& object, Properties const& prop) {
       // Replace the default-constructed empty object with one where the buffer
       // has been allocated in device global memory.

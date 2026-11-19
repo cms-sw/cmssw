@@ -31,7 +31,7 @@ namespace edm::streamer {
 
     std::string fileName() const { return filename_; }
     uint64 current_offset() const { return current_offset_; }
-    uint32 adler32() const { return (adlerb_ << 16) | adlera_; }
+    uint32 adler32() const { return adler32_; }
 
     void set_do_adler(bool v) { do_adler_ = v; }
     void set_current_offset(uint64 v) { current_offset_ = v; }
@@ -41,8 +41,7 @@ namespace edm::streamer {
     uint64 current_offset_; /** Location of current ioptr */
 
     bool do_adler_;
-    uint32 adlera_;
-    uint32 adlerb_;
+    uint32 adler32_;
     uint32 padding_;
 
     edm::propagate_const<std::shared_ptr<std::ofstream>> ost_;

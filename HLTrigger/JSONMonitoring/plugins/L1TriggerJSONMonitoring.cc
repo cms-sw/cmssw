@@ -6,6 +6,9 @@
 
 #include <atomic>
 #include <fstream>
+#include <cerrno>
+#include <climits>
+#include <cstring>
 
 #include <fmt/printf.h>
 
@@ -30,6 +33,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace jsoncollector;
 
@@ -375,8 +379,9 @@ void L1TriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlo
   Json::StyledWriter writer;
 
   // [SIC]
-  char hostname[33];
-  gethostname(hostname, 32);
+  char hostname[HOST_NAME_MAX + 1];
+  if (gethostname(hostname, sizeof(hostname)) != 0)
+    throw cms::Exception("L1TriggerJsonMonitoring") << "Internal error, cannot get host name: " << std::strerror(errno);
   std::string sourceHost(hostname);
 
   // [SIC]
@@ -419,7 +424,7 @@ void L1TriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlo
 
     jsndataFileList = jsndataFileName;
     jsndataSize = result.size();
-    jsndataAdler32 = cms::Adler32(result.c_str(), result.size());
+    jsndataAdler32 = cms::adler32(result.c_str(), result.size());
   }
 
   // create a metadata json file for the "HLT rates" pseudo-stream

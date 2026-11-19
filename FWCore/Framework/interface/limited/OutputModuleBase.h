@@ -31,8 +31,8 @@ namespace edm {
     public:
       template <typename U>
       friend class edm::maker::ModuleHolderT;
-      template <typename T>
-      friend class ::edm::WorkerT;
+      template <typename T, typename TI, typename TP>
+      friend class ::edm::ModuleTransitionWorker;
       template <typename T>
       friend class ::edm::OutputModuleCommunicatorT;
       typedef OutputModuleBase ModuleType;
@@ -47,8 +47,9 @@ namespace edm {
           std::vector<std::string> const& iDefaultOutputCommands = ProductSelectorRules::defaultSelectionStrings());
 
       //Output modules always need writeRun and writeLumi to be called
-      bool wantsGlobalRuns() const noexcept { return true; }
-      bool wantsGlobalLuminosityBlocks() const noexcept { return true; }
+      static constexpr bool wantsGlobalRuns() noexcept { return true; }
+      static constexpr bool wantsGlobalLuminosityBlocks() noexcept { return true; }
+      static constexpr bool wantsWrites() noexcept { return true; }
       virtual bool wantsProcessBlocks() const noexcept = 0;
       virtual bool wantsInputProcessBlocks() const noexcept = 0;
       virtual bool wantsStreamRuns() const noexcept = 0;
@@ -66,7 +67,7 @@ namespace edm {
       void doBeginStream(StreamID id) { doBeginStream_(id); }
       void doEndStream(StreamID id) { doEndStream_(id); }
 
-      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder,
                                                     ModuleCallingContext const&,

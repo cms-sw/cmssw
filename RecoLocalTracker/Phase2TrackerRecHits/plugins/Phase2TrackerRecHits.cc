@@ -70,6 +70,8 @@ void Phase2TrackerRecHits::produce(edm::StreamID sid, edm::Event& event, const e
 
   // Global container for the RecHits of each module
   auto outputRecHits = std::make_unique<Phase2TrackerRecHit1DCollectionNew>();
+  // each cluster gives one rechit: allocate the output once instead of growing it hit by hit
+  outputRecHits->reserve(clusters->size(), clusters->dataSize());
 
   // Loop over clusters
   for (const auto& clusterDetSet : *clusters) {
@@ -90,13 +92,10 @@ void Phase2TrackerRecHits::produce(edm::StreamID sid, edm::Event& event, const e
           edmNew::makeRefTo(clusters, &clusterRef);
 
       // Make a RecHit and add it to the DetSet
-      Phase2TrackerRecHit1D hit(lv.first, lv.second, *geomDetUnit, cluster);
-
-      rechits.push_back(hit);
+      rechits.emplace_back(lv.first, lv.second, *geomDetUnit, cluster);
     }
   }
 
-  outputRecHits->shrink_to_fit();
   event.put(std::move(outputRecHits));
 }
 

@@ -39,6 +39,7 @@ CSCOverlapsAlignmentAlgorithm = cms.PSet(
                                 MuonRecHitBuilder = cms.string("MuonRecHitBuilder"),
                                 RefitDirection = cms.string("alongMomentum"),
                                 RefitRPCHits = cms.bool(False),
+                                RefitMuonHits = cms.bool(True),
                                 Propagator = cms.string("SteppingHelixPropagatorAny")),
     
     fitters = Alignment.MuonAlignmentAlgorithms.CSCOverlapsAlignmentAlgorithm_ringfitters_cff.fitters,

@@ -61,12 +61,6 @@ namespace edm {
       case GlobalContext::Transition::kWriteProcessBlock:
         os << "WriteProcessBlock";
         break;
-      case GlobalContext::Transition::kWriteRun:
-        os << "WriteRun";
-        break;
-      case GlobalContext::Transition::kWriteLuminosityBlock:
-        os << "WriteLuminosityBlock";
-        break;
     }
     os << "\n    " << gc.luminosityBlockID() << "\n    runIndex = " << gc.runIndex().value()
        << "  luminosityBlockIndex = " << gc.luminosityBlockIndex().value()
@@ -111,12 +105,6 @@ namespace edm {
       case GlobalContext::Transition::kWriteProcessBlock:
         os << "write ProcessBlock";
         break;
-      case GlobalContext::Transition::kWriteRun:
-        os << "write Run " << RunID(gc.luminosityBlockID().run());
-        break;
-      case GlobalContext::Transition::kWriteLuminosityBlock:
-        os << "write LuminosityBlock " << gc.luminosityBlockID();
-        break;
     }
   }
 
@@ -151,10 +139,6 @@ namespace edm {
         return "endJob";
       case GlobalContext::Transition::kWriteProcessBlock:
         return "write ProcessBlock";
-      case GlobalContext::Transition::kWriteRun:
-        return "write Run";
-      case GlobalContext::Transition::kWriteLuminosityBlock:
-        return "write LuminosityBlock";
     }
     return "Unknown";
   }

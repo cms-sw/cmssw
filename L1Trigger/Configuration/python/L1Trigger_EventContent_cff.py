@@ -99,7 +99,7 @@ L1TriggerFEVTDEBUG = cms.PSet(
         'keep LumiSummary_lumiProducer_*_*')
 )
 
-L1TriggerPhase2L1ScoutMINIAODSIM = cms.PSet(
+L1TriggerPhase2L1Scout = cms.PSet(
     outputCommands = cms.untracked.vstring("drop *",
             # --- GEN
             "keep *_genParticles_*_*",
@@ -175,6 +175,14 @@ L1TriggerPhase2L1ScoutMINIAODSIM = cms.PSet(
             "keep *_l1tKMTFMuonsGmt_*_*",
             "keep *_l1tFwdMuonsGmt_*_*",
             "keep *_l1tSAMuonsGmt_*_*",
+            "keep *_l1tTkMuonsGmt_*_*",  # new: GMTTkMuons
+            # --- CL2 reconstruction
+            "keep *_l1tSC4PFL1PuppiCorrectedEmulator_*_*",  # new: CL2JetsSC4
+            "keep *_l1tSC8PFL1PuppiCorrectedEmulator_*_*",  # new: CL2JetsSC8
+            "keep *_l1tLayer2EG_*_*",  # new: CL2Electrons, CL2Photons
+            "keep *_l1tNNTauProducerPuppi_*_*",  # new: CL2Taus
+            "keep *_l1tMETPFProducer_*_*",  # new: CL2EtSum
+            "keep *_l1tSC4PFL1PuppiCorrectedEmulatorMHT_*_*",  # new: CL2HtSum
     )
 )
 

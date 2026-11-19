@@ -25,13 +25,11 @@ grep -q '"type": -9,' tracer.json || die "Check for endProcessBlock transition i
 #grep -q '"type": 8,' tracer.json || die "Check for inputProcessBlock transition in JSON" $? #no file transition for inputProcessBlock in this test
 grep -q '"type": -8,' tracer.json && die "Check for missing -8 transition in JSON" 1
 grep -q '"type": 7,' tracer.json && die "Check for missing 7 transition in JSON" 1
-grep -q '"type": -7,' tracer.json || die "Check for globalWriteRun transition in JSON" $?
 grep -q '"type": 6,' tracer.json || die "Check for globalBeginRun transition in JSON" $?
 grep -q '"type": -6,' tracer.json || die "Check for globalEndRun transition in JSON" $?
 grep -q '"type": 5,' tracer.json || die "Check for streamBeginRun transition in JSON" $?
 grep -q '"type": -5,' tracer.json || die "Check for streamEndRun transition in JSON" $?
 grep -q '"type": 4,' tracer.json && die "Check for missing 4 transition in JSON" 1
-grep -q '"type": -4,' tracer.json || die "Check for globalWriteLumi transition in JSON" $?
 grep -q '"type": 3,' tracer.json || die "Check for globalBeginLumi transition in JSON" $?
 grep -q '"type": -3,' tracer.json || die "Check for globalEndLumi transition in JSON" $?
 grep -q '"type": 2,' tracer.json || die "Check for streamBeginLumi transition in JSON" $?

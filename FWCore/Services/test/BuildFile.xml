@@ -27,10 +27,7 @@
 
 <bin file="test_catch2_*.cc" name="testFWCoreServicesCatch2">
   <use name="catch2"/>
-  <use name="clhep"/>
   <use name="cpu_features"/>
-  <use name="FWCore/Concurrency"/>
-  <use name="FWCore/Services"/>
 </bin>
 
 <test name="TestFWCoreServicesTracerFile" command="test_tracer_file.sh"/>
@@ -38,3 +35,4 @@
 <test name="TestResourceInformationService" command="test_resourceInformationService.sh"/>
 <test name="TestSignalMessages" command="test_signal.sh"/>
 <test name="TestTimingFJR" command="test_Timing.sh"/>
+<test name="TestDumpDependencyGraph" command="test_dumpDependencyGraph.sh"/>

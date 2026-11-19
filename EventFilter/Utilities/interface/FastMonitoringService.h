@@ -178,7 +178,6 @@ namespace evf {
     std::string makeInputLegendaJson();
 
     void preallocate(edm::service::SystemBounds const&);
-    void jobFailure();
     void preBeginJob(edm::ProcessContext const& pc);
 
     void preModuleBeginJob(edm::ModuleDescription const&);

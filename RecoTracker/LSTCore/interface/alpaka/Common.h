@@ -2,9 +2,14 @@
 #define RecoTracker_LSTCore_interface_alpaka_Common_h
 
 #include <numbers>
+#include <stdexcept>
+#include <string>
 
 #include "FWCore/Utilities/interface/HostDeviceConstant.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#ifndef LST_STANDALONE
+#include "FWCore/Utilities/interface/Exception.h"
+#endif
 #include "RecoTracker/LSTCore/interface/Common.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
@@ -16,6 +21,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     printf("%s\n", warning.data());
 #else
     edm::LogWarning("LST") << warning;
+#endif
+  }
+
+  [[noreturn]] ALPAKA_FN_HOST ALPAKA_FN_INLINE void lstLogicError(std::string const& message) {
+#ifdef LST_STANDALONE
+    throw std::runtime_error(message);
+#else
+    throw cms::Exception("LogicError") << message;
 #endif
   }
 
@@ -35,6 +48,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   HOST_DEVICE_CONSTANT float k2Rinv1GeVf = (kC * kB) / 2;
   HOST_DEVICE_CONSTANT float kR1GeVf = 1. / (kC * kB);
   HOST_DEVICE_CONSTANT float kSinAlphaMax = 0.95;
+  // Relative slack on a creation cut copied into a counting kernel, so that codegen differences can never make the
+  // count reject a candidate that creation accepts.
+  HOST_DEVICE_CONSTANT float kCountCutSlack = 1.001f;
   HOST_DEVICE_CONSTANT float kDeltaZLum = 15.0;
   HOST_DEVICE_CONSTANT float kPixelPSZpitch = 0.15;
   HOST_DEVICE_CONSTANT float kStripPSZpitch = 2.4;
@@ -90,9 +106,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       HOST_DEVICE_CONSTANT float kEta_norm = 2.5f;
       HOST_DEVICE_CONSTANT float kZ_max = 267.2349854f;
       HOST_DEVICE_CONSTANT float kR_max = 110.1099396f;
+      HOST_DEVICE_CONSTANT float kLogDcaMax = 1.4913617f;  // log10(1 + 30 cm)
+      constexpr unsigned int kOutputFeatures = 3;
+      // Extra DNN inputs computed from the candidate's MDs
+      struct ExtraFeatures {
+        float mdDirMeanW;    // MD direction log-likelihood, mean over the MDs
+        float mdDirMaxW;     // MD direction log-likelihood, largest
+        float nT3OutMid;     // T3s leaving the middle MD
+        float nT3OutFirst;   // T3s leaving the first MD
+        float nMDFirstMod;   // MDs in the first module
+        float dcaXY;         // dcaXY of the circle through the anchors
+        float mdDirMaxPull;  // MD direction pull, largest (not a DNN input: used by the T4 cut)
+      };
+      // keeps 0.95 of fully matched T5s per bin
       HOST_DEVICE_CONSTANT float kWp[kPtBins][kEtaBins] = {
-          {0.4493f, 0.4939f, 0.5715f, 0.6488f, 0.5709f, 0.5938f, 0.7164f, 0.7565f, 0.8103f, 0.8593f},
-          {0.4488f, 0.4448f, 0.5067f, 0.5929f, 0.4836f, 0.4112f, 0.4968f, 0.4403f, 0.5597f, 0.5067f}};
+          {0.8838f, 0.8933f, 0.9270f, 0.9192f, 0.8223f, 0.8524f, 0.9099f, 0.9383f, 0.9640f, 0.9608f},
+          {0.9761f, 0.9744f, 0.9855f, 0.9765f, 0.9327f, 0.8803f, 0.8803f, 0.8978f, 0.9049f, 0.8822f}};
     }  // namespace t5dnn
 
     namespace pt3dnn {
@@ -124,19 +153,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       HOST_DEVICE_CONSTANT float kZ_max = 267.2349854f;
       HOST_DEVICE_CONSTANT float kR_max = 110.1099396f;
       HOST_DEVICE_CONSTANT float kEta_norm = 2.5f;
-      constexpr unsigned int kEtaBins = 25;
-
-      HOST_DEVICE_CONSTANT float kWp_displaced[kPtBins][kEtaBins] = {
-          {0.6532, 0.2885,  0.3381, 0.3925, 0.3886, 0.3998, 0.5003, 0.4532, 0.3624, 0.5571, 0.4461, 0.3688, 0.4487,
-           0.4183, 0.42073, 0.4718, 0.4004, 0.3037, 0.3010, 0.2001, 0.2483, 0.2288, 0.0990, 0.0992, 0.0847},
-          {0.0245, 0.0330, 0.1931, 0.0502, 0.0179, 0.8189, 0.8216, 0.5082, 0.3526, 0.2734, 0.4204, 0.0582, 0.0184,
-           0.1018, 0.0899, 0.2338, 0.2594, 0.2093, 0.1854, 0.1399, 0.2743, 0.6624, 0.7046, 0.0640, 0.2394}};
-
-      HOST_DEVICE_CONSTANT float kWp_fake[kPtBins][kEtaBins] = {
-          {0.1999, 0.4224, 0.2946, 0.3265, 0.3264, 0.2734, 0.2478, 0.1879, 0.1520, 0.2460, 0.2781, 0.3844, 0.2920,
-           0.3993, 0.1187, 0.0933, 0.1248, 0.1158, 0.1441, 0.0827, 0.0738, 0.0402, 0.0314, 0.0208, 0.0131},
-          {0.9115, 0.9605, 0.6660, 0.7374, 0.9263, 0.1698, 0.1485, 0.3590, 0.5302, 0.6662, 0.1273, 0.5445, 0.5916,
-           0.5985, 0.7687, 0.1317, 0.2187, 0.1160, 0.4810, 0.1532, 0.3180, 0.0155, 0.0111, 0.1336, 0.1455}};
+      // keeps 0.9 of fully matched displaced T4s per bin
+      HOST_DEVICE_CONSTANT float kWp[kPtBins][kEtaBins] = {
+          {0.0554f, 0.0925f, 0.2298f, 0.3026f, 0.1253f, 0.1596f, 0.3271f, 0.1529f, 0.1166f, 0.0593f},
+          {0.0129f, 0.5345f, 0.2326f, 0.3337f, 0.1134f, 0.0325f, 0.1085f, 0.0919f, 0.3781f, 0.0417f}};
     }  // namespace t4dnn
 
   }  // namespace dnn

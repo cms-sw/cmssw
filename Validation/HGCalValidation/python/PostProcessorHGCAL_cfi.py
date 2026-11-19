@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
-from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsPSet
+from RecoTICL.Configuration.iterativeTICL_cff import ticlIterLabelsPSet
 from Validation.HGCalValidation.HGCalValidator_cff import hgcalValidator
 
 tracksterLabels = ticlIterLabelsPSet.labels.copy()

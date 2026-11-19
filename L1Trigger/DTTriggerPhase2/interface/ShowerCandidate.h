@@ -2,9 +2,10 @@
 #define L1Trigger_DTTriggerPhase2_ShowerCandidate_h
 #include <iostream>
 #include <memory>
+#include <map>
 
+#include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "L1Trigger/DTTriggerPhase2/interface/DTprimitive.h"
-#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
 class ShowerCandidate {
 public:
@@ -30,12 +31,16 @@ public:
   float getAvgPos() { return avgPos_; }
   float getAvgTime() { return avgTime_; }
   std::vector<int>& getWiresProfile() { return wires_profile_; }
+  std::vector<int>& getWiresConstituents() { return wires_constituents_; }
+  std::vector<int>& getWiresLayerConstituents() { return wires_layer_constituents_; }
+  std::vector<int>& getWiresTdcConstituents() { return wires_tdc_constituents_; }
   bool isFlagged() { return shower_flag_; }
 
   // Other methods
   void clear();
 
 private:
+  int const WIRES_PROFILE_SIZE = 96;  // Expected buffer size for this variable in firmware
   //------------------------------------------------------------------
   //---  ShowerCandidate's data
   //------------------------------------------------------------------
@@ -48,10 +53,14 @@ private:
   float avgPos_;
   float avgTime_;
   std::vector<int> wires_profile_;
+  std::vector<int> wires_constituents_;
+  std::vector<int> wires_layer_constituents_;
+  std::vector<int> wires_tdc_constituents_;
 };
 
 typedef std::vector<ShowerCandidate> ShowerCandidates;
 typedef std::shared_ptr<ShowerCandidate> ShowerCandidatePtr;
 typedef std::vector<ShowerCandidatePtr> ShowerCandidatePtrs;
-
+typedef std::map<DTSuperLayerId, ShowerCandidatePtr> ShowerCandidateMap;
+typedef std::map<DTSuperLayerId, ShowerCandidatePtrs> ShowerCandidatesMap;
 #endif

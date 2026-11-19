@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/ProcessBlock.h"
 #include "DataFormats/Alignment/interface/AlignmentToken.h"
 
-MillePedeDQMModule ::MillePedeDQMModule(const edm::ParameterSet& config)
+MillePedeDQMModule::MillePedeDQMModule(const edm::ParameterSet& config)
     : tTopoToken_(esConsumes<edm::Transition::BeginRun>()),
       gDetToken_(esConsumes<edm::Transition::BeginRun>()),
       ptpToken_(esConsumes<edm::Transition::BeginRun>()),
@@ -43,7 +43,7 @@ MillePedeDQMModule ::MillePedeDQMModule(const edm::ParameterSet& config)
 //===   INTERFACE IMPLEMENTATION                                            ===
 //=============================================================================
 
-void MillePedeDQMModule ::bookHistograms(DQMStore::IBooker& booker) {
+void MillePedeDQMModule::bookHistograms(DQMStore::IBooker& booker) {
   edm::LogInfo("MillePedeDQMModule") << "Booking histograms";
 
   booker.cd();
@@ -124,7 +124,7 @@ void MillePedeDQMModule ::bookHistograms(DQMStore::IBooker& booker) {
   booker.cd();
 }
 
-void MillePedeDQMModule ::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter&) {
+void MillePedeDQMModule::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter&) {
   bookHistograms(booker);
   if (mpReader_) {
     mpReader_->read();
@@ -170,7 +170,7 @@ void MillePedeDQMModule ::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter
 //===   PRIVATE METHOD IMPLEMENTATION                                       ===
 //=============================================================================
 
-void MillePedeDQMModule ::beginRun(const edm::Run&, const edm::EventSetup& setup) {
+void MillePedeDQMModule::beginRun(const edm::Run&, const edm::EventSetup& setup) {
   if (!setupChanged(setup))
     return;
 
@@ -214,7 +214,7 @@ void MillePedeDQMModule ::beginRun(const edm::Run&, const edm::EventSetup& setup
                                                     pixelQuality_);
 }
 
-void MillePedeDQMModule ::fillStatusHisto(MonitorElement* statusHisto) {
+void MillePedeDQMModule::fillStatusHisto(MonitorElement* statusHisto) {
   TH2F* histo_status = statusHisto->getTH2F();
   auto theResults = mpReader_->getResults();
   theResults.print();
@@ -232,7 +232,7 @@ void MillePedeDQMModule ::fillStatusHisto(MonitorElement* statusHisto) {
   histo_status->GetXaxis()->SetBinLabel(6, "above significance");
 }
 
-void MillePedeDQMModule ::fillStatusHistoHG(MonitorElement* statusHisto) {
+void MillePedeDQMModule::fillStatusHistoHG(MonitorElement* statusHisto) {
   TH2F* histo_status = statusHisto->getTH2F();
   auto& theResults = mpReader_->getResultsHG();
   histo_status->GetXaxis()->SetBinLabel(1, "#DeltaX");
@@ -252,7 +252,7 @@ void MillePedeDQMModule ::fillStatusHistoHG(MonitorElement* statusHisto) {
   }
 }
 
-void MillePedeDQMModule ::fillExpertHistos() {
+void MillePedeDQMModule::fillExpertHistos() {
   std::array<double, SIZE_INDEX> Xcut_, sigXcut_, maxMoveXcut_, maxErrorXcut_;
   std::array<double, SIZE_INDEX> tXcut_, sigtXcut_, maxMovetXcut_, maxErrortXcut_;
 
@@ -316,13 +316,13 @@ void MillePedeDQMModule ::fillExpertHistos() {
       h_zRot, tZcut_, sigtZcut_, maxMovetZcut_, maxErrortZcut_, mpReader_->getTZobs(), mpReader_->getTZobsErr());
 }
 
-void MillePedeDQMModule ::fillExpertHisto(MonitorElement* histo,
-                                          const std::array<double, SIZE_INDEX>& cut,
-                                          const std::array<double, SIZE_INDEX>& sigCut,
-                                          const std::array<double, SIZE_INDEX>& maxMoveCut,
-                                          const std::array<double, SIZE_INDEX>& maxErrorCut,
-                                          const std::array<double, SIZE_LG_STRUCTS>& obs,
-                                          const std::array<double, SIZE_LG_STRUCTS>& obsErr) {
+void MillePedeDQMModule::fillExpertHisto(MonitorElement* histo,
+                                         const std::array<double, SIZE_INDEX>& cut,
+                                         const std::array<double, SIZE_INDEX>& sigCut,
+                                         const std::array<double, SIZE_INDEX>& maxMoveCut,
+                                         const std::array<double, SIZE_INDEX>& maxErrorCut,
+                                         const std::array<double, SIZE_LG_STRUCTS>& obs,
+                                         const std::array<double, SIZE_LG_STRUCTS>& obsErr) {
   TH1F* histo_0 = histo->getTH1F();
 
   double max_ = *std::max_element(maxMoveCut.begin(), maxMoveCut.end());
@@ -359,7 +359,7 @@ void MillePedeDQMModule ::fillExpertHisto(MonitorElement* histo,
   }
 }
 
-void MillePedeDQMModule ::fillExpertHistos_HG() {
+void MillePedeDQMModule::fillExpertHistos_HG() {
   std::array<double, SIZE_INDEX> Xcut_, sigXcut_, maxMoveXcut_, maxErrorXcut_;
   std::array<double, SIZE_INDEX> tXcut_, sigtXcut_, maxMovetXcut_, maxErrortXcut_;
 
@@ -441,13 +441,13 @@ void MillePedeDQMModule ::fillExpertHistos_HG() {
                      mpReader_->getTZobsErr_HG());
 }
 
-void MillePedeDQMModule ::fillExpertHisto_HG(std::map<std::string, MonitorElement*>& histo_map,
-                                             const std::array<double, SIZE_INDEX>& cut,
-                                             const std::array<double, SIZE_INDEX>& sigCut,
-                                             const std::array<double, SIZE_INDEX>& maxMoveCut,
-                                             const std::array<double, SIZE_INDEX>& maxErrorCut,
-                                             const std::array<double, SIZE_HG_STRUCTS>& obs,
-                                             const std::array<double, SIZE_HG_STRUCTS>& obsErr) {
+void MillePedeDQMModule::fillExpertHisto_HG(std::map<std::string, MonitorElement*>& histo_map,
+                                            const std::array<double, SIZE_INDEX>& cut,
+                                            const std::array<double, SIZE_INDEX>& sigCut,
+                                            const std::array<double, SIZE_INDEX>& maxMoveCut,
+                                            const std::array<double, SIZE_INDEX>& maxErrorCut,
+                                            const std::array<double, SIZE_HG_STRUCTS>& obs,
+                                            const std::array<double, SIZE_HG_STRUCTS>& obsErr) {
   int currentStart = 0;
   int bin = 0;
   double max_ = 0;
@@ -503,7 +503,7 @@ void MillePedeDQMModule ::fillExpertHisto_HG(std::map<std::string, MonitorElemen
   }
 }
 
-bool MillePedeDQMModule ::setupChanged(const edm::EventSetup& setup) {
+bool MillePedeDQMModule::setupChanged(const edm::EventSetup& setup) {
   bool changed{false};
 
   if (watchIdealGeometryRcd_.check(setup))
@@ -516,7 +516,7 @@ bool MillePedeDQMModule ::setupChanged(const edm::EventSetup& setup) {
   return changed;
 }
 
-int MillePedeDQMModule ::getIndexFromString(const std::string& alignableId) {
+int MillePedeDQMModule::getIndexFromString(const std::string& alignableId) {
   if (alignableId == "TPBHalfBarrelXminus") {
     return 3;
   } else if (alignableId == "TPBHalfBarrelXplus") {

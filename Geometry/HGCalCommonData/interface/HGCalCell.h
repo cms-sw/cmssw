@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <utility>
 
 class HGCalCell {
 public:

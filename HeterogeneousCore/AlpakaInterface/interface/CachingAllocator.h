@@ -107,8 +107,8 @@ namespace cms::alpakatools {
     using Buffer = alpaka::Buf<Device, std::byte, alpaka::DimInt<1u>, size_t>;
 
     // The "memory device" type can either be the same as the "synchronisation device" type, or be the host CPU.
-    static_assert(alpaka::isDevice<Device>, "TDev should be an alpaka Device type.");
-    static_assert(alpaka::isQueue<Queue>, "TQueue should be an alpaka Queue type.");
+    static_assert(alpaka::concepts::Device<Device>, "TDev should be an alpaka Device type.");
+    static_assert(alpaka::concepts::Queue<Queue>, "TQueue should be an alpaka Queue type.");
     static_assert(std::is_same_v<Device, alpaka::Dev<Queue>> or std::is_same_v<Device, alpaka::DevCpu>,
                   "The \"memory device\" type can either be the same as the \"synchronisation device\" type, or be the "
                   "host CPU.");
@@ -376,11 +376,13 @@ namespace cms::alpakatools {
       for (auto iBlock = begin; iBlock != end; ++iBlock) {
         if ((reuseSameQueueAllocations_ and (*block.queue == *(iBlock->second.queue))) or
             alpaka::isComplete(*(iBlock->second.event))) {
-          // associate the cached buffer to the new queue
+          // associate the cached buffer to the new queue and update the requested size
           auto queue = std::move(*(block.queue));
+          auto requested = block.requested;
           // TODO cache (or remove) the debug information and use std::move()
           block = iBlock->second;
           block.queue = std::move(queue);
+          block.requested = requested;
 
           // if the new queue is on different device than the old event, create a new event
           if (block.device() != alpaka::getDev(*(block.event))) {

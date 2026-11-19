@@ -164,6 +164,7 @@ void HGCDigitizerBase::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& coll,
         if (thresholdFollowsMIP_)
           thrADC = siop.thrADC;
       } else {
+        HGCSiliconDetId siid(id);
         HGCalSiNoiseMap<HGCSiliconDetId>::SiCellOpCharacteristicsCore siop = scal_.getSiCellOpCharacteristicsCore(id);
         cce = siop.cce;
         noiseWidth = siop.noise;

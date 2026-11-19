@@ -17,7 +17,7 @@ for testing purposes only.
 
 #include "FWCore/Framework/interface/CacheHandle.h"
 #include "FWCore/Framework/interface/stream/EDAnalyzer.h"
-#include "FWCore/Framework/interface/maker/WorkerT.h"
+#include "FWCore/Framework/interface/maker/ModuleTransitionWorker.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
@@ -178,7 +178,7 @@ namespace edmtest {
         // just to create a data dependence
         auto const& tag = p.getParameter<edm::InputTag>("moduleLabel");
         if (not tag.label().empty()) {
-          consumes<unsigned int, edm::InLumi>(tag);
+          consumes<unsigned int, edm::InLumi, edm::Transition::BeginLuminosityBlock>(tag);
         }
       }
 

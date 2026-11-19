@@ -19,6 +19,7 @@ public:
   void setTimeCorrection(int time) { timeCorrection_ = time; };
   void setTDCTimeStamp(int tstamp) { tdcTimeStamp_ = tstamp; };
   void setOrbit(int orb) { orbit_ = orb; }
+  void setOrbitCorrection(int orbc) { orbitCorrection_ = orbc; }
   void setPayload(double hitTag, int idx) { this->payLoad_[idx] = hitTag; };
   void setChannelId(int channel) { channelId_ = channel; };
   void setLayerId(int layer) { layerId_ = layer; };
@@ -29,7 +30,9 @@ public:
   const int timeCorrection() const { return timeCorrection_; };
   const int tdcTimeStamp() const { return tdcTimeStamp_; };
   const int orbit() const { return orbit_; };
+  const int orbitCorrection() const { return orbitCorrection_; };
   const int tdcTimeStampNoOffset() const { return tdcTimeStamp_ - timeCorrection_; };
+  const int orbitNoOffset() const { return orbit_ - orbitCorrection_; };
   const double payLoad(int idx) const { return payLoad_[idx]; };
   const int channelId() const { return channelId_; };
   const int layerId() const { return layerId_; };
@@ -50,6 +53,7 @@ private:
   cmsdt::LATERAL_CASES laterality_;  // LEFT, RIGHT, NONE
 
   int timeCorrection_;
+  int orbitCorrection_;
   int tdcTimeStamp_;
   int orbit_;
   double payLoad_[cmsdt::PAYLOAD_ENTRIES];

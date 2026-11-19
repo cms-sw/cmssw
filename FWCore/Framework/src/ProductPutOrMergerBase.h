@@ -12,7 +12,6 @@
 
 namespace edm {
   class WrapperBase;
-  class MergeableRunProductMetadata;
 
   class ProductPutOrMergerBase {
   public:

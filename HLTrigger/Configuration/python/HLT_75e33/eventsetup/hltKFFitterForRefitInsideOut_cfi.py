@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 def _addProcessKFFitterForRefitInsideOut(process):
     process.hltKFFitterForRefitInsideOut = cms.ESProducer('KFTrajectoryFitterESProducer',
-                                                          RecoGeometry = cms.string('GlobalDetLayerGeometry'),
+                                                          RecoGeometry = cms.string('hltESPGlobalDetLayerGeometry'),
                                                           ComponentName = cms.string('hltKFFitterForRefitInsideOut'),
                                                           Propagator = cms.string('hltSmartPropagatorAnyRK'),
                                                           Updator = cms.string('hltESPKFUpdator'),

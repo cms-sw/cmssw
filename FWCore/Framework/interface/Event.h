@@ -49,6 +49,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include <unordered_set>
 #include <typeinfo>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 class testEventGetRefBeforePut;
@@ -378,11 +379,24 @@ namespace edm {
 
     assert(index < putProducts().size());
 
+    auto const& prodID = provRecorder_.getProductID(index);
+
+    // This is a hook that allows modifying the product based on
+    // its ProductDescription and ProductID. The function is not
+    // defined in the Framework. The user of this hook is expected
+    // to define it in the edm namespace. This hook is not currently
+    // used in CMSSW at all, but might be useful there someday.
+    // Initially, this will be used in the Code4Hep project,
+    // which is external to CMSSW.
+    if constexpr (requires { assigningProductTo(*product, std::declval<ProductDescription const&>(), prodID); }) {
+      auto const& desc = provRecorder_.getProductDescription(index);
+      assigningProductTo(*product, desc, prodID);
+    }
+
     std::unique_ptr<Wrapper<PROD>> wp(new Wrapper<PROD>(std::move(product)));
     PROD const* prod = wp->product();
 
     putProducts()[index] = std::move(wp);
-    auto const& prodID = provRecorder_.getProductID(index);
     return (OrphanHandle<PROD>(prod, prodID));
   }
 
@@ -457,10 +471,25 @@ namespace edm {
     // and do nothing if T has no such function.
     detail::do_post_insert_if_available(wp->bareProduct());
 
+    auto const& prodID = provRecorder_.getProductID(index);
+
+    // This is a hook that allows modifying the product based on
+    // its ProductDescription and ProductID. The function is not
+    // defined in the Framework. The user of this hook is expected
+    // to define it in the edm namespace. This hook is not currently
+    // used in CMSSW at all, but might be useful there someday.
+    // Initially, this will be used in the Code4Hep project,
+    // which is external to CMSSW.
+    if constexpr (requires {
+                    assigningProductTo(wp->bareProduct(), std::declval<ProductDescription const&>(), prodID);
+                  }) {
+      auto const& desc = provRecorder_.getProductDescription(index);
+      assigningProductTo(wp->bareProduct(), desc, prodID);
+    }
+
     PROD const* prod = wp->product();
 
     putProducts()[index] = std::move(wp);
-    auto const& prodID = provRecorder_.getProductID(index);
     return (OrphanHandle<PROD>(prod, prodID));
   }
 

@@ -19,6 +19,7 @@
 #include "FWCore/ServiceRegistry/interface/ESModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 
 namespace edm {
   void exceptionContext(cms::Exception&, ESModuleCallingContext const&);
@@ -40,14 +41,9 @@ void edm::eventsetup::ESSourceProductResolverBase::doPrefetchAndSignals(
     edm::ESParentContext const& iParent) {
   edm::ESModuleCallingContext context(
       providerDescription(), reinterpret_cast<std::uintptr_t>(this), ESModuleCallingContext::State::kRunning, iParent);
+  auto guard = edm::signalslot::make_sentry(
+      [&iRecord, &context]() { iRecord.activityRegistry()->postESModuleSignal_.emit(iRecord.key(), context); });
   iRecord.activityRegistry()->preESModuleSignal_.emit(iRecord.key(), context);
-  struct EndGuard {
-    EndGuard(EventSetupRecordImpl const& iRecord, ESModuleCallingContext const& iContext)
-        : record_{iRecord}, context_{iContext} {}
-    ~EndGuard() { record_.activityRegistry()->postESModuleSignal_.emit(record_.key(), context_); }
-    EventSetupRecordImpl const& record_;
-    ESModuleCallingContext const& context_;
-  } guardAR(iRecord, context);
   try {
     convertException::wrap([&] { prefetch(iKey, EventSetupRecordDetails(&iRecord)); });
   } catch (cms::Exception& iException) {
@@ -56,6 +52,7 @@ void edm::eventsetup::ESSourceProductResolverBase::doPrefetchAndSignals(
     exceptionContext(iException, context);
     throw;
   }
+  guard.succeeded();
 }
 
 //

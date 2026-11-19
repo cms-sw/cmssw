@@ -5,7 +5,7 @@ hltInitialStepTrackCandidates = cms.EDProducer('MkFitOutputConverter',
     candMVASel = cms.bool(False),
     candCutSel = cms.bool(True),
     candMinNHitsCut = cms.int32(4),
-    candMinPtCut = cms.double(0.9),
+    candMinPtCut = cms.double(0.85),
     candMinPtRelaxedCut = cms.double(0.8),
     candMinAbsEtaForRelaxedCut = cms.double(1.4),
     candWP = cms.double(0),
@@ -26,7 +26,7 @@ hltInitialStepTrackCandidates = cms.EDProducer('MkFitOutputConverter',
     seeds = cms.InputTag("hltInitialStepTrajectorySeedsLST"),
     tfDnnLabel = cms.string('trackSelectionTf'),
     tracks = cms.InputTag("hltInitialStepTrackCandidatesMkFit"),
-    ttrhBuilder = cms.ESInputTag("","WithTrackAngle")
+    ttrhBuilder = cms.ESInputTag("","hltESPTTRHBuilderWithTrackAngle")
 )
 
 
@@ -37,11 +37,11 @@ _hltInitialStepTrackCandidatesLegacy = cms.EDProducer("CkfTrackCandidateMaker",
     TrajectoryBuilderPSet = cms.PSet(
         refToPSet_ = cms.string('initialStepTrajectoryBuilder')
     ),
-    TrajectoryCleaner = cms.string('TrajectoryCleanerBySharedHits'),
+    TrajectoryCleaner = cms.string('hltESPInitialStepTrajectoryCleanerBySharedHits'),
     TransientInitialStateEstimatorParameters = cms.PSet(
         numberMeasurementsForFit = cms.int32(4),
         propagatorAlongTISE = cms.string('PropagatorWithMaterialParabolicMf'),
-        propagatorOppositeTISE = cms.string('PropagatorWithMaterialParabolicMfOpposite')
+        propagatorOppositeTISE = cms.string('hltOppositeMaterialPropagatorParabolicMF')
     ),
     cleanTrajectoryAfterInOut = cms.bool(True),
     doSeedingRegionRebuilding = cms.bool(True),
@@ -61,7 +61,6 @@ hltPhase2LegacyTracking.toReplaceWith(hltInitialStepTrackCandidates, _hltInitial
 _hltInitialStepTrackCandidatesLST = cms.EDProducer('LSTOutputConverter',
     lstOutput = cms.InputTag('hltLST'),
     lstInput = cms.InputTag('hltInputLST'),
-    lstPixelSeeds = cms.InputTag('hltInputLST'),
     includeT5s = cms.bool(True),
     includeNonpLSTSs = cms.bool(False),
     dropOTHitsPurePLS = cms.bool(True),
@@ -77,7 +76,7 @@ _hltInitialStepTrackCandidatesLST = cms.EDProducer('LSTOutputConverter',
         OriginTransverseErrorMultiplier = cms.double(1),
         MinOneOverPtError = cms.double(1),
         magneticField = cms.string(''),
-        TTRHBuilder = cms.string('WithTrackAngle'),
+        TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
         forceKinematicWithRegionDirection = cms.bool(False)
     )
 )

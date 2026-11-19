@@ -7,7 +7,7 @@ hltPhase2L3MuonHighPtTripletStepSeeds = cms.EDProducer("SeedCreatorFromRegionCon
         ComponentName = cms.string('none')
     ),
     SeedMomentumForBOFF = cms.double(5),
-    TTRHBuilder = cms.string('WithTrackAngle'),
+    TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
     forceKinematicWithRegionDirection = cms.bool(False),
     magneticField = cms.string(''),
     propagator = cms.string('PropagatorWithMaterial'),

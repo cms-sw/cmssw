@@ -423,7 +423,7 @@ namespace evf {
     stat(openIniFileName.c_str(), &istat);
     //read back file to check integrity of what was written
     off_t readInput = 0;
-    uint32_t adlera = 1, adlerb = 0;
+    uint32_t adler32c = cms::adler32_init;
     std::ifstream src(openIniFileName, std::ifstream::binary);
     if (!src)
       throw cms::Exception("GlobalEvFOutputModule")
@@ -434,8 +434,7 @@ namespace evf {
     while (readInput < istat.st_size) {
       size_t toRead = readInput + 1024 * 1024 < istat.st_size ? 1024 * 1024 : istat.st_size - readInput;
       src.read(outBuf.get(), toRead);
-      //cms::Adler32(const_cast<const char*>(reinterpret_cast<char*>(outBuf.get())), toRead, adlera, adlerb);
-      cms::Adler32(const_cast<const char*>(outBuf.get()), toRead, adlera, adlerb);
+      adler32c = cms::adler32(outBuf.get(), toRead, adler32c);
       readInput += toRead;
     }
     src.close();
@@ -443,7 +442,6 @@ namespace evf {
     //free output buffer needed only for the file write
     outBuf.reset();
 
-    uint32_t adler32c = (adlerb << 16) | adlera;
     if (adler32c != preamble_adler32) {
       throw cms::Exception("GlobalEvFOutputModule") << "Checksum mismatch of ini file -: " << openIniFileName
                                                     << " expected:" << preamble_adler32 << " obtained:" << adler32c;

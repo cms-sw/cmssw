@@ -286,11 +286,11 @@ LongDeps EGammaPCAHelper::energyPerLayer(float radius, bool withHalo) {
       continue;
     energyPerLayer[spot.layer()] += spot.energy();
     layers.insert(spot.layer());
-    if (spot.detId().det() == DetId::HGCalEE or spot.subdet() == HGCEE) {
+    if (spot.detId().det() == DetId::HGCalEE) {
       energyEE += spot.energy();
-    } else if (spot.detId().det() == DetId::HGCalHSi or spot.subdet() == HGCHEF) {
+    } else if (spot.detId().det() == DetId::HGCalHSi) {
       energyFH += spot.energy();
-    } else if (spot.detId().det() == DetId::HGCalHSc or spot.subdet() == HGCHEB) {
+    } else if (spot.detId().det() == DetId::HGCalHSc) {
       energyBH += spot.energy();
     }
   }

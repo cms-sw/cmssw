@@ -1,0 +1,2 @@
+<test name="customiseTruthBranchRequireHits_t" command="python3 ${LOCALTOP}/src/Validation/TruthInfo/test/customiseTruthBranchRequireHits_t.py"/>
+<test name="testTruthBranchRequireHits" command="cmsRun ${LOCALTOP}/src/Validation/TruthInfo/test/requireHits_cfg.py"/>

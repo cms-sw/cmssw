@@ -10,6 +10,17 @@ L1EGPuppiIsoAlgo::L1EGPuppiIsoAlgo(const edm::ParameterSet& pSet)
               pSet.getParameter<double>("dRMax"),
               pSet.getParameter<bool>("pfCandReuse")) {}
 
+edm::ParameterSetDescription L1EGPuppiIsoAlgo::getParameterSetDescription() {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("pfIsoType");
+  desc.add<double>("pfPtMin");
+  desc.add<double>("dZ");
+  desc.add<double>("dRMin");
+  desc.add<double>("dRMax");
+  desc.add<bool>("pfCandReuse");
+  return desc;
+}
+
 void L1EGPuppiIsoAlgo::run(const EGIsoObjsEmu& l1EGs,
                            const PuppiObjs& l1PFCands,
                            EGIsoObjsEmu& outL1EGs,

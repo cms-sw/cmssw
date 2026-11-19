@@ -40,8 +40,8 @@ namespace reco {
       const TransientTrackBuilder* builder_;
     };
 
-    RecoTauImpactParameterSignificancePlugin ::RecoTauImpactParameterSignificancePlugin(const edm::ParameterSet& pset,
-                                                                                        edm::ConsumesCollector&& iC)
+    RecoTauImpactParameterSignificancePlugin::RecoTauImpactParameterSignificancePlugin(const edm::ParameterSet& pset,
+                                                                                       edm::ConsumesCollector&& iC)
         : RecoTauModifierPlugin(pset, std::move(iC)),
           transTrackBuilderToken_(iC.esConsumes(edm::ESInputTag{"", "TransientTrackBuilder"})),
           vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"), std::move(iC)) {}

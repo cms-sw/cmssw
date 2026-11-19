@@ -29,7 +29,7 @@ HepMC::IO_HEPEVT pyquen_hepevtio;
 const std::vector<std::string> PyquenHadronizer::theSharedResources = {edm::SharedResourceNames::kPythia6,
                                                                        gen::FortranInstance::kFortranInstance};
 
-PyquenHadronizer ::PyquenHadronizer(const ParameterSet& pset, edm::ConsumesCollector&& iC)
+PyquenHadronizer::PyquenHadronizer(const ParameterSet& pset, edm::ConsumesCollector&& iC)
     : BaseHadronizer(pset),
       pset_(pset),
       abeamtarget_(pset.getParameter<double>("aBeamTarget")),

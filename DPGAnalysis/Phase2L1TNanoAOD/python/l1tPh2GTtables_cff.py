@@ -72,9 +72,8 @@ gtTkPhoTable =cms.EDProducer(
         hwQual = Var("hwQualityFlags_toInt()",int),
         hwIso = Var("hwIsolationPT_toInt()",int),
         ## more physical values
-        ## using the GT scales for HW to physicsal vonversion, see scales in https://github.com/cms-sw/cmssw/blob/master/L1Trigger/Phase2L1GT/python/l1tGTScales.py
-        iso = Var(f"hwIsolationPT_toInt()*{scale_parameter.isolationPT_lsb.value()}",float, doc = "absolute isolation"),
-        relIso = Var(f"hwIsolationPT_toInt()*{scale_parameter.isolationPT_lsb.value()} / pt",float, doc = "relative isolation")
+        iso = Var("isolationPT()",float, doc = "absolute isolation"),
+        relIso = Var("isolationPT()/pt",float, doc = "relative isolation")
     )
 )
 
@@ -104,6 +103,7 @@ gtTkMuTable = gtTkEleTable.clone(
         hwD0 = Var("hwD0_toInt()",int),
         hwZ0 = Var("hwZ0_toInt()",int),
         # hwBeta = Var("hwBeta_toInt()",int)
+        ## isolation is added after the standalone-muon clones below, see there
     )
 )
 
@@ -118,6 +118,20 @@ gtSaDispMuTable = gtTkMuTable.clone(
     name = cms.string("L1GTgmtDispMuon"),
     doc = cms.string("GT GMT standalone displaced Muon"),
 )
+
+## Isolation, for the tkMuons only -- and therefore defined here, AFTER the two
+## standalone-muon tables have been cloned off gtTkMuTable: L1GTProducer fills an
+## isolation only in produceGMTTkMuons, so on a GMTSaPromptMuons/GMTSaDisplacedMuons
+## candidate these accessors would throw on an unset Optional.
+## Filled from TrackerMuon::apIso(), i.e. the 6-bit GMT isolation sum
+## (LSB 0.25 GeV, saturates at 15.75 GeV); matches L1gmtTkMuon.hwIso / .iso.
+## NOTE: TRACK-BASED isolation only -- the sum of L1 tracker track pT in a cone around
+## the muon (L1Trigger/Phase2L1GMT/interface/Isolation.h), with no calorimeter or
+## PF/Puppi contribution, unlike the tkElectron/tkPhoton isolation above, which comes
+## from the Correlator Layer-2 objects.
+gtTkMuTable.variables.hwIso = Var("hwIsolationPT_toInt()",int,doc="HW isolation sum received from GMT: 6 bits, LSB 0.25 GeV")
+gtTkMuTable.variables.iso = Var("isolationPT()",float, doc = "absolute isolation [GeV]")
+gtTkMuTable.variables.relIso = Var("isolationPT()/pt",float, doc = "relative isolation")
 
 # ## GT seededCone puppi Jets
 # gtSCJetsTable = cms.EDProducer(
@@ -198,7 +212,7 @@ gtHtSumTable = cms.EDProducer(
         # l1GTObjVars,
         mht = Var("pt", float, doc="MHT pt"),
         mhtPhi = Var("phi", float, doc="MHT phi"),
-        ht = Var(f"hwScalarSumPT_toInt()*{scale_parameter.scalarSumPT_lsb.value()}", float, doc="HT"), ## HACK via hw value!
+        ht = Var("scalarSumPT()", float, doc="HT"),
     )
 )
 

@@ -76,12 +76,11 @@ namespace edm {
       : RootTree(
             filePtr, branchType, nIndexes, learningEntries, options.enablePrefetching, options.promptReading, inputType) {
     init(BranchTypeToProductTreeName(branchType), options.treeMaxVirtualSize, options.treeCacheSize);
-    metaTree_ = dynamic_cast<TTree*>(filePtr_->Get(BranchTypeToMetaDataTreeName(branchType).c_str()));
+    metaTree_ = filePtr_->Get<TTree>(BranchTypeToMetaDataTreeName(branchType).c_str());
     auxBranch_ = getAuxiliaryBranch(tree_, branchType_);
     branchEntryInfoBranch_ =
         metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : getProductProvenanceBranch(tree_, branchType_);
-    infoTree_ =
-        dynamic_cast<TTree*>(filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()));  // backward compatibility
+    infoTree_ = filePtr->Get<TTree>(BranchTypeToInfoTreeName(branchType).c_str());  // backward compatibility
   }
 
   // Used for ProcessBlock RootTrees
@@ -100,7 +99,7 @@ namespace edm {
 
   void RootTree::init(std::string const& productTreeName, unsigned int maxVirtualSize, unsigned int cacheSize) {
     if (filePtr_.get() != nullptr) {
-      tree_ = dynamic_cast<TTree*>(filePtr_->Get(productTreeName.c_str()));
+      tree_ = filePtr_->Get<TTree>(productTreeName.c_str());
     }
     if (not tree_) {
       throw cms::Exception("WrongFileFormat")

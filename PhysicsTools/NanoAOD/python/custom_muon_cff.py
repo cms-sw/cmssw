@@ -262,6 +262,10 @@ def AddVariablesForMuon(proc):
     proc.muonTable.variables.jetPtRatio = Var("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1.0/(1.0+(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt)", float, doc="ptRatio using the LepAware JEC approach, for muon MVA", lazyEval=True)
     proc.muonTable.variables.jetDF = Var("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probbb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:problepb'),0.0):0.0",float,doc="b-tagging discriminator of the jet matched to the lepton, for muon MVA", lazyEval=True)
     proc.muonTable.variables.jetCSVv2 = Var("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfCombinedSecondaryVertexV2BJetTags'),0.0):0.0",float,doc="CSVv2 b-tagging discriminator of the jet matched to the lepton, for muon MVA", lazyEval=True)
+    proc.muonTable.variables.jetPNetB = Var("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags:BvsAll'),-1.0):-1.0",float,doc="ParticleNet b vs. udscg discriminator of the jet matched to the lepton, for muon MVA", lazyEval=True)
+    proc.muonTable.variables.jetUParTB = Var("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll'),-1.0):-1.0",float,doc="UParT b vs. udscg discriminator of the jet matched to the lepton, for muon MVA", lazyEval=True)
+
+
 
     #nSegments
     proc.muonTable.variables.nsegments = Var("userInt('nsegments')", int, doc = "nsegments as of Spark-tool")
@@ -352,6 +356,9 @@ def AddTriggerObjectBits(process):
                 mksel("filter('hltL3fL1sMuHP7L3Filtered0')","hltL3fL1sMuHP7L3Filtered0"), #16 - HLT_Mu0_Barrel_L1HP7_v
                 mksel("filter('hltL3fL1sMu0HP6IP6L3Filtered0')","hltL3fL1sMu0HP6IP6L3Filtered0"), #17 - HLT_Mu0_Barrel_L1HP6_IP6_v
                 mksel("filter('hltL3fL1sMu6HP7IP6L3Filtered0')","hltL3fL1sMu6HP7IP6L3Filtered0"), #18 - HLT_Mu6_Barrel_L1HP7_IP6_v
+                mksel("filter('hltL3fL1sMu7DQL1f0L2f5L3Filtered9')","hltL3fL1sMu7DQL1f0L2f5L3Filtered9"), # 19 - HLT_Mu9_v (2026 low-PU)
+                mksel("filter('hltL3fL1sDoubleMu0SQL1f0L2PreFilteres0L3Filtered0')","hltL3fL1sDoubleMu0SQL1f0L2PreFilteres0L3Filtered0"), # 20 - HLT_Mu0_L1DoubleMu_v
+                mksel("filter('hltDisplacedmumuFilterDoubleMu43LowMass')","hltDisplacedmumuFilterDoubleMu43LowMass"), # 21 - HLT_DoubleMu4_3_LowMass_v
             )
         )
 

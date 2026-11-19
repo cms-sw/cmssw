@@ -220,7 +220,11 @@ jetPuppiTask = cms.Task(jetPuppiCorrFactorsNano,updatedJetsPuppi,jetPuppiUserDat
 jetPuppiTablesTask = cms.Task(jetPuppiTable)
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
+from Configuration.Eras.Modifier_stage2L1Trigger_2024_cff import stage2L1Trigger_2024
 from PhysicsTools.NanoAOD.common_cff import Var, ExtVar
+
+# The 2025/2026 eras inherit the 2024 L1 modifier, but are not validated here.
+_fastSimRun2024 = fastSim & stage2L1Trigger_2024 & ~run3_nanoAOD_2025
 
 def nanoAOD_refineFastSim_puppiJet(process):
 
@@ -279,6 +283,15 @@ def nanoAOD_refineFastSim_puppiJet(process):
             "btagUParTAK4Brefined","btagUParTAK4CvBrefined","btagUParTAK4CvLrefined","btagUParTAK4QvGrefined",),
         outputFormulas   = cms.vstring("at(0)","at(1)","at(2)","at(3)","at(4)","at(5)","at(6)","at(7)","at(8)"),
     )
+    _fastSimRun2024.toModify(
+        process.puppiJetRefineNN,
+        weightFile = cms.FileInPath("PhysicsTools/NanoAOD/data/fastSimPuppiJetRefineNN_Run2024_UnitaryShapeBest150_20260918.onnx"),
+    )
+    for variable in process.puppiJetRefineNN.variables[:2]:
+        coordinate = "pt" if variable.name.value() == "GenJet_pt" else "eta"
+        _fastSimRun2024.toModify(variable, expr=cms.string(
+            "?genJetFwdRef().backRef().isNonnull() && genJetFwdRef().backRef().isAvailable()?"
+            "genJetFwdRef().backRef()." + coordinate + "():" + coordinate))
     fastSim.toModify(process.jetPuppiTablesTask, process.jetPuppiTablesTask.add(process.puppiJetRefineNN))
 
     # Ensure src is what we expect (redundant but explicit)
@@ -302,8 +315,7 @@ def nanoAOD_refineFastSim_puppiJet(process):
     )
     fastSim.toModify(process.jetPuppiTablesTask, process.jetPuppiTablesTask.add(process.finalJetsPuppiWithRefined))
 
-    # 3. Apply mask for all refined quantities in Nano (pt + taggers)
-    # Note: we keep all the masking logic here in python.
+    # 3. Legacy-era table mask; the shared 2024 decision is configured below.
     _mask = "bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll')>0"
 
     fastSim.toModify(process.jetPuppiTable.variables,
@@ -318,8 +330,7 @@ def nanoAOD_refineFastSim_puppiJet(process):
         btagUParTAK4QvG = Var("?" + _mask + "?userFloat('btagUParTAK4QvGrefined'):max(bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:QvsG'),-1)", float, precision=12),
     )
 
-    # 4. Build pt_final as a userFloat on jets (mask applied), also do type 1 met correction
-    #    Note for future refinement: The mask definition above is also coded into the producer
+    # 4. Build final pT and MET; for 2024, also select all taggers in this producer.
     process.processRefinedJets = cms.EDProducer(
         "ProcessRefinedJets",  # or "FastSimPuppiRefinedJetProducer" if that is your C++ class name
         jets            = cms.InputTag("finalJetsPuppiWithRefined"),
@@ -329,6 +340,19 @@ def nanoAOD_refineFastSim_puppiJet(process):
         ptUnrefinedName = cms.string("pt_unrefined"),
         met             = cms.InputTag("slimmedMETsPuppi"), # MET collection where type-1 refinement corrections 
     )
+    _fastSimRun2024.toModify(process.processRefinedJets, minGenJetPt=cms.double(10.))
+    _fastSimRun2024.toModify(process.jetPuppiTable.variables.pt, expr=cms.string("userFloat('pt_final')"))
+    def _configureRun2024Taggers(producer):
+        features = (
+            "btagDeepFlavB", "btagDeepFlavCvB", "btagDeepFlavCvL", "btagDeepFlavQG",
+            "btagUParTAK4B", "btagUParTAK4CvB", "btagUParTAK4CvL", "btagUParTAK4QvG",
+        )
+        producer.taggerNames = cms.vstring(features)
+        producer.rawTaggerExpressions = cms.vstring([
+            getattr(process.jetPuppiTable.variables, feature + "_unrefined").expr.value() for feature in features])
+        for feature in features:
+            getattr(process.jetPuppiTable.variables, feature).expr = cms.string("userFloat('fastSimFinal_" + feature + "')")
+    _fastSimRun2024.toModify(process.processRefinedJets, _configureRun2024Taggers)
     fastSim.toModify(
         process.jetPuppiTablesTask,
         process.jetPuppiTablesTask.add(process.processRefinedJets)

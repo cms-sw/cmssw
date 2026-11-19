@@ -9,6 +9,8 @@
 #include <stdexcept>
 #include <vector>
 
+#include <omp.h>
+
 #include "PhysicsTools/XGBoost/interface/XGBooster.h"
 
 using namespace pat;
@@ -48,9 +50,14 @@ XGBooster::XGBooster(std::string model_file) {
   int status = XGBoosterCreate(nullptr, 0, &booster_);
   if (status != 0)
     throw std::runtime_error("Failed to create XGBooster");
+  // do not spawn OpenMP threads to load the model (e.g. from a JSON file)
+  int max_threads = omp_get_max_threads();
+  omp_set_num_threads(1);
   status = XGBoosterLoadModel(booster_, model_file.c_str());
+  omp_set_num_threads(max_threads);
   if (status != 0)
     throw std::runtime_error("Failed to load XGBoost model");
+  // do not spawn OpenMP threads to run the model
   XGBoosterSetParam(booster_, "nthread", "1");
 }
 

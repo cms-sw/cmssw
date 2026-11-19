@@ -1,10 +1,6 @@
 #ifndef RecoTracker_LSTCore_interface_LSTInputSoA_h
 #define RecoTracker_LSTCore_interface_LSTInputSoA_h
 
-#ifndef LST_STANDALONE
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#endif
-
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "DataFormats/SoATemplate/interface/SoABlocks.h"
 #include "DataFormats/Portable/interface/PortableCollection.h"
@@ -17,12 +13,8 @@ namespace lst {
                       SOA_COLUMN(float, xs),
                       SOA_COLUMN(float, ys),
                       SOA_COLUMN(float, zs),
-                      SOA_COLUMN(unsigned int, idxs),
                       SOA_COLUMN(unsigned int, detid),
                       SOA_COLUMN(uint16_t, clustsize),
-#ifndef LST_STANDALONE
-                      SOA_COLUMN(TrackingRecHit const*, hits),
-#endif
                       SOA_SCALAR(unsigned int, nHitsOT))
 
   GENERATE_SOA_LAYOUT(PixelSeedsSoALayout,
@@ -44,32 +36,33 @@ namespace lst {
                       SOA_COLUMN(float, eta),
                       SOA_COLUMN(float, phi))
 
-  GENERATE_SOA_BLOCKS(LSTInputSoALayout, SOA_BLOCK(hits, HitsBaseSoALayout), SOA_BLOCK(pixelSeeds, PixelSeedsSoALayout))
+  // Original index of each hit of the pLS section (hits nHitsOT and up); an OT hit's original index is its own index.
+  GENERATE_SOA_LAYOUT(HitsITSoALayout, SOA_COLUMN(unsigned int, idxs))
+
+  GENERATE_SOA_BLOCKS(LSTInputSoALayout,
+                      SOA_BLOCK(hits, HitsBaseSoALayout),
+                      SOA_BLOCK(pixelSeeds, PixelSeedsSoALayout),
+                      SOA_BLOCK(hitsIT, HitsITSoALayout))
 
   using HitsBaseSoA = HitsBaseSoALayout<>;
   using PixelSeedsSoA = PixelSeedsSoALayout<>;
+  using HitsITSoA = HitsITSoALayout<>;
   using LSTInputSoA = LSTInputSoALayout<>;
 
   using HitsBase = HitsBaseSoA::View;
   using HitsBaseConst = HitsBaseSoA::ConstView;
   using PixelSeeds = PixelSeedsSoA::View;
   using PixelSeedsConst = PixelSeedsSoA::ConstView;
+  using HitsIT = HitsITSoA::View;
+  using HitsITConst = HitsITSoA::ConstView;
   using LSTInputView = LSTInputSoA::View;
   using LSTInputConstView = LSTInputSoA::ConstView;
 
-  // Template based accessor for getting specific SoA views. Needed in LSTEvent.dev.cc
-  template <typename TSoA>
-  struct LSTInputViewAccessor;
-
-  template <>
-  struct LSTInputViewAccessor<HitsBaseSoA> {
-    static constexpr auto get(auto const& v) { return v.hits(); }
-  };
-
-  template <>
-  struct LSTInputViewAccessor<PixelSeedsSoA> {
-    static constexpr auto get(auto const& v) { return v.pixelSeeds(); }
-  };
+  // Original (input collection) index of LST hit ih.
+  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE unsigned int hitOrigIdx(HitsBaseConst hits, HitsITConst hitsIT, unsigned int ih) {
+    unsigned int const nHitsOT = hits.nHitsOT();
+    return ih < nHitsOT ? ih : hitsIT.idxs()[ih - nHitsOT];
+  }
 
 }  // namespace lst
 

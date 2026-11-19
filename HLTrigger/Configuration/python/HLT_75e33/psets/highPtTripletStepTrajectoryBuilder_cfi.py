@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 highPtTripletStepTrajectoryBuilder = cms.PSet(
     ComponentType = cms.string('GroupedCkfTrajectoryBuilder'),
-    TTRHBuilder = cms.string('WithTrackAngle'),
+    TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
     alwaysUseInvalidHits = cms.bool(False),
     bestHitOnly = cms.bool(True),
-    estimator = cms.string('highPtTripletStepChi2Est'),
+    estimator = cms.string('hltHighPtTripletStepChi2Est'),
     foundHitBonus = cms.double(10.0),
     inOutTrajectoryFilter = cms.PSet(
         refToPSet_ = cms.string('highPtTripletStepTrajectoryFilterInOut')
@@ -19,12 +19,12 @@ highPtTripletStepTrajectoryBuilder = cms.PSet(
     maxPtForLooperReconstruction = cms.double(0.7),
     minNrOfHitsForRebuild = cms.int32(5),
     propagatorAlong = cms.string('PropagatorWithMaterialParabolicMf'),
-    propagatorOpposite = cms.string('PropagatorWithMaterialParabolicMfOpposite'),
+    propagatorOpposite = cms.string('hltOppositeMaterialPropagatorParabolicMF'),
     requireSeedHitsInRebuild = cms.bool(True),
     seedAs5DHit = cms.bool(False),
     trajectoryFilter = cms.PSet(
         refToPSet_ = cms.string('highPtTripletStepTrajectoryFilter')
     ),
-    updator = cms.string('KFUpdator'),
+    updator = cms.string('hltESPKFUpdator'),
     useSameTrajFilter = cms.bool(False)
 )

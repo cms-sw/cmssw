@@ -60,13 +60,13 @@ def getFileNames(run, lumi):
     cmd = ["dasgoclient", "-query", query, "-json"]
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     files = []
-    err = proc.stderr.read()
-    if err:
+    dasout, err = proc.communicate()
+    # stderr may hold ASAN noise, trust the exit code
+    if proc.returncode:
         print(f"DAS error: {err}")
-        print(proc.stdout.read())
+        print(dasout)
         sys.exit(1)
     else:
-        dasout = proc.stdout.read()
         try:
             for row in json.loads(dasout):
                 for rec in row.get("file", []):

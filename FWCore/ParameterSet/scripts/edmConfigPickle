@@ -1,0 +1,166 @@
+#! /usr/bin/env python3
+"""Pickle a python configuration, optionally compressed with zlib or zstd (use -0 to leave it uncompressed).
+
+By default the pickle is compressed with zstd (level 6) and encoded with base64 into a self-contained python
+configuration, that cmsRun can run like the original one, but that loads much faster than a fully expanded
+configuration (e.g. the output of edmConfigDump).
+"""
+
+# standard packages
+import argparse
+import base64
+import contextlib
+import os
+import pickle
+import re
+import sys
+import zlib
+if sys.version_info >= (3, 14):
+    from compression import zstd
+else:
+    from backports import zstd
+
+# do not leave compiled bytecode next to the configuration
+sys.dont_write_bytecode = True
+
+# CMSSW packages
+from FWCore.ParameterSet.processFromFile import processFromFile
+
+LEVELS = {"zlib": (1, 9), "zstd": (1, 19)}
+DEFAULT_LEVEL = 6
+
+# python code to import the decompression module, and to decompress "data", for each codec (None: uncompressed)
+IMPORTS = {
+    None: "",
+    "zlib": """import zlib
+""",
+    "zstd": """import sys
+if sys.version_info >= (3, 14):
+    from compression import zstd
+else:
+    from backports import zstd
+""",
+}
+
+DECOMPRESS = {
+    None: "",
+    "zlib": """data = zlib.decompress(data)
+""",
+    "zstd": """data = zstd.decompress(data)
+""",
+}
+
+WRAPPER = '''# {description}
+# The pickled configuration can only be read with the same version of CMSSW ({release}).
+import base64
+import pickle
+{imports}
+data = base64.b64decode("""
+{data}
+""")
+{decompress}process = pickle.loads(data)
+'''
+
+
+def extract_levels(argv):
+    """Remove the "-#" compression level options from the command line options before the configuration file name,
+    and return the remaining arguments and the last level found (or DEFAULT_LEVEL)."""
+    args = []
+    level = DEFAULT_LEVEL
+    i = 0
+    while i < len(argv):
+        arg = argv[i]
+        if arg in ("-o", "--output"):
+            # the next argument is the output file name, even if it looks like an option (e.g. "-")
+            args += argv[i:i + 2]
+            i += 2
+            continue
+        if re.fullmatch(r"-[0-9]+", arg):
+            level = int(arg[1:])
+        elif arg.startswith("-") and arg != "-":
+            args.append(arg)
+        else:
+            # the configuration file name: everything after it is passed to the configuration
+            args += argv[i:]
+            break
+        i += 1
+    return args, level
+
+
+argv, level = extract_levels(sys.argv[1:])
+
+parser = argparse.ArgumentParser(
+    description="Pickle a python configuration. By default the pickle is compressed with zstd (level 6) and encoded "
+    "with base64 into a self-contained python configuration, written to standard output.",
+    usage="%(prog)s [-#] [-z | -s] [-b | -p] [-o FILE] config.py [args ...]",
+    epilog="The arguments after config.py are passed to the configuration while it is loaded, as with \"cmsRun "
+    "config.py args\" or \"edmConfigDump config.py args\": their effect is stored in the pickled configuration, and "
+    "they are only recorded in a comment at the beginning of the output. Any arguments given to cmsRun when running "
+    "the pickled configuration are ignored: to change them, run %(prog)s again with the new arguments.")
+parser.add_argument("-#", dest="level_help", metavar="", action="store_const", const=None,
+                    help="compression level, between 1 and 9 for zlib and between 1 and 19 for zstd, or 0 to leave the "
+                    "pickle uncompressed (default: %d)" %
+                    DEFAULT_LEVEL)
+codec = parser.add_mutually_exclusive_group()
+codec.add_argument("-z", "--zlib", dest="codec", action="store_const", const="zlib",
+                   help="compress with zlib")
+codec.add_argument("-s", "--zstd", dest="codec", action="store_const", const="zstd",
+                   help="compress with zstd (default)")
+encoding = parser.add_mutually_exclusive_group()
+encoding.add_argument("-b", "--base64", dest="base64", action="store_true", default=True,
+                      help="encode with base64 and write a self-contained python configuration (default)")
+encoding.add_argument("-p", "--pickle", dest="base64", action="store_false",
+                      help="write the (compressed) pickle as a binary file, without base64 encoding")
+parser.add_argument("-o", "--output", type=str, default=None, metavar="FILE",
+                    help="write the output to FILE instead of standard output; use \"-o -\" to force writing a binary "
+                    "pickle to standard output")
+parser.add_argument("filename", metavar="config.py",
+                    help="python configuration file")
+parser.add_argument("configArgs", nargs=argparse.REMAINDER, metavar="args",
+                    help="arguments passed to the python configuration file while it is loaded (see below)")
+options = parser.parse_args(argv)
+
+options.codec = options.codec or "zstd"
+
+low, high = LEVELS[options.codec]
+if level == 0:
+    # -0: leave the pickle uncompressed, whatever the codec
+    options.codec = None
+elif not low <= level <= high:
+    parser.error(f"the compression level for {options.codec} must be between {low} and {high} (or 0 for no "
+                 f"compression), not {level}")
+
+if not options.base64 and options.output is None:
+    parser.error("refusing to write a binary pickle to standard output: use -b to write a base64-encoded python "
+                 "configuration, -o FILE to write to a file, or \"-o -\" to force writing to standard output")
+
+# anything printed by the configuration goes to stderr, so that it does not end up in the output
+with contextlib.redirect_stdout(sys.stderr):
+    process = processFromFile(options.filename, options.configArgs)
+
+data = pickle.dumps(process, protocol=pickle.HIGHEST_PROTOCOL)
+if options.codec == "zlib":
+    data = zlib.compress(data, level)
+elif options.codec == "zstd":
+    data = zstd.compress(data, level=level)
+
+if options.base64:
+    text = base64.b64encode(data).decode("ascii")
+    command = " ".join([os.path.basename(options.filename)] + options.configArgs)
+    compression = f"compressed with {options.codec} level {level}" if options.codec else "uncompressed"
+    output = WRAPPER.format(
+        description=f"Configuration {command}, pickled and {compression}.",
+        release=os.environ.get("CMSSW_VERSION", "unknown"),
+        data="\n".join(text[i:i + 120] for i in range(0, len(text), 120)),
+        imports=IMPORTS[options.codec],
+        decompress=DECOMPRESS[options.codec],
+    ).encode("ascii")
+else:
+    output = data
+
+if options.output is None or options.output == "-":
+    sys.stdout.buffer.write(output)
+    sys.stdout.buffer.flush()
+else:
+    with open(options.output, "wb") as f:
+        f.write(output)

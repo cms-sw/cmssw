@@ -51,7 +51,6 @@ namespace edm {
   class ExceptionCollector;
   class ExceptionToActionTable;
   class BranchIDListHelper;
-  class MergeableRunProductMetadata;
   class EDLooperBase;
   class HistoryAppender;
   class ProcessDesc;
@@ -92,7 +91,7 @@ namespace edm {
     // 'defaultServices' are overridden by 'parameterSet'.
     // 'forcedServices' the 'parameterSet'.
     explicit EventProcessor(std::unique_ptr<ParameterSet> parameterSet,
-                            ServiceToken const& token = ServiceToken(),
+                            OwningServiceToken const& token = OwningServiceToken(),
                             serviceregistry::ServiceLegacy = serviceregistry::kOverlapIsError,
                             std::vector<std::string> const& defaultServices = std::vector<std::string>(),
                             std::vector<std::string> const& forcedServices = std::vector<std::string>());
@@ -104,7 +103,7 @@ namespace edm {
                    std::vector<std::string> const& forcedServices = std::vector<std::string>());
 
     EventProcessor(std::shared_ptr<ProcessDesc> processDesc,
-                   ServiceToken const& token,
+                   OwningServiceToken const& token,
                    serviceregistry::ServiceLegacy legacy);
 
     ~EventProcessor();
@@ -231,9 +230,7 @@ namespace edm {
     void endUnfinishedLumi(bool cleaningUpAfterException);
     using ProcessBlockType = PrincipalCache::ProcessBlockType;
     void writeProcessBlockAsync(WaitingTaskHolder, ProcessBlockType);
-    void writeRunAsync(WaitingTaskHolder, RunPrincipal const&, MergeableRunProductMetadata const*);
     void clearRunPrincipal(RunProcessingStatus&);
-    void writeLumiAsync(WaitingTaskHolder, LuminosityBlockPrincipal&);
     void clearLumiPrincipal(LuminosityBlockProcessingStatus&);
 
     bool shouldWeStop() const;
@@ -249,7 +246,9 @@ namespace edm {
     //
     // Now private functions.
     // init() is used by only by constructors
-    void init(std::shared_ptr<ProcessDesc>& processDesc, ServiceToken const& token, serviceregistry::ServiceLegacy);
+    void init(std::shared_ptr<ProcessDesc>& processDesc,
+              OwningServiceToken const& token,
+              serviceregistry::ServiceLegacy);
 
     void readRunAsync(std::shared_ptr<RunProcessingStatus> iRunStatus,
                       RunAuxiliary const& iRunAux,
@@ -301,7 +300,7 @@ namespace edm {
     edm::propagate_const<std::shared_ptr<ProductRegistry>> preg_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
     edm::propagate_const<std::shared_ptr<ProcessBlockHelper>> processBlockHelper_;
-    ServiceToken serviceToken_;
+    OwningServiceToken serviceToken_;
     edm::propagate_const<std::unique_ptr<ModuleTypeResolverMaker const>> moduleTypeResolverMaker_;
     edm::propagate_const<std::unique_ptr<eventsetup::EventSetupsController>> espController_;
     edm::propagate_const<std::shared_ptr<eventsetup::EventSetupProvider>> esp_;

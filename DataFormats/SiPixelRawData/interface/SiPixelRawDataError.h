@@ -13,7 +13,7 @@
 
 #include "FWCore/Utilities/interface/typedefs.h"
 
-#include <string>
+#include <string_view>
 #include <cstdint>
 
 class SiPixelRawDataError {
@@ -33,22 +33,20 @@ public:
       cms_uint64_t errorWord64);  // function to allow user to input the error word (if 64-bit) after instantiation
   void setType(int errorType);    // function to allow user to input the error type after instantiation
   void setFedId(int fedId);       // function to allow user to input the fedID after instantiation
-  void setMessage();              // function to create an error message based on errorType
 
   inline cms_uint32_t getWord32() const { return errorWord32_; }  // the 32-bit word that contains the error information
   inline cms_uint64_t getWord64() const { return errorWord64_; }  // the 64-bit word that contains the error information
   inline int getType() const {
     return errorType_;
   }  // the number associated with the error type (26-31 for ROC number errors, 32-33 for calibration errors)
-  inline int getFedId() const { return fedId_; }                   // the fedId where the error occured
-  inline std::string getMessage() const { return errorMessage_; }  // the error message to be displayed with the error
+  inline int getFedId() const { return fedId_; }  // the fedId where the error occured
+  std::string_view getMessage() const;            // the error message to be displayed with the error
 
 private:
-  cms_uint32_t errorWord32_;
   cms_uint64_t errorWord64_;
+  cms_uint32_t errorWord32_;
   int errorType_;
   int fedId_;
-  std::string errorMessage_;
 };
 
 // Comparison operators

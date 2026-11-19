@@ -51,25 +51,21 @@ namespace {
     TransitionSpec lastTransition_{edm::InputSource::ItemType::IsStop, edm::EventID{}};
   };
 
-  std::unique_ptr<edm::SourceCoordinator> makeCoordinator(std::vector<TransitionSpec> transitions,
-                                                          edm::ServiceToken& token) {
-    auto coordinator = std::make_unique<edm::SourceCoordinator>(
-        edm::SharedResourcesAcquirer{}, std::make_shared<std::recursive_mutex>(), token);
+  std::unique_ptr<edm::SourceCoordinator> makeCoordinator(std::vector<TransitionSpec> transitions) {
+    auto coordinator = std::make_unique<edm::SourceCoordinator>(edm::SharedResourcesAcquirer{},
+                                                                std::make_shared<std::recursive_mutex>());
     coordinator->setSource(std::make_unique<OrderedTransitionSource>(std::move(transitions)));
     return coordinator;
   }
 }  // namespace
 
 TEST_CASE("SourceCoordinator replays transitions from source", "[Framework]") {
-  edm::ServiceToken token;
-
   SECTION("replays configured transition order") {
     auto coordinator = makeCoordinator({{edm::InputSource::ItemType::IsFile, edm::EventID{0, 0, 0}},
                                         {edm::InputSource::ItemType::IsRun, edm::EventID{1, 0, 0}},
                                         {edm::InputSource::ItemType::IsLumi, edm::EventID{1, 11, 0}},
                                         {edm::InputSource::ItemType::IsEvent, edm::EventID{1, 11, 21}},
-                                        {edm::InputSource::ItemType::IsStop, edm::EventID{0, 0, 0}}},
-                                       token);
+                                        {edm::InputSource::ItemType::IsStop, edm::EventID{0, 0, 0}}});
 
     auto status = coordinator->thread_unsafe_peekNextTransitionType();
     REQUIRE(status.nextTransitionType().itemType() == edm::InputSource::ItemType::IsFile);
@@ -108,8 +104,7 @@ TEST_CASE("SourceCoordinator replays transitions from source", "[Framework]") {
                                         {edm::InputSource::ItemType::IsSynchronize, edm::EventID{0, 0, 0}},
                                         {edm::InputSource::ItemType::IsFile, edm::EventID{0, 0, 0}},
                                         {edm::InputSource::ItemType::IsRun, edm::EventID{2, 0, 0}},
-                                        {edm::InputSource::ItemType::IsStop, edm::EventID{0, 0, 0}}},
-                                       token);
+                                        {edm::InputSource::ItemType::IsStop, edm::EventID{0, 0, 0}}});
 
     auto status = coordinator->thread_unsafe_peekNextTransitionType();
     REQUIRE(status.nextTransitionType().itemType() == edm::InputSource::ItemType::IsFile);

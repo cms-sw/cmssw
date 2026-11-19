@@ -11,7 +11,8 @@ hltTriggerObjP4Table = cms.EDProducer(
     "TrigObjP4FlatTableProducer",
 
     # TriggerEvent summary from HLT (process name must match your HLT menu).
-    triggerEvent=cms.InputTag("hltTriggerSummaryAOD", "", "@currentProcess"),
+    #triggerEvent=cms.InputTag("hltTriggerSummaryAOD", "", "@currentProcess"),
+    triggerEvent=cms.InputTag("hltTriggerSummaryAOD", "", "HLT"),
 
     # Name of the output branch group in the nanoAOD file.
     tableName=cms.string("TriggerObject"),
@@ -34,6 +35,11 @@ hltTriggerObjP4Table = cms.EDProducer(
         "HLT_Mu37_Mu27_FromL1TkMuon",
         "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_FromL1TkMuon",
         "HLT_TriMu_10_5_5_DZ_FromL1TkMuon",
+        "HLT_DoubleMu4_3_LowMass_FromL1TkMuon",
+        "HLT_DoubleMu4_3_Bs_FromL1TkMuon",
+        "HLT_DoubleMu4_3_Jpsi_FromL1TkMuon",
+        "HLT_Dimuon0_Upsilon_FromL1TkMuon",
+        "HLT_Mu9_Barrel_IP6_FromL1TkMuon",
         "HLT_Ele32_WPTight_Unseeded",
         "HLT_Ele26_WP70_Unseeded",
         "HLT_Photon108EB_TightID_TightIso_Unseeded",
@@ -50,6 +56,7 @@ hltTriggerObjP4Table = cms.EDProducer(
         "HLT_Diphoton30_23_IsoCaloId_L1Seeded",
         "HLT_DoubleMediumChargedIsoPFTauHPS40_eta2p1",
         "HLT_DoubleMediumDeepTauPFTauHPS35_eta2p1",
+        "HLT_DoubleMediumPFPuppiParTTauh30_eta2p1",
         "HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1",
         "HLT_Ele30_WPTight_L1Seeded_LooseDeepTauPFTauHPS30_eta2p1_CrossL1"
     ),

@@ -37,7 +37,7 @@ namespace edm {
   class PreallocationConfiguration;
   class ActivityRegistry;
   class EventForTransformer;
-  class ServiceWeakToken;
+  class ServiceToken;
 
   namespace maker {
     template <typename T>
@@ -50,8 +50,10 @@ namespace edm {
     public:
       template <typename T>
       friend class edm::maker::ModuleHolderT;
-      template <typename T>
-      friend class edm::WorkerT;
+      template <typename T, typename TI, typename TP>
+      friend class edm::ModuleTransitionWorker;
+      template <typename T, typename TI, typename TP>
+      friend class edm::ModuleTransitionWorkerBase;
       typedef EDFilterBase ModuleType;
 
       EDFilterBase();
@@ -70,18 +72,19 @@ namespace edm {
       virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
       bool wantsStreamRuns() const noexcept { return false; }
       bool wantsStreamLuminosityBlocks() const noexcept { return false; };
+      constexpr static bool wantsWrites() noexcept { return false; }
 
       virtual SerialTaskQueue* globalRunsQueue();
       virtual SerialTaskQueue* globalLuminosityBlocksQueue();
 
     private:
-      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
       void doTransformAsync(WaitingTaskHolder iTask,
                             size_t iTransformIndex,
                             EventPrincipal const& iEvent,
                             ActivityRegistry*,
                             ModuleCallingContext,
-                            ServiceWeakToken const&) noexcept;
+                            ServiceToken const&) noexcept;
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder,
                                                     ModuleCallingContext const&,
@@ -136,7 +139,7 @@ namespace edm {
                                    std::size_t iIndex,
                                    edm::EventForTransformer& iEvent,
                                    edm::ActivityRegistry* iAct,
-                                   ServiceWeakToken const& iToken) const noexcept;
+                                   ServiceToken const& iToken) const noexcept;
 
       virtual void clearInputProcessBlockCaches();
 

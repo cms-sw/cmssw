@@ -57,16 +57,16 @@ void EcalBarrelRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker,
   meEBUncalibRecHitsOccupancy_ = ibooker.book2D(histo, histo, 170, -85., 85., 360, 0., 360.);
 
   sprintf(histo, "EB Amplitude");
-  meEBUncalibRecHitsAmplitude_ = ibooker.book1D(histo, histo, 201, -20., 4000.);
+  meEBUncalibRecHitsAmplitude_ = ibooker.book1DD(histo, histo, 201, -20., 4000.);
 
   sprintf(histo, "EB Pedestal");
-  meEBUncalibRecHitsPedestal_ = ibooker.book1D(histo, histo, 50, 190., 210.);
+  meEBUncalibRecHitsPedestal_ = ibooker.book1DD(histo, histo, 50, 190., 210.);
 
   sprintf(histo, "EB Jitter");
-  meEBUncalibRecHitsJitter_ = ibooker.book1D(histo, histo, 100, 0., 100.);
+  meEBUncalibRecHitsJitter_ = ibooker.book1DD(histo, histo, 100, 0., 100.);
 
   sprintf(histo, "EB Chi2");
-  meEBUncalibRecHitsChi2_ = ibooker.book1D(histo, histo, 100, 18000., 22000.);
+  meEBUncalibRecHitsChi2_ = ibooker.book1DD(histo, histo, 100, 18000., 22000.);
 
   sprintf(histo, "EB RecHit Max Sample Ratio");
   meEBUncalibRecHitMaxSampleRatio_ = ibooker.book1D(histo, histo, 120, 0.90, 1.05);

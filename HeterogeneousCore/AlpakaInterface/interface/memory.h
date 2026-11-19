@@ -22,7 +22,7 @@ namespace cms::alpakatools {
   // type deduction helpers
   namespace detail {
 
-    template <typename TDev, typename T, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
+    template <typename TDev, typename T, typename = std::enable_if_t<alpaka::concepts::Device<TDev>>>
     struct buffer_type {
       using type = alpaka::Buf<TDev, T, Dim0D, Idx>;
     };
@@ -37,7 +37,7 @@ namespace cms::alpakatools {
       using type = alpaka::Buf<TDev, T, Dim1D, Idx>;
     };
 
-    template <typename TDev, typename T, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
+    template <typename TDev, typename T, typename = std::enable_if_t<alpaka::concepts::Device<TDev>>>
     struct view_type {
       using type = alpaka::ViewPlainPtr<TDev, T, Dim0D, Idx>;
     };
@@ -108,7 +108,7 @@ namespace cms::alpakatools {
   // the memory is pinned according to the device associated to the queue
 
   template <typename T, typename TQueue>
-  std::enable_if_t<alpaka::isQueue<TQueue> and not std::is_array_v<T>, host_buffer<T>> make_host_buffer(
+  std::enable_if_t<alpaka::concepts::Queue<TQueue> and not std::is_array_v<T>, host_buffer<T>> make_host_buffer(
       TQueue const& queue) {
     if constexpr (host_allocator_policy<alpaka::Dev<TQueue>> == AllocatorPolicy::Caching) {
       return allocCachedBuf<T, Idx>(host(), queue, Scalar{});
@@ -119,7 +119,7 @@ namespace cms::alpakatools {
   }
 
   template <typename T, typename TQueue>
-  std::enable_if_t<alpaka::isQueue<TQueue> and cms::is_unbounded_array_v<T> and
+  std::enable_if_t<alpaka::concepts::Queue<TQueue> and cms::is_unbounded_array_v<T> and
                        not std::is_array_v<std::remove_extent_t<T>>,
                    host_buffer<T>>
   make_host_buffer(TQueue const& queue, Extent extent) {
@@ -132,7 +132,7 @@ namespace cms::alpakatools {
   }
 
   template <typename T, typename TQueue>
-  std::enable_if_t<alpaka::isQueue<TQueue> and cms::is_bounded_array_v<T> and
+  std::enable_if_t<alpaka::concepts::Queue<TQueue> and cms::is_bounded_array_v<T> and
                        not std::is_array_v<std::remove_extent_t<T>>,
                    host_buffer<T>>
   make_host_buffer(TQueue const& queue) {
@@ -187,22 +187,22 @@ namespace cms::alpakatools {
 
   // scalar and 1-dimensional device buffers
 
-  template <typename TDev, typename T, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
+  template <typename TDev, typename T, typename = std::enable_if_t<alpaka::concepts::Device<TDev>>>
   using device_buffer = typename detail::buffer_type<TDev, T>::type;
 
-  template <typename TDev, typename T, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
+  template <typename TDev, typename T, typename = std::enable_if_t<alpaka::concepts::Device<TDev>>>
   using const_device_buffer = alpaka::ViewConst<device_buffer<TDev, T>>;
 
   // non-cached, scalar and 1-dimensional device buffers
 
   template <typename T, typename TDev>
-  std::enable_if_t<alpaka::isDevice<TDev> and not std::is_array_v<T>, device_buffer<TDev, T>> make_device_buffer(
-      TDev const& device) {
+  std::enable_if_t<alpaka::concepts::Device<TDev> and not std::is_array_v<T>, device_buffer<TDev, T>>
+  make_device_buffer(TDev const& device) {
     return alpaka::allocBuf<T, Idx>(device, Scalar{});
   }
 
   template <typename T, typename TDev>
-  std::enable_if_t<alpaka::isDevice<TDev> and cms::is_unbounded_array_v<T> and
+  std::enable_if_t<alpaka::concepts::Device<TDev> and cms::is_unbounded_array_v<T> and
                        not std::is_array_v<std::remove_extent_t<T>>,
                    device_buffer<TDev, T>>
   make_device_buffer(TDev const& device, Extent extent) {
@@ -210,7 +210,7 @@ namespace cms::alpakatools {
   }
 
   template <typename T, typename TDev>
-  std::enable_if_t<alpaka::isDevice<TDev> and cms::is_bounded_array_v<T> and
+  std::enable_if_t<alpaka::concepts::Device<TDev> and cms::is_bounded_array_v<T> and
                        not std::is_array_v<std::remove_extent_t<T>>,
                    device_buffer<TDev, T>>
   make_device_buffer(TDev const& device) {
@@ -220,7 +220,7 @@ namespace cms::alpakatools {
   // potentially-cached, scalar and 1-dimensional device buffers with queue-ordered semantic
 
   template <typename T, typename TQueue>
-  std::enable_if_t<alpaka::isQueue<TQueue> and not std::is_array_v<T>, device_buffer<alpaka::Dev<TQueue>, T>>
+  std::enable_if_t<alpaka::concepts::Queue<TQueue> and not std::is_array_v<T>, device_buffer<alpaka::Dev<TQueue>, T>>
   make_device_buffer(TQueue const& queue) {
     if constexpr (device_allocator_policy<alpaka::Dev<TQueue>> == AllocatorPolicy::Caching) {
       return allocCachedBuf<T, Idx>(alpaka::getDev(queue), queue, Scalar{});
@@ -234,7 +234,7 @@ namespace cms::alpakatools {
   }
 
   template <typename T, typename TQueue>
-  std::enable_if_t<alpaka::isQueue<TQueue> and cms::is_unbounded_array_v<T> and
+  std::enable_if_t<alpaka::concepts::Queue<TQueue> and cms::is_unbounded_array_v<T> and
                        not std::is_array_v<std::remove_extent_t<T>>,
                    device_buffer<alpaka::Dev<TQueue>, T>>
   make_device_buffer(TQueue const& queue, Extent extent) {
@@ -250,7 +250,7 @@ namespace cms::alpakatools {
   }
 
   template <typename T, typename TQueue>
-  std::enable_if_t<alpaka::isQueue<TQueue> and cms::is_bounded_array_v<T> and
+  std::enable_if_t<alpaka::concepts::Queue<TQueue> and cms::is_bounded_array_v<T> and
                        not std::is_array_v<std::remove_extent_t<T>>,
                    device_buffer<alpaka::Dev<TQueue>, T>>
   make_device_buffer(TQueue const& queue) {
@@ -267,32 +267,32 @@ namespace cms::alpakatools {
 
   // scalar and 1-dimensional device views
 
-  template <typename TDev, typename T, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
+  template <typename TDev, typename T, typename = std::enable_if_t<alpaka::concepts::Device<TDev>>>
   using device_view = typename detail::view_type<TDev, T>::type;
 
   template <typename T, typename TDev>
-  std::enable_if_t<alpaka::isDevice<TDev> and not std::is_array_v<T>, device_view<TDev, T>> make_device_view(
+  std::enable_if_t<alpaka::concepts::Device<TDev> and not std::is_array_v<T>, device_view<TDev, T>> make_device_view(
       TDev const& device, T& data) {
     return alpaka::ViewPlainPtr<TDev, T, Dim0D, Idx>(&data, device, Scalar{});
   }
 
   template <typename T, typename TDev>
-  std::enable_if_t<alpaka::isDevice<TDev>, device_view<TDev, T[]>> make_device_view(TDev const& device,
-                                                                                    T* data,
-                                                                                    Extent extent) {
+  std::enable_if_t<alpaka::concepts::Device<TDev>, device_view<TDev, T[]>> make_device_view(TDev const& device,
+                                                                                            T* data,
+                                                                                            Extent extent) {
     return alpaka::ViewPlainPtr<TDev, T, Dim1D, Idx>(data, device, Vec1D{extent});
   }
 
   template <typename T, typename TDev>
-  std::enable_if_t<alpaka::isDevice<TDev>, device_view<TDev, T[]>> make_device_view(TDev const& device,
-                                                                                    std::span<T> span) {
+  std::enable_if_t<alpaka::concepts::Device<TDev>, device_view<TDev, T[]>> make_device_view(TDev const& device,
+                                                                                            std::span<T> span) {
     return alpaka::ViewPlainPtr<TDev, T, Dim1D, Idx>(span.data(), device, Vec1D{span.size()});
   }
 
   template <typename T, typename TDev>
-  std::enable_if_t<alpaka::isDevice<TDev>, device_view<TDev, T[]>> make_device_view(TDev const& device,
-                                                                                    std::span<T> span,
-                                                                                    Extent extent) {
+  std::enable_if_t<alpaka::concepts::Device<TDev>, device_view<TDev, T[]>> make_device_view(TDev const& device,
+                                                                                            std::span<T> span,
+                                                                                            Extent extent) {
     if (extent > span.size()) {
       throw std::runtime_error("make_device_view: span size is smaller than the specified extent");
     }
@@ -300,7 +300,7 @@ namespace cms::alpakatools {
   }
 
   template <typename T, typename TDev>
-  std::enable_if_t<alpaka::isDevice<TDev> and cms::is_unbounded_array_v<T> and
+  std::enable_if_t<alpaka::concepts::Device<TDev> and cms::is_unbounded_array_v<T> and
                        not std::is_array_v<std::remove_extent_t<T>>,
                    device_view<TDev, T>>
   make_device_view(TDev const& device, T& data, Extent extent) {
@@ -308,7 +308,7 @@ namespace cms::alpakatools {
   }
 
   template <typename T, typename TDev>
-  std::enable_if_t<alpaka::isDevice<TDev> and cms::is_bounded_array_v<T> and
+  std::enable_if_t<alpaka::concepts::Device<TDev> and cms::is_bounded_array_v<T> and
                        not std::is_array_v<std::remove_extent_t<T>>,
                    device_view<TDev, T>>
   make_device_view(TDev const& device, T& data) {
@@ -316,29 +316,27 @@ namespace cms::alpakatools {
   }
 
   template <typename T, typename TQueue>
-  std::enable_if_t<alpaka::isQueue<TQueue> and not std::is_array_v<T>, device_view<alpaka::Dev<TQueue>, T>>
+  std::enable_if_t<alpaka::concepts::Queue<TQueue> and not std::is_array_v<T>, device_view<alpaka::Dev<TQueue>, T>>
   make_device_view(TQueue const& queue, T& data) {
     return alpaka::ViewPlainPtr<alpaka::Dev<TQueue>, T, Dim0D, Idx>(&data, alpaka::getDev(queue), Scalar{});
   }
 
   template <typename T, typename TQueue>
-  std::enable_if_t<alpaka::isQueue<TQueue>, device_view<alpaka::Dev<TQueue>, T[]>> make_device_view(TQueue const& queue,
-                                                                                                    T* data,
-                                                                                                    Extent extent) {
+  std::enable_if_t<alpaka::concepts::Queue<TQueue>, device_view<alpaka::Dev<TQueue>, T[]>> make_device_view(
+      TQueue const& queue, T* data, Extent extent) {
     return alpaka::ViewPlainPtr<alpaka::Dev<TQueue>, T, Dim1D, Idx>(data, alpaka::getDev(queue), Vec1D{extent});
   }
 
   template <typename T, typename TQueue>
-  std::enable_if_t<alpaka::isQueue<TQueue>, device_view<alpaka::Dev<TQueue>, T[]>> make_device_view(TQueue const& queue,
-                                                                                                    std::span<T> span) {
+  std::enable_if_t<alpaka::concepts::Queue<TQueue>, device_view<alpaka::Dev<TQueue>, T[]>> make_device_view(
+      TQueue const& queue, std::span<T> span) {
     return alpaka::ViewPlainPtr<alpaka::Dev<TQueue>, T, Dim1D, Idx>(
         span.data(), alpaka::getDev(queue), Vec1D{span.size()});
   }
 
   template <typename T, typename TQueue>
-  std::enable_if_t<alpaka::isQueue<TQueue>, device_view<alpaka::Dev<TQueue>, T[]>> make_device_view(TQueue const& queue,
-                                                                                                    std::span<T> span,
-                                                                                                    Extent extent) {
+  std::enable_if_t<alpaka::concepts::Queue<TQueue>, device_view<alpaka::Dev<TQueue>, T[]>> make_device_view(
+      TQueue const& queue, std::span<T> span, Extent extent) {
     if (extent > span.size()) {
       throw std::runtime_error("make_device_view: span size is smaller than the specified extent");
     }
@@ -346,7 +344,7 @@ namespace cms::alpakatools {
   }
 
   template <typename T, typename TQueue>
-  std::enable_if_t<alpaka::isQueue<TQueue> and cms::is_unbounded_array_v<T> and
+  std::enable_if_t<alpaka::concepts::Queue<TQueue> and cms::is_unbounded_array_v<T> and
                        not std::is_array_v<std::remove_extent_t<T>>,
                    device_view<alpaka::Dev<TQueue>, T>>
   make_device_view(TQueue const& queue, T& data, Extent extent) {
@@ -355,7 +353,7 @@ namespace cms::alpakatools {
   }
 
   template <typename T, typename TQueue>
-  std::enable_if_t<alpaka::isQueue<TQueue> and cms::is_bounded_array_v<T> and
+  std::enable_if_t<alpaka::concepts::Queue<TQueue> and cms::is_bounded_array_v<T> and
                        not std::is_array_v<std::remove_extent_t<T>>,
                    device_view<alpaka::Dev<TQueue>, T>>
   make_device_view(TQueue const& queue, T& data) {

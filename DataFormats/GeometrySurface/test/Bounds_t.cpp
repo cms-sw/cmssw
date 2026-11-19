@@ -1,167 +1,156 @@
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 
-#include "FWCore/Utilities/interface/HRRealTime.h"
-#include <iostream>
+#include <benchmark/benchmark.h>
+#include <utility>
 
-void st() {}
-void en() {}
+namespace {
+  const RectangularPlaneBounds bound(1., 1., 1.);
 
-int main() {
-  RectangularPlaneBounds bound(1., 1., 1.);
+  const Local3DPoint a(10., 10., 10.);
 
-  Local3DPoint a(10., 10., 10.);
+  const Local3DPoint in(0., 0., 0.);
+  const Local3DPoint in2(0.5, 0., 0.);
 
-  Local3DPoint in(0., 0., 0.);
-  Local3DPoint in2(0.5, 0., 0.);
+  const Local3DPoint outY(0., 3., 0.);
+  const Local3DPoint out2(0., 1.5, 0.);
 
-  Local3DPoint outY(0., 3., 0.);
-  Local3DPoint out2(0., 1.5, 0.);
+  const Local3DPoint outZ(0., 3., 3.);
 
-  Local3DPoint outZ(0., 3., 3.);
+  const LocalError err(0.1, 0.0, 0.1);
+  const LocalError errB(1.0, 0.0, 1.0);
 
-  LocalError err(0.1, 0.0, 0.1);
-  LocalError errB(1.0, 0.0, 1.0);
-
-  bool ok;
-
-  // usual first to load whatever
-  {
-    edm::HRTimeType s = edm::hrRealTime();
-    ok = bound.inside(a);
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << e - s << std::endl;
-    if (ok)
-      std::cout << "inside?" << std::endl;
+  void BM_InsideFar(benchmark::State& state) {
+    bool ok{};
+    for (auto _ : state) {
+      ok = bound.inside(a);
+      benchmark::DoNotOptimize(ok);
+    }
+    if (ok != false)
+      state.SkipWithError("unexpected inside result");
   }
+  BENCHMARK(BM_InsideFar);
 
-  {
-    edm::HRTimeType s = edm::hrRealTime();
-    st();
-    ok = bound.inside(outZ);
-    en();
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << e - s << std::endl;
-    if (ok)
-      std::cout << "inside?" << std::endl;
+  void BM_InsideOutZ(benchmark::State& state) {
+    bool ok{};
+    for (auto _ : state) {
+      ok = bound.inside(outZ);
+      benchmark::DoNotOptimize(ok);
+    }
+    if (ok != false)
+      state.SkipWithError("unexpected inside result");
   }
+  BENCHMARK(BM_InsideOutZ);
 
-  {
-    edm::HRTimeType s = edm::hrRealTime();
-    st();
-    ok = bound.inside(in);
-    en();
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << e - s << std::endl;
-    if (!ok)
-      std::cout << "not inside?" << std::endl;
+  void BM_InsideIn(benchmark::State& state) {
+    bool ok{};
+    for (auto _ : state) {
+      ok = bound.inside(in);
+      benchmark::DoNotOptimize(ok);
+    }
+    if (ok != true)
+      state.SkipWithError("unexpected inside result");
   }
+  BENCHMARK(BM_InsideIn);
 
-  {
-    edm::HRTimeType s = edm::hrRealTime();
-    st();
-    ok = bound.inside(in, err);
-    en();
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << e - s << std::endl;
-    if (!ok)
-      std::cout << "not inside?" << std::endl;
+  void BM_InsideInErr(benchmark::State& state) {
+    bool ok{};
+    for (auto _ : state) {
+      ok = bound.inside(in, err);
+      benchmark::DoNotOptimize(ok);
+    }
+    if (ok != true)
+      state.SkipWithError("unexpected inside result");
   }
+  BENCHMARK(BM_InsideInErr);
 
-  {
-    edm::HRTimeType s = edm::hrRealTime();
-    st();
-    auto io = bound.inout(in, err);
-    en();
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << e - s << std::endl;
-    if (!io.first)
-      std::cout << "in not inside?" << std::endl;
-    if (io.second)
-      std::cout << "in outside?" << std::endl;
+  void BM_InOutInErr(benchmark::State& state) {
+    std::pair<bool, bool> io{};
+    for (auto _ : state) {
+      io = bound.inout(in, err);
+      benchmark::DoNotOptimize(io);
+    }
+    if (io.first != true || io.second != false)
+      state.SkipWithError("unexpected inout result");
   }
+  BENCHMARK(BM_InOutInErr);
 
-  {
-    edm::HRTimeType s = edm::hrRealTime();
-    st();
-    auto io = bound.inout(in2, errB);
-    en();
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << e - s << std::endl;
-    if (!io.first)
-      std::cout << "in2 not inside?" << std::endl;
-    if (!io.second)
-      std::cout << "in2 not outside?" << std::endl;
+  void BM_InOutIn2ErrB(benchmark::State& state) {
+    std::pair<bool, bool> io{};
+    for (auto _ : state) {
+      io = bound.inout(in2, errB);
+      benchmark::DoNotOptimize(io);
+    }
+    if (io.first != true || io.second != true)
+      state.SkipWithError("unexpected inout result");
   }
+  BENCHMARK(BM_InOutIn2ErrB);
 
-  {
-    edm::HRTimeType s = edm::hrRealTime();
-    st();
-    ok = bound.inside(outY, err);
-    en();
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << e - s << std::endl;
-    if (ok)
-      std::cout << "inside?" << std::endl;
+  void BM_InsideOutYErr(benchmark::State& state) {
+    bool ok{};
+    for (auto _ : state) {
+      ok = bound.inside(outY, err);
+      benchmark::DoNotOptimize(ok);
+    }
+    if (ok != false)
+      state.SkipWithError("unexpected inside result");
   }
+  BENCHMARK(BM_InsideOutYErr);
 
-  {
-    edm::HRTimeType s = edm::hrRealTime();
-    st();
-    auto io = bound.inout(outY, err);
-    en();
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << e - s << std::endl;
-    if (io.first)
-      std::cout << "outY inside?" << std::endl;
-    if (!io.second)
-      std::cout << "outY not outside?" << std::endl;
+  void BM_InOutOutYErr(benchmark::State& state) {
+    std::pair<bool, bool> io{};
+    for (auto _ : state) {
+      io = bound.inout(outY, err);
+      benchmark::DoNotOptimize(io);
+    }
+    if (io.first != false || io.second != true)
+      state.SkipWithError("unexpected inout result");
   }
+  BENCHMARK(BM_InOutOutYErr);
 
-  {
-    edm::HRTimeType s = edm::hrRealTime();
-    st();
-    auto io = bound.inout(out2, errB);
-    en();
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << e - s << std::endl;
-    if (!io.first)
-      std::cout << "out2 not inside?" << std::endl;
-    if (!io.second)
-      std::cout << "out2 not outside?" << std::endl;
+  void BM_InOutOut2ErrB(benchmark::State& state) {
+    std::pair<bool, bool> io{};
+    for (auto _ : state) {
+      io = bound.inout(out2, errB);
+      benchmark::DoNotOptimize(io);
+    }
+    if (io.first != true || io.second != true)
+      state.SkipWithError("unexpected inout result");
   }
+  BENCHMARK(BM_InOutOut2ErrB);
 
-  {
-    edm::HRTimeType s = edm::hrRealTime();
-    st();
-    ok = bound.inside(Local2DPoint(in.x(), in.y()), 1.f);
-    en();
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << e - s << std::endl;
-    if (!ok)
-      std::cout << "not inside?" << std::endl;
+  void BM_Inside2DIn(benchmark::State& state) {
+    bool ok{};
+    for (auto _ : state) {
+      ok = bound.inside(Local2DPoint(in.x(), in.y()), 1.f);
+      benchmark::DoNotOptimize(ok);
+    }
+    if (ok != true)
+      state.SkipWithError("unexpected inside result");
   }
+  BENCHMARK(BM_Inside2DIn);
 
-  {
-    edm::HRTimeType s = edm::hrRealTime();
-    st();
-    ok = bound.inside(Local2DPoint(outY.x(), outY.y()), 1.f);
-    en();
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << e - s << std::endl;
-    if (ok)
-      std::cout << "inside?" << std::endl;
+  void BM_Inside2DOutY(benchmark::State& state) {
+    bool ok{};
+    for (auto _ : state) {
+      ok = bound.inside(Local2DPoint(outY.x(), outY.y()), 1.f);
+      benchmark::DoNotOptimize(ok);
+    }
+    if (ok != false)
+      state.SkipWithError("unexpected inside result");
   }
-  {
-    edm::HRTimeType s = edm::hrRealTime();
-    st();
-    ok = bound.inside(Local2DPoint(outY.x(), outY.y()), 10.f);
-    en();
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << e - s << std::endl;
-    if (!ok)
-      std::cout << "not inside?" << std::endl;
-  }
+  BENCHMARK(BM_Inside2DOutY);
 
-  return 0;
-}
+  void BM_Inside2DOutYWide(benchmark::State& state) {
+    bool ok{};
+    for (auto _ : state) {
+      ok = bound.inside(Local2DPoint(outY.x(), outY.y()), 10.f);
+      benchmark::DoNotOptimize(ok);
+    }
+    if (ok != true)
+      state.SkipWithError("unexpected inside result");
+  }
+  BENCHMARK(BM_Inside2DOutYWide);
+}  // namespace
+
+BENCHMARK_MAIN();

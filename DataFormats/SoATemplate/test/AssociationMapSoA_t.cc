@@ -1,5 +1,3 @@
-#include <Eigen/Core>
-#include <Eigen/Dense>
 #include <span>
 
 #define CATCH_CONFIG_MAIN

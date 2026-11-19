@@ -15,10 +15,13 @@
 #include "TLatex.h"
 #include "TPave.h"
 #include "TPaveStats.h"
+#include <memory>
 #include <string>
 #include <fstream>
 
 namespace {
+
+  using namespace HcalObjRepresent;
 
   class HcalPedestalContainer : public HcalObjRepresent::HcalDataContainer<HcalPedestals, HcalPedestal> {
   public:
@@ -30,152 +33,63 @@ namespace {
   };
 
   /******************************************
-     2d plot of HCAL Pedestal of 1 IOV
+     Detector map of HCAL Pedestals for 1 IOV
+     (mode selects 2D eta/phi map, or eta/phi 1D profile)
   ******************************************/
-  class HcalPedestalsPlot : public cond::payloadInspector::PlotImage<HcalPedestals> {
+  template <ViewMode Mode>
+  class HcalPedestalsPlotT : public cond::payloadInspector::PlotImage<HcalPedestals> {
   public:
-    HcalPedestalsPlot() : cond::payloadInspector::PlotImage<HcalPedestals>("HCAL Pedestal Ratios - map ") {
+    HcalPedestalsPlotT() : cond::payloadInspector::PlotImage<HcalPedestals>("HCAL Pedestal - map") {
       setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
-      std::shared_ptr<HcalPedestals> payload = fetchPayload(std::get<1>(iov));
-      if (payload.get()) {
-        HcalPedestalContainer* objContainer = new HcalPedestalContainer(payload, std::get<0>(iov));
-        std::string ImageName(m_imageFileName);
-        objContainer->getCanvasAll()->SaveAs(ImageName.c_str());
-        return true;
-      } else
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+      auto [time, hash] = iovs.front();
+      std::shared_ptr<HcalPedestals> payload = fetchPayload(hash);
+      if (!payload)
         return false;
+      auto container = std::make_unique<HcalPedestalContainer>(payload, time);
+      std::unique_ptr<TCanvas> canvas(container->getCanvasAll(modeName(Mode)));
+      canvas->SaveAs(m_imageFileName.c_str());
+      return true;
     }  // fill method
   };
 
   /**********************************************************
-     2d plot of HCAL Pedestal difference between 2 IOVs
+     Detector map of HCAL Pedestal difference between 2 IOVs
   **********************************************************/
-  class HcalPedestalsDiff : public cond::payloadInspector::PlotImage<HcalPedestals> {
+  template <ViewMode Mode>
+  class HcalPedestalsDiffT : public cond::payloadInspector::PlotImage<HcalPedestals> {
   public:
-    HcalPedestalsDiff() : cond::payloadInspector::PlotImage<HcalPedestals>("HCAL Pedestal Ratios difference") {
+    HcalPedestalsDiffT() : cond::payloadInspector::PlotImage<HcalPedestals>("HCAL Pedestal difference") {
       setSingleIov(false);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov1 = iovs.front();
-      auto iov2 = iovs.back();
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+      auto [t1, h1] = iovs.front();
+      auto [t2, h2] = iovs.back();
 
-      std::shared_ptr<HcalPedestals> payload1 = fetchPayload(std::get<1>(iov1));
-      std::shared_ptr<HcalPedestals> payload2 = fetchPayload(std::get<1>(iov2));
-
-      if (payload1.get() && payload2.get()) {
-        HcalPedestalContainer* objContainer1 = new HcalPedestalContainer(payload1, std::get<0>(iov1));
-        HcalPedestalContainer* objContainer2 = new HcalPedestalContainer(payload2, std::get<0>(iov2));
-        objContainer2->Subtract(objContainer1);
-        std::string ImageName(m_imageFileName);
-        objContainer2->getCanvasAll()->SaveAs(ImageName.c_str());
-        return true;
-      } else
+      std::shared_ptr<HcalPedestals> payload1 = fetchPayload(h1);
+      std::shared_ptr<HcalPedestals> payload2 = fetchPayload(h2);
+      if (!payload1 || !payload2)
         return false;
-    }  // fill method
-  };
-  /******************************************
-     2d plot of HCAL Pedestal of 1 IOV
-  ******************************************/
-  class HcalPedestalsEtaPlot : public cond::payloadInspector::PlotImage<HcalPedestals> {
-  public:
-    HcalPedestalsEtaPlot() : cond::payloadInspector::PlotImage<HcalPedestals>("HCAL Pedestal Ratios - map ") {
-      setSingleIov(true);
-    }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
-      std::shared_ptr<HcalPedestals> payload = fetchPayload(std::get<1>(iov));
-      if (payload.get()) {
-        HcalPedestalContainer* objContainer = new HcalPedestalContainer(payload, std::get<0>(iov));
-        std::string ImageName(m_imageFileName);
-        objContainer->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
-        return true;
-      } else
-        return false;
+      auto container1 = std::make_unique<HcalPedestalContainer>(payload1, t1);
+      auto container2 = std::make_unique<HcalPedestalContainer>(payload2, t2);
+      container2->Subtract(container1.get());
+      std::unique_ptr<TCanvas> canvas(container2->getCanvasAll(modeName(Mode)));
+      canvas->SaveAs(m_imageFileName.c_str());
+      return true;
     }  // fill method
   };
 
-  /**********************************************************
-     2d plot of HCAL Pedestal difference between 2 IOVs
-  **********************************************************/
-  class HcalPedestalsEtaDiff : public cond::payloadInspector::PlotImage<HcalPedestals> {
-  public:
-    HcalPedestalsEtaDiff() : cond::payloadInspector::PlotImage<HcalPedestals>("HCAL Pedestal Ratios difference") {
-      setSingleIov(false);
-    }
+  using HcalPedestalsPlot = HcalPedestalsPlotT<ViewMode::Map>;
+  using HcalPedestalsEtaPlot = HcalPedestalsPlotT<ViewMode::EtaProfile>;
+  using HcalPedestalsPhiPlot = HcalPedestalsPlotT<ViewMode::PhiProfile>;
+  using HcalPedestalsDiff = HcalPedestalsDiffT<ViewMode::Map>;
+  using HcalPedestalsEtaDiff = HcalPedestalsDiffT<ViewMode::EtaProfile>;
+  using HcalPedestalsPhiDiff = HcalPedestalsDiffT<ViewMode::PhiProfile>;
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov1 = iovs.front();
-      auto iov2 = iovs.back();
-
-      std::shared_ptr<HcalPedestals> payload1 = fetchPayload(std::get<1>(iov1));
-      std::shared_ptr<HcalPedestals> payload2 = fetchPayload(std::get<1>(iov2));
-
-      if (payload1.get() && payload2.get()) {
-        HcalPedestalContainer* objContainer1 = new HcalPedestalContainer(payload1, std::get<0>(iov1));
-        HcalPedestalContainer* objContainer2 = new HcalPedestalContainer(payload2, std::get<0>(iov2));
-        objContainer2->Subtract(objContainer1);
-        std::string ImageName(m_imageFileName);
-        objContainer2->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
-        return true;
-      } else
-        return false;
-    }  // fill method
-  };
-  /******************************************
-     2d plot of HCAL Pedestal of 1 IOV
-  ******************************************/
-  class HcalPedestalsPhiPlot : public cond::payloadInspector::PlotImage<HcalPedestals> {
-  public:
-    HcalPedestalsPhiPlot() : cond::payloadInspector::PlotImage<HcalPedestals>("HCAL Pedestal Ratios - map ") {
-      setSingleIov(true);
-    }
-
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
-      std::shared_ptr<HcalPedestals> payload = fetchPayload(std::get<1>(iov));
-      if (payload.get()) {
-        HcalPedestalContainer* objContainer = new HcalPedestalContainer(payload, std::get<0>(iov));
-        std::string ImageName(m_imageFileName);
-        objContainer->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
-        return true;
-      } else
-        return false;
-    }  // fill method
-  };
-
-  /**********************************************************
-     2d plot of HCAL Pedestal difference between 2 IOVs
-  **********************************************************/
-  class HcalPedestalsPhiDiff : public cond::payloadInspector::PlotImage<HcalPedestals> {
-  public:
-    HcalPedestalsPhiDiff() : cond::payloadInspector::PlotImage<HcalPedestals>("HCAL Pedestal Ratios difference") {
-      setSingleIov(false);
-    }
-
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov1 = iovs.front();
-      auto iov2 = iovs.back();
-
-      std::shared_ptr<HcalPedestals> payload1 = fetchPayload(std::get<1>(iov1));
-      std::shared_ptr<HcalPedestals> payload2 = fetchPayload(std::get<1>(iov2));
-
-      if (payload1.get() && payload2.get()) {
-        HcalPedestalContainer* objContainer1 = new HcalPedestalContainer(payload1, std::get<0>(iov1));
-        HcalPedestalContainer* objContainer2 = new HcalPedestalContainer(payload2, std::get<0>(iov2));
-        objContainer2->Subtract(objContainer1);
-        std::string ImageName(m_imageFileName);
-        objContainer2->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
-        return true;
-      } else
-        return false;
-    }  // fill method
-  };
 }  // namespace
 
 // Register the classes as boost python plugin

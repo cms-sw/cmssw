@@ -17,10 +17,14 @@ process.options = cms.untracked.PSet(
 
 process.maxEvents.input = 10
 
+#Contents of files
+#testRunMerge4.root  "PROD" [run:11, lumi:1, ev:1]
+#testRunMerge6.root  "PROD" [run:11, lumi:2-4, ev:2-12]&[run:12, lumi:2 ev:2]
+
 from IOPool.Input.modules import PoolSource
 process.source = PoolSource(fileNames = ['file:testRunMerge4.root', 'file:testRunMerge6.root'])
 
-from FWCore.Framework.modules import TestMergeResults
+from FWCore.Integration.modules import TestMergeResults
 process.test = TestMergeResults(
     #   Check to see that the value we read matches what we know
     #   was written. Expected values listed below come in sets of three

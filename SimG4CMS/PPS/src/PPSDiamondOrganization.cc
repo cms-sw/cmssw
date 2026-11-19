@@ -14,7 +14,7 @@
 
 //******************************************************************** Constructor and destructor
 
-PPSDiamondOrganization ::PPSDiamondOrganization()
+PPSDiamondOrganization::PPSDiamondOrganization()
     : theArm_(0), theStation_(0), theRoman_pot_(0), thePlane_(0), theDetector_(0) {}
 
 uint32_t PPSDiamondOrganization::unitID(const G4Step* aStep) {

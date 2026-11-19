@@ -3,7 +3,7 @@
 #   cmsRun runMaterialBudgetVolumeRun4DDD_cfg.py geometry=D121
 #
 #   Options for geometry D104, D110, D112, D114, D115, D120, D121, D122, D123,
-#                        D124, D125
+#                        D124, D125, D126, D127, D128
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
 import os, sys, importlib, re
@@ -16,7 +16,7 @@ options.register('geometry',
                  "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D104, D110, D112, D114, D115, D120, D121, D122, D123, D124, D125")
+                  "geometry of operations: D104, D110, D112, D114, D115, D120, D121, D122, D123, D124, D125, D126, D127, D128")
 ### get and parse the command line arguments
 options.parseArguments()
 
@@ -67,6 +67,7 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.g4SimHits.UseMagneticField = False
+process.g4SimHits.LHCTransport = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.StackingAction.TrackNeutrino = True
 process.g4SimHits.Physics.DummyEMPhysics = True

@@ -34,7 +34,7 @@ public:
   TtSemiSimpleBestJetComb();
   ~TtSemiSimpleBestJetComb();
 
-  int operator()(std::vector<TtSemiEvtSolution> &);
+  int operator()(std::vector<TtSemiEvtSolution>&);
 
 private:
 };

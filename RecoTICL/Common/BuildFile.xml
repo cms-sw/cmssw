@@ -1,0 +1,15 @@
+<use name="DataFormats/CaloRecHit"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/HGCalReco"/>
+<use name="DataFormats/TrackReco"/>
+<use name="FWCore/MessageLogger"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="Geometry/CommonTopologies" source_only="1"/>
+<use name="Geometry/HGCalCommonData"/>
+<use name="RecoLocalCalo/HGCalRecAlgos"/>
+<use name="RecoLocalCalo/HGCalRecProducers"/>
+<use name="eigen"/>
+<export>
+  <lib name="1"/>
+</export>

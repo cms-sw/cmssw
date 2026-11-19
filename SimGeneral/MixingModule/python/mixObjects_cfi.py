@@ -262,6 +262,11 @@ run2_GEM_2017.toModify( theMixObjects,
         crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'MuonGEMHits' ]
     )
 )
+(run2_GEM_2017 & fastSim).toModify( theMixObjects,
+    mixSH = dict(
+        input = [x for x in theMixObjects.mixSH.input[:-1]]+[cms.InputTag("MuonSimHits","MuonGEMHits")],
+    )
+)
 (premix_stage1 & run2_GEM_2017).toModify(theMixObjects,
     mixSH = dict(
         pcrossingFrames = theMixObjects.mixSH.pcrossingFrames + [ 'MuonGEMHits' ]
@@ -273,6 +278,11 @@ run3_GEM.toModify( theMixObjects,
         input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","MuonGEMHits") ],
         subdets = theMixObjects.mixSH.subdets + [ 'MuonGEMHits' ],
         crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'MuonGEMHits' ]
+    )
+)
+(run3_GEM & fastSim).toModify( theMixObjects,
+    mixSH = dict(
+        input = [x for x in theMixObjects.mixSH.input[:-1]]+[cms.InputTag("MuonSimHits","MuonGEMHits")],
     )
 )
 (premix_stage1 & run3_GEM).toModify(theMixObjects,
@@ -328,11 +338,28 @@ phase2_hfnose.toModify( theMixObjects,
 )
 
 from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
-phase2_timing_layer.toModify( theMixObjects,
+(~fastSim & phase2_timing_layer).toModify( theMixObjects,
     mixSH = dict(
         input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","FastTimerHitsBarrel"), cms.InputTag("g4SimHits","FastTimerHitsEndcap") ],
         subdets = theMixObjects.mixSH.subdets + [ 'FastTimerHitsBarrel','FastTimerHitsEndcap' ],
         crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'FastTimerHitsBarrel','FastTimerHitsEndcap' ]
+    )
+)
+
+# instead of above modification for fullsim
+(fastSim & phase2_timing_layer).toModify( theMixObjects,
+    mixSH = dict(
+        input = theMixObjects.mixSH.input + [ cms.InputTag("fastSimProducer","FastTimerHitsBarrel"), cms.InputTag("fastSimProducer","FastTimerHitsEndcap") ],
+        subdets = theMixObjects.mixSH.subdets + [ 'FastTimerHitsBarrel','FastTimerHitsEndcap' ],
+        crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'FastTimerHitsBarrel','FastTimerHitsEndcap' ]
+    )
+)
+
+# *in addition to* above modification for fullsim
+(fastSimPU & phase2_timing_layer).toModify( theMixObjects,
+    mixSH = dict(
+        input = theMixObjects.mixSH.input + [ cms.InputTag("fastSimProducer","FastTimerHitsBarrel"), cms.InputTag("fastSimProducer","FastTimerHitsEndcap") ],
+        subdets = theMixObjects.mixSH.subdets + [ 'FastTimerHitsBarrel','FastTimerHitsEndcap' ],
     )
 )
 

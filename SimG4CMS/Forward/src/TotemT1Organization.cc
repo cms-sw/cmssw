@@ -25,7 +25,7 @@
 //
 // constructors and destructor
 //
-TotemT1Organization ::TotemT1Organization()
+TotemT1Organization::TotemT1Organization()
     : _needUpdateUnitID(false),
       _needUpdateData(false),
       _currentUnitID(-1),
@@ -36,17 +36,17 @@ TotemT1Organization ::TotemT1Organization()
   edm::LogVerbatim("ForwardSim") << "Creating TotemT1Organization";
 }
 
-TotemT1Organization ::~TotemT1Organization() {}
+TotemT1Organization::~TotemT1Organization() {}
 
 //
 // member functions
 //
 
-uint32_t TotemT1Organization ::getUnitID(const G4Step* aStep) const {
+uint32_t TotemT1Organization::getUnitID(const G4Step* aStep) const {
   return const_cast<TotemT1Organization*>(this)->getUnitID(aStep);
 }
 
-uint32_t TotemT1Organization ::getUnitID(const G4Step* aStep) {
+uint32_t TotemT1Organization::getUnitID(const G4Step* aStep) {
   int currLAOT;
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   G4VPhysicalVolume* physVol;
@@ -90,7 +90,7 @@ uint32_t TotemT1Organization ::getUnitID(const G4Step* aStep) {
   return getCurrentUnitID();
 }
 
-int TotemT1Organization ::getCurrentUnitID(void) const {
+int TotemT1Organization::getCurrentUnitID(void) const {
   _checkUnitIDUpdate();
 #ifdef SCRIVI
   LogDebug("ForwardSim") << "getCurrentUnitID()=" << _currentUnitID;
@@ -99,7 +99,7 @@ int TotemT1Organization ::getCurrentUnitID(void) const {
   return _currentUnitID;
 }
 
-void TotemT1Organization ::setCurrentUnitID(int currentUnitID) {
+void TotemT1Organization::setCurrentUnitID(int currentUnitID) {
 #ifdef SCRIVI
   LogDebug("ForwardSim") << "_currentUnitID=" << currentUnitID;
 #endif
@@ -107,7 +107,7 @@ void TotemT1Organization ::setCurrentUnitID(int currentUnitID) {
   _needUpdateData = true;
 }
 
-int TotemT1Organization ::getCurrentDetectorPosition(void) const {
+int TotemT1Organization::getCurrentDetectorPosition(void) const {
   _checkDataUpdate();
 #ifdef SCRIVI
   LogDebug("ForwardSim") << "getCurrentDetectorPosition()=" << _currentDetectorPosition;
@@ -115,7 +115,7 @@ int TotemT1Organization ::getCurrentDetectorPosition(void) const {
   return _currentDetectorPosition;
 }
 
-void TotemT1Organization ::setCurrentDetectorPosition(int currentDetectorPosition) {
+void TotemT1Organization::setCurrentDetectorPosition(int currentDetectorPosition) {
 #ifdef SCRIVI
   LogDebug("ForwardSim") << "_currentDetectorPosition=" << currentDetectorPosition;
 #endif
@@ -123,7 +123,7 @@ void TotemT1Organization ::setCurrentDetectorPosition(int currentDetectorPositio
   _needUpdateUnitID = true;
 }
 
-int TotemT1Organization ::getCurrentPlane(void) const {
+int TotemT1Organization::getCurrentPlane(void) const {
   _checkDataUpdate();
 
 #ifdef SCRIVI
@@ -132,7 +132,7 @@ int TotemT1Organization ::getCurrentPlane(void) const {
   return _currentPlane;
 }
 
-void TotemT1Organization ::setCurrentPlane(int currentPlane) {
+void TotemT1Organization::setCurrentPlane(int currentPlane) {
 #ifdef SCRIVI
   LogDebug("ForwardSim") << "_currentPlane=" << currentPlane;
 #endif
@@ -140,7 +140,7 @@ void TotemT1Organization ::setCurrentPlane(int currentPlane) {
   _needUpdateUnitID = true;
 }
 
-int TotemT1Organization ::getCurrentCSC(void) const {
+int TotemT1Organization::getCurrentCSC(void) const {
   _checkDataUpdate();
 #ifdef SCRIVI
   LogDebug("ForwardSim") << "getCurrentCSC()=" << _currentCSC;
@@ -148,7 +148,7 @@ int TotemT1Organization ::getCurrentCSC(void) const {
   return _currentCSC;
 }
 
-void TotemT1Organization ::setCurrentCSC(int currentCSC) {
+void TotemT1Organization::setCurrentCSC(int currentCSC) {
 #ifdef SCRIVI
   LogDebug("ForwardSim") << "_currentCSC=" << currentCSC;
 #endif
@@ -156,7 +156,7 @@ void TotemT1Organization ::setCurrentCSC(int currentCSC) {
   _needUpdateUnitID = true;
 }
 
-int TotemT1Organization ::getCurrentLayer(void) const {
+int TotemT1Organization::getCurrentLayer(void) const {
   _checkDataUpdate();
 #ifdef SCRIVI
   LogDebug("ForwardSim") << "getCurrentLayer()=" << _currentLayer;
@@ -164,7 +164,7 @@ int TotemT1Organization ::getCurrentLayer(void) const {
   return _currentLayer;
 }
 
-void TotemT1Organization ::setCurrentLayer(int currentLayer) {
+void TotemT1Organization::setCurrentLayer(int currentLayer) {
 #ifdef SCRIVI
   LogDebug("ForwardSim") << "_currentLayer=" << currentLayer;
 #endif
@@ -172,7 +172,7 @@ void TotemT1Organization ::setCurrentLayer(int currentLayer) {
   _needUpdateUnitID = true;
 }
 
-TotemT1Organization::ObjectType TotemT1Organization ::getCurrentObjectType(void) const {
+TotemT1Organization::ObjectType TotemT1Organization::getCurrentObjectType(void) const {
   _checkDataUpdate();
 #ifdef SCRIVI
   LogDebug("ForwardSim") << "getCurrentObjectType()=" << _currentObjectType;
@@ -180,7 +180,7 @@ TotemT1Organization::ObjectType TotemT1Organization ::getCurrentObjectType(void)
   return _currentObjectType;
 }
 
-void TotemT1Organization ::setCurrentObjectType(ObjectType currentObjectType) {
+void TotemT1Organization::setCurrentObjectType(ObjectType currentObjectType) {
 #ifdef SCRIVI
   LogDebug("ForwardSim") << "_currentObjectType=" << currentObjectType;
 #endif
@@ -188,7 +188,7 @@ void TotemT1Organization ::setCurrentObjectType(ObjectType currentObjectType) {
   _needUpdateUnitID = true;
 }
 
-int TotemT1Organization ::fromObjectTypeToInt(ObjectType objectType) {
+int TotemT1Organization::fromObjectTypeToInt(ObjectType objectType) {
   int result(static_cast<int>(objectType));
   if (result < 0 || result >= MaxObjectTypes) {
     result = 0;
@@ -197,7 +197,7 @@ int TotemT1Organization ::fromObjectTypeToInt(ObjectType objectType) {
   return result;
 }
 
-int TotemT1Organization ::fromObjectTypeToInt(ObjectType objectType, int layer) {
+int TotemT1Organization::fromObjectTypeToInt(ObjectType objectType, int layer) {
   return fromObjectTypeToInt(objectType) + layer * MaxObjectTypes;
 }
 
@@ -205,7 +205,7 @@ int TotemT1Organization ::fromObjectTypeToInt(ObjectType objectType, int layer) 
 // private member functions
 //
 
-void TotemT1Organization ::_checkUnitIDUpdate(void) const {
+void TotemT1Organization::_checkUnitIDUpdate(void) const {
   if (_needUpdateUnitID) {
 #ifdef SCRIVI
     LogDebug("ForwardSim") << "UnitID update needed.";
@@ -218,7 +218,7 @@ void TotemT1Organization ::_checkUnitIDUpdate(void) const {
   }
 }
 
-void TotemT1Organization ::_checkDataUpdate(void) const {
+void TotemT1Organization::_checkDataUpdate(void) const {
   if (_needUpdateData) {
 #ifdef SCRIVI
     LogDebug("ForwardSim") << "Data update needed.";
@@ -231,7 +231,7 @@ void TotemT1Organization ::_checkDataUpdate(void) const {
   }
 }
 
-void TotemT1Organization ::_FromUnitIDToData(void) {
+void TotemT1Organization::_FromUnitIDToData(void) {
   int currDP, currCSC, currOT, currPLA;
   unsigned long currPL, currLA;
 
@@ -279,7 +279,7 @@ void TotemT1Organization ::_FromUnitIDToData(void) {
   _needUpdateData = false;
 }
 
-void TotemT1Organization ::_FromDataToUnitID(void) {
+void TotemT1Organization::_FromDataToUnitID(void) {
   int currDP, currPL, currCSC, currLA, currOT;
 #ifdef SCRIVI
   LogDebug("ForwardSim") << " CURRENT DETECTOR POSITION (0-3) " << _currentDetectorPosition;

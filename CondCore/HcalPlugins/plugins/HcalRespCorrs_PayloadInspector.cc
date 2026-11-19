@@ -16,12 +16,14 @@
 #include "TLatex.h"
 #include "TPave.h"
 #include "TPaveStats.h"
+#include <memory>
 #include <string>
 #include <fstream>
 
 namespace {
 
   using namespace cond::payloadInspector;
+  using namespace HcalObjRepresent;
 
   class HcalRespCorrContainer : public HcalObjRepresent::HcalDataContainer<HcalRespCorrs, HcalRespCorr> {
   public:
@@ -31,54 +33,61 @@ namespace {
   };
 
   /******************************************
-     2d plot of HCAL RespCorr of 1 IOV
+     Detector map of HCAL RespCorrs for 1 IOV
   ******************************************/
-  class HcalRespCorrsPlotAll : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
+  template <ViewMode Mode>
+  class HcalRespCorrsPlotAllT : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
   public:
-    HcalRespCorrsPlotAll() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr Ratios - map ") {
+    HcalRespCorrsPlotAllT() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr - map") {
       setSingleIov(true);
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov = iovs.front();
-      std::shared_ptr<HcalRespCorrs> payload = fetchPayload(std::get<1>(iov));
-      if (payload.get()) {
-        HcalRespCorrContainer* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
-        std::string ImageName(m_imageFileName);
-        objContainer->getCanvasAll()->SaveAs(ImageName.c_str());
-        return true;
-      } else
+      auto [time, hash] = iovs.front();
+      std::shared_ptr<HcalRespCorrs> payload = fetchPayload(hash);
+      if (!payload)
         return false;
+      auto container = std::make_unique<HcalRespCorrContainer>(payload, time);
+      std::unique_ptr<TCanvas> canvas(container->getCanvasAll(modeName(Mode)));
+      canvas->SaveAs(m_imageFileName.c_str());
+      return true;
     }  // fill method
   };
 
   /**********************************************************
-     2d plot of HCAL RespCorrs difference between 2 IOVs
+     Detector map of HCAL RespCorr ratio between 2 IOVs
   **********************************************************/
-  class HcalRespCorrsRatioAll : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
+  template <ViewMode Mode>
+  class HcalRespCorrsRatioAllT : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
   public:
-    HcalRespCorrsRatioAll() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr Ratios difference") {
+    HcalRespCorrsRatioAllT() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr Ratio") {
       setSingleIov(false);
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov1 = iovs.front();
-      auto iov2 = iovs.back();
+      auto [t1, h1] = iovs.front();
+      auto [t2, h2] = iovs.back();
 
-      std::shared_ptr<HcalRespCorrs> payload1 = fetchPayload(std::get<1>(iov1));
-      std::shared_ptr<HcalRespCorrs> payload2 = fetchPayload(std::get<1>(iov2));
-
-      if (payload1.get() && payload2.get()) {
-        HcalRespCorrContainer* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
-        HcalRespCorrContainer* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
-        objContainer2->Divide(objContainer1);
-        std::string ImageName(m_imageFileName);
-        objContainer2->getCanvasAll()->SaveAs(ImageName.c_str());
-        return true;
-      } else
+      std::shared_ptr<HcalRespCorrs> payload1 = fetchPayload(h1);
+      std::shared_ptr<HcalRespCorrs> payload2 = fetchPayload(h2);
+      if (!payload1 || !payload2)
         return false;
+
+      auto container1 = std::make_unique<HcalRespCorrContainer>(payload1, t1);
+      auto container2 = std::make_unique<HcalRespCorrContainer>(payload2, t2);
+      container2->Divide(container1.get());
+      std::unique_ptr<TCanvas> canvas(container2->getCanvasAll(modeName(Mode)));
+      canvas->SaveAs(m_imageFileName.c_str());
+      return true;
     }  // fill method
   };
+
+  using HcalRespCorrsPlotAll = HcalRespCorrsPlotAllT<ViewMode::Map>;
+  using HcalRespCorrsEtaPlotAll = HcalRespCorrsPlotAllT<ViewMode::EtaProfile>;
+  using HcalRespCorrsPhiPlotAll = HcalRespCorrsPlotAllT<ViewMode::PhiProfile>;
+  using HcalRespCorrsRatioAll = HcalRespCorrsRatioAllT<ViewMode::Map>;
+  using HcalRespCorrsEtaRatioAll = HcalRespCorrsRatioAllT<ViewMode::EtaProfile>;
+  using HcalRespCorrsPhiRatioAll = HcalRespCorrsRatioAllT<ViewMode::PhiProfile>;
 
   /**********************************************************
      1d plots of HCAL RespCorrs comparison between 2 IOVs
@@ -116,8 +125,8 @@ namespace {
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
 
-      HcalRespCorrContainer* last_objContainer = new HcalRespCorrContainer(last_payload, std::get<0>(lastiov));
-      HcalRespCorrContainer* first_objContainer = new HcalRespCorrContainer(first_payload, std::get<0>(firstiov));
+      auto last_objContainer = std::make_unique<HcalRespCorrContainer>(last_payload, std::get<0>(lastiov));
+      auto first_objContainer = std::make_unique<HcalRespCorrContainer>(first_payload, std::get<0>(firstiov));
 
       const auto& lastItems = last_objContainer->getAllItems();
       const auto& firstItems = first_objContainer->getAllItems();
@@ -249,8 +258,7 @@ namespace {
         legend.Draw("same");
       }
 
-      std::string fileName(this->m_imageFileName);
-      canvas.SaveAs(fileName.c_str());
+      canvas.SaveAs(this->m_imageFileName.c_str());
 
       return true;
     }
@@ -366,8 +374,8 @@ namespace {
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
 
-      HcalRespCorrContainer* last_objContainer = new HcalRespCorrContainer(last_payload, std::get<0>(lastiov));
-      HcalRespCorrContainer* first_objContainer = new HcalRespCorrContainer(first_payload, std::get<0>(firstiov));
+      auto last_objContainer = std::make_unique<HcalRespCorrContainer>(last_payload, std::get<0>(lastiov));
+      auto first_objContainer = std::make_unique<HcalRespCorrContainer>(first_payload, std::get<0>(firstiov));
 
       const auto& lastItems = last_objContainer->getAllItems();
       const auto& firstItems = first_objContainer->getAllItems();
@@ -453,8 +461,7 @@ namespace {
         plots[part]->Draw();
       }
 
-      std::string fileName(this->m_imageFileName);
-      canvas.SaveAs(fileName.c_str());
+      canvas.SaveAs(this->m_imageFileName.c_str());
 
       return true;
     }
@@ -480,248 +487,140 @@ namespace {
   using HcalRespCorrsCorrelationTwoTags = HcalRespCorrsCorrelationBase<2, SINGLE_IOV>;
 
   /******************************************
-     2d plot of HCAL RespCorr of 1 IOV
-  ******************************************/
-  class HcalRespCorrsEtaPlotAll : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
-  public:
-    HcalRespCorrsEtaPlotAll() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr Ratios - map ") {
-      setSingleIov(true);
-    }
-
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov = iovs.front();
-      std::shared_ptr<HcalRespCorrs> payload = fetchPayload(std::get<1>(iov));
-      if (payload.get()) {
-        HcalRespCorrContainer* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
-        std::string ImageName(m_imageFileName);
-        objContainer->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
-        return true;
-      } else
-        return false;
-    }  // fill method
-  };
-
-  /**********************************************************
-     2d plot of HCAL RespCorrs difference between 2 IOVs
-  **********************************************************/
-  class HcalRespCorrsEtaRatioAll : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
-  public:
-    HcalRespCorrsEtaRatioAll() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr Ratios difference") {
-      setSingleIov(false);
-    }
-
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov1 = iovs.front();
-      auto iov2 = iovs.back();
-
-      std::shared_ptr<HcalRespCorrs> payload1 = fetchPayload(std::get<1>(iov1));
-      std::shared_ptr<HcalRespCorrs> payload2 = fetchPayload(std::get<1>(iov2));
-
-      if (payload1.get() && payload2.get()) {
-        HcalRespCorrContainer* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
-        HcalRespCorrContainer* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
-        objContainer2->Divide(objContainer1);
-        std::string ImageName(m_imageFileName);
-        objContainer2->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
-        return true;
-      } else
-        return false;
-    }  // fill method
-  };
-  /******************************************
-     2d plot of HCAL RespCorr of 1 IOV
-  ******************************************/
-  class HcalRespCorrsPhiPlotAll : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
-  public:
-    HcalRespCorrsPhiPlotAll() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr Ratios - map ") {
-      setSingleIov(true);
-    }
-
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov = iovs.front();
-      std::shared_ptr<HcalRespCorrs> payload = fetchPayload(std::get<1>(iov));
-      if (payload.get()) {
-        HcalRespCorrContainer* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
-        std::string ImageName(m_imageFileName);
-        objContainer->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
-        return true;
-      } else
-        return false;
-    }  // fill method
-  };
-
-  /**********************************************************
-     2d plot of HCAL RespCorrs difference between 2 IOVs
-  **********************************************************/
-  class HcalRespCorrsPhiRatioAll : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
-  public:
-    HcalRespCorrsPhiRatioAll() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr Ratios difference") {
-      setSingleIov(false);
-    }
-
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov1 = iovs.front();
-      auto iov2 = iovs.back();
-
-      std::shared_ptr<HcalRespCorrs> payload1 = fetchPayload(std::get<1>(iov1));
-      std::shared_ptr<HcalRespCorrs> payload2 = fetchPayload(std::get<1>(iov2));
-
-      if (payload1.get() && payload2.get()) {
-        HcalRespCorrContainer* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
-        HcalRespCorrContainer* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
-        objContainer2->Divide(objContainer1);
-        std::string ImageName(m_imageFileName);
-        objContainer2->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
-        return true;
-      } else
-        return false;
-    }  // fill method
-  };
-  /******************************************
-     2d plot of HCAL RespCorrs of 1 IOV
+     2d plot of HCAL RespCorr of 1 IOV, HB/HO only
   ******************************************/
   class HcalRespCorrsPlotHBHO : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
   public:
-    HcalRespCorrsPlotHBHO() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr Ratios - map ") {
+    HcalRespCorrsPlotHBHO() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr - map (HB/HO)") {
       setSingleIov(true);
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov = iovs.front();
-      std::shared_ptr<HcalRespCorrs> payload = fetchPayload(std::get<1>(iov));
-      if (payload.get()) {
-        HcalRespCorrContainer* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
-        std::string ImageName(m_imageFileName);
-        objContainer->getCanvasHBHO()->SaveAs(ImageName.c_str());
-        return true;
-      } else
+      auto [time, hash] = iovs.front();
+      std::shared_ptr<HcalRespCorrs> payload = fetchPayload(hash);
+      if (!payload)
         return false;
+      auto container = std::make_unique<HcalRespCorrContainer>(payload, time);
+      container->getCanvasHBHO()->SaveAs(m_imageFileName.c_str());
+      return true;
     }  // fill method
   };
 
   /**********************************************************
-     2d plot of HCAL RespCorr difference between 2 IOVs
+     2d plot of HCAL RespCorr ratio between 2 IOVs, HB/HO only
   **********************************************************/
   class HcalRespCorrsRatioHBHO : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
   public:
-    HcalRespCorrsRatioHBHO() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr Ratios difference") {
+    HcalRespCorrsRatioHBHO() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr Ratio (HB/HO)") {
       setSingleIov(false);
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov1 = iovs.front();
-      auto iov2 = iovs.back();
+      auto [t1, h1] = iovs.front();
+      auto [t2, h2] = iovs.back();
 
-      std::shared_ptr<HcalRespCorrs> payload1 = fetchPayload(std::get<1>(iov1));
-      std::shared_ptr<HcalRespCorrs> payload2 = fetchPayload(std::get<1>(iov2));
-
-      if (payload1.get() && payload2.get()) {
-        HcalRespCorrContainer* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
-        HcalRespCorrContainer* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
-        objContainer2->Divide(objContainer1);
-        std::string ImageName(m_imageFileName);
-        objContainer2->getCanvasHBHO()->SaveAs(ImageName.c_str());
-        return true;
-      } else
+      std::shared_ptr<HcalRespCorrs> payload1 = fetchPayload(h1);
+      std::shared_ptr<HcalRespCorrs> payload2 = fetchPayload(h2);
+      if (!payload1 || !payload2)
         return false;
+
+      auto container1 = std::make_unique<HcalRespCorrContainer>(payload1, t1);
+      auto container2 = std::make_unique<HcalRespCorrContainer>(payload2, t2);
+      container2->Divide(container1.get());
+      container2->getCanvasHBHO()->SaveAs(m_imageFileName.c_str());
+      return true;
     }  // fill method
   };
+
   /******************************************
-     2d plot of HCAL RespCorr of 1 IOV
+     2d plot of HCAL RespCorr of 1 IOV, HE only
   ******************************************/
   class HcalRespCorrsPlotHE : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
   public:
-    HcalRespCorrsPlotHE() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr Ratios - map ") {
+    HcalRespCorrsPlotHE() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr - map (HE)") {
       setSingleIov(true);
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov = iovs.front();
-      std::shared_ptr<HcalRespCorrs> payload = fetchPayload(std::get<1>(iov));
-      if (payload.get()) {
-        HcalRespCorrContainer* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
-        std::string ImageName(m_imageFileName);
-        objContainer->getCanvasHE()->SaveAs(ImageName.c_str());
-        return true;
-      } else
+      auto [time, hash] = iovs.front();
+      std::shared_ptr<HcalRespCorrs> payload = fetchPayload(hash);
+      if (!payload)
         return false;
+      auto container = std::make_unique<HcalRespCorrContainer>(payload, time);
+      container->getCanvasHE()->SaveAs(m_imageFileName.c_str());
+      return true;
     }  // fill method
   };
 
   /**********************************************************
-     2d plot of HCAL RespCorr difference between 2 IOVs
+     2d plot of HCAL RespCorr ratio between 2 IOVs, HE only
   **********************************************************/
   class HcalRespCorrsRatioHE : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
   public:
-    HcalRespCorrsRatioHE() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr Ratios difference") {
+    HcalRespCorrsRatioHE() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr Ratio (HE)") {
       setSingleIov(false);
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov1 = iovs.front();
-      auto iov2 = iovs.back();
+      auto [t1, h1] = iovs.front();
+      auto [t2, h2] = iovs.back();
 
-      std::shared_ptr<HcalRespCorrs> payload1 = fetchPayload(std::get<1>(iov1));
-      std::shared_ptr<HcalRespCorrs> payload2 = fetchPayload(std::get<1>(iov2));
-
-      if (payload1.get() && payload2.get()) {
-        HcalRespCorrContainer* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
-        HcalRespCorrContainer* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
-        objContainer2->Divide(objContainer1);
-        std::string ImageName(m_imageFileName);
-        objContainer2->getCanvasHE()->SaveAs(ImageName.c_str());
-        return true;
-      } else
+      std::shared_ptr<HcalRespCorrs> payload1 = fetchPayload(h1);
+      std::shared_ptr<HcalRespCorrs> payload2 = fetchPayload(h2);
+      if (!payload1 || !payload2)
         return false;
+
+      auto container1 = std::make_unique<HcalRespCorrContainer>(payload1, t1);
+      auto container2 = std::make_unique<HcalRespCorrContainer>(payload2, t2);
+      container2->Divide(container1.get());
+      container2->getCanvasHE()->SaveAs(m_imageFileName.c_str());
+      return true;
     }  // fill method
   };
+
   /******************************************
-     2d plot of HCAL RespCorr of 1 IOV
+     2d plot of HCAL RespCorr of 1 IOV, HF only
   ******************************************/
   class HcalRespCorrsPlotHF : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
   public:
-    HcalRespCorrsPlotHF() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr Ratios - map ") {
+    HcalRespCorrsPlotHF() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr - map (HF)") {
       setSingleIov(true);
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov = iovs.front();
-      std::shared_ptr<HcalRespCorrs> payload = fetchPayload(std::get<1>(iov));
-      if (payload.get()) {
-        HcalRespCorrContainer* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
-        std::string ImageName(m_imageFileName);
-        objContainer->getCanvasHF()->SaveAs(ImageName.c_str());
-        return true;
-      } else
+      auto [time, hash] = iovs.front();
+      std::shared_ptr<HcalRespCorrs> payload = fetchPayload(hash);
+      if (!payload)
         return false;
+      auto container = std::make_unique<HcalRespCorrContainer>(payload, time);
+      container->getCanvasHF()->SaveAs(m_imageFileName.c_str());
+      return true;
     }  // fill method
   };
 
   /**********************************************************
-     2d plot of HCAL RespCorrRatios difference between 2 IOVs
+     2d plot of HCAL RespCorr ratio between 2 IOVs, HF only
   **********************************************************/
   class HcalRespCorrsRatioHF : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
   public:
-    HcalRespCorrsRatioHF() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr Ratios difference") {
+    HcalRespCorrsRatioHF() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr Ratio (HF)") {
       setSingleIov(false);
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov1 = iovs.front();
-      auto iov2 = iovs.back();
+      auto [t1, h1] = iovs.front();
+      auto [t2, h2] = iovs.back();
 
-      std::shared_ptr<HcalRespCorrs> payload1 = fetchPayload(std::get<1>(iov1));
-      std::shared_ptr<HcalRespCorrs> payload2 = fetchPayload(std::get<1>(iov2));
-
-      if (payload1.get() && payload2.get()) {
-        HcalRespCorrContainer* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
-        HcalRespCorrContainer* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
-        objContainer2->Divide(objContainer1);
-        std::string ImageName(m_imageFileName);
-        objContainer2->getCanvasHF()->SaveAs(ImageName.c_str());
-        return true;
-      } else
+      std::shared_ptr<HcalRespCorrs> payload1 = fetchPayload(h1);
+      std::shared_ptr<HcalRespCorrs> payload2 = fetchPayload(h2);
+      if (!payload1 || !payload2)
         return false;
+
+      auto container1 = std::make_unique<HcalRespCorrContainer>(payload1, t1);
+      auto container2 = std::make_unique<HcalRespCorrContainer>(payload2, t2);
+      container2->Divide(container1.get());
+      container2->getCanvasHF()->SaveAs(m_imageFileName.c_str());
+      return true;
     }  // fill method
   };
 
@@ -742,7 +641,7 @@ namespace {
       if (!payload.get())
         return false;
 
-      HcalRespCorrContainer* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
+      auto objContainer = std::make_unique<HcalRespCorrContainer>(payload, std::get<0>(iov));
       const auto& items = objContainer->getAllItems();
 
       if (items.empty())
@@ -856,8 +755,7 @@ namespace {
 
       legend.Draw();
 
-      std::string fileName(this->m_imageFileName);
-      canvas.SaveAs(fileName.c_str());
+      canvas.SaveAs(this->m_imageFileName.c_str());
       return true;
     }
   };
@@ -878,7 +776,7 @@ namespace {
       if (!payload.get())
         return false;
 
-      HcalRespCorrContainer* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
+      auto objContainer = std::make_unique<HcalRespCorrContainer>(payload, std::get<0>(iov));
       const auto& items = objContainer->getAllItems();
 
       if (items.empty()) {
@@ -995,8 +893,7 @@ namespace {
         title.DrawLatex(0.15, 0.98, partName.c_str());
       }
 
-      std::string fileName(this->m_imageFileName);
-      canvas.SaveAs(fileName.c_str());
+      canvas.SaveAs(this->m_imageFileName.c_str());
       return true;
     }
   };

@@ -24,6 +24,10 @@ int main() {
   testSerialization<SiPixelLorentzAngle>();
   testSerialization<SiPixelPedestals>();
   testSerialization<SiPixelVCal>();
+  testSerialization<SiPixelClusterShapeLimits>();
+  testSerialization<SiPixelClusterShapeLimits::Entry>();
+  testSerialization<SiPixelClusterShapeLimits::Table>();
+  testSerialization<SiPixelClusterShapeLimits::Rule>();
   testSerialization<SiPixelVCal::VCal>();
   testSerialization<SiPixelPerformanceSummary>();
   testSerialization<SiPixelPerformanceSummary::DetSummary>();

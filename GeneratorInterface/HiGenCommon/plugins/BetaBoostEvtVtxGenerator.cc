@@ -79,11 +79,11 @@ private:
 
   const double fTimeOffset;
 
+  const bool verbosity_;
+
   const TMatrixD boost_;
 
   const edm::EDGetTokenT<HepMCProduct> sourceLabel;
-
-  const bool verbosity_;
 };
 
 BetaBoostEvtVtxGenerator::BetaBoostEvtVtxGenerator(const edm::ParameterSet& p)
@@ -97,9 +97,9 @@ BetaBoostEvtVtxGenerator::BetaBoostEvtVtxGenerator(const edm::ParameterSet& p)
       fbetastar(p.getParameter<double>("BetaStar") * cm),
       femittance(p.getParameter<double>("Emittance") * cm),              // this is not the normalized emittance
       fTimeOffset(p.getParameter<double>("TimeOffset") * ns * c_light),  // HepMC time units are mm
+      verbosity_(p.getUntrackedParameter<bool>("verbosity", false)),
       boost_(GetInvLorentzBoost()),
-      sourceLabel(consumes<HepMCProduct>(p.getParameter<edm::InputTag>("src"))),
-      verbosity_(p.getUntrackedParameter<bool>("verbosity", false)) {
+      sourceLabel(consumes<HepMCProduct>(p.getParameter<edm::InputTag>("src"))) {
   if (fSigmaZ <= 0) {
     throw cms::Exception("Configuration") << "Error in BetaBoostEvtVtxGenerator: "
                                           << "Illegal resolution in Z (SigmaZ is negative)";

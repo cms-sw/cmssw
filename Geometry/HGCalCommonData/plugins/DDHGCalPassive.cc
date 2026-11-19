@@ -56,6 +56,8 @@ private:
   std::vector<std::string> layerMaterial_;  // Materials of the layers
   std::vector<double> layerThick_;          // Thickness of layers
   std::vector<int> layerType_;              // Layer types
+  std::vector<double> shX_;                 // Absorber shifts needed to
+  std::vector<double> shY_;                 // implement the chamfer
 };
 
 DDHGCalPassive::DDHGCalPassive() {
@@ -115,6 +117,8 @@ void DDHGCalPassive::initialize(const DDNumericArguments& nArgs,
   absN_ = dbl_to_int(vArgs["AbsorberN"]);
   absX_ = vArgs["AbsorberX"];
   absY_ = vArgs["AbsorberY"];
+  shX_ = vArgs["ShiftX"];
+  shY_ = vArgs["ShiftY"];
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "There are " << absNames_.size() << " basic absorber shapes:";
   unsigned int j(0);
@@ -122,7 +126,7 @@ void DDHGCalPassive::initialize(const DDNumericArguments& nArgs,
     std::ostringstream st3;
     st3 << absNames_[k] << " with " << absN_[k] << " points:";
     for (int i = 0; i < absN_[k]; ++i)
-      st3 << " (" << absX_[j + i] << ", " << absY_[j + i] << ")";
+      st3 << " (" << absX_[j + i] << ", " << absY_[j + i] << "; " << shX_[j + i] << ", " << shY_[j + i] << ")";
     j += absN_[k];
     edm::LogVerbatim("HGCalGeom") << st3.str();
   }
@@ -150,6 +154,11 @@ void DDHGCalPassive::execute(DDCompactView& cpv) {
         std::vector<double> zw = {-0.5 * moduleThick_, 0.5 * moduleThick_};
         std::vector<double> zx(2, 0), zy(2, 0), scale(2, 1.0);
         std::vector<double> xM(absN_[i3], 0), yM(absN_[i3], 0);
+
+        for (int k = 0; k < 2; ++k) {
+          zx[k] = xsignpos_[i1] * (cphi * shX_[i3] * zw[k] + sphi * shY_[i3] * zw[k]);
+          zy[k] = -sphi * shX_[i3] * zw[k] + cphi * shY_[i3] * zw[k];
+        }
         for (int k = 0; k < absN_[i3]; ++k) {
           xM[k] = xsignpos_[i1] * (cphi * absX_[j + k] + sphi * absY_[j + k]);
           yM[k] = -sphi * absX_[j + k] + cphi * absY_[j + k];
@@ -168,7 +177,7 @@ void DDHGCalPassive::execute(DDCompactView& cpv) {
           edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
 #endif
         // Then the layers
-        std::vector<DDLogicalPart> glogs(layerMaterial_.size());
+        std::vector<DDLogicalPart> glogs(layerType_.size());
         std::vector<int> copyNumber(layerMaterial_.size(), 1);
         double zi(-0.5 * moduleThick_), thickTot(0.0);
         for (unsigned int l = 0; l < layerType_.size(); l++) {
@@ -176,6 +185,10 @@ void DDHGCalPassive::execute(DDCompactView& cpv) {
           if (copyNumber[i] == 1) {
             zw[0] = -0.5 * layerThick_[i];
             zw[1] = 0.5 * layerThick_[i];
+            for (int k = 0; k < 2; ++k) {
+              zx[k] = xsignpos_[i1] * (cphi * shX_[i3] * zw[k] + sphi * shY_[i3] * zw[k]);
+              zy[k] = -sphi * shX_[i3] * zw[k] + cphi * shY_[i3] * zw[k];
+            }
             std::string layerName = parentName + layerNames_[i];
             solid = DDSolidFactory::extrudedpolygon(layerName, xM, yM, zw, zx, zy, scale);
             DDName matN(DDSplit(layerMaterial_[i]).first, DDSplit(layerMaterial_[i]).second);
@@ -186,12 +199,18 @@ void DDHGCalPassive::execute(DDCompactView& cpv) {
                 << "DDHGCalPassive: Layer " << i << ":" << l << ":" << solid.name() << " extruded polygon made of "
                 << matN << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
                 << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1] << " and " << xM.size()
-                << " edges";
+                << " Offests " << zx[0] << ":" << zy[0] << " and " << zx[1] << ":" << zy[1] << " and edges ";
             for (unsigned int kk = 0; kk < xM.size(); ++kk)
               edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
 #endif
           }
-          DDTranslation tran0(0, 0, (zi + 0.5 * layerThick_[i]));
+          double zp = zi + 0.5 * layerThick_[i];
+          double zxp = xsignpos_[i1] * (cphi * shX_[i3] * zp + sphi * shY_[i3] * zp);
+          double zyp = -sphi * shX_[i3] * zp + cphi * shY_[i3] * zp;
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("HGCalGeom") << "First time" << zxp << ":" << zyp << "  layer " << copyNumber[i];
+#endif
+          DDTranslation tran0(zxp, zyp, (zi + 0.5 * layerThick_[i]));
           DDRotation rot;
           cpv.position(glogs[i], glogM, copyNumber[i], tran0, rot);
 #ifdef EDM_ML_DEBUG

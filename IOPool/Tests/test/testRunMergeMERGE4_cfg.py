@@ -16,6 +16,13 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
+#Contents of files
+#testRunMerge1.root  "PROD" [run:1,lumi:1, ev:11-20]
+#testRunMerge2.root  "PROD" [run:1, lumi:1, ev:21-25] [run:2,lumi:1, ev:1-5]
+#testRunMerge3.root  "PROD" [run:1, lumi:1, ev:1-10]
+#testRunMerge4.root  "PROD" [run:11, lumi:1, ev:1]
+#testRunMerge7.root  "PROD" [run:1,lumi:1, ev:26]
+
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         'file:testRunMerge1.root', 

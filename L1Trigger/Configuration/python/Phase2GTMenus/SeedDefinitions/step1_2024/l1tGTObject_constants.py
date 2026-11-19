@@ -13,6 +13,7 @@ obj_regions_abseta_lowbounds = {
 
     "CL2Taus": { "barrel": 0, "endcap": 1.5 },
     "CL2JetsSC4": { "barrel": 0, "endcap": 1.5, "forwardHGC": 2.4, "forwardHF": 3.0 },
+    "CL2JetsSC8": { "barrel": 0, "endcap": 1.5, "forwardHGC": 2.4, "forwardHF": 3.0 },
 
     "GMTTkMuons": { "barrel": 0, "overlap": 0.83, "endcap": 1.24 },
     "GMTMuons": { "barrel": 0, "overlap": 0.83, "endcap": 1.24 },

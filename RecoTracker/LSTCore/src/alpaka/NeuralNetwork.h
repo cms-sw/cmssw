@@ -192,6 +192,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }  // namespace pt3dnn
 
   namespace t5dnn {
+    // Fills the softmax outputs (fake, prompt, displaced); returns the creation decision.
     template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runInference(TAcc const& acc,
                                                      MiniDoubletsConst mds,
@@ -203,9 +204,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                      const float innerRadius,
                                                      const float outerRadius,
                                                      const float bridgeRadius,
-                                                     float& dnnScore) {
-      // Constants
-      constexpr unsigned int kInputFeatures = 23;
+                                                     const float fakeScore1,
+                                                     const float promptScore1,
+                                                     const float dispScore1,
+                                                     const float fakeScore2,
+                                                     const float promptScore2,
+                                                     const float dispScore2,
+                                                     const dnn::t5dnn::ExtraFeatures& extra,
+                                                     float (&output)[dnn::t5dnn::kOutputFeatures]) {
+      constexpr unsigned int kInputFeatures = 35;
       constexpr unsigned int kHiddenFeatures = 32;
 
       float eta1 = alpaka::math::abs(acc, mds.anchorEta()[mdIndex1]);  // inner T3 anchor hit 1 eta
@@ -265,33 +272,35 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
           alpaka::math::log10(acc, innerRadius),   // T5 inner radius
           alpaka::math::log10(acc, bridgeRadius),  // T5 bridge radius
-          alpaka::math::log10(acc, outerRadius)    // T5 outer radius
-      };
+          alpaka::math::log10(acc, outerRadius),   // T5 outer radius
 
-      float x_1[kHiddenFeatures];  // Layer 1 output
-      float x_2[kHiddenFeatures];  // Layer 2 output
-      float x_3[1];                // Layer 3 linear output
+          fakeScore1,    // inner T3 fake score
+          promptScore1,  // inner T3 prompt score
+          dispScore1,    // inner T3 displaced score
+          fakeScore2,    // outer T3 fake score
+          promptScore2,  // outer T3 prompt score
+          dispScore2,    // outer T3 displaced score
+          extra.mdDirMeanW,
+          extra.mdDirMaxW,
+          alpaka::math::log10(acc, 1.f + extra.nT3OutMid),
+          alpaka::math::log10(acc, 1.f + extra.nT3OutFirst),
+          alpaka::math::log10(acc, 1.f + extra.nMDFirstMod),
+          alpaka::math::min(acc, alpaka::math::log10(acc, 1.f + extra.dcaXY), dnn::t5dnn::kLogDcaMax)};
 
-      // Layer 1: Linear + Relu
+      float x_1[kHiddenFeatures];
+      float x_2[kHiddenFeatures];
+
       linear_layer<kInputFeatures, kHiddenFeatures>(x, x_1, dnn::t5dnn::wgtT_layer1, dnn::t5dnn::bias_layer1);
       relu_activation<kHiddenFeatures>(x_1);
-
-      // Layer 2: Linear + Relu
       linear_layer<kHiddenFeatures, kHiddenFeatures>(x_1, x_2, dnn::t5dnn::wgtT_layer2, dnn::t5dnn::bias_layer2);
       relu_activation<kHiddenFeatures>(x_2);
+      linear_layer<kHiddenFeatures, dnn::t5dnn::kOutputFeatures>(
+          x_2, output, dnn::t5dnn::wgtT_output_layer, dnn::t5dnn::bias_output_layer);
+      softmax_activation<dnn::t5dnn::kOutputFeatures>(acc, output);
 
-      // Layer 3: Linear + Sigmoid
-      linear_layer<kHiddenFeatures, 1>(x_2, x_3, dnn::t5dnn::wgtT_output_layer, dnn::t5dnn::bias_output_layer);
-      dnnScore = sigmoid_activation(acc, x_3[0]);
-
-      // Get the bin index based on abs(eta) of first hit and t5_pt
-      float t5_pt = innerRadius * lst::k2Rinv1GeVf * 2;
-
-      uint8_t pt_index = (t5_pt > 5.0f);
-      uint8_t bin_index = (eta1 > 2.5f) ? (dnn::kEtaBins - 1) : static_cast<unsigned int>(eta1 / dnn::kEtaSize);
-
-      // Compare output to the cut value for the relevant bin
-      return dnnScore > dnn::t5dnn::kWp[pt_index][bin_index];
+      const uint8_t pt_index = (innerRadius * lst::k2Rinv1GeVf * 2 > 5.0f);
+      const uint8_t bin_index = (eta1 > 2.5f) ? (dnn::kEtaBins - 1) : static_cast<unsigned int>(eta1 / dnn::kEtaSize);
+      return 1.f - output[0] > dnn::t5dnn::kWp[pt_index][bin_index];
     }
   }  // namespace t5dnn
 
@@ -459,9 +468,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                      float displacedScore1,
                                                      float fakeScore2,
                                                      float promptScore2,
-                                                     float displacedScore2) {
+                                                     float displacedScore2,
+                                                     const dnn::t5dnn::ExtraFeatures& extra) {
       // Constants
-      constexpr unsigned int kinputFeatures = 30;
+      constexpr unsigned int kinputFeatures = 33;
       constexpr unsigned int khiddenFeatures = 32;
       constexpr unsigned int koutputFeatures = 3;
 
@@ -521,10 +531,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           fakeScore2,
           promptScore2,
           displacedScore2,
-          (fakeScore2 - fakeScore1),
-          (promptScore2 - promptScore1),
-          (displacedScore2 - displacedScore1),
-      };
+          extra.mdDirMeanW,
+          extra.mdDirMaxW,
+          alpaka::math::log10(acc, 1.f + extra.nT3OutMid),
+          alpaka::math::log10(acc, 1.f + extra.nT3OutFirst),
+          alpaka::math::log10(acc, 1.f + extra.nMDFirstMod),
+          alpaka::math::min(acc, alpaka::math::log10(acc, 1.f + extra.dcaXY), dnn::t5dnn::kLogDcaMax)};
 
       float x_1[khiddenFeatures];  // Layer 1 output
       float x_2[khiddenFeatures];  // Layer 2 output
@@ -547,14 +559,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       float t4_pt = (innerRadius + outerRadius) * lst::k2Rinv1GeVf;  //t4 pt is average
 
       uint8_t pt_index = (t4_pt > 5.f);
-      uint8_t bin_index = (eta1 > 2.5f) ? (dnn::t4dnn::kEtaBins - 1) : static_cast<unsigned int>(eta1 / 0.1f);
+      uint8_t bin_index = (eta1 > 2.5f) ? (dnn::kEtaBins - 1) : static_cast<unsigned int>(eta1 / dnn::kEtaSize);
 
       promptScore = x_3[1];
       displacedScore = x_3[2];
       fakeScore = x_3[0];
 
-      return (x_3[2] > dnn::t4dnn::kWp_displaced[pt_index][bin_index]) &&
-             (x_3[0] < dnn::t4dnn::kWp_fake[pt_index][bin_index]);
+      return x_3[2] > dnn::t4dnn::kWp[pt_index][bin_index];
     }
 
   }  //namespace t4dnn

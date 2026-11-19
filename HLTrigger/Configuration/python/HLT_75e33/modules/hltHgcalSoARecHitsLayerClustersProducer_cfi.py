@@ -6,9 +6,9 @@ hltHgcalSoARecHitsLayerClustersProducer = cms.EDProducer("HGCalSoARecHitsLayerCl
         backend = cms.untracked.string('')
     ),
     hgcalRecHitsSoA = cms.InputTag("hltHgcalSoARecHitsProducer"),
-    deltac = cms.double(1.3),
-    kappa = cms.double(9),
-    outlierDeltaFactor = cms.double(2.0)
+    deltac = cms.float(1.3),
+    kappa = cms.float(9),
+    outlierDeltaFactor = cms.float(2.0)
 )
 
 hltHgcalSoARecHitsLayerClustersProducerSerialSync = makeSerialClone(hltHgcalSoARecHitsLayerClustersProducer,

@@ -2,6 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ModuleFactory.h"
@@ -55,14 +56,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         descriptions.addWithDefaultLabel(desc);
       }
 
-      std::map<int, int> makeOffsetMap(edm::FileInPath input_offsetfile,
+      std::map<int, int> makeOffsetMap(const edm::FileInPath& input_offsetfile,
                                        const HGCalMappingCellIndexer& cellIndexer,
                                        const HGCalMappingModuleIndexer& moduleIndexer) {
         std::map<int, int> offsetMap;
         const auto& offsetfile = input_offsetfile.fullPath();
         ::hgcal::mappingtools::HGCalEntityList omap;
-        edm::FileInPath fip(offsetfile);
-        omap.buildFrom(fip.fullPath());
+        omap.buildFrom(offsetfile);
 
         const auto& mapEntries = omap.getEntries();
         for (const auto& row : mapEntries) {

@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun runHGCalTestDDD_cfg.py type=V17
 #
-#   Options for type V17, V17n, V17ng, V18, V18n, V18ng, V19, V19n, V19ng
+#   Options for type V17, V17n, V17ng, V18, V18n, V18ng, V19, V19n, V19ng, V20
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('type',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V17, V17n, V17ng, V18, V18n, V18ng, V19, V19n, V19ng")
+                  "type of operations: V17, V17n, V17ng, V18, V18n, V18ng, V19, V19n, V19ng, V20")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -39,7 +39,10 @@ elif (options.type == "V19n"):
     process = cms.Process("HGCalTest",Phase2C26I13M9)
 elif (options.type == "V19ng"):
     from Configuration.Eras.Era_Phase2C26I13M9_cff import Phase2C26I13M9
-    process = cms.Process("HGCalTest",Phase2C22I13M9)
+    process = cms.Process("HGCalTest",Phase2C26I13M9)
+elif (options.type == "V20"):
+    from Configuration.Eras.Era_Phase2C26I13M9_cff import Phase2C26I13M9
+    process = cms.Process("HGCalTest",Phase2C26I13M9)
 else:
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process("HGCalTest",Phase2C17I13M9)

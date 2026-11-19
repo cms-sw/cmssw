@@ -43,7 +43,6 @@ SLHCUpgradeSimulations/Geometry/.*     : geant4core
 CalibTracker/SiStripLorentzAngle/.*     : oracle
 
 #oracleocci (direct)
-CaloOnlineTools/HcalOnlineDb/.*         : oracle.*
 CondTools/Hcal/.*                       : oracle.*
 OnlineDB/CSCCondDB/.*                   : oracle.*
 OnlineDB/EcalCondDB/.*                  : oracle.*
@@ -81,7 +80,6 @@ Iguana/.*                               : qt.*, soqt, coin
 Vis.*                                   : qt.*, soqt, coin
 
 #xdaq (direct)
-CaloOnlineTools/HcalOnlineDb/.*         : xdaq
 DQM/EcalBarrelMonitorClient/.*          : xdaq
 DQM/EcalEndcapMonitorClient/.*          : xdaq
 DQM/SiStripMonitorClient/.*             : xdaq

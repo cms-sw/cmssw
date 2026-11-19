@@ -23,8 +23,8 @@
 //=============================================================================
 
 //_____________________________________________________________________________
-AlignableTrackerBuilder ::AlignableTrackerBuilder(const TrackerGeometry* trackerGeometry,
-                                                  const TrackerTopology* trackerTopology)
+AlignableTrackerBuilder::AlignableTrackerBuilder(const TrackerGeometry* trackerGeometry,
+                                                 const TrackerTopology* trackerTopology)
     : trackerGeometry_(trackerGeometry),
       trackerTopology_(trackerTopology),
       alignableObjectId_(trackerGeometry, nullptr, nullptr, nullptr),
@@ -51,7 +51,7 @@ AlignableTrackerBuilder ::AlignableTrackerBuilder(const TrackerGeometry* tracker
 }
 
 //_____________________________________________________________________________
-void AlignableTrackerBuilder ::buildAlignables(AlignableTracker* trackerAlignables, bool update) {
+void AlignableTrackerBuilder::buildAlignables(AlignableTracker* trackerAlignables, bool update) {
   alignableMap_ = &trackerAlignables->alignableMap_;
 
   // first, build Alignables on module-level (AlignableDetUnits)
@@ -86,7 +86,7 @@ void AlignableTrackerBuilder ::buildAlignables(AlignableTracker* trackerAlignabl
 //=============================================================================
 
 //_____________________________________________________________________________
-void AlignableTrackerBuilder ::buildAlignableDetUnits(bool update) {
+void AlignableTrackerBuilder::buildAlignableDetUnits(bool update) {
   // PixelBarrel
   convertGeomDetsToAlignables(trackerGeometry_->detsPXB(), alignableObjectId_.idToString(align::TPBModule), update);
 
@@ -107,9 +107,9 @@ void AlignableTrackerBuilder ::buildAlignableDetUnits(bool update) {
 }
 
 //_____________________________________________________________________________
-void AlignableTrackerBuilder ::convertGeomDetsToAlignables(const TrackingGeometry::DetContainer& geomDets,
-                                                           const std::string& moduleName,
-                                                           bool update) {
+void AlignableTrackerBuilder::convertGeomDetsToAlignables(const TrackingGeometry::DetContainer& geomDets,
+                                                          const std::string& moduleName,
+                                                          bool update) {
   numDetUnits = 0;
 
   auto& alignables = alignableMap_->get(moduleName);
@@ -158,7 +158,7 @@ void AlignableTrackerBuilder ::convertGeomDetsToAlignables(const TrackingGeometr
 }
 
 //_____________________________________________________________________________
-void AlignableTrackerBuilder ::buildPixelDetectorAlignable(
+void AlignableTrackerBuilder::buildPixelDetectorAlignable(
     const GeomDet* geomDetUnit, int subdetId, Alignables& aliDets, Alignables& aliDetUnits, bool update) {
   // treat all pixel dets in same way with one AlignableDetUnit
   if (!geomDetUnit->isLeaf()) {
@@ -192,7 +192,7 @@ void AlignableTrackerBuilder ::buildPixelDetectorAlignable(
 }
 
 //_____________________________________________________________________________
-void AlignableTrackerBuilder ::buildStripDetectorAlignable(
+void AlignableTrackerBuilder::buildStripDetectorAlignable(
     const GeomDet* geomDet, int subdetId, Alignables& aliDets, Alignables& aliDetUnits, bool update) {
   // In strip we have:
   // 1) 'Pure' 1D-modules like TOB layers 3-6 (not glued): AlignableDetUnit
@@ -251,7 +251,7 @@ void AlignableTrackerBuilder ::buildStripDetectorAlignable(
 }
 
 //_____________________________________________________________________________
-void AlignableTrackerBuilder ::buildOuterTrackerDetectorAlignable(
+void AlignableTrackerBuilder::buildOuterTrackerDetectorAlignable(
     const GeomDet* geomDet, int subdetId, Alignables& aliDets, Alignables& aliDetUnits, bool update) {
   // hopefully all the geomdets are composite (either PS or SS modules in Ph-2 Outer Tracker)
   if (!geomDet->components().empty()) {
@@ -297,7 +297,7 @@ void AlignableTrackerBuilder ::buildOuterTrackerDetectorAlignable(
 }
 
 //_____________________________________________________________________________
-void AlignableTrackerBuilder ::buildAlignableComposites(bool update) {
+void AlignableTrackerBuilder::buildAlignableComposites(bool update) {
   unsigned int numCompositeAlignables = 0;
 
   // tracker levels must be built before the indexer is created in order to pass
@@ -324,7 +324,7 @@ void AlignableTrackerBuilder ::buildAlignableComposites(bool update) {
 }
 
 //_____________________________________________________________________________
-void AlignableTrackerBuilder ::buildPixelDetector(AlignableTracker* trackerAlignables) {
+void AlignableTrackerBuilder::buildPixelDetector(AlignableTracker* trackerAlignables) {
   const std::string& pxbName = alignableObjectId_.idToString(align::TPBBarrel);
   const std::string& pxeName = alignableObjectId_.idToString(align::TPEEndcap);
   const std::string& pixelName = alignableObjectId_.idToString(align::Pixel);
@@ -347,7 +347,7 @@ void AlignableTrackerBuilder ::buildPixelDetector(AlignableTracker* trackerAlign
 }
 
 //_____________________________________________________________________________
-void AlignableTrackerBuilder ::buildStripDetector(AlignableTracker* trackerAlignables) {
+void AlignableTrackerBuilder::buildStripDetector(AlignableTracker* trackerAlignables) {
   const std::string& tibName = alignableObjectId_.idToString(align::TIBBarrel);
   const std::string& tidName = alignableObjectId_.idToString(align::TIDEndcap);
   const std::string& tobName = alignableObjectId_.idToString(align::TOBBarrel);
@@ -378,7 +378,7 @@ void AlignableTrackerBuilder ::buildStripDetector(AlignableTracker* trackerAlign
 }
 
 //_____________________________________________________________________________
-void AlignableTrackerBuilder ::buildOuterTrackerDetector(AlignableTracker* trackerAlignables) {
+void AlignableTrackerBuilder::buildOuterTrackerDetector(AlignableTracker* trackerAlignables) {
   const std::string& tidName = alignableObjectId_.idToString(align::TIDEndcap);
   const std::string& tobName = alignableObjectId_.idToString(align::TOBBarrel);
   const std::string& stripName = alignableObjectId_.idToString(align::Strip);

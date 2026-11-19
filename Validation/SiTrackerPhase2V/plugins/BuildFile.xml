@@ -3,10 +3,13 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/DetId"/>
+<use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/TrackerCommon"/>
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="DataFormats/SiPixelDigi"/>
+<use name="DataFormats/SiStripDetId"/>
+<use name="DataFormats/TrackingRecHitSoA"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/TrackingHit"/>
 <use name="SimDataFormats/Vertex"/>
@@ -17,6 +20,10 @@
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="Geometry/CommonTopologies"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<use name="RecoTracker/PixelSeeding"/>
+<use name="RecoTracker/Record"/>
+<use name="DataFormats/Math"/>
 <use name="DQMServices/Core"/>
 <use name="DQM/SiTrackerPhase2"/>
 <use name="Validation/SiTrackerPhase2V"/>

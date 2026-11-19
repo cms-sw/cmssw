@@ -116,55 +116,69 @@ public:
         std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
 #endif
         MEtoEdmObject.push_back(newMEtoEDMObject[i]);
-      } else if (MEtoEdmObject[j].object.CanExtendAllAxes() && newMEtoEDMObject[i].object.CanExtendAllAxes()) {
-        TList list;
-        list.Add((TObject *)&newMEtoEDMObject[i].object);
-        if (MEtoEdmObject[j].object.Merge(&list) == -1) {
-          std::cout << "ERROR MEtoEDM::mergeProducts(): merge failed for '" << name << "'" << std::endl;
-        }
       } else {
-        // this value is also in the new container: add the two
-        if (MEtoEdmObject[j].object.GetNbinsX() == newMEtoEDMObject[i].object.GetNbinsX() &&
-            MEtoEdmObject[j].object.GetXaxis()->GetXmin() == newMEtoEDMObject[i].object.GetXaxis()->GetXmin() &&
-            MEtoEdmObject[j].object.GetXaxis()->GetXmax() == newMEtoEDMObject[i].object.GetXaxis()->GetXmax() &&
-            MEtoEdmObject[j].object.GetNbinsY() == newMEtoEDMObject[i].object.GetNbinsY() &&
-            MEtoEdmObject[j].object.GetYaxis()->GetXmin() == newMEtoEDMObject[i].object.GetYaxis()->GetXmin() &&
-            MEtoEdmObject[j].object.GetYaxis()->GetXmax() == newMEtoEDMObject[i].object.GetYaxis()->GetXmax() &&
-            MEtoEdmObject[j].object.GetNbinsZ() == newMEtoEDMObject[i].object.GetNbinsZ() &&
-            MEtoEdmObject[j].object.GetZaxis()->GetXmin() == newMEtoEDMObject[i].object.GetZaxis()->GetXmin() &&
-            MEtoEdmObject[j].object.GetZaxis()->GetXmax() == newMEtoEDMObject[i].object.GetZaxis()->GetXmax() &&
-            CheckBinLabels((TAxis *)MEtoEdmObject[j].object.GetXaxis(),
-                           (TAxis *)newMEtoEDMObject[i].object.GetXaxis()) &&
-            CheckBinLabels((TAxis *)MEtoEdmObject[j].object.GetYaxis(),
-                           (TAxis *)newMEtoEDMObject[i].object.GetYaxis()) &&
-            CheckBinLabels((TAxis *)MEtoEdmObject[j].object.GetZaxis(),
-                           (TAxis *)newMEtoEDMObject[i].object.GetZaxis())) {
-          MEtoEdmObject[j].object.Add(&newMEtoEDMObject[i].object, 1.);
-        } else {
-          std::cout
-              << "ERROR MEtoEDM::mergeProducts(): found histograms with different axis limits or different labels, '"
-              << name << "' not merged" << std::endl;
+        if constexpr (std::is_same_v<T, long long> or std::is_same_v<T, long> or std::is_same_v<T, int>) {
+          if (MEtoEdmObject[j].name.find("EventInfo/processedEvents") != std::string::npos) {
+            MEtoEdmObject[j].object += (newMEtoEDMObject[i].object);
+          }
+          if (MEtoEdmObject[j].name.find("EventInfo/iEvent") != std::string::npos ||
+              MEtoEdmObject[j].name.find("EventInfo/iLumiSection") != std::string::npos) {
+            if (MEtoEdmObject[j].object < newMEtoEDMObject[i].object) {
+              MEtoEdmObject[j].object = (newMEtoEDMObject[i].object);
+            }
+          }
+        } else if constexpr (requires { MEtoEdmObject[j].object.CanExtendAllAxes(); }) {
+          if (MEtoEdmObject[j].object.CanExtendAllAxes() && newMEtoEDMObject[i].object.CanExtendAllAxes()) {
+            TList list;
+            list.Add((TObject *)&newMEtoEDMObject[i].object);
+            if (MEtoEdmObject[j].object.Merge(&list) == -1) {
+              std::cout << "ERROR MEtoEDM::mergeProducts(): merge failed for '" << name << "'" << std::endl;
+            }
+          } else {
+            // this value is also in the new container: add the two
+            if (MEtoEdmObject[j].object.GetNbinsX() == newMEtoEDMObject[i].object.GetNbinsX() &&
+                MEtoEdmObject[j].object.GetXaxis()->GetXmin() == newMEtoEDMObject[i].object.GetXaxis()->GetXmin() &&
+                MEtoEdmObject[j].object.GetXaxis()->GetXmax() == newMEtoEDMObject[i].object.GetXaxis()->GetXmax() &&
+                MEtoEdmObject[j].object.GetNbinsY() == newMEtoEDMObject[i].object.GetNbinsY() &&
+                MEtoEdmObject[j].object.GetYaxis()->GetXmin() == newMEtoEDMObject[i].object.GetYaxis()->GetXmin() &&
+                MEtoEdmObject[j].object.GetYaxis()->GetXmax() == newMEtoEDMObject[i].object.GetYaxis()->GetXmax() &&
+                MEtoEdmObject[j].object.GetNbinsZ() == newMEtoEDMObject[i].object.GetNbinsZ() &&
+                MEtoEdmObject[j].object.GetZaxis()->GetXmin() == newMEtoEDMObject[i].object.GetZaxis()->GetXmin() &&
+                MEtoEdmObject[j].object.GetZaxis()->GetXmax() == newMEtoEDMObject[i].object.GetZaxis()->GetXmax() &&
+                CheckBinLabels((TAxis *)MEtoEdmObject[j].object.GetXaxis(),
+                               (TAxis *)newMEtoEDMObject[i].object.GetXaxis()) &&
+                CheckBinLabels((TAxis *)MEtoEdmObject[j].object.GetYaxis(),
+                               (TAxis *)newMEtoEDMObject[i].object.GetYaxis()) &&
+                CheckBinLabels((TAxis *)MEtoEdmObject[j].object.GetZaxis(),
+                               (TAxis *)newMEtoEDMObject[i].object.GetZaxis())) {
+              MEtoEdmObject[j].object.Add(&newMEtoEDMObject[i].object, 1.);
+            } else {
+              std::cout << "ERROR MEtoEDM::mergeProducts(): found histograms with different axis limits or different "
+                           "labels, '"
+                        << name << "' not merged" << std::endl;
 #if METOEDMFORMAT_DEBUG
-          std::cout << MEtoEdmObject[j].name << " " << newMEtoEDMObject[i].name << std::endl;
-          std::cout << MEtoEdmObject[j].object.GetNbinsX() << " " << newMEtoEDMObject[i].object.GetNbinsX()
-                    << std::endl;
-          std::cout << MEtoEdmObject[j].object.GetXaxis()->GetXmin() << " "
-                    << newMEtoEDMObject[i].object.GetXaxis()->GetXmin() << std::endl;
-          std::cout << MEtoEdmObject[j].object.GetXaxis()->GetXmax() << " "
-                    << newMEtoEDMObject[i].object.GetXaxis()->GetXmax() << std::endl;
-          std::cout << MEtoEdmObject[j].object.GetNbinsY() << " " << newMEtoEDMObject[i].object.GetNbinsY()
-                    << std::endl;
-          std::cout << MEtoEdmObject[j].object.GetYaxis()->GetXmin() << " "
-                    << newMEtoEDMObject[i].object.GetYaxis()->GetXmin() << std::endl;
-          std::cout << MEtoEdmObject[j].object.GetYaxis()->GetXmax() << " "
-                    << newMEtoEDMObject[i].object.GetYaxis()->GetXmax() << std::endl;
-          std::cout << MEtoEdmObject[j].object.GetNbinsZ() << " " << newMEtoEDMObject[i].object.GetNbinsZ()
-                    << std::endl;
-          std::cout << MEtoEdmObject[j].object.GetZaxis()->GetXmin() << " "
-                    << newMEtoEDMObject[i].object.GetZaxis()->GetXmin() << std::endl;
-          std::cout << MEtoEdmObject[j].object.GetZaxis()->GetXmax() << " "
-                    << newMEtoEDMObject[i].object.GetZaxis()->GetXmax() << std::endl;
+              std::cout << MEtoEdmObject[j].name << " " << newMEtoEDMObject[i].name << std::endl;
+              std::cout << MEtoEdmObject[j].object.GetNbinsX() << " " << newMEtoEDMObject[i].object.GetNbinsX()
+                        << std::endl;
+              std::cout << MEtoEdmObject[j].object.GetXaxis()->GetXmin() << " "
+                        << newMEtoEDMObject[i].object.GetXaxis()->GetXmin() << std::endl;
+              std::cout << MEtoEdmObject[j].object.GetXaxis()->GetXmax() << " "
+                        << newMEtoEDMObject[i].object.GetXaxis()->GetXmax() << std::endl;
+              std::cout << MEtoEdmObject[j].object.GetNbinsY() << " " << newMEtoEDMObject[i].object.GetNbinsY()
+                        << std::endl;
+              std::cout << MEtoEdmObject[j].object.GetYaxis()->GetXmin() << " "
+                        << newMEtoEDMObject[i].object.GetYaxis()->GetXmin() << std::endl;
+              std::cout << MEtoEdmObject[j].object.GetYaxis()->GetXmax() << " "
+                        << newMEtoEDMObject[i].object.GetYaxis()->GetXmax() << std::endl;
+              std::cout << MEtoEdmObject[j].object.GetNbinsZ() << " " << newMEtoEDMObject[i].object.GetNbinsZ()
+                        << std::endl;
+              std::cout << MEtoEdmObject[j].object.GetZaxis()->GetXmin() << " "
+                        << newMEtoEDMObject[i].object.GetZaxis()->GetXmin() << std::endl;
+              std::cout << MEtoEdmObject[j].object.GetZaxis()->GetXmax() << " "
+                        << newMEtoEDMObject[i].object.GetZaxis()->GetXmax() << std::endl;
 #endif
+            }
+          }
         }
       }
     }
@@ -177,175 +191,5 @@ private:
   MEtoEdmObjectVector MEtoEdmObject;
 
 };  // end class declaration
-
-template <>
-inline bool MEtoEDM<double>::mergeProduct(const MEtoEDM<double> &newMEtoEDM) {
-  const MEtoEdmObjectVector &newMEtoEDMObject = newMEtoEDM.getMEtoEdmObject();
-  const size_t nObjects = newMEtoEDMObject.size();
-  //  NOTE: we remember the present size since we will only add content
-  //        from newMEtoEDMObject after this point
-  const size_t nOldObjects = MEtoEdmObject.size();
-
-  // if the old and new are not the same size, we want to report a problem
-  if (nObjects != nOldObjects) {
-    std::cout << "WARNING MEtoEDM::mergeProducts(): the lists of histograms to be merged have different sizes: new="
-              << nObjects << ", old=" << nOldObjects << std::endl;
-  }
-
-  for (unsigned int i = 0; i < nObjects; ++i) {
-    unsigned int j = 0;
-    // see if the name is already in the old container up to the point where
-    // we may have added new entries in the container
-    const std::string &name = newMEtoEDMObject[i].name;
-    if (i < nOldObjects && (MEtoEdmObject[i].name == name)) {
-      j = i;
-    } else {
-      j = 0;
-      while (j < nOldObjects && (MEtoEdmObject[j].name != name))
-        ++j;
-    }
-    if (j >= nOldObjects) {
-      // this value is only in the new container, not the old one
-#if METOEDMFORMAT_DEBUG
-      std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
-#endif
-      MEtoEdmObject.push_back(newMEtoEDMObject[i]);
-    }
-  }
-  return true;
-}
-
-template <>
-inline bool MEtoEDM<int>::mergeProduct(const MEtoEDM<int> &newMEtoEDM) {
-  const MEtoEdmObjectVector &newMEtoEDMObject = newMEtoEDM.getMEtoEdmObject();
-  const size_t nObjects = newMEtoEDMObject.size();
-  //  NOTE: we remember the present size since we will only add content
-  //        from newMEtoEDMObject after this point
-  const size_t nOldObjects = MEtoEdmObject.size();
-
-  // if the old and new are not the same size, we want to report a problem
-  if (nObjects != nOldObjects) {
-    std::cout << "WARNING MEtoEDM::mergeProducts(): the lists of histograms to be merged have different sizes: new="
-              << nObjects << ", old=" << nOldObjects << std::endl;
-  }
-
-  for (unsigned int i = 0; i < nObjects; ++i) {
-    unsigned int j = 0;
-    // see if the name is already in the old container up to the point where
-    // we may have added new entries in the container
-    const std::string &name = newMEtoEDMObject[i].name;
-    if (i < nOldObjects && (MEtoEdmObject[i].name == name)) {
-      j = i;
-    } else {
-      j = 0;
-      while (j < nOldObjects && (MEtoEdmObject[j].name != name))
-        ++j;
-    }
-    if (j >= nOldObjects) {
-      // this value is only in the new container, not the old one
-#if METOEDMFORMAT_DEBUG
-      std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
-#endif
-      MEtoEdmObject.push_back(newMEtoEDMObject[i]);
-    } else {
-      // this value is also in the new container: add the two
-      if (MEtoEdmObject[j].name.find("EventInfo/processedEvents") != std::string::npos) {
-        MEtoEdmObject[j].object += (newMEtoEDMObject[i].object);
-      }
-      if (MEtoEdmObject[j].name.find("EventInfo/iEvent") != std::string::npos ||
-          MEtoEdmObject[j].name.find("EventInfo/iLumiSection") != std::string::npos) {
-        if (MEtoEdmObject[j].object < newMEtoEDMObject[i].object) {
-          MEtoEdmObject[j].object = (newMEtoEDMObject[i].object);
-        }
-      }
-    }
-  }
-  return true;
-}
-
-template <>
-inline bool MEtoEDM<long long>::mergeProduct(const MEtoEDM<long long> &newMEtoEDM) {
-  const MEtoEdmObjectVector &newMEtoEDMObject = newMEtoEDM.getMEtoEdmObject();
-  const size_t nObjects = newMEtoEDMObject.size();
-  //  NOTE: we remember the present size since we will only add content
-  //        from newMEtoEDMObject after this point
-  const size_t nOldObjects = MEtoEdmObject.size();
-
-  // if the old and new are not the same size, we want to report a problem
-  if (nObjects != nOldObjects) {
-    std::cout << "WARNING MEtoEDM::mergeProducts(): the lists of histograms to be merged have different sizes: new="
-              << nObjects << ", old=" << nOldObjects << std::endl;
-  }
-
-  for (unsigned int i = 0; i < nObjects; ++i) {
-    unsigned int j = 0;
-    // see if the name is already in the old container up to the point where
-    // we may have added new entries in the container
-    const std::string &name = newMEtoEDMObject[i].name;
-    if (i < nOldObjects && (MEtoEdmObject[i].name == name)) {
-      j = i;
-    } else {
-      j = 0;
-      while (j < nOldObjects && (MEtoEdmObject[j].name != name))
-        ++j;
-    }
-    if (j >= nOldObjects) {
-      // this value is only in the new container, not the old one
-#if METOEDMFORMAT_DEBUG
-      std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
-#endif
-      MEtoEdmObject.push_back(newMEtoEDMObject[i]);
-    } else {
-      // this value is also in the new container: add the two
-      if (MEtoEdmObject[j].name.find("EventInfo/processedEvents") != std::string::npos) {
-        MEtoEdmObject[j].object += (newMEtoEDMObject[i].object);
-      }
-      if (MEtoEdmObject[j].name.find("EventInfo/iEvent") != std::string::npos ||
-          MEtoEdmObject[j].name.find("EventInfo/iLumiSection") != std::string::npos) {
-        if (MEtoEdmObject[j].object < newMEtoEDMObject[i].object) {
-          MEtoEdmObject[j].object = (newMEtoEDMObject[i].object);
-        }
-      }
-    }
-  }
-  return true;
-}
-
-template <>
-inline bool MEtoEDM<TString>::mergeProduct(const MEtoEDM<TString> &newMEtoEDM) {
-  const MEtoEdmObjectVector &newMEtoEDMObject = newMEtoEDM.getMEtoEdmObject();
-  const size_t nObjects = newMEtoEDMObject.size();
-  //  NOTE: we remember the present size since we will only add content
-  //        from newMEtoEDMObject after this point
-  const size_t nOldObjects = MEtoEdmObject.size();
-
-  // if the old and new are not the same size, we want to report a problem
-  if (nObjects != nOldObjects) {
-    std::cout << "WARNING MEtoEDM::mergeProducts(): the lists of histograms to be merged have different sizes: new="
-              << nObjects << ", old=" << nOldObjects << std::endl;
-  }
-
-  for (unsigned int i = 0; i < nObjects; ++i) {
-    unsigned int j = 0;
-    // see if the name is already in the old container up to the point where
-    // we may have added new entries in the container
-    const std::string &name = newMEtoEDMObject[i].name;
-    if (i < nOldObjects && (MEtoEdmObject[i].name == name)) {
-      j = i;
-    } else {
-      j = 0;
-      while (j < nOldObjects && (MEtoEdmObject[j].name != name))
-        ++j;
-    }
-    if (j >= nOldObjects) {
-      // this value is only in the new container, not the old one
-#if METOEDMFORMAT_DEBUG
-      std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
-#endif
-      MEtoEdmObject.push_back(newMEtoEDMObject[i]);
-    }
-  }
-  return true;
-}
 
 #endif

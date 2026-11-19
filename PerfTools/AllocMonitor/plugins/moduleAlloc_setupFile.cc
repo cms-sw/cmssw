@@ -81,10 +81,10 @@ namespace {
     endStream = -11,
     writeProcessBlock = -10,
     endProcessBlock = -9,
-    globalWriteRun = -7,
+    globalWriteRun = -7,  //obsolete
     globalEndRun = -6,
     streamEndRun = -5,
-    globalWriteLumi = -4,
+    globalWriteLumi = -4,  //obsolete
     globalEndLumi = -3,
     streamEndLumi = -2,
     clearEvent = -1,
@@ -181,12 +181,8 @@ namespace {
         return Phase::globalBeginLumi;
       case GlobalContext::Transition::kEndLuminosityBlock:
         return Phase::globalEndLumi;
-      case GlobalContext::Transition::kWriteLuminosityBlock:
-        return Phase::globalWriteLumi;
       case GlobalContext::Transition::kEndRun:
         return Phase::globalEndRun;
-      case GlobalContext::Transition::kWriteRun:
-        return Phase::globalWriteRun;
       case GlobalContext::Transition::kEndProcessBlock:
         return Phase::endProcessBlock;
       case GlobalContext::Transition::kWriteProcessBlock:
@@ -209,8 +205,7 @@ namespace {
       return 0;
     }
     if (iContext.transition() == edm::GlobalContext::Transition::kBeginRun or
-        iContext.transition() == edm::GlobalContext::Transition::kEndRun or
-        iContext.transition() == edm::GlobalContext::Transition::kWriteRun) {
+        iContext.transition() == edm::GlobalContext::Transition::kEndRun) {
       return iContext.runIndex();
     }
     return iContext.luminosityBlockIndex();
@@ -762,9 +757,7 @@ namespace edm::service::moduleAlloc {
       iRegistry.watchPreGlobalBeginRun(preGlobal);
       iRegistry.watchPreGlobalBeginLumi(preGlobal);
       iRegistry.watchPreGlobalEndLumi(preGlobal);
-      iRegistry.watchPreGlobalWriteLumi(preGlobal);
       iRegistry.watchPreGlobalEndRun(preGlobal);
-      iRegistry.watchPreGlobalWriteRun(preGlobal);
     }
     {
       auto postGlobal = [logFile, beginTime](GlobalContext const& gc) {
@@ -784,9 +777,7 @@ namespace edm::service::moduleAlloc {
       iRegistry.watchPostGlobalBeginRun(postGlobal);
       iRegistry.watchPostGlobalBeginLumi(postGlobal);
       iRegistry.watchPostGlobalEndLumi(postGlobal);
-      iRegistry.watchPostGlobalWriteLumi(postGlobal);
       iRegistry.watchPostGlobalEndRun(postGlobal);
-      iRegistry.watchPostGlobalWriteRun(postGlobal);
     }
     {
       auto preStream = [logFile, beginTime](StreamContext const& sc) {
@@ -1054,10 +1045,10 @@ namespace edm::service::moduleAlloc {
         << "# clearEvent              " << Phase::clearEvent << "\n"
         << "# streamEndLumi           " << Phase::streamEndLumi << "\n"
         << "# globalEndLumi           " << Phase::globalEndLumi << "\n"
-        << "# globalWriteLumi         " << Phase::globalWriteLumi << "\n"
+        << "# globalWriteLumi         " << Phase::globalWriteLumi << " (obsolete)\n"
         << "# streamEndRun            " << Phase::streamEndRun << "\n"
         << "# globalEndRun            " << Phase::globalEndRun << "\n"
-        << "# globalWriteRun          " << Phase::globalWriteRun << "\n"
+        << "# globalWriteRun          " << Phase::globalWriteRun << " (obsolete)\n"
         << "# endProcessBlock         " << Phase::endProcessBlock << "\n"
         << "# writeProcessBlock       " << Phase::writeProcessBlock << "\n"
         << "# endStream               " << Phase::endStream << "\n"

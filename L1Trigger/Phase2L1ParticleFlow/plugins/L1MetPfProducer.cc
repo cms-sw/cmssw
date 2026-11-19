@@ -1,5 +1,6 @@
 #include <vector>
 #include <string>
+#include <optional>
 #include <ap_int.h>
 #include <ap_fixed.h>
 #include <TVector2.h>
@@ -48,6 +49,7 @@ private:
   bool useMlModel_;
   std::shared_ptr<hls4mlEmulator::Model> model;
   std::string modelVersion_;
+  std::optional<L1METEmu> metEmulator_;
 
   typedef ap_fixed<32, 16> input_t;
   typedef ap_fixed<32, 16> result_t;
@@ -73,8 +75,7 @@ L1MetPfProducer::L1MetPfProducer(const edm::ParameterSet& cfg)
     hls4mlEmulator::ModelLoader loader(modelVersion_);
     model = loader.load_model();
   } else {
-    edm::FileInPath f = cfg.getParameter<edm::FileInPath>("Poly2File");
-    L1METEmu::SetPoly2File(f.fullPath());
+    metEmulator_.emplace(cfg.getParameter<edm::FileInPath>("Poly2File").fullPath());
   }
 }
 
@@ -120,7 +121,7 @@ void L1MetPfProducer::CalcMetHLS(const std::vector<l1t::PFCandidate>& pfcands,
     particles.push_back(each_particle);
   }
 
-  puppimet_emu(particles, hw_met);
+  metEmulator_->puppimet_emu(particles, hw_met);
 
   metVector.SetPt(hw_met.hwPt.to_double());
   metVector.SetPhi(hw_met.hwPhi.to_double() * phiLSB_);

@@ -25,6 +25,7 @@ globalMuons = cms.EDProducer("TracksToTrajectories",
                                                          MTDRecHitBuilder = cms.string('MTDRecHitBuilder'),
                                                          RefitDirection = cms.string('alongMomentum'),
                                                          RefitRPCHits = cms.bool(True),
+                                                         RefitMuonHits = cms.bool(True),
                                                                 Propagator = cms.string('SmartPropagatorAnyRKOpposite')
                                                          )
                              )

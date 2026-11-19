@@ -78,7 +78,7 @@ namespace dqm {
       }
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* bookFloat(TString const& name, FUNC onbooking = NOOP()) {
-        return bookME(name, MonitorElementData::Kind ::REAL, [=]() {
+        return bookME(name, MonitorElementData::Kind::REAL, [=]() {
           onbooking();
           return nullptr;
         });

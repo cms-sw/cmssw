@@ -499,7 +499,7 @@ void SteppingHelixPropagatorAnalyzer::getFromFTS(const FreeTrajectoryState& fts,
   cov = fts.hasError() ? fts.cartesianError().matrix() : AlgebraicSymMatrix66();
 }
 
-void SteppingHelixPropagatorAnalyzer ::addPSimHits(
+void SteppingHelixPropagatorAnalyzer::addPSimHits(
     const edm::Event& iEvent,
     const std::string instanceName,
     const edm::ESHandle<GlobalTrackingGeometry>& geom,

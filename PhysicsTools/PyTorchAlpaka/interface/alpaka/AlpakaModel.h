@@ -6,9 +6,11 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "PhysicsTools/PyTorch/interface/Model.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/GetDevice.h"
+#include "PhysicsTools/PyTorchAlpaka/interface/BatchedTensorCollection.h"
+#include "PhysicsTools/PyTorchAlpaka/interface/Exception.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/TensorCollection.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/SoAConversion.h"
-#include "PhysicsTools/PyTorchAlpaka/interface/QueueGuard.h"
+#include "PhysicsTools/PyTorchAlpaka/interface/alpaka/QueueGuard.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::torch {
 
@@ -33,18 +35,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torch {
 
     // Forward pass (inference) of model with SoA metadata input/output.
     // Allows to run inference directly using SoA portable objects/collections without excessive copies and conversions.
-    // Refer: PhysicsTools/PyTorch/interface/SoAConversion.h for details about wrapping memory layouts.
+    // Refer: PhysicsTools/PyTorchAlpaka/interface/SoAConversion.h for details about wrapping memory layouts.
     void forward(Queue &queue,
                  cms::torch::alpakatools::TensorCollection<Queue> &inputs,
                  cms::torch::alpakatools::TensorCollection<Queue> &outputs,
                  std::optional<::torch::Dtype> dtype = std::nullopt) {
-#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
-      inputs.copy(queue, cms::torch::alpakatools::detail::MemcpyKind::DeviceToHost);
-      outputs.copy(queue, cms::torch::alpakatools::detail::MemcpyKind::DeviceToHost);
-#else
-      inputs.copy(queue, cms::torch::alpakatools::detail::MemcpyKind::DeviceToDevice);
-#endif  // ALPAKA_ACC_GPU_HIP_ENABLED
-      cms::torch::alpakatools::QueueGuard<Queue> guard(queue);
+      inputs.copy(queue);
+      torch::QueueGuard guard(queue);
       if (cms::torch::alpakatools::getDevice(queue) != this->Model::device()) {
         to(queue, dtype);
       }
@@ -56,10 +53,31 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torch {
       } else {
         cms::torch::alpakatools::detail::convertOutput(outputs, device_) = model_.forward(input_tensor).toTensor();
       }
+    }
 
-#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
-      outputs.copy(queue, cms::torch::alpakatools::detail::MemcpyKind::HostToDevice);
-#endif  // ALPAKA_ACC_GPU_HIP_ENABLED
+    // Batched inference requires equal input/output batchCount() values
+    void forward(Queue &queue,
+                 cms::torch::alpakatools::BatchedTensorCollection<Queue> &inputs,
+                 cms::torch::alpakatools::BatchedTensorCollection<Queue> &outputs,
+                 std::optional<::torch::Dtype> dtype = std::nullopt) {
+      const auto input_batches = inputs.batchCount();
+      const auto output_batches = outputs.batchCount();
+
+      if (input_batches != output_batches)
+        cms::torch::alpakatools::detail::throwException("AlpakaModel", "incompatible batch counts");
+
+      const auto n_batches = input_batches;
+
+      // Materialize registrations locally and retain their handles until this call returns.
+      for (auto batch_id = 0u; batch_id < n_batches; batch_id++) {
+        cms::torch::alpakatools::TensorCollection<Queue> batch_input;
+        cms::torch::alpakatools::TensorCollection<Queue> batch_output;
+
+        inputs.materializeBatch(batch_id, batch_input);
+        outputs.materializeBatch(batch_id, batch_output);
+
+        forward(queue, batch_input, batch_output, dtype);
+      }
     }
 
     // Move model to specified device memory space and with the specified dtype. Async load (in default stream if not overridden by the caller)
@@ -69,12 +87,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torch {
         this->Model::to(cms::torch::alpakatools::getDevice(dev), false, dtype);
         return;
       }
-#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
-      // ROCm/HIP not yet directly supported → fallback to CPU inference
-      this->Model::to(cms::torch::alpakatools::getDevice(dev), false, dtype);
-      return;
-#endif  // ALPAKA_ACC_GPU_HIP_ENABLED
-      // CUDA → keep async execution
+
       this->Model::to(cms::torch::alpakatools::getDevice(dev), true, dtype);
     }
 

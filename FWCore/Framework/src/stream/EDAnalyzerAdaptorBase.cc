@@ -27,7 +27,6 @@
 #include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
 
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
-#include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 
 using namespace edm::stream;
@@ -100,9 +99,10 @@ void EDAnalyzerAdaptorBase::itemsMayGet(BranchType iType, std::vector<ProductRes
   m_streamModules[0]->itemsMayGet(iType, iIndices);
 }
 
-std::vector<edm::ProductResolverIndexAndSkipBit> const& EDAnalyzerAdaptorBase::itemsToGetFrom(BranchType iType) const {
+std::vector<edm::ProductResolverIndexAndSkipBit> const& EDAnalyzerAdaptorBase::itemsToGetFrom(
+    Transition iTransition) const {
   assert(not m_streamModules.empty());
-  return m_streamModules[0]->itemsToGetFrom(iType);
+  return m_streamModules[0]->itemsToGetFrom(iTransition);
 }
 
 std::vector<edm::ESResolverIndex> const& EDAnalyzerAdaptorBase::esGetTokenIndicesVector(edm::Transition iTrans) const {
@@ -154,13 +154,10 @@ std::vector<edm::ModuleConsumesMinimalESInfo> EDAnalyzerAdaptorBase::moduleConsu
   return m_streamModules[0]->moduleConsumesMinimalESInfos();
 }
 
-bool EDAnalyzerAdaptorBase::doEvent(EventTransitionInfo const& info,
-                                    ActivityRegistry* act,
-                                    ModuleCallingContext const* mcc) {
+bool EDAnalyzerAdaptorBase::doEvent(EventTransitionInfo const& info, ModuleCallingContext const* mcc) {
   EventPrincipal const& ep = info.principal();
   assert(ep.streamID() < m_streamModules.size());
   auto mod = m_streamModules[ep.streamID()];
-  EventSignalsSentry sentry(act, mcc);
   Event e(ep, moduleDescription_, mcc);
   e.setConsumer(mod);
   ESParentContext parentC(mcc);

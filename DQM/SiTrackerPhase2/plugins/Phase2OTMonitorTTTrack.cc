@@ -291,29 +291,95 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
   edm::ParameterSetDescription desc;
 
   // All tracks
-  phase2tkutil::add1DDesc(desc, "L1Track_All_N", "L1Track_All_N", "# L1 Tracks", "# Events", 100, 0, 399);
   phase2tkutil::add1DDesc(
-      desc, "L1Track_All_NStubs", "L1Track_All_NStubs", "# L1 Stubs per L1 Track", "# L1 Tracks", 8, 0, 8);
-  phase2tkutil::add1DDesc(
-      desc, "L1Track_All_NLayersMissed", "L1Track_All_NLayersMissed", "# Layers missed", "# L1 Tracks", 8, 0, 8);
-  phase2tkutil::add2DDesc(
-      desc, "L1Track_All_Eta_NStubs", "L1Track_All_Eta_NStubs", "#eta", "# L1 Stubs", 15, -3.0, 3.0, 5, 3, 8);
-  phase2tkutil::add1DDesc(desc, "L1Track_All_Pt", "L1Track_All_Pt", "p_{T} [GeV]", "# L1 Tracks", 50, 0, 100);
-  phase2tkutil::add1DDesc(desc, "L1Track_All_Phi", "L1Track_All_Phi", "#phi", "# L1 Tracks", 60, -3.5, 3.5);
-  phase2tkutil::add1DDesc(desc, "L1Track_All_D0", "L1Track_All_D0", "Track D0", "# L1 Tracks", 101, -0.15, 0.15);
-  phase2tkutil::add1DDesc(desc, "L1Track_All_Eta", "L1Track_All_Eta", "#eta", "# L1 Tracks", 45, -3.0, 3.0);
-  phase2tkutil::add1DDesc(
-      desc, "L1Track_All_VtxZ", "L1Track_All_VtxZ", "L1 Track vertex position z [cm]", "# L1 Tracks", 41, -20, 20);
-  phase2tkutil::add1DDesc(desc, "L1Track_All_Chi2", "L1Track_All_Chi2", "L1 Track #chi^{2}", "# L1 Tracks", 100, 0, 50);
-  phase2tkutil::add1DDesc(
-      desc, "L1Track_All_Chi2RZ", "L1Track_All_Chi2RZ", "L1 Track #chi^{2} r-z", "# L1 Tracks", 100, 0, 50);
-  phase2tkutil::add1DDesc(
-      desc, "L1Track_All_Chi2RPhi", "L1Track_All_Chi2RPhi", "L1 Track #chi^{2}", "# L1 Tracks", 100, 0, 50);
-  phase2tkutil::add1DDesc(
-      desc, "L1Track_All_BendChi2", "L1Track_All_BendChi2", "L1 Track Bend #chi^{2}", "# L1 Tracks", 100, 0, 10);
-  phase2tkutil::add1DDesc(
-      desc, "L1Track_All_Chi2Red", "L1Track_All_Chi2Red", "L1 Track #chi^{2}/ndf", "# L1 Tracks", 100, 0, 10);
+      desc, "L1Track_All_N", "L1Track_All_N", "L1Track_All_N", "# L1 Tracks", "# Events", 100, 0, 399);
   phase2tkutil::add1DDesc(desc,
+                          "L1Track_All_NStubs",
+                          "L1Track_All_NStubs",
+                          "L1Track_All_NStubs",
+                          "# L1 Stubs per L1 Track",
+                          "# L1 Tracks",
+                          8,
+                          0,
+                          8);
+  phase2tkutil::add1DDesc(desc,
+                          "L1Track_All_NLayersMissed",
+                          "L1Track_All_NLayersMissed",
+                          "L1Track_All_NLayersMissed",
+                          "# Layers missed",
+                          "# L1 Tracks",
+                          8,
+                          0,
+                          8);
+  phase2tkutil::add2DDesc(desc,
+                          "L1Track_All_Eta_NStubs",
+                          "L1Track_All_Eta_NStubs",
+                          "L1Track_All_Eta_NStubs",
+                          "#eta",
+                          "# L1 Stubs",
+                          15,
+                          -3.0,
+                          3.0,
+                          5,
+                          3,
+                          8);
+  phase2tkutil::add1DDesc(
+      desc, "L1Track_All_Pt", "L1Track_All_Pt", "L1Track_All_Pt", "p_{T} [GeV]", "# L1 Tracks", 50, 0, 100);
+  phase2tkutil::add1DDesc(
+      desc, "L1Track_All_Phi", "L1Track_All_Phi", "L1Track_All_Phi", "#phi", "# L1 Tracks", 60, -3.5, 3.5);
+  phase2tkutil::add1DDesc(
+      desc, "L1Track_All_D0", "L1Track_All_D0", "L1Track_All_D0", "Track D0", "# L1 Tracks", 101, -0.15, 0.15);
+  phase2tkutil::add1DDesc(
+      desc, "L1Track_All_Eta", "L1Track_All_Eta", "L1Track_All_Eta", "#eta", "# L1 Tracks", 45, -3.0, 3.0);
+  phase2tkutil::add1DDesc(desc,
+                          "L1Track_All_VtxZ",
+                          "L1Track_All_VtxZ",
+                          "L1Track_All_VtxZ",
+                          "L1 Track vertex position z [cm]",
+                          "# L1 Tracks",
+                          41,
+                          -20,
+                          20);
+  phase2tkutil::add1DDesc(
+      desc, "L1Track_All_Chi2", "L1Track_All_Chi2", "L1Track_All_Chi2", "L1 Track #chi^{2}", "# L1 Tracks", 100, 0, 50);
+  phase2tkutil::add1DDesc(desc,
+                          "L1Track_All_Chi2RZ",
+                          "L1Track_All_Chi2RZ",
+                          "L1Track_All_Chi2RZ",
+                          "L1 Track #chi^{2} r-z",
+                          "# L1 Tracks",
+                          100,
+                          0,
+                          50);
+  phase2tkutil::add1DDesc(desc,
+                          "L1Track_All_Chi2RPhi",
+                          "L1Track_All_Chi2RPhi",
+                          "L1Track_All_Chi2RPhi",
+                          "L1 Track #chi^{2}",
+                          "# L1 Tracks",
+                          100,
+                          0,
+                          50);
+  phase2tkutil::add1DDesc(desc,
+                          "L1Track_All_BendChi2",
+                          "L1Track_All_BendChi2",
+                          "L1Track_All_BendChi2",
+                          "L1 Track Bend #chi^{2}",
+                          "# L1 Tracks",
+                          100,
+                          0,
+                          10);
+  phase2tkutil::add1DDesc(desc,
+                          "L1Track_All_Chi2Red",
+                          "L1Track_All_Chi2Red",
+                          "L1Track_All_Chi2Red",
+                          "L1 Track #chi^{2}/ndf",
+                          "# L1 Tracks",
+                          100,
+                          0,
+                          10);
+  phase2tkutil::add1DDesc(desc,
+                          "L1Track_All_Chi2_Probability",
                           "L1Track_All_Chi2_Probability",
                           "L1Track_All_Chi2_Probability",
                           "#chi^{2} probability",
@@ -321,8 +387,10 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
                           100,
                           0,
                           1);
-  phase2tkutil::add1DDesc(desc, "L1Track_All_MVA1", "L1Track_All_MVA1", "MVA1", "# L1 Tracks", 100, 0, 1);
+  phase2tkutil::add1DDesc(
+      desc, "L1Track_All_MVA1", "L1Track_All_MVA1", "L1Track_All_MVA1", "MVA1", "# L1 Tracks", 100, 0, 1);
   phase2tkutil::add2DDesc(desc,
+                          "L1Track_All_Chi2Red_NStubs",
                           "L1Track_All_Chi2Red_NStubs",
                           "L1Track_All_Chi2Red_NStubs",
                           "# L1 Stubs",
@@ -336,6 +404,7 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
   phase2tkutil::add2DDesc(desc,
                           "L1Track_All_Chi2Red_Eta",
                           "L1Track_All_Chi2Red_Eta",
+                          "L1Track_All_Chi2Red_Eta",
                           "#eta",
                           "L1 Track #chi^{2}/ndf",
                           15,
@@ -347,6 +416,7 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
   phase2tkutil::add2DDesc(desc,
                           "L1Track_All_Eta_BarrelStubs",
                           "L1Track_All_Eta_BarrelStubs",
+                          "L1Track_All_Eta_BarrelStubs",
                           "#eta",
                           "# L1 Barrel Stubs",
                           15,
@@ -355,33 +425,108 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
                           5,
                           3,
                           8);
-  phase2tkutil::add2DDesc(
-      desc, "L1Track_All_Eta_ECStubs", "L1Track_All_Eta_ECStubs", "#eta", "# L1 EC Stubs", 15, -3.0, 3.0, 5, 3, 8);
+  phase2tkutil::add2DDesc(desc,
+                          "L1Track_All_Eta_ECStubs",
+                          "L1Track_All_Eta_ECStubs",
+                          "L1Track_All_Eta_ECStubs",
+                          "#eta",
+                          "# L1 EC Stubs",
+                          15,
+                          -3.0,
+                          3.0,
+                          5,
+                          3,
+                          8);
 
   // HQ tracks
-  phase2tkutil::add1DDesc(desc, "L1Track_HQ_N", "L1Track_HQ_N", "# L1 Tracks", "# Events", 100, 0, 399);
-  phase2tkutil::add1DDesc(
-      desc, "L1Track_HQ_NStubs", "L1Track_HQ_NStubs", "# L1 Stubs per L1 Track", "# L1 Tracks", 8, 0, 8);
-  phase2tkutil::add1DDesc(
-      desc, "L1Track_HQ_NLayersMissed", "L1Track_HQ_NLayersMissed", "# Layers missed", "# L1 Tracks", 8, 0, 8);
-  phase2tkutil::add2DDesc(
-      desc, "L1Track_HQ_Eta_NStubs", "L1Track_HQ_Eta_NStubs", "#eta", "# L1 Stubs", 15, -3.0, 3.0, 5, 3, 8);
-  phase2tkutil::add1DDesc(desc, "L1Track_HQ_Pt", "L1Track_HQ_Pt", "p_{T} [GeV]", "# L1 Tracks", 50, 0, 100);
-  phase2tkutil::add1DDesc(desc, "L1Track_HQ_Phi", "L1Track_HQ_Phi", "#phi", "# L1 Tracks", 60, -3.5, 3.5);
-  phase2tkutil::add1DDesc(desc, "L1Track_HQ_D0", "L1Track_HQ_D0", "Track D0", "# L1 Tracks", 101, -0.15, 0.15);
-  phase2tkutil::add1DDesc(desc, "L1Track_HQ_Eta", "L1Track_HQ_Eta", "#eta", "# L1 Tracks", 45, -3.0, 3.0);
-  phase2tkutil::add1DDesc(
-      desc, "L1Track_HQ_VtxZ", "L1Track_HQ_VtxZ", "L1 Track vertex position z [cm]", "# L1 Tracks", 41, -20, 20);
-  phase2tkutil::add1DDesc(desc, "L1Track_HQ_Chi2", "L1Track_HQ_Chi2", "L1 Track #chi^{2}", "# L1 Tracks", 100, 0, 50);
-  phase2tkutil::add1DDesc(
-      desc, "L1Track_HQ_BendChi2", "L1Track_HQ_BendChi2", "L1 Track Bend #chi^{2}", "# L1 Tracks", 100, 0, 10);
-  phase2tkutil::add1DDesc(
-      desc, "L1Track_HQ_Chi2RZ", "L1Track_HQ_Chi2RZ", "L1 Track #chi^{2} r-z", "# L1 Tracks", 100, 0, 50);
-  phase2tkutil::add1DDesc(
-      desc, "L1Track_HQ_Chi2RPhi", "L1Track_HQ_Chi2RPhi", "L1 Track #chi^{2} r-phi", "# L1 Tracks", 100, 0, 50);
-  phase2tkutil::add1DDesc(
-      desc, "L1Track_HQ_Chi2Red", "L1Track_HQ_Chi2Red", "L1 Track #chi^{2}/ndf", "# L1 Tracks", 100, 0, 10);
+  phase2tkutil::add1DDesc(desc, "L1Track_HQ_N", "L1Track_HQ_N", "L1Track_HQ_N", "# L1 Tracks", "# Events", 100, 0, 399);
   phase2tkutil::add1DDesc(desc,
+                          "L1Track_HQ_NStubs",
+                          "L1Track_HQ_NStubs",
+                          "L1Track_HQ_NStubs",
+                          "# L1 Stubs per L1 Track",
+                          "# L1 Tracks",
+                          8,
+                          0,
+                          8);
+  phase2tkutil::add1DDesc(desc,
+                          "L1Track_HQ_NLayersMissed",
+                          "L1Track_HQ_NLayersMissed",
+                          "L1Track_HQ_NLayersMissed",
+                          "# Layers missed",
+                          "# L1 Tracks",
+                          8,
+                          0,
+                          8);
+  phase2tkutil::add2DDesc(desc,
+                          "L1Track_HQ_Eta_NStubs",
+                          "L1Track_HQ_Eta_NStubs",
+                          "L1Track_HQ_Eta_NStubs",
+                          "#eta",
+                          "# L1 Stubs",
+                          15,
+                          -3.0,
+                          3.0,
+                          5,
+                          3,
+                          8);
+  phase2tkutil::add1DDesc(
+      desc, "L1Track_HQ_Pt", "L1Track_HQ_Pt", "L1Track_HQ_Pt", "p_{T} [GeV]", "# L1 Tracks", 50, 0, 100);
+  phase2tkutil::add1DDesc(
+      desc, "L1Track_HQ_Phi", "L1Track_HQ_Phi", "L1Track_HQ_Phi", "#phi", "# L1 Tracks", 60, -3.5, 3.5);
+  phase2tkutil::add1DDesc(
+      desc, "L1Track_HQ_D0", "L1Track_HQ_D0", "L1Track_HQ_D0", "Track D0", "# L1 Tracks", 101, -0.15, 0.15);
+  phase2tkutil::add1DDesc(
+      desc, "L1Track_HQ_Eta", "L1Track_HQ_Eta", "L1Track_HQ_Eta", "#eta", "# L1 Tracks", 45, -3.0, 3.0);
+  phase2tkutil::add1DDesc(desc,
+                          "L1Track_HQ_VtxZ",
+                          "L1Track_HQ_VtxZ",
+                          "L1Track_HQ_VtxZ",
+                          "L1 Track vertex position z [cm]",
+                          "# L1 Tracks",
+                          41,
+                          -20,
+                          20);
+  phase2tkutil::add1DDesc(
+      desc, "L1Track_HQ_Chi2", "L1Track_HQ_Chi2", "L1Track_HQ_Chi2", "L1 Track #chi^{2}", "# L1 Tracks", 100, 0, 50);
+  phase2tkutil::add1DDesc(desc,
+                          "L1Track_HQ_BendChi2",
+                          "L1Track_HQ_BendChi2",
+                          "L1Track_HQ_BendChi2",
+                          "L1 Track Bend #chi^{2}",
+                          "# L1 Tracks",
+                          100,
+                          0,
+                          10);
+  phase2tkutil::add1DDesc(desc,
+                          "L1Track_HQ_Chi2RZ",
+                          "L1Track_HQ_Chi2RZ",
+                          "L1Track_HQ_Chi2RZ",
+                          "L1 Track #chi^{2} r-z",
+                          "# L1 Tracks",
+                          100,
+                          0,
+                          50);
+  phase2tkutil::add1DDesc(desc,
+                          "L1Track_HQ_Chi2RPhi",
+                          "L1Track_HQ_Chi2RPhi",
+                          "L1Track_HQ_Chi2RPhi",
+                          "L1 Track #chi^{2} r-phi",
+                          "# L1 Tracks",
+                          100,
+                          0,
+                          50);
+  phase2tkutil::add1DDesc(desc,
+                          "L1Track_HQ_Chi2Red",
+                          "L1Track_HQ_Chi2Red",
+                          "L1Track_HQ_Chi2Red",
+                          "L1 Track #chi^{2}/ndf",
+                          "# L1 Tracks",
+                          100,
+                          0,
+                          10);
+  phase2tkutil::add1DDesc(desc,
+                          "L1Track_HQ_Chi2_Probability",
                           "L1Track_HQ_Chi2_Probability",
                           "L1Track_HQ_Chi2_Probability",
                           "#chi^{2} probability",
@@ -389,8 +534,10 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
                           100,
                           0,
                           1);
-  phase2tkutil::add1DDesc(desc, "L1Track_HQ_MVA1", "L1Track_HQ_MVA1", "MVA1", "# L1 Tracks", 100, 0, 1);
+  phase2tkutil::add1DDesc(
+      desc, "L1Track_HQ_MVA1", "L1Track_HQ_MVA1", "L1Track_HQ_MVA1", "MVA1", "# L1 Tracks", 100, 0, 1);
   phase2tkutil::add2DDesc(desc,
+                          "L1Track_HQ_Chi2Red_NStubs",
                           "L1Track_HQ_Chi2Red_NStubs",
                           "L1Track_HQ_Chi2Red_NStubs",
                           "# L1 Stubs",
@@ -404,6 +551,7 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
   phase2tkutil::add2DDesc(desc,
                           "L1Track_HQ_Chi2Red_Eta",
                           "L1Track_HQ_Chi2Red_Eta",
+                          "L1Track_HQ_Chi2Red_Eta",
                           "#eta",
                           "L1 Track #chi^{2}/ndf",
                           15,
@@ -415,6 +563,7 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
   phase2tkutil::add2DDesc(desc,
                           "L1Track_HQ_Eta_BarrelStubs",
                           "L1Track_HQ_Eta_BarrelStubs",
+                          "L1Track_HQ_Eta_BarrelStubs",
                           "#eta",
                           "# L1 Barrel Stubs",
                           15,
@@ -423,8 +572,18 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
                           5,
                           3,
                           8);
-  phase2tkutil::add2DDesc(
-      desc, "L1Track_HQ_Eta_ECStubs", "L1Track_HQ_Eta_ECStubs", "#eta", "# L1 EC Stubs", 15, -3.0, 3.0, 5, 3, 8);
+  phase2tkutil::add2DDesc(desc,
+                          "L1Track_HQ_Eta_ECStubs",
+                          "L1Track_HQ_Eta_ECStubs",
+                          "L1Track_HQ_Eta_ECStubs",
+                          "#eta",
+                          "# L1 EC Stubs",
+                          15,
+                          -3.0,
+                          3.0,
+                          5,
+                          3,
+                          8);
 
   desc.add<std::string>("TopFolderName", "TrackerPhase2OTL1Track");
   desc.add<edm::InputTag>("TTTracksTag", edm::InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"));

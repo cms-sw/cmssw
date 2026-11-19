@@ -55,7 +55,8 @@ public:
   void setPulseShapeTemplate(const HcalPulseShapes::Shape &ps,
                              bool isHPD,
                              unsigned nSamples,
-                             const HcalTimeSlew *hcalTimeSlewDelay);
+                             const HcalTimeSlew *hcalTimeSlewDelay,
+                             bool usingChannelPulseShapes);
   void resetPulseShapeTemplate(const HcalPulseShapes::Shape &ps, unsigned nSamples);
 
 private:

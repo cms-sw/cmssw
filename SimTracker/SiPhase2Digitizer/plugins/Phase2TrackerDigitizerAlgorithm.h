@@ -2,6 +2,7 @@
 #define SimTracker_SiPhase2Digitizer_Phase2TrackerDigitizerAlgorithm_h
 
 #include <map>
+#include <unordered_map>
 #include <memory>
 #include <vector>
 
@@ -64,13 +65,12 @@ public:
   virtual void initializeEvent(CLHEP::HepRandomEngine& eng);
 
   // run the algorithm to digitize a single det
-  virtual void accumulateSimHits(const std::vector<PSimHit>::const_iterator inputBegin,
-                                 const std::vector<PSimHit>::const_iterator inputEnd,
-                                 const size_t inputBeginGlobalIndex,
+  virtual void accumulateSimHits(const PSimHit& hit,
+                                 const size_t hitInex,
                                  const uint32_t tofBin,
-                                 const Phase2TrackerGeomDetUnit* pixdet,
+                                 const Phase2TrackerGeomDetUnit* ph2det,
                                  const GlobalVector& bfield);
-  virtual void digitize(const Phase2TrackerGeomDetUnit* pixdet,
+  virtual void digitize(const Phase2TrackerGeomDetUnit* ph2det,
                         std::map<int, digitizerUtility::DigiSimInfo>& digi_map,
                         const TrackerTopology* tTopo);
   virtual bool select_hit(const PSimHit& hit, double tCorr, double& sigScale) const { return true; }
@@ -101,7 +101,7 @@ protected:
 
   // Internal type aliases
   using signal_map_type = std::map<int, digitizerUtility::Ph2Amplitude, std::less<int> >;
-  using signalMaps = std::map<uint32_t, signal_map_type>;
+  using signalMaps = std::unordered_map<uint32_t, signal_map_type>;
   using Frame = GloballyPositioned<double>;
   using Parameters = std::vector<edm::ParameterSet>;
 
@@ -157,12 +157,12 @@ protected:
 
   // -- add_noise
   const bool addNoise_;
-  const bool addNoisyPixels_;
-  const bool checkAllModulesForNoisyCells_;
+  const bool addNoisyChannels_;
+  const bool checkAllModulesForNoisyChannels_;
   const bool fluctuateCharge_;
 
   //-- pixel efficiency
-  const bool addPixelInefficiency_;  // bool to read in inefficiencies
+  const bool addChannelInefficiency_;  // bool to read in inefficiencies
 
   const bool addThresholdSmearing_;
 
@@ -182,9 +182,6 @@ protected:
   //-- charge fluctuation
   const double tMax_;  // The delta production cut, should be as in OSCAR = 30keV
 
-  // Bad Pixels to be killed
-  Parameters badPixels_;
-
   // The eloss fluctuation class from G4. Is the right place?
   const std::unique_ptr<SiG4UniversalFluctuation> fluctuate_;  // make a pointer
   const std::unique_ptr<GaussianTailNoiseGenerator> theNoiser_;
@@ -194,38 +191,36 @@ protected:
   virtual std::vector<digitizerUtility::EnergyDepositUnit> primary_ionization(const PSimHit& hit) const;
   virtual std::vector<digitizerUtility::SignalPoint> drift(
       const PSimHit& hit,
-      const Phase2TrackerGeomDetUnit* pixdet,
+      const Phase2TrackerGeomDetUnit* ph2det,
       const GlobalVector& bfield,
       const std::vector<digitizerUtility::EnergyDepositUnit>& ionization_points) const;
-  virtual void induce_signal(std::vector<PSimHit>::const_iterator inputBegin,
-                             const PSimHit& hit,
-                             const size_t hitIndex,
-                             const size_t firstHitIndex,
+  virtual void induce_signal(const PSimHit& hit,
+                             const size_t hIndex,
                              const uint32_t tofBin,
-                             const Phase2TrackerGeomDetUnit* pixdet,
+                             const Phase2TrackerGeomDetUnit* ph2det,
                              const std::vector<digitizerUtility::SignalPoint>& collection_points);
   virtual std::vector<float> fluctuateEloss(
       int particleId, float momentum, float eloss, float length, int NumberOfSegments) const;
-  virtual void add_noise(const Phase2TrackerGeomDetUnit* pixdet);
-  virtual void add_cross_talk(const Phase2TrackerGeomDetUnit* pixdet);
-  virtual void add_noisy_cells(const Phase2TrackerGeomDetUnit* pixdet, float thePixelThreshold);
-  virtual void pixel_inefficiency(const SubdetEfficiencies& eff,
-                                  const Phase2TrackerGeomDetUnit* pixdet,
-                                  const TrackerTopology* tTopo);
+  virtual void add_noise(const Phase2TrackerGeomDetUnit* ph2det);
+  virtual void add_cross_talk(const Phase2TrackerGeomDetUnit* ph2det);
+  virtual void add_noisy_channels(const Phase2TrackerGeomDetUnit* ph2det, float channelThreshold);
+  virtual void channel_inefficiency(const SubdetEfficiencies& eff,
+                                    const Phase2TrackerGeomDetUnit* ph2det,
+                                    const TrackerTopology* tTopo);
 
-  virtual void pixel_inefficiency_db(uint32_t detID);
+  virtual void channel_inefficiency_db(uint32_t detID);
 
   // access to the gain calibration payloads in the db. Only gets initialized if check_dead_pixels_ is set to true.
   const std::unique_ptr<SiPixelGainCalibrationOfflineSimService> theSiPixelGainCalibrationService_;
 
-  LocalVector driftDirection(const Phase2TrackerGeomDetUnit* pixdet,
+  LocalVector driftDirection(const Phase2TrackerGeomDetUnit* ph2det,
                              const GlobalVector& bfield,
                              const DetId& detId) const;
 
   // remove dead modules using the list in the configuration file PixelDigi_cfi.py
   virtual void module_killing_conf(uint32_t detID);
   // remove dead modules uisng the list in the DB
-  virtual void module_killing_DB(const Phase2TrackerGeomDetUnit* pixdet) = 0;
+  virtual void module_killing_DB(const Phase2TrackerGeomDetUnit* ph2det) = 0;
 
   const SubdetEfficiencies subdetEfficiencies_;
   float calcQ(float x);

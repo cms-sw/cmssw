@@ -67,6 +67,8 @@ void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet& pSet
                                 << globalParameters.getParameterNames().size() << " global parameters" << std::endl;
   }
 
+  globalParameters.dump();
+
   // Propagate down parameters from upper level
   this->propagateParameters_(pSet, name.str(), globalParameters);
   LogDebug("PrintParameters") << indent_ << " global parameter is now:" << std::endl;
@@ -80,8 +82,8 @@ void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet& pSet
     // Check for special parameters -> merge with global
     name.str("");
     name << levelName << iComponent;
-
     edm::ParameterSet localParameters = this->getParameterSet_(levelName, iComponent, pSet);
+    localParameters.dump();
     LogDebug("PrintParameters") << indent_ << " ** " << name.str() << ": found "
                                 << localParameters.getParameterNames().size() << " local parameters" << std::endl;
     this->mergeParameters_(localParameters, globalParameters);

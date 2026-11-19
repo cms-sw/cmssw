@@ -36,10 +36,10 @@ namespace edmtest {
         consumes<IntProduct, edm::InProcess>(tag);
       }
       for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginRun")) {
-        consumes<IntProduct, edm::InRun>(tag);
+        consumes<IntProduct, edm::InRun, edm::Transition::BeginRun>(tag);
       }
       for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginLumi")) {
-        consumes<IntProduct, edm::InLumi>(tag);
+        consumes<IntProduct, edm::InLumi, edm::Transition::BeginLuminosityBlock>(tag);
       }
       for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcEvent")) {
         consumes<IntProduct>(tag);
@@ -72,10 +72,10 @@ namespace edmtest {
         consumes<IntProduct, edm::InProcess>(tag);
       }
       for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginRun")) {
-        consumes<IntProduct, edm::InRun>(tag);
+        consumes<IntProduct, edm::InRun, edm::Transition::BeginRun>(tag);
       }
       for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginLumi")) {
-        consumes<IntProduct, edm::InLumi>(tag);
+        consumes<IntProduct, edm::InLumi, edm::Transition::BeginLuminosityBlock>(tag);
       }
       for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcEvent")) {
         consumes<IntProduct, edm::InRun>(tag);
@@ -111,10 +111,10 @@ namespace edmtest {
         consumes<IntProduct, edm::InProcess>(tag);
       }
       for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginRun")) {
-        consumes<IntProduct, edm::InRun>(tag);
+        consumes<IntProduct, edm::InRun, edm::Transition::BeginRun>(tag);
       }
       for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginLumi")) {
-        consumes<IntProduct, edm::InLumi>(tag);
+        consumes<IntProduct, edm::InLumi, edm::Transition::BeginLuminosityBlock>(tag);
       }
       for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcEvent")) {
         consumes<IntProduct, edm::InRun>(tag);
@@ -147,10 +147,10 @@ namespace edmtest {
     explicit TestModuleDeleteInProcessProducer(edm::ParameterSet const& p)
         : moduleLabel_{p.getParameter<std::string>("@module_label")} {
       for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginRun")) {
-        consumes<IntProduct, edm::InRun>(tag);
+        consumes<IntProduct, edm::InRun, edm::Transition::BeginRun>(tag);
       }
       for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginLumi")) {
-        consumes<IntProduct, edm::InLumi>(tag);
+        consumes<IntProduct, edm::InLumi, edm::Transition::BeginLuminosityBlock>(tag);
       }
       for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcEvent")) {
         consumes<IntProduct, edm::InRun>(tag);
@@ -179,7 +179,7 @@ namespace edmtest {
 
   class TestModuleDeleteAnalyzer : public edm::global::EDAnalyzer<> {
   public:
-    explicit TestModuleDeleteAnalyzer(edm::ParameterSet const& /*p*/){};
+    explicit TestModuleDeleteAnalyzer(edm::ParameterSet const& /*p*/) {};
 
     void beginJob() override {
       if (g_constructed.size() == 0) {

@@ -86,25 +86,23 @@ gttTripletTable = cms.EDProducer(
     singleton = cms.bool(False), # the number of entries is variable
     variables = cms.PSet(
         valid = Var("valid()", float, doc="valid"),
-        pt = Var("pt()", float, doc="pt"),
-        eta = Var("glbeta()", float, doc="eta"),
-        phi = Var("glbphi()", float, doc="phi"),
-        mass = Var("mass()", float, doc="mass"),
-        charge = Var("charge()", float, doc="charge"),
-        ditrackMinMass = Var("ditrackMinMass()", float, doc="ditrackMinMass"),
-        ditrackMaxMass = Var("ditrackMaxMass()", float, doc="ditrackMaxMass"),
-        ditrackMinZ0 = Var("ditrackMinZ0()", float, doc="ditrackMinZ0"),
-        ditrackMaxZ0 = Var("ditrackMaxZ0()", float, doc="ditrackMaxZ0"),
+        pt = Var("pt()", float, doc="pt (placeholder, currently 0)"),
+        eta = Var("eta()", float, doc="eta (placeholder, currently 0)"),
+        phi = Var("phi()", float, doc="phi (placeholder, currently 0)"),
+        mass = Var("mass()", float, doc="triplet invariant mass"),
+        charge = Var("charge()", "int16", doc="charge sign (placeholder, currently +1)"),
+        trk1Pt = Var("trk1Pt()", float, doc="leading triplet track pt"),
+        trk2Pt = Var("trk2Pt()", float, doc="subleading triplet track pt"),
+        trk3Pt = Var("trk3Pt()", float, doc="third triplet track pt"),
         hwValid = Var("validBits()", "uint", doc="hardware valid"),
         hwPt = Var("ptBits()", "uint", doc="hardware pt"),
-        hwEta = Var("glbEtaBits()", "uint", doc="hardware eta"),
-        hwPhi = Var("glbPhiBits()", "uint", doc="hardware eta"),
+        hwEta = Var("etaBits()", "uint", doc="hardware eta"),
+        hwPhi = Var("phiBits()", "uint", doc="hardware phi"),
         hwMass = Var("massBits()", "uint", doc="hardware mass"),
         hwCharge = Var("chargeBits()", "uint", doc="hardware charge"),
-        hwDitrackMinMass = Var("ditrackMinMassBits()", "uint", doc="hardware DitrackMinMass"),
-        hwDitrackMaxMass = Var("ditrackMaxMassBits()", "uint", doc="hardware DitrackMaxMass"),
-        hwDitrackMinZ0 = Var("ditrackMinZ0Bits()", "uint", doc="hardware DitrackMinZ0"),
-        hwDitrackMaxZ0 = Var("ditrackMaxZ0Bits()", "uint", doc="hardware DitrackMaxZ0")
+        hwTrk1Pt = Var("trk1PtBits()", "uint", doc="hardware leading triplet track pt"),
+        hwTrk2Pt = Var("trk2PtBits()", "uint", doc="hardware subleading triplet track pt"),
+        hwTrk3Pt = Var("trk3PtBits()", "uint", doc="hardware third triplet track pt")
     )
 )
 
@@ -281,7 +279,11 @@ staMuTable = cms.EDProducer(
         hwEta = Var("hwEta()",int,doc="hardware eta"),
         hwPhi = Var("hwPhi()",int,doc="hardware phi"),
         hwQual = Var("hwQual()",int,doc="hardware qual"),
-        hwIso = Var("hwIso()",int,doc="hardware iso"),
+        ## no hwIso here: l1t::SAMuon has no isolation of its own, and the inherited
+        ## L1Candidate hwIso() word is never filled by the Phase-2 GMT
+        ## (L1Trigger/Phase2L1GMT/interface/Isolation.h leaves setHwIso commented out),
+        ## so writing it out only produces a constant-zero branch. The TkMuons do have
+        ## an isolation sum; gmtTkMuTable below defines hwIso from it.
         hwBeta = Var("hwBeta()",int,doc="hardware beta"),
 
         # ## more info
@@ -309,12 +311,31 @@ gmtTkMuTable = cms.EDProducer(
         vlooseId  = Var("test_bit(hwQual(),0)", bool, doc = "VLoose ID, bit 0 of hwQual"),
         looseId   = Var("test_bit(hwQual(),1)", bool, doc = "Loose ID, bit 1 of hwQual"),
         mediumId  = Var("test_bit(hwQual(),2)", bool, doc = "Medium ID, bit 2 of hwQual"),
-        tightId   = Var("test_bit(hwQual(),3)", bool, doc = "Tight ID, bit 3 of hwQual")
+        tightId   = Var("test_bit(hwQual(),3)", bool, doc = "Tight ID, bit 3 of hwQual"),
+
+        ## isolation
+        ## NOTE: this is a TRACK-BASED isolation only: the sum of the pT of the L1
+        ## tracker tracks inside a cone around the muon, computed in
+        ## L1Trigger/Phase2L1GMT/interface/Isolation.h. There is no calorimeter or
+        ## PF/Puppi contribution, so it is not comparable to the tkEle/tkPho iso.
+        ## The L1Candidate hwIso() bit word is NOT the isolation for Phase-2 TkMuons:
+        ## L1Trigger/Phase2L1GMT/interface/Isolation.h disables the iso bits and ships
+        ## the track-pT sum to the GT instead. The sums below are the real payload;
+        ## hwIso is defined after the PSet from the word sent to the GT.
+        hwIsoSum = Var("hwIsoSum()",int,doc="HW isolation: sum of track pT in the isolation cone, full precision (LSB 0.03125 GeV, unsaturated)"),
+        iso = Var("phIso()",float,doc="absolute isolation [GeV], from the 6-bit sum sent to the GT (saturates at 15.75 GeV)"),
+        relIso = Var("phIso()/phPt()",float,doc="relative isolation, from the 6-bit sum sent to the GT (saturates at 15.75 GeV)"),
 
         # ## more info
         # nStubs = Var("stubs().size()",int,doc="number of stubs"),
     )
 )
+
+## staMuTable deliberately defines no hwIso (see above). For TkMuons the quantity does
+## exist, so define hwIso here from the 6-bit isolation sum that the GMT sends to the
+## GT, so that L1gmtTkMuon.hwIso and L1GTgmtTkMuon.hwIso hold the same quantity in the
+## same units.
+gmtTkMuTable.variables.hwIso = Var("hwIsoSumAp()",int,doc="HW isolation sum as sent to the GT: 6 bits, LSB 0.25 GeV, saturates at 63")
 
 ### Standalone Muon from GMT, before ghost busting
 
@@ -394,12 +415,13 @@ sc4JetTable = pfJetTable.clone(
 )
 
 sc8JetTable = pfJetTable.clone(
-    src = 'l1tSC8PFL1PuppiCorrectedEmulator',
+    src = cms.InputTag('l1tSC82ProngJetProducer', 'l1tSC82ProngJets'),
     name = "L1puppiJetSC8",
     doc = "SeededCone 0.8 Puppi jet,  origin: Correlator",
     variables = cms.PSet(
         pfJetTable.variables.clone(),
-        mass = Var("mass", float)
+        mass = Var("mass", float),
+        nprongTagScore = Var('getTagScore("nprong")', float)
     )
 )
 
@@ -580,7 +602,7 @@ p2L1TablesTask = cms.Task(
     # ## jets
     sc4JetTable,
     sc8JetTable,
-    sc4ExtJetTable, 
+    sc4ExtJetTable,
     sc4NGJetTable,
     histoJetTable,
     caloJetTable,
@@ -593,7 +615,11 @@ p2L1TablesTask = cms.Task(
     caloTauTable,
     nnCaloTauTable,
     nnPuppiTauTable,
-    hpsTauTable,
+    # hpsTauTable is intentionally not scheduled: it reads l1tHPSPFTauProducerPuppi,
+    # which is no longer part of the L1 menu (only the non-Puppi l1tHPSPFTauProducer is
+    # in the Phase-2 SimL1Emulator sequence). Keeping it here makes every workflow that
+    # runs this task abort with ProductNotFound for l1t::HPSPFTau. The producer config
+    # above is kept so the table can be re-enabled if the collection comes back.
     # GTT
     vtxTable,
     dispVtxTable,

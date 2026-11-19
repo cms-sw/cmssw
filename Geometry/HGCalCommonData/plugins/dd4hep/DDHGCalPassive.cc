@@ -79,6 +79,8 @@ struct HGCalPassive {
     std::vector<int> absN = args.value<std::vector<int>>("AbsorberN");        // Number of point in each layer
     std::vector<double> absX = args.value<std::vector<double>>("AbsorberX");  // x coordinates of abs layers
     std::vector<double> absY = args.value<std::vector<double>>("AbsorberY");  // y coordinates of abs layers
+    std::vector<double> shX = args.value<std::vector<double>>("ShiftX");      // Absorber shifts needed to
+    std::vector<double> shY = args.value<std::vector<double>>("ShiftY");      // implment the chamfer
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "There are " << absNames.size() << " basic absorber shapes:";
     unsigned int j(0);
@@ -86,7 +88,7 @@ struct HGCalPassive {
       std::ostringstream st3;
       st3 << absNames[k] << " with " << absN[k] << " points:";
       for (int i = 0; i < absN[k]; ++i)
-        st3 << " (" << absX[j + i] << ", " << absY[j + i] << ")";
+        st3 << " (" << absX[j + i] << ", " << absY[j + i] << "; " << shX[j + i] << ", " << shY[j + i] << ")";
       j += absN[k];
       edm::LogVerbatim("HGCalGeom") << st3.str();
     }
@@ -109,6 +111,11 @@ struct HGCalPassive {
           std::vector<double> zw = {-0.5 * moduleThick, 0.5 * moduleThick};
           std::vector<double> zx(2, 0), zy(2, 0), scale(2, 1.0);
           std::vector<double> xM(absN[i3], 0), yM(absN[i3], 0);
+
+          for (int k = 0; k < 2; ++k) {
+            zx[k] = xsignpos[i1] * (cphi * shX[i3] * zw[k] + sphi * shY[i3] * zw[k]);
+            zy[k] = -sphi * shX[i3] * zw[k] + cphi * shY[i3] * zw[k];
+          }
           for (int k = 0; k < absN[i3]; ++k) {
             xM[k] = xsignpos[i1] * (cphi * absX[j + k] + sphi * absY[j + k]);
             yM[k] = -sphi * absX[j + k] + cphi * absY[j + k];
@@ -128,7 +135,7 @@ struct HGCalPassive {
             edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
 #endif
           // Then the layers
-          std::vector<dd4hep::Volume> glogs(layerMaterials.size());
+          std::vector<dd4hep::Volume> glogs(layerType.size());
           std::vector<int> copyNumber(layerMaterials.size(), 1);
           double zi(-0.5 * moduleThick), thickTot(0.0);
           for (unsigned int l = 0; l < layerType.size(); l++) {
@@ -136,6 +143,10 @@ struct HGCalPassive {
             if (copyNumber[i] == 1) {
               zw[0] = -0.5 * layerThick[i];
               zw[1] = 0.5 * layerThick[i];
+              for (int k = 0; k < 2; ++k) {
+                zx[k] = xsignpos[i1] * (cphi * shX[i3] * zw[k] + sphi * shY[i3] * zw[k]);
+                zy[k] = -sphi * shX[i3] * zw[k] + cphi * shY[i3] * zw[k];
+              }
               std::string layerName = parentname + layerNames[i];
               solid = dd4hep::ExtrudedPolygon(xM, yM, zw, zx, zy, scale);
               ns.addSolidNS(ns.prepend(layerName), solid);
@@ -147,12 +158,18 @@ struct HGCalPassive {
                   << "DDHGCalPassive: Layer " << i << ":" << l << ":" << solid.name() << " extruded polygon made of "
                   << matter.name() << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
                   << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1] << " and " << xM.size()
-                  << " edges";
+                  << " Offests " << zx[0] << ":" << zy[0] << " and " << zx[1] << ":" << zy[1] << " and edges ";
               for (unsigned int kk = 0; kk < xM.size(); ++kk)
                 edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
 #endif
             }
-            dd4hep::Position tran0(0, 0, (zi + 0.5 * layerThick[i]));
+            double zp = zi + 0.5 * layerThick[i];
+            double zxp = xsignpos[i1] * (cphi * shX[i3] * zp + sphi * shY[i3] * zp);
+            double zyp = -sphi * shX[i3] * zp + cphi * shY[i3] * zp;
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("HGCalGeom") << "First time" << zxp << ":" << zyp << "  layer " << copyNumber[i];
+#endif
+            dd4hep::Position tran0(zxp, zyp, (zi + 0.5 * layerThick[i]));
             glogM.placeVolume(glogs[i], copyNumber[i], tran0);
 #ifdef EDM_ML_DEBUG
             edm::LogVerbatim("HGCalGeom")

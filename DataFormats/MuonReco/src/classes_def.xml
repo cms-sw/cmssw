@@ -48,10 +48,12 @@ initial version number of a class which has never been stored before.
    <version ClassVersion="3" checksum="2031556424"/>
   </class>
   <class name="std::vector<reco::HcalMuonRecHit>"/>
-  <class name="reco::io_v1::MuonChamberMatch" ClassVersion="3">
+  <class name="reco::io_v1::MuonChamberMatch" ClassVersion="4">
+   <version ClassVersion="4" checksum="660442457"/>
    <version ClassVersion="3" checksum="2011871712"/>
   </class>
-  <class name="reco::io_v1::MuonSegmentMatch" ClassVersion="3">
+  <class name="reco::io_v1::MuonSegmentMatch" ClassVersion="4">
+    <version ClassVersion="4" checksum="2912227325"/>
     <version ClassVersion="3" checksum="2116957468"/>
   </class>
   <class name="reco::MuonRPCHitMatch" ClassVersion="3">

@@ -19,7 +19,7 @@ public:
       : PortableDeviceCollection<TDev, SiPixelDigiErrorsSoA>{edm::kUninitialized} {}
 
   template <typename TQueue>
-    requires(alpaka::isQueue<TQueue>)
+    requires(alpaka::concepts::Queue<TQueue>)
   explicit SiPixelDigiErrorsDevice(TQueue queue, size_t maxFedWords)
       : PortableDeviceCollection<TDev, SiPixelDigiErrorsSoA>(queue, maxFedWords), maxFedWords_(maxFedWords) {}
 
@@ -45,7 +45,7 @@ namespace ngt {
     static Properties properties(value_type const& object) { return {object.maxFedWords()}; }
 
     template <typename TQueue>
-      requires(alpaka::isQueue<TQueue>)
+      requires(alpaka::concepts::Queue<TQueue>)
     static void initialize(TQueue& queue, value_type& object, Properties const& props) {
       // Replace the default-constructed empty object with one where the buffer
       // has been allocated in device global memory.

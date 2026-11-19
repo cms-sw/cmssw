@@ -39,3 +39,9 @@ hltJetAnalyzerAK4PFCHS = _hltJetTester.clone(
     src = "hltAK4PFCHSJets",
     JetCorrections = "hltAK4PFCHSJetCorrector_ForValidation",
 )
+
+hltJetAnalyzerAK4JPT = _hltJetTester.clone(
+    src = "hltJetPlusTrackZSPCorJetAntiKt4",
+    JetType = 'jpt',
+    JetCorrections = "",
+)

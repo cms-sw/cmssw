@@ -29,7 +29,7 @@ def hgcal_local_reco_task():
 
 def merged_layer_clusters():
     """The configured ``hgcalMergeLayerClusters`` producer TICL consumes."""
-    from RecoLocalCalo.HGCalRecProducers.hgcalLayerClusters_cff import hgcalMergeLayerClusters
+    from RecoTICL.LayerClustering.hgcalLayerClusters_cff import hgcalMergeLayerClusters
     return hgcalMergeLayerClusters
 
 

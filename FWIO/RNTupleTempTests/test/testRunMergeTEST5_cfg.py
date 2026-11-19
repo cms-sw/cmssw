@@ -2,6 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST5")
 
+#Contents of file
+#testRunMergeMERGE5.root  "PROD" & "EXTRA" [run:1, lumi:1, ev:21] with "Prod" and "EXTRA" range [run:1, lumi:1, ev:1-5,21-25], excludes Run:2
+
+#Contents of file
+#testRunMerge2extra.root  "PROD" & "EXTRA" [run:1, lumi:1, ev:21-25] [run:2,lumi:1, ev:1-5]
+
 process.source = cms.Source("RNTupleTempSource",
     fileNames = cms.untracked.vstring(
         'file:testRunMergeMERGE5.root'

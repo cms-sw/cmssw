@@ -85,15 +85,6 @@ void HGCalMappingTriggerESProducer::prepareCellMapperIndexer() {
 
 //
 void HGCalMappingTriggerESProducer::prepareModuleMapperIndexer() {
-  //default values to assign in case module type has not yet been mapped
-  //a high density module (max possible) will be assigned so that the mapping doesn't block
-  auto defaultTypeCodeIdx = cellIndexer_.getEnumFromTypecode("MH-F");
-  auto typecodeidx = defaultTypeCodeIdx;
-  auto defaultNTrLinks = cellIndexer_.getNTrLinkExpectedFor(defaultTypeCodeIdx);
-  auto nTrLinks = defaultNTrLinks;
-  auto defaultTypeNTCs = cellIndexer_.getNWordsExpectedFor(defaultTypeCodeIdx);
-  auto nwords = defaultTypeNTCs;
-
   const auto& entities = modulesMap_.getEntries();
   for (const auto& row : entities) {
     auto typecode = modulesMap_.getAttr("typecode", row);  // module type code
@@ -115,14 +106,13 @@ void HGCalMappingTriggerESProducer::prepareModuleMapperIndexer() {
     } else if (matched_sipm) {
       wtypecode = typecode_match_sipm[1].str();
     } else {
-      edm::LogWarning("HGCalMappingIndexESSource")
+      edm::LogWarning("HGCalMappingTriggerIndexESSource")
           << "Could not match module type code to expected pattern: " << typecode;
     }
 
-    typecodeidx = cellIndexer_.getEnumFromTypecode(wtypecode);
-    nTrLinks = cellIndexer_.getNTrLinkExpectedFor(wtypecode);
-    nwords = cellIndexer_.getNWordsExpectedFor(wtypecode);
-
+    auto typecodeidx = cellIndexer_.getEnumFromTypecode(wtypecode);
+    auto nTrLinks = cellIndexer_.getNTrLinkExpectedFor(wtypecode);
+    auto nwords = cellIndexer_.getNWordsExpectedFor(wtypecode);
     int fedid = modulesMap_.getIntAttr("trig_fedid", row);
     int econtidx = modulesMap_.getIntAttr("econtidx", row);
     modIndexer_.processNewModule(fedid, econtidx, typecodeidx, nTrLinks, nwords, typecode);

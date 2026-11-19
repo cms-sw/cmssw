@@ -6,6 +6,8 @@
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResiduals5DOFFitter.h"
 #endif
 
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "TH2F.h"
 #include "TMath.h"
 #include "TTree.h"
@@ -111,7 +113,9 @@ void MuonResiduals5DOFFitter_FCN(int &npar, double *gin, double &fval, double *p
     double weight = (1. / redchi2) * number_of_hits / sum_of_weights;
     if (!weight_alignment)
       weight = 1.;
-
+    weight *= (*resiter)
+        [MuonResiduals5DOFFitter::
+             kWeightOccupancy];  //Weights to have flat occupancy for now (are set to 1 if the weigth-constructor has not the path to the root file with weights)
     if (!weight_alignment || TMath::Prob(redchi2 * 8, 8) < 0.99)  // no spikes allowed
     {
       if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian) {
@@ -249,7 +253,10 @@ bool MuonResiduals5DOFFitter::fit(Alignable *ali) {
     high.push_back(highs[idx[i]]);
   }
 
-  return dofit(&MuonResiduals5DOFFitter_FCN, num, name, start, step, low, high);
+  DTChamberId myid(ali->geomDetId().rawId());
+  int wheel = myid.wheel(), station = myid.station(), sector = myid.sector();
+  std::string chamber_id = std::to_string(wheel) + "_" + std::to_string(station) + "_" + std::to_string(sector);
+  return dofit(&MuonResiduals5DOFFitter_FCN, num, name, start, step, low, high, chamber_id);
 }
 
 double MuonResiduals5DOFFitter::plot(std::string name, TFileDirectory *dir, Alignable *ali) {

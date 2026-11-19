@@ -8,7 +8,6 @@
 HGCalSciNoiseMap::HGCalSciNoiseMap()
     : refEdge_(3.),
       ignoreSiPMarea_(false),
-      overrideSiPMarea_(false),
       ignoreTileArea_(false),
       ignoreDoseScale_(false),
       ignoreFluenceScale_(false),
@@ -38,7 +37,6 @@ HGCalSciNoiseMap::HGCalSciNoiseMap()
 void HGCalSciNoiseMap::setDoseMap(const std::string& fullpath, const unsigned int algo) {
   //decode bits of the algo word
   ignoreSiPMarea_ = ((algo >> IGNORE_SIPMAREA) & 0x1);
-  overrideSiPMarea_ = ((algo >> OVERRIDE_SIPMAREA) & 0x1);
   ignoreTileArea_ = ((algo >> IGNORE_TILEAREA) & 0x1);
   ignoreDoseScale_ = ((algo >> IGNORE_DOSESCALE) & 0x1);
   ignoreFluenceScale_ = ((algo >> IGNORE_FLUENCESCALE) & 0x1);
@@ -50,38 +48,9 @@ void HGCalSciNoiseMap::setDoseMap(const std::string& fullpath, const unsigned in
 }
 
 //
-void HGCalSciNoiseMap::setSipmMap(const std::string& fullpath) { sipmMap_ = readSipmPars(fullpath); }
-
-//
 void HGCalSciNoiseMap::setNpePerMIP(float npePerMIP) {
   nPEperMIP_[CAST] = npePerMIP;
   nPEperMIP_[MOULDED] = npePerMIP;
-}
-
-//
-std::unordered_map<int, float> HGCalSciNoiseMap::readSipmPars(const std::string& fullpath) {
-  std::unordered_map<int, float> result;
-  //no file means default sipm size
-  if (fullpath.empty())
-    return result;
-
-  edm::FileInPath fp(fullpath);
-  std::ifstream infile(fp.fullPath());
-  if (!infile.is_open()) {
-    throw cms::Exception("FileNotFound") << "Unable to open '" << fullpath << "'" << std::endl;
-  }
-  std::string line;
-  while (getline(infile, line)) {
-    int layer;
-    float boundary;
-
-    //space-separated
-    std::stringstream linestream(line);
-    linestream >> layer >> boundary;
-
-    result[layer] = boundary;
-  }
-  return result;
 }
 
 //
@@ -89,18 +58,22 @@ void HGCalSciNoiseMap::setReferenceDarkCurrent(double idark) { refDarkCurrent_ =
 
 //
 HGCalSciNoiseMap::SiPMonTileCharacteristics HGCalSciNoiseMap::scaleByDose(const HGCScintillatorDetId& cellId,
-                                                                          const double radius,
                                                                           int aimMIPtoADC,
                                                                           GainRange_t gainPreChoice) {
+  //position
+  GlobalPoint global = geom()->getPosition(cellId);
+  double radius = std::sqrt(std::pow(global.x(), 2) + std::pow(global.y(), 2));
+
   int layer = cellId.layer();
   bool hasDoseMap(!(getDoseMap().empty()));
+  double cellDose(0.), cellFluence(0.);
 
   //LIGHT YIELD
   double lyScaleFactor(1.f);
   //formula is: A = A0 * exp( -D^0.65 / 199.6)
   //where A0 is the response of the undamaged detector, D is the dose
   if (!ignoreDoseScale_ && hasDoseMap) {
-    double cellDose = getDoseValue(DetId::HGCalHSc, layer, radius);  //in kRad
+    cellDose = getDoseValue(DetId::HGCalHSc, layer, radius);  //in kRad
     constexpr double expofactor = 1. / 199.6;
     const double dosespower = 0.65;
     lyScaleFactor = std::exp(-std::pow(cellDose, dosespower) * expofactor);
@@ -109,7 +82,7 @@ HGCalSciNoiseMap::SiPMonTileCharacteristics HGCalSciNoiseMap::scaleByDose(const 
   //NOISE
   double noise(0.f);
   if (!ignoreNoise_) {
-    double cellFluence = getFluenceValue(DetId::HGCalHSc, layer, radius);  //in 1-Mev-equivalent neutrons per cm2
+    cellFluence = getFluenceValue(DetId::HGCalHSc, layer, radius);  //in 1-Mev-equivalent neutrons per cm2
 
     //MODEL 1 : formula is N = 2.18 * sqrt(F * A / 2e13)
     //where F is the fluence and A is the SiPM area (scaling with the latter is done below)
@@ -135,7 +108,7 @@ HGCalSciNoiseMap::SiPMonTileCharacteristics HGCalSciNoiseMap::scaleByDose(const 
 
   //ADDITIONAL SCALING FACTORS
   double tileAreaSF = scaleByTileArea(cellId, radius);
-  std::pair<double, HGCalSciNoiseMap::GainRange_t> sipm = scaleBySipmArea(cellId, radius, gainPreChoice);
+  std::pair<double, HGCalSciNoiseMap::GainRange_t> sipm = scaleBySipmArea(cellId, gainPreChoice);
   double sipmAreaSF = sipm.first;
   HGCalSciNoiseMap::GainRange_t gain = sipm.second;
 
@@ -156,6 +129,8 @@ HGCalSciNoiseMap::SiPMonTileCharacteristics HGCalSciNoiseMap::scaleByDose(const 
   sipmChar.thrADC = std::floor(0.5 * S / lsbPerGain_[gain]);
   sipmChar.ntotalPE = maxSiPMPE_ * sipmAreaSF;
   sipmChar.xtalk = refXtalk_;
+  sipmChar.lnfluence = cellFluence > 0 ? vdt::fast_log(cellFluence) : -1;
+  sipmChar.lndose = cellDose > 0 ? vdt::fast_log(cellDose) : -1;
   return sipmChar;
 }
 
@@ -300,7 +275,7 @@ float HGCalSciNoiseMap::lyVsize(int type, int phase, float edge, float sipm = 4.
 }
 
 std::pair<double, HGCalSciNoiseMap::GainRange_t> HGCalSciNoiseMap::scaleBySipmArea(
-    const HGCScintillatorDetId& cellId, const double radius, const HGCalSciNoiseMap::GainRange_t& gainPreChoice) {
+    const HGCScintillatorDetId& cellId, const HGCalSciNoiseMap::GainRange_t& gainPreChoice) {
   //start with the prechosen gain
   //if auto then override it according to the SiPM area
   HGCalSciNoiseMap::GainRange_t gain(gainPreChoice);
@@ -309,23 +284,10 @@ std::pair<double, HGCalSciNoiseMap::GainRange_t> HGCalSciNoiseMap::scaleBySipmAr
 
   double scaleFactor(1.f);
 
-  if (ignoreSiPMarea_)
-    return std::pair<double, HGCalSciNoiseMap::GainRange_t>(scaleFactor, gain);
-
-  //use sipm area boundary map
-  if (overrideSiPMarea_) {
-    int layer = cellId.layer();
-    if (sipmMap_.count(layer) > 0 && radius < sipmMap_[layer]) {
-      scaleFactor = 2.f;
-      if (gainPreChoice == HGCalSciNoiseMap::GainRange_t::AUTO)
-        gain = GainRange_t::GAIN_4;
-    }
-  }
-  //read from DetId
-  else {
+  if (!ignoreSiPMarea_) {
     int sipm = cellId.sipm();
     if (sipm == 0) {
-      scaleFactor = 2.f;
+      scaleFactor = 2.12f;
       if (gainPreChoice == HGCalSciNoiseMap::GainRange_t::AUTO)
         gain = GainRange_t::GAIN_4;
     }

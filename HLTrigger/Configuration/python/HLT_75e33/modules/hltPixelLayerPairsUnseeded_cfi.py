@@ -3,12 +3,12 @@ import FWCore.ParameterSet.Config as cms
 hltPixelLayerPairsUnseeded = cms.EDProducer("SeedingLayersEDProducer",
     BPix = cms.PSet(
         HitProducer = cms.string('hltSiPixelRecHits'),
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelTriplets'),
+        TTRHBuilder = cms.string('hltESPTTRHBuilderWithoutAngle4PixelTriplets'),
         skipClusters = cms.InputTag("hltElePixelHitTripletsClusterRemoverUnseeded")
     ),
     FPix = cms.PSet(
         HitProducer = cms.string('hltSiPixelRecHits'),
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelTriplets'),
+        TTRHBuilder = cms.string('hltESPTTRHBuilderWithoutAngle4PixelTriplets'),
         skipClusters = cms.InputTag("hltElePixelHitTripletsClusterRemoverUnseeded")
     ),
     MTEC = cms.PSet(

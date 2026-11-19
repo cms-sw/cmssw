@@ -11,7 +11,11 @@
 /// functor predicate for standard library sort algorithm
 struct SortMuonSegmentMatches {
   /// constructor takes arbitration type
-  SortMuonSegmentMatches(unsigned int flag) { flag_ = flag; }
+  SortMuonSegmentMatches(unsigned int flag, double dx_norm = 0.45, double dDphiDz_norm = 0.00003) {
+    flag_ = flag;
+    dx_norm_ = dx_norm;
+    dDphiDz_norm_ = dDphiDz_norm;
+  }
   /// sorts vector of pairs of chamber and segment pointers
   bool operator()(std::pair<reco::MuonChamberMatch*, reco::MuonSegmentMatch*> p1,
                   std::pair<reco::MuonChamberMatch*, reco::MuonSegmentMatch*> p2) {
@@ -42,11 +46,40 @@ struct SortMuonSegmentMatches {
       return sqrt(pow(sm1->dXdZ - cm1->dXdZ, 2) + pow(sm1->dYdZ - cm1->dYdZ, 2)) <
              sqrt(pow(sm2->dXdZ - cm2->dXdZ, 2) + pow(sm2->dYdZ - cm2->dYdZ, 2));
     }
+    if (flag_ == reco::MuonSegmentMatch::BestInChamberByDX_DPhiDZ ||
+        flag_ == reco::MuonSegmentMatch::BestInStationByDX_DPhiDZ ||
+        flag_ == reco::MuonSegmentMatch::BelongsToTrackByDX_DPhiDZ) {
+      if (fabs(sm1->y - cm1->y) > 3 * sqrt(pow(sm1->yErr, 2) + pow(cm1->yErr, 2))) {
+        // Bad segment: Dy too large
+        return false;
+      }
+      double dx1 = sm1->x - cm1->x;
+      double dDphiDz1 = sm1->dPhidZ - cm1->dPhidZ;
+      double dx2 = sm2->x - cm2->x;
+      double dDphiDz2 = sm2->dPhidZ - cm2->dPhidZ;
+
+      // normalization factors to make dx and dDPhidZ comparable
+      // obtained from the distribution in the noPU scenario
+      double dx_norm = dx_norm_;
+      double dDphiDz_norm = dDphiDz_norm_;
+
+      double pull_x1 = std::abs(dx1 / dx_norm);
+      double pull_dDphiDz1 = std::abs(dDphiDz1 / dDphiDz_norm);
+      double pull_x2 = std::abs(dx2 / dx_norm);
+      double pull_dDphiDz2 = std::abs(dDphiDz2 / dDphiDz_norm);
+
+      double D1 = pull_x1 * pull_x1 + pull_dDphiDz1 * pull_dDphiDz1;
+      double D2 = pull_x2 * pull_x2 + pull_dDphiDz2 * pull_dDphiDz2;
+
+      return D1 < D2;
+    }
 
     return false;  // is this appropriate? fix this
   }
 
   unsigned int flag_;
+  double dx_norm_;
+  double dDphiDz_norm_;
 };
 
 #endif

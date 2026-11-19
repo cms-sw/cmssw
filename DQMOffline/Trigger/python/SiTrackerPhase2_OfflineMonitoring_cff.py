@@ -3,10 +3,12 @@ from DQM.SiTrackerPhase2.Phase2ITMonitorCluster_cff import *
 from DQM.SiTrackerPhase2.Phase2OTMonitorCluster_cff import *
 
 HLTclusterMonitorIT = clusterMonitorIT.clone(
+    ReducedOutput = cms.bool(True),
     TopFolderName = cms.string('HLT/TrackerPhase2ITCluster'),
     InnerPixelClusterSource = cms.InputTag('hltSiPixelClusters'),
 )
 HLTclusterMonitorOT = clusterMonitorOT.clone(
+    ReducedOutput = cms.bool(True),
     TopFolderName = cms.string('HLT/TrackerPhase2OTCluster'),
     clusterSrc = cms.InputTag('hltSiPhase2Clusters'),
 )

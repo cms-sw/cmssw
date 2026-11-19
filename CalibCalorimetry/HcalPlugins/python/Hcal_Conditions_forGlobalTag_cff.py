@@ -221,16 +221,13 @@ _toGet = [
     'LUTCorrs',
     'LutMetadata',
     'L1TriggerObjects',
-    'PFCorrs',
     'PFCuts',
     'ElectronicsMap',
     'FrontEndMap',
-    'CovarianceMatrices',
     'SiPMParameters',
     'SiPMCharacteristics',
     'TPChannelParameters',
-    'TPParameters',
-    'FlagHFDigiTimeParams'
+    'TPParameters'
 ]
 
 _toGet_noEmap = _toGet[:]

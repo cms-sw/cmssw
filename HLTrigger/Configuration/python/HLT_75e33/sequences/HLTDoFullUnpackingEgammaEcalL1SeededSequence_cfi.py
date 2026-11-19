@@ -8,4 +8,4 @@ from ..modules.hltEcalRecHitL1Seeded_cfi import *
 from ..modules.hltEcalUncalibRecHitL1Seeded_cfi import *
 from ..modules.hltL1TEGammaFilteredCollectionProducer_cfi import *
 
-HLTDoFullUnpackingEgammaEcalL1SeededSequence = cms.Sequence(hltEcalDigis+bunchSpacingProducer+hltEcalDetIdToBeRecovered+hltL1TEGammaFilteredCollectionProducer+hltEcalBarrelDigisInRegions+hltEcalUncalibRecHitL1Seeded+hltEcalRecHitL1Seeded)
+HLTDoFullUnpackingEgammaEcalL1SeededSequence = cms.Sequence(hltEcalDigis+hltBunchSpacingProducer+hltEcalDetIdToBeRecovered+hltL1TEGammaFilteredCollectionProducer+hltEcalBarrelDigisInRegions+hltEcalUncalibRecHitL1Seeded+hltEcalRecHitL1Seeded)

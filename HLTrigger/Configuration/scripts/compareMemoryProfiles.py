@@ -19,8 +19,8 @@ Features
 Example
 -------
 python3 compareMemoryProfiles.py \
-    gpu_memory_HLTTimingNewBaseline_16j_16t_16s.csv \
-    gpu_memory_HLTTimingCurrent_16j_16t_16s.csv \
+    --file1 gpu_memory_HLTTimingNewBaseline_16j_16t_16s.csv \
+    --file2 gpu_memory_HLTTimingCurrent_16j_16t_16s.csv \
     --label1 NewBaseline \
     --label2 Current \
     --cms-label "PR Testing"
@@ -28,7 +28,7 @@ python3 compareMemoryProfiles.py \
 Typical CMSSW integration usage
 -------------------------------
 python3 compareMemoryProfiles.py \
-    baseline.csv current.csv \
+    --file1 baseline.csv --file2 current.csv \
     --output gpu_memory_PR_comparison \
     --no-show
 """
@@ -46,10 +46,28 @@ import pandas as pd
 import numpy as np
 
 
+def select_memory_column(df, is_gpu):
+    """Pick the memory column from the CSV, supporting both the current
+    benchmark monitoring format (cpu_monitor.csv / gpu_monitor.csv) and the
+    legacy manual-monitoring format (cpu_memory.csv / gpu_memory.csv).
+
+    For GPU memory: use 'total_memory' when present (the aggregate column
+    in gpu_monitor.csv), falling back to 'memory_mib' for the legacy
+    gpu_memory.csv.
+    For CPU memory: use 'cpu_rss_mib' when present, falling back to
+    'memory_mib' for the legacy cpu_memory.csv.
+    """
+    if is_gpu:
+        if "total_memory" in df.columns:
+            return "total_memory"
+        return "memory_mib"
+    if "cpu_rss_mib" in df.columns:
+        return "cpu_rss_mib"
+    return "memory_mib"
+
 def read_file(path):
     """Read CSV input file."""
     return pd.read_csv(path)
-
 
 def default_label(path):
     """Generate default legend label from filename stem."""
@@ -121,8 +139,12 @@ def main(args):
     # Read data
     df1 = read_file(args.file1)
 
+    # Select the memory column: last column for GPU, cpu_rss_mib for CPU
+    # (both fall back to the legacy memory_mib column)
+    mem_col = select_memory_column(df1, args.gpu)
+
     # Convert MiB -> GiB
-    df1["memory_gib"] = df1["memory_mib"] / 1024.0
+    df1["memory_gib"] = df1[mem_col] / 1024.0
         
     # Labels
     label1 = args.label1 or default_label(args.file1)
@@ -132,7 +154,8 @@ def main(args):
 
     if args.file2:
         df2 = read_file(args.file2)
-        df2["memory_gib"] = df2["memory_mib"] / 1024.0
+        mem_col2 = select_memory_column(df2, args.gpu)
+        df2["memory_gib"] = df2[mem_col2] / 1024.0
         label2 = args.label2 or default_label(args.file2)
         stats2 = compute_stats(df2)
         rel_diff = 100.0 * (stats2["peak"] - stats1["peak"]) / stats1["peak"]
@@ -286,14 +309,22 @@ if __name__ == "__main__":
         description="CMS-style hardware memory comparison plotter"
     )
 
+    # NOTE: file1/file2 are named (not positional) options on purpose.
+    # With positional args, a caller that places another option
+    # (e.g. --label1 VALUE) between file1 and file2 on the command
+    # line causes argparse to split them into separate token "runs"
+    # and mis-bind both positionals to the first run, silently
+    # dropping file2 as "unrecognized arguments". Named flags are
+    # immune to this since argparse matches them independent of
+    # position.
     parser.add_argument(
-        "file1",
+        "--file1",
+        required=True,
         help="First input CSV file",
     )
 
     parser.add_argument(
-        "file2",
-        nargs="?",
+        "--file2",
         help="Second input CSV file (optional)",
     )
 

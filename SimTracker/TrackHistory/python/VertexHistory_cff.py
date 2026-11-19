@@ -13,7 +13,7 @@ trackingParticleRecoTrackAsssociationByHits = trackingParticleRecoTrackAsssociat
     associator = 'trackAssociatorByHits'
 )
 vertexAssociatorByTracksByHits = VertexAssociatorByTracks.clone(
-    trackAssociation = "trackingParticleRecoTrackAsssociationByHits"
+    trackAssociations = ["trackingParticleRecoTrackAsssociationByHits"]
 )
 vertexAssociatorSequence = cms.Sequence(
     trackingParticleRecoTrackAsssociationByHits +

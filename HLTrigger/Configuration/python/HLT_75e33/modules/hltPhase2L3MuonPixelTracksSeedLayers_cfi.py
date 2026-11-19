@@ -3,11 +3,11 @@ import FWCore.ParameterSet.Config as cms
 hltPhase2L3MuonPixelTracksSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     BPix = cms.PSet(
         HitProducer = cms.string('hltSiPixelRecHits'),
-        TTRHBuilder = cms.string('WithTrackAngle')
+        TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle')
     ),
     FPix = cms.PSet(
         HitProducer = cms.string('hltSiPixelRecHits'),
-        TTRHBuilder = cms.string('WithTrackAngle')
+        TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle')
     ),
     MTEC = cms.PSet(
 

@@ -11,6 +11,11 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MERGE")
 
+#Contents of files
+#testRunMerge1.root  "PROD" [run:1,lumi:1, ev:11-20]
+#testRunMerge2.root  "PROD" [run:1, lumi:1, ev:21-25] [run:2,lumi:1, ev:1-5]
+#testRunMerge3.root  "PROD" [run:1, lumi:1, ev:1-10]
+
 process.source = cms.Source("RNTupleTempSource",
     fileNames = cms.untracked.vstring(
         'file:testRunMerge1.root',

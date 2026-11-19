@@ -11,6 +11,9 @@
 #include <string>
 #include <memory>
 #include <algorithm>
+#include <cerrno>
+#include <climits>
+#include <cstring>
 
 #include <fmt/printf.h>
 
@@ -31,6 +34,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 //note this was updated 20/10/22 to change the logic such that instead
@@ -439,8 +443,9 @@ void HLTriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlo
   Json::StyledWriter writer;
 
   // [SIC]
-  char hostname[33];
-  gethostname(hostname, 32);
+  char hostname[HOST_NAME_MAX + 1];
+  if (gethostname(hostname, sizeof(hostname)) != 0)
+    throw cms::Exception("HLTriggerJsonMonitoring") << "Internal error, cannot get host name: " << std::strerror(errno);
   std::string sourceHost(hostname);
 
   // [SIC]
@@ -475,7 +480,7 @@ void HLTriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlo
 
     jsndataFileList = jsndataFileName;
     jsndataSize = result.size();
-    jsndataAdler32 = cms::Adler32(result.c_str(), result.size());
+    jsndataAdler32 = cms::adler32(result.c_str(), result.size());
   }
 
   // create a metadata json file for the "HLT rates" pseudo-stream

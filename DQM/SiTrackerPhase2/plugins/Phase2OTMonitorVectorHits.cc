@@ -140,7 +140,7 @@ void Phase2OTMonitorVectorHits::analyze(const edm::Event& iEvent, const edm::Eve
     TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(detId);
     if (mType != TrackerGeometry::ModuleType::Ph2PSP && mType != TrackerGeometry::ModuleType::Ph2SS)
       continue;
-    std::string key = phase2tkutil::getOTHistoId(detId, tTopo_);
+    std::string key = phase2tkutil::getHistoId(detId, tTopo_, 0.0, 6, false);
     nTotvechitsinevt += DSViter->size();
     if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
       if (nvechitLayerMapP.find(key) == nvechitLayerMapP.end()) {
@@ -256,7 +256,7 @@ void Phase2OTMonitorVectorHits::bookHistograms(DQMStore::IBooker& ibooker,
 // -- Book Layer Histograms
 //
 void Phase2OTMonitorVectorHits::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir) {
-  std::string key = phase2tkutil::getOTHistoId(det_id, tTopo_);
+  std::string key = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, 6, false);
   if (layerMEs_.find(key) == layerMEs_.end()) {
     ibooker.cd();
     VecHitME local_histos;

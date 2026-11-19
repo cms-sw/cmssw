@@ -1,6 +1,4 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-// Part of the MC-truth-graph prototype - under heavy development, not yet open
-// to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 // Diagnostic analyzer that audits the raw TruthGraph and the logical truth::Graph
 // for "strange" topologies and reports their structural provenance:
@@ -26,11 +24,14 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/InteractionId.h"
 #include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 
 namespace {
@@ -103,13 +104,6 @@ namespace {
       v.push_back(std::move(s));
   }
 
-  // Decode the packed EncodedEventId (memcpy reverse of TruthGraphProducer::packEventId).
-  EncodedEventId decodeEid(uint64_t packed) {
-    uint32_t raw = 0;
-    std::memcpy(&raw, &packed, sizeof(raw));
-    return EncodedEventId(raw);
-  }
-
 }  // namespace
 
 class TruthGraphTopologyChecker : public edm::one::EDAnalyzer<> {
@@ -117,6 +111,7 @@ public:
   explicit TruthGraphTopologyChecker(edm::ParameterSet const&);
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
   void analyzeRaw(TruthGraph const&);
@@ -151,7 +146,15 @@ private:
 TruthGraphTopologyChecker::TruthGraphTopologyChecker(edm::ParameterSet const& cfg)
     : rawToken_(consumes<TruthGraph>(cfg.getParameter<edm::InputTag>("rawSrc"))),
       logicalToken_(consumes<truth::Graph>(cfg.getParameter<edm::InputTag>("src"))),
-      failOnViolations_(cfg.getUntrackedParameter<bool>("failOnViolations", false)) {}
+      failOnViolations_(cfg.getUntrackedParameter<bool>("failOnViolations")) {}
+
+void TruthGraphTopologyChecker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("rawSrc", edm::InputTag("truthGraphProducer"));
+  desc.add<edm::InputTag>("src", edm::InputTag("truthLogicalGraphProducer"));
+  desc.addUntracked<bool>("failOnViolations", false);
+  descriptions.addWithDefaultLabel(desc);
+}
 
 void TruthGraphTopologyChecker::analyze(edm::Event const& event, edm::EventSetup const&) {
   ++nEvents_;
@@ -357,9 +360,9 @@ void TruthGraphTopologyChecker::analyzeLogical(truth::Graph const& g) {
     }
 
     // Pileup provenance: signal is (bx==0, event==0); everything else is pileup.
-    const EncodedEventId eid = decodeEid(g.particles()[p].eventId);
+    const EncodedEventId eid = truth::decodeEventId(g.particles()[p].eventId);
     ++logBxHist_[eid.bunchCrossing()];
-    if (eid.bunchCrossing() == 0 && eid.event() == 0)
+    if (truth::isSignalEventId(g.particles()[p].eventId))
       ++logSignalParticles_;
     else
       ++logPileupParticles_;

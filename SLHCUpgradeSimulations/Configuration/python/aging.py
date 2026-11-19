@@ -262,9 +262,11 @@ def ageMTD(process,lumi):
             "time_over_thr1": [1.3e9, 9.58676, -2.51351e-10, 5.98501e-18, -3.326821e-27, -7.61576e-10, 13.21],
             "slew_rate": [1.3e9, -0.8, 8.7e-9, 11.1],
             "pulse_q": [-43.5, 0.0793],
-            "hit_time_res": "0.143789*pow(x,-1.09324)+0.0166063",
+            "hit_time_res": "sqrt(pow(0.155538/x,2)+pow(0.0451808,2)/x+pow(0.0202871,2))",
+            "hit_time_res_par": [7.551020,-1.09324,0.0166063], # First param accounts for MeV->GeV (par[0]*1000^par[1])
             "sipm_saturation": [-9.80E-06, 1.007],
-            "time_walk_corr":"2.40863*pow(x,-0.583148)+0.0545682"
+            "time_walk_corr":"2.68976*pow(x+0.268243,-0.705316)+0.185757",
+            "time_walk_corr_par":[0.042887,-0.583148,0.0545682] # First param accounts for MeV->GeV (par[0]*1000^par[1])
         },
         3000: {
             "light_output": 1004.,
@@ -279,9 +281,11 @@ def ageMTD(process,lumi):
             "time_over_thr1": [1.3e9, 9.58676, -2.51351e-10, 5.98501e-18, -3.326821e-27, -7.61576e-10, 13.21],
             "slew_rate": [1.3e9, -0.8, 8.7e-9, 11.1],
             "pulse_q": [-34.3, 0.085],
-            "hit_time_res": "0.2567*pow(x,-1.10973)+0.0165099",
+            "hit_time_res": "sqrt(pow(0.272823/x,2)+pow(0.0260489,2))",
+            "hit_time_res_par": [1.202917e-4,-1.10973,0.0165099], # First param accounts for MeV->GeV (par[0]*1000^par[1])
             "sipm_saturation": [-1.04E-05, 1.008],
-            "time_walk_corr":"3.42178*pow(x,-0.57758)+0.0448797"
+            "time_walk_corr":"4.33073*pow(x+0.578648,-0.763282)+0.260855",
+            "time_walk_corr_par":[0.063316,-0.57758,0.0448797] # First param accounts for MeV->GeV (par[0]*1000^par[1])
         },
     }
 
@@ -321,8 +325,16 @@ def ageMTD(process,lumi):
         if hasattr(process,'mtdUncalibratedRecHits') and hasattr(process.mtdUncalibratedRecHits,'barrel'):
             process.mtdUncalibratedRecHits.barrel.npePerMeV = cms.double(mtd_parameters[lumi]["light_output"])
             process.mtdUncalibratedRecHits.barrel.npeToADC = cms.vdouble(mtd_parameters[lumi]["pulse_q"])
+            process.mtdUncalibratedRecHits.barrel.npeSaturationCorrection = cms.vdouble(mtd_parameters[lumi]["sipm_saturation"])
             process.mtdUncalibratedRecHits.barrel.timeResolutionInNs = cms.string(mtd_parameters[lumi]["hit_time_res"])
             process.mtdUncalibratedRecHits.barrel.timeWalkCorrection = cms.string(mtd_parameters[lumi]["time_walk_corr"])
+        if hasattr(process,'btlRecHitsSoA'):
+            process.btlRecHitsSoA.tResParams = cms.vdouble(mtd_parameters[lumi]["hit_time_res_par"][0],
+                                                           mtd_parameters[lumi]["hit_time_res_par"][1],
+                                                           mtd_parameters[lumi]["hit_time_res_par"][2])
+            process.btlRecHitsSoA.twcParams  = cms.vdouble(mtd_parameters[lumi]["time_walk_corr_par"][0],
+                                                           mtd_parameters[lumi]["time_walk_corr_par"][1],
+                                                           mtd_parameters[lumi]["time_walk_corr_par"][2])
 
     return process
 

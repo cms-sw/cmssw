@@ -7,7 +7,7 @@ hltPhase2L3MuonInitialStepTrackCandidates = cms.EDProducer("CkfTrackCandidateMak
     TrajectoryBuilderPSet = cms.PSet(
         refToPSet_ = cms.string('hltPhase2L3MuonInitialStepTrajectoryBuilder')
     ),
-    TrajectoryCleaner = cms.string('TrajectoryCleanerBySharedHits'),
+    TrajectoryCleaner = cms.string('hltESPInitialStepTrajectoryCleanerBySharedHits'),
     TransientInitialStateEstimatorParameters = cms.PSet(
         numberMeasurementsForFit = cms.int32(4),
         propagatorAlongTISE = cms.string('PropagatorWithMaterial'),

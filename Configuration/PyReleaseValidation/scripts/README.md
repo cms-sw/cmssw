@@ -238,15 +238,9 @@ matrix> showWorkflow gpu
 141.008524 Run3-2023_JetMET2023B_RecoHCALOnlyGPU_Profiling
 141.008583 Run3-2023_JetMET2023B_GPUValidation
 160.03502 HydjetQ_MinBias_5362GeV_2023_ppReco
-12450.406 ZMM_14+2023_Patatrack_PixelOnlyTripletsAlpaka
-12450.407 ZMM_14+2023_Patatrack_PixelOnlyTripletsAlpaka_Validation
-12450.408 ZMM_14+2023_Patatrack_PixelOnlyTripletsAlpaka_Profiling
 12834.402 TTbar_14TeV+2024_Patatrack_PixelOnlyAlpaka
 12834.403 TTbar_14TeV+2024_Patatrack_PixelOnlyAlpaka_Validation
 12834.404 TTbar_14TeV+2024_Patatrack_PixelOnlyAlpaka_Profiling
-12834.406 TTbar_14TeV+2024_Patatrack_PixelOnlyTripletsAlpaka
-12834.407 TTbar_14TeV+2024_Patatrack_PixelOnlyTripletsAlpaka_Validation
-12834.408 TTbar_14TeV+2024_Patatrack_PixelOnlyTripletsAlpaka_Profiling
 12834.412 TTbar_14TeV+2024_Patatrack_ECALOnlyAlpaka
 12834.422 TTbar_14TeV+2024_Patatrack_HCALOnlyAlpaka_Validation
 12834.423 TTbar_14TeV+2024_Patatrack_HCALOnlyGPUandAlpaka_Validation
@@ -258,9 +252,6 @@ matrix> showWorkflow gpu
 13034.402 TTbar_14TeV+2024PU_Patatrack_PixelOnlyAlpaka
 13034.403 TTbar_14TeV+2024PU_Patatrack_PixelOnlyAlpaka_Validation
 13034.404 TTbar_14TeV+2024PU_Patatrack_PixelOnlyAlpaka_Profiling
-13034.406 TTbar_14TeV+2024PU_Patatrack_PixelOnlyTripletsAlpaka
-13034.407 TTbar_14TeV+2024PU_Patatrack_PixelOnlyTripletsAlpaka_Validation
-13034.408 TTbar_14TeV+2024PU_Patatrack_PixelOnlyTripletsAlpaka_Profiling
 13034.412 TTbar_14TeV+2024PU_Patatrack_ECALOnlyAlpaka
 13034.422 TTbar_14TeV+2024PU_Patatrack_HCALOnlyAlpaka_Validation
 13034.423 TTbar_14TeV+2024PU_Patatrack_HCALOnlyGPUandAlpaka_Validation
@@ -268,15 +259,12 @@ matrix> showWorkflow gpu
 13050.402 ZMM_14+2024PU_Patatrack_PixelOnlyAlpaka
 13050.403 ZMM_14+2024PU_Patatrack_PixelOnlyAlpaka_Validation
 13050.404 ZMM_14+2024PU_Patatrack_PixelOnlyAlpaka_Profiling
-13050.406 ZMM_14+2024PU_Patatrack_PixelOnlyTripletsAlpaka
-13050.407 ZMM_14+2024PU_Patatrack_PixelOnlyTripletsAlpaka_Validation
-13050.408 ZMM_14+2024PU_Patatrack_PixelOnlyTripletsAlpaka_Profiling
 13061.402 NuGun+2024PU_Patatrack_PixelOnlyAlpaka
 24834.704 TTbar_14TeV+Run4D98_lstOnGPUIters01TrackingOnly
 29634.402 TTbar_14TeV+Run4D110_Patatrack_PixelOnlyAlpaka
 29634.403 TTbar_14TeV+Run4D110_Patatrack_PixelOnlyAlpaka_Validation
 29634.404 TTbar_14TeV+Run4D110_Patatrack_PixelOnlyAlpaka_Profiling
-29634.406 TTbar_14TeV+Run4D110_Patatrack_PixelOnlyTripletsAlpaka
+29634.406 TTbar_14TeV+Run4D110_Patatrack_PixelOnlyCAVectorHitsAlpaka
 29661.402 NuGun+Run4D110_Patatrack_PixelOnlyAlpaka
 29834.402 TTbar_14TeV+Run4D110PU_Patatrack_PixelOnlyAlpaka
 29834.403 TTbar_14TeV+Run4D110PU_Patatrack_PixelOnlyAlpaka_Validation
@@ -319,10 +307,10 @@ MC workflows for pp collisions:
 | **Run3** 	|  	|  	|  	|  	|  	
 | |  	|  	|  	|  	|  	
 | 11634.0 	| TTbar_14TeV 	| phase1_2022_realistic 	| Run3 	|  	|  	
-| 13234.0 	| RelValTTbar_14TeV 	| phase1_2022_realistic 	| Run3_FastSim 	| *FastSim*  |  	
+| 13234.0 	| RelValTTbar_14TeV 	| phase1_2022_realistic 	| Run3 	| *FastSim*  |  	
 | 12434.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023 	|  	|  	
-| 14034.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023_FastSim 	|  	*FastSim* |  	
-| 14234.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023_FastSim 	| *FastSim*  Run3_Flat55To75_PoissonOOTPU 	|  	
+| 14034.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023 	|  	*FastSim* |  	
+| 14234.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023 	| *FastSim*  Run3_Flat55To75_PoissonOOTPU 	|  	
 | 12834.0 	| RelValTTbar_14TeV 	| phase1_2024_realistic 	| Run3_2024 	|  	| 
 | 12846.0 	| RelValZEE_14 	| phase1_2023_realistic 	| Run3_2024 	|  	|  	
 | 13034.0 	| RelValTTbar_14TeV 	| phase1_2024_realistic 	| Run3_2024 	|  Run3_Flat55To75_PoissonOOTPU 	|  	

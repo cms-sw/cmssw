@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/Schedule.h"
-#include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/interface/ESModuleProducesInfo.h"
 #include "FWCore/Framework/interface/ESModuleConsumesMinimalInfo.h"
@@ -170,7 +169,7 @@ namespace edm {
           modulesWhoseProductsAreConsumed(
               iHolder, modules, preg, labelToDesc, iHolder->moduleDescription().processName());
         } catch (cms::Exception& ex) {
-          ex.addContext("Calling Worker::modulesWhoseProductsAreConsumed() for module " +
+          ex.addContext("Calling TransitionWorkerBase::modulesWhoseProductsAreConsumed() for module " +
                         iHolder->moduleDescription().moduleLabel());
           throw;
         }
@@ -263,7 +262,7 @@ namespace edm {
         try {
           esModulesWhoseProductsAreConsumed(holder, esModules, producedByESModule);
         } catch (cms::Exception& ex) {
-          ex.addContext("Calling Worker::esModulesWhoseProductsAreConsumed() for module " +
+          ex.addContext("Calling TransitionWorkerBase::esModulesWhoseProductsAreConsumed() for module " +
                         holder->moduleDescription().moduleLabel());
           throw;
         }

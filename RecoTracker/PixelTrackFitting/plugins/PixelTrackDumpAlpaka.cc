@@ -1,5 +1,3 @@
-#include <Eigen/Core>  // needed here by soa layout
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"

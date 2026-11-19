@@ -26,9 +26,6 @@
 // user include files
 
 // forward declarations
-class testServicesManager;
-class TestServicesManagerOrder;
-
 namespace edm {
   class ServiceRegistry;
   class ActivityRegistry;
@@ -37,68 +34,80 @@ namespace edm {
     class ServicesManager;
   }
 
-  class ServiceWeakToken;
+  class OwningServiceToken;
+  class WeakServiceToken;
 
+  /// Non-owning handle to a 'service set': it behaves like a pointer to the services, without sharing their
+  /// ownership. It can be copied as cheaply as a raw pointer, with no reference counting, so that it can be passed
+  /// to and stored in the tasks that run concurrently on many threads.
+  /// A ServiceToken can only be obtained from an OwningServiceToken, or from ServiceRegistry::presentToken() while
+  /// the services are in use; it must not outlive the OwningServiceToken that keeps the services alive. The framework
+  /// guarantees this for the tokens it hands out: the services outlive all the modules and tasks of the process.
   class ServiceToken {
     friend class edm::ServiceRegistry;
     friend class edm::serviceregistry::ServicesManager;
-    //for testing
-    friend class ::testServicesManager;
-    friend class ::TestServicesManagerOrder;
+    friend class edm::OwningServiceToken;
+    friend class edm::WeakServiceToken;
 
   public:
-    ServiceToken() {}
-    //virtual ~ServiceToken();
-    ServiceToken(ServiceToken&&) = default;
-    ServiceToken(ServiceToken const&) = default;
-    ServiceToken& operator=(ServiceToken&&) = default;
-    ServiceToken& operator=(ServiceToken const&) = default;
+    ServiceToken() = default;
 
     // ---------- const member functions ---------------------
+    explicit operator bool() const noexcept { return manager_ != nullptr; }
+    friend bool operator==(ServiceToken const&, ServiceToken const&) = default;
 
-    // ---------- static member functions --------------------
+  private:
+    explicit ServiceToken(edm::serviceregistry::ServicesManager* iManager) : manager_(iManager) {}
+
+    // ---------- member data --------------------------------
+    edm::serviceregistry::ServicesManager* manager_ = nullptr;
+  };
+
+  /// Owning handle to a 'service set': the services are kept alive as long as an OwningServiceToken refers to them.
+  /// It is held by the owners of the services (e.g. the EventProcessor) and converts to a non-owning ServiceToken.
+  class OwningServiceToken {
+    friend class edm::ServiceRegistry;
+    friend class edm::WeakServiceToken;
+
+  public:
+    OwningServiceToken() = default;
+    /// share the ownership of the services referred to by iToken
+    explicit OwningServiceToken(ServiceToken iToken);
+
+    // ---------- const member functions ---------------------
+    explicit operator bool() const noexcept { return bool(manager_); }
+
+    ServiceToken token() const& noexcept { return ServiceToken(manager_.get()); }
+    operator ServiceToken() const& noexcept { return token(); }
+    // a non-owning token to a temporary would dangle as soon as the temporary is destroyed
+    ServiceToken token() && = delete;
+    operator ServiceToken() && = delete;
 
     // ---------- member functions ---------------------------
-
-    ///the argument's signals are propagated to the Service's held by the token
-    void connectTo(ActivityRegistry&);
     ///the argument's signals will forward the token's signals
     void connect(ActivityRegistry&);
 
     ///copy our Service's slots to the argument's signals
     void copySlotsTo(ActivityRegistry&);
-    ///the copy the argument's slots to the token's signals
-    void copySlotsFrom(ActivityRegistry&);
-
-    friend class ServiceWeakToken;
 
   private:
-    ServiceToken(std::shared_ptr<edm::serviceregistry::ServicesManager> iManager) : manager_(iManager) {}
-
-    //ServiceToken(const ServiceToken&); // stop default
-
-    //const ServiceToken& operator=(const ServiceToken&); // stop default
+    OwningServiceToken(std::shared_ptr<edm::serviceregistry::ServicesManager> iManager)
+        : manager_(std::move(iManager)) {}
 
     // ---------- member data --------------------------------
     std::shared_ptr<edm::serviceregistry::ServicesManager> manager_;
   };
 
-  class ServiceWeakToken {
+  /// Weak handle to a 'service set', for objects that may outlive the services (e.g. a TFile kept open by ROOT):
+  /// lock() returns an empty token if the services have been destroyed.
+  class WeakServiceToken {
   public:
-    ServiceWeakToken(ServiceToken const& iToken) : manager_(iToken.manager_) {}
-    ServiceWeakToken() = default;
+    WeakServiceToken(ServiceToken iToken);
+    WeakServiceToken() = default;
 
-    ServiceWeakToken(ServiceWeakToken&&) = default;
-    ServiceWeakToken(ServiceWeakToken const&) = default;
-    ServiceWeakToken& operator=(ServiceWeakToken&&) = default;
-    ServiceWeakToken& operator=(ServiceWeakToken const&) = default;
+    WeakServiceToken& operator=(ServiceToken iToken) { return *this = WeakServiceToken(iToken); }
 
-    ServiceWeakToken& operator=(ServiceToken const& iToken) {
-      manager_ = iToken.manager_;
-      return *this;
-    }
-
-    ServiceToken lock() const { return ServiceToken(manager_.lock()); }
+    OwningServiceToken lock() const { return OwningServiceToken(manager_.lock()); }
 
   private:
     std::weak_ptr<edm::serviceregistry::ServicesManager> manager_;

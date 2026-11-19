@@ -1,0 +1,9 @@
+<library file="SchemaEvolutionSoAProducer.cc EvolutionZeroAnalyzer.cc EvolutionOneAnalyzer.cc EvolutionTwoAnalyzer.cc EvolutionThreeAnalyzer.cc EvolutionFourAnalyzer.cc EvolutionFiveAnalyzer.cc" name="SchemaEvolutionPlugins">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="DataFormats/Portable"/>
+  <use name="DataFormats/SoATemplate"/>
+  <use name="eigen"/>
+    <flags EDM_PLUGIN="1"/>
+</library>    

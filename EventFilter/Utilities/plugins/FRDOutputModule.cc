@@ -110,10 +110,7 @@ void FRDOutputModule::write(edm::EventForOutput const& e) {
     *(payloadPtr - 1) = crc32c(crc, (const unsigned char*)payloadPtr, expectedSize - headerSize);
   } else if (frdVersion_ >= 3) {
     //adler32 checksum
-    uint32 adlera = 1;
-    uint32 adlerb = 0;
-    cms::Adler32((const char*)payloadPtr, expectedSize - headerSize, adlera, adlerb);
-    *(payloadPtr - 1) = (adlerb << 16) | adlera;
+    *(payloadPtr - 1) = cms::adler32((const char*)payloadPtr, expectedSize - headerSize);
   }
 
   // create the FRDEventMsgView and use the template consumer to write it out
@@ -164,9 +161,6 @@ void FRDOutputModule::beginLuminosityBlock(edm::LuminosityBlockForOutput const& 
 
   perFileEventCount_ = 0;
   perFileSize_ = 0;
-
-  adlera_ = 1;
-  adlerb_ = 0;
 
   if (frdFileVersion_ == 1) {
     //reserve space for file header

@@ -109,7 +109,7 @@ bool HFFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& 
         return true;
       }
     }  // end loop over constituents
-  }    // end loop over jets
+  }  // end loop over jets
 
   return false;
 }

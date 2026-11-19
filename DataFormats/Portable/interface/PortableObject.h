@@ -14,7 +14,7 @@
 namespace traits {
 
   // trait for a generic struct-based product
-  template <typename TDev, typename T, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
+  template <typename TDev, typename T, typename = std::enable_if_t<alpaka::concepts::Device<TDev>>>
   struct PortableObjectTrait {
     using ProductType = PortableDeviceObject<TDev, T>;
   };
@@ -28,16 +28,16 @@ namespace traits {
 }  // namespace traits
 
 // type alias for a generic struct-based product
-template <typename TDev, typename T, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
+template <typename TDev, typename T, typename = std::enable_if_t<alpaka::concepts::Device<TDev>>>
 using PortableObject = typename traits::PortableObjectTrait<TDev, T>::ProductType;
 
 // define how to copy PortableObject between host and device
 namespace cms::alpakatools {
   template <typename TDevice, typename TProduct>
-    requires alpaka::isDevice<TDevice>
+    requires alpaka::concepts::Device<TDevice>
   struct CopyToHost<PortableDeviceObject<TDevice, TProduct>> {
     template <typename TQueue>
-      requires alpaka::isQueue<TQueue>
+      requires alpaka::concepts::Queue<TQueue>
     static auto copyAsync(TQueue& queue, PortableDeviceObject<TDevice, TProduct> const& srcData) {
       PortableHostObject<TProduct> dstData(queue);
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());

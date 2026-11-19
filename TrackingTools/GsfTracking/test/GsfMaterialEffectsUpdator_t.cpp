@@ -28,35 +28,14 @@ namespace {
 
 }  // namespace
 
-#include "FWCore/Utilities/interface/HRRealTime.h"
+#include <benchmark/benchmark.h>
 #include <iostream>
-#include <vector>
+#include <string>
 
-void st() {}
-void en() {}
-
-int main(int argc, char* arg[]) {
+namespace {
   std::string file("BetheHeitler_cdfmom_nC6_O5.par");
-  if (argc < 2) {
-    std::cerr << "parameter file not given in input: default used" << std::endl;
-  } else
-    file = arg[1];
 
-  std::cout << "using file " << file << std::endl;
-
-  GsfBetheHeitlerUpdator bhu(file, 0);
-  GsfBetheHeitlerUpdator bhu1(file, 1);
-  GsfBetheHeitlerUpdator bhu2(file, 2);
-  GsfMaterialEffectsAdapter msu(MultipleScatteringUpdator(bhu.mass()));
-
-  GsfCombinedMaterialEffectsUpdator comb(msu, bhu);
-
-  GsfMaterialEffectsUpdator* meus[] = {&msu, &bhu, &bhu1, &bhu2, &comb};
-
-  double neverKnow = 0;
-  for (int j = 0; j != 5; ++j) {
-    GsfMaterialEffectsUpdator* meu = meus[j];
-
+  void updateStateBenchmark(benchmark::State& state, GsfMaterialEffectsUpdator* meu) {
     Basic3DVector<float> axis(0.5, 1., 1);
 
     Surface::RotationType rot(axis, 0.5 * M_PI);
@@ -67,35 +46,42 @@ int main(int argc, char* arg[]) {
     plane->setMediumProperties(MediumProperties(0.1, 0.3));
     M5T const m;
 
-    edm::HRTimeDiffType totT = 0;
-    int n = 0;
-    bool printIt = true;
-    for (int i = 0; i != 100000; ++i) {
-      LocalTrajectoryParameters tp(1. / (10. + 0.01 * i), 1., 1., 0., 0., 1.);
+    int i = 0;
+    for (auto _ : state) {
+      state.PauseTiming();
+      LocalTrajectoryParameters tp(1. / (10. + 0.01 * (i++ % 100000)), 1., 1., 0., 0., 1.);
       LocalTrajectoryError lerr(1., 1., 0.1, 0.1, 0.1);
-
       TrajectoryStateOnSurface tsos(tp, lerr, *plane, &m, SurfaceSideDefinition::beforeSurface);
-      if (printIt) {
-        std::cout << tsos.globalMomentum() << std::endl;
-        std::cout << tsos.localError().matrix() << std::endl;
-        std::cout << tsos.weight() << std::endl;
-      }
-      st();
-      totT -= edm::hrRealTime();
-      TrajectoryStateOnSurface tsos2 = meu->updateState(tsos, alongMomentum);
-      totT += edm::hrRealTime();
-      ++n;
-      en();
-      neverKnow += tsos2.globalMomentum().perp();
-      if (printIt) {
-        std::cout << tsos2.globalMomentum() << std::endl;
-        std::cout << tsos2.localError().matrix() << std::endl;
-        std::cout << tsos2.weight() << std::endl;
-        printIt = false;
-      }
-    }
+      state.ResumeTiming();
 
-    std::cout << "\nupdate  time " << double(totT) / double(n) << std::endl;
+      TrajectoryStateOnSurface tsos2 = meu->updateState(tsos, alongMomentum);
+      benchmark::DoNotOptimize(tsos2);
+    }
   }
-  return neverKnow != 0 ? 0 : 20;
+}  // namespace
+
+int main(int argc, char* argv[]) {
+  benchmark::Initialize(&argc, argv);
+  if (argc < 2) {
+    std::cerr << "parameter file not given in input: default used" << std::endl;
+  } else
+    file = argv[1];
+
+  std::cout << "using file " << file << std::endl;
+
+  GsfBetheHeitlerUpdator bhu(file, 0);
+  GsfBetheHeitlerUpdator bhu1(file, 1);
+  GsfBetheHeitlerUpdator bhu2(file, 2);
+  GsfMaterialEffectsAdapter msu(MultipleScatteringUpdator(bhu.mass()));
+
+  GsfCombinedMaterialEffectsUpdator comb(msu, bhu);
+
+  benchmark::RegisterBenchmark("MultipleScattering", updateStateBenchmark, &msu);
+  benchmark::RegisterBenchmark("BetheHeitler0", updateStateBenchmark, &bhu);
+  benchmark::RegisterBenchmark("BetheHeitler1", updateStateBenchmark, &bhu1);
+  benchmark::RegisterBenchmark("BetheHeitler2", updateStateBenchmark, &bhu2);
+  benchmark::RegisterBenchmark("Combined", updateStateBenchmark, &comb);
+  benchmark::RunSpecifiedBenchmarks();
+  benchmark::Shutdown();
+  return 0;
 }

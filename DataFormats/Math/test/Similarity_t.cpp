@@ -145,7 +145,7 @@ bool isSym(M const& m) {
 }
 
 #include <iostream>
-#include "FWCore/Utilities/interface/HRRealTime.h"
+#include <benchmark/benchmark.h>
 
 namespace {
   std::mt19937 eng;
@@ -175,7 +175,7 @@ namespace {
 bool ok = true;
 
 template <typename T, IndexType D1, IndexType D2>
-void go(edm::HRTimeType& s1, edm::HRTimeType& s2, edm::HRTimeType& s3, edm::HRTimeType& s4, bool print) {
+void go(bool print) {
   typedef ROOT::Math::SMatrix<T, D1, D2, ROOT::Math::MatRepStd<T, D1, D2> > JMatrix;
   typedef ROOT::Math::SMatrix<T, D1, D1, ROOT::Math::MatRepStd<T, D1, D1> > Matrix1;
   typedef ROOT::Math::SMatrix<T, D1, D1, ROOT::Math::MatRepSym<T, D1> > SymMatrix1;
@@ -191,24 +191,16 @@ void go(edm::HRTimeType& s1, edm::HRTimeType& s2, edm::HRTimeType& s3, edm::HRTi
   ROOT::Math::AssignSym::Evaluate(srh, rh);
 
   SymMatrix1 res1;
-  s1 = edm::hrRealTime();
   res1 = ROOT::Math::Similarity(lh, srh);
-  s1 = edm::hrRealTime() - s1;
 
   SymMatrix1 res2;
-  s2 = edm::hrRealTime();
   res2 = ROOT::Math::Similarity1(lh, rh);
-  s2 = edm::hrRealTime() - s2;
 
   Matrix1 res3;
-  s3 = edm::hrRealTime();
   res3 = ROOT::Math::Similarity2(lh, rh);
-  s3 = edm::hrRealTime() - s3;
 
   Matrix1 res4;
-  s4 = edm::hrRealTime();
   similarity(res4, lh, rh);
-  s4 = edm::hrRealTime() - s4;
 
   if (print) {
     if (!isSym(rh))
@@ -231,57 +223,92 @@ void go(edm::HRTimeType& s1, edm::HRTimeType& s2, edm::HRTimeType& s3, edm::HRTi
   ok &= isSym(rh) && isSym(res1) && isSym(res2) && isSym(res3) && isSym(res4);
 }
 
-template <typename T, IndexType D1, IndexType D2>
-void loop(std::ostream& co) {
-  ok = true;
+namespace {
+  template <typename T, IndexType D1, IndexType D2>
+  struct Data {
+    typedef ROOT::Math::SMatrix<T, D1, D2, ROOT::Math::MatRepStd<T, D1, D2> > JMatrix;
+    typedef ROOT::Math::SMatrix<T, D1, D1, ROOT::Math::MatRepStd<T, D1, D1> > Matrix1;
+    typedef ROOT::Math::SMatrix<T, D1, D1, ROOT::Math::MatRepSym<T, D1> > SymMatrix1;
+    typedef ROOT::Math::SMatrix<T, D2, D2, ROOT::Math::MatRepStd<T, D2, D2> > Matrix2;
+    typedef ROOT::Math::SMatrix<T, D2, D2, ROOT::Math::MatRepSym<T, D2> > SymMatrix2;
 
-  int N = 100000;
-  edm::HRTimeType t1 = 0;
-  edm::HRTimeType t2 = 0;
-  edm::HRTimeType t3 = 0;
-  edm::HRTimeType t4 = 0;
-  edm::HRTimeType s1 = 0, s2 = 0, s3 = 0, s4 = 0;
-  for (int i = 0; i != N; ++i) {
-    go<T, D1, D2>(s1, s2, s3, s4, false);
-    t1 += s1;
-    t2 += s2;
-    t3 += s3;
-    t4 += s4;
+    Data() {
+      fillRandom(lh);
+      fillRandomSym(rh);
+      ROOT::Math::AssignSym::Evaluate(srh, rh);
+    }
+
+    JMatrix lh;
+    Matrix2 rh;
+    SymMatrix2 srh;
+  };
+
+  template <typename T, IndexType D1, IndexType D2>
+  void BM_rootSimilarity(benchmark::State& state) {
+    Data<T, D1, D2> d;
+    typename Data<T, D1, D2>::SymMatrix1 res;
+    for (auto _ : state) {
+      res = ROOT::Math::Similarity(d.lh, d.srh);
+      benchmark::DoNotOptimize(res);
+    }
   }
 
-  std::cout << D1 << "x" << D2 << std::endl;
-  std::cout << "root sim " << t1 / N << std::endl;
-  std::cout << "sym  sim " << t2 / N << std::endl;
-  std::cout << "std  sim " << t3 / N << std::endl;
-  std::cout << "loop sim " << t4 / N << std::endl;
+  template <typename T, IndexType D1, IndexType D2>
+  void BM_symSimilarity(benchmark::State& state) {
+    Data<T, D1, D2> d;
+    typename Data<T, D1, D2>::SymMatrix1 res;
+    for (auto _ : state) {
+      res = ROOT::Math::Similarity1(d.lh, d.rh);
+      benchmark::DoNotOptimize(res);
+    }
+  }
 
-  co << "|  " << t1 / N << "|  " << t2 / N << "|  " << t3 / N << "|  " << t4 / N << "|";
+  template <typename T, IndexType D1, IndexType D2>
+  void BM_stdSimilarity(benchmark::State& state) {
+    Data<T, D1, D2> d;
+    typename Data<T, D1, D2>::Matrix1 res;
+    for (auto _ : state) {
+      res = ROOT::Math::Similarity2(d.lh, d.rh);
+      benchmark::DoNotOptimize(res);
+    }
+  }
+
+  template <typename T, IndexType D1, IndexType D2>
+  void BM_loopSimilarity(benchmark::State& state) {
+    Data<T, D1, D2> d;
+    typename Data<T, D1, D2>::Matrix1 res;
+    for (auto _ : state) {
+      similarity(res, d.lh, d.rh);
+      benchmark::DoNotOptimize(res);
+    }
+  }
+
+#define SIMILARITY_BENCHMARKS(T, D1, D2)            \
+  BENCHMARK_TEMPLATE(BM_rootSimilarity, T, D1, D2); \
+  BENCHMARK_TEMPLATE(BM_symSimilarity, T, D1, D2);  \
+  BENCHMARK_TEMPLATE(BM_stdSimilarity, T, D1, D2);  \
+  BENCHMARK_TEMPLATE(BM_loopSimilarity, T, D1, D2)
+
+  SIMILARITY_BENCHMARKS(double, 3, 3);
+  SIMILARITY_BENCHMARKS(double, 5, 5);
+  SIMILARITY_BENCHMARKS(double, 5, 15);
+  SIMILARITY_BENCHMARKS(double, 15, 15);
+}  // namespace
+
+int main(int argc, char* argv[]) {
+  ok = true;
+  go<double, 3, 3>(true);
+  go<double, 5, 5>(true);
+  go<double, 5, 15>(true);
+  go<double, 15, 15>(true);
+  std::cout << std::endl;
 
   if (ok)
     std::cout << " OK " << std::endl;
-}
 
-#include <sstream>
-int main() {
-  edm::HRTimeType s1 = 0, s2 = 0, s3 = 0, s4 = 0;
-
-  go<double, 3, 3>(s1, s2, s3, s4, true);
-  go<double, 5, 5>(s1, s2, s3, s4, true);
-  go<double, 5, 15>(s1, s2, s3, s4, true);
-  go<double, 15, 15>(s1, s2, s3, s4, true);
-  std::cout << std::endl;
-
-  std::ostringstream co;
-  co << "|  *3x3*  |||| |  *5x5*  |||| |  *5x15*  |||| |  *15x15*  ||||\n";
-  co << "|  *root*  |  *sym*  |  *std*  |  *loop*  |";
-  co << "|  *root*  |  *sym*  |  *std*  |  *loop*  |";
-  co << "|  *root*  |  *sym*  |  *std*  |  *loop*  |";
-  co << "|  *root*  |  *sym*  |  *std*  |  *loop*  |\n";
-  loop<double, 3, 3>(co);
-  loop<double, 5, 5>(co);
-  loop<double, 5, 15>(co);
-  loop<double, 15, 15>(co);
-  std::cout << co.str() << std::endl;
+  benchmark::Initialize(&argc, argv);
+  benchmark::RunSpecifiedBenchmarks();
+  benchmark::Shutdown();
 
   return 0;
 }

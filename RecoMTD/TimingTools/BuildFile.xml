@@ -1,7 +1,11 @@
+<use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="TrackingTools/PatternTools"/>
+<use name="TrackingTools/TrajectoryState"/>
 <use name="clhep"/>
 <export>
   <lib name="1"/>

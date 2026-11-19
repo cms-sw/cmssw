@@ -65,7 +65,8 @@ namespace mkfit {
       m_event_of_comb_cands.compactifyHitStorageForBestCand(remove_seed_hits, backward_fit_min_hits);
     }
 
-    void beginBkwSearch() { m_event_of_comb_cands.beginBkwSearch(); }
+    void beginBkwSearch();
+    void gateBkwSearch() { m_event_of_comb_cands.gateBkwSearch(m_job->m_trk_info); }
     void endBkwSearch() { m_event_of_comb_cands.endBkwSearch(); }
 
     // MIMI hack to export tracks for BH

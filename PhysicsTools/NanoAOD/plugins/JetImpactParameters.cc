@@ -6,38 +6,61 @@ Jet Impact parameter information for displaced tau collection : Pritam Palit, cr
 //////////////////////////////////////////////////
  */
 
+#include <cmath>
 #include <memory>
+#include <vector>
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-void vector_test(std::vector<Float_t>& values) {
-  for (auto& value : values) {
-    if (std::isnan(value)) {
-      throw std::runtime_error("Jet IP output: NaN detected.");
-    } else if (std::isinf(value)) {
-      throw std::runtime_error("Jet IP output: Infinity detected.");
-    } else if (!std::isfinite(value)) {
-      throw std::runtime_error("Jet IP output: Non-standard value detected.");
+namespace {
+
+  constexpr Float_t kUnavailable = -9999.0;
+
+  void vector_test(std::vector<Float_t>& values, const char* label, const edm::EventID& id) {
+    for (size_t i = 0; i < values.size(); ++i) {
+      if (std::isfinite(values[i]))
+        continue;
+      edm::LogWarning("JetImpactParameters")
+          << "run " << id.run() << " lumi " << id.luminosityBlock() << " event " << id.event() << ": non-finite "
+          << label << " (" << values[i] << ") for jet " << i << ", writing " << kUnavailable << " instead.";
+      values[i] = kUnavailable;
     }
   }
-}
+
+  void putValueMap(edm::Event& event,
+                   const edm::Handle<pat::JetCollection>& jets,
+                   const std::vector<Float_t>& values,
+                   const std::string& name) {
+    auto valueMap = std::make_unique<edm::ValueMap<Float_t>>();
+    edm::ValueMap<Float_t>::Filler filler(*valueMap);
+    filler.insert(jets, values.begin(), values.end());
+    filler.fill();
+    event.put(std::move(valueMap), name);
+  }
+
+}  // namespace
 
 class JetImpactParameters : public edm::stream::EDProducer<> {
 public:
   explicit JetImpactParameters(const edm::ParameterSet&);
   ~JetImpactParameters() override = default;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  edm::EDGetTokenT<pat::JetCollection> jetsToken_;
-  edm::EDGetTokenT<pat::PackedCandidateCollection> pfCandidatesToken_;
+  const edm::EDGetTokenT<pat::JetCollection> jetsToken_;
+  const edm::EDGetTokenT<pat::PackedCandidateCollection> pfCandidatesToken_;
   const double deltaRMax_;
 };
 
@@ -52,22 +75,29 @@ JetImpactParameters::JetImpactParameters(const edm::ParameterSet& config)
   produces<edm::ValueMap<Float_t>>("jetCharge");
 }
 
-void JetImpactParameters::produce(edm::Event& event, const edm::EventSetup& setup) {
-  // Get jets and PFCandidates
+void JetImpactParameters::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("jets", edm::InputTag("linkedObjectsCHS", "jets"));
+  desc.add<edm::InputTag>("pfCandidates", edm::InputTag("packedPFCandidates"));
+  desc.add<double>("deltaRMax", 0.4);
+  descriptions.addWithDefaultLabel(desc);
+}
+
+void JetImpactParameters::produce(edm::Event& event, const edm::EventSetup&) {
   auto jets = event.getHandle(jetsToken_);
 
-  std::vector<Float_t> v_jetDxy(jets->size(), -1.0);
-  std::vector<Float_t> v_jetDz(jets->size(), -1.0);
-  std::vector<Float_t> v_jetDxyError(jets->size(), -1.0);
-  std::vector<Float_t> v_jetDzError(jets->size(), -1.0);
-  std::vector<Float_t> v_jetCharge(jets->size(), -1.0);
+  std::vector<Float_t> v_jetDxy(jets->size(), kUnavailable);
+  std::vector<Float_t> v_jetDz(jets->size(), kUnavailable);
+  std::vector<Float_t> v_jetDxyError(jets->size(), kUnavailable);
+  std::vector<Float_t> v_jetDzError(jets->size(), kUnavailable);
+  std::vector<Float_t> v_jetCharge(jets->size(), kUnavailable);
 
   // Loop over jets
   for (size_t jetIndex = 0; jetIndex < jets->size(); ++jetIndex) {
     const auto& jet = jets->at(jetIndex);
     const auto& jetP4 = jet.polarP4();
 
-    // Find the leading charged PFCandidate within deltaR < 0.4
+    // Find the leading charged PFCandidate within deltaR < deltaRMax
     const pat::PackedCandidate* leadingChargedPFCandidate = nullptr;
     Float_t leadingPt = -1.0;
 
@@ -77,7 +107,7 @@ void JetImpactParameters::produce(edm::Event& event, const edm::EventSetup& setu
       const auto& daughterPtr = jet.daughterPtr(i);
       const auto* daughter = dynamic_cast<const pat::PackedCandidate*>(daughterPtr.get());
 
-      // Skip if not a charged candidate or doesn't have track details
+      // Skip if not a charged candidate or does not have track details
       if (!daughter || daughter->charge() == 0 || !daughter->hasTrackDetails())
         continue;
 
@@ -100,41 +130,17 @@ void JetImpactParameters::produce(edm::Event& event, const edm::EventSetup& setu
     }
   }
 
-  vector_test(v_jetDxy);
-  vector_test(v_jetDz);
-  vector_test(v_jetDxyError);
-  vector_test(v_jetDzError);
-  vector_test(v_jetCharge);
+  vector_test(v_jetDxy, "jetDxy", event.id());
+  vector_test(v_jetDz, "jetDz", event.id());
+  vector_test(v_jetDxyError, "jetDxyError", event.id());
+  vector_test(v_jetDzError, "jetDzError", event.id());
+  vector_test(v_jetCharge, "jetCharge", event.id());
 
-  auto vm_jetDxy = std::make_unique<edm::ValueMap<Float_t>>();
-  edm::ValueMap<Float_t>::Filler filler_jetDxy(*vm_jetDxy);
-  filler_jetDxy.insert(jets, v_jetDxy.begin(), v_jetDxy.end());
-  filler_jetDxy.fill();
-  event.put(std::move(vm_jetDxy), "jetDxy");
-
-  auto vm_jetDz = std::make_unique<edm::ValueMap<Float_t>>();
-  edm::ValueMap<Float_t>::Filler filler_jetDz(*vm_jetDz);
-  filler_jetDz.insert(jets, v_jetDz.begin(), v_jetDz.end());
-  filler_jetDz.fill();
-  event.put(std::move(vm_jetDz), "jetDz");
-
-  auto vm_jetDxyError = std::make_unique<edm::ValueMap<Float_t>>();
-  edm::ValueMap<Float_t>::Filler filler_jetDxyError(*vm_jetDxyError);
-  filler_jetDxyError.insert(jets, v_jetDxyError.begin(), v_jetDxyError.end());
-  filler_jetDxyError.fill();
-  event.put(std::move(vm_jetDxyError), "jetDxyError");
-
-  auto vm_jetDzError = std::make_unique<edm::ValueMap<Float_t>>();
-  edm::ValueMap<Float_t>::Filler filler_jetDzError(*vm_jetDzError);
-  filler_jetDzError.insert(jets, v_jetDzError.begin(), v_jetDzError.end());
-  filler_jetDzError.fill();
-  event.put(std::move(vm_jetDzError), "jetDzError");
-
-  auto vm_jetCharge = std::make_unique<edm::ValueMap<Float_t>>();
-  edm::ValueMap<Float_t>::Filler filler_jetCharge(*vm_jetCharge);
-  filler_jetCharge.insert(jets, v_jetCharge.begin(), v_jetCharge.end());
-  filler_jetCharge.fill();
-  event.put(std::move(vm_jetCharge), "jetCharge");
+  putValueMap(event, jets, v_jetDxy, "jetDxy");
+  putValueMap(event, jets, v_jetDz, "jetDz");
+  putValueMap(event, jets, v_jetDxyError, "jetDxyError");
+  putValueMap(event, jets, v_jetDzError, "jetDzError");
+  putValueMap(event, jets, v_jetCharge, "jetCharge");
 }
 
 DEFINE_FWK_MODULE(JetImpactParameters);

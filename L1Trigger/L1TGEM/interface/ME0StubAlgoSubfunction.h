@@ -9,7 +9,9 @@
 #include <bitset>
 #include <iostream>
 #include <numeric>
+#include <optional>
 #include "L1Trigger/L1TGEM/interface/ME0StubPrimitive.h"
+#include "L1Trigger/L1TGEM/interface/ME0StubAlgoMask.h"
 
 namespace l1t {
   namespace me0 {
@@ -25,6 +27,7 @@ namespace l1t {
       bool deghostPost;
       int32_t groupWidth;
       int32_t ghostWidth;
+      int32_t clearanceWidth;
       bool xPartitionEnabled;
       bool enableNonPointing;
       int32_t crossPartitionSegmentWidth;
@@ -32,43 +35,20 @@ namespace l1t {
       bool checkIds;
       int32_t edgeDistance;
       int32_t numOr;
+      double mseThreshold;
+      double bendAngleCut;
+      int32_t BXWindow;
+      int32_t pulseStretchBx;
+      bool enablePeaking;
     };
-
-    class HiLo {
-    private:
-    public:
-      int hi, lo;
-      HiLo(int hi, int lo) : hi(hi), lo(lo) {}
-    };
-
-    class PatternDefinition {
-    private:
-    public:
-      int id;
-      std::vector<HiLo> layers;
-      PatternDefinition(int id, std::vector<HiLo> layers) : id(id), layers(layers) {}
-    };
-
-    class Mask {
-    private:
-    public:
-      int id;
-      std::vector<uint64_t> mask;
-      Mask(int id, std::vector<uint64_t> mask) : id(id), mask(mask) {}
-      std::string toString() const;
-    };
-
-    HiLo mirrorHiLo(const HiLo& layer);
-    PatternDefinition mirrorPatternDefinition(const PatternDefinition& pattern, int id);
-    std::vector<HiLo> createPatternLayer(double lower, double upper);
 
     int countOnes(uint64_t x);
     int maxClusterSize(uint64_t x);
-    UInt192 setBit(int index, UInt192 num);
-    UInt192 clearBit(int index, UInt192 num);
+    l1t::me0::UInt192 setBit(int index, l1t::me0::UInt192 num);
+    l1t::me0::UInt192 clearBit(int index, l1t::me0::UInt192 num);
     uint64_t oneBitMask(int num);
-    std::vector<int> findOnes(uint64_t& data);
-    std::pair<double, std::vector<int>> findCentroid(uint64_t& data);
+    std::vector<int> findOnes(const uint64_t& data);
+    std::pair<int, std::vector<int>> findCentroid(const uint64_t& data);
     std::vector<std::vector<ME0StubPrimitive>> chunk(const std::vector<ME0StubPrimitive>& inList, int n);
     void segmentSorter(std::vector<ME0StubPrimitive>& segments, int n);
     std::vector<int> concatVector(const std::vector<std::vector<int>>& vec);

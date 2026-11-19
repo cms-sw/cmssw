@@ -30,15 +30,9 @@
 
 //
 
-#include "RooGlobalFunc.h"
-#include "RooRealVar.h"
-#include "RooDataSet.h"
-#include "RooBreitWigner.h"
-#include "RooDataHist.h"
-#include "RooFitResult.h"
-
-#include <vector>
+#include <sstream>
 #include <string>
+#include <vector>
 
 /** \class PhotonOfflineClient
  **  

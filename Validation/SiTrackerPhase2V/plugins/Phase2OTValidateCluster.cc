@@ -86,7 +86,7 @@ private:
                                           const DetId& detId,
                                           unsigned int channel);
 
-  std::map<std::string, ClusterMEs> layerMEs_;
+  std::map<int, ClusterMEs> layerMEs_;
 
   edm::ParameterSet config_;
   double simtrackminpt_;
@@ -176,8 +176,8 @@ void Phase2OTValidateCluster::fillOTHistos(const edm::Event& iEvent,
   }
 
   // Number of clusters
-  std::map<std::string, unsigned int> nPrimarySimHits[3];
-  std::map<std::string, unsigned int> nOtherSimHits[3];
+  std::map<int, unsigned int> nPrimarySimHits[3];
+  std::map<int, unsigned int> nOtherSimHits[3];
   for (const auto& DSVItr : *clusterHandle) {
     // Getting the id of detector unit
     uint32_t rawid = DSVItr.detId();
@@ -187,7 +187,7 @@ void Phase2OTValidateCluster::fillOTHistos(const edm::Event& iEvent,
       continue;
     TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(detId);
 
-    std::string folderkey = phase2tkutil::getOTHistoId(detId, tTopo_);
+    int key = phase2tkutil::getNumericHistoId(detId, tTopo_, 0.0, 6);
     for (const auto& clusterItr : DSVItr) {
       MeasurementPoint mpCluster(clusterItr.center(), clusterItr.column() + 0.5);
       Local3DPoint localPosCluster = geomDetUnit->topology().localPosition(mpCluster);
@@ -243,7 +243,7 @@ void Phase2OTValidateCluster::fillOTHistos(const edm::Event& iEvent,
       const float deltaPhi = geomDetUnit->surface().toGlobal(localPosCluster).phi() -
                              geomDetUnit->surface().toGlobal(localPosSimHit).phi();
 
-      auto layerMEit = layerMEs_.find(folderkey);
+      auto layerMEit = layerMEs_.find(key);
       if (layerMEit == layerMEs_.end())
         continue;
 
@@ -309,13 +309,14 @@ void Phase2OTValidateCluster::bookHistograms(DQMStore::IBooker& ibooker,
 
 //////////////////Layer Histo/////////////////////////////////
 void Phase2OTValidateCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_id, const std::string& subdir) {
-  std::string folderName = phase2tkutil::getOTHistoId(det_id, tTopo_);
+  std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, 6, false);
+  int key = phase2tkutil::getNumericHistoId(det_id, tTopo_, 0.0, 6);
   if (folderName.empty()) {
     edm::LogWarning("Phase2OTValidateCluster") << ">>>> Invalid histo_id ";
     return;
   }
 
-  if (layerMEs_.find(folderName) == layerMEs_.end()) {
+  if (layerMEs_.find(key) == layerMEs_.end()) {
     ibooker.cd();
     edm::LogInfo("Phase2TrackerValidateDigi") << " Booking Histograms in: " << subdir + '/' + folderName;
     ClusterMEs local_mes;
@@ -374,7 +375,7 @@ void Phase2OTValidateCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32
     local_mes.deltaY_S_primary =
         phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Y_Strip_Primary"), ibooker);
 
-    layerMEs_.emplace(folderName, local_mes);
+    layerMEs_.emplace(key, local_mes);
   }
 }
 

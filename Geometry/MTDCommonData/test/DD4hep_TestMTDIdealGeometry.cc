@@ -84,9 +84,6 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
 
   auto pSP = iSetup.getTransientHandle(dspecToken_);
 
-  //auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
-  //const MTDTopology* topology = topologyHandle.product();
-
   if (ddTopNodeName_ != "BarrelTimingLayer" && ddTopNodeName_ != "EndcapTimingLayer") {
     edm::LogWarning("DD4hep_TestMTDIdealGeometry") << ddTopNodeName_ << "Not valid top MTD volume";
     return;

@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
 #include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/interface/ModuleRegistryUtilities.h"
+#include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -54,22 +55,6 @@ namespace edm {
         func(*begin, *out);
     }
 
-    // Function template that takes a sequence 'from', a sequence
-    // 'to', and a callable object 'func'. It and applies
-    // transform_into to fill the 'to' sequence with the values
-    // calcuated by the callable object, taking care to fill the
-    // outupt only if all calls succeed.
-    template <typename FROM, typename TO, typename FUNC>
-    void fill_summary(FROM const& from, TO& to, FUNC func) {
-      if (to.size() != from.size()) {
-        TO temp(from.size());
-        transform_into(from.begin(), from.end(), temp.begin(), func);
-        to.swap(temp);
-      } else {
-        transform_into(from.begin(), from.end(), to.begin(), func);
-      }
-    }
-
     class BeginStreamTraits {
     public:
       static void preScheduleSignal(ActivityRegistry* activityRegistry, StreamContext const* streamContext) {
@@ -94,7 +79,7 @@ namespace edm {
 
     void initializeBranchToReadingWorker(std::vector<std::string> const& branchesToDeleteEarly,
                                          ProductRegistry const& preg,
-                                         std::multimap<std::string, Worker*>& branchToReadingWorker) {
+                                         std::multimap<std::string, GlobalEventWorker*>& branchToReadingWorker) {
       auto vBranchesToDeleteEarly = branchesToDeleteEarly;
       // Remove any duplicates
       std::sort(vBranchesToDeleteEarly.begin(), vBranchesToDeleteEarly.end(), std::less<std::string>());
@@ -133,7 +118,7 @@ namespace edm {
       //set placeholder for the branch, we will remove the nullptr if a
       // module actually wants the branch.
       for (auto const& branch : vBranchesToDeleteEarly) {
-        branchToReadingWorker.insert(std::make_pair(branch, static_cast<Worker*>(nullptr)));
+        branchToReadingWorker.insert(std::make_pair(branch, static_cast<GlobalEventWorker*>(nullptr)));
       }
     }
   }  // namespace
@@ -195,11 +180,14 @@ namespace edm {
     }
 
     for (auto const& worker : allWorkersEvents()) {
-      if (worker->wantsStreamLuminosityBlocks()) {
-        (void)workerManagerLumis_.getWorkerForModule(*worker->description());
+      auto desc = worker->description();
+      assert(desc);
+      auto mod = modReg->getExistingModule(desc->moduleLabel());
+      if (mod->wantsTransition(LumiTransitionInfo::key(), TransitionPhaseStream::value)) {
+        (void)workerManagerLumis_.getWorkerForModule(*desc);
       }
-      if (worker->wantsStreamRuns()) {
-        (void)workerManagerRuns_.getWorkerForModule(*worker->description());
+      if (mod->wantsTransition(RunTransitionInfo::key(), TransitionPhaseStream::value)) {
+        (void)workerManagerRuns_.getWorkerForModule(*desc);
       }
     }
 
@@ -211,11 +199,11 @@ namespace edm {
                                              std::vector<std::string> const& modulesToSkip,
                                              edm::ProductRegistry const& preg) {
     // setup the list with those products actually registered for this job
-    std::multimap<std::string, Worker*> branchToReadingWorker;
+    std::multimap<std::string, GlobalEventWorker*> branchToReadingWorker;
     initializeBranchToReadingWorker(branchesToDeleteEarly, preg, branchToReadingWorker);
 
     const std::vector<std::string> kEmpty;
-    std::map<Worker*, unsigned int> reserveSizeForWorker;
+    std::map<GlobalEventWorker*, unsigned int> reserveSizeForWorker;
     unsigned int upperLimitOnReadingWorker = 0;
     unsigned int upperLimitOnIndicies = 0;
     unsigned int nUniqueBranchesToDelete = branchToReadingWorker.size();
@@ -358,7 +346,7 @@ namespace edm {
       earlyDeleteHelpers_.reserve(upperLimitOnReadingWorker);
       earlyDeleteHelperToBranchIndicies_.resize(upperLimitOnIndicies, 0);
       earlyDeleteBranchToCount_.reserve(nUniqueBranchesToDelete);
-      std::map<const Worker*, EarlyDeleteHelper*> alreadySeenWorkers;
+      std::map<const GlobalEventWorker*, EarlyDeleteHelper*> alreadySeenWorkers;
       std::string lastBranchName;
       size_t nextOpenIndex = 0;
       unsigned int* beginAddress = &(earlyDeleteHelperToBranchIndicies_.front());
@@ -444,7 +432,7 @@ namespace edm {
   }
 
   void StreamSchedule::fillEndPath(EndPathInfo const& iEndPath, int bitpos) {
-    Worker* workerPtr = nullptr;
+    GlobalEventWorker* workerPtr = nullptr;
     if (iEndPath.inserter_) {
       workerPtr = workerManagerEvents_.getWorkerForModule(*iEndPath.inserter_);
       endPathStatusInserterWorkers_.emplace_back(workerPtr);
@@ -525,7 +513,7 @@ namespace edm {
   void StreamSchedule::replaceModule(maker::ModuleHolder* iMod, std::string const& iLabel) {
     for (auto const& worker : allWorkersRuns()) {
       if (worker->description()->moduleLabel() == iLabel) {
-        iMod->replaceModuleFor(worker);
+        iMod->replaceModuleFor(worker, RunTransitionInfo::key(), TransitionPhaseStream::value);
         try {
           convertException::wrap([&] { iMod->beginStream(streamID_); });
         } catch (cms::Exception& ex) {
@@ -538,13 +526,13 @@ namespace edm {
     }
     for (auto const& worker : allWorkersEvents()) {
       if (worker->description()->moduleLabel() == iLabel) {
-        iMod->replaceModuleFor(worker);
+        iMod->replaceModuleFor(worker, EventTransitionInfo::key(), TransitionPhaseGlobal::value);
         break;
       }
     }
     for (auto const& worker : allWorkersLumis()) {
       if (worker->description()->moduleLabel() == iLabel) {
-        iMod->replaceModuleFor(worker);
+        iMod->replaceModuleFor(worker, LumiTransitionInfo::key(), TransitionPhaseStream::value);
         break;
       }
     }
@@ -578,7 +566,7 @@ namespace edm {
     CMS_SA_ALLOW try {
       this->resetAll();
 
-      using Traits = OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>;
+      using Traits = OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>;
 
       Traits::setStreamContext(streamContext_, ep);
       //a service may want to communicate with another service
@@ -588,6 +576,7 @@ namespace edm {
       // Data dependencies need to be set up before marking empty
       // (End)Paths complete in case something consumes the status of
       // the empty (EndPath)
+      workerManagerEvents_.resetAll();
       workerManagerEvents_.setupResolvers(ep);
       workerManagerEvents_.setupOnDemandSystem(info);
 
@@ -595,10 +584,8 @@ namespace edm {
       for (int empty_trig_path : empty_trig_paths_) {
         results_->at(empty_trig_path) = hltPathStatus;
         pathStatusInserters[empty_trig_path]->setPathStatus(streamID_, hltPathStatus);
-        std::exception_ptr except =
-            pathStatusInserterWorkers_[empty_trig_path]
-                ->runModuleDirectly<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
-                    info, streamID_, ParentContext(&streamContext_), &streamContext_);
+        std::exception_ptr except = pathStatusInserterWorkers_[empty_trig_path]->runModuleDirectly(
+            info, streamID_, ParentContext(&streamContext_), &streamContext_);
         if (except) {
           iTask.doneWaiting(except);
           return;
@@ -606,10 +593,8 @@ namespace edm {
       }
       if (not endPathStatusInserterWorkers_.empty()) {
         for (int empty_end_path : empty_end_paths_) {
-          std::exception_ptr except =
-              endPathStatusInserterWorkers_[empty_end_path]
-                  ->runModuleDirectly<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
-                      info, streamID_, ParentContext(&streamContext_), &streamContext_);
+          std::exception_ptr except = endPathStatusInserterWorkers_[empty_end_path]->runModuleDirectly(
+              info, streamID_, ParentContext(&streamContext_), &streamContext_);
           if (except) {
             iTask.doneWaiting(except);
             return;
@@ -622,10 +607,9 @@ namespace edm {
       //use to give priorities on an error to ones from Paths
       auto pathErrorHolder = std::make_unique<std::atomic<std::exception_ptr*>>(nullptr);
       auto pathErrorPtr = pathErrorHolder.get();
-      ServiceWeakToken weakToken = serviceToken;
       auto allPathsDone = make_waiting_task(
-          [iTask, this, weakToken, pathError = std::move(pathErrorHolder)](std::exception_ptr const* iPtr) mutable {
-            ServiceRegistry::Operate operate(weakToken.lock());
+          [iTask, this, serviceToken, pathError = std::move(pathErrorHolder)](std::exception_ptr const* iPtr) mutable {
+            ServiceRegistry::Operate operate(serviceToken);
 
             std::exception_ptr ptr;
             if (pathError->load()) {
@@ -642,9 +626,9 @@ namespace edm {
       // run under that condition.
       WaitingTaskHolder allPathsHolder(*iTask.group(), allPathsDone);
 
-      auto pathsDone = make_waiting_task([allPathsHolder, pathErrorPtr, transitionInfo = info, this, weakToken](
+      auto pathsDone = make_waiting_task([allPathsHolder, pathErrorPtr, transitionInfo = info, this, serviceToken](
                                              std::exception_ptr const* iPtr) mutable {
-        ServiceRegistry::Operate operate(weakToken.lock());
+        ServiceRegistry::Operate operate(serviceToken);
 
         if (iPtr) {
           // free previous value of pathErrorPtr, if any;
@@ -671,7 +655,7 @@ namespace edm {
       }
 
       ParentContext parentContext(&streamContext_);
-      workerManagerEvents_.processAccumulatorsAsync<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
+      workerManagerEvents_.processAccumulatorsAsync(
           hAllPathsDone, info, serviceToken, streamID_, parentContext, &streamContext_);
     } catch (...) {
       iTask.doneWaiting(std::current_exception());
@@ -707,9 +691,8 @@ namespace edm {
         //Even if there was an exception, we need to allow results inserter
         // to run since some module may be waiting on its results.
         ParentContext parentContext(&streamContext_);
-        using Traits = OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>;
 
-        auto expt = results_inserter_->runModuleDirectly<Traits>(info, streamID_, parentContext, &streamContext_);
+        auto expt = results_inserter_->runModuleDirectly(info, streamID_, parentContext, &streamContext_);
         if (expt) {
           std::rethrow_exception(expt);
         }
@@ -736,7 +719,7 @@ namespace edm {
   }
 
   std::exception_ptr StreamSchedule::finishProcessOneEvent(std::exception_ptr iExcept) {
-    using Traits = OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>;
+    using Traits = OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>;
 
     if (iExcept) {
       //add context information to the exception and print message
@@ -846,65 +829,15 @@ namespace edm {
     }
   }
 
-  static void fillModuleInPathSummary(Path const& path, size_t which, ModuleInPathSummary& sum) {
-    sum.timesVisited += path.timesVisited(which);
-    sum.timesPassed += path.timesPassed(which);
-    sum.timesFailed += path.timesFailed(which);
-    sum.timesExcept += path.timesExcept(which);
-    sum.moduleLabel = path.getWorker(which)->description()->moduleLabel();
-    sum.bitPosition = path.bitPosition(which);
-  }
-
-  static void fillPathSummary(Path const& path, PathSummary& sum) {
-    sum.name = path.name();
-    sum.bitPosition = path.bitPosition();
-    sum.timesRun += path.timesRun();
-    sum.timesPassed += path.timesPassed();
-    sum.timesFailed += path.timesFailed();
-    sum.timesExcept += path.timesExcept();
-
-    Path::size_type sz = path.size();
-    if (sum.moduleInPathSummaries.empty()) {
-      std::vector<ModuleInPathSummary> temp(sz);
-      for (size_t i = 0; i != sz; ++i) {
-        fillModuleInPathSummary(path, i, temp[i]);
-      }
-      sum.moduleInPathSummaries.swap(temp);
-    } else {
-      assert(sz == sum.moduleInPathSummaries.size());
-      for (size_t i = 0; i != sz; ++i) {
-        fillModuleInPathSummary(path, i, sum.moduleInPathSummaries[i]);
-      }
-    }
-  }
-
-  static void fillWorkerSummaryAux(Worker const& w, WorkerSummary& sum) {
-    sum.timesVisited += w.timesVisited();
-    sum.timesRun += w.timesRun();
-    sum.timesPassed += w.timesPassed();
-    sum.timesFailed += w.timesFailed();
-    sum.timesExcept += w.timesExcept();
-    sum.moduleLabel = w.description()->moduleLabel();
-  }
-
-  static void fillWorkerSummary(Worker const* pw, WorkerSummary& sum) { fillWorkerSummaryAux(*pw, sum); }
-
   void StreamSchedule::getTriggerReport(TriggerReport& rep) const {
     rep.eventSummary.totalEvents += totalEvents();
     rep.eventSummary.totalEventsPassed += totalEventsPassed();
     rep.eventSummary.totalEventsFailed += totalEventsFailed();
-
-    fill_summary(trig_paths_, rep.trigPathSummaries, &fillPathSummary);
-    fill_summary(end_paths_, rep.endPathSummaries, &fillPathSummary);
-    fill_summary(allWorkersEvents(), rep.workerSummaries, &fillWorkerSummary);
   }
 
   void StreamSchedule::clearCounters() {
     using std::placeholders::_1;
     total_events_ = total_passed_ = 0;
-    for_all(trig_paths_, std::bind(&Path::clearCounters, _1));
-    for_all(end_paths_, std::bind(&Path::clearCounters, _1));
-    for_all(allWorkersEvents(), std::bind(&Worker::clearCounters, _1));
   }
 
   void StreamSchedule::resetAll() { results_->reset(); }

@@ -117,8 +117,6 @@ private:
   MonitorElement *mCaloHadEtInEB;
   MonitorElement *mCaloHadEtInEE;
   MonitorElement *mCaloEmEtInHF;
-  MonitorElement *mCaloSETInpHF;
-  MonitorElement *mCaloSETInmHF;
   MonitorElement *mCaloEmEtInEE;
   MonitorElement *mCaloEmEtInEB;
 

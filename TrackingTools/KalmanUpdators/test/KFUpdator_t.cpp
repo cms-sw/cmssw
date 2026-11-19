@@ -82,18 +82,9 @@ void print(TrajectoryStateOnSurface const& ts) {
   cout << endl;
 }
 
-#include "FWCore/Utilities/interface/HRRealTime.h"
+#include <benchmark/benchmark.h>
 #include <iostream>
 #include <vector>
-
-bool isAligned(const void* data, long alignment) {
-  // check that the alignment is a power of two
-  assert((alignment & (alignment - 1)) == 0);
-  return ((long)data & (alignment - 1)) == 0;
-}
-
-void st() {}
-void en() {}
 
 struct KFUTest {
   TrajectoryStateUpdator const& tsu;
@@ -105,13 +96,11 @@ struct KFUTest {
     ::print(tsn);
   }
 
-  void time(const TrajectoryStateOnSurface& tsos, const TrackingRecHit& hit) const {
-    edm::HRTimeType s = edm::hrRealTime();
-    st();
-    TrajectoryStateOnSurface tsn = tsu.update(tsos, hit);
-    en();
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << e - s << std::endl;
+  void time(benchmark::State& state, const TrajectoryStateOnSurface& tsos, const TrackingRecHit& hit) const {
+    for (auto _ : state) {
+      TrajectoryStateOnSurface tsn = tsu.update(tsos, hit);
+      benchmark::DoNotOptimize(tsn);
+    }
   }
 };
 
@@ -125,17 +114,16 @@ struct Chi2Test {
     std::cout << "chi2 " << res.second << std::endl;
   }
 
-  void time(const TrajectoryStateOnSurface& tsos, const TrackingRecHit& hit) const {
-    edm::HRTimeType s = edm::hrRealTime();
-    st();
-    res = chi2.estimate(tsos, hit);
-    en();
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << e - s << std::endl;
+  void time(benchmark::State& state, const TrajectoryStateOnSurface& tsos, const TrackingRecHit& hit) const {
+    for (auto _ : state) {
+      res = chi2.estimate(tsos, hit);
+      benchmark::DoNotOptimize(res);
+    }
   }
 };
 
-int main() {
+int main(int argc, char* argv[]) {
+  benchmark::Initialize(&argc, argv);
   MagneticField* field = new ConstMagneticField;
   GlobalPoint gp(0, 0, 0);
   GlobalVector gv(1, 1, 1);
@@ -176,9 +164,6 @@ int main() {
   kt.print(ts, *thit);
   kt.print(ts2, *thit);
 
-  kt.time(ts, *thit);
-  kt.time(ts2, *thit);
-
   kt.print(ts, hit2d);
   kt.print(ts2, hit2d);
 
@@ -190,9 +175,6 @@ int main() {
 
   kt.print(ts, hit1d);
   kt.print(ts2, hit1d);
-
-  kt.time(ts, *thit);
-  kt.time(ts2, *thit);
 
   std::cout << "\n** Chi2 ** \n" << std::endl;
 
@@ -211,8 +193,12 @@ int main() {
   chi2.print(ts, hit1d);
   chi2.print(ts2, hit1d);
 
-  chi2.time(ts, *thit);
-  chi2.time(ts2, *thit);
+  benchmark::RegisterBenchmark("KFUpdator/ts", [&](benchmark::State& state) { kt.time(state, ts, *thit); });
+  benchmark::RegisterBenchmark("KFUpdator/ts2", [&](benchmark::State& state) { kt.time(state, ts2, *thit); });
+  benchmark::RegisterBenchmark("Chi2/ts", [&](benchmark::State& state) { chi2.time(state, ts, *thit); });
+  benchmark::RegisterBenchmark("Chi2/ts2", [&](benchmark::State& state) { chi2.time(state, ts2, *thit); });
+  benchmark::RunSpecifiedBenchmarks();
+  benchmark::Shutdown();
 
   return 0;
 }

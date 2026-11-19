@@ -3,6 +3,7 @@
 
 // A SoA-like class (with fake alignment (padding))
 #include <cstddef>
+#include <cstdint>
 #include <iostream>
 #include <memory>
 

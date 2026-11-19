@@ -14,7 +14,7 @@
 
 namespace {
   std::string gS;
-  double gD;
+  [[maybe_unused]] double gD;
   void doSomething(std::string const& name) {
     static std::string const local("p1");
     if (name == local)

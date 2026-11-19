@@ -27,7 +27,7 @@ void CatchAll::checkASTCodeBody(const clang::Decl* D,
   s = process(s);
   if (!s)
     return;
-  clang::ento::LocationOrAnalysisDeclContext x(AM.getAnalysisDeclContext(D));
+  clang::ento::StackFrameOrAnalysisDeclContext x(AM.getAnalysisDeclContext(D));
   clang::ento::PathDiagnosticLocation DLoc =
       clang::ento::PathDiagnosticLocation::createBegin(s, BR.getSourceManager(), x);
   BR.EmitBasicReport(D,

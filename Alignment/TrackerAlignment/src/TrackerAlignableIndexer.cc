@@ -1,7 +1,7 @@
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableIndexer.h"
 
 //______________________________________________________________________________
-TrackerAlignableIndexer ::TrackerAlignableIndexer(const align::TrackerNameSpace& tns) : tns_(tns) {
+TrackerAlignableIndexer::TrackerAlignableIndexer(const align::TrackerNameSpace& tns) : tns_(tns) {
   using namespace std::placeholders;
   using namespace align;
   theCounters.clear();

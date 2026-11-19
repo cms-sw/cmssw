@@ -1,16 +1,6 @@
 import os
 import FWCore.ParameterSet.Config as cms
 
-# for json support
-try: # FUTURE: Python 2.6, prior to 2.6 requires simplejson
-    import json
-except:
-    try:
-        import simplejson as json
-    except:
-        print("Please use lxplus or set an environment (for example crab) with json lib available")
-        sys.exit(1)
-
 inputfiles = os.environ["ALIGNMENT_INPUTFILES"].split(" ")
 iteration = int(os.environ["ALIGNMENT_ITERATION"])
 jobnumber = int(os.environ["ALIGNMENT_JOBNUMBER"])
@@ -51,8 +41,13 @@ preFilter = (os.environ["ALIGNMENT_PREFILTER"] == "True")
 muonCollectionTag = os.environ["ALIGNMENT_MUONCOLLECTIONTAG"]
 maxDxy = float(os.environ["ALIGNMENT_MAXDXY"])
 minNCrossedChambers = int(os.environ["ALIGNMENT_MINNCROSSEDCHAMBERS"])
+T0_Corr = (os.environ["ALIGNMENT_T0CORR"] == "True")
+is_Alcareco = (os.environ["ALIGNMENT_ISALCARECO"] == "True")
+is_MC = (os.environ["ALIGNMENT_ISMC"] == "True")
+createLayerNtupleDT = (os.environ["ALIGNMENT_STORELAYERDT"] == "True")
+createLayerNtupleCSC = (os.environ["ALIGNMENT_STORELAYERCSC"] == "True")
 
-# optionally: create ntuples along with tmp files 
+# optionally: create ntuples along with tmp files
 createAlignNtuple = False
 envNtuple = os.getenv("ALIGNMENT_CREATEALIGNNTUPLE")
 if envNtuple is not None:
@@ -77,28 +72,8 @@ if envDT is not None and envCSC is not None:
     doDT = False
     doCSC = True
 
-# optionally use JSON file for good limi mask
-good_lumis = []
-json_file = os.getenv("ALIGNMENT_JSON")
-#json_file = 'Cert_136035-144114_7TeV_StreamExpress_Collisions10_JSON.txt'
-if json_file is not None and json_file != '':
-  jsonfile=file(json_file, 'r')
-  jsondict = json.load(jsonfile)
-  runs = sorted(jsondict.keys())
-  for run in runs:
-    blocks = sorted(jsondict[run])
-    prevblock = [-2,-2]
-    for lsrange in blocks:
-      if lsrange[0] == prevblock[1]+1:
-        #print "Run: ",run,"- This lumi starts at ", lsrange[0], " previous ended at ", prevblock[1]+1, " so I should merge"
-        prevblock[1] = lsrange[1]
-        good_lumis[-1] = str("%s:%s-%s:%s" % (run, prevblock[0], run, prevblock[1]))
-      else:
-        good_lumis.append(str("%s:%s-%s:%s" % (run, lsrange[0], run, lsrange[1])))
-        prevblock = lsrange
-
-
-process = cms.Process("GATHER")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("GATHER", Run3)
 
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Geometry.DTGeometry.dtGeometry_cfi")
@@ -107,41 +82,36 @@ process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 process.load("Geometry.CommonTopologies.bareGlobalTrackingGeometry_cfi")
 
 #add TrackDetectorAssociator lookup maps to the EventSetup
-process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff") 
-from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *  
-from TrackingTools.TrackAssociator.default_cfi import *       
+process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")
+from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
+from TrackingTools.TrackAssociator.default_cfi import *
 
 
 process.load("Configuration.StandardSequences.Reconstruction_cff")
+process.load('TrackingTools.TransientTrack.TransientTrackBuilder_cfi')
 
-process.MuonNumberingInitialization = cms.ESProducer("MuonNumberingInitialization")
-process.MuonNumberingRecord = cms.ESSource( "EmptyESSource",
-    recordName = cms.string( "MuonNumberingRecord" ),
-    iovIsRunNotTime = cms.bool( True ),
-    firstValid = cms.vuint32( 1 )
-)
-
-process.load("Configuration.StandardSequences.GeometryDB_cff")
-process.load('Configuration.StandardSequences.MagneticField_cff')
-
-if len(good_lumis)>0:
-  process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(*inputfiles),
-    skipEvents = cms.untracked.uint32(skipEvents), 
-    lumisToProcess = cms.untracked.VLuminosityBlockRange(*good_lumis))
+if is_MC:
+    process.load('Configuration.StandardSequences.SimIdeal_cff')
+    process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 else:
-  process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(*inputfiles),
-    skipEvents = cms.untracked.uint32(skipEvents))
+    process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.source = cms.Source("PoolSource",
+  fileNames = cms.untracked.vstring(*inputfiles),
+  skipEvents = cms.untracked.uint32(skipEvents))
+json_file = os.getenv("ALIGNMENT_JSON")
+if len(json_file) > 0:
+  import FWCore.PythonUtilities.LumiList as LumiList
+  process.source.lumisToProcess = LumiList.LumiList(filename = json_file).getVLuminosityBlockRange()
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(maxEvents))
 #process.options = cms.untracked.PSet(  wantSummary = cms.untracked.bool(True) )
 
 
-process.MessageLogger = cms.Service("MessageLogger",
-                                    destinations = cms.untracked.vstring("cout"),
-                                    cout = cms.untracked.PSet(threshold = cms.untracked.string("ERROR"),
-                                                              ERROR = cms.untracked.PSet(limit = cms.untracked.int32(10))))
+# process.MessageLogger = cms.Service("MessageLogger",
+#                                     destinations = cms.untracked.vstring("cout"),
+#                                     cout = cms.untracked.PSet(threshold = cms.untracked.string("ERROR"),
+#                                                               ERROR = cms.untracked.PSet(limit = cms.untracked.int32(10))))
 
 process.load("Alignment.MuonAlignmentAlgorithms.MuonAlignmentFromReference_cff")
 process.looper.ParameterBuilder.Selector.alignParams = cms.vstring("MuonDTChambers,%s,stations123" % station123params, "MuonDTChambers,%s,station4" % station4params, "MuonCSCChambers,%s" % cscparams)
@@ -168,6 +138,8 @@ process.looper.algoConfig.maxResSlopeY = maxResSlopeY
 process.looper.algoConfig.minDT13Hits = 7
 process.looper.algoConfig.doDT = doDT
 process.looper.algoConfig.doCSC = doCSC
+process.looper.algoConfig.createLayerNtupleDT = createLayerNtupleDT
+process.looper.algoConfig.createLayerNtupleCSC = createLayerNtupleCSC
 
 process.looper.monitorConfig = cms.PSet(monitors = cms.untracked.vstring())
 
@@ -229,6 +201,7 @@ if curvatureplots:
     process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.doCSC = doCSC
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+print(f'Using global tag: {globaltag}')
 process.GlobalTag.globaltag = cms.string(globaltag)
 process.looper.applyDbAlignment = True
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
@@ -239,21 +212,44 @@ process.MuonAlignmentPreFilter.minTrackP = minTrackP
 process.MuonAlignmentPreFilter.minTrackerHits = minTrackerHits
 process.MuonAlignmentPreFilter.allowTIDTEC = allowTIDTEC
 
+##T0 Correction on DT need GlobalMuons to be reconstructed
+if T0_Corr:
+    process.load("RecoLocalMuon.Configuration.RecoLocalMuon_cff")
+    process.load("RecoMuon.MuonSeedGenerator.ancientMuonSeed_cfi")
+    process.load("RecoMuon.StandAloneMuonProducer.standAloneMuons_cfi")
+    process.load("RecoMuon.GlobalMuonProducer.globalMuons_cfi")
+    if is_Alcareco:
+        process.globalMuons.TrackerCollectionLabel = cms.InputTag("ALCARECOMuAlCalIsolatedMuGeneralTracks")
+    else:
+        process.globalMuons.TrackerCollectionLabel = cms.InputTag("generalTracks")
+    process.Mymuonlocalreco = cms.Sequence(process.dt4DSegments * process.ancientMuonSeed * process.standAloneMuons * process.globalMuons )
+    process.dt4DSegments.Reco4DAlgoConfig.performT0SegCorrection = cms.bool(True)
+
+
 if iscosmics:
     process.MuonAlignmentPreFilter.tracksTag = cms.InputTag("ALCARECOMuAlGlobalCosmics:GlobalMuon")
     if preFilter: process.Path = cms.Path(process.offlineBeamSpot * process.MuonAlignmentPreFilter * process.MuonAlignmentFromReferenceGlobalCosmicRefit)
     else: process.Path = cms.Path(process.offlineBeamSpot * process.MuonAlignmentFromReferenceGlobalCosmicRefit)
     process.looper.tjTkAssociationMapTag = cms.InputTag("MuonAlignmentFromReferenceGlobalCosmicRefit:Refitted")
 else:
-    #process.MuonAlignmentPreFilter.tracksTag = cms.InputTag("ALCARECOMuAlCalIsolatedMu:GlobalMuon")
-    process.MuonAlignmentPreFilter.tracksTag = cms.InputTag("globalMuons")
+    if is_Alcareco:
+      process.MuonAlignmentPreFilter.tracksTag = cms.InputTag("ALCARECOMuAlCalIsolatedMu:GlobalMuon")
+      process.MuonAlignmentFromReferenceGlobalMuonRefit.Tracks = cms.InputTag("ALCARECOMuAlCalIsolatedMu:GlobalMuon")
+    else:
+      process.MuonAlignmentPreFilter.tracksTag = cms.InputTag("globalMuons")
+      process.MuonAlignmentFromReferenceGlobalMuonRefit.Tracks = cms.InputTag("globalMuons")
     process.MuonAlignmentFromReferenceGlobalMuonRefit.Tracks = cms.InputTag("globalMuons")
-    if preFilter: process.Path = cms.Path(process.offlineBeamSpot * process.MuonAlignmentPreFilter * process.MuonAlignmentFromReferenceGlobalMuonRefit)
-    else: process.Path = cms.Path(process.offlineBeamSpot * process.MuonAlignmentFromReferenceGlobalMuonRefit)
+    if preFilter:
+      process.Path = cms.Path(process.offlineBeamSpot * process.MuonAlignmentPreFilter * process.MuonAlignmentFromReferenceGlobalMuonRefit)
+    else:
+      if T0_Corr:
+        process.Path = cms.Path(process.offlineBeamSpot * process.Mymuonlocalreco * process.MuonAlignmentFromReferenceGlobalMuonRefit)
+      else:
+        process.Path = cms.Path(process.offlineBeamSpot * process.MuonAlignmentFromReferenceGlobalMuonRefit)
     process.looper.tjTkAssociationMapTag = cms.InputTag("MuonAlignmentFromReferenceGlobalMuonRefit:Refitted")
 
 
-if len(muonCollectionTag) > 0: # use Tracker Muons 
+if len(muonCollectionTag) > 0: # use Tracker Muons
     process.Path = cms.Path(process.offlineBeamSpot * process.newmuons)
 
 
@@ -261,73 +257,58 @@ process.MuonAlignmentFromReferenceInputDB.connect = cms.string("sqlite_file:%s" 
 process.MuonAlignmentFromReferenceInputDB.toGet = cms.VPSet(cms.PSet(record = cms.string("DTAlignmentRcd"), tag = cms.string("DTAlignmentRcd")),
                                                             cms.PSet(record = cms.string("CSCAlignmentRcd"), tag = cms.string("CSCAlignmentRcd")))
 
-if trackerconnect != "":
-    from CondCore.DBCommon.CondDBSetup_cfi import *
-    process.TrackerAlignmentInputDB = cms.ESSource("PoolDBESSource",
-                                                   CondDBSetup,
-                                                   connect = cms.string(trackerconnect),
-                                                   toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"), tag = cms.string(trackeralignment))))
-    process.es_prefer_TrackerAlignmentInputDB = cms.ESPrefer("PoolDBESSource", "TrackerAlignmentInputDB")
+process.es_prefer_MuonAlignmentFromReferenceInputDB = cms.ESPrefer(
+    "PoolDBESSource", "MuonAlignmentFromReferenceInputDB")
 
-if trackerAPEconnect != "":
-    from CondCore.DBCommon.CondDBSetup_cfi import *
-    process.TrackerAlignmentErrorInputDB = cms.ESSource("PoolDBESSource",
-                                                   CondDBSetup,
-                                                   connect = cms.string(trackerAPEconnect),
-                                                   toGet = cms.VPSet(cms.PSet(cms.PSet(record = cms.string("TrackerAlignmentErrorExtendedRcd"), tag = cms.string(trackerAPE)))))
-    process.es_prefer_TrackerAlignmentErrorInputDB = cms.ESPrefer("PoolDBESSource", "TrackerAlignmentErrorInputDB")
+from CondCore.CondDB.CondDB_cfi import *
+CondDBSetup = CondDB.clone()
+CondDBSetup.__delattr__('connect')
+if is_MC:
+    if trackerconnect != "":
+        process.TrackerAlignmentInputDB = cms.ESSource("PoolDBESSource",
+                                                       CondDBSetup,
+                                                       connect = cms.string(trackerconnect),
+                                                       toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"), tag = cms.string(trackeralignment))))
+        process.es_prefer_TrackerAlignmentInputDB = cms.ESPrefer("PoolDBESSource", "TrackerAlignmentInputDB")
 
-if trackerBowsconnect != "":
-    from CondCore.DBCommon.CondDBSetup_cfi import *
-    process.TrackerSurfaceDeformationInputDB = cms.ESSource("PoolDBESSource",
-                                                   CondDBSetup,
-                                                   connect = cms.string(trackerBowsconnect),
-                                                   toGet = cms.VPSet(cms.PSet(cms.PSet(record = cms.string("TrackerSurfaceDeformationRcd"), tag = cms.string(trackerBows)))))
-    process.es_prefer_TrackerSurfaceDeformationInputDB = cms.ESPrefer("PoolDBESSource", "TrackerSurfaceDeformationInputDB")
+    if trackerAPEconnect != "":
+        process.TrackerAlignmentErrorInputDB = cms.ESSource("PoolDBESSource",
+                                                       CondDBSetup,
+                                                       connect = cms.string(trackerAPEconnect),
+                                                       toGet = cms.VPSet(cms.PSet(cms.PSet(record = cms.string("TrackerAlignmentErrorExtendedRcd"), tag = cms.string(trackerAPE)))))
+        process.es_prefer_TrackerAlignmentErrorInputDB = cms.ESPrefer("PoolDBESSource", "TrackerAlignmentErrorInputDB")
 
+    if trackerBowsconnect != "":
+        process.TrackerSurfaceDeformationInputDB = cms.ESSource("PoolDBESSource",
+                                                       CondDBSetup,
+                                                       connect = cms.string(trackerBowsconnect),
+                                                       toGet = cms.VPSet(cms.PSet(cms.PSet(record = cms.string("TrackerSurfaceDeformationRcd"), tag = cms.string(trackerBows)))))
+        process.es_prefer_TrackerSurfaceDeformationInputDB = cms.ESPrefer("PoolDBESSource", "TrackerSurfaceDeformationInputDB")
+#else: #beginning 2016-rereco  (ALL in 80X_dataRun2_2016LegacyRepro_Candidate_v0)
+#    process.GlobalTag.toGet = cms.VPSet(
+#             cms.PSet(record = cms.string("TrackerAlignmentRcd"),
+#                      tag =  cms.string("TrackerAlignment_EOY16_sm1959"),
+#                      connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
+#                      ),
+###             cms.PSet(record = cms.string("TrackerAlignmentErrorExtendedRcd"),
+###                      tag =  cms.string("TrackerAlignmentExtendedErrors_MP_Run2016B"),
+###                      connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
+###                      ),
+#             cms.PSet(record = cms.string("SiPixelTemplateDBObjectRcd"),
+#                      tag =  cms.string("SiPixelTemplateDBObject_38T_v10_offline"),
+#                      connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
+#                      ),
+#             cms.PSet(record = cms.string("TrackerSurfaceDeformationRcd"),
+#                      tag =  cms.string("TrackerSurfaceDeformations_EOY16_mp2269"),
+#                      connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
+#                      )
+#    )
 if gprcdconnect != "":
-    from CondCore.DBCommon.CondDBSetup_cfi import *
-    process.GlobalPositionInputDB = cms.ESSource("PoolDBESSource",
-                                                   CondDBSetup,
-                                                   connect = cms.string(gprcdconnect),
-                                                   toGet = cms.VPSet(cms.PSet(record = cms.string("GlobalPositionRcd"), tag = cms.string(gprcd))))
-    process.es_prefer_GlobalPositionInputDB = cms.ESPrefer("PoolDBESSource", "GlobalPositionInputDB")
-
-
-## the following was needed for Nov 2010 alignment to pick up new lorentz angle and strip conditions for tracker
-#process.poolDBESSourceLA = cms.ESSource("PoolDBESSource",
-#  BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-#  DBParameters = cms.PSet(
-#    messageLevel = cms.untracked.int32(0),
-#    authenticationPath = cms.untracked.string('.')
-#    #messageLevel = cms.untracked.int32(2),
-#    #authenticationPath = cms.untracked.string('/path/to/authentication')
-#  ),
-#  timetype = cms.untracked.string('runnumber'),
-#  connect = cms.string('frontier://PromptProd/CMS_COND_31X_STRIP'),
-#  toGet = cms.VPSet(cms.PSet(
-#    record = cms.string('SiStripLorentzAngleRcd'),
-#    tag = cms.string('SiStripLorentzAngle_GR10_v2_offline')
-#  ))
-#)
-#process.es_prefer_LA = cms.ESPrefer('PoolDBESSource','poolDBESSourceLA')
-#
-#process.poolDBESSourceBP = cms.ESSource("PoolDBESSource",
-#  BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-#  DBParameters = cms.PSet(
-#    messageLevel = cms.untracked.int32(0),
-#    authenticationPath = cms.untracked.string('.')
-#    #messageLevel = cms.untracked.int32(2),
-#    #authenticationPath = cms.untracked.string('/path/to/authentication')
-#  ),
-#  timetype = cms.untracked.string('runnumber'),
-#  connect = cms.string('frontier://PromptProd/CMS_COND_31X_STRIP'),
-#  toGet = cms.VPSet(cms.PSet(
-#    record = cms.string('SiStripConfObjectRcd'),
-#    tag = cms.string('SiStripShiftAndCrosstalk_GR10_v2_offline')
-#  ))
-#)
-#process.es_prefer_BP = cms.ESPrefer('PoolDBESSource','poolDBESSourceBP')
+   process.GlobalPositionInputDB = cms.ESSource("PoolDBESSource",
+                                                  CondDBSetup,
+                                                  connect = cms.string(gprcdconnect),
+                                                  toGet = cms.VPSet(cms.PSet(record = cms.string("GlobalPositionRcd"), tag = cms.string(gprcd))))
+   process.es_prefer_GlobalPositionInputDB = cms.ESPrefer("PoolDBESSource", "GlobalPositionInputDB")
 
 
 process.looper.saveToDB = False
@@ -335,3 +316,21 @@ process.looper.saveApeToDB = False
 del process.PoolDBOutputService
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string("plotting%03d.root" % jobnumber))
+
+maxEvts = process.maxEvents.input.value()
+if maxEvts > 10000 or maxEvts < 0:
+  process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+elif maxEvts > 10:
+  process.MessageLogger.cerr.FwkReport.reportEvery = maxEvts//10
+
+# process.MessageLogger.cerr.threshold = "DEBUG"
+# process.MessageLogger.cerr.INFO = cms.untracked.PSet(
+#     limit = cms.untracked.int32(-1)   # -1 = unlimited
+# )
+# process.MessageLogger.cerr.default = cms.untracked.PSet(
+#     limit = cms.untracked.int32(-1)   # -1 = unlimited
+# )
+
+# process.Tracer = cms.Service("Tracer")
+
+# print(process.dumpPython())

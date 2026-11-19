@@ -6,6 +6,26 @@
 ///
 LaserAlignmentT0ProducerDQM::LaserAlignmentT0ProducerDQM(const edm::ParameterSet &aConfiguration) {
   theConfiguration = aConfiguration;
+
+  // the list of input digi products from the cfg
+  for (const auto &aDigiProducer : theConfiguration.getParameter<std::vector<edm::ParameterSet>>("DigiProducerList")) {
+    const std::string digiProducer = aDigiProducer.getParameter<std::string>("DigiProducer");
+    const std::string digiLabel = aDigiProducer.getParameter<std::string>("DigiLabel");
+    const std::string digiType = aDigiProducer.getParameter<std::string>("DigiType");
+
+    // a distinction of cases: raw digis => SiStripRawDigi, or "ZeroSuppressed" (non-raw) => SiStripDigi
+    if (digiType == "Raw") {
+      theRawDigiTokens.push_back(consumes<edm::DetSetVector<SiStripRawDigi>>(edm::InputTag(digiProducer, digiLabel)));
+    } else if (digiType == "Processed") {
+      theProcessedDigiTokens.push_back(
+          consumes<edm::DetSetVector<SiStripDigi>>(edm::InputTag(digiProducer, digiLabel)));
+    } else {
+      // otherwise we have a problem
+      throw cms::Exception("LaserAlignmentT0ProducerDQM")
+          << " ERROR ** Unknown DigiType: " << digiType << " specified in config." << std::endl;
+    }
+  }
+
   FillDetectorId();
 }
 
@@ -20,9 +40,6 @@ void LaserAlignmentT0ProducerDQM::bookHistograms(DQMStore::IBooker &iBooker,
   // upper and lower treshold for a profile considered showing a signal
   theLowerAdcThreshold = theConfiguration.getParameter<unsigned int>("LowerAdcThreshold");
   theUpperAdcThreshold = theConfiguration.getParameter<unsigned int>("UpperAdcThreshold");
-
-  // the list of input digi products from the cfg
-  theDigiProducerList = theConfiguration.getParameter<std::vector<edm::ParameterSet>>("DigiProducerList");
 
   std::string folderName = theConfiguration.getParameter<std::string>("FolderName");
   iBooker.setCurrentFolder(folderName);
@@ -115,43 +132,15 @@ void LaserAlignmentT0ProducerDQM::bookHistograms(DQMStore::IBooker &iBooker,
 ///
 void LaserAlignmentT0ProducerDQM::analyze(const edm::Event &aEvent, const edm::EventSetup &aSetup) {
   // loop all input products
-  for (std::vector<edm::ParameterSet>::iterator aDigiProducer = theDigiProducerList.begin();
-       aDigiProducer != theDigiProducerList.end();
-       ++aDigiProducer) {
-    const std::string digiProducer = aDigiProducer->getParameter<std::string>("DigiProducer");
-    const std::string digiLabel = aDigiProducer->getParameter<std::string>("DigiLabel");
-    const std::string digiType = aDigiProducer->getParameter<std::string>("DigiType");
+  for (const auto &rawDigisToken : theRawDigiTokens) {
+    // eval & fill histos from raw digis
+    FillFromRawDigis(aEvent.get(rawDigisToken));
+  }
 
-    // now a distinction of cases: raw or processed digis?
-
-    // first we go for raw digis => SiStripRawDigi
-    if (digiType == "Raw") {
-      // retrieve the SiStripRawDigis collection
-      edm::Handle<edm::DetSetVector<SiStripRawDigi>> rawDigis;
-      aEvent.getByLabel(digiProducer, digiLabel, rawDigis);
-
-      // eval & fill histos from raw digis
-      FillFromRawDigis(*rawDigis);
-
-    }
-
-    // next we assume "ZeroSuppressed" (non-raw) => SiStripDigi
-    else if (digiType == "Processed") {
-      edm::Handle<edm::DetSetVector<SiStripDigi>> processedDigis;
-      aEvent.getByLabel(digiProducer, digiLabel, processedDigis);
-
-      // eval & fill histos from processed digis
-      FillFromProcessedDigis(*processedDigis);
-
-    }
-
-    // otherwise we have a problem
-    else {
-      throw cms::Exception("LaserAlignmentT0ProducerDQM")
-          << " ERROR ** Unknown DigiType: " << digiType << " specified in config." << std::endl;
-    }
-
-  }  // loop all input products
+  for (const auto &processedDigisToken : theProcessedDigiTokens) {
+    // eval & fill histos from processed digis
+    FillFromProcessedDigis(aEvent.get(processedDigisToken));
+  }
 }
 
 ///

@@ -51,10 +51,8 @@ public:
                                                              const std::pair<float, float> pitches,
                                                              const float& thickness) const;
   // Specific for 3D-pixel
-  void induce_signal(std::vector<PSimHit>::const_iterator inputBegin,
-                     const PSimHit& hit,
+  void induce_signal(const PSimHit& hit,
                      const size_t hitIndex,
-                     const size_t firstHitIndex,
                      const uint32_t tofBin,
                      const Phase2TrackerGeomDetUnit* pixdet,
                      const std::vector<digitizerUtility::SignalPoint>& collection_points) override;

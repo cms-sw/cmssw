@@ -72,6 +72,8 @@ public:
 
   // Receiver-side
   void receiveMetadata(int src, int tag, MPI_Comm comm);
+  void receiveMetadataAsync(int src, int tag, MPI_Comm comm);
+  void waitReceiveMetadata();
 
   // Not memory safe for trivial copy products.
   // Please make sure that ProductMetadataBuilder lives longer than returned ProductMetadata
@@ -113,6 +115,7 @@ private:
   size_t capacity_;
   size_t size_;
   size_t readOffset_;
+  MPI_Request receiveRequest_ = MPI_REQUEST_NULL;
 };
 
 #endif  // HeterogeneousCore_MPICore_interface_metadata_h

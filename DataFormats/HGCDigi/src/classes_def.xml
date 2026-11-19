@@ -8,6 +8,7 @@
    <!-- Not specific -->
    <class name="HGCDataFrame<DetId,io_v1::HGCSample>"/>
    <class name="std::vector<HGCDataFrame<DetId,io_v1::HGCSample> >"/>
+   <class name="edm::StrictWeakOrdering<HGCDataFrame<DetId,io_v1::HGCSample> >"/>
    <class name="edm::SortedCollection<HGCDataFrame<DetId,io_v1::HGCSample>, edm::StrictWeakOrdering<HGCDataFrame<DetId,io_v1::HGCSample> > >"/>
    <class name="edm::Wrapper<edm::SortedCollection<HGCDataFrame<DetId,io_v1::HGCSample>,edm::StrictWeakOrdering<HGCDataFrame<DetId,io_v1::HGCSample> > > >" />
 

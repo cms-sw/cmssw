@@ -497,60 +497,6 @@ HcalRecoParam HcalDbHardcode::makeRecoParam(HcalGenericDetId fId) const {
   return result;
 }
 
-HcalTimingParam HcalDbHardcode::makeTimingParam(HcalGenericDetId fId) const {
-  int nhits = 0;
-  float phase = 0.0;
-  float rms = 0.0;
-  if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) {
-    nhits = 4;
-    phase = 4.5;
-    rms = 6.5;
-  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) {
-    nhits = 4;
-    phase = 9.3;
-    rms = 7.8;
-  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {
-    nhits = 4;
-    phase = 8.6;
-    rms = 2.3;
-  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward) {
-    nhits = 4;
-    phase = 12.4;
-    rms = 12.29;
-  }
-  HcalTimingParam result(fId.rawId(), nhits, phase, rms);
-
-  return result;
-}
-
-#define EMAP_NHBHECR 9
-#define EMAP_NHFCR 3
-#define EMAP_NHOCR 4
-#define EMAP_NFBR 8
-#define EMAP_NFCH 3
-#define EMAP_NHTRS 3
-#define EMAP_NHSETS 4
-#define EMAP_NTOPBOT 2
-#define EMAP_NHTRSHO 4
-#define EMAP_NHSETSHO 3
-
-std::unique_ptr<HcalDcsMap> HcalDbHardcode::makeHardcodeDcsMap() const {
-  HcalDcsMapAddons::Helper dcs_map_helper;
-  dcs_map_helper.mapGeomId2DcsId(HcalDetId(HcalBarrel, -16, 1, 1),
-                                 HcalDcsDetId(HcalDcsBarrel, -1, 1, HcalDcsDetId::HV, 2));
-  dcs_map_helper.mapGeomId2DcsId(HcalDetId(HcalForward, -41, 3, 1),
-                                 HcalDcsDetId(HcalDcsForward, -1, 1, HcalDcsDetId::DYN8, 1));
-  dcs_map_helper.mapGeomId2DcsId(HcalDetId(HcalForward, -26, 25, 2),
-                                 HcalDcsDetId(HcalDcsForward, -1, 7, HcalDcsDetId::HV, 1));
-  dcs_map_helper.mapGeomId2DcsId(HcalDetId(HcalBarrel, -15, 68, 1),
-                                 HcalDcsDetId(HcalDcsBarrel, -1, 18, HcalDcsDetId::HV, 3));
-  dcs_map_helper.mapGeomId2DcsId(HcalDetId(HcalOuter, -14, 1, 4),
-                                 HcalDcsDetId(HcalDcsOuter, -2, 2, HcalDcsDetId::HV, 4));
-  dcs_map_helper.mapGeomId2DcsId(HcalDetId(HcalForward, 41, 71, 2),
-                                 HcalDcsDetId(HcalDcsForward, 1, 4, HcalDcsDetId::DYN8, 3));
-  return std::make_unique<HcalDcsMap>(dcs_map_helper);
-}
-
 std::unique_ptr<HcalElectronicsMap> HcalDbHardcode::makeHardcodeMap(const std::vector<HcalGenericDetId>& cells) const {
   static const int kUTCAMask = 0x4000000;         //set bit 26 for uTCA version
   static const int kLinearIndexMax = 0x7FFFF;     //19 bits

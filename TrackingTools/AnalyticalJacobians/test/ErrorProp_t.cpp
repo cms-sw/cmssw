@@ -23,23 +23,22 @@ namespace {
 
 }  // namespace
 
-#include "FWCore/Utilities/interface/HRRealTime.h"
-void st(void* ptr) {
-  asm("" /* no instructions */
-      :  /* no inputs */
-      : /* output */ "rax"(ptr)
-      : /* pretend to clobber */ "memory");
-}
-void en(void const* ptr) {
-  asm("" /* no instructions */
-      :  /* no inputs */
-      : /* output */ "rax"(ptr)
-      : /* pretend to clobber */ "memory");
-}
-
+#include <benchmark/benchmark.h>
 #include <iostream>
+#include <vector>
+
+namespace {
+  struct Step {
+    GlobalTrajectoryParameters start;
+    GlobalPoint endPosition;
+    GlobalVector endMomentum;
+    GlobalVector field;
+    double length;
+  };
+}  // namespace
 
 int main(int argc, char** argv) {
+  benchmark::Initialize(&argc, argv);
   double br = 0.;
   if (argc > 1)
     br = 0.1;
@@ -71,8 +70,7 @@ int main(int argc, char** argv) {
   {
     double totalStep(0.);
     double singleStep(1.);
-    edm::HRTimeType timeFull = 0;
-    edm::HRTimeType timeInf = 0;
+    std::vector<Step> steps;
     for (int i = 0; i < 10; ++i) {
       double s = singleStep;
       totalStep += singleStep;
@@ -95,16 +93,9 @@ int main(int argc, char** argv) {
       std::cout << tpg2.position() << " " << tpg2.momentum() << std::endl;
       AnalyticalCurvilinearJacobian full;
       AnalyticalCurvilinearJacobian delta;
-      edm::HRTimeType sf = edm::hrRealTime();
-      st(&tpg2);
       full.computeFullJacobian(tpg, tpg2.position(), tpg2.momentum(), h, s);
-      en(&full.jacobian());
-      timeFull += (edm::hrRealTime() - sf);
-      edm::HRTimeType si = edm::hrRealTime();
-      st(&tpg2);
       delta.computeInfinitesimalJacobian(tpg, tpg2.position(), tpg2.momentum(), h, s);
-      en(&delta.jacobian());
-      timeInf += (edm::hrRealTime() - si);
+      steps.push_back({tpg, tpg2.position(), tpg2.momentum(), h, s});
       std::cout << full.jacobian() << std::endl;
       std::cout << std::endl;
       std::cout << delta.jacobian() << std::endl;
@@ -117,23 +108,17 @@ int main(int argc, char** argv) {
     std::cout << "---------------------------" << std::endl;
     std::cout << std::endl;
     std::cout << std::endl;
-    std::cout << "fullJacobian " << timeFull << std::endl;
+    std::cout << "fullJacobian" << std::endl;
     std::cout << fullJacobian << std::endl;
     std::cout << std::endl;
-    std::cout << "deltaJacobian " << timeInf << std::endl;
+    std::cout << "deltaJacobian" << std::endl;
     std::cout << deltaJacobian << std::endl;
     std::cout << std::endl;
 
     AnalyticalCurvilinearJacobian full;
     GlobalVector h = tpg0.magneticFieldInInverseGeV(tpg0.position());
-    edm::HRTimeType s = edm::hrRealTime();
-    for (int k = 0; k < 50000; ++k) {
-      st(&tpg0);
-      full.computeFullJacobian(tpg0, tpg.position(), tpg.momentum(), h, totalStep);
-      en(&full.jacobian());
-    }
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << "one step fullJacobian " << (e - s) / 50000. << " precise timing" << std::endl;
+    full.computeFullJacobian(tpg0, tpg.position(), tpg.momentum(), h, totalStep);
+    std::cout << "one step fullJacobian" << std::endl;
     std::cout << full.jacobian() << std::endl;
     std::cout << std::endl;
 
@@ -154,78 +139,32 @@ int main(int argc, char** argv) {
       }
     }
     std::cout << "Delta relative" << std::endl << div << std::endl;
-  }
 
-  // for timing no printout
-
-  fullJacobian = AlgebraicMatrixID();
-  deltaJacobian = AlgebraicMatrixID();
-  tpg = tpg0;
-  {
-    double totalStep(0.);
-    double singleStep(1.);
-    edm::HRTimeType timeFull = 0;
-    edm::HRTimeType timeInf = 0;
-    for (int i = 0; i < 10; ++i) {
-      double s = singleStep;
-      totalStep += singleStep;
-
-      GlobalVector h = tpg.magneticFieldInInverseGeV(tpg.position());
-      Surface::RotationType rot(Basic3DVector<float>(h), 0);
-      Plane lplane(zero, rot);
-      HelixForwardPlaneCrossing::PositionType a(lplane.toLocal(tpg.position()));
-      HelixForwardPlaneCrossing::DirectionType p(lplane.toLocal(tpg.momentum()));
-      double lcurv = -h.mag() / p.perp() * tpg.charge();
-      HelixForwardPlaneCrossing prop(a, p, lcurv);
-      LocalPoint x(prop.position(s));
-      LocalVector dir(prop.direction(s));
-
-      GlobalTrajectoryParameters tpg2(
-          lplane.toGlobal(x), (p.mag() / dir.mag()) * lplane.toGlobal(dir), tpg.charge(), &m);
-
+    benchmark::RegisterBenchmark("OneStepFullJacobian", [=](benchmark::State& state) {
       AnalyticalCurvilinearJacobian full;
-      AnalyticalCurvilinearJacobian delta;
-      edm::HRTimeType sf = edm::hrRealTime();
-      full.computeFullJacobian(tpg, tpg2.position(), tpg2.momentum(), h, s);
-      timeFull += (edm::hrRealTime() - sf);
-      edm::HRTimeType si = edm::hrRealTime();
-      delta.computeInfinitesimalJacobian(tpg, tpg2.position(), tpg2.momentum(), h, s);
-      timeInf += (edm::hrRealTime() - si);
-      tpg = tpg2;
-      fullJacobian *= full.jacobian();
-      deltaJacobian *= delta.jacobian();
-    }
-
-    AnalyticalCurvilinearJacobian full;
-    GlobalVector h = tpg0.magneticFieldInInverseGeV(tpg0.position());
-    edm::HRTimeType s = edm::hrRealTime();
-    full.computeFullJacobian(tpg0, tpg.position(), tpg.momentum(), h, totalStep);
-    edm::HRTimeType e = edm::hrRealTime();
-
-    std::cout << "---------------------------" << std::endl;
-    std::cout << std::endl;
-    std::cout << std::endl;
-    std::cout << "fullJacobian " << timeFull << std::endl;
-    std::cout << fullJacobian << std::endl;
-    std::cout << std::endl;
-    std::cout << "deltaJacobian " << timeInf << std::endl;
-    std::cout << deltaJacobian << std::endl;
-    std::cout << std::endl;
-
-    std::cout << "one step fullJacobian " << e - s << std::endl;
-    std::cout << full.jacobian() << std::endl;
-    std::cout << std::endl;
-
-    std::cout << "---------------------------" << std::endl;
-
-    // a long loop to record perf
-    AlgebraicMatrix55 jjj = full.jacobian();
-    if (argc > 2) {
-      for (int kk = 0; kk < 100000; ++kk) {
+      for (auto _ : state) {
         full.computeFullJacobian(tpg0, tpg.position(), tpg.momentum(), h, totalStep);
-        jjj = full.jacobian();
+        benchmark::DoNotOptimize(full);
       }
-    }
+    });
+    benchmark::RegisterBenchmark("TenStepsFullJacobian", [steps](benchmark::State& state) {
+      AnalyticalCurvilinearJacobian full;
+      for (auto _ : state) {
+        for (auto const& st : steps) {
+          full.computeFullJacobian(st.start, st.endPosition, st.endMomentum, st.field, st.length);
+          benchmark::DoNotOptimize(full);
+        }
+      }
+    });
+    benchmark::RegisterBenchmark("TenStepsInfinitesimalJacobian", [steps](benchmark::State& state) {
+      AnalyticalCurvilinearJacobian delta;
+      for (auto _ : state) {
+        for (auto const& st : steps) {
+          delta.computeInfinitesimalJacobian(st.start, st.endPosition, st.endMomentum, st.field, st.length);
+          benchmark::DoNotOptimize(delta);
+        }
+      }
+    });
   }
 
   //
@@ -285,5 +224,7 @@ int main(int argc, char** argv) {
   std::cout << newDx.x() - dpPred[3] << " " << newDx.y() - dpPred[4] << std::endl;
   std::cout << newDp.x() - dpPred[1] << " " << newDp.y() - dpPred[2] << std::endl;
   std::cout << (1. / ap2.mag() - 1. / ap.mag()) - dpPred[0] << std::endl;
+  benchmark::RunSpecifiedBenchmarks();
+  benchmark::Shutdown();
   return 0;
 }

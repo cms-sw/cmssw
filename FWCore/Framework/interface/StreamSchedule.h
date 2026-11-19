@@ -57,12 +57,13 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/OccurrenceTraits.h"
-#include "FWCore/Framework/interface/WorkerManager.h"
+#include "FWCore/Framework/interface/WorkerManager_stream.h"
+#include "FWCore/Framework/interface/WorkerManager_global.h"
 #include "FWCore/Framework/interface/Path.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionPhaseTypes.h"
 #include "FWCore/Framework/interface/ModuleInPath.h"
-#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/maker/TransitionWorker.h"
 #include "FWCore/Framework/interface/EarlyDeleteHelper.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
@@ -119,9 +120,6 @@ namespace edm {
     using TrigPaths = std::vector<Path>;
     using TrigResPtr = std::shared_ptr<HLTGlobalStatus>;
     using TrigResConstPtr = std::shared_ptr<HLTGlobalStatus const>;
-    using AllWorkers = std::vector<Worker*>;
-
-    using Workers = std::vector<Worker*>;
 
     using PathWorkers = std::vector<WorkerInPath>;
 
@@ -226,11 +224,11 @@ namespace edm {
                                edm::ProductRegistry const& preg);
 
     /// returns the collection of pointers to workers
-    AllWorkers const& allWorkersRuns() const { return workerManagerRuns_.allWorkers(); }
-    AllWorkers const& allWorkersLumis() const { return workerManagerLumis_.allWorkers(); }
-    AllWorkers const& allWorkersEvents() const { return workerManagerEvents_.allWorkers(); }
+    auto const& allWorkersRuns() const { return workerManagerRuns_.allWorkers(); }
+    auto const& allWorkersLumis() const { return workerManagerLumis_.allWorkers(); }
+    auto const& allWorkersEvents() const { return workerManagerEvents_.allWorkers(); }
 
-    AllWorkers const& unscheduledWorkersEvents() const { return workerManagerEvents_.unscheduledWorkers(); }
+    auto const& unscheduledWorkersEvents() const { return workerManagerEvents_.unscheduledWorkers(); }
     unsigned int numberOfUnscheduledModules() const { return number_of_unscheduled_modules_; }
 
     StreamContext const& context() const { return streamContext_; }
@@ -264,17 +262,34 @@ namespace edm {
 
     void handleException(StreamContext const&, bool cleaningUpAfterException, std::exception_ptr&) const noexcept;
 
+    template <typename TI>
+    using StreamWorkerManager = WorkerManager<TI, TransitionPhaseStream>;
+    template <typename TI>
+    using EventWorkerManager = WorkerManager<TI, TransitionPhaseGlobal>;
+    template <typename TI>
+    StreamWorkerManager<TI>& workerManagers() {
+      if constexpr (std::is_same_v<TI, RunTransitionInfo>) {
+        return workerManagerRuns_;
+      } else if constexpr (std::is_same_v<TI, LumiTransitionInfo>) {
+        return workerManagerLumis_;
+      } else {
+        return workerManagerEvents_;
+      }
+    }
+
     std::vector<unsigned int> moduleBeginStreamFailed_;
-    WorkerManager workerManagerRuns_;
-    WorkerManager workerManagerLumis_;
-    WorkerManager workerManagerEvents_;
+    StreamWorkerManager<RunTransitionInfo> workerManagerRuns_;
+    StreamWorkerManager<LumiTransitionInfo> workerManagerLumis_;
+    EventWorkerManager<EventTransitionInfo> workerManagerEvents_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
 
     edm::propagate_const<TrigResPtr> results_;
 
-    edm::propagate_const<Worker*> results_inserter_;
-    std::vector<edm::propagate_const<Worker*>> pathStatusInserterWorkers_;
-    std::vector<edm::propagate_const<Worker*>> endPathStatusInserterWorkers_;
+    edm::propagate_const<TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>*> results_inserter_;
+    std::vector<edm::propagate_const<TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>*>>
+        pathStatusInserterWorkers_;
+    std::vector<edm::propagate_const<TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>*>>
+        endPathStatusInserterWorkers_;
 
     TrigPaths trig_paths_;
     TrigPaths end_paths_;
@@ -318,34 +333,29 @@ namespace edm {
     auto const& principal = transitionInfo.principal();
     T::setStreamContext(streamContext_, principal);
 
-    ServiceWeakToken weakToken = token;
-    auto doneTask = make_waiting_task([this, iHolder = std::move(iHolder), cleaningUpAfterException, weakToken](
-                                          std::exception_ptr const* iPtr) mutable {
-      std::exception_ptr excpt;
-      {
-        ServiceRegistry::Operate op(weakToken.lock());
+    auto doneTask = make_waiting_task(
+        [this, iHolder = std::move(iHolder), cleaningUpAfterException, token](std::exception_ptr const* iPtr) mutable {
+          std::exception_ptr excpt;
+          {
+            ServiceRegistry::Operate op(token);
 
-        if (iPtr) {
-          excpt = *iPtr;
-          handleException(streamContext_, cleaningUpAfterException, excpt);
-        }
-        postScheduleSignal<T>(&streamContext_, excpt);
-      }  // release service token before calling doneWaiting
-      iHolder.doneWaiting(excpt);
-    });
+            if (iPtr) {
+              excpt = *iPtr;
+              handleException(streamContext_, cleaningUpAfterException, excpt);
+            }
+            postScheduleSignal<T>(&streamContext_, excpt);
+          }  // release service token before calling doneWaiting
+          iHolder.doneWaiting(excpt);
+        });
 
     auto task =
-        make_functor_task([this, h = WaitingTaskHolder(*group, doneTask), info = transitionInfo, weakToken]() mutable {
-          auto token = weakToken.lock();
+        make_functor_task([this, h = WaitingTaskHolder(*group, doneTask), info = transitionInfo, token]() mutable {
           ServiceRegistry::Operate op(token);
           // Caught exception is propagated via WaitingTaskHolder
-          WorkerManager* workerManager = &workerManagerRuns_;
-          if (T::branchType_ == InLumi) {
-            workerManager = &workerManagerLumis_;
-          }
+          auto& workerManager = workerManagers<typename T::TransitionInfoType>();
           CMS_SA_ALLOW try {
             preScheduleSignal<T>(&streamContext_);
-            workerManager->resetAll();
+            workerManager.resetAll();
           } catch (...) {
             // Just remember the exception at this point,
             // let the destructor of h call doneWaiting() so the
@@ -354,7 +364,8 @@ namespace edm {
             return;
           }
 
-          workerManager->processOneOccurrenceAsync<T>(h, info, token, streamID_, &streamContext_, &streamContext_);
+          workerManager.template processOneOccurrenceAsync<T::transitionEdge_>(
+              h, info, token, streamID_, &streamContext_, &streamContext_);
         });
 
     if (streamID_.value() == 0) {

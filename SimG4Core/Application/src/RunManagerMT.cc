@@ -12,12 +12,12 @@
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "SimG4Core/CustomPhysics/interface/CMSExoticaPhysics.h"
+#include "SimG4Core/CustomPhysics/interface/CMSQuirkPhysics.h"
 
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
-#include "SimG4Core/Notification/interface/CurrentG4Track.h"
 #include "SimG4Core/Geometry/interface/CMSG4CheckOverlap.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -66,6 +66,9 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
       m_StorePhysicsTables(p.getUntrackedParameter<bool>("StorePhysicsTables", false)),
       m_RestorePhysicsTables(p.getUntrackedParameter<bool>("RestorePhysicsTables", false)),
       m_check(p.getUntrackedParameter<bool>("CheckGeometry")),
+      m_quirkTracking(p.getParameter<bool>("QuirkTracking") &&
+                      p.getParameter<edm::ParameterSet>("StackingAction").getParameter<bool>("QuirkTracking") &&
+                      p.getParameter<edm::ParameterSet>("TrackingAction").getParameter<bool>("QuirkTracking")),
       m_addRegions(p.getUntrackedParameter<bool>("AddRegions")),
       m_geoFromDD4hep(p.getParameter<bool>("g4GeometryDD4hepSource")),
       m_score(p.getParameter<bool>("UseCommandBaseScorer")),
@@ -92,6 +95,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
   G4UImanager::GetUIpointer()->SetMasterUIManager(true);
   G4PhysListUtil::InitialiseParameters();
   G4LossTableManager::Instance();
+  G4GeometryManager::GetInstance()->RequestParallelOptimisation(false, false);
 }
 
 RunManagerMT::~RunManagerMT() { delete m_UIsession; }
@@ -134,9 +138,9 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMT: " << numPV << " physical volumes; " << numLV << " logical volumes; " << nn << " regions.";
 
-#if G4VERSION_NUMBER >= 1130
-  G4GeometryManager::GetInstance()->RequestParallelOptimisation(false, false);
-#endif
+  for (auto& elm : *G4Element::GetElementTable()) {
+    elm->SetNaturalAbundanceFlag(true);
+  }
 
   if (m_check) {
     m_kernel->SetVerboseLevel(2);
@@ -175,6 +179,14 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   bool exotica = m_pPhysics.getUntrackedParameter<bool>("ExoticaTransport", false);
   if (exotica) {
     CMSExoticaPhysics exo(phys, m_pPhysics);
+  }
+  double quirkMass = m_pPhysics.getParameter<double>("QuirkMass");
+  if (quirkMass > 0.0) {
+    if (!m_quirkTracking) {
+      throw cms::Exception("Configuration")
+          << "RunManagerMT: QuirkMass > 0 needs QuirkTracking = True in g4SimHits, StackingAction and TrackingAction";
+    }
+    phys->RegisterPhysics(new CMSQuirkPhysics(m_pPhysics));
   }
 
   // adding GFlash, Russian Roulette for eletrons and gamma,

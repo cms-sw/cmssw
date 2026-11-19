@@ -12,7 +12,10 @@
 
 /**
    @class HGCalSiNoiseMap
-   @short derives from HGCalRadiation map to parse fluence parameters, provides Si-specific functions; see DN-19-045
+   @short derives from HGCalRadiation map to parse fluence parameters, provides Si-specific functions
+   As the class is expected to provide a fixed benchmark, the values are hardcoded following the two references below
+   [1] https://cms-alcm.web.cern.ch/notes/CMS-DN-2024-006/DN2019_045_v1.pdf
+   [2] https://cms-alcm.web.cern.ch/notes/CMS-DN-2024-006/DN2024_006_v1.pdf
 */
 template <typename T>
 class HGCalSiNoiseMap : public HGCalRadiationMap {
@@ -27,9 +30,21 @@ public:
   };
 
   struct SiCellOpCharacteristics {
-    SiCellOpCharacteristics() : lnfluence(0.), fluence(0.), ileak(0.), enc_s(0.), enc_p(0.), mipfC(0), mipADC(0) {}
+    SiCellOpCharacteristics()
+        : lnfluence(0.),
+          fluence(0.),
+          lndose(0.),
+          ileak(0.),
+          enc_s(0.),
+          enc_p(0.),
+          mipfC(0),
+          adc_lsb(0),
+          tot_lsb(0),
+          toa_thr(0),
+          tot_thr(0),
+          mipADC(0) {}
     SiCellOpCharacteristicsCore core;
-    double lnfluence, fluence, ileak, enc_s, enc_p, mipfC;
+    double lnfluence, fluence, lndose, ileak, enc_s, enc_p, mipfC, adc_lsb, tot_lsb, toa_thr, tot_thr;
     unsigned int mipADC;
   };
 
@@ -47,9 +62,10 @@ public:
   void setCceParam(const std::vector<double> &parsFine,
                    const std::vector<double> &parsThin,
                    const std::vector<double> &parsThick) {
-    cceParam_.push_back(parsFine);   //120
-    cceParam_.push_back(parsThin);   //200
-    cceParam_.push_back(parsThick);  //300
+    cceParam_.push_back(parsFine);   //HD 120
+    cceParam_.push_back(parsThin);   //LD 200
+    cceParam_.push_back(parsThick);  //LD 300
+    cceParam_.push_back(parsThin);   //HD 200
   }
 
   /**
@@ -75,7 +91,8 @@ public:
 
   SiCellOpCharacteristics getSiCellOpCharacteristics(const T &did,
                                                      GainRange_t gain = GainRange_t::AUTO,
-                                                     int aimMIPtoADC = 10);
+                                                     int aimMIPtoADC = 10,
+                                                     int chType = 1);
   SiCellOpCharacteristics getSiCellOpCharacteristics(double &cellCap,
                                                      double &cellVol,
                                                      double &mipEqfC,
@@ -86,9 +103,9 @@ public:
                                                      GainRange_t &gain,
                                                      int &aimMIPtoADC);
 
-  std::array<double, 3> &getMipEqfC() { return mipEqfC_; }
-  std::array<double, 3> &getCellCapacitance() { return cellCapacitance_; }
-  std::array<double, 3> &getCellVolume() { return cellVolume_; }
+  std::array<double, 4> &getMipEqfC() { return mipEqfC_; }
+  std::array<double, 4> &getCellCapacitance() { return cellCapacitance_; }
+  std::array<double, 4> &getCellVolume() { return cellVolume_; }
   std::vector<std::vector<double> > &getCCEParam() { return cceParam_; }
   std::vector<double> &getIleakParam() { return ileakParam_; }
   std::vector<std::vector<double> > &getENCsParam() { return encsParam_; }
@@ -113,8 +130,10 @@ private:
   //cache of SiCellOpCharacteristics
   std::map<uint32_t, SiCellOpCharacteristicsCore> siopCache_;
 
-  //vector of three params, per sensor type: 0:120 [mum], 1:200, 2:300
-  std::array<double, 3> mipEqfC_, cellCapacitance_, cellVolume_;
+  //vector of params, per sensor type: see types in
+  //https://github.com/cms-sw/cmssw/blob/master/DataFormats/ForwardDetId/interface/HGCSiliconDetId.h#L29
+  //areas https://cms-docdb.cern.ch/cgi-bin/DocDB/RetrieveFile?docid=14831&filename=CellAreaSummary.pdf&version=2
+  std::array<double, 4> mipEqfC_, cellCapacitance_, cellVolume_, cellRefArea_, calibCellRefArea_;
   std::vector<std::vector<double> > cceParam_;
 
   //leakage current/volume vs fluence
@@ -131,7 +150,7 @@ private:
   hgc_digi::FEADCPulseShape defaultADCPulse_;
   std::vector<hgc_digi::FEADCPulseShape> adcPulses_;
 
-  //lsb
+  //lsb, full scale charge
   std::vector<double> lsbPerGain_, chargeAtFullScaleADCPerGain_;
 
   //conversions

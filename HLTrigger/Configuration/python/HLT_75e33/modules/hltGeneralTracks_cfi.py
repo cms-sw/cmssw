@@ -21,7 +21,7 @@ hltGeneralTracks = cms.EDProducer("TrackListMerger",
         pQual = cms.bool(True),
         tLists = cms.vint32(0)
     )),
-    trackAlgoPriorityOrder = cms.string('trackAlgoPriorityOrder'),
+    trackAlgoPriorityOrder = cms.string('hltGeneralTracksTrackAlgoPriorityOrder'),
     writeOnlyTrkQuals = cms.bool(False)
 )
 

@@ -4,7 +4,9 @@
 #include <ap_int.h>
 #include <vector>
 
+#ifdef CMSSW_GIT_HASH
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloPFCluster.h"
+#endif
 
 namespace l1tp2 {
 
@@ -16,57 +18,52 @@ namespace l1tp2 {
     // Constants
     static constexpr float LSB_PT = 0.5;  // 0.5 GeV
 
-    // start of the unused bits
-    static constexpr int n_bits_unused_start = 31;
-
+#ifdef CMSSW_GIT_HASH
     // reference to corresponding float cluster
     edm::Ref<l1tp2::CaloPFClusterCollection> clusterRef_;
+#endif
 
   public:
-    GCTHadDigiCluster() { clusterData = 0; }
+    GCTHadDigiCluster() { clusterData = 0x0; }
 
     GCTHadDigiCluster(ap_uint<64> data) { clusterData = data; }
 
-    // Note types of the constructor
-    GCTHadDigiCluster(ap_uint<12> pt, int etaCr, int phiCr, ap_uint<4> hoe) {
-      // To use .range() we need an ap class member
-      ap_uint<64> temp_data;
-
-      ap_uint<7> etaCrDigitized = abs(etaCr);
-      ap_int<7> phiCrDigitized = phiCr;
-
-      temp_data.range(11, 0) = pt.range();
-      temp_data.range(18, 12) = etaCrDigitized.range();
-      temp_data.range(25, 19) = phiCrDigitized.range();
-
-      clusterData = temp_data;
+    GCTHadDigiCluster(
+        ap_uint<12> pt, ap_uint<7> eta, ap_int<7> phi, ap_uint<12> ecal, ap_uint<6> fb, ap_uint<20> spare) {
+      clusterData = ((ap_uint<64>)pt) | (((ap_uint<64>)eta) << 12) | (((ap_uint<64>)(phi & 0x7F)) << 19) |
+                    (((ap_uint<64>)ecal) << 26) | (((ap_uint<64>)fb) << 38) | (((ap_uint<64>)spare << 44));
     }
 
+#ifdef CMSSW_GIT_HASH
     // Setters
-    void setRef(const edm::Ref<l1tp2::CaloPFClusterCollection> &clusterRef) { clusterRef_ = clusterRef; }
+    void setRef(const edm::Ref<l1tp2::CaloPFClusterCollection>& clusterRef) { clusterRef_ = clusterRef; }
+#endif
+
     // Getters
     ap_uint<64> data() const { return clusterData; }
 
     // Other getters
     float ptLSB() const { return LSB_PT; }
-    ap_uint<12> pt() const { return data().range(11, 0); }
+    ap_uint<12> pt() const { return (clusterData & 0xFFF); }
     float ptFloat() const { return pt() * ptLSB(); }
 
     // crystal eta (unsigned 7 bits)
-    int eta() const { return (ap_uint<7>)data().range(18, 12); }
+    ap_uint<7> eta() const { return ((clusterData >> 12) & 0x7F); }
 
     // crystal phi (signed 7 bits)
-    int phi() const { return (ap_int<7>)data().range(25, 19); }
+    ap_int<7> phi() const { return ((clusterData >> 19) & 0x7F); }
 
-    // HoE value
-    ap_uint<4> hoe() const { return data().range(30, 26); }
+    ap_uint<12> ecal() const { return ((clusterData >> 26) & 0xFFF); }
 
-    // Check that unused bits are zero
-    const int unusedBitsStart() const { return n_bits_unused_start; }
-    bool passNullBitsCheck(void) const { return ((data() >> unusedBitsStart()) == 0); }
+    ap_uint<6> fb() const { return ((clusterData >> 38) & 0x3F); }
 
+    // Encoding region information
+    ap_uint<20> spare() const { return ((clusterData >> 44) & 0xFFFFF); }
+
+#ifdef CMSSW_GIT_HASH
     // Get the underlying ref
-    edm::Ref<l1tp2::CaloPFClusterCollection> clusterRef() const { return clusterRef_; }
+    const edm::Ref<l1tp2::CaloPFClusterCollection>& clusterRef() const { return clusterRef_; }
+#endif
   };
 
   // Collection typedefs

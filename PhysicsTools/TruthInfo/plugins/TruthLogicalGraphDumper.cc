@@ -1,8 +1,7 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-// Part of the MC-truth-graph prototype - under heavy development, not yet open
-// to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <fstream>
 #include <iomanip>
@@ -27,9 +26,48 @@
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
 #include "PhysicsTools/TruthInfo/interface/SubgraphHitView.h"
+#include "PhysicsTools/TruthInfo/interface/TruthLevels.h"
 #include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 
 namespace {
+
+  // The selection post-processing owns LevelFlag::Signal, so it is not a row of the level
+  // table and the loops over kAllLevels below do not reach it. It is drawn like a level
+  // because a reader looks for it like one.
+  constexpr char const* kSignalName = truth::kSignalLevelName;
+  constexpr char const* kSignalColor = "#ffc4d6";
+
+  // One colour per level, shared by the node labels and the legend so the two cannot
+  // drift. Pale on purpose: these are backgrounds behind black text.
+  std::string levelColor(truth::Level level) {
+    switch (level) {
+      case truth::Level::StableLegsFromInitialState:
+        return "#cfe8ff";
+      case truth::Level::HardProcess:
+        return "#ffd6a5";
+      case truth::Level::StableDecayProducts:
+        return "#d7f9d7";
+      case truth::Level::CaloBoundary:
+        return "#ffc9c9";
+      case truth::Level::ReconstructableFromSignal:
+        return "#e8d5ff";
+      case truth::Level::UnderlyingEvent:
+        return "#e8e8e8";
+      case truth::Level::PartonJets:
+        return "#ffe9a8";
+      case truth::Level::BHadrons:
+        return "#c9e4d6";
+      case truth::Level::CHadrons:
+        return "#f2d5e0";
+      case truth::Level::ReconstructableFinalState:
+        return "#d5f0f2";
+      case truth::Level::TauVisibleHadronic:
+        return "#f9e9c9";
+      case truth::Level::TauVisibleLeptonic:
+        return "#e9d8c9";
+    }
+    return "#ffffff";
+  }
 
   std::string pdgNameUtf8(int pdgId) {
     const int ap = std::abs(pdgId);
@@ -164,7 +202,7 @@ namespace {
   }
 
   const char* logicalVertexDomain(truth::VertexData const& d) {
-    // Artificial source vertices (Interaction / Upstream-ISR / UnderlyingEvent)
+    // Artificial source vertices (Interaction / InitialState / UnderlyingEvent)
     // have no GEN or SIM back-reference by construction; they are graph-internal
     // bookkeeping nodes, so they get their own "Internal" domain rather than
     // looking like an unclassified real vertex.
@@ -258,79 +296,82 @@ namespace {
     return summary;
   }
 
-  template <typename F>
-  void forEachDescendantParticle(truth::Graph const& g, uint32_t particleId, F&& f) {
-    if (particleId >= g.nParticles())
-      return;
+  // The same graph as the dot file, for a script that has to read numbers rather than a
+  // picture: one JSON object per event, with the momenta and positions at full precision.
+  // Full precision, and null where JSON has no number: it knows no NaN and no infinity.
+  std::string number(double value) {
+    if (!std::isfinite(value)) {
+      return "null";
+    }
+    std::ostringstream out;
+    out << std::setprecision(17) << value;
+    return out.str();
+  }
 
-    // Iterative DFS with a visited set: cycle-safe (a stray cycle would otherwise
-    // overflow the stack) and visits each descendant exactly once (no exponential
-    // blow-up on re-convergent / diamond topologies). f is invoked once per
-    // distinct descendant, never on the start particle itself.
-    std::vector<uint8_t> visited(g.nParticles(), 0);
-    std::vector<uint32_t> stack;
-    visited[particleId] = 1;
-    stack.push_back(particleId);
-
-    while (!stack.empty()) {
-      const uint32_t current = stack.back();
-      stack.pop_back();
-
-      for (const uint32_t vertexId : g.decayVertices(current)) {
-        if (vertexId >= g.nVertices())
-          continue;
-
-        for (const uint32_t childId : g.outgoingParticles(vertexId)) {
-          if (childId >= g.nParticles() || visited[childId])
-            continue;
-          visited[childId] = 1;
-          f(childId);
-          stack.push_back(childId);
-        }
+  void writeJson(std::string const& path,
+                 edm::EventID const& id,
+                 truth::Graph const& graph,
+                 truth::SubgraphHitView* hitIndex) {
+    std::ofstream os(path);
+    os << "{\n";
+    os << "  \"run\": " << id.run() << ", \"lumi\": " << id.luminosityBlock() << ", \"event\": " << id.event() << ",\n";
+    auto list = [&os](char const* key, std::vector<int32_t> const& values) {
+      os << "  \"" << key << "\": [";
+      for (std::size_t i = 0; i < values.size(); ++i) {
+        os << (i == 0 ? "" : ", ") << values[i];
       }
+      os << "],\n";
+    };
+    // What the level rules read from the graph itself, so a reader recomputes a level.
+    list("signalSeedPdgIds", graph.signalSeedPdgIds());
+    list("seedHadronFlavors", graph.seedHadronFlavors());
+    list("reconstructablePdgIds", graph.reconstructablePdgIds());
+    os << "  \"particles\": [\n";
+    for (uint32_t i = 0; i < graph.nParticles(); ++i) {
+      auto const& d = graph.particles()[i];
+      os << "    {\"id\": " << i << ", \"pdgId\": " << d.pdgId << ", \"status\": " << d.status
+         << ", \"statusFlags\": " << d.statusFlags << ", \"hasGen\": " << (d.hasGen() ? "true" : "false")
+         << ", \"hasSim\": " << (d.hasSim() ? "true" : "false") << ", \"role\": \""
+         << truth::particleRoleName(d.particleRole()) << "\", \"eventId\": " << d.eventId
+         << ", \"bunchCrossing\": " << d.bunchCrossing() << ", \"eventIndex\": " << d.eventIndex()
+         << ", \"genEvent\": " << d.genEvent << ", \"p4\": [" << number(d.momentum.px()) << ", "
+         << number(d.momentum.py()) << ", " << number(d.momentum.pz()) << ", " << number(d.momentum.e())
+         << "], \"levels\": [";
+      bool firstLevel = true;
+      for (char const* name : truth::levelNamesOf(d)) {
+        os << (firstLevel ? "" : ", ") << "\"" << name << "\"";
+        firstLevel = false;
+      }
+      os << "]";
+      if (hitIndex != nullptr && i < hitIndex->nParticles()) {
+        os << ", \"caloHits\": " << hitIndex->subgraphHits(truth::HitChannel::Calo, i).size()
+           << ", \"trackerHits\": " << hitIndex->subgraphHits(truth::HitChannel::Tracker, i).size();
+      }
+      os << "}" << (i + 1 == graph.nParticles() ? "" : ",") << "\n";
     }
-  }
-
-  bool hasVisibleIncomingParticle(truth::Graph const& g, uint32_t vertexId, std::vector<uint8_t> const& hideParticle) {
-    for (const uint32_t p : g.incomingParticles(vertexId)) {
-      if (p < hideParticle.size() && !hideParticle[p])
-        return true;
+    os << "  ],\n  \"vertices\": [\n";
+    for (uint32_t i = 0; i < graph.nVertices(); ++i) {
+      auto const& d = graph.vertices()[i];
+      os << "    {\"id\": " << i << ", \"role\": \"" << truth::vertexRoleName(d.vertexRole()) << "\", \"reason\": \""
+         << truth::vertexReasonName(d.vertexReason()) << "\", \"hasGen\": " << (d.hasGen() ? "true" : "false")
+         << ", \"hasSim\": " << (d.hasSim() ? "true" : "false") << ", \"eventId\": " << d.eventId
+         << ", \"bunchCrossing\": " << d.bunchCrossing() << ", \"eventIndex\": " << d.eventIndex() << ", \"x4\": ["
+         << number(d.position.x()) << ", " << number(d.position.y()) << ", " << number(d.position.z()) << ", "
+         << number(d.position.t()) << "], \"in\": [";
+      bool first = true;
+      for (const uint32_t in : graph.incomingParticles(i)) {
+        os << (first ? "" : ", ") << in;
+        first = false;
+      }
+      os << "], \"out\": [";
+      first = true;
+      for (const uint32_t out : graph.outgoingParticles(i)) {
+        os << (first ? "" : ", ") << out;
+        first = false;
+      }
+      os << "]}" << (i + 1 == graph.nVertices() ? "" : ",") << "\n";
     }
-
-    return false;
-  }
-
-  bool hasVisibleOutgoingParticle(truth::Graph const& g, uint32_t vertexId, std::vector<uint8_t> const& hideParticle) {
-    for (const uint32_t p : g.outgoingParticles(vertexId)) {
-      if (p < hideParticle.size() && !hideParticle[p])
-        return true;
-    }
-
-    return false;
-  }
-
-  bool shouldHideVertexAfterParticleFiltering(truth::Graph const& g,
-                                              uint32_t vertexId,
-                                              std::vector<uint8_t> const& hideParticle) {
-    const bool hasIncoming = !g.incomingParticles(vertexId).empty();
-    const bool hasOutgoing = !g.outgoingParticles(vertexId).empty();
-
-    const bool hasVisibleIncoming = hasVisibleIncomingParticle(g, vertexId, hideParticle);
-    const bool hasVisibleOutgoing = hasVisibleOutgoingParticle(g, vertexId, hideParticle);
-
-    // Hide vertices fully disconnected by the particle filter.
-    if (!hasVisibleIncoming && !hasVisibleOutgoing)
-      return true;
-
-    // Hide decay vertices that no longer have visible daughters.
-    if (hasOutgoing && !hasVisibleOutgoing)
-      return true;
-
-    // Hide production/source vertices that no longer have visible outgoing particles.
-    if (!hasIncoming && hasOutgoing && !hasVisibleOutgoing)
-      return true;
-
-    return false;
+    os << "  ]\n}\n";
   }
 
   std::string appendEventIdToFilename(std::string const& filename, edm::EventID const& id) {
@@ -366,14 +407,10 @@ public:
         hitIndexToken_(mayConsume<truth::LogicalGraphHitIndex>(hitIndexTag_)),
         useHitIndex_(!hitIndexTag_.label().empty()),
         dotFile_(cfg.getParameter<std::string>("dotFile")),
+        jsonFile_(cfg.getParameter<std::string>("jsonFile")),
         layout_(cfg.getParameter<std::string>("layout")),
-        maxParticles_(cfg.getParameter<unsigned>("maxParticles")),
-        maxVertices_(cfg.getParameter<unsigned>("maxVertices")),
-        maxEdgesPerNode_(cfg.getParameter<unsigned>("maxEdgesPerNode")),
-        hideLargeSimSourceVertices_(cfg.getParameter<bool>("hideLargeSimSourceVertices")),
-        dumpSimHits_(cfg.getParameter<bool>("dumpSimHits")),
-        largeSimSourceVertexMinOutgoing_(cfg.getParameter<unsigned>("largeSimSourceVertexMinOutgoing")),
-        hideZeroSimHitSubgraphs_(cfg.getParameter<bool>("hideZeroSimHitSubgraphs")) {
+
+        dumpSimHits_(cfg.getParameter<bool>("dumpSimHits")) {
     const auto hgcalRecHitTags = cfg.getParameter<std::vector<edm::InputTag>>("hgcalRecHits");
     hgcalRecHitTags_.reserve(hgcalRecHitTags.size());
     hgcalRecHitTokens_.reserve(hgcalRecHitTags.size());
@@ -414,33 +451,22 @@ public:
         ->setComment("HGCRecHit collections, in the same order used by DetIdToRecHitMapProducer");
 
     desc.add<std::vector<edm::InputTag>>("pfRecHits",
-                                         {edm::InputTag("particleFlowRecHitECAL", "Cleaned"),
-                                          edm::InputTag("particleFlowRecHitHBHE", "Cleaned"),
-                                          edm::InputTag("particleFlowRecHitHF", "Cleaned"),
-                                          edm::InputTag("particleFlowRecHitHO", "Cleaned")})
+                                         {edm::InputTag("particleFlowRecHitECAL"),
+                                          edm::InputTag("particleFlowRecHitHBHE"),
+                                          edm::InputTag("particleFlowRecHitHF"),
+                                          edm::InputTag("particleFlowRecHitHO")})
         ->setComment("PFRecHit collections, in the same order used by DetIdToRecHitMapProducer");
 
     desc.add<std::string>("dotFile", "truthlogicalgraph.dot");
+    desc.add<std::string>("jsonFile", "")
+        ->setComment(
+            "Write the same graph as JSON next to the dot file, for a script that reads numbers. Off when empty.");
     desc.add<std::string>("layout", "dot")
         ->setComment(
             "DOT layout: 'dot' (default, hierarchical left-to-right ranks) or a force-directed engine "
             "name ('sfdp'/'fdp'/'neato') for node repulsion + spring edges toward parents (no forced ranks)");
 
-    desc.add<unsigned>("maxParticles", 5000)->setComment("Truncate logical particle nodes");
-    desc.add<unsigned>("maxVertices", 5000)->setComment("Truncate logical vertex nodes");
-    desc.add<unsigned>("maxEdgesPerNode", 200)->setComment("Truncate fanout per node");
-
-    desc.add<bool>("hideLargeSimSourceVertices", true)
-        ->setComment("If true, do not print large SIM-only source vertices in the DOT output");
     desc.add<bool>("dumpSimHits", false)->setComment("If true, dump all simhits");
-
-    desc.add<unsigned>("largeSimSourceVertexMinOutgoing", 50)
-        ->setComment("Minimum outgoing multiplicity for hiding a SIM-only source vertex");
-
-    desc.add<bool>("hideZeroSimHitSubgraphs", false)
-        ->setComment(
-            "If true, hide every SIM-backed particle whose subgraph has zero SimHits, together with its descendant "
-            "subgraph. Requires hitIndex to be configured.");
 
     descriptions.addWithDefaultLabel(desc);
   }
@@ -464,6 +490,9 @@ public:
     const std::vector<float> recHitEnergies = collectRecHitEnergies(evt);
 
     const std::string eventDotFile = appendEventIdToFilename(dotFile_, evt.id());
+    if (!jsonFile_.empty()) {
+      writeJson(appendEventIdToFilename(jsonFile_, evt.id()), evt.id(), g, hitIndex);
+    }
 
     std::ofstream os(eventDotFile);
 
@@ -482,115 +511,132 @@ public:
     }
     os << "  node [fontsize=10];\n";
 
-    const uint32_t nParticles = std::min<uint32_t>(g.nParticles(), maxParticles_);
-    const uint32_t nVertices = std::min<uint32_t>(g.nVertices(), maxVertices_);
-
-    std::vector<uint8_t> hideVertex(nVertices, 0);
-
-    if (hideLargeSimSourceVertices_) {
-      for (uint32_t i = 0; i < nVertices; ++i) {
-        auto v = g.vertex(i);
-        auto const& d = v.data();
-
-        const auto incoming = v.incomingParticles();
-        const auto outgoing = v.outgoingParticles();
-
-        if (!d.hasGen() && d.hasSim() && incoming.empty() && outgoing.size() >= largeSimSourceVertexMinOutgoing_) {
-          hideVertex[i] = 1;
-        }
-      }
-    }
-
-    std::vector<uint8_t> hideParticle(nParticles, 0);
-
-    if (hideZeroSimHitSubgraphs_) {
-      if (hitIndex == nullptr) {
-        edm::LogWarning("TruthLogicalGraphDumper")
-            << "hideZeroSimHitSubgraphs is enabled, but no valid LogicalGraphHitIndex was provided. "
-            << "No zero-hit subgraphs will be hidden.";
-      } else {
-        for (uint32_t i = 0; i < nParticles; ++i) {
-          if (!g.particle(i).data().hasSim())
-            continue;
-
-          if (i >= hitIndex->nParticles())
-            continue;
-
-          // "Hitless" means no detectable hit in ANY channel: a particle that
-          // deposits only in the tracker / MTD / muon system (but never reaches
-          // HGCal) must not be treated as hitless and hidden.
-          bool hasAnySubgraphHit = false;
-          for (std::size_t ch = 0; ch < truth::kNumHitChannels; ++ch) {
-            if (!hitIndex->subgraphHits(static_cast<truth::HitChannel>(ch), i).empty()) {
-              hasAnySubgraphHit = true;
-              break;
-            }
-          }
-          if (hasAnySubgraphHit)
-            continue;
-
-          hideParticle[i] = 1;
-
-          forEachDescendantParticle(g, i, [&](uint32_t childId) {
-            if (childId < hideParticle.size())
-              hideParticle[childId] = 1;
-          });
-        }
-      }
-    }
-
-    for (uint32_t i = 0; i < nVertices; ++i) {
-      if (hideVertex[i])
-        continue;
-
-      if (shouldHideVertexAfterParticleFiltering(g, i, hideParticle)) {
-        hideVertex[i] = 1;
-      }
-    }
-
-    // Suppress particles that would render with no edge at all (floating "Particle
-    // N" boxes): the leaf tail of a vertex whose outgoing edges are truncated past
-    // maxEdgesPerNode_, or particles whose only incident vertices are hidden. They
-    // are not graph orphans (their production vertex exists) - the crowded DOT view
-    // just cannot draw the edge. Mirror the emission loops' per-node cap so the same
-    // edges are considered drawn. (No-op in --showAll: maxEdgesPerNode_ is huge.)
-    {
-      std::vector<uint8_t> hasVisibleEdge(nParticles, 0);
-      for (uint32_t v = 0; v < nVertices; ++v) {
-        if (hideVertex[v])
-          continue;
-        unsigned kept = 0;
-        for (uint32_t p : g.outgoingParticles(v)) {
-          if (p >= nParticles || hideParticle[p])
-            continue;
-          hasVisibleEdge[p] = 1;  // a production edge v -> p will be drawn
-          if (++kept >= maxEdgesPerNode_)
-            break;
-        }
-      }
-      for (uint32_t i = 0; i < nParticles; ++i) {
-        if (hideParticle[i] || hasVisibleEdge[i])
-          continue;
-        for (uint32_t v : g.decayVertices(i)) {  // any visible decay vertex gives a drawn p -> v edge
-          if (v < nVertices && !hideVertex[v]) {
-            hasVisibleEdge[i] = 1;
-            break;
-          }
-        }
-      }
-      for (uint32_t i = 0; i < nParticles; ++i) {
-        if (!hideParticle[i] && !hasVisibleEdge[i])
-          hideParticle[i] = 1;
-      }
-    }
+    const uint32_t nParticles = g.nParticles();
+    const uint32_t nVertices = g.nVertices();
 
     // ------------------------------------------------------------------
     // Particle nodes
     // ------------------------------------------------------------------
-    for (uint32_t i = 0; i < nParticles; ++i) {
-      if (hideParticle[i])
-        continue;
 
+    // AUDIT the persisted flags against a fresh computation on the very graph being
+    // dumped. A stored flag is only trustworthy if it still agrees with the definition
+    // that produced it, and a file written before a level definition changed is
+    // indistinguishable from a fresh one by inspection. Logged, never thrown: a stale
+    // file should still be readable and should say loudly that it is stale.
+    {
+      std::size_t disagreements = 0;
+      std::ostringstream perLevel;
+      for (const truth::Level level : truth::kAllLevels) {
+        const std::vector<uint32_t> antichain = truth::levelAntichain(g, level);
+        std::vector<bool> expected(g.nParticles(), false);
+        for (const uint32_t id : antichain) {
+          if (id < g.nParticles()) {
+            expected[id] = true;
+          }
+        }
+        const truth::LevelFlag flag = truth::levelFlagOf(level);
+        std::size_t stored = 0, bad = 0;
+        for (uint32_t id = 0; id < g.nParticles(); ++id) {
+          const bool has = g.particles()[id].isAtLevel(flag);
+          stored += has ? 1 : 0;
+          bad += (has != expected[id]) ? 1 : 0;
+        }
+        disagreements += bad;
+        perLevel << "  " << truth::levelName(level) << " stored=" << stored << " recomputed=" << antichain.size()
+                 << " disagree=" << bad << "\n";
+      }
+      // With seed species, Signal is checked against the RECORDED seeds: every flagged
+      // particle must either match a seed or be the synthetic stand-in, and no flagged
+      // particle may have a seed-matching ancestor, which is what "most upstream match"
+      // means. With none, Signal is the shot particles of a gun, recomputed from the graph.
+      std::size_t signalFlagged = 0, signalBad = 0, syntheticSignal = 0;
+      auto const& seeds = g.signalSeedPdgIds();
+      auto const& flavors = g.seedHadronFlavors();
+      const bool resonanceSeeds = truth::seedsNameAResonance(seeds, flavors);
+      std::vector<uint8_t> gunSignal(g.nParticles(), 0);
+      if (!resonanceSeeds) {
+        for (const uint32_t id : truth::gunSignalRoots(g)) {
+          gunSignal[id] = 1;
+        }
+      }
+      // A particle is a legitimate seed either by pdg id or by heavy-flavour hadron
+      // content, matching the two ways a selection preset can name its signal.
+      auto isSeed = [&](int32_t pdgId) {
+        if (std::find(seeds.begin(), seeds.end(), pdgId) != seeds.end()) {
+          return true;
+        }
+        for (const int32_t flavor : flavors) {
+          if (truth::hadronHasQuark(pdgId, flavor)) {
+            return true;
+          }
+        }
+        return false;
+      };
+      // A particle has a seed-matching ancestor exactly when it is a descendant of one,
+      // so one multi-source walk answers it for the whole graph. A scan per flagged
+      // particle would allocate and traverse the graph once each.
+      std::vector<uint8_t> belowSeed(g.nParticles(), 0);
+      std::vector<uint32_t> seedStack;
+      for (uint32_t id = 0; id < g.nParticles(); ++id) {
+        if (isSeed(g.particles()[id].pdgId)) {
+          seedStack.push_back(id);
+        }
+      }
+      while (!seedStack.empty()) {
+        const uint32_t id = seedStack.back();
+        seedStack.pop_back();
+        for (const uint32_t vertexId : g.decayVertices(id)) {
+          if (vertexId >= g.nVertices()) {
+            continue;
+          }
+          for (const uint32_t child : g.outgoingParticles(vertexId)) {
+            if (child != id && child < g.nParticles() && belowSeed[child] == 0) {
+              belowSeed[child] = 1;
+              seedStack.push_back(child);
+            }
+          }
+        }
+      }
+
+      for (uint32_t id = 0; id < g.nParticles(); ++id) {
+        auto const& d = g.particles()[id];
+        const bool flagged = d.isAtLevel(truth::LevelFlag::Signal);
+        if (!resonanceSeeds) {
+          signalFlagged += flagged ? 1 : 0;
+          signalBad += (flagged != (gunSignal[id] != 0)) ? 1 : 0;
+          continue;
+        }
+        if (!flagged) {
+          continue;
+        }
+        ++signalFlagged;
+        const bool synthetic = d.particleRole() == truth::ParticleRole::SignalStandIn;
+        if (synthetic) {
+          ++syntheticSignal;
+          continue;
+        }
+        const bool matchesSeed = isSeed(d.pdgId);
+        if (!matchesSeed || belowSeed[id] != 0) {
+          ++signalBad;
+        }
+      }
+      perLevel << "  signal stored=" << signalFlagged << " synthetic=" << syntheticSignal << " disagree=" << signalBad
+               << " recordedSeeds=" << seeds.size() << " recordedFlavors=" << flavors.size() << "\n";
+      disagreements += signalBad;
+
+      if (disagreements == 0) {
+        edm::LogVerbatim("TruthLogicalGraphDumper") << "levelFlags audit OK, " << g.nParticles() << " particles\n"
+                                                    << perLevel.str();
+      } else {
+        edm::LogWarning("TruthLogicalGraphDumper")
+            << "levelFlags DISAGREE with a fresh computation on " << disagreements
+            << " particle/level pairs. This graph was probably written before a level definition "
+               "changed; re-produce it rather than trusting the flags.\n"
+            << perLevel.str();
+      }
+    }
+
+    for (uint32_t i = 0; i < nParticles; ++i) {
       auto p = g.particle(i);
       auto const& d = p.data();
 
@@ -604,30 +650,33 @@ public:
       const HitSummary directSummary = hasHitInfo ? summarizeHits(directHits, recHitEnergies) : HitSummary();
       const HitSummary subgraphSummary = hasHitInfo ? summarizeHits(subgraphHits, recHitEnergies) : HitSummary();
 
-      // Tracker simhits (separate channel, no recHit association). Reusing
-      // summarizeHits is fine: tracker hits have an invalid recHitIndex, so only
-      // nSimHits and simHitEnergy (energy loss) carry meaning.
+      // Only the Calo channel holds rechit indices. The other channels hold cells or
+      // cluster indices, so they are summarised without the rechit table and only
+      // nSimHits and simHitEnergy carry meaning.
+      const std::vector<float> noRecHitEnergies;
       const bool hasTrackerInfo = hasHitInfo && hitIndex->hasChannel(truth::HitChannel::Tracker);
       const auto trackerDirectHits = hasTrackerInfo ? hitIndex->directHits(truth::HitChannel::Tracker, i)
                                                     : std::span<const truth::LogicalGraphHitIndex::Hit>();
       const auto trackerSubgraphHits = hasTrackerInfo ? hitIndex->subgraphHits(truth::HitChannel::Tracker, i)
                                                       : std::span<const truth::LogicalGraphHitIndex::Hit>();
       const HitSummary trackerDirectSummary =
-          hasTrackerInfo ? summarizeHits(trackerDirectHits, recHitEnergies) : HitSummary();
+          hasTrackerInfo ? summarizeHits(trackerDirectHits, noRecHitEnergies) : HitSummary();
       const HitSummary trackerSubgraphSummary =
-          hasTrackerInfo ? summarizeHits(trackerSubgraphHits, recHitEnergies) : HitSummary();
+          hasTrackerInfo ? summarizeHits(trackerSubgraphHits, noRecHitEnergies) : HitSummary();
 
       // MTD (BTL/ETL) simhits from the MtdSimLayerCluster channel.
       const bool hasMtdInfo = hasHitInfo && hitIndex->hasChannel(truth::HitChannel::MTD);
+      const bool mtdCellKeyed = hasMtdInfo && hitIndex->isCellKeyed(truth::HitChannel::MTD);
       const HitSummary mtdDirectSummary =
-          hasMtdInfo ? summarizeHits(hitIndex->directHits(truth::HitChannel::MTD, i), recHitEnergies) : HitSummary();
+          hasMtdInfo ? summarizeHits(hitIndex->directHits(truth::HitChannel::MTD, i), noRecHitEnergies) : HitSummary();
       const HitSummary mtdSubgraphSummary =
-          hasMtdInfo ? summarizeHits(hitIndex->subgraphHits(truth::HitChannel::MTD, i), recHitEnergies) : HitSummary();
+          hasMtdInfo ? summarizeHits(hitIndex->subgraphHits(truth::HitChannel::MTD, i), noRecHitEnergies)
+                     : HitSummary();
 
-      // MTD recHitIndex points into the FTLCluster ordering (channel-relative, not
-      // the HGCal recHit ordering), so count the FTLCluster-linked hits directly.
+      // An MTD channel that is not cell keyed holds an FTLCluster index in recHitIndex;
+      // count the hits that carry one.
       uint32_t mtdSubgraphRecHitLinked = 0;
-      if (hasMtdInfo)
+      if (hasMtdInfo && !mtdCellKeyed)
         for (auto const& h : hitIndex->subgraphHits(truth::HitChannel::MTD, i))
           mtdSubgraphRecHitLinked += static_cast<uint32_t>(h.hasRecHit());
 
@@ -641,6 +690,18 @@ public:
 
       os << "  p" << i << " [shape=ellipse, hasCheckpoints=" << p.hasCheckpoints() << ", hasGen=" << p.hasGen()
          << ", hasSim=" << d.hasSim();
+
+      // Level membership, straight off the persisted flags: the point of storing them is
+      // that a reader needs no knowledge of how a level is defined. Emitted BOTH as a dot
+      // attribute a graphviz filter can select on AND, below, as a coloured row in the
+      // label, because graphviz silently ignores attributes it does not know and an
+      // attribute alone renders to nothing at all.
+      std::string levels;
+      for (char const* name : truth::levelNamesOf(d)) {
+        levels += levels.empty() ? "" : ",";
+        levels += name;
+      }
+      os << ", levels=\"" << levels << "\"";
 
       if (p.hasCheckpoints()) {
         os << ", color=\"red\", penwidth=2";
@@ -708,11 +769,27 @@ public:
 
       // Big, immediately-legible particle name + PDG id as the table's title row
       // (HTML-like labels cannot mix free text and a TABLE), with the details below.
-      const std::string bigName = (!p.hasGen() && !d.hasSim()) ? std::string("connector") : pdgLabel(d.pdgId);
+      const std::string bigName = (d.particleRole() == truth::ParticleRole::Connector) ? std::string("connector")
+                                  : (d.particleRole() == truth::ParticleRole::SignalStandIn)
+                                      ? std::string("signal stand-in")
+                                  : (!p.hasGen() && !d.hasSim()) ? std::string("connector")
+                                                                 : pdgLabel(d.pdgId);
       os << ", label=<\n";
       os << "    <TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" CELLPADDING=\"4\">\n";
       os << "      <TR><TD><FONT POINT-SIZE=\"22\"><B>" << bigName << "</B></FONT></TD></TR>\n";
       os << "      <TR><TD><B>Particle " << i << "</B></TD></TR>\n";
+
+      // One coloured row per level the particle belongs to. Colours match the legend
+      // node emitted once per graph, so the levels are readable without a key.
+      for (const truth::Level level : truth::kAllLevels) {
+        if (d.isAtLevel(truth::levelFlagOf(level))) {
+          os << "      <TR><TD BGCOLOR=\"" << levelColor(level) << "\"><B>" << truth::levelName(level)
+             << "</B></TD></TR>\n";
+        }
+      }
+      if (d.isAtLevel(truth::LevelFlag::Signal)) {
+        os << "      <TR><TD BGCOLOR=\"" << kSignalColor << "\"><B>" << kSignalName << "</B></TD></TR>\n";
+      }
 
       if (d.pdgId != 0)
         os << "      <TR><TD>pid: " << pdgLabel(d.pdgId) << "</TD></TR>\n";
@@ -728,7 +805,7 @@ public:
       if (d.backscattered)
         os << "      <TR><TD><B>back-scattered</B></TD></TR>\n";
 
-      if (d.eventId != 0)
+      if (d.isFromPileup())
         os << "      <TR><TD>eid: " << d.eventId << "</TD></TR>\n";
 
       if (d.genEvent >= 0)
@@ -790,7 +867,8 @@ public:
     // Vertex nodes
     // ------------------------------------------------------------------
     for (uint32_t i = 0; i < nVertices; ++i) {
-      if (hideVertex[i])
+      // An isolated vertex has no edge to draw.
+      if (g.incomingParticles(i).empty() && g.outgoingParticles(i).empty())
         continue;
 
       auto v = g.vertex(i);
@@ -806,9 +884,13 @@ public:
           roleName = "interaction";
           roleColor = "indianred1";
           break;
-        case truth::VertexRole::Upstream:
-          roleName = "ISR/upstream";
+        case truth::VertexRole::InitialState:
+          roleName = "initial state";
           roleColor = "navajowhite";
+          break;
+        case truth::VertexRole::BeamSideInput:
+          roleName = "beam side input";
+          roleColor = "wheat";
           break;
         case truth::VertexRole::UnderlyingEvent:
           roleName = "underlying event";
@@ -840,9 +922,8 @@ public:
            << ">";
       }
 
-      // Big title row: the role for artificial vertices; the physical reason when
-      // known (SIM vertices carry the Geant4 process); else - GEN-only vertices have
-      // no process - infer from the topology (a single incoming particle decays).
+      // Big title row: the role for an artificial vertex, else the physical reason, else
+      // the topology (a single incoming particle decays).
       std::string vBig;
       if (roleName != nullptr)
         vBig = roleName;
@@ -864,7 +945,7 @@ public:
       if (d.vertexReason() != truth::VertexReason::Unknown)
         os << "      <TR><TD>reason: " << truth::vertexReasonName(d.vertexReason()) << "</TD></TR>\n";
 
-      if (d.eventId != 0)
+      if (d.isFromPileup())
         os << "      <TR><TD>eid: " << d.eventId << "</TD></TR>\n";
 
       if (d.genEvent >= 0)
@@ -894,42 +975,20 @@ public:
     // Edges: physics-forward only
     // ------------------------------------------------------------------
     for (uint32_t i = 0; i < nParticles; ++i) {
-      if (hideParticle[i])
-        continue;
-
-      unsigned kept = 0;
-
       for (uint32_t v : g.decayVertices(i)) {
         if (v >= nVertices)
           continue;
 
-        if (hideVertex[v])
-          continue;
-
         os << "  p" << i << " -> v" << v << ";\n";
-
-        if (++kept >= maxEdgesPerNode_)
-          break;
       }
     }
 
     for (uint32_t i = 0; i < nVertices; ++i) {
-      if (hideVertex[i])
-        continue;
-
-      unsigned kept = 0;
-
       for (uint32_t p : g.outgoingParticles(i)) {
         if (p >= nParticles)
           continue;
 
-        if (hideParticle[p])
-          continue;
-
         os << "  v" << i << " -> p" << p << ";\n";
-
-        if (++kept >= maxEdgesPerNode_)
-          break;
       }
     }
 
@@ -947,9 +1006,12 @@ private:
       evt.getByToken(hgcalRecHitTokens_[i], handle);
 
       if (!handle.isValid()) {
-        edm::LogWarning("TruthLogicalGraphDumper") << "Missing HGCRecHit collection " << hgcalRecHitTags_[i].encode()
-                                                   << ". Skipping it while rebuilding recHit energies.";
-        continue;
+        // Every later index would shift by the size of this collection, so the whole
+        // annotation is dropped rather than reported against the wrong hits.
+        edm::LogWarning("TruthLogicalGraphDumper")
+            << "Missing HGCRecHit collection " << hgcalRecHitTags_[i].encode()
+            << ". The global recHit index cannot be rebuilt, so recHit energies are left out of this dump.";
+        return {};
       }
 
       energies.reserve(energies.size() + handle->size());
@@ -962,9 +1024,10 @@ private:
       evt.getByToken(pfRecHitTokens_[i], handle);
 
       if (!handle.isValid()) {
-        edm::LogWarning("TruthLogicalGraphDumper") << "Missing reco::PFRecHitCollection " << pfRecHitTags_[i].encode()
-                                                   << ". Skipping it while rebuilding recHit energies.";
-        continue;
+        edm::LogWarning("TruthLogicalGraphDumper")
+            << "Missing reco::PFRecHitCollection " << pfRecHitTags_[i].encode()
+            << ". The global recHit index cannot be rebuilt, so recHit energies are left out of this dump.";
+        return {};
       }
 
       energies.reserve(energies.size() + handle->size());
@@ -990,14 +1053,9 @@ private:
   std::vector<edm::EDGetTokenT<reco::PFRecHitCollection>> pfRecHitTokens_;
 
   std::string dotFile_;
+  std::string jsonFile_;
   std::string layout_;
-  unsigned maxParticles_;
-  unsigned maxVertices_;
-  unsigned maxEdgesPerNode_;
-  bool hideLargeSimSourceVertices_;
   bool dumpSimHits_;
-  unsigned largeSimSourceVertexMinOutgoing_;
-  bool hideZeroSimHitSubgraphs_;
 };
 
 DEFINE_FWK_MODULE(TruthLogicalGraphDumper);

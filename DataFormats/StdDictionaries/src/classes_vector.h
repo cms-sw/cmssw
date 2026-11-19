@@ -1,3 +1,4 @@
+#include <array>
 #include <bitset>
 #include <deque>
 #include <list>

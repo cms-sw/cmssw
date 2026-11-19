@@ -158,6 +158,9 @@ process.out = cms.OutputModule("RNTupleTempOutputModule",
         'drop *_makeThingToBeDropped2_*_*'
     )
 )
+#Contents of file
+#testRunMerge2.root  "PROD" [run:1, lumi:1, ev:21-25] [run:2,lumi:1, ev:1-5]
+
 
 process.p1 = cms.Path((process.m1 + process.m2 + process.m3) *
                      process.thingWithMergeProducer *

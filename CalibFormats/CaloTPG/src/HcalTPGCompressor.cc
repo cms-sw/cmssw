@@ -1,5 +1,11 @@
+#include "CalibFormats/CaloObjects/interface/IntegerCaloSamples.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 #include "CalibFormats/CaloTPG/interface/HcalTPGCompressor.h"
+#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
+#include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
+#include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveSample.h"
+
+#include <vector>
 
 HcalTPGCompressor::HcalTPGCompressor(const CaloTPGTranscoder* coder) : coder_(coder) {}
 

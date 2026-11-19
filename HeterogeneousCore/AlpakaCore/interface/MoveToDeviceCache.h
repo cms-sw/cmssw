@@ -72,7 +72,7 @@ namespace cms::alpakatools {
    * queue or device argument.
    */
   template <typename TDevice, typename THostObject>
-    requires alpaka::isDevice<TDevice>
+    requires alpaka::concepts::Device<TDevice>
   class MoveToDeviceCache {
   public:
     using Device = TDevice;

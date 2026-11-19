@@ -106,7 +106,12 @@ public:
   int getTypeTrap(int layer) const;
   int getTypeHex(int layer, int waferU, int waferV) const;
   std::pair<double, double> getXY(int layer, double x, double y, bool forwd) const;
-  inline int getUVMax(int type) const { return ((type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_); }
+  inline int getUVMax(int type) const {
+    const bool fine =
+        (waferHexagon8() ? ((type == HGCSiliconDetId::HGCalHD120) || (type == HGCSiliconDetId::HGCalHD200))
+                         : (type == 0));
+    return (fine ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_);
+  }
   double guardRingOffset(bool reco) const;
   bool isHalfCell(int waferType, int cell) const;
   bool isValidHex(int lay, int mod, int cell, bool reco) const;
@@ -164,6 +169,7 @@ public:
     return part;
   }
   int32_t placementIndex(const HGCSiliconDetId&) const;
+  int32_t placementIndexMod(const HGCSiliconDetId&) const;
   std::pair<double, double> rangeR(double z, bool reco) const;
   std::pair<double, double> rangeRLayer(int lay, bool reco) const;
   std::pair<double, double> rangeZ(bool reco) const;

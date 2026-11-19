@@ -12,7 +12,6 @@ from ..modules.hltInitialStepTrajectorySeedsLST_cfi import hltInitialStepTraject
 from ..modules.hltL1GTAcceptFilter_cfi import hltL1GTAcceptFilter
 from ..modules.hltLST_cfi import hltLST
 from ..modules.hltPhase2OtRecHitsSoA_cfi import hltPhase2OtRecHitsSoA
-from ..modules.hltPhase2PixelRecHitsExtendedSoA_cfi import hltPhase2PixelRecHitsExtendedSoA
 from ..modules.hltPhase2PixelTracks_cfi import hltPhase2PixelTracks
 from ..modules.hltPhase2PixelTracksSoA_cfi import hltPhase2PixelTracksSoA
 from ..modules.hltPhase2PixelTrackTorchHighPuritySelector_cfi import hltPhase2PixelTrackTorchHighPuritySelector
@@ -29,13 +28,21 @@ from ..sequences.HLTEndSequence_cfi import *
 
 #hltExtendedPhase2PixelVerticesSoA = hltPhase2PixelVerticesSoA.clone(pixelTrackSrc = 'hltExtendedPhase2PixelTracksSoA')
 
+# This path lists every heterogeneous module the menu defines, whichever process modifiers a
+# job turns on (the menu test checks the path against the whole heterogeneous content of the
+# menu). The vector-hit-based local reconstruction (seeding OT rechit SoA, vector hit producer) therefore sits
+# next to the extended pixel+OT rechit SoA, which it replaces under phase2CAVectorHits.
+from ..modules.hltCAOTRecHitsSoA_cfi import hltCAOTRecHitsSoA
+from ..modules.hltPhase2OTVectorHitsSoA_cfi import hltPhase2OTVectorHitsSoA
+
 HLTLocalTrackerSequence = cms.Sequence(
     hltPhase2SiPixelClustersSoA
     + hltPhase2SiPixelRecHitsSoA
     + hltSiPhase2Clusters
     + hltSiPhase2RecHits
     + hltPhase2OtRecHitsSoA
-    + hltPhase2PixelRecHitsExtendedSoA
+    + hltCAOTRecHitsSoA
+    + hltPhase2OTVectorHitsSoA
     + hltSiPixelClusters
     + hltSiPixelRecHits
 )

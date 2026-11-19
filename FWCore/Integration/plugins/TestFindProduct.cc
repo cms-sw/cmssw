@@ -147,28 +147,29 @@ namespace edmtest {
       tokensUInt64_.push_back(consumes<UInt64Product>(tag));
     }
     for (auto const& tag : inputTagsEndLumi_) {
-      tokensEndLumi_.push_back(consumes<IntProduct, edm::InLumi>(tag));
+      tokensEndLumi_.push_back(consumes<IntProduct, edm::InLumi, edm::Transition::EndLuminosityBlock>(tag));
     }
     for (auto const& tag : inputTagsEndRun_) {
-      tokensEndRun_.push_back(consumes<IntProduct, edm::InRun>(tag));
+      tokensEndRun_.push_back(consumes<IntProduct, edm::InRun, edm::Transition::EndRun>(tag));
     }
     for (auto const& tag : inputTagsBeginProcessBlock_) {
-      tokensBeginProcessBlock_.push_back(consumes<IntProduct, edm::InProcess>(tag));
+      tokensBeginProcessBlock_.push_back(consumes<IntProduct, edm::InProcess, edm::Transition::BeginProcessBlock>(tag));
     }
     for (auto const& tag : inputTagsInputProcessBlock_) {
-      tokensInputProcessBlock_.push_back(consumes<IntProduct, edm::InProcess>(tag));
+      tokensInputProcessBlock_.push_back(
+          consumes<IntProduct, edm::InProcess, edm::Transition::AccessInputProcessBlock>(tag));
     }
     for (auto const& tag : inputTagsEndProcessBlock_) {
-      tokensEndProcessBlock_.push_back(consumes<IntProduct, edm::InProcess>(tag));
+      tokensEndProcessBlock_.push_back(consumes<IntProduct, edm::InProcess, edm::Transition::EndProcessBlock>(tag));
     }
     for (auto const& tag : inputTagsEndProcessBlock2_) {
-      tokensEndProcessBlock2_.push_back(consumes<IntProduct, edm::InProcess>(tag));
+      tokensEndProcessBlock2_.push_back(consumes<IntProduct, edm::InProcess, edm::Transition::EndProcessBlock>(tag));
     }
     for (auto const& tag : inputTagsEndProcessBlock3_) {
-      tokensEndProcessBlock3_.push_back(consumes<IntProduct, edm::InProcess>(tag));
+      tokensEndProcessBlock3_.push_back(consumes<IntProduct, edm::InProcess, edm::Transition::EndProcessBlock>(tag));
     }
     for (auto const& tag : inputTagsEndProcessBlock4_) {
-      tokensEndProcessBlock4_.push_back(consumes<IntProduct, edm::InProcess>(tag));
+      tokensEndProcessBlock4_.push_back(consumes<IntProduct, edm::InProcess, edm::Transition::EndProcessBlock>(tag));
     }
 
     if (!tokensInputProcessBlock_.empty()) {

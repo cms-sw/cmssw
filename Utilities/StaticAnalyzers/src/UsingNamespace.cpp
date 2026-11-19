@@ -6,6 +6,7 @@
 
 #include "UsingNamespace.h"
 #include "clang/Basic/SourceManager.h"
+#include "clang/AST/NestedNameSpecifier.h"
 #include "CmsSupport.h"
 using namespace clangcms;
 
@@ -22,7 +23,10 @@ void UsingNamespace::checkASTDecl(const clang::UsingDecl *D,
                                   clang::ento::BugReporter &BR) const {
   if (isDeclOK(D, BR))
     return;
-  std::string NS = D->getQualifier()->getAsNamespace()->getNameAsString();
+  const clang::NestedNameSpecifier Qualifier = D->getQualifier();
+  if (Qualifier.getKind() != clang::NestedNameSpecifier::Kind::Namespace)
+    return;
+  std::string NS = Qualifier.getAsNamespaceAndPrefix().Namespace->getNameAsString();
   if (strcmp(NS.c_str(), "std") != 0)
     return;
   reportBug("'using std:: '", D, BR);

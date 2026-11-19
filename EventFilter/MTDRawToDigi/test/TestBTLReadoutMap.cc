@@ -156,7 +156,6 @@ void TestBTLReadoutMap::analyze(const edm::Event& iEvent, const edm::EventSetup&
       dd4hep::Box mySens(fv.solid());
       DD3Vector x, y, z;
       fv.rotation().GetComponents(x, y, z);
-      DD3Vector zeroLocal(0., 0., 0.);
       DD3Vector plusLocal(mySens.x(), 0., 0.);
       DD3Vector plusGlobal = (fv.rotation())(plusLocal) + fv.translation();
       DD3Vector minusLocal(-mySens.x(), 0., 0.);

@@ -29,6 +29,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "makeFindersForRecords.h"
 
@@ -109,10 +110,10 @@ namespace edm {
           //all EventSetupRecordIntervalFinders are sequentially set to the
           // new SyncValue in the call. The async part is just waiting for
           // the Records to be available which is done after the SyncValue setup.
+          auto guard = signalslot::make_sentry([actReg, &iSync]() { actReg->postESSyncIOVSignal_.emit(iSync); });
           actReg->preESSyncIOVSignal_.emit(iSync);
-          auto postSignal = [&iSync](ActivityRegistry* actReg) { actReg->postESSyncIOVSignal_.emit(iSync); };
-          std::unique_ptr<ActivityRegistry, decltype(postSignal)> guard(actReg, postSignal);
           eventSetupForInstanceAsync(iSync, taskToStartAfterIOVInit, endIOVWaitingTasks, eventSetupImpl);
+          guard.succeeded();
         }
         sentry.completedSuccessfully();
       } catch (...) {

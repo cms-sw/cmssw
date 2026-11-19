@@ -10,7 +10,7 @@
  *
  */
 
-#include "DataFormats/Common/interface/RangeMap.h"
+#include "DataFormats/Common/interface/IdToHitRange.h"
 #include "DataFormats/Common/interface/ClonePolicy.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
@@ -31,9 +31,8 @@
 #include <string>
 
 template <class DETECTOR_T, class RECO_T, class GEOM_T>
-class MuRecObjBaseProducer
-    : public SimpleFlatTableProducerBase<RECO_T, edm::RangeMap<DETECTOR_T, edm::OwnVector<RECO_T>>> {
-  using COLLECTION = edm::RangeMap<DETECTOR_T, edm::OwnVector<RECO_T>>;
+class MuRecObjBaseProducer : public SimpleFlatTableProducerBase<RECO_T, edm::IdToHitRange<DETECTOR_T, RECO_T>> {
+  using COLLECTION = edm::IdToHitRange<DETECTOR_T, RECO_T>;
 
   edm::ESGetToken<GEOM_T, MuonGeometryRecord> m_token;
   edm::ESHandle<GEOM_T> m_geometry;

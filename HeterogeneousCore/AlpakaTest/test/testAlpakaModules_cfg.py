@@ -136,6 +136,18 @@ process.alpakaStreamFixedQueueProducer = cms.EDProducer("TestAlpakaStreamFixedQu
         alpaka_rocm_async = cms.int32(125),
     )
 )
+process.alpakaStreamSynchronizingFixedQueueProducer = cms.EDProducer("TestAlpakaStreamSynchronizingFixedQueueProducer@alpaka",
+    source = cms.InputTag("alpakaGlobalProducer"),
+    intSource = cms.InputTag("intProduct"),
+    expectedInt = cms.int32(84) # sum of intProduct and esProducerA
+)
+process.alpakaStreamSynchronizingFixedQueueProducerToDevice = cms.EDProducer("TestAlpakaStreamSynchronizingFixedQueueProducerToDevice@alpaka",
+    size = cms.PSet(
+        alpaka_serial_sync = cms.int32(1),
+        alpaka_cuda_async = cms.int32(2),
+        alpaka_rocm_async = cms.int32(3),
+    )
+)
 
 process.alpakaGlobalConsumer = cms.EDAnalyzer("TestAlpakaAnalyzer",
     source = cms.InputTag("alpakaGlobalProducer"),
@@ -195,6 +207,12 @@ process.alpakaStreamFixedQueueProducerDeviceConsumer = process.alpakaGlobalDevic
 process.alpakaStreamFixedQueueProducerGlobalConsumerE = process.alpakaGlobalConsumerE.clone(
     source = "alpakaStreamFixedQueueProducerE"
 )
+process.alpakaStreamSynchronizingFixedQueueConsumer = process.alpakaStreamSynchronizingConsumer.clone(
+    source = "alpakaStreamSynchronizingFixedQueueProducer"
+)
+process.alpakaStreamSynchronizingFixedQueueProducerToDeviceDeviceConsumer = process.alpakaGlobalDeviceConsumer.clone(
+    source = "alpakaStreamSynchronizingFixedQueueProducerToDevice"
+)
 
 _postfixes = ["ESProducerA", "ESProducerB", "ESProducerC", "ESProducerD", "ESProducerE", "ESProducerBlocks",
               "ESProducerNull",
@@ -208,6 +226,8 @@ _postfixes = ["ESProducerA", "ESProducerB", "ESProducerC", "ESProducerD", "ESPro
               "StreamSynchronizingProducerToDeviceDeviceConsumer1", "StreamSynchronizingProducerToDeviceDeviceConsumer2",
               "StreamFixedQueueProducer", "StreamFixedQueueProducerDeviceConsumer",
               "StreamFixedQueueProducerE",
+              "StreamSynchronizingFixedQueueProducer", "StreamSynchronizingFixedQueueProducerToDevice",
+              "StreamSynchronizingFixedQueueProducerToDeviceDeviceConsumer",
               "NullESConsumer"]
 alpakaModules = ["alpaka"+x for x in _postfixes]
 if args.processAcceleratorBackend != "":
@@ -231,6 +251,7 @@ if args.expectBackend == "cuda_async":
     setExpect(process.alpakaStreamSynchronizingConsumer, size=20)
     setExpect(process.alpakaStreamFixedQueueProducerGlobalConsumerE, size=20)
     process.alpakaStreamFixedQueueProducerGlobalConsumerE.expectXvalues.extend([0]*(20-10))
+    setExpect(process.alpakaStreamSynchronizingFixedQueueConsumer, size=20)
 elif args.expectBackend == "rocm_async":
     def setExpect(m, size):
         m.expectSize = size
@@ -247,6 +268,7 @@ elif args.expectBackend == "rocm_async":
     setExpect(process.alpakaStreamSynchronizingConsumer, size = 30)
     setExpect(process.alpakaStreamFixedQueueProducerGlobalConsumerE, size=30)
     process.alpakaStreamFixedQueueProducerGlobalConsumerE.expectXvalues.extend([0]*(30-10))
+    setExpect(process.alpakaStreamSynchronizingFixedQueueConsumer, size = 30)
 
 if args.processAcceleratorSynchronize:
     process.ProcessAcceleratorAlpaka.setSynchronize(True)
@@ -281,6 +303,8 @@ process.t = cms.Task(
     process.alpakaStreamSynchronizingProducerToDevice,
     process.alpakaStreamFixedQueueProducer,
     process.alpakaStreamFixedQueueProducerE,
+    process.alpakaStreamSynchronizingFixedQueueProducer,
+    process.alpakaStreamSynchronizingFixedQueueProducerToDevice,
 )
 process.p = cms.Path(
     process.alpakaGlobalConsumer+
@@ -298,6 +322,8 @@ process.p = cms.Path(
     process.alpakaStreamSynchronizingProducerToDeviceDeviceConsumer2+
     process.alpakaStreamFixedQueueProducerDeviceConsumer+
     process.alpakaStreamFixedQueueProducerGlobalConsumerE+
+    process.alpakaStreamSynchronizingFixedQueueConsumer+
+    process.alpakaStreamSynchronizingFixedQueueProducerToDeviceDeviceConsumer+
     process.alpakaNullESConsumer,
     process.t
 )

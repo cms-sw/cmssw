@@ -1,26 +1,44 @@
-#!/bin/bash
+#! /bin/bash
 
 function die { echo Failure $1: status $2 ; echo ""; cat log ; exit $2 ; }
 
-if [ -z  $SCRAM_TEST_PATH ]; then
-SCRAM_TEST_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [ -z $SCRAM_TEST_PATH ]; then
+  SCRAM_TEST_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 fi
-echo "LOCAL_TEST_DIR = $SCRAM_TEST_PATH"
+echo "LOCAL_TEST_DIR=$SCRAM_TEST_PATH"
 
-if [ -z  $TEST_COMPRESSION_ALGO ]; then
-TEST_COMPRESSION_ALGO="ZLIB"
+if [ -z $TEST_COMPRESSION_ALGO ]; then
+  TEST_COMPRESSION_ALGO="ZLIB"
 fi
-echo "TEST_COMPRESSION_ALGO = $TEST_COMPRESSION_ALGO"
 
-RC=0
+case "$TEST_COMPRESSION_ALGO" in
+  UNCOMPRESSED|LZ4|ZLIB|ZSTD|LZMA)
+    echo "TEST_COMPRESSION_ALGO=$TEST_COMPRESSION_ALGO"
+    ;;
+  *)
+    echo "$(basename $0): invalid compression algorithm '$ALGO'"
+    exit 1
+    ;;
+esac
+
+if [ -z "$TEST_COMPRESSION_LEVEL" ]; then
+  TEST_COMPRESSION_LEVEL=1
+fi
+
+if (( TEST_COMPRESSION_LEVEL >= 0 )) || (( TEST_COMPRESSION_LEVEL <= 20 )); then
+  echo "TEST_COMPRESSION_LEVEL=$TEST_COMPRESSION_LEVEL"
+else
+  echo "$(basename $0): invalid compression level '$LEVEL'"
+  exit 1
+fi
 
 rm -rf {out,outPadded,log,*.txt,*.dat,*.root}
 
-cmsRun ${SCRAM_TEST_PATH}/NewStreamOut_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} > log 2>&1 || die "cmsRun NewStreamOut_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
-cmsRun ${SCRAM_TEST_PATH}/NewStreamOutAlt_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} > log 2>&1 || die "cmsRun NewStreamOut_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
-cmsRun ${SCRAM_TEST_PATH}/NewStreamOutExt_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} > log 2>&1 || die "cmsRun NewStreamOut_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
-cmsRun ${SCRAM_TEST_PATH}/NewStreamOutExt2_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} > log 2>&1 || die "cmsRun NewStreamOutExt2_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
-cmsRun ${SCRAM_TEST_PATH}/NewStreamOutPadding_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} > log 2>&1 || die "cmsRun NewStreamOutPadding_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
+cmsRun ${SCRAM_TEST_PATH}/NewStreamOut_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} compLevel=${TEST_COMPRESSION_LEVEL} > log 2>&1 || die "cmsRun NewStreamOut_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
+cmsRun ${SCRAM_TEST_PATH}/NewStreamOutAlt_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} compLevel=${TEST_COMPRESSION_LEVEL} > log 2>&1 || die "cmsRun NewStreamOut_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
+cmsRun ${SCRAM_TEST_PATH}/NewStreamOutExt_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} compLevel=${TEST_COMPRESSION_LEVEL} > log 2>&1 || die "cmsRun NewStreamOut_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
+cmsRun ${SCRAM_TEST_PATH}/NewStreamOutExt2_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} compLevel=${TEST_COMPRESSION_LEVEL} > log 2>&1 || die "cmsRun NewStreamOutExt2_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
+cmsRun ${SCRAM_TEST_PATH}/NewStreamOutPadding_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} compLevel=${TEST_COMPRESSION_LEVEL} > log 2>&1 || die "cmsRun NewStreamOutPadding_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
 cmsRun ${SCRAM_TEST_PATH}/NewStreamIn_cfg.py  > log  2>&1 || die "cmsRun NewStreamIn_cfg.py" $?
 cmsRun ${SCRAM_TEST_PATH}/NewStreamIn2_cfg.py  > log  2>&1 || die "cmsRun NewStreamIn2_cfg.py" $?
 cmsRun ${SCRAM_TEST_PATH}/NewStreamCopy_cfg.py  > log  2>&1 || die "cmsRun NewStreamCopy_cfg.py" $?
@@ -31,12 +49,7 @@ cmsRun ${SCRAM_TEST_PATH}/NewStreamInExtBuf_cfg.py > log  2>&1 || die "cmsRun Ne
 cmsRun ${SCRAM_TEST_PATH}/NewStreamInPadding_cfg.py > log  2>&1 || die "cmsRun NewStreamInPadding_cfg.py (1)" $?
 cmsRun ${SCRAM_TEST_PATH}/NewStreamInPadding_cfg.py inChecksum=outPadded  > log  2>&1 || die "cmsRun NewStreamInPadding_cfg.py (2)" $?
 
-# echo "CHECKSUM = 1" > out
-
 if [ ! -s out ]; then
-
-    echo "New Stream Test Failed (out was not created or is empty)"
-    RC=1
+  echo "New Stream Test Failed (out was not created or is empty)"
+  exit 1
 fi
-
-exit ${RC}

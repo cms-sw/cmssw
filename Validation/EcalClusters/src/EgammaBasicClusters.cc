@@ -79,35 +79,35 @@ void EgammaBasicClusters::bookHistograms(DQMStore::IBooker &_ibooker, edm::Run c
 
   hist_EB_BC_Size_ =
       _ibooker.book1D("hist_EB_BC_Size_", "# Basic Clusters in Barrel", hsSize_.bins, hsSize_.min, hsSize_.max);
-  hist_EB_BC_NumRecHits_ = _ibooker.book1D("hist_EB_BC_NumRecHits_",
-                                           "# of RecHits in Basic Clusters in Barrel",
-                                           hsNumRecHits_.bins,
-                                           hsNumRecHits_.min,
-                                           hsNumRecHits_.max);
+  hist_EB_BC_NumRecHits_ = _ibooker.book1DD("hist_EB_BC_NumRecHits_",
+                                            "# of RecHits in Basic Clusters in Barrel",
+                                            hsNumRecHits_.bins,
+                                            hsNumRecHits_.min,
+                                            hsNumRecHits_.max);
 
   if (enableEndcaps_) {
     hist_EE_BC_Size_ =
         _ibooker.book1D("hist_EE_BC_Size_", "# Basic Clusters in Endcap", hsSize_.bins, hsSize_.min, hsSize_.max);
-    hist_EE_BC_NumRecHits_ = _ibooker.book1D("hist_EE_BC_NumRecHits_",
-                                             "# of RecHits in Basic Clusters in Endcap",
-                                             hsNumRecHits_.bins,
-                                             hsNumRecHits_.min,
-                                             hsNumRecHits_.max);
+    hist_EE_BC_NumRecHits_ = _ibooker.book1DD("hist_EE_BC_NumRecHits_",
+                                              "# of RecHits in Basic Clusters in Endcap",
+                                              hsNumRecHits_.bins,
+                                              hsNumRecHits_.min,
+                                              hsNumRecHits_.max);
   }
 
   hist_EB_BC_ET_ =
-      _ibooker.book1D("hist_EB_BC_ET_", "ET of Basic Clusters in Barrel", hsET_.bins, hsET_.min, hsET_.max);
+      _ibooker.book1DD("hist_EB_BC_ET_", "ET of Basic Clusters in Barrel", hsET_.bins, hsET_.min, hsET_.max);
   hist_EB_BC_Eta_ =
-      _ibooker.book1D("hist_EB_BC_Eta_", "Eta of Basic Clusters in Barrel", hsEta_.bins, hsEta_.min, hsEta_.max);
+      _ibooker.book1DD("hist_EB_BC_Eta_", "Eta of Basic Clusters in Barrel", hsEta_.bins, hsEta_.min, hsEta_.max);
   hist_EB_BC_Phi_ =
       _ibooker.book1D("hist_EB_BC_Phi_", "Phi of Basic Clusters in Barrel", hsPhi_.bins, hsPhi_.min, hsPhi_.max);
 
   if (enableEndcaps_) {
     hist_EE_BC_ET_ =
-        _ibooker.book1D("hist_EE_BC_ET_", "ET of Basic Clusters in Endcap", hsET_.bins, hsET_.min, hsET_.max);
+        _ibooker.book1DD("hist_EE_BC_ET_", "ET of Basic Clusters in Endcap", hsET_.bins, hsET_.min, hsET_.max);
 
     hist_EE_BC_Eta_ =
-        _ibooker.book1D("hist_EE_BC_Eta_", "Eta of Basic Clusters in Endcap", hsEta_.bins, hsEta_.min, hsEta_.max);
+        _ibooker.book1DD("hist_EE_BC_Eta_", "Eta of Basic Clusters in Endcap", hsEta_.bins, hsEta_.min, hsEta_.max);
 
     hist_EE_BC_Phi_ =
         _ibooker.book1D("hist_EE_BC_Phi_", "Phi of Basic Clusters in Endcap", hsPhi_.bins, hsPhi_.min, hsPhi_.max);

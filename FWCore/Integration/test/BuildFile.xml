@@ -58,23 +58,51 @@
   </bin>
 
   <test name="testFWCoreIntegrationTransform" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py"/>
+  <test name="testFWCoreIntegrationTransform_untyped" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --untyped"/>
   <test name="testFWCoreIntegrationTransform_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --async_"/>
   <test name="testFWCoreIntegrationTransform_async_tracer" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --async_ --addTracer 2>&amp;1 | fgrep 'transform in event' | wc | awk '{print $1}' | fgrep 24"/>
+  <test name="testFWCoreIntegrationTransform_async_tracer_untyped" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --untyped --addTracer 2>&amp;1 | fgrep 'transform in event' | wc | awk '{print $1}' | fgrep 24"/>
   <test name="testFWCoreIntegrationTransform_onPath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --onPath"/>
+  <test name="testFWCoreIntegrationTransform_onPath_untyped" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --untyped --onPath"/>
   <test name="testFWCoreIntegrationTransform_onPath_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --onPath --async_"/>
   <test name="testFWCoreIntegrationTransform_noTransform" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --noTransform"/>
+  <test name="testFWCoreIntegrationTransform_noTransform_untyped" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --untyped --noTransform"/>
   <test name="testFWCoreIntegrationTransform_noTransform_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --noTransform --async_"/>
   <test name="testFWCoreIntegrationTransform_noTransform_onPath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --noTransform --onPath"/>
+  <test name="testFWCoreIntegrationTransform_noTransform_onPath_untyped" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --untyped --noTransform --onPath"/>
   <test name="testFWCoreIntegrationTransform_noTransform_onPath_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --noTransform --onPath --async_"/>
   <test name="testFWCoreIntegrationTransform_stream" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --stream"/>
+  <test name="testFWCoreIntegrationTransform_stream_untyped" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --stream --untyped"/>
   <test name="testFWCoreIntegrationTransform_stream_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --stream --async_"/>
   <test name="testFWCoreIntegrationTransform_stream_onPath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --stream --onPath"/>
+  <test name="testFWCoreIntegrationTransform_stream_onPath_untyped" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --stream --untyped --onPath"/>
   <test name="testFWCoreIntegrationTransform_stream_onPath_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --stream --onPath --async_"/>
+  <test name="testFWCoreIntegrationTransform_limited" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --limited"/>
+  <test name="testFWCoreIntegrationTransform_limited_onPath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --limited --onPath"/>
+  <test name="testFWCoreIntegrationTransform_limited_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --limited --async_"/>
+  <test name="testFWCoreIntegrationTransform_limited_async_tracer" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --limited --async_ --addTracer 2>&amp;1 | fgrep 'transform in event' | wc | awk '{print $1}' | fgrep 24"/>
+  <test name="testFWCoreIntegrationTransform_limited_async_tracer_untyped" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --limited --untyped --addTracer 2>&amp;1 | fgrep 'transform in event' | wc | awk '{print $1}' | fgrep 24"/>
+  <test name="testFWCoreIntegrationTransform_limited_untyped" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --limited --untyped"/>
+  <test name="testFWCoreIntegrationTransform_limited_onPath_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --limited --onPath --async_"/>
+  <test name="testFWCoreIntegrationTransform_limited_onPath_untyped" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --limited --untyped --onPath"/>
+  <test name="testFWCoreIntegrationTransform_limited_noTransform_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --limited --noTransform --async_"/>
+  <test name="testFWCoreIntegrationTransform_limited_noTransform_untyped" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --limited --untyped --noTransform"/>
+  <test name="testFWCoreIntegrationTransform_limited_noTransform_onPath_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --limited --noTransform --onPath --async_"/>
+  <test name="testFWCoreIntegrationTransform_limited_noTransform_onPath_untyped" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --limited --untyped --noTransform --onPath"/>
+  <test name="testFWCoreIntegrationTransform_limited_noPut_async" command="! cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --limited --noPut --async_"/>
+  <test name="testFWCoreIntegrationTransform_limited_noPut_untyped" command="! cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --limited --untyped --noPut"/>
+  <test name="testFWCoreIntegrationTransform_limited_async_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --limited --async_ --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="testFWCoreIntegrationTransform_limited_exception_untyped" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --limited --untyped --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="testFWCoreIntegrationTransform_limited_onPath_async_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --limited --onPath --async_ --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="testFWCoreIntegrationTransform_limited_onPath_exception_untyped" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --limited --untyped --onPath --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
   <test name="testFWCoreIntegrationTransform_noPut" command="! cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --noPut"/>
+  <test name="testFWCoreIntegrationTransform_noPut_untyped" command="! cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --untyped --noPut"/>
   <test name="testFWCoreIntegrationTransform_noPut_async" command="! cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --noPut --async_"/>
   <test name="testFWCoreIntegrationTransform_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="testFWCoreIntegrationTransform_exception_untyped" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --untyped --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
   <test name="testFWCoreIntegrationTransform_async_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --async --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
   <test name="testFWCoreIntegrationTransform_onPath_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --onPath --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="testFWCoreIntegrationTransform_onPath_exception_untyped" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --untyped --onPath --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
   <test name="testFWCoreIntegrationTransform_onPath_async_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --onPath --async --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
 
   <test name="testFWCoreIntegrationNoEndPathStatus" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/check_empty_event_cfg.py 2>&amp;1 | fgrep 'contains 0 products'"/>

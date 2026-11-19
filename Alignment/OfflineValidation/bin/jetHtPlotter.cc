@@ -3,6 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // C++ includes
+#include <filesystem>
 #include <iostream>  // Input/output stream. Needed for cout.
 #include <vector>
 
@@ -260,7 +261,13 @@ std::tuple<std::vector<int>, std::vector<double>, std::vector<TString>, std::vec
   double thisLumi;
 
   // Load the iovList
-  std::ifstream iovList(edm::FileInPath(inputFile).fullPath().c_str());
+  std::string inputFilePath;
+  if (std::filesystem::path(inputFile).is_absolute()) {
+    inputFilePath = inputFile;
+  } else {
+    inputFilePath = edm::FileInPath::findFile(inputFile);
+  }
+  std::ifstream iovList(inputFilePath.c_str());
   if (!iovList.good()) {
     edm::LogError("jetHTPlotter") << __PRETTY_FUNCTION__ << "\n Input file: " << inputFile
                                   << " is corrupt or not existing";

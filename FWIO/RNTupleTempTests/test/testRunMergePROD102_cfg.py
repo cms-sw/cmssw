@@ -25,6 +25,8 @@ process.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer")
 process.out = cms.OutputModule("RNTupleTempOutputModule",
     fileName = cms.untracked.string('testRunMerge102.root')
 )
+#Contents of file
+#testRunMerge102.root  "PROD" [run:41-42,lumi:21-30, ev:1-30]
 
 process.task = cms.Task(process.thingWithMergeProducer)
 

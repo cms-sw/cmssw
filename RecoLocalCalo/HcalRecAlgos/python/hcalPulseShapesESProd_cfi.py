@@ -5,5 +5,5 @@ hcalPulseShapesESProd = cms.ESProducer('HcalPulseShapesEP',
     pulseShapeLength = cms.uint32(250),
     globalTimeShift = cms.double(0.0),
     pulseDumpFile = cms.untracked.string(''),
-    dumpPrecision = cms.untracked.uint32(0)
+    dumpPrecision = cms.untracked.uint32(6)
 )

@@ -72,7 +72,9 @@ namespace edm {
                                         << "The index of the token was " << token.index() << ".\n";
   }
 
-  size_t PrincipalGetAdapter::numberOfProductsConsumed() const { return consumer_->itemsToGetFrom(InEvent).size(); }
+  size_t PrincipalGetAdapter::numberOfProductsConsumed() const {
+    return consumer_->itemsToGetFrom(Transition::Event).size();
+  }
 
   void PrincipalGetAdapter::labelsForToken(EDGetToken const& iToken, ProductLabels& oLabels) const {
     consumer_->labelsForToken(iToken, oLabels);

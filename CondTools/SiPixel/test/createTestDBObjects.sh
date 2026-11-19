@@ -33,6 +33,20 @@ cmsRun  ${SCRAM_TEST_PATH}/SiPixelVCalDB_cfg.py || die "Failure running SiPixelV
 echo -e "TESTING Reading SiPixelVCal DB object ...\n\n"
 cmsRun  ${SCRAM_TEST_PATH}/SiPixelVCalReader_cfg.py || die "Failure running SiPixelVCalReader_cfg.py" $?
 
+echo -e "TESTING SiPixelClusterShapeLimits DB codes ... \n\n"
+
+echo -e "TESTING Writing SiPixelClusterShapeLimits DB object (phase1) ...\n\n"
+cmsRun  ${SCRAM_TEST_PATH}/SiPixelClusterShapeLimitsWriter_cfg.py scenario=phase1 || die "Failure running SiPixelClusterShapeLimitsWriter_cfg.py scenario=phase1" $?
+
+echo -e "TESTING Reading SiPixelClusterShapeLimits DB object (phase1) ...\n\n"
+cmsRun  ${SCRAM_TEST_PATH}/SiPixelClusterShapeLimitsReader_cfg.py inputTag=SiPixelClusterShapeLimits_phase1_v1 || die "Failure running SiPixelClusterShapeLimitsReader_cfg.py inputTag=SiPixelClusterShapeLimits_phase1_v1" $?
+
+echo -e "TESTING Writing SiPixelClusterShapeLimits DB object (phase2) ...\n\n"
+cmsRun  ${SCRAM_TEST_PATH}/SiPixelClusterShapeLimitsWriter_cfg.py scenario=phase2 || die "Failure running SiPixelClusterShapeLimitsWriter_cfg.py scenario=phase2" $?
+
+echo -e "TESTING Reading SiPixelClusterShapeLimits DB object (phase2) ...\n\n"
+cmsRun  ${SCRAM_TEST_PATH}/SiPixelClusterShapeLimitsReader_cfg.py inputTag=SiPixelClusterShapeLimits_phase2_v1 || die "Failure running SiPixelClusterShapeLimitsReader_cfg.py inputTag=SiPixelClusterShapeLimits_phase2_v1" $?
+
 echo -e "TESTING SiPixelLorentzAngle DB codes ... \n\n"
 
 echo -e "TESTING Writing SiPixelLorentzAngle DB object ...\n\n"

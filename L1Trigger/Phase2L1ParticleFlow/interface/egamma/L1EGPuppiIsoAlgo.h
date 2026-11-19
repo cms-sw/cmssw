@@ -11,6 +11,7 @@
 #include "DataFormats/L1TParticleFlow/interface/egamma.h"
 #include "DataFormats/L1TParticleFlow/interface/puppi.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace l1ct {
 
@@ -46,6 +47,8 @@ namespace l1ct {
   public:
     L1EGPuppiIsoAlgo(const L1EGPuppiIsoAlgoConfig& config) : config_(config) {}
     L1EGPuppiIsoAlgo(const edm::ParameterSet& pSet);
+    static edm::ParameterSetDescription getParameterSetDescription();
+
     virtual ~L1EGPuppiIsoAlgo() = default;
 
     void run(const EGIsoObjsEmu& l1EGs, const PuppiObjs& l1PFCands, EGIsoObjsEmu& outL1EGs, z0_t z0 = 0) const;

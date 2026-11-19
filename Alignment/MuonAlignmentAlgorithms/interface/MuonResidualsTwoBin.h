@@ -42,6 +42,7 @@ public:
     return m_pos->type();
   };
   int useRes() const { return m_pos->useRes(); };
+  TMatrixDSym CovMatr() const { return m_pos->covarianceMatrix(); };
 
   void fix(int parNum, bool value = true) {
     m_pos->fix(parNum, value);
@@ -242,7 +243,7 @@ public:
     //if (m_twoBin) m_neg->correctBField();
   };
 
-  void fiducialCuts() { m_pos->fiducialCuts(); };
+  void fiducialCuts(unsigned int idx) { m_pos->fiducialCuts(idx); };
 
   void eraseNotSelectedResiduals() {
     if (m_twoBin) {

@@ -4,11 +4,13 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "G4StackManager.hh"
+
 #include "G4TransportationManager.hh"
 #include "G4VSolid.hh"
 
 Phase2StackingAction::Phase2StackingAction(const edm::ParameterSet& p, const CMSSteppingVerbose* sv)
-    : steppingVerbose(sv) {
+    : steppingVerbose(sv), quirkTracking(p.getParameter<bool>("QuirkTracking")) {
   trackNeutrino = p.getParameter<bool>("TrackNeutrino");
   worldSolid = G4TransportationManager::GetTransportationManager()
                    ->GetNavigatorForTracking()
@@ -18,6 +20,10 @@ Phase2StackingAction::Phase2StackingAction(const edm::ParameterSet& p, const CMS
 }
 
 G4ClassificationOfNewTrack Phase2StackingAction::ClassifyNewTrack(const G4Track* aTrack) {
+  // a resumed (suspended) track is not new: keep the Geant4 default classification
+  if (quirkTracking && MCTruthUtil::isSuspended(aTrack)) {
+    return stackManager->GetDefaultClassification();
+  }
   G4ClassificationOfNewTrack classification = fUrgent;
   if (fStopAndKill == aTrack->GetTrackStatus()) {
     classification = fKill;
@@ -38,7 +44,10 @@ G4ClassificationOfNewTrack Phase2StackingAction::ClassifyNewTrack(const G4Track*
     auto track = const_cast<G4Track*>(aTrack);
     const G4VProcess* creatorProc = aTrack->GetCreatorProcess();
     if (creatorProc == nullptr || pID == 0) {
-      MCTruthUtil::primary(track);
+      // Do not replace the existing CMS information when a transported primary is restacked.
+      if (track->GetCurrentStepNumber() == 0) {
+        MCTruthUtil::primary(track);
+      }
     } else {
       MCTruthUtil::updateSecondary(track);
     }

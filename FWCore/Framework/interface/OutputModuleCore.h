@@ -50,7 +50,6 @@
 // forward declarations
 namespace edm {
 
-  class MergeableRunProductMetadata;
   class ModuleCallingContext;
   class PreallocationConfiguration;
   class ActivityRegistry;
@@ -70,8 +69,8 @@ namespace edm {
     public:
       template <typename U>
       friend class edm::maker::ModuleHolderT;
-      template <typename T>
-      friend class ::edm::WorkerT;
+      template <typename T, typename TI, typename TP>
+      friend class ::edm::ModuleTransitionWorker;
       template <typename T>
       friend class ::edm::OutputModuleCommunicatorT;
       typedef OutputModuleCore ModuleType;
@@ -127,7 +126,7 @@ namespace edm {
 
       void doBeginJob_();
       void doEndJob();
-      bool doEvent_(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent_(EventTransitionInfo const&, ModuleCallingContext const*);
       void doBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
       void doAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
       void doEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
@@ -199,7 +198,7 @@ namespace edm {
       void updateBranchIDListsWithKeptAliases();
 
       void doWriteProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*);
-      void doWriteRun(RunPrincipal const& rp, ModuleCallingContext const*, MergeableRunProductMetadata const*);
+      void doWriteRun(RunPrincipal const& rp, ModuleCallingContext const*);
       void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const*);
       void doOpenFile(FileBlock const& fb);
       void doRespondToOpenInputFile(FileBlock const& fb);

@@ -1,6 +1,7 @@
 #include "CondCore/ESSources/interface/registration_macros.h"
 
 #include "CondFormats/DataRecord/interface/SiPixelCPEGenericErrorParmRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelClusterShapeLimitsRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelDynamicInefficiencyRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
@@ -16,6 +17,7 @@
 #include "CondFormats/DataRecord/interface/SiPixelVCalRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelClusterShapeLimits.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelDynamicInefficiency.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFEDChannelContainer.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
@@ -82,6 +84,7 @@ REGISTER_PLUGIN(SiPixelCPEGenericErrorParmRcd, SiPixelCPEGenericErrorParm);
 REGISTER_PLUGIN(SiPixelTemplateDBObjectRcd, SiPixelTemplateDBObject);
 REGISTER_PLUGIN(SiPixel2DTemplateDBObjectRcd, SiPixel2DTemplateDBObject);
 REGISTER_PLUGIN(SiPixelGenErrorDBObjectRcd, SiPixelGenErrorDBObject);
+REGISTER_PLUGIN(SiPixelClusterShapeLimitsRcd, SiPixelClusterShapeLimits);
 
 REGISTER_PLUGIN(PixelCaenChannelIsOnRcd, PixelDCSObject<bool>);
 REGISTER_PLUGIN(PixelCaenChannelIMonRcd, PixelDCSObject<float>);

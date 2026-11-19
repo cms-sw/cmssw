@@ -30,6 +30,7 @@ namespace reco {
       DetId id;       // chamber ID
 
       int nDigisInRange;  // # of DT/CSC digis in the chamber close-by to the propagated track
+      float dPhidZ;       // dPhi/dZ of the track
 
       int detector() const { return id.subdetId(); }
       int station() const;

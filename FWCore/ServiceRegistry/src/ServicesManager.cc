@@ -62,20 +62,39 @@ namespace edm {
     //
     // constructors and destructor
     //
+    std::shared_ptr<ServicesManager> ServicesManager::create(std::vector<ParameterSet>& iConfiguration) {
+      // the constructor is private, so it cannot be called by std::make_shared
+      std::shared_ptr<ServicesManager> manager(new ServicesManager(iConfiguration));
+      // Create the services here rather than in the constructor: the services are allowed to use the ServicesManager
+      // while they are being constructed, e.g. to take an OwningServiceToken or a WeakServiceToken to their own
+      // service set, which requires the manager to be already owned by a std::shared_ptr.
+      manager->createServices();
+      return manager;
+    }
+
+    std::shared_ptr<ServicesManager> ServicesManager::create(std::shared_ptr<ServicesManager> iAssociatedManager,
+                                                             ServiceLegacy iLegacy,
+                                                             std::vector<ParameterSet>& iConfiguration) {
+      // the constructor is private, so it cannot be called by std::make_shared
+      std::shared_ptr<ServicesManager> manager(
+          new ServicesManager(std::move(iAssociatedManager), iLegacy, iConfiguration));
+      // create the services only once the manager is owned by a std::shared_ptr, see above
+      manager->createServices();
+      return manager;
+    }
+
     ServicesManager::ServicesManager(std::vector<ParameterSet>& iConfiguration) : type2Maker_(new Type2Maker) {
       //First create the list of makers
       fillListOfMakers(iConfiguration);
-
-      createServices();
     }
 
-    ServicesManager::ServicesManager(ServiceToken iToken,
+    ServicesManager::ServicesManager(std::shared_ptr<ServicesManager> iAssociatedManager,
                                      ServiceLegacy iLegacy,
                                      std::vector<ParameterSet>& iConfiguration)
-        : associatedManager_(iToken.manager_), type2Maker_(new Type2Maker) {
+        : associatedManager_(std::move(iAssociatedManager)), type2Maker_(new Type2Maker) {
       fillListOfMakers(iConfiguration);
 
-      //find overlaps between services in iToken and iConfiguration
+      //find overlaps between services in associatedManager_ and iConfiguration
       typedef std::set<TypeIDBase> TypeSet;
       TypeSet configTypes;
       for (Type2Maker::iterator itType = type2Maker_->begin(), itTypeEnd = type2Maker_->end(); itType != itTypeEnd;
@@ -84,9 +103,9 @@ namespace edm {
       }
 
       TypeSet tokenTypes;
-      if (nullptr != iToken.manager_.get()) {
-        for (Type2Service::iterator itType = iToken.manager_->type2Service_.begin(),
-                                    itTypeEnd = iToken.manager_->type2Service_.end();
+      if (nullptr != associatedManager_.get()) {
+        for (Type2Service::iterator itType = associatedManager_->type2Service_.begin(),
+                                    itTypeEnd = associatedManager_->type2Service_.end();
              itType != itTypeEnd;
              ++itType) {
           tokenTypes.insert(itType->first);
@@ -111,12 +130,12 @@ namespace edm {
                   << " already has an instance of that type of Service";
             } else {
               //get all the services from Token
-              type2Service_ = iToken.manager_->type2Service_;
+              type2Service_ = associatedManager_->type2Service_;
             }
             break;
           case kTokenOverrides:
             //get all the services from Token
-            type2Service_ = iToken.manager_->type2Service_;
+            type2Service_ = associatedManager_->type2Service_;
 
             //remove from type2Maker the overlapping services so we never try to make them
             for (IntersectionType::iterator itType = intersection.begin(), itTypeEnd = intersection.end();
@@ -134,7 +153,6 @@ namespace edm {
         //make sure our signals are propagated to our 'inherited' Services
         registry_.copySlotsFrom(associatedManager_->registry_);
       }
-      createServices();
     }
 
     // ServicesManager::ServicesManager(ServicesManager const& rhs) {
@@ -211,12 +229,6 @@ namespace edm {
       }
     }
 
-    namespace {
-      struct NoOp {
-        void operator()(ServicesManager*) {}
-      };
-    }  // namespace
-
     void ServicesManager::createServiceFor(MakerHolder const& iMaker) {
       std::string serviceType = iMaker.pset_->getParameter<std::string>("@service_type");
       std::unique_ptr<ParameterSetDescriptionFillerBase> filler(
@@ -246,10 +258,8 @@ namespace edm {
     }
 
     void ServicesManager::createServices() {
-      //create a shared_ptr of 'this' that will not delete us
-      std::shared_ptr<ServicesManager> shareThis(this, NoOp());
-
-      ServiceToken token(shareThis);
+      //a non-owning token to this service set; the caller keeps us alive
+      ServiceToken token(this);
 
       //Now make our services to ones obtained via ServiceRegistry
       // when this goes out of scope, it will revert back to the previous Service set

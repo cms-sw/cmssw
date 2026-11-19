@@ -22,6 +22,7 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
         MTDRecHitBuilder = cms.string('MTDRecHitBuilder'),
         RefitDirection = cms.string('alongMomentum'),
         RefitRPCHits = cms.bool(True),
+        RefitMuonHits = cms.bool(True),
         DoPredictionsOnly = cms.bool(False)
     ),
     PtCut = cms.double(1.0),

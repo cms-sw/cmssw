@@ -32,7 +32,7 @@ def test_persisted_set_matches_baseline():
     """pyTICL's persisted trackster-family labels match the live
     ticlIterLabelsPSet.labels (the tracked collections) when available."""
     try:
-        from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsPSet
+        from RecoTICL.Configuration.iterativeTICL_cff import ticlIterLabelsPSet
     except Exception:
         return  # baseline not built here; the byte-for-byte test covers labels
     baseline = set(ticlIterLabelsPSet.labels)

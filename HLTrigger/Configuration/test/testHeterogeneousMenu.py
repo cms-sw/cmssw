@@ -13,14 +13,16 @@ has to cover the menu as a whole, so the check is deliberately independent of an
 particular recipe.
 """
 
+import collections
 import importlib
 import unittest
 
 import FWCore.ParameterSet.Config as cms
 
 from HLTrigger.Configuration.moduleClosure import (HLT_MENU,
-                                                   FrameworkGraph,
+                                                   buildFrameworkGraphFromProcess,
                                                    ModuleGraph,
+                                                   parseTracerLog,
                                                    hltStructure,
                                                    moduleNamesOf)
 
@@ -45,12 +47,17 @@ def heterogeneousContent(process):
     the menu's own Schedule reaches.  That is what makes the answer the whole
     heterogeneous content of the menu instead of the content a particular set of
     process modifiers happens to turn on.
+
+    Returns (content, provenance, graph, seeds) so that the report can group
+    missing modules by the heterogeneous module that requires them and order
+    them by data-flow dependency.
     """
     prologue, epilogue, _ = hltStructure(process)
     wrapper = set()
     for item in prologue + epilogue:
         wrapper |= moduleNamesOf(item)
-    graph = ModuleGraph(process, FrameworkGraph())
+    framework = parseTracerLog(buildFrameworkGraphFromProcess(process))
+    graph = ModuleGraph(process, framework)
     graph.scheduled = set(graph.modules)
     seeds = graph.seeds()
     provenance, _, _ = graph.closure(seeds + sorted(wrapper - set(seeds)))
@@ -60,7 +67,7 @@ def heterogeneousContent(process):
     for label, origin in provenance.items():
         if origin is not None and label not in content:
             content[label] = "needed by %s" % origin[0]
-    return content
+    return content, provenance, graph, seeds
 
 
 def handWrittenModules():
@@ -70,15 +77,47 @@ def handWrittenModules():
     return set(getattr(process, HAND_WRITTEN_PATH).moduleNames())
 
 
-def report(missing, extra, content):
+def _traceToSeed(label, provenance, seeds):
+    """Trace a label back through provenance to the seed that needs it.
+
+    Returns the seed label, or the label itself if it is a seed or a wrapper
+    module (provenance None) or if the chain cannot be followed.
+    """
+    seen = set()
+    current = label
+    while current not in seen:
+        seen.add(current)
+        origin = provenance.get(current)
+        if origin is None:
+            return current
+        parent = origin[0]
+        if parent in seeds:
+            return parent
+        current = parent
+    return label
+
+
+def report(missing, extra, content, provenance, graph, seeds):
     """A compact account of the difference, and of what to do about it."""
     lines = ["",
              "%s does not match the heterogeneous content of" % HAND_WRITTEN_PATH,
              "%s." % MENU,
              ""]
     if missing:
+        # Group missing modules by the heterogeneous module that
+        # requires them, and order each group by data-flow dependency.
+        groups = collections.OrderedDict()
+        for label in missing:
+            root = _traceToSeed(label, provenance, seeds)
+            groups.setdefault(root, []).append(label)
+        ordered = graph.topologicalOrder(missing)
+        rank = {label: i for i, label in enumerate(ordered)}
         lines.append("  missing from %s (%d):" % (HAND_WRITTEN_PATH, len(missing)))
-        lines += ["    %-44s %s" % (label, content[label]) for label in missing]
+        for root in sorted(groups):
+            group = sorted(groups[root], key=lambda l: rank.get(l, 0))
+            lines.append("    Modules needed by heterogeneous module %s:" % root)
+            for label in group:
+                lines.append("      %s  # %s" % (label, content[label]))
         lines.append("")
     if extra:
         lines.append("  in %s but unused by the menu (%d):"
@@ -89,7 +128,7 @@ def report(missing, extra, content):
               "    %s" % importlib.import_module(HAND_WRITTEN_CFI).__file__,
               "",
               "  To see the whole configuration the dumper produces, including the",
-              "  EventSetup and the L1 emulation left out of this comparison, dump", 
+              "  EventSetup and the L1 emulation left out of this comparison, dump",
               "  a cmsDriver configuration built on this menu:",
               "    hltDumpTaggedModules --manifest manifest.json -o het.py <config>.py",
               "  The manifest records which dependency was pulled in by what.",
@@ -99,12 +138,12 @@ def report(missing, extra, content):
 
 class TestHeterogeneousMenu(unittest.TestCase):
     def testHandWrittenPathMatchesTheMenu(self):
-        content = heterogeneousContent(menuProcess())
+        content, provenance, graph, seeds = heterogeneousContent(menuProcess())
         found = handWrittenModules()
         missing = sorted(set(content) - found)
         extra = sorted(found - set(content))
         if missing or extra:
-            self.fail(report(missing, extra, content))
+            self.fail(report(missing, extra, content, provenance, graph, seeds))
 
 
 if __name__ == "__main__":

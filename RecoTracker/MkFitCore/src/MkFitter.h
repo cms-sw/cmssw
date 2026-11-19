@@ -41,7 +41,7 @@ namespace mkfit {
 
     //----------------------------------------------------------------------------
 
-    void release();
+    void reset();
 
   private:
     MPlexQF m_Chi2;

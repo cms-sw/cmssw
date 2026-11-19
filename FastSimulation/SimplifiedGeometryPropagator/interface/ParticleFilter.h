@@ -32,7 +32,8 @@ namespace fastsim {
     /*!
             - Particle is invisible (neutrinos by default, list can be extended)
             - Kinematic cuts (calls acceptsEN(...))
-            - Vertex within tracker volume (calls acceptsVtx(...))
+            - Vertex within the tracker volume (calls acceptsVtx(...)), or in
+              the configured calorimeter-region exception
             \sa acceptsEn(const Particle & particle)
             \sa acceptsVtx(const math::XYZTLorentzVector & originVertexPosition)
         */
@@ -55,6 +56,13 @@ namespace fastsim {
     double vertexRMax2_;              //!< Radius^2 of tracker volume
     double vertexZMax_;               //!< Z of tracker volume
     std::vector<int> skipParticles_;  //!< List of invisible particles (neutrinos are excluded by default)
+
+    //! Configuration flag to also accept particles whose vertex lies outside
+    //! the tracker volume but inside the calorimeter region. Such particles
+    //! skip tracker propagation and are handed to calorimetry directly.
+    bool acceptCaloVertices_ = false;
+    static constexpr double caloVertexRMax2_ = 400. * 400.;  //!< [cm^2]
+    static constexpr double caloVertexZMax_ = 600.;          //!< [cm]
   };
 }  // namespace fastsim
 

@@ -53,9 +53,9 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   // method called once each job just before starting event loop
-  void beginJob() override{};
+  void beginJob() override {};
   // method called once each job just after ending the event loop
-  void endJob() override{};
+  void endJob() override {};
 
   int matchToTruth(reco::GsfElectron const& electron, edm::View<reco::GenParticle> const& genParticles) const;
 

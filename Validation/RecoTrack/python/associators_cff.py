@@ -44,6 +44,10 @@ tpToHLTpixelTrackAssociation = _trackingParticleRecoTrackAsssociation.clone(
 
 phase2_tracker.toModify(tpToHLTpixelTrackAssociation, label_tr = "hltPhase2PixelTracks")
 
+tpToHLTGeneralTrackAssociation = tpToHLTpixelTrackAssociation.clone(
+    label_tr = "hltGeneralTracks"
+)
+
 tpToHLTiter0tracksAssociation = tpToHLTpixelTrackAssociation.clone(
     label_tr = cms.InputTag("hltIter0PFlowCtfWithMaterialTracks"),
 #    associator = cms.InputTag('hltTrackAssociatorByDeltaR'),

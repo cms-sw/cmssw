@@ -12,7 +12,6 @@
 <use name="root"/>
 <use name="rootmath"/>
 <use name="rootcore"/>
-<use name="roofitcore"/>
 <use name="rootgraphics"/>
 <lib name="Spectrum"/>
 <library file="*.cc" name="CalibMuonDTCalibrationPlugins">

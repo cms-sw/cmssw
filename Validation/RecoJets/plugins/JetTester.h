@@ -69,6 +69,7 @@ private:
   edm::EDGetTokenT<std::vector<reco::Vertex>> pvToken_;
   edm::EDGetTokenT<reco::CaloJetCollection> caloJetsToken_;
   edm::EDGetTokenT<reco::PFJetCollection> pfJetsToken_;
+  edm::EDGetTokenT<reco::JPTJetCollection> jptJetsToken_;
   edm::EDGetTokenT<reco::GenJetCollection> genJetsToken_;
   edm::EDGetTokenT<GenEventInfoProduct> evtToken_;
   edm::EDGetTokenT<pat::JetCollection> patJetsToken_;
@@ -249,8 +250,6 @@ private:
   MonitorElement *emEnergyInEE;
   MonitorElement *emEnergyInHF;
   MonitorElement *towersArea;
-  MonitorElement *n90;
-  MonitorElement *n60;
 
   // ---- JPT or PF Jet specific information ----
   MonitorElement *muonMultiplicity;
@@ -281,8 +280,6 @@ private:
   MonitorElement *electronMultiplicity;
   MonitorElement *HFHadronMultiplicity;
   MonitorElement *HFEMMultiplicity;
-  MonitorElement *chargedMuEnergy;
-  MonitorElement *chargedMuEnergyFraction;
   MonitorElement *neutralMultiplicity;
   MonitorElement *HOEnergy;
   MonitorElement *HOEnergyFraction;
@@ -306,6 +303,7 @@ private:
   bool isCaloJet;
   bool isPFJet;
   bool isMiniAODJet;
+  bool isJPTJet;
   bool isHLT_;
 };
 

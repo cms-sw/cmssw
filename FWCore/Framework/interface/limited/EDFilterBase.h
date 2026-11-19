@@ -38,7 +38,7 @@ namespace edm {
   class StreamID;
   class ActivityRegistry;
   class EventForTransformer;
-  class ServiceWeakToken;
+  class ServiceToken;
 
   namespace maker {
     template <typename T>
@@ -51,8 +51,10 @@ namespace edm {
     public:
       template <typename T>
       friend class edm::maker::ModuleHolderT;
-      template <typename T>
-      friend class edm::WorkerT;
+      template <typename T, typename TI, typename TP>
+      friend class edm::ModuleTransitionWorker;
+      template <typename T, typename TI, typename TP>
+      friend class edm::ModuleTransitionWorkerBase;
       typedef EDFilterBase ModuleType;
 
       EDFilterBase(ParameterSet const& pset);
@@ -71,19 +73,20 @@ namespace edm {
       virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
       virtual bool wantsStreamRuns() const noexcept = 0;
       virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
+      constexpr static bool wantsWrites() noexcept { return false; }
 
       unsigned int concurrencyLimit() const { return queue_.concurrencyLimit(); }
 
       LimitedTaskQueue& queue() { return queue_; }
 
     private:
-      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
       void doTransformAsync(WaitingTaskHolder iTask,
                             size_t iTransformIndex,
                             EventPrincipal const& iEvent,
                             ActivityRegistry*,
                             ModuleCallingContext,
-                            ServiceWeakToken const&) noexcept;
+                            ServiceToken const&) noexcept;
 
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder,
@@ -159,7 +162,7 @@ namespace edm {
                                    std::size_t iIndex,
                                    edm::EventForTransformer& iEvent,
                                    edm::ActivityRegistry* iAct,
-                                   ServiceWeakToken const& iToken) const noexcept;
+                                   ServiceToken const& iToken) const noexcept;
 
       virtual void clearInputProcessBlockCaches();
 

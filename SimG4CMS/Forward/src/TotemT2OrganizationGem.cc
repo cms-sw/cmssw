@@ -25,13 +25,13 @@
 // constructors and destructor
 //
 
-TotemT2OrganizationGem ::TotemT2OrganizationGem() {
+TotemT2OrganizationGem::TotemT2OrganizationGem() {
   edm::LogVerbatim("ForwardSim") << "Creating TotemT2OrganizationGem";
 }
 
-TotemT2OrganizationGem ::~TotemT2OrganizationGem() {}
+TotemT2OrganizationGem::~TotemT2OrganizationGem() {}
 
-uint32_t TotemT2OrganizationGem ::getUnitID(const G4Step* aStep) const {
+uint32_t TotemT2OrganizationGem::getUnitID(const G4Step* aStep) const {
   G4VPhysicalVolume* physVol;
   uint32_t UNITA = 0;
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();

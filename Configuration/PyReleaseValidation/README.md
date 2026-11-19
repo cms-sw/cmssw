@@ -33,9 +33,10 @@ The offsets currently in use are:
 * 0.402: Alpaka, pixel only quadruplets, portable
 * 0.403: Alpaka, pixel only quadruplets, portable vs. CPU validation
 * 0.404: Alpaka, pixel only quadruplets, portable profiling
-* 0.406: Alpaka, pixel only triplets, portable
-* 0.407: Alpaka, pixel only triplets, portable vs. CPU validation
-* 0.407: Alpaka, pixel only triplets, portable profiling
+* 0.4021: Alpaka, pixel only quadruplets with CA extension to the outer tracker (`phase2CAExtension`), portable
+* 0.406: Alpaka, pixel only, CA extended to outer-tracker vector hits (`phase2CAVectorHits`), portable (Run4 only)
+* 0.407: Alpaka, pixel only, CA extended to outer-tracker vector hits (`phase2CAVectorHits`), portable vs. CPU validation (Run4 only)
+* 0.408: Alpaka, pixel only, CA extended to outer-tracker vector hits (`phase2CAVectorHits`), portable profiling (Run4 only)
 * 0.412: Alpaka, ECAL only, portable
 * 0.413: Alpaka, ECAL only, portable vs. CPU validation
 * 0.422: Alpaka, HCAL only, portable
@@ -51,31 +52,35 @@ The offsets currently in use are:
 * 0.7: trackingMkFit modifier
 * 0.701: DisplacedRegionalStep tracking iteration for Run-3
 * 0.702: trackingMkFit modifier for Phase-2 (initialStep only)
-* 0.711: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on CPU
-* 0.712: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available)
-* 0.713: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available), CPU vs. GPU
+* 0.711: LST+mkFit tracking (Phase-2 only), initialStep+HighPtTripletStep only, on CPU
+* 0.712: LST+mkFit tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available)
+* 0.713: LST+mkFit tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available), CPU vs. GPU
+* 0.714: LST+mkFit tracking (Phase-2 only), all iterations, full reco, on CPU
+* 0.715: LST+mkFit tracking (Phase-2 only), all iterations, full reco, on GPU (if available)
 * 0.75: HLT phase-2 timing menu
 * 0.7501: HLT phase-2 tracking-only menu
 * 0.7502: HLT phase-2 menu, with tracking ntuple
 * 0.7503: HLT phase-2 menu, CPU vs. GPU validation
+* 0.7504: HLT phase-2 development menu (with the v0p0_2026 L1 menu)
 * 0.751: HLT phase-2 timing menu Alpaka variant
-* 0.7521: HLT phase-2 timing menu ticlv5TrackLinkingGNN variant
-* 0.7522: HLT phase-2 timing menu mtd_at_hlt variant
 * 0.753: HLT phase-2 timing menu legacy tracking
-* 0.754: HLT phase-2 timing menu legacy tracking with Patatrack quads
-* 0.755: HLT phase-2 timing menu LST building variant
-* 0.756 HLT phase-2 timing menu trimmed tracking
-* 0.757: HLT phase-2 timing menu mkFitFit variant
-* 0.758 HLT phase-2 timing menu ticl_barrel variant
+* 0.7531: HLT phase-2 timing menu LST building variant
+* 0.7532: HLT phase-2 timing menu mkFitFit variant
+* 0.7533: HLT phase-2 timing menu, vector-hit-based pixel CA (`phase2CAVectorHits`)
+* 0.756: HLT phase-2 timing menu ticl_barrel variant
+* 0.7561: HLT phase-2 timing menu ticlv5TrackLinkingGNN variant
+* 0.7562: HLT phase-2 timing menu mtd_at_hlt variant
 * 0.759: HLT phase-2 menu, with NANO:@Phase2HLT
 * 0.7591: HLT phase-2 menu, with NANO:@Phase2HLTVal
+* 0.7592: HLT phase-2 menu, with NANO:@Phase2HLTVal (and nanoDQM)
 * 0.76: HLT phase-2 reduced menu, with DIGI step
 * 0.77: HLT phase-2 NGT Scouting menu
 * 0.771: HLT phase-2 NGT Scouting menu, Alpaka, TICL-Barrel
+* 0.7711: HLT phase-2 NGT Scouting menu with Pixeltracks CA Extension + LST T5s as GeneralTracks
 * 0.772: HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
-* 0.773: HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
-* 0.774: HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal+@Phase2L1DPGwithGen (L1+HLT objects)
-* 0.775: HLT phase-2 NGT Scouting menu with Pixeltracks CA Extension + LST T5s as GeneralTracks
+* 0.7721: HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting (and nanoDQM)
+* 0.7722: HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
+* 0.7723: HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal+@Phase2L1DPGwithGen (L1+HLT objects)
 * 0.778 L3 Tracker Muons reconstruction Outside-In first, HLT Muon NanoAOD
 * 0.78: Complete L1 workflow
 * 0.781: Complete L1 workflow, producing FEVT and NANO output L1/P2GT objects
@@ -96,9 +101,10 @@ The offsets currently in use are:
 * 0.24: 0 Tesla (Run-2, Run-3)
 * 0.31: Photon energy corrections with DRN architecture
 * 0.61: ECAL `phase2_ecal_devel` era, on CPU
-* 0.612: ECAL `phase2_ecal_devel` era, with automatic offload to GPU if available
+* 0.612: ECAL `phase2_ecal_devel` era, with Alpaka reconstruction
 * 0.6199: ECAL `phase2_ecal_devel` era, on CPU and with premixing stage1+stage2
-* 0.61299: ECAL `phase2_ecal_devel` era, with automatic offload to GPU if available and premixing stage1+stage2
+* 0.61299: ECAL `phase2_ecal_devel` era, with Alpaka reconstruction and premixing stage1+stage2
+* 0.622: ECAL `phase2_ecal_devel` era, with APD spike signals mixed into the ECAL digis and Alpaka reconstruction.
 * 0.631: ECAL component-method based digis
 * 0.632: ECAL component-method based finely-sampled waveforms
 * 0.633: ECAL phase2 Trigger Primitive

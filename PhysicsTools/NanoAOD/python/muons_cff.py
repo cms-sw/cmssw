@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.simplePATMuonFlatTableProducer_cfi import simplePATMuonFlatTableProducer
+# the ONNX Runtime based muon MVA ID and ParticleNet tagger require the ONNXService
+from PhysicsTools.ONNXRuntime.ONNXService_cfi import ONNXService
 
 import PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi
 

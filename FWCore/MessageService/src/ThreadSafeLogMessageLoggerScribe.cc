@@ -908,6 +908,7 @@ namespace edm {
         edm::ParameterSetDescription topDesc;
 
         topDesc.addUntracked<bool>("messageSummaryToJobReport", false);
+        topDesc.addUntracked<bool>("useContext", true);
         topDesc.addUntracked<std::string>("generate_preconfiguration_message", "");
         topDesc.addUntracked<unsigned int>("waiting_threshold", 100);
         topDesc.addUntracked<std::vector<std::string>>("suppressDebug", {});

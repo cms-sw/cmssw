@@ -75,8 +75,6 @@ private:
 
   // ----------member data ---------------------------
   edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   ticlgeom::Tools rhtools_;
   const std::string nameDetector_;
   const edm::EDGetTokenT<HGCRecHitCollection> recHitSource_;
@@ -622,8 +620,6 @@ HGCalMTRecoStudy::HGCalMTRecoStudy(const edm::ParameterSet &iConfig)
   }
 
   ticlGeomToken_ = esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""));
-  ticlGeomLookupToken_ = esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", ""));
-  ticlGeomLayersToken_ = esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""));
 }
 
 //
@@ -633,8 +629,7 @@ HGCalMTRecoStudy::HGCalMTRecoStudy(const edm::ParameterSet &iConfig)
 // ------------ method called for each event  ------------
 void HGCalMTRecoStudy::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
-  rhtools_.setGeometry(
-      iSetup.getData(ticlGeomToken_), iSetup.getData(ticlGeomLookupToken_), iSetup.getData(ticlGeomLayersToken_));
+  rhtools_.setGeometry(iSetup.getData(ticlGeomToken_));
 
   int verbosity_ = 0;
   double ElossLayer0[47], ElossLayer1[47];

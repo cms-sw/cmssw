@@ -1,0 +1,6 @@
+<use name="FWCore/ParameterSet"/>
+<use name="RecoLocalCalo/HGCalRecAlgos"/>
+<use name="RecoTICL/Inference"/>
+<library file="*.cc" name="RecoTICLInferencePlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

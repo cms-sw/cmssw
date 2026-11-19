@@ -5,9 +5,11 @@
 <use name="boost"/>
 <use name="clhep"/>
 <bin file="Jacobian_t.cpp">
+  <use name="google-benchmark"/>
 </bin>
 
 <bin file="ErrorProp_t.cpp">
+  <use name="google-benchmark"/>
   <use name="TrackingTools/GeomPropagators"/>
 </bin>
 

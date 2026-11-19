@@ -69,10 +69,8 @@ int main() {
         Matrix5d cov0 = loadCov(del0);
 
         Vector5d par1;
-        Vector5d par2;
 
         Matrix5d cov1;
-        Matrix5d cov2;
 
         // Matrix5d covf = transfFast(cov0,par0);
 
@@ -101,30 +99,6 @@ int main() {
 
         AlgebraicSymMatrix55 mo = ROOT::Math::Similarity(jl2c.jacobian(), m);
         std::cout << "curv error\n" << mo << std::endl;
-
-        /*
-
-  // not accurate as the perigee plane move as well...
-  Vector5d del1 = par2-par1;
-
-
-  // don't ask: guess
-  std::cout << "charge " << charge << std::endl;
-  std::cout << "par0 " << par0.transpose() << std::endl;
-  std::cout << "del0 " << del0.transpose() << std::endl;
-
-
-  std::cout << "par1 " << par1.transpose() << std::endl;
-  std::cout << "del1 " << del1.transpose() << std::endl;
-  // std::cout << "del2 " << (J*del0).transpose() << std::endl;
-
-  std::cout << "del1^2 " << (del1.array()*del1.array()).transpose() << std::endl;
-  std::cout << std::endl;
-  
-  std::cout << "cov0\n" << cov0 << std::endl;
-  std::cout << "cov1\n" << cov1 << std::endl;
-  std::cout << "cov2\n" << cov2 << std::endl;
-  */
 
         std::cout << std::endl << "----------" << std::endl;
 

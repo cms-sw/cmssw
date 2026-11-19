@@ -31,6 +31,8 @@ TrackToTrackEfficiencies = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring(
         "HLT/Tracking/ValidationWRTOffline/hltMergedWrtHighPurity",
         "HLT/Tracking/ValidationWRTOffline/hltMergedWrtHighPurityPV",
+        "HLT/Tracking/ValidationWRTOffline/hltMergedWrtHighPurityByHits",
+        "HLT/Tracking/ValidationWRTOffline/hltMergedWrtHighPurityPVByHits",
     ),
     verbose        = cms.untracked.uint32(0),
     resolution     = cms.vstring(),
@@ -67,7 +69,9 @@ from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
 pp_on_PbPb_run3.toModify(TrackToTrackEfficiencies,
                          subDirs = [
                              "HLT/Tracking/ValidationWRTOffline/hltMergedPPonAAWrtHighPurity",
-                             "HLT/Tracking/ValidationWRTOffline/hltMergedPPonAAWrtHighPurityPV"])
+                             "HLT/Tracking/ValidationWRTOffline/hltMergedPPonAAWrtHighPurityPV",
+                             "HLT/Tracking/ValidationWRTOffline/hltMergedPPonAAWrtHighPurityByHits",
+                             "HLT/Tracking/ValidationWRTOffline/hltMergedPPonAAWrtHighPurityPVByHits"])
 
 EGMTrackToTrackEfficiencies = TrackToTrackEfficiencies.clone(
     subDirs        = cms.untracked.vstring(

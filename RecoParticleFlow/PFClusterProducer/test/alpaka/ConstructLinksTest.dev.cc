@@ -5,9 +5,6 @@
 #include <iostream>
 #include <cstdlib>
 
-#include <Eigen/Core>
-#include <Eigen/Dense>
-
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"

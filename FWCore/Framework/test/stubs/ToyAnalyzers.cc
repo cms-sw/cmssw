@@ -170,26 +170,36 @@ namespace edmtest {
   class GenericAnalyzerT : public edm::global::EDAnalyzer<> {
   public:
     GenericAnalyzerT(edm::ParameterSet const& iPSet)
-        : tokensBeginProcess_(edm::vector_transform(
-              iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginProcess"),
-              [this](edm::InputTag const& tag) { return this->consumes<T, edm::InProcess>(tag); })),
-          tokensBeginRun_(
-              edm::vector_transform(iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginRun"),
-                                    [this](edm::InputTag const& tag) { return this->consumes<T, edm::InRun>(tag); })),
+        : tokensBeginProcess_(
+              edm::vector_transform(iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginProcess"),
+                                    [this](edm::InputTag const& tag) {
+                                      return this->consumes<T, edm::InProcess, edm::Transition::BeginProcessBlock>(tag);
+                                    })),
+          tokensBeginRun_(edm::vector_transform(iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginRun"),
+                                                [this](edm::InputTag const& tag) {
+                                                  return this->consumes<T, edm::InRun, edm::Transition::BeginRun>(tag);
+                                                })),
           tokensBeginLumi_(
               edm::vector_transform(iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginLumi"),
-                                    [this](edm::InputTag const& tag) { return this->consumes<T, edm::InLumi>(tag); })),
+                                    [this](edm::InputTag const& tag) {
+                                      return this->consumes<T, edm::InLumi, edm::Transition::BeginLuminosityBlock>(tag);
+                                    })),
           tokensEvent_(edm::vector_transform(iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcEvent"),
                                              [this](edm::InputTag const& tag) { return this->consumes<T>(tag); })),
           tokensEndLumi_(
               edm::vector_transform(iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcEndLumi"),
-                                    [this](edm::InputTag const& tag) { return this->consumes<T, edm::InLumi>(tag); })),
-          tokensEndRun_(
-              edm::vector_transform(iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcEndRun"),
-                                    [this](edm::InputTag const& tag) { return this->consumes<T, edm::InRun>(tag); })),
-          tokensEndProcess_(edm::vector_transform(
-              iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcEndProcess"),
-              [this](edm::InputTag const& tag) { return this->consumes<T, edm::InProcess>(tag); })),
+                                    [this](edm::InputTag const& tag) {
+                                      return this->consumes<T, edm::InLumi, edm::Transition::EndLuminosityBlock>(tag);
+                                    })),
+          tokensEndRun_(edm::vector_transform(iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcEndRun"),
+                                              [this](edm::InputTag const& tag) {
+                                                return this->consumes<T, edm::InRun, edm::Transition::EndRun>(tag);
+                                              })),
+          tokensEndProcess_(
+              edm::vector_transform(iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcEndProcess"),
+                                    [this](edm::InputTag const& tag) {
+                                      return this->consumes<T, edm::InProcess, edm::Transition::EndProcessBlock>(tag);
+                                    })),
           shouldExist_(iPSet.getUntrackedParameter<bool>("inputShouldExist")),
           shouldBeMissing_(iPSet.getUntrackedParameter<bool>("inputShouldBeMissing")) {
       if (shouldExist_ and shouldBeMissing_) {

@@ -4,7 +4,8 @@
 // #include <pmmintrin.h>
 #include <typeinfo>
 
-#include "FWCore/Utilities/interface/HRRealTime.h"
+#include <benchmark/benchmark.h>
+#include <vector>
 
 namespace {
 
@@ -52,8 +53,6 @@ namespace {
 
   template <typename T>
   void sampleSquare() {
-    edm::HRTimeType tf = 0;
-    edm::HRTimeType ts = 0;
     Stat<T> stata("atan2");
     Stat<T> statr("r");
     T fac[8] = {-8, -5., -2., -1., 1., 2., 5., 8.};
@@ -64,23 +63,55 @@ namespace {
             for (int j = 0; j != 8; ++j) {
               T xx = x * fac[i];
               T yy = y * fac[j];
-              edm::HRTimeType sf = edm::hrRealTime();
               std::pair<T, T> res = fastmath::atan2r(xx, yy);
-              tf += (edm::hrRealTime() - sf);
               for (int l = 0; l < i + j; ++l)
                 dummy += yy;  // add a bit of random instruction
-              edm::HRTimeType ss = edm::hrRealTime();
               std::pair<T, T> ref = stdatan2r(xx, yy);
-              ts += (edm::hrRealTime() - ss);
               stata(res.first, ref.first);
               statr(res.second, ref.second);
             }
-    std::cout << typeid(T).name() << " times " << tf << " " << ts << std::endl;
+    std::cout << typeid(T).name() << " done" << std::endl;
   }
+
+  template <typename T>
+  std::vector<std::pair<T, T>> samples() {
+    std::vector<std::pair<T, T>> v;
+    T fac[8] = {-8, -5., -2., -1., 1., 2., 5., 8.};
+    for (T x = 1e-15; x < 1.1e+15; x *= 10)
+      for (T y = 1e-15; y < 1.1e+15; y *= 10)
+        for (int i = 0; i != 8; ++i)
+          for (int j = 0; j != 8; ++j)
+            v.emplace_back(x * fac[i], y * fac[j]);
+    return v;
+  }
+
+  template <typename T>
+  void BM_fastmathAtan2r(benchmark::State& state) {
+    auto const v = samples<T>();
+    for (auto _ : state)
+      for (auto const& p : v) {
+        std::pair<T, T> res = fastmath::atan2r(p.first, p.second);
+        benchmark::DoNotOptimize(res);
+      }
+  }
+  BENCHMARK_TEMPLATE(BM_fastmathAtan2r, float);
+  BENCHMARK_TEMPLATE(BM_fastmathAtan2r, double);
+
+  template <typename T>
+  void BM_stdAtan2r(benchmark::State& state) {
+    auto const v = samples<T>();
+    for (auto _ : state)
+      for (auto const& p : v) {
+        std::pair<T, T> res = stdatan2r(p.first, p.second);
+        benchmark::DoNotOptimize(res);
+      }
+  }
+  BENCHMARK_TEMPLATE(BM_stdAtan2r, float);
+  BENCHMARK_TEMPLATE(BM_stdAtan2r, double);
 
 }  // namespace
 
-int main() {
+int main(int argc, char* argv[]) {
   // _mm_setcsr (_mm_getcsr () | 0x8040);    // on Intel, treat denormals as zero for full speed
 
   {
@@ -107,5 +138,9 @@ int main() {
 
   sampleSquare<float>();
   sampleSquare<double>();
+
+  benchmark::Initialize(&argc, argv);
+  benchmark::RunSpecifiedBenchmarks();
+  benchmark::Shutdown();
   return 0;
 }

@@ -66,8 +66,10 @@ namespace edm {
 
     class EDAnalyzerAdaptorBase {
     public:
-      template <typename T>
-      friend class edm::WorkerT;
+      template <typename T, typename TI, typename TP>
+      friend class edm::ModuleTransitionWorker;
+      template <typename T, typename TI, typename TP>
+      friend class edm::ModuleTransitionWorkerBase;
       template <typename T>
       friend class edm::maker::ModuleHolderT;
 
@@ -89,6 +91,7 @@ namespace edm {
       virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
       virtual bool wantsStreamRuns() const noexcept = 0;
       virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
+      constexpr static bool wantsWrites() noexcept { return false; }
 
       void registerProductsAndCallbacks(EDAnalyzerAdaptorBase const*, SignallingProductRegistryFiller* reg);
 
@@ -106,7 +109,7 @@ namespace edm {
       //Same interface as EDConsumerBase
       void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
       void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
-      std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType) const;
+      std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(Transition) const;
 
       std::vector<ESResolverIndex> const& esGetTokenIndicesVector(edm::Transition iTrans) const;
       std::vector<ESRecordIndex> const& esGetTokenRecordIndicesVector(edm::Transition iTrans) const;
@@ -126,7 +129,7 @@ namespace edm {
       void deleteModulesEarly();
 
     private:
-      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
       void doPreallocate(PreallocationConfiguration const&);
       virtual void preallocRuns(unsigned int) {}
       virtual void preallocLumis(unsigned int) {}

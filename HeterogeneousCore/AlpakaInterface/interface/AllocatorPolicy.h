@@ -11,10 +11,10 @@ namespace cms::alpakatools {
   //   - Caching:       (device and host) caching allocator
   enum class AllocatorPolicy { Synchronous = 0, Asynchronous = 1, Caching = 2 };
 
-  template <typename TDev, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
+  template <typename TDev, typename = std::enable_if_t<alpaka::concepts::Device<TDev>>>
   constexpr inline AllocatorPolicy host_allocator_policy = AllocatorPolicy::Synchronous;
 
-  template <typename TDev, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
+  template <typename TDev, typename = std::enable_if_t<alpaka::concepts::Device<TDev>>>
   constexpr inline AllocatorPolicy device_allocator_policy = AllocatorPolicy::Synchronous;
 
 #if defined ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED || defined ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED

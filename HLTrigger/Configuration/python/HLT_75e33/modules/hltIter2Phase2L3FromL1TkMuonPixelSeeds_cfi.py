@@ -7,7 +7,7 @@ hltIter2Phase2L3FromL1TkMuonPixelSeeds = cms.EDProducer("SeedCreatorFromRegionCo
         ComponentName = cms.string('none')
     ),
     SeedMomentumForBOFF = cms.double(5.0),
-    TTRHBuilder = cms.string('WithTrackAngle'),
+    TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
     forceKinematicWithRegionDirection = cms.bool(False),
     magneticField = cms.string('ParabolicMf'),
     propagator = cms.string('PropagatorWithMaterialParabolicMf'),

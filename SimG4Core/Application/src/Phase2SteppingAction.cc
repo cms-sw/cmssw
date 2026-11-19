@@ -113,8 +113,8 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
       if (nullptr != track) {
         auto status = filter->ClassifyNewTrack(track);
         if (status == fKill) {
-          step->AddTotalEnergyDeposit(track->GetKineticEnergy());
           secit = sec->erase(secit);
+          delete track;
         } else {
           ++secit;
         }

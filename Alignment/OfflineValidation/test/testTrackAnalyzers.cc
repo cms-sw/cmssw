@@ -80,103 +80,109 @@ TEST_CASE("DMRChecker tests", "[DMRChecker]") {
 }
 
 //___________________________________________________________________________________________
+TEST_CASE("FastDMRChecker tests", "[FastDMRChecker]") {
+  const std::string baseConfig = generateBaseConfig("fastDMRChecker", "tesTrackAnalyzer3.root");
+  runTestForAnalyzer(baseConfig, "FastDMRChecker");
+}
+
+//___________________________________________________________________________________________
 TEST_CASE("JetHTAnalyzer tests", "[JetHTAnalyzer]") {
-  const std::string baseConfig = generateBaseConfig("jetHTAnalyzer", "tesTrackAnalyzer3.root");
+  const std::string baseConfig = generateBaseConfig("jetHTAnalyzer", "tesTrackAnalyzer4.root");
   runTestForAnalyzer(baseConfig, "JetHTAnalyzer");
 }
 
 //___________________________________________________________________________________________
 TEST_CASE("DiMuonValidation tests", "[DiMuonValidation]") {
-  const std::string baseConfig = generateBaseConfig("diMuonValidation", "tesTrackAnalyzer4.root");
+  const std::string baseConfig = generateBaseConfig("diMuonValidation", "tesTrackAnalyzer5.root");
   runTestForAnalyzer(baseConfig, "DiMuonValidation");
 }
 
 //___________________________________________________________________________________________
 TEST_CASE("CosmicSplitterValidation tests", "[CosmicsSplitterValidation]") {
-  const std::string baseConfig = generateBaseConfig("cosmicSplitterValidation", "tesTrackAnalyzer5.root");
+  const std::string baseConfig = generateBaseConfig("cosmicSplitterValidation", "tesTrackAnalyzer6.root");
   runTestForAnalyzer(baseConfig, "CosmicSplitterValidation");
 }
 
 //___________________________________________________________________________________________
 TEST_CASE("DiElectronVertexValidation tests", "[DiElectronVertexValidation]") {
-  const std::string baseConfig = generateBaseConfig("diElectronVertexValidation", "tesTrackAnalyzer6.root");
+  const std::string baseConfig = generateBaseConfig("diElectronVertexValidation", "tesTrackAnalyzer7.root");
   runTestForAnalyzer(baseConfig, "DiElectronVertexValidation");
 }
 
 //___________________________________________________________________________________________
 TEST_CASE("DiMuonVertexValidation tests", "[DiMuonVertexValidation]") {
-  const std::string baseConfig = generateBaseConfig("diMuonVertexValidation", "tesTrackAnalyzer7.root");
+  const std::string baseConfig = generateBaseConfig("diMuonVertexValidation", "tesTrackAnalyzer8.root");
   runTestForAnalyzer(baseConfig, "DiMuonVertexValidation");
 }
 
 //___________________________________________________________________________________________
 TEST_CASE("EopElecTreeWriter tests", "[EopElecTreeWriter]") {
-  const std::string baseConfig = generateBaseConfig("eopElecTreeWriter", "tesTrackAnalyzer8.root");
+  const std::string baseConfig = generateBaseConfig("eopElecTreeWriter", "tesTrackAnalyzer9.root");
   runTestForAnalyzer(baseConfig, "EopElecTreeWriter");
 }
 
 //___________________________________________________________________________________________
 TEST_CASE("EopTreeWriter tests", "[EopTreeWriter]") {
-  const std::string baseConfig = generateBaseConfig("eopTreeWriter", "tesTrackAnalyzer9.root");
+  const std::string baseConfig = generateBaseConfig("eopTreeWriter", "tesTrackAnalyzer10.root");
   runTestForAnalyzer(baseConfig, "EopTreeWriter");
 }
 
 //___________________________________________________________________________________________
 TEST_CASE("OverlapValidation tests", "[OverlapValidation]") {
-  const std::string baseConfig = generateBaseConfig("overlapValidation", "tesTrackAnalyzer10.root");
+  const std::string baseConfig = generateBaseConfig("overlapValidation", "tesTrackAnalyzer11.root");
   runTestForAnalyzer(baseConfig, "OverlapValidation");
 }
 
 //___________________________________________________________________________________________
 TEST_CASE("PixelBaryCentreAnalyzer tests", "[PixelBaryCentreAnalyzer]") {
-  const std::string baseConfig = generateBaseConfig("pixelBaryCentreAnalyzer", "tesTrackAnalyzer11.root");
+  const std::string baseConfig = generateBaseConfig("pixelBaryCentreAnalyzer", "tesTrackAnalyzer12.root");
   runTestForAnalyzer(baseConfig, "PixelBaryCentreAnalyzer");
 }
 
 //___________________________________________________________________________________________
 TEST_CASE("PrimaryVertexValidation tests", "[PrimaryVertexValidation]") {
-  const std::string baseConfig = generateBaseConfig("primaryVertexValidation", "tesTrackAnalyzer12.root");
+  const std::string baseConfig = generateBaseConfig("primaryVertexValidation", "tesTrackAnalyzer13.root");
   runTestForAnalyzer(baseConfig, "PrimaryVertexValidation");
 }
 
 //___________________________________________________________________________________________
 TEST_CASE("SplitVertexResolution tests", "[SplitVertexResolution]") {
-  const std::string baseConfig = generateBaseConfig("splitVertexResolution", "tesTrackAnalyzer13.root");
+  const std::string baseConfig = generateBaseConfig("splitVertexResolution", "tesTrackAnalyzer14.root");
   runTestForAnalyzer(baseConfig, "SplitVertexResolution");
 }
 
 //___________________________________________________________________________________________
 TEST_CASE("TrackerGeometryIntoNtuples tests", "[TrackerGeometryIntoNtuples]") {
-  const std::string baseConfig = generateBaseConfig("trackerGeometryIntoNtuples", "tesTrackAnalyzer14.root");
+  const std::string baseConfig = generateBaseConfig("trackerGeometryIntoNtuples", "tesTrackAnalyzer15.root");
   runTestForAnalyzer(baseConfig, "TrackerGeometryIntoNtuples");
 }
 
 //___________________________________________________________________________________________
 TEST_CASE("TrackerOfflineValidation tests", "[TrackerOfflineValidation]") {
-  const std::string baseConfig = generateBaseConfig("TrackerOfflineValidation", "tesTrackAnalyzer15.root");
+  const std::string baseConfig = generateBaseConfig("TrackerOfflineValidation", "tesTrackAnalyzer16.root");
   runTestForAnalyzer(baseConfig, "TrackerOfflineValidation");
 }
 
 //___________________________________________________________________________________________
 TEST_CASE("TrackerGeometryCompare tests", "[TrackerGeometryCompare]") {
-  const std::string baseConfig = generateBaseConfig("trackerGeometryCompare", "tesTrackAnalyzer16.root");
+  const std::string baseConfig = generateBaseConfig("trackerGeometryCompare", "tesTrackAnalyzer17.root");
   runTestForAnalyzer(baseConfig, "trackerGeometryCompare");
 }
 
 //___________________________________________________________________________________________
 TEST_CASE("ShortenedTrackValidation tests", "[ShortenedTrackValidation]") {
-  const std::string baseConfig = generateBaseConfig("shortenedTrackValidation", "tesTrackAnalyzer17.root");
+  const std::string baseConfig = generateBaseConfig("shortenedTrackValidation", "tesTrackAnalyzer18.root");
   runTestForAnalyzer(baseConfig, "shortenedTrackValidation");
 }
 
 //___________________________________________________________________________________________
 TEST_CASE("SagittaBiasNtuplizer tests", "[SagittaBiasNtuplizer]") {
-  const std::string baseConfig = generateBaseConfig("sagittaBiasNtuplizer", "tesTrackAnalyzer18.root");
+  const std::string baseConfig = generateBaseConfig("sagittaBiasNtuplizer", "tesTrackAnalyzer19.root");
   runTestForAnalyzer(baseConfig, "sagittaBiasNtuplizer");
 }
 
 //___________________________________________________________________________________________
 TEST_CASE("TkAlV0sAnalyzer tests", "[TkAlV0sAnalyzer]") {
-  const std::string baseConfig = generateBaseConfig("tkAlV0sAnalyzer", "tesTrackAnalyzer19.root");
+  const std::string baseConfig = generateBaseConfig("tkAlV0sAnalyzer", "tesTrackAnalyzer20.root");
   runTestForAnalyzer(baseConfig, "tkAlV0sAnalyzer");
 }

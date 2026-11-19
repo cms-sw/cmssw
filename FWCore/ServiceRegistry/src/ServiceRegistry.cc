@@ -60,30 +60,28 @@ namespace edm {
   //
   // const member functions
   //
-  ServiceToken ServiceRegistry::presentToken() const { return manager_; }
+  ServiceToken ServiceRegistry::presentToken() const { return ServiceToken(manager_); }
 
   //
   // static member functions
   //
 
-  ServiceToken ServiceRegistry::createServicesFromConfig(std::unique_ptr<ParameterSet> params) {
+  OwningServiceToken ServiceRegistry::createServicesFromConfig(std::unique_ptr<ParameterSet> params) {
     auto serviceSets = params->popVParameterSet(std::string("services"));
     //create the services
-    return ServiceToken(ServiceRegistry::createSet(serviceSets));
+    return ServiceRegistry::createSet(serviceSets);
   }
 
-  ServiceToken ServiceRegistry::createSet(std::vector<ParameterSet>& iPS) {
+  OwningServiceToken ServiceRegistry::createSet(std::vector<ParameterSet>& iPS) {
     using namespace serviceregistry;
-    auto returnValue = std::make_shared<ServicesManager>(iPS);
-    return ServiceToken(returnValue);
+    return OwningServiceToken(ServicesManager::create(iPS));
   }
 
-  ServiceToken ServiceRegistry::createSet(std::vector<ParameterSet>& iPS,
-                                          ServiceToken iToken,
-                                          serviceregistry::ServiceLegacy iLegacy) {
+  OwningServiceToken ServiceRegistry::createSet(std::vector<ParameterSet>& iPS,
+                                                OwningServiceToken const& iToken,
+                                                serviceregistry::ServiceLegacy iLegacy) {
     using namespace serviceregistry;
-    auto returnValue = std::make_shared<ServicesManager>(iToken, iLegacy, iPS);
-    return ServiceToken(returnValue);
+    return OwningServiceToken(ServicesManager::create(iToken.manager_, iLegacy, iPS));
   }
 
   ServiceRegistry& ServiceRegistry::instance() {

@@ -194,6 +194,7 @@
   <class name="edm::reftobase::RefVectorHolder<reco::CompositeCandidateRefVector>" />
 
   <class name="reco::VertexCompositeCandidateCollection" />
+  <class name="edm::RefToBaseProd<reco::VertexCompositePtrCandidate>" />
   <class name="edm::Wrapper<reco::VertexCompositeCandidateCollection>" />
   <class name="edm::reftobase::Holder<reco::io_v1::Candidate, reco::VertexCompositeCandidateRef>" />
   <class name="edm::reftobase::RefHolder<reco::VertexCompositeCandidateRef>" />
