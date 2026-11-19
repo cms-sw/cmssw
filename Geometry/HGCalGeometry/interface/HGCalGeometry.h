@@ -78,6 +78,9 @@ public:
   /// Returns area of a cell
   double getArea(const DetId& detid) const;
 
+  /// Return the edge of scintillator tile
+  double edge(const HGCScintillatorDetId& detid) const;
+
   /// Returns the corner points of this cell's volume.
   CornersVec getCorners(const DetId& id) const;
   CornersVec get8Corners(const DetId& id) const;

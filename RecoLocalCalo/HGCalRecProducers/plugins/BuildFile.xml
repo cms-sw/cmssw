@@ -19,6 +19,7 @@
   <use name="Geometry/HGCalGeometry"/>
   <use name="RecoLocalCalo/HGCalRecAlgos"/>
   <use name="RecoLocalCalo/HGCalRecProducers"/>
+  <use name="SimCalorimetry/HGCalSimAlgos"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
