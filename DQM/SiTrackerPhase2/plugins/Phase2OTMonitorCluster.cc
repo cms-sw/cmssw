@@ -69,6 +69,7 @@ private:
   MonitorElement* numberClusters_Barrel_;
   MonitorElement* crackOverview_;
   MonitorElement* clusterSize_map_CRACK;
+  MonitorElement* numClusters_map_CRACK;
 
   void fillOTHistos(const edm::Event& iEvent);
 
@@ -176,6 +177,8 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
           topOrBottomColumn = (isLowerSensor ? (clusterItr.column() + 1) * -1 : (clusterItr.column() + 1));
           if (crackOverview_)
             crackOverview_->Fill(module, layer + 0.05 - (module % 2 * 0.1));
+          if (numClusters_map_CRACK)
+            numClusters_map_CRACK->Fill(module, layer);
         }
       }
 
@@ -295,8 +298,14 @@ void Phase2OTMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
     );
     clusterSize_map_CRACK->getTProfile2D()->SetStats(false);
     clusterSize_map_CRACK->setOption("colz");
-  } else
+
+    crack_cluster_size_map.addParameter<std::string>("name", "Crack_NumClusters");
+    crack_cluster_size_map.addParameter<std::string>("title", "Number of clusters by module and layer;Module;Layer");
+    numClusters_map_CRACK = phase2tkutil::book2DFromPSet(crack_cluster_size_map, ibooker);
+  } else {
     clusterSize_map_CRACK = nullptr;
+    numClusters_map_CRACK = nullptr;
+  }
 
   ibooker.setCurrentFolder(top_folder + "/Positions/");
   globalXY_P_ = phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_P"), ibooker);
