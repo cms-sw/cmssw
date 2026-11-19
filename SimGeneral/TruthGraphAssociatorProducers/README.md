@@ -14,6 +14,7 @@ One associator per domain consumes those targets and a reco collection:
 | Module | Labels in `truthGraphAssociators_cff` |
 |---|---|
 | `AllTrackToTruthBranchAssociatorsProducer` | `allTrackToTruthBranchAssociators` |
+| `TruthBranchGsfTrackAssociatorsProducer` | `truthBranchGsfTrackAssociators` |
 | `TruthBranchTracksterAssociatorsProducer` | `truthBranchTracksterAssociators` |
 | `TruthBranchPFClusterAssociatorsProducer` | `truthBranchPFClusterEcalAssociators`, `truthBranchPFClusterHcalAssociators` |
 | `AllVertexToTruthBranchAssociatorsProducer` | `allVertexToTruthBranchAssociators`, `allSecondaryVertexToTruthBranchAssociators` |

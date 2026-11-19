@@ -68,6 +68,7 @@ _truthOfflineInputsKeep = [
     'keep recoPFClusters_particleFlowClusterECAL__*',
     'keep recoPFClusters_particleFlowClusterHCAL__*',
     'keep recoTracks_generalTracks__*',
+    'keep recoGsfTracks_electronGsfTracks__*',
     'keep recoVertexs_offlinePrimaryVertices__*',
     'keep recoVertexs_inclusiveSecondaryVertices__*',
 ] + ['keep ticlTracksters_%s__*' % label for label in ticlIterLabelsPSet.labels]

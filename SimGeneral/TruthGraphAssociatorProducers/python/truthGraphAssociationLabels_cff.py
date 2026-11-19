@@ -35,6 +35,10 @@ tracksterProducerTypes = (
 # needs an instance label is written "label:instance" and split by the producers.
 truthGraphRecoLabelsPSet = cms.PSet(
     tracks=cms.vstring("generalTracks"),
+    # The electron tracks: their own pattern recognition from the electron seeds
+    # (electronCkfTrackCandidates), fitted with the Gaussian-sum filter. A seed need not
+    # come from an electron.
+    gsfTracks=cms.vstring("electronGsfTracks"),
     vertices=cms.vstring("offlinePrimaryVertices"),
     secondaryVertices=cms.vstring("inclusiveSecondaryVertices"),
     # Particle-flow clusters, one domain per subdetector because the shared-energy
@@ -55,6 +59,7 @@ truthGraphRecoLabelsPSet = cms.PSet(
 # the truth objects with a hit in them. An empty list means the whole hit channel.
 truthBranchDenominatorDetectors = dict(
     tracks=[],
+    gsfTracks=[],
     tracksters=["HGCalEE", "HGCalHSi", "HGCalHSc"],
     pfClustersEcal=["Ecal"],
     pfClustersHcal=["Hcal"],
@@ -67,6 +72,9 @@ truthBranchDenominatorDetectors = dict(
 # and simply produces nothing.
 truthGraphHltRecoLabelsPSet = cms.PSet(
     tracks=cms.vstring("hltGeneralTracks"),
+    # The menu has GSF tracks (hltEgammaGsfTracks*), but no HLT associator is configured
+    # for them yet.
+    gsfTracks=cms.vstring(),
     vertices=cms.vstring("hltOfflinePrimaryVertices"),
     secondaryVertices=cms.vstring(),
     pfClustersEcal=cms.vstring(),
