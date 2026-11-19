@@ -6,8 +6,12 @@ from Validation.RecoTrack.associators_cff import hltTrackAssociatorByHits, tpToH
 from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import simHitTPAssocProducer
 from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi import trackingParticleRecoTrackAsssociation
 # HLT TICL geometry, under the HLT data label: the same object the HLT menu loads, so it can be
-# added here without clashing with the HLT menu, nor with the offline (unlabelled) TICL geometry
-from HLTrigger.Configuration.HLT_75e33.eventsetup.hltTiclGeomESProducer_cfi import hltTiclGeomESProducer
+# added here without clashing with the HLT menu, nor with the offline (unlabelled) TICL geometry.
+# It is attached to the process by a Phase-2 process modifier, outside of any Task: an EventSetup
+# module that belongs to a Task is enabled only if that Task is scheduled, which would switch off
+# the HLT menu's own instance in jobs that load but do not schedule the HLT validation.
+from HLTrigger.Configuration.HLT_75e33.eventsetup.hltTiclGeomESProducer_cfi import hltTiclGeomESProducer as _hltTiclGeomESProducer
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common as _phase2_common
 # CA - PATTERN RECOGNITION
 
 hltFilteredLayerClustersSimTracksters = _filteredLayerClustersProducer.clone(
@@ -45,8 +49,13 @@ hltTiclSimTracksters = _simTrackstersProducer.clone(
 
 from Validation.Configuration.hltHGCalSimValid_cff import *
 
-hltTiclSimTrackstersTask = cms.Task(hltTiclGeomESProducer,
-                                    hltTrackAssociatorByHits,
+def _addHltTiclGeom(process):
+    if not hasattr(process, 'hltTiclGeomESProducer'):
+        process.hltTiclGeomESProducer = _hltTiclGeomESProducer.clone()
+
+addHltTiclGeomForHLTValidation = _phase2_common.makeProcessModifier(_addHltTiclGeom)
+
+hltTiclSimTrackstersTask = cms.Task(hltTrackAssociatorByHits,
                                     tpToHltGeneralTrackAssociation,
                                     tpHltGsfTrackAssociation,
                                     simHitTPAssocProducer,
