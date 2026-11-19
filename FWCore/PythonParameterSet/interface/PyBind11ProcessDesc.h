@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace edm {
@@ -25,6 +26,11 @@ private:
 
 class PyBind11ProcessDesc {
 public:
+  // process options to be set after reading the configuration, as pairs of
+  // name and python expression: {"numberOfThreads", "4"} is equivalent to
+  //   process.options.numberOfThreads = 4
+  using ProcessOptions = std::vector<std::pair<std::string, std::string>>;
+
   PyBind11ProcessDesc();
   /** This constructor will parse the given file or string
       and create two objects in python-land:
@@ -33,9 +39,12 @@ public:
     It decides whether it's a file or string by seeing if
     it ends in '.py'
   */
-  PyBind11ProcessDesc(std::string const& config, bool isFile);
+  PyBind11ProcessDesc(std::string const& config, bool isFile, ProcessOptions const& options = {});
 
-  PyBind11ProcessDesc(std::string const& config, bool isFile, const std::vector<std::string>& args);
+  PyBind11ProcessDesc(std::string const& config,
+                      bool isFile,
+                      const std::vector<std::string>& args,
+                      ProcessOptions const& options = {});
 
   ~PyBind11ProcessDesc();
 
@@ -54,9 +63,8 @@ public:
 
 private:
   void prepareToRead();
-  void read(std::string const& config, bool isFile);
-  void readFile(std::string const& fileName);
-  void readString(std::string const& pyConfig);
+  void read(std::string const& config, bool isFile, ProcessOptions const& options);
+  void setProcessOptions(ProcessOptions const& options);
 
   Python11ParameterSet theProcessPSet;
   PyBind11InterpreterSentry theInterpreter;
