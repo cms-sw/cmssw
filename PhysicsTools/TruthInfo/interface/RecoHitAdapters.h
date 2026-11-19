@@ -24,6 +24,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/HGCalReco/interface/TICLCandidate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/TrackerSingleRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/trackerHitRTTI.h"
@@ -139,6 +140,23 @@ namespace truth {
       const float multiplicity = v < multiplicities.size() && multiplicities[v] > 0.f ? multiplicities[v] : 1.f;
       for (auto const& [detId, fraction] : layerClusters[lc].hitsAndFractions())
         hits.push_back(RecoHit{.detId = detId.rawId(), .fraction = fraction / multiplicity});
+    }
+    sortAndCoalesce(hits);
+    return hits;
+  }
+
+  // TICLCandidate -> the (DetId, fraction) of the layer clusters of ALL its tracksters, so a
+  // candidate is matched like one trackster made of them. Its track is matched by the track
+  // associator and read from that map; it contributes no hit here. A layer cluster shared by
+  // two of its tracksters is coalesced (fractions summed) so the merge-join sees it once.
+  inline std::vector<RecoHit> recoHits(TICLCandidate const& candidate,
+                                       std::vector<reco::CaloCluster> const& layerClusters) {
+    std::vector<RecoHit> hits;
+    for (auto const& trackster : candidate.tracksters()) {
+      if (trackster.isNull())
+        continue;
+      auto tracksterHits = recoHits(*trackster, layerClusters);
+      hits.insert(hits.end(), tracksterHits.begin(), tracksterHits.end());
     }
     sortAndCoalesce(hits);
     return hits;
