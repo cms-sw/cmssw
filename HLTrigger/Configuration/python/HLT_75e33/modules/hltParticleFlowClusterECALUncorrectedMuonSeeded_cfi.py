@@ -1,0 +1,7 @@
+import FWCore.ParameterSet.Config as cms
+
+from .hltParticleFlowClusterECALUncorrectedUnseeded_cfi import hltParticleFlowClusterECALUncorrectedUnseeded as _hltParticleFlowClusterECALUncorrectedUnseeded
+
+hltParticleFlowClusterECALUncorrectedMuonSeeded = _hltParticleFlowClusterECALUncorrectedUnseeded.clone(
+    recHitsSource = "hltParticleFlowRecHitECALMuonSeeded"
+)

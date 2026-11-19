@@ -22,7 +22,6 @@ from ..modules.hltPhase2L3MuonsHcalIsodR0p3dRVeto0p000_cfi import *
 from ..modules.hltPhase2L3MuonsEcalIsodR0p3dRVeto0p000_cfi import *
 from ..modules.hltL3crIsoL1TkSingleMu22HcalIso0p40_cfi import *
 from ..modules.hltL3crIsoL1TkSingleMu22HgcalIso4p70_cfi import *
-from ..modules.hltFixedGridRhoFastjetAllCaloForEGamma_cfi import *
 from ..modules.hltParticleFlowClusterECALUnseeded_cfi import *
 from ..modules.hltParticleFlowClusterECALUncorrectedUnseeded_cfi import *
 from ..modules.hltParticleFlowRecHitECALUnseeded_cfi import *
@@ -43,7 +42,6 @@ HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1 = cms.Path(
     + hltParticleFlowRecHitECALUnseeded
     + hltParticleFlowClusterECALUncorrectedUnseeded
     + hltParticleFlowClusterECALUnseeded
-    + hltFixedGridRhoFastjetAllCaloForEGamma
     + hltPhase2L3MuonCandidates
     + hltPhase2L3MuonsEcalIsodR0p3dRVeto0p000
     + hltPhase2L3MuonsHcalIsodR0p3dRVeto0p000

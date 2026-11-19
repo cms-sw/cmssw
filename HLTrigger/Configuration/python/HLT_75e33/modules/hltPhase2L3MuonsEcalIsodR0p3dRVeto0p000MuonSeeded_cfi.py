@@ -1,0 +1,7 @@
+import FWCore.ParameterSet.Config as cms
+
+from .hltPhase2L3MuonsEcalIsodR0p3dRVeto0p000_cfi import hltPhase2L3MuonsEcalIsodR0p3dRVeto0p000 as _hltPhase2L3MuonsEcalIsodR0p3dRVeto0p000
+
+hltPhase2L3MuonsEcalIsodR0p3dRVeto0p000MuonSeeded = _hltPhase2L3MuonsEcalIsodR0p3dRVeto0p000.clone(
+    pfClusterProducer = "hltParticleFlowClusterECALMuonSeeded"
+)
