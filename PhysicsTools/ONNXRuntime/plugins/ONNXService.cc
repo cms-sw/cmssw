@@ -109,10 +109,13 @@ namespace cms::Ort {
     ::Ort::Env& env_;
     Provider cuda_;
     Provider rocm_;
+    // Allow the CUDA execution provider to use TF32 for the FP32 matrix multiplications and convolutions.
+    bool allow_tf32_;
   };
 
   ONNXService::ONNXService(edm::ParameterSet const& config)
-      : env_(environmentInstance(config.getUntrackedParameter<bool>("verbose"))) {
+      : env_(environmentInstance(config.getUntrackedParameter<bool>("verbose"))),
+        allow_tf32_(config.getParameter<bool>("allowTF32")) {
     // Get the CUDAService and the ROCmService, if they are configured: this makes them outlive this service, so the
     // CUDA and HIP runtimes are unloaded and the devices are reset only after the ONNX Runtime has been torn down.
     // This also constructs them, if they have not been constructed yet: they must be accessed before the
@@ -152,6 +155,12 @@ namespace cms::Ort {
 
   void ONNXService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
+    desc.add<bool>("allowTF32", false)
+        ->setComment(
+            "Allow the CUDA execution provider to use TF32 for the FP32 matrix multiplications and convolutions. This "
+            "is "
+            "faster on GPUs with tensor cores, but changes the results by O(1e-3) with respect to FP32 and to the "
+            "CPU.");
     desc.addUntracked<bool>("verbose", false)->setComment("Log the ONNX Runtime messages at the verbose level.");
     descriptions.add("ONNXService", desc);
   }
@@ -257,6 +266,9 @@ namespace cms::Ort {
       // The CUDA execution provider runs on the device added to the session options, and ignores the "device_id"
       // option; the device is identified by the "cuda_device_id" entry of its metadata.
       provider_options["device_id"] = std::to_string(device);
+      // The CUDA execution provider uses TF32 by default on GPUs that support it; disable it unless explicitly allowed,
+      // so that the results agree with FP32 on the CPU.
+      provider_options["use_tf32"] = allow_tf32_ ? "1" : "0";
       if (compute_stream != nullptr) {
         // Run the memory copies in the compute stream: the queues used by the alpaka modules are non-blocking, so
         // they would not be synchronised with the legacy default stream.

@@ -12,3 +12,7 @@ from RecoLocalFastTime.FTLRecProducers.MTDTimeCalibESProducers_cff import *
 
 fastTimingLocalRecoTask = cms.Task(mtdUncalibratedRecHits,mtdRecHits,btlDigiSoAProducer,btlBaseRecHitsSoA,btlRecHitsSoA,etlDigiSoAProducer,etlBaseRecHitsSoA,etlRecHitsSoA,mtdClusters,mtdTrackingRecHits)
 fastTimingLocalReco = cms.Sequence(fastTimingLocalRecoTask)
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(btlDigiSoAProducer, btlDigiCollection = "mixData:MTDBarrel")
+premix_stage2.toModify(etlDigiSoAProducer, etlDigiCollection = "mixData:MTDEndcap")
