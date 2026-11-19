@@ -2,15 +2,25 @@
 #define DataFormats_Common_DetSetNew_h
 
 #include "DataFormats/Common/interface/Ref.h"
+#include <type_traits>
 #include <vector>
 #include <cassert>
 
 namespace edmNew {
   //  FIXME move it elsewhere....
-  typedef unsigned int det_id_type;
+  using det_id_type = unsigned int;
 
   template <typename T>
   class DetSetVector;
+
+  template <typename T, bool IsConst>
+  class DetSetBase;
+
+  template <typename T>
+  using DetSet = DetSetBase<T, false>;
+
+  template <typename T>
+  using ConstDetSet = DetSetBase<T, true>;
 
   /* a proxy to a variable size array of T belonging to
    * a "channel" identified by an 32bit id
@@ -18,35 +28,43 @@ namespace edmNew {
    * FIXME interface to be finalized once use-cases fully identified
    * 
    */
-  template <typename T>
-  class DetSet {
+  template <typename T, bool IsConst>
+  class DetSetBase {
   public:
-    typedef DetSetVector<T> Container;
-    typedef unsigned int size_type;  // for persistency
-    typedef unsigned int id_type;
-    typedef T data_type;
+    using Container = DetSetVector<T>;
+    using ContainerReference = std::conditional_t<IsConst, Container const&, Container&>;
+    using Item = typename Container::Item;
+    using size_type = unsigned int;  // for persistency
+    using id_type = unsigned int;
+    using data_type = T;
 
-    typedef std::vector<data_type> DataContainer;
-    typedef data_type *iterator;
-    typedef data_type const *const_iterator;
+    using DataContainer = std::vector<data_type>;
+    using DataContainerReference = std::conditional_t<IsConst, DataContainer const&, DataContainer&>;
+    using iterator = std::conditional_t<IsConst, data_type const*, data_type*>;
+    using const_iterator = data_type const*;
+    using data_reference = std::conditional_t<IsConst, data_type const&, data_type&>;
+    using value_type = data_type;
+    using key_type = id_type;
 
-    typedef data_type value_type;
-    typedef id_type key_type;
-
-    inline DetSet() : m_id(0), m_data(nullptr), m_offset(-1), m_size(0) {}
-    inline DetSet(id_type i, DataContainer const &idata, size_type ioffset, size_type isize)
+    inline DetSetBase() : m_id(0), m_data(nullptr), m_offset(-1), m_size(0) {}
+    inline DetSetBase(id_type i, DataContainerReference idata, size_type ioffset, size_type isize)
         : m_id(i), m_data(&idata), m_offset(ioffset), m_size(isize) {}
 
-    inline DetSet(Container const &icont, typename Container::Item const &item, bool update)
+    inline DetSetBase(ContainerReference icont, Item const& item, bool update)
         : m_id(0), m_data(nullptr), m_offset(-1), m_size(0) {
-      set(icont, item, update);
+      init(icont, item, update);
     }
+
+    //Allow a const DetSet to be constructed from a non-const DetSet
+    template <bool B = IsConst, std::enable_if_t<B, int> = 0>
+    inline DetSetBase(DetSet<T> const& other)
+        : m_id(other.m_id), m_data(other.m_data), m_offset(other.m_offset), m_size(other.m_size) {}
 
     bool isValid() const { return m_offset >= 0; }
 
-    inline data_type &operator[](size_type i) { return data()[i]; }
+    inline data_reference operator[](size_type i) { return data()[i]; }
 
-    inline data_type operator[](size_type i) const { return data()[i]; }
+    inline data_type const& operator[](size_type i) const { return data()[i]; }
 
     inline iterator begin() { return data(); }
 
@@ -68,7 +86,7 @@ namespace edmNew {
 
     template <typename HandleT>
     edm::Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type> makeRefTo(
-        HandleT const &handle, const_iterator ci) const {
+        HandleT const& handle, const_iterator ci) const {
       return edm::Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>(
           handle.id(), ci, ci - &(container().front()));
     }
@@ -76,24 +94,20 @@ namespace edmNew {
     unsigned int makeKeyOf(const_iterator ci) const { return ci - &(container().front()); }
 
   private:
-    //FIXME (it may confuse users as size_type is same type as id_type...)
-    inline void set(Container const &icont, typename Container::Item const &item, bool update = true);
+    friend class DetSetBase<T, true>;
 
-    DataContainer const &container() const { return *m_data; }
+    void init(ContainerReference icont, Item const& item, bool update);
 
-    data_type const *data() const {
+    DataContainer const& container() const { return *m_data; }
+
+    iterator data() const {
       if (isValid() || !empty())
         assert(m_data);
-      return m_data ? (&((*m_data)[m_offset])) : nullptr;
-    }
-
-    data_type *data() {
-      assert(m_data);
-      return const_cast<data_type *>(&((*m_data)[m_offset]));
+      return m_data ? &((*m_data)[m_offset]) : nullptr;
     }
 
     id_type m_id;
-    DataContainer const *m_data;
+    std::conditional_t<IsConst, DataContainer const*, DataContainer*> m_data;
     int m_offset;
     size_type m_size;
   };

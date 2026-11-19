@@ -8,6 +8,8 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <algorithm>
+#include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -31,11 +33,22 @@ namespace {
 
   bool operator==(B const &b, T const &t) { return t == b; }
 }  // namespace
-typedef edmNew::DetSetVector<T> DSTV;
-typedef edmNew::DetSet<T> DST;
-typedef edmNew::det_id_type det_id_type;
-typedef DSTV::FastFiller FF;
-typedef DSTV::TSFastFiller TSFF;
+using DSTV = edmNew::DetSetVector<T>;
+using DST = edmNew::DetSet<T>;
+using det_id_type = edmNew::det_id_type;
+using FF = DSTV::FastFiller;
+using TSFF = DSTV::TSFastFiller;
+
+static_assert(std::is_same<decltype(std::declval<DSTV &>()[0][0]), T &>::value);
+static_assert(std::is_same<decltype(std::declval<DSTV const &>()[0][0]), T const &>::value);
+static_assert(std::is_same<decltype((*std::declval<DSTV::iterator>())[0]), T &>::value);
+static_assert(std::is_same<decltype((*std::declval<DSTV::const_iterator>())[0]), T const &>::value);
+static_assert(std::is_convertible_v<DST, DSTV::ConstDetSet>);
+static_assert(!std::is_convertible_v<DSTV::ConstDetSet, DST>);
+static_assert(std::is_convertible_v<DSTV::iterator, DSTV::const_iterator>);
+static_assert(!std::is_convertible_v<DSTV::const_iterator, DSTV::iterator>);
+static_assert(std::is_convertible_v<DSTV::MutableRange, DSTV::Range>);
+static_assert(!std::is_convertible_v<DSTV::Range, DSTV::MutableRange>);
 
 class TestDetSet {
 public:
@@ -418,8 +431,13 @@ TEST_CASE("DetSetNew", "[DetSetNew]") {
       ff.resize(4);
       std::copy(sv.begin(), sv.begin() + 4, ff.begin());
     }
-    DSTV::Range r = detsets.equal_range(30, cmp10());
+    DSTV::MutableRange r = detsets.equal_range(30, cmp10());
     REQUIRE(r.second - r.first == 2);
+    DSTV::Range constRange = r;
+    REQUIRE(constRange.first == r.first);
+    REQUIRE(r.second == constRange.second);
+    REQUIRE(constRange.second - r.first == 2);
+    REQUIRE(r.first < constRange.second);
     r = detsets.equal_range(40, cmp10());
     REQUIRE(r.second - r.first == 0);
 
@@ -446,6 +464,39 @@ TEST_CASE("DetSetNew", "[DetSetNew]") {
             return e.categoryCode() == edm::errors::InvalidReference;
           }));
     }
+  }
+
+  SECTION("const access") {
+    DSTV detsets(2);
+    FF ff(detsets, 21);
+    ff.push_back(T(1.f));
+    ff[0].v = 42.f;
+
+    DSTV const &constDetsets = detsets;
+    REQUIRE(constDetsets[21][0].v == 42.f);
+    DST mutableSet = detsets[21];
+    DSTV::ConstDetSet constSet = mutableSet;
+    REQUIRE(constSet.id() == mutableSet.id());
+    REQUIRE(constSet.size() == mutableSet.size());
+    REQUIRE(constSet.offset() == mutableSet.offset());
+    REQUIRE(&constSet[0] == &mutableSet[0]);
+    mutableSet[0].v = 43.f;
+    REQUIRE(constSet[0].v == 43.f);
+  }
+
+  SECTION("converted on-demand iterator") {
+    auto getter = std::make_shared<Getter>(&sv);
+    DSTV detsets(getter, std::vector<unsigned int>{21, 23}, 2);
+    detsets.reserve(2, 10);
+
+    DSTV::const_iterator noUpdate = detsets.find(21, false);
+    REQUIRE(!(*noUpdate).isValid());
+    REQUIRE(getter->ntot == 0);
+    DSTV::const_iterator update = detsets.find(23, true);
+    REQUIRE((*update).id() == 23);
+    REQUIRE((*update).size() == 3);
+    REQUIRE(detsets.isValid(23));
+    REQUIRE(getter->ntot == 3);
   }
 
   SECTION("algorithm") {
@@ -533,8 +584,9 @@ TEST_CASE("DetSetNew", "[DetSetNew]") {
     REQUIRE(std::for_each(detsets.begin(true), detsets.end(true), VerifyIter(&sv, 1, 2)).n == 9);
     REQUIRE(g.ntot == 1 + 3 + 5 + 7);
     SECTION("find not found") {
-      DSTV::const_iterator p = detsets.find(22);
-      REQUIRE(p == detsets.end());
+      DSTV const &constDetsets = detsets;
+      DSTV::const_iterator p = constDetsets.find(22);
+      REQUIRE(p == constDetsets.end());
     }
 
     SECTION("invalid index") {
@@ -579,8 +631,8 @@ TEST_CASE("DetSetNew", "[DetSetNew]") {
       std::copy(sv.begin(), sv.begin() + 4, ff.begin());
     }
     SECTION("edmNew::copy") {
-      typedef edm::RangeMap<det_id_type, edm::OwnVector<B> > RM;
-      edm::RangeMap<det_id_type, edm::OwnVector<B> > rm;
+      using RM = edm::RangeMap<det_id_type, edm::OwnVector<B> >;
+      RM rm;
       edmNew::copy(detsets, rm);
       rm.post_insert();
       std::vector<det_id_type> ids = rm.ids();

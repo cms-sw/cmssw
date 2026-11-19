@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <functional>
 #include <iterator>
+#include <type_traits>
 #include <utility>
 
 class TestDetSet;
@@ -30,7 +31,7 @@ namespace edm {
 
 //FIXME remove New when ready
 namespace edmNew {
-  typedef uint32_t det_id_type;
+  using det_id_type = uint32_t;
 
   struct CapacityExaustedException : public cms::Exception {
     CapacityExaustedException() : cms::Exception("Capacity exausted in DetSetVectorNew") {}
@@ -53,8 +54,8 @@ namespace edmNew {
     void throw_range(det_id_type iid) noexcept(false);
 
     struct DetSetVectorTrans {
-      typedef unsigned int size_type;  // for persistency
-      typedef unsigned int id_type;
+      using size_type = unsigned int;  // for persistency
+      using id_type = unsigned int;
 
       DetSetVectorTrans() : m_filling(false), m_dataSize(0) {}
       DetSetVectorTrans& operator=(const DetSetVectorTrans&) = delete;
@@ -153,53 +154,61 @@ namespace edmNew {
   template <typename T>
   class DetSetVector : private dstvdetails::DetSetVectorTrans {
   public:
-    typedef dstvdetails::DetSetVectorTrans Trans;
-    typedef Trans::Item Item;
-    typedef unsigned int size_type;  // for persistency
-    typedef unsigned int id_type;
-    typedef T data_type;
-    typedef edmNew::DetSetVector<T> self;
-    typedef edmNew::DetSet<T> DetSet;
-    typedef dslv::LazyGetter<T> Getter;
+    using Trans = dstvdetails::DetSetVectorTrans;
+    using Item = Trans::Item;
+    using size_type = unsigned int;  // for persistency
+    using id_type = unsigned int;
+    using data_type = T;
+    using self = edmNew::DetSetVector<T>;
+    using DetSet = edmNew::DetSet<T>;
+    using ConstDetSet = edmNew::ConstDetSet<T>;
+    using Getter = dslv::LazyGetter<T>;
     // FIXME not sure make sense....
-    typedef DetSet value_type;
-    typedef id_type key_type;
+    using value_type = DetSet;
+    using key_type = id_type;
 
-    typedef std::vector<Item> IdContainer;
-    typedef std::vector<data_type> DataContainer;
-    typedef typename IdContainer::iterator IdIter;
-    typedef typename std::vector<data_type>::iterator DataIter;
-    typedef std::pair<IdIter, DataIter> IterPair;
-    typedef typename IdContainer::const_iterator const_IdIter;
-    typedef typename std::vector<data_type>::const_iterator const_DataIter;
-    typedef std::pair<const_IdIter, const_DataIter> const_IterPair;
+    using IdContainer = std::vector<Item>;
+    using DataContainer = std::vector<data_type>;
+    using IdIter = typename IdContainer::iterator;
+    using DataIter = typename DataContainer::iterator;
+    using IterPair = std::pair<IdIter, DataIter>;
+    using const_IdIter = typename IdContainer::const_iterator;
+    using const_DataIter = typename DataContainer::const_iterator;
+    using const_IterPair = std::pair<const_IdIter, const_DataIter>;
 
-    typedef typename edm::refhelper::FindForNewDetSetVector<data_type> RefFinder;
+    using RefFinder = typename edm::refhelper::FindForNewDetSetVector<data_type>;
 
+    template <bool IsConst>
     struct IterHelp {
-      typedef DetSet result_type;
-      //      IterHelp() : v(0),update(true){}
+      using result_type = std::conditional_t<IsConst, ConstDetSet, DetSet>;
+      using container_ref = std::conditional_t<IsConst, DetSetVector<T> const&, DetSetVector<T>&>;
       IterHelp() : m_v(nullptr), m_update(false) {}
-      IterHelp(DetSetVector<T> const& iv, bool iup) : m_v(&iv), m_update(iup) {}
+      IterHelp(container_ref iv, bool iup) : m_v(&iv), m_update(iup) {}
+      //Allow a const IterHelp to be constructed from a non-const IterHelp
+      template <bool B = IsConst, std::enable_if_t<B, int> = 0>
+      IterHelp(IterHelp<false> const& other) : m_v(other.m_v), m_update(other.m_update) {}
 
       result_type operator()(Item const& item) const { return result_type(*m_v, item, m_update); }
 
     private:
-      DetSetVector<T> const* m_v;
+      friend struct IterHelp<true>;
+      std::conditional_t<IsConst, DetSetVector<T> const*, DetSetVector<T>*> m_v;
       bool m_update;
     };
 
-    typedef boost::transform_iterator<IterHelp, const_IdIter> const_iterator;
-    typedef std::pair<const_iterator, const_iterator> Range;
+    using iterator = boost::transform_iterator<IterHelp<false>, const_IdIter>;
+    using const_iterator = boost::transform_iterator<IterHelp<true>, const_IdIter>;
+    using MutableRange = std::pair<iterator, iterator>;
+    using Range = std::pair<const_iterator, const_iterator>;
 
     /* fill the lastest inserted DetSet
      */
     class FastFiller {
     public:
-      typedef typename DetSetVector<T>::data_type value_type;
-      typedef typename DetSetVector<T>::id_type key_type;
-      typedef typename DetSetVector<T>::id_type id_type;
-      typedef typename DetSetVector<T>::size_type size_type;
+      using value_type = typename DetSetVector<T>::data_type;
+      using key_type = typename DetSetVector<T>::id_type;
+      using id_type = typename DetSetVector<T>::id_type;
+      using size_type = typename DetSetVector<T>::size_type;
 
       FastFiller(DetSetVector<T>& iv, id_type id, bool isaveEmpty = false)
           : m_v(iv), m_item(getItem(m_v, id)), m_saveEmpty(isaveEmpty) {}
@@ -301,10 +310,10 @@ namespace edmNew {
      */
     class TSFastFiller {
     public:
-      typedef typename DetSetVector<T>::data_type value_type;
-      typedef typename DetSetVector<T>::id_type key_type;
-      typedef typename DetSetVector<T>::id_type id_type;
-      typedef typename DetSetVector<T>::size_type size_type;
+      using value_type = typename DetSetVector<T>::data_type;
+      using key_type = typename DetSetVector<T>::id_type;
+      using id_type = typename DetSetVector<T>::id_type;
+      using size_type = typename DetSetVector<T>::size_type;
 
       // this constructor is not supposed to be used in Concurrent mode
       TSFastFiller(DetSetVector<T>& iv, id_type id) : m_v(iv), m_item(getItem(iv, id)) {
@@ -378,7 +387,8 @@ namespace edmNew {
 
     friend class FastFiller;
     friend class TSFastFiller;
-    friend class edmNew::DetSet<T>;
+    friend class edmNew::DetSetBase<T, false>;
+    friend class edmNew::DetSetBase<T, true>;
 
     class FindForDetSetVector {
     public:
@@ -504,26 +514,28 @@ namespace edmNew {
       return p != m_ids.end() && (*p).isValid();
     }
 
-    /*
     DetSet operator[](id_type i) {
-      const_IdIter p = findItem(i);
-      if (p==m_ids.end()) what???
-      return DetSet(*this,p-m_ids.begin());
-    }
-    */
-
-    DetSet operator[](id_type i) const {
       const_IdIter p = findItem(i);
       if (p == m_ids.end())
         dstvdetails::throw_range(i);
       return DetSet(*this, *p, true);
     }
 
-    // slow interface
-    //    const_iterator find(id_type i, bool update=true) const {
+    ConstDetSet operator[](id_type i) const {
+      const_IdIter p = findItem(i);
+      if (p == m_ids.end())
+        dstvdetails::throw_range(i);
+      return ConstDetSet(*this, *p, true);
+    }
+
+    iterator find(id_type i, bool update = false) {
+      const_IdIter p = findItem(i);
+      return (p == m_ids.end()) ? end() : boost::make_transform_iterator(p, IterHelp<false>(*this, update));
+    }
+
     const_iterator find(id_type i, bool update = false) const {
       const_IdIter p = findItem(i);
-      return (p == m_ids.end()) ? end() : boost::make_transform_iterator(p, IterHelp(*this, update));
+      return (p == m_ids.end()) ? end() : boost::make_transform_iterator(p, IterHelp<true>(*this, update));
     }
 
     // slow interface
@@ -532,23 +544,35 @@ namespace edmNew {
       return (p.first != p.second) ? p.first : m_ids.end();
     }
 
-    //    const_iterator begin(bool update=true) const {
-    const_iterator begin(bool update = false) const {
-      return boost::make_transform_iterator(m_ids.begin(), IterHelp(*this, update));
+    iterator begin(bool update = false) {
+      return boost::make_transform_iterator(m_ids.begin(), IterHelp<false>(*this, update));
     }
 
-    //    const_iterator end(bool update=true) const {
+    const_iterator begin(bool update = false) const {
+      return boost::make_transform_iterator(m_ids.begin(), IterHelp<true>(*this, update));
+    }
+
+    iterator end(bool update = false) {
+      return boost::make_transform_iterator(m_ids.end(), IterHelp<false>(*this, update));
+    }
+
     const_iterator end(bool update = false) const {
-      return boost::make_transform_iterator(m_ids.end(), IterHelp(*this, update));
+      return boost::make_transform_iterator(m_ids.end(), IterHelp<true>(*this, update));
     }
 
     // return an iterator range (implemented here to avoid dereference of detset)
     template <typename CMP>
-    //    Range equal_range(id_type i, CMP cmp, bool update=true) const {
+    MutableRange equal_range(id_type i, CMP cmp, bool update = false) {
+      std::pair<const_IdIter, const_IdIter> p = std::equal_range(m_ids.begin(), m_ids.end(), i, cmp);
+      return MutableRange(boost::make_transform_iterator(p.first, IterHelp<false>(*this, update)),
+                          boost::make_transform_iterator(p.second, IterHelp<false>(*this, update)));
+    }
+
+    template <typename CMP>
     Range equal_range(id_type i, CMP cmp, bool update = false) const {
       std::pair<const_IdIter, const_IdIter> p = std::equal_range(m_ids.begin(), m_ids.end(), i, cmp);
-      return Range(boost::make_transform_iterator(p.first, IterHelp(*this, update)),
-                   boost::make_transform_iterator(p.second, IterHelp(*this, update)));
+      return Range(boost::make_transform_iterator(p.first, IterHelp<true>(*this, update)),
+                   boost::make_transform_iterator(p.second, IterHelp<true>(*this, update)));
     }
 
     int subdetId() const { return m_subdetId; }
@@ -582,6 +606,8 @@ namespace edmNew {
   private:
     //for testing
     friend class ::TestDetSet;
+
+    DataContainer& mutableData() { return m_data; }
 
     void update(Item const& item) const;
 
@@ -639,14 +665,16 @@ namespace edmNew {
     }
   }
 
-  template <typename T>
-  inline void DetSet<T>::set(DetSetVector<T> const& icont, typename Container::Item const& item, bool update) {
-    // if an item is being updated we wait
+  template <typename T, bool IsConst>
+  inline void DetSetBase<T, IsConst>::init(ContainerReference icont, Item const& item, bool update) {
     if (update)
       icont.update(item);
     while (item.initializing())
       nanosleep(nullptr, nullptr);
-    m_data = &icont.data();
+    if constexpr (IsConst)
+      m_data = &icont.data();
+    else
+      m_data = &icont.mutableData();
     m_id = item.id;
     m_offset = item.offset;
     m_size = item.size;
@@ -662,7 +690,7 @@ namespace edm {
   namespace refhelper {
     template <typename T>
     struct FindTrait<typename edmNew::DetSetVector<T>, T> {
-      typedef typename edmNew::DetSetVector<T>::FindForDetSetVector value;
+      using value = typename edmNew::DetSetVector<T>::FindForDetSetVector;
     };
   }  // namespace refhelper
   /* ... as there was one for the original DetSetVector*/
@@ -673,16 +701,14 @@ namespace edm {
     struct FindSetForNewDetSetVector {
       using first_argument_type = const edmNew::DetSetVector<T>&;
       using second_argument_type = unsigned int;
-      using result_type = edmNew::DetSet<T>;
+      using result_type = edmNew::ConstDetSet<T>;
 
-      result_type operator()(first_argument_type iContainer, second_argument_type iIndex) {
-        return &(iContainer[iIndex]);
-      }
+      result_type operator()(first_argument_type iContainer, second_argument_type iIndex) { return iContainer[iIndex]; }
     };
 
     template <typename T>
-    struct FindTrait<edmNew::DetSetVector<T>, edmNew::DetSet<T>> {
-      typedef FindSetForNewDetSetVector<T> value;
+    struct FindTrait<edmNew::DetSetVector<T>, edmNew::ConstDetSet<T>> {
+      using value = FindSetForNewDetSetVector<T>;
     };
   }  // namespace refhelper
   /* ... implementation is provided, just in case it's needed */
@@ -709,7 +735,7 @@ namespace edm {
   template <typename T>
   class ContainerMaskTraits<edmNew::DetSetVector<T>> {
   public:
-    typedef T value_type;
+    using value_type = T;
 
     static size_t size(const edmNew::DetSetVector<T>* iContainer) { return iContainer->dataSize(); }
     static unsigned int indexFor(const value_type* iElement, const edmNew::DetSetVector<T>* iContainer) {

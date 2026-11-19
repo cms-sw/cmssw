@@ -17,7 +17,7 @@ namespace edmNew {
       ToRM(edm::RangeMap<det_id_type, edm::OwnVector<B> >& irm) : rm(&irm) {}
       edm::RangeMap<det_id_type, edm::OwnVector<B> >* rm;
       template <typename T>
-      void operator()(edmNew::DetSet<T> const& ds) {
+      void operator()(edmNew::ConstDetSet<T> const& ds) {
         // make it easy
         // std::vector<T const *> v(ds.size());
         //std::transform(ds.begin(),ds.end(),v.begin(),dstvdetails::Pointer());
