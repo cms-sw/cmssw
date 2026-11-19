@@ -206,7 +206,7 @@ HGCalSciNoiseMap::SiPMonTileCharacteristics HGCalSciNoiseMap::scaleByDoseLy(cons
   }
 
   //ADDITIONAL SCALING FACTORS
-  std::pair<double, HGCalSciNoiseMap::GainRange_t> sipm = scaleBySipmArea(cellId, radius, gainPreChoice);
+  std::pair<double, HGCalSciNoiseMap::GainRange_t> sipm = scaleBySipmArea(cellId, gainPreChoice);
   double sipmAreaSF = sipm.first;
   HGCalSciNoiseMap::GainRange_t gain = sipm.second;
 
