@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # The HGCAL components, in the order of the merged layer clusters: EE, HSci, HSi
-from HLTrigger.Configuration.HLT_75e33.modules.hltMergeLayerClusters_cfi import hgcal_components, hgcal_detectors
+from HLTrigger.Configuration.HLT_75e33.modules.hltMergeLayerClusters_cfi import hgcal_components
 
 # The legacy layer clusters of the HGCAL components, converted from their SoA layer clusters into one merged
 # collection in one step
@@ -9,7 +9,6 @@ hltMergeLayerClustersL1Seeded = cms.EDProducer("HGCalMergedLayerClustersFromSoAP
     layerClustersSoA = cms.VInputTag(*["hltHgcalSoALayerClustersProducer" + x + "L1Seeded" for x in hgcal_components]),
     hgcalRecHitsSoA = cms.VInputTag(*["hltHgcalSoARecHitsProducer" + x + "L1Seeded" for x in hgcal_components]),
     hgcalRecHitsLayerClustersSoA = cms.VInputTag(*["hltHgcalSoARecHitsLayerClustersProducer" + x + "L1Seeded" for x in hgcal_components]),
-    detectors = cms.vstring(*hgcal_detectors),
     extraLayerClusters = cms.VInputTag(),
     extraTimeLayerClusters = cms.VInputTag(),
     timeClname = cms.string("timeLayerCluster")

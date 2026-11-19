@@ -23,9 +23,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     HGCalSoARecHitsProducer(edm::ParameterSet const& config)
         : EDProducer(config),
-          detector_(config.getParameter<std::string>("detector")),
           initialized_(false),
-          isNose_(detector_ == "HFNose"),
+          isNose_(config.getParameter<std::string>("detector") == "HFNose"),
+          isScintillator_(config.getParameter<std::string>("detector") == "BH"),
           maxNumberOfThickIndices_(config.getParameter<unsigned>("maxNumberOfThickIndices")),
           // Offset to jump from the CE-E silicon thickness indices to the CE-H ones in the thresholds array. It equals
           // the number of CE-E silicon thickness categories (3 for the pre-v19 geometries, 4 for v19).
@@ -36,7 +36,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           nonAgedNoises_(config.getParameter<std::vector<float>>("noises")),
           dEdXweights_(config.getParameter<std::vector<float>>("dEdXweights")),
           thicknessCorrection_(config.getParameter<std::vector<float>>("thicknessCorrection")),
-          noiseMip_(config.getParameter<double>("noiseMip")),
+          noiseMip_(config.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("noise_MIP")),
           sciThicknessCorrection_(config.getParameter<double>("sciThicknessCorrection")),
           ticlGeomToken_(consumesCollector().esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
           hits_token_(consumes<HGCRecHitCollection>(config.getParameter<edm::InputTag>("recHits"))),
@@ -99,21 +99,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         const DetId detid = hgrh.detid();
         const GlobalPoint position(rhtools_.getPosition(detid));
         auto entryInSoA = cellsView[layerCursor[placement.layer]++];
-        if (detector_ == "BH") {
+        // the scintillator rechits cluster in (eta, phi), with phi in [0, 2 pi), the silicon ones in (x, y)
+        if (isScintillator_) {
           entryInSoA.dim1() = position.eta();
           float phi = position.phi();
           if (phi < 0.f) {
             phi += 2.f * static_cast<float>(M_PI);
           }
           entryInSoA.dim2() = phi;
-        }  // else, isSilicon == true and eta phi values will not be used
-        else {
+        } else {
           entryInSoA.dim1() = position.x();
           entryInSoA.dim2() = position.y();
         }
         entryInSoA.dim3() = position.z();
         entryInSoA.energy() = hgrh.energy();
-        entryInSoA.mipEnergy() = hgrh.energy();  // TODO: CHANGE TO MIP
+        // the energy in MIP is not computed here: the column holds the energy in GeV
+        entryInSoA.mipEnergy() = hgrh.energy();
         entryInSoA.sigmaNoise() = v_sigmaNoise_.at(placement.layerOnSide).at(placement.thicknessIndex);
         entryInSoA.layer() = placement.layer;
         entryInSoA.recHitIndex() = i;
@@ -121,19 +122,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         entryInSoA.time() = hgrh.time();
         entryInSoA.timeError() = hgrh.timeError();
       }
-#if 0
-        std::cout << "Size: " << cells->metadata().size() << " count cells: " << index
-          << " i.e. " << cells->metadata().size() << std::endl;
-#endif
 
       if constexpr (!std::is_same_v<Device, alpaka_common::DevHost>) {
-        // Trigger copy async to GPU
-        //std::cout << "GPU" << std::endl;
         HGCalSoARecHitsDeviceCollection deviceProduct{iEvent.queue(), cells->metadata().size()};
         alpaka::memcpy(iEvent.queue(), deviceProduct.buffer(), cells.const_buffer());
         iEvent.emplace(deviceToken_, std::move(deviceProduct));
       } else {
-        //std::cout << "CPU" << std::endl;
         iEvent.emplace(deviceToken_, std::move(cells));
       }
 
@@ -151,16 +145,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       desc.add<std::vector<float>>("thicknessCorrection");
       desc.add<std::vector<float>>("noises");
       desc.add<std::vector<float>>("dEdXweights");
-      desc.add<double>("noiseMip", 0.2);
+      // the scintillator noise, as the noise PSet of the HGCAL scintillator digitizer: only noise_MIP is read
+      edm::ParameterSetDescription descNoiseMip;
+      descNoiseMip.add<bool>("scaleByDose", false);
+      descNoiseMip.add<unsigned int>("scaleByDoseAlgo", 0);
+      descNoiseMip.add<double>("scaleByDoseFactor", 1.);
+      descNoiseMip.add<std::string>("doseMap", "");
+      descNoiseMip.add<std::string>("sipmMap", "");
+      descNoiseMip.add<double>("referenceIdark", -1.);
+      descNoiseMip.add<double>("referenceXtalk", -1.);
+      descNoiseMip.add<double>("noise_MIP", 1. / 100.);
+      desc.add<edm::ParameterSetDescription>("noiseMip", descNoiseMip);
       desc.add<double>("sciThicknessCorrection", 1.0);
       desc.add<float>("ecut", 3.);
       descriptions.addWithDefaultLabel(desc);
     }
 
   private:
-    std::string detector_;
     bool initialized_;
-    bool isNose_;
+    const bool isNose_;
+    const bool isScintillator_;
     unsigned maxNumberOfThickIndices_;
     unsigned int maxlayer_;
     int const deltasi_index_regemfac_;
@@ -209,13 +213,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     void computeThreshold() {
-      // To support the TDR geometry and also the post-TDR one (v9 onwards), we
-      // need to change the logic of the vectors containing signal to noise and
-      // thresholds. The first 3 indices will keep on addressing the different
-      // thicknesses of the Silicon detectors in CE_E , the next 3 indices will address
-      // the thicknesses of the Silicon detectors in CE_H, while the last one, number 6 (the
-      // seventh) will address the Scintillators. This change will support both
-      // geometries at the same time.
+      // Per layer, the thresholds and the noises: first the CE-E silicon thickness categories, then the CE-H ones,
+      // then one slot for the scintillator.
 
       if (initialized_)
         return;  // only need to calculate thresholds once
@@ -234,12 +233,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                              (fcPerMip_[ithick] * thicknessCorrection_[ithick]);
           thresholds_[ilayer - 1][ithick] = sigmaNoise * ecut_;
           v_sigmaNoise_[ilayer - 1][ithick] = sigmaNoise;
-#if 0
-            std::cout << "ilayer: " << ilayer << " nonAgedNoises: " << nonAgedNoises_[ithick]
-              << " fcPerEle: " << fcPerEle_ << " fcPerMip: " << fcPerMip_[ithick]
-              << " noiseMip: " << fcPerEle_ * nonAgedNoises_[ithick] / fcPerMip_[ithick]
-              << " sigmaNoise: " << sigmaNoise << "\n";
-#endif
         }
         if (!isNose_) {
           float scintillators_sigmaNoise = 0.001f * noiseMip_ * dEdXweights_[ilayer] / sciThicknessCorrection_;

@@ -8,7 +8,6 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/allowedValues.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
@@ -16,6 +15,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterHostCollection.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HGCalReco/interface/HGCalSoARecHitsExtraHostCollection.h"
 #include "DataFormats/HGCalReco/interface/HGCalSoARecHitsHostCollection.h"
 
@@ -31,20 +31,10 @@ public:
       : getTokenSoAClusters_(consumes(config.getParameter<edm::InputTag>("src"))),
         getTokenSoACells_(consumes(config.getParameter<edm::InputTag>("hgcalRecHitsSoA"))),
         getTokenSoARecHitsExtra_(consumes(config.getParameter<edm::InputTag>("hgcalRecHitsLayerClustersSoA"))),
-        detector_(config.getParameter<std::string>("detector")),
         timeClname_(config.getParameter<std::string>("timeClname")) {
 #if DEBUG_CLUSTERS_ALPAKA
     moduleLabel_ = config.getParameter<std::string>("@module_label");
 #endif
-    if (detector_ == "HFNose") {
-      algoId_ = reco::CaloCluster::hfnose;
-    } else if (detector_ == "EE") {
-      algoId_ = reco::CaloCluster::hgcal_em;
-    } else if (detector_ == "BH") {
-      algoId_ = reco::CaloCluster::hgcal_scintillator;
-    } else {  //for FH
-      algoId_ = reco::CaloCluster::hgcal_had;
-    }
 
     produces<std::vector<float>>("InitialLayerClustersMask");
     produces<std::vector<reco::BasicCluster>>();
@@ -75,8 +65,8 @@ public:
           math::XYZPoint(deviceView.position()[i].x(), deviceView.position()[i].y(), deviceView.position()[i].z()),
           reco::CaloID::DET_HGCAL_ENDCAP,
           std::move(thisCluster),
-          algoId_);
-      clusters->back().setSeed(deviceView.indexes()[i].seedID());
+          deviceView.indexes()[i].algoID());
+      clusters->back().setSeed(DetId(deviceView.indexes()[i].seedID()));
     }
 
     // Populate hits and fractions. This involves two SoAs: the original RecHits
@@ -120,16 +110,8 @@ public:
     filler.fill();
     iEvent.put(std::move(timeCl), timeClname_);
 
-    // The layerClusterMask for the HGCAL detector is created at a later
-    // stage, when the layer clusters from the different components of HGCAL
-    // are merged together into a unique collection. For the case of HFNose,
-    // since there is no further merging step needed, we create the
-    // layerClustersMask directly here.
-    if (detector_ == "HFNose") {
-      std::unique_ptr<std::vector<float>> layerClustersMask = std::make_unique<std::vector<float>>();
-      layerClustersMask->resize(clusterHandle->size(), 1.0);
-      iEvent.put(std::move(layerClustersMask), "InitialLayerClustersMask");
-    }
+    // the mask of the layer clusters, all usable
+    iEvent.put(std::make_unique<std::vector<float>>(clusterHandle->size(), 1.f), "InitialLayerClustersMask");
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -138,9 +120,6 @@ public:
     desc.add<edm::InputTag>("hgcalRecHitsLayerClustersSoA", edm::InputTag("hltHgcalSoARecHitsLayerClustersProducer"));
     desc.add<edm::InputTag>("hgcalRecHitsSoA", edm::InputTag("hltHgcalSoARecHitsProducer"));
     desc.add<std::string>("timeClname", "timeLayerCluster");
-    desc.ifValue(edm::ParameterDescription<std::string>(
-                     "detector", "EE", true, edm::Comment("the HGCAL component used to create clusters.")),
-                 edm::allowedValues<std::string>("EE", "FH", "BH", "HFNose"));
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -148,9 +127,7 @@ private:
   edm::EDGetTokenT<reco::CaloClusterHostCollection> const getTokenSoAClusters_;
   edm::EDGetTokenT<HGCalSoARecHitsHostCollection> const getTokenSoACells_;
   edm::EDGetTokenT<HGCalSoARecHitsExtraHostCollection> const getTokenSoARecHitsExtra_;
-  std::string detector_;
   std::string timeClname_;
-  reco::CaloCluster::AlgoId algoId_;
 #if DEBUG_CLUSTERS_ALPAKA
   std::string moduleLabel_;
 #endif

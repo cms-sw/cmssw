@@ -1,6 +1,8 @@
 #include <cmath>
 #include <cstdint>
+#include <memory>
 #include <span>
+#include <utility>
 
 #include <alpaka/alpaka.hpp>
 
@@ -10,8 +12,9 @@
 
 #include "HGCalCLUEsteringAlgoWrapper.h"
 
-#include "CLUEstering/core/detail/defines.hpp"
 #include "CLUEstering/core/Clusterer.hpp"
+#include "CLUEstering/core/ConvolutionalKernel.hpp"
+#include "CLUEstering/core/DistanceMetrics.hpp"
 #include "CLUEstering/data_structures/PointsDevice.hpp"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -38,15 +41,33 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   }  // namespace
 
+  struct HGCalCLUEsteringAlgoWrapper::Clusterer {
+    clue::Clusterer<2> algo;
+  };
+
+  HGCalCLUEsteringAlgoWrapper::HGCalCLUEsteringAlgoWrapper(float dc,
+                                                           float kappa,
+                                                           float outlierDeltaFactor,
+                                                           bool isScintillator)
+      : clusterer_{std::make_unique<Clusterer>(Clusterer{clue::Clusterer<2>(dc, kappa, dc * outlierDeltaFactor)})},
+        isScintillator_{isScintillator} {
+    if (isScintillator_) {
+      clusterer_->algo.setWrappedCoordinates(0, 1);
+    }
+  }
+
+  HGCalCLUEsteringAlgoWrapper::~HGCalCLUEsteringAlgoWrapper() = default;
+
+  void HGCalCLUEsteringAlgoWrapper::setExtremes(std::pair<float, float> dim1, std::pair<float, float> dim2) {
+    const std::pair<float, float> extremes[2] = {dim1, dim2};
+    clusterer_->algo.setExtremes(extremes);
+  }
+
   void HGCalCLUEsteringAlgoWrapper::run(Queue& queue,
                                         uint32_t nRecHits,
-                                        float dc,
-                                        float kappa,
-                                        float outlierDeltaFactor,
-                                        bool isScintillator,
                                         std::span<const uint32_t> batchItemSizes,
                                         HGCalSoARecHitsDeviceCollection::ConstView recHits,
-                                        HGCalSoARecHitsExtraDeviceCollection::View recHitsClustering) const {
+                                        HGCalSoARecHitsExtraDeviceCollection::View recHitsClustering) {
     auto nClusters = make_device_view<unsigned int>(queue, recHitsClustering.numberOfClustersScalar());
     alpaka::memset(queue, nClusters, 0x0);
     if (nRecHits == 0) {
@@ -62,18 +83,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     d_points.set_density_uncertainty(recHits.sigmaNoise());
     d_points.set_tags(recHits.detid());
 
-    clue::Clusterer<2> algo(dc, kappa, dc * outlierDeltaFactor);
-    if (isScintillator) {
-      // Scintillator (BH) cells cluster in (eta, phi)
+    if (isScintillator_) {
       constexpr float kTwoPi = 2.f * static_cast<float>(M_PI);
-      algo.setWrappedCoordinates(0, 1);
-      algo.make_clusters(queue,
-                         d_points,
-                         batchItemSizes,
-                         clue::PeriodicEuclideanMetric<2, float>{0.f, kTwoPi},
-                         clue::FlatKernel<float>{0.5f});
+      clusterer_->algo.make_clusters(queue,
+                                     d_points,
+                                     batchItemSizes,
+                                     clue::PeriodicEuclideanMetric<2, float>{0.f, kTwoPi},
+                                     clue::FlatKernel<float>{0.5f});
     } else {
-      algo.make_clusters(queue, d_points, batchItemSizes);
+      clusterer_->algo.make_clusters(queue, d_points, batchItemSizes);
     }
 
     // The kernel reads is_seed from d_points, which is destroyed when run() returns, possibly before the kernel has

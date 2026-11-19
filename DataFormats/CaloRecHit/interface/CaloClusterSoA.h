@@ -3,10 +3,11 @@
 
 // Authors: Simone Balducci, Felice Pantaleo, Wahid Redjeb, Aurora Perego, Leonardo Beltrame
 
+#include <Eigen/Core>
+
 #include "DataFormats/SoATemplate/interface/SoABlocks.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/DetId/interface/DetId.h"
 #include <xtd/xtd.h>
 
 namespace reco {
@@ -23,9 +24,10 @@ namespace reco {
                       SOA_COLUMN(float, correctedEnergy),
                       SOA_COLUMN(float, correctedEnergyUncertainty))
 
+  // seedID is the raw DetId of the seed hit
   GENERATE_SOA_LAYOUT(CaloClusterSoAIndexes,
                       SOA_COLUMN(CaloCluster::AlgoID, algoID),
-                      SOA_COLUMN(DetId, seedID),
+                      SOA_COLUMN(uint32_t, seedID),
                       SOA_COLUMN(uint32_t, flags))
 
   GENERATE_SOA_LAYOUT(CaloClusterSoATiming, SOA_COLUMN(float, time), SOA_COLUMN(float, timeError))
@@ -51,8 +53,7 @@ namespace reco {
                           const auto x = this->position()[idx].x();
                           const auto y = this->position()[idx].y();
                           const auto z = this->position()[idx].z();
-                          const auto theta = xtd::atan2(xtd::sqrt(x * x + y * y), z);
-                          return -xtd::log(xtd::tan(theta / 2));
+                          return xtd::asinh(z / xtd::sqrt(x * x + y * y));
                         }
                       )
   )

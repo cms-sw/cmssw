@@ -20,18 +20,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   namespace {
 
-    // Scintillator (BH) rechits store (eta, phi) in (dim1, dim2). Recover the
-    // cartesian transverse position from them and the cell z.
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE void etaPhiZToXY(
-        const float eta, const float phi, const float z, float& x, float& y) {
+    struct TransversePosition {
+      float x;
+      float y;
+    };
+
+    // The transverse position of a scintillator rechit, from its (eta, phi) in (dim1, dim2) and its z
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE TransversePosition etaPhiZToXY(const float eta, const float phi, const float z) {
       const float r = z / std::sinh(eta);
-      x = r * std::cos(phi);
-      y = r * std::sin(phi);
+      return {r * std::cos(phi), r * std::sin(phi)};
     }
 
     // The most energetic rechit of a layer cluster is found with one atomicMax on this key. The bits of a non-negative
-    // float, read as an integer, are ordered as it's value is. For equal energies, ~hit makes the
-    // lowest rechit index win. This assumes energy is always positive
+    // float, read as an integer, are ordered as its value is. For equal energies, ~hit makes the lowest rechit index
+    // win. The energy must not be negative.
     ALPAKA_FN_ACC ALPAKA_FN_INLINE uint64_t energyKey(const float energy, const uint32_t hit) {
       return (static_cast<uint64_t>(std::bit_cast<uint32_t>(energy)) << 32) | ~hit;
     }
@@ -192,11 +194,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           if (isScintillator) {
             const float energy = recHits[i].energy();
-            float x;
-            float y;
-            etaPhiZToXY(recHits[i].dim1(), recHits[i].dim2(), recHits[i].dim3(), x, y);
-            alpaka::atomicAdd(acc, &layerClusters.position()[c].x(), x * energy);
-            alpaka::atomicAdd(acc, &layerClusters.position()[c].y(), y * energy);
+            const TransversePosition xy = etaPhiZToXY(recHits[i].dim1(), recHits[i].dim2(), recHits[i].dim3());
+            alpaka::atomicAdd(acc, &layerClusters.position()[c].x(), xy.x * energy);
+            alpaka::atomicAdd(acc, &layerClusters.position()[c].y(), xy.y * energy);
             alpaka::atomicAdd(acc, &positionWeightSum[c], energy);
             continue;
           }
@@ -221,6 +221,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // Also sets the columns not computed yet to the defaults of reco::CaloCluster.
     struct KernelLayerClusterPositionAndTime {
       ALPAKA_FN_ACC void operator()(const Acc1D& acc,
+                                    ::reco::CaloCluster::AlgoId algoId,
                                     bool isScintillator,
                                     uint32_t nHitsTime,
                                     HGCalSoARecHitsDeviceCollection::ConstView recHits,
@@ -238,11 +239,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             position.x() *= invWeightSum;
             position.y() *= invWeightSum;
           } else if (isScintillator) {
-            float x;
-            float y;
-            etaPhiZToXY(recHits[maxHit].dim1(), recHits[maxHit].dim2(), recHits[maxHit].dim3(), x, y);
-            position.x() = x;
-            position.y() = y;
+            const TransversePosition xy =
+                etaPhiZToXY(recHits[maxHit].dim1(), recHits[maxHit].dim2(), recHits[maxHit].dim3());
+            position.x() = xy.x;
+            position.y() = xy.y;
           } else {
             position.x() = recHits[maxHit].dim1();
             position.y() = recHits[maxHit].dim2();
@@ -258,7 +258,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           layerClusters.energy()[c].correctedEnergy() = -1.f;
           layerClusters.energy()[c].correctedEnergyUncertainty() = -1.f;
-          layerClusters.indexes()[c].algoID() = ::reco::CaloCluster::undefined;
+          layerClusters.indexes()[c].algoID() = algoId;
           layerClusters.indexes()[c].flags() = 0;
         }
       }
@@ -268,6 +268,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   void HGCalLayerClustersSoAAlgoWrapper::run(Queue& queue,
                                              uint32_t nLayerClusters,
+                                             ::reco::CaloCluster::AlgoId algoId,
                                              float thresholdW0,
                                              float positionDeltaRho2,
                                              bool isScintillator,
@@ -338,6 +339,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::exec<Acc1D>(queue,
                         workDivLayerClusters,
                         KernelLayerClusterPositionAndTime{},
+                        algoId,
                         isScintillator,
                         nHitsTime,
                         recHits,

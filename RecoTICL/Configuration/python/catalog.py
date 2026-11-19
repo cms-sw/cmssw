@@ -195,23 +195,11 @@ _SPECS = [
         ),
     ),
     ModuleSpec(
-        key="MergeClusterProducer",
-        cfi_module="RecoLocalCalo.HGCalRecProducers.hgcalMergeLayerClusters_cfi",
-        cfi_symbol="hgcalMergeLayerClusters",
-        # reco::BasicCluster is a typedef of reco::CaloCluster
-        produces=(
-            Product(T_CALOCLUSTERS),
-            Product(T_MASK, "fixed:InitialLayerClustersMask"),
-            Product(T_TIME, "fixed:timeLayerCluster"),
-        ),
-        consumes=(),
-        external_inputs=("layerClusters", "time_layerclusters"),
-    ),
-    ModuleSpec(
         key="HGCalMergedLayerClustersFromSoAProducer",
         cfi_module="RecoTICL.LayerClustering.hgCalMergedLayerClustersFromSoAProducer_cfi",
         cfi_symbol="hgCalMergedLayerClustersFromSoAProducer",
-        # the same products as MergeClusterProducer, converted from the SoA layer clusters of the HGCAL components
+        # the merged layer clusters, converted from the SoA layer clusters of the HGCAL components (reco::BasicCluster
+        # is a typedef of reco::CaloCluster)
         produces=(
             Product(T_CALOCLUSTERS),
             Product(T_MASK, "fixed:InitialLayerClustersMask"),

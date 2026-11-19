@@ -1,6 +1,8 @@
 #ifndef DataFormats_CaloRecHit_CaloClusterHostCollection_h
 #define DataFormats_CaloRecHit_CaloClusterHostCollection_h
 
+#include <Eigen/Core>
+
 #include "DataFormats/CaloRecHit/interface/CaloClusterSoA.h"
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 

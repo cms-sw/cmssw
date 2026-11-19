@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_HGCalRecProducers_DumpClustersDetails_h
-#define RecoLocalCalo_HGCalRecProducers_DumpClustersDetails_h
+#ifndef RecoTICL_LayerClustering_DumpClustersDetails_h
+#define RecoTICL_LayerClustering_DumpClustersDetails_h
 
 #include <string>
 #include <vector>

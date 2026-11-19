@@ -14,6 +14,6 @@ hltHgcalSoARecHitsProducerHSciL1Seeded = cms.EDProducer("HGCalSoARecHitsProducer
     noises = cms.vfloat(HGCAL_reco_constants.noises.value()),
     recHits = cms.InputTag("hltRechitInRegionsHGCAL","HGCHEBRecHits"),
     thicknessCorrection = cms.vfloat(HGCAL_reco_constants.thicknessCorrection.value()),
-    noiseMip = HGCAL_reco_constants.noiseMip.noise_MIP,
+    noiseMip = HGCAL_reco_constants.noiseMip,
     sciThicknessCorrection = HGCAL_reco_constants.sciThicknessCorrection,
 )

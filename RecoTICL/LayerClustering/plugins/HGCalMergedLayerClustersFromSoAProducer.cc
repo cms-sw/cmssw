@@ -25,8 +25,7 @@
 
 // Converts the SoA layer clusters of the HGCAL components into one merged collection of reco::CaloCluster, with their
 // time and the layer cluster mask: the layer clusters of the components one after the other, in the order of the
-// configuration. It replaces a HGCalLayerClustersFromSoAProducer per component followed by MergeClusterProducer,
-// which built every cluster once per component and then copied it twice.
+// configuration.
 // Layer clusters of other subdetectors (the barrel) can be appended after the HGCAL ones.
 class HGCalMergedLayerClustersFromSoAProducer : public edm::global::EDProducer<> {
 public:
@@ -37,17 +36,14 @@ public:
     const auto layerClusters = config.getParameter<std::vector<edm::InputTag>>("layerClustersSoA");
     const auto recHits = config.getParameter<std::vector<edm::InputTag>>("hgcalRecHitsSoA");
     const auto clustering = config.getParameter<std::vector<edm::InputTag>>("hgcalRecHitsLayerClustersSoA");
-    const auto detectors = config.getParameter<std::vector<std::string>>("detectors");
-    if (recHits.size() != layerClusters.size() or clustering.size() != layerClusters.size() or
-        detectors.size() != layerClusters.size()) {
-      throw cms::Exception("Configuration") << "layerClustersSoA, hgcalRecHitsSoA, hgcalRecHitsLayerClustersSoA and "
-                                               "detectors must have one entry per HGCAL component";
+    if (recHits.size() != layerClusters.size() or clustering.size() != layerClusters.size()) {
+      throw cms::Exception("Configuration") << "layerClustersSoA, hgcalRecHitsSoA and hgcalRecHitsLayerClustersSoA "
+                                               "must have one entry per HGCAL component";
     }
     for (unsigned k = 0; k < layerClusters.size(); ++k) {
       components_.push_back({consumes<reco::CaloClusterHostCollection>(layerClusters[k]),
                              consumes<HGCalSoARecHitsHostCollection>(recHits[k]),
-                             consumes<HGCalSoARecHitsExtraHostCollection>(clustering[k]),
-                             algoId(detectors[k])});
+                             consumes<HGCalSoARecHitsExtraHostCollection>(clustering[k])});
     }
 
     const auto extra = config.getParameter<std::vector<edm::InputTag>>("extraLayerClusters");
@@ -122,8 +118,8 @@ public:
                               math::XYZPoint(view.position()[i].x(), view.position()[i].y(), view.position()[i].z()),
                               reco::CaloID::DET_HGCAL_ENDCAP,
                               clusterHits,
-                              components_[k].algoId,
-                              view.indexes()[i].seedID());
+                              view.indexes()[i].algoID(),
+                              DetId(view.indexes()[i].seedID()));
         times.emplace_back(view.timing()[i].time(), view.timing()[i].timeError());
       }
     }
@@ -165,8 +161,6 @@ public:
                                           edm::InputTag("hgcalCLUEsteringHSi"),
                                           edm::InputTag("hgcalCLUEsteringHSci")})
         ->setComment("the layer cluster of every rechit of each component");
-    desc.add<std::vector<std::string>>("detectors", {"EE", "FH", "BH"})
-        ->setComment("the HGCAL component of each entry: EE, FH, BH or HFNose");
     desc.add<std::vector<edm::InputTag>>("extraLayerClusters", {})
         ->setComment("legacy layer clusters appended after the HGCAL ones (e.g. the barrel)");
     desc.add<std::vector<edm::InputTag>>("extraTimeLayerClusters", {})
@@ -176,24 +170,10 @@ public:
   }
 
 private:
-  static reco::CaloCluster::AlgoId algoId(const std::string& detector) {
-    if (detector == "EE") {
-      return reco::CaloCluster::hgcal_em;
-    } else if (detector == "FH") {
-      return reco::CaloCluster::hgcal_had;
-    } else if (detector == "BH") {
-      return reco::CaloCluster::hgcal_scintillator;
-    } else if (detector == "HFNose") {
-      return reco::CaloCluster::hfnose;
-    }
-    throw cms::Exception("Configuration") << "unknown HGCAL component " << detector;
-  }
-
   struct Component {
     edm::EDGetTokenT<reco::CaloClusterHostCollection> layerClusters;
     edm::EDGetTokenT<HGCalSoARecHitsHostCollection> recHits;
     edm::EDGetTokenT<HGCalSoARecHitsExtraHostCollection> clustering;
-    reco::CaloCluster::AlgoId algoId;
   };
   // The views of the inputs of one component in the event being processed
   struct Inputs {

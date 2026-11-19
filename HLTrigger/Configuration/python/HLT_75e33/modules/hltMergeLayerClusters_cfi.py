@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 # The HGCAL components, in the order of the merged layer clusters: EE, HSci, HSi
 hgcal_components = ["", "HSci", "HSi"]
-hgcal_detectors = ["EE", "BH", "FH"]
 
 barrel_layerClusters = [
     "hltBarrelLayerClustersEB",
@@ -16,7 +15,6 @@ hltMergeLayerClusters = cms.EDProducer("HGCalMergedLayerClustersFromSoAProducer"
     layerClustersSoA = cms.VInputTag(*["hltHgcalSoALayerClustersProducer" + x for x in hgcal_components]),
     hgcalRecHitsSoA = cms.VInputTag(*["hltHgcalSoARecHitsProducer" + x for x in hgcal_components]),
     hgcalRecHitsLayerClustersSoA = cms.VInputTag(*["hltHgcalSoARecHitsLayerClustersProducer" + x for x in hgcal_components]),
-    detectors = cms.vstring(*hgcal_detectors),
     extraLayerClusters = cms.VInputTag(),
     extraTimeLayerClusters = cms.VInputTag(),
     timeClname = cms.string("timeLayerCluster")
@@ -26,7 +24,6 @@ hltMergeLayerClustersSerialSync = cms.EDProducer("HGCalMergedLayerClustersFromSo
     layerClustersSoA = cms.VInputTag(*["hltHgcalSoALayerClustersProducer" + x + "SerialSync" for x in hgcal_components]),
     hgcalRecHitsSoA = cms.VInputTag(*["hltHgcalSoARecHitsProducer" + x + "SerialSync" for x in hgcal_components]),
     hgcalRecHitsLayerClustersSoA = cms.VInputTag(*["hltHgcalSoARecHitsLayerClustersProducer" + x + "SerialSync" for x in hgcal_components]),
-    detectors = cms.vstring(*hgcal_detectors),
     extraLayerClusters = cms.VInputTag(),
     extraTimeLayerClusters = cms.VInputTag(),
     timeClname = cms.string("timeLayerCluster")
