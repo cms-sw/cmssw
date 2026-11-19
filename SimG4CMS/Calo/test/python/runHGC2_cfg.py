@@ -1,7 +1,8 @@
 ###############################################################################
 # Way to use this:
 #   cmsRun runHGC2_cfg.py geomName=Run4D120
-#   Options for geomName Run4D120, Run4D121. Run4D122, Run4D123
+#   Options for geomName Run4D120, Run4D121. Run4D122, Run4D123, Run4D126,
+#                        Run4D127, Run4D128,
 # 
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -15,7 +16,7 @@ options.register('geomName',
                  "Run4D120",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geomName of operations: Run4D120, Run4D121, Run4D122, Run4D123")
+                  "geomName of operations: Run4D120, Run4D121, Run4D122, Run4D123, Run4D126, Run4D127, Run4D128")
 
 ### get and parse the command line arguments
  
@@ -28,11 +29,13 @@ geomName = options.geomName
 geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+fileName = "hgcV" + geomName + ".root"
 
 print("Geometry Name:   ", geomName)
 print("Geom file Name:  ", geomFile)
 print("Global Tag Name: ", GLOBAL_TAG)
 print("Era Name:        ", ERA)
+print("o/p File Name:   ", fileName)
 
 process = cms.Process("PROD",ERA)
 
@@ -51,6 +54,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '')
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom = dict()
     process.MessageLogger.HGCSim = dict()
+    process.MessageLogger.CaloSim = dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -84,7 +88,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 
 process.output = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('hgcV15.root')
+    fileName = cms.untracked.string(fileName)
 )
 
 process.generation_step = cms.Path(process.pgen)
