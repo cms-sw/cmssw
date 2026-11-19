@@ -218,7 +218,7 @@ HGCalSciNoiseMap::SiPMonTileCharacteristics HGCalSciNoiseMap::scaleByDoseLy(cons
   // using the calculated tile edge to calculate the mean value for the light yield based on parametrisation for various materials
   // Formulas for 9 mm^2 SiPMs, and SiPM overvoltage of 2V
   // lyVsize(tile type (1==cast, 2 == molded), "phase" = 10 or 0 (pre-series or production), tile edge, sipm area (2 or 4 or 9 [mm^2]), overvoltage (e.g. 4 [V]))
-  double ly(lyVsize(cellId.type(),0,edge,9,2));
+  double ly(lyVsize(cellId.type(), 0, edge, 9, 2));
   // returning the mean value for a given tile size multiplied by the random modifier dependant on the given tile id = LY of that specific tile
   lyScaleFactor *= ly * var;
   noise *= sqrt(sipmAreaSF);

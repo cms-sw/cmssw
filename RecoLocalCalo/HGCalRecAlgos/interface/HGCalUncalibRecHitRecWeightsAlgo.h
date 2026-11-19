@@ -103,7 +103,7 @@ public:
       double nTotalPx = fCPerMIP_[2];
       HGCScintillatorDetId scId(dataFrame.id().rawId());
       double edge = geom_->edge(scId);
-      double ly(HGCalSciNoiseMap::lyVsize(scId.type(),0,edge,9,2));
+      double ly(HGCalSciNoiseMap::lyVsize(scId.type(), 0, edge, 9, 2));
       double expadc = gain * ly;
       double satmipss = amplitude_ / expadc;
       amplitude_ = satmipss * desat(amplitude_, gain, nTotalPx);
