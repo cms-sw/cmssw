@@ -8,6 +8,7 @@ from ..modules.hltPhase2PixelFitterByHelixProjections_cfi import *
 from ..modules.hltPhase2PixelTrackFilterByKinematics_cfi import *
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
+from ..sequences.HLTRawToDigiSequence_cfi import *
 from ..sequences.HLTItLocalRecoSequence_cfi import *
 from ..sequences.HLTMuonlocalrecoSequence_cfi import *
 from ..sequences.HLTMuonsSequence_cfi import *
@@ -19,6 +20,7 @@ from ..sequences.HLTOtLocalRecoSequence_cfi import *
 HLT_Mu9_Barrel_IP6_FromL1TkMuon = cms.Path(
     HLTBeginSequence
     + hltSingleTkMuonBarrelL1TkMuonFilter
+    + HLTRawToDigiSequence
     + HLTMuonlocalrecoSequence
     + HLTItLocalRecoSequence
     + HLTOtLocalRecoSequence
