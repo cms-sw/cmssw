@@ -121,6 +121,7 @@ CaloSD::CaloSD(const std::string& name,
     cleanIndex[k] = primIDSaved[k] = totalHits[k] = 0;
   }
 
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloSD: Minimum energy of track for saving it " << energyCut / CLHEP::GeV
                               << " GeV\n        Use of HitID Map " << useMap << "\n        Check last "
                               << nCheckedHits[0] << " before saving the hit\n        Correct TOF globally by "
@@ -142,6 +143,7 @@ CaloSD::CaloSD(const std::string& name,
   for (unsigned int k = 0; k < useFines.size(); ++k)
     st1 << " [" << k << "] " << useFines[k] << ":" << fineNames[useFines[k]];
   edm::LogVerbatim("CaloSim") << "CaloSD: used calorimeters" << st1.str();
+#endif
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
   std::vector<G4LogicalVolume*>::const_iterator lvcite;
   for (unsigned int i = 0; i < useFines.size(); i++) {
@@ -188,7 +190,6 @@ void CaloSD::newCollection(const std::string& name, edm::ParameterSet const& p) 
   edm::LogVerbatim("CaloSim") << "CaloSD:: Initialise a second collection for " << name;
   for (int k = 0; k < nHC_; ++k)
     edm::LogVerbatim("CaloSim") << "Detector[" << k << "]" << detName_ << " collection " << collName_[k];
-
 #endif
 }
 
@@ -242,6 +243,7 @@ G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   if (unitID > 0) {
     currentID[0].setID(unitID, time, primaryID, depth);
   } else {
+#ifdef EDM_ML_DEBUG
     if (!ignoreReject) {
       const G4TouchableHistory* touch = static_cast<const G4TouchableHistory*>(theTrack->GetTouchable());
       edm::LogVerbatim("CaloSim") << "CaloSD::ProcessHits: unitID= " << unitID
@@ -252,6 +254,7 @@ G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
                                   << " PV: " << touch->GetVolume(0)->GetName()
                                   << " PVid= " << touch->GetReplicaNumber(0) << " MVid= " << touch->GetReplicaNumber(1);
     }
+#endif
     return false;
   }
   double energy = getEnergyDeposit(aStep);
@@ -445,6 +448,9 @@ void CaloSD::PrintAll() {
 
 void CaloSD::fillHits(edm::PCaloHitContainer& cc, const std::string& hname) {
   for (int k = 0; k < nHC_; ++k) {
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("CaloSim") << "CaloSD: " << k << ":" << theHC[k]->GetName() << " Slave  pointer: " << slave[k].get();
+#endif
     if (nullptr == slave[k].get()) {
       continue;
     }
@@ -496,7 +502,7 @@ bool CaloSD::hitExists(const G4Step* aStep, int k) {
 bool CaloSD::checkHit(int k) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloSD: checkHit for " << k << " for map " << useMap << ":" << &hitMap[k] << " Nhits "
-                              << nCheckedHits[k] << " HC " << theHC[k] << " ID " << currentID[k];
+                              << nCheckedHits[k] << " HC " << theHC[k] << ":" << collName_[k]<< " ID " << currentID[k];
 #endif
   //look in the HitContainer whether a hit with the same ID already exists:
   bool found = false;
@@ -781,7 +787,7 @@ void CaloSD::update(const EndOfTrack* trk) {
       if (trkH->trackID() == id) {
         tkMap[id] = trkH;
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("CaloSim") << "CaloSD: get track " << id << " from Container of size "
+        edzm::LogVerbatim("CaloSim") << "CaloSD: get track " << id << " from Container of size "
                                     << trksForThisEvent->size() << " with ID " << trkH->trackID();
 #endif
       }
@@ -792,11 +798,16 @@ void CaloSD::update(const EndOfTrack* trk) {
 void CaloSD::update(const ::EndOfEvent*) {
   endEvent();
   for (int k = 0; k < nHC_; ++k) {
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("CaloSim") << "CaloSD: " << k << ":" << slave[k]->name() << " pointer " << slave[k].get();
+#endif
     if (nullptr == slave[k].get()) {
       continue;
     }
     slave[k].get()->ReserveMemory(theHC[k]->entries());
-
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("CaloSim") << "CaloSD:" << slave[k]->name() << " Entries " << theHC[k]->entries();
+#endif
     int count(0);
     double eEM(0.0);
     double eHAD(0.0);
@@ -987,9 +998,8 @@ bool CaloSD::saveHit(CaloG4Hit* aHit, int k) {
                                 time,
                                 aHit->getTrackID(),
                                 aHit->getDepth());
-  }
-  // Regular, not-fine way:
-  else {
+  } else {
+    // Regular, not-fine way:
     if (m_trackManager) {
       tkID = m_trackManager->giveMotherNeeded(aHit->getTrackID());
       if (tkID == 0) {
@@ -1005,7 +1015,7 @@ bool CaloSD::saveHit(CaloG4Hit* aHit, int k) {
     }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("DoFineCalo") << "CaloSD: Saving hit " << shortreprID(aHit) << " with trackID=" << tkID
-                                   << " in collection " << k;
+                                   << " in collection " << k << ":" << slave[k]->name();
 #endif
 
     slave[k].get()->processHits(
@@ -1057,13 +1067,16 @@ void CaloSD::update(const BeginOfTrack* trk) {
 
 void CaloSD::cleanHitCollection() {
   for (int k = 0; k < nHC_; ++k) {
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("CaloSim") << "CaloSD: " << theHC[k]->GetName() << " pointer " << theHC[k];
+#endif
     if (nullptr == theHC[k]) {
       continue;
     }
     std::vector<CaloG4Hit*>* theCollection = theHC[k]->GetVector();
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("CaloSim") << "CaloSD: collection " << k << " before merging, size = " << theHC[k]->entries();
+    edm::LogVerbatim("CaloSim") << "CaloSD: collection " << k << ":" << slave[k]->name() << " before merging, size = " << theHC[k]->entries();
 #endif
     if (reusehit[k].empty())
       reusehit[k].reserve(theHC[k]->entries() - cleanIndex[k]);
@@ -1134,8 +1147,7 @@ void CaloSD::cleanHitCollection() {
         time += correctT;
       if (!filterHit(aHit, time)) {
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("CaloSim") << "CaloSD: dropped CaloG4Hit "
-                                    << " " << *aHit;
+        edm::LogVerbatim("CaloSim") << "CaloSD: dropped CaloG4Hit  " << *aHit;
 #endif
         // create the list of hits to be reused
         reusehit[k].emplace_back((*theCollection)[i]);
