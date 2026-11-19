@@ -32,8 +32,8 @@ namespace BTLElectronicsIndexing {
   constexpr int32_t denseChannelIndex(int32_t fedId, int32_t hs, int32_t el, int32_t channel) {
     const int32_t serenityIdx =
         (fedId - BTLElectronicsSpecs::kFirstFEDId) / BTLElectronicsSpecs::nFEDsPerSerenity;  // Serenity index [0-11]
-    const int32_t hsIdx = serenityIdx * BTLElectronicsSpecs::nHSLinksPerSerenity + hs;       // HS-link index 
-    const int32_t chipIdx = hsIdx * BTLElectronicsSpecs::nELinksPerHSLink + el;  // chip (e-link) index 
+    const int32_t hsIdx = serenityIdx * BTLElectronicsSpecs::nHSLinksPerSerenity + hs;       // HS-link index
+    const int32_t chipIdx = hsIdx * BTLElectronicsSpecs::nELinksPerHSLink + el;              // chip (e-link) index
     return chipIdx * BTLElectronicsSpecs::nChannelsPerELink + channel;
   }
 

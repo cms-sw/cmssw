@@ -51,7 +51,6 @@ namespace BTLElectronicsSpecs {
   // Table of TOFHIR channel partners.
   // The array index is the TOFHIR channelId.
   // The value is the channelId of its partner.
-  // !!!!!!!!!! DA RICONTROLLARE  !!!!
   static constexpr std::array<int8_t, 32> kTofhirChannelPartner = {24, 25, 31, 30, 29, 26, 28, 27, 23, 22, 19,
                                                                    21, 20, 17, 18, 16, 15, 13, 14, 10, 12, 11,
                                                                    9,  8,  0,  1,  5,  7,  6,  4,  3,  2};
