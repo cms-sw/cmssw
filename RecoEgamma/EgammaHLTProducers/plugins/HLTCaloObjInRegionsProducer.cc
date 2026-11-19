@@ -1,4 +1,6 @@
+#include <algorithm>
 #include <memory>
+#include <type_traits>
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -21,6 +23,10 @@
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
+#include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
+#include "DataFormats/HGCRecHit/interface/HGCUncalibratedRecHit.h"
+#include "CondFormats/HGCalObjects/interface/TICLGeomHost.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -60,6 +66,11 @@ public:
   bool operator()(float eta, float phi) const {
     return reco::deltaR2(eta, phi, centreEta_, centrePhi_) < maxDeltaR2_ ||
            (std::abs(eta - centreEta_) < maxDEta_ && std::abs(reco::deltaPhi(phi, centrePhi_)) < maxDPhi_);
+  }
+  //necessary condition for operator(): if it is false, no phi is accepted
+  bool acceptsEta(float eta) const {
+    const float dEta = eta - centreEta_;
+    return dEta * dEta < maxDeltaR2_ || std::abs(dEta) < maxDEta_;
   }
 };
 
@@ -109,18 +120,28 @@ private:
                                                edm::ConsumesCollector&&);  //calling function owns this
   static std::unique_ptr<CaloObjCollType> makeFilteredColl(const edm::Handle<CaloObjCollType>& inputColl,
                                                            CaloGeometry const& caloGeomHandle,
+                                                           const TICLGeomHost* ticlGeom,
                                                            const std::vector<EtaPhiRegion>& regions);
+  //the HGCAL types read the cell positions from the TICLGeom product, which holds them for the HGCAL EE, silicon and
+  //scintillator cells only
+  static constexpr bool kIsHGCal = std::is_same_v<CaloObjType, HGCalDataFrame> ||
+                                   std::is_same_v<CaloObjType, HGCRecHit> ||
+                                   std::is_same_v<CaloObjType, HGCUncalibratedRecHit>;
   static bool validIDForGeom(const DetId& id);
   std::vector<std::string> outputProductNames_;
   std::vector<edm::InputTag> inputCollTags_;
   std::vector<edm::EDGetTokenT<CaloObjCollType>> inputTokens_;
   std::vector<std::unique_ptr<EtaPhiRegionDataBase>> etaPhiRegionData_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
 };
 
 template <typename CaloObjType, typename CaloObjCollType>
 HLTCaloObjInRegionsProducer<CaloObjType, CaloObjCollType>::HLTCaloObjInRegionsProducer(const edm::ParameterSet& para)
     : caloGeometryToken_{esConsumes()} {
+  if constexpr (kIsHGCal) {
+    ticlGeomToken_ = esConsumes();
+  }
   const std::vector<edm::ParameterSet> etaPhiRegions =
       para.getParameter<std::vector<edm::ParameterSet>>("etaPhiRegions");
   for (auto& pset : etaPhiRegions) {
@@ -184,6 +205,10 @@ void HLTCaloObjInRegionsProducer<CaloObjType, CaloObjCollType>::produce(edm::Eve
                                                                         const edm::EventSetup& setup) {
   // get the collection geometry:
   auto const& caloGeom = setup.getData(caloGeometryToken_);
+  const TICLGeomHost* ticlGeom = nullptr;
+  if constexpr (kIsHGCal) {
+    ticlGeom = &setup.getData(ticlGeomToken_);
+  }
 
   std::vector<EtaPhiRegion> regions;
   std::for_each(etaPhiRegionData_.begin(),
@@ -202,7 +227,7 @@ void HLTCaloObjInRegionsProducer<CaloObjType, CaloObjCollType>::produce(edm::Eve
                                        << inputCollTags_[inputCollNr].encode() << std::endl;
       continue;
     }
-    auto outputColl = makeFilteredColl(inputColl, caloGeom, regions);
+    auto outputColl = makeFilteredColl(inputColl, caloGeom, ticlGeom, regions);
     event.put(std::move(outputColl), outputProductNames_[inputCollNr]);
   }
 }
@@ -211,14 +236,36 @@ template <typename CaloObjType, typename CaloObjCollType>
 std::unique_ptr<CaloObjCollType> HLTCaloObjInRegionsProducer<CaloObjType, CaloObjCollType>::makeFilteredColl(
     const edm::Handle<CaloObjCollType>& inputColl,
     CaloGeometry const& caloGeomHandle,
+    const TICLGeomHost* ticlGeom,
     const std::vector<EtaPhiRegion>& regions) {
   auto outputColl = std::make_unique<CaloObjCollType>();
   if (!inputColl->empty()) {
-    const CaloSubdetectorGeometry* subDetGeom = caloGeomHandle.getSubdetectorGeometry(inputColl->begin()->id());
+    const CaloSubdetectorGeometry* subDetGeom = nullptr;
+    TICLGeomHost::ConstView ticlGeomView;
+    if constexpr (kIsHGCal) {
+      ticlGeomView = ticlGeom->const_view();
+    } else {
+      subDetGeom = caloGeomHandle.getSubdetectorGeometry(inputColl->begin()->id());
+    }
     if (!regions.empty()) {
       for (auto const& obj : *inputColl) {
-        auto objGeom = subDetGeom->getGeometry(obj.id());
-        if (objGeom == nullptr) {
+        GlobalPoint pos;
+        bool validGeom;
+        if constexpr (kIsHGCal) {
+          auto const cell = ticlGeomView.cell(DetId(obj.id()).rawId());
+          validGeom = cell.valid();
+          if (validGeom) {
+            auto const p = cell.position();
+            pos = GlobalPoint(p.x, p.y, p.z);
+          }
+        } else {
+          auto objGeom = subDetGeom->getGeometry(obj.id());
+          validGeom = objGeom != nullptr;
+          if (validGeom) {
+            pos = objGeom->getPosition();
+          }
+        }
+        if (!validGeom) {
           //wondering what to do here
           //something is very very wrong
           //given HLT should never crash or throw, decided to log an error
@@ -227,7 +274,7 @@ std::unique_ptr<CaloObjCollType> HLTCaloObjInRegionsProducer<CaloObjType, CaloOb
           if (validIDForGeom(obj.id())) {
             edm::LogError("HLTCaloObjInRegionsProducer")
                 << "for an object of type " << edm::typeDemangle(typeid(CaloObjType).name())
-                << " the geometry returned null for id " << DetId(obj.id()).rawId() << " with initial ID "
+                << " no position was found for id " << DetId(obj.id()).rawId() << " with initial ID "
                 << DetId(inputColl->begin()->id()).rawId()
                 << " in HLTCaloObjsInRegion, this shouldnt be possible and something has gone wrong, auto accepting "
                    "hit";
@@ -235,8 +282,13 @@ std::unique_ptr<CaloObjCollType> HLTCaloObjInRegionsProducer<CaloObjType, CaloOb
           outputColl->push_back(obj);
           continue;
         }
-        float eta = objGeom->getPosition().eta();
-        float phi = objGeom->getPosition().phi();
+        float eta = pos.eta();
+        //compute phi only if a region accepts this eta
+        if (std::none_of(
+                regions.begin(), regions.end(), [eta](const EtaPhiRegion& region) { return region.acceptsEta(eta); })) {
+          continue;
+        }
+        float phi = pos.phi();
 
         for (const auto& region : regions) {
           if (region(eta, phi)) {
@@ -339,14 +391,11 @@ using HLTEcalUnCalibRecHitsInRegionsProducer = HLTCaloObjInRegionsProducer<EcalU
 DEFINE_FWK_MODULE(HLTEcalUnCalibRecHitsInRegionsProducer);
 
 // HGCAL Digis
-#include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 using HLTHGCalDigisInRegionsProducer = HLTCaloObjInRegionsProducer<HGCalDataFrame, HGCalDigiCollection>;
 DEFINE_FWK_MODULE(HLTHGCalDigisInRegionsProducer);
 
 // HGCAL RecHits
-#include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 using HLTHGCalRecHitsInRegionsProducer = HLTCaloObjInRegionsProducer<HGCRecHit, std::vector<HGCRecHit>>;
 DEFINE_FWK_MODULE(HLTHGCalRecHitsInRegionsProducer);
-#include "DataFormats/HGCRecHit/interface/HGCUncalibratedRecHit.h"
 using HLTHGCalUncalibratedRecHitsInRegionsProducer = HLTCaloObjInRegionsProducer<HGCUncalibratedRecHit>;
 DEFINE_FWK_MODULE(HLTHGCalUncalibratedRecHitsInRegionsProducer);
