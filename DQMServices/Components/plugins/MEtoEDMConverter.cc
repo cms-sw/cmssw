@@ -97,8 +97,8 @@ private:
 
   // private statistics information
   std::map<int, int> iCount;
-  edm::GetterOfProducts<DQMToken> lumigetter_;
-  edm::GetterOfProducts<DQMToken> rungetter_;
+  edm::GetterOfProducts<DQMToken, edm::Transition::EndLuminosityBlock> lumigetter_;
+  edm::GetterOfProducts<DQMToken, edm::Transition::EndRun> rungetter_;
 
 };  // end class declaration
 
@@ -181,8 +181,9 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet& iPSet) : fName(""), 
   produces<MEtoEDM<long long>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TString>, edm::Transition::EndLuminosityBlock>(sName);
 
-  lumigetter_ = edm::GetterOfProducts<DQMToken>(edm::ProcessMatch("*"), this, edm::InLumi);
-  rungetter_ = edm::GetterOfProducts<DQMToken>(edm::ProcessMatch("*"), this, edm::InRun);
+  lumigetter_ =
+      edm::GetterOfProducts<DQMToken, edm::Transition::EndLuminosityBlock>(edm::ProcessMatch("*"), this, edm::InLumi);
+  rungetter_ = edm::GetterOfProducts<DQMToken, edm::Transition::EndRun>(edm::ProcessMatch("*"), this, edm::InRun);
   callWhenNewProductsRegistered([this](edm::ProductDescription const& bd) {
     this->lumigetter_(bd);
     this->rungetter_(bd);
