@@ -243,9 +243,10 @@ def add_hlt_validation(process,hltProcessName=None,sampleLabel=""):
     process.load("RecoMET.Configuration.RecoGenMET_cff")
     process.load("RecoMET.Configuration.GenMETParticles_cff")
     process.load("PhysicsTools.JetMCAlgos.TauGenJets_cfi")
+    process.load("PhysicsTools.JetMCAlgos.TauGenJetsDecayModeSelectorAllHadrons_cfi")
     process.HLTValidationPath.associate(process.recoGenMETTask)
     process.HLTValidationPath.associate(process.genMETParticlesTask)
-    process.HLTValidationTauGenJetsTask = cms.Task(process.tauGenJets)
+    process.HLTValidationTauGenJetsTask = cms.Task(process.tauGenJets, process.tauGenJetsSelectorAllHadrons)
     process.HLTValidationPath.associate(process.HLTValidationTauGenJetsTask)
 
     if process.schedule is not None:
@@ -379,4 +380,7 @@ def add_hlt_validation_phaseII(process,hltProcessName=None,sampleLabel=""):
         ),
     )
     process.HLTValidationPath.insert(0,process.HLTGenResSource)
+    process.load("Validation.RecoTau.hltTauTriggerValidation_cff")
+    process.HLTValidationPath += process.hltTauTriggerValidationSequence
+
     return process
