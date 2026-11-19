@@ -10,6 +10,8 @@ _TYPES = {
     "traceFunctions": cms.untracked.bool,
     "traceAllocations": cms.untracked.bool,
     "traceGpuKernels": cms.untracked.bool,
+    "traceGpuCopies": cms.untracked.bool,
+    "traceGpuMemory": cms.untracked.bool,
     "tracePower": cms.untracked.bool,
     "powerPeriodMs": cms.untracked.uint32,
     "traceModules": cms.untracked.vstring,

@@ -65,6 +65,8 @@ public:
     cms::perfetto::TrackEvent::Register();
 
     bool const traceGpuKernels = pset.getUntrackedParameter<bool>("traceGpuKernels");
+    bool const traceGpuCopies = pset.getUntrackedParameter<bool>("traceGpuCopies");
+    bool const traceGpuMemory = pset.getUntrackedParameter<bool>("traceGpuMemory");
     bool const tracePower = pset.getUntrackedParameter<bool>("tracePower");
     ::perfetto::protos::gen::TrackEventConfig te;
     te.add_disabled_categories("*");
@@ -83,6 +85,10 @@ public:
       te.add_enabled_categories("cmssw.alloc");
     if (traceGpuKernels)
       te.add_enabled_categories("cmssw.gpu");
+    if (traceGpuCopies)
+      te.add_enabled_categories("cmssw.gpu.copy");
+    if (traceGpuMemory)
+      te.add_enabled_categories("cmssw.gpu.memory");
     if (tracePower)
       te.add_enabled_categories("cmssw.power");
 
@@ -125,10 +131,10 @@ public:
 
     if (traceAllocations_)
       cms::alpakatools::setCachingAllocatorMonitor(&allocatorMonitor_);
-    if (traceGpuKernels && !cuptiProfiler_.start())
+    if ((traceGpuKernels || traceGpuCopies || traceGpuMemory) &&
+        !cuptiProfiler_.start(traceGpuKernels, traceGpuCopies, traceGpuMemory))
       edm::LogWarning("PerfettoTraceService")
-          << "traceGpuKernels: no CUDA device or CUPTI unavailable, not tracing GPU "
-             "kernels";
+          << "traceGpuKernels/Copies/Memory: no CUDA device or CUPTI unavailable, not tracing the GPU activity";
     if (tracePower &&
         !powerSampler_.start(std::chrono::milliseconds(pset.getUntrackedParameter<unsigned>("powerPeriodMs"))))
       edm::LogWarning("PerfettoTraceService") << "tracePower: neither NVML nor a readable RAPL counter found, not "
@@ -149,6 +155,11 @@ public:
     desc.addUntracked<bool>("traceAllocations", false)
         ->setComment("Record the alpaka caching-allocator transactions and memory counters.");
     desc.addUntracked<bool>("traceGpuKernels", false)->setComment("Record the CUDA kernels via CUPTI.");
+    desc.addUntracked<bool>("traceGpuCopies", false)
+        ->setComment("Record the CUDA memory copies and memsets via CUPTI.");
+    desc.addUntracked<bool>("traceGpuMemory", false)
+        ->setComment(
+            "Record the CUDA allocations and frees (cudaMalloc, cudaHostAlloc, cudaMallocAsync, ...) via CUPTI.");
     desc.addUntracked<bool>("tracePower", false)->setComment("Sample CPU (RAPL) and GPU (NVML) power.");
     desc.addUntracked<unsigned>("powerPeriodMs", 1000)->setComment("Power sampling period in ms.");
     desc.addUntracked<std::vector<std::string>>("traceModules", {})

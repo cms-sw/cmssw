@@ -47,6 +47,8 @@ customisePerfetto(process, fileName="reco.pftrace", traceGpuKernels=True)
 | `traceFunctions`   | `False`          | record the `CMS_PERFETTO_FUNC` / `CMS_PERFETTO_SCOPE` slices |
 | `traceAllocations` | `False`          | record the alpaka caching-allocator transactions and memory counters |
 | `traceGpuKernels`  | `False`          | record the CUDA kernels via CUPTI |
+| `traceGpuCopies`   | `False`          | record the CUDA memory copies and memsets via CUPTI |
+| `traceGpuMemory`   | `False`          | record the CUDA allocations and frees via CUPTI |
 | `tracePower`       | `False`          | sample CPU (RAPL) and GPU (NVML) power |
 | `powerPeriodMs`    | `1000`           | power sampling period |
 | `traceModules`     | `[]`             | if not empty, trace only these module labels |
@@ -62,7 +64,7 @@ process "cmsRun"
   ├─ edm::stream <sid>     "Event" slices + run/lumi/event counters
   │    └─ thread <n>       source / module / acquire / transform / EventSetup / cleanup slices,
   │                        with the alloc/free instants and CMS_PERFETTO_FUNC slices nested
-  ├─ GPU<d> stream <s>     CUDA kernels at their device-side times
+  ├─ GPU<d> stream <s>     CUDA kernels, copies and memsets at their device-side times
   └─ counters              Throughput (events/s), memory (B), power (W)
 ```
 
@@ -112,6 +114,27 @@ kernel is a slice at its device-side start and end, annotated with
 `local_total_B`, `grid`, `block`, an `occupancy_est` (thread, register and
 shared-memory limits only), the full name and the CUPTI `correlation_id`.
 Without CUDA the plugin builds a no-op.
+
+With `traceGpuCopies=True` the memory copies and memsets are slices on the same
+tracks (category `cmssw.gpu.copy`), named `memcpy HtoD`, `memcpy DtoH`,
+`memcpy DtoD`, `memcpy PtoP` (between devices) or `memset`, annotated with `bytes`, the `src` / `dst` memory
+kind (`pinned`, `pageable`, `device`, ...), `bandwidth_GBps` and the CUPTI
+`correlation_id`. Kernels and copies also carry the `module` that issued them
+(empty when issued outside a module): a CUPTI callback on the launch / copy /
+memset driver calls records the current module of the calling thread. A copy from or to `pageable` host memory is synchronous with
+respect to the host thread that issued it.
+
+With `traceGpuMemory=True` every CUDA allocation and free (`cudaMalloc`,
+`cudaHostAlloc`, `cudaMallocAsync`, ...) is a `cuda alloc` / `cuda free` instant on
+a `CUDA memory <space>` track (category `cmssw.gpu.memory`), annotated with
+`bytes`, the memory `kind`, `async` (stream-ordered pool allocation), the pool
+size `pool_B`, the `device` and the issuing `module`. CUPTI delivers its records
+out of time order, so there is no running-total counter: summing the instants in
+time order gives the memory allocated through CUDA. The alpaka caching allocator
+allocates through these calls too, so that total minus the allocator's `cached`
+is the memory allocated outside it, e.g. by libraries that use alpaka buffers
+directly. It does not include the CUDA context, nor what the driver reserves for
+a stream-ordered memory pool beyond its allocations; `nvidia-smi` does.
 
 `scripts/perfettoKernelResources.py` is the static counterpart: it runs
 `cuobjdump --dump-resource-usage` on built libraries and also reports stack size
