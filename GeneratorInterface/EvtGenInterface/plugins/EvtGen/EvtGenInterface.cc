@@ -376,7 +376,7 @@ void EvtGenInterface::init() {
       exit(0);
     }
     for (unsigned int i = 0; i < user_decay_lines.size(); i++) {
-      user_decay_lines.at(i) += "\n";
+      user_decay_lines.at(i) += '\n';
       std::fputs(user_decay_lines.at(i).c_str(), tmpf);
     }
     std::fclose(tmpf);

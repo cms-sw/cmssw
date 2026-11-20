@@ -175,7 +175,7 @@ void HTXSRivetProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
     Rivet::HiggsClassification rivet_cat = _HTXS->classifyEvent(event, m_HiggsProdMode);
     cat_ = HTXS::Rivet2Root(rivet_cat);
 
-    unique_ptr<HTXS::HiggsClassification> cat(new HTXS::HiggsClassification(cat_));
+    unique_ptr<HTXS::HiggsClassification> cat = std::make_unique<HTXS::HiggsClassification>(cat_);
 
     iEvent.put(std::move(cat), "HiggsClassification");
   }

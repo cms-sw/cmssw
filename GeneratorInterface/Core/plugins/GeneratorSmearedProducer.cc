@@ -90,7 +90,7 @@ void GeneratorSmearedProducer::produce(edm::StreamID, edm::Event& iEvent, const 
     found = iEvent.getByToken(oldToken_, theHepMCProduct);
   }
   if (found) {
-    std::unique_ptr<edm::HepMCProduct> theCopy(new edm::HepMCProduct(*theHepMCProduct));
+    std::unique_ptr<edm::HepMCProduct> theCopy = std::make_unique<edm::HepMCProduct>(*theHepMCProduct);
     iEvent.put(std::move(theCopy));
   }
 
@@ -98,7 +98,7 @@ void GeneratorSmearedProducer::produce(edm::StreamID, edm::Event& iEvent, const 
     edm::Handle<edm::HepMC3Product> theHepMC3Product;
     found = iEvent.getByToken(Token3_, theHepMC3Product);
     if (found) {
-      std::unique_ptr<edm::HepMC3Product> theCopy3(new edm::HepMC3Product(*theHepMC3Product));
+      std::unique_ptr<edm::HepMC3Product> theCopy3 = std::make_unique<edm::HepMC3Product>(*theHepMC3Product);
       iEvent.put(std::move(theCopy3));
     }
   }

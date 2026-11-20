@@ -321,7 +321,7 @@ namespace edm {
 
       ev.put(std::move(finalGenEventInfo));
 
-      std::unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
+      std::unique_ptr<HepMCProduct> bare_product = std::make_unique<HepMCProduct>();
       bare_product->addHepMCData(finalEvent.release());
       ev.put(std::move(bare_product), "unsmeared");
     } else if (ivhepmc == 3) {  // HepMC3
@@ -338,7 +338,7 @@ namespace edm {
 
       ev.put(std::move(finalGenEventInfo3));
 
-      std::unique_ptr<HepMC3Product> bare_product(new HepMC3Product());
+      std::unique_ptr<HepMC3Product> bare_product = std::make_unique<HepMC3Product>();
       bare_product->addHepMCData(*finalEvent3);
       ev.put(std::move(bare_product), "unsmeared");
     }
@@ -396,7 +396,7 @@ namespace edm {
       filter3_->statistics();
     lheRunInfo->statistics();
 
-    std::unique_ptr<GenRunInfoProduct> griproduct(new GenRunInfoProduct(genRunInfo));
+    std::unique_ptr<GenRunInfoProduct> griproduct = std::make_unique<GenRunInfoProduct>(genRunInfo);
     r.put(std::move(griproduct));
   }
 
@@ -468,7 +468,7 @@ namespace edm {
       temp.setAcceptedBr(thisProcess.acceptedBr().n(), thisProcess.acceptedBr().sum(), thisProcess.acceptedBr().sum2());
       GenLumiProcess.push_back(temp);
     }
-    std::unique_ptr<GenLumiInfoProduct> genLumiInfo(new GenLumiInfoProduct());
+    std::unique_ptr<GenLumiInfoProduct> genLumiInfo = std::make_unique<GenLumiInfoProduct>();
     genLumiInfo->setHEPIDWTUP(lheRunInfo->getHEPRUP()->IDWTUP);
     int overrideHEPID = hadronizer_.getOverrideHEPIDWTUP();
     if (overrideHEPID != -999) {
@@ -480,25 +480,25 @@ namespace edm {
 
     // produce GenFilterInfo if HepMCFilter is called
     if (filter_) {
-      std::unique_ptr<GenFilterInfo> thisProduct(new GenFilterInfo(filter_->numEventsPassPos(),
-                                                                   filter_->numEventsPassNeg(),
-                                                                   filter_->numEventsTotalPos(),
-                                                                   filter_->numEventsTotalNeg(),
-                                                                   filter_->sumpass_w(),
-                                                                   filter_->sumpass_w2(),
-                                                                   filter_->sumtotal_w(),
-                                                                   filter_->sumtotal_w2()));
+      std::unique_ptr<GenFilterInfo> thisProduct = std::make_unique<GenFilterInfo>(filter_->numEventsPassPos(),
+                                                                                   filter_->numEventsPassNeg(),
+                                                                                   filter_->numEventsTotalPos(),
+                                                                                   filter_->numEventsTotalNeg(),
+                                                                                   filter_->sumpass_w(),
+                                                                                   filter_->sumpass_w2(),
+                                                                                   filter_->sumtotal_w(),
+                                                                                   filter_->sumtotal_w2());
       lumi.put(std::move(thisProduct));
     }
     if (filter3_) {
-      std::unique_ptr<GenFilterInfo> thisProduct(new GenFilterInfo(filter3_->numEventsPassPos(),
-                                                                   filter3_->numEventsPassNeg(),
-                                                                   filter3_->numEventsTotalPos(),
-                                                                   filter3_->numEventsTotalNeg(),
-                                                                   filter3_->sumpass_w(),
-                                                                   filter3_->sumpass_w2(),
-                                                                   filter3_->sumtotal_w(),
-                                                                   filter3_->sumtotal_w2()));
+      std::unique_ptr<GenFilterInfo> thisProduct = std::make_unique<GenFilterInfo>(filter3_->numEventsPassPos(),
+                                                                                   filter3_->numEventsPassNeg(),
+                                                                                   filter3_->numEventsTotalPos(),
+                                                                                   filter3_->numEventsTotalNeg(),
+                                                                                   filter3_->sumpass_w(),
+                                                                                   filter3_->sumpass_w2(),
+                                                                                   filter3_->sumtotal_w(),
+                                                                                   filter3_->sumtotal_w2());
       lumi.put(std::move(thisProduct));
     }
   }

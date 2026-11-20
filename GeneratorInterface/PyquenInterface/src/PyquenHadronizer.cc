@@ -1,5 +1,6 @@
 #include <iostream>
 #include <ctime>
+#include <memory>
 
 #include "GeneratorInterface/PyquenInterface/interface/PyquenHadronizer.h"
 
@@ -230,7 +231,7 @@ bool PyquenHadronizer::generatePartonsAndHadronize() {
 
   if (fVertex_) {
     // Copy the HepMC::GenEvent
-    std::unique_ptr<edm::HepMCProduct> HepMCEvt(new edm::HepMCProduct(evt));
+    std::unique_ptr<edm::HepMCProduct> HepMCEvt = std::make_unique<edm::HepMCProduct>(evt);
 
     HepMCEvt->applyVtxGen(fVertex_);
     evt = new HepMC::GenEvent((*HepMCEvt->GetEvent()));
