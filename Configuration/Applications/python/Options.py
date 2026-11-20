@@ -251,6 +251,13 @@ expertSettings.add_argument("--pileup_dasoption",
                             type=str,
                             dest="pileup_dasoption")
 
+expertSettings.add_argument("--pileup_filetype",
+                            help="The type of the pileup input files",
+                            default=defaultOptions.pileup_filetype,
+                            type=str,
+                            dest="pileup_filetype",
+                            choices=['EDM', 'EDM_RNTUPLE'])
+
 expertSettings.add_argument("--datamix",
                             help="What datamix config to use",
                             default=defaultOptions.datamix,
