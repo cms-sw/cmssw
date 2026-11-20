@@ -80,7 +80,7 @@ allTags["TkAlignment"] = {
     'T37' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T37_design_v2_Post48118' ,TkAlRecord, connectionString, "", "2026-09-10 08:32:00"] ), ),
     'T38' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T38_design_v2_Post48118' ,TkAlRecord, connectionString, "", "2026-09-10 09:13:00"] ), ),
     'T40' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T40_design_v3' ,TkAlRecord, connectionString, "", "2026-11-11 10:37:33"] ), ),
-    'T41' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T41_design_v1' ,TkAlRecord, connectionString, "", "2026-11-05 09:23:04"] ), ),
+    'T41' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T41_design_v2' ,TkAlRecord, connectionString, "", "2026-11-20 17:50:22"] ), ),
 }
 
 allTags["TkAPE"] = {
