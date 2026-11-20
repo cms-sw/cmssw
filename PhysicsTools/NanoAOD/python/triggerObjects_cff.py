@@ -110,8 +110,9 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel("filter('hltEG30LIso60CaloId15b35eHE12R9Id50b80eEcalIsoLastFilter')","hltEG30LIso60CaloId15b35eHE12R9Id50b80eEcalIsoLastFilter"),
                 mksel("filter('hltEG22Iso60CaloId15b35eHE12R9Id50b80eTrackIsoUnseededLastFilter')","hltEG22Iso60CaloId15b35eHE12R9Id50b80eTrackIsoUnseededLastFilter"),
                 mksel("filter('hltEG22R9Id85b90eHE12R9Id50b80eR9UnseededLastFilter')","hltEG22R9Id85b90eHE12R9Id50b80eR9UnseededLastFilter"),
-                mksel("filter('hltEG30Iso60CaloId15b35eR9Id50b90eHE12b10eR9Id50b80eEcalIsoFilter')","hltEG30Iso60CaloId15b35eR9Id50b90eHE12b10eR9Id50b80eEcalIsoFilter"),
-                mksel("filter('hltEG18TrackIso60Iso60CaloId15b35eR9Id50b90eHE12b10eR9Id50b80eTrackIsoUnseededFilter')","hltEG18TrackIso60Iso60CaloId15b35eR9Id50b90eHE12b10eR9Id50b80eTrackIsoUnseededFilter"),
+                # Diphoton30_18 legs: HLT renamed both filters during Run2023C-v3, keep old and new names
+                mksel(["hltEG30Iso60CaloId15b35eR9Id50b90eHE12b10eR9Id50b80eEcalIsoFilter","hltEG30Iso60b40eCaloId11b32eHE10b9eR9Id50b90eEcalIsoFilter"]),
+                mksel(["hltEG18TrackIso60Iso60CaloId15b35eR9Id50b90eHE12b10eR9Id50b80eTrackIsoUnseededFilter","hltDiEG18TrackIso60Iso60b40eCaloId11b32eHE10b9eR9Id50b90eTrackIsoUnseededFilter"]),
                 mksel("filter('hltEG*L1VBFLooseIsoEGHEFilter')", "hltEG*L1VBFLooseIsoEGHEFilter"),
             )
         ),
