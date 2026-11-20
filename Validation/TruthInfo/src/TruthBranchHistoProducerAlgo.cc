@@ -6,6 +6,7 @@
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "SimDataFormats/TruthInfo/interface/Particle.h"
 #include "SimDataFormats/TruthInfo/interface/VertexData.h"
 #include "PhysicsTools/TruthInfo/interface/BranchSelector.h"
 #include "Validation/TruthInfo/interface/TruthBranchHistoProducerAlgo.h"
@@ -423,6 +424,42 @@ namespace truth {
     }
     h.h_etares_vs_eta[i]->Fill(truthKin.eta, recoEta - truthKin.eta);
     h.h_phires_vs_eta[i]->Fill(truthKin.eta, reco::deltaPhi(recoPhi, truthKin.phi));
+  }
+
+  std::vector<double> caloEntryEtas(Graph const& graph) {
+    const uint32_t nParticles = graph.nParticles();
+    std::vector<double> eta(nParticles, kNoCaloEntry);
+    std::vector<double> energy(nParticles, -1.);
+    std::vector<uint32_t> worklist;
+    worklist.reserve(nParticles);
+    for (uint32_t p = 0; p < nParticles; ++p) {
+      // A back-scattered track crosses the boundary inward, back from the calorimeter; it is not an entry.
+      if (graph.particles()[p].backscattered)
+        continue;
+      const auto crossing = Particle(&graph, p).checkpoint(0);
+      if (!crossing.has_value())
+        continue;
+      energy[p] = crossing->momentum.energy();
+      eta[p] = crossing->position.eta();
+      worklist.push_back(p);
+    }
+    // Carry the most energetic crossing up to every ancestor. The values only increase, so the walk also ends on a
+    // graph with a cycle.
+    for (std::size_t head = 0; head < worklist.size(); ++head) {
+      const uint32_t p = worklist[head];
+      for (const uint32_t vertexId : graph.productionVertices(p)) {
+        if (vertexId >= graph.nVertices())
+          continue;
+        for (const uint32_t parent : graph.incomingParticles(vertexId)) {
+          if (parent < nParticles && energy[p] > energy[parent]) {
+            energy[parent] = energy[p];
+            eta[parent] = eta[p];
+            worklist.push_back(parent);
+          }
+        }
+      }
+    }
+    return eta;
   }
 
 }  // namespace truth

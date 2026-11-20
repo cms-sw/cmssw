@@ -15,6 +15,7 @@ One associator per domain consumes those targets and a reco collection:
 |---|---|
 | `AllTrackToTruthBranchAssociatorsProducer` | `allTrackToTruthBranchAssociators` |
 | `TruthBranchTracksterAssociatorsProducer` | `truthBranchTracksterAssociators` |
+| `TruthBranchCandidateAssociatorsProducer` | `truthBranchCandidateAssociators` |
 | `TruthBranchPFClusterAssociatorsProducer` | `truthBranchPFClusterEcalAssociators`, `truthBranchPFClusterHcalAssociators` |
 | `AllVertexToTruthBranchAssociatorsProducer` | `allVertexToTruthBranchAssociators`, `allSecondaryVertexToTruthBranchAssociators` |
 
