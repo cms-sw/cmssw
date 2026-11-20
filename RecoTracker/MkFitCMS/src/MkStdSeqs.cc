@@ -579,57 +579,65 @@ namespace mkfit {
       }
 
       // What the pair test reads, set up once per call. pair(itrack, jtrack) is
-      // the test of one pair. hasPixel: with pixelPriority, whether each track
-      // has at least two pixel hits. ptAdaptive adds the low-pT fraction for pairs
-      // consistent with one particle and the unique-hit keep rule, and uses eta
-      // instead of cot(theta) and phi at the point of closest approach to the beam
-      // spot in the direction tests.
+      // the test of one pair. polar is cot(theta), phi the momentum phi; with
+      // ptAdaptive, polar is eta, phi is taken at the point of closest approach to
+      // the beam spot (the track state is at its first hit, so the momentum phi of
+      // two duplicates differs if they start on different layers), and maxdpolar is
+      // each track's eta window, the cot(theta) one converted to eta,
+      // Config::maxdcth / cosh(eta), but at least Config::mindeta_p2. hasPixel:
+      // with pixelPriority, whether each track has at least two pixel hits.
       template <bool pixelPriority, bool ptAdaptive>
       struct DupCleaner {
         TrackVec &tracks;
         const IterationConfig &itconf;
         const TrackerInfo &trk_inf;
-        // Direction tests: eta, with the Phase-2 region boundaries, and phi at the
-        // point of closest approach to the beam spot for the pT-adaptive cleaner (the
-        // track state is at its first hit, so the momentum phi of two duplicates
-        // differs if they start on different layers); cot(theta) and momentum phi
-        // otherwise. The eta window is the cot(theta) one converted to eta,
-        // maxdcth / cosh(eta), but at least Config::mindeta_p2.
-        const float maxpolar_ob = ptAdaptive ? Config::maxeta_ob_p2 : Config::maxcth_ob;
-        const float maxpolar_fw = ptAdaptive ? Config::maxeta_fw_p2 : Config::maxcth_fw;
-        const bool lowPtFraction = ptAdaptive && itconf.dc_fracSharedHitsLowPt >= 0.f;
         std::vector<float> polar;
-        std::vector<float> maxdeta;
         std::vector<float> phi;
+        std::vector<float> maxdpolar;
         std::vector<float> absD0;
         std::vector<bool> hasPixel;
         const DupCleanHitKeys hk;
+        const float maxpolar_ob;
+        const float maxpolar_fw;
+        // pT-adaptive cleaner: low-pT fraction on, and the ramp in 1/pT
+        bool lowPtFraction = false;
+        float invptRampStart = 0.f;
+        float invptRampEnd = 0.f;
 
         DupCleaner(TrackVec &trks, const IterationConfig &itc, const TrackerInfo &ti, const BeamSpot &bspot)
             : tracks(trks),
               itconf(itc),
               trk_inf(ti),
               polar(trks.size()),
-              maxdeta(ptAdaptive ? trks.size() : 0),
               phi(trks.size()),
-              absD0(lowPtFraction && itc.dc_lowPtMaxD0 > 0.f ? trks.size() : 0),
+              maxdpolar(ptAdaptive ? trks.size() : 0),
               hasPixel(pixelPriority ? trks.size() : 0),
-              hk(trks) {
+              hk(trks),
+              maxpolar_ob(ptAdaptive ? Config::maxeta_ob_p2 : Config::maxcth_ob),
+              maxpolar_fw(ptAdaptive ? Config::maxeta_fw_p2 : Config::maxcth_fw) {
+          if constexpr (ptAdaptive) {
+            lowPtFraction = itconf.dc_fracSharedHitsLowPt >= 0.f;
+            invptRampStart = 1.f / itconf.dc_lowPtRampStart;
+            invptRampEnd = 1.f / itconf.dc_lowPtRampEnd;
+            if (lowPtFraction && itconf.dc_lowPtMaxD0 > 0.f)
+              absD0.resize(trks.size());
+          }
           for (int t = 0; t < (int)tracks.size(); ++t) {
             const Track &trk = tracks[t];
-            polar[t] = ptAdaptive ? trk.momEta() : 1.f / std::tan(trk.theta());
             if constexpr (ptAdaptive) {
-              maxdeta[t] = std::max(Config::maxdcth / std::cosh(polar[t]), Config::mindeta_p2);
+              polar[t] = trk.momEta();
+              maxdpolar[t] = std::max(Config::maxdcth / std::cosh(polar[t]), Config::mindeta_p2);
               // momentum at the point of closest approach: perpendicular to the line from the helix center to the beam spot
               const float k = ((trk.charge() < 0) ? 100.0f : -100.0f) / (Const::sol * Config::Bfield);
               const float ux = bspot.x - (trk.x() - k * trk.py());
               const float uy = bspot.y - (trk.y() + k * trk.px());
               phi[t] = k > 0.f ? std::atan2(ux, -uy) : std::atan2(-ux, uy);
+              if (!absD0.empty())
+                absD0[t] = std::abs(trk.d0BeamSpot(bspot.x, bspot.y));
             } else {
+              polar[t] = 1.f / std::tan(trk.theta());
               phi[t] = trk.momPhi();
             }
-            if (!absD0.empty())
-              absD0[t] = std::abs(trk.d0BeamSpot(bspot.x, bspot.y));
             if constexpr (pixelPriority) {
               int npix = 0;
               for (int i = 0; i < trk.nTotalHits(); ++i)
@@ -640,8 +648,16 @@ namespace mkfit {
           }
         }
 
-        // The body is asymmetric (the region threshold comes from itrack's
-        // polar coordinate, and a tie marks itrack), so itrack must be the lower index.
+        // The largest polar difference a pair of the two tracks may have.
+        float window(int itrack, int jtrack) const {
+          if constexpr (ptAdaptive)
+            return std::max(maxdpolar[itrack], maxdpolar[jtrack]);
+          else
+            return Config::maxdcth;
+        }
+
+        // The body is asymmetric (the region threshold comes from itrack's polar
+        // value, and a tie marks itrack), so itrack must be the lower index.
         void pair(int itrack, int jtrack) {
           auto &trk = tracks[itrack];
           auto &track2 = tracks[jtrack];
@@ -649,7 +665,7 @@ namespace mkfit {
             return;
           const float polar1 = polar[itrack];
           const float dpolar = std::abs(polar[jtrack] - polar1);
-          if (dpolar > (ptAdaptive ? std::max(maxdeta[itrack], maxdeta[jtrack]) : Config::maxdcth))
+          if (dpolar > window(itrack, jtrack))
             return;
           const float dphi = std::abs(squashPhiMinimal(phi[itrack] - phi[jtrack]));
           if (dphi > Config::maxdphi)
@@ -687,6 +703,7 @@ namespace mkfit {
 
           float frac = itconf.dc_fracSharedHits;
           if constexpr (ptAdaptive) {
+            // A lower fraction for a pair consistent with one particle, ramped in 1/pT of the harder track
             const float invpt2 = track2.invpT();
             const float invptHard = std::min(invpt1, invpt2);
             const float maxDR = itconf.dc_lowPtMaxDRTimesPt * invptHard;
@@ -698,8 +715,6 @@ namespace mkfit {
                 (itconf.dc_lowPtMaxDRTimesPt <= 0.f || dr2 < maxDR * maxDR);
             if (lowPtFraction && sameParticle) {
               // 1 below dc_lowPtRampStart, 0 above dc_lowPtRampEnd, linear in 1/pT of the harder track in between
-              const float invptRampStart = 1.f / itconf.dc_lowPtRampStart;
-              const float invptRampEnd = 1.f / itconf.dc_lowPtRampEnd;
               const float lowPtScale =
                   std::clamp((invptHard - invptRampEnd) / (invptRampStart - invptRampEnd), 0.f, 1.f);
               frac = itconf.dc_fracSharedHits + (itconf.dc_fracSharedHitsLowPt - itconf.dc_fracSharedHits) * lowPtScale;
@@ -728,15 +743,19 @@ namespace mkfit {
       };
     }  // namespace
 
-    // A pair can only be marked if its distance in the polar coordinate (cot(theta),
-    // or eta for ptAdaptive) is within Config::maxdcth, or within the eta window of
-    // either track, which is at most max(Config::maxdcth, Config::mindeta_p2). So
-    // pairs are visited in polar order within that bound. A duplicate mark is only
-    // ever set, so the visiting order does not change the outcome. A track with a
-    // non-finite polar coordinate is paired with every other one, and the pair's
-    // own test decides. Shared hits are counted by merging sorted (layer, index) keys.
-
-    // pixelPriority = false is the phase-1 pixelseed cleaner; true adds the pixel-priority rules.
+    // A pair can only be marked if its polar difference is within its window
+    // (Config::maxdcth in cot(theta); with ptAdaptive, the larger eta window of
+    // the two tracks), so pairs are visited in polar order within the largest
+    // window. A duplicate mark is only ever set, so the visiting order does not
+    // change the outcome. A track with a non-finite polar value is paired with
+    // every other one, and the pair's own test decides. Shared hits are counted
+    // by merging sorted (layer, index) keys.
+    //
+    // pixelPriority = false is the phase-1 pixelseed cleaner; true adds the
+    // pixel-priority rules. ptAdaptive adds the low-pT fraction for pairs
+    // consistent with one particle and the unique-hit keep rule, and uses eta
+    // and phi at the point of closest approach to the beam spot in the direction
+    // tests.
     template <bool pixelPriority, bool ptAdaptive>
     void clean_duplicates_sharedhits_pixelseed_impl(TrackVec &tracks,
                                                     const IterationConfig &itconf,
@@ -744,14 +763,53 @@ namespace mkfit {
                                                     const BeamSpot &bspot) {
       const int n = tracks.size();
       DupCleaner<pixelPriority, ptAdaptive> dc(tracks, itconf, trk_inf, bspot);
-      const std::vector<float> &polar = dc.polar;
-      const float window = ptAdaptive ? std::max(Config::maxdcth, Config::mindeta_p2) : Config::maxdcth;
 
+      if constexpr (ptAdaptive) {
+        // Without the direction-only test, two tracks can only be duplicates if
+        // they share a hit: then compare only such pairs, found from the hits.
+        if (itconf.dc_drth_central <= 0.f && itconf.dc_drth_obarrel <= 0.f && itconf.dc_drth_forward <= 0.f) {
+          std::vector<std::pair<int64_t, int>> hitTrack;
+          hitTrack.reserve(dc.hk.keys.size());
+          for (int t = 0; t < n; ++t)
+            for (int i = dc.hk.begin[t]; i < dc.hk.begin[t + 1]; ++i)
+              hitTrack.emplace_back(dc.hk.keys[i], t);
+          std::sort(hitTrack.begin(), hitTrack.end());
+          std::vector<std::vector<int>> partners(n);
+          for (auto first = hitTrack.begin(); first != hitTrack.end();) {
+            const auto last =
+                std::find_if(first, hitTrack.end(), [&](const auto &h) { return h.first != first->first; });
+            for (auto h1 = first; h1 != last; ++h1)
+              for (auto h2 = h1 + 1; h2 != last; ++h2)
+                if (h2->second != h1->second)
+                  partners[h1->second].push_back(h2->second);  // h2->second > h1->second: sorted by track
+            first = last;
+          }
+          for (int t = 0; t < n; ++t) {
+            auto &p = partners[t];
+            std::sort(p.begin(), p.end());
+            p.erase(std::unique(p.begin(), p.end()), p.end());
+            for (int u : p)
+              dc.pair(t, u);
+          }
+          remove_duplicates(tracks);
+          return;
+        }
+      }
+
+      const std::vector<float> &polar = dc.polar;
       std::vector<int> ord, nonfin;
       ord.reserve(n);
       for (int t = 0; t < n; ++t)
         (isFinite(polar[t]) ? ord : nonfin).push_back(t);
       std::sort(ord.begin(), ord.end(), [&](int a, int b) { return polar[a] < polar[b]; });
+
+      // The largest window of any pair.
+      float maxWindow = Config::maxdcth;
+      if constexpr (ptAdaptive) {
+        maxWindow = 0.f;
+        for (int t : ord)
+          maxWindow = std::max(maxWindow, dc.maxdpolar[t]);
+      }
 
       // Sorted copies of what the first two tests read, so a pair rejected by
       // them never touches a Track. Same floats, and the phi difference is taken
@@ -765,7 +823,7 @@ namespace mkfit {
         ls[p] = tracks[ord[p]].label();
       }
       for (int p = 0; p < m; ++p) {
-        for (int q = p + 1; q < m && cs[q] - cs[p] <= window; ++q) {
+        for (int q = p + 1; q < m && cs[q] - cs[p] <= maxWindow; ++q) {
           if (ls[p] == ls[q])
             continue;
           const bool p_lower = ord[p] < ord[q];
