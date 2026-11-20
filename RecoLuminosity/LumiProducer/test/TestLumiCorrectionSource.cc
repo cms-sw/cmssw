@@ -35,7 +35,7 @@ private:
 
 TestLumiCorrectionSource::TestLumiCorrectionSource(edm::ParameterSet const& ps)
     : lumiCorrectionToken_(esConsumes<edm::Transition::EndLuminosityBlock>()) {
-  consumes<LumiSummary, edm::InLumi>(edm::InputTag("lumiProducer", ""));
+  consumes<LumiSummary, edm::InLumi, edm::Transition::EndLuminosityBlock>(edm::InputTag("lumiProducer", ""));
 }
 
 // -----------------------------------------------------------------

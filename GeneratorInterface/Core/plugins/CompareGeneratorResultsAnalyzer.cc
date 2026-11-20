@@ -64,12 +64,12 @@ CompareGeneratorResultsAnalyzer::CompareGeneratorResultsAnalyzer(edm::ParameterS
       evToken2_{consumes<GenEventInfoProduct>(mod2_)},
       hepMCToken1_{consumes<edm::HepMCProduct>(edm::InputTag(mod1_, "unsmeared"))},
       hepMCToken2_{consumes<edm::HepMCProduct>(edm::InputTag(mod2_, "unsmeared"))},
-      lumiHeaderToken1_{consumes<GenLumiInfoHeader, edm::InLumi>(mod1_)},
-      lumiHeaderToken2_{consumes<GenLumiInfoHeader, edm::InLumi>(mod2_)},
-      lumiProductToken1_{consumes<GenLumiInfoProduct, edm::InLumi>(mod1_)},
-      lumiProductToken2_{consumes<GenLumiInfoProduct, edm::InLumi>(mod2_)},
-      runProductToken1_{consumes<GenRunInfoProduct, edm::InRun>(mod1_)},
-      runProductToken2_{consumes<GenRunInfoProduct, edm::InRun>(mod2_)},
+      lumiHeaderToken1_{consumes<GenLumiInfoHeader, edm::InLumi, edm::Transition::BeginLuminosityBlock>(mod1_)},
+      lumiHeaderToken2_{consumes<GenLumiInfoHeader, edm::InLumi, edm::Transition::BeginLuminosityBlock>(mod2_)},
+      lumiProductToken1_{consumes<GenLumiInfoProduct, edm::InLumi, edm::Transition::EndLuminosityBlock>(mod1_)},
+      lumiProductToken2_{consumes<GenLumiInfoProduct, edm::InLumi, edm::Transition::EndLuminosityBlock>(mod2_)},
+      runProductToken1_{consumes<GenRunInfoProduct, edm::InRun, edm::Transition::EndRun>(mod1_)},
+      runProductToken2_{consumes<GenRunInfoProduct, edm::InRun, edm::Transition::EndRun>(mod2_)},
       allowXSecDifferences_{iPSet.getUntrackedParameter<bool>("allowXSecDifferences", false)} {}
 
 std::shared_ptr<cgra::DummyCache> CompareGeneratorResultsAnalyzer::globalBeginRun(edm::Run const&,
