@@ -390,11 +390,14 @@ private:
   MonitorElement* meSimPVTvsZ_;
 
   MonitorElement* meVtxTrackMult_;
+  MonitorElement* meVtxTrackMultLin_;
   MonitorElement* meVtxTrackMultPassNdof_;
+  MonitorElement* meVtxTrackMultPassNdofLin_;
   MonitorElement* meVtxTrackMultFailNdof_;
   MonitorElement* meVtxTrackW_;
   MonitorElement* meVtxTrackWnt_;
   MonitorElement* meVtxTrackRecLVMult_;
+  MonitorElement* meVtxTrackRecLVMultLin_;
   MonitorElement* meVtxTrackRecLVW_;
   MonitorElement* meVtxTrackRecLVWnt_;
 
@@ -804,6 +807,13 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
       ibook.book1D("VtxTrackRecLVMult", "Log10(Vertex track multiplicity) for matched LV", 80, 0.5, 2.5);
   meVtxTrackRecLVW_ = ibook.book1D("VtxTrackRecLVW", "Vertex track weight for matched LV (all)", 50, 0., 1.);
   meVtxTrackRecLVWnt_ = ibook.book1D("VtxTrackRecLVWnt", "Vertex track Wnt for matched LV", 50, 0., 1.);
+  if (optionalPlots_) {
+    meVtxTrackMultLin_ = ibook.book1D("VtxTrackMultLin", "Vertex track multiplicity", 80, 3., 320.);
+    meVtxTrackMultPassNdofLin_ =
+        ibook.book1D("VtxTrackMultPassNdofLin", "Vertex track multiplicity for ndof>4", 80, 3., 320.);
+    meVtxTrackRecLVMultLin_ =
+        ibook.book1D("VtxTrackRecLVMultLin", "Vertex track multiplicity for matched LV", 40, 3., 320.);
+  }
 
   mePUTrackRelMult_ = ibook.book1D(
       "PUTrackRelMult", "Relative multiplicity of PU tracks for matched vertices; #PUTrks/#Trks", 50, 0., 1.);
@@ -2901,6 +2911,9 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
         }  // loop on reco tracks
         if (selectedVtxMatching) {
           meVtxTrackMult_->Fill(log10(nt));
+          if (optionalPlots_) {
+            meVtxTrackMultLin_->Fill(nt);
+          }
           mePUTrackRelMult_->Fill(static_cast<double>(PUnt) / nt);
           meFakeTrackRelMult_->Fill(static_cast<double>(Fakent) / nt);
           mePUTrackRelSumWnt_->Fill(PUsumWnt / sumWnt);
@@ -2973,6 +2986,9 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
           }
           if (selectedLV) {
             meVtxTrackRecLVMult_->Fill(log10(nt));
+            if (optionalPlots_) {
+              meVtxTrackRecLVMultLin_->Fill(nt);
+            }
             mePUTrackRecLVRelMult_->Fill(static_cast<double>(PUnt) / nt);
             meFakeTrackRecLVRelMult_->Fill(static_cast<double>(Fakent) / nt);
             mePUTrackRecLVRelSumWnt_->Fill(PUsumWnt / sumWnt);
@@ -3055,6 +3071,9 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
     if (recopv.at(ir).ndof > selNdof_) {
       meRecPVZ_->Fill(recopv.at(ir).z);
       meVtxTrackMultPassNdof_->Fill(log10(vertex->tracksSize()));
+      if (optionalPlots_) {
+        meVtxTrackMultPassNdofLin_->Fill(vertex->tracksSize());
+      }
 
       if (recopv.at(ir).recVtx->tError() > 0.) {
         meRecPVT_->Fill(recopv.at(ir).recVtx->t());
