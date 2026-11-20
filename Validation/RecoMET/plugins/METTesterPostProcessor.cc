@@ -1,4 +1,5 @@
 #include "Validation/RecoMET/plugins/METTesterPostProcessor.h"
+#include "Validation/RecoMET/interface/SliceBinRanges.h"
 
 #include <memory>
 
@@ -83,15 +84,14 @@ std::vector<METTesterPostProcessor::ProjStats> METTesterPostProcessor::projectio
     return ret;
   }
 
-  for (unsigned binId = 0; binId < bins.size() - 1; binId++) {
-    // the upper edge belongs to the next slice
-    const int first = ax->FindFixBin(bins[binId]);
-    int last = ax->FindFixBin(bins[binId + 1]);
-    if (last > first and ax->GetBinLowEdge(last) >= bins[binId + 1]) {
-      // remove the last bin if the bin value in `bins` matches the histogram bin edge, since that bin will be entirely outside the slice
-      // but .ProjectionX/Y would sum it (leading to duplication), since it includes both `first` and `last`.
-      --last;
-    }
+  for (const auto i : metvalidation::misalignedSliceEdges(*ax, bins)) {
+    edm::LogWarning("METTesterPostProcessor")
+        << "Slice edge " << bins[i] << " does not fall on a bin edge of the " << axis << " axis of "
+        << src->getFullname() << ": the bin containing it is shared by two slices.";
+  }
+  const auto ranges = metvalidation::sliceBinRanges(*ax, bins);
+  for (unsigned binId = 0; binId < ranges.size(); binId++) {
+    const auto [first, last] = ranges[binId];
 
     const std::string name = src->getFullname() + "_proj" + std::to_string(binId);
     std::unique_ptr<TH1D> proj(axis == "X" ? h2->ProjectionY(name.c_str(), first, last)
