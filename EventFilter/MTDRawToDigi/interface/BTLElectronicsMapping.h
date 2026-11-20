@@ -5,7 +5,7 @@
 #include <utility>
 
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
-#include "EventFilter/MTDRawToDigi/interface/BTLElectronicsSpecs.h"
+#include "CondFormats/MTDObjects/interface/BTLElectronicsSpecs.h"
 
 /**
  * Helper functions for BTL electronics/DAQ mapping
@@ -53,19 +53,22 @@ public:
   // HS-link mapping helper functions
   // ------------------------------------------------------------------
   // -- Get the HS-link corresponding to a given RU/CC in a tray
-  int opticalTxPosition(uint32_t tray, int optTxCh) const;
-  int hslinkFromRU(uint32_t runit, uint32_t tray, int lpgbt_id = 0) const;
-  int hslink(BTLDetId det, int lpgbt_id = 0) const;
-  int hslink(uint32_t rawID, int lpgbt_id = 0) const;
+  int hslinkFromRUandTray(uint32_t runit, uint32_t tray) const;
+  int hslink(BTLDetId det) const;
+  int hslink(uint32_t rawID) const;
 
   // ------------------------------------------------------------------
   // S-link mapping
   // ------------------------------------------------------------------
-  /** one S-link corresponds to a group of 6 trays. One S-link = One FEDId **/
+  /** 12 S-links per Serenity, each serenity coveres 6 trays -->  one S-link corresponds to half a tray (= 3 RUs). One S-link = One FEDId **/
   // -- Get the S-link for a given tray
-  int slinkFromTray(uint32_t tray, uint32_t zside) const;
+  int slinkFromRUandTray(uint32_t runit, uint32_t tray, uint32_t zside) const;
   int slink(BTLDetId det) const;
   int slink(uint32_t rawID) const;
+
+  int fedFromRUandTray(uint32_t runit, uint32_t tray, uint32_t zside) const;
+  int fed(BTLDetId det) const;
+  int fed(uint32_t rawID) const;
 
 private:
 };
