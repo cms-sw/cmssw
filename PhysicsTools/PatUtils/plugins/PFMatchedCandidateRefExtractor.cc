@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -49,11 +51,13 @@ PFMatchedCandidateRefExtractor::~PFMatchedCandidateRefExtractor() {}
 
 // ------------ method called to produce the data  ------------
 void PFMatchedCandidateRefExtractor::produce(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup&) const {
-  std::unique_ptr<edm::PtrVector<reco::Candidate>> outcol1(new edm::PtrVector<reco::Candidate>());
-  std::unique_ptr<edm::PtrVector<reco::Candidate>> outcol2(new edm::PtrVector<reco::Candidate>());
+  std::unique_ptr<edm::PtrVector<reco::Candidate>> outcol1 = std::make_unique<edm::PtrVector<reco::Candidate>>();
+  std::unique_ptr<edm::PtrVector<reco::Candidate>> outcol2 = std::make_unique<edm::PtrVector<reco::Candidate>>();
 
-  std::unique_ptr<edm::PtrVector<reco::PFCandidate>> outPFCandCol1(new edm::PtrVector<reco::PFCandidate>());
-  std::unique_ptr<edm::PtrVector<reco::PFCandidate>> outPFCandCol2(new edm::PtrVector<reco::PFCandidate>());
+  std::unique_ptr<edm::PtrVector<reco::PFCandidate>> outPFCandCol1 =
+      std::make_unique<edm::PtrVector<reco::PFCandidate>>();
+  std::unique_ptr<edm::PtrVector<reco::PFCandidate>> outPFCandCol2 =
+      std::make_unique<edm::PtrVector<reco::PFCandidate>>();
 
   edm::Handle<edm::View<reco::Candidate>> col1Handle;
   edm::Handle<edm::View<reco::Candidate>> col2Handle;
