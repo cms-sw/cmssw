@@ -20,6 +20,7 @@
 #include "EventFilter/Utilities/interface/DTCRC.h"
 
 #include <iostream>
+#include <memory>
 
 using namespace std;
 
@@ -38,9 +39,9 @@ DTTFFEDReader::DTTFFEDReader(const edm::ParameterSet &pset) {
 DTTFFEDReader::~DTTFFEDReader() {}
 
 void DTTFFEDReader::produce(edm::Event &e, const edm::EventSetup &c) {
-  unique_ptr<L1MuDTChambPhContainer> phi_product(new L1MuDTChambPhContainer);
-  unique_ptr<L1MuDTChambThContainer> the_product(new L1MuDTChambThContainer);
-  unique_ptr<L1MuDTTrackContainer> tra_product(new L1MuDTTrackContainer);
+  unique_ptr<L1MuDTChambPhContainer> phi_product = std::make_unique<L1MuDTChambPhContainer>();
+  unique_ptr<L1MuDTChambThContainer> the_product = std::make_unique<L1MuDTChambThContainer>();
+  unique_ptr<L1MuDTTrackContainer> tra_product = std::make_unique<L1MuDTTrackContainer>();
 
   L1MuDTChambPhContainer::Phi_Container phi_data;
   L1MuDTChambThContainer::The_Container the_data;

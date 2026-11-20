@@ -17,6 +17,7 @@
 #include "EventFilter/L1GlobalTriggerRawToDigi/interface/L1GTDigiToRaw.h"
 
 // system include files
+#include <memory>
 #include <vector>
 #include <iostream>
 #include <iomanip>
@@ -88,7 +89,7 @@ L1GTDigiToRaw::L1GTDigiToRaw(const edm::ParameterSet& pSet)
 void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup) {
   // define new FEDRawDataCollection
   // it contains ALL FEDs in an event
-  std::unique_ptr<FEDRawDataCollection> allFedRawData(new FEDRawDataCollection);
+  std::unique_ptr<FEDRawDataCollection> allFedRawData = std::make_unique<FEDRawDataCollection>();
 
   FEDRawData& gtRawData = allFedRawData->FEDData(m_daqGtFedId);
 
@@ -404,7 +405,7 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup) 
                   << "\nQuit packing this event" << std::endl;
             }
 
-            std::unique_ptr<FEDRawDataCollection> allFedRawData(new FEDRawDataCollection);
+            std::unique_ptr<FEDRawDataCollection> allFedRawData = std::make_unique<FEDRawDataCollection>();
 
             // put the raw data in the event
             iEvent.put(std::move(allFedRawData));

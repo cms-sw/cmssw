@@ -899,7 +899,7 @@ void l1t::TriggerMenuParser::parseCalMuEta_LUTS(std::map<std::string, tmeventset
   getCaloMuonEtaConversionLut(lut_cal_2_mu_eta, scale1, scale2);
 
   std::string lutName = obj1;
-  lutName += "-";
+  lutName += '-';
   lutName += obj2;
   m_gtScales.setLUT_CalMuEta(lutName, lut_cal_2_mu_eta);
 }
@@ -926,7 +926,7 @@ void l1t::TriggerMenuParser::parseCalMuPhi_LUTS(std::map<std::string, tmeventset
   getCaloMuonPhiConversionLut(lut_cal_2_mu_phi, scale1, scale2);
 
   std::string lutName = obj1;
-  lutName += "-";
+  lutName += '-';
   lutName += obj2;
   m_gtScales.setLUT_CalMuPhi(lutName, lut_cal_2_mu_phi);
 }
@@ -1000,7 +1000,7 @@ void l1t::TriggerMenuParser::parseDeltaEta_Cosh_LUTS(std::map<std::string, tmeve
   size_t n = getDeltaVector(val_delta_eta, scale1, scale2);
   setLut(lut_delta_eta, val_delta_eta, prec1);
   std::string lutName = obj1;
-  lutName += "-";
+  lutName += '-';
   lutName += obj2;
   m_gtScales.setLUT_DeltaEta(lutName, lut_delta_eta, prec1);
 
@@ -1035,7 +1035,7 @@ void l1t::TriggerMenuParser::parseDeltaPhi_Cos_LUTS(const std::map<std::string, 
   size_t n = getDeltaVector(val_delta_phi, scale1, scale2);
   setLut(lut_delta_phi, val_delta_phi, prec1);
   std::string lutName = obj1;
-  lutName += "-";
+  lutName += '-';
   lutName += obj2;
   m_gtScales.setLUT_DeltaPhi(lutName, lut_delta_phi, prec1);
 

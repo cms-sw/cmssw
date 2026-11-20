@@ -51,6 +51,7 @@
 // C++ built-ins
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <queue>
 #include <cmath>
 
@@ -263,7 +264,7 @@ void DTTrigPhase2ShowerProd::produce(edm::Event& iEvent, const edm::EventSetup& 
     LogDebug("DTTrigPhase2ShowerProd") << "    Storing results...";
 
   // 4.1 Storing results
-  std::unique_ptr<L1Phase2MuDTShowerContainer> resultShower(new L1Phase2MuDTShowerContainer);
+  std::unique_ptr<L1Phase2MuDTShowerContainer> resultShower = std::make_unique<L1Phase2MuDTShowerContainer>();
   resultShower->setContainer(outShower);
   iEvent.put(std::move(resultShower));
 }

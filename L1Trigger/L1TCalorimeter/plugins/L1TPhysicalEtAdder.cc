@@ -13,6 +13,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <cassert>
+#include <memory>
 #include <vector>
 
 namespace {
@@ -103,14 +104,14 @@ L1TPhysicalEtAdder::~L1TPhysicalEtAdder() {}
 // ------------ method called to produce the data  ------------
 void L1TPhysicalEtAdder::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // store new collections which include physical quantities
-  std::unique_ptr<EGammaBxCollection> new_egammas(new EGammaBxCollection);
-  std::unique_ptr<TauBxCollection> new_rlxtaus(new TauBxCollection);
-  std::unique_ptr<TauBxCollection> new_isotaus(new TauBxCollection);
-  std::unique_ptr<JetBxCollection> new_jets(new JetBxCollection);
-  std::unique_ptr<JetBxCollection> new_preGtJets(new JetBxCollection);
-  std::unique_ptr<EtSumBxCollection> new_etsums(new EtSumBxCollection);
-  std::unique_ptr<CaloSpareBxCollection> new_hfsums(new CaloSpareBxCollection);
-  std::unique_ptr<CaloSpareBxCollection> new_hfcounts(new CaloSpareBxCollection);
+  std::unique_ptr<EGammaBxCollection> new_egammas = std::make_unique<EGammaBxCollection>();
+  std::unique_ptr<TauBxCollection> new_rlxtaus = std::make_unique<TauBxCollection>();
+  std::unique_ptr<TauBxCollection> new_isotaus = std::make_unique<TauBxCollection>();
+  std::unique_ptr<JetBxCollection> new_jets = std::make_unique<JetBxCollection>();
+  std::unique_ptr<JetBxCollection> new_preGtJets = std::make_unique<JetBxCollection>();
+  std::unique_ptr<EtSumBxCollection> new_etsums = std::make_unique<EtSumBxCollection>();
+  std::unique_ptr<CaloSpareBxCollection> new_hfsums = std::make_unique<CaloSpareBxCollection>();
+  std::unique_ptr<CaloSpareBxCollection> new_hfcounts = std::make_unique<CaloSpareBxCollection>();
 
   edm::Handle<EGammaBxCollection> old_egammas;
   edm::Handle<TauBxCollection> old_rlxtaus;

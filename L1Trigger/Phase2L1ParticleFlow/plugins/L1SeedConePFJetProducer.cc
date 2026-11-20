@@ -1,4 +1,5 @@
 
+#include <memory>
 #include <vector>
 #include <numeric>
 #include <string>
@@ -79,7 +80,7 @@ L1SeedConePFJetProducer::L1SeedConePFJetProducer(const edm::ParameterSet& cfg)
 void L1SeedConePFJetProducer::produce(edm::StreamID /*unused*/,
                                       edm::Event& iEvent,
                                       const edm::EventSetup& iSetup) const {
-  std::unique_ptr<l1t::PFJetCollection> newPFJetCollection(new l1t::PFJetCollection);
+  std::unique_ptr<l1t::PFJetCollection> newPFJetCollection = std::make_unique<l1t::PFJetCollection>();
 
   edm::Handle<l1t::PFCandidateCollection> l1PFCandidates;
   iEvent.getByToken(l1PFToken, l1PFCandidates);

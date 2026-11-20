@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 using std::endl;
@@ -202,8 +203,8 @@ void MaskedRctInputDigiProducer::produce(edm::StreamID, edm::Event &iEvent, cons
 
   // apply mask
 
-  std::unique_ptr<EcalTrigPrimDigiCollection> maskedEcalTPs(new EcalTrigPrimDigiCollection());
-  std::unique_ptr<HcalTrigPrimDigiCollection> maskedHcalTPs(new HcalTrigPrimDigiCollection());
+  std::unique_ptr<EcalTrigPrimDigiCollection> maskedEcalTPs = std::make_unique<EcalTrigPrimDigiCollection>();
+  std::unique_ptr<HcalTrigPrimDigiCollection> maskedHcalTPs = std::make_unique<HcalTrigPrimDigiCollection>();
   maskedEcalTPs->reserve(56 * 72);
   maskedHcalTPs->reserve(56 * 72 + 18 * 8);
   int nEcalSamples = 0;

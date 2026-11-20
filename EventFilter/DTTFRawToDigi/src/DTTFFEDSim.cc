@@ -20,6 +20,7 @@
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 
 #include <iostream>
+#include <memory>
 
 using namespace std;
 
@@ -42,7 +43,7 @@ void DTTFFEDSim::produce(edm::Event &e, const edm::EventSetup &c) {
   if (!fillRawData(e, data))
     return;
 
-  unique_ptr<FEDRawDataCollection> fed_product(new FEDRawDataCollection(data));
+  unique_ptr<FEDRawDataCollection> fed_product = std::make_unique<FEDRawDataCollection>(data);
 
   e.put(std::move(fed_product));
 }

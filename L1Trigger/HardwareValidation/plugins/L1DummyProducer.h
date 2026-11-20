@@ -280,10 +280,10 @@ inline void L1DummyProducer::SimpleDigi(int nevt,
   int type_idx = type;  //choose data type: 0 DT, 1 bRPC, 2 CSC, 3 fRPC
   if (verbose())
     std::cout << "L1DummyProducer::SimpleDigi<L1MuDTTrackContainer>....\n" << std::flush;
-  std::unique_ptr<L1MuRegionalCandCollection> tracks(new L1MuRegionalCandCollection());
+  std::unique_ptr<L1MuRegionalCandCollection> tracks = std::make_unique<L1MuRegionalCandCollection>();
   SimpleDigi(nevt, engine, tracks, type_idx);
   typedef std::vector<L1MuDTTrackCand> L1MuDTTrackCandCollection;
-  std::unique_ptr<L1MuDTTrackCandCollection> tracksd(new L1MuDTTrackCandCollection());
+  std::unique_ptr<L1MuDTTrackCandCollection> tracksd = std::make_unique<L1MuDTTrackCandCollection>();
   for (L1MuRegionalCandCollection::const_iterator it = tracks->begin(); it != tracks->end(); it++) {
     L1MuDTTrackCand* cnd = new L1MuDTTrackCand();
     cnd->setDataWord(it->getDataWord());
@@ -413,10 +413,10 @@ inline void L1DummyProducer::SimpleDigi(int nevt,
   rec.setBxNr(bxn);
   rec.setEvNr(bxn);
   rec.setBxInEvent(0);
-  std::unique_ptr<L1MuRegionalCandCollection> trks_dttf(new L1MuRegionalCandCollection);
-  std::unique_ptr<L1MuRegionalCandCollection> trks_rpcb(new L1MuRegionalCandCollection);
-  std::unique_ptr<L1MuRegionalCandCollection> trks_csc(new L1MuRegionalCandCollection);
-  std::unique_ptr<L1MuRegionalCandCollection> trks_rpcf(new L1MuRegionalCandCollection);
+  std::unique_ptr<L1MuRegionalCandCollection> trks_dttf = std::make_unique<L1MuRegionalCandCollection>();
+  std::unique_ptr<L1MuRegionalCandCollection> trks_rpcb = std::make_unique<L1MuRegionalCandCollection>();
+  std::unique_ptr<L1MuRegionalCandCollection> trks_csc = std::make_unique<L1MuRegionalCandCollection>();
+  std::unique_ptr<L1MuRegionalCandCollection> trks_rpcf = std::make_unique<L1MuRegionalCandCollection>();
   SimpleDigi(nevt, engine, trks_dttf, 0);
   SimpleDigi(nevt, engine, trks_rpcb, 1);
   SimpleDigi(nevt, engine, trks_csc, 2);
@@ -525,10 +525,10 @@ inline void L1DummyProducer::SimpleDigi(int nevt,
                                         int type) const {
   if (verbose())
     std::cout << "L1DummyProducer::SimpleDigi<L1CSCTrackCollection>...\n" << std::flush;
-  std::unique_ptr<CSCCorrelatedLCTDigiCollection> dgcoll(new CSCCorrelatedLCTDigiCollection);
+  std::unique_ptr<CSCCorrelatedLCTDigiCollection> dgcoll = std::make_unique<CSCCorrelatedLCTDigiCollection>();
   SimpleDigi(nevt, engine, dgcoll, 0);
   csc::L1Track l1trk = csc::L1Track();
-  std::unique_ptr<L1MuRegionalCandCollection> regcoll(new L1MuRegionalCandCollection);
+  std::unique_ptr<L1MuRegionalCandCollection> regcoll = std::make_unique<L1MuRegionalCandCollection>();
   SimpleDigi(nevt, engine, regcoll, 2);
   L1MuRegionalCand regcand = *(regcoll->begin());
   l1trk.setDataWord(regcand.getDataWord());

@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "L1Trigger/HardwareValidation/interface/L1ComparatorRun2.h"
 
 using namespace std;
@@ -26,7 +28,7 @@ L1ComparatorRun2::L1ComparatorRun2(const ParameterSet& ps) {
 L1ComparatorRun2::~L1ComparatorRun2() {}
 
 void L1ComparatorRun2::produce(StreamID, Event& iEvent, const EventSetup& iSetup) const {
-  unique_ptr<L1DataEmulResultBxCollection> RESULT(new L1DataEmulResultBxCollection);
+  unique_ptr<L1DataEmulResultBxCollection> RESULT = std::make_unique<L1DataEmulResultBxCollection>();
 
   if (doLayer2_) {
     for (int bx = bxMin_; bx <= bxMax_; bx++) {

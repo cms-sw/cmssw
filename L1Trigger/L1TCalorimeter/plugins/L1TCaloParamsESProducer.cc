@@ -188,12 +188,12 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf) 
 
   edm::FileInPath tauIsoLUTFile2 = conf.getParameter<edm::FileInPath>("tauIsoLUTFile2");
   std::ifstream tauIsoLUTStream2(tauIsoLUTFile2.fullPath());
-  std::shared_ptr<LUT> tauIsoLUT2(new LUT(tauIsoLUTStream2));
+  std::shared_ptr<LUT> tauIsoLUT2 = std::make_shared<LUT>(tauIsoLUTStream2);
   m_params_helper.setTauIsolationLUT2(*tauIsoLUT2);
 
   edm::FileInPath tauTrimmingShapeVetoLUTFile = conf.getParameter<edm::FileInPath>("tauTrimmingShapeVetoLUTFile");
   std::ifstream tauTrimmingShapeVetoLUTStream(tauTrimmingShapeVetoLUTFile.fullPath());
-  std::shared_ptr<LUT> tauTrimmingShapeVetoLUT(new LUT(tauTrimmingShapeVetoLUTStream));
+  std::shared_ptr<LUT> tauTrimmingShapeVetoLUT = std::make_shared<LUT>(tauTrimmingShapeVetoLUTStream);
   m_params_helper.setTauTrimmingShapeVetoLUT(*tauTrimmingShapeVetoLUT);
 
   edm::FileInPath tauCalibrationLUTFile = conf.getParameter<edm::FileInPath>("tauCalibrationLUTFile");
@@ -232,11 +232,11 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf) 
   m_params_helper.setJetCalibrationLUT(*jetCalibrationLUT);
   edm::FileInPath jetCompressEtaLUTFile = conf.getParameter<edm::FileInPath>("jetCompressEtaLUTFile");
   std::ifstream jetCompressEtaLUTStream(jetCompressEtaLUTFile.fullPath());
-  std::shared_ptr<LUT> jetCompressEtaLUT(new LUT(jetCompressEtaLUTStream));
+  std::shared_ptr<LUT> jetCompressEtaLUT = std::make_shared<LUT>(jetCompressEtaLUTStream);
   m_params_helper.setJetCompressEtaLUT(*jetCompressEtaLUT);
   edm::FileInPath jetCompressPtLUTFile = conf.getParameter<edm::FileInPath>("jetCompressPtLUTFile");
   std::ifstream jetCompressPtLUTStream(jetCompressPtLUTFile.fullPath());
-  std::shared_ptr<LUT> jetCompressPtLUT(new LUT(jetCompressPtLUTStream));
+  std::shared_ptr<LUT> jetCompressPtLUT = std::make_shared<LUT>(jetCompressPtLUTStream);
   m_params_helper.setJetCompressPtLUT(*jetCompressPtLUT);
 
   // sums
@@ -268,47 +268,47 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf) 
 
   edm::FileInPath etSumMetPUSLUTFile = conf.getParameter<edm::FileInPath>("etSumMetPUSLUTFile");
   std::ifstream etSumMetPUSLUTStream(etSumMetPUSLUTFile.fullPath());
-  std::shared_ptr<LUT> etSumMetPUSLUT(new LUT(etSumMetPUSLUTStream));
+  std::shared_ptr<LUT> etSumMetPUSLUT = std::make_shared<LUT>(etSumMetPUSLUTStream);
   m_params_helper.setEtSumMetPUSLUT(*etSumMetPUSLUT);
 
   edm::FileInPath etSumEttPUSLUTFile = conf.getParameter<edm::FileInPath>("etSumEttPUSLUTFile");
   std::ifstream etSumEttPUSLUTStream(etSumEttPUSLUTFile.fullPath());
-  std::shared_ptr<LUT> etSumEttPUSLUT(new LUT(etSumEttPUSLUTStream));
+  std::shared_ptr<LUT> etSumEttPUSLUT = std::make_shared<LUT>(etSumEttPUSLUTStream);
   m_params_helper.setEtSumEttPUSLUT(*etSumEttPUSLUT);
 
   edm::FileInPath etSumEcalSumPUSLUTFile = conf.getParameter<edm::FileInPath>("etSumEcalSumPUSLUTFile");
   std::ifstream etSumEcalSumPUSLUTStream(etSumEcalSumPUSLUTFile.fullPath());
-  std::shared_ptr<LUT> etSumEcalSumPUSLUT(new LUT(etSumEcalSumPUSLUTStream));
+  std::shared_ptr<LUT> etSumEcalSumPUSLUT = std::make_shared<LUT>(etSumEcalSumPUSLUTStream);
   m_params_helper.setEtSumEcalSumPUSLUT(*etSumEcalSumPUSLUT);
 
   edm::FileInPath metCalibrationLUTFile = conf.getParameter<edm::FileInPath>("metCalibrationLUTFile");
   std::ifstream metCalibrationLUTStream(metCalibrationLUTFile.fullPath());
-  std::shared_ptr<LUT> metCalibrationLUT(new LUT(metCalibrationLUTStream));
+  std::shared_ptr<LUT> metCalibrationLUT = std::make_shared<LUT>(metCalibrationLUTStream);
   m_params_helper.setMetCalibrationLUT(*metCalibrationLUT);
 
   edm::FileInPath metHFCalibrationLUTFile = conf.getParameter<edm::FileInPath>("metHFCalibrationLUTFile");
   std::ifstream metHFCalibrationLUTStream(metHFCalibrationLUTFile.fullPath());
-  std::shared_ptr<LUT> metHFCalibrationLUT(new LUT(metHFCalibrationLUTStream));
+  std::shared_ptr<LUT> metHFCalibrationLUT = std::make_shared<LUT>(metHFCalibrationLUTStream);
   m_params_helper.setMetHFCalibrationLUT(*metHFCalibrationLUT);
 
   edm::FileInPath etSumEttCalibrationLUTFile = conf.getParameter<edm::FileInPath>("etSumEttCalibrationLUTFile");
   std::ifstream etSumEttCalibrationLUTStream(etSumEttCalibrationLUTFile.fullPath());
-  std::shared_ptr<LUT> etSumEttCalibrationLUT(new LUT(etSumEttCalibrationLUTStream));
+  std::shared_ptr<LUT> etSumEttCalibrationLUT = std::make_shared<LUT>(etSumEttCalibrationLUTStream);
   m_params_helper.setEtSumEttCalibrationLUT(*etSumEttCalibrationLUT);
 
   edm::FileInPath etSumEcalSumCalibrationLUTFile = conf.getParameter<edm::FileInPath>("etSumEcalSumCalibrationLUTFile");
   std::ifstream etSumEcalSumCalibrationLUTStream(etSumEcalSumCalibrationLUTFile.fullPath());
-  std::shared_ptr<LUT> etSumEcalSumCalibrationLUT(new LUT(etSumEcalSumCalibrationLUTStream));
+  std::shared_ptr<LUT> etSumEcalSumCalibrationLUT = std::make_shared<LUT>(etSumEcalSumCalibrationLUTStream);
   m_params_helper.setEtSumEcalSumCalibrationLUT(*etSumEcalSumCalibrationLUT);
 
   edm::FileInPath metPhiCalibrationLUTFile = conf.getParameter<edm::FileInPath>("metPhiCalibrationLUTFile");
   std::ifstream metPhiCalibrationLUTStream(metPhiCalibrationLUTFile.fullPath());
-  std::shared_ptr<LUT> metPhiCalibrationLUT(new LUT(metPhiCalibrationLUTStream));
+  std::shared_ptr<LUT> metPhiCalibrationLUT = std::make_shared<LUT>(metPhiCalibrationLUTStream);
   m_params_helper.setMetPhiCalibrationLUT(*metPhiCalibrationLUT);
 
   edm::FileInPath metHFPhiCalibrationLUTFile = conf.getParameter<edm::FileInPath>("metHFPhiCalibrationLUTFile");
   std::ifstream metHFPhiCalibrationLUTStream(metHFPhiCalibrationLUTFile.fullPath());
-  std::shared_ptr<LUT> metHFPhiCalibrationLUT(new LUT(metHFPhiCalibrationLUTStream));
+  std::shared_ptr<LUT> metHFPhiCalibrationLUT = std::make_shared<LUT>(metHFPhiCalibrationLUTStream);
   m_params_helper.setMetHFPhiCalibrationLUT(*metHFPhiCalibrationLUT);
 
   // HI centrality trigger
