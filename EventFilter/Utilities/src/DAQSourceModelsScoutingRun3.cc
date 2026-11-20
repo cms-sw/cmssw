@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "EventFilter//Utilities/interface/DAQSourceModelsScoutingRun3.h"
 
 using namespace edm::streamer;
@@ -68,7 +70,7 @@ void DataModeScoutingRun3::readEvent(edm::EventPrincipal& eventPrincipal) {
   daqSource_->makeEventWrapper(eventPrincipal, aux);
 
   // create scouting raw data collection
-  std::unique_ptr<SDSRawDataCollection> rawData(new SDSRawDataCollection);
+  std::unique_ptr<SDSRawDataCollection> rawData = std::make_unique<SDSRawDataCollection>();
 
   // Fill the ScoutingRawDataCollection with valid orbit data from the multiple sources
   for (const auto& pair : sourceValidOrbitPair_) {

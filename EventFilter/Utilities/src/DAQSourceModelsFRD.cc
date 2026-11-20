@@ -2,6 +2,7 @@
 #include "EventFilter/Utilities/interface/DAQSourceModelsFRD.h"
 
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <sys/types.h>
 #include <sys/file.h>
@@ -32,7 +33,7 @@
 using namespace edm::streamer;
 
 void DataModeFRD::readEvent(edm::EventPrincipal& eventPrincipal) {
-  std::unique_ptr<FEDRawDataCollection> rawData(new FEDRawDataCollection);
+  std::unique_ptr<FEDRawDataCollection> rawData = std::make_unique<FEDRawDataCollection>();
   bool tcdsInRange;
   unsigned char* tcds_pointer = nullptr;
   edm::Timestamp tstamp = fillFEDRawDataCollection(*rawData, tcdsInRange, tcds_pointer);
@@ -424,7 +425,7 @@ void DataModeFRDStriped::makeDirectoryEntries(std::vector<std::string> const& ba
 
 void DataModeFRDStriped::readEvent(edm::EventPrincipal& eventPrincipal) {
   assert(!events_.empty());
-  std::unique_ptr<FEDRawDataCollection> rawData(new FEDRawDataCollection);
+  std::unique_ptr<FEDRawDataCollection> rawData = std::make_unique<FEDRawDataCollection>();
   bool tcdsInRange;
   unsigned char* tcds_pointer = nullptr;
   edm::Timestamp tstamp = fillFRDCollection(*rawData, tcdsInRange, tcds_pointer);
