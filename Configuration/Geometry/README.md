@@ -112,7 +112,7 @@ Tracker:
 * T38: OT (v8.0.6): increased (smallDelta +300 micron) inter-ladder radial spacing TB2S. IT (v7.4.4): TBPX as in T35 with 1.3+0.4+1.3 mm gap between Z+ and Z-
 * T39: Same as T35 but introducing BigPixels in InnerTracker (1x2 planar and 2x2 planar modules)
 * T40: Based on T37, synced with the latest CAD design + BigPixels in IT and OT. OT (v8.0.8) IT (v7.5.0)
-* T41: Same as T40, but with ultra-light ladder design in BPIX Layer 1 and without BigPixels. OT (v8.0.7) IT (v7.4.9)
+* T41: Same as T40, but with ultra-light ladder design in BPIX Layer 1. OT (v8.0.8) IT (v8.5.0)
 
 Calorimeters:
 * C18: HGCal (v17 version of HGCal geometry created for a new flat file for silicon having 47 layers, ideas of cassettes, new orientation indices for full and partial wafers) + Phase2 HCAL and EB
@@ -163,5 +163,5 @@ Several detector combinations have been generated:
 * D126 = T37+C27+M17+I21+O11+F10 (Most up-to-date scenario)
 * D127 = T35+C27+M17+I21+O11+F10
 * D128 = T35+C27+M16+I21+O11+F10 (Phase-2 baseline from CMSSW_20_1_0_pre4, for trigger studies)
-* D129 = T40+C27+M16+I21+O11+F10
-* D130 = T41+C27+M16+I21+O11+F10
+* D129 = T40+C27+M17+I21+O11+F10
+* D130 = T41+C27+M17+I21+O11+F10
