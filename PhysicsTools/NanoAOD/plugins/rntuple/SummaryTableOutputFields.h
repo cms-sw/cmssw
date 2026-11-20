@@ -14,10 +14,9 @@ public:
 private:
   template <typename T, typename Col>
   std::vector<RNTupleFieldPtr<T>> makeFields(const std::vector<Col> &tabcols, ROOT::RNTupleModel &model);
+  // Fills either a scalar column (SingleColumn::value) or a vector column (VectorColumn::values).
   template <typename T, typename Col>
-  static void fillScalarFields(const std::vector<Col> &tabcols, std::vector<RNTupleFieldPtr<T>> fields);
-  template <typename T, typename Col>
-  static void fillVectorFields(const std::vector<Col> &tabcols, std::vector<RNTupleFieldPtr<T>> fields);
+  static void fillFields(const std::vector<Col> &tabcols, std::vector<RNTupleFieldPtr<T>> &fields);
 
   using int_accumulator = nanoaod::MergeableCounterTable::int_accumulator;
   using float_accumulator = nanoaod::MergeableCounterTable::float_accumulator;

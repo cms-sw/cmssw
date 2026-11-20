@@ -1,28 +1,41 @@
 #include "NanoAODRNTuples.h"
 
 #include "DataFormats/NanoAOD/interface/MergeableCounterTable.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
+#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 #include <ROOT/RNTupleModel.hxx>
-using ROOT::RNTupleModel;
 #include <ROOT/RNTupleWriteOptions.hxx>
-using ROOT::RNTupleWriteOptions;
 
 #include "RNTupleFieldPtr.h"
 #include "SummaryTableOutputFields.h"
 
-void LumiNTuple::createFields(const edm::LuminosityBlockID& id, TFile& file) {
+using ROOT::RNTupleModel;
+using ROOT::RNTupleWriteOptions;
+using ROOT::RNTupleWriter;
+
+namespace {
+  // Every ntuple in the file inherits the file's compression and takes the ROOT defaults otherwise.
+  RNTupleWriteOptions writeOptions(const TFile& file) {
+    RNTupleWriteOptions options;
+    options.SetCompression(file.GetCompressionSettings());
+    return options;
+  }
+}  // anonymous namespace
+
+void LumiNTuple::createFields(TFile& file) {
   auto model = RNTupleModel::Create();
-  m_run = RNTupleFieldPtr<UInt_t>("run", "", *model);
-  m_luminosityBlock = RNTupleFieldPtr<UInt_t>("luminosityBlock", "", *model);
-  RNTupleWriteOptions options;
-  options.SetCompression(file.GetCompressionSettings());
-  m_ntuple = RNTupleWriter::Append(std::move(model), "LuminosityBlocks", file, options);
+  m_run = RNTupleFieldPtr<std::uint32_t>("run", "", *model);
+  m_luminosityBlock = RNTupleFieldPtr<std::uint32_t>("luminosityBlock", "", *model);
+  m_ntuple = RNTupleWriter::Append(std::move(model), "LuminosityBlocks", file, writeOptions(file));
 }
 
 void LumiNTuple::fill(const edm::LuminosityBlockID& id, TFile& file) {
   if (!m_ntuple) {
-    createFields(id, file);
+    createFields(file);
   }
   m_run.fill(id.run());
   m_luminosityBlock.fill(id.value());
@@ -37,13 +50,12 @@ void RunNTuple::registerFlatTableToken(const edm::EDGetToken& token) { m_flatTab
 
 void RunNTuple::createFields(const edm::RunForOutput& iRun, TFile& file) {
   auto model = RNTupleModel::Create();
-  m_run = RNTupleFieldPtr<UInt_t>("run", "", *model);
+  m_run = RNTupleFieldPtr<std::uint32_t>("run", "", *model);
 
   edm::Handle<nanoaod::MergeableCounterTable> counterTableHandle;
   for (const auto& token : m_counterTableTokens) {
     iRun.getByToken(token, counterTableHandle);
-    const nanoaod::MergeableCounterTable& tab = *counterTableHandle;
-    m_counterTables.push_back(SummaryTableOutputFields(tab, *model));
+    m_counterTables.emplace_back(*counterTableHandle, *model);
   }
 
   edm::Handle<nanoaod::FlatTable> flatTableHandle;
@@ -53,9 +65,7 @@ void RunNTuple::createFields(const edm::RunForOutput& iRun, TFile& file) {
   }
   m_flatTables.createFields(iRun, *model);
 
-  RNTupleWriteOptions options;
-  options.SetCompression(file.GetCompressionSettings());
-  m_ntuple = RNTupleWriter::Append(std::move(model), "Runs", file, options);
+  m_ntuple = RNTupleWriter::Append(std::move(model), "Runs", file, writeOptions(file));
 }
 
 void RunNTuple::fill(const edm::RunForOutput& iRun, TFile& file) {
@@ -66,9 +76,8 @@ void RunNTuple::fill(const edm::RunForOutput& iRun, TFile& file) {
 
   edm::Handle<nanoaod::MergeableCounterTable> counterTableHandle;
   for (std::size_t i = 0; i < m_counterTableTokens.size(); i++) {
-    iRun.getByToken(m_counterTableTokens.at(i), counterTableHandle);
-    const nanoaod::MergeableCounterTable& tab = *counterTableHandle;
-    m_counterTables.at(i).fill(tab);
+    iRun.getByToken(m_counterTableTokens[i], counterTableHandle);
+    m_counterTables[i].fill(*counterTableHandle);
   }
 
   m_flatTables.fill(iRun);
@@ -78,49 +87,34 @@ void RunNTuple::fill(const edm::RunForOutput& iRun, TFile& file) {
 
 void RunNTuple::finalizeWrite() { m_ntuple.reset(); }
 
-void PSetNTuple::createFields(TFile& file) {
-  auto model = RNTupleModel::Create();
-  m_pset = RNTupleFieldPtr<PSetType>(edm::poolNames::idToParameterSetBlobsBranchName(), "", *model);
+namespace rntupleprovenance {
 
-  RNTupleWriteOptions options;
-  options.SetCompression(file.GetCompressionSettings());
-  m_ntuple = RNTupleWriter::Append(std::move(model), edm::poolNames::parameterSetsTreeName(), file, options);
-}
+  void writeParameterSets(TFile& file) {
+    using PSetType = std::pair<edm::ParameterSetID, edm::ParameterSetBlob>;
 
-void PSetNTuple::fill(edm::pset::Registry* pset, TFile& file) {
-  if (!pset) {
-    throw cms::Exception("LogicError", "null edm::pset::Registry::Instance pointer");
+    auto model = RNTupleModel::Create();
+    auto psets = RNTupleFieldPtr<PSetType>(edm::poolNames::idToParameterSetBlobsBranchName(), "", *model);
+    // The writer commits when it goes out of scope at the end of this function.
+    auto ntuple =
+        RNTupleWriter::Append(std::move(model), edm::poolNames::parameterSetsTreeName(), file, writeOptions(file));
+
+    for (const auto& ps : *edm::pset::Registry::instance()) {
+      std::string psString;
+      ps.second.toString(psString);
+      psets.fill(std::make_pair(ps.first, edm::ParameterSetBlob(psString)));
+      ntuple->Fill();
+    }
   }
-  if (!m_ntuple) {
-    createFields(file);
-  }
-  for (const auto& ps : *pset) {
-    std::string psString;
-    ps.second.toString(psString);
-    edm::ParameterSetBlob psBlob(psString);
-    m_pset.fill(std::make_pair(ps.first, psBlob));
-    m_ntuple->Fill();
-  }
-}
 
-void PSetNTuple::finalizeWrite() { m_ntuple.reset(); }
+  void writeProcessHistory(const edm::ProcessHistoryRegistry& procHist, TFile& file) {
+    auto model = RNTupleModel::Create();
+    auto history = RNTupleFieldPtr<edm::ProcessHistory>(edm::poolNames::processHistoryBranchName(), "", *model);
+    auto ntuple = RNTupleWriter::Append(std::move(model), edm::poolNames::metaDataTreeName(), file, writeOptions(file));
 
-void MetadataNTuple::createFields(TFile& file) {
-  auto model = RNTupleModel::Create();
-  m_procHist = RNTupleFieldPtr<edm::ProcessHistory>(edm::poolNames::processHistoryBranchName(), "", *model);
-  RNTupleWriteOptions options;
-  options.SetCompression(file.GetCompressionSettings());
-  m_ntuple = RNTupleWriter::Append(std::move(model), edm::poolNames::metaDataTreeName(), file, options);
-}
-
-void MetadataNTuple::fill(const edm::ProcessHistoryRegistry& procHist, TFile& file) {
-  if (!m_ntuple) {
-    createFields(file);
+    for (const auto& ph : procHist) {
+      history.fill(ph.second);
+      ntuple->Fill();
+    }
   }
-  for (const auto& ph : procHist) {
-    m_procHist.fill(ph.second);
-    m_ntuple->Fill();
-  }
-}
 
-void MetadataNTuple::finalizeWrite() { m_ntuple.reset(); }
+}  // namespace rntupleprovenance
