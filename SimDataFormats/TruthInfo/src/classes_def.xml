@@ -3,9 +3,16 @@
     <version ClassVersion="3" checksum="2885336572"/>
     <version ClassVersion="4" checksum="2439525732"/>
   </class>
-  <class name="TruthGraph::NodeRef" ClassVersion="3">
+  <class name="TruthGraph::NodeRef" ClassVersion="4">
+    <version ClassVersion="4" checksum="1691003696"/>
     <version ClassVersion="3" checksum="4042798111"/>
   </class>
+  <!-- Version 3 stores the kind as a 4-byte int. The low byte holds the NodeKind. -->
+  <ioread sourceClass="TruthGraph::NodeRef" version="[-3]" targetClass="TruthGraph::NodeRef"
+          source="int kind; long key" target="kind_,key_">
+    <![CDATA[kind_ = static_cast<uint8_t>(onfile.kind & 0xff);
+             key_ = onfile.key;]]>
+  </ioread>
   <class name="std::vector<TruthGraph::NodeRef>"/>
   <class name="edm::Wrapper<TruthGraph>"/>
 
