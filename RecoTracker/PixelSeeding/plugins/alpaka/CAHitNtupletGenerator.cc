@@ -349,8 +349,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       desc.add<unsigned int>("minHitsForSharingCut", kPhase2OT ? 1 : 10)
           ->setComment("Maximum number of hits in a tuple to clean also if the shared hit is on bpx1");
 
-      desc.add<bool>("fitNas4", false)->setComment("fit only 4 hits out of N");
       desc.add<bool>("useRiemannFit", false)->setComment("true for Riemann, false for BrokenLine");
+      desc.add<bool>("useFitCorrections", kVectorHits)
+          ->setComment(
+              "Corrections of the BrokenLine fit: multiple scattering and ionization energy loss from the tracker "
+              "material map, the magnetic field's profile from the field map, and failed fits published as failed "
+              "(q/pT = 0, infinite chi2); false: flat material, uniform field. True by default on "
+              "Phase2OTVectorHits only.");
       desc.add<bool>("doSharedHitCut", true)->setComment("Sharing hit nTuples cleaning");
       desc.add<bool>("dupPassThrough", false)->setComment("Do not reject duplicate");
       desc.add<bool>("useSimpleTripletCleaner", true)->setComment("use alternate implementation");
@@ -407,16 +412,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       desc.add<double>("fastDupNSigma2", kVectorHits ? 2.5 : (kPhase1 ? 25.0 : 5.0))
           ->setComment(
-              "CA duplicate-removal parameter-covariance gate width nSigma^2: two tracks are duplicates "
+              "CA duplicate-removal parameter-covariance gate width nSigma^2: two tracks are compatible "
               "when every compared fitted parameter satisfies dp^2 <= fastDupNSigma2*(cov_i+cov_j) "
-              "(Kernel_fastDuplicateRemover + Kernel_rejectDuplicate). It is a width in units of the "
-              "fitted covariance, so it tracks the fit's covariance convention. Lower tightens (fewer "
-              "merges); higher merges more aggressively. The default reproduces, topology by topology, "
-              "the constant those kernels hard-wire upstream: 5 for the five-parameter check used by "
-              "every Phase-2 topology, 25 for the two-parameter check of the Phase-1 specializations "
-              "(which read their own nSigma2Phase1 constant and ignore this parameter, so the value is "
-              "only informative there). Phase2OTVectorHits uses 2.5, matching the tighter covariance its "
-              "fit emits.");
+              "(Kernel_fastDuplicateRemover + Kernel_rejectDuplicate). The Phase-1 specializations of "
+              "those kernels read their own nSigma2Phase1 constant and ignore this parameter.");
+
+      desc.add<double>("fastDupMaxChi2ForLengthFirst", 3.0)
+          ->setComment(
+              "Fast duplicate remover, Phase2OTVectorHits only: a longer track wins a cell on length only with "
+              "chi2/ndof below this value.");
+
+      desc.add<int>("fastDupMinHitsToKeepApart", 7)
+          ->setComment(
+              "Fast duplicate remover, Phase2OTVectorHits only: a worse track that shares only the cell's two hits "
+              "with the kept track stays only with at least this many hits, a vector hit counting once.");
     }
 
     AlgoParams makeCommonParams(edm::ParameterSet const& cfg) {
@@ -436,7 +445,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           // Flags
           .useRiemannFit_ = cfg.getParameter<bool>("useRiemannFit"),
-          .fitNas4_ = cfg.getParameter<bool>("fitNas4"),
+          .useFitCorrections_ = cfg.getParameter<bool>("useFitCorrections"),
           .earlyFishbone_ = cfg.getParameter<bool>("earlyFishbone"),
           .lateFishbone_ = cfg.getParameter<bool>("lateFishbone"),
           .onlySameLayersFishbone_ = cfg.getParameter<bool>("onlySameLayersFishbone"),
@@ -470,6 +479,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           // CA fast-duplicate / shared-hit covariance gate width, in units of the fitted covariance
           .fastDupNSigma2_ = (float)cfg.getParameter<double>("fastDupNSigma2"),
+          .fastDupMaxChi2ForLengthFirst_ = (float)cfg.getParameter<double>("fastDupMaxChi2ForLengthFirst"),
+          .fastDupMinHitsToKeepApart_ = cfg.getParameter<int>("fastDupMinHitsToKeepApart"),
       };
     }
 
@@ -779,13 +790,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       kernels.allocateAfterNtuplets(0u, queue);
     }
 
+    // Copy the tuple-multiplicity offsets to the host, for finishTuplesAsync.
+    constexpr uint32_t kNOff = TrackerTraits::maxHitsOnTrack + 2u;
+    pending.offsetsHost.emplace(cms::alpakatools::make_host_buffer<uint32_t[]>(queue, std::size_t(kNOff)));
+    auto offSrc = cms::alpakatools::make_device_view(queue, kernels.tupleMultiplicityOffsets(), std::size_t(kNOff));
+    alpaka::memcpy(queue, *pending.offsetsHost, offSrc);
     pending.built = true;
     return pending;
   }
 
   template <typename TrackerTraits>
   reco::TracksSoACollection CAHitNtupletGenerator<TrackerTraits>::finishTuplesAsync(
-      PendingTuples&& pending, HitsInput const& hitsInput, CAGeometryOnDevice const& geometry_d, Queue& queue) const {
+      PendingTuples&& pending,
+      HitsInput const& hitsInput,
+      CAGeometryOnDevice const& geometry_d,
+      BLFitConfig const& fitCfg,
+      ::reco::OTRecHitsConstView const& partnerRecHits,
+      Queue& queue) const {
     using HelixFit = HelixFit<TrackerTraits>;
 
     if (!pending.built) {
@@ -808,17 +829,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     auto tracks = pending.tracks->view().tracks();
     auto const& trackingHits = hitsInput.hits;
-    const uint32_t nHits = hitsInput.nHits;
     auto modules = geometry_d.view().modules();
-    const uint32_t nTracks = pending.maxTuples;
     const float bfield = pending.bfield;
 
-    HelixFit fitter(bfield, m_params.algoParams_.fitNas4_);
+    HelixFit fitter(bfield);
+    fitter.setFitConfig(fitCfg);
+    fitter.setPartnerRecHits(partnerRecHits);
     fitter.allocate(kernels.tupleMultiplicity(), tracks, kernels.hitContainer());
+    // the offsets copied in beginTuplesAsync
+    fitter.setHostTupleMultiplicityOffsets(pending.offsetsHost->data());
     if (m_params.algoParams_.useRiemannFit_) {
-      fitter.launchRiemannKernels(trackingHits, modules, nHits, nTracks, queue);
+      fitter.launchRiemannKernels(trackingHits, modules, queue);
     } else {
-      fitter.launchBrokenLineKernels(trackingHits, modules, nHits, nTracks, queue);
+      fitter.launchBrokenLineKernels(trackingHits, modules, queue);
     }
     kernels.classifyTuples(trackingHits, tracks, queue);
 
@@ -832,6 +855,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // the actual per-container demand and the caps they were sized against. The readback is a
     // single D2H sync of the 5-word extraStorage (APC + nCells + nTriplets + nCellTracks).
     {
+      const uint32_t nTracks = pending.maxTuples;
       uint32_t dumpNTracks, dumpNHitsInTracks, dumpNCells, dumpNTriplets, dumpNCellTracks;
       kernels.readbackAllCounts(queue, dumpNTracks, dumpNHitsInTracks, dumpNCells, dumpNTriplets, dumpNCellTracks);
       // The cell->cell edge count is the triplet count (Kernel_connect writes triplets into
@@ -841,7 +865,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       printf(
           "[CA Sizing] nHits=%u nCells=%u capCells=%u nTriplets=%u capTrips=%u "
           "nTracks=%u capTuples=%u nHitsInTracks=%u capHitCont=%u nCellTracks=%u capCellTrk=%u\n",
-          nHits,
+          hitsInput.nHits,
           dumpNCells,
           pending.maxDoublets,
           dumpNTriplets,
