@@ -9,6 +9,8 @@
  *  \author Nicola Pozzobon
  *  \date   2013, Jul 12
  *
+ * NOTE (2026): This has now been replaced by TTClusterBuilderNew,
+ *              but will be kept for a while for validation purposes.
  */
 
 #ifndef L1_TRACK_TRIGGER_CLUSTER_BUILDER_H
@@ -55,7 +57,6 @@ private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken;
   std::vector<edm::EDGetTokenT<edm::DetSetVector<Phase2TrackerDigi> > > rawHitTokens;
   unsigned int ADCThreshold;
-  bool storeLocalCoord;
 
   /// Mandatory methods
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
@@ -76,7 +77,6 @@ private:
 template <typename T>
 TTClusterBuilder<T>::TTClusterBuilder(const edm::ParameterSet& iConfig) {
   ADCThreshold = iConfig.getParameter<unsigned int>("ADCThreshold");
-  storeLocalCoord = iConfig.getParameter<bool>("storeLocalCoord");
   theClusterFindingAlgoToken = esConsumes();
   tTopoToken = esConsumes<TrackerTopology, TrackerTopologyRcd>();
   tGeomToken = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
