@@ -1048,9 +1048,11 @@ upgradeWFs['ticlv5_TrackLinkingGNN'].step2 = {'--procModifiers': 'ticlv5_TrackLi
 upgradeWFs['ticlv5_TrackLinkingGNN'].step3 = {'--procModifiers': 'ticlv5_TrackLinkingGNN'}
 upgradeWFs['ticlv5_TrackLinkingGNN'].step4 = {'--procModifiers': 'ticlv5_TrackLinkingGNN'}
 
-# Offline reconstruction with the ticl_v6 process modifier (TICLv6).
+# HLT and offline reconstruction with the ticl_v6 process modifier (TICLv6).
 class UpgradeWorkflow_ticl_v6(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
+        if ('Digi' in step and 'NoHLT' not in step) or ('HLTOnly' in step):
+            stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
         if 'RecoGlobal' in step:
             stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         if 'HARVESTGlobal' in step:
@@ -1061,12 +1063,16 @@ class UpgradeWorkflow_ticl_v6(UpgradeWorkflow):
 
 upgradeWFs['ticl_v6'] = UpgradeWorkflow_ticl_v6(
     steps = [
+        'HLTOnly',
+        'DigiTrigger',
         'RecoGlobal',
         'RecoGlobalFakeHLT',
         'HARVESTGlobal',
         'HARVESTGlobalFakeHLT',
     ],
     PU = [
+        'HLTOnly',
+        'DigiTrigger',
         'RecoGlobal',
         'RecoGlobalFakeHLT',
         'HARVESTGlobal',
@@ -1075,6 +1081,7 @@ upgradeWFs['ticl_v6'] = UpgradeWorkflow_ticl_v6(
     suffix = '_ticl_v6',
     offset = 0.207,
 )
+upgradeWFs['ticl_v6'].step2 = {'--procModifiers': 'ticl_v6'}
 upgradeWFs['ticl_v6'].step3 = {'--procModifiers': 'ticl_v6'}
 upgradeWFs['ticl_v6'].step4 = {'--procModifiers': 'ticl_v6'}
 
