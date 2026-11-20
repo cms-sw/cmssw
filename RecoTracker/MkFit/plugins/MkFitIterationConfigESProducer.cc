@@ -80,6 +80,11 @@ namespace {
     p.hit_chi2_cut = ps.getParameter<double>("hitChi2Cut");
     p.max_presel_hits = ps.getParameter<int>("maxPreselHits");
     p.max_hits_per_layer = ps.getParameter<int>("maxHitsPerLayer");
+    p.window_dphi_trk_fac = ps.getParameter<double>("windowPhiTrackFactor");
+    p.window_dq_trk_fac = ps.getParameter<double>("windowQTrackFactor");
+    p.outside_hole_max_seed_hits = ps.getParameter<int>("outsideHoleMaxSeedHits");
+    if (!std::isfinite(p.window_dphi_trk_fac) || !std::isfinite(p.window_dq_trk_fac))
+      throw cms::Exception("Configuration") << "v2p2.windowPhiTrackFactor and windowQTrackFactor must be finite";
     if (!(p.chi2_trk_fac > 0 && std::isfinite(p.chi2_trk_fac)))
       throw cms::Exception("Configuration") << "v2p2.hitChi2TrackFactor must be finite and > 0, got " << p.chi2_trk_fac;
     if (!(p.hit_chi2_cut > 0 && std::isfinite(p.hit_chi2_cut)))
@@ -199,6 +204,14 @@ void MkFitIterationConfigESProducer::fillDescriptions(edm::ConfigurationDescript
       ->setComment("hits kept per candidate and sub-layer after the pre-selection");
   v2p2.add<int>("maxHitsPerLayer", v2p2Defaults.max_hits_per_layer)
       ->setComment("most hits one candidate may take in one layer");
+  v2p2.add<double>("windowPhiTrackFactor", cfiDefault(v2p2Defaults.window_dphi_trk_fac))
+      ->setComment("search window in phi: factor on the track's 3-sigma phi error; <= 0 takes the built-in factor");
+  v2p2.add<double>("windowQTrackFactor", cfiDefault(v2p2Defaults.window_dq_trk_fac))
+      ->setComment("search window in z or r: factor on the track's 3-sigma error; <= 0 takes the built-in factor");
+  v2p2.add<int>("outsideHoleMaxSeedHits", v2p2Defaults.outside_hole_max_seed_hits)
+      ->setComment(
+          "if > 0, a layer the candidate does not reach counts as a hole for seeds with at most this many hits, "
+          "until the candidate has a hit beyond its seed");
   desc.add<edm::ParameterSetDescription>("v2p2", v2p2)->setComment("MkFinderV2p2 tunings (buildingRoutine 'v2p2')");
 
   descriptions.addWithDefaultLabel(desc);

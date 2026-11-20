@@ -64,7 +64,9 @@ namespace mkfit {
 #endif
 
     // Fetch derived from the v2p2 cut, Config::V2p2::Window.
-    void find_bin_ranges(const LayerOfHits& loh, MkBinLimits& bl);
+    // dphi_trk_fac, dq_trk_fac: the track terms of the window, see V2p2Params; <= 0 takes
+    // Window::dphi_trk_fac, Window::dq_trk_fac.
+    void find_bin_ranges(const LayerOfHits& loh, MkBinLimits& bl, float dphi_trk_fac = -1.0f, float dq_trk_fac = -1.0f);
   };
 
 }  // namespace mkfit

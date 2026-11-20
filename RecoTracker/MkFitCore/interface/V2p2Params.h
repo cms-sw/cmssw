@@ -44,6 +44,20 @@ namespace mkfit {
     float chi2_trk_fac = 3.0f;
     float hit_chi2_cut = 9.21f;
 
+    // Track terms of the search window, design notes "Search window": the window is
+    // window_dphi_trk_fac * dphi_track + hit term in phi, window_dq_trk_fac * dq_track + hit
+    // term in q, with dphi_track and dq_track at 3 sigma. Zero or negative takes the built-in
+    // factors of src/V2p2Config.h (Window::dphi_trk_fac, Window::dq_trk_fac).
+    float window_dphi_trk_fac = -1.0f;
+    float window_dq_trk_fac = -1.0f;
+
+    // A layer the candidate does not reach (within-sensitive-region verdict Outside) costs
+    // nothing by default. With a value n > 0 it counts as a hole for the candidates of seeds
+    // with at most n hits, until the candidate has a hit beyond its seed: a seed whose
+    // direction is poorly known then cannot pass layer after layer of the plan for free and
+    // end with one random hit.
+    int outside_hole_max_seed_hits = 0;
+
     int max_presel_hits = 6;     // reduction cap per sub-layer
     int max_hits_per_layer = 4;  // most hits one candidate may take in one plan entry (its in-layer path)
 

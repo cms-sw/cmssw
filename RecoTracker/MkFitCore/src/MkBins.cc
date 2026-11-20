@@ -188,7 +188,11 @@ namespace mkfit {
 #endif
   }
 
-  void MkBins::find_bin_ranges(const LayerOfHits& loh, MkBinLimits& bl) {
+  void MkBins::find_bin_ranges(const LayerOfHits& loh, MkBinLimits& bl, float dphi_trk_fac, float dq_trk_fac) {
+    if (!(dphi_trk_fac > 0.0f))
+      dphi_trk_fac = Window::dphi_trk_fac;
+    if (!(dq_trk_fac > 0.0f))
+      dq_trk_fac = Window::dq_trk_fac;
     for (int i = 0; i < NN; ++i) {
       if (i < m_n_proc) {
         // Fetch what the cut can accept, using the layer's largest hit extent since
@@ -197,13 +201,13 @@ namespace mkfit {
         // See doc/MkFinderV2p2-DesignNotes.md, "Search window".
         const float phi_hit_term =
             Window::phi_per_hit ? Window::dphi_hit_fac * loh.max_hit_phi_half_extent() : Window::dphi_flat_rad;
-        const float cut_dphi = Window::capped_dphi(Window::dphi_trk_fac * m_dphi_track[i] + phi_hit_term);
+        const float cut_dphi = Window::capped_dphi(dphi_trk_fac * m_dphi_track[i] + phi_hit_term);
         auto pr = loh.phiRangeBins(m_phi_min[i] - cut_dphi, m_phi_max[i] + cut_dphi);
         bl.p1[i] = loh.phiMaskApply(pr.begin - Window::phi_extra_bins);
         bl.p2[i] = loh.phiMaskApply(pr.end + Window::phi_extra_bins);
 
         // Same for q. The q axis is bounded, so the extension clamps.
-        const float cut_dq = Window::dq_trk_fac * m_dq_track[i] + Window::dq_hit_fac * loh.max_hit_q_half_length();
+        const float cut_dq = dq_trk_fac * m_dq_track[i] + Window::dq_hit_fac * loh.max_hit_q_half_length();
         auto qr = loh.qRangeBins(m_q_min[i] - cut_dq, m_q_max[i] + cut_dq);
         const int nq = (int)loh.qNBins();
         int qb = (int)qr.begin - Window::q_extra_bins;

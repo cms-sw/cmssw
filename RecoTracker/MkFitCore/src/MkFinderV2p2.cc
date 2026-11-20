@@ -135,6 +135,16 @@ namespace mkfit {
     m_batch_mgr.m_n_dormant = m_batch_mgr.n_total();
   }
 
+  float MkFinderV2p2::win_dphi_trk_fac() const {
+    const float f = mp_job->v2p2().window_dphi_trk_fac;
+    return f > 0.0f ? f : Window::dphi_trk_fac;
+  }
+
+  float MkFinderV2p2::win_dq_trk_fac() const {
+    const float f = mp_job->v2p2().window_dq_trk_fac;
+    return f > 0.0f ? f : Window::dq_trk_fac;
+  }
+
   void MkFinderV2p2::reset() {
     m_batch_mgr.release();
     mp_job = nullptr;
@@ -532,10 +542,10 @@ namespace mkfit {
     // The WSR edge fuzz uses dq_track, so the verdict follows determine_bin_windows().
     determine_wsr(b);
 
-    B.find_bin_ranges(mp_job->m_event_of_hits[spi->m_layer], BL_p);
+    B.find_bin_ranges(mp_job->m_event_of_hits[spi->m_layer], BL_p, win_dphi_trk_fac(), win_dq_trk_fac());
 
     if (m_rz_limits.m_is_double) {
-      B.find_bin_ranges(mp_job->m_event_of_hits[spi->m_layer_sec], BL_s);
+      B.find_bin_ranges(mp_job->m_event_of_hits[spi->m_layer_sec], BL_s, win_dphi_trk_fac(), win_dq_trk_fac());
     }
 
 #ifdef DEBUG
@@ -736,8 +746,8 @@ namespace mkfit {
             pc_gq = std::clamp(((barrel ? z2 : r2) - pc_q1) / dqb, -20.0f, 20.0f);
             pc_phi1 = B.m_phi1[i];
             pc_gphi = std::clamp(squashPhiGeneral(B.m_phi2[i] - pc_phi1) / dqb, -20.0f, 20.0f);
-            pc_tol_q = PreCut::dq_slack * Window::dq_trk_fac * B.m_dq_track[i] * (1.0f + pc_gq * pc_gq);
-            pc_tol_phi = PreCut::dphi_slack * Window::capped_dphi(Window::dphi_trk_fac * B.m_dphi_track[i]);
+            pc_tol_q = PreCut::dq_slack * win_dq_trk_fac() * B.m_dq_track[i] * (1.0f + pc_gq * pc_gq);
+            pc_tol_phi = PreCut::dphi_slack * Window::capped_dphi(win_dphi_trk_fac() * B.m_dphi_track[i]);
           }
         }
 
@@ -745,8 +755,8 @@ namespace mkfit {
         // window with the cut's padding of this sub-layer, as the fetch.
         const float phi_hit_term =
             Window::phi_per_hit ? Window::dphi_hit_fac * L.max_hit_phi_half_extent() : Window::dphi_flat_rad;
-        const float rho_dphi = Window::capped_dphi(Window::dphi_trk_fac * B.m_dphi_track[i] + phi_hit_term);
-        const float rho_dq = Window::dq_trk_fac * B.m_dq_track[i] + Window::dq_hit_fac * L.max_hit_q_half_length();
+        const float rho_dphi = Window::capped_dphi(win_dphi_trk_fac() * B.m_dphi_track[i] + phi_hit_term);
+        const float rho_dq = win_dq_trk_fac() * B.m_dq_track[i] + Window::dq_hit_fac * L.max_hit_q_half_length();
         b.rho_dphi[i] = std::max(b.rho_dphi[i], rho_dphi);
         b.rho_dq[i] = std::max(b.rho_dq[i], rho_dq);
         // Centre and half-width from MkBins: when the two crossings lie on both sides of
@@ -1005,9 +1015,9 @@ namespace mkfit {
               : B.m_dq_track[cand_idcs[h]];
 
       // The pre-selection cut. See doc/MkFinderV2p2-DesignNotes.md, "Search window".
-      const float dq_cut = Window::dq_trk_fac * dq_trk + Window::dq_hit_fac * L.hit_q_half_length(hit_idcs[h]);
+      const float dq_cut = win_dq_trk_fac() * dq_trk + Window::dq_hit_fac * L.hit_q_half_length(hit_idcs[h]);
       const float dphi_cut = Window::capped_dphi(
-          Window::dphi_trk_fac * B.m_dphi_track[cand_idcs[h]] +
+          win_dphi_trk_fac() * B.m_dphi_track[cand_idcs[h]] +
           (Window::phi_per_hit ? Window::dphi_hit_fac * L.hit_phi_half_extent(hit_idcs[h]) : Window::dphi_flat_rad));
       const bool dqdphi_presel = ddq < dq_cut && ddphi < dphi_cut;
 
@@ -1393,8 +1403,12 @@ namespace mkfit {
       // Every CandIncoming also competes as the hole it would record, including
       // those that found paths. In the log-likelihood score (Score::mode 1) a hole
       // adds exactly 0, whatever its kind; hole penalties apply in the final pick.
-      // WSR_Outside is not a hole: the candidate competes unchanged.
-      if (Policy::use_wsr && cand.m_wsr.m_wsr == WSR_Outside) {
+      // WSR_Outside is not a hole: the candidate competes unchanged, unless
+      // V2p2Params::outside_hole_max_seed_hits makes it one for a short seed.
+      const int outside_max_seed = mp_job->v2p2().outside_hole_max_seed_hits;
+      const bool outside_as_hole = outside_max_seed > 0 && tc.getNSeedHits() <= outside_max_seed &&
+                                   tc.nFoundHits() <= tc.getNSeedHits();
+      if (Policy::use_wsr && cand.m_wsr.m_wsr == WSR_Outside && !outside_as_hole) {
         m_sel.push_back({cand.m_origin_tcand_index, -1, 0, false, tc.score()});
       } else {
         const int fake = fake_hit_index(tc, cand.m_wsr);

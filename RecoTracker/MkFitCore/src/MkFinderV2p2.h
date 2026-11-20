@@ -48,6 +48,10 @@ namespace mkfit {
                const Event* ev);
     void reset();
 
+    // Track terms of the search window: the iteration's V2p2Params, else the built-in ones.
+    float win_dphi_trk_fac() const;
+    float win_dq_trk_fac() const;
+
     int awaken_candidates();
 
     void begin_layer();
