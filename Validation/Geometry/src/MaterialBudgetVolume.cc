@@ -100,7 +100,7 @@ MaterialBudgetVolume::MaterialBudgetVolume(const edm::ParameterSet& p) : init_(f
 }
 
 void MaterialBudgetVolume::produce(edm::Event& e, const edm::EventSetup&) {
-  std::unique_ptr<edm::MaterialInformationContainer> matbg(new edm::MaterialInformationContainer);
+  std::unique_ptr<edm::MaterialInformationContainer> matbg = std::make_unique<edm::MaterialInformationContainer>();
   endOfEvent(*matbg);
   e.put(std::move(matbg), "MaterialInformation");
 }
