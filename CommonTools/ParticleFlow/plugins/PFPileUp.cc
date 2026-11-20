@@ -123,9 +123,9 @@ void PFPileUp::produce(Event& iEvent, const EventSetup& iSetup) {
 
   // get PFCandidates
 
-  unique_ptr<PFCollection> pOutput(new PFCollection);
+  unique_ptr<PFCollection> pOutput = std::make_unique<PFCollection>();
 
-  unique_ptr<PFCollectionByValue> pOutputByValue(new PFCollectionByValue);
+  unique_ptr<PFCollectionByValue> pOutputByValue = std::make_unique<PFCollectionByValue>();
 
   if (enable_) {
     // get vertices

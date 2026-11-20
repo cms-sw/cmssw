@@ -48,7 +48,7 @@ GsfVertexConstraintProducer::GsfVertexConstraintProducer(const edm::ParameterSet
   trkToken_ = consumes<reco::GsfTrackCollection>(edm::InputTag(srcTrkTag_));
 
   //register your products
-  produces<std::vector<VertexConstraint> >();
+  produces<std::vector<VertexConstraint>>();
   produces<GsfTrackVtxConstraintAssociationCollection>();
 
   //now do what ever other initialization is needed
@@ -67,8 +67,8 @@ void GsfVertexConstraintProducer::produce(edm::StreamID streamid,
   Handle<reco::GsfTrackCollection> theTCollection;
   iEvent.getByToken(trkToken_, theTCollection);
 
-  edm::RefProd<std::vector<VertexConstraint> > rPairs = iEvent.getRefBeforePut<std::vector<VertexConstraint> >();
-  std::unique_ptr<std::vector<VertexConstraint> > pairs(new std::vector<VertexConstraint>);
+  edm::RefProd<std::vector<VertexConstraint>> rPairs = iEvent.getRefBeforePut<std::vector<VertexConstraint>>();
+  std::unique_ptr<std::vector<VertexConstraint>> pairs = std::make_unique<std::vector<VertexConstraint>>();
   std::unique_ptr<GsfTrackVtxConstraintAssociationCollection> output(
       new GsfTrackVtxConstraintAssociationCollection(theTCollection, rPairs));
 
@@ -76,7 +76,7 @@ void GsfVertexConstraintProducer::produce(edm::StreamID streamid,
   for (reco::GsfTrackCollection::const_iterator i = theTCollection->begin(); i != theTCollection->end(); i++) {
     VertexConstraint tmp(GlobalPoint(0, 0, 0), GlobalError(0.01, 0, 0.01, 0, 0, 0.001));
     pairs->push_back(tmp);
-    output->insert(reco::GsfTrackRef(theTCollection, index), edm::Ref<std::vector<VertexConstraint> >(rPairs, index));
+    output->insert(reco::GsfTrackRef(theTCollection, index), edm::Ref<std::vector<VertexConstraint>>(rPairs, index));
     index++;
   }
 

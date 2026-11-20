@@ -66,7 +66,7 @@ void EventCountProducer::endLuminosityBlock(LuminosityBlock const& theLuminosity
 void EventCountProducer::endLuminosityBlockProduce(LuminosityBlock& theLuminosityBlock, const EventSetup& theSetup) {
   LogTrace("EventCounting") << "endLumi: adding " << eventsProcessedInLumi_ << " events" << endl;
 
-  unique_ptr<edm::MergeableCounter> numEventsPtr(new edm::MergeableCounter);
+  unique_ptr<edm::MergeableCounter> numEventsPtr = std::make_unique<edm::MergeableCounter>();
   numEventsPtr->value = eventsProcessedInLumi_;
   theLuminosityBlock.put(std::move(numEventsPtr));
 

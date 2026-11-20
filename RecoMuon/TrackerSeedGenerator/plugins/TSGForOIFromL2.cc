@@ -60,7 +60,7 @@ TSGForOIFromL2::TSGForOIFromL2(const edm::ParameterSet& iConfig)
       tmpTkGeometryToken_(esConsumes()),
       geometryToken_(esConsumes()),
       sHPOppositeToken_(esConsumes(edm::ESInputTag("", "hltESPSteppingHelixPropagatorOpposite"))) {
-  produces<std::vector<TrajectorySeed> >();
+  produces<std::vector<TrajectorySeed>>();
 }
 
 TSGForOIFromL2::~TSGForOIFromL2() {}
@@ -96,7 +96,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
   iEvent.getByToken(src_, l2TrackCol);
 
   // The product
-  std::unique_ptr<std::vector<TrajectorySeed> > result(new std::vector<TrajectorySeed>());
+  std::unique_ptr<std::vector<TrajectorySeed>> result = std::make_unique<std::vector<TrajectorySeed>>();
 
   // Get vector of Detector layers
   std::vector<BarrelDetLayer const*> const& tob = measurementTrackerH->geometricSearchTracker()->tobLayers();

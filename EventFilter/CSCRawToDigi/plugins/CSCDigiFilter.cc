@@ -103,14 +103,14 @@ CSCDigiFilter::CSCDigiFilter(const edm::ParameterSet &iConfig)
 }
 
 void CSCDigiFilter::produce(edm::Event &event, const edm::EventSetup &conditions) {
-  std::unique_ptr<CSCStripDigiCollection> filteredStripDigis(new CSCStripDigiCollection());
-  std::unique_ptr<CSCWireDigiCollection> filteredWireDigis(new CSCWireDigiCollection());
-  std::unique_ptr<CSCComparatorDigiCollection> filteredCompDigis(new CSCComparatorDigiCollection());
-  std::unique_ptr<CSCCLCTDigiCollection> filteredCLCTDigis(new CSCCLCTDigiCollection());
-  std::unique_ptr<CSCALCTDigiCollection> filteredALCTDigis(new CSCALCTDigiCollection());
-  std::unique_ptr<CSCCorrelatedLCTDigiCollection> filteredLCTDigis(new CSCCorrelatedLCTDigiCollection());
-  std::unique_ptr<CSCShowerDigiCollection> filteredShowerDigis(new CSCShowerDigiCollection());
-  std::unique_ptr<GEMPadDigiClusterCollection> filteredClusterDigis(new GEMPadDigiClusterCollection());
+  std::unique_ptr<CSCStripDigiCollection> filteredStripDigis = std::make_unique<CSCStripDigiCollection>();
+  std::unique_ptr<CSCWireDigiCollection> filteredWireDigis = std::make_unique<CSCWireDigiCollection>();
+  std::unique_ptr<CSCComparatorDigiCollection> filteredCompDigis = std::make_unique<CSCComparatorDigiCollection>();
+  std::unique_ptr<CSCCLCTDigiCollection> filteredCLCTDigis = std::make_unique<CSCCLCTDigiCollection>();
+  std::unique_ptr<CSCALCTDigiCollection> filteredALCTDigis = std::make_unique<CSCALCTDigiCollection>();
+  std::unique_ptr<CSCCorrelatedLCTDigiCollection> filteredLCTDigis = std::make_unique<CSCCorrelatedLCTDigiCollection>();
+  std::unique_ptr<CSCShowerDigiCollection> filteredShowerDigis = std::make_unique<CSCShowerDigiCollection>();
+  std::unique_ptr<GEMPadDigiClusterCollection> filteredClusterDigis = std::make_unique<GEMPadDigiClusterCollection>();
 
   // filter the collections
   filterDigis<CSCStripDigi>(event, stripDigiToken_, filteredStripDigis);
