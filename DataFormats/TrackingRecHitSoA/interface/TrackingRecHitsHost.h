@@ -48,15 +48,6 @@ namespace reco {
     explicit TrackingRecHitHost(TQueue queue, SiPixelClustersHost const& clusters)
         : HitPortableCollectionHost(queue, clusters.nClusters(), clusters.view().metadata().size()) {
       auto hitsView = view().trackingHits();
-      auto modsView = view().hitModules();
-
-      auto nModules = clusters.view().metadata().size();
-
-      auto clusters_m = cms::alpakatools::make_host_view(clusters.view().clusModuleStart(), nModules);
-      auto hits_m = cms::alpakatools::make_host_view(modsView.moduleStart(), nModules);
-
-      alpaka::memcpy(queue, hits_m, clusters_m);
-
       hitsView.offsetBPIX2() = clusters.offsetBPIX2();
     }
 
@@ -67,6 +58,7 @@ namespace reco {
 
     // do nothing for a host collection
     template <typename TQueue>
+      requires(alpaka::concepts::Queue<TQueue>)
     void updateFromDevice(TQueue) {}
   };
 

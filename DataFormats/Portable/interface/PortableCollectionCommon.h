@@ -1,10 +1,15 @@
 #ifndef DataFormats_Portable_interface_PortableCollectionCommon_h
 #define DataFormats_Portable_interface_PortableCollectionCommon_h
 
+#include <cassert>
+#include <concepts>
+#include <cstddef>
 #include <format>
 #include <limits>
-#include <stdexcept>
+#include <string>
+#include <tuple>
 #include <typeinfo>
+#include <type_traits>
 
 #include <alpaka/alpaka.hpp>
 
@@ -12,8 +17,8 @@
 
 namespace portablecollection {
 
-  template <std::size_t I = 0, typename TQueue, typename Descriptor, typename ConstDescriptor>
-    requires requires { Descriptor::num_cols; }
+  template <std::size_t I = 0, alpaka::concepts::Queue TQueue, typename Descriptor, typename ConstDescriptor>
+    requires(Descriptor::isSoA && ConstDescriptor::isSoA) && requires { Descriptor::num_cols; }
   void deepCopy(TQueue& queue, Descriptor& dest, ConstDescriptor const& src) {
     if constexpr (I < ConstDescriptor::num_cols) {
       assert(std::get<I>(dest.buff).size_bytes() == std::get<I>(src.buff).size_bytes());
@@ -26,8 +31,8 @@ namespace portablecollection {
   }
 
   // Helper function implementing the recursive deep copy for blocks
-  template <std::size_t I = 0, typename TQueue, typename Descriptor, typename ConstDescriptor>
-    requires requires { Descriptor::blocksNumber; }
+  template <std::size_t I = 0, alpaka::concepts::Queue TQueue, typename Descriptor, typename ConstDescriptor>
+    requires(Descriptor::isSoA && ConstDescriptor::isSoA) && requires { Descriptor::blocksNumber; }
   void deepCopy(TQueue& queue, Descriptor& dest, ConstDescriptor const& src) {
     if constexpr (I < ConstDescriptor::blocksNumber) {
       deepCopy(queue, std::get<I>(dest.buff), std::get<I>(src.buff));
@@ -35,14 +40,16 @@ namespace portablecollection {
     }
   }
 
+  [[noreturn]] void throwException(const std::string& category, const std::string& message);
+
   template <std::integral Int>
   constexpr int size_cast(Int input) {
     if ((std::is_signed_v<Int> && input < 0) || input > std::numeric_limits<int>::max()) {
-      throw std::runtime_error(
-          std::format("Invalid input value for size of PortableCollection: cannot be narrowed to positive int32. "
-                      "Source type: {}, value: {} ",
-                      edm::typeDemangle(typeid(Int).name()),
-                      input));
+      throwException("PortableCollection",
+                     std::format("Invalid input value for size: cannot be narrowed to positive int32. "
+                                 "Source type: {}, value: {} ",
+                                 edm::typeDemangle(typeid(Int).name()),
+                                 input));
     }
     return static_cast<int>(input);
   }

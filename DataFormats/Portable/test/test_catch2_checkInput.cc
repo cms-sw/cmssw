@@ -27,7 +27,7 @@ namespace {
 }  // namespace
 
 // Check that invalid inputs for the elements parameter of the PortableHostCollection constructor
-// cause narrow_cast to throw a std::runtime_error.
+// cause narrow_cast to throw a std::exception.
 TEST_CASE("checked_int_cast enforces non-negative narrowing to int", "[checked_int_cast]") {
   SECTION("signed integer sources") {
     SECTION("valid signed values") {
@@ -97,26 +97,26 @@ TEST_CASE("checked_int_cast enforces non-negative narrowing to int", "[checked_i
     }
 
     SECTION("invalid negative values") {
-      REQUIRE_THROWS_AS([&] { TestCollection1 check(-1); }(), std::runtime_error);
-      REQUIRE_THROWS_AS([&] { TestCollection1 check(-42); }(), std::runtime_error);
-      REQUIRE_THROWS_AS([&] { TestCollection1 check(std::numeric_limits<int>::min()); }(), std::runtime_error);
-      REQUIRE_THROWS_AS([&] { TestCollection1 check(int8_t{-1}); }(), std::runtime_error);
-      REQUIRE_THROWS_AS([&] { TestCollection1 check(int16_t{-1}); }(), std::runtime_error);
-      REQUIRE_THROWS_AS([&] { TestCollection1 check(int64_t{-1}); }(), std::runtime_error);
+      REQUIRE_THROWS_AS([&] { TestCollection1 check(-1); }(), std::exception);
+      REQUIRE_THROWS_AS([&] { TestCollection1 check(-42); }(), std::exception);
+      REQUIRE_THROWS_AS([&] { TestCollection1 check(std::numeric_limits<int>::min()); }(), std::exception);
+      REQUIRE_THROWS_AS([&] { TestCollection1 check(int8_t{-1}); }(), std::exception);
+      REQUIRE_THROWS_AS([&] { TestCollection1 check(int16_t{-1}); }(), std::exception);
+      REQUIRE_THROWS_AS([&] { TestCollection1 check(int64_t{-1}); }(), std::exception);
     }
 
     SECTION("signed values exceeding int max are rejected") {
       REQUIRE_THROWS_AS([&] { TestCollection1 check(static_cast<long long>(std::numeric_limits<int>::max()) + 1); }(),
-                        std::runtime_error);
+                        std::exception);
 
-      REQUIRE_THROWS_AS([&] { TestCollection1 check(std::numeric_limits<int64_t>::max()); }(), std::runtime_error);
+      REQUIRE_THROWS_AS([&] { TestCollection1 check(std::numeric_limits<int64_t>::max()); }(), std::exception);
     }
   }
 
   SECTION("character types") {
     SECTION("signed char") {
       REQUIRE_NOTHROW([&] { TestCollection1 check(static_cast<signed char>(0)); }());
-      REQUIRE_THROWS_AS([&] { TestCollection1 check(static_cast<signed char>(-1)); }(), std::runtime_error);
+      REQUIRE_THROWS_AS([&] { TestCollection1 check(static_cast<signed char>(-1)); }(), std::exception);
     }
 
     SECTION("unsigned char") {
@@ -141,6 +141,6 @@ TEST_CASE("checked_int_cast enforces non-negative narrowing to int", "[checked_i
           TestCollection2 check(
               static_cast<uint8_t>(1), static_cast<uint16_t>(2), static_cast<uint32_t>(3), static_cast<int64_t>(-1));
         }(),
-        std::runtime_error);
+        std::exception);
   }
 }
