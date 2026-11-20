@@ -1198,7 +1198,7 @@ namespace {
       titleMap += std::to_string(std::get<0>(firstiov));
       titleMap += "/ IOV:";
       titleMap += std::to_string(std::get<0>(lastiov));
-      titleMap += ")";
+      titleMap += ')';
       titleMap += +" " + std::to_string(nsigma) + " std. dev. saturation";
 
       std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripNoises");

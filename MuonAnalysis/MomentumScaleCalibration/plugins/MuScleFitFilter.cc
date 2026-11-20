@@ -22,6 +22,7 @@
 // For file output
 // ---------------
 #include <fstream>
+#include <memory>
 #include <sstream>
 #include <cmath>
 #include <memory>
@@ -118,7 +119,7 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
 
   // Get the RecTrack and the RecMuon collection from the event
   // ----------------------------------------------------------
-  std::unique_ptr<reco::MuonCollection> muons(new reco::MuonCollection());
+  std::unique_ptr<reco::MuonCollection> muons = std::make_unique<reco::MuonCollection>();
 
   if (debug)
     edm::LogPrint("MuScleFitFilter") << "Looking for muons of the right kind" << std::endl;

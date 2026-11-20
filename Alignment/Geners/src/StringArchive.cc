@@ -1,5 +1,6 @@
 #include "Alignment/Geners/interface/IOException.hh"
 #include <cassert>
+#include <memory>
 #include <sstream>
 
 #include "Alignment/Geners/interface/StringArchive.hh"
@@ -57,7 +58,7 @@ namespace gs {
     read_pod(in, &nam);
     if (in.fail())
       throw IOReadFailure("In gs::StringArchive::read: input stream failure");
-    std::unique_ptr<StringArchive> archive(new StringArchive(nam.c_str()));
+    std::unique_ptr<StringArchive> archive = std::make_unique<StringArchive>(nam.c_str());
     archive->lastpos_ = lastpos;
     ClassId streamId(in, 1);
     CharBuffer::restore(streamId, in, &archive->stream_);
