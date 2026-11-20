@@ -178,7 +178,7 @@ protected:
   // A parameter configurable from python configuration to decide which noise generation model to use
   bool NoiseGeneration_Method_;
   // When true, the noise table comes from the configured seed of the module and the collection
-  // name, so every stream gets the same table.
+  // name, so every stream gets the same table. A replay needs the same configured seed.
   bool noiseTableFromJobSeed_;
   std::uint32_t noiseTableId_;
 };
