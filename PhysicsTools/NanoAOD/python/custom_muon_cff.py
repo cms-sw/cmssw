@@ -35,32 +35,33 @@ def AddPFTracks(proc):
                     PFCands=cms.InputTag("packedPFCandidates"),
                     lostTracks=cms.InputTag("lostTracks"),
                     TrkHPurity = cms.bool(False),
-                    trkSelection = cms.string("bestTrack.pt()>5 && abs(bestTrack.eta())<2.4 "),
+                    trkSelection = cms.string("bestTrack.pt()>2 && abs(bestTrack.eta())<2.4 "),
                    )
     )
     
     pfTracksTable = "pfTracksTable"
     setattr(proc, pfTracksTable, cms.EDProducer("SimpleTrackFlatTableProducer",
                         src = cms.InputTag("pfTracks"),
-                        cut = cms.string("pt > 15"), # filtered already above
+                        cut = cms.string(""), # filtered already above in pfTracks
                         name = cms.string("Track"),
-                        doc  = cms.string("General tracks with pt > 15 GeV"),
+                        doc  = cms.string("General tracks with pt > 2 GeV"),
                         singleton = cms.bool(False), # the number of entries is variable
                         extension = cms.bool(False), # this is the main table for the muons
                         variables = cms.PSet(P3Vars,
                             dz = Var("dz",float,doc="dz (with sign) wrt first PV, in cm",precision=10),
                             dxy = Var("dxy",float,doc="dxy (with sign) wrt first PV, in cm",precision=10),
+                            ptErr = Var("ptError()", float, doc="pt uncertainty", precision=8),
+                            dxyErr = Var("dxyError()", float, doc="dxy uncertainty, in cm", precision=8),
+                            dzErr = Var("dzError()", float, doc="dz uncertainty, in cm", precision=8),
                             charge = Var("charge", int, doc="electric charge"),
                             normChiSq = Var("normalizedChi2", float, precision=14, doc="Chi^2/ndof"),
                             numberOfValidHits = Var('numberOfValidHits()', 'int', precision=-1, doc='Number of valid hits in track'),
-                            numberOfLostHits = Var('numberOfLostHits()', 'int', precision=-1, doc='Number of lost hits in track'),
-                            trackAlgo = Var('algo()', 'int', precision=-1, doc='Track algo enum, check DataFormats/TrackReco/interface/TrackBase.h for details.'),
-                            trackOriginalAlgo = Var('originalAlgo()', 'int', precision=-1, doc='Track original algo enum'),
+                            trackAlgo = Var('algo()', 'uint8', precision=-1, doc='Track algo enum, check DataFormats/TrackReco/interface/TrackBase.h for details.'),
+                            trackOriginalAlgo = Var('originalAlgo()', 'uint8', precision=-1, doc='Track original algo enum'),
                             qualityMask = Var('qualityMask()', 'int', precision=-1, doc='Quality mask of the track.'),
-                            extraIdx = Var('extra().key()', 'int', precision=-1, doc='Index of the TrackExtra in the original collection'),
-                            vx = Var('vx', 'float', precision=-1, doc='Track X position'),
-                            vy = Var('vy', 'float', precision=-1, doc='Track Y position'),
-                            vz = Var('vz', 'float', precision=-1, doc='Track Z position'),
+                            vx = Var('vx', 'float', precision=10, doc='Track X position'),
+                            vy = Var('vy', 'float', precision=10, doc='Track Y position'),
+                            vz = Var('vz', 'float', precision=10, doc='Track Z position'),
                            ),
                  )
     )
@@ -81,7 +82,33 @@ def AddPFTracks(proc):
   
     return proc
 
-    
+def AddPFTracksExt(proc):
+    # Propagators used in the extrapolation to the muon stations
+    proc.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi")
+    proc.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")
+    proc.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi")
+
+    pfTracksExtTable = "pfTracksExtTable"
+    setattr(proc, pfTracksExtTable, cms.EDProducer("PFTracksExtTableProducer",
+                        src = cms.InputTag("pfTracks"),
+                        name = cms.string("Track"),
+                        propagation = cms.PSet(
+                            useSimpleGeometry = cms.bool(True),
+                            useStation2 = cms.bool(False),
+                            fallbackToME1 = cms.bool(False),
+                            cosmicPropagationHypothesis = cms.bool(False),
+                            useMB2InOverlap = cms.bool(False),
+                            useTrack = cms.string("tracker"),
+                            useState = cms.string("atVertex"),
+                            propagatorAlong = cms.ESInputTag("","SteppingHelixPropagatorAlong"),
+                            propagatorAny = cms.ESInputTag("","SteppingHelixPropagatorAny"),
+                            propagatorOpposite = cms.ESInputTag("","SteppingHelixPropagatorOpposite"),
+                        ),
+                   )
+    )
+    proc.nanoTableTaskCommon.add(getattr(proc,pfTracksExtTable))
+
+    return proc
 
 def AddVariablesForMuon(proc):
     
@@ -106,7 +133,14 @@ def AddVariablesForMuon(proc):
     proc.muonTable.variables.standalonePt = Var("? standAloneMuon().isNonnull() ? standAloneMuon().pt() : -1", float, doc = "pt of the standalone muon", precision=14)
     proc.muonTable.variables.standaloneEta = Var("? standAloneMuon().isNonnull() ? standAloneMuon().eta() : -99", float, doc = "eta of the standalone muon", precision=14)
     proc.muonTable.variables.standalonePhi = Var("? standAloneMuon().isNonnull() ? standAloneMuon().phi() : -99", float, doc = "phi of the standalone muon", precision=14)
-    proc.muonTable.variables.standaloneCharge = Var("? standAloneMuon().isNonnull() ? standAloneMuon().charge() : -99", float, doc = "phi of the standalone muon", precision=14)
+    proc.muonTable.variables.standaloneCharge = Var("? standAloneMuon().isNonnull() ? standAloneMuon().charge() : -99", float, doc = "charge of the standalone muon", precision=14)
+    proc.muonTable.variables.standaloneEtaErr = Var("? standAloneMuon().isNonnull() ? standAloneMuon().etaError() : -99", float, doc = "eta uncertainty of the standalone muon", precision=10)
+    proc.muonTable.variables.standalonePhiErr = Var("? standAloneMuon().isNonnull() ? standAloneMuon().phiError() : -99", float, doc = "phi uncertainty of the standalone muon", precision=10)
+    proc.muonTable.variables.standaloneQoverpErr = Var("? standAloneMuon().isNonnull() ? standAloneMuon().qoverpError() : -99", float, doc = "q/p uncertainty of the standalone muon", precision=10)
+    proc.muonTable.variables.standaloneInnerPhi = Var("? standAloneMuon().isNonnull() && standAloneMuon().extra().isAvailable() ? standAloneMuon().innerPosition().phi() : -99", float, doc = "phi of the innermost hit position of the standalone muon", precision=14)
+    proc.muonTable.variables.standaloneInnerEta = Var("? standAloneMuon().isNonnull() && standAloneMuon().extra().isAvailable() ? standAloneMuon().innerPosition().eta() : -99", float, doc = "eta of the innermost hit position of the standalone muon", precision=14)
+    proc.muonTable.variables.standaloneInnerR = Var("? standAloneMuon().isNonnull() && standAloneMuon().extra().isAvailable() ? standAloneMuon().innerPosition().rho() : -99", float, doc = "transverse radius (cm) of the innermost hit position of the standalone muon", precision=14)
+    proc.muonTable.variables.standaloneInnerZ = Var("? standAloneMuon().isNonnull() && standAloneMuon().extra().isAvailable() ? standAloneMuon().innerPosition().z() : -99", float, doc = "z (cm) of the innermost hit position of the standalone muon", precision=14)
     
     # Inner Track Algo variables
     proc.muonTable.variables.innerTrackAlgo = Var('? innerTrack().isNonnull() ? innerTrack().algo() : -99', 'int', precision=-1, doc='Track algo enum, check DataFormats/TrackReco/interface/TrackBase.h for details.')
@@ -383,6 +417,7 @@ def PrepMuonCustomNanoAOD(process):
     
     process = Custom_Muon_Task(process)
     process = AddPFTracks(process)
+    process = AddPFTracksExt(process)
     process = AddVariablesForMuon(process)
     process = AddTriggerObjectBits(process)
     process = IncreaseGenPrecesion(process)
