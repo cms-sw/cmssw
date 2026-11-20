@@ -365,6 +365,83 @@ def customizeHLTforL1P2GTv0p0_2026(process):
                 name = getattr(module, par).value()
                 setattr(module, par, seedMap.get(name, name))
 
+    # VBF paths: step1_2024 has a single VBF seed, so in that menu all the VBF paths share the
+    # same inclusive seed (pDoublePuppiJet160_35_mass620, mapped above to pDoubleJet_Mass_Min1000).
+    # v0p0_2026 has dedicated seeds for some of them, and these need to be added below.
+    vbfSeedLabel = 'hltL1SeedsForVBFDiPFPuppiJetFilter'
+    vbfSeedOverrides = {
+        # path name                                                   : (seed suffix, v0p0_2026 seeds (OR))
+        'HLT_VBF_DiPFPuppiJet118_83_Mjj600_PFPuppiMETTypeOne176'       : ('MET', ['pDoubleJet_METSum']),
+        'HLT_VBF_DiPFPuppiJet93_Mjj600_MediumPFPuppiParTTauh61_eta2p1'  : ('Tau', ['pDoubleJet_IsoTau', 'pDoubleJet_IsoTau_Ext']),
+        'HLT_VBF_DiPFPuppiJet93_Mjj550_Ele24_eta2p1_WPTight_L1Seeded'  : ('Ele', ['pDoubleJet_TkEleIso']),
+        'HLT_VBF_DiPFPuppiJet133_83_Mjj700_Mu5_TrkIsoVVL'              : ('Mu',  ['pDoubleJet_TkMu']),
+    }
+    # Cross seeds (two jets + one other L1 object): as for the other cross triggers, the gate is an
+    # HLTP2GTTripleObjectFilter that saves the seed's jets and its third object.
+    vbfSeedThirdObject = {
+        # path name                                                   : third object type
+        'HLT_VBF_DiPFPuppiJet93_Mjj600_MediumPFPuppiParTTauh61_eta2p1' : 'CL2Taus',
+        'HLT_VBF_DiPFPuppiJet93_Mjj550_Ele24_eta2p1_WPTight_L1Seeded'  : 'CL2Electrons',
+    }
+    noPairCuts = cms.PSet(
+        minDR = cms.double(0.),
+        maxDR = cms.double(1e9),
+        minDEta = cms.double(-1.),
+        minDPhi = cms.double(-1.),
+        minInvMass = cms.double(0.),
+        maxInvMass = cms.double(1e9),
+    )
+    if hasattr(process, vbfSeedLabel):
+        vbfSeed = getattr(process, vbfSeedLabel)
+        for pathName, (suffix, seeds) in vbfSeedOverrides.items():
+            if not hasattr(process, pathName):
+                continue
+            path = getattr(process, pathName)
+            seedLabel = vbfSeedLabel.replace('Filter', suffix + 'Filter')
+            jets = vbfSeed.l1GTAlgos[0].collection
+            if pathName in vbfSeedThirdObject:
+                setattr(process, seedLabel, cms.EDFilter('HLTP2GTTripleObjectFilter',
+                    saveTags = vbfSeed.saveTags,
+                    l1GTAlgoBlockTag = vbfSeed.l1GTAlgoBlockTag,
+                    l1GTAlgos = cms.VPSet([
+                        cms.PSet(
+                            name = cms.string(seed),
+                            collection1 = jets.clone(),
+                            collection2 = jets.clone(),
+                            collection3 = jets.clone(objectType = vbfSeedThirdObject[pathName]),
+                            cuts12 = noPairCuts.clone(),
+                            cuts13 = noPairCuts.clone(),
+                            cuts23 = noPairCuts.clone()
+                        ) for seed in seeds
+                    ])
+                ))
+            else:
+                setattr(process, seedLabel, vbfSeed.clone(
+                    l1GTAlgos = cms.VPSet([
+                        cms.PSet(
+                            name = cms.string(seed),
+                            collection = jets.clone()
+                        ) for seed in seeds
+                    ])
+                ))
+            path.replace(vbfSeed, getattr(process, seedLabel))
+            for module in process.filters_().values():
+                if not path.contains(module):
+                    continue
+                # VBF jet categories filters: keep l1tJetRefs pointing to the path's seed. A filter
+                # shared by several paths is left unchanged: l1tJetRefs is only read when
+                # matchJetsByDeltaR is True, and then each path needs its own clone.
+                if module.type_() == 'HLTL1TMatchedPFJetsVBFFilter' and module.l1tJetRefs.value() == vbfSeedLabel:
+                    users = [p for p in process.paths_().values() if p.contains(module)]
+                    if len(users) == 1:
+                        module.l1tJetRefs = seedLabel
+                    elif module.matchJetsByDeltaR.value():
+                        raise RuntimeError('customizeHLTforL1P2GTv0p0_2026: %s is shared by several paths and '
+                                           'matches to L1 jets; give each VBF path its own copy' % module.label_())
+                # muon legs written without L1 matching (jet-only seed): match to the seed's tracker muons
+                if module.type_() == 'HLTMuonTrkL1TkMuFilter' and len(module.l1GTAlgoNames) == 0:
+                    module.l1GTAlgoNames = seeds
+
     return process
 
 
