@@ -1,5 +1,7 @@
 #include "RctInputTextToDigi.h"
 
+#include <memory>
+
 //
 // constructors and destructor
 //
@@ -56,8 +58,8 @@ void RctInputTextToDigi::produce(edm::Event &iEvent, const edm::EventSetup &iSet
   const L1RCTParameters *r = &iSetup.getData(paramsToken_);
   lookupTables_->setRCTParameters(r);
 
-  std::unique_ptr<EcalTrigPrimDigiCollection> ecalTPs(new EcalTrigPrimDigiCollection());
-  std::unique_ptr<HcalTrigPrimDigiCollection> hcalTPs(new HcalTrigPrimDigiCollection());
+  std::unique_ptr<EcalTrigPrimDigiCollection> ecalTPs = std::make_unique<EcalTrigPrimDigiCollection>();
+  std::unique_ptr<HcalTrigPrimDigiCollection> hcalTPs = std::make_unique<HcalTrigPrimDigiCollection>();
   ecalTPs->reserve(56 * 72);
   hcalTPs->reserve(56 * 72 + 18 * 8);  // includes HF
   const int nEcalSamples = 1;          // we only use 1 sample for each

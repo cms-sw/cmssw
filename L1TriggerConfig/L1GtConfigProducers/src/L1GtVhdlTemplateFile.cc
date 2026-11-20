@@ -97,7 +97,7 @@ bool L1GtVhdlTemplateFile::open(const std::string &fileName, bool internal) {
 
           // check weather the next line is the end of the block
           if (!((*tmpIter)[0] == paramIndicator && (*tmpIter)[1] == paramIndicator))
-            parameterMap_[(*iter).substr(1)] += "\n";
+            parameterMap_[(*iter).substr(1)] += '\n';
 
           iter2++;
         }

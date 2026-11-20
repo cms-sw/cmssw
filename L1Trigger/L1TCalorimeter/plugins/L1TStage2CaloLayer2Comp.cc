@@ -13,6 +13,8 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include <memory>
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
@@ -924,8 +926,8 @@ void L1TStage2CaloLayer2Comp::dumpEventToFile() {
 
 void L1TStage2CaloLayer2Comp::dumpEventToEDM(edm::Event &e) {
   // store all jets to an edm file
-  std::unique_ptr<l1t::JetBxCollection> mpjets_data(new l1t::JetBxCollection(0, currBx, currBx));
-  std::unique_ptr<l1t::JetBxCollection> mpjets_emul(new l1t::JetBxCollection(0, currBx, currBx));
+  std::unique_ptr<l1t::JetBxCollection> mpjets_data = std::make_unique<l1t::JetBxCollection>(0, currBx, currBx);
+  std::unique_ptr<l1t::JetBxCollection> mpjets_emul = std::make_unique<l1t::JetBxCollection>(0, currBx, currBx);
 
   for (auto jet = jetDataCol->begin(currBx); jet != jetDataCol->end(currBx); ++jet)
     mpjets_data->push_back(0, (*jet));
@@ -936,8 +938,10 @@ void L1TStage2CaloLayer2Comp::dumpEventToEDM(edm::Event &e) {
   e.put(std::move(mpjets_emul), "emulJet");
 
   // store all egs to an edm file
-  std::unique_ptr<l1t::EGammaBxCollection> mpEGammas_data(new l1t::EGammaBxCollection(0, currBx, currBx));
-  std::unique_ptr<l1t::EGammaBxCollection> mpEGammas_emul(new l1t::EGammaBxCollection(0, currBx, currBx));
+  std::unique_ptr<l1t::EGammaBxCollection> mpEGammas_data =
+      std::make_unique<l1t::EGammaBxCollection>(0, currBx, currBx);
+  std::unique_ptr<l1t::EGammaBxCollection> mpEGammas_emul =
+      std::make_unique<l1t::EGammaBxCollection>(0, currBx, currBx);
 
   for (auto eg = egDataCol->begin(currBx); eg != egDataCol->end(currBx); ++eg)
     mpEGammas_data->push_back(0, (*eg));
@@ -948,8 +952,8 @@ void L1TStage2CaloLayer2Comp::dumpEventToEDM(edm::Event &e) {
   e.put(std::move(mpEGammas_emul), "emulEg");
 
   // store all taus to an edm file
-  std::unique_ptr<l1t::TauBxCollection> mptaus_data(new l1t::TauBxCollection(0, currBx, currBx));
-  std::unique_ptr<l1t::TauBxCollection> mptaus_emul(new l1t::TauBxCollection(0, currBx, currBx));
+  std::unique_ptr<l1t::TauBxCollection> mptaus_data = std::make_unique<l1t::TauBxCollection>(0, currBx, currBx);
+  std::unique_ptr<l1t::TauBxCollection> mptaus_emul = std::make_unique<l1t::TauBxCollection>(0, currBx, currBx);
 
   for (auto tau = tauDataCol->begin(currBx); tau != tauDataCol->end(currBx); ++tau)
     mptaus_data->push_back(0, (*tau));
@@ -960,8 +964,8 @@ void L1TStage2CaloLayer2Comp::dumpEventToEDM(edm::Event &e) {
   e.put(std::move(mptaus_emul), "emulTau");
 
   // store all sums to an edm file
-  std::unique_ptr<l1t::EtSumBxCollection> mpsums_data(new l1t::EtSumBxCollection(0, currBx, currBx));
-  std::unique_ptr<l1t::EtSumBxCollection> mpsums_emul(new l1t::EtSumBxCollection(0, currBx, currBx));
+  std::unique_ptr<l1t::EtSumBxCollection> mpsums_data = std::make_unique<l1t::EtSumBxCollection>(0, currBx, currBx);
+  std::unique_ptr<l1t::EtSumBxCollection> mpsums_emul = std::make_unique<l1t::EtSumBxCollection>(0, currBx, currBx);
 
   for (auto sum = sumDataCol->begin(currBx); sum != sumDataCol->end(currBx); ++sum)
     mpsums_data->push_back(0, (*sum));
@@ -972,8 +976,10 @@ void L1TStage2CaloLayer2Comp::dumpEventToEDM(edm::Event &e) {
   e.put(std::move(mpsums_emul), "emulEtSum");
 
   // store calorimeter towers
-  std::unique_ptr<l1t::CaloTowerBxCollection> mptowers_data(new l1t::CaloTowerBxCollection(0, currBx, currBx));
-  std::unique_ptr<l1t::CaloTowerBxCollection> mptowers_emul(new l1t::CaloTowerBxCollection(0, currBx, currBx));
+  std::unique_ptr<l1t::CaloTowerBxCollection> mptowers_data =
+      std::make_unique<l1t::CaloTowerBxCollection>(0, currBx, currBx);
+  std::unique_ptr<l1t::CaloTowerBxCollection> mptowers_emul =
+      std::make_unique<l1t::CaloTowerBxCollection>(0, currBx, currBx);
 
   for (auto tower = caloTowerDataCol->begin(currBx); tower != caloTowerDataCol->end(currBx); ++tower)
     mptowers_data->push_back(0, (*tower));

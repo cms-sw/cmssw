@@ -182,7 +182,7 @@ template <class INPUT, class OUTPUT>
 void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  std::unique_ptr<L1JetParticleCollection> bJetCands(new L1JetParticleCollection);
+  std::unique_ptr<L1JetParticleCollection> bJetCands = std::make_unique<L1JetParticleCollection>();
 
   std::unique_ptr<l1t::CICADABxCollection> CICADAScore = std::make_unique<l1t::CICADABxCollection>();
   CICADAScore->setBXRange(-2, 2);

@@ -258,12 +258,12 @@ void L1TStage2Layer2Producer::beginRun(edm::Run const& iRun, edm::EventSetup con
 
     // fetch payload corresponding to the current run from the CondDB
     edm::ESHandle<CaloParams> candidateHandle = iSetup.getHandle(m_candidateToken);
-    std::unique_ptr<l1t::CaloParams> candidate(new l1t::CaloParams(*candidateHandle.product()));
+    std::unique_ptr<l1t::CaloParams> candidate = std::make_unique<l1t::CaloParams>(*candidateHandle.product());
 
     if (!m_useStaticConfig) {
       // fetch the latest greatest prototype (equivalent of static payload)
       edm::ESHandle<CaloParams> o2oProtoHandle = iSetup.getHandle(m_o2oProtoToken);
-      std::unique_ptr<l1t::CaloParams> prototype(new l1t::CaloParams(*o2oProtoHandle.product()));
+      std::unique_ptr<l1t::CaloParams> prototype = std::make_unique<l1t::CaloParams>(*o2oProtoHandle.product());
 
       // prepare to set the emulator's configuration
       //  and then replace our local copy of the parameters with a new one using placement new

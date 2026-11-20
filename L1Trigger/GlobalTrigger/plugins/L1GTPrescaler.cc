@@ -74,7 +74,7 @@ bool L1GTPrescaler::filter(edm::Event &event, edm::EventSetup const &setup) {
   }
 
   // make a copy of the L1GlobalTriggerReadoutRecord, and set the new decisions
-  std::unique_ptr<L1GlobalTriggerReadoutRecord> result(new L1GlobalTriggerReadoutRecord(*handle));
+  std::unique_ptr<L1GlobalTriggerReadoutRecord> result = std::make_unique<L1GlobalTriggerReadoutRecord>(*handle);
   result->setDecisionWord(algoWord);
   result->setTechnicalTriggerWord(techWord);
   result->setDecision(finalOr);

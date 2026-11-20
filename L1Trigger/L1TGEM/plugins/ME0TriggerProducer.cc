@@ -7,6 +7,8 @@
  *
  */
 
+#include <memory>
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -60,9 +62,9 @@ void ME0TriggerProducer::produce(edm::StreamID, edm::Event& ev, const edm::Event
   const ME0PadDigiCollection* me0Pads = me0PadDigis.product();
 
   // Create empty collection
-  std::unique_ptr<ME0TriggerDigiCollection> oc_trig(new ME0TriggerDigiCollection);
+  std::unique_ptr<ME0TriggerDigiCollection> oc_trig = std::make_unique<ME0TriggerDigiCollection>();
 
-  std::unique_ptr<ME0TriggerBuilder> trigBuilder(new ME0TriggerBuilder(config_));
+  std::unique_ptr<ME0TriggerBuilder> trigBuilder = std::make_unique<ME0TriggerBuilder>(config_);
   trigBuilder->setME0Geometry(&*h_me0);
 
   // Fill output collections if valid input collection is available.

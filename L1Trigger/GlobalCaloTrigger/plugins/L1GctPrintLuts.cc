@@ -29,7 +29,7 @@ L1GctPrintLuts::L1GctPrintLuts(const edm::ParameterSet& iConfig)
       m_gct(new L1GlobalCaloTrigger(L1GctJetLeafCard::hardwareJetFinder)),
       m_jetEtCalibLuts() {
   // Fill the jetEtCalibLuts vector
-  lutPtr nextLut(new L1GctJetEtCalibrationLut());
+  lutPtr nextLut = std::make_shared<L1GctJetEtCalibrationLut>();
 
   for (unsigned ieta = 0; ieta < L1GctJetFinderBase::COL_OFFSET; ieta++) {
     nextLut->setEtaBin(ieta);

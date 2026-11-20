@@ -13,6 +13,7 @@
 #include "L1TriggerConfig/L1ScalesProducers/interface/L1MuTriggerScalesOnlineProducer.h"
 #include "L1TriggerConfig/L1ScalesProducers/interface/ScaleRecordHelper.h"
 #include <cmath>
+#include <memory>
 
 using namespace std;
 
@@ -160,8 +161,8 @@ std::unique_ptr<L1MuTriggerScales> L1MuTriggerScalesOnlineProducer::newObject(co
   vector<double> etaScales;
   etaHelper.extractScales(etaRecord, etaScales);
 
-  unique_ptr<L1MuSymmetricBinnedScale> ptrEtaScale(
-      new L1MuSymmetricBinnedScale(m_nbitPackingEta, m_nbinsEta, etaScales));
+  unique_ptr<L1MuSymmetricBinnedScale> ptrEtaScale =
+      std::make_unique<L1MuSymmetricBinnedScale>(m_nbitPackingEta, m_nbinsEta, etaScales);
   m_scales.setGMTEtaScale(*ptrEtaScale);
 
   columns.clear();
