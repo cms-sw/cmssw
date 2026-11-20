@@ -38,6 +38,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFTrajectoryFi
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFTrajectorySmootherForLoopers_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKullbackLeiblerDistance5D_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPMeasurementTracker_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPPhase2OTCAModuleParams_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPPhase2StripCPE_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPPixelCPEGeneric_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPRKTrajectoryFitter_cfi")

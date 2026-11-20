@@ -7,11 +7,22 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<library file="alpaka/*.cc" name="RecoLocalTrackerPhase2OTRecHitsSoAPluginsPortable">
+<library file="alpaka/*.cc" name="RecoLocalTrackerPhase2TrackerRecHitsPluginsPortable">
   <use name="alpaka"/>
+  <use name="DataFormats/BeamSpot"/>
+  <use name="DataFormats/DetId"/>
+  <use name="DataFormats/GeometrySurface"/>
+  <use name="DataFormats/Math"/>
+  <use name="DataFormats/Phase2TrackerCluster"/>
   <use name="DataFormats/Portable"/>
-  <use name="RecoTracker/Record"/>
+  <use name="DataFormats/SiPixelDetId"/>
+  <use name="DataFormats/SiStripDetId"/>
   <use name="DataFormats/TrackingRecHitSoA"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="Geometry/CommonTopologies"/>
+  <use name="Geometry/Records"/>
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <flags ALPAKA_BACKENDS="1"/>
