@@ -24,6 +24,8 @@
 
 #include <CLHEP/Random/RandGauss.h>
 
+#include <memory>
+
 //----------------------------------------------------------------------------------------------------
 
 class BeamDivergenceVtxGenerator : public edm::stream::EDProducer<> {
@@ -119,7 +121,7 @@ void BeamDivergenceVtxGenerator::produce(edm::Event &iEvent, const edm::EventSet
   }
 
   // prepare output
-  std::unique_ptr<edm::HepMCProduct> output(new edm::HepMCProduct(genEvt));
+  std::unique_ptr<edm::HepMCProduct> output = std::make_unique<edm::HepMCProduct>(genEvt);
 
   // generate smearing parameters
   SmearingParameters sp;

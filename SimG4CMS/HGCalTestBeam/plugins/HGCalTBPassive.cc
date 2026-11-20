@@ -28,6 +28,7 @@
 #include <array>
 #include <cmath>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -101,7 +102,7 @@ HGCalTBPassive::~HGCalTBPassive() {}
 
 void HGCalTBPassive::produce(edm::Event &e, const edm::EventSetup &) {
   for (unsigned int k = 0; k < LVNames_.size(); ++k) {
-    std::unique_ptr<edm::PassiveHitContainer> hgcPH(new edm::PassiveHitContainer);
+    std::unique_ptr<edm::PassiveHitContainer> hgcPH = std::make_unique<edm::PassiveHitContainer>();
     endOfEvent(*hgcPH, k);
     e.put(std::move(hgcPH), Form("%sPassiveHits", LVNames_[k].c_str()));
   }

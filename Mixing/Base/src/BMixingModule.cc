@@ -32,7 +32,7 @@ namespace {
       double averageNumber;
       std::string histoFileName = " ";
       std::string histoName = " ";
-      std::unique_ptr<TH1F> h(new TH1F("h", "h", 10, 0, 10));
+      std::unique_ptr<TH1F> h = std::make_unique<TH1F>("h", "h", 10, 0, 10);
       std::vector<int> dataProbFunctionVar;
       std::vector<double> dataProb;
 
@@ -56,7 +56,7 @@ namespace {
             std::string histoFileName = psin_average.getUntrackedParameter<std::string>("fileName");
             std::string histoName = psin_average.getUntrackedParameter<std::string>("histoName");
 
-            std::unique_ptr<TFile> infile(new TFile(histoFileName.c_str()));
+            std::unique_ptr<TFile> infile = std::make_unique<TFile>(histoFileName.c_str());
             std::unique_ptr<TH1F> h((TH1F*)infile->Get(histoName.c_str()));
 
             // Check if the histogram exists
@@ -124,8 +124,8 @@ namespace {
             edm::LogInfo("MixingModule") << "An histogram will be created with " << numBins << " bins in the range ("
                                          << xmin << "," << xmax << ")." << std::endl;
 
-            std::unique_ptr<TH1F> hprob(
-                new TH1F("h", "Histo from the user's probability function", numBins, xmin, xmax));
+            std::unique_ptr<TH1F> hprob =
+                std::make_unique<TH1F>("h", "Histo from the user's probability function", numBins, xmin, xmax);
 
             LogDebug("MixingModule") << "Filling histogram with the following data:" << std::endl;
 

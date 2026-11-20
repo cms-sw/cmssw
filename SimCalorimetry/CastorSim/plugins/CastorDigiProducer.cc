@@ -34,6 +34,7 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
+#include <memory>
 #include <vector>
 
 namespace CLHEP {
@@ -196,7 +197,7 @@ void CastorDigiProducer::accumulate(PileUpEventPrincipal const &e,
 void CastorDigiProducer::finalizeEvent(edm::Event &e, const edm::EventSetup &eventSetup) {
   // Step B: Create empty output
 
-  std::unique_ptr<CastorDigiCollection> castorResult(new CastorDigiCollection());
+  std::unique_ptr<CastorDigiCollection> castorResult = std::make_unique<CastorDigiCollection>();
 
   // Step C: Invoke the algorithm, getting back outputs.
   theCastorDigitizer->run(*castorResult, randomEngine_);

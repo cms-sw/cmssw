@@ -146,7 +146,7 @@ void EcalTBMCInfoProducer::produce(edm::Event &event, const edm::EventSetup &eve
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine *engine = &rng->getEngine(event.streamID());
 
-  std::unique_ptr<PEcalTBInfo> product(new PEcalTBInfo());
+  std::unique_ptr<PEcalTBInfo> product = std::make_unique<PEcalTBInfo>();
 
   // Fill the run information
 
