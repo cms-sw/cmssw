@@ -1048,6 +1048,36 @@ upgradeWFs['ticlv5_TrackLinkingGNN'].step2 = {'--procModifiers': 'ticlv5_TrackLi
 upgradeWFs['ticlv5_TrackLinkingGNN'].step3 = {'--procModifiers': 'ticlv5_TrackLinkingGNN'}
 upgradeWFs['ticlv5_TrackLinkingGNN'].step4 = {'--procModifiers': 'ticlv5_TrackLinkingGNN'}
 
+# Offline reconstruction with the ticl_v6 process modifier (TICLv6).
+class UpgradeWorkflow_ticl_v6(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        if 'HARVESTGlobal' in step:
+            stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        selected_fragments = ["TTbar_14TeV", "CloseByP", "Eta1p7_2p7", "ZEE_14"]
+        return any(sf in fragment for sf in selected_fragments) and 'Run4' in key
+
+upgradeWFs['ticl_v6'] = UpgradeWorkflow_ticl_v6(
+    steps = [
+        'RecoGlobal',
+        'RecoGlobalFakeHLT',
+        'HARVESTGlobal',
+        'HARVESTGlobalFakeHLT',
+    ],
+    PU = [
+        'RecoGlobal',
+        'RecoGlobalFakeHLT',
+        'HARVESTGlobal',
+        'HARVESTGlobalFakeHLT',
+    ],
+    suffix = '_ticl_v6',
+    offset = 0.207,
+)
+upgradeWFs['ticl_v6'].step3 = {'--procModifiers': 'ticl_v6'}
+upgradeWFs['ticl_v6'].step4 = {'--procModifiers': 'ticl_v6'}
+
 
 
 class UpgradeWorkflow_enableTruth(UpgradeWorkflow):
