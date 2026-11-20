@@ -788,8 +788,8 @@ void CaloSD::update(const EndOfTrack* trk) {
       if (trkH->trackID() == id) {
         tkMap[id] = trkH;
 #ifdef EDM_ML_DEBUG
-        edzm::LogVerbatim("CaloSim") << "CaloSD: get track " << id << " from Container of size "
-                                     << trksForThisEvent->size() << " with ID " << trkH->trackID();
+        edm::LogVerbatim("CaloSim") << "CaloSD: get track " << id << " from Container of size "
+				    << trksForThisEvent->size() << " with ID " << trkH->trackID();
 #endif
       }
     }
