@@ -24,6 +24,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterWildcard.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 #include "FWCore/ServiceRegistry/interface/CurrentModuleOnThread.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
@@ -71,11 +72,6 @@ namespace edm {
           eventSeedOffset_(pset.getUntrackedParameter<unsigned>("eventSeedOffset")),
           eventSeeding_(pset.getUntrackedParameter<std::string>("seedingMode") == "event"),
           verbose_(pset.getUntrackedParameter<bool>("verbose")) {
-      std::string const seedingMode = pset.getUntrackedParameter<std::string>("seedingMode");
-      if (seedingMode != "stream" and seedingMode != "event") {
-        throw Exception(errors::Configuration) << "The RandomNumberGeneratorService parameter seedingMode must be\n"
-                                               << "\"stream\" or \"event\". It was \"" << seedingMode << "\".\n";
-      }
       if (eventSeeding_ and !restoreFileName_.empty()) {
         throw Exception(errors::Configuration)
             << "The RandomNumberGeneratorService cannot use seedingMode \"event\" together with\n"
@@ -193,7 +189,7 @@ namespace edm {
           } else if (engineName == "TRandom3" || engineName == "PhiloxEngine") {
             if (initialSeedSet[0] > maxSeedTRandom3) {
               throw Exception(errors::Configuration)
-                  << "The CLHEP::MixMaxRng engine seed should be in the range 0 to " << maxSeedTRandom3 << ".\n"
+                  << "The " << engineName << " engine seed should be in the range 0 to " << maxSeedTRandom3 << ".\n"
                   << "The seed passed to the RandomNumberGenerationService from the\n"
                      "configuration file was "
                   << initialSeedSet[0] << ".  This was for \n"
@@ -381,12 +377,18 @@ namespace edm {
       desc.addUntracked<std::string>("restoreFileName", emptyString);
       desc.addUntracked<bool>("enableChecking", false);
       desc.addUntracked<unsigned>("eventSeedOffset", 0U);
-      desc.addUntracked<std::string>("seedingMode", "stream")
+      desc.ifValue(edm::ParameterDescription<std::string>("seedingMode", "stream", false),
+                   edm::allowedValues<std::string>("stream", "event"))
           ->setComment(
               "\"stream\": each stream engine continues from event to event. "
-              "\"event\": the service seeds each engine at the start of each event from the seed (plus "
-              "eventSeedOffset), the module label and the EventID, so the numbers do not depend on the stream. "
-              "In event mode, a module can request only an engine of type MixMaxRng or PhiloxEngine.");
+              "\"event\": at the start of each event, the service seeds each engine from initialSeed + "
+              "eventSeedOffset, the CRC32 of the module label and the EventID, and each lumi engine from the "
+              "same values with event 0, so the numbers do not depend on the stream. "
+              "In event mode, a module can request only an engine of type MixMaxRng or PhiloxEngine. "
+              "MixMaxRng gets a 64-bit seed: for N events with one initialSeed, the probability that two events "
+              "get the same sequence is about N*N/2^65. PhiloxEngine uses the full 128-bit stream identifier. "
+              "A module that keeps random state across events must not depend on the first event of a stream; "
+              "the HGCAL digitizers need noiseTableFromJobSeed = True, see customiseEventSeeding.");
       desc.addUntracked<bool>("verbose", false);
 
       ParameterSetDescription val;
@@ -1212,6 +1214,8 @@ namespace edm {
         }
         auto const& key = labelAndEngine.eventKey();
         auto const id = edm::philox::streamId(key[0], key[1], run, lumi, event);
+        // The stored seed does not depend on the stream.
+        labelAndEngine.setSeed(key[0], 0);
         auto& engine = labelAndEngine.engine();
         if (engine->name() == PhiloxEngine::engineName()) {
           long const seeds[4] = {id[0], id[1], id[2], id[3]};

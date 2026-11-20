@@ -3,6 +3,7 @@
 
 #include "CLHEP/Random/MixMaxRng.h"
 #include "IOMC/RandomEngine/interface/PhiloxEngine.h"
+#include "IOMC/RandomEngine/interface/cloneEngine.h"
 
 #include <sstream>
 #include <vector>
@@ -94,4 +95,32 @@ TEST_CASE("MixMaxRng setSeeds does not keep the seed array", "[MixMaxRng]") {
   engine.setSeeds(seeds, 4);
   seeds[0] = 99;
   CHECK(draw(engine, 40) == expected);
+}
+
+TEST_CASE("PhiloxEngine clone continues the sequence", "[PhiloxEngine]") {
+  long const seeds[4] = {9, 10, 11, 12};
+  edm::PhiloxEngine engine;
+  engine.setSeeds(seeds, 4);
+  static_cast<void>(static_cast<unsigned int>(engine));
+  auto const clone = edm::cloneEngine(engine);
+  REQUIRE(clone->name() == edm::PhiloxEngine::engineName());
+  CHECK(draw(*clone, 9) == draw(engine, 9));
+}
+
+TEST_CASE("PhiloxEngine setSeed uses the 64 bits of the seed", "[PhiloxEngine]") {
+  edm::PhiloxEngine low(5);
+  edm::PhiloxEngine high(5 + (1L << 32));
+  CHECK(draw(low, 4) != draw(high, 4));
+}
+
+TEST_CASE("PhiloxEngine keeps its state for an invalid input", "[PhiloxEngine]") {
+  edm::PhiloxEngine engine(3);
+  auto state = engine.put();
+  auto const expected = draw(engine, 5);
+  REQUIRE(engine.get(state));
+  auto invalid = state;
+  invalid[1] += 1;
+  invalid[7] = 2;  // a partly used block with no previous block
+  CHECK_FALSE(engine.get(invalid));
+  CHECK(draw(engine, 5) == expected);
 }

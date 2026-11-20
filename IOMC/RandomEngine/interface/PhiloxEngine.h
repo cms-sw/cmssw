@@ -24,7 +24,7 @@ namespace edm {
     double flat() override;
     void flatArray(int const size, double* vect) override;
 
-    // The stream {seed, 0, 0, 0}.
+    // The stream {low 32 bits of seed, high 32 bits of seed, 0, 0}.
     void setSeed(long seed, int) override;
     // Up to four 32-bit words select the stream. With seedNum < 1 the list ends at the first 0.
     void setSeeds(long const* seeds, int seedNum) override;

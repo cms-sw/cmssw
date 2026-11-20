@@ -149,11 +149,17 @@ test=testRandomService
 
   # A job on a subset of the luminosity blocks gives the same numbers for those blocks.
   eventSeeded eventSeededSubset streams=3 firstLumi=2 events=6
+  [ $(wc -l < eventSeededSubset.sorted) -eq 16 ] || die "counting the lines of eventSeededSubset.sorted" 1
   [ $(comm -23 eventSeededSubset.sorted eventSeeded1.sorted | wc -l) -eq 0 ] || die "comparing the subset with the full job" 1
 
   # A different seed gives different numbers.
   eventSeeded eventSeededOffset streams=1 seedOffset=1000
+  [ $(wc -l < eventSeededOffset.sorted) -eq 32 ] || die "counting the lines of eventSeededOffset.sorted" 1
   [ $(comm -12 eventSeededOffset.sorted eventSeeded1.sorted | wc -l) -eq 0 ] || die "comparing jobs with different seeds" 1
+
+  # PhiloxEngine also works in stream mode.
+  eventSeeded streamSeeded2 streams=2 seedingMode=stream
+  [ $(wc -l < streamSeeded2.sorted) -eq 32 ] || die "counting the lines of streamSeeded2.sorted" 1
 
   # A replay from the stored engine states reproduces the numbers, also with other seeds and stream count.
   eventSeeded eventSeededSave streams=3 output=eventSeededStates.root

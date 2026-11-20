@@ -223,9 +223,9 @@ namespace edm {
                                  unsigned int eventSeedOffset,
                                  std::vector<ModuleIDToEngine>& moduleIDVector);
 
-      // Seeds each engine from (seed, module label, run, lumi, event).
       void checkEventSeedable(LabelAndEngine const& labelAndEngine) const;
 
+      // Seeds each engine from (seed, module label, run, lumi, event).
       void reseedEngines(std::vector<LabelAndEngine>& engines,
                          RunNumber_t run,
                          LuminosityBlockNumber_t lumi,

@@ -40,7 +40,9 @@ namespace edm {
 
   void PhiloxEngine::setSeed(long seed, int) {
     theSeed = seed;
-    selectStream(edm::philox::Counter{{static_cast<std::uint32_t>(seed), 0, 0, 0}});
+    auto const bits = static_cast<std::uint64_t>(seed);
+    selectStream(
+        edm::philox::Counter{{static_cast<std::uint32_t>(bits), static_cast<std::uint32_t>(bits >> 32), 0, 0}});
   }
 
   void PhiloxEngine::setSeeds(long const* seeds, int seedNum) {
@@ -95,19 +97,21 @@ namespace edm {
   }
 
   bool PhiloxEngine::getState(std::vector<unsigned long> const& v) {
-    if (v.size() != kStateSize or v[7] > kWordsPerBlock) {
+    if (v.size() != kStateSize) {
+      return false;
+    }
+    std::uint64_t const nextBlock = (static_cast<std::uint64_t>(v[6]) << 32) | static_cast<std::uint32_t>(v[5]);
+    // A partly used block needs a previous block. The state does not change for an invalid input.
+    if (v[7] > kWordsPerBlock or (v[7] < kWordsPerBlock and nextBlock == 0)) {
       return false;
     }
     selectStream(edm::philox::Counter{{static_cast<std::uint32_t>(v[1]),
                                        static_cast<std::uint32_t>(v[2]),
                                        static_cast<std::uint32_t>(v[3]),
                                        static_cast<std::uint32_t>(v[4])}});
-    nextBlock_ = (static_cast<std::uint64_t>(v[6]) << 32) | static_cast<std::uint32_t>(v[5]);
+    nextBlock_ = nextBlock;
     position_ = v[7];
     if (position_ < kWordsPerBlock) {
-      if (nextBlock_ == 0) {
-        return false;
-      }
       buffer_ = blockBits(nextBlock_ - 1);
     }
     return true;

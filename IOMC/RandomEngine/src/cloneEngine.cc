@@ -14,6 +14,7 @@
 
 // user include files
 #include "IOMC/RandomEngine/interface/cloneEngine.h"
+#include "IOMC/RandomEngine/interface/PhiloxEngine.h"
 #include "IOMC/RandomEngine/interface/TRandomAdaptor.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -36,6 +37,8 @@ namespace edm {
       newEngine = std::make_unique<CLHEP::MixMaxRng>(seedL);
     } else if (stateL[0] == CLHEP::engineIDulong<TRandomAdaptor>()) {
       newEngine = std::make_unique<TRandomAdaptor>(seedL);
+    } else if (stateL[0] == CLHEP::engineIDulong<PhiloxEngine>()) {
+      newEngine = std::make_unique<PhiloxEngine>(seedL);
     } else {
       // Sanity check, it should not be possible for this to happen.
       throw Exception(errors::Unknown) << "The RandomNumberGeneratorService is trying to clone unknown engine type\n";
