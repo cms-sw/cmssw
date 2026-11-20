@@ -236,6 +236,7 @@ jetDQMAnalyzerAk4ScoutingUncleaned = jetDQMAnalyzerAk4CaloUncleaned.clone(
     #                             
     DCSFilterForJetMonitoring = cms.PSet(
       DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
+      onlineMetaDataDigisSrc = cms.untracked.InputTag("hltOnlineMetaDataDigis"),
       #DebugOn = cms.untracked.bool(True),
       alwaysPass = cms.untracked.bool(False)
     )
