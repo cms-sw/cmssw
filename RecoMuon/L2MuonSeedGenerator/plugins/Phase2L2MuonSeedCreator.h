@@ -95,9 +95,8 @@ private:
   const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeometryToken_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
 
-  // Miminum and maximum pt momentum of a track
-  const double minMomentum_;
-  const double maxMomentum_;
+  // Minimum pT of the L1 tracker muon
+  const double minL1pT_;
 
   // Parameters to match L1 stubs to DT/CSC segments
   const double matchingPhiWindow_;

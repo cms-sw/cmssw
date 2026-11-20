@@ -7,14 +7,16 @@ from DPGAnalysis.MuonTools.common_cff import *
 from PhysicsTools.NanoAOD.l1trig_cff import *
 
 from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.trackingAssocValueMapsProducer_cfi import trackingAssocValueMapsProducer
 
-from Validation.RecoMuon.muonValidationHLT_cff import *
+from Validation.RecoMuon.associators_cff import *
 
 from DPGAnalysis.MuonTools.nano_mu_local_reco_cff import dtSegmentFlatTable as dtSegmentFlatTable_
 
 hltDtSegmentFlatTable = dtSegmentFlatTable_.clone(
     name = "dtSegment",
     src = "hltDt4DSegments",
+    skipNonExistingSrc = cms.bool(True),
     doc = "DT segment information"
 )
 
@@ -23,6 +25,7 @@ from DPGAnalysis.MuonTools.cscSegmentFlatTableProducer_cfi import cscSegmentFlat
 hltCscSegmentFlatTable = cscSegmentFlatTableProducer.clone(
     name = "cscSegment",
     src = "hltCscSegments",
+    skipNonExistingSrc = cms.bool(True),
     doc = "CSC segment information",
     variables = cms.PSet(
         degreesOfFreedom = Var("degreesOfFreedom()", int, doc = "Degrees of freedom of the 4D CSC segment"),
@@ -78,7 +81,13 @@ from DPGAnalysis.MuonTools.nano_mu_local_reco_cff import rpcRecHitFlatTable as r
 hltRpcRecHitFlatTable = rpcRecHitFlatTable_.clone(
     name = "rpcRecHit",
     src = "hltRpcRecHits",
-    doc = "RPC rec-hit information"
+    skipNonExistingSrc = cms.bool(True),
+    doc = "RPC rec-hit information",
+    # Global position of the hits, which the muon high-purity track selection uses
+    globalPosVariables = cms.PSet(
+        g_eta = GlobGeomVar("eta()", doc = "hit position eta in global coordinates"),
+        g_phi = GlobGeomVar("phi().value()", doc = "hit position phi in global coordinates - radians [-pi:pi]"),
+    )
 )
 
 from DPGAnalysis.MuonTools.nano_mu_local_reco_cff import gemRecHitFlatTable as gemRecHitFlatTable_
@@ -86,6 +95,7 @@ from DPGAnalysis.MuonTools.nano_mu_local_reco_cff import gemRecHitFlatTable as g
 hltGemRecHitFlatTable = gemRecHitFlatTable_.clone(
     name = "gemRecHit",
     src = "hltGemRecHits",
+    skipNonExistingSrc = cms.bool(True),
     doc = "GEM rec-hit information"
 )
 
@@ -94,6 +104,7 @@ from DPGAnalysis.MuonTools.nano_mu_local_reco_cff import gemSegmentFlatTable as 
 hltGemSegmentFlatTable = gemSegmentFlatTable_.clone(
     name = "gemSegment",
     src = "hltGemSegments",
+    skipNonExistingSrc = cms.bool(True),
     doc = "GEM segment information"
 )
 
@@ -109,6 +120,7 @@ hltLocalRecoMuon_seq = cms.Sequence(
 l1TkMuTable = cms.EDProducer(
     "SimpleTriggerL1TkMuonFlatTableProducer",
     src = cms.InputTag("l1tTkMuonsGmt"),
+    skipNonExistingSrc = cms.bool(True),
     cut = cms.string(""),
     name = cms.string("L1TkMu"),
     doc = cms.string(""),
@@ -122,10 +134,18 @@ l1TkMuTable = cms.EDProducer(
     )
 )
 
+# Stubs of the L1 tracker muons
+l1TkMuStubTable = cms.EDProducer(
+    "L1TkMuStubFlatTableProducer",
+    src = cms.InputTag("l1tTkMuonsGmt"),
+    name = cms.string("L1TkMuStub")
+)
+
 # L2 offline seeds
 l2SeedTable = cms.EDProducer(
     "SimpleTrajectorySeedFlatTableProducer",
     src = cms.InputTag("hltL2OfflineMuonSeeds"),
+    skipNonExistingSrc = cms.bool(True),
     cut = cms.string(""),
     name = cms.string("l2_seed_offline"),
     doc = cms.string(""),
@@ -150,6 +170,7 @@ l2SeedTable = cms.EDProducer(
 l2SeedFromL1TkMuonTable = cms.EDProducer(
     "SimpleL2MuonTrajectorySeedFlatTableProducer",
     src = cms.InputTag("hltL2MuonSeedsFromL1TkMuon"),
+    skipNonExistingSrc = cms.bool(True),
     cut = cms.string(""),
     name = cms.string("phase2_l2_seed"),
     doc = cms.string(""),
@@ -195,6 +216,35 @@ l2MuTable = cms.EDProducer(
     )
 )
 
+l2MuTableTraining = l2MuTable.clone(
+    variables = cms.PSet(
+        p = Var("p()", "float", doc = "p (GeV)"),
+        qoverp = Var("qoverp()", "float", doc = "q/p"),
+        pt = Var("pt()", "float", doc = "p_T (GeV)"),
+        eta = Var("eta()", "float", doc = "#eta"),
+        phi = Var("phi()", "float", doc = "#phi (rad)"),
+        dsz = Var("dsz()", "float", doc = "dsz (cm)"),
+        dxy = Var("dxy()", "float", doc = "dxy (cm)"),
+        dz = Var("dz()", "float", doc = "dz (cm)"),
+        qoverpErr = Var("qoverpError()", "float", doc = ""),
+        ptErr = Var("ptError()", "float", doc = ""),
+        lambdaErr = Var("lambdaError()", "float", doc = ""),
+        dszErr = Var("dszError()", "float", doc = ""),
+        etaErr = Var("etaError()", "float", doc = ""),
+        phiErr = Var("phiError()", "float", doc = ""),
+        dxyErr = Var("dxyError()", "float", doc = ""),
+        dzErr = Var("dzError()", "float", doc = ""),
+        chi2 = Var("chi2()", "float", doc = ""),
+        ndof = Var("ndof()", "int16", doc = ""),
+        normalizedChi2 = Var("normalizedChi2()", "float", doc = ""),
+        nLostHits = Var("lost()", "int16", doc = ""),
+        nFoundHits = Var("found()", "int16", doc = ""),
+        nPixelHits = Var("hitPattern().numberOfValidPixelHits()", "int16", doc = ""),
+        nTrkLays = Var("hitPattern().trackerLayersWithMeasurement()", "int16", doc = ""),
+        nMuHits = Var("hitPattern().numberOfValidMuonHits()", "int16", doc = ""),
+    )
+)
+
 # L2 standalone muons updated at vertex
 l2MuTableVtx = l2MuTable.clone(
     src = cms.InputTag("hltL2MuonsFromL1TkMuon:UpdatedAtVtx"),
@@ -202,11 +252,100 @@ l2MuTableVtx = l2MuTable.clone(
     doc = cms.string("Standalone Muon tracks updated at vertex")
 )
 
+l2MuTableVtxTraining = l2MuTableTraining.clone(
+    src = cms.InputTag("hltL2MuonsFromL1TkMuon:UpdatedAtVtx"),
+    name = cms.string("l2_mu_vtx"),
+    doc = cms.string("Standalone Muon tracks updated at vertex"),
+)
+
+# Muon pixel tracks, with MC truth information
+muonPixelTracksV = trackingAssocValueMapsProducer.clone(
+    trackCollection =  cms.InputTag("hltPhase2MuonPixelTracks"),
+    associator = cms.InputTag("Phase2tpToMuonPixelTracksAssociation"),
+    trackingParticles = cms.InputTag("mix", "MergedTrackTruth"),
+    storeTPKinematics = cms.bool(True),
+    useMuonAssociators = cms.bool(True)
+)
+muonPixelTracksTableTraining = l2MuTableTraining.clone(
+    src = cms.InputTag("hltPhase2MuonPixelTracks"),
+    name = cms.string("muon_pixel_tracks"),
+    doc = cms.string("L3 Muon Pixel Tracks"),
+    externalVariables = cms.PSet(
+        matched   = cms.PSet(src = cms.InputTag("muonPixelTracksV","matched"),
+                             doc = cms.string("1 if matched to a TrackingParticle"),
+                             type = cms.string("uint8")),
+        duplicate = cms.PSet(src = cms.InputTag("muonPixelTracksV","duplicate"),
+                             doc = cms.string("1 if multiple reco tracks map to same TP"),
+                             type = cms.string("uint8")),
+        tpPdgId  = cms.PSet(src = cms.InputTag("muonPixelTracksV","tpPdgId"),
+                             doc = cms.string("pdgId of matched TrackingParticle"),
+                             type = cms.string("int16")),
+        tpCharge = cms.PSet(src = cms.InputTag("muonPixelTracksV","tpCharge"),
+                             doc = cms.string("charge of matched TrackingParticle"),
+                             type = cms.string("int16")),
+        tpPt     = cms.PSet(src = cms.InputTag("muonPixelTracksV","tpPt"),
+                             doc = cms.string("pt of matched TrackingParticle"),
+                             type = cms.string("float")),
+        tpEta    = cms.PSet(src = cms.InputTag("muonPixelTracksV","tpEta"),
+                             doc = cms.string("eta of matched TrackingParticle"),
+                             type = cms.string("float")),
+        tpPhi    = cms.PSet(src = cms.InputTag("muonPixelTracksV","tpPhi"),
+                             doc = cms.string("phi of matched TrackingParticle"),
+                             type = cms.string("float"))
+    )
+)
+
+# Muon inside-out tracks of the LST-seeded chain, with MC truth information
+muonGeneralTracksV = trackingAssocValueMapsProducer.clone(
+    trackCollection =  cms.InputTag("hltPhase2MuonIOTracks"),
+    associator = cms.InputTag("Phase2tpToL3IOTkNoHPAssociation"),
+    trackingParticles = cms.InputTag("mix", "MergedTrackTruth"),
+    storeTPKinematics = cms.bool(True),
+    useMuonAssociators = cms.bool(True)
+)
+muonGeneralTracksTableTraining = l2MuTableTraining.clone(
+    src = cms.InputTag("hltPhase2MuonIOTracks"),
+    name = cms.string("muon_general_tracks"),
+    doc = cms.string("L3 Muon General Tracks"),
+    externalVariables = cms.PSet(
+        matched   = cms.PSet(src = cms.InputTag("muonGeneralTracksV","matched"),
+                             doc = cms.string("1 if matched to a TrackingParticle"),
+                             type = cms.string("uint8")),
+        duplicate = cms.PSet(src = cms.InputTag("muonGeneralTracksV","duplicate"),
+                             doc = cms.string("1 if multiple reco tracks map to same TP"),
+                             type = cms.string("uint8")),
+        tpPdgId  = cms.PSet(src = cms.InputTag("muonGeneralTracksV","tpPdgId"),
+                             doc = cms.string("pdgId of matched TrackingParticle"),
+                             type = cms.string("int16")),
+        tpCharge = cms.PSet(src = cms.InputTag("muonGeneralTracksV","tpCharge"),
+                             doc = cms.string("charge of matched TrackingParticle"),
+                             type = cms.string("int16")),
+        tpPt     = cms.PSet(src = cms.InputTag("muonGeneralTracksV","tpPt"),
+                             doc = cms.string("pt of matched TrackingParticle"),
+                             type = cms.string("float")),
+        tpEta    = cms.PSet(src = cms.InputTag("muonGeneralTracksV","tpEta"),
+                             doc = cms.string("eta of matched TrackingParticle"),
+                             type = cms.string("float")),
+        tpPhi    = cms.PSet(src = cms.InputTag("muonGeneralTracksV","tpPhi"),
+                             doc = cms.string("phi of matched TrackingParticle"),
+                             type = cms.string("float"))
+    )
+)
+
 # L3 IO inner tracks
 l3TkIOTable = l2MuTable.clone(
     src = cms.InputTag("hltIter2Phase2L3FromL1TkMuonMerged"),
     name = cms.string("l3_tk_IO"),
     doc = cms.string("L3 Tracker Muon tracks Inside-Out")
+)
+from Configuration.ProcessModifiers.phase2MuonPixelTracksSelector_cff import phase2MuonPixelTracksSelector
+from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
+(phase2MuonPixelTracksSelector | ngtScouting).toModify(l3TkIOTable,
+    src = cms.InputTag("hltPhase2MuonIOTracks")
+)
+from Configuration.ProcessModifiers.phase2MuonSeedsSelector_cff import phase2MuonSeedsSelector
+phase2MuonSeedsSelector.toModify(l3TkIOTable,
+    src = cms.InputTag("hltPhase2MuonIOTrackSelectionHighPurityForest")
 )
 
 # L3 OI inner tracks
@@ -251,6 +390,13 @@ l2MuToReuseTable = l2MuTable.clone(
     doc = cms.string("Standlone Muon tracks to reuse (not matched with L3 Tracker Muon)")
 )
 
+# L2 muons to reuse (Inside-Out first), with more variables for the training
+l2MuToReuseTableTraining = l2MuTableTraining.clone(
+    src = cms.InputTag("hltPhase2L3MuonFilter:L2MuToReuse"),
+    name = cms.string("l2_mu_to_reuse"),
+    doc = cms.string("Standlone Muon tracks to reuse (not matched with L3 Tracker Muon)"),
+)
+
 # L3 IO tracks filtered (IO first)
 l3TkIOFilteredTable = l2MuTable.clone(
     src = cms.InputTag("hltPhase2L3MuonFilter:L3IOTracksFiltered"),
@@ -274,7 +420,8 @@ l3TkOIFilteredTable = l2MuTable.clone(
 
 # Default Phase 2 HLT muon ntuples producers sequence (Inside-Out first)
 hltMuonTriggerProducers = cms.Sequence(
-    recoMuonValidationHLT_seq
+    cms.SequencePlaceholder("TPmu")
+    + muonAssociationHLT_seq
     + hltLocalRecoMuon_seq
     + l1TkMuTable
     + l2SeedFromL1TkMuonTable
@@ -292,7 +439,8 @@ hltMuonTriggerProducers = cms.Sequence(
 
 # Phase 2 HLT muon ntuples producers sequence (Outside-In first)
 _hltMuonTriggerProducersOIFirst = cms.Sequence(
-    recoMuonValidationHLT_seq
+    cms.SequencePlaceholder("TPmu")
+    + muonAssociationHLT_seq
     + hltLocalRecoMuon_seq
     + l1TkMuTable
     + l2SeedFromL1TkMuonTable
@@ -306,6 +454,30 @@ _hltMuonTriggerProducersOIFirst = cms.Sequence(
     + l3GlbMuTable
     + l3MuTkNoIdTable
     + l3MuTkIdTable
+)
+
+hltMuonTriggerProducersForTrainingPixel = cms.Sequence(
+    cms.SequencePlaceholder("TPmu")
+    + Phase2tpToMuonPixelTracksAssociation
+    + hltLocalRecoMuon_seq
+    + l1TkMuTable
+    + l1TkMuStubTable
+    + l2MuTableVtxTraining
+    + muonPixelTracksV
+    + muonPixelTracksTableTraining
+    + l2MuToReuseTableTraining
+)
+
+hltMuonTriggerProducersForTrainingSeeds = cms.Sequence(
+    cms.SequencePlaceholder("TPmu")
+    + Phase2tpToL3IOTkNoHPAssociation
+    + hltLocalRecoMuon_seq
+    + l1TkMuTable
+    + l1TkMuStubTable
+    + l2MuTableVtxTraining
+    + muonGeneralTracksV
+    + muonGeneralTracksTableTraining
+    + l2MuToReuseTableTraining
 )
 
 from Configuration.ProcessModifiers.phase2L3MuonsOIFirst_cff import phase2L3MuonsOIFirst
