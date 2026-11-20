@@ -106,7 +106,8 @@ HGCalAreaTester::HGCalAreaTester(const edm::ParameterSet &iC)
     edm::LogVerbatim("HGCalGeom") << "Reads " << detIds_.size() << " ID's from " << fileName_;
   }
   if (detIds_.empty()) {
-    edm::LogVerbatim("HGCalGeom") << "List of DetIds not provided == will test all valid ids for " << dets_ << " skipping " << nskip_ << " entries";
+    edm::LogVerbatim("HGCalGeom") << "List of DetIds not provided == will test all valid ids for " << dets_
+                                  << " skipping " << nskip_ << " entries";
   }
 }
 
@@ -132,12 +133,13 @@ void HGCalAreaTester::beginRun(edm::Run const &iRun, edm::EventSetup const &iSet
       detIds = geom->getValidDetIds(dets_);
     } else {
       for (auto const &id : detIds_) {
-	if (id.det() == dets_)
-	  detIds.emplace_back(id);
+        if (id.det() == dets_)
+          detIds.emplace_back(id);
       }
       nskip = 1;
     }
-    edm::LogVerbatim("HGCalGeom") << "Gets " << detIds.size() << " valid ID's for detector " << dets_ << " examining every " << nskip << " events";
+    edm::LogVerbatim("HGCalGeom") << "Gets " << detIds.size() << " valid ID's for detector " << dets_
+                                  << " examining every " << nskip << " events";
     for (unsigned int k = 0; k < detIds.size(); k += nskip) {
       if (geom->validDetId(detIds_[k])) {
         std::ostringstream st1;
