@@ -29,6 +29,7 @@ V00-03-25
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
+#include <memory>
 #include <numeric>
 #include <cmath>
 #include <memory>
@@ -959,7 +960,7 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
     sprintf(tmpTitle, "%s %i %s %i", "Fitted Primary Vertex (cm) of LS: ", beginLumiOfPVFit_, " to ", endLumiOfPVFit_);
     pvResults->setAxisTitle(tmpTitle, 1);
 
-    std::unique_ptr<TF1> fgaus{new TF1("fgaus", "gaus")};
+    std::unique_ptr<TF1> fgaus = std::make_unique<TF1>("fgaus", "gaus");
     double mean, width, meanErr, widthErr;
     fgaus->SetLineColor(4);
     h_PVx[0]->getTH1()->Fit(fgaus.get(), "QLM0");
@@ -1294,7 +1295,7 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
   if (nthBSTrk_ >= 2 * min_Ntrks_) {
     double amp = std::sqrt(bs.x0() * bs.x0() + bs.y0() * bs.y0());
     double alpha = std::atan2(bs.y0(), bs.x0());
-    std::unique_ptr<TF1> f1{new TF1("f1", "[0]*sin(x-[1])", -3.14, 3.14)};
+    std::unique_ptr<TF1> f1 = std::make_unique<TF1>("f1", "[0]*sin(x-[1])", -3.14, 3.14);
     f1->SetParameters(amp, alpha);
     f1->SetParLimits(0, amp - 0.1, amp + 0.1);
     f1->SetParLimits(1, alpha - 0.577, alpha + 0.577);
@@ -1303,7 +1304,7 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
 
     double mean = bs.z0();
     double width = bs.sigmaZ();
-    std::unique_ptr<TF1> fgaus{new TF1("fgaus", "gaus")};
+    std::unique_ptr<TF1> fgaus = std::make_unique<TF1>("fgaus", "gaus");
     fgaus->SetParameters(mean, width);
     fgaus->SetLineColor(4);
     h_trk_z0->getTH1()->Fit(fgaus.get(), "QLRM", "", mean - 3 * width, mean + 3 * width);
