@@ -1010,6 +1010,7 @@ void LSTEvent::createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets)
                       trackCandidatesBaseDC_->view(),
                       trackCandidatesExtendedDC_->view(),
                       lstInputDC_->const_view().pixelSeeds(),
+                      pixelSegmentsDC_->view(),
                       rangesDC_->const_view(),
                       nTotal);
 
@@ -1629,9 +1630,9 @@ void LSTEvent::createPixelQuintuplets() {
                       miniDoubletsDC_->const_view().miniDoublets(),
                       segmentsDC_->const_view().segments(),
                       lstInputDC_->const_view().pixelSeeds(),
-                      pixelSegmentsDC_->view(),
-                      tripletsDC_->view().triplets(),
-                      quintupletsDC_->view().quintuplets(),
+                      pixelSegmentsDC_->const_view(),
+                      tripletsDC_->const_view().triplets(),
+                      quintupletsDC_->const_view().quintuplets(),
                       quintupletsDC_->const_view().quintupletsOccupancy(),
                       pixelQuintupletsDC_->view(),
                       connectedPixelSize_dev_buf.data(),
@@ -1650,6 +1651,17 @@ void LSTEvent::createPixelQuintuplets() {
                       segmentsDC_->const_view().segments(),
                       quintupletsDC_->const_view().quintuplets(),
                       pixelQuintupletsDC_->view());
+
+  auto const resetPartOfPT5_workDiv = cms::alpakatools::make_workdiv<Acc1D>(max_blocks, 256);
+  alpaka::exec<Acc1D>(queue_,
+                      resetPartOfPT5_workDiv,
+                      ResetPartOfPT5{},
+                      nLowerModules_,
+                      pixelQuintupletsDC_->const_view(),
+                      quintupletsDC_->view().quintuplets(),
+                      tripletsDC_->view().triplets(),
+                      pixelSegmentsDC_->view(),
+                      rangesDC_->const_view());
 
 #ifdef WARNINGS
   auto nPixelQuintuplets_buf = cms::alpakatools::make_host_buffer<unsigned int>(queue_);

@@ -760,6 +760,29 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   };
 
+  // Sets partOfPT5 on the T5, T3s and pLS of each pT5 that survives RemoveDupPixelQuintupletsFromMap.
+  struct ResetPartOfPT5 {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  uint16_t nLowerModules,
+                                  PixelQuintupletsConst pixelQuintuplets,
+                                  Quintuplets quintuplets,
+                                  Triplets triplets,
+                                  PixelSegments pixelSegments,
+                                  ObjectRangesConst ranges) const {
+      unsigned int pLS_offset = ranges.segmentModuleIndices()[nLowerModules];
+      unsigned int nPixelQuintuplets = pixelQuintuplets.nPixelQuintuplets();
+      for (unsigned int i : cms::alpakatools::uniform_elements(acc, nPixelQuintuplets)) {
+        if (pixelQuintuplets.isDup()[i])
+          continue;
+        unsigned int t5 = pixelQuintuplets.quintupletIndices()[i];
+        quintuplets.partOfPT5()[t5] = true;
+        triplets.partOfPT5()[quintuplets.tripletIndices()[t5][0]] = true;
+        triplets.partOfPT5()[quintuplets.tripletIndices()[t5][1]] = true;
+        pixelSegments.partOfPT5()[pixelQuintuplets.pixelSegmentIndices()[i] - pLS_offset] = true;
+      }
+    }
+  };
+
   struct CheckHitspLS {
     ALPAKA_FN_ACC void operator()(Acc2D const& acc,
                                   ModulesConst modules,
