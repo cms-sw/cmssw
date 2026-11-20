@@ -261,15 +261,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   reco::PFMultiDepthClusteringCCLabelsDeviceCollection::View mdpfClusteringCCLabels,
                                   const reco::PFMultiDepthClusteringVarsDeviceCollection::ConstView mdpfClusteringVars,
-                                  const PFMultiDepthClusterParams* nSigma) const {
+                                  const double nSigmaEtaSq,
+                                  const double nSigmaPhiSq) const {
       constexpr unsigned int w_extent = get_warp_size<Acc1D>();
 
       const unsigned int nClusters = mdpfClusteringVars.size();
 
       const unsigned int gridDim = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0u];
-
-      const double nSigmaEta = nSigma->nSigmaEta;
-      const double nSigmaPhi = nSigma->nSigmaPhi;
 
       if (::cms::alpakatools::once_per_grid(acc)) {
         mdpfClusteringCCLabels.size() = nClusters;
@@ -386,7 +384,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
             const auto dphi = is_valid_lane ? tmp2 * tmp2 / (src_cl_params.phiRMS2() + dst_phiRMS2) : 0;
 
-            const bool pred = is_valid_lane && (deta < nSigmaEta && dphi < nSigmaPhi);
+            const bool pred = is_valid_lane && (deta < nSigmaEtaSq && dphi < nSigmaPhiSq);
 
             warp::warp_mask_t next_leftover_lanes_mask = warp::ballot_mask(acc,
                                                                            updated_active_lanes_mask,
