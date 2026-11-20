@@ -389,7 +389,7 @@ void EcalPedOffset::writeXMLFiles(std::string fileName) {
   for (std::map<int, TPedResult *>::const_iterator smRes = m_pedResult.begin(); smRes != m_pedResult.end(); ++smRes) {
     std::string thisSMFileName = fileName;
     // open the output stream
-    thisSMFileName += "_";
+    thisSMFileName += '_';
     thisSMFileName += intToString(smRes->first);
     thisSMFileName += ".xml";
     std::ofstream xml_outfile;

@@ -148,7 +148,7 @@ namespace cond {
     }
 
     std::iostream& Logger::log(const std::string& tag) {
-      if (std::size(m_log.str()) != 0)
+      if (!m_log.str().empty())
         m_log << std::endl;
       m_log << "[" << get_timestamp() << "] " << tag << ": ";
       return m_log;

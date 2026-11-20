@@ -159,7 +159,7 @@ std::string PixelLowVoltageMap::dpNameIdigi(const PixelModuleName &module) const
 void PixelLowVoltageMap::writeASCII(std::string dir) const {
   std::string mthn = "[PixelLowVoltageMap::writeASCII()]\t\t\t    ";
   if (!dir.empty())
-    dir += "/";
+    dir += '/';
   std::string filename = dir + "lowvoltagemap.dat";
 
   std::ofstream out(filename.c_str(), std::ios_base::out);

@@ -71,16 +71,16 @@ DTTMax::DTTMax(const vector<DTRecHit1D>& hits,
   int nGoodHits = 0;
   for (vector<InfoLayer*>::const_iterator ilay = theInfoLayers.begin(); ilay != theInfoLayers.end(); ++ilay) {
     if ((*ilay) == nullptr) {
-      theSegType += "X";
+      theSegType += 'X';
       continue;
     }
     DTEnums::DTCellSide lOrR = (*ilay)->lr;
     if (lOrR == Left)
-      theSegType += "L";
+      theSegType += 'L';
     else if (lOrR == Right)
-      theSegType += "R";
+      theSegType += 'R';
     else
-      theSegType += "X";
+      theSegType += 'X';
 
     // layersIn : 6 =  layers 1,2,3
     //            7 =         1,2,4

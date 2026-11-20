@@ -18,6 +18,8 @@
 //
 
 // framework include files
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -127,7 +129,7 @@ void EopTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   const CaloGeometry* geo = &iSetup.getData(geometryToken_);
 
   // temporary collection of EB+EE recHits
-  std::unique_ptr<EcalRecHitCollection> tmpEcalRecHitCollection(new EcalRecHitCollection);
+  std::unique_ptr<EcalRecHitCollection> tmpEcalRecHitCollection = std::make_unique<EcalRecHitCollection>();
   bool ecalInAlca = iEvent.getHandle(ecalRecHitTokenAlCaToken_).isValid();
   bool ecalInReco =
       iEvent.getHandle(ecalRecHitTokenEBRecoToken_) && iEvent.getHandle(ecalRecHitTokenEERecoToken_).isValid();

@@ -68,7 +68,7 @@ void RPCDCCLinkMapHandler::getNewObjects() {
   int dcc(0), dcc_input(0), tb_input(0);
   std::string lb_name("");
 
-  std::unique_ptr<RPCDCCLinkMap> dcc_link_map_object(new RPCDCCLinkMap());
+  std::unique_ptr<RPCDCCLinkMap> dcc_link_map_object = std::make_unique<RPCDCCLinkMap>();
   RPCDCCLinkMap::map_type& dcc_link_map = dcc_link_map_object->getMap();
   RPCLBLink lb_link;
 
