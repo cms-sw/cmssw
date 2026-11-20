@@ -65,11 +65,11 @@ pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet& iConfig)
       dropSaturation_(iConfig.getParameter<std::string>("dropSaturation")),
       dropExtrapolations_(iConfig.getParameter<std::string>("dropExtrapolations")),
       dropClassifications_(iConfig.getParameter<std::string>("dropClassifications")),
-      reco2pf_(mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(
+      reco2pf_(consumes<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(
           iConfig.getParameter<edm::InputTag>("recoToPFMap"))),
-      pf2pc_(mayConsume<edm::Association<pat::PackedCandidateCollection>>(
+      pf2pc_(consumes<edm::Association<pat::PackedCandidateCollection>>(
           iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
-      pc_(mayConsume<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
+      pc_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
       linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates")),
       saveNonZSClusterShapes_(iConfig.getParameter<std::string>("saveNonZSClusterShapes")),
       reducedBarrelRecHitCollectionToken_(
@@ -83,8 +83,8 @@ pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet& iConfig)
     electronModifier_ = std::make_unique<pat::ObjectModifier<pat::Electron>>(mod_config, consumesCollector());
   }
 
-  mayConsume<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));
-  mayConsume<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"));
+  consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));
+  consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"));
 
   produces<std::vector<pat::Electron>>();
 }

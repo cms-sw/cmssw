@@ -33,7 +33,7 @@ EfficiencyAnalyzer::EfficiencyAnalyzer(const edm::ParameterSet& pSet) {
   theMuonCollectionLabel_ = consumes<edm::View<reco::Muon> >(parameters.getParameter<edm::InputTag>("MuonCollection"));
   theTrackCollectionLabel_ = consumes<reco::TrackCollection>(parameters.getParameter<edm::InputTag>("TrackCollection"));
   theVertexLabel_ = consumes<reco::VertexCollection>(parameters.getParameter<edm::InputTag>("VertexLabel"));
-  theBeamSpotLabel_ = mayConsume<reco::BeamSpot>(parameters.getParameter<edm::InputTag>("BeamSpotLabel"));
+  theBeamSpotLabel_ = consumes<reco::BeamSpot>(parameters.getParameter<edm::InputTag>("BeamSpotLabel"));
 
   //Vertex requirements
   doPVCheck_ = parameters.getParameter<bool>("doPrimaryVertexCheck");

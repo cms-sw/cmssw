@@ -61,7 +61,7 @@ MiniAODTagInfoAnalyzer::MiniAODTagInfoAnalyzer(const edm::ParameterSet& pSet)
       absEtaMax_(pSet.getParameter<double>("absEtaMax")),
       jetPartonFlavour_(pSet.getParameter<int>("jetPartonFlavour")) {
   tagInfoTokens_ = edm::vector_transform(jetTagInfos_, [this](std::string const& jetTagInfoStr) {
-    return mayConsume<edm::View<reco::BaseTagInfo>>(edm::InputTag(jetTagInfoStr));
+    return consumes<edm::View<reco::BaseTagInfo>>(edm::InputTag(jetTagInfoStr));
   });
 
   partonFlavourLabel_ = "Inc";

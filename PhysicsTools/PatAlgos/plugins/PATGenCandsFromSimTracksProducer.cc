@@ -127,8 +127,8 @@ PATGenCandsFromSimTracksProducer::PATGenCandsFromSimTracksProducer(const Paramet
       filter_(cfg.existsAs<string>("filter") ? cfg.getParameter<string>("filter") : std::string("1 == 1")),
       makeMotherLink_(cfg.existsAs<bool>("makeMotherLink") ? cfg.getParameter<bool>("makeMotherLink") : false),
       writeAncestors_(cfg.existsAs<bool>("writeAncestors") ? cfg.getParameter<bool>("writeAncestors") : false),
-      genParticlesToken_(mayConsume<GenParticleCollection>(cfg.getParameter<InputTag>("genParticles"))),
-      genBarcodesToken_(mayConsume<std::vector<int> >(cfg.getParameter<InputTag>("genParticles"))),
+      genParticlesToken_(consumes<GenParticleCollection>(cfg.getParameter<InputTag>("genParticles"))),
+      genBarcodesToken_(consumes<std::vector<int> >(cfg.getParameter<InputTag>("genParticles"))),
       tableToken_(esConsumes()) {
   // Possibly allow a list of particle types
   if (cfg.exists("particleTypes")) {

@@ -27,7 +27,7 @@ namespace edm {
   public:
     explicit FwdPtrCollectionFilter(edm::ParameterSet const& ps)
         : srcToken_{consumes<std::vector<edm::FwdPtr<T>>>(ps.getParameter<edm::InputTag>("src"))},
-          srcViewToken_{mayConsume<edm::View<T>>(ps.getParameter<edm::InputTag>("src"))},
+          srcViewToken_{consumes<edm::View<T>>(ps.getParameter<edm::InputTag>("src"))},
           filter_{ps.exists("filter") ? ps.getParameter<bool>("filter") : false},
           makeClones_{ps.exists("makeClones") ? ps.getParameter<bool>("makeClones") : false},
           selector_{ps} {

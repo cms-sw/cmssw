@@ -19,9 +19,9 @@ PrescaleWeightProvider::PrescaleWeightProvider(const edm::ParameterSet& config, 
     : init_(false),
       verbosity_(0),
       triggerResultsTag_("TriggerResults::HLT"),
-      triggerResultsToken_(iC.mayConsume<edm::TriggerResults>(triggerResultsTag_)),
+      triggerResultsToken_(iC.consumes<edm::TriggerResults>(triggerResultsTag_)),
       l1GtTriggerMenuLiteTag_("l1GtTriggerMenuLite"),
-      l1GtTriggerMenuLiteToken_(iC.mayConsume<L1GtTriggerMenuLite, edm::InRun>(l1GtTriggerMenuLiteTag_)) {
+      l1GtTriggerMenuLiteToken_(iC.consumes<L1GtTriggerMenuLite, edm::InRun>(l1GtTriggerMenuLiteTag_)) {
   hltPaths_.clear();
   if (config.exists("prescaleWeightVerbosityLevel"))
     verbosity_ = config.getParameter<unsigned>("prescaleWeightVerbosityLevel");
@@ -51,8 +51,8 @@ PrescaleWeightProvider::PrescaleWeightProvider(const edm::ParameterSet& config, 
       edm::LogError("PrescaleWeightProvider") << "HLT paths of interest not configured";
   }
   if (configured_) {
-    triggerResultsToken_ = iC.mayConsume<edm::TriggerResults>(triggerResultsTag_);
-    l1GtTriggerMenuLiteToken_ = iC.mayConsume<L1GtTriggerMenuLite, edm::InRun>(l1GtTriggerMenuLiteTag_);
+    triggerResultsToken_ = iC.consumes<edm::TriggerResults>(triggerResultsTag_);
+    l1GtTriggerMenuLiteToken_ = iC.consumes<L1GtTriggerMenuLite, edm::InRun>(l1GtTriggerMenuLiteTag_);
   }
 }
 

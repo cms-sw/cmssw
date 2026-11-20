@@ -31,7 +31,7 @@ using namespace std;
 
 PyquenAnalyzer::PyquenAnalyzer(const ParameterSet& pset) : phdNdEta(0), phdNdY(0), phdNdPt(0), phdNdPhi(0) {
   // constructor
-  srcT_ = mayConsume<HepMCProduct>(edm::InputTag("generator", "unsmeared"));
+  srcT_ = consumes<HepMCProduct>(edm::InputTag("generator", "unsmeared"));
 }
 
 //_______________________________________________________________________

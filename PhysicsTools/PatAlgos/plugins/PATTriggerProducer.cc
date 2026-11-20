@@ -221,7 +221,7 @@ PATTriggerProducer::PATTriggerProducer(const ParameterSet& iConfig)
     addL1Algos_ = iConfig.getParameter<bool>("addL1Algos");
   if (iConfig.exists("l1GlobalTriggerObjectMaps"))
     tagL1GlobalTriggerObjectMaps_ = iConfig.getParameter<InputTag>("l1GlobalTriggerObjectMaps");
-  l1GlobalTriggerObjectMapsToken_ = mayConsume<L1GlobalTriggerObjectMaps>(tagL1GlobalTriggerObjectMaps_);
+  l1GlobalTriggerObjectMapsToken_ = consumes<L1GlobalTriggerObjectMaps>(tagL1GlobalTriggerObjectMaps_);
   if (iConfig.exists("l1ExtraMu")) {
     tagL1ExtraMu_ = iConfig.getParameter<InputTag>("l1ExtraMu");
     if (tagL1ExtraMu_.process() == "*") {

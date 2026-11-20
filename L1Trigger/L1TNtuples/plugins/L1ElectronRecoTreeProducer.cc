@@ -78,14 +78,14 @@ private:
 
 L1ElectronRecoTreeProducer::L1ElectronRecoTreeProducer(const edm::ParameterSet& iConfig) : electronsMissing_(false) {
   maxElectron_ = iConfig.getParameter<unsigned int>("maxElectron");
-  //ElectronToken_ = mayConsume<edm::View<reco::GsfElectron> >(iConfig.getUntrackedParameter("ElectronToken",edm::InputTag("gedGsfElectrons")));
+  //ElectronToken_ = consumes<edm::View<reco::GsfElectron> >(iConfig.getUntrackedParameter("ElectronToken",edm::InputTag("gedGsfElectrons")));
   ElectronToken_ = consumes<reco::GsfElectronCollection>(
       iConfig.getUntrackedParameter("ElectronToken", edm::InputTag("gedGsfElectrons")));
 
   /*RhoToken_ = consumes<double>(iConfig.getUntrackedParameter("RhoToken",edm::InputTag("fixedGridRhoFastjetAllCalo")));
-  vtxToken_          = mayConsume<reco::VertexCollection>(iConfig.getUntrackedParameter("vtxToken",edm::InputTag("offlinePrimaryVertices")));
-  conversionsToken_ = mayConsume< reco::ConversionCollection >(iConfig.getUntrackedParameter("conversionsToken",edm::InputTag("conversions")));
-  beamSpotToken_ = mayConsume< reco::BeamSpot>(iConfig.getUntrackedParameter("beamSpotToken",edm::InputTag("offlineBeamSpot")));*/
+  vtxToken_          = consumes<reco::VertexCollection>(iConfig.getUntrackedParameter("vtxToken",edm::InputTag("offlinePrimaryVertices")));
+  conversionsToken_ = consumes< reco::ConversionCollection >(iConfig.getUntrackedParameter("conversionsToken",edm::InputTag("conversions")));
+  beamSpotToken_ = consumes< reco::BeamSpot>(iConfig.getUntrackedParameter("beamSpotToken",edm::InputTag("offlineBeamSpot")));*/
 
   ElectronVetoIdMapToken_ = consumes<edm::ValueMap<bool> >(iConfig.getUntrackedParameter(
       "eleVetoIdMapToken", edm::InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto")));

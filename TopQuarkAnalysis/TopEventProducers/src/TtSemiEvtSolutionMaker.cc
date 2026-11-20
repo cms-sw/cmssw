@@ -65,8 +65,8 @@ private:
 /// constructor
 TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig) {
   // configurables
-  electronSrcToken_ = mayConsume<std::vector<pat::Electron> >(iConfig.getParameter<edm::InputTag>("electronSource"));
-  muonSrcToken_ = mayConsume<std::vector<pat::Muon> >(iConfig.getParameter<edm::InputTag>("muonSource"));
+  electronSrcToken_ = consumes<std::vector<pat::Electron> >(iConfig.getParameter<edm::InputTag>("electronSource"));
+  muonSrcToken_ = consumes<std::vector<pat::Muon> >(iConfig.getParameter<edm::InputTag>("muonSource"));
   metSrcToken_ = consumes<std::vector<pat::MET> >(iConfig.getParameter<edm::InputTag>("metSource"));
   jetSrcToken_ = consumes<std::vector<pat::Jet> >(iConfig.getParameter<edm::InputTag>("jetSource"));
   leptonFlavour_ = iConfig.getParameter<std::string>("leptonFlavour");
@@ -91,7 +91,7 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig)
   useMaxDist_ = iConfig.getParameter<bool>("useMaximalDistance");
   useDeltaR_ = iConfig.getParameter<bool>("useDeltaR");
   maxDist_ = iConfig.getParameter<double>("maximalDistance");
-  genEvtToken_ = mayConsume<TtGenEvent>(edm::InputTag("genEvt"));
+  genEvtToken_ = consumes<TtGenEvent>(edm::InputTag("genEvt"));
 
   // define kinfitter
   if (doKinFit_) {

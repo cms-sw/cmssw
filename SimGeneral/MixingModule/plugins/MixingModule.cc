@@ -171,7 +171,7 @@ namespace edm {
           std::string fallbackLabel;
           branchesActivate(
               TypeID(typeid(HepMCProduct)).friendlyClassName(), std::string(""), fallbackTag, fallbackLabel);
-          mayConsume<HepMCProduct>(fallbackTag);
+          consumes<HepMCProduct>(fallbackTag);
         }
 
       } else if (object == "PCaloHit") {

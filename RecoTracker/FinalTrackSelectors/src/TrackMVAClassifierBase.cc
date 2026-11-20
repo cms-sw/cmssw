@@ -22,7 +22,7 @@ TrackMVAClassifierBase::~TrackMVAClassifierBase() {}
 TrackMVAClassifierBase::TrackMVAClassifierBase(const edm::ParameterSet& cfg)
     : src_(consumes<reco::TrackCollection>(cfg.getParameter<edm::InputTag>("src"))),
       beamspot_(consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamspot"))),
-      vertices_(mayConsume<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"))),
+      vertices_(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"))),
       ignoreVertices_(cfg.getParameter<bool>("ignoreVertices")) {
   auto const& qv = cfg.getParameter<std::vector<double>>("qualityCuts");
   assert(qv.size() == 3);

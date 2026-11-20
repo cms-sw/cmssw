@@ -179,7 +179,7 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet& iConfig)
   addTauJetCorrFactors_ = iConfig.getParameter<bool>("addTauJetCorrFactors");
   tauJetCorrFactorsTokens_ = edm::vector_transform(
       iConfig.getParameter<std::vector<edm::InputTag>>("tauJetCorrFactorsSource"),
-      [this](edm::InputTag const& tag) { return mayConsume<edm::ValueMap<TauJetCorrFactors>>(tag); });
+      [this](edm::InputTag const& tag) { return consumes<edm::ValueMap<TauJetCorrFactors>>(tag); });
   // tau ID configurables
   addTauID_ = iConfig.getParameter<bool>("addTauID");
   if (addTauID_) {
@@ -215,11 +215,11 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet& iConfig)
 
     for (auto const& mapEntry : idContainerMap) {
       tauIDSrcContainers_.push_back(mapEntry.second.second);
-      pfTauIDContainerTokens_.push_back(mayConsume<reco::TauDiscriminatorContainer>(mapEntry.second.first));
+      pfTauIDContainerTokens_.push_back(consumes<reco::TauDiscriminatorContainer>(mapEntry.second.first));
     }
   }
   pfTauIDTokens_ = edm::vector_transform(
-      tauIDSrcs_, [this](NameTag const& tag) { return mayConsume<reco::PFTauDiscriminator>(tag.second); });
+      tauIDSrcs_, [this](NameTag const& tag) { return consumes<reco::PFTauDiscriminator>(tag.second); });
   skipMissingTauID_ = iConfig.getParameter<bool>("skipMissingTauID");
   // IsoDeposit configurables
   if (iConfig.exists("isoDeposits")) {

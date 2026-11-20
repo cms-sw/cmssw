@@ -101,7 +101,7 @@ TagAndProbeBtagTriggerMonitor::TagAndProbeBtagTriggerMonitor(const edm::Paramete
   // New
   jetTagTokens_ =
       edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("btagAlgos"),
-                            [this](edm::InputTag const& tag) { return mayConsume<reco::JetTagCollection>(tag); });
+                            [this](edm::InputTag const& tag) { return consumes<reco::JetTagCollection>(tag); });
 
   genTriggerEventFlag_ = std::make_unique<GenericTriggerEventFlag>(
       iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this);

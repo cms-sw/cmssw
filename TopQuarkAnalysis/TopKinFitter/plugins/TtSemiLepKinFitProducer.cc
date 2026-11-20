@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -93,7 +95,7 @@ TtSemiLepKinFitProducer<LeptonCollection>::TtSemiLepKinFitProducer(const edm::Pa
     : jetsToken_(consumes<std::vector<pat::Jet>>(cfg.getParameter<edm::InputTag>("jets"))),
       lepsToken_(consumes<LeptonCollection>(cfg.getParameter<edm::InputTag>("leps"))),
       metsToken_(consumes<std::vector<pat::MET>>(cfg.getParameter<edm::InputTag>("mets"))),
-      matchToken_(mayConsume<std::vector<std::vector<int>>>(cfg.getParameter<edm::InputTag>("match"))),
+      matchToken_(consumes<std::vector<std::vector<int>>>(cfg.getParameter<edm::InputTag>("match"))),
       useOnlyMatch_(cfg.getParameter<bool>("useOnlyMatch")),
       bTagAlgo_(cfg.getParameter<std::string>("bTagAlgo")),
       minBTagValueBJet_(cfg.getParameter<double>("minBDiscBJets")),
@@ -181,17 +183,17 @@ bool TtSemiLepKinFitProducer<LeptonCollection>::doBTagging(bool& useBTag_,
 
 template <typename LeptonCollection>
 void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const edm::EventSetup& setup) {
-  std::unique_ptr<std::vector<pat::Particle>> pPartonsHadP(new std::vector<pat::Particle>);
-  std::unique_ptr<std::vector<pat::Particle>> pPartonsHadQ(new std::vector<pat::Particle>);
-  std::unique_ptr<std::vector<pat::Particle>> pPartonsHadB(new std::vector<pat::Particle>);
-  std::unique_ptr<std::vector<pat::Particle>> pPartonsLepB(new std::vector<pat::Particle>);
-  std::unique_ptr<std::vector<pat::Particle>> pLeptons(new std::vector<pat::Particle>);
-  std::unique_ptr<std::vector<pat::Particle>> pNeutrinos(new std::vector<pat::Particle>);
+  std::unique_ptr<std::vector<pat::Particle>> pPartonsHadP = std::make_unique<std::vector<pat::Particle>>();
+  std::unique_ptr<std::vector<pat::Particle>> pPartonsHadQ = std::make_unique<std::vector<pat::Particle>>();
+  std::unique_ptr<std::vector<pat::Particle>> pPartonsHadB = std::make_unique<std::vector<pat::Particle>>();
+  std::unique_ptr<std::vector<pat::Particle>> pPartonsLepB = std::make_unique<std::vector<pat::Particle>>();
+  std::unique_ptr<std::vector<pat::Particle>> pLeptons = std::make_unique<std::vector<pat::Particle>>();
+  std::unique_ptr<std::vector<pat::Particle>> pNeutrinos = std::make_unique<std::vector<pat::Particle>>();
 
-  std::unique_ptr<std::vector<std::vector<int>>> pCombi(new std::vector<std::vector<int>>);
-  std::unique_ptr<std::vector<double>> pChi2(new std::vector<double>);
-  std::unique_ptr<std::vector<double>> pProb(new std::vector<double>);
-  std::unique_ptr<std::vector<int>> pStatus(new std::vector<int>);
+  std::unique_ptr<std::vector<std::vector<int>>> pCombi = std::make_unique<std::vector<std::vector<int>>>();
+  std::unique_ptr<std::vector<double>> pChi2 = std::make_unique<std::vector<double>>();
+  std::unique_ptr<std::vector<double>> pProb = std::make_unique<std::vector<double>>();
+  std::unique_ptr<std::vector<int>> pStatus = std::make_unique<std::vector<int>>();
 
   std::unique_ptr<int> pJetsConsidered(new int);
 

@@ -87,7 +87,7 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet& iConfig) : useUserData_(
   metSrc_ = iConfig.getParameter<edm::InputTag>("metSource");
   metToken_ = consumes<edm::View<reco::MET>>(metSrc_);
   addGenMET_ = iConfig.getParameter<bool>("addGenMET");
-  genMETToken_ = mayConsume<edm::View<reco::GenMET>>(iConfig.getParameter<edm::InputTag>("genMETSource"));
+  genMETToken_ = consumes<edm::View<reco::GenMET>>(iConfig.getParameter<edm::InputTag>("genMETSource"));
   addResolutions_ = iConfig.getParameter<bool>("addResolutions");
 
   // Efficiency configurables

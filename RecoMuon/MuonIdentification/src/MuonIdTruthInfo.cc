@@ -9,9 +9,9 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 void MuonIdTruthInfo::registerConsumes(edm::ConsumesCollector& iC) {
-  iC.mayConsume<edm::SimTrackContainer>(edm::InputTag("g4SimHits", ""));
-  iC.mayConsume<edm::PSimHitContainer>(edm::InputTag("g4SimHits", "MuonDTHits"));
-  iC.mayConsume<edm::PSimHitContainer>(edm::InputTag("g4SimHits", "MuonCSCHits"));
+  iC.consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits", ""));
+  iC.consumes<edm::PSimHitContainer>(edm::InputTag("g4SimHits", "MuonDTHits"));
+  iC.consumes<edm::PSimHitContainer>(edm::InputTag("g4SimHits", "MuonCSCHits"));
 }
 
 void MuonIdTruthInfo::truthMatchMuon(const edm::Event& iEvent,

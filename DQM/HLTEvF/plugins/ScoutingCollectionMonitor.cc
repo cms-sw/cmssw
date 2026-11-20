@@ -75,7 +75,7 @@ private:
   void setToken(edm::EDGetTokenT<T>& token, const edm::ParameterSet& iConfig, std::string name) {
     const auto inputTag = iConfig.getParameter<edm::InputTag>(name);
     if (!inputTag.encode().empty()) {
-      token = mayConsume<T>(inputTag);
+      token = consumes<T>(inputTag);
     }
   }
 
