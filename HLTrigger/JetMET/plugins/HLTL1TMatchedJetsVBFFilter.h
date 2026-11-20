@@ -13,6 +13,7 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "HLTrigger/HLTcore/interface/getL1TCandidates.h"
 
 #include <vector>
 #include <utility>
@@ -257,9 +258,8 @@ bool HLTL1TMatchedJetsVBFFilter<T>::hltFilter(edm::Event& iEvent,
   std::vector<unsigned int> jetIndices;
 
   if (matchJetsByDeltaR_) {
-    // refs to L1T jets used for delta-R matching
-    l1t::JetVectorRef l1tJetRefs;
-    iEvent.get(l1tJetRefsToken_).getObjects(trigger::TriggerL1Jet, l1tJetRefs);
+    // L1T jets used for delta-R matching (Run-3 l1t::Jet or Phase-2 l1t::P2GTCandidate)
+    auto const l1tJets = hlt::getL1TJets(iEvent.get(l1tJetRefsToken_));
 
     jetIndices.reserve(jetsHandle->size());
     for (unsigned int iJet = 0; iJet < jetsHandle->size(); ++iJet) {
@@ -268,13 +268,12 @@ bool HLTL1TMatchedJetsVBFFilter<T>::hltFilter(edm::Event& iEvent,
       if (jet.pt() <= minPt2_)
         continue;
 
-      for (unsigned int l1tJetIdx = 0; l1tJetIdx < l1tJetRefs.size(); ++l1tJetIdx) {
-        if (reco::deltaR2(jet.p4(), l1tJetRefs[l1tJetIdx]->p4()) < maxJetDeltaR2_) {
+      for (auto const* l1tJet : l1tJets) {
+        if (reco::deltaR2(jet.p4(), l1tJet->p4()) < maxJetDeltaR2_) {
           logTrace() << "input jet: index=" << iJet << " pt=" << jet.pt() << " eta=" << jet.eta()
                      << " phi=" << jet.phi() << " mass=" << jet.mass()
-                     << " (matched to L1T jet with pt=" << l1tJetRefs[l1tJetIdx]->pt()
-                     << " eta=" << l1tJetRefs[l1tJetIdx]->eta() << " phi=" << l1tJetRefs[l1tJetIdx]->phi()
-                     << " mass=" << l1tJetRefs[l1tJetIdx]->mass() << ")";
+                     << " (matched to L1T jet with pt=" << l1tJet->pt() << " eta=" << l1tJet->eta()
+                     << " phi=" << l1tJet->phi() << " mass=" << l1tJet->mass() << ")";
 
           jetIndices.emplace_back(iJet);
           break;

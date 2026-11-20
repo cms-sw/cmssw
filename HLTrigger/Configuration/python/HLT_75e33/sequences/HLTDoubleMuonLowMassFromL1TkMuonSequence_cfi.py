@@ -5,6 +5,7 @@ from ..modules.hltL3fL1DoubleTkMuonLowMassPreFiltered3_cfi import *
 from ..modules.hltPhase2L3MuonCandidates_cfi import *
 from ..modules.hltPhase2PixelFitterByHelixProjections_cfi import *
 from ..modules.hltPhase2PixelTrackFilterByKinematics_cfi import *
+from ..sequences.HLTRawToDigiSequence_cfi import *
 from ..sequences.HLTItLocalRecoSequence_cfi import *
 from ..sequences.HLTMuonlocalrecoSequence_cfi import *
 from ..sequences.HLTMuonsSequence_cfi import *
@@ -15,6 +16,7 @@ from ..sequences.HLTOtLocalRecoSequence_cfi import *
 # and two L3 muons matched to the L1 seed muons. The paths differ only by the dimuon mass window.
 HLTDoubleMuonLowMassFromL1TkMuonSequence = cms.Sequence(
     hltDoubleTkMuonLowMassL1TkMuonFilter
+    + HLTRawToDigiSequence
     + HLTMuonlocalrecoSequence
     + HLTItLocalRecoSequence
     + HLTOtLocalRecoSequence

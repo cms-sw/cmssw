@@ -8,6 +8,7 @@ from ..modules.hltDisplacedmumuFilterDimuon0Upsilon_cfi import *
 from ..modules.hltPhase2L3MuonCandidates_cfi import *
 from ..modules.hltPhase2PixelFitterByHelixProjections_cfi import *
 from ..modules.hltPhase2PixelTrackFilterByKinematics_cfi import *
+from ..sequences.HLTRawToDigiSequence_cfi import *
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
 from ..sequences.HLTItLocalRecoSequence_cfi import *
@@ -21,6 +22,7 @@ from ..sequences.HLTOtLocalRecoSequence_cfi import *
 HLT_Dimuon0_Upsilon_FromL1TkMuon = cms.Path(
     HLTBeginSequence
     + hltDoubleTkMuonUpsilonL1TkMuonFilter
+    + HLTRawToDigiSequence
     + HLTMuonlocalrecoSequence
     + HLTItLocalRecoSequence
     + HLTOtLocalRecoSequence

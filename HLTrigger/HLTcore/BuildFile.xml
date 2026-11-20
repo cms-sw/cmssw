@@ -1,6 +1,8 @@
 <use name="tbb"/>
 <use name="boost"/>
+<use name="DataFormats/Candidate"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/L1Trigger"/>
 <use name="DataFormats/Provenance"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
