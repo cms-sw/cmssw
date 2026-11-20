@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <!--
 ============= XML GENERATION METADATA HEADER =============
-tkLayout revision: main-3755-85e4d80a
+tkLayout revision: t41-export-3868-7cb39961
 tkLayout developed by https://github.com/tkLayout/tkLayout/graphs/contributors .
-Angela (atalierc on lxplus959.cern.ch) responsible for cross-check of the automatically-generated description below.
-generation date: 2026-10-13.18:32:55
-note: see OT807_IT849_test_2026_10_13.cfg for full config files
+Gabriel (garibeir on cmxpc1.dyndns.cern.ch) responsible for cross-check of the automatically-generated description below.
+generation date: 2026-11-20.13:32:36
+note: see OT808_IT850_2026_11_20.cfg for full config files
 =========== END XML GENERATION METADATA HEADER ===========
 -->
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
@@ -15,9 +15,6 @@ note: see OT807_IT849_test_2026_10_13.cfg for full config files
  <Constant name="zero" value="0.0*fm"/>
  <Constant name="TBPXAndTFPXOuterRadius"     value="21.1*cm"/>
  <Constant name="TEPXOuterRadius"            value="30.7*cm"/>
- <!-- Endcap services extend to z=2504.075 mm in the forward frame.
-      Keep the pixel envelope and the Forward radial step beyond them. -->
- <Constant name="PixelForwardServiceEndZ"     value="250.5*cm"/>
 
  <Constant name="AnchorZ"        value="0.*mm"/>
  <Constant name="ZPixelForward"  value="291.*mm"/>
@@ -54,8 +51,8 @@ note: see OT807_IT849_test_2026_10_13.cfg for full config files
    <ZSection z="95.90*cm" rMin="2.8*cm" rMax="[pixbar:Tracker2SOuterRadius]"/>
    <ZSection z="120.9*cm" rMin="2.8*cm" rMax="[pixbar:Tracker2SOuterRadius]"/>
    <ZSection z="120.9*cm" rMin="6.23*cm" rMax="[pixbar:Tracker2SOuterRadius]"/>
-   <ZSection z="[PixelForwardServiceEndZ]" rMin="6.23*cm" rMax="[pixbar:Tracker2SOuterRadius]"/>
-   <ZSection z="[PixelForwardServiceEndZ]" rMin="110.0*cm" rMax="[pixbar:Tracker2SOuterRadius]"/>
+   <ZSection z="247.8*cm" rMin="6.23*cm" rMax="[pixbar:Tracker2SOuterRadius]"/>
+   <ZSection z="247.8*cm" rMin="110.0*cm" rMax="[pixbar:Tracker2SOuterRadius]"/>
    <ZSection z="261.9*cm" rMin="110.0*cm" rMax="[pixbar:Tracker2SOuterRadius]"/>
  </Polycone>
  <Polycone name="Phase2PixelEndcap" startPhi="0*deg" deltaPhi="360*deg" >
@@ -64,7 +61,7 @@ note: see OT807_IT849_test_2026_10_13.cfg for full config files
    <ZSection z="120.9*cm"   rMin="6.23*cm" rMax="[TBPXAndTFPXOuterRadius]"/>
    <ZSection z="129.9*cm"   rMin="6.23*cm" rMax="[TBPXAndTFPXOuterRadius]"/>
    <ZSection z="129.9*cm"   rMin="6.23*cm" rMax="[TEPXOuterRadius]"/>
-   <ZSection z="[PixelForwardServiceEndZ]"   rMin="6.23*cm" rMax="[TEPXOuterRadius]"/>
+   <ZSection z="251.0*cm"   rMin="6.23*cm" rMax="[TEPXOuterRadius]"/>
  </Polycone>
  <SubtractionSolid name="Phase2OTForward">
    <rSolid name="Forward"/>

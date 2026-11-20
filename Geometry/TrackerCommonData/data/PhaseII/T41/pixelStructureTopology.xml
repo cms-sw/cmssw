@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <!--
 ============= XML GENERATION METADATA HEADER =============
-tkLayout revision: main-3755-85e4d80a
+tkLayout revision: t41-export-3868-7cb39961
 tkLayout developed by https://github.com/tkLayout/tkLayout/graphs/contributors .
-Angela (atalierc on lxplus959.cern.ch) responsible for cross-check of the automatically-generated description below.
-generation date: 2026-10-13.18:32:55
-note: see OT807_IT849_test_2026_10_13.cfg for full config files
+Gabriel (garibeir on cmxpc1.dyndns.cern.ch) responsible for cross-check of the automatically-generated description below.
+generation date: 2026-11-20.13:32:36
+note: see OT808_IT850_2026_11_20.cfg for full config files
 =========== END XML GENERATION METADATA HEADER ===========
 -->
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
@@ -297,1057 +297,1355 @@ note: see OT807_IT849_test_2026_10_13.cfg for full config files
 <PartSelector path="//ITLayer2R1BModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITLayer2R2BModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITLayer2R2BModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITLayer2R3BModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITLayer2R3BModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITLayer2R4BModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITLayer2R4BModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITLayer2R5BModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITLayer2R5BModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITLayer3R1BModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITLayer3R1BModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITLayer3R2BModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITLayer3R2BModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITLayer3R3BModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITLayer3R3BModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITLayer3R4BModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITLayer3R4BModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITLayer3R5BModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITLayer3R5BModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITLayer4R1BModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITLayer4R1BModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITLayer4R2BModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITLayer4R2BModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITLayer4R3BModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITLayer4R3BModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITLayer4R4BModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITLayer4R4BModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITLayer4R5BModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITLayer4R5BModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc1SD1R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc1SD1R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc1SD2R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc1SD2R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc1SD1R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc1SD1R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc1SD2R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc1SD2R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc1SD1R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc1SD1R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc1SD2R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc1SD2R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc1SD1R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc1SD1R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc1SD2R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc1SD2R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc1SD1R5EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc1SD1R5EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc1SD2R5EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc1SD2R5EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc2SD1R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc2SD1R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc2SD2R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc2SD2R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc2SD1R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc2SD1R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc2SD2R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc2SD2R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc2SD1R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc2SD1R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc2SD2R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc2SD2R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc2SD1R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc2SD1R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc2SD2R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc2SD2R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc2SD1R5EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc2SD1R5EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc2SD2R5EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc2SD2R5EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc3SD1R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc3SD1R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc3SD2R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc3SD2R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc3SD1R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc3SD1R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc3SD2R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc3SD2R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc3SD1R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc3SD1R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc3SD2R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc3SD2R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc3SD1R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc3SD1R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc3SD2R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc3SD2R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc3SD1R5EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc3SD1R5EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc3SD2R5EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc3SD2R5EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc4SD1R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc4SD1R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc4SD2R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc4SD2R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc4SD1R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc4SD1R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc4SD2R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc4SD2R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc4SD1R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc4SD1R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc4SD2R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc4SD2R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc4SD1R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc4SD1R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc4SD2R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc4SD2R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc4SD1R5EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc4SD1R5EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc4SD2R5EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc4SD2R5EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc5SD1R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc5SD1R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc5SD2R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc5SD2R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc5SD1R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc5SD1R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc5SD2R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc5SD2R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc5SD1R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc5SD1R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc5SD2R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc5SD2R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc5SD1R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc5SD1R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc5SD2R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc5SD2R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc6SD1R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc6SD1R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc6SD2R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc6SD2R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc6SD1R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc6SD1R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc6SD2R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc6SD2R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc6SD1R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc6SD1R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc6SD2R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc6SD2R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc6SD1R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc6SD1R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc6SD2R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc6SD2R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc7SD1R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc7SD1R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc7SD2R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc7SD2R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc7SD1R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc7SD1R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc7SD2R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc7SD2R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc7SD1R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc7SD1R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc7SD2R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc7SD2R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc7SD1R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc7SD1R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc7SD2R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc7SD2R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc8SD1R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc8SD1R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc8SD2R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc8SD2R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc8SD1R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc8SD1R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc8SD2R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc8SD2R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc8SD1R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc8SD1R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc8SD2R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc8SD2R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc8SD1R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc8SD1R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc8SD2R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc8SD2R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc9SD1R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc9SD1R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc9SD2R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc9SD2R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc9SD1R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc9SD1R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc9SD2R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc9SD2R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc9SD1R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc9SD1R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc9SD2R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc9SD2R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc9SD1R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc9SD1R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc9SD2R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc9SD2R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc10SD1R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc10SD1R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc10SD2R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc10SD2R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc10SD1R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc10SD1R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc10SD2R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc10SD2R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc10SD1R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc10SD1R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc10SD2R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc10SD2R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc10SD1R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc10SD1R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc10SD2R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc10SD2R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc11SD1R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc11SD1R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc11SD2R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc11SD2R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc11SD1R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc11SD1R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc11SD2R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc11SD2R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc11SD1R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc11SD1R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc11SD2R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc11SD2R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc11SD1R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc11SD1R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc11SD2R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc11SD2R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc12SD1R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc12SD1R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc12SD2R1EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc12SD2R1EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc12SD1R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc12SD1R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc12SD2R2EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc12SD2R2EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
 <Parameter name="PixelROCRows" eval="true" value="672"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="1"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc12SD1R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc12SD1R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc12SD2R3EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc12SD2R3EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc12SD1R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc12SD1R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 <SpecPar name="ITDisc12SD2R4EModuleInnerPixelActiveReadoutPar">
 <PartSelector path="//ITDisc12SD2R4EModuleInnerPixelActive"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
-<Parameter name="isBricked" value="true"/>
-<Parameter name="PixelROCRows" eval="true" value="677"/>
-<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="216"/>
 <Parameter name="PixelROC_X" eval="true" value="2"/>
 <Parameter name="PixelROC_Y" eval="true" value="2"/>
+<Parameter name="BigPixels_X" eval="true" value="2"/>
+<Parameter name="BigPixels_Y" eval="true" value="1"/>
+<Parameter name="BigPixels_Pitch_X" eval="true" value="0.00875"/>
+<Parameter name="BigPixels_Pitch_Y" eval="true" value="0.0225"/>
 </SpecPar>
 
 </SpecParSection>

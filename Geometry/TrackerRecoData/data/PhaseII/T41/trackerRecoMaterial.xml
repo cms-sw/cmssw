@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <!--
 ============= XML GENERATION METADATA HEADER =============
-tkLayout revision: main-3755-85e4d80a
+tkLayout revision: t41-export-3868-7cb39961
 tkLayout developed by https://github.com/tkLayout/tkLayout/graphs/contributors .
-Angela (atalierc on lxplus959.cern.ch) responsible for cross-check of the automatically-generated description below.
-generation date: 2026-10-13.18:32:55
-note: see OT807_IT849_test_2026_10_13.cfg for full config files
+Gabriel (garibeir on cmxpc1.dyndns.cern.ch) responsible for cross-check of the automatically-generated description below.
+generation date: 2026-11-20.13:32:36
+note: see OT808_IT850_2026_11_20.cfg for full config files
 =========== END XML GENERATION METADATA HEADER ===========
 -->
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
@@ -22,8 +22,8 @@ note: see OT807_IT849_test_2026_10_13.cfg for full config files
 <PartSelector path="//ITLayer1R4BModuleInnerPixel3DActiveTwo"/>
 <PartSelector path="//ITLayer1R5BModuleInnerPixel3DActiveOne"/>
 <PartSelector path="//ITLayer1R5BModuleInnerPixel3DActiveTwo"/>
-<Parameter name="TrackerRadLength" value="0.00986226"/>
-<Parameter name="TrackerXi" value="1.97245e-05"/>
+<Parameter name="TrackerRadLength" value="0.0104145"/>
+<Parameter name="TrackerXi" value="2.0829e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelBarrelLayer2" eval="true">
@@ -77,8 +77,8 @@ note: see OT807_IT849_test_2026_10_13.cfg for full config files
 <PartSelector path="//ITDisc1SD2R4EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc1SD1R5EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc1SD2R5EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0196152"/>
-<Parameter name="TrackerXi" value="3.92305e-05"/>
+<Parameter name="TrackerRadLength" value="0.0199721"/>
+<Parameter name="TrackerXi" value="3.99442e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk2" eval="true">
@@ -102,8 +102,8 @@ note: see OT807_IT849_test_2026_10_13.cfg for full config files
 <PartSelector path="//ITDisc2SD2R4EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc2SD1R5EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc2SD2R5EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0196152"/>
-<Parameter name="TrackerXi" value="3.92305e-05"/>
+<Parameter name="TrackerRadLength" value="0.0199721"/>
+<Parameter name="TrackerXi" value="3.99442e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk3" eval="true">
@@ -127,8 +127,8 @@ note: see OT807_IT849_test_2026_10_13.cfg for full config files
 <PartSelector path="//ITDisc3SD2R4EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc3SD1R5EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc3SD2R5EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0196152"/>
-<Parameter name="TrackerXi" value="3.92305e-05"/>
+<Parameter name="TrackerRadLength" value="0.0199721"/>
+<Parameter name="TrackerXi" value="3.99442e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk4" eval="true">
@@ -152,8 +152,8 @@ note: see OT807_IT849_test_2026_10_13.cfg for full config files
 <PartSelector path="//ITDisc4SD2R4EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc4SD1R5EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc4SD2R5EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0196152"/>
-<Parameter name="TrackerXi" value="3.92305e-05"/>
+<Parameter name="TrackerRadLength" value="0.0199721"/>
+<Parameter name="TrackerXi" value="3.99442e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk5" eval="true">
@@ -173,8 +173,8 @@ note: see OT807_IT849_test_2026_10_13.cfg for full config files
 <PartSelector path="//ITDisc5SD2R3EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc5SD1R4EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc5SD2R4EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0138157"/>
-<Parameter name="TrackerXi" value="2.76315e-05"/>
+<Parameter name="TrackerRadLength" value="0.0133596"/>
+<Parameter name="TrackerXi" value="2.67192e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk6" eval="true">
@@ -194,8 +194,8 @@ note: see OT807_IT849_test_2026_10_13.cfg for full config files
 <PartSelector path="//ITDisc6SD2R3EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc6SD1R4EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc6SD2R4EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0138157"/>
-<Parameter name="TrackerXi" value="2.76315e-05"/>
+<Parameter name="TrackerRadLength" value="0.0133596"/>
+<Parameter name="TrackerXi" value="2.67192e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk7" eval="true">
@@ -215,8 +215,8 @@ note: see OT807_IT849_test_2026_10_13.cfg for full config files
 <PartSelector path="//ITDisc7SD2R3EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc7SD1R4EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc7SD2R4EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0138157"/>
-<Parameter name="TrackerXi" value="2.76315e-05"/>
+<Parameter name="TrackerRadLength" value="0.0133596"/>
+<Parameter name="TrackerXi" value="2.67192e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk8" eval="true">
@@ -236,8 +236,8 @@ note: see OT807_IT849_test_2026_10_13.cfg for full config files
 <PartSelector path="//ITDisc8SD2R3EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc8SD1R4EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc8SD2R4EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0138157"/>
-<Parameter name="TrackerXi" value="2.76315e-05"/>
+<Parameter name="TrackerRadLength" value="0.0133596"/>
+<Parameter name="TrackerXi" value="2.67192e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk9" eval="true">
@@ -257,8 +257,8 @@ note: see OT807_IT849_test_2026_10_13.cfg for full config files
 <PartSelector path="//ITDisc9SD2R3EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc9SD1R4EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc9SD2R4EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0138157"/>
-<Parameter name="TrackerXi" value="2.76315e-05"/>
+<Parameter name="TrackerRadLength" value="0.0133596"/>
+<Parameter name="TrackerXi" value="2.67192e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk10" eval="true">
@@ -278,8 +278,8 @@ note: see OT807_IT849_test_2026_10_13.cfg for full config files
 <PartSelector path="//ITDisc10SD2R3EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc10SD1R4EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc10SD2R4EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0138157"/>
-<Parameter name="TrackerXi" value="2.76315e-05"/>
+<Parameter name="TrackerRadLength" value="0.0133596"/>
+<Parameter name="TrackerXi" value="2.67192e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk11" eval="true">
@@ -299,8 +299,8 @@ note: see OT807_IT849_test_2026_10_13.cfg for full config files
 <PartSelector path="//ITDisc11SD2R3EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc11SD1R4EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc11SD2R4EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0138157"/>
-<Parameter name="TrackerXi" value="2.76315e-05"/>
+<Parameter name="TrackerRadLength" value="0.0133596"/>
+<Parameter name="TrackerXi" value="2.67192e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelForwardDisk12" eval="true">
@@ -320,8 +320,8 @@ note: see OT807_IT849_test_2026_10_13.cfg for full config files
 <PartSelector path="//ITDisc12SD2R3EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc12SD1R4EModuleInnerPixelActive"/>
 <PartSelector path="//ITDisc12SD2R4EModuleInnerPixelActive"/>
-<Parameter name="TrackerRadLength" value="0.0138157"/>
-<Parameter name="TrackerXi" value="2.76315e-05"/>
+<Parameter name="TrackerRadLength" value="0.0133596"/>
+<Parameter name="TrackerXi" value="2.67192e-05"/>
 </SpecPar>
 
 
