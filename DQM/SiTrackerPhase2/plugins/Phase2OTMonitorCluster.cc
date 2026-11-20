@@ -200,7 +200,7 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
                 depthMEs->PositionOfClusters_2S[module - 1]->Fill(clusterItr.center(), topOrBottomColumn);
 
             if (!depthMEs->ClusterX_vs_sensor_Module.empty())
-              depthMEs->ClusterX_vs_sensor_Module[module - 1].push_back(std::pair(isLowerSensor, gx));
+              depthMEs->ClusterX_vs_sensor_Module[module - 1].push_back(std::pair(isLowerSensor, localPosCluster.x()));
 
             if (!depthMEs->PositionOfClusters_2SLadder.empty()) {
               if (depthMEs->PositionOfClusters_2SLadder[ladder - 1]) {
