@@ -570,7 +570,12 @@ void HGCalTopology::addHGCSCintillatorId(
                                 << ":" << iphi << " ==> Validity " << hdcons_.isValidTrap(zside, lay, iradius, iphi);
 #endif
   if (hdcons_.isValidTrap(zside, lay, iradius, iphi)) {
-    HGCScintillatorDetId id(type, lay, zside * iradius, iphi);
+    HGCScintillatorDetId id(1, lay, zside * iradius, iphi, false, 0, type);
+    std::pair<int, int> typm = hdcons_.tileType(id.layer(), id.ring(), 0);
+    if (typm.first >= 0) {
+      id.setType(typm.first);
+      id.setSiPM(typm.second);
+    }
     ids.emplace_back(DetId(id));
   }
 }
@@ -612,7 +617,7 @@ HGCalTopology::DecodedDetId HGCalTopology::decode(const DetId& startId) const {
     idx.iLay = id.layer();
     idx.iSec1 = id.ietaAbs();
     idx.iSec2 = 0;
-    idx.iType = id.type();
+    idx.iType = id.granularity();
     idx.zSide = id.zside();
     idx.det = static_cast<int>(id.subdet());
   } else if (det_ == DetId::Forward && subdet_ == ForwardSubdetector::HFNose) {
@@ -650,7 +655,7 @@ DetId HGCalTopology::encode(const HGCalTopology::DecodedDetId& idx) const {
         HGCalDetId((ForwardSubdetector)(idx.det), idx.zSide, idx.iLay, ((idx.iType > 0) ? 1 : 0), idx.iSec1, idx.iCell1)
             .rawId();
   } else if (tileTrapezoid()) {
-    HGCScintillatorDetId hid(idx.iType, idx.iLay, idx.zSide * idx.iSec1, idx.iCell1);
+    HGCScintillatorDetId hid(1, idx.iLay, idx.zSide * idx.iSec1, idx.iCell1, false, 0, idx.iType);
     std::pair<int, int> typm = hdcons_.tileType(hid.layer(), hid.ring(), 0);
     if (typm.first >= 0) {
       hid.setType(typm.first);
