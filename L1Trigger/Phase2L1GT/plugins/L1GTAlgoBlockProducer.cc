@@ -29,6 +29,7 @@
 
 #include "DataFormats/L1Trigger/interface/P2GTCandidate.h"
 #include "DataFormats/L1Trigger/interface/P2GTAlgoBlock.h"
+#include "L1GTObjectConfig.h"
 
 #include <string>
 #include <memory>
@@ -462,28 +463,28 @@ void L1GTAlgoBlockProducer::init(const edm::ProcessHistory& pHistory) {
             const auto& modPSet = pset->getParameterSet(mod);
             if (modPSet.getParameter<std::string>("@module_edm_type") == "EDFilter") {
               if (modPSet.getParameter<std::string>("@module_type") == "L1GTSingleObjectCond") {
-                algoDef.filtModules_.insert({mod, modPSet.getParameter<edm::InputTag>("tag").instance()});
+                algoDef.filtModules_.insert({mod, l1t::collectionTag(modPSet).instance()});
               } else if (modPSet.getParameter<std::string>("@module_type") == "L1GTDoubleObjectCond") {
                 algoDef.filtModules_.insert(
-                    {mod, modPSet.getParameterSet("collection1").getParameter<edm::InputTag>("tag").instance()});
+                    {mod, l1t::collectionTag(modPSet.getParameterSet("collection1")).instance()});
                 algoDef.filtModules_.insert(
-                    {mod, modPSet.getParameterSet("collection2").getParameter<edm::InputTag>("tag").instance()});
+                    {mod, l1t::collectionTag(modPSet.getParameterSet("collection2")).instance()});
               } else if (modPSet.getParameter<std::string>("@module_type") == "L1GTTripleObjectCond") {
                 algoDef.filtModules_.insert(
-                    {mod, modPSet.getParameterSet("collection1").getParameter<edm::InputTag>("tag").instance()});
+                    {mod, l1t::collectionTag(modPSet.getParameterSet("collection1")).instance()});
                 algoDef.filtModules_.insert(
-                    {mod, modPSet.getParameterSet("collection2").getParameter<edm::InputTag>("tag").instance()});
+                    {mod, l1t::collectionTag(modPSet.getParameterSet("collection2")).instance()});
                 algoDef.filtModules_.insert(
-                    {mod, modPSet.getParameterSet("collection3").getParameter<edm::InputTag>("tag").instance()});
+                    {mod, l1t::collectionTag(modPSet.getParameterSet("collection3")).instance()});
               } else if (modPSet.getParameter<std::string>("@module_type") == "L1GTQuadObjectCond") {
                 algoDef.filtModules_.insert(
-                    {mod, modPSet.getParameterSet("collection1").getParameter<edm::InputTag>("tag").instance()});
+                    {mod, l1t::collectionTag(modPSet.getParameterSet("collection1")).instance()});
                 algoDef.filtModules_.insert(
-                    {mod, modPSet.getParameterSet("collection2").getParameter<edm::InputTag>("tag").instance()});
+                    {mod, l1t::collectionTag(modPSet.getParameterSet("collection2")).instance()});
                 algoDef.filtModules_.insert(
-                    {mod, modPSet.getParameterSet("collection3").getParameter<edm::InputTag>("tag").instance()});
+                    {mod, l1t::collectionTag(modPSet.getParameterSet("collection3")).instance()});
                 algoDef.filtModules_.insert(
-                    {mod, modPSet.getParameterSet("collection4").getParameter<edm::InputTag>("tag").instance()});
+                    {mod, l1t::collectionTag(modPSet.getParameterSet("collection4")).instance()});
               }
             }
           }
