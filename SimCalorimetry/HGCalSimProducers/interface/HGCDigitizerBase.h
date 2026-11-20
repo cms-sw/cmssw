@@ -2,6 +2,7 @@
 #define SimCalorimetry_HGCSimProducers_hgcdigitizerbase
 
 #include <array>
+#include <cstdint>
 #include <iostream>
 #include <vector>
 #include <memory>
@@ -176,6 +177,10 @@ protected:
   bool RandNoiseGenerationFlag_;
   // A parameter configurable from python configuration to decide which noise generation model to use
   bool NoiseGeneration_Method_;
+  // When true, the noise table comes from the configured seed of the module and the collection
+  // name, so every stream gets the same table.
+  bool noiseTableFromJobSeed_;
+  std::uint32_t noiseTableId_;
 };
 
 #endif
