@@ -37,7 +37,7 @@ public:
 
   template <std::integral Int>
   PortableHostCollection(alpaka_common::DevHost const& host, const Int size)
-    requires(!requires { Layout::blocksNumber; })
+    requires(!requires { Layout::blocksNumberFlat; })
       // allocate pageable host memory
       : buffer_{cms::alpakatools::make_host_buffer<std::byte[]>(
             Layout::computeDataSize(portablecollection::size_cast(size)))},
@@ -48,7 +48,7 @@ public:
   }
 
   template <typename TQueue, std::integral Int>
-    requires(alpaka::concepts::Queue<TQueue> && (!requires { Layout::blocksNumber; }))
+    requires(alpaka::concepts::Queue<TQueue> && (!requires { Layout::blocksNumberFlat; }))
   PortableHostCollection(TQueue const& queue, const Int size)
       // allocate pinned host memory associated to the given work queue, accessible by the queue's device
       : buffer_{cms::alpakatools::make_host_buffer<std::byte[]>(
@@ -62,20 +62,22 @@ public:
   // constructor for code that does not use alpaka explicitly, using the global "host" object returned by cms::alpakatools::host()
   template <std::integral Int>
   PortableHostCollection(const Int size)
-    requires(!requires { Layout::blocksNumber; })
+    requires(!requires { Layout::blocksNumberFlat; })
       : PortableHostCollection(cms::alpakatools::host(), size) {}
 
   // constructor for code that does not use alpaka explicitly, using the global "host" object returned by cms::alpakatools::host()
   // constructor for a SoABlocks-layout, taking per-block sizes as variadic integral arguments
   template <std::integral... Ints>
   PortableHostCollection(const Ints... sizes)
-    requires requires { Layout::blocksNumber; } && (sizeof...(Ints) == static_cast<std::size_t>(Layout::blocksNumber))
+    requires requires { Layout::blocksNumberFlat; } &&
+             (sizeof...(Ints) == static_cast<std::size_t>(Layout::blocksNumberFlat))
       : PortableHostCollection(cms::alpakatools::host(), std::to_array({portablecollection::size_cast(sizes)...})) {}
 
   // constructor for a SoABlocks-layout, taking per-block sizes as variadic integral arguments
   template <std::integral... Ints>
   explicit PortableHostCollection(alpaka_common::DevHost const& host, const Ints... sizes)
-    requires requires { Layout::blocksNumber; } && (sizeof...(Ints) == static_cast<std::size_t>(Layout::blocksNumber))
+    requires requires { Layout::blocksNumberFlat; } &&
+             (sizeof...(Ints) == static_cast<std::size_t>(Layout::blocksNumberFlat))
       // allocate pageable host memory
       : PortableHostCollection(host, std::to_array({portablecollection::size_cast(sizes)...})) {}
 
@@ -83,14 +85,15 @@ public:
   template <typename TQueue, std::integral... Ints>
     requires(alpaka::concepts::Queue<TQueue>)
   explicit PortableHostCollection(TQueue const& queue, const Ints... sizes)
-    requires requires { Layout::blocksNumber; } && (sizeof...(Ints) == static_cast<std::size_t>(Layout::blocksNumber))
+    requires requires { Layout::blocksNumberFlat; } &&
+             (sizeof...(Ints) == static_cast<std::size_t>(Layout::blocksNumberFlat))
       // allocate pinned host memory associated to the given work queue, accessible by the queue's device
       : PortableHostCollection(queue, std::to_array({portablecollection::size_cast(sizes)...})) {}
 
   // constructor for a SoABlocks-layout, taking per-block sizes as a fixed-size array
   template <std::size_t N>
   explicit PortableHostCollection(alpaka_common::DevHost const& host, std::array<int32_t, N> const& sizes)
-    requires requires { Layout::blocksNumber; } && (N == static_cast<std::size_t>(Layout::blocksNumber))
+    requires requires { Layout::blocksNumberFlat; } && (N == static_cast<std::size_t>(Layout::blocksNumberFlat))
       // allocate pageable host memory
       : buffer_{cms::alpakatools::make_host_buffer<std::byte[]>(Layout::computeDataSize(sizes))},
         layout_{buffer_->data(), sizes},
@@ -103,7 +106,7 @@ public:
   template <typename TQueue, std::size_t N>
     requires(alpaka::concepts::Queue<TQueue>)
   explicit PortableHostCollection(TQueue const& queue, std::array<int32_t, N> const& sizes)
-    requires requires { Layout::blocksNumber; } && (N == static_cast<std::size_t>(Layout::blocksNumber))
+    requires requires { Layout::blocksNumberFlat; } && (N == static_cast<std::size_t>(Layout::blocksNumberFlat))
       // allocate pinned host memory associated to the given work queue, accessible by the queue's device
       : buffer_{cms::alpakatools::make_host_buffer<std::byte[]>(queue, Layout::computeDataSize(sizes))},
         layout_{buffer_->data(), sizes},
