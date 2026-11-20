@@ -90,7 +90,7 @@ void EGMSeedGainProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent,
     }
   }
 
-  std::unique_ptr<edm::ValueMap<int>> gainSeedV(new edm::ValueMap<int>());
+  std::unique_ptr<edm::ValueMap<int>> gainSeedV = std::make_unique<edm::ValueMap<int>>();
   edm::ValueMap<int>::Filler fillerCorr(*gainSeedV);
   fillerCorr.insert(src, gainSeed.begin(), gainSeed.end());
   fillerCorr.fill();

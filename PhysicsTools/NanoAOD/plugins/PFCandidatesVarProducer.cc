@@ -1,3 +1,4 @@
+#include <memory>
 #include <string>
 #include <memory>
 
@@ -70,7 +71,7 @@ void PFCandidatesVarProducer::PutValueMapInEvent(edm::Event& iEvent,
                                                  const edm::Handle<edm::View<reco::Candidate>>& coll,
                                                  const std::vector<float>& vec_var,
                                                  std::string VMName) {
-  std::unique_ptr<edm::ValueMap<float>> VM(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> VM = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerVM(*VM);
   fillerVM.insert(coll, vec_var.begin(), vec_var.end());
   fillerVM.fill();
