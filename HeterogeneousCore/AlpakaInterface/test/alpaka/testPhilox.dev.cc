@@ -56,7 +56,7 @@ namespace {
   std::array<float, 4> normalFloat4Host(edm::philox::Counter const& bits) {
     std::array<float, 4> values;
     for (unsigned int pair = 0; pair < 2; ++pair) {
-      float const u1 = 1.f - edm::philox::uniformFloat(bits[2 * pair]);
+      float const u1 = (static_cast<float>(bits[2 * pair]) + 1.f) * 0x1p-32f;
       float const u2 = edm::philox::uniformFloat(bits[2 * pair + 1]);
       float const radius = std::sqrt(-2.f * std::log(u1));
       float const angle = 2.f * std::numbers::pi_v<float> * u2;
@@ -85,7 +85,7 @@ TEST_CASE("Philox random numbers on the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMES
          "the test will be skipped.");
   }
 
-  SECTION("alpaka Philox4x32x10 against Random123") {
+  SECTION("Random123 known answer, and the alpaka Philox4x32x10 output for information") {
     using AlpakaPhilox = alpaka::rand::PhiloxStateless4x32x10Vector;
     auto const alpakaBits = AlpakaPhilox::generate(AlpakaPhilox::Counter{0, 0, 0, 0}, AlpakaPhilox::Key{0, 0});
     auto const bits = edm::philox::philox4x32({{0, 0, 0, 0}}, {{0, 0}});
