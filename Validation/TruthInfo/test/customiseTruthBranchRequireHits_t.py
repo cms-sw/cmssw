@@ -54,6 +54,19 @@ class TestRequireHits(unittest.TestCase):
         process = customiseTruthBranchRequireHits(process)
         self.assertEqual(list(process.truthBranchTracksterValidator.denominatorDetectors.value()), ["HGCalEE"])
 
+    def test_theCandidateValidatorFollowsTheCandidateAssociator(self):
+        from SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociationLabels_cff import (
+            truthBranchDenominatorDetectors,
+        )
+
+        process = makeProcess()
+        self.assertEqual(list(process.truthBranchCandidateAssociators.denominatorDetectors.value()),
+                         truthBranchDenominatorDetectors["candidates"])
+        process.truthBranchCandidateAssociators.denominatorDetectors = ["HGCalHSc"]
+        process = customiseTruthBranchRequireHits(process)
+        self.assertTrue(process.truthBranchCandidateValidator.requireHits.value())
+        self.assertEqual(list(process.truthBranchCandidateValidator.denominatorDetectors.value()), ["HGCalHSc"])
+
     def test_aValidatorWithNoAssociatorIsAnError(self):
         process = makeProcess()
         del process.truthBranchTracksterAssociators
@@ -72,6 +85,7 @@ class TestRequireHits(unittest.TestCase):
         import Validation.TruthInfo.truthBranchValidation_cff as validation
 
         types = {d["module"] for d in validation._domains if "vertexResolution" not in d}
+        types.add(validation.truthBranchCandidateValidator.type_())
         self.assertEqual(types, set(hitBasedValidatorTypes))
 
 

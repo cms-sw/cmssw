@@ -23,6 +23,7 @@
 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
+#include "DataFormats/HGCalReco/interface/TICLCandidate.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/TrackerSingleRecHit.h"
@@ -139,6 +140,38 @@ namespace truth {
       const float multiplicity = v < multiplicities.size() && multiplicities[v] > 0.f ? multiplicities[v] : 1.f;
       for (auto const& [detId, fraction] : layerClusters[lc].hitsAndFractions())
         hits.push_back(RecoHit{.detId = detId.rawId(), .fraction = fraction / multiplicity});
+    }
+    sortAndCoalesce(hits);
+    return hits;
+  }
+
+  // TICLCandidate -> the (DetId, fraction) of the layer clusters of all its tracksters, each trackster as above. The
+  // fractions of a cell in two tracksters are summed. Empty for a candidate without a trackster.
+  inline std::vector<RecoHit> recoHits(TICLCandidate const& candidate,
+                                       std::vector<reco::CaloCluster> const& layerClusters) {
+    auto const& tracksters = candidate.tracksters();
+    const auto nTracksters =
+        std::count_if(tracksters.begin(), tracksters.end(), [](auto const& t) { return t.isNonnull(); });
+    if (nTracksters == 0)
+      return {};
+    if (nTracksters == 1)
+      return recoHits(**std::find_if(tracksters.begin(), tracksters.end(), [](auto const& t) { return t.isNonnull(); }),
+                      layerClusters);
+    std::size_t nHits = 0;
+    for (auto const& trackster : tracksters) {
+      if (trackster.isNull())
+        continue;
+      for (const unsigned int lc : trackster->vertices())
+        if (lc < layerClusters.size())
+          nHits += layerClusters[lc].hitsAndFractions().size();
+    }
+    std::vector<RecoHit> hits;
+    hits.reserve(nHits);
+    for (auto const& trackster : tracksters) {
+      if (trackster.isNull())
+        continue;
+      auto const tracksterHits = recoHits(*trackster, layerClusters);
+      hits.insert(hits.end(), tracksterHits.begin(), tracksterHits.end());
     }
     sortAndCoalesce(hits);
     return hits;
