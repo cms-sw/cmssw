@@ -416,7 +416,7 @@ namespace sistrip {
         // 	  std::cout << lIt << " " << newVector->at(lIt) << std::endl;
         // 	}
         //vector was allocated here so, will need to be deleted when finished with
-        CountersPtr newCountersPtr(new CountersWrapper(newVector, true));
+        CountersPtr newCountersPtr = std::make_shared<CountersWrapper>(newVector, true);
         return newCountersPtr;
       } else {
         throw cms::Exception(mlLabel_) << "Unable to get product " << tag << " from spy event";

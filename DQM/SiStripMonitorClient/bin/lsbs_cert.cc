@@ -350,14 +350,14 @@ string ListOut(vector<int>& LSlist) {
   for (unsigned int at = 0; at < LSlist.size(); at++) {
     if (LSlist[at] != -1) {
       if (at > 0 && LSlist[at - 1] != -1)
-        strout += ",";
+        strout += ',';
       stringstream lsnum;
       lsnum << LSlist[at];
       strout += lsnum.str();
       rangeset = false;
     }
     if (LSlist[at] == -1 && !rangeset) {
-      strout += "-";
+      strout += '-';
       rangeset = true;
     }
   }

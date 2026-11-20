@@ -124,7 +124,7 @@ namespace detail {
     std::string out;
     auto append = [&out](const char *name) {
       if (!out.empty())
-        out += ",";
+        out += ',';
       out += name;
     };
     if ((mask & EfficiencyEligibility::kDecayLength) != EfficiencyEligibility::kNone)

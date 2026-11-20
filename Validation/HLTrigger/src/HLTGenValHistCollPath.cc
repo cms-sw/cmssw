@@ -51,7 +51,7 @@ HLTGenValHistCollPath::HLTGenValHistCollPath(edm::ParameterSet pathCollConfig, H
 
       pathString_ += filterName;
       if (filter != filters_.back())
-        pathString_ += ";";
+        pathString_ += ';';
     }
   }
 }

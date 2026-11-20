@@ -217,7 +217,7 @@ TtbarTrackProducer::TtbarTrackProducer(const edm::ParameterSet& ps)
 }
 
 void TtbarTrackProducer::produce(edm::StreamID streamID, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
-  std::unique_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection());
+  std::unique_ptr<reco::TrackCollection> outputTColl = std::make_unique<reco::TrackCollection>();
 
   // beamspot
   edm::Handle<reco::BeamSpot> beamSpot;
