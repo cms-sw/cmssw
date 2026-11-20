@@ -2,6 +2,7 @@
 
 #include "catch2/catch_all.hpp"
 
+#include <cmath>
 #include <set>
 #include <utility>
 
@@ -79,4 +80,35 @@ TEST_CASE("Uniform conversions", "[Philox]") {
   CHECK(edm::philox::uniformDouble(0xffffffff, 0xffffffff) == 1. - 0x1p-53);
   CHECK(edm::philox::uniformDouble(0xffffffff, 0xffffffff) < 1.);
   CHECK(edm::philox::uniformDouble(0, 1) == 0x1p-32);
+}
+
+TEST_CASE("Moments of the uniform values", "[Philox]") {
+  // Mean 1/2, variance 1/12 and lag-1 correlation 0, each within 5 standard deviations,
+  // within one stream and across the streams of consecutive events.
+  constexpr int kCount = 1 << 20;
+  auto check = [](auto const& value) {
+    double sum = 0., sum2 = 0., sumLag = 0., previous = 0.;
+    for (int i = 0; i < kCount; ++i) {
+      double const x = value(i);
+      sum += x;
+      sum2 += x * x;
+      sumLag += (x - 0.5) * (previous - 0.5);
+      previous = x;
+    }
+    double const mean = sum / kCount;
+    double const variance = sum2 / kCount - mean * mean;
+    double const correlation = sumLag / kCount * 12.;
+    CHECK(std::abs(mean - 0.5) < 5. * std::sqrt(1. / 12. / kCount));
+    CHECK(std::abs(variance - 1. / 12.) < 5. * std::sqrt((1. / 80. - 1. / 144.) / kCount));
+    CHECK(std::abs(correlation) < 5. / std::sqrt(kCount));
+  };
+  edm::philox::EventStream const stream(1234567, 42, 1, 1, 1);
+  check([&](int i) {
+    auto const bits = stream.bits(0, static_cast<std::uint32_t>(i / 2));
+    return edm::philox::uniformDouble(bits[2 * (i % 2)], bits[2 * (i % 2) + 1]);
+  });
+  check([](int i) {
+    auto const bits = edm::philox::EventStream(1234567, 42, 1, 1, static_cast<std::uint64_t>(i) + 1).bits(0, 0);
+    return edm::philox::uniformDouble(bits[0], bits[1]);
+  });
 }

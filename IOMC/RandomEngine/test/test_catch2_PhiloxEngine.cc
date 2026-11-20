@@ -5,6 +5,7 @@
 #include "IOMC/RandomEngine/interface/PhiloxEngine.h"
 #include "IOMC/RandomEngine/interface/cloneEngine.h"
 
+#include <cmath>
 #include <sstream>
 #include <vector>
 
@@ -123,4 +124,24 @@ TEST_CASE("PhiloxEngine keeps its state for an invalid input", "[PhiloxEngine]")
   invalid[7] = 2;  // a partly used block with no previous block
   CHECK_FALSE(engine.get(invalid));
   CHECK(draw(engine, 5) == expected);
+}
+
+TEST_CASE("PhiloxEngine moments", "[PhiloxEngine]") {
+  // Mean 1/2, variance 1/12 and lag-1 correlation 0, each within 5 standard deviations.
+  constexpr int kCount = 1 << 20;
+  edm::PhiloxEngine engine(7);
+  auto const values = draw(engine, kCount);
+  double sum = 0., sum2 = 0., sumLag = 0.;
+  for (int i = 0; i < kCount; ++i) {
+    sum += values[i];
+    sum2 += values[i] * values[i];
+    if (i > 0) {
+      sumLag += (values[i] - 0.5) * (values[i - 1] - 0.5);
+    }
+  }
+  double const mean = sum / kCount;
+  double const variance = sum2 / kCount - mean * mean;
+  CHECK(std::abs(mean - 0.5) < 5. * std::sqrt(1. / 12. / kCount));
+  CHECK(std::abs(variance - 1. / 12.) < 5. * std::sqrt((1. / 80. - 1. / 144.) / kCount));
+  CHECK(std::abs(sumLag / kCount * 12.) < 5. / std::sqrt(kCount));
 }
