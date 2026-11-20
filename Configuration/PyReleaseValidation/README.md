@@ -47,6 +47,7 @@ The offsets currently in use are:
 * 0.5: Legacy pixel tracking only (CPU)
 * 0.511: Legacy ECAL reco only (CPU)
 * 0.521: Legacy HCAL reco only (CPU)
+* 0.532: HGCAL reco only with the ticl_v6 process modifier (TICLv6)
 * 0.6: HE Collapse (old depth segmentation for 2018)
 * 0.601: HLT as separate step
 * 0.7: trackingMkFit modifier

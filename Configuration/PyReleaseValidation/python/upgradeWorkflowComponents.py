@@ -1517,6 +1517,27 @@ upgradeWFs['HGCalOnly'] = UpgradeWorkflow_HGCalOnly(
     offset = 0.531,
 )
 
+# HGCal-only workflow with the ticl_v6 process modifier (TICLv6)
+#  - HLT with ticl_v6
+#  - RAW2DIGI + HGCal-only reconstruction with ticl_v6, with DQM and validation
+#  - harvesting
+upgradeWFs['HGCalOnlyTICLv6'] = UpgradeWorkflow_HGCalOnly(
+    digi = {
+        '--procModifiers': 'ticl_v6',
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi,RECO:reconstruction_hgcalOnly,VALIDATION:@HGCalOnlyValidation',
+        '--procModifiers': 'ticl_v6',
+        '--customise': 'Validation/Configuration/customiseHGCalOnly.customiseHGCalOnly',
+    },
+    harvest = {
+        '-s': 'HARVESTING:@HGCalOnlyValidation',
+        '--procModifiers': 'ticl_v6',
+    },
+    suffix = 'HGCalOnlyTICLv6',
+    offset = 0.532,
+)
+
 ###############################################################################################################
 ### Alpaka workflows
 ###
