@@ -30,7 +30,7 @@ private:
 };
 
 LCToSimTSAssociatorByEnergyScoreProducer::LCToSimTSAssociatorByEnergyScoreProducer(const edm::ParameterSet &ps)
-    : ticlGeomToken_(esConsumes(edm::ESInputTag("", ""))) {
+    : ticlGeomToken_(esConsumes(ps.getParameter<edm::ESInputTag>("ticlGeom"))) {
   // Register the product
   produces<ticl::LayerClusterToSimTracksterAssociator>();
 }
@@ -50,6 +50,7 @@ void LCToSimTSAssociatorByEnergyScoreProducer::produce(edm::StreamID,
 
 void LCToSimTSAssociatorByEnergyScoreProducer::fillDescriptions(edm::ConfigurationDescriptions &cfg) {
   edm::ParameterSetDescription desc;
+  desc.add<edm::ESInputTag>("ticlGeom", edm::ESInputTag("", ""));
   cfg.add("layerClusterSimTracksterAssociatorByEnergyScore", desc);
 }
 

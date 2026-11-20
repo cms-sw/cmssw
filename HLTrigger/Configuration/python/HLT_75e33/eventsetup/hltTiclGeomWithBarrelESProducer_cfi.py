@@ -6,7 +6,7 @@ from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 def _addHltTiclGeomWithBarrel(process):
     process.hltTiclGeomWithBarrelESProducer = cms.ESProducer('TICLGeomESProducer@alpaka',
         detectors = cms.vstring('ECAL', 'HCAL', 'HGCal'),
-        appendToDataLabel = cms.string('withBarrel')
+        appendToDataLabel = cms.string('hltWithBarrel')
     )
 
 addHltTiclGeomWithBarrel = ticl_barrel.makeProcessModifier(_addHltTiclGeomWithBarrel)

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltBarrelLayerClustersHB = cms.EDProducer('BarrelLayerClusterProducer',
+  ticlGeom = cms.ESInputTag('', 'hltWithBarrel'),
   recHits = cms.InputTag("hltParticleFlowRecHitHBHE"),
   plugin = cms.PSet(
     outlierDeltaFactor = cms.double(5 * 0.087),

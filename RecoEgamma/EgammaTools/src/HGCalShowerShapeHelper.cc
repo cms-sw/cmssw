@@ -299,10 +299,10 @@ HGCalShowerShapeHelper::HGCalShowerShapeHelper()
     : recHitTools_(std::make_shared<ticlgeom::Tools>()),
       pfRecHitPtrMap_(std::make_shared<std::unordered_map<uint32_t, const reco::PFRecHit *>>()) {}
 
-HGCalShowerShapeHelper::HGCalShowerShapeHelper(edm::ConsumesCollector &&sumes)
+HGCalShowerShapeHelper::HGCalShowerShapeHelper(edm::ConsumesCollector &&sumes, const edm::ESInputTag &ticlGeomTag)
     : recHitTools_(std::make_shared<ticlgeom::Tools>()),
       pfRecHitPtrMap_(std::make_shared<std::unordered_map<uint32_t, const reco::PFRecHit *>>()) {
-  setTokens(sumes);
+  setTokens(sumes, ticlGeomTag);
 }
 
 void HGCalShowerShapeHelper::initPerSetup(const edm::EventSetup &iSetup) {

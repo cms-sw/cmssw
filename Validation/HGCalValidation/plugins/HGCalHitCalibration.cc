@@ -79,7 +79,7 @@ private:
 };
 
 HGCalHitCalibration::HGCalHitCalibration(const edm::ParameterSet& iConfig)
-    : ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+    : ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord>(iConfig.getParameter<edm::ESInputTag>("ticlGeom"))),
       rawRecHits_(iConfig.getParameter<bool>("rawRecHits")),
       debug_(iConfig.getParameter<int>("debug")),
       folder_(iConfig.getParameter<std::string>("folder")) {
@@ -394,6 +394,7 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
 // module  ------------
 void HGCalHitCalibration::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<edm::ESInputTag>("ticlGeom", edm::ESInputTag("", ""));
   desc.add<int>("debug", 0);
   desc.add<bool>("rawRecHits", true);
   desc.add<std::string>("folder", "HGCalHitCalibration");

@@ -29,7 +29,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           nonAgedNoises_(config.getParameter<std::vector<float>>("noises")),
           dEdXweights_(config.getParameter<std::vector<float>>("dEdXweights")),
           thicknessCorrection_(config.getParameter<std::vector<float>>("thicknessCorrection")),
-          ticlGeomToken_(consumesCollector().esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+          ticlGeomToken_(consumesCollector().esConsumes<TICLGeomHost, CaloGeometryRecord>(
+              config.getParameter<edm::ESInputTag>("ticlGeom"))),
           hits_token_(consumes<HGCRecHitCollection>(config.getParameter<edm::InputTag>("recHits"))),
           deviceToken_{produces()} {}
 
@@ -136,6 +137,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
+      desc.add<edm::ESInputTag>("ticlGeom", edm::ESInputTag("", ""));
       desc.add<std::string>("detector", "EE")->setComment("options EE, FH, BH,  HFNose; other value defaults to EE");
       desc.add<edm::InputTag>("recHits", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
       desc.add<unsigned int>("maxNumberOfThickIndices", 6);

@@ -34,7 +34,8 @@ private:
 
 TICLLayerTileProducer::TICLLayerTileProducer(const edm::ParameterSet &ps)
     : detector_(ps.getParameter<std::string>("detector")) {
-  ticlGeomToken_ = esConsumes<TICLGeomHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""));
+  ticlGeomToken_ = esConsumes<TICLGeomHost, CaloGeometryRecord, edm::Transition::BeginRun>(
+      ps.getParameter<edm::ESInputTag>("ticlGeom"));
 
   doNose_ = (detector_ == "HFNose");
   doBarrel_ = (detector_ == "Barrel");
@@ -116,6 +117,7 @@ void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
 
 void TICLLayerTileProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<edm::ESInputTag>("ticlGeom", edm::ESInputTag("", ""));
   desc.add<std::string>("detector", "HGCAL");
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<edm::InputTag>("layer_HFNose_clusters", edm::InputTag("hgcalLayerClustersHFNose"));

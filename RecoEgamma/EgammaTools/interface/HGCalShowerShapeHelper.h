@@ -18,6 +18,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -117,7 +118,7 @@ public:
   };
 
   HGCalShowerShapeHelper();
-  HGCalShowerShapeHelper(edm::ConsumesCollector &&sumes);
+  HGCalShowerShapeHelper(edm::ConsumesCollector &&sumes, const edm::ESInputTag &ticlGeomTag = edm::ESInputTag("", ""));
   ~HGCalShowerShapeHelper() = default;
   HGCalShowerShapeHelper(const HGCalShowerShapeHelper &rhs) = delete;
   HGCalShowerShapeHelper(const HGCalShowerShapeHelper &&rhs) = delete;
@@ -125,8 +126,9 @@ public:
   HGCalShowerShapeHelper &operator=(const HGCalShowerShapeHelper &&rhs) = delete;
 
   template <edm::Transition tr = edm::Transition::Event>
-  void setTokens(edm::ConsumesCollector consumesCollector) {
-    ticlGeomToken_ = consumesCollector.esConsumes<TICLGeomHost, CaloGeometryRecord, tr>(edm::ESInputTag("", ""));
+  void setTokens(edm::ConsumesCollector consumesCollector,
+                 const edm::ESInputTag &ticlGeomTag = edm::ESInputTag("", "")) {
+    ticlGeomToken_ = consumesCollector.esConsumes<TICLGeomHost, CaloGeometryRecord, tr>(ticlGeomTag);
   }
 
   void initPerSetup(const edm::EventSetup &iSetup);

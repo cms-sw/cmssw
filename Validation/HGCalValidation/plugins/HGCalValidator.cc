@@ -63,7 +63,7 @@ namespace {
 }  // namespace
 
 HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
-    : ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+    : ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord>(pset.getParameter<edm::ESInputTag>("ticlGeom"))),
       label_lcl(pset.getParameter<edm::InputTag>("label_lcl")),
       label_tst(pset.getParameter<std::vector<edm::InputTag>>("label_tst")),
       allTracksterTracksterAssociatorsLabels_(
@@ -643,6 +643,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
 void HGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // hgcalValidator
   edm::ParameterSetDescription desc;
+  desc.add<edm::ESInputTag>("ticlGeom", edm::ESInputTag("", ""));
   desc.add<double>("ptMinCP", 0.5);
   desc.add<double>("ptMaxCP", 300.0);
   desc.add<double>("minRapidityCP", -3.1);
