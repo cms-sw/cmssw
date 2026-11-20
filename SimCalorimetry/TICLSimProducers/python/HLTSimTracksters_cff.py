@@ -5,11 +5,7 @@ from RecoTICL.ClusterFilters.filteredLayerClustersProducer_cfi import filteredLa
 from Validation.RecoTrack.associators_cff import hltTrackAssociatorByHits, tpToHLTpixelTrackAssociation, tpToHLTgsfTrackAssociation
 from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import simHitTPAssocProducer
 from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi import trackingParticleRecoTrackAsssociation
-# HLT TICL geometry, under the HLT data label: the same object the HLT menu loads, so it can be
-# added here without clashing with the HLT menu, nor with the offline (unlabelled) TICL geometry.
-# It is attached to the process by a Phase-2 process modifier, outside of any Task: an EventSetup
-# module that belongs to a Task is enabled only if that Task is scheduled, which would switch off
-# the HLT menu's own instance in jobs that load but do not schedule the HLT validation.
+# HLT TICL geometry for the HLT validation (see _setHltTiclGeom below)
 from HLTrigger.Configuration.HLT_75e33.eventsetup.hltTiclGeomESProducer_cfi import hltTiclGeomESProducer as _hltTiclGeomESProducer
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common as _phase2_common
 # CA - PATTERN RECOGNITION
@@ -49,11 +45,31 @@ hltTiclSimTracksters = _simTrackstersProducer.clone(
 
 from Validation.Configuration.hltHGCalSimValid_cff import *
 
-def _addHltTiclGeom(process):
-    if not hasattr(process, 'hltTiclGeomESProducer'):
-        process.hltTiclGeomESProducer = _hltTiclGeomESProducer.clone()
+# The HLT validation consumes the HLT TICL geometry (data labels "hlt", "hltWithBarrel").
+# Decide where it comes from once the validation is loaded, so that a job holds one copy only:
+#  - HLT menu in the same job: use the menu's own instance;
+#  - offline reconstruction in the same job (and no HLT menu): the HLT and offline geometries
+#    are the same, so point the HLT validation modules at the offline labels instead of
+#    building a second copy;
+#  - neither (validation-only job): attach the HLT instance.
+# The producer is attached outside of any Task: an EventSetup module that belongs to a Task is
+# enabled only if that Task is scheduled, which would switch off the HLT menu's own instance in
+# jobs that load but do not schedule the HLT validation.
+_hltToOfflineTiclGeomLabel = {'hlt': '', 'hltWithBarrel': 'withBarrel'}
 
-addHltTiclGeomForHLTValidation = _phase2_common.makeProcessModifier(_addHltTiclGeom)
+def _setHltTiclGeom(process):
+    if hasattr(process, 'hltTiclGeomESProducer'):
+        return
+    if hasattr(process, 'ticlGeomESProducer'):
+        for module in list(process.producers_().values()) + list(process.analyzers_().values()):
+            for par in ('ticlGeom', 'ticlGeomWithBarrel'):
+                tag = getattr(module, par, None)
+                if isinstance(tag, cms.ESInputTag) and tag.getDataLabel() in _hltToOfflineTiclGeomLabel:
+                    setattr(module, par, cms.ESInputTag('', _hltToOfflineTiclGeomLabel[tag.getDataLabel()]))
+        return
+    process.hltTiclGeomESProducer = _hltTiclGeomESProducer.clone()
+
+setHltTiclGeomForHLTValidation = _phase2_common.makeProcessModifier(_setHltTiclGeom)
 
 hltTiclSimTrackstersTask = cms.Task(hltTrackAssociatorByHits,
                                     tpToHltGeneralTrackAssociation,
