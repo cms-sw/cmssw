@@ -54,6 +54,10 @@ namespace edm {
                     ModuleDescription const&,
                     ModuleCallingContext const*,
                     bool isAtEnd);
+    LuminosityBlock(LuminosityBlock const&) = delete;
+    LuminosityBlock& operator=(LuminosityBlock const&) = delete;
+    LuminosityBlock(LuminosityBlock&&) = delete;
+    LuminosityBlock& operator=(LuminosityBlock&&) = delete;
     ~LuminosityBlock() override;
 
     // AUX functions are defined in LuminosityBlockBase
