@@ -119,7 +119,7 @@ ZtoEEElectronTrackProducer::ZtoEEElectronTrackProducer(const edm::ParameterSet& 
 void ZtoEEElectronTrackProducer::produce(edm::StreamID streamID,
                                          edm::Event& iEvent,
                                          edm::EventSetup const& iSetup) const {
-  std::unique_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection());
+  std::unique_ptr<reco::TrackCollection> outputTColl = std::make_unique<reco::TrackCollection>();
 
   // Read Electron Collection
   edm::Handle<reco::GsfElectronCollection> electronColl;

@@ -10,6 +10,8 @@
 
 #include "Validation/RecoMuon/src/MuonSeedTrack.h"
 
+#include <memory>
+
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -78,7 +80,7 @@ void MuonSeedTrack::produce(edm::Event& event, const edm::EventSetup& eventSetup
   theService->update(eventSetup);
 
   // the track collectios; they will be loaded in the event
-  unique_ptr<reco::TrackCollection> trackCollection(new reco::TrackCollection());
+  unique_ptr<reco::TrackCollection> trackCollection = std::make_unique<reco::TrackCollection>();
   // ... and its reference into the event
   reco::TrackRefProd trackCollectionRefProd = event.getRefBeforePut<reco::TrackCollection>();
 

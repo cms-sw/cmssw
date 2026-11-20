@@ -316,8 +316,8 @@ void TauValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
   // Book 2D histograms for gen and reco tau kinematics
   for (auto& h2dVar : histoVars2D) {
     auto [nBinsX, hMinX, hMaxX, nBinsY, hMinY, hMaxY] = h2dVar.second;
-    auto x_title = h2dVar.first.substr(0, h2dVar.first.find("_"));
-    auto y_title = h2dVar.first.substr(h2dVar.first.find("_") + 1);
+    auto x_title = h2dVar.first.substr(0, h2dVar.first.find('_'));
+    auto y_title = h2dVar.first.substr(h2dVar.first.find('_') + 1);
     h2d_recoTau_[h2dVar.first] = ibooker.book2D(
         "recoTau_" + h2dVar.first, "#tau^{reco};" + x_title + ";" + y_title, nBinsX, hMinX, hMaxX, nBinsY, hMinY, hMaxY);
     h2d_recoTauMatched_[h2dVar.first] = ibooker.book2D("recoTauMatched_" + h2dVar.first,

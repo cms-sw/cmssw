@@ -87,7 +87,7 @@ namespace sistrip {
   const char* const SpyUnpackerModule::msgLb_ = "SiStripSpyUnpackerModule";
 
   SpyUnpackerModule::SpyUnpackerModule(const edm::ParameterSet& pset)
-      : fed_ids_(pset.getParameter<std::vector<uint32_t> >("FEDIDs")),
+      : fed_ids_(pset.getParameter<std::vector<uint32_t>>("FEDIDs")),
         productLabel_(pset.getParameter<edm::InputTag>("InputProductLabel")),
         allowIncompleteEvents_(pset.getParameter<bool>("AllowIncompleteEvents")),
         storeCounters_(pset.getParameter<bool>("StoreCounters")),
@@ -109,11 +109,11 @@ namespace sistrip {
                        << " Constructing object...";
 
     if (storeScopeRawDigis_)
-      produces<edm::DetSetVector<SiStripRawDigi> >("ScopeRawDigis");
+      produces<edm::DetSetVector<SiStripRawDigi>>("ScopeRawDigis");
 
     if (storeCounters_) {
-      produces<std::vector<uint32_t> >("L1ACount");
-      produces<std::vector<uint32_t> >("TotalEventCount");
+      produces<std::vector<uint32_t>>("L1ACount");
+      produces<std::vector<uint32_t>>("TotalEventCount");
     }
 
     produces<uint32_t>("GlobalRunNumber");
@@ -140,11 +140,11 @@ namespace sistrip {
     event.getByToken(productToken_, buffers);
 
     //create container for digis
-    std::unique_ptr<edm::DetSetVector<SiStripRawDigi> > digis(new edm::DetSetVector<SiStripRawDigi>);
+    std::unique_ptr<edm::DetSetVector<SiStripRawDigi>> digis = std::make_unique<edm::DetSetVector<SiStripRawDigi>>();
 
     //if necessary, create container for event counters
-    std::unique_ptr<std::vector<uint32_t> > pTotalCounts(new std::vector<uint32_t>);
-    std::unique_ptr<std::vector<uint32_t> > pL1ACounts(new std::vector<uint32_t>);
+    std::unique_ptr<std::vector<uint32_t>> pTotalCounts = std::make_unique<std::vector<uint32_t>>();
+    std::unique_ptr<std::vector<uint32_t>> pL1ACounts = std::make_unique<std::vector<uint32_t>>();
     //and for run number
     std::unique_ptr<uint32_t> pGlobalRun(new uint32_t);
     //create digis

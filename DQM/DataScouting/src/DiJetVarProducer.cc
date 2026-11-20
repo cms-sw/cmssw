@@ -44,7 +44,8 @@ void DiJetVarProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Eve
   // ## The output collections
   // std::unique_ptr<std::vector<double> > dijetvariables(new
   // std::vector<double>);
-  std::unique_ptr<std::vector<math::PtEtaPhiMLorentzVector>> widejets(new std::vector<math::PtEtaPhiMLorentzVector>);
+  std::unique_ptr<std::vector<math::PtEtaPhiMLorentzVector>> widejets =
+      std::make_unique<std::vector<math::PtEtaPhiMLorentzVector>>();
 
   // ## Get jet collection
   edm::Handle<reco::CaloJetCollection> calojets_handle;

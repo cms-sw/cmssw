@@ -157,9 +157,9 @@ void SiPixelClusterModule::book(const edm::ParameterSet &iConfig,
     sprintf(sladder, "Ladder_%02i", DBladder);
     hid = src.label() + "_" + sladder;
     if (isHalfModule)
-      hid += "H";
+      hid += 'H';
     else
-      hid += "F";
+      hid += 'F';
     // Number of clusters
     meNClustersLad_ = iBooker.book1D("nclusters_" + hid, "Number of Clusters", 8, 0., 8.);
     meNClustersLad_->setAxisTitle("Number of Clusters", 1);
