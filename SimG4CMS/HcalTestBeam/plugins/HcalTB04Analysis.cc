@@ -220,7 +220,7 @@ HcalTB04Analysis::~HcalTB04Analysis() {
 //
 
 void HcalTB04Analysis::produce(edm::Event& e, const edm::EventSetup&) {
-  std::unique_ptr<PHcalTB04Info> product(new PHcalTB04Info);
+  std::unique_ptr<PHcalTB04Info> product = std::make_unique<PHcalTB04Info>();
   fillEvent(*product);
   e.put(std::move(product));
 }

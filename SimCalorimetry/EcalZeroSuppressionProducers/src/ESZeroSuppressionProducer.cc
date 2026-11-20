@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "SimCalorimetry/EcalZeroSuppressionProducers/interface/ESZeroSuppressionProducer.h"
@@ -29,7 +31,7 @@ void ESZeroSuppressionProducer::produce(edm::Event &event, const edm::EventSetup
     fullESDigis = false;
   }
 
-  std::unique_ptr<ESDigiCollection> ESZSDigis(new ESDigiCollection());
+  std::unique_ptr<ESDigiCollection> ESZSDigis = std::make_unique<ESDigiCollection>();
 
   if (fullESDigis) {
     for (ESDigiCollection::const_iterator i(ESDigis->begin()); i != ESDigis->end(); ++i) {

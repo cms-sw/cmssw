@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <map>
+#include <memory>
 #include <vector>
 
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -38,7 +39,7 @@ SimHitTPAssociationProducer::SimHitTPAssociationProducer(const edm::ParameterSet
 SimHitTPAssociationProducer::~SimHitTPAssociationProducer() {}
 
 void SimHitTPAssociationProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &es) const {
-  std::unique_ptr<SimHitTPAssociationList> simHitTPList(new SimHitTPAssociationList);
+  std::unique_ptr<SimHitTPAssociationList> simHitTPList = std::make_unique<SimHitTPAssociationList>();
 
   // TrackingParticle
   edm::Handle<TrackingParticleCollection> TPCollectionH;

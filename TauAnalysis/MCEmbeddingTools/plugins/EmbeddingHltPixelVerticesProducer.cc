@@ -67,7 +67,7 @@ EmbeddingHltPixelVerticesProducer::~EmbeddingHltPixelVerticesProducer() {}
 // ------------ method called to produce the data  ------------
 void EmbeddingHltPixelVerticesProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
-  std::unique_ptr<reco::VertexCollection> embeddingVertex(new reco::VertexCollection);
+  std::unique_ptr<reco::VertexCollection> embeddingVertex = std::make_unique<reco::VertexCollection>();
   Handle<math::XYZTLorentzVectorD> vertex_position;
   iEvent.getByLabel(vertexPositionLabel, vertex_position);
   math::XYZPoint genVertex =

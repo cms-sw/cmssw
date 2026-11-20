@@ -90,13 +90,13 @@ namespace edm {
     }
     ~HiMixingWorker() override { ; }
     void addSignals(edm::Event& e) override {
-      std::vector<Handle<std::vector<T> > > handles;
+      std::vector<Handle<std::vector<T>>> handles;
       bool get = true;
       for (size_t itag = 0; itag < tags_.size(); ++itag) {
         LogInfo("HiEmbedding") << "itag " << itag;
         LogInfo("HiEmbedding") << "label " << tags_[itag].label();
         LogInfo("HiEmbedding") << "instance " << tags_[itag].instance();
-        Handle<std::vector<T> > hand;
+        Handle<std::vector<T>> hand;
         handles.push_back(hand);
         get = get && e.getByLabel(tags_[itag], handles[itag]);
         if (!get)
@@ -106,7 +106,7 @@ namespace edm {
       }
 
       if (get) {
-        std::unique_ptr<CrossingFrame<T> > crFrame(new CrossingFrame<T>());
+        std::unique_ptr<CrossingFrame<T>> crFrame(new CrossingFrame<T>());
         crFrame->addSignals(handles[0].product(), e.id());
         for (size_t itag = 1; itag < tags_.size(); ++itag) {
           std::vector<T>* product = const_cast<std::vector<T>*>(handles[itag].product());
@@ -123,7 +123,7 @@ namespace edm {
 
   template <>
   void HiMixingWorker<HepMCProduct>::addSignals(edm::Event& e) {
-    std::vector<Handle<HepMCProduct> > handles;
+    std::vector<Handle<HepMCProduct>> handles;
     bool get = true;
     for (size_t itag = 0; itag < tags_.size(); ++itag) {
       Handle<HepMCProduct> hand;
@@ -136,7 +136,7 @@ namespace edm {
     }
 
     if (get) {
-      std::unique_ptr<CrossingFrame<HepMCProduct> > crFrame(new CrossingFrame<HepMCProduct>());
+      std::unique_ptr<CrossingFrame<HepMCProduct>> crFrame = std::make_unique<CrossingFrame<HepMCProduct>>();
       crFrame->addSignals(handles[0].product(), e.id());
       for (size_t itag = 1; itag < tags_.size(); ++itag) {
         HepMCProduct* product = const_cast<HepMCProduct*>(handles[itag].product());
@@ -172,8 +172,8 @@ namespace edm {
   HiMixingModule::HiMixingModule(const edm::ParameterSet& pset) {
     ParameterSet ps = pset.getParameter<ParameterSet>("mixObjects");
     std::vector<std::string> names = ps.getParameterNames();
-    std::vector<std::string> simtags = pset.getParameter<std::vector<std::string> >("srcSIM");
-    std::vector<std::string> gentags = pset.getParameter<std::vector<std::string> >("srcGEN");
+    std::vector<std::string> simtags = pset.getParameter<std::vector<std::string>>("srcSIM");
+    std::vector<std::string> gentags = pset.getParameter<std::vector<std::string>>("srcGEN");
 
     if (simtags.size() != gentags.size())
       LogError("MixingInput") << "Generator and Simulation input lists are not matching each other" << endl;
@@ -183,7 +183,7 @@ namespace edm {
       if (!pstag.exists("type"))
         continue;  //to allow replacement by empty pset
       std::string object = pstag.getParameter<std::string>("type");
-      std::vector<InputTag> tags = pstag.getParameter<std::vector<InputTag> >("input");
+      std::vector<InputTag> tags = pstag.getParameter<std::vector<InputTag>>("input");
 
       std::string signal;
       for (size_t itag = 0; itag < tags.size(); ++itag) {
@@ -202,24 +202,24 @@ namespace edm {
         //	 verifyRegistry(object,std::string(""),tag,label);
         if (object == "HepMCProduct") {
           workers_.push_back(new HiMixingWorker<HepMCProduct>(object, inputs, label));
-          produces<CrossingFrame<HepMCProduct> >(label);
+          produces<CrossingFrame<HepMCProduct>>(label);
           consumes<HepMCProduct>(tag);
         } else if (object == "SimTrack") {
           workers_.push_back(new HiMixingWorker<SimTrack>(object, inputs, label));
-          produces<CrossingFrame<SimTrack> >(label);
-          consumes<std::vector<SimTrack> >(tag);
+          produces<CrossingFrame<SimTrack>>(label);
+          consumes<std::vector<SimTrack>>(tag);
         } else if (object == "SimVertex") {
           workers_.push_back(new HiMixingWorker<SimVertex>(object, inputs, label));
-          produces<CrossingFrame<SimVertex> >(label);
-          consumes<std::vector<SimVertex> >(tag);
+          produces<CrossingFrame<SimVertex>>(label);
+          consumes<std::vector<SimVertex>>(tag);
         } else if (object == "PSimHit") {
           workers_.push_back(new HiMixingWorker<PSimHit>(object, inputs, label));
-          produces<CrossingFrame<PSimHit> >(label);
-          consumes<std::vector<PSimHit> >(tag);
+          produces<CrossingFrame<PSimHit>>(label);
+          consumes<std::vector<PSimHit>>(tag);
         } else if (object == "PCaloHit") {
           workers_.push_back(new HiMixingWorker<PCaloHit>(object, inputs, label));
-          produces<CrossingFrame<PCaloHit> >(label);
-          consumes<std::vector<PCaloHit> >(tag);
+          produces<CrossingFrame<PCaloHit>>(label);
+          consumes<std::vector<PCaloHit>>(tag);
         } else
           LogInfo("Error") << "What the hell is this object?!";
 

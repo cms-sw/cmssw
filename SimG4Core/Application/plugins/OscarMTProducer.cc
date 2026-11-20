@@ -244,8 +244,8 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     evt = m_runManagerWorker->produce(e, es, m_masterThread->runManagerMaster());
   });
 
-  std::unique_ptr<edm::SimTrackContainer> p1(new edm::SimTrackContainer);
-  std::unique_ptr<edm::SimVertexContainer> p2(new edm::SimVertexContainer);
+  std::unique_ptr<edm::SimTrackContainer> p1 = std::make_unique<edm::SimTrackContainer>();
+  std::unique_ptr<edm::SimVertexContainer> p2 = std::make_unique<edm::SimVertexContainer>();
   evt->load(*p1);
   evt->load(*p2);
 
@@ -278,7 +278,7 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   for (auto const& tracker : sTk) {
     const std::vector<std::string>& v = tracker->getNames();
     for (auto const& name : v) {
-      std::unique_ptr<edm::PSimHitContainer> product(new edm::PSimHitContainer);
+      std::unique_ptr<edm::PSimHitContainer> product = std::make_unique<edm::PSimHitContainer>();
       tracker->fillHits(*product, name);
       if (0 < m_verbose && product != nullptr && !product->empty())
         edm::LogVerbatim("SimG4CoreApplication") << "Produced " << product->size() << " tracker hits <" << name << ">";
@@ -288,7 +288,7 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   for (auto const& calo : sCalo) {
     const std::vector<std::string>& v = calo->getNames();
     for (auto const& name : v) {
-      std::unique_ptr<edm::PCaloHitContainer> product(new edm::PCaloHitContainer);
+      std::unique_ptr<edm::PCaloHitContainer> product = std::make_unique<edm::PCaloHitContainer>();
       calo->fillHits(*product, name);
       if (0 < m_verbose && product != nullptr && !product->empty())
         edm::LogVerbatim("SimG4CoreApplication") << "Produced " << product->size() << " calo hits <" << name << ">";
