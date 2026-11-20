@@ -51,7 +51,7 @@ std::string trigger::EgammaObject::varNamesStr() const {
   auto names = varNames();
   for (const auto& name : names) {
     if (!retVal.empty())
-      retVal += " ";
+      retVal += ' ';
     retVal += name;
   }
   return retVal;

@@ -6,6 +6,8 @@
  *
  */
 
+#include <memory>
+
 #include "HLTrigger/JetMET/interface/HLTPFJetIDProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -53,7 +55,7 @@ void HLTPFJetIDProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
 // Produce the products
 void HLTPFJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Create a pointer to the products
-  std::unique_ptr<reco::PFJetCollection> result(new reco::PFJetCollection());
+  std::unique_ptr<reco::PFJetCollection> result = std::make_unique<reco::PFJetCollection>();
 
   edm::Handle<reco::PFJetCollection> pfjets;
   iEvent.getByToken(m_thePFJetToken, pfjets);

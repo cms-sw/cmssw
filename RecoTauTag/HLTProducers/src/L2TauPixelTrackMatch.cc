@@ -1,4 +1,6 @@
 
+#include <memory>
+
 #include "RecoTauTag/HLTProducers/interface/L2TauPixelTrackMatch.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -72,7 +74,7 @@ void L2TauPixelTrackMatch::produce(edm::StreamID, edm::Event& ev, const edm::Eve
   // *** Match tau jets to intertesting tracks  and assign them new vertices ***
 
   // the new product
-  std::unique_ptr<CaloJetCollection> new_tau_jets(new CaloJetCollection);
+  std::unique_ptr<CaloJetCollection> new_tau_jets = std::make_unique<CaloJetCollection>();
   if (!good_tracks.empty())
     for (size_t i = 0; i < n_jets; ++i) {
       const reco::CaloJetRef& jet = tau_jets[i];

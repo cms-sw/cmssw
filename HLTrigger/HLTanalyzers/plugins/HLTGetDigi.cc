@@ -95,10 +95,10 @@ HLTGetDigi::HLTGetDigi(const edm::ParameterSet& ps) : l1GtParamsToken_(esConsume
     HFdigiToken_ = consumes<HFDigiCollection>(HFdigiCollection_);
   }
   if (getPixelDigis_) {
-    PXLdigiToken_ = consumes<edm::DetSetVector<PixelDigi> >(PXLdigiCollection_);
+    PXLdigiToken_ = consumes<edm::DetSetVector<PixelDigi>>(PXLdigiCollection_);
   }
   if (getStripDigis_) {
-    SSTdigiToken_ = consumes<edm::DetSetVector<SiStripDigi> >(SSTdigiCollection_);
+    SSTdigiToken_ = consumes<edm::DetSetVector<SiStripDigi>>(SSTdigiCollection_);
   }
   if (getCSCDigis_) {
     CSCStripdigiToken_ = consumes<CSCStripDigiCollection>(CSCStripdigiCollection_);
@@ -141,7 +141,7 @@ HLTGetDigi::HLTGetDigi(const edm::ParameterSet& ps) : l1GtParamsToken_(esConsume
     GtRRToken_ = consumes<L1GlobalTriggerReadoutRecord>(GtRRLabel_);
   }
   if (getGmtCands_) {
-    GmtCandsToken_ = consumes<std::vector<L1MuGMTCand> >(GmtCandsLabel_);
+    GmtCandsToken_ = consumes<std::vector<L1MuGMTCand>>(GmtCandsLabel_);
   }
   if (getGmtRC_) {
     GmtReadoutToken_ = consumes<L1MuGMTReadoutCollection>(GmtReadoutCollection_);
@@ -253,7 +253,7 @@ void HLTGetDigi::analyze(edm::StreamID, const edm::Event& iEvent, const edm::Eve
   const L1GctJetCandCollection* cenJetDigis = nullptr;
   const L1GctJetCandCollection* forJetDigis = nullptr;
   const L1GctJetCandCollection* tauJetDigis = nullptr;
-  std::unique_ptr<L1GctJetCounts> newCounts(new L1GctJetCounts());
+  std::unique_ptr<L1GctJetCounts> newCounts = std::make_unique<L1GctJetCounts>();
   L1GctJetCounts* counts = newCounts.get();
 
   if (getGctJetDigis_) {
@@ -297,9 +297,9 @@ void HLTGetDigi::analyze(edm::StreamID, const edm::Event& iEvent, const edm::Eve
   auto const& l1GtParamsHandle = iSetup.getHandle(l1GtParamsToken_);
   auto const nBx = l1GtParamsHandle->gtTotalBxInEvent();
 
-  std::unique_ptr<L1GlobalTriggerEvmReadoutRecord> newGtEvm(new L1GlobalTriggerEvmReadoutRecord(nBx));
-  std::unique_ptr<L1GlobalTriggerObjectMapRecord> newGtMap(new L1GlobalTriggerObjectMapRecord());
-  std::unique_ptr<L1GlobalTriggerReadoutRecord> newGtRR(new L1GlobalTriggerReadoutRecord(nBx));
+  std::unique_ptr<L1GlobalTriggerEvmReadoutRecord> newGtEvm = std::make_unique<L1GlobalTriggerEvmReadoutRecord>(nBx);
+  std::unique_ptr<L1GlobalTriggerObjectMapRecord> newGtMap = std::make_unique<L1GlobalTriggerObjectMapRecord>();
+  std::unique_ptr<L1GlobalTriggerReadoutRecord> newGtRR = std::make_unique<L1GlobalTriggerReadoutRecord>(nBx);
   L1GlobalTriggerEvmReadoutRecord* evm = newGtEvm.get();
   L1GlobalTriggerObjectMapRecord* map = newGtMap.get();
   L1GlobalTriggerReadoutRecord* rr = newGtRR.get();
@@ -317,10 +317,10 @@ void HLTGetDigi::analyze(edm::StreamID, const edm::Event& iEvent, const edm::Eve
     *rr = *gtRR.product();
   }
 
-  edm::Handle<std::vector<L1MuGMTCand> > GmtCands;
+  edm::Handle<std::vector<L1MuGMTCand>> GmtCands;
   edm::Handle<L1MuGMTReadoutCollection> GmtMuCollection;
-  std::unique_ptr<std::vector<L1MuGMTCand> > cands(new std::vector<L1MuGMTCand>);
-  std::unique_ptr<L1MuGMTReadoutCollection> muCollection(new L1MuGMTReadoutCollection(nBx));
+  std::unique_ptr<std::vector<L1MuGMTCand>> cands = std::make_unique<std::vector<L1MuGMTCand>>();
+  std::unique_ptr<L1MuGMTReadoutCollection> muCollection = std::make_unique<L1MuGMTReadoutCollection>(nBx);
 
   if (getGmtCands_) {
     iEvent.getByToken(GmtCandsToken_, GmtCands);
@@ -333,16 +333,16 @@ void HLTGetDigi::analyze(edm::StreamID, const edm::Event& iEvent, const edm::Eve
     LogDebug("DigiInfo") << "GMT muons present: " << muons.size();
   }
 
-  edm::Handle<DetSetVector<PixelDigi> > input;
-  unique_ptr<DetSetVector<PixelDigi> > NewPixelDigi(new DetSetVector<PixelDigi>);
+  edm::Handle<DetSetVector<PixelDigi>> input;
+  unique_ptr<DetSetVector<PixelDigi>> NewPixelDigi = std::make_unique<DetSetVector<PixelDigi>>();
   DetSetVector<PixelDigi>* tt = NewPixelDigi.get();
   if (getPixelDigis_) {
     iEvent.getByToken(PXLdigiToken_, input);
     *tt = *input.product();
   }
 
-  edm::Handle<edm::DetSetVector<SiStripDigi> > input2;
-  unique_ptr<DetSetVector<SiStripDigi> > NewSiDigi(new DetSetVector<SiStripDigi>);
+  edm::Handle<edm::DetSetVector<SiStripDigi>> input2;
+  unique_ptr<DetSetVector<SiStripDigi>> NewSiDigi = std::make_unique<DetSetVector<SiStripDigi>>();
   DetSetVector<SiStripDigi>* uu = NewSiDigi.get();
   if (getStripDigis_) {
     iEvent.getByToken(SSTdigiToken_, input2);

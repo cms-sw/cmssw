@@ -14,6 +14,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include <sys/time.h>
+#include <memory>
 #include <string>
 #include <ostream>
 
@@ -189,7 +190,7 @@ void HLTPrescaleRecorder::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   if (event_) {
     /// Writing to Event
-    unique_ptr<HLTPrescaleTable> product(new HLTPrescaleTable(hlt_));
+    unique_ptr<HLTPrescaleTable> product = std::make_unique<HLTPrescaleTable>(hlt_);
     iEvent.put(std::move(product), "Event");
   }
 
@@ -200,7 +201,7 @@ void HLTPrescaleRecorder::endLuminosityBlock(edm::LuminosityBlock const& iLumi, 
 void HLTPrescaleRecorder::endLuminosityBlockProduce(edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) {
   if (lumi_) {
     /// Writing to Lumi Block
-    unique_ptr<HLTPrescaleTable> product(new HLTPrescaleTable(hlt_));
+    unique_ptr<HLTPrescaleTable> product = std::make_unique<HLTPrescaleTable>(hlt_);
     iLumi.put(std::move(product), "Lumi");
   }
   return;
@@ -247,7 +248,7 @@ void HLTPrescaleRecorder::endRun(edm::Run const& iRun, const edm::EventSetup& iS
 void HLTPrescaleRecorder::endRunProduce(edm::Run& iRun, const edm::EventSetup& iSetup) {
   if (run_) {
     /// Writing to Run Block
-    unique_ptr<HLTPrescaleTable> product(new HLTPrescaleTable(hlt_));
+    unique_ptr<HLTPrescaleTable> product = std::make_unique<HLTPrescaleTable>(hlt_);
     iRun.put(std::move(product), "Run");
   }
 }
