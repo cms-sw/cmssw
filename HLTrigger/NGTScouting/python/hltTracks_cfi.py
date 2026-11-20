@@ -179,3 +179,34 @@ hltGeneralTrackExtTable = cms.EDProducer("HLTTracksExtraTableProducer",
                                          tracksSrc = cms.InputTag("hltGeneralTracks"),
                                          beamSpot = cms.InputTag("hltOnlineBeamSpot"),
                                          precision = cms.int32(7))
+
+# Per-track TrackingParticle matching for hltGeneralTracks (validation flavours only).
+# Reads the precomputed tpToHltGeneralTrackAssociation maps: useMuonAssociators=True just
+# means "consume RecoToSim/SimToReco collections instead of running an associator".
+generalTrackAssoc = trackingAssocValueMapsProducer.clone(
+    trackCollection =  cms.InputTag("hltGeneralTracks"),
+    associator = cms.InputTag("tpToHltGeneralTrackAssociation"),
+    trackingParticles = cms.InputTag("mix", "MergedTrackTruth"),
+    storeTPKinematics = cms.bool(True),
+    useMuonAssociators = cms.bool(True)
+)
+
+hltGeneralTrackTPTable = cms.EDProducer(
+    "SimpleTriggerTrackFlatTableProducer",
+    skipNonExistingSrc = cms.bool(True),
+    src = cms.InputTag("hltGeneralTracks"),
+    cut = cms.string(""),
+    name = cms.string("hltGeneralTrack"),
+    doc = cms.string("HLT General Track TrackingParticle matching information"),
+    extension = cms.bool(True),
+    variables = cms.PSet(),
+    externalVariables = hltPixelTrackTable.externalVariables.clone(
+        matched   = dict(src = "generalTrackAssoc:matched"),
+        duplicate = dict(src = "generalTrackAssoc:duplicate"),
+        tpPdgId   = dict(src = "generalTrackAssoc:tpPdgId"),
+        tpCharge  = dict(src = "generalTrackAssoc:tpCharge"),
+        tpPt      = dict(src = "generalTrackAssoc:tpPt"),
+        tpEta     = dict(src = "generalTrackAssoc:tpEta"),
+        tpPhi     = dict(src = "generalTrackAssoc:tpPhi"),
+    )
+)
