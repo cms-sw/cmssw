@@ -266,11 +266,15 @@ _phase2LSTmkFit.toModify(highPtTripletStepTrackCandidatesMkFitSeeds,
 )
 _phase2LSTmkFit.toModify(highPtTripletStepTrackCandidatesMkFit,
     stripHits = cms.InputTag("mkFitSiPhase2Hits"),
-    clustersToSkip = cms.InputTag("")
+    clustersToSkip = cms.InputTag(""),
+    buildingRoutine = 'v2p2'
 )
+# MkFinderV2p2 in the LST step: a layer the candidate does not reach counts as a hole for the bare pixel triplets
+# among its seeds, until the first hit beyond the seed, and hits are accepted on the plain chi2
 _phase2LSTmkFit.toModify(highPtTripletStepTrackCandidatesMkFitConfig,
     config = cms.FileInPath('RecoTracker/MkFit/data/mkfit-phase2-lstStep-offline.json'),
-    minPt = cms.double(0)                                                    
+    minPt = cms.double(0),
+    v2p2 = dict(outsideHoleMaxSeedHits = 3, hitChi2TrackFactor = 1.0)
 )
 
 # For Phase2PU140
