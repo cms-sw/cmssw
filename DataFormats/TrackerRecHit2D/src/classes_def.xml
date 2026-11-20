@@ -9,9 +9,26 @@
    <version ClassVersion="3" checksum="2049188155"/>
   </class>	 
 
-  <class name="io_v1::OmniClusterRef"  ClassVersion="3">
+  <class name="io_v1::OmniClusterRef" ClassVersion="4">
+   <version ClassVersion="4" checksum="2409258018"/>
    <version ClassVersion="3" checksum="2409258018"/>
   </class>
+
+  // before version 4, isTiming references pointed to FTLClusters, not FTLMergedClusters 
+  <ioread sourceClass="io_v1::OmniClusterRef"
+          targetClass="io_v1::OmniClusterRef"
+          version="[-3]"
+          source="edm::RefCoreWithIndex me"
+          target="me"
+          include="FWCore/Utilities/interface/Exception.h">
+   <![CDATA[
+    me = onfile.me;
+    if (newObj->isTiming()) {
+      throw cms::Exception("IncompatibleMTDClusterReference")
+          << "Reading an old OmniClusterRef that containst a reference to an FTLCluster. This version expects FTLMergedClusters. Please drop the old objects containing FTLClusters and rerun the MTDMergedCluster TrackingRecHit producers.";
+    }
+   ]]>
+  </ioread>
 
   <class name="SiStripRecHit1D"  ClassVersion="3">
    <version ClassVersion="3" checksum="273670156"/>
