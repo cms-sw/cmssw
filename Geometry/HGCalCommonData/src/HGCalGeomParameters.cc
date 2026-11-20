@@ -2019,8 +2019,11 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(HGCalParameters& php,
                                                               hex5,
                                                               hex6);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "Tile[" << k << ":" << tileIndx[k] << "] "
-                                  << " Type " << HGCalProperty::tileType(tileProperty[k]) << " SiPM "
+    edm::LogVerbatim("HGCalGeom") << "Tile[" << k << ":" << tileIndx[k] << "] " << " Layer|Ring|Phi "
+                                  << HGCalTileIndex::tileLayer(tileIndx[k]) << ":"
+                                  << HGCalTileIndex::tileRing(tileIndx[k]) << ":"
+                                  << HGCalTileIndex::tilePhi(tileIndx[k]) << " Type "
+                                  << HGCalProperty::tileType(tileProperty[k]) << " SiPM "
                                   << HGCalProperty::tileSiPM(tileProperty[k]) << " HEX " << std::hex << tileHEX1[k]
                                   << ":" << tileHEX2[k] << ":" << tileHEX3[k] << ":" << tileHEX4[k] << ":" << hex5
                                   << ":" << hex6 << std::dec;
