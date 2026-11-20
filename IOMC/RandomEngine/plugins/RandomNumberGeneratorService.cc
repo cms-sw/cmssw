@@ -34,6 +34,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/calculateCRC32.h"
+#include "IOMC/RandomEngine/interface/PhiloxEngine.h"
 #include "IOMC/RandomEngine/interface/TRandomAdaptor.h"
 #include "IOMC/RandomEngine/interface/cloneEngine.h"
 #include "SimDataFormats/RandomEngine/interface/RandomEngineState.h"
@@ -67,7 +69,18 @@ namespace edm {
           restoreFileName_(pset.getUntrackedParameter<std::string>("restoreFileName")),
           enableChecking_(pset.getUntrackedParameter<bool>("enableChecking")),
           eventSeedOffset_(pset.getUntrackedParameter<unsigned>("eventSeedOffset")),
+          eventSeeding_(pset.getUntrackedParameter<std::string>("seedingMode") == "event"),
           verbose_(pset.getUntrackedParameter<bool>("verbose")) {
+      std::string const seedingMode = pset.getUntrackedParameter<std::string>("seedingMode");
+      if (seedingMode != "stream" and seedingMode != "event") {
+        throw Exception(errors::Configuration) << "The RandomNumberGeneratorService parameter seedingMode must be\n"
+                                               << "\"stream\" or \"event\". It was \"" << seedingMode << "\".\n";
+      }
+      if (eventSeeding_ and !restoreFileName_.empty()) {
+        throw Exception(errors::Configuration)
+            << "The RandomNumberGeneratorService cannot use seedingMode \"event\" together with\n"
+            << "restoreFileName. In event mode the seeds of each event come from the EventID.\n";
+      }
       if (pset.exists("restoreStateTag")) {
         restoreStateTag_ = pset.getUntrackedParameter<edm::InputTag>("restoreStateTag");
         if (restoreStateTag_.process().empty()) {
@@ -154,7 +167,7 @@ namespace edm {
         else {
           if (initialSeedSet.size() != 1U) {
             throw Exception(errors::Configuration)
-                << "Random engines of type \"HepJamesRandom\", \"TRandom3\" and \"MixMaxRng\" \n"
+                << "Random engines of type \"HepJamesRandom\", \"TRandom3\", \"MixMaxRng\" and \"PhiloxEngine\"\n"
                 << "require exactly 1 seed be specified in the configuration.\n"
                 << "There were " << initialSeedSet.size() << " seeds set for the\n"
                 << "module with label \"" << label << "\".\n";
@@ -177,7 +190,7 @@ namespace edm {
                   << initialSeedSet[0] << ".  This was for \n"
                   << "the module with label " << label << ".\n";
             }
-          } else if (engineName == "TRandom3") {
+          } else if (engineName == "TRandom3" || engineName == "PhiloxEngine") {
             if (initialSeedSet[0] > maxSeedTRandom3) {
               throw Exception(errors::Configuration)
                   << "The CLHEP::MixMaxRng engine seed should be in the range 0 to " << maxSeedTRandom3 << ".\n"
@@ -190,6 +203,19 @@ namespace edm {
             throw Exception(errors::Configuration)
                 << "The random engine name, \"" << engineName << "\", does not correspond to a supported engine.\n"
                 << "This engine was configured for the module with label \"" << label << "\"";
+          }
+        }
+      }
+      if (eventSeeding_) {
+        // The CRC32 of the label separates modules that have the same seed.
+        std::map<std::uint32_t, std::string> labelHashes;
+        for (auto const& entry : seedsAndNameMap_) {
+          auto const [iter, inserted] = labelHashes.emplace(cms::calculateCRC32(entry.first), entry.first);
+          if (not inserted) {
+            throw Exception(errors::Configuration)
+                << "The RandomNumberGeneratorService with seedingMode \"event\" needs a different CRC32\n"
+                << "for each module label. The labels \"" << iter->second << "\" and \"" << entry.first
+                << "\" have the same CRC32.\n";
           }
         }
       }
@@ -259,6 +285,7 @@ namespace edm {
                "where you replace \"your_seed\" with a number and add a comma if necessary\n"
                "The \"engineName\" parameter is optional. If absent the default is \"HepJamesRandom\".\n";
       }
+      checkEventSeedable(*iter->labelAndEngine());
       return *iter->labelAndEngine()->engine();
     }
 
@@ -293,6 +320,7 @@ namespace edm {
                "where you replace \"your_seed\" with a number and add a comma if necessary\n"
                "The \"engineName\" parameter is optional. If absent the default is \"HepJamesRandom\".\n";
       }
+      checkEventSeedable(*iter->labelAndEngine());
       return *iter->labelAndEngine()->engine();
     }
 
@@ -353,6 +381,12 @@ namespace edm {
       desc.addUntracked<std::string>("restoreFileName", emptyString);
       desc.addUntracked<bool>("enableChecking", false);
       desc.addUntracked<unsigned>("eventSeedOffset", 0U);
+      desc.addUntracked<std::string>("seedingMode", "stream")
+          ->setComment(
+              "\"stream\": each stream engine continues from event to event. "
+              "\"event\": the service seeds each engine at the start of each event from the seed (plus "
+              "eventSeedOffset), the module label and the EventID, so the numbers do not depend on the stream. "
+              "In event mode, a module can request only an engine of type MixMaxRng or PhiloxEngine.");
       desc.addUntracked<bool>("verbose", false);
 
       ParameterSetDescription val;
@@ -443,6 +477,10 @@ namespace edm {
       if (!restoreStateTag_.label().empty()) {
         // Copy from a product in the LuminosityBlock to cache for a particular luminosityBlockIndex
         readFromLuminosityBlock(lumi);
+      } else if (eventSeeding_) {
+        reseedEngines(lumiEngines_[lumi.index()], lumi.run(), lumi.luminosityBlock(), 0);
+        snapShot(lumiEngines_[lumi.index()], lumiCache_[lumi.index()]);
+        return;
       }
       // Copy from cache to engine the state for a particular luminosityBlockIndex
       restoreFromCache(lumiCache_[lumi.index()], lumiEngines_[lumi.index()]);
@@ -460,6 +498,10 @@ namespace edm {
         restoreFromCache(eventCache_[event.streamID()], streamEngines_[event.streamID()]);
 
       } else {
+        if (eventSeeding_) {
+          reseedEngines(
+              streamEngines_[event.streamID()], event.id().run(), event.luminosityBlock(), event.id().event());
+        }
         // copy from engines to event cache
         snapShot(streamEngines_[event.streamID()], eventCache_[event.streamID()]);
       }
@@ -569,6 +611,9 @@ namespace edm {
       os << "    restoreFileName_ = " << restoreFileName_ << "\n";
       os << "    enableChecking_ = " << enableChecking_ << "\n";
       os << "    eventSeedOffset_ = " << eventSeedOffset_ << "\n";
+      if (eventSeeding_) {
+        os << "    eventSeeding_ = " << eventSeeding_ << "\n";
+      }
       os << "    verbose_ = " << verbose_ << "\n";
       os << "    restoreStateTag_ = " << restoreStateTag_ << "\n";
       os << "    restoreStateBeginLumiTag_ = " << restoreStateBeginLumiTag_ << "\n";
@@ -775,6 +820,13 @@ namespace edm {
 
           // This line actually restores the engine state.
           engine->setSeed(engineSeedsL[0], 0);
+          engine->get(engineStateL);
+
+          labelAndEngine->setSeed(engineSeeds[0], 0);
+        } else if (engineStateL[0] == CLHEP::engineIDulong<PhiloxEngine>()) {
+          checkEngineType(engine->name(), PhiloxEngine::engineName(), engineLabel);
+
+          // This line actually restores the engine state.
           engine->get(engineStateL);
 
           labelAndEngine->setSeed(engineSeeds[0], 0);
@@ -1086,10 +1138,12 @@ namespace edm {
           std::string const& label = i.first;
           std::string const& name = i.second.engineName();
           VUint32 const& seeds = i.second.seeds();
+          edm::philox::Key const eventKey{{seeds[0] + eventSeedOffset_, cms::calculateCRC32(label)}};
+          bool const eventSeedable = name == "MixMaxRng" or name == "PhiloxEngine";
 
           if (name == "RanecuEngine") {
             std::shared_ptr<CLHEP::HepRandomEngine> engine = std::make_shared<CLHEP::RanecuEngine>();
-            engines.emplace_back(label, seeds, engine);
+            engines.emplace_back(label, seeds, engine, eventKey, eventSeedable);
             resetEngineSeeds(engines.back(), name, seeds, seedOffset, eventSeedOffset);
           }
           // For the other engines, one seed is required
@@ -1098,13 +1152,19 @@ namespace edm {
 
             if (name == "HepJamesRandom") {
               std::shared_ptr<CLHEP::HepRandomEngine> engine = std::make_shared<CLHEP::HepJamesRandom>(seedL);
-              engines.emplace_back(label, seeds, engine);
+              engines.emplace_back(label, seeds, engine, eventKey, eventSeedable);
               if (seedOffset != 0 || eventSeedOffset != 0) {
                 resetEngineSeeds(engines.back(), name, seeds, seedOffset, eventSeedOffset);
               }
             } else if (name == "MixMaxRng") {
               std::shared_ptr<CLHEP::HepRandomEngine> engine = std::make_shared<CLHEP::MixMaxRng>(seedL);
-              engines.emplace_back(label, seeds, engine);
+              engines.emplace_back(label, seeds, engine, eventKey, eventSeedable);
+              if (seedOffset != 0 || eventSeedOffset != 0) {
+                resetEngineSeeds(engines.back(), name, seeds, seedOffset, eventSeedOffset);
+              }
+            } else if (name == "PhiloxEngine") {
+              std::shared_ptr<CLHEP::HepRandomEngine> engine = std::make_shared<PhiloxEngine>(seedL);
+              engines.emplace_back(label, seeds, engine, eventKey, eventSeedable);
               if (seedOffset != 0 || eventSeedOffset != 0) {
                 resetEngineSeeds(engines.back(), name, seeds, seedOffset, eventSeedOffset);
               }
@@ -1121,7 +1181,7 @@ namespace edm {
               assert(seeds[0] == seedu32);
 
               std::shared_ptr<CLHEP::HepRandomEngine> engine = std::make_shared<TRandomAdaptor>(seedL);
-              engines.emplace_back(label, seeds, engine);
+              engines.emplace_back(label, seeds, engine, eventKey, eventSeedable);
               if (seedOffset != 0 || eventSeedOffset != 0) {
                 resetEngineSeeds(engines.back(), name, seeds, seedOffset, eventSeedOffset);
               }
@@ -1131,6 +1191,36 @@ namespace edm {
         }  // if moduleID valid
       }  // loop over seedsAndMap
       std::sort(moduleIDVector.begin(), moduleIDVector.end());
+    }
+
+    void RandomNumberGeneratorService::checkEventSeedable(LabelAndEngine const& labelAndEngine) const {
+      if (eventSeeding_ and not labelAndEngine.eventSeedable()) {
+        throw Exception(errors::Configuration)
+            << "The RandomNumberGeneratorService with seedingMode \"event\" supports only the engines\n"
+            << "\"MixMaxRng\" and \"PhiloxEngine\". The module with label \"" << labelAndEngine.label()
+            << "\" requested an engine of type \"" << labelAndEngine.engine()->name() << "\".\n";
+      }
+    }
+
+    void RandomNumberGeneratorService::reseedEngines(std::vector<LabelAndEngine>& engines,
+                                                     RunNumber_t run,
+                                                     LuminosityBlockNumber_t lumi,
+                                                     EventNumber_t event) {
+      for (auto& labelAndEngine : engines) {
+        if (not labelAndEngine.eventSeedable()) {
+          continue;
+        }
+        auto const& key = labelAndEngine.eventKey();
+        auto const id = edm::philox::streamId(key[0], key[1], run, lumi, event);
+        auto& engine = labelAndEngine.engine();
+        if (engine->name() == PhiloxEngine::engineName()) {
+          long const seeds[4] = {id[0], id[1], id[2], id[3]};
+          engine->setSeeds(seeds, 4);
+        } else {
+          // MixMaxRng takes a 64-bit seed.
+          engine->setSeed(static_cast<long>((static_cast<std::uint64_t>(id[1]) << 32) | id[0]), 0);
+        }
+      }
     }
 
     void RandomNumberGeneratorService::resetEngineSeeds(LabelAndEngine& labelAndEngine,
@@ -1167,7 +1257,7 @@ namespace edm {
           long int seedL = static_cast<long int>(seed0);
           labelAndEngine.engine()->setSeed(seedL, 0);
         } else {
-          assert(engineName == "TRandom3");
+          assert(engineName == "TRandom3" || engineName == "PhiloxEngine");
           // Wrap around if the offsets push the seed over the maximum allowed value
           // We have to be extra careful with this one because it may also go beyond
           // the values 32 bits can hold

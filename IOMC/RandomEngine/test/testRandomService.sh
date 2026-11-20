@@ -130,3 +130,37 @@ test=testRandomService
   sort replaystream0LastEvent.txt > replayLastEvent.sorted
 
   diff lastEvent.sorted replayLastEvent.sorted || die "comparing files containing random numbers of last event in a stream" $?
+
+  echo " "
+  echo "RandomNumberGeneratorService with seedingMode event"
+  echo "=============================================="
+
+  # The numbers of each event and luminosity block must not depend on the number of streams.
+  function eventSeeded {
+    name=$1
+    shift
+    cmsRun ${SCRAM_TEST_PATH}/testEventSeeded_cfg.py "$@" > ${name}.log || die "cmsRun testEventSeeded_cfg.py $*" $?
+    grep -E "^(EVENT|LUMI)RANDOM" ${name}.log | sort > ${name}.sorted
+  }
+  eventSeeded eventSeeded1 streams=1
+  eventSeeded eventSeeded4 streams=4
+  diff eventSeeded1.sorted eventSeeded4.sorted || die "comparing event-seeded numbers with 1 and 4 streams" $?
+  [ $(wc -l < eventSeeded1.sorted) -eq 32 ] || die "counting the lines of eventSeeded1.sorted" 1
+
+  # A job on a subset of the luminosity blocks gives the same numbers for those blocks.
+  eventSeeded eventSeededSubset streams=3 firstLumi=2 events=6
+  [ $(comm -23 eventSeededSubset.sorted eventSeeded1.sorted | wc -l) -eq 0 ] || die "comparing the subset with the full job" 1
+
+  # A different seed gives different numbers.
+  eventSeeded eventSeededOffset streams=1 seedOffset=1000
+  [ $(comm -12 eventSeededOffset.sorted eventSeeded1.sorted | wc -l) -eq 0 ] || die "comparing jobs with different seeds" 1
+
+  # A replay from the stored engine states reproduces the numbers, also with other seeds and stream count.
+  eventSeeded eventSeededSave streams=3 output=eventSeededStates.root
+  eventSeeded eventSeededReplay streams=2 seedOffset=1000 input=eventSeededStates.root
+  diff eventSeededSave.sorted eventSeededReplay.sorted || die "comparing the event-seeded job and its replay" $?
+
+  # The event mode refuses an engine that it cannot seed from the EventID.
+  cmsRun ${SCRAM_TEST_PATH}/testEventSeeded_cfg.py streams=1 philoxEngine=HepJamesRandom >& eventSeededBadEngine.log \
+    && die "event mode accepted the engine HepJamesRandom" 1
+  grep -q 'supports only the engines' eventSeededBadEngine.log || die "finding the engine error message" 1

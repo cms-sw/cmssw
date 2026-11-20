@@ -13,10 +13,12 @@
 
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/Philox.h"
 
 #include <atomic>
 #include <cstdint>
@@ -137,9 +139,19 @@ namespace edm {
       public:
         LabelAndEngine(std::string const& theLabel,
                        VUint32 const& theSeeds,
-                       std::shared_ptr<CLHEP::HepRandomEngine> const& theEngine)
-            : label_(theLabel), seeds_(theSeeds), engine_(theEngine) {}
+                       std::shared_ptr<CLHEP::HepRandomEngine> const& theEngine,
+                       edm::philox::Key const& theEventKey,
+                       bool theEventSeedable)
+            : label_(theLabel),
+              seeds_(theSeeds),
+              engine_(theEngine),
+              eventKey_(theEventKey),
+              eventSeedable_(theEventSeedable) {}
         std::string const& label() const { return label_; }
+        // The Philox key {initialSeed + eventSeedOffset, CRC32 of the label} of the per-event seeds.
+        edm::philox::Key const& eventKey() const { return eventKey_; }
+        // True if the service can seed this engine from the EventID.
+        bool eventSeedable() const { return eventSeedable_; }
         VUint32 const& seeds() const { return seeds_; }
         std::shared_ptr<CLHEP::HepRandomEngine const> engine() const { return get_underlying_safe(engine_); }
         std::shared_ptr<CLHEP::HepRandomEngine>& engine() { return get_underlying_safe(engine_); }
@@ -149,6 +161,8 @@ namespace edm {
         std::string label_;
         VUint32 seeds_;
         edm::propagate_const<std::shared_ptr<CLHEP::HepRandomEngine>> engine_;
+        edm::philox::Key eventKey_;
+        bool eventSeedable_;
       };
 
       // This class exists because it is faster to lookup a module using
@@ -208,6 +222,14 @@ namespace edm {
                                  unsigned int seedOffset,
                                  unsigned int eventSeedOffset,
                                  std::vector<ModuleIDToEngine>& moduleIDVector);
+
+      // Seeds each engine from (seed, module label, run, lumi, event).
+      void checkEventSeedable(LabelAndEngine const& labelAndEngine) const;
+
+      void reseedEngines(std::vector<LabelAndEngine>& engines,
+                         RunNumber_t run,
+                         LuminosityBlockNumber_t lumi,
+                         EventNumber_t event);
 
       void resetEngineSeeds(LabelAndEngine& labelAndEngine,
                             std::string const& engineName,
@@ -282,6 +304,10 @@ namespace edm {
       bool enableChecking_;
 
       std::uint32_t eventSeedOffset_;
+
+      // With seedingMode "event", the numbers of an event depend only on the seed,
+      // the module label and the EventID, not on the stream.
+      bool eventSeeding_;
       bool beginJobEndJobActive_ = false;
 
       bool verbose_;
