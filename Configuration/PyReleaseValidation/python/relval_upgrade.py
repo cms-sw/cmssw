@@ -51,12 +51,17 @@ for year in upgradeKeys:
             if ("CE_E" in frag or "CE_H" in frag) and year==2017:
                 numWF += 1
                 continue
+            # LHE-based fragments need LHE,GEN,SIM, only defined for Run4 GEN-SIM sequences
+            isLHE = 'DYto2Tau' in frag
+            if isLHE and (year != 'Run4' or 'GenSimHLBeamSpot' not in scenToRun):
+                numWF += 1
+                continue
             fragName = frag[:-4]
             is14TeV = '14TeV' in frag
             isCloseBy = 'CloseBy' in frag or 'CE_E' in frag or 'CE_H' in frag
             isDisplaced = 'DisplacedParticleGun' in frag
-            if (is14TeV,isCloseBy,isDisplaced) in byFragmentClass:
-                resolved,customised = byFragmentClass[(is14TeV,isCloseBy,isDisplaced)]
+            if (is14TeV,isCloseBy,isDisplaced,isLHE) in byFragmentClass:
+                resolved,customised = byFragmentClass[(is14TeV,isCloseBy,isDisplaced,isLHE)]
             else:
                 resolved=[]
                 for step in scenToRun:
@@ -71,6 +76,8 @@ for year in upgradeKeys:
                                 step = 'GenSimHLBeamSpotCloseBy'
                             else:
                                 step = 'GenSimCloseBy'
+                        elif isLHE:
+                            step = 'GenSimHLBeamSpotLHE14'
                         stepMaker = makeStepNameSim
                     elif 'Gen' in step:
                         stepMaker = makeStepNameSim
@@ -81,7 +88,7 @@ for year in upgradeKeys:
                 for index,(stepMaker,step) in enumerate(resolved):
                     for specialType,specialWF in customisersFor(step):
                         customised.setdefault(specialType,[]).append(index)
-                byFragmentClass[(is14TeV,isCloseBy,isDisplaced)] = (resolved,customised)
+                byFragmentClass[(is14TeV,isCloseBy,isDisplaced,isLHE)] = (resolved,customised)
 
             baseStepList = [stepMaker(key,fragName,step,'') for stepMaker,step in resolved]
 
