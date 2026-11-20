@@ -103,6 +103,51 @@
 /* declare a macro useful for passing a valid but not used value*/
 #define _VALUE_TYPE_UNUSED BOOST_PP_LIMIT_MAG
 
+/* Properties of the value types as lookup tables, used instead of BOOST_PP_GREATER / LESS_EQUAL / EQUAL: Boost.PP
+   compares numbers by looped subtraction, hundreds of macro expansions for each element of each generated method.
+   Each table has one entry per value type: a new type without entries fails to compile (undeclared _..._<type>). */
+#if _VALUE_TYPE_SCALAR != 0 || _VALUE_TYPE_COLUMN != 1 || _VALUE_TYPE_EIGEN_COLUMN != 2 || _VALUE_TYPE_METHOD != 3 || \
+    _VALUE_TYPE_CONST_METHOD != 4 || _VALUE_TYPE_BLOCK != 5 || _VALUE_TYPE_VIEW_METHOD != 6 ||                        \
+    _VALUE_TYPE_CONST_VIEW_METHOD != 7 || _VALUE_LAST_COLUMN_TYPE != 2 || _VALUE_TYPE_UNUSED != 256
+#error "The SoA value types changed: update the lookup tables _IS_NOT_COLUMN_*, _IS_SCALAR_*, _IS_BLOCK_TYPE_*"
+#endif
+
+/* 1 if the value type is not a data column (scalar, column or Eigen column): VALUE_TYPE > _VALUE_LAST_COLUMN_TYPE */
+#define _IS_NOT_COLUMN(VALUE_TYPE) BOOST_PP_CAT(_IS_NOT_COLUMN_, VALUE_TYPE)
+#define _IS_NOT_COLUMN_0 0
+#define _IS_NOT_COLUMN_1 0
+#define _IS_NOT_COLUMN_2 0
+#define _IS_NOT_COLUMN_3 1
+#define _IS_NOT_COLUMN_4 1
+#define _IS_NOT_COLUMN_5 1
+#define _IS_NOT_COLUMN_6 1
+#define _IS_NOT_COLUMN_7 1
+#define _IS_NOT_COLUMN_256 1
+
+/* 1 if the value type is a scalar: VALUE_TYPE == _VALUE_TYPE_SCALAR */
+#define _IS_SCALAR(VALUE_TYPE) BOOST_PP_CAT(_IS_SCALAR_, VALUE_TYPE)
+#define _IS_SCALAR_0 1
+#define _IS_SCALAR_1 0
+#define _IS_SCALAR_2 0
+#define _IS_SCALAR_3 0
+#define _IS_SCALAR_4 0
+#define _IS_SCALAR_5 0
+#define _IS_SCALAR_6 0
+#define _IS_SCALAR_7 0
+#define _IS_SCALAR_256 0
+
+/* 1 if the value type is a block or lower (see _IS_BLOCK): VALUE_TYPE <= _VALUE_TYPE_BLOCK */
+#define _IS_BLOCK_TYPE(VALUE_TYPE) BOOST_PP_CAT(_IS_BLOCK_TYPE_, VALUE_TYPE)
+#define _IS_BLOCK_TYPE_0 1
+#define _IS_BLOCK_TYPE_1 1
+#define _IS_BLOCK_TYPE_2 1
+#define _IS_BLOCK_TYPE_3 1
+#define _IS_BLOCK_TYPE_4 1
+#define _IS_BLOCK_TYPE_5 1
+#define _IS_BLOCK_TYPE_6 0
+#define _IS_BLOCK_TYPE_7 0
+#define _IS_BLOCK_TYPE_256 0
+
 /* The size type need to be "hardcoded" in the template parameters for classes serialized by ROOT */
 /* In practice, using a typedef as a template parameter to the Layout or its ViewTemplateFreeParams member
  * declaration fails ROOT dictionary generation.  */
@@ -605,23 +650,188 @@ namespace cms::soa {
                ENUM_FOR_OP,                                                                     \
                ENUM_FOR_MACRO)
 
-/* Iterate on the macro MACRO and return the result as a comma separated list, converting
-   the boost sequence into tuples and then into list */
-#define _ITERATE_ON_ALL_COMMA(MACRO, DATA, ...) \
-  BOOST_PP_TUPLE_ENUM(BOOST_PP_SEQ_TO_TUPLE(_ITERATE_ON_ALL(MACRO, DATA, __VA_ARGS__)))
+/* Iterate on the macro MACRO and return the result as a comma separated list: the sequence (a)(b)(c) becomes a, b, c
+   with one macro expansion per element (as BOOST_PP_TUPLE_ENUM(BOOST_PP_SEQ_TO_TUPLE(...)), at a lower cost) */
+#define _ITERATE_ON_ALL_COMMA(MACRO, DATA, ...) _SEQ_TO_LIST(_ITERATE_ON_ALL(MACRO, DATA, __VA_ARGS__))
 
-/* Iterate MACRO on all elements of the boost sequence */
-#define _ITERATE_ON_ALL(MACRO, DATA, ...) BOOST_PP_SEQ_FOR_EACH(MACRO, DATA, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__))
+/* (a)(b)(c) -> a _SEQ_TO_LIST_A(b) ... -> a, b, c _SEQ_TO_LIST_A; the trailing macro name is pasted with _END */
+#define _SEQ_TO_LIST(SEQ) _SEQ_TO_LIST_I(_SEQ_TO_LIST_FIRST SEQ)
+#define _SEQ_TO_LIST_I(...) _SEQ_TO_LIST_II(__VA_ARGS__)
+#define _SEQ_TO_LIST_II(...) __VA_ARGS__##_END
+#define _SEQ_TO_LIST_FIRST(...) __VA_ARGS__ _SEQ_TO_LIST_A
+#define _SEQ_TO_LIST_A(...) , __VA_ARGS__ _SEQ_TO_LIST_B
+#define _SEQ_TO_LIST_B(...) , __VA_ARGS__ _SEQ_TO_LIST_A
+#define _SEQ_TO_LIST_FIRST_END
+#define _SEQ_TO_LIST_A_END
+#define _SEQ_TO_LIST_B_END
 
-/* Switch on macros depending on scalar / column type */
+/* Iterate MACRO on all elements: MACRO(R, DATA, ELEMENT) for each element, as BOOST_PP_SEQ_FOR_EACH did on
+   BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__), but with one macro expansion per element: BOOST_PP_SEQ_FOR_EACH carries the
+   remaining sequence through several macro layers per step, a quadratic cost in the macro locations tracked by the
+   compiler. The iterated macros do not use R (it is passed as ~). Up to 128 elements (Boost.PP before: 64).  */
+// clang-format off
+#define _ITERATE_ON_ALL(MACRO, DATA, ...) \
+  BOOST_PP_CAT(_ITERATE_ON_ALL_, _ITERATE_ON_ALL_SIZE(__VA_ARGS__))(MACRO, DATA, __VA_ARGS__)
+
+/* number of elements, or _TOO_MANY above the capacity (up to 144 elements, then a token-pasting error) */
+#define _ITERATE_ON_ALL_SIZE(...) _ITERATE_ON_ALL_SIZE_I(__VA_ARGS__, _TOO_MANY, _TOO_MANY, _TOO_MANY, _TOO_MANY, \
+    _TOO_MANY, _TOO_MANY, _TOO_MANY, _TOO_MANY, _TOO_MANY, _TOO_MANY, _TOO_MANY, _TOO_MANY, _TOO_MANY, _TOO_MANY, \
+    _TOO_MANY, _TOO_MANY, 128, 127, 126, 125, 124, 123, 122, 121, 120, 119, 118, 117, 116, 115, 114, 113, 112, 111, \
+    110, 109, 108, 107, 106, 105, 104, 103, 102, 101, 100, 99, 98, 97, 96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, \
+    84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 66, 65, 64, 63, 62, 61, 60, 59, 58, 57, \
+    56, 55, 54, 53, 52, 51, 50, 49, 48, 47, 46, 45, 44, 43, 42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30, 29, \
+    28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
+#define _ITERATE_ON_ALL_SIZE_I(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, \
+    _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, _38, _39, _40, _41, _42, \
+    _43, _44, _45, _46, _47, _48, _49, _50, _51, _52, _53, _54, _55, _56, _57, _58, _59, _60, _61, _62, _63, _64, _65, \
+    _66, _67, _68, _69, _70, _71, _72, _73, _74, _75, _76, _77, _78, _79, _80, _81, _82, _83, _84, _85, _86, _87, _88, \
+    _89, _90, _91, _92, _93, _94, _95, _96, _97, _98, _99, _100, _101, _102, _103, _104, _105, _106, _107, _108, _109, \
+    _110, _111, _112, _113, _114, _115, _116, _117, _118, _119, _120, _121, _122, _123, _124, _125, _126, _127, _128, \
+    _129, _130, _131, _132, _133, _134, _135, _136, _137, _138, _139, _140, _141, _142, _143, _144, N, ...) N
+#define _ITERATE_ON_ALL__TOO_MANY(MACRO, DATA, ...) \
+  _Pragma("GCC error \"GENERATE_SOA_LAYOUT / GENERATE_SOA_BLOCKS: more than 128 elements, see _ITERATE_ON_ALL\"")
+#define _ITERATE_ON_ALL_1(M, D, X) M(~, D, X)
+#define _ITERATE_ON_ALL_2(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_1(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_3(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_2(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_4(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_3(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_5(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_4(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_6(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_5(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_7(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_6(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_8(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_7(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_9(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_8(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_10(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_9(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_11(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_10(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_12(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_11(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_13(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_12(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_14(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_13(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_15(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_14(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_16(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_15(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_17(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_16(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_18(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_17(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_19(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_18(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_20(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_19(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_21(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_20(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_22(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_21(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_23(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_22(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_24(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_23(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_25(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_24(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_26(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_25(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_27(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_26(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_28(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_27(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_29(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_28(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_30(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_29(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_31(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_30(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_32(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_31(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_33(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_32(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_34(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_33(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_35(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_34(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_36(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_35(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_37(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_36(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_38(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_37(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_39(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_38(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_40(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_39(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_41(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_40(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_42(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_41(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_43(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_42(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_44(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_43(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_45(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_44(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_46(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_45(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_47(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_46(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_48(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_47(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_49(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_48(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_50(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_49(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_51(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_50(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_52(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_51(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_53(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_52(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_54(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_53(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_55(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_54(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_56(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_55(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_57(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_56(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_58(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_57(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_59(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_58(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_60(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_59(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_61(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_60(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_62(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_61(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_63(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_62(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_64(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_63(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_65(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_64(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_66(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_65(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_67(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_66(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_68(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_67(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_69(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_68(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_70(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_69(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_71(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_70(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_72(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_71(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_73(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_72(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_74(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_73(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_75(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_74(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_76(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_75(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_77(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_76(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_78(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_77(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_79(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_78(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_80(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_79(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_81(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_80(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_82(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_81(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_83(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_82(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_84(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_83(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_85(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_84(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_86(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_85(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_87(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_86(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_88(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_87(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_89(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_88(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_90(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_89(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_91(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_90(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_92(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_91(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_93(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_92(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_94(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_93(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_95(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_94(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_96(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_95(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_97(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_96(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_98(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_97(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_99(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_98(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_100(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_99(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_101(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_100(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_102(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_101(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_103(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_102(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_104(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_103(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_105(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_104(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_106(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_105(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_107(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_106(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_108(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_107(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_109(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_108(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_110(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_109(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_111(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_110(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_112(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_111(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_113(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_112(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_114(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_113(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_115(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_114(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_116(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_115(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_117(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_116(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_118(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_117(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_119(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_118(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_120(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_119(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_121(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_120(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_122(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_121(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_123(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_122(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_124(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_123(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_125(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_124(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_126(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_125(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_127(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_126(M, D, __VA_ARGS__)
+#define _ITERATE_ON_ALL_128(M, D, X, ...) M(~, D, X) _ITERATE_ON_ALL_127(M, D, __VA_ARGS__)
+// clang-format on
+
+/* Switch on macros depending on scalar / column type (nothing for the other value types) */
 #define _SWITCH_ON_TYPE(VALUE_TYPE, IF_SCALAR, IF_COLUMN, IF_EIGEN_COLUMN) \
-  BOOST_PP_IF(                                                             \
-      BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_SCALAR),                      \
-      IF_SCALAR,                                                           \
-      BOOST_PP_IF(                                                         \
-          BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_COLUMN),                  \
-          IF_COLUMN,                                                       \
-          BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_EIGEN_COLUMN), IF_EIGEN_COLUMN, BOOST_PP_EMPTY())))
+  BOOST_PP_CAT(_SWITCH_ON_TYPE_, VALUE_TYPE)(IF_SCALAR, IF_COLUMN, IF_EIGEN_COLUMN)
+#define _SWITCH_ON_TYPE_0(IF_SCALAR, IF_COLUMN, IF_EIGEN_COLUMN) IF_SCALAR
+#define _SWITCH_ON_TYPE_1(IF_SCALAR, IF_COLUMN, IF_EIGEN_COLUMN) IF_COLUMN
+#define _SWITCH_ON_TYPE_2(IF_SCALAR, IF_COLUMN, IF_EIGEN_COLUMN) IF_EIGEN_COLUMN
+#define _SWITCH_ON_TYPE_3(IF_SCALAR, IF_COLUMN, IF_EIGEN_COLUMN)
+#define _SWITCH_ON_TYPE_4(IF_SCALAR, IF_COLUMN, IF_EIGEN_COLUMN)
+#define _SWITCH_ON_TYPE_5(IF_SCALAR, IF_COLUMN, IF_EIGEN_COLUMN)
+#define _SWITCH_ON_TYPE_6(IF_SCALAR, IF_COLUMN, IF_EIGEN_COLUMN)
+#define _SWITCH_ON_TYPE_7(IF_SCALAR, IF_COLUMN, IF_EIGEN_COLUMN)
+#define _SWITCH_ON_TYPE_256(IF_SCALAR, IF_COLUMN, IF_EIGEN_COLUMN)
 
 // Extract the type, name and layout from a block specification
 #define _BLOCK_GET_TYPE(SPEC) BOOST_PP_TUPLE_ELEM(0, SPEC)
@@ -629,14 +839,14 @@ namespace cms::soa {
 #define _BLOCK_GET_LAYOUT(SPEC) BOOST_PP_TUPLE_ELEM(2, SPEC)
 
 // Check if argument is a block specification
-#define _IS_BLOCK(SPEC) BOOST_PP_LESS_EQUAL(_BLOCK_GET_TYPE(SPEC), _VALUE_TYPE_BLOCK)
+#define _IS_BLOCK(SPEC) _IS_BLOCK_TYPE(_BLOCK_GET_TYPE(SPEC))
 
 // Execute MACRO if specification is a block specification, otherwise do nothing
 #define _EXEC_IF_BLOCK(SPEC, MACRO, ARGS) BOOST_PP_IF(_IS_BLOCK(SPEC), MACRO ARGS, BOOST_PP_EMPTY())
 
-#define _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE, CODE) BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_SCALAR), CODE, )
+#define _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE, CODE) BOOST_PP_IF(_IS_SCALAR(VALUE_TYPE), CODE, )
 
-#define _APPLY_FOR_NON_SCALAR(VALUE_TYPE, CODE) BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_SCALAR), , CODE)
+#define _APPLY_FOR_NON_SCALAR(VALUE_TYPE, CODE) BOOST_PP_IF(_IS_SCALAR(VALUE_TYPE), , CODE)
 
 /* Produces text input token if input sequence is not empty */
 #define _APPEND_TOKEN_1(PARAM_NAME)
