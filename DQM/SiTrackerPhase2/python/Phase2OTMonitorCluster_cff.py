@@ -66,16 +66,16 @@ clusterMonitorCRACK = Phase2OTMonitorCluster.clone(
         ymax = cms.double(50.0)
     ),
     GlobalPositionRZ_S = Phase2OTMonitorCluster.GlobalPositionRZ_S.clone(
-        xmin = cms.double(-70.0),
-        xmax = cms.double(70.0),
+        xmin = cms.double(-10.0),
+        xmax = cms.double(130.0),
         NxBins = cms.int32(70),
-        ymin = cms.double(0.0),
-        ymax = cms.double(60.0),
-        NyBins = cms.int32(40)
+        ymin = cms.double(-5.0),
+        ymax = cms.double(50.0),
+        NyBins = cms.int32(55)
     ),
     NClustersLayer_S = Phase2OTMonitorCluster.NClustersLayer_S.clone(
-        xmax = cms.double(50.0),
-        NxBins = cms.int32(50)
+        xmin = cms.double(-0.5),
+        xmax = cms.double(40.5),
+        NxBins = cms.int32(41)
     )
-    #clusterSrc = cms.InputTag('siPhase2Clusters'),
 )
