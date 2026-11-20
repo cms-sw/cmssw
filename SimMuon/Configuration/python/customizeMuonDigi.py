@@ -259,11 +259,11 @@ def customise_rpcRedigi(process):
     process.load('Configuration.StandardSequences.Digi_cff')
     process.simMuonRPCReDigis = process.simMuonRPCDigis.clone()
     process.simMuonRPCReDigis.digiModelConfig = process.simMuonRPCDigis.digiModelConfig.clone(
-        IRPC_time_resolution = cms.double(1.5),
-        IRPC_electronics_jitter = cms.double(0.1),
+        iRPCTimeResolution = cms.double(1.5),
+        iRPCElectronicsJitter = cms.double(0.1),
     )
     process.simMuonRPCReDigis.digiIRPCModelConfig = process.simMuonRPCReDigis.digiModelConfig.clone(
-        IRPC_time_resolution = cms.double(1.0),
+        iRPCTimeResolution = cms.double(1.0),
         do_Y_coordinate = cms.bool(True),
     )
     process.simMuonRPCReDigis.digiModel = cms.string('RPCSimModelTiming')
