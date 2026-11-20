@@ -218,6 +218,7 @@ LHCInfoPerFillPopConSourceHandler::LHCInfoPerFillPopConSourceHandler(edm::Parame
       m_fillPayload(),
       m_prevPayload(),
       m_tmpBuffer() {
+  _sizeLumiPerBX = pset.getUntrackedParameter<unsigned int>("size", 0);
   if (!pset.getUntrackedParameter<std::string>("startTime").empty()) {
     m_startTime = boost::posix_time::time_from_string(pset.getUntrackedParameter<std::string>("startTime"));
   }
@@ -335,97 +336,44 @@ boost::posix_time::ptime LHCInfoPerFillPopConSourceHandler::getExecutionTime() c
 
 void LHCInfoPerFillPopConSourceHandler::populateIovs() {
   cond::Time_t lastSince = handleIfNewTagAndGetLastSince();
-  fetchLastPayload();
-  cond::Time_t nextFillSearchTimestamp = getNextFillSearchTimestamp(lastSince);
-  edm::LogInfo(m_name) << "Starting sampling at "
-                       << boost::posix_time::to_simple_string(cond::time::to_boost(nextFillSearchTimestamp));
+  LHCInfoPerFill lhcInfoPerFill;
 
-  auto [cttpsSession, ecalSession] = createSubsystemDbSessions();
-  boost::posix_time::ptime executionTime = getExecutionTime();
-  cond::Time_t executionTimeIov = cond::time::from_boost(executionTime);
+  lhcInfoPerFill.setFillNumber(3);
+  lhcInfoPerFill.setBunchesInBeam1(10);
+  lhcInfoPerFill.setBunchesInBeam2(8);
+  lhcInfoPerFill.setCollidingBunches(5);
+  lhcInfoPerFill.setTargetBunches(4);
+  lhcInfoPerFill.setFillType(lhcInfoPerFill.PROTONS);
+  lhcInfoPerFill.setParticleTypeForBeam1(lhcInfoPerFill.PROTON);
+  lhcInfoPerFill.setParticleTypeForBeam2(lhcInfoPerFill.PROTON);
+  lhcInfoPerFill.setIntensityForBeam1(1016.5);
+  lhcInfoPerFill.setIntensityForBeam2(1096.66);
+  lhcInfoPerFill.setEnergy(7000);
+  lhcInfoPerFill.setDelivLumi(2E-07);
+  lhcInfoPerFill.setRecLumi(2E-07);
+  lhcInfoPerFill.setInstLumi(0.);
+  lhcInfoPerFill.setInstLumiError(0.);
+  lhcInfoPerFill.setCreationTime(6561530930997627120);
+  lhcInfoPerFill.setBeginTime(6561530930997627120);
+  lhcInfoPerFill.setEndTime(6561530930997627120);
+  lhcInfoPerFill.setInjectionScheme("None");
 
-  while (true) {
-    if (nextFillSearchTimestamp >= executionTimeIov) {
-      edm::LogInfo(m_name) << "Sampling ended at the time "
-                           << boost::posix_time::to_simple_string(cond::time::to_boost(executionTimeIov));
-      break;
-    }
-    boost::posix_time::ptime nextFillSearchTime = cond::time::to_boost(nextFillSearchTimestamp);
-    boost::posix_time::ptime startSampleTime;
-    boost::posix_time::ptime endSampleTime;
-
-    cond::OMSService oms;
-    oms.connect(m_omsBaseUrl);
-
-    bool inclusiveSearchTime =
-        nextFillSearchTime > cond::time::to_boost(m_prevPayload ? m_prevPayload->createTime() : 0);
-    m_fillPayload = findFillToProcess(oms, nextFillSearchTime, inclusiveSearchTime);
-
-    if (!m_fillPayload) {
-      edm::LogInfo(m_name) << "No fill found - END of job.";
-      break;
-    }
-
-    startSampleTime = cond::time::to_boost(m_fillPayload->createTime());
-    cond::Time_t startFillTime = m_fillPayload->createTime();
-    cond::Time_t endFillTime = m_fillPayload->endTime();
-    unsigned short lhcFill = m_fillPayload->fillNumber();
-    bool ongoingFill = endFillTime == 0ULL;
-    if (ongoingFill) {
-      edm::LogInfo(m_name) << "Found ongoing fill " << lhcFill << " created at " << cond::time::to_boost(startFillTime);
-      endSampleTime = executionTime;
-      nextFillSearchTimestamp = executionTimeIov;
-    } else {
-      edm::LogInfo(m_name) << "Found fill " << lhcFill << " created at " << cond::time::to_boost(startFillTime)
-                           << " ending at " << cond::time::to_boost(endFillTime);
-      endSampleTime = cond::time::to_boost(endFillTime);
-      nextFillSearchTimestamp = endFillTime;
-    }
-    if (m_endFillMode || ongoingFill) {
-      getDipData(oms, startSampleTime, endSampleTime);
-      getLumiData(oms, lhcFill, startSampleTime, endSampleTime);
-      if (!m_tmpBuffer.empty()) {
-        boost::posix_time::ptime flumiStart = cond::time::to_boost(m_tmpBuffer.front().first);
-        boost::posix_time::ptime flumiStop = cond::time::to_boost(m_tmpBuffer.back().first);
-        edm::LogInfo(m_name) << "First lumi starts at " << flumiStart << " last lumi starts at " << flumiStop;
-        getCTPPSData(cttpsSession, startSampleTime, endSampleTime);
-        getEcalData(ecalSession, startSampleTime, endSampleTime);
-      }
-    }
-
-    if (!m_endFillMode) {
-      if (m_tmpBuffer.size() > 1) {
-        throw cms::Exception("LHCInfoPerFillPopConSourceHandler")
-            << "More than 1 payload buffered for writing in duringFill mode.\
-          In this mode only up to 1 payload can be written";
-      } else if (m_tmpBuffer.size() == 1) {
-        if (m_prevPayload && theLHCInfoPerFillImpl::comparePayloads(*(m_tmpBuffer.begin()->second), *m_prevPayload)) {
-          m_tmpBuffer.clear();
-          edm::LogInfo(m_name)
-              << "The buffered payload has the same data as the previous payload in the tag. It will not be written.";
-        }
-      }
-      // In duringFill mode, convert the timestamp-type IOVs to lumiid-type IOVs
-      // before transferring the payloads from the buffer to the final collection
-      convertBufferedIovsToLumiid(m_timestampToLumiid);
-    }
-
-    size_t niovs = theLHCInfoPerFillImpl::transferPayloads(m_tmpBuffer, m_iovs, m_prevPayload);
-    edm::LogInfo(m_name) << "Added " << niovs << " iovs within the Fill time";
-    m_tmpBuffer.clear();
-    m_timestampToLumiid.clear();
-
-    if (!m_endFillMode) {
-      return;
-    }
-
-    // endFill mode only:
-    if (m_prevPayload->fillNumber() and !ongoingFill) {
-      if (m_endFillMode) {
-        addEmptyPayload(endFillTime);
-      }
-    }
+  // -------------------------------------
+  // Create lumiPerBX with the given size
+  // -------------------------------------
+  std::vector<float> lumiPerBX(_sizeLumiPerBX, 0.0);
+  // Fill with random values
+  srand(static_cast<unsigned int>(time(nullptr)));
+  for (size_t i = 0; i < _sizeLumiPerBX; ++i) {
+    //random value from -1000000 to 1000000
+    lumiPerBX[i] = static_cast<float>(-1000000. + static_cast<double>(rand()) / RAND_MAX * 2000000.);
   }
+  lhcInfoPerFill.setLumiPerBX(lumiPerBX);
+
+  lhcInfoPerFill.setLhcState("some lhcState");
+  lhcInfoPerFill.setLhcComment("some lhcComment");
+  lhcInfoPerFill.setCtppsStatus("some ctppsStatus");
+  m_iovs.insert(make_pair(lastSince+1, std::make_shared<LHCInfoPerFill>(lhcInfoPerFill)));
 }
 
 std::string LHCInfoPerFillPopConSourceHandler::id() const { return m_name; }
