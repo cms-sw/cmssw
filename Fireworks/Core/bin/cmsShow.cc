@@ -84,7 +84,7 @@ void run_app(TApplication& app, int argc, char** argv) {
       std::shared_ptr<edm::service::AbstractMLscribe>(std::make_shared<SilentMLscribe>()));
   edm::MessageDrop::instance()->messageLoggerScribeIsRunning = edm::MLSCRIBE_RUNNING_INDICATOR;
   //---------------------
-  std::unique_ptr<CmsShowMain> pMain(new CmsShowMain(argc, argv));
+  std::unique_ptr<CmsShowMain> pMain = std::make_unique<CmsShowMain>(argc, argv);
 
   // Avoid haing root handling various associated to an error and install
   // back the default ones.
