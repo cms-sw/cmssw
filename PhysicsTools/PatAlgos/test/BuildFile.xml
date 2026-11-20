@@ -9,3 +9,33 @@
 </library>
 
 <!-- <test name="runtestPhysicsToolsPatAlgos" command="runtests.sh"/> COMMENT: reads old format files -->
+
+<library file="PatGenJetTestInputs.cc" name="testPhysicsToolsPatAlgosPatGenJetInputs">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/HepMCCandidate"/>
+  <use name="DataFormats/JetReco"/>
+  <use name="DataFormats/PatCandidates"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+<bin name="testPATGenJetProducer" file="test_catch2_PATGenJetProducer.cc">
+  <use name="catch2"/>
+  <use name="FWCore/TestProcessor"/>
+  <use name="DataFormats/PatCandidates"/>
+  <use name="DataFormats/BTauReco"/>
+</bin>
+<bin name="testPATGenJetSelector" file="test_catch2_PATGenJetSelector.cc">
+  <use name="catch2"/>
+  <use name="FWCore/TestProcessor"/>
+  <use name="DataFormats/PatCandidates"/>
+  <use name="DataFormats/BTauReco"/>
+</bin>
+<bin name="testPATGenJetPacker" file="test_catch2_PATGenJetPacker.cc">
+  <use name="catch2"/>
+  <use name="FWCore/TestProcessor"/>
+  <use name="DataFormats/PatCandidates"/>
+  <use name="DataFormats/BTauReco"/>
+</bin>
+<test name="testPatGenJetCffLoad" command="cmsRun ${LOCALTOP}/src/PhysicsTools/PatAlgos/test/patGenJet_test_cff_load_cfg.py"/>
+<test name="testPatGenJetChain" command="bash ${LOCALTOP}/src/PhysicsTools/PatAlgos/test/patGenJet_run_chain_test.sh"/>

@@ -2,12 +2,14 @@
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingPFJet.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cmath>
+#include <memory>
 
 using namespace pat;
 
@@ -288,8 +290,19 @@ const reco::GenJet* Jet::genJet() const {
     return &(genJet_.front());
   else if (!genJetRef_.empty())
     return genJetRef_[0].get();
+  else if (patGenJetRef_.isNonnull())
+    return patGenJetRef_.get();
   else
     return genJetFwdRef_.get();
+}
+
+/// the matched gen jet as a Ptr: pat::GenJet link, else the back link of genJetFwdRef, else null
+edm::Ptr<reco::GenJet> Jet::matchedGenJetPtr() const {
+  if (patGenJetRef_.isNonnull())
+    return edm::Ptr<reco::GenJet>(edm::refToPtr(patGenJetRef_));
+  if (genJetFwdRef_.backRef().isNonnull())
+    return edm::refToPtr(genJetFwdRef_.backRef());
+  return edm::Ptr<reco::GenJet>();
 }
 
 /// return the parton-based flavour of the jet
@@ -526,7 +539,7 @@ void Jet::setJetCharge(float jetCharge) { jetCharge_ = jetCharge; }
 void Jet::cacheCaloTowers() const {
   // Clear the cache
   // Here is where we've embedded constituents
-  std::unique_ptr<std::vector<CaloTowerPtr>> caloTowersTemp{new std::vector<CaloTowerPtr>{}};
+  std::unique_ptr<std::vector<CaloTowerPtr>> caloTowersTemp = std::make_unique<std::vector<CaloTowerPtr>>();
   if (embeddedCaloTowers_) {
     // Refactorized PAT access
     if (!caloTowersFwdPtr_.empty()) {
@@ -568,7 +581,8 @@ void Jet::cacheCaloTowers() const {
 
 /// method to cache the constituents to allow "user-friendly" access
 void Jet::cachePFCandidates() const {
-  std::unique_ptr<std::vector<reco::PFCandidatePtr>> pfCandidatesTemp{new std::vector<reco::PFCandidatePtr>{}};
+  std::unique_ptr<std::vector<reco::PFCandidatePtr>> pfCandidatesTemp =
+      std::make_unique<std::vector<reco::PFCandidatePtr>>();
   // Here is where we've embedded constituents
   if (embeddedPFCandidates_) {
     // Refactorized PAT access
@@ -615,7 +629,7 @@ void Jet::cachePFCandidates() const {
 /// method to cache the daughters to allow "user-friendly" access
 void Jet::cacheDaughters() const {
   // Jets in MiniAOD produced via JetSubstructurePacker contain a mixture of subjets and particles as daughters
-  std::unique_ptr<std::vector<reco::CandidatePtr>> daughtersTemp{new std::vector<reco::CandidatePtr>{}};
+  std::unique_ptr<std::vector<reco::CandidatePtr>> daughtersTemp = std::make_unique<std::vector<reco::CandidatePtr>>();
   const std::vector<reco::CandidatePtr>& jdaus = reco::Jet::daughterPtrVector();
   for (const reco::CandidatePtr& dau : jdaus) {
     if (dau->isJet()) {

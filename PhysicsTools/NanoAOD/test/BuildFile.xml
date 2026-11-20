@@ -13,3 +13,14 @@
 <!-- <test name="test-btvNano-check" command="test-btvNano.py"> COMMENT: depends on disabled test 
   <flags PRE_TEST="test-btvNano-run"/>
 </test> -->
+
+<bin name="testGenJetExpressions" file="testGenJetExpressions.cpp">
+  <use name="catch2"/>
+  <use name="CommonTools/Utils"/>
+  <use name="DataFormats/HepMCCandidate"/>
+  <use name="DataFormats/PatCandidates"/>
+  <use name="FWCore/Utilities"/>
+</bin>
+<test name="testPatGenJetTables" command="bash ${LOCALTOP}/src/PhysicsTools/NanoAOD/test/patGenJet_run_tables_test.sh"/>
+<test name="testPatGenJetColumns" command="bash ${LOCALTOP}/src/PhysicsTools/NanoAOD/test/patGenJet_run_columns_test.sh"/>
+<test name="testPatGenJetExpansion" command="python3 ${LOCALTOP}/src/PhysicsTools/NanoAOD/test/patGenJet_check_expansion.py ."/>
