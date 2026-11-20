@@ -2,6 +2,8 @@
  * Compute muon pt and ptErr after beamspot constraint.
  *
  */
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -115,7 +117,7 @@ private:
     }
 
     {
-      std::unique_ptr<edm::ValueMap<float>> valueMap(new edm::ValueMap<float>());
+      std::unique_ptr<edm::ValueMap<float>> valueMap = std::make_unique<edm::ValueMap<float>>();
       edm::ValueMap<float>::Filler filler(*valueMap);
       filler.insert(muons, pts.begin(), pts.end());
       filler.fill();
@@ -123,7 +125,7 @@ private:
     }
 
     {
-      std::unique_ptr<edm::ValueMap<float>> valueMap(new edm::ValueMap<float>());
+      std::unique_ptr<edm::ValueMap<float>> valueMap = std::make_unique<edm::ValueMap<float>>();
       edm::ValueMap<float>::Filler filler(*valueMap);
       filler.insert(muons, ptErrs.begin(), ptErrs.end());
       filler.fill();
@@ -131,7 +133,7 @@ private:
     }
 
     {
-      std::unique_ptr<edm::ValueMap<float>> valueMap(new edm::ValueMap<float>());
+      std::unique_ptr<edm::ValueMap<float>> valueMap = std::make_unique<edm::ValueMap<float>>();
       edm::ValueMap<float>::Filler filler(*valueMap);
       filler.insert(muons, chi2s.begin(), chi2s.end());
       filler.fill();

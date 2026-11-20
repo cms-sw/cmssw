@@ -105,7 +105,7 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
   const auto& db = iSetup.getData(tok_dbService_);
 
   // collection to be inserted into event
-  std::unique_ptr<FEDRawDataCollection> fed_buffers(new FEDRawDataCollection());
+  std::unique_ptr<FEDRawDataCollection> fed_buffers = std::make_unique<FEDRawDataCollection>();
 
   // Extracting All the Collections containing useful Info
   edm::Handle<QIE10DigiCollection> qie10DigiCollection;

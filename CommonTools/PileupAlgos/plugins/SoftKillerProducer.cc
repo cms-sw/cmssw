@@ -72,7 +72,7 @@ SoftKillerProducer::SoftKillerProducer(const edm::ParameterSet& iConfig)
     : Rho_EtaMax_(iConfig.getParameter<double>("Rho_EtaMax")), rParam_(iConfig.getParameter<double>("rParam")) {
   tokenPFCandidates_ = consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("PFCandidates"));
 
-  produces<edm::ValueMap<LorentzVector> >("SoftKillerP4s");
+  produces<edm::ValueMap<LorentzVector>>("SoftKillerP4s");
   produces<PFOutputCollection>();
 }
 
@@ -84,7 +84,7 @@ SoftKillerProducer::~SoftKillerProducer() {}
 
 // ------------ method called to produce the data  ------------
 void SoftKillerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::unique_ptr<PFOutputCollection> pOutput(new PFOutputCollection);
+  std::unique_ptr<PFOutputCollection> pOutput = std::make_unique<PFOutputCollection>();
 
   // get PF Candidates
   edm::Handle<reco::CandidateView> pfCandidates;
@@ -103,7 +103,7 @@ void SoftKillerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   std::vector<fastjet::PseudoJet> soft_killed_event;
   soft_killer.apply(fjInputs, soft_killed_event, pt_threshold);
 
-  std::unique_ptr<edm::ValueMap<LorentzVector> > p4SKOut(new edm::ValueMap<LorentzVector>());
+  std::unique_ptr<edm::ValueMap<LorentzVector>> p4SKOut = std::make_unique<edm::ValueMap<LorentzVector>>();
   LorentzVectorCollection skP4s;
 
   static const reco::PFCandidate dummySinceTranslateIsNotStatic;

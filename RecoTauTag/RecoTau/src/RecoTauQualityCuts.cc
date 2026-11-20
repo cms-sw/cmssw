@@ -149,7 +149,7 @@ namespace reco::tau {
         thereIsABadParameter = true;
 
         unParsedOptions += option;
-        unParsedOptions += "\n";
+        unParsedOptions += '\n';
       }
       if (thereIsABadParameter) {
         throw cms::Exception("BadQualityCutConfig") << " The PSet passed to the RecoTauQualityCuts class had"

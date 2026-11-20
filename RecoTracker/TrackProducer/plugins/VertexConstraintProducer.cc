@@ -74,7 +74,7 @@ VertexConstraintProducer::VertexConstraintProducer(const edm::ParameterSet& iCon
   vtxToken_ = consumes<reco::VertexCollection>(edm::InputTag(srcVtxTag_));
 
   //register your products
-  produces<std::vector<VertexConstraint> >();
+  produces<std::vector<VertexConstraint>>();
   produces<TrackVtxConstraintAssociationCollection>();
 
   //now do what ever other initialization is needed
@@ -96,8 +96,8 @@ void VertexConstraintProducer::produce(edm::StreamID streamid,
   Handle<reco::VertexCollection> theVertexHandle;
   iEvent.getByToken(vtxToken_, theVertexHandle);
 
-  edm::RefProd<std::vector<VertexConstraint> > rPairs = iEvent.getRefBeforePut<std::vector<VertexConstraint> >();
-  std::unique_ptr<std::vector<VertexConstraint> > pairs(new std::vector<VertexConstraint>);
+  edm::RefProd<std::vector<VertexConstraint>> rPairs = iEvent.getRefBeforePut<std::vector<VertexConstraint>>();
+  std::unique_ptr<std::vector<VertexConstraint>> pairs = std::make_unique<std::vector<VertexConstraint>>();
   std::unique_ptr<TrackVtxConstraintAssociationCollection> output(
       new TrackVtxConstraintAssociationCollection(theTCollection, rPairs));
 
@@ -116,7 +116,7 @@ void VertexConstraintProducer::produce(edm::StreamID streamid,
                                        pv.covariance(2, 1),
                                        pv.covariance(2, 2)));
       pairs->push_back(tmp);
-      output->insert(reco::TrackRef(theTCollection, index), edm::Ref<std::vector<VertexConstraint> >(rPairs, index));
+      output->insert(reco::TrackRef(theTCollection, index), edm::Ref<std::vector<VertexConstraint>>(rPairs, index));
       index++;
     }
   }

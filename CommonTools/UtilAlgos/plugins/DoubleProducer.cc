@@ -6,6 +6,8 @@
  *
  */
 
+#include <memory>
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
 class DoubleProducer : public edm::stream::EDProducer<> {
@@ -28,7 +30,7 @@ DoubleProducer::DoubleProducer(const ParameterSet& cfg) : value_(cfg.getParamete
 }
 
 void DoubleProducer::produce(Event& evt, const EventSetup&) {
-  unique_ptr<double> value(new double(value_));
+  unique_ptr<double> value = std::make_unique<double>(value_);
   evt.put(std::move(value));
 }
 

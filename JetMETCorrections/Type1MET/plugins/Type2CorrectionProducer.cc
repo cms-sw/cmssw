@@ -15,6 +15,7 @@
 #include <TFormula.h>
 
 #include <iostream>
+#include <memory>
 #include <vector>
 
 //____________________________________________________________________________||
@@ -151,7 +152,7 @@ void Type2CorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& es
     product += (unclEnergyScaleFactor - 1.) * unclEnergySum;
   }
 
-  std::unique_ptr<CorrMETData> pprod(new CorrMETData(product));
+  std::unique_ptr<CorrMETData> pprod = std::make_unique<CorrMETData>(product);
   evt.put(std::move(pprod), "");
 }
 

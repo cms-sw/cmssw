@@ -16,6 +16,7 @@
 
 #include "JetMETCorrections/Type1MET/interface/AddCorrectionsToGenericMET.h"
 
+#include <memory>
 #include <vector>
 
 //____________________________________________________________________________||
@@ -68,13 +69,13 @@ private:
 
     if (isMiniAod) {
       //std::unique_ptr<patMETCollection> product(new patMETCollection);
-      std::unique_ptr<patMETCollection> product(new patMETCollection);
+      std::unique_ptr<patMETCollection> product = std::make_unique<patMETCollection>();
       const reco::MET& srcMET = (*srcPatMETCollection)[0];
       pat::MET outMEtPat = corrector.getCorrectedMET(srcMET, evt);
       product->push_back(outMEtPat);
       evt.put(std::move(product));
     } else {
-      std::unique_ptr<pfMETCollection> product(new pfMETCollection);
+      std::unique_ptr<pfMETCollection> product = std::make_unique<pfMETCollection>();
       const reco::PFMET& srcMET = (*srcPfMETCollection)[0];
       reco::PFMET outPfMEtReco = corrector.getCorrectedPFMET(srcMET, evt);
       product->push_back(outPfMEtReco);

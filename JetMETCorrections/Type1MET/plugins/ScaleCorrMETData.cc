@@ -12,6 +12,7 @@
 #include "DataFormats/METReco/interface/CorrMETData.h"
 
 #include <iostream>
+#include <memory>
 
 //____________________________________________________________________________||
 class ScaleCorrMETData : public edm::stream::EDProducer<> {
@@ -42,7 +43,7 @@ void ScaleCorrMETData::produce(edm::Event& evt, const edm::EventSetup& es) {
   evt.getByToken(token_, input);
   product += scaleFactor_ * (*input);
 
-  std::unique_ptr<CorrMETData> pprod(new CorrMETData(product));
+  std::unique_ptr<CorrMETData> pprod = std::make_unique<CorrMETData>(product);
   evt.put(std::move(pprod), "");
 }
 

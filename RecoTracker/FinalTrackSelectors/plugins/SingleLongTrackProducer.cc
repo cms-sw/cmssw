@@ -1,4 +1,6 @@
 // user includes
+#include <memory>
+
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -56,7 +58,7 @@ void SingleLongTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup 
   using namespace edm;
 
   // register output collection:
-  std::unique_ptr<reco::TrackCollection> goodTracks(new reco::TrackCollection);
+  std::unique_ptr<reco::TrackCollection> goodTracks = std::make_unique<reco::TrackCollection>();
 
   // register input collections:
   const auto &tracks = iEvent.getHandle(tracksToken);

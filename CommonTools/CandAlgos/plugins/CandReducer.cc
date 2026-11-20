@@ -16,6 +16,8 @@
  * $Id: CandReducer.cc,v 1.3 2009/09/27 22:26:55 hegner Exp $
  *
  */
+#include <memory>
+
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -49,7 +51,7 @@ CandReducer::CandReducer(const edm::ParameterSet& cfg)
 
 void CandReducer::produce(edm::StreamID, edm::Event& evt, edm::EventSetup const&) const {
   const Handle<reco::CandidateView> cands = evt.getHandle(srcToken_);
-  std::unique_ptr<CandidateCollection> comp(new CandidateCollection);
+  std::unique_ptr<CandidateCollection> comp = std::make_unique<CandidateCollection>();
   for (reco::CandidateView::const_iterator c = cands->begin(); c != cands->end(); ++c) {
     std::unique_ptr<Candidate> cand(new LeafCandidate(*c));
     comp->push_back(cand.release());
