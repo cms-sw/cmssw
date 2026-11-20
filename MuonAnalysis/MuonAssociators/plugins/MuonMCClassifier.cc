@@ -70,7 +70,7 @@ public:
 private:
   void produce(edm::Event &, const edm::EventSetup &) override;
   /// The RECO objects
-  edm::EDGetTokenT<edm::View<reco::Muon> > muonsToken_;
+  edm::EDGetTokenT<edm::View<reco::Muon>> muonsToken_;
 
   /// A preselection cut for the muon.
   /// I pass through pat::Muon so that I can access muon id selectors
@@ -101,7 +101,7 @@ private:
   /// Write a ValueMap<int> in the event
   template <typename T>
   void writeValueMap(edm::Event &iEvent,
-                     const edm::Handle<edm::View<reco::Muon> > &handle,
+                     const edm::Handle<edm::View<reco::Muon>> &handle,
                      const std::vector<T> &values,
                      const std::string &label) const;
 
@@ -123,7 +123,7 @@ private:
 };
 
 MuonMCClassifier::MuonMCClassifier(const edm::ParameterSet &iConfig)
-    : muonsToken_(consumes<edm::View<reco::Muon> >(iConfig.getParameter<edm::InputTag>("muons"))),
+    : muonsToken_(consumes<edm::View<reco::Muon>>(iConfig.getParameter<edm::InputTag>("muons"))),
       hasMuonCut_(iConfig.existsAs<std::string>("muonPreselection")),
       muonCut_(hasMuonCut_ ? iConfig.getParameter<std::string>("muonPreselection") : ""),
       trackingParticlesToken_(
@@ -153,40 +153,40 @@ MuonMCClassifier::MuonMCClassifier(const edm::ParameterSet &iConfig)
     genParticlesToken_ = consumes<reco::GenParticleCollection>(genParticles_);
   }
 
-  produces<edm::ValueMap<int> >();
-  produces<edm::ValueMap<int> >("ext");
-  produces<edm::ValueMap<int> >("flav");
-  produces<edm::ValueMap<int> >("hitsPdgId");
-  produces<edm::ValueMap<int> >("G4processType");  // Geant process producing the particle
-  produces<edm::ValueMap<int> >("momPdgId");
-  produces<edm::ValueMap<int> >("momFlav");
-  produces<edm::ValueMap<int> >("momStatus");
-  produces<edm::ValueMap<int> >("gmomPdgId");
-  produces<edm::ValueMap<int> >("gmomFlav");
-  produces<edm::ValueMap<int> >("hmomFlav");  // heaviest mother flavour
-  produces<edm::ValueMap<int> >("tpId");
-  produces<edm::ValueMap<int> >("tpEv");
-  produces<edm::ValueMap<int> >("tpBx");
-  produces<edm::ValueMap<float> >("signp");
-  produces<edm::ValueMap<float> >("pt");
-  produces<edm::ValueMap<float> >("eta");
-  produces<edm::ValueMap<float> >("phi");
-  produces<edm::ValueMap<float> >("prodRho");
-  produces<edm::ValueMap<float> >("prodZ");
-  produces<edm::ValueMap<float> >("momRho");
-  produces<edm::ValueMap<float> >("momZ");
-  produces<edm::ValueMap<float> >("tpAssoQuality");
+  produces<edm::ValueMap<int>>();
+  produces<edm::ValueMap<int>>("ext");
+  produces<edm::ValueMap<int>>("flav");
+  produces<edm::ValueMap<int>>("hitsPdgId");
+  produces<edm::ValueMap<int>>("G4processType");  // Geant process producing the particle
+  produces<edm::ValueMap<int>>("momPdgId");
+  produces<edm::ValueMap<int>>("momFlav");
+  produces<edm::ValueMap<int>>("momStatus");
+  produces<edm::ValueMap<int>>("gmomPdgId");
+  produces<edm::ValueMap<int>>("gmomFlav");
+  produces<edm::ValueMap<int>>("hmomFlav");  // heaviest mother flavour
+  produces<edm::ValueMap<int>>("tpId");
+  produces<edm::ValueMap<int>>("tpEv");
+  produces<edm::ValueMap<int>>("tpBx");
+  produces<edm::ValueMap<float>>("signp");
+  produces<edm::ValueMap<float>>("pt");
+  produces<edm::ValueMap<float>>("eta");
+  produces<edm::ValueMap<float>>("phi");
+  produces<edm::ValueMap<float>>("prodRho");
+  produces<edm::ValueMap<float>>("prodZ");
+  produces<edm::ValueMap<float>>("momRho");
+  produces<edm::ValueMap<float>>("momZ");
+  produces<edm::ValueMap<float>>("tpAssoQuality");
   if (linkToGenParticles_) {
     produces<reco::GenParticleCollection>("secondaries");
-    produces<edm::Association<reco::GenParticleCollection> >("toPrimaries");
-    produces<edm::Association<reco::GenParticleCollection> >("toSecondaries");
+    produces<edm::Association<reco::GenParticleCollection>>("toPrimaries");
+    produces<edm::Association<reco::GenParticleCollection>>("toSecondaries");
   }
 }
 
 MuonMCClassifier::~MuonMCClassifier() {}
 
 void MuonMCClassifier::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  edm::Handle<edm::View<reco::Muon> > muons;
+  edm::Handle<edm::View<reco::Muon>> muons;
   iEvent.getByToken(muonsToken_, muons);
 
   edm::Handle<TrackingParticleCollection> trackingParticles;
@@ -557,10 +557,10 @@ void MuonMCClassifier::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
     edm::OrphanHandle<reco::GenParticleCollection> secHandle = iEvent.put(std::move(secondaries), "secondaries");
     edm::RefProd<reco::GenParticleCollection> priRP(genParticles);
     edm::RefProd<reco::GenParticleCollection> secRP(secHandle);
-    std::unique_ptr<edm::Association<reco::GenParticleCollection> > outPri(
-        new edm::Association<reco::GenParticleCollection>(priRP));
-    std::unique_ptr<edm::Association<reco::GenParticleCollection> > outSec(
-        new edm::Association<reco::GenParticleCollection>(secRP));
+    std::unique_ptr<edm::Association<reco::GenParticleCollection>> outPri =
+        std::make_unique<edm::Association<reco::GenParticleCollection>>(priRP);
+    std::unique_ptr<edm::Association<reco::GenParticleCollection>> outSec =
+        std::make_unique<edm::Association<reco::GenParticleCollection>>(secRP);
     edm::Association<reco::GenParticleCollection>::Filler fillPri(*outPri), fillSec(*outSec);
     fillPri.insert(muons, muToPrimary.begin(), muToPrimary.end());
     fillSec.insert(muons, muToSecondary.begin(), muToSecondary.end());
@@ -573,12 +573,12 @@ void MuonMCClassifier::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
 
 template <typename T>
 void MuonMCClassifier::writeValueMap(edm::Event &iEvent,
-                                     const edm::Handle<edm::View<reco::Muon> > &handle,
+                                     const edm::Handle<edm::View<reco::Muon>> &handle,
                                      const std::vector<T> &values,
                                      const std::string &label) const {
   using namespace edm;
   using namespace std;
-  unique_ptr<ValueMap<T> > valMap(new ValueMap<T>());
+  unique_ptr<ValueMap<T>> valMap(new ValueMap<T>());
   typename edm::ValueMap<T>::Filler filler(*valMap);
   filler.insert(handle, values.begin(), values.end());
   filler.fill();

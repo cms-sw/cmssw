@@ -13,6 +13,7 @@
 #include "EgammaAnalysis/ElectronTools/interface/SuperClusterHelper.h"
 
 #include <iostream>
+#include <memory>
 
 RegressionEnergyPatElectronProducer::RegressionEnergyPatElectronProducer(const edm::ParameterSet& cfg) {
   inputGsfElectronsToken_ =
@@ -71,8 +72,8 @@ RegressionEnergyPatElectronProducer::RegressionEnergyPatElectronProducer(const e
   regressionEvaluator_->initialize(regressionInputFile_, type);
 
   if (produceValueMaps_) {
-    produces<edm::ValueMap<double> >(nameEnergyReg_);
-    produces<edm::ValueMap<double> >(nameEnergyErrorReg_);
+    produces<edm::ValueMap<double>>(nameEnergyReg_);
+    produces<edm::ValueMap<double>>(nameEnergyErrorReg_);
   }
 
   //****************************************************************************************
@@ -141,13 +142,13 @@ void RegressionEnergyPatElectronProducer::produce(edm::Event& event, const edm::
   }
 
   // prepare the two even if only one is used
-  std::unique_ptr<pat::ElectronCollection> patElectrons(new pat::ElectronCollection);
+  std::unique_ptr<pat::ElectronCollection> patElectrons = std::make_unique<pat::ElectronCollection>();
 
   // Fillers for ValueMaps:
-  std::unique_ptr<edm::ValueMap<double> > regrEnergyMap(new edm::ValueMap<double>());
+  std::unique_ptr<edm::ValueMap<double>> regrEnergyMap = std::make_unique<edm::ValueMap<double>>();
   edm::ValueMap<double>::Filler energyFiller(*regrEnergyMap);
 
-  std::unique_ptr<edm::ValueMap<double> > regrEnergyErrorMap(new edm::ValueMap<double>());
+  std::unique_ptr<edm::ValueMap<double>> regrEnergyErrorMap = std::make_unique<edm::ValueMap<double>>();
   edm::ValueMap<double>::Filler energyErrorFiller(*regrEnergyErrorMap);
 
   // Reserve the vectors with outputs

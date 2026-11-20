@@ -16,6 +16,7 @@
 #include "CommonTools/RecoUtils/interface/PF_PU_FirstVertexTracks.h"
 
 // system include files
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -88,8 +89,8 @@ PF_PU_FirstVertexTracks::PF_PU_FirstVertexTracks(const edm::ParameterSet& iConfi
 
 // ------------ method called to produce the data  ------------
 void PF_PU_FirstVertexTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  unique_ptr<TrackCollection> t2v_firstvertextracks(new TrackCollection());
-  unique_ptr<TrackCollection> v2t_firstvertextracks(new TrackCollection());
+  unique_ptr<TrackCollection> t2v_firstvertextracks = std::make_unique<TrackCollection>();
+  unique_ptr<TrackCollection> v2t_firstvertextracks = std::make_unique<TrackCollection>();
 
   bool t2vassmap = false;
   bool v2tassmap = false;

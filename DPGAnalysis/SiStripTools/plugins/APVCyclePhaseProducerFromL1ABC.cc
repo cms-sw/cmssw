@@ -178,7 +178,7 @@ void APVCyclePhaseProducerFromL1ABC::endRun(const edm::Run&, const edm::EventSet
 void APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  std::unique_ptr<APVCyclePhaseCollection> apvphases(new APVCyclePhaseCollection());
+  std::unique_ptr<APVCyclePhaseCollection> apvphases = std::make_unique<APVCyclePhaseCollection>();
 
   const std::vector<int>& phases = _defphases;
   const std::vector<std::string>& partnames = _defpartnames;

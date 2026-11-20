@@ -81,8 +81,8 @@ ElectronRegressionEnergyProducer::ElectronRegressionEnergyProducer(const edm::Pa
   ecalTopoToken_ = esConsumes();
   caloGeomToken_ = esConsumes();
 
-  produces<edm::ValueMap<double> >(nameEnergyReg_);
-  produces<edm::ValueMap<double> >(nameEnergyErrorReg_);
+  produces<edm::ValueMap<double>>(nameEnergyReg_);
+  produces<edm::ValueMap<double>>(nameEnergyErrorReg_);
 
   regressionEvaluator = new ElectronEnergyRegressionEvaluate();
 
@@ -115,10 +115,10 @@ bool ElectronRegressionEnergyProducer::filter(edm::Event& iEvent, const edm::Eve
     geomInitialized_ = true;
   }
 
-  std::unique_ptr<edm::ValueMap<double> > regrEnergyMap(new edm::ValueMap<double>());
+  std::unique_ptr<edm::ValueMap<double>> regrEnergyMap = std::make_unique<edm::ValueMap<double>>();
   edm::ValueMap<double>::Filler energyFiller(*regrEnergyMap);
 
-  std::unique_ptr<edm::ValueMap<double> > regrEnergyErrorMap(new edm::ValueMap<double>());
+  std::unique_ptr<edm::ValueMap<double>> regrEnergyErrorMap = std::make_unique<edm::ValueMap<double>>();
   edm::ValueMap<double>::Filler energyErrorFiller(*regrEnergyErrorMap);
 
   edm::Handle<reco::GsfElectronCollection> egCollection;

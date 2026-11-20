@@ -80,8 +80,8 @@ PFCand_NoPU_WithAM::PFCand_NoPU_WithAM(const edm::ParameterSet& iConfig) {
 
 // ------------ method called to produce the data  ------------
 void PFCand_NoPU_WithAM::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  unique_ptr<PFCandidateCollection> p2v_firstvertex(new PFCandidateCollection());
-  unique_ptr<PFCandidateCollection> v2p_firstvertex(new PFCandidateCollection());
+  unique_ptr<PFCandidateCollection> p2v_firstvertex = std::make_unique<PFCandidateCollection>();
+  unique_ptr<PFCandidateCollection> v2p_firstvertex = std::make_unique<PFCandidateCollection>();
 
   bool p2vassmap = false;
   bool v2passmap = false;

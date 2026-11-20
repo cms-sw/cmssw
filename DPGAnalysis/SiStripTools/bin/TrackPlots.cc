@@ -41,7 +41,7 @@ void TrackPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/ntrk_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -55,7 +55,7 @@ void TrackPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/pt_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->SetLogy(1);
@@ -72,7 +72,7 @@ void TrackPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/ptphieta_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -87,7 +87,7 @@ void TrackPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/phi_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -101,7 +101,7 @@ void TrackPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/eta_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -116,7 +116,7 @@ void TrackPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/phieta_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -131,7 +131,7 @@ void TrackPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/nrhits_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -146,7 +146,7 @@ void TrackPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/nhitphieta_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -161,7 +161,7 @@ void TrackPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/nlosthits_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -175,7 +175,7 @@ void TrackPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/npixelhits_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -189,7 +189,7 @@ void TrackPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/nstriphits_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -203,7 +203,7 @@ void TrackPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/nrlayers_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -218,7 +218,7 @@ void TrackPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/nlayerphieta_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -233,7 +233,7 @@ void TrackPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/nlostlayers_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -247,7 +247,7 @@ void TrackPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/npixellayers_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -261,7 +261,7 @@ void TrackPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/nstriplayers_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -275,7 +275,7 @@ void TrackPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/hhpfrac_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->SetLogy(1);
@@ -291,7 +291,7 @@ void TrackPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/halgo_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -312,7 +312,7 @@ void TrackPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/hntrkvslumi_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -332,7 +332,7 @@ void TrackPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/hntrkvslumi2D_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->SetLogz(1);
