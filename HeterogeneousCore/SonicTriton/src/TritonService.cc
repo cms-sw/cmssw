@@ -171,7 +171,7 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
                                          << server.url << ")" << extraMsg;
     }
     if (verbose_)
-      msg += "\n";
+      msg += '\n';
   }
   if (verbose_)
     edm::LogInfo("TritonDiscovery") << msg;
