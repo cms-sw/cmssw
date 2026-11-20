@@ -1,4 +1,13 @@
 <lcgdict>
+  <class name="alpaka_cuda_async::hgcaldigi::HGCalSimHitAccumDevice" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::hgcaldigi::HGCalSimHitAccumDevice>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::hgcaldigi::HGCalSimHitAccumDevice>>" persistent="false"/>
+  <class name="alpaka_cuda_async::hgcaldigi::HGCalRealisticSimHitDevice" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::hgcaldigi::HGCalRealisticSimHitDevice>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::hgcaldigi::HGCalRealisticSimHitDevice>>" persistent="false"/>
+  <class name="alpaka_cuda_async::hgcaldigi::HGCalROCDigisAccumDevice" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::hgcaldigi::HGCalROCDigisAccumDevice>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::hgcaldigi::HGCalROCDigisAccumDevice>>" persistent="false"/>
   <class name="alpaka_cuda_async::hgcaldigi::HGCalDigiDevice" persistent="false"/>
   <class name="edm::DeviceProduct<alpaka_cuda_async::hgcaldigi::HGCalDigiDevice>" persistent="false"/>
   <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::hgcaldigi::HGCalDigiDevice>>" persistent="false"/>

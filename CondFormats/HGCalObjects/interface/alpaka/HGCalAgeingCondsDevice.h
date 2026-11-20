@@ -10,8 +10,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   namespace hgcal {
 
-    using HGCalAgeingCondsDevice = PortableCollection<::hgcal::HGCalAgeingCondsSoA>;
-    using HGCalAgeingCondsHost = ::hgcal::HGCalAgeingCondsHost;
+    using namespace ::hgcal;
+    using HGCalAgeingCondsDevice = PortableCollection<HGCalAgeingCondsSoA>;
 
   }  // namespace hgcal
 

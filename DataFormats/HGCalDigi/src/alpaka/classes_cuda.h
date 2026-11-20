@@ -1,5 +1,7 @@
 #include "DataFormats/Common/interface/DeviceProduct.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/HGCalDigi/interface/HGCalSimHitAccumSoA.h"
+#include "DataFormats/HGCalDigi/interface/alpaka/HGCalSimHitAccumDevice.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiSoA.h"
 #include "DataFormats/HGCalDigi/interface/alpaka/HGCalDigiDevice.h"
 #include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoSoA.h"
