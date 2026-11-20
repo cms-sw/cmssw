@@ -73,7 +73,7 @@ ControllerChannel::~ControllerChannel() {
 std::string ControllerChannel::uniqueName(std::string iBase) const {
   auto pid = getpid();
   iBase += std::to_string(pid);
-  iBase += "_";
+  iBase += '_';
   iBase += std::to_string(id_);
 
   return iBase;

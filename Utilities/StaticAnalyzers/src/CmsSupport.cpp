@@ -72,19 +72,19 @@ std::string clangcms::support::getQualifiedName(const clang::NamedDecl &d) {
 
   if (const FunctionDecl *fd = dyn_cast_or_null<FunctionDecl>(&d)) {
     if (fd->isFunctionTemplateSpecialization()) {
-      ret += "<";
+      ret += '<';
       const TemplateArgumentList *TemplateArgs = fd->getTemplateSpecializationArgs();
       if (TemplateArgs) {
         unsigned num_args = TemplateArgs->size();
         for (unsigned i = 0; i < num_args; ++i) {
           if (i)
-            ret += ",";
+            ret += ',';
           TemplateArgument TemplateArg = TemplateArgs->get(i);
           if (TemplateArg.getKind() == TemplateArgument::ArgKind::Type)
             ret += TemplateArg.getAsType().getAsString();
         }
       }
-      ret += ">";
+      ret += '>';
     }
     // This is a function. getQualifiedNameAsString will return a string
     // like "ANamespace::AFunction". To this we append the list of parameters
@@ -92,7 +92,7 @@ std::string clangcms::support::getQualifiedName(const clang::NamedDecl &d) {
     // void ANamespace::AFunction(int);
     // and
     // void ANamespace::AFunction(float);
-    ret += "(";
+    ret += '(';
     const clang::FunctionType *ft = fd->getType()->castAs<clang::FunctionType>();
     if (const FunctionProtoType *fpt = dyn_cast_or_null<FunctionProtoType>(ft)) {
       unsigned num_params = fd->getNumParams();
@@ -108,7 +108,7 @@ std::string clangcms::support::getQualifiedName(const clang::NamedDecl &d) {
         ret += "...";
       }
     }
-    ret += ")";
+    ret += ')';
     if (ft->isConst())
       ret += " const";
   }

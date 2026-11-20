@@ -17,7 +17,7 @@ namespace edm {
       std::vector<std::string> pathElements = edm::tokenize(fullPath, "/");
       for (auto const& path : pathElements) {
         if (!path.empty()) {
-          pathToResolve += "/";
+          pathToResolve += '/';
           pathToResolve += path;
           bf::path symLinkPath(pathToResolve);
           if (bf::is_symlink(bf::symlink_status(symLinkPath))) {
