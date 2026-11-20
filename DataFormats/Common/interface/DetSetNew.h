@@ -56,7 +56,8 @@ namespace edmNew {
     }
 
     //Allow a  DetSet to be constructed from a MutableDetSet
-    template <bool B = IsConst, std::enable_if_t<B, int> = 0>
+    template <bool = IsConst>
+      requires IsConst
     inline DetSetBase(MutableDetSet<T> const& other)
         : m_id(other.m_id), m_data(other.m_data), m_offset(other.m_offset), m_size(other.m_size) {}
 

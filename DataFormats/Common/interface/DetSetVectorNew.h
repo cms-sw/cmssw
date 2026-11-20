@@ -185,7 +185,8 @@ namespace edmNew {
       IterHelp() : m_v(nullptr), m_update(false) {}
       IterHelp(container_ref iv, bool iup) : m_v(&iv), m_update(iup) {}
       //Allow a const IterHelp to be constructed from a non-const IterHelp
-      template <bool B = IsConst, std::enable_if_t<B, int> = 0>
+      template <bool = IsConst>
+        requires IsConst
       IterHelp(IterHelp<false> const& other) : m_v(other.m_v), m_update(other.m_update) {}
 
       result_type operator()(Item const& item) const { return result_type(*m_v, item, m_update); }

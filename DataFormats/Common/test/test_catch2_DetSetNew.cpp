@@ -39,10 +39,10 @@ using det_id_type = edmNew::det_id_type;
 using FF = DSTV::FastFiller;
 using TSFF = DSTV::TSFastFiller;
 
-static_assert(std::is_same<decltype(std::declval<DSTV &>()[0][0]), T &>::value);
-static_assert(std::is_same<decltype(std::declval<DSTV const &>()[0][0]), T const &>::value);
-static_assert(std::is_same<decltype((*std::declval<DSTV::iterator>())[0]), T &>::value);
-static_assert(std::is_same<decltype((*std::declval<DSTV::const_iterator>())[0]), T const &>::value);
+static_assert(std::is_same_v<decltype(std::declval<DSTV &>()[0][0]), T &>);
+static_assert(std::is_same_v<decltype(std::declval<DSTV const &>()[0][0]), T const &>);
+static_assert(std::is_same_v<decltype((*std::declval<DSTV::iterator>())[0]), T &>);
+static_assert(std::is_same_v<decltype((*std::declval<DSTV::const_iterator>())[0]), T const &>);
 static_assert(std::is_same_v<DSTV::MutableDetSet, edmNew::MutableDetSet<T>>);
 static_assert(std::is_same_v<DSTV::DetSet, edmNew::DetSet<T>>);
 static_assert(std::is_same_v<decltype(std::declval<DSTV &>()[0]), DSTV::MutableDetSet>);
