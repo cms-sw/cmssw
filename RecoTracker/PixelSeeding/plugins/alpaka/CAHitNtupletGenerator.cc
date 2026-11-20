@@ -417,6 +417,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               "(which read their own nSigma2Phase1 constant and ignore this parameter, so the value is "
               "only informative there). Phase2OTVectorHits uses 2.5, matching the tighter covariance its "
               "fit emits.");
+      desc.add<std::string>("iterationName", std::string("promptHighPt"))->setComment("Name of the tracking iteration");
     }
 
     AlgoParams makeCommonParams(edm::ParameterSet const& cfg) {
@@ -470,6 +471,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           // CA fast-duplicate / shared-hit covariance gate width, in units of the fitted covariance
           .fastDupNSigma2_ = (float)cfg.getParameter<double>("fastDupNSigma2"),
+          .iterationName_ = pixelTrack::iterationByName(cfg.getParameter<std::string>("iterationName")),
       };
     }
 
@@ -681,6 +683,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       float bfield,
       uint32_t nDoublets,
       uint32_t nTracks,
+      MapToHitConstView maskView,
       Queue& queue) const {
     using GPUKernels = CAHitNtupletGeneratorKernels<TrackerTraits>;
 
@@ -745,7 +748,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     kernels.prepareHits(trackingHits, hitModules, layers, queue);
 
-    const uint32_t nCellsCounted = kernels.buildDoublets(trackingHits, graph, layers, doubletCuts, offsetBPIX2, queue);
+    const uint32_t nCellsCounted =
+        kernels.buildDoublets(trackingHits, graph, layers, doubletCuts, offsetBPIX2, maskView, queue);
 
     if (delay) {
       // Size the cell-derived buffers from the actual number of doublets. With countDoubletsFirst on
