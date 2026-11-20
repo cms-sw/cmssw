@@ -86,6 +86,30 @@ void PTrackerAdditionalParametersPerDet::setBigPixelsPitchY(float bigpixelspitch
   setThisParam(floatParams_, BIGPIXELS_PITCH_Y, bigpixelspitchY);
 }
 
+bool PTrackerAdditionalParametersPerDet::bigPixelsTwoEdgesX(int theIndex) const {
+  return getThisParam(boolParams_, BIGPIXELS_TWOEDGES_X, theIndex);
+}
+
+std::vector<bool> PTrackerAdditionalParametersPerDet::allBigPixelsTwoEdgesXs() const {
+  return getAllParams(boolParams_, BIGPIXELS_TWOEDGES_X);
+}
+
+void PTrackerAdditionalParametersPerDet::setBigPixelsTwoEdgesX(bool bigpixelstwoedgesX) {
+  setThisParam(boolParams_, BIGPIXELS_TWOEDGES_X, bigpixelstwoedgesX);
+}
+
+bool PTrackerAdditionalParametersPerDet::bigPixelsTwoEdgesY(int theIndex) const {
+  return getThisParam(boolParams_, BIGPIXELS_TWOEDGES_Y, theIndex);
+}
+
+std::vector<bool> PTrackerAdditionalParametersPerDet::allBigPixelsTwoEdgesYs() const {
+  return getAllParams(boolParams_, BIGPIXELS_TWOEDGES_Y);
+}
+
+void PTrackerAdditionalParametersPerDet::setBigPixelsTwoEdgesY(bool bigpixelstwoedgesY) {
+  setThisParam(boolParams_, BIGPIXELS_TWOEDGES_Y, bigpixelstwoedgesY);
+}
+
 //
 
 //This doesn't work properly because intParams_ and boolParams_ are vectors of vecotrs - the outer vector should be the number of parameters and the inner vector the number of geometricDets.
