@@ -41,6 +41,7 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
+#include "HLTrigger/HLTcore/interface/getL1TCandidates.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include <vector>
@@ -238,17 +239,13 @@ void L1TJetsMatching<T>::produce(edm::StreamID iSId, edm::Event& iEvent, const e
   edm::Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredJets;
   iEvent.getByToken(jetTrigger_, l1TriggeredJets);
 
-  //l1t::TauVectorRef jetCandRefVec;
-  l1t::JetVectorRef jetCandRefVec;
-  l1TriggeredJets->getObjects(trigger::TriggerL1Jet, jetCandRefVec);
+  // L1T jets of the seed (Run-3 l1t::Jet or Phase-2 l1t::P2GTCandidate)
+  auto const l1Jets = hlt::getL1TJets(*l1TriggeredJets);
 
-  //std::cout<<"PFsize= "<<pfJets->size()<<endl<<" L1size= "<<jetCandRefVec.size()<<std::endl;
   for (unsigned int iJet = 0; iJet < pfJets->size(); iJet++) {
     const T& myJet = (*pfJets)[iJet];
-    for (unsigned int iL1Jet = 0; iL1Jet < jetCandRefVec.size(); iL1Jet++) {
-      // Find the relative L2pfJets, to see if it has been reconstructed
-      //  if ((iJet<3) && (iL1Jet==0))  std::cout<<myJet.p4().Pt()<<" ";
-      if ((reco::deltaR2(myJet.p4(), jetCandRefVec[iL1Jet]->p4()) < matchingR2_) && (myJet.pt() > pt2Min_)) {
+    for (auto const* l1Jet : l1Jets) {
+      if ((reco::deltaR2(myJet.p4(), l1Jet->p4()) < matchingR2_) && (myJet.pt() > pt2Min_)) {
         pfMatchedJets->push_back(myJet);
         break;
       }
@@ -281,7 +278,8 @@ void L1TJetsMatching<T>::produce(edm::StreamID iSId, edm::Event& iEvent, const e
 template <typename T>
 void L1TJetsMatching<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("L1JetTrigger", edm::InputTag("hltL1DiJetVBF"))->setComment("Name of trigger filter");
+  desc.add<edm::InputTag>("L1JetTrigger", edm::InputTag("hltL1DiJetVBF"))
+      ->setComment("Name of trigger filter providing the L1 jets");
   desc.add<edm::InputTag>("JetSrc", edm::InputTag("hltAK4PFJetsTightIDCorrected"))
       ->setComment("Input collection of PFJets");
   desc.add<std::string>("matchingMode", "VBF")

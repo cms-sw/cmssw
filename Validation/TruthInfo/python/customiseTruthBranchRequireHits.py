@@ -10,6 +10,7 @@ hitBasedValidatorTypes = (
     "TruthBranchTrackValidator",
     "TruthBranchTracksterValidator",
     "TruthBranchPFClusterValidator",
+    "TruthBranchCandidateValidator",
 )
 
 
