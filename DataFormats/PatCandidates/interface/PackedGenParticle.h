@@ -94,7 +94,7 @@ namespace pat {
             packedM_(iOther.packedM_),
             p4_(nullptr),
             p4c_(nullptr),
-            vertex_(std::move(iOther.vertex_)),
+            vertex_(iOther.vertex_),
             dxy_(iOther.dxy_),
             dz_(iOther.dz_),
             dphi_(iOther.dphi_),
@@ -121,7 +121,7 @@ namespace pat {
             delete p4_.exchange(nullptr);
             delete p4c_.exchange(nullptr);
           }
-          vertex_ = std::move(iOther.vertex_);
+          vertex_ = iOther.vertex_;
           dxy_ = iOther.dxy_;
           dz_ = iOther.dz_;
           dphi_ = iOther.dphi_;
