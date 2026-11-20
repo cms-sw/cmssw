@@ -60,7 +60,7 @@ namespace gen {
         int fd = mkstemp(tempslhaname);
 
         for (unsigned int i = 0; i < user_decay_lines.size(); i++) {
-          user_decay_lines.at(i) += "\n";
+          user_decay_lines.at(i) += '\n';
           write(fd, user_decay_lines.at(i).c_str(), user_decay_lines.at(i).size());
         }
         close(fd);
@@ -84,6 +84,14 @@ namespace gen {
     fMasterGen->settings.addFlag("BiasedTauDecayer:filter", false);
     fMasterGen->settings.addFlag("BiasedTauDecayer:eDecays", true);
     fMasterGen->settings.addFlag("BiasedTauDecayer:muDecays", true);
+
+    //add settings for the exclusive eta/eta' decayer (interface/EtaDecayer.h)
+    fMasterGen->settings.addFlag("EtaDecayer:filter", false);
+    fMasterGen->settings.addMode("EtaDecayer:parent", 221, false, false, 0, 0);
+    fMasterGen->settings.addWord("EtaDecayer:mode", "2mu2e");
+    fMasterGen->settings.addMode("EtaDecayer:A_id", 0, false, false, 0, 0);
+    fMasterGen->settings.addWord("EtaDecayer:A_type", "darkphoton");
+    fMasterGen->settings.addFlag("EtaDecayer:onePerEvent", false);
 
     //add settings for resonance decay filter
     fMasterGen->settings.addFlag("ResonanceDecayFilter:filter", false);
