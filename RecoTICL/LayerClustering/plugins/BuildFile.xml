@@ -29,6 +29,7 @@
 </library>
 
 <library file="alpaka/*.cc" name="RecoTICLLayerClusteringPluginsPortable">
+  <use name="DataFormats/CaloRecHit"/>
   <use name="DataFormats/HGCRecHit"/>
   <use name="DataFormats/HGCalReco"/>
   <use name="FWCore/Framework"/>
@@ -38,10 +39,9 @@
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="RecoLocalCalo/HGCalRecAlgos"/>
-  <use name="RecoLocalCalo/HGCalRecProducers"/>
   <use name="RecoTICL/LayerClustering"/>
   <use name="alpaka"/>
-  <use name="clue"/>
+  <use name="cluestering"/>
   <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
 </library>

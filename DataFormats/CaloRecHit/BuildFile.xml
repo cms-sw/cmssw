@@ -1,9 +1,18 @@
+<use name="rootcling"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/DetId"/>
+<use name="DataFormats/Portable"/>
+<use name="DataFormats/SoATemplate"/>
 <use name="FWCore/Utilities"/>
 <use name="rootmathcore"/>
+<use name="alpaka"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
 <use name="eigen"/>
+<use name="xtd"/>
+<flags ALPAKA_BACKENDS="!serial"/>
+<flags LCG_DICT_HEADER="classes_soa.h classes_others.h"/>
+<flags LCG_DICT_XML="classes_def_soa.xml classes_def_others.xml"/>
 <export>
   <lib name="1"/>
 </export>

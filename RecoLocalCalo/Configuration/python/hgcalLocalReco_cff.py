@@ -14,14 +14,19 @@ from RecoTICL.Geometry.TICLGeom_cff import ticlGeomESProducer, ticlGeomWithBarre
 # (for now until global reco is going with some sort of clustering)
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHGC_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHGC_cfi import *
-from RecoTICL.LayerClustering.hgcalLayerClusters_cff import hgcalLayerClustersHFNose, hgcalLayerClustersEE, hgcalLayerClustersHSi, hgcalLayerClustersHSci, hgcalMergeLayerClusters
+from RecoTICL.LayerClustering.hgcalLayerClusters_cff import hgcalLayerClustersHFNose, hgcalMergeLayerClusters
+from RecoTICL.LayerClustering.hgcalLayerClusters_cff import hgcalLayerClustersAlpakaTask, hgcalLayerClustersHFNoseAlpakaTask
+from RecoTICL.LayerClustering.hgcalLayerClusters_cff import (
+    hgcalSoARecHitsEE, hgcalCLUEsteringEE, hgcalSoALayerClustersEE,
+    hgcalSoARecHitsHSi, hgcalCLUEsteringHSi, hgcalSoALayerClustersHSi,
+    hgcalSoARecHitsHSci, hgcalCLUEsteringHSci, hgcalSoALayerClustersHSci,
+    hgcalSoARecHitsHFNose, hgcalCLUEsteringHFNose, hgcalSoALayerClustersHFNose,
+)
 
 hgcalLocalRecoTask = cms.Task( HGCalUncalibRecHit,
                                        HGCalRecHit,
                                        recHitMapProducer,
-                                       hgcalLayerClustersEE,
-                                       hgcalLayerClustersHSi,
-                                       hgcalLayerClustersHSci,
+                                       hgcalLayerClustersAlpakaTask,
                                        hgcalMergeLayerClusters,
                                        particleFlowRecHitHGC,
                                        particleFlowClusterHGCal,
@@ -29,7 +34,7 @@ hgcalLocalRecoTask = cms.Task( HGCalUncalibRecHit,
                                        ticlGeomWithBarrelESProducer )
 
 _hfnose_hgcalLocalRecoTask = hgcalLocalRecoTask.copy()
-_hfnose_hgcalLocalRecoTask.add(hgcalLayerClustersHFNose)
+_hfnose_hgcalLocalRecoTask.add(hgcalLayerClustersHFNoseAlpakaTask, hgcalLayerClustersHFNose)
 
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 phase2_hfnose.toReplaceWith(

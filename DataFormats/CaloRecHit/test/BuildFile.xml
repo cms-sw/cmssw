@@ -12,3 +12,25 @@
     <use name="cuda"/>
   </bin>
 </iftool>
+
+<bin name="TestCaloClusterSoA" file="alpaka/TestCaloClusterSoA.dev.cc">
+  <use name="catch2"/>
+  <use name="eigen"/>
+  <use name="DataFormats/CaloRecHit"/>
+  <use name="DataFormats/Portable"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="serial"/>
+</bin>
+
+<library name="testDataFormatsCaloClusterSoAIO" file="TestWriteCaloClusterSoA.cc,TestReadCaloClusterSoA.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="eigen"/>
+  <use name="DataFormats/CaloRecHit"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+</library>
+
+<test name="TestCaloClusterSoAWriteRead" command="testCaloClusterSoAWriteRead.sh"/>

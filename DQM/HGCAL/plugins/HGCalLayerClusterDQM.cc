@@ -2,6 +2,7 @@
 #include <map>
 #include <numeric>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -10,7 +11,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DataFormats/HGCalReco/interface/HGCalSoAClustersHostCollection.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterHostCollection.h"
 #include "DataFormats/HGCalReco/interface/HGCalSoARecHitsHostCollection.h"
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
@@ -22,7 +23,7 @@
  *
  * DQM client for HGCal layer clusters.
  * Reads layer clusters and rechits in SoA format
- * and uses each cluster's seed rechit for the layer and the MIP scale.
+ * and uses each cluster's seed rechit, found by its DetId, for the layer and the MIP scale.
  * Clusters with one cell or fewer are skipped.
  * It fills per-layer energy (GeV and MIPs), size and position,
  * plus per-endcap summed energy, multiplicity and hits vs layer.
@@ -45,7 +46,7 @@ private:
   std::string setEndCapFolder(DQMStore::IBooker& ibook, int endcap);
 
   // ------------ member data ------------
-  const edm::EDGetTokenT<HGCalSoAClustersHostCollection> layerClustersToken_;
+  const edm::EDGetTokenT<reco::CaloClusterHostCollection> layerClustersToken_;
   const edm::EDGetTokenT<HGCalSoARecHitsHostCollection> rechitsTkn_;
   edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIdxTkn_;
   edm::ESGetToken<hgcal::HGCalMappingModuleParamHost, HGCalElectronicsMappingRcd> moduleInfoTkn_;
@@ -65,7 +66,7 @@ private:
 //
 HGCalLayerClusterDQM::HGCalLayerClusterDQM(const edm::ParameterSet& iConfig)
     : layerClustersToken_(
-          consumes<HGCalSoAClustersHostCollection>(iConfig.getParameter<edm::InputTag>("layerClusters"))),
+          consumes<reco::CaloClusterHostCollection>(iConfig.getParameter<edm::InputTag>("layerClusters"))),
       rechitsTkn_(consumes<HGCalSoARecHitsHostCollection>(iConfig.getParameter<edm::InputTag>("RecHits"))),
       moduleIdxTkn_(esConsumes<edm::Transition::BeginRun>()),
       moduleInfoTkn_(esConsumes<edm::Transition::BeginRun>()),
@@ -93,13 +94,18 @@ void HGCalLayerClusterDQM::analyze(const edm::Event& iEvent, const edm::EventSet
     return;
   //number of hits and dense indices
   const auto& LCs_view = LCs->const_view();
-  int32_t nLCs = LCs_view.metadata().size();
+  int32_t nLCs = LCs_view.position().metadata().size();
   const auto& rechits = iEvent.getHandle(rechitsTkn_);
   if (!rechits.isValid())
     return;
   const auto& rechits_view = rechits->const_view();
   int32_t nhits = rechits_view.metadata().size();
-  //fill histograms
+  // the rechit of each DetId, to find the seed of each layer cluster
+  std::unordered_map<uint32_t, int32_t> rechitOfDetId;
+  rechitOfDetId.reserve(nhits);
+  for (int32_t i = 0; i < nhits; ++i) {
+    rechitOfDetId.emplace(rechits_view[i].detid(), i);
+  }
 
   //prepare sums
   std::map<int, std::map<int, float>> mipsum;
@@ -120,26 +126,25 @@ void HGCalLayerClusterDQM::analyze(const edm::Event& iEvent, const edm::EventSet
 
   //loop over LCs
   for (int i = 0; i < nLCs; i++) {
-    const auto& LC = LCs->const_view()[i];
-    const int cells = LC.cells();
+    const auto& position = LCs_view.position()[i];
+    const int cells = position.cells();
     if (cells <= 1) {
       continue;
     }
-    // const auto& layer = LC.layer();
-    const float x = LC.x();
-    const float y = LC.y();
-    const float z = LC.z();
-    const int seed = LC.seed();
-    if (seed < 0 || seed >= nhits)
+    const float x = position.x();
+    const float y = position.y();
+    const float z = position.z();
+    const auto seed = rechitOfDetId.find(LCs_view.indexes()[i].seedID());
+    if (seed == rechitOfDetId.end())
       continue;
-    const auto& rechit = rechits_view[seed];
+    const auto& rechit = rechits_view[seed->second];
     const int layer = rechit.layer();
     if (layer == 0)
       continue;
 
     //increment sums
     const float mip_scale = rechit.mipEnergy() / rechit.energy();
-    auto& energy = LC.energy();
+    const float energy = LCs_view.energy()[i].energy();
     const float nmips = energy * mip_scale;
     auto endcap = z < 0 ? -1 : 1;
     hitsum[endcap][layer] += cells;
