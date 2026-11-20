@@ -135,24 +135,25 @@ hgchebackDigitizer = cms.PSet(
     useAllChannels    = cms.bool(True),
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet(
-        #0 empty digitizer, 1 calice digitizer, 2 realistic digitizer
-        algo          = cms.uint32(2),        
+        #0 empty digitizer, 1 calice digitizer, 2 realistic digitizer, 3 new realistic sci digitizer
+        algo          = cms.uint32(3),
         noise         = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_heback")), #scales both for scint raddam and sipm dark current
-        keV2MIP       = cms.double(1./675.0),
+        keV2MIP       = cms.double(1./455.0),  # using MIP MPV value (not mean 1/675.0)
         doTimeSamples = cms.bool(False),
-        nPEperMIP = cms.double(21.0),
-        nTotalPE  = cms.double(7500),        
-        sdPixels  = cms.double(1e-6), # this is additional photostatistics noise (as implemented), not sure why it's here...
+        nPEperMIP = cms.double(80.0), # reference light yield (is scaled depending on tile type and size)
+        nTotalPE  = cms.double(39770), # 39770 is number of pixels for 9 mm^2 SiPM (for 4 mm^2 SiPM it is 17459, for 2 mm^2 SiPM it is 8649)
+        gain      = cms.double(0.7), # SiPM gain in ADC; Gain of 0.7 is for ConvGain 4, Overvoltage 2V
+        sigma     = cms.double(1e-6), # sigma for light yield for new realistic sci digitizer
         thresholdFollowsMIP = cms.bool(thresholdTracksMIP),
         feCfg = hgcROCSettings.clone(
+            fwVersion         = cms.uint32(2),  # version 1 is Simple Shaper, version 2 is shaper with TDC
             adcNbits        = 10,      # standard ROC operations (was 2 bits more up to 11_0_0_pre12)
-            adcSaturation_fC = 68.75,  # keep the adc LSB the same (i.e. set saturation one quarter value of pre12)
-            tdcSaturation_fC  = 1000,  # allow up to 1000 MIPs as a max range, including ToA mode
-            targetMIPvalue_ADC   = 15, # to be used for HGCROC gain proposal
-            adcThreshold_fC = 0.5,     # unchanged with respect to pre12
-            tdcOnset_fC       = 55,    # turn on TDC when 80% of the ADC range is reached (one quarter of pre12
-            #                                        indicative at this point)
-            tdcForToAOnset_fC = cms.vdouble(12.,12.,12.),  #turn ToA for 20% of the TDC threshold (indicative at this point)
+            adcSaturation_fC = 1024,  # in unit of counts
+            tdcSaturation_fC  = 12288,  # in units of counts
+            adcThreshold_fC = 0.5,     # in units of MIPs
+            tdcOnset_fC       = 0,    # in units of counts
+            tdcForToAOnset_fC = cms.vdouble(175, 175, 175),  # in units of counts, turn ToA for 20% of the TDC threshold (indicative at this point)
+            
         )
     )
 )
@@ -334,8 +335,6 @@ def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap
     process.HGCAL_noises = cms.PSet(
         values = cms.vdouble([x for x in endOfLifeNoises])  
         )
-    #target the PSets just attached to the process: the module-level objects of
-    #the same names are not the ones the digitizers resolve on a loaded process
     phase2_hgcalV19.toModify(process.HGCAL_noise_fC, values = [x*fC_per_ele for x in endOfLifeNoises_v19] ) #120,200,300,HD200 um, to be deprecated
     phase2_hgcalV19.toModify(process.HGCAL_chargeCollectionEfficiencies, values = endOfLifeCCEs_v19)
     phase2_hgcalV19.toModify(process.HGCAL_noises, values = [x for x in endOfLifeNoises_v19])
@@ -395,8 +394,8 @@ def HGCal_disableNoise(process):
         values = cms.vdouble(0,0,0,0) #HD 120, LD 200, LD 300, HD 200
     )
 
-    phase2_hgcalV19.toModify(HGCAL_noise_fC, values = [0.,0.,0.,0.])
-    phase2_hgcalV19.toModify(HGCAL_noises, values = [0.,0.,0.,0.])
+    phase2_hgcalV19.toModify(process.HGCAL_noise_fC, values = [0.,0.,0.,0.])
+    phase2_hgcalV19.toModify(process.HGCAL_noises, values = [0.,0.,0.,0.])
     return process
 
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
@@ -407,7 +406,7 @@ phase2_hgcalV10.toModify(HGCAL_noises, values = [x for x in nonAgedNoises_v9])
 
 phase2_hgcalV19.toModify(HGCAL_noise_fC, values = [x*fC_per_ele for x in nonAgedNoises_v9_v19])
 phase2_hgcalV19.toModify(HFNose_noise_fC, values = [x*fC_per_ele for x in nonAgedNoises_v9_v19])
-phase2_hgcalV19.toModify(hgchebackDigitizer.digiCfg.feCfg, tdcForToAOnset_fC = [12.,12.,12.,12.])
+phase2_hgcalV19.toModify(hgchebackDigitizer.digiCfg.feCfg, tdcForToAOnset_fC = hgchebackDigitizer.digiCfg.feCfg.tdcForToAOnset_fC + [hgchebackDigitizer.digiCfg.feCfg.tdcForToAOnset_fC[-1]])
 
 
 

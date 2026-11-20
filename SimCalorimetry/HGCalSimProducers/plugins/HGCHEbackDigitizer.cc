@@ -7,6 +7,7 @@
 
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandGaussQ.h"
+#include "CLHEP/Random/RandBinomial.h"
 #include "vdt/vdtMath.h"
 
 using namespace hgc_digi;
@@ -26,9 +27,9 @@ private:
   //calice-like digitization parameters
   uint32_t algo_;
   bool scaleByDose_, thresholdFollowsMIP_;
-  float keV2MIP_, noise_MIP_;
-  float nPEperMIP_, nTotalPE_, xTalk_, sdPixels_;
-  std::string doseMapFile_;
+  float keV2MIP_, noise_MIP_, gainValue_;
+  float nPEperMIP_, nTotalPE_, xTalk_, sigma_;
+  std::string doseMapFile_, sipmMapFile_;
   HGCalSciNoiseMap scal_;
 
   void runEmptyDigitizer(std::unique_ptr<HGCalDigiCollection>& digiColl,
@@ -42,6 +43,12 @@ private:
                              const CaloSubdetectorGeometry* theGeom,
                              const std::unordered_set<DetId>& validIds,
                              CLHEP::HepRandomEngine* engine);
+
+  void runRealisticSciDigitizer(std::unique_ptr<HGCalDigiCollection>& digiColl,
+                                hgc::HGCSimHitDataAccumulator& simData,
+                                const CaloSubdetectorGeometry* theGeom,
+                                const std::unordered_set<DetId>& validIds,
+                                CLHEP::HepRandomEngine* engine);
 
   void runCaliceLikeDigitizer(std::unique_ptr<HGCalDigiCollection>& digiColl,
                               hgc::HGCSimHitDataAccumulator& simData,
@@ -66,17 +73,19 @@ HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet& ps) : HGCDigitiz
   this->det_ = DetId::HGCalHSc;
   nPEperMIP_ = cfg.getParameter<double>("nPEperMIP");
   nTotalPE_ = cfg.getParameter<double>("nTotalPE");
-  sdPixels_ = cfg.getParameter<double>("sdPixels");
+  gainValue_ = cfg.getParameter<double>("gain");  // Constant SiPM gain in units of ADC for the calculation of digis
+  sigma_ = cfg.getParameter<double>("sigma");
 
   scal_.setDoseMap(doseMapFile_, scaleByDoseAlgo);
   scal_.setReferenceDarkCurrent(refIdark);
   scal_.setFluenceScaleFactor(scaleByDoseFactor_);
   scal_.setReferenceCrossTalk(xTalk_);
-  //the ADC will be updated on the fly depending on the gain
-  //but the TDC scale needs to be updated to use pe instead of MIP units
+
+  //but the TDC scale needs to be updated to use pe instead of MIP units      // TDC still to be properly implemented for the updated digitiser (TODO)
   if (scaleByDose_)
     this->myFEelectronics_->setTDCfsc(2 * scal_.getNPeInSiPM());
 }
+// ----------------------
 
 //
 void HGCHEbackDigitizer::runDigitizer(std::unique_ptr<HGCalDigiCollection>& digiColl,
@@ -90,6 +99,8 @@ void HGCHEbackDigitizer::runDigitizer(std::unique_ptr<HGCalDigiCollection>& digi
     runCaliceLikeDigitizer(digiColl, simData, theGeom, validIds, engine);
   else if (algo_ == 2)
     runRealisticDigitizer(digiColl, simData, theGeom, validIds, engine);
+  else if (algo_ == 3)
+    runRealisticSciDigitizer(digiColl, simData, theGeom, validIds, engine);
 }
 
 void HGCHEbackDigitizer::runEmptyDigitizer(std::unique_ptr<HGCalDigiCollection>& digiColl,
@@ -248,6 +259,133 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
   }
 }
 
+void HGCHEbackDigitizer::runRealisticSciDigitizer(std::unique_ptr<HGCalDigiCollection>& digiColl,
+                                                  HGCSimHitDataAccumulator& simData,
+                                                  const CaloSubdetectorGeometry* theGeom,
+                                                  const std::unordered_set<DetId>& validIds,
+                                                  CLHEP::HepRandomEngine* engine) {
+  //switch to true if you want to print some details
+  constexpr bool debug(false);
+  constexpr bool doSaturation(true);  // flag to perform emulation of saturation of SiPM pixels
+  constexpr bool doSmearing(true);    // flag to perform emulation of statistical fluctiations of n of fired pixels
+  constexpr bool doNoise(false);      // flag to add noise
+
+  HGCSimHitData chargeColl, toa;
+  // this represents a cell with no signal charge
+  HGCCellInfo zeroData;
+  zeroData.hit_info[0].fill(0.f);  //accumulated energy
+  zeroData.hit_info[1].fill(0.f);  //time-of-flight
+
+  // needed to compute the radiation and geometry scale factors
+  scal_.setGeometry(theGeom);  // unused at the moment, untested (10/2026)
+
+  float scaledLYPerMip = -98.8;
+  float tunedNoise = nPEperMIP_ * noise_MIP_;  // flat noise case // UPD: outdated at the mement (10/2026)
+  float vanillaADCThr = this->myFEelectronics_->getADCThreshold();  // vanilla thrs in MIPs
+
+  float maxADC(-1);  //vanilla will rely on what has been configured by default
+  float gainValue(gainValue_);
+
+  // threshold calcuilated based on the expected ADC for ope MIP * the vanilla threshold in MIPs:
+  uint32_t thrADC(thresholdFollowsMIP_ ? std::floor(vanillaADCThr * scaledLYPerMip * gainValue)
+                                       : std::floor(vanillaADCThr));
+  float nTotalPx(nTotalPE_);
+  //float xTalk(xTalk_);
+  int gainIdx(0);  // UPD: unused, incorrect assumption about channel equalisation
+
+  for (const auto& id : validIds) {
+    chargeColl.fill(0.f);
+    toa.fill(0.f);
+    HGCSimHitDataAccumulator::iterator it = simData.find(id);
+    HGCCellInfo& cell = (simData.end() == it ? zeroData : it->second);
+    addCellMetadata(cell, theGeom, id);
+    float simHitADC(0.f);
+    int nPixels_sat = -99;
+    int nPixels_sat_smear = -88;
+    double radius;  //, x, y, z;
+    //double tileE, tileA;
+    int pedestal = 150;  // value of the expected position of the pedestal determined for the runs
+
+    HGCScintillatorDetId scId(id.rawId());
+    radius = static_cast<const HGCalGeometry*>(theGeom)->getPosition(scId).perp();
+    double edge(static_cast<const HGCalGeometry*>(theGeom)->edge(scId));
+    auto opChar = scal_.scaleByDoseLy(scId, radius, edge, id.rawId(), sigma_);  // using new for digitiser update
+    scaledLYPerMip = opChar.lySF;
+    tunedNoise = opChar.n / nPEperMIP_ * scaledLYPerMip;
+    gainIdx = opChar.gain;
+    thrADC = std::floor(vanillaADCThr * scaledLYPerMip);
+    float adcLsb = 1;
+    maxADC = 1024 - pedestal;  // UPD: max ADC not 1024, since some of it will be taken by the pedestal, recalculating.
+
+    //set mean for poissonian noise
+    float meanN = std::pow(tunedNoise, 2);
+
+    for (size_t i = 0; i < cell.hit_info[0].size(); ++i) {
+      //convert total energy keV->MIP, since converted to keV in accumulator
+      float totalIniMIPs(cell.hit_info[0][i] * keV2MIP_);
+
+      // generate the mean number of photo-electrons from the energy deposit
+      int nPixels = std::floor(totalIniMIPs * scaledLYPerMip);
+      // apply SiPM saturation function
+      if (doSaturation) {
+        nPixels_sat = std::floor(nTotalPx * (1 - vdt::fast_expf(-nPixels / nTotalPx)));
+        // Binomial smearing to emulate statistical fluctuations for fired pixels
+        if (doSmearing) {
+          float prob = nPixels_sat / nTotalPx;
+          nPixels_sat_smear = std::floor(CLHEP::RandBinomial::shoot(engine, nTotalPx, prob));
+          if (doNoise) {
+            //generate the noise associated to the dark current
+            const uint32_t npeN = std::floor(CLHEP::RandPoissonQ::shoot(engine, meanN) + 0.5);
+            nPixels_sat_smear += npeN;
+          }
+          if (nPixels_sat_smear > 0) {
+            simHitADC = nPixels_sat_smear * gainValue;
+          } else {
+            simHitADC = 0.;
+          }
+        } else {
+          simHitADC = nPixels * gainValue;
+        }
+      } else {
+        simHitADC = nPixels * gainValue;
+      }
+      //store ADC
+      chargeColl[i] = simHitADC;
+
+      if (debug && cell.hit_info[0][i] > 0)
+        edm::LogVerbatim("HGCDigitizer")
+            << "Realistic Sci Digitizer\n"
+            << "keV " << cell.hit_info[0][i] << "\ntotalIniMIPs " << totalIniMIPs << "\nADC(9mm2 ConvG=2 OV=4) "
+            << chargeColl[i]
+            //<< "ADCthresh * ly = " << vanillaADCThr* scaledPePerMip
+            << "\nvanillaADCThr = " << vanillaADCThr << "\n ADC thr " << thrADC << "\nnPixels " << nPixels
+            << "\nnPixels_sat " << nPixels_sat << "\nnTotalPx " << nTotalPx << "\nnPixels_sat_smear "
+            << nPixels_sat_smear << "\ngainValue " << gainValue << " cellId.granularity() "
+            << scId.granularity()
+            // << "\nradius "<< radius << " X: " << x << " Y: " << y << " Z: " << z
+            // << "\nTileAreaFactor " << tileE << " 3/tileE = " << 3.0/ tileE << " Tile Area: " << tileA
+            // << "\nHGCalHSc "<< (id.det() == DetId::HGCalHSc)
+            // << "\nscaledPePerMip "<< scaledPePerMip
+            // << "\ngainIdx " << gainIdx
+            << "\n\nid.rawId() " << id.rawId() << "\nSigma " << sigma_ << "\nscaledLYPerMip " << scaledLYPerMip;
+
+      //update time of arrival
+      toa[i] = cell.hit_info[1][i];
+      if (myFEelectronics_->toaMode() == HGCFEElectronics<HGCalDataFrame>::WEIGHTEDBYE && totalIniMIPs > 0)
+        toa[i] = cell.hit_info[1][i] / totalIniMIPs;
+    }
+
+    //init a new data frame and run shaper
+    HGCalDataFrame newDataFrame(id);
+    this->myFEelectronics_->runShaper(newDataFrame, chargeColl, toa, engine, thrADC, adcLsb, gainIdx, maxADC);
+
+    //prepare the output
+    this->updateOutput(digiColl, newDataFrame);
+  }
+  //outfile.close();
+}
+/// runRealisticSciDigitizer
+
 //
 void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::unique_ptr<HGCalDigiCollection>& digiColl,
                                                 HGCSimHitDataAccumulator& simData,
@@ -284,8 +422,8 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::unique_ptr<HGCalDigiCollect
         nPixel = (uint32_t)std::max(nTotalPE_ * (1.f - x) / (1.f - xTalk_ * x), 0.f);
 
       //update signal
-      if (sdPixels_ != 0)
-        nPixel = (uint32_t)std::max(CLHEP::RandGaussQ::shoot(engine, (double)nPixel, sdPixels_), 0.);
+      if (sigma_ != 0)
+        nPixel = (uint32_t)std::max(CLHEP::RandGaussQ::shoot(engine, (double)nPixel, sigma_), 0.);
 
       //convert to MIP again and saturate
       float totalMIPs(0.f), xtalk = 0.f;

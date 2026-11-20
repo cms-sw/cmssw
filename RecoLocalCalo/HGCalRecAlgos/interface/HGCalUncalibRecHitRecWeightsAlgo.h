@@ -17,6 +17,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 
+#include "SimCalorimetry/HGCalSimAlgos/interface/HGCalSciNoiseMap.h"
+
 template <class C>
 class HGCalUncalibRecHitRecWeightsAlgo {
 public:
@@ -51,6 +53,12 @@ public:
     return geom_ != nullptr;
   }
 
+  float desat(double sig, double g, int m = 39998) {
+    double n = sig / g;
+    double ans = -m / n * log(1 - (n / m));
+    return ans;
+  }
+
   /// Compute HGCUncalibratedRecHit from DataFrame
   virtual HGCUncalibratedRecHit makeRecHit(const C& dataFrame, const bool computeLocalTime) {
     double amplitude_(-1.), pedestal_(-1.), jitter_(-99.), chi2_(-1.);
@@ -74,8 +82,8 @@ public:
         amplitude_ = (std::floor(tdcOnsetfC_ / adcLSB_) + 1.0) * adcLSB_ + (double(sample.data()) + 0.5) * tdcLSB_;
       } else {
         amplitude_ = double(sample.data()) * adcLSB_;  // why do we not have +0.5 here ?
-      }  //isSiFESim_
-    }  //mode()
+      }  //mode()
+    }  //isSiFESim_
 
     // trivial digitization, i.e. no signal shape
     else {
@@ -89,7 +97,19 @@ public:
     }
 
     int thickness = (ddd_ != nullptr) ? ddd_->waferType(dataFrame.id(), false) : 0;
-    amplitude_ = amplitude_ / fCPerMIP_[thickness];
+
+    if (dataFrame.id().det() == DetId::HGCalHSc) {
+      double gain = fCPerMIP_[1];
+      double nTotalPx = fCPerMIP_[2];
+      HGCScintillatorDetId scId(dataFrame.id().rawId());
+      double edge = geom_->edge(scId);
+      double ly(HGCalSciNoiseMap::lyVsize(scId.type(), 0, edge, 9, 2));
+      double expadc = gain * ly;
+      double satmipss = amplitude_ / expadc;
+      amplitude_ = satmipss * desat(amplitude_, gain, nTotalPx);
+    } else {
+      amplitude_ = amplitude_ / fCPerMIP_[thickness];
+    }
 
     LogDebug("HGCUncalibratedRecHit") << "isSiFESim_: " << isSiFESim_ << " ADC+: set the charge to: " << amplitude_
                                       << ' ' << sample.data() << ' ' << adcLSB_ << ' '

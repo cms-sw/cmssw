@@ -202,14 +202,22 @@ void HGCFEElectronics<DFr>::runSimpleShaper(DFr& dataFrame,
   }
 
   for (int it = 0; it < (int)(newCharge_.size()); it++) {
-    //brute force saturation, maybe could to better with an exponential like saturation
-    const uint32_t adc = std::floor(std::min(newCharge_[it], maxADC) / lsbADC);
     HGCSample newSample;
-    newSample.set(adc > thrADC, false, gainIdx, 0, adc);
+    if (newCharge_[it] >= maxADC) {
+      //brute force saturation, maybe could to better with an exponential like saturation
+      const uint32_t tot = std::floor(std::min(newCharge_[it], float(tdcSaturation_fC_ - 1e-5)) / tdcLSB_fC_);
+      newSample.set(true, true, gainIdx, 0, tot);
+      if (debug)
+        edm::LogVerbatim("HGCFE") << tot << " (" << std::min(newCharge_[it], float(tdcSaturation_fC_ - 1e-5)) << "/"
+                                  << tdcLSB_fC_ << " ) ";
+    } else {
+      //brute force saturation, maybe could to better with an exponential like saturation
+      const uint32_t adc = std::floor(std::min(newCharge_[it], maxADC) / lsbADC);
+      newSample.set(adc > thrADC, false, gainIdx, 0, adc);
+      if (debug)
+        edm::LogVerbatim("HGCFE") << adc << " (" << std::min(newCharge_[it], maxADC) << "/" << lsbADC << " ) ";
+    }
     dataFrame.setSample(it, newSample);
-
-    if (debug)
-      edm::LogVerbatim("HGCFE") << adc << " (" << std::min(newCharge_[it], maxADC) << "/" << lsbADC << " ) ";
   }
 
   if (debug) {
@@ -422,7 +430,10 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
         finalToA /= totalCharge;
     }  //end while loop
 
-    newCharge_[it] = (totalCharge - tdcOnset);
+    if (dataFrame.id().det() == DetId::HGCalHSc)
+      newCharge_[it] = totalCharge;
+    else
+      newCharge_[it] = (totalCharge - tdcOnset);
 
     if (debug)
       edm::LogVerbatim("HGCFE") << "\t Final busy estimate=" << integTime << " ns = " << busyBxs << " bxs" << std::endl

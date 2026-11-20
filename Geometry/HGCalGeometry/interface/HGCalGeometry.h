@@ -85,6 +85,9 @@ public:
     return m_topology.dddConstants().cellArea(id, reco);
   }
 
+  /// Return the edge of scintillator tile
+  double edge(const HGCScintillatorDetId& detid) const;
+
   /// Returns the corner points of this cell's volume.
   CornersVec getCorners(const DetId& id) const;
   CornersVec get8Corners(const DetId& id) const;
