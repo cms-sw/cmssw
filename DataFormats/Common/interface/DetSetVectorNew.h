@@ -160,11 +160,11 @@ namespace edmNew {
     using id_type = unsigned int;
     using data_type = T;
     using self = edmNew::DetSetVector<T>;
+    using MutableDetSet = edmNew::MutableDetSet<T>;
     using DetSet = edmNew::DetSet<T>;
-    using ConstDetSet = edmNew::ConstDetSet<T>;
     using Getter = dslv::LazyGetter<T>;
     // FIXME not sure make sense....
-    using value_type = DetSet;
+    using value_type = MutableDetSet;
     using key_type = id_type;
 
     using IdContainer = std::vector<Item>;
@@ -180,7 +180,7 @@ namespace edmNew {
 
     template <bool IsConst>
     struct IterHelp {
-      using result_type = std::conditional_t<IsConst, ConstDetSet, DetSet>;
+      using result_type = std::conditional_t<IsConst, DetSet, MutableDetSet>;
       using container_ref = std::conditional_t<IsConst, DetSetVector<T> const&, DetSetVector<T>&>;
       IterHelp() : m_v(nullptr), m_update(false) {}
       IterHelp(container_ref iv, bool iup) : m_v(&iv), m_update(iup) {}
@@ -464,19 +464,19 @@ namespace edmNew {
     }
 
     // FIXME not sure what the best way to add one cell to cont
-    DetSet insert(id_type iid, data_type const* idata, size_type isize) {
+    MutableDetSet insert(id_type iid, data_type const* idata, size_type isize) {
       Item& item = addItem(iid, isize);
       m_data.resize(m_data.size() + isize);
       std::copy(idata, idata + isize, m_data.begin() + item.offset);
       m_dataSize = m_data.size();
-      return DetSet(*this, item, false);
+      return MutableDetSet(*this, item, false);
     }
     //make space for it
-    DetSet insert(id_type iid, size_type isize) {
+    MutableDetSet insert(id_type iid, size_type isize) {
       Item& item = addItem(iid, isize);
       m_data.resize(m_data.size() + isize);
       m_dataSize = m_data.size();
-      return DetSet(*this, item, false);
+      return MutableDetSet(*this, item, false);
     }
 
     // to be used with a FastFiller
@@ -514,18 +514,18 @@ namespace edmNew {
       return p != m_ids.end() && (*p).isValid();
     }
 
-    DetSet operator[](id_type i) {
+    MutableDetSet operator[](id_type i) {
+      const_IdIter p = findItem(i);
+      if (p == m_ids.end())
+        dstvdetails::throw_range(i);
+      return MutableDetSet(*this, *p, true);
+    }
+
+    DetSet operator[](id_type i) const {
       const_IdIter p = findItem(i);
       if (p == m_ids.end())
         dstvdetails::throw_range(i);
       return DetSet(*this, *p, true);
-    }
-
-    ConstDetSet operator[](id_type i) const {
-      const_IdIter p = findItem(i);
-      if (p == m_ids.end())
-        dstvdetails::throw_range(i);
-      return ConstDetSet(*this, *p, true);
     }
 
     iterator find(id_type i, bool update = false) {
@@ -701,13 +701,13 @@ namespace edm {
     struct FindSetForNewDetSetVector {
       using first_argument_type = const edmNew::DetSetVector<T>&;
       using second_argument_type = unsigned int;
-      using result_type = edmNew::ConstDetSet<T>;
+      using result_type = edmNew::DetSet<T>;
 
       result_type operator()(first_argument_type iContainer, second_argument_type iIndex) { return iContainer[iIndex]; }
     };
 
     template <typename T>
-    struct FindTrait<edmNew::DetSetVector<T>, edmNew::ConstDetSet<T>> {
+    struct FindTrait<edmNew::DetSetVector<T>, edmNew::DetSet<T>> {
       using value = FindSetForNewDetSetVector<T>;
     };
   }  // namespace refhelper

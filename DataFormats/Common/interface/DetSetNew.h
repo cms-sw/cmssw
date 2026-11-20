@@ -17,10 +17,10 @@ namespace edmNew {
   class DetSetBase;
 
   template <typename T>
-  using DetSet = DetSetBase<T, false>;
+  using MutableDetSet = DetSetBase<T, false>;
 
   template <typename T>
-  using ConstDetSet = DetSetBase<T, true>;
+  using DetSet = DetSetBase<T, true>;
 
   /* a proxy to a variable size array of T belonging to
    * a "channel" identified by an 32bit id
@@ -55,9 +55,9 @@ namespace edmNew {
       init(icont, item, update);
     }
 
-    //Allow a const DetSet to be constructed from a non-const DetSet
+    //Allow a  DetSet to be constructed from a MutableDetSet
     template <bool B = IsConst, std::enable_if_t<B, int> = 0>
-    inline DetSetBase(DetSet<T> const& other)
+    inline DetSetBase(MutableDetSet<T> const& other)
         : m_id(other.m_id), m_data(other.m_data), m_offset(other.m_offset), m_size(other.m_size) {}
 
     bool isValid() const { return m_offset >= 0; }

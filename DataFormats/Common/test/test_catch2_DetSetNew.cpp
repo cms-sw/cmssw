@@ -34,7 +34,7 @@ namespace {
   bool operator==(B const &b, T const &t) { return t == b; }
 }  // namespace
 using DSTV = edmNew::DetSetVector<T>;
-using DST = edmNew::DetSet<T>;
+using DST = edmNew::MutableDetSet<T>;
 using det_id_type = edmNew::det_id_type;
 using FF = DSTV::FastFiller;
 using TSFF = DSTV::TSFastFiller;
@@ -43,8 +43,15 @@ static_assert(std::is_same<decltype(std::declval<DSTV &>()[0][0]), T &>::value);
 static_assert(std::is_same<decltype(std::declval<DSTV const &>()[0][0]), T const &>::value);
 static_assert(std::is_same<decltype((*std::declval<DSTV::iterator>())[0]), T &>::value);
 static_assert(std::is_same<decltype((*std::declval<DSTV::const_iterator>())[0]), T const &>::value);
-static_assert(std::is_convertible_v<DST, DSTV::ConstDetSet>);
-static_assert(!std::is_convertible_v<DSTV::ConstDetSet, DST>);
+static_assert(std::is_same_v<DSTV::MutableDetSet, edmNew::MutableDetSet<T>>);
+static_assert(std::is_same_v<DSTV::DetSet, edmNew::DetSet<T>>);
+static_assert(std::is_same_v<decltype(std::declval<DSTV &>()[0]), DSTV::MutableDetSet>);
+static_assert(std::is_same_v<decltype(std::declval<DSTV const &>()[0]), DSTV::DetSet>);
+static_assert(std::is_same_v<decltype(std::declval<DSTV &>().insert(0, 1)), DSTV::MutableDetSet>);
+static_assert(
+    std::is_same_v<decltype(std::declval<DSTV &>().insert(0, static_cast<T const *>(nullptr), 1)), DSTV::MutableDetSet>);
+static_assert(std::is_convertible_v<DST, DSTV::DetSet>);
+static_assert(!std::is_convertible_v<DSTV::DetSet, DST>);
 static_assert(std::is_convertible_v<DSTV::iterator, DSTV::const_iterator>);
 static_assert(!std::is_convertible_v<DSTV::const_iterator, DSTV::iterator>);
 static_assert(std::is_convertible_v<DSTV::MutableRange, DSTV::Range>);
@@ -475,7 +482,7 @@ TEST_CASE("DetSetNew", "[DetSetNew]") {
     DSTV const &constDetsets = detsets;
     REQUIRE(constDetsets[21][0].v == 42.f);
     DST mutableSet = detsets[21];
-    DSTV::ConstDetSet constSet = mutableSet;
+    DSTV::DetSet constSet = mutableSet;
     REQUIRE(constSet.id() == mutableSet.id());
     REQUIRE(constSet.size() == mutableSet.size());
     REQUIRE(constSet.offset() == mutableSet.offset());
@@ -631,7 +638,7 @@ TEST_CASE("DetSetNew", "[DetSetNew]") {
       std::copy(sv.begin(), sv.begin() + 4, ff.begin());
     }
     SECTION("edmNew::copy") {
-      using RM = edm::RangeMap<det_id_type, edm::OwnVector<B> >;
+      using RM = edm::RangeMap<det_id_type, edm::OwnVector<B>>;
       RM rm;
       edmNew::copy(detsets, rm);
       rm.post_insert();
