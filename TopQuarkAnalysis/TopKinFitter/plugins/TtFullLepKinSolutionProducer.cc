@@ -28,10 +28,10 @@ private:
     bool operator()(std::pair<double, int> a, std::pair<double, int> b) { return a.first > b.first; }
   };
 
-  edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken_;
-  edm::EDGetTokenT<std::vector<pat::Electron> > electronsToken_;
-  edm::EDGetTokenT<std::vector<pat::Muon> > muonsToken_;
-  edm::EDGetTokenT<std::vector<pat::MET> > metsToken_;
+  edm::EDGetTokenT<std::vector<pat::Jet>> jetsToken_;
+  edm::EDGetTokenT<std::vector<pat::Electron>> electronsToken_;
+  edm::EDGetTokenT<std::vector<pat::Muon>> muonsToken_;
+  edm::EDGetTokenT<std::vector<pat::MET>> metsToken_;
 
   std::string jetCorrLevel_;
   int maxNJets_, maxNComb_;
@@ -56,10 +56,10 @@ inline bool TtFullLepKinSolutionProducer::HasPositiveCharge(const reco::Candidat
 
 inline TtFullLepKinSolutionProducer::TtFullLepKinSolutionProducer(const edm::ParameterSet& iConfig) {
   // configurables
-  jetsToken_ = consumes<std::vector<pat::Jet> >(iConfig.getParameter<edm::InputTag>("jets"));
-  electronsToken_ = consumes<std::vector<pat::Electron> >(iConfig.getParameter<edm::InputTag>("electrons"));
-  muonsToken_ = consumes<std::vector<pat::Muon> >(iConfig.getParameter<edm::InputTag>("muons"));
-  metsToken_ = consumes<std::vector<pat::MET> >(iConfig.getParameter<edm::InputTag>("mets"));
+  jetsToken_ = consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jets"));
+  electronsToken_ = consumes<std::vector<pat::Electron>>(iConfig.getParameter<edm::InputTag>("electrons"));
+  muonsToken_ = consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("muons"));
+  metsToken_ = consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("mets"));
   jetCorrLevel_ = iConfig.getParameter<std::string>("jetCorrectionLevel");
   maxNJets_ = iConfig.getParameter<int>("maxNJets");
   maxNComb_ = iConfig.getParameter<int>("maxNComb");
@@ -70,36 +70,36 @@ inline TtFullLepKinSolutionProducer::TtFullLepKinSolutionProducer(const edm::Par
   tmassbegin_ = iConfig.getParameter<double>("tmassbegin");
   tmassend_ = iConfig.getParameter<double>("tmassend");
   tmassstep_ = iConfig.getParameter<double>("tmassstep");
-  nupars_ = iConfig.getParameter<std::vector<double> >("neutrino_parameters");
+  nupars_ = iConfig.getParameter<std::vector<double>>("neutrino_parameters");
 
   // define what will be produced
-  produces<std::vector<std::vector<int> > >();  // vector of the particle inices (b, bbar, e1, e2, mu1, mu2)
-  produces<std::vector<reco::LeafCandidate> >("fullLepNeutrinos");
-  produces<std::vector<reco::LeafCandidate> >("fullLepNeutrinoBars");
-  produces<std::vector<double> >("solWeight");  //weight for a specific kin solution
-  produces<bool>("isWrongCharge");              //true if leptons have the same charge
+  produces<std::vector<std::vector<int>>>();  // vector of the particle inices (b, bbar, e1, e2, mu1, mu2)
+  produces<std::vector<reco::LeafCandidate>>("fullLepNeutrinos");
+  produces<std::vector<reco::LeafCandidate>>("fullLepNeutrinoBars");
+  produces<std::vector<double>>("solWeight");  //weight for a specific kin solution
+  produces<bool>("isWrongCharge");             //true if leptons have the same charge
 
   solver = std::make_unique<TtFullLepKinSolver>(tmassbegin_, tmassend_, tmassstep_, nupars_);
 }
 
 inline void TtFullLepKinSolutionProducer::produce(edm::Event& evt, const edm::EventSetup& iSetup) {
   //create vectors fo runsorted output
-  std::vector<std::vector<int> > idcsV;
+  std::vector<std::vector<int>> idcsV;
   std::vector<reco::LeafCandidate> nusV;
   std::vector<reco::LeafCandidate> nuBarsV;
-  std::vector<std::pair<double, int> > weightsV;
+  std::vector<std::pair<double, int>> weightsV;
 
   //create pointer for products
-  std::unique_ptr<std::vector<std::vector<int> > > pIdcs(new std::vector<std::vector<int> >);
-  std::unique_ptr<std::vector<reco::LeafCandidate> > pNus(new std::vector<reco::LeafCandidate>);
-  std::unique_ptr<std::vector<reco::LeafCandidate> > pNuBars(new std::vector<reco::LeafCandidate>);
-  std::unique_ptr<std::vector<double> > pWeight(new std::vector<double>);
+  std::unique_ptr<std::vector<std::vector<int>>> pIdcs = std::make_unique<std::vector<std::vector<int>>>();
+  std::unique_ptr<std::vector<reco::LeafCandidate>> pNus = std::make_unique<std::vector<reco::LeafCandidate>>();
+  std::unique_ptr<std::vector<reco::LeafCandidate>> pNuBars = std::make_unique<std::vector<reco::LeafCandidate>>();
+  std::unique_ptr<std::vector<double>> pWeight = std::make_unique<std::vector<double>>();
   std::unique_ptr<bool> pWrongCharge(new bool);
 
-  const edm::Handle<std::vector<pat::Jet> >& jets = evt.getHandle(jetsToken_);
-  const edm::Handle<std::vector<pat::Electron> >& electrons = evt.getHandle(electronsToken_);
-  const edm::Handle<std::vector<pat::Muon> >& muons = evt.getHandle(muonsToken_);
-  const edm::Handle<std::vector<pat::MET> >& mets = evt.getHandle(metsToken_);
+  const edm::Handle<std::vector<pat::Jet>>& jets = evt.getHandle(jetsToken_);
+  const edm::Handle<std::vector<pat::Electron>>& electrons = evt.getHandle(electronsToken_);
+  const edm::Handle<std::vector<pat::Muon>>& muons = evt.getHandle(muonsToken_);
+  const edm::Handle<std::vector<pat::MET>>& mets = evt.getHandle(metsToken_);
 
   int selMuon1 = -1, selMuon2 = -1;
   int selElectron1 = -1, selElectron2 = -1;

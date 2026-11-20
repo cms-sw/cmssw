@@ -60,7 +60,7 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
   //
   // create empty output collections
   //
-  std::unique_ptr<reco::TrackInfoCollection> outputColl(new reco::TrackInfoCollection);
+  std::unique_ptr<reco::TrackInfoCollection> outputColl = std::make_unique<reco::TrackInfoCollection>();
 
   const TrackerGeometry* tracker = &setup.getData(tkGeomToken_);
 

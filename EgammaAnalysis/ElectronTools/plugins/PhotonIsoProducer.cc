@@ -63,9 +63,9 @@ PhotonIsoProducer::PhotonIsoProducer(const edm::ParameterSet& iConfig) {
   nameIsoPh_ = iConfig.getParameter<std::string>("nameValueMapIsoPh");
   nameIsoNh_ = iConfig.getParameter<std::string>("nameValueMapIsoNh");
 
-  produces<edm::ValueMap<double> >(nameIsoCh_);
-  produces<edm::ValueMap<double> >(nameIsoPh_);
-  produces<edm::ValueMap<double> >(nameIsoNh_);
+  produces<edm::ValueMap<double>>(nameIsoCh_);
+  produces<edm::ValueMap<double>>(nameIsoPh_);
+  produces<edm::ValueMap<double>>(nameIsoNh_);
 
   isolator.initializePhotonIsolation(kTRUE);  //NOTE: this automatically set all the correct defaul veto values
   isolator.setConeSize(0.3);
@@ -82,13 +82,13 @@ PhotonIsoProducer::~PhotonIsoProducer() {
 
 // ------------ method called on each new Event  ------------
 bool PhotonIsoProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::unique_ptr<edm::ValueMap<double> > chIsoMap(new edm::ValueMap<double>());
+  std::unique_ptr<edm::ValueMap<double>> chIsoMap = std::make_unique<edm::ValueMap<double>>();
   edm::ValueMap<double>::Filler chFiller(*chIsoMap);
 
-  std::unique_ptr<edm::ValueMap<double> > phIsoMap(new edm::ValueMap<double>());
+  std::unique_ptr<edm::ValueMap<double>> phIsoMap = std::make_unique<edm::ValueMap<double>>();
   edm::ValueMap<double>::Filler phFiller(*phIsoMap);
 
-  std::unique_ptr<edm::ValueMap<double> > nhIsoMap(new edm::ValueMap<double>());
+  std::unique_ptr<edm::ValueMap<double>> nhIsoMap = std::make_unique<edm::ValueMap<double>>();
   edm::ValueMap<double>::Filler nhFiller(*nhIsoMap);
 
   edm::Handle<reco::VertexCollection> vertexCollection;

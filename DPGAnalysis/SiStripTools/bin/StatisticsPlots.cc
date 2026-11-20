@@ -306,9 +306,9 @@ void StatisticsPlots(const char* fullname,
         plotfilename += dirname;
         plotfilename += "/orbit_";
         plotfilename += labfull;
-        plotfilename += "_";
+        plotfilename += '_';
         plotfilename += dirname;
-        plotfilename += "_";
+        plotfilename += '_';
         plotfilename += runpath;
         plotfilename += ".gif";
         gPad->Print(plotfilename.c_str());
@@ -326,9 +326,9 @@ void StatisticsPlots(const char* fullname,
           plotfilename += dirname;
           plotfilename += "/dbx_";
           plotfilename += labfull;
-          plotfilename += "_";
+          plotfilename += '_';
           plotfilename += dirname;
-          plotfilename += "_";
+          plotfilename += '_';
           plotfilename += runpath;
           plotfilename += ".gif";
           gPad->Print(plotfilename.c_str());
@@ -348,9 +348,9 @@ void StatisticsPlots(const char* fullname,
           plotfilename += dirname;
           plotfilename += "/bx_";
           plotfilename += labfull;
-          plotfilename += "_";
+          plotfilename += '_';
           plotfilename += dirname;
-          plotfilename += "_";
+          plotfilename += '_';
           plotfilename += runpath;
           plotfilename += ".gif";
           gPad->Print(plotfilename.c_str());
@@ -367,7 +367,7 @@ void StatisticsPlots(const char* fullname,
     plotfilename += dirname;
     plotfilename += "/nevents_";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += dirname;
     plotfilename += ".gif";
 

@@ -28,7 +28,7 @@ void dumpSTLeachEndl(const C &cont, int offset = 0, std::ostream &stream = std::
   std::string padding = "\n";
   if (offset) {
     for (int loop = 0; loop < offset; ++loop) {
-      padding += " ";
+      padding += ' ';
       stream << " ";
     }  // for loop
   }
