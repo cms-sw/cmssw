@@ -2,13 +2,14 @@
 #define DataFormats_L1TrackTrigger_TTBV_h
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
+#include <cmath>
 #include <bitset>
+#include <limits>
 #include <array>
 #include <string>
-#include <algorithm>
 #include <cmath>
-#include <utility>
 #include <vector>
 #include <iostream>
 
@@ -22,6 +23,7 @@
 class TTBV {
 public:
   static constexpr int S_ = 64;  // Frame width of emp infrastructure f/w, max number of bits a TTBV can handle
+  static constexpr double Delta_ = 1.e-8;  // floor and ceil margin for numerical stabillity
 private:
   bool twos_;           // Two's complement (true) or binary (false)
   int size_;            // number or bits
@@ -51,7 +53,7 @@ public:
 
   // constructor: double value + precision, biased (floor) representation
   TTBV(double value, double base, int size, bool twos = false)
-      : TTBV((int)std::floor(value / base + 1.e-12), size, twos) {}
+      : TTBV((int)std::floor(value / base + Delta_), size, twos) {}
 
   // constructor: string
   TTBV(const std::string& str, bool twos = false) : twos_(twos), size_(str.size()), bs_(str) {}
@@ -433,5 +435,30 @@ private:
     throw exception;
   }
 };
+
+namespace tt {
+
+  // handles 2 pi overflow
+  inline double deltaPhi(double lhs, double rhs = 0.) { return reco::deltaPhi(lhs, rhs); }
+  // floating point save floor
+  inline double floor(double d) { return std::floor(d + TTBV::Delta_); }
+  // floating point save ceil
+  inline double ceil(double d) { return std::ceil(d - TTBV::Delta_); }
+  // floating point save round
+  inline double round(double d) { return std::round(d + TTBV::Delta_); }
+  // floor based digitization
+  inline double digi(double val, double base) { return (tt::floor(val / base) + .5) * base; }
+  // round based digitization
+  inline double digiR(double val, double base) { return tt::round(val / base) * base; }
+  // basetransformation of val from baseHigh into baseLow using widthMultiplier bit multiplication
+  inline double redigi(double val, double baseHigh, double baseLow, int widthMultiplier) {
+    const double base = std::pow(2, -widthMultiplier);
+    const double transform = (tt::floor(baseHigh / baseLow / base) + .5) * base;
+    return (tt::floor(val * transform / baseHigh / base) + .5) * baseLow * base;
+  }
+  // number of bits needed to represent d
+  inline int ilog2(double d) { return tt::ceil(std::log2(d)); }
+
+}  // namespace tt
 
 #endif

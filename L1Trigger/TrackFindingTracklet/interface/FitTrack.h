@@ -48,10 +48,8 @@ namespace trklet {
 
   private:
     std::vector<TrackletParametersMemory*> seedtracklet_;
-    std::vector<FullMatchMemory*> fullmatch1_;
-    std::vector<FullMatchMemory*> fullmatch2_;
-    std::vector<FullMatchMemory*> fullmatch3_;
-    std::vector<FullMatchMemory*> fullmatch4_;
+
+    std::vector<std::vector<FullMatchMemory*>> fullmatch_;
 
     unsigned int iSector_;
 

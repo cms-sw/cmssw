@@ -26,11 +26,11 @@ namespace trklet {
     unsigned int nStublists() const { return stublists_.size(); }
     unsigned int nStubidslists() const { return stubidslists_.size(); }
 
-    Tracklet* getTrack(unsigned int i) { return tracks_[i]; }
+    Tracklet* getTrack(unsigned int i) const { return tracks_[i]; }
     // Get pointers to Stubs on track.
-    std::vector<const Stub*> getStublist(unsigned int i) const { return stublists_[i]; }
+    const std::vector<const Stub*>& getStublist(unsigned int i) const { return stublists_[i]; }
     // Get (layer, unique stub index in layer) of stubs on track.
-    std::vector<std::pair<int, int>> getStubidslist(unsigned int i) const { return stubidslists_[i]; }
+    const std::vector<std::pair<int, int>>& getStubidslist(unsigned int i) const { return stubidslists_[i]; }
 
     void clean() override {
       tracks_.clear();
