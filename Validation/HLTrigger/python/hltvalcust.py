@@ -241,10 +241,12 @@ def add_hlt_validation(process,hltProcessName=None,sampleLabel=""):
             )
 
     process.load("RecoMET.Configuration.RecoGenMET_cff")
+    process.load("RecoMET.Configuration.GenMHT_cff")
     process.load("RecoMET.Configuration.GenMETParticles_cff")
     process.load("PhysicsTools.JetMCAlgos.TauGenJets_cfi")
     process.load("PhysicsTools.JetMCAlgos.TauGenJetsDecayModeSelectorAllHadrons_cfi")
     process.HLTValidationPath.associate(process.recoGenMETTask)
+    process.HLTValidationPath.associate(process.genMHTTask)
     process.HLTValidationPath.associate(process.genMETParticlesTask)
     process.HLTValidationTauGenJetsTask = cms.Task(process.tauGenJets, process.tauGenJetsSelectorAllHadrons)
     process.HLTValidationPath.associate(process.HLTValidationTauGenJetsTask)
