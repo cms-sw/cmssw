@@ -31,7 +31,7 @@ static std::size_t getStreamSize(std::ifstream &in) {
 }
 
 static Calibration::VarProcessor *getCalibration(const std::string &file, const std::vector<std::string> &names) {
-  std::unique_ptr<Calibration::ProcExternal> calib(new Calibration::ProcExternal);
+  std::unique_ptr<Calibration::ProcExternal> calib = std::make_unique<Calibration::ProcExternal>();
 
   std::ifstream in(file.c_str(), std::ios::binary | std::ios::in);
   if (!in.good())

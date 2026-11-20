@@ -89,7 +89,7 @@ namespace {  // anonymous
     std::string line;
     while (std::getline(izs, line)) {
       weight_text += line;
-      weight_text += "\n";
+      weight_text += '\n';
     }
 
     // Build our reader
@@ -191,7 +191,7 @@ namespace {  // anonymous
     inputs.reserve(n);
     for (unsigned int i = 0; i < n; i++)
       inputs.push_back(*iter++);
-    std::unique_ptr<TMVA::Event> evt(new TMVA::Event(inputs, 2));
+    std::unique_ptr<TMVA::Event> evt = std::make_unique<TMVA::Event>(inputs, 2);
 
     double result = method->GetMvaValue(evt.get());
 
