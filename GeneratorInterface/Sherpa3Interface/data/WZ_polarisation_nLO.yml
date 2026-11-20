@@ -1,0 +1,52 @@
+### test example of WZ polarisation from Sherpa v3.0.5 manual:
+### https://sherpa-team.gitlab.io/sherpa/v3.0.5/manual/examples.html#polarized-mathrm-w-z-boson-pair-production-pair-production-at-nlo-ps
+
+# collider setup
+BEAMS: 2212
+BEAM_ENERGIES: 6500
+
+# settings matrix-element generation
+ME_GENERATORS:
+  - Comix
+  - Amegic
+  - OpenLoops
+COMIX_DEFAULT_GAUGE: 0
+
+# scale setting
+SCALES: METS{0.25*sqr(80.352+91.153)}
+
+# width 0 for the stable vector bosons in the hard matrix element
+PARTICLE_DATA:
+  24: 
+    Width: 0
+  23:
+    Width: 0
+WIDTH_SCHEME: Fixed
+
+# speed and neg weight fraction improvements
+MC@NLO:
+  PSMODE: 2
+
+# vector boson production part pp -> WZ
+PROCESSES:
+# leading order
+- 93 93 -> 24 23:
+    Order: {QCD: 0, EW: 2}
+# NLO QCD corrections
+    NLO_Mode: MC@NLO
+    NLO_Order: {QCD: 1, EW: 0}
+    ME_Generator: Amegic
+    RS_ME_Generator: Comix
+    Loop_Generator: OpenLoops
+
+# vector boson decays
+HARD_DECAYS:
+  Enabled: true
+  Channels:
+    24,12,-11: {Status: 2}
+    23,13,-13: {Status: 2}
+# settings for polarized cross sections 
+  Pol_Cross_Section:
+    Enabled: true
+    Reference_System: [Lab, COM]
+
