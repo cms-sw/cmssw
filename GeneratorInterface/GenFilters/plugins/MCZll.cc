@@ -76,7 +76,7 @@ MCZll::MCZll(const edm::ParameterSet& iConfig)
 }
 
 bool MCZll::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
-  std::unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
+  std::unique_ptr<HepMCProduct> bare_product = std::make_unique<HepMCProduct>();
 
   bool accepted = false;
   Handle<HepMCProduct> evt;

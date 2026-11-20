@@ -140,7 +140,7 @@ void LHECOMWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
   double weight = (newpdf1 / oldpdf1) * (newpdf2 / oldpdf2);
   std::vector<double> weights;
   weights.push_back(weight);
-  std::unique_ptr<GenEventInfoProduct> info(new GenEventInfoProduct());
+  std::unique_ptr<GenEventInfoProduct> info = std::make_unique<GenEventInfoProduct>();
   info->setWeights(weights);
   iEvent.put(std::move(info), _label);
 }

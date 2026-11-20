@@ -3,6 +3,7 @@
  */
 
 #include <iostream>
+#include <memory>
 
 #include "Pythia6Gun.h"
 
@@ -187,7 +188,7 @@ void Pythia6Gun::produce(edm::Event& evt, const edm::EventSetup&) {
 }
 
 void Pythia6Gun::loadEvent(edm::Event& evt) {
-  std::unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
+  std::unique_ptr<HepMCProduct> bare_product = std::make_unique<HepMCProduct>();
 
   if (fEvt)
     bare_product->addHepMCData(fEvt);

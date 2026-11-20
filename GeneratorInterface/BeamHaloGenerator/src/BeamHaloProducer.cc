@@ -1,5 +1,6 @@
 #include <iostream>
 #include <ctime>
+#include <memory>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -139,12 +140,12 @@ void BeamHaloProducer::produce(Event& e, const EventSetup& es) {
   HepMC::WeightContainer& weights = evt->weights();
   weights.push_back(weight);
   //	evt->print();
-  std::unique_ptr<HepMCProduct> CMProduct(new HepMCProduct());
+  std::unique_ptr<HepMCProduct> CMProduct = std::make_unique<HepMCProduct>();
   if (evt)
     CMProduct->addHepMCData(evt);
   e.put(std::move(CMProduct), "unsmeared");
 
-  unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(evt));
+  unique_ptr<GenEventInfoProduct> genEventInfo = std::make_unique<GenEventInfoProduct>(evt);
   e.put(std::move(genEventInfo));
 }
 
@@ -152,7 +153,7 @@ void BeamHaloProducer::endRunProduce(Run& run, const EventSetup& es) {
   // just create an empty product
   // to keep the EventContent definitions happy
   // later on we might put the info into the run info that this is a PGun
-  unique_ptr<GenRunInfoProduct> genRunInfo(new GenRunInfoProduct());
+  unique_ptr<GenRunInfoProduct> genRunInfo = std::make_unique<GenRunInfoProduct>();
   run.put(std::move(genRunInfo));
 }
 
