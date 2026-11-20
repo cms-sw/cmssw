@@ -56,6 +56,10 @@ namespace edm {
     template <typename T>
     void push(oneapi::tbb::task_group& iGroup, T&& iAction);
 
+    /// as above, but iAction runs in the TBB arena of the NUMA domain iDomain (see edm::numa::runInDomain)
+    template <typename T>
+    void push(oneapi::tbb::task_group& iGroup, int iDomain, T&& iAction);
+
     unsigned long outstandingTasks() const { return m_outstandingTasks; }
     std::size_t numberOfQueues() const { return m_queues.size(); }
 
@@ -65,7 +69,7 @@ namespace edm {
     std::atomic<unsigned long> m_outstandingTasks{0};
 
     template <typename T>
-    void passDownChain(unsigned int iIndex, oneapi::tbb::task_group& iGroup, T&& iAction);
+    void passDownChain(unsigned int iIndex, oneapi::tbb::task_group& iGroup, int iDomain, T&& iAction);
 
     template <typename T>
     void actionToRun(T&& iAction);
@@ -73,27 +77,38 @@ namespace edm {
 
   template <typename T>
   void SerialTaskQueueChain::push(oneapi::tbb::task_group& iGroup, T&& iAction) {
+    push(iGroup, -1, std::forward<T>(iAction));
+  }
+
+  template <typename T>
+  void SerialTaskQueueChain::push(oneapi::tbb::task_group& iGroup, int iDomain, T&& iAction) {
     ++m_outstandingTasks;
     if (m_queues.size() == 1) {
-      m_queues[0]->push(iGroup, [this, iAction]() mutable { this->actionToRun(iAction); });
+      m_queues[0]->push(iGroup, iDomain, [this, iAction]() mutable { this->actionToRun(iAction); });
     } else {
       assert(!m_queues.empty());
-      m_queues[0]->push(iGroup, [this, &iGroup, iAction]() mutable { this->passDownChain(1, iGroup, iAction); });
+      m_queues[0]->push(iGroup, iDomain, [this, &iGroup, iDomain, iAction]() mutable {
+        this->passDownChain(1, iGroup, iDomain, iAction);
+      });
     }
   }
 
   template <typename T>
-  void SerialTaskQueueChain::passDownChain(unsigned int iQueueIndex, oneapi::tbb::task_group& iGroup, T&& iAction) {
+  void SerialTaskQueueChain::passDownChain(unsigned int iQueueIndex,
+                                           oneapi::tbb::task_group& iGroup,
+                                           int iDomain,
+                                           T&& iAction) {
     //Have to be sure the queue associated to this running task
     // does not attempt to start another task
     m_queues[iQueueIndex - 1]->pause();
     //is this the last queue?
     if (iQueueIndex + 1 == m_queues.size()) {
-      m_queues[iQueueIndex]->push(iGroup, [this, iAction]() mutable { this->actionToRun(iAction); });
+      m_queues[iQueueIndex]->push(iGroup, iDomain, [this, iAction]() mutable { this->actionToRun(iAction); });
     } else {
       auto nextQueue = iQueueIndex + 1;
-      m_queues[iQueueIndex]->push(
-          iGroup, [this, nextQueue, &iGroup, iAction]() mutable { this->passDownChain(nextQueue, iGroup, iAction); });
+      m_queues[iQueueIndex]->push(iGroup, iDomain, [this, nextQueue, &iGroup, iDomain, iAction]() mutable {
+        this->passDownChain(nextQueue, iGroup, iDomain, iAction);
+      });
     }
   }
 

@@ -16,6 +16,7 @@
 
 // user include files
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
+#include "FWCore/Concurrency/interface/StreamNumaDomains.h"
 
 #include "FWCore/Utilities/interface/Likely.h"
 #include "FWCore/Utilities/interface/make_sentry.h"
@@ -39,14 +40,17 @@ SerialTaskQueue::~SerialTaskQueue() {
 
 void SerialTaskQueue::spawn(TaskBase& iTask) {
   auto pTask = &iTask;
-  iTask.group()->run([pTask, this]() {
+  // with EventSetup replication, run the task in the arena of its NUMA domain
+  edm::numa::runInDomain(*iTask.group(), iTask.domain(), [pTask, this]() {
     TaskBase* t = pTask;
     auto g = pTask->group();
+    auto d = pTask->domain();
     do {
       t->execute();
       delete t;
       t = finishedTask();
-      if (t and t->group() != g) {
+      // run the next task here only if it belongs to the same group and to the same NUMA domain
+      if (t and (t->group() != g or t->domain() != d)) {
         spawn(*t);
         t = nullptr;
       }

@@ -167,8 +167,13 @@ namespace edm {
       /// @return the vector of ESModuleProducesInfo objects, one for each product produced by this module.
       virtual std::vector<ESModuleProducesInfo> producesInfo() const = 0;
 
+      // nConcurrentIOVs is the number of record instances that can be in use at the same time. With the EventSetup
+      // replication of process.options.numaLocality it is the number of concurrent IOVs multiplied by the number of
+      // NUMA domains (record instance = IOV index * number of domains + domain), and record.iovIndex() ranges up to
+      // it: a producer that sizes per-IOV caches by it gets one entry per IOV and per domain.
       virtual void initConcurrentIOVs(EventSetupRecordKey const& key, unsigned int nConcurrentIOVs) {}
 
+      // see initConcurrentIOVs for the meaning of nConcurrentIOVs
       void createKeyedResolvers(EventSetupRecordKey const& key, unsigned int nConcurrentIOVs) {
         productResolverContainer_.createKeyedResolvers(key, nConcurrentIOVs);
         initConcurrentIOVs(key, nConcurrentIOVs);

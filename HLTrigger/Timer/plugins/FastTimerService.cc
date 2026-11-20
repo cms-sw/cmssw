@@ -1020,6 +1020,11 @@ void FastTimerService::fixForDQM(std::string& label) {
 }
 
 void FastTimerService::preallocate(edm::service::SystemBounds const& bounds) {
+  // also observe the threads entering and leaving the per-NUMA-domain arenas of the framework, if any
+  for (auto* arena : bounds.numaArenas()) {
+    arena_observers_.push_back(std::make_unique<ArenaObserver>(*arena, *this));
+  }
+
   concurrent_lumis_ = bounds.maxNumberOfConcurrentLuminosityBlocks();
   concurrent_runs_ = bounds.maxNumberOfConcurrentRuns();
   concurrent_streams_ = bounds.maxNumberOfStreams();
@@ -1171,6 +1176,7 @@ void FastTimerService::postSourceLumi(edm::LuminosityBlockIndex index) {
 
 void FastTimerService::postEndJob() {
   // stop observing to avoid potential race conditions at exit
+  arena_observers_.clear();
   tbb::task_scheduler_observer::observe(false);
   guard_.finalize();
   if (auto unobserved = guard_.unobserved(); unobserved > 0) {

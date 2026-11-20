@@ -26,6 +26,8 @@ process.options = cms.untracked.PSet(
         forceNumberOfConcurrentIOVs = cms.untracked.PSet(
             allowAnyLabel_=cms.required.untracked.uint32
         ),
+        numaExcludedRecords = cms.untracked.vstring(),
+        numaReplicatedRecords = cms.untracked.vstring(),
         numberOfConcurrentIOVs = cms.untracked.uint32(0)
     ),
     fileMode = cms.untracked.string('FULLMERGE'),
@@ -34,6 +36,7 @@ process.options = cms.untracked.PSet(
     makeTriggerResults = cms.obsolete.untracked.bool,
     modulesToCallForTryToContinue = cms.untracked.vstring(),
     modulesToIgnoreForDeleteEarly = cms.untracked.vstring(),
+    numaLocality = cms.untracked.bool(False),
     numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(0),
     numberOfConcurrentRuns = cms.untracked.uint32(1),
     numberOfStreams = cms.untracked.uint32(0),

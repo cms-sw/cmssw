@@ -155,7 +155,9 @@ namespace edm {
 
       for (auto const& key : keys) {
         eventSetupRecordIOVCoordinators_.push_back(
-            std::make_unique<EventSetupRecordIOVCoordinator>(numberOfConcurrentIOVs_.numberOfConcurrentIOVs(key)));
+            std::make_unique<EventSetupRecordIOVCoordinator>(numberOfConcurrentIOVs_.numberOfConcurrentIOVs(key),
+                                                             numberOfConcurrentIOVs_.numberOfReplicas(key),
+                                                             provider_->eventSetupImplDomains()));
         EventSetupRecordIOVCoordinator& iovCoordinator = *eventSetupRecordIOVCoordinators_.back();
         EventSetupRecordProvider* recProvider = provider_->tryToGetRecordProvider(key);
         if (recProvider) {

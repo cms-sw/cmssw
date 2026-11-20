@@ -165,8 +165,11 @@ namespace edm {
                     return;
                   }
 
+                  // with EventSetup replication, run in the arena of the NUMA domain of the copy
                   Base::queue().push(
-                      *group, [this, holder = std::move(holder), serviceToken, record, eventSetupImpl]() mutable {
+                      *group,
+                      record->numaDomain(),
+                      [this, holder = std::move(holder), serviceToken, record, eventSetupImpl]() mutable {
                         Base::callingContext().setState(ESModuleCallingContext::State::kRunning);
                         std::exception_ptr exceptPtr;
                         try {

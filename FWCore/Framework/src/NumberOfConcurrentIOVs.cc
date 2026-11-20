@@ -1,5 +1,6 @@
 
 #include "FWCore/Framework/interface/NumberOfConcurrentIOVs.h"
+#include "FWCore/Concurrency/interface/StreamNumaDomains.h"
 
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/HCTypeTag.h"
@@ -72,6 +73,31 @@ namespace edm {
                                  << "There will not be more than " << maxConcurrentIOVs_ << " concurrent IOVs.\n";
       }
       return numberConcurrentIOVs_;
+    }
+
+    unsigned int NumberOfConcurrentIOVs::numberOfReplicas(EventSetupRecordKey const& eventSetupKey) const {
+      // The replication is decided per record, and produces every product of a replicated record once per domain:
+      // this duplicates the work of the EventSetup sources and producers, including the conditions database access
+      // and the deserialisation of the payloads, and also replicates the alpaka device products used with GPUs, for
+      // which NUMA locality is irrelevant. A finer approach is to be prototyped in a separate PR: decide per product
+      // rather than per record (the resolvers are already per product and per replica); never replicate the alpaka
+      // products of device (GPU) backends, and treat those of host backends as regular products; fetch the conditions
+      // payloads once and deserialise them (Boost serialisation) once per domain, in the arena of each domain; offer
+      // an opt-in deep copy for the products built by ESProducers (nothing guarantees that an EventSetup product can
+      // be copied, and a copy may be shallow), and otherwise keep producing them once per domain.
+      auto const& domains = numa::StreamNumaDomains::instance();
+      if (not domains.enabled()) {
+        return 1;
+      }
+      // the producers of a record that does not allow concurrent IOVs may not support being called more than once at
+      // the same time
+      if (recordsNotAllowingConcurrentIOVs_.find(eventSetupKey) != recordsNotAllowingConcurrentIOVs_.end()) {
+        return 1;
+      }
+      if (not domains.esReplicateRecord(eventSetupKey.name())) {
+        return 1;
+      }
+      return domains.size();
     }
 
     void NumberOfConcurrentIOVs::clear() {
