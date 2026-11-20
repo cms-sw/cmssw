@@ -9,16 +9,28 @@ FileBlock: Properties of an input file.
 
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "DataFormats/Provenance/interface/ProductDependencies.h"
-#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 #include "FWCore/Utilities/interface/BranchType.h"
-class TTree;
+
 #include <memory>
 #include <array>
 #include <string>
 #include <utility>
-#include <vector>
 
 namespace edm {
+  /**
+   * The FileBlock is intended to hold the information that is
+   * independent of the IO technology (such as TTree or RNTuple). The
+   * IO-technology-specific information is intended to be held by a
+   * class that inherits from the FileBlock. The Source creates the
+   * specific FileBlock object that gets passed around by the
+   * framework via a reference to the base class, and to the
+   * OutputModule that can then dynamic_cast to the specific FileBlock
+   * type.
+   *
+   * Given the need of dynamic_cast this is a bad use of dynamic
+   * polymorphism, but compared to the alternatives such as type
+   * erasure it seemed the least bad option.
+   */
   class FileBlock {
   public:
     // bit mask for reasons fast cloning can be disabled or not applicable
@@ -58,12 +70,6 @@ namespace edm {
 
     FileBlock()
         : fileFormatVersion_(),
-          tree_(nullptr),
-          metaTree_(nullptr),
-          lumiTree_(nullptr),
-          lumiMetaTree_(nullptr),
-          runTree_(nullptr),
-          runMetaTree_(nullptr),
           whyNotFastClonable_(NoRootInputSource),
           hasNewlyDroppedBranch_(),
           fileName_(),
@@ -72,14 +78,6 @@ namespace edm {
           productDependencies_(new ProductDependencies) {}
 
     FileBlock(FileFormatVersion const& version,
-              TTree* ev,
-              TTree* meta,
-              TTree* lumi,
-              TTree* lumiMeta,
-              TTree* run,
-              TTree* runMeta,
-              std::vector<TTree*> processBlockTrees,
-              std::vector<std::string> processesWithProcessBlockTrees,
               int whyNotFastClonable,
               std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch,
               std::string const& fileName,
@@ -87,44 +85,20 @@ namespace edm {
               bool modifiedIDs,
               std::shared_ptr<ProductDependencies const> productDependencies)
         : fileFormatVersion_(version),
-          tree_(ev),
-          metaTree_(meta),
-          lumiTree_(lumi),
-          lumiMetaTree_(lumiMeta),
-          runTree_(run),
-          runMetaTree_(runMeta),
-          processBlockTrees_(std::move(processBlockTrees)),
-          processesWithProcessBlockTrees_(std::move(processesWithProcessBlockTrees)),
           whyNotFastClonable_(whyNotFastClonable),
           hasNewlyDroppedBranch_(hasNewlyDroppedBranch),
           fileName_(fileName),
           branchListIndexesUnchanged_(branchListIndexesUnchanged),
           modifiedIDs_(modifiedIDs),
-          productDependencies_(productDependencies) {}
+          productDependencies_(std::move(productDependencies)) {}
 
-    ~FileBlock() {}
-
-    void updateTTreePointers(TTree* ev,
-                             TTree* meta,
-                             TTree* lumi,
-                             TTree* lumiMeta,
-                             TTree* run,
-                             TTree* runMeta,
-                             std::vector<TTree*> processBlockTrees,
-                             std::vector<std::string> processesWithProcessBlockTrees);
+    FileBlock(FileBlock const&) = delete;
+    FileBlock& operator=(FileBlock const&) = delete;
+    FileBlock(FileBlock&&) = delete;
+    FileBlock& operator=(FileBlock&&) = delete;
+    virtual ~FileBlock();
 
     FileFormatVersion const& fileFormatVersion() const { return fileFormatVersion_; }
-    TTree* tree() const { return tree_; }
-    TTree* metaTree() const { return metaTree_; }
-    TTree* lumiTree() const { return lumiTree_; }
-    TTree* lumiMetaTree() const { return lumiMetaTree_; }
-    TTree* runTree() const { return runTree_; }
-    TTree* runMetaTree() const { return runMetaTree_; }
-    TTree* processBlockTree(std::string const& processName) const;
-
-    std::vector<TTree*> const& processBlockTrees() const { return processBlockTrees_; }
-    std::vector<std::string> const& processesWithProcessBlockTrees() const { return processesWithProcessBlockTrees_; }
-
     int whyNotFastClonable() const { return whyNotFastClonable_; }
     std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const { return hasNewlyDroppedBranch_; }
     std::string const& fileName() const { return fileName_; }
@@ -133,19 +107,10 @@ namespace edm {
 
     void setNotFastClonable(WhyNotFastClonable const& why) { whyNotFastClonable_ |= why; }
     ProductDependencies const& productDependencies() const { return *productDependencies_; }
-    void close();
+    virtual void close();
 
   private:
     FileFormatVersion fileFormatVersion_;
-    // We use bare pointers because ROOT owns these.
-    TTree* tree_;
-    TTree* metaTree_;
-    TTree* lumiTree_;
-    TTree* lumiMetaTree_;
-    TTree* runTree_;
-    TTree* runMetaTree_;
-    std::vector<TTree*> processBlockTrees_;
-    std::vector<std::string> processesWithProcessBlockTrees_;
     int whyNotFastClonable_;
     std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
     std::string fileName_;

@@ -10,8 +10,6 @@
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "TTree.h"
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -34,7 +32,6 @@ namespace edm {
 
     void respondToOpenInputFile(FileBlock const&) override;
     void respondToCloseInputFile(FileBlock const&) override;
-    void testFileBlock(FileBlock const&);
 
     std::shared_ptr<int> globalBeginRun(RunForOutput const&) const override;
     void globalEndRun(RunForOutput const&) override;
@@ -55,8 +52,6 @@ namespace edm {
     int expectedWriteProcessBlockTransitions_;
     unsigned int countWriteProcessBlockTransitions_ = 0;
     unsigned int countInputFiles_ = 0;
-    bool requireNullTTreesInFileBlock_;
-    bool testTTreesInFileBlock_;
     std::vector<unsigned int> expectedCacheIndexSize_;
     unsigned int expectedProcessesInFirstFile_;
     std::vector<unsigned int> expectedCacheIndexVectorsPerFile_;
@@ -88,8 +83,6 @@ namespace edm {
         expectedProcessNamesAtWrite_(
             pset.getUntrackedParameter<std::vector<std::string>>("expectedProcessNamesAtWrite")),
         expectedWriteProcessBlockTransitions_(pset.getUntrackedParameter<int>("expectedWriteProcessBlockTransitions")),
-        requireNullTTreesInFileBlock_(pset.getUntrackedParameter<bool>("requireNullTTreesInFileBlock")),
-        testTTreesInFileBlock_(pset.getUntrackedParameter<bool>("testTTreesInFileBlock")),
         expectedCacheIndexSize_(pset.getUntrackedParameter<std::vector<unsigned int>>("expectedCacheIndexSize")),
         expectedProcessesInFirstFile_(pset.getUntrackedParameter<unsigned int>("expectedProcessesInFirstFile")),
         expectedCacheIndexVectorsPerFile_(
@@ -294,42 +287,16 @@ namespace edm {
     ++countWriteProcessBlockTransitions_;
   }
 
-  void TestOneOutput::respondToOpenInputFile(FileBlock const& fb) {
+  void TestOneOutput::respondToOpenInputFile(FileBlock const&) {
     if (verbose_) {
       LogAbsolute("TestOneOutput") << "one respondToOpenInputFile";
     }
-    testFileBlock(fb);
     ++countInputFiles_;
   }
 
-  void TestOneOutput::respondToCloseInputFile(FileBlock const& fb) {
+  void TestOneOutput::respondToCloseInputFile(FileBlock const&) {
     if (verbose_) {
       LogAbsolute("TestOneOutput") << "one respondToCloseInputFile";
-    }
-    testFileBlock(fb);
-  }
-
-  void TestOneOutput::testFileBlock(FileBlock const& fb) {
-    if (requireNullTTreesInFileBlock_) {
-      if (fb.tree() != nullptr || fb.lumiTree() != nullptr || fb.runTree() != nullptr ||
-          !fb.processBlockTrees().empty() || !fb.processesWithProcessBlockTrees().empty() ||
-          fb.processBlockTree(std::string("DoesNotExist")) != nullptr) {
-        throw cms::Exception("TestFailure")
-            << "TestOneOutput::respondToOpenInputFile expected null TTree pointers in FileBlock";
-      }
-    } else if (testTTreesInFileBlock_) {
-      if (fb.tree() == nullptr || std::string("Events") != fb.tree()->GetName() ||
-          std::string("LuminosityBlocks") != fb.lumiTree()->GetName() ||
-          std::string("Runs") != fb.runTree()->GetName() || fb.processesWithProcessBlockTrees().size() != 2 ||
-          fb.processesWithProcessBlockTrees()[0] != "PROD1" || fb.processesWithProcessBlockTrees()[1] != "MERGE" ||
-          fb.processBlockTrees().size() != 2 ||
-          std::string("ProcessBlocksPROD1") != fb.processBlockTrees()[0]->GetName() ||
-          std::string("ProcessBlocksMERGE") != fb.processBlockTrees()[1]->GetName() ||
-          std::string("ProcessBlocksPROD1") != fb.processBlockTree("PROD1")->GetName() ||
-          std::string("ProcessBlocksMERGE") != fb.processBlockTree("MERGE")->GetName() ||
-          fb.processBlockTree("DOESNOTEXIST") != nullptr) {
-        throw cms::Exception("TestFailure") << "TestOneOutput::testFileBlock failed. Testing tree pointers";
-      }
     }
   }
 
@@ -388,8 +355,6 @@ namespace edm {
     desc.addUntracked<std::vector<unsigned int>>("expectedTopCacheIndices2", std::vector<unsigned int>());
     desc.addUntracked<std::vector<std::string>>("expectedProcessNamesAtWrite", std::vector<std::string>());
     desc.addUntracked<int>("expectedWriteProcessBlockTransitions", -1);
-    desc.addUntracked<bool>("requireNullTTreesInFileBlock", false);
-    desc.addUntracked<bool>("testTTreesInFileBlock", false);
     desc.addUntracked<std::vector<unsigned int>>("expectedCacheIndexSize", std::vector<unsigned int>());
     desc.addUntracked<unsigned int>("expectedProcessesInFirstFile", 0);
     desc.addUntracked<std::vector<unsigned int>>("expectedCacheIndexVectorsPerFile", std::vector<unsigned int>());

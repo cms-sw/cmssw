@@ -20,6 +20,8 @@
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
+#include "IOPool/Common/interface/TTreeFileBlock.h"
+
 #include "TTree.h"
 #include "TBranchElement.h"
 #include "TObjArray.h"
@@ -282,6 +284,7 @@ namespace edm {
   }
 
   void PoolOutputModule::respondToOpenInputFile(FileBlock const& fb) {
+    auto const* treeFileBlock = dynamic_cast<TTreeFileBlock const*>(&fb);
     if (!initializedFromInput_) {
       std::vector<std::string> const& processesWithProcessBlockProducts =
           outputProcessBlockHelper().processesWithProcessBlockProducts();
@@ -293,8 +296,10 @@ namespace edm {
         BranchType branchType = static_cast<BranchType>(i);
         if (branchType != InProcess) {
           std::string processName;
-          TTree* theInputTree =
-              (branchType == InEvent ? fb.tree() : (branchType == InLumi ? fb.lumiTree() : fb.runTree()));
+          TTree* theInputTree = treeFileBlock ? (branchType == InEvent  ? treeFileBlock->tree()
+                                                 : branchType == InLumi ? treeFileBlock->lumiTree()
+                                                                        : treeFileBlock->runTree())
+                                              : nullptr;
           OutputItemList& outputItemList = selectedOutputItemList_[branchType];
           fillSelectedItemList(branchType, processName, theInputTree, outputItemList);
         } else {
@@ -302,7 +307,7 @@ namespace edm {
           for (unsigned int k = InProcess; k < numberOfTTrees; ++k) {
             OutputItemList& outputItemList = selectedOutputItemList_[k];
             std::string const& processName = processesWithProcessBlockProducts[k - InProcess];
-            TTree* theInputTree = fb.processBlockTree(processName);
+            TTree* theInputTree = treeFileBlock ? treeFileBlock->processBlockTree(processName) : nullptr;
             fillSelectedItemList(branchType, processName, theInputTree, outputItemList);
           }
         }

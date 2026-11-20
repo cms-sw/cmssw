@@ -1,2 +1,22 @@
 <test name="TestPoolOutput" command="TestPoolOutput.sh"/>
 <test name="TestPoolOutputAlias" command="PoolOutputAliasTest.sh"/>
+<test name="TestPoolLayout" command="testPoolLayout.sh"/>
+<library file="FileBlockNotificationTest.cc" name="FileBlockNotificationTest">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="IOPool/Common"/>
+  <use name="rootcore"/>
+</library>
+<library file="PoolFileBlockTransitionTest.cc" name="IOPoolOutputFileBlockTransitionTestPlugins">
+  <flags EDM_PLUGIN="1"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/Provenance"/>
+  <use name="DataFormats/TestObjects"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="IOPool/Common"/>
+</library>
+<test name="TestIOPoolOutputFileBlockTransition" command="testPoolFileBlockTransition.sh"/>

@@ -524,19 +524,7 @@ namespace edm::rntuple_temp {
   }
 
   std::shared_ptr<FileBlock> RootFile::createFileBlock() {
-    std::vector<TTree*> processBlockTrees;
-    std::vector<std::string> processesWithProcessBlockTrees;
-    processBlockTrees.reserve(processBlockTrees_.size());
-    processesWithProcessBlockTrees.reserve(processBlockTrees_.size());
     return std::make_shared<FileBlock>(fileFormatVersion(),
-                                       nullptr,
-                                       nullptr,
-                                       nullptr,
-                                       nullptr,
-                                       nullptr,
-                                       nullptr,
-                                       std::move(processBlockTrees),
-                                       std::move(processesWithProcessBlockTrees),
                                        0,
                                        hasNewlyDroppedBranch(),
                                        file_,
@@ -545,17 +533,8 @@ namespace edm::rntuple_temp {
                                        productDependencies());
   }
 
-  void RootFile::updateFileBlock(FileBlock& fileBlock) {
-    std::vector<TTree*> processBlockTrees;
-    std::vector<std::string> processesWithProcessBlockTrees;
-    fileBlock.updateTTreePointers(nullptr,
-                                  nullptr,
-                                  nullptr,
-                                  nullptr,
-                                  nullptr,
-                                  nullptr,
-                                  std::move(processBlockTrees),
-                                  std::move(processesWithProcessBlockTrees));
+  void RootFile::updateFileBlock(FileBlock&) {
+    // TODO: RNTuple-specific code to be added
   }
 
   std::string const& RootFile::newBranchToOldBranch(std::string const& newBranch) const {
