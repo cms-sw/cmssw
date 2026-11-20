@@ -11,4 +11,4 @@ TTClustersFromPhase2TrackerDigis = cms.EDProducer("TTClusterBuilderNew",
 )                                                  
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
-premix_stage2.toModify(TTClustersFromPhase2TrackerDigis, rawHits = ["mixData:Tracker"])
+premix_stage2.toModify(TTClustersFromPhase2TrackerDigis, src = 'mixData:Tracker')
