@@ -45,8 +45,9 @@ DQMFileSaverBase::DQMFileSaverBase(const edm::ParameterSet &ps) {
   runNumber_ = ps.getUntrackedParameter<int>("runNumber", 111);
 
   // This makes sure a file saver runs in a very end
-  lumigetter_ = edm::GetterOfProducts<DQMToken>(edm::ProcessMatch("*"), this, edm::InLumi);
-  rungetter_ = edm::GetterOfProducts<DQMToken>(edm::ProcessMatch("*"), this, edm::InRun);
+  lumigetter_ =
+      edm::GetterOfProducts<DQMToken, edm::Transition::EndLuminosityBlock>(edm::ProcessMatch("*"), this, edm::InLumi);
+  rungetter_ = edm::GetterOfProducts<DQMToken, edm::Transition::EndRun>(edm::ProcessMatch("*"), this, edm::InRun);
   callWhenNewProductsRegistered([this](edm::ProductDescription const &bd) {
     this->lumigetter_(bd);
     this->rungetter_(bd);
