@@ -45,6 +45,8 @@ FSimTrack::FSimTrack(const RawParticle* p, int iv, int ig, int id, FBaseSimEvent
       momentum_(p->momentum()),
       properDecayTime(dt) {
   setTrackId(id);
+  if (ig >= 0)
+    setIsPrimary();
   info_ = mom_->theTable()->particle(HepPDT::ParticleID(type()));
 }
 
@@ -78,6 +80,8 @@ FSimTrack::FSimTrack(int ipart,
       properDecayTime(-1),
       isGlobal_(false) {
   setTrackId(id);
+  if (ig >= 0)
+    setIsPrimary();
 }
 
 FSimTrack::~FSimTrack() { ; }
