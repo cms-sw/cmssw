@@ -75,6 +75,10 @@ namespace edm {
   public:
     Event(EventTransitionInfo const&, ModuleDescription const&, ModuleCallingContext const*);
     Event(EventPrincipal const&, ModuleDescription const&, ModuleCallingContext const*);
+    Event(Event const&) = delete;
+    Event& operator=(Event const&) = delete;
+    Event(Event&&) = delete;
+    Event& operator=(Event&&) = delete;
     ~Event() override;
 
     //Used in conjunction with EDGetToken
