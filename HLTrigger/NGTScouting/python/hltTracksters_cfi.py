@@ -34,8 +34,8 @@ for iterLabel in hltTiclIterLabelsPSet.labels:
             EV2=Var("eigenvalues()[1]", "float", doc="Trackster PCA eigenvalues 1"),
             EV3=Var("eigenvalues()[2]", "float", doc="Trackster PCA eigenvalues 2"),
             eVector0_x=Var("eigenvectors()[0].x", "float", doc="Trackster PCA principal axis, x component"),
-            eVector0_y=Var("eigenvectors()[0].z", "float", doc="Trackster PCA principal axis, y component"),
-            eVector0_z=Var("eigenvectors()[0].y", "float", doc="Trackster PCA principal axis, z component"),
+            eVector0_y=Var("eigenvectors()[0].y", "float", doc="Trackster PCA principal axis, y component"),
+            eVector0_z=Var("eigenvectors()[0].z", "float", doc="Trackster PCA principal axis, z component"),
             time=Var("time", "float", doc="Trackster HGCAL time"),
             timeError=Var("timeError", "float", doc="Trackster HGCAL time error")
         ),
@@ -135,8 +135,8 @@ for iterLabel in hltSimTrackstersLabels:
             EV2=Var("eigenvalues()[1]", "float", doc="Trackster PCA eigenvalues 1"),
             EV3=Var("eigenvalues()[2]", "float", doc="Trackster PCA eigenvalues 2"),
             eVector0_x=Var("eigenvectors()[0].x", "float", doc="Trackster PCA principal axis, x component"),
-            eVector0_y=Var("eigenvectors()[0].z", "float", doc="Trackster PCA principal axis, y component"),
-            eVector0_z=Var("eigenvectors()[0].y", "float", doc="Trackster PCA principal axis, z component"),
+            eVector0_y=Var("eigenvectors()[0].y", "float", doc="Trackster PCA principal axis, y component"),
+            eVector0_z=Var("eigenvectors()[0].z", "float", doc="Trackster PCA principal axis, z component"),
             time=Var("time", "float", doc="Trackster HGCAL time"),
             timeError=Var("timeError", "float", doc="Trackster HGCAL time error")
         ),
