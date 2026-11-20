@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoTauTag/HLTProducers/interface/TauJetSelectorForHLTTrackSeeding.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -33,7 +35,7 @@ TauJetSelectorForHLTTrackSeeding::~TauJetSelectorForHLTTrackSeeding() {
 void TauJetSelectorForHLTTrackSeeding::produce(edm::StreamID iStreamID,
                                                edm::Event& iEvent,
                                                const edm::EventSetup& iSetup) const {
-  std::unique_ptr<reco::TrackJetCollection> augmentedTrackJets(new reco::TrackJetCollection);
+  std::unique_ptr<reco::TrackJetCollection> augmentedTrackJets = std::make_unique<reco::TrackJetCollection>();
 
   edm::Handle<reco::TrackJetCollection> trackjets;
   iEvent.getByToken(inputTrackJetToken_, trackjets);

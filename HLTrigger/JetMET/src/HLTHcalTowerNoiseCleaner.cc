@@ -15,6 +15,7 @@
 //
 //
 //
+#include <memory>
 #include <set>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -221,7 +222,7 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
   }  //if(severity_>0)
 
   //output collection
-  std::unique_ptr<CaloTowerCollection> OutputTowers(new CaloTowerCollection());
+  std::unique_ptr<CaloTowerCollection> OutputTowers = std::make_unique<CaloTowerCollection>();
 
   CaloTowerCollection::const_iterator inTowersIt;
 

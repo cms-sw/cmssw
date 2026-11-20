@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoTauTag/HLTProducers/interface/L1THLTTauMatching.h"
 #include "Math/GenVector/VectorUtil.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
@@ -28,7 +30,7 @@ L1THLTTauMatching::L1THLTTauMatching(const edm::ParameterSet& iConfig)
 }
 
 void L1THLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const edm::EventSetup& iES) const {
-  unique_ptr<PFTauCollection> tauL2jets(new PFTauCollection);
+  unique_ptr<PFTauCollection> tauL2jets = std::make_unique<PFTauCollection>();
 
   constexpr double matchingR2 = 0.5 * 0.5;
 

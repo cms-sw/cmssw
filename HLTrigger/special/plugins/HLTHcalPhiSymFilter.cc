@@ -1,4 +1,6 @@
 #include "HLTHcalPhiSymFilter.h"
+
+#include <memory>
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -56,9 +58,9 @@ bool HLTHcalPhiSymFilter::hltFilter(edm::Event& iEvent,
   iEvent.getByToken(HFHitsToken_, HFRecHitsH);
 
   //Create empty output collections
-  std::unique_ptr<HBHERecHitCollection> phiSymHBHERecHitCollection(new HBHERecHitCollection);
-  std::unique_ptr<HORecHitCollection> phiSymHORecHitCollection(new HORecHitCollection);
-  std::unique_ptr<HFRecHitCollection> phiSymHFRecHitCollection(new HFRecHitCollection);
+  std::unique_ptr<HBHERecHitCollection> phiSymHBHERecHitCollection = std::make_unique<HBHERecHitCollection>();
+  std::unique_ptr<HORecHitCollection> phiSymHORecHitCollection = std::make_unique<HORecHitCollection>();
+  std::unique_ptr<HFRecHitCollection> phiSymHFRecHitCollection = std::make_unique<HFRecHitCollection>();
 
   //Select interesting HBHERecHits
   for (auto const& it : *HBHERecHitsH) {

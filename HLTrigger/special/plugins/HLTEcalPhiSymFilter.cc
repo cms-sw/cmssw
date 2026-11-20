@@ -1,4 +1,6 @@
 #include "HLTEcalPhiSymFilter.h"
+
+#include <memory>
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -127,8 +129,8 @@ bool HLTEcalPhiSymFilter::filter(edm::StreamID, edm::Event& event, const edm::Ev
   event.getByToken(endcapUncalibHitsToken_, endcapUncalibRecHitsHandle);
 
   //Create empty output collections
-  std::unique_ptr<EBDigiCollection> phiSymEBDigiCollection(new EBDigiCollection);
-  std::unique_ptr<EEDigiCollection> phiSymEEDigiCollection(new EEDigiCollection);
+  std::unique_ptr<EBDigiCollection> phiSymEBDigiCollection = std::make_unique<EBDigiCollection>();
+  std::unique_ptr<EEDigiCollection> phiSymEEDigiCollection = std::make_unique<EEDigiCollection>();
 
   const EBDigiCollection* EBDigis = barrelDigisHandle.product();
   const EEDigiCollection* EEDigis = endcapDigisHandle.product();

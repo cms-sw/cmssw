@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cmath>
+#include <memory>
 #include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -88,8 +89,8 @@ bool HLTmmkkFilter::hltFilter(edm::Event& iEvent,
   const double thirdTrackMass2(thirdTrackMass_ * thirdTrackMass_);
   const double fourthTrackMass2(fourthTrackMass_ * fourthTrackMass_);
 
-  unique_ptr<CandidateCollection> output(new CandidateCollection());
-  unique_ptr<VertexCollection> vertexCollection(new VertexCollection());
+  unique_ptr<CandidateCollection> output = std::make_unique<CandidateCollection>();
+  unique_ptr<VertexCollection> vertexCollection = std::make_unique<VertexCollection>();
 
   // get the transient track builder
   auto const& theB = iSetup.getHandle(transientTrackRecordToken_);
