@@ -1,0 +1,26 @@
+import FWCore.ParameterSet.Config as cms
+
+simEmtfDigisPhase2 = cms.EDProducer("L1TMuonEndCapPhase2TrackProducer",
+    BXWindow = cms.int32(1),
+    CSCEnabled = cms.bool(True),
+    CSCInput = cms.InputTag("simCscTriggerPrimitiveDigisForEMTF","MPCSORTED"),
+    CSCInputBXShift = cms.int32(-8),
+    DisplacedGraphPath = cms.string('L1Trigger/L1TMuonEndCapPhase2/data/displaced_model.pb'),
+    GE0Enabled = cms.bool(True),
+    GE0Input = cms.InputTag("ge0TriggerConvertedPseudoDigis"),
+    GEMEnabled = cms.bool(True),
+    GEMInput = cms.InputTag("simMuonGEMPadDigiClusters"),
+    GEMInputBXShift = cms.int32(0),
+    IncludeNeighborEnabled = cms.bool(True),
+    ME0Enabled = cms.bool(False),
+    ME0Input = cms.InputTag("me0TriggerConvertedPseudoDigis"),
+    ME0InputBXShift = cms.int32(-8),
+    MaxBX = cms.int32(2),
+    MinBX = cms.int32(-2),
+    PromptGraphPath = cms.string('L1Trigger/L1TMuonEndCapPhase2/data/prompt_model.pb'),
+    RPCEnabled = cms.bool(True),
+    RPCInput = cms.InputTag("rpcRecHitsForEMTF"),
+    RPCInputBXShift = cms.int32(0),
+    ValidationDirectory = cms.string('L1Trigger/L1TMuonEndCapPhase2/data/validation'),
+    Verbosity = cms.untracked.int32(3)
+)

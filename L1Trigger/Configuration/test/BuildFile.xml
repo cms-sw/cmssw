@@ -1,0 +1,2 @@
+<!-- drift test: L1_Phase2_cff must match the cmsDriver L1TrackTrigger,L1,L1P2GT configuration -->
+<test name="testL1Phase2Fragment" command="testL1Phase2Fragment.sh"/>
