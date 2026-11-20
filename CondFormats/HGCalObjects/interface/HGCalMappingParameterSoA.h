@@ -82,6 +82,7 @@ namespace hgcal {
                       SOA_COLUMN(uint32_t, cellInfoIdx),
                       SOA_COLUMN(uint32_t, chNumber),
                       SOA_COLUMN(uint32_t, layer),
+                      SOA_COLUMN(float, area),
                       SOA_COLUMN(float, eta),
                       SOA_COLUMN(float, phi),
                       SOA_COLUMN(float, x),

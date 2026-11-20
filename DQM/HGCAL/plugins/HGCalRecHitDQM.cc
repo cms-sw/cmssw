@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DataFormats/HGCalReco/interface/HGCalRecoVariations.h"
 #include "DataFormats/HGCalReco/interface/HGCalSoARecHitsHostCollection.h"
 #include "CondFormats/DataRecord/interface/HGCalDenseIndexInfoRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
@@ -23,6 +24,7 @@
  * Hits above 3 sigma noise go into per-layer energy and time histograms,
  * and into per-endcap summed energy and multiplicity vs layer.
  * It processes the first MinimumEvents events and then every PrescaleFactor-th event.
+ * With fillCMAlt, every hit also fills nominal and CM_ALT (DNN common-mode) energy histograms in MIPs.
  */
 class HGCalRecHitDQM : public DQMEDAnalyzer {
 public:
@@ -44,6 +46,7 @@ private:
   edm::ESGetToken<hgcal::HGCalMappingModuleParamHost, HGCalElectronicsMappingRcd> moduleInfoTkn_;
   const unsigned int minEvents_;
   const unsigned int prescaleFactor_;
+  const bool fillCMAlt_;
   unsigned int nProcessed_;
 
   std::map<MonitoredElementKey_t, MonitoredElement_t> followedModules_;
@@ -54,6 +57,14 @@ private:
   std::map<int, std::map<int, std::map<std::string, MonitorElement*>>> recHitSummariesLayers_;
   // per-module TProfile: <E_nMIPs> vs channel; consumed by harvester as avgrechit_nmips.
   std::map<MonitoredElementKey_t, MonitorElement*> avgRechitNmips_;
+  // per endcap, filled with fillCMAlt: nominal and CM_ALT energy [MIPs], their difference and its mean vs layer
+  struct CMAltHistograms {
+    MonitorElement* nominal;
+    MonitorElement* alt;
+    MonitorElement* diff;
+    MonitorElement* diffVsLayer;
+  };
+  std::map<int, CMAltHistograms> cmAltEndcaps_;
   std::map<int, std::string> endCapKey = {{-1, "Minus"}, {1, "Plus"}};
 };
 
@@ -68,6 +79,7 @@ HGCalRecHitDQM::HGCalRecHitDQM(const edm::ParameterSet& iConfig)
       moduleInfoTkn_(esConsumes<edm::Transition::BeginRun>()),
       minEvents_(iConfig.getParameter<unsigned int>("MinimumEvents")),
       prescaleFactor_(std::max(1u, iConfig.getParameter<unsigned int>("PrescaleFactor"))),
+      fillCMAlt_(iConfig.getParameter<bool>("fillCMAlt")),
       nProcessed_(0) {}
 
 HGCalRecHitDQM::~HGCalRecHitDQM() {}
@@ -138,10 +150,25 @@ void HGCalRecHitDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     if (layer == 0)
       continue;
-    if (rechit.energy() < knoise_thr * rechit.sigmaNoise())
-      continue;
 
     auto endcap = indexinfo.z() < 0 ? -1 : 1;
+
+    // all hits, no noise cut: the CM correction shows up in the noise; CM_ALT is in energy units,
+    // converted to MIPs with the hit's own energy/MIP scale
+    if (fillCMAlt_ && rechit.energy() != 0.f) {
+      auto cm_it = cmAltEndcaps_.find(endcap);
+      if (cm_it != cmAltEndcaps_.end()) {
+        const auto& cm = cm_it->second;
+        const float nmipsAlt = rechit.energy_variations()(hgcalreco::Variation::CM_ALT) * nmips / rechit.energy();
+        cm.nominal->Fill(nmips);
+        cm.alt->Fill(nmipsAlt);
+        cm.diff->Fill(nmipsAlt - nmips);
+        cm.diffVsLayer->Fill(layer, nmipsAlt - nmips);
+      }
+    }
+
+    if (rechit.energy() < knoise_thr * rechit.sigmaNoise())
+      continue;
 
     if (endcap != cur_endcap || static_cast<int>(layer) != cur_layer) {
       cur_endcap = endcap;
@@ -230,6 +257,24 @@ void HGCalRecHitDQM::bookHistograms(DQMStore::IBooker& ibook, edm::Run const& ru
     recHitSummariesEndcaps_[endcap]["rechitmultiplicity"] =
         ibook.book2D("rechitmultiplicity", label + ";Layer; <#hits>", 47, 0.5, 47.5, 200, 0, 1500);
 
+    if (fillCMAlt_) {
+      ibook.setCurrentFolder(endcapFolder + "CMAlt/");
+      auto& cm = cmAltEndcaps_[endcap];
+      cm.nominal = ibook.book1D("nmips_nominal", label + " linear CM;RecHit energy [MIPs];RecHits", 250, -5, 20);
+      cm.alt = ibook.book1D("nmips_CM_ALT", label + " DNN CM (CM_ALT);RecHit energy [MIPs];RecHits", 250, -5, 20);
+      cm.diff =
+          ibook.book1D("nmips_CM_ALT_minus_nominal", label + ";CM_ALT - nominal energy [MIPs];RecHits", 200, -2, 2);
+      cm.diffVsLayer = ibook.bookProfile("nmips_CM_ALT_minus_nominal_vs_layer",
+                                         label + ";Layer;<CM_ALT - nominal energy> [MIPs]",
+                                         47,
+                                         0.5,
+                                         47.5,
+                                         -100,
+                                         100,
+                                         "s");
+      ibook.setCurrentFolder(endcapFolder);
+    }
+
     for (const auto& [layer, _] : layerMap) {
       std::string layerFolder = endcapFolder + "Layer_" + std::to_string(layer) + "/";
 
@@ -253,6 +298,7 @@ void HGCalRecHitDQM::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<unsigned int>("MinimumEvents", 5000);
   desc.add<unsigned int>("PrescaleFactor", 5000);
   desc.add<bool>("isSimulation", false);
+  desc.add<bool>("fillCMAlt", false)->setComment("Fill nominal vs CM_ALT (DNN common-mode) energy histograms");
   descriptions.add("hgcalrechitdqm", desc);
 }
 
