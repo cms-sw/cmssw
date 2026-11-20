@@ -83,8 +83,8 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const 
   auto &track_match = evt.get(track_match_);
 
   // output
-  std::unique_ptr<pat::CompositeCandidateCollection> ret_val(new pat::CompositeCandidateCollection());
-  std::unique_ptr<TransientTrackCollection> trans_out(new TransientTrackCollection);
+  std::unique_ptr<pat::CompositeCandidateCollection> ret_val = std::make_unique<pat::CompositeCandidateCollection>();
+  std::unique_ptr<TransientTrackCollection> trans_out = std::make_unique<TransientTrackCollection>();
 
   for (reco::VertexCompositePtrCandidateCollection::const_iterator v0 = V0s->begin(); v0 != V0s->end(); v0++) {
     // selection on V0s

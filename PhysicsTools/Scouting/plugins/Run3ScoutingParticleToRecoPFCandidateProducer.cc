@@ -190,67 +190,67 @@ void Run3ScoutingParticleToRecoPFCandidateProducer::produce(edm::Event &iEvent, 
 
   edm::OrphanHandle<reco::PFCandidateCollection> oh = iEvent.put(std::move(pfcands));
 
-  std::unique_ptr<edm::ValueMap<int>> vertexIndex_VM(new edm::ValueMap<int>());
+  std::unique_ptr<edm::ValueMap<int>> vertexIndex_VM = std::make_unique<edm::ValueMap<int>>();
   edm::ValueMap<int>::Filler filler_vertexIndex(*vertexIndex_VM);
   filler_vertexIndex.insert(oh, vertexIndex_.begin(), vertexIndex_.end());
   filler_vertexIndex.fill();
   iEvent.put(std::move(vertexIndex_VM), "vertexIndex");
 
-  std::unique_ptr<edm::ValueMap<float>> normchi2_VM(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> normchi2_VM = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_normchi2(*normchi2_VM);
   filler_normchi2.insert(oh, normchi2_.begin(), normchi2_.end());
   filler_normchi2.fill();
   iEvent.put(std::move(normchi2_VM), "normchi2");
 
-  std::unique_ptr<edm::ValueMap<float>> dz_VM(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> dz_VM = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_dz(*dz_VM);
   filler_dz.insert(oh, dz_.begin(), dz_.end());
   filler_dz.fill();
   iEvent.put(std::move(dz_VM), "dz");
 
-  std::unique_ptr<edm::ValueMap<float>> dxy_VM(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> dxy_VM = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_dxy(*dxy_VM);
   filler_dxy.insert(oh, dxy_.begin(), dxy_.end());
   filler_dxy.fill();
   iEvent.put(std::move(dxy_VM), "dxy");
 
-  std::unique_ptr<edm::ValueMap<float>> dzsig_VM(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> dzsig_VM = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_dzsig(*dzsig_VM);
   filler_dzsig.insert(oh, dzsig_.begin(), dzsig_.end());
   filler_dzsig.fill();
   iEvent.put(std::move(dzsig_VM), "dzsig");
 
-  std::unique_ptr<edm::ValueMap<float>> dxysig_VM(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> dxysig_VM = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_dxysig(*dxysig_VM);
   filler_dxysig.insert(oh, dxysig_.begin(), dxysig_.end());
   filler_dxysig.fill();
   iEvent.put(std::move(dxysig_VM), "dxysig");
 
-  std::unique_ptr<edm::ValueMap<int>> lostInnerHits_VM(new edm::ValueMap<int>());
+  std::unique_ptr<edm::ValueMap<int>> lostInnerHits_VM = std::make_unique<edm::ValueMap<int>>();
   edm::ValueMap<int>::Filler filler_lostInnerHits(*lostInnerHits_VM);
   filler_lostInnerHits.insert(oh, lostInnerHits_.begin(), lostInnerHits_.end());
   filler_lostInnerHits.fill();
   iEvent.put(std::move(lostInnerHits_VM), "lostInnerHits");
 
-  std::unique_ptr<edm::ValueMap<int>> quality_VM(new edm::ValueMap<int>());
+  std::unique_ptr<edm::ValueMap<int>> quality_VM = std::make_unique<edm::ValueMap<int>>();
   edm::ValueMap<int>::Filler filler_quality(*quality_VM);
   filler_quality.insert(oh, quality_.begin(), quality_.end());
   filler_quality.fill();
   iEvent.put(std::move(quality_VM), "quality");
 
-  std::unique_ptr<edm::ValueMap<float>> trkPt_VM(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> trkPt_VM = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_trkPt(*trkPt_VM);
   filler_trkPt.insert(oh, trkPt_.begin(), trkPt_.end());
   filler_trkPt.fill();
   iEvent.put(std::move(trkPt_VM), "trkPt");
 
-  std::unique_ptr<edm::ValueMap<float>> trkEta_VM(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> trkEta_VM = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_trkEta(*trkEta_VM);
   filler_trkEta.insert(oh, trkEta_.begin(), trkEta_.end());
   filler_trkEta.fill();
   iEvent.put(std::move(trkEta_VM), "trkEta");
 
-  std::unique_ptr<edm::ValueMap<float>> trkPhi_VM(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> trkPhi_VM = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_trkPhi(*trkPhi_VM);
   filler_trkPhi.insert(oh, trkPhi_.begin(), trkPhi_.end());
   filler_trkPhi.fill();
