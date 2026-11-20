@@ -37,10 +37,20 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  // Declared first so that it is initialised before the algorithms that are built from it.
+  const unsigned int maxClusterSize_;
 #ifdef VERIFY_PH2_TK_CLUS
   std::unique_ptr<Phase2TrackerClusterizerAlgorithm> clusterizer_;
 #endif
+  Phase2TrackerClusterizerSequentialAlgorithm algo_;
   edm::EDGetTokenT<edm::DetSetVector<Phase2TrackerDigi> > token_;
+
+  // Strips read out by one front end chip, used to split clusters at the chip boundaries
+  unsigned int chipSize(const TrackerGeometry& tkGeom, const DetId& detId) const;
+  const bool splitAtChipBoundaries_;
+  const unsigned int chipSize2S_;
+  const unsigned int chipSizePS_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
 };
 
 /*
@@ -48,13 +58,33 @@ private:
      */
 
 Phase2TrackerClusterizer::Phase2TrackerClusterizer(edm::ParameterSet const& conf)
-    :
+    : maxClusterSize_(conf.getParameter<unsigned int>("maxClusterSize")),
 #ifdef VERIFY_PH2_TK_CLUS
-      clusterizer_(new Phase2TrackerClusterizerAlgorithm(conf.getParameter<unsigned int>("maxClusterSize"),
-                                                         conf.getParameter<unsigned int>("maxNumberClusters"))),
+      clusterizer_(
+          new Phase2TrackerClusterizerAlgorithm(maxClusterSize_, conf.getParameter<unsigned int>("maxNumberClusters"))),
 #endif
-      token_(consumes<edm::DetSetVector<Phase2TrackerDigi> >(conf.getParameter<edm::InputTag>("src"))) {
+      algo_(maxClusterSize_),
+      token_(consumes<edm::DetSetVector<Phase2TrackerDigi> >(conf.getParameter<edm::InputTag>("src"))),
+      splitAtChipBoundaries_(conf.getParameter<bool>("splitAtChipBoundaries")),
+      chipSize2S_(conf.getParameter<unsigned int>("chipSize2S")),
+      chipSizePS_(conf.getParameter<unsigned int>("chipSizePS")) {
+  // The geometry is only needed to tell the module type, i.e. the chip size
+  if (splitAtChipBoundaries_)
+    tkGeomToken_ = esConsumes();
   produces<Phase2TrackerCluster1DCollectionNew>();
+}
+
+unsigned int Phase2TrackerClusterizer::chipSize(const TrackerGeometry& tkGeom, const DetId& detId) const {
+  switch (tkGeom.getDetectorType(detId)) {
+    case TrackerGeometry::ModuleType::Ph2SS:
+      return chipSize2S_;
+    case TrackerGeometry::ModuleType::Ph2PSS:
+    case TrackerGeometry::ModuleType::Ph2PSP:
+      return chipSizePS_;
+    default:
+      // not an outer tracker module: no chip boundaries to split at
+      return 0;
+  }
 }
 
 /*
@@ -76,13 +106,15 @@ void Phase2TrackerClusterizer::produce(edm::Event& event, const edm::EventSetup&
 #endif
   auto outputClusters = std::make_unique<Phase2TrackerCluster1DCollectionNew>();
 
+  const TrackerGeometry* tkGeomForChips = splitAtChipBoundaries_ ? &eventSetup.getData(tkGeomToken_) : nullptr;
+
   // Go over all the modules
   for (const auto& DSViter : *digis) {
     DetId detId(DSViter.detId());
 
+    const unsigned int detChipSize = tkGeomForChips ? chipSize(*tkGeomForChips, detId) : 0;
     Phase2TrackerCluster1DCollectionNew::FastFiller clusters(*outputClusters, DSViter.detId());
-    Phase2TrackerClusterizerSequentialAlgorithm algo;
-    algo.clusterizeDetUnit(DSViter, clusters);
+    algo_.clusterizeDetUnit(DSViter, clusters, detChipSize);
     if (clusters.empty())
       clusters.abort();
 
@@ -149,8 +181,14 @@ void Phase2TrackerClusterizer::produce(edm::Event& event, const edm::EventSetup&
 
 void Phase2TrackerClusterizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<unsigned int>("maxClusterSize", 0);
-  desc.add<unsigned int>("maxNumberClusters", 0);
+  desc.add<unsigned int>("maxClusterSize", 0)
+      ->setComment("front end limit on the channels per cluster, longer runs are split; 0 disables it");
+  desc.add<unsigned int>("maxNumberClusters", 0)
+      ->setComment("limit on the clusters per module; only honoured under VERIFY_PH2_TK_CLUS");
+  desc.add<bool>("splitAtChipBoundaries", true)
+      ->setComment("split clusters at the front end chip boundaries (multiples of the chip size in strips)");
+  desc.add<unsigned int>("chipSize2S", 127)->setComment("strips per chip in 2S modules (Ph2SS)");
+  desc.add<unsigned int>("chipSizePS", 120)->setComment("strips per chip in PS modules (Ph2PSS and Ph2PSP)");
   desc.add<edm::InputTag>("src", edm::InputTag("mix", "Tracker"));
   descriptions.add("default_phase2TrackerClusterizer", desc);
 }
