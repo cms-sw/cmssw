@@ -1,7 +1,9 @@
 #include "SimG4Core/PhysicsLists/plugins/adept/CMSEmStandardPhysicsA.h"
 #include "SimG4Core/Physics/interface/CMSG4TrackInterface.h"
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
+#include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <CLHEP/Units/SystemOfUnits.h>
 #include "G4ParticleDefinition.hh"
@@ -50,6 +52,94 @@
 
 #include "G4HepEmConfig.hh"
 
+#include <cstdlib>
+#include <utility>
+
+namespace {
+  // In the ECAL, Phase2TrackFilter only plays Russian roulette with gammas whose generator particle is not a gamma or
+  // an e+-. AdePT evaluates this when a track is handed over to the GPU, and its descendants inherit the decision.
+  bool gammaRussianRouletteApplicable(G4Track const& track) {
+    auto const* trackInfo = dynamic_cast<TrackInformation const*>(track.GetUserInformation());
+    if (trackInfo == nullptr)
+      return true;
+    const int genParticlePID = trackInfo->genParticlePID();
+    return genParticlePID != 22 && std::abs(genParticlePID) != 11;
+  }
+
+  // Configuration of the AdePT stepping action: CMSSW applies Phase2SteppingAction and its Phase2TrackFilter to the replayed
+  // GPU steps and erases the GPU-born secondaries that the filter kills, so the GPU must apply the same kills. Their
+  // final configuration is forwarded by RunManagerMT; settings that AdePT cannot mirror are rejected.
+  CMSSteppingActionConfig makeAdePTSteppingActionConfig(const edm::ParameterSet& physics) {
+    const auto stepConfig = physics.getUntrackedParameter<edm::ParameterSet>("SteppingAction");
+    // The Phase-2 secondary filter takes its settings from the "StackingAction" PSet.
+    const auto secondaryFilterConfig = physics.getUntrackedParameter<edm::ParameterSet>("StackingAction");
+    auto reject = [](std::string const& what) {
+      throw cms::Exception("Configuration") << "CMSEmStandardPhysicsA: AdePT does not support " << what;
+    };
+    // AdePT applies the same cuts to tracks (Phase2SteppingAction) and to new secondaries (Phase2TrackFilter)
+    for (std::string const name :
+         {"MaxTrackTime", "MaxTrackTimeForward", "MaxZCentralCMS", "CriticalEnergyForVacuum"}) {
+      if (stepConfig.getParameter<double>(name) != secondaryFilterConfig.getParameter<double>(name))
+        reject("different values of " + name + " in the SteppingAction and StackingAction");
+    }
+    using Names = std::vector<std::string>;
+    if (stepConfig.getParameter<Names>("DeadRegions") != secondaryFilterConfig.getParameter<Names>("DeadRegions"))
+      reject("different DeadRegions in the SteppingAction and StackingAction");
+    if (!stepConfig.getParameter<Names>("MaxTimeNames").empty() ||
+        !secondaryFilterConfig.getParameter<Names>("MaxTimeNames").empty())
+      reject("region-dependent time cuts (MaxTimeNames)");
+    if (!stepConfig.getParameter<Names>("EkinNames").empty() &&
+        !stepConfig.getParameter<Names>("EkinParticles").empty())
+      reject("volume-dependent energy cuts (EkinNames)");
+    if (secondaryFilterConfig.getParameter<bool>("KillDeltaRay") &&
+        !secondaryFilterConfig.getParameter<bool>("KillHeavy"))
+      reject("KillDeltaRay");
+    if (secondaryFilterConfig.exists("TestKillingOptions")) {
+      const auto testKilling = secondaryFilterConfig.getParameter<edm::ParameterSet>("TestKillingOptions");
+      if (testKilling.getParameter<bool>("KillInCalo") || testKilling.getParameter<bool>("KillInCaloEfH"))
+        reject("TestKillingOptions");
+    }
+
+    CMSSteppingActionConfig config;
+    config.params.maxTrackTime = stepConfig.getParameter<double>("MaxTrackTime") * CLHEP::ns;
+    config.params.maxTrackTimeForward = stepConfig.getParameter<double>("MaxTrackTimeForward") * CLHEP::ns;
+    config.params.maxZCentral = stepConfig.getParameter<double>("MaxZCentralCMS") * CLHEP::m;
+    config.params.criticalEnergyForVacuum = stepConfig.getParameter<double>("CriticalEnergyForVacuum") * CLHEP::MeV;
+    config.params.criticalDensity = stepConfig.getParameter<double>("CriticalDensity") * CLHEP::g / CLHEP::cm3;
+    if (secondaryFilterConfig.getParameter<bool>("KillGamma"))
+      config.params.gammaEnergyCut = secondaryFilterConfig.getParameter<double>("GammaThreshold") * CLHEP::MeV;
+    config.deadRegions = stepConfig.getParameter<Names>("DeadRegions");
+    // low-density regions as hardcoded in Phase2TrackFilter
+    config.lowDensityRegions = {"BeamPipeOutside", "BeamPipeVacuum"};
+
+    // Gamma Russian roulette in the regions of Phase2TrackFilter, which enables it only if the probability is below
+    // one in the ECAL, HCAL, MuonIron or World region
+    const double energyLimit = secondaryFilterConfig.getParameter<double>("RusRoGammaEnergyLimit") * CLHEP::MeV;
+    const double ecal = secondaryFilterConfig.getParameter<double>("RusRoEcalGamma");
+    const double hcal = secondaryFilterConfig.getParameter<double>("RusRoHcalGamma");
+    const double muonIron = secondaryFilterConfig.getParameter<double>("RusRoMuonIronGamma");
+    const double world = secondaryFilterConfig.getParameter<double>("RusRoWorldGamma");
+    if (energyLimit > 0.0 && (ecal < 1.0 || hcal < 1.0 || muonIron < 1.0 || world < 1.0)) {
+      config.params.gammaRussianRouletteEnergyLimit = energyLimit;
+      const std::pair<std::string, double> probabilities[] = {
+          {"EcalRegion", ecal},
+          {"HcalRegion", hcal},
+          {"MuonIron", muonIron},
+          {"DefaultRegionForTheWorld", world},
+          {"HGCalRegion", secondaryFilterConfig.getParameter<double>("RusRoHGcalGamma")},
+          {"ZDCRegion", secondaryFilterConfig.getParameter<double>("RusRoZDCGamma")}};
+      for (auto const& [region, probability] : probabilities) {
+        if (probability < 1.0)
+          config.gammaRussianRoulette.emplace_back(region, probability);
+      }
+      config.gammaRussianRouletteRestrictedRegions = {"EcalRegion"};
+      config.gammaRussianRouletteApplicability = gammaRussianRouletteApplicable;
+    }
+
+    return config;
+  }
+}  // namespace
+
 CMSEmStandardPhysicsA::CMSEmStandardPhysicsA(G4int ver, const edm::ParameterSet& p)
     : G4VPhysicsConstructor("CMSEmStandard_ema") {
   fAdePTConfiguration = new AdePTConfiguration();
@@ -76,7 +166,7 @@ CMSEmStandardPhysicsA::CMSEmStandardPhysicsA(G4int ver, const edm::ParameterSet&
   if (msc == "Minimal") {
     fStepLimitType = fMinimal;
   }
-  fDeadRegionNames = p.getParameter<std::vector<std::string>>("DeadRegions");
+  fAdePTConfiguration->SetCMSSteppingActionConfig(makeAdePTSteppingActionConfig(p));
   double tcut = p.getParameter<double>("G4TrackingCut") * CLHEP::MeV;
   param->SetLowestElectronEnergy(tcut);
   param->SetLowestMuHadEnergy(tcut);
@@ -114,11 +204,6 @@ void CMSEmStandardPhysicsA::ConstructProcess() {
 
   // number of worker threads must be passed to AdePT
   fAdePTConfiguration->SetNumThreads(CurrentG4Track::numberOfWorkers());
-
-  // Write dead regions to AdePT configuration
-  for (const auto& deadRegionName : fDeadRegionNames) {
-    fAdePTConfiguration->AddDeadRegionName(deadRegionName);
-  }
 
   // Construct the AdePT tracking manager
   auto* hepEmTM = new AdePTTrackingManager(fAdePTConfiguration, verboseLevel);

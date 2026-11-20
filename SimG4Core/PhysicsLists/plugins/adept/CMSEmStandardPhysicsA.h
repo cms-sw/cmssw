@@ -33,7 +33,6 @@ private:
   G4double fSafetyFactor;
   G4double fLambdaLimit;
   G4MscStepLimitType fStepLimitType;
-  std::vector<std::string> fDeadRegionNames;
   AdePTConfiguration* fAdePTConfiguration;
 };
 
