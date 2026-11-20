@@ -54,10 +54,12 @@ Phase2TrackFilter::Phase2TrackFilter(const edm::ParameterSet& p, const CMSSteppi
   nRusRoZDC = p.getParameter<double>("RusRoZDCNeutron");
   nRusRoHGcal = p.getParameter<double>("RusRoHGcalNeutron");
 
-  if (gRusRoEnerLim > 0.0 && (gRusRoEcal < 1.0 || gRusRoHcal < 1.0 || gRusRoMuonIron < 1.0 || gRusRoWorld < 1.0)) {
+  if (gRusRoEnerLim > 0.0 && (gRusRoEcal < 1.0 || gRusRoHcal < 1.0 || gRusRoMuonIron < 1.0 || gRusRoWorld < 1.0 ||
+                              gRusRoZDC < 1.0 || gRusRoHGcal < 1.0)) {
     gRRactive = true;
   }
-  if (nRusRoEnerLim > 0.0 && (nRusRoEcal < 1.0 || nRusRoHcal < 1.0 || nRusRoMuonIron < 1.0 || nRusRoWorld < 1.0)) {
+  if (nRusRoEnerLim > 0.0 && (nRusRoEcal < 1.0 || nRusRoHcal < 1.0 || nRusRoMuonIron < 1.0 || nRusRoWorld < 1.0 ||
+                              nRusRoZDC < 1.0 || nRusRoHGcal < 1.0)) {
     nRRactive = true;
   }
 
