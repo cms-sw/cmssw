@@ -476,12 +476,15 @@ namespace edm {
     void RandomNumberGeneratorService::postEndJob() { beginJobEndJobActive_ = false; }
 
     void RandomNumberGeneratorService::preBeginLumi(LuminosityBlock const& lumi) {
+      if (eventSeeding_) {
+        // A replay then replaces the states of the engines that have a stored state.
+        reseedEngines(lumiEngines_[lumi.index()], lumi.run(), lumi.luminosityBlock(), 0);
+        snapShot(lumiEngines_[lumi.index()], lumiCache_[lumi.index()]);
+      }
       if (!restoreStateTag_.label().empty()) {
         // Copy from a product in the LuminosityBlock to cache for a particular luminosityBlockIndex
         readFromLuminosityBlock(lumi);
       } else if (eventSeeding_) {
-        reseedEngines(lumiEngines_[lumi.index()], lumi.run(), lumi.luminosityBlock(), 0);
-        snapShot(lumiEngines_[lumi.index()], lumiCache_[lumi.index()]);
         return;
       }
       // Copy from cache to engine the state for a particular luminosityBlockIndex
@@ -489,6 +492,10 @@ namespace edm {
     }
 
     void RandomNumberGeneratorService::postEventRead(Event const& event) {
+      if (eventSeeding_) {
+        // A replay then replaces the states of the engines that have a stored state.
+        reseedEngines(streamEngines_[event.streamID()], event.id().run(), event.luminosityBlock(), event.id().event());
+      }
       if (!restoreStateTag_.label().empty()) {
         // This initializes the cache before readFromEvent
         snapShot(streamEngines_[event.streamID()], eventCache_[event.streamID()]);
@@ -500,10 +507,6 @@ namespace edm {
         restoreFromCache(eventCache_[event.streamID()], streamEngines_[event.streamID()]);
 
       } else {
-        if (eventSeeding_) {
-          reseedEngines(
-              streamEngines_[event.streamID()], event.id().run(), event.luminosityBlock(), event.id().event());
-        }
         // copy from engines to event cache
         snapShot(streamEngines_[event.streamID()], eventCache_[event.streamID()]);
       }
@@ -1221,8 +1224,9 @@ namespace edm {
           long const seeds[4] = {id[0], id[1], id[2], id[3]};
           engine->setSeeds(seeds, 4);
         } else {
-          // MixMaxRng takes a 64-bit seed.
-          engine->setSeed(static_cast<long>((static_cast<std::uint64_t>(id[1]) << 32) | id[0]), 0);
+          // MixMaxRng takes a 64-bit seed and refuses the seed 0.
+          std::uint64_t const seed = (static_cast<std::uint64_t>(id[1]) << 32) | id[0];
+          engine->setSeed(static_cast<long>(seed != 0 ? seed : 1), 0);
         }
       }
     }

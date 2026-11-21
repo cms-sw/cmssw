@@ -142,10 +142,22 @@ test=testRandomService
     cmsRun ${SCRAM_TEST_PATH}/testEventSeeded_cfg.py "$@" > ${name}.log || die "cmsRun testEventSeeded_cfg.py $*" $?
     grep -E "^(EVENT|LUMI)RANDOM" ${name}.log | sort > ${name}.sorted
   }
+  # The random numbers of each line, without run, lumi, event and module label.
+  function numbers { awk '{ s = ""; for (i = 1; i <= NF; ++i) if ($i ~ /\./) s = s " " $i; print s }' $1 | sort; }
   eventSeeded eventSeeded1 streams=1
   eventSeeded eventSeeded4 streams=4
   diff eventSeeded1.sorted eventSeeded4.sorted || die "comparing event-seeded numbers with 1 and 4 streams" $?
   [ $(wc -l < eventSeeded1.sorted) -eq 32 ] || die "counting the lines of eventSeeded1.sorted" 1
+  diff ${SCRAM_TEST_PATH}/unit_test_outputs/testEventSeeded.txt eventSeeded1.sorted || die "comparing eventSeeded1.sorted with the reference" $?
+
+  # Every event, luminosity block and module label gets other numbers, also for two modules with the same seed.
+  eventSeeded eventSeededAdded streams=2 addedModule=1
+  [ $(wc -l < eventSeededAdded.sorted) -eq 48 ] || die "counting the lines of eventSeededAdded.sorted" 1
+  [ $(numbers eventSeededAdded.sorted | uniq | wc -l) -eq 48 ] || die "finding repeated numbers in eventSeededAdded.sorted" 1
+
+  # Another run gives other numbers.
+  eventSeeded eventSeededRun2 streams=1 firstRun=2
+  [ $(comm -12 <(numbers eventSeededRun2.sorted) <(numbers eventSeeded1.sorted) | wc -l) -eq 0 ] || die "comparing jobs with different runs" 1
 
   # A job on a subset of the luminosity blocks gives the same numbers for those blocks.
   eventSeeded eventSeededSubset streams=3 firstLumi=2 events=6
@@ -165,6 +177,12 @@ test=testRandomService
   eventSeeded eventSeededSave streams=3 output=eventSeededStates.root
   eventSeeded eventSeededReplay streams=2 seedOffset=1000 input=eventSeededStates.root
   diff eventSeededSave.sorted eventSeededReplay.sorted || die "comparing the event-seeded job and its replay" $?
+
+  # In a replay, a module with no stored state gets the numbers of the event mode.
+  eventSeeded eventSeededReplayAdded1 streams=1 addedModule=1 input=eventSeededStates.root
+  eventSeeded eventSeededReplayAdded4 streams=4 addedModule=1 input=eventSeededStates.root
+  diff eventSeededAdded.sorted eventSeededReplayAdded1.sorted || die "comparing the replay with an added module and 1 stream" $?
+  diff eventSeededAdded.sorted eventSeededReplayAdded4.sorted || die "comparing the replay with an added module and 4 streams" $?
 
   # The event mode refuses an engine that it cannot seed from the EventID.
   cmsRun ${SCRAM_TEST_PATH}/testEventSeeded_cfg.py streams=1 philoxEngine=HepJamesRandom >& eventSeededBadEngine.log \
