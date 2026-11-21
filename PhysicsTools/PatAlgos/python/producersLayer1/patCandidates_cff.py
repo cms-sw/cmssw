@@ -52,7 +52,7 @@ pp_on_AA.toModify(patCandidateSummary.candidates, func = lambda list: list.remov
 
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 from Configuration.Eras.Era_Run2_2016_HIPM_cff import Run2_2016_HIPM
-(pp_on_AA | run2_miniAOD_UL | Run2_2016_HIPM).toReplaceWith(
+(run2_miniAOD_UL | Run2_2016_HIPM).toReplaceWith(
     patCandidatesTask,
     patCandidatesTask.copyAndExclude([makePatDisplacedMuonsTask])).toModify(
         patCandidateSummary.candidates,
