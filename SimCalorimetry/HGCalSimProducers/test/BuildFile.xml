@@ -5,3 +5,4 @@
   <use name="FWCore/Utilities"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+<test name="testHGCalNoiseTable" command="testHGCalNoiseTable.sh"/>

@@ -1,0 +1,23 @@
+#!/bin/bash
+# With customiseEventSeeding the noise-only HGCAL digis of each event do not depend on the number of streams.
+
+function die { echo "$1: status $2"; exit $2; }
+
+function noiseDigest {
+  name=$1
+  shift
+  cmsRun ${SCRAM_TEST_PATH}/hgcalNoiseTable_cfg.py digest=${name}.txt "$@" > ${name}.log 2>&1 || die "cmsRun hgcalNoiseTable_cfg.py $*" $?
+  sort ${name}.txt > ${name}.sorted
+}
+
+noiseDigest noiseTable1 streams=1
+noiseDigest noiseTable4 streams=4
+[ $(wc -l < noiseTable1.sorted) -eq 24 ] || die "counting the lines of noiseTable1.sorted" 1
+[ $(awk '$5 > 0' noiseTable1.sorted | wc -l) -ge 16 ] || die "finding noise digis in noiseTable1.sorted" 1
+diff noiseTable1.sorted noiseTable4.sorted || die "comparing the noise digis of 1 and 4 streams" $?
+
+# Without noiseTableFromJobSeed each stream fills its own table, so the digis depend on the stream.
+noiseDigest noiseTableStream4 streams=4 noiseTableFromJobSeed=0
+cmp -s noiseTable4.sorted noiseTableStream4.sorted && die "the noise table of each stream gave the same digis" 1
+
+exit 0
