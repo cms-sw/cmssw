@@ -31,10 +31,9 @@ from Configuration.Eras.Modifier_bParking_cff import bParking
 bParking.toModify(slimmedMuonTrackExtras, cut = "pt > 3.0")
 
 # full set of track extras not available in existing AOD
-from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from Configuration.ProcessModifiers.miniAOD_skip_trackExtras_cff import miniAOD_skip_trackExtras
 
-(pp_on_AA | miniAOD_skip_trackExtras).toModify(slimmedMuonTrackExtras,
+miniAOD_skip_trackExtras.toModify(slimmedMuonTrackExtras,
                                                trackExtraTags = ["standAloneMuons"],
                                                trackExtraAssocs = [],
                                                outputClusters = False)

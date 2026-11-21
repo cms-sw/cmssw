@@ -52,9 +52,9 @@ pp_on_AA.toModify(selectedPatCandidateSummary.candidates, func = lambda list: li
 
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 from Configuration.Eras.Era_Run2_2016_HIPM_cff import Run2_2016_HIPM
-(pp_on_AA | run2_miniAOD_UL | Run2_2016_HIPM).toReplaceWith(selectedPatCandidatesTask,
+(run2_miniAOD_UL | Run2_2016_HIPM).toReplaceWith(selectedPatCandidatesTask,
                                                    selectedPatCandidatesTask.copyAndExclude([selectedPatDisplacedMuons]))
-(pp_on_AA | run2_miniAOD_UL | Run2_2016_HIPM).toModify(selectedPatCandidateSummary.candidates,
+(run2_miniAOD_UL | Run2_2016_HIPM).toModify(selectedPatCandidateSummary.candidates,
                                               func = lambda list: list.remove(cms.InputTag("selectedPatDisplacedMuons")) )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim

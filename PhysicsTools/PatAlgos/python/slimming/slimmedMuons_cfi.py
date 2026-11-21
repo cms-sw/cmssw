@@ -22,10 +22,9 @@ slimmedMuons = cms.EDProducer("PATMuonSlimmer",
 )
 
 # full set of track extras not available in existing AOD
-from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from Configuration.ProcessModifiers.miniAOD_skip_trackExtras_cff import miniAOD_skip_trackExtras
 
-(pp_on_AA | miniAOD_skip_trackExtras).toModify(slimmedMuons, trackExtraAssocs = ["slimmedMuonTrackExtras"])
+miniAOD_skip_trackExtras.toModify(slimmedMuons, trackExtraAssocs = ["slimmedMuonTrackExtras"])
 from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
 run2_miniAOD_pp_on_AA_103X.toModify(slimmedMuons,
                        packedPFCandidates = ["packedPFCandidates","packedPFCandidatesRemoved"],
