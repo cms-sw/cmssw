@@ -423,9 +423,15 @@ bool HGCalDDDConstants::cellInLayer(int waferU, int waferV, int cellU, int cellV
 
 std::pair<double, double> HGCalDDDConstants::cellSizeTrap(int type, int irad) const {
   constexpr double r(0.0);
-  std::pair<double, double> rr = (((hgpar_->radiusLayer_[type].size() > 0) && (hgpar_->radiusLayer_[type].size() > static_cast<size_t>(irad))) ? std::make_pair(hgpar_->radiusLayer_[type][irad - 1], hgpar_->radiusLayer_[type][irad]) : ((hgpar_->radiusLayer_[type].size() == static_cast<size_t>(irad)) && (irad > 1)) ? std::make_pair(hgpar_->radiusLayer_[type][irad - 2], hgpar_->radiusLayer_[type][irad - 1]) : std::make_pair(r, r));
+  std::pair<double, double> rr =
+      (((!hgpar_->radiusLayer_[type].empty()) && (hgpar_->radiusLayer_[type].size() > static_cast<size_t>(irad)))
+           ? std::make_pair(hgpar_->radiusLayer_[type][irad - 1], hgpar_->radiusLayer_[type][irad])
+       : ((hgpar_->radiusLayer_[type].size() == static_cast<size_t>(irad)) && (irad > 1))
+           ? std::make_pair(hgpar_->radiusLayer_[type][irad - 2], hgpar_->radiusLayer_[type][irad - 1])
+           : std::make_pair(r, r));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "cellSizeTrap: " << type << ":" << irad << " size " << hgpar_->radiusLayer_[type].size() << " Result " << rr.first << ":" << rr.second;
+  edm::LogVerbatim("HGCalGeom") << "cellSizeTrap: " << type << ":" << irad << " size "
+                                << hgpar_->radiusLayer_[type].size() << " Result " << rr.first << ":" << rr.second;
 #endif
   return rr;
 }
