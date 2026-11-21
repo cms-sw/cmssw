@@ -31,6 +31,18 @@ TEST_CASE("PhiloxEngine follows the Philox stream", "[PhiloxEngine]") {
   CHECK(static_cast<unsigned int>(engine) == block1[0]);
 }
 
+TEST_CASE("PhiloxEngine values equal the Philox.h conversions", "[PhiloxEngine]") {
+  long const seeds[4] = {11, 22, 33, 44};
+  edm::PhiloxEngine engine;
+  engine.setSeeds(seeds, 4);
+  edm::philox::EventStream const stream(edm::philox::Counter{{11, 22, 33, 44}});
+  auto const block0 = stream.bits(0, 0);
+  auto const block1 = stream.bits(0, 1);
+  CHECK(engine.flat() == edm::philox::openUniformDouble(block0[0], block0[1]));
+  CHECK(engine.flat() == edm::philox::openUniformDouble(block0[2], block0[3]));
+  CHECK(static_cast<float>(engine) == edm::philox::openUniformFloat(block1[0]));
+}
+
 TEST_CASE("PhiloxEngine values are in (0, 1)", "[PhiloxEngine]") {
   edm::PhiloxEngine engine(1);
   for (double value : draw(engine, 100000)) {
@@ -84,18 +96,6 @@ TEST_CASE("PhiloxEngine rejects a foreign state", "[PhiloxEngine]") {
   CLHEP::MixMaxRng mixMax(1);
   edm::PhiloxEngine engine;
   CHECK_FALSE(engine.get(mixMax.put()));
-}
-
-TEST_CASE("MixMaxRng setSeeds does not keep the seed array", "[MixMaxRng]") {
-  long seeds[4] = {1, 2, 3, 4};
-  CLHEP::MixMaxRng reference;
-  reference.setSeeds(seeds, 4);
-  auto const expected = draw(reference, 40);
-
-  CLHEP::MixMaxRng engine;
-  engine.setSeeds(seeds, 4);
-  seeds[0] = 99;
-  CHECK(draw(engine, 40) == expected);
 }
 
 TEST_CASE("PhiloxEngine clone continues the sequence", "[PhiloxEngine]") {

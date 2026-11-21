@@ -83,6 +83,15 @@ namespace edm::philox {
     return static_cast<double>(bits53) * 0x1p-53;
   }
 
+  // Uniform in (0, 1) with 23 random bits from one word. The conversion is exact.
+  constexpr float openUniformFloat(std::uint32_t word) { return static_cast<float>(2 * (word >> 9) + 1) * 0x1p-24f; }
+
+  // Uniform in (0, 1) with 52 random bits from two words. The conversion is exact.
+  constexpr double openUniformDouble(std::uint32_t low, std::uint32_t high) {
+    std::uint64_t const bits52 = ((static_cast<std::uint64_t>(high) << 32) | low) >> 12;
+    return static_cast<double>(2 * bits52 + 1) * 0x1p-53;
+  }
+
 }  // namespace edm::philox
 
 #endif

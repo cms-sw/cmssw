@@ -80,6 +80,10 @@ TEST_CASE("Uniform conversions", "[Philox]") {
   CHECK(edm::philox::uniformDouble(0xffffffff, 0xffffffff) == 1. - 0x1p-53);
   CHECK(edm::philox::uniformDouble(0xffffffff, 0xffffffff) < 1.);
   CHECK(edm::philox::uniformDouble(0, 1) == 0x1p-32);
+  CHECK(edm::philox::openUniformFloat(0) == 0x1p-24f);
+  CHECK(edm::philox::openUniformFloat(0xffffffff) == 1.f - 0x1p-24f);
+  CHECK(edm::philox::openUniformDouble(0, 0) == 0x1p-53);
+  CHECK(edm::philox::openUniformDouble(0xffffffff, 0xffffffff) == 1. - 0x1p-53);
 }
 
 TEST_CASE("Moments of the uniform values", "[Philox]") {

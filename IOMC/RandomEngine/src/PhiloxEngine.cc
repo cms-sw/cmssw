@@ -20,11 +20,8 @@ namespace edm {
   PhiloxEngine::PhiloxEngine(long seed) : id_{}, stream_(id_) { setSeed(seed, 0); }
 
   double PhiloxEngine::flat() {
-    std::uint64_t const low = nextWord();
-    std::uint64_t const high = nextWord();
-    std::uint64_t const bits52 = ((high << 32) | low) >> 12;
-    // (2 * bits52 + 1) has at most 53 bits, so the result is exact and never 0 or 1.
-    return static_cast<double>(2 * bits52 + 1) * 0x1p-53;
+    std::uint32_t const low = nextWord();
+    return edm::philox::openUniformDouble(low, nextWord());
   }
 
   void PhiloxEngine::flatArray(int const size, double* vect) {
@@ -33,10 +30,7 @@ namespace edm {
     }
   }
 
-  PhiloxEngine::operator float() {
-    std::uint32_t const bits23 = nextWord() >> 9;
-    return static_cast<float>(2 * bits23 + 1) * 0x1p-24f;
-  }
+  PhiloxEngine::operator float() { return edm::philox::openUniformFloat(nextWord()); }
 
   void PhiloxEngine::setSeed(long seed, int) {
     theSeed = seed;
