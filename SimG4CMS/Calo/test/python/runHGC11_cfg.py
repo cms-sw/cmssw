@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
 #   cmsRun runHGC11_cfg.py geometry=D120
-#   Options for geometry D107, D116, D104, D120, D121, D122, D123
-#                        (V16) (V17) (V18) (V19) (V17)(V19n)(V19ng)
+#   Options for geometry  D104, D120, D121, D122, D123
+#                         (V18) (V19) (V17)(V19n)(V19ng)
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
 import os, sys, importlib, re
@@ -15,7 +15,7 @@ options.register('geometry',
                  "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D107, D116, D104, D120, D121, D122, D123")
+                  "geometry of operations: D104, D120, D121, D122, D123")
 
 ### get and parse the command line arguments
  
