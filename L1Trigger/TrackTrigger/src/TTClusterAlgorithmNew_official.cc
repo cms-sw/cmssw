@@ -119,15 +119,15 @@ void TTClusterAlgorithmNew_official::algoWithVetoes(const edm::DetSet<Phase2Trac
   // Compare the last two columns with the new column.
   //
   // A pair of equal centroid rows means that the cluster in the
-  // higher-numbered column is vetoed.
+  // column furthest from the module end is vetoed.
   //
   // Three equal centroid rows in consecutive columns means that
   // all three clusters are vetoed.
   auto processNewColumn = [&](BufferedColumn& oldest, BufferedColumn& previous, BufferedColumn& current) {
     // Cluster veto logic is only used by the MPA chip (PS-p sensors).
     //     b) If two PS-p clusters in neighbouring columns (r-z) have
-    //        the same row (r-phi) centroid, the one with higher column
-    //         number is vetoed.
+    //        the same row (r-phi) centroid, the one in the column
+    //        furthest from the module end is vetoed.
     //     c) If >= 3 PS-p clusters in neighbouring columns (r-z) have
     //        the same row (r-phi) centroid, all these clusters are
     //        vetoed.
@@ -173,7 +173,7 @@ void TTClusterAlgorithmNew_official::algoWithVetoes(const edm::DetSet<Phase2Trac
                 // Three-column veto: all three clusters are vetoed.
                 old_clus->veto = true;
                 prev_clus->veto = true;
-                // curr_clus already vetoed above.
+                curr_clus->veto = true;
               }
             }
             curr_clus++;
