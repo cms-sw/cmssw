@@ -29,7 +29,7 @@ geomName = options.geomName
 geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
-fileName = "hgcV" + geomName + ".root"
+fileName = "hgc" + geomName + ".root"
 
 print("Geometry Name:   ", geomName)
 print("Geom file Name:  ", geomFile)

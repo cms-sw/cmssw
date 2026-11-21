@@ -39,6 +39,8 @@ else:
     process = cms.Process("PROD",Phase2C22I13M9,phase2_hgcalOnly,phase2_hgcalV18)
     
 geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "Reco_cff"
+fileName = "hgc" + options.type + ".root"
+print("o/p File Name: ", fileName)
 print("Geometry file: ", geomFile)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -91,7 +93,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 
 process.output = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('hgcV18O.root')
+    fileName = cms.untracked.string(fileName)
 )
 
 process.hgcalHitScintillator.tileFileName = "extraTiles.txt"

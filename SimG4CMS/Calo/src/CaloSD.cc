@@ -806,9 +806,9 @@ void CaloSD::update(const ::EndOfEvent*) {
       continue;
     }
     slave[k].get()->ReserveMemory(theHC[k]->entries());
-#ifdef EDM_ML_DEBUG
+    //#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("CaloSim") << "CaloSD:" << slave[k]->name() << " Entries " << theHC[k]->entries();
-#endif
+    //#endif
     int count(0);
     double eEM(0.0);
     double eHAD(0.0);

@@ -1,5 +1,3 @@
-
-
 ###############################################################################
 # Way to use this:
 #   cmsRun runHGC1_cfg.py geometry=V18
@@ -37,7 +35,10 @@ else:
     process = cms.Process("PROD",Phase2C22I13M9)
 
 geomFile = "Geometry.HGCalCommonData.testHGCal" + options.geometry + "Reco_cff"
+fileName = "hgc" + options.geometry + ".root"
+
 print("Geometry file: ", geomFile)
+print("o/p File name: ", fileName)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load('Configuration.StandardSequences.Generator_cff')
@@ -91,7 +92,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 
 process.output = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('hgcV14.root')
+    fileName = cms.untracked.string(fileName)
 )
 
 process.generation_step = cms.Path(process.pgen)
