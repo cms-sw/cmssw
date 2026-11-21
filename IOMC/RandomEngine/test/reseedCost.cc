@@ -28,9 +28,9 @@ namespace {
     return std::chrono::duration<double, std::nano>(stop - start).count() / kCalls;
   }
 
-  long streamWord(std::uint32_t event, unsigned int word) {
-    return static_cast<long>(edm::philox::streamId(1234567, 42, 1, 1, event)[word]);
-  }
+  edm::philox::Counter streamOf(std::uint32_t event) { return edm::philox::streamId(1234567, 42, 1, 1, event); }
+
+  long streamWord(std::uint32_t event, unsigned int word) { return static_cast<long>(streamOf(event)[word]); }
 }  // namespace
 
 int main() {
@@ -48,12 +48,13 @@ int main() {
                 return james.flat();
               }));
   std::printf("%-40s %12.1f\n", "MixMaxRng::setSeed", nanosecondsPerCall([&](std::uint32_t event) {
-                mixMax.setSeed(streamWord(event, 0), 0);
+                auto const id = streamOf(event);
+                mixMax.setSeed(static_cast<long>((static_cast<std::uint64_t>(id[1]) << 32) | id[0]), 0);
                 return mixMax.flat();
               }));
   std::printf("%-40s %12.1f\n", "MixMaxRng::setSeeds(4 words)", nanosecondsPerCall([&](std::uint32_t event) {
-                long const seeds[4] = {
-                    streamWord(event, 0), streamWord(event, 1), streamWord(event, 2), streamWord(event, 3)};
+                auto const id = streamOf(event);
+                long const seeds[4] = {id[0], id[1], id[2], id[3]};
                 mixMax.setSeeds(seeds, 4);
                 return mixMax.flat();
               }));
@@ -62,8 +63,8 @@ int main() {
                 return tRandom.flat();
               }));
   std::printf("%-40s %12.1f\n", "PhiloxEngine::setSeeds(4 words)", nanosecondsPerCall([&](std::uint32_t event) {
-                long const seeds[4] = {
-                    streamWord(event, 0), streamWord(event, 1), streamWord(event, 2), streamWord(event, 3)};
+                auto const id = streamOf(event);
+                long const seeds[4] = {id[0], id[1], id[2], id[3]};
                 philox.setSeeds(seeds, 4);
                 return philox.flat();
               }));
