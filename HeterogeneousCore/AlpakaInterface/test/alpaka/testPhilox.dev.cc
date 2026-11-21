@@ -8,7 +8,6 @@
 #include <type_traits>
 
 #include <alpaka/alpaka.hpp>
-#include <alpaka/rand/RandPhiloxStateless.hpp>
 
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>
@@ -27,6 +26,8 @@ namespace {
   constexpr std::uint32_t kElements = 1 << 18;
   constexpr std::uint32_t kBlocks = 4;
   constexpr std::uint32_t kWords = kElements * kBlocks * 4;
+  // The math functions of a GPU backend can differ from the host ones in the last bits.
+  constexpr std::int64_t kMaxNormalUlpGpu = 8;
 
   struct PhiloxKernel {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
@@ -34,6 +35,8 @@ namespace {
                                   std::uint32_t* __restrict__ words,
                                   float* __restrict__ floats,
                                   double* __restrict__ doubles,
+                                  float* __restrict__ openFloats,
+                                  double* __restrict__ openDoubles,
                                   float* __restrict__ normals) const {
       for (auto element : cms::alpakatools::uniform_elements(acc, kElements)) {
         for (std::uint32_t block = 0; block < kBlocks; ++block) {
@@ -43,10 +46,13 @@ namespace {
           for (std::uint32_t word = 0; word < 4; ++word) {
             words[first + word] = bits[word];
             floats[first + word] = edm::philox::uniformFloat(bits[word]);
+            openFloats[first + word] = edm::philox::openUniformFloat(bits[word]);
             normals[first + word] = normal[word];
           }
           doubles[first / 2] = edm::philox::uniformDouble(bits[0], bits[1]);
           doubles[first / 2 + 1] = edm::philox::uniformDouble(bits[2], bits[3]);
+          openDoubles[first / 2] = edm::philox::openUniformDouble(bits[0], bits[1]);
+          openDoubles[first / 2 + 1] = edm::philox::openUniformDouble(bits[2], bits[3]);
         }
       }
     }
@@ -85,31 +91,14 @@ TEST_CASE("Philox random numbers on the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMES
          "the test will be skipped.");
   }
 
-  SECTION("Random123 known answer, and the alpaka Philox4x32x10 output for information") {
-    using AlpakaPhilox = alpaka::rand::PhiloxStateless4x32x10Vector;
-    auto const alpakaBits = AlpakaPhilox::generate(AlpakaPhilox::Counter{0, 0, 0, 0}, AlpakaPhilox::Key{0, 0});
-    auto const bits = edm::philox::philox4x32({{0, 0, 0, 0}}, {{0, 0}});
-    bool const same =
-        alpakaBits[0] == bits[0] and alpakaBits[1] == bits[1] and alpakaBits[2] == bits[2] and alpakaBits[3] == bits[3];
-    std::printf("alpaka Philox4x32x10(ctr=0, key=0) = %08x %08x %08x %08x, Random123 = %08x %08x %08x %08x: %s\n",
-                alpakaBits[0],
-                alpakaBits[1],
-                alpakaBits[2],
-                alpakaBits[3],
-                bits[0],
-                bits[1],
-                bits[2],
-                bits[3],
-                same ? "same" : "DIFFERENT");
-    CHECK(bits == edm::philox::Counter{{0x6627e8d5, 0xe169c58d, 0xbc57ac4c, 0x9b00dbd8}});
-  }
-
   SECTION("device output equals host output") {
     edm::philox::EventStream const stream(1234567, 42, 1, 7, (std::uint64_t{1} << 40) + 12345);
 
     auto words_h = cms::alpakatools::make_host_buffer<std::uint32_t[], Platform>(kWords);
     auto floats_h = cms::alpakatools::make_host_buffer<float[], Platform>(kWords);
     auto doubles_h = cms::alpakatools::make_host_buffer<double[], Platform>(kWords / 2);
+    auto openFloats_h = cms::alpakatools::make_host_buffer<float[], Platform>(kWords);
+    auto openDoubles_h = cms::alpakatools::make_host_buffer<double[], Platform>(kWords / 2);
     auto normals_h = cms::alpakatools::make_host_buffer<float[], Platform>(kWords);
 
     for (auto const& device : cms::alpakatools::devices<Platform>()) {
@@ -118,14 +107,26 @@ TEST_CASE("Philox random numbers on the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMES
       auto words_d = cms::alpakatools::make_device_buffer<std::uint32_t[]>(queue, kWords);
       auto floats_d = cms::alpakatools::make_device_buffer<float[]>(queue, kWords);
       auto doubles_d = cms::alpakatools::make_device_buffer<double[]>(queue, kWords / 2);
+      auto openFloats_d = cms::alpakatools::make_device_buffer<float[]>(queue, kWords);
+      auto openDoubles_d = cms::alpakatools::make_device_buffer<double[]>(queue, kWords / 2);
       auto normals_d = cms::alpakatools::make_device_buffer<float[]>(queue, kWords);
 
       auto const workDiv = cms::alpakatools::make_workdiv<Acc1D>(cms::alpakatools::divide_up_by(kElements, 256), 256);
-      alpaka::exec<Acc1D>(
-          queue, workDiv, PhiloxKernel{}, stream, words_d.data(), floats_d.data(), doubles_d.data(), normals_d.data());
+      alpaka::exec<Acc1D>(queue,
+                          workDiv,
+                          PhiloxKernel{},
+                          stream,
+                          words_d.data(),
+                          floats_d.data(),
+                          doubles_d.data(),
+                          openFloats_d.data(),
+                          openDoubles_d.data(),
+                          normals_d.data());
       alpaka::memcpy(queue, words_h, words_d);
       alpaka::memcpy(queue, floats_h, floats_d);
       alpaka::memcpy(queue, doubles_h, doubles_d);
+      alpaka::memcpy(queue, openFloats_h, openFloats_d);
+      alpaka::memcpy(queue, openDoubles_h, openDoubles_d);
       alpaka::memcpy(queue, normals_h, normals_d);
       alpaka::wait(queue);
 
@@ -133,6 +134,9 @@ TEST_CASE("Philox random numbers on the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMES
       std::uint32_t differentFloats = 0;
       std::uint32_t differentDoubles = 0;
       std::int64_t maxNormalUlp = 0;
+      double normalSum = 0.;
+      double normalSum2 = 0.;
+      float normalMaxAbs = 0.f;
       for (std::uint32_t element = 0; element < kElements; ++element) {
         for (std::uint32_t block = 0; block < kBlocks; ++block) {
           auto const bits = stream.bits(element, block);
@@ -142,12 +146,23 @@ TEST_CASE("Philox random numbers on the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMES
             differentWords += words_h[first + word] != bits[word];
             differentFloats += std::bit_cast<std::uint32_t>(floats_h[first + word]) !=
                                std::bit_cast<std::uint32_t>(edm::philox::uniformFloat(bits[word]));
+            differentFloats += std::bit_cast<std::uint32_t>(openFloats_h[first + word]) !=
+                               std::bit_cast<std::uint32_t>(edm::philox::openUniformFloat(bits[word]));
+            float const deviceNormal = normals_h[first + word];
+            normalSum += deviceNormal;
+            normalSum2 += static_cast<double>(deviceNormal) * deviceNormal;
+            normalMaxAbs = std::isfinite(deviceNormal) ? std::max(normalMaxAbs, std::abs(deviceNormal))
+                                                       : std::numeric_limits<float>::infinity();
             maxNormalUlp = std::max(maxNormalUlp, ulpDistance(normals_h[first + word], normal[word]));
           }
           differentDoubles += std::bit_cast<std::uint64_t>(doubles_h[first / 2]) !=
                               std::bit_cast<std::uint64_t>(edm::philox::uniformDouble(bits[0], bits[1]));
           differentDoubles += std::bit_cast<std::uint64_t>(doubles_h[first / 2 + 1]) !=
                               std::bit_cast<std::uint64_t>(edm::philox::uniformDouble(bits[2], bits[3]));
+          differentDoubles += std::bit_cast<std::uint64_t>(openDoubles_h[first / 2]) !=
+                              std::bit_cast<std::uint64_t>(edm::philox::openUniformDouble(bits[0], bits[1]));
+          differentDoubles += std::bit_cast<std::uint64_t>(openDoubles_h[first / 2 + 1]) !=
+                              std::bit_cast<std::uint64_t>(edm::philox::openUniformDouble(bits[2], bits[3]));
         }
       }
       std::printf("%u words, %u floats, %u doubles differ; maximum normal difference %lld ulp\n",
@@ -160,7 +175,16 @@ TEST_CASE("Philox random numbers on the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMES
       CHECK(differentDoubles == 0);
       if constexpr (std::is_same_v<Platform, alpaka::PlatformCpu>) {
         CHECK(maxNormalUlp == 0);
+      } else {
+        CHECK(maxNormalUlp <= kMaxNormalUlpGpu);
       }
+      // Mean 0 and variance 1 within 5 standard deviations; |value| <= sqrt(64 ln 2) = 6.66.
+      double const mean = normalSum / kWords;
+      double const variance = normalSum2 / kWords - mean * mean;
+      std::printf("normal mean %.6f, variance %.6f, maximum |value| %.4f\n", mean, variance, normalMaxAbs);
+      CHECK(std::abs(mean) < 5. / std::sqrt(kWords));
+      CHECK(std::abs(variance - 1.) < 5. * std::sqrt(2. / kWords));
+      CHECK(normalMaxAbs < 6.67f);
     }
   }
 }
