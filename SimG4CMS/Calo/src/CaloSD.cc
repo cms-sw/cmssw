@@ -1077,7 +1077,7 @@ void CaloSD::cleanHitCollection() {
     std::vector<CaloG4Hit*>* theCollection = theHC[k]->GetVector();
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("CaloSim") << "CaloSD: collection " << k << ":" << slave[k]->name()
+    edm::LogVerbatim("CaloSim") << "CaloSD: collection " << k << ":" << theHC[k]->GetName()
                                 << " before merging, size = " << theHC[k]->entries();
 #endif
     if (reusehit[k].empty())
