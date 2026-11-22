@@ -7,6 +7,7 @@
 */
 
 #include <iostream>
+#include <memory>
 #include <string>
 
 #include "FWCore/Framework/interface/Event.h"
@@ -55,7 +56,7 @@ namespace edm {
     auto bare_product = std::make_unique<HepMCProduct>();
     bare_product->addHepMCData(evt_);
     e.put(std::move(bare_product), "generator");
-    std::unique_ptr<GenEventInfoProduct> info(new GenEventInfoProduct(evt_));
+    std::unique_ptr<GenEventInfoProduct> info = std::make_unique<GenEventInfoProduct>(evt_);
     e.put(std::move(info), "generator");
   }
 
