@@ -198,14 +198,14 @@ ParticleNetJetTagMonitor::ParticleNetJetTagMonitor(const edm::ParameterSet& iCon
       vetoElectronIDToken_(consumes<edm::ValueMap<bool>>(iConfig.getParameter<edm::InputTag>("vetoElectronID"))),
       jetToken_(consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
       jetPNETScoreToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("jetPNETScore"))),
-      jetPNETScoreHLTToken_(mayConsume<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("jetPNETScoreHLT"))),
-      jetForHTandBTagToken_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jetsForHTandBTag"))),
+      jetPNETScoreHLTToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("jetPNETScoreHLT"))),
+      jetForHTandBTagToken_(consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jetsForHTandBTag"))),
       jetPNETScoreForHTandBTagToken_(
-          mayConsume<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("jetPNETScoreForHTandBTag"))),
-      jetSoftDropMassToken_(mayConsume<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("jetSoftDropMass"))),
+          consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("jetPNETScoreForHTandBTag"))),
+      jetSoftDropMassToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("jetSoftDropMass"))),
       metToken_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("met"))),
-      jecMCToken_(mayConsume<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("jecForMC"))),
-      jecDataToken_(mayConsume<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("jecForData"))),
+      jecMCToken_(consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("jecForMC"))),
+      jecDataToken_(consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("jecForData"))),
       numGenericTriggerEvent_(new GenericTriggerEventFlag(
           iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEvent"), consumesCollector(), *this)),
       denGenericTriggerEvent_(new GenericTriggerEventFlag(

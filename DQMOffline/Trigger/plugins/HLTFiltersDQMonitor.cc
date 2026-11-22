@@ -102,7 +102,7 @@ HLTFiltersDQMonitor::HLTFiltersDQMonitor(const edm::ParameterSet& iConfig)
       initFailed_ = true;
       return;
     }
-    triggerEventWithRefsToken_ = mayConsume<trigger::TriggerEventWithRefs>(triggerEventWithRefsInputTag);
+    triggerEventWithRefsToken_ = consumes<trigger::TriggerEventWithRefs>(triggerEventWithRefsInputTag);
   }
 }
 

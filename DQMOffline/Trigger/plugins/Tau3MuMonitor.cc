@@ -51,7 +51,7 @@ Tau3MuMonitor::Tau3MuMonitor(const edm::ParameterSet& iConfig)
     : folderName_(iConfig.getParameter<std::string>("FolderName")),
       requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
       hltPathsAreValid_(false),
-      tauToken_(mayConsume<reco::CompositeCandidateCollection>(iConfig.getParameter<edm::InputTag>("taus"))),
+      tauToken_(consumes<reco::CompositeCandidateCollection>(iConfig.getParameter<edm::InputTag>("taus"))),
       pt_binning_(
           getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("ptPSet"))),
       eta_binning_(getHistoPSet(

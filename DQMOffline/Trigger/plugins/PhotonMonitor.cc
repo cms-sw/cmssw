@@ -113,9 +113,9 @@ PhotonMonitor::PhotonMonitor(const edm::ParameterSet& iConfig)
       requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
       hltPathsAreValid_(false),
       metToken_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("met"))),
-      jetToken_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
-      eleToken_(mayConsume<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
-      photonToken_(mayConsume<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
+      jetToken_(consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
+      eleToken_(consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
+      photonToken_(consumes<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
       photon_variable_binning_(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("photonBinning")),
       diphoton_mass_binning_(

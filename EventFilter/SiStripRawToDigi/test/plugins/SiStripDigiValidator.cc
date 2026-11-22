@@ -68,10 +68,10 @@ SiStripDigiValidator::SiStripDigiValidator(const edm::ParameterSet& conf)
      << tag2_.instance() << ":" << tag2_.process() << "\"" << std::endl;
   header_ = ss.str();
 
-  mayConsume<edm::DetSetVector<SiStripDigi> >(tag1_);
-  mayConsume<edm::DetSetVector<SiStripRawDigi> >(tag1_);
-  mayConsume<edm::DetSetVector<SiStripDigi> >(tag2_);
-  mayConsume<edm::DetSetVector<SiStripRawDigi> >(tag2_);
+  consumes<edm::DetSetVector<SiStripDigi> >(tag1_);
+  consumes<edm::DetSetVector<SiStripRawDigi> >(tag1_);
+  consumes<edm::DetSetVector<SiStripDigi> >(tag2_);
+  consumes<edm::DetSetVector<SiStripRawDigi> >(tag2_);
 }
 
 void SiStripDigiValidator::endJob() {

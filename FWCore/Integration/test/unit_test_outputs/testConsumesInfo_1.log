@@ -285,7 +285,7 @@ stating whether it matched the actual module label of the producer.
       ESTestRecordC edmtest::IOVTestInfo '' EndRun, EventSetup module label mismatch, requested 'moduleLabelThatDoesNotMatch'
   ConsumingStreamAnalyzer/'testStreamingAnalyzer'
     consumes:
-      edmtest::IntProduct 'testStreamingProducer' '' '', may consume
+      edmtest::IntProduct 'testStreamingProducer' '' ''
   IntProducer/'testStreamingProducer'
   TestFindProduct/'testView1'
     consumes:

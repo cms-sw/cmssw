@@ -78,17 +78,17 @@ SiStripCommissioningSource::SiStripCommissioningSource(const edm::ParameterSet& 
       parameters_(pset) {
   usesResource("DQMStore");
   inputModuleSummaryToken_ = consumes<SiStripEventSummary>(edm::InputTag(inputModuleLabelSummary_));
-  digiVirginRawToken_ = mayConsume<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_, "VirginRaw"));
+  digiVirginRawToken_ = consumes<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_, "VirginRaw"));
   digiFineDelaySelectionToken_ =
-      mayConsume<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_, "FineDelaySelection"));
-  digiReorderedToken_ = mayConsume<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_, "Reordered"));
+      consumes<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_, "FineDelaySelection"));
+  digiReorderedToken_ = consumes<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_, "Reordered"));
   /////////////////
   if (not isSpy_)
-    digiScopeModeToken_ = mayConsume<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_, "ScopeMode"));
+    digiScopeModeToken_ = consumes<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_, "ScopeMode"));
   else {
     digiScopeModeToken_ =
-        mayConsume<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabelAlt_, "ScopeRawDigis"));
-    clustersToken_ = mayConsume<edmNew::DetSetVector<SiStripCluster> >(edm::InputTag(inputClusterLabel_));
+        consumes<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabelAlt_, "ScopeRawDigis"));
+    clustersToken_ = consumes<edmNew::DetSetVector<SiStripCluster> >(edm::InputTag(inputClusterLabel_));
   }
   /////////////////
   LogTrace(mlDqmSource_) << "[SiStripCommissioningSource::" << __func__ << "]"

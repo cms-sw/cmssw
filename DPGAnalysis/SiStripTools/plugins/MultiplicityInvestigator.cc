@@ -116,7 +116,7 @@ MultiplicityInvestigator::MultiplicityInvestigator(const edm::ParameterSet& iCon
       m_multiplicityMapToken(
           consumes<std::map<unsigned int, int> >(iConfig.getParameter<edm::InputTag>("multiplicityMap"))),
       m_vertexCollectionToken(
-          mayConsume<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"))) {
+          consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"))) {
   //now do what ever initialization is needed
 
   if (m_wantInvestHist) {
