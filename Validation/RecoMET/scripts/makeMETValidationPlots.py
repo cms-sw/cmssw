@@ -120,6 +120,7 @@ def printOptions(args, sample_why):
         ('Collections',           what),
         ('Input file',            args.file if args.file else '-'),
         ('Normalise HLT vs offline', onoff(args.normalize)),
+        ('Scan file',             args.scan_file if args.scan_file else '-'),
         ('Offline file',          args.offline_file if args.offline_file else '-'),
         ('Output directory',      args.odir),
         ('Sample label',          args.sample_label),
@@ -618,7 +619,7 @@ def plot1DOverlay(afile, adir, folders, avars, outdir, metType, legend_title=Non
 
 def plotScan(afile, adir, metType, outdir):
     """
-    Overlays MEx, MEy and METPhi of the cut scan produced by `addMHTScanHLT` in `<adir>`:
+    Overlays MEx, MEy and METPhi of the cut scan produced by `addMHTScanHLT` or `addMHTScanOffline` in `<adir>`:
     all cuts in `Overlay_cuts`, and, for each cut, the pdgId split in `Overlay_pdgid/<cut>`.
     """
     avars = {k: v for k, v in varsToPlot(metType)[0].items() if k in ('MEx', 'MEy', 'METPhi')}
@@ -822,7 +823,9 @@ if __name__ == '__main__':
                              'disable with --no-show_flow).')
     parser.add_argument('--overlay_scan', action='store_true',
                         help='Also overlay the normalised MEx, MEy and METPhi of the cut scan (and its pdgId split) '
-                             'found in the sub-folders of each --met collection (see addMHTScanHLT).')
+                             'found in the sub-folders of each --met collection (see addMHTScanHLT and addMHTScanOffline).')
+    parser.add_argument('--scan_file', default=None,
+                        help='DQM ROOT file with the cut scan, if different from --file (for --overlay_scan).')
     parser.add_argument('-p', '--period', default="Phase-2", required=False, choices=('Phase-2', 'Run 3'), help='Data-taking period; also sets the center-of-mass energy in the plot label.')
 
     mutual_excl1 = parser.add_mutually_exclusive_group(required=True)
@@ -850,6 +853,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.compare_hlt_offline and (not args.file or not args.offline_file):
         parser.error("--compare_hlt_offline requires --file (HLT) and --offline_file.")
+    if args.scan_file and not args.overlay_scan:
+        parser.error("--scan_file is only used with --overlay_scan.")
     if args.offline_file and not args.compare_hlt_offline:
         parser.error("--offline_file is only used with --compare_hlt_offline.")
 
@@ -861,9 +866,6 @@ if __name__ == '__main__':
     except ValueError as e:
         parser.error(str(e))
     printOptions(args, why)
-    if args.overlay_scan and args.step != 'HLT':
-        print(" ### WARNING: --overlay_scan is only available for the HLT step, ignoring it.")
-        args.overlay_scan = False
 
     createDir(args.odir)
     if args.met:
@@ -929,6 +931,7 @@ if __name__ == '__main__':
     else:
         afile = ROOT.TFile.Open(args.file)
         dqm_dir = DQM_DIRS[args.step]
+        scan_file = ROOT.TFile.Open(args.scan_file) if args.scan_file else afile
 
         # Plot MET variables
         for metType in args.met:
@@ -939,7 +942,7 @@ if __name__ == '__main__':
             plotVars(afile, dqm_dir_met, varsToPlot(metType)[1], outdir=os.path.join(args.odir, metType),
                      mode='2D', metType=METType[metType])
             if args.overlay_scan:
-                plotScan(afile, dqm_dir_met, metType, outdir=os.path.join(args.odir, metType))
+                plotScan(scan_file, dqm_dir_met, metType, outdir=os.path.join(args.odir, metType))
 
         # Plot MET vs MHT comparisons, one folder per MET-MHT pair
         metvsmht_dir = afile.Get(os.path.join(dqm_dir, 'METvsMHT'))
