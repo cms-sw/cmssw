@@ -41,7 +41,7 @@ namespace edm {
       std::string returnValue = processFromInputTag;
       returnValue += " (";
       returnValue += currentProcess;
-      returnValue += ")";
+      returnValue += ')';
       return returnValue;
     }
     return processFromInputTag;
