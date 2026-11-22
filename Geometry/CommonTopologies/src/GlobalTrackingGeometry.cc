@@ -68,7 +68,7 @@ const TrackingGeometry* GlobalTrackingGeometry::slaveGeometry(DetId id) const {
 
 const TrackingGeometry::DetTypeContainer& GlobalTrackingGeometry::detTypes(void) const {
   if (!theDetTypes.load(std::memory_order_acquire)) {
-    std::unique_ptr<DetTypeContainer> ptr{new DetTypeContainer()};
+    std::unique_ptr<DetTypeContainer> ptr = std::make_unique<DetTypeContainer>();
     for (auto theGeometrie : theGeometries) {
       if (theGeometrie == nullptr)
         continue;
@@ -88,7 +88,7 @@ const TrackingGeometry::DetTypeContainer& GlobalTrackingGeometry::detTypes(void)
 
 const TrackingGeometry::DetContainer& GlobalTrackingGeometry::detUnits(void) const {
   if (!theDetUnits.load(std::memory_order_acquire)) {
-    std::unique_ptr<DetContainer> ptr{new DetContainer()};
+    std::unique_ptr<DetContainer> ptr = std::make_unique<DetContainer>();
     for (auto theGeometrie : theGeometries) {
       if (theGeometrie == nullptr)
         continue;
@@ -108,7 +108,7 @@ const TrackingGeometry::DetContainer& GlobalTrackingGeometry::detUnits(void) con
 
 const TrackingGeometry::DetContainer& GlobalTrackingGeometry::dets(void) const {
   if (!theDets.load(std::memory_order_acquire)) {
-    std::unique_ptr<DetContainer> ptr{new DetContainer()};
+    std::unique_ptr<DetContainer> ptr = std::make_unique<DetContainer>();
     for (auto theGeometrie : theGeometries) {
       if (theGeometrie == nullptr)
         continue;
@@ -128,7 +128,7 @@ const TrackingGeometry::DetContainer& GlobalTrackingGeometry::dets(void) const {
 
 const TrackingGeometry::DetIdContainer& GlobalTrackingGeometry::detUnitIds(void) const {
   if (!theDetUnitIds.load(std::memory_order_acquire)) {
-    std::unique_ptr<DetIdContainer> ptr{new DetIdContainer()};
+    std::unique_ptr<DetIdContainer> ptr = std::make_unique<DetIdContainer>();
     for (auto theGeometrie : theGeometries) {
       if (theGeometrie == nullptr)
         continue;
@@ -148,7 +148,7 @@ const TrackingGeometry::DetIdContainer& GlobalTrackingGeometry::detUnitIds(void)
 
 const TrackingGeometry::DetIdContainer& GlobalTrackingGeometry::detIds(void) const {
   if (!theDetIds.load(std::memory_order_acquire)) {
-    std::unique_ptr<DetIdContainer> ptr{new DetIdContainer()};
+    std::unique_ptr<DetIdContainer> ptr = std::make_unique<DetIdContainer>();
     for (auto theGeometrie : theGeometries) {
       if (theGeometrie == nullptr)
         continue;

@@ -12,6 +12,8 @@
 */
 
 #include "Geometry/ForwardGeometry/plugins/ZdcTopologyEP.h"
+
+#include <memory>
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -42,6 +44,6 @@ ZdcTopologyEP::ReturnType ZdcTopologyEP::produce(const HcalRecNumberingRecord& i
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "mode = " << hdc.getTopoMode();
 #endif
-  ReturnType myTopo(new ZdcTopology(&hdc));
+  ReturnType myTopo = std::make_unique<ZdcTopology>(&hdc);
   return myTopo;
 }
