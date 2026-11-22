@@ -310,7 +310,7 @@ std::pair<bool, std::string> DDIsValid(const std::string& ns,
       std::vector<DDName>::const_iterator vit = it->second.begin();
       for (; vit != it->second.end(); ++vit) {
         message += vit->ns();
-        message += " ";
+        message += ' ';
       }
       message += "\nQualify the name with a regexp for the namespace, i.e \".*:name-regexp\" !";
       return std::make_pair(false, message);

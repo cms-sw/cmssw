@@ -101,7 +101,7 @@ void DDGEMAngular::execute(DDCompactView& cpv) {
     std::string rotstr("RG");
 
     if (invert > 0)
-      rotstr += "I";
+      rotstr += 'I';
     rotstr += formatAsDegrees(phitmp);
     rotation = DDRotation(DDName(rotstr, rotns));
     if (!rotation) {

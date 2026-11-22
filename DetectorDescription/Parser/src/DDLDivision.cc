@@ -95,7 +95,7 @@ DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision& div, DDCompa
         std::string s = "DDLDivision can not divide a ";
         s += DDSolidShapesName::name(div.parent().solid().shape());
         s += " along axis " + DDAxesNames::name(div.axis());
-        s += ".";
+        s += '.';
         s += "\n    name= " + div.name().ns() + ":" + div.name().name();
         s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
         throwError(s);
@@ -113,7 +113,7 @@ DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision& div, DDCompa
         std::string s = "DDLDivision can not divide a ";
         s += DDSolidShapesName::name(div.parent().solid().shape());
         s += " along axis " + DDAxesNames::name(div.axis());
-        s += ".";
+        s += '.';
         s += "\n    name= " + div.name().ns() + ":" + div.name().name();
         s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
         throwError(s);
@@ -132,7 +132,7 @@ DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision& div, DDCompa
         s += DDSolidShapesName::name(div.parent().solid().shape());
         s += " along axis ";
         s += DDAxesNames::name(div.axis());
-        s += ".";
+        s += '.';
         s += "\n    name= " + div.name().ns() + ":" + div.name().name();
         s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
         throwError(s);
@@ -150,7 +150,7 @@ DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision& div, DDCompa
         std::string s = "DDLDivision can not divide a ";
         s += DDSolidShapesName::name(div.parent().solid().shape());
         s += " along axis " + DDAxesNames::name(div.axis());
-        s += ".";
+        s += '.';
         s += "\n    name= " + div.name().ns() + ":" + div.name().name();
         s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
         throwError(s);
@@ -169,7 +169,7 @@ DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision& div, DDCompa
         s += DDSolidShapesName::name(div.parent().solid().shape());
         s += " along axis ";
         s += DDAxesNames::name(div.axis());
-        s += ".";
+        s += '.';
         s += "\n    name= " + div.name().ns() + ":" + div.name().name();
         s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
         throwError(s);
@@ -188,7 +188,7 @@ DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision& div, DDCompa
         s += DDSolidShapesName::name(div.parent().solid().shape());
         s += " along axis ";
         s += DDAxesNames::name(div.axis());
-        s += ".";
+        s += '.';
         s += "\n    name= " + div.name().ns() + ":" + div.name().name();
         s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
         throwError(s);

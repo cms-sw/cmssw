@@ -121,7 +121,7 @@ namespace externalgen {
     std::string unique_name(std::string iBase) {
       auto pid = getpid();
       iBase += std::to_string(pid);
-      iBase += "_";
+      iBase += '_';
       iBase += std::to_string(id_);
 
       return iBase;
@@ -243,7 +243,7 @@ process = TestProcess()
 process.add_(cms.Service("InitRootHandlers", AbortOnSignal=cms.untracked.bool(False)))
   )_";
   if (not extraConfig_.empty()) {
-    config += "\n";
+    config += '\n';
     config += extraConfig_;
   }
 
