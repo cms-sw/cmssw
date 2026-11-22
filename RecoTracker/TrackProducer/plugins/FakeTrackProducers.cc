@@ -9,6 +9,8 @@
   \author   Giovanni Petrucciani
 */
 
+#include <memory>
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -83,11 +85,11 @@ void FakeTrackProducer<T>::produce(edm::Event &iEvent, const edm::EventSetup &iS
   Handle<vector<T>> src;
   iEvent.getByToken(src_, src);
 
-  unique_ptr<vector<reco::Track>> out(new vector<reco::Track>());
+  unique_ptr<vector<reco::Track>> out = std::make_unique<vector<reco::Track>>();
   out->reserve(src->size());
-  unique_ptr<vector<reco::TrackExtra>> outEx(new vector<reco::TrackExtra>());
+  unique_ptr<vector<reco::TrackExtra>> outEx = std::make_unique<vector<reco::TrackExtra>>();
   outEx->reserve(src->size());
-  unique_ptr<OwnVector<TrackingRecHit>> outHits(new OwnVector<TrackingRecHit>());
+  unique_ptr<OwnVector<TrackingRecHit>> outHits = std::make_unique<OwnVector<TrackingRecHit>>();
 
   TrackingRecHitRefProd rHits = iEvent.getRefBeforePut<TrackingRecHitCollection>();
   reco::TrackExtraRefProd rTrackExtras = iEvent.getRefBeforePut<reco::TrackExtraCollection>();

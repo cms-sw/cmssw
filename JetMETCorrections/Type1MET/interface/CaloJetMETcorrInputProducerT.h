@@ -30,6 +30,7 @@
 
 #include "JetMETCorrections/Type1MET/interface/JetCorrExtractorT.h"
 
+#include <memory>
 #include <string>
 #include <type_traits>
 
@@ -88,9 +89,9 @@ public:
 
 private:
   void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const override {
-    std::unique_ptr<CorrMETData> type1Correction(new CorrMETData());
-    std::unique_ptr<CorrMETData> unclEnergySum(new CorrMETData());
-    std::unique_ptr<CorrMETData> offsetEnergySum(new CorrMETData());
+    std::unique_ptr<CorrMETData> type1Correction = std::make_unique<CorrMETData>();
+    std::unique_ptr<CorrMETData> unclEnergySum = std::make_unique<CorrMETData>();
+    std::unique_ptr<CorrMETData> offsetEnergySum = std::make_unique<CorrMETData>();
 
     edm::Handle<reco::JetCorrector> jetCorr;
     evt.getByToken(jetCorrToken_, jetCorr);

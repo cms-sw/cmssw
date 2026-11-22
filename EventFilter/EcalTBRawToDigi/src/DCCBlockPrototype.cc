@@ -207,7 +207,7 @@ std::string DCCTBBlockPrototype::formatString(std::string myString, uint32_t min
   uint32_t stringSize = ret.size();
   if (minPositions > stringSize) {
     for (uint32_t i = 0; i < minPositions - stringSize; i++) {
-      ret += " ";
+      ret += ' ';
     }
   }
   return ret;

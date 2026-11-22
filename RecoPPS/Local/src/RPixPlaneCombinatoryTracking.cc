@@ -353,7 +353,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
     for (const auto &plane : listOfPlaneNotUsedForFit) {
       CTPPSPixelDetId tmpPlaneId = romanPotId_;  //in order to avoid to modify the data member
       tmpPlaneId.setPlane(plane);
-      std::unique_ptr<CTPPSPixelFittedRecHit> fittedRecHit(new CTPPSPixelFittedRecHit());
+      std::unique_ptr<CTPPSPixelFittedRecHit> fittedRecHit = std::make_unique<CTPPSPixelFittedRecHit>();
       GlobalPoint pointOnDet;
       calculatePointOnDetector(&bestTrack, tmpPlaneId, pointOnDet);
 

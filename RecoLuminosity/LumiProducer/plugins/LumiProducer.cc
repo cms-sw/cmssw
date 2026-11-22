@@ -54,6 +54,7 @@ from the configuration file, the DB is not implemented yet)
 #include "RecoLuminosity/LumiProducer/interface/Exception.h"
 #include "RecoLuminosity/LumiProducer/interface/ConstantDef.h"
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <memory>
@@ -196,7 +197,7 @@ const std::string LumiProducer::servletTranslation(const std::string& servlet) c
   std::string frontierConnect;
   std::string realconnect;
   cms::concurrency::xercesInitialize();
-  std::unique_ptr<xercesc::XercesDOMParser> parser(new xercesc::XercesDOMParser);
+  std::unique_ptr<xercesc::XercesDOMParser> parser = std::make_unique<xercesc::XercesDOMParser>();
   try {
     parser->setValidationScheme(xercesc::XercesDOMParser::Val_Auto);
     parser->setDoNamespaces(false);

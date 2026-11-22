@@ -93,7 +93,7 @@ void MomentumConstraintProducer::produce(edm::StreamID streamid,
 
   edm::RefProd<std::vector<MomentumConstraint>> rPairs = iEvent.getRefBeforePut<std::vector<MomentumConstraint>>();
 
-  std::unique_ptr<std::vector<MomentumConstraint>> pairs(new std::vector<MomentumConstraint>);
+  std::unique_ptr<std::vector<MomentumConstraint>> pairs = std::make_unique<std::vector<MomentumConstraint>>();
   std::unique_ptr<TrackMomConstraintAssociationCollection> output(
       new TrackMomConstraintAssociationCollection(theTCollection, rPairs));
 

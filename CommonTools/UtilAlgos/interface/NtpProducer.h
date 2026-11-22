@@ -10,6 +10,8 @@
  * - C : Concrete candidate collection type
  *
  */
+#include <memory>
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -33,7 +35,7 @@ private:
   /// label of the collection to be read in
   edm::EDGetTokenT<C> srcToken_;
   /// variable tags
-  std::vector<std::pair<std::string, StringObjectFunction<typename C::value_type> > > tags_;
+  std::vector<std::pair<std::string, StringObjectFunction<typename C::value_type>>> tags_;
   bool lazyParser_;
   std::string prefix_;
   bool eventInfo_;
@@ -45,7 +47,7 @@ NtpProducer<C>::NtpProducer(const edm::ParameterSet& par)
       lazyParser_(par.template getUntrackedParameter<bool>("lazyParser", false)),
       prefix_(par.template getUntrackedParameter<std::string>("prefix", "")),
       eventInfo_(par.template getUntrackedParameter<bool>("eventInfo", true)) {
-  std::vector<edm::ParameterSet> variables = par.template getParameter<std::vector<edm::ParameterSet> >("variables");
+  std::vector<edm::ParameterSet> variables = par.template getParameter<std::vector<edm::ParameterSet>>("variables");
   std::vector<edm::ParameterSet>::const_iterator q = variables.begin(), end = variables.end();
   if (eventInfo_) {
     produces<edm::EventNumber_t>(prefix_ + "EventNumber").setBranchAlias(prefix_ + "EventNumber");
@@ -57,7 +59,7 @@ NtpProducer<C>::NtpProducer(const edm::ParameterSet& par)
     StringObjectFunction<typename C::value_type> quantity(q->getUntrackedParameter<std::string>("quantity"),
                                                           lazyParser_);
     tags_.push_back(std::make_pair(tag, quantity));
-    produces<std::vector<float> >(tag).setBranchAlias(tag);
+    produces<std::vector<float>>(tag).setBranchAlias(tag);
   }
 }
 
@@ -79,11 +81,11 @@ void NtpProducer<C>::produce(edm::Event& iEvent, const edm::EventSetup&) {
     iEvent.put(std::move(run), prefix_ + "RunNumber");
     iEvent.put(std::move(lumi), prefix_ + "LumiBlock");
   }
-  typename std::vector<std::pair<std::string, StringObjectFunction<typename C::value_type> > >::const_iterator
+  typename std::vector<std::pair<std::string, StringObjectFunction<typename C::value_type>>>::const_iterator
       q = tags_.begin(),
       end = tags_.end();
   for (; q != end; ++q) {
-    std::unique_ptr<std::vector<float> > x(new std::vector<float>);
+    std::unique_ptr<std::vector<float>> x = std::make_unique<std::vector<float>>();
     x->reserve(coll->size());
     for (typename C::const_iterator elem = coll->begin(); elem != coll->end(); ++elem) {
       x->push_back(q->second(*elem));

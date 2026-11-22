@@ -60,7 +60,7 @@ void RPCDigiMerger::fillDescriptions(edm::ConfigurationDescriptions& descs) {
 void RPCDigiMerger::produce(edm::Event& event, edm::EventSetup const& setup) {
   // Get the digis
   // new RPCDigiCollection
-  std::unique_ptr<RPCDigiCollection> rpc_digi_collection(new RPCDigiCollection());
+  std::unique_ptr<RPCDigiCollection> rpc_digi_collection = std::make_unique<RPCDigiCollection>();
 
   //Check if its Data
   if (not(cppf_token_.isUninitialized() && omtf_token_.isUninitialized() && twinMux_token_.isUninitialized())) {

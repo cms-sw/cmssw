@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
@@ -63,7 +65,7 @@ public:
 
     auto const deviceView = deviceData.view();
 
-    std::unique_ptr<std::vector<reco::BasicCluster>> clusters(new std::vector<reco::BasicCluster>);
+    std::unique_ptr<std::vector<reco::BasicCluster>> clusters = std::make_unique<std::vector<reco::BasicCluster>>();
     clusters->reserve(deviceData->metadata().size());
 
     // Create a vector of <clusters> locations, where each location holds a
@@ -144,7 +146,7 @@ public:
     // since there is no further merging step needed, we create the
     // layerClustersMask directly here.
     if (detector_ == "HFNose") {
-      std::unique_ptr<std::vector<float>> layerClustersMask(new std::vector<float>);
+      std::unique_ptr<std::vector<float>> layerClustersMask = std::make_unique<std::vector<float>>();
       layerClustersMask->resize(clusterHandle->size(), 1.0);
       iEvent.put(std::move(layerClustersMask), "InitialLayerClustersMask");
     }

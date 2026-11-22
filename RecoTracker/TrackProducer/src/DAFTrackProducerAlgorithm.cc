@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
@@ -236,7 +238,7 @@ bool DAFTrackProducerAlgorithm::buildTrack(const Trajectory vtraj,
   TrajectoryStateOnSurface innertsos;
 
   if (vtraj.isValid()) {
-    std::unique_ptr<Trajectory> theTraj(new Trajectory(vtraj));
+    std::unique_ptr<Trajectory> theTraj = std::make_unique<Trajectory>(vtraj);
 
     if (vtraj.direction() == alongMomentum) {
       //if (theTraj->direction() == oppositeToMomentum) {
@@ -259,13 +261,13 @@ bool DAFTrackProducerAlgorithm::buildTrack(const Trajectory vtraj,
     //    LogDebug("TrackProducer") <<v<<p<<std::endl;
 
     auto algo = (*BeforeDAFTrack)->algo();
-    std::unique_ptr<reco::Track> theTrack(new reco::Track(vtraj.chiSquared(),
-                                                          ndof,  //in the DAF the ndof is not-integer
-                                                          pos,
-                                                          mom,
-                                                          tscbl.trackStateAtPCA().charge(),
-                                                          tscbl.trackStateAtPCA().curvilinearError(),
-                                                          algo));
+    std::unique_ptr<reco::Track> theTrack = std::make_unique<reco::Track>(vtraj.chiSquared(),
+                                                                          ndof,  //in the DAF the ndof is not-integer
+                                                                          pos,
+                                                                          mom,
+                                                                          tscbl.trackStateAtPCA().charge(),
+                                                                          tscbl.trackStateAtPCA().curvilinearError(),
+                                                                          algo);
     theTrack->setQualityMask((*BeforeDAFTrack)->qualityMask());
 
     AlgoProduct aProduct{theTraj.release(), theTrack.release(), vtraj.direction(), 0};

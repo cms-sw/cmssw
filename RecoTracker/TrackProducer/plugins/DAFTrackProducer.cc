@@ -62,7 +62,7 @@ DAFTrackProducer::DAFTrackProducer(const edm::ParameterSet& iConfig)
   produces<reco::TrackCollection>().setBranchAlias(alias_ + "Tracks");
   produces<reco::TrackExtraCollection>().setBranchAlias(alias_ + "TrackExtras");
   produces<TrackingRecHitCollection>().setBranchAlias(alias_ + "RecHits");
-  produces<std::vector<Trajectory> >();
+  produces<std::vector<Trajectory>>();
   produces<TrajTrackAssociationCollection>();
   produces<TrajAnnealingCollection>().setBranchAlias(alias_ + "TrajectoryAnnealing");
   produces<reco::TrackCollection>("beforeDAF").setBranchAlias(alias_ + "TracksBeforeDAF");
@@ -94,25 +94,25 @@ void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   edm::LogInfo("DAFTrackProducer") << "Analyzing event number: " << theEvent.id() << "\n";
 
   //empty output collections
-  std::unique_ptr<TrackingRecHitCollection> outputRHColl(new TrackingRecHitCollection);
-  std::unique_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection);
-  std::unique_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
-  std::unique_ptr<std::vector<Trajectory> > outputTrajectoryColl(new std::vector<Trajectory>);
-  std::unique_ptr<TrajAnnealingCollection> outputTrajAnnColl(new TrajAnnealingCollection);
-  std::unique_ptr<std::vector<int> > outputIndecesInputColl(new std::vector<int>);
+  std::unique_ptr<TrackingRecHitCollection> outputRHColl = std::make_unique<TrackingRecHitCollection>();
+  std::unique_ptr<reco::TrackCollection> outputTColl = std::make_unique<reco::TrackCollection>();
+  std::unique_ptr<reco::TrackExtraCollection> outputTEColl = std::make_unique<reco::TrackExtraCollection>();
+  std::unique_ptr<std::vector<Trajectory>> outputTrajectoryColl = std::make_unique<std::vector<Trajectory>>();
+  std::unique_ptr<TrajAnnealingCollection> outputTrajAnnColl = std::make_unique<TrajAnnealingCollection>();
+  std::unique_ptr<std::vector<int>> outputIndecesInputColl = std::make_unique<std::vector<int>>();
 
   //new tracks collections (changes before and after DAF)
-  std::unique_ptr<TrackingRecHitCollection> outputRHCollBeforeDAF(new TrackingRecHitCollection);
-  std::unique_ptr<reco::TrackCollection> outputTCollBeforeDAF(new reco::TrackCollection);
-  std::unique_ptr<reco::TrackExtraCollection> outputTECollBeforeDAF(new reco::TrackExtraCollection);
-  std::unique_ptr<std::vector<Trajectory> > outputTrajectoryCollBeforeDAF(new std::vector<Trajectory>);
-  std::unique_ptr<std::vector<int> > outputIndecesInputCollBeforeDAF(new std::vector<int>);
+  std::unique_ptr<TrackingRecHitCollection> outputRHCollBeforeDAF = std::make_unique<TrackingRecHitCollection>();
+  std::unique_ptr<reco::TrackCollection> outputTCollBeforeDAF = std::make_unique<reco::TrackCollection>();
+  std::unique_ptr<reco::TrackExtraCollection> outputTECollBeforeDAF = std::make_unique<reco::TrackExtraCollection>();
+  std::unique_ptr<std::vector<Trajectory>> outputTrajectoryCollBeforeDAF = std::make_unique<std::vector<Trajectory>>();
+  std::unique_ptr<std::vector<int>> outputIndecesInputCollBeforeDAF = std::make_unique<std::vector<int>>();
   //----
-  std::unique_ptr<TrackingRecHitCollection> outputRHCollAfterDAF(new TrackingRecHitCollection);
-  std::unique_ptr<reco::TrackCollection> outputTCollAfterDAF(new reco::TrackCollection);
-  std::unique_ptr<reco::TrackExtraCollection> outputTECollAfterDAF(new reco::TrackExtraCollection);
-  std::unique_ptr<std::vector<Trajectory> > outputTrajectoryCollAfterDAF(new std::vector<Trajectory>);
-  std::unique_ptr<std::vector<int> > outputIndecesInputCollAfterDAF(new std::vector<int>);
+  std::unique_ptr<TrackingRecHitCollection> outputRHCollAfterDAF = std::make_unique<TrackingRecHitCollection>();
+  std::unique_ptr<reco::TrackCollection> outputTCollAfterDAF = std::make_unique<reco::TrackCollection>();
+  std::unique_ptr<reco::TrackExtraCollection> outputTECollAfterDAF = std::make_unique<reco::TrackExtraCollection>();
+  std::unique_ptr<std::vector<Trajectory>> outputTrajectoryCollAfterDAF = std::make_unique<std::vector<Trajectory>>();
+  std::unique_ptr<std::vector<int>> outputIndecesInputCollAfterDAF = std::make_unique<std::vector<int>>();
 
   //declare and get stuff to be retrieved from ES
   edm::ESHandle<TrackerGeometry> theG;
