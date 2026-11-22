@@ -68,7 +68,7 @@ void MuBxSelector::produce(edm::Event& iEvent, const edm::EventSetup&) {
 
   iEvent.getByToken(muonsTokenData_, muonsCollection);
 
-  std::unique_ptr<std::vector<unsigned>> muBx(new std::vector<unsigned>);
+  std::unique_ptr<std::vector<unsigned>> muBx = std::make_unique<std::vector<unsigned>>();
 
   // loop over valid bunch crossings
   for (const unsigned& bx : muonsCollection->getFilledBxs()) {
