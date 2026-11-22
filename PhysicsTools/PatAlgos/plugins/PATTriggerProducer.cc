@@ -124,8 +124,8 @@ namespace pat {
     edm::GetterOfProducts<trigger::TriggerEvent> triggerEventGetter_;
     std::string hltPrescaleLabel_;       // configuration (optional)
     std::string labelHltPrescaleTable_;  // configuration (optional)
-    edm::GetterOfProducts<trigger::HLTPrescaleTable> hltPrescaleTableRunGetter_;
-    edm::GetterOfProducts<trigger::HLTPrescaleTable> hltPrescaleTableLumiGetter_;
+    edm::GetterOfProducts<trigger::HLTPrescaleTable, edm::Transition::BeginRun> hltPrescaleTableRunGetter_;
+    edm::GetterOfProducts<trigger::HLTPrescaleTable, edm::Transition::BeginLuminosityBlock> hltPrescaleTableLumiGetter_;
     edm::GetterOfProducts<trigger::HLTPrescaleTable> hltPrescaleTableEventGetter_;
     trigger::HLTPrescaleTable hltPrescaleTableRun_;
     trigger::HLTPrescaleTable hltPrescaleTableLumi_;
@@ -331,9 +331,9 @@ PATTriggerProducer::PATTriggerProducer(const ParameterSet& iConfig)
     hltPrescaleLabel_ = iConfig.getParameter<std::string>("hltPrescaleLabel");
   if (iConfig.exists("hltPrescaleTable")) {
     labelHltPrescaleTable_ = iConfig.getParameter<std::string>("hltPrescaleTable");
-    hltPrescaleTableRunGetter_ = GetterOfProducts<trigger::HLTPrescaleTable>(
+    hltPrescaleTableRunGetter_ = GetterOfProducts<trigger::HLTPrescaleTable, edm::Transition::BeginRun>(
         InputTagMatch(InputTag(labelHltPrescaleTable_, "Run")), this, InRun);
-    hltPrescaleTableLumiGetter_ = GetterOfProducts<trigger::HLTPrescaleTable>(
+    hltPrescaleTableLumiGetter_ = GetterOfProducts<trigger::HLTPrescaleTable, edm::Transition::BeginLuminosityBlock>(
         InputTagMatch(InputTag(labelHltPrescaleTable_, "Lumi")), this, InLumi);
     hltPrescaleTableEventGetter_ =
         GetterOfProducts<trigger::HLTPrescaleTable>(InputTagMatch(InputTag(labelHltPrescaleTable_, "Event")), this);

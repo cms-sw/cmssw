@@ -66,7 +66,7 @@ namespace edm {
   class EDConsumerBaseWithTagESAdaptor;
   template <BranchType B>
   class EDConsumerBaseAdaptor;
-  template <typename T>
+  template <typename T, edm::Transition Tr>
   class WillGetIfMatch;
 
   namespace eventsetup {
@@ -163,7 +163,7 @@ namespace edm {
     friend class EDConsumerBaseWithTagESAdaptor;
     template <BranchType B>
     friend class EDConsumerBaseAdaptor;
-    template <typename T>
+    template <typename T, edm::Transition Tr>
     friend class WillGetIfMatch;
     ///Use a ConsumesCollector to gather consumes information from helper functions
     ConsumesCollector consumesCollector();

@@ -57,9 +57,9 @@ public:
 
 protected:
   DQMStore *dqmstore_;
-  edm::GetterOfProducts<DQMToken> jobmegetter_;
-  edm::GetterOfProducts<DQMToken> runmegetter_;
-  edm::GetterOfProducts<DQMToken> lumimegetter_;
+  edm::GetterOfProducts<DQMToken, edm::Transition::EndProcessBlock> jobmegetter_;
+  edm::GetterOfProducts<DQMToken, edm::Transition::EndRun> runmegetter_;
+  edm::GetterOfProducts<DQMToken, edm::Transition::EndLuminosityBlock> lumimegetter_;
   edm::EDPutTokenT<DQMToken> lumiToken_;
   edm::EDPutTokenT<DQMToken> runToken_;
   edm::EDPutTokenT<DQMToken> jobToken_;
@@ -95,9 +95,12 @@ public:
       inputtags.push_back(edm::InputTag("", inputgeneration + "Run"));
       inputtags.push_back(edm::InputTag("", inputgeneration + "Lumi"));
     }
-    jobmegetter_ = edm::GetterOfProducts<DQMToken>(edm::VInputTagMatch(inputtags), this, edm::InProcess);
-    runmegetter_ = edm::GetterOfProducts<DQMToken>(edm::VInputTagMatch(inputtags), this, edm::InRun);
-    lumimegetter_ = edm::GetterOfProducts<DQMToken>(edm::VInputTagMatch(inputtags), this, edm::InLumi);
+    jobmegetter_ = edm::GetterOfProducts<DQMToken, edm::Transition::EndProcessBlock>(
+        edm::VInputTagMatch(inputtags), this, edm::InProcess);
+    runmegetter_ =
+        edm::GetterOfProducts<DQMToken, edm::Transition::EndRun>(edm::VInputTagMatch(inputtags), this, edm::InRun);
+    lumimegetter_ = edm::GetterOfProducts<DQMToken, edm::Transition::EndLuminosityBlock>(
+        edm::VInputTagMatch(inputtags), this, edm::InLumi);
     callWhenNewProductsRegistered([this](edm::ProductDescription const &bd) {
       jobmegetter_(bd);
       runmegetter_(bd);
