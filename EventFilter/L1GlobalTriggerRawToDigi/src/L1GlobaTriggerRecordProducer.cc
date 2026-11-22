@@ -17,6 +17,7 @@
 
 // system include files
 #include <iostream>
+#include <memory>
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
@@ -63,7 +64,7 @@ L1GlobalTriggerRecordProducer::~L1GlobalTriggerRecordProducer() {
 // method called to produce the data
 void L1GlobalTriggerRecordProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup) {
   // produce the L1GlobalTriggerRecord
-  std::unique_ptr<L1GlobalTriggerRecord> gtRecord(new L1GlobalTriggerRecord());
+  std::unique_ptr<L1GlobalTriggerRecord> gtRecord = std::make_unique<L1GlobalTriggerRecord>();
 
   // get L1GlobalTriggerReadoutRecord
   edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;

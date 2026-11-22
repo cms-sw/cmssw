@@ -60,7 +60,7 @@ L1TrackerEtMissProducer::L1TrackerEtMissProducer(const edm::ParameterSet& iConfi
 void L1TrackerEtMissProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
-  std::unique_ptr<TkEtMissCollection> METCollection(new TkEtMissCollection);
+  std::unique_ptr<TkEtMissCollection> METCollection = std::make_unique<TkEtMissCollection>();
 
   edm::Handle<L1TTTrackRefCollectionType> L1TTTrackHandle;
   iEvent.getByToken(trackToken_, L1TTTrackHandle);

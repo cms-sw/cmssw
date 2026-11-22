@@ -16,6 +16,7 @@
 #include "EventFilter/L1GlobalTriggerRawToDigi/interface/L1GTEvmDigiToRaw.h"
 
 // system include files
+#include <memory>
 #include <vector>
 #include <iostream>
 #include <iomanip>
@@ -79,7 +80,7 @@ L1GTEvmDigiToRaw::L1GTEvmDigiToRaw(const edm::ParameterSet& pSet)
 void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup) {
   // define new FEDRawDataCollection
   // it contains ALL FEDs in an event
-  std::unique_ptr<FEDRawDataCollection> allFedRawData(new FEDRawDataCollection);
+  std::unique_ptr<FEDRawDataCollection> allFedRawData = std::make_unique<FEDRawDataCollection>();
 
   FEDRawData& gtRawData = allFedRawData->FEDData(m_evmGtFedId);
 

@@ -171,7 +171,7 @@ namespace l1t {
       amc13.add(amc_no, board, evtId, orbit, bxId, load64, amc_user_header);
     }
 
-    std::unique_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
+    std::unique_ptr<FEDRawDataCollection> raw_coll = std::make_unique<FEDRawDataCollection>();
     FEDRawData& fed_data = raw_coll->FEDData(fedId_);
 
     unsigned int size = slinkHeaderSize_ + slinkTrailerSize_ + amc13.size() * 8;

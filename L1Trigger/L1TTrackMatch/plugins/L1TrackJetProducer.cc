@@ -17,6 +17,8 @@
 // New and improved version: https://indico.cern.ch/event/1203796/contributions/5073056/attachments/2519806/4333006/trackjet_emu.pdf
 
 // system include files
+#include <memory>
+
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/L1TCorrelator/interface/TkJet.h"
@@ -108,7 +110,7 @@ L1TrackJetProducer::L1TrackJetProducer(const ParameterSet &iConfig)
 }
 
 void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
-  unique_ptr<TkJetCollection> L1TrackJetProducer(new TkJetCollection);
+  unique_ptr<TkJetCollection> L1TrackJetProducer = std::make_unique<TkJetCollection>();
 
   // L1 tracks
   edm::Handle<L1TTTrackRefCollectionType> TTTrackHandle;

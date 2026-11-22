@@ -336,10 +336,10 @@ inline void L1EmulBias::ModifyCollection(std::unique_ptr<L1MuGMTReadoutCollectio
     rec.setEvNr(it->getEvNr());
     rec.setBCERR(it->getBCERR());
 
-    std::unique_ptr<L1MuRegionalCandCollection> new_dttf(new L1MuRegionalCandCollection);
-    std::unique_ptr<L1MuRegionalCandCollection> new_rpcb(new L1MuRegionalCandCollection);
-    std::unique_ptr<L1MuRegionalCandCollection> new_csc(new L1MuRegionalCandCollection);
-    std::unique_ptr<L1MuRegionalCandCollection> new_rpcf(new L1MuRegionalCandCollection);
+    std::unique_ptr<L1MuRegionalCandCollection> new_dttf = std::make_unique<L1MuRegionalCandCollection>();
+    std::unique_ptr<L1MuRegionalCandCollection> new_rpcb = std::make_unique<L1MuRegionalCandCollection>();
+    std::unique_ptr<L1MuRegionalCandCollection> new_csc = std::make_unique<L1MuRegionalCandCollection>();
+    std::unique_ptr<L1MuRegionalCandCollection> new_rpcf = std::make_unique<L1MuRegionalCandCollection>();
 
     L1MuRegionalCandCollection old_dttf = it->getDTBXCands();
     L1MuRegionalCandCollection old_rpcb = it->getBrlRPCCands();
@@ -440,7 +440,7 @@ inline void L1EmulBias::ModifyCollection(std::unique_ptr<L1CSCTrackCollection>& 
       l1trk.setPtPacked((l1trk.pt_packed() >> 2) & 0x1f);
     l1trk.setType(l1trk.type_idx());
     //L1MuRegionalCand reg(tcit->first.getDataWord(), tcit->first.bx());
-    std::unique_ptr<CSCCorrelatedLCTDigiCollection> dgcoll(new CSCCorrelatedLCTDigiCollection);
+    std::unique_ptr<CSCCorrelatedLCTDigiCollection> dgcoll = std::make_unique<CSCCorrelatedLCTDigiCollection>();
     CSCCorrelatedLCTDigiCollection ldc = tcit->second;  //muondigicollection=map
     //get the lct-digi-collection (ie muon-digi-collection)
     //loop over data (map<idx,vec_digi>)

@@ -351,11 +351,12 @@ namespace edm {
 
   void DataMixingMuonWorker::putMuon(edm::Event &e) {
     // collections of digis to put in the event
-    std::unique_ptr<DTDigiCollection> DTDigiMerge(new DTDigiCollection);
-    std::unique_ptr<RPCDigiCollection> RPCDigiMerge(new RPCDigiCollection);
-    std::unique_ptr<CSCStripDigiCollection> CSCStripDigiMerge(new CSCStripDigiCollection);
-    std::unique_ptr<CSCWireDigiCollection> CSCWireDigiMerge(new CSCWireDigiCollection);
-    std::unique_ptr<CSCComparatorDigiCollection> CSCComparatorDigiMerge(new CSCComparatorDigiCollection);
+    std::unique_ptr<DTDigiCollection> DTDigiMerge = std::make_unique<DTDigiCollection>();
+    std::unique_ptr<RPCDigiCollection> RPCDigiMerge = std::make_unique<RPCDigiCollection>();
+    std::unique_ptr<CSCStripDigiCollection> CSCStripDigiMerge = std::make_unique<CSCStripDigiCollection>();
+    std::unique_ptr<CSCWireDigiCollection> CSCWireDigiMerge = std::make_unique<CSCWireDigiCollection>();
+    std::unique_ptr<CSCComparatorDigiCollection> CSCComparatorDigiMerge =
+        std::make_unique<CSCComparatorDigiCollection>();
 
     // Loop over DT digis, copying them from our own local storage
 

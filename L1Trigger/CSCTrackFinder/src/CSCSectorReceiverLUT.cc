@@ -756,29 +756,29 @@ std::string CSCSectorReceiverLUT::encodeFileIndex() const {
     if (_subsector == 2)
       fileName += "1b";
   } else if (_station == 2)
-    fileName += "2";
+    fileName += '2';
   else if (_station == 3)
-    fileName += "3";
+    fileName += '3';
   else if (_station == 4)
-    fileName += "4";
+    fileName += '4';
   fileName += "End";
   if (_endcap == 1)
-    fileName += "1";
+    fileName += '1';
   else
-    fileName += "2";
+    fileName += '2';
   fileName += "Sec";
   if (_sector == 1)
-    fileName += "1";
+    fileName += '1';
   else if (_sector == 2)
-    fileName += "2";
+    fileName += '2';
   else if (_sector == 3)
-    fileName += "3";
+    fileName += '3';
   else if (_sector == 4)
-    fileName += "4";
+    fileName += '4';
   else if (_sector == 5)
-    fileName += "5";
+    fileName += '5';
   else if (_sector == 6)
-    fileName += "6";
+    fileName += '6';
   fileName += "LUT";
   return fileName;
 }

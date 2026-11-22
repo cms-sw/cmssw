@@ -69,8 +69,8 @@ void L1TMuonBarrelKalmanTrackProducer::produce(edm::Event& iEvent, const edm::Ev
     stubs.push_back(r);
   }
 
-  std::unique_ptr<l1t::RegionalMuonCandBxCollection> outBMTF(new l1t::RegionalMuonCandBxCollection());
-  std::unique_ptr<L1MuKBMTrackBxCollection> out(new L1MuKBMTrackBxCollection());
+  std::unique_ptr<l1t::RegionalMuonCandBxCollection> outBMTF = std::make_unique<l1t::RegionalMuonCandBxCollection>();
+  std::unique_ptr<L1MuKBMTrackBxCollection> out = std::make_unique<L1MuKBMTrackBxCollection>();
   outBMTF->setBXRange(bx_.front(), bx_.back());
   out->setBXRange(bx_.front(), bx_.back());
   for (const auto& bx : bx_) {

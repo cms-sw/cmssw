@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalTTPDigi.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTriggerRecord.h"
@@ -60,7 +62,7 @@ void HcalTTPTriggerRecord::produce(edm::Event& e, const edm::EventSetup& eventSe
   }
 
   // Put output into event
-  std::unique_ptr<L1GtTechnicalTriggerRecord> output(new L1GtTechnicalTriggerRecord());
+  std::unique_ptr<L1GtTechnicalTriggerRecord> output = std::make_unique<L1GtTechnicalTriggerRecord>();
   output->setGtTechnicalTrigger(vecTT);
   e.put(std::move(output));
 }

@@ -124,7 +124,7 @@ void StripCompactDigiSimLinksProducer::produce(edm::Event &iEvent, const edm::Ev
     }
   }
 
-  std::unique_ptr<StripCompactDigiSimLinks> ptr(new StripCompactDigiSimLinks(output));
+  std::unique_ptr<StripCompactDigiSimLinks> ptr = std::make_unique<StripCompactDigiSimLinks>(output);
   iEvent.put(std::move(ptr));
 }
 

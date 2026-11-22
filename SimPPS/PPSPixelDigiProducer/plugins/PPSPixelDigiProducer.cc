@@ -240,7 +240,8 @@ void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     }
   }
 
-  std::unique_ptr<edm::DetSetVector<CTPPSPixelDigi>> digi_output(new edm::DetSetVector<CTPPSPixelDigi>(theDigiVector));
+  std::unique_ptr<edm::DetSetVector<CTPPSPixelDigi>> digi_output =
+      std::make_unique<edm::DetSetVector<CTPPSPixelDigi>>(theDigiVector);
 
   if (verbosity_) {
     edm::LogInfo("PPS") << "PixelDigiProducer digi_output->size()=" << digi_output->size();

@@ -8,6 +8,7 @@
 #include "L1Trigger/RPCTrigger/interface/RPCException.h"
 #include "L1Trigger/RPCTrigger/interface/MuonsGrabber.h"
 
+#include <memory>
 #include <sstream>
 //---------------------------------------------------------------------------
 RPCTriggerBoard::RPCTriggerBoard(RPCTriggerConfiguration* triggerConfig, int tbNum, int tcNum) {
@@ -36,7 +37,7 @@ RPCTriggerBoard::RPCTriggerBoard(RPCTriggerConfiguration* triggerConfig, int tbN
 
       // one trigger crate covers one logsector:
       //RPCPac *pac = new RPCPac(pacData, tower, tcNum, logSegment);
-      std::shared_ptr<RPCPac> pac(new RPCPac(pacData, tower, tcNum, logSegment));
+      std::shared_ptr<RPCPac> pac = std::make_shared<RPCPac>(pacData, tower, tcNum, logSegment);
 
       m_pacs[tower].push_back(pac);
     }

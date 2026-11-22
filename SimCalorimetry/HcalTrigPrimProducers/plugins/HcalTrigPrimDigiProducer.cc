@@ -28,6 +28,7 @@
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
 
 #include <algorithm>
+#include <memory>
 #include <vector>
 
 class HcalTrigPrimDigiProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
@@ -234,7 +235,7 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
   edm::ESHandle<HcalTrigTowerGeometry> pG = eventSetup.getHandle(tok_trigTowerGeom_);
 
   // Step B: Create empty output
-  std::unique_ptr<HcalTrigPrimDigiCollection> result(new HcalTrigPrimDigiCollection());
+  std::unique_ptr<HcalTrigPrimDigiCollection> result = std::make_unique<HcalTrigPrimDigiCollection>();
 
   edm::Handle<HBHEDigiCollection> hbheDigis;
   edm::Handle<HFDigiCollection> hfDigis;
@@ -362,7 +363,7 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
                                                << "\nQuit returning empty product." << std::endl;
 
       // produce empty HcalTrigPrimDigiCollection and put it in the event
-      std::unique_ptr<HcalTrigPrimDigiCollection> emptyResult(new HcalTrigPrimDigiCollection());
+      std::unique_ptr<HcalTrigPrimDigiCollection> emptyResult = std::make_unique<HcalTrigPrimDigiCollection>();
 
       iEvent.put(std::move(emptyResult));
 

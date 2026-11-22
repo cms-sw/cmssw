@@ -1,5 +1,6 @@
 #include <iomanip>
 #include <iostream>
+#include <memory>
 
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
@@ -42,7 +43,7 @@ void L1MenuWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSe
   else
     handle1 = evSetup.getHandle(l1GtMenuToken_);
 
-  std::shared_ptr<L1TUtmTriggerMenu> ptr1(new L1TUtmTriggerMenu(*(handle1.product())));
+  std::shared_ptr<L1TUtmTriggerMenu> ptr1 = std::make_shared<L1TUtmTriggerMenu>(*(handle1.product()));
 
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (poolDb.isAvailable()) {
