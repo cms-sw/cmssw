@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"

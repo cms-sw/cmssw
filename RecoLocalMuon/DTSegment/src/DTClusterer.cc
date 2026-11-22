@@ -76,7 +76,7 @@ void DTClusterer::produce(edm::StreamID, edm::Event& event, const edm::EventSetu
   DTSuperLayerId oldSlId;
   for (dtLayerIt = allHits->id_begin(); dtLayerIt != allHits->id_end(); ++dtLayerIt) {
     // The layerId
-    DTLayerId layerId = (*dtLayerIt);
+    const DTLayerId& layerId = (*dtLayerIt);
     const DTSuperLayerId SLId = layerId.superlayerId();
     if (SLId == oldSlId)
       continue;  // I'm on the same SL as before

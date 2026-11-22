@@ -473,8 +473,8 @@ void TkGluedMeasurementDet::HitCollectorForSimpleHits::addProjected(const Tracki
 
   // here we're ok with some extra casual new's and delete's
   auto&& vl = projectedPos(hit, *geomDet_, gdir, cpe_);
-  std::unique_ptr<ProjectedSiStripRecHit2D> phit(
-      new ProjectedSiStripRecHit2D(vl.first, vl.second, *geomDet_, static_cast<SiStripRecHit2D const&>(hit)));
+  std::unique_ptr<ProjectedSiStripRecHit2D> phit = std::make_unique<ProjectedSiStripRecHit2D>(
+      vl.first, vl.second, *geomDet_, static_cast<SiStripRecHit2D const&>(hit));
   std::pair<bool, double> diffEst = est_.estimate(stateOnThisDet_, *phit);
   if (diffEst.first) {
     target_.emplace_back(phit.release());

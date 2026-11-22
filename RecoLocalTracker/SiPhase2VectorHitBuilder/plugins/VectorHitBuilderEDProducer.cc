@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -55,8 +57,8 @@ void VectorHitBuilderEDProducer::produce(edm::Event& event, const edm::EventSetu
   // create the final output collection
   auto outputClustersAccepted = std::make_unique<edmNew::DetSetVector<Phase2TrackerCluster1D>>();
   auto outputClustersRejected = std::make_unique<edmNew::DetSetVector<Phase2TrackerCluster1D>>();
-  std::unique_ptr<VectorHitCollection> outputVHAccepted(new VectorHitCollection());
-  std::unique_ptr<VectorHitCollection> outputVHRejected(new VectorHitCollection());
+  std::unique_ptr<VectorHitCollection> outputVHAccepted = std::make_unique<VectorHitCollection>();
+  std::unique_ptr<VectorHitCollection> outputVHRejected = std::make_unique<VectorHitCollection>();
 
   stubsBuilder_ = &es.getData(stubsBuilderToken_);
 #ifdef EDM_ML_DEBUG

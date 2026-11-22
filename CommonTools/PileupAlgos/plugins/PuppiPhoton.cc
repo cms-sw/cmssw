@@ -167,7 +167,7 @@ void PuppiPhoton::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   edm::Handle<edm::ValueMap<float>> pupWeights;
   if (useValueMap_)
     iEvent.getByToken(tokenWeights_, pupWeights);
-  std::unique_ptr<edm::ValueMap<LorentzVector>> p4PupOut(new edm::ValueMap<LorentzVector>());
+  std::unique_ptr<edm::ValueMap<LorentzVector>> p4PupOut = std::make_unique<edm::ValueMap<LorentzVector>>();
   LorentzVectorCollection puppiP4s;
   std::vector<reco::CandidatePtr> values(hPFProduct->size());
   int iPF = 0;
@@ -249,7 +249,7 @@ void PuppiPhoton::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
     reco::CandidatePtr pkref(oh, ic);
     values[ic] = pkref;
   }
-  std::unique_ptr<edm::ValueMap<reco::CandidatePtr>> pfMap_p(new edm::ValueMap<reco::CandidatePtr>());
+  std::unique_ptr<edm::ValueMap<reco::CandidatePtr>> pfMap_p = std::make_unique<edm::ValueMap<reco::CandidatePtr>>();
   edm::ValueMap<reco::CandidatePtr>::Filler filler(*pfMap_p);
   filler.insert(hPFProduct, values.begin(), values.end());
   filler.fill();
