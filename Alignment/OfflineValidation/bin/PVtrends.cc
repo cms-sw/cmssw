@@ -104,7 +104,7 @@ int trends(int argc, char *argv[]) {
   string labels_to_add = "";
   if (validation.count("labels")) {
     for (auto const &label : validation.get_child("labels")) {
-      labels_to_add += "_";
+      labels_to_add += '_';
       labels_to_add += label.second.get_value<string>();
     }
   }

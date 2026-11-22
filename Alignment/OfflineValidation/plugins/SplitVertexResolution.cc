@@ -312,11 +312,11 @@ SplitVertexResolution::SplitVertexResolution(const edm::ParameterSet& iConfig)
     std::string toOutput = "";
     for (const auto& pTbin : mypT_bins_ | boost::adaptors::indexed(1)) {
       if (pTbin.index() != 1) {
-        toOutput += " ";
+        toOutput += ' ';
       }
       toOutput += fmt::sprintf("%.2f", pTbin.value());
       if (pTbin.index() != nPtBins_ + 1) {
-        toOutput += ",";
+        toOutput += ',';
       }
     }
     edm::LogVerbatim("SplitVertexResolution") << "sum(pT) bins = [" << toOutput << "] \n";
@@ -324,11 +324,11 @@ SplitVertexResolution::SplitVertexResolution(const edm::ParameterSet& iConfig)
     toOutput.clear();
     for (const auto& tkbin : myNTrack_bins_ | boost::adaptors::indexed(1)) {
       if (tkbin.index() != 1) {
-        toOutput += " ";
+        toOutput += ' ';
       }
       toOutput += fmt::sprintf("%.1f", tkbin.value());
       if (tkbin.index() != nTrackBins_ + 1) {
-        toOutput += ",";
+        toOutput += ',';
       }
     }
     edm::LogVerbatim("SplitVertexResolution") << "n. track bins = [" << toOutput << "] \n";
@@ -336,11 +336,11 @@ SplitVertexResolution::SplitVertexResolution(const edm::ParameterSet& iConfig)
     toOutput.clear();
     for (const auto& vtxbin : myNVtx_bins_ | boost::adaptors::indexed(1)) {
       if (vtxbin.index() != 1) {
-        toOutput += " ";
+        toOutput += ' ';
       }
       toOutput += fmt::sprintf("%.1f", vtxbin.value());
       if (vtxbin.index() != nVtxBins_ + 1) {
-        toOutput += ",";
+        toOutput += ',';
       }
     }
     edm::LogVerbatim("SplitVertexResolution") << "n. vertices bins = [" << toOutput << "] \n";
