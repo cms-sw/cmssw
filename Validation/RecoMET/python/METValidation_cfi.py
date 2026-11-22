@@ -25,6 +25,29 @@ pfMetPuppiAnalyzer = metAnalyzer.clone(
     primaryVertices = "offlinePrimaryVertices"
 )
 
+# Phase-2: PUPPI MHT from the (uncorrected) AK4 PUPPI jets, with the same selection as hltPFPuppiMHT.
+# The MET companion defines the MET vs MHT plots, in the METvsMHT/<MET>_<MHT> folder.
+pfPuppiMHT = cms.EDProducer("HLTHtMhtProducer",
+    excludePFMuons = cms.bool(False),
+    jetsLabel = cms.InputTag("ak4PFJetsPuppi"),
+    maxEtaJetHt = cms.double(5.0),
+    maxEtaJetMht = cms.double(5.0),
+    minNJetHt = cms.int32(0),
+    minNJetMht = cms.int32(0),
+    minPtJetHt = cms.double(30.0),
+    minPtJetMht = cms.double(30.0),
+    pfCandidatesLabel = cms.InputTag(""),
+    usePt = cms.bool(False)
+)
+
+pfPuppiMHTAnalyzer = metAnalyzer.clone(
+    inputMHTLabel = cms.string("pfPuppiMHT"),
+    inputMETLabel = "pfMetPuppi",
+    outFolder = "pfPuppiMHT",
+    METType = "mht",
+    primaryVertices = "offlinePrimaryVertices"
+)
+
 genMetTrueAnalyzer = metAnalyzer.clone(
     inputMETLabel = "genMetTrue",
     outFolder = "genMetTrue",

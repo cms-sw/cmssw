@@ -781,6 +781,7 @@ if __name__ == '__main__':
         'hltPFPuppiMETTypeOne': 'PF Type-1 PUPPI MET',
         'hltPFPuppiMHT': 'PF PUPPI MHT',
         'pfMetPuppi': 'PF PUPPI MET',
+        'pfPuppiMHT': 'PF PUPPI MHT',
     }
     
     colors = hep.style.CMS['axes.prop_cycle'].by_key()['color']
