@@ -18,12 +18,15 @@ recoExoticaValidationHT = cms.EDProducer(
     )
 
 recoExoticaValidationMETNoMu = cms.EDProducer( 
-    "HLTMhtProducer",                                                                                                                       
+    "HLTHtMhtProducer",
     usePt = cms.bool( True ),
-    minPtJet = cms.double( 0.0 ),
+    minPtJetHt = cms.double( 0.0 ),
+    minPtJetMht = cms.double( 0.0 ),
+    maxEtaJetHt = cms.double( 999.0 ),
+    maxEtaJetMht = cms.double( 999.0 ),
+    minNJetHt = cms.int32( 0 ),
+    minNJetMht = cms.int32( 0 ),
     jetsLabel = cms.InputTag( "ak4PFJetsCHS" ),
-    minNJet = cms.int32( 0 ),
-    maxEtaJet = cms.double( 999.0 ),
     excludePFMuons = cms.bool( True ),
     pfCandidatesLabel = cms.InputTag("particleFlow")
     )
