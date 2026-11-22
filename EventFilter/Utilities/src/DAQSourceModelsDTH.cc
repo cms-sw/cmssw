@@ -2,6 +2,7 @@
 #include "EventFilter/Utilities/interface/DAQSourceModelsDTH.h"
 
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <sys/types.h>
 #include <sys/file.h>
@@ -39,7 +40,7 @@ void DataModeDTH::readEvent(edm::EventPrincipal& eventPrincipal) {
   edm::EventID eventID = edm::EventID(daqSource_->eventRunNumber(), daqSource_->currentLumiSection(), nextEventID_);
 
   if (legacyFRDCollection_) {
-    std::unique_ptr<FEDRawDataCollection> rawData(new FEDRawDataCollection);
+    std::unique_ptr<FEDRawDataCollection> rawData = std::make_unique<FEDRawDataCollection>();
     edm::Timestamp tstamp = fillFEDRawDataCollection(*rawData);
 
     edm::EventAuxiliary aux(
@@ -51,7 +52,7 @@ void DataModeDTH::readEvent(edm::EventPrincipal& eventPrincipal) {
     eventPrincipal.put(
         daqProvenanceHelpers_[0]->productDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
   } else {
-    std::unique_ptr<RawDataBuffer> rawData(new RawDataBuffer(totalEventSize_));
+    std::unique_ptr<RawDataBuffer> rawData = std::make_unique<RawDataBuffer>(totalEventSize_);
     edm::Timestamp tstamp = fillFEDRawData(*rawData);
 
     edm::EventAuxiliary aux(
@@ -252,7 +253,7 @@ void DataModeDTH::makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) 
         if (crc != orbitHeader->crc()) {
           checksumValid_ = false;
           if (!checksumError_.empty())
-            checksumError_ += "\n";
+            checksumError_ += '\n';
           checksumError_ += std::format(
               "Found a wrong crc32c checksum in orbit header v{} run: {} orbit: {} sourceId: {} wcount: {} events: {} "
               "flags: {}. Expected {:x} but calculated {:x}",

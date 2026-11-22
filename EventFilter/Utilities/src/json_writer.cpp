@@ -103,7 +103,7 @@ namespace jsoncollector {
       unsigned maxsize = strlen(value) * 2 + 3;  // allescaped+quotes+NULL
       std::string result;
       result.reserve(maxsize);  // to avoid lots of mallocs
-      result += "\"";
+      result += '\"';
       for (const char *c = value; *c != 0; ++c) {
         switch (*c) {
           case '\"':
@@ -146,7 +146,7 @@ namespace jsoncollector {
             break;
         }
       }
-      result += "\"";
+      result += '\"';
       return result;
     }
 
@@ -164,7 +164,7 @@ namespace jsoncollector {
     std::string FastWriter::write(const Value &root) {
       document_ = "";
       writeValue(root);
-      document_ += "\n";
+      document_ += '\n';
       return document_;
     }
 
@@ -189,27 +189,27 @@ namespace jsoncollector {
           document_ += valueToString(value.asBool());
           break;
         case arrayValue: {
-          document_ += "[";
+          document_ += '[';
           int size = value.size();
           for (int index = 0; index < size; ++index) {
             if (index > 0)
-              document_ += ",";
+              document_ += ',';
             writeValue(value[index]);
           }
-          document_ += "]";
+          document_ += ']';
         } break;
         case objectValue: {
           Value::Members members(value.getMemberNames());
-          document_ += "{";
+          document_ += '{';
           for (Value::Members::iterator it = members.begin(); it != members.end(); ++it) {
             const std::string &name = *it;
             if (it != members.begin())
-              document_ += ",";
+              document_ += ',';
             document_ += valueToQuotedString(name.c_str());
             document_ += yamlCompatiblityEnabled_ ? ": " : ":";
             writeValue(value[name]);
           }
-          document_ += "}";
+          document_ += '}';
         } break;
       }
     }
@@ -226,7 +226,7 @@ namespace jsoncollector {
       writeCommentBeforeValue(root);
       writeValue(root);
       writeCommentAfterValueOnSameLine(root);
-      document_ += "\n";
+      document_ += '\n';
       return document_;
     }
 
@@ -272,7 +272,7 @@ namespace jsoncollector {
                 writeCommentAfterValueOnSameLine(childValue);
                 break;
               }
-              document_ += ",";
+              document_ += ',';
               writeCommentAfterValueOnSameLine(childValue);
             }
             unindent();
@@ -306,7 +306,7 @@ namespace jsoncollector {
               writeCommentAfterValueOnSameLine(childValue);
               break;
             }
-            document_ += ",";
+            document_ += ',';
             writeCommentAfterValueOnSameLine(childValue);
           }
           unindent();
@@ -383,7 +383,7 @@ namespace jsoncollector {
       if (!root.hasComment(commentBefore))
         return;
       document_ += normalizeEOL(root.getComment(commentBefore));
-      document_ += "\n";
+      document_ += '\n';
     }
 
     void StyledWriter::writeCommentAfterValueOnSameLine(const Value &root) {
@@ -391,9 +391,9 @@ namespace jsoncollector {
         document_ += " " + normalizeEOL(root.getComment(commentAfterOnSameLine));
 
       if (root.hasComment(commentAfter)) {
-        document_ += "\n";
+        document_ += '\n';
         document_ += normalizeEOL(root.getComment(commentAfter));
-        document_ += "\n";
+        document_ += '\n';
       }
     }
 

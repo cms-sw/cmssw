@@ -1,5 +1,7 @@
 #include "EventFilter/L1ScoutingRawToDigi/plugins/ScBMTFRawToDigi.h"
 
+#include <memory>
+
 ScBMTFRawToDigi::ScBMTFRawToDigi(const edm::ParameterSet& iConfig) {
   srcInputTag_ = iConfig.getParameter<edm::InputTag>("srcInputTag");
   sourceIdList_ = iConfig.getParameter<std::vector<int>>("sourceIdList");
@@ -21,7 +23,8 @@ void ScBMTFRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<SDSRawDataCollection> ScoutingRawDataCollection;
   iEvent.getByToken(rawToken_, ScoutingRawDataCollection);
 
-  std::unique_ptr<l1ScoutingRun3::BMTFStubOrbitCollection> unpackedStubs(new l1ScoutingRun3::BMTFStubOrbitCollection);
+  std::unique_ptr<l1ScoutingRun3::BMTFStubOrbitCollection> unpackedStubs =
+      std::make_unique<l1ScoutingRun3::BMTFStubOrbitCollection>();
 
   for (const auto& sdsId : sourceIdList_) {
     if ((sdsId < SDSNumbering::BmtfMinSDSID) || (sdsId > SDSNumbering::BmtfMaxSDSID))
