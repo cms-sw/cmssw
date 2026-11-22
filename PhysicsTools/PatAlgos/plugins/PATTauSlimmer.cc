@@ -41,10 +41,10 @@ namespace pat {
 pat::PATTauSlimmer::PATTauSlimmer(const edm::ParameterSet &iConfig)
     : src_(consumes<edm::View<pat::Tau>>(iConfig.getParameter<edm::InputTag>("src"))),
       linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates")),
-      pf2pc_(mayConsume<edm::Association<pat::PackedCandidateCollection>>(
+      pf2pc_(consumes<edm::Association<pat::PackedCandidateCollection>>(
           iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
       linkToLostTracks_(iConfig.getParameter<bool>("linkToLostTracks")),
-      trk2lost_(mayConsume<edm::Association<pat::PackedCandidateCollection>>(
+      trk2lost_(consumes<edm::Association<pat::PackedCandidateCollection>>(
           iConfig.getParameter<edm::InputTag>("lostTracks"))),
       dropPiZeroRefs_(iConfig.exists("dropPiZeroRefs") ? iConfig.getParameter<bool>("dropPiZeroRefs") : true),
       dropTauChargedHadronRefs_(

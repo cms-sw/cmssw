@@ -19,6 +19,7 @@ from PhysicsTools.TruthInfo.graphTools import (
     TruthGraphView,
     bunchCrossingOf,
     eventIndexOf,
+    isInTimeEventId,
     isSignalEventId,
 )
 
@@ -154,6 +155,9 @@ class TestGraphToolsNavigation(unittest.TestCase):
         self.assertEqual(graph.levels(3), ["signal"])
         self.assertTrue(graph.isFromPileup(0))
         self.assertTrue(graph.isSignal(3))
+        # In time means bunch crossing 0: the in-time pile-up particle 0 and the signal.
+        self.assertTrue(graph.isInTime(0))
+        self.assertTrue(graph.isInTime(3))
         self.assertEqual(graph.interactionIds(), [0, self.PILEUP])
         self.assertEqual(graph.particlesOfInteraction(0), [3])
         self.assertEqual(graph.verticesWithRole("Interaction"), [1])
@@ -231,6 +235,21 @@ class TestGraphToolsNavigation(unittest.TestCase):
         self.assertEqual(bunchCrossingOf((2 << 16) | 5), 2)
         self.assertEqual(eventIndexOf((2 << 16) | 5), 5)
         self.assertEqual(bunchCrossingOf(0x80000000 | (2 << 16) | 5), -2)
+
+    def test_in_time_event_id(self):
+        # In time means bunch crossing 0, whatever the interaction index.
+        self.assertTrue(isInTimeEventId(0))
+        self.assertTrue(isInTimeEventId(5))
+        self.assertFalse(isInTimeEventId(2 << 16))
+        self.assertFalse(isInTimeEventId(0x80000000 | (1 << 16)))
+
+    def test_out_of_time_particle(self):
+        graph = self.graph()
+        graph._particles[1]["eventId"] = (1 << 16) | 3
+        self.assertFalse(graph.isInTime(1))
+        self.assertFalse(graph.isSignal(1))
+        self.assertTrue(graph.isFromPileup(1))
+        self.assertTrue(graph.isInTime(2))
 
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@
 #define PhysicsTools_PyTorchAlpaka_interface_TensorCollection_h
 
 #include <map>
+#include <memory>
 #include <string>
 #include <tuple>
 #include <type_traits>
@@ -13,6 +14,7 @@
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "PhysicsTools/PyTorch/interface/TorchInterface.h"
+#include "PhysicsTools/PyTorchAlpaka/interface/Exception.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/TensorHandle.h"
 
 namespace alpaka_cuda_async::torch {
@@ -59,8 +61,43 @@ namespace cms::torch::alpakatools {
   template <typename TSoAParamsImpl, typename... Others>
   concept SameScalarType = SameTypes<typename TSoAParamsImpl::ScalarType, typename Others::ScalarType...>;
 
-  // Container for user defined memory blobs that will be converted to PyTorch tensors constructs directly from
-  // provided recipies and contiguous memory blocks
+  class TensorSlice {
+  public:
+    struct Bounds {
+      uint32_t offset;
+      uint32_t size;
+    };
+
+    TensorSlice() = default;
+
+    TensorSlice(uint32_t batch_id, uint32_t batch_size) : batch_id_{batch_id}, batch_size_{batch_size}, full_{false} {}
+
+    Bounds resolve(uint32_t total_size) const {
+      if (full_)
+        return {.offset = 0, .size = total_size};
+      if (total_size == 0)
+        return {.offset = 0, .size = 0};
+      if (batch_size_ == 0)
+        detail::throwException("TensorCollection", "TensorSlice: batch size must be greater than zero.");
+
+      if (batch_id_ > (total_size - 1u) / batch_size_) {
+        detail::throwException("TensorCollection",
+                               "TensorSlice: batch id " + std::to_string(batch_id_) +
+                                   " is out of bounds for total size " + std::to_string(total_size) +
+                                   " and batch size " + std::to_string(batch_size_) + ".");
+      }
+      const auto offset = batch_id_ * batch_size_;
+      return {.offset = offset, .size = std::min(batch_size_, total_size - offset)};
+    }
+
+  private:
+    uint32_t batch_id_ = 0;
+    uint32_t batch_size_ = 0;
+    bool full_ = true;
+  };
+
+  // Register SoA memory blocks to be exposed as PyTorch tensors.
+  // Shapes and strides are derived from the records and an optional row slice.
   //
   // Provided memory blocks must be of the same type and to be contiguous e.g.:
   //
@@ -71,17 +108,17 @@ namespace cms::torch::alpakatools {
   //
   // can register the following:
   //
-  // TensorCollection<Device> registry(batch_size, total_size);
-  // registry.add<ParticleLayout>("features", batch_id, records.pt(), records.eta(), records.phi());
+  // TensorCollection<Queue> registry;
+  // registry.add<ParticleLayout>("features", TensorSlice{batch_id, batch_size}, records.pt(), records.eta(), records.phi());
   //
   // In the above example, the add function automatically computes the offset for the batch and ensures the provided columns are contiguous in memory.
-  // If the user wants to perform inference on the entire dataset without batching, he can simply register by passing just the total size:
+  // If the user wants to perform inference on the entire dataset without batching, he can simply leave out the `TensorSlice`:
   //
-  // TensorCollection<Device> registry(total_size);
+  // TensorCollection<Queue> registry;
   // registry.add<ParticleLayout>("features", records.pt(), records.eta(), records.phi());
   //
   // If the user wants to use only pt() and phi() then below will not work as pt() and phi() are not contiguous:
-  // TensorCollection<Device> registry(batch_size, total_size);
+  // TensorCollection<Queue> registry;
   // registry.add<ParticleLayout>("features", records.pt(), records.phi());
   //
   // potential solution would be to arrange layout dependent on model requirements
@@ -98,25 +135,27 @@ namespace cms::torch::alpakatools {
     friend class alpaka_cuda_async::torch::AlpakaModel;
     friend class alpaka_rocm_async::torch::AlpakaModel;
     friend class alpaka_serial_sync::torch::AlpakaModel;
+    template <typename UQueue>
+      requires alpaka::isQueue<UQueue>
+    friend class BatchedTensorCollection;
 
-    explicit TensorCollection(int total_size) : batch_size_(total_size), total_size_(total_size) { assert_sizes(); }
-    explicit TensorCollection(int batch_size, int total_size) : batch_size_(batch_size), total_size_(total_size) {
-      assert_sizes();
-    }
+    TensorCollection() = default;
 
     // SOA_EIGEN_COLUMN
     template <typename SoALayout, typename TSoAParamsImpl, typename... Others>
       requires(SameValueType<TSoAParamsImpl, Others...> && TSoAParamsImpl::columnType == cms::soa::SoAColumnType::eigen)
     void add(const std::string& name,
-             int batch_id,
+             TensorSlice slice,
              std::tuple<TSoAParamsImpl, cms::soa::size_type> column,
              std::tuple<Others, cms::soa::size_type>... others) {
       using DataType = typename TSoAParamsImpl::ScalarType;
-      assert_batch_id(batch_id);
-      int offset = batch_id * batch_size_;
+
       auto ptr = std::get<0>(column).data();
+      const auto soa_size = std::get<1>(column);
+      const auto [offset, effective_size] = slice.resolve(soa_size);
+
       int n_elems =
-          cms::torch::alpakatools::detail::num_elements_per_column(total_size_, SoALayout::alignment, sizeof(DataType));
+          cms::torch::alpakatools::detail::num_elements_per_column(soa_size, SoALayout::alignment, sizeof(DataType));
       assert_location(
           n_elems * TSoAParamsImpl::ValueType::RowsAtCompileTime * TSoAParamsImpl::ValueType::ColsAtCompileTime,
           ptr,
@@ -132,18 +171,16 @@ namespace cms::torch::alpakatools {
       else
         tensor_dims = {1 + sizeof...(Others), TSoAParamsImpl::ValueType::RowsAtCompileTime};
 
-      // Handle the case in which the last batch contains less elements
-      auto effective_batch_size = std::min(batch_size_, total_size_ - offset);
-      emplace_tensor(name, SoALayout::alignment, ptr, effective_batch_size, total_size_, tensor_dims);
+      emplace_tensor(name, SoALayout::alignment, ptr, effective_size, soa_size, tensor_dims);
     }
 
-    // SOA_EIGEN_COLUMN with default batch size = default size
+    // SOA_EIGEN_COLUMN without slicing: expose all rows.
     template <typename SoALayout, typename TSoAParamsImpl, typename... Others>
       requires(SameValueType<TSoAParamsImpl, Others...> && TSoAParamsImpl::columnType == cms::soa::SoAColumnType::eigen)
     void add(const std::string& name,
              std::tuple<TSoAParamsImpl, cms::soa::size_type> column,
              std::tuple<Others, cms::soa::size_type>... others) {
-      add<SoALayout, TSoAParamsImpl, Others...>(name, 0, column, others...);
+      add<SoALayout, TSoAParamsImpl, Others...>(name, TensorSlice{}, column, others...);
     }
 
     // SOA_COLUMN
@@ -151,46 +188,51 @@ namespace cms::torch::alpakatools {
       requires(SameScalarType<TSoAParamsImpl, Others...> &&
                TSoAParamsImpl::columnType == cms::soa::SoAColumnType::column)
     void add(const std::string& name,
-             int batch_id,
+             TensorSlice slice,
              std::tuple<TSoAParamsImpl, cms::soa::size_type> column,
              std::tuple<Others, cms::soa::size_type>... others) {
       using DataType = typename TSoAParamsImpl::ScalarType;
-      assert_batch_id(batch_id);
-      int offset = batch_id * batch_size_;
+
       auto ptr = std::get<0>(column).data();
+      const auto soa_size = std::get<1>(column);
+      const auto [offset, effective_size] = slice.resolve(soa_size);
+
       int n_elems =
-          cms::torch::alpakatools::detail::num_elements_per_column(total_size_, SoALayout::alignment, sizeof(DataType));
+          cms::torch::alpakatools::detail::num_elements_per_column(soa_size, SoALayout::alignment, sizeof(DataType));
       assert_location(n_elems, ptr, std::get<0>(others).data()...);
 
       ptr += offset;
-      auto effective_batch_size = std::min(batch_size_, total_size_ - offset);
-      emplace_tensor(name, SoALayout::alignment, ptr, effective_batch_size, total_size_, {1 + sizeof...(Others)});
+      emplace_tensor(name, SoALayout::alignment, ptr, effective_size, soa_size, {1 + sizeof...(Others)});
     }
 
-    // SOA_COLUMN with default batch size = total size
+    // SOA_COLUMN without slicing: expose all rows.
     template <typename SoALayout, typename TSoAParamsImpl, typename... Others>
       requires(SameScalarType<TSoAParamsImpl, Others...> &&
                TSoAParamsImpl::columnType == cms::soa::SoAColumnType::column)
     void add(const std::string& name,
              std::tuple<TSoAParamsImpl, cms::soa::size_type> column,
              std::tuple<Others, cms::soa::size_type>... others) {
-      add<SoALayout, TSoAParamsImpl, Others...>(name, 0, column, others...);
+      add<SoALayout, TSoAParamsImpl, Others...>(name, TensorSlice{}, column, others...);
     }
 
-    // SOA_SCALAR
+    // SOA_SCALAR: have no TensorSlice overload.
     template <typename SoALayout, cms::soa::SoAColumnType column_t, typename T>
       requires(std::is_arithmetic_v<T> && column_t == cms::soa::SoAColumnType::scalar)
     void add(const std::string& name,
              std::tuple<cms::soa::SoAParametersImpl<column_t, T>, cms::soa::size_type> column) {
       auto ptr = std::get<0>(column).data();
-      emplace_tensor(name, SoALayout::alignment, ptr, batch_size_, total_size_, {1}, true);
+      const auto soa_size = std::get<1>(column);
+
+      emplace_tensor(name, SoALayout::alignment, ptr, soa_size, soa_size, {1}, true);
     }
 
     // The order is defined by the order `add()` is called.
     // It can be changed by passing a vector of the block names afterwards.
     void change_order(std::vector<std::string> order) {
-      assert(order.size() == order_.size() &&
-             "TensorCollection::change_order: size mismatch, all blocks have to be mentioned.");
+      if (order.size() != order_.size())
+        detail::throwException("TensorCollection",
+                               "TensorCollection::change_order: size mismatch, all tensors must be specified.");
+
       order_ = std::move(order);
     }
     size_t size() const { return registry_.size(); }
@@ -214,28 +256,16 @@ namespace cms::torch::alpakatools {
                         std::vector<int> dims = {1},
                         const bool is_scalar = false) {
       using T = std::remove_pointer_t<Tptr>;
-      registry_.try_emplace(name,
-                            std::make_unique<cms::torch::alpakatools::detail::TensorHandle<TQueue, T>>(
-                                alignment, sizeof(T), ptr, batch_size, total_size, std::move(dims), is_scalar));
+
+      if (registry_.contains(name))
+        detail::throwException("TensorCollection", "tensor name '" + name + "' is already registered.");
+
+      registry_.emplace(name,
+                        std::make_unique<cms::torch::alpakatools::detail::TensorHandle<TQueue, T>>(
+                            alignment, sizeof(T), ptr, batch_size, total_size, std::move(dims), is_scalar));
       order_.push_back(name);
     }
 
-    void assert_sizes() {
-      assert(total_size_ >= 0 && "Total size must be positive!");
-      if (batch_size_ == 0) {
-        assert(total_size_ == 0 && "Batch size 0 only allowed when total size is 0");
-        return;
-      }
-      assert(batch_size_ > 0 && "Batch size must be positive!");
-    }
-
-    void assert_batch_id(int batch_id) {
-      assert(batch_id >= 0 && "Batch id must be non-negative!");
-      assert((total_size_ == 0 || (batch_id * batch_size_ < total_size_)) && "Batch id is out of bounds!");
-    }
-
-    int batch_size_;
-    int total_size_;
     std::vector<std::string> order_;
     std::unordered_map<std::string, std::unique_ptr<cms::torch::alpakatools::detail::ITensorHandle<TQueue>>> registry_;
   };

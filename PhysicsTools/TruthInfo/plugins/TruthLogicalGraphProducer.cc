@@ -1,8 +1,5 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
 
-// Author: Felice Pantaleo - CERN
-// Date: 03/2026
-//
 // Build a logical truth::Graph from the raw heterogeneous TruthGraph.
 // The topology comes from the raw TruthGraph.
 // Standalone payload (momentum/position/checkpoints) is materialized from optional
@@ -292,28 +289,30 @@ class TruthLogicalGraphProducer : public edm::stream::EDProducer<> {
 public:
   explicit TruthLogicalGraphProducer(edm::ParameterSet const& cfg)
       : srcToken_(consumes<TruthGraph>(cfg.getParameter<edm::InputTag>("src"))),
-        simTrackToken_(mayConsume<edm::SimTrackContainer>(cfg.getParameter<edm::InputTag>("simTracks"))),
-        simVertexToken_(mayConsume<edm::SimVertexContainer>(cfg.getParameter<edm::InputTag>("simVertices"))),
-        hepmc3Token_(mayConsume<edm::HepMC3Product>(cfg.getParameter<edm::InputTag>("genEventHepMC3"))),
-        hepmc2Token_(mayConsume<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
+        simTrackToken_(consumes<edm::SimTrackContainer>(cfg.getParameter<edm::InputTag>("simTracks"))),
+        simVertexToken_(consumes<edm::SimVertexContainer>(cfg.getParameter<edm::InputTag>("simVertices"))),
+        hepmc3Token_(consumes<edm::HepMC3Product>(cfg.getParameter<edm::InputTag>("genEventHepMC3"))),
+        hepmc2Token_(consumes<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
         rawGenPayloadTag_(cfg.getParameter<edm::InputTag>("rawGenPayload")),
-        rawGenPayloadToken_(mayConsume<std::vector<math::XYZTLorentzVectorD>>(rawGenPayloadTag_)),
-        rawGenPayloadNodesToken_(mayConsume<std::vector<uint32_t>>(edm::InputTag(
+        rawGenPayloadToken_(consumes<std::vector<math::XYZTLorentzVectorD>>(rawGenPayloadTag_)),
+        rawGenPayloadNodesToken_(consumes<std::vector<uint32_t>>(edm::InputTag(
             rawGenPayloadTag_.label(), rawGenPayloadTag_.instance() + "Nodes", rawGenPayloadTag_.process()))),
         mergeGenSimVertices_(cfg.getParameter<bool>("mergeGenSimVertices")),
         verbosity_(cfg.getUntrackedParameter<unsigned>("verbosity")),
         postProcessor_(truth::TruthLogicalGraphPostProcessor::configFromPSet(
             cfg.getParameter<edm::ParameterSet>("postProcessing"))) {
     // The hitless-subgraph pruning needs to know which SimTracks left a sim-hit;
-    // consume the same collections the hit-index producer uses, on every channel it
-    // indexes. A channel missing here is silently turned into deleted truth.
+    // consume the sim hits of every channel the hit-index producer can fill. A channel
+    // missing here is silently turned into deleted truth.
     if (postProcessor_.config().dropHitlessSimSubgraphs) {
       for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("simHitCollections"))
         caloSimHitTokens_.push_back(consumes<std::vector<PCaloHit>>(tag));
       for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("trackerSimHitCollections"))
-        trackerSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
+        pSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
       for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("muonSimHitCollections"))
-        trackerSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
+        pSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
+      for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("mtdSimHitCollections"))
+        pSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
     }
 
     produces<truth::Graph>();
@@ -373,6 +372,14 @@ public:
             "hit index carries a Muon channel: a particle whose only hits are in the chambers, for instance "
             "a punch-through secondary born past the calorimeters, would otherwise be pruned as hitless and "
             "leave those indexed hits with no node.");
+
+    desc.add<std::vector<edm::InputTag>>(
+            "mtdSimHitCollections",
+            {edm::InputTag("g4SimHits", "FastTimerHitsBarrel"), edm::InputTag("g4SimHits", "FastTimerHitsEndcap")})
+        ->setComment(
+            "MTD (BTL/ETL) PSimHit collections, same role as trackerSimHitCollections. A particle whose only hits "
+            "are in the MTD is kept. The MTD channel of the hit index reads MtdSimLayerClusters, so a kept "
+            "particle without a layer cluster has no hit in that channel.");
 
     desc.add<edm::ParameterSetDescription>("postProcessing", truth::TruthLogicalGraphPostProcessor::psetDescription())
         ->setComment("Logical graph post-processing configuration.");
@@ -911,10 +918,11 @@ public:
     }
 
     // Per-particle sim-hit presence for the hitless-subgraph pruning. A logical
-    // particle is flagged when a calo or tracker sim-hit carries its SimTrack
-    // trackId with positive energy -- exactly how the LogicalGraphHitIndex
-    // attributes direct hits, so the pruned graph stays consistent with the
-    // index. Left empty (pruning disabled) when no sim-hit collection is present.
+    // particle is flagged when a calo, tracker, MTD or muon sim-hit carries its SimTrack
+    // trackId with positive energy. The calo and muon channels of the hit index use the
+    // same rule. The tracker and MTD channels read digi sim links and MtdSimLayerClusters,
+    // so a kept particle can have no hit in them. Left empty (pruning disabled) when no
+    // sim-hit collection is present.
     std::vector<uint8_t> particleDirectHit;
 
     if (postProcessor_.config().dropHitlessSimSubgraphs) {
@@ -959,7 +967,7 @@ public:
         }
       }
 
-      for (auto const& token : trackerSimHitTokens_) {
+      for (auto const& token : pSimHitTokens_) {
         edm::Handle<edm::PSimHitContainer> hHits;
         evt.getByToken(token, hHits);
         if (!hHits.isValid())
@@ -975,7 +983,7 @@ public:
         particleDirectHit = std::move(hasHit);
       } else {
         edm::LogWarning("TruthLogicalGraphProducer")
-            << "dropHitlessSimSubgraphs is enabled but no calo/tracker sim-hit collection was found; "
+            << "dropHitlessSimSubgraphs is enabled but no sim-hit collection was found; "
                "keeping the full logical graph for this event.";
       }
     }
@@ -1054,7 +1062,7 @@ private:
   edm::EDGetTokenT<std::vector<math::XYZTLorentzVectorD>> rawGenPayloadToken_;
   edm::EDGetTokenT<std::vector<uint32_t>> rawGenPayloadNodesToken_;
   std::vector<edm::EDGetTokenT<std::vector<PCaloHit>>> caloSimHitTokens_;
-  std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> trackerSimHitTokens_;
+  std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> pSimHitTokens_;
 
   bool mergeGenSimVertices_;
   unsigned verbosity_ = 0;

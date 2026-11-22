@@ -66,9 +66,7 @@ public:
   bool cellInLayer(int waferU, int waferV, int cellU, int cellV, int lay, int zside, bool reco) const;
   const HGCalCellOffset* cellOffset() const { return cellOffset_.get(); }
   double cellSizeHex(int type) const;
-  inline std::pair<double, double> cellSizeTrap(int type, int irad) const {
-    return std::make_pair(hgpar_->radiusLayer_[type][irad - 1], hgpar_->radiusLayer_[type][irad]);
-  }
+  std::pair<double, double> cellSizeTrap(int type, int irad) const;
   std::vector<double> cellThickness() const;
   double cellThickness(int layer, int waferU, int waferV) const;
   int32_t cellType(int type, int waferU, int waferV, int iz, int fwdBack, int orient) const;
@@ -106,7 +104,12 @@ public:
   int getTypeTrap(int layer) const;
   int getTypeHex(int layer, int waferU, int waferV) const;
   std::pair<double, double> getXY(int layer, double x, double y, bool forwd) const;
-  inline int getUVMax(int type) const { return ((type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_); }
+  inline int getUVMax(int type) const {
+    const bool fine =
+        (waferHexagon8() ? ((type == HGCSiliconDetId::HGCalHD120) || (type == HGCSiliconDetId::HGCalHD200))
+                         : (type == 0));
+    return (fine ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_);
+  }
   double guardRingOffset(bool reco) const;
   bool isHalfCell(int waferType, int cell) const;
   bool isValidHex(int lay, int mod, int cell, bool reco) const;

@@ -15,6 +15,13 @@
   <use name="catch2"/>
 </bin>
 
+<bin file="test_catch2_getL1TCandidates.cc" name="testHLTriggerHLTcoreGetL1TCandidatesCatch2">
+  <use name="DataFormats/HLTReco"/>
+  <use name="DataFormats/L1Trigger"/>
+  <use name="HLTrigger/HLTcore"/>
+  <use name="catch2"/>
+</bin>
+
 <!-- test the HLTPrescaleExample plugin -->
 <!-- <test name="testHLTPrescaleExample" command="testHLTPrescaleExample.sh"/> COMMENT: reads old format file -->
 

@@ -97,7 +97,7 @@ bool RemovePileUpDominatedEventsGen::filter(edm::Event& iEvent, const edm::Event
   signal_pT_hat = generatorInfo->qScale();
 
   //save PU - signal pt-hat
-  std::unique_ptr<float> pOut(new float());
+  std::unique_ptr<float> pOut = std::make_unique<float>();
   *pOut = signal_pT_hat - pu_pT_hat_max;
   iEvent.put(std::move(pOut));
 

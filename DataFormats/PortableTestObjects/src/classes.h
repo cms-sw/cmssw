@@ -6,6 +6,7 @@
 #include "DataFormats/PortableTestObjects/interface/TestStruct.h"
 
 #include "DataFormats/PortableTestObjects/interface/ParticleHostCollection.h"
+#include "DataFormats/PortableTestObjects/interface/HitHostCollection.h"
 #include "DataFormats/PortableTestObjects/interface/ImageHostCollection.h"
 #include "DataFormats/PortableTestObjects/interface/LogitsHostCollection.h"
 #include "DataFormats/PortableTestObjects/interface/SimpleNetHostCollection.h"

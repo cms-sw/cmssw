@@ -37,7 +37,7 @@ void L1GctInternJetProducer::produce(edm::StreamID, edm::Event& iEvent, const ed
   using namespace l1extra;
   using namespace std;
 
-  unique_ptr<L1JetParticleCollection> internJetColl(new L1JetParticleCollection);
+  unique_ptr<L1JetParticleCollection> internJetColl = std::make_unique<L1JetParticleCollection>();
 
   ESHandle<L1CaloGeometry> caloGeomESH = iSetup.getHandle(caloGeomToken_);
   const L1CaloGeometry* caloGeom = &(*caloGeomESH);

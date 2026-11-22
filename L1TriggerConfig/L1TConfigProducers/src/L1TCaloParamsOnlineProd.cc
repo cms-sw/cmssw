@@ -302,7 +302,7 @@ std::unique_ptr<const l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const 
   if (exclusiveLayer == 0 || exclusiveLayer == 2) {
     // for debugging purposes dump the configs to local files
     for (auto& conf : calol2_algo_payloads) {
-      std::ofstream output(std::string("/tmp/").append(conf.first.substr(0, conf.first.find("/"))).append(".xml"));
+      std::ofstream output(std::string("/tmp/").append(conf.first.substr(0, conf.first.find('/'))).append(".xml"));
       output << conf.second;
       output.close();
     }

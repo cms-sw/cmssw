@@ -51,7 +51,7 @@ void JetCorrectorDBWriter::beginJob() {
     std::string ilev =
         JetCorrectorParametersCollection::findLabel(static_cast<JetCorrectorParametersCollection::Level_t>(i));
     append += ilev;
-    append += "_";
+    append += '_';
     append += algo;
     append += ".txt";
     inputTxtFile = path + era + append;

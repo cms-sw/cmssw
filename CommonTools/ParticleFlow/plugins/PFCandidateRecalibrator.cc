@@ -32,6 +32,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Association.h"
 #include <iostream>
+#include <memory>
 
 struct HEChannel {
   float eta;
@@ -156,8 +157,8 @@ void PFCandidateRecalibrator::produce(edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByToken(pfcandidates_, pfcandidates);
 
   int nPfCand = pfcandidates->size();
-  std::unique_ptr<reco::PFCandidateCollection> copy(new reco::PFCandidateCollection());
-  std::unique_ptr<reco::PFCandidateCollection> discarded(new reco::PFCandidateCollection());
+  std::unique_ptr<reco::PFCandidateCollection> copy = std::make_unique<reco::PFCandidateCollection>();
+  std::unique_ptr<reco::PFCandidateCollection> discarded = std::make_unique<reco::PFCandidateCollection>();
   copy->reserve(nPfCand);
   std::vector<int> oldToNew(nPfCand), newToOld, badToOld;
   newToOld.reserve(nPfCand);
@@ -278,7 +279,7 @@ void PFCandidateRecalibrator::produce(edm::Event& iEvent, const edm::EventSetup&
   edm::OrphanHandle<reco::PFCandidateCollection> newpf = iEvent.put(std::move(copy));
   edm::OrphanHandle<reco::PFCandidateCollection> badpf = iEvent.put(std::move(discarded), "discarded");
 
-  std::unique_ptr<edm::ValueMap<reco::PFCandidateRef>> pf2pf(new edm::ValueMap<reco::PFCandidateRef>());
+  std::unique_ptr<edm::ValueMap<reco::PFCandidateRef>> pf2pf = std::make_unique<edm::ValueMap<reco::PFCandidateRef>>();
   edm::ValueMap<reco::PFCandidateRef>::Filler filler(*pf2pf);
   std::vector<reco::PFCandidateRef> refs;
   refs.reserve(nPfCand);

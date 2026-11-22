@@ -37,7 +37,7 @@ private:
 };
 
 LHEWriter::LHEWriter(const edm::ParameterSet &params)
-    : tokenLHERunInfo_(consumes<LHERunInfoProduct, edm::InRun>(
+    : tokenLHERunInfo_(consumes<LHERunInfoProduct, edm::InRun, edm::Transition::EndRun>(
           params.getUntrackedParameter<edm::InputTag>("moduleLabel", std::string("source")))),
       tokenLHEEvent_(consumes<LHEEventProduct>(
           params.getUntrackedParameter<edm::InputTag>("moduleLabel", std::string("source")))) {}

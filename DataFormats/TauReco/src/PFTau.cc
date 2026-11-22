@@ -141,8 +141,9 @@ namespace reco::io_v1 {
       return std::make_unique<reco::PFCandidatePtr>();
     }
 
-    std::unique_ptr<std::vector<reco::PFCandidatePtr> > convertToPFPtrs(const std::vector<reco::CandidatePtr>& cands) {
-      std::unique_ptr<std::vector<reco::PFCandidatePtr> > newSignalPFCands{new std::vector<reco::PFCandidatePtr>{}};
+    std::unique_ptr<std::vector<reco::PFCandidatePtr>> convertToPFPtrs(const std::vector<reco::CandidatePtr>& cands) {
+      std::unique_ptr<std::vector<reco::PFCandidatePtr>> newSignalPFCands =
+          std::make_unique<std::vector<reco::PFCandidatePtr>>();
       bool isPF = false;
       for (auto& cand : cands) {
         // Check for first Candidate if it is a PFCandidate; if yes, skip for the rest

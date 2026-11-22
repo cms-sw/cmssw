@@ -200,12 +200,13 @@ namespace l1t {
     int bxLast = bxLast_;
 
     //outputs
-    std::unique_ptr<l1t::EGammaBxCollection> egammas(new l1t::EGammaBxCollection(0, bxFirst, bxLast));
-    std::unique_ptr<l1t::MuonBxCollection> muons(new l1t::MuonBxCollection(0, bxFirst, bxLast));
-    std::unique_ptr<l1t::MuonShowerBxCollection> muonShowers(new l1t::MuonShowerBxCollection(0, bxFirst, bxLast));
-    std::unique_ptr<l1t::TauBxCollection> taus(new l1t::TauBxCollection(0, bxFirst, bxLast));
-    std::unique_ptr<l1t::JetBxCollection> jets(new l1t::JetBxCollection(0, bxFirst, bxLast));
-    std::unique_ptr<l1t::EtSumBxCollection> etsums(new l1t::EtSumBxCollection(0, bxFirst, bxLast));
+    std::unique_ptr<l1t::EGammaBxCollection> egammas = std::make_unique<l1t::EGammaBxCollection>(0, bxFirst, bxLast);
+    std::unique_ptr<l1t::MuonBxCollection> muons = std::make_unique<l1t::MuonBxCollection>(0, bxFirst, bxLast);
+    std::unique_ptr<l1t::MuonShowerBxCollection> muonShowers =
+        std::make_unique<l1t::MuonShowerBxCollection>(0, bxFirst, bxLast);
+    std::unique_ptr<l1t::TauBxCollection> taus = std::make_unique<l1t::TauBxCollection>(0, bxFirst, bxLast);
+    std::unique_ptr<l1t::JetBxCollection> jets = std::make_unique<l1t::JetBxCollection>(0, bxFirst, bxLast);
+    std::unique_ptr<l1t::EtSumBxCollection> etsums = std::make_unique<l1t::EtSumBxCollection>(0, bxFirst, bxLast);
 
     std::vector<int> mu_cands_index;
     std::vector<int> eg_cands_index;

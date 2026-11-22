@@ -99,10 +99,10 @@ bool L1TMicroGMTInputProducerFromGen::compareMuons(const RegionalMuonCand& mu1, 
 void L1TMicroGMTInputProducerFromGen::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  std::unique_ptr<RegionalMuonCandBxCollection> barrelMuons(new RegionalMuonCandBxCollection());
-  std::unique_ptr<RegionalMuonCandBxCollection> overlapMuons(new RegionalMuonCandBxCollection());
-  std::unique_ptr<RegionalMuonCandBxCollection> endcapMuons(new RegionalMuonCandBxCollection());
-  std::unique_ptr<MuonCaloSumBxCollection> towerSums(new MuonCaloSumBxCollection());
+  std::unique_ptr<RegionalMuonCandBxCollection> barrelMuons = std::make_unique<RegionalMuonCandBxCollection>();
+  std::unique_ptr<RegionalMuonCandBxCollection> overlapMuons = std::make_unique<RegionalMuonCandBxCollection>();
+  std::unique_ptr<RegionalMuonCandBxCollection> endcapMuons = std::make_unique<RegionalMuonCandBxCollection>();
+  std::unique_ptr<MuonCaloSumBxCollection> towerSums = std::make_unique<MuonCaloSumBxCollection>();
 
   std::vector<RegionalMuonCand> bmMuons;
   std::vector<RegionalMuonCand> omMuons;

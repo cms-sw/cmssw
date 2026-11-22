@@ -15,6 +15,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "HLTrigger/HLTcore/interface/getL1TCandidates.h"
 #include "RecoTauTag/RecoTau/interface/TauWPThreshold.h"
 
 class TauTagFilter : public HLTFilter {
@@ -31,8 +32,8 @@ public:
         tausSrc_(cfg.getParameter<edm::InputTag>("taus")),
         tausToken_(consumes<TauCollection>(tausSrc_)),
         tauTagsToken_(consumes<TauTagCollection>(cfg.getParameter<edm::InputTag>("tauTags"))),
-        tauPtCorrToken_(mayConsume<TauTagCollection>(cfg.getParameter<edm::InputTag>("tauPtCorr"))),
-        seedsSrc_(mayConsume<trigger::TriggerFilterObjectWithRefs>(cfg.getParameter<edm::InputTag>("seeds"))),
+        tauPtCorrToken_(consumes<TauTagCollection>(cfg.getParameter<edm::InputTag>("tauPtCorr"))),
+        seedsSrc_(consumes<trigger::TriggerFilterObjectWithRefs>(cfg.getParameter<edm::InputTag>("seeds"))),
         seedTypes_(cfg.getParameter<std::vector<int>>("seedTypes")),
         selector_(cfg.getParameter<std::string>("selection")),
         minPt_(cfg.getParameter<double>("minPt")),
@@ -57,7 +58,9 @@ public:
     desc.add<edm::InputTag>("seeds", edm::InputTag(""))->setComment("input collection of seeds");
     desc.add<std::vector<int>>("seedTypes",
                                {trigger::TriggerL1Tau, trigger::TriggerL1Jet, trigger::TriggerTau, trigger::TriggerJet})
-        ->setComment("list of seed object types");
+        ->setComment(
+            "list of seed object types; supported: TriggerL1Tau, TriggerL1Jet (L1T objects of Run-3 or Phase-2 "
+            "seeds), TriggerL1TauJet (Phase-2 GCT and GTT taus), TriggerTau, TriggerJet");
     desc.add<std::string>("selection", "0")->setComment("selection formula");
     desc.add<double>("minPt", 20)->setComment("minimal tau pt");
     desc.add<double>("maxEta", 2.5)->setComment("maximal tau abs(eta)");
@@ -125,9 +128,12 @@ private:
         seeds = &event->get(seedsSrc_);
       for (const int seedType : seedTypes_) {
         if (seedType == trigger::TriggerL1Tau) {
-          extractMomenta<l1t::TauVectorRef>(seeds, seedType, seed_p4s);
+          extractL1TMomenta<l1t::TauVectorRef>(seeds, seedType, seed_p4s);
         } else if (seedType == trigger::TriggerL1Jet) {
-          extractMomenta<l1t::JetVectorRef>(seeds, seedType, seed_p4s);
+          extractL1TMomenta<l1t::JetVectorRef>(seeds, seedType, seed_p4s);
+        } else if (seedType == trigger::TriggerL1TauJet) {
+          // Phase-2 GCT and GTT taus (l1t::P2GTCandidate refs only)
+          extractL1TMomenta<>(seeds, seedType, seed_p4s);
         } else if (seedType == trigger::TriggerTau) {
           extractMomenta<std::vector<reco::PFTauRef>>(seeds, seedType, seed_p4s);
         } else if (seedType == trigger::TriggerJet) {
@@ -148,6 +154,17 @@ private:
       Collection objects;
       triggerObjects->getObjects(objType, objects);
       for (const auto& obj : objects)
+        p4s.push_back(obj->polarP4());
+    }
+  }
+
+  // L1T seeds: also reads l1t::P2GTCandidate refs (Phase-2 seeds), see hlt::getL1TCandidates
+  template <typename... L1TVectorRefs>
+  static void extractL1TMomenta(const trigger::TriggerRefsCollections* triggerObjects,
+                                int objType,
+                                std::vector<LorentzVectorM>& p4s) {
+    if (triggerObjects) {
+      for (const auto* obj : hlt::getL1TCandidates<L1TVectorRefs...>(*triggerObjects, objType))
         p4s.push_back(obj->polarP4());
     }
   }

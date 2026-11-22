@@ -164,14 +164,14 @@ void L1TStage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup) {
   int bxLast = caloRegions->getLastBX();
 
   //outputs
-  std::unique_ptr<EGammaBxCollection> egammas(new EGammaBxCollection);
-  std::unique_ptr<TauBxCollection> taus(new TauBxCollection);
-  std::unique_ptr<TauBxCollection> isoTaus(new TauBxCollection);
-  std::unique_ptr<JetBxCollection> jets(new JetBxCollection);
-  std::unique_ptr<JetBxCollection> preGtJets(new JetBxCollection);
-  std::unique_ptr<EtSumBxCollection> etsums(new EtSumBxCollection);
-  std::unique_ptr<CaloSpareBxCollection> hfSums(new CaloSpareBxCollection);
-  std::unique_ptr<CaloSpareBxCollection> hfCounts(new CaloSpareBxCollection);
+  std::unique_ptr<EGammaBxCollection> egammas = std::make_unique<EGammaBxCollection>();
+  std::unique_ptr<TauBxCollection> taus = std::make_unique<TauBxCollection>();
+  std::unique_ptr<TauBxCollection> isoTaus = std::make_unique<TauBxCollection>();
+  std::unique_ptr<JetBxCollection> jets = std::make_unique<JetBxCollection>();
+  std::unique_ptr<JetBxCollection> preGtJets = std::make_unique<JetBxCollection>();
+  std::unique_ptr<EtSumBxCollection> etsums = std::make_unique<EtSumBxCollection>();
+  std::unique_ptr<CaloSpareBxCollection> hfSums = std::make_unique<CaloSpareBxCollection>();
+  std::unique_ptr<CaloSpareBxCollection> hfCounts = std::make_unique<CaloSpareBxCollection>();
 
   egammas->setBXRange(bxFirst, bxLast);
   taus->setBXRange(bxFirst, bxLast);

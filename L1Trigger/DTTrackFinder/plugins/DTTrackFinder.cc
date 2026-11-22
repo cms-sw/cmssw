@@ -27,12 +27,13 @@
 
 #include <iostream>
 #include <iomanip>
+#include <memory>
 
 using namespace std;
 
 DTTrackFinder::DTTrackFinder(const edm::ParameterSet& pset) {
   produces<L1MuDTTrackContainer>("DTTF");
-  produces<vector<L1MuRegionalCand> >("DT");
+  produces<vector<L1MuRegionalCand>>("DT");
 
   setup1 = new L1MuDTTFSetup(pset, consumesCollector());
   usesResource("DTTrackFinder");
@@ -54,8 +55,8 @@ void DTTrackFinder::produce(edm::Event& e, const edm::EventSetup& c) {
   if (L1MuDTTFConfig::Debug(1))
     cout << "Number of muons found by the L1 DTBX TRIGGER : " << ndt << endl;
 
-  unique_ptr<L1MuDTTrackContainer> tra_product(new L1MuDTTrackContainer);
-  unique_ptr<vector<L1MuRegionalCand> > vec_product(new vector<L1MuRegionalCand>);
+  unique_ptr<L1MuDTTrackContainer> tra_product = std::make_unique<L1MuDTTrackContainer>();
+  unique_ptr<vector<L1MuRegionalCand>> vec_product = std::make_unique<vector<L1MuRegionalCand>>();
 
   vector<L1MuDTTrackCand>& dtTracks = dtbx->getcache0();
   tra_product->setContainer(dtTracks);

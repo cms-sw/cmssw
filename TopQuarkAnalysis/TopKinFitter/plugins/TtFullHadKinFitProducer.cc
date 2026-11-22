@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -27,9 +29,9 @@ private:
 
 private:
   /// input tag for jets
-  edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken_;
+  edm::EDGetTokenT<std::vector<pat::Jet>> jetsToken_;
   /// input tag for matches (in case the fit should be performed on certain matches)
-  edm::EDGetTokenT<std::vector<std::vector<int> > > matchToken_;
+  edm::EDGetTokenT<std::vector<std::vector<int>>> matchToken_;
   /// switch to tell whether all possible combinations should be used for the fit
   /// or only a certain combination
   bool useOnlyMatch_;
@@ -78,8 +80,8 @@ static const unsigned int nPartons = 6;
 
 /// default constructor
 TtFullHadKinFitProducer::TtFullHadKinFitProducer(const edm::ParameterSet& cfg)
-    : jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
-      matchToken_(mayConsume<std::vector<std::vector<int> > >(cfg.getParameter<edm::InputTag>("match"))),
+    : jetsToken_(consumes<std::vector<pat::Jet>>(cfg.getParameter<edm::InputTag>("jets"))),
+      matchToken_(consumes<std::vector<std::vector<int>>>(cfg.getParameter<edm::InputTag>("match"))),
       useOnlyMatch_(cfg.getParameter<bool>("useOnlyMatch")),
       bTagAlgo_(cfg.getParameter<std::string>("bTagAlgo")),
       minBTagValueBJet_(cfg.getParameter<double>("minBTagValueBJet")),
@@ -93,14 +95,14 @@ TtFullHadKinFitProducer::TtFullHadKinFitProducer(const edm::ParameterSet& cfg)
       maxDeltaS_(cfg.getParameter<double>("maxDeltaS")),
       maxF_(cfg.getParameter<double>("maxF")),
       jetParam_(cfg.getParameter<unsigned>("jetParametrisation")),
-      constraints_(cfg.getParameter<std::vector<unsigned> >("constraints")),
+      constraints_(cfg.getParameter<std::vector<unsigned>>("constraints")),
       mW_(cfg.getParameter<double>("mW")),
       mTop_(cfg.getParameter<double>("mTop")),
-      jetEnergyResolutionScaleFactors_(cfg.getParameter<std::vector<double> >("jetEnergyResolutionScaleFactors")),
-      jetEnergyResolutionEtaBinning_(cfg.getParameter<std::vector<double> >("jetEnergyResolutionEtaBinning")) {
+      jetEnergyResolutionScaleFactors_(cfg.getParameter<std::vector<double>>("jetEnergyResolutionScaleFactors")),
+      jetEnergyResolutionEtaBinning_(cfg.getParameter<std::vector<double>>("jetEnergyResolutionEtaBinning")) {
   if (cfg.exists("udscResolutions") && cfg.exists("bResolutions")) {
-    udscResolutions_ = cfg.getParameter<std::vector<edm::ParameterSet> >("udscResolutions");
-    bResolutions_ = cfg.getParameter<std::vector<edm::ParameterSet> >("bResolutions");
+    udscResolutions_ = cfg.getParameter<std::vector<edm::ParameterSet>>("udscResolutions");
+    bResolutions_ = cfg.getParameter<std::vector<edm::ParameterSet>>("bResolutions");
   } else if (cfg.exists("udscResolutions") || cfg.exists("bResolutions")) {
     if (cfg.exists("udscResolutions"))
       throw cms::Exception("Configuration")
@@ -132,23 +134,23 @@ TtFullHadKinFitProducer::TtFullHadKinFitProducer(const edm::ParameterSet& cfg)
                                                            mTop_);
 
   // produces the following collections
-  produces<std::vector<pat::Particle> >("PartonsB");
-  produces<std::vector<pat::Particle> >("PartonsBBar");
-  produces<std::vector<pat::Particle> >("PartonsLightQ");
-  produces<std::vector<pat::Particle> >("PartonsLightQBar");
-  produces<std::vector<pat::Particle> >("PartonsLightP");
-  produces<std::vector<pat::Particle> >("PartonsLightPBar");
+  produces<std::vector<pat::Particle>>("PartonsB");
+  produces<std::vector<pat::Particle>>("PartonsBBar");
+  produces<std::vector<pat::Particle>>("PartonsLightQ");
+  produces<std::vector<pat::Particle>>("PartonsLightQBar");
+  produces<std::vector<pat::Particle>>("PartonsLightP");
+  produces<std::vector<pat::Particle>>("PartonsLightPBar");
 
-  produces<std::vector<std::vector<int> > >();
-  produces<std::vector<double> >("Chi2");
-  produces<std::vector<double> >("Prob");
-  produces<std::vector<int> >("Status");
+  produces<std::vector<std::vector<int>>>();
+  produces<std::vector<double>>("Chi2");
+  produces<std::vector<double>>("Prob");
+  produces<std::vector<int>>("Status");
 }
 
 /// produce fitted object collections and meta data describing fit quality
 void TtFullHadKinFitProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   // get jet collection
-  const edm::Handle<std::vector<pat::Jet> >& jets = event.getHandle(jetsToken_);
+  const edm::Handle<std::vector<pat::Jet>>& jets = event.getHandle(jetsToken_);
 
   // get match in case that useOnlyMatch_ is true
   std::vector<int> match;
@@ -156,7 +158,7 @@ void TtFullHadKinFitProducer::produce(edm::Event& event, const edm::EventSetup& 
   if (useOnlyMatch_) {
     kinFitter->setUseOnlyMatch(true);
     // in case that only a ceratin match should be used, get match here
-    const edm::Handle<std::vector<std::vector<int> > >& matches = event.getHandle(matchToken_);
+    const edm::Handle<std::vector<std::vector<int>>>& matches = event.getHandle(matchToken_);
     match = *(matches->begin());
     // check if match is valid
     if (match.size() != nPartons) {
@@ -179,17 +181,17 @@ void TtFullHadKinFitProducer::produce(edm::Event& event, const edm::EventSetup& 
   std::list<TtFullHadKinFitter::KinFitResult> fitResults = kinFitter->fit(*jets);
 
   // pointer for output collections
-  std::unique_ptr<std::vector<pat::Particle> > pPartonsB(new std::vector<pat::Particle>);
-  std::unique_ptr<std::vector<pat::Particle> > pPartonsBBar(new std::vector<pat::Particle>);
-  std::unique_ptr<std::vector<pat::Particle> > pPartonsLightQ(new std::vector<pat::Particle>);
-  std::unique_ptr<std::vector<pat::Particle> > pPartonsLightQBar(new std::vector<pat::Particle>);
-  std::unique_ptr<std::vector<pat::Particle> > pPartonsLightP(new std::vector<pat::Particle>);
-  std::unique_ptr<std::vector<pat::Particle> > pPartonsLightPBar(new std::vector<pat::Particle>);
+  std::unique_ptr<std::vector<pat::Particle>> pPartonsB = std::make_unique<std::vector<pat::Particle>>();
+  std::unique_ptr<std::vector<pat::Particle>> pPartonsBBar = std::make_unique<std::vector<pat::Particle>>();
+  std::unique_ptr<std::vector<pat::Particle>> pPartonsLightQ = std::make_unique<std::vector<pat::Particle>>();
+  std::unique_ptr<std::vector<pat::Particle>> pPartonsLightQBar = std::make_unique<std::vector<pat::Particle>>();
+  std::unique_ptr<std::vector<pat::Particle>> pPartonsLightP = std::make_unique<std::vector<pat::Particle>>();
+  std::unique_ptr<std::vector<pat::Particle>> pPartonsLightPBar = std::make_unique<std::vector<pat::Particle>>();
   // pointer for meta information
-  std::unique_ptr<std::vector<std::vector<int> > > pCombi(new std::vector<std::vector<int> >);
-  std::unique_ptr<std::vector<double> > pChi2(new std::vector<double>);
-  std::unique_ptr<std::vector<double> > pProb(new std::vector<double>);
-  std::unique_ptr<std::vector<int> > pStatus(new std::vector<int>);
+  std::unique_ptr<std::vector<std::vector<int>>> pCombi = std::make_unique<std::vector<std::vector<int>>>();
+  std::unique_ptr<std::vector<double>> pChi2 = std::make_unique<std::vector<double>>();
+  std::unique_ptr<std::vector<double>> pProb = std::make_unique<std::vector<double>>();
+  std::unique_ptr<std::vector<int>> pStatus = std::make_unique<std::vector<int>>();
 
   unsigned int iComb = 0;
   for (std::list<TtFullHadKinFitter::KinFitResult>::const_iterator res = fitResults.begin(); res != fitResults.end();

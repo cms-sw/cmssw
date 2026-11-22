@@ -12,9 +12,9 @@ namespace cms {
     hbheLabel_ = iConfig.getParameter<std::string>("hbheInput");
     hoLabel_ = iConfig.getParameter<std::string>("hoInput");
     hfLabel_ = iConfig.getParameter<std::string>("hfInput");
-    hbheToken_ = mayConsume<HBHERecHitCollection>(edm::InputTag(hbheLabel_));
-    hoToken_ = mayConsume<HORecHitCollection>(edm::InputTag(hoLabel_));
-    hfToken_ = mayConsume<HFRecHitCollection>(edm::InputTag(hfLabel_));
+    hbheToken_ = consumes<HBHERecHitCollection>(edm::InputTag(hbheLabel_));
+    hoToken_ = consumes<HORecHitCollection>(edm::InputTag(hoLabel_));
+    hfToken_ = consumes<HFRecHitCollection>(edm::InputTag(hfLabel_));
     allowMissingInputs_ = iConfig.getUntrackedParameter<bool>("AllowMissingInputs", false);
   }
 

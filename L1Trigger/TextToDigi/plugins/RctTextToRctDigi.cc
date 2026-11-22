@@ -36,6 +36,7 @@ Description: Makes RCT digis from the file format specified by Pam Klabbers
 #include "FWCore/ServiceRegistry/interface/Service.h"      // Framework services
 #include "RctTextToRctDigi.h"
 #include <iomanip>
+#include <memory>
 
 using namespace edm;
 using namespace std;
@@ -75,8 +76,8 @@ RctTextToRctDigi::~RctTextToRctDigi() {
 
 /// Append empty digi collection/n
 void RctTextToRctDigi::putEmptyDigi(edm::Event &iEvent) {
-  std::unique_ptr<L1CaloEmCollection> em(new L1CaloEmCollection);
-  std::unique_ptr<L1CaloRegionCollection> rgn(new L1CaloRegionCollection);
+  std::unique_ptr<L1CaloEmCollection> em = std::make_unique<L1CaloEmCollection>();
+  std::unique_ptr<L1CaloRegionCollection> rgn = std::make_unique<L1CaloRegionCollection>();
   for (unsigned i = 0; i < NUM_RCT_CRATES; i++) {
     for (unsigned j = 0; j < 4; j++) {
       em->push_back(L1CaloEmCand(0, i, true));
@@ -121,8 +122,8 @@ void RctTextToRctDigi::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
   }
 
   // New collections
-  std::unique_ptr<L1CaloEmCollection> em(new L1CaloEmCollection);
-  std::unique_ptr<L1CaloRegionCollection> rgn(new L1CaloRegionCollection);
+  std::unique_ptr<L1CaloEmCollection> em = std::make_unique<L1CaloEmCollection>();
+  std::unique_ptr<L1CaloRegionCollection> rgn = std::make_unique<L1CaloRegionCollection>();
 
   // Loop over RCT crates
   for (unsigned i = 0; i < NUM_RCT_CRATES; i++) {

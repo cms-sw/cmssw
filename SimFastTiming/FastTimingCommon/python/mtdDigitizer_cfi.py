@@ -10,6 +10,7 @@ _barrel_MTDDigitizer = cms.PSet(
     digitizerName     = cms.string("BTLDigitizer"),
     inputSimHits      = cms.InputTag("g4SimHits:FastTimerHitsBarrel"),
     digiCollectionTag = cms.string("FTLBarrel"),
+    digiMTDCollectionTag = cms.string("MTDBarrel"),
     maxSimHitsAccTime = cms.uint32(100),
     premixStage1      = cms.bool(False),
     premixStage1MinCharge = cms.double(1e-4),
@@ -47,6 +48,7 @@ _barrel_MTDDigitizer = cms.PSet(
         SigmaClockGlobal          = cms.double(0.007),  # [ns], uncertainty due to the global LHC clock distribution
         SigmaClockRU              = cms.double(0.005),  # [ns], uncertainty due to clock distribution within the readout units
         CorrelationCoefficient    = cms.double(1.),     # correlation coefficient between T1 and T2 uncertainties
+        IntegrationTimeFixed      = cms.uint32(4),      # fixed integration time window for the signal charge integration in clk cycles, each cycle = 6.25ns
 
         PulseQParam               = cms.vdouble(-22.5, 0.0348), # pulse amplitude in ADC counts vs Npe
         PulseQResParam            = cms.vdouble(51., -0.88),    # relative amplitude resolution vs Npe
@@ -60,6 +62,7 @@ _endcap_MTDDigitizer = cms.PSet(
     digitizerName     = cms.string("ETLDigitizer"),
     inputSimHits      = cms.InputTag("g4SimHits:FastTimerHitsEndcap"),
     digiCollectionTag = cms.string("FTLEndcap"),
+    digiMTDCollectionTag = cms.string("MTDEndcap"),
     maxSimHitsAccTime = cms.uint32(100),
     premixStage1      = cms.bool(False),
     premixStage1MinCharge = cms.double(1e-4),
@@ -99,7 +102,8 @@ _endcap_MTDDigitizer = cms.PSet(
         noiseLevel          = cms.double(0.1750),
         sigmaDistorsion     = cms.double(0.0),
         sigmaTDC            = cms.double(0.010),
-        formulaLandauNoise  = cms.string("TMath::Max(0.020, 0.020 * (0.35 * (x - 1.0) + 1.0))") 
+        formulaLandauNoise  = cms.string("TMath::Max(0.020, 0.020 * (0.35 * (x - 1.0) + 1.0))"),
+        tdcWindowStart      = cms.double(9.375), # now set to 3 x ETROC_clock, phase can be adjusted to set the start at any value
         )
 )
 

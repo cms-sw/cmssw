@@ -2,6 +2,7 @@
  *  \author Julia Yarba
  */
 
+#include <memory>
 #include <ostream>
 #include <memory>
 
@@ -94,7 +95,7 @@ void BaseFlatGunProducer::endRunProduce(Run& run, const EventSetup& es) {
   // just create an empty product
   // to keep the EventContent definitions happy
   // later on we might put the info into the run info that this is a PGun
-  unique_ptr<GenRunInfoProduct> genRunInfo(new GenRunInfoProduct());
+  unique_ptr<GenRunInfoProduct> genRunInfo = std::make_unique<GenRunInfoProduct>();
   run.put(std::move(genRunInfo));
 }
 

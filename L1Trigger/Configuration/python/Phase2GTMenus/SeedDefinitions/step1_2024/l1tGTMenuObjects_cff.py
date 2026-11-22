@@ -23,6 +23,13 @@ l1tGTtkMuonVLoose = l1tGTtkMuonLoose.clone(
     qualityFlags = get_object_ids("GMTTkMuons","VLoose"),
 )
 
+# GMT standalone displaced muons (no track match, so no z0 and no online-to-offline scaling)
+l1tGTsaDisplacedMuon = cms.PSet(
+    tag = cms.InputTag("l1tGTProducer", "GMTSaDisplacedMuons"),
+    minEta = cms.double(-2.4),
+    maxEta = cms.double(2.4),
+)
+
 ############################################################
 # Jets
 ############################################################
@@ -38,6 +45,13 @@ l1tGTsc4Jet = cms.PSet(
 l1tGTsc4Jet_er5 = l1tGTsc4Jet.clone(
     minEta = cms.double(-5),
     maxEta = cms.double(5),
+)
+
+l1tGTsc8Jet_er5 = cms.PSet(
+    tag = cms.InputTag("l1tGTProducer", "CL2JetsSC8"),
+    minEta = cms.double(-5),
+    maxEta = cms.double(5),
+    regionsAbsEtaLowerBounds = get_object_etalowbounds("CL2JetsSC8"),
 )
 
 ############################################################

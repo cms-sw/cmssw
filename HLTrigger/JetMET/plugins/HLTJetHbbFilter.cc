@@ -6,6 +6,7 @@
  *
  */
 #include <cmath>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -181,7 +182,7 @@ bool HLTJetHbbFilter<T>::hltFilter(edm::Event& event,
                 filterproduct.addObject(triggerType_, ref2);
 
                 //create METCollection for storing csv tag1 and tag2 results
-                std::unique_ptr<reco::METCollection> csvObject(new reco::METCollection());
+                std::unique_ptr<reco::METCollection> csvObject = std::make_unique<reco::METCollection>();
                 reco::MET::LorentzVector csvP4(tag1, tag2, 0, 0);
                 reco::MET::Point vtx(0, 0, 0);
                 reco::MET csvTags(csvP4, vtx);

@@ -415,7 +415,7 @@ namespace edm {
         buildHcalDigis<QIE10DigiCollection>(QIE10DigiStorage_, *conditions);
     std::unique_ptr<QIE11DigiCollection> QIE11digis =
         buildHcalDigis<QIE11DigiCollection>(QIE11DigiStorage_, *conditions);
-    std::unique_ptr<ZDCDigiCollection> ZDCdigis(new ZDCDigiCollection);
+    std::unique_ptr<ZDCDigiCollection> ZDCdigis = std::make_unique<ZDCDigiCollection>();
 
     // loop over the maps we have, re-making individual hits or digis if
     // necessary.

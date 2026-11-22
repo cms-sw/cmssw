@@ -20,6 +20,8 @@ from RecoTICL.Interpretation.ticlCandidateProducer_cfi import ticlCandidateProdu
 from RecoTICL.Superclustering.superclustering_cff import *
 
 from RecoTICL.Interpretation.mtdSoAProducer_cfi import mtdSoAProducer as _mtdSoAProducer
+# the ONNX Runtime based inference and linking algorithms require the ONNXService
+from PhysicsTools.ONNXRuntime.ONNXService_cfi import ONNXService
 from Configuration.ProcessModifiers.ticlv5_TrackLinkingGNN_cff import ticlv5_TrackLinkingGNN
 
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_ticl_cff import ticl_superclustering_mustache_ticl
@@ -121,8 +123,7 @@ mtdSoA = _mtdSoAProducer.clone()
 
 # pfTICL uses ticlCandidate by default in v5
 pfTICL = _pfTICLProducer.clone(
-    ticlCandidateSrc = cms.InputTag('ticlCandidate'), 
-    useTimingAverage=True
+    ticlCandidateSrc = cms.InputTag('ticlCandidate')
 )
 
 

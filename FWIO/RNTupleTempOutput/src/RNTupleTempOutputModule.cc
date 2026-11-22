@@ -21,7 +21,7 @@
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
 #include "TObjArray.h"
-#include "RVersion.h"
+#include "ROOT/RVersion.hxx"
 #include "TDictAttributeMap.h"
 
 #include <fstream>

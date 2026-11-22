@@ -53,7 +53,7 @@ std::unique_ptr<DDCompactView> XMLIdealGeometryESSource::produce() {
   DDName ddName(rootNodeName_);
   DDLogicalPart rootNode(ddName);
   DDRootDef::instance().set(rootNode);
-  std::unique_ptr<DDCompactView> returnValue(new DDCompactView(rootNode));
+  std::unique_ptr<DDCompactView> returnValue = std::make_unique<DDCompactView>(rootNode);
   DDLParser parser(*returnValue);  //* parser = DDLParser::instance();
   parser.getDDLSAX2FileHandler()->setUserNS(userNS_);
   int result2 = parser.parse(geoConfig_);

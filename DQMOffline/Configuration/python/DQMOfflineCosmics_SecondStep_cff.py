@@ -13,6 +13,7 @@ from DQM.RPCMonitorClient.RPCTier0Client_cff import *
 from DQM.CSCMonitorModule.csc_dqm_offlineclient_cosmics_cff import *
 from DQM.GEM.gem_dqm_offline_client_cosmics_cff import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 
 DQMNone = cms.Sequence()
 
@@ -48,6 +49,17 @@ DQMOfflineCosmics_SecondStep_PreDPG = cms.Sequence(
                                                     DQMOfflineCosmics_SecondStepMuonDPG *
                                                     DQMOfflineCosmics_SecondStepFED )
 
+# Remove items that do not yet work with the Phase-2 cosmics setup 
+# TODO: Fix missing dependencies to restore them to working
+phase2_tracker.toReplaceWith(
+    DQMOfflineCosmics_SecondStep_PreDPG,
+    DQMOfflineCosmics_SecondStep_PreDPG.copyAndExclude(
+        [
+            DQMOfflineCosmics_SecondStepTrackerStrip,
+            DQMOfflineCosmics_SecondStepTrackerPixel
+        ]
+    )
+)
 
 DQMOfflineCosmics_SecondStepDPG = cms.Sequence(
                                                 DQMOfflineCosmics_SecondStep_PreDPG *

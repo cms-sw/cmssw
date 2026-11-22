@@ -1,5 +1,7 @@
 #include "L1Trigger/HardwareValidation/plugins/L1EmulBias.h"
 
+#include <memory>
+
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -274,30 +276,30 @@ void L1EmulBias::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetu
     assert(glt_obj_emul.isValid());
 
   /// declare the data collections
-  std::unique_ptr<EcalTrigPrimDigiCollection> ecal_tp_data(new EcalTrigPrimDigiCollection);
-  std::unique_ptr<HcalTrigPrimDigiCollection> hcal_tp_data(new HcalTrigPrimDigiCollection);
-  std::unique_ptr<L1CaloEmCollection> rct_em_data(new L1CaloEmCollection);
-  std::unique_ptr<L1CaloRegionCollection> rct_rgn_data(new L1CaloRegionCollection);
-  std::unique_ptr<L1GctEmCandCollection> gct_isolaem_data(new L1GctEmCandCollection);
-  std::unique_ptr<L1GctEmCandCollection> gct_noisoem_data(new L1GctEmCandCollection);
-  std::unique_ptr<L1GctJetCandCollection> gct_cenjets_data(new L1GctJetCandCollection);
-  std::unique_ptr<L1GctJetCandCollection> gct_forjets_data(new L1GctJetCandCollection);
-  std::unique_ptr<L1GctJetCandCollection> gct_taujets_data(new L1GctJetCandCollection);
-  std::unique_ptr<L1MuDTChambPhContainer> dtp_ph_data(new L1MuDTChambPhContainer);
-  std::unique_ptr<L1MuDTChambThContainer> dtp_th_data(new L1MuDTChambThContainer);
-  std::unique_ptr<L1MuRegionalCandCollection> dtf_data(new L1MuRegionalCandCollection);
-  std::unique_ptr<L1MuDTTrackContainer> dtf_trk_data(new L1MuDTTrackContainer);
-  std::unique_ptr<CSCCorrelatedLCTDigiCollection> ctp_data(new CSCCorrelatedLCTDigiCollection);
-  std::unique_ptr<L1MuRegionalCandCollection> ctf_data(new L1MuRegionalCandCollection);
-  std::unique_ptr<L1CSCTrackCollection> ctf_trk_data(new L1CSCTrackCollection);
-  std::unique_ptr<L1MuRegionalCandCollection> rpc_cen_data(new L1MuRegionalCandCollection);
-  std::unique_ptr<L1MuRegionalCandCollection> rpc_for_data(new L1MuRegionalCandCollection);
-  std::unique_ptr<LTCDigiCollection> ltc_data(new LTCDigiCollection);
-  std::unique_ptr<L1MuGMTCandCollection> gmt_data(new L1MuGMTCandCollection);
-  std::unique_ptr<L1MuGMTReadoutCollection> gmt_rdt_data(new L1MuGMTReadoutCollection);
-  std::unique_ptr<L1GlobalTriggerReadoutRecord> glt_rdt_data(new L1GlobalTriggerReadoutRecord);
-  std::unique_ptr<L1GlobalTriggerEvmReadoutRecord> glt_evm_data(new L1GlobalTriggerEvmReadoutRecord);
-  std::unique_ptr<L1GlobalTriggerObjectMapRecord> glt_obj_data(new L1GlobalTriggerObjectMapRecord);
+  std::unique_ptr<EcalTrigPrimDigiCollection> ecal_tp_data = std::make_unique<EcalTrigPrimDigiCollection>();
+  std::unique_ptr<HcalTrigPrimDigiCollection> hcal_tp_data = std::make_unique<HcalTrigPrimDigiCollection>();
+  std::unique_ptr<L1CaloEmCollection> rct_em_data = std::make_unique<L1CaloEmCollection>();
+  std::unique_ptr<L1CaloRegionCollection> rct_rgn_data = std::make_unique<L1CaloRegionCollection>();
+  std::unique_ptr<L1GctEmCandCollection> gct_isolaem_data = std::make_unique<L1GctEmCandCollection>();
+  std::unique_ptr<L1GctEmCandCollection> gct_noisoem_data = std::make_unique<L1GctEmCandCollection>();
+  std::unique_ptr<L1GctJetCandCollection> gct_cenjets_data = std::make_unique<L1GctJetCandCollection>();
+  std::unique_ptr<L1GctJetCandCollection> gct_forjets_data = std::make_unique<L1GctJetCandCollection>();
+  std::unique_ptr<L1GctJetCandCollection> gct_taujets_data = std::make_unique<L1GctJetCandCollection>();
+  std::unique_ptr<L1MuDTChambPhContainer> dtp_ph_data = std::make_unique<L1MuDTChambPhContainer>();
+  std::unique_ptr<L1MuDTChambThContainer> dtp_th_data = std::make_unique<L1MuDTChambThContainer>();
+  std::unique_ptr<L1MuRegionalCandCollection> dtf_data = std::make_unique<L1MuRegionalCandCollection>();
+  std::unique_ptr<L1MuDTTrackContainer> dtf_trk_data = std::make_unique<L1MuDTTrackContainer>();
+  std::unique_ptr<CSCCorrelatedLCTDigiCollection> ctp_data = std::make_unique<CSCCorrelatedLCTDigiCollection>();
+  std::unique_ptr<L1MuRegionalCandCollection> ctf_data = std::make_unique<L1MuRegionalCandCollection>();
+  std::unique_ptr<L1CSCTrackCollection> ctf_trk_data = std::make_unique<L1CSCTrackCollection>();
+  std::unique_ptr<L1MuRegionalCandCollection> rpc_cen_data = std::make_unique<L1MuRegionalCandCollection>();
+  std::unique_ptr<L1MuRegionalCandCollection> rpc_for_data = std::make_unique<L1MuRegionalCandCollection>();
+  std::unique_ptr<LTCDigiCollection> ltc_data = std::make_unique<LTCDigiCollection>();
+  std::unique_ptr<L1MuGMTCandCollection> gmt_data = std::make_unique<L1MuGMTCandCollection>();
+  std::unique_ptr<L1MuGMTReadoutCollection> gmt_rdt_data = std::make_unique<L1MuGMTReadoutCollection>();
+  std::unique_ptr<L1GlobalTriggerReadoutRecord> glt_rdt_data = std::make_unique<L1GlobalTriggerReadoutRecord>();
+  std::unique_ptr<L1GlobalTriggerEvmReadoutRecord> glt_evm_data = std::make_unique<L1GlobalTriggerEvmReadoutRecord>();
+  std::unique_ptr<L1GlobalTriggerObjectMapRecord> glt_obj_data = std::make_unique<L1GlobalTriggerObjectMapRecord>();
 
   if (verbose())
     std::cout << "L1EmulBias::produce - modify...\n" << std::flush;

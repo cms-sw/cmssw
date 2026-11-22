@@ -16,6 +16,7 @@
 #include "CommonTools/RecoUtils/interface/PF_PU_FirstVertexTracks.h"
 
 // system include files
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -54,12 +55,12 @@ PF_PU_FirstVertexTracks::PF_PU_FirstVertexTracks(const edm::ParameterSet& iConfi
 
   input_AssociationType_ = iConfig.getParameter<edm::InputTag>("AssociationType");
 
-  token_TrackToVertexAssMap_ = mayConsume<TrackToVertexAssMap>(iConfig.getParameter<InputTag>("AssociationMap"));
-  token_VertexToTrackAssMap_ = mayConsume<VertexToTrackAssMap>(iConfig.getParameter<InputTag>("AssociationMap"));
+  token_TrackToVertexAssMap_ = consumes<TrackToVertexAssMap>(iConfig.getParameter<InputTag>("AssociationMap"));
+  token_VertexToTrackAssMap_ = consumes<VertexToTrackAssMap>(iConfig.getParameter<InputTag>("AssociationMap"));
 
   token_generalTracksCollection_ = consumes<TrackCollection>(iConfig.getParameter<InputTag>("TrackCollection"));
 
-  token_VertexCollection_ = mayConsume<VertexCollection>(iConfig.getParameter<InputTag>("VertexCollection"));
+  token_VertexCollection_ = consumes<VertexCollection>(iConfig.getParameter<InputTag>("VertexCollection"));
 
   input_MinQuality_ = iConfig.getParameter<int>("MinQuality");
 
@@ -88,8 +89,8 @@ PF_PU_FirstVertexTracks::PF_PU_FirstVertexTracks(const edm::ParameterSet& iConfi
 
 // ------------ method called to produce the data  ------------
 void PF_PU_FirstVertexTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  unique_ptr<TrackCollection> t2v_firstvertextracks(new TrackCollection());
-  unique_ptr<TrackCollection> v2t_firstvertextracks(new TrackCollection());
+  unique_ptr<TrackCollection> t2v_firstvertextracks = std::make_unique<TrackCollection>();
+  unique_ptr<TrackCollection> v2t_firstvertextracks = std::make_unique<TrackCollection>();
 
   bool t2vassmap = false;
   bool v2tassmap = false;

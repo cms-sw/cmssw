@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "CalibFormats/CastorObjects/interface/CastorCalibrations.h"
 #include "CalibFormats/CastorObjects/interface/CastorCoderDb.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
@@ -94,7 +96,7 @@ void CastorTTRecord::produce(edm::Event &e, const edm::EventSetup &eventSetup) {
   }
 
   // Put output into event
-  std::unique_ptr<L1GtTechnicalTriggerRecord> output(new L1GtTechnicalTriggerRecord());
+  std::unique_ptr<L1GtTechnicalTriggerRecord> output = std::make_unique<L1GtTechnicalTriggerRecord>();
   output->setGtTechnicalTrigger(vecTT);
   e.put(std::move(output));
 }

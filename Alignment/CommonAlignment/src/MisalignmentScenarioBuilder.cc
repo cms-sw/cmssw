@@ -56,7 +56,7 @@ void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet& pSet
 void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet& pSet,
                                                    const align::Alignables& alignables,
                                                    const std::string& levelName) {
-  indent_ += " ";  // For indented output!
+  indent_ += ' ';  // For indented output!
 
   // Retrieve parameters for all components at this level
   std::ostringstream name;
@@ -112,7 +112,7 @@ void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet& pSet
 // A recursive merging is done on parameter sets.
 void MisalignmentScenarioBuilder::mergeParameters_(edm::ParameterSet& localSet,
                                                    const edm::ParameterSet& globalSet) const {
-  indent_ += " ";
+  indent_ += ' ';
 
   // Loop on globalSet. Add to localSet all non-existing parameters
   std::vector<std::string> globalParameterNames = globalSet.getParameterNames();
@@ -144,7 +144,7 @@ void MisalignmentScenarioBuilder::mergeParameters_(edm::ParameterSet& localSet,
 void MisalignmentScenarioBuilder::propagateParameters_(const edm::ParameterSet& pSet,
                                                        const std::string& globalName,
                                                        edm::ParameterSet& subSet) const {
-  indent_ += " ";  // For indented output!
+  indent_ += ' ';  // For indented output!
 
   // Propagate some given parameters
   std::vector<std::string> parameterNames = pSet.getParameterNames();

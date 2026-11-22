@@ -2,7 +2,7 @@
   <use name="onnxruntime"/>
 </test>
 
-<bin name="testONNXRuntime" file="testRunner.cpp, testONNXRuntime.cc">
+<bin name="testONNXRuntimeCPU" file="testRunner.cpp, testONNXRuntimeCPU.cc">
   <use name="cppunit"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/PluginManager"/>
@@ -14,6 +14,7 @@
 <iftool name="cuda">
   <bin name="testONNXRuntimeCUDA" file="testRunner.cpp, testONNXRuntimeCUDA.cc">
     <use name="cppunit"/>
+    <use name="cuda"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/PluginManager"/>
     <use name="FWCore/ServiceRegistry"/>
@@ -26,6 +27,7 @@
 <iftool name="rocm">
   <bin name="testONNXRuntimeROCm" file="testRunner.cpp, testONNXRuntimeROCm.cc">
     <use name="cppunit"/>
+    <use name="rocm"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/PluginManager"/>
     <use name="FWCore/ServiceRegistry"/>

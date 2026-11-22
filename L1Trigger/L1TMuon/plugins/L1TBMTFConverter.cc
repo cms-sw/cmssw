@@ -114,7 +114,7 @@ L1TBMTFConverter::L1TBMTFConverter(const edm::ParameterSet& iConfig) {
 void L1TBMTFConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  std::unique_ptr<RegionalMuonCandBxCollection> convMuons(new RegionalMuonCandBxCollection());
+  std::unique_ptr<RegionalMuonCandBxCollection> convMuons = std::make_unique<RegionalMuonCandBxCollection>();
 
   Handle<RegionalMuonCandBxCollection> bmtfMuons;
   iEvent.getByToken(m_barrelTfInputToken, bmtfMuons);

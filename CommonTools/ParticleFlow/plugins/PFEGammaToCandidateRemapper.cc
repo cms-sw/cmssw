@@ -7,6 +7,8 @@
      - the new electron and photon pf maps
 */
 
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -49,8 +51,8 @@ private:
       }
     }
 
-    std::unique_ptr<edm::ValueMap<std::vector<reco::PFCandidateRef>>> out(
-        new edm::ValueMap<std::vector<reco::PFCandidateRef>>());
+    std::unique_ptr<edm::ValueMap<std::vector<reco::PFCandidateRef>>> out =
+        std::make_unique<edm::ValueMap<std::vector<reco::PFCandidateRef>>>();
     edm::ValueMap<std::vector<reco::PFCandidateRef>>::Filler filler(*out);
     filler.insert(handle, refs.begin(), refs.end());
     filler.fill();

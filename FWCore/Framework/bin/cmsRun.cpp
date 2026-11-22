@@ -39,6 +39,7 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include <iostream>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 // -----------------------------------------------
@@ -83,6 +84,16 @@ namespace {
   private:
     edm::EventProcessor* ep_;
   };
+
+  // remove leading and trailing whitespace
+  std::string trim(std::string const& str) {
+    auto first = str.find_first_not_of(" \t");
+    if (first == std::string::npos) {
+      return {};
+    }
+    auto last = str.find_last_not_of(" \t");
+    return str.substr(first, last - first + 1);
+  }
 }  // namespace
 
 int main(int argc, const char* argv[]) {
@@ -128,11 +139,14 @@ int main(int argc, const char* argv[]) {
       context = "Processing command line arguments";
       edm::CmsRunParser parser(argv[0]);
 
+      // Parse the command line options
       const auto& parserOutput = parser.parse(argc, argv);
-      //return with exit code from parser
-      if (edm::CmsRunParser::hasExit(parserOutput))
-        return edm::CmsRunParser::getExit(parserOutput);
-      auto vm = edm::CmsRunParser::getVM(parserOutput);
+
+      // If there was an error, exit with the error code from the parser
+      if (not parserOutput.has_value()) {
+        return parserOutput.error();
+      }
+      auto vm = parserOutput.value();
 
       std::string cmdString;
       std::string fileName;
@@ -141,13 +155,13 @@ int main(int argc, const char* argv[]) {
         if (vm.count(edm::CmsRunParser::kParameterSetOpt)) {
           edm::LogAbsolute("CommandLineProcessing") << "cmsRun: Error while trying to process command line arguments:\n"
                                                     << "cannot use '-c [command line input]' with 'config_file'\n"
-                                                    << "For usage and an options list, please do 'cmsRun --help'.";
+                                                    << "For usage and an options list, please run 'cmsRun --help'.";
           edm::HaltMessageLogging();
           return edm::errors::CommandLineProcessing;
         }
       } else if (!vm.count(edm::CmsRunParser::kParameterSetOpt)) {
         edm::LogAbsolute("ConfigFileNotFound") << "cmsRun: No configuration file given.\n"
-                                               << "For usage and an options list, please do 'cmsRun --help'.";
+                                               << "For usage and an options list, please run 'cmsRun --help'.";
         edm::HaltMessageLogging();
         return edm::errors::ConfigFileNotFound;
       } else
@@ -157,6 +171,23 @@ int main(int argc, const char* argv[]) {
         pythonOptValues = vm[edm::CmsRunParser::kPythonOpt].as<std::vector<std::string>>();
       }
       pythonOptValues.insert(pythonOptValues.begin(), fileName);
+
+      // process options, as "name=value" pairs
+      std::vector<std::pair<std::string, std::string>> processOptions;
+      if (vm.count(edm::CmsRunParser::kOptionOpt)) {
+        for (auto const& option : vm[edm::CmsRunParser::kOptionOpt].as<std::vector<std::string>>()) {
+          auto pos = option.find('=');
+          if (pos == std::string::npos) {
+            edm::LogAbsolute("CommandLineProcessing")
+                << "cmsRun: Error while trying to process command line arguments:\n"
+                << "invalid process option '" << option << "', the syntax is '-o name=value'\n"
+                << "For usage and an options list, please run 'cmsRun --help'.";
+            edm::HaltMessageLogging();
+            return edm::errors::CommandLineProcessing;
+          }
+          processOptions.emplace_back(trim(option.substr(0, pos)), trim(option.substr(pos + 1)));
+        }
+      }
 
       if (vm.count(edm::CmsRunParser::kStrictOpt)) {
         //edm::setStrictParsing(true);
@@ -192,9 +223,9 @@ int main(int argc, const char* argv[]) {
         edm::TimingServiceBase::pythonStarting();
         std::unique_ptr<edm::ParameterSet> parameterSet;
         if (!fileName.empty())
-          parameterSet = edm::readConfig(fileName, pythonOptValues);
+          parameterSet = edm::readConfig(fileName, pythonOptValues, processOptions);
         else
-          edm::makeParameterSets(cmdString, parameterSet);
+          edm::makeParameterSets(cmdString, parameterSet, processOptions);
         edm::TimingServiceBase::pythonFinished();
         processDesc = std::make_shared<edm::ProcessDesc>(std::move(parameterSet));
       } catch (edm::Exception const&) {

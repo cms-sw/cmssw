@@ -30,6 +30,8 @@
 #include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 
+#include <memory>
+
 //#include <vector>
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -240,7 +242,7 @@ void L1TExtCondLegacyToStage2::produce(Event& iEvent, const EventSetup& iSetup) 
   }
 
   //outputs
-  std::unique_ptr<GlobalExtBlkBxCollection> extCond(new GlobalExtBlkBxCollection(0, bxFirst_, bxLast_));
+  std::unique_ptr<GlobalExtBlkBxCollection> extCond = std::make_unique<GlobalExtBlkBxCollection>(0, bxFirst_, bxLast_);
 
   // Fill Externals
   if (-2 >= bxFirst_ && -2 <= bxLast_)

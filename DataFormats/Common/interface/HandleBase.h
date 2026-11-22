@@ -28,6 +28,7 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include <algorithm>
 #include <cassert>
 #include <memory>
+#include <utility>
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
@@ -48,8 +49,8 @@ namespace edm {
     }
 
     ///Used when the attempt to get the data failed
-    HandleBase(std::shared_ptr<HandleExceptionFactory const>&& iWhyFailed)
-        : product_(nullptr), prov_(nullptr), whyFailedFactory_(iWhyFailed) {}
+    HandleBase(std::shared_ptr<HandleExceptionFactory const> iWhyFailed)
+        : product_(nullptr), prov_(nullptr), whyFailedFactory_(std::move(iWhyFailed)) {}
 
     void clear() {
       product_ = nullptr;

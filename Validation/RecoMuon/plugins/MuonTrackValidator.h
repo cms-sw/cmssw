@@ -104,7 +104,7 @@ public:
       throw cms::Exception("Configuration") << "Unexpected label: parametersDefiner = " << parametersDefiner;
     }
 
-    _simHitTpMapTag = mayConsume<SimHitTPAssociationProducer::SimHitTPAssociationList>(
+    _simHitTpMapTag = consumes<SimHitTPAssociationProducer::SimHitTPAssociationList>(
         pset.getParameter<edm::InputTag>("simHitTpMapTag"));
 
     MABH = false;

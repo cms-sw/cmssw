@@ -1,7 +1,10 @@
+#include <cstdlib>
+
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "HeterogeneousCore/ROCmUtilities/interface/requireDevices.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
+
 #include "testONNXRuntime.h"
 
 using namespace cms::Ort;
@@ -17,4 +20,10 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testONNXRuntimeROCm);
 
-void testONNXRuntimeROCm::checkROCm() { testGPUBackend(Backend::rocm, "ROCmService", cms::rocmtest::testDevices); }
+void testONNXRuntimeROCm::checkROCm() {
+  if (not cms::rocmtest::testDevices()) {
+    exit(EXIT_FAILURE);
+  }
+
+  testGPUBackend(Backend::rocm, "ROCmService");
+}

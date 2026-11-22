@@ -13,8 +13,17 @@ _associatorsCff = "SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociator
 _validationCff = "Validation.TruthInfo.truthBranchValidation_cff"
 
 
+def _refuseEarlierPreset(process):
+    """A preset reaches only the modules that exist when it runs, so modules loaded after it
+    keep the default seeds while the graph has the preset's signal."""
+    if hasattr(process, "truthGraphPresetRecord"):
+        raise RuntimeError("A truth selection preset ran before this customise, so the analysers would not get its "
+                           "signal seeds. Apply the preset last, with --customise_commands.")
+
+
 def _loadAssociators(process):
     """Label the association producers on the process."""
+    _refuseEarlierPreset(process)
     # The associator cff builds its modules from the trackster label lists at import
     # time, so the lists can only be retargeted while it is not imported yet. A job that
     # imported it before this call keeps the labels of the registry.
@@ -60,6 +69,14 @@ def _appendPath(process, name, sequence):
         process.schedule.append(getattr(process, name))
 
 
+def _hltAssociators(process):
+    """The HLT ECAL PF-cluster map reads hltParticleFlowClusterECAL, which the HLT output does
+    not keep, so only a job that runs the HLT menu schedules it."""
+    if hasattr(process, "hltParticleFlowClusterECAL"):
+        return process.truthGraphHltAssociatorsSequence
+    return process.truthGraphHltAssociatorsSequence.copyAndExclude([process.hltTruthBranchPFClusterEcalAssociators])
+
+
 def customiseTruthGraphAssociators(process):
     """Schedule the association producers, offline and HLT, and keep their products.
 
@@ -70,7 +87,7 @@ def customiseTruthGraphAssociators(process):
     """
     _loadAssociators(process)
     _appendPath(process, "truthGraphAssociatorsPath",
-                process.truthGraphAssociatorsSequence + process.truthGraphHltAssociatorsSequence)
+                process.truthGraphAssociatorsSequence + _hltAssociators(process))
 
     for out in process.outputModules_().values():
         out.outputCommands.extend(
@@ -80,11 +97,14 @@ def customiseTruthGraphAssociators(process):
                 "keep *_allVertexToTruthBranchAssociators_*_*",
                 "keep *_allSecondaryVertexToTruthBranchAssociators_*_*",
                 "keep *_truthBranchTracksterAssociators_*_*",
+                "keep *_truthBranchCandidateAssociators_*_*",
                 "keep *_truthBranchPFClusterEcalAssociators_*_*",
                 "keep *_truthBranchPFClusterHcalAssociators_*_*",
                 "keep *_hltTrackToTruthBranchAssociators_*_*",
                 "keep *_hltVertexToTruthBranchAssociators_*_*",
                 "keep *_hltTruthBranchTracksterAssociators_*_*",
+                "keep *_hltTruthBranchPFClusterEcalAssociators_*_*",
+                "keep *_hltTruthBranchPFClusterHcalAssociators_*_*",
             ]
         )
     return process
@@ -94,8 +114,8 @@ def customiseTruthBranchValidation(process):
     """Schedule the offline association maps and their performance plots.
 
     The plots are the efficiency, the fake rate, the purity and the resolution of every
-    reconstructed collection against every truth level and working point. They book 54242
-    monitor elements, 21.9 MiB of the harvested DQM file on 10 ttbar D127 events, so only
+    reconstructed collection against every truth level and working point. They book 48562
+    monitor elements, 34.9 MiB of the harvested DQM file on 10 ttbar D127 events, so only
     a study of the association turns them on. The graph summary and the comparison with
     CaloParticle, SimCluster and TrackingParticle run without this customise, and book 98.
 
@@ -111,10 +131,11 @@ def customiseTruthBranchValidation(process):
             customiseTruthBranchValidation"
 
     A selection preset has to be applied after this customise, so that it reaches the
-    analysers and they book their signal folders. --customise_commands always runs last,
-    which is the documented way to apply a preset.
+    analysers and they book their signal folders; the customise raises otherwise.
+    --customise_commands always runs last, which is the documented way to apply a preset.
     """
     if _isHarvesting(process):
+        _refuseEarlierPreset(process)
         process.load(_validationCff)
         _appendPath(process, "truthBranchHarvestingPath",
                     process.truthBranchHarvestingSequence)
@@ -158,6 +179,7 @@ def customiseTruthHltValidation(process):
             customiseTruthGraphAssociators.customiseTruthHltValidation
     """
     if _isHarvesting(process):
+        _refuseEarlierPreset(process)
         process.load(_validationCff)
         _appendPath(process, "truthBranchHltHarvestingPath",
                     process.truthBranchHltHarvestingSequence)
@@ -166,5 +188,5 @@ def customiseTruthHltValidation(process):
     _loadAssociators(process)
     process.load(_validationCff)
     _appendPath(process, "truthBranchHltValidationPath",
-                process.truthGraphHltAssociatorsSequence + process.truthBranchHltValidationSequence)
+                _hltAssociators(process) + process.truthBranchHltValidationSequence)
     return process

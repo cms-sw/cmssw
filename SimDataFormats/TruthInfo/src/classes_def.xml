@@ -53,4 +53,8 @@
        its Wrapper dictionaries are provided by SimDataFormats/Associations; the
        producer just uses them. -->
 
+  <class name="truth::GraphMetadata" ClassVersion="3">
+    <version ClassVersion="3" checksum="392067223"/>
+  </class>
+  <class name="edm::Wrapper<truth::GraphMetadata>"/>
 </lcgdict>

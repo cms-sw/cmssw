@@ -58,8 +58,8 @@ private:
 };
 
 PatTrackAnalyzer::PatTrackAnalyzer(const edm::ParameterSet &params)
-    : srcTracksToken_(mayConsume<edm::View<reco::Track> >(params.getParameter<edm::InputTag>("src"))),
-      srcMuonsToken_(mayConsume<pat::MuonCollection>(params.getParameter<edm::InputTag>("src"))),
+    : srcTracksToken_(consumes<edm::View<reco::Track> >(params.getParameter<edm::InputTag>("src"))),
+      srcMuonsToken_(consumes<pat::MuonCollection>(params.getParameter<edm::InputTag>("src"))),
       beamSpotToken_(consumes<reco::BeamSpot>(params.getParameter<edm::InputTag>("beamSpot"))),
       qualities_(params.getParameter<std::vector<std::string> >("qualities")) {
   usesResource(TFileService::kSharedResource);

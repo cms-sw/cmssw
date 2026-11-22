@@ -193,7 +193,7 @@ long long l1t::GlobalScales::getLUT_DeltaEta(std::string lutName, int element) c
     //does not exist. Check for oppoisite ordering
     std::size_t pos = lutName.find('-');
     std::string name = lutName.substr(pos + 1);
-    name += "-";
+    name += '-';
     name += lutName.substr(0, pos);
 
     //check again
@@ -226,7 +226,7 @@ unsigned int l1t::GlobalScales::getPrec_DeltaEta(const std::string& lutName) con
     //does not exist. Check for oppoisite ordering
     std::size_t pos = lutName.find('-');
     std::string name = lutName.substr(pos + 1);
-    name += "-";
+    name += '-';
     name += lutName.substr(0, pos);
 
     //check again
@@ -247,7 +247,7 @@ long long l1t::GlobalScales::getLUT_DeltaPhi(std::string lutName, int element) c
     //does not exist. Check for oppoisite ordering
     std::size_t pos = lutName.find('-');
     std::string name = lutName.substr(pos + 1);
-    name += "-";
+    name += '-';
     name += lutName.substr(0, pos);
 
     //check again
@@ -280,7 +280,7 @@ unsigned int l1t::GlobalScales::getPrec_DeltaPhi(const std::string& lutName) con
     //does not exist. Check for oppoisite ordering
     std::size_t pos = lutName.find('-');
     std::string name = lutName.substr(pos + 1);
-    name += "-";
+    name += '-';
     name += lutName.substr(0, pos);
 
     //check again
@@ -353,7 +353,7 @@ long long l1t::GlobalScales::getLUT_DeltaEta_Cosh(std::string lutName, int eleme
     //does not exist. Check for oppoisite ordering
     std::size_t pos = lutName.find('-');
     std::string name = lutName.substr(pos + 1);
-    name += "-";
+    name += '-';
     name += lutName.substr(0, pos);
 
     //check again
@@ -386,7 +386,7 @@ unsigned int l1t::GlobalScales::getPrec_DeltaEta_Cosh(const std::string& lutName
     //does not exist. Check for oppoisite ordering
     std::size_t pos = lutName.find('-');
     std::string name = lutName.substr(pos + 1);
-    name += "-";
+    name += '-';
     name += lutName.substr(0, pos);
 
     //check again
@@ -407,7 +407,7 @@ long long l1t::GlobalScales::getLUT_DeltaPhi_Cos(std::string lutName, int elemen
     //does not exist. Check for oppoisite ordering
     std::size_t pos = lutName.find('-');
     std::string name = lutName.substr(pos + 1);
-    name += "-";
+    name += '-';
     name += lutName.substr(0, pos);
 
     //check again
@@ -483,7 +483,7 @@ unsigned int l1t::GlobalScales::getPrec_DeltaPhi_Cos(const std::string& lutName)
     //does not exist. Check for oppoisite ordering
     std::size_t pos = lutName.find('-');
     std::string name = lutName.substr(pos + 1);
-    name += "-";
+    name += '-';
     name += lutName.substr(0, pos);
 
     //check again

@@ -89,7 +89,7 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
 
   //loop over all constituent types and sum each correction
   //std::unique_ptr<CorrMETData> metCorr(new CorrMETData());
-  std::unique_ptr<CorrMETData> metCorr(new CorrMETData());
+  std::unique_ptr<CorrMETData> metCorr = std::make_unique<CorrMETData>();
 
   double corx = 0.;
   double cory = 0.;

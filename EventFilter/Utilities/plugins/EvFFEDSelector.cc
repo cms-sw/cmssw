@@ -30,7 +30,7 @@ namespace evf {
     edm::Handle<FEDRawDataCollection> rawdata;
     event.getByToken(token_, rawdata);
 
-    std::unique_ptr<FEDRawDataCollection> fedcoll(new FEDRawDataCollection());
+    std::unique_ptr<FEDRawDataCollection> fedcoll = std::make_unique<FEDRawDataCollection>();
 
     for (unsigned int i : fedlist_)
       if (rawdata->FEDData(i).size() > 0)

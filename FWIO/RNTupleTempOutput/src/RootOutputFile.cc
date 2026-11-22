@@ -11,7 +11,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Common/interface/OutputProcessBlockHelper.h"
-#include "FWCore/Framework/interface/FileBlock.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
@@ -45,7 +45,7 @@
 #include "TFile.h"
 #include "TClass.h"
 #include "Rtypes.h"
-#include "RVersion.h"
+#include "ROOT/RVersion.hxx"
 
 #include "ROOT/RNTuple.hxx"
 #include "ROOT/RNTupleWriter.hxx"

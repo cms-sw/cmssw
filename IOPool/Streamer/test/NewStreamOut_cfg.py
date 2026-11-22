@@ -8,6 +8,11 @@ options.register ('compAlgo',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "Compression Algorithm")
+options.register ('compLevel',
+                  1, # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.int,
+                  "Compression Level")
 
 options.parseArguments()
 
@@ -41,7 +46,7 @@ process.a1 = cms.EDAnalyzer("StreamThingAnalyzer",
 
 process.out = cms.OutputModule("EventStreamFileWriter",
     fileName = cms.untracked.string('teststreamfile.dat'),
-    compression_level = cms.untracked.int32(1),
+    compression_level = cms.untracked.int32(options.compLevel),
     use_compression = cms.untracked.bool(True),
     compression_algorithm = cms.untracked.string(options.compAlgo),
     max_event_size = cms.untracked.int32(7000000)

@@ -369,13 +369,13 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
   embedCaloMETMuonCorrs_ = iConfig.getParameter<bool>("embedCaloMETMuonCorrs");
   embedTcMETMuonCorrs_ = iConfig.getParameter<bool>("embedTcMETMuonCorrs");
   caloMETMuonCorrsToken_ =
-      mayConsume<edm::ValueMap<reco::MuonMETCorrectionData>>(iConfig.getParameter<edm::InputTag>("caloMETMuonCorrs"));
+      consumes<edm::ValueMap<reco::MuonMETCorrectionData>>(iConfig.getParameter<edm::InputTag>("caloMETMuonCorrs"));
   tcMETMuonCorrsToken_ =
-      mayConsume<edm::ValueMap<reco::MuonMETCorrectionData>>(iConfig.getParameter<edm::InputTag>("tcMETMuonCorrs"));
+      consumes<edm::ValueMap<reco::MuonMETCorrectionData>>(iConfig.getParameter<edm::InputTag>("tcMETMuonCorrs"));
   // pflow specific configurables
   useParticleFlow_ = iConfig.getParameter<bool>("useParticleFlow");
   embedPFCandidate_ = iConfig.getParameter<bool>("embedPFCandidate");
-  pfMuonToken_ = mayConsume<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfMuonSource"));
+  pfMuonToken_ = consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfMuonSource"));
   embedPfEcalEnergy_ = iConfig.getParameter<bool>("embedPfEcalEnergy");
   // embedding of tracks from TeV refit
   embedPickyMuon_ = iConfig.getParameter<bool>("embedPickyMuon");

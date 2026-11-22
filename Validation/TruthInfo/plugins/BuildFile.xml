@@ -33,3 +33,7 @@
 <library file="TruthGraphSummaryValidator.cc" name="TruthGraphSummaryValidatorPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="TruthBranchCandidateValidator.cc" name="TruthBranchCandidateValidatorPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

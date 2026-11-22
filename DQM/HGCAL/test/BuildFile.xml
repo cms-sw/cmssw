@@ -1,0 +1,1 @@
+<test name="testHGCalDQMClients" command="cmsRun ${LOCALTOP}/src/DQM/HGCAL/test/testHGCalDQMClients_cfg.py"/>

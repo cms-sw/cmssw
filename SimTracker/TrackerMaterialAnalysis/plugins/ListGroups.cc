@@ -1,6 +1,7 @@
 #include <iomanip>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -321,26 +322,26 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
     m_groups.push_back(new MaterialAccountingGroup(n, *hDdd));
   };
 
-  std::unique_ptr<TCanvas> canvas(
-      new TCanvas("Grouping_rz", "Grouping - RZ view", (int)(600 * scale * 1.25), (int)(120 * scale * 1.50)));
+  std::unique_ptr<TCanvas> canvas = std::make_unique<TCanvas>(
+      "Grouping_rz", "Grouping - RZ view", (int)(600 * scale * 1.25), (int)(120 * scale * 1.50));
   canvas->GetFrame()->SetFillColor(kWhite);
   gStyle->SetOptStat(0);
 
   unsigned int color_index = 1;
   // Setup the legend
-  std::unique_ptr<TLegend> leg(new TLegend(0.1, 0.1, 0.23, 0.34));
+  std::unique_ptr<TLegend> leg = std::make_unique<TLegend>(0.1, 0.1, 0.23, 0.34);
   leg->SetHeader("Tracker Material Grouping");
   leg->SetTextFont(42);
   leg->SetTextSize(0.008);
   leg->SetNColumns(3);
-  std::unique_ptr<TProfile2D> radlen(
-      new TProfile2D("OverallRadLen", "OverallRadLen", 600., -300., 300, 120., 0., 120.));
-  std::unique_ptr<TProfile2D> eneloss(
-      new TProfile2D("OverallEnergyLoss", "OverallEnergyLoss", 600., -300., 300, 120., 0., 120.));
-  std::unique_ptr<TProfile2D> radlen_diff(
-      new TProfile2D("OverallDifferencesRadLen", "OverallDifferencesRadLen", 600., -300., 300, 120., 0., 120.));
-  std::unique_ptr<TProfile2D> eneloss_diff(
-      new TProfile2D("OverallDifferencesEnergyLoss", "OverallDifferencesEnergyLoss", 600., -300., 300, 120., 0., 120.));
+  std::unique_ptr<TProfile2D> radlen =
+      std::make_unique<TProfile2D>("OverallRadLen", "OverallRadLen", 600., -300., 300, 120., 0., 120.);
+  std::unique_ptr<TProfile2D> eneloss =
+      std::make_unique<TProfile2D>("OverallEnergyLoss", "OverallEnergyLoss", 600., -300., 300, 120., 0., 120.);
+  std::unique_ptr<TProfile2D> radlen_diff = std::make_unique<TProfile2D>(
+      "OverallDifferencesRadLen", "OverallDifferencesRadLen", 600., -300., 300, 120., 0., 120.);
+  std::unique_ptr<TProfile2D> eneloss_diff = std::make_unique<TProfile2D>(
+      "OverallDifferencesEnergyLoss", "OverallDifferencesEnergyLoss", 600., -300., 300, 120., 0., 120.);
 
   for (auto g : m_groups) {
     m_plots.push_back(

@@ -1,6 +1,7 @@
 #include "EventFilter/RctRawToDigi/plugins/RctRawToDigi.h"
 
 // System headers
+#include <memory>
 #include <vector>
 #include <sstream>
 #include <iostream>
@@ -56,7 +57,7 @@ void RctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   // Instantiate all the collections the unpacker needs; puts them in event when this object goes out of scope.
-  std::unique_ptr<RctUnpackCollections> colls(new RctUnpackCollections(iEvent));
+  std::unique_ptr<RctUnpackCollections> colls = std::make_unique<RctUnpackCollections>(iEvent);
 
   // get raw data collection
   edm::Handle<FEDRawDataCollection> feds;

@@ -77,7 +77,7 @@ TtHadEvtSolutionMaker::TtHadEvtSolutionMaker(const edm::ParameterSet& iConfig) {
   useMaxDist_ = iConfig.getParameter<bool>("useMaximalDistance");
   useDeltaR_ = iConfig.getParameter<bool>("useDeltaR");
   maxDist_ = iConfig.getParameter<double>("maximalDistance");
-  genEvtToken_ = mayConsume<TtGenEvent>(edm::InputTag("genEvt"));
+  genEvtToken_ = consumes<TtGenEvent>(edm::InputTag("genEvt"));
 
   // define kinfitter
   if (doKinFit_) {

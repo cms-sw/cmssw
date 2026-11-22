@@ -74,7 +74,7 @@ namespace {
   };
 
   typedef edmNew::DetSetVector<T> DSTV;
-  typedef edmNew::DetSet<T> DST;
+  typedef edmNew::MutableDetSet<T> DST;
   typedef edmNew::det_id_type det_id_type;
   typedef DSTV::FastFiller FF;
   typedef DSTV::TSFastFiller TSFF;

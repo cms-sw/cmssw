@@ -131,8 +131,8 @@ namespace l1ct {
     const l1t::SAMuon* srcMu = nullptr;
     const l1t::PFCandidate* srcCand = nullptr;
 
-    float AssociationScore;
-    int Association;
+    float AssociationScore = 0;
+    int Association = 0;
 
     bool read(std::fstream& from);
     bool write(std::fstream& to) const;

@@ -252,6 +252,10 @@ class LevelFlags_t : public CppUnit::TestFixture {
   CPPUNIT_TEST(testGenVertexReasonLeavesSimAndArtificialVertices);
   CPPUNIT_TEST(testLastCopyFollowsTheRadiatingChain);
   CPPUNIT_TEST(testParticlesAtSeveralLevels);
+  CPPUNIT_TEST(testShowerObjectsFollowThePdgScheme);
+  CPPUNIT_TEST(testLeftRightSymmetricDecayIsADecay);
+  CPPUNIT_TEST(testInvisibleParticleIsAStableInvisibleSpecies);
+  CPPUNIT_TEST(testInvisibleParticleFollowsTheCopyChain);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -748,6 +752,13 @@ public:
     const auto stopped = truth::reconstructableFromSignal(g);
     CPPUNIT_ASSERT_EQUAL(std::size_t{1}, stopped.size());
     CPPUNIT_ASSERT_EQUAL(uint32_t{1}, stopped[0]);
+
+    // REQUIRED: either sign of a species in the list stops the walk at both charges.
+    const int32_t a1 = g.particles()[1].pdgId;
+    g.reconstructablePdgIds() = {111, -a1};
+    const auto conjugate = truth::reconstructableFromSignal(g);
+    CPPUNIT_ASSERT_EQUAL(std::size_t{1}, conjugate.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t{1}, conjugate[0]);
   }
 
   // REQUIRED: the jet roots are the hard-scatter partons and nothing else. The top is
@@ -1151,6 +1162,139 @@ public:
     truth::Graph radiating = c.finish();
     CPPUNIT_ASSERT_EQUAL(uint32_t{1}, truth::lastCopyOf(radiating, 0));
     CPPUNIT_ASSERT_EQUAL(uint32_t{4}, truth::lastCopyOf(radiating, 4));
+  }
+
+  // REQUIRED: every code the PDG numbering scheme reserves for shower bookkeeping and
+  // every generator-internal state is a shower object, in either charge sign. A physical
+  // particle, including a left-right symmetric BSM state, is not. The top is a
+  // shower object that decays, so it does not hadronize.
+  void testShowerObjectsFollowThePdgScheme() {
+    for (const int32_t pdgId :
+         {1,    6,    9,       21,      81,      90,      91,      92,      100,     110,     990,     9990,
+          2101, 2203, 9900020, 9900110, 9900210, 9900440, 9902210, 9905330, 9940003, 9952203, 9900441, 9910441}) {
+      CPPUNIT_ASSERT(truth::isShowerObject(pdgId));
+      CPPUNIT_ASSERT(truth::isShowerObject(-pdgId));
+    }
+    for (const int32_t pdgId :
+         {11,      13,      22,      23,      24,      25,      111,     211,     2212,    1000022,
+          9000111, 9010221, 9900012, 9900014, 9900016, 9900023, 9900024, 9900041, 9900042, 1000010020}) {
+      CPPUNIT_ASSERT(!truth::isShowerObject(pdgId));
+      CPPUNIT_ASSERT(!truth::isShowerObject(-pdgId));
+    }
+    CPPUNIT_ASSERT(truth::isParton(9));
+    CPPUNIT_ASSERT(truth::hadronizes(9));
+    // A Regge exchange is a shower object like the pomeron, so it hadronizes.
+    CPPUNIT_ASSERT(truth::hadronizes(110));
+    CPPUNIT_ASSERT(truth::hadronizes(990));
+    CPPUNIT_ASSERT(!truth::hadronizes(9900024));
+    CPPUNIT_ASSERT(!truth::hadronizes(9900012));
+    CPPUNIT_ASSERT(!truth::hadronizes(6));
+    CPPUNIT_ASSERT(!truth::hadronizes(-6));
+  }
+
+  // REQUIRED: the decay of a left-right symmetric W_R into a lepton and a heavy neutrino
+  // is a decay, not a hadronization.
+  void testLeftRightSymmetricDecayIsADecay() {
+    GraphBuilder b(3, 1);
+    const int32_t pdgIds[] = {9900024, -11, 9900012};
+    const int16_t statuses[] = {62, 23, 22};
+    for (uint32_t id : {0u, 1u, 2u}) {
+      auto& particle = b.graph.particles()[id];
+      particle.genNode = 100 + static_cast<int32_t>(id);
+      particle.pdgId = pdgIds[id];
+      particle.status = statuses[id];
+    }
+
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addProduction(0, 2);
+
+    truth::Graph g = b.finish();
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Decay, truth::genVertexReason(g, 0));
+  }
+
+  // REQUIRED: a particle is invisible when its species is invisible and every leaf below it
+  // is an invisible species. A neutralino that decays to a pi+ is visible.
+  //   p0 tau -> v0 -> p1 pi+, p2 nu_tau;  p3 neutralino -> v1 -> p4 pi+
+  void testInvisibleParticleIsAStableInvisibleSpecies() {
+    CPPUNIT_ASSERT(truth::isInvisible(-14));
+    CPPUNIT_ASSERT(truth::isInvisible(1000022));
+    CPPUNIT_ASSERT(truth::isInvisible(1000039));
+    CPPUNIT_ASSERT(truth::isInvisible(-1000012));
+    CPPUNIT_ASSERT(truth::isInvisible(1000014));
+    CPPUNIT_ASSERT(truth::isInvisible(1000016));
+    CPPUNIT_ASSERT(!truth::isInvisible(13));
+    CPPUNIT_ASSERT(!truth::isInvisible(22));
+    CPPUNIT_ASSERT(!truth::isInvisible(1000023));
+    CPPUNIT_ASSERT(truth::isNeutrino(16));
+    CPPUNIT_ASSERT(!truth::isNeutrino(1000022));
+
+    GraphBuilder b(5, 2);
+    auto set = [&](uint32_t i, int32_t pdg, int16_t st) {
+      auto& d = b.graph.particles()[i];
+      d.genNode = 100 + i;
+      d.pdgId = pdg;
+      d.status = st;
+      d.momentum = math::XYZTLorentzVectorD(10., 0., 0., 10.);
+    };
+    set(0, 15, 2);
+    set(1, 211, 1);
+    set(2, 16, 1);
+    set(3, 1000022, 2);
+    set(4, 211, 1);
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addProduction(0, 2);
+    b.addDecay(3, 1);
+    b.addProduction(1, 4);
+    const truth::Graph g = b.finish();
+
+    CPPUNIT_ASSERT(!truth::isInvisibleParticle(g, 0));
+    CPPUNIT_ASSERT(!truth::isInvisibleParticle(g, 1));
+    CPPUNIT_ASSERT(truth::isInvisibleParticle(g, 2));
+    CPPUNIT_ASSERT(!truth::isInvisibleParticle(g, 3));
+    CPPUNIT_ASSERT(!truth::isInvisibleParticle(g, 4));
+  }
+  // REQUIRED: a copy of an invisible particle does not make it visible. The particle is
+  // invisible only when every leaf below it is of an invisible species.
+  //   p0 nu (23) -> v0 -> p1 nu (1)
+  //   p2 neutralino -> v1 -> p3 neutralino copy -> v2 -> p4 pi+, p5 neutralino
+  //   p6 neutralino -> v3 -> p7 neutralino copy
+  void testInvisibleParticleFollowsTheCopyChain() {
+    GraphBuilder b(8, 4);
+    auto set = [&](uint32_t i, int32_t pdg, int16_t st) {
+      auto& d = b.graph.particles()[i];
+      d.genNode = 100 + i;
+      d.pdgId = pdg;
+      d.status = st;
+      d.momentum = math::XYZTLorentzVectorD(10., 0., 0., 10.);
+    };
+    set(0, 14, 23);
+    set(1, 14, 1);
+    set(2, 1000022, 22);
+    set(3, 1000022, 2);
+    set(4, 211, 1);
+    set(5, 1000022, 1);
+    set(6, 1000022, 22);
+    set(7, 1000022, 1);
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addDecay(2, 1);
+    b.addProduction(1, 3);
+    b.addDecay(3, 2);
+    b.addProduction(2, 4);
+    b.addProduction(2, 5);
+    b.addDecay(6, 3);
+    b.addProduction(3, 7);
+    const truth::Graph g = b.finish();
+
+    CPPUNIT_ASSERT(truth::isInvisibleParticle(g, 0));
+    CPPUNIT_ASSERT(truth::isInvisibleParticle(g, 1));
+    CPPUNIT_ASSERT(!truth::isInvisibleParticle(g, 2));
+    CPPUNIT_ASSERT(!truth::isInvisibleParticle(g, 3));
+    CPPUNIT_ASSERT(truth::isInvisibleParticle(g, 5));
+    CPPUNIT_ASSERT(truth::isInvisibleParticle(g, 6));
+    CPPUNIT_ASSERT(truth::isInvisibleParticle(g, 7));
   }
 };
 

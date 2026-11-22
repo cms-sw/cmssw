@@ -17,7 +17,7 @@
 #include "TCollection.h"
 #include "TFile.h"
 #include "Rtypes.h"
-#include "RVersion.h"
+#include "ROOT/RVersion.hxx"
 
 #include <limits>
 

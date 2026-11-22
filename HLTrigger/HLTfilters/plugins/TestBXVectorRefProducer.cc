@@ -84,8 +84,8 @@ TestBXVectorRefProducer::TestBXVectorRefProducer(const edm::ParameterSet& iConfi
 void TestBXVectorRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  unique_ptr<vector<int>> jetMom(new vector<int>);
-  unique_ptr<l1t::JetRefVector> jetRef(new l1t::JetRefVector);
+  unique_ptr<vector<int>> jetMom = std::make_unique<vector<int>>();
+  unique_ptr<l1t::JetRefVector> jetRef = std::make_unique<l1t::JetRefVector>();
 
   // retrieve the tracks
   Handle<l1t::JetBxCollection> jets;

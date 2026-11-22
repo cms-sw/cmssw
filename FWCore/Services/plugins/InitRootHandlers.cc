@@ -240,13 +240,13 @@ namespace {
       size_t index3 = el_message.find_first_of(" :", index2);
       if (index3 != std::string::npos) {
         size_t substrlen = index3 - index2;
-        el_identifier += "-";
+        el_identifier += '-';
         el_identifier += el_message.substr(index2, substrlen);
       }
     } else {
       index1 = el_location.find("::");
       if (index1 != std::string::npos) {
-        el_identifier += "/";
+        el_identifier += '/';
         el_identifier += el_location.substr(0, index1);
       }
     }

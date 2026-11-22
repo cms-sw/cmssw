@@ -68,31 +68,18 @@ void HGCalTestNeighbor::analyze(const edm::Event&, const edm::EventSetup& iSetup
 
   const auto& geomR = iSetup.getData(geomToken_);
   const HGCalGeometry* geom = &geomR;
-  if (geom->topology().waferHexagon6()) {
-    ForwardSubdetector subdet;
-    if (name_ == "HGCalHESiliconSensitive")
-      subdet = HGCHEF;
-    else if (name_ == "HGCalHEScintillatorSensitive")
-      subdet = HGCHEB;
-    else
-      subdet = HGCEE;
-    edm::LogVerbatim("HGCalGeomX") << "Perform test for " << name_ << " Detector:Subdetector " << DetId::Forward << ":"
-                                   << subdet;
-    doTest(geom, subdet, bField);
+  DetId::Detector det;
+  if (name_ == "HGCalHESiliconSensitive")
+    det = DetId::HGCalHSi;
+  else if (name_ == "HGCalHEScintillatorSensitive")
+    det = DetId::HGCalHSc;
+  else
+    det = DetId::HGCalEE;
+  edm::LogVerbatim("HGCalGeomX") << "Perform test for " << name_ << " Detector " << det;
+  if (name_ == "HGCalHEScintillatorSensitive") {
+    doTestScint(geom, det, bField);
   } else {
-    DetId::Detector det;
-    if (name_ == "HGCalHESiliconSensitive")
-      det = DetId::HGCalHSi;
-    else if (name_ == "HGCalHEScintillatorSensitive")
-      det = DetId::HGCalHSc;
-    else
-      det = DetId::HGCalEE;
-    edm::LogVerbatim("HGCalGeomX") << "Perform test for " << name_ << " Detector " << det;
-    if (name_ == "HGCalHEScintillatorSensitive") {
-      doTestScint(geom, det, bField);
-    } else {
-      doTestWafer(geom, det, bField);
-    }
+    doTestWafer(geom, det, bField);
   }
 }
 

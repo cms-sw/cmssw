@@ -25,14 +25,4 @@ hltPfTICL = cms.EDProducer("PFTICLProducer",
         trackQuality = cms.string('highPurity')
     ),
     ticlCandidateSrc = cms.InputTag("hltTiclCandidate"),
-    timingQualityThreshold = cms.float(0.5),
-    trackTimeErrorMap = cms.InputTag("hltTofPID","sigmat0"),
-    trackTimeQualityMap = cms.InputTag("hltMtdTrackQualityMVA","mtdQualMVA"),
-    trackTimeValueMap = cms.InputTag("hltTofPID","t0"),
-    useMTDTiming = cms.bool(False),
-    useTimingAverage = cms.bool(False)
 )
-
-from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
-mtd_at_hlt.toModify(hltPfTICL,
-                    useMTDTiming = True)

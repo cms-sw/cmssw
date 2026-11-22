@@ -8,11 +8,7 @@ from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cff import recHitMapProdu
 # TICLGeom SoA geometry EventSetup producers (RecHitTools replacement), added to
 # the HGCal reco Task so the @alpaka producers are instantiated only when the
 # Task is scheduled, never in FastSim or bare reco-loading configs
-from RecoTICL.Geometry.TICLGeom_cff import (ticlGeomESProducer,
-                                         ticlGeomLookupESProducer,
-                                         ticlGeomLayersESProducer,
-                                         ticlGeomWithBarrelESProducer,
-                                         ticlGeomWithBarrelLookupESProducer)
+from RecoTICL.Geometry.TICLGeom_cff import ticlGeomESProducer, ticlGeomWithBarrelESProducer
 
 # patch particle flow clusters for HGC into local reco sequence
 # (for now until global reco is going with some sort of clustering)
@@ -30,10 +26,7 @@ hgcalLocalRecoTask = cms.Task( HGCalUncalibRecHit,
                                        particleFlowRecHitHGC,
                                        particleFlowClusterHGCal,
                                        ticlGeomESProducer,
-                                       ticlGeomLookupESProducer,
-                                       ticlGeomLayersESProducer,
-                                       ticlGeomWithBarrelESProducer,
-                                       ticlGeomWithBarrelLookupESProducer )
+                                       ticlGeomWithBarrelESProducer )
 
 _hfnose_hgcalLocalRecoTask = hgcalLocalRecoTask.copy()
 _hfnose_hgcalLocalRecoTask.add(hgcalLayerClustersHFNose)

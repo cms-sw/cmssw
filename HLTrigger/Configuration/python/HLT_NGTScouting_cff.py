@@ -65,10 +65,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/TransientTrackBuilde
 ### Actual changes on top of Phase2
 ### It could come from RecoTracker/IterativeTracking/InitialStep_cff.py
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltTiclGeomESProducer_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltTiclGeomLookupESProducer_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltTiclGeomLayersESProducer_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltTiclGeomWithBarrelESProducer_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltTiclGeomWithBarrelLookupESProducer_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltInitialStepChi2Est_cfi")
 ### It could come from RecoTracker/IterativeTracking/python/HighPtTripletStep_cff.py
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltHighPtTripletStepChi2Est_cfi")
@@ -103,17 +100,18 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltPhase2L3MuonHighP
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltPhase2L3MuonInitialStepChi2Est_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltPhase2L3MuonPixelTrackCleanerBySharedHits_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltPhase2L3MuonTrackAlgoPriorityOrder_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPPixelCPEFastParams_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPPixelCPEFastParamsPhase2_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltPixelTracksCleanerBySharedHits_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPTTRHBuilderWithTrackAngle_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFFittingSmootherForL2Muon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFTrajectoryFitterForL2Muon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFTrajectorySmootherForL2Muon_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPPixelCPEFastParams_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPStackedModuleGeometry_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltLSTGeometry_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPModulesDevLST_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPTTRHBuilderWithoutRefit_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPMkFit_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltMkFitGeometryESProducer_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltInitialStepTrackCandidatesMkFitConfig_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltMTDCPEESProducer_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltMTDTimeCalibESProducer_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltMTDTransientTrackingRecHitBuilder_cfi")
@@ -249,6 +247,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTVertexRecoSequence
 fragment.load("HLTrigger/Configuration/HLT_75e33/services/FastTimerService_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/services/ThroughputService_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/services/PyTorchService_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/services/ONNXService_cfi")
 
 fragment.schedule = cms.Schedule(*[
     fragment.DST_NGTScouting,

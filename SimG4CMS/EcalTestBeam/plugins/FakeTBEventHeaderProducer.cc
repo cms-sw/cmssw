@@ -6,6 +6,8 @@
  *
  */
 
+#include <memory>
+
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -42,7 +44,7 @@ FakeTBEventHeaderProducer::FakeTBEventHeaderProducer(const edm::ParameterSet &ps
 }
 
 void FakeTBEventHeaderProducer::produce(edm::Event &event, const edm::EventSetup &eventSetup) {
-  std::unique_ptr<EcalTBEventHeader> product(new EcalTBEventHeader());
+  std::unique_ptr<EcalTBEventHeader> product = std::make_unique<EcalTBEventHeader>();
 
   // get the vertex information from the event
 

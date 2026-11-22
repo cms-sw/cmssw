@@ -92,6 +92,10 @@ namespace pixelTrack {
     float minPt;
     float maxTip;
     float maxZip;
+    // Ntuplet-wide vector-hit-curvature consistency: reduced chi2 of the per-vector-hit curvatures
+    // (inverse-variance weighted) of all vector hits on the track around their common weighted mean.
+    // Demotes the track below `tight` when exceeded. < 0 => disabled.
+    float maxNtupletVectorHitChi2 = -1.f;
 
     ALPAKA_FN_ACC ALPAKA_FN_INLINE bool isHP(const TrackSoAConstView &tracks, int nHits, int it) const {
       return (std::abs(reco::tip(tracks, it)) < maxTip) and (tracks.pt(it) > minPt) and

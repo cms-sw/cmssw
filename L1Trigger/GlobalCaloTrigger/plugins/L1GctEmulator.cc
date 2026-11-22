@@ -75,7 +75,7 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps)
   m_gct->setBxRange(firstBx, lastBx);
 
   // Fill the jetEtCalibLuts vector
-  lutPtr nextLut(new L1GctJetEtCalibrationLut());
+  lutPtr nextLut = std::make_shared<L1GctJetEtCalibrationLut>();
 
   for (unsigned ieta = 0; ieta < L1GctJetFinderParams::NUMBER_ETA_VALUES; ieta++) {
     nextLut->setEtaBin(ieta);
@@ -166,26 +166,26 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
   // the setup and input data are present. Start by making empty output collections.
 
   // create the em and jet collections
-  std::unique_ptr<L1GctEmCandCollection> isoEmResult(new L1GctEmCandCollection());
-  std::unique_ptr<L1GctEmCandCollection> nonIsoEmResult(new L1GctEmCandCollection());
-  std::unique_ptr<L1GctJetCandCollection> cenJetResult(new L1GctJetCandCollection());
-  std::unique_ptr<L1GctJetCandCollection> forJetResult(new L1GctJetCandCollection());
-  std::unique_ptr<L1GctJetCandCollection> tauJetResult(new L1GctJetCandCollection());
+  std::unique_ptr<L1GctEmCandCollection> isoEmResult = std::make_unique<L1GctEmCandCollection>();
+  std::unique_ptr<L1GctEmCandCollection> nonIsoEmResult = std::make_unique<L1GctEmCandCollection>();
+  std::unique_ptr<L1GctJetCandCollection> cenJetResult = std::make_unique<L1GctJetCandCollection>();
+  std::unique_ptr<L1GctJetCandCollection> forJetResult = std::make_unique<L1GctJetCandCollection>();
+  std::unique_ptr<L1GctJetCandCollection> tauJetResult = std::make_unique<L1GctJetCandCollection>();
 
   // create the energy sum digis
-  std::unique_ptr<L1GctEtTotalCollection> etTotResult(new L1GctEtTotalCollection());
-  std::unique_ptr<L1GctEtHadCollection> etHadResult(new L1GctEtHadCollection());
-  std::unique_ptr<L1GctEtMissCollection> etMissResult(new L1GctEtMissCollection());
-  std::unique_ptr<L1GctHtMissCollection> htMissResult(new L1GctHtMissCollection());
+  std::unique_ptr<L1GctEtTotalCollection> etTotResult = std::make_unique<L1GctEtTotalCollection>();
+  std::unique_ptr<L1GctEtHadCollection> etHadResult = std::make_unique<L1GctEtHadCollection>();
+  std::unique_ptr<L1GctEtMissCollection> etMissResult = std::make_unique<L1GctEtMissCollection>();
+  std::unique_ptr<L1GctHtMissCollection> htMissResult = std::make_unique<L1GctHtMissCollection>();
 
   // create the Hf sums digis
-  std::unique_ptr<L1GctHFBitCountsCollection> hfBitCountResult(new L1GctHFBitCountsCollection());
-  std::unique_ptr<L1GctHFRingEtSumsCollection> hfRingEtSumResult(new L1GctHFRingEtSumsCollection());
+  std::unique_ptr<L1GctHFBitCountsCollection> hfBitCountResult = std::make_unique<L1GctHFBitCountsCollection>();
+  std::unique_ptr<L1GctHFRingEtSumsCollection> hfRingEtSumResult = std::make_unique<L1GctHFRingEtSumsCollection>();
 
   // create internal data collections
-  std::unique_ptr<L1GctInternJetDataCollection> internalJetResult(new L1GctInternJetDataCollection());
-  std::unique_ptr<L1GctInternEtSumCollection> internalEtSumResult(new L1GctInternEtSumCollection());
-  std::unique_ptr<L1GctInternHtMissCollection> internalHtMissResult(new L1GctInternHtMissCollection());
+  std::unique_ptr<L1GctInternJetDataCollection> internalJetResult = std::make_unique<L1GctInternJetDataCollection>();
+  std::unique_ptr<L1GctInternEtSumCollection> internalEtSumResult = std::make_unique<L1GctInternEtSumCollection>();
+  std::unique_ptr<L1GctInternHtMissCollection> internalHtMissResult = std::make_unique<L1GctInternHtMissCollection>();
 
   // get config data from EventSetup.
   // check this has been done successfully before proceeding

@@ -106,7 +106,7 @@ namespace edm {
       generateParticle(-1., mass, ++barcode, vtx, engine);
 
     // save output
-    std::unique_ptr<HepMCProduct> output(new HepMCProduct());
+    std::unique_ptr<HepMCProduct> output = std::make_unique<HepMCProduct>();
     output->addHepMCData(fEvt);
     e.put(std::move(output), "unsmeared");
   }

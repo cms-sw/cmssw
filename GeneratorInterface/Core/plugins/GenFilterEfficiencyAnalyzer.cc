@@ -51,7 +51,8 @@ private:
 };
 
 GenFilterEfficiencyAnalyzer::GenFilterEfficiencyAnalyzer(const edm::ParameterSet& pset)
-    : genFilterInfoToken_(consumes<GenFilterInfo, edm::InLumi>(pset.getParameter<edm::InputTag>("genFilterInfoTag"))),
+    : genFilterInfoToken_(consumes<GenFilterInfo, edm::InLumi, edm::Transition::EndLuminosityBlock>(
+          pset.getParameter<edm::InputTag>("genFilterInfoTag"))),
       totalGenFilterInfo_(0, 0, 0, 0, 0., 0., 0., 0.) {}
 
 GenFilterEfficiencyAnalyzer::~GenFilterEfficiencyAnalyzer() {}

@@ -98,7 +98,7 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id,
     assert(fin_.gcount() == FRDHeaderVersionSize[detectedFRDversion_]);
   }
 
-  std::unique_ptr<FRDEventMsgView> frdEventMsg(new FRDEventMsgView(&buffer_[0]));
+  std::unique_ptr<FRDEventMsgView> frdEventMsg = std::make_unique<FRDEventMsgView>(&buffer_[0]);
   if (useL1EventID_)
     id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), frdEventMsg->event());
 

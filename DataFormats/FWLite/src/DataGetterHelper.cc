@@ -103,7 +103,7 @@ namespace fwlite {
     std::string branchName(iMainLabels);
     branchName += iProcess;
     //branchName+=".obj";
-    branchName += ".";
+    branchName += '.';
     return iTree->GetBranch(branchName.c_str());
   }
 

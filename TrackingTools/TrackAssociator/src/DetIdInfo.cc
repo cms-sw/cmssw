@@ -164,7 +164,7 @@ std::string DetIdInfo::info(const std::set<DetId>& idSet, const TrackerTopology*
   std::string text;
   for (std::set<DetId>::const_iterator id = idSet.begin(); id != idSet.end(); id++) {
     text += info(*id, tTopo);
-    text += "\n";
+    text += '\n';
   }
   return text;
 }
@@ -173,7 +173,7 @@ std::string DetIdInfo::info(const std::vector<DetId>& idSet, const TrackerTopolo
   std::string text;
   for (std::vector<DetId>::const_iterator id = idSet.begin(); id != idSet.end(); id++) {
     text += info(*id, tTopo);
-    text += "\n";
+    text += '\n';
   }
   return text;
 }

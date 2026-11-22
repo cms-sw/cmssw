@@ -31,6 +31,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "PhysicsTools/TruthInfo/interface/BranchSelector.h"
+#include "SimDataFormats/TruthInfo/interface/Graph.h"
 
 namespace truth {
 
@@ -95,7 +96,7 @@ namespace truth {
     const int32_t a = std::abs(pdgId);
     if (a >= 1 && a <= 6)
       return static_cast<double>(a) + 0.5;
-    if (a == 21)
+    if (a == 9 || a == 21)  // 9 is the PDG alternative gluon code
       return static_cast<double>(FlavourBin::Gluon) + 0.5;
     return static_cast<double>(FlavourBin::Other) + 0.5;
   }
@@ -104,6 +105,10 @@ namespace truth {
   // range, so such a branch lands in the underflow of BOTH numerator and denominator
   // and the calorimeter-entrance axis shows only what a calorimeter could have seen.
   inline constexpr double kNoCaloEntry = -999.;
+
+  // The eta at which the branch of each particle enters the calorimeter: the boundary crossing of the most energetic
+  // particle of its subgraph that enters the calorimeter, kNoCaloEntry when none does.
+  [[nodiscard]] std::vector<double> caloEntryEtas(Graph const& graph);
 
   struct TruthBranchHistograms {
     using METype = dqm::reco::MonitorElement*;
@@ -161,7 +166,8 @@ namespace truth {
     // second fake rate.
     //
     // h_recopurity fills matched objects weighted by the purity of the match, so its
-    // ratio to h_reco is the mean purity. It must stay separate from the counts:
+    // ratio to h_reco is the mean purity over all reco objects, an unmatched one counting
+    // as 0. It must stay separate from the counts:
     // filling one histogram with the purity as a weight and reading it as a count turns
     // the fake rate into one minus the mean purity, which on no-PU ttbar reads 0.83
     // where the fake rate is 0.003.

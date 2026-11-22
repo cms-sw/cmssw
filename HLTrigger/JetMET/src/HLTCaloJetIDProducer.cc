@@ -6,6 +6,8 @@
  *
  */
 
+#include <memory>
+
 #include "HLTrigger/JetMET/interface/HLTCaloJetIDProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -55,7 +57,7 @@ void HLTCaloJetIDProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
 // Produce the products
 void HLTCaloJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Create a pointer to the products
-  std::unique_ptr<reco::CaloJetCollection> result(new reco::CaloJetCollection());
+  std::unique_ptr<reco::CaloJetCollection> result = std::make_unique<reco::CaloJetCollection>();
 
   edm::Handle<reco::CaloJetCollection> calojets;
   iEvent.getByToken(m_theCaloJetToken, calojets);

@@ -170,11 +170,14 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
     totalmods += nmods;
     printf("\t[FED %d] packs data from %ld ECON-Ds - readout types -> (offsets)\n", frs.id, nmods);
     printf("\tTotal capture blocks: %ld Total ECON-Ds %ld\n", frs.totalCBs_, frs.totalECONs_);
+    printf("\t[FED %d] crate=%u\n", frs.id, frs.crate);
     for (size_t i = 0; i < nmods; i++) {
       printf("\t%d -> (%d;%d;%d)", frs.readoutTypes_[i], frs.modOffsets_[i], frs.erxOffsets_[i], frs.chDataOffsets_[i]);
     }
     printf("\n");
   }
+  for (auto c : modulesIdx.uniqueCrates())
+    printf(" unique crate %u\n", c);
 
   //check that there are unique offsets per modules in the full system
   assert(unique_modOffsets.size() == totalmods);

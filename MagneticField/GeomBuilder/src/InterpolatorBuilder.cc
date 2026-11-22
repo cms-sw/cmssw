@@ -36,9 +36,9 @@ namespace magneticfield {
     if (not useMergeFileIfAvailable)
       return;
     if (tableSet_ != "fake") {
-      tableSet_ += "/";
+      tableSet_ += '/';
       std::string indexFileName, binaryFileName;
-      if (tableSet_.starts_with("/")) {
+      if (tableSet_.starts_with('/')) {
         indexFileName = tableSet_ + "merged.index";
         binaryFileName = tableSet_ + "merged.bin";
       } else {
@@ -86,7 +86,7 @@ namespace magneticfield {
 
     if (not stream_) {
       std::string fullPath;
-      if (tableSet_.starts_with("/")) {
+      if (tableSet_.starts_with('/')) {
         fullPath = tableSet_ + vol->magFile;
       } else {
         fullPath = edm::FileInPath::findFile("MagneticField/Interpolation/data/" + tableSet_ + vol->magFile);

@@ -8,3 +8,4 @@
 <library file="*.cc" name="testGeometryHGCalCommonData">
 </library>
 <bin name="HGCalConvert" file="HGCalConvert.cpp"> </bin>
+<test name="testHGCalCellSizeHex" command="cmsRun ${LOCALTOP}/src/Geometry/HGCalCommonData/test/python/testHGCalCellSizeHex_cfg.py"/>

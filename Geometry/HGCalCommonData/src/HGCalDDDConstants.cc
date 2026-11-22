@@ -355,11 +355,11 @@ double HGCalDDDConstants::cellArea(const HGCSiliconDetId& id, bool reco) const {
   int32_t indx = HGCalWaferIndex::waferIndex(id.layer(), waferU, id.waferV());
   auto ktr = hgpar_->waferInfoMap_.find(indx);
   if (ktr != hgpar_->waferInfoMap_.end()) {
+    const int32_t fineCoarse = HGCalTypes::waferHD(ktr->second.type) ? 0 : 1;
     if (ktr->second.part == HGCalTypes::WaferFull) {
-      area = cellOffset_->cellAreaUV(id.cellU(), id.cellV(), placementIndex(id), ktr->second.type, reco);
+      area = cellOffset_->cellAreaUV(id.cellU(), id.cellV(), placementIndex(id), fineCoarse, reco);
     } else {
-      area =
-          cellOffset_->cellAreaUV(id.cellU(), id.cellV(), placementIndex(id), ktr->second.type, ktr->second.part, reco);
+      area = cellOffset_->cellAreaUV(id.cellU(), id.cellV(), placementIndex(id), fineCoarse, ktr->second.part, reco);
     }
   }
 #ifdef EDM_ML_DEBUG
@@ -421,6 +421,21 @@ bool HGCalDDDConstants::cellInLayer(int waferU, int waferV, int cellU, int cellV
   }
 }
 
+std::pair<double, double> HGCalDDDConstants::cellSizeTrap(int type, int irad) const {
+  constexpr double r(0.0);
+  std::pair<double, double> rr =
+      (((!hgpar_->radiusLayer_[type].empty()) && (hgpar_->radiusLayer_[type].size() > static_cast<size_t>(irad)))
+           ? std::make_pair(hgpar_->radiusLayer_[type][irad - 1], hgpar_->radiusLayer_[type][irad])
+       : ((hgpar_->radiusLayer_[type].size() == static_cast<size_t>(irad)) && (irad > 1))
+           ? std::make_pair(hgpar_->radiusLayer_[type][irad - 2], hgpar_->radiusLayer_[type][irad - 1])
+           : std::make_pair(r, r));
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "cellSizeTrap: " << type << ":" << irad << " size "
+                                << hgpar_->radiusLayer_[type].size() << " Result " << rr.first << ":" << rr.second;
+#endif
+  return rr;
+}
+
 std::vector<double> HGCalDDDConstants::cellThickness() const {
   std::vector<double> thick;
   if (waferHexagon8()) {
@@ -447,7 +462,9 @@ double HGCalDDDConstants::cellThickness(int layer, int waferU, int waferV) const
 }
 
 double HGCalDDDConstants::cellSizeHex(int type) const {
-  int indx = ((waferHexagon8()) ? ((type >= 1) ? 1 : 0) : ((type == 1) ? 1 : 0));
+  int indx =
+      ((waferHexagon8()) ? (((type == HGCSiliconDetId::HGCalHD120) || (type == HGCSiliconDetId::HGCalHD200)) ? 0 : 1)
+                         : ((type == 1) ? 1 : 0));
   double cell = (tileTrapezoid() ? 0.5 * hgpar_->cellSize_[indx]
                                  : 0.5 * HGCalParameters::k_ScaleFromDDD * hgpar_->cellSize_[indx]);
   return cell;
@@ -934,10 +951,10 @@ std::pair<float, float> HGCalDDDConstants::localToGlobal8(
       st1 << "Cassette " << (ktr->second).cassette << " Shift " << cshift.first << ":" << cshift.second << " Original "
           << x << ":" << y;
     if (!reco) {
-      x -= ((HGCalParameters::k_ScaleToDDD)*zside * cshift.first);
+      x -= ((HGCalParameters::k_ScaleToDDD)*cshift.first);
       y += ((HGCalParameters::k_ScaleToDDD)*cshift.second);
     } else {
-      x -= (zside * cshift.first);
+      x -= cshift.first;
       y += cshift.second;
     }
     if (debug) {

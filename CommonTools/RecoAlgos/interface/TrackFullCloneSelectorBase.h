@@ -40,8 +40,8 @@ namespace reco {
       /// constructor
       explicit TrackFullCloneSelectorBase(const edm::ParameterSet& cfg)
           : hSrcTrackToken_(consumes<reco::TrackCollection>(cfg.template getParameter<edm::InputTag>("src"))),
-            hTrajToken_(mayConsume<std::vector<Trajectory> >(cfg.template getParameter<edm::InputTag>("src"))),
-            hTTAssToken_(mayConsume<TrajTrackAssociationCollection>(cfg.template getParameter<edm::InputTag>("src"))),
+            hTrajToken_(consumes<std::vector<Trajectory> >(cfg.template getParameter<edm::InputTag>("src"))),
+            hTTAssToken_(consumes<TrajTrackAssociationCollection>(cfg.template getParameter<edm::InputTag>("src"))),
             copyExtras_(cfg.template getUntrackedParameter<bool>("copyExtras", false)),
             copyTrajectories_(cfg.template getUntrackedParameter<bool>("copyTrajectories", false)),
             selector_(cfg, consumesCollector()) {

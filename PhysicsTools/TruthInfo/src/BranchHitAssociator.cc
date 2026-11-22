@@ -6,9 +6,11 @@
 #include <cstddef>
 #include <limits>
 #include <numeric>
+#include <string_view>
 #include <utility>
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 namespace truth {
 
@@ -31,6 +33,31 @@ namespace truth {
   }
 
   uint32_t BranchHitAssociator::detectorBit(uint32_t detId) { return 1u << DetId(detId).det(); }
+
+  uint32_t BranchHitAssociator::detectorMask(std::span<const std::string> names) {
+    static constexpr std::pair<std::string_view, DetId::Detector> kDetectors[] = {
+        {"Tracker", DetId::Tracker},
+        {"Muon", DetId::Muon},
+        {"Ecal", DetId::Ecal},
+        {"Hcal", DetId::Hcal},
+        {"Calo", DetId::Calo},
+        {"Forward", DetId::Forward},
+        {"VeryForward", DetId::VeryForward},
+        {"HGCalEE", DetId::HGCalEE},
+        {"HGCalHSi", DetId::HGCalHSi},
+        {"HGCalHSc", DetId::HGCalHSc},
+        {"HGCalTrigger", DetId::HGCalTrigger}};
+    if (names.empty())
+      return kAllDetectors;
+    uint32_t mask = 0u;
+    for (auto const& name : names) {
+      auto const it = std::ranges::find(kDetectors, std::string_view(name), [](auto const& d) { return d.first; });
+      if (it == std::ranges::end(kDetectors))
+        throw cms::Exception("Configuration") << "denominatorDetectors: unknown DetId::Detector name '" << name << "'";
+      mask |= 1u << static_cast<uint32_t>(it->second);
+    }
+    return mask;
+  }
 
   void CellEnergyTable::finalize() {
     std::vector<std::pair<uint32_t, float>> cells;
@@ -358,6 +385,8 @@ namespace truth {
       // Merge-join reco hits and the branch subgraph hits by detId, then by cell where
       // the channel carries one. Both sides are sorted by (detId, cell), so the join
       // walks one DetId run at a time and each side is read once.
+      // A large ancestor holds far more cells than the object, so a seek beats a walk.
+      const bool seekBranchHits = branchHits.size() > 8 * reco.size();
       std::size_t i = 0;
       std::size_t j = 0;
       while (i < reco.size()) {
@@ -367,8 +396,16 @@ namespace truth {
         while (iEnd < reco.size() && reco[iEnd].detId == detId)
           ++iEnd;
 
-        while (j < branchHits.size() && branchHits[j].detId < detId)
-          ++j;
+        if (seekBranchHits) {
+          j = std::lower_bound(branchHits.begin() + j,
+                               branchHits.end(),
+                               detId,
+                               [](auto const& hit, uint32_t id) { return hit.detId < id; }) -
+              branchHits.begin();
+        } else {
+          while (j < branchHits.size() && branchHits[j].detId < detId)
+            ++j;
+        }
         std::size_t jEnd = j;
         while (jEnd < branchHits.size() && branchHits[jEnd].detId == detId)
           ++jEnd;

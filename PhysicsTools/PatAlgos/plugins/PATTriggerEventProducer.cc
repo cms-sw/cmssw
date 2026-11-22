@@ -126,24 +126,24 @@ PATTriggerEventProducer::PATTriggerEventProducer(const ParameterSet& iConfig)
     tagTriggerEvent_ = iConfig.getParameter<InputTag>("triggerEvent");
   if (iConfig.exists("patTriggerProducer"))
     tagTriggerProducer_ = iConfig.getParameter<InputTag>("patTriggerProducer");
-  triggerAlgorithmCollectionToken_ = mayConsume<TriggerAlgorithmCollection>(tagTriggerProducer_);
-  triggerConditionCollectionToken_ = mayConsume<TriggerConditionCollection>(tagTriggerProducer_);
-  triggerPathCollectionToken_ = mayConsume<TriggerPathCollection>(tagTriggerProducer_);
-  triggerFilterCollectionToken_ = mayConsume<TriggerFilterCollection>(tagTriggerProducer_);
-  triggerObjectCollectionToken_ = mayConsume<TriggerObjectCollection>(tagTriggerProducer_);
+  triggerAlgorithmCollectionToken_ = consumes<TriggerAlgorithmCollection>(tagTriggerProducer_);
+  triggerConditionCollectionToken_ = consumes<TriggerConditionCollection>(tagTriggerProducer_);
+  triggerPathCollectionToken_ = consumes<TriggerPathCollection>(tagTriggerProducer_);
+  triggerFilterCollectionToken_ = consumes<TriggerFilterCollection>(tagTriggerProducer_);
+  triggerObjectCollectionToken_ = consumes<TriggerObjectCollection>(tagTriggerProducer_);
   if (iConfig.exists("condGtTag")) {
     tagCondGt_ = iConfig.getParameter<InputTag>("condGtTag");
-    tagCondGtRunToken_ = mayConsume<ConditionsInRunBlock, InRun>(tagCondGt_);
-    tagCondGtLumiToken_ = mayConsume<ConditionsInLumiBlock, InLumi>(tagCondGt_);
-    tagCondGtEventToken_ = mayConsume<ConditionsInEventBlock>(tagCondGt_);
+    tagCondGtRunToken_ = consumes<ConditionsInRunBlock, InRun>(tagCondGt_);
+    tagCondGtLumiToken_ = consumes<ConditionsInLumiBlock, InLumi>(tagCondGt_);
+    tagCondGtEventToken_ = consumes<ConditionsInEventBlock>(tagCondGt_);
   }
   if (iConfig.exists("l1GtTag"))
     tagL1Gt_ = iConfig.getParameter<InputTag>("l1GtTag");
-  l1GtToken_ = mayConsume<L1GlobalTriggerReadoutRecord>(tagL1Gt_);
+  l1GtToken_ = consumes<L1GlobalTriggerReadoutRecord>(tagL1Gt_);
   if (iConfig.exists("patTriggerMatches"))
     tagsTriggerMatcher_ = iConfig.getParameter<std::vector<InputTag> >("patTriggerMatches");
   triggerMatcherTokens_ = vector_transform(
-      tagsTriggerMatcher_, [this](InputTag const& tag) { return mayConsume<TriggerObjectStandAloneMatch>(tag); });
+      tagsTriggerMatcher_, [this](InputTag const& tag) { return consumes<TriggerObjectStandAloneMatch>(tag); });
 
   callWhenNewProductsRegistered([this](ProductDescription const& bd) {
     if (not(this->autoProcessName_ and bd.processName() == this->moduleDescription().processName())) {

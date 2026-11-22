@@ -64,7 +64,7 @@ TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet& iConfi
   metSourceToken_ = consumes<std::vector<pat::MET> >(iConfig.getParameter<edm::InputTag>("metSource"));
   jetSourceToken_ = consumes<std::vector<pat::Jet> >(iConfig.getParameter<edm::InputTag>("jetSource"));
   jetCorrScheme_ = iConfig.getParameter<int>("jetCorrectionScheme");
-  evtSourceToken_ = mayConsume<TtGenEvent>(iConfig.getParameter<edm::InputTag>("evtSource"));
+  evtSourceToken_ = consumes<TtGenEvent>(iConfig.getParameter<edm::InputTag>("evtSource"));
   nrCombJets_ = iConfig.getParameter<unsigned int>("nrCombJets");
   matchToGenEvt_ = iConfig.getParameter<bool>("matchToGenEvt");
   calcTopMass_ = iConfig.getParameter<bool>("calcTopMass");

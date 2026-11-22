@@ -1,0 +1,17 @@
+<lcgdict>
+  <class name="alpaka_cuda_async::btlrechit::BTLBaseRecHitDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::btlrechit::BTLBaseRecHitDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::btlrechit::BTLBaseRecHitDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_cuda_async::btlrechit::BTLRecHitDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::btlrechit::BTLRecHitDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::btlrechit::BTLRecHitDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_cuda_async::etlrechit::ETLBaseRecHitDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::etlrechit::ETLBaseRecHitDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::etlrechit::ETLBaseRecHitDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_cuda_async::etlrechit::ETLRecHitDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::etlrechit::ETLRecHitDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::etlrechit::ETLRecHitDeviceCollection>>" persistent="false"/>
+</lcgdict>

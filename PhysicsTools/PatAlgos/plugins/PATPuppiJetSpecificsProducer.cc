@@ -7,6 +7,8 @@
  *
  */
 
+#include <memory>
+
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -31,23 +33,23 @@ public:
 private:
   // input collection
   edm::InputTag srcjets_;
-  edm::EDGetTokenT<edm::View<pat::Jet> > jets_token;
+  edm::EDGetTokenT<edm::View<pat::Jet>> jets_token;
 };
 
 PATPuppiJetSpecificProducer::PATPuppiJetSpecificProducer(const edm::ParameterSet& cfg) {
   srcjets_ = cfg.getParameter<edm::InputTag>("src");
-  jets_token = consumes<edm::View<pat::Jet> >(srcjets_);
+  jets_token = consumes<edm::View<pat::Jet>>(srcjets_);
 
-  produces<edm::ValueMap<float> >("puppiMultiplicity");
-  produces<edm::ValueMap<float> >("neutralPuppiMultiplicity");
-  produces<edm::ValueMap<float> >("neutralHadronPuppiMultiplicity");
-  produces<edm::ValueMap<float> >("photonPuppiMultiplicity");
-  produces<edm::ValueMap<float> >("HFHadronPuppiMultiplicity");
-  produces<edm::ValueMap<float> >("HFEMPuppiMultiplicity");
+  produces<edm::ValueMap<float>>("puppiMultiplicity");
+  produces<edm::ValueMap<float>>("neutralPuppiMultiplicity");
+  produces<edm::ValueMap<float>>("neutralHadronPuppiMultiplicity");
+  produces<edm::ValueMap<float>>("photonPuppiMultiplicity");
+  produces<edm::ValueMap<float>>("HFHadronPuppiMultiplicity");
+  produces<edm::ValueMap<float>>("HFEMPuppiMultiplicity");
 }
 
 void PATPuppiJetSpecificProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const {
-  edm::Handle<edm::View<pat::Jet> > jets;
+  edm::Handle<edm::View<pat::Jet>> jets;
   evt.getByToken(jets_token, jets);
 
   std::vector<float> puppiMultiplicities;
@@ -98,39 +100,39 @@ void PATPuppiJetSpecificProducer::produce(edm::StreamID, edm::Event& evt, const 
     HFEMPuppiMultiplicities.push_back(HFEMPuppiMultiplicity);
   }
 
-  std::unique_ptr<edm::ValueMap<float> > puppiMultiplicities_out(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> puppiMultiplicities_out = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler puppiMultiplicities_filler(*puppiMultiplicities_out);
   puppiMultiplicities_filler.insert(jets, puppiMultiplicities.begin(), puppiMultiplicities.end());
   puppiMultiplicities_filler.fill();
   evt.put(std::move(puppiMultiplicities_out), "puppiMultiplicity");
 
-  std::unique_ptr<edm::ValueMap<float> > neutralPuppiMultiplicities_out(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> neutralPuppiMultiplicities_out = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler neutralPuppiMultiplicities_filler(*neutralPuppiMultiplicities_out);
   neutralPuppiMultiplicities_filler.insert(jets, neutralPuppiMultiplicities.begin(), neutralPuppiMultiplicities.end());
   neutralPuppiMultiplicities_filler.fill();
   evt.put(std::move(neutralPuppiMultiplicities_out), "neutralPuppiMultiplicity");
 
-  std::unique_ptr<edm::ValueMap<float> > neutralHadronPuppiMultiplicities_out(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> neutralHadronPuppiMultiplicities_out = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler neutralHadronPuppiMultiplicities_filler(*neutralHadronPuppiMultiplicities_out);
   neutralHadronPuppiMultiplicities_filler.insert(
       jets, neutralHadronPuppiMultiplicities.begin(), neutralHadronPuppiMultiplicities.end());
   neutralHadronPuppiMultiplicities_filler.fill();
   evt.put(std::move(neutralHadronPuppiMultiplicities_out), "neutralHadronPuppiMultiplicity");
 
-  std::unique_ptr<edm::ValueMap<float> > photonPuppiMultiplicities_out(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> photonPuppiMultiplicities_out = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler photonPuppiMultiplicities_filler(*photonPuppiMultiplicities_out);
   photonPuppiMultiplicities_filler.insert(jets, photonPuppiMultiplicities.begin(), photonPuppiMultiplicities.end());
   photonPuppiMultiplicities_filler.fill();
   evt.put(std::move(photonPuppiMultiplicities_out), "photonPuppiMultiplicity");
 
-  std::unique_ptr<edm::ValueMap<float> > HFHadronPuppiMultiplicities_out(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> HFHadronPuppiMultiplicities_out = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler HFHadronPuppiMultiplicities_filler(*HFHadronPuppiMultiplicities_out);
   HFHadronPuppiMultiplicities_filler.insert(
       jets, HFHadronPuppiMultiplicities.begin(), HFHadronPuppiMultiplicities.end());
   HFHadronPuppiMultiplicities_filler.fill();
   evt.put(std::move(HFHadronPuppiMultiplicities_out), "HFHadronPuppiMultiplicity");
 
-  std::unique_ptr<edm::ValueMap<float> > HFEMPuppiMultiplicities_out(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> HFEMPuppiMultiplicities_out = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler HFEMPuppiMultiplicities_filler(*HFEMPuppiMultiplicities_out);
   HFEMPuppiMultiplicities_filler.insert(jets, HFEMPuppiMultiplicities.begin(), HFEMPuppiMultiplicities.end());
   HFEMPuppiMultiplicities_filler.fill();

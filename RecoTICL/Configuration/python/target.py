@@ -107,7 +107,7 @@ HLT = Target(
                     "SeedingRegionByL1": "hltTiclSeedingL1"},
     layer_tile_label="hltTiclLayerTileProducer",
     links_label="hltTiclTracksterLinks",
-    supercluster_dnn_label="hltTiclTracksterLinksSuperclusteringDNN",
+    supercluster_dnn_label="hltTiclTracksterLinksSuperclusteringDNNUnseeded",
     candidate_label="hltTiclCandidate",
     mtd_label="hltMtdSoA",
     pf_label="hltPfTICL",

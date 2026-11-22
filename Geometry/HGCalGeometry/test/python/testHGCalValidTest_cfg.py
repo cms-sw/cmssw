@@ -1,6 +1,39 @@
+###############################################################################
+# Way to use this:
+#   cmsRun testHGCalValidTest_cfg.py geometry=D120 detector=HGCalEESensitive
+#
+#   Options for geometry D120, D122
+#           for detector HGCalHEScintillatorSensitive, HGCalEESensitive,
+#                        HGCalHESiliconSensitive
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, importlib, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-geomName = "Run4D121"
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "D120",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: D120, D121, D122")
+options.register('detector',
+                 "HGCalEESensitive",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: HGCalHEScintillatorSensitive, HGCalEESensitive, HGCalHESiliconSensitive")
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+
+####################################################################
+# Use the options
+
+geomName = "Run4" + options.geometry
+detector = options.detector
 geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
@@ -9,6 +42,7 @@ print("Geometry Name:   ", geomName)
 print("Geom file Name:  ", geomFile)
 print("Global Tag Name: ", GLOBAL_TAG)
 print("Era Name:        ", ERA)
+print("Detector Name:   ", detector)
 
 process = cms.Process('PROD',ERA)
 
@@ -53,5 +87,11 @@ process.hgcalValidTestEE = process.hgcalValidTestHEB.clone(
     detector   = "HGCalEESensitive"
 )
 
-#process.p1 = cms.Path(process.generator*process.hgcalValidTestEE*process.hgcalValidTestHEF*process.hgcalValidTestHEB)
-process.p1 = cms.Path(process.generator*process.hgcalValidTestHEB)
+if   detector == "HGCalEESensitive":
+    process.p1 = cms.Path(process.generator*process.hgcalValidTestEE)
+elif detector == "HGCalHESiliconSensitive":
+    process.p1 = cms.Path(process.generator*process.hgcalValidTestHEF)
+elif detector == "HGCalHEScintillatorSensitive":
+    process.p1 = cms.Path(process.generator*process.hgcalValidTestHEB)
+else:
+    process.p1 = cms.Path(process.generator*process.hgcalValidTestEE*process.hgcalValidTestHEF*process.hgcalValidTestHEB)

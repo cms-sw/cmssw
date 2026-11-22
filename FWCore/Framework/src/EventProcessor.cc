@@ -1589,6 +1589,7 @@ namespace edm {
   namespace {
     void prefetchForRandomNumberGeneratorAsync(edm::WaitingTaskHolder const& iTask,
                                                edm::Principal const& iPrincipal,
+                                               edm::Transition iTransition,
                                                edm::ServiceToken const& iServiceToken) {
       edm::ServiceRegistry::Operate operate(iServiceToken);
       Service<edm::RandomNumberGenerator> rng;
@@ -1596,7 +1597,7 @@ namespace edm {
         auto consumer = rng->consumer();
         if (consumer) {
           // Prefetch products the module declares it consumes
-          std::vector<ProductResolverIndexAndSkipBit> const& items = consumer->itemsToGetFrom(iPrincipal.branchType());
+          std::vector<ProductResolverIndexAndSkipBit> const& items = consumer->itemsToGetFrom(iTransition);
 
           for (auto const& item : items) {
             ProductResolverIndex productResolverIndex = item.productResolverIndex();
@@ -1670,7 +1671,8 @@ namespace edm {
                   //handle RandomNumberGenerator prefetching and preBeginLumi
                   assert(status->lumiPrincipal() != nullptr);
                   auto& lumiPrincipal = *status->lumiPrincipal();
-                  prefetchForRandomNumberGeneratorAsync(std::move(nextTask), lumiPrincipal, serviceToken_);
+                  prefetchForRandomNumberGeneratorAsync(
+                      std::move(nextTask), lumiPrincipal, Transition::BeginLuminosityBlock, serviceToken_);
                 }) | ifThen(rng.isAvailable() and rng->consumer() != nullptr, [this, status](auto nextTask) {
                   ServiceRegistry::Operate operate(serviceToken_);
                   Service<RandomNumberGenerator> rng;
@@ -2091,7 +2093,7 @@ namespace edm {
     chain::firstIf(rng.isAvailable() and rng->consumer() != nullptr, [this, pep](auto nextTask) {
       //handle RandomNumberGenerator prefetching and postEventRead
       chain::first([this, pep](auto nextTask) {
-        prefetchForRandomNumberGeneratorAsync(std::move(nextTask), *pep, serviceToken_);
+        prefetchForRandomNumberGeneratorAsync(std::move(nextTask), *pep, Transition::Event, serviceToken_);
       }) | then([this, pep](auto nextTask) {
         ServiceRegistry::Operate operate(serviceToken_);
         Service<RandomNumberGenerator> rng;

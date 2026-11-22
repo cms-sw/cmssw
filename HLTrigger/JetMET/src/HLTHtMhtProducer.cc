@@ -66,6 +66,9 @@ void HLTHtMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   // Create a pointer to the products
   std::unique_ptr<reco::METCollection> result = std::make_unique<reco::METCollection>();
 
+  if (pfCandidatesLabel_.label().empty())
+    excludePFMuons_ = false;
+
   edm::Handle<reco::CandidateView> jets;
   iEvent.getByToken(m_theJetToken, jets);
 

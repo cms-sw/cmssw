@@ -290,7 +290,7 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet& iConfig)
       pfElecToken_(!usePfCandidateMultiMap_
                        ? consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfElectronSource"))
                        : edm::EDGetTokenT<reco::PFCandidateCollection>()),
-      pfCandidateMapToken_(!usePfCandidateMultiMap_ ? mayConsume<edm::ValueMap<reco::PFCandidatePtr>>(
+      pfCandidateMapToken_(!usePfCandidateMultiMap_ ? consumes<edm::ValueMap<reco::PFCandidatePtr>>(
                                                           iConfig.getParameter<edm::InputTag>("pfCandidateMap"))
                                                     : edm::EDGetTokenT<edm::ValueMap<reco::PFCandidatePtr>>()),
       pfCandidateMultiMapToken_(usePfCandidateMultiMap_
@@ -301,9 +301,9 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet& iConfig)
       // mva input variables
       addMVAVariables_(iConfig.getParameter<bool>("addMVAVariables")),
       reducedBarrelRecHitCollection_(iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection")),
-      reducedBarrelRecHitCollectionToken_(mayConsume<EcalRecHitCollection>(reducedBarrelRecHitCollection_)),
+      reducedBarrelRecHitCollectionToken_(consumes<EcalRecHitCollection>(reducedBarrelRecHitCollection_)),
       reducedEndcapRecHitCollection_(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection")),
-      reducedEndcapRecHitCollectionToken_(mayConsume<EcalRecHitCollection>(reducedEndcapRecHitCollection_)),
+      reducedEndcapRecHitCollectionToken_(consumes<EcalRecHitCollection>(reducedEndcapRecHitCollection_)),
       ecalClusterToolsESGetTokens_{consumesCollector()},
       // PFCluster Isolation maps
       addPFClusterIso_(iConfig.getParameter<bool>("addPFClusterIso")),
@@ -313,7 +313,7 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet& iConfig)
       // embed high level selection variables?
       embedHighLevelSelection_(iConfig.getParameter<bool>("embedHighLevelSelection")),
       beamLineToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamLineSrc"))),
-      pvToken_(mayConsume<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("pvSrc"))),
+      pvToken_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("pvSrc"))),
       addElecID_(iConfig.getParameter<bool>("addElectronID")),
       pTComparator_(),
       isolator_(iConfig.getParameter<edm::ParameterSet>("userIsolation"), consumesCollector(), false),
@@ -381,7 +381,7 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet& iConfig)
     }
   }
   elecIDTokens_ = edm::vector_transform(
-      elecIDSrcs_, [this](NameTag const& tag) { return mayConsume<edm::ValueMap<float>>(tag.second); });
+      elecIDSrcs_, [this](NameTag const& tag) { return consumes<edm::ValueMap<float>>(tag.second); });
   // construct resolution calculator
 
   //   // IsoDeposit configurables

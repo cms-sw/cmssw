@@ -396,7 +396,7 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
         }
         resultCandidate[iTrack] = resultTracksters.size();
         resultTracksters.push_back(outTrackster);
-        // since a track has been linked it can only be electron or charged hadron
+        resultTracksters.back().zeroProbabilities();
         if (isHadron)
           resultTracksters.back().setIdProbability(ticl::Trackster::ParticleType::charged_hadron, 1.f);
         else

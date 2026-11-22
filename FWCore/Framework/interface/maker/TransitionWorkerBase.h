@@ -156,7 +156,7 @@ namespace edm {
     virtual void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
     virtual void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
 
-    virtual std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType) const = 0;
+    virtual std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(Transition) const = 0;
 
     virtual std::vector<ESResolverIndex> const& esItemsToGetFrom(Transition) const = 0;
     virtual std::vector<ESRecordIndex> const& esRecordsToGetFrom(Transition) const = 0;
@@ -186,7 +186,7 @@ namespace edm {
     }
 
     void esPrefetchAsync(WaitingTaskHolder, EventSetupImpl const&, Transition, ServiceToken const&) noexcept;
-    void edPrefetchAsync(WaitingTaskHolder, ServiceToken const&, Principal const&) const noexcept;
+    void edPrefetchAsync(WaitingTaskHolder, Principal const&, Transition, ServiceToken const&) const noexcept;
 
     bool needsESPrefetching(Transition iTrans) const noexcept {
       return iTrans < edm::Transition::NumberOfEventSetupTransitions ? not esItemsToGetFrom(iTrans).empty() : false;

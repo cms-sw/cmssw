@@ -159,6 +159,13 @@ namespace triggerExpression {
     bool configurationUpdated() const { return m_hltUpdated or m_l1tUpdated; }
 
     edm::EventNumber_t eventNumber() const { return m_eventNumber; }
+    // index of the stream of the current event if the expressions are shared by several streams, otherwise 0
+    unsigned int streamIndex() const { return m_streamIndex; }
+
+    // number of streams that share the expressions evaluated with this Data;
+    // 1 (the default) if each expression is used by a single stream
+    void setNumberOfStreams(unsigned int streams) { m_numberOfStreams = streams; }
+    unsigned int numberOfStreams() const { return m_numberOfStreams; }
 
     bool shouldThrow() const { return m_throw; }
 
@@ -216,6 +223,8 @@ namespace triggerExpression {
 
     // event values
     edm::EventNumber_t m_eventNumber;
+    unsigned int m_streamIndex = 0;
+    unsigned int m_numberOfStreams = 1;
   };
 
 }  // namespace triggerExpression

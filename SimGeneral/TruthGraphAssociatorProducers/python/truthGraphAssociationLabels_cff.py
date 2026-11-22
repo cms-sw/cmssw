@@ -48,6 +48,19 @@ truthGraphRecoLabelsPSet = cms.PSet(
     # that does run them replaces this with what its process actually schedules, via
     # setTracksterLabelsFromProcess below.
     tracksters=cms.vstring(*sorted(ticlIterLabelsPSet.labels)),
+    # TICL candidates, matched on the layer clusters of their tracksters; their tracks are matched as tracks.
+    candidates=cms.vstring("ticlCandidate"),
+)
+
+# The detectors each hit-based domain covers, as DetId::Detector names. The associator
+# normalises its shared-energy fraction to them, and requireHits of the validator keeps only
+# the truth objects with a hit in them. An empty list means the whole hit channel.
+truthBranchDenominatorDetectors = dict(
+    tracks=[],
+    tracksters=["HGCalEE", "HGCalHSi", "HGCalHSc"],
+    candidates=["HGCalEE", "HGCalHSi", "HGCalHSc"],
+    pfClustersEcal=["Ecal"],
+    pfClustersHcal=["Hcal"],
 )
 
 # The same domains reconstructed by the HLT menu. Kept as a separate PSet rather than

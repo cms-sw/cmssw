@@ -46,8 +46,7 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   void beginRun(const edm::Run&, const edm::EventSetup& es) override {
-    rhtools_.setGeometry(
-        es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
+    rhtools_.setGeometry(es.getData(ticlGeomToken_));
 
     // Configure the pattern recognition plugin once per run/IOV.
     if (doNose_) {
@@ -82,8 +81,6 @@ private:
   ticl::Trackster::IterationIndex iterIndex_ = ticl::Trackster::IterationIndex(0);
 
   const edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  const edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  const edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   ticlgeom::Tools rhtools_;
   const std::string itername_;
 };
@@ -103,10 +100,6 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, ticl::TICLON
           consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seeding_regions"))),
       ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag("", doBarrel_ ? "withBarrel" : ""))),
-      ticlGeomLookupToken_(esConsumes<TICLGeomLookupHost, CaloGeometryRecord, edm::Transition::BeginRun>(
-          edm::ESInputTag("", doBarrel_ ? "withBarrel" : ""))),
-      ticlGeomLayersToken_(
-          esConsumes<TICLGeomLayersHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
       itername_(ps.getParameter<std::string>("itername")) {
   const auto plugin = ps.getParameter<std::string>("patternRecognitionBy");
   const auto pluginPSet = ps.getParameter<edm::ParameterSet>("pluginPatternRecognitionBy" + plugin);

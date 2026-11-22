@@ -59,7 +59,7 @@ void JetBxSelector::produce(edm::Event& iEvent, const edm::EventSetup&) {
 
   iEvent.getByToken(jetsTokenData_, jetsCollection);
 
-  std::unique_ptr<std::vector<unsigned>> jetBx(new std::vector<unsigned>);
+  std::unique_ptr<std::vector<unsigned>> jetBx = std::make_unique<std::vector<unsigned>>();
 
   // loop over valid bunch crossings
   for (const unsigned& bx : jetsCollection->getFilledBxs()) {

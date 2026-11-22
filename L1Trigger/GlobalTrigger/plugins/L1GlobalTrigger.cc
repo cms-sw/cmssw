@@ -578,16 +578,17 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
 
   // produce the L1GlobalTriggerReadoutRecord now, after we found how many
   // BxInEvent the record has and how many boards are active
-  std::unique_ptr<L1GlobalTriggerReadoutRecord> gtDaqReadoutRecord(
-      new L1GlobalTriggerReadoutRecord(m_emulateBxInEvent, daqNrFdlBoards, daqNrPsbBoards));
+  std::unique_ptr<L1GlobalTriggerReadoutRecord> gtDaqReadoutRecord =
+      std::make_unique<L1GlobalTriggerReadoutRecord>(m_emulateBxInEvent, daqNrFdlBoards, daqNrPsbBoards);
 
   // * produce the L1GlobalTriggerEvmReadoutRecord
-  std::unique_ptr<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord(
-      new L1GlobalTriggerEvmReadoutRecord(m_emulateBxInEvent, daqNrFdlBoards));
+  std::unique_ptr<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord =
+      std::make_unique<L1GlobalTriggerEvmReadoutRecord>(m_emulateBxInEvent, daqNrFdlBoards);
   // daqNrFdlBoards OK, just reserve memory at this point
 
   // * produce the L1GlobalTriggerObjectMapRecord
-  std::unique_ptr<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord(new L1GlobalTriggerObjectMapRecord());
+  std::unique_ptr<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord =
+      std::make_unique<L1GlobalTriggerObjectMapRecord>();
 
   // fill the boards not depending on the BxInEvent in the L1 GT DAQ record
   // GMT, PSB and FDL depend on BxInEvent

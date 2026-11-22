@@ -165,7 +165,7 @@ PhotonIDValueMapProducer::PhotonIDValueMapProducer(const edm::ParameterSet& cfg)
       esRecHits_(consumes(cfg.getParameter<edm::InputTag>("esReducedRecHitCollection"))),
       vtxToken_(consumes(cfg.getParameter<edm::InputTag>("vertices"))),
       pfCandsToken_(consumes(cfg.getParameter<edm::InputTag>("pfCandidates"))),
-      particleBasedIsolationToken_(mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(
+      particleBasedIsolationToken_(consumes<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(
           cfg.getParameter<edm::InputTag>("particleBasedIsolation")) /* ...only for AOD... */),
       ecalClusterToolsESGetTokens_{consumesCollector()},
       isAOD_(cfg.getParameter<bool>("isAOD")) {

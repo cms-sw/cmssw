@@ -12,6 +12,7 @@
 // Math
 #include "Math/GenVector/VectorUtil.h"
 #include <cmath>
+#include <memory>
 
 using namespace edm;
 using namespace reco;
@@ -38,7 +39,7 @@ void CaloTowerFromL1TCreatorForTauHLT::produce(StreamID sid, Event& evt, const E
   edm::Handle<l1t::TauBxCollection> jetsgen;
   evt.getByToken(mTauTrigger_token, jetsgen);
 
-  std::unique_ptr<CaloTowerCollection> cands(new CaloTowerCollection);
+  std::unique_ptr<CaloTowerCollection> cands = std::make_unique<CaloTowerCollection>();
   cands->reserve(caloTowers->size());
 
   if (mCone < 0.) {

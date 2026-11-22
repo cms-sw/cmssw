@@ -12,7 +12,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "V18",
+                 "V19",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: V17, V17Shift, V18, V19, V19n")
@@ -35,7 +35,10 @@ else:
     process = cms.Process("PROD",Phase2C22I13M9)
 
 geomFile = "Geometry.HGCalCommonData.testHGCal" + options.geometry + "Reco_cff"
+fileName = "hgc" + options.geometry + ".root"
+
 print("Geometry file: ", geomFile)
+print("o/p File name: ", fileName)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load('Configuration.StandardSequences.Generator_cff')
@@ -55,7 +58,7 @@ if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom = dict()
     process.MessageLogger.HGCalGeomT = dict()
     process.MessageLogger.HGCSim = dict()
-#   process.MessageLogger.CaloSim = dict()
+    process.MessageLogger.CaloSim = dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -89,7 +92,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 
 process.output = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('hgcV14.root')
+    fileName = cms.untracked.string(fileName)
 )
 
 process.generation_step = cms.Path(process.pgen)

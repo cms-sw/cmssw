@@ -8,6 +8,11 @@ MkFitOutputWrapper::MkFitOutputWrapper() = default;
 MkFitOutputWrapper::MkFitOutputWrapper(mkfit::TrackVec tracks, bool propagatedToFirstLayer)
     : tracks_{std::move(tracks)}, propagatedToFirstLayer_{propagatedToFirstLayer} {}
 
+MkFitOutputWrapper::MkFitOutputWrapper(mkfit::TrackVec tracks,
+                                       bool propagatedToFirstLayer,
+                                       mkfit::FinalFitHitStates hitStates)
+    : tracks_{std::move(tracks)}, propagatedToFirstLayer_{propagatedToFirstLayer}, hitStates_{std::move(hitStates)} {}
+
 MkFitOutputWrapper::~MkFitOutputWrapper() = default;
 
 MkFitOutputWrapper::MkFitOutputWrapper(MkFitOutputWrapper&&) = default;

@@ -1,6 +1,7 @@
 #include "EventFilter/RPCRawToDigi/plugins/RPCCPPFUnpacker.h"
 
 #include <algorithm>
+#include <memory>
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -52,8 +53,8 @@ void RPCCPPFUnpacker::produce(edm::Event& event,
   es_lb_link_map_ = setup.getHandle(es_lb_link_map_token_);
 
   std::set<std::pair<RPCDetId, RPCDigi> > rpc_digis;
-  std::unique_ptr<l1t::CPPFDigiCollection> rpc_cppf_digis(new l1t::CPPFDigiCollection());
-  std::unique_ptr<RPCAMCLinkCounters> counters(new RPCAMCLinkCounters());
+  std::unique_ptr<l1t::CPPFDigiCollection> rpc_cppf_digis = std::make_unique<l1t::CPPFDigiCollection>();
+  std::unique_ptr<RPCAMCLinkCounters> counters = std::make_unique<RPCAMCLinkCounters>();
 
   for (std::pair<RPCAMCLink const, rpcamc13::AMCPayload> const& payload : amc_payload) {
     processCPPF(payload.first, payload.second, *counters, rpc_digis, *rpc_cppf_digis);
@@ -290,7 +291,7 @@ void RPCCPPFUnpacker::processTXRecord(RPCAMCLink link,
 }
 
 void RPCCPPFUnpacker::putRPCDigis(edm::Event& event, std::set<std::pair<RPCDetId, RPCDigi> > const& rpc_digis) const {
-  std::unique_ptr<RPCDigiCollection> rpc_digi_collection(new RPCDigiCollection());
+  std::unique_ptr<RPCDigiCollection> rpc_digi_collection = std::make_unique<RPCDigiCollection>();
   RPCDetId rpc_det_id;
   std::vector<RPCDigi> local_rpc_digis;
   for (std::pair<RPCDetId, RPCDigi> const& rpc_digi : rpc_digis) {

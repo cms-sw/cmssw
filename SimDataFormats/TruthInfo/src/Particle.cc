@@ -36,6 +36,8 @@ bool truth::Particle::isSignal() const { return valid() && data().isSignal(); }
 
 bool truth::Particle::isFromPileup() const { return valid() && !data().isSignal(); }
 
+bool truth::Particle::isInTime() const { return valid() && data().isInTime(); }
+
 std::span<const truth::Checkpoint> truth::Particle::checkpoints() const {
   return std::span<const truth::Checkpoint>(data().checkpoints.data(), data().checkpoints.size());
 }

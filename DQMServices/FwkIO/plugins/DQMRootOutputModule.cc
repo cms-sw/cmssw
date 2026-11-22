@@ -239,8 +239,8 @@ private:
   edm::ProcessHistoryRegistry m_processHistoryRegistry;
   edm::JobReport::Token m_jrToken;
 
-  edm::GetterOfProducts<DQMToken> m_getterOfProductsLumi;
-  edm::GetterOfProducts<DQMToken> m_getterOfProductsRun;
+  edm::GetterOfProducts<DQMToken, edm::Transition::EndLuminosityBlock> m_getterOfProductsLumi;
+  edm::GetterOfProducts<DQMToken, edm::Transition::EndRun> m_getterOfProductsRun;
 };
 
 //

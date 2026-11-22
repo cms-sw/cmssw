@@ -18,7 +18,7 @@ See comments in the file GetterOfProducts.h.
 
 namespace edm {
 
-  template <typename T>
+  template <typename T, edm::Transition Tr>
   class WillGetIfMatch {
   public:
     template <typename U>
@@ -31,13 +31,13 @@ namespace edm {
                           productDescription.productInstanceName(),
                           productDescription.processName()};
         if (transition == edm::InEvent) {
-          return module_->template consumes<T>(tag);
+          return module_->template consumes<T, edm::InEvent, Tr>(tag);
         } else if (transition == edm::InLumi) {
-          return module_->template consumes<T, edm::InLumi>(tag);
+          return module_->template consumes<T, edm::InLumi, Tr>(tag);
         } else if (transition == edm::InRun) {
-          return module_->template consumes<T, edm::InRun>(tag);
+          return module_->template consumes<T, edm::InRun, Tr>(tag);
         } else if (transition == edm::InProcess) {
-          return module_->template consumes<T, edm::InProcess>(tag);
+          return module_->template consumes<T, edm::InProcess, Tr>(tag);
         }
       }
       return EDGetTokenT<T>{};

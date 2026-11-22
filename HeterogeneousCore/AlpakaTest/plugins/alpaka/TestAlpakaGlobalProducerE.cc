@@ -1,4 +1,5 @@
 #include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceCollection.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -34,6 +35,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void produce(edm::StreamID, device::Event& iEvent, device::EventSetup const& iSetup) const override {
       auto const& esData = iSetup.getData(esToken_);
       auto const& input = iEvent.get(getToken_);
+      // getHandle() gives the same product as get()
+      auto const inputHandle = iEvent.getHandle(getToken_);
+      if (not inputHandle.isValid() or inputHandle.product() != &input) {
+        throw cms::Exception("Assert") << "getHandle() and get() give different products";
+      }
       auto const& inputMulti2 = iEvent.get(getTokenMulti2_);
       auto const& inputMulti3 = iEvent.get(getTokenMulti3_);
 

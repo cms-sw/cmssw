@@ -138,6 +138,9 @@ DoubleTkElePuppiHT = l1tGTTripleObjectCond.clone( #needs z0 between puppivertex 
     collection3 = l1tGTHtSum.clone(
         minScalarSumPt = get_object_thrs(390, "CL2HtSum","HT"),
     ),
+    correl12 = cms.PSet(
+        minDR = cms.double(0),
+    ),
 )
 pDoubleTkElePuppiHT_8_8_390 = cms.Path(DoubleTkElePuppiHT)
 

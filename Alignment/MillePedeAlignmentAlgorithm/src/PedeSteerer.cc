@@ -803,12 +803,12 @@ int PedeSteerer::runPede(const std::string &masterSteer) const {
   std::string command;
   if (myRunDirectory.empty()) {
     command = myConfig.getUntrackedParameter<std::string>("pedeCommand");
-    (command += " ") += masterSteer;
+    (command += ' ') += masterSteer;
   } else {
     command = "(cd " + myRunDirectory + " && ";
     command += myConfig.getUntrackedParameter<std::string>("pedeCommand");
-    (command += " ") += "../" + masterSteer;
-    command += ")";
+    (command += ' ') += "../" + masterSteer;
+    command += ')';
   }
 
   const std::string dump(myConfig.getUntrackedParameter<std::string>("pedeDump"));

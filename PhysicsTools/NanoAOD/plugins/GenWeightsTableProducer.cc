@@ -219,7 +219,7 @@ namespace {
     std::pair<float, float> scales;
     ScaleVarWeight(const std::string& id, const std::string& text, const std::string& muR, const std::string& muF)
         : wid(id), label(text), scales(stof_fortrancomp(muR), stof_fortrancomp(muF)) {}
-    bool operator<(const ScaleVarWeight& other) {
+    bool operator<(const ScaleVarWeight& other) const {
       return (scales == other.scales ? wid < other.wid : scales < other.scales);
     }
   };
@@ -254,11 +254,11 @@ public:
       : genTag_(consumes<GenEventInfoProduct>(params.getParameter<edm::InputTag>("genEvent"))),
         lheLabel_(params.getParameter<std::vector<edm::InputTag>>("lheInfo")),
         lheTag_(edm::vector_transform(lheLabel_,
-                                      [this](const edm::InputTag& tag) { return mayConsume<LHEEventProduct>(tag); })),
+                                      [this](const edm::InputTag& tag) { return consumes<LHEEventProduct>(tag); })),
         lheRunTag_(edm::vector_transform(
-            lheLabel_, [this](const edm::InputTag& tag) { return mayConsume<LHERunInfoProduct, edm::InRun>(tag); })),
+            lheLabel_, [this](const edm::InputTag& tag) { return consumes<LHERunInfoProduct, edm::InRun>(tag); })),
         genLumiInfoHeadTag_(
-            mayConsume<GenLumiInfoHeader, edm::InLumi>(params.getParameter<edm::InputTag>("genLumiInfoHeader"))),
+            consumes<GenLumiInfoHeader, edm::InLumi>(params.getParameter<edm::InputTag>("genLumiInfoHeader"))),
         namedWeightIDs_(params.getParameter<std::vector<std::string>>("namedWeightIDs")),
         namedWeightLabels_(params.getParameter<std::vector<std::string>>("namedWeightLabels")),
         lheWeightPrecision_(params.getParameter<int32_t>("lheWeightPrecision")),

@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<ConstantsSection label="bril" eval="true">
+  <Constant name="FBCM_Z1" value="1670*mm"/>
+  <Constant name="FBCM_Z2" value="1690*mm"/>
+  <Constant name="FBCM_Z"  value="([fbcm:FBCM_ModuleZ]+80*mm)"/>  <!-- z position of the center of FBCM volume wrt to CMS -->
+  <Constant name="FBCM_Thickness"    value="([FBCM_Z2]-[FBCM_Z1])"/>
+  <Constant name="FBCM_InnerRadius"  value="[cms:TrackBeamR12]"/> <!-- [cms:TrackBeamR12] for BCM1F, or should be similar to pixel:Disc12 -->
+  <Constant name="FBCM_OuterRadius"  value="[pixfwdCylinder:CylindersServiceRmin]"/>
+  <Constant name="zPos"              value="([FBCM_Z]-[pixfwd:ZPixelForward])"/>
+</ConstantsSection>
+ 
+<SolidSection label="bril">
+  <Tubs name="BrilVolume"  rMin="[FBCM_InnerRadius]" rMax="[FBCM_OuterRadius]" dz="[FBCM_Thickness]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+</SolidSection>
+ 
+<LogicalPartSection label="bril">
+  <LogicalPart name="BrilVolume" category="unspecified">
+    <rSolid name="BrilVolume"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>    
+</LogicalPartSection>
+ 
+  
+<PosPartSection label="bril">
+  <PosPart copyNumber="1">
+    <rParent name="pixfwd:PixelForwardZplus"/>
+    <rChild name="bril:BrilVolume"/>
+    <Translation x="0*fm" y="0*fm" z="[zPos]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="pixfwd:PixelForwardZminus"/>
+    <rChild name="bril:BrilVolume"></rChild>
+    <Translation x="0*fm" y="0*fm" z="-[zPos]"/>
+    <rRotation name="rotations:180D"/>
+  </PosPart>
+</PosPartSection>
+</DDDefinition>

@@ -8,6 +8,7 @@
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "HLTrigger/HLTcore/interface/getL1TCandidates.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
@@ -46,6 +47,10 @@ private:
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> L1SeedFilterToken_;
   bool doIsolated_;
 
+  // match also to the L1T jets and taus of the seed (not only to its L1T e/gammas)
+  bool matchToL1Jets_;
+  bool matchToL1Taus_;
+
   int ncandcut_;  // number of egammas required
   // L1 matching cuts
   double region_eta_size_;
@@ -55,9 +60,7 @@ private:
   double endcap_end_;
 
 private:
-  bool matchedToL1Cand(const std::vector<l1t::EGammaRef>& l1Cands, const float scEta, const float scPhi) const;
-  bool matchedToL1Cand(const std::vector<l1t::JetRef>& l1Cands, const float scEta, const float scPhi) const;
-  bool matchedToL1Cand(const std::vector<l1t::TauRef>& l1Cands, const float scEta, const float scPhi) const;
+  bool matchedToL1Cand(const std::vector<reco::Candidate const*>& l1Cands, const float scEta, const float scPhi) const;
 };
 
 #endif  //HLTEgammaL1TMatchFilterRegional_h

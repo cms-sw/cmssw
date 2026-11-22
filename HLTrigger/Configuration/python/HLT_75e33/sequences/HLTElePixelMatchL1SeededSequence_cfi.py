@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from ..modules.hltEgammaHoverEL1Seeded_cfi import *
 from ..modules.hltEgammaElectronPixelSeedsL1Seeded_cfi import *
+from ..modules.hltEgammaUnfittedElectronPixelSeedsL1Seeded_cfi import *
 from ..modules.hltEgammaPixelMatchVarsL1Seeded_cfi import *
 from ..modules.hltEgammaSuperClustersToPixelMatchL1Seeded_cfi import *
 from ..modules.hltElePixelHitDoubletsForTripletsL1Seeded_cfi import *
@@ -33,5 +34,6 @@ HLTElePixelMatchL1SeededSequence = cms.Sequence(HLTDoLocalPixelSequence
     +hltElePixelHitDoubletsL1Seeded
     +hltElePixelSeedsDoubletsL1Seeded
     +hltElePixelSeedsCombinedL1Seeded
+    +hltEgammaUnfittedElectronPixelSeedsL1Seeded
     +hltEgammaElectronPixelSeedsL1Seeded
     +hltEgammaPixelMatchVarsL1Seeded))
