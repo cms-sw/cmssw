@@ -83,7 +83,7 @@ void MuTagJetBxSelector::produce(edm::Event& iEvent, const edm::EventSetup&) {
   iEvent.getByToken(muonsTokenData_, muonsCollection);
   iEvent.getByToken(jetsTokenData_, jetsCollection);
 
-  std::unique_ptr<std::vector<unsigned>> muTagJetBx(new std::vector<unsigned>);
+  std::unique_ptr<std::vector<unsigned>> muTagJetBx = std::make_unique<std::vector<unsigned>>();
 
   // loop over valid bunch crossings
   for (const unsigned& bx : jetsCollection->getFilledBxs()) {
