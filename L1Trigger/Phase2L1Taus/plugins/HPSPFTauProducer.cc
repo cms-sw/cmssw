@@ -1,6 +1,7 @@
 #include "HPSPFTauProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include <cmath>  // std::fabs
+#include <memory>
 
 HPSPFTauProducer::HPSPFTauProducer(const edm::ParameterSet& cfg)
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
@@ -53,7 +54,7 @@ namespace {
 }  // namespace
 
 void HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
-  std::unique_ptr<l1t::HPSPFTauCollection> l1PFTauCollectionCleaned(new l1t::HPSPFTauCollection());
+  std::unique_ptr<l1t::HPSPFTauCollection> l1PFTauCollectionCleaned = std::make_unique<l1t::HPSPFTauCollection>();
 
   edm::Handle<l1t::PFCandidateCollection> l1PFCands;
   evt.getByToken(tokenL1PFCands_, l1PFCands);

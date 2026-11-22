@@ -126,9 +126,9 @@ void L1TCaloLayer1RawToDigi::produce(Event& iEvent, const EventSetup& iSetup) {
   Handle<FEDRawDataCollection> fedRawDataCollection;
   iEvent.getByLabel(fedRawDataLabel, fedRawDataCollection);
 
-  std::unique_ptr<EcalTrigPrimDigiCollection> ecalTPGs(new EcalTrigPrimDigiCollection);
-  std::unique_ptr<HcalTrigPrimDigiCollection> hcalTPGs(new HcalTrigPrimDigiCollection);
-  std::unique_ptr<L1CaloRegionCollection> regions(new L1CaloRegionCollection);
+  std::unique_ptr<EcalTrigPrimDigiCollection> ecalTPGs = std::make_unique<EcalTrigPrimDigiCollection>();
+  std::unique_ptr<HcalTrigPrimDigiCollection> hcalTPGs = std::make_unique<HcalTrigPrimDigiCollection>();
+  std::unique_ptr<L1CaloRegionCollection> regions = std::make_unique<L1CaloRegionCollection>();
 
   // if raw data collection is present, check the headers and do the unpacking
   if (fedRawDataCollection.isValid()) {

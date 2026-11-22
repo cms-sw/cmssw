@@ -14,6 +14,8 @@
 #include "G4Run.hh"
 #include "G4Event.hh"
 #include <CLHEP/Units/SystemOfUnits.h>
+
+#include <memory>
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
 
@@ -25,14 +27,14 @@ RHStopTracer::RHStopTracer(edm::ParameterSet const& p) {
   minPdgId = parameters.getUntrackedParameter<int>("minPdgId", 1000000);
   maxPdgId = parameters.getUntrackedParameter<int>("maxPdgId", 2000000);
   otherPdgId = parameters.getUntrackedParameter<int>("otherPdgId", 17);
-  produces<std::vector<std::string> >("StoppedParticlesName");
-  produces<std::vector<float> >("StoppedParticlesX");
-  produces<std::vector<float> >("StoppedParticlesY");
-  produces<std::vector<float> >("StoppedParticlesZ");
-  produces<std::vector<float> >("StoppedParticlesTime");
-  produces<std::vector<int> >("StoppedParticlesPdgId");
-  produces<std::vector<float> >("StoppedParticlesMass");
-  produces<std::vector<float> >("StoppedParticlesCharge");
+  produces<std::vector<std::string>>("StoppedParticlesName");
+  produces<std::vector<float>>("StoppedParticlesX");
+  produces<std::vector<float>>("StoppedParticlesY");
+  produces<std::vector<float>>("StoppedParticlesZ");
+  produces<std::vector<float>>("StoppedParticlesTime");
+  produces<std::vector<int>>("StoppedParticlesPdgId");
+  produces<std::vector<float>>("StoppedParticlesMass");
+  produces<std::vector<float>>("StoppedParticlesCharge");
 
   mTraceEnergy *= CLHEP::GeV;
   rePartName = mTraceParticleName;
@@ -104,14 +106,14 @@ void RHStopTracer::update(const EndOfTrack* fTrack) {
 void RHStopTracer::produce(edm::Event& fEvent, const edm::EventSetup&) {
   LogDebug("SimG4CoreCustomPhysics") << "RHStopTracer::produce->";
 
-  std::unique_ptr<std::vector<std::string> > names(new std::vector<std::string>);
-  std::unique_ptr<std::vector<float> > xs(new std::vector<float>);
-  std::unique_ptr<std::vector<float> > ys(new std::vector<float>);
-  std::unique_ptr<std::vector<float> > zs(new std::vector<float>);
-  std::unique_ptr<std::vector<float> > ts(new std::vector<float>);
-  std::unique_ptr<std::vector<int> > ids(new std::vector<int>);
-  std::unique_ptr<std::vector<float> > masses(new std::vector<float>);
-  std::unique_ptr<std::vector<float> > charges(new std::vector<float>);
+  std::unique_ptr<std::vector<std::string>> names = std::make_unique<std::vector<std::string>>();
+  std::unique_ptr<std::vector<float>> xs = std::make_unique<std::vector<float>>();
+  std::unique_ptr<std::vector<float>> ys = std::make_unique<std::vector<float>>();
+  std::unique_ptr<std::vector<float>> zs = std::make_unique<std::vector<float>>();
+  std::unique_ptr<std::vector<float>> ts = std::make_unique<std::vector<float>>();
+  std::unique_ptr<std::vector<int>> ids = std::make_unique<std::vector<int>>();
+  std::unique_ptr<std::vector<float>> masses = std::make_unique<std::vector<float>>();
+  std::unique_ptr<std::vector<float>> charges = std::make_unique<std::vector<float>>();
 
   std::vector<StopPoint>::const_iterator stopPoint = mStopPoints.begin();
   for (; stopPoint != mStopPoints.end(); ++stopPoint) {

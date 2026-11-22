@@ -14,6 +14,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cstdio>
+#include <memory>
 
 class HcalTTPDigiProducer : public edm::stream::EDProducer<> {
 public:
@@ -154,7 +155,7 @@ void HcalTTPDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSet
   edm::ESHandle<HcalTPGCoder> inputCoder = eventSetup.getHandle(tok_tpgCoder_);
 
   // Step B: Create empty output
-  std::unique_ptr<HcalTTPDigiCollection> ttpResult(new HcalTTPDigiCollection());
+  std::unique_ptr<HcalTTPDigiCollection> ttpResult = std::make_unique<HcalTTPDigiCollection>();
 
   // Step C: Compute TTP inputs
   uint16_t trigInputs[40];

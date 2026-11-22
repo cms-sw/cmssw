@@ -198,7 +198,7 @@ protected:
         temp += (*this)[i].first + std::string(buf);
 
         if (i != size() - 1)
-          temp += " ";
+          temp += ' ';
       }
       return temp;
     };

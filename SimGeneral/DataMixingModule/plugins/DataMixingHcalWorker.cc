@@ -265,10 +265,10 @@ namespace edm {
 
   void DataMixingHcalWorker::putHcal(edm::Event &e) {
     // collection of rechits to put in the event
-    std::unique_ptr<HBHERecHitCollection> HBHErechits(new HBHERecHitCollection);
-    std::unique_ptr<HORecHitCollection> HOrechits(new HORecHitCollection);
-    std::unique_ptr<HFRecHitCollection> HFrechits(new HFRecHitCollection);
-    std::unique_ptr<ZDCRecHitCollection> ZDCrechits(new ZDCRecHitCollection);
+    std::unique_ptr<HBHERecHitCollection> HBHErechits = std::make_unique<HBHERecHitCollection>();
+    std::unique_ptr<HORecHitCollection> HOrechits = std::make_unique<HORecHitCollection>();
+    std::unique_ptr<HFRecHitCollection> HFrechits = std::make_unique<HFRecHitCollection>();
+    std::unique_ptr<ZDCRecHitCollection> ZDCrechits = std::make_unique<ZDCRecHitCollection>();
 
     // loop over the maps we have, re-making individual hits or rechits if
     // necessary.

@@ -16,6 +16,7 @@
 #include "EventFilter/L1GlobalTriggerRawToDigi/interface/L1GtTextToRaw.h"
 
 // system include files
+#include <memory>
 #include <vector>
 #include <iostream>
 #include <iomanip>
@@ -102,7 +103,7 @@ void L1GtTextToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup) 
 
   // define new FEDRawDataCollection
   // it contains ALL FEDs in an event
-  std::unique_ptr<FEDRawDataCollection> fedRawColl(new FEDRawDataCollection);
+  std::unique_ptr<FEDRawDataCollection> fedRawColl = std::make_unique<FEDRawDataCollection>();
 
   FEDRawData& rawData = fedRawColl->FEDData(m_daqGtFedId);
   // resize, GT raw data record has variable length,

@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "L1Trigger/L1TTrackMatch/interface/DisplacedVertexProducer.h"
 #include "L1TrackUnpacker.h"
 
@@ -259,7 +261,8 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
   }
 
   //vertex loop
-  std::unique_ptr<l1t::DisplacedTrackVertexCollection> product(new std::vector<l1t::DisplacedTrackVertex>());
+  std::unique_ptr<l1t::DisplacedTrackVertexCollection> product =
+      std::make_unique<std::vector<l1t::DisplacedTrackVertex>>();
   for (int i = 0; i < int(selectedTracksWithTruth.size() - 1); i++) {
     for (int j = i + 1; j < int(selectedTracksWithTruth.size()); j++) {
       if (dist_TPs(selectedTracksWithTruth[i].first, selectedTracksWithTruth[j].first) != 0)

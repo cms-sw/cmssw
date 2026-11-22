@@ -303,13 +303,13 @@ void TrackDerTable::fillTable() {
 
       std::string oss = "alpha :";
       for (int iii = 0; iii < ndisks; iii++) {
-        oss += " ";
+        oss += ' ';
         oss += std::to_string(alpha[iii]);
       }
       edm::LogVerbatim("Tracklet") << oss;
       oss = "z :";
       for (int iii = 0; iii < ndisks; iii++) {
-        oss += " ";
+        oss += ' ';
         oss += std::to_string(z[iii]);
       }
       edm::LogVerbatim("Tracklet") << oss;

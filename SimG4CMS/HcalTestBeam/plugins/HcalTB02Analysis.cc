@@ -126,7 +126,7 @@ HcalTB02Analysis::~HcalTB02Analysis() { finish(); }
 //
 
 void HcalTB02Analysis::produce(edm::Event& e, const edm::EventSetup&) {
-  std::unique_ptr<HcalTB02HistoClass> product(new HcalTB02HistoClass);
+  std::unique_ptr<HcalTB02HistoClass> product = std::make_unique<HcalTB02HistoClass>();
   fillEvent(*product);
   e.put(std::move(product));
 }
@@ -189,7 +189,7 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
   int scintID = 0, xtalID = 0;
 
   // HCAL
-  std::unique_ptr<HcalTB02HcalNumberingScheme> org(new HcalTB02HcalNumberingScheme());
+  std::unique_ptr<HcalTB02HcalNumberingScheme> org = std::make_unique<HcalTB02HcalNumberingScheme>();
 
   if (HCHCid >= 0 && theHCHC != nullptr) {
     for (ihit = 0; ihit < nentries; ihit++) {

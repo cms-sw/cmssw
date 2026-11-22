@@ -99,7 +99,7 @@ std::unique_ptr<l1t::RegionalMuonCandBxCollection> OMTFReconstruction::reconstru
   if (dumpResultToXML)
     aTopElement = m_Writer->writeEventHeader(iEvent.id().event());
 
-  std::unique_ptr<l1t::RegionalMuonCandBxCollection> candidates(new l1t::RegionalMuonCandBxCollection);
+  std::unique_ptr<l1t::RegionalMuonCandBxCollection> candidates = std::make_unique<l1t::RegionalMuonCandBxCollection>();
   candidates->setBXRange(bxMin, bxMax);
 
   ///The order is important: first put omtf_pos candidates, then omtf_neg.

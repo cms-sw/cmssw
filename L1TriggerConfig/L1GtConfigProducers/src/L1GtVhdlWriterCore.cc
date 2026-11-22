@@ -1242,12 +1242,12 @@ std::string L1GtVhdlWriterCore::getDefValsFromTriggerMenu(const L1GtConditionTyp
 
       for (unsigned int i = 0; i < nObjects; i++) {
         if (i == 0)
-          result += "(";
-        result += "\"";
+          result += '(';
+        result += '\"';
         result += int2str((*op).at(i).etThreshold);
-        result += "\"";
+        result += '\"';
         if (i != nObjects - 1)
-          result += ",";
+          result += ',';
         else
           result += ")\n";
       }

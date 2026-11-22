@@ -19,6 +19,7 @@
 
 // system include files
 #include <iostream>
+#include <memory>
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTriggerMenuLite.h"
@@ -164,7 +165,7 @@ void L1GtTriggerMenuLiteProducer::beginRunProduce(edm::Run& iRun, const edm::Eve
   retrieveL1EventSetup(evSetup);
 
   // produce the L1GtTriggerMenuLite
-  std::unique_ptr<L1GtTriggerMenuLite> gtTriggerMenuLite(new L1GtTriggerMenuLite());
+  std::unique_ptr<L1GtTriggerMenuLite> gtTriggerMenuLite = std::make_unique<L1GtTriggerMenuLite>();
 
   // lite L1 trigger menu
 

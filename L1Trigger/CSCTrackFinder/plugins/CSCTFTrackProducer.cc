@@ -1,5 +1,6 @@
 #include "L1Trigger/CSCTrackFinder/plugins/CSCTFTrackProducer.h"
 
+#include <memory>
 #include <vector>
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
@@ -22,7 +23,7 @@ CSCTFTrackProducer::CSCTFTrackProducer(const edm::ParameterSet& pset)
           consumes<CSCCorrelatedLCTDigiCollection>(pset.getUntrackedParameter<edm::InputTag>("SectorReceiverInput"))},
       dt_producer{consumes<L1MuDTChambPhContainer>(pset.getUntrackedParameter<edm::InputTag>("DTproducer"))},
       directProd{
-          consumes<CSCTriggerContainer<csctf::TrackStub> >(pset.getUntrackedParameter<edm::InputTag>("DtDirectProd"))},
+          consumes<CSCTriggerContainer<csctf::TrackStub>>(pset.getUntrackedParameter<edm::InputTag>("DtDirectProd"))},
       m_scalesToken(esConsumes<L1MuTriggerScales, L1MuTriggerScalesRcd>()),
       m_ptScaleToken(esConsumes<L1MuTriggerPtScale, L1MuTriggerPtScaleRcd>()),
       m_pDDToken(esConsumes<CSCGeometry, MuonGeometryRecord>()),
@@ -31,7 +32,7 @@ CSCTFTrackProducer::CSCTFTrackProducer(const edm::ParameterSet& pset)
   m_scalesCacheID = 0ULL;
   m_ptScaleCacheID = 0ULL;
   produces<L1CSCTrackCollection>();
-  produces<CSCTriggerContainer<csctf::TrackStub> >();
+  produces<CSCTriggerContainer<csctf::TrackStub>>();
 
   //CSCSectorReceiverLUT has a static member it fills by reading a file
   usesResource("CSCSectorReceiverLUT");
@@ -61,9 +62,10 @@ void CSCTFTrackProducer::produce(edm::Event& e, const edm::EventSetup& c) {
   edm::ESHandle<CSCGeometry> pDD = c.getHandle(m_pDDToken);
 
   edm::Handle<CSCCorrelatedLCTDigiCollection> LCTs;
-  std::unique_ptr<L1CSCTrackCollection> track_product(new L1CSCTrackCollection);
+  std::unique_ptr<L1CSCTrackCollection> track_product = std::make_unique<L1CSCTrackCollection>();
   e.getByToken(input_module, LCTs);
-  std::unique_ptr<CSCTriggerContainer<csctf::TrackStub> > dt_stubs(new CSCTriggerContainer<csctf::TrackStub>);
+  std::unique_ptr<CSCTriggerContainer<csctf::TrackStub>> dt_stubs =
+      std::make_unique<CSCTriggerContainer<csctf::TrackStub>>();
 
   // Either emulate or directly read in DT stubs based on switch
   //////////////////////////////////////////////////////////////
@@ -73,7 +75,7 @@ void CSCTFTrackProducer::produce(edm::Event& e, const edm::EventSetup& c) {
     e.getByToken(dt_producer, dttrig);
     emulStub = my_dtrc.process(dttrig.product());
   } else {
-    edm::Handle<CSCTriggerContainer<csctf::TrackStub> > stubsFromDaq;
+    edm::Handle<CSCTriggerContainer<csctf::TrackStub>> stubsFromDaq;
     //e.getByLabel("csctfunpacker","DT",stubsFromDaq);
     e.getByToken(directProd, stubsFromDaq);
     const CSCTriggerContainer<csctf::TrackStub>* stubPointer = stubsFromDaq.product();

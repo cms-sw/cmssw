@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "L1Trigger/HardwareValidation/interface/L1Comparator.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -744,8 +746,8 @@ void L1Comparator::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSe
   }
 
   // >>---- d|e record ---- <<
-  std::unique_ptr<L1DataEmulRecord> record(new L1DataEmulRecord(
-      evt_match, runDoSys, eventInfo.DEmatchEvt, eventInfo.DEncand, eventInfo.m_dedigis, gltdigimon));
+  std::unique_ptr<L1DataEmulRecord> record = std::make_unique<L1DataEmulRecord>(
+      evt_match, runDoSys, eventInfo.DEmatchEvt, eventInfo.DEncand, eventInfo.m_dedigis, gltdigimon);
   if (verbose()) {
     std::cout << "\n [L1Comparator] printing DErecord"
               << "(entry:" << eventInfo.nevt_ << "|evt:" << eventInfo.evtNum_ << "|run:" << eventInfo.runNum_ << "):\n"

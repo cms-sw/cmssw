@@ -32,6 +32,7 @@
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 #include "DataFormats/TCDS/interface/TCDSRecord.h"
 
+#include <memory>
 #include <vector>
 
 using namespace std;
@@ -190,7 +191,7 @@ void L1TExtCondProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   GlobalExtBlk extCond_bx;
 
   // Outputs
-  std::unique_ptr<GlobalExtBlkBxCollection> extCond(new GlobalExtBlkBxCollection(0, bxFirst_, bxLast_));
+  std::unique_ptr<GlobalExtBlkBxCollection> extCond = std::make_unique<GlobalExtBlkBxCollection>(0, bxFirst_, bxLast_);
 
   bool foundBptxAND = (m_extBitMap.find("BPTX_plus_AND_minus.v0") != m_extBitMap.end());
   bool foundBptxPlus = (m_extBitMap.find("BPTX_plus.v0") != m_extBitMap.end());

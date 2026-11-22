@@ -6,6 +6,7 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
+#include <memory>
 #include <vector>
 using std::vector;
 
@@ -92,14 +93,14 @@ void L1RCTInputProducer::produce(edm::Event &event, const edm::EventSetup &event
 
   // Stuff to create
 
-  std::unique_ptr<std::vector<unsigned short>> rctCrate(new std::vector<unsigned short>);
-  std::unique_ptr<std::vector<unsigned short>> rctCard(new std::vector<unsigned short>);
-  std::unique_ptr<std::vector<unsigned short>> rctTower(new std::vector<unsigned short>);
-  std::unique_ptr<std::vector<unsigned int>> rctEGammaET(new std::vector<unsigned int>);
-  std::unique_ptr<std::vector<bool>> rctHoEFGVetoBit(new std::vector<bool>);
-  std::unique_ptr<std::vector<unsigned int>> rctJetMETET(new std::vector<unsigned int>);
-  std::unique_ptr<std::vector<bool>> rctTowerActivityBit(new std::vector<bool>);
-  std::unique_ptr<std::vector<bool>> rctTowerMIPBit(new std::vector<bool>);
+  std::unique_ptr<std::vector<unsigned short>> rctCrate = std::make_unique<std::vector<unsigned short>>();
+  std::unique_ptr<std::vector<unsigned short>> rctCard = std::make_unique<std::vector<unsigned short>>();
+  std::unique_ptr<std::vector<unsigned short>> rctTower = std::make_unique<std::vector<unsigned short>>();
+  std::unique_ptr<std::vector<unsigned int>> rctEGammaET = std::make_unique<std::vector<unsigned int>>();
+  std::unique_ptr<std::vector<bool>> rctHoEFGVetoBit = std::make_unique<std::vector<bool>>();
+  std::unique_ptr<std::vector<unsigned int>> rctJetMETET = std::make_unique<std::vector<unsigned int>>();
+  std::unique_ptr<std::vector<bool>> rctTowerActivityBit = std::make_unique<std::vector<bool>>();
+  std::unique_ptr<std::vector<bool>> rctTowerMIPBit = std::make_unique<std::vector<bool>>();
 
   for (int crate = 0; crate < 18; crate++) {
     for (int card = 0; card < 7; card++) {
@@ -127,10 +128,10 @@ void L1RCTInputProducer::produce(edm::Event &event, const edm::EventSetup &event
     }
   }
 
-  std::unique_ptr<std::vector<unsigned short>> rctHFCrate(new std::vector<unsigned short>);
-  std::unique_ptr<std::vector<unsigned short>> rctHFRegion(new std::vector<unsigned short>);
-  std::unique_ptr<std::vector<unsigned int>> rctHFET(new std::vector<unsigned int>);
-  std::unique_ptr<std::vector<bool>> rctHFFG(new std::vector<bool>);
+  std::unique_ptr<std::vector<unsigned short>> rctHFCrate = std::make_unique<std::vector<unsigned short>>();
+  std::unique_ptr<std::vector<unsigned short>> rctHFRegion = std::make_unique<std::vector<unsigned short>>();
+  std::unique_ptr<std::vector<unsigned int>> rctHFET = std::make_unique<std::vector<unsigned int>>();
+  std::unique_ptr<std::vector<bool>> rctHFFG = std::make_unique<std::vector<bool>>();
   for (int crate = 0; crate < 18; crate++) {
     for (int hfRegion = 0; hfRegion < 8; hfRegion++) {
       unsigned short hfCompressedET = rct->hfCompressedET(crate, hfRegion);

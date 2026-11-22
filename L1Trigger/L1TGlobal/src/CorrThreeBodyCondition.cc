@@ -511,7 +511,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
         if (deltaPhiFW_01 >= phiBound)
           deltaPhiFW_01 = 2 * phiBound - deltaPhiFW_01;
         std::string lutName_01 = lutObj0;
-        lutName_01 += "-";
+        lutName_01 += '-';
         lutName_01 += lutObj1;
         long long deltaPhiLUT_01 = m_gtScales->getLUT_DeltaPhi(lutName_01, deltaPhiFW_01);
         unsigned int precDeltaPhiLUT_01 = m_gtScales->getPrec_DeltaPhi(lutName_01);
@@ -526,7 +526,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
         if (deltaPhiFW_02 >= phiBound)
           deltaPhiFW_02 = 2 * phiBound - deltaPhiFW_02;
         std::string lutName_02 = lutObj0;
-        lutName_02 += "-";
+        lutName_02 += '-';
         lutName_02 += lutObj2;
         long long deltaPhiLUT_02 = m_gtScales->getLUT_DeltaPhi(lutName_02, deltaPhiFW_02);
         unsigned int precDeltaPhiLUT_02 = m_gtScales->getPrec_DeltaPhi(lutName_02);
@@ -541,7 +541,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
         if (deltaPhiFW_12 >= phiBound)
           deltaPhiFW_12 = 2 * phiBound - deltaPhiFW_12;
         std::string lutName_12 = lutObj1;
-        lutName_12 += "-";
+        lutName_12 += '-';
         lutName_12 += lutObj2;
         long long deltaPhiLUT_12 = m_gtScales->getLUT_DeltaPhi(lutName_12, deltaPhiFW_12);
         unsigned int precDeltaPhiLUT_12 = m_gtScales->getPrec_DeltaPhi(lutName_12);
