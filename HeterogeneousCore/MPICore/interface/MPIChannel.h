@@ -82,6 +82,15 @@ public:
   // announce that the client will disconnect
   void sendDisconnect() { sendEmpty_(EDM_MPI_Disconnect); }
 
+  // send number of streams in the controller
+  void sendStreamCount(unsigned int nStreams) { sendTrivialProduct_(0, nStreams); }
+
+  // receive number of streams in the controller
+  void receiveStreamCount(unsigned int& nStreams) { receiveTrivialProduct_(0, nStreams); }
+
+  // blocking probe for the next message on this channel's communicator
+  MPI_Status probeAny(MPI_Message& message) const;
+
   // signal the begin of stream
   void sendBeginStream() { sendEmpty_(EDM_MPI_BeginStream); }
 
@@ -89,19 +98,24 @@ public:
   void sendEndStream() { sendEmpty_(EDM_MPI_EndStream); }
 
   // signal a new run, and transmit the RunAuxiliary
-  void sendBeginRun(edm::RunAuxiliary const& aux) { sendRunAuxiliary_(EDM_MPI_BeginRun, aux); }
+  void sendBeginRun(edm::RunAuxiliary const& aux) { sendRunAuxiliary_(EDM_MPI_StreamBeginRun, aux); }
 
   // signal the end of run, and re-transmit the RunAuxiliary
-  void sendEndRun(edm::RunAuxiliary const& aux) { sendRunAuxiliary_(EDM_MPI_EndRun, aux); }
+  void sendEndRun(edm::RunAuxiliary const& aux) { sendRunAuxiliary_(EDM_MPI_StreamEndRun, aux); }
 
   // signal a new luminosity block, and transmit the LuminosityBlockAuxiliary
   void sendBeginLuminosityBlock(edm::LuminosityBlockAuxiliary const& aux) {
-    sendLuminosityBlockAuxiliary_(EDM_MPI_BeginLuminosityBlock, aux);
+    sendLuminosityBlockAuxiliary_(EDM_MPI_StreamBeginLuminosityBlock, aux);
   }
 
   // signal the end of luminosity block, and re-transmit the LuminosityBlockAuxiliary
   void sendEndLuminosityBlock(edm::LuminosityBlockAuxiliary const& aux) {
-    sendLuminosityBlockAuxiliary_(EDM_MPI_EndLuminosityBlock, aux);
+    sendLuminosityBlockAuxiliary_(EDM_MPI_StreamEndLuminosityBlock, aux);
+  }
+
+  // signal that the luminosity block has been fully processed
+  void sendLuminosityBlockComplete(edm::LuminosityBlockAuxiliary const& aux) {
+    sendLuminosityBlockAuxiliary_(EDM_MPI_GlobalEndLuminosityBlock, aux);
   }
 
   // signal a new event, and transmit the EventAuxiliary

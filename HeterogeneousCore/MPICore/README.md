@@ -113,10 +113,46 @@ python3 edmMpiSplitConfig.py hlt.py --remote-modules hltEcalDigisSoA hltEcalUnca
 
 For more information about input parameters of the script you could run ```edmMpiSplitConfig.py -h```.
 
+## Global MPIController module: Controller streams and follower distribution
+
+`MPIController` is a **global** module, so it can transmit transitions to the 
+MPISource from multiple CMSSW streams. It uses the CMSSW stream count 
+(`process.options.numberOfStreams`, read in `preallocate()`) as `nStreams`, and 
+the number of follower processes as `nFollowers`.
+
+**The current implementation requires `nStreams >= nFollowers`**.
+
+The controller distributes streams across followers in round-robin fashion:
+```c++
+base      = nStreams / nFollowers
+remainder = nStreams % nFollowers
+```
+
+Follower `f` receives `base + 1` streams when `f < remainder`, and `base`
+otherwise. Its controller StreamIDs are:
+```c++
+f, f + nFollowers, f + 2*nFollowers, ...
+```
+
+Each controller stream has a dedicated control channel for stream transitions
+and events. It starts with one data channel for `MPISender` and `MPIReceiver`. 
+When the controller needs to send an event, it reuses a ready data channel. 
+If all data channels for a stream are busy, the controller creates a new channel 
+together with its matching channel on the follower at runtime.
+
+On the follower side, `MPISource` uses a control thread to receive `BeginStream`, 
+`GlobalEndLuminosityBlock`, `Connect`, and `Disconnect`. A `BeginStream`
+message starts a receiver thread worker dedicated to that controller stream. 
+Each worker receives transitions and events for its stream, then places incoming 
+events into queues keyed by `run` and `lumi`. The framework processes those events 
+from the earliest `run-lumi`, removing a queue after the `lumi` is complete and its 
+events have been consumed.
+
+The thread pool in the `MPISource` is separate from the framework threads.
 
 ## Current limitations
 
-  - `MPIController` is a "one" module that supports only a single luminosity block at a time;
+  - the number of CMSSW streams in the Controller process must be greater or equal to the number of Follower processes.
   - there is only a partial check that the number, type and order of collections sent by the `MPISender` match those
     expected by the `MPIReceiver`.
 
@@ -126,7 +162,6 @@ For more information about input parameters of the script you could run ```edmMp
   - implement efficient GPU-direct transfers for trivially serialisable products (in progress);
   - check that the collection sent by the `MPISender` matches the one expected by the `MPIReceiver`;
   - integrate filter decisions and GPU backend into the metadata message
-  - improve the `MPIController` to be a `global` module rather than a `one` module;
   - let an `MPISource` accept connections and events from multiple `MPIController` modules in different jobs;
   - let an `MPIController` connect and sent events to multiple `MPISource` modules in different jobs (in progress);
   - support multiple concurrent runs and luminosity blocks, up to a given maximum;
