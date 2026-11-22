@@ -136,7 +136,7 @@ std::string L1TriggerKeyListExt::objectKey(const std::string& recordName, const 
   RecordToKeyToToken::const_iterator iRecordType = m_recordKeyToken.begin();
   for (; iRecordType != m_recordKeyToken.end(); ++iRecordType) {
     // Extract record name from recordType
-    std::string recordInMap(iRecordType->first, 0, iRecordType->first.find_first_of("@"));
+    std::string recordInMap(iRecordType->first, 0, iRecordType->first.find_first_of('@'));
     if (recordInMap == recordName) {
       // Find object key with matching payload token.
       KeyToToken::const_iterator iKey = iRecordType->second.begin();
