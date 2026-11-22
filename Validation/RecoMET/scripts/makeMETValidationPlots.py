@@ -533,7 +533,7 @@ def plot1DHLTOfflineComparison(hlt_file, offline_file, pairs, outdir, normalize=
 
                 patch = plotter.ax.stairs(values, bin_edges, linewidth=2, baseline=None)
                 plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
-                                    fmt='s', label=f"{step}: {METType.get(coll, coll)}",
+                                    fmt='s', label=f"{step}: {METTypeBase.get(coll, coll)}",
                                     color=patch.get_edgecolor(), **errorbar_kwargs)
                 vis = visible(bin_centers, lims)
                 amax = max(amax, (values + errors)[vis].max())
@@ -876,7 +876,7 @@ if __name__ == '__main__':
                           'E': (30, 40, 50, 80, 100, 120, 140, 160, 200, 250, 300, 350, 400, 500, 600), # endcap
                           'F': (30, 40, 50, 80, 120, 240, 600)} # forward
 
-    METType = {
+    METTypeBase = {
         'hltMet': 'Calo MET',
         'hltCaloMET': 'Calo MET',
         'hltPFMETProducer': 'PF MET',
@@ -897,6 +897,11 @@ if __name__ == '__main__':
         'slimmedMETs': 'MiniAOD PF MET',
         'slimmedMETsPuppi': 'MiniAOD PUPPI MET',
     }
+    # Labels shown in the plots: the step (HLT or Offline) is prepended, except for the miniAOD collections whose label
+    # already says so. The comparison legends of HLT vs offline start with the step instead, thus use METTypeBase there.
+    METType = {coll: (label if coll.startswith('slimmed') else
+                      f"{'HLT' if coll.startswith('hlt') else 'Offline'} {label}")
+               for coll, label in METTypeBase.items()}
     
     colors = hep.style.CMS['axes.prop_cycle'].by_key()['color']
     markers = ('o', 's', 'd')
