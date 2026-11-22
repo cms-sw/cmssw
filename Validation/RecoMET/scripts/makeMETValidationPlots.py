@@ -804,7 +804,7 @@ if __name__ == '__main__':
                 parser.error("`--compare_files_labels` must have the same size as `--compare_files`")
             setattr(namespace, self.dest, values)
         
-    full_command = 'sample="Wprime"; python3 Validation/RecoMET/scripts/makeHLTMETValidationPlots.py --file Run/DQM_Wprime_1000.root --odir /eos/user/b/bfontana/www/MET_Valid_TICLv5/${sample} -l ${sample} --compare_collections hltPFMET hltPFPuppiMET hltPFPuppiMETTypeOne'
+    full_command = 'sample="Wprime"; python3 Validation/RecoMET/scripts/makeMETValidationPlots.py --file Run/DQM_Wprime_1000.root --odir /eos/user/b/bfontana/www/MET_Valid_TICLv5/${sample} -l ${sample} --compare_collections hltPFMET hltPFPuppiMET hltPFPuppiMETTypeOne'
     parser = argparse.ArgumentParser(description='Make HLT MET validation plots. \nRun all MET paths with\n' + full_command)
     parser.add_argument('-o', '--odir', default="HLTMETValidationPlots", required=False, help='Path to the output directory.')
     parser.add_argument('-l', '--sample_label', default="QCD (200 PU)", required=False, help='Sample label for plotting.')

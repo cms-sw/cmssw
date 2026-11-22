@@ -23,7 +23,7 @@ _hltMetTester = _metTester.clone(
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(_hltMetTester, primaryVertices = 'hltPhase2PixelVertices')
 
-# `outFolder` keeps the DQM folders named after the validated collection (used by makeHLTMETValidationPlots.py).
+# `outFolder` keeps the DQM folders named after the validated collection (used by makeMETValidationPlots.py).
 # MET vs MHT plots are filled by the MHT analyzers (`inputMETLabel` defines the MET companion),
 # in the `METvsMHT/<MET>_<MHT>` folder. Each MET-MHT pair must be configured in a single module.
 
