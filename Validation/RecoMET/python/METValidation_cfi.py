@@ -17,6 +17,14 @@ pfMetAnalyzer = metAnalyzer.clone(
     primaryVertices = "offlinePrimaryVertices"
 ) 
 
+# Phase-2: PUPPI MET (scheduled in METRelValForDQM_cff.py)
+pfMetPuppiAnalyzer = metAnalyzer.clone(
+    inputMETLabel = "pfMetPuppi",
+    outFolder = "pfMetPuppi",
+    METType = "pf",
+    primaryVertices = "offlinePrimaryVertices"
+)
+
 genMetTrueAnalyzer = metAnalyzer.clone(
     inputMETLabel = "genMetTrue",
     outFolder = "genMetTrue",
