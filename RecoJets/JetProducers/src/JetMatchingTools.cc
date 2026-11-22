@@ -47,17 +47,17 @@ JetMatchingTools::JetMatchingTools(const edm::Event& fEvent, edm::ConsumesCollec
       mSimTrackCollection(nullptr),
       mSimVertexCollection(nullptr),
       mGenParticleCollection(nullptr) {
-  input_ebrechits_token_ = iC.mayConsume<EBRecHitCollection>(edm::InputTag("ecalRecHit:EcalRecHitsEB"));
-  input_eerechits_token_ = iC.mayConsume<EERecHitCollection>(edm::InputTag("ecalRecHit:EcalRecHitsEE"));
-  input_hbherechits_token_ = iC.mayConsume<HBHERecHitCollection>(edm::InputTag("hbhereco"));
-  input_horechits_token_ = iC.mayConsume<HORecHitCollection>(edm::InputTag("horeco"));
-  input_hfrechits_token_ = iC.mayConsume<HFRecHitCollection>(edm::InputTag("hfreco"));
-  input_pcalohits_ebcal_token_ = iC.mayConsume<edm::PCaloHitContainer>(edm::InputTag("g4SimHits:EcalHitsEB"));
-  input_pcalohits_eecal_token_ = iC.mayConsume<edm::PCaloHitContainer>(edm::InputTag("g4SimHits:EcalHitsEE"));
-  input_pcalohits_hcal_token_ = iC.mayConsume<edm::PCaloHitContainer>(edm::InputTag("g4SimHits:HcalHits"));
-  input_simtrack_token_ = iC.mayConsume<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
-  input_simvertex_token_ = iC.mayConsume<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
-  input_cands_token_ = iC.mayConsume<reco::CandidateCollection>(edm::InputTag("genParticles"));
+  input_ebrechits_token_ = iC.consumes<EBRecHitCollection>(edm::InputTag("ecalRecHit:EcalRecHitsEB"));
+  input_eerechits_token_ = iC.consumes<EERecHitCollection>(edm::InputTag("ecalRecHit:EcalRecHitsEE"));
+  input_hbherechits_token_ = iC.consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
+  input_horechits_token_ = iC.consumes<HORecHitCollection>(edm::InputTag("horeco"));
+  input_hfrechits_token_ = iC.consumes<HFRecHitCollection>(edm::InputTag("hfreco"));
+  input_pcalohits_ebcal_token_ = iC.consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits:EcalHitsEB"));
+  input_pcalohits_eecal_token_ = iC.consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits:EcalHitsEE"));
+  input_pcalohits_hcal_token_ = iC.consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits:HcalHits"));
+  input_simtrack_token_ = iC.consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
+  input_simvertex_token_ = iC.consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
+  input_cands_token_ = iC.consumes<reco::CandidateCollection>(edm::InputTag("genParticles"));
 }
 
 JetMatchingTools::~JetMatchingTools() {}

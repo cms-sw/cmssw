@@ -88,8 +88,9 @@ SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet)
 
   // explicit dependency to make sure the QTest reults needed here are present
   // already in endRun.
-  consumes<DQMToken, edm::InRun>(edm::InputTag("siStripQTester", "DQMGenerationQTestRun"));
-  consumes<DQMToken, edm::InLumi>(edm::InputTag("siStripQTester", "DQMGenerationQTestLumi"));
+  consumes<DQMToken, edm::InRun, edm::Transition::EndRun>(edm::InputTag("siStripQTester", "DQMGenerationQTestRun"));
+  consumes<DQMToken, edm::InLumi, edm::Transition::EndLuminosityBlock>(
+      edm::InputTag("siStripQTester", "DQMGenerationQTestLumi"));
   usesResource("DQMStore");
   produces<DQMToken, edm::Transition::EndRun>("DQMGenerationSiStripAnalyserRun");
   produces<DQMToken, edm::Transition::EndLuminosityBlock>("DQMGenerationSiStripAnalyserLumi");

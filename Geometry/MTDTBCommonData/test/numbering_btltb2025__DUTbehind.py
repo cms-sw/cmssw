@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
 
-process = cms.Process("GeometryTest", Phase2C22I13M9)
+process = cms.Process("GeometryTest", Phase2C22I13M9,dd4hep)
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
@@ -23,7 +24,7 @@ process.MessageLogger.cerr.INFO = cms.untracked.PSet(
 process.MessageLogger.cerr.GeometricTimingDetAnalyzer = cms.untracked.PSet(
     limit = cms.untracked.int32(-1)
 )
-process.MessageLogger.files.mtdNumberingDDD = cms.untracked.PSet(
+process.MessageLogger.files.mtdNumberingDD4hep = cms.untracked.PSet(
     DEBUG = cms.untracked.PSet(
         limit = cms.untracked.int32(0)
     ),
@@ -46,11 +47,10 @@ process.MessageLogger.files.mtdNumberingDDD = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO')
 )
 
-process.load('Geometry.MTDTBCommonData.GeometryExtendedMTDTB2025Reco_DUTbehind_cff')
-process.mtdTopology.isFull = False
-
-process.Timing = cms.Service("Timing")
+process.load('Geometry.MTDTBCommonData.GeometryDD4hepExtendedBTLTB2025Reco_DUTbehind_cff')
 
 process.prod = cms.EDAnalyzer("GeometricTimingDetAnalyzer")
+
+process.Timing = cms.Service("Timing")
 
 process.p1 = cms.Path(process.prod)

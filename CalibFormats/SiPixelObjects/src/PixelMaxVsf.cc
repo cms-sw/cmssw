@@ -126,7 +126,7 @@ void PixelMaxVsf::setVsf(PixelROCName roc, unsigned int Vsf) { rocs_[roc] = Vsf;
 void PixelMaxVsf::writeASCII(std::string dir) const {
   std::string mthn = "[PixelMaxVsf::writeASCII()]\t\t\t\t    ";
   if (!dir.empty())
-    dir += "/";
+    dir += '/';
   std::string filename = dir + "maxvsf.dat";
 
   std::ofstream out(filename.c_str(), std::ios_base::out);

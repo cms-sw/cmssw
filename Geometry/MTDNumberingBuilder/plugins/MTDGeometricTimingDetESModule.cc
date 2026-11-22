@@ -28,6 +28,7 @@ public:
 private:
   const bool fromDDD_;
   const bool fromDD4hep_;
+  const bool isTB_;
 
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddCompactToken_;
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4hepToken_;
@@ -37,8 +38,13 @@ private:
 using namespace edm;
 
 MTDGeometricTimingDetESModule::MTDGeometricTimingDetESModule(const edm::ParameterSet& p)
-    : fromDDD_(p.getParameter<bool>("fromDDD")), fromDD4hep_(p.getParameter<bool>("fromDD4hep")) {
+    : fromDDD_(p.getParameter<bool>("fromDDD")),
+      fromDD4hep_(p.getParameter<bool>("fromDD4hep")),
+      isTB_(p.getParameter<bool>("isTB")) {
   auto cc = setWhatProduced(this);
+  if ((fromDDD_ && isTB_) || (!fromDD4hep_ && isTB_)) {
+    throw cms::Exception("MTDGeometricTimingDetESModule") << "Test beam configuration requires DD4hep, aborting";
+  }
   if (fromDDD_) {
     ddCompactToken_ = cc.consumes<DDCompactView>(edm::ESInputTag());
   } else if (fromDD4hep_) {
@@ -54,6 +60,7 @@ void MTDGeometricTimingDetESModule::fillDescriptions(edm::ConfigurationDescripti
   edm::ParameterSetDescription descDB;
   descDB.add<bool>("fromDDD", false);
   descDB.add<bool>("fromDD4hep", false);
+  descDB.add<bool>("isTB", false);
   descriptions.add("mtdNumberingGeometryDB", descDB);
 
   edm::DescriptionCloner desc;
@@ -67,7 +74,11 @@ std::unique_ptr<GeometricTimingDet> MTDGeometricTimingDetESModule::produce(const
     return DDCmsMTDConstruction::construct((*cpv));
   } else if (fromDD4hep_) {
     edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(dd4hepToken_);
-    return DDCmsMTDConstruction::construct((*cpv));
+    if (!isTB_) {
+      return DDCmsMTDConstruction::construct((*cpv));
+    } else {
+      return DDCmsMTDConstruction::constructTB((*cpv));
+    }
   } else {
     PGeometricTimingDet const& pgd = iRecord.get(pGTDetToken_);
     return CondDBCmsMTDConstruction::construct(pgd);

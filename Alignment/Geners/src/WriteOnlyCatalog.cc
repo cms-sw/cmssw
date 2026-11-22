@@ -53,7 +53,7 @@ namespace gs {
     ClassId rId(in, 1);
     ClassId locId(in, 1);
 
-    std::unique_ptr<WriteOnlyCatalog> cat(new WriteOnlyCatalog(dynamic_cast<std::ostream &>(in)));
+    std::unique_ptr<WriteOnlyCatalog> cat = std::make_unique<WriteOnlyCatalog>(dynamic_cast<std::ostream &>(in));
     bool firstEntry = true;
     for (in.peek(); !in.eof(); in.peek()) {
       CatalogEntry *rec = CatalogEntry::read(rId, locId, in);

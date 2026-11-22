@@ -31,7 +31,7 @@ using reco::GsfPFRecTrackCollection;
 using reco::SuperClusterRef;
 
 LowPtGsfElectronCoreProducer::LowPtGsfElectronCoreProducer(const edm::ParameterSet& config)
-    : gsfPfRecTracksToken_(mayConsume<GsfPFRecTrackCollection>(config.getParameter<edm::InputTag>("gsfPfRecTracks"))),
+    : gsfPfRecTracksToken_(consumes<GsfPFRecTrackCollection>(config.getParameter<edm::InputTag>("gsfPfRecTracks"))),
       ctfTracksToken_(consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("ctfTracks"))),
       superClusterRefs_(consumes<edm::ValueMap<SuperClusterRef> >(config.getParameter<edm::InputTag>("superClusters"))),
       putToken_(produces<reco::GsfElectronCoreCollection>()) {}

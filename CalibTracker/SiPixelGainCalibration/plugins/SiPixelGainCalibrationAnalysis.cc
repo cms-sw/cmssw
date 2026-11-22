@@ -314,7 +314,7 @@ bool SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelC
     std::ostringstream pixelinfo;
     pixelinfo << "GainCurve_row_" << ipix->row() << "_col_" << ipix->col();
     std::string tempname = translateDetIdToString(detid);
-    tempname += "_";
+    tempname += '_';
     tempname += pixelinfo.str();
     setDQMDirectory(detid);
     bookkeeper_pixels_[detid][pixelinfo.str()] = bookDQMHistogram1D(
@@ -430,7 +430,7 @@ bool SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelC
     std::ostringstream pixelinfo;
     pixelinfo << "GainCurve_row_" << ipix->row() << "_col_" << ipix->col();
     std::string tempname = translateDetIdToString(detid);
-    tempname += "_";
+    tempname += '_';
     tempname += pixelinfo.str();
 
     // and book the histo

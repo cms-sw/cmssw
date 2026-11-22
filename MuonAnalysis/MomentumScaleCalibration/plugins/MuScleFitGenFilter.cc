@@ -49,7 +49,7 @@ private:
 MuScleFitGenFilter::MuScleFitGenFilter(const edm::ParameterSet& iConfig)
     : genParticlesName_(iConfig.getUntrackedParameter<std::string>("GenParticlesName", "genParticles")),
       evtMCToken_(consumes<edm::HepMCProduct>(edm::InputTag(genParticlesName_))),
-      genParticlesToken_(mayConsume<reco::GenParticleCollection>(edm::InputTag(genParticlesName_))),
+      genParticlesToken_(consumes<reco::GenParticleCollection>(edm::InputTag(genParticlesName_))),
       totalEvents_(0),
       eventsPassingTheFilter_(0) {
   MuScleFitUtils::resfind = iConfig.getParameter<std::vector<int> >("resfind");

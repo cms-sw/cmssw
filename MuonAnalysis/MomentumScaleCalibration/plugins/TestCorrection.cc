@@ -132,9 +132,9 @@ private:
 //
 TestCorrection::TestCorrection(const edm::ParameterSet& iConfig)
     : MuScleFitBase(iConfig),
-      glbMuonsToken_(mayConsume<reco::MuonCollection>(theMuonLabel_)),
-      saMuonsToken_(mayConsume<reco::TrackCollection>(theMuonLabel_)),
-      tracksToken_(mayConsume<reco::TrackCollection>(theMuonLabel_)) {
+      glbMuonsToken_(consumes<reco::MuonCollection>(theMuonLabel_)),
+      saMuonsToken_(consumes<reco::TrackCollection>(theMuonLabel_)),
+      tracksToken_(consumes<reco::TrackCollection>(theMuonLabel_)) {
   //now do what ever initialization is needed
   TFile* outputFile = new TFile(theRootFileName_.c_str(), "RECREATE");
   theFiles_.push_back(outputFile);

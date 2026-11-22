@@ -1193,7 +1193,7 @@ void PixelFEDCard::writeASCII(std::string dir) const {
   std::string fedNum = s1.str();
 
   if (!dir.empty())
-    dir += "/";
+    dir += '/';
 
   std::string filename = dir + "params_fed_" + fedNum + ".dat";
 

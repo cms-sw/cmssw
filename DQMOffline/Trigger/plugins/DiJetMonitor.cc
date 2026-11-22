@@ -112,7 +112,7 @@ DiJetMonitor::DiJetMonitor(const edm::ParameterSet& iConfig)
     : folderName_(iConfig.getParameter<std::string>("FolderName")),
       requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
       hltPathsAreValid_(false),
-      dijetSrc_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("dijetSrc"))),
+      dijetSrc_(consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("dijetSrc"))),
       dijetpt_binning_(getHistoPSet(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("dijetPSet"))),
       dijetptThr_binning_(getHistoPSet(

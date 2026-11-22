@@ -551,7 +551,7 @@ void EcalDisplaysByEvent::endJob() {
       frequencies += itr->first;
       frequencies += " Frequency: ";
       frequencies += intToString(itr->second);
-      frequencies += "\n";
+      frequencies += '\n';
     }
   }
   LogWarning("EcalDisplaysByEvent") << "Found seeds with frequency > 1: "
@@ -561,13 +561,13 @@ void EcalDisplaysByEvent::endJob() {
   std::string channels;
   for (std::vector<int>::const_iterator itr = maskedChannels_.begin(); itr != maskedChannels_.end(); ++itr) {
     channels += intToString(*itr);
-    channels += ",";
+    channels += ',';
   }
 
   std::string feds;
   for (std::vector<int>::const_iterator itr = maskedFEDs_.begin(); itr != maskedFEDs_.end(); ++itr) {
     feds += intToString(*itr);
-    feds += ",";
+    feds += ',';
   }
 
   LogWarning("EcalDisplaysByEvent") << "Masked channels are: " << channels;

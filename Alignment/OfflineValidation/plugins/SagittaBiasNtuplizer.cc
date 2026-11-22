@@ -149,10 +149,10 @@ SagittaBiasNtuplizer::SagittaBiasNtuplizer(const edm::ParameterSet& iConfig)
       genPosMuonPt_{-99.},
       genNegMuonPt_{-99.} {
   if (useReco_) {
-    tracksToken_ = mayConsume<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
-    muonsToken_ = mayConsume<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"));
+    tracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
+    muonsToken_ = consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"));
   } else {
-    alcaRecoToken_ = mayConsume<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("muonTracks"));
+    alcaRecoToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("muonTracks"));
   }
 
   if (doGen_) {

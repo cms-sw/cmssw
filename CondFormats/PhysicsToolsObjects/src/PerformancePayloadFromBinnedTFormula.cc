@@ -6,6 +6,7 @@
 const int PerformancePayloadFromBinnedTFormula::InvalidPos = -1;
 
 #include <iostream>
+#include <memory>
 using namespace std;
 
 void PerformancePayloadFromBinnedTFormula::initialize() {
@@ -14,7 +15,7 @@ void PerformancePayloadFromBinnedTFormula::initialize() {
     for (unsigned int i = 0; i < (pls[t].formulas()).size(); ++i) {
       const auto formulaUniqueName = edm::createGlobalIdentifier();
       PhysicsTFormulaPayload tmp = pls[t];
-      std::shared_ptr<TFormula> tt(new TFormula(formulaUniqueName.c_str(), tmp.formulas()[i].c_str()));
+      std::shared_ptr<TFormula> tt = std::make_shared<TFormula>(formulaUniqueName.c_str(), tmp.formulas()[i].c_str());
       tt->Compile();
       temp.push_back(tt);
     }

@@ -59,7 +59,7 @@ L1Validator::L1Validator(const edm::ParameterSet &iConfig) {
   _L1EGammaBXSource = consumes<l1t::EGammaBxCollection>(iConfig.getParameter<edm::InputTag>("L1EGammaBXSource"));
   _L1TauBXSource = consumes<l1t::TauBxCollection>(iConfig.getParameter<edm::InputTag>("L1TauBXSource"));
   _L1JetBXSource = consumes<l1t::JetBxCollection>(iConfig.getParameter<edm::InputTag>("L1JetBXSource"));
-  _srcToken = mayConsume<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("srcToken"));
+  _srcToken = consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("srcToken"));
   _L1GenJetSource = consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("L1GenJetSource"));
 
   //_fileName = iConfig.getParameter<std::string>("fileName");

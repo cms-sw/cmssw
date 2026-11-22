@@ -22,6 +22,7 @@
 // For file output
 // ---------------
 #include <fstream>
+#include <memory>
 #include <sstream>
 #include <cmath>
 #include <memory>
@@ -77,9 +78,9 @@ MuScleFitFilter::MuScleFitFilter(const edm::ParameterSet& iConfig) {
   //ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
   //theService = new MuonServiceProxy(serviceParameters);
   theMuonLabel = iConfig.getParameter<edm::InputTag>("MuonLabel");
-  theGlbMuonsToken = mayConsume<reco::MuonCollection>(theMuonLabel);
-  theSaMuonsToken = mayConsume<reco::TrackCollection>(theMuonLabel);
-  theTracksToken = mayConsume<reco::TrackCollection>(theMuonLabel);
+  theGlbMuonsToken = consumes<reco::MuonCollection>(theMuonLabel);
+  theSaMuonsToken = consumes<reco::TrackCollection>(theMuonLabel);
+  theTracksToken = consumes<reco::TrackCollection>(theMuonLabel);
   theMuonType = iConfig.getParameter<int>("muonType");
 
   Mmin = iConfig.getUntrackedParameter<std::vector<double> >("Mmin");
@@ -118,7 +119,7 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
 
   // Get the RecTrack and the RecMuon collection from the event
   // ----------------------------------------------------------
-  std::unique_ptr<reco::MuonCollection> muons(new reco::MuonCollection());
+  std::unique_ptr<reco::MuonCollection> muons = std::make_unique<reco::MuonCollection>();
 
   if (debug)
     edm::LogPrint("MuScleFitFilter") << "Looking for muons of the right kind" << std::endl;

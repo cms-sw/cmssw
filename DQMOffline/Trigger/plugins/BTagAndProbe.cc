@@ -208,13 +208,13 @@ BTagAndProbe::BTagAndProbe(const edm::ParameterSet& iConfig)
     : folderName_(iConfig.getParameter<std::string>("FolderName")),
       requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
       hltPathsAreValid_(false),
-      vtxToken_(mayConsume<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
-      muoToken_(mayConsume<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
-      eleToken_(mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("electrons"))),
+      vtxToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
+      muoToken_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
+      eleToken_(consumes<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("electrons"))),
       elecIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("elecID"))),
       jetTagTokens_(
           edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("btagAlgos"),
-                                [this](edm::InputTag const& tag) { return mayConsume<reco::JetTagCollection>(tag); })),
+                                [this](edm::InputTag const& tag) { return consumes<reco::JetTagCollection>(tag); })),
       shallowTagInfosToken_(
           consumes<std::vector<reco::ShallowTagInfo> >(edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfos"))),
       genTriggerEventFlag_(new GenericTriggerEventFlag(

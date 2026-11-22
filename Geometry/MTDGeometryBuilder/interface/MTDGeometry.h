@@ -69,11 +69,11 @@ private:
   /// Aligner has access to map
   friend class GeometryAligner;
 
-  DetTypeContainer theDetTypes;  // owns the DetTypes
-  DetContainer theDetUnits;      // they're all also into 'theDets', so we assume 'theDets' owns them
-  unsigned int theOffsetDU[2];   // offsets in the above
-  unsigned int theEndsetDU[2];   // end offsets in the above
-  DetContainer theDets;          // owns *ONLY* the GeomDet * corresponding to GluedDets.
+  DetTypeContainer theDetTypes;          // owns the DetTypes
+  DetContainer theDetUnits;              // they're all also into 'theDets', so we assume 'theDets' owns them
+  unsigned int theOffsetDU[2] = {0, 0};  // offsets in the above
+  unsigned int theEndsetDU[2] = {0, 0};  // end offsets in the above
+  DetContainer theDets;                  // owns *ONLY* the GeomDet * corresponding to GluedDets.
   DetIdContainer theDetUnitIds;
   DetIdContainer theDetIds;
   mapIdToDetUnit theMapUnit;  // does not own GeomDetUnit *

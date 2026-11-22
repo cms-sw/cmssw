@@ -72,13 +72,13 @@ private:
 
 public:
   explicit HcalDigiSortedTableProducer(const edm::ParameterSet& iConfig)
-      : tokenHBDetIdList_(consumes<edm::InRun>(iConfig.getUntrackedParameter<edm::InputTag>(
+      : tokenHBDetIdList_(consumes<edm::InRun, edm::Transition::BeginRun>(iConfig.getUntrackedParameter<edm::InputTag>(
             "HBDetIdList", edm::InputTag("hcalDetIdTable", "HBDetIdList")))),
-        tokenHEDetIdList_(consumes<edm::InRun>(iConfig.getUntrackedParameter<edm::InputTag>(
+        tokenHEDetIdList_(consumes<edm::InRun, edm::Transition::BeginRun>(iConfig.getUntrackedParameter<edm::InputTag>(
             "HEDetIdList", edm::InputTag("hcalDetIdTable", "HEDetIdList")))),
-        tokenHFDetIdList_(consumes<edm::InRun>(iConfig.getUntrackedParameter<edm::InputTag>(
+        tokenHFDetIdList_(consumes<edm::InRun, edm::Transition::BeginRun>(iConfig.getUntrackedParameter<edm::InputTag>(
             "HFDetIdList", edm::InputTag("hcalDetIdTable", "HFDetIdList")))),
-        tokenHODetIdList_(consumes<edm::InRun>(iConfig.getUntrackedParameter<edm::InputTag>(
+        tokenHODetIdList_(consumes<edm::InRun, edm::Transition::BeginRun>(iConfig.getUntrackedParameter<edm::InputTag>(
             "HODetIdList", edm::InputTag("hcalDetIdTable", "HODetIdList")))),
         tagQIE11_(iConfig.getUntrackedParameter<edm::InputTag>("tagQIE11", edm::InputTag("hcalDigis"))),
         tagQIE10_(iConfig.getUntrackedParameter<edm::InputTag>("tagQIE10", edm::InputTag("hcalDigis"))),

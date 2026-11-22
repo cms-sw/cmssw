@@ -89,7 +89,7 @@ public:
   //As far as I understand now, the object particleBasedIsolationMap should be fixed, so we don't configure the name
   void setConsumes(edm::ConsumesCollector iC) override {
     particleBasedIsolationToken_ =
-        iC.mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(_particleBasedIsolation);
+        iC.consumes<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(_particleBasedIsolation);
   }
 
   //! Destructor

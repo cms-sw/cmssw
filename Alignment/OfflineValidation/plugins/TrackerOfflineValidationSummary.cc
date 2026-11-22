@@ -805,7 +805,7 @@ void TrackerOfflineValidationSummary::bookHarvestingHists() {
 
     std::string directoryString(moduleDirectory_);
     if (!directoryString.empty())
-      directoryString += "/";
+      directoryString += '/';
     directoryString += iHier->componentName;
     dbe_->setCurrentFolder(directoryString);
 

@@ -510,7 +510,7 @@ void PixelROCDACSettings::writeXML(ofstream* out) const {
 //=============================================================================================
 void PixelROCDACSettings::checkTag(string tag, string dacName, const PixelROCName& rocid) {
   std::string mthn = "[PixelROCDACSettings::checkTag()]\t\t\t\t    ";
-  dacName += ":";
+  dacName += ':';
   if (tag != dacName) {
     cout << __LINE__ << "]\t" << mthn << "Read ROC name       : " << tag << endl;
     cout << __LINE__ << "]\t" << mthn << "But expected to find: " << dacName << endl;
