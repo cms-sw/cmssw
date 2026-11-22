@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
 #   cmsRun runHGC11_cfg.py geometry=D120
-#   Options for geometry D107, D116, D104, D120, D121, D122, D123
-#                        (V16) (V17) (V18) (V19) (V17)(V19n)(V19ng)
+#   Options for geometry  D104, D120, D121, D122, D123
+#                         (V18) (V19) (V17)(V19n)(V19ng)
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
 import os, sys, importlib, re
@@ -15,7 +15,7 @@ options.register('geometry',
                  "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D107, D116, D104, D120, D121, D122, D123")
+                  "geometry of operations: D104, D120, D121, D122, D123")
 
 ### get and parse the command line arguments
  
@@ -28,10 +28,13 @@ geomName = "Run4" + options.geometry
 geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+fileName = "hgc" + geomName + ".root"
+
 print("Geometry Name:   ", geomName)
 print("Geom file Name:  ", geomFile)
 print("Global Tag Name: ", GLOBAL_TAG)
 print("Era Name:        ", ERA)
+print("o/p File Name:   ", fileName)
 
 process = cms.Process("PROD",ERA)
 
@@ -86,6 +89,11 @@ process.generator = cms.EDFilter("Pythia8PtGun",
                          PythiaParameters = cms.PSet(parameterSets = cms.vstring())
 )
 
+process.output = cms.OutputModule("PoolOutputModule",
+    process.FEVTSIMEventContent,
+    fileName = cms.untracked.string(fileName)
+)
+
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 process.ProductionFilterSequence = cms.Sequence(process.generator)
@@ -93,11 +101,13 @@ process.ProductionFilterSequence = cms.Sequence(process.generator)
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
+process.out_step = cms.EndPath(process.output)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,
                                 process.genfiltersummary_step,
                                 process.simulation_step,
+                                process.out_step,
                                 )
 
 # filter all path with the production filter sequence

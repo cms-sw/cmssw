@@ -1,7 +1,9 @@
 ###############################################################################
 # Way to use this:
 #   cmsRun runHGC8_cfg.py geomName=Run4D120
-#   Options for geomName: Run4D120, Run4D121, Run4D122, Run4D123
+#   Options for geomName Run4D120, Run4D121. Run4D122, Run4D123, Run4D124,
+#                        Run4D125, Run4D126, Run4D127, Run4D128, Run4D129,
+#                        Run4D130
 # 
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -15,7 +17,7 @@ options.register('geomName',
                  "Run4D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: Run4D120, Run4D121, Run4D122, Run4D123")
+                  "geomName of operations: Run4D120, Run4D121, Run4D122, Run4D123, Run4D125, Run4D126, Run4D127, Run4D128, Run4D129, Run4D130")
 
 ### get and parse the command line arguments
  
@@ -31,11 +33,13 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+fileName = "hgc" + geomName + ".root"
 
 print("Geometry Name:   ", geomName)
 print("Geom file Name:  ", geomFile)
 print("Global Tag Name: ", GLOBAL_TAG)
 print("Era Name:        ", ERA)
+print("o/p File Name:   ", fileName)
 
 process = cms.Process("PROD",ERA)
 
@@ -90,7 +94,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 
 process.output = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('hgcV19.root')
+    fileName = cms.untracked.string(fileName)
 )
 
 process.hgcalHitScintillator.tileFileName = "extraTiles.txt"
