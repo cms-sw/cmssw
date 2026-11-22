@@ -87,9 +87,7 @@ hltMhtAnalyzerPFPuppi = _hltMetTester.clone(
 phase2_common.toModify(hltMhtAnalyzerPFPuppi, inputMHTLabel = 'hltPFPuppiMHT', inputMETLabel = 'hltPFPuppiMET', outFolder = 'hltPFPuppiMHT')
 
 ####### MHT scan #######
-def _cutTag(minPt, maxEta):
-    fmt = lambda v: ('%g' % v).replace('.', 'p')
-    return f"minPt{fmt(minPt)}_maxEta{fmt(maxEta)}"
+from Validation.RecoMET.mhtScanUtils import cutTag as _cutTag, moduleTag as _moduleTag, scanCuts as _scanCuts
 
 def addMHTScanHLT(process, minPtJetMht=(20., 30., 40., 50.), maxEtaJetMht=None, genWDecayPdgIds=(), lightMode=True):
     """
@@ -102,18 +100,14 @@ def addMHTScanHLT(process, minPtJetMht=(20., 30., 40., 50.), maxEtaJetMht=None, 
     With `lightMode`, only MEx, MEy and METPhi are filled (see METTester); otherwise full METTester
     instances (as hltMhtAnalyzerPFPuppi) are used.
     """
-    minPtJetMht = list(minPtJetMht)
-    maxEtaJetMht = [5.]*len(minPtJetMht) if maxEtaJetMht is None else list(maxEtaJetMht)
-    if len(minPtJetMht) != len(maxEtaJetMht):
-        raise ValueError(f"addMHTScanHLT: lists must have the same length (minPtJetMht={len(minPtJetMht)}, "
-                         f"maxEtaJetMht={len(maxEtaJetMht)})")
+    minPtJetMht, maxEtaJetMht = _scanCuts('addMHTScanHLT', minPtJetMht, maxEtaJetMht)
     if not hasattr(process, 'hltPFPuppiMHT'):
         raise RuntimeError("addMHTScanHLT: process has no hltPFPuppiMHT (phase-2 HLT menu required).")
 
     modules = []
     for minPt, maxEta in zip(minPtJetMht, maxEtaJetMht):
         tag = _cutTag(minPt, maxEta)
-        ltag = tag.replace('_m', 'M').replace('minPt', 'MinPt')  # module labels cannot contain underscores
+        ltag = _moduleTag(tag)
         # producer labels must not match hltTriggerSummaryAOD's 'hlt*' pattern, which would create a scheduling cycle
         label = 'scanPFPuppiMHT' + ltag
         setattr(process, label, process.hltPFPuppiMHT.clone(minPtJetMht=minPt, maxEtaJetMht=maxEta))

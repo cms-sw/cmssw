@@ -88,3 +88,52 @@ pfPuppiMetAnalyzerMiniAOD = metAnalyzer.clone(
     METType = "miniaod",
     primaryVertices = "offlineSlimmedPrimaryVertices"
 )
+
+####### MHT scan #######
+from Validation.RecoMET.mhtScanUtils import cutTag as _cutTag, moduleTag as _moduleTag, scanCuts as _scanCuts
+
+def addMHTScanOffline(process, minPtJetMht=(20., 30., 40., 50.), maxEtaJetMht=None, genWDecayPdgIds=(),
+                      lightMode=True, scanOnly=False):
+    """
+    Validates `pfPuppiMHT` (phase-2, uncorrected `ak4PFJetsPuppi` jets) for several jet kinematic cuts: the
+    offline counterpart of `addMHTScanHLT`. `minPtJetMht` and `maxEtaJetMht` are lists with the same length
+    (`maxEtaJetMht` defaults to 5), the i-th MHT producer using the i-th value of each list.
+    The distributions are stored in `<runDir>/pfPuppiMHT/<cut tag>`, and additionally in
+    `<runDir>/pfPuppiMHT/<cut tag>/pdgid<N>` for each |pdgId| of `genWDecayPdgIds` (e.g. (11, 13, 15) for
+    W' -> l nu; requires `genParticles`). With `lightMode`, only MEx, MEy and METPhi are filled (see METTester).
+    The modules are appended to the validation sequence `METValidation`. With `scanOnly`, the
+    `validation_step` path is instead replaced by the scan alone, to run it on already reconstructed events.
+    """
+    minPtJetMht, maxEtaJetMht = _scanCuts('addMHTScanOffline', minPtJetMht, maxEtaJetMht)
+    if not hasattr(process, 'pfPuppiMHT'):
+        raise RuntimeError("addMHTScanOffline: process has no pfPuppiMHT (phase-2 offline validation required).")
+
+    modules = []
+    for minPt, maxEta in zip(minPtJetMht, maxEtaJetMht):
+        tag = _cutTag(minPt, maxEta)
+        ltag = _moduleTag(tag)
+        label = 'scanPfPuppiMHT' + ltag
+        setattr(process, label, process.pfPuppiMHT.clone(minPtJetMht=minPt, maxEtaJetMht=maxEta))
+        modules.append(getattr(process, label))
+
+        selections = [(None, 'pfPuppiMHT/' + tag)]
+        selections += [(pdg, f'pfPuppiMHT/{tag}/pdgid{pdg}') for pdg in genWDecayPdgIds]
+        for pdg, folder in selections:
+            analyzer = process.pfPuppiMHTAnalyzer.clone(
+                inputMHTLabel = label,
+                inputMETLabel = '' if lightMode else 'pfMetPuppi',
+                outFolder = folder,
+                METType = 'mht',
+                lightMode = cms.bool(lightMode),
+                genWDecayPdgIds = cms.vint32(pdg) if pdg is not None else cms.vint32(),
+            )
+            aname = 'pfMhtAnalyzer' + ltag + ('' if pdg is None else f'Pdgid{pdg}')
+            setattr(process, aname, analyzer)
+            modules.append(analyzer)
+
+    scan = cms.Sequence(sum(modules[1:], modules[0]))
+    process.pfMhtScanSeq = scan
+    if scanOnly:
+        process.validation_step = cms.EndPath(scan)
+    else:
+        process.METValidation += scan
