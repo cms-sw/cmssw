@@ -14,6 +14,8 @@
 
 namespace {
   constexpr int kCalls = 100000;
+  // The largest seed of HepJamesRandom, as in the RandomNumberGeneratorService.
+  constexpr long kMaxSeedHepJames = 900000000;
 
   double nanosecondsPerCall(std::function<double(std::uint32_t)> const& call) {
     double sink = 0.;
@@ -28,6 +30,7 @@ namespace {
     return std::chrono::duration<double, std::nano>(stop - start).count() / kCalls;
   }
 
+  // Any seed and module id.
   edm::philox::Counter streamOf(std::uint32_t event) { return edm::philox::streamId(1234567, 42, 1, 1, event); }
 
   long streamWord(std::uint32_t event, unsigned int word) { return static_cast<long>(streamOf(event)[word]); }
@@ -44,11 +47,12 @@ int main() {
                 return static_cast<double>(streamWord(event, 0));
               }));
   std::printf("%-40s %12.1f\n", "HepJamesRandom::setSeed", nanosecondsPerCall([&](std::uint32_t event) {
-                james.setSeed(streamWord(event, 0) % 900000001, 0);
+                james.setSeed(streamWord(event, 0) % (kMaxSeedHepJames + 1), 0);
                 return james.flat();
               }));
   std::printf("%-40s %12.1f\n", "MixMaxRng::setSeed", nanosecondsPerCall([&](std::uint32_t event) {
                 auto const id = streamOf(event);
+                // The 64-bit seed of the service: the first two words of the stream id.
                 mixMax.setSeed(static_cast<long>((static_cast<std::uint64_t>(id[1]) << 32) | id[0]), 0);
                 return mixMax.flat();
               }));

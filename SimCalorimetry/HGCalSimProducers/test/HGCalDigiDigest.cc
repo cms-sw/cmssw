@@ -17,9 +17,11 @@
 #include <vector>
 
 namespace {
+  // The offset basis and the prime of the 64-bit FNV-1a hash.
   constexpr std::uint64_t kFnvOffset = 0xcbf29ce484222325ULL;
   constexpr std::uint64_t kFnvPrime = 0x100000001b3ULL;
 
+  // Adds the four bytes of value to the hash, low byte first.
   std::uint64_t fnv1a(std::uint64_t hash, std::uint32_t value) {
     for (int byte = 0; byte < 4; ++byte) {
       hash ^= (value >> (8 * byte)) & 0xff;

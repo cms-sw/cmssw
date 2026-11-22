@@ -14,16 +14,20 @@ namespace edm::philox {
   using Counter = std::array<std::uint32_t, 4>;
   using Key = std::array<std::uint32_t, 2>;
 
+  // The multipliers and the key increments of Random123 Philox4x32. The key increments are
+  // the fractional parts of the golden ratio and of sqrt(3), times 2^32.
   constexpr std::uint32_t kMultiplier0 = 0xD2511F53;
   constexpr std::uint32_t kMultiplier1 = 0xCD9E8D57;
   constexpr std::uint32_t kWeyl0 = 0x9E3779B9;
   constexpr std::uint32_t kWeyl1 = 0xBB67AE85;
+  // The "10" of Philox4x32-10.
   constexpr unsigned int kRounds = 10;
 
   namespace detail {
     constexpr Counter round(Counter const& ctr, Key const& key) {
       std::uint64_t const product0 = static_cast<std::uint64_t>(kMultiplier0) * ctr[0];
       std::uint64_t const product1 = static_cast<std::uint64_t>(kMultiplier1) * ctr[2];
+      // The high and the low 32 bits of each 64-bit product.
       auto const hi0 = static_cast<std::uint32_t>(product0 >> 32);
       auto const lo0 = static_cast<std::uint32_t>(product0);
       auto const hi1 = static_cast<std::uint32_t>(product1 >> 32);
@@ -74,19 +78,23 @@ namespace edm::philox {
     std::array<std::uint32_t, 2> id_;
   };
 
-  // Uniform in [0, 1) with 24 random bits. The conversion is exact.
+  // Uniform in [0, 1): the 24 high bits of the word times 2^-24.
+  // A float has 24 significant bits, so the conversion is exact.
   constexpr float uniformFloat(std::uint32_t word) { return static_cast<float>(word >> 8) * 0x1p-24f; }
 
-  // Uniform in [0, 1) with 53 random bits from two words. The conversion is exact.
+  // Uniform in [0, 1): 53 bits (all of high, the 21 high bits of low) times 2^-53.
+  // A double has 53 significant bits, so the conversion is exact.
   constexpr double uniformDouble(std::uint32_t low, std::uint32_t high) {
     std::uint64_t const bits53 = (static_cast<std::uint64_t>(high) << 21) | (low >> 11);
     return static_cast<double>(bits53) * 0x1p-53;
   }
 
-  // Uniform in (0, 1) with 23 random bits from one word. The conversion is exact.
+  // Uniform in (0, 1): the 23 high bits k of the word give (2k + 1) * 2^-24, the centre of one
+  // of 2^23 equal intervals. The conversion is exact, and 0 and 1 do not occur.
   constexpr float openUniformFloat(std::uint32_t word) { return static_cast<float>(2 * (word >> 9) + 1) * 0x1p-24f; }
 
-  // Uniform in (0, 1) with 52 random bits from two words. The conversion is exact.
+  // Uniform in (0, 1): the 52 high bits k of (high, low) give (2k + 1) * 2^-53, the centre of one
+  // of 2^52 equal intervals. The conversion is exact, and 0 and 1 do not occur.
   constexpr double openUniformDouble(std::uint32_t low, std::uint32_t high) {
     std::uint64_t const bits52 = ((static_cast<std::uint64_t>(high) << 32) | low) >> 12;
     return static_cast<double>(2 * bits52 + 1) * 0x1p-53;

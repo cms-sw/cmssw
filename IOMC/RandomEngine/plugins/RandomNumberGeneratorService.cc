@@ -1221,6 +1221,7 @@ namespace edm {
         labelAndEngine.setSeed(key[0], 0);
         auto& engine = labelAndEngine.engine();
         if (engine->name() == PhiloxEngine::engineName()) {
+          // The four words of the stream id select the Philox stream.
           long const seeds[4] = {id[0], id[1], id[2], id[3]};
           engine->setSeeds(seeds, 4);
         } else {

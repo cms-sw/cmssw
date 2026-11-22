@@ -28,8 +28,11 @@ process = cms.Process("EVENTSEEDED" if not options.input else "REPLAY")
 
 process.options.numberOfThreads = options.streams
 process.options.numberOfStreams = options.streams
+# Two lumis at the same time, so that two lumi engines are in use together.
 process.options.numberOfConcurrentLuminosityBlocks = 2
 
+# 12 events, 3 per lumi: 4 lumis. The event numbers continue over the lumis, so a job
+# that starts at a later lumi gives the same EventIDs as the full job.
 eventsPerLumi = 3
 if options.input:
     process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring("file:" + options.input))
@@ -41,6 +44,7 @@ else:
                                 numberEventsInLuminosityBlock=cms.untracked.uint32(eventsPerLumi))
     process.maxEvents.input = options.events
 
+# mixMax and philox have the same seed, so only the module label separates their numbers.
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     seedingMode=cms.untracked.string(options.seedingMode),
     enableChecking=cms.untracked.bool(True),

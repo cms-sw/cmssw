@@ -23,11 +23,18 @@
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 
 namespace {
+  // 2^18 elements x 4 blocks x 4 words = 4.2 million words.
   constexpr std::uint32_t kElements = 1 << 18;
   constexpr std::uint32_t kBlocks = 4;
-  constexpr std::uint32_t kWords = kElements * kBlocks * 4;
+  constexpr std::uint32_t kWordsPerBlock = 4;
+  constexpr std::uint32_t kWords = kElements * kBlocks * kWordsPerBlock;
+  // The output does not depend on the block size.
+  constexpr std::uint32_t kThreadsPerBlock = 256;
   // The math functions of a GPU backend can differ from the host ones in the last bits.
+  // CUDA gives at most 3 ulp; the limit leaves a margin for other GPUs.
   constexpr std::int64_t kMaxNormalUlpGpu = 8;
+  // |value| <= sqrt(-2 ln 2^-32) = 6.66, see normalFloat4.
+  constexpr float kMaxNormal = 6.67f;
 
   struct PhiloxKernel {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
@@ -42,8 +49,8 @@ namespace {
         for (std::uint32_t block = 0; block < kBlocks; ++block) {
           auto const bits = stream.bits(element, block);
           auto const normal = cms::alpakatools::normalFloat4(acc, bits);
-          auto const first = (element * kBlocks + block) * 4;
-          for (std::uint32_t word = 0; word < 4; ++word) {
+          auto const first = (element * kBlocks + block) * kWordsPerBlock;
+          for (std::uint32_t word = 0; word < kWordsPerBlock; ++word) {
             words[first + word] = bits[word];
             floats[first + word] = edm::philox::uniformFloat(bits[word]);
             openFloats[first + word] = edm::philox::openUniformFloat(bits[word]);
@@ -92,6 +99,7 @@ TEST_CASE("Philox random numbers on the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMES
   }
 
   SECTION("device output equals host output") {
+    // Any seed, module, run and lumi. The event number is above 2^32, so both event words are used.
     edm::philox::EventStream const stream(1234567, 42, 1, 7, (std::uint64_t{1} << 40) + 12345);
 
     auto words_h = cms::alpakatools::make_host_buffer<std::uint32_t[], Platform>(kWords);
@@ -111,7 +119,8 @@ TEST_CASE("Philox random numbers on the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMES
       auto openDoubles_d = cms::alpakatools::make_device_buffer<double[]>(queue, kWords / 2);
       auto normals_d = cms::alpakatools::make_device_buffer<float[]>(queue, kWords);
 
-      auto const workDiv = cms::alpakatools::make_workdiv<Acc1D>(cms::alpakatools::divide_up_by(kElements, 256), 256);
+      auto const workDiv = cms::alpakatools::make_workdiv<Acc1D>(
+          cms::alpakatools::divide_up_by(kElements, kThreadsPerBlock), kThreadsPerBlock);
       alpaka::exec<Acc1D>(queue,
                           workDiv,
                           PhiloxKernel{},
@@ -141,8 +150,8 @@ TEST_CASE("Philox random numbers on the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMES
         for (std::uint32_t block = 0; block < kBlocks; ++block) {
           auto const bits = stream.bits(element, block);
           auto const normal = normalFloat4Host(bits);
-          auto const first = (element * kBlocks + block) * 4;
-          for (std::uint32_t word = 0; word < 4; ++word) {
+          auto const first = (element * kBlocks + block) * kWordsPerBlock;
+          for (std::uint32_t word = 0; word < kWordsPerBlock; ++word) {
             differentWords += words_h[first + word] != bits[word];
             differentFloats += std::bit_cast<std::uint32_t>(floats_h[first + word]) !=
                                std::bit_cast<std::uint32_t>(edm::philox::uniformFloat(bits[word]));
@@ -178,13 +187,14 @@ TEST_CASE("Philox random numbers on the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMES
       } else {
         CHECK(maxNormalUlp <= kMaxNormalUlpGpu);
       }
-      // Mean 0 and variance 1 within 5 standard deviations; |value| <= sqrt(64 ln 2) = 6.66.
+      // Mean 0 and variance 1 within 5 standard deviations.
+      // For N normal values, the standard deviation is 1/sqrt(N) for the mean and sqrt(2/N) for the variance.
       double const mean = normalSum / kWords;
       double const variance = normalSum2 / kWords - mean * mean;
       std::printf("normal mean %.6f, variance %.6f, maximum |value| %.4f\n", mean, variance, normalMaxAbs);
       CHECK(std::abs(mean) < 5. / std::sqrt(kWords));
       CHECK(std::abs(variance - 1.) < 5. * std::sqrt(2. / kWords));
-      CHECK(normalMaxAbs < 6.67f);
+      CHECK(normalMaxAbs < kMaxNormal);
     }
   }
 }

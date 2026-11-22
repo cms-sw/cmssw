@@ -21,6 +21,7 @@
 namespace {
   std::string draws(CLHEP::HepRandomEngine& engine, unsigned int count) {
     std::ostringstream text;
+    // 17 significant digits identify a double exactly.
     text << std::setprecision(17);
     for (unsigned int i = 0; i < count; ++i) {
       text << " " << engine.flat();

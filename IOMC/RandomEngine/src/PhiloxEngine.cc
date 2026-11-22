@@ -11,6 +11,12 @@
 namespace {
   constexpr char const* const kBeginTag = "PhiloxEngine-begin";
   constexpr char const* const kEndTag = "PhiloxEngine-end";
+  // The indices in the state vector.
+  constexpr std::size_t kEngineIdIndex = 0;
+  constexpr std::size_t kStreamIdIndex = 1;
+  constexpr std::size_t kNextBlockLowIndex = 5;
+  constexpr std::size_t kNextBlockHighIndex = 6;
+  constexpr std::size_t kPositionIndex = 7;
 }  // namespace
 
 namespace edm {
@@ -59,6 +65,7 @@ namespace edm {
     position_ = kWordsPerBlock;
   }
 
+  // The low 32 bits of the block index are the block, the high 32 bits the element of the stream.
   edm::philox::Counter PhiloxEngine::blockBits(std::uint64_t block) const {
     return stream_.bits(static_cast<std::uint32_t>(block >> 32), static_cast<std::uint32_t>(block));
   }
@@ -84,7 +91,7 @@ namespace edm {
   }
 
   bool PhiloxEngine::get(std::vector<unsigned long> const& v) {
-    if (v.size() != kStateSize or v[0] != CLHEP::engineIDulong<PhiloxEngine>()) {
+    if (v.size() != kStateSize or v[kEngineIdIndex] != CLHEP::engineIDulong<PhiloxEngine>()) {
       return false;
     }
     return getState(v);
@@ -94,17 +101,19 @@ namespace edm {
     if (v.size() != kStateSize) {
       return false;
     }
-    std::uint64_t const nextBlock = (static_cast<std::uint64_t>(v[6]) << 32) | static_cast<std::uint32_t>(v[5]);
+    std::uint64_t const nextBlock =
+        (static_cast<std::uint64_t>(v[kNextBlockHighIndex]) << 32) | static_cast<std::uint32_t>(v[kNextBlockLowIndex]);
+    unsigned long const position = v[kPositionIndex];
     // A partly used block needs a previous block. The state does not change for an invalid input.
-    if (v[7] > kWordsPerBlock or (v[7] < kWordsPerBlock and nextBlock == 0)) {
+    if (position > kWordsPerBlock or (position < kWordsPerBlock and nextBlock == 0)) {
       return false;
     }
-    selectStream(edm::philox::Counter{{static_cast<std::uint32_t>(v[1]),
-                                       static_cast<std::uint32_t>(v[2]),
-                                       static_cast<std::uint32_t>(v[3]),
-                                       static_cast<std::uint32_t>(v[4])}});
+    selectStream(edm::philox::Counter{{static_cast<std::uint32_t>(v[kStreamIdIndex]),
+                                       static_cast<std::uint32_t>(v[kStreamIdIndex + 1]),
+                                       static_cast<std::uint32_t>(v[kStreamIdIndex + 2]),
+                                       static_cast<std::uint32_t>(v[kStreamIdIndex + 3])}});
     nextBlock_ = nextBlock;
-    position_ = v[7];
+    position_ = position;
     if (position_ < kWordsPerBlock) {
       buffer_ = blockBits(nextBlock_ - 1);
     }

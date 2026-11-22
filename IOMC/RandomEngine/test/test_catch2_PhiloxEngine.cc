@@ -120,6 +120,7 @@ TEST_CASE("PhiloxEngine keeps its state for an invalid input", "[PhiloxEngine]")
   auto const expected = draw(engine, 5);
   REQUIRE(engine.get(state));
   auto invalid = state;
+  // The state is: engine id, the 4 words of the stream id, the low and the high word of the next block, position.
   invalid[1] += 1;
   invalid[7] = 2;  // a partly used block with no previous block
   CHECK_FALSE(engine.get(invalid));
@@ -128,6 +129,9 @@ TEST_CASE("PhiloxEngine keeps its state for an invalid input", "[PhiloxEngine]")
 
 TEST_CASE("PhiloxEngine moments", "[PhiloxEngine]") {
   // Mean 1/2, variance 1/12 and lag-1 correlation 0, each within 5 standard deviations.
+  // For N uniform values, the standard deviation is sqrt(1/12/N) for the mean, sqrt((1/80 - 1/144)/N)
+  // for the variance (1/80 is the fourth central moment) and 1/sqrt(N) for the correlation.
+  // The correlation is the lag-1 covariance divided by the variance 1/12.
   constexpr int kCount = 1 << 20;
   edm::PhiloxEngine engine(7);
   auto const values = draw(engine, kCount);

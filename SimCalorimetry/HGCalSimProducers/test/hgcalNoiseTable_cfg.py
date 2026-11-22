@@ -27,6 +27,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase2_realistic_T35", ""
 
 process.options.numberOfThreads = options.streams
 process.options.numberOfStreams = options.streams
+# 8 events in 2 lumis of 4: with 4 streams, the streams start with different events.
 process.source = cms.Source("EmptySource", numberEventsInLuminosityBlock=cms.untracked.uint32(4))
 process.maxEvents.input = options.events
 # The digitizers report the missing sim hits of every event.

@@ -51,6 +51,7 @@ namespace edm {
 
   private:
     static constexpr unsigned int kWordsPerBlock = 4;
+    // The engine id, the 4 words of the stream id, the low and the high word of nextBlock_, position_.
     static constexpr std::size_t kStateSize = 8;
 
     std::uint32_t nextWord();

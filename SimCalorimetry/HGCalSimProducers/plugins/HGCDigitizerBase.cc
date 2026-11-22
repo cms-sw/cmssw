@@ -113,6 +113,7 @@ void HGCDigitizerBase::run(std::unique_ptr<HGCDigitizerBase::DColl>& digiColl,
     if (RandNoiseGenerationFlag_ == false) {
       if (noiseTableFromJobSeed_) {
         // The table depends on the configured seed of the module, not on eventSeedOffset.
+        // Run 0, lumi 0 and event 0 select the stream of the job.
         edm::Service<edm::RandomNumberGenerator> rng;
         auto const id = edm::philox::streamId(rng->mySeed(), noiseTableId_, 0, 0, 0);
         long const seeds[4] = {id[0], id[1], id[2], id[3]};

@@ -12,6 +12,8 @@ function noiseDigest {
 
 noiseDigest noiseTable1 streams=1
 noiseDigest noiseTable4 streams=4
+# 8 events x 3 collections = 24 lines. EE and HEfront have noise digis in every event, HEback has
+# none in these events: at least 2 x 8 = 16 lines with digis.
 [ $(wc -l < noiseTable1.sorted) -eq 24 ] || die "counting the lines of noiseTable1.sorted" 1
 [ $(awk '$5 > 0' noiseTable1.sorted | wc -l) -ge 16 ] || die "finding noise digis in noiseTable1.sorted" 1
 diff noiseTable1.sorted noiseTable4.sorted || die "comparing the noise digis of 1 and 4 streams" $?

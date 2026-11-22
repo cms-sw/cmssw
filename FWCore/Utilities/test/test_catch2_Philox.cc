@@ -46,6 +46,7 @@ TEST_CASE("Philox4x32-10 known answers", "[Philox]") {
 }
 
 TEST_CASE("EventStream depends on every identity field", "[Philox]") {
+  // Any seed and module id. Each check changes one field by one; 1 + 2^32 changes only the high event word.
   edm::philox::EventStream const reference(1234567, 42, 1, 1, 1);
   auto const referenceBits = reference.bits(0, 0);
   CHECK(edm::philox::EventStream(1234567, 42, 1, 1, 1).bits(0, 0) == referenceBits);
@@ -62,6 +63,7 @@ TEST_CASE("EventStream depends on every identity field", "[Philox]") {
 TEST_CASE("EventStream outputs do not repeat", "[Philox]") {
   edm::philox::EventStream const stream(1, 2, 3, 4, 5);
   std::set<Counter> outputs;
+  // Any sizes: 4096 outputs.
   constexpr std::uint32_t kElements = 256;
   constexpr std::uint32_t kBlocks = 16;
   for (std::uint32_t element = 0; element < kElements; ++element) {
@@ -89,6 +91,9 @@ TEST_CASE("Uniform conversions", "[Philox]") {
 TEST_CASE("Moments of the uniform values", "[Philox]") {
   // Mean 1/2, variance 1/12 and lag-1 correlation 0, each within 5 standard deviations,
   // within one stream and across the streams of consecutive events.
+  // For N uniform values, the standard deviation is sqrt(1/12/N) for the mean, sqrt((1/80 - 1/144)/N)
+  // for the variance (1/80 is the fourth central moment) and 1/sqrt(N) for the correlation.
+  // The correlation is the lag-1 covariance divided by the variance 1/12.
   constexpr int kCount = 1 << 20;
   auto check = [](auto const& value) {
     double sum = 0., sum2 = 0., sumLag = 0., previous = 0.;
