@@ -21,6 +21,7 @@
 //---------------
 // C++ Headers --
 //---------------
+#include <memory>
 #include <stdexcept>
 
 //-------------------------------
@@ -36,10 +37,10 @@
 //----------------
 L1MuGMTHWFileReader::L1MuGMTHWFileReader(edm::ParameterSet const& ps, edm::InputSourceDescription const& desc)
     : ProducerSourceBase(ps, desc, true), m_inputFileCatalog(ps) {
-  produces<std::vector<L1MuRegionalCand> >("DT");
-  produces<std::vector<L1MuRegionalCand> >("CSC");
-  produces<std::vector<L1MuRegionalCand> >("RPCb");
-  produces<std::vector<L1MuRegionalCand> >("RPCf");
+  produces<std::vector<L1MuRegionalCand>>("DT");
+  produces<std::vector<L1MuRegionalCand>>("CSC");
+  produces<std::vector<L1MuRegionalCand>>("RPCb");
+  produces<std::vector<L1MuRegionalCand>>("RPCf");
 
   produces<L1CaloRegionCollection>();
 
@@ -78,7 +79,7 @@ bool L1MuGMTHWFileReader::setRunAndEventInfo(edm::EventID& id,
 void L1MuGMTHWFileReader::produce(edm::Event& e) {
   L1MuRegionalCand empty_mu;
 
-  std::unique_ptr<std::vector<L1MuRegionalCand> > DTCands(new std::vector<L1MuRegionalCand>);
+  std::unique_ptr<std::vector<L1MuRegionalCand>> DTCands = std::make_unique<std::vector<L1MuRegionalCand>>();
   for (unsigned i = 0; i < 4; i++) {
     const L1MuRegionalCand* mu = m_evt.getInputMuon("IND", i);
     if (!mu)
@@ -87,7 +88,7 @@ void L1MuGMTHWFileReader::produce(edm::Event& e) {
   }
   e.put(std::move(DTCands), "DT");
 
-  std::unique_ptr<std::vector<L1MuRegionalCand> > CSCCands(new std::vector<L1MuRegionalCand>);
+  std::unique_ptr<std::vector<L1MuRegionalCand>> CSCCands = std::make_unique<std::vector<L1MuRegionalCand>>();
   for (unsigned i = 0; i < 4; i++) {
     const L1MuRegionalCand* mu = m_evt.getInputMuon("INC", i);
     if (!mu)
@@ -96,7 +97,7 @@ void L1MuGMTHWFileReader::produce(edm::Event& e) {
   }
   e.put(std::move(CSCCands), "CSC");
 
-  std::unique_ptr<std::vector<L1MuRegionalCand> > RPCbCands(new std::vector<L1MuRegionalCand>);
+  std::unique_ptr<std::vector<L1MuRegionalCand>> RPCbCands = std::make_unique<std::vector<L1MuRegionalCand>>();
   for (unsigned i = 0; i < 4; i++) {
     const L1MuRegionalCand* mu = m_evt.getInputMuon("INB", i);
     if (!mu)
@@ -105,7 +106,7 @@ void L1MuGMTHWFileReader::produce(edm::Event& e) {
   }
   e.put(std::move(RPCbCands), "RPCb");
 
-  std::unique_ptr<std::vector<L1MuRegionalCand> > RPCfCands(new std::vector<L1MuRegionalCand>);
+  std::unique_ptr<std::vector<L1MuRegionalCand>> RPCfCands = std::make_unique<std::vector<L1MuRegionalCand>>();
   for (unsigned i = 0; i < 4; i++) {
     const L1MuRegionalCand* mu = m_evt.getInputMuon("INF", i);
     if (!mu)
@@ -114,7 +115,7 @@ void L1MuGMTHWFileReader::produce(edm::Event& e) {
   }
   e.put(std::move(RPCfCands), "RPCf");
 
-  std::unique_ptr<L1CaloRegionCollection> rctRegions(new L1CaloRegionCollection);
+  std::unique_ptr<L1CaloRegionCollection> rctRegions = std::make_unique<L1CaloRegionCollection>();
   for (int ieta = 4; ieta < 18; ieta++) {
     for (int iphi = 0; iphi < 18; iphi++) {
       rctRegions->push_back(

@@ -136,10 +136,10 @@ int L1TMicroGMTInputProducer::convertToInt(std::string& bitstr) const {
 void L1TMicroGMTInputProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  std::unique_ptr<RegionalMuonCandBxCollection> barrelMuons(new RegionalMuonCandBxCollection());
-  std::unique_ptr<RegionalMuonCandBxCollection> overlapMuons(new RegionalMuonCandBxCollection());
-  std::unique_ptr<RegionalMuonCandBxCollection> endcapMuons(new RegionalMuonCandBxCollection());
-  std::unique_ptr<MuonCaloSumBxCollection> towerSums(new MuonCaloSumBxCollection());
+  std::unique_ptr<RegionalMuonCandBxCollection> barrelMuons = std::make_unique<RegionalMuonCandBxCollection>();
+  std::unique_ptr<RegionalMuonCandBxCollection> overlapMuons = std::make_unique<RegionalMuonCandBxCollection>();
+  std::unique_ptr<RegionalMuonCandBxCollection> endcapMuons = std::make_unique<RegionalMuonCandBxCollection>();
+  std::unique_ptr<MuonCaloSumBxCollection> towerSums = std::make_unique<MuonCaloSumBxCollection>();
 
   RegionalMuonCand mu;
   MuonCaloSum tSum;

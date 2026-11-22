@@ -103,7 +103,7 @@ L1TruthTrackFastJetProducer::L1TruthTrackFastJetProducer(const edm::ParameterSet
 
 // producer
 void L1TruthTrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::unique_ptr<TkJetCollection> L1TrackFastJets(new TkJetCollection);
+  std::unique_ptr<TkJetCollection> L1TrackFastJets = std::make_unique<TkJetCollection>();
 
   // L1 tracks
   edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > TTTrackHandle;

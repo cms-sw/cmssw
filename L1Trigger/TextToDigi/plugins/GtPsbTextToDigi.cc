@@ -5,6 +5,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <iomanip>
 #include <iostream>
+#include <memory>
 // gct
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
@@ -58,11 +59,11 @@ GtPsbTextToDigi::~GtPsbTextToDigi() {
 
 /// Append empty digi collection
 void GtPsbTextToDigi::putEmptyDigi(edm::Event &iEvent) {
-  std::unique_ptr<L1GctEmCandCollection> gctIsolaEm(new L1GctEmCandCollection());
-  std::unique_ptr<L1GctEmCandCollection> gctNoIsoEm(new L1GctEmCandCollection());
-  std::unique_ptr<L1GctJetCandCollection> gctCenJets(new L1GctJetCandCollection());
-  std::unique_ptr<L1GctJetCandCollection> gctForJets(new L1GctJetCandCollection());
-  std::unique_ptr<L1GctJetCandCollection> gctTauJets(new L1GctJetCandCollection());
+  std::unique_ptr<L1GctEmCandCollection> gctIsolaEm = std::make_unique<L1GctEmCandCollection>();
+  std::unique_ptr<L1GctEmCandCollection> gctNoIsoEm = std::make_unique<L1GctEmCandCollection>();
+  std::unique_ptr<L1GctJetCandCollection> gctCenJets = std::make_unique<L1GctJetCandCollection>();
+  std::unique_ptr<L1GctJetCandCollection> gctForJets = std::make_unique<L1GctJetCandCollection>();
+  std::unique_ptr<L1GctJetCandCollection> gctTauJets = std::make_unique<L1GctJetCandCollection>();
   // std::unique_ptr<L1GctEtTotal>           gctEtTotal( new L1GctEtTotal () );
   for (int i = 0; i < 4; i++) {
     gctIsolaEm->push_back(L1GctEmCand(0, true));
@@ -119,11 +120,11 @@ void GtPsbTextToDigi::produce(edm::Event &iEvent, const edm::EventSetup &iSetup)
   m_nevt++;
 
   // New collections
-  std::unique_ptr<L1GctEmCandCollection> gctIsolaEm(new L1GctEmCandCollection());
-  std::unique_ptr<L1GctEmCandCollection> gctNoIsoEm(new L1GctEmCandCollection());
-  std::unique_ptr<L1GctJetCandCollection> gctCenJets(new L1GctJetCandCollection());
-  std::unique_ptr<L1GctJetCandCollection> gctForJets(new L1GctJetCandCollection());
-  std::unique_ptr<L1GctJetCandCollection> gctTauJets(new L1GctJetCandCollection());
+  std::unique_ptr<L1GctEmCandCollection> gctIsolaEm = std::make_unique<L1GctEmCandCollection>();
+  std::unique_ptr<L1GctEmCandCollection> gctNoIsoEm = std::make_unique<L1GctEmCandCollection>();
+  std::unique_ptr<L1GctJetCandCollection> gctCenJets = std::make_unique<L1GctJetCandCollection>();
+  std::unique_ptr<L1GctJetCandCollection> gctForJets = std::make_unique<L1GctJetCandCollection>();
+  std::unique_ptr<L1GctJetCandCollection> gctTauJets = std::make_unique<L1GctJetCandCollection>();
   // std::unique_ptr<L1GctEtTotal>           gctEtTotal( new L1GctEtTotal () );
 
   /// buffer

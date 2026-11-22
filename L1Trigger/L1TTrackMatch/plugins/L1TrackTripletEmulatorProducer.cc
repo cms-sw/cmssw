@@ -40,6 +40,8 @@
 //general
 #include <ap_int.h>
 
+#include <memory>
+
 using namespace std;
 using namespace edm;
 using namespace l1t;
@@ -190,8 +192,9 @@ L1TrackTripletEmulatorProducer::L1TrackTripletEmulatorProducer(const ParameterSe
 }
 
 void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup) {
-  unique_ptr<l1t::TkTripletCollection> L1TrackTripletContainer(new l1t::TkTripletCollection);
-  unique_ptr<l1t::TkTripletWordCollection> L1TrackTripletWordContainer(new l1t::TkTripletWordCollection);
+  unique_ptr<l1t::TkTripletCollection> L1TrackTripletContainer = std::make_unique<l1t::TkTripletCollection>();
+  unique_ptr<l1t::TkTripletWordCollection> L1TrackTripletWordContainer =
+      std::make_unique<l1t::TkTripletWordCollection>();
 
   // Read inputs
   edm::Handle<L1TTTrackRefCollectionType> TTTrackHandle;

@@ -19,6 +19,7 @@
 #include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"
 
 #include <cmath>  // for pi
+#include <memory>
 
 using namespace L1TMuon;
 
@@ -343,7 +344,7 @@ GlobalPoint GeometryTranslator::calcDTSpecificPoint(const TriggerPrimitive& tp) 
   const DTChamberId baseid(tp.detId<DTChamberId>());
   // do not use this pointer for anything other than creating a trig geom
   std::unique_ptr<DTChamber> chamb(const_cast<DTChamber*>(_geodt->chamber(baseid)));
-  std::unique_ptr<DTTrigGeom> trig_geom(new DTTrigGeom(chamb.get(), false));
+  std::unique_ptr<DTTrigGeom> trig_geom = std::make_unique<DTTrigGeom>(chamb.get(), false);
   chamb.release();  // release it here so no one gets funny ideas
   // super layer one is the theta superlayer in a DT chamber
   // station 4 does not have a theta super layer

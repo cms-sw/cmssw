@@ -85,9 +85,9 @@ void MemoryBase::openFile(bool first, std::string dirName, std::string filebase)
   findAndReplaceAll(fname, "PHIz", "PHIzz");
   findAndReplaceAll(fname, "PHIw", "PHIww");
 
-  fname += "_";
+  fname += '_';
   if (iSector_ + 1 < 10)
-    fname += "0";
+    fname += '0';
   fname += std::to_string(iSector_ + 1);
   fname += ".dat";
 

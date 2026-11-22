@@ -159,7 +159,7 @@ std::string L1GtVhdlWriterBitManager::shiftLeft(std::string hexString) {
   std::string binString = hex2bin(hexString);
 
   binString.erase(0, 1);
-  binString += "0";
+  binString += '0';
 
   return bin2hex(binString);
 }

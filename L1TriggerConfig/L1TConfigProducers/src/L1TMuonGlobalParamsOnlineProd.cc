@@ -91,12 +91,12 @@ std::unique_ptr<const L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObj
     output.close();
   }
   for (auto &conf : rs_payloads) {
-    std::ofstream output(std::string("/tmp/").append(conf.first.substr(0, conf.first.find("/"))).append(".xml"));
+    std::ofstream output(std::string("/tmp/").append(conf.first.substr(0, conf.first.find('/'))).append(".xml"));
     output << conf.second;
     output.close();
   }
   for (auto &conf : algo_payloads) {
-    std::ofstream output(std::string("/tmp/").append(conf.first.substr(0, conf.first.find("/"))).append(".xml"));
+    std::ofstream output(std::string("/tmp/").append(conf.first.substr(0, conf.first.find('/'))).append(".xml"));
     output << conf.second;
     output.close();
   }
