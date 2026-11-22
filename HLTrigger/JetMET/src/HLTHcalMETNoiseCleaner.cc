@@ -38,6 +38,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include <fstream>
 #include <TVector3.h>
@@ -139,7 +140,7 @@ bool HLTHcalMETNoiseCleaner::filter(edm::StreamID, edm::Event& iEvent, const edm
   using namespace reco;
 
   //output collection
-  std::unique_ptr<CaloMETCollection> CleanedMET(new CaloMETCollection);
+  std::unique_ptr<CaloMETCollection> CleanedMET = std::make_unique<CaloMETCollection>();
 
   //get the calo MET / MHT
   edm::Handle<CaloMETCollection> met_h;

@@ -138,19 +138,19 @@ void HLTJetTimingProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup&
     jetCellsForTiming.emplace_back(nCells);
   }
 
-  std::unique_ptr<edm::ValueMap<float>> jetTimings_out(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> jetTimings_out = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler jetTimings_filler(*jetTimings_out);
   jetTimings_filler.insert(jets, jetTimings.begin(), jetTimings.end());
   jetTimings_filler.fill();
   iEvent.put(std::move(jetTimings_out), "");
 
-  std::unique_ptr<edm::ValueMap<float>> jetEcalEtForTiming_out(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> jetEcalEtForTiming_out = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler jetEcalEtForTiming_filler(*jetEcalEtForTiming_out);
   jetEcalEtForTiming_filler.insert(jets, jetEcalEtForTiming.begin(), jetEcalEtForTiming.end());
   jetEcalEtForTiming_filler.fill();
   iEvent.put(std::move(jetEcalEtForTiming_out), "jetEcalEtForTiming");
 
-  std::unique_ptr<edm::ValueMap<unsigned int>> jetCellsForTiming_out(new edm::ValueMap<unsigned int>());
+  std::unique_ptr<edm::ValueMap<unsigned int>> jetCellsForTiming_out = std::make_unique<edm::ValueMap<unsigned int>>();
   edm::ValueMap<unsigned int>::Filler jetCellsForTiming_filler(*jetCellsForTiming_out);
   jetCellsForTiming_filler.insert(jets, jetCellsForTiming.begin(), jetCellsForTiming.end());
   jetCellsForTiming_filler.fill();

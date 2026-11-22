@@ -21,6 +21,7 @@
 
 #include "HLTrigger/JetMET/interface/HLTRHemisphere.h"
 
+#include <memory>
 #include <vector>
 
 //
@@ -84,7 +85,7 @@ bool HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.getByToken(m_theMuonToken, muons);
 
   // The output Collection
-  std::unique_ptr<vector<math::XYZTLorentzVector>> Hemispheres(new vector<math::XYZTLorentzVector>);
+  std::unique_ptr<vector<math::XYZTLorentzVector>> Hemispheres = std::make_unique<vector<math::XYZTLorentzVector>>();
 
   // look at all objects, check cuts and add to filter object
   int n(0);
