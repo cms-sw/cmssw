@@ -98,7 +98,8 @@ def printOptions(args, sample_why):
     if args.compare_collections:
         mode, what = 'compare collections (same file)', ' '.join(args.compare_collections)
     elif args.compare_hlt_offline:
-        mode, what = 'compare HLT vs offline collections (normalised)', ' '.join(args.compare_hlt_offline)
+        mode, what = ('compare HLT vs offline collections (%s)' % ('normalised' if args.normalize else 'not normalised'),
+                      ' '.join(args.compare_hlt_offline))
     elif args.compare_files:
         mode, what = 'compare files (same collection)', f"{args.met[0]} in " + ' | '.join(
             f"{f} [{l}]" for f, l in zip(args.compare_files, args.compare_files_labels))
@@ -118,6 +119,7 @@ def printOptions(args, sample_why):
         ('Mode',                  mode),
         ('Collections',           what),
         ('Input file',            args.file if args.file else '-'),
+        ('Normalise HLT vs offline', onoff(args.normalize)),
         ('Offline file',          args.offline_file if args.offline_file else '-'),
         ('Output directory',      args.odir),
         ('Sample label',          args.sample_label),
@@ -488,15 +490,17 @@ def plot1DFilesComparison(adir, avars, outdir, files, files_labels, metType):
         plotter.ax.legend(prop={'size': 15})
         plotter.save( os.path.join(outdir, outname) )
 
-def plot1DHLTOfflineComparison(hlt_file, offline_file, pairs, outdir):
+def plot1DHLTOfflineComparison(hlt_file, offline_file, pairs, outdir, normalize=True):
     """
     Overlays the distributions of HLT and offline MET collections, which are stored in two different DQM files.
-    `pairs` is a list of (HLT collection, offline collection). The distributions are normalised, since the two
-    files generally contain different numbers of events. The post-processed `Aggr` histograms (means, RMS) are skipped,
+    `pairs` is a list of (HLT collection, offline collection). If `normalize` is set, the distributions are
+    normalised to unit area (the two files may contain different numbers of events), otherwise the raw entries are shown
+    and the plots are stored in the `NoNormalize` sub-folder. The post-processed `Aggr` histograms (means, RMS) are skipped,
     as well as the variables missing in one of the collections.
     """
     for hlt_coll, off_coll in pairs:
-        pair_dir = os.path.join(outdir, 'ComparisonHLTOffline', f'{hlt_coll}_vs_{off_coll}')
+        base_dir = os.path.join(outdir, 'ComparisonHLTOffline', '' if normalize else 'NoNormalize')
+        pair_dir = os.path.join(base_dir, f'{hlt_coll}_vs_{off_coll}')
         createDir(pair_dir)
         avars_hlt, avars_off = varsToPlot(hlt_coll)[0], varsToPlot(off_coll)[0]
         sources = (('HLT', hlt_file, DQM_DIRS['HLT'], hlt_coll), ('Offline', offline_file, DQM_DIRS['Offline'], off_coll))
@@ -521,7 +525,10 @@ def plot1DHLTOfflineComparison(hlt_file, offline_file, pairs, outdir):
                 if integral <= 0.:
                     print(f" ### WARNING: {hname} is empty, skipping it in {outname}.")
                     continue
-                values, errors = values / integral, errors / integral / 2 # normalise and symmetrize
+                if normalize:
+                    values, errors = values / integral, errors / integral / 2 # normalise and symmetrize
+                else:
+                    errors = errors / 2 # symmetrize
 
                 patch = plotter.ax.stairs(values, bin_edges, linewidth=2, baseline=None)
                 plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
@@ -543,7 +550,7 @@ def plot1DHLTOfflineComparison(hlt_file, offline_file, pairs, outdir):
                 diff_step = 0.05 * abs(amax-amin)
                 plotter.limits(y=(min(0., amin - diff_step), amax + 2*diff_step), logY=False)
             plotter.apply_limits(lims)
-            plotter.labels(x=props.x, y='Fraction of events')
+            plotter.labels(x=props.x, y='Fraction of events' if normalize else 'Entries')
             plotter.ax.legend(prop={'size': 15})
             plotter.save( os.path.join(pair_dir, outname) )
 
@@ -830,6 +837,9 @@ if __name__ == '__main__':
 
     mutual_excl2 = parser.add_mutually_exclusive_group(required=True)
     mutual_excl2.add_argument('-f', '--file', help='Paths to the DQM ROOT file.')
+    parser.add_argument('--normalize', action=argparse.BooleanOptionalAction, default=True,
+                        help='Normalise to unit area the HLT vs offline overlays (--compare_hlt_offline). With --no-normalize '
+                             'the raw entries are plotted, in the sub-folder ComparisonHLTOffline/NoNormalize.')
     parser.add_argument('--offline_file', default=None, help='Path to the offline DQM ROOT file, for --compare_hlt_offline.')
     mutual_excl2.add_argument('-x', '--compare_files', nargs='+', type=check_list_length,
                               help='Compare the same collection in different DQM files.', )
@@ -898,7 +908,7 @@ if __name__ == '__main__':
         checkRootDir(hlt_file, DQM_DIRS['HLT'])
         checkRootDir(offline_file, DQM_DIRS['Offline'])
         plot1DHLTOfflineComparison(hlt_file, offline_file, [tuple(p.split(':')) for p in args.compare_hlt_offline],
-                                   outdir=args.odir)
+                                   outdir=args.odir, normalize=args.normalize)
 
     elif args.compare_collections is not None:
         afile = ROOT.TFile.Open(args.file)
