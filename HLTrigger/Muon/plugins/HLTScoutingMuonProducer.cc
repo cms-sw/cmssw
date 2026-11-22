@@ -15,6 +15,8 @@ Description: Producer for ScoutingMuon
 //
 
 #include "HLTScoutingMuonProducer.h"
+
+#include <memory>
 #include "DataFormats/Math/interface/deltaR.h"
 #include "TMath.h"
 
@@ -46,8 +48,8 @@ HLTScoutingMuonProducer::~HLTScoutingMuonProducer() = default;
 void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup const& setup) const {
   using namespace edm;
 
-  std::unique_ptr<Run3ScoutingMuonCollection> outMuons(new Run3ScoutingMuonCollection());
-  std::unique_ptr<Run3ScoutingVertexCollection> dispVertices(new Run3ScoutingVertexCollection());
+  std::unique_ptr<Run3ScoutingMuonCollection> outMuons = std::make_unique<Run3ScoutingMuonCollection>();
+  std::unique_ptr<Run3ScoutingVertexCollection> dispVertices = std::make_unique<Run3ScoutingVertexCollection>();
 
   // Get RecoChargedCandidate
   Handle<reco::RecoChargedCandidateCollection> ChargedCandidateCollection;

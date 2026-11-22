@@ -69,7 +69,7 @@ HLTScoutingTrackProducer::~HLTScoutingTrackProducer() = default;
 void HLTScoutingTrackProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup const& setup) const {
   using namespace edm;
 
-  std::unique_ptr<Run3ScoutingTrackCollection> outTrack(new Run3ScoutingTrackCollection());
+  std::unique_ptr<Run3ScoutingTrackCollection> outTrack = std::make_unique<Run3ScoutingTrackCollection>();
 
   Handle<reco::TrackCollection> otherTrackCollection;
   Handle<reco::VertexCollection> vertexCollection;

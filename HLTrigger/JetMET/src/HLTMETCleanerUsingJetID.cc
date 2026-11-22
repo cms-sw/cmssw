@@ -6,6 +6,8 @@
  *
  */
 
+#include <memory>
+
 #include "HLTrigger/JetMET/interface/HLTMETCleanerUsingJetID.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
@@ -41,7 +43,7 @@ void HLTMETCleanerUsingJetID::fillDescriptions(edm::ConfigurationDescriptions& d
 // Produce the products
 void HLTMETCleanerUsingJetID::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Create a pointer to the products
-  std::unique_ptr<reco::CaloMETCollection> result(new reco::CaloMETCollection);
+  std::unique_ptr<reco::CaloMETCollection> result = std::make_unique<reco::CaloMETCollection>();
 
   edm::Handle<reco::CaloMETCollection> met;
   edm::Handle<reco::CaloJetCollection> jets;
