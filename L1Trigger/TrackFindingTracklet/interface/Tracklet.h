@@ -23,10 +23,12 @@ namespace trklet {
   class Settings;
   class Stub;
   class Track;
+  class Globals;
 
   class Tracklet {
   public:
     Tracklet(Settings const& settings,
+             Globals* globals,
              unsigned int iSeed,
              const Stub* innerFPGAStub,
              const Stub* middleFPGAStub,
@@ -46,7 +48,6 @@ namespace trklet {
              int id0,
              int iz0,
              int it,
-             Projection projs[N_LAYER + N_DISK],
              bool disk,
              bool overlap = false);
 
@@ -79,9 +80,16 @@ namespace trklet {
     std::string trackletprojstrlayer(int layer) const { return trackletprojstr(layer); }
     std::string trackletprojstrdisk(int disk) const { return trackletprojstrD(disk); }
 
+    void addProjs(Projection projs[N_LAYER + N_DISK]);
+
     bool validProj(int layerdisk) const {
       assert(layerdisk >= 0 && layerdisk < N_LAYER + N_DISK);
       return proj_[layerdisk].valid();
+    }
+
+    const Projection& proj(int layerdisk) const {
+      assert(validProj(layerdisk));
+      return proj_[layerdisk];
     }
 
     Projection& proj(int layerdisk) {
@@ -157,6 +165,9 @@ namespace trklet {
       return FPGAWord(ichisqrphifit_.value() + ichisqrzfit_.value(), ichisqrphifit_.nbits());
     }
 
+    // Helix covariance matrix from fit (not sure to be written out by FPGA).
+    const Track::CovMat& helixCovMat() const { return covMat_; }
+
     // Note floating & digitized helix params after track fit.
     void setFitPars(double rinvfit,
                     double phi0fit,
@@ -180,7 +191,8 @@ namespace trklet {
                     int ichisqrphifit,
                     int ichisqrzfit,
                     int hitpattern,
-                    const std::vector<const L1TStub*>& l1stubs = std::vector<const L1TStub*>());
+                    const std::vector<const L1TStub*>& l1stubs = std::vector<const L1TStub*>(),
+                    const Track::CovMat& helixCovMat = Track::CovMat());
 
     const std::string layerstubstr(const unsigned layer) const;
     const std::string diskstubstr(const unsigned disk) const;
@@ -225,6 +237,15 @@ namespace trklet {
     //  L1L2=0,L2L3=1,L3L4=2,L5L6=3,D1D2=4,D3D4=5,L1D1=6,L2D1=7
     unsigned int seedIndex() const { return seedIndex_; }
 
+    void writeTParCheck(Globals* global,
+                        unsigned int iSeed,
+                        const Stub* innerFPGAStub,
+                        const Stub* outerFPGAStub,
+                        int irinv,
+                        int iphi0,
+                        int iz0,
+                        int it);
+
   private:
     unsigned int seedIndex_;
 
@@ -264,6 +285,8 @@ namespace trklet {
     TrackPars<double> fitparsexact_;
     double chisqrphifitexact_;
     double chisqrzfitexact_;
+
+    Track::CovMat covMat_;
 
     int hitpattern_;
 

@@ -9,6 +9,7 @@
 #include "L1Trigger/TrackFindingTMTT/interface/TP.h"
 #include "L1Trigger/TrackFindingTMTT/interface/Stub.h"
 #include "L1Trigger/TrackFindingTMTT/interface/DigitalTrack.h"
+#include "DataFormats/Math/interface/Error.h"
 
 #include <vector>
 #include <utility>
@@ -26,6 +27,8 @@ namespace tmtt {
 
   class KFTrackletTrack {
   public:
+    typedef math::ErrorF<5>::type CovMat;
+
     // Store a new fitted track, specifying the input Hough transform track, the stubs used for the fit,
     // bit-encoded hit layers,
     // the fitted helix parameters & chi2,
@@ -40,6 +43,7 @@ namespace tmtt {
                     float phi0,
                     float z0,
                     float tanLambda,
+                    const CovMat& helixCovMat,
                     float chi2rphi,
                     float chi2rz,
                     unsigned int nHelixParam,
@@ -59,6 +63,7 @@ namespace tmtt {
           phi0_(phi0),
           z0_(z0),
           tanLambda_(tanLambda),
+          helixCovMat_(helixCovMat),
           chi2rphi_(chi2rphi),
           chi2rz_(chi2rz),
           done_bcon_(done_bcon),
@@ -130,6 +135,9 @@ namespace tmtt {
     float phi0_bcon() const { return phi0_bcon_; }
     float d0_bcon() const { return d0_bcon_; }
 
+    // Helix covariance matrix (always 5x5)
+    const CovMat& helixCovMat() { return helixCovMat_; }
+
     // Phi and z coordinates at which track crosses "chosenR" values used by r-phi HT and rapidity sectors respectively.
     // (Optionally with beam-spot constraint applied).
     float phiAtChosenR(bool beamConstraint) const {
@@ -199,12 +207,17 @@ namespace tmtt {
     //--- Bit-encoded hit pattern (where layer number assigned by increasing distance from origin, according to layers track expected to cross).
     unsigned int hitPattern_;
 
-    //--- The fitted helix parameters and fit chi-squared.
+    //--- The fitted helix parameters.
     float qOverPt_;
     float d0_;
     float phi0_;
     float z0_;
     float tanLambda_;
+
+    //--- Helix covariance matrix (always 5x5)
+    CovMat helixCovMat_;
+
+    //--- Fit chi2
     float chi2rphi_;
     float chi2rz_;
 

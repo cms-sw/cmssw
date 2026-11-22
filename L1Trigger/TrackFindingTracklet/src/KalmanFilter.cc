@@ -1,7 +1,4 @@
 #include "L1Trigger/TrackFindingTracklet/interface/KalmanFilter.h"
-#include "L1Trigger/TrackFindingTMTT/interface/L1track3D.h"
-#include "L1Trigger/TrackFindingTMTT/interface/Stub.h"
-#include "L1Trigger/TrackFindingTMTT/interface/L1fittedTrack.h"
 
 #include <numeric>
 #include <algorithm>
@@ -13,40 +10,27 @@
 
 namespace trklet {
 
-  KalmanFilter::KalmanFilter(const tt::Setup* setup,
+  KalmanFilter::KalmanFilter(const Setup* setup,
                              const DataFormats* dataFormats,
                              KalmanFilterFormats* kalmanFilterFormats,
-                             tmtt::Settings* settings,
-                             tmtt::KFParamsComb* tmtt,
-                             int region,
-                             tt::TTTracks& ttTracks)
+                             int region)
       : setup_(setup),
         dataFormats_(dataFormats),
         kalmanFilterFormats_(kalmanFilterFormats),
-        settings_(settings),
-        tmtt_(tmtt),
         region_(region),
-        ttTracks_(ttTracks),
-        layer_(0) {
-    zTs_.reserve(settings_->etaRegions().size());
-    for (double eta : settings_->etaRegions())
-      zTs_.emplace_back(std::sinh(eta) * settings_->chosenRofZ());
-  }
+        layer_(0) {}
 
   // read in and organize input tracks and stubs
   void KalmanFilter::consume(const tt::StreamsTrack& streamsTrack, const tt::StreamsStub& streamsStub) {
-    const int offset = region_ * setup_->numLayers();
+    auto accT = [](int sum, const tt::FrameTrack& f) { return sum + (f.first.isNull() ? 0 : 1); };
+    auto accS = [](int sum, const tt::FrameStub& f) { return sum + (f.first.isNull() ? 0 : 1); };
+    const int offset = region_ * setup_->drNumLayers();
     const tt::StreamTrack& streamTrack = streamsTrack[region_];
-    const int numTracks =
-        std::accumulate(streamTrack.begin(), streamTrack.end(), 0, [](int sum, const tt::FrameTrack& f) {
-          return sum + (f.first.isNull() ? 0 : 1);
-        });
+    const int numTracks = std::accumulate(streamTrack.begin(), streamTrack.end(), 0, accT);
     int numStubs(0);
-    for (int layer = 0; layer < setup_->numLayers(); layer++) {
+    for (int layer = 0; layer < setup_->drNumLayers(); layer++) {
       const tt::StreamStub& streamStub = streamsStub[offset + layer];
-      numStubs += std::accumulate(streamStub.begin(), streamStub.end(), 0, [](int sum, const tt::FrameStub& f) {
-        return sum + (f.first.isNull() ? 0 : 1);
-      });
+      numStubs += std::accumulate(streamStub.begin(), streamStub.end(), 0, accS);
     }
     tracks_.reserve(numTracks);
     stubs_.reserve(numStubs);
@@ -58,199 +42,44 @@ namespace trklet {
         continue;
       }
       tracks_.emplace_back(frameTrack, dataFormats_);
-      TrackDR* track = &tracks_.back();
-      std::vector<Stub*> stubs(setup_->numLayers(), nullptr);
-      TTBV hitPattern(0, setup_->numLayers());
-      for (int layer = 0; layer < setup_->numLayers(); layer++) {
+      std::vector<Stub*> seed;
+      seed.reserve(setup_->tbNumSeedingLayers());
+      std::vector<Stub*> proj;
+      proj.reserve(setup_->kfNumProj());
+      for (int layer = 0; layer < setup_->drNumLayers(); layer++) {
         const tt::FrameStub& frameStub = streamsStub[offset + layer][frame];
         if (frameStub.first.isNull())
           continue;
         stubs_.emplace_back(kalmanFilterFormats_, frameStub);
-        stubs[layer] = &stubs_.back();
-        hitPattern.set(layer);
+        if (layer < setup_->tbNumSeedingLayers())
+          seed.push_back(&stubs_.back());
+        else
+          proj.push_back(&stubs_.back());
       }
-      if (hitPattern.count(0, setup_->kfMaxSeedingLayer()) < setup_->kfNumSeedStubs()) {
-        stream_.push_back(nullptr);
-        continue;
-      }
-      states_.emplace_back(kalmanFilterFormats_, track, stubs, trackId++);
+      states_.emplace_back(kalmanFilterFormats_, &tracks_.back(), trackId++, seed, proj);
       stream_.push_back(&states_.back());
-      if (setup_->enableTruncation() && trackId == setup_->kfMaxTracks())
-        break;
     }
-  }
-
-  // call old KF
-  void KalmanFilter::simulate(tt::StreamsStub& streamsStub, tt::StreamsTrack& streamsTrack) {
-    // prep finals_ where old KF tracks will be stored
-    finals_.reserve(states_.size());
-    for (const State& state : states_) {
-      // convert tracks to by old KF expected data formats
-      TrackDR* trackFound = state.track();
-      const TTTrackRef& ttTrackRef = trackFound->frame().first;
-      const double qOverPt = -trackFound->inv2R() / setup_->invPtToDphi();
-      const double phi0 = tt::deltaPhi(trackFound->phiT() - setup_->chosenRofPhi() * trackFound->inv2R() +
-                                       region_ * setup_->baseRegion());
-      const double tanLambda = trackFound->zT() / setup_->chosenRofZ();
-      static constexpr double z0 = 0;
-      static constexpr double helixD0 = 0.;
-      // convert stubs to by old KF expected data formats
-      std::vector<tmtt::Stub> stubs;
-      std::vector<tmtt::Stub*> stubsFound;
-      stubs.reserve(state.trackPattern().count());
-      stubsFound.reserve(state.trackPattern().count());
-      const std::vector<Stub*>& stubsState = state.stubs();
-      for (int layer = 0; layer < setup_->numLayers(); layer++) {
-        if (!stubsState[layer])
-          continue;
-        const StubDR& stub = stubsState[layer]->stubDR_;
-        const TTStubRef& ttStubRef = stub.frame().first;
-        tt::SensorModule* sensorModule = setup_->sensorModule(ttStubRef);
-        // convert position
-        double r, phi, z;
-        if (setup_->kfUseTTStubResiduals()) {
-          const GlobalPoint gp = setup_->stubPos(ttStubRef);
-          r = gp.perp();
-          phi = gp.phi();
-          z = gp.z();
-        } else {
-          r = stub.r() + setup_->chosenRofPhi();
-          phi = tt::deltaPhi(stub.phi() + trackFound->phiT() + stub.r() * trackFound->inv2R() +
-                             region_ * setup_->baseRegion());
-          z = stub.z() + trackFound->zT() + (r - setup_->chosenRofZ()) * tanLambda;
-        }
-        // convert stub layer id (barrel: 1 - 6, endcap: 11 - 15) to reduced layer id (0 - 6)
-        int layerId = setup_->layerId(ttStubRef);
-        if (layerId > 10 && z < 0.)
-          layerId += 10;
-        int layerIdReduced = setup_->layerId(ttStubRef);
-        if (layerIdReduced == 6)
-          layerIdReduced = 11;
-        else if (layerIdReduced == 5)
-          layerIdReduced = 12;
-        else if (layerIdReduced == 4)
-          layerIdReduced = 13;
-        else if (layerIdReduced == 3)
-          layerIdReduced = 15;
-        if (layerIdReduced > 10)
-          layerIdReduced -= 8;
-        const double stripPitch = sensorModule->pitchRow();
-        const double stripLength = sensorModule->pitchCol();
-        const bool psModule = sensorModule->psModule();
-        const bool barrel = sensorModule->barrel();
-        const bool tiltedBarrel = sensorModule->tilted();
-        stubs.emplace_back(
-            ttStubRef, r, phi, z, layerId, layerIdReduced, stripPitch, stripLength, psModule, barrel, tiltedBarrel);
-        stubsFound.push_back(&stubs.back());
-      }
-      // determine phi and eta region
-      const int iPhiSec = region_;
-      const double zTtrack = ttTrackRef->z0() + settings_->chosenRofZ() * ttTrackRef->tanL();
-      int iEtaReg = 0;
-      for (; iEtaReg < 15; iEtaReg++)
-        if (zTtrack < zTs_[iEtaReg + 1])
-          break;
-      const tmtt::L1track3D l1track3D(settings_, stubsFound, qOverPt, phi0, z0, tanLambda, helixD0, iPhiSec, iEtaReg);
-      // perform fit
-      const tmtt::L1fittedTrack trackFitted(tmtt_->fit(l1track3D));
-      if (!trackFitted.accepted())
-        continue;
-      // convert olf kf fitted track format into emulator format
-      static constexpr int trackId = 0;
-      static constexpr int numConsistent = 0;
-      static constexpr int numConsistentPS = 0;
-      const double inv2R = -trackFitted.qOverPt() * setup_->invPtToDphi();
-      const double phiT =
-          tt::deltaPhi(trackFitted.phi0() + inv2R * setup_->chosenRofPhi() - region_ * setup_->baseRegion());
-      const double cot = trackFitted.tanLambda();
-      const double zT = trackFitted.z0() + cot * setup_->chosenRofZ();
-      // check for bit overflows
-      if (!dataFormats_->format(Variable::inv2R, Process::kf).inRange(inv2R, true))
-        continue;
-      if (!dataFormats_->format(Variable::phiT, Process::kf).inRange(phiT, true))
-        continue;
-      if (!dataFormats_->format(Variable::cot, Process::kf).inRange(cot, true))
-        continue;
-      if (!dataFormats_->format(Variable::zT, Process::kf).inRange(zT, true))
-        continue;
-      const double d0 = trackFitted.d0();
-      const double x0 = inv2R - trackFound->inv2R();
-      const double x1 = phiT - trackFound->phiT();
-      const double x2 = cot - tanLambda;
-      const double x3 = zT - trackFound->zT();
-      const double x4 = d0;
-      // get intput stubs and convert to emulator format
-      TTBV hitPattern(0, setup_->numLayers());
-      std::vector<StubKF> stubsKF;
-      stubsKF.reserve(setup_->numLayers());
-      for (tmtt::Stub* stub : trackFitted.stubs()) {
-        if (!stub)
-          continue;
-        // get stub
-        const auto it = std::find_if(stubsState.begin(), stubsState.end(), [stub](Stub* state) {
-          return state && (stub->ttStubRef() == state->stubDR_.frame().first);
-        });
-        const StubDR& s = (*it)->stubDR_;
-        // convert position relative to track
-        const double r = s.r();
-        const double r0 = r + setup_->chosenRofPhi();
-        const double phi = s.phi() - (x1 + r * x0 + x4 / r0);
-        const double z = s.z() - (x3 + (r0 - setup_->chosenRofZ()) * x2);
-        const double dPhi = s.dPhi();
-        const double dZ = s.dZ();
-        const int layer = std::distance(stubsState.begin(), it);
-        // check for bit overflows
-        if (!dataFormats_->format(Variable::phi, Process::kf).inRange(phi, true))
-          continue;
-        if (!dataFormats_->format(Variable::z, Process::kf).inRange(z, true))
-          continue;
-        hitPattern.set(layer);
-        stubsKF.emplace_back(s, r, phi, z, dPhi, dZ);
-      }
-      // check if enough stubs left to form a track
-      if (hitPattern.count() < setup_->kfMinLayers())
-        continue;
-      // store track
-      const TrackKF trackKF(*trackFound, inv2R, phiT, cot, zT);
-      finals_.emplace_back(trackId, numConsistent, numConsistentPS, d0, hitPattern, trackKF, stubsKF);
-    }
-    conv(streamsStub, streamsTrack);
   }
 
   // fill output products
-  void KalmanFilter::produce(tt::StreamsStub& streamsStub,
-                             tt::StreamsTrack& streamsTrack,
-                             int& numAcceptedStates,
-                             int& numLostStates) {
-    if (setup_->kfUseSimmulation())
-      return simulate(streamsStub, streamsTrack);
-    // 5 parameter fit simulation
-    if (setup_->kfUse5ParameterFit()) {
-      // Propagate state to each layer in turn, updating it with all viable stub combinations there, using KF maths
-      for (layer_ = 0; layer_ < setup_->numLayers(); layer_++)
-        addLayer();
-    } else {  // 4 parameter fit emulation
-      // seed building
-      for (layer_ = 0; layer_ < setup_->kfMaxSeedingLayer(); layer_++)
-        addLayer(true);
-      // calulcate seed parameter
-      calcSeeds();
-      // Propagate state to each layer in turn, updating it with all viable stub combinations there, using KF maths
-      for (layer_ = setup_->kfNumSeedStubs(); layer_ < setup_->numLayers(); layer_++)
-        addLayer();
-    }
-    // count total number of final states
-    const int nStates =
-        std::accumulate(stream_.begin(), stream_.end(), 0, [](int sum, State* state) { return sum + (state ? 1 : 0); });
+  void KalmanFilter::produce(tt::StreamsStub& streamsStub, tt::StreamsTrack& streamsTrack) {
+    // calulcate seed parameter
+    calcSeeds();
+    std::vector<std::deque<State*>> streams(setup_->kfNumProj());
+    // Propagate state to each layer in turn, updating it with all viable stub combinations there, using KF maths
+    for (layer_ = 0; layer_ < setup_->kfNumProj(); layer_++)
+      addLayer(streams[layer_]);
     // apply truncation
-    if (setup_->enableTruncation() && static_cast<int>(stream_.size()) > setup_->numFramesHigh())
-      stream_.resize(setup_->numFramesHigh());
-    // cycle event, remove gaps
-    stream_.erase(std::remove(stream_.begin(), stream_.end(), nullptr), stream_.end());
-    // store number of states which got taken into account
-    numAcceptedStates += stream_.size();
-    // store number of states which got not taken into account due to truncation
-    numLostStates += nStates - stream_.size();
+    if (setup_->enableTruncation())
+      for (std::deque<State*>& stream : streams)
+        if (static_cast<int>(stream.size()) > setup_->numFrames())
+          stream.resize(setup_->numFrames());
+    // cycle event, join streams wihtout gaps
+    stream_.clear();
+    for (std::deque<State*>& stream : streams)
+      for (State* state : stream)
+        if (state)
+          stream_.push_back(state);
     // apply final cuts
     finalize();
     // best track per candidate selection
@@ -265,56 +94,37 @@ namespace trklet {
     for (State* state : stream_) {
       int numConsistent(0);
       int numConsistentPS(0);
-      TTBV hitPattern = state->hitPattern();
       std::vector<StubKF> stubsKF;
-      stubsKF.reserve(setup_->numLayers());
-      // stub residual cut
-      State* s = state;
-      while ((s = s->parent())) {
-        const double dPhi = state->x1() + s->H00() * state->x0() + state->x4() / s->H04();
-        const double dZ = state->x3() + s->H12() * state->x2();
-        const double phi = digi(VariableKF::m0, s->m0() - dPhi);
-        const double z = digi(VariableKF::m1, s->m1() - dZ);
-        const bool validPhi = dataFormats_->format(Variable::phi, Process::kf).inRange(phi);
-        const bool validZ = dataFormats_->format(Variable::z, Process::kf).inRange(z);
-        if (validPhi && validZ) {
-          const double r = s->H00();
-          const double dPhi = s->d0();
-          const double dZ = s->d1();
-          const StubDR& stubDR = s->stub()->stubDR_;
-          stubsKF.emplace_back(stubDR, r, phi, z, dPhi, dZ);
-          if (abs(phi) <= dPhi && abs(z) <= dZ) {
-            numConsistent++;
-            if (setup_->psModule(stubDR.frame().first))
-              numConsistentPS++;
-          }
-        } else
-          hitPattern.reset(s->layer());
-      }
-      std::reverse(stubsKF.begin(), stubsKF.end());
-      // layer cut
-      bool validLayers = hitPattern.count() >= setup_->kfMinLayers();
-      // track parameter cuts
-      const double cotTrack =
-          dataFormats_->format(Variable::cot, Process::kf).digi(state->track()->zT() / setup_->chosenRofZ());
-      const double inv2R = state->x0() + state->track()->inv2R();
-      const double phiT = state->x1() + state->track()->phiT();
-      const double cot = state->x2() + cotTrack;
-      const double zT = state->x3() + state->track()->zT();
-      const double d0 = state->x4();
+      stubsKF.reserve(setup_->kfNumLayers());
+      auto add = [&numConsistent, &numConsistentPS, &stubsKF, state, this](Stub* stub) {
+        const trackerDTC::SensorModule* sm = setup_->sensorModule(stub->stubDR_.frame().first);
+        const double dPhi = state->x1() + stub->H() * state->x0() + state->x4() / stub->H();
+        const double dZ = state->x3() + stub->H() * state->x2();
+        const double phi = digi(VariableKF::m0, stub->m0() - dPhi);
+        const double z = digi(VariableKF::m1, stub->m1() - dZ);
+        stubsKF.emplace_back(stub->stubDR_, sm->layerIdReduced(), stub->H(), phi, z, stub->d0(), stub->d1());
+        if (std::abs(phi) <= stub->d0() && std::abs(z) <= stub->d1()) {
+          numConsistent++;
+          if (stub->stubDR_.frame().first->moduleTypePS())
+            numConsistentPS++;
+        }
+      };
+      for (int layer = 0; layer < setup_->tbNumSeedingLayers(); layer++)
+        add(state->seed(layer));
+      for (int layer : state->hitPattern().ids())
+        add(state->proj(layer));
       // pt cut
-      const bool validX0 = dataFormats_->format(Variable::inv2R, Process::kf).inRange(inv2R);
+      const bool validX0 = dataFormats_->format(Variable::inv2R, Process::kf).isCovered(state->x0());
       // cut on phi sector boundaries
-      const bool validX1 = abs(phiT) < setup_->baseRegion() / 2.;
+      const bool validX1 = abs(state->x1() + setup_->regChosenRofPhi() * state->x0()) < setup_->regRangePhiT() / 2.;
       // cot cut
-      const bool validX2 = dataFormats_->format(Variable::cot, Process::kf).inRange(cot);
-      // zT cut
-      const bool validX3 = dataFormats_->format(Variable::zT, Process::kf).inRange(zT);
-      if (!validLayers || !validX0 || !validX1 || !validX2 || !validX3)
+      const bool validX2 = dataFormats_->format(Variable::cot, Process::kf).isCovered(state->x2());
+      // z0 cut
+      const bool validX3 = dataFormats_->format(Variable::z0, Process::kf).isCovered(state->x3());
+      if (!validX0 || !validX1 || !validX2 || !validX3)
         continue;
-      const int trackId = state->trackId();
-      const TrackKF trackKF(*state->track(), inv2R, phiT, cot, zT);
-      finals_.emplace_back(trackId, numConsistent, numConsistentPS, d0, hitPattern, trackKF, stubsKF);
+      const TrackKF trackKF(*state->trackDR(), state->x0(), state->x1(), state->x2(), state->x3());
+      finals_.emplace_back(state->trackId(), numConsistent, numConsistentPS, state->x4(), trackKF, stubsKF);
     }
   }
 
@@ -346,9 +156,8 @@ namespace trklet {
     };
     std::stable_sort(finals.begin(), finals.end(), order);
     // keep first state (best due to previous sorts) per track id
-    const auto it = std::unique(
-        finals.begin(), finals.end(), [](Track* lhs, Track* rhs) { return lhs->trackId_ == rhs->trackId_; });
-    finals.erase(it, finals.end());
+    auto sameTrack = [](Track* lhs, Track* rhs) { return lhs->trackId_ == rhs->trackId_; };
+    finals.erase(std::unique(finals.begin(), finals.end(), sameTrack), finals.end());
     // apply to actual track container
     int i(0);
     for (Track* track : finals)
@@ -358,79 +167,55 @@ namespace trklet {
 
   // Transform States into output products
   void KalmanFilter::conv(tt::StreamsStub& streamsStub, tt::StreamsTrack& streamsTrack) {
-    const int offset = region_ * setup_->numLayers();
+    const int offset = region_ * setup_->kfNumLayers();
     tt::StreamTrack& streamTrack = streamsTrack[region_];
     streamTrack.reserve(stream_.size());
-    for (int layer = 0; layer < setup_->numLayers(); layer++)
+    for (int layer = 0; layer < setup_->kfNumLayers(); layer++)
       streamsStub[offset + layer].reserve(stream_.size());
     for (const Track& track : finals_) {
       streamTrack.emplace_back(track.trackKF_.frame());
-      const TTBV& hitPattern = track.hitPattern_;
       const std::vector<StubKF>& stubsKF = track.stubsKF_;
-      int i(0);
-      for (int layer = 0; layer < setup_->numLayers(); layer++)
-        streamsStub[offset + layer].emplace_back(hitPattern.test(layer) ? stubsKF[i++].frame() : tt::FrameStub());
-      // store d0 in copied TTTracks
-      if (setup_->kfUse5ParameterFit()) {
-        const TTTrackRef& ttTrackRef = track.trackKF_.frame().first;
-        ttTracks_.emplace_back(ttTrackRef->rInv(),
-                               ttTrackRef->phi(),
-                               ttTrackRef->tanL(),
-                               ttTrackRef->z0(),
-                               track.d0_,
-                               ttTrackRef->chi2XY(),
-                               ttTrackRef->chi2Z(),
-                               ttTrackRef->trkMVA1(),
-                               ttTrackRef->trkMVA2(),
-                               ttTrackRef->trkMVA3(),
-                               ttTrackRef->hitPattern(),
-                               5,
-                               setup_->bField());
-        ttTracks_.back().setPhiSector(ttTrackRef->phiSector());
-        ttTracks_.back().setEtaSector(ttTrackRef->etaSector());
-        ttTracks_.back().setTrackSeedType(ttTrackRef->trackSeedType());
-        ttTracks_.back().setChi2BendRed(ttTrackRef->chi2BendRed());
-        ttTracks_.back().setStubRefs(ttTrackRef->getStubRefs());
-      }
+      int size = stubsKF.size();
+      for (int layer = 0; layer < size; layer++)
+        streamsStub[offset + layer].push_back(stubsKF[layer].frame());
+      for (int layer = size; layer < setup_->kfNumLayers(); layer++)
+        streamsStub[offset + layer].emplace_back();
     }
   }
 
   // calculates the helix params & their cov. matrix from a pair of stubs
   void KalmanFilter::calcSeeds() {
-    auto update = [this](State* s) {
+    auto update = [this](Stub* s) {
       updateRangeActual(VariableKF::m0, s->m0());
       updateRangeActual(VariableKF::m1, s->m1());
       updateRangeActual(VariableKF::v0, s->v0());
       updateRangeActual(VariableKF::v1, s->v1());
-      updateRangeActual(VariableKF::H00, s->H00());
-      updateRangeActual(VariableKF::H12, s->H12());
+      updateRangeActual(VariableKF::H, s->H());
     };
     for (State*& state : stream_) {
       if (!state)
         continue;
-      State* s1 = state->parent();
-      State* s0 = s1->parent();
+      Stub* s1 = state->seed(1);
+      Stub* s0 = state->seed(0);
       update(s0);
       update(s1);
-      const double dH = digi(VariableKF::dH, s1->H00() - s0->H00());
+      const double dH = digi(VariableKF::dH, s1->H() - s0->H());
       const double invdH = digi(VariableKF::invdH, 1.0 / dH);
       const double invdH2 = digi(VariableKF::invdH2, 1.0 / dH / dH);
-      const double H12 = digi(VariableKF::H2, s1->H00() * s1->H00());
-      const double H02 = digi(VariableKF::H2, s0->H00() * s0->H00());
-      const double H32 = digi(VariableKF::H2, s1->H12() * s1->H12());
-      const double H22 = digi(VariableKF::H2, s0->H12() * s0->H12());
-      const double H1m0 = digi(VariableKF::Hm0, s1->H00() * s0->m0());
-      const double H0m1 = digi(VariableKF::Hm0, s0->H00() * s1->m0());
-      const double H3m2 = digi(VariableKF::Hm1, s1->H12() * s0->m1());
-      const double H2m3 = digi(VariableKF::Hm1, s0->H12() * s1->m1());
-      const double H1v0 = digi(VariableKF::Hv0, s1->H00() * s0->v0());
-      const double H0v1 = digi(VariableKF::Hv0, s0->H00() * s1->v0());
-      const double H3v2 = digi(VariableKF::Hv1, s1->H12() * s0->v1());
-      const double H2v3 = digi(VariableKF::Hv1, s0->H12() * s1->v1());
+      const double H12 = digi(VariableKF::H2, s1->H() * s1->H());
+      const double H02 = digi(VariableKF::H2, s0->H() * s0->H());
+      const double H1m0 = digi(VariableKF::Hm0, s1->H() * s0->m0());
+      const double H0m1 = digi(VariableKF::Hm0, s0->H() * s1->m0());
+      const double H3m2 = digi(VariableKF::Hm1, s1->H() * s0->m1());
+      const double H2m3 = digi(VariableKF::Hm1, s0->H() * s1->m1());
+      const double H1v0 = digi(VariableKF::Hv0, s1->H() * s0->v0());
+      const double H0v1 = digi(VariableKF::Hv0, s0->H() * s1->v0());
+      const double H3v2 = digi(VariableKF::Hv1, s1->H() * s0->v1());
+      const double H2v3 = digi(VariableKF::Hv1, s0->H() * s1->v1());
       const double H12v0 = digi(VariableKF::H2v0, H12 * s0->v0());
       const double H02v1 = digi(VariableKF::H2v0, H02 * s1->v0());
-      const double H32v2 = digi(VariableKF::H2v1, H32 * s0->v1());
-      const double H22v3 = digi(VariableKF::H2v1, H22 * s1->v1());
+      const double H32v2 = digi(VariableKF::H2v1, H12 * s0->v1());
+      const double H22v3 = digi(VariableKF::H2v1, H02 * s1->v1());
       const double x0 = digi(VariableKF::x0, (s1->m0() - s0->m0()) * invdH);
       const double x2 = digi(VariableKF::x2, (s1->m1() - s0->m1()) * invdH);
       const double x1 = digi(VariableKF::x1, (H1m0 - H0m1) * invdH);
@@ -442,8 +227,18 @@ namespace trklet {
       const double C11 = digi(VariableKF::C11, (H12v0 + H02v1) * invdH2);
       const double C33 = digi(VariableKF::C33, (H32v2 + H22v3) * invdH2);
       // create updated state
-      states_.emplace_back(State(s1, {x0, x1, x2, x3, 0., C00, C11, C22, C33, C01, C23, 0., 0., 0.}));
+      states_.emplace_back(State(state, {x0, x1, x2, x3, 0., C00, C11, C22, C33, C01, C23, 0., 0., 0.}));
       state = &states_.back();
+      updateRangeActual(VariableKF::invdH, invdH);
+      updateRangeActual(VariableKF::invdH2, invdH2);
+      updateRangeActual(VariableKF::Hv0, H1v0);
+      updateRangeActual(VariableKF::Hv0, H0v1);
+      updateRangeActual(VariableKF::Hv1, H3v2);
+      updateRangeActual(VariableKF::Hv1, H2v3);
+      updateRangeActual(VariableKF::H2v0, H12v0);
+      updateRangeActual(VariableKF::H2v0, H02v1);
+      updateRangeActual(VariableKF::H2v1, H32v2);
+      updateRangeActual(VariableKF::H2v1, H22v3);
       updateRangeActual(VariableKF::x0, x0);
       updateRangeActual(VariableKF::x1, x1);
       updateRangeActual(VariableKF::x2, x2);
@@ -458,20 +253,9 @@ namespace trklet {
   }
 
   // adds a layer to states
-  void KalmanFilter::addLayer(bool seed) {
-    auto comb = [seed, this](State*& s) {
-      if (s)
-        s = seed ? s->combSeed(states_, layer_) : s->comb(states_, layer_);
-    };
-    auto param = [this](State*& s) { setup_->kfUse5ParameterFit() ? this->update5(s) : this->update4(s); };
-    auto update = [seed, param, this](State*& s) {
-      if (s && (seed || s->hitPattern().pmEncode() == layer_)) {
-        if (seed)
-          s = s->update(states_, layer_);
-        else
-          param(s);
-      }
-    };
+  void KalmanFilter::addLayer(std::deque<State*>& stream) {
+    if (stream_.empty())
+      return;
     // Latency of KF Associator block firmware
     static constexpr int latency = 5;
     // dynamic state container for clock accurate emulation
@@ -490,7 +274,8 @@ namespace trklet {
         state = pop_front(stack);
       streamOutput.push_back(state);
       // The remainder of the code in this loop deals with combinatoric states.
-      comb(state);
+      if (state)
+        state = state->comb(states_, layer_);
       delay.push_back(state);
       state = pop_front(delay);
       if (state)
@@ -499,37 +284,51 @@ namespace trklet {
     stream_ = streamOutput;
     // Update state with next stub using KF maths
     for (State*& state : stream_)
-      update(state);
+      if (state && state->hitPattern().test(layer_))
+        update(state);
+    // extract final states
+    for (State*& state : stream_) {
+      if (!state) {
+        stream.push_back(nullptr);
+        continue;
+      }
+      stream.push_back(state->final(states_, layer_));
+      if (stream.back() && state->trackPattern().pmEncode() == layer_)
+        state = nullptr;
+    }
+    // remove all gaps between end and last state
+    for (auto it = stream.end(); it != stream.begin();)
+      it = (*--it) ? stream.begin() : stream.erase(it);
+    for (auto it = stream_.end(); it != stream_.begin();)
+      it = (*--it) ? stream_.begin() : stream_.erase(it);
   }
 
   // updates state
-  void KalmanFilter::update4(State*& state) {
+  void KalmanFilter::update(State*& state) {
     // All variable names & equations come from Fruhwirth KF paper http://dx.doi.org/10.1016/0168-9002%2887%2990887-4", where F taken as unit matrix. Stub uncertainties projected onto (phi,z), assuming no correlations between r-phi & r-z planes.
+    Stub* stub = state->proj(layer_);
     // stub phi residual wrt input helix
-    const double m0 = state->m0();
+    const double m0 = stub->m0();
     // stub z residual wrt input helix
-    const double m1 = state->m1();
+    const double m1 = stub->m1();
     // stub projected phi uncertainty squared);
-    const double v0 = state->v0();
+    const double v0 = stub->v0();
     // stub projected z uncertainty squared
-    const double v1 = state->v1();
-    // Derivative of predicted stub coords wrt helix params: stub radius minus chosenRofPhi
-    const double H00 = state->H00();
-    // Derivative of predicted stub coords wrt helix params: stub radius minus chosenRofZ
-    const double H12 = state->H12();
+    const double v1 = stub->v1();
+    // stub radius
+    const double H = stub->H();
     updateRangeActual(VariableKF::m0, m0);
     updateRangeActual(VariableKF::m1, m1);
     updateRangeActual(VariableKF::v0, v0);
     updateRangeActual(VariableKF::v1, v1);
-    updateRangeActual(VariableKF::H00, H00);
-    updateRangeActual(VariableKF::H12, H12);
-    // helix inv2R wrt input helix
+    updateRangeActual(VariableKF::H, H);
+    // helix inv2R
     double x0 = state->x0();
-    // helix phi at radius ChosenRofPhi wrt input helix
+    // helix phi0 wrt region center
     double x1 = state->x1();
-    // helix cot(Theta) wrt input helix
+    // helix cot(Theta)
     double x2 = state->x2();
-    // helix z at radius chosenRofZ wrt input helix
+    // helix z0
     double x3 = state->x3();
     // cov. matrix
     double C00 = state->C00();
@@ -540,18 +339,18 @@ namespace trklet {
     double C33 = state->C33();
     // stub phi residual wrt current state
     const double r0C = digi(VariableKF::x1, m0 - x1);
-    const double r0 = digi(VariableKF::r0, r0C - x0 * H00);
+    const double r0 = digi(VariableKF::r0, r0C - x0 * H);
     // stub z residual wrt current state
     const double r1C = digi(VariableKF::x3, m1 - x3);
-    const double r1 = digi(VariableKF::r1, r1C - x2 * H12);
+    const double r1 = digi(VariableKF::r1, r1C - x2 * H);
     // matrix S = H*C
-    const double S00 = digi(VariableKF::S00, C01 + H00 * C00);
-    const double S01 = digi(VariableKF::S01, C11 + H00 * C01);
-    const double S12 = digi(VariableKF::S12, C23 + H12 * C22);
-    const double S13 = digi(VariableKF::S13, C33 + H12 * C23);
+    const double S00 = digi(VariableKF::S00, C01 + H * C00);
+    const double S01 = digi(VariableKF::S01, C11 + H * C01);
+    const double S12 = digi(VariableKF::S12, C23 + H * C22);
+    const double S13 = digi(VariableKF::S13, C33 + H * C23);
     // Cov. matrix of predicted residuals R = V+HCHt = C+H*St
-    const double R00 = digi(VariableKF::R00, v0 + S01 + H00 * S00);
-    const double R11 = digi(VariableKF::R11, v1 + S13 + H12 * S12);
+    const double R00 = digi(VariableKF::R00, v0 + S01 + H * S00);
+    const double R11 = digi(VariableKF::R11, v1 + S13 + H * S12);
     // improved dynamic cancelling
     const int msb0 = std::max(0, static_cast<int>(std::ceil(std::log2(R00 / base(VariableKF::R00)))));
     const int msb1 = std::max(0, static_cast<int>(std::ceil(std::log2(R11 / base(VariableKF::R11)))));
@@ -568,7 +367,7 @@ namespace trklet {
     const double invR00 = digi(VariableKF::invR00, invR00Approx * invR00Cor);
     const double invR11 = digi(VariableKF::invR11, invR11Approx * invR11Cor);
     // shift S to "undo" shifting of R
-    auto digiShifted = [](double val, double base) { return std::floor(val / base * 2. + 1.e-11) * base / 2.; };
+    auto digiShifted = [](double val, double base) { return tt::floor(val / base) * base; };
     const double S00Shifted = digiShifted(S00 * std::pow(2., shift0), base(VariableKF::S00Shifted));
     const double S01Shifted = digiShifted(S01 * std::pow(2., shift0), base(VariableKF::S01Shifted));
     const double S12Shifted = digiShifted(S12 * std::pow(2., shift1), base(VariableKF::S12Shifted));
@@ -627,61 +426,6 @@ namespace trklet {
     updateRangeActual(VariableKF::C22, C22);
     updateRangeActual(VariableKF::C23, C23);
     updateRangeActual(VariableKF::C33, C33);
-  }
-
-  // updates state
-  void KalmanFilter::update5(State*& state) {
-    const double m0 = state->m0();
-    const double m1 = state->m1();
-    const double v0 = state->v0();
-    const double v1 = state->v1();
-    const double H00 = state->H00();
-    const double H12 = state->H12();
-    const double H04 = state->H04();
-    double x0 = state->x0();
-    double x1 = state->x1();
-    double x2 = state->x2();
-    double x3 = state->x3();
-    double x4 = state->x4();
-    double C00 = state->C00();
-    double C01 = state->C01();
-    double C11 = state->C11();
-    double C22 = state->C22();
-    double C23 = state->C23();
-    double C33 = state->C33();
-    double C44 = state->C44();
-    double C40 = state->C40();
-    double C41 = state->C41();
-    const double r0 = m0 - x1 - x0 * H00 - x4 / H04;
-    const double r1 = m1 - x3 - x2 * H12;
-    const double S00 = C01 + H00 * C00 + C40 / H04;
-    const double S01 = C11 + H00 * C01 + C41 / H04;
-    const double S12 = C23 + H12 * C22;
-    const double S13 = C33 + H12 * C23;
-    const double S04 = C41 + H00 * C40 + C44 / H04;
-    const double R00 = v0 + S01 + H00 * S00 + S04 / H04;
-    const double R11 = v1 + S13 + H12 * S12;
-    const double K00 = S00 / R00;
-    const double K10 = S01 / R00;
-    const double K21 = S12 / R11;
-    const double K31 = S13 / R11;
-    const double K40 = S04 / R00;
-    x0 += r0 * K00;
-    x1 += r0 * K10;
-    x2 += r1 * K21;
-    x3 += r1 * K31;
-    x4 += r0 * K40;
-    C00 -= S00 * K00;
-    C01 -= S01 * K00;
-    C11 -= S01 * K10;
-    C22 -= S12 * K21;
-    C23 -= S13 * K21;
-    C33 -= S13 * K31;
-    C44 -= S04 * K40;
-    C40 -= S04 * K00;
-    C41 -= S04 * K10;
-    states_.emplace_back(State(state, {x0, x1, x2, x3, x4, C00, C11, C22, C33, C01, C23, C44, C40, C41}));
-    state = &states_.back();
   }
 
   // remove and return first element of deque, returns nullptr if empty
