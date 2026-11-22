@@ -10,6 +10,8 @@
 
 #include <TMath.h>
 
+#include <memory>
+
 Type0PFMETcorrInputProducer::Type0PFMETcorrInputProducer(const edm::ParameterSet& cfg)
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")), correction_(nullptr) {
   pfCandidateToVertexAssociationsToken_ =
@@ -41,7 +43,7 @@ void Type0PFMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup
   edm::Handle<PFCandToVertexAssMap> pfCandidateToVertexAssociations;
   evt.getByToken(pfCandidateToVertexAssociationsToken_, pfCandidateToVertexAssociations);
 
-  std::unique_ptr<CorrMETData> pfMEtCorrection(new CorrMETData());
+  std::unique_ptr<CorrMETData> pfMEtCorrection = std::make_unique<CorrMETData>();
 
   for (PFCandToVertexAssMap::const_iterator pfCandidateToVertexAssociation = pfCandidateToVertexAssociations->begin();
        pfCandidateToVertexAssociation != pfCandidateToVertexAssociations->end();

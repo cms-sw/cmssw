@@ -95,11 +95,11 @@ void TrackRefitter::produce(edm::Event &theEvent, const edm::EventSetup &setup) 
   //
   // create empty output collections
   //
-  std::unique_ptr<TrackingRecHitCollection> outputRHColl(new TrackingRecHitCollection);
-  std::unique_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection);
-  std::unique_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
-  std::unique_ptr<std::vector<Trajectory>> outputTrajectoryColl(new std::vector<Trajectory>);
-  std::unique_ptr<std::vector<int>> outputIndecesInputColl(new std::vector<int>);
+  std::unique_ptr<TrackingRecHitCollection> outputRHColl = std::make_unique<TrackingRecHitCollection>();
+  std::unique_ptr<reco::TrackCollection> outputTColl = std::make_unique<reco::TrackCollection>();
+  std::unique_ptr<reco::TrackExtraCollection> outputTEColl = std::make_unique<reco::TrackExtraCollection>();
+  std::unique_ptr<std::vector<Trajectory>> outputTrajectoryColl = std::make_unique<std::vector<Trajectory>>();
+  std::unique_ptr<std::vector<int>> outputIndecesInputColl = std::make_unique<std::vector<int>>();
 
   //
   //declare and get stuff to be retrieved from ES

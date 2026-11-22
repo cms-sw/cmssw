@@ -19,7 +19,7 @@ private:
 
   // ----------member data ---------------------------
 private:
-  edm::EDGetTokenT<std::vector<Trajectory> > trajTag;
+  edm::EDGetTokenT<std::vector<Trajectory>> trajTag;
   edm::EDGetTokenT<TrajTrackAssociationCollection> tassTag;
   reco::TrackBase::TrackQuality trackQuality_;
   bool copyExtras_;
@@ -48,10 +48,10 @@ QualityFilter::QualityFilter(const edm::ParameterSet& iConfig) {
     produces<TrackingRecHitCollection>();
     produces<reco::TrackExtraCollection>();
   }
-  produces<std::vector<Trajectory> >();
+  produces<std::vector<Trajectory>>();
   produces<TrajTrackAssociationCollection>();
 
-  trajTag = consumes<std::vector<Trajectory> >(iConfig.getParameter<edm::InputTag>("recTracks"));
+  trajTag = consumes<std::vector<Trajectory>>(iConfig.getParameter<edm::InputTag>("recTracks"));
   tassTag = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("recTracks"));
   trackQuality_ = TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
 }
@@ -67,11 +67,11 @@ QualityFilter::~QualityFilter() {
 
 // ------------ method called to produce the data  ------------
 void QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  unique_ptr<TrackCollection> selTracks(new TrackCollection);
+  unique_ptr<TrackCollection> selTracks = std::make_unique<TrackCollection>();
   unique_ptr<TrackingRecHitCollection> selHits(copyExtras_ ? new TrackingRecHitCollection() : nullptr);
   unique_ptr<TrackExtraCollection> selTrackExtras(copyExtras_ ? new TrackExtraCollection() : nullptr);
-  unique_ptr<vector<Trajectory> > outputTJ(new vector<Trajectory>);
-  unique_ptr<TrajTrackAssociationCollection> trajTrackMap(new TrajTrackAssociationCollection());
+  unique_ptr<vector<Trajectory>> outputTJ = std::make_unique<vector<Trajectory>>();
+  unique_ptr<TrajTrackAssociationCollection> trajTrackMap = std::make_unique<TrajTrackAssociationCollection>();
 
   TrackExtraRefProd rTrackExtras;
   TrackingRecHitRefProd rHits;
@@ -80,7 +80,7 @@ void QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     rHits = iEvent.getRefBeforePut<TrackingRecHitCollection>();
   }
 
-  Handle<std::vector<Trajectory> > TrajectoryCollection;
+  Handle<std::vector<Trajectory>> TrajectoryCollection;
   Handle<TrajTrackAssociationCollection> assoMap;
 
   iEvent.getByToken(trajTag, TrajectoryCollection);
@@ -89,7 +89,7 @@ void QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   TrajTrackAssociationCollection::const_iterator it = assoMap->begin();
   TrajTrackAssociationCollection::const_iterator lastAssoc = assoMap->end();
   for (; it != lastAssoc; ++it) {
-    const Ref<vector<Trajectory> > traj = it->key;
+    const Ref<vector<Trajectory>> traj = it->key;
     const reco::TrackRef itc = it->val;
     bool goodTk = (itc->quality(trackQuality_));
 
@@ -152,12 +152,12 @@ void QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   //TRACKS AND TRAJECTORIES
   OrphanHandle<TrackCollection> theRecoTracks = iEvent.put(std::move(selTracks));
-  OrphanHandle<vector<Trajectory> > theRecoTrajectories = iEvent.put(std::move(outputTJ));
+  OrphanHandle<vector<Trajectory>> theRecoTrajectories = iEvent.put(std::move(outputTJ));
 
   //TRACKS<->TRAJECTORIES MAP
   nTracks = theRecoTracks->size();
   for (unsigned index = 0; index < nTracks; ++index) {
-    Ref<vector<Trajectory> > trajRef(theRecoTrajectories, index);
+    Ref<vector<Trajectory>> trajRef(theRecoTrajectories, index);
     Ref<TrackCollection> tkRef(theRecoTracks, index);
     trajTrackMap->insert(trajRef, tkRef);
   }

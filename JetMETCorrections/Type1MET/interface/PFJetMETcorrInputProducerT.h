@@ -40,6 +40,7 @@
 
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
+#include <memory>
 #include <string>
 #include <type_traits>
 
@@ -147,7 +148,7 @@ public:
 
 private:
   void produce(edm::Event& evt, const edm::EventSetup& es) override {
-    std::unique_ptr<CorrMETData> type1Correction(new CorrMETData());
+    std::unique_ptr<CorrMETData> type1Correction = std::make_unique<CorrMETData>();
     for (typename std::vector<type2BinningEntryType*>::iterator type2BinningEntry = type2Binning_.begin();
          type2BinningEntry != type2Binning_.end();
          ++type2BinningEntry) {

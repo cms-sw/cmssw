@@ -1,5 +1,7 @@
 #include "JetMETCorrections/Type1MET/plugins/PFchsMETcorrInputProducer.h"
 
+#include <memory>
+
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
@@ -17,7 +19,7 @@ void PFchsMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup& 
   edm::Handle<reco::VertexCollection> recVtxs;
   evt.getByToken(token_, recVtxs);
 
-  std::unique_ptr<CorrMETData> chsSum(new CorrMETData());
+  std::unique_ptr<CorrMETData> chsSum = std::make_unique<CorrMETData>();
 
   for (unsigned i = 1; i < recVtxs->size(); ++i) {
     const reco::Vertex& v = recVtxs->at(i);
