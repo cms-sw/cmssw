@@ -610,7 +610,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
 
 void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal) {
   setMonState(inReadEvent);
-  std::unique_ptr<FEDRawDataCollection> rawData(new FEDRawDataCollection);
+  std::unique_ptr<FEDRawDataCollection> rawData = std::make_unique<FEDRawDataCollection>();
   bool tcdsInRange;
   edm::Timestamp tstamp = fillFEDRawDataCollection(*rawData, tcdsInRange);
 
@@ -1143,17 +1143,17 @@ void FedRawDataInputSource::readSupervisor() {
         if (fileSize % eventChunkSize_)
           neededChunks++;
 
-        std::unique_ptr<InputFile> newInputFile(new InputFile(evf::EvFDaqDirector::FileStatus::newFile,
-                                                              ls,
-                                                              rawFile,
-                                                              !fileListMode_,
-                                                              rawFd,
-                                                              rawDataType,
-                                                              fileSize,
-                                                              rawHeaderSize,
-                                                              neededChunks,
-                                                              eventsInNewFile,
-                                                              this));
+        std::unique_ptr<InputFile> newInputFile = std::make_unique<InputFile>(evf::EvFDaqDirector::FileStatus::newFile,
+                                                                              ls,
+                                                                              rawFile,
+                                                                              !fileListMode_,
+                                                                              rawFd,
+                                                                              rawDataType,
+                                                                              fileSize,
+                                                                              rawHeaderSize,
+                                                                              neededChunks,
+                                                                              eventsInNewFile,
+                                                                              this);
         readingFilesCount_++;
         heldFilesCount_++;
         auto newInputFilePtr = newInputFile.get();
