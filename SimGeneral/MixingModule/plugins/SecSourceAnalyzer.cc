@@ -55,7 +55,7 @@ namespace edm {
     //    int maxb = maxBunch_;
     int averageNumber = 1;
     std::string histoFileName = " ";
-    std::unique_ptr<TH1F> histoName(new TH1F("h", "", 10, 0, 10));
+    std::unique_ptr<TH1F> histoName = std::make_unique<TH1F>("h", "", 10, 0, 10);
     bool playback = false;
 
     auto conf = std::make_shared<PileUpConfig>("input", averageNumber, histoName, playback);

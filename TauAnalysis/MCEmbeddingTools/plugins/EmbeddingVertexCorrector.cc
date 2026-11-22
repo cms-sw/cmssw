@@ -95,7 +95,7 @@ void EmbeddingVertexCorrector::produce(edm::Event &iEvent, const edm::EventSetup
   Handle<edm::HepMCProduct> InputGenEvent;
   iEvent.getByLabel(sourceLabel, InputGenEvent);
   HepMC::GenEvent *genevent = new HepMC::GenEvent(*InputGenEvent->GetEvent());
-  std::unique_ptr<edm::HepMCProduct> CorrectedGenEvent(new edm::HepMCProduct(genevent));
+  std::unique_ptr<edm::HepMCProduct> CorrectedGenEvent = std::make_unique<edm::HepMCProduct>(genevent);
 
   // Retrieving vertex position from input and creating vertex shift
   Handle<math::XYZTLorentzVectorD> vertex_position;

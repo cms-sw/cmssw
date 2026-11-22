@@ -145,10 +145,10 @@ std::string Geant4ePropagator::generateParticleName(int charge) const {
   std::string particleName = theParticleName;
 
   if (charge > 0) {
-    particleName += "+";
+    particleName += '+';
   }
   if (charge < 0) {
-    particleName += "-";
+    particleName += '-';
   }
 
   LogDebug("Geant4e") << "G4e -  Particle name: " << particleName;

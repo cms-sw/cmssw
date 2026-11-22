@@ -18,7 +18,7 @@ using namespace edm;
 void EcalSimpleProducer::produce(edm::Event &evt, const edm::EventSetup &) {
   const int ievt = evt.id().event();
   if (formula_.get() != nullptr) {
-    unique_ptr<EBDigiCollection> digis(new EBDigiCollection);
+    unique_ptr<EBDigiCollection> digis = std::make_unique<EBDigiCollection>();
 
     digis->reserve(170 * 360);
 

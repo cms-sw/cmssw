@@ -15,6 +15,8 @@
 // user include files
 #include "SimG4Core/HelpfulWatchers/src/BeginOfTrackCounter.h"
 
+#include <memory>
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -39,7 +41,7 @@ BeginOfTrackCounter::BeginOfTrackCounter(const edm::ParameterSet &iPSet)
 //
 
 void BeginOfTrackCounter::produce(edm::Event &e, const edm::EventSetup &) {
-  std::unique_ptr<int> product(new int(m_count));
+  std::unique_ptr<int> product = std::make_unique<int>(m_count);
   e.put(std::move(product), m_label);
   m_count = 0;
 }

@@ -31,6 +31,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
+#include <memory>
 #include <sstream>
 #include <string>
 #include <map>
@@ -358,8 +359,8 @@ void ME0ReDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup
   edm::Handle<ME0DigiPreRecoCollection> input_digis;
   e.getByToken(token, input_digis);
 
-  std::unique_ptr<ME0DigiPreRecoCollection> output_digis(new ME0DigiPreRecoCollection());
-  std::unique_ptr<ME0DigiPreRecoMap> output_digimap(new ME0DigiPreRecoMap());
+  std::unique_ptr<ME0DigiPreRecoCollection> output_digis = std::make_unique<ME0DigiPreRecoCollection>();
+  std::unique_ptr<ME0DigiPreRecoMap> output_digimap = std::make_unique<ME0DigiPreRecoMap>();
 
   // build the digis
   buildDigis(*(input_digis.product()), *output_digis, *output_digimap, engine);

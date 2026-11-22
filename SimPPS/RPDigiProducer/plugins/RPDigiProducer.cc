@@ -200,7 +200,8 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   }
 
   // Step C: create empty output collection
-  std::unique_ptr<edm::DetSetVector<TotemRPDigi>> digi_output(new edm::DetSetVector<TotemRPDigi>(DigiVector));
+  std::unique_ptr<edm::DetSetVector<TotemRPDigi>> digi_output =
+      std::make_unique<edm::DetSetVector<TotemRPDigi>>(DigiVector);
 
   if (verbosity_) {
     edm::LogInfo("RPDigiProducer") << "digi_output->size()=" << digi_output->size() << "\n";
