@@ -16,6 +16,8 @@
 // Class Header
 #include "HLTL1MuonSelector.h"
 
+#include <memory>
+
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -53,7 +55,7 @@ void HLTL1MuonSelector::fillDescriptions(edm::ConfigurationDescriptions& descrip
 void HLTL1MuonSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   const std::string metname = "Muon|RecoMuon|HLTL1MuonSelector";
 
-  unique_ptr<L1MuonParticleCollection> output(new L1MuonParticleCollection());
+  unique_ptr<L1MuonParticleCollection> output = std::make_unique<L1MuonParticleCollection>();
 
   // Muon particles
   edm::Handle<L1MuonParticleCollection> muColl;

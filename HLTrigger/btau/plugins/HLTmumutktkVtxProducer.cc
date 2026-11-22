@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cmath>
+#include <memory>
 #include <vector>
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -97,7 +98,7 @@ void HLTmumutktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   Handle<RecoChargedCandidateCollection> trkcands;
   iEvent.getByToken(trkCandToken_, trkcands);
 
-  unique_ptr<VertexCollection> vertexCollection(new VertexCollection());
+  unique_ptr<VertexCollection> vertexCollection = std::make_unique<VertexCollection>();
 
   // Ref to Candidate object to be recorded in filter object
   RecoChargedCandidateRef refMu1;

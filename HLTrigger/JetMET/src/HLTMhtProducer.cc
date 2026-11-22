@@ -6,6 +6,8 @@
  *
  */
 
+#include <memory>
+
 #include "HLTrigger/JetMET/interface/HLTMhtProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -55,7 +57,7 @@ void HLTMhtProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 // Produce the products
 void HLTMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Create a pointer to the products
-  std::unique_ptr<reco::METCollection> result(new reco::METCollection());
+  std::unique_ptr<reco::METCollection> result = std::make_unique<reco::METCollection>();
 
   edm::Handle<reco::CandidateView> jets;
   iEvent.getByToken(m_theJetToken, jets);

@@ -93,7 +93,7 @@ void HLTScoutingCaloProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
 
   //get calo jets
   Handle<reco::CaloJetCollection> caloJetCollection;
-  std::unique_ptr<Run3ScoutingCaloJetCollection> outCaloJets(new Run3ScoutingCaloJetCollection());
+  std::unique_ptr<Run3ScoutingCaloJetCollection> outCaloJets = std::make_unique<Run3ScoutingCaloJetCollection>();
   if (iEvent.getByToken(caloJetCollection_, caloJetCollection)) {
     //get jet tags
     Handle<reco::JetTagCollection> caloJetBTagCollection;
@@ -154,15 +154,15 @@ void HLTScoutingCaloProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
 
   //get rho
   Handle<double> rho;
-  std::unique_ptr<double> outRho(new double(-999));
+  std::unique_ptr<double> outRho = std::make_unique<double>(-999);
   if (iEvent.getByToken(rho_, rho)) {
     outRho = std::make_unique<double>(*rho);
   }
 
   //get MET
   Handle<reco::CaloMETCollection> metCollection;
-  std::unique_ptr<double> outMetPt(new double(-999));
-  std::unique_ptr<double> outMetPhi(new double(-999));
+  std::unique_ptr<double> outMetPt = std::make_unique<double>(-999);
+  std::unique_ptr<double> outMetPhi = std::make_unique<double>(-999);
   if (doMet && iEvent.getByToken(metCollection_, metCollection)) {
     outMetPt = std::make_unique<double>(metCollection->front().pt());
     outMetPhi = std::make_unique<double>(metCollection->front().phi());

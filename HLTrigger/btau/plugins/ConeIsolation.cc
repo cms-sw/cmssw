@@ -84,7 +84,8 @@ void ConeIsolation::produce(edm::StreamID, edm::Event& iEvent, const edm::EventS
   iEvent.getByToken(jetTrackToken, jetTracksAssociation);
 
   std::unique_ptr<reco::JetTagCollection> tagCollection;
-  std::unique_ptr<reco::IsolatedTauTagInfoCollection> extCollection(new reco::IsolatedTauTagInfoCollection());
+  std::unique_ptr<reco::IsolatedTauTagInfoCollection> extCollection =
+      std::make_unique<reco::IsolatedTauTagInfoCollection>();
   if (not jetTracksAssociation->empty()) {
     RefToBaseProd<reco::Jet> prod(edm::makeRefToBaseProdFrom(jetTracksAssociation->begin()->first, iEvent));
     tagCollection = std::make_unique<reco::JetTagCollection>(prod);

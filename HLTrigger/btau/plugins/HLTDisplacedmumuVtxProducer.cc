@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -70,7 +71,7 @@ void HLTDisplacedmumuVtxProducer::produce(edm::StreamID, edm::Event& iEvent, con
   // get the transient track builder
   auto const& theB = iSetup.getHandle(transientTrackRecordToken_);
 
-  std::unique_ptr<VertexCollection> vertexCollection(new VertexCollection());
+  std::unique_ptr<VertexCollection> vertexCollection = std::make_unique<VertexCollection>();
 
   // look at all mucands,  check cuts and make vertices
   double e1, e2;
