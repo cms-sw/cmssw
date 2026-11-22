@@ -91,7 +91,7 @@ def _cutTag(minPt, maxEta):
     fmt = lambda v: ('%g' % v).replace('.', 'p')
     return f"minPt{fmt(minPt)}_maxEta{fmt(maxEta)}"
 
-def addMHTScan(process, minPtJetMht=(20., 30., 40., 50.), maxEtaJetMht=None, genWDecayPdgIds=(), lightMode=True):
+def addMHTScanHLT(process, minPtJetMht=(20., 30., 40., 50.), maxEtaJetMht=None, genWDecayPdgIds=(), lightMode=True):
     """
     Validates `hltPFPuppiMHT` (phase-2) for several jet kinematic cuts.
     `minPtJetMht` and `maxEtaJetMht` are lists with the same length: the i-th MHT producer uses
@@ -105,10 +105,10 @@ def addMHTScan(process, minPtJetMht=(20., 30., 40., 50.), maxEtaJetMht=None, gen
     minPtJetMht = list(minPtJetMht)
     maxEtaJetMht = [5.]*len(minPtJetMht) if maxEtaJetMht is None else list(maxEtaJetMht)
     if len(minPtJetMht) != len(maxEtaJetMht):
-        raise ValueError(f"addMHTScan: lists must have the same length (minPtJetMht={len(minPtJetMht)}, "
+        raise ValueError(f"addMHTScanHLT: lists must have the same length (minPtJetMht={len(minPtJetMht)}, "
                          f"maxEtaJetMht={len(maxEtaJetMht)})")
     if not hasattr(process, 'hltPFPuppiMHT'):
-        raise RuntimeError("addMHTScan: process has no hltPFPuppiMHT (phase-2 HLT menu required).")
+        raise RuntimeError("addMHTScanHLT: process has no hltPFPuppiMHT (phase-2 HLT menu required).")
 
     modules = []
     for minPt, maxEta in zip(minPtJetMht, maxEtaJetMht):

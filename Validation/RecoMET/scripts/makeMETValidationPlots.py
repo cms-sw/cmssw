@@ -618,7 +618,7 @@ def plot1DOverlay(afile, adir, folders, avars, outdir, metType, legend_title=Non
 
 def plotScan(afile, adir, metType, outdir):
     """
-    Overlays MEx, MEy and METPhi of the cut scan produced by `addMHTScan` in `<adir>`:
+    Overlays MEx, MEy and METPhi of the cut scan produced by `addMHTScanHLT` in `<adir>`:
     all cuts in `Overlay_cuts`, and, for each cut, the pdgId split in `Overlay_pdgid/<cut>`.
     """
     avars = {k: v for k, v in varsToPlot(metType)[0].items() if k in ('MEx', 'MEy', 'METPhi')}
@@ -822,7 +822,7 @@ if __name__ == '__main__':
                              'disable with --no-show_flow).')
     parser.add_argument('--overlay_scan', action='store_true',
                         help='Also overlay the normalised MEx, MEy and METPhi of the cut scan (and its pdgId split) '
-                             'found in the sub-folders of each --met collection (see addMHTScan).')
+                             'found in the sub-folders of each --met collection (see addMHTScanHLT).')
     parser.add_argument('-p', '--period', default="Phase-2", required=False, choices=('Phase-2', 'Run 3'), help='Data-taking period; also sets the center-of-mass energy in the plot label.')
 
     mutual_excl1 = parser.add_mutually_exclusive_group(required=True)
