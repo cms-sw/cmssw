@@ -97,6 +97,8 @@ def printOptions(args, sample_why):
     onoff = lambda flag: 'on' if flag else 'off'
     if args.compare_collections:
         mode, what = 'compare collections (same file)', ' '.join(args.compare_collections)
+    elif args.compare_hlt_offline:
+        mode, what = 'compare HLT vs offline collections (normalised)', ' '.join(args.compare_hlt_offline)
     elif args.compare_files:
         mode, what = 'compare files (same collection)', f"{args.met[0]} in " + ' | '.join(
             f"{f} [{l}]" for f, l in zip(args.compare_files, args.compare_files_labels))
@@ -116,6 +118,7 @@ def printOptions(args, sample_why):
         ('Mode',                  mode),
         ('Collections',           what),
         ('Input file',            args.file if args.file else '-'),
+        ('Offline file',          args.offline_file if args.offline_file else '-'),
         ('Output directory',      args.odir),
         ('Sample label',          args.sample_label),
         ('Sample type',           f"{args.sample} ({sample_why})"),
@@ -485,6 +488,65 @@ def plot1DFilesComparison(adir, avars, outdir, files, files_labels, metType):
         plotter.ax.legend(prop={'size': 15})
         plotter.save( os.path.join(outdir, outname) )
 
+def plot1DHLTOfflineComparison(hlt_file, offline_file, pairs, outdir):
+    """
+    Overlays the distributions of HLT and offline MET collections, which are stored in two different DQM files.
+    `pairs` is a list of (HLT collection, offline collection). The distributions are normalised, since the two
+    files generally contain different numbers of events. The post-processed `Aggr` histograms (means, RMS) are skipped,
+    as well as the variables missing in one of the collections.
+    """
+    for hlt_coll, off_coll in pairs:
+        pair_dir = os.path.join(outdir, 'ComparisonHLTOffline', f'{hlt_coll}_vs_{off_coll}')
+        createDir(pair_dir)
+        avars_hlt, avars_off = varsToPlot(hlt_coll)[0], varsToPlot(off_coll)[0]
+        sources = (('HLT', hlt_file, DQM_DIRS['HLT'], hlt_coll), ('Offline', offline_file, DQM_DIRS['Offline'], off_coll))
+
+        for outname, props in avars_hlt.items():
+            var = props.hist or outname
+            if 'Aggr' in outname or outname not in avars_off:
+                continue
+            lims = axis_limits(outname, props.hist)
+            plotter = Plotter(args.sample_label, period=args.period, en_com=args.energy)
+
+            amax, amin, pmin, drawn = float('-inf'), float('+inf'), float('+inf'), 0
+            for step, afile, adir, coll in sources:
+                hname = f"{adir}/{coll}/{var}"
+                if not afile.Get(hname):
+                    print(f" ### WARNING: {hname} not found, skipping it in {outname}.")
+                    continue
+                root_hist = checkRootFile(afile, hname, rebinx=props.rebinx)
+                nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
+                values, errors = histo_values_errors(root_hist)
+                integral = values.sum()
+                if integral <= 0.:
+                    print(f" ### WARNING: {hname} is empty, skipping it in {outname}.")
+                    continue
+                values, errors = values / integral, errors / integral / 2 # normalise and symmetrize
+
+                patch = plotter.ax.stairs(values, bin_edges, linewidth=2, baseline=None)
+                plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
+                                    fmt='s', label=f"{step}: {METType.get(coll, coll)}",
+                                    color=patch.get_edgecolor(), **errorbar_kwargs)
+                vis = visible(bin_centers, lims)
+                amax = max(amax, (values + errors)[vis].max())
+                amin = min(amin, (values - errors)[vis].min())
+                if (values[vis] > 0.).any():
+                    pmin = min(pmin, values[vis][values[vis] > 0.].min())
+                drawn += 1
+
+            if drawn == 0:
+                plt.close(plotter.fig)
+                continue
+            if props.logy:
+                plotter.limits_log(pmin, amax)
+            else:
+                diff_step = 0.05 * abs(amax-amin)
+                plotter.limits(y=(min(0., amin - diff_step), amax + 2*diff_step), logY=False)
+            plotter.apply_limits(lims)
+            plotter.labels(x=props.x, y='Fraction of events')
+            plotter.ax.legend(prop={'size': 15})
+            plotter.save( os.path.join(pair_dir, outname) )
+
 def overlayLabel(folder):
     """Legend label of a scan folder: `minPt<pt>_maxEta<eta>` or `pdgid<N>`."""
     m = re.fullmatch(r'minPt([\dp]+)_maxEta([\dp]+)', folder)
@@ -716,6 +778,11 @@ if __name__ == '__main__':
             raise argparse.ArgumentTypeError("List must have more than one item")
         return value
 
+    def hlt_offline_pair(value):
+        if value.count(':') != 1 or not all(value.split(':')):
+            raise argparse.ArgumentTypeError(f"'{value}' is not of the form <HLT collection>:<offline collection>")
+        return value
+
     class DependencyAction(argparse.Action):
         def __call__(self, parser, namespace, values, option_string=None):
             if namespace.met is None:
@@ -754,12 +821,16 @@ if __name__ == '__main__':
     mutual_excl1 = parser.add_mutually_exclusive_group(required=True)
     mutual_excl1.add_argument('-m', '--met', nargs='+',
                              required=False, help='Name of the met collection(s).')
+    mutual_excl1.add_argument('-H', '--compare_hlt_offline', nargs='+', type=hlt_offline_pair, required=False,
+                             help='Pairs <HLT collection>:<offline collection> to compare, e.g. hltPFPuppiMET:pfMetPuppi. '
+                                  'The HLT DQM file is given with --file and the offline one with --offline_file.')
     mutual_excl1.add_argument('-c', '--compare_collections', nargs='+',
                              type=check_list_length, required=False,
                              help='Name of the met collection(s) to compare, in the same file.', )
 
     mutual_excl2 = parser.add_mutually_exclusive_group(required=True)
     mutual_excl2.add_argument('-f', '--file', help='Paths to the DQM ROOT file.')
+    parser.add_argument('--offline_file', default=None, help='Path to the offline DQM ROOT file, for --compare_hlt_offline.')
     mutual_excl2.add_argument('-x', '--compare_files', nargs='+', type=check_list_length,
                               help='Compare the same collection in different DQM files.', )
     parser.add_argument('-y', '--compare_files_labels', nargs='+',
@@ -767,6 +838,10 @@ if __name__ == '__main__':
                         help='Labels for the different DQM files being compared. Specify after --met and --compare_files.',)
     
     args = parser.parse_args()
+    if args.compare_hlt_offline and (not args.file or not args.offline_file):
+        parser.error("--compare_hlt_offline requires --file (HLT) and --offline_file.")
+    if args.offline_file and not args.compare_hlt_offline:
+        parser.error("--offline_file is only used with --compare_hlt_offline.")
 
     # Center-of-mass energy is fixed by the period, not a user option
     args.energy = '13.6' if args.period == 'Run 3' else '14'
@@ -818,7 +893,14 @@ if __name__ == '__main__':
     nEvts = '# Events'
     nvtxLabel = 'Number of vertices'
 
-    if args.compare_collections is not None:
+    if args.compare_hlt_offline is not None:
+        hlt_file, offline_file = ROOT.TFile.Open(args.file), ROOT.TFile.Open(args.offline_file)
+        checkRootDir(hlt_file, DQM_DIRS['HLT'])
+        checkRootDir(offline_file, DQM_DIRS['Offline'])
+        plot1DHLTOfflineComparison(hlt_file, offline_file, [tuple(p.split(':')) for p in args.compare_hlt_offline],
+                                   outdir=args.odir)
+
+    elif args.compare_collections is not None:
         afile = ROOT.TFile.Open(args.file)
         dqm_dir = DQM_DIRS[args.step]
         checkRootDir(afile, dqm_dir)
