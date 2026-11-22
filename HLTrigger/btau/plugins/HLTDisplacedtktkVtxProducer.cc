@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -76,7 +77,7 @@ void HLTDisplacedtktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSe
   // get the transient track builder
   auto const& theB = iSetup.getHandle(transientTrackRecordToken_);
 
-  std::unique_ptr<VertexCollection> vertexCollection(new VertexCollection());
+  std::unique_ptr<VertexCollection> vertexCollection = std::make_unique<VertexCollection>();
 
   // look at all trackcands,  check cuts and make vertices
   double e1, e2;

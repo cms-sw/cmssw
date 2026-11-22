@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoTauTag/HLTProducers/interface/PFJetsMaxInvMassModule.h"
 #include "Math/GenVector/VectorUtil.h"
 #include "CommonTools/Utils/interface/PtComparator.h"
@@ -17,7 +19,7 @@ PFJetsMaxInvMassModule::PFJetsMaxInvMassModule(const edm::ParameterSet& iConfig)
 }
 
 void PFJetsMaxInvMassModule::produce(edm::StreamID iSId, edm::Event& iEvent, const edm::EventSetup& iES) const {
-  std::unique_ptr<reco::PFJetCollection> addPFJets(new reco::PFJetCollection);
+  std::unique_ptr<reco::PFJetCollection> addPFJets = std::make_unique<reco::PFJetCollection>();
 
   edm::Handle<reco::PFJetCollection> jets;
   iEvent.getByToken(pfJetSrc_, jets);

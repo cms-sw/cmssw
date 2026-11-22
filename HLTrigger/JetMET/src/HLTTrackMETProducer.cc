@@ -6,6 +6,8 @@
  *
  */
 
+#include <memory>
+
 #include "HLTrigger/JetMET/interface/HLTTrackMETProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -63,7 +65,7 @@ void HLTTrackMETProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
 // Produce the products
 void HLTTrackMETProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Create a pointer to the products
-  std::unique_ptr<reco::METCollection> result(new reco::METCollection());
+  std::unique_ptr<reco::METCollection> result = std::make_unique<reco::METCollection>();
 
   if (pfCandidatesLabel_.label().empty())
     excludePFMuons_ = false;

@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoTauTag/HLTProducers/interface/PFJetsTauOverlapRemoval.h"
 #include "Math/GenVector/VectorUtil.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
@@ -17,7 +19,7 @@ PFJetsTauOverlapRemoval::PFJetsTauOverlapRemoval(const edm::ParameterSet& iConfi
 PFJetsTauOverlapRemoval::~PFJetsTauOverlapRemoval() {}
 
 void PFJetsTauOverlapRemoval::produce(edm::StreamID iSId, edm::Event& iEvent, const edm::EventSetup& iES) const {
-  std::unique_ptr<reco::PFJetCollection> cleanedPFJets(new reco::PFJetCollection);
+  std::unique_ptr<reco::PFJetCollection> cleanedPFJets = std::make_unique<reco::PFJetCollection>();
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> tauJets;
   iEvent.getByToken(tauSrc_, tauJets);

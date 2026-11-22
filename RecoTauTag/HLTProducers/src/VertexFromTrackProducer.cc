@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoTauTag/HLTProducers/interface/VertexFromTrackProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -34,7 +36,7 @@ void VertexFromTrackProducer::produce(edm::StreamID iStreamId,
                                       const edm::EventSetup& iSetup) const {
   using namespace edm;
 
-  std::unique_ptr<reco::VertexCollection> result(new reco::VertexCollection);
+  std::unique_ptr<reco::VertexCollection> result = std::make_unique<reco::VertexCollection>();
   reco::VertexCollection vColl;
 
   math::XYZPoint vertexPoint;

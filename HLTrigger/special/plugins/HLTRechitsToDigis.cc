@@ -144,16 +144,16 @@ void HLTRechitsToDigis::produce(edm::Event& iEvent, edm::EventSetup const& setup
   Handle<EEDigiCollection> digisEEHandle;
 
   // output collections
-  std::unique_ptr<EBDigiCollection> outputEBDigiCollection(new EBDigiCollection);
-  std::unique_ptr<EEDigiCollection> outputEEDigiCollection(new EEDigiCollection);
+  std::unique_ptr<EBDigiCollection> outputEBDigiCollection = std::make_unique<EBDigiCollection>();
+  std::unique_ptr<EEDigiCollection> outputEEDigiCollection = std::make_unique<EEDigiCollection>();
 
   // handles for srFlags
   Handle<EBSrFlagCollection> srFlagsEBHandle;
   Handle<EESrFlagCollection> srFlagsEEHandle;
 
   // output collections
-  std::unique_ptr<EBSrFlagCollection> outputEBSrFlagCollection(new EBSrFlagCollection);
-  std::unique_ptr<EESrFlagCollection> outputEESrFlagCollection(new EESrFlagCollection);
+  std::unique_ptr<EBSrFlagCollection> outputEBSrFlagCollection = std::make_unique<EBSrFlagCollection>();
+  std::unique_ptr<EESrFlagCollection> outputEESrFlagCollection = std::make_unique<EESrFlagCollection>();
   EcalReadoutTools ecalReadOutTool(iEvent, setup, ecalReadoutToolsESGetTokens_);
 
   // calibrated rechits
