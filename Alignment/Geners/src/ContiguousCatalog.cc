@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cassert>
+#include <memory>
 #include <utility>
 
 #include <memory>
@@ -113,7 +114,7 @@ namespace gs {
     ClassId rId(in, 1);
     ClassId locId(in, 1);
 
-    std::unique_ptr<ContiguousCatalog> catalog(new ContiguousCatalog());
+    std::unique_ptr<ContiguousCatalog> catalog = std::make_unique<ContiguousCatalog>();
     bool firstEntry = true;
     for (long long recnum = 0; recnum < nRecords; ++recnum) {
       CatalogEntry *rec = CatalogEntry::read(rId, locId, in);
@@ -146,7 +147,7 @@ namespace gs {
     ClassId rId(in, 1);
     ClassId locId(in, 1);
 
-    std::unique_ptr<ContiguousCatalog> catalog(new ContiguousCatalog());
+    std::unique_ptr<ContiguousCatalog> catalog = std::make_unique<ContiguousCatalog>();
     bool firstEntry = true;
     for (in.peek(); !in.eof(); in.peek()) {
       CatalogEntry *rec = CatalogEntry::read(rId, locId, in);

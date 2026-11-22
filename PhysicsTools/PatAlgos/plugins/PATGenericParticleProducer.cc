@@ -112,7 +112,7 @@ PATGenericParticleProducer::PATGenericParticleProducer(const edm::ParameterSet& 
 
   // quality
   addQuality_ = iConfig.getParameter<bool>("addQuality");
-  qualitySrcToken_ = mayConsume<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("qualitySource"));
+  qualitySrcToken_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("qualitySource"));
 
   // produces vector of particles
   produces<std::vector<GenericParticle> >();

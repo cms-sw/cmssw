@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <!--
+      Minimal world for the BTL test beam 2025 with active DUT and REF modules (see btl.xml in the same directory).
+      OCMS -> CMSE -> Tracker -> btl:BarrelTimingLayer
+      CMSE and Tracker are kept to provide the number of volume levels expected by BTLNumberingScheme.
+      All the volumes are boxes centred in the origin and filled with air.
+      The BTL volume is rotated so that the beam travels along +z (see btl.xml): the boxes are sized to contain
+      the rotated BarrelTimingLayer envelope (x from -0.35 to 2.17 m, |y| < 2.91 m, |z| < 1.26 m).
+  -->
+
+  <SolidSection label="cms.xml">
+    <Box name="OCMS" dx="2.3*m" dy="3.0*m" dz="1.4*m"/>
+    <Box name="CMSE" dx="2.25*m" dy="2.95*m" dz="1.35*m"/>
+    <Box name="Tracker" dx="2.2*m" dy="2.92*m" dz="1.3*m"/>
+  </SolidSection>
+
+  <LogicalPartSection label="cms.xml">
+    <LogicalPart name="World" category="unspecified">
+      <rSolid name="cms:OCMS"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="OCMS" category="unspecified">
+      <rSolid name="cms:OCMS"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="CMSE" category="unspecified">
+      <rSolid name="cms:CMSE"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="Tracker" category="unspecified">
+      <rSolid name="cms:Tracker"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+  </LogicalPartSection>
+
+  <PosPartSection label="cms.xml">
+    <PosPart copyNumber="1">
+      <rParent name="cms:World"/>
+      <rChild name="cms:OCMS"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="cms:OCMS"/>
+      <rChild name="cms:CMSE"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="cms:CMSE"/>
+      <rChild name="cms:Tracker"/>
+    </PosPart>
+  </PosPartSection>
+</DDDefinition>

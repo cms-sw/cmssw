@@ -60,8 +60,8 @@ private:
 MuScleFitMuonProducer::MuScleFitMuonProducer(const edm::ParameterSet& iConfig)
     : muToken_(esConsumes(edm::ESInputTag("", iConfig.getUntrackedParameter<std::string>("DbObjectLabel", "")))),
       theMuonLabel_(iConfig.getParameter<edm::InputTag>("MuonLabel")),
-      thePatMuonToken_(mayConsume<pat::MuonCollection>(theMuonLabel_)),
-      theRecoMuonToken_(mayConsume<reco::MuonCollection>(theMuonLabel_)),
+      thePatMuonToken_(consumes<pat::MuonCollection>(theMuonLabel_)),
+      theRecoMuonToken_(consumes<reco::MuonCollection>(theMuonLabel_)),
       patMuons_(iConfig.getParameter<bool>("PatMuons")),
       dbObjectCacheId_(0) {
   if (patMuons_ == true) {

@@ -24,7 +24,7 @@ public:
   explicit DummyLHEAnalyzer(const ParameterSet& cfg)
       : dumpEvent_(cfg.getUntrackedParameter<bool>("dumpEvent", true)),
         dumpHeader_(cfg.getUntrackedParameter<bool>("dumpHeader", false)),
-        tokenLHERunInfo_(consumes<LHERunInfoProduct, edm::InRun>(
+        tokenLHERunInfo_(consumes<LHERunInfoProduct, edm::InRun, edm::Transition::EndRun>(
             cfg.getUntrackedParameter<edm::InputTag>("moduleLabel", std::string("source")))),
         tokenLHEEvent_(
             consumes<LHEEventProduct>(cfg.getUntrackedParameter<edm::InputTag>("moduleLabel", std::string("source")))) {

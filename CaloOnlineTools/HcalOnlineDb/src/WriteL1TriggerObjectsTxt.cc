@@ -93,7 +93,7 @@ void WriteL1TriggerObjectsTxt::analyze(const edm::Event& iEvent, const edm::Even
   const HcalLutMetadata* metadata = conditions->getHcalLutMetadata();
   const HcalTopology* topo = metadata->topo();
 
-  std::unique_ptr<HcalL1TriggerObjects> HcalL1TrigObjCol(new HcalL1TriggerObjects);
+  std::unique_ptr<HcalL1TriggerObjects> HcalL1TrigObjCol = std::make_unique<HcalL1TriggerObjects>();
 
   for (const auto& id : metadata->getAllChannels()) {
     if (id.det() == DetId::Hcal and topo->valid(id)) {

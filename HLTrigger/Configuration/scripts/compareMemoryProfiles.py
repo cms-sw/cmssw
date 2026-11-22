@@ -200,10 +200,9 @@ def main(args):
         fontsize=15,
     )
     
-    # Dynamic y-axis scaling
+    # Peak used for dynamic y-axis scaling (applied at the end, once the
+    # in-canvas stats box and legend have been placed)
     ymax = max(stats1["peak"], stats2["peak"]) if args.file2 else stats1["peak"]
-
-    ax.set_ylim(0, 1.30 * ymax)
 
     # Grid
     ax.grid(
@@ -212,16 +211,6 @@ def main(args):
         linestyle="--",
         linewidth=0.8,
         alpha=0.45,
-    )
-
-    # Legend
-    ax.legend(
-        loc="upper left",
-        bbox_to_anchor=(1.01, 1.0),
-        frameon=False,
-        fontsize=12,
-        handlelength=1.6,
-        borderaxespad=0.0,
     )
 
     # Tick formatting
@@ -245,7 +234,7 @@ def main(args):
         )
     )
 
-    ax.text(
+    stats_box = ax.text(
         0.02,
         0.98,
         stats_text,
@@ -270,31 +259,43 @@ def main(args):
             pad=16,
         )
 
-    # CMS label
+    # CMS label + supplementary text (Simulation / PR Testing / Internal ...).
+    # Passed positionally so mplhep places it right after "CMS" without
+    # overlap ('label' in mplhep < 1.0, 'text' in mplhep >= 1.0).
     hep.cms.label(
-        "",
+        args.cms_label,
         data=True,
         com=14,
         ax=ax,
         fontsize=18,
         loc=0,
-        pad=0.04,
     )
 
-    # Supplementary label (Simulation / PR Testing / Internal ...)
-    ax.text(
-        0.11,
-        1.005,
-        args.cms_label,
-        transform=ax.transAxes,
-        fontsize=15,
-        style="italic",
-        va="bottom",
-        ha="left",
-    )
-    
     # Layout
     plt.tight_layout()
+
+    # Legend inside the canvas, stacked just below the stats box
+    fig.canvas.draw()
+    to_axes = ax.transAxes.inverted()
+    box_bottom = to_axes.transform(
+        stats_box.get_bbox_patch().get_window_extent()
+    )[0][1]
+
+    legend = ax.legend(
+        loc="upper left",
+        bbox_to_anchor=(0.02, box_bottom - 0.01),
+        frameon=False,
+        fontsize=12,
+        handlelength=1.6,
+        borderaxespad=0.0,
+    )
+
+    # Dynamic y-axis scaling: leave enough headroom above the curves
+    # for the stats box and legend
+    fig.canvas.draw()
+    legend_bottom = to_axes.transform(legend.get_window_extent())[0][1]
+    # (extra margin keeps the peak annotation text clear of the legend)
+    ax.set_ylim(0, ymax / (legend_bottom - 0.07))
 
     # Save outputs
     save_outputs(fig, args.output, args.gpu)

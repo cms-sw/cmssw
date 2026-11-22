@@ -96,9 +96,9 @@ private:
 //
 TestResolution::TestResolution(const edm::ParameterSet& iConfig)
     : theMuonLabel_(iConfig.getParameter<edm::InputTag>("MuonLabel")),
-      glbMuonsToken_(mayConsume<reco::MuonCollection>(theMuonLabel_)),
-      saMuonsToken_(mayConsume<reco::TrackCollection>(theMuonLabel_)),
-      tracksToken_(mayConsume<reco::TrackCollection>(theMuonLabel_)),
+      glbMuonsToken_(consumes<reco::MuonCollection>(theMuonLabel_)),
+      saMuonsToken_(consumes<reco::TrackCollection>(theMuonLabel_)),
+      tracksToken_(consumes<reco::TrackCollection>(theMuonLabel_)),
       theMuonType_(iConfig.getParameter<int>("MuonType")),
       theRootFileName_(iConfig.getUntrackedParameter<std::string>("OutputFileName")) {
   //now do what ever initialization is needed

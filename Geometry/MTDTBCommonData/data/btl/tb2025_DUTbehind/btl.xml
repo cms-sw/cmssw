@@ -1,16 +1,46 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
+  <!--
+      BTL test beam 2025 (DUT behind REF) in a minimal world (see cms.xml in the same directory),
+      with both the DUT and the REF modules active.
+      Derived from ../tb2025_DUTbehind/btl.xml:
+      - BarrelTimingLayer is placed in cms:Tracker of the minimal world;
+      - BTLrmin and the LayerTiming inner radius are lowered to contain the REF readout unit;
+      - the passive LYSO block of the REF module (BTLReferenceModule) is replaced by an active REF:
+        the same ReadoutUnit as the DUT (same module and material) in a dedicated container, TrayZposREF (copy 2).
+        The beam crosses the REF perpendicularly to its face (3.75 mm of LYSO) and the REF crystals are along z,
+        perpendicular to the DUT ones. The REF DetId differs from the DUT one only by the tray (rod) number.
+      - the whole BarrelTimingLayer is rotated and translated in cms:Tracker so that the beam travels along +z,
+        on the z axis: the beam direction of the 2025 setup (transverse plane, phi = 52 deg) is mapped onto +z,
+        the CMS z axis onto +y, and the 2025 beam line (91.015 cm from the CMS axis) onto the z axis.
+        The 2025 beam vertex is mapped onto the origin. Incidence angles on DUT and REF, bar orientations
+        and distances along the beam are unchanged: REF centre at z = 41.2 cm, DUT centre at z = 71.2 cm.
+      - the DUT is then rotated by +104 deg around the axis parallel to y through its module centre, so that its
+        tilt is mirrored with respect to the 2025 setup: angle of +52 deg around y from the position perpendicular
+        to the beam (the end of the DUT bars at larger x is at smaller z). BTLrmax is raised to contain the
+        rotated DUT tray.
+  -->
   <ConstantsSection label="btl.xml" eval="true">
-    <Constant name="BTLrmin" value="1140.5*mm"/>
-    <Constant name="BTLrmax" value="1191.1*mm"/>
+    <Constant name="BTLrmin" value="650.0*mm"/>
+    <Constant name="BTLrmax" value="1260.0*mm"/>
     <Constant name="BTLz" value="2910.0*mm"/>
   </ConstantsSection>
 
   <RotationSection label="btl.xml">
     <RotationByAxis name="X90" axis="x" angle="90*deg"/>
     <RotationByAxis name="Z180" axis="z" angle="180*deg"/>
-    <RotationByAxis name="Z38" axis="z" angle="38*deg"/>
+    <!-- REF container: as the DUT tray (rotation by 90 deg around z from DDTrackerPhiAltAlgo at phi = 0),
+         further rotated by 52 deg around z, so that the REF normal is along the beam (phi = 52 deg) -->
+    <Rotation name="RotTrayZposREF" thetaX="90*deg" phiX="142*deg" thetaY="90*deg" phiY="232*deg" thetaZ="0*deg" phiZ="0*deg"/>
+    <!-- REF readout unit: rotated by -90 deg around the module normal, so that the REF crystals are along z -->
+    <RotationByAxis name="RotReadoutUnitREF" axis="y" angle="-90*deg"/>
+    <!-- DUT tray: rotation by 90 deg around z from DDTrackerPhiAltAlgo at phi = 0, further rotated by 104 deg around z
+         (= around +y in the beam frame), i.e. a rotation by 194 deg around z -->
+    <Rotation name="RotTrayZposDUT" thetaX="90*deg" phiX="194*deg" thetaY="90*deg" phiY="284*deg" thetaZ="0*deg" phiZ="0*deg"/>
+    <!-- BarrelTimingLayer in the beam frame: local x -> (-sin52, 0, cos52), local y -> (cos52, 0, sin52), local z -> +y,
+         i.e. the 2025 beam direction (cos52, sin52, 0) -> +z -->
+    <Rotation name="RotBTLbeamZ" thetaX="52*deg" phiX="180*deg" thetaY="38*deg" phiY="0*deg" thetaZ="90*deg" phiZ="90*deg"/>
   </RotationSection>
 
   <SolidSection label="btl.xml">
@@ -22,11 +52,13 @@
     </Polycone>
 
     <!-- BTL timing layer -->
-    <Tubs name="LayerTiming" rMin="1140.51*mm" rMax="1191.09*mm" dz="2909.99*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="LayerTiming" rMin="650.01*mm" rMax="1259.99*mm" dz="2909.99*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 
     <!-- Trays -->
     <Box name="TrayZpos" dx="92.01*mm" dy="10.26*mm" dz="1240.41*mm"/>
     <Box name="TrayZneg" dx="92.01*mm" dy="10.26*mm" dz="1240.41*mm"/>
+    <!-- REF container: one ReadoutUnit rotated by 90 deg around its y axis (the name must contain Zpos for the numbering) -->
+    <Box name="TrayZposREF" dx="206.66*mm" dy="10.26*mm" dz="92.01*mm"/>
 
     <!-- Readout Units (Left only 1) -->
     <Box name="ReadoutUnit" dx="92.0*mm" dy="10.25*mm" dz="206.65*mm"/>
@@ -41,8 +73,6 @@
     <Box name="BTLModule" dx="27.36*mm" dy="25.6*mm" dz="1.885*mm"/>
 
     <Box name="BTLCrystal" dx="27.35*mm" dy="1.56*mm" dz="1.875*mm"/>
-
-    <Box name="BTLReferenceModule" dx="1.875*mm" dy="25.6*mm" dz="27.36*mm"/>
 
     <!-- SiPM package -->
     <Box name="SiPMPackage" dx="0.6*mm" dy="3.25*mm" dz="205.85*mm"/>
@@ -126,6 +156,10 @@
       <rSolid name="btl:TrayZpos"/>
       <rMaterial name="materials:Air"/>
     </LogicalPart>
+    <LogicalPart name="TrayZposREF" category="unspecified">
+      <rSolid name="btl:TrayZposREF"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
     <LogicalPart name="TrayZneg" category="unspecified">
       <rSolid name="btl:TrayZneg"/>
       <rMaterial name="materials:Air"/>
@@ -165,12 +199,6 @@
     
     <LogicalPart name="BTLCrystal" category="unspecified">
       <rSolid name="btl:BTLCrystal"/>
-      <rMaterial name="mtdMaterial:LYSO-Ce"/>
-    </LogicalPart>
-
-    <!-- Crystal reference module -->
-    <LogicalPart name="BTLReferenceModule" category="unspecified">
-      <rSolid name="btl:BTLReferenceModule"/>
       <rMaterial name="mtdMaterial:LYSO-Ce"/>
     </LogicalPart>
 
@@ -289,8 +317,10 @@
 
     <!-- Position the BTL volume inside the tracker volume -->
     <PosPart copyNumber="1">
-      <rParent name="tracker:Tracker"/>
+      <rParent name="cms:Tracker"/>
       <rChild name="btl:BarrelTimingLayer"/>
+      <rRotation name="btl:RotBTLbeamZ"/>
+      <Translation x="910.1524204157639*mm" y="0.0*mm" z="0.0*mm"/>
     </PosPart>
 
     <!-- Position the timing layer inside the BTL volume -->
@@ -583,22 +613,29 @@
     </PosPart>
 
     <!-- Position the trays in the timing layer -->
-    <Algorithm name="track:DDTrackerPhiAltAlgo">
+    <!-- DUT tray: originally placed by DDTrackerPhiAltAlgo (phi = 0, radius 1160.25 mm, z = 1059.36 mm, copy 1).
+         It is now placed explicitly, rotated by 104 deg around z around the DUT module centre, which stays at
+         (1156.025, 0, 0.01) mm (module centre in the tray frame: (0, 4.225, -1059.35) mm).
+         Tray translation = C + Rz(104 deg) * ((1160.25, 0) - C), with C = (1156.025, 0) mm -->
+    <!--<Algorithm name="track:DDTrackerPhiAltAlgo">
       <rParent name="btl:LayerTiming"/>
       <String name="ChildName" value="btl:TrayZpos"/>
       <Numeric name="Tilt" value="0*deg"/>
-      <!--<Numeric name="StartAngle" value="9.4736842*deg"/>-->
       <Numeric name="StartAngle" value="0*deg"/>
       <Numeric name="RangeAngle" value="161.05263*deg"/>
       <Numeric name="RadiusIn" value="1160.25*mm"/>
       <Numeric name="RadiusOut" value="1160.25*mm"/>
-      <!--<Numeric name="ZPosition" value="1240.41*mm"/>-->
       <Numeric name="ZPosition" value="1059.36*mm"/>
-      <!--<Numeric name="Number" value="18"/>-->
       <Numeric name="Number" value="1"/>
       <Numeric name="StartCopyNo" value="1"/>
       <Numeric name="IncrCopyNo" value="1"/>
-    </Algorithm>
+    </Algorithm>-->
+    <PosPart copyNumber="1">
+      <rParent name="btl:LayerTiming"/>
+      <rChild name="btl:TrayZpos"/>
+      <rRotation name="btl:RotTrayZposDUT"/>
+      <Translation x="1155.0028799910915*mm" y="4.099499443515997*mm" z="1059.36*mm"/>
+    </PosPart>
     <!--<Algorithm name="track:DDTrackerPhiAltAlgo">-->
       <!--<rParent name="btl:LayerTiming"/>-->
       <!--<String name="ChildName" value="btl:TrayZpos"/>-->
@@ -1187,12 +1224,21 @@
       <!--<Numeric name="IncrCopyNo" value="1"/>-->
     <!--</Algorithm>-->
 
-    <!-- Reference module -->
+    <!-- Reference module: the same ReadoutUnit (copy 1) as the DUT, in its own container (copy 2).
+         Module centre in the readout unit frame: (0, 4.225, 129) mm; in the container frame, after the
+         RotReadoutUnitREF rotation: (-129, 4.225, 0) mm.
+         Container translation = (971.3, -236.4, 0) mm - RotTrayZposREF * (-129, 4.225, 0) mm, so that the REF module
+         is centred at the position of the REF module in the 2025 setup, on the beam line -->
     <PosPart copyNumber="1">
-      <rParent name="tracker:Tracker"/>
-      <rChild name="btl:BTLReferenceModule"/>
-      <Translation x="971.3*mm" y="-236.4*mm" z="0.0*mm"/>
-      <rRotation name="btl:Z38"/>
+      <rParent name="btl:TrayZposREF"/>
+      <rChild name="btl:ReadoutUnit"/>
+      <rRotation name="btl:RotReadoutUnitREF"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="btl:LayerTiming"/>
+      <rChild name="btl:TrayZposREF"/>
+      <rRotation name="btl:RotTrayZposREF"/>
+      <Translation x="872.248*mm" y="-153.650*mm" z="0.0*mm"/>
     </PosPart>
 
 

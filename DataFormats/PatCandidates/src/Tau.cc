@@ -6,6 +6,7 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include <algorithm>
 #include <functional>
+#include <memory>
 
 using namespace pat;
 using namespace std::placeholders;
@@ -147,7 +148,7 @@ std::ostream& reco::operator<<(std::ostream& out, const pat::Tau& obj) {
 const reco::TrackRefVector& Tau::isolationTracks() const {
   if (embeddedIsolationTracks_) {
     if (!isolationTracksTransientRefVector_.isSet()) {
-      std::unique_ptr<reco::TrackRefVector> trackRefVec{new reco::TrackRefVector{}};
+      std::unique_ptr<reco::TrackRefVector> trackRefVec = std::make_unique<reco::TrackRefVector>();
       trackRefVec->reserve(isolationTracks_.size());
       for (unsigned int i = 0; i < isolationTracks_.size(); i++) {
         trackRefVec->push_back(reco::TrackRef(&isolationTracks_, i));
@@ -173,7 +174,7 @@ reco::TrackRef Tau::leadTrack() const {
 const reco::TrackRefVector& Tau::signalTracks() const {
   if (embeddedSignalTracks_) {
     if (!signalTracksTransientRefVector_.isSet()) {
-      std::unique_ptr<reco::TrackRefVector> trackRefVec{new reco::TrackRefVector{}};
+      std::unique_ptr<reco::TrackRefVector> trackRefVec = std::make_unique<reco::TrackRefVector>();
       trackRefVec->reserve(signalTracks_.size());
       for (unsigned int i = 0; i < signalTracks_.size(); i++) {
         trackRefVec->push_back(reco::TrackRef(&signalTracks_, i));
@@ -491,7 +492,7 @@ const reco::PFCandidatePtr Tau::leadPFCand() const {
 const std::vector<reco::PFCandidatePtr>& Tau::signalPFCands() const {
   if (embeddedSignalPFCands_) {
     if (!signalPFCandsTransientPtrs_.isSet()) {
-      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+      std::unique_ptr<std::vector<reco::PFCandidatePtr>> aPtrs = std::make_unique<std::vector<reco::PFCandidatePtr>>();
       aPtrs->reserve(signalPFCands_.size());
       for (unsigned int i = 0; i < signalPFCands_.size(); i++) {
         aPtrs->push_back(reco::PFCandidatePtr(&signalPFCands_, i));
@@ -505,7 +506,8 @@ const std::vector<reco::PFCandidatePtr>& Tau::signalPFCands() const {
       // this part of code is called when reading from patTuple or miniAOD
       // it returns empty collection in correct format so it can be substituted by reco::Candidates if available
       if (!signalPFCandsTransientPtrs_.isSet()) {
-        std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+        std::unique_ptr<std::vector<reco::PFCandidatePtr>> aPtrs =
+            std::make_unique<std::vector<reco::PFCandidatePtr>>();
         signalPFCandsTransientPtrs_.set(std::move(aPtrs));
       }
       return *signalPFCandsTransientPtrs_;
@@ -517,7 +519,7 @@ const std::vector<reco::PFCandidatePtr>& Tau::signalPFCands() const {
 const std::vector<reco::PFCandidatePtr>& Tau::signalPFChargedHadrCands() const {
   if (embeddedSignalPFChargedHadrCands_) {
     if (!signalPFChargedHadrCandsTransientPtrs_.isSet()) {
-      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+      std::unique_ptr<std::vector<reco::PFCandidatePtr>> aPtrs = std::make_unique<std::vector<reco::PFCandidatePtr>>();
       aPtrs->reserve(signalPFChargedHadrCands_.size());
       for (unsigned int i = 0; i < signalPFChargedHadrCands_.size(); i++) {
         aPtrs->push_back(reco::PFCandidatePtr(&signalPFChargedHadrCands_, i));
@@ -531,7 +533,8 @@ const std::vector<reco::PFCandidatePtr>& Tau::signalPFChargedHadrCands() const {
       // this part of code is called when reading from patTuple or miniAOD
       // it returns empty collection in correct format so it can be substituted by reco::Candidates if available
       if (!signalPFChargedHadrCandsTransientPtrs_.isSet()) {
-        std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+        std::unique_ptr<std::vector<reco::PFCandidatePtr>> aPtrs =
+            std::make_unique<std::vector<reco::PFCandidatePtr>>();
         signalPFChargedHadrCandsTransientPtrs_.set(std::move(aPtrs));
       }
       return *signalPFChargedHadrCandsTransientPtrs_;
@@ -543,7 +546,7 @@ const std::vector<reco::PFCandidatePtr>& Tau::signalPFChargedHadrCands() const {
 const std::vector<reco::PFCandidatePtr>& Tau::signalPFNeutrHadrCands() const {
   if (embeddedSignalPFNeutralHadrCands_) {
     if (!signalPFNeutralHadrCandsTransientPtrs_.isSet()) {
-      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+      std::unique_ptr<std::vector<reco::PFCandidatePtr>> aPtrs = std::make_unique<std::vector<reco::PFCandidatePtr>>();
       aPtrs->reserve(signalPFNeutralHadrCands_.size());
       for (unsigned int i = 0; i < signalPFNeutralHadrCands_.size(); i++) {
         aPtrs->push_back(reco::PFCandidatePtr(&signalPFNeutralHadrCands_, i));
@@ -557,7 +560,8 @@ const std::vector<reco::PFCandidatePtr>& Tau::signalPFNeutrHadrCands() const {
       // this part of code is called when reading from patTuple or miniAOD
       // it returns empty collection in correct format so it can be substituted by reco::Candidates if available
       if (!signalPFNeutralHadrCandsTransientPtrs_.isSet()) {
-        std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+        std::unique_ptr<std::vector<reco::PFCandidatePtr>> aPtrs =
+            std::make_unique<std::vector<reco::PFCandidatePtr>>();
         signalPFNeutralHadrCandsTransientPtrs_.set(std::move(aPtrs));
       }
       return *signalPFNeutralHadrCandsTransientPtrs_;
@@ -569,7 +573,7 @@ const std::vector<reco::PFCandidatePtr>& Tau::signalPFNeutrHadrCands() const {
 const std::vector<reco::PFCandidatePtr>& Tau::signalPFGammaCands() const {
   if (embeddedSignalPFGammaCands_) {
     if (!signalPFGammaCandsTransientPtrs_.isSet()) {
-      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+      std::unique_ptr<std::vector<reco::PFCandidatePtr>> aPtrs = std::make_unique<std::vector<reco::PFCandidatePtr>>();
       aPtrs->reserve(signalPFGammaCands_.size());
       for (unsigned int i = 0; i < signalPFGammaCands_.size(); i++) {
         aPtrs->push_back(reco::PFCandidatePtr(&signalPFGammaCands_, i));
@@ -583,7 +587,8 @@ const std::vector<reco::PFCandidatePtr>& Tau::signalPFGammaCands() const {
       // this part of code is called when reading from patTuple or miniAOD
       // it returns empty collection in correct format so it can be substituted by reco::Candidates if available
       if (!signalPFGammaCandsTransientPtrs_.isSet()) {
-        std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+        std::unique_ptr<std::vector<reco::PFCandidatePtr>> aPtrs =
+            std::make_unique<std::vector<reco::PFCandidatePtr>>();
         signalPFGammaCandsTransientPtrs_.set(std::move(aPtrs));
       }
       return *signalPFGammaCandsTransientPtrs_;
@@ -607,7 +612,7 @@ const std::vector<reco::RecoTauPiZero>& Tau::signalPiZeroCandidates() const {
 const std::vector<reco::PFCandidatePtr>& Tau::isolationPFCands() const {
   if (embeddedIsolationPFCands_) {
     if (!isolationPFCandsTransientPtrs_.isSet()) {
-      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+      std::unique_ptr<std::vector<reco::PFCandidatePtr>> aPtrs = std::make_unique<std::vector<reco::PFCandidatePtr>>();
       aPtrs->reserve(isolationPFCands_.size());
       for (unsigned int i = 0; i < isolationPFCands_.size(); i++) {
         aPtrs->push_back(reco::PFCandidatePtr(&isolationPFCands_, i));
@@ -621,7 +626,8 @@ const std::vector<reco::PFCandidatePtr>& Tau::isolationPFCands() const {
       // this part of code is called when reading from patTuple or miniAOD
       // it returns empty collection in correct format so it can be substituted by reco::Candidates if available
       if (!isolationPFCandsTransientPtrs_.isSet()) {
-        std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+        std::unique_ptr<std::vector<reco::PFCandidatePtr>> aPtrs =
+            std::make_unique<std::vector<reco::PFCandidatePtr>>();
         isolationPFCandsTransientPtrs_.set(std::move(aPtrs));
       }
       return *isolationPFCandsTransientPtrs_;
@@ -633,7 +639,7 @@ const std::vector<reco::PFCandidatePtr>& Tau::isolationPFCands() const {
 const std::vector<reco::PFCandidatePtr>& Tau::isolationPFChargedHadrCands() const {
   if (embeddedIsolationPFChargedHadrCands_) {
     if (!isolationPFChargedHadrCandsTransientPtrs_.isSet()) {
-      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+      std::unique_ptr<std::vector<reco::PFCandidatePtr>> aPtrs = std::make_unique<std::vector<reco::PFCandidatePtr>>();
       aPtrs->reserve(isolationPFChargedHadrCands_.size());
       for (unsigned int i = 0; i < isolationPFChargedHadrCands_.size(); i++) {
         aPtrs->push_back(reco::PFCandidatePtr(&isolationPFChargedHadrCands_, i));
@@ -647,7 +653,8 @@ const std::vector<reco::PFCandidatePtr>& Tau::isolationPFChargedHadrCands() cons
       // this part of code is called when reading from patTuple or miniAOD
       // it returns empty collection in correct format so it can be substituted by reco::Candidates if available
       if (!isolationPFChargedHadrCandsTransientPtrs_.isSet()) {
-        std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+        std::unique_ptr<std::vector<reco::PFCandidatePtr>> aPtrs =
+            std::make_unique<std::vector<reco::PFCandidatePtr>>();
         isolationPFChargedHadrCandsTransientPtrs_.set(std::move(aPtrs));
       }
       return *isolationPFChargedHadrCandsTransientPtrs_;
@@ -659,7 +666,7 @@ const std::vector<reco::PFCandidatePtr>& Tau::isolationPFChargedHadrCands() cons
 const std::vector<reco::PFCandidatePtr>& Tau::isolationPFNeutrHadrCands() const {
   if (embeddedIsolationPFNeutralHadrCands_) {
     if (!isolationPFNeutralHadrCandsTransientPtrs_.isSet()) {
-      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+      std::unique_ptr<std::vector<reco::PFCandidatePtr>> aPtrs = std::make_unique<std::vector<reco::PFCandidatePtr>>();
       aPtrs->reserve(isolationPFNeutralHadrCands_.size());
       for (unsigned int i = 0; i < isolationPFNeutralHadrCands_.size(); i++) {
         aPtrs->push_back(reco::PFCandidatePtr(&isolationPFNeutralHadrCands_, i));
@@ -673,7 +680,8 @@ const std::vector<reco::PFCandidatePtr>& Tau::isolationPFNeutrHadrCands() const 
       // this part of code is called when reading from patTuple or miniAOD
       // it returns empty collection in correct format so it can be substituted by reco::Candidates if available
       if (!isolationPFNeutralHadrCandsTransientPtrs_.isSet()) {
-        std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+        std::unique_ptr<std::vector<reco::PFCandidatePtr>> aPtrs =
+            std::make_unique<std::vector<reco::PFCandidatePtr>>();
         isolationPFNeutralHadrCandsTransientPtrs_.set(std::move(aPtrs));
       }
       return *isolationPFNeutralHadrCandsTransientPtrs_;
@@ -685,7 +693,7 @@ const std::vector<reco::PFCandidatePtr>& Tau::isolationPFNeutrHadrCands() const 
 const std::vector<reco::PFCandidatePtr>& Tau::isolationPFGammaCands() const {
   if (embeddedIsolationPFGammaCands_) {
     if (!isolationPFGammaCandsTransientPtrs_.isSet()) {
-      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+      std::unique_ptr<std::vector<reco::PFCandidatePtr>> aPtrs = std::make_unique<std::vector<reco::PFCandidatePtr>>();
       aPtrs->reserve(isolationPFGammaCands_.size());
       for (unsigned int i = 0; i < isolationPFGammaCands_.size(); i++) {
         aPtrs->push_back(reco::PFCandidatePtr(&isolationPFGammaCands_, i));
@@ -699,7 +707,8 @@ const std::vector<reco::PFCandidatePtr>& Tau::isolationPFGammaCands() const {
       // this part of code is called when reading from patTuple or miniAOD
       // it returns empty collection in correct format so it can be substituted by reco::Candidates if available
       if (!isolationPFGammaCandsTransientPtrs_.isSet()) {
-        std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
+        std::unique_ptr<std::vector<reco::PFCandidatePtr>> aPtrs =
+            std::make_unique<std::vector<reco::PFCandidatePtr>>();
         isolationPFGammaCandsTransientPtrs_.set(std::move(aPtrs));
       }
       return *isolationPFGammaCandsTransientPtrs_;
@@ -869,7 +878,7 @@ reco::CandidatePtrVector Tau::signalCands() const {
   } else {
     /// the isolationCands pointers are not saved in miniAOD, so the collection is created dynamically by glueing together 3 sub-collection and re-ordering
     reco::CandidatePtrVector ret2;
-    std::vector<std::pair<float, size_t> > pt_index;
+    std::vector<std::pair<float, size_t>> pt_index;
     size_t index = 0;
     ret2.reserve(signalChargedHadrCandPtrs_.size() + signalNeutralHadrCandPtrs_.size() + signalGammaCandPtrs_.size());
     pt_index.reserve(signalChargedHadrCandPtrs_.size() + signalNeutralHadrCandPtrs_.size() +
@@ -953,7 +962,7 @@ reco::CandidatePtrVector Tau::isolationCands() const {
   } else {
     /// the isolationCands pointers are not saved in miniAOD, so the collection is created dynamically by glueing together 3 sub-collection and re-ordering
     reco::CandidatePtrVector ret2;
-    std::vector<std::pair<float, size_t> > pt_index;
+    std::vector<std::pair<float, size_t>> pt_index;
     ret2.reserve(isolationChargedHadrCandPtrs_.size() + isolationNeutralHadrCandPtrs_.size() +
                  isolationGammaCandPtrs_.size());
     pt_index.reserve(isolationChargedHadrCandPtrs_.size() + isolationNeutralHadrCandPtrs_.size() +

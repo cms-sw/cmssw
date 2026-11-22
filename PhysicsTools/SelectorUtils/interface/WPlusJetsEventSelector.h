@@ -25,11 +25,11 @@ public:
 #ifndef __GCCXML__
   WPlusJetsEventSelector(edm::ParameterSet const& params, edm::ConsumesCollector&& iC)
       : WPlusJetsEventSelector(params) {
-    muonToken_ = iC.mayConsume<std::vector<pat::Muon> >(muonTag_);
-    electronToken_ = iC.mayConsume<std::vector<pat::Electron> >(electronTag_);
-    jetToken_ = iC.mayConsume<std::vector<pat::Jet> >(jetTag_);
-    metToken_ = iC.mayConsume<std::vector<pat::MET> >(metTag_);
-    trigToken_ = iC.mayConsume<pat::TriggerEvent>(trigTag_);
+    muonToken_ = iC.consumes<std::vector<pat::Muon> >(muonTag_);
+    electronToken_ = iC.consumes<std::vector<pat::Electron> >(electronTag_);
+    jetToken_ = iC.consumes<std::vector<pat::Jet> >(jetTag_);
+    metToken_ = iC.consumes<std::vector<pat::MET> >(metTag_);
+    trigToken_ = iC.consumes<pat::TriggerEvent>(trigTag_);
     muonIdTight_ = MuonVPlusJetsIDSelectionFunctor(params.getParameter<edm::ParameterSet>("muonIdTight"), iC);
     electronIdTight_ =
         ElectronVPlusJetsIDSelectionFunctor(params.getParameter<edm::ParameterSet>("electronIdTight"), iC);

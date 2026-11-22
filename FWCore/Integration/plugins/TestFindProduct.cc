@@ -93,7 +93,8 @@ namespace edmtest {
     std::vector<edm::EDGetTokenT<IntProduct>> tokensEndProcessBlock3_;
     std::vector<edm::EDGetTokenT<IntProduct>> tokensEndProcessBlock4_;
 
-    edm::GetterOfProducts<IntProduct> getterOfProducts_;
+    edm::GetterOfProducts<IntProduct, edm::Transition::BeginProcessBlock> getterOfProductsBeginProcess_;
+    edm::GetterOfProducts<IntProduct, edm::Transition::EndProcessBlock> getterOfProductsEndProcess_;
 
   };  // class TestFindProduct
 
@@ -111,9 +112,13 @@ namespace edmtest {
         inputTagsView_(),
         runProducerParameterCheck_(pset.getUntrackedParameter<bool>("runProducerParameterCheck", false)),
         testGetterOfProducts_(pset.getUntrackedParameter<bool>("testGetterOfProducts", false)),
-        getterOfProducts_(edm::ProcessMatch("*"), this, edm::InProcess) {
+        getterOfProductsBeginProcess_(edm::ProcessMatch("*"), this, edm::InProcess),
+        getterOfProductsEndProcess_(edm::ProcessMatch("*"), this, edm::InProcess) {
     if (testGetterOfProducts_) {
-      callWhenNewProductsRegistered(getterOfProducts_);
+      callWhenNewProductsRegistered([this](edm::ProductDescription const& pd) {
+        getterOfProductsBeginProcess_(pd);
+        getterOfProductsEndProcess_(pd);
+      });
     }
     std::vector<edm::InputTag> emptyTagVector;
     inputTagsNotFound_ = pset.getUntrackedParameter<std::vector<edm::InputTag>>("inputTagsNotFound", emptyTagVector);
@@ -361,7 +366,7 @@ namespace edmtest {
     }
     if (testGetterOfProducts_) {
       std::vector<edm::Handle<IntProduct>> handles;
-      getterOfProducts_.fillHandles(processBlock, handles);
+      getterOfProductsBeginProcess_.fillHandles(processBlock, handles);
       for (auto const& intHandle : handles) {
         sum_ += intHandle->value;
       }
@@ -407,7 +412,7 @@ namespace edmtest {
     }
     if (testGetterOfProducts_) {
       std::vector<edm::Handle<IntProduct>> handles;
-      getterOfProducts_.fillHandles(processBlock, handles);
+      getterOfProductsEndProcess_.fillHandles(processBlock, handles);
       for (auto const& intHandle : handles) {
         sum_ += intHandle->value;
       }
@@ -418,7 +423,9 @@ namespace edmtest {
     std::cout << "TestFindProduct sum = " << sum_ << std::endl;
     if (expectedSum_ != 0 && sum_ != expectedSum_) {
       throw cms::Exception("TestFail")
-          << "TestFindProduct::endJob - Sum of test object values does not equal expected value";
+          .format("TestFindProduct::endJob - Sum of test object values ({}) does not equal expected value ({})",
+                  sum_,
+                  expectedSum_);
     }
   }
 

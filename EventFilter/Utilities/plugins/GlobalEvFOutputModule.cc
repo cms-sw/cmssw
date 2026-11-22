@@ -330,7 +330,7 @@ namespace evf {
         commonParameters_(StreamerOutputMsgBuilders::parameters(ps)),
         streamLabel_(ps.getParameter<std::string>("@module_label")),
         trToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))),
-        psetToken_(consumes<edm::SendJobHeader::ParameterSetMap, edm::InRun>(
+        psetToken_(consumes<edm::SendJobHeader::ParameterSetMap, edm::InRun, edm::Transition::BeginRun>(
             ps.getUntrackedParameter<edm::InputTag>("psetMap"))) {
     //replace hltOutoputA with stream if the HLT menu uses this convention
     std::string testPrefix = "hltOutput";

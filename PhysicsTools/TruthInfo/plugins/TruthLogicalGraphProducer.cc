@@ -289,13 +289,13 @@ class TruthLogicalGraphProducer : public edm::stream::EDProducer<> {
 public:
   explicit TruthLogicalGraphProducer(edm::ParameterSet const& cfg)
       : srcToken_(consumes<TruthGraph>(cfg.getParameter<edm::InputTag>("src"))),
-        simTrackToken_(mayConsume<edm::SimTrackContainer>(cfg.getParameter<edm::InputTag>("simTracks"))),
-        simVertexToken_(mayConsume<edm::SimVertexContainer>(cfg.getParameter<edm::InputTag>("simVertices"))),
-        hepmc3Token_(mayConsume<edm::HepMC3Product>(cfg.getParameter<edm::InputTag>("genEventHepMC3"))),
-        hepmc2Token_(mayConsume<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
+        simTrackToken_(consumes<edm::SimTrackContainer>(cfg.getParameter<edm::InputTag>("simTracks"))),
+        simVertexToken_(consumes<edm::SimVertexContainer>(cfg.getParameter<edm::InputTag>("simVertices"))),
+        hepmc3Token_(consumes<edm::HepMC3Product>(cfg.getParameter<edm::InputTag>("genEventHepMC3"))),
+        hepmc2Token_(consumes<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
         rawGenPayloadTag_(cfg.getParameter<edm::InputTag>("rawGenPayload")),
-        rawGenPayloadToken_(mayConsume<std::vector<math::XYZTLorentzVectorD>>(rawGenPayloadTag_)),
-        rawGenPayloadNodesToken_(mayConsume<std::vector<uint32_t>>(edm::InputTag(
+        rawGenPayloadToken_(consumes<std::vector<math::XYZTLorentzVectorD>>(rawGenPayloadTag_)),
+        rawGenPayloadNodesToken_(consumes<std::vector<uint32_t>>(edm::InputTag(
             rawGenPayloadTag_.label(), rawGenPayloadTag_.instance() + "Nodes", rawGenPayloadTag_.process()))),
         mergeGenSimVertices_(cfg.getParameter<bool>("mergeGenSimVertices")),
         verbosity_(cfg.getUntrackedParameter<unsigned>("verbosity")),

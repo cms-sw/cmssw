@@ -31,7 +31,7 @@ TrackSplittingMonitor::TrackSplittingMonitor(const edm::ParameterSet& iConfig)
       cscGeomToken_(esConsumes()),
       rpcGeomToken_(esConsumes()),
       splitTracksToken_(consumes<std::vector<reco::Track> >(conf_.getParameter<edm::InputTag>("splitTrackCollection"))),
-      splitMuonsToken_(mayConsume<std::vector<reco::Muon> >(conf_.getParameter<edm::InputTag>("splitMuonCollection"))),
+      splitMuonsToken_(consumes<std::vector<reco::Muon> >(conf_.getParameter<edm::InputTag>("splitMuonCollection"))),
       plotMuons_(conf_.getParameter<bool>("ifPlotMuons")),
       pixelHitsPerLeg_(conf_.getParameter<int>("pixelHitsPerLeg")),
       totalHitsPerLeg_(conf_.getParameter<int>("totalHitsPerLeg")),

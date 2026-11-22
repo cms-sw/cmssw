@@ -49,8 +49,10 @@ namespace edm {
 
     mutable std::atomic<unsigned int> sum_ = 0;
     unsigned int expectedSum_;
-    GetterOfProducts<edmtest::ThingCollection> getterOfProductsRun_;
-    GetterOfProducts<edmtest::ThingCollection> getterOfProductsLumi_;
+    GetterOfProducts<edmtest::ThingCollection, edm::Transition::BeginRun> getterOfProductsBeginRun_;
+    GetterOfProducts<edmtest::ThingCollection, edm::Transition::EndRun> getterOfProductsEndRun_;
+    GetterOfProducts<edmtest::ThingCollection, edm::Transition::BeginLuminosityBlock> getterOfProductsBeginLumi_;
+    GetterOfProducts<edmtest::ThingCollection, edm::Transition::EndLuminosityBlock> getterOfProductsEndLumi_;
     GetterOfProducts<edmtest::ThingCollection> getterOfProductsEvent_;
   };
 
@@ -58,12 +60,16 @@ namespace edm {
       : global::OutputModuleBase(pset),
         global::OutputModule<RunCache<int>, LuminosityBlockCache<int>>(pset),
         expectedSum_(pset.getUntrackedParameter<unsigned int>("expectedSum")),
-        getterOfProductsRun_(TypeMatch(), this, InRun),
-        getterOfProductsLumi_(edm::TypeMatch(), this, InLumi),
+        getterOfProductsBeginRun_(TypeMatch(), this, InRun),
+        getterOfProductsEndRun_(TypeMatch(), this, InRun),
+        getterOfProductsBeginLumi_(edm::TypeMatch(), this, InLumi),
+        getterOfProductsEndLumi_(edm::TypeMatch(), this, InLumi),
         getterOfProductsEvent_(edm::TypeMatch(), this) {
     callWhenNewProductsRegistered([this](edm::ProductDescription const& bd) {
-      getterOfProductsRun_(bd);
-      getterOfProductsLumi_(bd);
+      getterOfProductsBeginRun_(bd);
+      getterOfProductsEndRun_(bd);
+      getterOfProductsBeginLumi_(bd);
+      getterOfProductsEndLumi_(bd);
       getterOfProductsEvent_(bd);
     });
   }
@@ -83,40 +89,40 @@ namespace edm {
 
   void TestOutputWithGetterOfProductsGlobal::writeLuminosityBlock(LuminosityBlockForOutput const& lumi) {
     std::vector<Handle<edmtest::ThingCollection>> handles;
-    getterOfProductsLumi_.fillHandles(lumi, handles);
+    getterOfProductsEndLumi_.fillHandles(lumi, handles);
     sum_ += sumThings(handles);
   }
 
   void TestOutputWithGetterOfProductsGlobal::writeRun(RunForOutput const& run) {
     std::vector<Handle<edmtest::ThingCollection>> handles;
-    getterOfProductsRun_.fillHandles(run, handles);
+    getterOfProductsEndRun_.fillHandles(run, handles);
     sum_ += sumThings(handles);
   }
 
   std::shared_ptr<int> TestOutputWithGetterOfProductsGlobal::globalBeginRun(RunForOutput const& run) const {
     std::vector<Handle<edmtest::ThingCollection>> handles;
-    getterOfProductsRun_.fillHandles(run, handles);
+    getterOfProductsBeginRun_.fillHandles(run, handles);
     return std::make_shared<int>(sumThings(handles));
   }
 
   void TestOutputWithGetterOfProductsGlobal::globalEndRun(RunForOutput const& run) const {
     sum_ += *runCache(run.index());
     std::vector<Handle<edmtest::ThingCollection>> handles;
-    getterOfProductsRun_.fillHandles(run, handles);
+    getterOfProductsEndRun_.fillHandles(run, handles);
     sum_ += sumThings(handles);
   }
 
   std::shared_ptr<int> TestOutputWithGetterOfProductsGlobal::globalBeginLuminosityBlock(
       LuminosityBlockForOutput const& lumi) const {
     std::vector<Handle<edmtest::ThingCollection>> handles;
-    getterOfProductsLumi_.fillHandles(lumi, handles);
+    getterOfProductsBeginLumi_.fillHandles(lumi, handles);
     return std::make_shared<int>(sumThings(handles));
   }
 
   void TestOutputWithGetterOfProductsGlobal::globalEndLuminosityBlock(LuminosityBlockForOutput const& lumi) const {
     sum_ += *luminosityBlockCache(lumi.index());
     std::vector<Handle<edmtest::ThingCollection>> handles;
-    getterOfProductsLumi_.fillHandles(lumi, handles);
+    getterOfProductsEndLumi_.fillHandles(lumi, handles);
     sum_ += sumThings(handles);
   }
 

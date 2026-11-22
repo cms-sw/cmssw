@@ -9,6 +9,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <algorithm>
+#include <memory>
 
 #include <TFormula.h>
 
@@ -53,7 +54,7 @@ float DTRecoConditions::get(const DTWireId& wireid, double* x) const {
     } else if (expression == "par[step]") {
       formulaType = 2;
     } else {
-      std::unique_ptr<TFormula> temp{new TFormula("DTExpr", expression.c_str())};
+      std::unique_ptr<TFormula> temp = std::make_unique<TFormula>("DTExpr", expression.c_str());
       TFormula* expected = nullptr;
       if (formula.compare_exchange_strong(expected, temp.get())) {
         //This thread set the value

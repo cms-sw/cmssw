@@ -23,7 +23,7 @@ TkAlCaRecoMonitor::TkAlCaRecoMonitor(const edm::ParameterSet &iConfig)
       trackProducer_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("TrackProducer"))),
       referenceTrackProducer_(
           consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("ReferenceTrackProducer"))),
-      jetCollection_(mayConsume<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("CaloJetCollection"))),
+      jetCollection_(consumes<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("CaloJetCollection"))),
       daughterMass_(iConfig.getParameter<double>("daughterMass")),
       maxJetPt_(iConfig.getParameter<double>("maxJetPt")),
       fillInvariantMass_(iConfig.getParameter<bool>("fillInvariantMass")),
