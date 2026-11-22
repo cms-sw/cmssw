@@ -52,7 +52,7 @@ void FlatBaseThetaGunProducer::endRunProduce(Run& run, const EventSetup& es) {
   // just create an empty product
   // to keep the EventContent definitions happy
   // later on we might put the info into the run info that this is a PGun
-  std::unique_ptr<GenRunInfoProduct> genRunInfo(new GenRunInfoProduct());
+  std::unique_ptr<GenRunInfoProduct> genRunInfo = std::make_unique<GenRunInfoProduct>();
   run.put(std::move(genRunInfo));
 }
 
