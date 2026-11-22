@@ -672,7 +672,7 @@ const PixelChannel& PixelNameTranslation::getChannelFromHdwAddress(const PixelHd
 void PixelNameTranslation::writeASCII(std::string dir) const {
   std::string mthn = "[PixelNameTranslation::writeASCII()]\t\t\t    ";
   if (!dir.empty())
-    dir += "/";
+    dir += '/';
   std::string filename = dir + "translation.dat";
 
   std::ofstream out(filename.c_str());

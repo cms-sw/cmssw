@@ -370,3 +370,150 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const cms::D
 
   return mtd;
 }
+
+std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::constructTB(const cms::DDCompactView& cpv) {
+  cms::DDFilteredView fv(cpv.detector(), cpv.detector()->worldVolume());
+
+  fv.next(0);
+  edm::LogVerbatim("DD4hep_MTDNumbering") << fv.path();
+  auto mtd = std::make_unique<GeometricTimingDet>(&fv, GeometricTimingDet::MTD);
+
+  cms::DDSpecParRefs ref;
+  const cms::DDSpecParRegistry& mypar = cpv.specpars();
+  std::string attribute("MtdDDStructure");
+  mypar.filter(ref, attribute, "BarrelTimingLayer");
+  mypar.filter(ref, attribute, "EndcapTimingLayer");
+  fv.mergedSpecifics(ref);
+
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("DD4hep_MTDNumbering") << "Active filters using " << attribute << ":";
+  fv.printFilter();
+  edm::LogVerbatim("Geometry").log([&ref](auto& log) {
+    log << "Filtered DD SpecPar Registry size: " << ref.size() << "\n";
+    for (const auto& t : ref) {
+      log << "\nSpecPar " << t.first << ":\nRegExps { ";
+      for (const auto& ki : t.second->paths)
+        log << ki << " ";
+      log << "};\n ";
+      for (const auto& kl : t.second->spars) {
+        log << kl.first << " = ";
+        for (const auto& kil : kl.second) {
+          log << kil << " ";
+        }
+        log << "\n ";
+      }
+    }
+  });
+#endif
+
+  bool doSubdet = fv.firstChild();
+  edm::LogVerbatim("DD4hep_MTDNumbering") << fv.path();
+
+  CmsMTDStringToEnum theCmsMTDStringToEnum;
+
+  CmsMTDConstruction<cms::DDFilteredView> theCmsMTDConstruction;
+  // temporary workaround to distinguish ETL scenarios ordering without introducing a dependency on MTDTopologyMode
+  const bool prev8(fv.name().find("EModule") != std::string::npos);
+
+  // Specify ETL end component
+  GeometricTimingDet::GeometricTimingEnumType ETLEndComponent;
+  if (prev8) {
+    ETLEndComponent = GeometricTimingDet::ETLSensor;
+  } else {
+    ETLEndComponent = GeometricTimingDet::ETLSensor;
+  }
+
+  std::vector<GeometricTimingDet*> subdet;
+  std::vector<GeometricTimingDet*> layer;
+  std::vector<size_t> layerSubdet;  // position in subdet of the subdetector containing each layer
+
+  while (doSubdet) {
+    std::string nodeName(fv.name());
+    GeometricTimingDet::GeometricTimingEnumType fullNode = theCmsMTDStringToEnum.type(nodeName);
+    GeometricTimingDet::GeometricTimingEnumType thisNode =
+        theCmsMTDStringToEnum.type(nodeName.substr(0, CmsMTDStringToEnum::kModStrLen));
+
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("DD4hep_MTDNumbering") << fv.path();
+    edm::LogVerbatim("DD4hep_MTDNumbering")
+        << "Module = " << fv.name() << " fullNode = " << fullNode << " thisNode = " << thisNode;
+#endif
+
+    if (fullNode == GeometricTimingDet::BTL || fullNode == GeometricTimingDet::ETL) {
+      // define subdetectors as GeometricTimingDet components
+
+      subdet.emplace_back(theCmsMTDConstruction.buildSubdet(fv));
+    }
+    if (fullNode == GeometricTimingDet::BTLLayer || fullNode == GeometricTimingDet::ETLDisc) {
+      if (subdet.empty()) {
+        throw cms::Exception("MTDNumbering") << "Layer " << fv.name() << " found outside of a subdetector";
+      }
+      layer.emplace_back(theCmsMTDConstruction.buildLayer(fv));
+      layerSubdet.emplace_back(subdet.size() - 1);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("DD4hep_MTDNumbering") << "Number of layers: " << layer.size();
+#endif
+    }
+    if (thisNode == GeometricTimingDet::BTLModule) {
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("DD4hep_MTDNumbering") << "Registered in GeometricTimingDet as type " << thisNode;
+#endif
+      theCmsMTDConstruction.buildBTLModule(fv, layer.back());
+    } else if (thisNode == ETLEndComponent) {
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("DD4hep_MTDNumbering") << "Registered in GeometricTimingDet as type " << thisNode;
+#endif
+      theCmsMTDConstruction.buildETLModule(fv, layer.back());
+    }
+
+    doSubdet = fv.firstChild();
+  }
+
+  // sort GeometricTimingDet
+
+#ifdef EDM_ML_DEBUG
+  auto comp = mtd->deepComponents();
+  std::stringstream before(std::stringstream::in | std::stringstream::out);
+  for (const auto& it : comp) {
+    before << "ORDER1 " << it->geographicalId().rawId() << " " << it->type() << " " << it->translation().z() << "\n";
+  }
+  edm::LogVerbatim("DD4hep_MTDNumbering") << "GeometricTimingDet order before sorting \n" << before.str();
+#endif
+
+  for (size_t index = 0; index < layer.size(); index++) {
+    GeometricTimingDet::ConstGeometricTimingDetContainer& icomp = layer[index]->components();
+    if (layer[index]->type() == GeometricTimingDet::ETLDisc) {
+      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderZ);
+      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderRR);
+      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderPhi);
+    } else {
+      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::btlOrderPhi);
+      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::btlOrderZ);
+    }
+  }
+
+  // Add layers to subdetectors, following the volume hierarchy
+  // (BTL has one layer, each ETL endcap one or two discs; test beam geometries may not contain all of them)
+
+  for (size_t index = 0; index < layer.size(); index++) {
+    subdet[layerSubdet[index]]->addComponent(layer[index]);
+  }
+
+  // Add subdetectors to MTD
+
+  mtd.get()->addComponents(subdet);
+
+#ifdef EDM_ML_DEBUG
+  comp.clear();
+  comp = mtd->deepComponents();
+  std::stringstream after(std::stringstream::in | std::stringstream::out);
+  for (const auto& it : comp) {
+    after << "ORDER2 " << it->geographicalId().rawId() << " " << static_cast<MTDDetId>(it->geographicalId()).mtdRR()
+          << " " << it->type() << " " << it->translation().z() << " " << convertRadToDeg(makempiToppi(it->phi()))
+          << "\n";
+  }
+  edm::LogVerbatim("DD4hep_MTDNumbering") << "GeometricTimingDet order after sorting \n" << after.str();
+#endif
+
+  return mtd;
+}

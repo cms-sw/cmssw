@@ -108,40 +108,40 @@ TtEvtBuilder<C>::TtEvtBuilder(const edm::ParameterSet& cfg)
                                             return consumes<int>(edm::InputTag(tag.label(), "NumberOfConsideredJets"));
                                           })),
       genEvt_(cfg.getParameter<edm::InputTag>("genEvent")),
-      genEvtToken_(mayConsume<TtGenEvent>(genEvt_)),
+      genEvtToken_(consumes<TtGenEvent>(genEvt_)),
       decayChnTop1_(cfg.getParameter<int>("decayChannel1")),
       decayChnTop2_(cfg.getParameter<int>("decayChannel2")) {
   // parameter subsets for kKinFit
   if (cfg.exists("kinFit")) {
     kinFit_ = cfg.getParameter<edm::ParameterSet>("kinFit");
-    fitChi2Token_ = mayConsume<std::vector<double> >(kinFit_.getParameter<edm::InputTag>("chi2"));
-    fitProbToken_ = mayConsume<std::vector<double> >(kinFit_.getParameter<edm::InputTag>("prob"));
+    fitChi2Token_ = consumes<std::vector<double> >(kinFit_.getParameter<edm::InputTag>("chi2"));
+    fitProbToken_ = consumes<std::vector<double> >(kinFit_.getParameter<edm::InputTag>("prob"));
   }
   // parameter subsets for kHitFit
   if (cfg.exists("hitFit")) {
     hitFit_ = cfg.getParameter<edm::ParameterSet>("hitFit");
-    hitFitChi2Token_ = mayConsume<std::vector<double> >(hitFit_.getParameter<edm::InputTag>("chi2"));
-    hitFitProbToken_ = mayConsume<std::vector<double> >(hitFit_.getParameter<edm::InputTag>("prob"));
-    hitFitMTToken_ = mayConsume<std::vector<double> >(hitFit_.getParameter<edm::InputTag>("mt"));
-    hitFitSigMTToken_ = mayConsume<std::vector<double> >(hitFit_.getParameter<edm::InputTag>("sigmt"));
+    hitFitChi2Token_ = consumes<std::vector<double> >(hitFit_.getParameter<edm::InputTag>("chi2"));
+    hitFitProbToken_ = consumes<std::vector<double> >(hitFit_.getParameter<edm::InputTag>("prob"));
+    hitFitMTToken_ = consumes<std::vector<double> >(hitFit_.getParameter<edm::InputTag>("mt"));
+    hitFitSigMTToken_ = consumes<std::vector<double> >(hitFit_.getParameter<edm::InputTag>("sigmt"));
   }
   // parameter subsets for kKinSolution
   if (cfg.exists("kinSolution")) {
     kinSolution_ = cfg.getParameter<edm::ParameterSet>("kinSolution");
-    solWeightToken_ = mayConsume<std::vector<double> >(kinSolution_.getParameter<edm::InputTag>("solWeight"));
-    wrongChargeToken_ = mayConsume<bool>(kinSolution_.getParameter<edm::InputTag>("wrongCharge"));
+    solWeightToken_ = consumes<std::vector<double> >(kinSolution_.getParameter<edm::InputTag>("solWeight"));
+    wrongChargeToken_ = consumes<bool>(kinSolution_.getParameter<edm::InputTag>("wrongCharge"));
   }
   // parameter subsets for kGenMatch
   if (cfg.exists("genMatch")) {
     genMatch_ = cfg.getParameter<edm::ParameterSet>("genMatch");
-    sumPtToken_ = mayConsume<std::vector<double> >(genMatch_.getParameter<edm::InputTag>("sumPt"));
-    sumDRToken_ = mayConsume<std::vector<double> >(genMatch_.getParameter<edm::InputTag>("sumDR"));
+    sumPtToken_ = consumes<std::vector<double> >(genMatch_.getParameter<edm::InputTag>("sumPt"));
+    sumDRToken_ = consumes<std::vector<double> >(genMatch_.getParameter<edm::InputTag>("sumDR"));
   }
   // parameter subsets for kMvaDisc
   if (cfg.exists("mvaDisc")) {
     mvaDisc_ = cfg.getParameter<edm::ParameterSet>("mvaDisc");
-    methToken_ = mayConsume<std::string>(mvaDisc_.getParameter<edm::InputTag>("meth"));
-    discToken_ = mayConsume<std::vector<double> >(mvaDisc_.getParameter<edm::InputTag>("disc"));
+    methToken_ = consumes<std::string>(mvaDisc_.getParameter<edm::InputTag>("meth"));
+    discToken_ = consumes<std::vector<double> >(mvaDisc_.getParameter<edm::InputTag>("disc"));
   }
   // produces a TtEventEvent for:
   //  * TtSemiLeptonicEvent

@@ -7,6 +7,8 @@
 //         Created:  Mon, 15 May 2023 08:32:03 GMT
 //
 
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
@@ -116,7 +118,7 @@ void PNETLeptonProducer<LeptonType>::produce(edm::Event &iEvent, const edm::Even
   }
 
   for (unsigned int iflav = 0; iflav < flav_names_.size(); ++iflav) {
-    std::unique_ptr<edm::ValueMap<float>> pnScore(new edm::ValueMap<float>());
+    std::unique_ptr<edm::ValueMap<float>> pnScore = std::make_unique<edm::ValueMap<float>>();
     edm::ValueMap<float>::Filler filler(*pnScore);
     filler.insert(leps, mvaScores[iflav].begin(), mvaScores[iflav].end());
     filler.fill();

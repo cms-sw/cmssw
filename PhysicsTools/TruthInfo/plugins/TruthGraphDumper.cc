@@ -299,10 +299,10 @@ public:
       : token_(consumes<TruthGraph>(cfg.getParameter<edm::InputTag>("src"))),
         dotFile_(cfg.getParameter<std::string>("dotFile")),
 
-        simTracksToken_(mayConsume<edm::SimTrackContainer>(cfg.getParameter<edm::InputTag>("simTracks"))),
-        simVerticesToken_(mayConsume<edm::SimVertexContainer>(cfg.getParameter<edm::InputTag>("simVertices"))),
-        hepmc2Token_(mayConsume<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
-        hepmc3Token_(mayConsume<edm::HepMC3Product>(cfg.getParameter<edm::InputTag>("genEventHepMC3"))) {}
+        simTracksToken_(consumes<edm::SimTrackContainer>(cfg.getParameter<edm::InputTag>("simTracks"))),
+        simVerticesToken_(consumes<edm::SimVertexContainer>(cfg.getParameter<edm::InputTag>("simVertices"))),
+        hepmc2Token_(consumes<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
+        hepmc3Token_(consumes<edm::HepMC3Product>(cfg.getParameter<edm::InputTag>("genEventHepMC3"))) {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;

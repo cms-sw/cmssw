@@ -37,8 +37,8 @@ GsfEleConversionVetoCut::GsfEleConversionVetoCut(const edm::ParameterSet& c) : C
 }
 
 void GsfEleConversionVetoCut::setConsumes(edm::ConsumesCollector& cc) {
-  auto convs = cc.mayConsume<reco::ConversionCollection>(contentTags_["conversions"]);
-  auto convsMiniAOD = cc.mayConsume<reco::ConversionCollection>(contentTags_["conversionsMiniAOD"]);
+  auto convs = cc.consumes<reco::ConversionCollection>(contentTags_["conversions"]);
+  auto convsMiniAOD = cc.consumes<reco::ConversionCollection>(contentTags_["conversionsMiniAOD"]);
   auto thebs = cc.consumes<reco::BeamSpot>(contentTags_["beamspot"]);
   contentTokens_.emplace("conversions", convs);
   contentTokens_.emplace("conversionsMiniAOD", convsMiniAOD);

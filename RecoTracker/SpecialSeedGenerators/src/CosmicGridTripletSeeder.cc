@@ -29,12 +29,12 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/CosmicGridTripletSeeder.h"
 
 CosmicGridTripletSeeder::CosmicGridTripletSeeder(const edm::ParameterSet& iConfig)
-    : vectorHitsToken_(mayConsume<VectorHitCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vectorHits"))),
+    : vectorHitsToken_(consumes<VectorHitCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vectorHits"))),
       otRecHitsToken_(
-          mayConsume<Phase2TrackerRecHit1DCollectionNew>(iConfig.getUntrackedParameter<edm::InputTag>("OTRecHits"))),
-      matchedStripHitsToken_(mayConsume<SiStripMatchedRecHit2DCollection>(
-          iConfig.getUntrackedParameter<edm::InputTag>("matchedStripHits"))),
-      rPhiHitsToken_(mayConsume<SiStripRecHit2DCollection>(iConfig.getUntrackedParameter<edm::InputTag>("rPhiHits"))),
+          consumes<Phase2TrackerRecHit1DCollectionNew>(iConfig.getUntrackedParameter<edm::InputTag>("OTRecHits"))),
+      matchedStripHitsToken_(
+          consumes<SiStripMatchedRecHit2DCollection>(iConfig.getUntrackedParameter<edm::InputTag>("matchedStripHits"))),
+      rPhiHitsToken_(consumes<SiStripRecHit2DCollection>(iConfig.getUntrackedParameter<edm::InputTag>("rPhiHits"))),
       pixelRecHitsToken_(consumes(iConfig.getUntrackedParameter<edm::InputTag>("PixelRecHits"))),
       magfieldToken_(esConsumes(iConfig.getParameter<edm::ESInputTag>("MagneticFieldRecord"))),
       trackerToken_(esConsumes()),

@@ -62,7 +62,7 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   theTkTrackLabel = par.getParameter<edm::InputTag>("TrackerCollectionLabel");
   allTrackerTracksToken = iC.consumes<reco::TrackCollection>(theTkTrackLabel);
   thePrimaryVtxLabel = par.getParameter<edm::InputTag>("VertexCollectionLabel");
-  primaryVertexToken = iC.mayConsume<reco::VertexCollection>(thePrimaryVtxLabel);
+  primaryVertexToken = iC.consumes<reco::VertexCollection>(thePrimaryVtxLabel);
   selectHighPurity_ = par.getParameter<bool>("selectHighPurity");
 }
 

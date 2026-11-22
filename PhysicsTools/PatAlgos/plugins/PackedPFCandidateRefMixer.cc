@@ -7,6 +7,8 @@
      - one ValueMap<reco::CandidatePtr> that maps the old PF candidates into the new packed PF candidates
 */
 
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -80,7 +82,7 @@ void pat::PackedPFCandidateRefMixer::produce(edm::Event& iEvent, const edm::Even
       throw cms::Exception("LogicError") << "A packed candidate has refs that we don't understand\n";
     }
   }
-  std::unique_ptr<edm::ValueMap<reco::CandidatePtr>> out(new edm::ValueMap<reco::CandidatePtr>());
+  std::unique_ptr<edm::ValueMap<reco::CandidatePtr>> out = std::make_unique<edm::ValueMap<reco::CandidatePtr>>();
   edm::ValueMap<reco::CandidatePtr>::Filler filler(*out);
   filler.insert(pf, outptrs.begin(), outptrs.end());
   filler.fill();

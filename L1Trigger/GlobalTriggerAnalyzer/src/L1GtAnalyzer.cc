@@ -112,9 +112,10 @@ L1GtAnalyzer::L1GtAnalyzer(const edm::ParameterSet& parSet)
   m_l1GtDaqReadoutRecordToken = consumes<L1GlobalTriggerReadoutRecord>(m_l1GtDaqReadoutRecordInputTag);
   m_l1GtObjectMapToken = consumes<L1GlobalTriggerObjectMapRecord>(m_l1GtObjectMapTag);
   m_l1GtObjectMapsToken = consumes<L1GlobalTriggerObjectMaps>(m_l1GtObjectMapsInputTag);
-  m_l1GtTmLToken = consumes<L1GtTriggerMenuLite, edm::InRun>(m_l1GtTmLInputTag);
-  m_condInRunToken = consumes<edm::ConditionsInRunBlock, edm::InRun>(m_condInEdmInputTag);
-  m_condInLumiToken = consumes<edm::ConditionsInLumiBlock, edm::InLumi>(m_condInEdmInputTag);
+  m_l1GtTmLToken = consumes<L1GtTriggerMenuLite, edm::InRun, edm::Transition::Event>(m_l1GtTmLInputTag);
+  m_condInRunToken = consumes<edm::ConditionsInRunBlock, edm::InRun, edm::Transition::BeginRun>(m_condInEdmInputTag);
+  m_condInLumiToken =
+      consumes<edm::ConditionsInLumiBlock, edm::InLumi, edm::Transition::BeginLuminosityBlock>(m_condInEdmInputTag);
   m_condInEventToken = consumes<edm::ConditionsInEventBlock>(m_condInEdmInputTag);
 
   LogDebug("L1GtAnalyzer") << "\n Input parameters for L1 GT test analyzer"

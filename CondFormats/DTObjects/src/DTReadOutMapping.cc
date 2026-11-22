@@ -20,6 +20,7 @@
 // C++ Headers --
 //---------------
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <map>
 
@@ -499,7 +500,7 @@ std::string DTReadOutMapping::mapNameRG() const {
 }
 
 void DTReadOutMapping::cacheMap() const {
-  std::unique_ptr<DTReadOutMappingCache> localCache(new DTReadOutMappingCache);
+  std::unique_ptr<DTReadOutMappingCache> localCache = std::make_unique<DTReadOutMappingCache>();
 
   localCache->mType.insert(0, 0);
 
@@ -565,7 +566,7 @@ void DTReadOutMapping::cacheMap() const {
       std::vector<int>* robMLgr;
       localCache->grROB.find(cellKey.begin(), cellKey.end(), robMLgr);
       if (robMLgr == nullptr) {
-        std::unique_ptr<std::vector<int> > newVector(new std::vector<int>);
+        std::unique_ptr<std::vector<int>> newVector = std::make_unique<std::vector<int>>();
         robMLgr = newVector.get();
         localCache->grROB.insert(cellKey.begin(), cellKey.end(), std::move(newVector));
       }
@@ -584,7 +585,7 @@ void DTReadOutMapping::cacheMap() const {
       std::vector<int>* rosMLgr;
       localCache->grROS.find(cellKey.begin(), cellKey.end(), rosMLgr);
       if (rosMLgr == nullptr) {
-        std::unique_ptr<std::vector<int> > newVector(new std::vector<int>);
+        std::unique_ptr<std::vector<int>> newVector = std::make_unique<std::vector<int>>();
         rosMLgr = newVector.get();
         localCache->grROS.insert(cellKey.begin(), cellKey.end(), std::move(newVector));
       }
@@ -642,7 +643,7 @@ void DTReadOutMapping::cacheMap() const {
         std::vector<int>* dduMLgr = nullptr;
         localCache->grDDU.find(cellKey.begin(), cellKey.end(), dduMLgr);
         if (dduMLgr == nullptr) {
-          std::unique_ptr<std::vector<int> > newVector(new std::vector<int>);
+          std::unique_ptr<std::vector<int>> newVector = std::make_unique<std::vector<int>>();
           dduMLgr = newVector.get();
           localCache->grDDU.insert(cellKey.begin(), cellKey.end(), std::move(newVector));
         }

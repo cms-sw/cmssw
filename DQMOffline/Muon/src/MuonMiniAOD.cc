@@ -10,7 +10,7 @@ MuonMiniAOD::MuonMiniAOD(const edm::ParameterSet& pSet) {
 
   theMuonCollectionLabel_ = consumes<edm::View<pat::Muon> >(parameters.getParameter<edm::InputTag>("MuonCollection"));
   theVertexLabel_ = consumes<reco::VertexCollection>(parameters.getParameter<edm::InputTag>("VertexLabel"));
-  theBeamSpotLabel_ = mayConsume<reco::BeamSpot>(parameters.getParameter<edm::InputTag>("BeamSpotLabel"));
+  theBeamSpotLabel_ = consumes<reco::BeamSpot>(parameters.getParameter<edm::InputTag>("BeamSpotLabel"));
 }
 
 MuonMiniAOD::~MuonMiniAOD() {}

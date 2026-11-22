@@ -182,7 +182,7 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
 
   if (selectHighPurity_) {
     const auto& pvTag = iConfig.getParameter<edm::InputTag>("pvInputTag");
-    pvToken_ = mayConsume<reco::VertexCollection>(pvTag);
+    pvToken_ = consumes<reco::VertexCollection>(pvTag);
   }
 
   //create mesh holder

@@ -88,7 +88,7 @@ void HGCalSimHitDump::analyze(const edm::Event& e, const edm::EventSetup&) {
           ++i;
         }
       } else {
-        edm::LogVerbatim("HitStudy") << "HGCalSimHitDump: No Hits found for type " << hitLab_[k] << ":" << types_[k];
+        edm::LogVerbatim("HitStudy") << "HGCalSimHitDump: Input 0 hits of type " << hitLab_[k] << ":" << types_[k];
       }
     }
   }

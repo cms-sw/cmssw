@@ -260,7 +260,7 @@ void BaseMVAValueMapProducer<T>::produce(edm::Event& iEvent, const edm::EventSet
 
   size_t k = 0;
   for (auto& m : mvaOut) {
-    std::unique_ptr<edm::ValueMap<float>> mvaV(new edm::ValueMap<float>());
+    std::unique_ptr<edm::ValueMap<float>> mvaV = std::make_unique<edm::ValueMap<float>>();
     edm::ValueMap<float>::Filler filler(*mvaV);
     filler.insert(src, m.begin(), m.end());
     filler.fill();

@@ -98,7 +98,7 @@ EgammaTrackExtractor::EgammaTrackExtractor(const ParameterSet& par, edm::Consume
       theDR_Max(par.getParameter<double>("DR_Max")),
       theDR_Veto(par.getParameter<double>("DR_Veto")),
       theBeamlineOption(par.getParameter<std::string>("BeamlineOption")),
-      theBeamSpotToken(iC.mayConsume<reco::BeamSpot>(par.getParameter<edm::InputTag>("BeamSpotLabel"))),
+      theBeamSpotToken(iC.consumes<reco::BeamSpot>(par.getParameter<edm::InputTag>("BeamSpotLabel"))),
       theNHits_Min(par.getParameter<unsigned int>("NHits_Min")),
       theChi2Ndof_Max(par.getParameter<double>("Chi2Ndof_Max")),
       theChi2Prob_Min(par.getParameter<double>("Chi2Prob_Min")),

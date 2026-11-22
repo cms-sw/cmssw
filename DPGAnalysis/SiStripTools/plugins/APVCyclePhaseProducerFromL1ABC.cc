@@ -96,8 +96,8 @@ private:
 //
 APVCyclePhaseProducerFromL1ABC::APVCyclePhaseProducerFromL1ABC(const edm::ParameterSet& iConfig)
     : _l1abccollectionToken(
-          mayConsume<L1AcceptBunchCrossingCollection>(iConfig.getParameter<edm::InputTag>("l1ABCCollection"))),
-      _tcdsRecordToken(mayConsume<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))),
+          consumes<L1AcceptBunchCrossingCollection>(iConfig.getParameter<edm::InputTag>("l1ABCCollection"))),
+      _tcdsRecordToken(consumes<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))),
       _defpartnames(iConfig.getParameter<std::vector<std::string> >("defaultPartitionNames")),
       _defphases(iConfig.getParameter<std::vector<int> >("defaultPhases")),
       _orbitoffsetSOR(iConfig.getParameter<int>("StartOfRunOrbitOffset")),
@@ -178,7 +178,7 @@ void APVCyclePhaseProducerFromL1ABC::endRun(const edm::Run&, const edm::EventSet
 void APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  std::unique_ptr<APVCyclePhaseCollection> apvphases(new APVCyclePhaseCollection());
+  std::unique_ptr<APVCyclePhaseCollection> apvphases = std::make_unique<APVCyclePhaseCollection>();
 
   const std::vector<int>& phases = _defphases;
   const std::vector<std::string>& partnames = _defpartnames;

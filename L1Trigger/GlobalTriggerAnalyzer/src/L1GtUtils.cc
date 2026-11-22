@@ -278,13 +278,17 @@ void L1GtUtils::retrieveL1EventSetup(const edm::EventSetup& evSetup, bool isRun)
   }
 }
 
-void L1GtUtils::retrieveL1GtTriggerMenuLite(const edm::Run& iRun) {
+void L1GtUtils::retrieveL1GtTriggerMenuLite(const edm::Run& iRun, bool iFromBeginRun) {
   m_retrieveL1GtTriggerMenuLite = true;
 
   // get L1GtTriggerMenuLite
   edm::Handle<L1GtTriggerMenuLite> l1GtMenuLite;
-  if (!m_l1GtUtilsHelper->l1GtTriggerMenuLiteToken().isUninitialized()) {
-    iRun.getByToken(m_l1GtUtilsHelper->l1GtTriggerMenuLiteToken(), l1GtMenuLite);
+  if (!m_l1GtUtilsHelper->l1GtTriggerMenuLiteTokenDuringRun().isUninitialized()) {
+    if (iFromBeginRun) {
+      iRun.getByToken(m_l1GtUtilsHelper->l1GtTriggerMenuLiteTokenDuringRun(), l1GtMenuLite);
+    } else {
+      iRun.getByToken(m_l1GtUtilsHelper->l1GtTriggerMenuLiteTokenDuringEvent(), l1GtMenuLite);
+    }
   }
 
   if (!l1GtMenuLite.isValid()) {
@@ -332,7 +336,7 @@ void L1GtUtils::getL1GtRunCache(const edm::Run& iRun,
   // L1GtTriggerMenuLite is defined per run and produced in prompt reco by L1Reco
   // and put in the Run section
   if (useL1GtTriggerMenuLite) {
-    retrieveL1GtTriggerMenuLite(iRun);
+    retrieveL1GtTriggerMenuLite(iRun, true);
   }
 }
 
@@ -361,7 +365,7 @@ void L1GtUtils::getL1GtRunCache(const edm::Event& iEvent,
       // L1GtTriggerMenuLite is defined per run and produced in prompt reco by L1Reco
       // and put in the Run section
       if (useL1GtTriggerMenuLite) {
-        retrieveL1GtTriggerMenuLite(iRun);
+        retrieveL1GtTriggerMenuLite(iRun, false);
       }
     }
     m_runIDCache = runID;

@@ -147,7 +147,7 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet &iConfig)
     genJetToken_ =
         consumes<edm::Association<reco::GenJetCollection>>(iConfig.getParameter<edm::InputTag>("genJetMatch"));
   addPartonJetMatch_ = iConfig.getParameter<bool>("addPartonJetMatch");
-  //   partonJetToken_ = mayConsume<reco::SomePartonJetType>(iConfig.getParameter<edm::InputTag>( "partonJetSource" ));
+  //   partonJetToken_ = consumes<reco::SomePartonJetType>(iConfig.getParameter<edm::InputTag>( "partonJetSource" ));
   addJetCorrFactors_ = iConfig.getParameter<bool>("addJetCorrFactors");
   if (addJetCorrFactors_) {
     jetCorrFactorsTokens_ = edm::vector_transform(
@@ -158,12 +158,12 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet &iConfig)
   addDiscriminators_ = iConfig.getParameter<bool>("addDiscriminators");
   discriminatorTags_ = iConfig.getParameter<std::vector<edm::InputTag>>("discriminatorSources");
   discriminatorTokens_ = edm::vector_transform(discriminatorTags_, [this](edm::InputTag const &tag) {
-    return mayConsume<reco::JetFloatAssociation::Container>(tag);
+    return consumes<reco::JetFloatAssociation::Container>(tag);
   });
   addTagInfos_ = iConfig.getParameter<bool>("addTagInfos");
   tagInfoTags_ = iConfig.getParameter<std::vector<edm::InputTag>>("tagInfoSources");
   tagInfoTokens_ = edm::vector_transform(
-      tagInfoTags_, [this](edm::InputTag const &tag) { return mayConsume<edm::View<reco::BaseTagInfo>>(tag); });
+      tagInfoTags_, [this](edm::InputTag const &tag) { return consumes<edm::View<reco::BaseTagInfo>>(tag); });
   addAssociatedTracks_ = iConfig.getParameter<bool>("addAssociatedTracks");
   if (addAssociatedTracks_)
     trackAssociationToken_ =

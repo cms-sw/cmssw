@@ -12,6 +12,7 @@
 
 #include "DataFormats/METReco/interface/CorrMETData.h"
 
+#include <memory>
 #include <vector>
 
 //____________________________________________________________________________||
@@ -49,9 +50,9 @@ private:
     float cY = (float)sumCor.mey;
     float cSEt = (float)sumCor.sumet;
 
-    std::unique_ptr<float> corX(new float(0));
-    std::unique_ptr<float> corY(new float(0));
-    std::unique_ptr<float> corSumEt(new float(0));
+    std::unique_ptr<float> corX = std::make_unique<float>(0);
+    std::unique_ptr<float> corY = std::make_unique<float>(0);
+    std::unique_ptr<float> corSumEt = std::make_unique<float>(0);
 
     *corX = cX;
     *corY = cY;

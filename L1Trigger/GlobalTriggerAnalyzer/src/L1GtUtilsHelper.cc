@@ -13,7 +13,10 @@ L1GtUtilsHelper::L1GtUtilsHelper(edm::ParameterSet const& pset, edm::ConsumesCol
   m_l1GtRecordToken = iC.consumes<L1GlobalTriggerRecord>(m_l1GtRecordInputTag);
   m_l1GtReadoutRecordToken = iC.consumes<L1GlobalTriggerReadoutRecord>(m_l1GtReadoutRecordInputTag);
   if (useL1GtTriggerMenuLite) {
-    m_l1GtTriggerMenuLiteToken = iC.consumes<L1GtTriggerMenuLite, edm::InRun>(m_l1GtTriggerMenuLiteInputTag);
+    m_l1GtTriggerMenuLiteTokenDuringRun =
+        iC.consumes<L1GtTriggerMenuLite, edm::InRun, edm::Transition::BeginRun>(m_l1GtTriggerMenuLiteInputTag);
+    m_l1GtTriggerMenuLiteTokenDuringEvent =
+        iC.consumes<L1GtTriggerMenuLite, edm::InRun, edm::Transition::Event>(m_l1GtTriggerMenuLiteInputTag);
   }
 }
 
@@ -24,7 +27,7 @@ void L1GtUtilsHelper::fillDescription(edm::ParameterSetDescription& desc) {
 }
 
 namespace {
-  template <typename C, typename T>
+  template <typename C, typename T, edm::BranchType B = edm::InEvent, edm::Transition Tr = edm::Transition::Event>
   void setConsumesAndCheckAmbiguities(edm::ProductDescription const& iDesc,
                                       C const& iPreferredTags,
                                       T& ioToken,
@@ -35,7 +38,7 @@ namespace {
       //hasn't been set yet
       ioTag = edm::InputTag{iDesc.moduleLabel(), iDesc.productInstanceName(), iDesc.processName()};
 
-      ioToken = iCollector.consumes(ioTag);
+      ioToken = iCollector.consumes<B, Tr>(ioTag);
       LogDebug("L1GtUtils")
           << "Input tag found for " << iTypeForErrorMessage << " product.\n Input tag set to " << (ioTag) << "\n Tag is"
           << ((iPreferredTags.end() != std::find(iPreferredTags.begin(), iPreferredTags.end(), ioTag.label())) ? ""
@@ -66,7 +69,7 @@ namespace {
           auto oldTag = ioTag;
           ioTag = edm::InputTag{iDesc.moduleLabel(), iDesc.productInstanceName(), iDesc.processName()};
 
-          ioToken = iCollector.consumes(ioTag);
+          ioToken = iCollector.consumes<B, Tr>(ioTag);
           edm::LogWarning("L1GtUtils") << "Found preferred tag " << (ioTag) << "\n after having set unpreferred tag ("
                                        << oldTag << ") for " << iTypeForErrorMessage
                                        << ".\n Please change configuration to explicitly use the tag given above.\n "
@@ -151,12 +154,24 @@ void L1GtUtilsHelper::checkToUpdateTags(edm::ProductDescription const& productDe
   // L1GtTriggerMenuLite
 
   if (findMenuLite && (productDescription.unwrappedTypeID() == edm::TypeID(typeid(L1GtTriggerMenuLite))) &&
-      (productDescription.branchType() == edm::InEvent)) {
-    setConsumesAndCheckAmbiguities(productDescription,
-                                   preferredL1GtTriggerMenuLiteInputTag,
-                                   m_l1GtTriggerMenuLiteToken,
-                                   m_l1GtTriggerMenuLiteInputTag,
-                                   consumesCollector,
-                                   "L1GtTriggerMenuLite");
+      (productDescription.branchType() == edm::InRun)) {
+    setConsumesAndCheckAmbiguities<std::vector<edm::InputTag>,
+                                   decltype(m_l1GtTriggerMenuLiteTokenDuringRun),
+                                   edm::InRun,
+                                   edm::Transition::BeginRun>(productDescription,
+                                                              preferredL1GtTriggerMenuLiteInputTag,
+                                                              m_l1GtTriggerMenuLiteTokenDuringRun,
+                                                              m_l1GtTriggerMenuLiteInputTag,
+                                                              consumesCollector,
+                                                              "L1GtTriggerMenuLite");
+    setConsumesAndCheckAmbiguities<std::vector<edm::InputTag>,
+                                   decltype(m_l1GtTriggerMenuLiteTokenDuringEvent),
+                                   edm::InRun,
+                                   edm::Transition::Event>(productDescription,
+                                                           preferredL1GtTriggerMenuLiteInputTag,
+                                                           m_l1GtTriggerMenuLiteTokenDuringEvent,
+                                                           m_l1GtTriggerMenuLiteInputTag,
+                                                           consumesCollector,
+                                                           "L1GtTriggerMenuLite");
   }
 }

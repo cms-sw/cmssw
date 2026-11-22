@@ -21,11 +21,11 @@ public:
   HLTTauExtraTableProducer(const edm::ParameterSet& cfg)
       : tableName_(cfg.getParameter<std::string>("tableName")),
         skipNonExistingSrc_(cfg.getParameter<bool>("skipNonExistingSrc")),
-        tauToken_(mayConsume<TauCollection>(cfg.getParameter<edm::InputTag>("taus"))),
-        tauIPToken_(mayConsume<TauIPVector>(cfg.getParameter<edm::InputTag>("tauTransverseImpactParameters"))),
-        deepTauVSeToken_(mayConsume<TauDiscrMap>(cfg.getParameter<edm::InputTag>("deepTauVSe"))),
-        deepTauVSmuToken_(mayConsume<TauDiscrMap>(cfg.getParameter<edm::InputTag>("deepTauVSmu"))),
-        deepTauVSjetToken_(mayConsume<TauDiscrMap>(cfg.getParameter<edm::InputTag>("deepTauVSjet"))),
+        tauToken_(consumes<TauCollection>(cfg.getParameter<edm::InputTag>("taus"))),
+        tauIPToken_(consumes<TauIPVector>(cfg.getParameter<edm::InputTag>("tauTransverseImpactParameters"))),
+        deepTauVSeToken_(consumes<TauDiscrMap>(cfg.getParameter<edm::InputTag>("deepTauVSe"))),
+        deepTauVSmuToken_(consumes<TauDiscrMap>(cfg.getParameter<edm::InputTag>("deepTauVSmu"))),
+        deepTauVSjetToken_(consumes<TauDiscrMap>(cfg.getParameter<edm::InputTag>("deepTauVSjet"))),
         precision_(cfg.getParameter<int>("precision")) {
     produces<nanoaod::FlatTable>(tableName_);
   }

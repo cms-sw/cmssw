@@ -74,7 +74,7 @@ using namespace std;
 HitEff::HitEff(const edm::ParameterSet& conf)
     : scalerToken_(consumes<LumiScalersCollection>(conf.getParameter<edm::InputTag>("lumiScalers"))),
       metaDataToken_(consumes<OnlineLuminosityRecord>(conf.getParameter<edm::InputTag>("metadata"))),
-      commonModeToken_(mayConsume<edm::DetSetVector<SiStripRawDigi> >(conf.getParameter<edm::InputTag>("commonMode"))),
+      commonModeToken_(consumes<edm::DetSetVector<SiStripRawDigi> >(conf.getParameter<edm::InputTag>("commonMode"))),
       siStripClusterInfo_(consumesCollector()),
       combinatorialTracks_token_(
           consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("combinatorialTracks"))),

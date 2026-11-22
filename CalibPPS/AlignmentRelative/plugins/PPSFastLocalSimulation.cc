@@ -3,6 +3,8 @@
 *  Jan Kašpar (jan.kaspar@gmail.com)
 ****************************************************************************/
 
+#include <memory>
+
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -408,9 +410,9 @@ void PPSFastLocalSimulation::produce(edm::Event &event, const edm::EventSetup &e
   GenEvent *gEv = new GenEvent();
   gEv->set_event_number(event.id().event());
 
-  unique_ptr<DetSetVector<TotemRPRecHit>> stripHitColl(new DetSetVector<TotemRPRecHit>());
-  unique_ptr<DetSetVector<CTPPSDiamondRecHit>> diamondHitColl(new DetSetVector<CTPPSDiamondRecHit>());
-  unique_ptr<DetSetVector<CTPPSPixelRecHit>> pixelHitColl(new DetSetVector<CTPPSPixelRecHit>());
+  unique_ptr<DetSetVector<TotemRPRecHit>> stripHitColl = std::make_unique<DetSetVector<TotemRPRecHit>>();
+  unique_ptr<DetSetVector<CTPPSDiamondRecHit>> diamondHitColl = std::make_unique<DetSetVector<CTPPSDiamondRecHit>>();
+  unique_ptr<DetSetVector<CTPPSPixelRecHit>> pixelHitColl = std::make_unique<DetSetVector<CTPPSPixelRecHit>>();
 
   // run particle loop
   for (unsigned int pi = 0; pi < particlesPerEvent_; pi++) {
@@ -422,7 +424,7 @@ void PPSFastLocalSimulation::produce(edm::Event &event, const edm::EventSetup &e
 
   // save products
   if (makeHepMC_) {
-    unique_ptr<HepMCProduct> hepMCoutput(new HepMCProduct());
+    unique_ptr<HepMCProduct> hepMCoutput = std::make_unique<HepMCProduct>();
     hepMCoutput->addHepMCData(gEv);
     event.put(std::move(hepMCoutput));
   }

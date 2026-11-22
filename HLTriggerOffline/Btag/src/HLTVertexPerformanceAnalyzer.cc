@@ -10,7 +10,7 @@ HLTVertexPerformanceAnalyzer::HLTVertexPerformanceAnalyzer(const edm::ParameterS
   hlTriggerResults_ = consumes<TriggerResults>(iConfig.getParameter<InputTag>("TriggerResults"));
   VertexCollection_ =
       edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag>>("Vertex"),
-                            [this](edm::InputTag const &tag) { return mayConsume<reco::VertexCollection>(tag); });
+                            [this](edm::InputTag const &tag) { return consumes<reco::VertexCollection>(tag); });
   hltPathNames_ = iConfig.getParameter<std::vector<std::string>>("HLTPathNames");
   simVertexCollection_ = consumes<std::vector<SimVertex>>(iConfig.getParameter<edm::InputTag>("SimVertexCollection"));
 

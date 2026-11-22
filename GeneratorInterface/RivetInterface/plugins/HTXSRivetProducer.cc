@@ -34,7 +34,8 @@ class HTXSRivetProducer : public edm::one::EDProducer<edm::one::WatchRuns, edm::
 public:
   explicit HTXSRivetProducer(const edm::ParameterSet& cfg)
       : _hepmcCollection(consumes<HepMC3Product>(cfg.getParameter<edm::InputTag>("HepMCCollection"))),
-        _lheRunInfo(consumes<LHERunInfoProduct, edm::InRun>(cfg.getParameter<edm::InputTag>("LHERunInfo"))) {
+        _lheRunInfo(consumes<LHERunInfoProduct, edm::InRun, edm::Transition::BeginRun>(
+            cfg.getParameter<edm::InputTag>("LHERunInfo"))) {
     usesResource("Rivet");
     _prodMode = cfg.getParameter<string>("ProductionMode");
     m_HiggsProdMode = HTXS::UNKNOWN;
@@ -175,7 +176,7 @@ void HTXSRivetProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
     Rivet::HiggsClassification rivet_cat = _HTXS->classifyEvent(event, m_HiggsProdMode);
     cat_ = HTXS::Rivet2Root(rivet_cat);
 
-    unique_ptr<HTXS::HiggsClassification> cat(new HTXS::HiggsClassification(cat_));
+    unique_ptr<HTXS::HiggsClassification> cat = std::make_unique<HTXS::HiggsClassification>(cat_);
 
     iEvent.put(std::move(cat), "HiggsClassification");
   }

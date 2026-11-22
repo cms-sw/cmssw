@@ -6,6 +6,7 @@
 #include "DataFormats/Common/interface/RefToPtr.h"
 
 #include <cmath>
+#include <memory>
 
 using pat::Photon;
 
@@ -262,7 +263,8 @@ reco::SuperClusterRef Photon::superCluster() const {
   if (embeddedSuperCluster_) {
     if (embeddedSeedCluster_ || !basicClusters_.empty() || !preshowerClusters_.empty()) {
       if (!superClusterRelinked_.isSet()) {
-        std::unique_ptr<std::vector<reco::SuperCluster> > sc(new std::vector<reco::SuperCluster>(superCluster_));
+        std::unique_ptr<std::vector<reco::SuperCluster>> sc =
+            std::make_unique<std::vector<reco::SuperCluster>>(superCluster_);
         if (embeddedSeedCluster_ && !(*sc)[0].seed().isAvailable()) {
           (*sc)[0].setSeed(seed());
         }

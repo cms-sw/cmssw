@@ -9,7 +9,7 @@ LheWeightValidation::LheWeightValidation(const edm::ParameterSet& iPSet)
     : lheLabel_(iPSet.getParameter<edm::InputTag>("lheProduct")),
       genParticleToken_(consumes<reco::GenParticleCollection>(iPSet.getParameter<edm::InputTag>("genParticles"))),
       lheEvtToken_(consumes<LHEEventProduct>(lheLabel_)),
-      lheRunToken_(consumes<LHERunInfoProduct, edm::InRun>(lheLabel_)),
+      lheRunToken_(consumes<LHERunInfoProduct, edm::InRun, edm::Transition::EndRun>(lheLabel_)),
       genJetToken_(consumes<reco::GenJetCollection>(iPSet.getParameter<edm::InputTag>("genJets"))),
       dumpLHEheader_(iPSet.getParameter<bool>("dumpLHEheader")),
       leadLepPtNbin_(iPSet.getParameter<int>("leadLepPtNbin")),

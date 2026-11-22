@@ -35,9 +35,9 @@ TriggerHelper::TriggerHelper(const edm::ParameterSet &config, edm::ConsumesColle
     if (config.exists("andOrDcs")) {
       andOrDcs_ = config.getParameter<bool>("andOrDcs");
       dcsInputTag_ = config.getParameter<edm::InputTag>("dcsInputTag");
-      dcsInputToken_ = iC.mayConsume<DcsStatusCollection>(dcsInputTag_);
+      dcsInputToken_ = iC.consumes<DcsStatusCollection>(dcsInputTag_);
       dcsRecordInputTag_ = config.getParameter<edm::InputTag>("dcsRecordInputTag");
-      dcsRecordToken_ = iC.mayConsume<DCSRecord>(dcsRecordInputTag_);
+      dcsRecordToken_ = iC.consumes<DCSRecord>(dcsRecordInputTag_);
       dcsPartitions_ = config.getParameter<std::vector<int>>("dcsPartitions");
       errorReplyDcs_ = config.getParameter<bool>("errorReplyDcs");
     } else {
@@ -64,7 +64,7 @@ TriggerHelper::TriggerHelper(const edm::ParameterSet &config, edm::ConsumesColle
     if (config.exists("andOrHlt")) {
       andOrHlt_ = config.getParameter<bool>("andOrHlt");
       hltInputTag_ = config.getParameter<edm::InputTag>("hltInputTag");
-      hltInputToken_ = iC.mayConsume<edm::TriggerResults>(hltInputTag_);
+      hltInputToken_ = iC.consumes<edm::TriggerResults>(hltInputTag_);
       hltLogicalExpressions_ = config.getParameter<std::vector<std::string>>("hltPaths");
       errorReplyHlt_ = config.getParameter<bool>("errorReplyHlt");
       if (config.exists("hltDBKey"))

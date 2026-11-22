@@ -49,7 +49,7 @@ void GsfElectronCoreEcalDrivenProducer::fillDescriptions(edm::ConfigurationDescr
 GsfElectronCoreEcalDrivenProducer::GsfElectronCoreEcalDrivenProducer(const edm::ParameterSet& config)
     : useGsfPfRecTracks_(config.getParameter<bool>("useGsfPfRecTracks")),
       hgcalOnly_(config.getParameter<bool>("hgcalOnly")),
-      gsfPfRecTracksToken_(mayConsume<GsfPFRecTrackCollection>(config.getParameter<edm::InputTag>("gsfPfRecTracks"))),
+      gsfPfRecTracksToken_(consumes<GsfPFRecTrackCollection>(config.getParameter<edm::InputTag>("gsfPfRecTracks"))),
       gsfTracksToken_(consumes<reco::GsfTrackCollection>(config.getParameter<edm::InputTag>("gsfTracks"))),
       ctfTracksToken_(consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("ctfTracks"))),
       putToken_(produces<reco::GsfElectronCoreCollection>()) {}
