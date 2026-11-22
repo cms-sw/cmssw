@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -149,7 +150,7 @@ namespace citk {
     // fill and put all products
     for (unsigned i = 0; i < kNPFTypes; ++i) {
       for (unsigned j = 0; j < the_values[i].size(); ++j) {
-        product_type the_product(new edm::ValueMap<float>);
+        product_type the_product = std::make_unique<edm::ValueMap<float>>();
         edm::ValueMap<float>::Filler fillerprod(*the_product);
         fillerprod.insert(to_isolate, the_values[i][j].begin(), the_values[i][j].end());
         fillerprod.fill();

@@ -7,6 +7,8 @@
  *
  */
 
+#include <memory>
+
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -32,18 +34,18 @@ public:
 private:
   // input collection
   edm::InputTag srccandidates_;
-  edm::EDGetTokenT<edm::View<reco::PFCandidate> > candidatesToken_;
+  edm::EDGetTokenT<edm::View<reco::PFCandidate>> candidatesToken_;
   double minTrackPt_;
   double minRawCaloEnergy_;
 };
 
 ChargedHadronPFTrackIsolationProducer::ChargedHadronPFTrackIsolationProducer(const edm::ParameterSet& cfg) {
   srccandidates_ = cfg.getParameter<edm::InputTag>("src");
-  candidatesToken_ = consumes<edm::View<reco::PFCandidate> >(srccandidates_);
+  candidatesToken_ = consumes<edm::View<reco::PFCandidate>>(srccandidates_);
   minTrackPt_ = cfg.getParameter<double>("minTrackPt");
   minRawCaloEnergy_ = cfg.getParameter<double>("minRawCaloEnergy");
 
-  produces<edm::ValueMap<bool> >();
+  produces<edm::ValueMap<bool>>();
 }
 
 void ChargedHadronPFTrackIsolationProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const {
@@ -75,7 +77,7 @@ void ChargedHadronPFTrackIsolationProducer::produce(edm::StreamID, edm::Event& e
     values.push_back((nTracks == 1));
   }
 
-  std::unique_ptr<edm::ValueMap<bool> > out(new edm::ValueMap<bool>());
+  std::unique_ptr<edm::ValueMap<bool>> out = std::make_unique<edm::ValueMap<bool>>();
   edm::ValueMap<bool>::Filler filler(*out);
   filler.insert(candidates, values.begin(), values.end());
   filler.fill();

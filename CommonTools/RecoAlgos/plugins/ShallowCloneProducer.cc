@@ -12,6 +12,8 @@
  *
  */
 
+#include <memory>
+
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -44,7 +46,7 @@ ShallowCloneProducer<C>::~ShallowCloneProducer() {}
 
 template <typename C>
 void ShallowCloneProducer<C>::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const {
-  std::unique_ptr<reco::CandidateCollection> coll(new reco::CandidateCollection);
+  std::unique_ptr<reco::CandidateCollection> coll = std::make_unique<reco::CandidateCollection>();
   edm::Handle<C> masterCollection;
   evt.getByToken(srcToken_, masterCollection);
   for (size_t i = 0; i < masterCollection->size(); ++i) {

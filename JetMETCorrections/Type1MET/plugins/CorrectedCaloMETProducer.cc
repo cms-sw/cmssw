@@ -15,6 +15,7 @@
 
 #include "JetMETCorrections/Type1MET/interface/AddCorrectionsToGenericMET.h"
 
+#include <memory>
 #include <vector>
 
 //____________________________________________________________________________||
@@ -51,7 +52,7 @@ private:
 
     reco::CaloMET outMET = corrector.getCorrectedCaloMET(srcMET, evt);
 
-    std::unique_ptr<METCollection> product(new METCollection);
+    std::unique_ptr<METCollection> product = std::make_unique<METCollection>();
     product->push_back(outMET);
     evt.put(std::move(product));
   }
