@@ -69,6 +69,12 @@ AXIS_LIMITS = {
 }
 DEFAULT_SAMPLE = 'QCD'
 
+# DQM directory of the MET validation, per validation step (see --step)
+DQM_DIRS = {
+    'HLT': "DQMData/Run 1/HLT/Run summary/JetMET/METValidation",
+    'Offline': "DQMData/Run 1/JetMET/Run summary/METValidation",
+}
+
 def resolveSample(sample, label):
     """
     Sample whose axis limits are used: the one given with --sample, otherwise the one named in the sample label
@@ -106,6 +112,7 @@ def printOptions(args, sample_why):
         limits = 'on, ' + ('; '.join(f"{lims}: {', '.join(names)}" for lims, names in groups.items())
                            or 'no restricted plot for this sample')
     rows = (
+        ('Step',                  args.step),
         ('Mode',                  mode),
         ('Collections',           what),
         ('Input file',            args.file if args.file else '-'),
@@ -608,8 +615,9 @@ def varsToPlot(metColl):
     }
 
     isMHT = 'MHT' in metColl or metColl.lower().endswith('mht')
-    isCalo = metColl in ('hltMet', 'hltCaloMET')
-    if not isMHT:
+    isCalo = metColl in ('hltMet', 'hltCaloMET', 'caloMet')
+    isMini = metColl.startswith('slimmed') # miniAOD MET: no Calo gen MET, only the Et fractions of the PF types
+    if not isMHT and not isMini:
         vars1D.update({
             # MET-specific
             'GenMETCalo'              : HLTMETInputs(x=r'$MET^\text{Calo}_\text{Gen}$ [GeV]', y=nEvts, rebinx=2),
@@ -634,7 +642,7 @@ def varsToPlot(metColl):
             'CaloEmEtInHF'            : HLTMETInputs(x=r'EM $E_T$ in HF [GeV]', y=nEvts),
         })
     elif not isMHT:
-        vars1D.update({
+        pfvars = {
             # PFMET-specific
             'HFEMEt'                  : HLTMETInputs(x=r'HF EM $E_T$  [GeV]', y=nEvts),
             'HFEMEtFraction'          : HLTMETInputs(x=r'HF EM $E_T$ fraction', y=nEvts),
@@ -650,7 +658,14 @@ def varsToPlot(metColl):
             'muonEtFraction'          : HLTMETInputs(x=r'Muon $E_T$ fraction', y=nEvts),
             'electronEt'              : HLTMETInputs(x=r'Electron $E_T$ [GeV]', y=nEvts),
             'electronEtFraction'      : HLTMETInputs(x=r'Electron $E_T$ fraction', y=nEvts),
-        })
+        }
+        if isMini:
+            pfvars = {k: v for k, v in pfvars.items() if k.endswith('Fraction')}
+            for unc in ('JetRes', 'JetEn', 'MuonEn', 'ElectronEn', 'TauEn', 'UnclusteredEn', 'PhotonEn'):
+                for shift in ('Up', 'Down'):
+                    pfvars[f'METUnc_{unc}{shift}'] = HLTMETInputs(
+                        x=rf'$\text{{MET}} - \text{{MET}}_\text{{{unc} {shift}}}$ [GeV]', y=nEvts)
+        vars1D.update(pfvars)
     if isMHT:
         for k in vars1D:
             vars1D[k].x = vars1D[k].x.replace('MET', 'MHT')
@@ -719,6 +734,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Make HLT MET validation plots. \nRun all MET paths with\n' + full_command)
     parser.add_argument('-o', '--odir', default="HLTMETValidationPlots", required=False, help='Path to the output directory.')
     parser.add_argument('-l', '--sample_label', default="QCD (200 PU)", required=False, help='Sample label for plotting.')
+    parser.add_argument('-s', '--step', default='HLT', choices=sorted(DQM_DIRS),
+                        help='Validation step whose MET collections are plotted (default: %(default)s).')
     parser.add_argument('--sample', default=None, choices=sorted(AXIS_LIMITS),
                         help='Sample whose axis limits (AXIS_LIMITS) are applied. If not given, it is inferred from --sample_label '
                              f'(default: {DEFAULT_SAMPLE} if the label names no known sample); an error is raised if both disagree.')
@@ -759,6 +776,9 @@ if __name__ == '__main__':
     except ValueError as e:
         parser.error(str(e))
     printOptions(args, why)
+    if args.overlay_scan and args.step != 'HLT':
+        print(" ### WARNING: --overlay_scan is only available for the HLT step, ignoring it.")
+        args.overlay_scan = False
 
     createDir(args.odir)
     if args.met:
@@ -782,6 +802,13 @@ if __name__ == '__main__':
         'hltPFPuppiMHT': 'PF PUPPI MHT',
         'pfMetPuppi': 'PF PUPPI MET',
         'pfPuppiMHT': 'PF PUPPI MHT',
+        'caloMet': 'Calo MET',
+        'pfMet': 'PF MET',
+        'pfMetT0pc': 'PF Type-0 MET',
+        'PfMetT1': 'PF Type-1 MET',
+        'PfMetT0pcT1': 'PF Type-0+1 MET',
+        'slimmedMETs': 'MiniAOD PF MET',
+        'slimmedMETsPuppi': 'MiniAOD PUPPI MET',
     }
     
     colors = hep.style.CMS['axes.prop_cycle'].by_key()['color']
@@ -793,13 +820,13 @@ if __name__ == '__main__':
 
     if args.compare_collections is not None:
         afile = ROOT.TFile.Open(args.file)
-        dqm_dir = f"DQMData/Run 1/HLT/Run summary/JetMET/METValidation"
+        dqm_dir = DQM_DIRS[args.step]
         checkRootDir(afile, dqm_dir)
         plot1DCollectionComparison(afile, dqm_dir, varsToPlot(args.compare_collections[0])[0],
                                    outdir=args.odir, metTypes=args.compare_collections)
 
     elif args.compare_files is not None:
-        dqm_dir = f"DQMData/Run 1/HLT/Run summary/JetMET/METValidation"
+        dqm_dir = DQM_DIRS[args.step]
         for afile, alabel in zip(args.compare_files, args.compare_files_labels):
             afile = ROOT.TFile.Open(afile)
             checkRootDir(afile, dqm_dir)
@@ -809,7 +836,7 @@ if __name__ == '__main__':
 
     else:
         afile = ROOT.TFile.Open(args.file)
-        dqm_dir = f"DQMData/Run 1/HLT/Run summary/JetMET/METValidation"
+        dqm_dir = DQM_DIRS[args.step]
 
         # Plot MET variables
         for metType in args.met:
