@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<!-- Same as Geometry/MTDCommonData/data/mtdParameters/v9/mtdStructureTopology.xml, BTL only (BTL test beam 2025, DUT and REF) -->
+
+<!--
+    ETL layout vectors, copied from Geometry/MTDCommonData/data/etl/v11/etl.xml.
+    There is no ETL in this geometry, but MTDParametersFromDD requires them for the TopologyMode below
+    (they are only used to build the ETL part of MTDTopology).
+-->
+<ConstantsSection label="mtdStructureTopology.xml" eval="true">
+  <Vector name="StartCopyNo_Front_Disc_1" type="numeric" nEntries="27">
+      1, 7, 21, 47, 79, 115, 153, 195, 237, 275, 309, 343, 377, 409, 439,
+      471, 505, 541, 577, 617, 661, 701, 739, 773, 803, 827, 841
+    </Vector>
+
+  <Vector name="StartCopyNo_Back_Disc_1" type="numeric" nEntries="27">
+      1, 7, 27, 55, 87, 123, 163, 205, 245, 281, 317, 353, 387, 417, 447,
+      481, 515, 555, 591, 631, 673, 713, 751, 785, 815, 839, 851
+    </Vector>
+
+  <Vector name="StartCopyNo_Front_Disc_2" type="numeric" nEntries="27">
+      1, 7, 21, 47, 79, 115, 153, 195, 237, 275, 311, 349, 383, 415, 445,
+      477, 511, 549, 585, 625, 669, 709, 747, 781, 811, 835, 849
+    </Vector>
+
+  <Vector name="StartCopyNo_Back_Disc_2" type="numeric" nEntries="27">
+      1, 7, 27, 55, 87, 123, 163, 205, 245, 281, 317, 353, 387, 417, 447,
+      481, 515, 555, 591, 631, 673, 713, 751, 785, 815, 839, 851
+    </Vector>
+
+  <Vector name="Services_Front_Disc_1" type="numeric" nEntries="71">
+      3, 7, 7, 6, 7, 6, 3, 6, 6, 6, 7, 6, 6, 7, 7, 7, 7, 7, 7, 7, 6, 6, 7, 7,
+      3, 7, 7, 3, 7, 7, 3, 7, 6, 3, 6, 6, 3, 7, 6, 3, 7, 7, 3, 6, 6, 6, 6, 6, 
+      6, 7, 7, 6, 7, 6, 6, 3, 7, 7, 6, 7, 6, 6, 7, 7, 3, 6, 6, 3, 6, 6, 7
+    </Vector>
+
+  <Vector name="Services_Back_Disc_1" type="numeric" nEntries="71">
+      3, 7, 3, 7, 7, 7, 6, 3, 6, 6, 6, 7, 7, 6, 7, 7, 7, 7, 7, 6, 6, 6, 6, 6,
+      6, 6, 6, 6, 6, 7, 7, 3, 6, 6, 3, 6, 6, 3, 7, 7, 3, 7, 7, 3, 7, 7, 6, 6,
+      6, 6, 7, 7, 6, 7, 7, 7, 7, 7, 6, 7, 6, 6, 7, 7, 3, 6, 6, 3, 6, 6, 6
+    </Vector>
+
+  <Vector name="Services_Front_Disc_2" type="numeric" nEntries="71">
+      3, 7, 7, 6, 7, 6, 3, 6, 6, 6, 7, 6, 6, 7, 7, 7, 7, 7, 7, 7, 6, 6, 6, 6,
+      6, 7, 6, 6, 7, 7, 3, 7, 6, 3, 6, 6, 3, 7, 6, 3, 7, 7, 3, 7, 6, 6, 6, 6,
+      6, 7, 7, 6, 7, 6, 6, 3, 7, 7, 6, 7, 6, 6, 7, 7, 3, 6, 6, 3, 6, 6, 7
+    </Vector>
+
+  <Vector name="Services_Back_Disc_2" type="numeric" nEntries="71">
+      3, 7, 3, 7, 7, 7, 6, 3, 6, 6, 6, 7, 7, 6, 7, 7, 7, 7, 7, 6, 6, 6, 6, 6,
+      6, 6, 6, 6, 6, 7, 7, 3, 6, 6, 3, 6, 6, 3, 7, 7, 3, 7, 7, 3, 7, 7, 6, 6,
+      6, 6, 7, 7, 6, 7, 7, 7, 7, 7, 6, 7, 6, 6, 7, 7, 3, 6, 6, 3, 6, 6, 6
+    </Vector>
+
+  <Vector name="Offset_Front_Disc_1" type="numeric" nEntries="27">
+      4, 4, 0, 0, 0, 0, 0, 0, 2, 6, 12, 12, 14, 16, 14, 12, 10, 4, 0, 0, 0, 0, 0, 0, 0, 4, 0
+    </Vector>
+
+  <Vector name="Offset_Back_Disc_1" type="numeric" nEntries="27">
+      4, 0, 0, 0, 0, 0, 0, 0, 4, 6, 10, 12, 16, 16, 12, 12, 6, 4, 0, 0, 0, 0, 0, 0, 0, 4, 0
+    </Vector>
+
+  <Vector name="Offset_Front_Disc_2" type="numeric" nEntries="27">
+      4, 4, 0, 0, 0, 0, 0, 0, 2, 4, 8, 12, 14, 16, 14, 12, 8, 4, 0, 0, 0, 0, 0, 0, 0, 4, 0
+    </Vector>
+
+  <Vector name="Offset_Back_Disc_2" type="numeric" nEntries="27">
+      4, 0, 0, 0, 0, 0, 0, 0, 4, 6, 10, 12, 16, 16, 12, 12, 6, 4, 0, 0, 0, 0, 0, 0, 0, 4, 0
+    </Vector>
+</ConstantsSection>
+
+<SpecParSection label="mtdStructureTopology.xml">
+
+<SpecPar name="btlStructure">
+   <PartSelector path="//BarrelTimingLayer"/>
+   <PartSelector path="//LayerTiming"/>
+   <PartSelector path="//BTLModule"/>
+   <Parameter name="MtdDDStructure" value="BarrelTimingLayer"/>
+</SpecPar>
+
+<SpecPar name="mtdNumbering">
+  <PartSelector path="//btl:BarrelTimingLayer"/>
+  <Parameter name="OnlyForMTDRecNumbering" value="MTD" eval="false"/>
+  <Parameter name="TopologyMode" value="MTDTopologyMode::btlv4etlv11" eval="false"/>
+</SpecPar>
+
+</SpecParSection>
+</DDDefinition>
