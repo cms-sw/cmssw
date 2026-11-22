@@ -69,7 +69,7 @@ namespace io_v1 {
             mode = kHeader;
             const std::string &tag = header->tag();
             tmp += tag.empty() ? "-->" : (tag == "<>") ? "" : ("</" + tag + ">");
-            tmp += "\n";
+            tmp += '\n';
             header++;
           } else {
             tmp += *iter++;

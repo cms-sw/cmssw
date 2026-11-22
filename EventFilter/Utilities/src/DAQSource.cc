@@ -1070,17 +1070,18 @@ void DAQSource::readSupervisor() {
         continue;
       }*/
 
-      std::unique_ptr<RawInputFile> newInputFile(new RawInputFile(evf::EvFDaqDirector::FileStatus::newFile,
-                                                                  ls,
-                                                                  rawFile,
-                                                                  !fileListMode_,
-                                                                  rawFd,
-                                                                  rawDataType,
-                                                                  fileSize,
-                                                                  rawHeaderSize,  //for which format
-                                                                  0,
-                                                                  eventsInNewFile,
-                                                                  this));
+      std::unique_ptr<RawInputFile> newInputFile =
+          std::make_unique<RawInputFile>(evf::EvFDaqDirector::FileStatus::newFile,
+                                         ls,
+                                         rawFile,
+                                         !fileListMode_,
+                                         rawFd,
+                                         rawDataType,
+                                         fileSize,
+                                         rawHeaderSize,  //for which format
+                                         0,
+                                         eventsInNewFile,
+                                         this);
       if (keepRawFiles_) {
         edm::LogWarning("DAQSource") << "Disabling raw file deletion for " << rawFile;
         newInputFile->unsetDeleteFile();
