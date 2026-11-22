@@ -10,6 +10,7 @@
 #include "TRegexp.h"
 
 #include <cassert>
+#include <memory>
 
 #include "CommonTools/TriggerUtils/interface/CandidateTriggerObjectProducer.h"
 
@@ -52,7 +53,7 @@ void CandidateTriggerObjectProducer::produce(edm::Event& iEvent, const edm::Even
   using namespace reco;
   using namespace trigger;
 
-  std::unique_ptr<reco::CandidateCollection> coll(new reco::CandidateCollection);
+  std::unique_ptr<reco::CandidateCollection> coll = std::make_unique<reco::CandidateCollection>();
 
   // get event products
   edm::Handle<edm::TriggerResults> triggerResultsHandle;
