@@ -32,7 +32,7 @@ RivetAnalyzer::RivetAnalyzer(const edm::ParameterSet& pset)
 
   _useLHEweights = pset.getParameter<bool>("useLHEweights");
   if (_useLHEweights) {
-    _lheRunInfoToken = consumes<LHERunInfoProduct, edm::InRun>(_lheLabel);
+    _lheRunInfoToken = consumes<LHERunInfoProduct, edm::InRun, edm::Transition::BeginRun>(_lheLabel);
     _LHECollection = consumes<LHEEventProduct>(_lheLabel);
   }
 

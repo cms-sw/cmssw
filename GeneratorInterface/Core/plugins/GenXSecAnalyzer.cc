@@ -154,11 +154,15 @@ GenXSecAnalyzer::GenXSecAnalyzer(const edm::ParameterSet &iConfig)
       xsec_(-1, -1),
       filterOnlyEffStat_(0, 0, 0, 0, 0., 0., 0., 0.),
       hepMCFilterEffStat_(0, 0, 0, 0, 0., 0., 0., 0.) {
-  genFilterInfoToken_ = consumes<GenFilterInfo, edm::InLumi>(edm::InputTag("genFilterEfficiencyProducer", ""));
-  hepMCFilterInfoToken_ = consumes<GenFilterInfo, edm::InLumi>(edm::InputTag("generator", ""));
-  genLumiInfoToken_ = consumes<GenLumiInfoProduct, edm::InLumi>(edm::InputTag("generator", ""));
-  lheRunInfoToken_ = consumes<LHERunInfoProduct, edm::InRun>(edm::InputTag("externalLHEProducer", ""));
-  genRunInfoToken_ = consumes<GenRunInfoProduct, edm::InRun>(edm::InputTag("generator", ""));
+  genFilterInfoToken_ = consumes<GenFilterInfo, edm::InLumi, edm::Transition::EndLuminosityBlock>(
+      edm::InputTag("genFilterEfficiencyProducer", ""));
+  hepMCFilterInfoToken_ =
+      consumes<GenFilterInfo, edm::InLumi, edm::Transition::EndLuminosityBlock>(edm::InputTag("generator", ""));
+  genLumiInfoToken_ =
+      consumes<GenLumiInfoProduct, edm::InLumi, edm::Transition::EndLuminosityBlock>(edm::InputTag("generator", ""));
+  lheRunInfoToken_ =
+      consumes<LHERunInfoProduct, edm::InRun, edm::Transition::EndRun>(edm::InputTag("externalLHEProducer", ""));
+  genRunInfoToken_ = consumes<GenRunInfoProduct, edm::InRun, edm::Transition::EndRun>(edm::InputTag("generator", ""));
   lheEventProductToken_ = consumes<LHEEventProduct, edm::InEvent>(edm::InputTag("externalLHEProducer", ""));
 }
 

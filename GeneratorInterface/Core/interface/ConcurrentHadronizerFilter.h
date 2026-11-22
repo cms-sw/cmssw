@@ -200,8 +200,9 @@ namespace edm {
         ptrThis->eventProductToken_ = ptrThis->template consumes<LHEEventProduct>(
             InputTag((iBD.moduleLabel() == "externalLHEProducer") ? "externalLHEProducer" : "source"));
         ptrThis->runInfoProductTag_ = InputTag(iBD.moduleLabel(), iBD.productInstanceName(), iBD.processName());
-        ptrThis->runInfoProductToken_ = ptrThis->template consumes<LHERunInfoProduct, InRun>(
-            InputTag(iBD.moduleLabel(), iBD.productInstanceName(), iBD.processName()));
+        ptrThis->runInfoProductToken_ =
+            ptrThis->template consumes<LHERunInfoProduct, InRun, edm::Transition::BeginLuminosityBlock>(
+                InputTag(iBD.moduleLabel(), iBD.productInstanceName(), iBD.processName()));
       }
     });
 
