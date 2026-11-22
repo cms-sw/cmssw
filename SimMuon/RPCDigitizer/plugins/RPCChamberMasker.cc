@@ -107,7 +107,7 @@ void RPCChamberMasker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::Service<edm::RandomNumberGenerator> randGenService;
   CLHEP::HepRandomEngine& randGen = randGenService->getEngine(iEvent.streamID());
 
-  std::unique_ptr<RPCDigiCollection> filteredDigis(new RPCDigiCollection());
+  std::unique_ptr<RPCDigiCollection> filteredDigis = std::make_unique<RPCDigiCollection>();
   if (!digiTag_.label().empty()) {
     edm::Handle<RPCDigiCollection> rpcDigis;
     iEvent.getByToken(m_digiTag, rpcDigis);

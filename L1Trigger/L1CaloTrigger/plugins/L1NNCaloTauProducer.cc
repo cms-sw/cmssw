@@ -24,6 +24,7 @@ Created: Tue May 30th 2023
 */
 
 #include <iostream>
+#include <memory>
 #include <vector>
 #include <cmath>
 
@@ -205,7 +206,7 @@ private:
 std::unique_ptr<NNmodels_GlobalCache> L1NNCaloTauProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
   edm::LogInfo("Initialization") << "Init NN models Global Cache " << std::endl;
 
-  std::unique_ptr<NNmodels_GlobalCache> GlobalCache(new NNmodels_GlobalCache);
+  std::unique_ptr<NNmodels_GlobalCache> GlobalCache = std::make_unique<NNmodels_GlobalCache>();
 
   GlobalCache->CNNmodel_CB_path = iConfig.getParameter<std::string>("CNNmodel_CB_path");
   GlobalCache->DNNident_CB_path = iConfig.getParameter<std::string>("DNNident_CB_path");
@@ -284,7 +285,7 @@ L1NNCaloTauProducer::L1NNCaloTauProducer(const edm::ParameterSet& iConfig, const
 
 void L1NNCaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& eSetup) {
   // Output collection
-  std::unique_ptr<BXVector<l1t::Tau>> L1NNCaloTauCollectionBXV(new l1t::TauBxCollection);
+  std::unique_ptr<BXVector<l1t::Tau>> L1NNCaloTauCollectionBXV = std::make_unique<l1t::TauBxCollection>();
 
   // Create and Fill collection of all calotowers and their attributes
   std::vector<SimpleTowerHit> l1CaloTowers;

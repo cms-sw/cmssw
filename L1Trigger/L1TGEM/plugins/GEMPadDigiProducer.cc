@@ -17,6 +17,7 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
+#include <memory>
 #include <set>
 
 /*
@@ -93,7 +94,7 @@ void GEMPadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetu
   e.getByToken(digi_token_, hdigis);
 
   // Create empty output
-  std::unique_ptr<GEMPadDigiCollection> pPads(new GEMPadDigiCollection());
+  std::unique_ptr<GEMPadDigiCollection> pPads = std::make_unique<GEMPadDigiCollection>();
 
   // build the pads
   buildPads(*(hdigis.product()), *pPads);

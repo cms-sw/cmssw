@@ -51,6 +51,7 @@
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
+#include <memory>
 #include <unordered_map>
 
 #include "TMath.h"
@@ -274,15 +275,18 @@ void PPSDirectProtonSimulation::produce(edm::Event &iEvent, const edm::EventSetu
   }
 
   // prepare outputs
-  std::unique_ptr<edm::DetSetVector<TotemRPRecHit>> pStripRecHits(new edm::DetSetVector<TotemRPRecHit>());
-  std::unique_ptr<edm::DetSetVector<CTPPSDiamondRecHit>> pDiamondRecHits(new edm::DetSetVector<CTPPSDiamondRecHit>());
-  std::unique_ptr<edm::DetSetVector<CTPPSPixelRecHit>> pPixelRecHits(new edm::DetSetVector<CTPPSPixelRecHit>());
+  std::unique_ptr<edm::DetSetVector<TotemRPRecHit>> pStripRecHits =
+      std::make_unique<edm::DetSetVector<TotemRPRecHit>>();
+  std::unique_ptr<edm::DetSetVector<CTPPSDiamondRecHit>> pDiamondRecHits =
+      std::make_unique<edm::DetSetVector<CTPPSDiamondRecHit>>();
+  std::unique_ptr<edm::DetSetVector<CTPPSPixelRecHit>> pPixelRecHits =
+      std::make_unique<edm::DetSetVector<CTPPSPixelRecHit>>();
 
   auto pStripRecHitsPerParticle = std::make_unique<std::map<int, edm::DetSetVector<TotemRPRecHit>>>();
   auto pDiamondRecHitsPerParticle = std::make_unique<std::map<int, edm::DetSetVector<CTPPSDiamondRecHit>>>();
   auto pPixelRecHitsPerParticle = std::make_unique<std::map<int, edm::DetSetVector<CTPPSPixelRecHit>>>();
 
-  std::unique_ptr<std::vector<CTPPSLocalTrackLite>> pTracks(new std::vector<CTPPSLocalTrackLite>());
+  std::unique_ptr<std::vector<CTPPSLocalTrackLite>> pTracks = std::make_unique<std::vector<CTPPSLocalTrackLite>>();
 
   // get random engine
   edm::Service<edm::RandomNumberGenerator> rng;

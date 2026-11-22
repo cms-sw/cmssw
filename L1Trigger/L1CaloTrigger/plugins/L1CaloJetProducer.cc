@@ -32,6 +32,7 @@ Implementation:
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
+#include <memory>
 
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 //#include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
@@ -505,11 +506,11 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet &iConfig)
 
 void L1CaloJetProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // Output collections
-  std::unique_ptr<l1tp2::CaloJetsCollection> L1CaloJetsNoCuts(new l1tp2::CaloJetsCollection);
+  std::unique_ptr<l1tp2::CaloJetsCollection> L1CaloJetsNoCuts = std::make_unique<l1tp2::CaloJetsCollection>();
   //std::unique_ptr<l1tp2::CaloJetsCollection> L1CaloJetsWithCuts( new l1tp2::CaloJetsCollection );
   //std::unique_ptr<l1extra::L1JetParticleCollection> L1CaloClusterCollectionWithCuts( new l1extra::L1JetParticleCollection );
-  std::unique_ptr<BXVector<l1t::Jet>> L1CaloJetCollectionBXV(new l1t::JetBxCollection);
-  std::unique_ptr<BXVector<l1t::Tau>> L1CaloTauCollectionBXV(new l1t::TauBxCollection);
+  std::unique_ptr<BXVector<l1t::Jet>> L1CaloJetCollectionBXV = std::make_unique<l1t::JetBxCollection>();
+  std::unique_ptr<BXVector<l1t::Tau>> L1CaloTauCollectionBXV = std::make_unique<l1t::TauBxCollection>();
 
   // Load the ECAL+HCAL tower sums coming from L1EGammaCrystalsEmulatorProducer.cc
   std::vector<SimpleCaloHit> l1CaloTowers;

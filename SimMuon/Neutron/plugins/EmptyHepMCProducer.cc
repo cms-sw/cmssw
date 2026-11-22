@@ -17,6 +17,8 @@
 //
 //
 
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -43,7 +45,7 @@ EmptyHepMCProducer::EmptyHepMCProducer(const edm::ParameterSet& iConfig) { produ
 
 void EmptyHepMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // create an empty output collection
-  std::unique_ptr<edm::HepMCProduct> theOutput(new edm::HepMCProduct());
+  std::unique_ptr<edm::HepMCProduct> theOutput = std::make_unique<edm::HepMCProduct>();
   //theOutput->addHepMCData(theEvent);
   iEvent.put(std::move(theOutput));
 }

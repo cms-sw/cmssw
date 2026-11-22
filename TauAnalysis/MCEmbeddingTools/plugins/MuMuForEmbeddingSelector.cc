@@ -154,7 +154,7 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
   const auto &daughter0 = chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>();
   const auto &daughter1 = chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>();
 
-  std::unique_ptr<edm::RefVector<pat::MuonCollection>> prod(new edm::RefVector<pat::MuonCollection>());
+  std::unique_ptr<edm::RefVector<pat::MuonCollection>> prod = std::make_unique<edm::RefVector<pat::MuonCollection>>();
   prod->reserve(2);
   prod->push_back(daughter0);
   prod->push_back(daughter1);

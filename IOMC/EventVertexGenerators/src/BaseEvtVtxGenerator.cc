@@ -1,6 +1,8 @@
 /*
 */
 
+#include <memory>
+
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -53,7 +55,7 @@ void BaseEvtVtxGeneratorT<T...>::produce(Event& evt, const EventSetup&) {
     // Make a copy
     HepMC::GenEvent* genevt = new HepMC::GenEvent(*HepUnsmearedMCEvt->GetEvent());
 
-    std::unique_ptr<edm::HepMCProduct> HepMCEvt(new edm::HepMCProduct(genevt));
+    std::unique_ptr<edm::HepMCProduct> HepMCEvt = std::make_unique<edm::HepMCProduct>(genevt);
     // generate new vertex & apply the shift
     //
     ROOT::Math::XYZTVector VertexShift = vertexShift(engine);

@@ -83,9 +83,12 @@ L1TMuonQualityAdjuster::L1TMuonQualityAdjuster(const edm::ParameterSet& iConfig)
 void L1TMuonQualityAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  std::unique_ptr<l1t::RegionalMuonCandBxCollection> filteredBMTFMuons(new l1t::RegionalMuonCandBxCollection());
-  std::unique_ptr<l1t::RegionalMuonCandBxCollection> filteredOMTFMuons(new l1t::RegionalMuonCandBxCollection());
-  std::unique_ptr<l1t::RegionalMuonCandBxCollection> filteredEMTFMuons(new l1t::RegionalMuonCandBxCollection());
+  std::unique_ptr<l1t::RegionalMuonCandBxCollection> filteredBMTFMuons =
+      std::make_unique<l1t::RegionalMuonCandBxCollection>();
+  std::unique_ptr<l1t::RegionalMuonCandBxCollection> filteredOMTFMuons =
+      std::make_unique<l1t::RegionalMuonCandBxCollection>();
+  std::unique_ptr<l1t::RegionalMuonCandBxCollection> filteredEMTFMuons =
+      std::make_unique<l1t::RegionalMuonCandBxCollection>();
 
   Handle<l1t::RegionalMuonCandBxCollection> bmtfMuons;
   Handle<l1t::RegionalMuonCandBxCollection> omtfMuons;

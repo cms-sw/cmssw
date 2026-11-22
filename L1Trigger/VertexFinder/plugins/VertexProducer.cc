@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "L1Trigger/VertexFinder/interface/VertexProducer.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1Trigger/interface/Vertex.h"
@@ -168,7 +170,7 @@ void VertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
         std::make_unique<l1t::VertexWordCollection>(vf.verticesEmulation().begin(), vf.verticesEmulation().end());
     iEvent.put(std::move(product_emulation), outputCollectionName_ + "Emulation");
   } else {
-    std::unique_ptr<l1t::VertexCollection> product(new std::vector<l1t::Vertex>());
+    std::unique_ptr<l1t::VertexCollection> product = std::make_unique<std::vector<l1t::Vertex>>();
     for (const auto& vtx : vf.vertices()) {
       product->emplace_back(vtx.vertex());
     }

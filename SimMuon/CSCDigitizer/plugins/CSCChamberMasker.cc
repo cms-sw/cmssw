@@ -133,10 +133,10 @@ void CSCChamberMasker::produce(edm::Event &event, const edm::EventSetup &conditi
   edm::Service<edm::RandomNumberGenerator> randGenService;
   CLHEP::HepRandomEngine &randGen = randGenService->getEngine(event.streamID());
 
-  std::unique_ptr<CSCStripDigiCollection> filteredStripDigis(new CSCStripDigiCollection());
-  std::unique_ptr<CSCWireDigiCollection> filteredWireDigis(new CSCWireDigiCollection());
-  std::unique_ptr<CSCCLCTDigiCollection> filteredCLCTDigis(new CSCCLCTDigiCollection());
-  std::unique_ptr<CSCALCTDigiCollection> filteredALCTDigis(new CSCALCTDigiCollection());
+  std::unique_ptr<CSCStripDigiCollection> filteredStripDigis = std::make_unique<CSCStripDigiCollection>();
+  std::unique_ptr<CSCWireDigiCollection> filteredWireDigis = std::make_unique<CSCWireDigiCollection>();
+  std::unique_ptr<CSCCLCTDigiCollection> filteredCLCTDigis = std::make_unique<CSCCLCTDigiCollection>();
+  std::unique_ptr<CSCALCTDigiCollection> filteredALCTDigis = std::make_unique<CSCALCTDigiCollection>();
 
   // Handle wire and strip digis
   ageDigis<CSCStripDigi>(event, m_stripDigiToken, randGen, filteredStripDigis);

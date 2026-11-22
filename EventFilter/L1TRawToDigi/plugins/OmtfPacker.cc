@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <bitset>
+#include <memory>
 #include <string>
 #include <map>
 
@@ -186,7 +187,7 @@ namespace omtf {
     auto bxId = ev.bunchCrossing();
     auto evtId = ev.id().event();
     auto orbit = ev.eventAuxiliary().orbitNumber();
-    std::unique_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
+    std::unique_ptr<FEDRawDataCollection> raw_coll = std::make_unique<FEDRawDataCollection>();
     for (auto& fedId : fedIds) {
       //
       // assign formatted raws to feds

@@ -70,7 +70,7 @@ L1TkHTMissProducer::~L1TkHTMissProducer() {}
 
 void L1TkHTMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-  std::unique_ptr<TkHTMissCollection> MHTCollection(new TkHTMissCollection);
+  std::unique_ptr<TkHTMissCollection> MHTCollection = std::make_unique<TkHTMissCollection>();
 
   // L1 primary vertex
   edm::Handle<VertexCollection> L1VertexHandle;

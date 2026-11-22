@@ -96,7 +96,7 @@ TPFastJetProducer::TPFastJetProducer(const edm::ParameterSet& iConfig)
 
 // producer
 void TPFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::unique_ptr<TkJetCollection> TPFastJets(new TkJetCollection);
+  std::unique_ptr<TkJetCollection> TPFastJets = std::make_unique<TkJetCollection>();
 
   // Tracking particles
   edm::Handle<std::vector<TrackingParticle>> TrackingParticleHandle;

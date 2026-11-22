@@ -130,26 +130,26 @@ void HcalRealisticZS::produce(edm::Event &e, const edm::EventSetup &eventSetup) 
   e.getByToken(tok_hbhe_, hbhe);
 
   // create empty output
-  std::unique_ptr<HBHEDigiCollection> zs_hbhe(new HBHEDigiCollection);
+  std::unique_ptr<HBHEDigiCollection> zs_hbhe = std::make_unique<HBHEDigiCollection>();
 
   e.getByToken(tok_ho_, ho);
 
   // create empty output
-  std::unique_ptr<HODigiCollection> zs_ho(new HODigiCollection);
+  std::unique_ptr<HODigiCollection> zs_ho = std::make_unique<HODigiCollection>();
 
   e.getByToken(tok_hf_, hf);
 
   // create empty output
-  std::unique_ptr<HFDigiCollection> zs_hf(new HFDigiCollection);
+  std::unique_ptr<HFDigiCollection> zs_hf = std::make_unique<HFDigiCollection>();
 
   e.getByToken(tok_hfQIE10_, hfQIE10);
   e.getByToken(tok_hbheQIE11_, hbheQIE11);
 
   // create empty output
-  std::unique_ptr<HBHEDigiCollection> zs_hbheUpgrade(new HBHEDigiCollection);
-  std::unique_ptr<HFDigiCollection> zs_hfUpgrade(new HFDigiCollection);
-  std::unique_ptr<QIE10DigiCollection> zs_hfQIE10(new QIE10DigiCollection(hfQIE10->samples()));
-  std::unique_ptr<QIE11DigiCollection> zs_hbheQIE11(new QIE11DigiCollection(hbheQIE11->samples()));
+  std::unique_ptr<HBHEDigiCollection> zs_hbheUpgrade = std::make_unique<HBHEDigiCollection>();
+  std::unique_ptr<HFDigiCollection> zs_hfUpgrade = std::make_unique<HFDigiCollection>();
+  std::unique_ptr<QIE10DigiCollection> zs_hfQIE10 = std::make_unique<QIE10DigiCollection>(hfQIE10->samples());
+  std::unique_ptr<QIE11DigiCollection> zs_hbheQIE11 = std::make_unique<QIE11DigiCollection>(hbheQIE11->samples());
 
   // run the algorithm
   algo_->suppress(*(hbhe.product()), *zs_hbhe);

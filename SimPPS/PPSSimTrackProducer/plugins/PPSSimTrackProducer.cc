@@ -134,12 +134,12 @@ void PPSSimTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   if (m_verbosity)
     evt->print();
 
-  unique_ptr<HepMCProduct> newProduct(new edm::HepMCProduct());
+  unique_ptr<HepMCProduct> newProduct = std::make_unique<edm::HepMCProduct>();
   newProduct->addHepMCData(evt);
 
   iEvent.put(std::move(newProduct));
 
-  unique_ptr<LHCTransportLinkContainer> NewCorrespondenceMap(new edm::LHCTransportLinkContainer());
+  unique_ptr<LHCTransportLinkContainer> NewCorrespondenceMap = std::make_unique<edm::LHCTransportLinkContainer>();
   edm::LHCTransportLinkContainer thisLink(theTransporter.getCorrespondenceMap());
   (*NewCorrespondenceMap).swap(thisLink);
 
