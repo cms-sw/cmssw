@@ -1,10 +1,10 @@
 /****************************************************************************
  *
- * A top level class dispatching unpacking of HGCal raw trigger data 
+ * A top level class dispatching unpacking of HGCal raw trigger data
  * to specialized classes.
- * 
+ *
  * Authors: Jeremi Niedziela, Lovisa Rygaard, Yulun Miao
- *   
+ *
  *
  ****************************************************************************/
 
@@ -30,7 +30,6 @@ public:
                     hgcaldigi::HGCalDigiTriggerHost& digisTrigger,
 		    hgcaldigi::HGCalFEDTriggerPacketInfoHost& fedTriggerPacketInfo,
                     hgcaldigi::HGCalECONTPacketInfoHost& econtPacketInfo);
-  bool parseTDAQBlock() ;
 
 private:
   // std::unique_ptr<HGCalUnpackerTriggerSpecialization> unpackerSpecialization_;

@@ -9,20 +9,22 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "DataFormats/HGCalDigi/interface/HGCalTriggerDefinitions.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <map>
 #include <vector>
+#include <iterator>
 #include <iomanip>
-#include <cassert>
 #include <cmath>
 
 // @short configuration for HGCROC
 struct HGCalROCTrigConfig {
+  uint8_t ped[36] = {0};
   uint8_t adc_th;   //5 bits adc th global for HGCROC &0x1F
   // FIXME read from cfg, atm dummy values
-  uint64_t ClrAdcTot_trig = 0;  //36-bits 
+  uint64_t ClrAdcTot_trig = 0;  //36-bits
   uint8_t MultFactor = 1; //5-bits
-  uint8_t Tot_P[4] = {0, 0, 0, 0};  //one per 9 channel (each with 7-bits)
-  uint8_t Tot_TH[4] = {0, 0, 0, 0}; //one per 9 channel (each with 8 bits)
+  uint8_t Tot_P[4] = {0};  //one per 9 channel (each with 7-bits)
+  uint8_t Tot_TH[4] = {0}; //one per 9 channel (each with 8 bits)
 
   bool isChMasked(uint32_t ich) const {
     int chnl = ich%36;
@@ -53,178 +55,79 @@ struct HGCalECONTConfig {
   std::vector<uint8_t> tcMux;   //multiplexer between HGCROC and TC to ECONT
   std::vector<uint32_t> offset;
   std::vector<HGCalROCTrigConfig> hgcrocs;
-  
-  uint32_t getNofTCs() const { return getBCType(); }
-  uint32_t getBCType() const {
-    uint32_t maxTcs = 0;
-    if(getOutType()==TPGFEDataformat::BestC){
-      switch(eportTxNumen){
-      case 1:
-        maxTcs = 1;
-        break;
-      case 2:
-        maxTcs = 4;
-        break;
-      case 3:
-        maxTcs = 6;
-        break;
-      case 4:
-        maxTcs = 9;
-        break;
-      case 5:
-        maxTcs = 14;
-        break;
-      case 6:
-        maxTcs = 18;
-        break;
-      case 7:
-        maxTcs = 23;
-        break;
-      case 8:
-        maxTcs = 28;
-        break;
-      case 9:
-        maxTcs = 32;
-        break;
-      case 10:
-        maxTcs = 37;
-        break;
-      case 11:
-        maxTcs = 41;
-        break;
-      case 12:
-        maxTcs = 46;
-        break;
-      default: //same as case13 or above
-        maxTcs = 48;
-        break;
-      }
-    }
-    return maxTcs;
+
+  uint32_t getNofTCs() const {
+    using namespace hgcal::econt;
+    return getOutType() == BestC
+              ? NofElinks2NofTCs.at(eportTxNumen)
+              : 0;
   }
 
-  TPGFEDataformat::Type getOutType() const {
-    TPGFEDataformat::Type type;
-    switch(select){
-      case 0:
-        type = TPGFEDataformat::TS;
-        break;
-      case 1:
-        switch(stcType){
-          case 0:
-            type = TPGFEDataformat::STC4B;
-            break;
-          case 1:
-            type = TPGFEDataformat::STC16;
-            break;
-          case 2:
-            type = TPGFEDataformat::CTC4A;
-            break;
-          case 3:
-            type = TPGFEDataformat::STC4A;
-            break;
-          case 4:
-            type = TPGFEDataformat::CTC4B;
-            break;
-          default:
-            type = TPGFEDataformat::Unknown;
-            break;
-        }
-        break;
-      case 2:
-        type = TPGFEDataformat::BestC;
-        break;
-      case 3:
-        type = TPGFEDataformat::RA;
-        break;
-      case 4:
-        type = TPGFEDataformat::AE;
-        break;
-      default:
-        type = TPGFEDataformat::Unknown;
-        break;
+  hgcal::econt::Type getOutType() const {
+    using namespace hgcal::econt;
+    if(select == SELECT_STC) {
+      return (stcType <= stcType2Type.size()) ? stcType2Type.at(stcType) : Unknown;
+      // const auto it = stcType2Type.find(stcType);
+      // return it != stcType2Type.end() ? it->second : Unknown;
     }
-    return type;
+    const auto it = select2Type.find(select);
+    return it != select2Type.end() ? it->second : Unknown;
   }
 
   uint32_t getNofSTCs() const {
-    uint32_t maxSTCs = 0;
-    switch(stcType){
-      case 0: //0 = STC4B(5E+4M)
-      switch(eportTxNumen){
-        case 1:
-          maxSTCs = 2;
-          break;
-        case 2:
-          maxSTCs = 5;
-          break;
-        case 3:
-          maxSTCs = 8;
-          break;
-        case 4:
-          maxSTCs = 11;
-          break;
-        default: //case 5 or higher
-          maxSTCs = 12;
-          break;
-      }
-      break;
-      case 1: //1 = STC16(5E+4M)
-      switch(eportTxNumen){
-        case 1:
-          maxSTCs = 2;
-          break;
-        default: //case 2 or higher
-          maxSTCs = 3;
-          break;
-      }
-      break;
-      case 2: //2 = CTC4A(4E+3M)
-      switch(eportTxNumen){
-        case 1:
-          maxSTCs = 4;
-          break;
-        case 2:
-          maxSTCs = 8;
-          break;
-        default: //case 3 or higher
-          maxSTCs = 12;
-          break;
-      }
-      break;
-      default: //3 = STC4A(4E+3M) //4 = CTC4B(5E+3M)
-      switch(eportTxNumen){
-        case 1:
-          maxSTCs = 3;
-          break;
-        case 2:
-          maxSTCs = 6;
-          break;
-        case 3:
-          maxSTCs = 10;
-          break;
-        default: //case 4 or higher
-          maxSTCs = 12;
-          break;
-      }
-    }//stctype
-    return maxSTCs;
+    using namespace hgcal::econt;
+    const auto row = stcType2MaxSTCs.find(stcType);
+    return row != stcType2MaxSTCs.end() ? floorLookup(row->second, eportTxNumen) : 0;
   }
 
   uint32_t getCalibration(uint32_t itc) const {
-    assert(itc<=47) ;
+    if(itc > hgcal::ECONT_FRAME::BC_MAX_TCADDR){
+      cms::Exception ex("ValueError");
+      ex << "TC index "
+      << itc
+      << " out of range [0, "
+      << hgcal::ECONT_FRAME::BC_MAX_TCADDR
+      << "]";
+      ex.addContext("Calling HGCalECONTConfig::getCalibration()");
+      throw ex;
+    }
     return uint32_t(calv.at(itc) & 0xFFF);
   }
 
   uint32_t getInputMux(uint32_t itc) const {
-    assert(itc<=47) ;
+    if(itc > hgcal::ECONT_FRAME::BC_MAX_TCADDR){
+      cms::Exception ex("ValueError");
+      ex << "TC index "
+      << itc
+      << " out of range [0, "
+      << hgcal::ECONT_FRAME::BC_MAX_TCADDR
+      << "]";
+      ex.addContext("Calling HGCalECONTConfig::getCalibration()");
+      throw ex;
+    }
     return (isConnectedMux(itc)) ? uint32_t(tcMux.at(itc)) : 0x80 ;
   }
 
   bool isConnectedMux(uint32_t itc) const {
-    assert(itc<=47) ;
+    if(itc > hgcal::ECONT_FRAME::BC_MAX_TCADDR){
+      cms::Exception ex("ValueError");
+      ex << "TC index "
+      << itc
+      << " out of range [0, "
+      << hgcal::ECONT_FRAME::BC_MAX_TCADDR
+      << "]";
+      ex.addContext("Calling HGCalECONTConfig::getCalibration()");
+      throw ex;
+    }
     return (tcMux.at(itc)>>7) ? false : true ;
   }
+
+  private:
+    // Value for the largest key <= k, or 0 if k is below every key.
+    static uint32_t floorLookup(const std::map<uint8_t, uint32_t>& table, uint8_t k) {
+      const auto it = table.upper_bound(k);
+      return it == table.begin() ? 0 : std::prev(it)->second;
+    }
 
   COND_SERIALIZABLE;
 
@@ -319,28 +222,16 @@ inline std::ostream& operator<<(std::ostream& os, const HGCalTriggerConfiguratio
   }
   return os;
 }
-// NOTE: Moved this out of the "TPGFEConfiguration" namespace - Jan
-inline uint16_t getExpEcontHeader(uint16_t BXSLink, TPGFEDataformat::Type type ){ 	//expected ECONT header from Slink BX counter
-  uint16_t expEcontHeader = 0;
-  uint16_t  maxMSB = 0;
-  uint16_t  modEcontHeader = 1;
 
-  if (type == TPGFEDataformat::TS){ // 5 bits ECONT header
-    maxMSB = 31;
-    modEcontHeader = 16;
-  }
-  else{ // 4 bits ECONT header
-    maxMSB = 15;
-    modEcontHeader = 8;
+inline uint16_t getExpEcontHeader(uint16_t BXSLink, hgcal::econt::Type type ){ 	//expected ECONT header from Slink BX counter
+  using namespace hgcal::econt;
 
-  }
+  auto maxMSBit = maxMSB.find(type);
+  if (BXSLink == 1) return (maxMSBit != maxMSB.end()) ? maxMSBit->second : DEFAULT_MAX_MSB;
 
-  if (BXSLink == 1) {
-    expEcontHeader = maxMSB;
-  }
-  else expEcontHeader = ((BXSLink - 1) % modEcontHeader);
-  return expEcontHeader;
+  auto modEcontHeaderit = modEcontHeader.find(type);
+  uint16_t modEcontHeaderVal = (modEcontHeaderit != modEcontHeader.end()) ? modEcontHeaderit->second : DEFAULT_MOD_ECONT_HEADER;
+  return ((BXSLink - 1) % modEcontHeaderVal);
 }
-
 
 #endif
