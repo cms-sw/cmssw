@@ -2253,16 +2253,16 @@ void PlotFiveHists(std::string infile,
       }
       pad->Update();
       if (save > 0) {
-	if (normalize)
-	  sprintf(name, "%sN.pdf", pad->GetName());
-	else
-	  sprintf(name, "%s.pdf", pad->GetName());
+        if (normalize)
+          sprintf(name, "%sN.pdf", pad->GetName());
+        else
+          sprintf(name, "%s.pdf", pad->GetName());
         pad->Print(name);
       } else if (save < 0) {
-	if (normalize)
-	  sprintf(name, "%sN.C", pad->GetName());
-	else
-	  sprintf(name, "%s.C", pad->GetName());
+        if (normalize)
+          sprintf(name, "%sN.C", pad->GetName());
+        else
+          sprintf(name, "%s.C", pad->GetName());
         pad->Print(name);
       }
     }
@@ -2357,7 +2357,7 @@ void PlotHistCorrFactor(std::string infile,
                         bool isRealData = true,
                         bool drawStatBox = false,
                         int iformat = 0,
-			int range = 2,
+                        int range = 2,
                         int save = 0) {
   std::map<int, cfactors> cfacs;
   int etamin(100), etamax(-100), maxdepth(0);
@@ -2505,7 +2505,7 @@ void PlotHistCorrFactor(std::string infile,
                         bool isRealData = true,
                         bool drawStatBox = false,
                         int iformat = 0,
-			int range = 2,
+                        int range = 2,
                         int save = 0) {
   std::map<int, cfactors> cfacs;
   int etamin(100), etamax(-100), maxdepth(0);
@@ -2641,7 +2641,8 @@ void PlotHistCorrFactor(std::string infile,
   }
 }
 
-void PlotHistCorrAsymmetry(std::string infile, std::string text, std::string prefixF = "", int depth = -1, int iformat = 0, int save = 0) {
+void PlotHistCorrAsymmetry(
+    std::string infile, std::string text, std::string prefixF = "", int depth = -1, int iformat = 0, int save = 0) {
   std::map<int, cfactors> cfacs;
   int etamin(100), etamax(-100), maxdepth(0);
   double scale(1.0);
@@ -2810,7 +2811,7 @@ void PlotHistCorrFactors(std::string infile1,
     gStyle->SetOptTitle(0);
     double ylow = ylowPlot(range);
     double yhigh = yhighPlot(range);
- 
+
     if ((!ratio) && drawStatBox) {
       gStyle->SetOptStat(10);
       gStyle->SetOptFit(10);
@@ -3048,7 +3049,7 @@ void PlotHistCorr2Factors(std::string infile1,
     gStyle->SetOptTitle(0);
     double ylow = ylowPlot(range);
     double yhigh = yhighPlot(range);
- 
+
     if ((!ratio) && drawStatBox) {
       gStyle->SetOptStat(10);
       gStyle->SetOptFit(10);
@@ -3295,7 +3296,7 @@ void PlotHistCorrDFactors(std::string infile1,
     gStyle->SetOptTitle(0);
     double ylow = ylowPlot(range);
     double yhigh = yhighPlot(range);
- 
+
     if ((!ratio) && drawStatBox) {
       gStyle->SetOptStat(10);
       gStyle->SetOptFit(10);
@@ -4071,15 +4072,15 @@ void PlotFourHists(std::string infile,
     pad->Update();
     if (save > 0) {
       if (normalize)
-	sprintf(name, "%sN.pdf", pad->GetName());
+        sprintf(name, "%sN.pdf", pad->GetName());
       else
-	sprintf(name, "%s.pdf", pad->GetName());
+        sprintf(name, "%s.pdf", pad->GetName());
       pad->Print(name);
     } else if (save < 0) {
       if (normalize)
-	sprintf(name, "%sN.C", pad->GetName());
+        sprintf(name, "%sN.C", pad->GetName());
       else
-	sprintf(name, "%s.C", pad->GetName());
+        sprintf(name, "%s.C", pad->GetName());
       pad->Print(name);
     }
   }
@@ -5014,7 +5015,7 @@ void PlotHistCorrRatio(std::string infile1,
     }
     double ylow = ylowPlot(range);
     double yhigh = yhighPlot(range);
- 
+
     int colors[7] = {1, 6, 4, 7, 2, 9, 3};
     int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
     int styles[7] = {2, 3, 1, 4, 1, 3, 2};
