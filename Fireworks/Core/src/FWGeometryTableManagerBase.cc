@@ -198,7 +198,7 @@ void FWGeometryTableManagerBase::getNodePath(int idx, std::string& path) const {
 
   size_t ns = relPath.size();
   for (size_t i = 1; i < ns; ++i) {
-    path += "/";
+    path += '/';
     path += relPath[ns - i - 1];
     // printf("push_back add to path %s\n", path.c_str());
   }
