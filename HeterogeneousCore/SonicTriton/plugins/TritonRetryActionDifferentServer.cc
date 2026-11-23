@@ -27,7 +27,9 @@ public:
   void start() override;
 
 private:
-  unsigned tries_;
+  // Only one attempt on a different server for now
+  static constexpr unsigned maxTries_ = 1;
+  unsigned tries_{0};
 };
 
 TritonRetryActionDifferentServer::TritonRetryActionDifferentServer(const edm::ParameterSet& conf,
@@ -41,8 +43,8 @@ void TritonRetryActionDifferentServer::start() {
 
 void TritonRetryActionDifferentServer::retry() {
   ++tries_;
-  if (tries_ >= 1) {
-    shouldRetry_ = false;  // Flip flag when max retries are reached. Allow 1 try for now.
+  if (tries_ >= maxTries_) {
+    shouldRetry_ = false;  // Flip flag when max retries are reached.
     edm::LogInfo("TritonRetryActionDifferentServer") << "Max retry attempts reached. No further retries.";
   }
   try {

@@ -13,6 +13,7 @@
 #include <atomic>
 #include <optional>
 #include <mutex>
+#include <shared_mutex>
 
 #include "grpc_client.h"
 
@@ -124,13 +125,13 @@ public:
   //accessors
   void addModel(const std::string& modelName, const std::string& path);
 
-  const std::string* resolveServerName(const std::string& model, const std::string& preferred = "") const;
+  std::optional<std::string> resolveServerName(const std::string& model, const std::string& preferred = "") const;
   const std::pair<const std::string, Server>& resolveServer(const std::string& model,
                                                             const std::string& preferred = "") const;
   std::vector<std::string> unassignedModels() const;
 
   // return the best server for retry, ignore the current server
-  std::optional<std::string> getBestServer(const std::string& modelName, const std::string& IgnoreServer = "") const;
+  std::optional<std::string> getBestServer(const std::string& modelName, const std::string& ignoreServer = "") const;
 
   const std::string& pid() const { return pid_; }
   void notifyCallStatus(bool status) const;
@@ -181,9 +182,13 @@ private:
   int numberOfThreads_;
 
   //Dynamic model loading and unloading (fallback server only)
+  // modelLoadMutex_ serializes loadModel()/unloadModel() against each other, including the slow gRPC call,
+  // and so protects Model::refCount.
   std::mutex modelLoadMutex_;
-  // Model names currently loaded on the fallback server
-  std::unordered_set<std::string> fallbackLoadedModels_;
+  // modelStateMutex_ protects what the const accessors read while loadModel()/unloadModel() may run concurrently:
+  // Model::servers and Server::models. Writers hold it only to commit the change, never during gRPC calls.
+  // The structure of servers_ and models_ is fixed once preBeginJob() has finished.
+  mutable std::shared_mutex modelStateMutex_;
 };
 
 #endif

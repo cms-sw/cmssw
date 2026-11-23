@@ -220,48 +220,69 @@ void TritonService::preModuleDestruction(edm::ModuleDescription const& desc) {
   }
 }
 
-// Returns the name of the server assigned to serve the given model, or nullptr if no server is currently assigned.
+// Returns the name of the server assigned to serve the given model, or nullopt if no server is currently assigned.
 // If a preferred server(current server) is specified but unavailable, falls back to any assigned server.
-// Callers are responsible for handling the nullptr case.
-const std::string* TritonService::resolveServerName(const std::string& model, const std::string& preferred) const {
+// Callers are responsible for handling the nullopt case.
+// The name is returned by value: Model::servers can change (loadModel/unloadModel) once the parallel section starts,
+// so no reference into it may outlive the lock.
+std::optional<std::string> TritonService::resolveServerName(const std::string& model,
+                                                            const std::string& preferred) const {
+  std::shared_lock lock(modelStateMutex_);
   auto mit = models_.find(model);
   if (mit == models_.end() || mit->second.servers.empty())
-    return nullptr;  // no server assigned - caller decides what to do
+    return std::nullopt;  // no server assigned - caller decides what to do
 
   const auto& modelServers = mit->second.servers;
+  const std::string* chosen = nullptr;
 
   if (!preferred.empty()) {
     auto msit = modelServers.find(preferred);
     if (msit != modelServers.end())
-      return &(*msit);
-    edm::LogWarning("PreferredServer") << "Preferred server " << preferred << " for model " << model
-                                       << " not available, will choose another server";
+      chosen = &(*msit);
+    else
+      edm::LogWarning("PreferredServer") << "Preferred server " << preferred << " for model " << model
+                                         << " not available, will choose another server";
   }
   //Prefer remote servers over fallback if available
-  if (modelServers.size() > 1) {
+  if (!chosen && modelServers.size() > 1) {
     auto rit = std::find_if(modelServers.begin(), modelServers.end(), [this](const std::string& name) {
       auto sit = servers_.find(name);
       return sit != servers_.end() && !sit->second.isFallback;
     });
     if (rit != modelServers.end())
-      return &(*rit);
+      chosen = &(*rit);
   }
-  return &(*modelServers.begin());
+  if (!chosen)
+    chosen = &(*modelServers.begin());
+
+  // Model::servers and servers_ are updated together, so this should always hold; check it
+  // here so that a future mistake in how they are updated is caught instead of silently propagated.
+  if (servers_.find(*chosen) == servers_.end())
+    throw cms::Exception("LogicError") << "TritonService: server " << *chosen << " assigned to model " << model
+                                       << " is not a known server";
+  return *chosen;
 }
 
 // Returns the full server info for the server assigned to serve the given model.
 // Throws MissingModel if no server is currently assigned.
-// Wraps resolveServerName; use that directly if nullptr should be handled by the caller
+// Wraps resolveServerName; use that directly if nullopt should be handled by the caller
 const std::pair<const std::string, TritonService::Server>& TritonService::resolveServer(
     const std::string& model, const std::string& preferred) const {
-  const auto* name = resolveServerName(model, preferred);
+  const auto name = resolveServerName(model, preferred);
   if (!name)
     throw cms::Exception("MissingModel") << "TritonService: There are no servers that provide model " << model;
-  return *servers_.find(*name);
+  // resolveServerName has already checked that *name is in servers_; keep the check rather than
+  // dereference end() if that ever changes.
+  auto sit = servers_.find(*name);
+  if (sit == servers_.end())
+    throw cms::Exception("LogicError") << "TritonService: server " << *name << " assigned to model " << model
+                                       << " is not a known server";
+  return *sit;
 }
 
 // Returns the list of model names that are not currently assigned to any server.
 std::vector<std::string> TritonService::unassignedModels() const {
+  std::shared_lock lock(modelStateMutex_);
   std::vector<std::string> result;
   for (const auto& [name, info] : models_) {
     if (info.servers.empty())
@@ -277,14 +298,20 @@ std::vector<std::pair<std::string, TritonService::ServerHealth>> TritonService::
     const std::string& modelName) const {
   std::vector<std::pair<std::string, ServerHealth>> healths;
 
-  //only the servers that actually serve the model are candidates; the others are left untouched
-  auto mit = models_.find(modelName);
-  if (mit == models_.end()) {
-    edm::LogInfo("TritonService") << "No server provides model " << modelName;
-    return healths;
+  //only the servers that actually serve the model are candidates; the others are left untouched.
+  //Copy the names under the lock, so that the slow gRPC queries below run without holding it.
+  std::vector<std::string> candidates;
+  {
+    std::shared_lock lock(modelStateMutex_);
+    auto mit = models_.find(modelName);
+    if (mit == models_.end()) {
+      edm::LogInfo("TritonService") << "No server provides model " << modelName;
+      return healths;
+    }
+    candidates.assign(mit->second.servers.begin(), mit->second.servers.end());
   }
 
-  for (const auto& serverName : mit->second.servers) {
+  for (const auto& serverName : candidates) {
     const auto& server = servers_.at(serverName);
     if (server.isFallback) {
       edm::LogInfo("TritonService") << serverName << " is skipped because it is a fallback server";
@@ -641,11 +668,13 @@ bool TritonService::loadModel(const std::string& modelName, Model& model) {
   TRITON_THROW_IF_ERROR(client->LoadModel(modelName),
                         "loadModel: failed to load model " + modelName + " on fallback server");
 
-  // Update state and tracking
+  // Update state and tracking; readers see Model::servers and Server::models, so publish under the write lock
   model.refCount = 1;
-  model.servers.insert(Server::fallbackName);
-  sit->second.models.insert(modelName);
-  fallbackLoadedModels_.insert(modelName);
+  {
+    std::unique_lock stateLock(modelStateMutex_);
+    model.servers.insert(Server::fallbackName);
+    sit->second.models.insert(modelName);
+  }
 
   if (verbose_)
     edm::LogInfo("TritonService") << "Successfully loaded model " << modelName << " on fallback server";
@@ -696,9 +725,11 @@ bool TritonService::unloadModel(const std::string& modelName, Model& model) {
                         "unloadModel: failed to unload model " + modelName + " from fallback server");
 
   model.refCount = 0;
-  model.servers.erase(Server::fallbackName);
-  sit->second.models.erase(modelName);
-  fallbackLoadedModels_.erase(modelName);
+  {
+    std::unique_lock stateLock(modelStateMutex_);
+    model.servers.erase(Server::fallbackName);
+    sit->second.models.erase(modelName);
+  }
 
   if (verbose_)
     edm::LogInfo("TritonService") << "Successfully unloaded model " << modelName << " from fallback server";
