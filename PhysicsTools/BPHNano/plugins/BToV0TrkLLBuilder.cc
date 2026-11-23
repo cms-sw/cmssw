@@ -12,6 +12,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
+#include <memory>
 #include <vector>
 #include <memory>
 #include <map>
@@ -105,7 +106,7 @@ void BToV0TrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup 
   std::vector<int> used_lep1_id, used_lep2_id, used_pi_id, used_V0_id;
 
   // output
-  std::unique_ptr<pat::CompositeCandidateCollection> ret_val(new pat::CompositeCandidateCollection());
+  std::unique_ptr<pat::CompositeCandidateCollection> ret_val = std::make_unique<pat::CompositeCandidateCollection>();
   for (size_t V0_idx = 0; V0_idx < V0s->size(); ++V0_idx) {
     edm::Ptr<pat::CompositeCandidate> V0_ptr(V0s, V0_idx);
     math::PtEtaPhiMLorentzVector V0_p4(V0_ptr->userFloat("fitted_pt"),

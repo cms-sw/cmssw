@@ -100,7 +100,7 @@ void BToV0LLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
   AnalyticalImpactPointExtrapolator extrapolator(&bField);
 
   // output
-  std::unique_ptr<pat::CompositeCandidateCollection> ret_val(new pat::CompositeCandidateCollection());
+  std::unique_ptr<pat::CompositeCandidateCollection> ret_val = std::make_unique<pat::CompositeCandidateCollection>();
 
   // access V0
   for (size_t v0_idx = 0; v0_idx < v0s->size(); ++v0_idx) {

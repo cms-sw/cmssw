@@ -83,79 +83,79 @@ void PileupJetIDVarProducer::produce(edm::StreamID streamID, edm::Event& iEvent,
     nCharged[ij] = pileupJetIdProd[jetRef].nCharged();
   }
 
-  std::unique_ptr<edm::ValueMap<float>> dR2MeanV(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> dR2MeanV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_dR2Mean(*dR2MeanV);
   filler_dR2Mean.insert(srcJet, dR2Mean.begin(), dR2Mean.end());
   filler_dR2Mean.fill();
   iEvent.put(std::move(dR2MeanV), "dR2Mean");
 
-  std::unique_ptr<edm::ValueMap<float>> majWV(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> majWV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_majW(*majWV);
   filler_majW.insert(srcJet, majW.begin(), majW.end());
   filler_majW.fill();
   iEvent.put(std::move(majWV), "majW");
 
-  std::unique_ptr<edm::ValueMap<float>> minWV(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> minWV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_minW(*minWV);
   filler_minW.insert(srcJet, minW.begin(), minW.end());
   filler_minW.fill();
   iEvent.put(std::move(minWV), "minW");
 
-  std::unique_ptr<edm::ValueMap<float>> frac01V(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> frac01V = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_frac01(*frac01V);
   filler_frac01.insert(srcJet, frac01.begin(), frac01.end());
   filler_frac01.fill();
   iEvent.put(std::move(frac01V), "frac01");
 
-  std::unique_ptr<edm::ValueMap<float>> frac02V(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> frac02V = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_frac02(*frac02V);
   filler_frac02.insert(srcJet, frac02.begin(), frac02.end());
   filler_frac02.fill();
   iEvent.put(std::move(frac02V), "frac02");
 
-  std::unique_ptr<edm::ValueMap<float>> frac03V(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> frac03V = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_frac03(*frac03V);
   filler_frac03.insert(srcJet, frac03.begin(), frac03.end());
   filler_frac03.fill();
   iEvent.put(std::move(frac03V), "frac03");
 
-  std::unique_ptr<edm::ValueMap<float>> frac04V(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> frac04V = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_frac04(*frac04V);
   filler_frac04.insert(srcJet, frac04.begin(), frac04.end());
   filler_frac04.fill();
   iEvent.put(std::move(frac04V), "frac04");
 
-  std::unique_ptr<edm::ValueMap<float>> ptDV(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> ptDV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_ptD(*ptDV);
   filler_ptD.insert(srcJet, ptD.begin(), ptD.end());
   filler_ptD.fill();
   iEvent.put(std::move(ptDV), "ptD");
 
-  std::unique_ptr<edm::ValueMap<float>> betaV(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> betaV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_beta(*betaV);
   filler_beta.insert(srcJet, beta.begin(), beta.end());
   filler_beta.fill();
   iEvent.put(std::move(betaV), "beta");
 
-  std::unique_ptr<edm::ValueMap<float>> pullV(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> pullV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_pull(*pullV);
   filler_pull.insert(srcJet, pull.begin(), pull.end());
   filler_pull.fill();
   iEvent.put(std::move(pullV), "pull");
 
-  std::unique_ptr<edm::ValueMap<float>> jetRV(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> jetRV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_jetR(*jetRV);
   filler_jetR.insert(srcJet, jetR.begin(), jetR.end());
   filler_jetR.fill();
   iEvent.put(std::move(jetRV), "jetR");
 
-  std::unique_ptr<edm::ValueMap<float>> jetRchgV(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> jetRchgV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_jetRchg(*jetRchgV);
   filler_jetRchg.insert(srcJet, jetRchg.begin(), jetRchg.end());
   filler_jetRchg.fill();
   iEvent.put(std::move(jetRchgV), "jetRchg");
 
-  std::unique_ptr<edm::ValueMap<int>> nChargedV(new edm::ValueMap<int>());
+  std::unique_ptr<edm::ValueMap<int>> nChargedV = std::make_unique<edm::ValueMap<int>>();
   edm::ValueMap<int>::Filler filler_nCharged(*nChargedV);
   filler_nCharged.insert(srcJet, nCharged.begin(), nCharged.end());
   filler_nCharged.fill();
