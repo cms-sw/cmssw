@@ -1,39 +1,43 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun runP_HCALP2_cfg.py geometry=D126
+#   cmsRun runP_HCALP2_cfg.py geometry=D121
 #
-#   Options for geometry D104, D110, D111, D112, D113, D114, D115, D120, D121
-#                        D122, D123, D124, D125, D126, D127, D128
+#   Options for geometry D104, D110, D111, D112, D113, D114, D115, D120, D121,
+#                        D122, D123, D124, D125, D126, D127, D128, D129, D130
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
 import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
-####################################################################
-### SETUP OPTIONS
+###############################################################################
+#### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D127",
+                 "D128",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D104, D110, D111, D112, D113, D114, D123, D124, D125, D126, D127, D128")
+                  "geometry of operations: D104, D110, D111, D112, D113, D114, D115, D120, D121, D122, D123, D124, D125, D126, D127, D128, D129, D130")
+
 ### get and parse the command line arguments
 options.parseArguments()
+
 print(options)
 
-####################################################################
+###############################################################################
 # Use the options
 
 geomName = "Run4" + options.geometry
 geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+fileName = "matbdgHCAL" + geomName + ".root"
 
 print("Geometry Name:   ", geomName)
 print("Geom file Name:  ", geomFile)
 print("Global Tag Name: ", GLOBAL_TAG)
 print("Era Name:        ", ERA)
+print("o/p File Name:   ", fileName)
 
 process = cms.Process('PROD',ERA)
 
@@ -48,7 +52,9 @@ process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(10000)
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.MaterialBudget=dict()
+#   process.MessageLogger.MaterialBudget=dict()
+#   process.MessageLogger.MaterialBudgetFull=dict()
+    process.MessageLogger.MaterialBudgetInit=dict()
 
 process.source = cms.Source("PoolSource",
     noEventSort = cms.untracked.bool(True),
@@ -61,7 +67,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('matbdgHCAL_run4.root')
+    fileName = cms.string(fileName)
 )
 
 process.p1 = cms.Path(process.g4SimHits)
@@ -73,7 +79,7 @@ process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Physics.CutsPerRegion = False
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     MaterialBudgetHcal = cms.PSet(
-        FillHisto    = cms.untracked.bool(True),
+        FillHisto    = cms.untracked.bool(False),
         PrintSummary = cms.untracked.bool(True),
         DoHCAL       = cms.untracked.bool(True),
         TestVolumes  = cms.untracked.bool(True),
@@ -84,6 +90,10 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         EtaHigh      = cms.untracked.double(5.2),
         EtaMinP      = cms.untracked.double(5.2),
         EtaMaxP      = cms.untracked.double(0.0),
+#       EtaMinP      = cms.untracked.double(1.39),
+#       EtaMaxP      = cms.untracked.double(1.42),
+#       EtaMinP      = cms.untracked.double(2.90),
+#       EtaMaxP      = cms.untracked.double(3.00),
         EtaLowMin    = cms.untracked.double(0.783),
         EtaLowMax    = cms.untracked.double(0.870),
         EtaMidMin    = cms.untracked.double(2.650),
