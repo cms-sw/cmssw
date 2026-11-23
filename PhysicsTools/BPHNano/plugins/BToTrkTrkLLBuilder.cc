@@ -97,8 +97,9 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup
   AnalyticalImpactPointExtrapolator extrapolator(&bField);
 
   // output
-  std::unique_ptr<pat::CompositeCandidateCollection> ret_val(new pat::CompositeCandidateCollection());
-  std::unique_ptr<pat::CompositeCandidateCollection> ditrack_out(new pat::CompositeCandidateCollection());
+  std::unique_ptr<pat::CompositeCandidateCollection> ret_val = std::make_unique<pat::CompositeCandidateCollection>();
+  std::unique_ptr<pat::CompositeCandidateCollection> ditrack_out =
+      std::make_unique<pat::CompositeCandidateCollection>();
 
   for (size_t ditracks_idx = 0; ditracks_idx < ditracks->size(); ++ditracks_idx) {
     // both k*,phi and lep pair already passed cuts; no need for more

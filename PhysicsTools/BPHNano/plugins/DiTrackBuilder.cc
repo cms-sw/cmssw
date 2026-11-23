@@ -71,7 +71,8 @@ void DiTrackBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
   evt.getByToken(beamspot_, beamspot);
 
   // output
-  std::unique_ptr<pat::CompositeCandidateCollection> ditrack_out(new pat::CompositeCandidateCollection());
+  std::unique_ptr<pat::CompositeCandidateCollection> ditrack_out =
+      std::make_unique<pat::CompositeCandidateCollection>();
 
   // main loop
   for (size_t trk1_idx = 0; trk1_idx < pfcands->size(); ++trk1_idx) {
