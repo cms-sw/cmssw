@@ -123,8 +123,8 @@ tensors. Each tensor can be presented to ONNX Runtime in one of two layouts:
     `uint8_t`s. Tensors with elements of different sizes, or from SoAs of different sizes, have different padded
     sizes, so a model whose outputs have the shape of its inputs can use the FeatureMajor layout only for inputs and
     outputs with elements of the same size, from SoAs with the same number of elements.
-    The features of an `SOA_EIGEN_COLUMN` follow the Eigen storage order: for an `R`x`C` matrix, column-major by
-    default, element `(r, c)` of the `k`-th matrix is the feature `(k * C + c) * R + r`. This is different from the
+    The features of an `SOA_EIGEN_COLUMN` follow the column-major Eigen storage order: for an `R`x`C` matrix,
+    element `(r, c)` of the `k`-th matrix is the feature `(k * C + c) * R + r`. This is different from the
     SampleMajor layout, where the same tensor has the shape `[batch, k, R, C]`.
     ```cpp
     inputs.set_layout("particles", cms::Ort::alpakatools::Layout::FeatureMajor);
@@ -180,6 +180,9 @@ provider recompiles the whole model for each new shape.
 
 ## Limitations
 
+  - `SOA_EIGEN_COLUMN`s of row-major Eigen matrices are rejected at compile time: the SoA stores their coefficients in
+    row-major order, while the tensor strides assume column-major storage. Vectors are supported in both storage
+    orders, since their layout is the same.
   - Each session uses its own memory arena for the temporary tensors, outside of the CMSSW caching allocator: ONNX
     Runtime does not allow using an external allocator together with a user compute stream.
   - Each module instance (i.e. each EDM stream) has its own copy of the model weights, like in PyTorchAlpaka.

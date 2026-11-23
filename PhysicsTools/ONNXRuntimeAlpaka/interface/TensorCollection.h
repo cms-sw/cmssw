@@ -59,6 +59,12 @@ namespace cms::Ort::alpakatools {
   template <typename TSoAParamsImpl, typename... Others>
   concept SameScalarType = SameTypes<typename TSoAParamsImpl::ScalarType, typename Others::ScalarType...>;
 
+  // An SOA_EIGEN_COLUMN stores the coefficients of each element in the storage order of its Eigen type, while
+  // TensorHandle computes the strides for column-major storage, so row-major matrices are not supported.
+  // Vectors have the same layout in both storage orders (Eigen row vectors are always row-major), and are supported.
+  template <typename T>
+  concept ColumnMajorStorage = (not T::IsRowMajor) or T::RowsAtCompileTime == 1 or T::ColsAtCompileTime == 1;
+
   // Selects the rows of an SoA used for a tensor: all of them (the default), or the mini-batch batch_id of size
   // batch_size. The last mini-batch can contain fewer rows.
   class TensorSlice {
@@ -141,7 +147,9 @@ namespace cms::Ort::alpakatools {
 
     // SOA_EIGEN_COLUMN
     template <typename SoALayout, typename TSoAParamsImpl, typename... Others>
-      requires(SameValueType<TSoAParamsImpl, Others...> && TSoAParamsImpl::columnType == cms::soa::SoAColumnType::eigen)
+      requires(SameValueType<TSoAParamsImpl, Others...> &&
+               TSoAParamsImpl::columnType == cms::soa::SoAColumnType::eigen &&
+               ColumnMajorStorage<typename TSoAParamsImpl::ValueType>)
     void add(const std::string& name,
              TensorSlice slice,
              std::tuple<TSoAParamsImpl, cms::soa::size_type> column,
@@ -173,7 +181,9 @@ namespace cms::Ort::alpakatools {
 
     // SOA_EIGEN_COLUMN without slicing: use all rows.
     template <typename SoALayout, typename TSoAParamsImpl, typename... Others>
-      requires(SameValueType<TSoAParamsImpl, Others...> && TSoAParamsImpl::columnType == cms::soa::SoAColumnType::eigen)
+      requires(SameValueType<TSoAParamsImpl, Others...> &&
+               TSoAParamsImpl::columnType == cms::soa::SoAColumnType::eigen &&
+               ColumnMajorStorage<typename TSoAParamsImpl::ValueType>)
     void add(const std::string& name,
              std::tuple<TSoAParamsImpl, cms::soa::size_type> column,
              std::tuple<Others, cms::soa::size_type>... others) {

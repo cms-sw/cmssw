@@ -36,6 +36,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::onnxtest {
   using TestDeviceCollection = PortableCollection<Device, TestSoA>;
   using TestHostCollection = PortableHostCollection<TestSoA>;
 
+  // Eigen columns with different storage orders
+  using RowMajorMatrix23 = Eigen::Matrix<float, 2, 3, Eigen::RowMajor>;
+  GENERATE_SOA_LAYOUT(StorageOrderLayout,
+                      SOA_EIGEN_COLUMN(Matrix23, colMajor),
+                      SOA_EIGEN_COLUMN(RowMajorMatrix23, rowMajor),
+                      SOA_EIGEN_COLUMN(Eigen::RowVector3f, rowVector))
+  using StorageOrderSoA = StorageOrderLayout<>;
+  using StorageOrderDeviceCollection = PortableCollection<Device, StorageOrderSoA>;
+  using StorageOrderHostCollection = PortableHostCollection<StorageOrderSoA>;
+
+  // true if TensorCollection::add() accepts the given column, without and with a TensorSlice
+  template <typename Column>
+  constexpr bool can_add = requires(TensorCollection<Queue> tensors, Column column) {
+    tensors.template add<StorageOrderSoA>(std::string(), column);
+  };
+  template <typename Column>
+  constexpr bool can_add_slice = requires(TensorCollection<Queue> tensors, Column column) {
+    tensors.template add<StorageOrderSoA>(std::string(), TensorSlice{}, column);
+  };
+
   // value of element (r, c) of the matrix k of row i
   constexpr float value(int i, int k, int r, int c) { return i * 1000 + k * 100 + r * 10 + c; }
 
@@ -48,6 +68,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::onnxtest {
     CPPUNIT_TEST(testChangeOrder);
     CPPUNIT_TEST(testMatch);
     CPPUNIT_TEST(testPack);
+    CPPUNIT_TEST(testStorageOrder);
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -65,6 +86,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::onnxtest {
     void testChangeOrder();
     void testMatch();
     void testPack();
+    void testStorageOrder();
 
   private:
     std::optional<Queue> queue_;
@@ -267,6 +289,47 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::onnxtest {
     // the columns that do not belong to the tensor are untouched
     for (int i = 0; i < n; ++i)
       CPPUNIT_ASSERT_EQUAL(value(i, 0, 0, 0), host.view()[i].x());
+  }
+
+  void TestTensorCollection::testStorageOrder() {
+    using V = std::vector<int64_t>;
+    constexpr int n = 35;
+    Queue& queue = *queue_;
+    StorageOrderDeviceCollection device(queue, n);
+    auto records = device.view().records();
+
+    // column-major matrices and row vectors are accepted, row-major matrices are rejected at compile time
+    static_assert(can_add<decltype(records.colMajor())>);
+    static_assert(can_add_slice<decltype(records.colMajor())>);
+    static_assert(can_add<decltype(records.rowVector())>);
+    static_assert(can_add_slice<decltype(records.rowVector())>);
+    static_assert(not can_add<decltype(records.rowMajor())>);
+    static_assert(not can_add_slice<decltype(records.rowMajor())>);
+
+    // a row vector, stored in row-major order, is read correctly as a [batch, 1, 3] tensor
+    StorageOrderHostCollection host(cms::alpakatools::host(), n);
+    for (int i = 0; i < n; ++i)
+      for (int c = 0; c < 3; ++c)
+        host.view()[i].rowVector()(c) = value(i, 0, 0, c);
+    alpaka::memcpy(queue, device.buffer(), host.buffer());
+
+    TensorCollection<Queue> tensors;
+    tensors.add<StorageOrderSoA>("rowVector", records.rowVector());
+    auto const& tensor = tensors[0];
+    CPPUNIT_ASSERT(tensor.sizes() == V({n, 1, 3}));
+    CPPUNIT_ASSERT(tensor.strides() == V({1, 64, 64}));
+
+    auto buffer = cms::alpakatools::make_device_buffer<std::byte[]>(queue, tensor.shape_bytes());
+    ort::detail::pack(queue, tensor.pack_descriptor(), static_cast<std::byte const*>(tensor.data()), buffer.data());
+    auto packed = cms::alpakatools::make_host_buffer<float[]>(queue, tensor.shape_bytes() / sizeof(float));
+    alpaka::memcpy(queue,
+                   packed,
+                   cms::alpakatools::make_device_view(
+                       queue, reinterpret_cast<float*>(buffer.data()), tensor.shape_bytes() / sizeof(float)));
+    alpaka::wait(queue);
+    for (int i = 0; i < n; ++i)
+      for (int c = 0; c < 3; ++c)
+        CPPUNIT_ASSERT_EQUAL(value(i, 0, 0, c), packed[i * 3 + c]);
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::onnxtest
