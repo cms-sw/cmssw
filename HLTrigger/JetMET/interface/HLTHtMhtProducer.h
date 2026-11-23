@@ -3,6 +3,9 @@
 
 /** \class HLTHtMhtProducer
  *
+ *  \author Steven Lowette
+ *  \author Michele de Gruttola, Jia Fu Low (Nov 2013)
+ *
  *  This produces a reco::MET object that stores HT and MHT
  *
  *  - MHT: magnitude of the negative vector sum of all jets' pT in an event,
