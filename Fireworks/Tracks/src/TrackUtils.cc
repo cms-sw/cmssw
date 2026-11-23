@@ -717,7 +717,7 @@ namespace fireworks {
     std::string text;
     for (std::set<DetId>::const_iterator id = idSet.begin(), idEnd = idSet.end(); id != idEnd; ++id) {
       text += info(*id);
-      text += "\n";
+      text += '\n';
     }
     return text;
   }
@@ -726,7 +726,7 @@ namespace fireworks {
     std::string text;
     for (std::vector<DetId>::const_iterator id = idSet.begin(), idEnd = idSet.end(); id != idEnd; ++id) {
       text += info(*id);
-      text += "\n";
+      text += '\n';
     }
     return text;
   }

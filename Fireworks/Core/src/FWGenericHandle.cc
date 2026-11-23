@@ -54,7 +54,7 @@ namespace edm {
   bool edm::EventBase::getByLabel<FWGenericObject>(edm::InputTag const& tag, Handle<FWGenericObject>& result) const {
     std::string dataTypeName = result.type().name();
     if (dataTypeName[dataTypeName.size() - 1] == '>')
-      dataTypeName += " ";
+      dataTypeName += ' ';
     std::string wrapperName = "edm::Wrapper<" + dataTypeName + ">";
 
     edm::TypeWithDict wrapperType(edm::TypeWithDict::byName(wrapperName));

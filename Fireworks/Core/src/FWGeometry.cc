@@ -44,7 +44,7 @@ TFile* FWGeometry::findFile(const char* fileName) {
     TObjArray* tokens = paths.Tokenize(":");
     for (int i = 0; i < tokens->GetEntries(); ++i) {
       TObjString* path = (TObjString*)tokens->At(i);
-      searchPath += ":";
+      searchPath += ':';
       searchPath += static_cast<const char*>(path->GetString());
       if (gSystem->Getenv("CMSSW_VERSION"))
         searchPath += "/Fireworks/Geometry/data/";
