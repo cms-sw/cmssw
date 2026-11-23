@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <unordered_map>
+#include <vector>
 
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "CondFormats/MTDObjects/interface/BTLElectronicsId.h"
@@ -49,6 +50,12 @@ public:
   void clear();
 
   int size() const { return detToElec_.size(); };
+
+  std::vector<BTLDetId> getListOfDetIds() const;
+
+  // Checks that the dense channel indexes of all the electronics ids in the map are 0..n-1
+  // and that sorting by dense index gives increasing rawIds
+  bool checkDenseChannelIndex() const;
 
 private:
   // forward mapping
