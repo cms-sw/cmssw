@@ -47,7 +47,7 @@ BeamSpotProblemMonitor::BeamSpotProblemMonitor(const ParameterSet& ps)
   monitorName_ = ps.getUntrackedParameter<string>("monitorName");
 
   if (not monitorName_.empty())
-    monitorName_ += "/";
+    monitorName_ += '/';
 }
 
 void BeamSpotProblemMonitor::fillDescriptions(ConfigurationDescriptions& oDesc) {
