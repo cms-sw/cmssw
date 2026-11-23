@@ -270,9 +270,6 @@ namespace cms::Ort {
       // so that the results agree with FP32 on the CPU.
       provider_options["use_tf32"] = allow_tf32_ ? "1" : "0";
       if (compute_stream != nullptr) {
-        // Run the memory copies in the compute stream: the queues used by the alpaka modules are non-blocking, so
-        // they would not be synchronised with the legacy default stream.
-        provider_options["do_copy_in_default_stream"] = "0";
         // Grow the memory arena only by the amount requested ("1" is kSameAsRequested). The "arena." options are
         // forwarded by the plugin execution provider to the allocator it creates.
         provider_options["arena.extend_strategy"] = "1";
