@@ -2,6 +2,7 @@
 //         Created:  2010/01/21
 //
 
+#include <memory>
 #include <sstream>
 #include <memory>
 #include <list>
@@ -66,8 +67,8 @@ namespace sistrip {
     //tag of spydata collection
     edm::InputTag spyReorderedDigisTag_;
     edm::InputTag spyVirginRawDigisTag_;
-    edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > spyReorderedDigisToken_;
-    edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > spyVirginRawDigisToken_;
+    edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi>> spyReorderedDigisToken_;
+    edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi>> spyVirginRawDigisToken_;
 
     //by fedIndex or module detid
     bool byModule_;
@@ -114,25 +115,25 @@ namespace sistrip {
         cablingWatcher_(this, &sistrip::FEDEmulatorModule::updateFedCabling),
         pedestalsWatcher_(this, &sistrip::FEDEmulatorModule::updatePedestals),
         noisesWatcher_(this, &sistrip::FEDEmulatorModule::updateNoises) {
-    spyReorderedDigisToken_ = consumes<edm::DetSetVector<SiStripRawDigi> >(spyReorderedDigisTag_);
-    spyVirginRawDigisToken_ = consumes<edm::DetSetVector<SiStripRawDigi> >(spyVirginRawDigisTag_);
+    spyReorderedDigisToken_ = consumes<edm::DetSetVector<SiStripRawDigi>>(spyReorderedDigisTag_);
+    spyVirginRawDigisToken_ = consumes<edm::DetSetVector<SiStripRawDigi>>(spyVirginRawDigisTag_);
 
     fedEmulator_.initialise(byModule_);
 
     if (!byModule_) {  //if not by module
       //the medians will be produced by fed id/channel
-      produces<std::map<uint32_t, std::vector<uint32_t> > >("Medians");
-      produces<edm::DetSetVector<SiStripRawDigi> >("PedestalsOrdered");
-      produces<edm::DetSetVector<SiStripProcessedRawDigi> >("NoisesOrdered");
-      produces<edm::DetSetVector<SiStripRawDigi> >("PedSubtrDigisOrdered");
-      produces<edm::DetSetVector<SiStripRawDigi> >("CMSubtrDigisOrdered");
+      produces<std::map<uint32_t, std::vector<uint32_t>>>("Medians");
+      produces<edm::DetSetVector<SiStripRawDigi>>("PedestalsOrdered");
+      produces<edm::DetSetVector<SiStripProcessedRawDigi>>("NoisesOrdered");
+      produces<edm::DetSetVector<SiStripRawDigi>>("PedSubtrDigisOrdered");
+      produces<edm::DetSetVector<SiStripRawDigi>>("CMSubtrDigisOrdered");
     } else {  //by module
-      produces<edm::DetSetVector<SiStripRawDigi> >("ModulePedestals");
-      produces<edm::DetSetVector<SiStripProcessedRawDigi> >("ModuleNoises");
-      produces<edm::DetSetVector<SiStripRawDigi> >("PedSubtrModuleDigis");
-      produces<std::map<uint32_t, std::vector<uint32_t> > >("ModuleMedians");
-      produces<edm::DetSetVector<SiStripRawDigi> >("CMSubtrModuleDigis");
-      produces<edm::DetSetVector<SiStripDigi> >("ZSModuleDigis");
+      produces<edm::DetSetVector<SiStripRawDigi>>("ModulePedestals");
+      produces<edm::DetSetVector<SiStripProcessedRawDigi>>("ModuleNoises");
+      produces<edm::DetSetVector<SiStripRawDigi>>("PedSubtrModuleDigis");
+      produces<std::map<uint32_t, std::vector<uint32_t>>>("ModuleMedians");
+      produces<edm::DetSetVector<SiStripRawDigi>>("CMSubtrModuleDigis");
+      produces<edm::DetSetVector<SiStripDigi>>("ZSModuleDigis");
     }  //end of by module check
 
   }  //end of FEDEmulatorModule constructor
@@ -155,7 +156,7 @@ namespace sistrip {
     algorithms_->initialize(iSetup);
 
     //retrieve the digis
-    edm::Handle<edm::DetSetVector<SiStripRawDigi> > lDigisHandle;
+    edm::Handle<edm::DetSetVector<SiStripRawDigi>> lDigisHandle;
     try {  //to get the digis from the event
       if (!byModule_) {
         iEvent.getByToken(spyReorderedDigisToken_, lDigisHandle);
@@ -182,10 +183,10 @@ namespace sistrip {
     std::vector<edm::DetSetVector<SiStripRawDigi>::detset> cmSubtrData;
     cmSubtrData.reserve(lNDigis);
     //zero suppressed contained - no fixed size (could be empty) so no need to reserve elements.
-    std::vector<edm::DetSet<SiStripDigi> > zsData;
+    std::vector<edm::DetSet<SiStripDigi>> zsData;
 
     //this is a map: no reserve/resize
-    std::map<uint32_t, std::vector<uint32_t> > medsData;
+    std::map<uint32_t, std::vector<uint32_t>> medsData;
 
     edm::DetSetVector<SiStripRawDigi>::const_iterator inputChannel = lInputDigis->begin();
 
@@ -255,21 +256,23 @@ namespace sistrip {
 
     }  //loop on input channels
 
-    std::unique_ptr<edm::DetSetVector<SiStripRawDigi> > lPeds(new edm::DetSetVector<SiStripRawDigi>(pedsData, true));
-    std::unique_ptr<edm::DetSetVector<SiStripProcessedRawDigi> > lNoises(
-        new edm::DetSetVector<SiStripProcessedRawDigi>(noiseData, true));
+    std::unique_ptr<edm::DetSetVector<SiStripRawDigi>> lPeds =
+        std::make_unique<edm::DetSetVector<SiStripRawDigi>>(pedsData, true);
+    std::unique_ptr<edm::DetSetVector<SiStripProcessedRawDigi>> lNoises =
+        std::make_unique<edm::DetSetVector<SiStripProcessedRawDigi>>(noiseData, true);
 
-    std::unique_ptr<edm::DetSetVector<SiStripRawDigi> > lOutputPedSubtr(
-        new edm::DetSetVector<SiStripRawDigi>(pedSubtrData, true));
+    std::unique_ptr<edm::DetSetVector<SiStripRawDigi>> lOutputPedSubtr =
+        std::make_unique<edm::DetSetVector<SiStripRawDigi>>(pedSubtrData, true);
 
-    std::unique_ptr<edm::DetSetVector<SiStripRawDigi> > lOutputCMSubtr(
-        new edm::DetSetVector<SiStripRawDigi>(cmSubtrData, true));
+    std::unique_ptr<edm::DetSetVector<SiStripRawDigi>> lOutputCMSubtr =
+        std::make_unique<edm::DetSetVector<SiStripRawDigi>>(cmSubtrData, true);
 
-    std::unique_ptr<std::map<uint32_t, std::vector<uint32_t> > > lMedians(
-        new std::map<uint32_t, std::vector<uint32_t> >(medsData));
+    std::unique_ptr<std::map<uint32_t, std::vector<uint32_t>>> lMedians =
+        std::make_unique<std::map<uint32_t, std::vector<uint32_t>>>(medsData);
 
     //zero suppressed digis
-    std::unique_ptr<edm::DetSetVector<SiStripDigi> > lOutputZS(new edm::DetSetVector<SiStripDigi>(zsData));
+    std::unique_ptr<edm::DetSetVector<SiStripDigi>> lOutputZS =
+        std::make_unique<edm::DetSetVector<SiStripDigi>>(zsData);
 
     if (!byModule_) {
       iEvent.put(std::move(lMedians), "Medians");

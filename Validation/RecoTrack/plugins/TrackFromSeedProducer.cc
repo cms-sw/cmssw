@@ -95,9 +95,9 @@ void TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm
   using namespace std;
 
   // output collection
-  unique_ptr<TrackCollection> tracks(new TrackCollection);
-  unique_ptr<TrackingRecHitCollection> rechits(new TrackingRecHitCollection);
-  unique_ptr<TrackExtraCollection> trackextras(new TrackExtraCollection);
+  unique_ptr<TrackCollection> tracks = std::make_unique<TrackCollection>();
+  unique_ptr<TrackingRecHitCollection> rechits = std::make_unique<TrackingRecHitCollection>();
+  unique_ptr<TrackExtraCollection> trackextras = std::make_unique<TrackExtraCollection>();
 
   // product references
   TrackExtraRefProd ref_trackextras = iEvent.getRefBeforePut<TrackExtraCollection>();

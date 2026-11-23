@@ -64,7 +64,7 @@
 //
 SiStripFineDelayHit::SiStripFineDelayHit(const edm::ParameterSet& iConfig) : event_(nullptr) {
   //register your products
-  produces<edm::DetSetVector<SiStripRawDigi> >("FineDelaySelection");
+  produces<edm::DetSetVector<SiStripRawDigi>>("FineDelaySelection");
   //now do what ever other initialization is needed
   anglefinder_ = new SiStripFineDelayTLA(iConfig, consumesCollector());
   cosmic_ = iConfig.getParameter<bool>("cosmic");
@@ -79,13 +79,12 @@ SiStripFineDelayHit::SiStripFineDelayHit(const edm::ParameterSet& iConfig) : eve
    inputModuleLabel_ = iConfig.getParameter<edm::InputTag>( "InputModuleLabel" ) ;
    digiLabel_ = iConfig.getParameter<edm::InputTag>("DigiLabel");
    */
-  clustersToken_ =
-      consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("ClustersLabel"));
-  trackToken_ = consumes<std::vector<Trajectory> >(iConfig.getParameter<edm::InputTag>("TracksLabel"));
+  clustersToken_ = consumes<edmNew::DetSetVector<SiStripCluster>>(iConfig.getParameter<edm::InputTag>("ClustersLabel"));
+  trackToken_ = consumes<std::vector<Trajectory>>(iConfig.getParameter<edm::InputTag>("TracksLabel"));
   trackCollectionToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("TracksLabel"));
   seedcollToken_ = consumes<TrajectorySeedCollection>(iConfig.getParameter<edm::InputTag>("SeedsLabel"));
   inputModuleToken_ = consumes<SiStripEventSummary>(iConfig.getParameter<edm::InputTag>("InputModuleLabel"));
-  digiToken_ = consumes<edm::DetSetVector<SiStripDigi> >(iConfig.getParameter<edm::InputTag>("DigiLabel"));
+  digiToken_ = consumes<edm::DetSetVector<SiStripDigi>>(iConfig.getParameter<edm::InputTag>("DigiLabel"));
 
   homeMadeClusters_ = iConfig.getParameter<bool>("NoClustering");
   explorationWindow_ = iConfig.getParameter<uint32_t>("ExplorationWindow");
@@ -140,7 +139,7 @@ SiStripFineDelayHit::DeviceMask SiStripFineDelayHit::deviceMask(const StripSubde
   return std::make_pair(maskDetId, rootDetId);
 }
 
-std::vector<std::pair<uint32_t, std::pair<double, double> > > SiStripFineDelayHit::detId(
+std::vector<std::pair<uint32_t, std::pair<double, double>>> SiStripFineDelayHit::detId(
     const TrackerGeometry& tracker,
     const TrackerTopology* tkrTopo,
     const reco::Track* tk,
@@ -155,7 +154,7 @@ std::vector<std::pair<uint32_t, std::pair<double, double> > > SiStripFineDelayHi
   return detId(tracker, tkrTopo, tk, trajVec, mask.first, mask.second);
 }
 
-std::vector<std::pair<uint32_t, std::pair<double, double> > > SiStripFineDelayHit::detId(
+std::vector<std::pair<uint32_t, std::pair<double, double>>> SiStripFineDelayHit::detId(
     const TrackerGeometry& tracker,
     const TrackerTopology* tkrTopo,
     const reco::Track* tk,
@@ -164,10 +163,10 @@ std::vector<std::pair<uint32_t, std::pair<double, double> > > SiStripFineDelayHi
     const uint32_t& rootDetId) {
   bool onDisk = ((maskDetId == tkrTopo->tidDetId(3, 15, 0, 0, 0, 0).rawId()) ||
                  (maskDetId == tkrTopo->tecDetId(3, 15, 0, 0, 0, 0, 0).rawId()));
-  std::vector<std::pair<uint32_t, std::pair<double, double> > > result;
+  std::vector<std::pair<uint32_t, std::pair<double, double>>> result;
   std::vector<uint32_t> usedDetids;
   // now loop on recHits to find the right detId plus the track local angle
-  std::vector<std::pair<std::pair<DetId, LocalPoint>, float> > hitangle;
+  std::vector<std::pair<std::pair<DetId, LocalPoint>, float>> hitangle;
   if (!cosmic_) {
     // use trajectories in event.
     // we have first to find the right trajectory for the considered track.
@@ -190,7 +189,7 @@ std::vector<std::pair<uint32_t, std::pair<double, double> > > SiStripFineDelayHi
     hitangle = anglefinder_->findtrackangle(trajVec);
   }
   LogDebug("DetId") << "number of hits for the track: " << hitangle.size();
-  std::vector<std::pair<std::pair<DetId, LocalPoint>, float> >::iterator iter;
+  std::vector<std::pair<std::pair<DetId, LocalPoint>, float>>::iterator iter;
   // select the interesting DetIds, based on the ID and TLA
   for (iter = hitangle.begin(); iter != hitangle.end(); iter++) {
     // check the detId.
@@ -209,7 +208,7 @@ std::vector<std::pair<uint32_t, std::pair<double, double> > > SiStripFineDelayHi
     if (1 - fabs(fabs(iter->second) - 1) < cos(maxAngle_ / 180. * TMath::Pi()))
       continue;
     // returns the detid + the time of flight to there
-    std::pair<uint32_t, std::pair<double, double> > el;
+    std::pair<uint32_t, std::pair<double, double>> el;
     std::pair<double, double> subel;
     el.first = iter->first.first.rawId();
     // here, we compute the TOF.
@@ -390,7 +389,7 @@ void SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
   event_ = &iEvent;
   // container for the selected hits
-  std::vector<edm::DetSet<SiStripRawDigi> > output;
+  std::vector<edm::DetSet<SiStripRawDigi>> output;
   output.reserve(100);
   // access the tracks
   edm::Handle<reco::TrackCollection> trackCollection;
@@ -402,7 +401,7 @@ void SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     anglefinder_->init(iEvent, iSetup);
     LogDebug("produce") << "Found " << tracks->size() << " tracks.";
     // look at the hits if one needs them
-    edm::Handle<edm::DetSetVector<SiStripDigi> > hits;
+    edm::Handle<edm::DetSetVector<SiStripDigi>> hits;
     const edm::DetSetVector<SiStripDigi>* hitSet = nullptr;
     if (homeMadeClusters_) {
       //       iEvent.getByLabel(digiLabel_,hits);
@@ -410,13 +409,13 @@ void SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       hitSet = hits.product();
     }
     // look at the clusters
-    edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
+    edm::Handle<edmNew::DetSetVector<SiStripCluster>> clusters;
     //     iEvent.getByLabel(clusterLabel_, clusters);
     iEvent.getByToken(clustersToken_, clusters);
     const edmNew::DetSetVector<SiStripCluster>* clusterSet = clusters.product();
     // look at the trajectories if they are in the event
     std::vector<Trajectory> trajVec;
-    edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
+    edm::Handle<std::vector<Trajectory>> TrajectoryCollection;
     //     iEvent.getByLabel(trackLabel_,TrajectoryCollection);
     iEvent.getByToken(trackToken_, TrajectoryCollection);
     trajVec = *(TrajectoryCollection.product());
@@ -428,7 +427,7 @@ void SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       if ((itrack->px() * itrack->px() + itrack->py() * itrack->py() + itrack->pz() * itrack->pz()) < minTrackP2_)
         continue;
       // check that we have something in the layer we are interested in
-      std::vector<std::pair<uint32_t, std::pair<double, double> > > intersections;
+      std::vector<std::pair<uint32_t, std::pair<double, double>>> intersections;
       if (mode_ == 1) {
         // Retrieve and decode commissioning information from "event summary"
         edm::Handle<SiStripEventSummary> summary;
@@ -451,7 +450,7 @@ void SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         intersections = detId(tracker, tTopo, &(*itrack), trajVec);
       }
       LogDebug("produce") << "  Found " << intersections.size() << " interesting intersections." << std::endl;
-      for (std::vector<std::pair<uint32_t, std::pair<double, double> > >::iterator it = intersections.begin();
+      for (std::vector<std::pair<uint32_t, std::pair<double, double>>>::iterator it = intersections.begin();
            it < intersections.end();
            it++) {
         std::pair<const SiStripCluster*, double> candidateCluster =
@@ -476,7 +475,7 @@ void SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSe
           }
 
           // look for an existing detset
-          std::vector<edm::DetSet<SiStripRawDigi> >::iterator newdsit = output.begin();
+          std::vector<edm::DetSet<SiStripRawDigi>>::iterator newdsit = output.begin();
           for (; newdsit != output.end() && newdsit->detId() != connectionMap_[it->first]; ++newdsit) {
           }
           // if there is no detset yet, create it.
@@ -514,7 +513,8 @@ void SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
   // add the selected hits to the event.
   LogDebug("produce") << "Putting " << output.size() << " new hits in the event.";
-  std::unique_ptr<edm::DetSetVector<SiStripRawDigi> > formatedOutput(new edm::DetSetVector<SiStripRawDigi>(output));
+  std::unique_ptr<edm::DetSetVector<SiStripRawDigi>> formatedOutput =
+      std::make_unique<edm::DetSetVector<SiStripRawDigi>>(output);
   iEvent.put(std::move(formatedOutput), "FineDelaySelection");
 }
 
@@ -524,7 +524,7 @@ void SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::Event
   // Get TrackerTopology
   const auto tTopo = &iSetup.getData(tTopoToken_);
   // container for the selected hits
-  std::vector<edm::DetSet<SiStripRawDigi> > output;
+  std::vector<edm::DetSet<SiStripRawDigi>> output;
   output.reserve(100);
   // Retrieve and decode commissioning information from "event summary"
   edm::Handle<SiStripEventSummary> summary;
@@ -543,7 +543,7 @@ void SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::Event
   int32_t layerIdx = (layerCode & 0xF) * (((layerCode >> 4) & 0x3) ? -1 : 1);
   DeviceMask mask = deviceMask(subdet, layerIdx, tTopo);
   // look at the clusters
-  edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
+  edm::Handle<edmNew::DetSetVector<SiStripCluster>> clusters;
   //   iEvent.getByLabel(clusterLabel_,clusters);
   iEvent.getByToken(clustersToken_, clusters);
   for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter = clusters->begin(); DSViter != clusters->end();
@@ -597,7 +597,8 @@ void SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::Event
   }
   // add the selected hits to the event.
   LogDebug("produce") << "Putting " << output.size() << " new hits in the event.";
-  std::unique_ptr<edm::DetSetVector<SiStripRawDigi> > formatedOutput(new edm::DetSetVector<SiStripRawDigi>(output));
+  std::unique_ptr<edm::DetSetVector<SiStripRawDigi>> formatedOutput =
+      std::make_unique<edm::DetSetVector<SiStripRawDigi>>(output);
   iEvent.put(std::move(formatedOutput), "FineDelaySelection");
 }
 

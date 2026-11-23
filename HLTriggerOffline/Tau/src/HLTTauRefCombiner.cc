@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "HLTriggerOffline/Tau/interface/HLTTauRefCombiner.h"
 #include "Math/GenVector/VectorUtil.h"
 
@@ -16,7 +18,7 @@ HLTTauRefCombiner::HLTTauRefCombiner(const edm::ParameterSet &iConfig)
 }
 
 void HLTTauRefCombiner::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iES) const {
-  unique_ptr<LorentzVectorCollection> out_product(new LorentzVectorCollection);
+  unique_ptr<LorentzVectorCollection> out_product = std::make_unique<LorentzVectorCollection>();
 
   // Create The Handles..
   std::vector<Handle<LorentzVectorCollection>> handles;

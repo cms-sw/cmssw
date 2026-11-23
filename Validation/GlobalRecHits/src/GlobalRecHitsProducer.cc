@@ -5,6 +5,8 @@
  *  \author M. Strang SUNY-Buffalo
  */
 
+#include <memory>
+
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Validation/GlobalRecHits/interface/GlobalRecHitsProducer.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
@@ -208,7 +210,7 @@ void GlobalRecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     edm::LogInfo(MsgLoggerCat) << "Done gathering data from event.";
 
   // produce object to put into event
-  std::unique_ptr<PGlobalRecHit> pOut(new PGlobalRecHit);
+  std::unique_ptr<PGlobalRecHit> pOut = std::make_unique<PGlobalRecHit>();
 
   if (verbosity > 2)
     edm::LogInfo(MsgLoggerCat) << "Saving event contents:";

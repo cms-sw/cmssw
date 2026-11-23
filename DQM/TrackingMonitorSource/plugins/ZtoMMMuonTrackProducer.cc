@@ -102,7 +102,7 @@ ZtoMMMuonTrackProducer::ZtoMMMuonTrackProducer(const edm::ParameterSet& ps)
 }
 
 void ZtoMMMuonTrackProducer::produce(edm::StreamID streamID, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
-  std::unique_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection());
+  std::unique_ptr<reco::TrackCollection> outputTColl = std::make_unique<reco::TrackCollection>();
 
   // Read Muon Collection
   edm::Handle<reco::MuonCollection> muonColl;
