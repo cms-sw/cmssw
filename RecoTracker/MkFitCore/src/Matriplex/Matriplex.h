@@ -346,7 +346,11 @@ namespace Matriplex {
       return *this;
     }
 
-    void fast_sincos(Matriplex& s, Matriplex& c) const { VDT_INVOKE(, sincos, ARR, s.fArray[i], c.fArray[i]); }
+    // flatten inlines vdt's sincos into this function, so that the loop vectorises. Called per element inside a
+    // large function, gcc 14.3 can leave vdt's sincos as an out-of-line call per element.
+    __attribute__((flatten)) void fast_sincos(Matriplex& s, Matriplex& c) const {
+      VDT_INVOKE(, sincos, ARR, s.fArray[i], c.fArray[i]);
+    }
 
     Matriplex& fast_tan(const Matriplex& a) {
       VDT_INVOKE(ASS, tan, A_ARR);

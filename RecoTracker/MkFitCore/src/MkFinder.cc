@@ -2509,6 +2509,9 @@ namespace mkfit {
           m_Par[iC].copyOut(i, trk.parameters_nc().Array());
           trk.setCharge(m_Chg[i]);
           trk.setChi2(m_Chi2[i]);
+          // Outliers became misses: the hole and overlap counts follow before the score.
+          if (nOutliers[i] > 0)
+            trk.recountHolesAndOverlaps();
           if (isFinite(trk.chi2())) {
             trk.setScore(getScoreCand(m_steering_params->m_post_bkfit_track_scorer, trk));
           }

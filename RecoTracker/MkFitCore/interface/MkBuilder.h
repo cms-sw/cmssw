@@ -137,6 +137,8 @@ namespace mkfit {
     void set_hit_states_output(FinalFitHitStates *hs) { m_hsOut = hs; }
 
   private:
+    void skipBkwSearchRegion(int region);
+
     void fit_one_seed_set(TrackVec &simtracks, int itrack, int end, MkFitter *mkfttr, const bool is_brl[]);
 
     MkJob *m_job = nullptr;

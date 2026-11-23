@@ -888,6 +888,7 @@ namespace mkfit {
     TBB_PARALLEL_FOR_EACH(m_job->regions_begin(), m_job->regions_end(), [&](int region) {
       if (iteration_dir == SteeringParams::IT_BkwSearch && !m_job->steering_params(region).has_bksearch_plan()) {
         printf("No backward search plan for region %d\n", region);
+        skipBkwSearchRegion(region);
         return;
       }
 
@@ -987,6 +988,7 @@ namespace mkfit {
     TBB_PARALLEL_FOR_EACH(m_job->regions_begin(), m_job->regions_end(), [&](int region) {
       if (iteration_dir == SteeringParams::IT_BkwSearch && !m_job->steering_params(region).has_bksearch_plan()) {
         printf("No backward search plan for region %d\n", region);
+        skipBkwSearchRegion(region);
         return;
       }
 
@@ -1181,6 +1183,7 @@ namespace mkfit {
     TBB_PARALLEL_FOR_EACH(m_job->regions_begin(), m_job->regions_end(), [&](int region) {
       if (iteration_dir == SteeringParams::IT_BkwSearch && !m_job->steering_params(region).has_bksearch_plan()) {
         printf("No backward search plan for region %d\n", region);
+        skipBkwSearchRegion(region);
         return;
       }
 
@@ -1566,6 +1569,15 @@ namespace mkfit {
     const BeamSpot &bs = m_job->m_beam_spot;
     m_event_of_comb_cands.beginBkwSearch(
         itconf.m_backward_search_min_pixel_layers, itconf.m_backward_search_prompt_max_d0, bs.x, bs.y);
+  }
+
+  void MkBuilder::skipBkwSearchRegion(int region) {
+    // EventOfCombCandidates::beginBkwSearch() zeroed the hole counts of every candidate. A searched
+    // region adds them back in its final sort; a region without a backward-search plan has no final
+    // sort, so its candidates get them back here.
+    const RegionOfSeedIndices rosi(m_seedEtaSeparators, region);
+    for (int iseed = rosi.m_reg_beg; iseed < rosi.m_reg_end; ++iseed)
+      m_event_of_comb_cands[iseed].addPreBkwSearchHoles();
   }
 
   void MkBuilder::backwardFit() {

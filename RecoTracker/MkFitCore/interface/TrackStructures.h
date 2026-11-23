@@ -242,6 +242,13 @@ namespace mkfit {
     const HoTNode& refLastHoTNode() const;  // for dump traversal
 
     void incOverlapCount() { ++nOverlapHits_; }
+    // Recomputes the hole and overlap counts from the HoT chain, after hits were turned into
+    // misses (the backward fits' outlier rejection). The rules are those the chain was built
+    // with: an inside hole is a kHitMissIdx node before the last found hit, a tail hole one
+    // after it, and an overlap a found hit after the seed's hits whose previous found hit is on
+    // the same layer and also after the seed's hits. A miss after the seed's hits next to such a
+    // hit of its own layer is not a hole: the layer still has a hit.
+    void recountHolesAndOverlaps();
 
     Track exportTrack(bool remove_missing_hits = false) const;
 
