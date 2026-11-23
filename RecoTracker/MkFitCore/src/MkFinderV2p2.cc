@@ -708,6 +708,9 @@ namespace mkfit {
     auto& hit_idcs = hb.hit_idcs;
     auto& hit_orig_idcs = hb.hit_orig_idcs;
 
+    // The iteration's window factors, read once per call.
+    const float dphi_trk_fac = win_dphi_trk_fac(), dq_trk_fac = win_dq_trk_fac();
+
     // Both sub-layers, each into its own reduction queue. See the design notes,
     // "Reduction and hit ordering".
     const int n_sub = m_rz_limits.m_is_double ? 2 : 1;
@@ -746,8 +749,8 @@ namespace mkfit {
             pc_gq = std::clamp(((barrel ? z2 : r2) - pc_q1) / dqb, -20.0f, 20.0f);
             pc_phi1 = B.m_phi1[i];
             pc_gphi = std::clamp(squashPhiGeneral(B.m_phi2[i] - pc_phi1) / dqb, -20.0f, 20.0f);
-            pc_tol_q = PreCut::dq_slack * win_dq_trk_fac() * B.m_dq_track[i] * (1.0f + pc_gq * pc_gq);
-            pc_tol_phi = PreCut::dphi_slack * Window::capped_dphi(win_dphi_trk_fac() * B.m_dphi_track[i]);
+            pc_tol_q = PreCut::dq_slack * dq_trk_fac * B.m_dq_track[i] * (1.0f + pc_gq * pc_gq);
+            pc_tol_phi = PreCut::dphi_slack * Window::capped_dphi(dphi_trk_fac * B.m_dphi_track[i]);
           }
         }
 
@@ -755,8 +758,8 @@ namespace mkfit {
         // window with the cut's padding of this sub-layer, as the fetch.
         const float phi_hit_term =
             Window::phi_per_hit ? Window::dphi_hit_fac * L.max_hit_phi_half_extent() : Window::dphi_flat_rad;
-        const float rho_dphi = Window::capped_dphi(win_dphi_trk_fac() * B.m_dphi_track[i] + phi_hit_term);
-        const float rho_dq = win_dq_trk_fac() * B.m_dq_track[i] + Window::dq_hit_fac * L.max_hit_q_half_length();
+        const float rho_dphi = Window::capped_dphi(dphi_trk_fac * B.m_dphi_track[i] + phi_hit_term);
+        const float rho_dq = dq_trk_fac * B.m_dq_track[i] + Window::dq_hit_fac * L.max_hit_q_half_length();
         b.rho_dphi[i] = std::max(b.rho_dphi[i], rho_dphi);
         b.rho_dq[i] = std::max(b.rho_dq[i], rho_dq);
         // Centre and half-width from MkBins: when the two crossings lie on both sides of
@@ -927,11 +930,12 @@ namespace mkfit {
     int* tr_layersearch_ids = b.tr_layersearch_ids;
 #endif
 
-    // Zeroed: the lanes from N_proc_hits up are not filled, and init_coeffs() reads
-    // all of them.
-    MPlex3V module_pos(0.0f);
-    MPlex3V module_norm(0.0f);
-    mp::Hermite3D h3d(0.0f);
+    // The lanes from N_proc_hits up get copies of lane 0 below, so that the Newton
+    // step in solve() and the incidence cut compute on valid numbers there; their
+    // results are not read. See pad_free_lanes().
+    MPlex3V module_pos;
+    MPlex3V module_norm;
+    mp::Hermite3D h3d;
 
 #ifdef MKFIT_TRACE
     int tr_hitmatch_ids[NN];
@@ -955,6 +959,9 @@ namespace mkfit {
       tr_hitmatch_ids[h] = mp_event->trace_hitmatch(std::move(hm)).id;
 #endif
     }
+    pad_free_lanes(N_proc_hits, module_pos, module_norm);
+    for (int h = N_proc_hits; h < NN; ++h)
+      h3d.copyIn(h, h3d, 0);
 
 #ifdef MKFIT_TRACE_PROP_COMPARE
     is_plex.propagate_to_plane(mp::PA_Line, module_pos, module_norm, h_plex, true);
@@ -962,9 +969,9 @@ namespace mkfit {
 
     mp::Hermite3DOnPlane h3dop;
     h3dop.init_coeffs(h3d, module_pos, module_norm);
-    // NOTE: solve() is a SINGLE Newton step, not an iteration to convergence.
-    // d3 below is what says whether that one step was enough, so it goes into
-    // the trace and not just into DEBUG.
+    // NOTE: solve() takes two Newton steps, not an iteration to convergence.
+    // d3 below is what says whether they were enough, so it goes into the trace
+    // and not just into DEBUG.
     h3dop.solve();
 #ifdef MKFIT_TRACE
     MPlexQF d3;
@@ -993,6 +1000,9 @@ namespace mkfit {
     // phi of each crossing, for the whole batch ahead of the per-hit loop below, which does not vectorise.
     const MPlexQF h3_phi = Matriplex::atan2_poly(h3_state.y, h3_state.x);
 
+    // The iteration's window factors, read once per batch.
+    const float dphi_trk_fac = win_dphi_trk_fac(), dq_trk_fac = win_dq_trk_fac();
+
     // Post-process hits into the per-candidate queues. The cut is taken on
     // h3_state, the cubic solved onto the hit's module plane.
     for (int h = 0; h < N_proc_hits; ++h) {
@@ -1015,9 +1025,9 @@ namespace mkfit {
               : B.m_dq_track[cand_idcs[h]];
 
       // The pre-selection cut. See doc/MkFinderV2p2-DesignNotes.md, "Search window".
-      const float dq_cut = win_dq_trk_fac() * dq_trk + Window::dq_hit_fac * L.hit_q_half_length(hit_idcs[h]);
+      const float dq_cut = dq_trk_fac * dq_trk + Window::dq_hit_fac * L.hit_q_half_length(hit_idcs[h]);
       const float dphi_cut = Window::capped_dphi(
-          win_dphi_trk_fac() * B.m_dphi_track[cand_idcs[h]] +
+          dphi_trk_fac * B.m_dphi_track[cand_idcs[h]] +
           (Window::phi_per_hit ? Window::dphi_hit_fac * L.hit_phi_half_extent(hit_idcs[h]) : Window::dphi_flat_rad));
       const bool dqdphi_presel = ddq < dq_cut && ddphi < dphi_cut;
 
@@ -1406,8 +1416,8 @@ namespace mkfit {
       // WSR_Outside is not a hole: the candidate competes unchanged, unless
       // V2p2Params::outside_hole_max_seed_hits makes it one for a short seed.
       const int outside_max_seed = mp_job->v2p2().outside_hole_max_seed_hits;
-      const bool outside_as_hole = outside_max_seed > 0 && tc.getNSeedHits() <= outside_max_seed &&
-                                   tc.nFoundHits() <= tc.getNSeedHits();
+      const bool outside_as_hole =
+          outside_max_seed > 0 && tc.getNSeedHits() <= outside_max_seed && tc.nFoundHits() <= tc.getNSeedHits();
       if (Policy::use_wsr && cand.m_wsr.m_wsr == WSR_Outside && !outside_as_hole) {
         m_sel.push_back({cand.m_origin_tcand_index, -1, 0, false, tc.score()});
       } else {

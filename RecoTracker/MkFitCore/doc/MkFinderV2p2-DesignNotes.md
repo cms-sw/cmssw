@@ -231,12 +231,19 @@ parameters, not the covariance, and are in closed form.
 
 Inside the layer the trajectory is modelled by a cubic Hermite curve through
 the two crossings, with their momenta as tangents. For each hit read from the
-window the cubic is solved onto the hit's own module plane with one Newton step,
+window the cubic is solved onto the hit's own module plane with two Newton steps,
 and both the cut and the state handed to the Kalman update are taken at that
 point. The exact helix-plane intersection is transcendental for a tilted module;
-the cubic is what makes a crossing per hit affordable. After the one step the
-point lies within 10 nm of the module plane for 97 % of hits; the rest are
-further off but well inside the cut's tolerance.
+the cubic is what makes a crossing per hit affordable. On a plane of constant z
+the first step is exact, since z is linear along the cubic. After the two steps
+the point lies within 10 nm of the module plane for 99.8 % of the solves (forward
+search, 10 ttbar PU200 events; 93.6 % after one step, with a tail of up to
+millimetres in the 2S layers). Against the exact helix crossing, the point is off
+across the strip by 2.1 um in the PS layers and 2.9 um in the 2S layers at the
+99th percentile, the cubic's own model error, and by 0.08 um in the endcaps. The
+tail, 2.9 mm at the 99.9th percentile in the 2S layers, comes from low-pT tracks
+that cross the modules at grazing incidence, where the cubic is a poor model of
+the helix.
 
 ## Reachability
 

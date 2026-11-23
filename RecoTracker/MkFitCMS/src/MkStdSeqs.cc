@@ -89,6 +89,9 @@ namespace mkfit {
     int clean_cms_seedtracks_iter(TrackVec &seeds, const IterationConfig &itrcfg, const BeamSpot &bspot) {
       using Algo = TrackBase::TrackAlgorithm;
 
+      // Merging stops at 15 hits on the kept seed.
+      constexpr int kMaxMergedSeedHits = 15;
+
       const float etamax_brl = Config::c_etamax_brl;
       const float dpt_common = Config::c_dpt_common;
 
@@ -269,11 +272,10 @@ namespace mkfit {
                   i2 = ts;
                   i1 = tss;
                 }
-                // Add hits from tk2 to the seed we are keeping.
-                // NOTE: We have a limit in Track::Status for the number of seed hits.
-                //       There is a check at entry and after adding of a new hit.
+                // Add hits from tk2 to the seed we are keeping, up to kMaxMergedSeedHits.
+                // There is a check at entry and after adding of a new hit.
                 Track &tk = seeds[i1];
-                if (merge_hits && tk.nTotalHits() < Track::Status::kMaxSeedHits &&
+                if (merge_hits && tk.nTotalHits() < kMaxMergedSeedHits &&
                     (Algo(itrcfg.m_track_algorithm) != Algo::lowPtQuadStep ||
                      (pt1 < ptmax_merge_lowPtQuad && std::abs(eta1) > etamin_merge_lowPtQuad))) {
                   const Track &tk2 = seeds[i2];
@@ -294,7 +296,7 @@ namespace mkfit {
                       if (unique) {
                         tk.addHitIdx(tk2.getHitIdx(j), tk2.getHitLyr(j), fakeChi2);
                         ++n_ovlp_hits_added;
-                        if (tk.nTotalHits() >= Track::Status::kMaxSeedHits)
+                        if (tk.nTotalHits() >= kMaxMergedSeedHits)
                           break;
                       }
                     }

@@ -102,7 +102,7 @@ namespace mkfit {
     // ------------------------------------------------------------------------
 
     struct Status {
-      static constexpr int kNSeedHitBits = 4;
+      static constexpr int kNSeedHitBits = 6;
       static constexpr int kMaxSeedHits = (1 << kNSeedHitBits) - 1;
 
       // Set to true for short, low-pt CMS tracks. They do not generate mc seeds and
@@ -128,14 +128,14 @@ namespace mkfit {
       // Temporary store number of overlaps for Track here
       int n_overlaps : 8;
 
-      // Number of seed hits at import time
+      // Number of seed hits at import time. An LST seed can have more than 15.
       unsigned int n_seed_hits : kNSeedHitBits;
 
       // mkFit tracking region TrackerInfo::EtaRegion, determined by seed partition function
       unsigned int eta_region : 3;
 
       // The remaining bits.
-      unsigned int _free_bits_ : 4;
+      unsigned int _free_bits_ : 2;
 
       Status()
           : not_findable(false),
@@ -165,7 +165,8 @@ namespace mkfit {
     void setProdType(ProdType ptyp) { status_.prod_type = static_cast<unsigned int>(ptyp); }
 
     int getNSeedHits() const { return status_.n_seed_hits; }
-    void setNSeedHits(int n) { status_.n_seed_hits = n; }
+    // A seed with more than kMaxSeedHits hits is stored as kMaxSeedHits.
+    void setNSeedHits(int n) { status_.n_seed_hits = n < Status::kMaxSeedHits ? n : Status::kMaxSeedHits; }
     int getEtaRegion() const { return status_.eta_region; }
     void setEtaRegion(int r) { status_.eta_region = r; }
 

@@ -59,32 +59,48 @@ namespace mkfit {
       ++n_nodes;
     const int n_seed = getNSeedHits();
     auto found = [](const HitOnTrack &h) { return h.index >= 0 || h.index == Hit::kHitCCCFilterIdx; };
-    // Node idx, at position pos, is a found hit after the seed's on the given layer.
-    auto search_hit_on = [&](int idx, int pos, int layer) {
-      return idx >= 0 && pos >= n_seed && cc.hot_node(idx).m_hot.layer == layer && found(cc.hot_node(idx).m_hot);
-    };
 
     int n_inside = 0, n_tail = 0, n_overlap = 0;
     bool seen_found = false;  // a found hit later in the chain
-    int later_idx = -1, later_found_layer = -1;
+    int later_found_layer = -1;
+    // After the seed's hits, a run of consecutive nodes on one layer is one crossing of the layer:
+    // one hole if it has a miss and no found hit. Rejecting one hit of an overlap pair leaves no
+    // hole, rejecting both leaves one.
+    int run_layer = -1;
+    bool run_found = false, run_miss = false, run_seen_found = false;
+    auto close_run = [&]() {
+      if (run_miss && !run_found)
+        ++(run_seen_found ? n_inside : n_tail);
+      run_layer = -1;
+      run_found = run_miss = false;
+    };
     int pos = n_nodes;
-    for (int idx = lastHitIdx_; idx >= 0; later_idx = idx, idx = cc.hot_node(idx).m_prev_idx) {
+    for (int idx = lastHitIdx_; idx >= 0; idx = cc.hot_node(idx).m_prev_idx) {
       --pos;
       const HitOnTrack &h = cc.hot_node(idx).m_hot;
+      const bool after_seed = pos >= n_seed;
+      if (!after_seed || h.layer != run_layer) {
+        close_run();
+        if (after_seed) {
+          run_layer = h.layer;
+          run_seen_found = seen_found;
+        }
+      }
       if (found(h)) {
-        if (h.layer == later_found_layer && pos >= n_seed)
+        if (h.layer == later_found_layer && after_seed)
           ++n_overlap;
         later_found_layer = h.layer;
         seen_found = true;
+        if (after_seed)
+          run_found = true;
       } else if (h.index == Hit::kHitMissIdx) {
-        // A miss next to a search hit of its own layer was an overlap hit: the layer keeps a hit.
-        const int prev_idx = cc.hot_node(idx).m_prev_idx;
-        const bool layer_kept =
-            pos >= n_seed && (search_hit_on(later_idx, pos + 1, h.layer) || search_hit_on(prev_idx, pos - 1, h.layer));
-        if (!layer_kept)
+        if (after_seed)
+          run_miss = true;
+        else
           ++(seen_found ? n_inside : n_tail);
       }
     }
+    close_run();
     nInsideMinusOneHits_ = n_inside;
     nTailMinusOneHits_ = n_tail;
     nOverlapHits_ = n_overlap;

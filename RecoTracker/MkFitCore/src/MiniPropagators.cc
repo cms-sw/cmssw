@@ -486,8 +486,13 @@ namespace mkfit::mini_propagators {
     dddt = m_D(1, 0) + 2.0f * m_D(2, 0) * t + 3.0f * m_D(3, 0) * t2;
   }
 
+  // Two Newton steps. For a plane of constant z the first is exact, since z is linear
+  // along the cubic; a barrel module, or a tilted one, needs the second. See
+  // doc/MkFinderV2p2-DesignNotes.md, "Layer crossings and the Hermite cubic".
   void Hermite3DOnPlane::solve() {
     MPF f, df;
+    evaluate(m_T, f, df);
+    m_T -= f / df;
     evaluate(m_T, f, df);
     m_T -= f / df;
   }
