@@ -93,8 +93,8 @@ namespace cms {
     }
 
     pair<double, bool> result;
-    std::unique_ptr<ResultCollection1> result1(new ResultCollection1);
-    std::unique_ptr<ResultCollection2> result2(new ResultCollection2);
+    std::unique_ptr<ResultCollection1> result1 = std::make_unique<ResultCollection1>();
+    std::unique_ptr<ResultCollection2> result2 = std::make_unique<ResultCollection2>();
 
     CaloJetCollection::const_iterator jet = jets->begin();
 

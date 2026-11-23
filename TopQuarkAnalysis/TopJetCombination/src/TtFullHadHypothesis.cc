@@ -1,29 +1,31 @@
+#include <memory>
+
 #include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtFullHadHypothesis.h"
 
 /// default constructor
 TtFullHadHypothesis::TtFullHadHypothesis(const edm::ParameterSet& cfg)
-    : jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))) {
+    : jetsToken_(consumes<std::vector<pat::Jet>>(cfg.getParameter<edm::InputTag>("jets"))) {
   getMatch_ = false;
   if (cfg.exists("match")) {
     getMatch_ = true;
-    matchToken_ = consumes<std::vector<std::vector<int> > >(cfg.getParameter<edm::InputTag>("match"));
+    matchToken_ = consumes<std::vector<std::vector<int>>>(cfg.getParameter<edm::InputTag>("match"));
   }
   if (cfg.exists("jetCorrectionLevel")) {
     jetCorrectionLevel_ = cfg.getParameter<std::string>("jetCorrectionLevel");
   }
-  produces<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >();
+  produces<std::vector<std::pair<reco::CompositeCandidate, std::vector<int>>>>();
   produces<int>("Key");
 }
 
 /// produce the event hypothesis as CompositeCandidate and Key
 void TtFullHadHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup) {
-  edm::Handle<std::vector<pat::Jet> > jets;
+  edm::Handle<std::vector<pat::Jet>> jets;
   evt.getByToken(jetsToken_, jets);
 
-  std::vector<std::vector<int> > matchVec;
+  std::vector<std::vector<int>> matchVec;
   if (getMatch_) {
-    edm::Handle<std::vector<std::vector<int> > > matchHandle;
+    edm::Handle<std::vector<std::vector<int>>> matchHandle;
     evt.getByToken(matchToken_, matchHandle);
     matchVec = *matchHandle;
   } else {
@@ -35,13 +37,13 @@ void TtFullHadHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
   }
 
   // declare unique_ptr for products
-  std::unique_ptr<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > > pOut(
-      new std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > >);
+  std::unique_ptr<std::vector<std::pair<reco::CompositeCandidate, std::vector<int>>>> pOut =
+      std::make_unique<std::vector<std::pair<reco::CompositeCandidate, std::vector<int>>>>();
   std::unique_ptr<int> pKey(new int);
 
   // go through given vector of jet combinations
   unsigned int idMatch = 0;
-  typedef std::vector<std::vector<int> >::iterator MatchVecIterator;
+  typedef std::vector<std::vector<int>>::iterator MatchVecIterator;
   for (MatchVecIterator match = matchVec.begin(); match != matchVec.end(); ++match) {
     // reset pointers
     resetCandidates();
@@ -139,7 +141,7 @@ std::string TtFullHadHypothesis::jetCorrectionLevel(const std::string& quarkType
 
 /// use one object in a jet collection to set a ShallowClonePtrCandidate with proper jet corrections
 std::unique_ptr<reco::ShallowClonePtrCandidate> TtFullHadHypothesis::makeCandidate(
-    const edm::Handle<std::vector<pat::Jet> >& handle, const int& idx, const std::string& correctionLevel) {
+    const edm::Handle<std::vector<pat::Jet>>& handle, const int& idx, const std::string& correctionLevel) {
   edm::Ptr<pat::Jet> ptr = edm::Ptr<pat::Jet>(handle, idx);
   // disentangle the correction from the potential flavor tag
   // by the separating ':'; the flavor tag can be empty though

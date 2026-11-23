@@ -1,4 +1,6 @@
 
+#include <memory>
+
 #include "CommonTools/RecoUtils/interface/PFCand_AssoMapAlgos.h"
 
 #include "TrackingTools/IPTools/interface/IPTools.h"
@@ -129,7 +131,7 @@ std::unique_ptr<VertexToPFCandAssMap> PFCand_AssoMapAlgos::CreateVertexToPFCandM
 std::unique_ptr<PFCandToVertexAssMap> PFCand_AssoMapAlgos::SortPFCandAssociationMap(
     PFCandToVertexAssMap* pfcvertexassInput, edm::EDProductGetter const* getter) {
   //create a new PFCandVertexAssMap for the Output which will be sorted
-  unique_ptr<PFCandToVertexAssMap> pfcvertexassOutput(new PFCandToVertexAssMap(getter));
+  unique_ptr<PFCandToVertexAssMap> pfcvertexassOutput = std::make_unique<PFCandToVertexAssMap>(getter);
 
   //Create and fill a vector of pairs of vertex and the summed (pT)**2 of the pfcandidates associated to the vertex
   VertexPtsumVector vertexptsumvector;
