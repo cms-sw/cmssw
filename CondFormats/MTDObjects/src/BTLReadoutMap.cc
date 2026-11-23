@@ -2,8 +2,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/MTDObjects/interface/BTLReadoutMap.h"
 
+#include <algorithm>
 #include <stdexcept>
 #include <ostream>
+#include <utility>
+#include <vector>
 
 BTLReadoutMap::BTLReadoutMap() {}
 
@@ -97,4 +100,48 @@ BTLDetId BTLReadoutMap::getDetId(const BTLElectronicsId& elecId) const {
 void BTLReadoutMap::clear() {
   detToElec_.clear();
   elecToDet_.clear();
+}
+
+// ------------------------------------------------------------
+// Return list of detIds
+// ------------------------------------------------------------
+std::vector<BTLDetId> BTLReadoutMap::getListOfDetIds() const {
+  std::vector<BTLDetId> detIds;
+  detIds.reserve(detToElec_.size());
+
+  for (const auto& [rawDetId, elecIds] : detToElec_) {
+    detIds.emplace_back(rawDetId);
+  }
+
+  return detIds;
+}
+
+// ------------------------------------------------------------
+// Check dense channel indexes and their ordering w.r.t. rawId
+// ------------------------------------------------------------
+bool BTLReadoutMap::checkDenseChannelIndex() const {
+  // (dense index, rawId) of each electronics channel
+  std::vector<std::pair<uint32_t, uint32_t>> pairs;
+  pairs.reserve(2 * detToElec_.size());
+  for (const auto& [detId, elecIds] : detToElec_) {
+    pairs.emplace_back(elecIds.minus.denseChannelIndex(), elecIds.minus.rawId());
+    pairs.emplace_back(elecIds.plus.denseChannelIndex(), elecIds.plus.rawId());
+  }
+
+  std::sort(pairs.begin(), pairs.end());
+
+  for (std::size_t i = 0; i < pairs.size(); ++i) {
+    if (pairs[i].first != i) {
+      edm::LogError("BTLReadoutMap") << "Dense channel index " << i << " missing or duplicated (found "
+                                     << pairs[i].first << ")";
+      return false;
+    }
+    if (i > 0 && pairs[i - 1].second >= pairs[i].second) {
+      edm::LogError("BTLReadoutMap") << "rawId not increasing with dense channel index at index " << i << ": "
+                                     << BTLElectronicsId(pairs[i - 1].second) << " vs "
+                                     << BTLElectronicsId(pairs[i].second);
+      return false;
+    }
+  }
+  return true;
 }
