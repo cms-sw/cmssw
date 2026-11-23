@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -8,15 +10,15 @@
 
 /// default constructor
 TtSemiLepHypothesis::TtSemiLepHypothesis(const edm::ParameterSet& cfg)
-    : jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
-      lepsToken_(consumes<edm::View<reco::RecoCandidate> >(cfg.getParameter<edm::InputTag>("leps"))),
-      metsToken_(consumes<std::vector<pat::MET> >(cfg.getParameter<edm::InputTag>("mets"))),
+    : jetsToken_(consumes<std::vector<pat::Jet>>(cfg.getParameter<edm::InputTag>("jets"))),
+      lepsToken_(consumes<edm::View<reco::RecoCandidate>>(cfg.getParameter<edm::InputTag>("leps"))),
+      metsToken_(consumes<std::vector<pat::MET>>(cfg.getParameter<edm::InputTag>("mets"))),
       nJetsConsideredToken_(consumes<int>(cfg.getParameter<edm::InputTag>("nJetsConsidered"))),
       numberOfRealNeutrinoSolutions_(-1) {
   getMatch_ = false;
   if (cfg.exists("match")) {
     getMatch_ = true;
-    matchToken_ = consumes<std::vector<std::vector<int> > >(cfg.getParameter<edm::InputTag>("match"));
+    matchToken_ = consumes<std::vector<std::vector<int>>>(cfg.getParameter<edm::InputTag>("match"));
   }
   if (cfg.exists("neutrinoSolutionType"))
     neutrinoSolutionType_ = cfg.getParameter<int>("neutrinoSolutionType");
@@ -25,7 +27,7 @@ TtSemiLepHypothesis::TtSemiLepHypothesis(const edm::ParameterSet& cfg)
   if (cfg.exists("jetCorrectionLevel")) {
     jetCorrectionLevel_ = cfg.getParameter<std::string>("jetCorrectionLevel");
   }
-  produces<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >();
+  produces<std::vector<std::pair<reco::CompositeCandidate, std::vector<int>>>>();
   produces<int>("Key");
   produces<int>("NumberOfRealNeutrinoSolutions");
   produces<int>("NumberOfConsideredJets");
@@ -33,21 +35,21 @@ TtSemiLepHypothesis::TtSemiLepHypothesis(const edm::ParameterSet& cfg)
 
 /// produce the event hypothesis as CompositeCandidate and Key
 void TtSemiLepHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup) {
-  edm::Handle<std::vector<pat::Jet> > jets;
+  edm::Handle<std::vector<pat::Jet>> jets;
   evt.getByToken(jetsToken_, jets);
 
-  edm::Handle<edm::View<reco::RecoCandidate> > leps;
+  edm::Handle<edm::View<reco::RecoCandidate>> leps;
   evt.getByToken(lepsToken_, leps);
 
-  edm::Handle<std::vector<pat::MET> > mets;
+  edm::Handle<std::vector<pat::MET>> mets;
   evt.getByToken(metsToken_, mets);
 
   edm::Handle<int> nJetsConsidered;
   evt.getByToken(nJetsConsideredToken_, nJetsConsidered);
 
-  std::vector<std::vector<int> > matchVec;
+  std::vector<std::vector<int>> matchVec;
   if (getMatch_) {
-    edm::Handle<std::vector<std::vector<int> > > matchHandle;
+    edm::Handle<std::vector<std::vector<int>>> matchHandle;
     evt.getByToken(matchToken_, matchHandle);
     matchVec = *matchHandle;
   } else {
@@ -59,15 +61,15 @@ void TtSemiLepHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
   }
 
   // declare unique_ptr for products
-  std::unique_ptr<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > > pOut(
-      new std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > >);
+  std::unique_ptr<std::vector<std::pair<reco::CompositeCandidate, std::vector<int>>>> pOut =
+      std::make_unique<std::vector<std::pair<reco::CompositeCandidate, std::vector<int>>>>();
   std::unique_ptr<int> pKey(new int);
   std::unique_ptr<int> pNeutrinoSolutions(new int);
   std::unique_ptr<int> pJetsConsidered(new int);
 
   // go through given vector of jet combinations
   unsigned int idMatch = 0;
-  typedef std::vector<std::vector<int> >::iterator MatchVecIterator;
+  typedef std::vector<std::vector<int>>::iterator MatchVecIterator;
   for (MatchVecIterator match = matchVec.begin(); match != matchVec.end(); ++match) {
     // reset pointers
     resetCandidates();
@@ -186,7 +188,7 @@ std::string TtSemiLepHypothesis::jetCorrectionLevel(const std::string& quarkType
 
 /// use one object in a jet collection to set a ShallowClonePtrCandidate with proper jet corrections
 std::unique_ptr<reco::ShallowClonePtrCandidate> TtSemiLepHypothesis::makeCandidate(
-    const edm::Handle<std::vector<pat::Jet> >& handle, const int& idx, const std::string& correctionLevel) {
+    const edm::Handle<std::vector<pat::Jet>>& handle, const int& idx, const std::string& correctionLevel) {
   edm::Ptr<pat::Jet> ptr = edm::Ptr<pat::Jet>(handle, idx);
   // disentangle the correction from the potential flavor tag
   // by the separating ':'; the flavor tag can be empty though
@@ -201,8 +203,8 @@ std::unique_ptr<reco::ShallowClonePtrCandidate> TtSemiLepHypothesis::makeCandida
 }
 
 /// set neutrino, using mW = 80.4 to calculate the neutrino pz
-void TtSemiLepHypothesis::setNeutrino(const edm::Handle<std::vector<pat::MET> >& met,
-                                      const edm::Handle<edm::View<reco::RecoCandidate> >& leps,
+void TtSemiLepHypothesis::setNeutrino(const edm::Handle<std::vector<pat::MET>>& met,
+                                      const edm::Handle<edm::View<reco::RecoCandidate>>& leps,
                                       const int& idx,
                                       const int& type) {
   edm::Ptr<pat::MET> ptr = edm::Ptr<pat::MET>(met, 0);
@@ -223,9 +225,9 @@ void TtSemiLepHypothesis::setNeutrino(const edm::Handle<std::vector<pat::MET> >&
 }
 
 /// minimalistic build function for simple hypotheses
-void TtSemiLepHypothesis::buildHypo(const edm::Handle<edm::View<reco::RecoCandidate> >& leps,
-                                    const edm::Handle<std::vector<pat::MET> >& mets,
-                                    const edm::Handle<std::vector<pat::Jet> >& jets,
+void TtSemiLepHypothesis::buildHypo(const edm::Handle<edm::View<reco::RecoCandidate>>& leps,
+                                    const edm::Handle<std::vector<pat::MET>>& mets,
+                                    const edm::Handle<std::vector<pat::Jet>>& jets,
                                     std::vector<int>& match) {
   // -----------------------------------------------------
   // add jets
