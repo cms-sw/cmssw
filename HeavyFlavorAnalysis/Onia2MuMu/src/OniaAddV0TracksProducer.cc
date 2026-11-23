@@ -2,6 +2,7 @@
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include <memory>
 #include <vector>
 
 OniaAddV0TracksProducer::OniaAddV0TracksProducer(const edm::ParameterSet& ps)
@@ -17,8 +18,10 @@ OniaAddV0TracksProducer::OniaAddV0TracksProducer(const edm::ParameterSet& ps)
 
 void OniaAddV0TracksProducer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& esetup) const {
   // Create unique_ptr for each collection to be stored in the Event
-  std::unique_ptr<pat::CompositeCandidateCollection> Enhanced_kShortCandidates(new pat::CompositeCandidateCollection);
-  std::unique_ptr<pat::CompositeCandidateCollection> Enhanced_lambdaCandidates(new pat::CompositeCandidateCollection);
+  std::unique_ptr<pat::CompositeCandidateCollection> Enhanced_kShortCandidates =
+      std::make_unique<pat::CompositeCandidateCollection>();
+  std::unique_ptr<pat::CompositeCandidateCollection> Enhanced_lambdaCandidates =
+      std::make_unique<pat::CompositeCandidateCollection>();
 
   edm::Handle<reco::VertexCompositeCandidateCollection> lcandidates;
   event.getByToken(LambdaCollectionToken_, lcandidates);

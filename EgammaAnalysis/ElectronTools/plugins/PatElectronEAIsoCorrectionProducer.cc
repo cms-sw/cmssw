@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -29,7 +31,7 @@ void PatElectronEAIsoCorrectionProducer::produce(edm::Event& iEvent, const edm::
   edm::Handle<edm::ValueMap<double> > eaIsolator;
   iEvent.getByToken(eaIsolatorToken_, eaIsolator);
 
-  std::unique_ptr<pat::ElectronCollection> updatedPatElectrons(new pat::ElectronCollection);
+  std::unique_ptr<pat::ElectronCollection> updatedPatElectrons = std::make_unique<pat::ElectronCollection>();
 
   for (size_t iElectron = 0; iElectron < patElectrons->size(); ++iElectron) {
     pat::Electron* updatedPatElectron = patElectrons->at(iElectron).clone();

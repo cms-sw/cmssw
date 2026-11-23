@@ -80,16 +80,16 @@ MultiplicityProducer<T>::MultiplicityProducer(const edm::ParameterSet& iConfig)
       m_clustersize(iConfig.getUntrackedParameter<bool>("withClusterSize", false)),
       m_subdets(),
       m_subdetsels() {
-  produces<std::map<unsigned int, int> >();
+  produces<std::map<unsigned int, int>>();
 
   //now do what ever other initialization is needed
 
-  std::vector<edm::ParameterSet> wantedsubds(iConfig.getParameter<std::vector<edm::ParameterSet> >("wantedSubDets"));
+  std::vector<edm::ParameterSet> wantedsubds(iConfig.getParameter<std::vector<edm::ParameterSet>>("wantedSubDets"));
 
   for (std::vector<edm::ParameterSet>::iterator ps = wantedsubds.begin(); ps != wantedsubds.end(); ++ps) {
     m_subdets[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<std::string>("detLabel");
     m_subdetsels[ps->getParameter<unsigned int>("detSelection")] =
-        DetIdSelector(ps->getUntrackedParameter<std::vector<std::string> >("selection", std::vector<std::string>()));
+        DetIdSelector(ps->getUntrackedParameter<std::vector<std::string>>("selection", std::vector<std::string>()));
   }
 }
 
@@ -110,7 +110,7 @@ void MultiplicityProducer<T>::produce(edm::StreamID, edm::Event& iEvent, const e
 
   using namespace edm;
 
-  std::unique_ptr<std::map<unsigned int, int> > mults(new std::map<unsigned int, int>);
+  std::unique_ptr<std::map<unsigned int, int>> mults = std::make_unique<std::map<unsigned int, int>>();
 
   Handle<T> digis;
   iEvent.getByToken(m_collectionToken, digis);
@@ -170,7 +170,7 @@ int MultiplicityProducer<T>::detSetMultiplicity(typename T::const_iterator det) 
 }
 
 template <>
-int MultiplicityProducer<edmNew::DetSetVector<SiStripCluster> >::detSetMultiplicity(
+int MultiplicityProducer<edmNew::DetSetVector<SiStripCluster>>::detSetMultiplicity(
     edmNew::DetSetVector<SiStripCluster>::const_iterator det) const {
   int mult = 0;
 
@@ -183,7 +183,7 @@ int MultiplicityProducer<edmNew::DetSetVector<SiStripCluster> >::detSetMultiplic
 }
 
 template <>
-int MultiplicityProducer<edmNew::DetSetVector<SiPixelCluster> >::detSetMultiplicity(
+int MultiplicityProducer<edmNew::DetSetVector<SiPixelCluster>>::detSetMultiplicity(
     edmNew::DetSetVector<SiPixelCluster>::const_iterator det) const {
   int mult = 0;
 
@@ -195,9 +195,9 @@ int MultiplicityProducer<edmNew::DetSetVector<SiPixelCluster> >::detSetMultiplic
 }
 
 //define this as a plug-in
-typedef MultiplicityProducer<edmNew::DetSetVector<SiStripCluster> > SiStripClusterMultiplicityProducer;
-typedef MultiplicityProducer<edmNew::DetSetVector<SiPixelCluster> > SiPixelClusterMultiplicityProducer;
-typedef MultiplicityProducer<edm::DetSetVector<SiStripDigi> > SiStripDigiMultiplicityProducer;
+typedef MultiplicityProducer<edmNew::DetSetVector<SiStripCluster>> SiStripClusterMultiplicityProducer;
+typedef MultiplicityProducer<edmNew::DetSetVector<SiPixelCluster>> SiPixelClusterMultiplicityProducer;
+typedef MultiplicityProducer<edm::DetSetVector<SiStripDigi>> SiStripDigiMultiplicityProducer;
 
 DEFINE_FWK_MODULE(SiStripClusterMultiplicityProducer);
 DEFINE_FWK_MODULE(SiPixelClusterMultiplicityProducer);

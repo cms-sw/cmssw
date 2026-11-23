@@ -2,6 +2,8 @@
 
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMVAComputer.h"
 
+#include <memory>
+
 TtSemiLepJetCombMVAComputer::TtSemiLepJetCombMVAComputer(const edm::ParameterSet& cfg)
     : mvaToken_(esConsumes()),
       lepsToken_(consumes<edm::View<reco::RecoCandidate>>(cfg.getParameter<edm::InputTag>("leps"))),
@@ -16,9 +18,9 @@ TtSemiLepJetCombMVAComputer::TtSemiLepJetCombMVAComputer(const edm::ParameterSet
 }
 
 void TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup) {
-  std::unique_ptr<std::vector<std::vector<int>>> pOut(new std::vector<std::vector<int>>);
-  std::unique_ptr<std::vector<double>> pOutDisc(new std::vector<double>);
-  std::unique_ptr<std::string> pOutMeth(new std::string);
+  std::unique_ptr<std::vector<std::vector<int>>> pOut = std::make_unique<std::vector<std::vector<int>>>();
+  std::unique_ptr<std::vector<double>> pOutDisc = std::make_unique<std::vector<double>>();
+  std::unique_ptr<std::string> pOutMeth = std::make_unique<std::string>();
   std::unique_ptr<int> pJetsConsidered(new int);
 
   const auto& calibContainer = setup.getData(mvaToken_);

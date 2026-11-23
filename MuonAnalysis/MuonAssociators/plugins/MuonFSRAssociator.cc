@@ -78,7 +78,7 @@ void MuonFSRAssociator::produce(edm::StreamID streamID, edm::Event& iEvent, cons
   muon2photonFiller.fill();
   iEvent.put(std::move(muon2photon));
 
-  std::unique_ptr<edm::ValueMap<int>> bareIdx(new edm::ValueMap<int>());
+  std::unique_ptr<edm::ValueMap<int>> bareIdx = std::make_unique<edm::ValueMap<int>>();
   edm::ValueMap<int>::Filler fillerBareIdx(*bareIdx);
   fillerBareIdx.insert(muons, muonMapping.begin(), muonMapping.end());
   fillerBareIdx.fill();
