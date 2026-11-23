@@ -109,7 +109,7 @@ void BeamMonitorBx::beginJob() {
   for (std::map<std::string, std::string>::const_iterator varName = varMap1.begin(); varName != varMap1.end();
        ++varName) {
     string subDir_ = "FitBx";
-    subDir_ += "/";
+    subDir_ += '/';
     subDir_ += "All_";
     subDir_ += varName->first;
     dbe_->setCurrentFolder(monitorName_ + subDir_);
@@ -195,7 +195,7 @@ void BeamMonitorBx::BookTables(int nBx, map<string, string>& vMap, string suffix
   for (std::map<std::string, std::string>::const_iterator varName = vMap.begin(); varName != vMap.end(); ++varName) {
     string tmpName = varName->first;
     if (!suffix_.empty()) {
-      tmpName += "_";
+      tmpName += '_';
       tmpName += suffix_;
     }
 
