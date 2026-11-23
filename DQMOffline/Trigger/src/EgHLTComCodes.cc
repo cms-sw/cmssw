@@ -50,7 +50,7 @@ void ComCodes::getCodeName(int code, std::string& id) const {
   for (auto const& _codeDef : _codeDefs) {
     if ((code & _codeDef.second) == _codeDef.second) {
       if (!id.empty())
-        id += ":";  //seperating entries by a ':'
+        id += ':';  //seperating entries by a ':'
       id += _codeDef.first;
     }
   }

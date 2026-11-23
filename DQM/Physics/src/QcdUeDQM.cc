@@ -119,7 +119,7 @@ void QcdUeDQM::dqmBeginRun(const Run &run, const EventSetup &iSetup) {
       if (hltResName_.find(':') == string::npos)
         hltUsedResName_ += "::";
       else
-        hltUsedResName_ += ":";
+        hltUsedResName_ += ':';
       hltUsedResName_ += hltProcNames_.at(i);
       break;
     }

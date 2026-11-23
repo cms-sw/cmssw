@@ -125,7 +125,7 @@ bool MCVerticesWeight::filter(edm::StreamID, edm::Event& iEvent, const edm::Even
     computed_weight = m_weighter.weight(zpositions, zmain);
   }
 
-  std::unique_ptr<double> weight(new double(computed_weight));
+  std::unique_ptr<double> weight = std::make_unique<double>(computed_weight);
 
   iEvent.put(std::move(weight));
 

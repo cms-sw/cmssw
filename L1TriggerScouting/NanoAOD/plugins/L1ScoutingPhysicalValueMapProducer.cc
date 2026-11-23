@@ -120,7 +120,7 @@ void L1ScoutingPhysicalValueMapProducer<T>::putValueMap(edm::Event &iEvent,
                                                         edm::Handle<TOrbitCollection> &handle,
                                                         const std::vector<float> &values,
                                                         const std::string &label) {
-  std::unique_ptr<edm::ValueMap<float>> valuemap(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> valuemap = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler(*valuemap);
   filler.insert(handle, values.begin(), values.end());
   filler.fill();

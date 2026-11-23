@@ -43,7 +43,7 @@ void AlphaTVarProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Ev
   edm::Handle<reco::CaloJetCollection> calojet_handle;
   iEvent.getByToken(inputJetTagToken_, calojet_handle);
 
-  std::unique_ptr<std::vector<double>> result(new std::vector<double>);
+  std::unique_ptr<std::vector<double>> result = std::make_unique<std::vector<double>>();
   // check the the input collections are available
   if (calojet_handle.isValid()) {
     std::vector<TLorentzVector> myJets;
