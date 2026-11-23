@@ -4,6 +4,8 @@
 // Class  :     FWMuonBuilder
 //
 
+#include <memory>
+
 #include "TEveVSDStructs.h"
 #include "TEveTrack.h"
 #include "TEveStraightLineSet.h"
@@ -64,7 +66,7 @@ namespace {
     const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
 
     //need to use auto_ptr since the segmentSet may not be passed to muonList
-    std::unique_ptr<TEveStraightLineSet> segmentSet(new TEveStraightLineSet);
+    std::unique_ptr<TEveStraightLineSet> segmentSet = std::make_unique<TEveStraightLineSet>();
     // FIXME: This should be set elsewhere.
     segmentSet->SetLineWidth(4);
 
