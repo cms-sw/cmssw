@@ -177,7 +177,7 @@ void TruthGraphTopologyChecker::analyzeRaw(TruthGraph const& g) {
   for (uint32_t s = 0; s < n; ++s) {
     const auto kids = g.children(s);
     const auto kinds = g.childrenEdgeKinds(s);
-    const NK sk = g.nodeRef(s).kind;
+    const NK sk = g.nodeRef(s).kind();
     for (std::size_t e = 0; e < kids.size(); ++e) {
       const uint32_t d = kids[e];
       const EK ek = static_cast<EK>(kinds[e]);
@@ -202,7 +202,7 @@ void TruthGraphTopologyChecker::analyzeRaw(TruthGraph const& g) {
   };
 
   for (uint32_t v = 0; v < n; ++v) {
-    const NK k = g.nodeRef(v).kind;
+    const NK k = g.nodeRef(v).kind();
     if (k == NK::GenVertex || k == NK::SimVertex) {
       const uint32_t outdeg = static_cast<uint32_t>(structOut[v].size());
       const uint32_t mothers = inFromParticle[v];
@@ -217,7 +217,7 @@ void TruthGraphTopologyChecker::analyzeRaw(TruthGraph const& g) {
         // mothers' pdgs: scan for particle nodes whose structural out-edge hits v
         for (uint32_t s = 0, shown = 0; s < n && shown < 4; ++s) {
           for (const uint32_t d : structOut[s])
-            if (d == v && (g.nodeRef(s).kind == NK::GenParticle || g.nodeRef(s).kind == NK::SimTrack)) {
+            if (d == v && (g.nodeRef(s).kind() == NK::GenParticle || g.nodeRef(s).kind() == NK::SimTrack)) {
               os << nodeStr(s) << "; ";
               ++shown;
               break;
@@ -248,7 +248,7 @@ void TruthGraphTopologyChecker::analyzeRaw(TruthGraph const& g) {
           os << (isGen ? "GenPart " : "SimTrk ") << nodeStr(v) << " parents=" << parents << " [";
           for (uint32_t s = 0, shown = 0; s < n && shown < 5; ++s)
             for (const uint32_t d : structOut[s])
-              if (d == pv && (g.nodeRef(s).kind == NK::GenParticle || g.nodeRef(s).kind == NK::SimTrack)) {
+              if (d == pv && (g.nodeRef(s).kind() == NK::GenParticle || g.nodeRef(s).kind() == NK::SimTrack)) {
                 os << nodeStr(s) << "; ";
                 ++shown;
                 break;
