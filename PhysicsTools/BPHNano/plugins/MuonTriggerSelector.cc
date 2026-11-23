@@ -3,6 +3,8 @@
 // filters muons and produces 3 collections: all muons that pass the selection
 // triggering muons and transient tracks of triggering muons
 
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -79,9 +81,9 @@ void MuonTriggerSelector::produce(edm::Event &iEvent, const edm::EventSetup &iSe
   edm::Handle<std::vector<pat::TriggerObjectStandAlone>> triggerObjects;
   iEvent.getByToken(triggerObjects_, triggerObjects);
 
-  std::unique_ptr<pat::MuonCollection> allmuons_out(new pat::MuonCollection);
-  std::unique_ptr<pat::MuonCollection> muons_out(new pat::MuonCollection);
-  std::unique_ptr<TransientTrackCollection> trans_muons_out(new TransientTrackCollection);
+  std::unique_ptr<pat::MuonCollection> allmuons_out = std::make_unique<pat::MuonCollection>();
+  std::unique_ptr<pat::MuonCollection> muons_out = std::make_unique<pat::MuonCollection>();
+  std::unique_ptr<TransientTrackCollection> trans_muons_out = std::make_unique<TransientTrackCollection>();
 
   edm::Handle<std::vector<pat::Muon>> muons;
   iEvent.getByToken(muonSrc_, muons);

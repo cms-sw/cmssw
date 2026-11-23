@@ -5,6 +5,8 @@
  This is derived from EDFilterValueMapWrapper but rather than filtering it just stores a valuemap with the result
 */
 
+#include <memory>
+
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Common/interface/EventBase.h"
@@ -42,7 +44,7 @@ namespace edm {
       for (typename C::const_iterator ibegin = h_c->begin(), iend = h_c->end(), i = ibegin; i != iend; ++i) {
         bitOut.push_back((*filter_)(*i));
       }
-      std::unique_ptr<edm::ValueMap<int>> o(new edm::ValueMap<int>());
+      std::unique_ptr<edm::ValueMap<int>> o = std::make_unique<edm::ValueMap<int>>();
       edm::ValueMap<int>::Filler filler(*o);
       filler.insert(h_c, bitOut.begin(), bitOut.end());
       filler.fill();
