@@ -115,7 +115,7 @@ void MaterialBudgetHcalProducer::registerConsumes(edm::ConsumesCollector cc) {
 }
 
 void MaterialBudgetHcalProducer::produce(edm::Event& e, const edm::EventSetup&) {
-  std::unique_ptr<MaterialAccountingCaloCollection> hgc(new MaterialAccountingCaloCollection);
+  std::unique_ptr<MaterialAccountingCaloCollection> hgc = std::make_unique<MaterialAccountingCaloCollection>();
   for (auto const& mbc : matcoll_) {
     hgc->emplace_back(mbc);
   }
