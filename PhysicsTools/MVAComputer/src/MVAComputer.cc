@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <fstream>
 #include <algorithm>
@@ -226,7 +227,7 @@ namespace PhysicsTools {
     TBufferFile buffer(TBuffer::kRead, buf.size(), const_cast<void *>(static_cast<const void *>(buf.c_str())), kFALSE);
     buffer.InitMap();
 
-    std::unique_ptr<Calibration::MVAComputer> calib(new Calibration::MVAComputer());
+    std::unique_ptr<Calibration::MVAComputer> calib = std::make_unique<Calibration::MVAComputer>();
     buffer.StreamObject(static_cast<void *>(calib.get()), rootClass);
 
     return calib.release();
