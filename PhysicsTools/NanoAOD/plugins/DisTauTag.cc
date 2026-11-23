@@ -317,13 +317,13 @@ void DisTauTag::produce(edm::StreamID, edm::Event& event, const edm::EventSetup&
     }
   }
 
-  std::unique_ptr<edm::ValueMap<float>> vm_score0(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> vm_score0 = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_score0(*vm_score0);
   filler_score0.insert(jets, v_score0.begin(), v_score0.end());
   filler_score0.fill();
   event.put(std::move(vm_score0), "score0");
 
-  std::unique_ptr<edm::ValueMap<float>> vm_score1(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> vm_score1 = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler_score1(*vm_score1);
   filler_score1.insert(jets, v_score1.begin(), v_score1.end());
   filler_score1.fill();
