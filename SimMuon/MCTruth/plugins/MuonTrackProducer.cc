@@ -21,6 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <algorithm>
+#include <memory>
 #include <sstream>
 #include <memory>
 
@@ -60,9 +61,9 @@ MuonTrackProducer::MuonTrackProducer(const edm::ParameterSet &parset)
 void MuonTrackProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   edm::Handle<reco::MuonCollection> muonCollectionH = iEvent.getHandle(muonsToken);
 
-  std::unique_ptr<reco::TrackCollection> selectedTracks(new reco::TrackCollection);
-  std::unique_ptr<reco::TrackExtraCollection> selectedTrackExtras(new reco::TrackExtraCollection());
-  std::unique_ptr<TrackingRecHitCollection> selectedTrackHits(new TrackingRecHitCollection());
+  std::unique_ptr<reco::TrackCollection> selectedTracks = std::make_unique<reco::TrackCollection>();
+  std::unique_ptr<reco::TrackExtraCollection> selectedTrackExtras = std::make_unique<reco::TrackExtraCollection>();
+  std::unique_ptr<TrackingRecHitCollection> selectedTrackHits = std::make_unique<TrackingRecHitCollection>();
 
   if (ignoreMissingMuonCollection && !muonCollectionH.isValid()) {
     edm::LogVerbatim("MuonTrackProducer") << "\n ignoring missing muon collection.";
@@ -302,7 +303,7 @@ void MuonTrackProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Ev
         edm::LogVerbatim("MuonTrackProducer") << "\t *** Selected *** ";
         const reco::Track *trk = &(*trackref);
         // pointer to old track:
-        std::unique_ptr<reco::Track> newTrk(new reco::Track(*trk));
+        std::unique_ptr<reco::Track> newTrk = std::make_unique<reco::Track>(*trk);
 
         newTrk->setExtra(reco::TrackExtraRef(rTrackExtras, idx++));
         PropagationDirection seedDir = trk->seedDirection();

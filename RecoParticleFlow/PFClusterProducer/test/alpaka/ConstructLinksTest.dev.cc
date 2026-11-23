@@ -38,8 +38,8 @@
 
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterParams.h"
 
-constexpr double nSigmaEta = 0.01234;
-constexpr double nSigmaPhi = 0.2678;
+constexpr double nSigmaEtaSq = 0.01234;
+constexpr double nSigmaPhiSq = 0.2678;
 // 21
 static constexpr unsigned int nStreams = 1;  //T4:40 RTX:72 L40S:142 4090:128 5080:84
 
@@ -51,14 +51,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     void apply(std::vector<Queue>& queues,
                std::vector<reco::PFMultiDepthClusteringCCLabelsDeviceCollection>& mdpfCCLabels,
-               const std::vector<reco::PFMultiDepthClusteringVarsDeviceCollection>& mdpfClusteringVars,
-               const PFMultiDepthClusterParams* nSigma) const;
+               const std::vector<reco::PFMultiDepthClusteringVarsDeviceCollection>& mdpfClusteringVars) const;
   };
 
-  void ConstructLinksTest::apply(std::vector<Queue>& queues,
-                                 std::vector<reco::PFMultiDepthClusteringCCLabelsDeviceCollection>& mdpfCCLabels,
-                                 const std::vector<reco::PFMultiDepthClusteringVarsDeviceCollection>& mdpfClusteringVars,
-                                 const PFMultiDepthClusterParams* nSigma) const {
+  void ConstructLinksTest::apply(
+      std::vector<Queue>& queues,
+      std::vector<reco::PFMultiDepthClusteringCCLabelsDeviceCollection>& mdpfCCLabels,
+      const std::vector<reco::PFMultiDepthClusteringVarsDeviceCollection>& mdpfClusteringVars) const {
     uint32_t items = std::is_same_v<Device, alpaka::DevCpu> ? 1 : 128;
 
     auto n = static_cast<uint32_t>(mdpfClusteringVars[0]->metadata().size());
@@ -76,8 +75,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto wall_start = std::chrono::high_resolution_clock::now();
 
       for (unsigned int s = 0; s < nStreams; s++) {
-        alpaka::exec<Acc1D>(
-            queues[0], workDiv, ConstructLinksKernel{}, mdpfCCLabels[s].view(), mdpfClusteringVars[s].view(), nSigma);
+        alpaka::exec<Acc1D>(queues[s],
+                            workDiv,
+                            ConstructLinksKernel{},
+                            mdpfCCLabels[s].view(),
+                            mdpfClusteringVars[s].view(),
+                            nSigmaEtaSq,
+                            nSigmaPhiSq);
       }
 
       for (unsigned int s = 0; s < nStreams; s++)
@@ -99,15 +103,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const std::vector<::reco::PFMultiDepthClusteringVarsHostCollection>& hostClusteringVars) {
     ConstructLinksTest construct_links_test{};
 
-    auto params_h = cms::alpakatools::make_host_buffer<PFMultiDepthClusterParams, Platform>();
-
-    params_h->nSigmaEta = nSigmaEta;
-    params_h->nSigmaPhi = nSigmaPhi;
-
-    auto params_d = cms::alpakatools::make_device_buffer<PFMultiDepthClusterParams>(queues[0]);
-
-    alpaka::memcpy(queues[0], params_d, params_h);
-
     auto hClusteringVars = hostClusteringVars[0].view();
 
     const int nClusters = hClusteringVars.size();
@@ -119,9 +114,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     devClusteringVars.reserve(nStreams);
 
     for (unsigned int s = 0; s < nStreams; s++) {
-      //
       auto dev_clustering_vars = reco::PFMultiDepthClusteringVarsDeviceCollection{queues[s], nClusters};
-      //
+
       alpaka::memcpy(queues[s], dev_clustering_vars.buffer(), hostClusteringVars[s].buffer());
 
       devClusteringVars.emplace_back(std::move(dev_clustering_vars));
@@ -132,12 +126,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       alpaka::wait(queues[s]);
     }
 
-    construct_links_test.apply(queues, devClusteringCCLabels, devClusteringVars, params_d.data());
+    construct_links_test.apply(queues, devClusteringCCLabels, devClusteringVars);
 
     alpaka::memcpy(queues[0], hostClusteringCCLabels[0].buffer(), devClusteringCCLabels[0].buffer());
 
-    for (unsigned int s = 0; s < nStreams; s++)
-      alpaka::wait(queues[s]);
+    alpaka::wait(queues[0]);
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
@@ -256,7 +249,7 @@ std::vector<ClusterLink> link(const ::reco::PFClusterCollection& clusters,
       deta = deta * deta / (etaRMS2[i] + etaRMS2[j]);
       auto dphi = deltaPhi(crep1.phi(), crep2.phi());
       dphi = dphi * dphi / (phiRMS2[i] + phiRMS2[j]);
-      if ((deta < nSigmaEta) & (dphi < nSigmaPhi)) {
+      if ((deta < nSigmaEtaSq) & (dphi < nSigmaPhiSq)) {
         links.push_back(ClusterLink(i, j, deta + dphi, std::abs(dz), cluster1.energy() + cluster2.energy()));
       }
     }

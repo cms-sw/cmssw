@@ -61,6 +61,7 @@
 #include <cmath>
 #include <iostream>
 #include <iomanip>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -196,7 +197,7 @@ void CaloSteppingAction::produce(edm::Event& e, const edm::EventSetup&) {
     e.put(std::move(product), nameHitC_[k]);
   }
   if (allSteps_ != 0) {
-    std::unique_ptr<edm::PassiveHitContainer> hgcPH(new edm::PassiveHitContainer);
+    std::unique_ptr<edm::PassiveHitContainer> hgcPH = std::make_unique<edm::PassiveHitContainer>();
     fillPassiveHits(*hgcPH);
     e.put(std::move(hgcPH), "AllPassiveHits");
   }

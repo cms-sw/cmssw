@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <memory>
 #include <vector>
 using std::vector;
 #include <iostream>
@@ -322,8 +323,8 @@ const std::vector<int> L1RCTProducer::getFedVectorFromOmds(const edm::EventSetup
 }
 
 void L1RCTProducer::produce(edm::Event &event, const edm::EventSetup &eventSetup) {
-  std::unique_ptr<L1CaloEmCollection> rctEmCands(new L1CaloEmCollection);
-  std::unique_ptr<L1CaloRegionCollection> rctRegions(new L1CaloRegionCollection);
+  std::unique_ptr<L1CaloEmCollection> rctEmCands = std::make_unique<L1CaloEmCollection>();
+  std::unique_ptr<L1CaloRegionCollection> rctRegions = std::make_unique<L1CaloRegionCollection>();
 
   if (!(ecalDigis.size() == hcalDigis.size() && hcalDigis.size() == bunchCrossings.size()))
     throw cms::Exception("BadInput") << "From what I see the number of your your ECAL input digi "

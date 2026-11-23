@@ -75,8 +75,8 @@ namespace dqm {
     FileParameters initial_fp_;
     int runNumber_;
 
-    edm::GetterOfProducts<DQMToken> lumigetter_;
-    edm::GetterOfProducts<DQMToken> rungetter_;
+    edm::GetterOfProducts<DQMToken, edm::Transition::EndLuminosityBlock> lumigetter_;
+    edm::GetterOfProducts<DQMToken, edm::Transition::EndRun> rungetter_;
 
   public:
     static void fillDescription(edm::ParameterSetDescription &d);

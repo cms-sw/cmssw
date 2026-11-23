@@ -41,6 +41,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/HGCalReco/interface/TICLCandidate.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -98,8 +99,7 @@ namespace {
   //                    (tracks by shared hits, tracksters by shared energy).
   //   ConstituentBased the object is BUILT from objects that are already associated,
   //                    so its truth is aggregated from theirs rather than recomputed
-  //                    from hits. A vertex shares tracks, a jet shares constituents,
-  //                    a candidate shares a track and clusters. This is the layering
+  //                    from hits. A vertex shares tracks. This is the layering
   //                    CMSSW already uses: VertexAssociatorByPositionAndTracks
   //                    consumes the track maps, it does not revisit hits.
   //
@@ -184,6 +184,13 @@ namespace {
     static constexpr truth::HitChannel channel = truth::HitChannel::Calo;
     static constexpr auto metric = truth::BranchHitAssociator::Metric::SharedEnergy;
     static constexpr const char* cfiName = "truthBranchTracksterAssociators";
+  };
+
+  // A TICL candidate is matched like one trackster made of the layer clusters of all its tracksters. This producer
+  // does not match its track.
+  template <>
+  struct TruthAssociationTraits<TICLCandidate> : TruthAssociationTraits<ticl::Trackster> {
+    static constexpr const char* cfiName = "truthBranchCandidateAssociators";
   };
 
   [[nodiscard]] inline std::optional<uint32_t> countingVertex(
@@ -967,3 +974,5 @@ using TruthBranchTracksterAssociatorsProducer = AllRecoToTruthBranchAssociatorsP
 DEFINE_FWK_MODULE(TruthBranchTracksterAssociatorsProducer);
 using TruthBranchPFClusterAssociatorsProducer = AllRecoToTruthBranchAssociatorsProducer<reco::PFCluster>;
 DEFINE_FWK_MODULE(TruthBranchPFClusterAssociatorsProducer);
+using TruthBranchCandidateAssociatorsProducer = AllRecoToTruthBranchAssociatorsProducer<TICLCandidate>;
+DEFINE_FWK_MODULE(TruthBranchCandidateAssociatorsProducer);

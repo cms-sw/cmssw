@@ -16,16 +16,15 @@
 #include <memory>
 
 RegressionEnergyPatElectronProducer::RegressionEnergyPatElectronProducer(const edm::ParameterSet& cfg) {
-  inputGsfElectronsToken_ =
-      mayConsume<reco::GsfElectronCollection>(cfg.getParameter<edm::InputTag>("inputElectronsTag"));
-  inputPatElectronsToken_ = mayConsume<pat::ElectronCollection>(cfg.getParameter<edm::InputTag>("inputElectronsTag"));
+  inputGsfElectronsToken_ = consumes<reco::GsfElectronCollection>(cfg.getParameter<edm::InputTag>("inputElectronsTag"));
+  inputPatElectronsToken_ = consumes<pat::ElectronCollection>(cfg.getParameter<edm::InputTag>("inputElectronsTag"));
   inputCollectionType_ = cfg.getParameter<uint32_t>("inputCollectionType");
   rhoInputToken_ = consumes<double>(cfg.getParameter<edm::InputTag>("rhoCollection"));
   verticesInputToken_ = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertexCollection"));
   energyRegressionType_ = cfg.getParameter<uint32_t>("energyRegressionType");
   regressionInputFile_ = cfg.getParameter<std::string>("regressionInputFile");
-  recHitCollectionEBToken_ = mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("recHitCollectionEB"));
-  recHitCollectionEEToken_ = mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("recHitCollectionEE"));
+  recHitCollectionEBToken_ = consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("recHitCollectionEB"));
+  recHitCollectionEEToken_ = consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("recHitCollectionEE"));
   ecalTopoToken_ = esConsumes();
   caloGeomToken_ = esConsumes();
   nameEnergyReg_ = cfg.getParameter<std::string>("nameEnergyReg");

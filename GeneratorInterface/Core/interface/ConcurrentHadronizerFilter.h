@@ -200,8 +200,9 @@ namespace edm {
         ptrThis->eventProductToken_ = ptrThis->template consumes<LHEEventProduct>(
             InputTag((iBD.moduleLabel() == "externalLHEProducer") ? "externalLHEProducer" : "source"));
         ptrThis->runInfoProductTag_ = InputTag(iBD.moduleLabel(), iBD.productInstanceName(), iBD.processName());
-        ptrThis->runInfoProductToken_ = ptrThis->template consumes<LHERunInfoProduct, InRun>(
-            InputTag(iBD.moduleLabel(), iBD.productInstanceName(), iBD.processName()));
+        ptrThis->runInfoProductToken_ =
+            ptrThis->template consumes<LHERunInfoProduct, InRun, edm::Transition::BeginLuminosityBlock>(
+                InputTag(iBD.moduleLabel(), iBD.productInstanceName(), iBD.processName()));
       }
     });
 
@@ -351,7 +352,7 @@ namespace edm {
 
     ev.put(std::move(finalGenEventInfo));
 
-    std::unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
+    std::unique_ptr<HepMCProduct> bare_product = std::make_unique<HepMCProduct>();
     bare_product->addHepMCData(finalEvent.release());
     ev.put(std::move(bare_product), "unsmeared");
 
@@ -388,7 +389,7 @@ namespace edm {
       }
       GenRunInfoProduct* expect = nullptr;
 
-      std::unique_ptr<GenRunInfoProduct> griproduct(new GenRunInfoProduct(genRunInfo));
+      std::unique_ptr<GenRunInfoProduct> griproduct = std::make_unique<GenRunInfoProduct>(genRunInfo);
       //All the GenRunInfoProducts for all streams shoule be identical, therefore we only
       // need one
       if (rCache->product_.compare_exchange_strong(expect, griproduct.get())) {

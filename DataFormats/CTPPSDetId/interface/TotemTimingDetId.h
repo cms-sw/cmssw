@@ -78,7 +78,7 @@ public:
         break;
       case nFull:
         rpName(name, flag);
-        name += "_";
+        name += '_';
         break;
       case nPath:
         rpName(name, flag);
@@ -95,7 +95,7 @@ public:
         break;
       case nFull:
         planeName(name, flag);
-        name += "_";
+        name += '_';
         break;
       case nPath:
         planeName(name, flag);

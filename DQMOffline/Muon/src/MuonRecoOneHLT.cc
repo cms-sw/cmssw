@@ -25,7 +25,7 @@ MuonRecoOneHLT::MuonRecoOneHLT(const edm::ParameterSet& pSet) {
 
   theMuonCollectionLabel_ = consumes<reco::MuonCollection>(parameters.getParameter<edm::InputTag>("MuonCollection"));
   theVertexLabel_ = consumes<reco::VertexCollection>(parameters.getParameter<edm::InputTag>("VertexLabel"));
-  theBeamSpotLabel_ = mayConsume<reco::BeamSpot>(parameters.getParameter<edm::InputTag>("BeamSpotLabel"));
+  theBeamSpotLabel_ = consumes<reco::BeamSpot>(parameters.getParameter<edm::InputTag>("BeamSpotLabel"));
   theTriggerResultsLabel_ = consumes<TriggerResults>(parameters.getParameter<InputTag>("TriggerResultsLabel"));
 
   // Parameters

@@ -115,10 +115,10 @@ HcalLaserEventFilter::HcalLaserEventFilter(const edm::ParameterSet& iConfig)
       debug_(iConfig.getParameter<bool>("debug")),
       reverseFilter_(iConfig.getParameter<bool>("reverseFilter")),
       hbheInputLabel_(iConfig.getUntrackedParameter<edm::InputTag>("hbheInputLabel", edm::InputTag("hbhereco"))),
-      hbheToken_(mayConsume<HBHERecHitCollection>(hbheInputLabel_)),
+      hbheToken_(consumes<HBHERecHitCollection>(hbheInputLabel_)),
       hcalNoiseSummaryLabel_(
           iConfig.getUntrackedParameter<edm::InputTag>("hcalNoiseSummaryLabel", edm::InputTag("hcalnoise"))),
-      hcalNoiseSummaryToken_(mayConsume<HcalNoiseSummary>(hcalNoiseSummaryLabel_)),
+      hcalNoiseSummaryToken_(consumes<HcalNoiseSummary>(hcalNoiseSummaryLabel_)),
       taggingMode_(iConfig.getParameter<bool>("taggingMode")),
       forceUseRecHitCollection_(iConfig.getParameter<bool>("forceUseRecHitCollection")),
       forceUseHcalNoiseSummary_(iConfig.getParameter<bool>("forceUseHcalNoiseSummary"))

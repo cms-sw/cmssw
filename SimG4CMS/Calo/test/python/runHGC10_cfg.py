@@ -16,6 +16,9 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T35', '')
 
+fileName = "hgcV17Only.root"
+print("o/p File Name: ", fileName)
+
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom=dict()
     process.MessageLogger.HCalGeom=dict()
@@ -55,7 +58,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 
 process.output = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('hgcV17Only.root')
+    fileName = cms.untracked.string(fileName)
 )
 
 #process.hgcalHitScintillator.tileFileName = "extraTiles.txt"

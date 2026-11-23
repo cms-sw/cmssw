@@ -54,7 +54,7 @@ namespace gs {
       msg += whereInTheCode;
       msg += ": failed to open file \"";
       msg += filename;
-      msg += "\"";
+      msg += '\"';
       return msg;
     }
 

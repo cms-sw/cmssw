@@ -55,12 +55,12 @@ PF_PU_FirstVertexTracks::PF_PU_FirstVertexTracks(const edm::ParameterSet& iConfi
 
   input_AssociationType_ = iConfig.getParameter<edm::InputTag>("AssociationType");
 
-  token_TrackToVertexAssMap_ = mayConsume<TrackToVertexAssMap>(iConfig.getParameter<InputTag>("AssociationMap"));
-  token_VertexToTrackAssMap_ = mayConsume<VertexToTrackAssMap>(iConfig.getParameter<InputTag>("AssociationMap"));
+  token_TrackToVertexAssMap_ = consumes<TrackToVertexAssMap>(iConfig.getParameter<InputTag>("AssociationMap"));
+  token_VertexToTrackAssMap_ = consumes<VertexToTrackAssMap>(iConfig.getParameter<InputTag>("AssociationMap"));
 
   token_generalTracksCollection_ = consumes<TrackCollection>(iConfig.getParameter<InputTag>("TrackCollection"));
 
-  token_VertexCollection_ = mayConsume<VertexCollection>(iConfig.getParameter<InputTag>("VertexCollection"));
+  token_VertexCollection_ = consumes<VertexCollection>(iConfig.getParameter<InputTag>("VertexCollection"));
 
   input_MinQuality_ = iConfig.getParameter<int>("MinQuality");
 

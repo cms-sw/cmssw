@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -44,7 +46,7 @@ void L1TPFMetNoMuProducer::produce(edm::Event &event, const edm::EventSetup &eve
 
   thePFMetNoMu.setP4(pfMetNoMuP4);
 
-  std::unique_ptr<reco::PFMETCollection> product(new reco::PFMETCollection);
+  std::unique_ptr<reco::PFMETCollection> product = std::make_unique<reco::PFMETCollection>();
   product->emplace_back(thePFMetNoMu.getSpecific(), thePFMetNoMu.sumEt(), thePFMetNoMu.p4(), thePFMetNoMu.vertex());
 
   event.put(std::move(product));

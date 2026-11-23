@@ -121,7 +121,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
   bsSrc_ = iConfig.getParameter<edm::InputTag>("beamSpot");
   pvSrc_ = iConfig.getParameter<edm::InputTag>("primaryVertex");
   bsSrcToken_ = consumes<reco::BeamSpot>(bsSrc_);
-  pvSrcToken_ = mayConsume<reco::VertexCollection>(pvSrc_);
+  pvSrcToken_ = consumes<reco::VertexCollection>(pvSrc_);
 
   lumiscalersToken_ = consumes<LumiScalersCollection>(iConfig.getParameter<edm::InputTag>("scal"));
   metaDataToken_ = consumes<OnlineLuminosityRecord>(iConfig.getParameter<edm::InputTag>("metadata"));
@@ -172,8 +172,8 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
 
   edm::InputTag stripClusterInputTag_ = iConfig.getParameter<edm::InputTag>("stripCluster");
   edm::InputTag pixelClusterInputTag_ = iConfig.getParameter<edm::InputTag>("pixelCluster");
-  stripClustersToken_ = mayConsume<edmNew::DetSetVector<SiStripCluster> >(stripClusterInputTag_);
-  pixelClustersToken_ = mayConsume<edmNew::DetSetVector<SiPixelCluster> >(pixelClusterInputTag_);
+  stripClustersToken_ = consumes<edmNew::DetSetVector<SiStripCluster> >(stripClusterInputTag_);
+  pixelClustersToken_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(pixelClusterInputTag_);
 
   runTrackBuildingAnalyzerForSeed =
       (doAllSeedPlots || iConfig.getParameter<bool>("doSeedPTHisto") || iConfig.getParameter<bool>("doSeedETAHisto") ||

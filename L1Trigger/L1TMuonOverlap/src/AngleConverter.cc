@@ -17,6 +17,7 @@
 
 #include <cmath>
 #include <array>
+#include <memory>
 
 namespace {
   template <typename T>
@@ -369,7 +370,7 @@ int AngleConverter::getGlobalEta(unsigned int rawid,
   // do not use this pointer for anything other than creating a trig geom
   std::unique_ptr<DTChamber> chamb(const_cast<DTChamber *>(_geodt->chamber(baseid)));
 
-  std::unique_ptr<DTTrigGeom> trig_geom(new DTTrigGeom(chamb.get(), false));
+  std::unique_ptr<DTTrigGeom> trig_geom = std::make_unique<DTTrigGeom>(chamb.get(), false);
   chamb.release();  // release it here so no one gets funny ideas
   // super layer one is the theta superlayer in a DT chamber
   // station 4 does not have a theta super layer

@@ -156,7 +156,7 @@ template <typename T>
 std::string TTCluster<T>::print(unsigned int i) const {
   std::string padding("");
   for (unsigned int j = 0; j != i; ++j) {
-    padding += "\t";
+    padding += '\t';
   }
 
   std::stringstream output;

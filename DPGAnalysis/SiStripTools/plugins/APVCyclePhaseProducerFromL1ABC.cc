@@ -96,8 +96,8 @@ private:
 //
 APVCyclePhaseProducerFromL1ABC::APVCyclePhaseProducerFromL1ABC(const edm::ParameterSet& iConfig)
     : _l1abccollectionToken(
-          mayConsume<L1AcceptBunchCrossingCollection>(iConfig.getParameter<edm::InputTag>("l1ABCCollection"))),
-      _tcdsRecordToken(mayConsume<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))),
+          consumes<L1AcceptBunchCrossingCollection>(iConfig.getParameter<edm::InputTag>("l1ABCCollection"))),
+      _tcdsRecordToken(consumes<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))),
       _defpartnames(iConfig.getParameter<std::vector<std::string> >("defaultPartitionNames")),
       _defphases(iConfig.getParameter<std::vector<int> >("defaultPhases")),
       _orbitoffsetSOR(iConfig.getParameter<int>("StartOfRunOrbitOffset")),

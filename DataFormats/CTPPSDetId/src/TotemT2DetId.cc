@@ -43,7 +43,7 @@ void TotemT2DetId::planeName(std::string& name, NameFlag flag) const {
       break;
     case nFull:
       armName(name, flag);
-      name += "_";
+      name += '_';
       break;
     case nPath:
       armName(name, flag);
@@ -62,7 +62,7 @@ void TotemT2DetId::channelName(std::string& name, NameFlag flag) const {
       break;
     case nFull:
       planeName(name, flag);
-      name += "_";
+      name += '_';
       break;
     case nPath:
       planeName(name, flag);

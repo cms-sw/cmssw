@@ -13,6 +13,8 @@
 // Include files
 
 // local
+#include <memory>
+
 #include "L1Trigger/RPCTechnicalTrigger/interface/RPCTechnicalTrigger.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/ProcessTestSignal.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCProcessRPCDigis.h"
@@ -95,7 +97,7 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   edm::Handle<edm::DetSetVector<RPCDigiSimLink>> simIn;
 
-  std::unique_ptr<L1GtTechnicalTriggerRecord> output(new L1GtTechnicalTriggerRecord());
+  std::unique_ptr<L1GtTechnicalTriggerRecord> output = std::make_unique<L1GtTechnicalTriggerRecord>();
 
   //.   Set up RPC geometry
   edm::ESHandle<RPCGeometry> rpcGeometry = iSetup.getHandle(m_rpcGeometryToken);

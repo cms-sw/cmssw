@@ -19,6 +19,7 @@
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
+#include <memory>
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
@@ -370,8 +371,8 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
 
   int maxBxInEvent = std::max(m_recordLength0, m_recordLength1);
 
-  std::unique_ptr<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecord(
-      new L1GlobalTriggerEvmReadoutRecord(maxBxInEvent, numberFdlBoards));
+  std::unique_ptr<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecord =
+      std::make_unique<L1GlobalTriggerEvmReadoutRecord>(maxBxInEvent, numberFdlBoards);
 
   // ... then unpack modules other than GTFE, if requested
 
@@ -708,7 +709,8 @@ void L1GlobalTriggerEvmRawToDigi::unpackTrailer(const unsigned char* trlPtr, FED
 
 // produce empty products in case of problems
 void L1GlobalTriggerEvmRawToDigi::produceEmptyProducts(edm::Event& iEvent) {
-  std::unique_ptr<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecord(new L1GlobalTriggerEvmReadoutRecord());
+  std::unique_ptr<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecord =
+      std::make_unique<L1GlobalTriggerEvmReadoutRecord>();
 
   // put empty records into event
 

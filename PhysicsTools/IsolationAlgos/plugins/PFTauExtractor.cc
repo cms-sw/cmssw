@@ -48,8 +48,7 @@ private:
 
 PFTauExtractor::PFTauExtractor(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC) {
   tauSourceToken_ = iC.consumes<reco::PFTauCollection>(cfg.getParameter<edm::InputTag>("tauSource"));
-  candidateSourceToken_ =
-      iC.mayConsume<edm::View<reco::Candidate> >(cfg.getParameter<edm::InputTag>("candidateSource"));
+  candidateSourceToken_ = iC.consumes<edm::View<reco::Candidate> >(cfg.getParameter<edm::InputTag>("candidateSource"));
   maxDxyTrack_ = cfg.getParameter<double>("Diff_r");
   maxDzTrack_ = cfg.getParameter<double>("Diff_z");
   dRmatchPFTau_ = cfg.getParameter<double>("dRmatchPFTau");

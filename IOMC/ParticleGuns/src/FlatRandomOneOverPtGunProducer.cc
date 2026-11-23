@@ -3,6 +3,7 @@
  * Generates single particle gun flat in (1/pt) in HepMC format
  **************************************************************/
 
+#include <memory>
 #include <ostream>
 
 #include "BaseFlatGunProducer.h"
@@ -137,11 +138,11 @@ namespace edm {
       fEvt->print();
     }
 
-    std::unique_ptr<HepMCProduct> BProduct(new HepMCProduct());
+    std::unique_ptr<HepMCProduct> BProduct = std::make_unique<HepMCProduct>();
     BProduct->addHepMCData(fEvt);
     e.put(std::move(BProduct), "unsmeared");
 
-    std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+    std::unique_ptr<GenEventInfoProduct> genEventInfo = std::make_unique<GenEventInfoProduct>(fEvt);
     e.put(std::move(genEventInfo));
 
     LogDebug("ParticleGun") << " FlatRandomOneOverPtGunProducer : Event Generation Done ";

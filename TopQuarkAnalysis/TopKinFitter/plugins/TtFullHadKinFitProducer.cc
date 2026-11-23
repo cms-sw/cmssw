@@ -81,7 +81,7 @@ static const unsigned int nPartons = 6;
 /// default constructor
 TtFullHadKinFitProducer::TtFullHadKinFitProducer(const edm::ParameterSet& cfg)
     : jetsToken_(consumes<std::vector<pat::Jet>>(cfg.getParameter<edm::InputTag>("jets"))),
-      matchToken_(mayConsume<std::vector<std::vector<int>>>(cfg.getParameter<edm::InputTag>("match"))),
+      matchToken_(consumes<std::vector<std::vector<int>>>(cfg.getParameter<edm::InputTag>("match"))),
       useOnlyMatch_(cfg.getParameter<bool>("useOnlyMatch")),
       bTagAlgo_(cfg.getParameter<std::string>("bTagAlgo")),
       minBTagValueBJet_(cfg.getParameter<double>("minBTagValueBJet")),

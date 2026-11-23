@@ -75,8 +75,10 @@ SiStripCertificationInfo::SiStripCertificationInfo(edm::ParameterSet const&)
       tTopoToken_(esConsumes<edm::Transition::EndRun>()),
       runInfoToken_(esConsumes<edm::Transition::BeginRun>()) {
   usesResource("DQMStore");
-  consumes<DQMToken, edm::InRun>(edm::InputTag("siStripOfflineAnalyser", "DQMGenerationSiStripAnalyserRun"));
-  consumes<DQMToken, edm::InLumi>(edm::InputTag("siStripOfflineAnalyser", "DQMGenerationSiStripAnalyserLumi"));
+  consumes<DQMToken, edm::InRun, edm::Transition::EndRun>(
+      edm::InputTag("siStripOfflineAnalyser", "DQMGenerationSiStripAnalyserRun"));
+  consumes<DQMToken, edm::InLumi, edm::Transition::EndLuminosityBlock>(
+      edm::InputTag("siStripOfflineAnalyser", "DQMGenerationSiStripAnalyserLumi"));
 }
 
 void SiStripCertificationInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {

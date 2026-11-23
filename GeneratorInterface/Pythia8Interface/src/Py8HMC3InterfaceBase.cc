@@ -60,7 +60,7 @@ namespace gen {
         int fd = mkstemp(tempslhaname);
 
         for (unsigned int i = 0; i < user_decay_lines.size(); i++) {
-          user_decay_lines.at(i) += "\n";
+          user_decay_lines.at(i) += '\n';
           write(fd, user_decay_lines.at(i).c_str(), user_decay_lines.at(i).size());
         }
         close(fd);

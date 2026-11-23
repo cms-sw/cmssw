@@ -13,7 +13,7 @@ std::unique_ptr<L1MuCSCTFConfiguration> CSCTFConfigOnlineProd::newObject(const s
   for (int iSP = 1; iSP < 13; iSP++) {
     std::string spkey = objectKey + "00";
     if (iSP < 10)
-      spkey += "0";
+      spkey += '0';
     spkey += std::to_string(iSP);
 
     //  SELECT Multiple columns  FROM TABLE with correct key:

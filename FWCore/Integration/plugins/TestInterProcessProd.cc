@@ -102,7 +102,7 @@ namespace testinter {
     std::string unique_name(std::string iBase) {
       auto pid = getpid();
       iBase += std::to_string(pid);
-      iBase += "_";
+      iBase += '_';
       iBase += std::to_string(id_);
 
       return iBase;

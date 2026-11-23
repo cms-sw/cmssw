@@ -192,7 +192,8 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     edm::OrphanHandle<std::vector<Trajectory> > rTrajs = evt.put(std::move(selTrajectories));
 
     // Now Create traj<->tracks association map
-    std::unique_ptr<TrajTrackAssociationCollection> trajTrackMap(new TrajTrackAssociationCollection(rTrajs, rTracks_));
+    std::unique_ptr<TrajTrackAssociationCollection> trajTrackMap =
+        std::make_unique<TrajTrackAssociationCollection>(rTrajs, rTracks_);
     for (std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); i != tjTkMap.end(); i++) {
       edm::Ref<std::vector<Trajectory> > trajRef(rTrajs, (*i).first);
       edm::Ref<reco::TrackCollection> tkRef(rTracks_, (*i).second);

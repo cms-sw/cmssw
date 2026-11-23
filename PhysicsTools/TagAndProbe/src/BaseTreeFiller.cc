@@ -96,13 +96,13 @@ tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet &i
 
     recVtxsToken_ = iC.consumes<reco::VertexCollection>(vtxIT);
     beamSpotToken_ = iC.consumes<reco::BeamSpot>(bsIT);
-    pfmetToken_ = iC.mayConsume<reco::PFMETCollection>(pfMetIT);
-    pfmetTokenMiniAOD_ = iC.mayConsume<pat::METCollection>(pfMetIT);
+    pfmetToken_ = iC.consumes<reco::PFMETCollection>(pfMetIT);
+    pfmetTokenMiniAOD_ = iC.consumes<pat::METCollection>(pfMetIT);
     addCaloMet_ = iConfig.existsAs<bool>("addCaloMet") ? iConfig.getParameter<bool>("addCaloMet") : true;
     tree_->Branch("event_nPV", &mNPV_, "mNPV/I");
     if (addCaloMet_) {
-      metToken_ = iC.mayConsume<reco::CaloMETCollection>(clMetIT);
-      tcmetToken_ = iC.mayConsume<reco::METCollection>(tcMetIT);
+      metToken_ = iC.consumes<reco::CaloMETCollection>(clMetIT);
+      tcmetToken_ = iC.consumes<reco::METCollection>(tcMetIT);
       tree_->Branch("event_met_calomet", &mMET_, "mMET/F");
       tree_->Branch("event_met_calosumet", &mSumET_, "mSumET/F");
       tree_->Branch("event_met_calometsignificance", &mMETSign_, "mMETSign/F");

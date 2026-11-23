@@ -158,11 +158,11 @@ namespace l1t {
     int bxLast = 2;
 
     //outputs
-    std::unique_ptr<l1t::EGammaBxCollection> egammas(new l1t::EGammaBxCollection(0, bxFirst, bxLast));
-    std::unique_ptr<l1t::MuonBxCollection> muons(new l1t::MuonBxCollection(0, bxFirst, bxLast));
-    std::unique_ptr<l1t::TauBxCollection> taus(new l1t::TauBxCollection(0, bxFirst, bxLast));
-    std::unique_ptr<l1t::JetBxCollection> jets(new l1t::JetBxCollection(0, bxFirst, bxLast));
-    std::unique_ptr<l1t::EtSumBxCollection> etsums(new l1t::EtSumBxCollection(0, bxFirst, bxLast));
+    std::unique_ptr<l1t::EGammaBxCollection> egammas = std::make_unique<l1t::EGammaBxCollection>(0, bxFirst, bxLast);
+    std::unique_ptr<l1t::MuonBxCollection> muons = std::make_unique<l1t::MuonBxCollection>(0, bxFirst, bxLast);
+    std::unique_ptr<l1t::TauBxCollection> taus = std::make_unique<l1t::TauBxCollection>(0, bxFirst, bxLast);
+    std::unique_ptr<l1t::JetBxCollection> jets = std::make_unique<l1t::JetBxCollection>(0, bxFirst, bxLast);
+    std::unique_ptr<l1t::EtSumBxCollection> etsums = std::make_unique<l1t::EtSumBxCollection>(0, bxFirst, bxLast);
 
     // Put EG into Collections
     for (unsigned int it = 0; it < fEgBx.size(); it++) {

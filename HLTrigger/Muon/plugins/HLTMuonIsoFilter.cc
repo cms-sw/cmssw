@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <iostream>
+#include <memory>
 //
 // constructors and destructor
 //
@@ -36,14 +37,14 @@ HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig)
       candToken_(consumes<reco::RecoChargedCandidateCollection>(candTag_)),
       previousCandTag_(iConfig.getParameter<edm::InputTag>("PreviousCandTag")),
       previousCandToken_(consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
-      depTag_(iConfig.getParameter<std::vector<edm::InputTag> >("DepTag")),
+      depTag_(iConfig.getParameter<std::vector<edm::InputTag>>("DepTag")),
       depToken_(),
       min_N_(iConfig.getParameter<int>("MinN")) {
   depToken_.reserve(depTag_.size());
   for (auto const& t : depTag_) {
-    depToken_.push_back(consumes<edm::ValueMap<reco::IsoDeposit> >(t));
+    depToken_.push_back(consumes<edm::ValueMap<reco::IsoDeposit>>(t));
   }
-  decMapToken_ = consumes<edm::ValueMap<bool> >(depTag_.front());
+  decMapToken_ = consumes<edm::ValueMap<bool>>(depTag_.front());
 
   LogDebug("HLTMuonIsoFilter").log([this](auto& iLog) {
     iLog << " candTag : " << candTag_.encode() << "\n";
@@ -62,7 +63,7 @@ HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig)
   }
 
   if (theDepositIsolator)
-    produces<edm::ValueMap<bool> >();
+    produces<edm::ValueMap<bool>>();
 }
 
 HLTMuonIsoFilter::~HLTMuonIsoFilter() = default;
@@ -77,7 +78,7 @@ void HLTMuonIsoFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<edm::InputTag>("PreviousCandTag", edm::InputTag(""));
   desc.add<int>("MinN", 1);
   std::vector<edm::InputTag> depTag(1, edm::InputTag("hltL3MuonIsolations"));
-  desc.add<std::vector<edm::InputTag> >("DepTag", depTag);
+  desc.add<std::vector<edm::InputTag>>("DepTag", depTag);
   edm::ParameterSetDescription isolatorPSet;
   desc.add<edm::ParameterSetDescription>("IsolatorPSet", isolatorPSet);
   descriptions.add("hltMuonIsoFilter", desc);
@@ -97,7 +98,7 @@ bool HLTMuonIsoFilter::hltFilter(edm::Event& iEvent,
   // this HLT filter, and place it in the Event.
 
   //the decision map
-  std::unique_ptr<edm::ValueMap<bool> > isoMap(new edm::ValueMap<bool>());
+  std::unique_ptr<edm::ValueMap<bool>> isoMap = std::make_unique<edm::ValueMap<bool>>();
 
   // get hold of trks
   Handle<RecoChargedCandidateCollection> mucands;
@@ -111,8 +112,8 @@ bool HLTMuonIsoFilter::hltFilter(edm::Event& iEvent,
 
   //get hold of energy deposition
   unsigned int nDep = depTag_.size();
-  std::vector<Handle<edm::ValueMap<reco::IsoDeposit> > > depMap(nDep);
-  Handle<edm::ValueMap<bool> > decisionMap;
+  std::vector<Handle<edm::ValueMap<reco::IsoDeposit>>> depMap(nDep);
+  Handle<edm::ValueMap<bool>> decisionMap;
   muonisolation::MuIsoBaseIsolator::DepositContainer isoContainer(nDep);
 
   if (theDepositIsolator) {

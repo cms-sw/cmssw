@@ -1,5 +1,7 @@
 #include "JetMETCorrections/Type1MET/plugins/MuonMETcorrInputProducer.h"
 
+#include <memory>
+
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
@@ -18,7 +20,7 @@ MuonMETcorrInputProducer::~MuonMETcorrInputProducer() {
 }
 
 void MuonMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
-  std::unique_ptr<CorrMETData> unclEnergySum(new CorrMETData());
+  std::unique_ptr<CorrMETData> unclEnergySum = std::make_unique<CorrMETData>();
 
   edm::Handle<reco::MuonCollection> muons;
   evt.getByToken(token_, muons);

@@ -104,13 +104,13 @@ void HectorProducer::produce(edm::Event &iEvent, const edm::EventSetup &es) {
 
   edm::LogVerbatim("SimTransportHectorProducer") << "new HepMC product ";
 
-  unique_ptr<edm::HepMCProduct> NewProduct(new edm::HepMCProduct());
+  unique_ptr<edm::HepMCProduct> NewProduct = std::make_unique<edm::HepMCProduct>();
   NewProduct->addHepMCData(evt);
 
   iEvent.put(std::move(NewProduct));
 
   edm::LogVerbatim("SimTransportHectorProducer") << "new LHCTransportLinkContainer ";
-  unique_ptr<edm::LHCTransportLinkContainer> NewCorrespondenceMap(new edm::LHCTransportLinkContainer());
+  unique_ptr<edm::LHCTransportLinkContainer> NewCorrespondenceMap = std::make_unique<edm::LHCTransportLinkContainer>();
   edm::LHCTransportLinkContainer thisLink(m_Hector->getCorrespondenceMap());
   (*NewCorrespondenceMap).swap(thisLink);
 

@@ -117,7 +117,7 @@ bool edm::encode(std::string& to, std::vector<bool> const& from) {
       return false;
     }
     if (b != from.begin()) {
-      to += ",";
+      to += ',';
     }
     to += converted;
   }
@@ -237,7 +237,7 @@ bool edm::encode(std::string& to, std::vector<int> const& from) {
     }
 
     if (b != from.begin()) {
-      to += ",";
+      to += ',';
     }
     to += converted;
   }
@@ -279,7 +279,7 @@ bool edm::encode(std::string& to, std::vector<long long> const& from) {
       return false;
     }
     if (b != from.begin()) {
-      to += ",";
+      to += ',';
     }
     to += converted;
   }
@@ -378,7 +378,7 @@ bool edm::encode(std::string& to, std::vector<unsigned int> const& from) {
       return false;
     }
     if (b != from.begin()) {
-      to += ",";
+      to += ',';
     }
     to += converted;
   }
@@ -416,7 +416,7 @@ bool edm::encode(std::string& to, std::vector<unsigned long long> const& from) {
     }
 
     if (b != from.begin()) {
-      to += ",";
+      to += ',';
     }
     to += converted;
   }
@@ -504,7 +504,7 @@ bool edm::encode(std::string& to, std::vector<double> const& from) {
       return false;
 
     if (b != from.begin())
-      to += ",";
+      to += ',';
     to += converted;
   }
 
@@ -572,7 +572,7 @@ bool edm::encode(std::string& to, std::vector<float> const& from) {
       return false;
 
     if (b != from.begin())
-      to += ",";
+      to += ',';
     to += converted;
   }
 
@@ -1241,7 +1241,7 @@ bool edm::encode(std::string& to, std::vector<std::string> const& from) {
     }
 
     if (b != from.begin())
-      to += ",";
+      to += ',';
     to += converted;
   }
 
@@ -1261,7 +1261,7 @@ bool edm::encode_deprecated(std::string& to, std::vector<std::string> const& fro
     }
 
     if (b != from.begin())
-      to += ",";
+      to += ',';
     to += converted;
   }
 
@@ -1344,7 +1344,7 @@ bool edm::encode(std::string& to, std::vector<ParameterSet> const& from) {
       return false;
     }
     if (b != from.begin()) {
-      to += ",";
+      to += ',';
     }
     to += converted;
   }

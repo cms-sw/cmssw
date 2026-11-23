@@ -13,9 +13,9 @@
 struct TrackCollectionTokens {
   TrackCollectionTokens(edm::InputTag const& tag, edm::ConsumesCollector&& iC)
       : hTrackToken_(iC.consumes<reco::TrackCollection>(tag)),
-        hTrajToken_(iC.mayConsume<std::vector<Trajectory>>(tag)),
-        hIndToken_(iC.mayConsume<std::vector<int>>(tag)),
-        hTTAssToken_(iC.mayConsume<TrajTrackAssociationCollection>(tag)) {}
+        hTrajToken_(iC.consumes<std::vector<Trajectory>>(tag)),
+        hIndToken_(iC.consumes<std::vector<int>>(tag)),
+        hTTAssToken_(iC.consumes<TrajTrackAssociationCollection>(tag)) {}
 
   /// source collection label
   edm::EDGetTokenT<reco::TrackCollection> hTrackToken_;

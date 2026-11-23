@@ -48,7 +48,7 @@ FakeTBHodoscopeRawInfoProducer::FakeTBHodoscopeRawInfoProducer(const edm::Parame
 }
 
 void FakeTBHodoscopeRawInfoProducer::produce(edm::Event &event, const edm::EventSetup &eventSetup) {
-  std::unique_ptr<EcalTBHodoscopeRawInfo> product(new EcalTBHodoscopeRawInfo());
+  std::unique_ptr<EcalTBHodoscopeRawInfo> product = std::make_unique<EcalTBHodoscopeRawInfo>();
 
   // get the vertex information from the event
 

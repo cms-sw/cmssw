@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoTauTag/HLTProducers/interface/L1HLTJetsMatching.h"
 #include "Math/GenVector/VectorUtil.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -32,7 +34,7 @@ void L1HLTJetsMatching::produce(edm::StreamID, edm::Event& iEvent, const edm::Ev
 
   typedef std::vector<LeafCandidate> LeafCandidateCollection;
 
-  unique_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection);
+  unique_ptr<CaloJetCollection> tauL2jets = std::make_unique<CaloJetCollection>();
 
   constexpr double matchingR2 = 0.5 * 0.5;
 

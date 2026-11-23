@@ -11,7 +11,7 @@ namespace {
 }  // namespace
 
 typedef edmNew::DetSetVector<T> DSTV;
-typedef edmNew::DetSet<T> DST;
+typedef edmNew::MutableDetSet<T> DST;
 typedef DSTV::FastFiller FF;
 
 TEST_CASE("test edmNew::DetSetVector", "[edmNew::DetSetVector]") {

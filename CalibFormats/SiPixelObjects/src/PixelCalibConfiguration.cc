@@ -1458,7 +1458,7 @@ void PixelCalibConfiguration::writeASCII(std::string dir) const {
   //FIXME this is not tested for all the use cases...
 
   if (!dir.empty())
-    dir += "/";
+    dir += '/';
   std::string filename = dir + "calib.dat";
   std::ofstream out(filename.c_str());
 

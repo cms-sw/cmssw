@@ -248,7 +248,7 @@ void AlpgenSource::beginRun(edm::Run &run) {
   }
 
   // Build the final Run info object. Backwards-compatible order.
-  std::unique_ptr<LHERunInfoProduct> runInfo(new LHERunInfoProduct(heprup));
+  std::unique_ptr<LHERunInfoProduct> runInfo = std::make_unique<LHERunInfoProduct>(heprup);
   runInfo->addHeader(comments);
   runInfo->addHeader(lheAlpgenUnwParHeader);
   if (writeAlpgenWgtFile)
@@ -465,7 +465,7 @@ void AlpgenSource::produce(edm::Event &event) {
   }
 
   // Create the LHEEventProduct and put it into the Event.
-  std::unique_ptr<LHEEventProduct> lheEvent(new LHEEventProduct(hepeup));
+  std::unique_ptr<LHEEventProduct> lheEvent = std::make_unique<LHEEventProduct>(hepeup);
   event.put(std::move(lheEvent));
 
   hepeup_.reset();

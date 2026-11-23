@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -53,7 +55,7 @@ void l1tpf::PFTrackProducerFromL1Tracks::produce(edm::Event &iEvent, const edm::
     fBz_ = iSetup.getData(BFieldTag_).inTesla(GlobalPoint(0, 0, 0)).z();
   }
 
-  std::unique_ptr<l1t::PFTrackCollection> out(new l1t::PFTrackCollection());
+  std::unique_ptr<l1t::PFTrackCollection> out = std::make_unique<l1t::PFTrackCollection>();
 
   // https://github.com/skinnari/cmssw/blob/80c19f1b721325c3a02ee0482f72fb974a4c3bf7/L1Trigger/TrackFindingTracklet/test/L1TrackNtupleMaker.cc
   edm::Handle<std::vector<l1t::PFTrack::L1TTTrackType>> htracks;

@@ -4,6 +4,7 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include <algorithm>
 #include <iostream>
+#include <memory>
 
 #include <Math/Transform3D.h>
 #include <Math/EulerAngles.h>
@@ -40,11 +41,11 @@ void HcalGeometry::init() {
 void HcalGeometry::fillDetIds() const {
   // this must test the last record filled to avoid a race condition
   if (!m_emptyIds.isSet()) {
-    std::unique_ptr<std::vector<DetId>> p_hbIds{new std::vector<DetId>};
-    std::unique_ptr<std::vector<DetId>> p_heIds{new std::vector<DetId>};
-    std::unique_ptr<std::vector<DetId>> p_hoIds{new std::vector<DetId>};
-    std::unique_ptr<std::vector<DetId>> p_hfIds{new std::vector<DetId>};
-    std::unique_ptr<std::vector<DetId>> p_emptyIds{new std::vector<DetId>};
+    std::unique_ptr<std::vector<DetId>> p_hbIds = std::make_unique<std::vector<DetId>>();
+    std::unique_ptr<std::vector<DetId>> p_heIds = std::make_unique<std::vector<DetId>>();
+    std::unique_ptr<std::vector<DetId>> p_hoIds = std::make_unique<std::vector<DetId>>();
+    std::unique_ptr<std::vector<DetId>> p_hfIds = std::make_unique<std::vector<DetId>>();
+    std::unique_ptr<std::vector<DetId>> p_emptyIds = std::make_unique<std::vector<DetId>>();
 
     const std::vector<DetId>& baseIds(CaloSubdetectorGeometry::getValidDetIds());
     for (unsigned int i(0); i != baseIds.size(); ++i) {

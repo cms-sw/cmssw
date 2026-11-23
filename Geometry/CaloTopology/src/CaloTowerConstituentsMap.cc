@@ -78,7 +78,8 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
 
   // build reverse map if needed
   if (!m_reverseItems.load(std::memory_order_acquire)) {
-    std::unique_ptr<std::multimap<CaloTowerDetId, DetId>> ptr{new std::multimap<CaloTowerDetId, DetId>};
+    std::unique_ptr<std::multimap<CaloTowerDetId, DetId>> ptr =
+        std::make_unique<std::multimap<CaloTowerDetId, DetId>>();
     for (auto m_item : m_items)
       ptr->insert(std::pair<CaloTowerDetId, DetId>(m_item.tower, m_item.cell));
     std::multimap<CaloTowerDetId, DetId>* expected = nullptr;

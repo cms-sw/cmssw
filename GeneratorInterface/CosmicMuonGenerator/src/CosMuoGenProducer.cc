@@ -1,4 +1,6 @@
 
+#include <memory>
+
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 
@@ -109,7 +111,7 @@ void edm::CosMuoGenProducer::beginLuminosityBlock(LuminosityBlock const& lumi, E
 }
 
 void edm::CosMuoGenProducer::endRunProduce(Run& run, const EventSetup& es) {
-  std::unique_ptr<GenRunInfoProduct> genRunInfo(new GenRunInfoProduct());
+  std::unique_ptr<GenRunInfoProduct> genRunInfo = std::make_unique<GenRunInfoProduct>();
 
   double cs = CosMuoGen->getRate();  // flux in Hz, not s^-1m^-2
   if (MultiMuon)
@@ -214,11 +216,11 @@ void edm::CosMuoGenProducer::produce(Event& e, const edm::EventSetup& es) {
   if (cmVerbosity_)
     fEvt->print();
 
-  std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt.get()));
+  std::unique_ptr<GenEventInfoProduct> genEventInfo = std::make_unique<GenEventInfoProduct>(fEvt.get());
   e.put(std::move(genEventInfo));
 
   //This causes fEvt to be deleted
-  std::unique_ptr<HepMCProduct> CMProduct(new HepMCProduct());
+  std::unique_ptr<HepMCProduct> CMProduct = std::make_unique<HepMCProduct>();
   CMProduct->addHepMCData(fEvt.release());
   e.put(std::move(CMProduct), "unsmeared");
 }

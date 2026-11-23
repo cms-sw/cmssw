@@ -13,11 +13,11 @@ VMStubME::VMStubME(const Stub* stub, FPGAWord finephi, FPGAWord finerz, FPGAWord
 
 std::string VMStubME::str() const {
   string stub = allStubIndex_.str();
-  stub += "|";
+  stub += '|';
   stub += bend_.str();
-  stub += "|";
+  stub += '|';
   stub += finephi_.str();
-  stub += "|";
+  stub += '|';
   stub += finerz_.str();
 
   return stub;

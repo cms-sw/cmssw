@@ -188,10 +188,10 @@ GenParticleProducer::GenParticleProducer(const ParameterSet& cfg)
 
   if (useCF_)
     mixToken_ =
-        mayConsume<CrossingFrame<HepMCProduct>>(InputTag(cfg.getParameter<std::string>("mix"), "generatorSmeared"));
+        consumes<CrossingFrame<HepMCProduct>>(InputTag(cfg.getParameter<std::string>("mix"), "generatorSmeared"));
   else {
-    srcToken_ = mayConsume<HepMCProduct>(cfg.getParameter<InputTag>("src"));
-    srcToken3_ = mayConsume<HepMC3Product>(cfg.getParameter<InputTag>("src"));
+    srcToken_ = consumes<HepMCProduct>(cfg.getParameter<InputTag>("src"));
+    srcToken3_ = consumes<HepMC3Product>(cfg.getParameter<InputTag>("src"));
   }
 }
 

@@ -92,7 +92,7 @@ namespace edm {
   }
 
   void DataMixingPileupCopy::putPileupInfo(edm::Event &e) {
-    std::unique_ptr<std::vector<PileupSummaryInfo>> PSIVector(new std::vector<PileupSummaryInfo>);
+    std::unique_ptr<std::vector<PileupSummaryInfo>> PSIVector = std::make_unique<std::vector<PileupSummaryInfo>>();
     std::unique_ptr<int> bsInt(new int);
 
     std::vector<PileupSummaryInfo>::const_iterator PSiter;
@@ -103,8 +103,8 @@ namespace edm {
     *bsInt = bsStorage_;
 
     if (FoundPlayback_) {
-      std::unique_ptr<CrossingFramePlaybackInfoNew> CFPlaybackInfo(
-          new CrossingFramePlaybackInfoNew(CrossingFramePlaybackStorage_));
+      std::unique_ptr<CrossingFramePlaybackInfoNew> CFPlaybackInfo =
+          std::make_unique<CrossingFramePlaybackInfoNew>(CrossingFramePlaybackStorage_);
       e.put(std::move(CFPlaybackInfo));
     }
     e.put(std::move(PSIVector));
@@ -112,7 +112,8 @@ namespace edm {
 
     // Gen. PU protons
     for (size_t idx = 0; idx < GenPUProtons_.size(); ++idx) {
-      std::unique_ptr<std::vector<reco::GenParticle>> GenPUProtons_ptr(new std::vector<reco::GenParticle>());
+      std::unique_ptr<std::vector<reco::GenParticle>> GenPUProtons_ptr =
+          std::make_unique<std::vector<reco::GenParticle>>();
       std::vector<reco::GenParticle>::const_iterator it_GenParticle = GenPUProtons_.at(idx).begin();
       std::vector<reco::GenParticle>::const_iterator it_GenParticle_end = GenPUProtons_.at(idx).end();
       for (; it_GenParticle != it_GenParticle_end; ++it_GenParticle)

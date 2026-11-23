@@ -36,11 +36,11 @@ namespace pat {
 
 pat::PATSecondaryVertexSlimmer::PATSecondaryVertexSlimmer(const edm::ParameterSet& iConfig)
     : src_(consumes<reco::VertexCompositePtrCandidateCollection>(iConfig.getParameter<edm::InputTag>("src"))),
-      srcLegacy_(mayConsume<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("src"))),
-      srcV0s_(mayConsume<reco::VertexCompositeCandidateCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+      srcLegacy_(consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("src"))),
+      srcV0s_(consumes<reco::VertexCompositeCandidateCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       map_(consumes<edm::Association<pat::PackedCandidateCollection> >(
           iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
-      map2_(mayConsume<edm::Association<pat::PackedCandidateCollection> >(
+      map2_(consumes<edm::Association<pat::PackedCandidateCollection> >(
           iConfig.existsAs<edm::InputTag>("lostTracksCandidates")
               ? iConfig.getParameter<edm::InputTag>("lostTracksCandidates")
               : edm::InputTag("lostTracks"))) {

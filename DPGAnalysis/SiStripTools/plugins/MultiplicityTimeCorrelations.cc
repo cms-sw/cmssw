@@ -119,7 +119,7 @@ MultiplicityTimeCorrelations::MultiplicityTimeCorrelations(const edm::ParameterS
       _hecollectionToken(consumes<EventWithHistory>(_hecollection)),
       _apvphasecollToken(consumes<APVCyclePhaseCollection>(iConfig.getParameter<edm::InputTag>("apvPhaseCollection"))),
       _multiplicityMapToken(
-          mayConsume<std::map<unsigned int, int> >(iConfig.getParameter<edm::InputTag>("multiplicityMap"))),
+          consumes<std::map<unsigned int, int> >(iConfig.getParameter<edm::InputTag>("multiplicityMap"))),
       _subdets(),
       _binmax(),
       _loworbit(iConfig.getUntrackedParameter<int>("lowedgeOrbit")),

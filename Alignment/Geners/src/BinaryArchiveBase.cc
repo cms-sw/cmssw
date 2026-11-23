@@ -181,7 +181,7 @@ namespace gs {
             "In gs::BinaryArchiveBase::openDataFile: "
             "failed to write archive header to file \"";
         e += filename;
-        e += "\"";
+        e += '\"';
         throw IOWriteFailure(e);
       }
     } else {
@@ -192,12 +192,12 @@ namespace gs {
         if (failed) {
           e += "could not read archive header from file \"";
           e += filename;
-          e += "\"";
+          e += '\"';
           throw IOReadFailure(e);
         } else {
           e += "no valid archive header in file \"";
           e += filename;
-          e += "\"";
+          e += '\"';
           throw IOInvalidData(e);
         }
       }

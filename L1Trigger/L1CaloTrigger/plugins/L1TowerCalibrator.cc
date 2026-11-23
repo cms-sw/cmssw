@@ -46,6 +46,7 @@ Implementation:
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include <iostream>
+#include <memory>
 
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloTower.h"
 #include "DataFormats/L1THGCal/interface/HGCalTower.h"
@@ -208,7 +209,8 @@ void L1TowerCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   // Estimated number of vertices used for calibration estimattion
   std::unique_ptr<double> EstimatedNvtx(new double);
   // Calibrated output collection
-  std::unique_ptr<l1tp2::CaloTowerCollection> L1CaloTowerCalibratedCollection(new l1tp2::CaloTowerCollection);
+  std::unique_ptr<l1tp2::CaloTowerCollection> L1CaloTowerCalibratedCollection =
+      std::make_unique<l1tp2::CaloTowerCollection>();
 
   // Load the ECAL+HCAL tower sums coming from L1EGammaCrystalsEmulatorProducer.cc
   iEvent.getByToken(l1TowerToken_, l1CaloTowerHandle);

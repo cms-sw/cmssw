@@ -34,10 +34,10 @@ namespace cms {
     if (calculateSignificance_) {
       metSigAlgo_ = new metsig::METSignificance(iConfig);
 
-      jetToken_ = mayConsume<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("srcJets"));
+      jetToken_ = consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("srcJets"));
       std::vector<edm::InputTag> srcLeptonsTags = iConfig.getParameter<std::vector<edm::InputTag>>("srcLeptons");
       for (std::vector<edm::InputTag>::const_iterator it = srcLeptonsTags.begin(); it != srcLeptonsTags.end(); it++) {
-        lepTokens_.push_back(mayConsume<edm::View<reco::Candidate>>(*it));
+        lepTokens_.push_back(consumes<edm::View<reco::Candidate>>(*it));
       }
 
       jetSFToken_ = esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("srcJetSF")));

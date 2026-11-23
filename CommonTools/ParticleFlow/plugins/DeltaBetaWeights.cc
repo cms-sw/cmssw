@@ -61,7 +61,7 @@ void DeltaBetaWeights::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
   double sumNPU = .0;
   double sumPU = .0;
 
-  std::unique_ptr<reco::PFCandidateCollection> out(new reco::PFCandidateCollection);
+  std::unique_ptr<reco::PFCandidateCollection> out = std::make_unique<reco::PFCandidateCollection>();
 
   out->reserve(src.size());
   for (const reco::Candidate& cand : src) {

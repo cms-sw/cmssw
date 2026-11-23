@@ -186,9 +186,9 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
 
   std::string toOutput = "";
   for (auto ptbin : mypT_bins_) {
-    toOutput += " ";
+    toOutput += ' ';
     toOutput += std::to_string(ptbin);
-    toOutput += ",";
+    toOutput += ',';
   }
 
   edm::LogVerbatim("PrimaryVertexValidation") << "######################################\n";

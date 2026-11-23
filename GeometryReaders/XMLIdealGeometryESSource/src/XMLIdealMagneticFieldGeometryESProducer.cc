@@ -64,7 +64,7 @@ XMLIdealMagneticFieldGeometryESProducer::ReturnType XMLIdealMagneticFieldGeometr
   DDName ddName(rootDDName_);
   DDLogicalPart rootNode(ddName);
   DDRootDef::instance().set(rootNode);
-  ReturnType returnValue(new DDCompactView(rootNode));
+  ReturnType returnValue = std::make_unique<DDCompactView>(rootNode);
   DDLParser parser(*returnValue);
   parser.getDDLSAX2FileHandler()->setUserNS(true);
   parser.clearFiles();

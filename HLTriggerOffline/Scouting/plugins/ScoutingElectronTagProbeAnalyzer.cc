@@ -146,7 +146,7 @@ ScoutingElectronTagProbeAnalyzer::ScoutingElectronTagProbeAnalyzer(const edm::Pa
       filterToMatch_{iConfig.getParameter<vector<string>>("finalfilterSelection")},
       triggerResultsToken_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("TriggerResultTag"))),
       triggerObjects_(
-          mayConsume<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("TriggerObjects"))),
+          consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("TriggerObjects"))),
       scoutingElectronCollection_(consumes<std::vector<Run3ScoutingElectron>>(
           iConfig.getParameter<edm::InputTag>("ScoutingElectronCollection"))),
       useOfflineObject_(iConfig.getParameter<bool>("useOfflineObject")) {}

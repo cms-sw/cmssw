@@ -183,8 +183,8 @@ void ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         << "in case of phase space integration or uneweighting efficiency problems.";
   }
 
-  std::unique_ptr<LHEEventProduct> product(
-      new LHEEventProduct(*partonLevel_->getHEPEUP(), partonLevel_->originalXWGTUP()));
+  std::unique_ptr<LHEEventProduct> product =
+      std::make_unique<LHEEventProduct>(*partonLevel_->getHEPEUP(), partonLevel_->originalXWGTUP());
   if (partonLevel_->getPDF()) {
     product->setPDF(*partonLevel_->getPDF());
   }
@@ -303,7 +303,7 @@ void ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& 
   }
 
   //fill LHEXMLProduct (streaming read directly into compressed buffer to save memory)
-  std::unique_ptr<LHEXMLStringProduct> p(new LHEXMLStringProduct);
+  std::unique_ptr<LHEXMLStringProduct> p = std::make_unique<LHEXMLStringProduct>();
 
   //store the XML file only if explictly requested
   if (storeXML_) {

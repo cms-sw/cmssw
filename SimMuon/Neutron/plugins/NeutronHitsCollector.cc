@@ -18,6 +18,8 @@
 //
 //
 
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -109,7 +111,7 @@ void NeutronHitsCollector::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   // ----- MuonCSCHits -----
   //
-  std::unique_ptr<edm::PSimHitContainer> simCSC(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> simCSC = std::make_unique<edm::PSimHitContainer>();
   if (!neutron_label_csc.empty()) {
     const edm::Handle<edm::PSimHitContainer>& MuonCSCHits = iEvent.getHandle(tokenCSC_);
     for (hit = MuonCSCHits->begin(); hit != MuonCSCHits->end(); ++hit)
@@ -119,7 +121,7 @@ void NeutronHitsCollector::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   // ----- MuonDTHits -----
   //
-  std::unique_ptr<edm::PSimHitContainer> simDT(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> simDT = std::make_unique<edm::PSimHitContainer>();
   if (!neutron_label_dt.empty()) {
     const edm::Handle<edm::PSimHitContainer>& MuonDTHits = iEvent.getHandle(tokenDT_);
     for (hit = MuonDTHits->begin(); hit != MuonDTHits->end(); ++hit)
@@ -129,7 +131,7 @@ void NeutronHitsCollector::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   // ----- MuonRPCHits -----
   //
-  std::unique_ptr<edm::PSimHitContainer> simRPC(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> simRPC = std::make_unique<edm::PSimHitContainer>();
   if (!neutron_label_rpc.empty()) {
     const edm::Handle<edm::PSimHitContainer>& MuonRPCHits = iEvent.getHandle(tokenRPC_);
     for (hit = MuonRPCHits->begin(); hit != MuonRPCHits->end(); ++hit)
@@ -141,29 +143,29 @@ void NeutronHitsCollector::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   // ----- calorimetry -----
   //
-  std::unique_ptr<edm::PCaloHitContainer> calout1(new edm::PCaloHitContainer);
+  std::unique_ptr<edm::PCaloHitContainer> calout1 = std::make_unique<edm::PCaloHitContainer>();
   iEvent.put(std::move(calout1), "EcalHitsEB");
-  std::unique_ptr<edm::PCaloHitContainer> calout2(new edm::PCaloHitContainer);
+  std::unique_ptr<edm::PCaloHitContainer> calout2 = std::make_unique<edm::PCaloHitContainer>();
   iEvent.put(std::move(calout2), "EcalHitsEE");
-  std::unique_ptr<edm::PCaloHitContainer> calout3(new edm::PCaloHitContainer);
+  std::unique_ptr<edm::PCaloHitContainer> calout3 = std::make_unique<edm::PCaloHitContainer>();
   iEvent.put(std::move(calout3), "EcalHitsES");
-  std::unique_ptr<edm::PCaloHitContainer> calout4(new edm::PCaloHitContainer);
+  std::unique_ptr<edm::PCaloHitContainer> calout4 = std::make_unique<edm::PCaloHitContainer>();
   iEvent.put(std::move(calout4), "HcalHits");
-  std::unique_ptr<edm::PCaloHitContainer> calout5(new edm::PCaloHitContainer);
+  std::unique_ptr<edm::PCaloHitContainer> calout5 = std::make_unique<edm::PCaloHitContainer>();
   iEvent.put(std::move(calout5), "CaloHitsTk");
-  std::unique_ptr<edm::PCaloHitContainer> calout6(new edm::PCaloHitContainer);
+  std::unique_ptr<edm::PCaloHitContainer> calout6 = std::make_unique<edm::PCaloHitContainer>();
   iEvent.put(std::move(calout6), "CastorPL");
-  std::unique_ptr<edm::PCaloHitContainer> calout7(new edm::PCaloHitContainer);
+  std::unique_ptr<edm::PCaloHitContainer> calout7 = std::make_unique<edm::PCaloHitContainer>();
   iEvent.put(std::move(calout7), "CastorFI");
-  std::unique_ptr<edm::PCaloHitContainer> calout8(new edm::PCaloHitContainer);
+  std::unique_ptr<edm::PCaloHitContainer> calout8 = std::make_unique<edm::PCaloHitContainer>();
   iEvent.put(std::move(calout8), "CastorBU");
-  std::unique_ptr<edm::PCaloHitContainer> calout9(new edm::PCaloHitContainer);
+  std::unique_ptr<edm::PCaloHitContainer> calout9 = std::make_unique<edm::PCaloHitContainer>();
   iEvent.put(std::move(calout9), "CastorTU");
-  std::unique_ptr<edm::PCaloHitContainer> calout10(new edm::PCaloHitContainer);
+  std::unique_ptr<edm::PCaloHitContainer> calout10 = std::make_unique<edm::PCaloHitContainer>();
   iEvent.put(std::move(calout10), "EcalTBH4BeamHits");
-  std::unique_ptr<edm::PCaloHitContainer> calout11(new edm::PCaloHitContainer);
+  std::unique_ptr<edm::PCaloHitContainer> calout11 = std::make_unique<edm::PCaloHitContainer>();
   iEvent.put(std::move(calout11), "HcalTB06BeamHits");
-  std::unique_ptr<edm::PCaloHitContainer> calout12(new edm::PCaloHitContainer);
+  std::unique_ptr<edm::PCaloHitContainer> calout12 = std::make_unique<edm::PCaloHitContainer>();
   iEvent.put(std::move(calout12), "ZDCHITS");
   //std::unique_ptr<edm::PCaloHitContainer> calout13(new edm::PCaloHitContainer);
   //iEvent.put(std::move(calout13), "ChamberHits");
@@ -174,49 +176,49 @@ void NeutronHitsCollector::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   // ----- Tracker -----
   //
-  std::unique_ptr<edm::PSimHitContainer> trout1(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> trout1 = std::make_unique<edm::PSimHitContainer>();
   iEvent.put(std::move(trout1), "TrackerHitsPixelBarrelLowTof");
-  std::unique_ptr<edm::PSimHitContainer> trout2(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> trout2 = std::make_unique<edm::PSimHitContainer>();
   iEvent.put(std::move(trout2), "TrackerHitsPixelBarrelHighTof");
-  std::unique_ptr<edm::PSimHitContainer> trout3(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> trout3 = std::make_unique<edm::PSimHitContainer>();
   iEvent.put(std::move(trout3), "TrackerHitsTIBLowTof");
-  std::unique_ptr<edm::PSimHitContainer> trout4(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> trout4 = std::make_unique<edm::PSimHitContainer>();
   iEvent.put(std::move(trout4), "TrackerHitsTIBHighTof");
-  std::unique_ptr<edm::PSimHitContainer> trout5(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> trout5 = std::make_unique<edm::PSimHitContainer>();
   iEvent.put(std::move(trout5), "TrackerHitsTIDLowTof");
-  std::unique_ptr<edm::PSimHitContainer> trout6(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> trout6 = std::make_unique<edm::PSimHitContainer>();
   iEvent.put(std::move(trout6), "TrackerHitsTIDHighTof");
-  std::unique_ptr<edm::PSimHitContainer> trout7(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> trout7 = std::make_unique<edm::PSimHitContainer>();
   iEvent.put(std::move(trout7), "TrackerHitsPixelEndcapLowTof");
-  std::unique_ptr<edm::PSimHitContainer> trout8(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> trout8 = std::make_unique<edm::PSimHitContainer>();
   iEvent.put(std::move(trout8), "TrackerHitsPixelEndcapHighTof");
-  std::unique_ptr<edm::PSimHitContainer> trout9(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> trout9 = std::make_unique<edm::PSimHitContainer>();
   iEvent.put(std::move(trout9), "TrackerHitsTOBLowTof");
-  std::unique_ptr<edm::PSimHitContainer> trout10(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> trout10 = std::make_unique<edm::PSimHitContainer>();
   iEvent.put(std::move(trout10), "TrackerHitsTOBHighTof");
-  std::unique_ptr<edm::PSimHitContainer> trout11(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> trout11 = std::make_unique<edm::PSimHitContainer>();
   iEvent.put(std::move(trout11), "TrackerHitsTECLowTof");
-  std::unique_ptr<edm::PSimHitContainer> trout12(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> trout12 = std::make_unique<edm::PSimHitContainer>();
   iEvent.put(std::move(trout12), "TrackerHitsTECHighTof");
 
   // ----- Forward stuff -----
   //
-  std::unique_ptr<edm::PSimHitContainer> fwout1(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> fwout1 = std::make_unique<edm::PSimHitContainer>();
   iEvent.put(std::move(fwout1), "TotemHitsT1");
-  std::unique_ptr<edm::PSimHitContainer> fwout2(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> fwout2 = std::make_unique<edm::PSimHitContainer>();
   iEvent.put(std::move(fwout2), "TotemHitsT2Gem");
-  std::unique_ptr<edm::PSimHitContainer> fwout3(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> fwout3 = std::make_unique<edm::PSimHitContainer>();
   iEvent.put(std::move(fwout3), "TotemHitsRP");
-  std::unique_ptr<edm::PSimHitContainer> fwout4(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> fwout4 = std::make_unique<edm::PSimHitContainer>();
   iEvent.put(std::move(fwout4), "FP420SI");
-  std::unique_ptr<edm::PSimHitContainer> fwout5(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> fwout5 = std::make_unique<edm::PSimHitContainer>();
   iEvent.put(std::move(fwout5), "BSCHits");
 
   // ----- SimTracks & SimVertices -----
   //
-  std::unique_ptr<edm::SimTrackContainer> simTr(new edm::SimTrackContainer);
+  std::unique_ptr<edm::SimTrackContainer> simTr = std::make_unique<edm::SimTrackContainer>();
   iEvent.put(std::move(simTr));
-  std::unique_ptr<edm::SimVertexContainer> simVe(new edm::SimVertexContainer);
+  std::unique_ptr<edm::SimVertexContainer> simVe = std::make_unique<edm::SimVertexContainer>();
   iEvent.put(std::move(simVe));
 }
 

@@ -56,10 +56,10 @@ PATTauIDEmbedder::PATTauIDEmbedder(const edm::ParameterSet& cfg) {
                                           << "\t}\n";
   for (auto const& mapEntry : idContainerMap) {
     tauIDSrcContainers_.push_back(mapEntry.second.second);
-    patTauIDContainerTokens_.push_back(mayConsume<reco::TauDiscriminatorContainer>(mapEntry.second.first));
+    patTauIDContainerTokens_.push_back(consumes<reco::TauDiscriminatorContainer>(mapEntry.second.first));
   }
   patTauIDTokens_ = edm::vector_transform(
-      tauIDSrcs_, [this](NameTag const& tag) { return mayConsume<pat::PATTauDiscriminator>(tag.second); });
+      tauIDSrcs_, [this](NameTag const& tag) { return consumes<pat::PATTauDiscriminator>(tag.second); });
   nNewPlainTauIds_ = tauIDSrcs_.size();
   nNewTauIds_ = nNewPlainTauIds_;
   for (auto const& cont : tauIDSrcContainers_) {

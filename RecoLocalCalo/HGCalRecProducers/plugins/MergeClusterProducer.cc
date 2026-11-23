@@ -2,6 +2,8 @@
 // Date: 03/2023
 // @file merge layer clusters which were produce by HGCalLayerClusterProducer
 
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
@@ -144,13 +146,13 @@ void MergeClusterProducer::fillDescriptions(edm::ConfigurationDescriptions &desc
 
 void MergeClusterProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
   //merge clusters
-  std::unique_ptr<std::vector<reco::BasicCluster>> clusters(new std::vector<reco::BasicCluster>);
+  std::unique_ptr<std::vector<reco::BasicCluster>> clusters = std::make_unique<std::vector<reco::BasicCluster>>();
   createMerge(evt, tokens_, *clusters);
   //put new clusters to event
   auto clusterHandle = evt.put(std::move(clusters));
 
   //create layer cluster mask
-  std::unique_ptr<std::vector<float>> layerClustersMask(new std::vector<float>);
+  std::unique_ptr<std::vector<float>> layerClustersMask = std::make_unique<std::vector<float>>();
   layerClustersMask->resize(clusterHandle->size(), 1.0);
   //put it into event
   evt.put(std::move(layerClustersMask), "InitialLayerClustersMask");

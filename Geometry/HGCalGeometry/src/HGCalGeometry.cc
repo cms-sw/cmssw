@@ -337,13 +337,22 @@ HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& detid) const {
   HGCalTopology::DecodedDetId id = m_topology.decode(detid);
   if (cellIndex < m_cellVec2.size() && m_det == DetId::HGCalHSc) {
     GlobalPoint v = getPosition(detid, 100);
-    int type = (((id.iType == 0) || (id.iType == 3)) ? 0 : 1);
+    int type = HGCScintillatorDetId(detid).granularity();
     std::pair<double, double> rr = m_topology.dddConstants().cellSizeTrap(type, id.iSec1);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "getCorner:: " << HGCScintillatorDetId(detid) << " Position " << v << " Type "
+                                  << id.iType << ":" << type << " iSec1 " << id.iSec1 << " R " << rr.first << ":"
+                                  << rr.second;
+#endif
     float dr = k_half * (rr.second - rr.first);
     float dfi = m_cellVec2[cellIndex].param()[FlatTrd::k_Cell];
     float dz = id.zSide * m_cellVec2[cellIndex].param()[FlatTrd::k_dZ];
     float r = v.perp();
     float fi = v.phi();
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "getCorner:: R " << r << ":" << dr << " phi " << fi << ":" << dfi << " z " << v.z()
+                                  << ":" << dz;
+#endif
     static const int signr[] = {1, 1, -1, -1, 1, 1, -1, -1};
     static const int signf[] = {-1, 1, 1, -1, -1, 1, 1, -1};
     static const int signz[] = {-1, -1, -1, -1, 1, 1, 1, 1};
@@ -394,7 +403,7 @@ HGCalGeometry::CornersVec HGCalGeometry::get8Corners(const DetId& detid) const {
   HGCalTopology::DecodedDetId id = m_topology.decode(detid);
   if (cellIndex < m_cellVec2.size() && m_det == DetId::HGCalHSc) {
     GlobalPoint v = getPosition(detid, 100);
-    int type = (((id.iType == 0) || (id.iType == 3)) ? 0 : 1);
+    int type = HGCScintillatorDetId(detid).granularity();
     std::pair<double, double> rr = m_topology.dddConstants().cellSizeTrap(type, id.iSec1);
     float dr = k_half * (rr.second - rr.first);
     float dfi = m_cellVec2[cellIndex].param()[FlatTrd::k_Cell];
@@ -451,7 +460,7 @@ HGCalGeometry::CornersVec HGCalGeometry::getNewCorners(const DetId& detid, bool 
                                   << " Cell " << id.iCell1 << ":" << id.iCell2;
   if (cellIndex < m_cellVec2.size() && m_det == DetId::HGCalHSc) {
     GlobalPoint v = getPosition(detid, 100);
-    int type = (((id.iType == 0) || (id.iType == 3)) ? 0 : 1);
+    int type = HGCScintillatorDetId(detid).granularity();
     std::pair<double, double> rr = m_topology.dddConstants().cellSizeTrap(type, id.iSec1);
     float dr = k_half * (rr.second - rr.first);
     float dfi = m_cellVec2[cellIndex].param()[FlatTrd::k_Cell];

@@ -206,9 +206,9 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet& iConfig)
   embedPreshowerClusters_ = iConfig.getParameter<bool>("embedPreshowerClusters");
   embedRecHits_ = iConfig.getParameter<bool>("embedRecHits");
   reducedBarrelRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection");
-  reducedBarrelRecHitCollectionToken_ = mayConsume<EcalRecHitCollection>(reducedBarrelRecHitCollection_);
+  reducedBarrelRecHitCollectionToken_ = consumes<EcalRecHitCollection>(reducedBarrelRecHitCollection_);
   reducedEndcapRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection");
-  reducedEndcapRecHitCollectionToken_ = mayConsume<EcalRecHitCollection>(reducedEndcapRecHitCollection_);
+  reducedEndcapRecHitCollectionToken_ = consumes<EcalRecHitCollection>(reducedEndcapRecHitCollection_);
   // MC matching configurables
   addGenMatch_ = iConfig.getParameter<bool>("addGenMatch");
   if (addGenMatch_) {
@@ -271,7 +271,7 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet& iConfig)
                                             << "\t}\n";
   }
   photIDTokens_ = edm::vector_transform(
-      photIDSrcs_, [this](NameTag const& tag) { return mayConsume<edm::ValueMap<Bool_t>>(tag.second); });
+      photIDSrcs_, [this](NameTag const& tag) { return consumes<edm::ValueMap<Bool_t>>(tag.second); });
   // Resolution configurables
   addResolutions_ = iConfig.getParameter<bool>("addResolutions");
   if (addResolutions_) {

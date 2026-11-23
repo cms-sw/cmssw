@@ -875,7 +875,8 @@ public:
         skipNonExistingSrc_(
 
             params.existsAs<bool>("skipNonExistingSrc") ? params.getParameter<bool>("skipNonExistingSrc") : false),
-        src_(consumes<TProd, edm::InLumi>(params.getParameter<edm::InputTag>("src"))) {
+        src_(consumes<TProd, edm::InLumi, edm::Transition::EndLuminosityBlock>(
+            params.getParameter<edm::InputTag>("src"))) {
     edm::ParameterSet const &varsPSet = params.getParameter<edm::ParameterSet>("variables");
     for (const std::string &vname : varsPSet.getParameterNamesForType<edm::ParameterSet>()) {
       const auto &varPSet = varsPSet.getParameter<edm::ParameterSet>(vname);
@@ -1017,7 +1018,7 @@ public:
         skipNonExistingSrc_(
 
             params.existsAs<bool>("skipNonExistingSrc") ? params.getParameter<bool>("skipNonExistingSrc") : false),
-        src_(consumes<TProd, edm::InRun>(params.getParameter<edm::InputTag>("src"))) {
+        src_(consumes<TProd, edm::InRun, edm::Transition::EndRun>(params.getParameter<edm::InputTag>("src"))) {
     edm::ParameterSet const &varsPSet = params.getParameter<edm::ParameterSet>("variables");
     for (const std::string &vname : varsPSet.getParameterNamesForType<edm::ParameterSet>()) {
       const auto &varPSet = varsPSet.getParameter<edm::ParameterSet>(vname);

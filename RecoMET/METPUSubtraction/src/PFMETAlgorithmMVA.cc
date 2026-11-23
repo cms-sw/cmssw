@@ -8,6 +8,7 @@
 #include <TFile.h>
 
 #include <iomanip>
+#include <memory>
 
 enum MVAType { kBaseline = 0 };
 
@@ -74,7 +75,7 @@ const std::string PFMETAlgorithmMVA::updateVariableNames(std::string input) {
 const GBRForest* PFMETAlgorithmMVA::loadMVAfromFile(const edm::FileInPath& inputFileName, const std::string& mvaName) {
   if (inputFileName.location() == edm::FileInPath::Unknown)
     throw cms::Exception("PFMETAlgorithmMVA::loadMVA") << " Failed to find File = " << inputFileName << " !!\n";
-  std::unique_ptr<TFile> inputFile(new TFile(inputFileName.fullPath().data()));
+  std::unique_ptr<TFile> inputFile = std::make_unique<TFile>(inputFileName.fullPath().data());
 
   std::vector<std::string>* lVec = (std::vector<std::string>*)inputFile->Get("varlist");
 

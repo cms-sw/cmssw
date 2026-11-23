@@ -362,7 +362,7 @@ void MEtXYcorrectParametersCollection::getSections(std::string inputFile, std::v
   std::string sectionNames;
   for (std::vector<std::string>::const_iterator it = outputs.begin(); it != outputs.end(); it++) {
     sectionNames += *it;
-    sectionNames += "\n";
+    sectionNames += '\n';
   }
   edm::LogInfo("getSections") << "Sections read from file: "
                               << "\n"
