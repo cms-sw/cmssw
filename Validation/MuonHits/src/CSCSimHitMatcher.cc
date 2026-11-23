@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "Validation/MuonHits/interface/CSCSimHitMatcher.h"
 #include "TGraphErrors.h"
 #include "TF1.h"
@@ -240,7 +242,7 @@ void CSCSimHitMatcher::fitHitsInChamber(unsigned int detid, float& intercept, fl
   if (x.size() < 2)
     return;
 
-  std::unique_ptr<TGraphErrors> gr(new TGraphErrors(x.size(), &x[0], &y[0], &xe[0], &ye[0]));
+  std::unique_ptr<TGraphErrors> gr = std::make_unique<TGraphErrors>(x.size(), &x[0], &y[0], &xe[0], &ye[0]);
   TF1 fit("fit", "pol1", -3, 4);
   gr->Fit(&fit, "EMQN");
 

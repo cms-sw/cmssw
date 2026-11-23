@@ -5,6 +5,8 @@
  *  \author M. Strang SUNY-Buffalo
  */
 
+#include <memory>
+
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -215,7 +217,7 @@ void GlobalHitsProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
     edm::LogInfo(MsgLoggerCat) << "Done gathering data from event.";
 
   // produce object to put into event
-  std::unique_ptr<PGlobalSimHit> pOut(new PGlobalSimHit);
+  std::unique_ptr<PGlobalSimHit> pOut = std::make_unique<PGlobalSimHit>();
 
   if (verbosity > 2)
     edm::LogInfo(MsgLoggerCat) << "Saving event contents:";

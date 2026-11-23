@@ -49,7 +49,7 @@ void RazorVarProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Eve
   Handle<CaloMETCollection> inputMet;
   iEvent.getByToken(inputMetTagToken_, inputMet);
 
-  std::unique_ptr<std::vector<double>> result(new std::vector<double>);
+  std::unique_ptr<std::vector<double>> result = std::make_unique<std::vector<double>>();
   // check the the input collections are available
   if (hemispheres.isValid() && inputMet.isValid() && hemispheres->size() > 1) {
     TLorentzVector ja(hemispheres->at(0).x(), hemispheres->at(0).y(), hemispheres->at(0).z(), hemispheres->at(0).t());

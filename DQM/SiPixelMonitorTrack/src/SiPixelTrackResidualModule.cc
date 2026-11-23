@@ -109,9 +109,9 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet &iConfig,
     sprintf(sladder, "Ladder_%02i", DBladder);
     hisID = src.label() + "_" + sladder;
     if (isHalfModule)
-      hisID += "H";
+      hisID += 'H';
     else
-      hisID += "F";
+      hisID += 'F';
     meResidualXLad_ = iBooker.book1D("residualX_" + hisID, "Hit-to-Track Residual in r-phi", 100, -150, 150);
     meResidualXLad_->setAxisTitle("hit-to-track residual in r-phi (um)", 1);
     meResidualYLad_ = iBooker.book1D("residualY_" + hisID, "Hit-to-Track Residual in Z", 100, -300, 300);

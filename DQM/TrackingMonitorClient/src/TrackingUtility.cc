@@ -8,7 +8,7 @@
 int TrackingUtility::getMEList(std::string name, std::vector<std::string>& values) {
   values.clear();
   std::string prefix_str = name.substr(0, (name.find(':')));
-  prefix_str += "/";
+  prefix_str += '/';
   std::string temp_str = name.substr(name.find(':') + 1);
   split(temp_str, values, ",");
   for (std::vector<std::string>::iterator it = values.begin(); it != values.end(); it++)
@@ -21,7 +21,7 @@ int TrackingUtility::getMEList(std::string name, std::vector<std::string>& value
 int TrackingUtility::getMEList(std::string name, std::string& dir_path, std::vector<std::string>& values) {
   values.clear();
   dir_path = name.substr(0, (name.find(':')));
-  dir_path += "/";
+  dir_path += '/';
   std::string temp_str = name.substr(name.find(':') + 1);
   split(temp_str, values, ",");
   return values.size();
@@ -32,7 +32,7 @@ bool TrackingUtility::checkME(std::string name, std::string me_name, std::string
   if (name.find(name) == std::string::npos)
     return false;
   std::string prefix_str = name.substr(0, (name.find(':')));
-  prefix_str += "/";
+  prefix_str += '/';
   std::string temp_str = name.substr(name.find(':') + 1);
   std::vector<std::string> values;
   split(temp_str, values, ",");

@@ -16,9 +16,9 @@ HTrack::HTrack(DQMStore::IBooker& ibooker, string dirName_, string name, string 
     : theName(name.c_str()), where(whereIs.c_str()) {
   ibooker.cd();
   std::string dirName = dirName_;
-  dirName += "/";
+  dirName += '/';
   dirName += name;
-  dirName += "_";
+  dirName += '_';
   dirName += whereIs;
 
   ibooker.setCurrentFolder(dirName);

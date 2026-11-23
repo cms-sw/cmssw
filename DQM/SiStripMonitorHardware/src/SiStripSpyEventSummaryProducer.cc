@@ -91,7 +91,7 @@ namespace sistrip {
     }
 
     //create summary object
-    std::unique_ptr<SiStripEventSummary> pSummary(new SiStripEventSummary);
+    std::unique_ptr<SiStripEventSummary> pSummary = std::make_unique<SiStripEventSummary>();
     //set the trigger FED number to zero to indicate that it doesn't exist
     pSummary->triggerFed(0);
     //set the event number and Bx from the FED packets

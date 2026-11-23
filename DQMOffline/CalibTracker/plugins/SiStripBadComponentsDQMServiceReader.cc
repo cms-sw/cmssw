@@ -143,9 +143,9 @@ string SiStripBadComponentsDQMServiceReader::detIdToString(DetId detid, const Tr
   }
   std::string name(detector + "\t" + std::to_string(layer) + "\t" + std::to_string(stereo) + "\t");
   if (side == 1) {
-    name += "-";
+    name += '-';
   } else if (side == 2) {
-    name += "+";
+    name += '+';
   }
   //   if( side != -1 ) {
   //     name += std::to_string(side);
