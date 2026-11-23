@@ -123,7 +123,7 @@ namespace fireworks {
     size_t pos = text.find('\n');
     if (pos != std::string::npos)
       text = text.substr(0, pos);
-    text += " ";
+    text += ' ';
     if (xx->tm_isdst)
       text += tzname[1];
     else

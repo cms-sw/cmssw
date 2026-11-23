@@ -234,7 +234,7 @@ void CmsShowMainBase::setup(FWNavigatorBase *navigator,
   macPath += "/src/Fireworks/Core/macros";
   const char *base = gSystem->Getenv("CMSSW_RELEASE_BASE");
   if (nullptr != base) {
-    macPath += ":";
+    macPath += ':';
     macPath += base;
     macPath += "/src/Fireworks/Core/macros";
   }
